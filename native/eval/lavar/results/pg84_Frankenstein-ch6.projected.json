@@ -1,0 +1,6219 @@
+[
+ {
+  "seq": 53,
+  "schema": "EOTObservation@1",
+  "id": "f51",
+  "at": [
+   0,
+   425
+  ],
+  "role": "front-matter",
+  "inferred": true,
+  "basis": "everything preceding the first inferred chapter heading — title, byline, edition line and the table of contents",
+  "children": []
+ },
+ {
+  "seq": 3,
+  "schema": "EOTObservation@1",
+  "id": "c1",
+  "at": [
+   425,
+   32158
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 1,
+  "numeral": "23",
+  "title": "Chapter 24",
+  "children": [
+   {
+    "seq": 4,
+    "schema": "EOTObservation@1",
+    "id": "h2",
+    "at": [
+     425,
+     451
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line and its title line",
+    "ofChapter": 1,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 5,
+  "schema": "EOTObservation@1",
+  "id": "c3",
+  "at": [
+   32158,
+   42483
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 2,
+  "numeral": "1",
+  "title": "",
+  "children": [
+   {
+    "seq": 6,
+    "schema": "EOTObservation@1",
+    "id": "h4",
+    "at": [
+     32158,
+     32169
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 2,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 7,
+  "schema": "EOTObservation@1",
+  "id": "c5",
+  "at": [
+   42483,
+   55405
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 3,
+  "numeral": "2",
+  "title": "",
+  "children": [
+   {
+    "seq": 8,
+    "schema": "EOTObservation@1",
+    "id": "h6",
+    "at": [
+     42483,
+     42494
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 3,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 9,
+  "schema": "EOTObservation@1",
+  "id": "c7",
+  "at": [
+   55405,
+   70936
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 4,
+  "numeral": "3",
+  "title": "",
+  "children": [
+   {
+    "seq": 10,
+    "schema": "EOTObservation@1",
+    "id": "h8",
+    "at": [
+     55405,
+     55416
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 4,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 11,
+  "schema": "EOTObservation@1",
+  "id": "c9",
+  "at": [
+   70936,
+   85605
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 5,
+  "numeral": "4",
+  "title": "",
+  "children": [
+   {
+    "seq": 12,
+    "schema": "EOTObservation@1",
+    "id": "h10",
+    "at": [
+     70936,
+     70947
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 5,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 13,
+  "schema": "EOTObservation@1",
+  "id": "c11",
+  "at": [
+   85605,
+   98838
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 6,
+  "numeral": "5",
+  "title": "",
+  "children": [
+   {
+    "seq": 14,
+    "schema": "EOTObservation@1",
+    "id": "h12",
+    "at": [
+     85605,
+     85616
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 6,
+    "children": []
+   },
+   {
+    "seq": 54,
+    "schema": "EOTObservation@1",
+    "id": "s52",
+    "at": [
+     85616,
+     98838
+    ],
+    "role": "section",
+    "inferred": true,
+    "basis": "a run of prose bounded by inferred scene breaks or by the chapter's own edges",
+    "children": [
+     {
+      "seq": 55,
+      "schema": "EOTObservation@1",
+      "id": "p53",
+      "at": [
+       85620,
+       86165
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 83,
+        "schema": "EOTObservation@1",
+        "id": "s81",
+        "at": [
+         85620,
+         85703
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 199,
+          "schema": "EOTObservation@1",
+          "id": "v197",
+          "at": [
+           85620,
+           85703
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 236,
+            "schema": "EOTObservation@1",
+            "id": "o234",
+            "at": [
+             85694,
+             85702
+            ],
+            "role": "proposition",
+            "end1": "the accomplishment",
+            "label": "of",
+            "end2": "my toils",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 84,
+        "schema": "EOTObservation@1",
+        "id": "s82",
+        "at": [
+         85704,
+         85881
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 237,
+          "schema": "EOTObservation@1",
+          "id": "o235",
+          "at": [
+           85725,
+           85749
+          ],
+          "role": "proposition",
+          "end1": "an anxiety",
+          "label": "that",
+          "end2": "almost amounted to agony",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": []
+         },
+         {
+          "seq": 238,
+          "schema": "EOTObservation@1",
+          "id": "o236",
+          "at": [
+           85783,
+           85797
+          ],
+          "role": "proposition",
+          "end1": "the instruments",
+          "label": "of",
+          "end2": "life around me",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         },
+         {
+          "seq": 239,
+          "schema": "EOTObservation@1",
+          "id": "o237",
+          "at": [
+           85831,
+           85880
+          ],
+          "role": "proposition",
+          "end1": "a spark",
+          "label": "of",
+          "end2": "being into the lifeless thing that lay at my feet",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": [
+           {
+            "seq": 240,
+            "schema": "EOTObservation@1",
+            "id": "o238",
+            "at": [
+             85866,
+             85880
+            ],
+            "role": "proposition",
+            "end1": "a spark",
+            "label": "that",
+            "end2": "lay at my feet",
+            "subjectBasis": "inherited",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": [
+             {
+              "seq": 241,
+              "schema": "EOTObservation@1",
+              "id": "o239",
+              "at": [
+               85873,
+               85880
+              ],
+              "role": "proposition",
+              "end1": "a spark",
+              "label": "at",
+              "end2": "my feet",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Ground",
+              "terrain": "Field",
+              "stance": "Tending",
+              "settledAs": "preposition",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 85,
+        "schema": "EOTObservation@1",
+        "id": "s83",
+        "at": [
+         85882,
+         86165
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 200,
+          "schema": "EOTObservation@1",
+          "id": "v198",
+          "at": [
+           85882,
+           86165
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 242,
+            "schema": "EOTObservation@1",
+            "id": "o240",
+            "at": [
+             85890,
+             85916
+            ],
+            "role": "proposition",
+            "end1": "It",
+            "label": "was",
+            "end2": "already one in the morning",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           },
+           {
+            "seq": 243,
+            "schema": "EOTObservation@1",
+            "id": "o241",
+            "at": [
+             85983,
+             85999
+            ],
+            "role": "proposition",
+            "end1": "my candle",
+            "label": "was",
+            "end2": "nearly burnt out",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 56,
+      "schema": "EOTObservation@1",
+      "id": "p54",
+      "at": [
+       86169,
+       86792
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 86,
+        "schema": "EOTObservation@1",
+        "id": "s84",
+        "at": [
+         86169,
+         86316
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 244,
+          "schema": "EOTObservation@1",
+          "id": "o242",
+          "at": [
+           86203,
+           86219
+          ],
+          "role": "proposition",
+          "end1": "my emotions",
+          "label": "at",
+          "end2": "this catastrophe",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 87,
+        "schema": "EOTObservation@1",
+        "id": "s85",
+        "at": [
+         86317,
+         86393
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 245,
+          "schema": "EOTAbsence@1",
+          "at": [
+           86317,
+           86393
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 88,
+        "schema": "EOTObservation@1",
+        "id": "s86",
+        "at": [
+         86394,
+         86404
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 246,
+          "schema": "EOTAbsence@1",
+          "at": [
+           86394,
+           86404
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 89,
+        "schema": "EOTObservation@1",
+        "id": "s87",
+        "at": [
+         86405,
+         86415
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 247,
+          "schema": "EOTAbsence@1",
+          "at": [
+           86405,
+           86415
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": [
+           {
+            "seq": 197,
+            "schema": "EOTObservation@1",
+            "id": "e195",
+            "at": [
+             86411,
+             86414
+            ],
+            "role": "entity",
+            "referent": "ref:auto:god",
+            "surfaces": [
+             "God"
+            ],
+            "occurrences": 2,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 198,
+              "schema": "EOTObservation@1",
+              "id": "d196",
+              "at": [
+               86411,
+               86414
+              ],
+              "role": "admission",
+              "referent": "ref:auto:god",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 90,
+        "schema": "EOTObservation@1",
+        "id": "s88",
+        "at": [
+         86416,
+         86792
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 201,
+          "schema": "EOTObservation@1",
+          "id": "v199",
+          "at": [
+           86416,
+           86792
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 248,
+            "schema": "EOTObservation@1",
+            "id": "o243",
+            "at": [
+             86462,
+             86490
+            ],
+            "role": "proposition",
+            "end1": "the work",
+            "label": "of",
+            "end2": "muscles and arteries beneath",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           },
+           {
+            "seq": 249,
+            "schema": "EOTObservation@1",
+            "id": "o244",
+            "at": [
+             86553,
+             86571
+            ],
+            "role": "proposition",
+            "end1": "his teeth",
+            "label": "of",
+            "end2": "a pearly whiteness",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 57,
+      "schema": "EOTObservation@1",
+      "id": "p55",
+      "at": [
+       86796,
+       88993
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 91,
+        "schema": "EOTObservation@1",
+        "id": "s89",
+        "at": [
+         86796,
+         86883
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": []
+       },
+       {
+        "seq": 92,
+        "schema": "EOTObservation@1",
+        "id": "s90",
+        "at": [
+         86884,
+         86986
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 251,
+          "schema": "EOTObservation@1",
+          "id": "o245",
+          "at": [
+           86949,
+           86985
+          ],
+          "role": "proposition",
+          "end1": "the sole purpose",
+          "label": "of",
+          "end2": "infusing life into an inanimate body",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 93,
+        "schema": "EOTObservation@1",
+        "id": "s91",
+        "at": [
+         86987,
+         87038
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 252,
+          "schema": "EOTObservation@1",
+          "id": "o246",
+          "at": [
+           87022,
+           87037
+          ],
+          "role": "proposition",
+          "end1": "deprived myself",
+          "label": "of",
+          "end2": "rest and health",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 94,
+        "schema": "EOTObservation@1",
+        "id": "s92",
+        "at": [
+         87039,
+         87217
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 202,
+          "schema": "EOTObservation@1",
+          "id": "v200",
+          "at": [
+           87039,
+           87217
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 253,
+            "schema": "EOTObservation@1",
+            "id": "o247",
+            "at": [
+             87077,
+             87100
+            ],
+            "role": "proposition",
+            "end1": "an ardour",
+            "label": "that",
+            "end2": "far exceeded moderation",
+            "subjectBasis": "stated",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": []
+           },
+           {
+            "seq": 254,
+            "schema": "EOTObservation@1",
+            "id": "o248",
+            "at": [
+             87115,
+             87129
+            ],
+            "role": "proposition",
+            "end1": "now",
+            "label": "that",
+            "end2": "I had finished",
+            "subjectBasis": "stated",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": []
+           },
+           {
+            "seq": 255,
+            "schema": "EOTObservation@1",
+            "id": "o249",
+            "at": [
+             87146,
+             87164
+            ],
+            "role": "proposition",
+            "end1": "the beauty",
+            "label": "of",
+            "end2": "the dream vanished",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 95,
+        "schema": "EOTObservation@1",
+        "id": "s93",
+        "at": [
+         87218,
+         87389
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 256,
+          "schema": "EOTObservation@1",
+          "id": "o250",
+          "at": [
+           87249,
+           87272
+          ],
+          "role": "proposition",
+          "end1": "the aspect",
+          "label": "of",
+          "end2": "the being I had created",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 96,
+        "schema": "EOTObservation@1",
+        "id": "s94",
+        "at": [
+         87390,
+         87555
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 257,
+          "schema": "EOTObservation@1",
+          "id": "o251",
+          "at": [
+           87541,
+           87554
+          ],
+          "role": "proposition",
+          "end1": "a few moments",
+          "label": "of",
+          "end2": "forgetfulness",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 97,
+        "schema": "EOTObservation@1",
+        "id": "s95",
+        "at": [
+         87557,
+         87637
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 203,
+          "schema": "EOTObservation@1",
+          "id": "v201",
+          "at": [
+           87557,
+           87637
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 258,
+            "schema": "EOTObservation@1",
+            "id": "o252",
+            "at": [
+             87568,
+             87575
+            ],
+            "role": "proposition",
+            "end1": "it",
+            "label": "was",
+            "end2": "in vain",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 98,
+        "schema": "EOTObservation@1",
+        "id": "s96",
+        "at": [
+         87638,
+         87727
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 191,
+          "schema": "EOTObservation@1",
+          "id": "e189",
+          "at": [
+           87654,
+           87663
+          ],
+          "role": "entity",
+          "referent": "ref:auto:elizabeth",
+          "surfaces": [
+           "Elizabeth"
+          ],
+          "occurrences": 4,
+          "operator": "SIG",
+          "grain": "Figure",
+          "terrain": "Entity",
+          "stance": "Binding",
+          "inferred": true,
+          "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+          "children": [
+           {
+            "seq": 192,
+            "schema": "EOTObservation@1",
+            "id": "d190",
+            "at": [
+             87654,
+             87663
+            ],
+            "role": "admission",
+            "referent": "ref:auto:elizabeth",
+            "operator": "DEF",
+            "grain": "Figure",
+            "terrain": "Lens",
+            "stance": "Dissecting",
+            "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+            "children": []
+           }
+          ]
+         },
+         {
+          "seq": 259,
+          "schema": "EOTObservation@1",
+          "id": "o253",
+          "at": [
+           87681,
+           87687
+          ],
+          "role": "proposition",
+          "end1": "the bloom",
+          "label": "of",
+          "end2": "health",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         },
+         {
+          "seq": 260,
+          "schema": "EOTObservation@1",
+          "id": "o254",
+          "at": [
+           87716,
+           87726
+          ],
+          "role": "proposition",
+          "end1": "the streets",
+          "label": "of",
+          "end2": "Ingolstadt",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:ingolstadt",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": [
+           {
+            "seq": 193,
+            "schema": "EOTObservation@1",
+            "id": "e191",
+            "at": [
+             87716,
+             87726
+            ],
+            "role": "entity",
+            "referent": "ref:auto:ingolstadt",
+            "surfaces": [
+             "Ingolstadt"
+            ],
+            "occurrences": 3,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 194,
+              "schema": "EOTObservation@1",
+              "id": "d192",
+              "at": [
+               87716,
+               87726
+              ],
+              "role": "admission",
+              "referent": "ref:auto:ingolstadt",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 99,
+        "schema": "EOTObservation@1",
+        "id": "s97",
+        "at": [
+         87728,
+         88053
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 204,
+          "schema": "EOTObservation@1",
+          "id": "v202",
+          "at": [
+           87728,
+           88053
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 261,
+            "schema": "EOTObservation@1",
+            "id": "o255",
+            "at": [
+             87852,
+             87857
+            ],
+            "role": "proposition",
+            "end1": "the hue",
+            "label": "of",
+            "end2": "death",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           },
+           {
+            "seq": 262,
+            "schema": "EOTObservation@1",
+            "id": "o256",
+            "at": [
+             87933,
+             87958
+            ],
+            "role": "proposition",
+            "end1": "the corpse",
+            "label": "of",
+            "end2": "my dead mother in my arms",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           },
+           {
+            "seq": 263,
+            "schema": "EOTObservation@1",
+            "id": "o257",
+            "at": [
+             88041,
+             88052
+            ],
+            "role": "proposition",
+            "end1": "the folds",
+            "label": "of",
+            "end2": "the flannel",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 100,
+        "schema": "EOTObservation@1",
+        "id": "s98",
+        "at": [
+         88055,
+         88339
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 205,
+          "schema": "EOTObservation@1",
+          "id": "v203",
+          "at": [
+           88055,
+           88339
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 264,
+            "schema": "EOTObservation@1",
+            "id": "o258",
+            "at": [
+             88216,
+             88224
+            ],
+            "role": "proposition",
+            "end1": "the dim and yellow light",
+            "label": "of",
+            "end2": "the moon",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 101,
+        "schema": "EOTObservation@1",
+        "id": "s99",
+        "at": [
+         88340,
+         88435
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 206,
+          "schema": "EOTObservation@1",
+          "id": "v204",
+          "at": [
+           88340,
+           88435
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 265,
+            "schema": "EOTObservation@1",
+            "id": "o259",
+            "at": [
+             88366,
+             88373
+            ],
+            "role": "proposition",
+            "end1": "the curtain",
+            "label": "of",
+            "end2": "the bed",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 102,
+        "schema": "EOTObservation@1",
+        "id": "s100",
+        "at": [
+         88436,
+         88529
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 207,
+          "schema": "EOTObservation@1",
+          "id": "v205",
+          "at": [
+           88436,
+           88529
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 266,
+            "schema": "EOTAbsence@1",
+            "at": [
+             88436,
+             88529
+            ],
+            "role": "arrangement",
+            "reason": "gate_refused_no_two_ends",
+            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 103,
+        "schema": "EOTObservation@1",
+        "id": "s101",
+        "at": [
+         88530,
+         88662
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 208,
+          "schema": "EOTObservation@1",
+          "id": "v206",
+          "at": [
+           88530,
+           88662
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 267,
+            "schema": "EOTObservation@1",
+            "id": "o260",
+            "at": [
+             88563,
+             88571
+            ],
+            "role": "proposition",
+            "end1": "I",
+            "label": "did",
+            "end2": "not hear",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           },
+           {
+            "seq": 268,
+            "schema": "EOTObservation@1",
+            "id": "o261",
+            "at": [
+             88586,
+             88599
+            ],
+            "role": "proposition",
+            "end1": "one hand",
+            "label": "was",
+            "end2": "stretched out",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 104,
+        "schema": "EOTObservation@1",
+        "id": "s102",
+        "at": [
+         88663,
+         88993
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 209,
+          "schema": "EOTObservation@1",
+          "id": "v207",
+          "at": [
+           88663,
+           88993
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 269,
+            "schema": "EOTObservation@1",
+            "id": "o262",
+            "at": [
+             88774,
+             88783
+            ],
+            "role": "proposition",
+            "end1": "the rest",
+            "label": "of",
+            "end2": "the night",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 58,
+      "schema": "EOTObservation@1",
+      "id": "p56",
+      "at": [
+       88997,
+       89321
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 105,
+        "schema": "EOTObservation@1",
+        "id": "s103",
+        "at": [
+         88997,
+         89000
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 270,
+          "schema": "EOTAbsence@1",
+          "at": [
+           88997,
+           89000
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 106,
+        "schema": "EOTObservation@1",
+        "id": "s104",
+        "at": [
+         89001,
+         89056
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 271,
+          "schema": "EOTObservation@1",
+          "id": "o263",
+          "at": [
+           89017,
+           89055
+          ],
+          "role": "proposition",
+          "end1": "No mortal",
+          "label": "could",
+          "end2": "support the horror of that countenance",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 272,
+            "schema": "EOTObservation@1",
+            "id": "o264",
+            "at": [
+             89039,
+             89055
+            ],
+            "role": "proposition",
+            "end1": "No mortal",
+            "label": "of",
+            "end2": "that countenance",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": [
+             {
+              "seq": 273,
+              "schema": "EOTObservation@1",
+              "id": "o265",
+              "at": [
+               89044,
+               89055
+              ],
+              "role": "proposition",
+              "end1": "No mortal",
+              "label": "that",
+              "end2": "countenance",
+              "subjectBasis": "inherited",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 107,
+        "schema": "EOTObservation@1",
+        "id": "s105",
+        "at": [
+         89057,
+         89133
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 274,
+          "schema": "EOTObservation@1",
+          "id": "o266",
+          "at": [
+           89100,
+           89132
+          ],
+          "role": "proposition",
+          "end1": "A mummy again endued with animation",
+          "label": "could",
+          "end2": "not be so hideous as that wretch",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 275,
+            "schema": "EOTObservation@1",
+            "id": "o267",
+            "at": [
+             89126,
+             89132
+            ],
+            "role": "proposition",
+            "end1": "A mummy again endued with animation",
+            "label": "that",
+            "end2": "wretch",
+            "subjectBasis": "inherited",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 108,
+        "schema": "EOTObservation@1",
+        "id": "s106",
+        "at": [
+         89134,
+         89321
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 210,
+          "schema": "EOTObservation@1",
+          "id": "v208",
+          "at": [
+           89134,
+           89321
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 276,
+            "schema": "EOTObservation@1",
+            "id": "o268",
+            "at": [
+             89250,
+             89256
+            ],
+            "role": "proposition",
+            "end1": "rendered capable",
+            "label": "of",
+            "end2": "motion",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           },
+           {
+            "seq": 277,
+            "schema": "EOTObservation@1",
+            "id": "o269",
+            "at": [
+             89302,
+             89320
+            ],
+            "role": "proposition",
+            "end1": "even Dante",
+            "label": "could",
+            "end2": "not have conceived",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 59,
+      "schema": "EOTObservation@1",
+      "id": "p57",
+      "at": [
+       89325,
+       89748
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 109,
+        "schema": "EOTObservation@1",
+        "id": "s107",
+        "at": [
+         89325,
+         89355
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 278,
+          "schema": "EOTAbsence@1",
+          "at": [
+           89325,
+           89355
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 110,
+        "schema": "EOTObservation@1",
+        "id": "s108",
+        "at": [
+         89356,
+         89525
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 279,
+          "schema": "EOTObservation@1",
+          "id": "o270",
+          "at": [
+           89408,
+           89446
+          ],
+          "role": "proposition",
+          "end1": "my pulse beat so quickly and",
+          "label": "hardly that",
+          "end2": "I felt the palpitation of every artery",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": [
+           {
+            "seq": 280,
+            "schema": "EOTObservation@1",
+            "id": "o271",
+            "at": [
+             89415,
+             89446
+            ],
+            "role": "proposition",
+            "end1": "my pulse beat so quickly and",
+            "label": "felt",
+            "end2": "the palpitation of every artery",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 281,
+              "schema": "EOTObservation@1",
+              "id": "o272",
+              "at": [
+               89434,
+               89446
+              ],
+              "role": "proposition",
+              "end1": "my pulse beat so quickly and",
+              "label": "of",
+              "end2": "every artery",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Ground",
+              "terrain": "Field",
+              "stance": "Tending",
+              "settledAs": "preposition",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 111,
+        "schema": "EOTObservation@1",
+        "id": "s109",
+        "at": [
+         89526,
+         89748
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 282,
+          "schema": "EOTObservation@1",
+          "id": "o273",
+          "at": [
+           89560,
+           89592
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "felt",
+          "end2": "the bitterness of disappointment",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 283,
+            "schema": "EOTObservation@1",
+            "id": "o274",
+            "at": [
+             89578,
+             89592
+            ],
+            "role": "proposition",
+            "end1": "I",
+            "label": "of",
+            "end2": "disappointment",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         },
+         {
+          "seq": 284,
+          "schema": "EOTObservation@1",
+          "id": "o275",
+          "at": [
+           89712,
+           89720
+          ],
+          "role": "proposition",
+          "end1": "the change",
+          "label": "was",
+          "end2": "so rapid",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 60,
+      "schema": "EOTObservation@1",
+      "id": "p58",
+      "at": [
+       89752,
+       90344
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 112,
+        "schema": "EOTObservation@1",
+        "id": "s110",
+        "at": [
+         89752,
+         89929
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 285,
+          "schema": "EOTObservation@1",
+          "id": "o276",
+          "at": [
+           89856,
+           89866
+          ],
+          "role": "proposition",
+          "end1": "the church",
+          "label": "of",
+          "end2": "Ingolstadt",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:ingolstadt",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 113,
+        "schema": "EOTObservation@1",
+        "id": "s111",
+        "at": [
+         89930,
+         90176
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 211,
+          "schema": "EOTObservation@1",
+          "id": "v209",
+          "at": [
+           89930,
+           90176
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 286,
+            "schema": "EOTObservation@1",
+            "id": "o277",
+            "at": [
+             89962,
+             89971
+            ],
+            "role": "proposition",
+            "end1": "the gates",
+            "label": "of",
+            "end2": "the court",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           },
+           {
+            "seq": 287,
+            "schema": "EOTObservation@1",
+            "id": "o278",
+            "at": [
+             89988,
+             90008
+            ],
+            "role": "proposition",
+            "end1": "which",
+            "label": "had that",
+            "end2": "night been my asylum",
+            "subjectBasis": "stated",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 114,
+        "schema": "EOTObservation@1",
+        "id": "s112",
+        "at": [
+         90177,
+         90344
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 288,
+          "schema": "EOTObservation@1",
+          "id": "o279",
+          "at": [
+           90183,
+           90233
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "did",
+          "end2": "not dare return to the apartment which I inhabited",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         },
+         {
+          "seq": 289,
+          "schema": "EOTObservation@1",
+          "id": "o280",
+          "at": [
+           90245,
+           90265
+          ],
+          "role": "proposition",
+          "end1": "but",
+          "label": "felt",
+          "end2": "impelled to hurry on",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 61,
+      "schema": "EOTObservation@1",
+      "id": "p59",
+      "at": [
+       90348,
+       90679
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 115,
+        "schema": "EOTObservation@1",
+        "id": "s113",
+        "at": [
+         90348,
+         90474
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 290,
+          "schema": "EOTObservation@1",
+          "id": "o281",
+          "at": [
+           90360,
+           90396
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "continued",
+          "end2": "walking in this manner for some time",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         },
+         {
+          "seq": 291,
+          "schema": "EOTObservation@1",
+          "id": "o282",
+          "at": [
+           90453,
+           90473
+          ],
+          "role": "proposition",
+          "end1": "the load",
+          "label": "that",
+          "end2": "weighed upon my mind",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 116,
+        "schema": "EOTObservation@1",
+        "id": "s114",
+        "at": [
+         90475,
+         90565
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 292,
+          "schema": "EOTObservation@1",
+          "id": "o283",
+          "at": [
+           90559,
+           90564
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "was",
+          "end2": "doing",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 117,
+        "schema": "EOTObservation@1",
+        "id": "s115",
+        "at": [
+         90566,
+         90679
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 293,
+          "schema": "EOTObservation@1",
+          "id": "o284",
+          "at": [
+           90605,
+           90609
+          ],
+          "role": "proposition",
+          "end1": "the sickness",
+          "label": "of",
+          "end2": "fear",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 62,
+      "schema": "EOTObservation@1",
+      "id": "p60",
+      "at": [
+       90685,
+       90888
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 118,
+        "schema": "EOTObservation@1",
+        "id": "s116",
+        "at": [
+         90685,
+         90888
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 212,
+          "schema": "EOTObservation@1",
+          "id": "v210",
+          "at": [
+           90685,
+           90888
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 294,
+            "schema": "EOTObservation@1",
+            "id": "o285",
+            "at": [
+             90729,
+             90746
+            ],
+            "role": "proposition",
+            "end1": "Doth",
+            "label": "walk",
+            "end2": "in fear and dread",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           },
+           {
+            "seq": 295,
+            "schema": "EOTObservation@1",
+            "id": "o286",
+            "at": [
+             90871,
+             90887
+            ],
+            "role": "proposition",
+            "end1": "a frightful fiend Doth",
+            "label": "close",
+            "end2": "behind him tread",
+            "subjectBasis": "stated",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 63,
+      "schema": "EOTObservation@1",
+      "id": "p61",
+      "at": [
+       90894,
+       90926
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 119,
+        "schema": "EOTObservation@1",
+        "id": "s117",
+        "at": [
+         90894,
+         90926
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 296,
+          "schema": "EOTAbsence@1",
+          "at": [
+           90894,
+           90926
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 64,
+      "schema": "EOTObservation@1",
+      "id": "p62",
+      "at": [
+       90934,
+       91546
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 120,
+        "schema": "EOTObservation@1",
+        "id": "s118",
+        "at": [
+         90934,
+         91051
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 297,
+          "schema": "EOTAbsence@1",
+          "at": [
+           90934,
+           91051
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 121,
+        "schema": "EOTObservation@1",
+        "id": "s119",
+        "at": [
+         91052,
+         91203
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 298,
+          "schema": "EOTObservation@1",
+          "id": "o287",
+          "at": [
+           91074,
+           91081
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "knew",
+          "end2": "not why",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         },
+         {
+          "seq": 299,
+          "schema": "EOTObservation@1",
+          "id": "o288",
+          "at": [
+           91192,
+           91202
+          ],
+          "role": "proposition",
+          "end1": "other end",
+          "label": "of",
+          "end2": "the street",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 122,
+        "schema": "EOTObservation@1",
+        "id": "s120",
+        "at": [
+         91204,
+         91404
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 213,
+          "schema": "EOTObservation@1",
+          "id": "v211",
+          "at": [
+           91204,
+           91404
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 300,
+            "schema": "EOTObservation@1",
+            "id": "o289",
+            "at": [
+             91239,
+             91265
+            ],
+            "role": "proposition",
+            "end1": "I",
+            "label": "that",
+            "end2": "it was the Swiss diligence",
+            "subjectBasis": "stated",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": [
+             {
+              "seq": 301,
+              "schema": "EOTObservation@1",
+              "id": "o290",
+              "at": [
+               91246,
+               91265
+              ],
+              "role": "proposition",
+              "end1": "I",
+              "label": "was",
+              "end2": "the Swiss diligence",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
+             }
+            ]
+           },
+           {
+            "seq": 302,
+            "schema": "EOTObservation@1",
+            "id": "o291",
+            "at": [
+             91295,
+             91303
+            ],
+            "role": "proposition",
+            "end1": "where I",
+            "label": "was",
+            "end2": "standing",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           },
+           {
+            "seq": 189,
+            "schema": "EOTObservation@1",
+            "id": "e187",
+            "at": [
+             91348,
+             91353
+            ],
+            "role": "entity",
+            "referent": "ref:auto:henry",
+            "surfaces": [
+             "Henry"
+            ],
+            "occurrences": 5,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 190,
+              "schema": "EOTObservation@1",
+              "id": "d188",
+              "at": [
+               91348,
+               91353
+              ],
+              "role": "admission",
+              "referent": "ref:auto:henry",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           },
+           {
+            "seq": 187,
+            "schema": "EOTObservation@1",
+            "id": "e185",
+            "at": [
+             91354,
+             91361
+            ],
+            "role": "entity",
+            "referent": "ref:auto:clerval",
+            "surfaces": [
+             "Clerval"
+            ],
+            "occurrences": 8,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 188,
+              "schema": "EOTObservation@1",
+              "id": "d186",
+              "at": [
+               91354,
+               91361
+              ],
+              "role": "admission",
+              "referent": "ref:auto:clerval",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 123,
+        "schema": "EOTObservation@1",
+        "id": "s121",
+        "at": [
+         91405,
+         91470
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 214,
+          "schema": "EOTObservation@1",
+          "id": "v212",
+          "at": [
+           91405,
+           91470
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 303,
+            "schema": "EOTAbsence@1",
+            "at": [
+             91405,
+             91470
+            ],
+            "role": "arrangement",
+            "reason": "gate_refused_no_two_ends",
+            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "children": [
+             {
+              "seq": 195,
+              "schema": "EOTObservation@1",
+              "id": "e193",
+              "at": [
+               91414,
+               91426
+              ],
+              "role": "entity",
+              "referent": "ref:auto:frankenstein",
+              "surfaces": [
+               "Frankenstein"
+              ],
+              "occurrences": 2,
+              "operator": "SIG",
+              "grain": "Figure",
+              "terrain": "Entity",
+              "stance": "Binding",
+              "inferred": true,
+              "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+              "children": [
+               {
+                "seq": 196,
+                "schema": "EOTObservation@1",
+                "id": "d194",
+                "at": [
+                 91414,
+                 91426
+                ],
+                "role": "admission",
+                "referent": "ref:auto:frankenstein",
+                "operator": "DEF",
+                "grain": "Figure",
+                "terrain": "Lens",
+                "stance": "Dissecting",
+                "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+                "children": []
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 124,
+        "schema": "EOTObservation@1",
+        "id": "s122",
+        "at": [
+         91471,
+         91546
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 304,
+          "schema": "EOTObservation@1",
+          "id": "o292",
+          "at": [
+           91513,
+           91546
+          ],
+          "role": "proposition",
+          "end1": "be here",
+          "label": "at",
+          "end2": "the very moment of my alighting!”",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": [
+           {
+            "seq": 305,
+            "schema": "EOTObservation@1",
+            "id": "o293",
+            "at": [
+             91532,
+             91546
+            ],
+            "role": "proposition",
+            "end1": "be here",
+            "label": "of",
+            "end2": "my alighting!”",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 65,
+      "schema": "EOTObservation@1",
+      "id": "p63",
+      "at": [
+       91550,
+       92701
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 125,
+        "schema": "EOTObservation@1",
+        "id": "s123",
+        "at": [
+         91550,
+         91721
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 306,
+          "schema": "EOTObservation@1",
+          "id": "o294",
+          "at": [
+           91564,
+           91598
+          ],
+          "role": "proposition",
+          "end1": "Nothing",
+          "label": "could",
+          "end2": "equal my delight on seeing Clerval",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:clerval",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 126,
+        "schema": "EOTObservation@1",
+        "id": "s124",
+        "at": [
+         91722,
+         91873
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 307,
+          "schema": "EOTObservation@1",
+          "id": "o295",
+          "at": [
+           91799,
+           91807
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "felt",
+          "end2": "suddenly",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 127,
+        "schema": "EOTObservation@1",
+        "id": "s125",
+        "at": [
+         91874,
+         91969
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 308,
+          "schema": "EOTAbsence@1",
+          "at": [
+           91874,
+           91969
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 128,
+        "schema": "EOTObservation@1",
+        "id": "s126",
+        "at": [
+         91970,
+         92103
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 309,
+          "schema": "EOTAbsence@1",
+          "at": [
+           91970,
+           92103
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 129,
+        "schema": "EOTObservation@1",
+        "id": "s127",
+        "at": [
+         92104,
+         92543
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 215,
+          "schema": "EOTObservation@1",
+          "id": "v213",
+          "at": [
+           92104,
+           92543
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 310,
+            "schema": "EOTObservation@1",
+            "id": "o296",
+            "at": [
+             92226,
+             92272
+            ],
+            "role": "proposition",
+            "end1": "all necessary knowledge",
+            "label": "was",
+            "end2": "not comprised in the noble art of book-keeping",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 311,
+              "schema": "EOTObservation@1",
+              "id": "o297",
+              "at": [
+               92260,
+               92272
+              ],
+              "role": "proposition",
+              "end1": "all necessary knowledge",
+              "label": "of",
+              "end2": "book-keeping",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Ground",
+              "terrain": "Field",
+              "stance": "Tending",
+              "settledAs": "preposition",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 130,
+        "schema": "EOTObservation@1",
+        "id": "s128",
+        "at": [
+         92544,
+         92701
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 313,
+          "schema": "EOTObservation@1",
+          "id": "o298",
+          "at": [
+           92690,
+           92699
+          ],
+          "role": "proposition",
+          "end1": "the land",
+          "label": "of",
+          "end2": "knowledge",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 66,
+      "schema": "EOTObservation@1",
+      "id": "p64",
+      "at": [
+       92705,
+       92813
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 131,
+        "schema": "EOTObservation@1",
+        "id": "s129",
+        "at": [
+         92705,
+         92813
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 216,
+          "schema": "EOTObservation@1",
+          "id": "v214",
+          "at": [
+           92705,
+           92813
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 314,
+            "schema": "EOTAbsence@1",
+            "at": [
+             92705,
+             92813
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 67,
+      "schema": "EOTObservation@1",
+      "id": "p65",
+      "at": [
+       92817,
+       93185
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 132,
+        "schema": "EOTObservation@1",
+        "id": "s130",
+        "at": [
+         92817,
+         92901
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 217,
+          "schema": "EOTObservation@1",
+          "id": "v215",
+          "at": [
+           92817,
+           92901
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 315,
+            "schema": "EOTAbsence@1",
+            "at": [
+             92817,
+             92901
+            ],
+            "role": "arrangement",
+            "reason": "gate_refused_no_two_ends",
+            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 133,
+        "schema": "EOTObservation@1",
+        "id": "s131",
+        "at": [
+         92902,
+         92971
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 316,
+          "schema": "EOTAbsence@1",
+          "at": [
+           92902,
+           92971
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 134,
+        "schema": "EOTObservation@1",
+        "id": "s132",
+        "at": [
+         92972,
+         93185
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 218,
+          "schema": "EOTObservation@1",
+          "id": "v216",
+          "at": [
+           92972,
+           93185
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 317,
+            "schema": "EOTAbsence@1",
+            "at": [
+             92972,
+             93185
+            ],
+            "role": "arrangement",
+            "reason": "gate_refused_no_two_ends",
+            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 68,
+      "schema": "EOTObservation@1",
+      "id": "p66",
+      "at": [
+       93189,
+       93437
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 135,
+        "schema": "EOTObservation@1",
+        "id": "s133",
+        "at": [
+         93189,
+         93437
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 318,
+          "schema": "EOTObservation@1",
+          "id": "o299",
+          "at": [
+           93275,
+           93316
+          ],
+          "role": "proposition",
+          "end1": "one occupation",
+          "label": "that",
+          "end2": "I have not allowed myself sufficient rest",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": []
+         },
+         {
+          "seq": 319,
+          "schema": "EOTObservation@1",
+          "id": "o300",
+          "at": [
+           93416,
+           93435
+          ],
+          "role": "proposition",
+          "end1": "an end and",
+          "label": "that",
+          "end2": "I am at length free",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": [
+           {
+            "seq": 320,
+            "schema": "EOTObservation@1",
+            "id": "o301",
+            "at": [
+             93424,
+             93435
+            ],
+            "role": "proposition",
+            "end1": "an end and",
+            "label": "am at",
+            "end2": "length free",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 69,
+      "schema": "EOTObservation@1",
+      "id": "p67",
+      "at": [
+       93441,
+       94559
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 136,
+        "schema": "EOTObservation@1",
+        "id": "s134",
+        "at": [
+         93441,
+         93564
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 321,
+          "schema": "EOTObservation@1",
+          "id": "o302",
+          "at": [
+           93473,
+           93495
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "could",
+          "end2": "not endure to think of",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         },
+         {
+          "seq": 322,
+          "schema": "EOTObservation@1",
+          "id": "o303",
+          "at": [
+           93544,
+           93563
+          ],
+          "role": "proposition",
+          "end1": "the occurrences",
+          "label": "of",
+          "end2": "the preceding night",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 137,
+        "schema": "EOTObservation@1",
+        "id": "s135",
+        "at": [
+         93565,
+         93628
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 323,
+          "schema": "EOTObservation@1",
+          "id": "o304",
+          "at": [
+           93617,
+           93627
+          ],
+          "role": "proposition",
+          "end1": "soon arrived",
+          "label": "at",
+          "end2": "my college",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 138,
+        "schema": "EOTObservation@1",
+        "id": "s136",
+        "at": [
+         93629,
+         93777
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 324,
+          "schema": "EOTAbsence@1",
+          "at": [
+           93629,
+           93777
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 139,
+        "schema": "EOTObservation@1",
+        "id": "s137",
+        "at": [
+         93778,
+         93863
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 219,
+          "schema": "EOTObservation@1",
+          "id": "v217",
+          "at": [
+           93778,
+           93863
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 325,
+            "schema": "EOTObservation@1",
+            "id": "o305",
+            "at": [
+             93842,
+             93862
+            ],
+            "role": "proposition",
+            "end1": "feared still more",
+            "label": "that",
+            "end2": "Henry should see him",
+            "subjectBasis": "stated",
+            "end2Ref": "ref:auto:henry",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": [
+             {
+              "seq": 326,
+              "schema": "EOTObservation@1",
+              "id": "o306",
+              "at": [
+               93855,
+               93862
+              ],
+              "role": "proposition",
+              "end1": "feared still more",
+              "label": "should",
+              "end2": "see him",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 140,
+        "schema": "EOTObservation@1",
+        "id": "s138",
+        "at": [
+         93865,
+         93978
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 220,
+          "schema": "EOTObservation@1",
+          "id": "v218",
+          "at": [
+           93865,
+           93978
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 327,
+            "schema": "EOTAbsence@1",
+            "at": [
+             93865,
+             93978
+            ],
+            "role": "arrangement",
+            "reason": "gate_refused_no_two_ends",
+            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 141,
+        "schema": "EOTObservation@1",
+        "id": "s139",
+        "at": [
+         93979,
+         94052
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 328,
+          "schema": "EOTObservation@1",
+          "id": "o307",
+          "at": [
+           94015,
+           94051
+          ],
+          "role": "proposition",
+          "end1": "the lock",
+          "label": "of",
+          "end2": "the door before I recollected myself",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 142,
+        "schema": "EOTObservation@1",
+        "id": "s140",
+        "at": [
+         94053,
+         94103
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 329,
+          "schema": "EOTAbsence@1",
+          "at": [
+           94053,
+           94103
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 143,
+        "schema": "EOTObservation@1",
+        "id": "s141",
+        "at": [
+         94104,
+         94267
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 221,
+          "schema": "EOTObservation@1",
+          "id": "v219",
+          "at": [
+           94104,
+           94267
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 330,
+            "schema": "EOTAbsence@1",
+            "at": [
+             94104,
+             94267
+            ],
+            "role": "arrangement",
+            "reason": "no_earned_verb_in_this_sentence",
+            "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 144,
+        "schema": "EOTObservation@1",
+        "id": "s142",
+        "at": [
+         94268,
+         94372
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 331,
+          "schema": "EOTObservation@1",
+          "id": "o308",
+          "at": [
+           94311,
+           94316
+          ],
+          "role": "proposition",
+          "end1": "the apartment",
+          "label": "was",
+          "end2": "empty",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 145,
+        "schema": "EOTObservation@1",
+        "id": "s143",
+        "at": [
+         94373,
+         94559
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 332,
+          "schema": "EOTObservation@1",
+          "id": "o309",
+          "at": [
+           94432,
+           94448
+          ],
+          "role": "proposition",
+          "end1": "a good fortune",
+          "label": "could",
+          "end2": "have befallen me",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 70,
+      "schema": "EOTObservation@1",
+      "id": "p68",
+      "at": [
+       94563,
+       95172
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 146,
+        "schema": "EOTObservation@1",
+        "id": "s144",
+        "at": [
+         94563,
+         94670
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 333,
+          "schema": "EOTObservation@1",
+          "id": "o310",
+          "at": [
+           94645,
+           94669
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "was",
+          "end2": "unable to contain myself",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 147,
+        "schema": "EOTObservation@1",
+        "id": "s145",
+        "at": [
+         94671,
+         94791
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 222,
+          "schema": "EOTObservation@1",
+          "id": "v220",
+          "at": [
+           94671,
+           94791
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 334,
+            "schema": "EOTObservation@1",
+            "id": "o311",
+            "at": [
+             94718,
+             94762
+            ],
+            "role": "proposition",
+            "end1": "I",
+            "label": "felt",
+            "end2": "my flesh tingle with excess of sensitiveness",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 335,
+              "schema": "EOTObservation@1",
+              "id": "o312",
+              "at": [
+               94749,
+               94762
+              ],
+              "role": "proposition",
+              "end1": "I",
+              "label": "of",
+              "end2": "sensitiveness",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Ground",
+              "terrain": "Field",
+              "stance": "Tending",
+              "settledAs": "preposition",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 148,
+        "schema": "EOTObservation@1",
+        "id": "s146",
+        "at": [
+         94792,
+         94918
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 336,
+          "schema": "EOTAbsence@1",
+          "at": [
+           94792,
+           94918
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 149,
+        "schema": "EOTObservation@1",
+        "id": "s147",
+        "at": [
+         94920,
+         95172
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 223,
+          "schema": "EOTObservation@1",
+          "id": "v221",
+          "at": [
+           94920,
+           95172
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 337,
+            "schema": "EOTObservation@1",
+            "id": "o313",
+            "at": [
+             94931,
+             94988
+            ],
+            "role": "proposition",
+            "end1": "Clerval",
+            "label": "at",
+            "end2": "first attributed my unusual spirits to joy on his arrival",
+            "subjectBasis": "stated",
+            "end1Ref": "ref:auto:clerval",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 71,
+      "schema": "EOTObservation@1",
+      "id": "p69",
+      "at": [
+       95176,
+       95321
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 150,
+        "schema": "EOTObservation@1",
+        "id": "s148",
+        "at": [
+         95176,
+         95242
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 224,
+          "schema": "EOTObservation@1",
+          "id": "v222",
+          "at": [
+           95176,
+           95242
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 340,
+            "schema": "EOTAbsence@1",
+            "at": [
+             95176,
+             95242
+            ],
+            "role": "arrangement",
+            "reason": "gate_refused_no_two_ends",
+            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 151,
+        "schema": "EOTObservation@1",
+        "id": "s149",
+        "at": [
+         95243,
+         95271
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 341,
+          "schema": "EOTObservation@1",
+          "id": "o314",
+          "at": [
+           95264,
+           95270
+          ],
+          "role": "proposition",
+          "end1": "laugh in",
+          "label": "that",
+          "end2": "manner",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 152,
+        "schema": "EOTObservation@1",
+        "id": "s150",
+        "at": [
+         95272,
+         95288
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 342,
+          "schema": "EOTAbsence@1",
+          "at": [
+           95272,
+           95288
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 153,
+        "schema": "EOTObservation@1",
+        "id": "s151",
+        "at": [
+         95289,
+         95321
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 343,
+          "schema": "EOTObservation@1",
+          "id": "o315",
+          "at": [
+           95311,
+           95321
+          ],
+          "role": "proposition",
+          "end1": "the cause",
+          "label": "of",
+          "end2": "all this?”",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 72,
+      "schema": "EOTObservation@1",
+      "id": "p70",
+      "at": [
+       95325,
+       95571
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 154,
+        "schema": "EOTObservation@1",
+        "id": "s152",
+        "at": [
+         95325,
+         95462
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 225,
+          "schema": "EOTObservation@1",
+          "id": "v223",
+          "at": [
+           95325,
+           95462
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 344,
+            "schema": "EOTAbsence@1",
+            "at": [
+             95325,
+             95462
+            ],
+            "role": "arrangement",
+            "reason": "gate_refused_no_two_ends",
+            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 155,
+        "schema": "EOTObservation@1",
+        "id": "s153",
+        "at": [
+         95463,
+         95475
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 345,
+          "schema": "EOTAbsence@1",
+          "at": [
+           95463,
+           95475
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 156,
+        "schema": "EOTObservation@1",
+        "id": "s154",
+        "at": [
+         95476,
+         95485
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 346,
+          "schema": "EOTAbsence@1",
+          "at": [
+           95476,
+           95485
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 157,
+        "schema": "EOTObservation@1",
+        "id": "s155",
+        "at": [
+         95486,
+         95571
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 347,
+          "schema": "EOTObservation@1",
+          "id": "o316",
+          "at": [
+           95502,
+           95523
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "that",
+          "end2": "the monster seized me",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 73,
+      "schema": "EOTObservation@1",
+      "id": "p71",
+      "at": [
+       95575,
+       95819
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 158,
+        "schema": "EOTObservation@1",
+        "id": "s156",
+        "at": [
+         95575,
+         95588
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 348,
+          "schema": "EOTAbsence@1",
+          "at": [
+           95575,
+           95588
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 159,
+        "schema": "EOTObservation@1",
+        "id": "s157",
+        "at": [
+         95589,
+         95622
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 349,
+          "schema": "EOTAbsence@1",
+          "at": [
+           95589,
+           95622
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 160,
+        "schema": "EOTObservation@1",
+        "id": "s158",
+        "at": [
+         95623,
+         95705
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 226,
+          "schema": "EOTObservation@1",
+          "id": "v224",
+          "at": [
+           95623,
+           95705
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 350,
+            "schema": "EOTAbsence@1",
+            "at": [
+             95623,
+             95705
+            ],
+            "role": "arrangement",
+            "reason": "gate_refused_no_two_ends",
+            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 161,
+        "schema": "EOTObservation@1",
+        "id": "s159",
+        "at": [
+         95706,
+         95819
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 351,
+          "schema": "EOTObservation@1",
+          "id": "o317",
+          "at": [
+           95717,
+           95745
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "was",
+          "end2": "not the witness of his grief",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 352,
+            "schema": "EOTObservation@1",
+            "id": "o318",
+            "at": [
+             95736,
+             95745
+            ],
+            "role": "proposition",
+            "end1": "I",
+            "label": "of",
+            "end2": "his grief",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 74,
+      "schema": "EOTObservation@1",
+      "id": "p72",
+      "at": [
+       95823,
+       96402
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 162,
+        "schema": "EOTObservation@1",
+        "id": "s160",
+        "at": [
+         95823,
+         95906
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 353,
+          "schema": "EOTAbsence@1",
+          "at": [
+           95823,
+           95906
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 163,
+        "schema": "EOTObservation@1",
+        "id": "s161",
+        "at": [
+         95907,
+         95952
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 354,
+          "schema": "EOTObservation@1",
+          "id": "o319",
+          "at": [
+           95923,
+           95951
+          ],
+          "role": "proposition",
+          "end1": "During all",
+          "label": "that",
+          "end2": "time Henry was my only nurse",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:henry",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": [
+           {
+            "seq": 355,
+            "schema": "EOTObservation@1",
+            "id": "o320",
+            "at": [
+             95938,
+             95951
+            ],
+            "role": "proposition",
+            "end1": "During all",
+            "label": "was",
+            "end2": "my only nurse",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 164,
+        "schema": "EOTObservation@1",
+        "id": "s162",
+        "at": [
+         95953,
+         96171
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 227,
+          "schema": "EOTObservation@1",
+          "id": "v225",
+          "at": [
+           95953,
+           96171
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 356,
+            "schema": "EOTAbsence@1",
+            "at": [
+             95953,
+             96171
+            ],
+            "role": "arrangement",
+            "reason": "gate_refused_no_two_ends",
+            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 165,
+        "schema": "EOTObservation@1",
+        "id": "s163",
+        "at": [
+         96172,
+         96402
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 358,
+          "schema": "EOTObservation@1",
+          "id": "o321",
+          "at": [
+           96303,
+           96317
+          ],
+          "role": "proposition",
+          "end1": "he",
+          "label": "did",
+          "end2": "not doubt that",
+          "subjectBasis": "stated",
+          "end1Ref": "ref:auto:clerval",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         },
+         {
+          "seq": 359,
+          "schema": "EOTObservation@1",
+          "id": "o322",
+          "at": [
+           96330,
+           96340
+          ],
+          "role": "proposition",
+          "end1": "instead",
+          "label": "of",
+          "end2": "doing harm",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         },
+         {
+          "seq": 360,
+          "schema": "EOTObservation@1",
+          "id": "o323",
+          "at": [
+           96380,
+           96401
+          ],
+          "role": "proposition",
+          "end1": "kindest action",
+          "label": "that",
+          "end2": "he could towards them",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": [
+           {
+            "seq": 361,
+            "schema": "EOTObservation@1",
+            "id": "o324",
+            "at": [
+             96389,
+             96401
+            ],
+            "role": "proposition",
+            "end1": "kindest action",
+            "label": "he could",
+            "end2": "towards them",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 75,
+      "schema": "EOTObservation@1",
+      "id": "p73",
+      "at": [
+       96406,
+       96955
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 166,
+        "schema": "EOTObservation@1",
+        "id": "s164",
+        "at": [
+         96406,
+         96546
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 362,
+          "schema": "EOTObservation@1",
+          "id": "o325",
+          "at": [
+           96416,
+           96435
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "was",
+          "end2": "in reality very ill",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         },
+         {
+          "seq": 363,
+          "schema": "EOTObservation@1",
+          "id": "o326",
+          "at": [
+           96505,
+           96545
+          ],
+          "role": "proposition",
+          "end1": "unremitting attentions",
+          "label": "of",
+          "end2": "my friend could have restored me to life",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": [
+           {
+            "seq": 364,
+            "schema": "EOTObservation@1",
+            "id": "o327",
+            "at": [
+             96521,
+             96545
+            ],
+            "role": "proposition",
+            "end1": "unremitting attentions",
+            "label": "could",
+            "end2": "have restored me to life",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 167,
+        "schema": "EOTObservation@1",
+        "id": "s165",
+        "at": [
+         96548,
+         96674
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 228,
+          "schema": "EOTObservation@1",
+          "id": "v226",
+          "at": [
+           96548,
+           96674
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 365,
+            "schema": "EOTAbsence@1",
+            "at": [
+             96548,
+             96674
+            ],
+            "role": "arrangement",
+            "reason": "gate_refused_no_two_ends",
+            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 168,
+        "schema": "EOTObservation@1",
+        "id": "s166",
+        "at": [
+         96675,
+         96955
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 229,
+          "schema": "EOTObservation@1",
+          "id": "v227",
+          "at": [
+           96675,
+           96955
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 366,
+            "schema": "EOTObservation@1",
+            "id": "o328",
+            "at": [
+             96763,
+             96787
+            ],
+            "role": "proposition",
+            "end1": "the wanderings",
+            "label": "of",
+            "end2": "my disturbed imagination",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 76,
+      "schema": "EOTObservation@1",
+      "id": "p74",
+      "at": [
+       96959,
+       97550
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 169,
+        "schema": "EOTObservation@1",
+        "id": "s167",
+        "at": [
+         96959,
+         97057
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 367,
+          "schema": "EOTAbsence@1",
+          "at": [
+           96959,
+           97057
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 170,
+        "schema": "EOTObservation@1",
+        "id": "s168",
+        "at": [
+         97058,
+         97292
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 368,
+          "schema": "EOTObservation@1",
+          "id": "o329",
+          "at": [
+           97105,
+           97156
+          ],
+          "role": "proposition",
+          "end1": "became capable",
+          "label": "of",
+          "end2": "observing outward objects with any kind of pleasure",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": [
+           {
+            "seq": 369,
+            "schema": "EOTObservation@1",
+            "id": "o330",
+            "at": [
+             97148,
+             97156
+            ],
+            "role": "proposition",
+            "end1": "became capable",
+            "label": "of",
+            "end2": "pleasure",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         },
+         {
+          "seq": 370,
+          "schema": "EOTObservation@1",
+          "id": "o331",
+          "at": [
+           97275,
+           97291
+          ],
+          "role": "proposition",
+          "end1": "the trees",
+          "label": "that",
+          "end2": "shaded my window",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 171,
+        "schema": "EOTObservation@1",
+        "id": "s169",
+        "at": [
+         97293,
+         97374
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 230,
+          "schema": "EOTObservation@1",
+          "id": "v228",
+          "at": [
+           97293,
+           97374
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 371,
+            "schema": "EOTObservation@1",
+            "id": "o332",
+            "at": [
+             97301,
+             97316
+            ],
+            "role": "proposition",
+            "end1": "It",
+            "label": "was",
+            "end2": "a divine spring",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 172,
+        "schema": "EOTObservation@1",
+        "id": "s170",
+        "at": [
+         97375,
+         97550
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 372,
+          "schema": "EOTObservation@1",
+          "id": "o333",
+          "at": [
+           97520,
+           97549
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "was",
+          "end2": "attacked by the fatal passion",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 77,
+      "schema": "EOTObservation@1",
+      "id": "p75",
+      "at": [
+       97554,
+       97882
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 173,
+        "schema": "EOTObservation@1",
+        "id": "s171",
+        "at": [
+         97554,
+         97626
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 373,
+          "schema": "EOTAbsence@1",
+          "at": [
+           97554,
+           97626
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 174,
+        "schema": "EOTObservation@1",
+        "id": "s172",
+        "at": [
+         97627,
+         97740
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 374,
+          "schema": "EOTObservation@1",
+          "id": "o334",
+          "at": [
+           97657,
+           97677
+          ],
+          "role": "proposition",
+          "end1": "instead",
+          "label": "of",
+          "end2": "being spent in study",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 175,
+        "schema": "EOTObservation@1",
+        "id": "s173",
+        "at": [
+         97741,
+         97769
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 375,
+          "schema": "EOTAbsence@1",
+          "at": [
+           97741,
+           97769
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 176,
+        "schema": "EOTObservation@1",
+        "id": "s174",
+        "at": [
+         97770,
+         97882
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 376,
+          "schema": "EOTAbsence@1",
+          "at": [
+           97770,
+           97882
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 78,
+      "schema": "EOTObservation@1",
+      "id": "p76",
+      "at": [
+       97886,
+       98073
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 177,
+        "schema": "EOTObservation@1",
+        "id": "s175",
+        "at": [
+         97886,
+         98073
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 377,
+          "schema": "EOTAbsence@1",
+          "at": [
+           97886,
+           98073
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 79,
+      "schema": "EOTObservation@1",
+      "id": "p77",
+      "at": [
+       98077,
+       98181
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 178,
+        "schema": "EOTObservation@1",
+        "id": "s176",
+        "at": [
+         98077,
+         98088
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 378,
+          "schema": "EOTAbsence@1",
+          "at": [
+           98077,
+           98088
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 179,
+        "schema": "EOTObservation@1",
+        "id": "s177",
+        "at": [
+         98089,
+         98101
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 379,
+          "schema": "EOTAbsence@1",
+          "at": [
+           98089,
+           98101
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 20 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 180,
+        "schema": "EOTObservation@1",
+        "id": "s178",
+        "at": [
+         98102,
+         98119
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 231,
+          "schema": "EOTObservation@1",
+          "id": "v229",
+          "at": [
+           98102,
+           98119
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 380,
+            "schema": "EOTObservation@1",
+            "id": "o335",
+            "at": [
+             98113,
+             98119
+            ],
+            "role": "proposition",
+            "end1": "What",
+            "label": "could",
+            "end2": "it be?",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 181,
+        "schema": "EOTObservation@1",
+        "id": "s179",
+        "at": [
+         98120,
+         98181
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 232,
+          "schema": "EOTObservation@1",
+          "id": "v230",
+          "at": [
+           98120,
+           98181
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 381,
+            "schema": "EOTAbsence@1",
+            "at": [
+             98120,
+             98181
+            ],
+            "role": "arrangement",
+            "reason": "gate_refused_no_two_ends",
+            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 80,
+      "schema": "EOTObservation@1",
+      "id": "p78",
+      "at": [
+       98185,
+       98483
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 182,
+        "schema": "EOTObservation@1",
+        "id": "s180",
+        "at": [
+         98185,
+         98405
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 233,
+          "schema": "EOTObservation@1",
+          "id": "v231",
+          "at": [
+           98185,
+           98405
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 382,
+            "schema": "EOTObservation@1",
+            "id": "o336",
+            "at": [
+             98246,
+             98252
+            ],
+            "role": "proposition",
+            "end1": "my change",
+            "label": "of",
+            "end2": "colour",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 183,
+        "schema": "EOTObservation@1",
+        "id": "s181",
+        "at": [
+         98406,
+         98483
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 234,
+          "schema": "EOTObservation@1",
+          "id": "v232",
+          "at": [
+           98406,
+           98483
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 383,
+            "schema": "EOTObservation@1",
+            "id": "o337",
+            "at": [
+             98464,
+             98481
+            ],
+            "role": "proposition",
+            "end1": "are uneasy",
+            "label": "at",
+            "end2": "your long silence",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 81,
+      "schema": "EOTObservation@1",
+      "id": "p79",
+      "at": [
+       98487,
+       98658
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 184,
+        "schema": "EOTObservation@1",
+        "id": "s182",
+        "at": [
+         98487,
+         98515
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 384,
+          "schema": "EOTObservation@1",
+          "id": "o338",
+          "at": [
+           98496,
+           98499
+          ],
+          "role": "proposition",
+          "end1": "Is",
+          "label": "that",
+          "end2": "all",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 185,
+        "schema": "EOTObservation@1",
+        "id": "s183",
+        "at": [
+         98516,
+         98658
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 385,
+          "schema": "EOTObservation@1",
+          "id": "o339",
+          "at": [
+           98649,
+           98658
+          ],
+          "role": "proposition",
+          "end1": "deserving",
+          "label": "of",
+          "end2": "my love?”",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 82,
+      "schema": "EOTObservation@1",
+      "id": "p80",
+      "at": [
+       98662,
+       98828
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "children": [
+       {
+        "seq": 186,
+        "schema": "EOTObservation@1",
+        "id": "s184",
+        "at": [
+         98662,
+         98828
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 235,
+          "schema": "EOTObservation@1",
+          "id": "v233",
+          "at": [
+           98662,
+           98828
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 386,
+            "schema": "EOTObservation@1",
+            "id": "o340",
+            "at": [
+             98753,
+             98790
+            ],
+            "role": "proposition",
+            "end1": "a letter",
+            "label": "that",
+            "end2": "has been lying here some days for you",
+            "subjectBasis": "stated",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": [
+             {
+              "seq": 387,
+              "schema": "EOTObservation@1",
+              "id": "o341",
+              "at": [
+               98757,
+               98790
+              ],
+              "role": "proposition",
+              "end1": "a letter",
+              "label": "has",
+              "end2": "been lying here some days for you",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "seq": 15,
+  "schema": "EOTObservation@1",
+  "id": "c13",
+  "at": [
+   98838,
+   114620
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 7,
+  "numeral": "6",
+  "title": "",
+  "children": [
+   {
+    "seq": 16,
+    "schema": "EOTObservation@1",
+    "id": "h14",
+    "at": [
+     98838,
+     98849
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 7,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 17,
+  "schema": "EOTObservation@1",
+  "id": "c15",
+  "at": [
+   114620,
+   134847
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 8,
+  "numeral": "7",
+  "title": "",
+  "children": [
+   {
+    "seq": 18,
+    "schema": "EOTObservation@1",
+    "id": "h16",
+    "at": [
+     114620,
+     114631
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 8,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 19,
+  "schema": "EOTObservation@1",
+  "id": "c17",
+  "at": [
+   134847,
+   152427
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 9,
+  "numeral": "8",
+  "title": "",
+  "children": [
+   {
+    "seq": 20,
+    "schema": "EOTObservation@1",
+    "id": "h18",
+    "at": [
+     134847,
+     134858
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 9,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 21,
+  "schema": "EOTObservation@1",
+  "id": "c19",
+  "at": [
+   152427,
+   165081
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 10,
+  "numeral": "9",
+  "title": "",
+  "children": [
+   {
+    "seq": 22,
+    "schema": "EOTObservation@1",
+    "id": "h20",
+    "at": [
+     152427,
+     152438
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 10,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 23,
+  "schema": "EOTObservation@1",
+  "id": "c21",
+  "at": [
+   165081,
+   178307
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 11,
+  "numeral": "10",
+  "title": "",
+  "children": [
+   {
+    "seq": 24,
+    "schema": "EOTObservation@1",
+    "id": "h22",
+    "at": [
+     165081,
+     165093
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 11,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 25,
+  "schema": "EOTObservation@1",
+  "id": "c23",
+  "at": [
+   178307,
+   194498
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 12,
+  "numeral": "11",
+  "title": "",
+  "children": [
+   {
+    "seq": 26,
+    "schema": "EOTObservation@1",
+    "id": "h24",
+    "at": [
+     178307,
+     178319
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 12,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 27,
+  "schema": "EOTObservation@1",
+  "id": "c25",
+  "at": [
+   194498,
+   206693
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 13,
+  "numeral": "12",
+  "title": "",
+  "children": [
+   {
+    "seq": 28,
+    "schema": "EOTObservation@1",
+    "id": "h26",
+    "at": [
+     194498,
+     194510
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 13,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 29,
+  "schema": "EOTObservation@1",
+  "id": "c27",
+  "at": [
+   206693,
+   218481
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 14,
+  "numeral": "13",
+  "title": "",
+  "children": [
+   {
+    "seq": 30,
+    "schema": "EOTObservation@1",
+    "id": "h28",
+    "at": [
+     206693,
+     206705
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 14,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 31,
+  "schema": "EOTObservation@1",
+  "id": "c29",
+  "at": [
+   218481,
+   229115
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 15,
+  "numeral": "14",
+  "title": "",
+  "children": [
+   {
+    "seq": 32,
+    "schema": "EOTObservation@1",
+    "id": "h30",
+    "at": [
+     218481,
+     218493
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 15,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 33,
+  "schema": "EOTObservation@1",
+  "id": "c31",
+  "at": [
+   229115,
+   246562
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 16,
+  "numeral": "15",
+  "title": "",
+  "children": [
+   {
+    "seq": 34,
+    "schema": "EOTObservation@1",
+    "id": "h32",
+    "at": [
+     229115,
+     229127
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 16,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 35,
+  "schema": "EOTObservation@1",
+  "id": "c33",
+  "at": [
+   246562,
+   264432
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 17,
+  "numeral": "16",
+  "title": "",
+  "children": [
+   {
+    "seq": 36,
+    "schema": "EOTObservation@1",
+    "id": "h34",
+    "at": [
+     246562,
+     246574
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 17,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 37,
+  "schema": "EOTObservation@1",
+  "id": "c35",
+  "at": [
+   264432,
+   274875
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 18,
+  "numeral": "17",
+  "title": "",
+  "children": [
+   {
+    "seq": 38,
+    "schema": "EOTObservation@1",
+    "id": "h36",
+    "at": [
+     264432,
+     264444
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 18,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 39,
+  "schema": "EOTObservation@1",
+  "id": "c37",
+  "at": [
+   274875,
+   291336
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 19,
+  "numeral": "18",
+  "title": "",
+  "children": [
+   {
+    "seq": 40,
+    "schema": "EOTObservation@1",
+    "id": "h38",
+    "at": [
+     274875,
+     274887
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 19,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 41,
+  "schema": "EOTObservation@1",
+  "id": "c39",
+  "at": [
+   291336,
+   306408
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 20,
+  "numeral": "19",
+  "title": "",
+  "children": [
+   {
+    "seq": 42,
+    "schema": "EOTObservation@1",
+    "id": "h40",
+    "at": [
+     291336,
+     291348
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 20,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 43,
+  "schema": "EOTObservation@1",
+  "id": "c41",
+  "at": [
+   306408,
+   325776
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 21,
+  "numeral": "20",
+  "title": "",
+  "children": [
+   {
+    "seq": 44,
+    "schema": "EOTObservation@1",
+    "id": "h42",
+    "at": [
+     306408,
+     306420
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 21,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 45,
+  "schema": "EOTObservation@1",
+  "id": "c43",
+  "at": [
+   325776,
+   346601
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 22,
+  "numeral": "21",
+  "title": "",
+  "children": [
+   {
+    "seq": 46,
+    "schema": "EOTObservation@1",
+    "id": "h44",
+    "at": [
+     325776,
+     325788
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 22,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 47,
+  "schema": "EOTObservation@1",
+  "id": "c45",
+  "at": [
+   346601,
+   365982
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 23,
+  "numeral": "22",
+  "title": "",
+  "children": [
+   {
+    "seq": 48,
+    "schema": "EOTObservation@1",
+    "id": "h46",
+    "at": [
+     346601,
+     346613
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 23,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 49,
+  "schema": "EOTObservation@1",
+  "id": "c47",
+  "at": [
+   365982,
+   380276
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 24,
+  "numeral": "23",
+  "title": "",
+  "children": [
+   {
+    "seq": 50,
+    "schema": "EOTObservation@1",
+    "id": "h48",
+    "at": [
+     365982,
+     365994
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 24,
+    "children": []
+   }
+  ]
+ },
+ {
+  "seq": 51,
+  "schema": "EOTObservation@1",
+  "id": "c49",
+  "at": [
+   380276,
+   426692
+  ],
+  "role": "chapter",
+  "inferred": true,
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "ordinal": 25,
+  "numeral": "24",
+  "title": "",
+  "children": [
+   {
+    "seq": 52,
+    "schema": "EOTObservation@1",
+    "id": "h50",
+    "at": [
+     380276,
+     380288
+    ],
+    "role": "heading",
+    "inferred": true,
+    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "ofChapter": 25,
+    "children": []
+   }
+  ]
+ }
+]

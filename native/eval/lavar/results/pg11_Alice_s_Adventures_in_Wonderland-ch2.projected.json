@@ -318,7 +318,52 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 592,
+              "schema": "EOTObservation@1",
+              "id": "o242",
+              "at": [
+               12579,
+               12620
+              ],
+              "role": "proposition",
+              "end1": "now I’m",
+              "label": "out",
+              "end2": "like the largest telescope that ever was!",
+              "subjectBasis": "inherited",
+              "end1Ref": "ref:auto:i’m",
+              "operator": "CON",
+              "grain": "Ground",
+              "terrain": "Field",
+              "stance": "Tending",
+              "settledAs": "preposition",
+              "pass": 2,
+              "foundOnReread": true,
+              "children": [
+               {
+                "seq": 593,
+                "schema": "EOTObservation@1",
+                "id": "o243",
+                "at": [
+                 12584,
+                 12620
+                ],
+                "role": "proposition",
+                "end1": "now I’m",
+                "label": "like",
+                "end2": "the largest telescope that ever was!",
+                "subjectBasis": "inherited",
+                "end1Ref": "ref:auto:i’m",
+                "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+                "settledAs": null,
+                "pass": 2,
+                "foundOnReread": true,
+                "children": []
+               }
+              ]
+             }
+            ]
            }
           ]
          }
@@ -601,7 +646,27 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 594,
+              "schema": "EOTObservation@1",
+              "id": "o252",
+              "at": [
+               12967,
+               12978
+              ],
+              "role": "proposition",
+              "end1": "you",
+              "label": "best",
+              "end2": "way you can",
+              "subjectBasis": "inherited",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
+             }
+            ]
            },
            {
             "seq": 256,
@@ -621,7 +686,27 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 595,
+              "schema": "EOTObservation@1",
+              "id": "o254",
+              "at": [
+               13003,
+               13007
+              ],
+              "role": "proposition",
+              "end1": "I",
+              "label": "to",
+              "end2": "them",
+              "subjectBasis": "inherited",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
+             }
+            ]
            },
            {
             "seq": 257,
@@ -641,7 +726,27 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 596,
+              "schema": "EOTObservation@1",
+              "id": "o256",
+              "at": [
+               13072,
+               13075
+              ],
+              "role": "proposition",
+              "end1": "I",
+              "label": "to",
+              "end2": "go!",
+              "subjectBasis": "inherited",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -813,24 +918,44 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 261,
+                "seq": 597,
                 "schema": "EOTObservation@1",
-                "id": "o255",
+                "id": "o259",
                 "at": [
-                 13202,
+                 13173,
                  13204
                 ],
                 "role": "proposition",
                 "end1": "she",
-                "label": "would manage",
-                "end2": "it",
+                "label": "to",
+                "end2": "herself how she would manage it",
                 "subjectBasis": "inherited",
-                "operator": "CON",
-                "grain": "Figure",
-                "terrain": "Link",
-                "stance": "Binding",
-                "settledAs": "verb",
-                "children": []
+                "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+                "settledAs": null,
+                "pass": 2,
+                "foundOnReread": true,
+                "children": [
+                 {
+                  "seq": 261,
+                  "schema": "EOTObservation@1",
+                  "id": "o255",
+                  "at": [
+                   13202,
+                   13204
+                  ],
+                  "role": "proposition",
+                  "end1": "she",
+                  "label": "would manage",
+                  "end2": "it",
+                  "subjectBasis": "inherited",
+                  "operator": "CON",
+                  "grain": "Figure",
+                  "terrain": "Link",
+                  "stance": "Binding",
+                  "settledAs": "verb",
+                  "children": []
+                 }
+                ]
                }
               ]
              }
@@ -906,7 +1031,47 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 598,
+              "schema": "EOTObservation@1",
+              "id": "o261",
+              "at": [
+               13299,
+               13314
+              ],
+              "role": "proposition",
+              "end1": "sending presents",
+              "label": "to",
+              "end2": "one’s own feet!",
+              "subjectBasis": "stated",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": [
+               {
+                "seq": 599,
+                "schema": "EOTObservation@1",
+                "id": "o262",
+                "at": [
+                 13309,
+                 13314
+                ],
+                "role": "proposition",
+                "end1": "sending presents",
+                "label": "own",
+                "end2": "feet!",
+                "subjectBasis": "inherited",
+                "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+                "settledAs": null,
+                "pass": 2,
+                "foundOnReread": true,
+                "children": []
+               }
+              ]
+             }
+            ]
            }
           ]
          }
@@ -1075,7 +1240,27 @@
             "terrain": "Link",
             "stance": "Dissecting",
             "settledAs": "conjunction",
-            "children": []
+            "children": [
+             {
+              "seq": 600,
+              "schema": "EOTObservation@1",
+              "id": "o266",
+              "at": [
+               13658,
+               13673
+              ],
+              "role": "proposition",
+              "end1": "golden key",
+              "label": "to",
+              "end2": "the garden door",
+              "subjectBasis": "inherited",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -1340,24 +1525,64 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 279,
+              "seq": 601,
               "schema": "EOTObservation@1",
-              "id": "o267",
+              "id": "o273",
               "at": [
-               13899,
+               13896,
                13918
               ],
               "role": "proposition",
               "end1": "You",
-              "label": "be",
-              "end2": "ashamed of yourself",
-              "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Binding",
-              "settledAs": "verb",
-              "children": []
+              "label": "to",
+              "end2": "be ashamed of yourself",
+              "subjectBasis": "stated",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": [
+               {
+                "seq": 279,
+                "schema": "EOTObservation@1",
+                "id": "o267",
+                "at": [
+                 13899,
+                 13918
+                ],
+                "role": "proposition",
+                "end1": "You",
+                "label": "be",
+                "end2": "ashamed of yourself",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Figure",
+                "terrain": "Link",
+                "stance": "Binding",
+                "settledAs": "verb",
+                "children": [
+                 {
+                  "seq": 602,
+                  "schema": "EOTObservation@1",
+                  "id": "o275",
+                  "at": [
+                   13910,
+                   13913
+                  ],
+                  "role": "proposition",
+                  "end1": "a great girl",
+                  "label": "like",
+                  "end2": "you",
+                  "subjectBasis": "stated",
+                  "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+                  "settledAs": null,
+                  "pass": 2,
+                  "foundOnReread": true,
+                  "children": []
+                 }
+                ]
+               }
+              ]
              }
             ]
            },
@@ -1819,6 +2044,44 @@
                 "children": []
                }
               ]
+             },
+             {
+              "seq": 603,
+              "schema": "EOTObservation@1",
+              "id": "o289",
+              "at": [
+               14499,
+               14504
+              ],
+              "role": "proposition",
+              "end1": "along in a",
+              "label": "great",
+              "end2": "hurry",
+              "subjectBasis": "stated",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
+             },
+             {
+              "seq": 604,
+              "schema": "EOTObservation@1",
+              "id": "o290",
+              "at": [
+               14519,
+               14537
+              ],
+              "role": "proposition",
+              "end1": "muttering",
+              "label": "to",
+              "end2": "himself as he came",
+              "subjectBasis": "stated",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
              }
             ]
            }
@@ -2413,7 +2676,27 @@
         "inferred": true,
         "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
-        "children": []
+        "children": [
+         {
+          "seq": 605,
+          "schema": "EOTObservation@1",
+          "id": "o301",
+          "at": [
+           15390,
+           15398
+          ],
+          "role": "proposition",
+          "end1": "_that’s_",
+          "label": "great",
+          "end2": "puzzle!”",
+          "subjectBasis": "stated",
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "pass": 2,
+          "foundOnReread": true,
+          "children": []
+         }
+        ]
        },
        {
         "seq": 87,
@@ -3091,7 +3374,27 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 606,
+              "schema": "EOTObservation@1",
+              "id": "o315",
+              "at": [
+               16397,
+               16406
+              ],
+              "role": "proposition",
+              "end1": "began",
+              "label": "to",
+              "end2": "repeat it",
+              "subjectBasis": "stated",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
+             }
+            ]
            },
            {
             "seq": 343,
@@ -3267,7 +3570,27 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 607,
+              "schema": "EOTObservation@1",
+              "id": "o321",
+              "at": [
+               16665,
+               16669
+              ],
+              "role": "proposition",
+              "end1": "he",
+              "label": "to",
+              "end2": "grin",
+              "subjectBasis": "inherited",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
+             }
+            ]
            },
            {
             "seq": 350,
@@ -3309,24 +3632,47 @@
             "settledAs": "preposition",
             "children": [
              {
-              "seq": 353,
+              "seq": 608,
               "schema": "EOTObservation@1",
-              "id": "o316",
+              "id": "o324",
               "at": [
-               16760,
+               16745,
                16766
               ],
               "role": "proposition",
               "end1": "little fishes",
-              "label": "smiling",
-              "end2": "jaws!”",
+              "label": "with",
+              "end2": "gently smiling jaws!”",
               "subjectBasis": "inherited",
               "operator": "CON",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Binding",
-              "settledAs": "verb",
-              "children": []
+              "grain": "Ground",
+              "terrain": "Field",
+              "stance": "Tending",
+              "settledAs": "preposition",
+              "pass": 2,
+              "foundOnReread": true,
+              "children": [
+               {
+                "seq": 353,
+                "schema": "EOTObservation@1",
+                "id": "o316",
+                "at": [
+                 16760,
+                 16766
+                ],
+                "role": "proposition",
+                "end1": "little fishes",
+                "label": "smiling",
+                "end2": "jaws!”",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Figure",
+                "terrain": "Link",
+                "stance": "Binding",
+                "settledAs": "verb",
+                "children": []
+               }
+              ]
              }
             ]
            }
@@ -3497,45 +3843,130 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 361,
+              "seq": 609,
               "schema": "EOTObservation@1",
-              "id": "o322",
+              "id": "o329",
               "at": [
-               16937,
+               16934,
                16971
               ],
               "role": "proposition",
               "end1": "I",
-              "label": "go",
-              "end2": "and live in that poky little house",
-              "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Binding",
-              "settledAs": "verb",
+              "label": "shall have to",
+              "end2": "go and live in that poky little house",
+              "subjectBasis": "stated",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
               "children": [
                {
-                "seq": 362,
+                "seq": 361,
                 "schema": "EOTObservation@1",
-                "id": "o323",
+                "id": "o322",
                 "at": [
-                 16946,
+                 16937,
                  16971
                 ],
                 "role": "proposition",
                 "end1": "I",
-                "label": "live",
-                "end2": "in that poky little house",
+                "label": "go",
+                "end2": "and live in that poky little house",
                 "subjectBasis": "inherited",
                 "operator": "CON",
                 "grain": "Figure",
                 "terrain": "Link",
                 "stance": "Binding",
                 "settledAs": "verb",
-                "children": []
+                "children": [
+                 {
+                  "seq": 362,
+                  "schema": "EOTObservation@1",
+                  "id": "o323",
+                  "at": [
+                   16946,
+                   16971
+                  ],
+                  "role": "proposition",
+                  "end1": "I",
+                  "label": "live",
+                  "end2": "in that poky little house",
+                  "subjectBasis": "inherited",
+                  "operator": "CON",
+                  "grain": "Figure",
+                  "terrain": "Link",
+                  "stance": "Binding",
+                  "settledAs": "verb",
+                  "children": [
+                   {
+                    "seq": 610,
+                    "schema": "EOTObservation@1",
+                    "id": "o331",
+                    "at": [
+                     16949,
+                     16971
+                    ],
+                    "role": "proposition",
+                    "end1": "I",
+                    "label": "in",
+                    "end2": "that poky little house",
+                    "subjectBasis": "inherited",
+                    "operator": "CON",
+                    "grain": "Ground",
+                    "terrain": "Field",
+                    "stance": "Tending",
+                    "settledAs": "preposition",
+                    "pass": 2,
+                    "foundOnReread": true,
+                    "children": []
+                   }
+                  ]
+                 }
+                ]
                }
               ]
+             }
+            ]
+           },
+           {
+            "seq": 611,
+            "schema": "EOTObservation@1",
+            "id": "o332",
+            "at": [
+             16991,
+             17011
+            ],
+            "role": "proposition",
+            "end1": "have next",
+            "label": "to",
+            "end2": "no toys to play with",
+            "subjectBasis": "stated",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "pass": 2,
+            "foundOnReread": true,
+            "children": [
+             {
+              "seq": 612,
+              "schema": "EOTObservation@1",
+              "id": "o333",
+              "at": [
+               17007,
+               17011
+              ],
+              "role": "proposition",
+              "end1": "have next",
+              "label": "to play",
+              "end2": "with",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
              }
             ]
            }
@@ -3829,24 +4260,44 @@
         "script": "cased",
         "children": [
          {
-          "seq": 373,
+          "seq": 613,
           "schema": "EOTObservation@1",
-          "id": "o333",
+          "id": "o342",
           "at": [
-           17298,
+           17292,
            17309
           ],
           "role": "proposition",
           "end1": "I",
-          "label": "being",
-          "end2": "that person",
+          "label": "like",
+          "end2": "being that person",
           "subjectBasis": "stated",
-          "operator": "CON",
-          "grain": "Figure",
-          "terrain": "Link",
-          "stance": "Binding",
-          "settledAs": "verb",
-          "children": []
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "pass": 2,
+          "foundOnReread": true,
+          "children": [
+           {
+            "seq": 373,
+            "schema": "EOTObservation@1",
+            "id": "o333",
+            "at": [
+             17298,
+             17309
+            ],
+            "role": "proposition",
+            "end1": "I",
+            "label": "being",
+            "end2": "that person",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
          },
          {
           "seq": 374,
@@ -4312,7 +4763,30 @@
           "terrain": "Link",
           "stance": "Binding",
           "settledAs": "verb",
-          "children": []
+          "children": [
+           {
+            "seq": 614,
+            "schema": "EOTObservation@1",
+            "id": "o357",
+            "at": [
+             17968,
+             18018
+            ],
+            "role": "proposition",
+            "end1": "she soon",
+            "label": "out",
+            "end2": "that the cause of this was the fan she was holding",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "pass": 2,
+            "foundOnReread": true,
+            "children": []
+           }
+          ]
          },
          {
           "seq": 390,
@@ -4752,24 +5226,44 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 406,
+              "seq": 615,
               "schema": "EOTObservation@1",
-              "id": "o358",
+              "id": "o366",
               "at": [
-               18682,
+               18670,
                18692
               ],
               "role": "proposition",
               "end1": "she",
-              "label": "in",
-              "end2": "salt water",
+              "label": "to",
+              "end2": "her chin in salt water",
               "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Ground",
-              "terrain": "Field",
-              "stance": "Tending",
-              "settledAs": "preposition",
-              "children": []
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": [
+               {
+                "seq": 406,
+                "schema": "EOTObservation@1",
+                "id": "o358",
+                "at": [
+                 18682,
+                 18692
+                ],
+                "role": "proposition",
+                "end1": "she",
+                "label": "in",
+                "end2": "salt water",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Ground",
+                "terrain": "Field",
+                "stance": "Tending",
+                "settledAs": "preposition",
+                "children": []
+               }
+              ]
              }
             ]
            }
@@ -4884,7 +5378,27 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 616,
+              "schema": "EOTObservation@1",
+              "id": "o371",
+              "at": [
+               18814,
+               18821
+              ],
+              "role": "proposition",
+              "end1": "she said",
+              "label": "to",
+              "end2": "herself",
+              "subjectBasis": "stated",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -5358,7 +5872,30 @@
               "terrain": "Link",
               "stance": "Binding",
               "settledAs": "verb",
-              "children": []
+              "children": [
+               {
+                "seq": 617,
+                "schema": "EOTObservation@1",
+                "id": "o385",
+                "at": [
+                 19668,
+                 19680
+                ],
+                "role": "proposition",
+                "end1": "she",
+                "label": "or",
+                "end2": "hippopotamus",
+                "subjectBasis": "inherited",
+                "operator": "SEG",
+                "grain": "Figure",
+                "terrain": "Link",
+                "stance": "Dissecting",
+                "settledAs": "conjunction",
+                "pass": 2,
+                "foundOnReread": true,
+                "children": []
+               }
+              ]
              }
             ]
            },
@@ -5731,24 +6268,44 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 438,
+              "seq": 618,
               "schema": "EOTObservation@1",
-              "id": "o384",
+              "id": "o392",
               "at": [
-               20217,
+               20189,
                20236
               ],
               "role": "proposition",
               "end1": "right way of",
-              "label": "had never done",
-              "end2": "such a thing before",
+              "label": "to",
+              "end2": "a mouse: she had never done such a thing before",
               "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Binding",
-              "settledAs": "verb",
-              "children": []
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": [
+               {
+                "seq": 438,
+                "schema": "EOTObservation@1",
+                "id": "o384",
+                "at": [
+                 20217,
+                 20236
+                ],
+                "role": "proposition",
+                "end1": "right way of",
+                "label": "had never done",
+                "end2": "such a thing before",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Figure",
+                "terrain": "Link",
+                "stance": "Binding",
+                "settledAs": "verb",
+                "children": []
+               }
+              ]
              }
             ]
            },
@@ -5958,6 +6515,28 @@
               "children": []
              }
             ]
+           },
+           {
+            "seq": 619,
+            "schema": "EOTObservation@1",
+            "id": "o400",
+            "at": [
+             20584,
+             20605
+            ],
+            "role": "proposition",
+            "end1": "come over",
+            "label": "with",
+            "end2": "William the Conqueror",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "pass": 2,
+            "foundOnReread": true,
+            "children": []
            }
           ]
          }
@@ -6091,7 +6670,52 @@
         "inferred": true,
         "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
-        "children": []
+        "children": [
+         {
+          "seq": 620,
+          "schema": "EOTObservation@1",
+          "id": "o403",
+          "at": [
+           20850,
+           20862
+          ],
+          "role": "proposition",
+          "end1": "a sudden leap",
+          "label": "out",
+          "end2": "of the water",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "pass": 2,
+          "foundOnReread": true,
+          "children": []
+         },
+         {
+          "seq": 621,
+          "schema": "EOTObservation@1",
+          "id": "o404",
+          "at": [
+           20900,
+           20906
+          ],
+          "role": "proposition",
+          "end1": "all over",
+          "label": "with",
+          "end2": "fright",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "pass": 2,
+          "foundOnReread": true,
+          "children": []
+         }
+        ]
        },
        {
         "seq": 137,
@@ -6203,7 +6827,27 @@
           "role": "arrangement",
           "reason": "gate_refused_no_two_ends",
           "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
-          "children": []
+          "children": [
+           {
+            "seq": 622,
+            "schema": "EOTObservation@1",
+            "id": "o407",
+            "at": [
+             21041,
+             21045
+            ],
+            "role": "proposition",
+            "end1": "you",
+            "label": "like",
+            "end2": "cats",
+            "subjectBasis": "stated",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "pass": 2,
+            "foundOnReread": true,
+            "children": []
+           }
+          ]
          }
         ]
        }
@@ -6289,24 +6933,44 @@
         "script": "cased",
         "children": [
          {
-          "seq": 457,
+          "seq": 623,
           "schema": "EOTObservation@1",
-          "id": "o395",
+          "id": "o408",
           "at": [
-           21152,
+           21135,
            21156
           ],
           "role": "proposition",
-          "end1": "you",
-          "label": "were",
-          "end2": "me?”",
+          "end1": "Would _you_",
+          "label": "like",
+          "end2": "cats if you were me?”",
           "subjectBasis": "stated",
-          "operator": "CON",
-          "grain": "Figure",
-          "terrain": "Link",
-          "stance": "Binding",
-          "settledAs": "verb",
-          "children": []
+          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+          "settledAs": null,
+          "pass": 2,
+          "foundOnReread": true,
+          "children": [
+           {
+            "seq": 457,
+            "schema": "EOTObservation@1",
+            "id": "o395",
+            "at": [
+             21152,
+             21156
+            ],
+            "role": "proposition",
+            "end1": "you",
+            "label": "were",
+            "end2": "me?”",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
          }
         ]
        }
@@ -6401,43 +7065,63 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 460,
+            "seq": 624,
             "schema": "EOTObservation@1",
-            "id": "o397",
+            "id": "o411",
             "at": [
-             21335,
+             21317,
              21347
             ],
             "role": "proposition",
             "end1": "think you’d",
-            "label": "could",
-            "end2": "only see her",
+            "label": "to",
+            "end2": "cats if you could only see her",
             "subjectBasis": "inherited",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "pass": 2,
+            "foundOnReread": true,
             "children": [
              {
-              "seq": 461,
+              "seq": 460,
               "schema": "EOTObservation@1",
-              "id": "o398",
+              "id": "o397",
               "at": [
-               21344,
+               21335,
                21347
               ],
               "role": "proposition",
               "end1": "think you’d",
-              "label": "see",
-              "end2": "her",
+              "label": "could",
+              "end2": "only see her",
               "subjectBasis": "inherited",
               "operator": "CON",
               "grain": "Figure",
               "terrain": "Link",
               "stance": "Binding",
               "settledAs": "verb",
-              "children": []
+              "children": [
+               {
+                "seq": 461,
+                "schema": "EOTObservation@1",
+                "id": "o398",
+                "at": [
+                 21344,
+                 21347
+                ],
+                "role": "proposition",
+                "end1": "think you’d",
+                "label": "see",
+                "end2": "her",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Figure",
+                "terrain": "Link",
+                "stance": "Binding",
+                "settledAs": "verb",
+                "children": []
+               }
+              ]
              }
             ]
            }
@@ -6474,6 +7158,25 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
+            "seq": 625,
+            "schema": "EOTObservation@1",
+            "id": "o413",
+            "at": [
+             21369,
+             21380
+            ],
+            "role": "proposition",
+            "end1": "such a",
+            "label": "dear",
+            "end2": "quiet thing",
+            "subjectBasis": "stated",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "pass": 2,
+            "foundOnReread": true,
+            "children": []
+           },
+           {
             "seq": 462,
             "schema": "EOTObservation@1",
             "id": "o399",
@@ -6492,6 +7195,25 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
+            "children": []
+           },
+           {
+            "seq": 626,
+            "schema": "EOTObservation@1",
+            "id": "o415",
+            "at": [
+             21406,
+             21413
+            ],
+            "role": "proposition",
+            "end1": "half",
+            "label": "to",
+            "end2": "herself",
+            "subjectBasis": "stated",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "pass": 2,
+            "foundOnReread": true,
             "children": []
            },
            {
@@ -6552,7 +7274,27 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 627,
+              "schema": "EOTObservation@1",
+              "id": "o417",
+              "at": [
+               21576,
+               21631
+              ],
+              "role": "proposition",
+              "end1": "soft thing",
+              "label": "to",
+              "end2": "nurse—and she’s such a capital one for catching mice—oh",
+              "subjectBasis": "stated",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -6973,24 +7715,44 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 481,
+            "seq": 628,
             "schema": "EOTObservation@1",
-            "id": "o409",
+            "id": "o424",
             "at": [
-             22295,
+             22287,
              22299
             ],
             "role": "proposition",
             "end1": "I",
-            "label": "show",
-            "end2": "you!",
-            "subjectBasis": "inherited",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
-            "children": []
+            "label": "should like",
+            "end2": "to show you!",
+            "subjectBasis": "stated",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "pass": 2,
+            "foundOnReread": true,
+            "children": [
+             {
+              "seq": 481,
+              "schema": "EOTObservation@1",
+              "id": "o409",
+              "at": [
+               22295,
+               22299
+              ],
+              "role": "proposition",
+              "end1": "I",
+              "label": "show",
+              "end2": "you!",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -7149,7 +7911,27 @@
               "terrain": "Link",
               "stance": "Binding",
               "settledAs": "verb",
-              "children": []
+              "children": [
+               {
+                "seq": 629,
+                "schema": "EOTObservation@1",
+                "id": "o431",
+                "at": [
+                 22537,
+                 22545
+                ],
+                "role": "proposition",
+                "end1": "I can’t",
+                "label": "to",
+                "end2": "a farmer",
+                "subjectBasis": "inherited",
+                "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+                "settledAs": null,
+                "pass": 2,
+                "foundOnReread": true,
+                "children": []
+               }
+              ]
              }
             ]
            },
@@ -7526,6 +8308,48 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
+            "children": [
+             {
+              "seq": 630,
+              "schema": "EOTObservation@1",
+              "id": "o442",
+              "at": [
+               22951,
+               22962
+              ],
+              "role": "proposition",
+              "end1": "we won’t",
+              "label": "or",
+              "end2": "dogs either",
+              "subjectBasis": "inherited",
+              "operator": "SEG",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Dissecting",
+              "settledAs": "conjunction",
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
+             }
+            ]
+           },
+           {
+            "seq": 631,
+            "schema": "EOTObservation@1",
+            "id": "o443",
+            "at": [
+             22982,
+             22988
+            ],
+            "role": "proposition",
+            "end1": "you don’t",
+            "label": "like",
+            "end2": "them!”",
+            "subjectBasis": "stated",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "pass": 2,
+            "foundOnReread": true,
             "children": []
            }
           ]
@@ -7619,7 +8443,27 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 632,
+              "schema": "EOTObservation@1",
+              "id": "o446",
+              "at": [
+               23172,
+               23181
+              ],
+              "role": "proposition",
+              "end1": "Let us",
+              "label": "to",
+              "end2": "the shore",
+              "subjectBasis": "inherited",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
+             }
+            ]
            },
            {
             "seq": 504,
@@ -7747,7 +8591,27 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 633,
+              "schema": "EOTObservation@1",
+              "id": "o451",
+              "at": [
+               23297,
+               23299
+              ],
+              "role": "proposition",
+              "end1": "It",
+              "label": "to",
+              "end2": "go",
+              "subjectBasis": "inherited",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "pass": 2,
+              "foundOnReread": true,
+              "children": []
+             }
+            ]
            },
            {
             "seq": 508,

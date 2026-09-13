@@ -84,6 +84,26 @@
   [
    "Rabbit",
    "ref:auto:rabbit"
+  ],
+  [
+   "White Rabbit",
+   "ref:auto:white_rabbit"
+  ],
+  [
+   "Latitude",
+   "ref:auto:latitude"
+  ],
+  [
+   "Longitude",
+   "ref:auto:longitude"
+  ],
+  [
+   "White",
+   "ref:auto:white_rabbit"
+  ],
+  [
+   "Oh",
+   "ref:auto:oh"
   ]
  ]
 }

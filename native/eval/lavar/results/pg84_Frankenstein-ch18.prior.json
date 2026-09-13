@@ -1,0 +1,36 @@
+{
+ "chapter": 18,
+ "verbs": [
+  "for",
+  "and",
+  "power",
+  "from",
+  "cried"
+ ],
+ "cast": [
+  [
+   "South America",
+   "ref:auto:south_america"
+  ],
+  [
+   "Chamounix",
+   "ref:auto:chamounix"
+  ],
+  [
+   "Europe",
+   "ref:auto:europe"
+  ],
+  [
+   "Geneva",
+   "ref:auto:geneva"
+  ],
+  [
+   "South",
+   "ref:auto:south_america"
+  ],
+  [
+   "Oh",
+   "ref:auto:oh"
+  ]
+ ]
+}

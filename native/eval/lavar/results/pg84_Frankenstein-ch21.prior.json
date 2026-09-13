@@ -1,0 +1,38 @@
+{
+ "chapter": 21,
+ "verbs": [
+  "and",
+  "with",
+  "entreating",
+  "desired",
+  "enterprise",
+  "might",
+  "to",
+  "may",
+  "is",
+  "besought",
+  "at"
+ ],
+ "cast": [
+  [
+   "Elizabeth",
+   "ref:auto:elizabeth"
+  ],
+  [
+   "English",
+   "ref:auto:english"
+  ],
+  [
+   "London",
+   "ref:auto:london"
+  ],
+  [
+   "Mr Kirwin",
+   "ref:auto:mr_kirwin"
+  ],
+  [
+   "Mr",
+   "ref:auto:mr"
+  ]
+ ]
+}

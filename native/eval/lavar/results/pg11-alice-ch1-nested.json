@@ -1,0 +1,1818 @@
+{
+ "schema": "EOTNested@1",
+ "source": {
+  "path": "live_priors/01-literature-books/gutenberg/pg11-alice-ch1.txt",
+  "bytes": 11552
+ },
+ "reading": {
+  "sentences": 89,
+  "propositions": 127,
+  "roots": 108,
+  "nested": 19,
+  "withPropositionValuedEnd": 19,
+  "nestsRefusedByPosGate": 5,
+  "maxDepth": 2
+ },
+ "propositions": [
+  {
+   "id": "p1",
+   "parent": null,
+   "depth": 0,
+   "end1": "her sister",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "reading"
+   },
+   "end2Text": "reading",
+   "at": "197-204",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p2",
+   "parent": null,
+   "depth": 0,
+   "end1": "no pictures",
+   "label": "or",
+   "end2": {
+    "standing": "text",
+    "text": "conversations in it"
+   },
+   "end2Text": "conversations in it",
+   "at": "232-251",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p3",
+   "parent": null,
+   "depth": 0,
+   "end1": "without pictures",
+   "label": "or",
+   "end2": {
+    "standing": "text",
+    "text": "conversations?”"
+   },
+   "end2Text": "conversations?”",
+   "at": "321-336",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p4",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "considering in her own mind (as well as she could"
+   },
+   "end2Text": "considering in her own mind (as well as she could",
+   "at": "349-398",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p5",
+   "parent": null,
+   "depth": 0,
+   "end1": "There",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "nothing so _very_ remarkable in that"
+   },
+   "end2Text": "nothing so _very_ remarkable in that",
+   "at": "639-675",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p6",
+   "parent": null,
+   "depth": 0,
+   "end1": "the way",
+   "label": "to",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p7"
+   },
+   "end2Text": "hear the Rabbit say to itself",
+   "at": "733-762",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p7",
+   "parent": "p6",
+   "depth": 1,
+   "end1": "the way",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "itself"
+   },
+   "end2Text": "itself",
+   "at": "756-762",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p8",
+   "parent": null,
+   "depth": 0,
+   "end1": "it",
+   "label": "to",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p9"
+   },
+   "end2Text": "her that she ought to have wondered at this",
+   "at": "854-897",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p9",
+   "parent": "p8",
+   "depth": 1,
+   "end1": "it",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "have wondered at this"
+   },
+   "end2Text": "have wondered at this",
+   "at": "876-897",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p10",
+   "parent": null,
+   "depth": 0,
+   "end1": "Alice",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "her feet"
+   },
+   "end2Text": "her feet",
+   "at": "1074-1082",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p11",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "had",
+   "end2": {
+    "standing": "text",
+    "text": "never before seen a rabbit with either a waistcoat-pocket"
+   },
+   "end2Text": "never before seen a rabbit with either a waistcoat-pocket",
+   "at": "1128-1185",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p12",
+   "parent": null,
+   "depth": 0,
+   "end1": "a watch",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "take out of it"
+   },
+   "end2Text": "take out of it",
+   "at": "1201-1215",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p13",
+   "parent": null,
+   "depth": 0,
+   "end1": "burning",
+   "label": "with",
+   "end2": {
+    "standing": "text",
+    "text": "curiosity"
+   },
+   "end2Text": "curiosity",
+   "at": "1234-1243",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p14",
+   "parent": null,
+   "depth": 0,
+   "end1": "the field",
+   "label": "after",
+   "end2": {
+    "standing": "text",
+    "text": "it"
+   },
+   "end2Text": "it",
+   "at": "819-821",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p15",
+   "parent": null,
+   "depth": 0,
+   "end1": "another moment down went Alice",
+   "label": "after",
+   "end2": {
+    "standing": "text",
+    "text": "it"
+   },
+   "end2Text": "it",
+   "at": "1410-1412",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p16",
+   "parent": null,
+   "depth": 0,
+   "end1": "world she",
+   "label": "was to",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p17"
+   },
+   "end2Text": "get out again",
+   "at": "1465-1478",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p17",
+   "parent": "p16",
+   "depth": 1,
+   "end1": "world she",
+   "label": "get",
+   "end2": {
+    "standing": "text",
+    "text": "out again"
+   },
+   "end2Text": "out again",
+   "at": "1469-1478",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p18",
+   "parent": null,
+   "depth": 0,
+   "end1": "The rabbit-hole went straight on",
+   "label": "like",
+   "end2": {
+    "standing": "text",
+    "text": "a tunnel for some way"
+   },
+   "end2Text": "a tunnel for some way",
+   "at": "1519-1540",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p19",
+   "parent": null,
+   "depth": 0,
+   "end1": "the well",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "very deep"
+   },
+   "end2Text": "very deep",
+   "at": "1722-1731",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p20",
+   "parent": null,
+   "depth": 0,
+   "end1": "what",
+   "label": "was",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p21"
+   },
+   "end2Text": "going to happen next",
+   "at": "1843-1863",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p21",
+   "parent": "p20",
+   "depth": 1,
+   "end1": "what",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "happen next"
+   },
+   "end2Text": "happen next",
+   "at": "1852-1863",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p22",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "coming to"
+   },
+   "end2Text": "coming to",
+   "at": "1921-1930",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p23",
+   "parent": null,
+   "depth": 0,
+   "end1": "it",
+   "label": "was",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p24"
+   },
+   "end2Text": "too dark to see anything",
+   "at": "1943-1967",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p24",
+   "parent": "p23",
+   "depth": 1,
+   "end1": "it",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "see anything"
+   },
+   "end2Text": "see anything",
+   "at": "1955-1967",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p25",
+   "parent": null,
+   "depth": 0,
+   "end1": "were filled",
+   "label": "with",
+   "end2": {
+    "standing": "text",
+    "text": "cupboards and book-shelves"
+   },
+   "end2Text": "cupboards and book-shelves",
+   "at": "2050-2076",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p26",
+   "parent": null,
+   "depth": 0,
+   "end1": "it",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "labelled “ORANGE MARMALADE”"
+   },
+   "end2Text": "labelled “ORANGE MARMALADE”",
+   "at": "2201-2228",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p27",
+   "parent": null,
+   "depth": 0,
+   "end1": "thought Alice",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "herself"
+   },
+   "end2Text": "herself",
+   "at": "2444-2451",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p28",
+   "parent": null,
+   "depth": 0,
+   "end1": "I",
+   "label": "shall think",
+   "end2": {
+    "standing": "text",
+    "text": "nothing of tumbling down stairs!"
+   },
+   "end2Text": "nothing of tumbling down stairs!",
+   "at": "2495-2527",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p29",
+   "parent": null,
+   "depth": 0,
+   "end1": "the fall _never_ come",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "an end?"
+   },
+   "end2Text": "an end?",
+   "at": "2729-2736",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p30",
+   "parent": null,
+   "depth": 0,
+   "end1": "wonder how many miles I’ve",
+   "label": "fallen",
+   "end2": {
+    "standing": "text",
+    "text": "by this time?”"
+   },
+   "end2Text": "by this time?”",
+   "at": "2774-2788",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p31",
+   "parent": null,
+   "depth": 0,
+   "end1": "as there",
+   "label": "was",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p32"
+   },
+   "end2Text": "no one to listen to her",
+   "at": "3114-3137",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p32",
+   "parent": "p31",
+   "depth": 1,
+   "end1": "as there",
+   "label": "to",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p33"
+   },
+   "end2Text": "listen to her",
+   "at": "3124-3137",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p33",
+   "parent": "p32",
+   "depth": 2,
+   "end1": "as there",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "her"
+   },
+   "end2Text": "her",
+   "at": "3134-3137",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p34",
+   "parent": null,
+   "depth": 0,
+   "end1": "good practice",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "say it over) “—yes"
+   },
+   "end2Text": "say it over) “—yes",
+   "at": "3169-3187",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p35",
+   "parent": null,
+   "depth": 0,
+   "end1": "what Latitude",
+   "label": "or",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p36"
+   },
+   "end2Text": "Longitude I’ve got to?”",
+   "at": "3256-3279",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p36",
+   "parent": "p35",
+   "depth": 1,
+   "end1": "what Latitude",
+   "label": "got",
+   "end2": {
+    "standing": "text",
+    "text": "to?”"
+   },
+   "end2Text": "to?”",
+   "at": "3275-3279",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p37",
+   "parent": null,
+   "depth": 0,
+   "end1": "grand words",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "say"
+   },
+   "end2Text": "say",
+   "at": "3381-3384",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p38",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "began",
+   "end2": {
+    "standing": "text",
+    "text": "again"
+   },
+   "end2Text": "again",
+   "at": "3408-3413",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p39",
+   "parent": null,
+   "depth": 0,
+   "end1": "walk",
+   "label": "with",
+   "end2": {
+    "standing": "text",
+    "text": "their heads downward!"
+   },
+   "end2Text": "their heads downward!",
+   "at": "3533-3554",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p40",
+   "parent": null,
+   "depth": 0,
+   "end1": "New Zealand",
+   "label": "or",
+   "end2": {
+    "standing": "text",
+    "text": "Australia?”"
+   },
+   "end2Text": "Australia?”",
+   "at": "3798-3809",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p41",
+   "parent": null,
+   "depth": 0,
+   "end1": "an ignorant little girl she’ll",
+   "label": "think",
+   "end2": {
+    "standing": "text",
+    "text": "me for asking!"
+   },
+   "end2Text": "me for asking!",
+   "at": "3985-3999",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p42",
+   "parent": null,
+   "depth": 0,
+   "end1": "it’ll",
+   "label": "never do to",
+   "end2": {
+    "standing": "text",
+    "text": "ask: perhaps I shall see it written up somewhere"
+   },
+   "end2Text": "ask: perhaps I shall see it written up somewhere",
+   "at": "4022-4070",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p43",
+   "parent": null,
+   "depth": 0,
+   "end1": "There",
+   "label": "was",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p44"
+   },
+   "end2Text": "nothing else to do",
+   "at": "4102-4120",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p44",
+   "parent": "p43",
+   "depth": 1,
+   "end1": "There",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "do"
+   },
+   "end2Text": "do",
+   "at": "4118-4120",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p45",
+   "parent": null,
+   "depth": 0,
+   "end1": "Alice soon",
+   "label": "began",
+   "end2": {
+    "standing": "text",
+    "text": "talking again"
+   },
+   "end2Text": "talking again",
+   "at": "4142-4155",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p46",
+   "parent": null,
+   "depth": 0,
+   "end1": "Dinah",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "the cat"
+   },
+   "end2Text": "the cat",
+   "at": "4223-4230",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p47",
+   "parent": null,
+   "depth": 0,
+   "end1": "Dinah",
+   "label": "my",
+   "end2": {
+    "standing": "text",
+    "text": "dear!"
+   },
+   "end2Text": "dear!",
+   "at": "4299-4304",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p48",
+   "parent": null,
+   "depth": 0,
+   "end1": "down here",
+   "label": "with",
+   "end2": {
+    "standing": "text",
+    "text": "me!"
+   },
+   "end2Text": "me!",
+   "at": "4336-4339",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p49",
+   "parent": null,
+   "depth": 0,
+   "end1": "that’s very",
+   "label": "like",
+   "end2": {
+    "standing": "text",
+    "text": "a mouse"
+   },
+   "end2Text": "a mouse",
+   "at": "4430-4437",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p50",
+   "parent": null,
+   "depth": 0,
+   "end1": "do cats",
+   "label": "eat",
+   "end2": {
+    "standing": "text",
+    "text": "bats"
+   },
+   "end2Text": "bats",
+   "at": "4465-4469",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p51",
+   "parent": null,
+   "depth": 0,
+   "end1": "here Alice",
+   "label": "began",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p52"
+   },
+   "end2Text": "to get rather sleepy",
+   "at": "4503-4523",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p52",
+   "parent": "p51",
+   "depth": 1,
+   "end1": "here Alice",
+   "label": "to get",
+   "end2": {
+    "standing": "text",
+    "text": "rather sleepy"
+   },
+   "end2Text": "rather sleepy",
+   "at": "4510-4523",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p53",
+   "parent": null,
+   "depth": 0,
+   "end1": "on saying",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "herself"
+   },
+   "end2Text": "herself",
+   "at": "4547-4554",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p54",
+   "parent": null,
+   "depth": 0,
+   "end1": "Do cats",
+   "label": "eat",
+   "end2": {
+    "standing": "text",
+    "text": "bats?"
+   },
+   "end2Text": "bats?",
+   "at": "4594-4599",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p55",
+   "parent": null,
+   "depth": 0,
+   "end1": "Do cats",
+   "label": "eat",
+   "end2": {
+    "standing": "text",
+    "text": "bats?”"
+   },
+   "end2Text": "bats?”",
+   "at": "4612-4618",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p56",
+   "parent": null,
+   "depth": 0,
+   "end1": "Do bats",
+   "label": "eat",
+   "end2": {
+    "standing": "text",
+    "text": "cats?”"
+   },
+   "end2Text": "cats?”",
+   "at": "4647-4653",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p57",
+   "parent": null,
+   "depth": 0,
+   "end1": "couldn’t answer",
+   "label": "either",
+   "end2": {
+    "standing": "text",
+    "text": "question"
+   },
+   "end2Text": "question",
+   "at": "4698-4706",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p58",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "dozing off"
+   },
+   "end2Text": "dozing off",
+   "at": "4774-4784",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p59",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "walking hand in hand with Dinah"
+   },
+   "end2Text": "walking hand in hand with Dinah",
+   "at": "4827-4858",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p60",
+   "parent": null,
+   "depth": 0,
+   "end1": "saying",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "her very earnestly"
+   },
+   "end2Text": "her very earnestly",
+   "at": "4874-4892",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p61",
+   "parent": null,
+   "depth": 0,
+   "end1": "you",
+   "label": "eat",
+   "end2": {
+    "standing": "text",
+    "text": "a bat?”"
+   },
+   "end2Text": "a bat?”",
+   "at": "4943-4950",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p62",
+   "parent": null,
+   "depth": 0,
+   "end1": "the fall",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "over"
+   },
+   "end2Text": "over",
+   "at": "5049-5053",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p63",
+   "parent": null,
+   "depth": 0,
+   "end1": "Alice",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "not a bit hurt"
+   },
+   "end2Text": "not a bit hurt",
+   "at": "5066-5080",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p64",
+   "parent": null,
+   "depth": 0,
+   "end1": "it",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "all dark overhead"
+   },
+   "end2Text": "all dark overhead",
+   "at": "5154-5171",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p65",
+   "parent": null,
+   "depth": 0,
+   "end1": "the White Rabbit",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "still in sight"
+   },
+   "end2Text": "still in sight",
+   "at": "5235-5249",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p66",
+   "parent": null,
+   "depth": 0,
+   "end1": "There",
+   "label": "was",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p67"
+   },
+   "end2Text": "not a moment to be lost: away went Alice like the wind",
+   "at": "5279-5333",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p67",
+   "parent": "p66",
+   "depth": 1,
+   "end1": "There",
+   "label": "to",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p68"
+   },
+   "end2Text": "be lost: away went Alice like the wind",
+   "at": "5295-5333",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p68",
+   "parent": "p67",
+   "depth": 2,
+   "end1": "There",
+   "label": "like",
+   "end2": {
+    "standing": "text",
+    "text": "the wind"
+   },
+   "end2Text": "the wind",
+   "at": "5325-5333",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p69",
+   "parent": null,
+   "depth": 0,
+   "end1": "and",
+   "label": "was",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p70"
+   },
+   "end2Text": "just in time to hear it say",
+   "at": "5343-5370",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p70",
+   "parent": "p69",
+   "depth": 1,
+   "end1": "and",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "hear it say"
+   },
+   "end2Text": "hear it say",
+   "at": "5359-5370",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p71",
+   "parent": null,
+   "depth": 0,
+   "end1": "Alice",
+   "label": "had",
+   "end2": {
+    "standing": "text",
+    "text": "been all the way down one side and up the other"
+   },
+   "end2Text": "been all the way down one side and up the other",
+   "at": "5718-5765",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p72",
+   "parent": null,
+   "depth": 0,
+   "end1": "was ever",
+   "label": "to",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p73"
+   },
+   "end2Text": "get out again",
+   "at": "5850-5863",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p73",
+   "parent": "p72",
+   "depth": 1,
+   "end1": "was ever",
+   "label": "get",
+   "end2": {
+    "standing": "text",
+    "text": "out again"
+   },
+   "end2Text": "out again",
+   "at": "5854-5863",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p74",
+   "parent": null,
+   "depth": 0,
+   "end1": "there",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "nothing on it except a tiny golden key"
+   },
+   "end2Text": "nothing on it except a tiny golden key",
+   "at": "5953-5991",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p75",
+   "parent": null,
+   "depth": 0,
+   "end1": "first thought",
+   "label": "was",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p76"
+   },
+   "end2Text": "that it might belong to one of the doors of the hall",
+   "at": "6023-6075",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p76",
+   "parent": "p75",
+   "depth": 1,
+   "end1": "first thought",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "one of the doors of the hall"
+   },
+   "end2Text": "one of the doors of the hall",
+   "at": "6047-6075",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p77",
+   "parent": null,
+   "depth": 0,
+   "end1": "the key",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "too small"
+   },
+   "end2Text": "too small",
+   "at": "6136-6145",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p78",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "had",
+   "end2": {
+    "standing": "text",
+    "text": "not noticed before"
+   },
+   "end2Text": "not noticed before",
+   "at": "6265-6283",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p79",
+   "parent": null,
+   "depth": 0,
+   "end1": "Alice",
+   "label": "opened",
+   "end2": {
+    "standing": "text",
+    "text": "the door and found that it led into a small passage"
+   },
+   "end2Text": "the door and found that it led into a small passage",
+   "at": "6439-6490",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p80",
+   "parent": null,
+   "depth": 0,
+   "end1": "longed",
+   "label": "get",
+   "end2": {
+    "standing": "text",
+    "text": "out of that dark hall"
+   },
+   "end2Text": "out of that dark hall",
+   "at": "6631-6652",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p81",
+   "parent": null,
+   "depth": 0,
+   "end1": "even",
+   "label": "my",
+   "end2": {
+    "standing": "text",
+    "text": "head would go through"
+   },
+   "end2Text": "head would go through",
+   "at": "6805-6826",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p82",
+   "parent": null,
+   "depth": 0,
+   "end1": "use without",
+   "label": "my",
+   "end2": {
+    "standing": "text",
+    "text": "shoulders"
+   },
+   "end2Text": "shoulders",
+   "at": "6892-6901",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p83",
+   "parent": null,
+   "depth": 0,
+   "end1": "shut up",
+   "label": "like",
+   "end2": {
+    "standing": "text",
+    "text": "a telescope!"
+   },
+   "end2Text": "a telescope!",
+   "at": "6939-6951",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p84",
+   "parent": null,
+   "depth": 0,
+   "end1": "I",
+   "label": "think",
+   "end2": {
+    "standing": "text",
+    "text": "I could"
+   },
+   "end2Text": "I could",
+   "at": "6960-6967",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p85",
+   "parent": null,
+   "depth": 0,
+   "end1": "knew how",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "begin"
+   },
+   "end2Text": "begin",
+   "at": "6991-6996",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p86",
+   "parent": null,
+   "depth": 0,
+   "end1": "many out-of-the-way things",
+   "label": "had",
+   "end2": {
+    "standing": "text",
+    "text": "happened lately"
+   },
+   "end2Text": "happened lately",
+   "at": "7047-7062",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p87",
+   "parent": null,
+   "depth": 0,
+   "end1": "There seemed",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "be no use in waiting by the little door"
+   },
+   "end2Text": "be no use in waiting by the little door",
+   "at": "7163-7202",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p88",
+   "parent": null,
+   "depth": 0,
+   "end1": "went back",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "the table"
+   },
+   "end2Text": "the table",
+   "at": "7224-7233",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p89",
+   "parent": null,
+   "depth": 0,
+   "end1": "It",
+   "label": "was",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p90"
+   },
+   "end2Text": "all very well to say “Drink me",
+   "at": "7579-7609",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p90",
+   "parent": "p89",
+   "depth": 1,
+   "end1": "It",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "say “Drink me"
+   },
+   "end2Text": "say “Drink me",
+   "at": "7596-7609",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p91",
+   "parent": null,
+   "depth": 0,
+   "end1": "little Alice",
+   "label": "was",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p92"
+   },
+   "end2Text": "not going to do _that_ in a hurry",
+   "at": "7642-7675",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p92",
+   "parent": "p91",
+   "depth": 1,
+   "end1": "little Alice",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "do _that_ in a hurry"
+   },
+   "end2Text": "do _that_ in a hurry",
+   "at": "7655-7675",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p93",
+   "parent": null,
+   "depth": 0,
+   "end1": "I’ll",
+   "label": "look",
+   "end2": {
+    "standing": "text",
+    "text": "first"
+   },
+   "end2Text": "first",
+   "at": "7692-7697",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p94",
+   "parent": null,
+   "depth": 0,
+   "end1": "_poison_’",
+   "label": "or",
+   "end2": {
+    "standing": "text",
+    "text": "not”"
+   },
+   "end2Text": "not”",
+   "at": "7753-7757",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p95",
+   "parent": null,
+   "depth": 0,
+   "end1": "children",
+   "label": "had got",
+   "end2": {
+    "standing": "text",
+    "text": "burnt"
+   },
+   "end2Text": "burnt",
+   "at": "7833-7838",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p96",
+   "parent": null,
+   "depth": 0,
+   "end1": "your finger _very_ deeply",
+   "label": "with",
+   "end2": {
+    "standing": "text",
+    "text": "a knife"
+   },
+   "end2Text": "a knife",
+   "at": "8103-8110",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p97",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "had",
+   "end2": {
+    "standing": "text",
+    "text": "never forgotten that"
+   },
+   "end2Text": "never forgotten that",
+   "at": "8143-8163",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p98",
+   "parent": null,
+   "depth": 0,
+   "end1": "almost certain",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "disagree with you"
+   },
+   "end2Text": "disagree with you",
+   "at": "8238-8255",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p99",
+   "parent": null,
+   "depth": 0,
+   "end1": "sooner",
+   "label": "or",
+   "end2": {
+    "standing": "text",
+    "text": "later"
+   },
+   "end2Text": "later",
+   "at": "8267-8272",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p100",
+   "parent": null,
+   "depth": 0,
+   "end1": "this",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "_not_ marked “poison"
+   },
+   "end2Text": "_not_ marked “poison",
+   "at": "8300-8320",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p101",
+   "parent": null,
+   "depth": 0,
+   "end1": "Alice ventured",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "taste it"
+   },
+   "end2Text": "taste it",
+   "at": "8344-8352",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p102",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "soon",
+   "end2": {
+    "standing": "text",
+    "text": "finished it off"
+   },
+   "end2Text": "finished it off",
+   "at": "8520-8535",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p103",
+   "parent": null,
+   "depth": 0,
+   "end1": "it",
+   "label": "was",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p104"
+   },
+   "end2Text": "indeed: she was now only ten inches high",
+   "at": "8766-8806",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p104",
+   "parent": "p103",
+   "depth": 1,
+   "end1": "it",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "now only ten inches high"
+   },
+   "end2Text": "now only ten inches high",
+   "at": "8782-8806",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p105",
+   "parent": null,
+   "depth": 0,
+   "end1": "said Alice",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "herself"
+   },
+   "end2Text": "herself",
+   "at": "9115-9122",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p106",
+   "parent": null,
+   "depth": 0,
+   "end1": "in",
+   "label": "my",
+   "end2": {
+    "standing": "text",
+    "text": "going out altogether"
+   },
+   "end2Text": "going out altogether",
+   "at": "9131-9151",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p107",
+   "parent": null,
+   "depth": 0,
+   "end1": "I",
+   "label": "should be like",
+   "end2": {
+    "standing": "text",
+    "text": "then?”"
+   },
+   "end2Text": "then?”",
+   "at": "9199-9205",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p108",
+   "parent": null,
+   "depth": 0,
+   "end1": "the flame of a candle",
+   "label": "is like",
+   "end2": {
+    "standing": "text",
+    "text": "after the candle is blown out"
+   },
+   "end2Text": "after the candle is blown out",
+   "at": "9264-9293",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p109",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "had",
+   "end2": {
+    "standing": "text",
+    "text": "forgotten the little golden key"
+   },
+   "end2Text": "forgotten the little golden key",
+   "at": "9521-9552",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p110",
+   "parent": null,
+   "depth": 0,
+   "end1": "went back",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "the table for it"
+   },
+   "end2Text": "the table for it",
+   "at": "9580-9596",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p111",
+   "parent": null,
+   "depth": 0,
+   "end1": "her best",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "climb up one of the legs of the table"
+   },
+   "end2Text": "climb up one of the legs of the table",
+   "at": "9717-9754",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p112",
+   "parent": null,
+   "depth": 0,
+   "end1": "it",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "too slippery"
+   },
+   "end2Text": "too slippery",
+   "at": "9767-9779",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p113",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "had",
+   "end2": {
+    "standing": "text",
+    "text": "tired herself out with trying"
+   },
+   "end2Text": "tired herself out with trying",
+   "at": "9798-9827",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p114",
+   "parent": null,
+   "depth": 0,
+   "end1": "there’s no use in crying",
+   "label": "like",
+   "end2": {
+    "standing": "text",
+    "text": "that!”"
+   },
+   "end2Text": "that!”",
+   "at": "9909-9915",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p115",
+   "parent": null,
+   "depth": 0,
+   "end1": "said Alice",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "herself"
+   },
+   "end2Text": "herself",
+   "at": "9930-9937",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p116",
+   "parent": null,
+   "depth": 0,
+   "end1": "you",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "leave off this minute!”"
+   },
+   "end2Text": "leave off this minute!”",
+   "at": "9972-9995",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p117",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "playing against herself"
+   },
+   "end2Text": "playing against herself",
+   "at": "10265-10288",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p118",
+   "parent": null,
+   "depth": 0,
+   "end1": "curious child",
+   "label": "was",
+   "end2": {
+    "standing": "proposition",
+    "ref": "p119"
+   },
+   "end2Text": "very fond of pretending to be two people",
+   "at": "10317-10357",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p119",
+   "parent": "p118",
+   "depth": 1,
+   "end1": "curious child",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "be two people"
+   },
+   "end2Text": "be two people",
+   "at": "10344-10357",
+   "inheritedSubject": true
+  },
+  {
+   "id": "p120",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "opened",
+   "end2": {
+    "standing": "text",
+    "text": "it"
+   },
+   "end2Text": "it",
+   "at": "10530-10532",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p121",
+   "parent": null,
+   "depth": 0,
+   "end1": "I’ll",
+   "label": "eat",
+   "end2": {
+    "standing": "text",
+    "text": "it"
+   },
+   "end2Text": "it",
+   "at": "10709-10711",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p122",
+   "parent": null,
+   "depth": 0,
+   "end1": "way I’ll",
+   "label": "get",
+   "end2": {
+    "standing": "text",
+    "text": "into the garden"
+   },
+   "end2Text": "into the garden",
+   "at": "10864-10879",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p123",
+   "parent": null,
+   "depth": 0,
+   "end1": "said anxiously",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "herself"
+   },
+   "end2Text": "herself",
+   "at": "10959-10966",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p124",
+   "parent": null,
+   "depth": 0,
+   "end1": "it",
+   "label": "was",
+   "end2": {
+    "standing": "text",
+    "text": "growing"
+   },
+   "end2Text": "growing",
+   "at": "11058-11065",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p125",
+   "parent": null,
+   "depth": 0,
+   "end1": "the way of expecting nothing but out-of-the-way things",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "happen"
+   },
+   "end2Text": "happen",
+   "at": "11163-11169",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p126",
+   "parent": null,
+   "depth": 0,
+   "end1": "she",
+   "label": "to",
+   "end2": {
+    "standing": "text",
+    "text": "work"
+   },
+   "end2Text": "work",
+   "at": "11377-11381",
+   "inheritedSubject": false
+  },
+  {
+   "id": "p127",
+   "parent": null,
+   "depth": 0,
+   "end1": "very",
+   "label": "soon",
+   "end2": {
+    "standing": "text",
+    "text": "finished off the cake"
+   },
+   "end2Text": "finished off the cake",
+   "at": "11397-11418",
+   "inheritedSubject": false
+  }
+ ],
+ "refusedNests": [
+  {
+   "label": "with",
+   "from": "never before seen a rabbit with either a waistcoat-pocket"
+  },
+  {
+   "label": "with",
+   "from": "walking hand in hand with Dinah"
+  },
+  {
+   "label": "with",
+   "from": "disagree with you"
+  },
+  {
+   "label": "after",
+   "from": "after the candle is blown out"
+  },
+  {
+   "label": "with",
+   "from": "tired herself out with trying"
+  }
+ ]
+}

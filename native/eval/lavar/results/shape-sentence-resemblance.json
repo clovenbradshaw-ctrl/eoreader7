@@ -1,0 +1,1082 @@
+{
+ "fieldSize": 1079,
+ "topK": 108,
+ "constants": {
+  "TOPK_FRACTION": 0.1,
+  "RANDOM_DRAWS": 15,
+  "NULLBAND_DRAWS": 100
+ },
+ "mapping": {
+  "totalPropLines": 2415,
+  "totalMappedProps": 2415,
+  "totalUnmapped": 0
+ },
+ "representatives": [
+  {
+   "ch": 1,
+   "idx": 19,
+   "real": "she said aloud.",
+   "anon": "she said aloud."
+  },
+  {
+   "ch": 2,
+   "idx": 59,
+   "real": "As she said this she looked down at her hands, and was surprised to see that she had put on one of the Rabbit’s little white kid gloves while she was talking.",
+   "anon": "As she said this she looked down at her hands, and was surprised to see that she had put on one of the SOMEONE’s little white kid gloves while she was talking."
+  },
+  {
+   "ch": 4,
+   "idx": 15,
+   "real": "As she said this, she came upon a neat little house, on the door of which was a bright brass plate with the name “W.",
+   "anon": "As she said this, she came upon a neat little house, on the door of which was a bright brass plate with the name “W."
+  },
+  {
+   "ch": 5,
+   "idx": 168,
+   "real": "As she said this, she came suddenly upon an open place, with a little house in it about four feet high.",
+   "anon": "As she said this, she came suddenly upon an open place, with a little house in it about four feet high."
+  },
+  {
+   "ch": 6,
+   "idx": 94,
+   "real": "the Duchess said to Alice, flinging the baby at her as she spoke.",
+   "anon": "the SOMEONE said to SOMEONE, flinging the baby at her as she spoke."
+  },
+  {
+   "ch": 7,
+   "idx": 9,
+   "real": "the March Hare said in an encouraging tone.",
+   "anon": "the SOMEONE said in an encouraging tone."
+  },
+  {
+   "ch": 8,
+   "idx": 20,
+   "real": "Five and Seven said nothing, but looked at Two.",
+   "anon": "SOMEONE and SOMEONE said nothing, but looked at Two."
+  },
+  {
+   "ch": 9,
+   "idx": 31,
+   "real": "the Duchess said after a pause: “the reason is, that I’m doubtful about the temper of your flamingo.",
+   "anon": "the SOMEONE said after a pause: “the reason is, that SOMEONE doubtful about the temper of your flamingo."
+  },
+  {
+   "ch": 10,
+   "idx": 8,
+   "real": "but checked herself hastily, and said “No, never”) “—so you can have no idea what a delightful thing a Lobster Quadrille is!”",
+   "anon": "but checked herself hastily, and said “No, never”) “—so you can have no idea what a delightful thing a SOMEONE is!”"
+  },
+  {
+   "ch": 11,
+   "idx": 12,
+   "real": "She said this last word two or three times over to herself, being rather proud of it: for she thought, and rightly too, that very few little girls of her age knew the meaning of it at all.",
+   "anon": "She said this last word two or three times over to herself, being rather proud of it: for she thought, and rightly too, that very few little girls of her age knew the meaning of it at all."
+  },
+  {
+   "ch": 12,
+   "idx": 6,
+   "real": "he repeated with great emphasis, looking hard at Alice as he said so.",
+   "anon": "he repeated with great emphasis, looking hard at SOMEONE as he said so."
+  }
+ ],
+ "candidatePairCount": 110,
+ "rows": [
+  {
+   "from": "ch1[19]",
+   "to": "ch2[59]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1732,
+   "bandHi": 0.3853
+  },
+  {
+   "from": "ch1[19]",
+   "to": "ch4[15]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.2228,
+   "bandHi": 0.2981
+  },
+  {
+   "from": "ch1[19]",
+   "to": "ch5[168]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.2121,
+   "bandHi": 0.2697
+  },
+  {
+   "from": "ch1[19]",
+   "to": "ch6[94]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0.333,
+   "topActivationOfTarget": 0.2023,
+   "bandHi": 0.3381
+  },
+  {
+   "from": "ch1[19]",
+   "to": "ch7[9]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0.2,
+   "topActivationOfTarget": 0.1624,
+   "bandHi": 0.3381
+  },
+  {
+   "from": "ch1[19]",
+   "to": "ch8[20]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.148,
+   "bandHi": 0.3731
+  },
+  {
+   "from": "ch1[19]",
+   "to": "ch9[31]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.0791,
+   "bandHi": 0.2481
+  },
+  {
+   "from": "ch1[19]",
+   "to": "ch10[8]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.2,
+   "topActivationOfTarget": 0.0716,
+   "bandHi": 0.3721
+  },
+  {
+   "from": "ch1[19]",
+   "to": "ch11[12]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.1604,
+   "bandHi": 0.2367
+  },
+  {
+   "from": "ch1[19]",
+   "to": "ch12[6]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.1159,
+   "bandHi": 0.4594
+  },
+  {
+   "from": "ch2[59]",
+   "to": "ch1[19]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.2093,
+   "bandHi": 0.1704
+  },
+  {
+   "from": "ch2[59]",
+   "to": "ch4[15]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.3243,
+   "bandHi": 0.1578
+  },
+  {
+   "from": "ch2[59]",
+   "to": "ch5[168]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.2324,
+   "bandHi": 0.1862
+  },
+  {
+   "from": "ch2[59]",
+   "to": "ch6[94]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.467,
+   "topActivationOfTarget": 0.3766,
+   "bandHi": 0.1665
+  },
+  {
+   "from": "ch2[59]",
+   "to": "ch7[9]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.267,
+   "topActivationOfTarget": 0.2302,
+   "bandHi": 0.1924
+  },
+  {
+   "from": "ch2[59]",
+   "to": "ch8[20]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.2,
+   "topActivationOfTarget": 0.2233,
+   "bandHi": 0.1662
+  },
+  {
+   "from": "ch2[59]",
+   "to": "ch9[31]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.1536,
+   "bandHi": 0.2047
+  },
+  {
+   "from": "ch2[59]",
+   "to": "ch10[8]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.0889,
+   "bandHi": 0.1894
+  },
+  {
+   "from": "ch2[59]",
+   "to": "ch11[12]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.2533,
+   "bandHi": 0.1864
+  },
+  {
+   "from": "ch2[59]",
+   "to": "ch12[6]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.2756,
+   "bandHi": 0.1831
+  },
+  {
+   "from": "ch4[15]",
+   "to": "ch1[19]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.2225,
+   "bandHi": 0.1939
+  },
+  {
+   "from": "ch4[15]",
+   "to": "ch2[59]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.267,
+   "topActivationOfTarget": 0.2857,
+   "bandHi": 0.224
+  },
+  {
+   "from": "ch4[15]",
+   "to": "ch5[168]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.4012,
+   "bandHi": 0.2188
+  },
+  {
+   "from": "ch4[15]",
+   "to": "ch6[94]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.333,
+   "topActivationOfTarget": 0.1955,
+   "bandHi": 0.162
+  },
+  {
+   "from": "ch4[15]",
+   "to": "ch7[9]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.267,
+   "topActivationOfTarget": 0.1486,
+   "bandHi": 0.1693
+  },
+  {
+   "from": "ch4[15]",
+   "to": "ch8[20]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.2,
+   "topActivationOfTarget": 0.0765,
+   "bandHi": 0.1912
+  },
+  {
+   "from": "ch4[15]",
+   "to": "ch9[31]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.1165,
+   "bandHi": 0.1739
+  },
+  {
+   "from": "ch4[15]",
+   "to": "ch10[8]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.0677,
+   "bandHi": 0.1723
+  },
+  {
+   "from": "ch4[15]",
+   "to": "ch11[12]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.206,
+   "bandHi": 0.1729
+  },
+  {
+   "from": "ch4[15]",
+   "to": "ch12[6]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1846,
+   "bandHi": 0.1782
+  },
+  {
+   "from": "ch5[168]",
+   "to": "ch1[19]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.221,
+   "bandHi": 0.2065
+  },
+  {
+   "from": "ch5[168]",
+   "to": "ch2[59]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.2,
+   "topActivationOfTarget": 0.2044,
+   "bandHi": 0.1623
+  },
+  {
+   "from": "ch5[168]",
+   "to": "ch4[15]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.3907,
+   "bandHi": 0.1941
+  },
+  {
+   "from": "ch5[168]",
+   "to": "ch6[94]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1595,
+   "bandHi": 0.166
+  },
+  {
+   "from": "ch5[168]",
+   "to": "ch7[9]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.1664,
+   "bandHi": 0.2225
+  },
+  {
+   "from": "ch5[168]",
+   "to": "ch8[20]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.0949,
+   "bandHi": 0.1687
+  },
+  {
+   "from": "ch5[168]",
+   "to": "ch9[31]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1118,
+   "bandHi": 0.1693
+  },
+  {
+   "from": "ch5[168]",
+   "to": "ch10[8]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.2,
+   "topActivationOfTarget": 0.0726,
+   "bandHi": 0.2218
+  },
+  {
+   "from": "ch5[168]",
+   "to": "ch11[12]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0.2,
+   "topActivationOfTarget": 0.189,
+   "bandHi": 0.196
+  },
+  {
+   "from": "ch5[168]",
+   "to": "ch12[6]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.145,
+   "bandHi": 0.1894
+  },
+  {
+   "from": "ch6[94]",
+   "to": "ch1[19]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.2026,
+   "bandHi": 0.2133
+  },
+  {
+   "from": "ch6[94]",
+   "to": "ch2[59]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.312,
+   "bandHi": 0.2
+  },
+  {
+   "from": "ch6[94]",
+   "to": "ch4[15]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.2263,
+   "bandHi": 0.2599
+  },
+  {
+   "from": "ch6[94]",
+   "to": "ch5[168]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.175,
+   "bandHi": 0.2462
+  },
+  {
+   "from": "ch6[94]",
+   "to": "ch7[9]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.267,
+   "topActivationOfTarget": 0.3623,
+   "bandHi": 0.1988
+  },
+  {
+   "from": "ch6[94]",
+   "to": "ch8[20]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.2706,
+   "bandHi": 0.1923
+  },
+  {
+   "from": "ch6[94]",
+   "to": "ch9[31]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.2,
+   "topActivationOfTarget": 0.2062,
+   "bandHi": 0.2049
+  },
+  {
+   "from": "ch6[94]",
+   "to": "ch10[8]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.2,
+   "topActivationOfTarget": 0.0978,
+   "bandHi": 0.1917
+  },
+  {
+   "from": "ch6[94]",
+   "to": "ch11[12]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.1744,
+   "bandHi": 0.2607
+  },
+  {
+   "from": "ch6[94]",
+   "to": "ch12[6]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.2625,
+   "bandHi": 0.1901
+  },
+  {
+   "from": "ch7[9]",
+   "to": "ch1[19]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.1395,
+   "bandHi": 0.2481
+  },
+  {
+   "from": "ch7[9]",
+   "to": "ch2[59]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1553,
+   "bandHi": 0.2223
+  },
+  {
+   "from": "ch7[9]",
+   "to": "ch4[15]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1532,
+   "bandHi": 0.2545
+  },
+  {
+   "from": "ch7[9]",
+   "to": "ch5[168]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.1627,
+   "bandHi": 0.2619
+  },
+  {
+   "from": "ch7[9]",
+   "to": "ch6[94]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.4,
+   "topActivationOfTarget": 0.3606,
+   "bandHi": 0.2427
+  },
+  {
+   "from": "ch7[9]",
+   "to": "ch8[20]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.2675,
+   "bandHi": 0.2265
+  },
+  {
+   "from": "ch7[9]",
+   "to": "ch9[31]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.2683,
+   "bandHi": 0.2618
+  },
+  {
+   "from": "ch7[9]",
+   "to": "ch10[8]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1081,
+   "bandHi": 0.2481
+  },
+  {
+   "from": "ch7[9]",
+   "to": "ch11[12]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.2,
+   "topActivationOfTarget": 0.0943,
+   "bandHi": 0.2261
+  },
+  {
+   "from": "ch7[9]",
+   "to": "ch12[6]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1673,
+   "bandHi": 0.2924
+  },
+  {
+   "from": "ch8[20]",
+   "to": "ch1[19]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1118,
+   "bandHi": 0.2194
+  },
+  {
+   "from": "ch8[20]",
+   "to": "ch2[59]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.2,
+   "topActivationOfTarget": 0.1723,
+   "bandHi": 0.2272
+  },
+  {
+   "from": "ch8[20]",
+   "to": "ch4[15]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.1125,
+   "bandHi": 0.2114
+  },
+  {
+   "from": "ch8[20]",
+   "to": "ch5[168]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.0585,
+   "bandHi": 0.257
+  },
+  {
+   "from": "ch8[20]",
+   "to": "ch6[94]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.467,
+   "topActivationOfTarget": 0.2587,
+   "bandHi": 0.2361
+  },
+  {
+   "from": "ch8[20]",
+   "to": "ch7[9]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.267,
+   "topActivationOfTarget": 0.2999,
+   "bandHi": 0.252
+  },
+  {
+   "from": "ch8[20]",
+   "to": "ch9[31]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1326,
+   "bandHi": 0.2156
+  },
+  {
+   "from": "ch8[20]",
+   "to": "ch10[8]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.1775,
+   "bandHi": 0.2414
+  },
+  {
+   "from": "ch8[20]",
+   "to": "ch11[12]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.1304,
+   "bandHi": 0.2435
+  },
+  {
+   "from": "ch8[20]",
+   "to": "ch12[6]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.203,
+   "bandHi": 0.2169
+  },
+  {
+   "from": "ch9[31]",
+   "to": "ch1[19]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.0988,
+   "bandHi": 0.2
+  },
+  {
+   "from": "ch9[31]",
+   "to": "ch2[59]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.1733,
+   "bandHi": 0.1859
+  },
+  {
+   "from": "ch9[31]",
+   "to": "ch4[15]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.1676,
+   "bandHi": 0.1839
+  },
+  {
+   "from": "ch9[31]",
+   "to": "ch5[168]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.1645,
+   "bandHi": 0.1799
+  },
+  {
+   "from": "ch9[31]",
+   "to": "ch6[94]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.2436,
+   "bandHi": 0.1827
+  },
+  {
+   "from": "ch9[31]",
+   "to": "ch7[9]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.333,
+   "topActivationOfTarget": 0.309,
+   "bandHi": 0.1751
+  },
+  {
+   "from": "ch9[31]",
+   "to": "ch8[20]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1991,
+   "bandHi": 0.2268
+  },
+  {
+   "from": "ch9[31]",
+   "to": "ch10[8]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1906,
+   "bandHi": 0.2072
+  },
+  {
+   "from": "ch9[31]",
+   "to": "ch11[12]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1177,
+   "bandHi": 0.1737
+  },
+  {
+   "from": "ch9[31]",
+   "to": "ch12[6]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1305,
+   "bandHi": 0.1855
+  },
+  {
+   "from": "ch10[8]",
+   "to": "ch1[19]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.0895,
+   "bandHi": 0.2245
+  },
+  {
+   "from": "ch10[8]",
+   "to": "ch2[59]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.333,
+   "topActivationOfTarget": 0.1001,
+   "bandHi": 0.1754
+  },
+  {
+   "from": "ch10[8]",
+   "to": "ch4[15]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.1262,
+   "bandHi": 0.2242
+  },
+  {
+   "from": "ch10[8]",
+   "to": "ch5[168]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.0867,
+   "bandHi": 0.1766
+  },
+  {
+   "from": "ch10[8]",
+   "to": "ch6[94]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.267,
+   "topActivationOfTarget": 0.1057,
+   "bandHi": 0.1843
+  },
+  {
+   "from": "ch10[8]",
+   "to": "ch7[9]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.333,
+   "topActivationOfTarget": 0.1477,
+   "bandHi": 0.1884
+  },
+  {
+   "from": "ch10[8]",
+   "to": "ch8[20]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.2246,
+   "bandHi": 0.2188
+  },
+  {
+   "from": "ch10[8]",
+   "to": "ch9[31]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.1562,
+   "bandHi": 0.2308
+  },
+  {
+   "from": "ch10[8]",
+   "to": "ch11[12]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.0783,
+   "bandHi": 0.1717
+  },
+  {
+   "from": "ch10[8]",
+   "to": "ch12[6]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.1341,
+   "bandHi": 0.1795
+  },
+  {
+   "from": "ch11[12]",
+   "to": "ch1[19]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.1871,
+   "bandHi": 0.1527
+  },
+  {
+   "from": "ch11[12]",
+   "to": "ch2[59]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.267,
+   "topActivationOfTarget": 0.2444,
+   "bandHi": 0.1543
+  },
+  {
+   "from": "ch11[12]",
+   "to": "ch4[15]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.2,
+   "topActivationOfTarget": 0.2204,
+   "bandHi": 0.2098
+  },
+  {
+   "from": "ch11[12]",
+   "to": "ch5[168]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.2344,
+   "bandHi": 0.1549
+  },
+  {
+   "from": "ch11[12]",
+   "to": "ch6[94]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.267,
+   "topActivationOfTarget": 0.1995,
+   "bandHi": 0.1611
+  },
+  {
+   "from": "ch11[12]",
+   "to": "ch7[9]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.467,
+   "topActivationOfTarget": 0.1146,
+   "bandHi": 0.1625
+  },
+  {
+   "from": "ch11[12]",
+   "to": "ch8[20]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.1578,
+   "bandHi": 0.1607
+  },
+  {
+   "from": "ch11[12]",
+   "to": "ch9[31]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.0945,
+   "bandHi": 0.1587
+  },
+  {
+   "from": "ch11[12]",
+   "to": "ch10[8]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.0823,
+   "bandHi": 0.1953
+  },
+  {
+   "from": "ch11[12]",
+   "to": "ch12[6]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.114,
+   "bandHi": 0.1657
+  },
+  {
+   "from": "ch12[6]",
+   "to": "ch1[19]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.0913,
+   "bandHi": 0.2
+  },
+  {
+   "from": "ch12[6]",
+   "to": "ch2[59]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0.133,
+   "topActivationOfTarget": 0.1759,
+   "bandHi": 0.1789
+  },
+  {
+   "from": "ch12[6]",
+   "to": "ch4[15]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.1524,
+   "bandHi": 0.2318
+  },
+  {
+   "from": "ch12[6]",
+   "to": "ch5[168]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.1123,
+   "bandHi": 0.1886
+  },
+  {
+   "from": "ch12[6]",
+   "to": "ch6[94]",
+   "hit": true,
+   "sigHit": true,
+   "controlRate": 0.4,
+   "topActivationOfTarget": 0.2112,
+   "bandHi": 0.1951
+  },
+  {
+   "from": "ch12[6]",
+   "to": "ch7[9]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0.267,
+   "topActivationOfTarget": 0.1495,
+   "bandHi": 0.1823
+  },
+  {
+   "from": "ch12[6]",
+   "to": "ch8[20]",
+   "hit": true,
+   "sigHit": false,
+   "controlRate": 0.267,
+   "topActivationOfTarget": 0.1807,
+   "bandHi": 0.2142
+  },
+  {
+   "from": "ch12[6]",
+   "to": "ch9[31]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.0722,
+   "bandHi": 0.2346
+  },
+  {
+   "from": "ch12[6]",
+   "to": "ch10[8]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0,
+   "topActivationOfTarget": 0.1122,
+   "bandHi": 0.2853
+  },
+  {
+   "from": "ch12[6]",
+   "to": "ch11[12]",
+   "hit": false,
+   "sigHit": false,
+   "controlRate": 0.067,
+   "topActivationOfTarget": 0.0488,
+   "bandHi": 0.2183
+  }
+ ],
+ "totals": {
+  "cueHits": 41,
+  "cueSigHits": 26,
+  "controlHitsSum": 14.133333333333335,
+  "totalPairs": 110
+ },
+ "verdict": "SEPARABLE"
+}

@@ -1,0 +1,380 @@
+{
+ "chapter": 4,
+ "atmosphereRegime": {
+  "window": 5,
+  "draws": 256,
+  "tolerance": 3,
+  "hop": 5
+ },
+ "chunkWords": 40,
+ "minGround": 50,
+ "vocabularies": {
+  "lens": {
+   "total": 271,
+   "distinct": 78,
+   "top5": [
+    [
+     "to",
+     42
+    ],
+    [
+     "of",
+     16
+    ],
+    [
+     "in",
+     13
+    ],
+    [
+     "as",
+     12
+    ],
+    [
+     "at",
+     11
+    ]
+   ]
+  },
+  "paradigm": {
+   "total": 271,
+   "distinct": 96,
+   "top5": [
+    [
+     "to|stated|none",
+     29
+    ],
+    [
+     "to|inherited|none",
+     13
+    ],
+    [
+     "of|stated|preposition",
+     10
+    ],
+    [
+     "in|stated|preposition",
+     9
+    ],
+    [
+     "out|stated|preposition",
+     9
+    ]
+   ]
+  },
+  "atmosphere": {
+   "total": 17,
+   "distinct": 6,
+   "top5": [
+    [
+     "ground=none",
+     9
+    ],
+    [
+     "ground=clearing",
+     3
+    ],
+    [
+     "tended=0",
+     2
+    ],
+    [
+     "ground=rezero",
+     1
+    ],
+    [
+     "opened=false",
+     1
+    ]
+   ]
+  }
+ },
+ "separability": {
+  "lens": {
+   "name": "LENS",
+   "distinct": 78,
+   "total": 271,
+   "verdict": "NOT SEPARABLE",
+   "tally": {
+    "figure": 0,
+    "ambiguous": 0,
+    "nothing": 5
+   },
+   "cues": [
+    "to",
+    "of",
+    "in",
+    "as",
+    "at"
+   ],
+   "rows": [
+    {
+     "cue": "to",
+     "wordCount": 1,
+     "topActivation": 1.5,
+     "secondActivation": 1.5,
+     "band": {
+      "lo": 0.4472,
+      "hi": 1.5,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    },
+    {
+     "cue": "of",
+     "wordCount": 1,
+     "topActivation": 1.25,
+     "secondActivation": 1.25,
+     "band": {
+      "lo": 0.4472,
+      "hi": 1.5,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    },
+    {
+     "cue": "in",
+     "wordCount": 1,
+     "topActivation": 1,
+     "secondActivation": 1,
+     "band": {
+      "lo": 0.4472,
+      "hi": 1.5,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    },
+    {
+     "cue": "as",
+     "wordCount": 1,
+     "topActivation": 1.25,
+     "secondActivation": 1.25,
+     "band": {
+      "lo": 0.4472,
+      "hi": 1.5,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    },
+    {
+     "cue": "at",
+     "wordCount": 1,
+     "topActivation": 1.25,
+     "secondActivation": 1.25,
+     "band": {
+      "lo": 0.4472,
+      "hi": 1.25,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    }
+   ],
+   "underpoweredReason": null
+  },
+  "paradigm": {
+   "name": "PARADIGM",
+   "distinct": 96,
+   "total": 271,
+   "verdict": "NOT SEPARABLE",
+   "tally": {
+    "figure": 0,
+    "ambiguous": 0,
+    "nothing": 5
+   },
+   "cues": [
+    "to|stated|none",
+    "to|inherited|none",
+    "of|stated|preposition",
+    "in|stated|preposition",
+    "out|stated|preposition"
+   ],
+   "rows": [
+    {
+     "cue": "to|stated|none",
+     "wordCount": 1,
+     "topActivation": 1.5,
+     "secondActivation": 1.25,
+     "band": {
+      "lo": 1,
+      "hi": 1.5,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    },
+    {
+     "cue": "to|inherited|none",
+     "wordCount": 1,
+     "topActivation": 1.25,
+     "secondActivation": 1.25,
+     "band": {
+      "lo": 1,
+      "hi": 1.25,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    },
+    {
+     "cue": "of|stated|preposition",
+     "wordCount": 1,
+     "topActivation": 1.25,
+     "secondActivation": 1.25,
+     "band": {
+      "lo": 1,
+      "hi": 1.5,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    },
+    {
+     "cue": "in|stated|preposition",
+     "wordCount": 1,
+     "topActivation": 1,
+     "secondActivation": 1,
+     "band": {
+      "lo": 1,
+      "hi": 1.5,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    },
+    {
+     "cue": "out|stated|preposition",
+     "wordCount": 1,
+     "topActivation": 1.25,
+     "secondActivation": 1.25,
+     "band": {
+      "lo": 1,
+      "hi": 1.5,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    }
+   ],
+   "underpoweredReason": null
+  },
+  "atmosphere": {
+   "name": "ATMOSPHERE",
+   "distinct": 6,
+   "total": 17,
+   "verdict": "NOT SEPARABLE",
+   "tally": {
+    "figure": 0,
+    "ambiguous": 0,
+    "nothing": 5
+   },
+   "cues": [
+    "ground=none",
+    "ground=clearing",
+    "tended=0",
+    "ground=rezero",
+    "opened=false"
+   ],
+   "rows": [
+    {
+     "cue": "ground=none",
+     "wordCount": 1,
+     "topActivation": 1.5,
+     "secondActivation": 1.5,
+     "band": {
+      "lo": 1,
+      "hi": 1.5,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    },
+    {
+     "cue": "ground=clearing",
+     "wordCount": 1,
+     "topActivation": 1.5,
+     "secondActivation": 1.25,
+     "band": {
+      "lo": 1,
+      "hi": 1.5,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    },
+    {
+     "cue": "tended=0",
+     "wordCount": 1,
+     "topActivation": 1,
+     "secondActivation": 1,
+     "band": {
+      "lo": 1,
+      "hi": 1.5,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    },
+    {
+     "cue": "ground=rezero",
+     "wordCount": 1,
+     "topActivation": 1,
+     "secondActivation": 0.25,
+     "band": {
+      "lo": 1,
+      "hi": 1.5,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    },
+    {
+     "cue": "opened=false",
+     "wordCount": 1,
+     "topActivation": 1,
+     "secondActivation": 0.25,
+     "band": {
+      "lo": 1,
+      "hi": 1.5,
+      "margin": 0.75,
+      "draws": 200
+     },
+     "kind": "nothing"
+    }
+   ],
+   "underpoweredReason": null
+  }
+ },
+ "supplementaryExhaustiveCheck": {
+  "lens": {
+   "name": "LENS",
+   "distinct": 78,
+   "figure": 2,
+   "ambiguous": 8,
+   "nothing": 68,
+   "figures": [
+    "did not get",
+    "might be"
+   ]
+  },
+  "paradigm": {
+   "name": "PARADIGM",
+   "distinct": 96,
+   "figure": 0,
+   "ambiguous": 0,
+   "nothing": 96,
+   "figures": []
+  },
+  "atmosphere": {
+   "name": "ATMOSPHERE",
+   "distinct": 6,
+   "figure": 0,
+   "ambiguous": 0,
+   "nothing": 6,
+   "figures": []
+  }
+ }
+}

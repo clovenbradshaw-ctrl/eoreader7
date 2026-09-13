@@ -9,7 +9,7 @@
   ],
   "role": "front-matter",
   "inferred": true,
-  "basis": "everything preceding the first inferred chapter heading — title, byline, edition line and the table of contents",
+  "basis": "everything preceding the first inferred chapter heading — title, byline, edition line and the table of contents (S95 — front matter is recorded with a role, never stripped)",
   "children": []
  },
  {
@@ -22,7 +22,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 1,
   "numeral": "1",
   "title": "",
@@ -33,11 +33,11 @@
     "id": "h2",
     "at": [
      32158,
-     32173
+     32169
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 1,
     "children": []
    },
@@ -46,12 +46,12 @@
     "schema": "EOTObservation@1",
     "id": "s50",
     "at": [
-     32173,
+     32169,
      42483
     ],
     "role": "section",
     "inferred": true,
-    "basis": "a run of prose bounded by inferred scene breaks or by the chapter's own edges",
+    "basis": "a run of prose bounded by inferred scene breaks or by the chapter's own edges (S95 — an inferred extent with the evidence that licensed it)",
     "children": [
      {
       "seq": 52,
@@ -63,7 +63,7 @@
       ],
       "role": "paragraph",
       "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
       "children": [
        {
         "seq": 63,
@@ -75,13 +75,33 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 191,
+          "seq": 190,
           "schema": "EOTObservation@1",
           "id": "o189",
+          "at": [
+           32178,
+           32197
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "am",
+          "end2": "by birth a Genevese",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         },
+         {
+          "seq": 192,
+          "schema": "EOTObservation@1",
+          "id": "o190",
           "at": [
            32250,
            32263
@@ -110,13 +130,13 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 192,
+          "seq": 193,
           "schema": "EOTObservation@1",
-          "id": "o190",
+          "id": "o191",
           "at": [
            32319,
            32326
@@ -134,9 +154,9 @@
           "children": []
          },
          {
-          "seq": 193,
+          "seq": 194,
           "schema": "EOTObservation@1",
-          "id": "o191",
+          "id": "o192",
           "at": [
            32385,
            32406
@@ -153,9 +173,9 @@
           "settledAs": "preposition",
           "children": [
            {
-            "seq": 194,
+            "seq": 195,
             "schema": "EOTObservation@1",
-            "id": "o192",
+            "id": "o193",
             "at": [
              32396,
              32406
@@ -186,7 +206,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -205,7 +225,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 195,
+            "seq": 196,
             "schema": "EOTAbsence@1",
             "at": [
              32408,
@@ -230,7 +250,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -249,9 +269,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 196,
+            "seq": 197,
             "schema": "EOTObservation@1",
-            "id": "o193",
+            "id": "o194",
             "at": [
              32580,
              32591
@@ -269,9 +289,9 @@
             "children": []
            },
            {
-            "seq": 197,
+            "seq": 198,
             "schema": "EOTObservation@1",
-            "id": "o194",
+            "id": "o195",
             "at": [
              32722,
              32744
@@ -288,9 +308,9 @@
             "settledAs": "conjunction",
             "children": [
              {
-              "seq": 198,
+              "seq": 199,
               "schema": "EOTObservation@1",
-              "id": "o195",
+              "id": "o196",
               "at": [
                32736,
                32744
@@ -325,7 +345,7 @@
       ],
       "role": "paragraph",
       "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
       "children": [
        {
         "seq": 67,
@@ -337,7 +357,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -356,9 +376,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 199,
+            "seq": 200,
             "schema": "EOTObservation@1",
-            "id": "o196",
+            "id": "o197",
             "at": [
              32773,
              32810
@@ -373,6 +393,26 @@
             "terrain": "Field",
             "stance": "Tending",
             "settledAs": "preposition",
+            "children": []
+           },
+           {
+            "seq": 201,
+            "schema": "EOTObservation@1",
+            "id": "o198",
+            "at": [
+             32844,
+             32848
+            ],
+            "role": "proposition",
+            "end1": "refrain from",
+            "label": "relating",
+            "end2": "them",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
             "children": []
            }
           ]
@@ -389,11 +429,11 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 200,
+          "seq": 202,
           "schema": "EOTAbsence@1",
           "at": [
            32850,
@@ -416,7 +456,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -435,9 +475,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 201,
+            "seq": 203,
             "schema": "EOTObservation@1",
-            "id": "o197",
+            "id": "o199",
             "at": [
              33005,
              33013
@@ -497,24 +537,45 @@
             ]
            },
            {
-            "seq": 202,
+            "seq": 204,
             "schema": "EOTObservation@1",
-            "id": "o198",
+            "id": "o200",
             "at": [
-             33188,
+             33157,
              33200
             ],
             "role": "proposition",
-            "end1": "his rank",
-            "label": "and",
-            "end2": "magnificence",
+            "end1": "had formerly",
+            "label": "been",
+            "end2": "distinguished for his rank and magnificence",
             "subjectBasis": "stated",
-            "operator": "SEG",
+            "operator": "CON",
             "grain": "Figure",
             "terrain": "Link",
-            "stance": "Dissecting",
-            "settledAs": "conjunction",
-            "children": []
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 205,
+              "schema": "EOTObservation@1",
+              "id": "o201",
+              "at": [
+               33188,
+               33200
+              ],
+              "role": "proposition",
+              "end1": "had formerly",
+              "label": "and",
+              "end2": "magnificence",
+              "subjectBasis": "inherited",
+              "operator": "SEG",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Dissecting",
+              "settledAs": "conjunction",
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -530,7 +591,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -549,9 +610,29 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 203,
+            "seq": 206,
             "schema": "EOTObservation@1",
-            "id": "o199",
+            "id": "o202",
+            "at": [
+             33214,
+             33223
+            ],
+            "role": "proposition",
+            "end1": "Having",
+            "label": "paid",
+            "end2": "his debts",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           },
+           {
+            "seq": 207,
+            "schema": "EOTObservation@1",
+            "id": "o203",
             "at": [
              33303,
              33322
@@ -565,9 +646,9 @@
             "settledAs": null,
             "children": [
              {
-              "seq": 204,
+              "seq": 208,
               "schema": "EOTObservation@1",
-              "id": "o200",
+              "id": "o204",
               "at": [
                33315,
                33322
@@ -587,9 +668,9 @@
             ]
            },
            {
-            "seq": 205,
+            "seq": 209,
             "schema": "EOTObservation@1",
-            "id": "o201",
+            "id": "o205",
             "at": [
              33355,
              33367
@@ -620,19 +701,19 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 206,
+          "seq": 210,
           "schema": "EOTObservation@1",
-          "id": "o202",
+          "id": "o206",
           "at": [
            33426,
            33494
           ],
           "role": "proposition",
-          "end1": "the truest friendship",
+          "end1": "truest friendship",
           "label": "and",
           "end2": "was deeply grieved by his retreat in these unfortunate circumstances",
           "subjectBasis": "stated",
@@ -643,15 +724,15 @@
           "settledAs": "conjunction",
           "children": [
            {
-            "seq": 207,
+            "seq": 211,
             "schema": "EOTObservation@1",
-            "id": "o203",
+            "id": "o207",
             "at": [
              33430,
              33494
             ],
             "role": "proposition",
-            "end1": "the truest friendship",
+            "end1": "truest friendship",
             "label": "was",
             "end2": "deeply grieved by his retreat in these unfortunate circumstances",
             "subjectBasis": "inherited",
@@ -662,15 +743,15 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 208,
+              "seq": 212,
               "schema": "EOTObservation@1",
-              "id": "o204",
+              "id": "o208",
               "at": [
                33463,
                33494
               ],
               "role": "proposition",
-              "end1": "the truest friendship",
+              "end1": "truest friendship",
               "label": "in",
               "end2": "these unfortunate circumstances",
               "subjectBasis": "inherited",
@@ -697,7 +778,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -716,24 +797,45 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 209,
+            "seq": 213,
             "schema": "EOTObservation@1",
-            "id": "o205",
+            "id": "o209",
             "at": [
-             33589,
+             33569,
              33619
             ],
             "role": "proposition",
-            "end1": "a conduct so little worthy",
-            "label": "of",
-            "end2": "the affection that united them",
+            "end1": "a",
+            "label": "conduct",
+            "end2": "so little worthy of the affection that united them",
             "subjectBasis": "stated",
             "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "children": []
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 214,
+              "schema": "EOTObservation@1",
+              "id": "o210",
+              "at": [
+               33589,
+               33619
+              ],
+              "role": "proposition",
+              "end1": "a",
+              "label": "of",
+              "end2": "the affection that united them",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Ground",
+              "terrain": "Field",
+              "stance": "Tending",
+              "settledAs": "preposition",
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -749,7 +851,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -768,15 +870,15 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 210,
+            "seq": 215,
             "schema": "EOTObservation@1",
-            "id": "o206",
+            "id": "o211",
             "at": [
              33641,
              33669
             ],
             "role": "proposition",
-            "end1": "lost no time",
+            "end1": "no time",
             "label": "in",
             "end2": "endeavouring to seek him out",
             "subjectBasis": "stated",
@@ -787,43 +889,67 @@
             "settledAs": "preposition",
             "children": [
              {
-              "seq": 211,
+              "seq": 216,
               "schema": "EOTObservation@1",
-              "id": "o207",
+              "id": "o212",
               "at": [
-               33657,
+               33662,
                33669
               ],
               "role": "proposition",
-              "end1": "lost no time",
-              "label": "to",
-              "end2": "seek him out",
+              "end1": "no time",
+              "label": "to seek",
+              "end2": "him out",
               "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
               "children": []
              }
             ]
            },
            {
-            "seq": 212,
+            "seq": 217,
             "schema": "EOTObservation@1",
-            "id": "o208",
+            "id": "o213",
             "at": [
-             33752,
+             33713,
              33762
             ],
             "role": "proposition",
-            "end1": "his credit",
-            "label": "and",
-            "end2": "assistance",
+            "end1": "him",
+            "label": "begin",
+            "end2": "the world again through his credit and assistance",
             "subjectBasis": "stated",
-            "operator": "SEG",
+            "operator": "CON",
             "grain": "Figure",
             "terrain": "Link",
-            "stance": "Dissecting",
-            "settledAs": "conjunction",
-            "children": []
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 218,
+              "schema": "EOTObservation@1",
+              "id": "o214",
+              "at": [
+               33752,
+               33762
+              ],
+              "role": "proposition",
+              "end1": "him",
+              "label": "and",
+              "end2": "assistance",
+              "subjectBasis": "inherited",
+              "operator": "SEG",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Dissecting",
+              "settledAs": "conjunction",
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -841,7 +967,7 @@
       ],
       "role": "paragraph",
       "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
       "children": [
        {
         "seq": 74,
@@ -853,7 +979,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -872,17 +998,17 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 213,
+            "seq": 219,
             "schema": "EOTObservation@1",
-            "id": "o209",
+            "id": "o215",
             "at": [
-             33780,
+             33786,
              33823
             ],
             "role": "proposition",
             "end1": "Beaufort",
-            "label": "had",
-            "end2": "taken effectual measures to conceal himself",
+            "label": "had taken",
+            "end2": "effectual measures to conceal himself",
             "subjectBasis": "stated",
             "end1Ref": "ref:auto:beaufort",
             "operator": "CON",
@@ -892,9 +1018,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 214,
+              "seq": 220,
               "schema": "EOTObservation@1",
-              "id": "o210",
+              "id": "o216",
               "at": [
                33808,
                33823
@@ -910,6 +1036,26 @@
               "children": []
              }
             ]
+           },
+           {
+            "seq": 221,
+            "schema": "EOTObservation@1",
+            "id": "o217",
+            "at": [
+             33876,
+             33885
+            ],
+            "role": "proposition",
+            "end1": "my father",
+            "label": "discovered",
+            "end2": "his abode",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
            }
           ]
          }
@@ -925,7 +1071,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -944,15 +1090,15 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 215,
+            "seq": 222,
             "schema": "EOTObservation@1",
-            "id": "o211",
+            "id": "o218",
             "at": [
              33932,
              33941
             ],
             "role": "proposition",
-            "end1": "he",
+            "end1": "he hastened",
             "label": "to",
             "end2": "the house",
             "subjectBasis": "stated",
@@ -974,7 +1120,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -993,9 +1139,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 216,
+            "seq": 223,
             "schema": "EOTObservation@1",
-            "id": "o212",
+            "id": "o219",
             "at": [
              34028,
              34054
@@ -1010,7 +1156,28 @@
             "terrain": "Link",
             "stance": "Dissecting",
             "settledAs": "conjunction",
-            "children": []
+            "children": [
+             {
+              "seq": 224,
+              "schema": "EOTObservation@1",
+              "id": "o220",
+              "at": [
+               34051,
+               34054
+              ],
+              "role": "proposition",
+              "end1": "misery",
+              "label": "welcomed",
+              "end2": "him",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -1026,7 +1193,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -1045,17 +1212,17 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 217,
+            "seq": 225,
             "schema": "EOTObservation@1",
-            "id": "o213",
+            "id": "o221",
             "at": [
-             34070,
+             34076,
              34136
             ],
             "role": "proposition",
             "end1": "Beaufort",
-            "label": "had",
-            "end2": "saved but a very small sum of money from the wreck of his fortunes",
+            "label": "had saved",
+            "end2": "but a very small sum of money from the wreck of his fortunes",
             "subjectBasis": "stated",
             "end1Ref": "ref:auto:beaufort",
             "operator": "CON",
@@ -1065,9 +1232,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 218,
+              "seq": 226,
               "schema": "EOTObservation@1",
-              "id": "o214",
+              "id": "o222",
               "at": [
                34100,
                34136
@@ -1085,9 +1252,9 @@
               "settledAs": "preposition",
               "children": [
                {
-                "seq": 219,
+                "seq": 227,
                 "schema": "EOTObservation@1",
-                "id": "o215",
+                "id": "o223",
                 "at": [
                  34124,
                  34136
@@ -1110,9 +1277,9 @@
             ]
            },
            {
-            "seq": 220,
+            "seq": 228,
             "schema": "EOTObservation@1",
-            "id": "o216",
+            "id": "o224",
             "at": [
              34150,
              34207
@@ -1129,25 +1296,28 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 221,
+              "seq": 229,
               "schema": "EOTObservation@1",
-              "id": "o217",
+              "id": "o225",
               "at": [
-               34164,
+               34172,
                34207
               ],
               "role": "proposition",
               "end1": "it",
-              "label": "to",
-              "end2": "provide him with sustenance for some months",
+              "label": "to provide",
+              "end2": "him with sustenance for some months",
               "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
               "children": [
                {
-                "seq": 222,
+                "seq": 230,
                 "schema": "EOTObservation@1",
-                "id": "o218",
+                "id": "o226",
                 "at": [
                  34181,
                  34207
@@ -1182,13 +1352,13 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 223,
+          "seq": 231,
           "schema": "EOTObservation@1",
-          "id": "o219",
+          "id": "o227",
           "at": [
            34343,
            34351
@@ -1206,9 +1376,9 @@
           "children": []
          },
          {
-          "seq": 224,
+          "seq": 232,
           "schema": "EOTObservation@1",
-          "id": "o220",
+          "id": "o228",
           "at": [
            34503,
            34543
@@ -1226,9 +1396,9 @@
           "children": []
          },
          {
-          "seq": 226,
+          "seq": 234,
           "schema": "EOTObservation@1",
-          "id": "o221",
+          "id": "o229",
           "at": [
            34558,
            34570
@@ -1259,7 +1429,7 @@
       ],
       "role": "paragraph",
       "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
       "children": [
        {
         "seq": 79,
@@ -1271,7 +1441,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -1290,29 +1460,50 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 227,
+            "seq": 235,
             "schema": "EOTObservation@1",
-            "id": "o222",
+            "id": "o230",
             "at": [
-             34606,
+             34597,
              34629
             ],
             "role": "proposition",
-            "end1": "His daughter attended him",
-            "label": "with",
-            "end2": "the greatest tenderness",
+            "end1": "His daughter",
+            "label": "attended",
+            "end2": "him with the greatest tenderness",
             "subjectBasis": "stated",
             "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "children": []
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 236,
+              "schema": "EOTObservation@1",
+              "id": "o231",
+              "at": [
+               34606,
+               34629
+              ],
+              "role": "proposition",
+              "end1": "His daughter",
+              "label": "with",
+              "end2": "the greatest tenderness",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Ground",
+              "terrain": "Field",
+              "stance": "Tending",
+              "settledAs": "preposition",
+              "children": []
+             }
+            ]
            },
            {
-            "seq": 228,
+            "seq": 237,
             "schema": "EOTObservation@1",
-            "id": "o223",
+            "id": "o232",
             "at": [
              34723,
              34751
@@ -1329,9 +1520,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 229,
+              "seq": 238,
               "schema": "EOTObservation@1",
-              "id": "o224",
+              "id": "o233",
               "at": [
                34744,
                34751
@@ -1364,7 +1555,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -1423,9 +1614,9 @@
             ]
            },
            {
-            "seq": 230,
+            "seq": 239,
             "schema": "EOTObservation@1",
-            "id": "o225",
+            "id": "o234",
             "at": [
              34786,
              34813
@@ -1443,9 +1634,9 @@
             "children": []
            },
            {
-            "seq": 232,
+            "seq": 241,
             "schema": "EOTObservation@1",
-            "id": "o226",
+            "id": "o235",
             "at": [
              34855,
              34868
@@ -1476,13 +1667,13 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 233,
+          "seq": 242,
           "schema": "EOTObservation@1",
-          "id": "o227",
+          "id": "o236",
           "at": [
            34883,
            34893
@@ -1498,9 +1689,9 @@
           "children": []
          },
          {
-          "seq": 234,
+          "seq": 243,
           "schema": "EOTObservation@1",
-          "id": "o228",
+          "id": "o237",
           "at": [
            34988,
            35000
@@ -1528,7 +1719,7 @@
       ],
       "role": "paragraph",
       "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
       "children": [
        {
         "seq": 82,
@@ -1540,28 +1731,49 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 235,
+          "seq": 244,
           "schema": "EOTObservation@1",
-          "id": "o229",
+          "id": "o238",
           "at": [
-           35030,
+           35027,
            35041
           ],
           "role": "proposition",
-          "end1": "Several months passed",
-          "label": "in",
-          "end2": "this manner",
+          "end1": "Several months",
+          "label": "passed",
+          "end2": "in this manner",
           "subjectBasis": "stated",
           "operator": "CON",
-          "grain": "Ground",
-          "terrain": "Field",
-          "stance": "Tending",
-          "settledAs": "preposition",
-          "children": []
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 245,
+            "schema": "EOTObservation@1",
+            "id": "o239",
+            "at": [
+             35030,
+             35041
+            ],
+            "role": "proposition",
+            "end1": "Several months",
+            "label": "in",
+            "end2": "this manner",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
          }
         ]
        },
@@ -1575,7 +1787,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -1594,9 +1806,29 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 236,
+            "seq": 246,
             "schema": "EOTObservation@1",
-            "id": "o230",
+            "id": "o240",
+            "at": [
+             35059,
+             35064
+            ],
+            "role": "proposition",
+            "end1": "Her father",
+            "label": "grew",
+            "end2": "worse",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           },
+           {
+            "seq": 247,
+            "schema": "EOTObservation@1",
+            "id": "o241",
             "at": [
              35080,
              35119
@@ -1613,31 +1845,93 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 237,
+              "seq": 248,
               "schema": "EOTObservation@1",
-              "id": "o231",
+              "id": "o242",
               "at": [
-               35106,
+               35116,
                35119
               ],
               "role": "proposition",
               "end1": "her time",
-              "label": "in",
-              "end2": "attending him",
+              "label": "in attending",
+              "end2": "him",
               "subjectBasis": "inherited",
               "operator": "CON",
-              "grain": "Ground",
-              "terrain": "Field",
-              "stance": "Tending",
-              "settledAs": "preposition",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
               "children": []
              }
             ]
            },
            {
-            "seq": 238,
+            "seq": 249,
             "schema": "EOTObservation@1",
-            "id": "o232",
+            "id": "o243",
+            "at": [
+             35165,
+             35208
+            ],
+            "role": "proposition",
+            "end1": "and",
+            "label": "in",
+            "end2": "the tenth month her father died in her arms",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": [
+             {
+              "seq": 250,
+              "schema": "EOTObservation@1",
+              "id": "o244",
+              "at": [
+               35197,
+               35208
+              ],
+              "role": "proposition",
+              "end1": "and",
+              "label": "died",
+              "end2": "in her arms",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": [
+               {
+                "seq": 251,
+                "schema": "EOTObservation@1",
+                "id": "o245",
+                "at": [
+                 35200,
+                 35208
+                ],
+                "role": "proposition",
+                "end1": "and",
+                "label": "in",
+                "end2": "her arms",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Ground",
+                "terrain": "Field",
+                "stance": "Tending",
+                "settledAs": "preposition",
+                "children": []
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "seq": 252,
+            "schema": "EOTObservation@1",
+            "id": "o246",
             "at": [
              35237,
              35245
@@ -1668,7 +1962,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -1687,15 +1981,23 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 239,
-            "schema": "EOTAbsence@1",
+            "seq": 253,
+            "schema": "EOTObservation@1",
+            "id": "o247",
             "at": [
-             35247,
-             35366
+             35262,
+             35274
             ],
-            "role": "arrangement",
-            "reason": "gate_refused_no_two_ends",
-            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "role": "proposition",
+            "end1": "This last",
+            "label": "blow",
+            "end2": "overcame her",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
             "children": []
            }
           ]
@@ -1712,7 +2014,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -1731,26 +2033,68 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 240,
+            "seq": 254,
             "schema": "EOTObservation@1",
-            "id": "o233",
+            "id": "o248",
             "at": [
-             35403,
+             35375,
              35416
             ],
             "role": "proposition",
-            "end1": "a protecting spirit",
-            "label": "to",
-            "end2": "the poor girl",
+            "end1": "He",
+            "label": "came",
+            "end2": "like a protecting spirit to the poor girl",
             "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "children": []
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 255,
+              "schema": "EOTObservation@1",
+              "id": "o249",
+              "at": [
+               35393,
+               35416
+              ],
+              "role": "proposition",
+              "end1": "He",
+              "label": "protecting",
+              "end2": "spirit to the poor girl",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": [
+               {
+                "seq": 256,
+                "schema": "EOTObservation@1",
+                "id": "o250",
+                "at": [
+                 35403,
+                 35416
+                ],
+                "role": "proposition",
+                "end1": "He",
+                "label": "to",
+                "end2": "the poor girl",
+                "subjectBasis": "inherited",
+                "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+                "settledAs": null,
+                "children": []
+               }
+              ]
+             }
+            ]
            },
            {
-            "seq": 241,
+            "seq": 257,
             "schema": "EOTObservation@1",
-            "id": "o234",
+            "id": "o251",
             "at": [
              35444,
              35452
@@ -1778,13 +2122,13 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 242,
+          "seq": 258,
           "schema": "EOTObservation@1",
-          "id": "o235",
+          "id": "o252",
           "at": [
            35615,
            35623
@@ -1816,7 +2160,7 @@
       ],
       "role": "paragraph",
       "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
       "children": [
        {
         "seq": 87,
@@ -1828,7 +2172,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -1847,9 +2191,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 350,
+            "seq": 402,
             "schema": "EOTObservation@1",
-            "id": "x330",
+            "id": "x389",
             "at": [
              35628,
              35783
@@ -1868,9 +2212,9 @@
             "basis": "identity evidence in this sentence (text_copular_identity); canonicalizationFloor 2, declared",
             "children": [
              {
-              "seq": 243,
+              "seq": 259,
               "schema": "EOTObservation@1",
-              "id": "o236",
+              "id": "o253",
               "at": [
                35638,
                35694
@@ -1887,9 +2231,9 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 244,
+                "seq": 260,
                 "schema": "EOTObservation@1",
-                "id": "o237",
+                "id": "o254",
                 "at": [
                  35684,
                  35694
@@ -1907,6 +2251,26 @@
                 "children": []
                }
               ]
+             },
+             {
+              "seq": 261,
+              "schema": "EOTObservation@1",
+              "id": "o255",
+              "at": [
+               35773,
+               35782
+              ],
+              "role": "proposition",
+              "end1": "bonds of",
+              "label": "devoted",
+              "end2": "affection",
+              "subjectBasis": "stated",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
              }
             ]
            }
@@ -1924,7 +2288,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -1943,36 +2307,44 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 245,
-            "schema": "EOTAbsence@1",
+            "seq": 403,
+            "schema": "EOTObservation@1",
+            "id": "x390",
             "at": [
              35784,
              35918
             ],
-            "role": "arrangement",
-            "reason": "gate_refused_no_two_ends",
-            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "role": "expectation",
+            "expectation": "expectation:identity:a_sense:there",
+            "hypothesis": "corroboration expected: a sense <-> there",
+            "state": "open",
+            "movedFrom": null,
+            "operator": "INS",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Making",
+            "consequence": "expectation_opened",
+            "movesHolograph": false,
+            "basis": "identity evidence in this sentence (text_copular_identity); canonicalizationFloor 2, declared",
             "children": [
              {
-              "seq": 351,
+              "seq": 262,
               "schema": "EOTObservation@1",
-              "id": "x331",
+              "id": "o256",
               "at": [
-               35784,
-               35918
+               35909,
+               35917
               ],
-              "role": "expectation",
-              "expectation": "expectation:identity:a_sense:there",
-              "hypothesis": "corroboration expected: a sense <-> there",
-              "state": "open",
-              "movedFrom": null,
-              "operator": "INS",
+              "role": "proposition",
+              "end1": "highly",
+              "label": "love",
+              "end2": "strongly",
+              "subjectBasis": "stated",
+              "operator": "CON",
               "grain": "Figure",
-              "terrain": "Entity",
-              "stance": "Making",
-              "consequence": "expectation_opened",
-              "movesHolograph": false,
-              "basis": "identity evidence in this sentence (text_copular_identity); canonicalizationFloor 2, declared",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
               "children": []
              }
             ]
@@ -1991,20 +2363,49 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 246,
-          "schema": "EOTAbsence@1",
+          "seq": 263,
+          "schema": "EOTObservation@1",
+          "id": "o257",
           "at": [
-           35919,
-           36076
+           36045,
+           36075
           ],
-          "role": "arrangement",
-          "reason": "gate_refused_no_two_ends",
-          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
-          "children": []
+          "role": "proposition",
+          "end1": "disposed",
+          "label": "set",
+          "end2": "a greater value on tried worth",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 264,
+            "schema": "EOTObservation@1",
+            "id": "o258",
+            "at": [
+             36070,
+             36075
+            ],
+            "role": "proposition",
+            "end1": "disposed",
+            "label": "tried",
+            "end2": "worth",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
          }
         ]
        },
@@ -2018,7 +2419,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -2037,9 +2438,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 352,
+            "seq": 404,
             "schema": "EOTObservation@1",
-            "id": "x332",
+            "id": "x391",
             "at": [
              36077,
              36413
@@ -2058,15 +2459,15 @@
             "basis": "identity evidence in this sentence (text_copular_identity); canonicalizationFloor 2, declared",
             "children": [
              {
-              "seq": 247,
+              "seq": 265,
               "schema": "EOTObservation@1",
-              "id": "o238",
+              "id": "o259",
               "at": [
                36112,
                36150
               ],
               "role": "proposition",
-              "end1": "a show of gratitude",
+              "end1": "of gratitude",
               "label": "and",
               "end2": "worship in his attachment to my mother",
               "subjectBasis": "stated",
@@ -2075,12 +2476,51 @@
               "terrain": "Link",
               "stance": "Dissecting",
               "settledAs": "conjunction",
-              "children": []
+              "children": [
+               {
+                "seq": 266,
+                "schema": "EOTObservation@1",
+                "id": "o260",
+                "at": [
+                 36123,
+                 36150
+                ],
+                "role": "proposition",
+                "end1": "of gratitude",
+                "label": "in",
+                "end2": "his attachment to my mother",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Ground",
+                "terrain": "Field",
+                "stance": "Tending",
+                "settledAs": "preposition",
+                "children": [
+                 {
+                  "seq": 267,
+                  "schema": "EOTObservation@1",
+                  "id": "o261",
+                  "at": [
+                   36141,
+                   36150
+                  ],
+                  "role": "proposition",
+                  "end1": "of gratitude",
+                  "label": "to",
+                  "end2": "my mother",
+                  "subjectBasis": "inherited",
+                  "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+                  "settledAs": null,
+                  "children": []
+                 }
+                ]
+               }
+              ]
              },
              {
-              "seq": 248,
+              "seq": 268,
               "schema": "EOTObservation@1",
-              "id": "o239",
+              "id": "o262",
               "at": [
                36198,
                36201
@@ -2098,9 +2538,9 @@
               "children": []
              },
              {
-              "seq": 249,
+              "seq": 269,
               "schema": "EOTObservation@1",
-              "id": "o240",
+              "id": "o263",
               "at": [
                36257,
                36284
@@ -2117,34 +2557,58 @@
               "settledAs": "conjunction",
               "children": [
                {
-                "seq": 250,
+                "seq": 270,
                 "schema": "EOTObservation@1",
-                "id": "o241",
+                "id": "o264",
                 "at": [
-                 36269,
+                 36272,
                  36284
                 ],
                 "role": "proposition",
                 "end1": "her virtues",
-                "label": "to",
-                "end2": "be the means of",
+                "label": "to be",
+                "end2": "the means of",
                 "subjectBasis": "inherited",
-                "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-                "settledAs": null,
-                "children": []
+                "operator": "CON",
+                "grain": "Figure",
+                "terrain": "Link",
+                "stance": "Binding",
+                "settledAs": "verb",
+                "children": [
+                 {
+                  "seq": 271,
+                  "schema": "EOTObservation@1",
+                  "id": "o265",
+                  "at": [
+                   36282,
+                   36284
+                  ],
+                  "role": "proposition",
+                  "end1": "her virtues",
+                  "label": "means",
+                  "end2": "of",
+                  "subjectBasis": "inherited",
+                  "operator": "CON",
+                  "grain": "Figure",
+                  "terrain": "Link",
+                  "stance": "Binding",
+                  "settledAs": "verb",
+                  "children": []
+                 }
+                ]
                }
               ]
              },
              {
-              "seq": 251,
+              "seq": 272,
               "schema": "EOTObservation@1",
-              "id": "o242",
+              "id": "o266",
               "at": [
                36344,
                36351
               ],
               "role": "proposition",
-              "end1": "she",
+              "end1": "sorrows she",
               "label": "had",
               "end2": "endured",
               "subjectBasis": "stated",
@@ -2156,9 +2620,9 @@
               "children": []
              },
              {
-              "seq": 252,
+              "seq": 273,
               "schema": "EOTObservation@1",
-              "id": "o243",
+              "id": "o267",
               "at": [
                36392,
                36412
@@ -2172,9 +2636,9 @@
               "settledAs": null,
               "children": [
                {
-                "seq": 253,
+                "seq": 274,
                 "schema": "EOTObservation@1",
-                "id": "o244",
+                "id": "o268",
                 "at": [
                  36409,
                  36412
@@ -2206,7 +2670,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -2225,9 +2689,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 254,
+            "seq": 275,
             "schema": "EOTObservation@1",
-            "id": "o245",
+            "id": "o269",
             "at": [
              36462,
              36477
@@ -2258,19 +2722,19 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 255,
+          "seq": 276,
           "schema": "EOTObservation@1",
-          "id": "o246",
+          "id": "o270",
           "at": [
            36492,
            36503
           ],
           "role": "proposition",
-          "end1": "He",
+          "end1": "He strove",
           "label": "to",
           "end2": "shelter her",
           "subjectBasis": "stated",
@@ -2279,9 +2743,29 @@
           "children": []
          },
          {
-          "seq": 256,
+          "seq": 277,
           "schema": "EOTObservation@1",
-          "id": "o247",
+          "id": "o271",
+          "at": [
+           36536,
+           36551
+          ],
+          "role": "proposition",
+          "end1": "fair exotic",
+          "label": "is sheltered",
+          "end2": "by the gardener",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         },
+         {
+          "seq": 278,
+          "schema": "EOTObservation@1",
+          "id": "o272",
           "at": [
            36670,
            36685
@@ -2310,7 +2794,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -2329,24 +2813,45 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 257,
+            "seq": 279,
             "schema": "EOTObservation@1",
-            "id": "o248",
+            "id": "o273",
             "at": [
-             36791,
+             36775,
              36803
             ],
             "role": "proposition",
-            "end1": "she",
-            "label": "had",
-            "end2": "gone through",
+            "end1": "had",
+            "label": "been shaken",
+            "end2": "by what she had gone through",
             "subjectBasis": "stated",
             "operator": "CON",
             "grain": "Figure",
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 280,
+              "schema": "EOTObservation@1",
+              "id": "o274",
+              "at": [
+               36796,
+               36803
+              ],
+              "role": "proposition",
+              "end1": "had",
+              "label": "had gone",
+              "end2": "through",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -2362,7 +2867,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -2381,9 +2886,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 258,
+            "seq": 281,
             "schema": "EOTObservation@1",
-            "id": "o249",
+            "id": "o275",
             "at": [
              36886,
              36933
@@ -2441,9 +2946,9 @@
             ]
            },
            {
-            "seq": 260,
+            "seq": 283,
             "schema": "EOTObservation@1",
-            "id": "o250",
+            "id": "o276",
             "at": [
              37032,
              37099
@@ -2460,9 +2965,9 @@
             "settledAs": "preposition",
             "children": [
              {
-              "seq": 261,
+              "seq": 284,
               "schema": "EOTObservation@1",
-              "id": "o251",
+              "id": "o277",
               "at": [
                37042,
                37099
@@ -2479,9 +2984,9 @@
               "settledAs": "conjunction",
               "children": [
                {
-                "seq": 262,
+                "seq": 285,
                 "schema": "EOTObservation@1",
-                "id": "o252",
+                "id": "o278",
                 "at": [
                  37092,
                  37099
@@ -2501,6 +3006,26 @@
               ]
              }
             ]
+           },
+           {
+            "seq": 286,
+            "schema": "EOTObservation@1",
+            "id": "o279",
+            "at": [
+             37136,
+             37141
+            ],
+            "role": "proposition",
+            "end1": "her",
+            "label": "weakened",
+            "end2": "frame",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
            }
           ]
          }
@@ -2518,7 +3043,7 @@
       ],
       "role": "paragraph",
       "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
       "children": [
        {
         "seq": 95,
@@ -2530,7 +3055,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -2561,7 +3086,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -2580,16 +3105,83 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 264,
-            "schema": "EOTAbsence@1",
+            "seq": 288,
+            "schema": "EOTObservation@1",
+            "id": "o280",
             "at": [
-             37190,
-             37285
+             37223,
+             37232
             ],
-            "role": "arrangement",
-            "reason": "gate_refused_no_two_ends",
-            "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+            "role": "proposition",
+            "end1": "was",
+            "label": "born",
+            "end2": "at Naples",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
             "children": []
+           },
+           {
+            "seq": 289,
+            "schema": "EOTObservation@1",
+            "id": "o281",
+            "at": [
+             37241,
+             37284
+            ],
+            "role": "proposition",
+            "end1": "and",
+            "label": "as",
+            "end2": "an infant accompanied them in their rambles",
+            "subjectBasis": "stated",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": [
+             {
+              "seq": 290,
+              "schema": "EOTObservation@1",
+              "id": "o282",
+              "at": [
+               37263,
+               37284
+              ],
+              "role": "proposition",
+              "end1": "and",
+              "label": "accompanied",
+              "end2": "them in their rambles",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": [
+               {
+                "seq": 291,
+                "schema": "EOTObservation@1",
+                "id": "o283",
+                "at": [
+                 37271,
+                 37284
+                ],
+                "role": "proposition",
+                "end1": "and",
+                "label": "in",
+                "end2": "their rambles",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Ground",
+                "terrain": "Field",
+                "stance": "Tending",
+                "settledAs": "preposition",
+                "children": []
+               }
+              ]
+             }
+            ]
            }
           ]
          }
@@ -2605,19 +3197,27 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 265,
-          "schema": "EOTAbsence@1",
+          "seq": 292,
+          "schema": "EOTObservation@1",
+          "id": "o284",
           "at": [
-           37286,
-           37333
+           37298,
+           37332
           ],
-          "role": "arrangement",
-          "reason": "gate_refused_no_two_ends",
-          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "role": "proposition",
+          "end1": "I",
+          "label": "remained",
+          "end2": "for several years their only child",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
           "children": []
          }
         ]
@@ -2632,7 +3232,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -2651,15 +3251,15 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 266,
+            "seq": 293,
             "schema": "EOTObservation@1",
-            "id": "o253",
+            "id": "o285",
             "at": [
              37452,
              37479
             ],
             "role": "proposition",
-            "end1": "a very mine",
+            "end1": "very mine",
             "label": "of",
             "end2": "love to bestow them upon me",
             "subjectBasis": "stated",
@@ -2670,21 +3270,42 @@
             "settledAs": "preposition",
             "children": [
              {
-              "seq": 267,
+              "seq": 294,
               "schema": "EOTObservation@1",
-              "id": "o254",
+              "id": "o286",
               "at": [
-               37460,
+               37457,
                37479
               ],
               "role": "proposition",
-              "end1": "a very mine",
-              "label": "to",
-              "end2": "bestow them upon me",
+              "end1": "very mine",
+              "label": "love",
+              "end2": "to bestow them upon me",
               "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "children": []
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": [
+               {
+                "seq": 295,
+                "schema": "EOTObservation@1",
+                "id": "o287",
+                "at": [
+                 37460,
+                 37479
+                ],
+                "role": "proposition",
+                "end1": "very mine",
+                "label": "to",
+                "end2": "bestow them upon me",
+                "subjectBasis": "inherited",
+                "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+                "settledAs": null,
+                "children": []
+               }
+              ]
              }
             ]
            }
@@ -2702,11 +3323,11 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 268,
+          "seq": 296,
           "schema": "EOTAbsence@1",
           "at": [
            37481,
@@ -2729,7 +3350,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -2748,9 +3369,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 269,
+            "seq": 297,
             "schema": "EOTObservation@1",
-            "id": "o255",
+            "id": "o288",
             "at": [
              37609,
              37639
@@ -2767,9 +3388,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 270,
+              "seq": 298,
               "schema": "EOTObservation@1",
-              "id": "o256",
+              "id": "o289",
               "at": [
                37629,
                37639
@@ -2789,9 +3410,47 @@
             ]
            },
            {
-            "seq": 271,
+            "seq": 299,
             "schema": "EOTObservation@1",
-            "id": "o257",
+            "id": "o290",
+            "at": [
+             37754,
+             37764
+            ],
+            "role": "proposition",
+            "end1": "to",
+            "label": "bring",
+            "end2": "up to good",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 300,
+              "schema": "EOTObservation@1",
+              "id": "o291",
+              "at": [
+               37760,
+               37764
+              ],
+              "role": "proposition",
+              "end1": "to",
+              "label": "to",
+              "end2": "good",
+              "subjectBasis": "inherited",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "children": []
+             }
+            ]
+           },
+           {
+            "seq": 301,
+            "schema": "EOTObservation@1",
+            "id": "o292",
             "at": [
              37798,
              37842
@@ -2808,9 +3467,9 @@
             "settledAs": "preposition",
             "children": [
              {
-              "seq": 272,
+              "seq": 302,
               "schema": "EOTObservation@1",
-              "id": "o258",
+              "id": "o293",
               "at": [
                37813,
                37842
@@ -2824,9 +3483,9 @@
               "settledAs": null,
               "children": [
                {
-                "seq": 273,
+                "seq": 303,
                 "schema": "EOTObservation@1",
-                "id": "o259",
+                "id": "o294",
                 "at": [
                  37823,
                  37842
@@ -2843,6 +3502,26 @@
               ]
              }
             ]
+           },
+           {
+            "seq": 304,
+            "schema": "EOTObservation@1",
+            "id": "o295",
+            "at": [
+             37873,
+             37896
+            ],
+            "role": "proposition",
+            "end1": "as they",
+            "label": "fulfilled",
+            "end2": "their duties towards me",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
            }
           ]
          }
@@ -2858,7 +3537,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -2877,15 +3556,15 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 274,
+            "seq": 305,
             "schema": "EOTObservation@1",
-            "id": "o260",
+            "id": "o296",
             "at": [
              37967,
              37992
             ],
             "role": "proposition",
-            "end1": "owed towards the",
+            "end1": "towards the",
             "label": "being to",
             "end2": "which they had given life",
             "subjectBasis": "stated",
@@ -2893,15 +3572,15 @@
             "settledAs": null,
             "children": [
              {
-              "seq": 275,
+              "seq": 306,
               "schema": "EOTObservation@1",
-              "id": "o261",
+              "id": "o297",
               "at": [
                37982,
                37992
               ],
               "role": "proposition",
-              "end1": "owed towards the",
+              "end1": "towards the",
               "label": "they had",
               "end2": "given life",
               "subjectBasis": "inherited",
@@ -2910,14 +3589,35 @@
               "terrain": "Link",
               "stance": "Binding",
               "settledAs": "verb",
-              "children": []
+              "children": [
+               {
+                "seq": 307,
+                "schema": "EOTObservation@1",
+                "id": "o298",
+                "at": [
+                 37988,
+                 37992
+                ],
+                "role": "proposition",
+                "end1": "towards the",
+                "label": "given",
+                "end2": "life",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Figure",
+                "terrain": "Link",
+                "stance": "Binding",
+                "settledAs": "verb",
+                "children": []
+               }
+              ]
              }
             ]
            },
            {
-            "seq": 276,
+            "seq": 308,
             "schema": "EOTObservation@1",
-            "id": "o262",
+            "id": "o299",
             "at": [
              38025,
              38054
@@ -2935,9 +3635,9 @@
             "children": []
            },
            {
-            "seq": 277,
+            "seq": 309,
             "schema": "EOTObservation@1",
-            "id": "o263",
+            "id": "o300",
             "at": [
              38108,
              38154
@@ -2954,31 +3654,72 @@
             "settledAs": "preposition",
             "children": [
              {
-              "seq": 278,
+              "seq": 310,
               "schema": "EOTObservation@1",
-              "id": "o264",
+              "id": "o301",
               "at": [
-               38146,
+               38134,
                38154
               ],
               "role": "proposition",
               "end1": "every hour",
-              "label": "of",
-              "end2": "patience",
+              "label": "received",
+              "end2": "a lesson of patience",
               "subjectBasis": "inherited",
               "operator": "CON",
-              "grain": "Ground",
-              "terrain": "Field",
-              "stance": "Tending",
-              "settledAs": "preposition",
-              "children": []
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": [
+               {
+                "seq": 311,
+                "schema": "EOTObservation@1",
+                "id": "o302",
+                "at": [
+                 38146,
+                 38154
+                ],
+                "role": "proposition",
+                "end1": "every hour",
+                "label": "of",
+                "end2": "patience",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Ground",
+                "terrain": "Field",
+                "stance": "Tending",
+                "settledAs": "preposition",
+                "children": []
+               }
+              ]
              }
             ]
            },
            {
-            "seq": 279,
+            "seq": 312,
             "schema": "EOTObservation@1",
-            "id": "o265",
+            "id": "o303",
+            "at": [
+             38176,
+             38188
+            ],
+            "role": "proposition",
+            "end1": "and",
+            "label": "of",
+            "end2": "self-control",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           },
+           {
+            "seq": 313,
+            "schema": "EOTObservation@1",
+            "id": "o304",
             "at": [
              38257,
              38272
@@ -2995,9 +3736,9 @@
             "settledAs": "preposition",
             "children": [
              {
-              "seq": 280,
+              "seq": 314,
               "schema": "EOTObservation@1",
-              "id": "o266",
+              "id": "o305",
               "at": [
                38262,
                38264
@@ -3029,7 +3770,7 @@
       ],
       "role": "paragraph",
       "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
       "children": [
        {
         "seq": 102,
@@ -3041,19 +3782,19 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 281,
+          "seq": 315,
           "schema": "EOTObservation@1",
-          "id": "o267",
+          "id": "o306",
           "at": [
            38299,
            38314
           ],
           "role": "proposition",
-          "end1": "I",
+          "end1": "time I",
           "label": "was",
           "end2": "their only care",
           "subjectBasis": "stated",
@@ -3076,19 +3817,27 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 282,
-          "schema": "EOTAbsence@1",
+          "seq": 316,
+          "schema": "EOTObservation@1",
+          "id": "o307",
           "at": [
-           38316,
-           38403
+           38380,
+           38402
           ],
-          "role": "arrangement",
-          "reason": "gate_refused_no_two_ends",
-          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "role": "proposition",
+          "end1": "I",
+          "label": "continued",
+          "end2": "their single offspring",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
           "children": []
          }
         ]
@@ -3103,7 +3852,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -3122,57 +3871,37 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 283,
+            "seq": 317,
             "schema": "EOTObservation@1",
-            "id": "o268",
+            "id": "o308",
             "at": [
-             38488,
+             38451,
              38493
             ],
             "role": "proposition",
-            "end1": "the frontiers",
-            "label": "of",
-            "end2": "Italy",
+            "end1": "while",
+            "label": "making",
+            "end2": "an excursion beyond the frontiers of Italy",
             "subjectBasis": "stated",
             "end2Ref": "ref:auto:italy",
             "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "children": []
-           },
-           {
-            "seq": 284,
-            "schema": "EOTObservation@1",
-            "id": "o269",
-            "at": [
-             38532,
-             38548
-            ],
-            "role": "proposition",
-            "end1": "the shores",
-            "label": "of",
-            "end2": "the Lake of Como",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
             "children": [
              {
-              "seq": 285,
+              "seq": 318,
               "schema": "EOTObservation@1",
-              "id": "o270",
+              "id": "o309",
               "at": [
-               38544,
-               38548
+               38488,
+               38493
               ],
               "role": "proposition",
-              "end1": "the shores",
+              "end1": "while",
               "label": "of",
-              "end2": "Como",
+              "end2": "Italy",
               "subjectBasis": "inherited",
               "operator": "CON",
               "grain": "Ground",
@@ -3180,6 +3909,68 @@
               "stance": "Tending",
               "settledAs": "preposition",
               "children": []
+             }
+            ]
+           },
+           {
+            "seq": 319,
+            "schema": "EOTObservation@1",
+            "id": "o310",
+            "at": [
+             38508,
+             38548
+            ],
+            "role": "proposition",
+            "end1": "they",
+            "label": "passed",
+            "end2": "a week on the shores of the Lake of Como",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 320,
+              "schema": "EOTObservation@1",
+              "id": "o311",
+              "at": [
+               38532,
+               38548
+              ],
+              "role": "proposition",
+              "end1": "they",
+              "label": "of",
+              "end2": "the Lake of Como",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Ground",
+              "terrain": "Field",
+              "stance": "Tending",
+              "settledAs": "preposition",
+              "children": [
+               {
+                "seq": 321,
+                "schema": "EOTObservation@1",
+                "id": "o312",
+                "at": [
+                 38544,
+                 38548
+                ],
+                "role": "proposition",
+                "end1": "they",
+                "label": "of",
+                "end2": "Como",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Ground",
+                "terrain": "Field",
+                "stance": "Tending",
+                "settledAs": "preposition",
+                "children": []
+               }
+              ]
              }
             ]
            }
@@ -3197,7 +3988,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -3216,24 +4007,66 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 286,
+            "seq": 322,
             "schema": "EOTObservation@1",
-            "id": "o271",
+            "id": "o313",
             "at": [
-             38618,
+             38591,
              38626
             ],
             "role": "proposition",
-            "end1": "the cottages",
-            "label": "of",
-            "end2": "the poor",
+            "end1": "disposition often",
+            "label": "made",
+            "end2": "them enter the cottages of the poor",
             "subjectBasis": "stated",
             "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "children": []
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 323,
+              "schema": "EOTObservation@1",
+              "id": "o314",
+              "at": [
+               38602,
+               38626
+              ],
+              "role": "proposition",
+              "end1": "disposition often",
+              "label": "enter",
+              "end2": "the cottages of the poor",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": [
+               {
+                "seq": 324,
+                "schema": "EOTObservation@1",
+                "id": "o315",
+                "at": [
+                 38618,
+                 38626
+                ],
+                "role": "proposition",
+                "end1": "disposition often",
+                "label": "of",
+                "end2": "the poor",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Ground",
+                "terrain": "Field",
+                "stance": "Tending",
+                "settledAs": "preposition",
+                "children": []
+               }
+              ]
+             }
+            ]
            }
           ]
          }
@@ -3249,13 +4082,13 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 287,
+          "seq": 325,
           "schema": "EOTObservation@1",
-          "id": "o272",
+          "id": "o316",
           "at": [
            38678,
            38689
@@ -3273,9 +4106,9 @@
           "children": []
          },
          {
-          "seq": 288,
+          "seq": 326,
           "schema": "EOTObservation@1",
-          "id": "o273",
+          "id": "o317",
           "at": [
            38727,
            38735
@@ -3304,7 +4137,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -3323,32 +4156,35 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 289,
+            "seq": 327,
             "schema": "EOTObservation@1",
-            "id": "o274",
+            "id": "o318",
             "at": [
-             38923,
+             38907,
              38952
             ],
             "role": "proposition",
-            "end1": "their notice",
-            "label": "as",
-            "end2": "being singularly disconsolate",
+            "end1": "a vale",
+            "label": "attracted",
+            "end2": "their notice as being singularly disconsolate",
             "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
             "children": [
              {
-              "seq": 290,
+              "seq": 328,
               "schema": "EOTObservation@1",
-              "id": "o275",
+              "id": "o319",
               "at": [
                38929,
                38952
               ],
               "role": "proposition",
-              "end1": "their notice",
-              "label": "being",
+              "end1": "a vale",
+              "label": "as being",
               "end2": "singularly disconsolate",
               "subjectBasis": "inherited",
               "operator": "CON",
@@ -3374,21 +4210,21 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 291,
+          "seq": 329,
           "schema": "EOTObservation@1",
-          "id": "o276",
+          "id": "o320",
           "at": [
-           39080,
+           39085,
            39104
           ],
           "role": "proposition",
           "end1": "my father",
-          "label": "had",
-          "end2": "gone by himself to Milan",
+          "label": "had gone",
+          "end2": "by himself to Milan",
           "subjectBasis": "stated",
           "end2Ref": "ref:auto:milan",
           "operator": "CON",
@@ -3398,9 +4234,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 292,
+            "seq": 330,
             "schema": "EOTObservation@1",
-            "id": "o277",
+            "id": "o321",
             "at": [
              39099,
              39104
@@ -3469,7 +4305,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -3488,35 +4324,56 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 293,
+            "seq": 331,
             "schema": "EOTObservation@1",
-            "id": "o278",
+            "id": "o322",
             "at": [
-             39181,
+             39167,
              39189
             ],
             "role": "proposition",
-            "end1": "a peasant",
-            "label": "and",
-            "end2": "his wife",
+            "end1": "She",
+            "label": "found",
+            "end2": "a peasant and his wife",
             "subjectBasis": "stated",
-            "operator": "SEG",
+            "operator": "CON",
             "grain": "Figure",
             "terrain": "Link",
-            "stance": "Dissecting",
-            "settledAs": "conjunction",
-            "children": []
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 332,
+              "schema": "EOTObservation@1",
+              "id": "o323",
+              "at": [
+               39181,
+               39189
+              ],
+              "role": "proposition",
+              "end1": "She",
+              "label": "and",
+              "end2": "his wife",
+              "subjectBasis": "inherited",
+              "operator": "SEG",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Dissecting",
+              "settledAs": "conjunction",
+              "children": []
+             }
+            ]
            },
            {
-            "seq": 294,
+            "seq": 333,
             "schema": "EOTObservation@1",
-            "id": "o279",
+            "id": "o324",
             "at": [
              39228,
              39234
             ],
             "role": "proposition",
-            "end1": "bent down by care",
+            "end1": "by care",
             "label": "and",
             "end2": "labour",
             "subjectBasis": "stated",
@@ -3528,9 +4385,9 @@
             "children": []
            },
            {
-            "seq": 295,
+            "seq": 334,
             "schema": "EOTObservation@1",
-            "id": "o280",
+            "id": "o325",
             "at": [
              39267,
              39284
@@ -3558,11 +4415,11 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 296,
+          "seq": 335,
           "schema": "EOTAbsence@1",
           "at": [
            39286,
@@ -3585,7 +4442,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -3604,15 +4461,15 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 297,
+            "seq": 336,
             "schema": "EOTObservation@1",
-            "id": "o281",
+            "id": "o326",
             "at": [
              39379,
              39396
             ],
             "role": "proposition",
-            "end1": "She",
+            "end1": "She appeared",
             "label": "of",
             "end2": "a different stock",
             "subjectBasis": "stated",
@@ -3637,19 +4494,39 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 298,
+          "seq": 337,
           "schema": "EOTObservation@1",
-          "id": "o282",
+          "id": "o327",
+          "at": [
+           39420,
+           39429
+          ],
+          "role": "proposition",
+          "end1": "four others",
+          "label": "were",
+          "end2": "dark-eyed",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         },
+         {
+          "seq": 338,
+          "schema": "EOTObservation@1",
+          "id": "o328",
           "at": [
            39469,
            39487
           ],
           "role": "proposition",
-          "end1": "this",
+          "end1": "this child",
           "label": "was",
           "end2": "thin and very fair",
           "subjectBasis": "stated",
@@ -3658,28 +4535,7 @@
           "terrain": "Link",
           "stance": "Binding",
           "settledAs": "verb",
-          "children": [
-           {
-            "seq": 299,
-            "schema": "EOTObservation@1",
-            "id": "o283",
-            "at": [
-             39478,
-             39487
-            ],
-            "role": "proposition",
-            "end1": "this",
-            "label": "and",
-            "end2": "very fair",
-            "subjectBasis": "inherited",
-            "operator": "SEG",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Dissecting",
-            "settledAs": "conjunction",
-            "children": []
-           }
-          ]
+          "children": []
          }
         ]
        },
@@ -3693,7 +4549,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -3712,9 +4568,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 300,
+            "seq": 339,
             "schema": "EOTObservation@1",
-            "id": "o284",
+            "id": "o329",
             "at": [
              39503,
              39528
@@ -3729,28 +4585,52 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 340,
+              "schema": "EOTObservation@1",
+              "id": "o330",
+              "at": [
+               39524,
+               39528
+              ],
+              "role": "proposition",
+              "end1": "Her hair",
+              "label": "living",
+              "end2": "gold",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
+             }
+            ]
            },
            {
-            "seq": 301,
+            "seq": 341,
             "schema": "EOTObservation@1",
-            "id": "o285",
+            "id": "o331",
             "at": [
-             39582,
+             39586,
              39620
             ],
             "role": "proposition",
             "end1": "seemed",
-            "label": "to",
-            "end2": "set a crown of distinction on her head",
+            "label": "set",
+            "end2": "a crown of distinction on her head",
             "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
             "children": [
              {
-              "seq": 302,
+              "seq": 342,
               "schema": "EOTObservation@1",
-              "id": "o286",
+              "id": "o332",
               "at": [
                39597,
                39620
@@ -3783,13 +4663,13 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 303,
+          "seq": 343,
           "schema": "EOTObservation@1",
-          "id": "o287",
+          "id": "o333",
           "at": [
            39636,
            39651
@@ -3807,9 +4687,9 @@
           "children": []
          },
          {
-          "seq": 304,
+          "seq": 344,
           "schema": "EOTObservation@1",
-          "id": "o288",
+          "id": "o334",
           "at": [
            39662,
            39676
@@ -3825,9 +4705,9 @@
           "children": []
          },
          {
-          "seq": 305,
+          "seq": 345,
           "schema": "EOTObservation@1",
-          "id": "o289",
+          "id": "o335",
           "at": [
            39800,
            39839
@@ -3844,39 +4724,39 @@
           "settledAs": "preposition",
           "children": [
            {
-            "seq": 306,
+            "seq": 346,
             "schema": "EOTObservation@1",
-            "id": "o290",
+            "id": "o336",
             "at": [
-             39818,
+             39808,
              39839
             ],
             "role": "proposition",
             "end1": "behold her",
-            "label": "as",
-            "end2": "of a distinct species",
+            "label": "looking",
+            "end2": "on her as of a distinct species",
             "subjectBasis": "inherited",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
             "children": [
              {
-              "seq": 307,
+              "seq": 347,
               "schema": "EOTObservation@1",
-              "id": "o291",
+              "id": "o337",
               "at": [
-               39821,
+               39818,
                39839
               ],
               "role": "proposition",
               "end1": "behold her",
-              "label": "of",
-              "end2": "a distinct species",
+              "label": "as",
+              "end2": "of a distinct species",
               "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Ground",
-              "terrain": "Field",
-              "stance": "Tending",
-              "settledAs": "preposition",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
               "children": []
              }
             ]
@@ -3884,9 +4764,9 @@
           ]
          },
          {
-          "seq": 308,
+          "seq": 348,
           "schema": "EOTObservation@1",
-          "id": "o292",
+          "id": "o338",
           "at": [
            39849,
            39860
@@ -3904,24 +4784,45 @@
           "children": []
          },
          {
-          "seq": 309,
+          "seq": 349,
           "schema": "EOTObservation@1",
-          "id": "o293",
+          "id": "o339",
           "at": [
-           39896,
+           39875,
            39912
           ],
           "role": "proposition",
-          "end1": "celestial stamp",
-          "label": "in",
-          "end2": "all her features",
+          "end1": "and",
+          "label": "bearing",
+          "end2": "a celestial stamp in all her features",
           "subjectBasis": "stated",
           "operator": "CON",
-          "grain": "Ground",
-          "terrain": "Field",
-          "stance": "Tending",
-          "settledAs": "preposition",
-          "children": []
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 350,
+            "schema": "EOTObservation@1",
+            "id": "o340",
+            "at": [
+             39896,
+             39912
+            ],
+            "role": "proposition",
+            "end1": "and",
+            "label": "in",
+            "end2": "all her features",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
          }
         ]
        }
@@ -3937,7 +4838,7 @@
       ],
       "role": "paragraph",
       "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
       "children": [
        {
         "seq": 115,
@@ -3949,19 +4850,19 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 310,
+          "seq": 351,
           "schema": "EOTObservation@1",
-          "id": "o294",
+          "id": "o341",
           "at": [
            39988,
            40018
           ],
           "role": "proposition",
-          "end1": "my mother fixed eyes of wonder",
+          "end1": "of wonder",
           "label": "and",
           "end2": "admiration on this lovely girl",
           "subjectBasis": "stated",
@@ -3970,6 +4871,26 @@
           "terrain": "Link",
           "stance": "Dissecting",
           "settledAs": "conjunction",
+          "children": []
+         },
+         {
+          "seq": 352,
+          "schema": "EOTObservation@1",
+          "id": "o342",
+          "at": [
+           40041,
+           40052
+          ],
+          "role": "proposition",
+          "end1": "eagerly",
+          "label": "communicated",
+          "end2": "her history",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
           "children": []
          }
         ]
@@ -3984,13 +4905,13 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 311,
+          "seq": 353,
           "schema": "EOTObservation@1",
-          "id": "o295",
+          "id": "o343",
           "at": [
            40063,
            40076
@@ -4009,9 +4930,9 @@
           "children": []
          },
          {
-          "seq": 312,
+          "seq": 354,
           "schema": "EOTObservation@1",
-          "id": "o296",
+          "id": "o344",
           "at": [
            40098,
            40117
@@ -4040,13 +4961,13 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 313,
+          "seq": 355,
           "schema": "EOTObservation@1",
-          "id": "o297",
+          "id": "o345",
           "at": [
            40148,
            40176
@@ -4063,24 +4984,45 @@
           "settledAs": "conjunction",
           "children": [
            {
-            "seq": 314,
+            "seq": 356,
             "schema": "EOTObservation@1",
-            "id": "o298",
+            "id": "o346",
             "at": [
-             40152,
+             40157,
              40176
             ],
             "role": "proposition",
             "end1": "a German",
-            "label": "had",
-            "end2": "died on giving her birth",
+            "label": "had died",
+            "end2": "on giving her birth",
             "subjectBasis": "inherited",
             "operator": "CON",
             "grain": "Figure",
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": []
+            "children": [
+             {
+              "seq": 357,
+              "schema": "EOTObservation@1",
+              "id": "o347",
+              "at": [
+               40167,
+               40176
+              ],
+              "role": "proposition",
+              "end1": "a German",
+              "label": "giving",
+              "end2": "her birth",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -4096,7 +5038,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -4115,9 +5057,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 315,
+            "seq": 358,
             "schema": "EOTObservation@1",
-            "id": "o299",
+            "id": "o348",
             "at": [
              40211,
              40264
@@ -4132,25 +5074,7 @@
             "terrain": "Field",
             "stance": "Tending",
             "settledAs": "preposition",
-            "children": [
-             {
-              "seq": 316,
-              "schema": "EOTObservation@1",
-              "id": "o300",
-              "at": [
-               40232,
-               40264
-              ],
-              "role": "proposition",
-              "end1": "been placed",
-              "label": "to",
-              "end2": "nurse: they were better off then",
-              "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "children": []
-             }
-            ]
+            "children": []
            }
           ]
          }
@@ -4166,7 +5090,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -4183,7 +5107,28 @@
           "terrain": "Void",
           "stance": "Tending",
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
-          "children": []
+          "children": [
+           {
+            "seq": 359,
+            "schema": "EOTObservation@1",
+            "id": "o349",
+            "at": [
+             40285,
+             40297
+            ],
+            "role": "proposition",
+            "end1": "They",
+            "label": "had not been",
+            "end2": "long married",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
          }
         ]
        },
@@ -4197,19 +5142,19 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 318,
+          "seq": 361,
           "schema": "EOTObservation@1",
-          "id": "o301",
+          "id": "o350",
           "at": [
            40441,
            40484
           ],
           "role": "proposition",
-          "end1": "the memory of the antique glory",
+          "end1": "antique glory",
           "label": "of",
           "end2": "Italy—one among the _schiavi ognor frementi",
           "subjectBasis": "stated",
@@ -4222,9 +5167,9 @@
           "children": []
          },
          {
-          "seq": 319,
+          "seq": 362,
           "schema": "EOTObservation@1",
-          "id": "o302",
+          "id": "o351",
           "at": [
            40511,
            40544
@@ -4238,24 +5183,45 @@
           "settledAs": null,
           "children": [
            {
-            "seq": 320,
+            "seq": 363,
             "schema": "EOTObservation@1",
-            "id": "o303",
+            "id": "o352",
             "at": [
-             40533,
+             40518,
              40544
             ],
             "role": "proposition",
             "end1": "exerted himself",
-            "label": "of",
-            "end2": "his country",
+            "label": "obtain",
+            "end2": "the liberty of his country",
             "subjectBasis": "inherited",
             "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "children": []
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 364,
+              "schema": "EOTObservation@1",
+              "id": "o353",
+              "at": [
+               40533,
+               40544
+              ],
+              "role": "proposition",
+              "end1": "exerted himself",
+              "label": "of",
+              "end2": "his country",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Ground",
+              "terrain": "Field",
+              "stance": "Tending",
+              "settledAs": "preposition",
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -4271,11 +5237,11 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 321,
+          "seq": 365,
           "schema": "EOTAbsence@1",
           "at": [
            40546,
@@ -4298,7 +5264,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -4317,15 +5283,15 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 322,
+            "seq": 366,
             "schema": "EOTObservation@1",
-            "id": "o304",
+            "id": "o354",
             "at": [
              40655,
              40664
             ],
             "role": "proposition",
-            "end1": "the dungeons of Austria",
+            "end1": "of Austria",
             "label": "was",
             "end2": "not known",
             "subjectBasis": "stated",
@@ -4350,13 +5316,13 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 323,
+          "seq": 367,
           "schema": "EOTObservation@1",
-          "id": "o305",
+          "id": "o355",
           "at": [
            40683,
            40694
@@ -4374,9 +5340,9 @@
           "children": []
          },
          {
-          "seq": 324,
+          "seq": 368,
           "schema": "EOTObservation@1",
-          "id": "o306",
+          "id": "o356",
           "at": [
            40728,
            40736
@@ -4405,7 +5371,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -4424,7 +5390,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 325,
+            "seq": 369,
             "schema": "EOTAbsence@1",
             "at": [
              40738,
@@ -4451,7 +5417,7 @@
       ],
       "role": "paragraph",
       "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
       "children": [
        {
         "seq": 125,
@@ -4463,7 +5429,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -4482,9 +5448,30 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 326,
+            "seq": 370,
             "schema": "EOTObservation@1",
-            "id": "o307",
+            "id": "o357",
+            "at": [
+             40891,
+             40901
+            ],
+            "role": "proposition",
+            "end1": "my father",
+            "label": "returned",
+            "end2": "from Milan",
+            "subjectBasis": "stated",
+            "end2Ref": "ref:auto:milan",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           },
+           {
+            "seq": 371,
+            "schema": "EOTObservation@1",
+            "id": "o358",
             "at": [
              41106,
              41115
@@ -4515,13 +5502,13 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 327,
+          "seq": 372,
           "schema": "EOTObservation@1",
-          "id": "o308",
+          "id": "o359",
           "at": [
            41136,
            41150
@@ -4550,26 +5537,46 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 328,
+          "seq": 373,
           "schema": "EOTObservation@1",
-          "id": "o309",
+          "id": "o360",
           "at": [
-           41179,
-           41182
+           41240,
+           41246
           ],
           "role": "proposition",
-          "end1": "their charge",
-          "label": "to",
-          "end2": "her",
+          "end1": "yield their",
+          "label": "charge",
+          "end2": "to her",
           "subjectBasis": "stated",
-          "end2Ref": "ref:auto:milan",
-          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-          "settledAs": null,
-          "children": []
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 374,
+            "schema": "EOTObservation@1",
+            "id": "o361",
+            "at": [
+             41243,
+             41246
+            ],
+            "role": "proposition",
+            "end1": "yield their",
+            "label": "to",
+            "end2": "her",
+            "subjectBasis": "inherited",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": []
+           }
+          ]
          }
         ]
        },
@@ -4583,7 +5590,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -4602,24 +5609,45 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 329,
+            "seq": 375,
             "schema": "EOTObservation@1",
-            "id": "o310",
+            "id": "o362",
             "at": [
-             41266,
+             41258,
              41282
             ],
             "role": "proposition",
-            "end1": "were fond",
-            "label": "of",
-            "end2": "the sweet orphan",
+            "end1": "They",
+            "label": "were",
+            "end2": "fond of the sweet orphan",
             "subjectBasis": "stated",
             "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "children": []
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 376,
+              "schema": "EOTObservation@1",
+              "id": "o363",
+              "at": [
+               41266,
+               41282
+              ],
+              "role": "proposition",
+              "end1": "They",
+              "label": "of",
+              "end2": "the sweet orphan",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Ground",
+              "terrain": "Field",
+              "stance": "Tending",
+              "settledAs": "preposition",
+              "children": []
+             }
+            ]
            }
           ]
          }
@@ -4635,30 +5663,33 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 330,
+          "seq": 377,
           "schema": "EOTObservation@1",
-          "id": "o311",
+          "id": "o364",
           "at": [
-           41323,
+           41309,
            41327
           ],
           "role": "proposition",
-          "end1": "a blessing",
-          "label": "to",
-          "end2": "them",
+          "end1": "Her presence",
+          "label": "had seemed",
+          "end2": "a blessing to them",
           "subjectBasis": "stated",
-          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-          "settledAs": null,
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
           "children": []
          },
          {
-          "seq": 331,
+          "seq": 378,
           "schema": "EOTObservation@1",
-          "id": "o312",
+          "id": "o365",
           "at": [
            41387,
            41445
@@ -4675,33 +5706,36 @@
           "settledAs": "conjunction",
           "children": [
            {
-            "seq": 332,
+            "seq": 379,
             "schema": "EOTObservation@1",
-            "id": "o313",
+            "id": "o366",
             "at": [
-             41417,
+             41392,
              41445
             ],
             "role": "proposition",
             "end1": "in poverty",
-            "label": "afforded",
-            "end2": "her such powerful protection",
+            "label": "want",
+            "end2": "when Providence afforded her such powerful protection",
             "subjectBasis": "inherited",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
             "children": [
              {
-              "seq": 333,
+              "seq": 380,
               "schema": "EOTObservation@1",
-              "id": "o314",
+              "id": "o367",
               "at": [
-               41426,
+               41417,
                41445
               ],
               "role": "proposition",
               "end1": "in poverty",
-              "label": "such",
-              "end2": "powerful protection",
+              "label": "afforded",
+              "end2": "her such powerful protection",
               "subjectBasis": "inherited",
               "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
               "settledAs": null,
@@ -4723,7 +5757,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -4741,6 +5775,26 @@
           "stance": "Tending",
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
+           {
+            "seq": 381,
+            "schema": "EOTObservation@1",
+            "id": "o368",
+            "at": [
+             41463,
+             41483
+            ],
+            "role": "proposition",
+            "end1": "They",
+            "label": "consulted",
+            "end2": "their village priest",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           },
            {
             "seq": 138,
             "schema": "EOTObservation@1",
@@ -4782,15 +5836,15 @@
             ]
            },
            {
-            "seq": 334,
+            "seq": 382,
             "schema": "EOTObservation@1",
-            "id": "o315",
+            "id": "o369",
             "at": [
              41650,
              41662
             ],
             "role": "proposition",
-            "end1": "all my occupations",
+            "end1": "my occupations",
             "label": "and",
             "end2": "my pleasures",
             "subjectBasis": "stated",
@@ -4817,7 +5871,7 @@
       ],
       "role": "paragraph",
       "inferred": true,
-      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own",
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
       "children": [
        {
         "seq": 131,
@@ -4829,19 +5883,28 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 335,
-          "schema": "EOTAbsence@1",
+          "seq": 383,
+          "schema": "EOTObservation@1",
+          "id": "o370",
           "at": [
-           41667,
-           41692
+           41682,
+           41691
           ],
-          "role": "arrangement",
-          "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 39 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "role": "proposition",
+          "end1": "Everyone",
+          "label": "loved",
+          "end2": "Elizabeth",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:elizabeth",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
           "children": []
          }
         ]
@@ -4856,19 +5919,39 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 336,
+          "seq": 386,
           "schema": "EOTObservation@1",
-          "id": "o316",
+          "id": "o373",
+          "at": [
+           41744,
+           41746
+          ],
+          "role": "proposition",
+          "end1": "I",
+          "label": "shared",
+          "end2": "it",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         },
+         {
+          "seq": 384,
+          "schema": "EOTObservation@1",
+          "id": "o371",
           "at": [
            41748,
            41777
           ],
           "role": "proposition",
-          "end1": "almost reverential attachment",
+          "end1": "reverential attachment",
           "label": "with",
           "end2": "which all regarded her became",
           "subjectBasis": "stated",
@@ -4877,12 +5960,33 @@
           "terrain": "Field",
           "stance": "Tending",
           "settledAs": "preposition",
-          "children": []
+          "children": [
+           {
+            "seq": 385,
+            "schema": "EOTObservation@1",
+            "id": "o372",
+            "at": [
+             41767,
+             41777
+            ],
+            "role": "proposition",
+            "end1": "reverential attachment",
+            "label": "regarded",
+            "end2": "her became",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
          },
          {
-          "seq": 337,
+          "seq": 387,
           "schema": "EOTObservation@1",
-          "id": "o317",
+          "id": "o374",
           "at": [
            41812,
            41822
@@ -4911,19 +6015,19 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 338,
+          "seq": 388,
           "schema": "EOTObservation@1",
-          "id": "o318",
+          "id": "o375",
           "at": [
            41873,
            41880
           ],
           "role": "proposition",
-          "end1": "her being brought",
+          "end1": "being brought",
           "label": "to",
           "end2": "my home",
           "subjectBasis": "stated",
@@ -4932,17 +6036,17 @@
           "children": []
          },
          {
-          "seq": 339,
+          "seq": 389,
           "schema": "EOTObservation@1",
-          "id": "o319",
+          "id": "o376",
           "at": [
-           41896,
+           41901,
            41910
           ],
           "role": "proposition",
           "end1": "my mother",
-          "label": "had",
-          "end2": "said playfully",
+          "label": "had said",
+          "end2": "playfully",
           "subjectBasis": "stated",
           "operator": "CON",
           "grain": "Figure",
@@ -4952,17 +6056,17 @@
           "children": []
          },
          {
-          "seq": 340,
+          "seq": 390,
           "schema": "EOTObservation@1",
-          "id": "o320",
+          "id": "o377",
           "at": [
-           41970,
+           41975,
            41977
           ],
           "role": "proposition",
           "end1": "tomorrow he",
-          "label": "shall",
-          "end2": "have it",
+          "label": "shall have",
+          "end2": "it",
           "subjectBasis": "stated",
           "operator": "CON",
           "grain": "Figure",
@@ -4983,7 +6087,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -5002,52 +6106,72 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 341,
+            "seq": 391,
             "schema": "EOTObservation@1",
-            "id": "o321",
+            "id": "o378",
             "at": [
-             42033,
+             42020,
              42056
             ],
             "role": "proposition",
-            "end1": "presented Elizabeth",
-            "label": "to",
-            "end2": "me as her promised gift",
+            "end1": "she",
+            "label": "presented",
+            "end2": "Elizabeth to me as her promised gift",
             "subjectBasis": "stated",
-            "end1Ref": "ref:auto:elizabeth",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
+            "end2Ref": "ref:auto:elizabeth",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
             "children": [
              {
-              "seq": 342,
+              "seq": 392,
               "schema": "EOTObservation@1",
-              "id": "o322",
+              "id": "o379",
               "at": [
-               42039,
+               42033,
                42056
               ],
               "role": "proposition",
-              "end1": "presented Elizabeth",
-              "label": "as",
-              "end2": "her promised gift",
+              "end1": "she",
+              "label": "to",
+              "end2": "me as her promised gift",
               "subjectBasis": "inherited",
-              "end1Ref": "ref:auto:elizabeth",
               "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
               "settledAs": null,
-              "children": []
+              "children": [
+               {
+                "seq": 393,
+                "schema": "EOTObservation@1",
+                "id": "o380",
+                "at": [
+                 42039,
+                 42056
+                ],
+                "role": "proposition",
+                "end1": "she",
+                "label": "as",
+                "end2": "her promised gift",
+                "subjectBasis": "inherited",
+                "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+                "settledAs": null,
+                "children": []
+               }
+              ]
              }
             ]
            },
            {
-            "seq": 343,
+            "seq": 394,
             "schema": "EOTObservation@1",
-            "id": "o323",
+            "id": "o381",
             "at": [
              42151,
              42171
             ],
             "role": "proposition",
-            "end1": "looked upon Elizabeth",
+            "end1": "upon Elizabeth",
             "label": "as",
             "end2": "mine—mine to protect",
             "subjectBasis": "stated",
@@ -5056,15 +6180,15 @@
             "settledAs": null,
             "children": [
              {
-              "seq": 344,
+              "seq": 395,
               "schema": "EOTObservation@1",
-              "id": "o324",
+              "id": "o382",
               "at": [
                42164,
                42171
               ],
               "role": "proposition",
-              "end1": "looked upon Elizabeth",
+              "end1": "upon Elizabeth",
               "label": "to",
               "end2": "protect",
               "subjectBasis": "inherited",
@@ -5089,7 +6213,7 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
@@ -5108,55 +6232,58 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 345,
+            "seq": 396,
             "schema": "EOTObservation@1",
-            "id": "o325",
+            "id": "o383",
             "at": [
-             42235,
+             42232,
              42265
             ],
             "role": "proposition",
-            "end1": "I",
-            "label": "as",
-            "end2": "made to a possession of my own",
+            "end1": "her I",
+            "label": "received",
+            "end2": "as made to a possession of my own",
             "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
             "children": [
              {
-              "seq": 346,
+              "seq": 397,
               "schema": "EOTObservation@1",
-              "id": "o326",
+              "id": "o384",
               "at": [
-               42243,
+               42240,
                42265
               ],
               "role": "proposition",
-              "end1": "I",
-              "label": "to",
-              "end2": "a possession of my own",
+              "end1": "her I",
+              "label": "as made",
+              "end2": "to a possession of my own",
               "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
               "children": [
                {
-                "seq": 347,
+                "seq": 398,
                 "schema": "EOTObservation@1",
-                "id": "o327",
+                "id": "o385",
                 "at": [
-                 42259,
+                 42243,
                  42265
                 ],
                 "role": "proposition",
-                "end1": "I",
-                "label": "of",
-                "end2": "my own",
+                "end1": "her I",
+                "label": "to",
+                "end2": "a possession of my own",
                 "subjectBasis": "inherited",
-                "operator": "CON",
-                "grain": "Ground",
-                "terrain": "Field",
-                "stance": "Tending",
-                "settledAs": "preposition",
+                "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+                "settledAs": null,
                 "children": []
                }
               ]
@@ -5177,13 +6304,13 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 348,
+          "seq": 399,
           "schema": "EOTObservation@1",
-          "id": "o328",
+          "id": "o386",
           "at": [
            42315,
            42321
@@ -5212,26 +6339,46 @@
         ],
         "role": "sentence",
         "inferred": true,
-        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences)",
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
         "children": [
          {
-          "seq": 349,
+          "seq": 400,
           "schema": "EOTObservation@1",
-          "id": "o329",
+          "id": "o387",
           "at": [
            42460,
            42472
           ],
           "role": "proposition",
-          "end1": "she",
+          "end1": "death she",
           "label": "was to",
           "end2": "be mine only",
           "subjectBasis": "stated",
-          "end1Ref": "ref:auto:elizabeth",
           "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
           "settledAs": null,
-          "children": []
+          "children": [
+           {
+            "seq": 401,
+            "schema": "EOTObservation@1",
+            "id": "o388",
+            "at": [
+             42463,
+             42472
+            ],
+            "role": "proposition",
+            "end1": "death she",
+            "label": "be",
+            "end2": "mine only",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
          }
         ]
        }
@@ -5251,7 +6398,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 2,
   "numeral": "2",
   "title": "",
@@ -5262,11 +6409,11 @@
     "id": "h4",
     "at": [
      42483,
-     42498
+     42494
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 2,
     "children": []
    }
@@ -5282,7 +6429,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 3,
   "numeral": "3",
   "title": "",
@@ -5293,11 +6440,11 @@
     "id": "h6",
     "at": [
      55405,
-     55420
+     55416
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 3,
     "children": []
    }
@@ -5313,7 +6460,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 4,
   "numeral": "4",
   "title": "",
@@ -5324,11 +6471,11 @@
     "id": "h8",
     "at": [
      70936,
-     70951
+     70947
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 4,
     "children": []
    }
@@ -5344,7 +6491,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 5,
   "numeral": "5",
   "title": "",
@@ -5355,11 +6502,11 @@
     "id": "h10",
     "at": [
      85605,
-     85620
+     85616
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 5,
     "children": []
    }
@@ -5375,7 +6522,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 6,
   "numeral": "6",
   "title": "",
@@ -5386,11 +6533,11 @@
     "id": "h12",
     "at": [
      98838,
-     98853
+     98849
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 6,
     "children": []
    }
@@ -5406,10 +6553,10 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 7,
   "numeral": "7",
-  "title": "On my return, I found the following letter from my father:—",
+  "title": "",
   "children": [
    {
     "seq": 15,
@@ -5417,11 +6564,11 @@
     "id": "h14",
     "at": [
      114620,
-     114696
+     114631
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line and its title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 7,
     "children": []
    }
@@ -5437,7 +6584,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 8,
   "numeral": "8",
   "title": "",
@@ -5448,11 +6595,11 @@
     "id": "h16",
     "at": [
      134847,
-     134862
+     134858
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 8,
     "children": []
    }
@@ -5468,7 +6615,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 9,
   "numeral": "9",
   "title": "",
@@ -5479,11 +6626,11 @@
     "id": "h18",
     "at": [
      152427,
-     152442
+     152438
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 9,
     "children": []
    }
@@ -5499,7 +6646,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 10,
   "numeral": "10",
   "title": "",
@@ -5510,11 +6657,11 @@
     "id": "h20",
     "at": [
      165081,
-     165097
+     165093
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 10,
     "children": []
    }
@@ -5530,7 +6677,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 11,
   "numeral": "11",
   "title": "",
@@ -5541,11 +6688,11 @@
     "id": "h22",
     "at": [
      178307,
-     178323
+     178319
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 11,
     "children": []
    }
@@ -5561,7 +6708,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 12,
   "numeral": "12",
   "title": "",
@@ -5572,11 +6719,11 @@
     "id": "h24",
     "at": [
      194498,
-     194514
+     194510
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 12,
     "children": []
    }
@@ -5592,7 +6739,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 13,
   "numeral": "13",
   "title": "",
@@ -5603,11 +6750,11 @@
     "id": "h26",
     "at": [
      206693,
-     206709
+     206705
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 13,
     "children": []
    }
@@ -5623,7 +6770,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 14,
   "numeral": "14",
   "title": "",
@@ -5634,11 +6781,11 @@
     "id": "h28",
     "at": [
      218481,
-     218497
+     218493
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 14,
     "children": []
    }
@@ -5654,7 +6801,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 15,
   "numeral": "15",
   "title": "",
@@ -5665,11 +6812,11 @@
     "id": "h30",
     "at": [
      229115,
-     229131
+     229127
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 15,
     "children": []
    }
@@ -5685,7 +6832,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 16,
   "numeral": "16",
   "title": "",
@@ -5696,11 +6843,11 @@
     "id": "h32",
     "at": [
      246562,
-     246578
+     246574
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 16,
     "children": []
    }
@@ -5716,7 +6863,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 17,
   "numeral": "17",
   "title": "",
@@ -5727,11 +6874,11 @@
     "id": "h34",
     "at": [
      264432,
-     264448
+     264444
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 17,
     "children": []
    }
@@ -5747,7 +6894,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 18,
   "numeral": "18",
   "title": "",
@@ -5758,11 +6905,11 @@
     "id": "h36",
     "at": [
      274875,
-     274891
+     274887
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 18,
     "children": []
    }
@@ -5778,7 +6925,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 19,
   "numeral": "19",
   "title": "",
@@ -5789,11 +6936,11 @@
     "id": "h38",
     "at": [
      291336,
-     291352
+     291348
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 19,
     "children": []
    }
@@ -5809,7 +6956,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 20,
   "numeral": "20",
   "title": "",
@@ -5820,11 +6967,11 @@
     "id": "h40",
     "at": [
      306408,
-     306424
+     306420
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 20,
     "children": []
    }
@@ -5840,7 +6987,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 21,
   "numeral": "21",
   "title": "",
@@ -5851,11 +6998,11 @@
     "id": "h42",
     "at": [
      325776,
-     325792
+     325788
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 21,
     "children": []
    }
@@ -5871,7 +7018,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 22,
   "numeral": "22",
   "title": "",
@@ -5882,11 +7029,11 @@
     "id": "h44",
     "at": [
      346601,
-     346617
+     346613
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 22,
     "children": []
    }
@@ -5902,7 +7049,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 23,
   "numeral": "23",
   "title": "",
@@ -5913,11 +7060,11 @@
     "id": "h46",
     "at": [
      365982,
-     365998
+     365994
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 23,
     "children": []
    }
@@ -5933,7 +7080,7 @@
   ],
   "role": "chapter",
   "inferred": true,
-  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched",
+  "basis": "a 'Chapter <arabic>' line at line-start followed by running prose (a title line, when the book gives one, is blank-line-bounded like the heading itself) — the table-of-contents copies of the same string are not followed by prose and are not matched (S111 — the shared structure-rec detector; S107: an inference's basis names the evidence that licensed it)",
   "ordinal": 24,
   "numeral": "24",
   "title": "",
@@ -5944,11 +7091,11 @@
     "id": "h48",
     "at": [
      380276,
-     380292
+     380288
     ],
     "role": "heading",
     "inferred": true,
-    "basis": "the chapter line alone — this book gives its chapters no title line",
+    "basis": "the chapter line alone — this book gives its chapters no title line (S111 — shared detector, headEnd at the real-title boundary; S102: a real title is blank-line-bounded)",
     "ofChapter": 24,
     "children": []
    }

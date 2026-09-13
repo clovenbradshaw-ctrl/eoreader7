@@ -1,0 +1,41 @@
+{
+ "chapter": 10,
+ "verbs": [
+  "died",
+  "very",
+  "and",
+  "was",
+  "were",
+  "read",
+  "knows",
+  "valleys",
+  "bade",
+  "spoke"
+ ],
+ "cast": [
+  [
+   "Mont Blanc",
+   "ref:auto:mont_blanc"
+  ],
+  [
+   "Justine",
+   "ref:auto:justine"
+  ],
+  [
+   "Arve",
+   "ref:auto:arve"
+  ],
+  [
+   "Chamounix",
+   "ref:auto:chamounix"
+  ],
+  [
+   "Mont",
+   "ref:auto:mont_blanc"
+  ],
+  [
+   "Victor",
+   "ref:auto:victor"
+  ]
+ ]
+}

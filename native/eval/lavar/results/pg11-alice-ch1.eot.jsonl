@@ -1,0 +1,258 @@
+{"seq":0,"schema":"EOTSource@1","path":"01-literature-books/gutenberg/pg11-alice-ch1.txt","sha256":"25f4343a0369c3eb47cbd7027fe4226daf493ae0391e7ca442aab8ce615db242","bytes":11552,"addressing":"every `at` below is [start,end) into THIS source; containment is computed from those numbers, never declared"}
+{"seq":1,"schema":"EOTRecipe@1","language":"en","reader":"makeRelationReader — the POSITIONAL English reader: role is found by position in the clause, not by case-marking on the word. English word order carries meaning and this reading uses it.","priors":[{"name":"earned verb vocabulary","giver":"this material's own recurrence","scope":"a token is nominated as a verb only after following a recurring surface; minSurfaces 1, declared"},{"name":"POS refusal gate","giver":"Universal Dependencies UD_English-EWT (CC BY-SA 4.0), native/priors/pos-eng.json","scope":"wordclass.js dominantClass at minShare 0.5 — REFUSES a relation whose connector settles as a non-verb; never confirms one (P56: settled means refusable, never confirmable)"},{"name":"inherited subject","giver":"this reading (new, 2026-09-09)","scope":"a nested clause with no subject of its own is read under the matrix subject that controls it"},{"name":"script coverage per sentence","giver":"Unicode UCD General_Category (Cased_Letter vs L)","scope":"READING-SPEC S92 — tags each sentence cased/caseless so a mixed English+Mandarin document is readable per segment; this chapter is 100% cased"},{"name":"case-marking prior","giver":"—","scope":"DELIBERATELY OMITTED. This is the positional reader, not makeCaseMarkedRelationReader. Case-marking is another language's prior, not a missing feature of this one."}]}
+{"seq":2,"schema":"EOTObservation@1","id":"b1","at":[8538,8581],"role":"scene-break"}
+{"seq":3,"schema":"EOTObservation@1","id":"b2","at":[8583,8623],"role":"scene-break"}
+{"seq":4,"schema":"EOTObservation@1","id":"b3","at":[8625,8668],"role":"scene-break"}
+{"seq":5,"schema":"EOTObservation@1","id":"b4","at":[11421,11464],"role":"scene-break"}
+{"seq":6,"schema":"EOTObservation@1","id":"b5","at":[11466,11506],"role":"scene-break"}
+{"seq":7,"schema":"EOTObservation@1","id":"b6","at":[11508,11551],"role":"scene-break"}
+{"seq":8,"schema":"EOTObservation@1","id":"h7","at":[0,31],"role":"heading"}
+{"seq":9,"schema":"EOTObservation@1","id":"s8","at":[31,8538],"role":"section"}
+{"seq":10,"schema":"EOTObservation@1","id":"s9","at":[8668,11421],"role":"section"}
+{"seq":11,"schema":"EOTObservation@1","id":"p10","at":[0,31],"role":"paragraph"}
+{"seq":12,"schema":"EOTObservation@1","id":"p11","at":[34,336],"role":"paragraph"}
+{"seq":13,"schema":"EOTObservation@1","id":"p12","at":[338,627],"role":"paragraph"}
+{"seq":14,"schema":"EOTObservation@1","id":"p13","at":[629,1368],"role":"paragraph"}
+{"seq":15,"schema":"EOTObservation@1","id":"p14","at":[1370,1479],"role":"paragraph"}
+{"seq":16,"schema":"EOTObservation@1","id":"p15","at":[1481,1700],"role":"paragraph"}
+{"seq":17,"schema":"EOTObservation@1","id":"p16","at":[1702,2417],"role":"paragraph"}
+{"seq":18,"schema":"EOTObservation@1","id":"p17","at":[2419,2678],"role":"paragraph"}
+{"seq":19,"schema":"EOTObservation@1","id":"p18","at":[2680,3386],"role":"paragraph"}
+{"seq":20,"schema":"EOTObservation@1","id":"p19","at":[3388,4072],"role":"paragraph"}
+{"seq":21,"schema":"EOTObservation@1","id":"p20","at":[4074,5054],"role":"paragraph"}
+{"seq":22,"schema":"EOTObservation@1","id":"p21","at":[5056,5634],"role":"paragraph"}
+{"seq":23,"schema":"EOTObservation@1","id":"p22","at":[5636,5864],"role":"paragraph"}
+{"seq":24,"schema":"EOTObservation@1","id":"p23","at":[5866,6424],"role":"paragraph"}
+{"seq":25,"schema":"EOTObservation@1","id":"p24","at":[6426,7145],"role":"paragraph"}
+{"seq":26,"schema":"EOTObservation@1","id":"p25","at":[7147,7570],"role":"paragraph"}
+{"seq":27,"schema":"EOTObservation@1","id":"p26","at":[7572,8273],"role":"paragraph"}
+{"seq":28,"schema":"EOTObservation@1","id":"p27","at":[8275,8536],"role":"paragraph"}
+{"seq":29,"schema":"EOTObservation@1","id":"p28","at":[8671,8750],"role":"paragraph"}
+{"seq":30,"schema":"EOTObservation@1","id":"p29","at":[8752,9352],"role":"paragraph"}
+{"seq":31,"schema":"EOTObservation@1","id":"p30","at":[9354,9870],"role":"paragraph"}
+{"seq":32,"schema":"EOTObservation@1","id":"p31","at":[9872,10504],"role":"paragraph"}
+{"seq":33,"schema":"EOTObservation@1","id":"p32","at":[10506,10913],"role":"paragraph"}
+{"seq":34,"schema":"EOTObservation@1","id":"p33","at":[10915,11361],"role":"paragraph"}
+{"seq":35,"schema":"EOTObservation@1","id":"p34","at":[11363,11419],"role":"paragraph"}
+{"seq":36,"schema":"EOTObservation@1","id":"t35","at":[0,10],"role":"sentence","script":"cased"}
+{"seq":37,"schema":"EOTObservation@1","id":"t36","at":[11,31],"role":"sentence","script":"cased"}
+{"seq":38,"schema":"EOTObservation@1","id":"t37","at":[34,336],"role":"sentence","script":"cased"}
+{"seq":39,"schema":"EOTObservation@1","id":"t38","at":[338,627],"role":"sentence","script":"cased"}
+{"seq":40,"schema":"EOTObservation@1","id":"t39","at":[629,773],"role":"sentence","script":"cased"}
+{"seq":41,"schema":"EOTObservation@1","id":"t40","at":[774,782],"role":"sentence","script":"cased"}
+{"seq":42,"schema":"EOTObservation@1","id":"t41","at":[783,800],"role":"sentence","script":"cased"}
+{"seq":43,"schema":"EOTObservation@1","id":"t42","at":[801,1368],"role":"sentence","script":"cased"}
+{"seq":44,"schema":"EOTObservation@1","id":"t43","at":[1370,1479],"role":"sentence","script":"cased"}
+{"seq":45,"schema":"EOTObservation@1","id":"t44","at":[1481,1700],"role":"sentence","script":"cased"}
+{"seq":46,"schema":"EOTObservation@1","id":"t45","at":[1702,1864],"role":"sentence","script":"cased"}
+{"seq":47,"schema":"EOTObservation@1","id":"t46","at":[1865,2134],"role":"sentence","script":"cased"}
+{"seq":48,"schema":"EOTObservation@1","id":"t47","at":[2135,2417],"role":"sentence","script":"cased"}
+{"seq":49,"schema":"EOTObservation@1","id":"t48","at":[2419,2426],"role":"sentence","script":"cased"}
+{"seq":50,"schema":"EOTObservation@1","id":"t49","at":[2427,2527],"role":"sentence","script":"cased"}
+{"seq":51,"schema":"EOTObservation@1","id":"t50","at":[2528,2567],"role":"sentence","script":"cased"}
+{"seq":52,"schema":"EOTObservation@1","id":"t51","at":[2568,2648],"role":"sentence","script":"cased"}
+{"seq":53,"schema":"EOTObservation@1","id":"t52","at":[2649,2678],"role":"sentence","script":"cased"}
+{"seq":54,"schema":"EOTObservation@1","id":"t53","at":[2680,2697],"role":"sentence","script":"cased"}
+{"seq":55,"schema":"EOTObservation@1","id":"t54","at":[2698,2736],"role":"sentence","script":"cased"}
+{"seq":56,"schema":"EOTObservation@1","id":"t55","at":[2737,2788],"role":"sentence","script":"cased"}
+{"seq":57,"schema":"EOTObservation@1","id":"t56","at":[2789,2804],"role":"sentence","script":"cased"}
+{"seq":58,"schema":"EOTObservation@1","id":"t57","at":[2805,2863],"role":"sentence","script":"cased"}
+{"seq":59,"schema":"EOTObservation@1","id":"t58","at":[2864,3279],"role":"sentence","script":"cased"}
+{"seq":60,"schema":"EOTObservation@1","id":"t59","at":[3280,3386],"role":"sentence","script":"cased"}
+{"seq":61,"schema":"EOTObservation@1","id":"t60","at":[3388,3414],"role":"sentence","script":"cased"}
+{"seq":62,"schema":"EOTObservation@1","id":"t61","at":[3415,3467],"role":"sentence","script":"cased"}
+{"seq":63,"schema":"EOTObservation@1","id":"t62","at":[3468,3554],"role":"sentence","script":"cased"}
+{"seq":64,"schema":"EOTObservation@1","id":"t63","at":[3555,3759],"role":"sentence","script":"cased"}
+{"seq":65,"schema":"EOTObservation@1","id":"t64","at":[3760,3809],"role":"sentence","script":"cased"}
+{"seq":66,"schema":"EOTObservation@1","id":"t65","at":[3810,3902],"role":"sentence","script":"cased"}
+{"seq":67,"schema":"EOTObservation@1","id":"t66","at":[3903,3999],"role":"sentence","script":"cased"}
+{"seq":68,"schema":"EOTObservation@1","id":"t67","at":[4000,4072],"role":"sentence","script":"cased"}
+{"seq":69,"schema":"EOTObservation@1","id":"t68","at":[4074,4091],"role":"sentence","script":"cased"}
+{"seq":70,"schema":"EOTObservation@1","id":"t69","at":[4092,4156],"role":"sentence","script":"cased"}
+{"seq":71,"schema":"EOTObservation@1","id":"t70","at":[4157,4211],"role":"sentence","script":"cased"}
+{"seq":72,"schema":"EOTObservation@1","id":"t71","at":[4212,4289],"role":"sentence","script":"cased"}
+{"seq":73,"schema":"EOTObservation@1","id":"t72","at":[4290,4304],"role":"sentence","script":"cased"}
+{"seq":74,"schema":"EOTObservation@1","id":"t73","at":[4305,4339],"role":"sentence","script":"cased"}
+{"seq":75,"schema":"EOTObservation@1","id":"t74","at":[4340,4448],"role":"sentence","script":"cased"}
+{"seq":76,"schema":"EOTObservation@1","id":"t75","at":[4449,4481],"role":"sentence","script":"cased"}
+{"seq":77,"schema":"EOTObservation@1","id":"t76","at":[4482,4599],"role":"sentence","script":"cased"}
+{"seq":78,"schema":"EOTObservation@1","id":"t77","at":[4600,4618],"role":"sentence","script":"cased"}
+{"seq":79,"schema":"EOTObservation@1","id":"t78","at":[4619,4653],"role":"sentence","script":"cased"}
+{"seq":80,"schema":"EOTObservation@1","id":"t79","at":[4654,4751],"role":"sentence","script":"cased"}
+{"seq":81,"schema":"EOTObservation@1","id":"t80","at":[4752,4950],"role":"sentence","script":"cased"}
+{"seq":82,"schema":"EOTObservation@1","id":"t81","at":[4951,4972],"role":"sentence","script":"cased"}
+{"seq":83,"schema":"EOTObservation@1","id":"t82","at":[4973,4979],"role":"sentence","script":"cased"}
+{"seq":84,"schema":"EOTObservation@1","id":"t83","at":[4980,5054],"role":"sentence","script":"cased"}
+{"seq":85,"schema":"EOTObservation@1","id":"t84","at":[5056,5268],"role":"sentence","script":"cased"}
+{"seq":86,"schema":"EOTObservation@1","id":"t85","at":[5269,5444],"role":"sentence","script":"cased"}
+{"seq":87,"schema":"EOTObservation@1","id":"t86","at":[5445,5634],"role":"sentence","script":"cased"}
+{"seq":88,"schema":"EOTObservation@1","id":"t87","at":[5636,5864],"role":"sentence","script":"cased"}
+{"seq":89,"schema":"EOTObservation@1","id":"t88","at":[5866,6087],"role":"sentence","script":"cased"}
+{"seq":90,"schema":"EOTObservation@1","id":"t89","at":[6088,6193],"role":"sentence","script":"cased"}
+{"seq":91,"schema":"EOTObservation@1","id":"t90","at":[6194,6424],"role":"sentence","script":"cased"}
+{"seq":92,"schema":"EOTObservation@1","id":"t91","at":[6426,6608],"role":"sentence","script":"cased"}
+{"seq":93,"schema":"EOTObservation@1","id":"t92","at":[6609,6902],"role":"sentence","script":"cased"}
+{"seq":94,"schema":"EOTObservation@1","id":"t93","at":[6903,6951],"role":"sentence","script":"cased"}
+{"seq":95,"schema":"EOTObservation@1","id":"t94","at":[6952,6998],"role":"sentence","script":"cased"}
+{"seq":96,"schema":"EOTObservation@1","id":"t95","at":[6999,7145],"role":"sentence","script":"cased"}
+{"seq":97,"schema":"EOTObservation@1","id":"t96","at":[7147,7570],"role":"sentence","script":"cased"}
+{"seq":98,"schema":"EOTObservation@1","id":"t97","at":[7572,7676],"role":"sentence","script":"cased"}
+{"seq":99,"schema":"EOTObservation@1","id":"t98","at":[7677,8273],"role":"sentence","script":"cased"}
+{"seq":100,"schema":"EOTObservation@1","id":"t99","at":[8275,8536],"role":"sentence","script":"cased"}
+{"seq":101,"schema":"EOTObservation@1","id":"t100","at":[8538,8581],"role":"sentence","script":null}
+{"seq":102,"schema":"EOTObservation@1","id":"t101","at":[8587,8623],"role":"sentence","script":null}
+{"seq":103,"schema":"EOTObservation@1","id":"t102","at":[8625,8668],"role":"sentence","script":null}
+{"seq":104,"schema":"EOTObservation@1","id":"t103","at":[8671,8696],"role":"sentence","script":"cased"}
+{"seq":105,"schema":"EOTObservation@1","id":"t104","at":[8697,8750],"role":"sentence","script":"cased"}
+{"seq":106,"schema":"EOTObservation@1","id":"t105","at":[8752,8940],"role":"sentence","script":"cased"}
+{"seq":107,"schema":"EOTObservation@1","id":"t106","at":[8941,9167],"role":"sentence","script":"cased"}
+{"seq":108,"schema":"EOTObservation@1","id":"t107","at":[9168,9205],"role":"sentence","script":"cased"}
+{"seq":109,"schema":"EOTObservation@1","id":"t108","at":[9206,9352],"role":"sentence","script":"cased"}
+{"seq":110,"schema":"EOTObservation@1","id":"t109","at":[9354,9476],"role":"sentence","script":"cased"}
+{"seq":111,"schema":"EOTObservation@1","id":"t110","at":[9477,9870],"role":"sentence","script":"cased"}
+{"seq":112,"schema":"EOTObservation@1","id":"t111","at":[9872,9915],"role":"sentence","script":"cased"}
+{"seq":113,"schema":"EOTObservation@1","id":"t112","at":[9916,9995],"role":"sentence","script":"cased"}
+{"seq":114,"schema":"EOTObservation@1","id":"t113","at":[9996,10358],"role":"sentence","script":"cased"}
+{"seq":115,"schema":"EOTObservation@1","id":"t114","at":[10359,10431],"role":"sentence","script":"cased"}
+{"seq":116,"schema":"EOTObservation@1","id":"t115","at":[10432,10504],"role":"sentence","script":"cased"}
+{"seq":117,"schema":"EOTObservation@1","id":"t116","at":[10506,10692],"role":"sentence","script":"cased"}
+{"seq":118,"schema":"EOTObservation@1","id":"t117","at":[10693,10913],"role":"sentence","script":"cased"}
+{"seq":119,"schema":"EOTObservation@1","id":"t118","at":[10915,10979],"role":"sentence","script":"cased"}
+{"seq":120,"schema":"EOTObservation@1","id":"t119","at":[10980,11361],"role":"sentence","script":"cased"}
+{"seq":121,"schema":"EOTObservation@1","id":"t120","at":[11363,11419],"role":"sentence","script":"cased"}
+{"seq":122,"schema":"EOTObservation@1","id":"t121","at":[11421,11464],"role":"sentence","script":null}
+{"seq":123,"schema":"EOTObservation@1","id":"t122","at":[11470,11506],"role":"sentence","script":null}
+{"seq":124,"schema":"EOTObservation@1","id":"t123","at":[11508,11551],"role":"sentence","script":null}
+{"seq":125,"schema":"EOTObservation@1","id":"o124","at":[197,204],"role":"proposition","end1":"her sister","label":"was","end2":"reading","subjectBasis":"stated"}
+{"seq":126,"schema":"EOTObservation@1","id":"o125","at":[232,251],"role":"proposition","end1":"no pictures","label":"or","end2":"conversations in it","subjectBasis":"stated"}
+{"seq":127,"schema":"EOTObservation@1","id":"o126","at":[321,336],"role":"proposition","end1":"without pictures","label":"or","end2":"conversations?”","subjectBasis":"stated"}
+{"seq":128,"schema":"EOTObservation@1","id":"o127","at":[349,398],"role":"proposition","end1":"she","label":"was","end2":"considering in her own mind (as well as she could","subjectBasis":"stated"}
+{"seq":129,"schema":"EOTObservation@1","id":"o128","at":[639,675],"role":"proposition","end1":"There","label":"was","end2":"nothing so _very_ remarkable in that","subjectBasis":"stated"}
+{"seq":130,"schema":"EOTObservation@1","id":"o129","at":[733,762],"role":"proposition","end1":"the way","label":"to","end2":"hear the Rabbit say to itself","subjectBasis":"stated"}
+{"seq":131,"schema":"EOTObservation@1","id":"o130","at":[756,762],"role":"proposition","end1":"the way","label":"to","end2":"itself","subjectBasis":"inherited"}
+{"seq":132,"schema":"EOTObservation@1","id":"o131","at":[854,897],"role":"proposition","end1":"it","label":"to","end2":"her that she ought to have wondered at this","subjectBasis":"stated"}
+{"seq":133,"schema":"EOTObservation@1","id":"o132","at":[876,897],"role":"proposition","end1":"it","label":"to","end2":"have wondered at this","subjectBasis":"inherited"}
+{"seq":134,"schema":"EOTObservation@1","id":"o133","at":[1074,1082],"role":"proposition","end1":"Alice","label":"to","end2":"her feet","subjectBasis":"stated"}
+{"seq":135,"schema":"EOTObservation@1","id":"o134","at":[1128,1185],"role":"proposition","end1":"she","label":"had","end2":"never before seen a rabbit with either a waistcoat-pocket","subjectBasis":"stated"}
+{"seq":136,"schema":"EOTObservation@1","id":"o135","at":[1201,1215],"role":"proposition","end1":"a watch","label":"to","end2":"take out of it","subjectBasis":"stated"}
+{"seq":137,"schema":"EOTObservation@1","id":"o136","at":[1234,1243],"role":"proposition","end1":"burning","label":"with","end2":"curiosity","subjectBasis":"stated"}
+{"seq":138,"schema":"EOTObservation@1","id":"o137","at":[819,821],"role":"proposition","end1":"the field","label":"after","end2":"it","subjectBasis":"stated"}
+{"seq":139,"schema":"EOTObservation@1","id":"o138","at":[1410,1412],"role":"proposition","end1":"another moment down went Alice","label":"after","end2":"it","subjectBasis":"stated"}
+{"seq":140,"schema":"EOTObservation@1","id":"o139","at":[1465,1478],"role":"proposition","end1":"world she","label":"was to","end2":"get out again","subjectBasis":"stated"}
+{"seq":141,"schema":"EOTObservation@1","id":"o140","at":[1469,1478],"role":"proposition","end1":"world she","label":"get","end2":"out again","subjectBasis":"inherited"}
+{"seq":142,"schema":"EOTObservation@1","id":"o141","at":[1519,1540],"role":"proposition","end1":"The rabbit-hole went straight on","label":"like","end2":"a tunnel for some way","subjectBasis":"stated"}
+{"seq":143,"schema":"EOTObservation@1","id":"o142","at":[1722,1731],"role":"proposition","end1":"the well","label":"was","end2":"very deep","subjectBasis":"stated"}
+{"seq":144,"schema":"EOTObservation@1","id":"o143","at":[1843,1863],"role":"proposition","end1":"what","label":"was","end2":"going to happen next","subjectBasis":"stated"}
+{"seq":145,"schema":"EOTObservation@1","id":"o144","at":[1852,1863],"role":"proposition","end1":"what","label":"to","end2":"happen next","subjectBasis":"inherited"}
+{"seq":146,"schema":"EOTObservation@1","id":"o145","at":[1921,1930],"role":"proposition","end1":"she","label":"was","end2":"coming to","subjectBasis":"stated"}
+{"seq":147,"schema":"EOTObservation@1","id":"o146","at":[1943,1967],"role":"proposition","end1":"it","label":"was","end2":"too dark to see anything","subjectBasis":"stated"}
+{"seq":148,"schema":"EOTObservation@1","id":"o147","at":[1955,1967],"role":"proposition","end1":"it","label":"to","end2":"see anything","subjectBasis":"inherited"}
+{"seq":149,"schema":"EOTObservation@1","id":"o148","at":[2050,2076],"role":"proposition","end1":"were filled","label":"with","end2":"cupboards and book-shelves","subjectBasis":"stated"}
+{"seq":150,"schema":"EOTObservation@1","id":"o149","at":[2201,2228],"role":"proposition","end1":"it","label":"was","end2":"labelled “ORANGE MARMALADE”","subjectBasis":"stated"}
+{"seq":151,"schema":"EOTObservation@1","id":"o150","at":[2444,2451],"role":"proposition","end1":"thought Alice","label":"to","end2":"herself","subjectBasis":"stated"}
+{"seq":152,"schema":"EOTObservation@1","id":"o151","at":[2495,2527],"role":"proposition","end1":"I","label":"shall think","end2":"nothing of tumbling down stairs!","subjectBasis":"stated"}
+{"seq":153,"schema":"EOTObservation@1","id":"o152","at":[2729,2736],"role":"proposition","end1":"the fall _never_ come","label":"to","end2":"an end?","subjectBasis":"stated"}
+{"seq":154,"schema":"EOTObservation@1","id":"o153","at":[2774,2788],"role":"proposition","end1":"wonder how many miles I’ve","label":"fallen","end2":"by this time?”","subjectBasis":"stated"}
+{"seq":155,"schema":"EOTObservation@1","id":"o154","at":[3114,3137],"role":"proposition","end1":"as there","label":"was","end2":"no one to listen to her","subjectBasis":"stated"}
+{"seq":156,"schema":"EOTObservation@1","id":"o155","at":[3124,3137],"role":"proposition","end1":"as there","label":"to","end2":"listen to her","subjectBasis":"inherited"}
+{"seq":157,"schema":"EOTObservation@1","id":"o156","at":[3134,3137],"role":"proposition","end1":"as there","label":"to","end2":"her","subjectBasis":"inherited"}
+{"seq":158,"schema":"EOTObservation@1","id":"o157","at":[3169,3187],"role":"proposition","end1":"good practice","label":"to","end2":"say it over) “—yes","subjectBasis":"stated"}
+{"seq":159,"schema":"EOTObservation@1","id":"o158","at":[3256,3279],"role":"proposition","end1":"what Latitude","label":"or","end2":"Longitude I’ve got to?”","subjectBasis":"stated"}
+{"seq":160,"schema":"EOTObservation@1","id":"o159","at":[3275,3279],"role":"proposition","end1":"what Latitude","label":"got","end2":"to?”","subjectBasis":"inherited"}
+{"seq":161,"schema":"EOTObservation@1","id":"o160","at":[3381,3384],"role":"proposition","end1":"grand words","label":"to","end2":"say","subjectBasis":"stated"}
+{"seq":162,"schema":"EOTObservation@1","id":"o161","at":[3408,3413],"role":"proposition","end1":"she","label":"began","end2":"again","subjectBasis":"stated"}
+{"seq":163,"schema":"EOTObservation@1","id":"o162","at":[3533,3554],"role":"proposition","end1":"walk","label":"with","end2":"their heads downward!","subjectBasis":"stated"}
+{"seq":164,"schema":"EOTObservation@1","id":"o163","at":[3798,3809],"role":"proposition","end1":"New Zealand","label":"or","end2":"Australia?”","subjectBasis":"stated"}
+{"seq":165,"schema":"EOTObservation@1","id":"o164","at":[3985,3999],"role":"proposition","end1":"an ignorant little girl she’ll","label":"think","end2":"me for asking!","subjectBasis":"stated"}
+{"seq":166,"schema":"EOTObservation@1","id":"o165","at":[4022,4070],"role":"proposition","end1":"it’ll","label":"never do to","end2":"ask: perhaps I shall see it written up somewhere","subjectBasis":"stated"}
+{"seq":167,"schema":"EOTObservation@1","id":"o166","at":[4102,4120],"role":"proposition","end1":"There","label":"was","end2":"nothing else to do","subjectBasis":"stated"}
+{"seq":168,"schema":"EOTObservation@1","id":"o167","at":[4118,4120],"role":"proposition","end1":"There","label":"to","end2":"do","subjectBasis":"inherited"}
+{"seq":169,"schema":"EOTObservation@1","id":"o168","at":[4142,4155],"role":"proposition","end1":"Alice soon","label":"began","end2":"talking again","subjectBasis":"stated"}
+{"seq":170,"schema":"EOTObservation@1","id":"o169","at":[4223,4230],"role":"proposition","end1":"Dinah","label":"was","end2":"the cat","subjectBasis":"stated"}
+{"seq":171,"schema":"EOTObservation@1","id":"o170","at":[4299,4304],"role":"proposition","end1":"Dinah","label":"my","end2":"dear!","subjectBasis":"stated"}
+{"seq":172,"schema":"EOTObservation@1","id":"o171","at":[4336,4339],"role":"proposition","end1":"down here","label":"with","end2":"me!","subjectBasis":"stated"}
+{"seq":173,"schema":"EOTObservation@1","id":"o172","at":[4430,4437],"role":"proposition","end1":"that’s very","label":"like","end2":"a mouse","subjectBasis":"stated"}
+{"seq":174,"schema":"EOTObservation@1","id":"o173","at":[4465,4469],"role":"proposition","end1":"do cats","label":"eat","end2":"bats","subjectBasis":"stated"}
+{"seq":175,"schema":"EOTObservation@1","id":"o174","at":[4503,4523],"role":"proposition","end1":"here Alice","label":"began","end2":"to get rather sleepy","subjectBasis":"stated"}
+{"seq":176,"schema":"EOTObservation@1","id":"o175","at":[4510,4523],"role":"proposition","end1":"here Alice","label":"to get","end2":"rather sleepy","subjectBasis":"inherited"}
+{"seq":177,"schema":"EOTObservation@1","id":"o176","at":[4547,4554],"role":"proposition","end1":"on saying","label":"to","end2":"herself","subjectBasis":"stated"}
+{"seq":178,"schema":"EOTObservation@1","id":"o177","at":[4594,4599],"role":"proposition","end1":"Do cats","label":"eat","end2":"bats?","subjectBasis":"stated"}
+{"seq":179,"schema":"EOTObservation@1","id":"o178","at":[4612,4618],"role":"proposition","end1":"Do cats","label":"eat","end2":"bats?”","subjectBasis":"stated"}
+{"seq":180,"schema":"EOTObservation@1","id":"o179","at":[4647,4653],"role":"proposition","end1":"Do bats","label":"eat","end2":"cats?”","subjectBasis":"stated"}
+{"seq":181,"schema":"EOTObservation@1","id":"o180","at":[4698,4706],"role":"proposition","end1":"couldn’t answer","label":"either","end2":"question","subjectBasis":"stated"}
+{"seq":182,"schema":"EOTObservation@1","id":"o181","at":[4774,4784],"role":"proposition","end1":"she","label":"was","end2":"dozing off","subjectBasis":"stated"}
+{"seq":183,"schema":"EOTObservation@1","id":"o182","at":[4827,4858],"role":"proposition","end1":"she","label":"was","end2":"walking hand in hand with Dinah","subjectBasis":"stated"}
+{"seq":184,"schema":"EOTObservation@1","id":"o183","at":[4874,4892],"role":"proposition","end1":"saying","label":"to","end2":"her very earnestly","subjectBasis":"stated"}
+{"seq":185,"schema":"EOTObservation@1","id":"o184","at":[4943,4950],"role":"proposition","end1":"you","label":"eat","end2":"a bat?”","subjectBasis":"stated"}
+{"seq":186,"schema":"EOTObservation@1","id":"o185","at":[5049,5053],"role":"proposition","end1":"the fall","label":"was","end2":"over","subjectBasis":"stated"}
+{"seq":187,"schema":"EOTObservation@1","id":"o186","at":[5066,5080],"role":"proposition","end1":"Alice","label":"was","end2":"not a bit hurt","subjectBasis":"stated"}
+{"seq":188,"schema":"EOTObservation@1","id":"o187","at":[5154,5171],"role":"proposition","end1":"it","label":"was","end2":"all dark overhead","subjectBasis":"stated"}
+{"seq":189,"schema":"EOTObservation@1","id":"o188","at":[5235,5249],"role":"proposition","end1":"the White Rabbit","label":"was","end2":"still in sight","subjectBasis":"stated"}
+{"seq":190,"schema":"EOTObservation@1","id":"o189","at":[5279,5333],"role":"proposition","end1":"There","label":"was","end2":"not a moment to be lost: away went Alice like the wind","subjectBasis":"stated"}
+{"seq":191,"schema":"EOTObservation@1","id":"o190","at":[5295,5333],"role":"proposition","end1":"There","label":"to","end2":"be lost: away went Alice like the wind","subjectBasis":"inherited"}
+{"seq":192,"schema":"EOTObservation@1","id":"o191","at":[5325,5333],"role":"proposition","end1":"There","label":"like","end2":"the wind","subjectBasis":"inherited"}
+{"seq":193,"schema":"EOTObservation@1","id":"o192","at":[5343,5370],"role":"proposition","end1":"and","label":"was","end2":"just in time to hear it say","subjectBasis":"stated"}
+{"seq":194,"schema":"EOTObservation@1","id":"o193","at":[5359,5370],"role":"proposition","end1":"and","label":"to","end2":"hear it say","subjectBasis":"inherited"}
+{"seq":195,"schema":"EOTObservation@1","id":"o194","at":[5718,5765],"role":"proposition","end1":"Alice","label":"had","end2":"been all the way down one side and up the other","subjectBasis":"stated"}
+{"seq":196,"schema":"EOTObservation@1","id":"o195","at":[5850,5863],"role":"proposition","end1":"was ever","label":"to","end2":"get out again","subjectBasis":"stated"}
+{"seq":197,"schema":"EOTObservation@1","id":"o196","at":[5854,5863],"role":"proposition","end1":"was ever","label":"get","end2":"out again","subjectBasis":"inherited"}
+{"seq":198,"schema":"EOTObservation@1","id":"o197","at":[5953,5991],"role":"proposition","end1":"there","label":"was","end2":"nothing on it except a tiny golden key","subjectBasis":"stated"}
+{"seq":199,"schema":"EOTObservation@1","id":"o198","at":[6023,6075],"role":"proposition","end1":"first thought","label":"was","end2":"that it might belong to one of the doors of the hall","subjectBasis":"stated"}
+{"seq":200,"schema":"EOTObservation@1","id":"o199","at":[6047,6075],"role":"proposition","end1":"first thought","label":"to","end2":"one of the doors of the hall","subjectBasis":"inherited"}
+{"seq":201,"schema":"EOTObservation@1","id":"o200","at":[6136,6145],"role":"proposition","end1":"the key","label":"was","end2":"too small","subjectBasis":"stated"}
+{"seq":202,"schema":"EOTObservation@1","id":"o201","at":[6265,6283],"role":"proposition","end1":"she","label":"had","end2":"not noticed before","subjectBasis":"stated"}
+{"seq":203,"schema":"EOTObservation@1","id":"o202","at":[6439,6490],"role":"proposition","end1":"Alice","label":"opened","end2":"the door and found that it led into a small passage","subjectBasis":"stated"}
+{"seq":204,"schema":"EOTObservation@1","id":"o203","at":[6631,6652],"role":"proposition","end1":"longed","label":"get","end2":"out of that dark hall","subjectBasis":"stated"}
+{"seq":205,"schema":"EOTObservation@1","id":"o204","at":[6805,6826],"role":"proposition","end1":"even","label":"my","end2":"head would go through","subjectBasis":"stated"}
+{"seq":206,"schema":"EOTObservation@1","id":"o205","at":[6892,6901],"role":"proposition","end1":"use without","label":"my","end2":"shoulders","subjectBasis":"stated"}
+{"seq":207,"schema":"EOTObservation@1","id":"o206","at":[6939,6951],"role":"proposition","end1":"shut up","label":"like","end2":"a telescope!","subjectBasis":"stated"}
+{"seq":208,"schema":"EOTObservation@1","id":"o207","at":[6960,6967],"role":"proposition","end1":"I","label":"think","end2":"I could","subjectBasis":"stated"}
+{"seq":209,"schema":"EOTObservation@1","id":"o208","at":[6991,6996],"role":"proposition","end1":"knew how","label":"to","end2":"begin","subjectBasis":"stated"}
+{"seq":210,"schema":"EOTObservation@1","id":"o209","at":[7047,7062],"role":"proposition","end1":"many out-of-the-way things","label":"had","end2":"happened lately","subjectBasis":"stated"}
+{"seq":211,"schema":"EOTObservation@1","id":"o210","at":[7163,7202],"role":"proposition","end1":"There seemed","label":"to","end2":"be no use in waiting by the little door","subjectBasis":"stated"}
+{"seq":212,"schema":"EOTObservation@1","id":"o211","at":[7224,7233],"role":"proposition","end1":"went back","label":"to","end2":"the table","subjectBasis":"stated"}
+{"seq":213,"schema":"EOTObservation@1","id":"o212","at":[7579,7609],"role":"proposition","end1":"It","label":"was","end2":"all very well to say “Drink me","subjectBasis":"stated"}
+{"seq":214,"schema":"EOTObservation@1","id":"o213","at":[7596,7609],"role":"proposition","end1":"It","label":"to","end2":"say “Drink me","subjectBasis":"inherited"}
+{"seq":215,"schema":"EOTObservation@1","id":"o214","at":[7642,7675],"role":"proposition","end1":"little Alice","label":"was","end2":"not going to do _that_ in a hurry","subjectBasis":"stated"}
+{"seq":216,"schema":"EOTObservation@1","id":"o215","at":[7655,7675],"role":"proposition","end1":"little Alice","label":"to","end2":"do _that_ in a hurry","subjectBasis":"inherited"}
+{"seq":217,"schema":"EOTObservation@1","id":"o216","at":[7692,7697],"role":"proposition","end1":"I’ll","label":"look","end2":"first","subjectBasis":"stated"}
+{"seq":218,"schema":"EOTObservation@1","id":"o217","at":[7753,7757],"role":"proposition","end1":"_poison_’","label":"or","end2":"not”","subjectBasis":"stated"}
+{"seq":219,"schema":"EOTObservation@1","id":"o218","at":[7833,7838],"role":"proposition","end1":"children","label":"had got","end2":"burnt","subjectBasis":"stated"}
+{"seq":220,"schema":"EOTObservation@1","id":"o219","at":[8103,8110],"role":"proposition","end1":"your finger _very_ deeply","label":"with","end2":"a knife","subjectBasis":"stated"}
+{"seq":221,"schema":"EOTObservation@1","id":"o220","at":[8143,8163],"role":"proposition","end1":"she","label":"had","end2":"never forgotten that","subjectBasis":"stated"}
+{"seq":222,"schema":"EOTObservation@1","id":"o221","at":[8238,8255],"role":"proposition","end1":"almost certain","label":"to","end2":"disagree with you","subjectBasis":"stated"}
+{"seq":223,"schema":"EOTObservation@1","id":"o222","at":[8267,8272],"role":"proposition","end1":"sooner","label":"or","end2":"later","subjectBasis":"stated"}
+{"seq":224,"schema":"EOTObservation@1","id":"o223","at":[8300,8320],"role":"proposition","end1":"this","label":"was","end2":"_not_ marked “poison","subjectBasis":"stated"}
+{"seq":225,"schema":"EOTObservation@1","id":"o224","at":[8344,8352],"role":"proposition","end1":"Alice ventured","label":"to","end2":"taste it","subjectBasis":"stated"}
+{"seq":226,"schema":"EOTObservation@1","id":"o225","at":[8520,8535],"role":"proposition","end1":"she","label":"soon","end2":"finished it off","subjectBasis":"stated"}
+{"seq":227,"schema":"EOTObservation@1","id":"o226","at":[8766,8806],"role":"proposition","end1":"it","label":"was","end2":"indeed: she was now only ten inches high","subjectBasis":"stated"}
+{"seq":228,"schema":"EOTObservation@1","id":"o227","at":[8782,8806],"role":"proposition","end1":"it","label":"was","end2":"now only ten inches high","subjectBasis":"inherited"}
+{"seq":229,"schema":"EOTObservation@1","id":"o228","at":[9115,9122],"role":"proposition","end1":"said Alice","label":"to","end2":"herself","subjectBasis":"stated"}
+{"seq":230,"schema":"EOTObservation@1","id":"o229","at":[9131,9151],"role":"proposition","end1":"in","label":"my","end2":"going out altogether","subjectBasis":"stated"}
+{"seq":231,"schema":"EOTObservation@1","id":"o230","at":[9199,9205],"role":"proposition","end1":"I","label":"should be like","end2":"then?”","subjectBasis":"stated"}
+{"seq":232,"schema":"EOTObservation@1","id":"o231","at":[9264,9293],"role":"proposition","end1":"the flame of a candle","label":"is like","end2":"after the candle is blown out","subjectBasis":"stated"}
+{"seq":233,"schema":"EOTObservation@1","id":"o232","at":[9521,9552],"role":"proposition","end1":"she","label":"had","end2":"forgotten the little golden key","subjectBasis":"stated"}
+{"seq":234,"schema":"EOTObservation@1","id":"o233","at":[9580,9596],"role":"proposition","end1":"went back","label":"to","end2":"the table for it","subjectBasis":"stated"}
+{"seq":235,"schema":"EOTObservation@1","id":"o234","at":[9717,9754],"role":"proposition","end1":"her best","label":"to","end2":"climb up one of the legs of the table","subjectBasis":"stated"}
+{"seq":236,"schema":"EOTObservation@1","id":"o235","at":[9767,9779],"role":"proposition","end1":"it","label":"was","end2":"too slippery","subjectBasis":"stated"}
+{"seq":237,"schema":"EOTObservation@1","id":"o236","at":[9798,9827],"role":"proposition","end1":"she","label":"had","end2":"tired herself out with trying","subjectBasis":"stated"}
+{"seq":238,"schema":"EOTObservation@1","id":"o237","at":[9909,9915],"role":"proposition","end1":"there’s no use in crying","label":"like","end2":"that!”","subjectBasis":"stated"}
+{"seq":239,"schema":"EOTObservation@1","id":"o238","at":[9930,9937],"role":"proposition","end1":"said Alice","label":"to","end2":"herself","subjectBasis":"stated"}
+{"seq":240,"schema":"EOTObservation@1","id":"o239","at":[9972,9995],"role":"proposition","end1":"you","label":"to","end2":"leave off this minute!”","subjectBasis":"stated"}
+{"seq":241,"schema":"EOTObservation@1","id":"o240","at":[10265,10288],"role":"proposition","end1":"she","label":"was","end2":"playing against herself","subjectBasis":"stated"}
+{"seq":242,"schema":"EOTObservation@1","id":"o241","at":[10317,10357],"role":"proposition","end1":"curious child","label":"was","end2":"very fond of pretending to be two people","subjectBasis":"stated"}
+{"seq":243,"schema":"EOTObservation@1","id":"o242","at":[10344,10357],"role":"proposition","end1":"curious child","label":"to","end2":"be two people","subjectBasis":"inherited"}
+{"seq":244,"schema":"EOTObservation@1","id":"o243","at":[10530,10532],"role":"proposition","end1":"she","label":"opened","end2":"it","subjectBasis":"stated"}
+{"seq":245,"schema":"EOTObservation@1","id":"o244","at":[10709,10711],"role":"proposition","end1":"I’ll","label":"eat","end2":"it","subjectBasis":"stated"}
+{"seq":246,"schema":"EOTObservation@1","id":"o245","at":[10864,10879],"role":"proposition","end1":"way I’ll","label":"get","end2":"into the garden","subjectBasis":"stated"}
+{"seq":247,"schema":"EOTObservation@1","id":"o246","at":[10959,10966],"role":"proposition","end1":"said anxiously","label":"to","end2":"herself","subjectBasis":"stated"}
+{"seq":248,"schema":"EOTObservation@1","id":"o247","at":[11058,11065],"role":"proposition","end1":"it","label":"was","end2":"growing","subjectBasis":"stated"}
+{"seq":249,"schema":"EOTObservation@1","id":"o248","at":[11163,11169],"role":"proposition","end1":"the way of expecting nothing but out-of-the-way things","label":"to","end2":"happen","subjectBasis":"stated"}
+{"seq":250,"schema":"EOTObservation@1","id":"o249","at":[11377,11381],"role":"proposition","end1":"she","label":"to","end2":"work","subjectBasis":"stated"}
+{"seq":251,"schema":"EOTObservation@1","id":"o250","at":[11397,11418],"role":"proposition","end1":"very","label":"soon","end2":"finished off the cake","subjectBasis":"stated"}
+{"seq":252,"schema":"EOTRefusal@1","at":[1128,1185],"role":"proposition","reason":"connector_settles_as_non_verb","label":"with","settledAs":"preposition"}
+{"seq":253,"schema":"EOTRefusal@1","at":[4827,4858],"role":"proposition","reason":"connector_settles_as_non_verb","label":"with","settledAs":"preposition"}
+{"seq":254,"schema":"EOTRefusal@1","at":[8238,8255],"role":"proposition","reason":"connector_settles_as_non_verb","label":"with","settledAs":"preposition"}
+{"seq":255,"schema":"EOTRefusal@1","at":[9264,9293],"role":"proposition","reason":"connector_settles_as_non_verb","label":"after","settledAs":"preposition"}
+{"seq":256,"schema":"EOTRefusal@1","at":[9798,9827],"role":"proposition","reason":"connector_settles_as_non_verb","label":"with","settledAs":"preposition"}
+{"seq":257,"schema":"EOTRevision@1","supersedes":"o203","id":"r251","at":[6631,6652],"role":"proposition","end1":"she","label":"longed to get","end2":"out of that dark hall","because":"hand-check: the matrix verb 'longed' was read as the subject. Its real subject is 'she' ('How she longed to get out of that dark hall') — a catenative verb with an infinitive complement, which this reader has no subject-inheritance rule for at the OUTER level (only nested, added this pass).","witness":"LaVar hand-check, 2026-09-09"}
