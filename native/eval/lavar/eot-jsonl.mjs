@@ -873,7 +873,7 @@ for (const sent of sentences) {
     }
     emit({
       schema: "EOTObservation@1", id: id("o"), at: rawAt(at[0], at[1]), role: "proposition",
-      end1: e.subject, label: e.verb, end2: e.object, subjectBasis: "stated",
+      end1: e.subject, label: e.verb, end2: e.object, subjectBasis: e.subjectBasis ?? "stated",
       ...(ref1 ? { end1Ref: ref1 } : {}),
       ...(ref2 ? { end2Ref: ref2 } : {}),
       // THE READER CATCHES ITS OWN FOLDS (2026-09-12, Holmes lens — LAVAR §9's
@@ -888,62 +888,17 @@ for (const sent of sentences) {
     });
     readClause(e.subject, e.object, at[0], 1, ref1);
   }
-  // REDUCED PARTICIPIAL CLAUSES (2026-09-12, the golden's #1 miss-theme —
-  // "chase the hand-made goldens"). "It was the White Rabbit, trotting
-  // slowly back again." — the matrix clause is extracted and the
-  // comma-introduced participial tail is DISCARDED, outside the object
-  // span entirely, so no recursion ever reaches it. A comma immediately
-  // followed by a vocabulary present-participle + prose is the reduced-
-  // relative construction: the participle is a real predicate and the
-  // clause inherits the noun phrase directly before the comma (the noun
-  // the reduced clause modifies — "the White Rabbit", trotting). Emitted
-  // as its own arrangement, address-verified, same admission path as any
-  // other clause. Refused when the participle does not settle (kept as a
-  // typed refusal, never dropped).
-  const REDUCED = /,\s*([\p{L}’']+ing)\s+([\s\S]+)$/u;
-  REDUCED.lastIndex = 0;
-  let rm;
-  if (!NO_REDUCED) {
-  // The `$` anchor makes this the LAST comma+participle tail of the
-  // sentence — exactly the reduced-relative construction, one per sentence
-  // in practice. A single find, not a loop.
-  while ((rm = REDUCED.exec(sent.text)) !== null) {
-    const participle = rm[1];
-    if (!verbs.has(participle.toLowerCase())) break;
-    const before = sent.text.slice(0, rm.index);
-    const headMatch = before.match(/([\p{L}][\p{L}’'\- ]{0,24})$/u);
-    const subject = headMatch ? headMatch[1].trim() : null;
-    if (!subject) break;
-    const objText = rm[2];
-    const localBase = sent.offset - WIN[0];
-    const subjAt = before.lastIndexOf(subject);
-    const ref1 = subjAt >= 0 ? endRef(subject, localBase + subjAt) : null;
-    // The address is the PARTICIPIAL PHRASE's own byte span (comma through
-    // end of sentence) — reconstructing `${subject} ${participle} ${rest}`
-    // and byte-verifying it FAILS because the actual sentence carries the
-    // comma between subject and participle (P5.2: the slice must read back
-    // identical). The comma and its surroundings ARE the phrase's start.
-    const phraseStart = sent.offset + rm.index + 1;
-    const at = raw.slice(phraseStart, sent.offset + sent.text.length).trim()
-      ? rawAt(phraseStart, sent.offset + sent.text.length)
-      : null;
-    if (at) {
-      const g = grainOf(participle);
-      if (!g.refused) {
-        emit({
-          schema: "EOTObservation@1", id: id("o"), at, role: "proposition",
-          end1: subject, label: participle, end2: objText.trim(), subjectBasis: "inherited (reduced clause — the noun before the comma)",
-          ...(ref1 ? { end1Ref: ref1 } : {}),
-          ...g,
-        });
-      } else {
-        emit({ schema: "EOTRefusal@1", at, role: "proposition", reason: "connector_class_cannot_head_a_relation",
-               label: participle, settledAs: g.settledAs, basis: "reduced participial clause — comma-introduced, subject inherited from the noun phrase before the comma" });
-      }
-    }
-    break;
-  }
-  } // if (!NO_REDUCED)
+  // REDUCED PARTICIPIAL CLAUSES — NOW THE SHARED ORGAN'S (2026-09-13, LaVar's
+  // "one reading path" mandate). This block used to re-derive the
+  // comma+participle tail here; the SAME construction is now emitted by
+  // `extractRelations` itself (adapters/text/relations.js, `reduced: true`),
+  // the ONE organ every reading path shares — eot-jsonl, the perceiver, the
+  // app's reading-worker. Three paths, three readings was the defect this
+  // closes; a reduced clause is now read identically everywhere, and a
+  // second implementation here would double-emit. The reduced relation
+  // flows through the main `for (const e of found)` loop above, carrying
+  // its `subjectBasis: "inherited (reduced participial clause…)"` and its
+  // own byte address.
 }
 
 // Nothing is refused for its grain any more. What used to be five discarded

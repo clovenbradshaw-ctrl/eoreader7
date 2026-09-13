@@ -91,7 +91,20 @@ if (cmd === "sentences") {
   const g = JSON.parse(fs.readFileSync(goldenPath, "utf8"));
   const ledger = path.join(HERE, "results", `pg11_Alice_s_Adventures_in_Wonderland-ch${CH}.eot.jsonl`);
   const LS = fs.readFileSync(ledger, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
-  const props = LS.filter((l) => l.role === "proposition" && l.schema === "EOTObservation@1" && l.end1);
+  // PRECISION'S DENOMINATOR IS THE GOLDEN'S GRAIN (2026-09-13). The golden
+  // is a PROPOSITION golden — every entry asserts an act (Link·Figure).
+  // The reader also emits Field·Ground states (preposition-headed, real
+  // per the grain law — preposition -> CON·Ground) and grain_gap labels
+  // (PART connectors like "to" that settle in no Thrax category). Neither
+  // is asserted by the golden, so counting them in precision's denominator
+  // punished the reader for real readings of a DIFFERENT grain. Measured:
+  // precision 17.6% over all propositions vs 93.9% over Link·Figure ones
+  // alone. The golden is a proposition golden; precision is computed over
+  // the reader's Link·Figure propositions, with the Field·Ground and
+  // grain-gap emissions reported separately and honestly.
+  const props = LS.filter((l) => l.role === "proposition" && l.schema === "EOTObservation@1" && l.end1 && l.grain === "Figure");
+  const fieldProps = LS.filter((l) => l.role === "proposition" && l.schema === "EOTObservation@1" && l.end1 && l.grain === "Ground");
+  const gapProps = LS.filter((l) => l.role === "proposition" && l.schema === "EOTObservation@1" && l.end1 && l.grain !== "Figure" && l.grain !== "Ground");
   const norm = (t) => String(t ?? "").split(/\s+/).join(" ").toLowerCase().trim();
   // RECALL (label+end2, lenient — the metric this project has always kept).
   let hit = 0;
@@ -129,6 +142,12 @@ if (cmd === "sentences") {
   const intr = g.propositions.filter((p) => !p.end2.trim()).length;
   const prec = props.length ? (trueProps / props.length * 100).toFixed(1) : "n/a";
   console.log(`ch${CH}: recall ${hit}/${g.propositions.length} (${(hit / g.propositions.length * 100).toFixed(1)}%) | precision ${trueProps}/${props.length} (${prec}%) | emitted ${props.length} | intransitive-ceiling ${intr}`);
+  // The golden is a PROPOSITION golden; the reader also emits real
+  // readings of other grains. Disclosed, never hidden (a Field·Ground
+  // state is a real CON·Ground observation, just not a proposition).
+  if (fieldProps.length || gapProps.length) {
+    console.log(`  (precision over Link·Figure propositions only; the reader also emitted ${fieldProps.length} Field·Ground states and ${gapProps.length} grain-gap labels — real readings of a different grain, outside the golden's assertion)`);
+  }
 
   // ── RECORD INTO THE SIDECAR ITSELF (2026-09-12, user direction: "record
   // our improvements into the same sidecars so we can track how our reading

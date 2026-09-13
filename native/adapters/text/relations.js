@@ -1017,5 +1017,69 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
   // or spreads `rels` is byte-identical): how many matches were refused for
   // want of a subject under the walls.
   Object.defineProperty(rels, "refusedSubjects", { value: refusedSubjects, enumerable: false });
+
+  // ── REDUCED PARTICIPIAL CLAUSES, IN THE SHARED ORGAN (2026-09-13, LaVar's
+  // "one reading path" mandate). "It was the White Rabbit, trotting slowly
+  // back again." — the comma-introduced participial tail is a real clause
+  // whose subject is INHERITED from the noun phrase before the comma. The
+  // golden's #1 miss-theme (participial-reduced) was fixed in eot-jsonl
+  // only; the perceiver and the app's reading-worker never saw it — three
+  // paths, three readings. It belongs in `extractRelations` itself, the ONE
+  // organ every reading path already shares, so the reduced clause is read
+  // identically everywhere. The `$` anchor takes the LAST comma+participle
+  // tail of the sentence (one per sentence in practice); the subject is the
+  // noun phrase directly before the comma; the participle must be in the
+  // vocabulary (never a guessed verb).
+  const REDUCED = /,\s*([\p{L}’']+ing)\s+([\s\S]+)$/u;
+  REDUCED.lastIndex = 0;
+  let rmr;
+  if ((rmr = REDUCED.exec(s)) !== null) {
+    const participle = rmr[1];
+    const reducedInVocab = vocab.has(participle.toLowerCase());
+    const before = s.slice(0, rmr.index);
+    // THE INHERITED SUBJECT IS THE MATRIX CLAUSE'S SUBJECT, never the last
+    // words before the comma ("the White Rabbit was still in sight,
+    // trotting" — the reduced clause modifies the White Rabbit, the matrix
+    // subject, not "in sight"). The reduced relative clause describes the
+    // noun its matrix clause is ABOUT. Take the matrix relation's own
+    // subject if the main loop already found one; otherwise fall back to
+    // the first noun phrase of the sentence.
+    let inheritedSubject = null;
+    if (rels.length) {
+      // the LAST main (non-reduced) relation's subject is the matrix's
+      for (let i = rels.length - 1; i >= 0; i -= 1) {
+        if (!rels[i].reduced) { inheritedSubject = rels[i].subject; break; }
+      }
+    }
+    if (!inheritedSubject) {
+      const firstNP = before.match(/^([\p{L}][\p{L}’'\- ]*?)\s+(?:was|were|is|are|had|have|has|ran|said|took|thought|began|went)\b/i);
+      inheritedSubject = firstNP ? firstNP[1].trim() : null;
+    }
+    // A reduced clause is only emitted when its participle is a known verb
+    // AND it inherited a real subject — otherwise it stays inside the
+    // matrix clause's own object span (the matrix relation already covers
+    // the sentence; the reduced clause is a SECOND act on the same subject).
+    if (reducedInVocab && inheritedSubject && rels.length < limit) {
+      const verb = participle;
+      const object = rmr[2].trim();
+      const subject = inheritedSubject;
+      // THE POLARITY OF A REDUCED CLAUSE IS THE MATRIX'S OWN: the tail has
+      // no negation of its own ("..., never trotting back" would carry it
+      // inside `object`, which the polarity window already scans).
+      const beforeForPolarity = before.slice(Math.max(0, before.length - 60));
+      rels.push({
+        subject,
+        verb,
+        object,
+        polarity: negationBeforeVerb.test(beforeForPolarity) ? "-" : "+",
+        offset: rmr.index + 1, // the participle's own start (after the comma)
+        subjectOffset: before.lastIndexOf(subject),
+        objectOffset: rmr.index + 1 + verb.length + 1,
+        reduced: true,
+        subjectBasis: "inherited (reduced participial clause — the noun phrase before the comma)",
+      });
+    }
+  }
+
   return rels;
 };
