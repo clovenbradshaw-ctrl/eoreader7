@@ -344,6 +344,14 @@ export const CAPACITIES = Object.freeze([
     fn: "classifyReferents",
     what: "a referent instantiated into ONE of three declared, fixed templates — real / fictionalized-real / fictional — from checked cross-document evidence (a name-level correspondence to a caller-declared nonfiction source), never discovered statistically. A SECOND organ at INS·Kind (`skill` — 'a procedure kept as code, instantiated onto new material' — is the first): reasoned per this table's own hand-check discipline, since typing a specific referent into a small closed taxonomy from checked evidence is instantiation, not the discovery `kinds` (SIG·Kind) or null-tested membership `kindnull` (NUL·Kind) already occupy. Genre is caller-declared, never induced (a source with none is refused, not guessed); 'fictional' is 'examined against every declared-nonfiction source and none corresponded', never 'does not exist' (checkedAgainst names what ran). Measured live on the real Battle of Borodino Wikipedia article and Tolstoy's own War and Peace excerpt: Napoleon and Kutuzov correctly correspond and read fictionalized-real; Bezukhov/Bolkonsky/Rostova never do. A disclosed, measured trade-off: an optional generic-token guard (surfaces.js::genericTokens) fixes a real false positive (a common given name colliding with an unrelated person) but, on this same imperfectly-merged real cast, also refuses the correct Napoleon/Kutuzov correspondence — shipped opt-in, off by default, not resolved.",
   }),
+  Object.freeze({
+    id: "dream",
+    terrain: "Atmosphere",
+    op: "REC",
+    module: "consolidation.js",
+    fn: "dream",
+    what: "the night: the offline rhythm that turns a day's deposits into a standing field — the elenchus (the witness at the door, corroborateLedger, the measured paraphrase-wall lever under a declared ask budget, P9) promotes or holds each single-witness note, the chemistry's licensed products are heard back, and the morning projects the MORTAL FIELD over the IMMORTAL ledger (projectField): what stands (>=2 sources) or is still within the reach of the present primes the next read; the rest falls to the echo — still on the record, by address, out of the field. Forgetting is a projection decision, never a deletion. Typing mirrors the reading regime's own re-zero (`regime`, REC·Atmosphere): a new ambient ground begins.",
+  }),
 ]);
 
 const byId = new Map(CAPACITIES.map((c) => [c.id, c]));
