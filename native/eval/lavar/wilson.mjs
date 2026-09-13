@@ -27,7 +27,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { shapeOf } from "./reading-shape.mjs";
-import { dmd } from "../../kernel/dmd.js";
+import { dmd, economySVD } from "../../kernel/dmd.js";
 import { closureOf, witnessAnswer } from "../../kernel/ground-closure.js";
 import { elenchusBar, bornAcceptance, RERUN_NULL } from "./elenchus-bar.mjs";
 
@@ -65,8 +65,8 @@ const CELLS = Object.entries(KIND_OF_CELL).map(([cell, mech]) => ({ cell, mech }
 // ── 2. THE REGISTRY — organs typed (kind, MHC order, terrain, deps) ──
 // The MHC order is the depth (Commons, received); the terrain is the 9.
 const ORGANS = [
-  { id: "received", name: "received-verbs", deps: [], flags: [], level: 9, terrain: "Network", cell: "SYN·Pattern", rationale: "the received floor (S112) — vocabulary folded from the corpus" },
-  { id: "reduced", name: "reduced-clauses", deps: ["received"], flags: [], level: 8, terrain: "Link", cell: "CON·Figure", rationale: "comma+participle is a clause (needs the floor)" },
+  { id: "received", name: "received-verbs", deps: [], flags: ["--no-received-verbs"], level: 9, terrain: "Network", cell: "SYN·Pattern", rationale: "the received floor (S112) — vocabulary folded from the corpus; the flag toggles it OFF, so this lever genuinely bites" },
+  { id: "reduced", name: "reduced-clauses", deps: ["received"], flags: ["--no-reduced"], level: 8, terrain: "Link", cell: "CON·Figure", rationale: "comma+participle is a clause (needs the floor); the flag toggles it OFF, so this lever genuinely bites" },
   { id: "nps", name: "noun-phrase-subjects", deps: [], flags: ["--no-nps"], level: 7, terrain: "Link", cell: "INS·Figure", rationale: "noun phrases can head a clause" },
   { id: "deep", name: "deep-recurse", deps: [], flags: ["--max-depth=5"], level: 6, terrain: "Field", cell: "SEG·Figure", rationale: "nested clauses (readClause depth 3->5)" },
   { id: "reread", name: "reread-loop", deps: [], flags: ["--prior=1"], level: 10, terrain: "Atmosphere", cell: "EVA·Ground", rationale: "reread with own earned prior (loops on loops)" },
@@ -200,7 +200,33 @@ const queryBreakthroughs = (shape) => {
   const echo = readingEcho(shape);
   return fs.readFileSync(BREAKTHROUGHS, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)).filter((e) => e.echo === echo).sort((a, b) => (b.mass ?? 0) - (a.mass ?? 0));
 };
-function bornWeights(cands) { const cols = Math.max(1, ...cands.map((c) => fitnessSeries.get(c.join(","))?.length ?? 0)); if (cols < 2) return null; const X = cands.map((c) => { const a = fitnessSeries.get(c.join(",")) ?? []; return Array.from({ length: cols }, (_, i) => a[i] ?? a[a.length - 1] ?? 0); }); const Xp = X.map((r) => [r[1] ?? r[0], ...r.slice(0, -1)]); const { eigenvalues: lam } = dmd(X, Xp, { rank: Math.min(X.length, cols) }); const born = lam.map((l) => Math.abs(l) ** 2); const total = born.reduce((a, b) => a + b, 0); return total > 0 ? born.map((b) => b / total) : null; }
+function bornWeights(cands) {
+  const cols = Math.max(1, ...cands.map((c) => fitnessSeries.get(c.join(","))?.length ?? 0));
+  if (cols < 2) return null;
+  const X = cands.map((c) => { const a = fitnessSeries.get(c.join(",")) ?? []; return Array.from({ length: cols }, (_, i) => a[i] ?? a[a.length - 1] ?? 0); });
+  const Xp = X.map((r) => [r[1] ?? r[0], ...r.slice(0, -1)]);
+  // THE MODE->CANDIDATE MAPPING, FIXED (2026-09-13). The previous cut
+  // returned one born weight PER EIGENVALUE (rank modes) and indexed them
+  // into cands (nCands) — misaligned whenever nCands > rank, and wrong in
+  // kind: an eigenvalue is a SYSTEM-level mode, while a CANDIDATE's
+  // participation in that mode is its amplitude, read off the mode's
+  // eigenvector, not the eigenvalue. The Born rule is per-candidate:
+  // p_i = |u_i|^2 over the mode that carries the growth. Take the mode
+  // with the largest eigenvalue magnitude (the dominant direction of the
+  // trajectory) and weight each candidate by its squared amplitude in
+  // that mode's left singular vector (the SVD's U column — dmd's own
+  // economySVD). Length-correct by construction: U has one row per
+  // candidate.
+  const { U, s } = economySVD(X, { rank: Math.min(X.length, cols) });
+  const lam = dmd(X, Xp, { rank: Math.min(X.length, cols) }).eigenvalues;
+  if (!U.length || !lam.length) return null;
+  const dominant = lam.reduce((a, b) => (b.magnitude > a.magnitude ? b : a), lam[0]);
+  const idx = lam.indexOf(dominant);
+  const u = U.map((row) => row[idx] ?? 0); // candidate amplitudes in the dominant mode
+  const born = u.map((a) => a * a);
+  const total = born.reduce((a, b) => a + b, 0);
+  return total > 0 ? born.map((b) => b / total) : null;
+}
 // ── ENERGY IS BORN-CHARGED (2026-09-13). The old ECONOMY charged
 // ENERGY_COST=1 per attempt regardless of outcome — a colony goes dormant
 // BY REFUSING (measured: everything refused, parents drained, population
