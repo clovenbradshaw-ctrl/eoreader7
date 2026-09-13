@@ -50,6 +50,18 @@ for (const pair of prior.fields.chemistry ?? []) {
     meta: { yields: pair.right, basis: `offered cross-work chemistry — ${pair.left} composed with ${pair.right} in ${prior.sourceDocument}; a candidate, refutable never earned`, workSupport: 1 },
   });
 }
+// THE STRUCTURAL AFFORDANCE (2026-09-13 — omnilingual/omnimodal). The
+// label pairs are text-specific (W&P's salon pairs don't occur in
+// Alice). The chain SHAPE — two Figure relations composing through a
+// shared referent bridge — is the invariant that crosses texts,
+// languages, and modalities. Declared as a GIVEN affordance keyed on the
+// grain, by the prior's own giver: any Figure∘Figure chain through a
+// shared referent is licensed. VERB/AUX are English lenses; the grain is
+// not (THE-ADDRESS / "AN ARRANGEMENT HAS ENDS, NOT PARTS OF SPEECH").
+chemistry = giveHyperlexiconAffordance(chemistry, {
+  left: "grain:Figure", right: "grain:Figure", giver: prior.giver,
+  meta: { yields: "grain:Figure", basis: `structural chemistry — Figure relations composing through a shared referent bridge are licensed across texts and modalities, carried from ${prior.sourceDocument}; the grain is the invariant, the label is the lens`, structural: true },
+});
 
 // ── 2. THE TARGET'S OWN COMPOSITION, unprimed vs primed ──
 const targetLedger = createRelationCompositionLedger(targetEntries);

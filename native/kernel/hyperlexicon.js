@@ -61,9 +61,35 @@ export function normalizeHyperlexicon(input = null) {
   return createHyperlexicon({ composition: input });
 }
 
-export function compositionAffordance(hyperlexicon, left, right) {
+export function compositionAffordance(hyperlexicon, left, right, { leftGrain = null, rightGrain = null } = {}) {
   const hl = normalizeHyperlexicon(hyperlexicon);
-  return hl.composition[pairKey(left, right)] ?? normalizeAffordance({ left, right, standing: "unknown" });
+  // EXACT label-pair first (the text-specific chemistry — "approached"∘
+  // "began").
+  const exact = hl.composition[pairKey(left, right)];
+  if (exact?.standing === "given") return exact;
+  // STRUCTURAL fallback (2026-09-13 — omnilingual/omnimodal chemistry). An
+  // affordance keyed on the GRAIN (the cube's medium-blind Figure/Pattern
+  // axis) licenses composition for ANY label pair of that grain — the same
+  // chain shape in English, French, Russian, audio, video. This is the
+  // "AN ARRANGEMENT HAS ENDS, NOT PARTS OF SPEECH" law applied to
+  // chemistry: the positions compose through a shared referent, and the
+  // grain is the invariant that crosses texts and modalities. VERB/AUX
+  // are English lenses; the grain is not. A structural affordance is
+  // declared by the giver with left/right as `grain:<GRAIN>` wildcards;
+  // the caller supplies the relations' actual grains. It never shadows an
+  // exact given affordance.
+  if (leftGrain) {
+    const structural = hl.composition[pairKey(`grain:${leftGrain}`, rightGrain ? `grain:${rightGrain}` : "*")]
+      ?? hl.composition[pairKey(`grain:${leftGrain}`, "*")];
+    if (structural?.standing === "given") return structural;
+  }
+  if (rightGrain) {
+    const structural = hl.composition[pairKey("*", `grain:${rightGrain}`)];
+    if (structural?.standing === "given") return structural;
+  }
+  const any = hl.composition[pairKey("*", "*")];
+  if (any?.standing === "given") return any;
+  return exact ?? normalizeAffordance({ left, right, standing: "unknown" });
 }
 
 export function admitHyperlexiconCandidates(hyperlexicon, candidates = []) {

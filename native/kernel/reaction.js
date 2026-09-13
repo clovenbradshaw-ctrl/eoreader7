@@ -363,7 +363,10 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
         continue;
       }
 
-      const affordance = compositionAffordance(chemistry, chain.leftEdge.relation, chain.rightEdge.relation);
+      const affordance = compositionAffordance(chemistry, chain.leftEdge.relation, chain.rightEdge.relation, {
+        leftGrain: chain.leftEdge.eo?.grain ?? null,
+        rightGrain: chain.rightEdge.eo?.grain ?? null,
+      });
       if (affordance.standing !== "given") {
         const key = pairLabel(chain.leftEdge.relation, chain.rightEdge.relation);
         const tally = withheldByPair.get(key) ?? { left: chain.leftEdge.relation, right: chain.rightEdge.relation, standing: affordance.standing, chains: 0 };

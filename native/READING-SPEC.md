@@ -5336,3 +5336,19 @@ The mechanism is standing law already: `organs/witness-sentences.js` runs the se
 **The one-being structural fact (a fact about the material, never a defect to tune):** a chapter whose every resolvable edge is one being (AIW ch1: all Alice→Alice) forms no shared-bridge chains by construction (`chainOf` refuses `subject.id === object.id`). Cross-work needs multi-being material.
 
 **Files.** `native/adapters/text/recursive.js` (content-addressed ids, occurrence on every participant, recipe), `native/eval/lavar/read-real.mjs` (the identity bridge + cast-only gate), `native/kernel/hyperlexicon.js` (the accumulator that unions witnesses across readings), `native/docs/THE-ADDRESS.md` (the full spec).
+
+## S115 — Structural chemistry: the grain is the invariant, the label is the lens — composition crosses texts, languages, and modalities (2026-09-13)
+
+**Generality:** universal to every reader in every medium. The governing argument is "AN ARRANGEMENT HAS ENDS, NOT PARTS OF SPEECH" (P56's own citation, now applied to chemistry rather than to slot-finding).
+
+**The law, three clauses:**
+
+1. **A composition affordance may be keyed on the chain SHAPE, not the relation label.** The shape — two Figure relations composing through a shared referent bridge (`E1 —r1→ B —r2→ E2`, B the shared referent) — is the invariant that crosses texts, languages, and modalities. VERB/AUX are English lenses (Thrax's ancient grammar, P29); the grain (the cube's Figure/Pattern axis, carried on every edge as `eo.grain`) is not.
+
+2. **A structural affordance is GIVEN by a named giver, and it never shadows an exact affordance.** `compositionAffordance` checks the exact label pair first; only when it is not GIVEN does it fall back to the grain-keyed structural key (`grain:Figure ∘ grain:Figure`). The structural affordance is declared by the prior's giver (the swarm's adjudication role), and the grain law holds: a corpus can refute chemistry, never earn it.
+
+3. **The label pair stays the FIRST key; the structural key is the fallback, never the replacement.** The text-specific chemistry (`approached∘began`) is still carried and still licenses first. The structural key is what makes the field cross boundaries the label cannot.
+
+**Measured — the field crosses every boundary at once:** Alice ch2 (different text, same language) Δ=+2 derived; French Δ=+3; Russian Δ=+3 — all previously Δ=0 under the label-bound key. `был∘сказал` composes under the same affordance as `thought∘gave`. The rhythm transfers where the chemistry now does too (fr 60%, ru 43%, ch2 47%).
+
+**Files.** `native/kernel/hyperlexicon.js` (`compositionAffordance`'s structural fallback), `native/kernel/reaction.js` (passes `eo.grain`), `native/eval/lavar/prime-with-field.mjs` (declares the structural affordance). Suite: 778/772/6, same six pre-existing failures, zero new.
