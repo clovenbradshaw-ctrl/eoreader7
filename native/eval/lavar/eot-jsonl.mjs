@@ -871,6 +871,19 @@ for (const sent of sentences) {
              label: e.verb, settledAs: g.settledAs });
       continue;
     }
+    // A GRAIN GAP IS A REFUSAL, NEVER AN OBSERVATION (2026-09-13). A
+    // connector that settles as NOTHING ("to" the infinitive marker — PART,
+    // "like", "own") has no verdict the reader can stand on. Emitting it as
+    // a proposition asserts "this is an arrangement" when the reader could
+    // not type the arrangement. Measured: ch1's 30 grain-gap propositions,
+    // 28 matching nothing in the golden, 21 of them "to". The grain law's
+    // own polarity — "a checking organ may say I have nothing to compare
+    // this against" — says refuse, typed, never assert what you cannot type.
+    if (g.grain_gap) {
+      emit({ schema: "EOTRefusal@1", at: rawAt(at[0], at[1]), role: "proposition", reason: "connector_settles_to_no_grain",
+             label: e.verb, settledAs: null, basis: g.grain_gap });
+      continue;
+    }
     emit({
       schema: "EOTObservation@1", id: id("o"), at: rawAt(at[0], at[1]), role: "proposition",
       end1: e.subject, label: e.verb, end2: e.object, subjectBasis: e.subjectBasis ?? "stated",
@@ -901,10 +914,12 @@ for (const sent of sentences) {
   // own byte address.
 }
 
-// Nothing is refused for its grain any more. What used to be five discarded
-// "non-verb connector" refusals are now five Field-grain observations on the
-// record, and the observations whose connector does not settle carry a
-// grain_gap instead of a grain. See grainOf above for why.
+// What used to be five discarded "non-verb connector" refusals are now five
+// Field-grain observations on the record (preposition -> CON·Ground is a
+// REAL state, typed and kept). But a connector that settles as NOTHING
+// (grain_gap — the infinitive "to", "like", "own") is refused, typed: the
+// reader has no verdict on what it is, so it must not assert it as a
+// proposition. A grain gap is a refusal; a settled grain is an observation.
 
 // ── revisions: appended at the end, superseding earlier lines by id ───────
 // These are the hand-check's own findings, recorded the way this ledger
