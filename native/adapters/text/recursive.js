@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { sha256hex } from "./sha256hex.js";
 import { tokenize, buildFrequencyTable, functionWordSet } from "./material.js";
 import { splitSentences } from "./spans.js";
 import { createSurfaceEvidence, accumulateSurfaceEvidence, surfacesFromEvidence, discoverReferents, diaNorm } from "./surfaces.js";
@@ -10,7 +10,6 @@ import { createDescriptorAnchoring } from "./anchoring.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
 
 const slug = (value) => diaNorm(value).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
-const sha256hex = (text) => createHash("sha256").update(String(text ?? "")).digest("hex").slice(0, 32);
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const WORD_RE = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
 
@@ -572,7 +571,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       const encounterRef = `encounter:${sequencePosition}`;
       if (priorSentences.length === 0 || priorSentences.length % refreshEvery === 0) refresh();
 
-      const relations = extractRelations(encounter.material, { verbs: cache.verbs, functionWords: cache.closed });
+      const relations = extractRelations(encounter.material, { verbs: cache.verbs, functionWords: cache.closed, phrasalPredicates: true });
       // GUID IDENTITY (2026-09-13, S114): a GUID edge id and witness, so
       // the identity is collision-proof across readings. The hyperlexicon's
       // accumulator unions witnesses by id; a position-derived id collided
