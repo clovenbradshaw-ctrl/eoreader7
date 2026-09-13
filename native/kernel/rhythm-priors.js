@@ -40,6 +40,13 @@ const unwrap = (item) => item?.reading ?? item;
 // its witness is `text:{pos}` (recursive.js's own construction) — read the
 // position off the entry rather than requiring the caller to thread it.
 function mentionPosition(entry) {
+  // THE POSITION IS THE ENCOUNTER (2026-09-13). The mention's id and
+  // witness are now content-addressed (THE-ADDRESS.md A4) — hex, no
+  // position. The encounterRef ("encounter:7") is the position the rhythm
+  // measures (the return gap between encounters). Legacy formats kept so
+  // an older fold still scores; the content-hash era reads encounterRef.
+  const fromEncounter = /^encounter:(\d+)/.exec(entry?.encounterRef ?? "");
+  if (fromEncounter) return Number(fromEncounter[1]);
   const fromWitness = /^text:(\d+)/.exec(entry?.witness ?? "");
   if (fromWitness) return Number(fromWitness[1]);
   const fromId = /^mention:(\d+):/.exec(entry?.id ?? "");

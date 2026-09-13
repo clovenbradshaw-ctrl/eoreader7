@@ -33,7 +33,7 @@ if (!priorPath || !targetPath) throw new TypeError("usage: prime-with-field.mjs 
 
 const prior = JSON.parse(fs.readFileSync(priorPath, "utf8"));
 const target = JSON.parse(fs.readFileSync(targetPath, "utf8"));
-const targetEntries = target.graphEntries ?? [];
+const targetEntries = target.graphEntries ?? target.holograph?.graphEntries ?? [];
 
 console.log(`PRIME WITH FIELD · prior: ${path.basename(priorPath)} · target: ${path.basename(targetPath)}`);
 console.log(`  prior fields: verbs ${prior.fields.verbs.length} · chemistry ${prior.fields.chemistry.length} · rhythm ${prior.fields.rhythm ? "yes" : "no"} · kinds ${prior.fields.kinds.length}`);
@@ -54,8 +54,8 @@ for (const pair of prior.fields.chemistry ?? []) {
 // ── 2. THE TARGET'S OWN COMPOSITION, unprimed vs primed ──
 const targetLedger = createRelationCompositionLedger(targetEntries);
 const targetDiag = targetLedger.diagnostics();
-const targetCandidates = acquireCompositionCandidates(targetEntries, { minWitnesses: 2 });
-console.log(`\n  target's OWN composition: ${targetDiag.pairTypes} pair types, ${targetDiag.chainSites} chain sites, ${targetCandidates.length} candidates (≥2 witnesses)`);
+const targetCandidates = acquireCompositionCandidates(targetEntries, { minWitnesses: 1 });
+console.log(`\n  target's OWN composition: ${targetDiag.pairTypes} pair types, ${targetDiag.chainSites} chain sites, ${targetCandidates.length} candidates (at nomination-1 — the accumulator corroborates across readings)`);
 
 // The offered chemistry is the cross-work memory; the target's chains are
 // the cue. Settle the target against the offered chemistry — the reaction
@@ -95,8 +95,12 @@ let rhythmScore = null;
 try {
   const gaps = readingGaps({ fold: { graphEntries: targetEntries } });
   rhythmScore = { observedGaps: gaps.length, score: gaps.length ? scoreRhythmExpectations({ fold: { graphEntries: targetEntries } }, prior.fields.rhythm) : null };
+  const s = rhythmScore.score;
+  const phrased = !s || s.fulfilmentRate === null
+    ? "no gaps to score"
+    : `fulfilment ${(s.fulfilmentRate * 100).toFixed(0)}% (${s.fulfilled ?? 0} of ${s.expectations ?? 0} within the expected return gap)`;
   console.log(`\n  the rhythm door:`);
-  console.log(`    target observed ${rhythmScore.observedGaps} return-gaps; expectation from prior (median ${prior.fields.rhythm.medianGap}) → fulfilment ${rhythmScore.score?.fulfilmentRate === null ? "no gaps" : (rhythmScore.score.fulfilmentRate * 100).toFixed(0) + "%"} (${rhythmScore.score?.fulfilled ?? 0} of ${rhythmScore.score?.expectations ?? 0} within the expected return gap)`);
+  console.log(`    target observed ${rhythmScore.observedGaps} return-gaps; expectation from prior (median ${prior.fields.rhythm?.medianGap ?? "?"}) → ${phrased}`);
 } catch (e) {
   console.log(`\n  the rhythm door: ${e.message}`);
 }

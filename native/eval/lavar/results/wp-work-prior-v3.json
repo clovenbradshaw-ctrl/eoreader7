@@ -1,0 +1,1216 @@
+{
+ "schema": "EOWorkPrior@1",
+ "giver": "build-work-prior.mjs — the reading of War and Peace ch1-3 aligned (en) v3, earned as a received prior",
+ "sourceDocument": "War and Peace ch1-3 aligned (en) v3",
+ "fields": {
+  "verbs": [
+   "had",
+   "have",
+   "know",
+   "said",
+   "spoke",
+   "wished",
+   "knew",
+   "looked",
+   "saw",
+   "seemed",
+   "show",
+   "smile",
+   "added",
+   "came",
+   "come",
+   "continued",
+   "speak",
+   "think",
+   "turned",
+   "went",
+   "become",
+   "considered",
+   "found",
+   "get",
+   "go",
+   "kept",
+   "mentioned",
+   "passed",
+   "sat",
+   "say",
+   "smiling",
+   "take",
+   "talking",
+   "tell",
+   "took",
+   "understand",
+   "arranged",
+   "assumed",
+   "began",
+   "believe",
+   "brought",
+   "check",
+   "conducted",
+   "entered",
+   "explaining",
+   "faces",
+   "folds",
+   "gave",
+   "going",
+   "got",
+   "greeted",
+   "having",
+   "help",
+   "lifted",
+   "listen",
+   "look",
+   "meet",
+   "moved",
+   "played",
+   "prevented",
+   "seated",
+   "see",
+   "spread",
+   "stood",
+   "talk",
+   "thought",
+   "waiting",
+   "wanted",
+   "wants",
+   "adjusting",
+   "admitting",
+   "adopted",
+   "affected",
+   "allowing",
+   "altering",
+   "answered",
+   "appeared",
+   "appointed",
+   "appreciate",
+   "appreciated",
+   "approached",
+   "ask",
+   "asking",
+   "attend",
+   "attended",
+   "became",
+   "belongs",
+   "built",
+   "burn",
+   "call",
+   "called",
+   "cared",
+   "cares",
+   "carrying",
+   "changed",
+   "closed",
+   "connected",
+   "continuing",
+   "count",
+   "decided",
+   "delivered",
+   "deserve",
+   "desired",
+   "desires",
+   "detained",
+   "devoted",
+   "differing",
+   "diminish",
+   "distorted",
+   "disturb",
+   "done",
+   "dressed",
+   "dropped",
+   "dying",
+   "enjoyed",
+   "expecting",
+   "explain",
+   "expressed",
+   "feel",
+   "fell",
+   "figure",
+   "followed",
+   "formed",
+   "give",
+   "glanced",
+   "goes",
+   "happened",
+   "hate",
+   "hear",
+   "heard",
+   "holding",
+   "hope",
+   "indicate",
+   "indicated",
+   "inquiring",
+   "keep",
+   "leave",
+   "left",
+   "let",
+   "letting",
+   "looking",
+   "made",
+   "makes",
+   "managed",
+   "married",
+   "mean",
+   "means",
+   "missing",
+   "moving",
+   "named",
+   "need",
+   "observed",
+   "occurred",
+   "passing",
+   "performed",
+   "placed",
+   "prevent",
+   "produced",
+   "put",
+   "raised",
+   "recognized",
+   "recognizes",
+   "recommended",
+   "refused",
+   "rely",
+   "repeating",
+   "rested",
+   "revealed",
+   "save",
+   "screwed",
+   "secure",
+   "seen",
+   "served",
+   "serves",
+   "showed",
+   "spreading",
+   "start",
+   "staying",
+   "striking",
+   "swung",
+   "taking",
+   "talked",
+   "testify",
+   "told",
+   "treat",
+   "turning",
+   "understood",
+   "visit",
+   "warn",
+   "watched",
+   "wore",
+   "writes",
+   "wrote"
+  ],
+  "chemistry": [
+   {
+    "left": "desired",
+    "right": "kept",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:dowager_empress",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "the conversational machine",
+      "leftEdge": "42583af6d61aba4c3025e5b553bcfe62",
+      "rightEdge": "3fb7a8bb62ca4bbf75613e5d6db9cb6f",
+      "leftWitness": "6fff6c8ea553b165a947619e8ffa44d1",
+      "rightWitness": "8046c0810361e6eb108eccf855d2ee5d",
+      "leftSequence": 82,
+      "rightSequence": 194,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:dowager_empress",
+        "surface": "Empress",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "e01ad3397f923939a2b8ad8b64937fe5",
+        "surface": "or was pleased",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "9df2f821f4474f50e2e56ccc45f10d83",
+        "surface": "slight rearrangement",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "a7ea384cd232fe834a76e988578ac1c8",
+        "surface": "the conversational machine",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     },
+     {
+      "from": "ref:auto:dowager_empress",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "a watchful eye on",
+      "leftEdge": "42583af6d61aba4c3025e5b553bcfe62",
+      "rightEdge": "b0ff95f975d1f7ec050945ce724bc03c",
+      "leftWitness": "6fff6c8ea553b165a947619e8ffa44d1",
+      "rightWitness": "9e2d2cefee3817da1d9eaa850e7c582b",
+      "leftSequence": 82,
+      "rightSequence": 260,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:dowager_empress",
+        "surface": "Empress",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "e01ad3397f923939a2b8ad8b64937fe5",
+        "surface": "or was pleased",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "a0abcf739345ff56840df01eb216e7df",
+        "surface": "had",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "0384d3752944013bb05192ada30b8e54",
+        "surface": "a watchful eye on",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "speak",
+    "right": "kept",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:i’ll",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "the conversational machine",
+      "leftEdge": "e9d727049e6fbccad2299d81ec361b6a",
+      "rightEdge": "3fb7a8bb62ca4bbf75613e5d6db9cb6f",
+      "leftWitness": "01b73779a3cd1e5122e815ec9c7f9ba4",
+      "rightWitness": "8046c0810361e6eb108eccf855d2ee5d",
+      "leftSequence": 140,
+      "rightSequence": 194,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "4a65564fad69af17caaf0411c093b91d",
+        "surface": "I’ll",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "f6e4e308db22e5639c973c59b207f56d",
+        "surface": "to Lise",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "9df2f821f4474f50e2e56ccc45f10d83",
+        "surface": "slight rearrangement",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "a7ea384cd232fe834a76e988578ac1c8",
+        "surface": "the conversational machine",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     },
+     {
+      "from": "ref:auto:i’ll",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "a watchful eye on",
+      "leftEdge": "e9d727049e6fbccad2299d81ec361b6a",
+      "rightEdge": "b0ff95f975d1f7ec050945ce724bc03c",
+      "leftWitness": "01b73779a3cd1e5122e815ec9c7f9ba4",
+      "rightWitness": "9e2d2cefee3817da1d9eaa850e7c582b",
+      "leftSequence": 140,
+      "rightSequence": 260,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "4a65564fad69af17caaf0411c093b91d",
+        "surface": "I’ll",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "f6e4e308db22e5639c973c59b207f56d",
+        "surface": "to Lise",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "a0abcf739345ff56840df01eb216e7df",
+        "surface": "had",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "0384d3752944013bb05192ada30b8e54",
+        "surface": "a watchful eye on",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "desired",
+    "right": "came",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:dowager_empress",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "069d6be1413e855495fd861a4de9d5c7",
+      "leftEdge": "42583af6d61aba4c3025e5b553bcfe62",
+      "rightEdge": "978264a2b3cc89fa076379d84e53b2d9",
+      "leftWitness": "6fff6c8ea553b165a947619e8ffa44d1",
+      "rightWitness": "7882ceb8e5276c3b36a8c3ac74882d66",
+      "leftSequence": 82,
+      "rightSequence": 268,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:dowager_empress",
+        "surface": "Empress",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "e01ad3397f923939a2b8ad8b64937fe5",
+        "surface": "or was pleased",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Pávlovna",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "069d6be1413e855495fd861a4de9d5c7",
+        "surface": "up",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "desired",
+    "right": "check",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:dowager_empress",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "the machine or set",
+      "leftEdge": "42583af6d61aba4c3025e5b553bcfe62",
+      "rightEdge": "4a128db6a196b84bd54f7c4068920fbb",
+      "leftWitness": "6fff6c8ea553b165a947619e8ffa44d1",
+      "rightWitness": "639753bc89c27ac55ff428d2f727fdb4",
+      "leftSequence": 82,
+      "rightSequence": 194,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:dowager_empress",
+        "surface": "Empress",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "e01ad3397f923939a2b8ad8b64937fe5",
+        "surface": "or was pleased",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "1d1e038e4052874ef4d0bf478f76f4db",
+        "surface": "hastens",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "e7703c9f32cb8c2d1a8b5d5d7b61eacc",
+        "surface": "the machine or set",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "desired",
+    "right": "had",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:dowager_empress",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "a right",
+      "leftEdge": "42583af6d61aba4c3025e5b553bcfe62",
+      "rightEdge": "d58727cb8b7f48afcf7454cc006ed3bb",
+      "leftWitness": "6fff6c8ea553b165a947619e8ffa44d1",
+      "rightWitness": "3479c5a1fa56011f21cb64d1a39d1edf",
+      "leftSequence": 82,
+      "rightSequence": 82,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:dowager_empress",
+        "surface": "Empress",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "e01ad3397f923939a2b8ad8b64937fe5",
+        "surface": "or was pleased",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "543bb098cf24a052d602ae47e72be589",
+        "surface": "anyone else",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "12e5f832b095c78e56afe7c227f2c276",
+        "surface": "a right",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "desired",
+    "right": "observed",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:dowager_empress",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "these greetings",
+      "leftEdge": "42583af6d61aba4c3025e5b553bcfe62",
+      "rightEdge": "6de5cd63fce5253368422aebf42237a4",
+      "leftWitness": "6fff6c8ea553b165a947619e8ffa44d1",
+      "rightWitness": "ab2945498d9aed1161821f0dcbdd8fbc",
+      "leftSequence": 82,
+      "rightSequence": 153,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:dowager_empress",
+        "surface": "Empress",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "e01ad3397f923939a2b8ad8b64937fe5",
+        "surface": "or was pleased",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Pávlovna",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "da78a384e812dda570ec813f7561bad6",
+        "surface": "these greetings",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "desired",
+    "right": "performed",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:dowager_empress",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "the ceremony",
+      "leftEdge": "42583af6d61aba4c3025e5b553bcfe62",
+      "rightEdge": "f066bb2765abe7f96e8a84dc850e280b",
+      "leftWitness": "6fff6c8ea553b165a947619e8ffa44d1",
+      "rightWitness": "2bb11137319e8a0c33e63aa29b7d1da3",
+      "leftSequence": 82,
+      "rightSequence": 153,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:dowager_empress",
+        "surface": "Empress",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "e01ad3397f923939a2b8ad8b64937fe5",
+        "surface": "or was pleased",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "38eaa41f9443fcf76821d77a5e589c40",
+        "surface": "Each visitor",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "c93485a5fbdc1064aa516928e5974202",
+        "surface": "the ceremony",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "desired",
+    "right": "produced",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:dowager_empress",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "an effect",
+      "leftEdge": "42583af6d61aba4c3025e5b553bcfe62",
+      "rightEdge": "5eeb6b314a4ead643a7705bfa7b042e2",
+      "leftWitness": "6fff6c8ea553b165a947619e8ffa44d1",
+      "rightWitness": "6f91e847ba1f46713012566c2e52e6de",
+      "leftSequence": 82,
+      "rightSequence": 234,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:dowager_empress",
+        "surface": "Empress",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "e01ad3397f923939a2b8ad8b64937fe5",
+        "surface": "or was pleased",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "f6725369f3e489b5318b8ba57956db7e",
+        "surface": "story",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "bcc781e022c435f2b31656c88339627a",
+        "surface": "an effect",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "desired",
+    "right": "wished",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:dowager_empress",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "df2a71c381eb6d90371ffac79e0a75e0",
+      "leftEdge": "42583af6d61aba4c3025e5b553bcfe62",
+      "rightEdge": "6ee728f3887f5cfe996ce61fd795c9b6",
+      "leftWitness": "6fff6c8ea553b165a947619e8ffa44d1",
+      "rightWitness": "b2573ffe5abdc09f050aa091e14f0969",
+      "leftSequence": 82,
+      "rightSequence": 87,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:dowager_empress",
+        "surface": "Empress",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "e01ad3397f923939a2b8ad8b64937fe5",
+        "surface": "or was pleased",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Pávlovna",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "df2a71c381eb6d90371ffac79e0a75e0",
+        "surface": "both",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "go",
+    "right": "said",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:vasili",
+      "bridge": "ref:auto:prince_andrew",
+      "to": "43dea6274d0d8f7a9be563c197f8d4b1",
+      "leftEdge": "df03bab541a8f24b6b7664cd5a463975",
+      "rightEdge": "b6015169238517e2a5495c0d72150ff9",
+      "leftWitness": "f3ff118acf6c7501451b6aa825314f18",
+      "rightWitness": "9ba7fa508f8ae9a2e4de1833be234508",
+      "leftSequence": 298,
+      "rightSequence": 306,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "36ca844398432dad0d6461000c4ed86f",
+        "surface": "to",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:prince_andrew",
+        "surface": "and",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:prince_andrew",
+        "surface": "and",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "43dea6274d0d8f7a9be563c197f8d4b1",
+        "surface": "to",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "know",
+    "right": "explaining",
+    "support": 1,
+    "examples": [
+     {
+      "from": "3356dd1fb95b63d76b1c227e333a8f3e",
+      "bridge": "ref:auto:abbe_morio",
+      "to": "ref:auto:king",
+      "leftEdge": "c5adbdd08dcfb69e044497ffa345afd2",
+      "rightEdge": "adc067ac0f4e16c87cf21161666dde4c",
+      "leftWitness": "0870f9f9996128b5185d26a7f5487631",
+      "rightWitness": "1d6b7f493fa3acaa81cdc148b50a47d0",
+      "leftSequence": 184,
+      "rightSequence": 191,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "3356dd1fb95b63d76b1c227e333a8f3e",
+        "surface": "Do you",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:abbe_morio",
+        "surface": "the Abbé Morio",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "486bd6c23f8967714ef51ff53e9927b2",
+        "surface": "he began",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:king",
+        "surface": "his reasons for thinking",
+        "standing": "referent"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "know",
+    "right": "spread",
+    "support": 1,
+    "examples": [
+     {
+      "from": "3356dd1fb95b63d76b1c227e333a8f3e",
+      "bridge": "ref:auto:abbe_morio",
+      "to": "ref:auto:buonaparte",
+      "leftEdge": "c5adbdd08dcfb69e044497ffa345afd2",
+      "rightEdge": "89e7ac3d4f90e805cad00468260e388b",
+      "leftWitness": "0870f9f9996128b5185d26a7f5487631",
+      "rightWitness": "07c468b6ac32c81c7127e58faad94559",
+      "leftSequence": 184,
+      "rightSequence": 191,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "3356dd1fb95b63d76b1c227e333a8f3e",
+        "surface": "Do you",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:abbe_morio",
+        "surface": "the Abbé Morio",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "22926701d6d526f4423f5b2042fd8108",
+        "surface": "big feet",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:buonaparte",
+        "surface": "apart",
+        "standing": "referent"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "looked",
+    "right": "said",
+    "support": 1,
+    "examples": [
+     {
+      "from": "308c49ca909b06a007e8459bcd274112",
+      "bridge": "ref:auto:prince_andrew",
+      "to": "43dea6274d0d8f7a9be563c197f8d4b1",
+      "leftEdge": "6e1acc53055086fb091cd8f9909ec43a",
+      "rightEdge": "b6015169238517e2a5495c0d72150ff9",
+      "leftWitness": "d6f682896cfdd270c1384647a3250e15",
+      "rightWitness": "9ba7fa508f8ae9a2e4de1833be234508",
+      "leftSequence": 288,
+      "rightSequence": 306,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "308c49ca909b06a007e8459bcd274112",
+        "surface": "he",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:prince_andrew",
+        "surface": "round Prince Andrew frowned again",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:prince_andrew",
+        "surface": "and",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "43dea6274d0d8f7a9be563c197f8d4b1",
+        "surface": "to",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "speak",
+    "right": "came",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:i’ll",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "069d6be1413e855495fd861a4de9d5c7",
+      "leftEdge": "e9d727049e6fbccad2299d81ec361b6a",
+      "rightEdge": "978264a2b3cc89fa076379d84e53b2d9",
+      "leftWitness": "01b73779a3cd1e5122e815ec9c7f9ba4",
+      "rightWitness": "7882ceb8e5276c3b36a8c3ac74882d66",
+      "leftSequence": 140,
+      "rightSequence": 268,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "4a65564fad69af17caaf0411c093b91d",
+        "surface": "I’ll",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "f6e4e308db22e5639c973c59b207f56d",
+        "surface": "to Lise",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Pávlovna",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "069d6be1413e855495fd861a4de9d5c7",
+        "surface": "up",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "speak",
+    "right": "check",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:i’ll",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "the machine or set",
+      "leftEdge": "e9d727049e6fbccad2299d81ec361b6a",
+      "rightEdge": "4a128db6a196b84bd54f7c4068920fbb",
+      "leftWitness": "01b73779a3cd1e5122e815ec9c7f9ba4",
+      "rightWitness": "639753bc89c27ac55ff428d2f727fdb4",
+      "leftSequence": 140,
+      "rightSequence": 194,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "4a65564fad69af17caaf0411c093b91d",
+        "surface": "I’ll",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "f6e4e308db22e5639c973c59b207f56d",
+        "surface": "to Lise",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "1d1e038e4052874ef4d0bf478f76f4db",
+        "surface": "hastens",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "e7703c9f32cb8c2d1a8b5d5d7b61eacc",
+        "surface": "the machine or set",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "speak",
+    "right": "observed",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:i’ll",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "these greetings",
+      "leftEdge": "e9d727049e6fbccad2299d81ec361b6a",
+      "rightEdge": "6de5cd63fce5253368422aebf42237a4",
+      "leftWitness": "01b73779a3cd1e5122e815ec9c7f9ba4",
+      "rightWitness": "ab2945498d9aed1161821f0dcbdd8fbc",
+      "leftSequence": 140,
+      "rightSequence": 153,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "4a65564fad69af17caaf0411c093b91d",
+        "surface": "I’ll",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "f6e4e308db22e5639c973c59b207f56d",
+        "surface": "to Lise",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Pávlovna",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "da78a384e812dda570ec813f7561bad6",
+        "surface": "these greetings",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "speak",
+    "right": "performed",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:i’ll",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "the ceremony",
+      "leftEdge": "e9d727049e6fbccad2299d81ec361b6a",
+      "rightEdge": "f066bb2765abe7f96e8a84dc850e280b",
+      "leftWitness": "01b73779a3cd1e5122e815ec9c7f9ba4",
+      "rightWitness": "2bb11137319e8a0c33e63aa29b7d1da3",
+      "leftSequence": 140,
+      "rightSequence": 153,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "4a65564fad69af17caaf0411c093b91d",
+        "surface": "I’ll",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "f6e4e308db22e5639c973c59b207f56d",
+        "surface": "to Lise",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "38eaa41f9443fcf76821d77a5e589c40",
+        "surface": "Each visitor",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "c93485a5fbdc1064aa516928e5974202",
+        "surface": "the ceremony",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "speak",
+    "right": "produced",
+    "support": 1,
+    "examples": [
+     {
+      "from": "ref:auto:i’ll",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "an effect",
+      "leftEdge": "e9d727049e6fbccad2299d81ec361b6a",
+      "rightEdge": "5eeb6b314a4ead643a7705bfa7b042e2",
+      "leftWitness": "01b73779a3cd1e5122e815ec9c7f9ba4",
+      "rightWitness": "6f91e847ba1f46713012566c2e52e6de",
+      "leftSequence": 140,
+      "rightSequence": 234,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "4a65564fad69af17caaf0411c093b91d",
+        "surface": "I’ll",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "f6e4e308db22e5639c973c59b207f56d",
+        "surface": "to Lise",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "f6725369f3e489b5318b8ba57956db7e",
+        "surface": "story",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "bcc781e022c435f2b31656c88339627a",
+        "surface": "an effect",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   }
+  ],
+  "rhythm": {
+   "schema": "EORhythmPrior@1",
+   "id": "rhythm:War and Peace ch1-3 aligned (en) v3",
+   "giver": "build-work-prior.mjs — the reading of War and Peace ch1-3 aligned (en) v3, earned as a received prior",
+   "standing": "defeasible_experience_prior",
+   "witnessed": false,
+   "admissible": false,
+   "sourceCount": 1,
+   "sourceRefs": [
+    "War and Peace ch1-3 aligned (en) v3"
+   ],
+   "medianGap": null,
+   "gapCount": 0,
+   "workSupport": 1,
+   "memoryStanding": "single_work_memory",
+   "gapHistogram": [],
+   "provenance": {
+    "giver": "build-work-prior.mjs — the reading of War and Peace ch1-3 aligned (en) v3, earned as a received prior",
+    "basis": "completed_prior_readings",
+    "targetExcluded": true,
+    "rule": "pooled inter-mention gaps of admitted referents; median is a declared standard summary, not a tuned threshold",
+    "measured": "native/eval/results/narrative-rhythm-transfer.json — novel-learned rhythm scores a held-out novel at 92% of its own self-prior and ~3.3x its order-destroyed null"
+   }
+  },
+  "kinds": []
+ },
+ "basis": "reading one document earns the FULL field — relation forms, composition chemistry, return rhythm, and kinds — each offered to the next document as a received prior with a named giver; no cast crosses, referent identity never transfers"
+}
