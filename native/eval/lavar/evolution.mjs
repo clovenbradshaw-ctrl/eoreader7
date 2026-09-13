@@ -23,6 +23,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { shapeOf } from "./reading-shape.mjs";
+import { elenchusBar, bornAcceptance, RERUN_NULL } from "./elenchus-bar.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CH = Number(process.argv[2] ?? 1);
@@ -88,6 +89,16 @@ const NOISE_FLOOR = nullLine ? Number((nullLine.match(/found in NOISE: (\d+) arr
 let pop = LEGAL.map((g) => ({ g, s: run(g, false), f: null }));
 for (const p of pop) p.f = fitness(p.s, NOISE_FLOOR);
 let best = [...pop].sort((a, b) => b.f - a.f)[0];
+// ── THE ELENCHUS BAR, MEASURED (2026-09-13) — the hand-set `+0.005` stood
+// orders of magnitude above the shape's reproducibility floor (the same
+// defect wilson.mjs closed): the bar is the seed best's own RERUN-NULL,
+// declared draws, seed, alpha (elenchus-bar.mjs). The population's observed
+// improvements are the bornAcceptance reference distribution.
+const rerunShapes = [];
+for (let d = 0; d < RERUN_NULL.draws; d++) { const rs = run(best.g, false); rerunShapes.push(fitness(rs, NOISE_FLOOR)); }
+const ELENCHUS_BAR = elenchusBar(rerunShapes);
+const observedDeltas = [];
+const admits = (improvement, delta) => improvement >= ELENCHUS_BAR && bornAcceptance({ delta, populationDeltas: observedDeltas });
 const elenchus = [];
 console.log(`EVOLUTION · ch${CH} · ${GENS} generations · legal genotypes ${LEGAL.join(",")} · noise floor ${NOISE_FLOOR}${USE_LOOPS ? " · with per-gen reread loops" : ""}`);
 console.log(`gen 0 (seed): best=${nameFor(best.g)} (${best.g}) shape ${best.f.toFixed(3)}`);
@@ -108,11 +119,12 @@ for (let gen = 1; gen <= GENS; gen++) {
       const f = fitness(s, NOISE_FLOOR);
       offspring.push({ g: mut, s, f });
       const delta = f - best.f;
-      if (f > best.f + 0.005) {
+      observedDeltas.push(delta);
+      if (admits(f - best.f, delta)) {
         console.log(`  gen ${gen} KEPT ${nameFor(mut)} (${mut}): shape ${f.toFixed(3)} (+${delta.toFixed(3)}) — bred from ${nameFor(a.g)}×${nameFor(b.g)}`);
         best = { g: mut, s, f };
       } else {
-        elenchus.push({ gen, proposal: `${nameFor(mut)} (${mut})`, f, reason: "degraded or flat" });
+        elenchus.push({ gen, proposal: `${nameFor(mut)} (${mut})`, f, reason: delta <= 0 ? "degraded" : "flat" });
         console.log(`  gen ${gen} REFUSED ${nameFor(mut)} (${mut}): shape ${f.toFixed(3)} (${delta <= 0 ? "degraded" : "flat"}) — elenchus`);
       }
     }

@@ -29,6 +29,7 @@ import { fileURLToPath } from "node:url";
 import { shapeOf } from "./reading-shape.mjs";
 import { dmd } from "../../kernel/dmd.js";
 import { closureOf, witnessAnswer } from "../../kernel/ground-closure.js";
+import { elenchusBar, bornAcceptance, RERUN_NULL } from "./elenchus-bar.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CH = Number(process.argv[2] ?? 1);
@@ -183,17 +184,31 @@ const recordSeries = (ids, f) => { const k = ids.join(","); const a = fitnessSer
 const BREAKTHROUGHS = path.join(HERE, "results", "swarm-breakthroughs.jsonl");
 const readingEcho = (shape) => { const b = [shape.referentPurity >= 0.5 ? 1 : 0, shape.voidRate < 0.5 ? 1 : 0, shape.perSentence >= 2 ? 1 : 0].join(""); return `r${b}`; };
 const readingShadow = (shape) => ({ script: ctx.script, lang: LANG, axes: { purity: shape.referentPurity, void: shape.voidRate, signal: shape.emitted }, pointer: LEDGER });
-const preserveBreakthrough = (ids, shape, f, gen) => {
-  const entry = { schema: "SwarmBreakthrough@1", at: new Date().toISOString().slice(0, 10), gen, echo: readingEcho(shape), shadow: readingShadow(shape), variant: ids.join("+"), mhc: levelOf(ids), terrain: terrainOf(ids), shape: f };
+const preserveBreakthrough = (ids, shape, f, gen, delta = 0) => {
+  // THE TRAIL IS BORN-WEIGHTED (2026-09-13). The correction delta is the
+  // ant's return; the trail it lays is that return's born mass Δ²/ΣΔ² over
+  // the colony's observed improvements. A real find leaves a strong trail,
+  // a reroll leaves nothing — the strength a future system retrieves by.
+  const totalMass = observedDeltas.reduce((a, b) => a + b * b, 0);
+  const mass = delta > 0 && totalMass > 0 ? (delta * delta) / totalMass : 0;
+  const entry = { schema: "SwarmBreakthrough@1", at: new Date().toISOString().slice(0, 10), gen, echo: readingEcho(shape), shadow: readingShadow(shape), variant: ids.join("+"), mhc: levelOf(ids), terrain: terrainOf(ids), shape: f, mass, delta };
   fs.appendFileSync(BREAKTHROUGHS, JSON.stringify(entry) + "\n");
   return entry;
 };
 const queryBreakthroughs = (shape) => {
   if (!fs.existsSync(BREAKTHROUGHS)) return [];
   const echo = readingEcho(shape);
-  return fs.readFileSync(BREAKTHROUGHS, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)).filter((e) => e.echo === echo);
+  return fs.readFileSync(BREAKTHROUGHS, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)).filter((e) => e.echo === echo).sort((a, b) => (b.mass ?? 0) - (a.mass ?? 0));
 };
 function bornWeights(cands) { const cols = Math.max(1, ...cands.map((c) => fitnessSeries.get(c.join(","))?.length ?? 0)); if (cols < 2) return null; const X = cands.map((c) => { const a = fitnessSeries.get(c.join(",")) ?? []; return Array.from({ length: cols }, (_, i) => a[i] ?? a[a.length - 1] ?? 0); }); const Xp = X.map((r) => [r[1] ?? r[0], ...r.slice(0, -1)]); const { eigenvalues: lam } = dmd(X, Xp, { rank: Math.min(X.length, cols) }); const born = lam.map((l) => Math.abs(l) ** 2); const total = born.reduce((a, b) => a + b, 0); return total > 0 ? born.map((b) => b / total) : null; }
+// ── ENERGY IS BORN-CHARGED (2026-09-13). The old ECONOMY charged
+// ENERGY_COST=1 per attempt regardless of outcome — a colony goes dormant
+// BY REFUSING (measured: everything refused, parents drained, population
+// emptied while the seed persisted). The charge now lands only on an
+// UNINFORMATIVE attempt (a reroll — delta within the measured rerun-null
+// floor, i.e. an attempt that deposited no born mass); a variant that
+// deposits born mass REPLENISHES. Dormancy follows Wilson's actual
+// economics: starvation of real finds, never the act of foraging.
 const ENERGY_START = 3, ENERGY_COST = 1, ENERGY_GAIN = 2, CARRY = 8;
 const energy = new Map();
 const elenchus = [];
@@ -215,7 +230,15 @@ function maybeStartle(f, gen) {
   const n = startle.sigmas.length;
   const mu = startle.sigmas.reduce((a, b) => a + b, 0) / n;
   const sd = Math.sqrt(startle.sigmas.reduce((a, b) => a + (b - mu) ** 2, 0) / n) || 1e-9;
-  const startled = d > 2 * sd && d > 0.01;
+  // THE STARTLE FLOOR IS THE MEASURED RERUN-NULL (2026-09-13), never a
+  // hand-set 0.01. A move is a startle only when it clears BOTH 2σ of the
+  // running trajectory AND the shape's own reproducibility floor (a move
+  // smaller than what the read itself varies by is not a surprise, it is
+  // noise). Set from the seed's rerun-null before the storm; the old
+  // `> 0.01` was the class of hand-set threshold this file's own laws
+  // forbid (eoreader6.1/CLAUDE.md: never tune a number by checking what it
+  // does to a golden).
+  const startled = d > 2 * sd && d > (startle.floor ?? 0.01);
   if (startled) startle.fired += 1;
   return startled;
 }
@@ -233,6 +256,26 @@ for (const p of pop) { const c = correctedFitness(p.ids, NOISE_FLOOR); p.s = c.s
 let best = [...pop].sort((a, b) => b.f - a.f)[0];
 const seen = new Map(pop.map((p) => [p.ids.join(","), p]));
 console.log(`seed: ${LEGAL.length} legal compositions; best=${nameFor(best.ids)} @MHC${levelOf(best.ids)} terrain ${terrainOf(best.ids).join("/")} shape ${best.f.toFixed(3)}`);
+// ── THE ELENCHUS BAR, MEASURED (2026-09-13). The old `+0.005` stood five
+// orders of magnitude above the shape's reproducibility floor (measured:
+// 21 genotypes -> the identical 16-digit shape). The bar is now the
+// seed's own RERUN-NULL: the same variant read RERUN_NULL.draws times,
+// the max |Δ| between reruns IS the floor for "this variant differs."
+// A deterministic read measures ~0 and the bar collapses to epsilon — any
+// real positive delta recruits. Measured, never set (elenchus-bar.mjs).
+const rerunShapes = [];
+for (let d = 0; d < RERUN_NULL.draws; d++) { const rs = run(best.ids, false); rerunShapes.push(fitness(rs, NOISE_FLOOR)); }
+const ELENCHUS_BAR = elenchusBar(rerunShapes);
+// The startle floor is the same measured reproducibility floor — a shape
+// move below it is the read's own noise, never a surprise.
+startle.floor = ELENCHUS_BAR;
+console.log(`elenchus bar: rerun-null over ${RERUN_NULL.draws} reads of the seed (draws ${RERUN_NULL.draws}, seed ${RERUN_NULL.seed}) — floor ${rerunShapes[0].toFixed(6)} vs reruns → bar ${ELENCHUS_BAR.toExponential(2)} (the old +0.005 is ${(0.005 / ELENCHUS_BAR).toFixed(0)}x above this)`);
+// The colony's observed improvements — the population bornAcceptance is
+// judged against. Every correctedFitness delta lands here.
+const observedDeltas = [];
+// one shared admission: the candidate's improvement must clear the MEASURED
+// bar AND carry born mass over the population's own deltas.
+const admits = (improvement, delta) => improvement >= ELENCHUS_BAR && bornAcceptance({ delta, populationDeltas: observedDeltas });
 let descents = 0;
 for (let gen = 1; gen <= GENS; gen++) {
   const ranked = [...pop].sort((a, b) => b.f - a.f);
@@ -241,30 +284,48 @@ for (let gen = 1; gen <= GENS; gen++) {
   {
     const rand = LEGAL[Math.floor(Math.random() * LEGAL.length)];
     const rk = rand.join(",");
-    if (!seen.has(rk)) { seen.set(rk, true); const rc = correctedFitness(rand, NOISE_FLOOR); const rf = rc.f; recordSeries(rand, rf); const rb = recordBirth(gen, [], rand, `${ctx.script}:${LANG}`); if (rf > best.f + 0.005) { recordFate(rb, "kept", rf); best = { ids: rand, s: rs, f: rf }; moved = true; preserveBreakthrough(rand, rs, rf, gen); console.log(`  gen ${gen} RANDOM KEPT ${nameFor(rand)}: ${rf.toFixed(3)} (REC·Ground — a random proposal broke through, preserved)`); } else { recordFate(rb, "refused", rf); console.log(`  gen ${gen} RANDOM ${nameFor(rand)}: ${rf.toFixed(3)} refused (exploration, lineage kept)`); } }
+    if (!seen.has(rk)) { seen.set(rk, true); const rc = correctedFitness(rand, NOISE_FLOOR); const rf = rc.f; const cDelta = rc.delta; observedDeltas.push(cDelta); recordSeries(rand, rf); const rb = recordBirth(gen, [], rand, `${ctx.script}:${LANG}`); if (admits(rf - best.f, cDelta)) { recordFate(rb, "kept", rf); best = { ids: rand, s: rc.s2, f: rf }; moved = true; preserveBreakthrough(rand, rc.s2, rf, gen, cDelta); console.log(`  gen ${gen} RANDOM KEPT ${nameFor(rand)}: ${rf.toFixed(3)} (REC·Ground — a random proposal broke through, preserved)`); } else { recordFate(rb, "refused", rf); console.log(`  gen ${gen} RANDOM ${nameFor(rand)}: ${rf.toFixed(3)} refused (exploration, lineage kept)`); } }
   }
-  // BREED (CON·Figure) + MUTATE (SIG/INS·Figure) the top; energy economy.
-  for (const p of ranked.slice(0, 3)) {
-    energy.set(p.ids.join(","), (energy.get(p.ids.join(",")) ?? ENERGY_START) - ENERGY_COST);
+  // BREED (CON·Figure) + MUTATE (SIG/INS·Figure). SELECTION IS BY BORN
+  // MASS (2026-09-13): bornWeights was defined and never called — the DMD
+  // decomposition of the fitness series into |λ|² born mass is what decides
+  // WHICH variants the colony breeds. The top-3-by-scalar was the flat
+  // "breed the top-3" that ignored growth and frequency; the DMD modes ARE
+  // the synergy (combination breeding is what the eigenvectors are). A
+  // variant whose trajectory sits in a growing mode (|λ| > 1) is bred; a
+  // decaying one (|λ| < 1) fades. Fall back to the ranked top-3 only when
+  // the series is too short to decompose (a declared shortage, never a
+  // silent default).
+  const breeders = (() => {
+    const weights = bornWeights(pop.map((p) => p.ids));
+    if (!weights) return ranked.slice(0, 3);
+    const byBorn = pop.map((p, i) => ({ p, w: weights[i] ?? 0 })).sort((a, b) => b.w - a.w);
+    return byBorn.slice(0, 3).map((x) => x.p);
+  })();
+  for (const p of breeders) {
     for (const o of ORGANS) {
       const trial = p.ids.includes(o.id) ? p.ids.filter((x) => x !== o.id) : [...p.ids, o.id];
       if (!legal(trial)) { elenchus.push({ gen, proposal: `${nameFor(p.ids)}+/-${o.name}`, reason: "DAG" }); continue; }
       const key = trial.join(",");
       const birth = recordBirth(gen, [p], trial, `${ctx.script}:${LANG}`);
       if (seen.has(key)) { recordFate(birth, "retried"); continue; }
-      seen.set(key, true); energy.set(key, (energy.get(key) ?? ENERGY_START) - ENERGY_COST);
-      const c = correctedFitness(trial, NOISE_FLOOR); const s = c.s2; const f = c.f; const cDelta = c.delta; recordSeries(trial, f);
-      if (f > best.f + 0.005) {
+      seen.set(key, true);
+      const c = correctedFitness(trial, NOISE_FLOOR); const s = c.s2; const f = c.f; const cDelta = c.delta; observedDeltas.push(cDelta); recordSeries(trial, f);
+      // BORN-CHARGED: a kept trial replenishes; a refused (uninformative)
+      // trial costs the energy of its own reroll. The parent is NOT charged
+      // for breeding — foraging is not the cost; rerolling is.
+      if (admits(f - best.f, cDelta)) {
         shadows.push({ gen, ...{ level: levelOf(trial), terrain: terrainOf(trial), ids: trial, shape: f } });
-        preserveBreakthrough(trial, s, f, gen);
-        energy.set(key, (energy.get(key) ?? 0) + ENERGY_GAIN);
+        preserveBreakthrough(trial, s, f, gen, cDelta);
+        energy.set(key, (energy.get(key) ?? ENERGY_START) + ENERGY_GAIN);
         recordFate(birth, "kept", f);
         console.log(`  gen ${gen} KEPT ${nameFor(trial)} @MHC${levelOf(trial)} ${terrainOf(trial).join("/")}: ${f.toFixed(3)} (+${(f - best.f).toFixed(3)}) — shadow left, energy ${energy.get(key)}`);
         best = { ids: trial, s, f }; moved = true;
-      } else { elenchus.push({ gen, proposal: `${nameFor(trial)}`, f, reason: "degraded" }); recordFate(birth, "refused", f); console.log(`  gen ${gen} REFUSED ${nameFor(trial)}: ${f.toFixed(3)} (energy ${energy.get(key)})`); }
+      } else { elenchus.push({ gen, proposal: `${nameFor(trial)}`, f, reason: "degraded" }); energy.set(key, (energy.get(key) ?? ENERGY_START) - ENERGY_COST); recordFate(birth, "refused", f); console.log(`  gen ${gen} REFUSED ${nameFor(trial)}: ${f.toFixed(3)} (energy ${energy.get(key)})`); }
     }
-    // DORMANCY: legal variants never die.
-    if ((energy.get(p.ids.join(",")) ?? ENERGY_START) <= 0) { pop = pop.filter((x) => x.ids.join(",") !== p.ids.join(",")); recordFate(genealogy.filter((e) => e.genotype === p.ids.join("+") && e.fate === "alive").slice(-1)[0] ?? {}, "dormant"); console.log(`  gen ${gen} ${nameFor(p.ids)} DORMANT (lifeforce spent) — lineage preserved`); }
+    // DORMANCY: legal variants never die — only a variant that keeps
+    // rerolling (depositing no born mass) starves.
+    if ((energy.get(p.ids.join(",")) ?? ENERGY_START) <= 0) { pop = pop.filter((x) => x.ids.join(",") !== p.ids.join(",")); recordFate(genealogy.filter((e) => e.genotype === p.ids.join("+") && e.fate === "alive").slice(-1)[0] ?? {}, "dormant"); console.log(`  gen ${gen} ${nameFor(p.ids)} DORMANT (starvation of real finds — the act of foraging never cost it)`); }
   }
   while (pop.length > CARRY) { const w = pop.sort((a, b) => a.f - b.f)[0]; pop = pop.filter((x) => x !== w); recordFate(genealogy.filter((e) => e.genotype === w.ids.join("+") && e.fate === "alive").slice(-1)[0] ?? {}, "dormant"); console.log(`  gen ${gen} ${nameFor(w.ids)} DORMANT (capacity) — lineage preserved`); }
   // LOOPS ON LOOPS (EVA·Ground / the atmosphere's reread).
@@ -294,7 +355,7 @@ for (let gen = 1; gen <= GENS; gen++) {
     if (legal(reseed)) {
       console.log(`  gen ${gen} DESCENT (REC): shape ${best.f.toFixed(3)} below bar -> re-ground @MHC${levelOf(reseed)} ${terrainOf(reseed).join("/")} (${nameFor(reseed)})`);
       const rc2 = correctedFitness(reseed, NOISE_FLOOR); const rf = rc2.f;
-      if (rf > best.f) { best = { ids: reseed, s: rs, f: rf }; moved = true; console.log(`  gen ${gen} DESCENT KEPT ${nameFor(reseed)}: ${rf.toFixed(3)} (+${(rf - best.f).toFixed(3)})`); }
+      if (rf > best.f) { best = { ids: reseed, s: rc2.s2, f: rf }; moved = true; console.log(`  gen ${gen} DESCENT KEPT ${nameFor(reseed)}: ${rf.toFixed(3)} (+${(rf - best.f).toFixed(3)})`); }
     }
   }
   if (!moved && fl <= best.f) { console.log(`  gen ${gen} approaching the limit — no current improvement (a pause, never a finish; the swarm keeps the trajectory).`); if (gen >= 2) break; }
