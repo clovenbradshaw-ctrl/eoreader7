@@ -1,0 +1,1021 @@
+{
+ "schema": "EOWorkPrior@1",
+ "giver": "build-work-prior.mjs — the reading of War and Peace ch1-3 aligned (en), earned as a received prior",
+ "sourceDocument": "War and Peace ch1-3 aligned (en)",
+ "fields": {
+  "verbs": [
+   "had",
+   "have",
+   "know",
+   "said",
+   "spoke",
+   "wished",
+   "knew",
+   "looked",
+   "saw",
+   "seemed",
+   "show",
+   "smile",
+   "added",
+   "came",
+   "come",
+   "continued",
+   "speak",
+   "think",
+   "turned",
+   "went",
+   "become",
+   "considered",
+   "found",
+   "get",
+   "go",
+   "kept",
+   "mentioned",
+   "passed",
+   "sat",
+   "say",
+   "smiling",
+   "take",
+   "talking",
+   "tell",
+   "took",
+   "understand",
+   "arranged",
+   "assumed",
+   "began",
+   "believe",
+   "brought",
+   "check",
+   "conducted",
+   "entered",
+   "explaining",
+   "faces",
+   "folds",
+   "gave",
+   "going",
+   "got",
+   "greeted",
+   "having",
+   "help",
+   "lifted",
+   "listen",
+   "look",
+   "meet",
+   "moved",
+   "played",
+   "prevented",
+   "seated",
+   "see",
+   "spread",
+   "stood",
+   "talk",
+   "thought",
+   "waiting",
+   "wanted",
+   "wants",
+   "adjusting",
+   "admitting",
+   "adopted",
+   "affected",
+   "allowing",
+   "altering",
+   "answered",
+   "appeared",
+   "appointed",
+   "appreciate",
+   "appreciated",
+   "approached",
+   "ask",
+   "asking",
+   "attend",
+   "attended",
+   "became",
+   "belongs",
+   "built",
+   "burn",
+   "call",
+   "called",
+   "cared",
+   "cares",
+   "carrying",
+   "changed",
+   "closed",
+   "connected",
+   "continuing",
+   "count",
+   "decided",
+   "delivered",
+   "deserve",
+   "desired",
+   "desires",
+   "detained",
+   "devoted",
+   "differing",
+   "diminish",
+   "distorted",
+   "disturb",
+   "done",
+   "dressed",
+   "dropped",
+   "dying",
+   "enjoyed",
+   "expecting",
+   "explain",
+   "expressed",
+   "feel",
+   "fell",
+   "figure",
+   "followed",
+   "formed",
+   "give",
+   "glanced",
+   "goes",
+   "happened",
+   "hate",
+   "hear",
+   "heard",
+   "holding",
+   "hope",
+   "indicate",
+   "indicated",
+   "inquiring",
+   "keep",
+   "leave",
+   "left",
+   "let",
+   "letting",
+   "looking",
+   "made",
+   "makes",
+   "managed",
+   "married",
+   "mean",
+   "means",
+   "missing",
+   "moving",
+   "named",
+   "need",
+   "observed",
+   "occurred",
+   "passing",
+   "performed",
+   "placed",
+   "prevent",
+   "produced",
+   "put",
+   "raised",
+   "recognized",
+   "recognizes",
+   "recommended",
+   "refused",
+   "rely",
+   "repeating",
+   "rested",
+   "revealed",
+   "save",
+   "screwed",
+   "secure",
+   "seen",
+   "served",
+   "serves",
+   "showed",
+   "spreading",
+   "start",
+   "staying",
+   "striking",
+   "swung",
+   "taking",
+   "talked",
+   "testify",
+   "told",
+   "treat",
+   "turning",
+   "understood",
+   "visit",
+   "warn",
+   "watched",
+   "wore",
+   "writes",
+   "wrote"
+  ],
+  "chemistry": [
+   {
+    "left": "approached",
+    "right": "began",
+    "support": 1,
+    "examples": [
+     {
+      "from": "occ:196:1:subject",
+      "bridge": "ref:auto:mortemart",
+      "to": "occ:212:0:object",
+      "leftEdge": "edge:text:196:1",
+      "rightEdge": "edge:text:212:0",
+      "leftWitness": "text:196:38",
+      "rightWitness": "text:212:16",
+      "leftSequence": 196,
+      "rightSequence": 212,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "occ:196:1:subject",
+        "surface": "he",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:mortemart",
+        "surface": "the group round Mortemart",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:mortemart",
+        "surface": "Mortemart immediately",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "occ:212:0:object",
+        "surface": "discussing",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "cares",
+    "right": "managed",
+    "support": 1,
+    "examples": [
+     {
+      "from": "occ:195:0:subject",
+      "bridge": "ref:auto:pierre",
+      "to": "occ:261:0:object",
+      "leftEdge": "edge:text:195:0",
+      "rightEdge": "edge:text:261:0",
+      "leftWitness": "text:195:4",
+      "rightWitness": "text:261:0",
+      "leftSequence": 195,
+      "rightSequence": 261,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "occ:195:0:subject",
+        "surface": "amid these",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:pierre",
+        "surface": "her anxiety about Pierre",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:pierre",
+        "surface": "Pierre had",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "occ:261:0:object",
+        "surface": "to start",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "go",
+    "right": "said",
+    "support": 1,
+    "examples": [
+     {
+      "from": "occ:298:2:subject",
+      "bridge": "ref:auto:prince_andrew",
+      "to": "occ:306:1:object",
+      "leftEdge": "edge:text:298:2",
+      "rightEdge": "edge:text:306:1",
+      "leftWitness": "text:298:90",
+      "rightWitness": "text:306:46",
+      "leftSequence": 298,
+      "rightSequence": 306,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "occ:298:2:subject",
+        "surface": "to",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:prince_andrew",
+        "surface": "and",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:prince_andrew",
+        "surface": "and",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "occ:306:1:object",
+        "surface": "to",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "looked",
+    "right": "said",
+    "support": 1,
+    "examples": [
+     {
+      "from": "occ:288:0:subject",
+      "bridge": "ref:auto:prince_andrew",
+      "to": "occ:306:1:object",
+      "leftEdge": "edge:text:288:0",
+      "rightEdge": "edge:text:306:1",
+      "leftWitness": "text:288:0",
+      "rightWitness": "text:306:46",
+      "leftSequence": 288,
+      "rightSequence": 306,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "occ:288:0:subject",
+        "surface": "he",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:prince_andrew",
+        "surface": "round Prince Andrew frowned again",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:prince_andrew",
+        "surface": "and",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "occ:306:1:object",
+        "surface": "to",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "taking",
+    "right": "arranged",
+    "support": 1,
+    "examples": [
+     {
+      "from": "occ:136:0:subject",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "occ:217:0:object",
+      "leftEdge": "edge:text:136:0",
+      "rightEdge": "edge:text:217:0",
+      "leftWitness": "text:136:41",
+      "rightWitness": "text:217:0",
+      "leftSequence": 136,
+      "rightSequence": 217,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "occ:136:0:subject",
+        "surface": "suddenly",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Anna Pávlovna’s hand",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Pávlovna",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "occ:217:0:object",
+        "surface": "a group round him",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "taking",
+    "right": "came",
+    "support": 1,
+    "examples": [
+     {
+      "from": "occ:136:0:subject",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "occ:268:0:object",
+      "leftEdge": "edge:text:136:0",
+      "rightEdge": "edge:text:268:0",
+      "leftWitness": "text:136:41",
+      "rightWitness": "text:268:15",
+      "leftSequence": 136,
+      "rightSequence": 268,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "occ:136:0:subject",
+        "surface": "suddenly",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Anna Pávlovna’s hand",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Pávlovna",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "occ:268:0:object",
+        "surface": "up",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "taking",
+    "right": "greeted",
+    "support": 1,
+    "examples": [
+     {
+      "from": "occ:136:0:subject",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "occ:177:0:object",
+      "leftEdge": "edge:text:136:0",
+      "rightEdge": "edge:text:177:0",
+      "leftWitness": "text:136:41",
+      "rightWitness": "text:177:0",
+      "leftSequence": 136,
+      "rightSequence": 177,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "occ:136:0:subject",
+        "surface": "suddenly",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Anna Pávlovna’s hand",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Pávlovna",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "occ:177:0:object",
+        "surface": "him",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "taking",
+    "right": "mentioned",
+    "support": 1,
+    "examples": [
+     {
+      "from": "occ:136:0:subject",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "occ:152:4:object",
+      "leftEdge": "edge:text:136:0",
+      "rightEdge": "edge:text:152:4",
+      "leftWitness": "text:136:41",
+      "rightWitness": "text:152:240",
+      "leftSequence": 136,
+      "rightSequence": 152,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "occ:136:0:subject",
+        "surface": "suddenly",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Anna Pávlovna’s hand",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Pávlovna",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "occ:152:4:object",
+        "surface": "each one’s name",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "taking",
+    "right": "moved",
+    "support": 1,
+    "examples": [
+     {
+      "from": "occ:136:0:subject",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "occ:194:4:object",
+      "leftEdge": "edge:text:136:0",
+      "rightEdge": "edge:text:194:4",
+      "leftWitness": "text:136:41",
+      "rightWitness": "text:194:250",
+      "leftSequence": 136,
+      "rightSequence": 194,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "occ:136:0:subject",
+        "surface": "suddenly",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Anna Pávlovna’s hand",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Pávlovna",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "occ:194:4:object",
+        "surface": "about",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "taking",
+    "right": "observed",
+    "support": 1,
+    "examples": [
+     {
+      "from": "occ:136:0:subject",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "occ:153:3:object",
+      "leftEdge": "edge:text:136:0",
+      "rightEdge": "edge:text:153:3",
+      "leftWitness": "text:136:41",
+      "rightWitness": "text:153:154",
+      "leftSequence": 136,
+      "rightSequence": 153,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "occ:136:0:subject",
+        "surface": "suddenly",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Anna Pávlovna’s hand",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Pávlovna",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "occ:153:3:object",
+        "surface": "these greetings",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   },
+   {
+    "left": "taking",
+    "right": "served",
+    "support": 1,
+    "examples": [
+     {
+      "from": "occ:136:0:subject",
+      "bridge": "ref:auto:anna_pavlovna_scherer",
+      "to": "occ:211:3:object",
+      "leftEdge": "edge:text:136:0",
+      "rightEdge": "edge:text:211:3",
+      "leftWitness": "text:136:41",
+      "rightWitness": "text:211:155",
+      "leftSequence": 136,
+      "rightSequence": 211,
+      "leftParticipants": [
+       {
+        "role": "subject",
+        "ref": "occ:136:0:subject",
+        "surface": "suddenly",
+        "standing": "unresolved_surface"
+       },
+       {
+        "role": "object",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Anna Pávlovna’s hand",
+        "standing": "referent"
+       }
+      ],
+      "rightParticipants": [
+       {
+        "role": "subject",
+        "ref": "ref:auto:anna_pavlovna_scherer",
+        "surface": "Pávlovna",
+        "standing": "referent"
+       },
+       {
+        "role": "object",
+        "ref": "occ:211:3:object",
+        "surface": "up",
+        "standing": "unresolved_surface"
+       }
+      ],
+      "attention": {
+       "left": null,
+       "right": null
+      }
+     }
+    ]
+   }
+  ],
+  "rhythm": {
+   "schema": "EORhythmPrior@1",
+   "id": "rhythm:War and Peace ch1-3 aligned (en)",
+   "giver": "build-work-prior.mjs — the reading of War and Peace ch1-3 aligned (en), earned as a received prior",
+   "standing": "defeasible_experience_prior",
+   "witnessed": false,
+   "admissible": false,
+   "sourceCount": 1,
+   "sourceRefs": [
+    "War and Peace ch1-3 aligned (en)"
+   ],
+   "medianGap": 5,
+   "gapCount": 92,
+   "workSupport": 1,
+   "memoryStanding": "single_work_memory",
+   "gapHistogram": [
+    {
+     "gap": 1,
+     "count": 13,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 2,
+     "count": 9,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 3,
+     "count": 13,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 4,
+     "count": 9,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 5,
+     "count": 7,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 6,
+     "count": 8,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 7,
+     "count": 4,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 8,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 9,
+     "count": 3,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 12,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 14,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 15,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 16,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 17,
+     "count": 2,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 21,
+     "count": 2,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 23,
+     "count": 2,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 26,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 34,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 40,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 48,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 55,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 56,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 64,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 67,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 70,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 72,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 91,
+     "count": 2,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 113,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 115,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    },
+    {
+     "gap": 198,
+     "count": 1,
+     "workSupport": 1,
+     "sourceRefs": [
+      "War and Peace ch1-3 aligned (en)"
+     ]
+    }
+   ],
+   "provenance": {
+    "giver": "build-work-prior.mjs — the reading of War and Peace ch1-3 aligned (en), earned as a received prior",
+    "basis": "completed_prior_readings",
+    "targetExcluded": true,
+    "rule": "pooled inter-mention gaps of admitted referents; median is a declared standard summary, not a tuned threshold",
+    "measured": "native/eval/results/narrative-rhythm-transfer.json — novel-learned rhythm scores a held-out novel at 92% of its own self-prior and ~3.3x its order-destroyed null"
+   }
+  },
+  "kinds": []
+ },
+ "basis": "reading one document earns the FULL field — relation forms, composition chemistry, return rhythm, and kinds — each offered to the next document as a received prior with a named giver; no cast crosses, referent identity never transfers"
+}
