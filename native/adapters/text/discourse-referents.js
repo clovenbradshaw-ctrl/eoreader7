@@ -1,25 +1,48 @@
+import { createHash } from "node:crypto";
+
+// THE-ADDRESS.md applied (2026-09-13). `ref-occ:` ids name OCCURRENCES —
+// content, so A4: each id is the SHA-256 of (encounterRef + exactSurface +
+// canonicalSurface + the discourse byte offset). Same occurrence re-read
+// dedups; different content never collides. `discourse-link:` is an ACT over
+// two occurrences — A5: hashed over (left + right + kind). The
+// `ref:discourse:` projection names a BEING — A2, birth-named — left
+// untouched.
+const sha256hex = (text) => createHash("sha256").update(String(text ?? "")).digest("hex").slice(0, 32);
+
 const WORD = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
 const norm = (x) => (String(x ?? "").toLowerCase().match(WORD) ?? []).join(" ");
 const slug = (x) => norm(x).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
 
-const descriptor = ({ encounterRef, offset, exactSurface, canonicalSurface, determination = "definite", basis }) => Object.freeze({
-  schema: "EOReferentOccurrence@1",
-  id: `ref-occ:${encounterRef}:discourse:${offset}:${slug(exactSurface)}`,
-  surface: exactSurface,
-  canonicalSurface: canonicalSurface ?? norm(exactSurface),
-  exactSurface,
-  determination,
-  role: null,
-  encounterRef,
-  edge: null,
-  relation: null,
-  standing: "unresolved_identity",
-  provenance: Object.freeze({ giver: "text/discourse-referents", basis }),
-});
+const descriptor = ({ encounterRef, offset, exactSurface, canonicalSurface, determination = "definite", basis }) => {
+  const canon = canonicalSurface ?? norm(exactSurface);
+  return Object.freeze({
+    schema: "EOReferentOccurrence@1",
+    // A4 (THE-ADDRESS.md): content occurrence — the id hashes the
+    // occurrence's own content (encounter + exact surface + canonical
+    // surface + the discourse byte offset), so a re-read of the same
+    // occurrence at the same position dedups and nothing else collides.
+    id: sha256hex(`ref-occ|enc:${encounterRef ?? "unknown"}|discourse|off:${offset}|exact:${exactSurface}|canon:${canon}`),
+    surface: exactSurface,
+    canonicalSurface: canon,
+    exactSurface,
+    determination,
+    role: null,
+    encounterRef,
+    edge: null,
+    relation: null,
+    standing: "unresolved_identity",
+    provenance: Object.freeze({ giver: "text/discourse-referents", basis }),
+  });
+};
 
 const bind = ({ left, right, witness, kind, basis }) => Object.freeze({
   schema: "EODiscourseIdentityLink@1",
-  id: `discourse-link:${left.id}:${right.id}`,
+  // A5 (THE-ADDRESS.md): a link is an ACT over two occurrences — hashed over
+  // (left + right + kind), so the same link under the same kind dedups and
+  // a different pair is a different link. The occurrences' own ids are
+  // content hashes, so the link's content is two content addresses + the
+  // label.
+  id: sha256hex(`discourse-link|left:${left.id}|right:${right.id}|kind:${kind}`),
   leftOccurrence: left.id,
   rightOccurrence: right.id,
   witness,

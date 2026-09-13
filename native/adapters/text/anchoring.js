@@ -2,6 +2,10 @@
 // occurrence to an already-admitted referent by the SAME one-hop activation
 // recall pronouns.js already trusts for referent identity.
 //
+// THE-ADDRESS.md applied (2026-09-13): `anchor:` and `definite-binding:` are
+// ACTS under a reading, so A5 — hashed over the binding's own content (no
+// recipe is in scope here); `ref:desc:` names a BEING — A2, left untouched.
+//
 // This is the generalization the lineage already recorded ("a surface span
 // is never the thing with a part of speech — the referent is"): pronouns.js
 // resolves "he/she"; this file resolves "the creature" / "my father" — the
@@ -32,7 +36,10 @@
 // applied: a descriptor is not reliably gendered, and a wrong hard filter
 // is worse than none — disclosed, not hidden.
 
+import { createHash } from "node:crypto";
 import { tokens, codeOf, recall, encodeFrame } from "../../memory/activation.js";
+
+const sha256hex = (text) => createHash("sha256").update(String(text ?? "")).digest("hex").slice(0, 32);
 
 const DEFAULT_COMPLETION = 0.5;
 const DEFAULT_TOP_EDGES = 6;
@@ -269,9 +276,15 @@ export function createDescriptorAnchoring({
             : `top candidate leads the runner-up by only ${(margin * 100).toFixed(1)}%, short of minMargin (${(minMargin * 100).toFixed(1)}%)` });
           continue;
         }
+        // A5 (THE-ADDRESS.md): the anchor is an act under a reading — its
+        // id and witness hash the binding's own content (the sentence it was
+        // read from, its byte offset, the descriptor's canonical surface and
+        // head, its determination, and the referent it resolved to). Same
+        // binding re-read dedups; a different resolution is a different act.
+        const anchorContent = `anchor|text:${sentence.text}|off:${sentence.offset}|canon:${occ.canonicalSurface}|head:${(occ.canonicalSurface ?? "").split(/\s+/).at(-1)}|det:${occ.determination}|ref:${topRef}`;
         evidence.push(Object.freeze({
           schema: "EOAnchorEvidence@1",
-          id: `anchor:${sentence.order}:${slug(occ.canonicalSurface)}`,
+          id: sha256hex(anchorContent),
           descriptor: occ.canonicalSurface,
           determination: occ.determination,
           occurrenceRef: occ.id ?? null,
@@ -288,7 +301,7 @@ export function createDescriptorAnchoring({
           bornMass: born ? judgedTop : undefined,
           margin,
           sentenceOrder: sentence.order,
-          witness: `text:${sentence.order}:anchor:${slug(occ.canonicalSurface)}`,
+          witness: sha256hex(`${anchorContent}|wit`),
           provenance: Object.freeze({
             giver: "text/anchoring::createDescriptorAnchoring",
             tier: "engine",
@@ -364,9 +377,13 @@ export function identityEvidenceFromAnchors(anchors = [], fold = {}) {
 export function anchorAsDefiniteBinding(anchor) {
   const occurrence = anchor?.participantOccurrence ?? anchor?.occurrenceRef;
   if (anchor?.schema !== "EOAnchorEvidence@1" || !occurrence || !anchor.referent) return null;
+  // A5 (THE-ADDRESS.md): the binding is an ACT — the same occurrence bound to
+  // the same referent by the same anchor is one binding and must dedup, so
+  // its id is a content hash of (occurrence + referent + the anchor that
+  // made it), never a position or an index.
   return Object.freeze({
     schema: "EODefiniteBinding@1",
-    id: `definite-binding:${anchor.id}`,
+    id: sha256hex(`definite-binding|occ:${occurrence}|ref:${anchor.referent}|anchor:${anchor.id}`),
     occurrence,
     referent: anchor.referent,
     surface: anchor.descriptor,

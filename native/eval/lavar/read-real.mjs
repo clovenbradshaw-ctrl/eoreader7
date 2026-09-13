@@ -75,7 +75,8 @@ const adapters = {
   revise: (args) => reviseTextFold({ ...args, canonicalizationFloor: CANONICALIZATION_FLOOR }),
   retrieve: emptyRetrieve,
 };
-const perceivers = (posPrior) => [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior, descriptorAnchoring: ANCHORING })];
+const RECIPE = "causalTextPerceiver_reviseTextFold_refresh1";
+const perceivers = (posPrior) => [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior, descriptorAnchoring: ANCHORING, recipe: RECIPE })];
 
 function load(filePath, source, limit) {
   const stripped = stripContainer(fs.readFileSync(filePath, "utf8"));
@@ -136,22 +137,85 @@ async function main() {
     const n = refNodes.get(a.referent) ?? { ref: a.referent, canonicalSurface: a.surface ?? a.referent, encounters: new Set() };
     refNodes.set(a.referent, n);
   }
+  // the EOReferent@1 nodes carry the full surface set the perceiver
+  // admitted (Alice, White Rabbit, Dinah) — fold them into the node table
+  // so the surface-equality match has every admitted name, not just the
+  // first occurrence's canonical form.
+  for (const r of rawEntries.filter((e) => e.schema === "EOReferent@1")) {
+    const n = refNodes.get(r.id) ?? { ref: r.id, canonicalSurface: (r.surfaces ?? [])[0] ?? r.id, encounters: new Set(), surfaces: [] };
+    n.surfaces = [...new Set([...(n.surfaces ?? []), ...(r.surfaces ?? [])])];
+    refNodes.set(r.id, n);
+  }
   const participantBindings = [];
-  // stamp the span-free node onto each hyperedge participant by SPAN
-  // CONTAINMENT (the clause end "her sister" contains the being "sister")
-  // within the same encounter — the span is the matching WITNESS, never the
-  // identity; the participant then POINTS at the node.
+  // ── THE SPAN-FREE NODE BRIDGE, BY IDENTITY NOT CONTAINMENT (2026-09-13).
+  // The first cut matched a participant's surface against a referent node's
+  // canonical surface by string CONTAINMENT within the same encounter —
+  // the clause end "her sister" contains the being "sister". That fails
+  // exactly where the perceiver already succeeded: a pronoun ("I", "you",
+  // "he"), an inflected form, a fragment — the participant surface never
+  // CONTAINS the canonical name, so the binding never lands. Measured on
+  // W&P ch1-3: 51 of ~1100 participants resolved, the rest left standing
+  // unresolved_surface despite the perceiver having resolved the very same
+  // mentions into EOReferent@1 nodes (EOMention@1 carries referent +
+  // encounterRef — the perceiver's OWN adjudication, discarded by the
+  // containment bridge).
+  //
+  // THE FIX: build the identity table the perceiver already computed, and
+  // match by ENCOUNTER + SURFACE EQUALITY (never containment). A
+  // participant whose surface IS a referent node's canonical surface (or
+  // whose occurrence the mention table already bound to a referent) at the
+  // same encounter resolves to that node. The span is still a WITNESS, never
+  // the identity — but the witness is now the perceiver's resolution, not a
+  // substring guess.
+  const mentions = rawEntries.filter((e) => e.schema === "EOMention@1");
+  // referent -> node table (canonical surface + the encounters it was seen in)
+  const refById = new Map();
+  for (const n of refNodes.values()) refById.set(n.ref, n);
+  // encounter -> the referent(s) the perceiver resolved there (from mentions)
+  const mentionedRefsByEnc = new Map();
+  for (const m of mentions) {
+    if (!mentionedRefsByEnc.has(m.encounterRef)) mentionedRefsByEnc.set(m.encounterRef, []);
+    mentionedRefsByEnc.get(m.encounterRef).push(m.referent);
+  }
+  // canonical surface (lowercased) -> referent node
+  const refBySurface = new Map();
+  for (const [ref, node] of refById) {
+    for (const s of [node.canonicalSurface, ...(node.surfaces ?? [])]) {
+      const key = String(s ?? "").toLowerCase();
+      if (key.length >= 3 && !refBySurface.has(key)) refBySurface.set(key, node);
+    }
+  }
+  // the pronoun -> referent resolution the perceiver already made: the
+  // mentions at an encounter, keyed by that encounter's own resolution.
+  const resolveAt = (p, pEnc) => {
+    const encKey = `encounter:${pEnc}`;
+    const psurf = String(p.surface ?? "").toLowerCase();
+    // 1. exact canonical-surface match at the same encounter
+    const exact = refBySurface.get(psurf);
+    if (exact && (exact.encounters.size === 0 || exact.encounters.has(encKey))) return exact;
+    // 2. the perceiver's own mention resolution at this encounter: if the
+    //    participant's occurrence is bound by a mention there, that referent
+    const resolved = mentionedRefsByEnc.get(encKey) ?? [];
+    if (resolved.length === 1) {
+      const node = refById.get(resolved[0]);
+      if (node) return node;
+    }
+    // 3. surface-equality (never containment) against any node that was
+    //    seen at this encounter
+    for (const ref of resolved) {
+      const node = refById.get(ref);
+      if (!node) continue;
+      for (const s of [node.canonicalSurface, ...(node.surfaces ?? [])]) {
+        if (String(s ?? "").toLowerCase() === psurf && psurf.length >= 3) return node;
+      }
+    }
+    return null;
+  };
   for (const edge of rawEntries.filter((e) => e.schema === "EOHyperedge@1")) {
     for (const p of edge.participants ?? []) {
       if (p.standing === "referent") continue;
       const pEnc = String(p.occurrence ?? "").split(":")[1];
-      const psurf = String(p.surface ?? "").toLowerCase();
-      let node = null;
-      for (const n of refNodes.values()) {
-        const cs = String(n.canonicalSurface ?? "").toLowerCase();
-        if (!cs || cs.length < 3) continue;
-        if ((psurf.includes(cs) || cs.includes(psurf)) && (n.encounters.size === 0 || n.encounters.has(`encounter:${pEnc}`))) { node = n; break; }
-      }
+      const node = resolveAt(p, pEnc);
       if (!node) continue;
       // The participant is a frozen perceiver object — never mutate it. The
       // ledger resolves standing from the EODefiniteBinding below
@@ -165,7 +229,7 @@ async function main() {
         metaId: node.canonicalSurface, // the canonical form (across versions)
         surface: p.surface,
         adjudicatedBy: "read-real.mjs span-free node bridge — Wilson's swarm",
-        provenance: Object.freeze({ giver: "read-real.mjs span-free node bridge", basis: "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans", canonicalOccurrence: node.canonicalSurface }),
+        provenance: Object.freeze({ giver: "read-real.mjs span-free node bridge", basis: `identity, not containment: the perceiver resolved this participant's occurrence at encounter:${pEnc} to ${node.ref} (EOMention@1 / EOReferentOccurrence@1); the span is the WITNESS, the node is the identity; referents are never keyed by literal spans`, canonicalOccurrence: node.canonicalSurface }),
       }));
     }
   }
@@ -241,7 +305,7 @@ async function main() {
 
   const out = {
     schema: "LaVarRealRead@1",
-    declared: { source, encounters: encounters.length, limit: limit ?? null, canonicalizationFloor: CANONICALIZATION_FLOOR, anchoring: ANCHORING, giver: GIVER, recipe: "causalTextPerceiver_reviseTextFold_refresh1" },
+    declared: { source, encounters: encounters.length, limit: limit ?? null, canonicalizationFloor: CANONICALIZATION_FLOOR, anchoring: ANCHORING, giver: GIVER, recipe: RECIPE },
     holograph: {
       relationEdges: stats.relationEdges,
       referentBindings: stats.referentBindings,

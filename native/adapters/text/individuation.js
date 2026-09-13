@@ -1,9 +1,21 @@
+import { createHash } from "node:crypto";
 import {
   ANAPHORIC_PRONOUNS,
   DEFINITE_DETERMINERS,
   INDEFINITE_DETERMINERS,
   THIRD_PERSON_SINGULAR,
 } from "./priors.js";
+
+// THE-ADDRESS.md applied (2026-09-13). `ref-occ:` ids name OCCURRENCES —
+// content, so A4: each id is the SHA-256 of the occurrence's own content
+// (encounterRef + canonicalSurface + head + determination + role + position).
+// Same occurrence re-read dedups; different content never collides; the
+// encounterRef stays IN the content so two sources never collide. The
+// `identity:descriptor:` hypothesis and `ref:descriptor:` projection are
+// BEINGS — A2, birth-named — left untouched.
+const sha256hex = (text) => createHash("sha256").update(String(text ?? "")).digest("hex").slice(0, 32);
+const occurrenceContent = ({ encounterRef, canonicalSurface, head, determination, role, index }) =>
+  `ref-occ|enc:${encounterRef ?? "unknown"}|canon:${canonicalSurface}|head:${head}|det:${determination}|role:${role ?? ""}|at:${index ?? ""}`;
 
 const WORD = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
 const norm = (x) => (String(x ?? "").toLowerCase().match(WORD) ?? []).join(" ");
@@ -31,15 +43,21 @@ const determinationOf = (first) => DEFINITE_DETERMINERS.has(first)
       ? "possessive"
       : "bare";
 
-const occurrence = ({ id, surface, determination, encounterRef, role = null, edge = null, relation = null, giver, basis }) => {
+const occurrence = ({ surface, determination, encounterRef, role = null, edge = null, relation = null, giver, basis, at = "" }) => {
   const ws = words(surface);
   if (!ws.length) return null;
+  const canonicalSurface = ws.join(" ");
+  const head = ws[ws.length - 1];
   return Object.freeze({
     schema: "EOReferentOccurrence@1",
-    id,
+    // A4 (THE-ADDRESS.md): the occurrence's id is a content hash of its own
+    // content — encounterRef + canonicalSurface + head + determination +
+    // role + the byte/discriminator position — never a sequence number.
+    // Same occurrence re-read dedups; different content never collides.
+    id: sha256hex(occurrenceContent({ encounterRef, canonicalSurface, head, determination, role, index: at })),
     surface,
-    canonicalSurface: ws.join(" "),
-    head: ws[ws.length - 1],
+    canonicalSurface,
+    head,
     determination,
     role,
     encounterRef,
@@ -65,13 +83,13 @@ export function descriptorOccurrence(participant, { encounterRef = null, edge = 
   if (determination === "bare") return null;
 
   return occurrence({
-    id: `ref-occ:${encounterRef ?? "unknown"}:${participant.occurrence ?? slug(surface)}`,
     surface,
     determination,
     role: participant.role ?? null,
     encounterRef,
     edge: edge?.id ?? null,
     relation: edge?.relation ?? null,
+    at: participant.occurrence ?? slug(surface),
     giver: "text/individuation::descriptorOccurrence",
     basis: "determiner-marked unresolved relation participant",
   });
@@ -90,20 +108,18 @@ export function directDescriptorOccurrences(text, { encounterRef = "unknown" } =
     .join("|");
   const re = new RegExp(`\\b(${determinerAlternation})\\s+([\\p{L}\\p{N}]+(?:['’][\\p{L}\\p{N}]+)*)`, "giu");
   let m;
-  let ordinal = 0;
   while ((m = re.exec(source))) {
     const surface = `${m[1]} ${m[2]}`;
     const ws = words(surface);
     if (containsPronoun([ws[1]])) continue;
     out.push(occurrence({
-      id: `ref-occ:${encounterRef}:direct:${ordinal}:${m.index}`,
       surface,
       determination: determinationOf(ws[0]),
       encounterRef,
+      at: `direct:${m.index}`,
       giver: "text/individuation::directDescriptorOccurrences",
       basis: "closed-class determiner plus witnessed lexical form",
     }));
-    ordinal += 1;
   }
   return Object.freeze(out.filter(Boolean));
 }

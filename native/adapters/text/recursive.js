@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { tokenize, buildFrequencyTable, functionWordSet } from "./material.js";
 import { splitSentences } from "./spans.js";
 import { createSurfaceEvidence, accumulateSurfaceEvidence, surfacesFromEvidence, discoverReferents, diaNorm } from "./surfaces.js";
@@ -9,6 +10,7 @@ import { createDescriptorAnchoring } from "./anchoring.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
 
 const slug = (value) => diaNorm(value).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
+const sha256hex = (text) => createHash("sha256").update(String(text ?? "")).digest("hex").slice(0, 32);
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const WORD_RE = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
 
@@ -160,7 +162,10 @@ function resolveParticipant(surface, matcher, sequencePosition, relationIndex, r
     return { ref: `identity:poss:${noun}:${pm[1].toLowerCase()}`, role, standing: "hypothesis", surface, resolution: "possessive_holding", possessiveAnchor: pm[1].toLowerCase() };
   }
   const lexical = slug(surface) || "unknown";
-  const occurrence = `occ:${sequencePosition}:${relationIndex}:${role}`;
+  // A4 (THE-ADDRESS.md): an unresolved participant occurrence is content —
+  // its id hashes the surface it wears and the slot it fills, never a bare
+  // position that would collide across readings and across surfaces.
+  const occurrence = sha256hex(`occ|surface:${surface}|seq:${sequencePosition}|rel:${relationIndex}|role:${role}`);
   return {
     ref: occurrence,
     occurrence,
@@ -199,10 +204,9 @@ function relationStanding(verb, posPrior) {
   });
 }
 
-function lexicalNounOccurrences(text, sequencePosition, encounterRef, posPrior) {
+function lexicalNounOccurrences(text, sequencePosition, encounterRef, posPrior, source) {
   if (!posPrior?.forms) return [];
   const out = [];
-  let ordinal = 0;
   for (const match of text.matchAll(WORD_RE)) {
     const raw = match[0];
     const form = diaNorm(raw);
@@ -212,18 +216,21 @@ function lexicalNounOccurrences(text, sequencePosition, encounterRef, posPrior) 
     const nounShare = total ? (counts.NOUN ?? 0) / total : 0;
     if (nounShare <= 0.5) continue;
     const surfaceKey = `surface:${slug(raw) || "unknown"}`;
+    // A4 (THE-ADDRESS.md): a lexical occurrence is content — the id hashes
+    // the source, the byte span and the surface itself, so a re-read of the
+    // same occurrence dedups and nothing else collides.
+    const content = `lex|src:${source ?? ""}|seq:${sequencePosition}|off:${match.index}|surface:${raw}`;
     out.push(Object.freeze({
       schema: "EOLexicalOccurrence@1",
-      id: `lex:${sequencePosition}:${ordinal}`,
+      id: sha256hex(content),
       surfaceKey,
       surface: raw,
       upos: "NOUN",
       standing: "occurrence",
       encounterRef,
       offset: match.index,
-      witness: `text:${sequencePosition}:${match.index}`,
+      witness: sha256hex(`${content}|wit`),
     }));
-    ordinal += 1;
   }
   return out;
 }
@@ -243,24 +250,26 @@ function taskTargetSurfaceKeys(orientation = {}) {
  * This emits only occurrence evidence. It does NOT promote the surface to a
  * referent or assert that two occurrences corefer.
  */
-function taskTargetOccurrences(text, sequencePosition, encounterRef, orientation, alreadySeen = new Set()) {
+function taskTargetOccurrences(text, sequencePosition, encounterRef, orientation, alreadySeen = new Set(), source = null) {
   const out = [];
-  let ordinal = 0;
   for (const surfaceKey of taskTargetSurfaceKeys(orientation)) {
     if (alreadySeen.has(surfaceKey)) continue;
     const surface = surfaceKey.slice("surface:".length).replace(/_/g, " ");
     if (!surface || !containsSurface(text, surface)) continue;
+    // A4 (THE-ADDRESS.md): a task-nominated occurrence is content — the id
+    // hashes the source, the encounter and the targeted surface, so the same
+    // targeted occurrence re-read dedups and nothing else collides.
+    const content = `task-target|src:${source ?? ""}|seq:${sequencePosition}|surface:${surfaceKey}`;
     out.push(Object.freeze({
       schema: "EOTaskTargetOccurrence@1",
-      id: `task-target:${sequencePosition}:${ordinal}`,
+      id: sha256hex(content),
       surfaceKey,
       surface,
       standing: "task_nominated_occurrence",
       encounterRef,
-      witness: `text:${sequencePosition}:task-target:${ordinal}`,
+      witness: sha256hex(`${content}|wit`),
       provenance: Object.freeze({ giver: "active-reading-task", basis: "targeted recurrence check" }),
     }));
-    ordinal += 1;
   }
   return out;
 }
@@ -355,7 +364,7 @@ function witnessRelatedPairs(store, sentences, refs, matcher = null) {
   }
 }
 
-export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 1, posPrior = null, descriptorAnchoring = null, addresses = "birth" } = {}) {
+export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 1, posPrior = null, descriptorAnchoring = null, addresses = "birth", idFactory = null, recipe = null } = {}) {
   // `refreshEvery` (2026-09-09): 1 is the default now — batching is an
   // engineering compromise, never a model of how reading works ("people
   // don't read in 25-sentence batches" — user direction, verbatim, the
@@ -405,6 +414,21 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
   if (addresses !== "founder" && addresses !== "birth") throw new TypeError('addresses is "founder" or "birth"');
   if (!Number.isInteger(refreshEvery) || refreshEvery < 1) throw new TypeError("refreshEvery must be a positive integer");
   if (posPrior && (posPrior.schema !== "POSPrior@1" || !posPrior.provenance?.source)) throw new TypeError("posPrior must be a giver-named POSPrior@1");
+  // CONTENT-ADDRESSED IDENTITY (2026-09-13, S114 — the git object model,
+  // GitHub-inspired). The perceiver's edge ids were position-derived and
+  // source-blind (`edge:text:2:0`): the same id in War and Peace and in
+  // Alice in Wonderland, so the hyperlexicon's accumulator — which unions
+  // witnesses by id — read two books' chains as ONE chain sharing edges.
+  // Measured: 87 edge-id / 14 witness collisions between the two books.
+  // The identity is now a content hash, exactly as git names objects:
+  // the SHA-256 of the edge's own content (source, relation, subject,
+  // object, offset). SAME content -> SAME id (a re-read of the same
+  // clause dedups, so the fold's upsert-by-id is correct); DIFFERENT
+  // content -> different id (no collision is possible); REPRODUCIBLE (no
+  // randomness — a test can pin the id). A caller may pass `idFactory`
+  // for a different identity scheme; the default is content-addressing,
+  // and the perceiver never falls back to a position-derived id silently.
+  const newId = (content) => (idFactory && typeof idFactory === "function" ? idFactory(content ?? "") : content ? sha256hex(content) : sha256hex(`${Date.now()}:${Math.random()}`));
   // OPT-IN: descriptor anchoring (one-hop activation recall binding
   // definite/possessive descriptors to the admitted cast — anchoring.js).
   // Off by default so every existing caller is byte-identical; when
@@ -541,16 +565,35 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       if (priorSentences.length === 0 || priorSentences.length % refreshEvery === 0) refresh();
 
       const relations = extractRelations(encounter.material, { verbs: cache.verbs, functionWords: cache.closed });
-      const edges = relations.map((rel, index) => hyperedge({
-        id: `edge:text:${sequencePosition}:${index}`,
-        relation: rel.verb,
-        participants: [
-          resolveParticipant(rel.subject, cache.matcher, sequencePosition, index, "subject"),
-          resolveParticipant(rel.object, cache.matcher, sequencePosition, index, "object"),
-        ],
-        witness: `text:${sequencePosition}:${rel.offset}`,
-        scope: { sequencePosition, offset: rel.offset },
-        eo: { op: "CON", grain: "Figure" },
+      // GUID IDENTITY (2026-09-13, S114): a GUID edge id and witness, so
+      // the identity is collision-proof across readings. The hyperlexicon's
+      // accumulator unions witnesses by id; a position-derived id collided
+      // across books (measured: 87 edge-id / 14 witness collisions between
+      // W&P and Alice). The source is still named on the edge for
+      // provenance; the identity is never derived from it or position.
+      const sourceScope = String(encounter.source ?? "text");
+      const edges = relations.map((rel, index) => {
+        // content-addressed: the edge's own content (source, relation,
+        // subject, object, offset) IS its identity — same content dedups,
+        // different content never collides (S114, the git object model).
+        // A5 (THE-ADDRESS.md): an ACT's hash covers the act AND the recipe
+        // under which it was performed — two instruments, two hashes, never
+        // a collision to a shared bytes hash. The recipe is declared by the
+        // assembly (read-real's `recipe`), so the same clause read under
+        // two recipes is two acts.
+        const content = `edge|src:${sourceScope}|rel:${rel.verb}|subj:${rel.subject}|obj:${rel.object}|off:${rel.offset}|recipe:${recipe ?? ""}`;
+        const eid = newId(content);
+        const ewit = newId(`${content}|wit`);
+        return hyperedge({
+          id: eid,
+          relation: rel.verb,
+          participants: [
+            resolveParticipant(rel.subject, cache.matcher, sequencePosition, index, "subject"),
+            resolveParticipant(rel.object, cache.matcher, sequencePosition, index, "object"),
+          ],
+          witness: ewit,
+          scope: { sequencePosition, offset: rel.offset },
+          eo: { op: "CON", grain: "Figure" },
         // compositionStanding: whether this relation FORM is eligible to be
         // carried as portable experience or composed with another relation.
         // experience-priors.js reads exactly this field ("auxiliaries/noise
@@ -564,7 +607,8 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         // ineligible; a form ABSENT from the prior stays eligible, the same
         // absent-is-a-gap-not-a-mismatch polarity that gate already holds.
         meta: { polarity: rel.polarity, source: encounter.source, encounterRef, compositionStanding: relationStanding(rel.verb, posPrior) },
-      }));
+        });
+      });
 
       const seenReferents = currentReferents(encounter.material, cache.matcher);
       // A merge is TESTIMONY, not an inference: it arrives with the surface
@@ -577,9 +621,14 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         const key = `${m.kept}|${[...(m.folded ?? [])].sort().join("+")}`;
         if (emittedMerges.has(key) || !m.kept || !(m.folded ?? []).length) continue;
         emittedMerges.add(key);
+        // A5 (THE-ADDRESS.md): a merge is an ACT over two birth-named beings —
+        // its id hashes the act (kept + folded + the surface that witnessed
+        // it) under the recipe this reading performed. Same merge dedups; two
+        // instruments read two recipes and are two acts.
+        const mergeContent = `merge|kept:${m.kept}|folded:${[...(m.folded ?? [])].sort().join("+")}|wit:${m.witness ?? ""}|recipe:${recipe ?? ""}`;
         mergeEntries.push(Object.freeze({
           schema: "EOReferentMerge@1",
-          id: `merge:${sequencePosition}:${slug(m.kept)}:${(m.folded ?? []).map(slug).join("+")}`,
+          id: newId(mergeContent),
           kept: m.kept,
           folded: Object.freeze([...(m.folded ?? [])]),
           witness: m.witness ?? null,
@@ -591,9 +640,13 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         const key = `${r.from}|${r.to}|${r.surface}`;
         if (emittedMerges.has(`reassignment:${key}`) || !r.from || !r.to || r.from === r.to) continue;
         emittedMerges.add(`reassignment:${key}`);
+        // A5 (THE-ADDRESS.md): a reassignment is an ACT over two birth-named
+        // beings — its id hashes the act (from + to + the surface that
+        // witnessed it) under the recipe this reading performed.
+        const reassignmentContent = `reassignment|from:${r.from}|to:${r.to}|surface:${r.surface ?? ""}|recipe:${recipe ?? ""}`;
         mergeEntries.push(Object.freeze({
           schema: "EOReferentReassignment@1",
-          id: `reassignment:${sequencePosition}:${slug(r.from)}:${slug(r.to)}`,
+          id: newId(reassignmentContent),
           from: r.from,
           to: r.to,
           surface: r.surface ?? null,
@@ -601,18 +654,25 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
           provenance: { giver: "surfaces/discoverReferents", tier: "engine", basis: r.basis },
         }));
       }
-      const mentions = seenReferents.map((ref) => Object.freeze({
-        schema: "EOMention@1",
-        id: `mention:${sequencePosition}:${slug(ref.id)}`,
-        referent: ref.id,
-        encounterRef,
-        anchor: encounter.anchor,
-        witness: `text:${sequencePosition}`,
-        source: encounter.source,
-      }));
-      const lexicalOccurrences = lexicalNounOccurrences(encounter.material, sequencePosition, encounterRef, posPrior);
+      const mentions = seenReferents.map((ref) => {
+        // A4 (THE-ADDRESS.md): a mention is a content occurrence — the being
+        // (birth-named) as it appeared in this source's encounter. The id
+        // hashes that content (source + encounter + referent), so the same
+        // being read again in the same place dedups and nothing else collides.
+        const mentionContent = `mention|src:${sourceScope}|enc:${encounterRef}|ref:${ref.id}`;
+        return Object.freeze({
+          schema: "EOMention@1",
+          id: newId(mentionContent),
+          referent: ref.id,
+          encounterRef,
+          anchor: encounter.anchor,
+          witness: newId(`${mentionContent}|wit`),
+          source: encounter.source,
+        });
+      });
+      const lexicalOccurrences = lexicalNounOccurrences(encounter.material, sequencePosition, encounterRef, posPrior, sourceScope);
       const lexicalKeys = new Set(lexicalOccurrences.map((occ) => occ.surfaceKey));
-      const targetedOccurrences = taskTargetOccurrences(encounter.material, sequencePosition, encounterRef, orientation, lexicalKeys);
+      const targetedOccurrences = taskTargetOccurrences(encounter.material, sequencePosition, encounterRef, orientation, lexicalKeys, sourceScope);
       const activeIds = new Set(seenReferents.map((ref) => ref.id));
       for (const edge of edges) for (const participant of edge.participants ?? []) if (participant.standing === "referent") activeIds.add(participant.ref);
       const gaps = cache.gaps
