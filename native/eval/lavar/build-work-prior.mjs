@@ -49,7 +49,10 @@ const giver = rest.find((a) => a.startsWith("--giver="))?.replace("--giver=", ""
 if (!foldPath || !outPath) throw new TypeError("usage: build-work-prior.mjs <read-real-fold.json> <out.json> [--source=<name>] [--giver=<who>]");
 
 const fold = JSON.parse(fs.readFileSync(foldPath, "utf8"));
-const graphEntries = fold.graphEntries ?? [];
+// read-real writes the full entry set (with bindings) to holograph.
+// graphEntries; a raw fold carries graphEntries at the top level. Read
+// both — the identity bridge's bindings live in the holograph shape.
+const graphEntries = fold.graphEntries ?? fold.holograph?.graphEntries ?? [];
 
 // THE READING SHAPE deriveExperiencePrior/deriveRhythmPrior expect: a
 // completed reading with a fold of EOHyperedge@1 entries.

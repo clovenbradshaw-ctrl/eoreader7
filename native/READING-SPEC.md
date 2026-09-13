@@ -5316,3 +5316,23 @@ The mechanism is standing law already: `organs/witness-sentences.js` runs the se
 3. **The perceiver must stamp the referent node onto each edge participant at binding time.** A driver-level bridge cannot join clause-end surfaces to beings (measured: 4 of 264 edges resolvable by surface containment; 0 chains). The seam belongs in `createCausalTextPerceiver`: when the individuation layer binds a being, the EOHyperedge participant whose occurrence it covers gets `standing: "referent"` + the span-free node id — ends point at referents, never strings (LAVAR §13), now enforced inside the assembly itself.
 
 **Files.** `native/eval/lavar/read-real.mjs` (the bridge + the possessive holdings, at the driver limit). The upstream perceiver stamping is named, scoped, unbuilt.
+
+## S114 — An address names what it names: content at the byte rung, birth at the being rung, act+recipe at the act rung (2026-09-13)
+
+**Generality:** universal to every text reader (native + legacy + the swarm's variants). The governing spec is `native/docs/THE-ADDRESS.md` (standing: nomination); this is the enforceable core.
+
+**The law, three clauses — the carve-up, never blanket hashing:**
+
+1. **A byte/occurrence address is a hash of its content (A4).** The Merkle floor is kept. An occurrence (`occ:`, `lex:`, `ref-occ:`, `mention:`) is content-addressed: SHA-256 over (source + surface + slot + position). SAME content dedups (a re-read of the same clause produces the same id, so the fold's upsert-by-id stays correct); DIFFERENT content never collides. Measured defect this closes: the perceiver's edge ids were source-blind position (`edge:text:2:0`) — the same id in War and Peace and in Alice in Wonderland, so the hyperlexicon's accumulator (which unions witnesses by id) read two books' chains as ONE chain sharing edges. 87 edge-id / 14 witness collisions between the two books.
+
+2. **A being's address is a birth, never a spelling (A2).** Content is permitted for bytes (A4) and NEVER for referents. `ref:auto:*`, `ref:desc:*`, `identity:*`, `ref:discourse:*` stay founder/birth-named — identity is by consequence, never content (the `sameLemma("withdraws","retreated") = false` refutation stands). The sub-agent that converted the id layer decided each id by reading what it NAMES (a being vs an occurrence), never by pattern.
+
+3. **An act's address covers the act AND its recipe (A5).** An edge is an act under a reading: its hash folds in the assembly's `recipe`, so two instruments produce two hashes — never a collision to a shared bytes hash. `merge:`/`reassignment:`/`definite-binding:`/`discourse-link:` are acts over birth ids, hashed with recipe.
+
+**The cross-work nomination rule (the enw rule — earned, not witnessed):** a single independent chain site NOMINATES (`minWitnesses: 1`); the hyperlexicon accumulator's cross-reading union corroborates to ≥2. The old within-read `minWitnesses: 2` threw away single-witness candidates before the accumulator could give them a second reading's witness — measured: W&P 18-23 pair types, every one at support 1, zero candidates ever left a single read. Nomination is never licensing (the grain law).
+
+**The bridge rules:** a span-free bridge binds a participant only to a genuine `ref:auto:` being, never to `identity:poss:` holdings or bare surfaces (measured: without the gate 28 "resolved refs" of which 3 were cast; with it 90/94). Every participant carries a content-addressed `occurrence` — a participant without one can never be bound (measured: 82 bindings, 0 chain sites).
+
+**The one-being structural fact (a fact about the material, never a defect to tune):** a chapter whose every resolvable edge is one being (AIW ch1: all Alice→Alice) forms no shared-bridge chains by construction (`chainOf` refuses `subject.id === object.id`). Cross-work needs multi-being material.
+
+**Files.** `native/adapters/text/recursive.js` (content-addressed ids, occurrence on every participant, recipe), `native/eval/lavar/read-real.mjs` (the identity bridge + cast-only gate), `native/kernel/hyperlexicon.js` (the accumulator that unions witnesses across readings), `native/docs/THE-ADDRESS.md` (the full spec).

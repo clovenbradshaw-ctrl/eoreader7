@@ -121,12 +121,21 @@ function referentsInSpan(span, matcher) {
 }
 
 function resolveParticipant(surface, matcher, sequencePosition, relationIndex, role) {
+  // EVERY participant carries an occurrence — content-addressed (A4,
+  // THE-ADDRESS.md): the identity hashes the surface, the slot, and the
+  // reading's position, never a bare slot that would collide across
+  // readings. The ledger resolves standing by matching a binding's
+  // `occurrence` to the participant's — a participant without one can
+  // never be bound (measured: 82 bindings created, 0 chain sites formed,
+  // because the referent/hypothesis branches returned no occurrence and
+  // the ledger's resolveEndpoint looked one up and found none).
+  const occurrence = sha256hex(`occ|surface:${surface}|seq:${sequencePosition}|rel:${relationIndex}|role:${role}`);
   const exact = matcher.map.get(diaNorm(surface));
-  if (exact) return { ref: exact, role, standing: "referent", surface, resolution: "exact_surface" };
+  if (exact) return { ref: exact, occurrence, role, standing: "referent", surface, resolution: "exact_surface" };
   const candidates = referentsInSpan(surface, matcher);
   if (candidates.size === 1) {
     const [[ref, matchedSurfaces]] = candidates;
-    return { ref, role, standing: "referent", surface, resolution: "unique_surface_in_span", matchedSurfaces };
+    return { ref, occurrence, role, standing: "referent", surface, resolution: "unique_surface_in_span", matchedSurfaces };
   }
   // ── CONTAINMENT TIER (S105's third tier, in the perceiver, 2026-09-12):
   // the clause-end surface ("her sister", "the use of a book") may CONTAIN a
@@ -143,7 +152,7 @@ function resolveParticipant(surface, matcher, sequencePosition, relationIndex, r
     }
     const uniq = new Set(contained.map(([ref]) => ref));
     if (uniq.size === 1) {
-      return { ref: [...uniq][0], role, standing: "referent", surface, resolution: "containment_surface_in_span", matchedSurfaces: contained.map(([, k]) => k) };
+      return { ref: [...uniq][0], occurrence, role, standing: "referent", surface, resolution: "containment_surface_in_span", matchedSurfaces: contained.map(([, k]) => k) };
     }
   }
   // ── POSSESSIVE DEFINITE DESCRIPTIONS ARE HOLDINGS (S88's fourth signal,
@@ -158,14 +167,13 @@ function resolveParticipant(surface, matcher, sequencePosition, relationIndex, r
   if (pm) {
     const noun = diaNorm(pm[2]);
     const inside = matcher.map.get(noun);
-    if (inside) return { ref: inside, role, standing: "referent", surface, resolution: "possessive_head_surface", possessiveAnchor: pm[1].toLowerCase() };
-    return { ref: `identity:poss:${noun}:${pm[1].toLowerCase()}`, role, standing: "hypothesis", surface, resolution: "possessive_holding", possessiveAnchor: pm[1].toLowerCase() };
+    if (inside) return { ref: inside, occurrence, role, standing: "referent", surface, resolution: "possessive_head_surface", possessiveAnchor: pm[1].toLowerCase() };
+    return { ref: `identity:poss:${noun}:${pm[1].toLowerCase()}`, occurrence, role, standing: "hypothesis", surface, resolution: "possessive_holding", possessiveAnchor: pm[1].toLowerCase() };
   }
   const lexical = slug(surface) || "unknown";
   // A4 (THE-ADDRESS.md): an unresolved participant occurrence is content —
   // its id hashes the surface it wears and the slot it fills, never a bare
   // position that would collide across readings and across surfaces.
-  const occurrence = sha256hex(`occ|surface:${surface}|seq:${sequencePosition}|rel:${relationIndex}|role:${role}`);
   return {
     ref: occurrence,
     occurrence,
