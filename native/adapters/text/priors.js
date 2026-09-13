@@ -315,6 +315,11 @@ export const CLAUSE_OPENERS = Object.freeze(new Set([
   "that", "which", "who", "whom", "whose",
   "because", "although", "though", "while", "when", "whether",
   "unless", "since", "before", "after", "until", "if", "to",
+  // "how" — the fronted interrogative/adverbial ("How she longed to get
+  // out" — the clause opens with How; the subject is she). Added 2026-09-13
+  // after the golden measured the subject swallowing the opener ("How she"
+  // as end1). Same class as when/while/whether already in this set.
+  "how",
 ]));
 export const CLAUSE_OPENERS_META = Object.freeze({ giver: "lang/en", scope: null });
 
