@@ -1081,5 +1081,51 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
     }
   }
 
+  // ── NON-COMMA PARTICIPIAL CLAUSES (2026-09-13, the golden's #1 miss —
+  // the OTHER half). "Alice ... sitting by her sister on the bank", "she
+  // ... burning with curiosity" — a present participle in the vocabulary
+  // that follows a complete matrix clause, with no comma, is the reduced
+  // relative's non-punctuated twin. The matrix subject is inherited. The
+  // participle must be in the vocabulary (never guessed) and must come
+  // AFTER the matrix's own verb+object, not be the matrix verb itself
+  // ("was beginning" is the matrix; "sitting" is the reduced clause).
+  // Emitted as a second act on the same subject, exactly like the
+  // comma-reduced case.
+  const PARTICIPLE_AFTER_MATRIX = /(\b(?:[\p{L}’']+ing)\b)\s+(.+?)(?:[.,;]|$)/u;
+  // ONLY when the comma-reduced case did NOT fire (it is the same
+  // construction with a comma; firing both double-emits the clause).
+  const commaReducedFired = rels.some((r) => r.reduced && r.subjectBasis?.includes("comma"));
+  if (!commaReducedFired && !/,\s*[\p{L}’']+ing\s/.test(s) && rels.length && rels.length < limit) {
+    const lastMatrix = [...rels].reverse().find((r) => !r.reduced);
+    if (lastMatrix) {
+      PARTICIPLE_AFTER_MATRIX.lastIndex = 0;
+      let pm;
+      // scan from just after the matrix's own object for the participle
+      const from = Math.max(0, (lastMatrix.objectOffset ?? 0) + (lastMatrix.object?.length ?? 0));
+      const tail = s.slice(from);
+      if ((pm = PARTICIPLE_AFTER_MATRIX.exec(tail)) !== null) {
+        const participle = pm[1];
+        const inVocab = vocab.has(participle.toLowerCase());
+        if (inVocab && !lastMatrix.verb.toLowerCase().endsWith(participle.toLowerCase())) {
+          const object = pm[2].trim();
+          // the participle is the reduced clause's verb; the matrix's
+          // subject is inherited ("Alice sitting by her sister" — Alice
+          // does both the matrix and the sitting)
+          rels.push({
+            subject: lastMatrix.subject,
+            verb: participle,
+            object,
+            polarity: lastMatrix.polarity, // same clause, same polarity
+            offset: from + pm.index,
+            subjectOffset: lastMatrix.subjectOffset,
+            objectOffset: from + pm.index + participle.length + 1,
+            reduced: true,
+            subjectBasis: "inherited (non-comma participial clause — the matrix subject does the participle too)",
+          });
+        }
+      }
+    }
+  }
+
   return rels;
 };
