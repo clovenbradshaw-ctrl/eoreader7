@@ -23,17 +23,27 @@
 //     to spread load that cannot spread.
 //   - Every act lands on an append-only log (heimdall-log.jsonl).
 //
-// Run standalone:  node heimdall.mjs
+// DUAL MODE (2026-09-13): the watcher now runs INSIDE the proxy. The proxy
+// imports this module, starts the watcher, serves /heimdall itself, and
+// applies the same admission on its own request path — one process, no
+// separate steer port, no second checkout to drift. The module still runs
+// STANDALONE (`node heimdall.mjs`) with its own steer server when it is the
+// main entry; when imported, it exports its machinery and does not listen.
+//
 // The registry is env-driven: each surface is `name:port:cwd:cmd`, and the
 // restart env is reproduced from the same vars used to launch it.
 
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawn } from "node:child_process";
 import http from "node:http";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+const isMain = (() => {
+  try { return process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href; }
+  catch { return false; }
+})();
 
 const OLLAMA_URL = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
 const CHECK_INTERVAL_MS = Number(process.env.ER7_HEIMDALL_INTERVAL ?? 15000);
@@ -56,6 +66,12 @@ function appendLog(entry) {
     fs.mkdirSync(path.dirname(LOG_FILE), { recursive: true });
     fs.appendFileSync(LOG_FILE, JSON.stringify({ at: ts(), ...entry }) + "\n", "utf8");
   } catch { /* the log must never crash the watcher */ }
+}
+
+export function logTail(n = 12) {
+  try {
+    return fs.existsSync(LOG_FILE) ? fs.readFileSync(LOG_FILE, "utf8").trim().split("\n").slice(-n) : [];
+  } catch { return []; }
 }
 
 const fetchWithTimeout = async (url, ms) => {
@@ -114,6 +130,17 @@ const surfaces = SURFACE_SPECS.map((s) => ({
   healthUrl: `http://127.0.0.1:${s.port}${HEALTH_PATH_OF(s.name)}`,
   up: null, reason: null, lastState: null, restartTimes: [], inflight: 0,
 }));
+
+// The surface this watcher IS, when imported into the proxy: its own port is
+// watched for status but never re-forged (a proxy cannot spawn a duplicate of
+// itself). null when running standalone.
+let selfPort = null;
+export const getSurfaces = () => surfaces;
+export const markInflight = (name, delta) => {
+  const s = surfaces.find((x) => x.name === name);
+  if (s) s.inflight = Math.max(0, s.inflight + delta);
+  return s?.inflight ?? 0;
+};
 
 // ── EVA: probe each surface, never convict on a suspicion ────────────────
 // The wall: a probe that cannot REACH the real check proves nothing about
@@ -237,6 +264,7 @@ function boxSaturated(vitals) {
   if (!vitals || vitals.cpuIdle == null) return false;
   return vitals.cpuIdle <= 10; // pegged: ~0% idle means no room for a turn
 }
+export const isBoxSaturated = boxSaturated;
 
 // ── DISCLOSURE: what a user actually wants to know. CPU/GPU BANDWIDTH is
 // the free headroom, not the raw number: how much of each is NOT busy right
@@ -256,7 +284,7 @@ function etaFor(workAhead) {
 }
 // The disclosure object every surface /heimdall and every thinking block can
 // read: the box's breathing room, in plain numbers.
-function disclosure() {
+export function disclosure() {
   const v = cachedVitals() ?? {};
   const cpuBusy = v.cpuIdle == null ? null : Math.round(100 - v.cpuIdle);
   const gpuBusy = v.gpuUtil; // device utilization % — the GPU's actual load
@@ -290,6 +318,7 @@ const VITALS_SLOW_MS = Number(process.env.ER7_HEIMDALL_VITALS_SLOW ?? 120000);
 function cachedVitals() {
   return vitalsCache ? { ...vitalsCache, ...vitalsSlowCache } : null; // never spawns
 }
+export const readVitals = cachedVitals;
 async function refreshVitals() {
   const now = Date.now();
   if (vitalsCache && now - vitalsCacheAt < VITALS_TTL_MS) return cachedVitals();
@@ -394,6 +423,15 @@ async function tick() {
       continue;
     }
 
+    // SELF surfaces (the proxy this watcher runs inside of) are watched for
+    // STATUS but never re-forged — spawning a duplicate would EADDRINUSE on
+    // the proxy's own port. Only the fold surfaces can be re-forged here.
+    if (selfPort != null && surf.port === selfPort) {
+      log(`EVA — ${surf.name} (self) definitively down: ${surf.reason}. A proxy cannot re-forge itself — escalate.`);
+      appendLog({ act: "eva", surface: surf.name, finding: "self_down", reason: surf.reason ?? null });
+      continue;
+    }
+
     // Bound the REC: a restart storm is a finding, never a happy loop.
     const now = Date.now();
     surf.restartTimes = surf.restartTimes.filter((t) => now - t < RESTART_WINDOW_MS);
@@ -466,6 +504,59 @@ async function forwardTo(res, method, targetUrl, headers, body) {
   return { sentBytes, status: up.status };
 }
 
+// ── THE MERGED API — what the proxy uses when heimdall runs inside it. ─────
+// The full status object (what /heimdall serves), the chat admission gate
+// (saturation + family cap), and the watcher kickoff. The standalone steer
+// server uses the same pieces; the proxy imports them.
+
+export function heimdallStatus() {
+  return {
+    at: ts(),
+    status: "ok",
+    steered: isMain,
+    steerPort: STEER_PORT,
+    familyCap: FAMILY_CAP,
+    retryAfterS: RETRY_AFTER_S,
+    disclosure: disclosure(),
+    vitals: cachedVitals() ?? null,
+    surfaces: surfaces.map((s) => ({
+      name: s.name, family: s.family, port: s.port, up: s.up, reason: s.reason,
+      inflight: s.inflight, cmd: s.cmd, restartsInWindow: s.restartTimes.length,
+    })),
+    logTail: logTail(12),
+  };
+}
+
+// The admission gate for a chat request: saturation and the per-family cap,
+// with a typed refusal (never a hang). The proxy calls this on its OWN chat
+// path (marking its own surface's inflight), exactly as the standalone steer
+// server did for the surface it forwarded to.
+export function admitChat(body = "{}") {
+  const model = modelOf(body);
+  const family = familyOfRequest(model);
+  const saturated = boxSaturated(cachedVitals());
+  if (saturated) {
+    appendLog({ act: "eva", finding: "saturated", family, model, retryAfterS: RETRY_AFTER_S });
+    return { allowed: false, status: 429, type: "saturated", family, model, retryAfterS: RETRY_AFTER_S, message: `box saturated — retry after ${RETRY_AFTER_S}s` };
+  }
+  if (FAMILY_CAP > 0 && family !== "any") {
+    const familyInflight = surfaces.filter((s) => s.family === family).reduce((a, s) => a + s.inflight, 0);
+    if (familyInflight >= FAMILY_CAP) {
+      appendLog({ act: "eva", finding: "lane_full", family, model, inflight: familyInflight, retryAfterS: RETRY_AFTER_S });
+      return { allowed: false, status: 429, type: "lane_full", family, model, retryAfterS: RETRY_AFTER_S, message: `family ${family} busy — retry after ${RETRY_AFTER_S}s` };
+    }
+  }
+  return { allowed: true, family, model };
+}
+
+let _watcherStarted = false;
+export function startWatcher({ selfPort: p = null } = {}) {
+  if (p != null) selfPort = p;
+  if (_watcherStarted) return;
+  _watcherStarted = true;
+  schedule();
+}
+
 const steer = http.createServer(async (req, res) => {
   res.setHeader("access-control-allow-origin", "*");
   res.setHeader("access-control-allow-headers", "*");
@@ -479,27 +570,11 @@ const steer = http.createServer(async (req, res) => {
     }));
     return;
   }
-  // ── /heimdall — the full status, readable from ANY surface. Every surface
-  // forwards /heimdall here, so the bridge's breath is one endpoint: the
-  // vitals (CPU/GPU/load/ollama), the queue + ETA disclosure, every surface's
-  // state, the DEF/EVA/REC log tail, and the steering config.
+  // ── /heimdall — the full status. The proxy serves this locally now; the
+  // standalone steer server serves the same object.
   if (req.method === "GET" && req.url === "/heimdall") {
     res.writeHead(200, { "content-type": "application/json" });
-    res.end(JSON.stringify({
-      at: ts(),
-      status: "ok",
-      steered: true,
-      steerPort: STEER_PORT,
-      familyCap: FAMILY_CAP,
-      retryAfterS: RETRY_AFTER_S,
-      disclosure: disclosure(),
-      vitals: cachedVitals() ?? null,
-      surfaces: surfaces.map((s) => ({
-        name: s.name, family: s.family, port: s.port, up: s.up, reason: s.reason,
-        inflight: s.inflight, cmd: s.cmd, restartsInWindow: s.restartTimes.length,
-      })),
-      logTail: (() => { try { return fs.existsSync(LOG_FILE) ? fs.readFileSync(LOG_FILE, "utf8").trim().split("\n").slice(-12) : []; } catch { return []; } })(),
-    }));
+    res.end(JSON.stringify(heimdallStatus()));
     return;
   }
   if (req.method === "GET" && (req.url === "/v1/models" || req.url === "/api/tags")) {
@@ -524,18 +599,12 @@ const steer = http.createServer(async (req, res) => {
     const model = modelOf(body);
     const family = familyOfRequest(model);
 
-    // A saturated box refuses fast (EVA before admission): piling work onto a
-    // box whose load is already far above its cores helps nobody. The refusal
-    // is typed and carries Retry-After so a client backs off instead of
-    // stampeding. The vitals gate reads the CACHED snapshot — never spawns a
-    // process on the request path.
-    const liveVitals = cachedVitals();
-    const saturated = boxSaturated(liveVitals);
-    if (saturated) {
-      log(`STEER — box saturated (load ${liveVitals.load1} gpu ${liveVitals.gpuUtil}%); refusing ${family} with 429, retry ${RETRY_AFTER_S}s`);
-      appendLog({ act: "eva", finding: "saturated", family, model, load1: liveVitals.load1, gpuUtil: liveVitals.gpuUtil, retryAfterS: RETRY_AFTER_S });
-      res.writeHead(429, { "content-type": "application/json", "retry-after": String(RETRY_AFTER_S) });
-      res.end(JSON.stringify({ error: { message: `box saturated — retry after ${RETRY_AFTER_S}s`, type: "saturated", retry_after: RETRY_AFTER_S } }));
+    // The admission gate — saturation + the per-family cap, typed refusals.
+    const admit = admitChat(body);
+    if (!admit.allowed) {
+      log(`STEER — refusing ${family} (${admit.type}) with ${admit.status}, retry ${admit.retryAfterS}s`);
+      res.writeHead(admit.status, { "content-type": "application/json", "retry-after": String(admit.retryAfterS) });
+      res.end(JSON.stringify({ error: { message: admit.message, type: admit.type, retry_after: admit.retryAfterS } }));
       return;
     }
 
@@ -547,17 +616,6 @@ const steer = http.createServer(async (req, res) => {
       res.writeHead(503, { "content-type": "application/json", "retry-after": String(RETRY_AFTER_S) });
       res.end(JSON.stringify({ error: { message: `no surface available for ${family} — retry`, type: "no_surface", retry_after: RETRY_AFTER_S } }));
       return;
-    }
-
-    if (FAMILY_CAP > 0 && family !== "any") {
-      const familyInflight = surfaces.filter((s) => s.family === family).reduce((a, s) => a + s.inflight, 0);
-      if (familyInflight >= FAMILY_CAP) {
-        log(`STEER — family ${family} full (${familyInflight} in flight); refusing 429, retry ${RETRY_AFTER_S}s`);
-        appendLog({ act: "eva", finding: "lane_full", family, model, inflight: familyInflight, retryAfterS: RETRY_AFTER_S });
-        res.writeHead(429, { "content-type": "application/json", "retry-after": String(RETRY_AFTER_S) });
-        res.end(JSON.stringify({ error: { message: `family ${family} busy — retry after ${RETRY_AFTER_S}s`, type: "lane_full", retry_after: RETRY_AFTER_S } }));
-        return;
-      }
     }
 
     target.inflight += 1;
@@ -594,9 +652,14 @@ async function schedule() {
   finally { ticking = false; }
   setTimeout(schedule, selfDefenseIntervalMs);
 }
-schedule();
-
-steer.listen(STEER_PORT, "127.0.0.1", () => {
-  log(`Heimdall steering on http://127.0.0.1:${STEER_PORT} — ${surfaces.length} surface(s): ${surfaces.map((s) => `${s.name}(${s.family})`).join(", ")} (family cap ${FAMILY_CAP}, tick ${selfDefenseIntervalMs}ms)`);
-  appendLog({ act: "def", steered: { port: STEER_PORT, familyCap: FAMILY_CAP, retryAfterS: RETRY_AFTER_S } });
-});
+// ── STANDALONE MODE ───────────────────────────────────────────────────────
+// When heimdall.mjs is the MAIN ENTRY it runs its own steer server + watcher
+// on STEER_PORT. When IMPORTED (the proxy wires the watcher in), nothing
+// listens here — the machinery above is what the proxy uses.
+if (isMain) {
+  schedule();
+  steer.listen(STEER_PORT, "127.0.0.1", () => {
+    log(`Heimdall steering on http://127.0.0.1:${STEER_PORT} — ${surfaces.length} surface(s): ${surfaces.map((s) => `${s.name}(${s.family})`).join(", ")} (family cap ${FAMILY_CAP}, tick ${selfDefenseIntervalMs}ms)`);
+    appendLog({ act: "def", steered: { port: STEER_PORT, familyCap: FAMILY_CAP, retryAfterS: RETRY_AFTER_S } });
+  });
+}

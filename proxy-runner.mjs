@@ -749,6 +749,15 @@ function essayThemes({ task, surfacedSegments, material }) {
 // grounded material; a void needs a disclosed fact (P32). This steers the
 // model toward the proper length and modality without relying on the model
 // to figure out the shape itself.
+//
+// CHAT IS THE DEFAULT. The proxy is a normal conversation first — every
+// answer is a void defined and satisfied at its natural size. Long-form is a
+// MODE it can enter, in two flavors: "long" (a single answer that goes
+// further than chat provides) and origami (an artifact built on an
+// append-only ledger, iterated by revisions, projectable in a surface).
+// Neither is entered by a plain question — only by an ask that names it.
+const LONG_ASK = /\b(in detail|in more detail|at length|thoroughly|elaborate|expound|in depth|in-depth|deep dive|comprehensive|comprehensively|detailed|thorough|extended|step by step|walk me through|tell me everything|give me the full|the full story|the whole story|explain fully|go deeper|a long answer|a longer answer|long response|\d[\d,]*(?:-|,)?\s*(?:words|pages|paragraphs))\b/i;
+
 function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegments, resolutions) {
   const t = task.toLowerCase().trim();
   if (/^(hi|hello|hey|howdy|greetings|good\s+(morning|afternoon|evening))[\s,!?]*$/.test(t))
@@ -759,12 +768,25 @@ function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegment
     return { shape: "trivial", maxTokens: 64, modality: "direct" };
   if (surfVoid && !surfacedSegments.length)
     return { shape: "void", maxTokens: 256, modality: "disclosed-fact" };
-  // Composition tasks — any generation that has material to write from (an
-  // essay, a paper, a report, a spec, an explanation). The shape is whatever
-  // the material actually has (shapeFromMaterial); the same organs serve any
-  // task. A short answer or a one-off question stays a single draw.
-  if (/\b(essay|write|explain|describe|summarize|outline|compose|report|discuss|analyze|paper|review|spec|guide|explain|tell\s+me\s+about)\b/.test(t) && (hasWorkspace || hasWeb || surfacedSegments.length))
+  // ORIGAMI — an explicit ask for a named long-form artifact with sections
+  // (an essay, a paper, a report, a brief) that a person asks us to WRITE.
+  // The ask itself is the signal: an explicit "write an essay about X" enters
+  // projection even when no material is present yet — the mode HUNTS its
+  // ground (web, when the egress is open) and the artifact's own grounding
+  // checks (Ranke) disclose the quality, never silently. The material gate
+  // protects against PLAIN questions ("explain", "describe") turning into
+  // essays — those are normal answers, and they are no longer in this shape
+  // at all.
+  const namesArtifact = /\b(?:essay|paper|report|article|brief|whitepaper|white\s*paper|book|chapter|spec|guide)\b/i.test(t);
+  const produce = /\b(?:write|compose|draft|prepare|generate|produce)\b/i.test(t);
+  const aimsAt = /\b(?:on|about|covering|addressing)\b/i.test(t);
+  const multiPart = /\b(multi-?part|long-?form|several sections|a several-part piece|numbered sections)\b/i.test(t);
+  if (produce && namesArtifact && aimsAt || multiPart)
     return { shape: "composition", maxTokens: CALL_MAX_TOKENS, modality: "grounded" };
+  // LONG — a response that goes further than chat provides: the task asks
+  // for elaboration or depth, still one answer (no artifact, no ledger).
+  if (LONG_ASK.test(t))
+    return { shape: "long", maxTokens: LONG_MAX_TOKENS, modality: "extended" };
   if (hasWorkspace || hasWeb)
     return { shape: "research", maxTokens: CALL_MAX_TOKENS, modality: "grounded" };
   return { shape: "open", maxTokens: CALL_MAX_TOKENS, modality: "concise" };
@@ -853,7 +875,7 @@ export const REQUEST_TIMEOUT_MS = Number(process.env.ER7_REQUEST_TIMEOUT_MS) || 
 // instrument is when it talks, so the person is never meeting a different
 // communicator each time. Firewall-clean (no apparatus noun, no cast name).
 export const NEUTRAL_CHARACTER =
-  "You're a careful, plain-speaking reader. You work from what a person gives you, answer what they actually asked, say plainly when something isn't established rather than filling the gap, and you may hold the person to what they've told you before — gently, never to win.";
+  "You're a careful, plain-speaking reader. You work from what a person gives you, answer what they actually asked, say plainly when something isn't established rather than filling the gap, and you may hold the person to what they've told you before — gently, never to win. Every claim you make carries its standing: say what is established and what it rests on. When a person challenges a claim, hold it to its ground — name the ground it stands on and stand behind it; never apologize for holding a position, never say you're still learning or that you make mistakes. If something is not established, say so plainly and name what would settle it.";
 
 // ── the earned cast, per turn: the model gets ONLY the facts this turn
 // earned, and never a role. `cueBundle` classifies the turn's speech act
@@ -1196,6 +1218,13 @@ function fieldRecall(session, cue, { max = SURF_MAX_SEGMENTS } = {}) {
   }
 }
 
+// THE CONVERSATION IS NOT MATERIAL. The chat's own text is admitted to the
+// corpus so the reader folds it (and the surfer can address prior turns),
+// but it is never WRITE-FROM ground: a projection asked with no other
+// material must not count its own task text as grounding, or the
+// multi-section pipeline churns ungrounded prose against an empty ground.
+const isConversationSource = (sourceId) => String(sourceId ?? "").startsWith("chat:");
+
 // THE SURF — the real mechanical address ladder against the session's corpus.
 // Returns the addressed segment(s) TEXT ONLY. The address (source, heading,
 // byte range, addressed_by) is reported to the ledger/notes — it is NEVER
@@ -1211,6 +1240,7 @@ return { segments: [], void: true, reason: "no corpus yet" };
   if (composition && session.corpus.documents.size > 1) {
     const segments = [];
     for (const [sourceId, doc] of session.corpus.documents.entries()) {
+      if (isConversationSource(sourceId)) continue;
       if (segments.length >= SURF_MAX_SEGMENTS) break;
       const text = String(doc?.text ?? doc ?? "").trim();
       if (!text || text.length < 50) continue;
@@ -1232,8 +1262,9 @@ return { segments: [], void: true, reason: "no corpus yet" };
 
   // A truthy `.gap` is not always a hard refusal (addressDoc's no-outline
   // fallback still spreads real text beside a disclosed label) — only a
-  // result with no text at all is unusable.
-  const candidates = (result.fan ?? [result]).filter((c) => c?.text);
+  // result with no text at all is unusable. The conversation's own text
+  // (source_id `chat:...`) is never material either.
+  const candidates = (result.fan ?? [result]).filter((c) => c?.text && !isConversationSource(c.source_id ?? c.source ?? null));
   if (!candidates.length) {
     const first = result.fan?.[0] ?? result;
     const gap = result.gap ?? first?.gap ?? "content_not_found";
@@ -1242,9 +1273,10 @@ return { segments: [], void: true, reason: "no corpus yet" };
     // "field"); a recall inside the null band is not a recall, and the void
     // is disclosed as a void, never dressed up as a match.
     const field = fieldRecall(session, task);
-    if (field.recalled.length) {
-      if (onNote) onNote({ move: "surfaced", operator: "FIELD", fan: field.recalled.length, docs: session.corpus.documents.size, kind: field.kind, band: field.band ? { hi: field.band.hi } : null });
-      return { segments: field.recalled, void: false, addressedBy: true, addressedByWitness: "field", band: field.band ? { hi: field.band.hi } : null };
+    const recalled = field.recalled.filter((r) => !isConversationSource(r._ledger?.source));
+    if (recalled.length) {
+      if (onNote) onNote({ move: "surfaced", operator: "FIELD", fan: recalled.length, docs: session.corpus.documents.size, kind: field.kind, band: field.band ? { hi: field.band.hi } : null });
+      return { segments: recalled, void: false, addressedBy: true, addressedByWitness: "field", band: field.band ? { hi: field.band.hi } : null };
     }
     if (onNote) onNote({ move: "void", gap, reason: result.reason ?? first?.reason ?? null });
     return { segments: [], void: true, gap, reason: result.reason ?? first?.reason ?? null };
@@ -1275,6 +1307,7 @@ return { segments: [], void: true, reason: "no corpus yet" };
       // (selected, not segments — segments are built below, after the boost).
       const existingSources = new Set(selected.map((s) => s._ledger?.source).filter(Boolean));
       for (const r of field.recalled) {
+        if (isConversationSource(r._ledger?.source)) continue;
         if (existingSources.has(r._ledger?.source)) continue;
         selected.push(r);
         existingSources.add(r._ledger?.source);
@@ -1420,6 +1453,11 @@ export function hotModelSet() {
 
 const CALL_MAX_TOKENS = 1024;
 const CALL_RETRIES = 2;
+// The LONG flavor of long-form: a single answer that goes further than chat
+// provides (an extended response, no artifact, no ledger). One bounded draw
+// at a generous budget — the void is "answer thoroughly", filled in one
+// sitting rather than section by section.
+const LONG_MAX_TOKENS = Number(process.env.ER7_LONG_MAX_TOKENS ?? 2600);
 // Degrees in Kelsen (K°): how tightly the composition is bound to the
 // material's normative ground — Kelsen's Stufenbau, where validity flows
 // down a hierarchy of degrees and each level is bound by the norm above.
@@ -1445,7 +1483,7 @@ const MSG_OVERHEAD_CHARS = 64;
 const POSTPROCESS_TIMEOUT_MS = Number(process.env.ER7_POSTPROCESS_TIMEOUT_MS) || 3000;
 // The discourse at three resolutions (vendored the-fold resolutions.js, P171):
 // 0 = nearest verbatim only, 1 = + atmosphere, 2 = + lens, 3 = + paradigm.
-const RESOLUTIONS_LEVEL = (() => { const v = Number(process.env.ER7_RESOLUTIONS ?? ""); return [0, 1, 2, 3].includes(v) ? v : 3; })();
+const RESOLUTIONS_LEVEL = (() => { const raw = process.env.ER7_RESOLUTIONS; if (raw === undefined || raw === null || raw === "") return 3; const v = Number(raw); return [0, 1, 2, 3].includes(v) ? v : 3; })();
 // The KELSEN MODALITY — the norm-hierarchy linter's force. Default (1) is the
 // hyper-grounded posture: conflicting claims resolve by the declared order,
 // and resolutions are shown. For CREATIVE work (a poem, a speculative piece,
@@ -1591,6 +1629,93 @@ function chatTranscript(chatHistory = []) {
   return transcript;
 }
 
+// ── broad recall: the "summarize / what do you remember" class ──────────────
+// A question that asks for the CONVERSATION ITSELF is not addressed by any
+// single passage: "what do you remember about me" shares almost no tokens
+// with the planted turns, so the absolute ladder and the field both come up
+// empty for exactly the question that asks for the whole. These questions
+// are answered from the conversation's own fold (conversationFoldSegments),
+// never from a void or a tautological re-address of the current turn.
+const BROAD_RECALL_RE = /\b(?:summari[sz]e\b|sum\s+up\b|recap(?:itulate)?\b|remember about me|remember anything about me|what do you (?:remember|recall|know about me)|what (?:do|did|have|'ve|are) (?:we|i|you and i) (?:talk(?:ed)?|discuss(?:ed)?|say|said|cover(?:ed)?|share(?:d)?) about|what (?:we|i|you and i) (?:have|'ve) (?:talked|discussed|said|covered|shared)|what have we been talking about)/i;
+function isBroadRecall(task) {
+  return BROAD_RECALL_RE.test(String(task ?? ""));
+}
+
+// The conversation's own fold, as surfaced segments: the corpus's chat
+// documents (one per admitted turn, in order), capped like any surfed
+// segment. The CURRENT turn — just admitted, still unanswered — is excluded
+// (the model already holds it as its own task); the fold is what came before.
+function conversationFoldSegments(session, task, materialText = "") {
+  const segments = [];
+  let total = 0;
+  const current = String(materialText ?? "").trim();
+  const currentIs = (text) =>
+    text === current || (current.endsWith(text) && text.includes(`[user]: ${task}`));
+  for (const [sourceId, doc] of session.corpus?.documents?.entries?.() ?? []) {
+    if (!String(sourceId ?? "").startsWith("chat:")) continue;
+    const text = String(doc?.text ?? doc ?? "").trim();
+    if (!text || currentIs(text)) continue;
+    total += text.length;
+    if (total > SURF_MAX_TOTAL_CHARS) break;
+    segments.push({
+      text: text.slice(0, SURF_MAX_SEGMENT_CHARS),
+      _ledger: { source: sourceId, heading: null, addressed_by: "conversation", bytes: [0, text.length] },
+    });
+  }
+  return segments;
+}
+
+// The conversation as EXCHANGES, read from the session's OWN corpus when the
+// client sent no history (each request carries only the current message, so
+// the conversation lives only in the fold). The live question — just admitted
+// — is excluded: it is asked, not yet answered.
+function transcriptFromSession(session, task) {
+  const transcript = [];
+  let turn = 0;
+  for (const [sourceId, doc] of session.corpus?.documents?.entries?.() ?? []) {
+    if (!String(sourceId ?? "").startsWith("chat:")) continue;
+    const text = String(doc?.text ?? doc ?? "").trim();
+    if (!text) continue;
+    for (const line of text.split("\n")) {
+      const t = String(line ?? "").trim();
+      const q = /^\[user\]:\s*(.+)/i.exec(t)?.[1]?.trim();
+      const a = /^\[assistant\]:\s*(.+)/i.exec(t)?.[1]?.trim();
+      if (q) {
+        if (q === String(task ?? "").trim()) continue;
+        transcript.push({ turn: ++turn, question: q, answer: "", refs: [] });
+      } else if (a && transcript.length) {
+        transcript[transcript.length - 1].answer = a;
+      }
+    }
+  }
+  return transcript;
+}
+
+// The conversation's own BEINGS, for a broad question's active set: the
+// referents the conversation's own words resolve to, via the index's OWN
+// identity organs (resolveIn + represent — never a scan, P11/P38). A broad
+// question names none of them itself, so the resolution blocks get them as
+// the active set or the digest is empty for exactly the question that asks
+// for the whole. Function/question words the reader happened to admit
+// ("what", "do", "me") are not beings the summary is about and are never
+// named.
+const NON_BEING = /\b(?:what|which|who|whom|whose|where|when|why|how|do|does|did|i|me|my|you|your|we|us|our|it|its|he|she|they|them|the|a|an|is|are|am|have|has|had|was|were|be|been|being|to|of|in|on|at|for|with)\b/i;
+function conversationBeings(index, transcript = []) {
+  if (!index || typeof index.resolveIn !== "function") return [];
+  const text = (transcript ?? [])
+    .map((t) => `${t?.question ?? ""} ${t?.answer ?? ""}`.trim())
+    .filter(Boolean)
+    .join(" ");
+  let ids;
+  try { ids = index.resolveIn(String(text)); } catch { return []; }
+  const names = new Set();
+  for (const id of [...(ids ?? [])]) {
+    const name = index.represent?.(id) ?? id;
+    if (typeof name === "string" && name.length >= 2 && !NON_BEING.test(name)) names.add(name);
+  }
+  return [...names].slice(0, 4);
+}
+
 // The notes the Lens reads: the fold's own EOHyperedge@1 entries, one ledger
 // row per edge, endpoints as their SURFACES — the referent index resolves a
 // surface; the perceiver's own `ref`s live in a different id space. sources/
@@ -1706,7 +1831,41 @@ function essayResolutions({ sections, documentLines, index, rawEntries, onNote }
   }
 }
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null, signal = null }, onToken, onNote = null, onThinking = null) {
+// ── the answer's grain: MODE ────────────────────────────────────────────────
+// The proxy is a normal conversation first; long-form is a mode it can enter.
+// "auto" decides per turn: projection on an explicit artifact ask, long on an
+// elaboration ask, chat otherwise. "chat"/"long"/"projection" force it
+// (projection aliases "compose"/"artifact"/"origami"). Every answer — whatever
+// the mode — is a void defined and satisfied; the mode is the GRAIN at which
+// the void is filled (one answer, one extended answer, or an append-only-ledger
+// artifact whose live projection is read in a surface, iterated by revisions).
+function normalizeMode(m) {
+  if (m === "compose" || m === "artifact" || m === "origami") return "projection";
+  return ["chat", "long", "projection", "auto"].includes(m) ? m : "auto";
+}
+
+// The void's satisfaction for a single-answer mode (chat / long): the answer
+// filled the void it was defined against. Lighter than the essay-grade EVA
+// (no continuity/grounding gate — a chat answer may rest on model knowledge),
+// but honest: empty is unfilled, a thin substantive answer is thin, and
+// answering about the instrument instead of the question is meta.
+function chatVoidCheck(text, { shape, material = "" } = {}) {
+  const t = String(text ?? "").trim();
+  if (!t) return { ok: false, filled: 0, of: 1, failures: [{ kind: "unfilled", detail: "the void named an answer; nothing was written" }], strain: 1 };
+  if (["greeting", "command", "trivial"].includes(shape))
+    return { ok: true, filled: 1, of: 1, failures: [], strain: 0, basis: `${shape} — a small void, filled in one answer` };
+  const failures = [];
+  let strain = 0;
+  // A short answer is a filled void for a plain question — "Paris" answers
+  // "what is the capital of France" completely. The thin test applies only
+  // when the void wanted SUBSTANCE (a research question with material to draw
+  // from, or an extended answer), never to a direct question.
+  if (["research", "long"].includes(shape) && t.length < 40) { failures.push({ kind: "thin", detail: "the answer is almost empty — the void wanted substance" }); strain++; }
+  if (/\b(as an ai|i can't|i cannot|i'm just|i'm not able|let me know if you)\b/i.test(t)) { failures.push({ kind: "meta", detail: "the answer talks about the instrument instead of answering" }); strain++; }
+  return { ok: failures.length === 0, filled: failures.length ? 0 : 1, of: 1, failures, strain };
+}
+
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null, mode = "auto", signal = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   const session = getSession(sessionId);
   _hot.add(model); // this turn is using it — hold it resident after
@@ -1756,13 +1915,14 @@ const modelsUp = await ollamaReachable();
     if (lookedImages.looked > 0 && onNote) onNote({ move: "look_images_done", files: lookedImages.looked });
   }
 
-  // 1.5 DEF THE VOID BY ASKING QUESTIONS, THEN HUNT ITS SHAPE. The essay's
-  // shape is NOT the source's own headings — it is the QUESTIONS the piece
-  // must answer. We ask them FIRST (from the task + topic; the reading is
-  // still empty, so no material can steer the shape), then Gore HUNTS each
-  // question to find the shape of what's wanted: each question is a void,
-  // and its hunt finds the material that fills it. Wikipedia is an index,
-  // primary sources are the material.
+  // 1.5 DEF THE VOID — UNIVERSAL, EVERY TURN. The void is the shape of what
+  // the answer must satisfy; the MODE is the grain at which it is filled.
+  // A chat answer fills a small void in one draw; a long answer fills a
+  // larger one in a single extended draw; a projection fills a large void
+  // section by section on an append-only ledger, iterated by revisions, its
+  // live projection read in a surface. The void is defined by ASKING
+  // QUESTIONS first (from the task + topic; the reading is still empty, so
+  // no material can steer the shape).
   const topic = topicPhrase(task);
   // The reading state the born gate consults: what the hunt actually found.
   // Available BEFORE the full read: sources retained + the reader's running
@@ -1775,11 +1935,22 @@ const modelsUp = await ollamaReachable();
     surprise: session.lastPageSurprise?.salient ?? 0,
   });
   const preVoid = voidCellsFor({ topic, question: task, openQuestions: [], shadowReferents: [], reading: readingState() });
-  // The essay's SECTIONS are the CONTENT cells (grounded prose about the
+  // The origami SECTIONS are the CONTENT cells (grounded prose about the
   // subject); the shape-instrument cells steer internally but are not reader
   // sections. The seed question is still the first content question.
   const voidQuestions = preVoid.cells.filter((c) => c.relevant && c.essay).map((c) => c.question);
   if (onNote) onNote({ move: "void_questions", of: voidQuestions.length, cells: `${preVoid.cells.filter((c) => c.relevant && c.essay).length} content / ${preVoid.cells.filter((c) => c.relevant && !c.essay).length} shape of ${preVoid.relevant} relevant`, questions: voidQuestions.slice(0, 5) });
+  // THE MODE DECISION — made HERE, before any expensive essay-oriented work,
+  // and never upgraded by material discovered later. "auto" is a normal
+  // conversation: a plain question stays chat; only an explicit artifact ask
+  // becomes projection and an elaboration ask becomes long. The preliminary
+  // shape uses the task + workspace alone (no web — the decision never
+  // depends on having gone out and gathered).
+  const prelimShape = detectAnswerShape(task, workspaceStats.files > 0, false, false, [], null);
+  const runMode = normalizeMode(mode) === "auto"
+    ? (prelimShape.shape === "composition" ? "projection" : prelimShape.shape === "long" ? "long" : "chat")
+    : normalizeMode(mode);
+  if (onNote) onNote({ move: "void_defined", mode: runMode, shape: prelimShape.shape, of: voidQuestions.length, basis: mode === "auto" ? null : "forced by the caller" });
   // Gore's initial gather: hunt the FIRST question (the most basic: "What is
   // X?") to seed the reading — then the per-section loop below strikes each
   // remaining question for its own shape.
@@ -1789,9 +1960,22 @@ const modelsUp = await ollamaReachable();
   // string (measured: it returned nothing, so the ground was the chat text
   // alone and every section failed grounding). The topic is a real search
   // term; the void questions are the SECTIONS, not the search queries.
+  // PROJECTION hunts the web for its shape. A normal chat turn does NOT go out
+  // and search the topic — chat is the main use case; a research-shaped ask
+  // may still gather when the web door is explicitly open (ER7_WEB_SEARCH=1).
   const seedQuery = topic;
-  const webResult = await searchAndAdmitWeb(session, sessionId, seedQuery, onNote, { move: "gather" });
-  const hasWeb = webResult.pages > 0;
+  let webResult = { pages: 0, chars: 0 };
+  let hasWeb = false;
+  if (runMode === "projection") {
+    // Projection hunts the web for its shape — the void's own hunt.
+    webResult = await searchAndAdmitWeb(session, sessionId, seedQuery, onNote, { move: "gather" });
+    hasWeb = webResult.pages > 0;
+  } else if (WEB_SEARCH_ON && (prelimShape.shape === "research" || prelimShape.shape === "open")) {
+    // A research-shaped chat ask may gather when the web door is open
+    // (ER7_WEB_SEARCH=1) — but never a plain question by default.
+    webResult = await searchAndAdmitWeb(session, sessionId, task, onNote, { move: "gather", maxPages: 2 });
+    hasWeb = webResult.pages > 0;
+  }
 
   // 2. Surf AND fold the conversation itself: the chat history is admitted to
   // the same corpus session as the workspace (unique per-turn sourceId, so
@@ -1859,23 +2043,56 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
 
   if (onNote) onNote({ move: "composed", relations: stats.relationEdges, bindings: stats.referentBindings, hyperlexicon: Object.keys(hyperlexicon.composition ?? {}).length });
 
+  // KELSEN — THE PRIMARY MODALITY, ON EVERY SURFACE. The reading's own claims
+  // are linted through the precedence order (validity → lex specialis → force
+  // → lex posterior → entrenchment) whenever the reading holds propositions —
+  // the CHAT turn and the projection alike, never a silent pick. Computed
+  // HERE, at the reading's first edges, so both the answer's prompt and the
+  // thinking surface read the SAME resolutions: the mouth is told what is
+  // contested and how the order resolves it, before anything is composed.
+  const resultKelsen = rawEntries?.length
+    ? kelsenGrade({
+        propositions: notesFromEdges(rawEntries),
+        index: sessionReferentIndex(session, onNote),
+        precedence,
+        tagClaim,
+      })
+    : null;
+
   // 3. SURF the task against the session corpus — the mechanical address
   // ladder (source→heading→content→window). Content only reaches the model
   // inside surfacedSegments, or a DISCLOSED void fact (P32's searched-void
   // pattern: a fact about what the corpus does NOT hold, never a behavioral
   // instruction stacked on top of it).
   if (session.corpus && session.corpus.documents.size > 0) {
-    // A generation task (essay/paper/report/spec — any task with material to
-    // write from) wants the multi-doc surf: one windowed segment per source,
-    // so each section has its own grounded material — not the single best
-    // address a one-shot answer needs.
-    const looksComposition = /\b(essay|write|explain|describe|summarize|outline|compose|report|discuss|analyze|paper|review|spec|guide|tell\s+me\s+about)\b/i.test(task);
-    const surf = surfTask(session, task, onNote, { composition: looksComposition });
+    // A projection task (an artifact with sections — essay/paper/report/spec,
+    // any generation with material to write from) wants the multi-doc surf:
+    // one windowed segment per source, so each section has its own grounded
+    // material — not the single best address a one-shot answer needs.
+    const surf = surfTask(session, task, onNote, { composition: runMode === "projection" });
     surfacedSegments = surf.segments;
     surfVoid = surf.void;
     surfVoidInfo = surf.void ? { gap: surf.gap ?? "content_not_found", reason: surf.reason ?? null } : null;
     workspaceStats.segments = surfacedSegments.length;
     if (surf.void) workspaceStats.refusals = 1;
+
+    // BROAD RECALL — a "summarize / what do you remember" question asks for
+    // the CONVERSATION, not a single addressed passage. The mechanical ladder
+    // has no cue for a meta question (it shares almost no tokens with the
+    // planted turns), so for this class the model is handed the conversation's
+    // OWN fold instead — the prior turns' words, addressed as a conversation,
+    // never a fabricated digest, and never the void-disclosed "nothing here
+    // answers it" that the ladder would otherwise return.
+    if (isBroadRecall(task)) {
+      const foldSegments = conversationFoldSegments(session, task, materialText);
+      if (foldSegments.length) {
+        surfacedSegments = foldSegments;
+        surfVoid = false;
+        surfVoidInfo = null;
+        workspaceStats.segments = foldSegments.length;
+        if (onNote) onNote({ move: "surfaced", operator: "CONV", fan: foldSegments.length, docs: session.corpus.documents.size, broadRecall: true });
+      }
+    }
   } else if (onNote) {
 }
 
@@ -1888,13 +2105,32 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   if (RESOLUTIONS_LEVEL > 0) {
     const index = sessionReferentIndex(session, onNote);
     if (index) {
-      const transcript = chatTranscript(chatHistory);
+      // The transcript the blocks read. When the client SENDS history it is
+      // the request's own messages; when it sends none (the no-history memory
+      // test — every request carries only the current message) the
+      // conversation lives only in the session's own fold, so it is
+      // reconstructed from the corpus's chat documents. Without this the
+      // atmosphere block sees zero exchanges and the digest is empty.
+      const transcript = chatHistory.length
+        ? chatTranscript(chatHistory)
+        : transcriptFromSession(session, task);
       const notes = notesFromEdges(rawEntries);
+      // A BROAD recall question names no single referent ("what do you
+      // remember about me"), so lens/paradigm would resolve nothing and the
+      // digest would be empty for exactly the question that asks for the
+      // whole. Give the blocks the conversation's own beings as the active
+      // set — the summary is asked over the whole conversation, not over one
+      // addressed passage.
+      let question = task;
+      if (isBroadRecall(task)) {
+        const beings = conversationBeings(index, transcript);
+        if (beings.length) question = `Tell me what you remember about ${beings.join(" and ")}.`;
+      }
       const started = Date.now();
       try {
         resolutions = resolutionBlocks({
           level: RESOLUTIONS_LEVEL,
-          question: task,
+          question,
           transcript,
           index,
           notes,
@@ -1936,7 +2172,10 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // so the reading absorbs the primary bytes, not a secondhand digest. The
   // hyperlexicon then reads real relations from the work itself. Never a
   // guess: only a page that actually exists resolves.
-  if (WIKISOURCE_ON && digestInfo.composition?.length) {
+  // WIKISOURCE — the hyperlexicon's PRIMARY-SOURCE door, a PROJECTION-only
+  // step (the artifact's grounding). A chat answer does not fetch primary
+  // texts: that is the artifact's hunt, not a normal conversation's.
+  if (runMode === "projection" && WIKISOURCE_ON && digestInfo.composition?.length) {
     // The admission below is BLOCKING setup before the first draw (fetch +
     // reader-step up to 11K chars of primary text). Ollama's keep_alive
     // expires during it, so the first draw cold-loads and can blow the job
@@ -1982,12 +2221,17 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // ── void-detection: steer answer shape ───────────────────────────────────
   // Zero the space first, then see what is still empty. A greeting needs one
   // sentence; a command needs acknowledgment; a research question needs
-  // grounded material; a void needs a disclosed fact (P32). Composition
-  // tasks decompose into brief grounded sections. This steers the model
-  // toward the proper length and modality without relying on the model to
-  // figure out the shape itself — the shape is the READING's verdict.
-  const answerShape = detectAnswerShape(task, workspaceStats.files > 0, hasWeb, surfVoid, surfacedSegments, resolutions);
-  if (onNote) onNote({ move: "answer_shape", shape: answerShape.shape, modality: answerShape.modality });
+  // grounded material; a void needs a disclosed fact (P32). This steers the
+  // model toward the proper length and modality without relying on the model
+  // to figure out the shape itself — the shape is the READING's verdict.
+  // The MODE is authoritative: whatever the recomputed shape says, a forced
+  // mode wins, and a material discovered mid-turn never upgrades a chat turn
+  // into long-form.
+  let answerShape = detectAnswerShape(task, workspaceStats.files > 0, hasWeb, surfVoid, surfacedSegments, resolutions);
+  if (runMode === "projection") answerShape = { shape: "composition", maxTokens: CALL_MAX_TOKENS, modality: "grounded" };
+  else if (runMode === "long") answerShape = { shape: "long", maxTokens: LONG_MAX_TOKENS, modality: "extended" };
+  else if (answerShape.shape === "composition") answerShape = { shape: "research", maxTokens: CALL_MAX_TOKENS, modality: "grounded" };
+  if (onNote) onNote({ move: "answer_shape", shape: answerShape.shape, modality: answerShape.modality, mode: runMode });
 
   // 5. Build messages for Ollama. THE MODEL IS THE MOUTH — the prompt speaks
   // the way a collaborator speaks, never as an instrument. No "you are a
@@ -1996,8 +2240,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // material is "here's what came up", not "material was surfaced from the
   // workspace" (the-fold firewall.js: nothing here names a part of this
   // instrument, so there is no word to borrow).
+  // The resolutions' own text already opens with "Where the conversation
+  // stands:" (the atmosphere block's header) — never double the banner.
   const readingContext = resolutions?.text
-    ? `\n\nWhere the conversation stands:\n${resolutions.text}`
+    ? (resolutions.text.startsWith("Where the conversation stands:")
+      ? `\n\n${resolutions.text}`
+      : `\n\nWhere the conversation stands:\n${resolutions.text}`)
     : "";
   const systemCore = [
     // The standing character — the same neutral voice every session begins
@@ -2014,6 +2262,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     readingContext || null,
     surfVoidInfo
       ? `\n\nWe looked for something on this and couldn't find it (${surfVoidInfo.gap}). Say plainly that nothing here answers it, rather than answering from something else.`
+      : null,
+    // KELSEN, ON THE ANSWER'S BODY — when the reading held conflicting claims,
+    // the precedence order resolved them and the mouth must speak the
+    // standing, never silently pick a winner. This is the machine-that-won't-
+    // answer on every surface: the answer carries why the claim won or lost.
+    resultKelsen?.resolutions?.length
+      ? `\n\nSome claims in the material conflict. They were resolved by the fixed norm hierarchy (validity, then the special over the general, then the later over the earlier, then entrenchment):\n${resultKelsen.resolutions.slice(0, 5).map((r) => `- “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} (${r.why ?? r.reason})`).join("\n")}${resultKelsen.resolutions.length > 5 ? `\n… ${resultKelsen.resolutions.length - 5} more.` : ""}\nSpeak with that standing: name the conflict and the resolution, do not silently pick.`
       : null,
   ].filter(Boolean).join("\n");
 
@@ -2099,8 +2354,8 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // one-line ask compose six sections and take 30-60s (measured live). The
   // void questions are still computed (they inform the shape), but they only
   // become SECTIONS when the shape is composition.
-  let compositionPlan = { questions: answerShape.shape === "composition" ? [...voidQuestions] : [], declaration: null };
-  if (answerShape.shape === "composition") {
+  let compositionPlan = { questions: runMode === "projection" ? [...voidQuestions] : [], declaration: null };
+  if (runMode === "projection") {
     const idx = sessionReferentIndex(session, onNote);
     const refs = [...(idx?.referents?.values?.() ?? [])].map((r) => [...(r.surfaces ?? [])][0]).filter((n) => n && n.length > 3).slice(0, 3);
     const openQ = (session.reader.getTasks?.() ?? [])
@@ -2121,7 +2376,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // On a RESUMED run, the sections are the STORED void plan (from the ledger) —
   // the same shape the crashed run DEF'd — minus the already-answered parts.
   // Never re-derive a different shape after a crash: the plan is the shape.
-  const sections = (resumePlan ?? compositionPlan.questions)
+  let sections = (resumePlan ?? compositionPlan.questions)
     // CRASH RESILIENCE: questions already answered (part titles in the existing
     // ledger) are skipped on a resumed run — the essay continues, it never
     // restarts. The ledger already holds those parts; appending is the only write.
@@ -2130,11 +2385,26 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // not a fixed truncation of the DEF'd shape. A 27-cell sweep can stay
     // relevant; ER7_MAX_SECTIONS raises it for long pieces.
     .slice(0, Number(process.env.ER7_MAX_SECTIONS ?? 20));
+  // A forced PROJECTION whose void produced no content cells still gets an
+  // artifact — a single grounded part on the whole of what came up, rather
+  // than silently falling out of the mode into a chat answer.
+  if (runMode === "projection" && !sections.length) sections = [topicPhrase(task) || task];
+  // THE ARTIFACT'S EXTENT IS THE MATERIAL'S OWN. A projection with NO ground
+  // to write from (no workspace, no web, no surfaced passages) has no
+  // multi-section extent — the void cannot support sections it cannot fill.
+  // A "short essay about X" asked with nothing to ground it becomes a short
+  // piece (bounded), and the grounding checks disclose its standing honestly
+  // rather than churning ungrounded rewrites forever.
+  const hasGrounding = (session.webSources?.size ?? 0) > 0 || (workspaceStats.files ?? 0) > 0 || surfacedSegments.length > 0;
+  if (runMode === "projection" && !hasGrounding) sections = sections.slice(0, 2);
   // The composition block below may EVOLVE the plan (REC supersedes the outline
   // and adds themes as the reading grows). Hoisted so the satisfaction check
   // reads the plan the essay actually wrote, whether or not the block ran.
   let plannedSectionsOut = [...sections];
   let rankeTotalFindings = 0; // Ranke's rewrite count, hoisted for the thinking surface (scoped across the composition block)
+  // The single-answer modes' void-fill verdict, hoisted for the result —
+  // every answer, whatever the mode, is a void defined and satisfied.
+  let chatSatisfaction = null;
   // A generated composition is a DOCUMENT LEDGER (EOT): every part admitted
   // is a line, every revision is a line, and the text a person reads is a
   // PROJECTION of the ledger — the full revision history is always re-foldable.
@@ -2185,8 +2455,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     const ratio = grounded / Math.max(1, cells.length);
     return Number((0.3 + ratio * 0.6).toFixed(2)); // 0.3 (all generative) … 0.9 (all grounded)
   };
-  const compositionKelsen = kelsenFromShape();
-  if (onNote) onNote({
+  // The Kelsen gauge is a PROJECTION instrument (how tightly an artifact is
+  // bound to its ground). A chat/long answer uses the caller's override or
+  // the flat default — no artifact shape to gauge against.
+  const compositionKelsen = runMode === "projection" ? kelsenFromShape() : (kelsen ?? DEFAULT_KELSEN);
+  if (runMode === "projection" && onNote) onNote({
     move: "kelsen", value: compositionKelsen,
     shape: voidDeclaration?.cells?.map((c) => c.op).filter(Boolean).join(" ") ?? "none",
     grounded: voidDeclaration?.cells?.filter((c) => ["EVA", "SEG", "DEF"].includes(c.op)).length ?? 0,
@@ -2342,8 +2615,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       for (let i = 0; i < plannedSections.length && !truncated; i++) {
         const section = plannedSections[i];
         if (onNote) onNote({ move: "composing_section", index: i + 1, of: plannedSections.length, section });
+        // EVA admits the part: real text against a ground. A projection with
+        // NO ground still writes its bounded sections — the admission gate
+        // admits them ungrounded (their standing is disclosed by the
+        // satisfaction check, never churned); a grounded projection keeps the
+        // strict gate exactly as before.
         const grounded = material.length > 0;
-        const eva = admitPart({ text: section, grounded, minChars: 0 });
+        const eva = admitPart({ text: section, grounded: grounded || !hasGrounding, minChars: 0 });
         if (!eva.ok) {
           if (onNote) onNote({ move: "composing_skip", section, because: eva.because });
           continue;
@@ -2408,6 +2686,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             : `We're writing a piece on ${topic}. ${priorParts ? `Where the piece stands so far: ${priorParts}\n\n` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences. ANSWER WITH THE MATERIAL'S OWN FACTS about ${topic}: its real names, places, numbers, and relationships as the sources state them. ${(() => { const sp = propsForSection(section); return sp.length ? `Here are the material's claims this part should carry:\n${sp.map((p) => `- ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}` : ""; })()}\nDo not discuss the essay, the writing, the question, or the material itself. It continues what the piece has already established — build on it, transition from it, do not restate it.`)
           : `Write the piece on ${topic}, ${holonPhrase}, as a substantial passage — several sentences about ${topic} using the material's own facts, names, and figures as the sources state them. Do not discuss the essay, the writing, or the material.`;
         const holonBudget = holonLevel === "sentence" ? Math.min(SECTION_MAX_TOKENS, 220) : holonLevel === "paragraph" ? Math.min(SECTION_MAX_TOKENS, 450) : SECTION_MAX_TOKENS;
+        // A SHORT PIECE WITH NO GROUND writes SHORT sections — a "short essay"
+        // asked with nothing to ground it gets a bounded per-part budget, so
+        // the artifact completes in chat-time rather than running past the
+        // turn deadline churning ungrounded prose. (hasGrounding, hoisted with
+        // the sections bound.)
+        const drawBudget = hasGrounding ? holonBudget : Math.min(holonBudget, 400);
         if (onThinking) onThinking(`\n### ${section} (${holonLevel})\n\n`);
         // The draw runs NOW, in parallel with the Gore strike. Whichever lands
         // first flows; the strike's result is folded into the reading whenever
@@ -2419,7 +2703,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
               ...keptChat,
               { role: "user", content: sectionTask },
             ],
-            holonBudget,
+            drawBudget,
             { kelsen: compositionKelsen },
           ),
         ]);
@@ -2546,6 +2830,15 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         }
         if (!rankeFindings.length) break;
         rankeTotalFindings += rankeFindings.length;
+        // NO GROUND, NO REWRITE: with no material to ground against, Ranke's
+        // ungrounded/unresolved findings cannot be fixed by rewriting FROM
+        // nothing — the rewrite would churn model calls against an empty
+        // ground. The findings are recorded and the sections stand as written,
+        // with their ungrounded standing disclosed by the satisfaction check.
+        if (!hasGrounding) {
+          if (onNote) onNote({ move: "ranke", round: round + 1, ungrounded: rankeFindings.map((f) => f.sectionIndex), declared: "no ground to rewrite from — gaps disclosed, not churned" });
+          break;
+        }
         if (onNote) onNote({ move: "ranke", round: round + 1, ungrounded: rankeFindings.map((f) => f.sectionIndex) });
         // CONVERGENCE GUARD: a section that stays ungrounded after the rewrite
         // budget becomes a DECLARED GAP — typed and disclosed, never silently
@@ -2592,11 +2885,20 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // already rewritten above. Murch produces one batch of bounded rewrites,
       // each fixing exactly one finding, and the shape is re-checked — the
       // film made in the cut.
+      // NO GROUND, NO EDITORIAL PASS: with no material, Murch's shape-check
+      // will find what any ungrounded short piece lacks (a closing, a body)
+      // and rewrite it FROM nothing — churning draws against an empty ground,
+      // the same runaway as Ranke's. The piece is written once, short, and its
+      // standing is disclosed by the satisfaction check. The editorial film is
+      // made in the cut; there is no cut without the material.
       const assembled = documentLines.join("\n\n");
-      const shapeCheck = checkEssayShape(assembled, { parts: plannedSections.length, themes: plannedSections, subject: topic });
+      const shapeCheck = hasGrounding ? checkEssayShape(assembled, { parts: plannedSections.length, themes: plannedSections, subject: topic }) : { ok: true, failures: [] };
       if (onNote) onNote({ move: "shape_check", ok: shapeCheck.ok, failures: shapeCheck.failures.map((f) => f.detail) });
+      if (!hasGrounding) {
+        if (onNote) onNote({ move: "murch", round: 0, findings: [], basis: "no ground — editorial pass skipped, standing disclosed by satisfaction" });
+      }
       const editorIndex = sessionReferentIndex(session, onNote);
-      for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated; round++) {
+      for (let round = 0; round < MAX_REWRITE_ROUNDS && !truncated && hasGrounding; round++) {
         // Aggregate EVERY finding across the whole essay — Murch's brief.
         // Murch is a STYLISTIC editor: his findings are the shape of the prose —
         // repetition, meta-commentary, thin sections, and the whole-essay
@@ -2777,7 +3079,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // worth revising — a writer returns to an earlier part when the later
       // research deepens it. Bounded: one revision pass, each section at most
       // once, and only when the fold genuinely grew.
-      if (documentLedger && !truncated && plannedSections.length > 1 && session.reader) {
+      if (documentLedger && !truncated && plannedSections.length > 1 && session.reader && hasGrounding) {
         const fresh = sessionReferentIndex(session, onNote);
         const afterCount = fresh?.referents?.size ?? 0;
         // The FIRST time a session composes, there is no "before" — the baseline
@@ -2888,9 +3190,23 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           if (onToken) onToken(citationBlock);
         }
       }
-    } else {
-      const r = await draw(ollamaMessages, CALL_MAX_TOKENS, { kelsen: compositionKelsen });
+    } else if (runMode === "long") {
+      // ── LONG — a response that goes further than chat provides. ────────
+      // One extended single draw at a generous budget; no ledger, no editorial
+      // passes. The void is "answer thoroughly", filled in one sitting.
+      const r = await draw(ollamaMessages, LONG_MAX_TOKENS, { kelsen: compositionKelsen });
       if (r?.stopped) truncated = true;
+      chatSatisfaction = chatVoidCheck(fullText, { shape: "long", material: material.map((s) => s.text ?? "").join("\n") });
+      if (onNote) onNote({ move: "chat_satisfied", shape: "long", ok: chatSatisfaction.ok, failures: chatSatisfaction.failures ?? [], strain: chatSatisfaction.strain ?? 0 });
+    } else {
+      // ── CHAT — the default surface. ────────────────────────────────────
+      // Every answer is a void defined and satisfied at its natural size: a
+      // greeting gets a sentence, a command an acknowledgment, a research
+      // question a grounded answer — one draw, never a sectioned artifact.
+      const r = await draw(ollamaMessages, answerShape.maxTokens ?? CALL_MAX_TOKENS, { kelsen: compositionKelsen });
+      if (r?.stopped) truncated = true;
+      chatSatisfaction = chatVoidCheck(fullText, { shape: answerShape.shape, material: material.map((s) => s.text ?? "").join("\n") });
+      if (onNote) onNote({ move: "chat_satisfied", shape: answerShape.shape, ok: chatSatisfaction.ok, failures: chatSatisfaction.failures ?? [], strain: chatSatisfaction.strain ?? 0 });
     }
   });
 
@@ -2924,31 +3240,52 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   if (surfVoidInfo) thinkingLines.push(`Nothing here answered the question (${surfVoidInfo.gap}).`);
   if (stats.relationEdges) thinkingLines.push(`The reading holds ${stats.relationEdges} relation edge(s), ${stats.referentBindings} referent binding(s).`);
   if (resolutions?.active?.length) thinkingLines.push(`Active referents: ${resolutions.active.map((a) => a?.id ?? a).join(", ")}.`);
+  // KELSEN, DISCLOSED: the conflicts the reading held and how the precedence
+  // order resolved them — the answer's standing, shown in plain English. This
+  // is the machine-that-won't-answer's teaching on every surface, not just the
+  // projection: the reader sees WHY a claim won or lost, never a silent pick.
+  if (resultKelsen?.resolutions?.length) {
+    const k = resultKelsen;
+    const lines = [`Conflicting claims resolved by the norm hierarchy (Kelsen — validity, then lex specialis, then force, then lex posterior, then entrenchment):`];
+    for (const r of k.resolutions.slice(0, 5)) lines.push(`- ${r.subject}: “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} — ${r.why ?? r.reason}`);
+    if (k.resolutions.length > 5) lines.push(`… ${k.resolutions.length - 5} more.`);
+    thinkingLines.push(lines.join("\n"));
+  }
   const thinkingBlock = thinkingLines.length ? thinkingLines.join("\n") : null;
-
-  // KELSEN: THE PRIMARY MODALITY — computed once so the result AND the
-  // thinking surface both read it.
-  const resultKelsen = documentLedger && rawEntries?.length
-    ? kelsenGrade({
-        propositions: notesFromEdges(rawEntries),
-        index: sessionReferentIndex(session),
-        precedence,
-        tagClaim,
-      })
-    : null;
 
   // ── the durable theory of mind, updated and persisted at the turn's end.
   // Type-level only: the person's assertion and the standing this turn's
   // record earned for it. The conversation's SPECIFICS stay in the session.
+  // A surf VOID only marks an assertion "contested" when there was real
+  // non-conversation material the surf genuinely could not address. When the
+  // only material in the corpus is the conversation itself (no workspace, no
+  // web — the conversation is excluded from the surf by design), a void
+  // means nothing CHALLENGED the person's own statement, and the honest
+  // standing is "unexamined", never "contested — not settled".
   if (speakerModel && userId) {
+    const hasNonConversationGround = workspaceStats.files > 0
+      || (session.webSources?.size ?? 0) > 0
+      || (session.corpus && [...session.corpus.documents.keys()].some((k) => !String(k).startsWith("chat:")));
     const updated = updateSpeakerModel(speakerModel, {
       task,
       classification: (() => { try { return classifySpeech(task); } catch { return "question"; } })(),
-      surfVoid,
+      surfVoid: surfVoid && hasNonConversationGround,
       surfaced: surfacedSegments.length,
     });
     saveSpeakerModel(userId, updated);
   }
+
+  // THE MENO CHECK, COMPUTED ONCE: the void was DEF'd when the composition
+  // started; here we ask whether it is FILLED. We know we've learned when the
+  // void we declared — across its nine operators — is filled by sections that
+  // pass its admission test. Strain is the REC pressure the void demanded.
+  const satisfaction = documentLedger
+    ? (sessionReferentIndex(session) && rawEntries?.length
+      ? lavarGradeEssay(documentLines, plannedSectionsOut, { materialPropositions: notesFromEdges(rawEntries), index: sessionReferentIndex(session) })
+      : sessionReferentIndex(session)
+        ? holographicSatisfaction(documentLines, plannedSectionsOut, { index: sessionReferentIndex(session) })
+        : fillCheck(voidDeclaration, documentLines, plannedSectionsOut, { material: groundingText() }))
+    : chatSatisfaction;
 
   return {
     text,
@@ -2997,13 +3334,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // ask whether it is FILLED. We know we've learned when the void we
     // declared — across its nine operators — is filled by sections that pass
     // its admission test. Strain is the REC pressure the void demanded.
-    satisfaction: documentLedger
-      ? (sessionReferentIndex(session) && rawEntries?.length
-        ? lavarGradeEssay(documentLines, plannedSectionsOut, { materialPropositions: notesFromEdges(rawEntries), index: sessionReferentIndex(session) })
-        : sessionReferentIndex(session)
-          ? holographicSatisfaction(documentLines, plannedSectionsOut, { index: sessionReferentIndex(session) })
-          : fillCheck(voidDeclaration, documentLines, plannedSectionsOut, { material: groundingText() }))
-      : null,
+    satisfaction,
     // KELSEN: THE PRIMARY MODALITY — the essay's claims resolve by the norm
     // hierarchy (validity → lex specialis → force → lex posterior →
     // entrenchment), and the resolutions are NAMED. This is the default
@@ -3086,6 +3417,22 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     totalStrain,
     thinking: thinkingBlock || null,
     answerShape: answerShape.shape,
+    mode: runMode,
+    // THE VOID, DEFINED AND SATISFIED — universal across every mode. The
+    // shape names what the answer must be; the questions are the void the
+    // answer had to fill; satisfied is the verdict the mode earned (a
+    // projection's from its ledger satisfaction, a single answer's from the
+    // void-fill check).
+    void: {
+      shape: answerShape.shape,
+      modality: answerShape.modality,
+      mode: runMode,
+      questions: voidQuestions,
+      cells: preVoid.cells.filter((c) => c.relevant).map((c) => ({ question: c.question, op: c.op, cell: c.cell })),
+      satisfied: runMode === "projection"
+        ? Boolean(documentLedger && (satisfaction?.ok ?? false))
+        : Boolean(chatSatisfaction?.ok ?? false),
+    },
   };
 }
 
@@ -3189,7 +3536,7 @@ export async function startDocumentJob({ task, model, workspace = "", sessionId 
         for (let attempt = 0; attempt < 3; attempt++) {
           try {
             return await runProxyTurn(
-              { sessionId: sid, model, task, workspace, holonLevel: job.holonLevel, resumeAnswered: answeredTitles, resumePlan: planQuestions },
+              { sessionId: sid, model, task, workspace, holonLevel: job.holonLevel, resumeAnswered: answeredTitles, resumePlan: planQuestions, mode: "projection" },
               (chunk) => { job.chars += chunk.length; job.updatedAt = Date.now(); },
               (note) => { if (note?.move === "composing_section") job.sections++; },
               (thinking) => job.updatedAt = Date.now(),

@@ -16,6 +16,9 @@ export const CAST = Object.freeze([
   "barker",
   "oracle",
   "lavar",
+  "terry-gross",
+  "eastwood",
+  "kubrick",
 ]);
 
 // The firewall's apparatus nouns (P55), so a practice fact that leaks one
@@ -87,7 +90,16 @@ const HAS = (re) => (text) => re.test(String(text ?? "").toLowerCase());
 const FRAME_ASK = /\b(so what|big picture|what does it all mean|what does this mean|paradigm|frame\b|worldview|narrative|story we)\b/;
 const MAP_ASK = /\b(how (do|does) (these|this|they).*(fit|relate|connect)|framework|meta|bigger picture|hold.*together)\b/;
 const ESCALATE = /\b(prove it|really\?|are you sure|that can't be|wait|check that|actually)\b/;
-const ASSERT = /\b(i('m| am)? (pretty sure|sure|think|believe|know|convinced)|i assert|i maintain)\b|\b(is|are|was|were) (not |the |a |an )?\w+ and\b/;
+// ASSERT — a first-person declarative claim about the person or the world:
+// the belief verbs ("I'm sure / I think / I believe / I know"), the
+// predicated "X is Y" constructions, AND the personal predicates a theory of
+// mind must capture ("I'm allergic to peanuts", "my favorite color is teal",
+// "I have a dog named Scout", "I'm training for a half marathon"). A
+// question ("am I allergic?", "do I like X?") never matches — the "?" fallback
+// below catches it. This is the extraction the durable speaker-model's
+// theory of mind stands on; a personal fact that is never classified as an
+// assertion never reaches the durable model (measured: D1 of the rubric).
+const ASSERT = /\b(i('m| am)? (pretty sure|sure|think|believe|know|convinced)|i assert|i maintain)\b|\b(i'?m|i am)\s+(?:allergic to|into|fond of|afraid of|trying to|planning to|training for|moving to|learning to|starting to)\b|\b(i (?:have|'ve got) a\s+(?:dog|cat|bird|pet|allergy)|i(?:'m| am)\s+training for)\b|\b(my\s+(?:\w+\s+)?(?:favorite|favourite|name|color|colour|dog|cat|hobby)\s+(?:is|are))\b|\b(is|are|was|were) (not |the |a |an )?\w+ and\b/i;
 
 export function classifySpeech(text) {
   const t = String(text ?? "").trim();
@@ -116,6 +128,9 @@ const DEFAULT_TRUST = Object.freeze({
   curtis: "checked",
   barker: "checked",
   lavar: "sampled",
+  "terry-gross": "cleared",
+  eastwood: "cleared",
+  kubrick: "cleared",
   trajectory: "checked",
 });
 
@@ -157,6 +172,26 @@ export function eligibleAttentions({ act, state = {}, depth = 1 } = {}) {
       push("ranke");
       break;
   }
+  // THE ARCHON OF CONVERSATIONS — Terry Gross: the interviewer who draws the
+  // guest out. Every conversation turn is hers to shape: the person is the
+  // guest, the answer is theirs to arrive at, and the machine holds the space
+  // rather than filling it. She cues on every conversational act — a question,
+  // an assertion, an escalation, a frame/map ask — the moments where a reply
+  // could either hand the thread back or take it over.
+  if (["question", "assertion", "escalation", "frame-ask", "map-ask"].includes(act)) push("terry-gross");
+  // THE DIRECTORS DUEL OVER THE SHOT — Eastwood and Kubrick shoot the same
+  // scene two very different ways. Eastwood's take is economy: the shortest
+  // true answer, no wasted frames, cut to the point and stop. Kubrick's take
+  // is composition: the whole framed before the first sentence, every word
+  // earning its place, precision over speed. The duel resolves by the scene:
+  // a big-picture ask (frame/map) is Kubrick's — composition is his; a tight
+  // exchange (escalation, a direct question) is Eastwood's — economy is his;
+  // and an assertion holds the tension, both firing, because a position
+  // deserves an answer that is BOTH lean and deliberate.
+  if (["frame-ask", "map-ask"].includes(act)) push("kubrick");
+  else if (["escalation"].includes(act)) push("eastwood");
+  else if (act === "question") push("eastwood");
+  else { push("eastwood"); push("kubrick"); }
   if (state.contradictions?.length && depth > 0) push("freinacht");
   if (state.settled && depth > 1) push("curtis");
   // The trajectory lens fires when the conversation is about a thing whose
@@ -242,6 +277,68 @@ export function identifyByArc(history = []) {
 
 // ── the truth ladder, made visible: object-level facts ───────────────────
 
+// ── THE ARCHON OF CONVERSATIONS: Terry Gross, keeper of the flow rules ────
+// Her domain is HOW THE FLOWS GO — the rules of the conversational journey,
+// not any one answer. The rules below are the ones she REMEMBERS: a trigger
+// summons them (she writes them up), and Marshall (the chorus's meta lens)
+// integrates them into the law files (POLICIES.md / READING-SPEC) with
+// citations and a Generality line. Each rule names the code that enforces it,
+// so the write-up is a walk of the enforcement, never an invention.
+export const CONVERSATION_FLOW_RULES = Object.freeze([
+  {
+    rule: "the oracle is not a teacher",
+    meaning: "an answer that arrives effortlessly teaches helplessness; answers carry their standing and the machine refuses to do the thinking for the person.",
+    enforced: ["NEUTRAL_CHARACTER", "earnedCue", "chatVoidCheck", "surfVoidInfo"],
+  },
+  {
+    rule: "hyper-grounded by default, on every surface",
+    meaning: "the chat turn, the proxy, and the composing doors are all linted the same way; Kelsen (the precedence order) and Ranke (the citation chase) are the primary modality.",
+    enforced: ["kelsenGrade", "surf", "grounding", "surfVoidInfo"],
+  },
+  {
+    rule: "a gap is a result",
+    meaning: "I don't know, the material does not say, and I didn't look are three different answers and never render alike.",
+    enforced: ["surfVoidInfo", "earnedCue", "chatVoidCheck"],
+  },
+  {
+    rule: "every answer is a void defined and satisfied",
+    meaning: "the shape of what the answer must satisfy is DEF'd first, and the answer fills it — a chat answer fills a small void in one draw; long-form is entered, never assumed.",
+    enforced: ["voidCellsFor", "detectAnswerShape", "chatVoidCheck", "satisfaction"],
+  },
+  {
+    rule: "the journey, covert",
+    meaning: "personas respond without the person being told a persona is speaking; the conversation is a progression the person is drawn through, never a role the machine declares.",
+    enforced: ["eligibleAttentions", "assembleFacts", "bannedHits"],
+  },
+  {
+    rule: "theory of mind, held across sessions",
+    meaning: "what the person has asserted and its standing is the machine's durable memory of them — type-level, fed back, never a stranger's.",
+    enforced: ["speaker-model", "durableFacts", "updateSpeakerModel"],
+  },
+  {
+    rule: "the refusal is warm",
+    meaning: "the machine withholds in the right key — with the shape of the work on the far side of the withholding, never as another failure.",
+    enforced: ["NEUTRAL_CHARACTER", "earnedCue"],
+  },
+  {
+    rule: "long-form is a mode, not the identity",
+    meaning: "the proxy is a normal conversation first; projection is an artifact entered on an explicit ask, and the void is filled at the grain the ask earned.",
+    enforced: ["normalizeMode", "detectAnswerShape", "runProxyTurn"],
+  },
+]);
+
+// The write-up the future trigger produces: the archon's remembered rules, in
+// the shape Marshall integrates (each rule with its meaning and the code that
+// enforces it).
+export function archonRules() {
+  return {
+    archon: "terry-gross",
+    title: "Archon of Conversations",
+    domain: "how the conversational flows go",
+    rules: CONVERSATION_FLOW_RULES.map((r) => ({ ...r })),
+  };
+}
+
 const q = (s) => String(s ?? "");
 const personOf = (s) => q(s.person ?? "you");
 
@@ -306,6 +403,46 @@ export function assembleFacts({ act, state = {}, eligible = [] }) {
       from: "trajectory",
       text: `that is the shape of ${identifyByArc(state.thing.history ?? [])} — say so if you see it that way, or correct me.`,
     });
+  }
+
+// THE ARCHON OF CONVERSATIONS — Terry Gross, the interviewer who draws the
+  // guest out. Her facts are about the CONVERSATION's own standing: the
+  // person is the guest, the thread is theirs, and the reply either hands it
+  // back or takes it over. Object-level, covert (never "Terry Gross", never a
+  // role line) — the mouth is never told a persona is speaking.
+  if (has("terry-gross")) {
+    if (act === "question") {
+      facts.push({ from: "terry-gross", text: `the person asked something — the answer is theirs to reach, so reply plainly and hand the thread back rather than taking it over.` });
+    } else if (act === "escalation") {
+      facts.push({ from: "terry-gross", text: `the person pushed back; this is where the conversation tightens — hold the claim to its ground, do not smooth the disagreement away.` });
+    } else if (act === "assertion") {
+      facts.push({ from: "terry-gross", text: `the person has taken a position; give it the standing it earned and let them carry it further rather than answering for them.` });
+    } else {
+      facts.push({ from: "terry-gross", text: `the conversation has a shape; the person is the one being drawn out, so leave room for their own next step.` });
+    }
+  }
+
+  // THE DIRECTORS — Eastwood and Kubrick shoot the shot. Both covert, both
+  // object-level facts about the DELIVERY, never a name or a role line.
+  // Eastwood: economy — the fewest true words, no wasted frames.
+  // Kubrick: composition — the whole framed before the first sentence.
+  if (has("eastwood")) {
+    if (act === "escalation") {
+      facts.push({ from: "eastwood", text: `when challenged, answer in a few frames — name the ground the claim stands on, hold it, and stop. Do not relitigate.` });
+    } else if (act === "question") {
+      facts.push({ from: "eastwood", text: `answer in the fewest true words — cut to what is established and stop; no preamble, no padding.` });
+    } else {
+      facts.push({ from: "eastwood", text: `the reply should be as short as it can be and no shorter — every word earns its place.` });
+    }
+  }
+  if (has("kubrick")) {
+    if (["frame-ask", "map-ask"].includes(act)) {
+      facts.push({ from: "kubrick", text: `the whole should be framed before the first sentence — lay it out exactly, each part in its place, nothing blurred.` });
+    } else if (act === "question") {
+      facts.push({ from: "kubrick", text: `answer deliberately — frame the whole before the first sentence; precision over speed.` });
+    } else {
+      facts.push({ from: "kubrick", text: `treat the reply as a scene to be composed — deliberate, structured, exact, every word considered.` });
+    }
   }
 
   return facts;

@@ -6,10 +6,19 @@ import { parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIRespons
 import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus } from "./proxy-runner.mjs";
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
+// The watcher, wired IN (2026-09-13): heimdall's vitals, admission, status,
+// and surface-watching run inside this process — one process, no separate
+// steer port, no second checkout to drift. When imported, heimdall.mjs
+// exports its machinery and does not listen or loop on its own.
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure } from "./heimdall.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = Number(process.env.ER7_PROXY_PORT) || 11436;
+// The heimdall alias port — claude and older clients point here. Same server,
+// same code; keeping it means the merged watcher doesn't break existing
+// configs that route through 11437.
+const STEER_ALIAS_PORT = Number(process.env.ER7_HEIMDALL_PORT ?? 11437);
 const UPSTREAM = process.env.ER7_UPSTREAM || "http://localhost:11434";
 const { hostname: UP_HOST, port: UP_PORT } = new URL(UPSTREAM);
 const KEEP_WARM_INTERVAL_MS = Number(process.env.ER7_KEEP_WARM_INTERVAL_MS ?? 120000);
@@ -81,6 +90,44 @@ function workspaceFromHeaders(req) {
   return ws;
 }
 
+// The answer's grain: an explicit x-er7-mode header overrides the body's
+// `mode` (the header is the SURFACE's choice — the Fold steers its own
+// surfaces; the body field is a direct caller's). Normalized by the runner
+// (auto/chat/long/origami; compose/artifact alias origami).
+function modeFromHeaders(req, bodyMode) {
+  const h = String(req.headers["x-er7-mode"] ?? "").trim().toLowerCase();
+  if (h) return h;
+  return bodyMode;
+}
+
+// HEIMDALL, WIRED IN — the admission gate on the proxy's OWN chat path. A
+// saturated box or a full family lane refuses with a typed 429, never a
+// hang; the refusal carries Retry-After so a client backs off. The proxy's
+// own surface inflight is marked on admission and released when the response
+// closes, so the ETA/queue disclosure is real.
+function admitChatRequest(parsed) {
+  const admit = admitChat(parsed ? JSON.stringify(parsed) : "{}");
+  if (admit.allowed) markInflight("er7", 1);
+  return admit;
+}
+function releaseChatRequest() {
+  markInflight("er7", -1);
+}
+// Release the inflight mark once, on EITHER signal: 'finish' (the response
+// was handed to the OS) or 'close' (the socket closed, possibly mid-stream on
+// a disconnect). Idempotent — a keep-alive connection must never leave the
+// mark stuck and 429 a false busy-lane.
+function releaseOnResponse(res) {
+  let released = false;
+  const release = () => {
+    if (released) return;
+    released = true;
+    releaseChatRequest();
+  };
+  res.on("finish", release);
+  res.on("close", release);
+}
+
 function forward(req, res) {
   const opts = {
     hostname: UP_HOST,
@@ -110,7 +157,7 @@ function forward(req, res) {
   });
 }
 
-const server = http.createServer(async (req, res) => {
+async function handleRequest(req, res) {
   res.setHeader("access-control-allow-origin", "*");
   res.setHeader("access-control-allow-headers", "*");
   res.setHeader("access-control-allow-methods", "GET, POST, OPTIONS");
@@ -126,24 +173,12 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // /heimdall — the bridge's full status (vitals, every surface, the
-  // DEF/EVA/REC log tail), forwarded from the surface Heimdall steers. A
-  // person asks ANY surface this path and gets the whole box. Falls back to
-  // a typed gap if the bridge is not up, never a silent hang.
+  // /heimdall — the full status (vitals, every surface, the DEF/EVA/REC log
+  // tail), served LOCALLY: the watcher runs inside this process. A person
+  // asks ANY surface this path and gets the whole box.
   if (req.method === "GET" && req.url === "/heimdall") {
-    const steerPort = Number(process.env.ER7_HEIMDALL_PORT ?? 11437);
-    try {
-      const ctrl = new AbortController();
-      const t = setTimeout(() => ctrl.abort(), 3000);
-      const up = await fetch(`http://127.0.0.1:${steerPort}/heimdall`, { signal: ctrl.signal });
-      clearTimeout(t);
-      const body = await up.text();
-      res.writeHead(up.status, { "content-type": "application/json" });
-      res.end(body);
-    } catch {
-      res.writeHead(503, { "content-type": "application/json" });
-      res.end(JSON.stringify({ error: { message: "heimdall bridge not reachable", type: "bridge_down" } }));
-    }
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify(heimdallStatus()));
     return;
   }
 
@@ -280,11 +315,21 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({ error: { message: reqData.error } }));
         return;
       }
+      reqData.mode = modeFromHeaders(req, reqData.mode);
+
+      // HEIMDALL, WIRED IN — admission on the proxy's own path.
+      const admit = admitChatRequest(parsed);
+      if (!admit.allowed) {
+        res.writeHead(admit.status, { "content-type": "application/json", "retry-after": String(admit.retryAfterS) });
+        res.end(JSON.stringify({ error: { message: admit.message, type: admit.type, retry_after: admit.retryAfterS } }));
+        return;
+      }
+      releaseOnResponse(res);
 
       const sessionId = sessionIdFromHeaders(req);
       const workspace = workspaceFromHeaders(req);
       const userId = userIdFromHeaders(req);
-      log(`turn → session=${sessionId} user=${userId} model=${reqData.model} taskLength=${reqData.task.length} stream=${reqData.stream} workspace=${workspace ? `"${workspace}"` : "none"}`);
+      log(`turn → session=${sessionId} user=${userId} model=${reqData.model} taskLength=${reqData.task.length} stream=${reqData.stream} mode=${reqData.mode} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
       const created = Math.floor(Date.now() / 1000);
       const id = `er7-${Date.now()}`;
@@ -377,14 +422,14 @@ const server = http.createServer(async (req, res) => {
 
         // ── OPERATIONAL DISCLOSURE ────────────────────────────────────────────
         // The user's own question, answered in the thinking panel: how long
-        // will this take, and how busy is the box. The bridge (Heimdall)
-        // forwards x-heimdall-* headers when it steers; when the proxy is hit
-        // directly (no bridge), the fields are simply absent and nothing is
-        // claimed. This is disclosure about the INSTRUMENT'S OWN STATE — the
-        // one place it is allowed to be visible — never part of the answer.
-        const eta = String(req.headers["x-heimdall-eta"] ?? "").trim();
-        const cpuBusy = String(req.headers["x-heimdall-cpu"] ?? "").trim();
-        const gpuBusy = String(req.headers["x-heimdall-gpu"] ?? "").trim();
+        // will this take, and how busy is the box. With heimdall wired IN,
+        // the proxy computes this itself (vitals + queue) — no bridge headers
+        // to wait for. This is disclosure about the INSTRUMENT'S OWN STATE —
+        // the one place it is allowed to be visible — never part of the answer.
+        const d = disclosure();
+        const eta = d.queue?.ahead > 0 ? (d.queue?.etaHuman ?? "now") : "now";
+        const cpuBusy = d.cpu?.busy ?? "";
+        const gpuBusy = d.gpu?.busy ?? "";
         const disclosureLine = (() => {
           const parts = [];
           if (eta && eta !== "now") parts.push(`about ${eta} to respond`);
@@ -497,11 +542,21 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({ error: { message: reqData.error } }));
         return;
       }
+      reqData.mode = modeFromHeaders(req, reqData.mode);
+
+      // HEIMDALL, WIRED IN — admission on the proxy's own path.
+      const admit = admitChatRequest(parsed);
+      if (!admit.allowed) {
+        res.writeHead(admit.status, { "content-type": "application/json", "retry-after": String(admit.retryAfterS) });
+        res.end(JSON.stringify({ error: { message: admit.message, type: admit.type, retry_after: admit.retryAfterS } }));
+        return;
+      }
+      releaseOnResponse(res);
 
       const sessionId = sessionIdFromHeaders(req);
       const workspace = workspaceFromHeaders(req);
       const userId = userIdFromHeaders(req);
-      log(`ollama chat turn → session=${sessionId} user=${userId} model=${reqData.model} taskLength=${reqData.task.length} workspace=${workspace ? `"${workspace}"` : "none"}`);
+      log(`ollama chat turn → session=${sessionId} user=${userId} model=${reqData.model} taskLength=${reqData.task.length} mode=${reqData.mode} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
       const createdAt = new Date().toISOString();
 
@@ -594,12 +649,28 @@ const server = http.createServer(async (req, res) => {
   }
 
   forward(req, res);
-});
+}
+
+// One handler, two doorways: the proxy port (11436, opencode) and the
+// heimdall alias port (11437, claude / older clients). Same code, one process.
+const server = http.createServer(handleRequest);
+const aliasServer = http.createServer(handleRequest);
 
 server.listen(PORT, "127.0.0.1", () => {
   log(`eoreader7 proxy listening on http://127.0.0.1:${PORT}`);
   log(`upstream: ${UPSTREAM}`);
   log(`opencode → http://127.0.0.1:${PORT}/v1`);
+  // The heimdall alias port: claude and older clients still point at 11437.
+  // A SECOND server, the SAME handler — one process, two doorways.
+  aliasServer.listen(STEER_ALIAS_PORT, "127.0.0.1", () => {
+    log(`heimdall alias on http://127.0.0.1:${STEER_ALIAS_PORT} (the watcher runs inside this process)`);
+  });
+  // HEIMDALL, WIRED IN — start the watcher (vitals + surface probes + the
+  // fold surfaces' re-forge) on this process. The er7 surface IS this proxy:
+  // its own port is watched for status but never re-forged (a proxy cannot
+  // spawn a duplicate of itself).
+  startWatcher({ selfPort: PORT });
+  log("watcher: heimdall running inside the proxy");
   // Pre-load pyodide (WASM Python) in the background so the FIRST turn's
   // post-processing does not pay the ~10-16s cold-load. Fire-and-forget.
   warmPostprocess().then(({ available, error }) => {
@@ -634,8 +705,10 @@ server.listen(PORT, "127.0.0.1", () => {
 process.on("SIGINT", () => {
   log("shutting down");
   server.close(() => process.exit(0));
+  aliasServer.close();
 });
 process.on("SIGTERM", () => {
   log("shutting down");
   server.close(() => process.exit(0));
+  aliasServer.close();
 });

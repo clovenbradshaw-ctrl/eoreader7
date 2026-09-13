@@ -117,6 +117,14 @@ the-fold's flat top level under the same basename.
 | `kernel/orientation.js` | Meerkat | A watch that conditions attention and is not evidence. |
 | `kernel/notes.js` | Arokin | Append-only record of what was said. |
 
+**Conversation**
+
+| File | Handle | One line |
+|---|---|---|
+| `the-fold/earned-cast.js` | Terry Gross | Archon of Conversations — the interviewer who draws the guest out; keeper of the flow rules (`CONVERSATION_FLOW_RULES`), which a trigger makes her write up and Marshall integrates. |
+| `the-fold/earned-cast.js` | Eastwood | The lean director — the shortest true answer, no wasted frames; shoots the tight exchanges. |
+| `the-fold/earned-cast.js` | Kubrick | The precise director — the whole framed before the first sentence; shoots the big-picture asks. They duel over the shot. |
+
 **Reference and scope**
 
 | File | Handle | One line |

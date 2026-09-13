@@ -57,7 +57,22 @@ export function parseProxyRequest(body) {
   // `kelsen` explicitly to force a binding (high = literal/bound, low =
   // impressionistic/free). null = let the shape decide.
   const kelsen = Number.isFinite(Number(body?.kelsen)) ? Number(body?.kelsen) : null;
-  return { model, ...turn, stream, discloseThinking, kelsen };
+  // MODE: the answer's grain. "auto" (default) is a normal conversation —
+  // every answer is a void defined and satisfied at its natural size, and
+  // long-form is entered only when the ask calls for it. Long-form has
+  // flavors: "long" is a single answer that goes further than chat
+  // provides; "projection" (aliases "compose"/"artifact"/"origami") is an
+  // ARTIFACT — content built and revised on an append-only ledger, its live
+  // projection readable in a surface (the Fold), resumable. "chat" forces
+  // the single-answer surface. Long-form is a MODE the proxy enters, never
+  // its default identity.
+  const MODES = ["chat", "long", "projection", "auto"];
+  const normalizeMode = (m) => {
+    if (m === "compose" || m === "artifact" || m === "origami") return "projection";
+    return MODES.includes(m) ? m : "auto";
+  };
+  const mode = normalizeMode(body?.mode);
+  return { model, ...turn, stream, discloseThinking, kelsen, mode };
 }
 
 export function toOpenAIModelList(realNames, { createdAt = 0 } = {}) {
@@ -190,6 +205,12 @@ export function humanizeNote(note) {
       return `Document ledger ${note.docId}: ${note.parts} part(s) admitted. Declared shape: ${note.declared}`;
     case "answer_shape":
       return `Answer shape: ${note.shape} (${note.modality}).`;
+    case "void_defined":
+      return `Void defined (${note.mode}): ${note.of} question(s) the answer must satisfy — a ${note.shape} answer.`;
+    case "mode":
+      return `Mode: ${note.mode}${note.basis ? ` — ${note.basis}` : ""}.`;
+    case "chat_satisfied":
+      return `The answer filled its void${note.failures?.length ? ` — ${note.failures.map((f) => f.detail).join("; ")}` : ""}.`;
     case "shape_check":
       return `Shape check: ${note.ok ? "the piece matches its declared form." : `missing — ${(note.failures ?? []).join("; ")}`}`;
     case "shape_recheck":
