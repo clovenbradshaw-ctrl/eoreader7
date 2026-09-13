@@ -28,6 +28,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { shapeOf } from "./reading-shape.mjs";
 import { dmd } from "../../kernel/dmd.js";
+import { closureOf, witnessAnswer } from "../../kernel/ground-closure.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CH = Number(process.argv[2] ?? 1);
@@ -89,6 +90,18 @@ console.log(`SWARM · ch${CH} · ${ctx.script}/${LANG} · context biases: ${cont
 const nullRun = spawnSync("node", [path.join(HERE, "null-arm.mjs"), BOOK, String(CH), ...langFlags], { encoding: "utf8", timeout: 120000 });
 const nullLine = nullRun.stdout.split("\n").find((l) => l.includes("found in NOISE"));
 const NOISE_FLOOR = nullLine ? Number((nullLine.match(/found in NOISE: (\d+) arrangements/) ?? [])[1] ?? 0) : 0;
+// THE WITNESS'S BAR, DERIVED FROM THE NULL (2026-09-13). The null-arm
+// already reports how much the reader folds a being into itself on
+// structureless material — its own self-referent-folds count IS the
+// false-positive floor for closure. A reading whose openness (passage /
+// deposits) is below the null's is folding into itself more than noise
+// does: the field is closing, and the witness answers re-ground, never
+// accumulate. The bar is the null's own numbers, never a hand-set
+// threshold (ground-closure.js's own header).
+const nullSelfFolds = nullLine ? Number((nullLine.match(/(\d+) self-referent folds/) ?? [])[1] ?? 0) : 0;
+const nullAbsences = nullLine ? Number((nullLine.match(/(\d+) typed absences/) ?? [])[1] ?? 0) : 0;
+const NULL_SHAPE = { selfReferentFolds: nullSelfFolds, contests: 0, movesHolograph: 0, typedAbsences: nullAbsences };
+const witnessOf = (s) => closureOf({ shape: s, nullShape: NULL_SHAPE });
 function fitness(s, nf) { if (s.recoverability !== 1) return 0; const sig = Math.max(0, s.emitted - nf); return 0.4 * s.referentPurity + 0.3 * (1 - s.voidRate) + 0.3 * (s.emitted ? sig / s.emitted : 0) + holographHealth(s); }
 // ── LOOK AT THE HOLOGRAPH ITSELF (2026-09-12) — a REAL strategy. The
 // reading's own record names its own gaps: self-referent folds (the reader
@@ -99,8 +112,16 @@ function fitness(s, nf) { if (s.recoverability !== 1) return 0; const sig = Math
 // signal the swarm chases, beside the cross-language Rosetta anchors. The
 // weights are small and DECLARED (the holograph's health is a tie-breaker
 // and a warning, never a replacement for purity/void/signal).
+//
+// THE WITNESS RIDES ON TOP (2026-09-13): the openness verdict is the
+// structural term — a closing/closed field is penalised by the full
+// witness margin, not a hand-set weight, because the witness's whole job
+// is to answer re-ground when the field closes. The drift (attention
+// wandered) is reported for the archon, never typed into the score.
 function holographHealth(s) {
-  return -0.1 * (s.selfReferentFolds ?? 0) - 0.05 * (s.contests ?? 0) + 0.02 * (s.movesHolograph ?? 0);
+  const w = witnessOf(s);
+  const opennessPenalty = w.verdict === "closed" ? 0.2 : w.verdict === "closing" ? 0.1 : 0;
+  return -0.1 * (s.selfReferentFolds ?? 0) - 0.05 * (s.contests ?? 0) + 0.02 * (s.movesHolograph ?? 0) - opennessPenalty;
 }
 // ── THE ACCOMPLISHMENT LINE — every swarm-produced reading appends to its
 // OWN ledger a record of HOW it was accomplished (the strategy: the config,
@@ -114,6 +135,7 @@ function accomplishment(ids, shape, f, { lexicon = null, note = "" } = {}) {
     strategy: "swarm — holograph-health + golden-free shape, Wilson the archon",
     config: nameFor(ids), mhc: levelOf(ids), terrain: terrainOf(ids),
     shape: f, holograph: { selfReferentFolds: shape.selfReferentFolds, contests: shape.contests, movesHolograph: shape.movesHolograph, voids: shape.voids },
+    witness: (() => { const w = witnessOf(shape); return { verdict: w.verdict, openness: w.openness, nullOpenness: w.nullOpenness, answer: witnessAnswer(w).action }; })(),
     lexicon, note,
   };
   fs.appendFileSync(LEDGER, JSON.stringify(entry) + "\n");
@@ -257,7 +279,14 @@ for (let gen = 1; gen <= GENS; gen++) {
   }
   // DESCENT (REC — the atmosphere decides): if the best is AT/BELOW the
   // noise floor, the ground is conceded: re-seed ONE MHC/terrain lower.
-  if (best.f < 0.55 && best.f > 0 && descents < 3) {
+  // THE WITNESS ANSWERS THE SAME GATE (2026-09-13): a reading whose field
+  // is closing/closed must be re-grounded even at a high shape — a high
+  // score achieved by folding the reading into itself is exactly the habit
+  // forming, and the witness's one job is to refuse accumulation onto a
+  // closing field (ground-closure.js: witnessAnswer -> re-ground).
+  const witnessGate = witnessOf(best.s).verdict === "closing" || witnessOf(best.s).verdict === "closed";
+  if ((best.f < 0.55 && best.f > 0 && descents < 3) || (witnessGate && descents < 3)) {
+    if (witnessGate && best.f >= 0.55) console.log(`  gen ${gen} WITNESS: the field is ${witnessOf(best.s).verdict} (openness ${witnessOf(best.s).openness.toFixed(3)} < null ${witnessOf(best.s).nullOpenness.toFixed(3)}) — the reweighting is becoming habit; REC fires`);
     descents += 1;
     const lower = ORGANS.filter((o) => o.level <= levelOf(best.ids) - 1);
     const lowerIds = lower.filter((o) => contextHints[ctx.script]?.includes(o.id) || o.level <= levelOf(best.ids) - 2).map((o) => o.id);
@@ -274,6 +303,8 @@ for (let gen = 1; gen <= GENS; gen++) {
 const g = golden();
 const prior = queryBreakthroughs(best.s);
 console.log(`startle: ${startle.fired} REC-firing surprise(s) on the reading system`);
+const finalWitness = witnessOf(best.s);
+console.log(`witness: the field is ${finalWitness.verdict} — openness ${finalWitness.openness === null ? "n/a" : finalWitness.openness.toFixed(3)} vs the null's ${finalWitness.nullOpenness === null ? "n/a" : finalWitness.nullOpenness.toFixed(3)} (${witnessAnswer(finalWitness).action})`);
 console.log(`breakthrough store: ${prior.length} prior winner(s) keyed to this reading's echo (${readingEcho(best.s)}) — future systems retrieve by this residue`);
 console.log(`\nCURRENT BEST (asymptotic — no final answer, always revisable): ${nameFor(best.ids)} @MHC${levelOf(best.ids)} terrain ${terrainOf(best.ids).join("/")} — shape ${best.f.toFixed(3)}${best.delta !== undefined ? ` (correction +${best.delta.toFixed(3)})` : ""} | golden: ${g === null ? "none" : g.toFixed(1) + "%"} | descents ${descents}`);
 console.log(`elenchus ${elenchus.length} (${elenchus.filter((e) => e.reason === "DAG").length} DAG, ${elenchus.length - elenchus.filter((e) => e.reason === "DAG").length} degraded) · genealogy ${genealogy.length} births (append-only ${path.relative(process.cwd(), GENEALOGY)}) · shadows ${shadows.length} breakthroughs`);
