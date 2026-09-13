@@ -1,5 +1,6 @@
 import http from "node:http";
 import path from "node:path";
+import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote } from "./proxy-api.mjs";
 import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus } from "./proxy-runner.mjs";
@@ -12,6 +13,12 @@ const PORT = Number(process.env.ER7_PROXY_PORT) || 11436;
 const UPSTREAM = process.env.ER7_UPSTREAM || "http://localhost:11434";
 const { hostname: UP_HOST, port: UP_PORT } = new URL(UPSTREAM);
 const KEEP_WARM_INTERVAL_MS = Number(process.env.ER7_KEEP_WARM_INTERVAL_MS ?? 120000);
+// A whole-turn wall clock, independent of the per-call stream timeout inside
+// runProxyTurn. The client must always get a terminal chunk; a turn that is
+// slow in its post-stream work must not hang the stream forever. Generous on
+// purpose: it is a backstop over the per-call REQUEST_TIMEOUT_MS, never a
+// way to kill a slow-but-active stream.
+const TURN_DEADLINE_MS = Number(process.env.ER7_TURN_DEADLINE_MS ?? 300000);
 
 const ts = () => new Date().toISOString().slice(11, 23);
 const log = (msg) => process.stderr.write(`[${ts()}] [er7-proxy] ${msg}\n`);
@@ -30,6 +37,29 @@ function sessionIdFromHeaders(req) {
     ? `-${requireCrc32(workspaceFromHeaders(req))}`
     : "";
   return `er7-session-${req.socket?.remoteAddress?.replace(/[^a-z0-9]/gi, "") || "local"}${scope}`;
+}
+
+// The person's DURABLE identity — the key the theory of mind persists under.
+// Distinct from the session id: a person is one across sessions (their
+// asserted claims and their standing survive), while a session is one
+// conversation (its specifics stay in the chat history). Falls back to the
+// same stable base the anonymous session uses, so a person who never sends
+// a header is still one person across turns.
+function userIdFromHeaders(req) {
+  const u = String(req.headers["x-er7-user"] ?? "").trim();
+  if (u && u.length <= 128) return u;
+  // No explicit identity: fall back to the SESSION's own base, never to the
+  // bare remote address. On a local machine every header-less client IS
+  // 127.0.0.1, so keying the durable speaker model off the address would
+  // merge every local user into one person. A client that sends a session
+  // id gets that session's lane (its own theory of mind, never a stranger's);
+  // a client that sends nothing keeps the stable machine+workspace fallback.
+  const session = sessionIdFromHeaders(req);
+  if (session) return `user-session-${requireCrc32(session)}`;
+  const scope = workspaceFromHeaders(req)
+    ? `-${requireCrc32(workspaceFromHeaders(req))}`
+    : "";
+  return `user-${req.socket?.remoteAddress?.replace(/[^a-z0-9]/gi, "") || "local"}${scope}`;
 }
 
 let _crc32cache = new Map();
@@ -96,6 +126,27 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // /heimdall — the bridge's full status (vitals, every surface, the
+  // DEF/EVA/REC log tail), forwarded from the surface Heimdall steers. A
+  // person asks ANY surface this path and gets the whole box. Falls back to
+  // a typed gap if the bridge is not up, never a silent hang.
+  if (req.method === "GET" && req.url === "/heimdall") {
+    const steerPort = Number(process.env.ER7_HEIMDALL_PORT ?? 11437);
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 3000);
+      const up = await fetch(`http://127.0.0.1:${steerPort}/heimdall`, { signal: ctrl.signal });
+      clearTimeout(t);
+      const body = await up.text();
+      res.writeHead(up.status, { "content-type": "application/json" });
+      res.end(body);
+    } catch {
+      res.writeHead(503, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: { message: "heimdall bridge not reachable", type: "bridge_down" } }));
+    }
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/v1/models") {
     try {
       const tags = await offeredOllamaModels();
@@ -148,6 +199,44 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // GET /v1/documents/:id.html — the LIVE HTML projection (fetches the JSONL
+  // + citations on every refresh and folds client-side; MD/JSON are exports).
+  // GET /v1/documents/:id.jsonl — the raw append-only ledger (the artifact).
+  // GET /v1/documents/:id.citations.json — the structured citation ledger.
+  if (req.method === "GET" && /^\/v1\/documents\/[^/]+\.(html|jsonl|citations\.json)$/.test(req.url)) {
+    try {
+      const base = decodeURIComponent(req.url.split("/").pop());
+      const docsDir = path.join(HERE, "documents");
+      const resolved = { html: base.replace(/\.html$/, ""), jsonl: base.replace(/\.jsonl$/, ""), citations: base.replace(/\.citations\.json$/, "") };
+      let file = null, mime = null;
+      if (base.endsWith(".html")) {
+        // The shell is written by the job as <jobId>_1.html; the JSONL is
+        // served relative to it, so the live fold finds both.
+        file = path.join(docsDir, `${resolved.html.replace(/:/g, "_")}_1.html`);
+        mime = "text/html";
+      } else if (base.endsWith(".jsonl")) {
+        // The shell fetches <jobId>_1.jsonl (underscore form); the ledger is
+        // <jobId>:1.jsonl (colon form). Resolve both.
+        const stem = resolved.jsonl; // e.g. er7-doc-123_1
+        const colonForm = stem.replace(/_(\d+)$/, ":$1");
+        file = ledgerFilePath(docsDir, `${colonForm}`);
+        if (!fs.existsSync(file)) file = ledgerFilePath(docsDir, `${stem}`);
+        mime = "application/x-ndjson";
+      } else if (base.endsWith(".citations.json")) {
+        file = path.join(docsDir, `${resolved.citations.replace(/:/g, "_")}.citations.json`);
+        mime = "application/json";
+      }
+      if (!file || !fs.existsSync(file)) { res.writeHead(404, { "content-type": "text/plain" }); res.end("not found"); return; }
+      const data = fs.readFileSync(file, "utf8");
+      res.writeHead(200, { "content-type": mime, "cache-control": "no-store" });
+      res.end(data);
+    } catch (err) {
+      res.writeHead(500, { "content-type": "text/plain" });
+      res.end(String(err.message));
+    }
+    return;
+  }
+
   // GET /v1/documents/:id — poll a job: its status + the CURRENT projection
   // (the essay as written so far, re-folded from the append-only ledger).
   if (req.method === "GET" && req.url.startsWith("/v1/documents/")) {
@@ -194,7 +283,8 @@ const server = http.createServer(async (req, res) => {
 
       const sessionId = sessionIdFromHeaders(req);
       const workspace = workspaceFromHeaders(req);
-      log(`turn → session=${sessionId} model=${reqData.model} taskLength=${reqData.task.length} stream=${reqData.stream} workspace=${workspace ? `"${workspace}"` : "none"}`);
+      const userId = userIdFromHeaders(req);
+      log(`turn → session=${sessionId} user=${userId} model=${reqData.model} taskLength=${reqData.task.length} stream=${reqData.stream} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
       const created = Math.floor(Date.now() / 1000);
       const id = `er7-${Date.now()}`;
@@ -206,6 +296,30 @@ const server = http.createServer(async (req, res) => {
           connection: "keep-alive",
           "x-er7-session": sessionId,
         });
+
+        // ── RESILIENCE SCAFFOLDING (hoisted: the catch block must see these) ──
+        // A client that disconnects must not leave a zombie turn holding the
+        // generation slot — that is what wedges every later request. The turn
+        // is aborted the moment the socket closes. There is NO idle watchdog
+        // and no short wall-clock: a slow model on a loaded box can sit quiet
+        // for a minute between notes and its first content token, and an
+        // ACTIVE stream must never be killed for being slow — only a turn
+        // whose client is gone is a zombie. The model call itself is already
+        // bounded by REQUEST_TIMEOUT_MS inside streamOllamaChat; TURN_DEADLINE
+        // is a generous whole-turn backstop over and above it.
+        const turnAbort = new AbortController();
+        const onDisconnect = () => {
+          if (res.writableEnded) return; // response finished — not a disconnect
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        };
+        res.on("close", onDisconnect);
+        const turnDeadline = setTimeout(() => {
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        }, TURN_DEADLINE_MS);
+        const clearTurn = () => {
+          clearTimeout(turnDeadline);
+          res.removeListener("close", onDisconnect);
+        };
 
         let first = true;
         let reasoningOpen = false;
@@ -261,8 +375,31 @@ const server = http.createServer(async (req, res) => {
         };
         const onThinking = reqData.discloseThinking ? emitThinking : null;
 
+        // ── OPERATIONAL DISCLOSURE ────────────────────────────────────────────
+        // The user's own question, answered in the thinking panel: how long
+        // will this take, and how busy is the box. The bridge (Heimdall)
+        // forwards x-heimdall-* headers when it steers; when the proxy is hit
+        // directly (no bridge), the fields are simply absent and nothing is
+        // claimed. This is disclosure about the INSTRUMENT'S OWN STATE — the
+        // one place it is allowed to be visible — never part of the answer.
+        const eta = String(req.headers["x-heimdall-eta"] ?? "").trim();
+        const cpuBusy = String(req.headers["x-heimdall-cpu"] ?? "").trim();
+        const gpuBusy = String(req.headers["x-heimdall-gpu"] ?? "").trim();
+        const disclosureLine = (() => {
+          const parts = [];
+          if (eta && eta !== "now") parts.push(`about ${eta} to respond`);
+          else if (eta === "now") parts.push("no wait ahead");
+          if (cpuBusy) parts.push(`CPU ~${cpuBusy}% busy`);
+          if (gpuBusy) parts.push(`GPU ~${gpuBusy}% busy`);
+          return parts.length ? `Heimdall: ${parts.join(" · ")}.` : null;
+        })();
+        if (reqData.discloseThinking && disclosureLine) {
+          emitThinking(`\n${disclosureLine}\n`);
+        }
+
         try {
-          const result = await runProxyTurn({ sessionId, workspace, ...reqData }, emit, onNote, onThinking);
+          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, emit, onNote, onThinking);
+          clearTurn();
           // Thinking affordance: when discloseThinking is on, emit the grounding
           // block as reasoning_content before the final chunk.
           if (reqData.discloseThinking && result.thinking) {
@@ -287,15 +424,38 @@ const server = http.createServer(async (req, res) => {
           res.write("data: [DONE]\n\n");
           res.end();
         } catch (err) {
+          clearTurn();
           log(`proxy execution error: ${err.message}`);
-          const errChunk = { id, object: "chat.completion.chunk", created, model: parsed.model, choices: [{ index: 0, delta: { content: `\n[EOReader7 error: ${err.message}]` }, finish_reason: "stop" }] };
-          res.write(`data: ${JSON.stringify(errChunk)}\n\n`);
-          res.write("data: [DONE]\n\n");
-          res.end();
+          // A cancelled turn is not an error to the client that is still
+          // listening; it is a clean stop. A dead client gets nothing (it is
+          // gone) and the slot is freed, which is the whole point.
+          const cancelled = err?.message === "cancelled";
+          if (!res.writableEnded) {
+            const errChunk = { id, object: "chat.completion.chunk", created, model: parsed.model, choices: [{ index: 0, delta: { content: cancelled ? "" : `\n[EOReader7 error: ${err.message}]` }, finish_reason: "stop" }] };
+            res.write(`data: ${JSON.stringify(errChunk)}\n\n`);
+            res.write("data: [DONE]\n\n");
+            res.end();
+          }
         }
       } else {
+        // RESILIENCE: bound the non-streaming turn too — a wedged turn must
+        // return a typed error, never leave the client hanging. HOISTED above
+        // the try/catch (same as the streaming path): the catch block must be
+        // able to clearTimeout the deadline and remove the disconnect listener
+        // without a ReferenceError killing the whole server.
+        const turnAbort = new AbortController();
+        const onDisconnect = () => {
+          if (res.writableEnded) return; // response finished — not a disconnect
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        };
+        res.on("close", onDisconnect);
+        const turnDeadline = setTimeout(() => {
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        }, TURN_DEADLINE_MS);
         try {
-          const result = await runProxyTurn({ sessionId, workspace, ...reqData });
+          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
+          clearTimeout(turnDeadline);
+          res.removeListener("close", onDisconnect);
           const resp = openAIResponse({ id, model: parsed.model, text: result.text, created, usage: result.usage, reading: result });
           resp.reading.sessionId = sessionId;
           resp.reading.thinking = result.thinking ?? null;
@@ -305,9 +465,11 @@ const server = http.createServer(async (req, res) => {
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify(resp));
         } catch (err) {
+          clearTimeout(turnDeadline);
+          res.removeListener("close", onDisconnect);
           log(`proxy execution error: ${err.message}`);
           if (!res.headersSent) {
-            res.writeHead(500, { "content-type": "application/json" });
+            res.writeHead(err?.message === "cancelled" ? 499 : 500, { "content-type": "application/json" });
           }
           res.end(JSON.stringify({ error: { message: err.message } }));
         }
@@ -338,7 +500,8 @@ const server = http.createServer(async (req, res) => {
 
       const sessionId = sessionIdFromHeaders(req);
       const workspace = workspaceFromHeaders(req);
-      log(`ollama chat turn → session=${sessionId} model=${reqData.model} taskLength=${reqData.task.length} workspace=${workspace ? `"${workspace}"` : "none"}`);
+      const userId = userIdFromHeaders(req);
+      log(`ollama chat turn → session=${sessionId} user=${userId} model=${reqData.model} taskLength=${reqData.task.length} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
       const createdAt = new Date().toISOString();
 
@@ -350,9 +513,24 @@ const server = http.createServer(async (req, res) => {
           "x-er7-session": sessionId,
         });
 
+        // ── RESILIENCE SCAFFOLDING (hoisted — the catch must see these) ──
+        const turnAbort = new AbortController();
+        const onDisconnect = () => {
+          if (res.writableEnded) return; // response finished — not a disconnect
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        };
+        res.on("close", onDisconnect);
+        const turnDeadline = setTimeout(() => {
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        }, TURN_DEADLINE_MS);
+        const clearTurn = () => {
+          clearTimeout(turnDeadline);
+          res.removeListener("close", onDisconnect);
+        };
+
         try {
           let first = true;
-          await runProxyTurn({ sessionId, workspace, ...reqData }, (token) => {
+          await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
             if (!token) return;
             res.write(JSON.stringify({
               model: parsed.model, created_at: createdAt,
@@ -361,6 +539,7 @@ const server = http.createServer(async (req, res) => {
             }) + "\n");
             first = false;
           });
+          clearTurn();
           res.write(JSON.stringify({
             model: parsed.model, created_at: createdAt,
             message: { role: "assistant", content: "" },
@@ -368,25 +547,44 @@ const server = http.createServer(async (req, res) => {
           }) + "\n");
           res.end();
         } catch (err) {
+          clearTurn();
           log(`proxy execution error: ${err.message}`);
-          res.write(JSON.stringify({
-            model: parsed.model, created_at: createdAt,
-            message: { role: "assistant", content: `[EOReader7 error: ${err.message}]` },
-            done: true, done_reason: "error",
-          }) + "\n");
-          res.end();
+          if (!res.writableEnded) {
+            res.write(JSON.stringify({
+              model: parsed.model, created_at: createdAt,
+              message: { role: "assistant", content: err?.message === "cancelled" ? "" : `[EOReader7 error: ${err.message}]` },
+              done: true, done_reason: err?.message === "cancelled" ? "stop" : "error",
+            }) + "\n");
+            res.end();
+          }
         }
       } else {
+        // RESILIENCE: same abort + deadline for the non-streaming shape.
+        // HOISTED above the try/catch so the catch block can clear the
+        // deadline without a ReferenceError killing the server.
+        const turnAbort = new AbortController();
+        const onDisconnect = () => {
+          if (res.writableEnded) return; // response finished — not a disconnect
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        };
+        res.on("close", onDisconnect);
+        const turnDeadline = setTimeout(() => {
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        }, TURN_DEADLINE_MS);
         try {
-          const result = await runProxyTurn({ sessionId, workspace, ...reqData });
+          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
+          clearTimeout(turnDeadline);
+          res.removeListener("close", onDisconnect);
           const resp = ollamaChatResponse({ model: parsed.model, text: result.text, createdAt, usage: result.usage, reading: result });
           resp.reading = { ...(result.reading ?? result), sessionId };
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify(resp));
         } catch (err) {
+          clearTimeout(turnDeadline);
+          res.removeListener("close", onDisconnect);
           log(`proxy execution error: ${err.message}`);
           if (!res.headersSent) {
-            res.writeHead(500, { "content-type": "application/json" });
+            res.writeHead(err?.message === "cancelled" ? 499 : 500, { "content-type": "application/json" });
           }
           res.end(JSON.stringify({ error: { message: err.message } }));
         }

@@ -124,6 +124,18 @@ export function humanizeNote(note) {
       return `Prompt: system ${note.system}c + chat ${note.chatChars}c (${note.chat} msg) + material ${note.materialChars}c (${note.materialSegments} seg) + task ${note.taskChars}c, of ${note.max}c max.`;
     case "post_note":
       return note.message ?? null;
+    case "look":
+      return `Looked at "${note.rel}" — the text's formatting was being misread (${(note.signals ?? []).join(", ") || note.reason}). Rendered it and read the image: ${note.boxes} region(s), ${note.vision ? "a vision read" : "no vision model"}.`;
+    case "look_image":
+      return `Looked at image "${note.rel}": ${note.boxes} box(es), ${note.connectors} connector(s), ${note.vision ? "a vision model read it" : "no vision model"}, ${note.settled ? "senses agreed" : "senses still disagree"}.`;
+    case "look_images_done":
+      return `Looked at ${note.files} image(s) in the workspace.`;
+    case "look_error":
+      return `Couldn't look at "${note.rel}": ${note.error}`;
+    case "lavar_reading":
+      return note.well
+        ? `LaVar: "${note.rel}" was read well — its bytes yielded propositions and its formatting was not being misread.`
+        : `LaVar: "${note.rel}" was NOT read well — ${note.basis ?? "reading quality in doubt"}${note.shouldLook ? " Looking at it." : ""}`;
     case "post_timeout":
       return `Post-processing timed out — returned the model's original text.`;
     case "web_searched":
@@ -182,6 +194,22 @@ export function humanizeNote(note) {
       return `Shape check: ${note.ok ? "the piece matches its declared form." : `missing — ${(note.failures ?? []).join("; ")}`}`;
     case "shape_recheck":
       return `Shape recheck: ${note.ok ? "the piece now matches its declared form." : `still missing — ${(note.failures ?? []).join("; ")}`}`;
+    case "essay_resolutions":
+      return `The essay's own conversation, folded: ${note.sections} section(s) written, ${note.active} active referent(s) — Wolfe composes against this, never the raw prose.`;
+    case "murch":
+      return `Murch, pass ${note.round}: editing the whole — ${(note.findings ?? []).join(", ")}.`;
+    case "fisher":
+      return `Fisher: the openings repeat above chance (p=${note.p}, ${note.repeated} section(s) share a construction) — Brillat-Savarin will season them.`;
+    case "redundancy":
+      return `${note.kind === "repeated-fact" ? "Repeated fact" : note.kind === "repeated-template" ? "Repeated construction" : "Redundancy"}: ${note.detail} — Brillat-Savarin seasons it (chosen, never random).`;
+    case "mechanical":
+      return `Mechanical ${note.op}: ${note.basis} — a free, deterministic edit, EOT-recorded.`;
+    case "pacing":
+      return `Murch on pacing: ${note.basis}`;
+    case "murch_applied":
+      return `Murch applied ${note.applied} revision(s) this pass.`;
+    case "ranke":
+      return `Ranke, pass ${note.round}: ${note.ungrounded.length} section(s) drifted from the material — rewritten from the documents (Quellenkritik).`;
     case "outline_evolved":
       return `Outline evolved: the reading established "${note.added}" — added as a section (${note.total} total).`;
     // Deliberately suppressed: per-file scan skips, per-segment surf detail,
