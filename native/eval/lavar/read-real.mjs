@@ -41,7 +41,29 @@ const REPO_ROOT = path.resolve(HERE, "../../.."); // native/eval/lavar -> native
 const GIVER = "reader:lavar-read-real";
 const CANONICALIZATION_FLOOR = 2;
 const ANCHORING = { minActivation: 0.05, minMargin: 0.2 };
-const POS_PRIOR = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
+// The received POS prior is per-language: a French read with the English
+// prior admits "ne/pour/chose" as relations (the French reader measured
+// 2026-09-12: top relations were ne x38, pour x23 — negation/connectors,
+// not verbs). English's pos-eng.json has no French word forms at all, so
+// the §8 received floor and the relationStanding REFUSAL both silently
+// no-op. Selected by the file's language, never hardcoded.
+const PRIOR_BY_LANG = {
+  en: "pos-eng.json", fr: "pos-fra.json", ru: "pos-rus.json",
+  eng: "pos-eng.json", fra: "pos-fra.json", rus: "pos-rus.json",
+};
+const langOfFile = (name) => {
+  const base = name.toLowerCase();
+  if (/(guerre|fran|^fr[^a-z]|_fra\.)/.test(base)) return "fra";
+  if (/(voyna|vojna|^ru[^a-z]|_rus\.|cyrillic)/.test(base)) return "rus";
+  return "eng";
+};
+function loadPrior(filePath) {
+  const lang = langOfFile(path.basename(filePath));
+  const file = PRIOR_BY_LANG[lang];
+  const full = path.join(HERE, "../../priors", file);
+  console.error(`[read-real] ${lang} prior: ${full}`);
+  return JSON.parse(fs.readFileSync(full, "utf8"));
+}
 
 const emptyRetrieve = (_fold, evidence) => Object.freeze({
   schema: "EORelevantFold@1", witnessed: Object.freeze([...evidence]), provisional: Object.freeze([]),
@@ -53,7 +75,7 @@ const adapters = {
   revise: (args) => reviseTextFold({ ...args, canonicalizationFloor: CANONICALIZATION_FLOOR }),
   retrieve: emptyRetrieve,
 };
-const perceivers = () => [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING })];
+const perceivers = (posPrior) => [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior, descriptorAnchoring: ANCHORING })];
 
 function load(filePath, source, limit) {
   const stripped = stripContainer(fs.readFileSync(filePath, "utf8"));
@@ -72,7 +94,8 @@ async function main() {
   const encounters = load(filePath, source, limit);
   console.error(`reading ${source}: ${encounters.length} encounters, in order, one at a time...`);
 
-  const reader = createRecursiveReader({ perceivers: perceivers(), adapters });
+  const posPrior = loadPrior(filePath);
+  const reader = createRecursiveReader({ perceivers: perceivers(posPrior), adapters });
   for (const enc of encounters) await reader.step(enc);
   const fold = reader.getFold();
   const log = reader.getLog?.() ?? [];
