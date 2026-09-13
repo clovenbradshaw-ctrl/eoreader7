@@ -79,7 +79,122 @@ async function main() {
 
   const rawEntries = fold.graphEntries ?? [];
   const projectedBindings = rawEntries.map(anchorAsDefiniteBinding).filter(Boolean);
-  const entries = [...rawEntries, ...projectedBindings];
+  // ── THE META-ID BRIDGE (2026-09-12) — the occurrence-id fracture, fixed.
+  // The composition ledger's bindings resolve an edge's participant only
+  // when the binding's `occurrence` equals the participant's own id. The
+  // assembly's anchor evidence is keyed to `ref-occ:…` (referent-adjudicated)
+  // while the hyperedge participants carry `occ:…` (text) — zero overlap,
+  // so the holograph's composition stayed empty (264 edges, 0 chains, 0
+  // candidates). The bridge keys each participant-level binding to the
+  // EDGE's own `occ:` id by matching (encounter + surface), carrying a
+  // META-ID: the canonical referent identity, stable across text versions —
+  // what a future Rosetta match (en/fr/ru of one book) and the swarm's
+  // breakthrough store both key on. The identity taxonomy it instantiates:
+  //   text-occurrence  occ:file:encounter:idx:role   (S0 bytes)
+  //   canonical-occurrence  co:<canonical surface>   (S1 — across versions)
+  //   referent (meta)  ref:<canonical name>          (S2 Entity)
+  //   kind             kind:<population kind>        (S3 Kind)
+  // A referent is a whole to its canonical occurrences, a part to its kind.
+  const refOccurrences = rawEntries.filter((e) => e.schema === "EOReferentOccurrence@1");
+  const anchors = rawEntries.filter((e) => e.schema === "EOAnchorEvidence@1");
+  // ── REFERENTS ARE NODES, NEVER LITERAL SPANS (2026-09-12). The being is
+  // a span-free node born at first admission (S80: an address is a birth,
+  // not a spelling); a literal span is only a WITNESS that points at it.
+  // Build the span-free node table: ref -> { canonicalSurface, encounterRefs }.
+  const refNodes = new Map();
+  for (const ro of refOccurrences) {
+    const r = ro.referent ?? ro.canonicalSurface;
+    if (!r) continue;
+    const n = refNodes.get(r) ?? { ref: r, canonicalSurface: ro.canonicalSurface ?? ro.surface ?? r, encounters: new Set() };
+    if (ro.encounterRef) n.encounters.add(ro.encounterRef);
+    refNodes.set(r, n);
+  }
+  for (const a of anchors) if (a.referent) {
+    const n = refNodes.get(a.referent) ?? { ref: a.referent, canonicalSurface: a.surface ?? a.referent, encounters: new Set() };
+    refNodes.set(a.referent, n);
+  }
+  const participantBindings = [];
+  // stamp the span-free node onto each hyperedge participant by SPAN
+  // CONTAINMENT (the clause end "her sister" contains the being "sister")
+  // within the same encounter — the span is the matching WITNESS, never the
+  // identity; the participant then POINTS at the node.
+  for (const edge of rawEntries.filter((e) => e.schema === "EOHyperedge@1")) {
+    for (const p of edge.participants ?? []) {
+      if (p.standing === "referent") continue;
+      const pEnc = String(p.occurrence ?? "").split(":")[1];
+      const psurf = String(p.surface ?? "").toLowerCase();
+      let node = null;
+      for (const n of refNodes.values()) {
+        const cs = String(n.canonicalSurface ?? "").toLowerCase();
+        if (!cs || cs.length < 3) continue;
+        if ((psurf.includes(cs) || cs.includes(psurf)) && (n.encounters.size === 0 || n.encounters.has(`encounter:${pEnc}`))) { node = n; break; }
+      }
+      if (!node) continue;
+      p.standing = "referent"; p.referent = node.ref; p.canonicalSurface = node.canonicalSurface;
+      participantBindings.push(Object.freeze({
+        schema: "EODefiniteBinding@1",
+        id: `definite-binding:meta:${p.occurrence}`,
+        occurrence: p.occurrence, // the edge's own occurrence id (S0 witness)
+        referent: node.ref,        // the SPAN-FREE node id (S2 meaning)
+        metaId: node.canonicalSurface, // the canonical form (across versions)
+        surface: p.surface,
+        adjudicatedBy: "read-real.mjs span-free node bridge — Wilson's swarm",
+        provenance: Object.freeze({ giver: "read-real.mjs span-free node bridge", basis: "the participant's span CONTAINS the node's canonical surface in the same encounter — the span is the witness, the node is the identity; referents are never keyed by literal spans", canonicalOccurrence: node.canonicalSurface }),
+      }));
+    }
+  }
+  // ── POSSESSIVE DEFINITE DESCRIPTIONS ARE HOLDINGS (S88's fourth signal,
+  // 2026-09-12). "her sister" is a being — but a HOLDING, not a final
+  // referent: the reader asks "who is the 'her' here?" (the possessive
+  // resolves to its owner X), then "who is X's sister?" — not known yet →
+  // put in HOLDING (an open identity hypothesis). When the material later
+  // identifies that sister, the holding RESOLVES to Y via the canonicalization
+  // floor (2 independent witnesses). The same resolve/hold/resolve loop works
+  // for ANY parameter (X's mother, X's brother, X's house): a parameterized
+  // being is a slot whose identity is open until the material fills it.
+  const POSS = /^(my|her|his|our|their|your)\s+([\p{L}][\p{L}' -]{1,24})$/iu;
+  const holdings = new Map(); // (noun, owner) -> the ONE open hypothesis
+  for (const edge of rawEntries.filter((e) => e.schema === "EOHyperedge@1")) {
+    for (const p of edge.participants ?? []) {
+      if (p.standing === "referent") continue;
+      const pm = POSS.exec(String(p.surface ?? ""));
+      if (!pm) continue;
+      const owner = pm[1].toLowerCase(), noun = pm[2].toLowerCase();
+      // the HOLDING: ONE open identity hypothesis per (slot, owner) — all
+      // "her sister" mentions resolve to the SAME holding, so chains can
+      // form on it; a later witness resolves the holding to the real being Y.
+      const hkey = `${noun}|${owner}`;
+      let hypothesis = holdings.get(hkey);
+      if (!hypothesis) {
+        hypothesis = Object.freeze({
+          schema: "EOIdentityHypothesis@1",
+          id: `identity:poss:${noun}:${owner}`,
+          surface: p.surface,
+          canonicalSurface: noun,
+          parameter: { slot: noun, of: owner },
+          occurrence: p.occurrence,
+          standing: "open", // HOLDING — not yet resolved
+          adjudicatedBy: "read-real.mjs possessive-holding — Wilson's swarm",
+          provenance: Object.freeze({ giver: "read-real.mjs possessive-holding", basis: "S88's fourth signal — a common noun under a possessive determiner is a parameterized being in HOLDING; the possessive resolves to its owner, the slot awaits a witness; ALL mentions share this one holding", canonicalOccurrence: noun }),
+        });
+        holdings.set(hkey, hypothesis);
+        rawEntries.push(hypothesis); // the holding lands on the record
+      }
+      p.standing = "hypothesis"; p.identityHypothesis = hypothesis.id; p.canonicalSurface = noun; p.possessiveAnchor = owner;
+      participantBindings.push(Object.freeze({
+        schema: "EODefiniteBinding@1",
+        id: `definite-binding:poss:${p.occurrence}`,
+        occurrence: p.occurrence,
+        referent: hypothesis.id, // every mention points at the ONE holding
+        metaId: noun,
+        surface: p.surface,
+        possessiveAnchor: owner,
+        adjudicatedBy: "read-real.mjs possessive-holding — Wilson's swarm",
+        provenance: Object.freeze({ giver: "read-real.mjs possessive-holding", basis: "a possessive definite description is a HOLDING identity hypothesis, shared across mentions, resolved later by a witness", canonicalOccurrence: noun }),
+      }));
+    }
+  }
+  const entries = [...rawEntries, ...projectedBindings, ...participantBindings];
   const ledger = createRelationCompositionLedger(entries);
   const stats = ledger.diagnostics();
 

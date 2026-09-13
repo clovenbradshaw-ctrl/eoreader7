@@ -38,6 +38,24 @@
       "foundIn": "pg1661_The_Adventures_of_Tom_Sawyer.txt",
       "foundVia": "mechanical (skeleton recurrence + monotonic numeral)",
       "dateFound": "2026-09-12"
+    },
+    {
+      "name": "<roman>.",
+      "word": null,
+      "numeralType": "roman",
+      "requiresPeriod": true,
+      "titleOnSameLine": false,
+      "foundIn": "voyna-i-mir_Tolstoy_wikisource.txt",
+      "foundVia": "mechanical (skeleton recurrence + monotonic numeral)"
+    },
+    {
+      "name": "Chapitre <roman>",
+      "word": "Chapitre",
+      "numeralType": "roman",
+      "requiresPeriod": false,
+      "titleOnSameLine": false,
+      "foundIn": "guerre-et-paix_Tolstoy_Bienstock_wikisource.txt",
+      "foundVia": "mechanical (skeleton recurrence + monotonic numeral)"
     }
   ]
 }

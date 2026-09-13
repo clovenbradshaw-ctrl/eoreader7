@@ -1,6 +1,8 @@
 import { tokenize, buildFrequencyTable, functionWordSet } from "./material.js";
 import { splitSentences } from "./spans.js";
 import { createSurfaceEvidence, accumulateSurfaceEvidence, surfacesFromEvidence, discoverReferents, diaNorm } from "./surfaces.js";
+import { heardSurfaces } from "../../organs/heard-surfaces.js";
+import { classifyWord, dominantClass } from "./wordclass.js";
 import { discoverRelationVocab, extractRelations } from "./relations.js";
 import { directDescriptorOccurrences, descriptorOccurrence } from "./individuation.js";
 import { createDescriptorAnchoring } from "./anchoring.js";
@@ -123,6 +125,39 @@ function resolveParticipant(surface, matcher, sequencePosition, relationIndex, r
   if (candidates.size === 1) {
     const [[ref, matchedSurfaces]] = candidates;
     return { ref, role, standing: "referent", surface, resolution: "unique_surface_in_span", matchedSurfaces };
+  }
+  // ── CONTAINMENT TIER (S105's third tier, in the perceiver, 2026-09-12):
+  // the clause-end surface ("her sister", "the use of a book") may CONTAIN a
+  // cast surface ("sister") or be contained by it. Ends point at referents,
+  // never strings (LAVAR §13) — a participant that embeds a known being IS
+  // about that being. Committed only when exactly one referent matches (an
+  // ambiguous containment stays unresolved, never guessed — P38).
+  const ds = diaNorm(surface);
+  const contained = [];
+  if (ds.length >= 3) {
+    for (const [k, ref] of matcher.map) {
+      const dk = diaNorm(k);
+      if (dk.length >= 3 && (ds.includes(dk) || dk.includes(ds))) contained.push([ref, k]);
+    }
+    const uniq = new Set(contained.map(([ref]) => ref));
+    if (uniq.size === 1) {
+      return { ref: [...uniq][0], role, standing: "referent", surface, resolution: "containment_surface_in_span", matchedSurfaces: contained.map(([, k]) => k) };
+    }
+  }
+  // ── POSSESSIVE DEFINITE DESCRIPTIONS ARE HOLDINGS (S88's fourth signal,
+  // 2026-09-12): "her sister" is a parameterized being — the possessive
+  // resolves to its owner, the noun is the slot. If the noun part IS a cast
+  // surface, resolve to that being; otherwise mint a HOLDING — an open
+  // identity hypothesis "the <noun> of <owner>", awaiting a witness that
+  // resolves it (canonicalizationFloor 2). All mentions share the one
+  // holding, so chains can form on it.
+  const POSS = /^(my|her|his|our|their|your)\s+([\p{L}][\p{L}' -]{1,24})$/iu;
+  const pm = POSS.exec(surface);
+  if (pm) {
+    const noun = diaNorm(pm[2]);
+    const inside = matcher.map.get(noun);
+    if (inside) return { ref: inside, role, standing: "referent", surface, resolution: "possessive_head_surface", possessiveAnchor: pm[1].toLowerCase() };
+    return { ref: `identity:poss:${noun}:${pm[1].toLowerCase()}`, role, standing: "hypothesis", surface, resolution: "possessive_holding", possessiveAnchor: pm[1].toLowerCase() };
   }
   const lexical = slug(surface) || "unknown";
   const occurrence = `occ:${sequencePosition}:${relationIndex}:${role}`;
@@ -409,7 +444,23 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     const table = { freq: runningFreq, total: runningTotal };
     const closed = earnedClosedClass(table);
     const surfaces = surfacesFromEvidence(surfaceEvidence, { functionWords: closed });
-    const discovered = discoverReferents(surfaces, addresses === "birth" ? { prior: { refs: cache.refs, born: cache.born ?? new Map(), next: cache.bornNext ?? 0 } } : {});
+    // ── THE EAR HAS NO CASE (S87, wired into the assembly 2026-09-12). The
+    // capitalisation-only discovery (S86) admits "I've"/"Latitude"/"Oh" and
+    // MISSES the real cast (the White Rabbit, her sister — kinship terms and
+    // lowercase introductions, S88). heardSurfaces finds beings by recurrence
+    // + positional signature + POS (the S2-heard layer), so the cast is
+    // COMPLETE, not capitalisation-thin. Union, never replacement — the
+    // capitalised surfaces stay; the heard beings join. minMentions 2 is the
+    // structural minimum (a pattern needs two occurrences); minShare/minMembers
+    // declared.
+    let heard = [];
+    if (posPrior) {
+      try { heard = heardSurfaces(priorSentences, { minMentions: 2, minShare: 0.3, minMembers: 2, posPrior, classifyWord, dominantClass }); }
+      catch { heard = []; }
+    }
+    if (heard.length) console.error(`[recursive] heardSurfaces added ${heard.length}: ${heard.map((h)=>h.surface).join(',')}`);
+    const combinedSurfaces = [...surfaces, ...heard];
+    const discovered = discoverReferents(combinedSurfaces, addresses === "birth" ? { prior: { refs: cache.refs, born: cache.born ?? new Map(), next: cache.bornNext ?? 0 } } : {});
     // REASSIGNMENT ACROSS REFRESHES, RECORDED (P165). discoverReferents
     // re-clusters from scratch every refresh, longest surface first. So at
     // refresh k a fragment ("Vasili") that has cleared its sentence floor
@@ -448,6 +499,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     // Fold-conditioned evidence, over the SAME new batch the vocabulary scan
     // uses — never a rescan of everything read so far.
     const referents = referentObjects(discovered.events);
+    if (referents.length) console.error(`[recursive] refresh cast ${referents.length}: ${referents.map((r)=>r.surfaces[0]).join(",")}`);
     const matcher = surfaceMatcher(nextRefs, referents);
     witnessRelatedPairs(relationEvidence, batchSentences, nextRefs, matcher);
     relationRefreshFrom = priorSentences.length;
@@ -632,7 +684,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
             ...targetedOccurrences.map((occ) => ({ occurrence: occ.id, surfaceKey: occ.surfaceKey, taskNominated: true })),
           ],
           hyperedges: edges,
-          graphEntries: [...seenReferents, ...mergeEntries, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...anchorEvidence, ...descriptorOccsEmitted],
+          graphEntries: [...cache.referents, ...seenReferents, ...mergeEntries, ...mentions, ...lexicalOccurrences, ...targetedOccurrences, ...gaps, ...anchorEvidence, ...descriptorOccsEmitted],
         },
         anchor: encounter.anchor,
         evidence: encounter.material,

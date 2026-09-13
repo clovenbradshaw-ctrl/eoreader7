@@ -5302,3 +5302,17 @@ The mechanism is standing law already: `organs/witness-sentences.js` runs the se
 **Proven before set.** On AIW ch1's actual prose (88 encounters): the assembly at earned-only read **0 relation edges**; with §8 implemented it reads **264**, and graded against the hand-authored golden ch1 it scores **recall 43.6% vs the ledger reference's 36.3%, GFP coverage 76.9% vs 76.6%** — the full-policy assembly with the received floor is the best version, measured, not asserted. No regression in the tests that import `recursive.js` (the fast pre-existing failures fail identically without the change).
 
 **Files.** `native/adapters/text/recursive.js` (`admittedRelationVerbs` gains the received tier). The ledger reference (`eot-jsonl.mjs`) already carried the same widening; this makes the production assembly carry it too — one law, both readers.
+
+## S113 — Referents are nodes, never literal spans; possessive descriptions are holdings; the perceiver must stamp them (2026-09-12)
+
+**Generality:** universal to every text reader (native + legacy + the swarm's variants).
+
+**The law, three clauses:**
+
+1. **A referent is a span-free node, born at first admission (S80: an address is a birth, not a spelling). A literal span is a WITNESS pointing at it, never its identity.** The empty-composition holograph (264 relation edges, 0 chains, 0 candidates on real prose) was traced to referent identity being keyed by literal spans: the perception-side `occ:` (byte spans) and the individuation-side `ref-occ:` (surfaces) share no join key, and the edges' participants carried clause-end surfaces — never the being. The fix is not to bridge the two span-id systems; it is to separate the layers (S0 bytes = witnesses, S2 meaning = span-free nodes) and let composition chain on the nodes.
+
+2. **A possessive definite description ("her sister") is a HOLDING — an open identity hypothesis "the <noun> of <owner>" — not a final referent.** The reader asks "who is the her here?" (resolves the possessive to its owner), then "who is X's sister?" — not known yet → HOLDING; when a later witness identifies it, the holding resolves to Y (canonicalizationFloor 2). All mentions of the same (slot, owner) share ONE holding so chains can form on it. The resolve/hold/resolve loop is parameterized: it works for any slot (X's mother, X's house, X's brother).
+
+3. **The perceiver must stamp the referent node onto each edge participant at binding time.** A driver-level bridge cannot join clause-end surfaces to beings (measured: 4 of 264 edges resolvable by surface containment; 0 chains). The seam belongs in `createCausalTextPerceiver`: when the individuation layer binds a being, the EOHyperedge participant whose occurrence it covers gets `standing: "referent"` + the span-free node id — ends point at referents, never strings (LAVAR §13), now enforced inside the assembly itself.
+
+**Files.** `native/eval/lavar/read-real.mjs` (the bridge + the possessive holdings, at the driver limit). The upstream perceiver stamping is named, scoped, unbuilt.

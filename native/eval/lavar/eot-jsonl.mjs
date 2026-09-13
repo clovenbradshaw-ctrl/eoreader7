@@ -66,7 +66,7 @@ import { detectAndMatch } from "./structure-rec.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const LP_ROOT = path.resolve(HERE, "../../../../live_priors");
-const MAX_DEPTH = 3;
+const MAX_DEPTH = Number((process.argv.find((a) => a.startsWith("--max-depth=")) ?? "--max-depth=3").replace("--max-depth=", "")) || 3;
 const GRAMMAR_MIN_SHARE = 0.5;   // the production sidecar recipe's own value, matched not chosen
 const MIN_SURFACES_PER_VERB = 1; // this repo's own relation tests' declared value, matched not chosen
 
@@ -206,6 +206,12 @@ const LANG_PRONOUNS = {
   kor: /(그녀|그것|그들|그는|그가|그를)/,
   ell: wordBound("αυτός|αυτή|αυτό|αυτοί|αυτές|αυτά|του|της|τους|τις"),
   heb: /(הוא|היא|הם|הן)/,
+  // RUS — added 2026-09-12 (the omnilingual check: Russian is a
+  // case-marked language where the POSITIONAL reader is expected to break —
+  // S40's finding for Latin applies to Russian's six cases). A declared,
+  // disclosed best-effort set (nominative + oblique third-person forms),
+  // the same posture every other non-eng set already holds.
+  rus: wordBound("он|она|оно|они|его|её|ее|их|ему|ей|им|ним|него|нее|неё"),
 };
 if (!LANG_PRONOUNS[LANG]) { console.error(`no pronoun set declared for --lang=${LANG} (declared: ${Object.keys(LANG_PRONOUNS).join(", ")})`); process.exit(2); }
 const POS_PRIOR_PATH = path.join(HERE, "../../priors", LANG === "eng" ? "pos-eng.json" : `pos-${LANG}.json`);
@@ -756,6 +762,8 @@ const lexiconStats = lexicons.map((lx) => {
 // connectors (into/down/with) stay out because their share is ADP-dominant.
 // A named giver and a declared share floor — received-prior widening,
 // never a number tuned against a golden.
+const NO_RECEIVED = process.argv.includes("--no-received-verbs");
+const NO_REDUCED = process.argv.includes("--no-reduced");
 const receivedVerbs = [];
 {
   const forms = POS_PRIOR.forms ?? POS_PRIOR;
@@ -764,13 +772,14 @@ const receivedVerbs = [];
     const total = counts.reduce((a, b) => a + b, 0);
     if (!total) continue;
     const verbish = (tags.VERB ?? 0) + (tags.AUX ?? 0);
+    if (NO_RECEIVED) continue;
     if (verbish / total > GRAMMAR_MIN_SHARE && !verbs.has(form)) {
       verbs.add(form);
       receivedVerbs.push(form);
     }
   }
 }
-const opts = { verbs, phrasalPredicates: true, nounPhraseSubjects: true };
+const opts = { verbs, phrasalPredicates: true, nounPhraseSubjects: !process.argv.includes("--no-nps") };
 
 const carriesVerb = (t) => String(t ?? "").toLowerCase().split(/[^\p{L}\p{N}’']+/u).some((w) => verbs.has(w));
 const promoteLabel = (label, objectText) => {
@@ -894,6 +903,7 @@ for (const sent of sentences) {
   const REDUCED = /,\s*([\p{L}’']+ing)\s+([\s\S]+)$/u;
   REDUCED.lastIndex = 0;
   let rm;
+  if (!NO_REDUCED) {
   // The `$` anchor makes this the LAST comma+participle tail of the
   // sentence — exactly the reduced-relative construction, one per sentence
   // in practice. A single find, not a loop.
@@ -933,6 +943,7 @@ for (const sent of sentences) {
     }
     break;
   }
+  } // if (!NO_REDUCED)
 }
 
 // Nothing is refused for its grain any more. What used to be five discarded

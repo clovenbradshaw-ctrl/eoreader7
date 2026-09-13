@@ -489,3 +489,27 @@ summary, not a holograph; the property lives in the pair, not in the text.
 - Pending numbers: the compression ladder (A0, A3, A3p, A2, A1) and the two
   holograph-reading runs; their results directories are named in the-fold
   POLICIES P171 when it lands.
+
+## The two objects, named apart (2026-09-12)
+
+**The holograph is PER-SOURCE.** It is the record of one text's reading —
+every observation addressed, revisable, append-only; every being a span-free
+node; the whole a traversable concept graph. It answers "what did THIS
+reading find?" Open a source, get its holograph.
+
+**The hyperlexicon is where CROSS-READING knowledge lives.** It is the
+vocabulary, kinds, composition affordances, and meta-nodes accumulated
+across sources — the earned knowledge of many readings, which becomes the
+received floor of the next (the loops-on-loops). It answers "what do we now
+know that makes the NEXT reading better?" It is per-language and per-medium
+where the material requires it, and its crown is the meta-node: the same
+being across translations, adjudicated for-whom (S113 — identity across
+versions is an act of pointing, never a fact of the bytes).
+
+**The loop that makes both worth having:** read a source → its holograph
+lands → the holograph's earnings accrete into the hyperlexicon → the
+hyperlexicon primes the next source's read → the next holograph is better.
+
+Per-source record in; cross-source knowledge out; feed it back in. The
+holograph is a whole to its addresses; the hyperlexicon is a part to the
+whole corpus — the same holon, one level up.
