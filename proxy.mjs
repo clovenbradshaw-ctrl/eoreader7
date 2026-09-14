@@ -2,7 +2,7 @@ import http from "node:http";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote } from "./proxy-api.mjs";
+import { parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote, parseAnthropicRequest, flattenAnthropicContent, anthropicCountTokensResponse, anthropicMessageResponse, anthropicStreamStart, anthropicContentBlockStart, anthropicContentBlockDelta, anthropicContentBlockStop, anthropicMessageDelta, anthropicMessageStop } from "./proxy-api.mjs";
 import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus } from "./proxy-runner.mjs";
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
@@ -642,6 +642,140 @@ async function handleRequest(req, res) {
             res.writeHead(err?.message === "cancelled" ? 499 : 500, { "content-type": "application/json" });
           }
           res.end(JSON.stringify({ error: { message: err.message } }));
+        }
+      }
+    });
+    return;
+  }
+
+  // ── ANTHROPIC MESSAGES API (Claude Code) ─────────────────────────────────
+  // Claude Code speaks the Anthropic wire, never openai/ollama. This surface
+  // translates it onto the SAME reading pipeline every other client hits
+  // (runProxyTurn), so a Claude Code conversation folds its own session lane
+  // and gets the grounded prompt like anything else. Streaming emits the
+  // anthropic event shape (message_start → content_block_* → message_stop).
+  // POST /v1/messages/count_tokens — the SDK's usage estimator; a cheap
+  // char/4 guess, never a round trip through the reading.
+  if (req.method === "POST" && req.url === "/v1/messages/count_tokens") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", () => {
+      let parsed;
+      try { parsed = JSON.parse(body); } catch { parsed = {}; }
+      const pieces = [
+        ...(Array.isArray(parsed.system) ? parsed.system : [parsed.system]),
+        ...(Array.isArray(parsed.messages) ? parsed.messages.map((m) => m?.content) : []),
+      ];
+      const chars = pieces.map((p) => flattenAnthropicContent(p)).join(" ").length;
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify(anthropicCountTokensResponse(chars)));
+    });
+    return;
+  }
+
+  if (req.method === "POST" && req.url === "/v1/messages") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", async () => {
+      let parsed;
+      try {
+        parsed = JSON.parse(body);
+      } catch {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ type: "error", error: { type: "invalid_request_error", message: "bad json" } }));
+        return;
+      }
+
+      const reqData = parseAnthropicRequest(parsed);
+      if (reqData.error) {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ type: "error", error: { type: "invalid_request_error", message: reqData.error } }));
+        return;
+      }
+
+      const sessionId = sessionIdFromHeaders(req);
+      const workspace = workspaceFromHeaders(req);
+      const userId = userIdFromHeaders(req);
+      log(`messages turn → session=${sessionId} user=${userId} model=${reqData.model} taskLength=${reqData.task.length} stream=${reqData.stream} workspace=${workspace ? `"${workspace}"` : "none"}`);
+
+      const id = `msg_er7_${Date.now()}`;
+
+      if (reqData.stream) {
+        res.writeHead(200, {
+          "content-type": "text/event-stream",
+          "cache-control": "no-cache",
+          connection: "keep-alive",
+          "x-er7-session": sessionId,
+        });
+
+        // ── RESILIENCE SCAFFOLDING — same contract as the chat routes: a
+        // client disconnect frees the generation slot, the deadline is a
+        // generous whole-turn backstop over the per-call stream timeout.
+        const turnAbort = new AbortController();
+        const onDisconnect = () => {
+          if (res.writableEnded) return;
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        };
+        res.on("close", onDisconnect);
+        const turnDeadline = setTimeout(() => {
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        }, TURN_DEADLINE_MS);
+        const clearTurn = () => {
+          clearTimeout(turnDeadline);
+          res.removeListener("close", onDisconnect);
+        };
+
+        let outputTokens = 0;
+        try {
+          res.write(anthropicStreamStart({ id, model: parsed.model }));
+          res.write(anthropicContentBlockStart(0));
+          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
+            if (!token) return;
+            outputTokens += 1;
+            res.write(anthropicContentBlockDelta(0, token));
+          });
+          clearTurn();
+          res.write(anthropicContentBlockStop(0));
+          res.write(anthropicMessageDelta({ outputTokens: outputTokens || (result?.usage?.completionTokens ?? 0) }));
+          res.write(anthropicMessageStop());
+          res.end();
+        } catch (err) {
+          clearTurn();
+          log(`messages streaming error: ${err.message}`);
+          const cancelled = err?.message === "cancelled";
+          if (!res.writableEnded) {
+            if (!cancelled) res.write(anthropicContentBlockDelta(0, `\n[EOReader7 error: ${err.message}]`));
+            res.write(anthropicContentBlockStop(0));
+            res.write(anthropicMessageDelta({ outputTokens }));
+            res.write(anthropicMessageStop());
+            res.end();
+          }
+        }
+      } else {
+        const turnAbort = new AbortController();
+        const onDisconnect = () => {
+          if (res.writableEnded) return;
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        };
+        res.on("close", onDisconnect);
+        const turnDeadline = setTimeout(() => {
+          if (!turnAbort.signal.aborted) turnAbort.abort();
+        }, TURN_DEADLINE_MS);
+        try {
+          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
+          clearTimeout(turnDeadline);
+          res.removeListener("close", onDisconnect);
+          const resp = anthropicMessageResponse({ id, model: parsed.model, text: result.text, usage: result.usage });
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify(resp));
+        } catch (err) {
+          clearTimeout(turnDeadline);
+          res.removeListener("close", onDisconnect);
+          log(`messages error: ${err.message}`);
+          if (!res.headersSent) {
+            res.writeHead(err?.message === "cancelled" ? 499 : 500, { "content-type": "application/json" });
+          }
+          res.end(JSON.stringify({ type: "error", error: { type: err?.message === "cancelled" ? "cancelled" : "internal_error", message: err.message } }));
         }
       }
     });

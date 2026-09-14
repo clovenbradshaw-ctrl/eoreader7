@@ -1,107 +1,84 @@
-// organs/strunk-white.js — the style agent: readability + the rules.
+// organs/strunk-white.js — THE STYLE AGENT: how a piece reads, and the rules
+// of style that make it read well.
+// Handle: Strunk & White — after William Strunk Jr. and E. B. White, The
+// Elements of Style: "Omit needless words. Vigorous writing is concise." This
+// is the agent that OWNS the style-checking family — readability (Flesch/
+// grade/fog), the classic style rules (weasel words, needless words,
+// clichés, passive voice, nominalizations), and the mechanical fixes. It
+// complements Fisher (repeated openings), detectRedundancy (repeated facts
+// and templates), and Brillat-Savarin (the seasoning rewrite). Strunk & White
+// DETECT; Brillat-Savarin seasons; both record EOT transforms.
 //
-// Handle: Strunk & White — after The Elements of Style. The style-checking
-// family lives under one agent: how the piece READS (Flesch/grade/fog via
-// the textstat subprocess when reachable, a JS heuristic in-process
-// otherwise) PLUS the classic rule detectors — weak verbs, weak adverbs,
-// weasel words, clichés, passive voice, nominalizations, needless words.
-// Each violation is a named rule with a fix hint and byte spans, mechanical
-// and auditable.
-//
-// The textstat function is INJECTED (the runner wires the venv subprocess);
-// this organ never shells out itself.
+// Every check here is deterministic and in-process — a declared rule with a
+// named giver, never a model's guess (the style rules are the point, like
+// the grammar-lens's Thrax reading: a closed rule set anyone can audit).
+import { readabilityGrade as jsReadability } from "./readability.js";
 
-// JS-heuristic readability: Flesch Reading Ease + grade, trend-accurate
-// (not dictionary-exact — the exact numbers come from textstat).
-function heuristicReadability(text = "") {
-  const sentences = String(text).split(/(?<=[.!?])\s+(?=[A-Z])/).filter((s) => s.trim().length).length || 1;
-  const words = String(text).split(/\s+/).filter(Boolean).length || 1;
-  const syllables = (() => {
-    const clean = String(text).toLowerCase().replace(/[^a-z\s]/g, " ");
-    const countWord = (w) => {
-      if (!w.length) return 0;
-      const groups = w.replace(/[^aeiouy]+/g, " ").trim().split(" ").filter(Boolean).length;
-      return Math.max(1, w.endsWith("e") && !w.endsWith("le") ? groups - 1 : groups);
-    };
-    return clean.split(/\s+/).reduce((a, w) => a + countWord(w), 0);
-  })();
-  const perWord = syllables / words;
-  const flesch = Number((206.835 - 1.015 * (words / sentences) - 84.6 * perWord).toFixed(1));
-  const grade = Number((0.39 * (words / sentences) + 11.8 * perWord - 15.59).toFixed(1));
-  return { flesch, grade, fog: Number(((flesch + grade) / 2).toFixed(1)), band: flesch >= 60 ? "readable" : "dense", words, heuristic: true };
-}
+// ── THE ELEMENTS OF STYLE: the rule detectors ──────────────────────────────
+// Each is a REGEX + a named rule (the classic Elements rule it enforces) +
+// a fix hint. Mechanical: same text → same findings, auditable.
+const WEAK_VERBS = /(?:was|were|is|are|has been|had been|there is|there are|there was|there were|it is)\b/gi;
+const WEAK_ADVERBS = /\b(?:very|really|quite|extremely|totally|completely|absolutely|basically|essentially|actually|literally)\b/gi;
+const WEASEL_WORDS = /\b(?:some people say|experts say|it is said|it is believed|it is widely believed|there is no doubt that|in my opinion|in our opinion|it is important to note|note that|arguably)\b/gi;
+const CLICHES = /\b(?:at the end of the day|in today's world|in this day and age|the fact of the matter|last but not least|think outside the box|a needle in a haystack|the tip of the iceberg|in the final analysis|it goes without saying|easier said than done|all in all|for all intents and purposes)\b/gi;
+const PASSIVE = /\b(?:is|are|was|were|has been|have been|had been|being)\s+(?:[a-z]+ed|[a-z]+en)\b/gi;
+const NOMINALIZATIONS = /\b(?:the (?:utilization|implementation|realization|organization|formalization|characterization|theorization|prioritization|visualization) of)\b/gi;
+const NEEDLESS_WORDS = /\b(?:in order to|due to the fact that|in terms of|with regard to|at the present time|in the near future|for the purpose of|a large number of|a majority of|in the process of)\b/gi;
 
-// The classic Elements-of-Style rule detectors. Each names a rule, finds the
-// violating spans, and carries a fix hint. All mechanical — the report is a
-// FINDING the reader can act on, never a rewrite on its own.
-const RULE_DETECTORS = [
-  {
-    name: "weak-verb",
-    detail: "a weak verb (to be / to have) carrying a noun that could be the verb itself",
-    fix: "make the noun the verb — the sentence gets its spine",
-    re: /\b(?:is|are|was|were|be|been|being|have|has|had)\s+(?:a|an|the)?\s*([a-z]+(?:ation|tion|sion|ment|ness|ance|ence|ity|al))\b/gi,
-  },
-  {
-    name: "weak-adverb",
-    detail: "an adverb leaning on a verb that should stand alone",
-    fix: "cut the adverb or make the verb carry the weight",
-    re: /\b(?:really|very|quite|rather|somewhat|extremely|incredibly|absolutely|definitely|basically|actually|just|simply|totally|completely|highly)\b/gi,
-  },
-  {
-    name: "weasel-word",
-    detail: "a word that hedges the claim into meaninglessness",
-    fix: "say what is true plainly, or say it is not established",
-    re: /\b(?:arguably|supposedly|allegedly|reportedly|seemingly|ostensibly|sort of|kind of|in some sense|to some extent|it could be said)\b/gi,
-  },
-  {
-    name: "cliche",
-    detail: "a tired phrase doing the work of plain words",
-    fix: "say it directly — the cliché is the author's day off",
-    re: /\b(?:at the end of the day|in this day and age|the bottom line|a double-edged sword|tip of the iceberg|elephant in the room|all things considered|when it comes down to it|in the grand scheme of things|easier said than done)\b/gi,
-  },
-  {
-    name: "passive-voice",
-    detail: "the subject receives the action instead of doing it",
-    fix: "name the actor and make them act",
-    re: /\b(?:am|is|are|was|were|be|been|being)\s+(?:\w+ed|\w+en|\w+own)\b/gi,
-  },
-  {
-    name: "nominalization",
-    detail: "a verb turned into a noun so the sentence loses its pulse",
-    fix: "restore the verb — the nominalization hides who does what",
-    re: /\b[a-z]+(?:ization|ition|ation|tion|sion|ment|ness|ance|ence)\b/gi,
-  },
-  {
-    name: "needless-word",
-    detail: "a word that adds nothing and was put in to sound full",
-    fix: "cut it — the sentence is stronger shorter",
-    re: /\b(?:in order to|due to the fact that|for the purpose of|with regard to|in the event that|it is important to note that|it should be noted that|at this point in time|in my opinion|generally speaking|the fact that)\b/gi,
-  },
+const RULES = [
+  { id: "weak_verb", re: WEAK_VERBS, rule: "Use the active voice — a strong verb carries the sentence (Elements §II.13).", fix: "replace 'there is/are' and weak copulas with an active verb" },
+  { id: "weak_adverb", re: WEAK_ADVERBS, rule: "Omit needless adverbs — 'very' weakens the word it means to strengthen (Elements §II.13).", fix: "drop the adverb or choose a stronger word" },
+  { id: "weasel_word", re: WEASEL_WORDS, rule: "No weasel words — 'experts say' hedges the claim the piece must stand behind (proselint's weasel check).", fix: "state the claim plainly, with its witness" },
+  { id: "cliche", re: CLICHES, rule: "Avoid clichés — 'at the end of the day' says nothing a reader did not already know (Elements §II.14).", fix: "say what is meant directly" },
+  { id: "passive", re: PASSIVE, rule: "Prefer the active voice — the subject acts, it is not acted upon (Elements §II.13).", fix: "make the doer the subject" },
+  { id: "nominalization", re: NOMINALIZATIONS, rule: "Avoid nominalizations — 'the utilization of' buries the verb (Elements §II.13).", fix: "use the verb: 'utilize' → 'use'" },
+  { id: "needless_word", re: NEEDLESS_WORDS, rule: "Omit needless words — 'due to the fact that' is three words for 'because' (Elements §II.13).", fix: "cut the phrase to its essential word" },
 ];
 
-export function styleGrade(text = "", { textstat = null } = {}) {
+// ── THE STYLE REPORT ───────────────────────────────────────────────────────
+// Every finding names the rule, the matched words (with spans), and the fix.
+// `findRule` is mechanical; the report is EOT-recordable (each finding is a
+// typed style violation with the bytes it names).
+export function styleFindings(text) {
   const t = String(text ?? "");
-  const readability = textstat ? { ...textstat } : heuristicReadability(t);
-  const violations = [];
-  for (const rule of RULE_DETECTORS) {
+  const findings = [];
+  for (const rule of RULES) {
+    const matches = [];
+    const re = new RegExp(rule.re.source, rule.re.flags.includes("g") ? rule.re.flags : rule.re.flags + "g");
     let m;
-    rule.re.lastIndex = 0;
-    while ((m = rule.re.exec(t)) !== null) {
-      const start = m.index;
-      const end = start + m[0].length;
-      // Deduplicate overlapping spans of the same rule.
-      if (violations.some((v) => v.rule === rule.name && v.span[0] === start && v.span[1] === end)) { rule.re.lastIndex = start + 1; continue; }
-      violations.push({ rule: rule.name, detail: rule.detail, fix: rule.fix, span: [start, end], text: t.slice(start, end).trim() });
-      rule.re.lastIndex = start + 1;
+    while ((m = re.exec(t))) {
+      const at = m.index;
+      matches.push({ word: m[0].trim().slice(0, 40), at: [at, at + m[0].length] });
+      if (matches.length >= 6) break;
+    }
+    if (matches.length) {
+      findings.push({ kind: rule.id, rule: rule.rule, fix: rule.fix, matches });
     }
   }
+  return findings;
+}
+
+/**
+ * THE STYLE GRADE — Strunk & White's report on the piece: the readability
+ * metrics PLUS the rule violations, as one EOT-recordable object. `textstat`
+ * is injected (a function returning the exact readability numbers, from the
+ * venv subprocess); when absent, the JS heuristic stands in.
+ */
+export function styleGrade(text, { textstat = null } = {}) {
+  const readability = textstat ? { ...textstat(text), source: "textstat" } : { ...jsReadability(text), source: "js-heuristic" };
+  const findings = styleFindings(text);
   return {
-    schema: "EOStrunkWhite@1",
-    readability,
-    violations: violations.slice(0, 24),
-    count: violations.length,
-    basis: violations.length
-      ? `${violations.length} style rule violation(s) — ${readability.band === "readable" ? "readable" : "dense"} prose (Flesch ${readability.flesch}, grade ${readability.grade})`
-      : `clean prose (Flesch ${readability.flesch}, grade ${readability.grade})`,
+    ...readability,
+    violations: findings,
+    violationCount: findings.length,
+    basis: findings.length
+      ? `Strunk & White: ${findings.length} style rule violation(s) — ${findings.slice(0, 3).map((f) => f.kind).join(", ")}${findings.length > 3 ? "…" : ""}; ${readability.band ?? "reads"} (Flesch ${readability.flesch ?? "?"})`
+      : `Strunk & White: no style rule violations; ${readability.band ?? "reads"} (Flesch ${readability.flesch ?? "?"})`,
   };
 }
+
+/** Alias of styleGrade — the style report by any name. */
+export const styleCheck = styleGrade;
+
+/** Alias of styleFindings — the rule scan by any name. */
+export const scanStyle = styleFindings;

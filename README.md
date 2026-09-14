@@ -164,6 +164,11 @@ the-fold's flat top level under the same basename.
 | `organs/frame.js` | Alhazen | Declare the frame before comparing results. |
 | `organs/grammar-lens.js` | Thrax | Parts of speech as a giver-named reading. |
 | `organs/signal.js` | Platanista | Probe, listen; a clean nothing is a result. |
+| `organs/variation.js` | Brillat-Savarin | Varied draws, rejection-sampled; mechanical snip first, EOT-recorded. |
+| `organs/strunk-white.js` | Strunk & White | Readability grade plus the classic style-rule detectors. |
+| `organs/pacing.js` | Murch | The cut lands where the blink falls; a flatline is boredom at the rhythm grain. |
+| `organs/vonnegut.js` / `organs/story-shapes.js` | Vonnegut | Fortune curves; the 27-operator arc, taxonomically complete. |
+| `organs/void-holarchy.js` | Koestler | The void is a holon recursion — every level a whole-and-part, DEF'd by the nine operators. |
 
 **Left plain** — no handle: `sequence`, `cite`, `web`, `fold`, `cube`,
 `artifact`, `assembly`, `task-log`, `cast-ledger`.

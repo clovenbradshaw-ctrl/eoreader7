@@ -1,110 +1,172 @@
-// organs/story-shapes.js — the writer's arc, all 27 EO story shapes.
+// organs/story-shapes.js — THE EO STORY SHAPES, TAXONOMICALLY COMPLETE.
+// Handle: Vonnegut — his eight shapes are the READER's fortune curves. But
+// EO's cube is richer: 3 domains × 3 modes = 9 operators, each × 3 grains =
+// 27 cells, and EVERY cell names a distinct arc a piece can trace. Vonnegut's
+// eight are the reader-facing subset; the 27 are the taxonomy of what a piece
+// CAN do. This organ enumerates them all, derived from the kernel's own cube
+// algebra (never a second copy of the table), and classifies a given essay's
+// fortune curve into the cells it actually traces.
 //
-// Vonnegut's eight shapes are the READER's fortune curves; EO's cube is
-// richer. This organ enumerates the complete taxonomy DERIVED from the
-// kernel's cube algebra (native/kernel/cube.js) — 3 domains (Existence /
-// Structure / Interpretation) x 3 modes (Differentiate / Relate / Generate)
-// x 3 grains (Ground / Figure / Pattern) = 27 cells, each a named arc:
-//
-//   NUL·Ground  The Clearing    SEG·Ground  The Extent    DEF·Ground  The Frame
-//   NUL·Figure  The One         SEG·Figure  The Cut       DEF·Figure  The Thesis
-//   NUL·Pattern The Kind        SEG·Pattern The Seams     DEF·Pattern The Frames
-//   SIG·Ground  The Absence     CON·Ground  The Field     EVA·Ground  The Owed
-//   SIG·Figure  The Named       CON·Figure  The Binding   EVA·Figure  The Test
-//   SIG·Pattern The Recurrence  CON·Pattern The Cycle     EVA·Pattern The Standing
-//   INS·Ground  The Baseline    SYN·Ground  The Ground    REC·Ground  The Rezero
-//   INS·Figure  The Portrait    SYN·Figure  The Witness   REC·Figure  The Retraction
-//   INS·Pattern The Account     SYN·Pattern The Chain     REC·Pattern The Revision
-//
-// classifyArc maps a MEASURED arc (organs/vonnegut.js) into the EO spine
-// cell + the cells it visited, and names the classic Vonnegut read.
-import { cellOf, OPERATOR_CHAIN, GRAINS } from "../kernel/cube.js";
+// The domains (what the piece shapes), the modes (the act), the grains (the
+// level the act lands on), the terrain (what it is about), the stance (the
+// posture of the act):
+//   Existence (NUL/SIG/INS) — the being's story: what is, which one, what kind.
+//   Structure (SEG/CON/SYN) — the hanging-together story: extent, binding, weave.
+//   Interpretation (DEF/EVA/REC) — the meaning story: frame, test, revision.
+//   Differentiate (cut apart) · Relate (bind) · Generate (make).
+//   Ground / Figure / Pattern — the level of the difference.
+import { cellOf, OPERATOR_CHAIN, DOMAINS, MODES, GRAINS } from "../kernel/cube.js";
 
-// The 27 named arcs, one per (op, grain) cell in the cube.
-const ARC_NAMES = Object.freeze({
-  "NUL:Ground": "The Clearing",
-  "NUL:Figure": "The One",
-  "NUL:Pattern": "The Kind",
-  "SIG:Ground": "The Absence",
-  "SIG:Figure": "The Named",
-  "SIG:Pattern": "The Recurrence",
-  "INS:Ground": "The Baseline",
-  "INS:Figure": "The Portrait",
-  "INS:Pattern": "The Account",
-  "SEG:Ground": "The Extent",
-  "SEG:Figure": "The Cut",
-  "SEG:Pattern": "The Seams",
-  "CON:Ground": "The Field",
-  "CON:Figure": "The Binding",
-  "CON:Pattern": "The Cycle",
-  "SYN:Ground": "The Ground",
-  "SYN:Figure": "The Witness",
-  "SYN:Pattern": "The Chain",
-  "DEF:Ground": "The Frame",
-  "DEF:Figure": "The Thesis",
-  "DEF:Pattern": "The Frames",
-  "EVA:Ground": "The Owed",
-  "EVA:Figure": "The Test",
-  "EVA:Pattern": "The Standing",
-  "REC:Ground": "The Rezero",
-  "REC:Figure": "The Retraction",
-  "REC:Pattern": "The Revision",
-});
-
-export const STORY_TAXONOMY = Object.freeze(
-  OPERATOR_CHAIN.flatMap((op) =>
-    GRAINS.map((grain) => {
-      const c = cellOf(op, grain);
-      return { ...c, name: ARC_NAMES[`${op}:${grain}`] ?? `${op}·${grain}` };
-    })
-  )
-);
-
-export const storyArcName = (op, grain) => ARC_NAMES[`${op}:${grain}`] ?? `${op}·${grain}`;
-
-// The classic Vonnegut read → the EO spine cell. The spine is the cell the
-// arc's TURN lives in — the writer's signature move:
-//   man-in-hole     the thesis surprises, the body climbs  → The Thesis
-//   rags-to-riches  steady creation of the one             → The Portrait
-//   from-bad-to-worse  the descending cut                  → The Cut
-//   flatline        argues nothing, records no move        → The Clearing
-const SPINE_BY_ARC = Object.freeze({
-  "man-in-hole": { op: "DEF", grain: "Figure" },
-  "rags-to-riches": { op: "INS", grain: "Figure" },
-  "from-bad-to-worse": { op: "SEG", grain: "Figure" },
-  flatline: { op: "NUL", grain: "Ground" },
-});
-
-const VISITED_BY_ARC = Object.freeze({
-  "man-in-hole": [["NUL", "Ground"], ["SIG", "Ground"], ["DEF", "Figure"], ["SYN", "Figure"], ["REC", "Pattern"]],
-  "rags-to-riches": [["NUL", "Figure"], ["INS", "Figure"], ["INS", "Pattern"]],
-  "from-bad-to-worse": [["SYN", "Ground"], ["SEG", "Figure"], ["SEG", "Pattern"]],
-  flatline: [["NUL", "Ground"]],
-});
-
-// classifyArc: the MEASURED fortune arc (vonnegut.js) → the reader-facing
-// story read: the Vonnegut shape, the EO spine cell (named), and the cells
-// the arc visited. Never a judgment — a reading, at the story grain.
-export function classifyArc(shape = {}) {
-  const arc = shape?.arc ?? "flatline";
-  const spine = SPINE_BY_ARC[arc] ?? SPINE_BY_ARC.flatline;
-  const spineCell = cellOf(spine.op, spine.grain);
-  const visited = (VISITED_BY_ARC[arc] ?? VISITED_BY_ARC.flatline).map(([op, grain]) => cellOf(op, grain));
+/**
+ * THE COMPLETE SHAPE TABLE — all 27 cells, each named as a story shape, with
+ * the domain (what it shapes), mode (the act), grain, terrain, stance, and a
+ * one-line shape the piece traces when this cell is its arc. Derived from the
+ * cube's own cellOf — the algebra is the taxonomy, never a restated table.
+ */
+export const STORY_SHAPES = OPERATOR_CHAIN.flatMap((op) => GRAINS.map((grain) => {
+  const c = cellOf(op, grain);
+  // The story shape each cell names — the ARC the piece traces when this
+  // cell is its spine. Taxonomically complete: every cell has one.
+  const shape = shapeOf(op, grain);
   return {
-    schema: "EOStoryArc@1",
-    vonnegut: arc,
-    spine: storyArcName(spine.op, spine.grain),
-    spineCell,
-    visited: visited.map((c) => c.name ?? storyArcName(c.op, c.grain)),
-    visitedCells: visited,
-    fortune: shape?.fortune ?? [],
-    slope: shape?.slope ?? null,
-    basis: arc === "flatline"
-      ? "the piece argues nothing — its reader's conviction never moves"
-      : arc === "man-in-hole"
-        ? "the thesis surprises, the body climbs — the reader is in a hole and the piece carries them out"
-        : arc === "rags-to-riches"
-          ? "steady creation — the reader's conviction rises from near nothing"
-          : "from-bad-to-worse — the reader's conviction falls as the piece goes on",
+    cell: `${op}·${grain}`,
+    op, grain,
+    domain: c.domain, mode: c.mode, terrain: c.terrain, stance: c.stance,
+    name: shape.name,
+    arc: shape.arc,
+  };
+}));
+
+/**
+ * The story shape of one cell. This is the EO taxonomy: a piece traces a
+ * specific arc depending on which cell is its spine. Vonnegut's reader-facing
+ * eight appear here (man-in-hole, rags-to-riches, from-bad-to-worse,
+ * the-flatline, etc.) plus the EO ones the reader doesn't usually name but a
+ * writer's craft recognizes — each is a declared arc with a name and the
+ * movement it traces.
+ */
+function shapeOf(op, grain) {
+  const SH = {
+    // ── EXISTENCE · the being's story ──
+    "NUL·Ground": { name: "The Clearing", arc: "marks its subject off from everything adjacent — the space it clears, and what it is NOT." },
+    "NUL·Figure": { name: "The One", arc: "one being clears its ground, or several must be kept apart — individuation as the arc." },
+    "NUL·Pattern": { name: "The Kind", arc: "what KIND of thing it is, held against the material — a kind that resolves or stays open." },
+    "SIG·Ground": { name: "The Absence", arc: "what is missing and must be found for the story to exist — an absence that drives it." },
+    "SIG·Figure": { name: "The Named", arc: "the names and the referent, so one being is meant — identity as the arc." },
+    "SIG·Pattern": { name: "The Recurrence", arc: "how many distinct beings keep recurring as the same kind — a census of identity." },
+    "INS·Ground": { name: "The Baseline", arc: "the account built before any judgment — a foundation story." },
+    "INS·Figure": { name: "The Portrait", arc: "what the piece brings into being that did not exist before — a creation story." },
+    "INS·Pattern": { name: "The Account", arc: "what kind of account it instantiates — a genre story (species description, history, elegy)." },
+    // ── STRUCTURE · the hanging-together story ──
+    "SEG·Ground": { name: "The Extent", arc: "the range it must cover, in its own units — a journey across a declared map." },
+    "SEG·Figure": { name: "The Cut", arc: "what is cut apart, derived from the material's own bytes — a dissection." },
+    "SEG·Pattern": { name: "The Seams", arc: "where the story parts at natural bridges — a chaptered arc." },
+    "CON·Ground": { name: "The Field", arc: "the ambient of possible relations before any is confirmed — a field-opens arc." },
+    "CON·Figure": { name: "The Binding", arc: "what binds each named thing to the subject — a web of edges." },
+    "CON·Pattern": { name: "The Cycle", arc: "the recurring relation found at a real floor — a loop, the same cycle returning." },
+    "SYN·Ground": { name: "The Ground", arc: "what received readings merge into one carried ground — a synthesis story." },
+    "SYN·Figure": { name: "The Witness", arc: "where two sources agree into one claim — corroboration as the arc." },
+    "SYN·Pattern": { name: "The Chain", arc: "how parts compose so a reader walks through — a passage story." },
+    // ── INTERPRETATION · the meaning story ──
+    "DEF·Ground": { name: "The Frame", arc: "the interpretive frame declared — alarm, wonder, elegy — a framed story." },
+    "DEF·Figure": { name: "The Thesis", arc: "one answer declared, held to — Vonnegut's single-spine arc." },
+    "DEF·Pattern": { name: "The Frames", arc: "candidate framings, some refuted, some staying candidate — a contest of frames." },
+    "EVA·Ground": { name: "The Owed", arc: "what the piece owes the reader's accumulated picture — a debt-and-payment story." },
+    "EVA·Figure": { name: "The Test", arc: "what each claim must pass to stand — a trial arc, claims judged." },
+    "EVA·Pattern": { name: "The Standing", arc: "each claim's standing across its witnesses — a verdict story." },
+    "REC·Ground": { name: "The Rezero", arc: "when the piece concedes its frame and re-zeroes — a conversion arc." },
+    "REC·Figure": { name: "The Retraction", arc: "what would make it take back a claim — a reversal, an un-saying." },
+    "REC·Pattern": { name: "The Revision", arc: "what finding forces the whole declaration to revise — a paradigm-shift arc." },
+  };
+  return SH[`${op}·${grain}`] ?? { name: `${op}·${grain}`, arc: "the arc this cell traces" };
+}
+
+/** All shapes by domain — the taxonomy grouped. */
+export const shapesByDomain = () => {
+  const out = {};
+  for (const d of DOMAINS) {
+    out[d] = STORY_SHAPES.filter((s) => s.domain === d).map((s) => ({ cell: s.cell, name: s.name, arc: s.arc }));
+  }
+  return out;
+};
+
+/** All shapes by mode — the acts grouped. */
+export const shapesByMode = () => {
+  const out = {};
+  for (const m of MODES) {
+    out[m] = STORY_SHAPES.filter((s) => s.mode === m).map((s) => s.cell);
+  }
+  return out;
+};
+
+/**
+ * VONNEGUT'S EIGHT, mapped onto the cube — the reader-facing subset. Each of
+ * his fortune shapes corresponds to the cells whose arcs trace that curve:
+ *   Man-in-hole      — DEF·Figure (thesis, a dip) + EVA·Figure (the test
+ *                      climbs out) — the piece surprises, then understands.
+ *   Boy-meets-girl   — CON·Figure (the binding) + REC·Figure (the retraction
+ *                      and recovery) — bind, lose, bind again.
+ *   Rags-to-riches   — INS·Figure (the portrait, born) — a steady creation.
+ *   From-bad-to-worse— REC·Pattern (the revision that un-does) — a falling arc.
+ *   Which-way-is-up  — a piece whose spine is no cell — the flatline.
+ *   Cinderella       — NUL·Ground (clearing) + SYN·Figure (the witness that
+ *                      redeems) — hidden, recognized.
+ *   Creation         — INS·Ground (the baseline) — the account built from nothing.
+ *   Journey          — SEG·Ground (the extent) — a crossing of a declared map.
+ */
+export const VONNEGUT_EIGHT = [
+  { shape: "Man in Hole", cells: ["DEF·Figure", "EVA·Figure"], arc: "the thesis digs (the surprise), the test climbs out — surprise, then understanding." },
+  { shape: "Boy Meets Girl", cells: ["CON·Figure", "REC·Figure"], arc: "bind, lose, retract, bind again — the love arc." },
+  { shape: "Rags to Riches", cells: ["INS·Figure"], arc: "the portrait is born and grows — a steady rise." },
+  { shape: "From Bad to Worse", cells: ["REC·Pattern"], arc: "the revision un-does what was built — a steady fall." },
+  { shape: "Which Way Is Up", cells: [], arc: "no spine cell — the flatline, the essay that argues nothing." },
+  { shape: "Cinderella", cells: ["NUL·Ground", "SYN·Figure"], arc: "cleared off from the crowd, then recognized by the witness — hidden, revealed." },
+  { shape: "Creation", cells: ["INS·Ground"], arc: "the baseline account built from nothing — genesis." },
+  { shape: "Journey", cells: ["SEG·Ground"], arc: "a crossing of the declared extent — the range as the map." },
+];
+
+/** The taxonomy, complete — for any caller that wants the whole table. */
+export const allStoryShapes = () => STORY_SHAPES;
+
+/**
+ * CLASSIFY A PIECE'S ARC into the taxonomy. Given the essay's fortune curve
+ * (vonnegut.js) and the shape it already traces, report: the classic
+ * Vonnegut shape (if any), the EO cells the arc actually visits (by the
+ * arc's own movement — a thesis→test arc visits DEF·Figure and EVA·Figure;
+ * a binding→retraction arc visits CON·Figure and REC·Figure), and the single
+ * spine cell. This is the writer's read of the piece's shape.
+ * `vonnegutShape` is the result of organs/vonnegut.js storyShape() — injected
+ * so this organ owns only the mapping, never the measurement.
+ */
+export function classifyArc(vonnegutResult) {
+  const curve = vonnegutResult?.curve ?? [];
+  const held = curve.map((c) => c.conviction);
+  const start = held[0] ?? 0, end = held[held.length - 1] ?? 0;
+  const peak = Math.max(0, ...held);
+  const rose = end > start;
+  const fell = end < start;
+  // The cells the arc visits, read off its movement (the same mapping
+  // VONNEGUT_EIGHT declares, generalised to the spine cells the movement
+  // names): a rise after the thesis is the TEST climbing out (EVA·Figure);
+  // a steady creation is the PORTRAIT (INS·Figure); a fall is the REVISION
+  // un-doing (REC·Pattern); a level arc is the FLATLINE (no spine).
+  const visited = [];
+  if (rose && curve.length >= 2) { visited.push("DEF·Figure", "EVA·Figure"); } // thesis, then test climbed
+  if (peak > start + 1 && curve.length >= 3) visited.push("INS·Figure"); // a creation that accumulates
+  if (fell) visited.push("REC·Pattern"); // the revision that un-does
+  if (!visited.length) visited.push("NUL·Ground"); // a clearing, at minimum
+  const spine = visited[0] ?? null;
+  const spineCell = STORY_SHAPES.find((s) => s.cell === spine) ?? null;
+  const vonnegutShape = vonnegutResult?.shape ?? "flatline";
+  return {
+    vonnegutShape,
+    shapeName: spineCell?.name ?? null,
+    arc: spineCell?.arc ?? null,
+    visitedCells: [...new Set(visited)],
+    curve: held,
+    basis: `Vonnegut: ${vonnegutShape}. EO: the piece's spine is ${spineCell?.name ?? "?"} (${spine}) — ${spineCell?.arc ?? ""}`,
   };
 }
+
+/** Alias of classifyArc — the writer's read by any name. */
+export const readArc = classifyArc;

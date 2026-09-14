@@ -588,7 +588,7 @@ const steer = http.createServer(async (req, res) => {
   let body = "";
   req.on("data", (c) => (body += c));
   req.on("end", async () => {
-    const isChat = req.method === "POST" && /(\/v1\/chat\/completions|\/api\/chat)$/.test(req.url);
+    const isChat = req.method === "POST" && /(\/v1\/chat\/completions|\/api\/chat|\/v1\/messages|\/v1\/messages\/count_tokens)$/.test(req.url);
     if (!isChat) {
       const target = pickSurface("any") ?? surfaces[0];
       if (!target?.up) { res.writeHead(503, { "content-type": "application/json" }); res.end(JSON.stringify({ error: { message: "no surface up" } })); return; }

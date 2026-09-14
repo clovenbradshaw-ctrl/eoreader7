@@ -1,61 +1,85 @@
-// organs/pacing.js — Murch's pacing: the blink of an eye.
-//
-// Handle: Murch — after Walter Murch's editing rule that a film is cut where
-// the blink falls. The reader's eye rests at a sentence boundary; the blink
-// is where a thought or emotion turns. This organ grades a piece's RHYTHM:
-// sentence-length variance, BLINK POINTS (a short sentence landing after
-// long ones — the eye resting where the thought turns), and DENSE sentences
-// (the swells). A flatline piece (variance below a floor of its mean, no
-// blinks) is Murch's boredom at the rhythm grain — the editor's flag, which
-// the rewrite carries: dense information reads slow, release it with a short
-// sentence.
+// organs/pacing.js — MURCH'S CUT: pacing as emotional impact.
+// Handle: Walter Murch — In the Blink of an Eye: a film is edited where the
+// blink falls, and the blink is the instant a thought or emotion turns. Pace
+// is not evenness; it is the DELIBERATE variation of rhythm in service of
+// what the piece is doing. The principles, made measurable:
+//   BLINK — the reader's eye rests at a sentence/paragraph boundary; the
+//   edit (the variation) falls where the thought turns. A piece that never
+//   varies its sentence length has no blinks — it is a flatline.
+//   INFORMATION DENSITY ↔ PACE — a dense sentence (many propositions, long
+//   words) reads slow; a sparse one reads quick. The piece should VARY them:
+//   dense, then a release; short, then a swell. Monotone density is Murch's
+//   boredom — the same failure Fisher/Strunk catch at other grains.
+// Murch grades pacing: sentence-length variance, the density rhythm, and
+// whether the piece has BLINK POINTS (short sentences landing after long
+// ones — the reader's eye blinking where the thought turns). This is the
+// emotional impact of the cut, mechanical and EOT-recordable like every
+// other measure.
 
-// Split prose into sentences, each with its word count.
-function sentencesOf(text) {
+/** Sentence lengths (word counts) in order — the piece's rhythm as a series. */
+export function sentenceLengths(text) {
   return String(text ?? "")
-    .split(/(?<=[.!?])\s+(?=[A-Z])/)
+    .replace(/\s+/g, " ")
+    .split(/(?<=[.!?])\s+/)
     .map((s) => s.trim())
-    .filter((s) => s.length > 0)
-    .map((s) => ({ text: s, words: s.split(/\s+/).filter(Boolean).length }));
+    .filter(Boolean)
+    .map((s) => ({ sentence: s, words: s.split(/\s+/).filter(Boolean).length }));
 }
 
-export function pacingGrade(text = "") {
-  const sents = sentencesOf(text);
-  if (sents.length < 3) {
-    return { flatline: false, basis: "fewer than three sentences — no rhythm to grade", n: sents.length };
-  }
-  const lengths = sents.map((s) => s.words);
-  const mean = lengths.reduce((a, b) => a + b, 0) / lengths.length;
-  const variance = lengths.reduce((a, b) => a + (b - mean) ** 2, 0) / lengths.length;
-  const ratio = mean > 0 ? Math.sqrt(variance) / mean : 0;
-  // BLINK POINTS: a short sentence (≤ 60% of the mean) landing after a long
-  // one (≥ 120% of the mean) — the eye rests where the thought turns.
-  const blinks = [];
-  for (let i = 1; i < sents.length; i++) {
-    const prev = lengths[i - 1], cur = lengths[i];
-    if (prev >= mean * 1.2 && cur <= mean * 0.6) {
-      blinks.push({ index: i, prevLength: prev, blinkLength: cur, text: sents[i].text.slice(0, 90) });
+/**
+ * THE PACING GRADE — Murch's read of the cut.
+ *   meanLength     — average sentence length (the tempo).
+ *   variance       — the standard deviation of sentence length (the range of
+ *                    the rhythm; near-zero = flatline, no blinks).
+ *   blinkPoints    — the sentences notably shorter than the running mean
+ *                    after a longer run: the reader's eye blinking where the
+ *                    thought turns (a short sentence after two long ones).
+ *   denseSentences — the longest sentences (high info density): the swells.
+ *   basis          — a plain-language read of the rhythm.
+ * A piece with variance near zero reads as one long monotone — no cuts, no
+ * blinks, no emotional arc. A piece with real variance has Murch's cut: the
+ * eye blinks where the thought turns.
+ */
+export function pacingGrade(text) {
+  const rows = sentenceLengths(text);
+  if (!rows.length) return { meanLength: 0, variance: 0, blinkPoints: [], denseSentences: [], basis: "no text to pace" };
+  const lens = rows.map((r) => r.words);
+  const mean = lens.reduce((a, b) => a + b, 0) / lens.length;
+  const variance = Math.sqrt(lens.reduce((a, l) => a + (l - mean) ** 2, 0) / lens.length);
+  // BLINK POINTS: a sentence at least 35% shorter than the running mean of
+  // the preceding window (a short landing after longer ones) — the blink.
+  const blinkPoints = [];
+  for (let i = 1; i < rows.length; i++) {
+    const window = lens.slice(Math.max(0, i - 3), i);
+    if (!window.length) continue;
+    const winMean = window.reduce((a, b) => a + b, 0) / window.length;
+    if (rows[i].words <= winMean * 0.65 && rows[i].words >= 3) {
+      blinkPoints.push({ index: i, words: rows[i].words, windowMean: Number(winMean.toFixed(1)), sentence: rows[i].sentence.slice(0, 90) });
     }
   }
-  // DENSE sentences: the swells — long sentences (≥ 150% of the mean) that
-  // carry information the reader must unpack slowly.
-  const dense = [];
-  for (let i = 0; i < sents.length; i++) {
-    if (lengths[i] >= mean * 1.5) dense.push({ index: i, words: lengths[i], text: sents[i].text.slice(0, 120) });
-  }
-  // FLATLINE: the rhythm never varies — variance below a floor of its mean
-  // (Murch's rule: < 30% of mean) and no blinks.
-  const flatline = ratio < 0.3 && blinks.length === 0;
+  // DENSE SENTENCES: the top decile by length — the swells of information.
+  const sorted = [...lens].sort((a, b) => b - a);
+  const denseThreshold = sorted[Math.max(0, Math.floor(sorted.length * 0.1))];
+  const denseSentences = rows.filter((r) => r.words >= denseThreshold && r.words >= 8).map((r) => ({ words: r.words, sentence: r.sentence.slice(0, 90) }));
+  // The read: flatline (variance < 30% of mean, no blinks) vs. alive.
+  const flatline = mean > 0 && variance / mean < 0.3 && blinkPoints.length === 0;
+  const basis = flatline
+    ? `Murch: the piece paces flat — ${rows.length} sentence(s), mean ${mean.toFixed(0)} words, variance ${variance.toFixed(1)} (${(variance / mean * 100).toFixed(0)}% of the mean). No blinks: the eye never rests, the cut never falls. Vary the sentence lengths; let a short sentence land after a long one.`
+    : `Murch: the piece has rhythm — ${rows.length} sentence(s), mean ${mean.toFixed(0)} words, variance ${variance.toFixed(1)} (${(variance / mean * 100).toFixed(0)}% of the mean), ${blinkPoints.length} blink point(s) where the thought turns. ${blinkPoints.length ? "The eye blinks where it should." : "The rhythm varies but rarely blinks — add a short landing after a dense sentence."}`;
   return {
+    sentences: rows.length,
+    meanLength: Number(mean.toFixed(1)),
+    variance: Number(variance.toFixed(1)),
+    varianceRatio: mean > 0 ? Number((variance / mean).toFixed(2)) : 0,
+    blinkPoints,
+    denseSentences: denseSentences.slice(0, 5),
     flatline,
-    basis: flatline
-      ? `the piece paces flat — sentence lengths never vary (sd ${ratio.toFixed(2)} of mean ${mean.toFixed(1)} words) and there is no blink, no cut`
-      : `${blinks.length} blink(s), ${dense.length} dense sentence(s) — the rhythm cuts where the thought turns`,
-    n: sents.length,
-    mean: Number(mean.toFixed(2)),
-    variance: Number(variance.toFixed(2)),
-    ratio: Number(ratio.toFixed(3)),
-    blinks,
-    dense,
+    basis,
   };
 }
+
+/** Alias of pacingGrade — Murch's read by any name. */
+export const murchPacing = pacingGrade;
+
+/** Alias of sentenceLengths — the rhythm series by any name. */
+export const rhythm = sentenceLengths;

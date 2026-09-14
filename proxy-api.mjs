@@ -75,6 +75,128 @@ export function parseProxyRequest(body) {
   return { model, ...turn, stream, discloseThinking, kelsen, mode };
 }
 
+// ── ANTHROPIC MESSAGES API (Claude Code speaks this; the proxy is openai/
+// ollama-shaped, so the wire is translated here and nowhere else) ──────────
+
+export function flattenAnthropicContent(content) {
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) return "";
+  return content
+    .map((b) => {
+      if (!b || typeof b !== "object") return "";
+      switch (b.type) {
+        case "text":
+          return b.text ?? "";
+        case "thinking":
+          return b.thinking ?? "";
+        case "tool_use":
+          return `[tool_use id=${b.id ?? "?"} name=${b.name ?? "?"} input=${JSON.stringify(b.input ?? {})}]`;
+        case "tool_result": {
+          const c = b.content;
+          const txt = Array.isArray(c)
+            ? c.map((x) => (typeof x === "string" ? x : x?.text ?? "")).join(" ")
+            : String(c ?? "");
+          return `[tool_result for ${b.tool_use_id ?? "?"}: ${txt}]`;
+        }
+        default:
+          return "";
+      }
+    })
+    .join("\n");
+}
+
+export function parseAnthropicRequest(body) {
+  const model = stripModelPrefix(body?.model);
+  if (!model)
+    return {
+      error: `model must be an er7-prefixed id, e.g. "${prefixModel("llama3.1:8b")}" — got ${JSON.stringify(body?.model ?? null)}`,
+    };
+  const messages = Array.isArray(body?.messages) ? body.messages : [];
+  if (!messages.length) return { error: "messages must be a non-empty array" };
+  const last = messages[messages.length - 1];
+  if (!last || last.role !== "user")
+    return { error: 'the last message must have role "user" — eoreader7 answers a question, it does not continue an assistant turn' };
+  const task = flattenAnthropicContent(last.content).trim();
+  if (!task) return { error: "the last user message has no content" };
+  const rest = messages.slice(0, -1);
+  const chatHistory = rest
+    .filter((m) => m?.role === "user" || m?.role === "assistant")
+    .map((m) => ({ role: m.role, content: flattenAnthropicContent(m.content) }));
+  const system = (Array.isArray(body?.system) ? body.system.map((b) => (typeof b === "string" ? b : b?.text ?? "")).join(" ") : String(body?.system ?? ""))
+    .trim()
+    .slice(0, DISCOURSE_MAX_CHARS);
+  const stream = Boolean(body?.stream);
+  const discloseThinking = body?.discloseThinking === true;
+  const kelsen = Number.isFinite(Number(body?.kelsen)) ? Number(body?.kelsen) : null;
+  const maxTokens = Number.isFinite(Number(body?.max_tokens)) ? Number(body?.max_tokens) : null;
+  return { model, task, chatHistory, discourse: system, stream, discloseThinking, kelsen, maxTokens };
+}
+
+export function anthropicCountTokensResponse(chars) {
+  return { input_tokens: Math.max(1, Math.ceil(chars / 4)), output_tokens: 0 };
+}
+
+export function anthropicMessageResponse({ id, model, text, usage }) {
+  return {
+    id,
+    type: "message",
+    role: "assistant",
+    model,
+    content: [{ type: "text", text }],
+    stop_reason: "end_turn",
+    stop_sequence: null,
+    usage: {
+      input_tokens: usage?.promptTokens ?? 0,
+      output_tokens: usage?.completionTokens ?? 0,
+    },
+  };
+}
+
+export function anthropicStreamLine(type, data) {
+  return `event: ${type}\ndata: ${JSON.stringify(data)}\n\n`;
+}
+
+export function anthropicStreamStart({ id, model, inputTokens = 0 }) {
+  return anthropicStreamLine("message_start", {
+    type: "message_start",
+    message: {
+      id, type: "message", role: "assistant", model,
+      content: [], stop_reason: null, stop_sequence: null,
+      usage: { input_tokens: inputTokens, output_tokens: 0 },
+    },
+  });
+}
+
+export function anthropicContentBlockStart(index = 0) {
+  return anthropicStreamLine("content_block_start", {
+    type: "content_block_start", index,
+    content_block: { type: "text", text: "" },
+  });
+}
+
+export function anthropicContentBlockDelta(index, text) {
+  return anthropicStreamLine("content_block_delta", {
+    type: "content_block_delta", index,
+    delta: { type: "text_delta", text },
+  });
+}
+
+export function anthropicContentBlockStop(index) {
+  return anthropicStreamLine("content_block_stop", { type: "content_block_stop", index });
+}
+
+export function anthropicMessageDelta({ outputTokens = 0 } = {}) {
+  return anthropicStreamLine("message_delta", {
+    type: "message_delta",
+    delta: { stop_reason: "end_turn", stop_sequence: null },
+    usage: { output_tokens: outputTokens },
+  });
+}
+
+export function anthropicMessageStop() {
+  return anthropicStreamLine("message_stop", { type: "message_stop" });
+}
+
 export function toOpenAIModelList(realNames, { createdAt = 0 } = {}) {
   return {
     object: "list",
