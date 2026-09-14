@@ -100,11 +100,12 @@ export { requireExperiencer, withExperiencer } from "./experiencer.js";
 export * as experiencerOrgan from "./experiencer.js";
 export { MIN_QUOTE_WORDS, applyQuotes, extractQuotedSpans, normalizedIndex, quoteFindings, quoteOpens, verifyQuotes } from "./quotes.js";
 export * as quotesOrgan from "./quotes.js";
-// The look organ (2026-09-12) — the native "looking" capacity, ported from
-// the fold's browser-side /visual machinery: CV (OpenCV boxes + per-region
-// OCR) and OCR (Tesseract), a vision-model read, judge + escalation on
-// disagreement, and a text→image render for text whose formatting the
-// plain-text reader is reading wrong. The proxy's workspace pass calls this
-// when a file should be looked at; LaVar grades whether a reading needs it.
-export { MECHANICAL_STANDING, OLLAMA, VISION_LADDER, VISION_STANDING, detectVisualStructure, foldVisual, isImageFileName, lookAtImage, lookAtText, ocrFullImage, renderTextToImage, settleRead, shouldLook, toLedgerLines, weirdFormattingScore } from "./look.js";
-export * as lookOrgan from "./look.js";
+// The look organ (organs/look.js) is deliberately NOT re-exported here:
+// it imports node:child_process / node:fs / node:os / node:path and reads
+// process.env at module load, so it cannot LOAD in a browser — and this
+// index is the browser page's own seam, so a static re-export of it dragged
+// node built-ins into every page import and killed the whole module graph
+// (net::ERR_FAILED on `node:fs` etc., found driving the real page). Its
+// consumers — the proxy's workspace pass, LaVar, look.test.mjs — all import
+// it directly by path, server-side only, exactly as the split law requires
+// (pure organs in the seam, I/O organs at their caller).
