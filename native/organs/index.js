@@ -100,6 +100,12 @@ export { requireExperiencer, withExperiencer } from "./experiencer.js";
 export * as experiencerOrgan from "./experiencer.js";
 export { MIN_QUOTE_WORDS, applyQuotes, extractQuotedSpans, normalizedIndex, quoteFindings, quoteOpens, verifyQuotes } from "./quotes.js";
 export * as quotesOrgan from "./quotes.js";
+// The pathos organ (2026-09-13, Abhinavagupta) — the felt shape of a reading:
+// rhythm (Murch) + curve (surprise/tension/release) + strain gated by the
+// ledger, for a declared experiencer, and the REC·Ground re-ground when the
+// ground fails — a recorded concession, never an idle one.
+export { STRAIN, strainOf, pathosOf, reGroundCondition, reGround, landReGround } from "./pathos.js";
+export * as pathosOrgan from "./pathos.js";
 // The look organ (organs/look.js) is deliberately NOT re-exported here:
 // it imports node:child_process / node:fs / node:os / node:path and reads
 // process.env at module load, so it cannot LOAD in a browser — and this
