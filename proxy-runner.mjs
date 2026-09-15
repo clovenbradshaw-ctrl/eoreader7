@@ -1881,7 +1881,25 @@ const DEFAULT_KELSEN = Number(process.env.ER7_KELSEN ?? 0.9);
 // 4096 - 1024 output = 3072 prompt tokens; at the conservative 3 chars/token
 // used below that is 9216 chars. gemma2:2b's 8192 window was the prior budget.
 const PROMPT_MAX_CHARS = Number(process.env.ER7_MAX_PROMPT_CHARS ?? 9216);
-const NUM_CTX = Number(process.env.ER7_NUM_CTX ?? 4096);
+// ONE DECLARED WINDOW PER MODEL, ACROSS EVERY CALLER (2026-09-15). This was
+// 4096 — sized for OLMo 2 7B's own trained window — and the consequence, once
+// measured rather than assumed, is a reload storm: Ollama's window for a
+// caller that declares NOTHING is adaptive to free memory, so the-fold's page
+// (which declared nothing until today) kept landing on a different window than
+// this proxy's explicit one, and every disagreement is a full reload that also
+// discards the prompt cache. Measured on the live server, same model, back to
+// back: `num_ctx: 8192` reloads to 8192 (1,217ms), no num_ctx reloads the SAME
+// model to 4096 (1,138ms), `num_ctx: 4096` twice reloads not at all (117ms,
+// 129ms). In one 4.5-hour window of real traffic gemma2:2b was loaded 82 times,
+// 67 of those at a changed window.
+//
+// 8192 is gemma2:2b's own trained window and matches what the page now declares
+// for it, so the copy already resident for a chat turn is reused instead of
+// rebuilt. A model whose trained window is smaller (OLMo 2 7B's 4096) is
+// clamped by Ollama to its own, deterministically, for every caller alike. The
+// max() below keeps this proxy's budget guarantee unchanged; a deployment whose
+// models want a different ceiling declares it in ER7_NUM_CTX.
+const NUM_CTX = Number(process.env.ER7_NUM_CTX ?? 8192);
 const MSG_OVERHEAD_CHARS = 64;
 // Post-processing latency guard: this many ms max per turn for the pyodide
 // lint + dependency reorder. Warmed at boot; if it ever exceeds this, the
@@ -1979,6 +1997,20 @@ const reader = res.body.getReader();
               yield obj.message.content;
             }
             if (obj.done) {
+              // The bridge keeps the account of what each model really does
+              // (heimdall.observeCall): Ollama has just handed us its own
+              // counters, so reporting them costs nothing and no watcher has
+              // to spend a call to find out. Lazily imported and never
+              // awaited — a report may not slow a turn, and node hands back
+              // the same heimdall instance the proxy already runs.
+              import("./heimdall.mjs").then((h) => h.observeCall({
+                model,
+                promptTokens: obj.prompt_eval_count ?? 0,
+                promptMs: (obj.prompt_eval_duration ?? 0) / 1e6,
+                genTokens: obj.eval_count ?? 0,
+                genMs: (obj.eval_duration ?? 0) / 1e6,
+                loadMs: (obj.load_duration ?? 0) / 1e6,
+              })).catch(() => {});
               yield { done: true, truncated: overBudget, prompt_eval_count: obj.prompt_eval_count ?? 0, eval_count: obj.eval_count ?? 0 };
               return;
             }

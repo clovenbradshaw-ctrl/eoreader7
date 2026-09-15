@@ -240,15 +240,32 @@ async function collectFastVitals() {
     const [l1, l5, l15] = load.replace(/[{}]/g, "").trim().split(/\s+/).map(Number);
     v.load1 = l1; v.load5 = l5; v.load15 = l15;
   }
-  const pidLine = await execOut("pgrep", ["-f", "llama-server"], 2000);
-  const pid = pidLine?.trim().split("\n")[0];
-  if (pid) {
-    v.ollamaPid = Number(pid);
-    const ps = await execOut("ps", ["-o", "%cpu=,rss=", "-p", pid], 2000);
-    if (ps) {
-      const parts = ps.trim().split(/\s+/);
-      v.ollamaCpu = Number(parts[0] ?? null);
-      v.ollamaMemMb = parts[1] ? Math.round(Number(parts[1]) / 1024) : null;
+  // THE RUNNER IS NOT ALWAYS CALLED llama-server (fixed 2026-09-15). This read
+  // was `pgrep -f llama-server`, and every vitals row this watcher ever wrote
+  // carried `ollamaPid: null` — not because Ollama was idle, but because that
+  // name only matches ONE of the two installs on this box: the Ollama.app
+  // runner is `…/Resources/llama-server`, while the Homebrew server (the one
+  // actually serving :11434 as of 14:01 today) re-execs ITSELF as the runner,
+  // `/opt/homebrew/Cellar/ollama/…/libexec/ollama`, which that pattern can
+  // never match. So the process is found by what it DOES rather than by what
+  // it is called: among everything whose command line names ollama or
+  // llama-server, the runner is the one holding the weights — the largest
+  // resident set. No match is a typed null, as before.
+  const table = await execOut("ps", ["-Ao", "pid=,rss=,%cpu=,args="], 3000);
+  if (table) {
+    let best = null;
+    for (const row of table.split("\n")) {
+      const m = /^\s*(\d+)\s+(\d+)\s+([\d.]+)\s+(.*)$/.exec(row);
+      if (!m) continue;
+      const args = m[4];
+      if (!/ollama|llama-server/i.test(args) || /pgrep|grep /.test(args)) continue;
+      const rss = Number(m[2]);
+      if (!best || rss > best.rss) best = { pid: Number(m[1]), rss, cpu: Number(m[3]) };
+    }
+    if (best) {
+      v.ollamaPid = best.pid;
+      v.ollamaCpu = best.cpu;
+      v.ollamaMemMb = Math.round(best.rss / 1024);
     }
   }
   return v;
@@ -360,6 +377,137 @@ async function refreshSlowVitals() {
 
 let lastVitals = null;
 const VITALS_LOG_MS = Number(process.env.ER7_HEIMDALL_VITALS_LOG ?? 15000);
+
+// ── THE MODELS ON THE BRIDGE: which model is loaded, at which window ──────
+// The watcher could see the box (load, CPU, GPU) and every surface, and could
+// NOT see the one fact that decides what a prompt costs and whether it fits:
+// the context window Ollama actually loaded a model at. Measured on this box
+// 2026-09-15: gemma2:2b was reloaded between an 8192-token window and a
+// 4352-token one all day — 238 loads and ~40 min of load time in 4.5 h —
+// because different callers asked for different num_ctx, and Ollama reloads a
+// runner whenever the requested window differs from the loaded one. Every
+// switch is a full re-load of the weights, and none of it reached this log.
+//
+// This is that eye: /api/ps on the same tick as vitals. A read that fails is
+// a typed null — unknown, never convicting, the same rule the surface probes
+// hold. A model seen at a DIFFERENT window than last tick lands a
+// `window_changed` finding, and a storm of them escalates exactly as a
+// restart storm does. Kondo (the-fold/kondo.js) reads `loadedWindowOf` to say
+// whether a prompt fits the window it will really run in.
+let ollamaModels = null;
+const windowSeen = new Map(); // model -> { contextLength, switches: [ms] }
+
+// ── WHAT EACH MODEL ACTUALLY DOES, MEASURED FROM REAL TRAFFIC ────────────
+// Asked for a model's real throughput, this watcher had nothing to say, and
+// the obvious source does not exist: the Ollama.app writes a parseable
+// per-request log (~/.ollama/logs/server.log) but the Homebrew server now
+// serving this box writes none, so scraping a log would measure whichever
+// install happened to be running — a fact about the log, not about the box.
+//
+// The numbers already exist at every caller: Ollama returns
+// prompt_eval_count/duration, eval_count/duration and load_duration on the
+// done chunk of every single call. So a surface REPORTS what it already
+// measured (`observeCall`), and the bridge keeps the account: totals per
+// model, and an EWMA so a rate follows the box rather than averaging away a
+// bad hour. Nothing here spends a model call of its own to find out — a
+// watcher that generates load to measure load is the self-defense loop's own
+// refuted move.
+//
+// Measured while building this, and the reason it is worth keeping: gemma2:2b
+// answered at 15.8 tok/s on an idle box and averaged 4.4 tok/s across a real
+// 4.5-hour working window — the same model, ~3.6x slower under contention.
+// A number like that is invisible without this.
+const throughput = new Map(); // model -> { calls, promptTokens, promptMs, genTokens, genMs, loads, loadMs, genRate, promptRate }
+const EWMA = 0.3;
+
+/**
+ * One finished call, as its caller already measured it. Every field optional:
+ * a caller that knows only some of them still contributes what it has, and a
+ * zero-duration read is dropped rather than turned into an infinite rate.
+ */
+export function observeCall({ model, promptTokens = 0, promptMs = 0, genTokens = 0, genMs = 0, loadMs = 0 } = {}) {
+  if (!model) return null;
+  const t = throughput.get(model) ?? { calls: 0, promptTokens: 0, promptMs: 0, genTokens: 0, genMs: 0, loads: 0, loadMs: 0, genRate: null, promptRate: null };
+  t.calls++;
+  t.promptTokens += promptTokens; t.promptMs += promptMs;
+  t.genTokens += genTokens; t.genMs += genMs;
+  // A load_duration over ~100ms is a real (re)load, not a cache hit: measured
+  // on this box, an already-resident model answers with ~120ms and a genuine
+  // reload with ~1,200ms.
+  if (loadMs > 100) { t.loads++; t.loadMs += loadMs; }
+  if (genTokens > 0 && genMs > 0) {
+    const rate = genTokens / (genMs / 1000);
+    t.genRate = t.genRate == null ? rate : EWMA * rate + (1 - EWMA) * t.genRate;
+  }
+  if (promptTokens > 0 && promptMs > 0) {
+    const rate = promptTokens / (promptMs / 1000);
+    t.promptRate = t.promptRate == null ? rate : EWMA * rate + (1 - EWMA) * t.promptRate;
+  }
+  throughput.set(model, t);
+  return t;
+}
+
+/** What a model is doing lately: rates, totals, and how often it reloaded. */
+export function throughputOf(model = null) {
+  const shape = (m, t) => ({
+    model: m,
+    calls: t.calls,
+    genTokPerSec: t.genRate == null ? null : Math.round(t.genRate * 10) / 10,
+    promptTokPerSec: t.promptRate == null ? null : Math.round(t.promptRate),
+    genTokens: t.genTokens, promptTokens: t.promptTokens,
+    genSeconds: Math.round(t.genMs / 1000), promptSeconds: Math.round(t.promptMs / 1000),
+    reloads: t.loads, reloadSeconds: Math.round(t.loadMs / 1000),
+    window: loadedWindowOf(m),
+  });
+  if (model) { const t = throughput.get(model); return t ? shape(model, t) : null; }
+  return [...throughput.entries()].map(([m, t]) => shape(m, t)).sort((a, b) => b.genSeconds - a.genSeconds);
+}
+
+/** The window a model is loaded at right now, or null when unknown. */
+export function loadedWindowOf(model) {
+  const row = (ollamaModels ?? []).find((m) => m.name === model);
+  return Number.isFinite(row?.contextLength) ? row.contextLength : null;
+}
+/** Every model resident right now, or null when the read failed. */
+export function loadedModels() {
+  return ollamaModels;
+}
+
+async function refreshOllamaModels() {
+  let models;
+  try {
+    const res = await fetchWithTimeout(`${OLLAMA_URL}/api/ps`, 3000);
+    if (!res.ok) return;
+    const body = await res.json();
+    models = (body?.models ?? []).map((m) => ({
+      name: m.name ?? m.model ?? null,
+      contextLength: Number.isFinite(m.context_length) ? m.context_length : null,
+      vramMb: Number.isFinite(m.size_vram) ? Math.round(m.size_vram / 1048576) : null,
+      expiresAt: m.expires_at ?? null,
+    }));
+  } catch { return; } // unknown: keep the last good reading
+  const now = Date.now();
+  for (const m of models) {
+    if (!m.name) continue;
+    const seen = windowSeen.get(m.name);
+    const switches = (seen?.switches ?? []).filter((t) => now - t < RESTART_WINDOW_MS);
+    if (seen && m.contextLength != null && seen.contextLength != null && seen.contextLength !== m.contextLength) {
+      switches.push(now);
+      log(`EVA — ${m.name} reloaded at a different window: ${seen.contextLength} → ${m.contextLength} (${switches.length} in ${RESTART_WINDOW_MS / 60000}min)`);
+      appendLog({ act: "eva", finding: "window_changed", model: m.name, from: seen.contextLength, to: m.contextLength, inWindow: switches.length });
+      if (switches.length >= MAX_RESTARTS) {
+        lintedNote({
+          kind: "infra", level: "escalate", severity: "high",
+          note: `${m.name} reloaded at a different context window ${switches.length} times in ${RESTART_WINDOW_MS / 60000}min — callers are asking for different num_ctx, and every switch is a full model reload`,
+          giver: "heimdall", standing: "disclosed", probe: m.name,
+        });
+        switches.length = 0; // reported once per window, never once per tick
+      }
+    }
+    windowSeen.set(m.name, { contextLength: m.contextLength, switches });
+  }
+  ollamaModels = models;
+}
 
 // ── SELF-DEFENSE: the watcher watches its own watching ────────────────────
 // DEF — declare the void: the watcher can contribute to the very load it
@@ -480,6 +628,7 @@ async function tick() {
   // or /heimdall. A late CPU/GPU reading is honest; a missing one is "?".
   await refreshVitals().catch(() => {});
   refreshSlowVitals().catch(() => {});
+  refreshOllamaModels().catch(() => {});
   const full = cachedVitals();
   const saturated = boxSaturated(full);
   const vitalsChanged = !lastVitals || Math.abs((full?.load1 ?? 0) - (lastVitals.load1 ?? 0)) > 2 || full?.gpuUtil !== lastVitals.gpuUtil || full?.ollamaPid !== lastVitals.ollamaPid;
@@ -549,6 +698,8 @@ export function heimdallStatus() {
     retryAfterS: RETRY_AFTER_S,
     disclosure: disclosure(),
     vitals: cachedVitals() ?? null,
+    ollamaModels,
+    throughput: throughputOf(),
     surfaces: surfaces.map((s) => ({
       name: s.name, family: s.family, port: s.port, up: s.up, reason: s.reason,
       inflight: s.inflight, cmd: s.cmd, restartsInWindow: s.restartTimes.length,

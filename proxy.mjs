@@ -11,7 +11,7 @@ import { runCodeLoop } from "./native/the-fold/code-loop.js";
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall } from "./heimdall.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -223,6 +223,19 @@ async function handleRequest(req, res) {
   if (req.method === "GET" && req.url === "/heimdall") {
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify(heimdallStatus()));
+    return;
+  }
+
+  // /heimdall/observe — a surface reports one finished call as IT measured it
+  // (Ollama's own counters, which every caller already receives on the done
+  // chunk). The bridge keeps the account of what each model really does; no
+  // watcher call is spent to find out. Loopback-bound like everything here.
+  if (req.method === "POST" && req.url === "/heimdall/observe") {
+    let raw = "";
+    for await (const chunk of req) raw += chunk;
+    try { observeCall(JSON.parse(raw || "{}")); } catch { /* a malformed report is dropped, never fatal */ }
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ ok: true }));
     return;
   }
 
