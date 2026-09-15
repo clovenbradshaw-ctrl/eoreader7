@@ -228,11 +228,47 @@ export function atomic(stage, rel, s, o, key = null, { definite = false } = {}) 
   return UNBOUND;
 }
 
-// Truth ordering for ∧ (meet) / ∨ (join), worst-first. beyond-reach
-// absorbs in BOTH: a compound with an inexpressible part is not evaluable
-// — evaluating the rest and calling it the whole would be a silent lie
-// about reach.
-const TRUTH_ORDER = [CONTRADICTED, CONTESTED, UNBOUND, BOUND];
+// ∧ (meet) / ∨ (join), computed the way canonical FDE actually defines
+// them: each verdict is TWO independent supports — is there evidence FOR
+// the claim, is there evidence AGAINST it — and ∧/∨ combine those two
+// supports separately (∧: both-for / either-against; ∨: either-for /
+// both-against). This is NOT the same thing as sorting the four verdicts
+// into one line and taking min/max of that line's index — a single line
+// cannot encode two independent bits, and CONTESTED (for-and-against) vs
+// UNBOUND (neither) is exactly the pair a linear order gets wrong: a
+// prior version of this file used TRUTH_ORDER =
+// [CONTRADICTED, CONTESTED, UNBOUND, BOUND] and took min/max of its
+// index, which reproduces the real FDE table everywhere EXCEPT
+// AND(CONTESTED, UNBOUND) (linear order: CONTESTED; canonical FDE, "both
+// AND neither": CONTRADICTED — neither side has both a for and the
+// against the other side lacks, so the conjunction is falsity-supported)
+// and OR(CONTESTED, UNBOUND) (linear order: UNBOUND; canonical: "both OR
+// neither" = BOUND). Verified against the canonical two-support
+// definition by exhaustive case (all 16 ordered pairs × 2 operators) —
+// conformance/hl-compound.test.mjs's own cross-term case pins this pair
+// specifically, not just the cases a linear order already gets right.
+// beyond-reach still absorbs in BOTH, ahead of this table entirely: a
+// compound with an inexpressible part is not evaluable — evaluating the
+// rest and calling it the whole would be a silent lie about reach.
+const SUPPORT_OF = {
+  [BOUND]: [true, false],
+  [CONTRADICTED]: [false, true],
+  [CONTESTED]: [true, true],
+  [UNBOUND]: [false, false],
+};
+const VERDICT_OF_SUPPORT = new Map(
+  Object.entries(SUPPORT_OF).map(([verdict, [forSup, againstSup]]) => [`${forSup}:${againstSup}`, verdict]),
+);
+function fdeAnd(a, b) {
+  const [fa, aa] = SUPPORT_OF[a];
+  const [fb, ab] = SUPPORT_OF[b];
+  return VERDICT_OF_SUPPORT.get(`${fa && fb}:${aa || ab}`);
+}
+function fdeOr(a, b) {
+  const [fa, aa] = SUPPORT_OF[a];
+  const [fb, ab] = SUPPORT_OF[b];
+  return VERDICT_OF_SUPPORT.get(`${fa || fb}:${aa && ab}`);
+}
 
 /** Read a claim against a stage. Claim grammar (arrays):
  *   ["atom", rel, s, o, key?]        — atomic edge claim
@@ -253,9 +289,7 @@ export function read(stage, phi) {
     if (a === BEYOND_REACH || b === BEYOND_REACH) return BEYOND_REACH;
     if (a === UNREFUTED || b === UNREFUTED)
       throw refuse("quantifier_in_compound", "an open-domain ∀ verdict is stage-indexed and does not compose through ∧/∨ — read it alone");
-    const ia = TRUTH_ORDER.indexOf(a);
-    const ib = TRUTH_ORDER.indexOf(b);
-    return op === "and" ? TRUTH_ORDER[Math.min(ia, ib)] : TRUTH_ORDER[Math.max(ia, ib)];
+    return op === "and" ? fdeAnd(a, b) : fdeOr(a, b);
   }
   if (op === "exists") {
     const [, typ, body] = phi;
