@@ -21,7 +21,7 @@ import { notesFromEdges } from "../../../proxy-runner.mjs";
 import crypto from "node:crypto";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const wsDir = path.resolve(HERE, "../../../workspace-chicago");
+const wsDir = path.resolve(HERE, "fixtures/chicago");
 const pos = JSON.parse(fs.readFileSync(path.resolve(HERE, "../../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
 const reader = createRecursiveReader({ perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior: pos, reprojectEvery: 10 })], adapters: { revise: (a) => reviseTextFold({ ...a, canonicalizationFloor: 2 }), retrieve: () => [] } });
 
@@ -116,7 +116,7 @@ const medium = process.argv.find((a) => a.startsWith("--medium="))?.slice(9) ?? 
 const gains = movements.map((m) => m.gain);
 const shape = classifyFortuneShape(gains);
 const entry = {
-  source: { file: "workspace-chicago (retained web)", sha: crypto.createHash("sha256").update(recordTextHash()).digest("hex").slice(0, 16), chars: sentences.join(" ").length },
+  source: { file: "fixtures/chicago (retained web)", sha: crypto.createHash("sha256").update(recordTextHash()).digest("hex").slice(0, 16), chars: sentences.join(" ").length },
   readAt: new Date().toISOString(),
   recipe: "recursive reader, reprojectEvery 10, fortune curve over sentence stream",
   genre, medium,

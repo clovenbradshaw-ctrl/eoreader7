@@ -14,7 +14,7 @@ import { outlineFromRecord, updateOutline } from "../../organs/void-outline.js";
 import { notesFromEdges } from "../../../proxy-runner.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const wsDir = path.resolve(HERE, "../../../workspace-chicago");
+const wsDir = path.resolve(HERE, "fixtures/chicago");
 const pos = JSON.parse(fs.readFileSync(path.resolve(HERE, "../../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
 const reader = createRecursiveReader({ perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior: pos, reprojectEvery: 10 })], adapters: { revise: (a) => reviseTextFold({ ...a, canonicalizationFloor: 2 }), retrieve: () => [] } });
 

@@ -37,6 +37,15 @@ native/eval/the-fold/results/longform-code-*/
 # degrades with a named "(absent: …)" line when a page is missing.
 native/eval/the-fold/fixtures/sanriku/*.html
 
+# The Chicago world's fair corpus, relocated out of the repo root on
+# 2026-09-15 (Kondo sweep): retained third-party web pages read by
+# demo-void-outline.mjs and vonnegut-extract.mjs — the same fetched-pages-
+# kept-local category as sanriku and primary-faces above, never committed.
+native/eval/the-fold/fixtures/chicago/
+
+# Python bytecode caches from the visual-detect helper beside it.
+native/eval/lavar/__pycache__/
+
 # civic-research-walk.mjs (and any subject-naming investigative walk this
 # driver shape is reused for) is a TEST OF THE INSTRUMENT, not a permanent
 # finding, and its target is frequently a real, specific, living subject —
