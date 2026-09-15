@@ -7,6 +7,20 @@
 // every proxy process that fronts Ollama. Heimdall watches each one, re-forges
 // the dead ones, and steers each request across the healthy ones.
 //
+// Huginn, Muninn and Kairos (the-fold/huginn.js, muninn.js, kairos.js) are
+// his three — the triad under the bridge. Huginn is the watcher of model
+// PRIORITIZATION — which model answers which job, ranked by measured
+// evidence and hopped on typed failure, room mouths included. Muninn is
+// the watcher of MEMORY — what is recalled into the turn from the record,
+// and what earns standing, never a word of it replacing the record's own
+// bytes. Kairos is the watcher of the PATTERN — whether the turn's
+// difference made a difference, the sign (pattern / noise / gap) over the
+// aperture's measured surprise and the correspondence acts, never a metric
+// displayed and never a verdict from an unmeasured gap. Heimdall is the
+// boss: the surfaces, the steering, the admission and the re-forging stay
+// here; the three answer only under the bridge. The register lives in
+// the-fold's solon.js — the one authoritative list, never restated here.
+//
 // The loop, in this system's own act vocabulary:
 //   DEF  — declare the void: every surface watched, and a suspected breakdown.
 //   EVA  — evaluate: actually probe each surface, get a verdict.
@@ -95,8 +109,13 @@ const SURFACE_SPECS = String(process.env.ER7_SURFACES ?? "").trim()
     })
   : [
       // Defaults: what this machine actually runs today. The er7 proxy (the
-      // model the reader surfaces) and the three the-fold proxies.
+      // model the reader surfaces), the three the-fold proxies, and the fold
+      // chat server itself (serve.mjs :8811) — the surface the page loads
+      // from, whose /heimdall also folds in the page's own browser-side
+      // connection vitals (2026-09-13), so a watcher that cannot see inside
+      // a browser still sees the page's engine and its Matrix room tie.
       { name: "er7", port: 11436, cwd: HERE, cmd: "node proxy.mjs" },
+      { name: "fold-chat", port: 8811, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node serve.mjs" },
       { name: "fold-8812", port: 8812, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node explore-server.mjs" },
       { name: "fold-8819", port: 8819, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node explore-server.mjs 8819" },
       { name: "fold-8837", port: 8837, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node explore-server.mjs 8837" },
@@ -105,7 +124,7 @@ const SURFACE_SPECS = String(process.env.ER7_SURFACES ?? "").trim()
 const FAMILY_OF = (surfaceName) =>
   (String(process.env.ER7_SURFACE_FAMILIES ?? "").trim()
     ? Object.fromEntries(String(process.env.ER7_SURFACE_FAMILIES).trim().split(/\s+/).filter(Boolean).map((kv) => kv.split(":")))
-    : { er7: "er7", "fold-8812": "fold", "fold-8819": "fold", "fold-8837": "fold" })[surfaceName] ?? "any";
+    : { er7: "er7", "fold-chat": "fold", "fold-8812": "fold", "fold-8819": "fold", "fold-8837": "fold" })[surfaceName] ?? "any";
 
 // A surface declares its own HEALTH PATH — the endpoint that tells the truth
 // about it. The er7 proxy answers /health; the-fold's explore-server does
@@ -115,7 +134,7 @@ const FAMILY_OF = (surfaceName) =>
 const HEALTH_PATH_OF = (surfaceName) =>
   (String(process.env.ER7_SURFACE_HEALTH ?? "").trim()
     ? Object.fromEntries(String(process.env.ER7_SURFACE_HEALTH).trim().split(/\s+/).filter(Boolean).map((kv) => kv.split(":")))
-    : { er7: "/health", "fold-8812": "/v1/models", "fold-8819": "/v1/models", "fold-8837": "/v1/models" })[surfaceName] ?? "/health";
+    : { er7: "/health", "fold-chat": "/health", "fold-8812": "/v1/models", "fold-8819": "/v1/models", "fold-8837": "/v1/models" })[surfaceName] ?? "/health";
 
 const restartEnvFor = (name) =>
   Object.fromEntries(
@@ -438,6 +457,17 @@ async function tick() {
     if (surf.restartTimes.length >= MAX_RESTARTS) {
       log(`EVA — ${surf.name} down and ${MAX_RESTARTS} restarts in the window; refusing to restart-loop. Escalate.`);
       appendLog({ act: "eva", surface: surf.name, finding: "restart_storm", count: surf.restartTimes.length });
+      // The escalation is REAL, not a log line: land a reasoning-linted note
+      // (KIND × LEVEL × SEVERITY, giver Heimdall, standing disclosed) so the
+      // storm is on the record in the shape the reasoning-lint machinery reads
+      // — the same shape a surface's abrupt loss would leave, with the count.
+      // This surface stays DOWN for routing (never handed traffic) but is NOT
+      // abandoned silently: the finding survives the watcher's own restarts.
+      lintedNote({
+        kind: "infra", level: "escalate", severity: "high",
+        note: `${surf.name} down and ${surf.restartTimes.length} restarts in ${RESTART_WINDOW_MS / 60000}min window — refusing to restart-loop`,
+        giver: "heimdall", standing: "disclosed", probe: surf.name,
+      });
       continue;
     }
     surf.restartTimes.push(now);
@@ -637,6 +667,148 @@ const steer = http.createServer(async (req, res) => {
     }
   });
 });
+
+// ── HEIMDALL THE SENTINEL: the outward flows ──────────────────────────────
+// Heimdall is the archon of the outward flows — every API connection that
+// leaves the system: the vision calls to OLLAMA, the reasoning minds, the
+// chat/proxy surfaces, the mechanical senses. He knows the OTHER paths, runs
+// experiments to find the path that fits the current box, and regulates the
+// box homeostatically — sense the vitals, compare to a setpoint, act
+// (pace / defer / escalate / downgrade / re-forge) to restore equilibrium
+// BEFORE breakdown, with hysteresis so he never flaps. His findings are
+// reasoning-linted notes (KIND × LEVEL × SEVERITY, append-only), and when a
+// decision needs reasoning he consults a mind whose answer is itself linted.
+// The experiment budget is COST-CLASS-AWARE (a fast path gets a short budget,
+// so a failing path is cut early — the moondream 48s waste was the lesson)
+// and his choice is CACHED per (path, document-class), so a re-ingest of the
+// same kind does not re-experiment: the second plan lands near-silent.
+
+export const HEIMDALL_PATHS = Object.freeze({
+  vision: Object.freeze([
+    { name: "moondream", kind: "vision", model: "moondream:latest", costClass: "fast", capability: "general-coarse" },
+    { name: "qwen2.5vl:7b", kind: "vision", model: "qwen2.5vl:7b", costClass: "normal", capability: "general-precise" },
+  ]),
+  minds: Object.freeze([
+    { name: "olmo2:7b", kind: "mind", model: "olmo2:7b", costClass: "cheap", capability: "reasoning-lite" },
+    { name: "qwen3:30b-a3b", kind: "mind", model: "qwen3:30b-a3b", costClass: "expensive", capability: "reasoning" },
+  ]),
+  mechanical: Object.freeze([
+    { name: "tesseract-psm6", kind: "mechanical", model: "tesseract", costClass: "fast", capability: "precise-ocr" },
+    { name: "tesseract-psm3", kind: "mechanical", model: "tesseract", costClass: "fast", capability: "precise-ocr" },
+  ]),
+});
+
+// cost-class-aware experiment budgets (ms): a fast path is cut early.
+const EXPERIMENT_BUDGET_MS = Object.freeze({ fast: 15000, normal: 45000, expensive: 90000 });
+const CHOICE_CACHE_FILE = path.join(HERE, "heimdall-choice-cache.json");
+const loadChoiceCache = () => { try { const d = JSON.parse(fs.readFileSync(CHOICE_CACHE_FILE, "utf8")); return Object.entries(d); } catch { return []; } };
+const saveChoiceCache = () => { try { fs.writeFileSync(CHOICE_CACHE_FILE, JSON.stringify(Object.fromEntries(CHOICE_CACHE))); } catch { /* the cache must never take the watcher down */ } };
+const CHOICE_CACHE = new Map(loadChoiceCache()); // `${docClass}:vision` → path name
+
+// the homeostatic regulator: sense → setpoint → act, with hysteresis.
+const REG = {
+  setpoint: { minCpuIdle: 10, maxTurnMs: 90000 },
+  hysteresisSamples: 2,
+  deviating: 0,
+  last: "clear",
+};
+export function regulate(vitals, { turnMs = null } = {}) {
+  const idle = vitals?.cpuIdle;
+  const saturated = idle != null && idle <= REG.setpoint.minCpuIdle;
+  const slow = turnMs != null && turnMs > REG.setpoint.maxTurnMs;
+  const deviating = saturated || slow;
+  REG.deviating = deviating ? REG.deviating + 1 : 0;
+  let act = "clear";
+  if (REG.deviating >= REG.hysteresisSamples) act = deviating ? "defer" : "clear";
+  else if (deviating) act = "watch";
+  REG.last = act;
+  return { saturated, slow, idle, act, deviating: REG.deviating, setpoint: REG.setpoint };
+}
+
+const sentinelTimeout = (p, ms, label) => Promise.race([
+  p,
+  new Promise((_, rej) => setTimeout(() => rej(new Error(`${label} timed out after ${ms}ms`)), ms)),
+]);
+
+// EVA: run an experiment across the known paths, cost-class-aware budgets.
+export async function runPathExperiment(probe, { paths = HEIMDALL_PATHS.vision, question = "describe what this page is and what it commits to" } = {}) {
+  const { lookAtImage } = await import("./native/organs/look.js");
+  const results = [];
+  for (const p of paths) {
+    const budget = EXPERIMENT_BUDGET_MS[p.costClass] ?? 45000;
+    const t0 = Date.now();
+    const entry = { path: p.name, model: p.model, costClass: p.costClass, ms: 0, ok: false };
+    try {
+      const r = await sentinelTimeout(lookAtImage(probe.image, { visionModel: p.model, name: probe.name }), budget, `experiment ${p.name}`);
+      entry.ms = Date.now() - t0;
+      entry.ok = true;
+      entry.settled = r.visionSettled ?? null;
+      entry.vision = r.visionRead ?? null;
+    } catch (e) {
+      entry.ms = Date.now() - t0;
+      entry.error = e.message;
+    }
+    appendLog({ at: new Date().toISOString(), act: "eva", kind: "experiment", probe: probe.name, ...entry });
+    results.push(entry);
+  }
+  return results.sort((a, b) => (a.ok === b.ok ? a.ms - b.ms : a.ok ? -1 : 1));
+}
+
+// the mind Heimdall can consult when a decision needs reasoning.
+export async function consultMind(prompt, { mind = "qwen3:30b-a3b", maxTokens = 320, timeoutMs = 120000 } = {}) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${OLLAMA_URL}/api/chat`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      signal: ctrl.signal,
+      body: JSON.stringify({ model: mind, messages: [{ role: "user", content: prompt }], stream: false, options: { num_predict: maxTokens, temperature: 0 } }),
+    });
+    if (!res.ok) throw new Error(`ollama ${res.status}`);
+    const data = await res.json();
+    const text = (data?.message?.content ?? "").trim();
+    appendLog({ at: new Date().toISOString(), act: "eva", kind: "mind", mind, prompt: prompt.slice(0, 200), answer: text.slice(0, 300) });
+    return { text, giver: `mind:${mind}` };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// REC: the homeostatic choice + the recovery ladder + the cache.
+export function choosePath(results, vitals, { mind = null, probe = null, docClass = null } = {}) {
+  const reg = regulate(vitals);
+  const ok = results.filter((r) => r.ok);
+  let path = ok[0]?.path ?? "mechanical-ocr";
+  let why = ok.length
+    ? `fastest ok path (${ok[0].path}, ${ok[0].ms}ms)`
+    : "no vision path ok — recovery ladder falls back to mechanical OCR";
+  if (reg.act === "defer") why = `box ${reg.saturated ? "saturated" : "slow"} (cpuIdle ${reg.idle}) — ${why}`;
+  // a degraded fallback (mechanical OCR) is never cached — the box may have
+  // been transiently down, and the next ingest should re-probe vision, not
+  // stay downgraded forever.
+  if (docClass && path !== "mechanical-ocr") { CHOICE_CACHE.set(`${docClass}:vision`, path); saveChoiceCache(); }
+  const note = { at: new Date().toISOString(), act: "rec", kind: "path", path, why, docClass, setpoint: reg.setpoint, deviating: reg.deviating };
+  appendLog(note);
+  return { path, why, reg, note, mindAnswer: null };
+}
+
+export function recoveryLadder(results) {
+  const ok = results.filter((r) => r.ok);
+  return ok.length ? ok[0].path : "mechanical-ocr";
+}
+
+export function cachedVisionPath(docClass) {
+  return CHOICE_CACHE.get(`${docClass}:vision`) ?? null;
+}
+
+// a reasoning-linted finding, append-only — the shape the reasoning-lint
+// machinery reads, with the giver and standing disclosed.
+export function lintedNote({ kind, level, severity, note, giver, standing, probe = null, docClass = null } = {}) {
+  const entry = { at: new Date().toISOString(), act: "note", kind, level, severity, note, giver, standing, probe, docClass };
+  appendLog(entry);
+  return entry;
+}
 
 // ── THE SELF-SCHEDULING LOOP ─────────────────────────────────────────────
 // The tick re-schedules itself so the SELF-DEFENSE loop can adjust the
