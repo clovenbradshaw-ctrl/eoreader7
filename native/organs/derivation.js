@@ -445,9 +445,19 @@ export function makeDerivation({ hl, taskLog } = {}) {
    * It is also the measurement instrument the 17%-worst-concession figure
    * came from, promoted out of an eval driver into the organ, so the same
    * number can be read off a live ledger instead of recomputed by hand.
+   *
+   * `known` is checked with the IDENTICAL predicate `notes.js::concede`
+   * uses to refuse `unknown_note` — a bug found live (the-fold P198-class:
+   * a dry run must not promise what the act refuses). Before this, a
+   * bogus id silently reported "would withdraw 0" (indistinguishable from
+   * a real, harmless premise) and the door's own printed next step,
+   * `/concede! <id>`, then refused with `unknown_note` — a caller could
+   * not tell the two cases apart without performing the act.
    */
   function exposure(log, premise) {
-    if (!premise) return { premise: null, withdrawn: [], depth: 0 };
+    if (!premise) return { premise: null, withdrawn: [], depth: 0, known: false };
+    const known = projectTasks(log).some((t) => t.task_id === premise);
+    if (!known) return { premise, withdrawn: [], depth: 0, known: false };
     const gone = new Set(hl.concededIds(log));
     const live = foldDerived(log).filter((d) => !gone.has(d.id));
     const byId = new Map(live.map((d) => [d.id, d]));
@@ -460,7 +470,7 @@ export function makeDerivation({ hl, taskLog } = {}) {
       return { id, subject: d.subject, verb: d.verb, object: d.object, cascadedFrom, cascadeDepth };
     });
     const depth = taken.reduce((m, t) => Math.max(m, t.cascadeDepth), 0);
-    return { premise, withdrawn: taken, depth, share: live.length ? taken.length / live.length : 0 };
+    return { premise, withdrawn: taken, depth, share: live.length ? taken.length / live.length : 0, known: true };
   }
 
   /**

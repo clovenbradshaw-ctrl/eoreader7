@@ -228,12 +228,24 @@ test("exposure() is the cascade as a QUERY — what would fall, with nothing fal
   const built = D.derive(relayLedger(), { declarations: licensed(), floor: FLOOR, maxSteps: 4 });
   const before = D.foldDerived(built.log).length;
   const ex = D.exposure(built.log, PREMISE);
+  assert.equal(ex.known, true, "a real premise on the log reads known");
   assert.ok(ex.withdrawn.length > 0, "something rests on this premise");
   assert.ok(ex.share > 0 && ex.share <= 1);
   assert.equal(D.foldDerived(built.log).length, before, "asking what would fall does not make anything fall");
   const gone = D.withdrawDerived(built.log, { premise: PREMISE }, { trigger: "check" });
   assert.deepEqual(gone.withdrawn.map((w) => w.id).sort(), ex.withdrawn.map((w) => w.id).sort(),
     "the query and the act walk the same graph — the dry run is the cascade, not an estimate of it");
+});
+
+test("exposure() on an id that is not on the log reads known:false — the dry run must not promise what concedePremise refuses", () => {
+  const built = D.derive(relayLedger(), { declarations: licensed(), floor: FLOOR, maxSteps: 4 });
+  const ex = D.exposure(built.log, "note:this-id-was-never-heard");
+  assert.equal(ex.known, false, "a bogus id is disclosed as unknown, not silently reported as zero-impact");
+  assert.deepEqual(ex.withdrawn, []);
+  assert.equal(ex.depth, 0);
+  // the actual act agrees with the query: both refuse the same id the same way.
+  const performed = D.concedePremise(built.log, "note:this-id-was-never-heard", { trigger: "test" });
+  assert.equal(performed.refused?.type, "unknown_note");
 });
 
 test("THE LOOP CLOSES: a contradiction lands, a third source settles it against the note, and the concession cascades — every step on the record with its trigger", () => {
