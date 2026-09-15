@@ -107,11 +107,29 @@ const tokenSetContains = (from, into, sameStem) => from.every((t) => into.some((
  * the regression suite and record what stops merging.
  */
 export const namesCorefer = (a, b, opts) => {
-  const { sameStem = null, fold = null, witness = null } = typeof opts === "function" ? { fold: opts } : (opts ?? {});
+  const { sameStem = null, fold = null, witness = null, commonNoun = null } = typeof opts === "function" ? { fold: opts } : (opts ?? {});
   const ta = tokensOf(a, fold);
   const tb = tokensOf(b, fold);
   if (!ta.length || !tb.length) return false;
-  const subset = tokenSetContains(ta, tb, sameStem) || tokenSetContains(tb, ta, sameStem);
+  // A SINGLE-TOKEN subset side needs the same witness a shared final token
+  // already does (T5, above), one step earlier — found live, 2026-09-15:
+  // "Observatory" (bare, extracted as its own candidate from "Northgate
+  // Observatory") is a token OF "Dyer Observatory" without being a genuine
+  // shortened reference TO it, and unconditional containment let it corefer
+  // anyway, corrupting what a question was read as being about. The shape
+  // is identical to T5's own reasoning ("a family name worn by more than
+  // one person is the ordinary case, not the exception") one token earlier:
+  // a generic/type noun worn by more than one named thing is the ordinary
+  // case in any text with institutions, buildings or roles in it, and a
+  // BARE first name ("Pierre") is exactly as short but not the same risk —
+  // an ordinary personal name is not also an ordinary common noun. The two
+  // are told apart by `commonNoun`, caller-injected and never a hand-typed
+  // list (this file's own standing rule): a received POS prior's own
+  // classification, consulted ONLY when the shorter side is one token,
+  // falls fully open (unconditional containment, byte-identical to every
+  // caller that omits it) when no `commonNoun` is supplied.
+  const singleGeneric = (from) => from.length === 1 && typeof commonNoun === "function" && commonNoun(from[0]);
+  const subset = (tokenSetContains(ta, tb, sameStem) && !singleGeneric(ta)) || (tokenSetContains(tb, ta, sameStem) && !singleGeneric(tb));
   if (subset) return true;
   const sharedFinal = tokenEq(ta[ta.length - 1], tb[tb.length - 1], sameStem);
   if (!sharedFinal) return false;
