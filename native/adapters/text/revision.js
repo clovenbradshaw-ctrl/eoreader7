@@ -1,6 +1,7 @@
 import { eoOperation, deltaFold } from "../../kernel/fold.js";
 import { stampDelta } from "../../kernel/assembly.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
+import { expectation, openExpectation, expectationTransition } from "../../kernel/expectations.js";
 import {
   descriptorOccurrence,
   directDescriptorOccurrences,
@@ -40,6 +41,8 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
   const currentGraphEntries = [];
   const identitySupports = [];
   const identityAttacks = [];
+  const admittedReferents = []; // Bharata: a being admitted opens an anticipation
+  const referencedThisTurn = new Set(); // Bharata: a being referenced fulfills one
 
   const admitGraphObject = (value, { op = "INS", grain = "Ground", witness = null, consequence = null } = {}) => {
     if (!value?.id || known.has(value.id)) return false;
@@ -99,8 +102,11 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
 
     for (const entry of observation?.graphEntries ?? []) {
       currentGraphEntries.push(entry);
+      if (entry?.referent) referencedThisTurn.add(entry.referent);
+      if (entry?.referentId) referencedThisTurn.add(entry.referentId);
       if (entry?.schema !== "EOReferent@1" || !entry.id || known.has(entry.id)) continue;
       known.add(entry.id);
+      admittedReferents.push(entry.id); // Bharata: a new being — anticipation opens
       // WHAT FED IT, RECORDED WHERE IT IS KNOWN (P160).
       //
       // A paradigm has a single address linked to all the things that fed it.
@@ -134,6 +140,7 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
       if (edge?.schema !== "EOHyperedge@1") continue;
       currentGraphEntries.push(edge);
       for (const participant of edge.participants ?? []) {
+        if (participant?.ref) referencedThisTurn.add(participant.ref);
         admitOccurrence(descriptorOccurrence(participant, {
           encounterRef: edge.meta?.encounterRef ?? encounterRef,
           edge,
@@ -207,6 +214,26 @@ export async function reviseTextFold({ observations = [], fold = {}, canonicaliz
     canonicalizationFloor,
   });
   operations.push(...identityDelta.operations);
+
+  // ── BHARATA (the felt — the rasa cycle, fed for real). A being admitted
+  // opens an anticipation (tension builds); a being referenced again fulfils
+  // its open anticipation (a release lands). This is what proves the fold's
+  // expectations are no longer Object.freeze([]) by construction — the
+  // reader's own recurrence is the felt. (prove-felt.mjs named the gap;
+  // dynamics.js reads both obligations and expectations now.)
+  const OPEN_X = new Set(["open", "strengthened", "weakened"]);
+  const priorExpectations = fold?.expectations ?? [];
+  for (const exp of priorExpectations) {
+    if (exp?.schema !== "EOExpectation@1" || !OPEN_X.has(exp.state)) continue;
+    const ref = exp?.scope?.ref ?? exp?.grounds?.[0];
+    if (ref && referencedThisTurn.has(ref)) {
+      operations.push(expectationTransition(exp, "fulfilled", { witness: "bharata:recurrence", consequence: { kind: "anticipation_fulfilled", ref } }));
+    }
+  }
+  for (const ref of admittedReferents) {
+    const exp = expectation({ id: `exp:recur:${ref}`, hypothesis: `${ref} recurs`, giver: "bharata", grounds: [ref], scope: { ref }, openedAt: (fold?.sequence ?? 0) + 1, state: "open" });
+    operations.push(openExpectation(exp, { witness: "bharata:admitted", consequence: { kind: "anticipation_opened", ref } }));
+  }
 
   // A5.1 (assemblies spec) — stamped WHERE THE DELTA IS BUILT: when the
   // caller names the producing assembly, every operation of this delta

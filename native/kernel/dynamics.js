@@ -1,5 +1,15 @@
 const OPEN = new Set([undefined, null, "open", "strengthened", "weakened"]);
 
+// Bharata's rasa, as the one column: an expectation's `state` and an
+// obligation's `status` are the SAME axis — anticipation (open/strengthened/
+// weakened) → landing (fulfilled/violated/reframed/superseded/resolved). The
+// felt organs read BOTH fields of the fold, so an expectation that lands is
+// a Release, never a silent state change (prove-felt.mjs proved the field
+// gap — expectations emit `state`, dynamics used to read only `status`).
+const stateOf = (o) => (o?.status ?? o?.state ?? null);
+const isOpen = (o) => OPEN.has(stateOf(o));
+const allObligations = (fold) => [...(fold?.obligations ?? []), ...(fold?.expectations ?? [])];
+
 export function deriveSurprise(delta) {
   const operations = (delta?.operations ?? []).filter((operation) => operation.operator !== "NUL");
   const affectedAddresses = [...new Set(operations.map((o) => `${o.mode}/${o.domain}/${o.grain}`))];
@@ -24,7 +34,7 @@ export function deriveSurprise(delta) {
 }
 
 export function deriveTension(fold) {
-  const obligations = (fold?.obligations ?? []).filter((o) => OPEN.has(o.status));
+  const obligations = allObligations(fold).filter(isOpen);
   const interactionNetwork = [];
   for (let i = 0; i < obligations.length; i += 1) {
     for (let j = i + 1; j < obligations.length; j += 1) {
@@ -49,11 +59,11 @@ export function deriveTension(fold) {
 }
 
 export function deriveRelease(delta, beforeFold, afterFold) {
-  const before = new Map((beforeFold?.obligations ?? []).map((o) => [o.id, o]));
+  const before = new Map(allObligations(beforeFold).map((o) => [o.id, o]));
   const releases = [];
-  for (const after of afterFold?.obligations ?? []) {
+  for (const after of allObligations(afterFold)) {
     const prior = before.get(after.id);
-    if (!prior || prior.status === after.status || OPEN.has(after.status)) continue;
+    if (!prior || stateOf(prior) === stateOf(after) || isOpen(after)) continue;
     const transformation = (delta?.operations ?? []).filter((op) => op.payload?.id === after.id || op.payload?.value?.id === after.id);
     if (!transformation.length) continue;
     releases.push({ schema: "Release@1", obligation: after.id, before: prior, transformation, after, witness: transformation.map((op) => op.witness).filter(Boolean) });

@@ -4,6 +4,11 @@ import { fileURLToPath } from "node:url";
 
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
 import { diaNorm, namesCorefer } from "./native/adapters/text/surfaces.js";
+import { deriveRegister, detectLanguage, questionFor, writeVoiceFor } from "./native/kernel/register.js";
+import { createSeededRng, seedFrom } from "./native/kernel/rng.js";
+import { queryMeaningPotential, loadSidecar, SIDECAR_PATH } from "./native/kernel/prior-query.js";
+import { createWheelLedger } from "./native/kernel/wheel.js";
+import { discoveredFramingFor, discoverFraming, applyDiscovered } from "./native/kernel/discovery.js";
 import { reviseTextFold } from "./native/adapters/text/revision.js";
 import { createRecursiveReader } from "./native/kernel/reading.js";
 import { reconstruct } from "./native/kernel/fold.js";
@@ -11,7 +16,7 @@ import { createHyperlexicon, admitHyperlexiconCandidates } from "./native/kernel
 import { createRelationCompositionLedger, acquireCompositionCandidates } from "./native/kernel/relation-composition.js";
 import { createSession as createCorpusSession, admitChunked } from "./legacy-eoreader6.1/packages/host/corpus.js";
 import { executePrompt } from "./legacy-eoreader6.1/packages/host/surfer.js";
-import { postprocessAnswer, warmPostprocess, getPyodide } from "./postprocess.mjs";
+import { postprocessAnswer, postprocessCode, validatePython, warmPostprocess, getPyodide } from "./postprocess.mjs";
 // The three resolutions — brought in from the-fold (vendored at
 // native/the-fold/): the discourse restated at three grains by the reading's
 // own organs (atmosphere, lens, paradigm), never by a model's compression.
@@ -21,6 +26,7 @@ import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim } from "./native/organs/regime.js";
+import { runDMCA, categorizeCreativity } from "./native/organs/run-dmca.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
 // resemblance, resolution by state — no absolute address. Surf's SECOND
@@ -44,6 +50,13 @@ import { pacingGrade as murchPacing } from "./native/organs/pacing.js";
 import { storyShape as vonnegutShape } from "./native/organs/vonnegut.js";
 import { classifyArc } from "./native/organs/story-shapes.js";
 import { voidHolarchy } from "./native/organs/void-holarchy.js";
+// The Charter organ (native/organs/charter.js, Handle: Grotius): governs
+// generation against the Universal Declaration of Human Rights. The gate is
+// ALWAYS armed — the full 516-language UN corpus when it is beside the
+// checkout, a public-domain fallback excerpt otherwise — so a missing corpus
+// never silently ungoverns the system. Never fires on descriptive voice
+// (reading and talking about human atrocities passes by construction).
+import { charterGate, buildUdhCharter, defaultCharter } from "./native/organs/charter.js";
 import { execFileSync } from "node:child_process";
 // The earned cast — the per-turn instruction set. Vendored at the
 // native/the-fold seam. PURE; the proxy feeds real conversation state and
@@ -66,28 +79,28 @@ const ANCHORING = (process.env.ER7_ANCHORING ?? "born") === "born"
 // Every claim the model states is cited to THIS giver (the user's
 // discipline: the model stating something is a giver that should be cited,
 // with what we know about it — its name, its release, its home). The model
-// is gemma-2-2b (Google DeepMind, 2024): a 2B-parameter decoder-only
-// transformer, Apache-2.0, quantized and served locally via Ollama. This is
-// the single small model the pipeline runs today; model-hunting (choosing
-// the best model for a task) is future work. The registry is data, not code:
-// a caller who runs a different model replaces this entry and every
-// citation renames the giver.
+// is OLMo 2 7B (Allen Institute for AI, 2024): a 7B-parameter decoder-only
+// transformer, Apache-2.0, quantized (Q4_K_M) and served locally via Ollama.
+// Its training data (Dolma / OLMo-mix), code, weights and logs are all
+// published by its maker — the ethically-sourced model this proxy runs now.
+// The registry is data, not code: a caller who runs a different model
+// replaces this entry and every citation renames the giver.
 const MODEL_REGISTRY = Object.freeze({
-  id: "gemma2:2b", // the Ollama id the proxy serves
-  hf: "google/gemma-2-2b",
-  hfUrl: "https://huggingface.co/google/gemma-2-2b",
-  name: "Gemma 2 2B",
-  family: "Gemma 2",
-  org: "Google DeepMind",
-  released: "2024-06-27",
+  id: "olmo2:7b", // the Ollama id the proxy serves
+  hf: "allenai/OLMo-2-1124-7B-Instruct",
+  hfUrl: "https://huggingface.co/allenai/OLMo-2-1124-7B-Instruct",
+  name: "OLMo 2 7B",
+  family: "OLMo 2",
+  org: "Allen Institute for AI (Ai2)",
+  released: "2024-11-24",
   license: "Apache-2.0",
-  params: "2B",
-  note: "decoder-only transformer; Apache-2.0; served locally via Ollama (Q4_0). The pipeline's single small model — model-hunting (selecting per task) is future work.",
-  quant: "Q4_0",
+  params: "7B",
+  note: "decoder-only transformer; Apache-2.0; fully open — training data (Dolma/OLMo-mix), code, weights and logs published by Ai2; served locally via Ollama (Q4_K_M).",
+  quant: "Q4_K_M",
 });
 export const MODEL_GIVER = (model) => {
   const m = String(model ?? "").replace(/^er7:/, "").replace(/:q\d+(_\d+)?$/, "");
-  if (m === "gemma2:2b" || m === "gemma2:2b-it" || m === "gemma2:2b:latest") return MODEL_REGISTRY;
+  if (m === "olmo2:7b" || m === "olmo2:7b-instruct" || m === "olmo2:latest") return MODEL_REGISTRY;
   return { id: model ?? "?", hfUrl: null, name: String(model ?? "?") };
 };
 const DEFAULT_POS_PRIOR = path.join(HERE, "legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json");
@@ -165,7 +178,7 @@ async function enrichFromWikipedia(composition, maxConcepts = WIKI_MAX_CONCEPTS)
 // scoped ping that runs only while setup is actively working, and the caller
 // clears it when done. Returns the timer handle.
 function keepResidentDuringSetup() {
-  const model = "gemma2:2b";
+  const model = "olmo2:7b";
   let running = false;
   const ping = async () => {
     if (running) return;
@@ -203,6 +216,14 @@ function keepResidentDuringSetup() {
 const wikisourceCache = new Map();
 const WIKISOURCE_BASE = "https://en.wikisource.org/w/api.php";
 const WIKISOURCE_MAX_CHARS = Number(process.env.ER7_WIKISOURCE_MAX_CHARS ?? 60000);
+// ONLY SALIENT CONTENT IS EOT-IZED (2026-09-13): the reader is a
+// sentence-by-sentence instrument whose cast re-projection re-derives the
+// whole cast on a declared cadence, so stepping a 200KB page whole is
+// O(prefix × cast²) — measured: two Wikipedia-scale pages pegged the CPU at
+// ~99% for ~20 minutes before section 1. The FULL page text is still
+// retained on the shadow (S101 recoverable) and admitted to the corpus for
+// surf; this budget bounds only the EOT-ize READ window.
+const EOT_MAX_CHARS = Number(process.env.ER7_EOT_MAX_CHARS ?? 60000);
 
 async function wikisourceText(term, { maxChars = WIKISOURCE_MAX_CHARS } = {}) {
   const key = `${term}:${maxChars}`;
@@ -585,7 +606,17 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
         // reader too — the reader's own surprise is the fine-resolution gate
         // on whether it actually moved the reading.
         admitChunked(session.corpus, { text, sourceId: srcId });
-        const encounters = textEncounters(text, { source: `web:${r.url}`, offset: 0 });
+        // ONLY SALIENT CONTENT IS EOT-IZED (2026-09-13). The full text is
+        // retained on the shadow (S101) and admitted to the corpus (surf
+        // addresses the whole page); only the EOT-ize READ is bounded to a
+        // declared window — the reader's cast re-projection makes a whole-page
+        // read O(prefix × cast²), measured as ~20 CPU-minutes on two
+        // Wikipedia-scale pages before any section was written. The window is
+        // the page's lead, which is where encyclopedic content lives; the
+        // bounded read is recorded on the shadow so the trace is honest.
+        const eotWindow = String(text).slice(0, EOT_MAX_CHARS);
+        if (shadowEntry) { shadowEntry.readChars = eotWindow.length; shadowEntry.readBounded = text.length > eotWindow.length; }
+        const encounters = textEncounters(eotWindow, { source: `web:${r.url}`, offset: 0 });
         for (const enc of encounters) {
           const step = await session.reader.step(enc);
           const s = step?.surprise;
@@ -654,6 +685,131 @@ const ESSAY_SHAPE_PRIOR = Object.freeze({
     { role: "closing", label: "a conclusion that returns to the thesis" },
   ]),
 });
+
+// ── the code shape prior: what structure a CODE artifact aims at ───────────
+// A code file has a canonical structure — module header/imports, public
+// interface, implementation, entry point, usage — the way an essay has
+// thesis/body/conclusion. The prior is DISCLOSED, and its giver is the real
+// source this machine has retained (live_priors/09-source-code — audited /
+// landmark repos, via source-code-manifest.json), so the shape is received
+// from real code, never invented here. The instrument (code) register carries
+// this shape; the essay's 27-cell void sweep does not apply — code's parts
+// are its structural units, not questions the piece must answer in prose.
+const CODE_SHAPE_PRIOR = Object.freeze({
+  schema: "ShapePrior@1",
+  form: "code",
+  giver: "eoreader7:shape-prior:code-v1",
+  basis: "a code artifact's conventional structure, received from the retained source corpus (live_priors/09-source-code: 20 audited/landmark repos, 56 files) — header/imports, interface, implementation, entry point, usage; stated as the shape the artifact aims at, never a prohibition",
+  parts: Object.freeze({
+    python: ["module docstring and imports", "core functions and types", "command-line interface", "main entry point", "example usage or tests"],
+    javascript: ["module header and imports", "public interface and types", "core implementation", "entry point and exports", "example usage or tests"],
+    typescript: ["module header and imports", "types and interfaces", "core implementation", "entry point and exports", "example usage or tests"],
+    shell: ["shebang and options", "argument handling", "core logic", "error handling and exit codes", "usage"],
+    go: ["package header and imports", "types and constructors", "core functions", "main entry point", "tests"],
+    rust: ["crate header and imports", "types and traits", "core implementation", "main entry point", "tests"],
+  }),
+});
+
+// The artifact's file name — the request's own named file, else the topic
+// slugged with the language's extension. A name read off the request, never
+// a guessed path.
+function codeArtifactName(task, language) {
+  const t = String(task ?? "");
+  const m = /\b([a-z0-9][a-z0-9._-]*\.(?:py|js|mjs|ts|tsx|sh|go|rs))\b/i.exec(t);
+  if (m) return m[1];
+  const extByLang = { python: "py", javascript: "js", typescript: "ts", shell: "sh", go: "go", rust: "rs" };
+  const name = topicPhrase(task).replace(/\s+/g, "_").toLowerCase().slice(0, 40) || "program";
+  return `${name}.${extByLang[language] ?? "py"}`;
+}
+
+function codeSections(task, language) {
+  // The code artifact is written WHOLE, in one draw — a small model dumps the
+  // whole program in its first part anyway (measured: gemma2:2b wrote the
+  // entire CLI in part 1 and left parts 2-5 empty), so the DEF'd shape is
+  // CODE_SHAPE_PRIOR (disclosed as the structure the file aims at) and the
+  // SECTION is the file itself. Long-form here is the REC loop: generate →
+  // hard-validate → re-draw with the errors, each revision a ledger line.
+  return [codeArtifactName(task, language)];
+}
+
+// A real file from the retained source corpus, as a style reference for the
+// mouth — compose like it, never copy it. The live_priors source code is the
+// machine's own prior; handing one short real excerpt is the same move the
+// narrative voice makes with its exemplar. Lazy + cached; null when the
+// corpus is absent (disclosed, never a silent skip).
+let _codeManifest = null;
+function codeManifest() {
+  if (_codeManifest !== null) return _codeManifest;
+  try {
+    const p = path.join(HERE, "..", "..", "..", "live_priors", "manifests", "source-code-manifest.json");
+    _codeManifest = JSON.parse(fs.readFileSync(p, "utf8"));
+  } catch { _codeManifest = null; }
+  return _codeManifest;
+}
+function codeExemplar(language) {
+  const m = codeManifest();
+  if (!m?.repos) return null;
+  const ext = { python: ".py", javascript: ".js", typescript: ".ts", shell: ".sh", go: ".go", rust: ".rs" }[language] ?? ".py";
+  let best = null;
+  for (const repo of m.repos) {
+    for (const f of repo.files ?? []) {
+      if (!String(f.path ?? "").endsWith(ext)) continue;
+      if (!f.local) continue;
+      const full = path.join(HERE, "..", "..", "..", "live_priors", f.local);
+      try {
+        const text = fs.readFileSync(full, "utf8");
+        if (text.length < 2000) continue; // a stub is not a style reference
+        if (!best || text.length < best.text.length) best = { name: f.local, url: `${repo.raw_base}/${f.path}`, text };
+      } catch {}
+    }
+  }
+  if (!best) return null;
+  return { name: best.name, url: best.url, text: best.text.slice(0, 1600) };
+}
+
+// The code section prompt: the mouth is asked for ONE structural unit of the
+// file, told the whole spec, the code written so far (to compose, not repeat),
+// and the shape it must aim at. No essay voice, no RANKE prose rule — code's
+// own discipline (emit source, compose with earlier parts, exact names).
+function codeSectionPrompt({ section, language, name, task, i, total, soFar, exemplar }) {
+  const shape = CODE_SHAPE_PRIOR.parts[language] ?? CODE_SHAPE_PRIOR.parts.python;
+  const exemplarBlock = exemplar
+    ? `\nA real ${language} file from the retained source corpus, as a style reference — compose like it, never copy it:\n"""\n${exemplar.text}\n"""`
+    : "";
+  const soFarBlock = soFar ? `\n\nCode written so far (earlier parts):\n${soFar}\n` : "";
+  if (total === 1) {
+    return `We're writing ${name} — a ${language} program. The complete specification:\n\n"""\n${task}\n"""\n\nWrite the COMPLETE file, start to finish. Aim for this structure: ${shape.join(" → ")}.${exemplarBlock}\n\nRules:\n- Emit ${language} source code only — no explanation, no prose, no markdown fences, no commentary about writing.\n- Use the exact names, flags, and behavior the specification requires.`;
+  }
+  return `We're writing ${name} — a ${language} program. The complete specification:\n\n"""\n${task}\n"""\n\nNow write ONLY this part of the file: ${section} (part ${i + 1} of ${total}).${exemplarBlock}\n${soFarBlock}\nRules:\n- Emit ${language} source code only — no explanation, no prose, no markdown fences, no commentary about writing.\n- This part must compose with the parts already written: do not repeat code from earlier parts; use the names they define.\n- Use the exact names, flags, and behavior the specification requires.`;
+}
+
+// Code satisfaction: the void is filled when the ASSEMBLED file is non-empty,
+// not meta-commentary, and passes the hard validator (compile + exec + a
+// smoke run). Per-part fill is reported (a small model may write the whole
+// file in one part), but it is not the gate — the gate is the file itself.
+function codeSatisfaction({ documentLines, sections, validation }) {
+  const assembled = (documentLines ?? []).join("\n\n").trim();
+  const failures = [];
+  const filled = (documentLines ?? []).filter((l) => String(l ?? "").trim()).length;
+  if (!assembled) failures.push({ kind: "unfilled", detail: "no code was written" });
+  if (/^(here'?s|here is|the (?:code|function|script|module|program)|note that|as an ai|i can'?t|i cannot)/i.test(assembled)) {
+    failures.push({ kind: "meta", detail: "the answer describes the code instead of being it" });
+  }
+  if (validation && !validation.ok) for (const f of validation.findings ?? []) failures.push({ kind: `lint:${f.kind}`, detail: f.detail });
+  const ok = failures.length === 0;
+  return { ok, filled, of: sections.length, failures, totalStrain: failures.length, basis: `code satisfaction: ${filled}/${sections.length} part(s) wrote source code${validation ? (validation.ok ? "; compiles and runs clean" : "; fails validation") : "; unvalidated"}` };
+}
+
+// Strip markdown code fences from a section the mouth emitted — the mouth is
+// told "no fences", but a small model emits them anyway; the unconscious
+// system removes them so the assembled file is raw code. Never guessed: only
+// a matching ```lang ... ``` pair at the section's own edges is stripped.
+function stripCodeFences(text, language) {
+  const t = String(text ?? "").trim();
+  const fence = new RegExp(`^\`\`\`(?:${language ?? "[\\w.+-]*"})?[ \\t]*\\n([\\s\\S]*?)\\n\`\`\`[ \\t]*$`, "i");
+  const m = fence.exec(t);
+  return m ? m[1].trim() : t;
+}
 
 // The shape of a composition is EXTRACTED from the material, never steered:
 // the recurring short lines the material's own structure shows (structure-rec
@@ -758,6 +914,66 @@ function essayThemes({ task, surfacedSegments, material }) {
 // Neither is entered by a plain question — only by an ask that names it.
 const LONG_ASK = /\b(in detail|in more detail|at length|thoroughly|elaborate|expound|in depth|in-depth|deep dive|comprehensive|comprehensively|detailed|thorough|extended|step by step|walk me through|tell me everything|give me the full|the full story|the whole story|explain fully|go deeper|a long answer|a longer answer|long response|\d[\d,]*(?:-|,)?\s*(?:words|pages|paragraphs))\b/i;
 
+// HOLMES'S CAST (the register's meaning potential): the genres the sidecar
+// has actually read — cached, read once. The register derives its field from
+// these (a learned sign) before falling back to the received noun table.
+let _sidecarGenres = null;
+function sidecarGenres() {
+  if (_sidecarGenres === null) {
+    try { _sidecarGenres = (loadSidecar()?.entries ?? []).map((e) => e.genre).filter(Boolean); } catch { _sidecarGenres = []; }
+  }
+  return _sidecarGenres;
+}
+
+// THE GROUND-SEED (a story's cast, drawn at random FROM the ground, never
+// invented): the machine's accumulated ground — the sidecar's staging (the
+// genre's own phase names, with their source), the discovered framing's
+// beats, and the reader's named beings (if the read established any) — is
+// shuffled by a seeded RNG and picked as the story's cast. Every member keeps
+// its PROVENANCE, so the story is traceable to what inspired it; the seed is
+// recorded so the draw is reproducible.
+function groundSeed(session, { sidecar = null, framing = null, field = null, count = 4 } = {}) {
+  const ground = [];
+  // 1. the reader's named beings (proper-noun referents the read established)
+  try {
+    const idx = sessionReferentIndex(session, null);
+    for (const r of (idx?.referents ?? new Map()).values()) {
+      const name = [...(r.surfaces ?? [])][0];
+      if (name && name.length > 2 && /^[A-Z]/.test(name)) ground.push({ name, provenance: (r.provenance?.length ? [...r.provenance].slice(0, 2) : ["the reading"]) });
+    }
+  } catch {}
+  // 2. the sidecar's staging — the genre's own phase names, with their source
+  for (const e of (sidecar?.entries ?? [])) {
+    if (field && e.genre && !String(e.genre).includes(field) && !field.includes(String(e.genre))) continue;
+    for (const s of (e.staging ?? [])) {
+      const name = String(s ?? "");
+      if (name.length > 80 || /^part\s/i.test(name) || /^section\s/i.test(name) || /\bemergency\b/i.test(name)) continue; // license preamble + long fragments are not cast
+      ground.push({ name, provenance: [e.source?.file ?? "the sidecar"] });
+    }
+  }
+  // 3. the discovered framing's beats
+  for (const s of (framing?.staging ?? [])) ground.push({ name: String(s), provenance: ["the discovered framing"] });
+  const uniq = [...new Map(ground.map((g) => [g.name, g])).values()].filter((g) => g.name && g.name.length > 2);
+  if (!uniq.length) return { seed: null, cast: [], basis: "no named ground — the story's cast is the register's own" };
+  const seed = seedFrom(`${Date.now()}:${Math.random()}`); // a fresh random seed each run, recorded for reproducibility
+  const rng = createSeededRng(seed);
+  const pool = [...uniq].slice(0, 24);
+  const picked = [];
+  while (picked.length < count && pool.length) {
+    const i = Math.floor(rng() * pool.length);
+    const b = pool.splice(i, 1)[0];
+    picked.push({ name: b.name, provenance: b.provenance });
+  }
+  return { seed, cast: picked, basis: `cast drawn at random (seed ${seed}) from ${uniq.length} grounded name(s): sidecar staging + framing beats + the read's beings` };
+}
+
+// RANKE'S LAW (anti-kitsch, anti-plagiarism): the mouth COMPOSES its own
+// sentences. It may GROUND a fact (cited to the source) or INVENT (labeled as
+// its own claim) — but it never copies a source's words as its own prose. A
+// verbatim run is refused: it is kitsch, and the ring's whole point is that
+// the law refuses kitsch.
+const RANKE_RULE = "Compose your own sentences. You may state a grounded fact (it will be cited to its source) or invent (it will be labeled as yours) — but never copy a source's words as your own prose. A sentence lifted from the material is refused.";
+
 function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegments, resolutions) {
   const t = task.toLowerCase().trim();
   if (/^(hi|hello|hey|howdy|greetings|good\s+(morning|afternoon|evening))[\s,!?]*$/.test(t))
@@ -768,21 +984,20 @@ function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegment
     return { shape: "trivial", maxTokens: 64, modality: "direct" };
   if (surfVoid && !surfacedSegments.length)
     return { shape: "void", maxTokens: 256, modality: "disclosed-fact" };
-  // ORIGAMI — an explicit ask for a named long-form artifact with sections
-  // (an essay, a paper, a report, a brief) that a person asks us to WRITE.
-  // The ask itself is the signal: an explicit "write an essay about X" enters
-  // projection even when no material is present yet — the mode HUNTS its
-  // ground (web, when the egress is open) and the artifact's own grounding
-  // checks (Ranke) disclose the quality, never silently. The material gate
-  // protects against PLAIN questions ("explain", "describe") turning into
-  // essays — those are normal answers, and they are no longer in this shape
-  // at all.
-  const namesArtifact = /\b(?:essay|paper|report|article|brief|whitepaper|white\s*paper|book|chapter|spec|guide)\b/i.test(t);
-  const produce = /\b(?:write|compose|draft|prepare|generate|produce)\b/i.test(t);
+  // THE REGISTER (Halliday) — no hardcoded "essay mode". ANY named genre the
+  // person asks us to produce enters the staged-artifact pipeline: a story,
+  // a poem, a nocturne, a film, an essay — the register resolves the FIELD
+  // (open set) and the MODE (medium). The essay is one field among many.
+  const reg = deriveRegister(t, { genres: sidecarGenres() });
+  const produce = /\b(?:write|compose|draft|prepare|generate|produce|make|tell)\b/i.test(t);
   const aimsAt = /\b(?:on|about|covering|addressing)\b/i.test(t);
   const multiPart = /\b(multi-?part|long-?form|several sections|a several-part piece|numbered sections)\b/i.test(t);
-  if (produce && namesArtifact && aimsAt || multiPart)
-    return { shape: "composition", maxTokens: CALL_MAX_TOKENS, modality: "grounded" };
+  const namesGenre = Boolean(reg.field.field) || reg.mode !== "text"; // a registered genre OR a non-text medium
+  // A code ask ("write a Python CLI tool…") is a composition even without an
+  // "about/on" object — the instrument register names the artifact directly.
+  const isCodeAsk = reg.field.field === "instrument";
+  if ((produce && namesGenre && (aimsAt || isCodeAsk)) || multiPart)
+    return { shape: "composition", maxTokens: CALL_MAX_TOKENS, modality: "grounded", register: reg };
   // LONG — a response that goes further than chat provides: the task asks
   // for elaboration or depth, still one answer (no artifact, no ledger).
   if (LONG_ASK.test(t))
@@ -939,7 +1154,7 @@ function createSessionReader() {
     revise: (a) => reviseTextFold({ ...a, canonicalizationFloor: CANONICALIZATION_FLOOR }),
     retrieve: emptyRetrieve,
   };
-  const perceivers = [createCausalTextPerceiver({ minRelationSurfaces: MIN_RELATION_SURFACES, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING })];
+  const perceivers = [createCausalTextPerceiver({ minRelationSurfaces: MIN_RELATION_SURFACES, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING, reprojectEvery: Number(process.env.ER7_REPROJECT_EVERY ?? 10) })];
   return createRecursiveReader({ perceivers, adapters });
 }
 
@@ -1474,8 +1689,11 @@ const DEFAULT_KELSEN = Number(process.env.ER7_KELSEN ?? 0.9);
 // fills the room that remains. text length ≈ 4 chars/token. The Ollama
 // request carries num_ctx >= this + output so the budget is actually
 // reachable; ER7_NUM_CTX raises it on slower/smaller deployments.
-const PROMPT_MAX_CHARS = Number(process.env.ER7_MAX_PROMPT_CHARS ?? 28000);
-const NUM_CTX = Number(process.env.ER7_NUM_CTX ?? 8192);
+// Sized for OLMo 2 7B's 4096-token window (the proxy's default model):
+// 4096 - 1024 output = 3072 prompt tokens; at the conservative 3 chars/token
+// used below that is 9216 chars. gemma2:2b's 8192 window was the prior budget.
+const PROMPT_MAX_CHARS = Number(process.env.ER7_MAX_PROMPT_CHARS ?? 9216);
+const NUM_CTX = Number(process.env.ER7_NUM_CTX ?? 4096);
 const MSG_OVERHEAD_CHARS = 64;
 // Post-processing latency guard: this many ms max per turn for the pyodide
 // lint + dependency reorder. Warmed at boot; if it ever exceeds this, the
@@ -1723,7 +1941,14 @@ function conversationBeings(index, transcript = []) {
 function notesFromEdges(graphEntries = []) {
   const notes = [];
   for (const e of graphEntries ?? []) {
-    if (e?.schema !== "EOHyperedge@1" || !e?.relation) continue;
+    // The fold's graphEntries carry the REDUCED {relation, participants} shape
+    // (recursive.js), not a full EOHyperedge@1 schema — measured 2026-09-13:
+    // every proposition was dropped by the schema check, so LaVar graded the
+    // essay against zero material claims and reported "unsatisfied" with
+    // ofPropositions 0. Both shapes are propositions; neither is required.
+    const reduced = e?.relation && Array.isArray(e?.participants);
+    if (e?.schema !== "EOHyperedge@1" && !reduced) continue;
+    if (!e?.relation) continue;
     const parts = e.participants ?? [];
     const end = (p) => p?.surface ?? p?.ref ?? p?.surfaceKey ?? null;
     const subject = end(parts[0]);
@@ -1869,6 +2094,12 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const usage = { promptTokens: 0, completionTokens: 0 };
   const session = getSession(sessionId);
   _hot.add(model); // this turn is using it — hold it resident after
+  // THE REGISTER, READ ONCE — the request's field/tenor/mode (Halliday). The
+  // instrument (code) field decides whether the projection writes SOURCE CODE
+  // or prose; it is read off the request itself, never from the mode forced by
+  // a caller, so a code ask stays code even when a job forces "projection".
+  const taskRegister = deriveRegister(task, { genres: sidecarGenres() });
+  const isInstrument = taskRegister?.field?.field === "instrument";
 
   // The person's durable theory of mind — loaded at the turn's start so the
   // character carries continuity across sessions, while this conversation's
@@ -1934,6 +2165,12 @@ const modelsUp = await ollamaReachable();
     disputes: (session.lastPageSurprise?.salient ?? 0) > 2,
     surprise: session.lastPageSurprise?.salient ?? 0,
   });
+  // THE HONEST GOLDEN, hoisted to function scope (2026-09-13): every
+  // proposition the mouth is handed is recorded here, so the satisfaction can
+  // score the UNPROMPTED recall — claims the essay carries that it was never
+  // told. Grading the echo is scoring the prompt, not the reading.
+  const handedKeys = new Set();
+  const keyOf = (p) => `${p.end1 ?? ""}|${p.label ?? ""}|${p.end2 ?? ""}`;
   const preVoid = voidCellsFor({ topic, question: task, openQuestions: [], shadowReferents: [], reading: readingState() });
   // The origami SECTIONS are the CONTENT cells (grounded prose about the
   // subject); the shape-instrument cells steer internally but are not reader
@@ -1951,6 +2188,26 @@ const modelsUp = await ollamaReachable();
     ? (prelimShape.shape === "composition" ? "projection" : prelimShape.shape === "long" ? "long" : "chat")
     : normalizeMode(mode);
   if (onNote) onNote({ move: "void_defined", mode: runMode, shape: prelimShape.shape, of: voidQuestions.length, basis: mode === "auto" ? null : "forced by the caller" });
+  // CODE MODE: a projection whose register is INSTRUMENT (code) writes source
+  // code, not prose. The language is read off the request; python when it
+  // names none (disclosed). Every essay-specific organ (the 27-cell void, the
+  // meaning-potential staging, Ranke/Murch, APA citations) is bypassed for
+  // code — its shape is CODE_SHAPE_PRIOR, its voice is code, its check is the
+  // hard pyodide validator.
+  const isCode = runMode === "projection" && isInstrument;
+  const codeLanguage = isCode ? (detectLanguage(task) ?? "python") : null;
+  // THE WHEEL (D/E/R): every stage of the pipeline is one pass of
+  // Void/Beings/Fold — DEF what would satisfy it, EVA a real difference,
+  // REC an append-only landing whose pattern is the next stage's ground.
+  // One ledger per run; the turns ARE the run, in order.
+  const wheel = createWheelLedger({ task });
+  if (prelimShape?.register) {
+    wheel.turn("register",
+      "a right register must construe the request's genre as a staged process, carried in a medium, for a tenor — from the request's own structure, never a noun list",
+      { field: prelimShape.register.field?.field ?? null, mode: prelimShape.register.mode, tenor: prelimShape.register.tenor?.tenor ?? null, provenance: prelimShape.register.field?.provenance ?? "staged", basis: prelimShape.register.basis },
+      prelimShape.register,
+      { evaBasis: "Holmes reads the cast through the meaning potential — a LEARNED sign where the sidecar has read this field, a RECEIVED one where it has not; the impression hunt is its first EVA", operator: "NUL", grain: "Ground", face: "the void opens" });
+  }
   // Gore's initial gather: hunt the FIRST question (the most basic: "What is
   // X?") to seed the reading — then the per-section loop below strikes each
   // remaining question for its own shape.
@@ -1966,7 +2223,7 @@ const modelsUp = await ollamaReachable();
   const seedQuery = topic;
   let webResult = { pages: 0, chars: 0 };
   let hasWeb = false;
-  if (runMode === "projection") {
+  if (runMode === "projection" && !isCode) {
     // Projection hunts the web for its shape — the void's own hunt.
     webResult = await searchAndAdmitWeb(session, sessionId, seedQuery, onNote, { move: "gather" });
     hasWeb = webResult.pages > 0;
@@ -2256,7 +2513,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // Composition: the frame is "we're writing an essay about X" — never an
     // instruction to the model about its own identity or process.
     answerShape.shape === "composition"
-      ? `\nWe're working on a piece about ${topicPhrase(task)}.`
+      ? (isCode
+        ? `\nWe're writing ${codeLanguage ? `a ${codeLanguage} program` : "a program"} named ${codeArtifactName(task, codeLanguage)}.`
+        : `\nWe're working on a piece about ${topicPhrase(task)}.`)
       : "\nYou're helping answer a question. Here's the context we have.",
     discourse ? `\n${discourse}` : null,
     readingContext || null,
@@ -2300,20 +2559,29 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   }
 
   let systemContent = systemCore;
-  if (material.length) {
+  // THE MOUTH NEVER READS RAW BYTES IN A PROJECTION (2026-09-13). A section
+  // draw must voice the reading, not re-read the source: the per-section
+  // brief carries the fold's own claims (propsForSection), so dumping the
+  // surfaced material into the system prompt made every draw a giant-context
+  // call — measured: a 25K system prompt (17K of raw source text) re-sent on
+  // each of 13 section draws. Chat/long have no per-section brief, so they
+  // keep the material in the prompt; projection draws on the claims alone.
+  if (material.length && runMode !== "projection") {
     systemContent += `\n\nHere's what came up on this:\n\n"""\n${material.join("\n\n")}\n"""`;
   }
   // Verbatim snips (citations) available to the composition so the essay can
   // QUOTE the sources — the model weaves real source text into its sections,
   // and the mechanical Sources appendix below still lists the same snips.
   // Never paraphrased: the model is handed the sources' own sentences.
-  if (answerShape.shape === "composition" && session.webSources && session.webSources.size) {
+  // Projection withholds them from the prompt too: the citations ledger and
+  // footnotes carry the verbatim spans; the section briefs carry the claims.
+  if (answerShape.shape === "composition" && runMode !== "projection" && session.webSources && session.webSources.size) {
     const snips = snipsFromSources(session.webSources, { maxSnips: 8, maxChars: 200 });
     if (snips.length) {
       systemContent += `\n\nVerbatim from the sources (quote these where they support your writing, never invent a quote):\n\n"""\n${snips.map((s) => `- "${s.snip}"`).join("\n")}\n"""`;
     }
   }
-  if (onNote) onNote({ move: "prompt_budget", system: systemCore.length, chat: keptChat.length, chatChars: chatLen, materialSegments: material.length, materialChars: used, taskChars: taskLen, max: PROMPT_MAX_CHARS });
+  if (onNote) onNote({ move: "prompt_budget", system: systemCore.length, chat: keptChat.length, chatChars: chatLen, materialSegments: runMode === "projection" ? 0 : material.length, materialChars: runMode === "projection" ? 0 : used, taskChars: taskLen, max: PROMPT_MAX_CHARS, projection: runMode === "projection" ? "compact — section briefs carry the claims" : null });
 
   // ── the earned cast, this turn only. The model is never told it is
   // playing a role — it receives exactly the facts this turn earned, at the
@@ -2355,9 +2623,44 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // void questions are still computed (they inform the shape), but they only
   // become SECTIONS when the shape is composition.
   let compositionPlan = { questions: runMode === "projection" ? [...voidQuestions] : [], declaration: null };
-  if (runMode === "projection") {
+  if (runMode === "projection" && !isCode) {
     const idx = sessionReferentIndex(session, onNote);
-    const refs = [...(idx?.referents?.values?.() ?? [])].map((r) => [...(r.surfaces ?? [])][0]).filter((n) => n && n.length > 3).slice(0, 3);
+    // THE INDEX'S REFERENTS ARE REF-IDS, NOT OBJECTS (reading-log.js:312 —
+    // `referents` is a Set of ids; the surfaces live behind `represent`).
+    // Reading `r.surfaces` off the Set's strings silently emptied `refs` on
+    // every run — measured 2026-09-13: the referent enrichment never fired,
+    // the void collapsed to the always-on cells, and every essay re-asked
+    // "what is X". `represent` returns a ref id's longest surface. Quality-
+    // gated (2026-09-13): a heading fragment or a lowercase content word is
+    // not a being — measured: "coordinates" and "Industry Applies" became
+    // essay sections. A being-name is multi-word or capitalised.
+    const JUNK_REFERENT = new Set(["coordinates", "location", "significance", "managed", "source", "authored", "published", "related", "topics", "last", "updated", "visit", "information", "primary", "resources", "bureau", "gallery", "references", "overview", "notes", "search"]);
+    // BEING-QUALITY RANKING (2026-09-13): the outline's sections come from
+    // the record's CENTRAL beings, ranked by recurrence (the index's own
+    // surface rows per referent) weighted by proper-name signal — never the
+    // first-N. A being that recurs and is multi-word/capitalised is the
+    // record's spine; "coordinates" is a heading, not a being.
+    const mentionOf = new Map();
+    for (const e of idx?.events ?? []) mentionOf.set(e.referent_id, (mentionOf.get(e.referent_id) ?? 0) + 1);
+    const beingQuality = (id, s) => {
+      const n = String(s ?? "").trim();
+      if (n.length <= 3) return 0;
+      const lc = n.toLowerCase();
+      if (JUNK_REFERENT.has(lc)) return 0;
+      if (lc === topic.toLowerCase()) return 0;
+      let q = 0;
+      const words = n.split(/\s+/);
+      if (words.length >= 2) q += 2;                 // multi-word names carry more
+      if (/[A-Z]/.test(n)) q += 1;                    // proper-case signal
+      q *= (1 + Math.log2(1 + (mentionOf.get(id) ?? 0))); // recurrence dominates
+      return q;
+    };
+    const refs = [...(idx?.referents?.values?.() ?? [])]
+      .map((id) => { try { return { id, s: idx.represent?.(id) ?? id }; } catch { return { id, s: id }; } })
+      .filter(({ id, s }) => beingQuality(id, s) > 0)
+      .sort((a, b) => beingQuality(b.id, b.s) - beingQuality(a.id, a.s))
+      .slice(0, 3)
+      .map(({ s }) => s);
     const openQ = (session.reader.getTasks?.() ?? [])
       .filter((t) => t?.status === "open" && t?.questions?.length)
       .flatMap((t) => t.questions ?? [])
@@ -2385,6 +2688,76 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // not a fixed truncation of the DEF'd shape. A 27-cell sweep can stay
     // relevant; ER7_MAX_SECTIONS raises it for long pieces.
     .slice(0, Number(process.env.ER7_MAX_SECTIONS ?? 20));
+  // CODE: the artifact's sections are its structural units (CODE_SHAPE_PRIOR),
+  // never the essay void-cells — a code ask DEF's its shape as header, core,
+  // CLI, entry, usage; the essay sweep has no bearing on a file's parts.
+  if (isCode) {
+    sections = codeSections(task, codeLanguage);
+    compositionPlan = { questions: sections, declaration: null };
+    if (onNote) onNote({ move: "code_shape", language: codeLanguage, name: codeArtifactName(task, codeLanguage), sections });
+  }
+  // THE MEANING POTENTIAL STAGES, NOT THE TEMPLATE (Halliday, 2026-09-14):
+  // when the register names a genre, the void consults the whole prior
+  // cascade (sidecar → genre priors → reading priors → the record's seams)
+  // BEFORE the essay template. The template is the fallback for an empty
+  // meaning potential, never the default for a registered genre.
+  let discoveredVoice = null; // the LLM's discovered write voice — hoisted so the section loop reads it
+  let discoveredFelt = null; // the LLM's felt target (releases/tension) — threaded into the verdict
+  let discoveredFraming = null; // the full discovered framing (staging + voice + feltTarget)
+  let storySeed = null; // the ground-seed cast — drawn once, recorded in the write turn
+  let citesResult = null; // the citation ledger's split: verbatim (quoted) vs unsupported (the model's own) — Ranke's parse
+  let citationSources = new Map(); // the actual citable material (web + workspace) — hoisted for the verdict
+  let categorized = null; // the periodic-table cell this piece landed in — hoisted for the thinking surface
+  if (runMode === "projection" && prelimShape?.register?.field?.field && !isCode) {
+    try {
+      const staged = queryMeaningPotential(prelimShape.register, { record: null, seams: [] });
+      // THE IMPRESSION (D/E/R, the first EVA after the register DEF): the
+      // meaning potential is measured for what it KNOWS of this genre's
+      // shape and feeling — hits, phases, shapes — no content rides.
+      const impression = {
+        genre: prelimShape.register.field.field,
+        seen: staged.evidence.filter((e) => e.seen).reduce((a, e) => a + (e.seen ?? 0), 0),
+        phases: [...new Set(staged.evidence.flatMap((e) => e.phases ?? []))].slice(0, 7),
+        shapes: [...new Set(staged.evidence.flatMap((e) => e.shapes ?? []))],
+        contributors: staged.evidence.map((e) => e.from),
+      };
+      wheel.turn("impression",
+        `what a satisfying ${impression.genre} would FEEL like — shape, felt, staging; no content`,
+        { seen: impression.seen, phases: impression.phases.length, shapes: impression.shapes, contributors: impression.contributors.length, hyperlexicon: Object.keys(hyperlexicon.composition ?? {}).length },
+        impression,
+        { evaBasis: "the meaning-potential query measures the genre's accumulated shape+feeling against an empty content ground", operator: "SIG", grain: "Figure", face: "scout" });
+      const stagedPhases = staged.evidence.flatMap((e) => e.phases ?? []).filter((p) => p && p.length > 3 && p.toLowerCase() !== topic.toLowerCase());
+      // THE DISCOVERY (footprints first — the LLM's proper place: proposing,
+      // never measuring). If the genre already has a discovered framing, reuse
+      // it — the trajectory is easier next time. If not, TASK the LLM to "go
+      // find what makes a good <genre>": its staging, write voice, felt
+      // target — and REC its trajectory as footprints (append-only sidecar).
+      // The structural organs dispose of whatever the LLM proposes.
+      const field = prelimShape.register.field.field;
+      let framingApplied = false;
+      try {
+        const sidecar = loadSidecar();
+        const fp = discoveredFramingFor(sidecar, { genre: field, medium: prelimShape.register.mode });
+        if (fp) {
+          const applied = applyDiscovered({ framing: fp.framing, sections, questionFor: (f, t) => questionFor(prelimShape.register, f, t), topic });
+          sections = applied.sections; discoveredVoice = applied.voice; framingApplied = true; discoveredFelt = fp.framing?.feltTarget ?? null; discoveredFraming = fp.framing;
+          wheel.turn("discovery", `reuse the footprints — a framing for ${field} was discovered before`, { from: "footprints", staging: fp.framing.staging.length }, { framing: fp.framing, basis: fp.basis }, { evaBasis: "the sidecar's latest footprint wins; no new model call — easier next time", operator: "INS", grain: "Pattern", face: "scout" });
+        } else {
+          const d = await discoverFraming({ register: prelimShape.register, impression: staged, prior: sidecar, upstream: OLLAMA, model });
+          if (d?.framing) {
+            const applied = applyDiscovered({ framing: d.framing, sections, questionFor: (f, t) => questionFor(prelimShape.register, f, t), topic });
+            sections = applied.sections; discoveredVoice = applied.voice; framingApplied = true; discoveredFelt = d.framing?.feltTarget ?? null; discoveredFraming = d.framing;
+            wheel.turn("discovery", `the LLM is tasked to go find what makes a good ${field}`, { from: d.from, staging: d.framing.staging.length, voice: !!d.framing.writeVoice }, { framing: d.framing, footprints: !!d.appended, basis: d.basis }, { evaBasis: "the LLM PROPOSES the framing; the wheel's EVA and the satisfaction organs dispose", operator: "INS", grain: "Pattern", face: "scout" });
+            if (d.appended) { try { fs.writeFileSync(SIDECAR_PATH, JSON.stringify(d.appended, null, 2)); } catch {} }
+          }
+        }
+      } catch {}
+      if (!framingApplied && stagedPhases.length >= 2 && !resumePlan) {
+        sections = [...new Set(stagedPhases)].slice(0, 7).map((f) => questionFor(prelimShape.register, f, topic));
+        if (onNote) onNote({ move: "void_questions", of: sections.length, cells: `staged from the meaning potential: ${staged.evidence.map((e) => e.from.split(" ")[0]).join(" + ")}`, questions: sections.slice(0, 5), basis: staged.evidence.map((e) => e.basis).slice(0, 3) });
+      }
+    } catch {}
+  }
   // A forced PROJECTION whose void produced no content cells still gets an
   // artifact — a single grounded part on the whole of what came up, rather
   // than silently falling out of the mode into a chat answer.
@@ -2396,7 +2769,26 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // piece (bounded), and the grounding checks disclose its standing honestly
   // rather than churning ungrounded rewrites forever.
   const hasGrounding = (session.webSources?.size ?? 0) > 0 || (workspaceStats.files ?? 0) > 0 || surfacedSegments.length > 0;
-  if (runMode === "projection" && !hasGrounding) sections = sections.slice(0, 2);
+  if (runMode === "projection" && !hasGrounding && !isCode) sections = sections.slice(0, 2);
+  // THE PLAN (D/E/R): after the impression DEF's EVA, the void stages —
+  // phases × question-form × topic, arc climbing toward the DEF'd shape.
+  // The plan is a PREDICTION; the read and write will be measured against it.
+  if (runMode === "projection") {
+    wheel.turn("plan",
+      sections.length ? "the void's staged phases, ordered toward a climbing arc, each phase a question in the register's form" : "a single declared artifact — the void stages it as it writes",
+      { sections: sections.length, first: sections[0]?.slice(0, 80) ?? null, arc: "climbing" },
+      { sections, register: prelimShape.register?.field?.field ?? null },
+      { evaBasis: "the predicted fortune arc must match the genre's accumulated shape; the read below is its EVA", operator: "SEG", grain: "Field", face: "Murch" });
+    // DEF — the interpretive frame is DECLARED (not read off grammar): what
+    // would satisfy this piece, named before a word is written. The felt
+    // target rides here — the genre's own release count is the criterion the
+    // write will be measured against.
+    wheel.turn("declare",
+      `the piece is declared in the ${prelimShape.register?.field?.field ?? "staged"} register: ${discoveredFelt ? `felt target ${discoveredFelt.releases ?? "?"} releases, shape "${String(discoveredFelt.shape ?? "")}"` : "no felt target — the register's own shape stands"}`,
+      { feltTarget: discoveredFelt?.releases ?? null, genre: prelimShape.register?.field?.field ?? null },
+      { feltTarget: discoveredFelt, register: prelimShape.register?.field?.field ?? null },
+      { evaBasis: "the frame is declared before the write; EVA measures the write against it", operator: "DEF", grain: "Atmosphere", face: "the void declares" });
+  }
   // The composition block below may EVOLVE the plan (REC supersedes the outline
   // and adds themes as the reading grows). Hoisted so the satisfaction check
   // reads the plan the essay actually wrote, whether or not the block ran.
@@ -2475,6 +2867,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   let totalStrain = 0; // the cumulative correction load — how hard the piece was to write
   let fullText = "";
   let truncated = false;
+  let codeValidation = null; // the hard pyodide verdict on a code artifact — hoisted for the satisfaction check
   // The model is the tip of consciousness: it must never run away. A hard
   // cap on total generated chars protects the turn from a repetition loop
   // (num_predict is not always honored by these models). When the cap hits,
@@ -2500,6 +2893,34 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     if (session.webSources?.size) for (const text of session.webSources.values()) if (text) parts.push(String(text));
     for (const s of surfacedSegments ?? []) if (s?.text) parts.push(String(s.text));
     return parts.join("\n").slice(0, 200000);
+  };
+  // THE MEASURED CUT (2026-09-13): the section's own grounded window. The
+  // mouth must voice a reading, never re-read the page — but zero in-context
+  // material makes a small model hallucinate (measured: 13 sections, every one
+  // a confident 1933-fair fabrication). This hands each part ONLY the source
+  // sentences that share its terms — a few thousand chars, never the page.
+  const SECTION_WINDOW_CHARS = Number(process.env.ER7_SECTION_WINDOW_CHARS ?? 2500);
+  const WINDOW_STOP = new Set("the and for with that this from under through after during was were are is had has have by to of in on at it its their there here which where when how what who into across over been being not but or as than then so such only also very just an a your our their its".split(" "));
+  const groundedWindowFor = (section, claims, material) => {
+    const text = String(material ?? "");
+    if (text.length < 60) return "";
+    const terms = new Set();
+    const pool = `${section} ${(claims ?? []).map((p) => `${p.end1 ?? ""} ${p.end2 ?? ""}`).join(" ")}`;
+    for (const t of pool.toLowerCase().split(/[^a-z']+/)) {
+      if (t.length > 3 && !WINDOW_STOP.has(t)) terms.add(t);
+    }
+    if (!terms.size) return "";
+    const sentences = String(text).replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim()).filter((s) => s.length > 40 && s.length < 400);
+    const scored = [];
+    for (const s of sentences) {
+      const lc = s.toLowerCase();
+      const hits = [...terms].filter((t) => lc.includes(t)).length;
+      if (hits >= 2) scored.push({ s, hits });
+    }
+    scored.sort((a, b) => b.hits - a.hits);
+    let out = "", n = 0;
+    for (const { s } of scored) { if (out.length + s.length > SECTION_WINDOW_CHARS) break; out += (n++ ? " " : "") + s; }
+    return out.trim();
   };
   // READABILITY — how the piece READS, in addition to what it repeats.
   // Prefer textstat (exact, via the venv) when it is reachable; fall back to
@@ -2593,9 +3014,10 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           const subj = String(p.end1 ?? ""); const obj = String(p.end2 ?? "");
           const sIds = propsIndex.resolveIn(subj); const oIds = propsIndex.resolveIn(obj);
           if ([...themeIds].some((id) => sIds.has(id) || oIds.has(id))) {
-            const key = `${subj}|${p.label}|${obj}`;
+            const key = keyOf(p);
             if (shown.has(key)) continue;
             shown.add(key);
+            handedKeys.add(key); // this claim reached the mouth — it cannot be "carried unprompted"
             out.push(p);
           }
         }
@@ -2609,6 +3031,10 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       const recoffered = new Set(); // REC offers each evolving theme once — never loops forever
       const goredThemes = new Set(); // Gore strikes each theme once — no re-fetch of the same cue
       if (onThinking) onThinking(`\n### Outline\n${outlineBuf}\n`);
+      // THE GROUND-SEED: the story's cast is drawn at random FROM the ground
+      // (the beings the reading established, with their sources), once — so
+      // every scene is traceable to what inspired it. Recorded in the wheel.
+      storySeed = prelimShape?.register?.field?.field === "narrative" ? groundSeed(session, { sidecar: loadSidecar(), framing: discoveredFraming, field: prelimShape.register.field.field, count: 4 }) : null;
       // Evolve the outline as sections land: re-read the reading's referents;
       // a being the essay has not yet covered is a theme the outline missed.
       // REC: supersede the outline line and add the section.
@@ -2680,18 +3106,83 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // description — "the bongo is a forest antelope" is not a thesis;
         // "the bongo's survival hangs on the very forests it hides in" is.
         const isOpening = i === 0;
-        const sectionTask = plannedSections.length > 1
+        // THE MEASURED CUT: the section's own claims + the source window that
+        // grounds them. The window is computed once per section and handed to
+        // the brief — the mouth voices real source sentences, never the page
+        // and never nothing.
+        const secProps = propsForSection(section);
+        const secWindow = groundedWindowFor(section, secProps, groundingText());
+        const claimBlock = secProps.length ? `Here are the material's claims this part should carry:\n${secProps.map((p) => `- ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}` : "";
+        const windowBlock = secWindow ? `\n\nGrounded source text for THIS part — its real names, places, dates and figures come from here:\n"""\n${secWindow}\n"""` : "";
+        const isNarrative = prelimShape?.register?.field?.field === "narrative";
+        const baseVoice = writeVoiceFor(prelimShape?.register, topic);
+        const voice = discoveredVoice ? {
+          // LOW sets the possibility (the register's hard constraint: SHOW,
+          // never name the phase or analyze); HIGH sets the probability (the
+          // discovered voice is an EXEMPLAR to continue, never to repeat).
+          opening: (t) => `${baseVoice.opening(t)}\n\nWrite in this voice — an exemplar to continue, never to repeat:\n"${String(discoveredVoice.opening ?? "").slice(0, 400)}"`,
+          body: (t) => `${baseVoice.body(t)}\n\nWrite in this voice — an exemplar to continue, never to repeat:\n"${String(discoveredVoice.body ?? "").slice(0, 400)}"`,
+        } : baseVoice;
+        // THE MOUTH IS SPOKEN TO THE WAY IT MUST SPEAK. An essay is addressed
+        // as an essayist ("answer this question", "the claims to carry"); a
+        // story is addressed as a storyteller ("the story continues", "this is
+        // the next scene", "the world holds these truths"). The frame is the
+        // register — never an instruction bolted onto an essay frame.
+        const castBlock = (isNarrative && storySeed?.cast?.length)
+          ? `\nThe story's SEED, drawn at random from the ground — let the world grow from these (a place, an event, a name to begin from), and invent freely around them:\n${storySeed.cast.map((c) => `- ${c.name}  (seed from: ${(c.provenance?.length ? c.provenance.join(", ") : "the reading")})`).join("\n")}`
+          : "";
+        // NARRATIVE CONTINUITY: a scene is handed the story SO FAR — the actual
+        // prose already written — and its PHASE POSITION, so it advances the
+        // story instead of restating the opening, and holds the invented cast
+        // and facts stable instead of re-deriving them (Cape Cod must stay Cape
+        // Cod, not drift to Cape May). The last beat is the resolution.
+        const storySoFar = documentLines.length
+          ? documentLines.map((line, j) => `[scene ${j + 1}] ${line}`).join("\n\n").slice(-1800)
+          : "";
+        // THE PLOT-SEED: the story's beats are drawn from the ground's own
+        // events (a complication, a disaster, a rescue), mapped to the phases —
+        // so the story has something to advance TOWARD, not a bag of facts to
+        // describe. The seed's drawn events name the turn at each phase.
+        const seedEvent = storySeed?.cast?.[Math.min(i, (storySeed.cast?.length ?? 1) - 1)]?.name ?? null;
+        const beat = plannedSections.length > 1
+          ? (i === plannedSections.length - 1 ? `the RESOLUTION — land the story${seedEvent ? ` (the ground names this turn: ${seedEvent})` : ""}, release the tension you have built`
+            : i === 0 ? `the OPENING — drop into a moment, establish the cast and the world${seedEvent ? ` (the ground names this turn: ${seedEvent})` : ""}`
+            : `scene ${i + 1} of ${plannedSections.length} — the next turn of the story${seedEvent ? `, which the ground names: ${seedEvent}` : ""}, escalating what came before`)
+          : "the whole story";
+        const materialBlock = isNarrative
+          ? `${castBlock}${secProps.length ? `\nThe story's world holds these truths — let them shape the world, but write them in YOUR OWN words:\n${secProps.map((p) => `- ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}` : ""}${secWindow ? `\n\nThe world, in its own words (its real names, places, storms come from here — read these, then write your own sentences):\n"""\n${secWindow}\n"""` : ""}\n\n${RANKE_RULE}`
+          : `${claimBlock}${windowBlock}\n\n${RANKE_RULE}`;
+        const sectionTask = isCode
+          ? codeSectionPrompt({
+              section,
+              language: codeLanguage,
+              name: codeArtifactName(task, codeLanguage),
+              task,
+              i,
+              total: plannedSections.length,
+              soFar: documentLines.length ? documentLines.join("\n\n").slice(-3000) : "",
+              exemplar: i === 0 ? codeExemplar(codeLanguage) : null,
+            })
+          : plannedSections.length > 1
           ? (isOpening
-            ? `We're writing a piece on ${topic}. ${(() => { const sp = propsForSection(section); return sp.length ? `Here is what the material actually holds about ${topic}:\n${sp.map((p) => `- ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}` : ""; })()}\n\nOPEN THE PIECE WITH A THESIS: a single, definite, surprising claim about ${topic} that the reader would not expect — a position, never a description. It must be grounded in what the material holds (a real fact or relation), but stated as an argument: something someone could disagree with. Then in 1-2 sentences, name why the claim matters. This is the opening of the piece itself — no introduction, no "in this essay", no commentary about writing.`
-            : `We're writing a piece on ${topic}. ${priorParts ? `Where the piece stands so far: ${priorParts}\n\n` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences. ANSWER WITH THE MATERIAL'S OWN FACTS about ${topic}: its real names, places, numbers, and relationships as the sources state them. ${(() => { const sp = propsForSection(section); return sp.length ? `Here are the material's claims this part should carry:\n${sp.map((p) => `- ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}` : ""; })()}\nDo not discuss the essay, the writing, the question, or the material itself. It continues what the piece has already established — build on it, transition from it, do not restate it.`)
-          : `Write the piece on ${topic}, ${holonPhrase}, as a substantial passage — several sentences about ${topic} using the material's own facts, names, and figures as the sources state them. Do not discuss the essay, the writing, or the material.`;
+            ? (isNarrative
+              ? `You are telling a story. This is ${beat}. It begins in the middle of a moment, in a real place. ${materialBlock}\n\n${voice.opening(topic)}`
+              : `We're writing a piece on ${topic}. ${materialBlock}\n\n${voice.opening(topic)}`)
+            : (isNarrative
+              ? `The story continues. This is ${beat}.${storySoFar ? `\n\nHere is the story so far — HOLD every name, place, and number stable, do not rename anyone or change any detail, do not restate what already happened:\n${storySoFar}\n` : ""}Now show what happens NEXT: the next thing that changes, the next beat toward the resolution. ${materialBlock}\n\n${voice.body(topic)}`
+              : `We're writing a piece on ${topic}. ${priorParts ? `Where the piece stands so far: ${priorParts}\n\n` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences. ${voice.body(topic)} ${materialBlock}`))
+          : (isNarrative
+            ? `You are telling a story. This is ${beat}. It begins in the middle of a moment, in a real place. ${materialBlock}\n\n${voice.opening(topic)}`
+            : `We're writing a piece on ${topic}. ${materialBlock}\n\n${voice.opening(topic)}`);
         const holonBudget = holonLevel === "sentence" ? Math.min(SECTION_MAX_TOKENS, 220) : holonLevel === "paragraph" ? Math.min(SECTION_MAX_TOKENS, 450) : SECTION_MAX_TOKENS;
         // A SHORT PIECE WITH NO GROUND writes SHORT sections — a "short essay"
         // asked with nothing to ground it gets a bounded per-part budget, so
         // the artifact completes in chat-time rather than running past the
-        // turn deadline churning ungrounded prose. (hasGrounding, hoisted with
+        // turn deadline churning ungrounded prose. CODE is exempt: a code part
+        // needs the full budget to be a real function/block, and its ground is
+        // the spec itself, not admitted material. (hasGrounding, hoisted with
         // the sections bound.)
-        const drawBudget = hasGrounding ? holonBudget : Math.min(holonBudget, 400);
+        const drawBudget = isCode ? holonBudget : (hasGrounding ? holonBudget : Math.min(holonBudget, 400));
         if (onThinking) onThinking(`\n### ${section} (${holonLevel})\n\n`);
         // The draw runs NOW, in parallel with the Gore strike. Whichever lands
         // first flows; the strike's result is folded into the reading whenever
@@ -2728,16 +3219,24 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // meta, thin are the editor's brief, which reads the WHOLE essay and
         // fixes every finding in one holistic pass instead of patching each
         // section in isolation (the loop-on-loops this replaces).
-        const sectionEva = satisfactionOfSection(buf, { theme: section, material: groundingText(), prior: documentLines.length ? documentLines[documentLines.length - 1] : "" });
-        const strainAdded = sectionEva.strain;
+        const sectionEva = isCode
+          ? codeSatisfaction({ documentLines: [buf], sections: [section], validation: null })
+          : satisfactionOfSection(buf, { theme: section, material: groundingText(), prior: documentLines.length ? documentLines[documentLines.length - 1] : "" });
+        const strainAdded = isCode ? (sectionEva.ok ? 0 : 1) : sectionEva.strain;
         totalStrain += strainAdded;
         if (onNote) onNote({ move: "strain", section, strain: strainAdded, failures: sectionEva.failures.map((f) => f.kind) });
         if (documentLedger) {
-          appendLedgerLine(documentLedger, {
+          // CODE: the ledger's part is the WHOLE file, written once after the
+          // validator clears it — a per-section "part" row would make the
+          // projection show the first-draft parts instead of the fixed file
+          // (projectDocument reads only role "part"). The section lands in
+          // memory here; the code branch appends the single part line at the
+          // end. An essay still lands each section as its own part line.
+          if (!isCode) appendLedgerLine(documentLedger, {
             role: "part", title: section, text: buf.trim(), giver: model,
             basis: `composition section, strain ${strainAdded}`,
           }, { dir: ESSAY_LEDGER_DIR });
-          documentLines.push(buf.trim());
+          documentLines.push(isCode ? stripCodeFences(buf, codeLanguage) : buf.trim());
         }
         if (i < plannedSections.length - 1 && onToken) onToken("\n\n");
 
@@ -2747,7 +3246,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // theme the outline must grow to include. Bounded: the same being is
         // never offered twice (the reading does not grow mid-composition, so
         // without this guard the loop re-offers the same theme forever).
-        if (documentLedger && !truncated && plannedSections.length < 7) {
+        // CODE is exempt — a code file's parts are fixed by CODE_SHAPE_PRIOR,
+        // and the reader's prose referents are not code sections.
+        if (documentLedger && !truncated && plannedSections.length < 7 && !isCode) {
           const fresh = sessionReferentIndex(session, onNote);
           const beings = [...(fresh?.referents ?? new Map()).values()]
             .map((r) => [...(r.surfaces ?? [])][0])
@@ -2772,6 +3273,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         }
       }
 
+      if (!isCode) {
       // ── RANKE VERIFIES THE GROUND, BEFORE MURCH EDITS ────────────────────────
       // Wolfe's first draft is written. RANKE (Leopold von Ranke's
       // Quellenkritik: the account is judged by the document it stands on)
@@ -3132,8 +3634,19 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // Verbatim snips (citations) — taken mechanically from the EOT-retained
       // web sources, never generated by the model. Appended as their own
       // document-ledger observation after the sections, with source URLs.
-      if (documentLedger && session.webSources && session.webSources.size) {
-        const snips = snipsFromSources(session.webSources);
+      // CITATION SOURCES = THE ACTUAL MATERIAL, WEB AND WORKSPACE (2026-09-13).
+      // The citation ledger used to be gated on session.webSources alone, so a
+      // workspace run produced zero citations — measured: no citations.json, no
+      // footnotes, no inline markers. Every retained non-conversation document
+      // is a citable source: web pages (url→text) and workspace files (path→text).
+      if (session.webSources?.size) for (const [u, t] of session.webSources) if (t) citationSources.set(u, t);
+      if (session.corpus?.documents?.size) for (const [sid, doc] of session.corpus.documents) {
+        if (String(sid).startsWith("chat:")) continue;
+        if (citationSources.has(sid)) continue;
+        if (doc?.text && String(doc.text).trim().length > 40) citationSources.set(sid, String(doc.text));
+      }
+      if (documentLedger && citationSources.size) {
+        const snips = snipsFromSources(citationSources);
         // The structured citation ledger: a JSON doc beside the essay with the
         // REAL verbatim source spans and their byte addresses into the retained
         // shadow text — every citation points at actual bytes, never a guess.
@@ -3149,7 +3662,8 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           { role: "prior", name: "eoreader7:shape-prior:essay-v1", basis: "the essay's received form — thesis opening, body, closing" },
           { role: "prior", name: "pos:en-ud-ewt + born anchoring", basis: "the reading's shape prior — what the priors caused the shadow to retain" },
         ];
-        const cites = citationLedger(assembledBody, session.webSources, { givers: essayGivers });
+        const cites = citationLedger(assembledBody, citationSources, { givers: essayGivers });
+        citesResult = cites;
         if (cites.citations.length) {
           const citesPath = path.join(ESSAY_LEDGER_DIR, `${documentLedger.docId.replace(/:/g, "_")}.citations.json`);
           try { fs.writeFileSync(citesPath, JSON.stringify({ docId: documentLedger.docId, ...cites }, null, 2)); } catch {}
@@ -3158,7 +3672,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // APA footnotes: each essay sentence attributed mechanically to its
         // best source, with the VERBATIM span it borrows from — the Fold's
         // cite.js discipline (an address is attached, never requested).
-        const footnoteBlock = renderApaFootnotes(assembledBody, session.webSources, { givers: essayGivers });
+        const footnoteBlock = renderApaFootnotes(assembledBody, citationSources, { givers: essayGivers });
         // INLINE CITATION MARKERS are applied CLIENT-SIDE by the live HTML
         // (each citation's essaySentence gets [n] after it in the folded
         // prose). The server stores the STRUCTURED citations (citations.json)
@@ -3190,6 +3704,52 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           if (onToken) onToken(citationBlock);
         }
       }
+      } else {
+      // ── CODE: hard logos validation + bounded REC ─────────────────────────
+      // The essay organs (Ranke/Murch/citations) are prose; code's own check
+      // is the hard pyodide gate — compile + undefined-name + exec + smoke —
+      // run UNCONSCIOUSLY (the model never sees the validator, only the
+      // findings that failed it). A failing artifact is a typed REC: the mouth
+      // re-draws the whole file with the errors in hand, bounded like Ranke.
+      const codeText = () => stripCodeFences(documentLines.join("\n\n"), codeLanguage);
+      fullText = codeText();
+      if (codeLanguage === "python") {
+        codeValidation = await validatePython(fullText, { smokeInput: null });
+        if (onNote) onNote({ move: "code_validate", ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`), smoke: codeValidation.smoke });
+        let round = 0;
+        while (!codeValidation.ok && round < MAX_REWRITE_ROUNDS && !truncated) {
+          const findings = (codeValidation.findings ?? []).slice(0, 6).map((f) => `- [${f.kind}] ${f.detail}`).join("\n");
+          if (onThinking) onThinking(`\n### Code check failed (round ${round + 1})\n${findings}\n\n`);
+          const fixMsg = `We're writing ${codeArtifactName(task, codeLanguage)} — a ${codeLanguage} program. The complete specification:\n\n"""\n${task}\n"""\n\nThe file written so far:\n"""\n${fullText.slice(-6000)}\n"""\n\nThe validator found these problems:\n${findings}\n\nRewrite the WHOLE file so it is correct, complete, and composes. Emit ${codeLanguage} source code only — no explanation, no prose, no markdown fences, no commentary.`;
+          const fix = await draw(
+            [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
+            SECTION_MAX_TOKENS,
+            { kelsen: Math.max(compositionKelsen, 0.9) },
+          );
+          if (fix.stopped) { truncated = true; break; }
+          const fixText = stripCodeFences(fix.buf, codeLanguage);
+          if (!fixText) break;
+          documentLines.length = 0;
+          documentLines.push(fixText);
+          fullText = fixText;
+          if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `logos: validation round ${round + 1}`, text: fixText, giver: model, supersedes: null, basis: `REC: the validator failed — ${findings.slice(0, 200)}` }, { dir: ESSAY_LEDGER_DIR });
+          codeValidation = await validatePython(fullText, { smokeInput: null });
+          if (onNote) onNote({ move: "code_validate", round: round + 1, ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`) });
+          round++;
+        }
+      }
+      if (documentLedger) {
+        // The code artifact lands as ONE part line — the whole file, after the
+        // validator cleared it — so the projection is the fixed code, never the
+        // first-draft sections.
+        appendLedgerLine(documentLedger, {
+          role: "part", title: codeArtifactName(task, codeLanguage), text: fullText, giver: model,
+          basis: `code artifact (${codeLanguage}), ${codeValidation?.ok ? "validated" : "validation failed"}`,
+        }, { dir: ESSAY_LEDGER_DIR });
+        const def = sections.map((s) => `"${s}"`).join(", ");
+        if (onNote) onNote({ move: "document_ledger", docId: documentLedger.docId, parts: documentLines.length, declared: def, kind: "code", language: codeLanguage, validated: codeValidation?.ok ?? null });
+      }
+      }
     } else if (runMode === "long") {
       // ── LONG — a response that goes further than chat provides. ────────
       // One extended single draw at a generous budget; no ledger, no editorial
@@ -3219,7 +3779,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   let post = null;
   let text = fullText;
   if (fullText.trim()) {
-    post = await postprocessAnswer(fullText, { onNote, timeboxMs: POSTPROCESS_TIMEOUT_MS });
+    post = isCode
+      ? await postprocessCode(fullText, { language: codeLanguage, onNote, timeboxMs: POSTPROCESS_TIMEOUT_MS })
+      : await postprocessAnswer(fullText, { onNote, timeboxMs: POSTPROCESS_TIMEOUT_MS });
     if (post && typeof post.text === "string" && post.text.trim() && post.text !== fullText) {
       text = post.text;
     }
@@ -3262,10 +3824,14 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // web — the conversation is excluded from the surf by design), a void
   // means nothing CHALLENGED the person's own statement, and the honest
   // standing is "unexamined", never "contested — not settled".
+  // THE GROUND IS WHAT IS NOT THE CONVERSATION: workspace files, admitted
+  // web material, or any corpus document outside the chat: prefix. Standing
+  // and satisfaction both depend on it — the conversation never counts as
+  // material that can fill a void.
+  const hasNonConversationGround = workspaceStats.files > 0
+    || (session.webSources?.size ?? 0) > 0
+    || (session.corpus && [...session.corpus.documents.keys()].some((k) => !String(k).startsWith("chat:")));
   if (speakerModel && userId) {
-    const hasNonConversationGround = workspaceStats.files > 0
-      || (session.webSources?.size ?? 0) > 0
-      || (session.corpus && [...session.corpus.documents.keys()].some((k) => !String(k).startsWith("chat:")));
     const updated = updateSpeakerModel(speakerModel, {
       task,
       classification: (() => { try { return classifySpeech(task); } catch { return "question"; } })(),
@@ -3280,15 +3846,121 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // void we declared — across its nine operators — is filled by sections that
   // pass its admission test. Strain is the REC pressure the void demanded.
   const satisfaction = documentLedger
-    ? (sessionReferentIndex(session) && rawEntries?.length
-      ? lavarGradeEssay(documentLines, plannedSectionsOut, { materialPropositions: notesFromEdges(rawEntries), index: sessionReferentIndex(session) })
-      : sessionReferentIndex(session)
-        ? holographicSatisfaction(documentLines, plannedSectionsOut, { index: sessionReferentIndex(session) })
-        : fillCheck(voidDeclaration, documentLines, plannedSectionsOut, { material: groundingText() }))
+    ? (isCode
+      // CODE: the void is filled when every part wrote source code and the
+      // assembled file passes the hard validator (compile + exec + smoke).
+      ? codeSatisfaction({ documentLines, sections: plannedSectionsOut, validation: codeValidation })
+      : (hasNonConversationGround
+      ? (sessionReferentIndex(session) && rawEntries?.length
+        // THE HONEST GRADE (2026-09-13): the essay is scored on the record's
+        // claims it carried WITHOUT being handed them — the echo of the
+        // prompt never scores. `unprompted` excludes every proposition the
+        // mouth was told; the total is reported beside it so the gap between
+        // "echoed" and "carried" is visible, never hidden.
+        ? (() => {
+            const allProps = notesFromEdges(rawEntries);
+            const unprompted = allProps.filter((p) => !handedKeys.has(keyOf(p)));
+            const totalGrade = lavarGradeEssay(documentLines, plannedSectionsOut, { materialPropositions: allProps, index: sessionReferentIndex(session) });
+            const unpromptedGrade = lavarGradeEssay(documentLines, plannedSectionsOut, { materialPropositions: unprompted, index: sessionReferentIndex(session) });
+            return { ...unpromptedGrade, total: totalGrade, handed: handedKeys.size, ofTotal: allProps.length, basis: `${unpromptedGrade.basis} — total (incl. prompted echo) ${totalGrade.recall}, ${handedKeys.size} of ${allProps.length} propositions were handed to the mouth and cannot score unprompted` };
+          })()
+        : sessionReferentIndex(session)
+          ? holographicSatisfaction(documentLines, plannedSectionsOut, { index: sessionReferentIndex(session) })
+          : fillCheck(voidDeclaration, documentLines, plannedSectionsOut, { material: groundingText() }))
+      // NO GROUND IS A VERDICT, NEVER A VACUOUS PASS. With nothing but the
+      // conversation in the corpus, every part fails the void's own EVA
+      // admission ("grounded in the shadow's material") by definition — and
+      // grading the essay against chat-derived propositions would grade it
+      // against the request itself. Measured 2026-09-13: an ungrounded run
+      // reported "unsatisfied" only because the essay failed to restate the
+      // user's one-line ask — the right verdict, earned for the wrong reason.
+      : {
+          ok: false, filled: 0, of: plannedSectionsOut.length,
+          failures: plannedSectionsOut.map((s, i) => ({ index: i, theme: s, kind: "no_ground", detail: "no material ground was admitted — the void cannot be filled by the conversation alone, and every part fails EVA's admission by definition" })),
+          totalStrain: plannedSectionsOut.length,
+          basis: "satisfaction grades only against non-conversation material; none was admitted",
+        }))
     : chatSatisfaction;
+
+  // THE WHEEL CLOSES (D/E/R): the read was the plan's EVA, the verdict is
+  // the satisfaction DEF's EVA, and the fold lands what the run PROVED —
+  // superseding the impression, never editing it. Every REC is the next
+  // stage's ground; the ledger is the run, in order.
+  if (runMode === "projection") {
+    const readSurprise = session.lastPageSurprise?.salient ?? 0;
+    wheel.turn("read",
+      "each phase's sub-satisfaction: what would satisfy THIS phase, from THIS material",
+      { propositions: stats.relationEdges ?? 0, referents: stats.referentBindings ?? 0, surprise: readSurprise },
+      { relations: stats.relationEdges ?? 0, referents: stats.referentBindings ?? 0, surprise: readSurprise, ground: hasGrounding },
+      { evaBasis: "the reader's own surprise on the material is the EVA — the felt dimension of the read", operator: "CON", grain: "Link", face: "Gore" });
+    wheel.turn("write",
+      "the parts compose into one carried ground — the artifact itself, Wolfe's work",
+      { parts: documentLines.length, chars: fullText.length, grounded: hasGrounding, seed: storySeed?.seed ?? null, cast: storySeed?.cast?.map((c) => c.name) ?? [] },
+      { parts: documentLines.length, chars: fullText.length, voice: discoveredVoice ? "discovered" : "register", seed: storySeed?.seed ?? null, cast: storySeed?.cast ?? [] },
+      { evaBasis: "the write is the SYNthesis of the read's ground into one piece — measured against the declare; every cast member keeps its provenance", operator: "SYN", grain: "Field", face: "Wolfe" });
+    const sat = satisfaction?.ok ?? false;
+    // THE FELT IS THREADED INTO THE VERDICT: the read's release/surprise is
+    // measured against the declare's feltTarget (Bharata's rasa, closed).
+    const feltTarget = discoveredFelt?.releases ?? null;
+    // RANKE'S PARSE (anti-kitsch): the citation ledger already splits each
+    // sentence into QUOTED (verbatim/company — reproduced WITH a citation) and
+    // UNSUPPORTED (the model's own — cited to the model as giver). Reproducing
+    // for quotation is legitimate; reproduction WITHOUT a citation would be
+    // copy. `verbatim` vs `unsupported` IS the parse — no hand-set n-gram.
+    // (The one hand-set number left — citationLedger's term floor of 3 — is
+    // the DMD-to-derive boundary, per born-dmd-rosetta: the cut should come
+    // out of DMD+Born, not a constant.)
+    const ranke = citesResult
+      ? { verbatim: citesResult.verbatim ?? 0, company: citesResult.company ?? 0, unsupported: citesResult.unsupported ?? 0, of: citesResult.of ?? 0, basis: citesResult.basis }
+      : null;
+    // runDMCA — the seam between Alexander and Ranke: reproduced-with-citation
+    // (quoted) vs reproduced-without (copy). The boundary is named, not yet
+    // DMD-derived.
+    const dmca = citesResult && citationSources.size
+      ? runDMCA({ text: documentLines.join("\n\n"), sources: citationSources, citations: citesResult.citations })
+      : null;
+    categorized = dmca && citesResult
+      ? categorizeCreativity({ text: documentLines.join("\n\n"), sources: citationSources, citations: citesResult.citations })
+      : null;
+    if (categorized && onNote) onNote({ move: "creativity", cell: categorized.cell.name, archon: categorized.cell.archon, derivation: categorized.derivation, quoted: categorized.reproduce.quoted, copied: categorized.reproduce.copied, derived: categorized.derive, invented: categorized.invent });
+    wheel.turn("verdict",
+      documentLedger ? "satisfaction = climbing arc, felt releases, grounded claims — DEF'd before the plan" : "chat satisfaction",
+      { ok: sat, filled: satisfaction?.filled ?? 0, of: satisfaction?.of ?? 0, failures: satisfaction?.failures?.length ?? 0, strain: satisfaction?.totalStrain ?? 0, feltTarget, feltRead: readSurprise, feltGap: feltTarget == null ? null : (feltTarget - readSurprise), ranke: ranke?.verbatim ?? null, unsupported: ranke?.unsupported ?? null, dmca: dmca ? { ok: dmca.ok, quoted: dmca.quoted, copied: dmca.copied } : null, categorized: categorized ? { derivation: categorized.derivation, cell: categorized.cell, reproduce: categorized.reproduce, derive: categorized.derive, invent: categorized.invent } : null },
+      { ...satisfaction, ranke, dmca, categorized },
+      { evaBasis: "the artifact is measured against the declare — a real difference, never a softmax", operator: "EVA", grain: "Lens", face: "LaVar" });
+    wheel.turn("fold",
+      "the superseding satisfaction — corrected against what this run's material actually allowed",
+      { ok: sat, noGround: !hasGrounding, felt: readSurprise },
+      { ok: sat, genre: prelimShape.register?.field?.field ?? null, ground: hasGrounding, sidecar: "append-only: this run's shape+felt fold back into the genre's impression" },
+      { evaBasis: "a failed criterion supersedes the DEF by appending, never editing — the ledger's law", operator: "REC", grain: "Atmosphere", face: "Murch" });
+  }
+
+  // THE CHARTER GATE — governs this generation against the UDHR, on EVERY
+  // turn, reachable (P88: a guard that is never reached passes forever).
+  // A conflict refuses the answer with the named act/right on the record;
+  // descriptive voice (atrocity discussion) passes by construction. The gate
+  // cannot be turned off: it is imported, always armed with a charter, and
+  // its verdict is part of every result.
+  const charter = (() => {
+    if (globalThis.__er7Charter) return globalThis.__er7Charter;
+    try {
+      const real = "/Users/mlacy/Documents/3.0/live_priors/06-government-legal/un-udhr/udhr-eng.txt";
+      if (fs.existsSync(real)) {
+        globalThis.__er7Charter = buildUdhCharter(fs.readFileSync(real, "utf8"));
+        return globalThis.__er7Charter;
+      }
+    } catch {}
+    globalThis.__er7Charter = defaultCharter();
+    return globalThis.__er7Charter;
+  })();
+  const charterVerdictOut = charterGate(charter, text);
+  if (charterVerdictOut.verdict === "conflict") {
+    text = `[EOReader7 refused: the answer prescribes what the Universal Declaration of Human Rights prohibits, or denies what it protects — ${charterVerdictOut.conflicts.map((c) => c.act ?? c.right ?? c.kind).join(", ")}.]`;
+  }
 
   return {
     text,
+    charter: { verdict: charterVerdictOut.verdict, prescriptive: charterVerdictOut.prescriptive, descriptive: charterVerdictOut.descriptive, conflicts: charterVerdictOut.conflicts.map((c) => ({ kind: c.kind, act: c.act ?? null, right: c.right ?? null })) },
     relationEdges: stats.relationEdges,
     referentBindings: stats.referentBindings,
     hyperlexiconCandidates: Object.keys(hyperlexicon.composition ?? {}).length,
@@ -3305,6 +3977,16 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           ledger: serializeLedger(documentLedger),
           ledgerFile: documentLedger ? ledgerFilePath(ESSAY_LEDGER_DIR, documentLedger.docId) : null,
           citationsFile: documentLedger ? path.join(ESSAY_LEDGER_DIR, `${documentLedger.docId.replace(/:/g, "_")}.citations.json`) : null,
+          // THE WHEEL (D/E/R): the run as a sequence of DEF→EVA→REC turns —
+          // register, impression, plan, read, verdict, fold — the fold is
+          // the next run's ground. Serialized beside the ledger, append-only.
+          wheel: runMode === "projection" ? (() => {
+            try {
+              const wp = path.join(ESSAY_LEDGER_DIR, `${documentLedger.docId.replace(/:/g, "_")}.wheel.json`);
+              fs.writeFileSync(wp, JSON.stringify(wheel.toJSON(), null, 2));
+              return { file: wp, turns: wheel.ledger.length };
+            } catch { return { turns: wheel.ledger.length }; }
+          })() : null,
           // THE THINKING SURFACE — teaches, never just delivers. The reader
           // sees HOW the essay reasoned: the void questions it DEF'd, the
           // claims it carries and the conflicts Kelsen resolved (with WHY),
@@ -3323,6 +4005,10 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
               if (k.resolutions.length > 8) rows.push(`… ${k.resolutions.length - 8} more.`);
             } else if (k?.basis) rows.push(`\nKelsen: ${k.basis}`);
             if (rankeTotalFindings) rows.push(`\nRanke found ${rankeTotalFindings} section(s) that drifted from the material and rewrote them from the record.`);
+            // THE PERIODIC TABLE OF CREATIVITY — where this piece landed, read
+            // off its own provenance (reproduced / derived / invented), the
+            // metadata revealed on every surface.
+            if (categorized) rows.push(`\nThis piece landed in the cell ${categorized.cell.name} (${categorized.cell.archon}'s cell, ${categorized.cell.grain} × ${categorized.cell.phase} · ${categorized.derivation}) on the periodic table of creativity: ${categorized.reproduce.quoted} quoted, ${categorized.reproduce.copied} copied, ${categorized.derive} derived, ${categorized.invent} invented.`);
             return rows.join("\n");
           })(),
         }
@@ -3389,7 +4075,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // the part-voids. A level left under-specified is a visible gap.
     voidHolarchy: sections.length
       ? voidHolarchy({
-          modality: "text",
+          modality: isCode ? "code" : "text",
           fieldsByLevel: {
             whole: {
               slot: task.slice(0, 60),

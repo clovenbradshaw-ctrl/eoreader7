@@ -145,6 +145,19 @@ export function extractReadable(html) {
   for (const t of DROP_WHOLE) h = dropTag(h, t, { dropUnclosedTail: true });
   for (const t of DROP_CONTAINER) h = dropTag(h, t);
 
+  // THE SOURCE'S OWN STRUCTURE = the stage names. Headings are captured
+  // BEFORE they are stripped to blank lines — a hunted source's headings are
+  // the material's own staging, the one thing a reader cannot invent.
+  const headings = [];
+  {
+    const hRe = new RegExp(`<(h[1-4])\\b${ATTRS}>([\\s\\S]*?)<\\/h\\1>`, "gi");
+    let hm;
+    while ((hm = hRe.exec(h))) {
+      const txt = decodeEntities(hm[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+      if (txt && txt.length >= 2) headings.push({ level: Number(hm[1][1]), text: txt });
+    }
+  }
+
   // block structure -> line structure, before tags go
   h = h
     .replace(/<br\s*\/?>/gi, "\n")
@@ -163,7 +176,7 @@ export function extractReadable(html) {
     .join("\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-  return { title, description, text, lang };
+  return { title, description, text, lang, headings };
 }
 
 /**
