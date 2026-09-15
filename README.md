@@ -10,6 +10,51 @@ import { createRecursiveReader } from "./kernel.js";
 
 The native implementation lives in `native/kernel/`. It has no implementation dependency on EOReader 6.1.
 
+## Connecting to eoreader7
+
+`proxy.mjs` (`./setup-proxy.sh` installs it) is the connection surface — one
+process, four doorways in, all backed by the same turn and the same
+Heimdall admission gate, so a busy box refuses new work with a typed 429 +
+`Retry-After` on every one of them, not just the LLM-shaped ones:
+
+- **Plain** — `POST /v1/ask { "task": "<text>" }` → `{ "answer": "<text>",
+  "sessionId": ..., ... }`. No model prefix, no chat-message roles, no
+  history required — the doorway for anything that doesn't already speak
+  one of the protocols below.
+- **Code** — `POST /v1/code { "task": "...", "workspace": "/abs/path",
+  "testCommand": "npm test", "maxRounds"?: 3 }` → `{ "done": bool,
+  "rounds": [...], "finalTestOutput": "..." }`. A bounded, physics-gated
+  coding loop (`native/the-fold/code-loop.js` + `patch.js`): the model is
+  never asked for a JSON tool call or a shell command — only raw
+  `find`/`add` bytes against a real, already-existing file. The edit op
+  (SEG/INS/SYN) is derived mechanically from those bytes, applied for
+  real, then *your own* declared `testCommand` — never a model-authored
+  string — decides pass/fail for real. A failing round reverts the file
+  before trying again; nothing broken is ever left on disk between
+  rounds. Every round's proposal, applied diff, and real test output ride
+  the response as a disclosed audit trail.
+- **OpenAI-compatible** — `GET /v1/models`, `POST /v1/chat/completions`,
+  model id `er7:<real-ollama-model>`. Any OpenAI-SDK client, or app built
+  against one, works by pointing its base URL here.
+- **Ollama-compatible** — `GET /api/tags`, `POST /api/chat`, same `er7:`
+  model id. Any Ollama-based app or UI works unmodified.
+- **Anthropic-compatible** — `POST /v1/messages`,
+  `POST /v1/messages/count_tokens`. Any Anthropic-SDK client (Claude Code
+  included) works by pointing its base URL here.
+
+`GET /` on a running proxy returns this same map as JSON — the
+self-describing front door for a caller with no other documentation.
+`GET /health` is liveness; `GET /heimdall` is the full vitals/admission
+state the gate above is reading from.
+
+Optional headers on any request: `x-er7-session` (stick a conversation to
+one accumulating reader fold — otherwise a stable one is derived from the
+connection), `x-er7-user` (durable identity across sessions), `x-er7-workspace`
+(absolute path to admit real files into the session), `x-er7-mode`
+(`auto`/`chat`/`long`/`origami`). `/v1/ask` also accepts `sessionId` and
+`workspace` directly in the request body, for callers with no header
+machinery.
+
 ## Canonical cycle
 
 ```text

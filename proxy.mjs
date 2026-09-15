@@ -2,10 +2,11 @@ import http from "node:http";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote, parseAnthropicRequest, flattenAnthropicContent, anthropicCountTokensResponse, anthropicMessageResponse, anthropicStreamStart, anthropicContentBlockStart, anthropicContentBlockDelta, anthropicContentBlockStop, anthropicMessageDelta, anthropicMessageStop } from "./proxy-api.mjs";
+import { MODEL_PREFIX, parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote, parseAnthropicRequest, flattenAnthropicContent, anthropicCountTokensResponse, anthropicMessageResponse, anthropicStreamStart, anthropicContentBlockStart, anthropicContentBlockDelta, anthropicContentBlockStop, anthropicMessageDelta, anthropicMessageStop } from "./proxy-api.mjs";
 import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus } from "./proxy-runner.mjs";
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
+import { runCodeLoop } from "./native/the-fold/code-loop.js";
 // The watcher, wired IN (2026-09-13): heimdall's vitals, admission, status,
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
@@ -28,6 +29,10 @@ const KEEP_WARM_INTERVAL_MS = Number(process.env.ER7_KEEP_WARM_INTERVAL_MS ?? 12
 // purpose: it is a backstop over the per-call REQUEST_TIMEOUT_MS, never a
 // way to kill a slow-but-active stream.
 const TURN_DEADLINE_MS = Number(process.env.ER7_TURN_DEADLINE_MS ?? 300000);
+// /v1/code runs several model calls plus real test executions per request —
+// a generous backstop over the single-turn deadline above, never a way to
+// let a wedged loop hang the process forever.
+const CODE_LOOP_DEADLINE_MS = Number(process.env.ER7_CODE_LOOP_DEADLINE_MS ?? 600000);
 
 const ts = () => new Date().toISOString().slice(11, 23);
 const log = (msg) => process.stderr.write(`[${ts()}] [er7-proxy] ${msg}\n`);
@@ -167,6 +172,45 @@ async function handleRequest(req, res) {
     return;
   }
 
+  // GET / — the self-describing front door. Any app pointed at this base
+  // URL with no other knowledge learns every way in, in one request: the
+  // plain endpoint (send text, get text — no chat scaffolding required)
+  // and the three LLM-shaped protocols, so an app that already speaks
+  // OpenAI, Ollama, or Anthropic client code needs zero eoreader7-specific
+  // code at all, just a different base URL / model id.
+  if (req.method === "GET" && (req.url === "/" || req.url === "")) {
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({
+      eoreader7: true,
+      health: "GET /health",
+      status: "GET /heimdall",
+      simplest: {
+        description: "Send a task, get an answer. No model prefix, no message roles, no chat history required.",
+        request: "POST /v1/ask  { \"task\": \"<question or instruction>\" }",
+        response: "{ \"answer\": \"<text>\", \"sessionId\": \"...\", ... }",
+      },
+      code: {
+        description: "A physics-gated coding loop: the model proposes an edit as raw find/add bytes (never a JSON tool call or a shell command); the edit op is derived mechanically, applied to a real file, and your own declared test command decides pass/fail for real, every round.",
+        request: "POST /v1/code  { \"task\": \"...\", \"workspace\": \"/abs/path\", \"testCommand\": \"npm test\", \"maxRounds\"?: 3 }",
+        response: "{ \"done\": bool, \"rounds\": [...], \"finalTestOutput\": \"...\" }",
+      },
+      llmCompatible: {
+        description: "Point any existing OpenAI/Ollama/Anthropic client at this base URL — eoreader7 answers as an er7-prefixed model.",
+        openai: { models: "GET /v1/models", chat: "POST /v1/chat/completions", modelId: `${MODEL_PREFIX}<real-ollama-model>` },
+        ollama: { tags: "GET /api/tags", chat: "POST /api/chat", modelId: `${MODEL_PREFIX}<real-ollama-model>` },
+        anthropic: { messages: "POST /v1/messages", countTokens: "POST /v1/messages/count_tokens" },
+      },
+      documents: { start: "POST /v1/documents", poll: "GET /v1/documents/:id" },
+      headers: {
+        "x-er7-session": "stick a conversation to one accumulating reader fold (optional; a stable session is derived from the connection otherwise)",
+        "x-er7-user": "durable identity across sessions (optional)",
+        "x-er7-workspace": "absolute path to admit real files into the session (optional)",
+        "x-er7-mode": "auto | chat | long | origami (optional; auto decides from the task)",
+      },
+    }));
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/health") {
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify({ status: "ok", upstream: UPSTREAM, eoreader7: true }));
@@ -293,6 +337,165 @@ async function handleRequest(req, res) {
       res.writeHead(500, { "content-type": "application/json" });
       res.end(JSON.stringify({ error: { message: err.message } }));
     }
+    return;
+  }
+
+  // POST /v1/ask — the plain doorway. No chat-completion scaffolding (no
+  // message roles, no model prefix, no "the last message must have role
+  // user"): a caller sends the text it wants read and gets the answer back.
+  // This is the SAME turn (runProxyTurn) and the SAME admission gate the
+  // three LLM-shaped protocols use below — a busy box refuses this path
+  // exactly as it refuses theirs, never a quieter unguarded backdoor to the
+  // same resource.
+  if (req.method === "POST" && req.url === "/v1/ask") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", async () => {
+      let parsed;
+      try {
+        parsed = JSON.parse(body);
+      } catch {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: "bad json" }));
+        return;
+      }
+      const task = String(parsed?.task ?? "").trim();
+      if (!task) {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: 'task is required — the text to read, e.g. { "task": "..." }' }));
+        return;
+      }
+      // Same default the /v1/documents job uses — one literal, not a second
+      // magic constant for the same choice.
+      const model = String(parsed?.model ?? "").trim() || "olmo2:7b";
+      const mode = modeFromHeaders(req, typeof parsed?.mode === "string" ? parsed.mode : "auto");
+
+      const admit = admitChatRequest({ model });
+      if (!admit.allowed) {
+        res.writeHead(admit.status, { "content-type": "application/json", "retry-after": String(admit.retryAfterS) });
+        res.end(JSON.stringify({ error: admit.message, type: admit.type, retry_after: admit.retryAfterS }));
+        return;
+      }
+      releaseOnResponse(res);
+
+      // A body-supplied sessionId is honored first (a caller with no header
+      // machinery can still keep one accumulating reader fold across calls
+      // by just repeating the same string); the header/derived fallback
+      // below is what every other endpoint already uses.
+      const sessionId = String(parsed?.sessionId ?? "").trim() || sessionIdFromHeaders(req);
+      const workspace = String(parsed?.workspace ?? "").trim() || workspaceFromHeaders(req);
+      const userId = userIdFromHeaders(req);
+      log(`ask → session=${sessionId} user=${userId} model=${model} taskLength=${task.length} mode=${mode} workspace=${workspace ? `"${workspace}"` : "none"}`);
+
+      const turnAbort = new AbortController();
+      const onDisconnect = () => {
+        if (res.writableEnded) return;
+        if (!turnAbort.signal.aborted) turnAbort.abort();
+      };
+      res.on("close", onDisconnect);
+      const turnDeadline = setTimeout(() => {
+        if (!turnAbort.signal.aborted) turnAbort.abort();
+      }, TURN_DEADLINE_MS);
+      try {
+        const result = await runProxyTurn({
+          sessionId, userId, workspace, model, task, mode,
+          chatHistory: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [],
+          signal: turnAbort.signal,
+        });
+        clearTimeout(turnDeadline);
+        res.removeListener("close", onDisconnect);
+        res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
+        res.end(JSON.stringify({
+          answer: result.text,
+          sessionId,
+          model,
+          usage: { promptTokens: result.usage?.promptTokens ?? 0, completionTokens: result.usage?.completionTokens ?? 0 },
+          relationEdges: result.relationEdges,
+          referentBindings: result.referentBindings,
+          thinking: result.thinking ?? null,
+          answerShape: result.answerShape ?? null,
+          truncated: result.truncated ?? false,
+          document: result.document ?? null,
+        }));
+      } catch (err) {
+        clearTimeout(turnDeadline);
+        res.removeListener("close", onDisconnect);
+        log(`ask execution error: ${err.message}`);
+        if (!res.headersSent) {
+          res.writeHead(err?.message === "cancelled" ? 499 : 500, { "content-type": "application/json" });
+        }
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
+    return;
+  }
+
+  // POST /v1/code — a physics-gated, bounded coding loop (native/the-fold/
+  // code-loop.js). The model never writes a shell command or a JSON tool
+  // call: it proposes ONE edit as raw find/add bytes against a real,
+  // already-existing file; the edit op is derived from those bytes, never
+  // taken from a label; the CALLER'S OWN declared testCommand — never a
+  // model-authored string — decides pass/fail for real, every round.
+  if (req.method === "POST" && req.url === "/v1/code") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", async () => {
+      let parsed;
+      try {
+        parsed = JSON.parse(body);
+      } catch {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: "bad json" }));
+        return;
+      }
+      const task = String(parsed?.task ?? "").trim();
+      const workspace = String(parsed?.workspace ?? "").trim();
+      const testCommand = String(parsed?.testCommand ?? "").trim();
+      if (!task || !workspace || !testCommand) {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: 'task, workspace and testCommand are all required — e.g. { "task": "...", "workspace": "/abs/path", "testCommand": "npm test" }' }));
+        return;
+      }
+      const model = String(parsed?.model ?? "").trim() || "olmo2:7b";
+      const maxRounds = Number.isFinite(Number(parsed?.maxRounds)) ? Math.max(1, Math.min(10, Number(parsed.maxRounds))) : 3;
+
+      const admit = admitChatRequest({ model });
+      if (!admit.allowed) {
+        res.writeHead(admit.status, { "content-type": "application/json", "retry-after": String(admit.retryAfterS) });
+        res.end(JSON.stringify({ error: admit.message, type: admit.type, retry_after: admit.retryAfterS }));
+        return;
+      }
+      releaseOnResponse(res);
+
+      const sessionId = String(parsed?.sessionId ?? "").trim() || sessionIdFromHeaders(req);
+      const userId = userIdFromHeaders(req);
+      log(`code → session=${sessionId} user=${userId} model=${model} workspace="${workspace}" maxRounds=${maxRounds}`);
+
+      const loopAbort = new AbortController();
+      const onDisconnect = () => {
+        if (res.writableEnded) return;
+        if (!loopAbort.signal.aborted) loopAbort.abort();
+      };
+      res.on("close", onDisconnect);
+      const loopDeadline = setTimeout(() => {
+        if (!loopAbort.signal.aborted) loopAbort.abort();
+      }, CODE_LOOP_DEADLINE_MS);
+      try {
+        const result = await runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, signal: loopAbort.signal });
+        clearTimeout(loopDeadline);
+        res.removeListener("close", onDisconnect);
+        res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
+        res.end(JSON.stringify(result));
+      } catch (err) {
+        clearTimeout(loopDeadline);
+        res.removeListener("close", onDisconnect);
+        log(`code execution error: ${err.message}`);
+        if (!res.headersSent) {
+          res.writeHead(err?.message === "cancelled" ? 499 : 400, { "content-type": "application/json" });
+        }
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
     return;
   }
 
