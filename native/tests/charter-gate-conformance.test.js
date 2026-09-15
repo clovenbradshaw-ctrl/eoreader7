@@ -14,7 +14,29 @@
 // what this session's fix was checked against.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildUdhCharter, defaultCharter, charterVerdict, isValidCharter } from "../organs/charter.js";
+import { buildUdhCharter, defaultCharter, charterVerdict, charterGate, isValidCharter } from "../organs/charter.js";
+
+// Added after a real adversarial pass (2026-09-15) built exactly this
+// charter, by hand, and got it past isValidCharter's original shape-only
+// check — charterGate then returned "pass" on torture and slavery claims.
+test("(d) a hollow-but-valid-shaped charter (real giver, real tables, no real content) is refused, not merely shape-checked", () => {
+  const hollow = Object.freeze({
+    schema: "UDHRCharter@1",
+    giver: "x",
+    sha256: "0".repeat(64),
+    prohibitions: { "sneezing-indoors": { surfaces: ["sneezing indoors"], articles: [1] } },
+    protections: { "right-to-whistle": { surfaces: ["the right to whistle"], articles: [1] } },
+  });
+  assert.equal(isValidCharter(hollow), false, "a giver and >=1 table entry is not enough — the content must anchor to something real");
+  // Named so the exploit chain stays legible: charterGate itself is not
+  // buggy — asked directly, a hollow charter honestly reports "pass" on a
+  // torture claim, because torture is not in ITS table. The actual defect
+  // was one level up: isValidCharter used to let this object be TRUSTED (and
+  // therefore cached and reused) as if it were a real governing charter at
+  // all. That trust decision is what's fixed above; this line documents why
+  // the hollow charter itself must never reach that trust boundary.
+  assert.equal(charterGate(hollow, "we should torture prisoners and hold people in slavery").verdict, "pass", "a hollow charter's OWN table has nothing to say about torture — this is exactly why isValidCharter, not charterGate, has to be the one that refuses it");
+});
 
 test("(a) the gate is REACHABLE — a clearly prescriptive+prohibited string returns verdict conflict, not just 'present'", () => {
   const charter = defaultCharter();

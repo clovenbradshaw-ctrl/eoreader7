@@ -58,8 +58,18 @@
 // exact source text it was extracted from (see buildUdhCharter, below).
 import { sha256hex } from "../adapters/text/sha256hex.js";
 
-const PRESCRIPTIVE = /\b(shall|should|must|ought|may|can|cannot|has the right|entitled|right to|free to|prohibited|required|allowed to|obligatory|mandatory|must not|shall not|never|everyone|no one|all people|each person)\b/i;
-const DESCRIPTIVE = /\b(was|were|did|had been|has been|reported|reports|report|describes|describe|described|documented|documents|according to|evidence|alleged|occurred|happened|committed against|tortured|executed|killed|murdered|massacred|repressed|persecuted|imprisoned|denied|states that|said|writes)\b/i;
+// Exported (2026-09-15, adversarial pass): eo-teachings/ethos-pipeline.mjs
+// needs the RAW positive match, not voiceOf()'s collapsed three-way answer —
+// voiceOf() correctly defaults an unmarked clause ("no norm issued") to
+// "descriptive" for ITS purpose (nothing here for the Charter to govern),
+// but a caller checking "is this clause SAFELY describing something" needs
+// to tell "a real reporting marker matched" apart from "neither matched,
+// so there was nothing to say either way" — those are different findings,
+// and collapsing them let an unmarked dehumanizing assertion ("All those
+// people are vermin.") read as verified-descriptive when nothing had
+// actually verified anything about it.
+export const PRESCRIPTIVE = /\b(shall|should|must|ought|may|can|cannot|has the right|entitled|right to|free to|prohibited|required|allowed to|obligatory|mandatory|must not|shall not|never|everyone|no one|all people|each person)\b/i;
+export const DESCRIPTIVE = /\b(was|were|did|had been|has been|reported|reports|report|describes|describe|described|documented|documents|according to|evidence|alleged|occurred|happened|committed against|tortured|executed|killed|murdered|massacred|repressed|persecuted|imprisoned|denied|states that|said|writes)\b/i;
 
 const slug = (s) => String(s ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 const words = (s) => [...new Set(String(s ?? "").toLowerCase().match(/[\p{L}\p{N}']+/gu) ?? [])].filter((w) => w.length > 2);
@@ -119,6 +129,28 @@ export function buildUdhCharter(text = "", { giver = "Universal Declaration of H
 // from an empty or gutted charter that would pass every generation silently.
 // This is the check a cache boundary (proxy-runner.mjs's globalThis cache)
 // must run before trusting whatever is already sitting there.
+//
+// FIXED (adversarial pass, 2026-09-15): the shape check above accepted a
+// charter that prohibits "sneezing indoors" and protects "the right to
+// whistle" — a non-empty giver and >=1 table entry each, same as a real
+// UDHR charter, and charterGate then returned "pass" on both a torture-
+// licensing and a slavery-licensing claim run through it. Shape was
+// mistaken for meaning. The fix anchors to real content: at least one
+// prohibition's own text must actually name torture or slavery — the two
+// UDHR prohibitions this codebase already treats as load-bearing anchors
+// elsewhere (eo-teachings/charter-reference.mjs uses the same two, checked
+// against the real UN translation files in six languages). This does not
+// certify a charter is complete; it closes the specific, demonstrated
+// "wholly invented tables" attack, named as a real, narrower guarantee than
+// "this charter is trustworthy in general."
+const REAL_PROHIBITION_ANCHORS = /torture|slavery|servitude/i;
+function hasRealProhibitionAnchor(prohibitions) {
+  for (const [key, entry] of Object.entries(prohibitions ?? {})) {
+    if (REAL_PROHIBITION_ANCHORS.test(key)) return true;
+    for (const surface of entry?.surfaces ?? []) if (REAL_PROHIBITION_ANCHORS.test(surface)) return true;
+  }
+  return false;
+}
 export function isValidCharter(charter) {
   if (!charter || typeof charter !== "object") return false;
   if (typeof charter.giver !== "string" || !charter.giver.trim()) return false;
@@ -126,6 +158,7 @@ export function isValidCharter(charter) {
   const protections = charter.protections;
   if (!prohibitions || typeof prohibitions !== "object" || Object.keys(prohibitions).length < 1) return false;
   if (!protections || typeof protections !== "object" || Object.keys(protections).length < 1) return false;
+  if (!hasRealProhibitionAnchor(prohibitions)) return false;
   return true;
 }
 
