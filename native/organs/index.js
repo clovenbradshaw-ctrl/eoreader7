@@ -116,3 +116,16 @@ export * as quotesOrgan from "./quotes.js";
 // consumers — the proxy's workspace pass, LaVar, look.test.mjs — all import
 // it directly by path, server-side only, exactly as the split law requires
 // (pure organs in the seam, I/O organs at their caller).
+
+// Phase 4 (2026-09-14) — four more of the-fold's surface files cross. All
+// four are pure (no the-fold import survived the move); a test exercising a
+// the-fold-only file (holon.js's prompts, render.js's block splitter) split
+// off and stayed in the-fold, importing the organ through its shim.
+export { APPARATUS_TERMS, apparatusMentions, assertModelFacing, mouthFacing, speaksOfApparatus, strikeAddresses } from "./firewall.js";
+export * as firewallOrgan from "./firewall.js";
+export { claimKey, claimNature, composedSentence, createClaimLedger } from "./claims.js";
+export * as claimsOrgan from "./claims.js";
+export { buildFactBlock, dedupeSourceText } from "./fact-block.js";
+export * as factBlockOrgan from "./fact-block.js";
+export { classifySentences, sentenceSpans, stripNarrationSentences, stripScaffoldNarration } from "./provenance.js";
+export * as provenanceOrgan from "./provenance.js";
