@@ -111,6 +111,7 @@ import { hyperedge } from "../kernel/hypergraph.js";
 import { createHyperlexicon as createChemistry, giveHyperlexiconAffordance } from "../kernel/hyperlexicon.js";
 import { createReactionSubstrate, affordancesFromDeclarations } from "../kernel/reaction.js";
 import { auditChemistry, vetoedPairs } from "../kernel/refutation.js";
+import { dependentsIndex, cascade } from "../kernel/cascade.js";
 import { foldDeclarations } from "../interpretation/declarations.js";
 import { distinctSources, distinctRecipes } from "./corroboration.js";
 
@@ -449,24 +450,17 @@ export function makeDerivation({ hl, taskLog } = {}) {
     if (!premise) return { premise: null, withdrawn: [], depth: 0 };
     const gone = new Set(hl.concededIds(log));
     const live = foldDerived(log).filter((d) => !gone.has(d.id));
-    const taken = [];
-    const seen = new Set();
-    let frontier = [{ id: premise, depth: 0 }];
-    let maxDepth = 0;
-    while (frontier.length) {
-      const step = [];
-      for (const { id, depth } of frontier) {
-        for (const d of live) {
-          if (seen.has(d.id) || !d.premises.includes(id)) continue;
-          seen.add(d.id);
-          taken.push({ id: d.id, subject: d.subject, verb: d.verb, object: d.object, cascadedFrom: id, cascadeDepth: depth + 1 });
-          maxDepth = Math.max(maxDepth, depth + 1);
-          step.push({ id: d.id, depth: depth + 1 });
-        }
-      }
-      frontier = step;
-    }
-    return { premise, withdrawn: taken, depth: maxDepth, share: live.length ? taken.length / live.length : 0 };
+    const byId = new Map(live.map((d) => [d.id, d]));
+    // ONE inversion (premise id -> the derived notes naming it), ONE BFS —
+    // kernel/cascade.js, shared with reaction.js's own withdrawal walk.
+    const index = dependentsIndex(live, (d) => d.premises);
+    const hits = cascade(index, [premise]);
+    const taken = hits.map(({ id, cascadedFrom, cascadeDepth }) => {
+      const d = byId.get(id);
+      return { id, subject: d.subject, verb: d.verb, object: d.object, cascadedFrom, cascadeDepth };
+    });
+    const depth = taken.reduce((m, t) => Math.max(m, t.cascadeDepth), 0);
+    return { premise, withdrawn: taken, depth, share: live.length ? taken.length / live.length : 0 };
   }
 
   /**
@@ -478,29 +472,30 @@ export function makeDerivation({ hl, taskLog } = {}) {
   function withdrawDerived(log, { premise } = {}, { trigger } = {}) {
     if (typeof trigger !== "string" || !trigger.trim()) return { log, refused: { type: "no_trigger", detail: REFUSALS.no_trigger }, withdrawn: [] };
     if (!premise) return { log, refused: { type: "no_premise", detail: "name the premise whose products are withdrawn" }, withdrawn: [] };
+    // The derived-note SET is invariant across this walk: this function only
+    // ever appends REC·Pattern evidence entries (never a PROPOSE/SUPERSEDE
+    // for a derived note), and the REC·Figure concession `gone` reads
+    // (`hl.concededIds`) is always landed BEFORE this runs — concedePremise's
+    // own ordering, one act — so `live` is computed once, not re-folded from
+    // the whole task log on every BFS round the way it used to be.
+    const gone = new Set(hl.concededIds(log));
+    const live = foldDerived(log).filter((d) => !gone.has(d.id));
+    const byId = new Map(live.map((d) => [d.id, d]));
+    const index = dependentsIndex(live, (d) => d.premises);
+    const hits = cascade(index, [premise]);
+
     let next = log;
     const taken = [];
-    const gone = new Set(hl.concededIds(log));
-    let frontier = [{ id: premise, from: null, depth: 0 }];
-    while (frontier.length) {
-      const live = foldDerived(next).filter((d) => !gone.has(d.id));
-      const step = [];
-      for (const { id, depth } of frontier) {
-        for (const d of live) {
-          if (gone.has(d.id) || !d.premises.includes(id)) continue;
-          gone.add(d.id);
-          const recId = `rec:${next.nextSeq}`;
-          next = append(next, {
-            kind: ENTRY_KINDS.EVIDENCE, task_id: recId, operator: "REC", operator_basis: OPERATOR_BASIS.PRODUCED, grain: PATTERN,
-            ...cellFields("REC", PATTERN),
-            description: `withdrawn: ${d.subject} ${d.verb} ${d.object} — ${trigger}`,
-            concedes: d.id, trigger, cascadedFrom: id, cascadeDepth: depth + 1,
-          });
-          taken.push({ id: d.id, subject: d.subject, verb: d.verb, object: d.object, cascadedFrom: id, cascadeDepth: depth + 1 });
-          step.push({ id: d.id, from: id, depth: depth + 1 });
-        }
-      }
-      frontier = step;
+    for (const { id, cascadedFrom, cascadeDepth } of hits) {
+      const d = byId.get(id);
+      const recId = `rec:${next.nextSeq}`;
+      next = append(next, {
+        kind: ENTRY_KINDS.EVIDENCE, task_id: recId, operator: "REC", operator_basis: OPERATOR_BASIS.PRODUCED, grain: PATTERN,
+        ...cellFields("REC", PATTERN),
+        description: `withdrawn: ${d.subject} ${d.verb} ${d.object} — ${trigger}`,
+        concedes: d.id, trigger, cascadedFrom, cascadeDepth,
+      });
+      taken.push({ id: d.id, subject: d.subject, verb: d.verb, object: d.object, cascadedFrom, cascadeDepth });
     }
     return { log: next, refused: null, withdrawn: taken };
   }

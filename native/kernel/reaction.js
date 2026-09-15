@@ -97,6 +97,7 @@ import { createTerrainActivation } from "./terrain-activation.js";
 import { hyperedge } from "./hypergraph.js";
 import { experienceRelationVocabulary } from "./experience-priors.js";
 import { refuteRelation, afterVeto } from "./refutation.js";
+import { dependentsIndex, cascade } from "./cascade.js";
 
 const freeze = (value) => Object.freeze(value);
 const slug = (value) => String(value ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
@@ -498,22 +499,31 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
    */
   const withdraw = ({ left = null, right = null, giver = null } = {}, { trigger } = {}) => {
     if (typeof trigger !== "string" || !trigger.trim()) throw new TypeError("withdraw: a trigger is declared — a withdrawal with no recorded reason is a deletion wearing a concession's name");
+    // ONE inversion (derived edge id -> the derived edges naming it as a
+    // parent), ONE BFS — kernel/cascade.js, shared with derivation.js's own
+    // premise-withdrawal walk. `all`/`byId` are read once, not rebuilt (via
+    // `allDerived()`, which allocates a fresh array from the whole history
+    // every call) on every single frontier item the way this used to.
+    const all = allDerived();
+    const byId = new Map(all.map((f) => [f.edge.id, f]));
+    const index = dependentsIndex(all, (f) => f.edge.meta.parents ?? [], (f) => f.edge.id);
+    // The directly-matched facts ARE taken, at depth 0 — unlike
+    // derivation.js's `premise` (external to the graph it walks), a
+    // licence's own products are themselves what a concession takes back.
+    const seeds = derivedUnder({ left, right, giver }).map((f) => f.edge.id);
+    const seedHits = seeds.map((id) => ({ id, cascadedFrom: null, cascadeDepth: 0 }));
+    // Seeding `seen` with the currently-withdrawn ids is the multi-call
+    // exclusion the old per-item `withdrawn.has()` check gave: by
+    // construction, everything transitively resting on an already-withdrawn
+    // id is already withdrawn too, so there is nothing further to re-walk.
+    const hits = [...seedHits, ...cascade(index, seeds, { seen: new Set(withdrawn.keys()) })];
+
     const taken = [];
-    let frontier = derivedUnder({ left, right, giver }).map((f) => ({ id: f.edge.id, from: null, depth: 0 }));
-    while (frontier.length) {
-      const next = [];
-      for (const { id, from, depth } of frontier) {
-        if (withdrawn.has(id)) continue;
-        const fact = allDerived().find((f) => f.edge.id === id);
-        if (!fact) continue;
-        withdrawn.set(id, freeze({ trigger, cascadedFrom: from, depth }));
-        taken.push(freeze({ relation: fact.relation, from: fact.from, to: fact.to, edgeId: id, cascadedFrom: from, cascadeDepth: depth }));
-        for (const child of allDerived()) {
-          if (withdrawn.has(child.edge.id)) continue;
-          if ((child.edge.meta.parents ?? []).includes(id)) next.push({ id: child.edge.id, from: id, depth: depth + 1 });
-        }
-      }
-      frontier = next;
+    for (const { id, cascadedFrom, cascadeDepth } of hits) {
+      const fact = byId.get(id);
+      if (!fact) continue;
+      withdrawn.set(id, freeze({ trigger, cascadedFrom, depth: cascadeDepth }));
+      taken.push(freeze({ relation: fact.relation, from: fact.from, to: fact.to, edgeId: id, cascadedFrom, cascadeDepth }));
     }
     return freeze(taken);
   };
