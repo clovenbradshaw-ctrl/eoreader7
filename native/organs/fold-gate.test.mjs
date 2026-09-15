@@ -206,7 +206,7 @@ test("reviewReferentAssignments groups by referent_id and skips singleton groups
   assert.equal(out.confirmed.length + out.refuted.length + out.undetermined.length, 0);
 });
 
-test("THE FLAGSHIP, on real bytes: the Marmeladov/Sonia specimen this organ was built for, reproduced from discoverReferents' own real output",
+test("THE FLAGSHIP, on real bytes: the Marmeladov/Sonia specimen, now caught UPSTREAM of this organ (T5, eoreader7 task list 2026-09-10)",
   { skip: DRACULA ? false : "corpus-relative check reused; real check needs live_priors' Crime and Punishment text" }, async () => {
   const fs = await import("node:fs");
   const path = "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gitenberg/pg2554_Crime-and-Punishment.txt";
@@ -220,22 +220,52 @@ test("THE FLAGSHIP, on real bytes: the Marmeladov/Sonia specimen this organ was 
   const out = reviewReferentAssignments([{ ref: "crime-and-punishment", text }], discovered.events, { splitSentences: (t) => sp.splitSentences(t), alpha: 0.1 });
   const verdictFor = (surface) => [...out.refuted, ...out.undetermined, ...out.confirmed].find((e) => e.surface === surface)?.verdict ?? null;
 
-  // BOTH SIDES OF THE DISCRIMINATION, pinned — the point is not that the
-  // gate refuses things, it is that it refuses the RIGHT things. Before the
-  // directional fix (see fold-gate.js::refuteIdentity's own header), the
-  // father's surnames AND the daughter's own variants all read `refuted`
-  // together, which is a gate that has learned nothing.
-  assert.equal(verdictFor("Marmeladov"), "refuted", "the father's bare surname, sitting on the daughter's referent, must be refuted");
-  assert.equal(verdictFor("Mr Marmeladov"), "refuted", "and so must his titled form");
+  // UNTIL THIS FIX: `namesCorefer`'s shared-final-token branch (surfaces.js)
+  // folded unconditionally, so bare "Marmeladov" — the father's own surname
+  // — CONTAINED into the daughter's referent via a chain this organ's own
+  // review could only see AFTER the fact: it read `refuted`, correctly,
+  // but the false merge had already happened at admission and this test
+  // used to pin THAT (a gate correctly catching a defect one layer
+  // upstream should have prevented). `namesCorefer` now requires an
+  // injected witness for a shared-final-token-only match (none supplied
+  // here), so the father's bare surname no longer merges into anyone's
+  // referent at all — it is neither refuted-after-merge nor silently
+  // dropped, but a DISCLOSED `ambiguous_surface` gap in `discovered.gaps`,
+  // naming both candidate referents and the mechanism that could close it
+  // (occurrence-level activation recall). This organ has nothing left to
+  // review for this specimen: `verdictFor` returns null because the
+  // surface was never admitted to either group in the first place.
+  assert.equal(verdictFor("Marmeladov"), null, "no longer merged, so no longer this organ's to review — caught upstream");
+  assert.equal(verdictFor("Mr Marmeladov"), null, "same for the titled form");
+  const gapFor = (surface) => discovered.gaps.find((g) => g.reason === "ambiguous_surface" && g.surface === surface);
+  const marmeladovGap = gapFor("Marmeladov");
+  const mrMarmeladovGap = gapFor("Mr Marmeladov");
+  assert.ok(marmeladovGap, "the father's bare surname is a disclosed ambiguous_surface gap, not silently dropped");
+  assert.ok(mrMarmeladovGap, "and so is his titled form");
+  assert.equal(marmeladovGap.candidates.length, 2, "ambiguous between exactly the two real candidate referents, not guessed into either");
   assert.equal(verdictFor("Sofya Semyonovna"), "confirmed", "the daughter's own fuller name must NOT be refuted against her anchor");
   assert.equal(verdictFor("Sofya Ivanovna"), "confirmed", "nor her other variant");
 
-  // DISCLOSED, NOT HIDDEN (READING-SPEC S85's amendment): the overall rate
-  // on this slice is 34 refuted / 23 confirmed / 0 undetermined of 57
-  // within-group comparisons. That zero is a real, named weakness — the
-  // gate has no minimum-evidence floor, so a surface mentioned once still
-  // receives a confident verdict off one data point. This test pins the
-  // specimen, not the rate, and is not evidence the rate is calibrated.
+  // DISCLOSED SIDE EFFECT, not silently absorbed: the ONLY thing that used
+  // to bridge "Sonia Marmeladov" to "Sofya Semyonovna Marmeladov" was the
+  // shared-surname fold this fix now refuses — there is no engine-tier
+  // signal anywhere in this file that "Sonia" and "Sofya" name the same
+  // person (that is exactly the MODEL-tier gap this file's own header
+  // names: nickname/variant synonymy is not structurally derivable). Real
+  // material now splits her into two referents where it used to
+  // (accidentally, for the wrong reason) unify her into one. This is the
+  // "expect real losses here; record them" T5 asked for — named here so a
+  // future fix (occurrence-level activation recall, or a nickname prior)
+  // has a pinned specimen to aim at, and so this split cannot silently
+  // regress further without a test noticing.
+  const marmeladovDaughterRef = discovered.events.find((e) => e.surface === "Sofya Semyonovna")?.referent_id;
+  const soniaRef = discovered.events.find((e) => e.surface === "Sonia Marmeladov")?.referent_id;
+  assert.ok(marmeladovDaughterRef && soniaRef, "both name-forms are still admitted to SOME referent");
+  assert.notEqual(soniaRef, marmeladovDaughterRef, "disclosed: 'Sonia' and 'Sofya' split into two referents — no structural bridge exists for this nickname pair (record this, do not let it silently reunify for the wrong reason)");
+
+  // DISCLOSED, NOT HIDDEN (READING-SPEC S85's amendment): the gate must
+  // still discriminate on what IS left for it to review, not refuse or
+  // confirm everything. This test pins the specimen, not the rate.
   const total = out.refuted.length + out.confirmed.length + out.undetermined.length;
   assert.ok(out.confirmed.length > 0 && out.refuted.length > 0 && out.refuted.length < total,
     `the gate must discriminate, not refuse everything: ${JSON.stringify({ refuted: out.refuted.length, confirmed: out.confirmed.length, undetermined: out.undetermined.length })}`);
