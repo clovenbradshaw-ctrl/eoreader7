@@ -1,1 +1,0 @@
-legacy-eoreader6.1/V7-CUT.md
