@@ -784,9 +784,18 @@ export function competencyGrade({ opening = "", body = [], materialPropositions 
 
 // ── KELSEN: THE PRIMARY MODALITY — the essay's claims resolve by the norm
 //    hierarchy, and the RESOLUTION IS SHOWN (teaching). ────────────────────
-// Kelsen's order (regime.js precedence): validity window first, then
-// specificity (lex specialis), then force, then recency (lex posterior),
-// then entrenchment — never a silent pick. The essay's propositions are
+// Kelsen's order (regime.js precedence, and its own exported
+// PRECEDENCE_STEPS / precedenceOrderPhrase() — the one copy of this order;
+// this comment is a restatement of it, kept in sync by hand since this file
+// stays dependency-free and does not import regime.js): validity window
+// first, then regime (a contested claim is never silently resolved — it
+// routes to landContest), then specificity (lex specialis), then force,
+// then recency (lex posterior), then entrenchment — never a silent pick.
+// AUDITED 2026-09-14: this comment used to drop "regime" entirely (5 of the
+// 6 steps) — see native/tests/document-ledger.test.js's dispute-veto case
+// for what that gap actually broke: `tagClaim` below was called without
+// `disputedBy`, so a disputed proposition could never even REACH the regime
+// check, whatever this comment claimed the order was. The essay's propositions are
 // graded through this: when two claims the essay carries conflict, the
 // order names a winner and WHY. The default mode is HYPER-GROUNDED — every
 // claim is a norm in a hierarchy, and the essay teaches the reader the
@@ -838,8 +847,18 @@ export function kelsenGrade({ propositions = [], index = null, precedence = null
         if (!sameAct || sameObject) continue; // not a functional clash — no conflict
         let aTag = null, bTag = null;
         if (typeof tagClaim === "function") {
-          try { aTag = tagClaim(a, { operator: "CON", enactedAt: i, queryTime }); } catch { aTag = null; }
-          try { bTag = tagClaim(b, { operator: "CON", enactedAt: j, queryTime }); } catch { bTag = null; }
+          // disputedBy RIDES OFF THE PROPOSITION ITSELF (2026-09-14 fix): a
+          // proposition carrying a live dispute (see proxy-runner.mjs's
+          // notesFromEdges, which attaches it from the notes ledger by
+          // noteId) used to be tagged with tagClaim's own default
+          // (disputedBy: []) here, unconditionally — the regime step of the
+          // precedence order could therefore never fire no matter how the
+          // proposition arrived, because nothing this file ever computes
+          // reached tagClaim. This is the one place that default is
+          // overridden; the veto is exercised (or not) by regime.js's own
+          // isSettled/precedence, never decided here.
+          try { aTag = tagClaim(a, { operator: "CON", disputedBy: a?.disputedBy ?? [], enactedAt: i, queryTime }); } catch { aTag = null; }
+          try { bTag = tagClaim(b, { operator: "CON", disputedBy: b?.disputedBy ?? [], enactedAt: j, queryTime }); } catch { bTag = null; }
         }
         if (!aTag || !bTag) continue;
         try {
@@ -855,6 +874,8 @@ export function kelsenGrade({ propositions = [], index = null, precedence = null
             reason: r.reason ?? null,
             why: r.reason === "validity_window"
               ? `${r.winner === "a" ? a.end1 : b.end1} prevails: the other claim is out of its validity window — validity is checked before force or specificity is ever consulted`
+              : r.reason === "route_to_landContest"
+                ? `neither claim is presented as settled: at least one is disputed by a source (regime is checked before force, specificity or entrenchment could ever pick a winner) — the disagreement is the finding here, not a resolution`
               : r.reason === "specificity"
                 ? `${r.winner === "a" ? a.end1 : b.end1} prevails: lex specialis — the more specific claim beats the general`
                 : r.reason === "force"

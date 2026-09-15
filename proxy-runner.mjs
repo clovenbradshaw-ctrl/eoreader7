@@ -25,7 +25,14 @@ import { tokenize } from "./native/the-fold/source.js";
 import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy } from "./native/the-fold/document-ledger.js";
-import { precedence, tagClaim } from "./native/organs/regime.js";
+import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
+// The dispute lookup notesFromEdges reads (below): `noteId` is the same
+// bare-ends identity a note born with no identity organ already carries in
+// kernel/notes.js, and `makeNotes()` is a pure factory (disputesOf/etc. are
+// plain functions of a log) — instantiated once here the same way
+// organs/hyperlexicon.js and organs/notes-text.js already instantiate it.
+import { noteId as notesLedgerNoteId, makeNotes as makeDisputeNotes } from "./native/kernel/notes.js";
+const DISPUTE_NOTES = makeDisputeNotes();
 import { runDMCA, categorizeCreativity, chaseParaphrase, paraphraseCandidatesFor } from "./native/organs/run-dmca.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
@@ -2119,7 +2126,32 @@ function conversationBeings(index, transcript = []) {
 // row per edge, endpoints as their SURFACES — the referent index resolves a
 // surface; the perceiver's own `ref`s live in a different id space. sources/
 // witnesses give the blocks their standing phrases.
-function notesFromEdges(graphEntries = []) {
+//
+// DISPUTE LOOKUP (2026-09-14, closing the Kelsen dispute-veto gap): a
+// graphEntry here has NO dispute field at any layer — kernel/fold.js's
+// perception graph and kernel/notes.js's assertion ledger (where `dispute`/
+// `attest`/`concede` actually live, per that file's own CON·Figure·
+// CONTESTED act) are two separate structures that nothing in this live
+// answer pipeline ever bridges; `session.reader` never builds a notes.js
+// ledger at all. Duplicating dispute DETECTION here — inferring a contest
+// from the raw graph itself — would be exactly the mistake CLAUDE.md's own
+// top rule warns against (an organ for this already exists: notes.js's
+// dispute/attest/concede triple, corroboration.js's contestedSearch). So
+// this function takes an OPTIONAL `disputeLog` — a real notes.js ledger, if
+// a caller has one — and looks up each note's live disputes by the SAME
+// identity notes.js already uses for a note born from bare ends with no
+// identity organ: `noteId(end1, label, end2)` (kernel/notes.js), which is
+// byte-for-byte the (subject, relation, object) triple built below. No
+// disputeLog supplied (every current call site) means `disputedBy` stays
+// empty everywhere, exactly as before this change — the gap this closes is
+// that the FIELD now exists and is wired all the way to kelsenGrade's
+// tagClaim, ready the moment a live notes ledger is threaded in; actually
+// running contestedSearch (or any other dispute-detection) during a live
+// conversation turn is a separate, larger, budget/latency design decision
+// (corroboration.js's own header: "model calls are the scarce resource"),
+// not attempted here.
+export function notesFromEdges(graphEntries = [], { disputeLog = null } = {}) {
+  const disputes = disputeLog ? DISPUTE_NOTES.disputesOf(disputeLog) : null;
   const notes = [];
   for (const e of graphEntries ?? []) {
     // The fold's graphEntries carry the REDUCED {relation, participants} shape
@@ -2135,7 +2167,8 @@ function notesFromEdges(graphEntries = []) {
     const subject = end(parts[0]);
     if (!subject) continue;
     const object = end(parts.length > 1 ? parts[parts.length - 1] : null) ?? "?";
-    notes.push({ subject, verb: e.relation, object, end1: subject, end2: object, label: e.relation, witnesses: e.witness ? [e.witness] : [], sources: 1 });
+    const disputedBy = disputes?.get(notesLedgerNoteId(subject, e.relation, object))?.map((d) => d.source) ?? [];
+    notes.push({ subject, verb: e.relation, object, end1: subject, end2: object, label: e.relation, witnesses: e.witness ? [e.witness] : [], sources: 1, ...(disputedBy.length ? { disputedBy } : {}) });
   }
   return notes;
 }
@@ -2497,8 +2530,10 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   if (onNote) onNote({ move: "composed", relations: stats.relationEdges, bindings: stats.referentBindings, hyperlexicon: Object.keys(hyperlexicon.composition ?? {}).length });
 
   // KELSEN — THE PRIMARY MODALITY, ON EVERY SURFACE. The reading's own claims
-  // are linted through the precedence order (validity → lex specialis → force
-  // → lex posterior → entrenchment) whenever the reading holds propositions —
+  // are linted through the precedence order (regime.js's own PRECEDENCE_STEPS
+  // / precedenceOrderPhrase() — imported above, never hand-typed here again;
+  // this comment used to restate it by hand and, audited 2026-09-14, had
+  // drifted to drop "regime" entirely) whenever the reading holds propositions —
   // the CHAT turn and the projection alike, never a silent pick. Computed
   // HERE, at the reading's first edges, so both the answer's prompt and the
   // thinking surface read the SAME resolutions: the mouth is told what is
@@ -2723,7 +2758,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // standing, never silently pick a winner. This is the machine-that-won't-
     // answer on every surface: the answer carries why the claim won or lost.
     resultKelsen?.resolutions?.length
-      ? `\n\nSome claims in the material conflict. They were resolved by the fixed norm hierarchy (validity, then the special over the general, then the later over the earlier, then entrenchment):\n${resultKelsen.resolutions.slice(0, 5).map((r) => `- “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} (${r.why ?? r.reason})`).join("\n")}${resultKelsen.resolutions.length > 5 ? `\n… ${resultKelsen.resolutions.length - 5} more.` : ""}\nSpeak with that standing: name the conflict and the resolution, do not silently pick.`
+      ? `\n\nSome claims in the material conflict. They were resolved by the fixed norm hierarchy (${precedenceOrderPhrase()}):\n${resultKelsen.resolutions.slice(0, 5).map((r) => `- “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} (${r.why ?? r.reason})`).join("\n")}${resultKelsen.resolutions.length > 5 ? `\n… ${resultKelsen.resolutions.length - 5} more.` : ""}\nSpeak with that standing: name the conflict and the resolution, do not silently pick.`
       : null,
   ].filter(Boolean).join("\n");
 
@@ -4032,7 +4067,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // projection: the reader sees WHY a claim won or lost, never a silent pick.
   if (resultKelsen?.resolutions?.length) {
     const k = resultKelsen;
-    const lines = [`Conflicting claims resolved by the norm hierarchy (Kelsen — validity, then lex specialis, then force, then lex posterior, then entrenchment):`];
+    const lines = [`Conflicting claims resolved by the norm hierarchy (Kelsen — ${precedenceOrderPhrase()}):`];
     for (const r of k.resolutions.slice(0, 5)) lines.push(`- ${r.subject}: “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} — ${r.why ?? r.reason}`);
     if (k.resolutions.length > 5) lines.push(`… ${k.resolutions.length - 5} more.`);
     thinkingLines.push(lines.join("\n"));
@@ -4248,7 +4283,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             if (sections.length) rows.push(`The essay DEF'd its shape by asking ${sections.length} questions (the void):\n${sections.slice(0, 6).map((s, i) => `${i + 1}. ${s}`).join("\n")}${sections.length > 6 ? `\n… and ${sections.length - 6} more.` : ""}`);
             const k = resultKelsen;
             if (k?.resolutions?.length) {
-              rows.push(`\nConflicting claims the essay carried, resolved by the norm hierarchy (Kelsen — validity, then lex specialis, then force, then lex posterior, then entrenchment):`);
+              rows.push(`\nConflicting claims the essay carried, resolved by the norm hierarchy (Kelsen — ${precedenceOrderPhrase()}):`);
               for (const r of k.resolutions.slice(0, 8)) rows.push(`- ${r.subject}: “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} — ${r.why ?? r.reason}`);
               if (k.resolutions.length > 8) rows.push(`… ${k.resolutions.length - 8} more.`);
             } else if (k?.basis) rows.push(`\nKelsen: ${k.basis}`);
@@ -4274,8 +4309,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // its admission test. Strain is the REC pressure the void demanded.
     satisfaction,
     // KELSEN: THE PRIMARY MODALITY — the essay's claims resolve by the norm
-    // hierarchy (validity → lex specialis → force → lex posterior →
-    // entrenchment), and the resolutions are NAMED. This is the default
+    // hierarchy (regime.js's PRECEDENCE_STEPS / precedenceOrderPhrase() —
+    // this comment used to hand-type the order and, audited 2026-09-14, had
+    // drifted to drop "regime"), and the resolutions are NAMED. This is the default
     // hyper-grounded posture: the essay is a set of claims in a hierarchy,
     // conflicts resolved by a declared order, never a silent pick. The
     // reader is taught the order by seeing each resolution.

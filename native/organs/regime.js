@@ -208,20 +208,60 @@ const grainRank = (grain) => {
   return i; // Ground=0 (most entrenched, a raw admitted fact) .. Pattern=2 (least — a composed generalization, first to give up)
 };
 
+// THE ORDER, AS DATA — never hand-typed a second time (2026-09-14).
+// `precedence()` below is six sequential checks, each short-circuiting; the
+// ORDER those checks apply in is a fact about this file, not an
+// implementation detail, and it needs to appear in prose more than once —
+// this very docstring, document-ledger.js's kelsenGrade header (the essay
+// modality that calls this organ), and proxy-runner.mjs's own user-facing
+// "how were these claims resolved" strings. Audited 2026-09-14: this
+// docstring itself had drifted, still listing the pre-2026-09-10 four-step
+// order (validity, regime, force, entrenchment) after specificity and
+// recency were added to the function beneath it; three more restatements
+// outside this file had each independently dropped "regime" (the
+// 2026-09-04 dispute-veto step) — one of them a prompt string actually sent
+// to the model. Same incident as cube.js's own OPERATOR_CHAIN (see its
+// header): a restated order is a second copy of a fact this file already
+// has one copy of, and it drifts the moment the real order changes and
+// nothing forces the restatement to follow. PRECEDENCE_STEPS is that one
+// copy — every prose rendering of the order, in this file and outside it,
+// is built from it (`precedenceOrderPhrase`), never typed a second time.
+export const PRECEDENCE_STEPS = Object.freeze([
+  Object.freeze({ reason: "validity_window", label: "validity" }),
+  Object.freeze({ reason: "route_to_landContest", label: "regime" }),
+  Object.freeze({ reason: "specificity", label: "lex specialis" }),
+  Object.freeze({ reason: "force", label: "force" }),
+  Object.freeze({ reason: "recency", label: "lex posterior" }),
+  Object.freeze({ reason: "entrenchment", label: "entrenchment" }),
+]);
+
+/** The order as one prose phrase, built from PRECEDENCE_STEPS — every
+ * surface that names the order (this file's own docstring included) names
+ * this SAME one. */
+export function precedenceOrderPhrase() {
+  return PRECEDENCE_STEPS.map((s) => s.label).join(", then ");
+}
+
 /**
  * precedence({ tag, grain }, { tag, grain }, { queryTime }) — the seed's
- * section 4, one function, one order, stop at the first rule that
- * applies:
+ * section 4 (amended 2026-09-10 per this file's own header), one function,
+ * one order (PRECEDENCE_STEPS above), stop at the first rule that applies:
  *   1. validity window  — a claim out of scope at queryTime is simply not
  *                          in scope; no further reasoning needed.
  *   2. regime            — either claim contested: refuse to pick a
  *                          winner, route to landContest (contraction only,
  *                          never AGM-style revision).
- *   3. force             — O beats default beats P, only once both are
- *                          in scope and neither is contested.
- *   4. entrenchment      — terrain grain as a Spohn rank (Ground first).
- * A tie surviving all four is reported, never silently broken — this
- * function is not the place to invent a fifth rule.
+ *   3. specificity       — lex specialis: a satisfied, strictly narrower
+ *                          scope beats a more general one.
+ *   4. force             — O beats default beats P, only once both are
+ *                          in scope, neither is contested, and specificity
+ *                          did not decide.
+ *   5. recency           — lex posterior: a later declared enactment beats
+ *                          an earlier one of equal force, only when BOTH
+ *                          sides declare one.
+ *   6. entrenchment      — terrain grain as a Spohn rank (Ground first).
+ * A tie surviving all six is reported, never silently broken — this
+ * function is not the place to invent a seventh rule.
  */
 export function precedence(a, b, { queryTime = Date.now(), conditions = [] } = {}) {
   const aIn = inValidityWindow(a.tag.validity, queryTime);
