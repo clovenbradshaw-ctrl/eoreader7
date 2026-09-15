@@ -111,6 +111,70 @@ test("siblingSwap never draws a name spanning a raw newline — table/infobox ce
   assert.doesNotMatch(swap.to, /\n/);
 });
 
+test("siblingSwap recovers the real name a run's own sentence break swallowed, instead of discarding the whole run (the-fold task_414e664d)", () => {
+  // The exact live shape: a small pasted passage where the only candidate
+  // name, "Thomas Reeve", occurs at the very end of its own sentence — so
+  // NAME_RUN_RE's abbreviation-period allowance ("St. Louis") ALSO glues it
+  // to the next sentence's capitalized opener, "It": namesIn hands back one
+  // run, "Thomas Reeve. It". The existing embedded-period exclusion
+  // correctly refuses that whole garbled string (right — it is not a real
+  // name), but before this fix that was the page's ONLY candidate, so
+  // `siblingSwap` returned null, a correct-and-verbatim witness read went
+  // unarmed, and the ladder's "witnessed" rung never fired for a sentence
+  // the material states nearly word for word. Confirmed live end to end
+  // (real gemma2:2b): the witness's own "yes" plus this decider, unarmed,
+  // is discarded by witnessNote's `if (t.verdict === "states" && !t.armed)
+  // return { refused: "unarmed" }` — see corroboration.js.
+  const slice =
+    "The lighthouse at Cape Solitude was built in 1884 by the engineer Thomas Reeve. " +
+    "It stands 42 meters tall and its light can be seen from 26 nautical miles away on a clear night. " +
+    "In 1953, the lighthouse was automated, ending the era of the resident keeper who had lived on the point since the tower opened. " +
+    "The original Fresnel lens, imported from France in 1883, remained in service until it was replaced by a modern LED array in 1998.";
+  const swap = siblingSwap("The lighthouse at Cape Solitude was automated in 1953.", slice);
+  assert.ok(swap, "Thomas Reeve is a real, recoverable candidate even though namesIn glued it to the next sentence's opener");
+  assert.equal(swap.to, "Thomas Reeve");
+  assert.doesNotMatch(swap.to, /\bIt\b/, "the recovered candidate never carries the next sentence's own opener");
+
+  // The recovery must not relax the newline/table wall right above it, or
+  // widen what an embedded-period run can smuggle through: a genuine
+  // abbreviation run ("St. Louis" — namesIn hands it back clean, with
+  // nothing extra glued past it) still has no promotable prefix, because
+  // its own pre-break portion ("St") is a single word, not a multi-word
+  // run — so it stays excluded exactly as before, and a slice offering
+  // nothing else to swap in still correctly refuses.
+  const abbrevOnly = "The tower was designed by an engineer from St. Louis in 1920.";
+  assert.equal(siblingSwap("The lighthouse at Cape Solitude was built in 1884.", abbrevOnly), null,
+    "\"St\" alone is not a multi-word run and is never promoted as a candidate");
+});
+
+test("siblingSwap's HINT path gets the same sentence-break recovery — a witness model that echoes back MORE than one sentence must not lose the one good candidate a second time (the-fold task_414e664d, live with the real witness model)", () => {
+  // Measured live against this app's own real WITNESS_MODEL (OLMo-2-1B, a
+  // deliberately small model — model-routing.js's own header): asked for
+  // ONE verbatim decider sentence, it echoed back nearly the WHOLE passage
+  // as `real.because` instead. The prior fix alone was not enough — `hint`
+  // carries that same "Thomas Reeve. It" run, so the untouched hint search
+  // never recognized the one real candidate the slice-side fix had just
+  // recovered, and fell through to "LED" (an ACRONYM_RE match, untouched by
+  // the gluing bug, but a grammatically nonsensical sibling for a place
+  // name — "The lighthouse at LED was automated"). Both sides need the same
+  // recovery, or fixing one just moves where the bug bites.
+  const slice =
+    "The lighthouse at Cape Solitude was built in 1884 by the engineer Thomas Reeve. " +
+    "It stands 42 meters tall and its light can be seen from 26 nautical miles away on a clear night. " +
+    "In 1953, the lighthouse was automated, ending the era of the resident keeper who had lived on the point since the tower opened. " +
+    "The original Fresnel lens, imported from France in 1883, remained in service until it was replaced by a modern LED array in 1998.";
+  // The over-eager echo, verbatim from the real live specimen.
+  const hint =
+    "The lighthouse at Cape Solitude was built in 1884 by the engineer Thomas Reeve. " +
+    "It stands 42 meters tall and its light can be seen from 26 nautical miles away on a clear night. " +
+    "In 1953, the lighthouse was automated, ending the era of the resident keeper who had lived on the point since the tower opened. " +
+    "The original Fresnel lens, imported from France in 1883, remained in service until it was replaced by a modern LED array in 1998.";
+  const swap = siblingSwap("The lighthouse at Cape Solitude was automated in 1953.", slice, { hint });
+  assert.ok(swap, JSON.stringify(swap));
+  assert.equal(swap.to, "Thomas Reeve", "the longer, sensible candidate wins the hint search now that it survives extraction, not the acronym leftover");
+  assert.equal(swap.hinted, true);
+});
+
 test("siblingSwap never lets an image caption's topic-word restatement outscore the sentence that actually states the fact", () => {
   // The exact shape measured live: a portrait literally titled "Writing the
   // Declaration of Independence, 1776" gave "Jean Leon Gerome Ferris" a
