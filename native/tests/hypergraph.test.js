@@ -75,6 +75,27 @@ test("the S10 ladder rides the projection whole: count possible, null standing, 
   assert.ok(Array.isArray(withDirection.network.direction.oriented), "direction runs only over admitted edges, rank-only by S10");
 });
 
+test("refused, below-floor and undetermined rows are PERSISTED with their being-ids, not collapsed to a count (T1)", { skip: SKIP }, async () => {
+  const reading = await readCorpus();
+  const standing = { bindLinks, buildLink, window: 2, draws: 199, seed: 20260812, alpha: 0.05 };
+  const g = projectHypergraph(reading.log, { standing });
+  assert.ok(Array.isArray(g.network.refused), "refused used to be s.refused.length — a count has no id to read back");
+  assert.ok(Array.isArray(g.network.belowFloor), "same collapse, same fix, for below-floor beings");
+  assert.ok(Array.isArray(g.network.direction.undetermined), "and for pairs the reversal null could not orient");
+  assert.ok(g.network.belowFloor.length >= 1, "this fixture's own sparsity produces a real below-floor being — not a hypothetical row");
+  const row = g.network.belowFloor[0];
+  assert.equal(row.reason, "below_arrival_floor");
+  assert.ok(typeof row.id === "string" && row.id.length > 0, "the id IS the address (P168: a birth, not a spelling) — this is what T1 asked to keep intact");
+  // A second, independent projection at the same seed reads back the same
+  // rows without re-deriving them from a live bindLinks call — the record
+  // a caller gets from the first projection is not cheaper to recompute
+  // than to read, which was the whole point of persisting it.
+  const again = projectHypergraph(reading.log, { standing });
+  assert.deepEqual(again.network.belowFloor, g.network.belowFloor);
+  assert.deepEqual(again.network.refused, g.network.refused);
+  assert.deepEqual(again.network.direction.undetermined, g.network.direction.undetermined);
+});
+
 test("the hyperlexicon at a cursor nominates only from that cursor's own entries, and composition needs a named giver", async () => {
   const reading = await readCorpus();
   const whole = projectHypergraph(reading.log);

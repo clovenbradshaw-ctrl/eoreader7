@@ -108,10 +108,19 @@ export function projectHypergraph(log = [], { atSeq = null, seed = {}, standing 
         const direction = typeof standing.buildLink === "function"
           ? (() => {
               const d = directedEdges(beings, s.edges, { buildLink: standing.buildLink, totalUnits: Math.max(2, lastPosition + 1), draws: standing.draws, seed: standing.seed });
-              return freeze({ computed: true, oriented: d.directed, undetermined: d.undetermined.length });
+              return freeze({ computed: true, oriented: d.directed, undetermined: freeze(d.undetermined.map((u) => freeze({ ...u }))) });
             })()
           : freeze({ computed: false, absence: "no buildLink injected — standing without direction; add buildLink to the bundle for the transcendental rung" });
-        return freeze({ computed: true, declared: s.declared, edges: s.edges, refused: s.refused.length, belowFloor: s.belowFloor.length, direction });
+        // `refused` and `belowFloor` used to collapse to `.length` here —
+        // the pair ids (`a`/`b`), the below-floor being's own id, and each
+        // row's typed reason were computed by networkStanding and then
+        // thrown away at this return. That made a refusal cheaper to
+        // recompute than to read: nothing downstream (the Relate row) could
+        // ask WHICH pair was refused, or why, without re-running the null.
+        // `edges` and `direction.oriented` were never collapsed this way —
+        // this brings refused/belowFloor/undetermined to the same shape,
+        // each row's being-id an address into `nodes`, not a spelling.
+        return freeze({ computed: true, declared: s.declared, edges: s.edges, refused: freeze(s.refused.map((r) => freeze({ ...r }))), belowFloor: freeze(s.belowFloor.map((b) => freeze({ ...b }))), direction });
       })()
     : freeze({ computed: false, absence: "no standing bundle injected — co-arrival pairs are presence only, not edges; inject { bindLinks, window, draws, seed, alpha } to compute standing" });
 

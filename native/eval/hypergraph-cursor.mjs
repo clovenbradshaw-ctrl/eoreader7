@@ -50,7 +50,7 @@ async function main() {
     return {
       cursor: `${(i + 1) * 25}%`, atSeq,
       nodes: g.nodes.length, links: g.links.length,
-      standingEdges: g.network.edges.length, refused: g.network.refused,
+      standingEdges: g.network.edges.length, refused: g.network.refused.length,
       oriented: g.network.direction?.computed ? g.network.direction.oriented.length : null,
       hyperlexicon: {
         affordances: comp.length,
