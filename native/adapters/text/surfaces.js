@@ -73,9 +73,10 @@ const tokenEq = (x, y, sameStem) => x === y || (!!sameStem && (sameStem(x, y) ||
 const tokenSetContains = (from, into, sameStem) => from.every((t) => into.some((u) => tokenEq(t, u, sameStem)));
 
 /**
- * Two NAMES corefer: containment, or a shared final token (surname). Two
- * independent wideners arrived the same week and COMPOSE rather than
- * compete — they answer different halves of "the same token":
+ * Two NAMES corefer: containment, or — WITH A WITNESS — a shared final
+ * token (surname/patronymic). Two independent wideners arrived the same
+ * week and COMPOSE rather than compete — they answer different halves of
+ * "the same token":
  *
  *   `fold`     — a per-token normalizer applied BEFORE comparison (a
  *                giver-named morphological fold; identity when absent).
@@ -83,16 +84,38 @@ const tokenSetContains = (from, into, sameStem) => from.every((t) => into.some((
  *                "Кутузов"/"Кутузова" related by a licensed case
  *                transform; null degrades tokenEq to ===).
  *
- * Third argument: an options object `{ sameStem, fold }`, or — for the
- * callers that predate the merge — a bare function, read as `fold`.
+ * Third argument: an options object `{ sameStem, fold, witness }`, or —
+ * for the callers that predate the merge — a bare function, read as `fold`.
+ *
+ * T5 (eoreader7 task list, 2026-09-10): a shared final token USED to fold
+ * unconditionally, no witness required. Crime and Punishment's own
+ * "Katerina Ivanovna" / "Alyona Ivanovna" — two different women sharing a
+ * patronymic and nothing else — is exactly the shape that produces (the-
+ * fold compliance pass 2026-09-07, S38: two unrelated beings collapsed by
+ * this fold alone). Containment is left as-is: one string actually
+ * containing every token of the other IS real structural evidence (S80,
+ * "an address is a birth, not a spelling" — the shorter form's tokens are
+ * a subset the longer form witnesses). A shared final token with NO
+ * containment either way is weaker — a family name/patronymic worn by
+ * more than one person is the ordinary case, not the exception, in any
+ * text with a family in it — so it now REQUIRES an injected witness
+ * (a caller-supplied confirmation from evidence outside bare string
+ * structure, e.g. text/identity-evidence.js's apposition/copula support).
+ * Absent a witness it refuses, same posture as `sameStem`/`fold` absent:
+ * the capability does not fire rather than guessing. No caller in this
+ * checkout supplies one yet — this is a real tightening, not a no-op; run
+ * the regression suite and record what stops merging.
  */
 export const namesCorefer = (a, b, opts) => {
-  const { sameStem = null, fold = null } = typeof opts === "function" ? { fold: opts } : (opts ?? {});
+  const { sameStem = null, fold = null, witness = null } = typeof opts === "function" ? { fold: opts } : (opts ?? {});
   const ta = tokensOf(a, fold);
   const tb = tokensOf(b, fold);
   if (!ta.length || !tb.length) return false;
   const subset = tokenSetContains(ta, tb, sameStem) || tokenSetContains(tb, ta, sameStem);
-  return subset || tokenEq(ta[ta.length - 1], tb[tb.length - 1], sameStem);
+  if (subset) return true;
+  const sharedFinal = tokenEq(ta[ta.length - 1], tb[tb.length - 1], sameStem);
+  if (!sharedFinal) return false;
+  return typeof witness === "function" ? !!witness(a, b) : false;
 };
 
 // A capitalised RUN: consecutive capitalised tokens, which is what a
