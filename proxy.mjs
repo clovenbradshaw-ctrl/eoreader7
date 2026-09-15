@@ -190,7 +190,7 @@ async function handleRequest(req, res) {
         response: "{ \"answer\": \"<text>\", \"sessionId\": \"...\", ... }",
       },
       code: {
-        description: "A physics-gated coding loop: the model proposes an edit as raw find/add bytes (never a JSON tool call or a shell command); the edit op is derived mechanically, applied to a real file, and your own declared test command decides pass/fail for real, every round.",
+        description: "A physics-gated coding loop: the model may ask to read a real file first, then proposes an edit as raw find/add bytes (never a JSON tool call or a shell command); the edit op is derived mechanically, applied to a real file, and your own declared test command decides pass/fail for real, every round.",
         request: "POST /v1/code  { \"task\": \"...\", \"workspace\": \"/abs/path\", \"testCommand\": \"npm test\", \"maxRounds\"?: 3 }",
         response: "{ \"done\": bool, \"rounds\": [...], \"finalTestOutput\": \"...\" }",
       },

@@ -5,21 +5,33 @@
 //
 // Loop, bounded (`maxRounds`, disclosed, never silent/unbounded — the same
 // WEB_MAX_PAGES-style ceiling proxy-runner.mjs already uses for its gather
-// loop): ask the model for ONE proposed change as raw `find`/`add` bytes
-// against a real, already-existing file (never an invented path); derive
-// the edit op MECHANICALLY from those bytes (patch.js — the model is never
-// trusted with its own op label); apply it to the real file; run the real
-// test command for real (node:child_process, the caller's own declared
-// string — never a model-authored command); read the real exit code.
+// loop): ask the model for exactly ONE of two mechanical actions, never a
+// JSON tool call:
+//
+//   READ  — "show me a real file before I propose anything" — the model
+//           names a path, mechanically validated as a real file inside the
+//           workspace, and its real content is folded into the next
+//           round's context. Nothing is applied, nothing is tested. This
+//           is what lets the loop scale past whatever fits in one prompt:
+//           round 1 shows a file listing plus a small initial sample, and
+//           the model reads on demand instead of everything being dumped
+//           up front.
+//   PATCH — raw `find`/`add` bytes against a real, already-existing file
+//           (never an invented path). The edit op (SEG/INS/SYN) is derived
+//           MECHANICALLY from those bytes (patch.js — the model is never
+//           trusted with its own op label), applied to the real file, then
+//           the real test command runs for real (node:child_process, the
+//           caller's own declared string — never a model-authored
+//           command) and the real exit code decides pass/fail.
 //
 // EVA: exit 0 -> REC, concede: done, the change is kept.
 //      exit nonzero -> the file is REVERTED to its pre-round bytes (nothing
 //      broken is ever left on disk mid-loop) and the real failure output
 //      is folded into the next round's prompt as grounded material.
 //
-// Every round's record (proposal, derived op, applied/reverted, real test
-// output) is returned in full — a disclosed audit trail, since this server
-// process has no browser ledger to land it on.
+// Every round's record (action, proposal, derived op, applied/reverted,
+// real test output) is returned in full — a disclosed audit trail, since
+// this server process has no browser ledger to land it on.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -33,6 +45,7 @@ const MAX_FILE_CHARS_SHOWN = 4000;
 const MAX_TOTAL_CHARS_SHOWN = 20000;
 const DEFAULT_MAX_ROUNDS = 3;
 const DEFAULT_TEST_TIMEOUT_MS = 60000;
+const MAX_READ_CHARS_SHOWN = 8000;
 
 function listFiles(root, max = MAX_LISTED_FILES) {
   const out = [];
@@ -81,8 +94,14 @@ function renderFiles(root, relPaths) {
   return blocks.join("\n\n");
 }
 
-const PROPOSAL_FORMAT = `Respond with exactly one proposed change, in exactly this format and nothing else:
+const PROPOSAL_FORMAT = `Respond with exactly one action, in exactly one of these two formats and nothing else.
 
+To see a real file's full content before proposing anything (any file not shown above, or shown truncated):
+ACTION: read
+PATH: <relative file path>
+
+To propose a change:
+ACTION: patch
 PATH: <relative file path, exactly as listed above>
 <<<FIND>>>
 <the exact existing text to change — copy it byte for byte from the file shown above>
@@ -90,16 +109,23 @@ PATH: <relative file path, exactly as listed above>
 <the replacement text — leave this section empty to delete the FIND text>
 <<<END>>>`;
 
-const PROPOSAL_RE = /PATH:\s*(\S+)\s*\n<<<FIND>>>\n([\s\S]*?)\n<<<ADD>>>\n([\s\S]*?)(?:\n<<<END>>>|$)/;
+const READ_RE = /ACTION:\s*read\s*\nPATH:\s*(\S+)/i;
+const PATCH_RE = /(?:ACTION:\s*patch\s*\n)?PATH:\s*(\S+)\s*\n<<<FIND>>>\n([\s\S]*?)\n<<<ADD>>>\n([\s\S]*?)(?:\n<<<END>>>|$)/i;
 
 /** Mechanical extraction only — a narrow, declared grammar, never JSON the
- * model authored. A proposal that doesn't match this shape is a typed gap,
- * not a guess at what was meant. */
+ * model authored. A proposal that doesn't match either shape is a typed
+ * gap, not a guess at what was meant. `ACTION:` may be omitted for a patch
+ * (backward compatible with the original single-action grammar). */
 export function parseProposal(text) {
-  const m = PROPOSAL_RE.exec(String(text ?? ""));
-  if (!m) return { ok: false, gap: { kind: "unparsed_proposal", reason: "the answer did not contain a PATH:/<<<FIND>>>/<<<ADD>>> block" } };
-  const [, relPath, find, add] = m;
-  return { ok: true, path: relPath.trim(), find, add: add.replace(/\n$/, "") };
+  const raw = String(text ?? "");
+  const read = READ_RE.exec(raw);
+  if (read) return { ok: true, action: "read", path: read[1].trim() };
+  const patch = PATCH_RE.exec(raw);
+  if (patch) {
+    const [, relPath, find, add] = patch;
+    return { ok: true, action: "patch", path: relPath.trim(), find, add: add.replace(/\n$/, "") };
+  }
+  return { ok: false, gap: { kind: "unparsed_proposal", reason: "the answer did not contain an ACTION: read/patch block" } };
 }
 
 /** A path is only ever real: it must resolve to an existing file strictly
@@ -132,6 +158,15 @@ function runTestCommand(testCommand, workspace, timeoutMs) {
   }
 }
 
+/** The real content of every file read so far this run, rendered for the
+ * prompt — real bytes, requested on demand, never re-summarized or
+ * paraphrased between rounds. */
+function renderReadFiles(reads) {
+  if (!reads.size) return "";
+  const blocks = [...reads.entries()].map(([rel, content]) => `--- ${rel} (read on request) ---\n${content}`);
+  return `\n\nFiles you asked to read:\n\n${blocks.join("\n\n")}`;
+}
+
 /**
  * Run the loop. Returns { done, rounds, finalTestOutput }. Never throws for
  * an ordinary failed attempt — only for a malformed call (no workspace, no
@@ -144,24 +179,44 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
   const root = path.resolve(workspace);
   const files = listFiles(root);
   const rounds = [];
-  let lastTestOutput = null;
+  const reads = new Map(); // real content of every file read on request so far
+  let lastNote = null; // what actually happened last round, stated plainly — never a fabricated "it failed" when nothing was even tried
+  let finalTestOutput = null;
 
   for (let round = 1; round <= maxRounds; round += 1) {
     const roundTask =
       round === 1
         ? `${task}\n\nFiles in the workspace (${root}):\n${files.join("\n")}\n\n${renderFiles(root, files)}\n\n${PROPOSAL_FORMAT}`
-        : `${task}\n\nYour previous attempt was applied and tested for real. It failed. The real test output was:\n\n${lastTestOutput}\n\nThe file now stands as:\n\n${renderFiles(root, files)}\n\nPropose a further fix.\n\n${PROPOSAL_FORMAT}`;
+        : `${task}\n\n${lastNote}\n\nThe file now stands as:\n\n${renderFiles(root, files)}${renderReadFiles(reads)}\n\n${PROPOSAL_FORMAT}`;
 
     const turn = await runProxyTurn({ sessionId, userId, model, task: roundTask, workspace: root, mode: "chat", signal });
     const proposal = parseProposal(turn.text);
     if (!proposal.ok) {
       rounds.push({ round, gap: proposal.gap, raw: turn.text });
+      lastNote = `Your last reply did not follow the required format (${proposal.gap.reason}). Use exactly one of the two formats below.`;
       continue;
     }
 
     const located = resolveRealFile(root, proposal.path);
     if (!located.ok) {
-      rounds.push({ round, path: proposal.path, gap: located.gap });
+      rounds.push({ round, action: proposal.action, path: proposal.path, gap: located.gap });
+      lastNote = `You named "${proposal.path}", which is not a real file in this workspace (${located.gap.reason}). Pick a real path from the listing below.`;
+      continue;
+    }
+
+    if (proposal.action === "read") {
+      if (reads.has(proposal.path)) {
+        rounds.push({ round, action: "read", path: proposal.path, gap: { kind: "already_read", reason: "this file's content was already shown" } });
+        lastNote = `You already have "${proposal.path}"'s content below — re-reading it won't tell you anything new. Propose a PATCH now, or read a DIFFERENT file.`;
+        continue;
+      }
+      // Nothing is applied, nothing is tested — this round only requests
+      // real content for the NEXT round's context.
+      const content = fs.readFileSync(located.resolved, "utf8");
+      const truncated = content.length > MAX_READ_CHARS_SHOWN;
+      reads.set(proposal.path, content.slice(0, MAX_READ_CHARS_SHOWN) + (truncated ? "\n[...truncated...]" : ""));
+      rounds.push({ round, action: "read", path: proposal.path, truncated });
+      lastNote = `Here is the real content of "${proposal.path}" you asked to read (below). Now propose a PATCH, or read another file if you still need to.`;
       continue;
     }
 
@@ -169,23 +224,25 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
     const ops = readOps([{ find: proposal.find, add: proposal.add }]);
     const applied = ops ? applyOps(before, ops) : { ok: false, gap: { kind: "malformed", reason: "find/add did not resolve to a real op" } };
     if (!applied.ok) {
-      rounds.push({ round, path: proposal.path, gap: applied.gap });
+      rounds.push({ round, action: "patch", path: proposal.path, gap: applied.gap });
+      lastNote = `Your proposed patch on "${proposal.path}" did not apply (${applied.gap.reason}). Nothing was changed on disk. Try again with find text copied exactly from the file.`;
       continue;
     }
 
     fs.writeFileSync(located.resolved, applied.code);
     const op = ops[0].op;
     const test = runTestCommand(testCommand, root, testTimeoutMs);
-    lastTestOutput = test.output;
+    finalTestOutput = test.output;
 
     if (test.exitCode === 0) {
-      rounds.push({ round, path: proposal.path, op, applied: true, reverted: false, testExitCode: 0, testOutput: test.output });
+      rounds.push({ round, action: "patch", path: proposal.path, op, applied: true, reverted: false, testExitCode: 0, testOutput: test.output });
       return { done: true, rounds, finalTestOutput: test.output };
     }
 
     fs.writeFileSync(located.resolved, before); // physics: never leave a failing change on disk
-    rounds.push({ round, path: proposal.path, op, applied: true, reverted: true, testExitCode: test.exitCode, testOutput: test.output });
+    rounds.push({ round, action: "patch", path: proposal.path, op, applied: true, reverted: true, testExitCode: test.exitCode, testOutput: test.output });
+    lastNote = `Your previous patch on "${proposal.path}" was applied and tested for real. It failed, and has been reverted (the file below no longer has your change). The real test output was:\n\n${test.output}`;
   }
 
-  return { done: false, rounds, finalTestOutput: lastTestOutput };
+  return { done: false, rounds, finalTestOutput };
 }

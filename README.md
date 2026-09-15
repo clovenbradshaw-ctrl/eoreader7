@@ -31,8 +31,13 @@ Heimdall admission gate, so a busy box refuses new work with a typed 429 +
   real, then *your own* declared `testCommand` — never a model-authored
   string — decides pass/fail for real. A failing round reverts the file
   before trying again; nothing broken is ever left on disk between
-  rounds. Every round's proposal, applied diff, and real test output ride
-  the response as a disclosed audit trail.
+  rounds. Before proposing an edit the model may instead ask to READ a
+  real file in full (mechanically validated the same way) — round 1 shows
+  a file listing plus a bounded content sample, so a workspace larger
+  than one prompt is read on demand rather than dumped up front; a
+  repeated read of a file it already has is refused with a nudge rather
+  than silently wasting a round. Every round's proposal, applied diff, and
+  real test output ride the response as a disclosed audit trail.
 - **OpenAI-compatible** — `GET /v1/models`, `POST /v1/chat/completions`,
   model id `er7:<real-ollama-model>`. Any OpenAI-SDK client, or app built
   against one, works by pointing its base URL here.
