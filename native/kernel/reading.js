@@ -2,10 +2,10 @@
 // (receivedGround, the hub re-hollowed) admits a being (the spokes) and
 // folds the difference the being made (the rim). THE WHEEL, one step:
 // void → being → fold, 0 → n → 1 (native/docs/THE-WHEEL.md).
-import { receivedGround, applyObservation, applyDelta, deltaFold, reconstruct } from "./fold.js";
+import { receivedGround, applyObservation, applyDelta, deltaFold, eoOperation, reconstruct } from "./fold.js";
 import { deriveOrientation } from "./orientation.js";
 import { perceive as defaultPerceive } from "./perception.js";
-import { witness as defaultWitness } from "./witness.js";
+import { witnessVerbose as defaultWitnessVerbose } from "./witness.js";
 import { relevantNeighborhood, interrogateCube, deriveEOTransformations } from "./interrogation.js";
 import { deriveSurprise, deriveTension, deriveRelease } from "./dynamics.js";
 import { buildHypergraph, indexHypergraphEntries } from "./hypergraph.js";
@@ -26,6 +26,43 @@ export async function challengeCandidates(currentEncounter, orientation, candida
   }
   return Object.freeze({ schema: "EOChallengeFrontier@1", candidates: Object.freeze(frontier), challenges: Object.freeze(challenges) });
 }
+
+// A refusal witness() would have silently dropped, landed on the record.
+// lexicon.js names the terrain by hand: "Void: refusals and typed gaps
+// (exclusions, unresolved alternatives)". Void is terrain (domain, grain) =
+// (Existence, Ground) — cube.js's `cellOf` — and DEF's domain is
+// Interpretation (its Ground cell is Atmosphere, never Void; identity.js's
+// own exclusion, `op: "DEF", grain: "Figure"`, is a different act — retracting
+// an ALREADY-ADMITTED identity reading, and lands at Lens by design, not
+// here). Existence-domain operators are NUL, SIG, INS; `eoOperation` itself
+// refuses a NUL carrying any mutating payload ("NUL records no
+// transformation") — and rightly: a refusal is a real, witnessed act, not
+// nothing happening. `docs/THE-27-CELLS.md`'s own SIG·Ground row
+// (`void-loop.js::whatWouldSettle`, `surfaces.js`'s CELL) is exactly this
+// shape already: SIGNING what the ground does not (yet) hold. So: SIG·Ground.
+const exclusionOperationFor = (refusal, enc, index) => {
+  const candidateId = refusal?.candidate?.id ?? refusal?.candidate?.candidate?.id ?? null;
+  const outputId = `exclusion:${enc.sequencePosition ?? "?"}:${index}`;
+  return eoOperation({
+    id: `${outputId}:op`,
+    op: "SIG",
+    grain: "Ground",
+    witness: refusal?.candidate?.evidence ?? refusal?.candidate?.anchor ?? null,
+    outputs: [outputId],
+    consequence: { kind: "witness_refused", reason: refusal?.reason ?? "refused" },
+    payload: {
+      action: "exclusion",
+      value: Object.freeze({
+        schema: "EOExclusion@1",
+        id: outputId,
+        kind: "witness_refused",
+        target: candidateId,
+        reason: refusal?.reason ?? "refused",
+        encounter: enc.sequencePosition ?? null,
+      }),
+    },
+  });
+};
 
 const observationGraph = (o) => [o, ...(o?.hyperedges ?? []), ...(o?.graphEntries ?? [])];
 const deltaGraph = (delta, fold) => (delta?.operations ?? []).flatMap((op) => {
@@ -56,7 +93,16 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const candidates = await (adapters.perceive ?? defaultPerceive)(currentEncounter, orientation, { perceivers, priors: [...(orientation.receivedPriors ?? []), ...priors] });
     const challenge = adapters.challenge ? await adapters.challenge({ encounter: currentEncounter, orientation, candidates }) : await challengeCandidates(currentEncounter, orientation, candidates, { challengers });
     const challengedCandidates = challenge?.candidates ?? candidates;
-    const observations = await (adapters.witness ?? defaultWitness)(currentEncounter, challengedCandidates, { admit: adapters.admit });
+    // Backward-compatible on the witness adapter's own return shape: a bare
+    // array (witness()'s existing contract — e.g. a caller-supplied
+    // adapters.witness, as tests/fold-transient.test.js's does) carries no
+    // refusal list, so `refused` stays null and nothing below activates. The
+    // DEFAULT adapter now calls witnessVerbose() instead of witness() — same
+    // admission logic, so `observations` is byte-identical either way — which
+    // is what makes a refusal list available to fold into exclusions.
+    const witnessResult = await (adapters.witness ?? defaultWitnessVerbose)(currentEncounter, challengedCandidates, { admit: adapters.admit });
+    const observations = Array.isArray(witnessResult) ? witnessResult : (witnessResult?.observations ?? []);
+    const refused = Array.isArray(witnessResult) ? null : (witnessResult?.refused ?? null);
 
     indexHypergraphEntries(graphIndex, observations.flatMap(observationGraph));
     const awakenedTasks = wakeTasks(orientationTasks, observations);
@@ -76,12 +122,42 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const proposedDelta = adapters.revise ? await adapters.revise({ observations, taskEvidence, neighborhood, interrogation, fold: beforeFold, tasks: projectTasks(tasks), graph: graphIndex }) : deriveEOTransformations(interrogation, { id: `delta:${currentEncounter.sequencePosition ?? log.length}` });
     const canonicalDelta = proposedDelta?.schema === "DeltaFold@1" ? proposedDelta : deltaFold([]);
 
-    log.push(currentEncounter, ...observations, ...taskEvidence, canonicalDelta);
+    // THE LATENT-LEAN HOOK (optional, additive). `adapters.latent` is never
+    // required and the kernel never imports one — see eo-teachings/archon-
+    // activation.mjs for a real, OUT-OF-TREE example of `{ use(acts), bias() }`.
+    // `use()` is handed this step's own operations (the authored delta's, not
+    // the refusal side-channel below) so it can update whatever it tracks;
+    // `bias()`'s return rides the TURN as `latentLean`, never the fold — a
+    // lean conditions attention and must never become evidence
+    // (orientation.js's own rule, Handle: Meerkat: "a raised stance that
+    // conditions the group's attention and is never itself evidence of what
+    // it's watching for"). When adapters.latent is absent, `latentLean` is
+    // simply not a key on the returned turn — full backward compatibility.
+    let latentLean;
+    if (adapters.latent) {
+      await adapters.latent.use(canonicalDelta.operations ?? []);
+      latentLean = await adapters.latent.bias();
+    }
+
+    // WITNESS REFUSALS, FOLDED INTO THE VOID (additive, only when `refused`
+    // is available — see the witness call above). Each refusal becomes its
+    // own SIG·Ground operation (exclusionOperationFor, above) in a SEPARATE
+    // delta from `canonicalDelta`: kept apart so a turn with no refusals is
+    // BYTE-IDENTICAL to before this change (canonicalDelta, `turn.surprise`,
+    // `turn.deltaFold` all untouched), and so `fold.sequence` only advances
+    // an extra step on the turns that actually have something to exclude.
+    const refusalOperations = refused ? refused.map((r, i) => exclusionOperationFor(r, currentEncounter, i)) : [];
+    const exclusionDelta = refusalOperations.length
+      ? deltaFold(refusalOperations, { id: `delta:exclusions:${currentEncounter.sequencePosition ?? log.length}`, schemaVersion: "EOWitnessRefusal@1" })
+      : null;
+
+    log.push(currentEncounter, ...observations, ...taskEvidence, canonicalDelta, ...(exclusionDelta ? [exclusionDelta] : []));
     let nextFold = beforeFold;
     // (P166) The reader declares its chain transient: nothing reads a superseded
     // fold — see the accessor below and fold.js's delta-stream header.
     for (const observation of observations) nextFold = applyObservation(nextFold, observation, { transient: true });
     nextFold = applyDelta(nextFold, canonicalDelta, { transient: true });
+    if (exclusionDelta) nextFold = applyDelta(nextFold, exclusionDelta, { transient: true });
     fold = nextFold;
     // (P166) The fold's arrays are extended IN PLACE along the reader's linear
     // chain, so this turn's `fold` is the tip only while it is the tip. Once
@@ -92,9 +168,10 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
     const tip = fold;
     const at = log.length;
     indexHypergraphEntries(graphIndex, deltaGraph(canonicalDelta, fold));
+    if (exclusionDelta) indexHypergraphEntries(graphIndex, deltaGraph(exclusionDelta, fold));
     const taskUpdate = proposeObligationTasks(tasks, fold); tasks = taskUpdate.log;
 
-    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, get fold() { return fold === tip ? tip : reconstruct(log.slice(0, at), seed); }, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold) });
+    return Object.freeze({ encounter: currentEncounter, orientation, candidates, challenge, observations, refused: Object.freeze(refused ?? []), awakenedTasks, scheduledTasks, taskEvidence, proposedTasks: taskUpdate.proposed, tasks: Object.freeze(projectTasks(tasks)), relevantFold: neighborhood, interrogation, deltaFold: canonicalDelta, get fold() { return fold === tip ? tip : reconstruct(log.slice(0, at), seed); }, surprise: deriveSurprise(canonicalDelta), tension: deriveTension(fold), release: deriveRelease(canonicalDelta, beforeFold, fold), ...(adapters.latent ? { latentLean } : {}) });
   }
 
   async function read(encounters = []) { const turns = []; for (const item of encounters) turns.push(await step(item)); return Object.freeze({ turns, fold, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] }); }

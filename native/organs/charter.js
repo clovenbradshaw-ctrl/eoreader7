@@ -51,6 +51,13 @@
 // imports no model, no adapter, no evaluator — a refusal is a typed
 // `charter_conflict` the surface can render but not suppress.
 
+// sha256hex (native/adapters/text/sha256hex.js) is the only import this
+// organ carries: a pure, browser-and-node-safe content hash, not a model, an
+// adapter, or an evaluator — so the "the organ is pure" claim above still
+// holds. It lets a built charter's own giver ride alongside a hash of the
+// exact source text it was extracted from (see buildUdhCharter, below).
+import { sha256hex } from "../adapters/text/sha256hex.js";
+
 const PRESCRIPTIVE = /\b(shall|should|must|ought|may|can|cannot|has the right|entitled|right to|free to|prohibited|required|allowed to|obligatory|mandatory|must not|shall not|never|everyone|no one|all people|each person)\b/i;
 const DESCRIPTIVE = /\b(was|were|did|had been|has been|reported|reports|report|describes|describe|described|documented|documents|according to|evidence|alleged|occurred|happened|committed against|tortured|executed|killed|murdered|massacred|repressed|persecuted|imprisoned|denied|states that|said|writes)\b/i;
 
@@ -95,9 +102,31 @@ export function buildUdhCharter(text = "", { giver = "Universal Declaration of H
   return Object.freeze({
     schema: "UDHRCharter@1",
     giver,
+    // The giver names WHO governs; sha256 names WHAT text that giver's own
+    // prohibitions/protections were extracted from — a content hash, not a
+    // version number, so any caller (a log line, a stored result) can tell
+    // whether the full 516-language corpus or the fallback excerpt actually
+    // governed a given turn, without re-reading the source file.
+    sha256: sha256hex(text),
     protections: Object.fromEntries([...protections].map(([k, v]) => [k, { surfaces: [...v.surfaces], articles: [...v.articles] }])),
     prohibitions: Object.fromEntries([...prohibitions].map(([k, v]) => [k, { surfaces: [...v.surfaces], articles: [...v.articles] }])),
   });
+}
+
+// ── VALIDATION — a cached charter must earn trust, never be assumed ────────
+// A charter is only fit to govern if it can name who gives it and can
+// actually prohibit and protect something; anything else is indistinguishable
+// from an empty or gutted charter that would pass every generation silently.
+// This is the check a cache boundary (proxy-runner.mjs's globalThis cache)
+// must run before trusting whatever is already sitting there.
+export function isValidCharter(charter) {
+  if (!charter || typeof charter !== "object") return false;
+  if (typeof charter.giver !== "string" || !charter.giver.trim()) return false;
+  const prohibitions = charter.prohibitions;
+  const protections = charter.protections;
+  if (!prohibitions || typeof prohibitions !== "object" || Object.keys(prohibitions).length < 1) return false;
+  if (!protections || typeof protections !== "object" || Object.keys(protections).length < 1) return false;
+  return true;
 }
 
 // ── 2. THE DISCRIMINATOR ───────────────────────────────────────────────────
