@@ -58,7 +58,6 @@ const ADMIT_MS = Number(flag("admit", 3000));
 // THE READING (READING-SPEC S1, THE-HOLOGRAPH §7): "constitutional" runs the constitutional reader over the material — read ONCE and persisted (results/readings/<corpusId>-<assembly>.jsonl, replayed at start), the referent index and the address book PROJECTED from its log each turn — no case, no scan; "cast" is the text presence index (P38) kept as a disclosed fallback. --read-ahead all reads the whole material before turn 1 (a complete read is not lookahead — S3 is about scoring a unit with later evidence during the read); a number is ms per turn, progressive.
 const READING = String(flag("reading", "constitutional"));
 const READ_AHEAD = String(flag("read-ahead", "all"));
-const WITNESS = flag("witness", "on") !== "off";
 const RESUME = flag("resume", null);
 const sourceArgs = args.flatMap((a, i) => (a === "--source" && args[i + 1] ? [args[i + 1]] : []));
 if (!sourceArgs.length) { console.error("usage: --source prose=/path/to/novel.txt is required"); process.exit(2); }
@@ -70,6 +69,7 @@ const { makeCastResolver } = await import(`${FOLD}cast.js`);
 const { mechanicalFoldLine, RECENCY_WINDOW } = await import(`${FOLD}fold.js`);
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
 const { learn, correctionsIn, learnable } = await import(`${FOLD}learned.js`);
+const { chaseParaphrase } = await import(`${NATIVE}/organs/run-dmca.js`); // the paraphrase law (2026-09-14): no model evaluates paraphrase — the answer is equated by the record's own claim rows, never a model
 const { historyWindow, referentsOf } = await import(`${FOLD}dialogue.js`);
 const { namesIn } = await import(`${FOLD}ground-ladder.js`);
 const { ANAPHORIC_PRONOUNS } = await import("../../adapters/text/priors.js"); // a received closed class with its giver (lang/en): "She's" is not a being to ask about
@@ -90,7 +90,6 @@ let nul = null;
 try { nul = await import(`${ROOT}eoreader7/legacy-eoreader6.1/nul/index.js`); } catch { nul = null; }
 const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
 const { lineIndex, outlineOfIndex } = await import(`${ROOT}eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/segments.js`);
-const W = await import(`${NATIVE}/organs/index.js`);
 const castFor = makeCastResolver({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm });
 // THE REFERENT INDEX (P11): the turn gets one per part over its passages; the reader's moves and the driver's own measures use one over the whole corpus.
 const indexFor = makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm });
@@ -130,9 +129,6 @@ async function callWith(model, messages, opts = {}) {
   }
 }
 const call = (messages, opts) => callWith(MODEL, messages, opts);
-const witnessAsk = async (s, slice) => W.readTestimony(await call(W.buildWitnessMessages(s, slice), { json: W.WITNESS_SCHEMA, maxTokens: 200 }));
-const witnessSelect = async (messages) => { try { return JSON.parse(await call(messages, { json: W.SELECT_SCHEMA, maxTokens: 120 })); } catch { return {}; } };
-const witnessSentences = WITNESS ? (sentences, claims, passages, { maxAsks }) => W.witnessSentences(sentences, claims, passages, { ask: witnessAsk, selectAsk: witnessSelect, splitSentences, testimony: W.readTestimony, maxAsks }) : null;
 
 const stamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 const DIR = RESUME ?? join(NATIVE, "eval/the-fold/results/conversation", `${stamp}-${MODEL.replace(/[^\w.-]+/g, "_")}-${loaded[0].name.replace(/\.[^.]+$/, "")}`);
@@ -222,10 +218,10 @@ if (RESUME && existsSync(STATE_PATH)) { state = JSON.parse(readFileSync(STATE_PA
 else {
   const bank = buildFactBank(chunks, { perSource: 120, rng });
   state = { turn: 0, history: [], transcript: [], hlLog: null, gridLog: null, bank, draws: rng.draws, asked: [], seen: [], coverage: [], useMeasuredCut: false };
-  writeFileSync(CONFIG_PATH, JSON.stringify({ ran: new Date().toISOString(), model: MODEL, readerModel: READER_MODEL, corpusId, depth: DEPTH, turns: TURNS, seed: SEED, witness: WITNESS, resolutions: RESOLUTIONS, material: MATERIAL, chunking: CHUNKING, retrieval: RETRIEVAL, admitMs: ADMIT_MS, reading: READING, readAhead: READ_AHEAD, readingAssembly: READING === "constitutional" ? READING_ASSEMBLY : null, sources: loaded, recipe: O.recipe }, null, 2));
+  writeFileSync(CONFIG_PATH, JSON.stringify({ ran: new Date().toISOString(), model: MODEL, readerModel: READER_MODEL, corpusId, depth: DEPTH, turns: TURNS, seed: SEED, meaningEquate: true, resolutions: RESOLUTIONS, material: MATERIAL, chunking: CHUNKING, retrieval: RETRIEVAL, admitMs: ADMIT_MS, reading: READING, readAhead: READ_AHEAD, readingAssembly: READING === "constitutional" ? READING_ASSEMBLY : null, sources: loaded, recipe: O.recipe }, null, 2));
   writeFileSync(TRANSCRIPT_PATH, `# A conversation about ${loaded[0].name}\n\n${MODEL} answering through the real turn; the reader is ${READER_MODEL} phrasing moves computed from the record. Seed ${SEED}. Corpus ${corpusId}.\n\n`);
 }
-console.log(`conversation — ${MODEL} answering, ${READER_MODEL} reading, ${TURNS} turns, witness ${WITNESS ? "on" : "off"}, arithmetic ${math ? "computed" : "UNAVAILABLE"}, resolutions ${RESOLUTIONS} (0 one-line stand-in only, 1 + atmosphere, 2 + lens, 3 + paradigm), material ${MATERIAL}, chunking ${CHUNKING}, retrieval ${RETRIEVAL}, admit ${ADMIT_MS} ms/turn, reading ${READING}${READING === "constitutional" ? ` (${READING_ASSEMBLY}, read-ahead ${READ_AHEAD})` : " (the text presence index — P38, a disclosed fallback)"}`);
+console.log(`conversation — ${MODEL} answering, ${READER_MODEL} reading, ${TURNS} turns, paraphrase equated by the record's own claim rows (never a model), arithmetic ${math ? "computed" : "UNAVAILABLE"}, resolutions ${RESOLUTIONS} (0 one-line stand-in only, 1 + atmosphere, 2 + lens, 3 + paradigm), material ${MATERIAL}, chunking ${CHUNKING}, retrieval ${RETRIEVAL}, admit ${ADMIT_MS} ms/turn, reading ${READING}${READING === "constitutional" ? ` (${READING_ASSEMBLY}, read-ahead ${READ_AHEAD})` : " (the text presence index — P38, a disclosed fallback)"}`);
 for (const l of loaded) console.log(`  ${l.kind.padEnd(8)} ${l.name.padEnd(28)} ${String(l.bytes).padStart(9)} bytes ${String(l.chunks).padStart(5)} chunks  ${l.sha256}`);
 console.log(`  cast/fact bank ${state.bank.length}; recipe ${O.recipe}; corpus ${corpusId}\n  ${DIR}`);
 const LEARNED_PATH = join(NATIVE, "eval/the-fold/results/long-stream", "learned.json");
@@ -325,7 +321,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   try {
     r = await runHolonicTask({
       task: question, chunks, call, foldedRefs: [], expect: null,
-      makeNameResolver: castFor, makeReferentIndexFor: indexFor, makeRelationReader: O.relationsFor, witnessSentences,
+      makeNameResolver: castFor, makeReferentIndexFor: indexFor, makeRelationReader: O.relationsFor,
       checkLink: null, planMode: needsDecomposition(question) ? "model" : "flat",
       chatHistory: history, discourse, depth: DEPTH, learnedStore, learnedSince: RUN_STARTED, transcript: state.transcript,
       resolutions: RESOLUTIONS, dmdWindow, conversationIndex: liveIndex(), records: [], material: MATERIAL, retrieveWith, mentionBook: liveBook(),
@@ -348,6 +344,15 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
   // The answer's graded claims ride on the transcript so the next turn's self-consistency check has them (dialogue.js::selfContradictions).
   // The answer's bound claims ride on the transcript for the next turn's self-consistency check (keyed there, through that turn's own index).
   const claims = (r?.sections ?? []).flatMap((s) => (s?.relations?.claims ?? []).filter((c) => c && c.verdict === "bound" && (c.end1 ?? c.subject) != null).map((c) => ({ polarity: c.polarity ?? "+", end1: c.end1 ?? c.subject ?? null, label: c.label ?? c.verb ?? null, end2: c.end2 ?? c.object ?? null })));
+  // THE PARAPHRASE LAW (native/organs/run-dmca.js, 2026-09-14): no model evaluates paraphrase. The answer is EQUATED by the record's own claim rows — the hyperlexicon's foldWithStanding notes {end1, label, end2} (the same materialPropositions rows LaVar grades on, SVO + referent identity) — through the referent index's resolveIn/represent seam when a reading log exists. Meaning is stanced FOR a named whom: this fold admits no face, so the equate is performed FOR the empty hub of the ethos at this fold. Cheap, synchronous, mechanical — it never reaches a model.
+  const meaningChase = chaseParaphrase({
+    text: answer,
+    sources: new Map(loaded.map((l) => [l.name, sourceText[l.name] ?? ""])),
+    citations: claims,
+    claims: (() => { try { return (ledger ?? state.hlLog) ? O.hl.foldWithStanding(ledger ?? state.hlLog).map((n) => ({ label: n.label ?? "", end1: n.end1 ?? null, end2: n.end2 ?? null })).filter((row) => row.label && row.label.length > 2) : []; } catch { return []; } })(),
+    index: liveIndex(),
+    whom: { face: null, ethos: "empty hub" },
+  });
   // The driver's own measure of "addressed": by REFERENT — the answer's referents (corpus index) cover the target's.
   const targetIds = m.target ? liveIndex().resolve(m.target) : null;
   // A target the index resolves is scored by identity; a target it does not resolve is UNMEASURED (null), never a substring hit — "I lent you" is not an answer about Lent.
@@ -365,7 +370,7 @@ for (let turn = state.turn + 1; turn <= TURNS; turn++) {
     historyDepth: win.depth, historyBasis: win.basis ?? null,
     turnAddressed: r?.addressed ?? null, expectation: r?.expectation ?? null, selfContradictions: r?.selfContradictions ?? [], position: r?.position ?? null,
     ms: Date.now() - t0, calls: usage.calls - calls0, promptTokens: usage.promptTokens - pt0, completionTokens: usage.completionTokens - ct0,
-    refs, unsupported: (r?.unsupported ?? []).length, unbacked: (r?.unbacked ?? []).length, sections: (r?.sections ?? []).length, boundClaims: claims.length,
+    refs, unsupported: (r?.unsupported ?? []).length, unbacked: (r?.unbacked ?? []).length, sections: (r?.sections ?? []).length, boundClaims: claims.length, meaningChase: meaningChase ? { equated: meaningChase.chase?.equated ?? 0, unEquated: meaningChase.chase?.unEquated ?? 0, rows: meaningChase.chase?.rows ?? 0, indexResolved: meaningChase.chase?.indexResolved ?? false, whom: meaningChase.chase?.whom ?? null, basis: meaningChase.chase?.basis ?? null } : null,
     premises: r?.premises ? { checked: r.premises.checked, unverified: r.premises.unverified, contradicted: r.premises.contradicted } : null,
     correction: r?.correction ? { flagged: r.correction.flagged, asked: r.correction.asked, afterFlagged: r.correction.after?.flagged } : null,
     answeredBeforeTheModel: r?.answeredBeforeTheModel ? r.answeredBeforeTheModel.kind : null, recalledTurns: r?.recalledTurns ?? [], learnedAdded, error,

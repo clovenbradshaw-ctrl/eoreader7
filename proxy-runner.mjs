@@ -16,7 +16,7 @@ import { createHyperlexicon, admitHyperlexiconCandidates } from "./native/kernel
 import { createRelationCompositionLedger, acquireCompositionCandidates } from "./native/kernel/relation-composition.js";
 import { createSession as createCorpusSession, admitChunked } from "./legacy-eoreader6.1/packages/host/corpus.js";
 import { executePrompt } from "./legacy-eoreader6.1/packages/host/surfer.js";
-import { postprocessAnswer, postprocessCode, validatePython, warmPostprocess, getPyodide } from "./postprocess.mjs";
+import { postprocessAnswer, postprocessCode, validatePython, validateHtml, warmPostprocess, getPyodide } from "./postprocess.mjs";
 // The three resolutions — brought in from the-fold (vendored at
 // native/the-fold/): the discourse restated at three grains by the reading's
 // own organs (atmosphere, lens, paradigm), never by a model's compression.
@@ -26,7 +26,7 @@ import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim } from "./native/organs/regime.js";
-import { runDMCA, categorizeCreativity } from "./native/organs/run-dmca.js";
+import { runDMCA, categorizeCreativity, chaseParaphrase, paraphraseCandidatesFor } from "./native/organs/run-dmca.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
 // resemblance, resolution by state — no absolute address. Surf's SECOND
@@ -707,17 +707,21 @@ const CODE_SHAPE_PRIOR = Object.freeze({
     shell: ["shebang and options", "argument handling", "core logic", "error handling and exit codes", "usage"],
     go: ["package header and imports", "types and constructors", "core functions", "main entry point", "tests"],
     rust: ["crate header and imports", "types and traits", "core implementation", "main entry point", "tests"],
+    html: ["the complete HTML document — doctype, head, inline CSS, body, inline JavaScript"],
+    css: ["the complete stylesheet"],
   }),
 });
 
 // The artifact's file name — the request's own named file, else the topic
 // slugged with the language's extension. A name read off the request, never
-// a guessed path.
+// a guessed path. A web artifact with no named file is index.html (the
+// conventional entry point).
 function codeArtifactName(task, language) {
   const t = String(task ?? "");
-  const m = /\b([a-z0-9][a-z0-9._-]*\.(?:py|js|mjs|ts|tsx|sh|go|rs))\b/i.exec(t);
+  const m = /\b([a-z0-9][a-z0-9._-]*\.(?:py|js|mjs|ts|tsx|sh|go|rs|html?|css))\b/i.exec(t);
   if (m) return m[1];
-  const extByLang = { python: "py", javascript: "js", typescript: "ts", shell: "sh", go: "go", rust: "rs" };
+  if (language === "html") return "index.html";
+  const extByLang = { python: "py", javascript: "js", typescript: "ts", shell: "sh", go: "go", rust: "rs", html: "html", css: "css" };
   const name = topicPhrase(task).replace(/\s+/g, "_").toLowerCase().slice(0, 40) || "program";
   return `${name}.${extByLang[language] ?? "py"}`;
 }
@@ -759,12 +763,66 @@ function codeExemplar(language) {
       try {
         const text = fs.readFileSync(full, "utf8");
         if (text.length < 2000) continue; // a stub is not a style reference
-        if (!best || text.length < best.text.length) best = { name: f.local, url: `${repo.raw_base}/${f.path}`, text };
+        if (!best || text.length < best.text.length) best = { name: f.local, url: `${repo.raw_base}/${f.path}`, license: repo.license ?? null, text };
       } catch {}
     }
   }
   if (!best) return null;
-  return { name: best.name, url: best.url, text: best.text.slice(0, 1600) };
+  return { name: best.name, url: best.url, license: best.license, text: best.text.slice(0, 1600) };
+}
+
+// ── THE HTML SHELL (the unconscious owns design + behavior) ────────────────
+// The deterministic half of web generation: a complete, self-contained HTML
+// document — a real CSS design system (CSS variables, light/dark themes,
+// responsive, card layout) and a WORKING dark-mode toggle in the <script> —
+// with the mouth's BODY content spliced in. The model is asked for content
+// only (the hero text, the menu, the hours), so the design and the
+// interactivity are never the model's to get wrong: a 1.5B mouth that can
+// write "Cappuccino, $3.50" produces a working, well-designed site.
+function htmlShell(title, body) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title>
+<style>
+:root { --bg: #faf6f0; --fg: #2d2a26; --card: #ffffff; --muted: #8a8078; --accent: #c47a3f; }
+[data-theme="dark"] { --bg: #1f1c19; --fg: #ece7e0; --card: #2a2622; --muted: #a89f96; --accent: #d69a68; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--fg); transition: background .3s, color .3s; }
+.container { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem; }
+h1 { font-size: 2.6rem; margin: 0 0 .25rem; letter-spacing: -.02em; }
+.tagline { color: var(--muted); font-size: 1.15rem; margin: 0 0 2rem; }
+section { background: var(--card); border-radius: 14px; padding: 1.5rem; margin: 1.25rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+section h2 { margin: 0 0 .75rem; font-size: .95rem; text-transform: uppercase; letter-spacing: .08em; color: var(--accent); }
+ul { list-style: none; padding: 0; margin: 0; }
+li { display: flex; justify-content: space-between; padding: .45rem 0; border-bottom: 1px solid var(--muted); opacity: .92; }
+li:last-child { border-bottom: none; }
+.theme-toggle { position: fixed; top: 1rem; right: 1rem; background: var(--accent); color: #fff; border: none; border-radius: 999px; padding: .6rem 1.1rem; cursor: pointer; font-size: .9rem; }
+.theme-toggle:hover { filter: brightness(1.08); }
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle">Dark mode</button>
+<div class="container">
+${body}
+</div>
+<script>
+(function () {
+  var btn = document.getElementById("themeToggle");
+  var saved = localStorage.getItem("theme");
+  if (saved) document.documentElement.setAttribute("data-theme", saved);
+  btn.addEventListener("click", function () {
+    var cur = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", cur);
+    localStorage.setItem("theme", cur);
+    btn.textContent = cur === "dark" ? "Light mode" : "Dark mode";
+  });
+})();
+</script>
+</body>
+</html>`;
 }
 
 // The code section prompt: the mouth is asked for ONE structural unit of the
@@ -777,10 +835,20 @@ function codeSectionPrompt({ section, language, name, task, i, total, soFar, exe
     ? `\nA real ${language} file from the retained source corpus, as a style reference — compose like it, never copy it:\n"""\n${exemplar.text}\n"""`
     : "";
   const soFarBlock = soFar ? `\n\nCode written so far (earlier parts):\n${soFar}\n` : "";
-  if (total === 1) {
-    return `We're writing ${name} — a ${language} program. The complete specification:\n\n"""\n${task}\n"""\n\nWrite the COMPLETE file, start to finish. Aim for this structure: ${shape.join(" → ")}.${exemplarBlock}\n\nRules:\n- Emit ${language} source code only — no explanation, no prose, no markdown fences, no commentary about writing.\n- Use the exact names, flags, and behavior the specification requires.`;
+  // HTML: the mouth writes the BODY CONTENT only — the shell (doctype, head,
+  // design-system CSS, working dark-mode JS) already exists in the
+  // unconscious. The model's whole job is the notes and concepts: the hero,
+  // the five drinks, the hours.
+  if (language === "html") {
+    return `We're writing the page content for ${name}. The complete specification:\n\n"""\n${task}\n"""\n\nWrite ONLY the page content as HTML elements: a hero (an <h1> with the site name and a <p class="tagline"> with a short tagline), a menu <section> with an <h2> and a <ul> of five drinks with prices, and an hours <section> with an <h2> and the opening hours. The surrounding page, the stylesheet, and the dark-mode toggle already exist — do NOT write <html>, <head>, <body>, <style>, or <script> tags, only the inner content. Emit HTML only, no prose, no markdown fences, no commentary.`;
   }
-  return `We're writing ${name} — a ${language} program. The complete specification:\n\n"""\n${task}\n"""\n\nNow write ONLY this part of the file: ${section} (part ${i + 1} of ${total}).${exemplarBlock}\n${soFarBlock}\nRules:\n- Emit ${language} source code only — no explanation, no prose, no markdown fences, no commentary about writing.\n- This part must compose with the parts already written: do not repeat code from earlier parts; use the names they define.\n- Use the exact names, flags, and behavior the specification requires.`;
+  const what = language === "css" ? "a stylesheet" : `a ${language} program`;
+  const what2 = language === "css" ? "CSS" : `${language} source code`;
+  const lawHint = languageLawHint(language);
+  if (total === 1) {
+    return `We're writing ${name} — ${what}. The complete specification:\n\n"""\n${task}\n"""\n\nWrite the COMPLETE file, start to finish. Aim for this structure: ${shape.join(" → ")}.${lawHint}${exemplarBlock}\n\nRules:\n- Emit ${what2} only — no explanation, no prose, no markdown fences, no commentary about writing.\n- Use the exact names, behavior, and content the specification requires.`;
+  }
+  return `We're writing ${name} — ${what}. The complete specification:\n\n"""\n${task}\n"""\n\nNow write ONLY this part of the file: ${section} (part ${i + 1} of ${total}).${lawHint}${exemplarBlock}\n${soFarBlock}\nRules:\n- Emit ${what2} only — no explanation, no prose, no markdown fences, no commentary about writing.\n- This part must compose with the parts already written: do not repeat code from earlier parts; use the names they define.\n- Use the exact names, behavior, and content the specification requires.`;
 }
 
 // Code satisfaction: the void is filled when the ASSEMBLED file is non-empty,
@@ -797,18 +865,131 @@ function codeSatisfaction({ documentLines, sections, validation }) {
   }
   if (validation && !validation.ok) for (const f of validation.findings ?? []) failures.push({ kind: `lint:${f.kind}`, detail: f.detail });
   const ok = failures.length === 0;
-  return { ok, filled, of: sections.length, failures, totalStrain: failures.length, basis: `code satisfaction: ${filled}/${sections.length} part(s) wrote source code${validation ? (validation.ok ? "; compiles and runs clean" : "; fails validation") : "; unvalidated"}` };
+  const standing = !validation ? "; unvalidated" : validation.unchecked ? "; no validator ran (unchecked)" : validation.ok ? "; compiles and runs clean" : "; fails validation";
+  return { ok, filled, of: sections.length, failures, totalStrain: failures.length, basis: `code satisfaction: ${filled}/${sections.length} part(s) wrote source code${standing}` };
+}
+
+// ── SPEC-DERIVED EVA: the task's own requirements, checked as findings ─────
+// The one failure class the language validator cannot catch is a DROPPED
+// REQUIREMENT — the A/B measured it: a raw small model wrote a menu with zero
+// prices because "five drinks with prices" got buried in the spec. The task
+// IS the DEF; this reads its own counts ("five drinks"), named content
+// ("hero", "menu", "hours", "prices", "dark mode"), and named definitions
+// ("a function X") back off the prose, and reports each absent one as a typed
+// finding the REC loop then repairs. Heuristic, disclosed — never a proof,
+// always a witness over the spec's own words.
+const NUM_WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10 };
+const CONTENT_SIGNALS = ["hero", "tagline", "menu", "hours", "prices", "price", "dark mode", "header", "footer", "button", "form", "search", "login", "contact", "about", "theme", "toggle", "navigation", "nav"];
+function specFindings(task, text, language) {
+  const findings = [];
+  const t = String(task ?? "").toLowerCase();
+  const out = String(text ?? "").toLowerCase();
+  // Counts: "five drinks", "3 columns", "N flags/options/items/sections".
+  const countRe = /\b(one|two|three|four|five|six|seven|eight|nine|ten|\d+)\s+(drinks?|items?|sections?|columns?|flags?|options?|steps?|entries?|fields?|menu\s+items?)\b/gi;
+  let m;
+  while ((m = countRe.exec(t))) {
+    const want = NUM_WORDS[m[1].toLowerCase()] ?? Number(m[1]);
+    const noun = m[2];
+    let got = 0;
+    if (language === "html") got = (text.match(/<li[^>]*>/gi) || []).length;
+    else if (/flag|option/.test(noun)) got = (text.match(/\badd_argument\b/gi) || []).length;
+    if (want > 0 && got < want) findings.push({ kind: "spec_count", detail: `the spec asked for ${want} ${noun} but only ${got} found` });
+  }
+  // Named content / features.
+  const asked = new Set();
+  const contentRe = /\b(hero|tagline|menu|hours|prices?|dark mode|header|footer|button|form|search|login|contact|about|theme|toggle|navigation|nav)\b/gi;
+  while ((m = contentRe.exec(t))) asked.add(m[1].toLowerCase());
+  for (const sig of asked) {
+    let present;
+    if (sig === "prices" || sig === "price") present = /\$\d|\d+\.\d{2}/.test(out);
+    else if (sig === "dark mode" || sig === "theme" || sig === "toggle") present = /\b(dark|theme)\b/.test(out);
+    else present = out.includes(sig);
+    if (!present) findings.push({ kind: "spec_missing", detail: `the spec asked for "${sig}" but it is absent` });
+  }
+  // Named definitions (python).
+  if (language === "python") {
+    const fnRe = /\b(?:function|def|class|method)\s+(?:named\s+|called\s+)?([a-z_]\w*)/gi;
+    while ((m = fnRe.exec(t))) {
+      const name = m[1];
+      if (!new RegExp(`\\b(?:def|class)\\s+${name}\\b`).test(text)) findings.push({ kind: "spec_missing", detail: `the spec asked for "${name}" but it is not defined` });
+    }
+  }
+  return findings;
+}
+
+// ── the language-law prior, wired in (live_priors derived-priors) ───────────
+// The prior is an INDEX over the engine, used to ground the mouth in the
+// language's own laws without re-deriving them: the declaration recipes and
+// the stdlib surface. Loaded once per language, cached; absent when the prior
+// was not built (disclosed, never a silent skip).
+const _lawCache = new Map();
+function loadLanguageLawPrior(language) {
+  if (_lawCache.has(language)) return _lawCache.get(language);
+  let prior = null;
+  try {
+    const p = path.join(HERE, "..", "..", "..", "live_priors", "derived-priors", "code-priors", `${language}-language-law-prior-v1.json`);
+    prior = JSON.parse(fs.readFileSync(p, "utf8"));
+  } catch {}
+  _lawCache.set(language, prior);
+  return prior;
+}
+function languageLawHint(language) {
+  const prior = loadLanguageLawPrior(language);
+  if (!prior) return "";
+  const recipes = (prior.grammar?.declarationRecipes ?? []).map((r) => r.shape).filter(Boolean).join(", ");
+  const stdlib = (prior.lexicon?.coreApi ? Object.keys(prior.lexicon.coreApi) : (prior.lexicon?.stdlibModules ?? []).slice(0, 24)).slice(0, 24);
+  const parts = [];
+  if (recipes) parts.push(`Declaration shapes: ${recipes}.`);
+  if (stdlib.length) parts.push(`Standard library available: ${stdlib.join(", ")}.`);
+  return parts.length ? `\nThe language's laws (from the engine): ${parts.join(" ")}` : "";
+}
+
+// ── ETHOS, UNCONSCIOUS: the artifact's provenance, written as a header ─────
+// The code artifact is NOT morally neutral — it is unavoidably grounded in
+// what produced it, and that ground is stated in a header comment the model
+// never sees. The givers: the model (named with its license + home), the
+// language-law prior (the engine it stands on), the exemplar repo (with ITS
+// license), the shape prior, and the tenor (who it is for). This is the same
+// giver discipline the essay's citation ledger holds — applied to code — so
+// the artifact can never be read as if it sprang from nowhere. A license is
+// carried only when the manifest/prior actually states it; never fabricated.
+function codeProvenance({ task, language, model, exemplar, tenor }) {
+  const givers = [];
+  const m = MODEL_GIVER(model);
+  givers.push(`${m.name ?? model}${m.license ? ` (${m.license})` : ""}${m.hfUrl ? ` — ${m.hfUrl}` : ""}`);
+  const law = loadLanguageLawPrior(language);
+  if (law?.giver?.resource) givers.push(law.giver.resource);
+  if (exemplar?.url) givers.push(`exemplar: ${exemplar.url}${exemplar.license ? ` (${exemplar.license})` : ""}`);
+  givers.push(`shape: ${CODE_SHAPE_PRIOR.giver}`);
+  if (tenor) givers.push(`for: ${tenor}`);
+  return givers;
+}
+function codeProvenanceHeader({ task, language, model, exemplar, tenor }) {
+  const givers = codeProvenance({ task, language, model, exemplar, tenor });
+  const lines = ["Generated by EOReader7 (code universe) — the artifact is grounded in:"].concat(givers.map((g) => `  - ${g}`));
+  if (language === "html") return `<!--\n${lines.join("\n")}\n-->\n`;
+  if (language === "python" || language === "shell") return `${lines.map((l) => `# ${l}`).join("\n")}\n`;
+  return `/*\n${lines.join("\n")}\n*/\n`;
 }
 
 // Strip markdown code fences from a section the mouth emitted — the mouth is
-// told "no fences", but a small model emits them anyway; the unconscious
-// system removes them so the assembled file is raw code. Never guessed: only
-// a matching ```lang ... ``` pair at the section's own edges is stripped.
+// told "no fences", but a small model emits them anyway (and often appends an
+// afterword: "This HTML document meets the requirements…"); the unconscious
+// system removes both so the assembled file is raw code. Never guessed: only
+// a matching ``` fence is stripped, and the afterword is dropped only at a
+// closing fence boundary.
 function stripCodeFences(text, language) {
   const t = String(text ?? "").trim();
-  const fence = new RegExp(`^\`\`\`(?:${language ?? "[\\w.+-]*"})?[ \\t]*\\n([\\s\\S]*?)\\n\`\`\`[ \\t]*$`, "i");
-  const m = fence.exec(t);
-  return m ? m[1].trim() : t;
+  const tag = language ? language.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") : "[\\w.+-]*";
+  // Whole-text single fence.
+  const full = new RegExp(`^\`\`\`${tag}[ \\t]*\\n([\\s\\S]*?)\\n\`\`\`[ \\t]*$`, "i").exec(t);
+  if (full) return full[1].trim();
+  // Leading fence with a trailing afterword: strip the leading fence and cut
+  // at the last closing fence (the model's commentary after the code).
+  let s = t.replace(/^```[\w.+-]*[ \t]*\n/i, "");
+  const lastFence = s.lastIndexOf("\n```");
+  if (lastFence !== -1) s = s.slice(0, lastFence);
+  return s.trim();
 }
 
 // The shape of a composition is EXTRACTED from the material, never steered:
@@ -989,7 +1170,7 @@ function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegment
   // a poem, a nocturne, a film, an essay — the register resolves the FIELD
   // (open set) and the MODE (medium). The essay is one field among many.
   const reg = deriveRegister(t, { genres: sidecarGenres() });
-  const produce = /\b(?:write|compose|draft|prepare|generate|produce|make|tell)\b/i.test(t);
+  const produce = /\b(?:write|compose|draft|prepare|generate|produce|make|tell|build|create|implement|code)\b/i.test(t);
   const aimsAt = /\b(?:on|about|covering|addressing)\b/i.test(t);
   const multiPart = /\b(multi-?part|long-?form|several sections|a several-part piece|numbered sections)\b/i.test(t);
   const namesGenre = Boolean(reg.field.field) || reg.mode !== "text"; // a registered genre OR a non-text medium
@@ -2089,6 +2270,21 @@ function chatVoidCheck(text, { shape, material = "" } = {}) {
   if (/\b(as an ai|i can't|i cannot|i'm just|i'm not able|let me know if you)\b/i.test(t)) { failures.push({ kind: "meta", detail: "the answer talks about the instrument instead of answering" }); strain++; }
   return { ok: failures.length === 0, filled: failures.length ? 0 : 1, of: 1, failures, strain };
 }
+
+// ── THE PARAPHRASE CHASE (the meaning rule, 2026-09-14): "something is a
+// paraphrase if it isn't character identical but the holograph equates to the
+// same thing — and you do have to chase meaning." AND the user's amendment:
+// no model evaluates paraphrasing, and meaning always has a for whom — even
+// the empty hub of the ethos at this fold. The verbatim instrument (runDMCA)
+// is character identity; its silence is now NAMED by the shadow chase
+// (paraphraseCandidates). The EQUATE is performed by the RECORD, never a
+// model: the fold's own claim rows — {label, end2, end1} at referent
+// identity, the very rows the material ledger holds — are equated against the
+// candidate spans FOR the run's whom (here: the EVA lens, LaVar). A span that
+// resolves to a row is grounded-by-meaning, moved to Derive on the ledger's
+// own ruler; a span no row resolves is NAMED un-equatable FOR that whom,
+// disclosed, never laundered. No model is asked while meaning is equated.
+// ────────────────────────────────────────────────────────────────────────
 
 export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null, mode = "auto", signal = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
@@ -3712,15 +3908,43 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // findings that failed it). A failing artifact is a typed REC: the mouth
       // re-draws the whole file with the errors in hand, bounded like Ranke.
       const codeText = () => stripCodeFences(documentLines.join("\n\n"), codeLanguage);
-      fullText = codeText();
-      if (codeLanguage === "python") {
-        codeValidation = await validatePython(fullText, { smokeInput: null });
+      // HTML: the mouth wrote BODY content only; the unconscious assembles the
+      // full self-contained document (design system + working dark mode).
+      const siteTitle = (() => {
+        const m = /\b(?:called|named)\s+([A-Z][\w\s&'-]+?)(?=[.,)]|$)/i.exec(task);
+        return (m ? m[1].trim() : topicPhrase(task)).slice(0, 60);
+      })();
+      const assembleCode = () => {
+        const header = codeProvenanceHeader({ task, language: codeLanguage, model, exemplar: codeExemplar(codeLanguage), tenor: taskRegister?.tenor?.tenor ?? null });
+        const body = codeText();
+        if (codeLanguage === "html") return htmlShell(siteTitle, body).replace("<body>", `<body>\n${header.trim()}`);
+        return header + body;
+      };
+      fullText = assembleCode();
+      const runValidator = async (t) => {
+        // HONESTY (ethos): a language with no hard validator is marked
+        // `unchecked`, never silently "validated". Only python (compile+exec)
+        // and html (HTMLParser) have a real witness; every other language
+        // discloses that no validator ran — the machine-that-won't-answer
+        // posture, aimed at the artifact's own claim of correctness.
+        const v = codeLanguage === "python" ? await validatePython(t) : codeLanguage === "html" ? await validateHtml(t) : { ok: true, findings: [], unchecked: true, basis: "no hard validator for this language" };
+        // SPEC-DERIVED EVA: the task's own requirements (counts, named
+        // content, named definitions) are findings too — a dropped "prices" or
+        // a missing "hours" section is a typed gap the REC loop repairs.
+        const spec = specFindings(task, t, codeLanguage);
+        if (spec.length) { v.ok = false; v.findings = [...(v.findings ?? []), ...spec]; }
+        return v;
+      };
+      if (runValidator) {
+        codeValidation = await runValidator(fullText);
         if (onNote) onNote({ move: "code_validate", ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`), smoke: codeValidation.smoke });
         let round = 0;
         while (!codeValidation.ok && round < MAX_REWRITE_ROUNDS && !truncated) {
           const findings = (codeValidation.findings ?? []).slice(0, 6).map((f) => `- [${f.kind}] ${f.detail}`).join("\n");
           if (onThinking) onThinking(`\n### Code check failed (round ${round + 1})\n${findings}\n\n`);
-          const fixMsg = `We're writing ${codeArtifactName(task, codeLanguage)} — a ${codeLanguage} program. The complete specification:\n\n"""\n${task}\n"""\n\nThe file written so far:\n"""\n${fullText.slice(-6000)}\n"""\n\nThe validator found these problems:\n${findings}\n\nRewrite the WHOLE file so it is correct, complete, and composes. Emit ${codeLanguage} source code only — no explanation, no prose, no markdown fences, no commentary.`;
+          const fixMsg = codeLanguage === "html"
+            ? `We're writing the page content for ${codeArtifactName(task, codeLanguage)}. The complete specification:\n\n"""\n${task}\n"""\n\nThe page content written so far:\n"""\n${codeText().slice(-3000)}\n"""\n\nThe validator found these problems:\n${findings}\n\nRewrite the page CONTENT (the hero, menu, and hours as HTML elements — no <html>, <head>, <body>, <style>, or <script> tags) so it is complete and valid. Emit HTML only, no prose, no markdown fences.`
+            : `We're writing ${codeArtifactName(task, codeLanguage)} — a ${codeLanguage} program. The complete specification:\n\n"""\n${task}\n"""\n\nThe file written so far:\n"""\n${fullText.slice(-6000)}\n"""\n\nThe validator found these problems:\n${findings}\n\nRewrite the WHOLE file so it is correct, complete, and composes. Emit ${codeLanguage} source code only — no explanation, no prose, no markdown fences, no commentary.`;
           const fix = await draw(
             [{ role: "system", content: systemContent }, ...keptChat, { role: "user", content: fixMsg }],
             SECTION_MAX_TOKENS,
@@ -3731,9 +3955,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           if (!fixText) break;
           documentLines.length = 0;
           documentLines.push(fixText);
-          fullText = fixText;
-          if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `logos: validation round ${round + 1}`, text: fixText, giver: model, supersedes: null, basis: `REC: the validator failed — ${findings.slice(0, 200)}` }, { dir: ESSAY_LEDGER_DIR });
-          codeValidation = await validatePython(fullText, { smokeInput: null });
+          fullText = assembleCode();
+          if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `logos: validation round ${round + 1}`, text: fullText, giver: model, supersedes: null, basis: `REC: the validator failed — ${findings.slice(0, 200)}` }, { dir: ESSAY_LEDGER_DIR });
+          codeValidation = await runValidator(fullText);
           if (onNote) onNote({ move: "code_validate", round: round + 1, ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`) });
           round++;
         }
@@ -3922,11 +4146,35 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     categorized = dmca && citesResult
       ? categorizeCreativity({ text: documentLines.join("\n\n"), sources: citationSources, citations: citesResult.citations })
       : null;
-    if (categorized && onNote) onNote({ move: "creativity", cell: categorized.cell.name, archon: categorized.cell.archon, derivation: categorized.derivation, quoted: categorized.reproduce.quoted, copied: categorized.reproduce.copied, derived: categorized.derive, invented: categorized.invent });
+    // THE MEANING CHASE (the user's paraphrase rule): when the verbatim
+    // instrument is silent but the shadow chase named candidate spans, the
+    // RECORD equates them against its OWN claim rows — the fold's
+    // {label, end2, end1} propositions through the referent index — never a
+    // model, and always FOR the run's whom (the EVA lens of this fold).
+    // An equated span is grounded-by-meaning, moved to Derive; a span no
+    // row resolves is NAMED un-equatable FOR that whom, disclosed.
+    let paraphraseChased = null;
+    if (categorized?.paraphraseCandidates > 0) {
+      try {
+        const chased = chaseParaphrase({
+          text: documentLines.join("\n\n"),
+          sources: citationSources,
+          citations: citesResult.citations,
+          claims: notesFromEdges(rawEntries ?? []),
+          index: sessionReferentIndex(session, onNote),
+          whom: { face: "LaVar", ethos: "the EVA lens of this fold" },
+        });
+        paraphraseChased = chased.chase ?? null;
+        categorized = chased.categorized ?? categorized;
+      } catch (err) {
+        paraphraseChased = { candidates: categorized.paraphraseCandidates, equated: 0, unEquated: 0, rows: 0, indexResolved: false, basis: `the record equate threw: ${err?.message ?? err}` };
+      }
+    }
+    if (categorized && onNote) onNote({ move: "creativity", cell: categorized.cell.name, archon: categorized.cell.archon, derivation: categorized.derivation, ratio: categorized.derivationRatio, window: categorized.derivationWindow, quoted: categorized.reproduce.quoted, copied: categorized.reproduce.copied, derived: categorized.derive, invented: categorized.invent, disagreement: categorized.disagreement, paraphraseUnmeasured: categorized.paraphraseUnmeasured, paraphraseCandidates: categorized.paraphraseCandidates ?? 0, paraphraseEquated: categorized.paraphraseEquated ?? 0 });
     wheel.turn("verdict",
       documentLedger ? "satisfaction = climbing arc, felt releases, grounded claims — DEF'd before the plan" : "chat satisfaction",
-      { ok: sat, filled: satisfaction?.filled ?? 0, of: satisfaction?.of ?? 0, failures: satisfaction?.failures?.length ?? 0, strain: satisfaction?.totalStrain ?? 0, feltTarget, feltRead: readSurprise, feltGap: feltTarget == null ? null : (feltTarget - readSurprise), ranke: ranke?.verbatim ?? null, unsupported: ranke?.unsupported ?? null, dmca: dmca ? { ok: dmca.ok, quoted: dmca.quoted, copied: dmca.copied } : null, categorized: categorized ? { derivation: categorized.derivation, cell: categorized.cell, reproduce: categorized.reproduce, derive: categorized.derive, invent: categorized.invent } : null },
-      { ...satisfaction, ranke, dmca, categorized },
+      { ok: sat, filled: satisfaction?.filled ?? 0, of: satisfaction?.of ?? 0, failures: satisfaction?.failures?.length ?? 0, strain: satisfaction?.totalStrain ?? 0, feltTarget, feltRead: readSurprise, feltGap: feltTarget == null ? null : (feltTarget - readSurprise), ranke: ranke?.verbatim ?? null, unsupported: ranke?.unsupported ?? null, dmca: dmca ? { ok: dmca.ok, quoted: dmca.quoted, copied: dmca.copied } : null, categorized: categorized ? { derivation: categorized.derivation, field: categorized.field, echo: categorized.echo, cell: categorized.cell, reproduce: categorized.reproduce, derive: categorized.derive, invent: categorized.invent, paraphraseCandidates: categorized.paraphraseCandidates ?? 0, paraphraseEquated: categorized.paraphraseEquated ?? 0, paraphraseChased: paraphraseChased ?? null } : null },
+      { ...satisfaction, ranke, dmca, categorized, paraphraseChased },
       { evaBasis: "the artifact is measured against the declare — a real difference, never a softmax", operator: "EVA", grain: "Lens", face: "LaVar" });
     wheel.turn("fold",
       "the superseding satisfaction — corrected against what this run's material actually allowed",
@@ -4007,8 +4255,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             if (rankeTotalFindings) rows.push(`\nRanke found ${rankeTotalFindings} section(s) that drifted from the material and rewrote them from the record.`);
             // THE PERIODIC TABLE OF CREATIVITY — where this piece landed, read
             // off its own provenance (reproduced / derived / invented), the
-            // metadata revealed on every surface.
-            if (categorized) rows.push(`\nThis piece landed in the cell ${categorized.cell.name} (${categorized.cell.archon}'s cell, ${categorized.cell.grain} × ${categorized.cell.phase} · ${categorized.derivation}) on the periodic table of creativity: ${categorized.reproduce.quoted} quoted, ${categorized.reproduce.copied} copied, ${categorized.derive} derived, ${categorized.invent} invented.`);
+            // metadata revealed on every surface. The label is the risk posture;
+            // the SHARE, the n-window, and instrument disagreements ride with it.
+            if (categorized) {
+              rows.push(`\nThis piece landed in the cell ${categorized.cell.name} (${categorized.cell.archon}'s cell, ${categorized.cell.grain} × ${categorized.cell.phase} · ${categorized.derivation}): ${categorized.reproduce.quoted} quoted, ${categorized.reproduce.copied} copied (${categorized.units.reproduce}); ${categorized.derive} derived, ${categorized.invent} invented (${categorized.units.derive}).`);
+              rows.push(`${categorized.derivation} STANDS as the FIELD (the category the next read primes on); the ECHO — below the field, still on the record — is ratio ${(categorized.derivationRatio * 100).toFixed(1)}% clutched to a magic n (${categorized.derivationWindow.n}); the real window is ${+categorized.derivationWindow.min.toFixed(2)}…${+categorized.derivationWindow.max.toFixed(2)}.${categorized.disagreement ? " The two instruments disagree on this text (order-specific runs the ledger calls company) — inspect the rows before trusting the cell." : ""}${categorized.paraphraseUnmeasured ? ` No reproduction seen — but paraphrase is UNMEASURED by this instrument; 'invented' may be grounded-and-reworded company.${categorized.paraphraseCandidates ? ` The shadow chase named ${categorized.paraphraseCandidates} span(s) whose claim-vocabulary the sources' own sentences carry${categorized.paraphraseEquated ? `, and the RECORD equated ${categorized.paraphraseEquated} of them, FOR ${categorized.paraphraseChase?.whom?.face ?? "the empty hub of this fold"}, to its own claim rows (${(categorized.paraphraseChase?.equatedRows ?? []).slice(0, 2).map((r) => `“${r.row?.label ?? ""}”`).join(", ")}) — grounded-by-meaning on the record's ruler, never a model, moved to derived` : ` — the record holds no row that equates them FOR this fold's whom (${categorized.paraphraseChase?.whom?.face ?? "the empty hub"}), and they are NAMED un-equatable, disclosed, never laundered`}.` : ""}` : ""}`);
+            }
             return rows.join("\n");
           })(),
         }
