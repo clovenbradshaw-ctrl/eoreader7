@@ -1,7 +1,10 @@
 // tui.mjs — the interactive terminal UI: multiple tabbed conversations in
-// one running process, each either "grounded chat" (proxy.mjs's own
-// checked reading pipeline) or "coding agent" (agent-loop.mjs, real tool
-// use over the local filesystem). Built with Ink (React for the terminal).
+// one running process, each either "grounded chat" or "coding agent" —
+// both server-side, over the SAME proxy.mjs every caller of this instrument
+// uses (native/the-fold/sandboxed-agent.js for the coding loop, sandboxed:
+// an in-memory virtual filesystem, JS run in a severed vm.Context, nothing
+// real). This file is a thin client; it holds no model-calling or tool-
+// execution logic of its own. Built with Ink (React for the terminal).
 //
 // No JSX: this file runs directly under `node` (this repo's whole CLI has
 // no build/transpile step — eoreader7.mjs and er7-proxy.mjs are both run
@@ -16,8 +19,7 @@
 //   Ctrl+H          toggle this help overlay
 //   Ctrl+Up/Down    scroll the transcript
 //   Ctrl+C          quit (also available as /quit)
-//   Enter           send the input line, or approve a pending confirmation
-//   Esc             reject a pending confirmation
+//   Enter           send the input line
 // Chosen to avoid the readline/emacs Ctrl+N/Ctrl+P/Ctrl+B/Ctrl+F family and
 // avoid plain Tab (many terminal emulators already claim Ctrl+Tab for their
 // own tab switching) — Ctrl+Arrow and Ctrl+letter combos below are free in
@@ -29,8 +31,9 @@
 //
 // Two modes per tab: "chat" sends straight to proxy-client.chatCompletion
 // (the fold's grounded pipeline — retrieval/checking/citations already
-// run there, this file adds none of that). "code" runs agent-loop's
-// ReAct loop directly against Ollama with real filesystem tools.
+// run there, this file adds none of that). "code" sends to proxy-
+// client.agentCompletion, the server-side sandboxed coding loop — same
+// posture, this file draws the transcript and holds no loop logic itself.
 //
 // The proxy's chat completion is treated here as a single request/response
 // (see proxy-client.mjs's header for why streaming is not used here even
@@ -38,16 +41,15 @@
 // "thinking…" spinner while a request is in flight, never fabricated
 // incremental text.
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { render, Box, Text, useApp, useInput, useStdout } from "ink";
 import TextInput from "ink-text-input";
 import * as proxyClient from "./proxy-client.mjs";
-import { runAgentTurn, AGENT_MAX_TURNS } from "./agent-loop.mjs";
+import { AGENT_MAX_TURNS } from "../native/the-fold/sandboxed-agent.js";
 import { matrixLogin, matrixLogout, matrixStatus, matrixWhoAmI } from "./matrix-login.mjs";
 import { startGithubDeviceFlow, githubLogout, githubStatus, githubWhoAmI } from "./github-login.mjs";
 
 const h = React.createElement;
-const OLLAMA_URL = process.env.ER7_UPSTREAM || "http://localhost:11434";
 const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
 let _tabSeq = 0;
@@ -72,7 +74,9 @@ function makeTab(overrides = {}) {
     // conversation that happened to land on the same pid. randomUUID is
     // generated once per tab and never reused, by construction.
     sessionId: `tui-${_tabSeq}-${process.pid}-${crypto.randomUUID().slice(0, 8)}`,
-    agentHistory: [], // raw ollama-role messages, code mode continuity
+    // code mode's own continuity (the virtual filesystem, prior turns) is
+    // held server-side, keyed by sessionId (proxy.mjs's agentFilesBySession)
+    // — nothing to track here beyond the id itself.
     chatHistory: [], // {role, content} turns sent to the proxy, chat mode continuity
     ...overrides,
   };
@@ -129,35 +133,16 @@ function HelpOverlay() {
     h(Text, null, "Ctrl+T  new tab            Ctrl+W  close tab"),
     h(Text, null, "Ctrl+Right/Left  switch tabs    Ctrl+Up/Down  scroll transcript"),
     h(Text, null, "Ctrl+H  toggle this help   Ctrl+C  quit"),
-    h(Text, null, "Enter   send / approve     Esc     reject a pending confirmation"),
+    h(Text, null, "Enter   send"),
     h(Text, { bold: true, marginTop: 1 }, "Slash commands"),
     h(Text, null, "/new  /close  /model [n|name]  /code  /chat  /help  /quit"),
     h(Text, null, "/matrix [status|login <hs> <user> <pw>|logout|whoami]  /github [status|login|logout]"),
     h(Text, { bold: true, marginTop: 1 }, "Modes"),
     h(Text, null, "chat — sent to the fold proxy's grounded reading pipeline."),
-    h(Text, null, "code — a real tool-use loop against Ollama directly: read_file,"),
-    h(Text, null, "  list_dir, grep run immediately; write_file and run_command"),
-    h(Text, null, "  always ask for your approval first, shown as a real diff or"),
-    h(Text, null, `  the exact command. Capped at ${AGENT_MAX_TURNS} tool-use turns per task.`));
-}
-
-function ConfirmModal({ request }) {
-  const { tool, preview } = request;
-  const body = [];
-  if (tool === "write_file") {
-    body.push(h(Text, { key: "hdr" }, preview.isNew ? `New file: ${preview.path}` : `Edit: ${preview.path}`));
-    preview.diff.forEach((d, i) => {
-      body.push(h(Text, { key: i, color: d.kind === "add" ? "green" : d.kind === "remove" ? "red" : "gray" },
-        (d.kind === "add" ? "+ " : d.kind === "remove" ? "- " : "  ") + d.text));
-    });
-  } else if (tool === "run_command") {
-    body.push(h(Text, { key: "cwd" }, `Run in ${preview.cwd}:`));
-    body.push(h(Text, { key: "cmd", color: "yellow" }, `$ ${preview.command}`));
-  }
-  return h(Box, { flexDirection: "column", borderStyle: "round", borderColor: "red", paddingX: 1 },
-    h(Text, { bold: true, color: "red" }, `Approval needed — ${tool}`),
-    h(Box, { flexDirection: "column" }, body),
-    h(Text, { dimColor: true, marginTop: 1 }, "Enter to approve · Esc or n to reject"));
+    h(Text, null, "code — an open-ended coding loop over the SAME proxy, sandboxed:"),
+    h(Text, null, "  an in-memory virtual filesystem and JS run in a severed vm.Context —"),
+    h(Text, null, "  nothing touches the real disk or process, so nothing needs your"),
+    h(Text, null, `  approval. Capped at ${AGENT_MAX_TURNS} turns per task.`));
 }
 
 function App() {
@@ -168,8 +153,6 @@ function App() {
   const [models, setModels] = useState([]);
   const [proxyState, setProxyState] = useState({ status: "checking" });
   const [helpVisible, setHelpVisible] = useState(false);
-  const [confirmRequest, setConfirmRequest] = useState(null);
-  const confirmResolveRef = useRef(null);
 
   const activeTab = tabs.find((t) => t.id === activeId) ?? tabs[0];
 
@@ -208,18 +191,6 @@ function App() {
       }
     })();
     return () => { cancelled = true; };
-  }, []);
-
-  const confirm = useCallback((req) => new Promise((resolve) => {
-    confirmResolveRef.current = resolve;
-    setConfirmRequest(req);
-  }), []);
-
-  const resolveConfirm = useCallback((approved) => {
-    const resolve = confirmResolveRef.current;
-    confirmResolveRef.current = null;
-    setConfirmRequest(null);
-    if (resolve) resolve(approved);
   }, []);
 
   const newTab = useCallback(() => {
@@ -277,50 +248,32 @@ function App() {
     const tab = tabs.find((t) => t.id === tabId);
     pushMessage(tabId, "user", `> ${text}`);
     updateTab(tabId, (t) => ({ ...t, status: "busy" }));
-    const onEvent = (ev) => {
-      switch (ev.type) {
-        case "tool-call":
-          pushMessage(tabId, "tool-call", `→ ${ev.tool}(${JSON.stringify(ev.args)})`);
-          break;
-        case "tool-result":
-          pushMessage(tabId, "tool-result", `  ${ev.tool} → ${JSON.stringify(ev.result).slice(0, 2000)}`);
-          break;
-        case "parse-error":
-          pushMessage(tabId, "error", `unparseable model response: ${ev.error}`);
-          break;
-        case "confirm-rejected":
-          pushMessage(tabId, "note", `rejected: ${ev.tool}`);
-          break;
-        case "final":
-          pushMessage(tabId, "assistant", ev.text);
-          break;
-        case "turn-cap":
-          pushMessage(tabId, "error", `hit the ${ev.maxTurns}-turn cap without a final answer.`);
-          break;
-        case "error":
-          pushMessage(tabId, "error", `error: ${ev.error}`);
-          break;
-        default:
-          break;
-      }
-    };
     try {
-      const res = await runAgentTurn({
-        model: proxyClient.stripPrefix(tab.model),
-        ollamaUrl: OLLAMA_URL,
-        task: text,
-        history: tab.agentHistory,
-        cwd: process.cwd(),
-        onEvent,
-        confirm,
+      const res = await proxyClient.agentCompletion({
+        model: tab.model, task: text, sessionId: tab.sessionId,
+        onRetry: ({ attempt, retryAfterS, type }) => pushMessage(tabId, "note", `${type === "saturated" ? "box" : "model"} busy — retrying in ${retryAfterS}s (attempt ${attempt}/${proxyClient.CHAT_MAX_RETRIES})`),
       });
-      updateTab(tabId, (t) => ({ ...t, agentHistory: res.messages ?? t.agentHistory }));
+      // Every round is real and disclosed — nothing this loop did is hidden,
+      // the same "hidden drawing, never a hidden finding" posture the-fold
+      // itself holds. Nothing here needed approval: it's all sandboxed.
+      for (const r of res.rounds ?? []) {
+        if (r.gap) { pushMessage(tabId, "error", `(turn ${r.turn}) ${r.gap.reason}`); continue; }
+        if (r.action === "list") pushMessage(tabId, "tool-call", `→ list: ${r.files.join(", ") || "(empty)"}`);
+        else if (r.action === "read") pushMessage(tabId, "tool-call", `→ read ${r.path} (${r.contentChars} chars)`);
+        else if (r.action === "write") pushMessage(tabId, "tool-call", `→ write ${r.path} (${r.contentChars} chars, sandboxed — not the real disk)`);
+        else if (r.action === "run") {
+          pushMessage(tabId, "tool-call", `→ run (sandboxed JS)`);
+          pushMessage(tabId, "tool-result", `  ${r.output || "(no output)"}`);
+        }
+      }
+      if (res.done) pushMessage(tabId, "assistant", res.answer);
+      else pushMessage(tabId, "error", `hit the turn cap without a final answer.`);
     } catch (err) {
       pushMessage(tabId, "error", `error: ${err.message}`);
     } finally {
       updateTab(tabId, (t) => ({ ...t, status: "idle" }));
     }
-  }, [tabs, pushMessage, updateTab, confirm]);
+  }, [tabs, pushMessage, updateTab]);
 
   const handleSlash = useCallback((tabId, text) => {
     const [cmd, ...rest] = text.slice(1).split(/\s+/);
@@ -445,11 +398,6 @@ function App() {
   }, [activeId, updateTab, handleSlash, tabs, pushMessage, runCode, runChat]);
 
   useInput((input, key) => {
-    if (confirmRequest) {
-      if (key.return) resolveConfirm(true);
-      else if (key.escape || input === "n" || input === "N") resolveConfirm(false);
-      return;
-    }
     if (key.ctrl && input === "t") { newTab(); return; }
     if (key.ctrl && input === "w") { closeTab(activeId); return; }
     if (key.ctrl && key.rightArrow) { cycleTab(1); return; }
@@ -480,15 +428,13 @@ function App() {
     h(StatusLine, { proxyState, model: activeTab?.model, tab: activeTab }),
     helpVisible ? h(HelpOverlay) : null,
     h(Box, { flexDirection: "column", borderStyle: "round", minHeight: visibleRows + 2, paddingX: 1 }, transcriptChildren),
-    confirmRequest
-      ? h(ConfirmModal, { request: confirmRequest })
-      : h(Box, { borderStyle: "single", paddingX: 1 },
-          h(Text, { dimColor: true }, "> "),
-          h(TextInput, {
-            value: activeTab?.draft ?? "",
-            onChange: (v) => updateTab(activeId, (t) => ({ ...t, draft: v })),
-            onSubmit: handleSubmit,
-          })));
+    h(Box, { borderStyle: "single", paddingX: 1 },
+      h(Text, { dimColor: true }, "> "),
+      h(TextInput, {
+        value: activeTab?.draft ?? "",
+        onChange: (v) => updateTab(activeId, (t) => ({ ...t, draft: v })),
+        onSubmit: handleSubmit,
+      })));
 }
 
 export function runTui() {

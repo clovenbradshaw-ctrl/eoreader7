@@ -104,3 +104,40 @@ export async function chatCompletion({ model, history = [], task, sessionId, wor
     throw new Error(body?.error?.message || `POST /v1/chat/completions: ${res.status}`);
   }
 }
+
+/**
+ * POST /v1/agent — the open-ended coding loop (native/the-fold/
+ * sandboxed-agent.js), over the SAME proxy every other request uses. Runs
+ * server-side, in a sandbox (an in-memory virtual filesystem, JS executed
+ * in a severed vm.Context — never the real disk, never a real process) —
+ * this client function is a thin HTTP call, same shape as chatCompletion,
+ * also honoring heimdall's retry contract the identical way.
+ */
+export async function agentCompletion({ model, task, sessionId, maxTurns, onRetry }) {
+  const headers = { "content-type": "application/json" };
+  // /v1/agent (like its sibling /v1/code) expects the BARE model name,
+  // never the er7: prefix — a real, found-live mismatch: /v1/chat/
+  // completions strips the prefix server-side (parseProxyRequest's own
+  // stripModelPrefix); /v1/agent and /v1/code never do, so a prefixed name
+  // reached Ollama unstripped and came back a plain "ollama 400".
+  const payload = { model: stripPrefix(model), task, sessionId, maxTurns };
+  let attempt = 0;
+  for (;;) {
+    const res = await fetch(`${BASE}/v1/agent`, { method: "POST", headers, body: JSON.stringify(payload) });
+    const body = await res.json().catch(() => ({}));
+    if (res.ok) return body; // { done, answer, rounds, files }
+    // /v1/agent's error shape is FLAT ({error, type, retry_after}), matching
+    // /v1/code's own convention — NOT chatCompletion's nested {error:{...}}
+    // shape. Two different response shapes on two sibling routes, kept as
+    // each route's own file already had it rather than silently unified.
+    const type = body?.type;
+    if (res.status === 429 && RETRYABLE_TYPES.has(type) && attempt < CHAT_MAX_RETRIES) {
+      attempt += 1;
+      const retryAfterS = Number(body?.retry_after ?? res.headers.get("retry-after") ?? 2);
+      onRetry?.({ attempt, retryAfterS, type });
+      await new Promise((r) => setTimeout(r, retryAfterS * 1000));
+      continue;
+    }
+    throw new Error(typeof body?.error === "string" ? body.error : `POST /v1/agent: ${res.status}`);
+  }
+}

@@ -7,6 +7,7 @@ import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KE
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
+import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-agent.js";
 // The watcher, wired IN (2026-09-13): heimdall's vitals, admission, status,
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
@@ -42,6 +43,13 @@ const TURN_DEADLINE_MS = Number(process.env.ER7_TURN_DEADLINE_MS ?? 300000);
 // a generous backstop over the single-turn deadline above, never a way to
 // let a wedged loop hang the process forever.
 const CODE_LOOP_DEADLINE_MS = Number(process.env.ER7_CODE_LOOP_DEADLINE_MS ?? 600000);
+// Per-session virtual filesystem for /v1/agent — carried across calls in
+// the SAME conversation (a person keeps building on what they wrote three
+// messages ago), in memory only, never written to real disk. Unbounded
+// growth across distinct sessions is a real, disclosed limit (there is no
+// eviction) — acceptable for now the same way getSession()'s own in-memory
+// map already is; not a new class of debt.
+const agentFilesBySession = new Map();
 
 const ts = () => new Date().toISOString().slice(11, 23);
 const log = (msg) => process.stderr.write(`[${ts()}] [er7-proxy] ${msg}\n`);
@@ -539,6 +547,79 @@ async function handleRequest(req, res) {
         clearTimeout(loopDeadline);
         res.removeListener("close", onDisconnect);
         log(`code execution error: ${err.message}`);
+        if (!res.headersSent) {
+          res.writeHead(err?.message === "cancelled" ? 499 : 400, { "content-type": "application/json" });
+        }
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
+    return;
+  }
+
+  // POST /v1/agent — an open-ended coding loop, Claude Code's own shape
+  // (read/write/run freely, no declared test command), over the SAME
+  // runProxyTurn pipeline /v1/code and /v1/chat/completions already use.
+  // "Operate within the browser sandbox is the idea" (user direction):
+  // nothing this loop touches is real — an in-memory virtual filesystem, JS
+  // executed in a severed vm.Context (native/the-fold/sandboxed-agent.js) —
+  // so there is nothing here for a person to approve before it runs, the
+  // same reasoning that lets term.js auto-run its own proven-severed
+  // runtimes without asking each time.
+  if (req.method === "POST" && req.url === "/v1/agent") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", async () => {
+      let parsed;
+      try {
+        parsed = JSON.parse(body);
+      } catch {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: "bad json" }));
+        return;
+      }
+      const task = String(parsed?.task ?? "").trim();
+      if (!task) {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: 'task is required — e.g. { "task": "write a function that..." }' }));
+        return;
+      }
+      const model = String(parsed?.model ?? "").trim() || "olmo2:7b";
+      const maxTurns = Number.isFinite(Number(parsed?.maxTurns)) ? Math.max(1, Math.min(AGENT_MAX_TURNS, Number(parsed.maxTurns))) : AGENT_MAX_TURNS;
+
+      const admit = admitChatRequest({ model });
+      if (!admit.allowed) {
+        res.writeHead(admit.status, { "content-type": "application/json", "retry-after": String(admit.retryAfterS) });
+        res.end(JSON.stringify({ error: admit.message, type: admit.type, retry_after: admit.retryAfterS }));
+        return;
+      }
+      releaseOnResponse(res);
+
+      const sessionId = String(parsed?.sessionId ?? "").trim() || sessionIdFromHeaders(req);
+      const userId = userIdFromHeaders(req);
+      log(`agent → session=${sessionId} user=${userId} model=${model} maxTurns=${maxTurns}`);
+
+      if (!agentFilesBySession.has(sessionId)) agentFilesBySession.set(sessionId, new Map());
+      const files = agentFilesBySession.get(sessionId);
+
+      const loopAbort = new AbortController();
+      const onDisconnect = () => {
+        if (res.writableEnded) return;
+        if (!loopAbort.signal.aborted) loopAbort.abort();
+      };
+      res.on("close", onDisconnect);
+      const loopDeadline = setTimeout(() => {
+        if (!loopAbort.signal.aborted) loopAbort.abort();
+      }, CODE_LOOP_DEADLINE_MS);
+      try {
+        const result = await runOpenCodingLoop({ sessionId, userId, model, task, files, maxTurns, caller: callerFromRequest(req, "agent", parsed), signal: loopAbort.signal });
+        clearTimeout(loopDeadline);
+        res.removeListener("close", onDisconnect);
+        res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
+        res.end(JSON.stringify({ done: result.done, answer: result.answer, rounds: result.rounds, files: Object.fromEntries(result.files) }));
+      } catch (err) {
+        clearTimeout(loopDeadline);
+        res.removeListener("close", onDisconnect);
+        log(`agent execution error: ${err.message}`);
         if (!res.headersSent) {
           res.writeHead(err?.message === "cancelled" ? 499 : 400, { "content-type": "application/json" });
         }
