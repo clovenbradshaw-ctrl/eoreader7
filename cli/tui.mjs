@@ -17,7 +17,10 @@
 //   Ctrl+Right       next tab
 //   Ctrl+Left        previous tab
 //   Ctrl+H          toggle this help overlay
-//   Ctrl+Up/Down    scroll the transcript
+//   PageUp/PageDown scroll the transcript (more reliable across terminals
+//                   than Ctrl+Up/Down, which many terminal emulators
+//                   intercept for their own use — also bound, as a second
+//                   try where it does work)
 //   Ctrl+C          quit (also available as /quit)
 //   Enter           send the input line
 // Chosen to avoid the readline/emacs Ctrl+N/Ctrl+P/Ctrl+B/Ctrl+F family and
@@ -131,7 +134,7 @@ function HelpOverlay() {
   return h(Box, { flexDirection: "column", borderStyle: "round", borderColor: "yellow", paddingX: 1 },
     h(Text, { bold: true }, "Keybindings"),
     h(Text, null, "Ctrl+T  new tab            Ctrl+W  close tab"),
-    h(Text, null, "Ctrl+Right/Left  switch tabs    Ctrl+Up/Down  scroll transcript"),
+    h(Text, null, "Ctrl+Right/Left  switch tabs    PageUp/PageDown  scroll transcript (Ctrl+Up/Down also works, less reliably)"),
     h(Text, null, "Ctrl+H  toggle this help   Ctrl+C  quit"),
     h(Text, null, "Enter   send"),
     h(Text, { bold: true, marginTop: 1 }, "Slash commands"),
@@ -405,6 +408,15 @@ function App() {
     if (key.ctrl && input === "h") { setHelpVisible((v) => !v); return; }
     if (key.ctrl && key.upArrow) { updateTab(activeId, (t) => ({ ...t, scrollOffset: t.scrollOffset + 3 })); return; }
     if (key.ctrl && key.downArrow) { updateTab(activeId, (t) => ({ ...t, scrollOffset: Math.max(0, t.scrollOffset - 3) })); return; }
+    // Ctrl+Arrow is notoriously unreliable across terminal emulators (many
+    // intercept it for their own tab/window switching, or never forward a
+    // distinguishable escape sequence for it at all) — PageUp/PageDown are
+    // real, dedicated keys almost every terminal sends consistently, so
+    // they're a more dependable way to scroll, not merely a second binding
+    // for the same thing. A bigger jump than Ctrl+Up/Down's 3, matching an
+    // actual "page" rather than a nudge.
+    if (key.pageUp) { updateTab(activeId, (t) => ({ ...t, scrollOffset: t.scrollOffset + 10 })); return; }
+    if (key.pageDown) { updateTab(activeId, (t) => ({ ...t, scrollOffset: Math.max(0, t.scrollOffset - 10) })); return; }
   });
 
   const rows = stdout?.rows ?? 24;
@@ -417,7 +429,7 @@ function App() {
   const shown = allLines.slice(start, end);
 
   const transcriptChildren = [];
-  if (start > 0) transcriptChildren.push(h(Text, { key: "more", dimColor: true }, `↑ ${start} more line(s) above (Ctrl+Up to scroll)`));
+  if (start > 0) transcriptChildren.push(h(Text, { key: "more", dimColor: true }, `↑ ${start} more line(s) above (PageUp to scroll)`));
   shown.forEach((l, i) => transcriptChildren.push(h(Text, { key: i, color: roleColor(l.kind) }, l.text)));
   if (activeTab?.status === "busy") {
     transcriptChildren.push(h(Box, { key: "spinner" }, h(Spinner), h(Text, { dimColor: true }, " thinking…")));
