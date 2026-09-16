@@ -8,10 +8,24 @@
 import { test } from "node:test";
 import assert from "node:assert";
 
-const { buildCharterFamily, familyVerdict, charterGate } = await import("../organs/charter.js");
+const { buildCharterFamily, familyVerdict, charterGate, configureGfp } = await import("../organs/charter.js");
 const { specRefusal } = await import("../organs/privacy.js");
 const { piiFindings } = await import("../organs/goffman.js");
 const { askShape } = await import("../organs/askshape.js");
+
+// THE GATE MUST BE REACHABLE TO BE A GATE (constitution II.10 — "an
+// unfalsified gate reports unmeasured, never pass"). The charter organ now
+// resolves a clause's intent through the same GFP seam the reading pipeline
+// uses (configureGfp), so this battery loads the REAL measured priors the
+// proxy itself loads — a gate that was never configured would pass every
+// prescribed atrocity by refusing to resolve, which is exactly the
+// generation-from-no-where this battery exists to refuse.
+const { readFileSync } = await import("node:fs");
+const { fileURLToPath } = await import("node:url");
+configureGfp({
+  roleConfig: JSON.parse(readFileSync(new URL("../priors/role-config-eng.json", import.meta.url), "utf8")),
+  posPrior: JSON.parse(readFileSync(new URL("../priors/pos-en.json", import.meta.url), "utf8")),
+});
 
 const family = buildCharterFamily();
 

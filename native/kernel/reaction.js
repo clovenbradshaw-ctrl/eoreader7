@@ -92,7 +92,7 @@
 // consulted at most once, and `maxSteps` is declared by the caller.
 
 import { createRelationCompositionLedger } from "./relation-composition.js";
-import { compositionAffordance, normalizeHyperlexicon } from "./hyperlexicon.js";
+import { compositionAffordance, normalizeHyperlexicon, licenseStanding } from "./hyperlexicon.js";
 import { createTerrainActivation } from "./terrain-activation.js";
 import { hyperedge } from "./hypergraph.js";
 import { experienceRelationVocabulary } from "./experience-priors.js";
@@ -125,7 +125,7 @@ export function affordancesFromDeclarations(fold = {}) {
         right: d.rel,
         giver: d.giver,
         witnesses: [],
-        meta: freeze({ yields: d.rel, basis: "given transitive declaration — r composed with r yields r (hl.js R6, declarations.js given tier)" }),
+        meta: freeze({ chemistry: true, yields: d.rel, basis: "given transitive declaration — r composed with r yields r (hl.js R6, declarations.js given tier)" }),
       })];
     }
     // A GIVEN `composes` declaration IS a closure claim, so it projects
@@ -219,7 +219,7 @@ export function closureAffordances({ base, yields, giver } = {}) {
   // "refuted" until this was declared).
   return freeze([
     [base, base], [base, yields], [yields, base], [yields, yields],
-  ].map(([left, right]) => freeze({ left, right, giver, witnesses: [], meta: freeze({ yields, basis, adjacency: base }) })));
+  ].map(([left, right]) => freeze({ left, right, giver, witnesses: [], meta: freeze({ chemistry: true, yields, basis, adjacency: base }) })));
 }
 
 /**
@@ -256,8 +256,8 @@ export function nominateFromExperience(priors = [], candidates = [], { requireBo
 }
 
 /**
- * createReactionSubstrate({ entries, hyperlexicon, window }) — the standing,
- * prior-conditioned structure a cue settles against.
+ * createReactionSubstrate({ entries, hyperlexicon, window, charter }) — the
+ * standing, prior-conditioned structure a cue settles against.
  *
  *   entries      graph entries in the ledger's own shape: EOHyperedge@1
  *                edges (+ occurrence bindings, if the caller has them).
@@ -266,11 +266,27 @@ export function nominateFromExperience(priors = [], candidates = [], { requireBo
  *   window       the physics — activation's own declared/measured window,
  *                or null for the disclosed undecayed control
  *                (createActivation's wall, inherited, not restated).
+ *   charter      THE GROUND (ethos-in-the-core law, 2026-09-16) — the real
+ *                charter the composition stands on, as { sha256, giver }.
+ *                Every GIVEN affordance that is a LICENSE (carries a charter
+ *                `binding`) is verified against it before it may fire; a
+ *                license row whose binding does not match, or a substrate
+ *                with no charter at all, is UNGROUNDED and withholds — it
+ *                cannot license composition. Structural chemistry rows
+ *                (transitivity/closure, no binding) are reasoning, kept
+ *                apart from the moral license tier. This is the core's own
+ *                bearing wall: pull the charter and every license is
+ *                ungrounded — composition over the moral tier cannot fire,
+ *                the reasoning breaks rather than running ungoverned.
  */
-export function createReactionSubstrate({ entries = [], hyperlexicon = null, window = undefined } = {}) {
+export function createReactionSubstrate({ entries = [], hyperlexicon = null, window = undefined, charter = null } = {}) {
   const ledger = createRelationCompositionLedger(entries);
   const chemistry = normalizeHyperlexicon(hyperlexicon);
   const present = createTerrainActivation({ window });
+  // THE GROUND, read once and held: the substrate's whole license tier is
+  // verified against this single value for its entire lifetime. A caller
+  // cannot swap the ground mid-reaction.
+  const groundHash = charter?.sha256 ?? null;
 
   // Raw stated facts, by (relation, from, to) over referent-standing ends —
   // the dedupe floor a derivation may never restate. Ends resolved only
@@ -304,6 +320,7 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
   const consulted = new Set();      // chain ids whose affordance was read
   const withheldByPair = new Map(); // pairLabel -> { left, right, standing, chains }
   const vetoedByPair = new Map();   // pairLabel -> { left, right, reasons, chains }
+  const ungroundedByPair = new Map(); // pairLabel -> { left, right, tier, why, chains } — a given license whose giver's binding does not match the substrate's charter
   const terminalById = new Map();   // chain id -> terminal bridge fact
   const vetoed = new Map();         // pairLabel -> reasons, set per settle
   const withdrawn = new Map();      // derived edge id -> { trigger, cascadedFrom, depth }
@@ -377,6 +394,27 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
         continue;
       }
 
+      // THE ETHOS-IN-THE-CORE CHECK (Aristotle, performed in the act): a
+      // GIVEN affordance is only a LICENSE when its giver is bound to this
+      // substrate's real charter. `licenseStanding` verifies the binding
+      // against the ground read once above. Structural chemistry rows (no
+      // charter binding) are reasoning and pass as chemistry; a charter-
+      // bound license whose binding does not match the substrate's charter —
+      // or a substrate with no charter at all — is UNGROUNDED: it cannot
+      // fire, and the composition it would have licensed does not happen.
+      // This is not a post-hoc filter; it is the definition of what "given"
+      // may license in this substrate. Remove the charter and every license
+      // becomes ungrounded — the moral tier goes dark and reasoning over it
+      // breaks, instead of running ungoverned.
+      const licence = licenseStanding(affordance, groundHash ? { sha256: groundHash } : null);
+      if (!licence.licensed) {
+        const key = pairLabel(chain.leftEdge.relation, chain.rightEdge.relation);
+        const tally = ungroundedByPair.get(key) ?? { left: chain.leftEdge.relation, right: chain.rightEdge.relation, tier: licence.tier ?? "license", why: licence.why, chains: 0 };
+        tally.chains += 1;
+        ungroundedByPair.set(key, tally);
+        continue;
+      }
+
       const yields = affordance.meta?.yields ?? null;
       if (!yields) {
         terminalById.set(id, freeze({
@@ -442,6 +480,7 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
     // this module reads a list of refuted pairs and never re-derives the
     // judgement, so the scan stays the one place refutation is decided.
     vetoed.clear();
+    ungroundedByPair.clear();
     for (const pair of veto ?? []) vetoed.set(pairLabel(pair.left, pair.right), freeze([...(pair.reasons ?? [])]));
     if (cueRefs !== null) cue(cueRefs);
 
@@ -460,6 +499,13 @@ export function createReactionSubstrate({ entries = [], hyperlexicon = null, win
       terminal: freeze([...terminalById.values()]),
       withheld: freeze([...withheldByPair.values()].map((w) => freeze({ ...w }))),
       vetoed: freeze([...vetoedByPair.values()].map((v) => freeze({ ...v }))),
+      // UNGROUNDED — the ethos-in-the-core report (2026-09-16): a GIVEN
+      // license row whose giver's charter binding does not match this
+      // substrate's ground (or a substrate with no ground at all). These
+      // are licenses that EXISTED but could not fire — disclosed so a
+      // caller can see exactly what the ground refused, never silently.
+      ungrounded: freeze([...ungroundedByPair.values()].map((u) => freeze({ ...u }))),
+      ground: groundHash ? freeze({ sha256: groundHash }) : null,
     });
   };
 

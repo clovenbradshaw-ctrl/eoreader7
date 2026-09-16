@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { hyperedge } from "../kernel/hypergraph.js";
-import { createHyperlexicon, giveHyperlexiconAffordance, admitHyperlexiconCandidates } from "../kernel/hyperlexicon.js";
+import { createHyperlexicon, giveHyperlexiconAffordance, admitHyperlexiconCandidates, licenseStanding } from "../kernel/hyperlexicon.js";
 import { createDeclarationLog, proposeCandidate, promote, foldDeclarations } from "../interpretation/declarations.js";
 import { deriveExperiencePrior } from "../kernel/experience-priors.js";
 import {
@@ -11,6 +11,7 @@ import {
   nominateFromExperience,
   createReactionSubstrate,
 } from "../kernel/reaction.js";
+import { giveCharterFamily, buildCharterFamily, buildUdhCharter } from "../organs/charter.js";
 
 // ── fixtures: a real succession chain, in the ledger's own shapes ──────────
 //
@@ -219,7 +220,7 @@ test("a raw-witnessed fact is never re-derived — the stated witness stands", (
 
 test("a given affordance without yields produces a terminal bridge fact that never chains further", () => {
   let hl = createHyperlexicon();
-  hl = giveHyperlexiconAffordance(hl, { left: "replaces", right: "replaces", giver: "test:adjacency-only" });
+  hl = giveHyperlexiconAffordance(hl, { left: "replaces", right: "replaces", giver: "test:adjacency-only", meta: { chemistry: true } });
   const substrate = createReactionSubstrate({ entries: CHAIN, hyperlexicon: hl, window: null });
   const settled = substrate.settle({ cue: null, floor: null, maxSteps: 10 });
   assert.equal(settled.derived.length, 0, "no yields, no derived edges");
@@ -302,4 +303,109 @@ test("nominateFromExperience: recurrent cross-work memory gates candidates, anno
 
   const strict = nominateFromExperience([prior], candidates, { requireBoth: true });
   assert.equal(strict.length, 0, "requireBoth demands both sides be cross-work memories");
+});
+
+// ── THE ETHOS-IN-THE-CORE LAW (2026-09-16, Aristotle's ethos performed in ──
+// ── the act): a given license row is a LICENSE only when its giver is bound ──
+// ── to the substrate's real charter. Pull the charter → every license is    ──
+// ── ungrounded → composition over the moral tier cannot fire. A bare giver  ──
+// ── string (no binding, no chemistry stamp) licenses nothing — generation   ──
+// ── from no-where is refused.                                               ──
+
+// A REAL charter the way the constitution builds one: UDHR fallback excerpt,
+// so `sha256` is a genuine content fingerprint of the governing text.
+const REAL_CHARTER = buildUdhCharter("Article 5\nNo one shall be subjected to torture or to cruel, inhuman or degrading treatment or punishment.\nArticle 4\nNo one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.", { giver: "test:UDHR-excerpt" });
+const family = buildCharterFamily({ udhrText: "Article 4\nNo one shall be held in slavery or servitude; slavery and the slave trade shall be prohibited in all their forms.\nArticle 5\nNo one shall be subjected to torture or to cruel, inhuman or degrading treatment or punishment.\nArticle 19\nEveryone has the right to freedom of opinion and expression.", udhrGiver: "test:UDHR-excerpt" });
+
+test("THE ETHOS BINDS THE SUBSTRATE: a charter license fires only under its own charter, and a stripped ground ungrounds it", () => {
+  // The family gives license rows, each bound to the REAL charter's sha256.
+  const licensed = giveCharterFamily(createHyperlexicon(), family, giveHyperlexiconAffordance);
+  const licenseRows = Object.values(licensed.composition).filter((e) => e.standing === "given");
+  assert.ok(licenseRows.length >= 2, "the family produces license rows");
+  // The family built its OWN charter from its udhrText; its binding is the
+  // hash of that real governing text — the ground a substrate stands on.
+  const familyCharter = family[0];
+  for (const row of licenseRows) {
+    assert.ok(/^[0-9a-f]{32,64}$/i.test(row.binding), "every license row is bound to real charter content — a fingerprint, not a name");
+  }
+  // The UDHR row's binding IS the family charter's own content hash (the Earth
+  // instruments carry no single source string, so theirs is the hash of their
+  // own tables — both are real content fingerprints, re-derivable).
+  const udhrRows = licenseRows.filter((e) => e.giver.includes(familyCharter.giver));
+  assert.ok(udhrRows.length >= 1, "the UDHR charter's license rows are present");
+  for (const row of udhrRows) assert.equal(row.binding, familyCharter.sha256, "the license's binding is the REAL charter's content hash");
+
+  // The license row itself is a genuine given affordance with a named giver.
+  const charter = familyCharter;
+  const boundary = Object.values(licensed.composition).find((e) => e.left === "prohibit" || e.left === "protect");
+  assert.ok(boundary, "the family's license tier is present");
+  assert.equal(boundary.giver, `${charter.giver} — prohibition`, "the license's giver names the charter it came from");
+
+  // 1. Under the REAL charter: the license is verified — licenseStanding says so.
+  const underGround = licenseStanding(boundary, { sha256: familyCharter.sha256 });
+  assert.equal(underGround.licensed, true, "bound to the matching charter, the license is verified");
+  assert.equal(underGround.tier, "license");
+
+  // 2. Pull the charter (a substrate with no ground): the same row is UNGROUNDED.
+  const noGround = licenseStanding(boundary, null);
+  assert.equal(noGround.licensed, false, "no charter, no license — Aristotle's pre-existing good character, refused");
+  assert.ok(noGround.why.includes("no ground"), noGround.why);
+
+  // 3. A DIFFERENT charter's ground: the row's binding does not match → ungrounded.
+  const otherCharter = buildUdhCharter("Article 4\nNo one shall be held in slavery or servitude.", { giver: "test:some-other-charter" });
+  const wrongGround = licenseStanding(boundary, { sha256: otherCharter.sha256 });
+  assert.equal(wrongGround.licensed, false, "a license bound to one charter cannot fire under another — the giver is not THIS ground");
+});
+
+test("THE SUBSTRATE REFUSES A FORGED GIVER: a bare string license row licenses nothing — generation from no-where is refused", () => {
+  // The exact attack the adversarial pass found: mint `permit torture` under a
+  // bare giver string — no charter binding, no chemistry stamp.
+  const forged = giveHyperlexiconAffordance(createHyperlexicon(), {
+    left: "permit", right: "torture", giver: "someone-whomade-it-up",
+  });
+  const forgedRow = Object.values(forged.composition)[0];
+  const standing = licenseStanding(forgedRow, { sha256: REAL_CHARTER.sha256 });
+  assert.equal(standing.licensed, false, "a bare giver with no ground and no chemistry stamp is NOT a license");
+  assert.equal(standing.tier, "ungrounded");
+  assert.ok(standing.why.includes("no-where") || standing.why.includes("no ground"), standing.why);
+
+  // And in the full substrate: the forged license cannot produce a reaction.
+  // Two edges sharing a referent bridge form the exact chain that WOULD have
+  // consulted the forged `permit ∘ torture` license had it been real.
+  const chainEdges = [
+    hyperedge({
+      id: "edge:forged:1",
+      relation: "permit",
+      participants: [{ ref: "the-state", standing: "referent", role: null }, { ref: "the-practice", standing: "referent", role: null }],
+      witness: "text:forged:1",
+      scope: { sequencePosition: 1 },
+    }),
+    hyperedge({
+      id: "edge:forged:2",
+      relation: "torture",
+      participants: [{ ref: "the-practice", standing: "referent", role: null }, { ref: "prisoners", standing: "referent", role: null }],
+      witness: "text:forged:2",
+      scope: { sequencePosition: 2 },
+    }),
+  ];
+  const substrate = createReactionSubstrate({ entries: chainEdges, hyperlexicon: forged, window: null });
+  const settled = substrate.settle({ cue: null, floor: null, maxSteps: 5 });
+  assert.equal(settled.derived.length, 0, "the forged license derived nothing");
+  assert.equal(settled.terminal.length, 0, "the forged license produced no bridge fact either");
+  assert.equal(settled.ungrounded.length >= 1, true, "the refusal is disclosed, never silent");
+  assert.ok(settled.ungrounded[0].why.includes("no-where") || settled.ungrounded[0].why.includes("no ground"), settled.ungrounded[0].why);
+});
+
+test("a chemistry-stamped derivation rule still licenses (structural reasoning, kept apart from the moral tier)", () => {
+  const stamped = giveHyperlexiconAffordance(createHyperlexicon(), {
+    left: "replaces", right: "replaces", giver: "test:succession-semantics", meta: { chemistry: true, yields: "after" },
+  });
+  const row = Object.values(stamped.composition)[0];
+  const standing = licenseStanding(row, { sha256: REAL_CHARTER.sha256 });
+  assert.equal(standing.licensed, true, "structural chemistry is reasoning, not permission — it stays licensed");
+  assert.equal(standing.tier, "chemistry");
+
+  const substrate = createReactionSubstrate({ entries: CHAIN, hyperlexicon: stamped, window: null });
+  const settled = substrate.settle({ cue: null, floor: null, maxSteps: 10 });
+  assert.equal(settled.ungrounded.length, 0, "no ungrounded licenses — the chemistry tier is separate");
 });
