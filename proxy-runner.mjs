@@ -656,11 +656,18 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
         // is the shadow of this visit: not the bytes, not a receipt, but the
         // prior-shaped memory of what was here. It is derived (rebuildable by
         // re-reading the retained bytes under the same priors) and deletable.
-        const shadowEntry = session.shadow[session.shadow.length - 1];
+        // (reuses `shadowEntry`, already bound above in this try block — a
+        // second `const shadowEntry` here shadowed it and, via the temporal
+        // dead zone, broke EVERY reference to the OUTER shadowEntry earlier
+        // in this same block, including the readChars/readBounded stamp a
+        // few lines up — silently, since the whole loop body is wrapped in
+        // a bare `catch { /* skip failed fetches silently */ }`. Found live:
+        // real search results (whitehouse.gov, Wikipedia) fetched and
+        // extracted cleanly, then thrown away with zero pages ever admitted,
+        // for every web-grounded chat turn this proxy has ever answered.)
         if (shadowEntry) {
           const idx = sessionReferentIndex(session, null);
-          shadowEntry.reading = {
-            referents: [...(idx?.referents ?? new Map()).values()]
+          shadowEntry.reading = {            referents: [...(idx?.referents ?? new Map()).values()]
               .slice(-12)
               .map((ref) => [...(ref.surfaces ?? [])][0] ?? null)
               .filter(Boolean),
