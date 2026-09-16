@@ -66,6 +66,7 @@ import { voidHolarchy } from "./native/organs/void-holarchy.js";
 // (reading and talking about human atrocities passes by construction).
 import { familyVerdict, familyAffordances, giveCharterFamily } from "./native/organs/charter.js";
 import { constitution, ethosClear, requireClearance } from "./native/organs/ethos.js";
+import { readInterlocutor, mergeInterlocutor } from "./native/organs/interlocutor.js";
 import { recordShadow, assessShadow, dispositionFrom } from "./native/kernel/moral-shadow.js";
 import { sovereigntyHint, privacyFindings, isDataHoldingTask, sovereignSchemaPrompt, extractSovereignSchema, sovereignDataShell } from "./native/organs/privacy.js";
 import { copyFindings, replicationNotes, provenanceFor, annotateWithSources } from "./native/organs/martial.js";
@@ -2392,7 +2393,7 @@ function chatVoidCheck(text, { shape, material = "" } = {}) {
 // disclosed, never laundered. No model is asked while meaning is equated.
 // ────────────────────────────────────────────────────────────────────────
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null, mode = "auto", signal = null }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null, mode = "auto", caller = null, signal = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   _hot.add(model); // this turn is using it — hold it resident after
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
@@ -2407,6 +2408,13 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const shadowBefore = assessShadow(personId);
   const clearance = ethosClear(task, { disposition: dispositionFrom(shadowBefore) });
   const session = getSession(sessionId, clearance);
+  // WHO is at the door (organs/interlocutor.js, Buber): recognized mechanically
+  // from the request's shape, accumulated across the session (one interlocutor
+  // per conversation), held so the reader can meet an agent or a person in the
+  // idiom each can receive — never to decide whether to be honest with them.
+  const interlocutor = mergeInterlocutor(session.interlocutor ?? null, readInterlocutor(caller ?? {}));
+  session.interlocutor = interlocutor;
+  if (onNote && interlocutor.kind !== "unknown") onNote({ move: "interlocutor", kind: interlocutor.kind, confidence: interlocutor.confidence, basis: interlocutor.basis });
   // Record this act's norm-standing (append-only, never merged).
   const shadowType = !clearance.cleared
     ? "norm_conflict"

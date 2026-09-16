@@ -743,6 +743,17 @@ export const ARCHONS = Object.freeze([
     topics: ["harm", "ethics", "face", "other", "dismiss", "erasure", "personhood", "objectify"],
   },
   {
+    handle: "buber",
+    name: "Martin Buber",
+    organ: "organs/interlocutor.js",
+    role: "who is at the door — recognizing an agent or a person, and meeting them as a Thou",
+    pdStatus: "fair-use",
+    work: "The philosopher of the I–Thou: every encounter is either I–It (the other catalogued, used, predicted) or I–Thou (the other met whole, addressed rather than described). The reader recognizes WHICH KIND of interlocutor speaks — an agent, often acting for a principal, or a person — computed from the request's own shape, never guessed from what was said; and its discipline is Buber's, that to recognize is not to reduce. The type selects how the other is met — the idiom of the account the reader gives — never whether that account is honest.",
+    source: "I and Thou (Ich und Du, 1923)",
+    credit: "Martin Buber — I and Thou: to recognize the other is to meet them as a Thou, not to reduce them to an It (1923).",
+    topics: ["interlocutor", "agent", "person", "I and Thou", "encounter", "recognition", "who is speaking", "meet them where they are", "principal"],
+  },
+  {
     handle: "bourdieu",
     name: "Pierre Bourdieu",
     organ: "kernel/moral-shadow.js",

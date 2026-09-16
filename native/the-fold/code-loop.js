@@ -172,7 +172,7 @@ function renderReadFiles(reads) {
  * an ordinary failed attempt — only for a malformed call (no workspace, no
  * testCommand).
  */
-export async function runCodeLoop({ sessionId, userId = null, model, task, workspace, testCommand, maxRounds = DEFAULT_MAX_ROUNDS, testTimeoutMs = DEFAULT_TEST_TIMEOUT_MS, signal = null }) {
+export async function runCodeLoop({ sessionId, userId = null, model, task, workspace, testCommand, maxRounds = DEFAULT_MAX_ROUNDS, testTimeoutMs = DEFAULT_TEST_TIMEOUT_MS, caller = null, signal = null }) {
   if (!workspace || !fs.existsSync(workspace)) throw new Error("workspace must be an existing directory");
   if (!testCommand || typeof testCommand !== "string") throw new Error("testCommand must be a declared, real command string");
 
@@ -193,7 +193,7 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
         ? `${task}\n\nFiles in the workspace (${root}):\n${files.join("\n")}\n\n${PROPOSAL_FORMAT}`
         : `${task}\n\n${lastNote}\n\n${PROPOSAL_FORMAT}`;
 
-    const turn = await runProxyTurn({ sessionId, userId, model, task: roundTask, chatHistory: [{ role: "user", content: roundContent }], workspace: root, mode: "chat", signal });
+    const turn = await runProxyTurn({ sessionId, userId, model, task: roundTask, chatHistory: [{ role: "user", content: roundContent }], workspace: root, mode: "chat", caller, signal });
     const proposal = parseProposal(turn.text);
     if (!proposal.ok) {
       rounds.push({ round, gap: proposal.gap, raw: turn.text });

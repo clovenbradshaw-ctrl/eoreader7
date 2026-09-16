@@ -132,6 +132,14 @@ export const CAPACITIES = Object.freeze([
     what: "one sanctioned egress (P13): a claim's own words searched, a page read, judged by the same containment fold",
   }),
   Object.freeze({
+    id: "interlocutor",
+    terrain: "Lens",
+    op: "DEF",
+    module: "interlocutor.js",
+    fn: "readInterlocutor",
+    what: "WHO is at the door — an agent or a person (Buber, I and Thou) — distinguished MECHANICALLY from the request's own shape (doorway, user-agent, tool definitions, transcript), never asked of the model. DEF at Figure grain (distinguish the holder from the reading), the same Lens cell perspective.js and priors.js occupy for who-is-speaking. Held as a belief with a basis (witnessed/asserted), low-confidence, revisable, so the reader can MEET an agent or a person in the idiom each can receive — the register of the account it gives, never whether that account is honest.",
+  }),
+  Object.freeze({
     id: "skill",
     terrain: "Kind",
     op: "INS",

@@ -105,6 +105,31 @@ function modeFromHeaders(req, bodyMode) {
   return bodyMode;
 }
 
+// WHO is at the door (organs/interlocutor.js, Buber): the mechanical signals a
+// request already carries, read into a bundle the runner turns into a belief
+// about whether an agent or a person is speaking. Nothing here is asked of the
+// model or read from the content of the ask — only the request's SHAPE (its
+// doorway, user-agent, tool definitions, transcript structure). `doorway` is the
+// one thing the handler knows that the body does not.
+function callerFromRequest(req, doorway, parsed = {}) {
+  const h = req.headers || {};
+  const messages = Array.isArray(parsed?.messages) ? parsed.messages : [];
+  const hasToolTurns = messages.some((m) =>
+    m?.role === "tool" || m?.role === "function" ||
+    (Array.isArray(m?.tool_calls) && m.tool_calls.length > 0) ||
+    (Array.isArray(m?.content) && m.content.some?.((c) => c?.type === "tool_use" || c?.type === "tool_result")));
+  return {
+    doorway,
+    userAgent: String(h["user-agent"] ?? ""),
+    declaredUser: String(h["x-er7-user"] ?? "").trim(),
+    tools: Array.isArray(parsed?.tools) ? parsed.tools.length : 0,
+    system: !!(parsed?.system || messages.some((m) => m?.role === "system")),
+    hasAssistantTurns: messages.some((m) => m?.role === "assistant"),
+    hasToolTurns,
+    messageCount: messages.length,
+  };
+}
+
 // HEIMDALL, WIRED IN — the admission gate on the proxy's OWN chat path. A
 // saturated box or a full family lane refuses with a typed 429, never a
 // hang; the refusal carries Retry-After so a client backs off. The proxy's
@@ -413,6 +438,7 @@ async function handleRequest(req, res) {
         const result = await runProxyTurn({
           sessionId, userId, workspace, model, task, mode,
           chatHistory: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [],
+          caller: callerFromRequest(req, "ask", parsed),
           signal: turnAbort.signal,
         });
         clearTimeout(turnDeadline);
@@ -494,7 +520,7 @@ async function handleRequest(req, res) {
         if (!loopAbort.signal.aborted) loopAbort.abort();
       }, CODE_LOOP_DEADLINE_MS);
       try {
-        const result = await runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, signal: loopAbort.signal });
+        const result = await runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, caller: callerFromRequest(req, "code", parsed), signal: loopAbort.signal });
         clearTimeout(loopDeadline);
         res.removeListener("close", onDisconnect);
         res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
@@ -532,6 +558,7 @@ async function handleRequest(req, res) {
         return;
       }
       reqData.mode = modeFromHeaders(req, reqData.mode);
+      reqData.caller = callerFromRequest(req, "chat", parsed);
 
       // HEIMDALL, WIRED IN — admission on the proxy's own path.
       const admit = admitChatRequest(parsed);
@@ -759,6 +786,7 @@ async function handleRequest(req, res) {
         return;
       }
       reqData.mode = modeFromHeaders(req, reqData.mode);
+      reqData.caller = callerFromRequest(req, "ollama", parsed);
 
       // HEIMDALL, WIRED IN — admission on the proxy's own path.
       const admit = admitChatRequest(parsed);
@@ -908,6 +936,7 @@ async function handleRequest(req, res) {
         res.end(JSON.stringify({ type: "error", error: { type: "invalid_request_error", message: reqData.error } }));
         return;
       }
+      reqData.caller = callerFromRequest(req, "messages", parsed);
 
       const sessionId = sessionIdFromHeaders(req);
       const workspace = workspaceFromHeaders(req);
