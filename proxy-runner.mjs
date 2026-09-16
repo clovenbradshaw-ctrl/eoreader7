@@ -895,33 +895,51 @@ const GROUND_OPTS = Object.freeze({ draws: 199, seed: 20260812, alpha: 0.05 });
 //    rather than pattern-matching a fold-id naming scheme this file has
 //    no declared knowledge of.
 //
-// 2. AN UNNAMED SOURCE IS NOT THE SAME UNNAMED SOURCE. Some field-
-//    recalled segments carry no `_ledger.source` at all (a real gap
+// 2. AN UNNAMED SOURCE IS NOT THE SAME UNNAMED SOURCE — but a duplicate
+//    fragment of an ALREADY-NAMED source is not a new one either. Some
+//    field-recalled segments carry no `_ledger.source` at all (a real gap
 //    upstream, in whatever admits chunks into the field — not fixed
-//    here, disclosed). The old code collapsed every one of these to the
-//    SAME literal string "unlabeled", which corroboration.js's
-//    distinctSources/sharedTextGroups then read as ONE repeated source
-//    rather than several distinct, unidentified ones — silently
-//    deflating the very count the ground-selector's own criteria depend
-//    on. Each now gets its OWN synthetic ref instead: honest about being
-//    unidentified, honest about being distinct from every OTHER
-//    unidentified segment.
+//    here, disclosed); the field's own recall frequently just re-hands
+//    back a sentence that is ALREADY present, verbatim, inside a whole
+//    document this same surf already addressed by name (found live: two
+//    of three "unlabeled" fragments were each the exact final sentence of
+//    the wire-service and port-authority documents, which were ALSO
+//    present in full as their own named records — double-counting the
+//    same content as if it were two additional, distinct, unidentified
+//    sources on top of the two real ones). Every unnamed fragment is
+//    first checked against every already-named record's own text; a
+//    verbatim match is dropped (its content already counts, once, under
+//    the name it actually has) rather than either collapsing to a shared
+//    "unlabeled" (undercounting real distinctness) or getting its own
+//    synthetic ref regardless (overcounting it). Only a fragment that
+//    matches NO named record's text — a genuine glimpse of an otherwise-
+//    unidentified source, exactly the survivor's own single isolated
+//    sentence in the case this was found on — gets its own synthetic ref.
 function recordsFromSegments(surfacedSegments, task) {
   const taskNorm = String(task ?? "").trim().toLowerCase();
+  const isEchoOfTask = (text) => {
+    if (!taskNorm) return false;
+    const t = String(text).trim().toLowerCase();
+    return t.includes(taskNorm) && text.length < taskNorm.length * 2 + 40;
+  };
+
+  const usable = (surfacedSegments ?? []).filter((s) => s?.text && !isEchoOfTask(s.text));
+  const named = usable.filter((s) => s._ledger?.source || s._ledger?.heading);
+  const namedTexts = named.map((s) => String(s.text).toLowerCase());
+  const unnamed = usable.filter((s) => !(s._ledger?.source || s._ledger?.heading));
+
+  const records = named.map((s) => ({
+    ref: s._ledger.source ?? s._ledger.heading,
+    text: String(s.text),
+    kind: s._ledger?.addressed_by ?? null,
+  }));
   let anon = 0;
-  return (surfacedSegments ?? [])
-    .filter((s) => s?.text)
-    .filter((s) => {
-      if (!taskNorm) return true;
-      const t = String(s.text).trim().toLowerCase();
-      const isEchoOfTask = t.includes(taskNorm) && s.text.length < taskNorm.length * 2 + 40;
-      return !isEchoOfTask;
-    })
-    .map((s) => ({
-      ref: s._ledger?.source ?? s._ledger?.heading ?? `unlabeled-${anon++}`,
-      text: String(s.text),
-      kind: s._ledger?.addressed_by ?? null,
-    }));
+  for (const s of unnamed) {
+    const t = String(s.text).toLowerCase().trim();
+    if (t && namedTexts.some((nt) => nt.includes(t))) continue; // already counted under its real name
+    records.push({ ref: `unlabeled-${anon++}`, text: String(s.text), kind: s._ledger?.addressed_by ?? null });
+  }
+  return records;
 }
 
 // One call site for the whole archon-activation loop: router -> ground-
