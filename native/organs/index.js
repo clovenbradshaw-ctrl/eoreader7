@@ -74,6 +74,16 @@ export * as derivation from "./derivation.js";
 // coherence findings at three declared strictness levels.
 export { LINT_STRICTNESS, SEVERITY, findClaimCycle, lintContent, lintInferences, lintLedger, lintReport, lintTimeline, findingKey } from "./reasoning-lint.js";
 export * as reasoningLint from "./reasoning-lint.js";
+export { PUZZLE_TEMPLATES, REFUSALS as PUZZLE_TEMPLATE_REFUSALS, matchTemplate } from "./puzzle-templates.js";
+export * as puzzleTemplates from "./puzzle-templates.js";
+
+// Aristotle (2026-09-16) — the entrance to the reasoning organs: mechanical
+// signature first (puzzle-templates.js's own matchTemplate, no model call),
+// a model-assisted extraction only when injected and the mechanical
+// signature fails, its output re-validated against the template's closed
+// vocabulary before formalization ever runs.
+export { ENTRANCES, REFUSALS as ARISTOTLE_REFUSALS, acceptClassification, buildClassificationRequest, classifyEntrance, solve as aristotleSolve, toHolograph as aristotleHolograph } from "./aristotle.js";
+export * as aristotle from "./aristotle.js";
 
 // Phase 3 (2026-09-02) — the reading closure crosses: the-fold keeps only the surface.
 // Generated off each organ's own `export` statements; a name already exported by
