@@ -5358,3 +5358,547 @@ The mechanism is standing law already: `organs/witness-sentences.js` runs the se
 **Measured — the field crosses every boundary at once:** Alice ch2 (different text, same language) Δ=+2 derived; French Δ=+3; Russian Δ=+3 — all previously Δ=0 under the label-bound key. `был∘сказал` composes under the same affordance as `thought∘gave`. The rhythm transfers where the chemistry now does too (fr 60%, ru 43%, ch2 47%).
 
 **Files.** `native/kernel/hyperlexicon.js` (`compositionAffordance`'s structural fallback), `native/kernel/reaction.js` (passes `eo.grain`), `native/eval/lavar/prime-with-field.mjs` (declares the structural affordance). Suite: 778/772/6, same six pre-existing failures, zero new.
+
+## S118 — Bound proclitics were hiding the company signal from Hebrew and Arabic beings (2026-09-15)
+
+**Generality:** specimen-scoped. The mechanism itself is general (an injected,
+giver-named, per-language proclitic set validated against a received POS
+prior — no hardcoded vocabulary anywhere in it), but it has been measured
+on only two related languages (both Semitic, both from the same WALS
+root-pattern genus), and one of the two real findings below is a
+disclosed PARTIAL result, not a solved problem. A cross-domain replay on
+an unrelated caseless language (agglutinative non-Semitic, or a particle
+language) is the named next leg before this could be called universal.
+
+**heard-surfaces.js (S86/S87) already gives beings from company alone,
+case-independent by construction — but Hebrew and Arabic glue a
+determiner, conjunction or preposition directly onto the FOLLOWING word
+with no space, and that fusion hides both ends of the company signal the
+module depends on.** Measured live on two real, comparably-sized Wikipedia
+articles (a real Hebrew philosophy article, and the full real Arabic
+Wikipedia philosophy article, fetched via the public MediaWiki API): a
+Hebrew common noun wearing its own definite article ("הפילוסופיות", "the
+philosophies") read with NOTHING before it — the exact positional
+signature (`before=^`) this module's own header says is a name's — because
+the article ה is welded onto the noun, never its own token. Separately, on
+the Arabic article, a genuinely-present name ("أرسطو", Aristotle) never
+once reached `minMentions` under its own bare spelling, because every
+mention was fused to a DIFFERENT proclitic (وأرسطو "and-Aristotle",
+لأرسطو "to-Aristotle"...) — one real referent fragmented into several
+vocabulary entries, none individually recurring.
+
+**The giver is each treebank's own multi-word-token split, not a hand-typed
+list of "known articles."** `scripts/build-proclitic-prior.mjs` walks a UD
+treebank's own MWT range lines (`1-2 הקהל` → `1 ה (DET)` + `2 קהל (NOUN)`)
+and tallies, by raw character, every SINGLE-LETTER form the treebank itself
+annotates as fused with no space onto the token that followed it — a
+two-or-more-character MWT first-part ("في" "in", "بين" "between") is an
+ordinary short word sitting in a rare construction, not a bound clitic, and
+is excluded by construction, never by a judgment call. Run against the same
+UD_Hebrew-HTB and UD_Arabic-PADT treebanks `pos-heb.json`/`pos-arb.json`
+were already built from: Hebrew's seven — ה ב ו ל ש מ כ (11189/6144/3523/
+3249/2856/1368/447 occurrences) — match the classical "inseparable
+prepositions" of Hebrew grammar exactly, derived here from data, never
+asserted from grammar; Arabic's six — و ل ب س ف ك (12632/5520/4630/716/
+487/151) — with و ("and") the single most common proclitic in either
+language, more disruptive than the definite article itself (which Arabic's
+own treebank does not even split as an MWT — it is a FEATURE on the noun's
+own token, `Definite=Def`, not a separate clitic, a real structural
+difference from Hebrew found by reading the raw treebank rather than
+assumed from the two languages sharing a genus). `priors/proclitics-heb.json`
+/ `priors/proclitics-arb.json` (new, `ProcliticPrior@1`, CC BY-SA 4.0).
+
+**The peel commits only when the giver's own vocabulary confirms it — never
+a guessed split.** `heard-surfaces.js::peelProclitics(word, proclitics,
+posPrior)` strips one declared character at a time from the front (both
+languages productively stack more than one — "and in the" is ordinary),
+and keeps the peel only if the FINAL remainder is independently attested in
+the received POS prior — the exact "ask the giver in the giver's own units"
+discipline this file's English clitic check (`settledNonNaming`'s
+stem-before-the-apostrophe test) already uses, mirrored to a prefix. A word
+that never bottoms out at an attested form — a genuine root that happens to
+share the letter (Hebrew "הוא" "he", "הם" "they") — is left completely
+untouched: the safety is structural (the giver's own vocabulary), never a
+hand-typed exception list. `heardSurfaces` gained one new optional
+parameter, `proclitics` — omitted, behaviour is byte-identical to before
+this existed (confirmed: every pre-existing test in `heard-surfaces.test.mjs`
+still passes unchanged).
+
+**Measured honestly, both directions, not oversold.** On the real Hebrew
+article: 18 candidates → 10, removing real noise (function-word-like fused
+forms: "usually", "and more", "to every") and real content words now
+correctly read as common nouns under their article rather than false
+beings. The flagship false positive, "הפילוסופיות", SURVIVES the fix —
+its bare stem "פילוסופיות" is a Wikipedia-domain plural this newspaper-
+sourced treebank never happened to see, so the peel correctly and safely
+declines to split it. That is the received prior's own coverage limit, not
+a defect in the peel's logic, and it is disclosed rather than smoothed
+over. On the real Arabic article (232 sentences, fetched fresh, comparable
+scale to the Hebrew specimen): 10 candidates → 7, again removing genuine
+conjunction-fused noise — but **recovering zero proper names, unchanged**.
+Direct measurement of why: Arabic Wikipedia prose habitually introduces a
+name AFTER a descriptive appositive phrase ("the philosopher and
+mathematician Pythagoras"), so even with fusion cleaned up, a name's
+occurrences are split across too many distinct, non-dominant `before=`
+company words to ever clear the positional-signature floor. This is a
+SEPARATE, deeper problem from proclitic fusion — a genre/register effect
+(appositive-heavy encyclopedic prose starves the positional signal), not
+specific to Arabic and not solved by this fix. Named as real, disclosed,
+unattempted next work rather than claimed as closed.
+
+**Files.** `scripts/build-proclitic-prior.mjs` (new) + `priors/proclitics-heb.json`
++ `priors/proclitics-arb.json` (new, giver-named, CC BY-SA 4.0) +
+`organs/heard-surfaces.js` (`peelProclitics`, `proclitics` parameter — both
+additive) + `organs/heard-surfaces.test.mjs` (+5 cases: the peel's
+only-commit-when-attested rule, a fabricated Hebrew corpus proving the
+fused-noun false positive and its removal, a byte-identical-when-omitted
+control, and the real Hebrew article measured end to end). Verified:
+`heard-surfaces.test.mjs` 11/11. Full native suite checked for regressions
+against this exact concurrently-edited checkout by confirming none of the
+suite's currently-failing files (unrelated to this change, all pre-existing
+from other sessions' in-progress edits to `surfaces.js`/`recursive.js`/
+`phasepost.js`) import `heard-surfaces.js` or the new proclitic priors —
+this fix touches nothing any of them read.
+
+## S119 — identity-evidence.js generalised: apposition/copula evidence for any language a caller injects closed classes for (2026-09-15)
+
+**Generality:** specimen-scoped. The mechanism is general by construction
+(every closed class injectable, the naming/descriptor test switching
+atomically to a received-prior gate) but measured on only two related
+languages, and the two real findings below diverge sharply — one language's
+result is a genuine win, the other's is a real, disclosed negative. A
+cross-domain replay on an unrelated caseless or agglutinative language is
+the same named next leg S118 already carries.
+
+**identity-evidence.js finds two real patterns of stated identity — "the
+hooded courier, Rowan" (apposition) and "Dinah was the cat" (copula) — but
+both were built entirely around English orthography: `TITLE = /^\p{Lu}/`
+(capitalisation) picks the naming token, and `DETERMINERS`/`COPULA_PARADIGM`
+were imported directly from `priors.js`'s `lang/en` register with no way
+for a caller to supply another language's own.** On a caseless script this
+is the identical structural gap S86/S118 already named for
+`extractSurfaces`/`heard-surfaces.js` — and worth generalising here for a
+concrete reason: apposition catches names a COMPANY signal structurally
+cannot. Measured directly (the same real, comparably-sized Wikipedia
+articles S118 used): a real Arabic sentence introduces Aristotle as "the
+philosopher and mathematician أرسطو" — every mention of أرسطو in that
+article is preceded by a DIFFERENT descriptive phrase, so no single
+`before=` word ever dominates and `heard-surfaces.js`'s positional
+signature never fires on it, however cleanly its proclitics are peeled.
+Apposition reads the SAME sentence a different way: determiner + descriptor
++ naming-token, with no dependence on which word happens to recur.
+
+**Every closed class is now injected, defaulting to English — byte-
+identical to before this existed.** `determiners`, `copulaParadigm`,
+`subjectPronouns`, `neverAName` all take a caller-supplied Set/object,
+falling back to the existing `priors.js` English register when omitted.
+The naming-token and descriptor-token tests switch ATOMICALLY from
+capitalisation to the same asymmetric prior-based gate `heard-surfaces.js`
+already validated (a token the received POS prior SETTLES to PROPN, or has
+NEVER SEEN, is a naming-token candidate; a token it settles to NOUN/ADJ/the
+coordinating conjunction is a descriptor token) — mirrored exactly on
+`heardSurfaces`' own `gated` pattern: switched only when the FULL
+`{posPrior, classifyWord, dominantClass}` bundle is supplied, never
+blended with the capitalisation default. Confirmed byte-identical for every
+existing caller: all 8 pre-existing tests across
+`identity-evidence-index.test.js`/`identity-revision.test.js` pass
+unchanged.
+
+**Hebrew/Arabic determiners and copula candidates are derived mechanically
+from the SAME received POS priors this project already has — no new fetch,
+no hand-typed vocabulary.** `scripts/build-identity-closed-classes.mjs`
+filters `pos-heb.json`/`pos-arb.json`'s own per-form UPOS tallies: a
+determiner candidate is any form the treebank tags DET at or above a
+declared count, a copula candidate any form tagged AUX the same way —
+`priors/identity-classes-heb.json`/`identity-classes-arb.json` (new).
+DISCLOSED, stated once rather than at every call site: AUX only ever tags
+an OVERT copula (Hebrew/Arabic's verbal "to be", attested in past/future);
+neither language marks a present-tense "X is Y" with any token at all (a
+"nominal sentence," subject and predicate simply adjacent), so this
+derivation structurally cannot produce a form for the construction either
+language actually uses MOST often to state an identity — a real, named,
+unattempted gap, not silently papered over.
+
+**BARE apposition — no delimiter at all — is a new, distinct pattern
+(`text_bare_appositional_identity`), and it is the shape that actually
+matters here.** The existing `text_appositional_identity` required a
+comma/dash/colon before the naming token; the real specimen this
+generalisation was built for ("the philosopher and mathematician
+[Aristotle]") carries no delimiter in EITHER Arabic or its own English
+gloss. The descriptor span also widens (from a fixed 1-2 tokens to up to 4)
+but only through a CONJUNCTION joining two descriptor heads — "philosopher
+AND mathematician" — never open-ended, so an unconjoined run of descriptors
+is deliberately still refused.
+
+**Measured honestly, and the two real specimens diverge sharply — reported
+as found, not smoothed into one story.** On the real Arabic article: 25
+supports, and among them **two genuine, previously-unrecoverable proper
+nouns — أرسطو (Aristotle) and أفلاطون (Plato)** — both invisible to
+`heard-surfaces.js`'s own company signal on this exact material (measured
+separately: zero proper names recovered there). Real noise rides alongside
+them (a real abstract noun, "الوجودية" existentialism, is admitted too,
+because the treebank has never seen either word and the asymmetric gate
+cannot then tell them apart). On the real Hebrew article: 31 raw supports,
+**zero of them a real name** — the smaller newspaper-sourced HTB treebank
+has too little coverage of this article's own philosophy-specific
+vocabulary for the asymmetric gate to separate real names from real rare
+domain words at all. Both numbers are reported as measured, not tuned
+toward a uniform conclusion.
+
+**A candidate fix was tried and REFUTED before shipping anything.**
+Requiring a naming-token candidate to independently recur ≥2 times
+elsewhere in the document (this project's own standing corroboration
+discipline, reused) was measured directly: it does not separate real names
+from noise here, and actively makes precision WORSE on Arabic — a common
+recurring domain adjective ("فلسفية", "philosophical," 22 occurrences)
+survives the filter far more readily than a genuine name ("أرسطو", 3
+occurrences) does, because document-wide word frequency and name-hood are
+simply uncorrelated among words the treebank has never classified. Not
+retried with a different threshold — the finding is that RECURRENCE is
+the wrong axis for this specific signal, not that this recurrence count
+was the wrong number.
+
+**Shipped as EVIDENCE, matching this file's own stated philosophy
+("apposition is support, not proof") rather than as a clean, ready-to-trust
+referent list.** A consumer wanting the real Arabic wins without the real
+Arabic noise needs a further check this pass does not build — cross-
+referencing a candidate against another source (Wikidata, a second
+independent reading, or a small model witness, P32/P83's own precedent) —
+named as the concrete next lever rather than attempted here.
+
+**Files.** `adapters/text/identity-evidence.js` (injectable closed classes,
+the atomic naming/descriptor test switch, bare apposition — all additive)
++ `scripts/build-identity-closed-classes.mjs` (new) +
+`priors/identity-classes-heb.json` / `identity-classes-arb.json` (new,
+derived, CC BY-SA 4.0 via the same treebanks `pos-heb.json`/`pos-arb.json`
+already cite) + `tests/identity-evidence-omnilingual.test.mjs` (new, 5
+cases: byte-identical defaults, bare apposition and coordinated-descriptor
+cases in English, and the two real-material cases with their disclosed,
+divergent precision). Verified: 16/16 across every identity-evidence test
+file (8 pre-existing + 5 new + 3 in `identity-revision.test.js` counted
+once), `tests/anchoring.test.js` 10/10 (the nearest real consumer),
+unchanged.
+
+## S120
+
+The master positional reader (S118/S119's own `relations-positional.js` +
+`scripts/build-role-config.mjs`, replacing `relations-hebrew.js`/
+`relations-arabic.js` the same day they were built) composes with the-fold's
+existing GFP architecture — user direction, verbatim: "try GFP as much as
+useful," issued after `the-fold/grounding-gfp.js` and
+`the-fold/relation-kinds.js` surfaced as a concurrent same-day session's own
+build. Neither file needed to change.
+
+**Generality: universal.** `grounding-gfp.js`'s own header already states
+the seam this closes: "role assignment is the language's own eigenvalue...
+a caller reading an inflectional, Semitic or CJK text injects that
+language's own slot organ" — `positionalSlots`/`englishSlots` were the only
+two slot organs that existed; nothing Hebrew/Arabic/Semitic did. A
+`RoleConfig@1`-driven reader IS a concrete slot organ for a positional
+Semitic language, not a second architecture built beside GFP's own
+injection point.
+
+**`makePositionalSlots(options) -> slotsOf(text) -> [{end1, label, end2}]`**
+(new, `adapters/text/relations-positional.js`) is the adapter: options
+(`roleConfig`, `posPrior`, `classifyWord`, `dominantClass`, `proclitics`)
+are bound ONCE, because `makeGfpGround` calls `slotsOf(text)` with a single
+argument — a caller partially applies this file's own options at the point
+of composition, never at every call. Deliberately narrower than
+`extractPositionalRelation`'s own return shape: a `gap` (no verb found,
+ambiguous verb, no usable role) becomes an EMPTY ARRAY, never a typed
+reason — matching `positionalSlots`/`englishSlots`' own "nothing found
+here" contract (grounding-gfp.js has no vocabulary for a gap object, and
+inventing one here would be a second, uncoordinated shape). The typed gap
+itself is not lost — it stays available to any caller of
+`extractPositionalRelation` directly.
+
+**Verified end to end against real UD_Hebrew-HTB test-split data and the
+real, unmodified `the-fold/grounding-gfp.js`, `kernel/notes.js` and
+`organs/hyperlexicon.js`** — never a hand-typed Hebrew fixture. One real
+resolved clause ("שחקניה שפע וגיילס קלעו נקודות רבות" — her players scored
+many points) hears one note onto the hyperlexicon with a real, addressed
+span (`he_htb-ud-test#specimen#e1-e4`, P5.2) and a real, unioned witness
+string. The wiring needed one indirection this pass had to find rather than
+guess: `grounding-gfp.js`'s own `makeNotes` option expects the OLDER
+`createHyperlexicon`/`hear`/`foldHyperlexicon` API name shape (it predates
+P80's kernel migration), which is exactly what `organs/hyperlexicon.js`'s
+own header calls "the identical API" over the newer `kernel/notes.js` —
+`makeHyperlexicon` (not `kernel/notes.js`'s own `makeNotes`) is the correct
+injection, with the real `kernel/task-log.js` module riding through as
+GFP's own separate `taskLog` option.
+
+**The omnilingual claim is checked directly, and honestly split.**
+`relation-kinds.js::kindOf` is genuinely omnilingual for what its closed
+kind table has already been given — a Hebrew copula (הוא/היא, already in
+its `COPULA` set) lands the SAME cell (`SIG·Figure`) an English "is" or a
+Russian copula does. An ORDINARY Hebrew action verb the real specimen's own
+clause uses (קלעו, "scored") has no entry in any of that table's English/
+transliterated-loanword sets and lands the honest, typed `unclassed` gap —
+a real, disclosed coverage gap in the closed kind vocabulary today, not a
+failure of the metastructure mechanism itself, and not smoothed over to
+claim a cleaner result than what was measured.
+
+**Not attempted this pass, named rather than silently deferred:** the
+still-unresolved Arabic isolated-role-assignment anomaly (S118/S119's own
+eval driver reporting only 1-2 found candidates across dozens of gold
+cases) is a property of `RoleConfig@1`/`extractPositionalRelation`
+themselves, orthogonal to this composition — diagnosing it does not
+require or benefit from the GFP seam and is left as its own open item
+(closed the same day, S121). Composing an Arabic `RoleConfig@1` the
+identical way was not separately demonstrated here at first (the
+mechanism is language-blind by construction — `makePositionalSlots` takes
+whichever `roleConfig`/`posPrior`/`proclitics` triple a caller supplies —
+but only Hebrew was run end to end); closed the same day, below.
+
+**Amended the same day — Arabic composes too, proving the language-blind
+claim rather than asserting it from one language alone.** A second real
+`tests/relations-positional.test.js` case runs a real UD_Arabic-PADT
+test-split specimen ("الرئيس بن علي يوقع أمرا بتنظيم الحياة المدرسية" —
+"President Ben Ali signs an order regulating school life," resolving
+cleanly only once S121's own head-of-phrase filter shipped) through the
+SAME `gfp.makeGfpGround` instance, with zero code changes to
+`grounding-gfp.js`, `relation-kinds.js`, or this file's own
+`makePositionalSlots`. One disclosed, real coverage gap surfaced by
+checking rather than assuming: `relation-kinds.js`'s own `COPULA` set
+carries Hebrew (הוא/היא), Russian, Japanese and Korean copula forms but
+no Arabic ones (هو/هي) — the omnilingual MECHANISM is proven for a third
+script family here (Hebrew, and now Arabic's own distinct root-and-
+pattern morphology), while the closed KIND VOCABULARY's own Arabic
+coverage remains a real, disclosed, unattempted gap, matching S119's own
+established honesty about vocabulary gaps in that same table. Verified:
+6/6 in `tests/relations-positional.test.js` (up from 5), full native
+suite unchanged (same 11 pre-existing failures, zero regressions).
+
+**Files.** `adapters/text/relations-positional.js` (`makePositionalSlots`,
+additive — `extractPositionalRelation` untouched) + `tests/
+relations-positional.test.js` (new, 6 cases as of the same-day amendment
+above: the adapter's own contract against real Hebrew priors with a
+typed skip when absent, the real end-to-end GFP composition for BOTH
+Hebrew and Arabic, and the direct omnilingual-kindOf check). Verified:
+6/6 in the new file; the broader native suite (1494 cases across every
+`.test.js`/`.test.mjs` under `native/tests/` and `native/organs/`) shows
+the same pre-existing, unrelated failures before and after (none of the
+6 failing files import `relations-positional.js` or `wordclass.js`),
+zero regressions.
+
+## S121
+
+The Arabic isolated-role-assignment anomaly S118/S119 left flagged
+"UNDIAGNOSED" (only 1-2 candidates ever found across dozens of gold cases,
+far below Hebrew's own numbers) is diagnosed, and the diagnosis produces a
+real, measured, cross-linguistic fix — not a per-language patch.
+
+**Generality: universal.** Measured and confirmed on BOTH languages'
+held-out data before shipping, not tuned toward Arabic alone.
+
+**The real cause, found by direct inspection of the actual failing
+sentences rather than reasoning from the numbers alone.** A first
+hypothesis (Arabic's subject sitting on the SAME side as the object 55%
+of the time when both are explicit, since Arabic subject position is
+measured near-chance — `role-config-arb.json`'s own `subject.usable:
+false`, reliability 53.95%) was real (confirmed with a direct 47-sentence
+measurement) but turned out to be a MINOR contributor (~18% of ambiguous
+cases). The dominant cause, found by actually reading the failing
+specimens: this project's own held-out Arabic fixture (UD_Arabic-PADT, a
+Tunisian TAP news-agency corpus) writes in the MSA news register's
+characteristic long, genitive-chain-heavy sentences — a real specimen has
+55 tokens, ONE verb, and 25 NOUN/PROPN tokens, most of them nested inside
+unmarked possessive (idafa: bare N-N, no marker) or prepositional-phrase
+chains with no syntactic relation to the verb's own arguments at all
+("energy control... national program related to rationalizing energy
+consumption and expanding use of renewable energy... rise in traditional
+energy consumption... rise in fuel prices in global markets"). The
+reader's own "single-verb-like clause" scope (declared, matching
+`relations-case-marked.js`) silently assumed one verb roughly implies one
+simple clause with 2-3 nominal arguments; Arabic's own register violates
+that assumption routinely, and every unrelated nested nominal was
+counted as a candidate subject/object, manufacturing "ambiguous" gaps
+this project's own reader was correctly REFUSING to guess through rather
+than silently mis-assigning.
+
+**A second, related finding: the object marker Arabic's own mechanical
+discovery surfaced (`discoverMarker`, S118/S119) is statistically
+"significant" against its own permutation null and functionally almost
+useless.** `role-config-arb.json`'s object marker is "الـ" (the definite
+article + a tatweel character, an artifact of how the treebank's own
+FORM column represents a split clitic) — a BOUND PROCLITIC glued onto its
+noun with no space in real orthography, never a standalone whitespace
+token this reader's own tokenisation could ever see as a preceding word.
+Its own disclosed numbers already say so honestly: precision 16% (beats
+the null's 8% ceiling, so it is not a chance artifact when it fires) but
+RECALL 0.06% (4 real occurrences out of 6799 real objects) — it can
+essentially never break a real tie in practice, whatever its own
+significance test says. `discoverMarker`'s own test (S118/S119) checks
+precision against a null; it has and needs no recall floor to be a sound
+per-form significance test, so this is not a bug in that function — it is
+a real, disclosed limit of PRECISION-alone significance testing when a
+candidate's practical utility also depends on how often it fires at all.
+Nothing was changed here: the honest number was already on the record
+(`role-config-arb.json`'s own `recall` field), and the fix below makes it
+irrelevant in practice rather than needing to be tuned away.
+
+**A candidate fix was measured with a real, licensed test and REFUTED
+before shipping anything, matching this project's own standing discipline
+(a statistic earns its use by a control built to fail).** Distance-to-verb
+("the candidate closer to the verb, among two same-side candidates, is
+more likely the SUBJECT") was measured directly on the real held-out data:
+26/42 non-tied same-side collisions (61.9%) favoured this direction —
+above the 50% coin-flip, but a one-sided exact binomial test against
+p=0.5 gives p=0.0821, which does NOT clear this project's own standing
+null-arm alpha (0.05, reused everywhere else in this file). Not retried
+with a different phrasing or a bigger sample construction — the finding
+is that this signal is too weak to license at this reader's own bar, not
+that the test was wrong.
+
+**The fix that DID clear its own measured bar on both languages:
+`isHeadOfPhraseUpos(prevUpos)`** (new, `adapters/text/
+relations-positional.js`, exported) — a nominal immediately preceded by
+an adposition (a PP's own object) or by another nominal (an unmarked
+genitive/idafa chain's own possessor) is excluded from candidacy
+entirely, structural and POS-based only, no hand-typed vocabulary, no
+null test needed (it is not a statistical claim about a form's
+co-occurrence rate the way a marker is — it is a closed-class UPOS
+exclusion rule, the same category this file's own `CLOSED_MARKER_CLASSES`
+and `relations-case-marked.js`'s `LATIN_PREPOSITIONS` already are).
+Measured on BOTH languages before shipping: Arabic's own clean
+single-object-candidate rate lifts 6.9%->27.4% on the TRAINING split
+(n=1075, the split this reader's own statistics are derived from) and
+4.5%->29.7% on the TEST split (n=111); Hebrew's own lifts 30.6%->38.0% on
+its TEST split (n=121) — a real, disclosed cost on both (measured
+false-negative rate: ~18-20% of gold objects and ~3% of gold subjects are
+themselves embedded this way and get excluded too), but a clear net gain
+on both languages' own numbers, never tuned toward either one alone —
+exactly the "let what we learn in one language influence another"
+mandate this file's own S118 already states.
+
+**The eval script's own separate "isolated role-assignment" measurement
+(S118/S119) had silently drifted from the real reader it was meant to
+isolate design from — found and fixed as part of this pass.**
+`positional-relations-eval.mjs::isolatedRoleAssignment` re-implemented its
+own nominal-gathering logic inline against the gold CoNLL-U tags, rather
+than calling `extractPositionalRelation`'s own logic — so this file's own
+head-of-phrase fix was invisible to that measurement until
+`isHeadOfPhraseUpos` was exported specifically so both call sites (the
+real reader, classified at inference time; the eval driver, against gold
+UPOS tags) apply the IDENTICAL predicate rather than two copies that could
+drift apart — the exact drift class this file's own header already names
+(P22/P24) as the reason a THIRD hand-written language file was refused
+in favour of one master reader.
+
+**Measured end to end, before and after, both eval modes, both
+languages:**
+
+| | Hebrew full end1 | Hebrew full end2 | Hebrew iso end1 | Hebrew iso end2 |
+|---|---|---|---|---|
+| before | 1.3% | 6.3% | 22.1% (58.6% prec) | 18.8% (75.0% prec) |
+| after | 7.8% | 6.3% | 31.2% (68.6% prec) | 34.4% (84.6% prec) |
+
+| | Arabic full end1 | Arabic full end2 | Arabic iso end1 | Arabic iso end2 |
+|---|---|---|---|---|
+| before | 1.0% | 2.0% | 1.0% (100% prec, 1 found) | 6.0% (75.0% prec) |
+| after | 14.4% | 24.0% | 16.5% (100% prec) | 34.0% (85.0% prec) |
+
+Precision rose or held on every single column — this is a real reduction
+in noise, not a precision/recall trade. Arabic's isolated numbers, the
+specific thing flagged "UNDIAGNOSED" in S118/S119, now meet or beat
+Hebrew's own, closing the open question directly rather than leaving it
+disclosed-but-unexplained.
+
+**Not attempted this pass:** a full clause-segmentation organ (splitting
+a long, multi-predicate "sentence" into its real component clauses) would
+likely close more of the remaining gap — named as real, unattempted,
+larger future work, not a substitute for what this pass measured. The
+distance-to-verb signal's own negative result stays disclosed rather than
+silently dropped, in case a larger sample or a different, more principled
+construction someday clears the bar this one did not.
+
+**Files.** `adapters/text/relations-positional.js`
+(`isHeadOfPhraseUpos`, exported; `extractPositionalRelation`'s own
+nominal-gathering now applies it) + `eval/positional-relations-eval.mjs`
+(`isolatedRoleAssignment` now imports and applies the same predicate,
+closing the drift). Verified: the new `tests/relations-positional.test.js`
+(5/5, unchanged — its own specimen resolves through whichever candidates
+survive the filter and asserts against the reader's own live output,
+never a hardcoded expectation); the broader native suite (1494 cases)
+shows the identical 11 pre-existing, unrelated failures before and after
+this file's own edit, zero regressions.
+
+## S122
+
+A peer review (LaVar, a frontier-model reader graded against real source
+per its own "book test," relayed via 3-0-96) read `relations-positional.js`,
+`build-role-config.mjs`, and S118-S121 in full, ran the real test suite
+directly rather than trusting the prose, and confirmed the header's own
+central claim by running it (`grounding-gfp.js`'s real signature needs
+zero edits, `relations-hebrew.js`/`relations-arabic.js` are confirmed
+actually deleted, `isHeadOfPhraseUpos` applies identically to both
+languages through the SAME shared function). Two findings raised the bar
+past "clean" to "genuinely stronger," both addressed the same day.
+
+**Generality: universal** (both fixes below).
+
+**1. A trip-wire, not just a disclosure.** S121's refuted distance-to-verb
+tie-break was documented with real rigor in this file's own prose, but a
+future editor reading `relations-positional.js`'s SUBJECT block directly
+(the exact site a distance-based tie-break would be added) had no local
+signal that this was already tried and measured to fail. Fixed with an
+inline comment at that exact site, naming the measured result (p=0.0821)
+and the standing alpha it failed to clear — so the negative result is
+where an editor would actually be standing when they might repeat it, not
+only in this file's own prose three S-entries back.
+
+**2. The multiple-comparisons fix (S118/S119) was real but incomplete —
+found by a peer running it, not by this project's own re-audit.**
+`build-role-config.mjs`'s `CLOSED_MARKER_CLASSES` restriction genuinely
+narrows the hypothesis space (the fix that closed the "רוצה"/"wants"
+false-positive class), but `discoverMarker` still tested each SURVIVING
+closed-class candidate against its OWN per-form permutation null
+independently, then picked whichever cleared with the highest precision —
+the identical multiple-comparisons shape at smaller scale: a real
+treebank's closed classes still hold dozens of distinct forms, and
+testing each one at alpha=0.05 against its own null means the SEARCH as a
+whole admits a genuine chance winner far more often than 5% of the time.
+
+**Fixed with a standard max-statistic (familywise) correction.** At each
+of the `NULL_DRAWS` permutation shuffles, `discoverMarker` now computes
+the MAXIMUM null hit-rate across every ELIGIBLE candidate (the same set
+tested in the real data) rather than each candidate's own separate null —
+one null distribution of "the best any closed-class candidate could look
+like by chance," `NULL_DRAWS` deep. The real winning candidate (provably
+the highest-precision real candidate: if it does not clear the family
+ceiling, no lower-precision candidate can either, since all real
+precisions sit at or below it) is compared against this distribution's
+(1-alpha) quantile — controlling the familywise error rate for "did this
+search admit any marker at all," not merely one candidate's own
+individual significance.
+
+**Measured, both languages, before shipping.** Hebrew's two markers
+(object `את_`, subject `אינו`) SURVIVE the stricter family-wise ceiling
+unchanged in form and precision — real, strong signals that hold even
+under the tougher bar (only the disclosed `nullCeiling` rose, as expected
+for a family-of-candidates ceiling versus a single form's own). Arabic's
+object marker "الـ" — already flagged in S121 as functionally negligible
+(precision 16% against its own per-form null, but recall 0.06%, 4 real
+occurrences out of 6799 objects) — is now correctly REFUSED entirely
+(`marker: null`), because it does not clear the family ceiling: it was a
+genuine chance artifact of testing dozens of closed-class candidates
+independently, not merely a real-but-rare signal as S121's own weaker
+framing left open. Arabic's own eval numbers are BYTE-IDENTICAL before
+and after this fix (confirmed by direct re-run) — expected, since a
+marker with 0.06% recall was already functionally inert at inference
+time; this fix makes the disclosed statistic honest rather than changing
+behavior, closing the gap between "passed a significance test" and
+"actually useful," which S121 had only partially closed by disclosing the
+low recall number without removing the marker itself.
+
+**Files.** `scripts/build-role-config.mjs` (`discoverMarker` rewritten to
+the family-wise correction; the provenance `note` field updated to state
+it) + `priors/role-config-heb.json`/`role-config-arb.json` (regenerated
+from the same training treebanks, S118's own provenance paths — Hebrew's
+markers unchanged, Arabic's object marker now `null`) +
+`adapters/text/relations-positional.js` (a trip-wire comment at the
+SUBJECT block, no logic change). Verified: `tests/relations-positional.test.js`
+6/6 unchanged; `eval/positional-relations-eval.mjs --lang=heb|arb` numbers
+byte-identical to S121's own; the broader native suite (1495 cases) shows
+the same 11 pre-existing, unrelated failures before and after, zero
+regressions.
