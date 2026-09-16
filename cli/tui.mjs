@@ -233,7 +233,7 @@ function App() {
     try {
       const res = await proxyClient.chatCompletion({
         model: tab.model, history: tab.chatHistory, task: text, sessionId: tab.sessionId,
-        onRetry: ({ attempt, retryAfterS, type }) => pushMessage(tabId, "note", `${type === "saturated" ? "box" : "model"} busy — retrying in ${retryAfterS}s (attempt ${attempt}/${proxyClient.CHAT_MAX_RETRIES})`),
+        onRetry: ({ attempt, retryAfterS, type }) => pushMessage(tabId, "note", `${type === "saturated" ? "box" : "heimdall"} busy — retrying in ${retryAfterS}s (attempt ${attempt}/${proxyClient.CHAT_MAX_RETRIES})`),
       });
       pushMessage(tabId, "assistant", res.text);
       updateTab(tabId, (t) => ({
@@ -254,7 +254,7 @@ function App() {
     try {
       const res = await proxyClient.agentCompletion({
         model: tab.model, task: text, sessionId: tab.sessionId,
-        onRetry: ({ attempt, retryAfterS, type }) => pushMessage(tabId, "note", `${type === "saturated" ? "box" : "model"} busy — retrying in ${retryAfterS}s (attempt ${attempt}/${proxyClient.CHAT_MAX_RETRIES})`),
+        onRetry: ({ attempt, retryAfterS, type }) => pushMessage(tabId, "note", `${type === "saturated" ? "box" : "heimdall"} busy — retrying in ${retryAfterS}s (attempt ${attempt}/${proxyClient.CHAT_MAX_RETRIES})`),
       });
       // Every round is real and disclosed — nothing this loop did is hidden,
       // the same "hidden drawing, never a hidden finding" posture the-fold

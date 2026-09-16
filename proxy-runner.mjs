@@ -1808,26 +1808,32 @@ async function ollamaReachable({ timeoutMs = 3000 } = {}) {
 }
 
 // --- concurrency gate --------------------------------------------------------
-// One slot PER MODEL for Ollama generation (num_parallel=1). Reading pipelines
-// run concurrently; generation is serialized PER MODEL, never globally: Ollama
-// queues per model (FIFO, OLLAMA_NUM_PARALLEL=1 default), so a global slot
-// would let one user's long turn on gemma2:2b block every other user's turn
-// on qwen3:30b for no reason. Same-model requests serialize exactly as the
-// daemon would serialize them anyway. A different model is a different lane.
-const generationSlots = new Map(); // model -> Promise
+// N slots PER MODEL for Ollama generation. Ollama runs CPU-only with
+// OLLAMA_NUM_PARALLEL=4 (launchctl env, set 2026-09-16) so up to
+// GENERATION_SLOTS_PER_MODEL requests on the SAME model genuinely run side
+// by side instead of one blocking the rest; generation still never shares a
+// slot ACROSS models — a long turn on gemma2:2b never blocks a turn on
+// qwen3:30b, since a different model is a different lane. Keep this at or
+// below whatever OLLAMA_NUM_PARALLEL actually is, or requests queue inside
+// Ollama invisibly instead of here.
+const GENERATION_SLOTS_PER_MODEL = Number(process.env.ER7_GENERATION_SLOTS ?? 4);
+const generationSlots = new Map(); // model -> in-flight count
 export function generationSlotHealth() {
   const out = {};
-  for (const [model, slot] of generationSlots) out[model] = slot ? "busy" : "idle";
+  for (const [model, count] of generationSlots) out[model] = count > 0 ? "busy" : "idle";
   return out;
 }
 async function withSlot(model, work) {
-  const prev = generationSlots.get(model) ?? Promise.resolve();
-  const run = prev.then(work, work);
-  generationSlots.set(model, run.catch(() => {}));
+  while ((generationSlots.get(model) ?? 0) >= GENERATION_SLOTS_PER_MODEL) {
+    await new Promise((resolve) => setImmediate(resolve));
+  }
+  generationSlots.set(model, (generationSlots.get(model) ?? 0) + 1);
   try {
-    return await run;
+    return await work();
   } finally {
-    if (generationSlots.get(model) === run.catch(() => {})) generationSlots.delete(model);
+    const next = (generationSlots.get(model) ?? 1) - 1;
+    if (next <= 0) generationSlots.delete(model);
+    else generationSlots.set(model, next);
   }
 }
 

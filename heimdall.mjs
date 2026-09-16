@@ -65,10 +65,11 @@ const HEALTH_TIMEOUT_MS = Number(process.env.ER7_HEIMDALL_HEALTH_TIMEOUT ?? 1500
 const MAX_RESTARTS = Number(process.env.ER7_HEIMDALL_MAX_RESTARTS ?? 3);
 const RESTART_WINDOW_MS = Number(process.env.ER7_HEIMDALL_WINDOW ?? 10 * 60 * 1000);
 const STEER_PORT = Number(process.env.ER7_HEIMDALL_PORT ?? 11437);
-// Per-family admission cap (concurrent in-flight requests). Ollama runs one
-// slot per model, so >1 in flight per family just queues invisibly; the
-// bridge makes that queue VISIBLE and bounded. 0 = unlimited.
-const FAMILY_CAP = Number(process.env.ER7_FAMILY_CAP ?? 1);
+// Per-family admission cap (concurrent in-flight requests). Ollama is run
+// CPU-only with OLLAMA_NUM_PARALLEL=4 (launchctl env, set 2026-09-16) so up
+// to 4 requests per model genuinely run side by side instead of queuing
+// invisibly behind one; the cap tracks that real capacity. 0 = unlimited.
+const FAMILY_CAP = Number(process.env.ER7_FAMILY_CAP ?? 4);
 const RETRY_AFTER_S = Number(process.env.ER7_RETRY_AFTER ?? 15);
 const LOG_FILE = path.join(HERE, "heimdall-log.jsonl");
 
