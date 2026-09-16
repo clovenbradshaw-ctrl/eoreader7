@@ -902,12 +902,15 @@ function recordsFromSegments(surfacedSegments) {
 function groundFactFor(task, surfacedSegments) {
   try {
     const records = recordsFromSegments(surfacedSegments);
+    if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] records:", JSON.stringify(records));
     const result = groundAttention(
       { task, records },
       { matchArchons, groundSelector, refuteRelation, declareVoid, cellOf, groundOpts: GROUND_OPTS },
     );
+    if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] result:", JSON.stringify({ fired: result.fired, reason: result.reason, winner: result.winner }));
     return result.fired ? result.text : null;
-  } catch {
+  } catch (e) {
+    if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] THREW:", e.stack);
     return null; // the attention must never break a turn
   }
 }
