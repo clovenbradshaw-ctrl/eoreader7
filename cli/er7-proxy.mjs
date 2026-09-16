@@ -17,11 +17,14 @@ import { fileURLToPath } from "node:url";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "..");
 const PROXY = path.join(REPO_ROOT, "proxy.mjs");
-const PORT = Number(process.env.ER7_PROXY_PORT) || 11436;
+export const PORT = Number(process.env.ER7_PROXY_PORT) || 11436;
 const LOG = process.env.ER7_PROXY_LOG || path.join(REPO_ROOT, "proxy.log");
 const PID_FILE = path.join(REPO_ROOT, ".er7-proxy.pid");
 
-function isUp() {
+// isUp/start are exported so the TUI (tui.mjs, via proxy-client.mjs) can
+// reuse the EXACT same health check and boot sequence `er7-proxy start`
+// uses on the CLI — no second implementation to drift out of sync.
+export function isUp() {
   try {
     const res = execSync(`curl -s -m 2 http://127.0.0.1:${PORT}/health`, { encoding: "utf8" });
     return res.includes('"ok"');
@@ -53,10 +56,13 @@ function stop() {
   console.log("er7 proxy not running");
 }
 
-async function start() {
+// `quiet` lets a caller (the TUI) boot the proxy without this module's own
+// console.log lines landing in the middle of an Ink render — same spawn +
+// health-check loop either way, just without the narration.
+export async function start({ quiet = false } = {}) {
   if (isUp()) {
-    console.log(`er7 proxy already running on http://127.0.0.1:${PORT}`);
-    return;
+    if (!quiet) console.log(`er7 proxy already running on http://127.0.0.1:${PORT}`);
+    return { started: false, alreadyRunning: true, port: PORT };
   }
   const child = spawn("node", [PROXY], { cwd: REPO_ROOT, detached: true, stdio: "ignore" });
   child.unref();
@@ -65,37 +71,43 @@ async function start() {
     await new Promise((r) => setTimeout(r, 200));
     if (isUp()) {
       fs.writeFileSync(PID_FILE, String(child.pid));
-      console.log(`er7 proxy listening on http://127.0.0.1:${PORT} (pid ${child.pid})`);
-      return;
+      if (!quiet) console.log(`er7 proxy listening on http://127.0.0.1:${PORT} (pid ${child.pid})`);
+      return { started: true, alreadyRunning: false, port: PORT, pid: child.pid };
     }
   }
-  console.error("er7 proxy failed to start — check proxy.log");
-  process.exitCode = 1;
+  if (!quiet) console.error("er7 proxy failed to start — check proxy.log");
+  return { started: false, alreadyRunning: false, port: PORT, error: "timed out waiting for /health" };
 }
 
-const cmd = process.argv[2] ?? "start";
-switch (cmd) {
-  case "start":
-    await start();
-    break;
-  case "stop":
-    stop();
-    break;
-  case "restart":
-    stop();
-    await start();
-    break;
-  case "status":
-    console.log(isUp() ? `running on http://127.0.0.1:${PORT}` : "not running");
-    break;
-  case "log":
-    try {
-      console.log(fs.readFileSync(LOG, "utf8"));
-    } catch {
-      console.log("no log yet — start the proxy first");
-    }
-    break;
-  default:
-    console.error(`unknown command: ${cmd}`);
-    process.exitCode = 1;
+// Only run the CLI dispatch when this file is the process entry point —
+// importing it (from proxy-client.mjs, for the TUI) must not also run
+// `start` on module load.
+const isMain = path.resolve(process.argv[1] ?? "") === path.resolve(fileURLToPath(import.meta.url));
+if (isMain) {
+  const cmd = process.argv[2] ?? "start";
+  switch (cmd) {
+    case "start":
+      await start();
+      break;
+    case "stop":
+      stop();
+      break;
+    case "restart":
+      stop();
+      await start();
+      break;
+    case "status":
+      console.log(isUp() ? `running on http://127.0.0.1:${PORT}` : "not running");
+      break;
+    case "log":
+      try {
+        console.log(fs.readFileSync(LOG, "utf8"));
+      } catch {
+        console.log("no log yet — start the proxy first");
+      }
+      break;
+    default:
+      console.error(`unknown command: ${cmd}`);
+      process.exitCode = 1;
+  }
 }

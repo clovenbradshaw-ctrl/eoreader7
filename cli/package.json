@@ -7,5 +7,13 @@
   "bin": {
     "eoreader7": "./eoreader7.mjs",
     "er7-proxy": "./er7-proxy.mjs"
+  },
+  "dependencies": {
+    "ink": "^7.1.1",
+    "ink-text-input": "^6.0.0",
+    "react": "^19.2.0"
+  },
+  "scripts": {
+    "test": "node --test tests/**/*.test.mjs"
   }
 }

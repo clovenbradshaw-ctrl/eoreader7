@@ -96,7 +96,15 @@ function load(filePath, source, limit, preStripped) {
 
 async function main() {
   const args = process.argv.slice(2);
-  if (args.length === 0 || args.includes("-h") || args.includes("--help")) usage();
+  if (args.includes("-h") || args.includes("--help")) usage();
+  // No arguments at all: launch the interactive TUI (tabs, grounded chat +
+  // coding agent) instead of the one-shot batch reader below. Every other
+  // invocation shape (a file path, -h/--help) is unchanged.
+  if (args.length === 0) {
+    const { runTui } = await import("./tui.mjs");
+    runTui();
+    return;
+  }
 
   const filePath = args[0];
   if (filePath.startsWith("--")) usage(`expected a file as the first argument, got ${filePath}`);
