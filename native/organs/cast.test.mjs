@@ -11,9 +11,10 @@ import { makeCastHandles, makeReferentIndex } from "./cast.js";
 import { chunkSource, blankLabelRows } from "./source.js";
 import { extractReadable } from "./web.js";
 import { splitSentences } from "../adapters/text/spans.js";
-import { extractSurfaces, discoverReferents, namesCorefer, diaNorm } from "../adapters/text/surfaces.js";
+import { extractSurfaces, extractLeadingSurfaces, discoverReferents, namesCorefer, diaNorm } from "../adapters/text/surfaces.js";
 
 const ORGANS = { splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm };
+const ORGANS_WITH_LEADING = { ...ORGANS, leadingSurfaces: extractLeadingSurfaces };
 const FIX = new URL("../eval/the-fold/fixtures/", import.meta.url);
 const blank = (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 });
 
@@ -96,4 +97,45 @@ test("REAL FIXTURE — the exact rashomon-contrast specimen: Barclay de Tolly an
   // untouched by the fact that .blanked exists on them at all.
   const stillRaw = repsOf(blanked, false);
   assert.deepEqual(stillRaw.sort(), before.sort(), "a chunk carrying .blanked changes nothing for a reader that never asked for it");
+});
+
+test("SENTENCE-INITIAL NAMES (2026-09-15): English's capitalisation convention is information, not a veto — a name that ONLY ever opens a sentence resolves once the caller opts into leadingSurfaces, and the physics filter still refuses a sentence-opener that appears lowercased elsewhere", () => {
+  const repsOf = (passages, optIn) => {
+    const idx = makeReferentIndex(optIn ? ORGANS_WITH_LEADING : ORGANS)(passages);
+    return [...idx.referents].map((id) => idx.represent(id));
+  };
+  const resolves = (passages, name, optIn) => makeReferentIndex(optIn ? ORGANS_WITH_LEADING : ORGANS)(passages).resolve(name).size > 0;
+
+  // The exact e2e shape: "Napoleon" only ever appears sentence-initial in the
+  // material. Without the opt-in it is invisible (extractSurfaces starts its
+  // scan at token 1); with it, it resolves.
+  const napoleon = [{ ref: "p", text: "Napoleon invaded Russia in 1812 with the Grande Armée." }];
+  assert.equal(resolves(napoleon, "Napoleon", false), false, "the veto stands by default — sentence-initial position carries no namehood evidence");
+  assert.equal(resolves(napoleon, "Napoleon", true), true, "opt-in: the convention IS information, offered as a candidate");
+  assert.equal(resolves(napoleon, "Russia", true), true, "mid-sentence names resolve either way");
+  assert.ok(repsOf(napoleon, true).includes("Napoleon"), "Napoleon is now an established referent");
+
+  // Multi-word sentence-initial runs stay whole ("Thomas Edison" is one name,
+  // never "Thomas").
+  const edison = [{ ref: "p", text: "Thomas Edison patented the phonograph in 1878." }];
+  assert.equal(resolves(edison, "Thomas Edison", false), false);
+  assert.equal(resolves(edison, "Thomas Edison", true), true);
+  assert.equal(resolves(edison, "Edison", true), true, "a sub-form of an established name resolves too");
+
+  // THE PHYSICS FILTER STILL HOLDS: an ordinary sentence-opener that ALSO
+  // appears lowercased in the material is refused even with the opt-in — the
+  // capital alone is never the confirmation (the "Some"/"Trust" guard).
+  const opener = [{ ref: "p", text: "Some viewers loved the show. The actors took some risks with it." }];
+  assert.equal(resolves(opener, "Some", true), false, "\"Some\" appears lowercased elsewhere in the material — refused, not resolved");
+  const realNameLowered = [{ ref: "p", text: "Napoleon was exiled. The emperor napoleon never returned to power." }];
+  assert.equal(resolves(realNameLowered, "Napoleon", true), false, "a name used lowercased anywhere is not established — the same physics rule, one direction over");
+});
+
+test("SENTENCE-INITIAL NAMES, BACKWARD COMPATIBLE: omitting leadingSurfaces is byte-identical to before this seam existed", () => {
+  const passages = [{ ref: "p", text: "Pierre Bezukhov walked into the salon. Natasha Rostova greeted him." }];
+  const repsOf = (ps) => { const idx = makeReferentIndex(ORGANS)(ps); return [...idx.referents].map((id) => idx.represent(id)).sort(); };
+  const a = repsOf(passages);
+  const b = repsOf(passages);
+  assert.deepEqual(a, b, "no leadingSurfaces passed -> identical to the pre-seam call, deterministic");
+  assert.ok(a.some((r) => /Bezukhov/.test(r)), "mid-sentence referents are untouched");
 });

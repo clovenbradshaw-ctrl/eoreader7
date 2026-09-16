@@ -27,6 +27,13 @@
 //   4. KINDS                    — the company signatures the reading's
 //      referents kept (discoverCompanyKinds/frameWords). The KIND
 //      survives the document, the member does not.
+//   5. STRUCTURAL               — the grain-keyed chemistry (grain:Figure
+//      ∘ grain:Figure): two Figure relations composing through a shared
+//      referent bridge, licensed by the SHAPE not the label. Declared by
+//      this prior's own giver, so the field itself is medium-blind — the
+//      same chain shape in English, French, Russian, audio, video. This is
+//      the field's own 2026-09-13 addition; a consumer that cannot see it
+//      is reading the previous four doors only.
 //
 // THE DOOR: each carries its OWN field, no cast anywhere (S95's
 // construction, not discipline: referent identity must never cross
@@ -95,6 +102,18 @@ const prior = {
     rhythm: freezeObj(rhythm),
     // 4. KINDS — company signatures.
     kinds: freezeList(kinds),
+    // 5. STRUCTURAL — the medium-blind affordance, declared by this prior's
+    // own giver (S115's "structural affordances are GIVEN and never shadow
+    // exact"). Two Figure relations composing through a shared referent
+    // bridge are licensed by the chain SHAPE, never by the English label
+    // pair — the invariant that crosses texts, languages, and modalities
+    // (LAVAR.md 2026-09-13). Carried HERE so any consumer of the field gets
+    // it, not only the measurement driver that once hardcoded it.
+    structural: freezeObj({
+      left: "grain:Figure", right: "grain:Figure",
+      giver,
+      basis: `structural chemistry — Figure relations composing through a shared referent bridge are licensed across texts and modalities, carried from ${source}; the grain is the invariant, the label is the lens`,
+    }),
   },
   // THE WALL: no cast anywhere. The per-document boundary is by
   // construction (S95) — identity must never cross documents.
@@ -109,6 +128,7 @@ console.log(`  verbs: ${prior.fields.verbs.length} eligible relation forms`);
 console.log(`  chemistry: ${prior.fields.chemistry.length} composed pairs`);
 console.log(`  rhythm: ${JSON.stringify(rhythm).slice(0, 120)}…`);
 console.log(`  kinds: ${prior.fields.kinds.length}`);
+  console.log(`  structural: ${JSON.stringify(prior.fields.structural).slice(0, 120)}…`);
 console.log(`  cast: ${prior.cast === undefined ? "ABSENT (S95 — identity never crosses documents)" : prior.cast}`);
 console.log(`  giver: ${giver}`);
 

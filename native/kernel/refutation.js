@@ -43,6 +43,23 @@
 // are not both resolved referents are counted as `unresolved` rather than
 // silently dropped — a scan that examined nothing must not read as a scan
 // that found nothing.
+//
+// AND WHAT WAS UNRESOLVED IS NAMED, NOT ONLY COUNTED (added for THE-NULL-
+// STATES.md — "anytime the model doesn't have it"). `unresolved` used to be
+// a bare integer: the specific edges behind it vanished the moment they
+// failed `endsOf`. Every result now also carries `voidCandidates` — one
+// entry per edge with an end that never resolved to a referent, shaped
+// exactly as `kernel/notes.js::declareVoid` takes it (`end1`/`label`/
+// `end2`/`because`), MINUS a scope, which only a caller reading the
+// material can supply (law 1: a null names its scope, and this organ
+// reads none). This is deliberately NOT the void's own cell — the void is
+// DEF·Ground, a declared emptiness over an ARRANGEMENT a caller went
+// looking for; this organ's own null is EVA·Ground's `insufficient`, a
+// scan that could not run. What ships here is a bridge: Nagarjuna asserts
+// nothing and declares nothing (this file's own header, line 1) — it only
+// NAMES where a caller with a real scope would have grounds to declare
+// one. No call site in this repo persists these candidates yet; that
+// wiring is disclosed future work, not built here.
 
 const freeze = (value) => Object.freeze(value);
 
@@ -58,6 +75,43 @@ function endsOf(edge) {
   if (from?.standing !== "referent" || !from.ref) return null;
   if (to?.standing !== "referent" || !to.ref) return null;
   return { from: from.ref, to: to.ref, edge };
+}
+
+/** The name a participant offers even where it never resolved to a
+ * referent: its surface text where the perceiver kept one, else its raw
+ * `ref` (an occurrence id, for an `unresolved_surface` participant) — the
+ * same fallback `identity.js`/`relation-composition.js`/
+ * `kind-graph-structure.js` already use for this exact standing. A
+ * resolved referent's own `.ref` IS its identity, so this reads correctly
+ * either way. Returns null only where neither is present. */
+function nameOf(participant) {
+  return participant?.surface ?? participant?.ref ?? null;
+}
+
+/**
+ * unresolvedVoidOf(edge) — where `endsOf` would refuse this edge (either
+ * end not a resolved referent), name what was lost rather than letting it
+ * disappear into `unresolved`'s bare count. Returns null wherever both
+ * ends resolve (nothing to name) or wherever the unresolved end offers no
+ * surface and no ref at all (nothing nameable — never fabricated).
+ */
+function unresolvedVoidOf(edge) {
+  if (edge?.schema !== "EOHyperedge@1") return null;
+  const parts = edge.participants ?? [];
+  if (parts.length < 2) return null;
+  const from = parts[0];
+  const to = parts[parts.length - 1];
+  const fromOk = from?.standing === "referent" && Boolean(from.ref);
+  const toOk = to?.standing === "referent" && Boolean(to.ref);
+  if (fromOk && toOk) return null;
+  const end1 = nameOf(from);
+  if (!end1) return null;
+  const side = !fromOk && !toOk ? "both ends" : !fromOk ? "the first end" : "the second end";
+  return freeze({
+    end1, label: edge.relation ?? null, end2: toOk ? nameOf(to) : null,
+    edgeId: edge.id ?? null,
+    because: `refutation examined a ${edge.relation ?? "relation"} edge whose ${side} never resolved to a referent — named here rather than silently dropped from the scan`,
+  });
 }
 
 function findCycles(adjacency, limit) {
@@ -105,8 +159,10 @@ function findCycles(adjacency, limit) {
  * gets the cycle check alone. A cycle is always licensed: nothing may be
  * strictly after itself, whatever the cardinality.
  *
- * Returns `{ relation, examined, unresolved, power, uniqueness, cycles,
- * refuted, reasons }`. `refuted: false` means "nothing refuted it HERE",
+ * Returns `{ relation, examined, unresolved, voidCandidates, power,
+ * uniqueness, cycles, refuted, reasons }`. `voidCandidates` names what
+ * `unresolved` only counts — see this file's header. `refuted: false`
+ * means "nothing refuted it HERE",
  * which is not the same as sound and is never to be read as one — see this
  * file's header. A uniqueness check that did not run reports
  * `checked: false`, never a pass (P41: the absence of a refusal is not a
@@ -134,6 +190,11 @@ export function refuteRelation(edges = [], relation, { expectUnique = false, cyc
   const matching = (edges ?? []).filter((e) => e?.relation === relation);
   const resolved = matching.map(endsOf).filter(Boolean);
   const unresolved = matching.length - resolved.length;
+  // Named, not merely counted (this file's header, above): every edge
+  // behind `unresolved` that offers ANYTHING to name — a surface, an
+  // occurrence ref — survives here as a void-shaped candidate a caller
+  // can hand to `declareVoid` once it supplies a real scope.
+  const voidCandidates = freeze(matching.map(unresolvedVoidOf).filter(Boolean));
 
   const forward = new Map();
   const backward = new Map();
@@ -247,6 +308,7 @@ export function refuteRelation(edges = [], relation, { expectUnique = false, cyc
     examined: resolved.length,
     ofEdges: matching.length,
     unresolved,
+    voidCandidates,
     power,
     powerDetail: power === "insufficient"
       ? "fewer than two resolved edges carry this relation — neither a uniqueness violation nor a cycle is structurally expressible, so this scan could not have refuted anything"
@@ -364,4 +426,26 @@ export function afterVeto(licensedByGiver = [], scans = new Map()) {
 
 export function vetoedPairs(audit = []) {
   return freeze((audit ?? []).filter((row) => row.refuted).map((row) => freeze({ left: row.left, right: row.right, reasons: row.refutedBy.flatMap((s) => s.reasons) })));
+}
+
+/**
+ * voidCandidatesFrom(audit) — every unresolved edge end named across an
+ * audit's own scans (both sides of every relation `auditChemistry`
+ * examined), flattened and deduped by (end1, label, end2). Mirrors
+ * `vetoedPairs`'s own shape — a plain derivation off `audit`, nothing
+ * this organ was not already carrying — for a caller who wants every
+ * place a real scope would license a `declareVoid`, not just the ones
+ * behind an audited affordance's own refutation.
+ */
+export function voidCandidatesFrom(audit = []) {
+  const seen = new Map();
+  for (const row of audit ?? []) {
+    for (const scan of row?.scans ?? []) {
+      for (const c of scan?.voidCandidates ?? []) {
+        const key = `${c.end1} ${c.label} ${c.end2 ?? ""}`;
+        if (!seen.has(key)) seen.set(key, c);
+      }
+    }
+  }
+  return freeze([...seen.values()]);
 }

@@ -282,6 +282,85 @@ const stripNumeralIndex = (tokens) => {
 export const normaliseSurface = (surface) =>
   stripNumeralIndex(String(surface).split(/\s+/).map(stripPossessive)).join(" ");
 
+// ── REFERENT FORM: the token under which an obfuscation resolves to its meaning
+// A glyph that stands in for a letter (leet, a homoglyph, a symbol keyboard)
+// does not name a DIFFERENT referent — "k3yl0gg3r" and "keylogger" are one
+// being. Resolution belongs HERE, at the surface/referent layer, not in any
+// consumer that happens to care: a span fold is not what the thinking is doing;
+// the thinking is over referents, and an obfuscated spelling must reach the same
+// referent as its plain form. Every organ that reads referents gets this for
+// free; the harm shape in particular never folds a span itself.
+//
+// Applied only to tokens that ALSO carry a letter: a pure number is a number
+// ("1994", "24"), never a disguised word, so a date is never mangled into one.
+const GLYPH_TO = { "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "8": "b", "@": "a", "$": "s", "!": "i", "|": "l" };
+export const canonicalGlyphs = (text) =>
+  String(text ?? "").replace(/\S+/gu, (tok) => (/[\p{L}]/u.test(tok) ? tok.replace(/[0134578@$!|]/g, (c) => GLYPH_TO[c] ?? c) : tok));
+
+// CROSS-SCRIPT CONFUSABLES — a non-Latin glyph standing in for a Latin letter
+// ("kеylogger" with Cyrillic е, Greek "ο", full-width "ｋ"). Applied ONLY to a
+// token that ALSO carries an ASCII alphanumeric: a MIXED token is a homoglyph
+// attack, a pure non-Latin token is that language ("секрет", "Ελλάδα") and is
+// left alone. The map is INJECTED — a derived prior (ConfusablesPrior@1,
+// projected from Unicode's own confusables.txt, UTS #39), never hand-typed —
+// so this adapter stays pure and the data keeps its giver.
+const foldConfusables = (text, map) =>
+  String(text).replace(/\S+/gu, (tok) => {
+    if (!/[0-9A-Za-z]/.test(tok)) return tok;
+    let out = "", hit = false;
+    for (const ch of tok) { const to = map[ch.codePointAt(0)]; if (to) { out += String.fromCodePoint(to); hit = true; } else out += ch; }
+    return hit ? out : tok;
+  });
+
+/**
+ * referentForm(text, { confusables }) — the spelling a referent is READ under:
+ * Unicode compatibility-folded (NFKC — full-width, ligatures, math forms),
+ * cross-script homoglyphs resolved (INJECTED prior), diacritics folded, and
+ * stand-in glyphs resolved. Two spellings of one being reach the same candidate.
+ * The canonical form of the text, never a replacement for it.
+ */
+export const referentForm = (text, { confusables = null } = {}) => {
+  let s = String(text ?? "");
+  try { s = s.normalize("NFKC"); } catch { /* exotic runtime without NFKC — never break on it */ }
+  if (confusables) s = foldConfusables(s, confusables);
+  return canonicalGlyphs(diaNorm(s));
+};
+
+// ── THE IDENTITY IS BYTES ───────────────────────────────────────────────────
+// The reading's ground is a byte buffer, and the ledger addresses a claim by its
+// BYTE (dispute.js lands a decider "with its decider and byte address"; EOT is a
+// byte stream). A "character" is a decoding assumption downstream of that; two
+// spellings are the same referent when they reach the same BYTES. So the
+// canonical form is defined over the byte sequence — decode, fold, re-encode —
+// and the referent's KEY is those bytes, never a code-point string. Two
+// spellings that fold together ("k3yl0gg3r", "kеylogger", "ｋｅｙｌｏｇｇｅｒ") share one
+// byte key; that key IS the identity, comparable with a byte memcmp.
+const ENC = new TextEncoder();
+export const referentBytes = (input, opts) => ENC.encode(referentForm(input, opts));
+export const referentKey = (input, opts) => {
+  const b = referentBytes(input, opts);
+  let h = "";
+  for (const x of b) h += (x < 16 ? "0" : "") + x.toString(16);
+  return h;
+};
+
+/**
+ * referentIdentity(input, { confusables, aliases }) — the identity of the thing
+ * NAMED, not of the spelling. When the material (or a received prior) has
+ * DECLARED that this form is an alias of others — `aliases` maps a canonical
+ * form to its class key — the identity is the CLASS ("class:<key>"), because
+ * there is no real name: the referent IS its class of aliases. Otherwise the
+ * identity is the canonical BYTES. Never a string name; comparable with memcmp.
+ */
+export const referentIdentity = (input, { confusables = null, aliases = null } = {}) => {
+  const form = referentForm(input, { confusables });
+  if (aliases) {
+    const k = aliases instanceof Map ? aliases.get(form) : aliases[form];
+    if (k) return `class:${k}`;
+  }
+  return `bytes:${referentKey(input, { confusables })}`;
+};
+
 /**
  * @param {Array<{text: string, order: number}>} sentences
  * @param {object} [options]

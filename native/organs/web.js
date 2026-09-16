@@ -103,6 +103,29 @@ export function decodeEntities(s) {
 // so container removal repeats until it stops changing.
 const DROP_WHOLE = ["script", "style", "noscript", "template", "svg", "iframe", "object", "embed", "select", "canvas"];
 const DROP_CONTAINER = ["nav", "header", "footer", "aside", "form", "dialog"];
+// WAI-ARIA landmark roles that mark a region as navigation furniture
+// regardless of which tag carries it (rashomon-contrast-RESULTS.md's "furniture
+// wall on the cast": MediaWiki's own navbox is `<div role="navigation"
+// class="navbox">`, never a `<nav>` element, so DROP_CONTAINER's tag-name list
+// never touched it — a Works-by-Leo-Tolstoy navbox's link titles and a
+// Napoleonic-Wars navbox's battle names rode straight through as body text
+// and the cast admitted them as referent candidates.
+//
+// THIS IS NOT A DELETION. `commitments.js`'s own header names the risk of
+// deciding at EXTRACTION that text is furniture: "silently and irreversibly
+// — the note never exists, so a wrong call cannot be found or taken back,"
+// and S51 (READING-SPEC.md) measured the concrete danger — a navbox row and
+// a line of screenplay dialogue are the same shape, and only page scope
+// (or, here, a real DOM signal) tells them apart. So `text` below carries
+// EVERY byte exactly as before (nothing here ever removes anything from
+// it — "extraction is not a summary" holds unchanged); this only computes
+// which byte RANGES of that same text originated inside a `role=navigation`
+// region, so a caller who wants to keep the referent-admission wall
+// reversible and auditable can blank exactly those ranges (`blankSpans`,
+// below) as an OPT-IN `blankFurniture` organ — the identical seam
+// `blankLabelRows`/`chunk.blanked` already use — rather than the byte
+// stream never having contained them in the first place.
+const DROP_ROLES = ["navigation"];
 
 // Attribute values may legally contain ">" (Wikipedia ships JSON inside
 // data-mw='{…}'), so every tag pattern here walks quoted values instead of
@@ -111,6 +134,102 @@ const DROP_CONTAINER = ["nav", "header", "footer", "aside", "form", "dialog"];
 // because the lesson is one lesson: primary.js walks the same markup for
 // citations and must not re-learn it with a second, naive pattern.
 export const ATTRS = `(?:[^>"']|"[^"]*"|'[^']*')*`;
+
+/**
+ * Locates every element carrying one of `roles` in its `role="…"` attribute,
+ * whatever tag it is — a `<nav>`-shaped FIND for markup that declares the
+ * same ARIA landmark on a `<div>`/`<table>`/anything else — and returns each
+ * one's raw HTML fragment. `html` is returned untouched: this is a survey,
+ * never a removal. Unlike `dropTag` (safe with a bare non-greedy match
+ * because none of DROP_CONTAINER's tags routinely nest inside themselves), a
+ * role-carrying `<div>` almost always contains further `<div>`s — real
+ * Wikipedia navboxes are two or three deep — so this tracks same-tag nesting
+ * depth from the matched open tag to its true balancing close, rather than
+ * the first same-tag close encountered. An element left unclosed by
+ * truncated markup is read to the end of the string.
+ */
+function extractRoleRegions(html, roles) {
+  const found = [];
+  const openRe = new RegExp(`<([a-zA-Z][a-zA-Z0-9-]*)\\b${ATTRS}>`, "g");
+  let m;
+  while ((m = openRe.exec(html))) {
+    const attrs = html.slice(m.index, openRe.lastIndex);
+    const roleMatch = attrs.match(/\brole\s*=\s*["']([^"']+)["']/i);
+    if (!roleMatch || !roles.includes(roleMatch[1].trim().toLowerCase())) continue;
+    const tag = m[1].toLowerCase();
+    const tokenRe = new RegExp(`<(/?)${tag}\\b${ATTRS}(/?)>`, "gi");
+    tokenRe.lastIndex = openRe.lastIndex;
+    let depth = 1;
+    let end = html.length;
+    let tm;
+    while ((tm = tokenRe.exec(html))) {
+      if (tm[2] === "/") continue; // this tag's own self-closing form, no nesting change
+      if (tm[1] === "/") {
+        depth -= 1;
+        if (depth === 0) { end = tokenRe.lastIndex; break; }
+      } else {
+        depth += 1;
+      }
+    }
+    found.push(html.slice(m.index, end));
+    openRe.lastIndex = end; // never re-descend into a region already taken whole
+  }
+  return found;
+}
+
+/**
+ * The shared tag-to-text transform `extractReadable` runs on the whole
+ * document, factored out so it can ALSO run, unmodified, on one isolated
+ * fragment (a role="navigation" region's own raw HTML) — the only way to
+ * learn what that region's text looks like once rendered without touching
+ * the real pipeline's output for the whole page. Same steps, same order:
+ * block structure to line structure, tag strip, entity decode, whitespace
+ * collapse.
+ */
+function htmlFragmentToText(h) {
+  h = h
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(new RegExp(`<li\\b${ATTRS}>`, "gi"), "\n- ")
+    .replace(/<\/(p|div|section|article|main|li|ul|ol|table|tr|blockquote|figure|figcaption|pre|dd|dt)\s*>/gi, "\n")
+    .replace(new RegExp(`<(p|div|section|article|main|blockquote|figure|pre)\\b${ATTRS}>`, "gi"), "\n")
+    .replace(/<\/(h[1-6])\s*>/gi, "\n\n")
+    .replace(new RegExp(`<(h[1-6])\\b${ATTRS}>`, "gi"), "\n\n")
+    .replace(/<\/t[dh]\s*>/gi, "\t");
+  h = h.replace(new RegExp(`</?[a-zA-Z!]${ATTRS}>`, "g"), " ");
+  h = decodeEntities(h);
+  return h
+    .split("\n")
+    .map((line) => line.replace(/[ \t ]+/g, " ").trim())
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/**
+ * `blankSpans(text, spans)` — the length-preserving blank `chunk.blanked`
+ * already expects (S51's own `blankLabelRows` shape): every character
+ * inside a `{start,end}` range becomes a space, every newline inside it
+ * stays a newline (so line structure — and every OTHER address into this
+ * same text — survives untouched), everything outside every range is
+ * returned byte-for-byte. Ranges may be unsorted or overlapping; both are
+ * handled. This is the reversible half of the furniture wall: nothing is
+ * ever removed from `text` itself, only masked for a caller that opts in.
+ */
+export function blankSpans(text, spans) {
+  const s = String(text ?? "");
+  const mask = new Uint8Array(s.length);
+  for (const { start, end } of spans ?? []) {
+    const a = Math.max(0, Number(start) || 0);
+    const b = Math.min(s.length, Number(end) || 0);
+    for (let i = a; i < b; i += 1) mask[i] = 1;
+  }
+  let out = "";
+  for (let i = 0; i < s.length; i += 1) {
+    const ch = s[i];
+    out += mask[i] && ch !== "\n" ? " " : ch;
+  }
+  return out;
+}
 
 function dropTag(html, tag, { dropUnclosedTail = false } = {}) {
   const re = new RegExp(`<${tag}\\b${ATTRS}>[\\s\\S]*?</${tag}\\s*>`, "gi");
@@ -126,10 +245,18 @@ function dropTag(html, tag, { dropUnclosedTail = false } = {}) {
 }
 
 /**
- * html (string) -> { title, description, text, lang }
+ * html (string) -> { title, description, text, lang, headings, navSpans }
  * text keeps paragraph structure as blank lines and list items as "- " lines;
  * everything else about layout is dropped. Nothing is summarized here —
  * this is the WHOLE readable content; salience is the fold's job, later.
+ *
+ * `navSpans` names, without removing anything, which `{start,end}` ranges of
+ * THIS SAME `text` came from a `role="navigation"` region (see DROP_ROLES's
+ * own comment above for why this is a survey rather than another entry in
+ * DROP_CONTAINER). A caller wanting the referent-admission wall opts in with
+ * `blankSpans(text, out.navSpans)` as a `blankFurniture` organ — the reading
+ * itself, and everything downstream of it that never asked for the wall,
+ * see every byte exactly as before.
  */
 export function extractReadable(html) {
   let h = String(html).replace(/<!--[\s\S]*?-->/g, " ");
@@ -145,6 +272,12 @@ export function extractReadable(html) {
   for (const t of DROP_WHOLE) h = dropTag(h, t, { dropUnclosedTail: true });
   for (const t of DROP_CONTAINER) h = dropTag(h, t);
 
+  // Surveyed, not removed — h is unchanged past this line. Each fragment's
+  // own rendering is computed through the identical transform `text` gets
+  // below, so it can be found in `text` by exact substring rather than by
+  // re-deriving positions through the whole pipeline.
+  const navFragments = extractRoleRegions(h, DROP_ROLES).map(htmlFragmentToText).filter(Boolean);
+
   // THE SOURCE'S OWN STRUCTURE = the stage names. Headings are captured
   // BEFORE they are stripped to blank lines — a hunted source's headings are
   // the material's own staging, the one thing a reader cannot invent.
@@ -158,25 +291,22 @@ export function extractReadable(html) {
     }
   }
 
-  // block structure -> line structure, before tags go
-  h = h
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(new RegExp(`<li\\b${ATTRS}>`, "gi"), "\n- ")
-    .replace(/<\/(p|div|section|article|main|li|ul|ol|table|tr|blockquote|figure|figcaption|pre|dd|dt)\s*>/gi, "\n")
-    .replace(new RegExp(`<(p|div|section|article|main|blockquote|figure|pre)\\b${ATTRS}>`, "gi"), "\n")
-    .replace(/<\/(h[1-6])\s*>/gi, "\n\n")
-    .replace(new RegExp(`<(h[1-6])\\b${ATTRS}>`, "gi"), "\n\n")
-    .replace(/<\/t[dh]\s*>/gi, "\t");
+  const text = htmlFragmentToText(h);
 
-  h = h.replace(new RegExp(`</?[a-zA-Z!]${ATTRS}>`, "g"), " ");
-  h = decodeEntities(h);
-  const text = h
-    .split("\n")
-    .map((line) => line.replace(/[ \t\u00a0]+/g, " ").trim())
-    .join("\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
-  return { title, description, text, lang, headings };
+  // Locate each surveyed fragment's rendering inside the real text, in
+  // order, each search starting after the previous find so two identical
+  // navboxes (a page can repeat one) each get their own span rather than
+  // both resolving to the first occurrence.
+  const navSpans = [];
+  let from = 0;
+  for (const frag of navFragments) {
+    const at = text.indexOf(frag, from);
+    if (at === -1) continue; // a fragment that collapsed to nothing findable is not a span
+    navSpans.push({ start: at, end: at + frag.length });
+    from = at + frag.length;
+  }
+
+  return { title, description, text, lang, headings, navSpans };
 }
 
 /**

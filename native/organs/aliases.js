@@ -171,3 +171,64 @@ export function aliasIndex(aliases) {
   }
   return byAlias;
 }
+
+// ── THERE IS NO REAL NAME; THE REFERENT IS ITS CLASS OF ALIASES ─────────────
+// Handle: Frege — the Morning Star and the Evening Star are one object and two
+// names; the name is never the thing. This module already refuses to decide
+// "the same referent" from the shape of a string; the same discipline forbids
+// privileging ONE form as the name. The text declared that two forms are one
+// thing — the "full" form ("Regional Transit Authority") is the gloss's LEFT
+// side, not a truth; the initialism is the gloss's RIGHT side, not a nickname.
+// Both are ALIASES. The referent is the EQUIVALENCE CLASS, and its identity is
+// a byte key over the whole class — never a spelling. Two texts that gloss the
+// same pair reach the same key without either agreeing on a name.
+//
+// A representative form is carried for DISPLAY only, chosen as the byte-least
+// form so it is deterministic and explicitly arbitrary — it names nothing.
+export function aliasClasses(aliases) {
+  const parent = new Map();
+  const repr = new Map(); // root-lower form -> a display form (byte-least)
+  const find = (x) => { while (parent.get(x) !== x) { parent.set(x, parent.get(parent.get(x))); x = parent.get(x); } return x; };
+  const add = (x) => { if (!parent.has(x)) parent.set(x, x); return x; };
+  const witnesses = new Map();
+  for (const a of aliases ?? []) {
+    const full = foldSpaces(a.full).toLowerCase(), alias = foldSpaces(a.alias).toLowerCase();
+    if (!full || !alias) continue;
+    add(full); add(alias);
+    parent.set(find(full), find(alias)); // the declared sameness — the whole of the evidence
+    if (!witnesses.has(alias)) witnesses.set(alias, []);
+    witnesses.get(alias).push({ start: a.start, end: a.end, sentence: a.sentence, shape: a.shape ?? null });
+    if (!witnesses.has(full)) witnesses.set(full, []);
+  }
+  const byRoot = new Map();
+  for (const x of parent.keys()) { const r = find(x); if (!byRoot.has(r)) byRoot.set(r, []); byRoot.get(r).push(x); }
+  const classes = [];
+  for (const [, forms] of byRoot) {
+    const uniq = [...new Set(forms)].sort();
+    if (uniq.length < 2) continue; // a lone form declared nothing
+    classes.push({
+      forms: uniq,
+      display: uniq[0], // arbitrary (byte-least), for display only — it is not a name
+      key: classKey(uniq),
+      witnesses: uniq.flatMap((f) => witnesses.get(f) ?? []),
+    });
+  }
+  return classes;
+}
+
+// A byte key over the WHOLE class, order-independent — so no single form can be
+// the key, and the two directions of a gloss reach the same identity.
+function classKey(forms) {
+  const s = forms.join("\u0000");
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h >>> 0).toString(16).padStart(8, "0");
+}
+
+/** aliasClassMap(classes) — a form → class-key index, so a surface layer can
+ *  resolve any alias to the referent's identity (surfaces.js::referentIdentity). */
+export function aliasClassMap(classes) {
+  const m = new Map();
+  for (const c of classes ?? []) for (const f of c.forms ?? []) m.set(f, c.key);
+  return m;
+}

@@ -430,3 +430,47 @@ test("buildFactBlock: the truncated preview's span is excluded order-independent
   assert.equal(fb.spans.length, 1);
   assert.equal(fb.spans[0].ref, "web:scribd.com-1#800-1400");
 });
+
+// ── the LONE case — a truncated snippet with nothing to complete it, live
+// traffic beyond the one dominated specimen above (found 2026-09-15,
+// investigating whether P181 closed every shape or only the one it named
+// live: it did not — an ordinary DuckDuckGo search-results digest routinely
+// carries several trailing-ellipsis snippets no duplicate ever catches, and
+// every one of those reached the model exactly as before P181). aposiopesis.js
+// reports these on `buildFactBlock`'s own return object (`truncatedLone`) so a
+// caller can disclose the gap; nothing here strips the text — the truncated
+// sentence still contributes whatever real fact it can to `lines`/`spans`.
+const LONE_TRUNCATED_DIGEST =
+  "The Panama Canal is the result of one of the most consequential engineering projects in human history. " +
+  "The American project from 1904 to 1914, benefiting from Walter Reed's discovery of mosquito-borne…";
+
+test("buildFactBlock: a lone trailing-ellipsis sentence with nothing to complete it is disclosed on the returned object, not silently dropped", async () => {
+  const passages = [{ ref: "web:search-results#0-900", text: LONE_TRUNCATED_DIGEST }];
+  const relations = await freshRelations(passages);
+  const fb = buildFactBlock(relations, passages, "who completed the panama canal");
+  assert.ok(fb, "expected a real fact block");
+  assert.equal(fb.truncatedLone.length, 1);
+  assert.match(fb.truncatedLone[0].text, /mosquito-borne…$/);
+  assert.equal(fb.truncatedLone[0].source, "web:search-results#0-900");
+});
+
+test("buildFactBlock: truncatedLone is an empty array, not undefined, when nothing trails off", async () => {
+  const passages = [PASSAGE_1];
+  const relations = await freshRelations(passages);
+  const fb = buildFactBlock(relations, passages, "who was lincoln's vice president");
+  assert.ok(fb);
+  assert.deepEqual(fb.truncatedLone, []);
+});
+
+test("buildFactBlock: truncatedLone still rides the returned object on the explicit-VOID (no bound facts) path", async () => {
+  // A passage whose only sentence trails off AND yields no bound relation
+  // (a pronoun subject) exercises the `!lines.length` branch — the VOID
+  // must not swallow the disclosure the non-empty branch already carries.
+  const passages = [{ ref: "web:search-results#0-60", text: "He could not say…" }];
+  const relations = await freshRelations(passages);
+  const fb = buildFactBlock(relations, passages, "who could not say");
+  assert.ok(fb, "a real sentence that yielded no relation is still a real fact block (the explicit-void case)");
+  assert.equal(fb.empty, true);
+  assert.equal(fb.truncatedLone.length, 1);
+  assert.equal(fb.truncatedLone[0].text, "He could not say…");
+});

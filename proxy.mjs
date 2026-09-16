@@ -276,7 +276,7 @@ async function handleRequest(req, res) {
         const parsed = JSON.parse(body);
         const job = await startDocumentJob({
           task: String(parsed.task ?? "").trim(),
-          model: parsed.model ?? "gemma2:2b",
+          model: parsed.model ?? "olmo2:7b",
           workspace: parsed.workspace ?? "",
           sessionId: parsed.sessionId ?? null,
           holonLevel: parsed.holonLevel ?? "section",
@@ -344,7 +344,7 @@ async function handleRequest(req, res) {
       res.end(JSON.stringify({
         status: job?.status ?? (projection != null ? "complete" : "unknown"),
         projection: projection ?? "",
-        job: job ? { jobId: job.jobId, chars: job.chars, sections: job.sections, createdAt: job.createdAt, updatedAt: job.updatedAt, error: job.error ?? null } : null,
+        job: job ? { jobId: job.jobId, chars: job.chars, sections: job.sections, createdAt: job.createdAt, updatedAt: job.updatedAt, error: job.error ?? null, satisfaction: job.satisfaction ?? null, totalStrain: job.totalStrain ?? null } : null,
       }));
     } catch (err) {
       res.writeHead(500, { "content-type": "application/json" });

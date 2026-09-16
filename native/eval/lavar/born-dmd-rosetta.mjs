@@ -12,8 +12,11 @@
 // If the known identities land above the derived boundary and random pairs
 // below it, the boundary is determined, not typed.
 import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { dmd } from "../../kernel/dmd.js";
 
+const HERE = path.dirname(fileURLToPath(import.meta.url));
 const WP = "/Users/mlacy/Documents/3.0/live_priors/11-multi-language/war-and-peace";
 const VERSIONS = [
   { lang: "eng", slug: "pg2600-ch1-3-aligned", file: `${WP}/aligned/en/pg2600-ch1-3-aligned.txt` },
@@ -23,7 +26,7 @@ const VERSIONS = [
 const paras = (t) => (t ?? "").split(/\n\s*\n/).map((p) => p.replace(/\s+/g, " ").trim()).filter(Boolean);
 
 const versions = VERSIONS.map((v) => {
-  const fold = JSON.parse(fs.readFileSync(`eval/lavar/results/${v.slug}-real-fold.json`, "utf8"));
+  const fold = JSON.parse(fs.readFileSync(path.join(HERE, "results", `${v.slug}-real-fold.json`), "utf8"));
   const refs = fold.graphEntries.filter((e) => e.schema === "EOReferent@1");
   const text = fs.readFileSync(v.file, "utf8");
   const allParas = paras(text);

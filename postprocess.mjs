@@ -18,22 +18,33 @@ let _pyodide = null;
 let _pyodideError = null;
 let _pyodideLoading = null;
 
-function pyodideDir() {
-  return new URL("./node_modules/pyodide/", import.meta.url).pathname;
+// The repo's canonical pyodide runtime lives under native/eval/the-fold
+// (the P21 wheel mirror, eoreader7-eval-the-fold-tools' own dependency); a
+// root-level install is the fallback. The module is resolved BY FILE URL so
+// its WASM/stdlib auto-resolve beside it — never by the bare "pyodide"
+// package specifier, which only resolves where a node_modules actually sits.
+function pyodideModuleCandidates() {
+  return [
+    new URL("./native/eval/the-fold/node_modules/pyodide/pyodide.mjs", import.meta.url),
+    new URL("./node_modules/pyodide/pyodide.mjs", import.meta.url),
+  ];
 }
 
 async function loadPyodideOnce() {
   if (_pyodide) return _pyodide;
   if (_pyodideLoading) return _pyodideLoading;
   _pyodideLoading = (async () => {
-    try {
-      const mod = await import("pyodide");
-      _pyodide = await mod.loadPyodide({ indexURL: pyodideDir() });
-      return _pyodide;
-    } catch (err) {
-      _pyodideError = err;
-      return null;
+    for (const url of pyodideModuleCandidates()) {
+      try {
+        const mod = await import(url.href);
+        const py = await mod.loadPyodide();
+        _pyodide = py;
+        return py;
+      } catch (err) {
+        _pyodideError = err;
+      }
     }
+    return null;
   })();
   return _pyodideLoading;
 }
@@ -309,6 +320,122 @@ async function withBudget(work, budgetMs) {
   return result;
 }
 
+// ── the hard code validator (logos lint) ────────────────────────────────────
+// Code is validated the way Python itself validates it, in the WASM runtime:
+//   compile() — a real syntax gate over the WHOLE module;
+//   ast       — an undefined-name scan (used-but-never-defined/imported);
+//   exec()    — actually RUN the module top-level in a guarded namespace;
+//   smoke     — when a callable entry exists, drive it with a known input.
+// Every gate is a typed finding; the caller's REC loop hands them back to the
+// mouth to fix. This is the "unconscious" half — the model never sees the
+// validator, only the findings that made a part fail.
+export async function validatePython(source, { smokeInput = null } = {}) {
+  const py = await loadPyodideOnce();
+  if (!py) return { ok: false, findings: [{ kind: "validator", detail: "pyodide unavailable — no hard validator ran" }], basis: "no runtime" };
+  try {
+    py.globals.set("_validate_src", String(source ?? ""));
+    py.globals.set("_validate_smoke", smokeInput);
+    py.runPython(`
+import ast, builtins, sys, io, contextlib
+
+def _validate(src, smoke_input):
+    findings = []
+    # 1. compile gate — real syntax, whole module.
+    try:
+        compile(src, "<generated>", "exec")
+    except SyntaxError as e:
+        findings.append({"kind": "syntax", "detail": (e.msg or "SyntaxError") + (" at line " + str(e.lineno) if e.lineno else "")})
+        return {"findings": findings, "executed": False, "out": "", "smoke": None}
+    # 2. undefined-name scan via ast.
+    tree = ast.parse(src)
+    defined = set()
+    for node in ast.walk(tree):
+        if isinstance(node, (ast.FunctionDef, ast.ClassDef, ast.AsyncFunctionDef)):
+            defined.add(node.name)
+            for a in node.args.args: defined.add(a.arg)
+            if node.args.vararg: defined.add(node.args.vararg.arg)
+            if node.args.kwarg: defined.add(node.args.kwarg.arg)
+        elif isinstance(node, ast.Lambda):
+            for a in node.args.args: defined.add(a.arg)
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            for a in node.names: defined.add(a.asname or a.name.split(".")[0])
+        elif isinstance(node, ast.Assign):
+            for t in node.targets:
+                if isinstance(t, ast.Name): defined.add(t.id)
+        elif isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
+            defined.add(node.target.id)
+    loads = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load): loads.add(node.id)
+    undef = sorted(loads - defined - set(dir(builtins)) - {"__name__"})
+    if undef:
+        findings.append({"kind": "undefined", "detail": "undefined names: " + ", ".join(undef[:12])})
+    # 3. exec gate — run the module top-level in a guarded namespace.
+    g = {"__name__": "__main__"}
+    captured = io.StringIO()
+    executed = False
+    try:
+        with contextlib.redirect_stdout(captured), contextlib.redirect_stderr(captured):
+            exec(compile(src, "<generated>", "exec"), g)
+        executed = True
+    except SystemExit as e:
+        # the module ran through its entry point (argparse --help / a CLI's
+        # normal exit path). Not a finding: exit codes are the program's own.
+        executed = True
+    except BaseException as e:
+        findings.append({"kind": "runtime", "detail": type(e).__name__ + ": " + str(e)[:300]})
+    # 4. smoke — drive a callable entry with the known input, if any.
+    smoke = None
+    if smoke_input is not None and executed:
+        try:
+            if "main" in g and callable(g["main"]):
+                inp = io.StringIO(smoke_input)
+                _stdin = sys.stdin
+                sys.stdin = inp
+                buf = io.StringIO()
+                try:
+                    with contextlib.redirect_stdout(buf):
+                        g["main"]([])
+                finally:
+                    sys.stdin = _stdin
+                smoke = {"ran": True, "out": buf.getvalue().strip()[:400]}
+            else:
+                smoke = {"ran": False, "out": None}
+        except BaseException as e:
+            smoke = {"ran": False, "error": type(e).__name__ + ": " + str(e)[:200]}
+    return {"findings": findings, "executed": executed, "out": captured.getvalue().strip()[:400], "smoke": smoke}
+`);
+    py.runPython("_validate_result = _validate(_validate_src, _validate_smoke)");
+    const res = py.globals.get("_validate_result").toJs({ dict_converter: Object.fromEntries });
+    const findings = Array.isArray(res.findings) ? res.findings : [];
+    const ok = findings.length === 0;
+    return { ok, findings, executed: res.executed, out: res.out ?? null, smoke: res.smoke ?? null, basis: "pyodide compile + ast + exec + smoke" };
+  } catch (err) {
+    return { ok: false, findings: [{ kind: "validator", detail: String(err?.message ?? err) }], basis: "validator error" };
+  }
+}
+
+// The whole-file code pass: dependency-reorder + lint, on RAW code (not
+// fenced blocks). postprocessAnswer handles fenced blocks in prose answers;
+// a generated code artifact is raw, so it gets this path — the reorderer and
+// the pyodide lint are the same organs, applied to the whole file at once.
+export async function postprocessCode(text, { language = null, onNote = null, timeboxMs = 0 } = {}) {
+  const t = String(text ?? "");
+  const notes = [];
+  const note = (msg) => { notes.push(msg); if (onNote) onNote({ span: "post", kind: "note", message: msg }); };
+  if (language !== "python") return { text: t, linted: false, reordered: false, notes, timedOut: false };
+  const deadline = timeboxMs > 0 ? Date.now() + timeboxMs : 0;
+  const ordered = reorderByDependency(t);
+  const lintTarget = ordered.text;
+  if (ordered.reordered) note(`python: top-level entities reordered by dependency (${ordered.moved.join(" → ") || "…"})`);
+  const perCall = deadline > 0 ? Math.max(250, deadline - Date.now()) : 0;
+  const linted = await withBudget(lintPython(lintTarget), perCall);
+  if (linted === null) return { text: ordered.reordered ? lintTarget : t, linted: false, reordered: ordered.reordered, notes, timedOut: true };
+  if (linted.notes.length) for (const n of linted.notes) note(`python lint: ${n}`);
+  else if (!ordered.reordered) note("python lint: clean");
+  return { text: lintTarget, linted: linted.linted, reordered: ordered.reordered, notes, timedOut: false };
+}
+
 export async function pyodideAvailable() {
   await loadPyodideOnce();
   return { available: Boolean(_pyodide), error: _pyodideError?.message ?? null };
@@ -321,4 +448,61 @@ export async function getPyodide() {
   const py = await loadPyodideOnce();
   if (!py && _pyodideError) throw new Error(`pyodide unavailable: ${_pyodideError.message}`);
   return py;
+}
+// ── the HTML validator (the Structure face, for a markup artifact) ──────────
+// Same posture as validatePython: the law is the language's own engine, here
+// Python's stdlib HTMLParser (already in pyodide). A markup artifact's
+// open/close/nest is decidable by parsing: unbalanced tags, a missing
+// <style>/<script>/<body>, or near-empty content are typed findings the code
+// REC loop hands back to the mouth. No browser DOM — so interactivity is
+// checked structurally (a non-empty <script>), never behaviorally.
+export async function validateHtml(source) {
+  const py = await loadPyodideOnce();
+  if (!py) return { ok: false, findings: [{ kind: "validator", detail: "pyodide unavailable — no validator ran" }], basis: "no runtime" };
+  try {
+    py.globals.set("_h", String(source ?? ""));
+    py.runPython(`
+import html.parser
+class _V(html.parser.HTMLParser):
+    VOID = {"meta","link","img","br","hr","input","source","area","base","col","embed","track","wbr"}
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.stack = []
+        self.findings = []
+        self.has_style = self.has_script = self.has_body = False
+        self.text_chars = 0
+    def handle_starttag(self, tag, attrs):
+        if tag == "style": self.has_style = True
+        elif tag == "script": self.has_script = True
+        elif tag == "body": self.has_body = True
+        if tag not in self.VOID:
+            self.stack.append(tag)
+    def handle_endtag(self, tag):
+        if tag in self.VOID: return
+        if not self.stack:
+            self.findings.append({"kind":"unexpected_close","detail":"</"+tag+"> with no open tag"}); return
+        if self.stack[-1] == tag:
+            self.stack.pop(); return
+        self.findings.append({"kind":"mismatch","detail":"</"+tag+"> but <"+self.stack[-1]+"> is open"})
+        if tag in self.stack:
+            while self.stack and self.stack[-1] != tag:
+                self.findings.append({"kind":"unclosed","detail":"<"+self.stack.pop()+"> never closed"})
+            if self.stack: self.stack.pop()
+    def handle_data(self, data):
+        self.text_chars += len(data.strip())
+_v = _V(); _v.feed(_h); _v.close()
+for _t in reversed(_v.stack):
+    _v.findings.append({"kind":"unclosed","detail":"<"+_t+"> never closed"})
+if not _v.has_style: _v.findings.append({"kind":"missing","detail":"no <style> block — CSS is not inlined"})
+if not _v.has_script: _v.findings.append({"kind":"missing","detail":"no <script> block — no interactivity"})
+if not _v.has_body: _v.findings.append({"kind":"missing","detail":"no <body>"})
+if _v.text_chars < 40: _v.findings.append({"kind":"thin","detail":"almost no text content"})
+_result = {"findings": _v.findings, "hasStyle": _v.has_style, "hasScript": _v.has_script, "hasBody": _v.has_body, "textChars": _v.text_chars}
+`);
+    const res = py.globals.get("_result").toJs({ dict_converter: Object.fromEntries });
+    const findings = Array.isArray(res.findings) ? res.findings : [];
+    return { ok: findings.length === 0, findings, hasStyle: res.hasStyle, hasScript: res.hasScript, hasBody: res.hasBody, textChars: res.textChars, basis: "pyodide HTMLParser tag balance + structure" };
+  } catch (err) {
+    return { ok: false, findings: [{ kind: "validator", detail: String(err?.message ?? err) }], basis: "validator error" };
+  }
 }

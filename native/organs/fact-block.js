@@ -1,4 +1,5 @@
 import { splitSentences } from "./cite.js";
+import { makeAposiopesis } from "./aposiopesis.js";
 
 // fact-block.js — a structured fact list, extracted from the material
 // itself, handed to the model BEFORE it drafts. HYPERGRAPH-FIRST-
@@ -235,28 +236,20 @@ const tripleKeysOf = (relations, sentence) => {
 // factBlock ? (spanBlock ?? dedupedSourceBlock) : dedupedSourceBlock`), so
 // fixing dedupeSourceText alone leaves the live bug's own actual failure
 // mode — the FACTS block — untouched.
-const TRAILING_ELLIPSIS_RE = /(?:…|\.\.\.)\s*$/;
-function truncatedDominated(passages) {
-  const seen = [];
-  for (const p of passages ?? []) {
-    const text = String(p?.text ?? "");
-    if (!text.trim()) continue;
-    for (const s of splitSentences(text)) {
-      const norm = normalizeForDedup(s);
-      if (norm) seen.push({ raw: s, norm });
-    }
-  }
-  const dominated = new Set();
-  for (const { raw, norm } of seen) {
-    if (!TRAILING_ELLIPSIS_RE.test(String(raw).trim())) continue;
-    if (seen.some((o) => o.norm !== norm && o.norm.length > norm.length && o.norm.startsWith(norm))) dominated.add(norm);
-  }
-  return dominated;
-}
+//
+// The DOMINATED/LONE split itself is `aposiopesis.js`'s own job (moved out
+// 2026-09-15, general watcher for truncation artifacts, not a repeat of
+// this one specimen): `dominated` is exactly what this file always
+// computed and drops below; `lone` — a trailing-ellipsis sentence with
+// nothing here to complete it — is new, real live traffic (an ordinary
+// DuckDuckGo search-results digest routinely carries several of these with
+// no duplicate to catch), and is surfaced on `buildFactBlock`'s own return
+// object rather than silently passed through.
+const aposiopesis = makeAposiopesis({ splitSentences, normalize: normalizeForDedup });
 
 export function dedupeSourceText(passages, relations = null) {
   if (!Array.isArray(passages) || !passages.length) return passages ?? [];
-  const dominated = truncatedDominated(passages);
+  const { dominated } = aposiopesis.find(passages);
   const seenText = new Set();
   const seenParsed = []; // [subject, verb, object] — subsumes() covers exact matches too (o.startsWith(o) is always true)
   return passages.map((p) => {
@@ -304,13 +297,14 @@ export function buildFactBlock(relations, passages, question = "") {
   const lines = [];
   const spans = [];
   const spanSeen = new Set();
-  // See `truncatedDominated`'s own header above `dedupeSourceText` — this
-  // is the OTHER half of the same fix. `spanBlock` (holon.js, built from
+  // See `aposiopesis.js`'s own header above `dedupeSourceText` — this is
+  // the OTHER half of the same fix. `spanBlock` (holon.js, built from
   // `spans` below) stands in for `dedupedSourceBlock` whenever any fact
   // bound at all, so a truncated preview's own claim must never reach
   // `spans` here either, or the live bug survives untouched by the fix
-  // above.
-  const dominated = truncatedDominated(passages);
+  // above. `truncatedLone` rides the returned object (below) rather than
+  // the prompt text — same firewall.js posture as `coverage`/`omitted`.
+  const { dominated, lone: truncatedLone } = aposiopesis.find(passages);
   let sentenceCount = 0;
   let boundSentenceCount = 0;
   for (const p of passages) {
@@ -402,6 +396,7 @@ export function buildFactBlock(relations, passages, question = "") {
       allLines: [],
       coverage: 0,
       empty: true,
+      truncatedLone,
       // FIREWALL (firewall.js): the void keeps every bit of its force —
       // the "William R. Hargis" incident below proved a SILENT absence is
       // what a model fills from memory — while losing the machinery it
@@ -431,6 +426,11 @@ export function buildFactBlock(relations, passages, question = "") {
     omitted: ranked.length - shown.length,
     sentenceCount,
     boundSentenceCount,
+    // aposiopesis.js's own LONE list: a trailing-ellipsis sentence with
+    // nothing in this material to complete it — real, unique text, kept
+    // whole in every passage above, disclosed here rather than left for a
+    // reader to notice as an unexplained "…" in what was sent.
+    truncatedLone,
     // FIREWALL (firewall.js): this header used to carry its own build
     // notes into a 2B model's context — "(7 of 97 sentence(s) with an
     // extractable relation; the passages above are the complete record,

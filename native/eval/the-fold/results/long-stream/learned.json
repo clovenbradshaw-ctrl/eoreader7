@@ -3276,19 +3276,6 @@
   "caught": "answer"
  },
  {
-  "id": "c:34ve1r4ovu0qj",
-  "kind": "correction",
-  "ts": 1788729801455,
-  "seq": 252,
-  "claimed": "Here's a breakdown of his appearances and what happens: He's described as ungainly and awkward, struggling to navigate social situations.",
-  "corrected": "Count Ilyá Rostóv died that same year and, as always happens, after the father’s death the family group broke up.",
-  "ref": null,
-  "start": null,
-  "end": null,
-  "question": "Where does Pierre appear in pg2600.txt, and what happens there?",
-  "caught": "answer"
- },
- {
   "id": "c:mdzt2cnqysaz",
   "kind": "correction",
   "ts": 1788729841909,
@@ -7163,19 +7150,6 @@
   "caught": "answer"
  },
  {
-  "id": "c:36n7jn22jint9",
-  "kind": "correction",
-  "ts": 1788750815420,
-  "seq": 551,
-  "claimed": "Here's a breakdown of his appearances and actions: He's described as being one of the many soldiers who watched the women as they passed.",
-  "corrected": "As always happens when women lead lonely lives for any length of time without male society, on Anatole’s appearance all the three women of Prince Bolkónski’s household felt that their life had not been real till then.",
-  "ref": null,
-  "start": null,
-  "end": null,
-  "question": "Where does Nesvítski appear in pg2600.txt, and what happens there?",
-  "caught": "answer"
- },
- {
   "id": "c:342ixrbgtvtwt",
   "kind": "correction",
   "ts": 1788750842801,
@@ -7186,6 +7160,19 @@
   "start": null,
   "end": null,
   "question": "Summarize what pg2600.txt says around the passage that mentions Rykónty.",
+  "caught": "answer"
+ },
+ {
+  "id": "c:19139pr9nbyoc",
+  "kind": "correction",
+  "ts": 1789443820133,
+  "seq": 551,
+  "claimed": "The book says that both the World's Fairs were marred by problematic representations of different cultures or a lack of representation of African Americans.",
+  "corrected": null,
+  "ref": null,
+  "start": null,
+  "end": null,
+  "question": "What does the book say about the experiences of African Americans in Chicago's World's Fairs?",
   "caught": "answer"
  }
 ]

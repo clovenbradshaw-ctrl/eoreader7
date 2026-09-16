@@ -4,6 +4,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { pathosOf, strainOf, reGroundCondition, reGround, landReGround } from "./pathos.js";
+import { pacingGrade } from "./pacing.js";
 
 const EXP = { who: "reader:eoreader7-cli", read: "specimen.txt" };
 
@@ -38,9 +39,38 @@ test("rhythm: a flatline piece is Murch's boredom — no blink, no cut", () => {
 });
 
 test("rhythm: a piece that alternates swell and rest cuts where the thought turns", () => {
-  const varied = pathosOf({ text: "A b c d e f g h i j. X. A b c d e f g h i j. Y. A b c d e f g h i j. Z.", experiencer: EXP });
+  // Landings are three words: pacingGrade never counts a blink shorter than that.
+  const varied = pathosOf({ text: "A b c d e f g h i j. X y z. A b c d e f g h i j. U v w. A b c d e f g h i j. R s t.", experiencer: EXP });
   assert.equal(varied.rhythm.flatline, false);
   assert.ok(varied.rhythm.blinks >= 3, `expected blinks, got ${varied.rhythm.blinks}`);
+});
+
+// Regression (2026-09-14): the-fold reads a one-sentence recent answer through this organ;
+// one length has zero variance by construction, so it was graded flat and the model was
+// told its answers "have been flat" after a single answer. One sentence is not a rhythm.
+test("rhythm: a single sentence is never a flatline — too little to grade, the ground holds", () => {
+  const one = pathosOf({ text: "Paris is the capital of France.", experiencer: EXP });
+  assert.equal(one.rhythm.n, 1);
+  assert.equal(one.rhythm.flatline, false);
+  assert.equal(reGroundCondition(one).kind, "ground_holds");
+  // The floor is exactly one: two equal sentences are still a flatline.
+  const two = pathosOf({ text: "Paris is the capital of France. Rome is the capital of Italy.", experiencer: EXP });
+  assert.equal(two.rhythm.flatline, true);
+});
+
+// Regression (2026-09-14): pathosOf read ratio/mean/blinks/dense/n under names pacingGrade
+// never returned, so every read reported zeros. The rhythm block must mirror the grade.
+test("rhythm: every field mirrors pacingGrade on the same text — a short landing is counted", () => {
+  const text = "The regiment marched through the long valley for three days without any word from the capital. They stopped to rest. The scouts rode ahead across the river and found the bridge burned and the far bank empty of anyone at all. The camp was silent.";
+  const grade = pacingGrade(text);
+  const read = pathosOf({ text, experiencer: EXP });
+  assert.ok(grade.blinkPoints.length > 0, "the specimen must carry a blink, or this test proves nothing");
+  assert.equal(read.rhythm.blinks, grade.blinkPoints.length);
+  assert.equal(read.rhythm.n, grade.sentences);
+  assert.equal(read.rhythm.mean, grade.meanLength);
+  assert.equal(read.rhythm.ratio, grade.varianceRatio);
+  assert.equal(read.rhythm.dense, grade.denseSentences.length);
+  assert.equal(read.rhythm.flatline, grade.flatline);
 });
 
 // ── curve: measured from the fold, or a typed gap, never invented ─────────

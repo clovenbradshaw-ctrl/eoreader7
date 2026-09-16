@@ -27,6 +27,7 @@ const FIELD_BY_NOUN = {
   song: "music", "piece of music": "music", sonata: "music", nocturne: "music", etude: "music", symphony: "music", tune: "music", melody: "music",
   code: "instrument", script: "instrument", program: "instrument", function: "instrument",
   tool: "instrument", cli: "instrument", application: "instrument", app: "instrument", module: "instrument", library: "instrument", package: "instrument", service: "instrument", server: "instrument", api: "instrument", class: "instrument", utility: "instrument", component: "instrument",
+  website: "instrument", webpage: "instrument", "web page": "instrument", "web app": "instrument", "web site": "instrument", homepage: "instrument", site: "instrument", "landing page": "instrument", html: "instrument", css: "instrument",
 };
 const NOUN_RE = /\b(?:short story|piece of music|write-up|[a-z]+)\b/gi;
 const KNOWN = Object.keys(FIELD_BY_NOUN);
@@ -35,7 +36,7 @@ const KNOWN = Object.keys(FIELD_BY_NOUN);
 // vocabulary (def/import/class/function/CLI/endpoint) is an instrument even
 // when no registered noun matched ("write a word counter in Python" has no
 // noun in the table). Disclosed as a received sign, never a silent guess.
-const CODE_SIGNAL = /\b(?:python|javascript|typescript|node|bash|shell|golang|rust)\b|\.(?:py|js|mjs|cjs|ts|tsx|sh|go|rs)\b|\b(?:def|class|function|argparse|cli|command-?line|endpoint|stdin|stdout)\b/i;
+const CODE_SIGNAL = /\b(?:python|javascript|typescript|node|bash|shell|golang|rust|html|css|website|webpage)\b|\.(?:py|js|mjs|cjs|ts|tsx|sh|go|rs|html?|css)\b|\b(?:def|class|function|argparse|cli|command-?line|endpoint|stdin|stdout)\b/i;
 
 // The instrument artifact's LANGUAGE, read off the request's own words — an
 // extension, a language name, or a code-shape keyword. Same open-table
@@ -43,12 +44,17 @@ const CODE_SIGNAL = /\b(?:python|javascript|typescript|node|bash|shell|golang|ru
 // default. null when the request names none (the instrument voice then stays
 // language-neutral and the caller picks a safe default, disclosed).
 const LANG_BY_SIGNAL = [
+  // Explicit language names FIRST — they win over the generic web/app shape.
   [/\.py\b|python|python3/i, "python"],
   [/\.(tsx?)\b|typescript/i, "typescript"],
   [/\.(js|mjs|cjs|jsx)\b|javascript|node(?:\.js)?\b/i, "javascript"],
   [/\.sh\b|bash|shell|zsh/i, "shell"],
   [/\.go\b|golang/i, "go"],
   [/\.rs\b|rust/i, "rust"],
+  [/\.css\b|css/i, "css"],
+  // The web shape LAST: a user-facing "app", "site", or "page" with no explicit
+  // language is an HTML web app (the default for data-holding UI).
+  [/\.html?\b|html|website|webpage|web\s*page|web\s*app|webapp|landing\s*page|dashboard|front-?end|\bapp\b|\bpage\b|\bui\b/i, "html"],
 ];
 export function detectLanguage(task = "") {
   const t = String(task ?? "");

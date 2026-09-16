@@ -127,5 +127,13 @@ export { claimKey, claimNature, composedSentence, createClaimLedger } from "./cl
 export * as claimsOrgan from "./claims.js";
 export { buildFactBlock, dedupeSourceText } from "./fact-block.js";
 export * as factBlockOrgan from "./fact-block.js";
+export { makeAposiopesis } from "./aposiopesis.js";
+export * as aposiopesis from "./aposiopesis.js";
 export { classifySentences, sentenceSpans, stripNarrationSentences, stripScaffoldNarration } from "./provenance.js";
 export * as provenanceOrgan from "./provenance.js";
+// THE LATENT MIND (2026-09-15) — the archon compendium: the public-domain /
+// fair-use record of whose work the reading's methods come from, the mind
+// ethos thinks with at the core. Exported at the seam so the surface can
+// quote an archon's credited work and offer it as an affordance.
+export { ARCHON_COMPENDIUM, ARCHONS, ARCHON_COMPENDIUM_SCHEMA, archonOf, compendium, creditedQuote, matchArchons } from "./archon-compendium.js";
+export * as archonCompendium from "./archon-compendium.js";

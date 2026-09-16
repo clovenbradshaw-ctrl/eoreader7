@@ -212,9 +212,26 @@ const LANG_PRONOUNS = {
   // disclosed best-effort set (nominative + oblique third-person forms),
   // the same posture every other non-eng set already holds.
   rus: wordBound("он|она|оно|они|его|её|ее|их|ему|ей|им|ним|него|нее|неё"),
+  // GRC — Ancient Greek (2026-09-13, St. John's canon). Polytonic
+  // third-person set: the emphatic/personal pronoun (αὐτός family) plus the
+  // article-as-third-person forms that classical prose uses where English
+  // would use a bare "he"/"it" (ὁ/ἡ/οἱ/αἱ/τά are ambiguous with the article —
+  // kept, best-effort, the same disclosed posture every other set holds).
+  grc: wordBound("αὐτός|αὐτή|αὐτό|αὐτοί|αὐταί|αὐτά|αὐτοῦ|αὐτῆς|αὐτῶν|αὐτῷ|αὐτῇ|αὐτοῖς|αὐταῖς|αὐτόν|αὐτήν|αὐτὸν|αὐτὴν|ὁ|ἡ|οἱ|αἱ|τό|τά|τὸν|τὴν|τοῦ|τῆς|τῶν|τῷ|τῇ|τοῖς|ταῖς"),
+  // ARB — Arabic (2026-09-13, St. John's MAMEC canon). Classical/MSA
+  // third-person set: the free pronouns plus the two-number/dual forms.
+  arb: wordBound("هو|هي|هما|هم|هن|هُوَ|هِيَ|هُمَا|هُمْ|هُنَّ"),
 };
 if (!LANG_PRONOUNS[LANG]) { console.error(`no pronoun set declared for --lang=${LANG} (declared: ${Object.keys(LANG_PRONOUNS).join(", ")})`); process.exit(2); }
-const POS_PRIOR_PATH = path.join(HERE, "../../priors", LANG === "eng" ? "pos-eng.json" : `pos-${LANG}.json`);
+// GROUND override (2026-09-13): --pos=<path> selects WHICH received prior is
+// the floor for this read, so a ground experiment can compare UD-treebank
+// vs UniMorph-derived priors for the same material (the UniMorph grc/san
+// priors contain no verbs — measured — so swapping the floor shows what each
+// ground actually supplies, rather than asserting it). Default is unchanged.
+const POS_OVERRIDE = (process.argv.find((a) => a.startsWith("--pos=")) ?? "").replace("--pos=", "");
+const POS_PRIOR_PATH = POS_OVERRIDE
+  ? path.resolve(POS_OVERRIDE)
+  : path.join(HERE, "../../priors", LANG === "eng" ? "pos-eng.json" : `pos-${LANG}.json`);
 if (!fs.existsSync(POS_PRIOR_PATH)) { console.error(`no POS prior at ${POS_PRIOR_PATH} for --lang=${LANG}`); process.exit(2); }
 const POS_PRIOR = JSON.parse(fs.readFileSync(POS_PRIOR_PATH, "utf8"));
 // GRAIN, NOT ERROR. The correction that produced this typing, user's own
@@ -417,6 +434,19 @@ const chapters = [];
 // stripped — deleting it would shift every offset after it.
 if (chapters.length && chapters[0].start > 0) {
   infer("front-matter", [0, chapters[0].start], "everything preceding the first inferred chapter heading — title, byline, edition line and the table of contents (S95 — front matter is recorded with a role, never stripped)");
+}
+
+// NO-CHAPTER FALLBACK (2026-09-13, the St. John's canon): a verse collection
+// (Sappho), a sutra text (Nyāya), a Upaniṣad, or a single-essay document has
+// no chapter heading at all — the reader's novel-shaped heading detector
+// correctly finds zero. The whole document IS the read unit: one chapter,
+// ordinal 1, from headEnd=0 (the first byte, front matter included in its
+// own observation) to the last byte. Structure is inferred and carries its
+// basis (S95, LP19 property 4): the basis here states exactly why — no
+// heading convention matched anywhere, so there is nothing to split on.
+if (chapters.length === 0) {
+  chapters.push({ start: 0, end: raw.length, headEnd: 0, ordinal: 1, convention: "whole-document", title: "" });
+  infer("chapter", [0, raw.length], "no chapter-heading convention matched anywhere in the document — the whole document is the read unit (a verse collection, sutra text, or single work with no internal headings)", { ordinal: 1 });
 }
 
 // Everything below is read WITHIN one chapter's address range. The chapter

@@ -1,30 +1,6 @@
 {
  "perReferentRows": [
   {
-   "ch": 1,
-   "refId": "ref:auto:white_rabbit",
-   "primary": "White Rabbit",
-   "mentions": 4,
-   "unresolved": 3,
-   "hits": 3,
-   "sigHits": 0,
-   "controlAvg": 1.73,
-   "topK": 9,
-   "fieldSize": 94
-  },
-  {
-   "ch": 2,
-   "refId": "ref:auto:mabel",
-   "primary": "Mabel",
-   "mentions": 4,
-   "unresolved": 3,
-   "hits": 3,
-   "sigHits": 0,
-   "controlAvg": 0.2,
-   "topK": 12,
-   "fieldSize": 124
-  },
-  {
    "ch": 2,
    "refId": "ref:auto:rabbit",
    "primary": "Rabbit",
@@ -41,10 +17,10 @@
    "refId": "ref:auto:alice",
    "primary": "Alice",
    "mentions": 32,
-   "unresolved": 29,
-   "hits": 15,
+   "unresolved": 26,
+   "hits": 13,
    "sigHits": 0,
-   "controlAvg": 4.47,
+   "controlAvg": 4.4,
    "topK": 13,
    "fieldSize": 134
   },
@@ -53,10 +29,10 @@
    "refId": "ref:auto:mouse",
    "primary": "Mouse",
    "mentions": 31,
-   "unresolved": 31,
-   "hits": 15,
+   "unresolved": 29,
+   "hits": 13,
    "sigHits": 0,
-   "controlAvg": 4,
+   "controlAvg": 5.07,
    "topK": 13,
    "fieldSize": 134
   },
@@ -65,10 +41,10 @@
    "refId": "ref:auto:dodo",
    "primary": "Dodo",
    "mentions": 19,
-   "unresolved": 18,
-   "hits": 14,
+   "unresolved": 17,
+   "hits": 13,
    "sigHits": 0,
-   "controlAvg": 1.8,
+   "controlAvg": 1.13,
    "topK": 13,
    "fieldSize": 134
   },
@@ -80,19 +56,7 @@
    "unresolved": 6,
    "hits": 6,
    "sigHits": 0,
-   "controlAvg": 1.87,
-   "topK": 13,
-   "fieldSize": 134
-  },
-  {
-   "ch": 3,
-   "refId": "ref:auto:dinah",
-   "primary": "Dinah",
-   "mentions": 6,
-   "unresolved": 6,
-   "hits": 6,
-   "sigHits": 0,
-   "controlAvg": 0.53,
+   "controlAvg": 1.73,
    "topK": 13,
    "fieldSize": 134
   },
@@ -116,7 +80,7 @@
    "unresolved": 3,
    "hits": 3,
    "sigHits": 0,
-   "controlAvg": 0,
+   "controlAvg": 0.13,
    "topK": 13,
    "fieldSize": 134
   },
@@ -128,7 +92,7 @@
    "unresolved": 3,
    "hits": 3,
    "sigHits": 0,
-   "controlAvg": 0.27,
+   "controlAvg": 0.4,
    "topK": 13,
    "fieldSize": 134
   },
@@ -137,10 +101,10 @@
    "refId": "ref:auto:english",
    "primary": "English",
    "mentions": 5,
-   "unresolved": 5,
-   "hits": 5,
+   "unresolved": 4,
+   "hits": 4,
    "sigHits": 0,
-   "controlAvg": 1.2,
+   "controlAvg": 0.2,
    "topK": 13,
    "fieldSize": 134
   },
@@ -152,7 +116,7 @@
    "unresolved": 7,
    "hits": 3,
    "sigHits": 0,
-   "controlAvg": 1.33,
+   "controlAvg": 1.4,
    "topK": 13,
    "fieldSize": 134
   },
@@ -161,10 +125,10 @@
    "refId": "ref:auto:bill",
    "primary": "Bill",
    "mentions": 12,
-   "unresolved": 10,
-   "hits": 9,
+   "unresolved": 12,
+   "hits": 11,
    "sigHits": 0,
-   "controlAvg": 0.87,
+   "controlAvg": 0.53,
    "topK": 15,
    "fieldSize": 150
   },
@@ -173,10 +137,10 @@
    "refId": "ref:auto:rabbit",
    "primary": "Rabbit",
    "mentions": 22,
-   "unresolved": 16,
-   "hits": 14,
+   "unresolved": 18,
+   "hits": 16,
    "sigHits": 0,
-   "controlAvg": 3.2,
+   "controlAvg": 3.93,
    "topK": 15,
    "fieldSize": 150
   },
@@ -188,16 +152,16 @@
    "unresolved": 5,
    "hits": 5,
    "sigHits": 0,
-   "controlAvg": 0.13,
+   "controlAvg": 0.4,
    "topK": 15,
    "fieldSize": 150
   }
  ],
  "totals": {
-  "totalWeakReferents": 16,
-  "totalUnresolvedAnchors": 155,
-  "cueHits": 114,
+  "totalWeakReferents": 13,
+  "totalUnresolvedAnchors": 140,
+  "cueHits": 100,
   "cueSignificantHits": 0,
-  "controlHitsSum": 22.666666666666668
+  "controlHitsSum": 20.4
  }
 }

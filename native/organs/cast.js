@@ -121,7 +121,7 @@ export function makeCastHandles({ splitSentences, extractSurfaces, discoverRefer
  * implementation of "the same name" — the resolver is a projection of this
  * index, so support and identity cannot drift apart.
  */
-export function makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, blankFurniture = null }) {
+export function makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, blankFurniture = null, leadingSurfaces = null }) {
   return function indexFor(passages) {
     const text = (passages ?? []).map((p) => (blankFurniture ? (p?.blanked ?? p?.text ?? "") : (p?.text ?? ""))).join("\n\n");
     const empty = { events: [], referents: new Set(), resolve: () => new Set(), represent: () => null };
@@ -129,7 +129,43 @@ export function makeReferentIndex({ splitSentences, extractSurfaces, discoverRef
     let events;
     try {
       const sentences = splitSentences(text);
-      const surfaces = extractSurfaces(sentences, {});
+      let surfaces = extractSurfaces(sentences, {});
+      // SENTENCE-INITIAL CAPITALISATION IS A CONVENTION OF THE SCRIPT, NOT A
+      // HARD VETO AND NOT SOLE EVIDENCE (user direction, 2026-09-15): English
+      // capitalises the token that opens a sentence whether it is a name or
+      // not, so a name that ONLY ever appears sentence-initially (Napoleon in
+      // "Napoleon invaded Russia...") is invisible to extractSurfaces, which
+      // starts its run scan at token 1 precisely so a sentence-opener carries
+      // no namehood evidence on its own. That veto is right for a single
+      // occurrence and wrong for the whole cast: the convention IS real
+      // information — a sentence-initial capital in English is a candidate
+      // name — it is just not CONSISTENT. So the engine's own mirror organ
+      // `extractLeadingSurfaces` hands those candidates over, and the SAME
+      // physics filter that guards extractSurfaces (a name essentially never
+      // appears lowercased, while a sentence-opener "Well"/"Why" constantly
+      // does) confirms or refuses them here — never trusted on the capital
+      // alone, never thrown away on the position alone. Opt-in: a caller
+      // that does not inject `leadingSurfaces` is byte-identical to before.
+      if (typeof leadingSurfaces === "function") {
+        const lower = new Set();
+        for (const tok of text.split(/\s+/)) {
+          const t = tok.replace(/^[^\p{L}\p{N}]+/gu, "").replace(/[^\p{L}\p{N}]+$/gu, "");
+          if (t && /\p{Ll}/u.test(t) && !/\p{Lu}/u.test(t)) lower.add(diaNorm(t.toLowerCase()));
+        }
+        const admitted = [];
+        for (const l of leadingSurfaces(sentences, {}) ?? []) {
+          const toks = diaNorm(l.surface).split(/\s+/).filter((t) => t.length > 2);
+          if (!toks.length) continue;
+          // multi-word runs skip the physics filter exactly as surfacesFromEvidence
+          // does (a lowercase form of "Thomas Edison" does not occur); a single
+          // word is refused when it ALSO appears lowercased — the sentence-opener
+          // tell the main scan guards against ("Some"/"Trust" appear lowercase
+          // somewhere in real prose; a name like "Napoleon" does not).
+          if (toks.length === 1 && lower.has(toks[0].toLowerCase())) continue;
+          admitted.push({ surface: l.surface, mentions: l.sentences ?? 1, sentences: l.sentences ?? 1 });
+        }
+        surfaces = [...surfaces, ...admitted];
+      }
       events = discoverReferents(surfaces, { minSentences: 0 }).events;
     } catch {
       // An organ refusing (script it doesn't apply to, empty material) means

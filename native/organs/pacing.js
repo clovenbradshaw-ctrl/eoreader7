@@ -62,8 +62,14 @@ export function pacingGrade(text) {
   const denseThreshold = sorted[Math.max(0, Math.floor(sorted.length * 0.1))];
   const denseSentences = rows.filter((r) => r.words >= denseThreshold && r.words >= 8).map((r) => ({ words: r.words, sentence: r.sentence.slice(0, 90) }));
   // The read: flatline (variance < 30% of mean, no blinks) vs. alive.
-  const flatline = mean > 0 && variance / mean < 0.3 && blinkPoints.length === 0;
-  const basis = flatline
+  // A structural floor, not a tuned one: one sentence has no rhythm to grade —
+  // a single length has zero variance by construction and a blink needs a
+  // sentence before it — so it is never read as flat (withheld, never convicted).
+  const gradable = rows.length >= 2;
+  const flatline = gradable && mean > 0 && variance / mean < 0.3 && blinkPoints.length === 0;
+  const basis = !gradable
+    ? `Murch: one sentence carries no rhythm to grade — a single length has no variance and a blink needs a sentence before it.`
+    : flatline
     ? `Murch: the piece paces flat — ${rows.length} sentence(s), mean ${mean.toFixed(0)} words, variance ${variance.toFixed(1)} (${(variance / mean * 100).toFixed(0)}% of the mean). No blinks: the eye never rests, the cut never falls. Vary the sentence lengths; let a short sentence land after a long one.`
     : `Murch: the piece has rhythm — ${rows.length} sentence(s), mean ${mean.toFixed(0)} words, variance ${variance.toFixed(1)} (${(variance / mean * 100).toFixed(0)}% of the mean), ${blinkPoints.length} blink point(s) where the thought turns. ${blinkPoints.length ? "The eye blinks where it should." : "The rhythm varies but rarely blinks — add a short landing after a dense sentence."}`;
   return {

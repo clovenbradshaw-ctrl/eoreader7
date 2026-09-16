@@ -5359,6 +5359,50 @@ The mechanism is standing law already: `organs/witness-sentences.js` runs the se
 
 **Files.** `native/kernel/hyperlexicon.js` (`compositionAffordance`'s structural fallback), `native/kernel/reaction.js` (passes `eo.grain`), `native/eval/lavar/prime-with-field.mjs` (declares the structural affordance). Suite: 778/772/6, same six pre-existing failures, zero new.
 
+## S116 — Aposiopesis: the archon of what trails off (added 2026-09-15) — pointer
+
+**Generality:** universal for the mechanism; specimen-scoped for the one live measurement. the-fold's POLICIES.md **P217** is the paired entry there.
+
+`native/organs/aposiopesis.js` (new, pure, organs injected — `splitSentences`/`normalize`, the cast.js pattern, zero engine imports): the DOMINATED/LONE split the-fold's `fact-block.js` (P181) already computed for its own narrow duplicate-suppression case, pulled out into a reusable, named, tested organ so it answers a more general question — every trailing-ellipsis sentence in a set of passages, split into ones a fuller sentence elsewhere completes (drop, nothing lost) and ones nothing completes (keep, but name the gap). `fact-block.js` delegates unchanged; `buildFactBlock` additionally returns `truncatedLone` on its object. Found live on a real Panama Canal turn (real DuckDuckGo digest, not a fixture): four independent snippets in one digest each trail off with nothing to complete them — the ordinary shape a search-results digest takes, not the rare duplicate P181 was built for. `native/organs/index.js` exports it under the shared seam. Not yet consumed by any live caller — `truncatedLone` is ready for the AnswerRecord or a ground-ladder disclosure to read, the next integration, not attempted this pass.
+
+**Files.** `native/organs/aposiopesis.js` + `aposiopesis.test.mjs` (9 cases) + `native/organs/fact-block.js`/`fact-block.test.mjs` (+3 cases) + `native/organs/index.js`.
+
+## S117 — The missing adapter: phasepost classifications become a DMD trajectory, and phasepost.js's own SVO naming is fixed at its source (added 2026-09-15)
+
+**Generality:** universal for the composition (no new mathematics, no new classification rule — two already-real, already-tested organs, glued); universal for the field-access fix (typologically-neutral by construction, checked against a real case-marked reader's own `end1Detail`/`end2Detail` surviving untouched); specimen-scoped for the one measured pipeline run (a synthetic paragraph, disclosed as too little material for the eigenvalues themselves to mean anything). the-fold's POLICIES.md carries the paired entry.
+
+**What was missing, and why it matters.** the-fold's own "Cognition takes place with the phaseposts" synthesis names the destination: DMD run over a trajectory of phasepost-classified acts, each still a revisable assertion, is where this project's own stated theory of "the phaseposts are where the reading's cognition lives" actually cashes out. Checked directly rather than assumed: the two real, measured DMD drivers that exist (`eval/salience-dmd.mjs`, `adapters/text/contextual-dmd.js`) both decompose LEXICAL SALIENCE trajectories — neither has ever been pointed at `phasepost.js`'s 27-cell classifications. `adapters/text/phasepost-dmd.js` (new) is that missing adapter: `phasepostObservations(edges, {classify, unitOf})` classifies a reading-ordered stream of relations (one snapshot per act by default — occurrence-level, phasepost.js's own stated grain) into `Map<cellLabel, count>` snapshots, excluding a contested or gap verdict from every cell (disclosed on `excluded`, never coin-flipped or fractionally split across candidates — P56's own discipline, honored the only way a numeric trajectory can); `phasepostModes` hands that trajectory to `contextual-dmd.js`'s own `contextualModes`, unmodified — no new decomposition, no new windowing rule, no new rank criterion.
+
+**A real English-centrism bug, caught mid-build by direct correction ("SVO is EN focused, fix that").** The first draft added a LOCAL translator in the adapter, converting a real edge's `{end1, label, end2}` (hypergraph.js's own typologically-neutral public shape, P76) into `{subject, verb, object}` so `phasepost.js`'s `classify()` would accept it — silently reintroducing the exact SVO/English-specific naming P76 fought to remove, one file downstream, as a translation layer rather than a fix. **The real fix is in `phasepost.js` itself**, not the adapter: `classify(edge)` and `grainOf` now read `end1`/`label`/`end2` FIRST, with `subject`/`verb`/`object`/`relation` kept only as a fallback for every existing caller (byte-identical behavior, confirmed by a full-suite diff against a stashed pre-fix baseline — identical failure set by name, zero regressions). The adapter now hands `classify` whatever edges it is given, verbatim, from ANY arrangement-producing reader — the English positional one, or eoreader7's own Latin case-marked reader (P77).
+
+**"The parts of speech the respective languages does encode IS useful" — the second half of the same correction, honored by NOT touching what still works.** A case-marked edge's own `end1Detail`/`end2Detail` (e.g. `{case: "Nom"}`/`{case: "Acc"}`) rides straight through `classify()` untouched, because the fix widens only the FIELD ACCESS, never strips a field it does not itself need. The GENERALITY BOUNDARY is stated plainly in `phasepost.js`'s own header now: the field access (end1/end2 vs subject/object) is typologically neutral; the CONTENT this module reasons with — ActPrior@1 (the verb lexicon), COPULA_FORMS/AUXILIARIES/UNIVERSAL_QUANTIFIERS/LOCATIVE_PREPOSITIONS/NEGATIVE_EXISTENTIALS (the closed classes `grainOf` and the mechanical/copula rules read) — is ALL still `lang/en`, unchanged and undisclosed as anything more. A non-English edge now reaches this function's ROLE-READING correctly (which end is agent-like, which is patient-like — exactly what end1/end2 already encode, regardless of strategy); it still gaps or defaults through English-only heuristics past that point, honestly, because the lexicon and the closed classes have no non-English entries yet. Building those is real, separate, unattempted work — this fix closes the naming mistake, not the omnilingual lexicon gap.
+
+**Measured, not assumed, at three tiers.** Pure grouping/exclusion logic against a fake classifier (fast, deterministic — a contested verdict contributes to no cell; a gap or contested unit still occupies a real position in the trajectory, an empty Map, never a hole; a custom `unitOf` groups and sums correctly). The REAL `phasepost.js` classifier (real ActPrior@1, real `cube.js`, real UniMorph lemmatizer) on sentences chosen because they were actually run and OBSERVED to land on six distinct real cells plus a real gap and a real contested verdict — never assumed. The FULL real pipeline (real extraction via `makeRelationReader` → real classification, `report.edges` handed to `classify` VERBATIM, no adapter-side renaming anywhere → real DMD), proving the wiring closes end to end without asserting a specific eigenvalue number a 20-sentence paragraph has no business producing — this project's own `salience-dmd-RESULTS.md` needed a whole novel to find a real period, and that lesson is stated in this test's own comment rather than re-learned by overclaiming a small run.
+
+**A second real bug, caught fixing the tests for the first.** `phasepostModes`'s first draft spread `contextual-dmd.js`'s own return LAST, so `decompose()`'s gap-only `observations` field (a bare COUNT, present only when gapping, absent on success) silently shadowed what a caller would expect `observations` to mean. Fixed by always returning this module's OWN richer array of per-unit Maps under that name, spread last and explicitly — consistent on both outcomes, and `units.length` already covers the count contextual-dmd.js's own field was redundant with.
+
+**Files.** `native/adapters/text/phasepost-dmd.js` (new) + `native/tests/phasepost-dmd.test.mjs` (new, 12 cases) + `native/adapters/text/phasepost.js` (the field-access widening). Verified: `phasepost-dmd.test.mjs` + `phasepost.test.mjs` + `dmd.test.js` + `contextual-dmd.test.js` + `dmd-stream.test.js` — 46/46; full native suite 1639/1660 before and after (identical 12 pre-existing failure names, confirmed via a `git stash` scoped to just `phasepost.js` against this exact concurrently-edited checkout), zero regressions.
+
+**Amended the same day — asked to falsify its own "too little material" disclosure, not just repeat it.** `eval/phasepost-dmd-read.mjs` ran the identical, unmodified pipeline against the real Frankenstein text `eval/salience-dmd.mjs` already measured — whole book, 3,392 sentences, 2.6 seconds. Half the disclosure is falsified outright: eigenvalues are NOT all-zero at book scale (a real oscillatory pair at frequency≈1.463 rad, a real period-2 alternation, real decay modes, over a genuinely populated 14-of-27-cell basis), against exactly-zero at 20 sentences. Material quantity was a real bottleneck and book scale clears it.
+
+**The other half — is the statistic real, or chance-shaped? — is where II.23 earned its keep.** `eval/phasepost-dmd-null.mjs` shuffles unit ORDER (same per-unit snapshot multiset, same 87.7% exclusion sparsity, same per-cell totals) and reruns the real, unmodified `contextualModes` on each draw. At 30 draws the real run's top oscillatory magnitude beat every shuffle (0/30) — reported, and flagged at the time as a narrow ~2% margin, the exact shape P66 already named ("a null drawn once is a null drawn zero times"). Widened to 100 draws (same seed, so this is one continuous, reproducible stream, not a second sample): 3 of 100 shuffles now meet or exceed the real value, one reaching 0.0721 against the real run's 0.0572 — nominal p ≈ 0.040, inside the loosest conventional bound but nowhere near the confidence the undersampled 30-draw run implied. The sparse 30-draw result was noise dressed as a finding, caught by doing the thing this project's own history keeps insisting on: widen the draws before trusting the number.
+
+**What survives, stated at the calibration it earned:** material-quantity as a blocker on WELL-FORMEDNESS is falsified — real book-scale material genuinely produces a rich, non-degenerate decomposition. Whether THIS statistic (top oscillatory magnitude) detects genuine order-dependent rhythm, as opposed to being explainable by the sparse/spiky shape of the classified-act histogram regardless of order, is NOT established by this run — the 87.7% exclusion rate is very likely the dominant force on both the real value and the null's own top draws sitting so close together, the same recall ceiling this project has measured elsewhere in other guises. Full account, every number, the named-and-unattempted next levers (more draws, a coarser unit grain, a total-spectral-energy statistic less sensitive to sparsity): `eval/results/phasepost-dmd-frankenstein-RESULTS.md`.
+
+**Files.** `native/eval/phasepost-dmd-read.mjs` + `native/eval/phasepost-dmd-null.mjs` + `native/eval/results/phasepost-dmd-frankenstein-RESULTS.md` (all new, re-runnable eval drivers — P19/P27's own posture, not committed regression tests).
+
+**Amended the same day — asked "how could we prove this or not," and the recommended power check turned "inconclusive" into a sharper, more decisive answer.** Before trusting the 3/100 result above, `native/eval/phasepost-dmd-power-check.mjs` checked whether the shuffle-null test can detect a TRUE, planted signal at this same sparsity at all — the standard this project already holds every non-trivial statistic to (II.23).
+
+**A real bug in the test statistic, caught before it corrupted anything downstream.** "Top oscillatory magnitude" was coded as `im !== 0` (complex-conjugate pairs only), silently excluding a genuine period-2 mode — DMD represents that as a REAL, NEGATIVE eigenvalue (frequency = π, im = 0), exactly the shape of the real Frankenstein run's own second-largest mode (0.0523 @ freq=π), which the original statistic was never actually testing. Fixed to "any eigenvalue with a meaningfully non-zero frequency" before anything else was measured against it.
+
+**The decisive finding: even a 100%-clean, noise-free planted rhythm is not reliably visible at this sparsity.** A 4-cell cyclic signal at the IDENTICAL sparsity ratio (12.3%, matching 775/6,313 exactly), swept across 40 independent random placements of which units get observed: **only 14 of 40 (35%) showed any detectable rhythmic eigenvalue at all** — the rest read flat zero, not weak. Taking the median-magnitude detected instance and running the SAME 100-draw shuffle-null on it: **7 of 100 shuffles met or exceeded it** — worse odds than the real book's own 3/100. A pure-noise control at the same sparsity showed **38 of 100 of its own shuffles** meeting or exceeding its own "real" value — the null's own false-fire rate is elevated far past a conventional 5% level at this sparsity, not just its power.
+
+**The honest conclusion is stronger than "inconclusive": this specific test (unit-per-edge trajectory, top-rhythmic-magnitude statistic, ~88% sparsity) cannot currently distinguish real order-dependent structure from noise in EITHER direction, confirmed by a proper positive control rather than merely suspected from a close call.** The 87.7% exclusion rate — the extraction/classification pipeline's own recall ceiling — is named as the dominant cause: at this density, reordering the few non-empty snapshots barely changes what the SVD sees, for a real signal exactly as much as for a fake one. One methodological inconsistency was caught and disclosed rather than silently patched under time pressure (a "matched magnitude" calibration arm mixed `decompose()`'s full-length result with `contextualModes()`'s own window-searched one, which diverged sharply — that arm's specific number is dropped; the clean-arm and noise-arm findings above used `contextualModes` consistently throughout and stand on their own).
+
+**The prioritized next lever, named precisely rather than left as one option among several:** reduce the sparsity itself (a coarser unit grain — per-sentence or per-paragraph snapshots — directly attacks the 87.7% exclusion rate identified as the dominant cause) BEFORE trying a second book or a different statistic, since neither would matter while the underlying signal-to-noise ratio stays this thin. Full account: `eval/results/phasepost-dmd-frankenstein-RESULTS.md`.
+
+**Files.** `native/eval/phasepost-dmd-power-check.mjs` (new, re-runnable).
+
 ## S118 — Bound proclitics were hiding the company signal from Hebrew and Arabic beings (2026-09-15)
 
 **Generality:** specimen-scoped. The mechanism itself is general (an injected,
@@ -5902,3 +5946,100 @@ SUBJECT block, no logic change). Verified: `tests/relations-positional.test.js`
 byte-identical to S121's own; the broader native suite (1495 cases) shows
 the same 11 pre-existing, unrelated failures before and after, zero
 regressions.
+
+## S123
+
+The user's own reframe for this whole line of work — "success is
+minimizing retroactive surprise" — turned Hebrew's own FULL-PIPELINE
+precision (26.1%/33.3%, far below its ISOLATED precision of 68.6%/84.6%,
+where Arabic shows no such collapse: 87.5%/80.0% full-pipeline) into the
+next thing worth measuring: whatever is driving that gap is a source of
+CONFIDENTLY WRONG answers, not merely missing ones.
+
+**Generality: universal** (both measured, both languages, before either
+conclusion was drawn).
+
+**The first hypothesis (verb-finding) was tested and REFUTED, not
+assumed.** Wrong-verb selection was the obvious suspect — measured
+directly instead: among Hebrew's committed (non-gap) full-pipeline
+answers, the reader's own classifier selects the SAME token gold marks as
+the clause's verb 25 times out of 26 (96%). The verb is not the problem.
+
+**The second hypothesis (nominal classification noise) measured real but
+INSUFFICIENT to explain the asymmetry.** Gold NOUN/PROPN tokens are
+correctly classified as such by `classifyWord`/`dominantClass` against
+the small HTB-derived POS prior only 41.8% of the time for Hebrew, 57.6%
+for Arabic — and roughly 40% of NON-nominal gold tokens are FALSELY
+classified as nominal, for BOTH languages (40.2% Hebrew, 39.7% Arabic).
+Real, disclosed noise in both — but nearly identical between the two
+languages, so it cannot be what makes Hebrew's precision collapse so much
+further than Arabic's.
+
+**The real cause, found by reading actual wrong-answer specimens rather
+than only the aggregate numbers:** of Hebrew's wrong end1 answers with
+the CORRECT verb already selected, several are not wrong readings at
+all — "gold subject: 'תוצאה' (the-result, split) | reader picked:
+'התוצאה' (the-result, glued)" is the SAME WORD, reported two different
+ways. `UD_Hebrew-HTB`'s own gold tokenisation routinely splits the
+definite article ה into its own syntactic token (an annotation
+convention S118 already names — "Hebrew/Arabic glue determiners/
+conjunctions/prepositions directly onto the next word with no space");
+this reader's own output is the RAW SURFACE FORM as actually written
+("התוצאה"), by design (P5.2: faithful to the bytes), never a stem
+invented for comparison's sake. A byte-for-byte string match between the
+two was therefore failing on a REAL, semantically correct answer purely
+because of how one treebank happens to tokenise its own gold data —
+never because the reader misread anything.
+
+**Measured precisely, and the Hebrew/Arabic asymmetry itself fully
+explained, not merely patched around.** Among Hebrew's correct-verb
+subset, 6 of 16 end1 "wrong" answers are exactly this mismatch — peeling
+the reader's own already-discovered proclitic set (S118) from its raw
+output makes it match gold's split form exactly. Checked directly why
+Arabic never shows this: `UD_Arabic-PADT`'s own gold FORM column NEVER
+splits the definite article ال into its own token in this fixture — 4120
+gold NOUN/PROPN forms keep it glued, confirmed by direct count — so
+Arabic's raw-surface output already matches gold's own representation by
+construction. This is not a difference in READER quality between the two
+languages; it is a difference in how each treebank tokenises its own gold
+data, invisible until the actual specimens were read rather than only the
+aggregate precision number.
+
+**Fixed at the MEASUREMENT, never the reader's own output.** The reader
+keeps returning faithful raw surface forms — that is correct, arguably
+MORE faithful than a stripped stem would be, and changing it would be
+fixing an evaluation artifact by making production output worse.
+`eval/positional-relations-eval.mjs`'s own full-pipeline comparison
+(`matches(readWord, goldForm)`) now accepts either the raw form (Arabic's
+own case, and any Hebrew word gold happens to leave glued) or its
+discovered-proclitic-peeled stem (Hebrew's own MWT-split case) — reusing
+S118's own `peelProclitics` directly, never a second stripping rule.
+
+**Measured, both languages:** Hebrew full-pipeline end1 precision
+26.1%→60.9% (recall 7.8%→18.2%, now approaching its own isolated
+precision of 68.6% rather than sitting at roughly a third of it); end2
+unchanged (33.3%) — a real, disclosed, structural finding rather than an
+incomplete fix: this specific tiny sample (5 correct-verb object cases)
+happened to show zero proclitic mismatches, plausibly because Hebrew
+subjects in this news-register material (definite, given-information
+topics — "the result," "the team") carry the ה-prefix far more often than
+objects do; not chased further this pass. Arabic is byte-identical before
+and after, exactly as the root-cause measurement predicted (PADT never
+splits ال, so nothing for the fix to catch).
+
+**The reframe earned its keep.** Precision, not recall, was the metric
+that surfaced this — a recall-only view would have shown "more found" as
+the goal and never asked WHY a correct-verb, seemingly-sound answer was
+being marked wrong. Retroactive surprise, concretely: for months the
+reader's own most faithful, correct answers on Hebrew news prose were
+being SCORED as wrong by an evaluation artifact, making a working
+mechanism look far more broken than it is.
+
+**Files.** `eval/positional-relations-eval.mjs` (`matches`, the full-
+pipeline comparison only — the isolated measurement compares gold token
+IDs directly and was never affected by this). No change to
+`relations-positional.js`, `build-role-config.mjs`, or either role-config
+JSON — this is a measurement fix, not a mechanism change. Verified:
+`tests/relations-positional.test.js` 6/6 unchanged; the broader native
+suite (1495 cases) shows the same 11 pre-existing, unrelated failures
+before and after, zero regressions.

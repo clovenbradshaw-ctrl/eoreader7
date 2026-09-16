@@ -15,6 +15,7 @@ import {
   looksLikeChallenge,
   decodeEntities,
   extractReadable,
+  blankSpans,
   extractFeed,
   feedText,
   extractUrls,
@@ -105,6 +106,133 @@ test("extractReadable on a real page keeps the article, drops the chrome", (t) =
   assert.ok(out.text.includes("Tolstoy"));
   assert.ok(!/mw-parser|\{|function\s*\(/.test(out.text.slice(0, 4000)), "no code residue near the head");
   assert.ok(out.text.length > 10_000, "the whole article, not a summary");
+});
+
+// ── the furniture SURVEY on `role="navigation"`, whatever tag carries it ────
+// rashomon-contrast-RESULTS.md's own "next 1": a Wikipedia navbox is
+// `<div role="navigation" class="navbox">`, never a `<nav>` element, so the
+// tag-name DROP_CONTAINER list never touched it and a navbox's own link text
+// (a Tolstoy short-story title, a Napoleonic-Wars battle name) rode through
+// as ordinary body text and downstream got admitted as a referent candidate.
+//
+// The wall is deliberately NOT built here as another DROP_CONTAINER entry.
+// commitments.js's own header names why: deciding at EXTRACTION that text is
+// furniture is silent and irreversible ("the note never exists, so a wrong
+// call cannot be found or taken back"), and S51 measured the concrete danger
+// — a navbox row and a line of screenplay dialogue are the same shape.
+// So `text` here carries EVERY byte exactly as it would with no navbox
+// awareness at all (asserted below against the untouched fixture output);
+// `navSpans` only SURVEYS which ranges of that same text came from a
+// role="navigation" region, for a caller to blank (via `blankSpans`) at the
+// point that actually decides identity — the referent-admission wall, not
+// extraction.
+test("extractReadable surveys a role=\"navigation\" region on a non-nav tag (nested divs and all) without touching text", () => {
+  const html = `<body><main><p>Real article prose about the battle.</p>
+<div role="navigation" class="navbox"><div class="navbox-inner">
+  <div class="navbox-group">Works by Leo Tolstoy</div>
+  <ul><li><a href="/wiki/Walk_in_the_Light">Walk in the Light While There is Light</a></li>
+  <li><a href="/wiki/Story_of_One_Appointment">Story of One Appointment</a></li></ul>
+</div></div>
+<p>More real article prose after the navbox.</p></main></body>`;
+  const out = extractReadable(html);
+  assert.ok(out.text.includes("Real article prose about the battle."));
+  assert.ok(out.text.includes("More real article prose after the navbox."));
+  // nothing is removed — the navbox's own words are still in `text`
+  assert.ok(out.text.includes("Walk in the Light While There is Light"));
+  assert.ok(out.text.includes("Story of One Appointment"));
+  assert.ok(out.text.includes("Works by Leo Tolstoy"));
+  // but the survey knows exactly where that furniture sits
+  assert.equal(out.navSpans.length, 1);
+  const nav = out.text.slice(out.navSpans[0].start, out.navSpans[0].end);
+  assert.ok(nav.includes("Walk in the Light While There is Light"));
+  assert.ok(!nav.includes("Real article prose"));
+  assert.ok(!nav.includes("More real article prose"));
+  // and blanking exactly that span (never deleting) removes the furniture
+  // while leaving everything else — length included — untouched
+  const blanked = blankSpans(out.text, out.navSpans);
+  assert.equal(blanked.length, out.text.length);
+  assert.ok(!blanked.includes("Walk in the Light While There is Light"));
+  assert.ok(blanked.includes("Real article prose about the battle."));
+  assert.ok(blanked.includes("More real article prose after the navbox."));
+});
+
+test("extractReadable: an unclosed role=\"navigation\" region is surveyed to the end of the document, text still untouched", () => {
+  const out = extractReadable(`<body><p>kept before</p><div role="navigation">also still in text, unclosed`);
+  assert.ok(out.text.includes("kept before"));
+  assert.ok(out.text.includes("also still in text"));
+  assert.equal(out.navSpans.length, 1);
+  const blanked = blankSpans(out.text, out.navSpans);
+  assert.ok(blanked.includes("kept before"));
+  assert.ok(!blanked.includes("also still in text"));
+});
+
+test("extractReadable: role=\"navigation\" on an unrelated element (case/whitespace) is still surveyed, an unrelated role is not", () => {
+  const out = extractReadable(`<body><p>keep this</p><table ROLE = "Navigation"><tr><td>surveyed as furniture</td></tr></table><p role="main">also keep this</p></body>`);
+  assert.ok(out.text.includes("keep this"));
+  assert.ok(out.text.includes("also keep this"));
+  assert.ok(out.text.includes("surveyed as furniture"));
+  assert.equal(out.navSpans.length, 1);
+  const blanked = blankSpans(out.text, out.navSpans);
+  assert.ok(!blanked.includes("surveyed as furniture"));
+  assert.ok(blanked.includes("keep this"));
+  assert.ok(blanked.includes("also keep this"));
+});
+
+test("blankSpans: length-preserving, newlines survive inside a blanked range, unsorted/overlapping ranges handled", () => {
+  const text = "AAAA\nBBBB\nCCCC";
+  const out = blankSpans(text, [{ start: 5, end: 9 }]);
+  assert.equal(out.length, text.length);
+  assert.equal(out, "AAAA\n    \nCCCC");
+  const overlapping = blankSpans(text, [{ start: 5, end: 9 }, { start: 6, end: 12 }, { start: 0, end: 2 }]);
+  assert.equal(overlapping.length, text.length);
+  assert.equal(overlapping, "  AA\n    \n  CC");
+  assert.ok(!overlapping.includes("BBBB"));
+});
+
+test("extractReadable on the real Borodino/War-and-Peace fixtures: the reported navbox debris is surveyed, then removable without loss", (t) => {
+  let borodino, warAndPeace;
+  try {
+    borodino = readFileSync(new URL("../eval/the-fold/fixtures/wikipedia-battle-of-borodino.html", import.meta.url), "utf8");
+    warAndPeace = readFileSync(new URL("../eval/the-fold/fixtures/wikipedia-war-and-peace.html", import.meta.url), "utf8");
+  } catch {
+    t.skip("fixtures not present");
+    return;
+  }
+  const bor = extractReadable(borodino);
+  const wp = extractReadable(warAndPeace);
+  // nothing was deleted at extraction — the exact debris named in
+  // rashomon-contrast-RESULTS.md is still in `text`, exactly as it always was
+  assert.ok(wp.text.includes("Walk in the Light While There is Light"));
+  assert.ok(wp.text.includes("Story of One Appointment"));
+  assert.ok(wp.text.includes("A Dialogue Among Clever People"));
+  assert.ok(bor.text.includes("Battle of Mesoten"));
+  // the survey found real navbox regions on both real pages
+  assert.ok(wp.navSpans.length > 0);
+  assert.ok(bor.navSpans.length > 0);
+  // and blanking those (never removing from `text` itself) clears the
+  // debris a caller opts into refusing, while real article content survives.
+  // Borodino's "Battle of Mesoten" occurs three times: twice inside real
+  // navbox link lists (this wall's own target, both inside navSpans) and
+  // once inside a "prev/next battle" sequence table that carries no ARIA
+  // role at all — that third occurrence is the succession-box shape P82/P93
+  // already built `blankLabelRows` for, so it is asserted gone only once
+  // BOTH walls are composed, the way a real caller (rashomon-contrast.mjs)
+  // already composes them for cast-building.
+  const wpBlanked = blankSpans(wp.text, wp.navSpans);
+  const borNavOnly = blankSpans(bor.text, bor.navSpans);
+  assert.ok(!wpBlanked.includes("Walk in the Light While There is Light"));
+  assert.ok(!wpBlanked.includes("Story of One Appointment"));
+  assert.ok(!wpBlanked.includes("A Dialogue Among Clever People"));
+  assert.ok(wpBlanked.includes("Tolstoy"));
+  assert.equal(wpBlanked.length, wp.text.length);
+  assert.equal(borNavOnly.length, bor.text.length);
+  assert.ok(borNavOnly.includes("Kutuzov") || borNavOnly.includes("Kutúzov"));
+  // the two real navbox occurrences (the "Ekau, Riga, Dahlenkirchen,
+  // Mesoten…" battle lists) are gone; the lone succession-box occurrence
+  // (a different furniture shape, a different wall's job) is still there
+  const mesotenCount = (s) => (s.match(/Mesoten/g) ?? []).length;
+  assert.equal(mesotenCount(bor.text), 3);
+  assert.equal(mesotenCount(borNavOnly), 1);
 });
 
 // ── explicit URLs named in a message (2026-08-18) ───────────────────────────

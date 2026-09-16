@@ -352,6 +352,30 @@ export const CAPACITIES = Object.freeze([
     fn: "dream",
     what: "the night: the offline rhythm that turns a day's deposits into a standing field — the elenchus (the witness at the door, corroborateLedger, the measured paraphrase-wall lever under a declared ask budget, P9) promotes or holds each single-witness note, the chemistry's licensed products are heard back, and the morning projects the MORTAL FIELD over the IMMORTAL ledger (projectField): what stands (>=2 sources) or is still within the reach of the present primes the next read; the rest falls to the echo — still on the record, by address, out of the field. Forgetting is a projection decision, never a deletion. Typing mirrors the reading regime's own re-zero (`regime`, REC·Atmosphere): a new ambient ground begins.",
   }),
+
+  // ── the master positional reader (2026-09-16, READING-SPEC.md S118-S122)
+  // ─────────────────────────────────────────────────────────────────────
+  //
+  // A second CON·Figure row, sharing `relations`' own cell — a same-cell
+  // sibling, not new territory (the cell was already occupied; `derive`
+  // and `graph` already establish this registry allows more than one row
+  // per cell, checked directly against the real table rather than assumed —
+  // Opencode archon sources, 2026-09-16). Checked and found NOT a drop-in
+  // to `hypergraph.js::makeCaseMarkedRelationReader`'s existing injection
+  // slot either (that factory forwards only `{casePrior}` and reads
+  // `.case`/`.number` into its own detail shape; this organ's options and
+  // detail shape do not fit it unmodified) — reference-only here for the
+  // same reason: this reader composes with the-fold's `grounding-gfp.js`
+  // directly (`makePositionalSlots`), not through `capacity-runner.js`, so
+  // running it from the terminal still returns `not_yet_executable`.
+  Object.freeze({
+    id: "positionalSlots",
+    terrain: "Link",
+    op: "CON",
+    module: "eoreader7/native/adapters/text/relations-positional.js",
+    fn: "makePositionalSlots",
+    what: "a language's clause-level role-assignment as a `slotsOf(text)` organ for the-fold's `grounding-gfp.js::makeGfpGround` ('role assignment is the language's own eigenvalue... a caller reading an inflectional, Semitic or CJK text injects that language's own slot organ') — a `RoleConfig@1` (position + a family-wise-corrected marker, S122) derived mechanically from a UD treebank's own gold dependency annotations, never hand-typed grammar. Composed end to end against the REAL, unmodified GFP/kernel modules on two real UD test-split specimens, Hebrew and Arabic (tests/relations-positional.test.js). Measured isolated role-assignment recall/precision (given the gold verb, S121's head-of-phrase filter shipped): Hebrew end1 31.2%/68.6%, end2 34.4%/84.6%; Arabic end1 16.5%/100%, end2 34.0%/85.0% — comparable to or better than `relations-case-marked.js`'s own shipped Latin numbers. Verb-finding coverage (not role-assignment) is the disclosed, unresolved bottleneck: full-pipeline recall runs 3-5x below isolated recall on both languages.",
+  }),
 ]);
 
 const byId = new Map(CAPACITIES.map((c) => [c.id, c]));

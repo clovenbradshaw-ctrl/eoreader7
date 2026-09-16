@@ -3,10 +3,51 @@ import { DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS, COPULA_PARADIGM, SUBJECT_
 const WORD = /\p{L}[\p{L}\p{M}'’]*/gu;
 const TITLE = /^\p{Lu}/u;
 const LOWER = /^\p{Ll}/u;
-const DETERMINERS = new Set([...DEFINITE_DETERMINERS, ...INDEFINITE_DETERMINERS]);
 const APPOSITIONAL_DELIMITER = /^\s*[,;:—–-]\s*$/u;
 const APPOSITIONAL_CLOSE = /^\s*[,;:—–-]/u;
 const norm = (x) => String(x ?? "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+
+// ── SCRIPT-AGNOSTIC NAMING/DESCRIPTOR TESTS (added 2026-09-15) ──────────────
+//
+// `TITLE`/`LOWER` are a fact about English/Latin orthography — a naming
+// token is capitalised, a descriptor is not. On a caseless script (Hebrew,
+// Arabic) that distinction does not exist at all (surfaces.js's own
+// `scriptCoverage` names this the SAME structural gap this file inherited
+// blindly until now: "the mechanism cannot fire on it at all").
+//
+// The fix is the SAME asymmetric admit-the-unseen gate `heard-surfaces.js`
+// already validated for exactly this class of problem: a token the received
+// POS prior SETTLES into a genuinely naming class (PROPN) or has NEVER SEEN
+// at all is a naming-token candidate; a token it settles into any other
+// class is not. A descriptor token, the opposite way, must SETTLE as an
+// ordinary common-word class (NOUN/ADJ) or the coordinator joining two of
+// them (CCONJ — "philosopher AND mathematician") — an unseen or ambiguous
+// token cannot serve as the descriptor, because the whole point of a
+// descriptor is that it is an ORDINARY, already-known word.
+//
+// Switched ATOMICALLY, mirroring `heardSurfaces`' own `gated` pattern: when
+// the full `{posPrior, classifyWord, dominantClass}` bundle is supplied,
+// EVERY naming/descriptor test in this file switches to the prior-based one;
+// omitted (every existing caller today), behaviour is byte-identical to
+// before this existed. The two modes are never blended.
+const DESCRIPTOR_CLASSES = Object.freeze(new Set(["NOUN", "ADJ"]));
+const CONJUNCTION_CLASSES = Object.freeze(new Set(["CCONJ"]));
+
+const namingTokenTest = (posPrior, classifyWord, dominantClass, classShare) => {
+  if (!(posPrior && classifyWord && dominantClass)) return (token) => TITLE.test(token);
+  return (token) => {
+    const d = dominantClass(classifyWord(token, { posPrior }), { minShare: classShare });
+    return !d || !d.upos || d.upos === "PROPN"; // unsettled/unseen, or a settled PROPN
+  };
+};
+
+const descriptorTokenTest = (posPrior, classifyWord, dominantClass, classShare) => {
+  if (!(posPrior && classifyWord && dominantClass)) return (token) => LOWER.test(token);
+  return (token) => {
+    const d = dominantClass(classifyWord(token, { posPrior }), { minShare: classShare });
+    return !!(d && d.upos && (DESCRIPTOR_CLASSES.has(d.upos) || CONJUNCTION_CLASSES.has(d.upos)));
+  };
+};
 
 const rows = (text) => [...String(text ?? "").matchAll(WORD)].map((m, at) => ({
   token: m[0],
@@ -16,27 +57,59 @@ const rows = (text) => [...String(text ?? "").matchAll(WORD)].map((m, at) => ({
   charEnd: m.index + m[0].length,
 }));
 
-const supportEvidence = (text, witness, giver) => {
+/**
+ * `determiners` — injected, defaulting to `DEFINITE_DETERMINERS ∪
+ * INDEFINITE_DETERMINERS` (English, byte-identical to before this existed).
+ * A caller reading Hebrew or Arabic supplies that language's OWN determiner
+ * forms — a received closed class with its own giver, never typed here
+ * (this file stays as ignorant of Hebrew/Arabic vocabulary as it already is
+ * of English's — see `native/READING-SPEC.md` S119 for how those forms are
+ * derived, mechanically, from the same UD treebanks this project's other
+ * priors already come from).
+ *
+ * `isNamingToken`/`isDescriptorToken` — injected directly when a caller has
+ * already composed its own test (an escape hatch for a caller with neither
+ * capitalisation nor a POS prior); otherwise derived from
+ * `posPrior`/`classifyWord`/`dominantClass` per the header above.
+ *
+ * BARE APPOSITION, no delimiter at all ("the philosopher Aristotle",
+ * "President Lincoln") — a real, distinct, ORDINARY shape neither English
+ * nor Hebrew/Arabic restrict to a comma. Measured live: the exact real
+ * specimen this generalisation was built for ("the philosopher and
+ * mathematician Pythagoras", real Arabic Wikipedia prose) carries NO
+ * delimiter before the name at all — requiring one, as this file did until
+ * now, refuses every bare apposition regardless of language. Landed as its
+ * own `text_bare_appositional_identity` reason, kept apart from the
+ * delimited `text_appositional_identity` above it, since a bare apposition
+ * is weaker evidence (no punctuation marking the boundary) and a consumer
+ * may want to weigh the two differently.
+ */
+const supportEvidence = (text, witness, giver, { determiners, isNamingToken, isDescriptorToken }) => {
   const rs = rows(text);
   const supports = [];
   for (let i = 0; i < rs.length; i += 1) {
-    if (!DETERMINERS.has(rs[i].key)) continue;
-    // Conservative English shape: determiner + 1..2 lowercase descriptor
-    // tokens + appositional delimiter + one Title-case naming token + close.
-    for (let nameAt = i + 2; nameAt <= Math.min(i + 3, rs.length - 1); nameAt += 1) {
-      if (!TITLE.test(rs[nameAt].token)) continue;
+    if (!determiners.has(rs[i].key)) continue;
+    // The descriptor span WIDENS past a fixed 1-2 token limit only through a
+    // CONJUNCTION joining two descriptor heads ("philosopher AND
+    // mathematician") — never open-ended, so "the tall dark handsome
+    // stranger Aristotle" (a genuine run of unconjoined descriptors) is
+    // deliberately NOT read; this closes exactly the coordinated-descriptor
+    // shape found live, nothing wider.
+    for (let nameAt = i + 2; nameAt <= Math.min(i + 5, rs.length - 1); nameAt += 1) {
+      if (!isNamingToken(rs[nameAt].token)) continue;
       const descriptorRows = rs.slice(i + 1, nameAt);
-      if (!descriptorRows.length || !descriptorRows.every((x) => LOWER.test(x.token))) continue;
+      if (!descriptorRows.length || !descriptorRows.every((x) => isDescriptorToken(x.token))) continue;
       const delimiter = text.slice(descriptorRows.at(-1).charEnd, rs[nameAt].charStart);
-      if (!APPOSITIONAL_DELIMITER.test(delimiter)) continue;
       const afterName = text.slice(rs[nameAt].charEnd, rs[nameAt + 1]?.charStart ?? text.length);
-      if (!APPOSITIONAL_CLOSE.test(afterName)) continue;
+      const delimited = APPOSITIONAL_DELIMITER.test(delimiter) && APPOSITIONAL_CLOSE.test(afterName);
+      const bare = /^\s+$/u.test(delimiter); // exactly whitespace: adjacent, no punctuation at all
+      if (!delimited && !bare) continue;
       supports.push(Object.freeze({
         left: [rs[i].key, ...descriptorRows.map((x) => x.key)].join(" "),
         right: rs[nameAt].key,
         witness,
         giver,
-        reason: "text_appositional_identity",
+        reason: delimited ? "text_appositional_identity" : "text_bare_appositional_identity",
       }));
     }
   }
@@ -71,11 +144,24 @@ const supportEvidence = (text, witness, giver) => {
  * This is EVIDENCE, never a verdict: it opens a `live_hypothesis` that
  * separated co-presence can still attack, exactly as apposition does.
  */
-const copularEvidence = (text, witness, giver) => {
+/**
+ * `copulaParadigm` — injected, defaulting to `COPULA_PARADIGM` (English,
+ * byte-identical to before this existed). DISCLOSED, NOT SILENTLY ABSENT:
+ * Hebrew and Arabic both routinely state a present-tense identity with NO
+ * overt copula at all (a "nominal sentence" — subject and predicate simply
+ * adjacent, e.g. Hebrew "X Y" for "X is Y"); this mechanism, structured
+ * around an OVERT copula token, cannot read that construction in ANY
+ * language, English included ("Dinah the cat" states nothing this file
+ * reads). A copula-derived closed class for Hebrew/Arabic (their own verbal
+ * "to be", attested in past/future — native/READING-SPEC.md S119) still
+ * earns real evidence on the tenses where the copula IS overt; the
+ * zero-copula gap is named rather than worked around here.
+ */
+const copularEvidence = (text, witness, giver, { determiners, copulaParadigm, subjectPronouns, neverAName, isNamingToken, isDescriptorToken }) => {
   const rs = rows(text);
   const supports = [];
   for (let i = 0; i < rs.length; i += 1) {
-    if (!TITLE.test(rs[i].token)) continue;                 // a naming token
+    if (!isNamingToken(rs[i].token)) continue;              // a naming token
     // "That was a narrow escape" must not open `a narrow escape <-> that`.
     // The first cut of this fix added a sentence-initial position rule for
     // that — wrong twice over: it breaks a legitimate name at position 0
@@ -83,11 +169,11 @@ const copularEvidence = (text, witness, giver) => {
     // first), and it was unnecessary, because "that" is ALREADY in both
     // DEFINITE_DETERMINERS and SUBJECT_PRONOUNS. The received closed classes
     // covered it; a new positional rule did not need inventing.
-    if (SUBJECT_PRONOUNS.has(rs[i].key) || NEVER_A_NAME.has(rs[i].key) || DETERMINERS.has(rs[i].key)) continue;
+    if (subjectPronouns.has(rs[i].key) || neverAName.has(rs[i].key) || determiners.has(rs[i].key)) continue;
     const cop = rs[i + 1];
-    if (!cop || !COPULA_PARADIGM[cop.key]) continue;        // received copula
+    if (!cop || !copulaParadigm[cop.key]) continue;        // received copula
     const det = rs[i + 2];
-    if (!det || !DETERMINERS.has(det.key)) continue;        // nominal, not adjectival
+    if (!det || !determiners.has(det.key)) continue;        // nominal, not adjectival
     // ONE SITE, ONE HYPOTHESIS, AND THE MINIMAL NOMINAL. The first cut
     // emitted a hypothesis per descriptor length, so one piece of evidence
     // opened two overlapping live alternatives (`london <-> the capital` AND
@@ -98,7 +184,7 @@ const copularEvidence = (text, witness, giver) => {
     // prior it does not receive — "the cat", "the capital". A multi-word
     // nominal is real and unread here, named rather than guessed at.
     const descriptorRows = rs.slice(i + 3, i + 4);
-    if (!descriptorRows.length || !descriptorRows.every((x) => LOWER.test(x.token))) continue;
+    if (!descriptorRows.length || !descriptorRows.every((x) => isDescriptorToken(x.token))) continue;
     supports.push(Object.freeze({
       left: rs[i].key,
       right: [det.key, ...descriptorRows.map((x) => x.key)].join(" "),
@@ -201,15 +287,37 @@ const attackEvidence = (text, alternatives, supports, witness, giver) => {
 };
 
 /**
- * English identity evidence from already-witnessed text.
+ * Identity evidence from already-witnessed text — English by default,
+ * ANY language a caller supplies closed classes and/or a POS-prior bundle
+ * for (native/READING-SPEC.md S119).
  *
  * Apposition is support, not proof. Separated co-presentation of both sides of
  * a live alternative is incompatible multiplicity and attacks it. No synonymy,
  * similarity, or world knowledge is introduced here.
+ *
+ * Every closed class defaults to English (byte-identical to before this
+ * generalisation existed): `determiners`, `copulaParadigm`,
+ * `subjectPronouns`, `neverAName`. The naming/descriptor tests default to
+ * capitalisation and switch ATOMICALLY to the received-prior asymmetric gate
+ * only when the full `{posPrior, classifyWord, dominantClass}` bundle is
+ * supplied — never blended, matching `heardSurfaces`' own `gated` posture.
  */
-export function textIdentityEvidence(text, { alternatives = [], witness = null, giver = "lang/en:text-identity@1" } = {}) {
+export function textIdentityEvidence(text, {
+  alternatives = [], witness = null, giver = "lang/en:text-identity@1",
+  determiners = null, copulaParadigm = null, subjectPronouns = null, neverAName = null,
+  posPrior = null, classifyWord = null, dominantClass = null, classShare = 0.5,
+} = {}) {
   const source = String(text ?? "");
-  const supports = [...supportEvidence(source, witness, giver), ...copularEvidence(source, witness, giver)];
+  const dets = determiners ?? new Set([...DEFINITE_DETERMINERS, ...INDEFINITE_DETERMINERS]);
+  const cops = copulaParadigm ?? COPULA_PARADIGM;
+  const subjPron = subjectPronouns ?? SUBJECT_PRONOUNS;
+  const neverName = neverAName ?? NEVER_A_NAME;
+  const isNamingToken = namingTokenTest(posPrior, classifyWord, dominantClass, classShare);
+  const isDescriptorToken = descriptorTokenTest(posPrior, classifyWord, dominantClass, classShare);
+  const supports = [
+    ...supportEvidence(source, witness, giver, { determiners: dets, isNamingToken, isDescriptorToken }),
+    ...copularEvidence(source, witness, giver, { determiners: dets, copulaParadigm: cops, subjectPronouns: subjPron, neverAName: neverName, isNamingToken, isDescriptorToken }),
+  ];
   const attacks = attackEvidence(source, alternatives, supports, witness, giver);
   return Object.freeze({
     schema: "EOTextIdentityEvidence@1",

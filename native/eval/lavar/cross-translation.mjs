@@ -72,6 +72,18 @@ for (const v of versions) console.log(`  ${v.lang}: ${v.copulas.length} copula-c
 // paragraph ordinal across versions is the same passage, so a being named
 // in the same paragraph position is the SAME BEING — corroborated by the
 // copula anchor inside it and by shared company.
+//
+// THE MATCH IS PER-BEING, NEVER PER-PARAGRAPH. A paragraph's cast is many
+// beings; "some being is present in paragraph k in each language" is not
+// identity — it would fuse Buonaparte and Anna Pávlovna (measured, both are
+// in the same opening paragraphs). Identity is adjudicated between TWO named
+// beings whose OCCUPANCY profiles agree: the same surface keeps the same
+// company in the same aligned paragraph positions across versions. The
+// profile is the being's paragraph-occupancy vector (which aligned passages
+// mention it); two beings from different versions are a HOLDING when their
+// profiles share positions, and resolve to a meta-node when a THIRD version
+// names a being with the same shared profile (the Rosetta falsification — a
+// 2-of-3 match is incomplete adjudication, not identity).
 console.log(`\n— adjudicated meta-nodes (identity across versions, for-whom) —`);
 const metaNodes = [];
 // paragraph texts from the aligned corpus
@@ -86,29 +98,81 @@ const aligned = {
 const paras = (t) => (t ?? "").split(/\n\s*\n/).map((p) => p.replace(/\s+/g, " ").trim()).filter(Boolean);
 const paraOf = { eng: paras(aligned.eng), fra: paras(aligned.fra), rus: paras(aligned.rus) };
 console.log(`  aligned paragraphs: eng ${paraOf.eng.length} · fra ${paraOf.fra.length} · rus ${paraOf.rus.length}`);
-// for each version, which of its referent NODES appear in each paragraph
-const nodesInPara = {};
-for (const v of versions) {
+// per being: its paragraph-occupancy profile (the aligned positions that
+// mention its surface) — the structural identity signal.
+const profileOf = (v) => {
   const text = aligned[v.lang === "eng" ? "eng" : v.lang === "fra" ? "fra" : "rus"];
-  nodesInPara[v.lang] = [];
-  for (const p of (text ? paras(text) : [])) {
-    const present = v.nodes.filter((n) => {
-      const s = String(n.surface).toLowerCase();
-      return s.length >= 4 && p.toLowerCase().includes(s);
-    }).map((n) => n.surface);
-    nodesInPara[v.lang].push(present);
+  const all = text ? paras(text) : [];
+  return new Map(v.nodes.map((n) => {
+    const s = String(n.surface).toLowerCase();
+    if (s.length < 4) return [n.ref, []];
+    const occupied = [];
+    for (let i = 0; i < all.length; i++) if (all[i].toLowerCase().includes(s)) occupied.push(i);
+    return [n.ref, occupied];
+  }));
+};
+const profiles = Object.fromEntries(versions.map((v) => [v.lang, profileOf(v)]));
+// company overlap: two beings are corroborated as the same when their company
+// (the tokens recurring around their mentions) overlaps — the second signal.
+const companyOf = (v, ref) => v.nodes.find((n) => n.ref === ref)?.company ?? [];
+const jaccard = (a, b) => {
+  if (!a.length || !b.length) return 0;
+  const sa = new Set(a), sb = new Set(b);
+  let both = 0;
+  for (const x of sa) if (sb.has(x)) both += 1;
+  return both / (sa.size + sb.size - both);
+};
+// For each being in eng, find the being in each other version whose
+// paragraph-occupancy profile overlaps it most (the co-structural signal,
+// tolerant of the aligned files' small paragraph-splitting drift — eng 111 /
+// fra 107 / rus 106) — corroborated by shared company. A meta-node needs the
+// SAME being named in ALL versions (3-of-3), and the best partner must be
+// unambiguous (a clear margin over the second-best — otherwise it is an
+// incomplete adjudication, not identity).
+const occupiedOverlap = (a, b) => {
+  if (!a.length || !b.length) return 0;
+  const sa = new Set(a);
+  let both = 0;
+  for (const x of b) if (sa.has(x)) both += 1;
+  return both / Math.min(sa.size, b.length);
+};
+for (const engNode of versions[0].nodes) {
+  const engProfile = profiles.eng.get(engNode.ref) ?? [];
+  if (!engProfile.length) continue; // never named in an aligned paragraph — nothing to align
+  const partners = {};
+  let complete = true;
+  let ambiguous = false;
+  for (const v of versions.slice(1)) {
+    // rank this version's beings by co-structural overlap with the English
+    // being; keep the best ONLY if it is unambiguous (>=2x the runner-up).
+    const ranked = v.nodes
+      .map((n) => ({ node: n, overlap: occupiedOverlap(profiles[v.lang].get(n.ref) ?? [], engProfile) }))
+      .filter((r) => r.overlap > 0)
+      .sort((a, b) => b.overlap - a.overlap);
+    if (!ranked.length) { complete = false; break; }
+    const best = ranked[0];
+    const runnerUp = ranked[1]?.overlap ?? 0;
+    if (best.overlap < 2 * runnerUp && ranked.length > 1) { ambiguous = true; break; }
+    partners[v.lang] = {
+      ref: best.node.ref,
+      surface: best.node.surface,
+      overlap: best.overlap,
+      companyOverlap: jaccard(companyOf(v, best.node.ref), engNode.company),
+    };
   }
-}
-// align by paragraph ordinal: a being present in paragraph k of two versions
-// is adjudicated the SAME BEING (corroborated when a third version agrees).
-const N = Math.min(...Object.values(nodesInPara).map((a) => a.length));
-for (let i = 0; i < N; i++) {
-  const present = { eng: nodesInPara.eng[i] ?? [], fra: nodesInPara.fra[i] ?? [], rus: nodesInPara.rus[i] ?? [] };
-  const langsWith = Object.entries(present).filter(([, ns]) => ns.length).map(([l]) => l);
-  if (langsWith.length !== versions.length) continue; // a meta-node needs the being in ALL versions — the Rosetta falsification (a 2-of-3 match is an incomplete adjudication, not identity)
-  const metaId = `meta:para#${i}`;
-  metaNodes.push({ metaId, paragraph: i, present, agreement: langsWith.length, resolved: langsWith.length === versions.length });
-  if (metaNodes.length <= 10) console.log(`  ${metaId} (ALL ${langsWith.length}/${versions.length} versions agree): eng[${present.eng.join(",")}] fra[${present.fra.join(",")}] rus[${present.rus.join(",")}]`);
+  if (!complete || ambiguous) continue; // a 2-of-3 or ambiguous match is an incomplete adjudication (the Rosetta falsification)
+  const metaId = `meta:${engNode.surface.replace(/\s+/g, "_")}`;
+  metaNodes.push({
+    metaId,
+    present: { eng: engNode.surface, ...Object.fromEntries(Object.entries(partners).map(([l, p]) => [l, p.surface])) },
+    agreement: versions.length,
+    resolved: true,
+    overlap: Object.fromEntries(Object.entries(partners).map(([l, p]) => [l, +p.overlap.toFixed(2)])),
+    companyOverlap: Object.fromEntries(Object.entries(partners).map(([l, p]) => [l, +p.companyOverlap.toFixed(2)])),
+    paragraphPositions: engProfile.slice(0, 12),
+    basis: "overlapping paragraph-occupancy profiles across all versions (the co-structural signal), unambiguous per version, corroborated by shared company — identity exists only for-whom (S113)",
+  });
+  if (metaNodes.length <= 12) console.log(`  ${metaId} (ALL ${versions.length}/${versions.length} agree): eng[${engNode.surface}] fra[${partners.fra.surface}] rus[${partners.rus.surface}] (overlap ${partners.fra.overlap.toFixed(2)}/${partners.rus.overlap.toFixed(2)}, company ${partners.fra.companyOverlap.toFixed(2)}/${partners.rus.companyOverlap.toFixed(2)})`);
 }
 // write the meta-node ledger: the identity across versions, adjudicatedBy named.
 const out = {

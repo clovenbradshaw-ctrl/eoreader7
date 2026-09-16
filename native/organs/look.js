@@ -323,6 +323,66 @@ export function shouldLook({ fileName = "", text = "", isImage = false } = {}) {
   return { look: false, reason: null, ...scoreInfo };
 }
 
+// ── shouldLookPage: the web organ's trigger — should a fetched PAGE be
+//    LOOKED at, not just text-dumped? ───────────────────────────────────────
+// A website is read as its extracted text face today (web.js::extractReadable
+// — "a reader, not a browser": paragraph structure, nothing about layout). But
+// some pages ARE their layout, and the flat dump is structurally blind to it.
+// This names when the plain-text reading of a page is not the page. Pure,
+// declared inputs, testable — no render, no model, no I/O.
+//
+// Two verdicts are kept apart on purpose (measured: conflating them is how a
+// page with an ordinary infobox image would have auto-rendered on every
+// fetch):
+//   `signals` — the SURVEY: everything that could make a page worth looking
+//       at, including pages whose text extracted fine (embedded tables,
+//       images, SVG diagrams, iframes). Recorded on the history entry so /look
+//       and a reader can see why a page might deserve a look. A signal here is
+//       NOT a reason to auto-render.
+//   `auto` — CLEAR EXTRACTION AMBIGUITY, and only that: the text dump found
+//       nothing at all (a JS shell, an image-only page), or the extracted text
+//       itself reads wrong under the same weirdFormattingScore discipline the
+//       file reading already applies. Auto-look fires on THIS and nothing
+//       else — a page whose prose extracted fine is read fine as text, however
+//       many tables or images it carries.
+// The third path is the USER ASKING about what is on a page — the /look door
+// (always full) and the caller's own look-intent gate beside this trigger.
+const VISUAL_TAG_RE = /<(table|img|svg|picture|canvas|figure)\b/i;
+const EMBEDDED_MEDIA_RE = /<(iframe|object|embed)\b/i;
+
+export function shouldLookPage({ url = "", title = "", text = "", html = "" } = {}) {
+  const textStr = String(text ?? "");
+  const htmlStr = String(html ?? "");
+  const signals = [];
+  let auto = false;
+
+  if (!textStr.trim() && htmlStr.trim()) {
+    // The text dump found nothing where there ARE bytes — a script shell, an
+    // image-only page, a page whose content is rendered by JS the extractor
+    // never ran. The one case where the flat face is empty by definition —
+    // CLEAR extraction ambiguity, and the strongest auto signal there is.
+    signals.push("empty_face");
+    auto = true;
+  } else if (textStr.trim()) {
+    const scoreInfo = weirdFormattingScore(textStr);
+    if (scoreInfo.score > 0) {
+      // The extracted text itself reads wrong (table rows, box-drawing, a
+      // column) — the plain-text reader is reading THIS text wrong, not
+      // merely missing a nicer render of it. Clear extraction ambiguity.
+      signals.push(`weird_formatting:${scoreInfo.signals.join(",")}`);
+      auto = true;
+    }
+  }
+
+  // Survey-only. A page whose prose extracted fine is read fine as text; the
+  // presence of a table/image/iframe alone never auto-renders it.
+  if (VISUAL_TAG_RE.test(htmlStr)) signals.push("embedded_visual");
+  if (EMBEDDED_MEDIA_RE.test(htmlStr)) signals.push("embedded_media");
+
+  if (!signals.length) return { look: false, auto: false, reason: null, signals };
+  return { look: true, auto, reason: signals.join(","), signals };
+}
+
 const IMAGE_EXT = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".tiff", ".tif"]);
 export function isImageFileName(fileName) {
   return IMAGE_EXT.has(path.extname(fileName ?? "").toLowerCase());

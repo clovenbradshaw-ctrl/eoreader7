@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { hyperedge } from "../kernel/hypergraph.js";
 import { createHyperlexicon, giveHyperlexiconAffordance, admitHyperlexiconCandidates } from "../kernel/hyperlexicon.js";
-import { refuteRelation, auditChemistry, vetoedPairs } from "../kernel/refutation.js";
+import { refuteRelation, auditChemistry, vetoedPairs, voidCandidatesFrom } from "../kernel/refutation.js";
 import { createReactionSubstrate, closureAffordances, affordancesFromDeclarations } from "../kernel/reaction.js";
 import { createDeclarationLog, proposeCandidate, promote, concede, foldDeclarations } from "../interpretation/declarations.js";
 
@@ -133,6 +133,71 @@ test("edges with unresolved ends are counted, never silently dropped", () => {
   assert.equal(scan.ofEdges, 5);
   assert.equal(scan.examined, 4);
   assert.equal(scan.unresolved, 1);
+});
+
+// ── naming what `unresolved` only counts (VOIDs Nagarjuna hands a caller) ──
+
+test("an unresolved end is NAMED, not just counted — shaped exactly as declareVoid takes it", () => {
+  const half = hyperedge({
+    id: "e9", relation: "replaces",
+    participants: [{ ref: "a", standing: "referent" }, { ref: "occ:1", standing: "unresolved_surface" }],
+    witness: "text:9",
+  });
+  const scan = refuteRelation([...SUCCESSION, half], "replaces");
+  assert.equal(scan.voidCandidates.length, 1);
+  const [c] = scan.voidCandidates;
+  assert.equal(c.end1, "a", "the resolved end keeps its real identity");
+  assert.equal(c.label, "replaces");
+  assert.equal(c.end2, null, "the unresolved end never fabricates a referent");
+  assert.equal(c.edgeId, "e9");
+  assert.match(c.because, /the second end.*never resolved to a referent/);
+
+  // A fully-resolved scan (SUCCESSION alone) names nothing — no false positives.
+  assert.deepEqual(refuteRelation(SUCCESSION, "replaces").voidCandidates, []);
+});
+
+test("an unresolved end with no surface and no ref at all is filtered, never fabricated", () => {
+  const bare = hyperedge({
+    id: "e10", relation: "replaces",
+    participants: [{ standing: "unresolved_surface" }, { ref: "b", standing: "referent" }],
+    witness: "text:10",
+  });
+  const scan = refuteRelation([bare], "replaces");
+  assert.equal(scan.unresolved, 1, "still counted");
+  assert.deepEqual(scan.voidCandidates, [], "but nothing nameable was invented");
+});
+
+test("an unresolved_surface participant with no witness-kept surface names by its occurrence ref, the codebase's own existing fallback", () => {
+  const half = hyperedge({
+    id: "e11", relation: "seat",
+    participants: [{ ref: "occ:9", standing: "unresolved_surface" }, { ref: "hamlin", standing: "referent" }],
+    witness: "text:11",
+  });
+  const scan = refuteRelation([half], "seat");
+  assert.equal(scan.voidCandidates[0].end1, "occ:9");
+  assert.equal(scan.voidCandidates[0].end2, "hamlin");
+  assert.match(scan.voidCandidates[0].because, /the first end.*never resolved to a referent/);
+});
+
+test("voidCandidatesFrom aggregates every unresolved end across an audit's own scans, deduped", () => {
+  const half = hyperedge({
+    id: "e12", relation: "replaces",
+    participants: [{ ref: "a", standing: "referent" }, { ref: "occ:2", standing: "unresolved_surface" }],
+    witness: "text:12",
+  });
+  const chemistry = givenAll([{ left: "replaces", right: "replaces", giver: "g", witnesses: [], meta: { yields: "after", adjacency: "replaces" } }]);
+  const audit = auditChemistry([...SUCCESSION, half], chemistry);
+  const candidates = voidCandidatesFrom(audit);
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0].end1, "a");
+  assert.equal(candidates[0].edgeId, "e12");
+
+  // Deduped: the same audit run twice must not double the candidate.
+  const doubled = voidCandidatesFrom([...audit, ...audit]);
+  assert.equal(doubled.length, 1);
+
+  // An audit with nothing unresolved names nothing.
+  assert.deepEqual(voidCandidatesFrom(auditChemistry(SUCCESSION, chemistry)), []);
 });
 
 // ── the audit: given chemistry against what the material says ─────────────
