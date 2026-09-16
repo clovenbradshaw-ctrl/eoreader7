@@ -71,6 +71,11 @@ export function ethosClear(task, { disposition = null } = {}) {
     schema: "EthosClearance@1",
     cleared: !gate.refused,
     reason: gate.refused ? gate.reason : null,
+    // The judged SHAPE rides the clearance too, backstage — not for the
+    // surface (organs/socratic.js speaks the account a person or agent
+    // actually reads), but for the record, and for the account to be
+    // composed from a real judgment rather than a re-guess of it.
+    shape: gate.shape ?? null,
     voice: gate.voice ?? null,
     charterSha256: c.sha256,
     constitution: c.giver ?? null,

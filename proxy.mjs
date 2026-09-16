@@ -448,6 +448,7 @@ async function handleRequest(req, res) {
           answer: result.text,
           sessionId,
           model,
+          interlocutor: result.interlocutor ?? null,
           usage: { promptTokens: result.usage?.promptTokens ?? 0, completionTokens: result.usage?.completionTokens ?? 0 },
           relationEdges: result.relationEdges,
           referentBindings: result.referentBindings,

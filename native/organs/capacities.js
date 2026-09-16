@@ -140,6 +140,14 @@ export const CAPACITIES = Object.freeze([
     what: "WHO is at the door — an agent or a person (Buber, I and Thou) — distinguished MECHANICALLY from the request's own shape (doorway, user-agent, tool definitions, transcript), never asked of the model. DEF at Figure grain (distinguish the holder from the reading), the same Lens cell perspective.js and priors.js occupy for who-is-speaking. Held as a belief with a basis (witnessed/asserted), low-confidence, revisable, so the reader can MEET an agent or a person in the idiom each can receive — the register of the account it gives, never whether that account is honest.",
   }),
   Object.freeze({
+    id: "socratic",
+    terrain: "Lens",
+    op: "REC",
+    module: "socratic.js",
+    fn: "speakDecline",
+    what: "HOW the reader gives its account of a decline (Kierkegaard, indirect communication) — REC at Figure grain, the Generate-mode twin of interlocutor.js's DEF·Figure: composing the utterance FROM an already-judged shape, for one particular holder, landing on the same Lens terrain. The judgment stays in its own working vocabulary (SHAPE, FORECLOSE, STANDPOINT) for the record; this organ composes the plain-language account a person or agent actually reads, in the register interlocutor.js recognized — the same true reason and the same real alternative to both, never withheld from either.",
+  }),
+  Object.freeze({
     id: "skill",
     terrain: "Kind",
     op: "INS",

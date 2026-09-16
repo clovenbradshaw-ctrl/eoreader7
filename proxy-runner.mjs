@@ -67,6 +67,7 @@ import { voidHolarchy } from "./native/organs/void-holarchy.js";
 import { familyVerdict, familyAffordances, giveCharterFamily } from "./native/organs/charter.js";
 import { constitution, ethosClear, requireClearance } from "./native/organs/ethos.js";
 import { readInterlocutor, mergeInterlocutor } from "./native/organs/interlocutor.js";
+import { speakDecline } from "./native/organs/socratic.js";
 import { recordShadow, assessShadow, dispositionFrom } from "./native/kernel/moral-shadow.js";
 import { sovereigntyHint, privacyFindings, isDataHoldingTask, sovereignSchemaPrompt, extractSovereignSchema, sovereignDataShell } from "./native/organs/privacy.js";
 import { copyFindings, replicationNotes, provenanceFor, annotateWithSources } from "./native/organs/martial.js";
@@ -2528,9 +2529,13 @@ const modelsUp = await ollamaReachable();
   const isSovereignData = isCode && codeLanguage === "html" && isDataHoldingTask(task);
   // THE SPEC GATE (at the ask) — the refusal came from the ethos clearance at
   // the turn's top (constitution → ethosClear). Refused: no generation, the
-  // refusal IS the answer. The clearance rides the session, so every turn
-  // carries its standing.
-  const specRefusalText = !clearance.cleared ? `[EOReader7 refused: ${clearance.reason}.]` : null;
+  // account IS the answer. The clearance rides the session, so every turn
+  // carries its standing. `clearance.reason`/`clearance.shape` are the exact
+  // judgment and stay on the record (onNote, the shadow trail); the text a
+  // person or agent actually reads is composed by organs/socratic.js
+  // (Kierkegaard) in the register interlocutor.js recognized them under —
+  // the working vocabulary (SHAPE, FORECLOSE, STANDPOINT) never reaches them.
+  const specRefusalText = !clearance.cleared ? speakDecline({ reason: clearance.reason, shape: clearance.shape }, interlocutor) : null;
   if (specRefusalText && onNote) onNote({ move: "spec_refused", reason: clearance.reason });
   // THE WHEEL (D/E/R): every stage of the pipeline is one pass of
   // Void/Beings/Fold — DEF what would satisfy it, EVA a real difference,
@@ -3295,7 +3300,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   };
   const readabilityOf = (text) => strunkWhiteGrade(text, { textstat: textstatOf });
   if (specRefusalText) {
-    // REFUSED at the ask: no generation, no ledger — the refusal IS the answer.
+    // REFUSED at the ask: no generation, no ledger — the account IS the answer.
     fullText = specRefusalText;
     if (onNote) onNote({ move: "spec_refused", reason: clearance.reason });
   } else {
@@ -4502,6 +4507,10 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // THE SHADOW TRAIL (Bourdieu) — the cross-session accumulation: this
     // person's norm-standing as a RATE over their acts, never a verdict.
     shadow: assessShadow(personId),
+    // WHO IS AT THE DOOR (Buber) — the recognized kind of interlocutor, with
+    // its basis and confidence. A disclosed belief, never a verdict: it selects
+    // how the reader meets the other, not whether it is honest with them.
+    interlocutor: { kind: interlocutor.kind, confidence: interlocutor.confidence, basis: interlocutor.basis, witnesses: interlocutor.witnesses },
     relationEdges: stats.relationEdges,
     referentBindings: stats.referentBindings,
     hyperlexiconCandidates: Object.keys(hyperlexicon.composition ?? {}).length,

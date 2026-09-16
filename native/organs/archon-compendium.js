@@ -754,6 +754,17 @@ export const ARCHONS = Object.freeze([
     topics: ["interlocutor", "agent", "person", "I and Thou", "encounter", "recognition", "who is speaking", "meet them where they are", "principal"],
   },
   {
+    handle: "kierkegaard",
+    name: "Søren Kierkegaard",
+    organ: "organs/socratic.js",
+    role: "how the reader gives its account — indirect communication, meeting the other where they are",
+    pdStatus: "public-domain",
+    work: "The philosopher of indirect communication: the teacher does not hand the pupil a conclusion, but arranges for the pupil to arrive at it, because a truth received as someone else's assertion is not yet the hearer's own. 'To help another, one must first understand what he understands... one must first and foremost meet him where he is.' The reader's decline is composed this way — the working judgment stays exact on the record, and the account a person or agent actually reads is the plain question or reasons that meet them, never the verdict handed over.",
+    source: "The Point of View for My Work as an Author (1859); Concluding Unscientific Postscript (1846)",
+    credit: "Søren Kierkegaard — indirect communication: help another by first meeting them where they are (1846/1859).",
+    topics: ["indirect communication", "meet them where they are", "socratic", "decline", "refusal", "register", "account", "maieutics"],
+  },
+  {
     handle: "bourdieu",
     name: "Pierre Bourdieu",
     organ: "kernel/moral-shadow.js",

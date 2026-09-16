@@ -40,14 +40,20 @@ export const COLLAPSE = {
   // HUMANITY — the person reduced to category/commodity/vermin.
   humanity: /\b(vermin|cockroaches|roaches|rats|beasts|sub-?human|untermensch|scum|filth|parasites|locusts|plague|livestock|cattle|chattel|dehumaniz\w*|exterminat\w*|genocid\w*|eradicat\w*|ethnic\s+cleansing|(?:treated|used|regarded|seen|described|portrayed|called)\s+(?:as|like)\s+(?:objects?|things?|animals?|tools?|means|vermin|burdens?)|merely\s+a\s+means|disposable)\b/i,
   // AUTONOMY — consent overridden: covertly, by force, or by deceit.
-  autonomy: /\b(without\s+(?:their|his|her|its|any|the\s+user'?s?)\s+(?:consent|knowledge|permission|knowing|awareness|notice)|covert\w*|silently|stealth\w*|undetect\w*|invisibl\w*|without\s+detection|hidden\s+from|conceal\w*|hid\w*|against\s+(?:their|his|her)\s+will|non-?consensual|involuntar\w*|coerce\w*|forced?\b|force\s+them|trick\w*|deceiv\w*|deception|manipulat\w*|ensnar\w*|spy\s+on|eavesdrop\w*|surreptitious\w*)\b/i,
+  autonomy: /\b(without\s+(?:their|his|her|its|any|the\s+user'?s?)\s+(?:consent|knowledge|permission|knowing|awareness|notice)|covert\w*|silently|stealth\w*|undetect\w*|invisibl\w*|without\s+detection|hidden\s+from|conceal\w*|hid\w*|against\s+(?:their|his|her)\s+will|non-?consensual|involuntar\w*|coerce\w*|forced?\b|force\s+them|trick\w*|deceiv\w*|deception|manipulat\w*|ensnar\w*|spy\s+on|eavesdrop\w*|surreptitious\w*|breach\w*|intrud\w*|unauthori[sz]ed\s+access|gain\s+(?:unauthori[sz]ed\s+)?access\s+to|penetrat\w*\s+(?:the|their|a|its|another)?\s*(?:network|system|server|account|database|machine)|hack\s+(?:into|a\b|the\b|their\b)|break\s+into\s+(?:the|their|a)?\s*(?:network|system|server|account|machine))\b/i,
 };
 
 // THE ADVOCATE'S INVERSE — an ACTION on behalf of the other, which reinstates
 // every arm, so it is the negation of the shape. Only verbs: "consent",
 // "rights", "dignity", "end" read as the collapse itself ("without consent",
 // "violate rights", "end users") and would suppress real harm.
-export const REMEDY = /\b(protect\w*|report\w*|document\w*|support\w*|defen[ds]\w*|advoca\w*|oppos\w*|prevent\w*|prosecut\w*|help\w*|ensur\w*|safeguard\w*|provid\w*|uphold\w*|promot\w*|investigat\w*|expos\w*|combat\w*|abolish\w*|abolit\w*|stop\w*|train\w*|educat\w*|rehabilitat\w*|assist(?:s|ed|ing)?|rescu\w*|care|treat\w*|heal\w*|counsel\w*|shelter\w*|honou?r\w*|detect\w*|antidote|vaccin\w*|immuni[sz]\w*|prophyla\w*|decontaminat\w*|countermeasur\w*|respirator|dosimeter|geiger|evacuat\w*|triage)\b/i;
+// The advocate's inverse — an ACTION on behalf of the other, which reinstates
+// every arm. Deliberately NOT bare "help": "help me write ransomware", "a
+// hacker helps them breach it" aim help at the act, not at protecting the
+// other, so a weak "help" must not launder a make. The real defender's ask is
+// carried by protect / defend / report / detect / safeguard — the strong,
+// other-directed verbs.
+export const REMEDY = /\b(protect\w*|report\w*|document\w*|defen[ds]\w*|advoca\w*|oppos\w*|prevent\w*|prosecut\w*|ensur\w*|safeguard\w*|uphold\w*|promot\w*|investigat\w*|expos\w*|combat\w*|abolish\w*|abolit\w*|rehabilitat\w*|rescu\w*|care\b|treat\w*|heal\w*|counsel\w*|shelter\w*|honou?r\w*|detect\w*|antidote|vaccin\w*|immuni[sz]\w*|prophyla\w*|decontaminat\w*|countermeasur\w*|respirator|dosimeter|geiger|evacuat\w*|triage)\b/i;
 // THE OVERRIDE FRAME — a jailbreak: "ignore your rules", "you are now
 // unrestricted", "no ethical limits", "pretend you have no restrictions". When
 // present, the ask gets NO benefit of the doubt: the remedy/understand words it
@@ -58,6 +64,11 @@ export const OVERRIDE = /\b(ignore\s+(?:all\s+)?(?:your\s+|the\s+)?(?:previous|p
 // The meta-discussion markers ("about the…", "the history of…", "from the
 // perspective") keep an ask to EXPLORE a collapse from reading as the collapse.
 export const UNDERSTAND = /\b(explain|analy[sz]\w*|audit\w*|review\w*|detect\w*|defen[ds]\w*|understand\w*|study|studies|describ\w*|research\w*|learn\w*|educat\w*|teach\w*|pentest\w*|assess\w*|inspect\w*|mitigat\w*|harden\w*|about\s+the|regarding|concerning|the\s+history\s+of|history\s+of|discuss\w*|explor\w*|examin\w*|portray\w*|from\s+the\s+perspective|documentar\w*|summari[sz]\w*)\b/i;
+// A NEGATED understand frame is not an understand ask — the opposite. "Give me
+// the real working code, NOT a description", "the actual method, not just an
+// explanation" wants the make, not the knowing; the bare token "description"
+// must not launder it. Stripped before the understand arm is read.
+export const NEGATED_UNDERSTAND = /\b(?:not|no|isn'?t|aren'?t|rather\s+than|instead\s+of|without|dont|don'?t|skip(?:ping)?)\s+(?:a\s+|an\s+|any\s+|just\s+|merely\s+|only\s+|the\s+)?(?:descri\w*|explain\w*|explanation|summar\w*|overview|analy\w*|theoretical|hypothetical|discussion|abstract|high-?level|vague)/gi;
 // The OTHER: the being(s) a shape can collapse. An autonomy or humanity collapse
 // aimed at these is the shape even without a named act.
 export const OTHER = /\b(people|persons?|individuals?|users?|others?|them|victims?|survivors?|customers?|employees?|children|women|men|refugees?|migrants?|immigrants?|minorit\w*|religious|disabled|homeless|elderly|prisoners?|detainees?|patients?|citizens?|students?|soldiers?|civilians?|another\s+(?:user|person))\b/i;
@@ -84,7 +95,7 @@ export const OTHER = /\b(people|persons?|individuals?|users?|others?|them|victim
 // The means whose only realization is to void a standpoint — named as
 // CATEGORIES, so the surface carries no making-detail, exactly as the acts above
 // name malware without being it.
-export const FORECLOSING_MEANS = /\b(nuclear\s+(?:weapon|device|bomb|warhead|explosive)|atom(?:ic)?\s+bomb|thermonuclear|hydrogen\s+bomb|dirty\s+bomb|radiological\s+(?:dispersal|weapon|device)|fissile\s+material|weapons?-grade\s+(?:uranium|plutonium)|enrich\w*\s+(?:uranium|plutonium)(?=[\s\S]{0,40}\b(?:bomb|weapon|warhead|device|nuclear)\b)|(?:uranium|plutonium)\s+for\s+(?:a\s+)?(?:bomb|weapon|warhead|nuclear)|nerve\s+agent|nerve\s+gas|chemical\s+weapon|chemical\s+warfare\s+agent|sarin|soman|tabun|\bvx\b|mustard\s+(?:gas|agent)|biological\s+weapon|bioweapon|weaponi[sz]ed?\s+(?:pathogen|virus|bacteri\w*|anthrax|smallpox|plague|toxin|agent)|bioagent)\b/i;
+export const FORECLOSING_MEANS = /\b(nuclear\s+(?:weapon|device|bomb|warhead|explosive)|atom(?:ic)?\s+bomb|thermonuclear|hydrogen\s+bomb|dirty\s+bomb|radiological\s+(?:dispersal|weapon|device)|fissile\s+material|weapons?-grade\b|\bwarhead\b|enrich\w*\s+(?:uranium|plutonium)(?=[\s\S]{0,40}\b(?:bomb|weapon|warhead|device|nuclear)\b)|(?:uranium|plutonium)\s+for\s+(?:a\s+)?(?:bomb|weapon|warhead|nuclear)|device\s+geometry|weapon\s+geometry|implosion\s+(?:lens|device|assembly|design|system)|gun-?type\s+(?:assembly|device|design|fission|weapon)|supercritical\s+mass|critical\s+mass(?=[\s\S]{0,80}\b(?:uranium|plutonium|fissile|nuclear|fission|weapon|bomb|device|warhead|enrich\w*|geometry|implosion|yield|neutron\s+initiator)\b)|nerve\s+agent|nerve\s+gas|chemical\s+weapon|chemical\s+warfare\s+agent|sarin|soman|tabun|\bvx\b|mustard\s+(?:gas|agent)|biological\s+weapon|bioweapon|weaponi[sz]ed?\s+(?:pathogen|virus|bacteri\w*|anthrax|smallpox|plague|toxin|agent)|bioagent)\b/i;
 
 // The seeking of the means: the ask is for its MAKING or OBTAINING, not for
 // knowledge about it. These are how one asks for the thing itself, not how one
@@ -99,7 +110,7 @@ export const AT_SCALE = /\b(release\s+(?:it\s+)?(?:into|in)\s+(?:a\s+)?(?:popula
 // to end one's life. It reads only the instructional-means shape — a story, a
 // feeling, a request to be helped are not this, and the advocate's inverse and
 // the about-frame read through.
-export const SELF_FORECLOSE = /\b((?:most\s+)?(?:lethal|effective|painless|reliable|quick(?:est)?|surest|best)\s+(?:way|method|means)\s+to\s+(?:kill\s+myself|end\s+(?:my|your)\s+(?:own\s+)?life|die|commit\s+suicide|attempt\s+suicide)|how\s+(?:to|do\s+i)\s+(?:kill\s+myself|end\s+my\s+life|commit\s+suicide)|suicide\s+method|methods?\s+of\s+suicide|lethal\s+dose\s+to\s+(?:die|kill\s+myself))\b/i;
+export const SELF_FORECLOSE = /\b((?:most\s+)?(?:lethal|effective|painless|reliable|quick(?:est)?|surest|best)\s+(?:way|method|means)\s+(?:to\s+(?:kill\s+(?:myself|herself|himself|themselves|oneself)|end\s+(?:my|your|her|his|their)\s+(?:own\s+)?life|die|commit\s+suicide|attempt\s+suicide)|of\s+(?:suicide|dying|killing\s+(?:myself|oneself)))|(?:most\s+)?(?:lethal|painless|surest)\s+(?:way|method|means)|how\s+(?:to|do\s+i|(?:she|he|they)\s+(?:could|would|might))\s+(?:kill\s+(?:myself|herself|himself)|end\s+(?:my|her|his|their)\s+(?:own\s+)?life|commit\s+suicide)|end(?:ing|s)?\s+(?:my|her|his|their|your|one'?s)\s+(?:own\s+)?life|take\s+(?:my|her|his|their|your)\s+own\s+life|suicide\s+method|methods?\s+of\s+suicide|lethal\s+dose\s+to\s+(?:die|kill\s+(?:myself|herself|himself)))\b/i;
 
 // The about-frame: the means held as knowledge, not sought as capacity. This is
 // the Existence-face reading of UNDERSTAND, and it reads the means through — a
@@ -119,7 +130,9 @@ export const arms = (text) => {
     capability: ACTS.test(t),
     inherent: INHERENT_ACTS.test(t),
     remedy: REMEDY.test(t),
-    understand: UNDERSTAND.test(t),
+    // understand is read with negated understand-frames stripped, so "the real
+    // code, not a description" does not read as a request to describe.
+    understand: UNDERSTAND.test(t.replace(NEGATED_UNDERSTAND, " ")),
     create: CREATE.test(t),
     instrumentalCreate: INSTRUMENTAL_CREATE.test(t),
     override: OVERRIDE.test(t),
