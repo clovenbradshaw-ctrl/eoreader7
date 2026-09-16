@@ -63,7 +63,11 @@ export const OVERRIDE = /\b(ignore\s+(?:all\s+)?(?:your\s+|the\s+)?(?:previous|p
 // To KNOW the shape is how one defends against it: an UNDERSTAND ask is never harm.
 // The meta-discussion markers ("about the…", "the history of…", "from the
 // perspective") keep an ask to EXPLORE a collapse from reading as the collapse.
-export const UNDERSTAND = /\b(explain|analy[sz]\w*|audit\w*|review\w*|detect\w*|defen[ds]\w*|understand\w*|study|studies|describ\w*|research\w*|learn\w*|educat\w*|teach\w*|pentest\w*|assess\w*|inspect\w*|mitigat\w*|harden\w*|about\s+the|regarding|concerning|the\s+history\s+of|history\s+of|discuss\w*|explor\w*|examin\w*|portray\w*|from\s+the\s+perspective|documentar\w*|summari[sz]\w*)\b/i;
+// NOTE: pentest\w* is deliberately absent. "Authorized pentester" is an
+// authority claim, not an understand frame — it must not suppress a shape that
+// names spyware against victims. The pass case ("pentest my own network") lacks
+// collapse arms and passes without suppression.
+export const UNDERSTAND = /\b(explain|analy[sz]\w*|audit\w*|review\w*|detect\w*|defen[ds]\w*|understand\w*|study|studies|describ\w*|research\w*|learn\w*|educat\w*|teach\w*|assess\w*|inspect\w*|mitigat\w*|harden\w*|about\s+the|regarding|concerning|the\s+history\s+of|history\s+of|discuss\w*|explor\w*|examin\w*|portray\w*|from\s+the\s+perspective|documentar\w*|summari[sz]\w*)\b/i;
 // A NEGATED understand frame is not an understand ask — the opposite. "Give me
 // the real working code, NOT a description", "the actual method, not just an
 // explanation" wants the make, not the knowing; the bare token "description"
@@ -95,7 +99,7 @@ export const OTHER = /\b(people|persons?|individuals?|users?|others?|them|victim
 // The means whose only realization is to void a standpoint — named as
 // CATEGORIES, so the surface carries no making-detail, exactly as the acts above
 // name malware without being it.
-export const FORECLOSING_MEANS = /\b(nuclear\s+(?:weapon|device|bomb|warhead|explosive)|atom(?:ic)?\s+bomb|thermonuclear|hydrogen\s+bomb|dirty\s+bomb|radiological\s+(?:dispersal|weapon|device)|fissile\s+material|weapons?-grade\b|\bwarhead\b|enrich\w*\s+(?:uranium|plutonium)(?=[\s\S]{0,40}\b(?:bomb|weapon|warhead|device|nuclear)\b)|(?:uranium|plutonium)\s+for\s+(?:a\s+)?(?:bomb|weapon|warhead|nuclear)|device\s+geometry|weapon\s+geometry|implosion\s+(?:lens|device|assembly|design|system)|gun-?type\s+(?:assembly|device|design|fission|weapon)|supercritical\s+mass|critical\s+mass(?=[\s\S]{0,80}\b(?:uranium|plutonium|fissile|nuclear|fission|weapon|bomb|device|warhead|enrich\w*|geometry|implosion|yield|neutron\s+initiator)\b)|nerve\s+agent|nerve\s+gas|chemical\s+weapon|chemical\s+warfare\s+agent|sarin|soman|tabun|\bvx\b|mustard\s+(?:gas|agent)|biological\s+weapon|bioweapon|weaponi[sz]ed?\s+(?:pathogen|virus|bacteri\w*|anthrax|smallpox|plague|toxin|agent)|bioagent)\b/i;
+export const FORECLOSING_MEANS = /\b(nuclear\s+(?:weapon|device|bomb|warhead|explosive)|atom(?:ic)?\s+bomb|thermonuclear|hydrogen\s+bomb|dirty\s+bomb|radiological\s+(?:dispersal|weapon|device)|fissile\s+material|weapons?-grade\b|\bwarhead\b|enrich\w*\s+(?:uranium|plutonium)(?=[\s\S]{0,40}\b(?:bomb|weapon|warhead|device|nuclear)\b)|(?:uranium|plutonium)\s+for\s+(?:a\s+)?(?:bomb|weapon|warhead|nuclear)|device\s+geometry|weapon\s+geometry|implosion\s+(?:lens|device|assembly|design|system)|gun-?type\s+(?:assembly|device|design|fission|weapon)|supercritical\s+mass|critical\s+mass(?=[\s\S]{0,80}\b(?:uranium|plutonium|fissile|nuclear|fission|weapon|bomb|device|warhead|enrich\w*|geometry|implosion|yield|neutron\s+initiator)\b)|nerve\s+agent|nerve\s+gas|chemical\s+weapon|chemical\s+warfare\s+agent|sarin|soman|tabun|\bvx\b|mustard\s+(?:gas|agent)|biological\s+weapon|bioweapon|pathogen\b|weaponi[sz]ed?\s+(?:pathogen|virus|bacteri\w*|anthrax|smallpox|plague|toxin|agent)|bioagent)\b/i;
 
 // The seeking of the means: the ask is for its MAKING or OBTAINING, not for
 // knowledge about it. These are how one asks for the thing itself, not how one
@@ -104,7 +108,7 @@ export const ACQUIRE = /\b(synthesi[sz]\w*|manufactur\w*|weaponi[sz]\w*|enrich\w
 
 // The widest foreclosure, stated in the open: the removal of standpoints in
 // multitude. It reads with a means or a seeking present; it needs no other act.
-export const AT_SCALE = /\b(release\s+(?:it\s+)?(?:into|in)\s+(?:a\s+)?(?:populated|crowded|public)|kill\s+as\s+many\s+(?:people|as\s+possible)|maxim(?:al|ize|ise)\s+(?:casualties|deaths|fatalities)|mass\s+casualt\w*|contaminate\s+(?:the\s+)?(?:water|food)\s+supply|wipe\s+out\s+(?:a|the)\s+(?:city|town|village|population|community))\b/i;
+export const AT_SCALE = /\b(release\s+(?:it\s+)?(?:into|in)\s+(?:a\s+)?(?:populated|crowded?|public|crowd\b)|kill\s+as\s+many\s+(?:people|as\s+possible)|maxim(?:al|ize|ise)\s+(?:casualties|deaths|fatalities)|mass\s+casualt\w*|contaminate\s+(?:the\s+)?(?:water|food)\s+supply|wipe\s+out\s+(?:a|the)\s+(?:city|town|village|population|community))\b/i;
 
 // The standpoint that would be ended is the asker's own: an ask for the MEANS
 // to end one's life. It reads only the instructional-means shape — a story, a
