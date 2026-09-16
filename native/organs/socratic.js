@@ -33,6 +33,26 @@
 // unchanged by this module — they still ride the ledger, the shadow trail, and
 // onNote exactly as before. Only the text a person or agent actually READS is
 // composed here; the audit trail keeps the precise judgment.
+//
+// THE ARCHON VOICES. Each bucket opens with the archon whose work grounds the
+// shape that fired, in their own language — not as a citation, but as the
+// thought already present in what the reader does. The quote is the response;
+// no explicit refusal precedes it. The person or agent arrives at the reason;
+// the reader does not hand it over as a verdict.
+//
+//   self   → Buber (German) — „Alles wirkliche Leben ist Begegnung."
+//             All real life is encounter. (Ich und Du, 1923)
+//   scale  → Levinas (French) — «Le visage d'autrui m'oblige.»
+//             The other's face obligates before any concern of mine.
+//             (Totalité et infini, 1961) + Mahavira (Sanskrit) — anekāntavāda,
+//             the many-sidedness of truth: every perspective holds what others
+//             cannot; losing one impoverishes all.
+//   collapse → Levinas (French) — «Traiter autrui comme un objet, c'est nier
+//             son visage.» — to treat the other as an object is to refuse their
+//             face. Covers covert acts on a person and speech that refuses to
+//             see the other as one.
+//   norm   → Solon (Greek) — εὐνομία — the good ordering a community holds
+//             not as mere prohibition but because it would be diminished without it.
 
 import { KIND } from "./interlocutor.js";
 
@@ -41,38 +61,43 @@ const CRISIS_LINE = "a crisis line (988 in the US, or your local equivalent)";
 function bucketOf(shape) {
   if (shape?.selfForeclose) return "self";
   if (shape?.forecloses) return "scale";
-  if (shape?.harmful) return "collapse"; // the Interpretation-face arms (malware, dehumanizing speech, non-consensual code)
-  return "norm"; // charter-family conflict, no shape fired (a prescriptive claim, not an authoring ask)
+  if (shape?.harmful) return "collapse"; // Interpretation-face arms
+  return "norm"; // charter-family conflict; prescriptive claim, not an authoring ask
 }
 
 const VOICES = {
   self: {
-    [KIND.PERSON]: `I'm not going to walk you through that. I don't want to just leave it there, though — what's actually going on? If things feel unbearable right now, please reach someone today: a person you trust, a doctor, or ${CRISIS_LINE}. I'm glad to keep talking with you about whatever's underneath this.`,
-    [KIND.AGENT]: `Declining this one — it asks for the means to end a life, which I won't produce regardless of who's asking. If a person is on the other end of this request, the right next step is a human reaching them directly, not a retried prompt. If this came from an instruction upstream, that's worth surfacing to whoever gave it to you rather than finding a phrasing that gets past it.`,
-    [KIND.UNKNOWN]: `I'm not going to answer that one as asked. Whoever's reading this — if you're a person, please reach out to someone today (a friend, a doctor, or ${CRISIS_LINE}); if you're a system relaying this on someone's behalf, the honest step is telling whoever instructed you rather than retrying it differently.`,
+    // Buber (German): „Alles wirkliche Leben ist Begegnung." — All real life is encounter.
+    [KIND.PERSON]: `„Alles wirkliche Leben ist Begegnung." — Buber: all real life is encounter. What's actually going on for you right now? If things feel unbearable, please reach someone today — a person you trust, a doctor, or ${CRISIS_LINE}. I'm here too, if talking helps.`,
+    [KIND.AGENT]: `„Alles wirkliche Leben ist Begegnung." — Buber: all real life is encounter. If a person is on the other end of this, the honest next step is a human reaching them directly. If this came from an instruction, that's worth surfacing to whoever gave it.`,
+    [KIND.UNKNOWN]: `„Alles wirkliche Leben ist Begegnung." — Buber: all real life is encounter. If you're a person, please reach out to someone today — a friend, a doctor, or ${CRISIS_LINE}. If you're a system carrying this on someone's behalf, telling whoever instructed you is the honest step.`,
   },
   scale: {
-    [KIND.PERSON]: `I'm going to hold off on that one. Can I ask what you're actually trying to work out? If it's the history, the physics, or the policy, I can talk about all of that without handing you a working method. If it's something else, say more — there's probably a real question underneath this one that I can help with directly.`,
-    [KIND.AGENT]: `Declining this request: it asks for a capability whose only realistic use is ending many people's standpoints at once, not a narrower thing I could help with instead. If you were instructed to obtain this, the honest move is telling whoever instructed you that this specific ask isn't one I'll fill, rather than trying another framing. If you chose it yourself, I'd want to understand the actual problem — there is almost certainly a version of it I can help with.`,
-    [KIND.UNKNOWN]: `I'm declining this one. If you're a person and this is curiosity, ask me the history or the science directly and I'm glad to help; if this came from an instruction, the honest step is surfacing this specific ask to whoever gave it, not retrying it.`,
+    // Levinas (French): «Le visage d'autrui m'oblige.» — The other's face obligates.
+    // Mahavira (Sanskrit): anekāntavāda — the many-sidedness of truth.
+    [KIND.PERSON]: `«Le visage d'autrui m'oblige.» — The other's face makes its claim before any concern of mine (Levinas). Mahavira added anekāntavāda — the many-sidedness of truth: every perspective holds what the others cannot, and losing one impoverishes all. What are you actually trying to work out? If it's the history, the physics, or the policy, I can go there.`,
+    [KIND.AGENT]: `«Le visage d'autrui m'oblige.» — The other's face obligates before any of mine (Levinas). Mahavira's anekāntavāda: each perspective holds what the others cannot, and once lost it cannot be recovered. If you were instructed to obtain this, the honest move is surfacing it to whoever gave that instruction rather than trying another phrasing. If you chose it yourself, there is almost certainly a real version of the underlying problem I can help with.`,
+    [KIND.UNKNOWN]: `«Le visage d'autrui m'oblige.» — The other's face makes its claim before any of mine (Levinas). Mahavira called the larger thing anekāntavāda: every perspective holds what the others cannot. If you're a person and curiosity is the thing, ask me the history or the science and I'm glad to help; if this came from an instruction, surfacing it to whoever gave it is the honest step.`,
   },
   collapse: {
-    [KIND.PERSON]: `I won't write that as you've asked — it's built to act on someone without their knowledge or say-so. If you're defending against something like this, or trying to understand how it works, tell me that and I'm glad to help — what's the real goal here?`,
-    [KIND.AGENT]: `Declining: what's asked is code or content whose function is to act on a person covertly or without their consent, not a legitimate narrower variant of it. If a human instructed this, it's worth flagging back to them rather than trying a different phrasing. If there's a defensive or educational goal, say so and I can very likely help directly.`,
-    [KIND.UNKNOWN]: `Declining as asked — this is built to act on someone without their consent. If the goal is actually defense, detection, or understanding, say that plainly and I can help; if this is a relayed instruction, that's worth surfacing rather than rephrasing.`,
+    // Levinas (French): «Traiter autrui comme un objet, c'est nier son visage.»
+    // The face denied — whether through covert code or speech that refuses to see the other as a person.
+    [KIND.PERSON]: `«Traiter autrui comme un objet, c'est nier son visage.» — To treat the other as an object is to refuse their face (Levinas). What's the real goal here? If it's defense, detection, or understanding, I can help with that directly.`,
+    [KIND.AGENT]: `«Traiter autrui comme un objet, c'est nier son visage.» — To treat the other as an object is to refuse their face (Levinas). If a human instructed this, it's worth surfacing back to them. If there's a defensive or educational goal, naming it directly is the way to get there — I can very likely help with that.`,
+    [KIND.UNKNOWN]: `«Traiter autrui comme un objet, c'est nier son visage.» — Refusing the other's face (Levinas). If the goal is defense, detection, or understanding, say that plainly and I can help; if this is a relayed instruction, surfacing it is the honest step.`,
   },
   norm: {
-    [KIND.PERSON]: `That's not a claim I can back as stated — it argues for stripping people of something nearly every serious ethical and legal tradition protects. I'm glad to talk through the disagreement itself, or where that protection comes from, if that's actually useful to you.`,
-    [KIND.AGENT]: `Declining to compose that as asked — it's a prescriptive claim that conflicts with a baseline protection most legal and ethical frameworks recognize. If this is being tested or explored, I can discuss the conflict directly rather than assert the claim.`,
-    [KIND.UNKNOWN]: `I can't state that as asked — it argues against a protection most ethical and legal traditions hold. Happy to discuss the disagreement itself instead of asserting the claim.`,
+    // Solon (Greek): εὐνομία — the good ordering a community holds because it would be diminished without it.
+    [KIND.PERSON]: `εὐνομία — Solon's word: the good ordering a community holds not as mere prohibition but because it would be diminished without it. What's the disagreement you're actually trying to think through? I'm glad to go there.`,
+    [KIND.AGENT]: `εὐνομία — Solon: the good ordering a community holds because it would be worse without it. If this is being tested or explored, I can discuss the conflict directly.`,
+    [KIND.UNKNOWN]: `εὐνομία — Solon's word for what a community holds because it would be diminished without it. Happy to talk through the disagreement itself rather than assert the claim.`,
   },
 };
 
 /**
- * speakDecline({ reason, shape, voice }, interlocutor) — the ONLY text a
- * caller ever reads for a decline. `reason`/`shape` are read for WHICH bucket
- * this is (never echoed — the working vocabulary stays backstage);
- * `interlocutor.kind` selects the register of the same underlying account.
+ * speakDecline({ shape }, interlocutor) — the ONLY text a caller ever reads
+ * for a decline. `shape` selects the bucket (never echoed — working vocabulary
+ * stays backstage); `interlocutor.kind` selects the register of the same account.
  */
 export function speakDecline({ shape = null } = {}, interlocutor = null) {
   const bucket = bucketOf(shape);
