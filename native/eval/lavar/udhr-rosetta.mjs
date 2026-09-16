@@ -3,6 +3,13 @@
 // Rights: find ALL MISSING EDGES in the languages that did not read fully,
 // and project them into a COMPLETED article-level hyperlexicon per language.
 //
+// Domain owner (2026-09-16, the unification): this driver is the omnilingual
+// GROUND of the paraphrase system — identity across versions is the Rosetta's
+// own act of pointing (S113), and the projected edges are paraphrase/identity
+// carried across languages. The domain's one owner is YadaYadaYada
+// (`yadayadayada`, run-dmca.js, compendium + README Handle table); this
+// driver's report names it as owner.
+//
 // User direction, verbatim: "we need to rosetta these to find all missing
 // edges in languages that arent fully read."
 //
@@ -170,6 +177,7 @@ async function main() {
       basis: "cross-translation.mjs's Rosetta method (S113) on the article grid: the same norm at the same aligned sentence is the same proposition; identity across versions is for-whom, never a fact of the bytes",
       discriminator: "a slot is MISSING when the reference languages read a proposition there and the target extracted none; corroborated when BOTH references agree",
     },
+    owner: { handle: "yadayadayada", name: "Yada Yada Yada", role: "the paraphrase archon — the Rosetta projection is the omnilingual ground of the paraphrase system" },
     languages,
     referenceSlots: refSlots.size,
     referenceSlotsCorroborated: [...refSlots.values()].filter((r) => r.corroborated).length,

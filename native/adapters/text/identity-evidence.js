@@ -1,3 +1,12 @@
+// identity-evidence.js — the apposition/copula evidence that a descriptor
+// names a being ("the hooded courier, Rowan"; "the philosopher and
+// mathematician أرسطو"), generalized omnilingually (READING-SPEC S119).
+//
+// Domain owner (2026-09-16, the unification): this module is the naming/
+// identity half of the omnilingual paraphrase system — the same claim, a
+// different surface, across scripts. The domain's one owner is YadaYadaYada
+// (`yadayadayada`, run-dmca.js, compendium + README Handle table).
+//
 import { DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS, COPULA_PARADIGM, SUBJECT_PRONOUNS, NEVER_A_NAME, SENTENCE_TERMINATORS } from "./priors.js";
 
 const WORD = /\p{L}[\p{L}\p{M}'’]*/gu;

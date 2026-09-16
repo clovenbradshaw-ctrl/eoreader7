@@ -9,6 +9,11 @@
 // book than a real turn would surface, and it sees it addressed the way a
 // real turn addresses it (chunk.ref/chunk.start/chunk.end).
 //
+// Domain owner (2026-09-16, the unification): the paraphrase witness this
+// driver measures at corpus scale is the read half of the omnilingual
+// paraphrase system; the domain's one owner is YadaYadaYada (`yadayadayada`,
+// run-dmca.js, compendium + README Handle table).
+//
 // Material: War and Peace (pg2600.txt, 3.3MB, gitignored — read from disk,
 // never copied into a fixture). Battery: sixteen War-and-Peace facts
 // (verbatim / passive / role-reversed / rearranged / synonym-verb shapes,

@@ -1,6 +1,11 @@
 // eval/witness-paraphrase.mjs — how strict is the sentence witness on
 // PARAPHRASE, measured before anyone decides what it should accept.
 //
+// Domain owner (2026-09-16, the unification): the paraphrase witness this
+// driver measures is the read half of the omnilingual paraphrase system; the
+// domain's one owner is YadaYadaYada (`yadayadayada`, run-dmca.js, compendium
+// + README Handle table).
+//
 // The question (the-fold CLAUDE.md, "the sentence witness", 2026-09-02):
 // live on gemma2:2b the witness said NO to "Kutuzov replaced Barclay de
 // Tolly as commander" against the passage's own "the Tsar replaced the

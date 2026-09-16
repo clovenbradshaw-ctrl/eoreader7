@@ -13,6 +13,11 @@ import { numberSet } from "./grounding.js";
 export const figuresUnbacked = (claim, decider) => { const d = numberSet(String(decider ?? "")); return [...numberSet(String(claim ?? ""))].filter((n) => !d.has(n)); };
 // corroboration.js — the witness tier as the ledger's OFFICIAL second vote.
 // Handle: Bukhari — after al-Bukhari, whose hadith verification stands only on independent chains of transmission; a shared chain counts as one witness. Amendment XVII.
+// Domain owner (2026-09-16, the unification): the paraphrase WALL this organ's
+// witnessNote is the licensed door through is the seam of the omnilingual
+// paraphrase system; the domain's one owner is YadaYadaYada (`yadayadayada`,
+// run-dmca.js, compendium + README Handle table). Bukhari remains this
+// organ's handle; Yada owns the paraphrase DOMAIN this wall serves.
 //
 // THE MEASURED CASE FOR THIS EXISTING (reading-recall-finding.md, both
 // addenda). Two real Wikipedia pages about one battle share ZERO
