@@ -1,10 +1,26 @@
 // native/the-fold/ground-attention.js — closes the archon-activation loop:
-// router (matchArchons) -> ground-selector collapse -> Nagarjuna veto ->
-// one covert, object-level fact. This is the piece earned-cast.js's own
-// CAST never had: a criterion whose CHOICE is informed by which archon's
-// domain the material touches, without ever naming that archon or quoting
-// its words — "not the words of the archon, but their style of thinking"
-// (user direction, this session).
+// router (matchArchons) -> ground-selector collapse -> Nagarjuna DEFINES the
+// admission void -> one covert, object-level fact. This is the piece
+// earned-cast.js's own CAST never had: a criterion whose CHOICE is informed
+// by which archon's domain the material touches, without ever naming that
+// archon or quoting its words — "not the words of the archon, but their
+// style of thinking" (user direction, this session).
+//
+// NAGARJUNA DOES NOT FAIL THINGS (user correction, this session — the
+// first version of this file used refuteRelation as a hard veto: a
+// refutation silently killed the fact). Nagarjuna's own header is explicit
+// about this already — "the veto organ: what the material REFUSES, never
+// what it licenses" and "never reports a check it could not run" — a
+// refutation-cleared candidate was never meant to be read as licensed OR
+// refused-and-therefore-worthless; it names what the material positively
+// says. What this file does with that naming: DECLARE a void
+// (the-fold/void-shape.js::declareVoid, the real 9-operator organ) whose
+// EVA·Figure cell — `admission`, "the test a candidate must pass to fill
+// any of it" — is worded from Nagarjuna's own disclosed finding. The fact
+// still fires on a clean selector collapse regardless of what that finding
+// says; the declared void ships ALONGSIDE it, on the record, so a caller
+// (or a later EVA step this file does not build) can actually run that
+// admission test rather than have Nagarjuna silently decide it.
 //
 // THE ROUTER. organs/archon-compendium.js::matchArchons(text) already does
 // exactly what the very first design ask wanted ("if a question is
@@ -41,6 +57,24 @@ const GROUND_FACT = Object.freeze({
   "doubt carried forward": "the accounts here diverge and do not reconcile — the doubt stands, not settled either way.",
 });
 
+// Nagarjuna's disclosed finding, worded into the EVA·Figure admission
+// criterion a candidate fact would need to clear — reusing refuteRelation's
+// OWN disclosure text where possible rather than inventing a second,
+// drifting description of what it found.
+function admissionFromRefutation(edges, winner, refuteRelation) {
+  if (!edges || !edges.length) {
+    return "a positive counterexample (a uniqueness violation or a cycle) has not been checked — no relation edges were offered for this material";
+  }
+  const refutation = refuteRelation(edges, "corroborates", {});
+  if (refutation.power === "insufficient") {
+    return `a positive counterexample has not been checked — ${refutation.powerDetail}`;
+  }
+  if (refutation.refuted) {
+    return `a positive counterexample was found against treating "${winner}" as settled: ${refutation.reasons.join(", ")} — ${refutation.disclosure}`;
+  }
+  return `no positive counterexample (uniqueness violation or cycle) was found among the referents this rests on — ${refutation.disclosure}`;
+}
+
 /**
  * groundAttention({ task, records, edges }, deps) — the covert attention.
  *
@@ -48,23 +82,30 @@ const GROUND_FACT = Object.freeze({
  * `records` — [{ref, text, kind?}], the turn's real material. Absent or
  *   too thin returns `{fired: false, reason: "insufficient_material"}` —
  *   never a fabricated fact.
- * `edges` — optional real EOHyperedge@1 relations for this material, for
- *   Nagarjuna's veto. Absent is honest, not a failure: the veto reports
- *   `insufficient` rather than a silent pass upgraded to "verified".
+ * `edges` — optional real EOHyperedge@1 relations for this material, fed
+ *   to Nagarjuna to help WORD the declared void's admission test. Absent
+ *   is honest, not a failure: the void says so plainly rather than a
+ *   silent pass upgraded to "verified".
  *
  * `deps` — injected real organs, so this file carries no import a caller
  *   cannot substitute in a test: `{ matchArchons, groundSelector,
- *   refuteRelation, criteria = ARCHON_TO_CRITERION, groundOpts }`.
- *   `groundOpts` is `{draws, seed, alpha}` — declared by the CALLER
- *   (II.23); this file does not default a threshold nobody chose.
+ *   refuteRelation, declareVoid, cellOf, criteria = ARCHON_TO_CRITERION,
+ *   groundOpts }`. `groundOpts` is `{draws, seed, alpha}` — declared by the
+ *   CALLER (II.23); this file does not default a threshold nobody chose.
+ *
+ * Returns `{fired, text, winner, verdict, void}` on a clean collapse — the
+ * declared void ships REGARDLESS of what its own admission test says;
+ * running that test is a separate, later step this file does not perform.
  */
 export function groundAttention({ task, records, edges = null } = {}, {
-  matchArchons, groundSelector, refuteRelation,
+  matchArchons, groundSelector, refuteRelation, declareVoid, cellOf,
   criteria = ARCHON_TO_CRITERION, groundOpts,
 } = {}) {
   if (typeof matchArchons !== "function") throw new TypeError("groundAttention: matchArchons is injected — the real compendium organ, never reimplemented");
   if (typeof groundSelector !== "function") throw new TypeError("groundAttention: groundSelector is injected");
   if (typeof refuteRelation !== "function") throw new TypeError("groundAttention: refuteRelation is injected — Nagarjuna, never skipped by omission");
+  if (typeof declareVoid !== "function") throw new TypeError("groundAttention: declareVoid is injected — void-shape.js's own organ, never reimplemented");
+  if (typeof cellOf !== "function") throw new TypeError("groundAttention: cellOf is injected — declareVoid's own dependency, from the real cube");
   if (!groundOpts) throw new TypeError("groundAttention: groundOpts {draws, seed, alpha} is declared by the caller — a threshold nobody chose is not a threshold");
 
   const list = (records ?? []).filter((r) => r && r.ref && r.text);
@@ -78,19 +119,13 @@ export function groundAttention({ task, records, edges = null } = {}, {
   if (verdict.standing !== "collapse") return Object.freeze({ fired: false, reason: `ground_selector_${verdict.standing}`, verdict });
   if (!wanted.has(verdict.winner)) return Object.freeze({ fired: false, reason: "collapse_on_unmatched_criterion", verdict });
 
-  let veto = { standing: "insufficient", reason: "no relation edges offered for this material" };
-  if (edges && edges.length) {
-    const refutation = refuteRelation(edges, "corroborates", {});
-    veto = refutation.power === "insufficient"
-      ? { standing: "insufficient", reason: "refuteRelation: below the minimum resolved edges to check" }
-      : refutation.refuted
-        ? { standing: "refuted", refutation }
-        : { standing: "not_refuted", refutation };
-  }
-  if (veto.standing === "refuted") return Object.freeze({ fired: false, reason: "nagarjuna_veto", verdict, veto });
+  // Nagarjuna's contribution: word the admission test, never run a verdict
+  // of its own. The declared void ships alongside the fact either way.
+  const admission = admissionFromRefutation(edges, verdict.winner, refuteRelation);
+  const declaredVoid = declareVoid({ slot: `${verdict.winner} — admission`, admission }, { cellOf });
 
   const text = GROUND_FACT[verdict.winner];
-  return Object.freeze({ fired: true, from: "ground", text, winner: verdict.winner, verdict, veto });
+  return Object.freeze({ fired: true, from: "ground", text, winner: verdict.winner, verdict, void: declaredVoid });
 }
 
 export const ARCHON_TO_CRITERION_MAP = ARCHON_TO_CRITERION;

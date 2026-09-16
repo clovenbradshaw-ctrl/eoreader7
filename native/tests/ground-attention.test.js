@@ -4,10 +4,12 @@ import { groundAttention, ARCHON_TO_CRITERION_MAP } from "../the-fold/ground-att
 import { groundSelector } from "../the-fold/ground-selector.js";
 import { matchArchons, ARCHONS } from "../organs/archon-compendium.js";
 import { refuteRelation } from "../kernel/refutation.js";
+import { declareVoid } from "../the-fold/void-shape.js";
+import { cellOf } from "../kernel/cube.js";
 import { bannedHits } from "../the-fold/earned-cast.js";
 
 const OPTS = { draws: 199, seed: 20260812, alpha: 0.05 };
-const deps = { matchArchons, groundSelector, refuteRelation, groundOpts: OPTS };
+const deps = { matchArchons, groundSelector, refuteRelation, declareVoid, cellOf, groundOpts: OPTS };
 const j = (s) => s.join(" ");
 
 const FIRSTHAND_RECORDS = [
@@ -36,7 +38,10 @@ test("groundAttention: a witness-shaped question over real firsthand material fi
   const r = groundAttention({ task: "was there an eyewitness account of the harbor fire?", records: FIRSTHAND_RECORDS }, deps);
   assert.equal(r.fired, true);
   assert.equal(r.winner, "what eyes and ears witnessed");
-  assert.equal(r.veto.standing, "insufficient"); // no edges offered — honest, not a silent pass
+  // No edges offered — Nagarjuna says so plainly in the declared void's
+  // admission field, honest disclosure, never a silent "verified".
+  const admissionCell = r.void.cells.find((c) => c.field === "admission");
+  assert.match(admissionCell.declared, /has not been checked/);
   assert.deepEqual(bannedHits(r.text), []);
   const lower = r.text.toLowerCase();
   for (const a of ARCHONS) {
@@ -45,14 +50,29 @@ test("groundAttention: a witness-shaped question over real firsthand material fi
   }
 });
 
-test("groundAttention: a real refutation (cycle) vetoes an otherwise-winning pick", () => {
+test("groundAttention: Nagarjuna never fails the fact — a real counterexample only words the declared void's admission test", () => {
   const cycleEdges = [
     { schema: "EOHyperedge@1", relation: "corroborates", participants: [{ standing: "referent", ref: "a" }, { standing: "referent", ref: "b" }] },
     { schema: "EOHyperedge@1", relation: "corroborates", participants: [{ standing: "referent", ref: "b" }, { standing: "referent", ref: "a" }] },
   ];
   const r = groundAttention({ task: "was there an eyewitness account of the harbor fire?", records: FIRSTHAND_RECORDS, edges: cycleEdges }, deps);
-  assert.equal(r.fired, false);
-  assert.equal(r.reason, "nagarjuna_veto");
+  assert.equal(r.fired, true); // still fires — Nagarjuna does not fail things
+  assert.equal(r.winner, "what eyes and ears witnessed");
+  const admissionCell = r.void.cells.find((c) => c.field === "admission");
+  assert.match(admissionCell.declared, /positive counterexample was found/);
+  assert.match(admissionCell.declared, /cycle/);
+});
+
+test("groundAttention: a checked-and-clean relation set words the admission test as such, not as \"verified\"", () => {
+  const cleanEdges = [
+    { schema: "EOHyperedge@1", relation: "corroborates", participants: [{ standing: "referent", ref: "a" }, { standing: "referent", ref: "b" }] },
+    { schema: "EOHyperedge@1", relation: "corroborates", participants: [{ standing: "referent", ref: "b" }, { standing: "referent", ref: "c" }] },
+  ];
+  const r = groundAttention({ task: "was there an eyewitness account of the harbor fire?", records: FIRSTHAND_RECORDS, edges: cleanEdges }, deps);
+  assert.equal(r.fired, true);
+  const admissionCell = r.void.cells.find((c) => c.field === "admission");
+  assert.match(admissionCell.declared, /no positive counterexample/);
+  assert.doesNotMatch(admissionCell.declared, /\bverified\b/);
 });
 
 test("groundAttention: every mapped archon handle exists in the real compendium", () => {

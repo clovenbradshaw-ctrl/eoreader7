@@ -7,10 +7,12 @@ import { groundAttention, ARCHON_TO_CRITERION_MAP } from "../../the-fold/ground-
 import { groundSelector } from "../../the-fold/ground-selector.js";
 import { matchArchons, ARCHONS } from "../../organs/archon-compendium.js";
 import { refuteRelation } from "../../kernel/refutation.js";
+import { declareVoid } from "../../the-fold/void-shape.js";
+import { cellOf } from "../../kernel/cube.js";
 import { CAST, bannedHits } from "../../the-fold/earned-cast.js";
 
 const OPTS = { draws: 199, seed: 20260812, alpha: 0.05 };
-const deps = { matchArchons, groundSelector, refuteRelation, groundOpts: OPTS };
+const deps = { matchArchons, groundSelector, refuteRelation, declareVoid, cellOf, groundOpts: OPTS };
 
 const officialWire = ["A warehouse fire near the harbor caused significant damage overnight, officials said.", "The cause remains under investigation pending a structural inspection.", "Local businesses in the area were advised to expect delays through the weekend.", "A public briefing is scheduled for Thursday afternoon."];
 const officialPort = ["Harbor operations were suspended following fire damage to warehouse facilities.", "Two berths remain closed pending inspection.", "The port authority has not released a damage estimate.", "A joint statement with the fire marshal is expected by end of week."];
@@ -54,7 +56,8 @@ function check(name, cond, detail) {
   const r = groundAttention({ task: "was there an eyewitness account of the harbor fire?", records: FIRSTHAND_RECORDS }, deps);
   check("firsthand material fires", r.fired === true, JSON.stringify(r.reason ?? r.winner));
   check("fires on the right criterion", r.winner === "what eyes and ears witnessed");
-  check("veto reports insufficient (no edges offered), never a silent pass upgraded", r.veto?.standing === "insufficient");
+  const admissionCell = r.void?.cells.find((c) => c.field === "admission");
+  check("declared void's admission says not-checked (no edges offered), never a silent pass upgraded", /has not been checked/.test(admissionCell?.declared ?? ""));
   const leaks = bannedHits(r.text ?? "");
   check("emitted fact carries zero bannedHits leaks", leaks.length === 0, JSON.stringify(leaks));
   const lower = String(r.text ?? "").toLowerCase();
@@ -69,15 +72,19 @@ function check(name, cond, detail) {
   check("noise material does not fire", r.fired === false);
 }
 
-// 5. Nagarjuna veto actually blocks when given a real, refuting edge set —
-//    a two-referent cycle, the one shape a positive-only scan can state.
+// 5. Nagarjuna does NOT fail things (user correction) — a real, refuting
+//    edge set (a two-referent cycle, the one shape a positive-only scan
+//    can state) still fires, but the declared void's admission test names
+//    the counterexample instead of silently shipping past it.
 {
   const cycleEdges = [
     { schema: "EOHyperedge@1", relation: "corroborates", participants: [{ standing: "referent", ref: "a" }, { standing: "referent", ref: "b" }] },
     { schema: "EOHyperedge@1", relation: "corroborates", participants: [{ standing: "referent", ref: "b" }, { standing: "referent", ref: "a" }] },
   ];
   const r = groundAttention({ task: "was there an eyewitness account of the harbor fire?", records: FIRSTHAND_RECORDS, edges: cycleEdges }, deps);
-  check("a real refutation vetoes the fact", r.fired === false && r.reason === "nagarjuna_veto", JSON.stringify(r));
+  check("a real refutation still fires — Nagarjuna words the void, never fails the fact", r.fired === true, JSON.stringify(r));
+  const admissionCell = r.void?.cells.find((c) => c.field === "admission");
+  check("the declared void's admission names the counterexample", /positive counterexample was found/.test(admissionCell?.declared ?? "") && /cycle/.test(admissionCell?.declared ?? ""));
 }
 
 // 6. The handle table names only archons whose OWN role text is evidentiary.

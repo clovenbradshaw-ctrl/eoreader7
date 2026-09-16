@@ -58,6 +58,8 @@ import { groundAttention } from "./native/the-fold/ground-attention.js";
 import { groundSelector } from "./native/the-fold/ground-selector.js";
 import { matchArchons } from "./native/organs/archon-compendium.js";
 import { refuteRelation } from "./native/kernel/refutation.js";
+import { declareVoid } from "./native/the-fold/void-shape.js";
+import { cellOf } from "./native/kernel/cube.js";
 // The durable theory of mind — type-level continuity about the person
 // across sessions. SPECIFICS stay in the per-session chat history; this
 // store holds only what the person has asserted and its standing.
@@ -888,16 +890,21 @@ function recordsFromSegments(surfacedSegments) {
 }
 
 // One call site for the whole archon-activation loop: router -> ground-
-// selector collapse -> Nagarjuna veto -> one covert sentence, or null. No
-// relation edges are offered here (this turn's material is not run through
-// the hypergraph reader at this seam) — groundAttention's own veto reports
-// that honestly as `insufficient`, never a silent upgrade to "verified".
+// selector collapse -> one covert sentence, or null. Nagarjuna does not
+// fail anything here (user correction, this session) — it only helps
+// WORD the admission test on the declared void groundAttention returns
+// alongside the fact (result.void); the fact fires on a clean collapse
+// regardless. No relation edges are offered at this seam today (this
+// turn's material is not run through the hypergraph reader here), so that
+// admission test honestly says it has not been checked, rather than a
+// silent upgrade to "verified". result.void is not consumed yet — a later
+// EVA step against it is disclosed future work, not built here.
 function groundFactFor(task, surfacedSegments) {
   try {
     const records = recordsFromSegments(surfacedSegments);
     const result = groundAttention(
       { task, records },
-      { matchArchons, groundSelector, refuteRelation, groundOpts: GROUND_OPTS },
+      { matchArchons, groundSelector, refuteRelation, declareVoid, cellOf, groundOpts: GROUND_OPTS },
     );
     return result.fired ? result.text : null;
   } catch {
