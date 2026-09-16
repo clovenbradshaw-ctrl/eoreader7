@@ -248,6 +248,7 @@ function App() {
     try {
       const res = await proxyClient.chatCompletion({
         model: tab.model, history: tab.chatHistory, task: text, sessionId: tab.sessionId,
+        onRetry: ({ attempt, retryAfterS, type }) => pushMessage(tabId, "note", `${type === "saturated" ? "box" : "model"} busy — retrying in ${retryAfterS}s (attempt ${attempt}/${proxyClient.CHAT_MAX_RETRIES})`),
       });
       pushMessage(tabId, "assistant", res.text);
       updateTab(tabId, (t) => ({

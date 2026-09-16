@@ -49,29 +49,58 @@ export async function listModels() {
   return (body.data ?? []).map((m) => m.id);
 }
 
+// heimdall's admission gate (../heimdall.mjs::admitChat) refuses a request
+// with a TYPED, RETRYABLE 429 — "saturated" (the box) or "lane_full" (the
+// model family's own concurrency cap, 1 by default) — carrying retry_after
+// seconds in both the body and the Retry-After header. That refusal exists
+// specifically so a well-behaved caller backs off and tries again; heimdall
+// itself does not retry on a caller's behalf (it has no notion of "this
+// request still matters"), so a client that just throws on the first 429
+// turns an ordinary, expected, momentary capacity wait into a hard error
+// for something as small as two messages landing a few hundred ms apart.
+// This is that backoff, bounded so a genuinely wedged proxy still surfaces
+// a real error rather than retrying forever.
+const RETRYABLE_TYPES = new Set(["saturated", "lane_full"]);
+export const CHAT_MAX_RETRIES = 5;
+
+async function postChatCompletion(headers, payload) {
+  const res = await fetch(`${BASE}/v1/chat/completions`, { method: "POST", headers, body: JSON.stringify(payload) });
+  const body = await res.json().catch(() => ({}));
+  return { res, body };
+}
+
 /**
  * POST /v1/chat/completions, non-streaming. `history` is the prior turns of
  * THIS tab ([{role:'user'|'assistant', content}]); `task` is the newest
  * user message. sessionId sticks the conversation to one accumulating
  * reader fold on the proxy's side (see proxy.mjs sessionIdFromHeaders) —
  * the proxy's own persistence, not anything this client tracks.
+ *
+ * `onRetry({ attempt, retryAfterS, type })` is called before each backoff
+ * wait, so a caller like the TUI can show "family busy, retrying in Ns…"
+ * instead of the request just appearing to hang.
  */
-export async function chatCompletion({ model, history = [], task, sessionId, workspace }) {
+export async function chatCompletion({ model, history = [], task, sessionId, workspace, onRetry }) {
   const messages = [...history, { role: "user", content: task }];
   const headers = { "content-type": "application/json" };
   if (sessionId) headers["x-er7-session"] = sessionId;
   if (workspace) headers["x-er7-workspace"] = workspace;
-  const res = await fetch(`${BASE}/v1/chat/completions`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({ model: withPrefix(model), messages, stream: false }),
-  });
-  const body = await res.json().catch(() => ({}));
-  if (!res.ok) {
+  const payload = { model: withPrefix(model), messages, stream: false };
+
+  let attempt = 0;
+  for (;;) {
+    const { res, body } = await postChatCompletion(headers, payload);
+    if (res.ok) {
+      return { text: body?.choices?.[0]?.message?.content ?? "", reading: body?.reading ?? null };
+    }
+    const type = body?.error?.type;
+    if (res.status === 429 && RETRYABLE_TYPES.has(type) && attempt < CHAT_MAX_RETRIES) {
+      attempt += 1;
+      const retryAfterS = Number(body?.error?.retry_after ?? res.headers.get("retry-after") ?? 2);
+      onRetry?.({ attempt, retryAfterS, type });
+      await new Promise((r) => setTimeout(r, retryAfterS * 1000));
+      continue;
+    }
     throw new Error(body?.error?.message || `POST /v1/chat/completions: ${res.status}`);
   }
-  return {
-    text: body?.choices?.[0]?.message?.content ?? "",
-    reading: body?.reading ?? null,
-  };
 }
