@@ -61,7 +61,17 @@ function makeTab(overrides = {}) {
     messages: [], // {role, kind, text}
     draft: "",
     scrollOffset: 0,
-    sessionId: `tui-${_tabSeq}-${process.pid}`,
+    // MUST be unique across process launches, not just within one process:
+    // the proxy persists a reading ledger to disk keyed literally by this
+    // string (proxy-runner.mjs: `proxy:session:${sessionId}` as the
+    // source/docId), so a reused sessionId reattaches whatever an EARLIER,
+    // unrelated process wrote there. `${pid}` alone collides the moment the
+    // OS reuses a pid across two `eoreader7` launches — found live: a real
+    // leftover ledger from a prior run (tui-1-58760:2.jsonl, about an
+    // unrelated topic) silently reattached to a brand-new "hi"/essay
+    // conversation that happened to land on the same pid. randomUUID is
+    // generated once per tab and never reused, by construction.
+    sessionId: `tui-${_tabSeq}-${process.pid}-${crypto.randomUUID().slice(0, 8)}`,
     agentHistory: [], // raw ollama-role messages, code mode continuity
     chatHistory: [], // {role, content} turns sent to the proxy, chat mode continuity
     ...overrides,
