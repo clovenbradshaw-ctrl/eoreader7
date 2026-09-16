@@ -50,6 +50,14 @@ import { execFileSync } from "node:child_process";
 // receives ONLY the cued facts for this turn. The mouth is never told it is
 // playing a role: cueBundle's `mouth` is object-level facts alone.
 import { classifySpeech, cueBundle, bannedHits } from "./native/the-fold/earned-cast.js";
+// THE GROUND ATTENTION's real organs — router (matchArchons), the
+// null-tested criterion collapse (groundSelector), and Nagarjuna's veto
+// (refuteRelation). Composed in `groundFactFor` below into the one
+// firewall-clean sentence earned-cast.js's `state.groundFact` reads.
+import { groundAttention } from "./native/the-fold/ground-attention.js";
+import { groundSelector } from "./native/the-fold/ground-selector.js";
+import { matchArchons } from "./native/organs/archon-compendium.js";
+import { refuteRelation } from "./native/kernel/refutation.js";
 // The durable theory of mind — type-level continuity about the person
 // across sessions. SPECIFICS stay in the per-session chat history; this
 // store holds only what the person has asserted and its standing.
@@ -862,17 +870,54 @@ export const NEUTRAL_CHARACTER =
 // (firewall-clean, covert-clean, cast-name-free by construction) to the
 // system content — never a persona name, never a "you are X" role line.
 // The ban is enforced here too: a leak drops the cue, never ships it.
-function earnedCue({ task, chatHistory = [], surfVoidInfo = null }) {
+// THE GROUND ATTENTION's declared null parameters (II.23 — a threshold
+// nobody chose is not a threshold). Cites legacy-eoreader6.1's
+// population.js::LINK_SPEC as the convention's giver (a declared-
+// parameters SHAPE to follow: window/draws/seed/alpha, not literal numbers
+// copied from a different organ's own question).
+const GROUND_OPTS = Object.freeze({ draws: 199, seed: 20260812, alpha: 0.05 });
+
+// surfacedSegments -> ground-attention.js's `records` shape. Each segment
+// already carries its real source address in `_ledger.source` (surfTask's
+// own addressing, never fabricated here) — this is a pure reshape, not a
+// second source of truth.
+function recordsFromSegments(surfacedSegments) {
+  return (surfacedSegments ?? [])
+    .filter((s) => s?.text)
+    .map((s) => ({ ref: s._ledger?.source ?? s._ledger?.heading ?? "unlabeled", text: String(s.text), kind: s._ledger?.addressed_by ?? null }));
+}
+
+// One call site for the whole archon-activation loop: router -> ground-
+// selector collapse -> Nagarjuna veto -> one covert sentence, or null. No
+// relation edges are offered here (this turn's material is not run through
+// the hypergraph reader at this seam) — groundAttention's own veto reports
+// that honestly as `insufficient`, never a silent upgrade to "verified".
+function groundFactFor(task, surfacedSegments) {
+  try {
+    const records = recordsFromSegments(surfacedSegments);
+    const result = groundAttention(
+      { task, records },
+      { matchArchons, groundSelector, refuteRelation, groundOpts: GROUND_OPTS },
+    );
+    return result.fired ? result.text : null;
+  } catch {
+    return null; // the attention must never break a turn
+  }
+}
+
+function earnedCue({ task, chatHistory = [], surfVoidInfo = null, surfacedSegments = [] }) {
   try {
     const personClaims = (chatHistory ?? [])
       .filter((m) => m?.role === "user" && typeof m.content === "string" && m.content.trim())
       .slice(-3)
       .map((m) => m.content.trim());
+    const groundFact = groundFactFor(task, surfacedSegments);
     const state = {
       personClaims,
       // A confirmed absence is a gap with its path, never a defeatist stop.
       ...(surfVoidInfo ? { gaps: [surfVoidInfo.gap ?? "nothing here answers it"] } : {}),
       ...(surfVoidInfo ? { notEstablished: [surfVoidInfo.gap ?? "it"] } : {}),
+      ...(groundFact ? { groundFact } : {}),
     };
     const bundle = cueBundle({ act: classifySpeech(task), state, depth: 1 });
     const mouth = String(bundle.mouth ?? "").trim();
@@ -2063,7 +2108,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // ── the earned cast, this turn only. The model is never told it is
   // playing a role — it receives exactly the facts this turn earned, at the
   // object level, and nothing else. A cue with nothing to say adds nothing.
-  const cue = earnedCue({ task, chatHistory: keptChat, surfVoidInfo });
+  const cue = earnedCue({ task, chatHistory: keptChat, surfVoidInfo, surfacedSegments });
   if (cue?.mouth) {
     systemContent += `\n\nA few things to keep in mind as you answer:\n${cue.mouth}`;
     if (onNote) onNote({ move: "earned_cue", act: cue.act, strain: cue.strain, attentions: cue.eligible, chars: cue.mouth.length });

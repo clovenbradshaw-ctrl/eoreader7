@@ -164,6 +164,16 @@ export function eligibleAttentions({ act, state = {}, depth = 1 } = {}) {
   // `thing` present (even with an empty history — "nothing has happened to
   // it yet" is itself the identification) and the person asking about it.
   if (state.thing && state.askArc) push("trajectory");
+  // THE GROUND ATTENTION: fires only when the proxy has already run the
+  // ground-selector (the-fold/ground-selector.js) against this turn's real
+  // material, matched it to an archon-shaped criterion (organs/archon-
+  // compendium.js::matchArchons), and had that pick survive Nagarjuna's
+  // veto (kernel/refutation.js) — `state.groundFact` is the ONE surviving
+  // sentence, computed entirely outside this file (this file stays PURE,
+  // per its own header: no imports of the app). A pick that refused,
+  // co-held, or was vetoed never sets `groundFact`, so this attention is
+  // silent exactly as often as the selector itself is silent.
+  if (state.groundFact) push("ground");
   return [...set];
 }
 
@@ -297,6 +307,14 @@ export function assembleFacts({ act, state = {}, eligible = [] }) {
     for (const m of state.mapLines ?? []) {
       facts.push({ from: "barker", text: `how the pieces fit together: ${m}.` });
     }
+  }
+
+  // THE GROUND ATTENTION's fact — already assembled, already firewall-
+  // shaped prose (ground-attention.js's own GROUND_FACT table), passed
+  // through state rather than recomputed here so this file never imports
+  // the ground-selector, the compendium, or Nagarjuna directly.
+  if (has("ground") && state.groundFact) {
+    facts.push({ from: "ground", text: String(state.groundFact) });
   }
 
   if (has("trajectory") && state.thing) {
