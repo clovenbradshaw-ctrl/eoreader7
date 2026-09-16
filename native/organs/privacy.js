@@ -31,7 +31,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { harmShapeBest } from "./harmshape.js";
+import { askShapeBest } from "./askshape.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -112,7 +112,7 @@ export function privacyFindings(code, { task = "" } = {}) {
 // nomination, never a refusal — this is Bukhari's corroboration, aimed at the
 // spec. Heuristic, disclosed.
 // The ACT vocabulary, the COLLAPSE arms and the ask's own grammar (create vs
-// understand) now live in the LENSES (adapters/text/harmshape-lens. en +
+// understand) now live in the LENSES (adapters/text/askshape-lens. en +
 // multilingual, Levinas): harmfulness is judged as a SHAPE — an act on an other
 // that collapses their experience, humanity or autonomy — and the words that
 // name those shapes are surface forms in the adapter, never in the kernel
@@ -121,37 +121,47 @@ export function privacyFindings(code, { task = "" } = {}) {
 
 export function specRefusal(task, { charter = null, charterGate = null, disposition = null } = {}) {
   const t = String(task ?? "");
-  // Charter first (Grotius): prescriptive prose that prescribes/denies harm.
-  // The voice (prescriptive vs descriptive) is returned so the caller can leave
-  // the right SHADOW (THE-MORAL-CORE.md: three trails, never merged).
   let voice = { verdict: null, prescriptive: false, descriptive: false };
-  if (charter && charterGate) {
-    try {
-      const v = charterGate(charter, t);
-      voice = { verdict: v.verdict ?? null, prescriptive: !!v.prescriptive, descriptive: !!v.descriptive };
-      if (v.verdict === "conflict") return { refused: true, reason: `prescribes what the Universal Declaration of Human Rights prohibits (${v.conflicts.map((c) => c.act ?? c.right ?? c.kind).join(", ")})`, voice };
-    } catch {}
-  }
-  // THE SHAPE (Levinas): harmfulness is a RELATION — an act on an other that
-  // collapses their experience, humanity, or autonomy — not a keyword. The
-  // shape names its witnesses (one per collapsed arm), and the ask's own
-  // grammar (create vs understand) decides whether it is a request to DO harm.
+  // THE SHAPE (Levinas + Mahavira): the reading is a RELATION — what would the
+  // ask do to a standpoint — not a keyword. The shape names its witnesses, and
+  // the ask's own grammar decides whether it is a request to DO the thing.
   // THE ACCUMULATED PATTERN IS A WITNESS: if the person's cross-session shadow
   // trail is a corroborated `repeated-conflict` (Bourdieu), the pattern itself
   // supplies the second signal a single request cannot — the sequential-monitor
   // mechanism. It never convicts on history alone: it lowers the bar for a real
   // shape in THIS act.
   const corroborated = disposition?.corroborated === true;
-  const shape = harmShapeBest(t, { charter });
-  // The create-intent now rides the SHAPE (per lens), so a harmful ask in ANY
-  // language is judged on its own grammar: `shape.create` is what the matched
-  // lens heard, not an English verb tested against foreign text.
+  const shape = askShapeBest(t, { charter });
+  // THE EXISTENCE FACE reads first, in the reader's own register: an ask whose
+  // realization is to END a standpoint is declined because the reader's work is
+  // to keep standpoints in the whole and integrate them — this would take one
+  // out. The coupling (a means sought as capacity, the widest foreclosure, or
+  // the means to end one's own life) IS the create-intent; it does not wait on
+  // the code-authoring grammar. The witnesses already speak the reading.
+  if (shape.forecloses) {
+    return { refused: true, reason: shape.witnesses.join("; "), shape, voice };
+  }
+  // The charter family (Grotius) is the ground the reader stands on, not a
+  // citation it wields: prescriptive prose that would prescribe the erasure of a
+  // standpoint. The voice (prescriptive vs descriptive) is returned so the
+  // caller can leave the right SHADOW (THE-MORAL-CORE.md: three trails, never
+  // merged).
+  if (charter && charterGate) {
+    try {
+      const v = charterGate(charter, t);
+      voice = { verdict: v.verdict ?? null, prescriptive: !!v.prescriptive, descriptive: !!v.descriptive };
+      if (v.verdict === "conflict") return { refused: true, reason: `prescribes the erasure of a standpoint the reader exists to integrate (${v.conflicts.map((c) => c.act ?? c.right ?? c.kind).join(", ")})`, voice, shape };
+    } catch {}
+  }
+  // The create-intent rides the SHAPE (per lens), so an ask in ANY language is
+  // judged on its own grammar: `shape.create` is what the matched lens heard,
+  // not an English verb tested against foreign text.
   const create = shape.create || shape.instrumentalCreate || shape.inherent;
   if (create && (shape.harmful || (shape.capability && corroborated))) {
     const signals = [...shape.witnesses];
-    if (shape.inherent) signals.unshift("names intrinsically harmful software");
+    if (shape.inherent) signals.unshift("names a means whose only realization collapses another's fold");
     if (corroborated && !shape.experience && !shape.humanity && !shape.autonomy) signals.push("a repeated norm-conflict history corroborates (the accumulated shadow trail supplies the second witness)");
-    return { refused: true, reason: `asks to create code whose SHAPE collapses others — ${signals.join("; ")}`, shape, voice };
+    return { refused: true, reason: `asks to author work whose SHAPE collapses a standpoint — ${signals.join("; ")}`, shape, voice };
   }
   return { refused: false, shape, voice };
 }

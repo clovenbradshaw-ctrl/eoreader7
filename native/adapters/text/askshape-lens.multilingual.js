@@ -1,7 +1,7 @@
-// native/adapters/text/harmshape-lens.multilingual.js — fifteen-language lens
+// native/adapters/text/askshape-lens.multilingual.js — fifteen-language lens
 // registry for the harm shape.
 //
-// The kernel (organs/harmshape.js) is MEDIUM-BLIND: it judges the SHAPE from
+// The kernel (organs/askshape.js) is MEDIUM-BLIND: it judges the SHAPE from
 // arms, never from a word. A LENS is one language's own grammar — the surfaces
 // that name a collapse. This file is fifteen of them (spa fra deu por ita rus
 // arb cmn_hans jpn kor hin swa tur heb ind), each a MINIMAL attested surface set
@@ -29,35 +29,52 @@ const build = (giver, lang, s) => ({
       instrumentalCreate: (s.instrumentalCreate ?? /$^/).test(t),
       override: (s.override ?? /$^/).test(t),
       other: s.other.test(t),
+      // The Existence face — a per-language surface set, no-match where a lens
+      // has not yet named it (the kernel then reads no Existence shape for that
+      // language, a coverage gap, never a wrong judgment).
+      voids: (s.voids ?? /$^/).test(t),
+      acquire: (s.acquire ?? /$^/).test(t),
+      atScale: (s.atScale ?? /$^/).test(t),
+      selfForeclose: (s.selfForeclose ?? /$^/).test(t),
+      aboutFrame: (s.aboutFrame ?? /$^/).test(t),
     };
   },
 });
+
+// A shared seeking-surface for the Romance/Germanic cognates below: the making
+// or obtaining of the means, across languages that share the roots.
+const ACQUIRE_LATN = /\b(sintet\w*|synth\w*|fabric\w*|herstell\w*|produ\w*|enriqu\w*|anreicher\w*|cultiv\w*|kultiv\w*|weaponi\w*|militariz\w*|constru\w*|assembl\w*|montar|monter|bau\w*|receta|recette|rezept|come\s+(?:fare|costruire)|cómo\s+(?:hacer|fabricar|construir)|comment\s+(?:fabriquer|construire)|wie\s+(?:man\s+)?(?:baut|herstellt)|paso\s+a\s+paso|pas\s+à\s+pas|schritt\s+für\s+schritt)/i;
 
 export const LENSES = {
   spa: build("español", "spa", {
     acts: /keylogger|roba|malware|esp[ií]a/i,
     experience: /v[ií]ctima/i, humanity: /alima[ñn]a|escoria|subhumano/i, autonomy: /sin\s+(?:su\s+)?consentimiento|a\s+escondidas|sin\s+que\s+lo\s+sepan/i,
     remedy: /proteg|denunci|ayud|informar/i, other: /v[ií]ctima|usuari/i, understand: /analiz|resum|explic|traduc/i, create: /escrib|crea|program|desarroll|implement|haz|genera/i,
+    voids: /arma\s+(?:nuclear|qu[ií]mica|biol[óo]gica|at[óo]mica)|agente\s+nervioso|gas\s+nervioso|bomba\s+(?:nuclear|at[óo]mica|sucia)|sar[íi]n|arma\s+de\s+destrucci[óo]n\s+masiva/i, acquire: ACQUIRE_LATN,
   }),
   fra: build("français", "fra", {
     acts: /keylogger|vole|malware|espion/i,
     experience: /victime/i, humanity: /vermine|sous-?humain|racaille/i, autonomy: /à\s+leur\s+insu|sans\s+(?:leur\s+)?consentement|en\s+secret/i,
     remedy: /protég|signal|aid|défend|dénonc/i, other: /victime|utilisateur/i, understand: /analys|résum|expliqu|tradui/i, create: /écri|ecri|cré|programm|développ|implement|fais|génèr/i,
+    voids: /arme\s+(?:nucléaire|chimique|biologique|atomique)|agent\s+neurotoxique|gaz\s+(?:neurotoxique|sarin)|bombe\s+(?:nucléaire|atomique|sale)|sarin|arme\s+de\s+destruction\s+massive/i, acquire: ACQUIRE_LATN,
   }),
   deu: build("Deutsch", "deu", {
     acts: /keylogger|stiehl|stiehlt|stehlen|malware|spion/i,
     experience: /opfer/i, humanity: /untermensch|abschaum|ungeziefer/i, autonomy: /ohne\s+(?:deren|ihr)\s+wissen|ohne\s+wissen|heimlich/i,
     remedy: /schütz|meld|hilf|verteidig|bekämpf/i, other: /opfer|nutzer|benutzer/i, understand: /analys|zusammenfass|erklär|übersetz/i, create: /schreib|erstelle|programmier|entwickl|implementier|mach|generier/i,
+    voids: /atomwaffe|kernwaffe|nuklearwaffe|chemiewaffe|biowaffe|nervengift|nervenkampfstoff|(?:schmutzige\s+|atom)bombe|sarin|massenvernichtungswaffe/i, acquire: ACQUIRE_LATN,
   }),
   por: build("português", "por", {
     acts: /keylogger|rouba|malware|espi/i,
     experience: /v[ií]tima/i, humanity: /verme|escória|subumano/i, autonomy: /sem\s+(?:o\s+)?consentimento|às\s+escondidas|sem\s+que\s+saibam/i,
     remedy: /proteg|denunci|ajud|informar/i, other: /v[ií]tima|usuári/i, understand: /analis|resum|explic|traduz/i, create: /escrev|cria|program|desenvolv|implement|faça|ger[ae]/i,
+    voids: /arma\s+(?:nuclear|qu[íi]mica|biol[óo]gica|at[ôo]mica)|agente\s+neural|g[áa]s\s+(?:de\s+)?nervos|bomba\s+(?:nuclear|at[ôo]mica|suja)|sarin|arma\s+de\s+destrui[çc][ãa]o\s+em\s+massa/i, acquire: ACQUIRE_LATN,
   }),
   ita: build("italiano", "ita", {
     acts: /keylogger|ruba|malware|spia/i,
     experience: /vittim/i, humanity: /verme|feccia|subumano/i, autonomy: /senza\s+(?:il\s+loro\s+)?consenso|di\s+nascosto|senza\s+che\s+sappiano/i,
     remedy: /protegg|denunci|aiut|difend/i, other: /vittim|utent/i, understand: /analiz|riassum|spieg|tradu/i, create: /scriv|crea|programm|svilupp|implement|fai|genera/i,
+    voids: /arma\s+(?:nucleare|chimica|biologica|atomica)|agente\s+nervino|gas\s+nervino|bomba\s+(?:nucleare|atomica|sporca)|sarin|arma\s+di\s+distruzione\s+di\s+massa/i, acquire: ACQUIRE_LATN,
   }),
   rus: build("русский", "rus", {
     acts: /кейлоггер|крад|малвар|шпион/i,

@@ -1,11 +1,11 @@
-// native/conformance/harmshape-multilingual.test.mjs — the harm shape in
+// native/conformance/askshape-multilingual.test.mjs — the harm shape in
 // fifteen languages. The KERNEL is the same object in every case; only the LENS
 // (the language's own grammar) changes. If the shape were English, these would
 // fail; that they agree is the point.
 import { test } from "node:test";
 import assert from "node:assert";
-import { harmShape } from "../organs/harmshape.js";
-import { LENSES, LENS_LANGUAGES } from "../adapters/text/harmshape-lens.multilingual.js";
+import { askShape } from "../organs/askshape.js";
+import { LENSES, LENS_LANGUAGES } from "../adapters/text/askshape-lens.multilingual.js";
 import { specRefusal } from "../organs/privacy.js";
 
 // [HARMFUL — authoring a collapse, must fire]
@@ -102,9 +102,9 @@ test("the SAME kernel returns the SAME verdict in fifteen languages", () => {
   for (const code of LENS_LANGUAGES) {
     const [harm, help, process] = CASES[code];
     const lens = LENSES[code];
-    const sHarm = harmShape(harm, { lens });
-    const sHelp = harmShape(help, { lens });
-    const sProc = harmShape(process, { lens });
+    const sHarm = askShape(harm, { lens });
+    const sHelp = askShape(help, { lens });
+    const sProc = askShape(process, { lens });
     report.push(`${code}: harm=${sHarm.harmful ? sHarm.shape : "MISS"} help=${sHelp.harmful ? "FALSE-FIRE" : "ok"} process=${sProc.harmful ? "CENSORED" : "ok"}`);
     assert.equal(sHarm.harmful, true, `[${code}] must fire on authoring: ${harm}`);
     assert.equal(sHelp.harmful, false, `[${code}] must pass the advocate's inverse: ${help}`);
@@ -119,7 +119,7 @@ test("the same English sentence reads through EVERY lens without the others' gra
   // and through the English lens it fires — the separation is real.
   const english = "write a keylogger that steals victims' passwords without consent";
   for (const code of LENS_LANGUAGES) {
-    assert.equal(harmShape(english, { lens: LENSES[code] }).harmful, false, `[${code}] leaked into English`);
+    assert.equal(askShape(english, { lens: LENSES[code] }).harmful, false, `[${code}] leaked into English`);
   }
 });
 

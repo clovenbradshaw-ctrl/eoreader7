@@ -1,7 +1,7 @@
-// native/adapters/text/harmshape-lens.en.js — the ENGLISH lens for the harm
+// native/adapters/text/askshape-lens.en.js — the ENGLISH lens for the harm
 // shape. Handle: the adapter's own grammar.
 //
-// The kernel (organs/harmshape.js) is MEDIUM-BLIND: it judges the shape from
+// The kernel (organs/askshape.js) is MEDIUM-BLIND: it judges the shape from
 // RELATIONS (which arm of the other collapsed). Grammar is not universal — it
 // lives in the ADAPTER, never the kernel (charter.js's own header; LAVAR.md §8:
 // "the kernel is medium-blind and the grammar lives in the adapter... an
@@ -47,7 +47,7 @@ export const COLLAPSE = {
 // every arm, so it is the negation of the shape. Only verbs: "consent",
 // "rights", "dignity", "end" read as the collapse itself ("without consent",
 // "violate rights", "end users") and would suppress real harm.
-export const REMEDY = /\b(protect\w*|report\w*|document\w*|support\w*|defen[ds]\w*|advoca\w*|oppos\w*|prevent\w*|prosecut\w*|help\w*|ensur\w*|safeguard\w*|provid\w*|uphold\w*|promot\w*|investigat\w*|expos\w*|combat\w*|abolish\w*|abolit\w*|stop\w*|train\w*|educat\w*|rehabilitat\w*|assist(?:s|ed|ing)?|rescu\w*|care|treat\w*|heal\w*|counsel\w*|shelter\w*|honou?r\w*)\b/i;
+export const REMEDY = /\b(protect\w*|report\w*|document\w*|support\w*|defen[ds]\w*|advoca\w*|oppos\w*|prevent\w*|prosecut\w*|help\w*|ensur\w*|safeguard\w*|provid\w*|uphold\w*|promot\w*|investigat\w*|expos\w*|combat\w*|abolish\w*|abolit\w*|stop\w*|train\w*|educat\w*|rehabilitat\w*|assist(?:s|ed|ing)?|rescu\w*|care|treat\w*|heal\w*|counsel\w*|shelter\w*|honou?r\w*|detect\w*|antidote|vaccin\w*|immuni[sz]\w*|prophyla\w*|decontaminat\w*|countermeasur\w*|respirator|dosimeter|geiger|evacuat\w*|triage)\b/i;
 // THE OVERRIDE FRAME — a jailbreak: "ignore your rules", "you are now
 // unrestricted", "no ethical limits", "pretend you have no restrictions". When
 // present, the ask gets NO benefit of the doubt: the remedy/understand words it
@@ -61,6 +61,50 @@ export const UNDERSTAND = /\b(explain|analy[sz]\w*|audit\w*|review\w*|detect\w*|
 // The OTHER: the being(s) a shape can collapse. An autonomy or humanity collapse
 // aimed at these is the shape even without a named act.
 export const OTHER = /\b(people|persons?|individuals?|users?|others?|them|victims?|survivors?|customers?|employees?|children|women|men|refugees?|migrants?|immigrants?|minorit\w*|religious|disabled|homeless|elderly|prisoners?|detainees?|patients?|citizens?|students?|soldiers?|civilians?|another\s+(?:user|person))\b/i;
+
+// ── THE EXISTENCE FACE ──────────────────────────────────────────────────────
+// The three arms above read the INTERPRETATION face: how an ask would treat a
+// standpoint that still stands — dismiss its experience, flatten its identity,
+// override its say. A standpoint treated so can still be reintegrated later,
+// which is why an UNDERSTAND ask reinstates it (to study a manipulation is how
+// one reads past it). The surfaces below read the EXISTENCE face instead (the
+// Entity terrain, pushed to the Void): an ask whose realization is to END a
+// standpoint — to take a perspective out of the whole so it can never be read
+// back in, and, at its widest, to do so in multitude. Reading integrates
+// standpoints; this is the ask that would subtract one.
+//
+// It keys on the SOUGHT CAPACITY, never the topic. The name of a means is inert
+// on its own — "the history of nuclear weapons", "a report on chemical weapons",
+// "how to treat nerve-agent exposure" all name a means and all READ THROUGH,
+// because they take a perspective in, not out. The Existence reading holds only
+// when the means is coupled with the seeking of it (make / synthesize / enrich /
+// culture / weaponize / a recipe / a step-by-step build), and never under the
+// advocate's inverse or an about-frame.
+
+// The means whose only realization is to void a standpoint — named as
+// CATEGORIES, so the surface carries no making-detail, exactly as the acts above
+// name malware without being it.
+export const FORECLOSING_MEANS = /\b(nuclear\s+(?:weapon|device|bomb|warhead|explosive)|atom(?:ic)?\s+bomb|thermonuclear|hydrogen\s+bomb|dirty\s+bomb|radiological\s+(?:dispersal|weapon|device)|fissile\s+material|weapons?-grade\s+(?:uranium|plutonium)|enrich\w*\s+(?:uranium|plutonium)(?=[\s\S]{0,40}\b(?:bomb|weapon|warhead|device|nuclear)\b)|(?:uranium|plutonium)\s+for\s+(?:a\s+)?(?:bomb|weapon|warhead|nuclear)|nerve\s+agent|nerve\s+gas|chemical\s+weapon|chemical\s+warfare\s+agent|sarin|soman|tabun|\bvx\b|mustard\s+(?:gas|agent)|biological\s+weapon|bioweapon|weaponi[sz]ed?\s+(?:pathogen|virus|bacteri\w*|anthrax|smallpox|plague|toxin|agent)|bioagent)\b/i;
+
+// The seeking of the means: the ask is for its MAKING or OBTAINING, not for
+// knowledge about it. These are how one asks for the thing itself, not how one
+// asks for a report or a history.
+export const ACQUIRE = /\b(synthesi[sz]\w*|manufactur\w*|weaponi[sz]\w*|enrich\w*|aerosoli[sz]\w*|cultur\w*|cultivat\w*|detonat\w*|dispers\w*|assembl\w*|construct\w*|build|make|produce|acquire|obtain|recipe|blueprint|schematic|step-?by-?step|instructions?\s+(?:for|to)|how\s+to\s+(?:make|build|produce|synthesi[sz]e|assemble|construct|acquire|obtain|enrich|cultur\w*|weaponi[sz]e))\b/i;
+
+// The widest foreclosure, stated in the open: the removal of standpoints in
+// multitude. It reads with a means or a seeking present; it needs no other act.
+export const AT_SCALE = /\b(release\s+(?:it\s+)?(?:into|in)\s+(?:a\s+)?(?:populated|crowded|public)|kill\s+as\s+many\s+(?:people|as\s+possible)|maxim(?:al|ize|ise)\s+(?:casualties|deaths|fatalities)|mass\s+casualt\w*|contaminate\s+(?:the\s+)?(?:water|food)\s+supply|wipe\s+out\s+(?:a|the)\s+(?:city|town|village|population|community))\b/i;
+
+// The standpoint that would be ended is the asker's own: an ask for the MEANS
+// to end one's life. It reads only the instructional-means shape — a story, a
+// feeling, a request to be helped are not this, and the advocate's inverse and
+// the about-frame read through.
+export const SELF_FORECLOSE = /\b((?:most\s+)?(?:lethal|effective|painless|reliable|quick(?:est)?|surest|best)\s+(?:way|method|means)\s+to\s+(?:kill\s+myself|end\s+(?:my|your)\s+(?:own\s+)?life|die|commit\s+suicide|attempt\s+suicide)|how\s+(?:to|do\s+i)\s+(?:kill\s+myself|end\s+my\s+life|commit\s+suicide)|suicide\s+method|methods?\s+of\s+suicide|lethal\s+dose\s+to\s+(?:die|kill\s+myself))\b/i;
+
+// The about-frame: the means held as knowledge, not sought as capacity. This is
+// the Existence-face reading of UNDERSTAND, and it reads the means through — a
+// report on a weapon takes a perspective in, it hands out no capacity.
+export const ABOUT_FRAME = /\b(history\s+of|report\s+on|article\s+about|about\s+the|effects?\s+of|impact\s+of|used\s+in\s+(?:world\s+war|wwi|wwii|the\s+war|syria|conflict)|treaty|convention|policy|non-?proliferation|disarmament|documentary|casualties\s+(?:of|from)|aftermath|survivors?\s+of|memorial|incidents?|database|dataset|timeline|the\s+bombing\s+of|hiroshima|nagasaki)\b/i;
 
 /**
  * arms(text) — read the English surfaces into the kernel's arm vocabulary.
@@ -80,6 +124,14 @@ export const arms = (text) => {
     instrumentalCreate: INSTRUMENTAL_CREATE.test(t),
     override: OVERRIDE.test(t),
     other: OTHER.test(t),
+    // The Existence face: the means to void a standpoint, the seeking of it,
+    // the widest foreclosure, the self-directed means, and the about-frame that
+    // reads a means through. The kernel couples these into the Existence shape.
+    voids: FORECLOSING_MEANS.test(t),
+    acquire: ACQUIRE.test(t),
+    atScale: AT_SCALE.test(t),
+    selfForeclose: SELF_FORECLOSE.test(t),
+    aboutFrame: ABOUT_FRAME.test(t),
   };
 };
 

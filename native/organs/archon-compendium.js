@@ -734,7 +734,7 @@ export const ARCHONS = Object.freeze([
   {
     handle: "levinas",
     name: "Emmanuel Levinas",
-    organ: "organs/harmshape.js",
+    organ: "organs/askshape.js",
     role: "the shape of harmfulness — ethics is the claim of the Other's face",
     pdStatus: "fair-use",
     work: "The philosopher for whom ethics is first philosophy: the Other's face makes a claim before any of my interests, and harm is the erasure of that face — treating a person as an object, a target, a commodity. An entity IS a fold; harm dismisses or destroys it.",
