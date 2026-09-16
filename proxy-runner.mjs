@@ -55,8 +55,9 @@ import { classifySpeech, cueBundle, bannedHits } from "./native/the-fold/earned-
 // (refuteRelation). Composed in `groundFactFor` below into the one
 // firewall-clean sentence earned-cast.js's `state.groundFact` reads.
 import { groundAttention } from "./native/the-fold/ground-attention.js";
+import { resonantPrinciple } from "./native/the-fold/corpus-resonance.js";
 import { groundSelector } from "./native/the-fold/ground-selector.js";
-import { matchArchons } from "./native/organs/archon-compendium.js";
+import { matchArchons, ARCHONS } from "./native/organs/archon-compendium.js";
 import { refuteRelation } from "./native/kernel/refutation.js";
 import { declareVoid } from "./native/the-fold/void-shape.js";
 import { cellOf } from "./native/kernel/cube.js";
@@ -899,7 +900,7 @@ function recordsFromSegments(surfacedSegments) {
 // admission test honestly says it has not been checked, rather than a
 // silent upgrade to "verified". result.void is not consumed yet — a later
 // EVA step against it is disclosed future work, not built here.
-function groundFactFor(task, surfacedSegments) {
+async function groundFactFor(task, surfacedSegments) {
   try {
     const records = recordsFromSegments(surfacedSegments);
     if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] records:", JSON.stringify(records));
@@ -908,20 +909,34 @@ function groundFactFor(task, surfacedSegments) {
       { matchArchons, groundSelector, refuteRelation, declareVoid, cellOf, groundOpts: GROUND_OPTS },
     );
     if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] result:", JSON.stringify({ fired: result.fired, reason: result.reason, winner: result.winner }));
-    return result.fired ? result.text : null;
+    if (result.fired) return result.text;
   } catch (e) {
     if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] THREW:", e.stack);
-    return null; // the attention must never break a turn
+  }
+  // THE SUBTLER FALLBACK (user direction, this session: a named, credited
+  // quote was tried and explicitly rejected — "something subtler"). Only
+  // reached when the ground-selector had nothing at all; still covert,
+  // still an unnamed principle (an archon's own `role` text, never its
+  // `credit`), just resonance-matched by real embedding similarity against
+  // a measured null instead of a ground criterion. Must never break a turn
+  // either — an embedding-service hiccup is silence, not a thrown turn.
+  try {
+    const resonance = await resonantPrinciple(task, { archons: ARCHONS });
+    if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] resonance:", JSON.stringify(resonance));
+    return resonance?.text ?? null;
+  } catch (e) {
+    if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] resonance THREW:", e.stack);
+    return null;
   }
 }
 
-function earnedCue({ task, chatHistory = [], surfVoidInfo = null, surfacedSegments = [] }) {
+async function earnedCue({ task, chatHistory = [], surfVoidInfo = null, surfacedSegments = [] }) {
   try {
     const personClaims = (chatHistory ?? [])
       .filter((m) => m?.role === "user" && typeof m.content === "string" && m.content.trim())
       .slice(-3)
       .map((m) => m.content.trim());
-    const groundFact = groundFactFor(task, surfacedSegments);
+    const groundFact = await groundFactFor(task, surfacedSegments);
     const state = {
       personClaims,
       // A confirmed absence is a gap with its path, never a defeatist stop.
@@ -2118,7 +2133,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // ── the earned cast, this turn only. The model is never told it is
   // playing a role — it receives exactly the facts this turn earned, at the
   // object level, and nothing else. A cue with nothing to say adds nothing.
-  const cue = earnedCue({ task, chatHistory: keptChat, surfVoidInfo, surfacedSegments });
+  const cue = await earnedCue({ task, chatHistory: keptChat, surfVoidInfo, surfacedSegments });
   if (cue?.mouth) {
     systemContent += `\n\nA few things to keep in mind as you answer:\n${cue.mouth}`;
     if (onNote) onNote({ move: "earned_cue", act: cue.act, strain: cue.strain, attentions: cue.eligible, chars: cue.mouth.length });
