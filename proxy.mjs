@@ -17,11 +17,16 @@ import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, obse
 // reused directly rather than re-derived: a small model answering "what is
 // today's date?" from its stale training data, with nothing in THIS proxy's
 // pipeline checking it (no web access, no mechanical clock door of its
-// own), was found live. checkClock is pure and Node-safe (the arithmetic
-// door's own injected-mathjs functions need a vendored engine; this one
-// doesn't) — a shared fix here reaches every caller of this endpoint, not
-// only one client.
-import { checkClock } from "../the-fold/arithmetic.js";
+// own), was found live. `checkQuantity` is the-fold's own full ladder
+// (arithmetic → shaped questions → calendar → clock → comparison) — a
+// shared fix here reaches every caller of this endpoint, not only one
+// client. mathjs is now a real dependency of this checkout's own root
+// package.json (added alongside this wiring) rather than left as a
+// disclosed absence: `checkArithmetic`/`checkShaped`/`checkComparison` all
+// need an injected engine, and until now this proxy had none to give them.
+import { checkQuantity } from "../the-fold/arithmetic.js";
+import { create, all } from "mathjs";
+const math = create(all);
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -669,19 +674,27 @@ async function handleRequest(req, res) {
       const id = `er7-${Date.now()}`;
 
       // A mechanical door, checked before anything else spends a model call
-      // or a heimdall admission slot: "what is today's date?"/"what time is
-      // it?" etc. are answered from this machine's own real clock, never
-      // asked of the model. Real Date, real timezone — never a guess.
-      const clock = checkClock(reqData.task, { now: new Date() });
-      if (clock) {
-        log(`turn → session=${sessionId} clock op=${clock.op} — computed, zero model calls`);
-        const reading = { computed: true, mechanism: "clock", op: clock.op, sessionId };
+      // or a heimdall admission slot: "what is today's date?"/"17 times
+      // 24"/"how many days between March 3 and July 9?" etc. are computed
+      // by this machine, never asked of the model. Real Date, real
+      // timezone, real mathjs — never a guess. A typed `gap` (the engine
+      // claimed the question but could not compute an answer) is still
+      // shipped as the computed door's own answer, never silently fallen
+      // through to the model (the-fold's own app.js::arithmeticTurn takes
+      // the identical posture — P4, a wrong mechanical answer would be
+      // worse than none, but a claimed-and-unanswerable question is not a
+      // silent miss either).
+      const found = checkQuantity(reqData.task, { math, now: new Date() });
+      if (found) {
+        const display = found.gap ? `${found.expression} — ${found.gap}` : found.display;
+        log(`turn → session=${sessionId} computed kind=${found.kind ?? "arithmetic"}${found.op ? ` op=${found.op}` : ""} — computed, zero model calls`);
+        const reading = { computed: true, mechanism: found.kind ?? "arithmetic", op: found.op ?? null, sessionId };
         if (reqData.stream) {
           res.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-cache", connection: "keep-alive", "x-er7-session": sessionId });
-          for (const line of openAIStreamLines({ id, model: parsed.model, text: clock.display, created, reading })) res.write(line);
+          for (const line of openAIStreamLines({ id, model: parsed.model, text: display, created, reading })) res.write(line);
           res.end("data: [DONE]\n\n");
         } else {
-          const resp = openAIResponse({ id, model: parsed.model, text: clock.display, created, usage: { promptTokens: 0, completionTokens: 0 }, reading });
+          const resp = openAIResponse({ id, model: parsed.model, text: display, created, usage: { promptTokens: 0, completionTokens: 0 }, reading });
           res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
           res.end(JSON.stringify(resp));
         }
