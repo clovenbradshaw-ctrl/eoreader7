@@ -1519,14 +1519,37 @@ export function ledgerFilePath(dir, docId) {
   return path.join(dir, `${String(docId).replace(/[^a-z0-9:_-]/gi, "_")}.jsonl`);
 }
 
-export function appendLedgerLine(ledger, entry, { dir = null } = {}) {
+// ── the-fold's local vault (added 2026-09-16): a sealed line on disk ───────
+// The person's browser encrypts (the-fold's vault.js, AES-256-GCM under a
+// key that never reaches this process) BEFORE a write crosses here; this
+// server never holds a key and never sees plaintext bytes on their way to
+// disk when a caller supplies one. `sealedLine` is that caller-supplied
+// ciphertext (an opaque string — base64 or hex, this file does not care) for
+// the SAME entry `appendDocumentObservation` just folded into memory. What
+// still runs in-process on plaintext (grounding, correction, projection
+// during THIS session) is disclosed, not silently claimed encrypted — see
+// eoreader7 READING-SPEC and the-fold CLAUDE.md for the scope this covers.
+export const SEALED_LINE_SHAPE = "sealed-ledger-line";
+
+export function appendLedgerLine(ledger, entry, { dir = null, sealedLine = null } = {}) {
   const line = appendDocumentObservation(ledger, entry);
   if (dir) {
     try {
-      fs.appendFileSync(ledgerFilePath(dir, ledger.docId), JSON.stringify(line) + "\n");
+      const onDisk = sealedLine
+        ? JSON.stringify({ shape: SEALED_LINE_SHAPE, v: 1, id: line.id, env: sealedLine })
+        : JSON.stringify(line);
+      fs.appendFileSync(ledgerFilePath(dir, ledger.docId), onDisk + "\n");
     } catch { /* disk off: the in-memory ledger still holds the record */ }
   }
   return line;
+}
+
+/** Is this raw JSONL row a sealed line (ciphertext this process cannot read)
+ * rather than an ordinary plaintext observation? Checked structurally, never
+ * assumed from the file as a whole — a ledger can carry sealed and plain
+ * lines side by side (a vault set up partway through a document's life). */
+export function isSealedLine(obj) {
+  return !!obj && obj.shape === SEALED_LINE_SHAPE && typeof obj.env === "string";
 }
 
 export function projectLedgerFile(filePath, { includeTitle = true, embedCitations = true } = {}) {
@@ -1537,6 +1560,12 @@ export function projectLedgerFile(filePath, { includeTitle = true, embedCitation
     if (!line.trim()) continue;
     let obj;
     try { obj = JSON.parse(line); } catch { continue; }
+    // A sealed line is ciphertext this process holds no key for — it is
+    // skipped here, never crashed on and never guessed at. The caller who
+    // DOES hold the key (the-fold's vault.js, client-side) is the one place
+    // a sealed line can be opened and re-projected; this typed skip is the
+    // disclosed edge of what server-side projection can do on a vaulted doc.
+    if (isSealedLine(obj)) continue;
     if (!obj || typeof obj.id !== "string") continue;
     ledger.lines.push(obj);
     if (obj.supersedes) ledger.superseded.add(obj.supersedes);
@@ -1563,6 +1592,7 @@ export function projectLedgerChangelog(filePath, { declaredParts = null } = {}) 
     if (!line.trim()) continue;
     let obj;
     try { obj = JSON.parse(line); } catch { continue; }
+    if (isSealedLine(obj)) continue;
     if (!obj || typeof obj.id !== "string") continue;
     ledger.lines.push(obj);
     if (obj.supersedes) ledger.superseded.add(obj.supersedes);
