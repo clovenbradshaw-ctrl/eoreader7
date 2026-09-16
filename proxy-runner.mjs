@@ -1372,7 +1372,7 @@ const SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes
 // on the session (disclosed on the result). With ER7_PII_REDACT=1 the value is
 // replaced in place, so the PII never enters the fold at all; the REDACTION
 // table is the same table the detector uses, so they cannot drift.
-const PII_REDACT = process.env.ER7_PII_REDACT === "1";
+const PII_REDACT = process.env.ER7_PII_REDACT !== "0";
 function piiAdmit(session, text, sourceId, onNote) {
   let t = String(text ?? "");
   try {
@@ -2587,23 +2587,6 @@ const modelsUp = await ollamaReachable();
   materialLines.push(`[user]: ${task}`);
   const materialText = materialLines.join("\n\n");
 
-  if (materialText.trim()) {
-    if (!session.corpus) session.corpus = createCorpusSession();
-    // Delta admission: admit only what wasn't already admitted. Prefix-aware,
-    // so a client that truncates/rewrites history (history isn't always a
-    // strict extension) still gets its new tail admitted rather than
-    // silently skipping forever.
-    const prevText = session.lastChatText ?? "";
-    const delta = materialText.startsWith(prevText)
-      ? materialText.slice(prevText.length)
-      : materialText;
-    if (delta.trim().length >= 8) {
-      const srcId = `chat:${sessionId}:turn-${session.turnCount}${materialText.startsWith(prevText) ? "" : ":reset"}`;
-      admitChunked(session.corpus, { text: piiAdmit(session, delta, srcId, onNote), sourceId: srcId });
-      if (onNote) onNote({ move: "conversation_folded", sourceId: srcId, chars: delta.length, reset: !materialText.startsWith(prevText) });
-    }
-    session.lastChatText = materialText;
-  }
 const encounters = textEncounters(materialText, { source: `proxy:session:${sessionId}`, offset: 0 });
   if (onNote) onNote({ move: "reading", count: encounters.length, chars: materialText.length });
 
@@ -2702,8 +2685,25 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         if (onNote) onNote({ move: "surfaced", operator: "CONV", fan: foldSegments.length, docs: session.corpus.documents.size, broadRecall: true });
       }
     }
-  } else if (onNote) {
-}
+  } else {
+    surfVoid = true;
+    surfVoidInfo = { gap: "no_material", reason: "no material established for this session" };
+    if (onNote) onNote({ move: "surf_skip", reason: session.corpus ? "empty_corpus" : "no_corpus" });
+  }
+
+  if (materialText.trim()) {
+    if (!session.corpus) session.corpus = createCorpusSession();
+    const prevText = session.lastChatText ?? "";
+    const delta = materialText.startsWith(prevText)
+      ? materialText.slice(prevText.length)
+      : materialText;
+    if (delta.trim().length >= 8) {
+      const srcId = `chat:${sessionId}:turn-${session.turnCount - 1}${materialText.startsWith(prevText) ? "" : ":reset"}`;
+      admitChunked(session.corpus, { text: piiAdmit(session, delta, srcId, onNote), sourceId: srcId });
+      if (onNote) onNote({ move: "conversation_folded", sourceId: srcId, chars: delta.length, reset: !materialText.startsWith(prevText) });
+    }
+    session.lastChatText = materialText;
+  }
 
   // 3.5 THE THREE RESOLUTIONS — the discourse restated by the reading's own
   // organs at three grains (atmosphere / lens / paradigm). This is
@@ -4483,6 +4483,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       .filter(Boolean)
       .sort((a, b) => b.relevance - a.relevance);
   })();
+
+  if (text && text.trim() && session.corpus) {
+    const _replyLine = text.trim().split(/\r?\n/)[0].slice(0, 500);
+    admitChunked(session.corpus, { text: `[assistant]: ${_replyLine}`, sourceId: `chat:${sessionId}:turn-${session.turnCount - 1}:response` });
+  }
 
   return {
     text,
