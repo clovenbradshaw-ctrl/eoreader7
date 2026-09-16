@@ -41,8 +41,8 @@ import { runProxyTurn } from "../../proxy-runner.mjs";
 
 const SKIP_DIRS = new Set([".git", "node_modules", ".venv", "venv", "dist", "build", ".next", "__pycache__", ".cache", "coverage"]);
 const MAX_LISTED_FILES = 200;
-const MAX_FILE_CHARS_SHOWN = 4000;
-const MAX_TOTAL_CHARS_SHOWN = 20000;
+const MAX_FILE_CHARS_SHOWN = 12000;
+const MAX_TOTAL_CHARS_SHOWN = 60000;
 const DEFAULT_MAX_ROUNDS = 3;
 const DEFAULT_TEST_TIMEOUT_MS = 60000;
 const MAX_READ_CHARS_SHOWN = 8000;
@@ -184,12 +184,16 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
   let finalTestOutput = null;
 
   for (let round = 1; round <= maxRounds; round += 1) {
+    const roundContent =
+      round === 1
+        ? renderFiles(root, files)
+        : `${renderFiles(root, files)}${renderReadFiles(reads)}`;
     const roundTask =
       round === 1
-        ? `${task}\n\nFiles in the workspace (${root}):\n${files.join("\n")}\n\n${renderFiles(root, files)}\n\n${PROPOSAL_FORMAT}`
-        : `${task}\n\n${lastNote}\n\nThe file now stands as:\n\n${renderFiles(root, files)}${renderReadFiles(reads)}\n\n${PROPOSAL_FORMAT}`;
+        ? `${task}\n\nFiles in the workspace (${root}):\n${files.join("\n")}\n\n${PROPOSAL_FORMAT}`
+        : `${task}\n\n${lastNote}\n\n${PROPOSAL_FORMAT}`;
 
-    const turn = await runProxyTurn({ sessionId, userId, model, task: roundTask, workspace: root, mode: "chat", signal });
+    const turn = await runProxyTurn({ sessionId, userId, model, task: roundTask, chatHistory: [{ role: "user", content: roundContent }], workspace: root, mode: "chat", signal });
     const proposal = parseProposal(turn.text);
     if (!proposal.ok) {
       rounds.push({ round, gap: proposal.gap, raw: turn.text });
