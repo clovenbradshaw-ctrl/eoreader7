@@ -82,8 +82,10 @@ export * as puzzleTemplates from "./puzzle-templates.js";
 // a model-assisted extraction only when injected and the mechanical
 // signature fails, its output re-validated against the template's closed
 // vocabulary before formalization ever runs.
-export { ENTRANCES, REFUSALS as ARISTOTLE_REFUSALS, acceptClassification, buildClassificationRequest, classifyEntrance, solve as aristotleSolve, toHolograph as aristotleHolograph } from "./aristotle.js";
+export { ENTRANCES, REFUSALS as ARISTOTLE_REFUSALS, acceptClassification, buildClassificationRequest, buildDeductionRequest, classifyEntrance, solve as aristotleSolve, solveDeduction, toHolograph as aristotleHolograph } from "./aristotle.js";
 export * as aristotle from "./aristotle.js";
+export { CONSTRAINT_KINDS, REFUSALS as DEDUCTION_CSP_REFUSALS, solveCsp, validateDeclaration } from "./deduction-csp.js";
+export * as deductionCsp from "./deduction-csp.js";
 
 // Phase 3 (2026-09-02) — the reading closure crosses: the-fold keeps only the surface.
 // Generated off each organ's own `export` statements; a name already exported by

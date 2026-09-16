@@ -45,16 +45,20 @@
 
 import { matchTemplate, PUZZLE_TEMPLATES, REFUSALS as TEMPLATE_REFUSALS, classifyRoleWord } from "./puzzle-templates.js";
 import { planDistinguishingQueries, executePlan } from "./distinguishing-plan.js";
+import { CONSTRAINT_KINDS, solveCsp, validateDeclaration } from "./deduction-csp.js";
 
 export const ENTRANCES = Object.freeze({
-  mechanical: "mechanical_signature", // matchTemplate's own regex signature hit
-  modelAssisted: "model_assisted_extraction", // model extracted params, then mechanically re-validated
+  mechanical: "mechanical_signature", // matchTemplate's own regex signature hit — the Boolos family only
+  modelAssisted: "model_assisted_extraction", // model extracted a registered template's params, then mechanically re-validated
+  deduction: "model_assisted_deduction", // model extracted a general subjects/categories/constraints declaration, then solved by exhaustive CSP search
 });
 
 export const REFUSALS = Object.freeze({
   no_entrance: "neither the mechanical signature nor a model-assisted extraction (if attempted) produced a validated match against any registered template — a disclosed absence, never a guessed formalization",
   model_extraction_invalid: "a model call was made, but its extracted params failed the template's own closed-vocabulary checks and were rejected — the model's output is never trusted past that check",
   no_plan_within_budget: "a template matched and formalized, but no query plan distinguishes every hypothesis within the puzzle's own declared budget",
+  no_model_call: "a general deduction puzzle has no closed surface signature to match mechanically — a modelCall is required to even attempt extraction, and none was injected",
+  deduction_declaration_invalid: "a model call was made, but its extracted subjects/categories/constraints declaration failed deduction-csp.js's own closed-vocabulary checks and was rejected",
 });
 
 /**
@@ -180,4 +184,77 @@ export function solve(text, { modelCall = null } = {}) {
 
   const holograph = toHolograph(text, classified);
   return Object.freeze({ entrance, template: template.id, params, hypotheses: formalized.hypotheses, plan, holograph, execute: (answerFn) => executePlan(plan, answerFn) });
+}
+
+// ── General deduction: the classic logic-grid puzzle shape ─────────────────
+//
+// This is the OTHER honest answer to "test deduction, not one riddle": a
+// puzzle where the shape ("N subjects, each with one value per category,
+// narrowed by a set of clues") is common to a whole genre (Zebra Puzzle,
+// Einstein's Riddle, seating-and-drinks puzzles), never one registered
+// surface signature. There is no mechanical regex signature for this
+// genre — clues are stated in open prose ("the Norwegian lives in the
+// first house") — so `modelCall` is REQUIRED here, not merely a fallback:
+// what is injected is never trusted to have SOLVED anything, only to have
+// TRANSLATED the prose into `deduction-csp.js`'s closed declaration shape
+// (subjects, categories, constraints — see that module's own header for
+// the closed constraint vocabulary). Every field of that declaration is
+// re-validated (`validateDeclaration`) before `solveCsp` ever runs its
+// exhaustive, mechanical search — the model never sees the search, and
+// the search never trusts the model.
+
+export function buildDeductionRequest(text) {
+  return Object.freeze({
+    text: String(text ?? ""),
+    instruction:
+      `Read the logic puzzle below and extract ONLY its formal structure — ` +
+      `never solve it, never guess an answer. Return ONLY this JSON shape: ` +
+      `{"subjects": [s1, s2, ...], "categories": {"categoryName": [v1, v2, ...], ...}, ` +
+      `"constraints": [ ... ]}. "subjects" is whatever the puzzle enumerates (people, ` +
+      `houses, positions). Every category must list exactly one value per subject, all ` +
+      `distinct. If the puzzle has an inherent left-to-right/first-to-last order, ` +
+      `represent it as its own category (e.g. "position") whose values are exactly the ` +
+      `integers 1..N. Each constraint is one of: ` +
+      `{"kind":"fixed","category":c,"subject":s,"value":v} (subject's value in category IS v), ` +
+      `{"kind":"notFixed","category":c,"subject":s,"value":v} (is NOT v), ` +
+      `{"kind":"sameSubject","categoryA":c1,"valueA":v1,"categoryB":c2,"valueB":v2} (whoever ` +
+      `has v1 in c1 also has v2 in c2), ` +
+      `{"kind":"differentSubject","categoryA":c1,"valueA":v1,"categoryB":c2,"valueB":v2} ` +
+      `(negation of the above), ` +
+      `{"kind":"positionOffset","category":c,"value1":v1,"value2":v2,"offset":n} (c must be ` +
+      `the ordered/position category; the subject with value1 sits n positions from the ` +
+      `subject with value2 — n may be negative, never 0). Use exactly these kinds; every ` +
+      `category/value/subject named in a constraint must appear in "subjects"/"categories".`,
+    schema: Object.freeze({ subjects: "string[]", categories: "object", constraints: `Array<{kind: ${CONSTRAINT_KINDS.join("|")}, ...}>` }),
+  });
+}
+
+/**
+ * solveDeduction(text, { modelCall }) — the general entrance: a
+ * `modelCall` is mandatory (there is no mechanical path into an
+ * open-prose logic-grid puzzle); its extraction is validated against
+ * `deduction-csp.js`'s closed vocabulary and then solved by exhaustive
+ * search. Returns the solved assignment on a unique solution, or the
+ * declaration's own typed refusal (`bad_declaration`, `unsatisfiable`,
+ * `ambiguous`) exactly as `solveCsp` reports it — never a guessed winner
+ * among several consistent worlds.
+ */
+export function solveDeduction(text, { modelCall = null } = {}) {
+  if (typeof modelCall !== "function") return Object.freeze({ refused: REFUSALS.no_model_call });
+
+  const request = buildDeductionRequest(text);
+  const raw = modelCall(request);
+  const check = validateDeclaration(raw || {});
+  if (!check.ok) return Object.freeze({ refused: REFUSALS.deduction_declaration_invalid, reason: check.reason, raw });
+
+  const result = solveCsp(raw);
+  if (result.refused) return Object.freeze({ ...result, entrance: ENTRANCES.deduction, declaration: raw });
+
+  const notes = [];
+  for (const [category, row] of Object.entries(result.solution)) {
+    for (const [subject, value] of Object.entries(row)) notes.push(Object.freeze({ subject, verb: `has-${category}`, object: String(value) }));
+  }
+  const holograph = Object.freeze({ entrance: ENTRANCES.deduction, notes: Object.freeze(notes) });
+
+  return Object.freeze({ entrance: ENTRANCES.deduction, declaration: raw, solution: result.solution, holograph });
 }

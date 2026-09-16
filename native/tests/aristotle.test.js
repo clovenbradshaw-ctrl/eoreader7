@@ -6,8 +6,9 @@
 // re-validated before use).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ENTRANCES, REFUSALS, acceptClassification, classifyEntrance, solve } from "../organs/aristotle.js";
+import { ENTRANCES, REFUSALS, acceptClassification, classifyEntrance, solve, solveDeduction } from "../organs/aristotle.js";
 import { PUZZLE_TEMPLATES } from "../organs/puzzle-templates.js";
+import { REFUSALS as CSP_REFUSALS } from "../organs/deduction-csp.js";
 
 const BOOLOS_TEXT =
   "Three gods A, B, and C are called, in some order, True, False, and Random. " +
@@ -83,4 +84,57 @@ test("classifyEntrance discloses a rejected model extraction rather than silentl
   const modelCall = () => ({ matches: true, agents: ["A", "B", "C"], roleWords: { true: "friendly", false: "lying", random: "random" }, yesOrNoWords: ["da", "ja"], budget: 3 });
   const classified = classifyEntrance("some text a regex will never match at all, ever", { modelCall });
   assert.equal(classified.refused, REFUSALS.model_extraction_invalid);
+});
+
+// ── solveDeduction: the general logic-grid entrance — deduction is the point, not any one riddle's shape ──
+
+test("solveDeduction requires an injected modelCall — there is no mechanical path into open-prose deduction puzzles", () => {
+  const result = solveDeduction("Three people, three houses, some clues.");
+  assert.equal(result.refused, REFUSALS.no_model_call);
+});
+
+test("solveDeduction solves a genuine (non-Boolos) logic-grid puzzle via a stubbed extraction, verified mechanically", () => {
+  const puzzleText =
+    "Ann, Bea, and Cy each live in a different house, numbered 1 to 3, and each drinks a " +
+    "different drink: tea, coffee, or milk. Ann lives in house 1. Ann does not drink tea. " +
+    "Cy drinks coffee. Who drinks what?";
+
+  const modelCall = () => ({
+    subjects: ["Ann", "Bea", "Cy"],
+    categories: { position: [1, 2, 3], drink: ["tea", "coffee", "milk"] },
+    constraints: [
+      { kind: "fixed", category: "position", subject: "Ann", value: 1 },
+      { kind: "fixed", category: "position", subject: "Bea", value: 2 },
+      { kind: "fixed", category: "position", subject: "Cy", value: 3 },
+      { kind: "notFixed", category: "drink", subject: "Ann", value: "tea" },
+      { kind: "fixed", category: "drink", subject: "Cy", value: "coffee" },
+    ],
+  });
+
+  const result = solveDeduction(puzzleText, { modelCall });
+  assert.equal(result.refused, undefined, JSON.stringify(result));
+  assert.equal(result.entrance, ENTRANCES.deduction);
+  assert.equal(result.solution.drink.Ann, "milk");
+  assert.equal(result.solution.drink.Bea, "tea");
+  assert.equal(result.solution.drink.Cy, "coffee");
+  assert.ok(result.holograph.notes.length > 0);
+});
+
+test("solveDeduction discloses a rejected declaration rather than silently refusing without reason", () => {
+  const modelCall = () => ({ subjects: ["Ann"], categories: { drink: ["tea"] }, constraints: [] }); // only 1 subject — fails validateDeclaration
+  const result = solveDeduction("some puzzle text", { modelCall });
+  assert.equal(result.refused, REFUSALS.deduction_declaration_invalid);
+});
+
+test("solveDeduction reports unsatisfiable honestly when the model's own extraction of the clues contradicts itself", () => {
+  const modelCall = () => ({
+    subjects: ["Ann", "Bea", "Cy"],
+    categories: { position: [1, 2, 3], drink: ["tea", "coffee", "milk"] },
+    constraints: [
+      { kind: "fixed", category: "drink", subject: "Ann", value: "tea" },
+      { kind: "notFixed", category: "drink", subject: "Ann", value: "tea" }, // directly contradicts the fixed clue above
+    ],
+  });
+  const result = solveDeduction("some puzzle text", { modelCall });
+  assert.equal(result.refused, CSP_REFUSALS.unsatisfiable);
 });
