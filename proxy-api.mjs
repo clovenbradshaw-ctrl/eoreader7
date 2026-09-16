@@ -72,7 +72,14 @@ export function parseProxyRequest(body) {
     return MODES.includes(m) ? m : "auto";
   };
   const mode = normalizeMode(body?.mode);
-  return { model, ...turn, stream, discloseThinking, kelsen, mode };
+  // BROWSER-POSTED MATERIAL — attachments ride the request body so a client
+  // with no disk path (the-fold's pasted/dropped sources) can still hand the
+  // reading real bytes. Normalized to {name, text}; a name is the source's
+  // display identity, never trusted as a path.
+  const attachments = Array.isArray(body?.attachments)
+    ? body.attachments.map((a, i) => ({ name: String(a?.name ?? `attachment-${i + 1}`).slice(0, 120), text: String(a?.text ?? "") })).filter((a) => a.text.trim())
+    : [];
+  return { model, ...turn, stream, discloseThinking, kelsen, mode, attachments };
 }
 
 // ── ANTHROPIC MESSAGES API (Claude Code speaks this; the proxy is openai/
@@ -129,7 +136,10 @@ export function parseAnthropicRequest(body) {
   const discloseThinking = body?.discloseThinking === true;
   const kelsen = Number.isFinite(Number(body?.kelsen)) ? Number(body?.kelsen) : null;
   const maxTokens = Number.isFinite(Number(body?.max_tokens)) ? Number(body?.max_tokens) : null;
-  return { model, task, chatHistory, discourse: system, stream, discloseThinking, kelsen, maxTokens };
+  return { model, task, chatHistory, discourse: system, stream, discloseThinking, kelsen, maxTokens,
+    attachments: Array.isArray(body?.attachments)
+      ? body.attachments.map((a, i) => ({ name: String(a?.name ?? `attachment-${i + 1}`).slice(0, 120), text: String(a?.text ?? "") })).filter((a) => a.text.trim())
+      : [] };
 }
 
 export function anthropicCountTokensResponse(chars) {

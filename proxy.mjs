@@ -451,6 +451,9 @@ async function handleRequest(req, res) {
       // below is what every other endpoint already uses.
       const sessionId = String(parsed?.sessionId ?? "").trim() || sessionIdFromHeaders(req);
       const workspace = String(parsed?.workspace ?? "").trim() || workspaceFromHeaders(req);
+      const attachments = Array.isArray(parsed?.attachments)
+        ? parsed.attachments.map((a, i) => ({ name: String(a?.name ?? `attachment-${i + 1}`).slice(0, 120), text: String(a?.text ?? "") })).filter((a) => a.text.trim())
+        : [];
       const userId = userIdFromHeaders(req);
       log(`ask → session=${sessionId} user=${userId} model=${model} taskLength=${task.length} mode=${mode} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
@@ -465,7 +468,7 @@ async function handleRequest(req, res) {
       }, TURN_DEADLINE_MS);
       try {
         const result = await runProxyTurn({
-          sessionId, userId, workspace, model, task, mode,
+          sessionId, userId, workspace, attachments, model, task, mode,
           chatHistory: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [],
           caller: callerFromRequest(req, "ask", parsed),
           signal: turnAbort.signal,
@@ -833,11 +836,37 @@ async function handleRequest(req, res) {
             reading: {
               sessionId, relationEdges: result.relationEdges, referentBindings: result.referentBindings,
               hyperlexiconCandidates: result.hyperlexiconCandidates, turn: result.turn,
-              workspace: result.workspace ?? null, post: result.post ?? null,
+              workspace: result.workspace ?? null, attachments: result.attachments ?? null,
+              post: result.post ?? null,
               thinking: result.thinking ?? null,
               answerShape: result.answerShape ?? null,
               truncated: result.truncated ?? false,
               document: result.document ?? null,
+              // THE FULL READING, STREAMED — the per-sentence surface, the
+              // charter verdict, the archons, the void, the resolutions, the
+              // satisfaction. A UI drawing marks LIVE (the-fold's browser
+              // chat) needs these in the streamed final chunk, not only the
+              // non-streaming body — ONE-ENGINE-PLAN's named gap ("streaming
+              // today drops most of reading").
+              reading: result.reading ?? null,
+              charter: result.charter ?? null,
+              groundedWisdom: result.groundedWisdom ?? null,
+              privacy: result.privacy ?? null,
+              copy: result.copy ?? null,
+              security: result.security ?? null,
+              blindspot: result.blindspot ?? null,
+              pii: result.pii ?? null,
+              injection: result.injection ?? null,
+              shadow: result.shadow ?? null,
+              shadowSites: result.shadowSites ?? null,
+              interlocutor: result.interlocutor ?? null,
+              surfed: result.surfed ?? null,
+              resolutions: result.resolutions ?? null,
+              satisfaction: result.satisfaction ?? null,
+              kelsen: result.kelsen ?? null,
+              void: result.void ?? null,
+              mode: result.mode ?? null,
+              usage: result.usage ?? null,
             },
           })}\n\n`);
           res.write("data: [DONE]\n\n");
