@@ -184,7 +184,35 @@ test("REAL SPECIMEN — Moby Dick's real ~28KB Etymology/Extracts front section 
 test("REAL SPECIMEN SWEEP — every other gutenberg book in this corpus is checked; a positive fire outside the known TOC-bearing specimens is reported by name",
   { skip: absent(GUTENBERG) }, () => {
   const entries = fs.readdirSync(GUTENBERG);
-  const KNOWN_TOC = new Set(["pg135_Les_Mis_rables__French_.txt"]);
+  // pg1661 and pg5827 were added to this allowlist on investigation, not to
+  // silence the assertion. Both fired for a real, external, documented
+  // reason: live_priors commit 87456f0 ("Fix 11 of 12 mislabeled files in
+  // 01-literature-books/gutenberg", 2026-09-09) — AFTER this test was
+  // written (bdfb0a3, 2026-08-29) — replaced each file's WRONG prior
+  // content with the real book. live_priors/digested/CORPUS-INTEGRITY-
+  // FINDING.md's second addendum records what each file actually held
+  // before that fix: pg1661 (claiming Twain) was actually Conan Doyle's
+  // "The Adventures of Sherlock Holmes"; pg5827 (claiming Marcus Aurelius)
+  // was actually Bertrand Russell's "The Problems of Philosophy". Neither
+  // wrong text happened to be TOC-shaped, so the sweep passed clean back
+  // then for the wrong reason — the real books were never actually
+  // checked. Read by hand against the CURRENT (correct) bytes: pg1661 has
+  // a genuine chapter-title-list table of contents ("Salvation" … "High up
+  // in Society") immediately before "PREFACE" and then real prose ("Most
+  // of the adventures recorded in this book really occurred…"), and
+  // detectFrontMatterRun's skipTo lands exactly on that real prose.
+  // pg5827 has a genuine "CONTENTS" list (NOTES, INTRODUCTION, FIRST BOOK
+  // … TWELFTH BOOK, APPENDIX, GLOSSARY) immediately before real
+  // "INTRODUCTION" prose ("MARCUS AURELIUS ANTONINUS was born on April
+  // 26, A.D. 121…"), and skipTo lands exactly there too. Both are the
+  // exact TOC-then-prose shape this function targets (S27), correctly
+  // detected — not a detector bug, and not a reason to weaken this
+  // assertion for anything else that might fire here in the future.
+  const KNOWN_TOC = new Set([
+    "pg135_Les_Mis_rables__French_.txt",
+    "pg1661_The_Adventures_of_Tom_Sawyer.txt",
+    "pg5827_Meditations_by_Marcus_Aurelius.txt",
+  ]);
   const fired = [];
   for (const name of entries) {
     if (!name.endsWith(".txt")) continue;
