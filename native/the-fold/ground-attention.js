@@ -8,19 +8,30 @@
 //
 // NAGARJUNA DOES NOT FAIL THINGS (user correction, this session — the
 // first version of this file used refuteRelation as a hard veto: a
-// refutation silently killed the fact). Nagarjuna's own header is explicit
-// about this already — "the veto organ: what the material REFUSES, never
-// what it licenses" and "never reports a check it could not run" — a
-// refutation-cleared candidate was never meant to be read as licensed OR
-// refused-and-therefore-worthless; it names what the material positively
-// says. What this file does with that naming: DECLARE a void
+// refutation silently killed the fact). And a second, deeper correction,
+// same session: VOID here is not absence — not a hole where a fact should
+// be — it is void in Nagarjuna's actual sense (sunyata): nothing gets to
+// stand on its own, independently, self-sufficiently, closing the
+// question by its own authority. The ground-selector's collapse names
+// which criterion clears its null; it does NOT thereby grant the winning
+// fact an inherent, unconditioned standing. What Nagarjuna's refutation
+// actually checks is whether that fact's claimed standing survives being
+// traced out to its own dependencies (here: does a positive counterexample
+// — a uniqueness violation or a cycle — exist among the referents it
+// rests on). Nagarjuna's own header is explicit that this asserts nothing
+// of its own — "the veto organ: what the material REFUSES, never what it
+// licenses" and "never reports a check it could not run" — a refutation-
+// cleared candidate is never licensed, only shown not-yet-collapsed. What
+// this file does with that finding: DECLARE a void
 // (the-fold/void-shape.js::declareVoid, the real 9-operator organ) whose
-// EVA·Figure cell — `admission`, "the test a candidate must pass to fill
-// any of it" — is worded from Nagarjuna's own disclosed finding. The fact
-// still fires on a clean selector collapse regardless of what that finding
-// says; the declared void ships ALONGSIDE it, on the record, so a caller
-// (or a later EVA step this file does not build) can actually run that
-// admission test rather than have Nagarjuna silently decide it.
+// EVA·Figure cell — `admission`, what a candidate must be shown to depend
+// on before it counts as covering any of this — is worded from Nagarjuna's
+// disclosed finding. The fact still fires on a clean selector collapse
+// regardless of what that finding says; the declared void ships ALONGSIDE
+// it, on the record, so a caller (or a later EVA step this file does not
+// build) can actually check that dependency rather than have Nagarjuna
+// silently decide it, and so the fact is never mistaken for something
+// that stands independently of the checking.
 //
 // THE ROUTER. organs/archon-compendium.js::matchArchons(text) already does
 // exactly what the very first design ask wanted ("if a question is
@@ -58,21 +69,22 @@ const GROUND_FACT = Object.freeze({
 });
 
 // Nagarjuna's disclosed finding, worded into the EVA·Figure admission
-// criterion a candidate fact would need to clear — reusing refuteRelation's
-// OWN disclosure text where possible rather than inventing a second,
-// drifting description of what it found.
+// cell: not "did the candidate pass," but what the candidate's standing
+// was actually traced back to and whether that tracing held up. Reuses
+// refuteRelation's OWN disclosure text where possible rather than
+// inventing a second, drifting description of what it found.
 function admissionFromRefutation(edges, winner, refuteRelation) {
   if (!edges || !edges.length) {
-    return "a positive counterexample (a uniqueness violation or a cycle) has not been checked — no relation edges were offered for this material";
+    return `"${winner}" has not been traced to anything that could refute it — no relation edges were offered for this material, so its standing is undetermined, not confirmed`;
   }
   const refutation = refuteRelation(edges, "corroborates", {});
   if (refutation.power === "insufficient") {
-    return `a positive counterexample has not been checked — ${refutation.powerDetail}`;
+    return `"${winner}" has not been traced to anything that could refute it — ${refutation.powerDetail}`;
   }
   if (refutation.refuted) {
-    return `a positive counterexample was found against treating "${winner}" as settled: ${refutation.reasons.join(", ")} — ${refutation.disclosure}`;
+    return `"${winner}" does not stand on its own: tracing its dependencies out found ${refutation.reasons.join(", ")} — ${refutation.disclosure}`;
   }
-  return `no positive counterexample (uniqueness violation or cycle) was found among the referents this rests on — ${refutation.disclosure}`;
+  return `"${winner}" has been traced to its dependencies and none collapsed under a positive counterexample (uniqueness violation or cycle) — ${refutation.disclosure}`;
 }
 
 /**

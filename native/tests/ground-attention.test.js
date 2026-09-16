@@ -39,9 +39,10 @@ test("groundAttention: a witness-shaped question over real firsthand material fi
   assert.equal(r.fired, true);
   assert.equal(r.winner, "what eyes and ears witnessed");
   // No edges offered — Nagarjuna says so plainly in the declared void's
-  // admission field, honest disclosure, never a silent "verified".
+  // admission field: undetermined standing, honest disclosure, never a
+  // silent "verified".
   const admissionCell = r.void.cells.find((c) => c.field === "admission");
-  assert.match(admissionCell.declared, /has not been checked/);
+  assert.match(admissionCell.declared, /undetermined, not confirmed/);
   assert.deepEqual(bannedHits(r.text), []);
   const lower = r.text.toLowerCase();
   for (const a of ARCHONS) {
@@ -59,7 +60,7 @@ test("groundAttention: Nagarjuna never fails the fact — a real counterexample 
   assert.equal(r.fired, true); // still fires — Nagarjuna does not fail things
   assert.equal(r.winner, "what eyes and ears witnessed");
   const admissionCell = r.void.cells.find((c) => c.field === "admission");
-  assert.match(admissionCell.declared, /positive counterexample was found/);
+  assert.match(admissionCell.declared, /does not stand on its own/);
   assert.match(admissionCell.declared, /cycle/);
 });
 
@@ -71,7 +72,7 @@ test("groundAttention: a checked-and-clean relation set words the admission test
   const r = groundAttention({ task: "was there an eyewitness account of the harbor fire?", records: FIRSTHAND_RECORDS, edges: cleanEdges }, deps);
   assert.equal(r.fired, true);
   const admissionCell = r.void.cells.find((c) => c.field === "admission");
-  assert.match(admissionCell.declared, /no positive counterexample/);
+  assert.match(admissionCell.declared, /none collapsed under a positive counterexample/);
   assert.doesNotMatch(admissionCell.declared, /\bverified\b/);
 });
 

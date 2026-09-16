@@ -57,7 +57,7 @@ function check(name, cond, detail) {
   check("firsthand material fires", r.fired === true, JSON.stringify(r.reason ?? r.winner));
   check("fires on the right criterion", r.winner === "what eyes and ears witnessed");
   const admissionCell = r.void?.cells.find((c) => c.field === "admission");
-  check("declared void's admission says not-checked (no edges offered), never a silent pass upgraded", /has not been checked/.test(admissionCell?.declared ?? ""));
+  check("declared void's admission says undetermined (no edges offered), never a silent pass upgraded", /undetermined, not confirmed/.test(admissionCell?.declared ?? ""));
   const leaks = bannedHits(r.text ?? "");
   check("emitted fact carries zero bannedHits leaks", leaks.length === 0, JSON.stringify(leaks));
   const lower = String(r.text ?? "").toLowerCase();
@@ -84,7 +84,7 @@ function check(name, cond, detail) {
   const r = groundAttention({ task: "was there an eyewitness account of the harbor fire?", records: FIRSTHAND_RECORDS, edges: cycleEdges }, deps);
   check("a real refutation still fires — Nagarjuna words the void, never fails the fact", r.fired === true, JSON.stringify(r));
   const admissionCell = r.void?.cells.find((c) => c.field === "admission");
-  check("the declared void's admission names the counterexample", /positive counterexample was found/.test(admissionCell?.declared ?? "") && /cycle/.test(admissionCell?.declared ?? ""));
+  check("the declared void's admission names the counterexample", /does not stand on its own/.test(admissionCell?.declared ?? "") && /cycle/.test(admissionCell?.declared ?? ""));
 }
 
 // 6. The handle table names only archons whose OWN role text is evidentiary.
