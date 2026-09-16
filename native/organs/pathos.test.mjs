@@ -29,6 +29,65 @@ test("strainOf: report when the record is clean, standard when contested, strict
   assert.equal(strainOf({ unlicensed: true }), "strict");
 });
 
+// ── ADVERSARIAL: strainOf trusts its input's TYPE, unlike its sibling gates ──
+//
+// Every other gate in this codebase that decides strict/veto/refuse validates
+// the SHAPE of what it's handed (fold-gate.js throws on a non-finite alpha,
+// experiencer.js throws on a non-string `who`). strainOf (line 43) does not:
+// it reads `cycles > 0` and `state.unlicensed` with raw JS truthiness/coercion,
+// and `.length` off whatever `contested`/`contradictions`/`expired` happen to
+// be — so a caller who passes the WRONG TYPE for a field (a typo, a stringly-
+// typed flag, a boolean where a count was meant) gets a real "strict"/"standard"
+// verdict instead of a rejection, silently over-firing the hamartia-gate on
+// malformed state rather than refusing to grade it.
+test("ADVERSARIAL: strainOf over-fires to 'strict' on a boolean `cycles` — no cycle was ever counted, only a flag coerced to 1", () => {
+  assert.equal(strainOf({ cycles: true }), "strict",
+    "a boolean true for `cycles` (perhaps a caller's stray flag, not an actual cycle count) coerces to 1 and fires strict exactly as a real cycle would");
+});
+
+test("ADVERSARIAL: strainOf over-fires to 'strict' on a STRING `cycles` via numeric coercion, and silently reads a numeric string of '0' as clean", () => {
+  assert.equal(strainOf({ cycles: "5" }), "strict", "'5' > 0 coerces true — a stringly-typed count fires exactly as a number would");
+  assert.equal(strainOf({ cycles: "0" }), "report", "and a string '0' reads as clean — the gate never notices the type was wrong either way");
+});
+
+test("ADVERSARIAL: strainOf over-fires to 'strict' on unlicensed:\"false\" — the STRING \"false\" is truthy in JS", () => {
+  // A caller who serializes state through JSON or a form and gets the string
+  // "false" instead of the boolean false (an extremely ordinary mistake) will
+  // have every reading silently escalated to "strict" (a directed cycle /
+  // unlicensed turn) when nothing of the kind occurred.
+  assert.equal(strainOf({ unlicensed: "false" }), "strict",
+    'the string "false" is truthy, so `state.unlicensed` fires strict on the literal text meaning "no"');
+  assert.equal(strainOf({ unlicensed: false }), "report", "the real boolean false correctly reads clean");
+});
+
+test("ADVERSARIAL: strainOf over-fires to 'standard' on a non-array, non-empty STRING for contested/contradictions/expired", () => {
+  // `.length` is read off whatever value is handed in, not validated to be an
+  // array of actual contested items — any truthy string (even one meaning
+  // nothing was contested, e.g. a caller-side placeholder like "no") has a
+  // nonzero `.length` and fires "standard".
+  assert.equal(strainOf({ contested: "no" }), "standard",
+    'a placeholder string "no" (length 2, truthy) is read as 2 contested items and fires standard');
+  assert.equal(strainOf({ contradictions: "none" }), "standard", "same for contradictions");
+  assert.equal(strainOf({ expired: "n/a" }), "standard", "same for expired");
+});
+
+// ── ADVERSARIAL: rhythm's flatline verdict fires from insufficient data, ──
+// not from genuine repetitiveness — the same "absence is not evidence"
+// discipline kind-standing.js/fold-gate.js hold explicitly is absent here.
+test("ADVERSARIAL: a single dramatic sentence is unconditionally 'flatline' — n=1 has zero variance by construction, not because the piece is boring", () => {
+  // pacing.js computes variance ACROSS sentences; with exactly one sentence
+  // there is nothing to vary against, so variance is always 0 and flatline
+  // is always true — regardless of how varied, tense, or eventful that one
+  // sentence's own content is. reGroundCondition then declares "stale"
+  // (Murch's boredom) for a text that was never actually read as boring,
+  // only under-sampled.
+  const dramatic = pathosOf({ text: "Everything he had built collapsed into ash in a single, unbearable instant.", experiencer: EXP });
+  assert.equal(dramatic.rhythm.flatline, true,
+    "a single eventful sentence reads flatline purely from sentence-count, not from its content");
+  assert.equal(reGroundCondition(dramatic).kind, "stale",
+    "and the re-ground condition over-fires 'stale' (ground untended) on a text that was never actually paced, only too short to measure pacing on");
+});
+
 // ── rhythm: Murch's pacing, the cut at the grain of the blink ────────────
 test("rhythm: a flatline piece is Murch's boredom — no blink, no cut", () => {
   const flat = pathosOf({ text: "One two three. Four five six. Seven eight nine. Ten eleven twelve.", experiencer: EXP });
