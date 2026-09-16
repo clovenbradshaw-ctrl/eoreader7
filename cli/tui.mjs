@@ -24,7 +24,8 @@
 // the terminals this was built against (iTerm2, Terminal.app, VS Code's
 // integrated terminal). Slash commands are the documented fallback for any
 // environment where a binding above is intercepted first: /new, /close,
-// /model <name>, /code, /chat, /help, /quit, /matrix, /github.
+// /model [n|name] (bare: lists the roster, numbered), /code, /chat, /help,
+// /quit, /matrix, /github.
 //
 // Two modes per tab: "chat" sends straight to proxy-client.chatCompletion
 // (the fold's grounded pipeline — retrieval/checking/citations already
@@ -120,7 +121,7 @@ function HelpOverlay() {
     h(Text, null, "Ctrl+H  toggle this help   Ctrl+C  quit"),
     h(Text, null, "Enter   send / approve     Esc     reject a pending confirmation"),
     h(Text, { bold: true, marginTop: 1 }, "Slash commands"),
-    h(Text, null, "/new  /close  /model <name>  /code  /chat  /help  /quit"),
+    h(Text, null, "/new  /close  /model [n|name]  /code  /chat  /help  /quit"),
     h(Text, null, "/matrix [status|login <hs> <user> <pw>|logout|whoami]  /github [status|login|logout]"),
     h(Text, { bold: true, marginTop: 1 }, "Modes"),
     h(Text, null, "chat — sent to the fold proxy's grounded reading pipeline."),
@@ -328,10 +329,21 @@ function App() {
         updateTab(tabId, (t) => ({ ...t, mode: "chat" }));
         break;
       case "model": {
-        if (!arg) { pushMessage(tabId, "note", `current model: ${tabs.find((t) => t.id === tabId)?.model ?? "(none)"}`); break; }
-        const match = models.find((m) => m === arg || m === proxyClient.withPrefix(arg))
+        const current = tabs.find((t) => t.id === tabId)?.model;
+        if (!arg) {
+          if (!models.length) { pushMessage(tabId, "note", "still discovering the model roster…"); break; }
+          const listing = models.map((m, i) => `  ${i + 1}. ${m}${m === current ? "  (current)" : ""}`).join("\n");
+          pushMessage(tabId, "note", `available models:\n${listing}\n/model <number|name> to switch`);
+          break;
+        }
+        // A number picks by the position the list above just showed
+        // (1-based, matching what a person reads off the screen — 0-based
+        // would be the one time this whole file counts from zero).
+        const asIndex = /^\d+$/.test(arg) ? Number(arg) - 1 : null;
+        const match = (asIndex !== null ? models[asIndex] : null)
+          ?? models.find((m) => m === arg || m === proxyClient.withPrefix(arg))
           ?? models.find((m) => m.toLowerCase().includes(arg.toLowerCase()));
-        if (!match) { pushMessage(tabId, "error", `no model matching "${arg}" — available: ${models.join(", ")}`); break; }
+        if (!match) { pushMessage(tabId, "error", `no model matching "${arg}" — /model lists what's available`); break; }
         updateTab(tabId, (t) => ({ ...t, model: match }));
         pushMessage(tabId, "note", `model set to ${match}`);
         break;
