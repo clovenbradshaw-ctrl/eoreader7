@@ -27,6 +27,13 @@ import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, obse
 import { checkQuantity } from "../the-fold/arithmetic.js";
 import { create, all } from "mathjs";
 const math = create(all);
+// Knights-and-knaves: a closed, enumerable boolean-consistency puzzle,
+// solved by exhaustive check — never narrated by the model. Found live in
+// THIS proxy's own TUI: a 5-archivist puzzle got a free-text deduction that
+// stalled mid-puzzle and, where it did finish, applied Knight/Knave
+// polarity backwards. Same shared-pipeline reasoning as `checkQuantity`
+// above — one fix here reaches every caller of this endpoint.
+import { checkLogicPuzzle } from "../the-fold/logic-puzzle.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -684,7 +691,7 @@ async function handleRequest(req, res) {
       // the identical posture — P4, a wrong mechanical answer would be
       // worse than none, but a claimed-and-unanswerable question is not a
       // silent miss either).
-      const found = checkQuantity(reqData.task, { math, now: new Date() });
+      const found = checkQuantity(reqData.task, { math, now: new Date() }) ?? checkLogicPuzzle(reqData.task);
       if (found) {
         const display = found.gap ? `${found.expression} — ${found.gap}` : found.display;
         log(`turn → session=${sessionId} computed kind=${found.kind ?? "arithmetic"}${found.op ? ` op=${found.op}` : ""} — computed, zero model calls`);
