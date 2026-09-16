@@ -96,9 +96,9 @@ function buildRegex(conv) {
   // SCANDAL IN BOHEMIA", numeral and title together on one line, not a
   // title on a following line and not a bare numeral alone.
   if (conv.titleOnSameLine) {
-    return new RegExp(`^${prefix}(?<numeral>${numPattern})${periodPattern}[ \\t]+(?<titleLine>\\S[^\\r\\n]*)\\r?\\n`, "gmd");
+    return new RegExp(`^[ \\t]*${prefix}(?<numeral>${numPattern})${periodPattern}[ \\t]+(?<titleLine>\\S[^\\r\\n]*)\\r?\\n`, "gmd");
   }
-  return new RegExp(`^${prefix}(?<numeral>${numPattern})${periodPattern}[ \\t]*\\r?\\n(?<titleLine>[^\\r\\n]*)\\r?\\n`, "gmd");
+  return new RegExp(`^[ \\t]*${prefix}(?<numeral>${numPattern})${periodPattern}[ \\t]*\\r?\\n(?<titleLine>[^\\r\\n]*)\\r?\\n`, "gmd");
 }
 
 // ── THE PROGRAMMATIC DOOR (2026-09-12) ─────────────────────────────────────

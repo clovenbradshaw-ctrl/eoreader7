@@ -1,0 +1,394 @@
+{
+ "chapter": 1,
+ "verbs": [
+  "lawgiver",
+  "of",
+  "ibn",
+  "al",
+  "evidence",
+  "treats",
+  "founded",
+  "school's",
+  "logician",
+  "on",
+  "gave",
+  "commentary",
+  "is",
+  "selection",
+  "teacher",
+  "doctrine",
+  "aesthetician",
+  "developed",
+  "formalist",
+  "in",
+  "and",
+  "are",
+  "zheng",
+  "who",
+  "between",
+  "transmission",
+  "prosody",
+  "philosophy",
+  "trans",
+  "philosopher",
+  "dictionary",
+  "operator",
+  "systems",
+  "space",
+  "river",
+  "that",
+  "to",
+  "v",
+  "epigrammatist"
+ ],
+ "cast": [
+  [
+   "Bencao Gangmu",
+   "ref:auto:bencao_gangmu"
+  ],
+  [
+   "Clint Eastwood",
+   "ref:auto:clint_eastwood"
+  ],
+  [
+   "Nine Chapters",
+   "ref:auto:nine_chapters"
+  ],
+  [
+   "Shuowen Jiezi",
+   "ref:auto:shuowen_jiezi"
+  ],
+  [
+   "Stanley Kubrick",
+   "ref:auto:stanley_kubrick"
+  ],
+  [
+   "Tekhne Grammatike",
+   "ref:auto:tekhne_grammatike"
+  ],
+  [
+   "Terry Gross",
+   "ref:auto:terry_gross"
+  ],
+  [
+   "Arthur Koestler",
+   "ref:auto:arthur_koestler"
+  ],
+  [
+   "Claude Berge",
+   "ref:auto:claude_berge"
+  ],
+  [
+   "Craige Roberts",
+   "ref:auto:craige_roberts"
+  ],
+  [
+   "Dai Zhen",
+   "ref:auto:dai_zhen"
+  ],
+  [
+   "Dionysius Thrax",
+   "ref:auto:dionysius_thrax"
+  ],
+  [
+   "Emmanuel Levinas",
+   "ref:auto:emmanuel_levinas"
+  ],
+  [
+   "Erving Goffman",
+   "ref:auto:erving_goffman"
+  ],
+  [
+   "Fresh Air",
+   "ref:auto:fresh_air"
+  ],
+  [
+   "Herbert H Clark",
+   "ref:auto:herbert_h_clark"
+  ],
+  [
+   "Ibn Khaldun",
+   "ref:auto:ibn_khaldun"
+  ],
+  [
+   "Karl Popper",
+   "ref:auto:karl_popper"
+  ],
+  [
+   "Kurt Vonnegut",
+   "ref:auto:kurt_vonnegut"
+  ],
+  [
+   "Leonard B Meyer",
+   "ref:auto:leonard_b_meyer"
+  ],
+  [
+   "Liu Hui",
+   "ref:auto:liu_hui"
+  ],
+  [
+   "Mathematical Art",
+   "ref:auto:mathematical_art"
+  ],
+  [
+   "Pierre Bourdieu",
+   "ref:auto:pierre_bourdieu"
+  ],
+  [
+   "README Handle",
+   "ref:auto:readme_handle"
+  ],
+  [
+   "Sima Qian",
+   "ref:auto:sima_qian"
+  ],
+  [
+   "Viktor Shklovsky",
+   "ref:auto:viktor_shklovsky"
+  ],
+  [
+   "Walter Murch",
+   "ref:auto:walter_murch"
+  ],
+  [
+   "BCE",
+   "ref:auto:bce"
+  ],
+  [
+   "README",
+   "ref:auto:readme_handle"
+  ],
+  [
+   "The Confucian",
+   "ref:auto:the_confucian"
+  ],
+  [
+   "White",
+   "ref:auto:white"
+  ],
+  [
+   "Ashtadhyayi",
+   "ref:auto:ashtadhyayi"
+  ],
+  [
+   "Bencao",
+   "ref:auto:bencao_gangmu"
+  ],
+  [
+   "Clint",
+   "ref:auto:clint_eastwood"
+  ],
+  [
+   "Ganges",
+   "ref:auto:ganges"
+  ],
+  [
+   "Natyasastra",
+   "ref:auto:natyasastra"
+  ],
+  [
+   "Nine",
+   "ref:auto:nine_chapters"
+  ],
+  [
+   "Odyssey",
+   "ref:auto:odyssey"
+  ],
+  [
+   "One Thousand",
+   "ref:auto:one_thousand"
+  ],
+  [
+   "Physiology",
+   "ref:auto:physiology"
+  ],
+  [
+   "Sahih",
+   "ref:auto:sahih"
+  ],
+  [
+   "Sanskrit",
+   "ref:auto:sanskrit"
+  ],
+  [
+   "Shiji",
+   "ref:auto:shiji"
+  ],
+  [
+   "Shuowen",
+   "ref:auto:shuowen_jiezi"
+  ],
+  [
+   "Sirens",
+   "ref:auto:sirens"
+  ],
+  [
+   "Stanley",
+   "ref:auto:stanley_kubrick"
+  ],
+  [
+   "Tekhne",
+   "ref:auto:tekhne_grammatike"
+  ],
+  [
+   "Terry",
+   "ref:auto:terry_gross"
+  ],
+  [
+   "The Elements",
+   "ref:auto:the_elements"
+  ],
+  [
+   "Arthur",
+   "ref:auto:arthur_koestler"
+  ],
+  [
+   "Begriffsschrift",
+   "ref:auto:begriffsschrift"
+  ],
+  [
+   "Brahmasphutasiddhanta",
+   "ref:auto:brahmasphutasiddhanta"
+  ],
+  [
+   "Claude",
+   "ref:auto:claude_berge"
+  ],
+  [
+   "Craige",
+   "ref:auto:craige_roberts"
+  ],
+  [
+   "Dionysius",
+   "ref:auto:dionysius_thrax"
+  ],
+  [
+   "Emmanuel",
+   "ref:auto:emmanuel_levinas"
+  ],
+  [
+   "English",
+   "ref:auto:english"
+  ],
+  [
+   "Erving",
+   "ref:auto:erving_goffman"
+  ],
+  [
+   "Fresh",
+   "ref:auto:fresh_air"
+  ],
+  [
+   "Herbert",
+   "ref:auto:herbert_h_clark"
+  ],
+  [
+   "Herbert H",
+   "ref:auto:herbert_h_clark"
+  ],
+  [
+   "Karl",
+   "ref:auto:karl_popper"
+  ],
+  [
+   "Kitab",
+   "ref:auto:kitab"
+  ],
+  [
+   "Kurt",
+   "ref:auto:kurt_vonnegut"
+  ],
+  [
+   "Leonard",
+   "ref:auto:leonard_b_meyer"
+  ],
+  [
+   "Leonard B",
+   "ref:auto:leonard_b_meyer"
+  ],
+  [
+   "Li Shizhen",
+   "ref:auto:li_shizhen"
+  ],
+  [
+   "Liu",
+   "ref:auto:liu_hui"
+  ],
+  [
+   "Mathematical",
+   "ref:auto:mathematical_art"
+  ],
+  [
+   "Olmstead",
+   "ref:auto:olmstead"
+  ],
+  [
+   "Pierre",
+   "ref:auto:pierre_bourdieu"
+  ],
+  [
+   "The Jain",
+   "ref:auto:the_jain"
+  ],
+  [
+   "The Right",
+   "ref:auto:the_right"
+  ],
+  [
+   "Viktor",
+   "ref:auto:viktor_shklovsky"
+  ],
+  [
+   "Walter",
+   "ref:auto:walter_murch"
+  ],
+  [
+   "Xu Shen",
+   "ref:auto:xu_shen"
+  ],
+  [
+   "CE",
+   "ref:auto:ce"
+  ],
+  [
+   "Grand",
+   "ref:auto:grand"
+  ],
+  [
+   "Grand Historian",
+   "ref:auto:grand_historian"
+  ],
+  [
+   "Grand Shrine",
+   "ref:auto:grand_shrine"
+  ],
+  [
+   "One Nights",
+   "ref:auto:one_nights"
+  ],
+  [
+   "John",
+   "ref:auto:john"
+  ],
+  [
+   "John Henry",
+   "ref:auto:john_henry"
+  ],
+  [
+   "John Henry Wigmore",
+   "ref:auto:john_henry_wigmore"
+  ],
+  [
+   "Li",
+   "ref:auto:li"
+  ],
+  [
+   "The Grand",
+   "ref:auto:the_grand"
+  ],
+  [
+   "Xu",
+   "ref:auto:xu"
+  ]
+ ]
+}

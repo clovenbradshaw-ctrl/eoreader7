@@ -431,6 +431,43 @@ const pushSentence = (s, start, end, out) => {
   out.push({ text: trimmed, offset: start + leading, order: out.length });
 };
 
+// A NAME'S INITIAL IS NOT A STOP. Structural, like the decimal-point guard: no
+// word list, only letter case, so it holds for any cased script and never
+// fires in one without case. A period after a single uppercase letter is an
+// initial when the letter stands inside a name — after a capitalised word or
+// another initial, or before another initial — and the next word, after
+// spaces, opens with an uppercase letter. The abbreviation fallback above
+// cannot see this: it needs a token twice in the text it is handed, and every
+// reader hands one chunk at a time, so "Ulysses S. Grant was born in Point
+// Pleasant" was split at "S." and the claim lost its subject (2026-09-16).
+//
+// Measured before it shipped, over War and Peace and five Wikipedia pages:
+// 314 boundaries removed — about 300 of them names ("John F. Kennedy",
+// "A. M. Turing", "J. E. B. Stuart") — and 6 real sentence ends merged ("July
+// 1969, A. D. We came in peace", and bibliography entries whose author ends in
+// an initial before a title). A merge joins two sentences; a split severs a
+// name from its own claim. A line break after the letter stays a boundary.
+const UPPERCASE = /\p{Lu}/u;
+const LETTER_CHAR = /\p{L}/u;
+const isNameInitial = (s, i, rangeStart, rangeEnd) => {
+  const x = i - 1;
+  if (x < rangeStart || !UPPERCASE.test(s[x])) return false;
+  if (x > rangeStart && LETTER_CHAR.test(s[x - 1])) return false; // the end of a word, not a single letter
+  let n = i + 1;
+  while (n < rangeEnd && (s[n] === " " || s[n] === "\t")) n += 1;
+  if (n === i + 1 || n >= rangeEnd || !UPPERCASE.test(s[n])) return false;
+  const beforeInitial = s[n + 1] === "." && !(n + 2 < rangeEnd && LETTER_CHAR.test(s[n + 2]));
+  let p = x - 1;
+  while (p >= rangeStart && (s[p] === " " || s[p] === "\t")) p -= 1;
+  if (p === x - 1) return beforeInitial;
+  let w = p;
+  while (w >= rangeStart && LETTER_CHAR.test(s[w])) w -= 1;
+  const previous = s.slice(w + 1, p + 1);
+  const afterCapitalised = previous.length >= 2 && UPPERCASE.test(previous[0]);
+  const afterInitial = p > rangeStart && s[p] === "." && UPPERCASE.test(s[p - 1]) && !(p - 2 >= rangeStart && LETTER_CHAR.test(s[p - 2]));
+  return afterCapitalised || afterInitial || beforeInitial;
+};
+
 const splitSentencesInRange = (s, rangeStart, rangeEnd, out, abbreviations) => {
   let start = rangeStart;
   for (let i = rangeStart; i < rangeEnd; i++) {
@@ -439,6 +476,7 @@ const splitSentencesInRange = (s, rangeStart, rangeEnd, out, abbreviations) => {
     while (end < rangeEnd && CLOSING_QUOTES.has(s[end])) end += 1;
     if (end < rangeEnd && !/\s/.test(s[end])) continue; // a decimal point, not a stop
     if (s[i] === "." && abbreviations.has(tokenEndingAt(s, i))) continue; // a title, not a stop
+    if (s[i] === "." && end === i + 1 && isNameInitial(s, i, rangeStart, rangeEnd)) continue; // an initial, not a stop
     pushSentence(s, start, end, out);
     start = end;
   }

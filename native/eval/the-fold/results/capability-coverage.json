@@ -11,7 +11,7 @@
  ],
  "registry": {
   "source": "capacities.js",
-  "entries": 30,
+  "entries": 35,
   "selfDescribed": "a DATA TABLE, NOT A RUNTIME — 'starts, deliberately does not finish, the library seed' (its own header)"
  },
  "counts": {
@@ -164,7 +164,8 @@
      "grain": "Ground",
      "terrain": "Atmosphere",
      "organs": [
-      "atmosphere"
+      "atmosphere",
+      "drift"
      ]
     }
    ]
@@ -181,7 +182,8 @@
      "grain": "Figure",
      "terrain": "Entity",
      "organs": [
-      "cast"
+      "cast",
+      "recall"
      ]
     },
     {
@@ -191,7 +193,8 @@
      "grain": "Figure",
      "terrain": "Link",
      "organs": [
-      "relations"
+      "relations",
+      "positionalSlots"
      ]
     },
     {
@@ -276,7 +279,8 @@
      "grain": "Ground",
      "terrain": "Atmosphere",
      "organs": [
-      "regime"
+      "regime",
+      "dream"
      ]
     }
    ]
@@ -343,7 +347,8 @@
      "terrain": "Network",
      "organs": [
       "graph",
-      "derive"
+      "derive",
+      "correspond"
      ]
     },
     {

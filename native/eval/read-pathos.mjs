@@ -85,7 +85,7 @@ function stateFrom(entries, fold) {
 function condense(read) {
   return {
     forWhom: read.forWhom,
-    rhythm: { flatline: read.rhythm.flatline, blinks: read.rhythm.blinks, dense: read.rhythm.dense, ratio: read.rhythm.ratio, n: read.rhythm.n },
+    rhythm: { flatline: read.rhythm.flatline, blinks: read.rhythm.blinks, dense: read.rhythm.dense, ratio: read.rhythm.ratio, mean: read.rhythm.mean, n: read.rhythm.n },
     curve: {
       measured: read.curve.measured,
       surpriseOperations: read.curve.surprise?.operations ?? null,

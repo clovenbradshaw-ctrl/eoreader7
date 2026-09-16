@@ -96,6 +96,66 @@ export const POSITIONAL_SIGNATURE = "before=^";
 export const isPositionallySigned = (kind) => kind?.signature === POSITIONAL_SIGNATURE;
 
 /**
+ * PROCLITIC PEELING — a language's own bound proclitics (received,
+ * giver-named: `ProcliticPrior@1`, derived mechanically from a UD
+ * treebank's own multi-word-token split convention by
+ * `scripts/build-proclitic-prior.mjs` — never a hand-typed list of
+ * "known articles/prepositions") stripped from the FRONT of a word
+ * before the company signal ever sees it.
+ *
+ * WHY. Hebrew and Arabic glue a determiner/conjunction/preposition
+ * directly onto the following word with no space — Hebrew "הפילוסופיות"
+ * is ה ("the") + "פילוסופיות" ("philosophies") written as one string,
+ * Arabic "وأرسطو" is و ("and") + "أرسطو" ("Aristotle") the same way. Left
+ * fused, this hides BOTH ends of the company signal this module depends
+ * on: a common noun's own determiner (its `before=` word) is invisible
+ * because it never appears as a separate token, so the noun looks
+ * positionally signed like a name; and a NAME's occurrences fragment
+ * across every proclitic combination it happens to appear with, none of
+ * them individually recurring enough to clear `minMentions`. Measured
+ * live: a real Hebrew Wikipedia article surfaced "הפילוסופיות" as a false
+ * being; a real Arabic Wikipedia article of comparable length recovered
+ * ZERO proper names, because a genuinely-present name never once reached
+ * `minMentions` under its own bare spelling — every mention was fused to
+ * a different proclitic.
+ *
+ * ONLY COMMITTED WHEN THE DATA CONFIRMS IT — never a guessed split. A
+ * word beginning with a declared proclitic character is peeled ONE LAYER
+ * AT A TIME (both languages productively stack more than one — "and in
+ * the" is an ordinary construction), and the peel is kept only if the
+ * FINAL remainder is independently attested in the received POS prior —
+ * the same "ask the giver in the giver's own units" discipline this
+ * file's English clitic check already uses (`settledNonNaming`'s
+ * stem-before-the-apostrophe check), mirrored to a PREFIX instead of a
+ * suffix. A word that never bottoms out at an attested form — a genuine
+ * root that happens to start with the same letter (Hebrew "הוא" "he",
+ * "הם" "they") — is left completely untouched: the safety is structural
+ * (the giver's own vocabulary), not a hand-typed exception list.
+ */
+const PROCLITIC_MAX_PEEL = 3;
+export const peelProclitics = (word, proclitics, posPrior) => {
+  if (!proclitics || !proclitics.size || !posPrior?.forms) return null;
+  const peeled = [];
+  let rest = word;
+  for (let depth = 0; depth < PROCLITIC_MAX_PEEL; depth++) {
+    if (rest.length < 3) break; // need room for a real stem after the peel
+    const lead = rest[0];
+    if (!proclitics.has(lead)) break;
+    const candidate = rest.slice(1);
+    peeled.push(lead);
+    rest = candidate;
+    if (posPrior.forms[rest]) return { proclitics: peeled, stem: rest };
+  }
+  return null;
+};
+
+const applyProcliticPeel = (text, proclitics, posPrior) =>
+  text.replace(/[\p{L}\p{N}']+/gu, (word) => {
+    const peel = peelProclitics(word, proclitics, posPrior);
+    return peel ? [...peel.proclitics, peel.stem].join(" ") : word;
+  });
+
+/**
  * heardSurfaces(sentences, {minMentions, minShare, minMembers, nullArm})
  *
  * Returns `[{surface, mentions, sentences}]` — deliberately the SAME shape
@@ -108,15 +168,23 @@ export const isPositionallySigned = (kind) => kind?.signature === POSITIONAL_SIG
  * `nullArm` is forwarded to `discoverCompanyKinds` and is how a caller buys
  * II.23's control — a kind whose share does not beat the shuffled ceiling
  * is not admitted.
+ *
+ * `proclitics` — optional, a received `ProcliticPrior@1.proclitics` array
+ * or `Set` for this material's language. Omitted, behaviour is
+ * byte-identical to before this existed (no caller currently supplies it).
  */
-export function heardSurfaces(sentences, { minMentions, minShare, minMembers, nullArm = null, clean, posPrior = null, classifyWord = null, dominantClass = null, classShare = 0.5 } = {}) {
+export function heardSurfaces(sentences, { minMentions, minShare, minMembers, nullArm = null, clean, posPrior = null, classifyWord = null, dominantClass = null, classShare = 0.5, proclitics = null } = {}) {
   for (const [k, v] of Object.entries({ minMentions, minShare, minMembers }))
     if (!Number.isFinite(v)) throw new Error(`heardSurfaces: ${k} must be declared`);
   const gated = posPrior && classifyWord && dominantClass;
+  const procliticSet = proclitics ? new Set(proclitics) : null;
 
   // THE EAR HAS NO CASE. Folding here, not downstream, so nothing below can
   // accidentally recover a distinction a listener never had.
-  const heard = (sentences ?? []).map((s) => ({ text: String(s?.text ?? s ?? "").toLowerCase() }));
+  const heard = (sentences ?? []).map((s) => {
+    const lower = String(s?.text ?? s ?? "").toLowerCase();
+    return { text: procliticSet && posPrior ? applyProcliticPeel(lower, procliticSet, posPrior) : lower };
+  });
 
   // The vocabulary is the material's own recurring terms — no list, no
   // lexicon, no capital letters. A term must recur to be a candidate at

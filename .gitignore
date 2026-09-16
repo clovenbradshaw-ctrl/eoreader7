@@ -37,6 +37,15 @@ native/eval/the-fold/results/longform-code-*/
 # degrades with a named "(absent: …)" line when a page is missing.
 native/eval/the-fold/fixtures/sanriku/*.html
 
+# The Chicago world's fair corpus, relocated out of the repo root on
+# 2026-09-15 (Kondo sweep): retained third-party web pages read by
+# demo-void-outline.mjs and vonnegut-extract.mjs — the same fetched-pages-
+# kept-local category as sanriku and primary-faces above, never committed.
+native/eval/the-fold/fixtures/chicago/
+
+# Python bytecode caches from the visual-detect helper beside it.
+native/eval/lavar/__pycache__/
+
 # civic-research-walk.mjs (and any subject-naming investigative walk this
 # driver shape is reused for) is a TEST OF THE INSTRUMENT, not a permanent
 # finding, and its target is frequently a real, specific, living subject —
@@ -72,3 +81,25 @@ _smoke_*.mjs
 cli/alice.txt
 proxy-debug.mjs
 *.bak
+
+# moral-shadow.js runtime session log (ER7_SHADOW_DIR), same category as heimdall-log.jsonl
+native/moral-shadows/
+
+# Claude Code local tool/session state (worktree scratch, not project content)
+.claude/
+
+# Retired legacy-eoreader6.1 submodule left on disk after the retirement
+# commit (8445a84); its own nested .git makes it appear as one opaque
+# untracked entry here. Not new work — leftover debris, never re-add.
+legacy-eoreader6.1/
+
+# Multilingual literary corpus (fetched third-party texts + generated
+# out/*.json run outputs) for the pathos organ. Same "fetched pages cached
+# for offline replay, never committed" category as sanriku/, chicago/, and
+# civic-research-faces/ above — some sources (e.g. a film transcript) also
+# carry copyright concerns a public research repo shouldn't hold verbatim.
+native/eval/pathos-corpus/
+
+# UHS housing report: a fetched PDF plus its scanned-page PNG cache. Same
+# "cached third-party document for offline replay" category as sanriku/chicago.
+native/eval/housing/

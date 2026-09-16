@@ -56,6 +56,24 @@
       "titleOnSameLine": false,
       "foundIn": "guerre-et-paix_Tolstoy_Bienstock_wikisource.txt",
       "foundVia": "mechanical (skeleton recurrence + monotonic numeral)"
+    },
+    {
+      "name": "Article <arabic>",
+      "word": "Article",
+      "numeralType": "arabic",
+      "requiresPeriod": false,
+      "titleOnSameLine": false,
+      "foundIn": "udhr-eng.txt (Universal Declaration of Human Rights, 516-language UN corpus)",
+      "foundVia": "mechanical (skeleton recurrence + monotonic numeral)"
+    },
+    {
+      "name": "Article <arabic>",
+      "word": "Article",
+      "numeralType": "arabic",
+      "requiresPeriod": false,
+      "titleOnSameLine": false,
+      "foundIn": "udhr-eng.txt",
+      "foundVia": "mechanical (skeleton recurrence + monotonic numeral)"
     }
   ]
 }

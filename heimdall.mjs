@@ -7,6 +7,20 @@
 // every proxy process that fronts Ollama. Heimdall watches each one, re-forges
 // the dead ones, and steers each request across the healthy ones.
 //
+// Huginn, Muninn and Kairos (the-fold/huginn.js, muninn.js, kairos.js) are
+// his three — the triad under the bridge. Huginn is the watcher of model
+// PRIORITIZATION — which model answers which job, ranked by measured
+// evidence and hopped on typed failure, room mouths included. Muninn is
+// the watcher of MEMORY — what is recalled into the turn from the record,
+// and what earns standing, never a word of it replacing the record's own
+// bytes. Kairos is the watcher of the PATTERN — whether the turn's
+// difference made a difference, the sign (pattern / noise / gap) over the
+// aperture's measured surprise and the correspondence acts, never a metric
+// displayed and never a verdict from an unmeasured gap. Heimdall is the
+// boss: the surfaces, the steering, the admission and the re-forging stay
+// here; the three answer only under the bridge. The register lives in
+// the-fold's solon.js — the one authoritative list, never restated here.
+//
 // The loop, in this system's own act vocabulary:
 //   DEF  — declare the void: every surface watched, and a suspected breakdown.
 //   EVA  — evaluate: actually probe each surface, get a verdict.
@@ -95,8 +109,13 @@ const SURFACE_SPECS = String(process.env.ER7_SURFACES ?? "").trim()
     })
   : [
       // Defaults: what this machine actually runs today. The er7 proxy (the
-      // model the reader surfaces) and the three the-fold proxies.
+      // model the reader surfaces), the three the-fold proxies, and the fold
+      // chat server itself (serve.mjs :8811) — the surface the page loads
+      // from, whose /heimdall also folds in the page's own browser-side
+      // connection vitals (2026-09-13), so a watcher that cannot see inside
+      // a browser still sees the page's engine and its Matrix room tie.
       { name: "er7", port: 11436, cwd: HERE, cmd: "node proxy.mjs" },
+      { name: "fold-chat", port: 8811, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node serve.mjs" },
       { name: "fold-8812", port: 8812, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node explore-server.mjs" },
       { name: "fold-8819", port: 8819, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node explore-server.mjs 8819" },
       { name: "fold-8837", port: 8837, cwd: "/Users/mlacy/Documents/3.0/the-fold", cmd: "node explore-server.mjs 8837" },
@@ -105,7 +124,7 @@ const SURFACE_SPECS = String(process.env.ER7_SURFACES ?? "").trim()
 const FAMILY_OF = (surfaceName) =>
   (String(process.env.ER7_SURFACE_FAMILIES ?? "").trim()
     ? Object.fromEntries(String(process.env.ER7_SURFACE_FAMILIES).trim().split(/\s+/).filter(Boolean).map((kv) => kv.split(":")))
-    : { er7: "er7", "fold-8812": "fold", "fold-8819": "fold", "fold-8837": "fold" })[surfaceName] ?? "any";
+    : { er7: "er7", "fold-chat": "fold", "fold-8812": "fold", "fold-8819": "fold", "fold-8837": "fold" })[surfaceName] ?? "any";
 
 // A surface declares its own HEALTH PATH — the endpoint that tells the truth
 // about it. The er7 proxy answers /health; the-fold's explore-server does
@@ -115,7 +134,7 @@ const FAMILY_OF = (surfaceName) =>
 const HEALTH_PATH_OF = (surfaceName) =>
   (String(process.env.ER7_SURFACE_HEALTH ?? "").trim()
     ? Object.fromEntries(String(process.env.ER7_SURFACE_HEALTH).trim().split(/\s+/).filter(Boolean).map((kv) => kv.split(":")))
-    : { er7: "/health", "fold-8812": "/v1/models", "fold-8819": "/v1/models", "fold-8837": "/v1/models" })[surfaceName] ?? "/health";
+    : { er7: "/health", "fold-chat": "/health", "fold-8812": "/v1/models", "fold-8819": "/v1/models", "fold-8837": "/v1/models" })[surfaceName] ?? "/health";
 
 const restartEnvFor = (name) =>
   Object.fromEntries(
@@ -221,15 +240,32 @@ async function collectFastVitals() {
     const [l1, l5, l15] = load.replace(/[{}]/g, "").trim().split(/\s+/).map(Number);
     v.load1 = l1; v.load5 = l5; v.load15 = l15;
   }
-  const pidLine = await execOut("pgrep", ["-f", "llama-server"], 2000);
-  const pid = pidLine?.trim().split("\n")[0];
-  if (pid) {
-    v.ollamaPid = Number(pid);
-    const ps = await execOut("ps", ["-o", "%cpu=,rss=", "-p", pid], 2000);
-    if (ps) {
-      const parts = ps.trim().split(/\s+/);
-      v.ollamaCpu = Number(parts[0] ?? null);
-      v.ollamaMemMb = parts[1] ? Math.round(Number(parts[1]) / 1024) : null;
+  // THE RUNNER IS NOT ALWAYS CALLED llama-server (fixed 2026-09-15). This read
+  // was `pgrep -f llama-server`, and every vitals row this watcher ever wrote
+  // carried `ollamaPid: null` — not because Ollama was idle, but because that
+  // name only matches ONE of the two installs on this box: the Ollama.app
+  // runner is `…/Resources/llama-server`, while the Homebrew server (the one
+  // actually serving :11434 as of 14:01 today) re-execs ITSELF as the runner,
+  // `/opt/homebrew/Cellar/ollama/…/libexec/ollama`, which that pattern can
+  // never match. So the process is found by what it DOES rather than by what
+  // it is called: among everything whose command line names ollama or
+  // llama-server, the runner is the one holding the weights — the largest
+  // resident set. No match is a typed null, as before.
+  const table = await execOut("ps", ["-Ao", "pid=,rss=,%cpu=,args="], 3000);
+  if (table) {
+    let best = null;
+    for (const row of table.split("\n")) {
+      const m = /^\s*(\d+)\s+(\d+)\s+([\d.]+)\s+(.*)$/.exec(row);
+      if (!m) continue;
+      const args = m[4];
+      if (!/ollama|llama-server/i.test(args) || /pgrep|grep /.test(args)) continue;
+      const rss = Number(m[2]);
+      if (!best || rss > best.rss) best = { pid: Number(m[1]), rss, cpu: Number(m[3]) };
+    }
+    if (best) {
+      v.ollamaPid = best.pid;
+      v.ollamaCpu = best.cpu;
+      v.ollamaMemMb = Math.round(best.rss / 1024);
     }
   }
   return v;
@@ -342,6 +378,137 @@ async function refreshSlowVitals() {
 let lastVitals = null;
 const VITALS_LOG_MS = Number(process.env.ER7_HEIMDALL_VITALS_LOG ?? 15000);
 
+// ── THE MODELS ON THE BRIDGE: which model is loaded, at which window ──────
+// The watcher could see the box (load, CPU, GPU) and every surface, and could
+// NOT see the one fact that decides what a prompt costs and whether it fits:
+// the context window Ollama actually loaded a model at. Measured on this box
+// 2026-09-15: gemma2:2b was reloaded between an 8192-token window and a
+// 4352-token one all day — 238 loads and ~40 min of load time in 4.5 h —
+// because different callers asked for different num_ctx, and Ollama reloads a
+// runner whenever the requested window differs from the loaded one. Every
+// switch is a full re-load of the weights, and none of it reached this log.
+//
+// This is that eye: /api/ps on the same tick as vitals. A read that fails is
+// a typed null — unknown, never convicting, the same rule the surface probes
+// hold. A model seen at a DIFFERENT window than last tick lands a
+// `window_changed` finding, and a storm of them escalates exactly as a
+// restart storm does. Kondo (the-fold/kondo.js) reads `loadedWindowOf` to say
+// whether a prompt fits the window it will really run in.
+let ollamaModels = null;
+const windowSeen = new Map(); // model -> { contextLength, switches: [ms] }
+
+// ── WHAT EACH MODEL ACTUALLY DOES, MEASURED FROM REAL TRAFFIC ────────────
+// Asked for a model's real throughput, this watcher had nothing to say, and
+// the obvious source does not exist: the Ollama.app writes a parseable
+// per-request log (~/.ollama/logs/server.log) but the Homebrew server now
+// serving this box writes none, so scraping a log would measure whichever
+// install happened to be running — a fact about the log, not about the box.
+//
+// The numbers already exist at every caller: Ollama returns
+// prompt_eval_count/duration, eval_count/duration and load_duration on the
+// done chunk of every single call. So a surface REPORTS what it already
+// measured (`observeCall`), and the bridge keeps the account: totals per
+// model, and an EWMA so a rate follows the box rather than averaging away a
+// bad hour. Nothing here spends a model call of its own to find out — a
+// watcher that generates load to measure load is the self-defense loop's own
+// refuted move.
+//
+// Measured while building this, and the reason it is worth keeping: gemma2:2b
+// answered at 15.8 tok/s on an idle box and averaged 4.4 tok/s across a real
+// 4.5-hour working window — the same model, ~3.6x slower under contention.
+// A number like that is invisible without this.
+const throughput = new Map(); // model -> { calls, promptTokens, promptMs, genTokens, genMs, loads, loadMs, genRate, promptRate }
+const EWMA = 0.3;
+
+/**
+ * One finished call, as its caller already measured it. Every field optional:
+ * a caller that knows only some of them still contributes what it has, and a
+ * zero-duration read is dropped rather than turned into an infinite rate.
+ */
+export function observeCall({ model, promptTokens = 0, promptMs = 0, genTokens = 0, genMs = 0, loadMs = 0 } = {}) {
+  if (!model) return null;
+  const t = throughput.get(model) ?? { calls: 0, promptTokens: 0, promptMs: 0, genTokens: 0, genMs: 0, loads: 0, loadMs: 0, genRate: null, promptRate: null };
+  t.calls++;
+  t.promptTokens += promptTokens; t.promptMs += promptMs;
+  t.genTokens += genTokens; t.genMs += genMs;
+  // A load_duration over ~100ms is a real (re)load, not a cache hit: measured
+  // on this box, an already-resident model answers with ~120ms and a genuine
+  // reload with ~1,200ms.
+  if (loadMs > 100) { t.loads++; t.loadMs += loadMs; }
+  if (genTokens > 0 && genMs > 0) {
+    const rate = genTokens / (genMs / 1000);
+    t.genRate = t.genRate == null ? rate : EWMA * rate + (1 - EWMA) * t.genRate;
+  }
+  if (promptTokens > 0 && promptMs > 0) {
+    const rate = promptTokens / (promptMs / 1000);
+    t.promptRate = t.promptRate == null ? rate : EWMA * rate + (1 - EWMA) * t.promptRate;
+  }
+  throughput.set(model, t);
+  return t;
+}
+
+/** What a model is doing lately: rates, totals, and how often it reloaded. */
+export function throughputOf(model = null) {
+  const shape = (m, t) => ({
+    model: m,
+    calls: t.calls,
+    genTokPerSec: t.genRate == null ? null : Math.round(t.genRate * 10) / 10,
+    promptTokPerSec: t.promptRate == null ? null : Math.round(t.promptRate),
+    genTokens: t.genTokens, promptTokens: t.promptTokens,
+    genSeconds: Math.round(t.genMs / 1000), promptSeconds: Math.round(t.promptMs / 1000),
+    reloads: t.loads, reloadSeconds: Math.round(t.loadMs / 1000),
+    window: loadedWindowOf(m),
+  });
+  if (model) { const t = throughput.get(model); return t ? shape(model, t) : null; }
+  return [...throughput.entries()].map(([m, t]) => shape(m, t)).sort((a, b) => b.genSeconds - a.genSeconds);
+}
+
+/** The window a model is loaded at right now, or null when unknown. */
+export function loadedWindowOf(model) {
+  const row = (ollamaModels ?? []).find((m) => m.name === model);
+  return Number.isFinite(row?.contextLength) ? row.contextLength : null;
+}
+/** Every model resident right now, or null when the read failed. */
+export function loadedModels() {
+  return ollamaModels;
+}
+
+async function refreshOllamaModels() {
+  let models;
+  try {
+    const res = await fetchWithTimeout(`${OLLAMA_URL}/api/ps`, 3000);
+    if (!res.ok) return;
+    const body = await res.json();
+    models = (body?.models ?? []).map((m) => ({
+      name: m.name ?? m.model ?? null,
+      contextLength: Number.isFinite(m.context_length) ? m.context_length : null,
+      vramMb: Number.isFinite(m.size_vram) ? Math.round(m.size_vram / 1048576) : null,
+      expiresAt: m.expires_at ?? null,
+    }));
+  } catch { return; } // unknown: keep the last good reading
+  const now = Date.now();
+  for (const m of models) {
+    if (!m.name) continue;
+    const seen = windowSeen.get(m.name);
+    const switches = (seen?.switches ?? []).filter((t) => now - t < RESTART_WINDOW_MS);
+    if (seen && m.contextLength != null && seen.contextLength != null && seen.contextLength !== m.contextLength) {
+      switches.push(now);
+      log(`EVA — ${m.name} reloaded at a different window: ${seen.contextLength} → ${m.contextLength} (${switches.length} in ${RESTART_WINDOW_MS / 60000}min)`);
+      appendLog({ act: "eva", finding: "window_changed", model: m.name, from: seen.contextLength, to: m.contextLength, inWindow: switches.length });
+      if (switches.length >= MAX_RESTARTS) {
+        lintedNote({
+          kind: "infra", level: "escalate", severity: "high",
+          note: `${m.name} reloaded at a different context window ${switches.length} times in ${RESTART_WINDOW_MS / 60000}min — callers are asking for different num_ctx, and every switch is a full model reload`,
+          giver: "heimdall", standing: "disclosed", probe: m.name,
+        });
+        switches.length = 0; // reported once per window, never once per tick
+      }
+    }
+    windowSeen.set(m.name, { contextLength: m.contextLength, switches });
+  }
+  ollamaModels = models;
+}
+
 // ── SELF-DEFENSE: the watcher watches its own watching ────────────────────
 // DEF — declare the void: the watcher can contribute to the very load it
 //   measures (measured: `top -l 1` ~52s, and a naive loop stacked copies).
@@ -438,6 +605,17 @@ async function tick() {
     if (surf.restartTimes.length >= MAX_RESTARTS) {
       log(`EVA — ${surf.name} down and ${MAX_RESTARTS} restarts in the window; refusing to restart-loop. Escalate.`);
       appendLog({ act: "eva", surface: surf.name, finding: "restart_storm", count: surf.restartTimes.length });
+      // The escalation is REAL, not a log line: land a reasoning-linted note
+      // (KIND × LEVEL × SEVERITY, giver Heimdall, standing disclosed) so the
+      // storm is on the record in the shape the reasoning-lint machinery reads
+      // — the same shape a surface's abrupt loss would leave, with the count.
+      // This surface stays DOWN for routing (never handed traffic) but is NOT
+      // abandoned silently: the finding survives the watcher's own restarts.
+      lintedNote({
+        kind: "infra", level: "escalate", severity: "high",
+        note: `${surf.name} down and ${surf.restartTimes.length} restarts in ${RESTART_WINDOW_MS / 60000}min window — refusing to restart-loop`,
+        giver: "heimdall", standing: "disclosed", probe: surf.name,
+      });
       continue;
     }
     surf.restartTimes.push(now);
@@ -450,6 +628,7 @@ async function tick() {
   // or /heimdall. A late CPU/GPU reading is honest; a missing one is "?".
   await refreshVitals().catch(() => {});
   refreshSlowVitals().catch(() => {});
+  refreshOllamaModels().catch(() => {});
   const full = cachedVitals();
   const saturated = boxSaturated(full);
   const vitalsChanged = !lastVitals || Math.abs((full?.load1 ?? 0) - (lastVitals.load1 ?? 0)) > 2 || full?.gpuUtil !== lastVitals.gpuUtil || full?.ollamaPid !== lastVitals.ollamaPid;
@@ -519,6 +698,8 @@ export function heimdallStatus() {
     retryAfterS: RETRY_AFTER_S,
     disclosure: disclosure(),
     vitals: cachedVitals() ?? null,
+    ollamaModels,
+    throughput: throughputOf(),
     surfaces: surfaces.map((s) => ({
       name: s.name, family: s.family, port: s.port, up: s.up, reason: s.reason,
       inflight: s.inflight, cmd: s.cmd, restartsInWindow: s.restartTimes.length,
@@ -637,6 +818,148 @@ const steer = http.createServer(async (req, res) => {
     }
   });
 });
+
+// ── HEIMDALL THE SENTINEL: the outward flows ──────────────────────────────
+// Heimdall is the archon of the outward flows — every API connection that
+// leaves the system: the vision calls to OLLAMA, the reasoning minds, the
+// chat/proxy surfaces, the mechanical senses. He knows the OTHER paths, runs
+// experiments to find the path that fits the current box, and regulates the
+// box homeostatically — sense the vitals, compare to a setpoint, act
+// (pace / defer / escalate / downgrade / re-forge) to restore equilibrium
+// BEFORE breakdown, with hysteresis so he never flaps. His findings are
+// reasoning-linted notes (KIND × LEVEL × SEVERITY, append-only), and when a
+// decision needs reasoning he consults a mind whose answer is itself linted.
+// The experiment budget is COST-CLASS-AWARE (a fast path gets a short budget,
+// so a failing path is cut early — the moondream 48s waste was the lesson)
+// and his choice is CACHED per (path, document-class), so a re-ingest of the
+// same kind does not re-experiment: the second plan lands near-silent.
+
+export const HEIMDALL_PATHS = Object.freeze({
+  vision: Object.freeze([
+    { name: "moondream", kind: "vision", model: "moondream:latest", costClass: "fast", capability: "general-coarse" },
+    { name: "qwen2.5vl:7b", kind: "vision", model: "qwen2.5vl:7b", costClass: "normal", capability: "general-precise" },
+  ]),
+  minds: Object.freeze([
+    { name: "olmo2:7b", kind: "mind", model: "olmo2:7b", costClass: "cheap", capability: "reasoning-lite" },
+    { name: "qwen3:30b-a3b", kind: "mind", model: "qwen3:30b-a3b", costClass: "expensive", capability: "reasoning" },
+  ]),
+  mechanical: Object.freeze([
+    { name: "tesseract-psm6", kind: "mechanical", model: "tesseract", costClass: "fast", capability: "precise-ocr" },
+    { name: "tesseract-psm3", kind: "mechanical", model: "tesseract", costClass: "fast", capability: "precise-ocr" },
+  ]),
+});
+
+// cost-class-aware experiment budgets (ms): a fast path is cut early.
+const EXPERIMENT_BUDGET_MS = Object.freeze({ fast: 15000, normal: 45000, expensive: 90000 });
+const CHOICE_CACHE_FILE = path.join(HERE, "heimdall-choice-cache.json");
+const loadChoiceCache = () => { try { const d = JSON.parse(fs.readFileSync(CHOICE_CACHE_FILE, "utf8")); return Object.entries(d); } catch { return []; } };
+const saveChoiceCache = () => { try { fs.writeFileSync(CHOICE_CACHE_FILE, JSON.stringify(Object.fromEntries(CHOICE_CACHE))); } catch { /* the cache must never take the watcher down */ } };
+const CHOICE_CACHE = new Map(loadChoiceCache()); // `${docClass}:vision` → path name
+
+// the homeostatic regulator: sense → setpoint → act, with hysteresis.
+const REG = {
+  setpoint: { minCpuIdle: 10, maxTurnMs: 90000 },
+  hysteresisSamples: 2,
+  deviating: 0,
+  last: "clear",
+};
+export function regulate(vitals, { turnMs = null } = {}) {
+  const idle = vitals?.cpuIdle;
+  const saturated = idle != null && idle <= REG.setpoint.minCpuIdle;
+  const slow = turnMs != null && turnMs > REG.setpoint.maxTurnMs;
+  const deviating = saturated || slow;
+  REG.deviating = deviating ? REG.deviating + 1 : 0;
+  let act = "clear";
+  if (REG.deviating >= REG.hysteresisSamples) act = deviating ? "defer" : "clear";
+  else if (deviating) act = "watch";
+  REG.last = act;
+  return { saturated, slow, idle, act, deviating: REG.deviating, setpoint: REG.setpoint };
+}
+
+const sentinelTimeout = (p, ms, label) => Promise.race([
+  p,
+  new Promise((_, rej) => setTimeout(() => rej(new Error(`${label} timed out after ${ms}ms`)), ms)),
+]);
+
+// EVA: run an experiment across the known paths, cost-class-aware budgets.
+export async function runPathExperiment(probe, { paths = HEIMDALL_PATHS.vision, question = "describe what this page is and what it commits to" } = {}) {
+  const { lookAtImage } = await import("./native/organs/look.js");
+  const results = [];
+  for (const p of paths) {
+    const budget = EXPERIMENT_BUDGET_MS[p.costClass] ?? 45000;
+    const t0 = Date.now();
+    const entry = { path: p.name, model: p.model, costClass: p.costClass, ms: 0, ok: false };
+    try {
+      const r = await sentinelTimeout(lookAtImage(probe.image, { visionModel: p.model, name: probe.name }), budget, `experiment ${p.name}`);
+      entry.ms = Date.now() - t0;
+      entry.ok = true;
+      entry.settled = r.visionSettled ?? null;
+      entry.vision = r.visionRead ?? null;
+    } catch (e) {
+      entry.ms = Date.now() - t0;
+      entry.error = e.message;
+    }
+    appendLog({ at: new Date().toISOString(), act: "eva", kind: "experiment", probe: probe.name, ...entry });
+    results.push(entry);
+  }
+  return results.sort((a, b) => (a.ok === b.ok ? a.ms - b.ms : a.ok ? -1 : 1));
+}
+
+// the mind Heimdall can consult when a decision needs reasoning.
+export async function consultMind(prompt, { mind = "qwen3:30b-a3b", maxTokens = 320, timeoutMs = 120000 } = {}) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(`${OLLAMA_URL}/api/chat`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      signal: ctrl.signal,
+      body: JSON.stringify({ model: mind, messages: [{ role: "user", content: prompt }], stream: false, options: { num_predict: maxTokens, temperature: 0 } }),
+    });
+    if (!res.ok) throw new Error(`ollama ${res.status}`);
+    const data = await res.json();
+    const text = (data?.message?.content ?? "").trim();
+    appendLog({ at: new Date().toISOString(), act: "eva", kind: "mind", mind, prompt: prompt.slice(0, 200), answer: text.slice(0, 300) });
+    return { text, giver: `mind:${mind}` };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+// REC: the homeostatic choice + the recovery ladder + the cache.
+export function choosePath(results, vitals, { mind = null, probe = null, docClass = null } = {}) {
+  const reg = regulate(vitals);
+  const ok = results.filter((r) => r.ok);
+  let path = ok[0]?.path ?? "mechanical-ocr";
+  let why = ok.length
+    ? `fastest ok path (${ok[0].path}, ${ok[0].ms}ms)`
+    : "no vision path ok — recovery ladder falls back to mechanical OCR";
+  if (reg.act === "defer") why = `box ${reg.saturated ? "saturated" : "slow"} (cpuIdle ${reg.idle}) — ${why}`;
+  // a degraded fallback (mechanical OCR) is never cached — the box may have
+  // been transiently down, and the next ingest should re-probe vision, not
+  // stay downgraded forever.
+  if (docClass && path !== "mechanical-ocr") { CHOICE_CACHE.set(`${docClass}:vision`, path); saveChoiceCache(); }
+  const note = { at: new Date().toISOString(), act: "rec", kind: "path", path, why, docClass, setpoint: reg.setpoint, deviating: reg.deviating };
+  appendLog(note);
+  return { path, why, reg, note, mindAnswer: null };
+}
+
+export function recoveryLadder(results) {
+  const ok = results.filter((r) => r.ok);
+  return ok.length ? ok[0].path : "mechanical-ocr";
+}
+
+export function cachedVisionPath(docClass) {
+  return CHOICE_CACHE.get(`${docClass}:vision`) ?? null;
+}
+
+// a reasoning-linted finding, append-only — the shape the reasoning-lint
+// machinery reads, with the giver and standing disclosed.
+export function lintedNote({ kind, level, severity, note, giver, standing, probe = null, docClass = null } = {}) {
+  const entry = { at: new Date().toISOString(), act: "note", kind, level, severity, note, giver, standing, probe, docClass };
+  appendLog(entry);
+  return entry;
+}
 
 // ── THE SELF-SCHEDULING LOOP ─────────────────────────────────────────────
 // The tick re-schedules itself so the SELF-DEFENSE loop can adjust the

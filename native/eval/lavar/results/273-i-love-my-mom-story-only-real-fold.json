@@ -1,0 +1,5133 @@
+{
+  "schema": "EOFold@1",
+  "sequence": 14,
+  "witnessed": [],
+  "provisional": [
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:my_mom_s",
+      "surface": "my mom’s",
+      "determinations": [
+        "possessive"
+      ],
+      "occurrenceRefs": [
+        "617a663be0299bb4e97152d25ac0989a",
+        "c7448f4fd8b2beb296765fc387d58ff2"
+      ],
+      "encounterRefs": [
+        "encounter:0",
+        "file:273-i-love-my-mom-story-only.txt:0"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:the_time",
+      "surface": "the time",
+      "determinations": [
+        "definite"
+      ],
+      "occurrenceRefs": [
+        "fd5b4f3a501785b7e30536e4b1cbffd9",
+        "14b09d6155a8c34abc70d4bcb8b63668"
+      ],
+      "encounterRefs": [
+        "encounter:1",
+        "file:273-i-love-my-mom-story-only.txt:22"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:my_mom",
+      "surface": "my mom",
+      "determinations": [
+        "possessive"
+      ],
+      "occurrenceRefs": [
+        "b1387ae56cd97f9bb7e18a46d3d130de",
+        "a7471d99452fca1da802201a878338ad"
+      ],
+      "encounterRefs": [
+        "encounter:3",
+        "file:273-i-love-my-mom-story-only.txt:84"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:the_flowers",
+      "surface": "the flowers",
+      "determinations": [
+        "definite"
+      ],
+      "occurrenceRefs": [
+        "162e7f04a4e8c860ced3e408dfcdd5a5",
+        "b16a756ad204cd45c020e4955467eb2f",
+        "8749b83e5dd12f1385f1a35bf2b1868c",
+        "26737bc56fd5021d4ac0e3818c65b44a"
+      ],
+      "encounterRefs": [
+        "encounter:4",
+        "file:273-i-love-my-mom-story-only.txt:125"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:our_clothes",
+      "surface": "our clothes",
+      "determinations": [
+        "possessive"
+      ],
+      "occurrenceRefs": [
+        "16ff8fe275dd93528f62b8160944b039",
+        "c852dcd096ee5f8d7822339894a76c6a",
+        "61f1c65439558c80921cc3a452e40f10",
+        "023532a6ef695a5a66dcd8d9afdbd7c0",
+        "9fa5daf7646310061c098e234e8459d5",
+        "7f14e63040e5fb3dc7bf63ad89d96ca2"
+      ],
+      "encounterRefs": [
+        "encounter:5",
+        "file:273-i-love-my-mom-story-only.txt:189",
+        "file:273-i-love-my-mom-story-only.txt:252"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:a_bicycle",
+      "surface": "a bicycle",
+      "determinations": [
+        "indefinite"
+      ],
+      "occurrenceRefs": [
+        "105bfe0f908edc7508ac1c168b754da6",
+        "486aede20d2525ad4093b7ef92e55f59"
+      ],
+      "encounterRefs": [
+        "encounter:7",
+        "file:273-i-love-my-mom-story-only.txt:313"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:my_bicycle",
+      "surface": "my bicycle",
+      "determinations": [
+        "possessive"
+      ],
+      "occurrenceRefs": [
+        "ff490433491dd78451dee91bc8e5afe1",
+        "b11017367e6f44f875a4a6144f5b3cb0"
+      ],
+      "encounterRefs": [
+        "encounter:8",
+        "file:273-i-love-my-mom-story-only.txt:381"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:the_bed",
+      "surface": "the bed",
+      "determinations": [
+        "definite"
+      ],
+      "occurrenceRefs": [
+        "2749c76055f44eb436a6cb5764f0ff9f",
+        "e212f9a11ce1f24b3caff6961a2489d5"
+      ],
+      "encounterRefs": [
+        "file:273-i-love-my-mom-story-only.txt:441",
+        "encounter:9"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": "10f717c5e2aa9a76e146c83d58644f74",
+          "relation": "makes",
+          "role": "object"
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:a_lullaby",
+      "surface": "a lullaby",
+      "determinations": [
+        "indefinite"
+      ],
+      "occurrenceRefs": [
+        "882ec7620511d20439a7823c8eefdd56",
+        "f4c2df355251143b732390ee7dd6558e"
+      ],
+      "encounterRefs": [
+        "encounter:12",
+        "file:273-i-love-my-mom-story-only.txt:549"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    }
+  ],
+  "expectations": [],
+  "obligations": [],
+  "exclusions": [],
+  "unresolvedAlternatives": [],
+  "activeFrames": [],
+  "receivedPriors": [],
+  "graphEntries": [
+    {
+      "schema": "EOHyperedge@1",
+      "id": "56eaee0fdf3ac1ddd7b4c05717a680a2",
+      "relation": "is",
+      "participants": [
+        {
+          "ref": "10815f157c4469da5a6403ca6cc04dd5",
+          "occurrence": "10815f157c4469da5a6403ca6cc04dd5",
+          "surfaceKey": "surface:mom_s_name",
+          "role": "subject",
+          "standing": "unresolved_surface",
+          "surface": "mom’s name",
+          "candidateReferents": []
+        },
+        {
+          "ref": "1c456df31c56bac2b2ead8f98ed95149",
+          "occurrence": "1c456df31c56bac2b2ead8f98ed95149",
+          "surfaceKey": "surface:lee",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "Lee",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "8ced49eba727cc65a1d8e9a37e08c893",
+      "scope": {
+        "sequencePosition": 0,
+        "offset": 3
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:0",
+        "compositionStanding": {
+          "eligible": false,
+          "dominantClass": "AUX",
+          "share": 0.9441715051362215,
+          "basis": "treebank-dominant AUX — an auxiliary or non-verb form does not become familiarity by recurring",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "bced45f5937750afde682e6297e2e4f6",
+      "surfaceKey": "surface:name",
+      "surface": "name",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:0",
+      "offset": 9,
+      "witness": "d039619a6e19a3474404f217803fd56c"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "617a663be0299bb4e97152d25ac0989a",
+      "surface": "My mom’s",
+      "canonicalSurface": "my mom’s",
+      "head": "mom’s",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "encounter:0",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "c7448f4fd8b2beb296765fc387d58ff2",
+      "surface": "My mom’s",
+      "canonicalSurface": "my mom’s",
+      "head": "mom’s",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:0",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "bb1251aca251ccca8b8aa6442adcec74",
+      "relation": "works",
+      "participants": [
+        {
+          "ref": "35fb658c259bf61aa42de4bdd0dbf695",
+          "occurrence": "35fb658c259bf61aa42de4bdd0dbf695",
+          "surfaceKey": "surface:she",
+          "role": "subject",
+          "standing": "unresolved_surface",
+          "surface": "She",
+          "candidateReferents": []
+        },
+        {
+          "ref": "7fe5962ac33459eae17e59b131d484c9",
+          "occurrence": "7fe5962ac33459eae17e59b131d484c9",
+          "surfaceKey": "surface:hard_all_the_time",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "hard all the time",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "a690a856545f26a4098c763a48fd6869",
+      "scope": {
+        "sequencePosition": 1,
+        "offset": 0
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:1",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 0.5882352941176471,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOReferent@1",
+      "id": "ref:auto:lee",
+      "surfaces": [
+        "Lee"
+      ],
+      "provenance": [
+        {
+          "giver": "surfaces/discoverReferents",
+          "tier": "engine",
+          "basis": "name-variant coreference"
+        }
+      ]
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "e32080cebeb5011dce2ff6fdc95d752e",
+      "surfaceKey": "surface:time",
+      "surface": "time",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:1",
+      "offset": 23,
+      "witness": "da6de6fee5f33d5781765f419dd849eb"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "fd5b4f3a501785b7e30536e4b1cbffd9",
+      "surface": "the time",
+      "canonicalSurface": "the time",
+      "head": "time",
+      "determination": "definite",
+      "role": null,
+      "encounterRef": "encounter:1",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "14b09d6155a8c34abc70d4bcb8b63668",
+      "surface": "the time",
+      "canonicalSurface": "the time",
+      "head": "time",
+      "determination": "definite",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:22",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:my_mom_s",
+      "surface": "my mom’s",
+      "determinations": [
+        "possessive"
+      ],
+      "occurrenceRefs": [
+        "617a663be0299bb4e97152d25ac0989a",
+        "c7448f4fd8b2beb296765fc387d58ff2"
+      ],
+      "encounterRefs": [
+        "encounter:0",
+        "file:273-i-love-my-mom-story-only.txt:0"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "89f6e0f756c6409d3b3747467d0fdc5b",
+      "relation": "learn",
+      "participants": [
+        {
+          "ref": "15edc61a55d154948c5adcaad11ab5c4",
+          "occurrence": "15edc61a55d154948c5adcaad11ab5c4",
+          "surfaceKey": "surface:i",
+          "role": "subject",
+          "standing": "unresolved_surface",
+          "surface": "I",
+          "candidateReferents": []
+        },
+        {
+          "ref": "254591cbf37195b402f479cb900dd474",
+          "occurrence": "254591cbf37195b402f479cb900dd474",
+          "surfaceKey": "surface:so_much_from_her",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "so much from her!",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "7bc5d0fddae22f2cd709ee3d6ec32ac8",
+      "scope": {
+        "sequencePosition": 2,
+        "offset": 0
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:2",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 1,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:the_time",
+      "surface": "the time",
+      "determinations": [
+        "definite"
+      ],
+      "occurrenceRefs": [
+        "fd5b4f3a501785b7e30536e4b1cbffd9",
+        "14b09d6155a8c34abc70d4bcb8b63668"
+      ],
+      "encounterRefs": [
+        "encounter:1",
+        "file:273-i-love-my-mom-story-only.txt:22"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "40b1e23060e71be2ebeffb713d54c83c",
+      "relation": "learn",
+      "participants": [
+        {
+          "ref": "73a60a296ed831db03b42e7189852806",
+          "occurrence": "73a60a296ed831db03b42e7189852806",
+          "surfaceKey": "surface:i",
+          "role": "subject",
+          "standing": "unresolved_surface",
+          "surface": "I",
+          "candidateReferents": []
+        },
+        {
+          "ref": "625cb73f77ca526826da9cadbd26503b",
+          "occurrence": "625cb73f77ca526826da9cadbd26503b",
+          "surfaceKey": "surface:to_cook_too",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "to cook too",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "8a3eb2784eb29008cf71a920750d26da",
+      "scope": {
+        "sequencePosition": 3,
+        "offset": 19
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:3",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 1,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "248c0effcf8f40426baf43a4fdb29ac5",
+      "surfaceKey": "surface:mom",
+      "surface": "mom",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:3",
+      "offset": 8,
+      "witness": "ec29ad5c64964e20eb30665a519e5a94"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "b1387ae56cd97f9bb7e18a46d3d130de",
+      "surface": "my mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "encounter:3",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "a7471d99452fca1da802201a878338ad",
+      "surface": "my mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:84",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "9104bdd80c722dd68ab657dd953a3488",
+      "relation": "learn",
+      "participants": [
+        {
+          "ref": "1028bb63d689096c27809bd4557753e9",
+          "occurrence": "1028bb63d689096c27809bd4557753e9",
+          "surfaceKey": "surface:i",
+          "role": "subject",
+          "standing": "unresolved_surface",
+          "surface": "I",
+          "candidateReferents": []
+        },
+        {
+          "ref": "47b7ac59eeee70c3b760103e52de7b50",
+          "occurrence": "47b7ac59eeee70c3b760103e52de7b50",
+          "surfaceKey": "surface:to_water_the_flowers_too",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "to water the flowers too",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "449a97a74990f3b961b03d666688cff1",
+      "scope": {
+        "sequencePosition": 4,
+        "offset": 29
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:4",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 1,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "e9ca11baa2c49a99de3b3e85a998f8b8",
+      "surfaceKey": "surface:waters",
+      "surface": "waters",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:4",
+      "offset": 9,
+      "witness": "0f23139b29c85cf7944f576eedb11303"
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "0e0c7d42b33860fb8de118e6a45dcbd4",
+      "surfaceKey": "surface:flowers",
+      "surface": "flowers",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:4",
+      "offset": 20,
+      "witness": "1fe32f7c91927508eb6d63cc5a806851"
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "a9358ae51811e922a02a9809a87376fa",
+      "surfaceKey": "surface:water",
+      "surface": "water",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:4",
+      "offset": 40,
+      "witness": "a75ecef9bed2c7f5ba1d452fa6408a6f"
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "547b3d7490ff8ae30b3c1e3c07181bd7",
+      "surfaceKey": "surface:flowers",
+      "surface": "flowers",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:4",
+      "offset": 50,
+      "witness": "8907a45d073959bd6963b52df2c0f28c"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "162e7f04a4e8c860ced3e408dfcdd5a5",
+      "surface": "the flowers",
+      "canonicalSurface": "the flowers",
+      "head": "flowers",
+      "determination": "definite",
+      "role": null,
+      "encounterRef": "encounter:4",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "b16a756ad204cd45c020e4955467eb2f",
+      "surface": "the flowers",
+      "canonicalSurface": "the flowers",
+      "head": "flowers",
+      "determination": "definite",
+      "role": null,
+      "encounterRef": "encounter:4",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "8749b83e5dd12f1385f1a35bf2b1868c",
+      "surface": "the flowers",
+      "canonicalSurface": "the flowers",
+      "head": "flowers",
+      "determination": "definite",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:125",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "26737bc56fd5021d4ac0e3818c65b44a",
+      "surface": "the flowers",
+      "canonicalSurface": "the flowers",
+      "head": "flowers",
+      "determination": "definite",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:125",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:my_mom",
+      "surface": "my mom",
+      "determinations": [
+        "possessive"
+      ],
+      "occurrenceRefs": [
+        "b1387ae56cd97f9bb7e18a46d3d130de",
+        "a7471d99452fca1da802201a878338ad"
+      ],
+      "encounterRefs": [
+        "encounter:3",
+        "file:273-i-love-my-mom-story-only.txt:84"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "61f7f9828d5c82784118f4ae1a3c0978",
+      "relation": "learn",
+      "participants": [
+        {
+          "ref": "c230cb384d075136d109807ed9beed98",
+          "occurrence": "c230cb384d075136d109807ed9beed98",
+          "surfaceKey": "surface:i",
+          "role": "subject",
+          "standing": "unresolved_surface",
+          "surface": "I",
+          "candidateReferents": []
+        },
+        {
+          "ref": "ef27b9a495a9739e6947ba62c11ab1f3",
+          "occurrence": "ef27b9a495a9739e6947ba62c11ab1f3",
+          "surfaceKey": "surface:to_wash_our_clothes_too",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "to wash our clothes too",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "31849358cd37c51e80395edd6a80a5ce",
+      "scope": {
+        "sequencePosition": 5,
+        "offset": 29
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:5",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 1,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "b8fbf31c9afde846e1ba834d69910188",
+      "surfaceKey": "surface:washes",
+      "surface": "washes",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:5",
+      "offset": 9,
+      "witness": "35140b223f6e411b8943b5677aee0837"
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "130732fc69c3576703a8736e9a523eb0",
+      "surfaceKey": "surface:clothes",
+      "surface": "clothes",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:5",
+      "offset": 20,
+      "witness": "9fa86d0bab0e943b12827507f22b2bce"
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "552c1cbac86bd3b8a7075fc49b2aef08",
+      "surfaceKey": "surface:clothes",
+      "surface": "clothes",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:5",
+      "offset": 49,
+      "witness": "af91545d0e7dcf72e1ed5238996f8639"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "16ff8fe275dd93528f62b8160944b039",
+      "surface": "our clothes",
+      "canonicalSurface": "our clothes",
+      "head": "clothes",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "encounter:5",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "c852dcd096ee5f8d7822339894a76c6a",
+      "surface": "our clothes",
+      "canonicalSurface": "our clothes",
+      "head": "clothes",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "encounter:5",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "61f1c65439558c80921cc3a452e40f10",
+      "surface": "our clothes",
+      "canonicalSurface": "our clothes",
+      "head": "clothes",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:189",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "023532a6ef695a5a66dcd8d9afdbd7c0",
+      "surface": "our clothes",
+      "canonicalSurface": "our clothes",
+      "head": "clothes",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:189",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:the_flowers",
+      "surface": "the flowers",
+      "determinations": [
+        "definite"
+      ],
+      "occurrenceRefs": [
+        "162e7f04a4e8c860ced3e408dfcdd5a5",
+        "b16a756ad204cd45c020e4955467eb2f",
+        "8749b83e5dd12f1385f1a35bf2b1868c",
+        "26737bc56fd5021d4ac0e3818c65b44a"
+      ],
+      "encounterRefs": [
+        "encounter:4",
+        "file:273-i-love-my-mom-story-only.txt:125"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "f2471195da254415338749d8c316b27c",
+      "relation": "dries",
+      "participants": [
+        {
+          "ref": "eb95d3cb66098585e7c1cc007d5c21a0",
+          "occurrence": "eb95d3cb66098585e7c1cc007d5c21a0",
+          "surfaceKey": "surface:she",
+          "role": "subject",
+          "standing": "unresolved_surface",
+          "surface": "she",
+          "candidateReferents": []
+        },
+        {
+          "ref": "identity:poss:clothes:our",
+          "occurrence": "23e215578437021c5615bdf9fc508f64",
+          "role": "object",
+          "standing": "hypothesis",
+          "surface": "our clothes",
+          "resolution": "possessive_holding",
+          "possessiveAnchor": "our"
+        }
+      ],
+      "witness": "09ab56f6991cc34e594564e966f210e8",
+      "scope": {
+        "sequencePosition": 6,
+        "offset": 0
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:6",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 1,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "743d788a72f6bbebeb4c779005c627ee",
+      "relation": "learn",
+      "participants": [
+        {
+          "ref": "87a493b285814a43c1b35ad288497682",
+          "occurrence": "87a493b285814a43c1b35ad288497682",
+          "surfaceKey": "surface:i",
+          "role": "subject",
+          "standing": "unresolved_surface",
+          "surface": "I",
+          "candidateReferents": []
+        },
+        {
+          "ref": "c5a041c14e0095f02c76770b1a7aaa7a",
+          "occurrence": "c5a041c14e0095f02c76770b1a7aaa7a",
+          "surfaceKey": "surface:to_dry_our_clothes_too",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "to dry our clothes too",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "d71b9d12b10bc8223a564a8b8ec98266",
+      "scope": {
+        "sequencePosition": 6,
+        "offset": 28
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:6",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 1,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "ab9e346922b35fdb43b74aab610bcfa8",
+      "surfaceKey": "surface:clothes",
+      "surface": "clothes",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:6",
+      "offset": 19,
+      "witness": "065a2c013a8a4d6f4b92e1908cf95d41"
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "77aa2be603836a70d33e2466aed839c1",
+      "surfaceKey": "surface:clothes",
+      "surface": "clothes",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:6",
+      "offset": 47,
+      "witness": "eed7be1901a0ada591e12f60645a0441"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "1f1bcb9d74a95eb53fcb8db01fb3540f",
+      "surface": "our clothes",
+      "canonicalSurface": "our clothes",
+      "head": "clothes",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "encounter:6",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "6921fc980b1e7ac29f46ebcdbd01efd3",
+      "surface": "our clothes",
+      "canonicalSurface": "our clothes",
+      "head": "clothes",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "encounter:6",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "9fa5daf7646310061c098e234e8459d5",
+      "surface": "our clothes",
+      "canonicalSurface": "our clothes",
+      "head": "clothes",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:252",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "7f14e63040e5fb3dc7bf63ad89d96ca2",
+      "surface": "our clothes",
+      "canonicalSurface": "our clothes",
+      "head": "clothes",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:252",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:our_clothes",
+      "surface": "our clothes",
+      "determinations": [
+        "possessive"
+      ],
+      "occurrenceRefs": [
+        "16ff8fe275dd93528f62b8160944b039",
+        "c852dcd096ee5f8d7822339894a76c6a",
+        "61f1c65439558c80921cc3a452e40f10",
+        "023532a6ef695a5a66dcd8d9afdbd7c0",
+        "9fa5daf7646310061c098e234e8459d5",
+        "7f14e63040e5fb3dc7bf63ad89d96ca2"
+      ],
+      "encounterRefs": [
+        "encounter:5",
+        "file:273-i-love-my-mom-story-only.txt:189",
+        "file:273-i-love-my-mom-story-only.txt:252"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "6003171c3765d1d5776aced5832480c5",
+      "relation": "bought",
+      "participants": [
+        {
+          "ref": "de2e83688a79f6fdb8c3eef70a197f87",
+          "occurrence": "de2e83688a79f6fdb8c3eef70a197f87",
+          "surfaceKey": "surface:mom_also",
+          "role": "subject",
+          "standing": "unresolved_surface",
+          "surface": "mom also",
+          "candidateReferents": []
+        },
+        {
+          "ref": "1116c1c4069dd3ce6041441ec47d06be",
+          "occurrence": "1116c1c4069dd3ce6041441ec47d06be",
+          "surfaceKey": "surface:me_a_bicycle",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "me a bicycle",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "5c798abef9fb107648f32972b82b9399",
+      "scope": {
+        "sequencePosition": 7,
+        "offset": 3
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:7",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 1,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "6fea8ba9e06cdadfd9e9fc49569c1697",
+      "relation": "taught",
+      "participants": [
+        {
+          "ref": "f4d13081a5033077009b89f17ae72b2c",
+          "occurrence": "f4d13081a5033077009b89f17ae72b2c",
+          "surfaceKey": "surface:she",
+          "role": "subject",
+          "standing": "unresolved_surface",
+          "surface": "she",
+          "candidateReferents": []
+        },
+        {
+          "ref": "942408b63375c73167a45089ed22e168",
+          "occurrence": "942408b63375c73167a45089ed22e168",
+          "surfaceKey": "surface:me_how_to_ride_it",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "me how to ride it",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "5fb2859aaf9e5bdcd529d96ec8dda2f9",
+      "scope": {
+        "sequencePosition": 7,
+        "offset": 33
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:7",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 1,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "ee04326f8d9d23a654acbe60e5e92a54",
+      "surfaceKey": "surface:mom",
+      "surface": "mom",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:7",
+      "offset": 3,
+      "witness": "c75e19b6ca36a8c5b8d1f2528a724c46"
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "cd599f0388e5a1f5e21cdc5468a1039d",
+      "surfaceKey": "surface:bicycle",
+      "surface": "bicycle",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:7",
+      "offset": 24,
+      "witness": "ecb5a24e1b8c0d7a6eab1272554efd19"
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "f38ba85c2235d7013c88b197ebb17550",
+      "surfaceKey": "surface:ride",
+      "surface": "ride",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:7",
+      "offset": 58,
+      "witness": "c49509bb317ee50204fb280f36f2a0ae"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "4f5b5a10e7e2f33b3b32dc905c9760d6",
+      "surface": "My mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "encounter:7",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "105bfe0f908edc7508ac1c168b754da6",
+      "surface": "a bicycle",
+      "canonicalSurface": "a bicycle",
+      "head": "bicycle",
+      "determination": "indefinite",
+      "role": null,
+      "encounterRef": "encounter:7",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "5e3c66395cef391a2e2976b4996a92bc",
+      "surface": "My mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:313",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "486aede20d2525ad4093b7ef92e55f59",
+      "surface": "a bicycle",
+      "canonicalSurface": "a bicycle",
+      "head": "bicycle",
+      "determination": "indefinite",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:313",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "1535becd05b6872a05957ab418830cf6",
+      "relation": "go",
+      "participants": [
+        {
+          "ref": "273e40740602bd35387de2a160ba4c9e",
+          "occurrence": "273e40740602bd35387de2a160ba4c9e",
+          "surfaceKey": "surface:i",
+          "role": "subject",
+          "standing": "unresolved_surface",
+          "surface": "I",
+          "candidateReferents": []
+        },
+        {
+          "ref": "b7c2ff932bba3dd2ee01c1511f52f347",
+          "occurrence": "b7c2ff932bba3dd2ee01c1511f52f347",
+          "surfaceKey": "surface:wheeeeeee",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "“WHEEEEEEE!”",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "3460192799b200037c7d729de33a853b",
+      "scope": {
+        "sequencePosition": 8,
+        "offset": 36
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:8",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 0.9857142857142858,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "acda8a4649628c2804b124b6fe626362",
+      "surfaceKey": "surface:ride",
+      "surface": "ride",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:8",
+      "offset": 5,
+      "witness": "9158c158e32e25f7cd0b6ca81367fc1d"
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "296f294f095e9453497f3fee53f3d3b2",
+      "surfaceKey": "surface:bicycle",
+      "surface": "bicycle",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:8",
+      "offset": 13,
+      "witness": "5325541102f8a3d40a51c2f9fbd155d8"
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "dd92c969ab7b935039c38053e548dffc",
+      "surfaceKey": "surface:mom",
+      "surface": "mom",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:8",
+      "offset": 25,
+      "witness": "3765513cff0c5b7d6c3feae86cf84606"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "ff490433491dd78451dee91bc8e5afe1",
+      "surface": "my bicycle",
+      "canonicalSurface": "my bicycle",
+      "head": "bicycle",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "encounter:8",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "7b38df9a1d5f4497cb191f1a3251d800",
+      "surface": "my mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "encounter:8",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "b11017367e6f44f875a4a6144f5b3cb0",
+      "surface": "my bicycle",
+      "canonicalSurface": "my bicycle",
+      "head": "bicycle",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:381",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "e14d54e7df6f3f4a911fc9abe7a9ca62",
+      "surface": "my mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:381",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:a_bicycle",
+      "surface": "a bicycle",
+      "determinations": [
+        "indefinite"
+      ],
+      "occurrenceRefs": [
+        "105bfe0f908edc7508ac1c168b754da6",
+        "486aede20d2525ad4093b7ef92e55f59"
+      ],
+      "encounterRefs": [
+        "encounter:7",
+        "file:273-i-love-my-mom-story-only.txt:313"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "10f717c5e2aa9a76e146c83d58644f74",
+      "relation": "makes",
+      "participants": [
+        {
+          "ref": "identity:poss:mom:my",
+          "occurrence": "6af494f99a39f6fad25b568b2bb398de",
+          "role": "subject",
+          "standing": "hypothesis",
+          "surface": "my mom",
+          "resolution": "possessive_holding",
+          "possessiveAnchor": "my"
+        },
+        {
+          "ref": "6ce1ddb66e7b2d55f24ed117aabe9b12",
+          "occurrence": "6ce1ddb66e7b2d55f24ed117aabe9b12",
+          "surfaceKey": "surface:the_bed",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "the bed",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "6bdf8f090d869128c3bf7cbe9e225e6e",
+      "scope": {
+        "sequencePosition": 9,
+        "offset": 10
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:9",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 1,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOReferent@1",
+      "id": "ref:auto:wheeeeeee",
+      "surfaces": [
+        "WHEEEEEEE"
+      ],
+      "provenance": [
+        {
+          "giver": "surfaces/discoverReferents",
+          "tier": "engine",
+          "basis": "name-variant coreference"
+        }
+      ]
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "4798e128130ce47d7f277095320c8152",
+      "surfaceKey": "surface:night",
+      "surface": "night",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:9",
+      "offset": 3,
+      "witness": "fbde6f554917c61184e487ad4269feb9"
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "abbc2fbfa180163c7df654166774e0e6",
+      "surfaceKey": "surface:mom",
+      "surface": "mom",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:9",
+      "offset": 13,
+      "witness": "ffd850c4d0f23ed9bcf3c6c543c8501c"
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "cc32eed48f1c81f796b700cab2cb18f9",
+      "surfaceKey": "surface:bed",
+      "surface": "bed",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:9",
+      "offset": 27,
+      "witness": "56a394e742583ddf8b18c07f545fca67"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "e212f9a11ce1f24b3caff6961a2489d5",
+      "surface": "the bed",
+      "canonicalSurface": "the bed",
+      "head": "bed",
+      "determination": "definite",
+      "role": "object",
+      "encounterRef": "encounter:9",
+      "edge": "10f717c5e2aa9a76e146c83d58644f74",
+      "relation": "makes",
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::descriptorOccurrence",
+        "basis": "determiner-marked unresolved relation participant"
+      },
+      "participantOccurrence": "6ce1ddb66e7b2d55f24ed117aabe9b12"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "e39f9379922a79da1470023fb51d9c31",
+      "surface": "my mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "encounter:9",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "f2238e9fd0fcb5ac49388428d6de453a",
+      "surface": "the bed",
+      "canonicalSurface": "the bed",
+      "head": "bed",
+      "determination": "definite",
+      "role": null,
+      "encounterRef": "encounter:9",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "5cf1b5c4230d6b7407fad0151a3c7116",
+      "surface": "my mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:441",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "2749c76055f44eb436a6cb5764f0ff9f",
+      "surface": "the bed",
+      "canonicalSurface": "the bed",
+      "head": "bed",
+      "determination": "definite",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:441",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:my_bicycle",
+      "surface": "my bicycle",
+      "determinations": [
+        "possessive"
+      ],
+      "occurrenceRefs": [
+        "ff490433491dd78451dee91bc8e5afe1",
+        "b11017367e6f44f875a4a6144f5b3cb0"
+      ],
+      "encounterRefs": [
+        "encounter:8",
+        "file:273-i-love-my-mom-story-only.txt:381"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:the_bed",
+      "surface": "the bed",
+      "determinations": [
+        "definite"
+      ],
+      "occurrenceRefs": [
+        "2749c76055f44eb436a6cb5764f0ff9f",
+        "e212f9a11ce1f24b3caff6961a2489d5"
+      ],
+      "encounterRefs": [
+        "file:273-i-love-my-mom-story-only.txt:441",
+        "encounter:9"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": "10f717c5e2aa9a76e146c83d58644f74",
+          "relation": "makes",
+          "role": "object"
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "2fd4ddf6638b30a379220fad9b8b3416",
+      "relation": "learn",
+      "participants": [
+        {
+          "ref": "d3853b12b52d4831bd13fa4583831d4b",
+          "occurrence": "d3853b12b52d4831bd13fa4583831d4b",
+          "surfaceKey": "surface:i",
+          "role": "subject",
+          "standing": "unresolved_surface",
+          "surface": "I",
+          "candidateReferents": []
+        },
+        {
+          "ref": "b1426151b6e536568f71507c5fe5717e",
+          "occurrence": "b1426151b6e536568f71507c5fe5717e",
+          "surfaceKey": "surface:how_to_make_the_bed_too",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "how to make the bed too",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "7041d225f5783fd21559e3cc88b5d814",
+      "scope": {
+        "sequencePosition": 10,
+        "offset": 0
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:10",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 1,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "8acf6f9778761e85660624d2def2ede2",
+      "surfaceKey": "surface:bed",
+      "surface": "bed",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:10",
+      "offset": 24,
+      "witness": "043cd807d3f81d2d16ab26bed7b7d503"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "31d2c15cf5da437e8fa307b23e8877b3",
+      "surface": "the bed",
+      "canonicalSurface": "the bed",
+      "head": "bed",
+      "determination": "definite",
+      "role": null,
+      "encounterRef": "encounter:10",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "1d19e71432e169fe84e736054fbc37aa",
+      "surface": "the bed",
+      "canonicalSurface": "the bed",
+      "head": "bed",
+      "determination": "definite",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:473",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "a10c39cc3262ad47b56097751aaf0808",
+      "relation": "tells",
+      "participants": [
+        {
+          "ref": "identity:poss:mom:my",
+          "occurrence": "6762565c84ccdfa81a0da732ce1f4c1e",
+          "role": "subject",
+          "standing": "hypothesis",
+          "surface": "my mom",
+          "resolution": "possessive_holding",
+          "possessiveAnchor": "my"
+        },
+        {
+          "ref": "40a43adf40fbab3895f582a64bdbd5b8",
+          "occurrence": "40a43adf40fbab3895f582a64bdbd5b8",
+          "surfaceKey": "surface:me_stories",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "me stories",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "618f2a252de7377f9dacf9ee563c3986",
+      "scope": {
+        "sequencePosition": 11,
+        "offset": 16
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:11",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 1,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "9e97c7d2617c9359f26cea0d19c3e6c8",
+      "surfaceKey": "surface:mom",
+      "surface": "mom",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:11",
+      "offset": 19,
+      "witness": "fe81822829694e9cd90d4c4844d0f978"
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "0d5ff30ff9f2ce9b5fc0d8120c564684",
+      "surfaceKey": "surface:stories",
+      "surface": "stories",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:11",
+      "offset": 32,
+      "witness": "cedb28892d52065bce2d0f712dd46d45"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "add47bf0c1a5109b738cecf78394cf0a",
+      "surface": "my mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "encounter:11",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "d785b7c6f2a50ea59c627b3ba4ca873b",
+      "surface": "my mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:507",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "02b9eb702f7bfb2df9d08a05ef359b7c",
+      "relation": "sings",
+      "participants": [
+        {
+          "ref": "identity:poss:mom:my",
+          "occurrence": "334c5bfe243cdb191d92bd151c5a94bd",
+          "role": "subject",
+          "standing": "hypothesis",
+          "surface": "my mom",
+          "resolution": "possessive_holding",
+          "possessiveAnchor": "my"
+        },
+        {
+          "ref": "a0152a3aba707c5711030b5b1eebdec9",
+          "occurrence": "a0152a3aba707c5711030b5b1eebdec9",
+          "surfaceKey": "surface:me_a_lullaby",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "me a lullaby",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "20ed2df1152a65c24de397278051f451",
+      "scope": {
+        "sequencePosition": 12,
+        "offset": 17
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:12",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 1,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "36f79bc29f077b5bfc3d7d7dd9e0c66e",
+      "surfaceKey": "surface:mom",
+      "surface": "mom",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:12",
+      "offset": 20,
+      "witness": "3ef69cef33098961772bf693762dc5d3"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "4223209194f915ea0d6ecbdc26f3cb10",
+      "surface": "my mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "encounter:12",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "882ec7620511d20439a7823c8eefdd56",
+      "surface": "a lullaby",
+      "canonicalSurface": "a lullaby",
+      "head": "lullaby",
+      "determination": "indefinite",
+      "role": null,
+      "encounterRef": "encounter:12",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "3af4be41ffa7ca782d99394cb2923bac",
+      "surface": "my mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:549",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "f4c2df355251143b732390ee7dd6558e",
+      "surface": "a lullaby",
+      "canonicalSurface": "a lullaby",
+      "head": "lullaby",
+      "determination": "indefinite",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:549",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOHyperedge@1",
+      "id": "d5852187853854349ee71e393bb5df55",
+      "relation": "love",
+      "participants": [
+        {
+          "ref": "675dca7fea85c90be0f3fd6870b2ccb5",
+          "occurrence": "675dca7fea85c90be0f3fd6870b2ccb5",
+          "surfaceKey": "surface:i",
+          "role": "subject",
+          "standing": "unresolved_surface",
+          "surface": "I",
+          "candidateReferents": []
+        },
+        {
+          "ref": "1f2a2888548f9faef52aacc2713ab3bb",
+          "occurrence": "1f2a2888548f9faef52aacc2713ab3bb",
+          "surfaceKey": "surface:my_mom_so_much",
+          "role": "object",
+          "standing": "unresolved_surface",
+          "surface": "my mom so much!",
+          "candidateReferents": []
+        }
+      ],
+      "witness": "8113c26524917e0e97abcd3bbf23bc6f",
+      "scope": {
+        "sequencePosition": 13,
+        "offset": 0
+      },
+      "eo": {
+        "op": "CON",
+        "grain": "Figure"
+      },
+      "meta": {
+        "polarity": "+",
+        "source": "file:273-i-love-my-mom-story-only.txt",
+        "encounterRef": "encounter:13",
+        "compositionStanding": {
+          "eligible": true,
+          "dominantClass": "VERB",
+          "share": 0.7528089887640449,
+          "basis": "treebank-dominant VERB — eligible as portable relation memory",
+          "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+        }
+      }
+    },
+    {
+      "schema": "EOLexicalOccurrence@1",
+      "id": "a2777f9706223bde39967f20b41e5c2c",
+      "surfaceKey": "surface:mom",
+      "surface": "mom",
+      "upos": "NOUN",
+      "standing": "occurrence",
+      "encounterRef": "encounter:13",
+      "offset": 10,
+      "witness": "0572eb5cc736e21d00555e0ab87e72b5"
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "8a48f2c403b9e4e175e55d53b027d0f3",
+      "surface": "my mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "encounter:13",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "8c82e712615a9b20c324adbb7c5fea09",
+      "surface": "my mom",
+      "canonicalSurface": "my mom",
+      "head": "mom",
+      "determination": "possessive",
+      "role": null,
+      "encounterRef": "file:273-i-love-my-mom-story-only.txt:594",
+      "edge": null,
+      "relation": null,
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::directDescriptorOccurrences",
+        "basis": "closed-class determiner plus witnessed lexical form"
+      }
+    },
+    {
+      "schema": "EOReferentOccurrence@1",
+      "id": "40d7cbbdbd3caf0281a0b80ffff5e1dc",
+      "surface": "my mom so much!",
+      "canonicalSurface": "my mom so much",
+      "head": "much",
+      "determination": "possessive",
+      "role": "object",
+      "encounterRef": "encounter:13",
+      "edge": "d5852187853854349ee71e393bb5df55",
+      "relation": "love",
+      "standing": "unresolved_identity",
+      "provenance": {
+        "giver": "text/individuation::descriptorOccurrence",
+        "basis": "determiner-marked unresolved relation participant"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:descriptor:a_lullaby",
+      "surface": "a lullaby",
+      "determinations": [
+        "indefinite"
+      ],
+      "occurrenceRefs": [
+        "882ec7620511d20439a7823c8eefdd56",
+        "f4c2df355251143b732390ee7dd6558e"
+      ],
+      "encounterRefs": [
+        "encounter:12",
+        "file:273-i-love-my-mom-story-only.txt:549"
+      ],
+      "relationContexts": [
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        },
+        {
+          "edge": null,
+          "relation": null,
+          "role": null
+        }
+      ],
+      "standing": "live_hypothesis",
+      "provenance": {
+        "giver": "text/individuation::descriptorHypotheses",
+        "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:poss:clothes:our",
+      "surface": "our clothes",
+      "canonicalSurface": "clothes",
+      "parameter": {
+        "slot": "clothes",
+        "of": "our"
+      },
+      "occurrence": "23e215578437021c5615bdf9fc508f64",
+      "standing": "open",
+      "adjudicatedBy": "span-free node bridge possessive-holding",
+      "provenance": {
+        "giver": "span-free node bridge possessive-holding",
+        "basis": "S88's fourth signal — a common noun under a possessive determiner is a parameterized being in HOLDING; the possessive resolves to its owner, the slot awaits a witness; ALL mentions share this one holding",
+        "canonicalOccurrence": "clothes"
+      }
+    },
+    {
+      "schema": "EOIdentityHypothesis@1",
+      "id": "identity:poss:mom:my",
+      "surface": "my mom",
+      "canonicalSurface": "mom",
+      "parameter": {
+        "slot": "mom",
+        "of": "my"
+      },
+      "occurrence": "6af494f99a39f6fad25b568b2bb398de",
+      "standing": "open",
+      "adjudicatedBy": "span-free node bridge possessive-holding",
+      "provenance": {
+        "giver": "span-free node bridge possessive-holding",
+        "basis": "S88's fourth signal — a common noun under a possessive determiner is a parameterized being in HOLDING; the possessive resolves to its owner, the slot awaits a witness; ALL mentions share this one holding",
+        "canonicalOccurrence": "mom"
+      }
+    }
+  ],
+  "transformationObjects": [
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:1:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:0:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "c7448f4fd8b2beb296765fc387d58ff2"
+      },
+      "inputs": [],
+      "outputs": [
+        "c7448f4fd8b2beb296765fc387d58ff2"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "c7448f4fd8b2beb296765fc387d58ff2",
+          "surface": "My mom’s",
+          "canonicalSurface": "my mom’s",
+          "head": "mom’s",
+          "determination": "possessive",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:0",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:1:op:1",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:0:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "56eaee0fdf3ac1ddd7b4c05717a680a2"
+      },
+      "inputs": [
+        "10815f157c4469da5a6403ca6cc04dd5",
+        "1c456df31c56bac2b2ead8f98ed95149"
+      ],
+      "outputs": [
+        "56eaee0fdf3ac1ddd7b4c05717a680a2"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "56eaee0fdf3ac1ddd7b4c05717a680a2",
+          "relation": "is",
+          "participants": [
+            {
+              "ref": "10815f157c4469da5a6403ca6cc04dd5",
+              "occurrence": "10815f157c4469da5a6403ca6cc04dd5",
+              "surfaceKey": "surface:mom_s_name",
+              "role": "subject",
+              "standing": "unresolved_surface",
+              "surface": "mom’s name",
+              "candidateReferents": []
+            },
+            {
+              "ref": "1c456df31c56bac2b2ead8f98ed95149",
+              "occurrence": "1c456df31c56bac2b2ead8f98ed95149",
+              "surfaceKey": "surface:lee",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "Lee",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "8ced49eba727cc65a1d8e9a37e08c893",
+          "scope": {
+            "sequencePosition": 0,
+            "offset": 3
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:0",
+            "compositionStanding": {
+              "eligible": false,
+              "dominantClass": "AUX",
+              "share": 0.9441715051362215,
+              "basis": "treebank-dominant AUX — an auxiliary or non-verb form does not become familiarity by recurring",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:2:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:1:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "14b09d6155a8c34abc70d4bcb8b63668"
+      },
+      "inputs": [],
+      "outputs": [
+        "14b09d6155a8c34abc70d4bcb8b63668"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "14b09d6155a8c34abc70d4bcb8b63668",
+          "surface": "the time",
+          "canonicalSurface": "the time",
+          "head": "time",
+          "determination": "definite",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:22",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:2:op:1",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Figure",
+      "operator": "INS",
+      "terrain": "Entity",
+      "stance": "Making",
+      "witness": "observation:1:0",
+      "consequence": {
+        "kind": "referent_admitted",
+        "ref": "ref:auto:lee"
+      },
+      "inputs": [],
+      "outputs": [
+        "ref:auto:lee"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferent@1",
+          "id": "ref:auto:lee",
+          "surfaces": [
+            "Lee"
+          ],
+          "provenance": [
+            {
+              "giver": "surfaces/discoverReferents",
+              "tier": "engine",
+              "basis": "name-variant coreference"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:2:op:2",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:1:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "bb1251aca251ccca8b8aa6442adcec74"
+      },
+      "inputs": [
+        "35fb658c259bf61aa42de4bdd0dbf695",
+        "7fe5962ac33459eae17e59b131d484c9"
+      ],
+      "outputs": [
+        "bb1251aca251ccca8b8aa6442adcec74"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "bb1251aca251ccca8b8aa6442adcec74",
+          "relation": "works",
+          "participants": [
+            {
+              "ref": "35fb658c259bf61aa42de4bdd0dbf695",
+              "occurrence": "35fb658c259bf61aa42de4bdd0dbf695",
+              "surfaceKey": "surface:she",
+              "role": "subject",
+              "standing": "unresolved_surface",
+              "surface": "She",
+              "candidateReferents": []
+            },
+            {
+              "ref": "7fe5962ac33459eae17e59b131d484c9",
+              "occurrence": "7fe5962ac33459eae17e59b131d484c9",
+              "surfaceKey": "surface:hard_all_the_time",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "hard all the time",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "a690a856545f26a4098c763a48fd6869",
+          "scope": {
+            "sequencePosition": 1,
+            "offset": 0
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:1",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 0.5882352941176471,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:2:op:3",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": null,
+      "consequence": {
+        "kind": "identity_hypothesis_opened",
+        "hypothesis": "identity:descriptor:my_mom_s"
+      },
+      "inputs": [
+        "617a663be0299bb4e97152d25ac0989a",
+        "c7448f4fd8b2beb296765fc387d58ff2"
+      ],
+      "outputs": [
+        "identity:descriptor:my_mom_s"
+      ],
+      "payload": {
+        "action": "provisional",
+        "value": {
+          "schema": "EOIdentityHypothesis@1",
+          "id": "identity:descriptor:my_mom_s",
+          "surface": "my mom’s",
+          "determinations": [
+            "possessive"
+          ],
+          "occurrenceRefs": [
+            "617a663be0299bb4e97152d25ac0989a",
+            "c7448f4fd8b2beb296765fc387d58ff2"
+          ],
+          "encounterRefs": [
+            "encounter:0",
+            "file:273-i-love-my-mom-story-only.txt:0"
+          ],
+          "relationContexts": [
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            }
+          ],
+          "standing": "live_hypothesis",
+          "provenance": {
+            "giver": "text/individuation::descriptorHypotheses",
+            "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:3:op:0",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:2:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "89f6e0f756c6409d3b3747467d0fdc5b"
+      },
+      "inputs": [
+        "15edc61a55d154948c5adcaad11ab5c4",
+        "254591cbf37195b402f479cb900dd474"
+      ],
+      "outputs": [
+        "89f6e0f756c6409d3b3747467d0fdc5b"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "89f6e0f756c6409d3b3747467d0fdc5b",
+          "relation": "learn",
+          "participants": [
+            {
+              "ref": "15edc61a55d154948c5adcaad11ab5c4",
+              "occurrence": "15edc61a55d154948c5adcaad11ab5c4",
+              "surfaceKey": "surface:i",
+              "role": "subject",
+              "standing": "unresolved_surface",
+              "surface": "I",
+              "candidateReferents": []
+            },
+            {
+              "ref": "254591cbf37195b402f479cb900dd474",
+              "occurrence": "254591cbf37195b402f479cb900dd474",
+              "surfaceKey": "surface:so_much_from_her",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "so much from her!",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "7bc5d0fddae22f2cd709ee3d6ec32ac8",
+          "scope": {
+            "sequencePosition": 2,
+            "offset": 0
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:2",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 1,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:3:op:1",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": null,
+      "consequence": {
+        "kind": "identity_hypothesis_opened",
+        "hypothesis": "identity:descriptor:the_time"
+      },
+      "inputs": [
+        "fd5b4f3a501785b7e30536e4b1cbffd9",
+        "14b09d6155a8c34abc70d4bcb8b63668"
+      ],
+      "outputs": [
+        "identity:descriptor:the_time"
+      ],
+      "payload": {
+        "action": "provisional",
+        "value": {
+          "schema": "EOIdentityHypothesis@1",
+          "id": "identity:descriptor:the_time",
+          "surface": "the time",
+          "determinations": [
+            "definite"
+          ],
+          "occurrenceRefs": [
+            "fd5b4f3a501785b7e30536e4b1cbffd9",
+            "14b09d6155a8c34abc70d4bcb8b63668"
+          ],
+          "encounterRefs": [
+            "encounter:1",
+            "file:273-i-love-my-mom-story-only.txt:22"
+          ],
+          "relationContexts": [
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            }
+          ],
+          "standing": "live_hypothesis",
+          "provenance": {
+            "giver": "text/individuation::descriptorHypotheses",
+            "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:4:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:3:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "a7471d99452fca1da802201a878338ad"
+      },
+      "inputs": [],
+      "outputs": [
+        "a7471d99452fca1da802201a878338ad"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "a7471d99452fca1da802201a878338ad",
+          "surface": "my mom",
+          "canonicalSurface": "my mom",
+          "head": "mom",
+          "determination": "possessive",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:84",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:4:op:1",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:3:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "40b1e23060e71be2ebeffb713d54c83c"
+      },
+      "inputs": [
+        "73a60a296ed831db03b42e7189852806",
+        "625cb73f77ca526826da9cadbd26503b"
+      ],
+      "outputs": [
+        "40b1e23060e71be2ebeffb713d54c83c"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "40b1e23060e71be2ebeffb713d54c83c",
+          "relation": "learn",
+          "participants": [
+            {
+              "ref": "73a60a296ed831db03b42e7189852806",
+              "occurrence": "73a60a296ed831db03b42e7189852806",
+              "surfaceKey": "surface:i",
+              "role": "subject",
+              "standing": "unresolved_surface",
+              "surface": "I",
+              "candidateReferents": []
+            },
+            {
+              "ref": "625cb73f77ca526826da9cadbd26503b",
+              "occurrence": "625cb73f77ca526826da9cadbd26503b",
+              "surfaceKey": "surface:to_cook_too",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "to cook too",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "8a3eb2784eb29008cf71a920750d26da",
+          "scope": {
+            "sequencePosition": 3,
+            "offset": 19
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:3",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 1,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:5:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:4:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "8749b83e5dd12f1385f1a35bf2b1868c"
+      },
+      "inputs": [],
+      "outputs": [
+        "8749b83e5dd12f1385f1a35bf2b1868c"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "8749b83e5dd12f1385f1a35bf2b1868c",
+          "surface": "the flowers",
+          "canonicalSurface": "the flowers",
+          "head": "flowers",
+          "determination": "definite",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:125",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:5:op:1",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:4:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "26737bc56fd5021d4ac0e3818c65b44a"
+      },
+      "inputs": [],
+      "outputs": [
+        "26737bc56fd5021d4ac0e3818c65b44a"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "26737bc56fd5021d4ac0e3818c65b44a",
+          "surface": "the flowers",
+          "canonicalSurface": "the flowers",
+          "head": "flowers",
+          "determination": "definite",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:125",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:5:op:2",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:4:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "9104bdd80c722dd68ab657dd953a3488"
+      },
+      "inputs": [
+        "1028bb63d689096c27809bd4557753e9",
+        "47b7ac59eeee70c3b760103e52de7b50"
+      ],
+      "outputs": [
+        "9104bdd80c722dd68ab657dd953a3488"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "9104bdd80c722dd68ab657dd953a3488",
+          "relation": "learn",
+          "participants": [
+            {
+              "ref": "1028bb63d689096c27809bd4557753e9",
+              "occurrence": "1028bb63d689096c27809bd4557753e9",
+              "surfaceKey": "surface:i",
+              "role": "subject",
+              "standing": "unresolved_surface",
+              "surface": "I",
+              "candidateReferents": []
+            },
+            {
+              "ref": "47b7ac59eeee70c3b760103e52de7b50",
+              "occurrence": "47b7ac59eeee70c3b760103e52de7b50",
+              "surfaceKey": "surface:to_water_the_flowers_too",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "to water the flowers too",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "449a97a74990f3b961b03d666688cff1",
+          "scope": {
+            "sequencePosition": 4,
+            "offset": 29
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:4",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 1,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:5:op:3",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": null,
+      "consequence": {
+        "kind": "identity_hypothesis_opened",
+        "hypothesis": "identity:descriptor:my_mom"
+      },
+      "inputs": [
+        "b1387ae56cd97f9bb7e18a46d3d130de",
+        "a7471d99452fca1da802201a878338ad"
+      ],
+      "outputs": [
+        "identity:descriptor:my_mom"
+      ],
+      "payload": {
+        "action": "provisional",
+        "value": {
+          "schema": "EOIdentityHypothesis@1",
+          "id": "identity:descriptor:my_mom",
+          "surface": "my mom",
+          "determinations": [
+            "possessive"
+          ],
+          "occurrenceRefs": [
+            "b1387ae56cd97f9bb7e18a46d3d130de",
+            "a7471d99452fca1da802201a878338ad"
+          ],
+          "encounterRefs": [
+            "encounter:3",
+            "file:273-i-love-my-mom-story-only.txt:84"
+          ],
+          "relationContexts": [
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            }
+          ],
+          "standing": "live_hypothesis",
+          "provenance": {
+            "giver": "text/individuation::descriptorHypotheses",
+            "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:6:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:5:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "61f1c65439558c80921cc3a452e40f10"
+      },
+      "inputs": [],
+      "outputs": [
+        "61f1c65439558c80921cc3a452e40f10"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "61f1c65439558c80921cc3a452e40f10",
+          "surface": "our clothes",
+          "canonicalSurface": "our clothes",
+          "head": "clothes",
+          "determination": "possessive",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:189",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:6:op:1",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:5:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "023532a6ef695a5a66dcd8d9afdbd7c0"
+      },
+      "inputs": [],
+      "outputs": [
+        "023532a6ef695a5a66dcd8d9afdbd7c0"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "023532a6ef695a5a66dcd8d9afdbd7c0",
+          "surface": "our clothes",
+          "canonicalSurface": "our clothes",
+          "head": "clothes",
+          "determination": "possessive",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:189",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:6:op:2",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:5:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "61f7f9828d5c82784118f4ae1a3c0978"
+      },
+      "inputs": [
+        "c230cb384d075136d109807ed9beed98",
+        "ef27b9a495a9739e6947ba62c11ab1f3"
+      ],
+      "outputs": [
+        "61f7f9828d5c82784118f4ae1a3c0978"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "61f7f9828d5c82784118f4ae1a3c0978",
+          "relation": "learn",
+          "participants": [
+            {
+              "ref": "c230cb384d075136d109807ed9beed98",
+              "occurrence": "c230cb384d075136d109807ed9beed98",
+              "surfaceKey": "surface:i",
+              "role": "subject",
+              "standing": "unresolved_surface",
+              "surface": "I",
+              "candidateReferents": []
+            },
+            {
+              "ref": "ef27b9a495a9739e6947ba62c11ab1f3",
+              "occurrence": "ef27b9a495a9739e6947ba62c11ab1f3",
+              "surfaceKey": "surface:to_wash_our_clothes_too",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "to wash our clothes too",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "31849358cd37c51e80395edd6a80a5ce",
+          "scope": {
+            "sequencePosition": 5,
+            "offset": 29
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:5",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 1,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:6:op:3",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": null,
+      "consequence": {
+        "kind": "identity_hypothesis_opened",
+        "hypothesis": "identity:descriptor:the_flowers"
+      },
+      "inputs": [
+        "162e7f04a4e8c860ced3e408dfcdd5a5",
+        "b16a756ad204cd45c020e4955467eb2f",
+        "8749b83e5dd12f1385f1a35bf2b1868c",
+        "26737bc56fd5021d4ac0e3818c65b44a"
+      ],
+      "outputs": [
+        "identity:descriptor:the_flowers"
+      ],
+      "payload": {
+        "action": "provisional",
+        "value": {
+          "schema": "EOIdentityHypothesis@1",
+          "id": "identity:descriptor:the_flowers",
+          "surface": "the flowers",
+          "determinations": [
+            "definite"
+          ],
+          "occurrenceRefs": [
+            "162e7f04a4e8c860ced3e408dfcdd5a5",
+            "b16a756ad204cd45c020e4955467eb2f",
+            "8749b83e5dd12f1385f1a35bf2b1868c",
+            "26737bc56fd5021d4ac0e3818c65b44a"
+          ],
+          "encounterRefs": [
+            "encounter:4",
+            "file:273-i-love-my-mom-story-only.txt:125"
+          ],
+          "relationContexts": [
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            }
+          ],
+          "standing": "live_hypothesis",
+          "provenance": {
+            "giver": "text/individuation::descriptorHypotheses",
+            "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:7:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:6:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "9fa5daf7646310061c098e234e8459d5"
+      },
+      "inputs": [],
+      "outputs": [
+        "9fa5daf7646310061c098e234e8459d5"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "9fa5daf7646310061c098e234e8459d5",
+          "surface": "our clothes",
+          "canonicalSurface": "our clothes",
+          "head": "clothes",
+          "determination": "possessive",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:252",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:7:op:1",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:6:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "7f14e63040e5fb3dc7bf63ad89d96ca2"
+      },
+      "inputs": [],
+      "outputs": [
+        "7f14e63040e5fb3dc7bf63ad89d96ca2"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "7f14e63040e5fb3dc7bf63ad89d96ca2",
+          "surface": "our clothes",
+          "canonicalSurface": "our clothes",
+          "head": "clothes",
+          "determination": "possessive",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:252",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:7:op:2",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:6:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "f2471195da254415338749d8c316b27c"
+      },
+      "inputs": [
+        "eb95d3cb66098585e7c1cc007d5c21a0",
+        "identity:poss:clothes:our"
+      ],
+      "outputs": [
+        "f2471195da254415338749d8c316b27c"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "f2471195da254415338749d8c316b27c",
+          "relation": "dries",
+          "participants": [
+            {
+              "ref": "eb95d3cb66098585e7c1cc007d5c21a0",
+              "occurrence": "eb95d3cb66098585e7c1cc007d5c21a0",
+              "surfaceKey": "surface:she",
+              "role": "subject",
+              "standing": "unresolved_surface",
+              "surface": "she",
+              "candidateReferents": []
+            },
+            {
+              "ref": "identity:poss:clothes:our",
+              "occurrence": "23e215578437021c5615bdf9fc508f64",
+              "role": "object",
+              "standing": "hypothesis",
+              "surface": "our clothes",
+              "resolution": "possessive_holding",
+              "possessiveAnchor": "our"
+            }
+          ],
+          "witness": "09ab56f6991cc34e594564e966f210e8",
+          "scope": {
+            "sequencePosition": 6,
+            "offset": 0
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:6",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 1,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:7:op:3",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:6:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "743d788a72f6bbebeb4c779005c627ee"
+      },
+      "inputs": [
+        "87a493b285814a43c1b35ad288497682",
+        "c5a041c14e0095f02c76770b1a7aaa7a"
+      ],
+      "outputs": [
+        "743d788a72f6bbebeb4c779005c627ee"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "743d788a72f6bbebeb4c779005c627ee",
+          "relation": "learn",
+          "participants": [
+            {
+              "ref": "87a493b285814a43c1b35ad288497682",
+              "occurrence": "87a493b285814a43c1b35ad288497682",
+              "surfaceKey": "surface:i",
+              "role": "subject",
+              "standing": "unresolved_surface",
+              "surface": "I",
+              "candidateReferents": []
+            },
+            {
+              "ref": "c5a041c14e0095f02c76770b1a7aaa7a",
+              "occurrence": "c5a041c14e0095f02c76770b1a7aaa7a",
+              "surfaceKey": "surface:to_dry_our_clothes_too",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "to dry our clothes too",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "d71b9d12b10bc8223a564a8b8ec98266",
+          "scope": {
+            "sequencePosition": 6,
+            "offset": 28
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:6",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 1,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:7:op:4",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": null,
+      "consequence": {
+        "kind": "identity_hypothesis_opened",
+        "hypothesis": "identity:descriptor:our_clothes"
+      },
+      "inputs": [
+        "16ff8fe275dd93528f62b8160944b039",
+        "c852dcd096ee5f8d7822339894a76c6a",
+        "61f1c65439558c80921cc3a452e40f10",
+        "023532a6ef695a5a66dcd8d9afdbd7c0",
+        "9fa5daf7646310061c098e234e8459d5",
+        "7f14e63040e5fb3dc7bf63ad89d96ca2"
+      ],
+      "outputs": [
+        "identity:descriptor:our_clothes"
+      ],
+      "payload": {
+        "action": "provisional",
+        "value": {
+          "schema": "EOIdentityHypothesis@1",
+          "id": "identity:descriptor:our_clothes",
+          "surface": "our clothes",
+          "determinations": [
+            "possessive"
+          ],
+          "occurrenceRefs": [
+            "16ff8fe275dd93528f62b8160944b039",
+            "c852dcd096ee5f8d7822339894a76c6a",
+            "61f1c65439558c80921cc3a452e40f10",
+            "023532a6ef695a5a66dcd8d9afdbd7c0",
+            "9fa5daf7646310061c098e234e8459d5",
+            "7f14e63040e5fb3dc7bf63ad89d96ca2"
+          ],
+          "encounterRefs": [
+            "encounter:5",
+            "file:273-i-love-my-mom-story-only.txt:189",
+            "file:273-i-love-my-mom-story-only.txt:252"
+          ],
+          "relationContexts": [
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            }
+          ],
+          "standing": "live_hypothesis",
+          "provenance": {
+            "giver": "text/individuation::descriptorHypotheses",
+            "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:8:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:7:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "5e3c66395cef391a2e2976b4996a92bc"
+      },
+      "inputs": [],
+      "outputs": [
+        "5e3c66395cef391a2e2976b4996a92bc"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "5e3c66395cef391a2e2976b4996a92bc",
+          "surface": "My mom",
+          "canonicalSurface": "my mom",
+          "head": "mom",
+          "determination": "possessive",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:313",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:8:op:1",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:7:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "486aede20d2525ad4093b7ef92e55f59"
+      },
+      "inputs": [],
+      "outputs": [
+        "486aede20d2525ad4093b7ef92e55f59"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "486aede20d2525ad4093b7ef92e55f59",
+          "surface": "a bicycle",
+          "canonicalSurface": "a bicycle",
+          "head": "bicycle",
+          "determination": "indefinite",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:313",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:8:op:2",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:7:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "6003171c3765d1d5776aced5832480c5"
+      },
+      "inputs": [
+        "de2e83688a79f6fdb8c3eef70a197f87",
+        "1116c1c4069dd3ce6041441ec47d06be"
+      ],
+      "outputs": [
+        "6003171c3765d1d5776aced5832480c5"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "6003171c3765d1d5776aced5832480c5",
+          "relation": "bought",
+          "participants": [
+            {
+              "ref": "de2e83688a79f6fdb8c3eef70a197f87",
+              "occurrence": "de2e83688a79f6fdb8c3eef70a197f87",
+              "surfaceKey": "surface:mom_also",
+              "role": "subject",
+              "standing": "unresolved_surface",
+              "surface": "mom also",
+              "candidateReferents": []
+            },
+            {
+              "ref": "1116c1c4069dd3ce6041441ec47d06be",
+              "occurrence": "1116c1c4069dd3ce6041441ec47d06be",
+              "surfaceKey": "surface:me_a_bicycle",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "me a bicycle",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "5c798abef9fb107648f32972b82b9399",
+          "scope": {
+            "sequencePosition": 7,
+            "offset": 3
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:7",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 1,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:8:op:3",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:7:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "6fea8ba9e06cdadfd9e9fc49569c1697"
+      },
+      "inputs": [
+        "f4d13081a5033077009b89f17ae72b2c",
+        "942408b63375c73167a45089ed22e168"
+      ],
+      "outputs": [
+        "6fea8ba9e06cdadfd9e9fc49569c1697"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "6fea8ba9e06cdadfd9e9fc49569c1697",
+          "relation": "taught",
+          "participants": [
+            {
+              "ref": "f4d13081a5033077009b89f17ae72b2c",
+              "occurrence": "f4d13081a5033077009b89f17ae72b2c",
+              "surfaceKey": "surface:she",
+              "role": "subject",
+              "standing": "unresolved_surface",
+              "surface": "she",
+              "candidateReferents": []
+            },
+            {
+              "ref": "942408b63375c73167a45089ed22e168",
+              "occurrence": "942408b63375c73167a45089ed22e168",
+              "surfaceKey": "surface:me_how_to_ride_it",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "me how to ride it",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "5fb2859aaf9e5bdcd529d96ec8dda2f9",
+          "scope": {
+            "sequencePosition": 7,
+            "offset": 33
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:7",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 1,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:9:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:8:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "b11017367e6f44f875a4a6144f5b3cb0"
+      },
+      "inputs": [],
+      "outputs": [
+        "b11017367e6f44f875a4a6144f5b3cb0"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "b11017367e6f44f875a4a6144f5b3cb0",
+          "surface": "my bicycle",
+          "canonicalSurface": "my bicycle",
+          "head": "bicycle",
+          "determination": "possessive",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:381",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:9:op:1",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:8:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "e14d54e7df6f3f4a911fc9abe7a9ca62"
+      },
+      "inputs": [],
+      "outputs": [
+        "e14d54e7df6f3f4a911fc9abe7a9ca62"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "e14d54e7df6f3f4a911fc9abe7a9ca62",
+          "surface": "my mom",
+          "canonicalSurface": "my mom",
+          "head": "mom",
+          "determination": "possessive",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:381",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:9:op:2",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:8:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "1535becd05b6872a05957ab418830cf6"
+      },
+      "inputs": [
+        "273e40740602bd35387de2a160ba4c9e",
+        "b7c2ff932bba3dd2ee01c1511f52f347"
+      ],
+      "outputs": [
+        "1535becd05b6872a05957ab418830cf6"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "1535becd05b6872a05957ab418830cf6",
+          "relation": "go",
+          "participants": [
+            {
+              "ref": "273e40740602bd35387de2a160ba4c9e",
+              "occurrence": "273e40740602bd35387de2a160ba4c9e",
+              "surfaceKey": "surface:i",
+              "role": "subject",
+              "standing": "unresolved_surface",
+              "surface": "I",
+              "candidateReferents": []
+            },
+            {
+              "ref": "b7c2ff932bba3dd2ee01c1511f52f347",
+              "occurrence": "b7c2ff932bba3dd2ee01c1511f52f347",
+              "surfaceKey": "surface:wheeeeeee",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "“WHEEEEEEE!”",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "3460192799b200037c7d729de33a853b",
+          "scope": {
+            "sequencePosition": 8,
+            "offset": 36
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:8",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 0.9857142857142858,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:9:op:3",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": null,
+      "consequence": {
+        "kind": "identity_hypothesis_opened",
+        "hypothesis": "identity:descriptor:a_bicycle"
+      },
+      "inputs": [
+        "105bfe0f908edc7508ac1c168b754da6",
+        "486aede20d2525ad4093b7ef92e55f59"
+      ],
+      "outputs": [
+        "identity:descriptor:a_bicycle"
+      ],
+      "payload": {
+        "action": "provisional",
+        "value": {
+          "schema": "EOIdentityHypothesis@1",
+          "id": "identity:descriptor:a_bicycle",
+          "surface": "a bicycle",
+          "determinations": [
+            "indefinite"
+          ],
+          "occurrenceRefs": [
+            "105bfe0f908edc7508ac1c168b754da6",
+            "486aede20d2525ad4093b7ef92e55f59"
+          ],
+          "encounterRefs": [
+            "encounter:7",
+            "file:273-i-love-my-mom-story-only.txt:313"
+          ],
+          "relationContexts": [
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            }
+          ],
+          "standing": "live_hypothesis",
+          "provenance": {
+            "giver": "text/individuation::descriptorHypotheses",
+            "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:10:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:9:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "5cf1b5c4230d6b7407fad0151a3c7116"
+      },
+      "inputs": [],
+      "outputs": [
+        "5cf1b5c4230d6b7407fad0151a3c7116"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "5cf1b5c4230d6b7407fad0151a3c7116",
+          "surface": "my mom",
+          "canonicalSurface": "my mom",
+          "head": "mom",
+          "determination": "possessive",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:441",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:10:op:1",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:9:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "2749c76055f44eb436a6cb5764f0ff9f"
+      },
+      "inputs": [],
+      "outputs": [
+        "2749c76055f44eb436a6cb5764f0ff9f"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "2749c76055f44eb436a6cb5764f0ff9f",
+          "surface": "the bed",
+          "canonicalSurface": "the bed",
+          "head": "bed",
+          "determination": "definite",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:441",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:10:op:2",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Figure",
+      "operator": "INS",
+      "terrain": "Entity",
+      "stance": "Making",
+      "witness": "observation:9:0",
+      "consequence": {
+        "kind": "referent_admitted",
+        "ref": "ref:auto:wheeeeeee"
+      },
+      "inputs": [],
+      "outputs": [
+        "ref:auto:wheeeeeee"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferent@1",
+          "id": "ref:auto:wheeeeeee",
+          "surfaces": [
+            "WHEEEEEEE"
+          ],
+          "provenance": [
+            {
+              "giver": "surfaces/discoverReferents",
+              "tier": "engine",
+              "basis": "name-variant coreference"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:10:op:3",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:9:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "e212f9a11ce1f24b3caff6961a2489d5"
+      },
+      "inputs": [],
+      "outputs": [
+        "e212f9a11ce1f24b3caff6961a2489d5"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "e212f9a11ce1f24b3caff6961a2489d5",
+          "surface": "the bed",
+          "canonicalSurface": "the bed",
+          "head": "bed",
+          "determination": "definite",
+          "role": "object",
+          "encounterRef": "encounter:9",
+          "edge": "10f717c5e2aa9a76e146c83d58644f74",
+          "relation": "makes",
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::descriptorOccurrence",
+            "basis": "determiner-marked unresolved relation participant"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:10:op:4",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:9:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "10f717c5e2aa9a76e146c83d58644f74"
+      },
+      "inputs": [
+        "identity:poss:mom:my",
+        "6ce1ddb66e7b2d55f24ed117aabe9b12"
+      ],
+      "outputs": [
+        "10f717c5e2aa9a76e146c83d58644f74"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "10f717c5e2aa9a76e146c83d58644f74",
+          "relation": "makes",
+          "participants": [
+            {
+              "ref": "identity:poss:mom:my",
+              "occurrence": "6af494f99a39f6fad25b568b2bb398de",
+              "role": "subject",
+              "standing": "hypothesis",
+              "surface": "my mom",
+              "resolution": "possessive_holding",
+              "possessiveAnchor": "my"
+            },
+            {
+              "ref": "6ce1ddb66e7b2d55f24ed117aabe9b12",
+              "occurrence": "6ce1ddb66e7b2d55f24ed117aabe9b12",
+              "surfaceKey": "surface:the_bed",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "the bed",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "6bdf8f090d869128c3bf7cbe9e225e6e",
+          "scope": {
+            "sequencePosition": 9,
+            "offset": 10
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:9",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 1,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:10:op:5",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": null,
+      "consequence": {
+        "kind": "identity_hypothesis_opened",
+        "hypothesis": "identity:descriptor:my_bicycle"
+      },
+      "inputs": [
+        "ff490433491dd78451dee91bc8e5afe1",
+        "b11017367e6f44f875a4a6144f5b3cb0"
+      ],
+      "outputs": [
+        "identity:descriptor:my_bicycle"
+      ],
+      "payload": {
+        "action": "provisional",
+        "value": {
+          "schema": "EOIdentityHypothesis@1",
+          "id": "identity:descriptor:my_bicycle",
+          "surface": "my bicycle",
+          "determinations": [
+            "possessive"
+          ],
+          "occurrenceRefs": [
+            "ff490433491dd78451dee91bc8e5afe1",
+            "b11017367e6f44f875a4a6144f5b3cb0"
+          ],
+          "encounterRefs": [
+            "encounter:8",
+            "file:273-i-love-my-mom-story-only.txt:381"
+          ],
+          "relationContexts": [
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            }
+          ],
+          "standing": "live_hypothesis",
+          "provenance": {
+            "giver": "text/individuation::descriptorHypotheses",
+            "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:10:op:6",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": null,
+      "consequence": {
+        "kind": "identity_hypothesis_opened",
+        "hypothesis": "identity:descriptor:the_bed"
+      },
+      "inputs": [
+        "2749c76055f44eb436a6cb5764f0ff9f",
+        "e212f9a11ce1f24b3caff6961a2489d5"
+      ],
+      "outputs": [
+        "identity:descriptor:the_bed"
+      ],
+      "payload": {
+        "action": "provisional",
+        "value": {
+          "schema": "EOIdentityHypothesis@1",
+          "id": "identity:descriptor:the_bed",
+          "surface": "the bed",
+          "determinations": [
+            "definite"
+          ],
+          "occurrenceRefs": [
+            "2749c76055f44eb436a6cb5764f0ff9f",
+            "e212f9a11ce1f24b3caff6961a2489d5"
+          ],
+          "encounterRefs": [
+            "file:273-i-love-my-mom-story-only.txt:441",
+            "encounter:9"
+          ],
+          "relationContexts": [
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": "10f717c5e2aa9a76e146c83d58644f74",
+              "relation": "makes",
+              "role": "object"
+            }
+          ],
+          "standing": "live_hypothesis",
+          "provenance": {
+            "giver": "text/individuation::descriptorHypotheses",
+            "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:11:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:10:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "1d19e71432e169fe84e736054fbc37aa"
+      },
+      "inputs": [],
+      "outputs": [
+        "1d19e71432e169fe84e736054fbc37aa"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "1d19e71432e169fe84e736054fbc37aa",
+          "surface": "the bed",
+          "canonicalSurface": "the bed",
+          "head": "bed",
+          "determination": "definite",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:473",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:11:op:1",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:10:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "2fd4ddf6638b30a379220fad9b8b3416"
+      },
+      "inputs": [
+        "d3853b12b52d4831bd13fa4583831d4b",
+        "b1426151b6e536568f71507c5fe5717e"
+      ],
+      "outputs": [
+        "2fd4ddf6638b30a379220fad9b8b3416"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "2fd4ddf6638b30a379220fad9b8b3416",
+          "relation": "learn",
+          "participants": [
+            {
+              "ref": "d3853b12b52d4831bd13fa4583831d4b",
+              "occurrence": "d3853b12b52d4831bd13fa4583831d4b",
+              "surfaceKey": "surface:i",
+              "role": "subject",
+              "standing": "unresolved_surface",
+              "surface": "I",
+              "candidateReferents": []
+            },
+            {
+              "ref": "b1426151b6e536568f71507c5fe5717e",
+              "occurrence": "b1426151b6e536568f71507c5fe5717e",
+              "surfaceKey": "surface:how_to_make_the_bed_too",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "how to make the bed too",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "7041d225f5783fd21559e3cc88b5d814",
+          "scope": {
+            "sequencePosition": 10,
+            "offset": 0
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:10",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 1,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:12:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:11:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "d785b7c6f2a50ea59c627b3ba4ca873b"
+      },
+      "inputs": [],
+      "outputs": [
+        "d785b7c6f2a50ea59c627b3ba4ca873b"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "d785b7c6f2a50ea59c627b3ba4ca873b",
+          "surface": "my mom",
+          "canonicalSurface": "my mom",
+          "head": "mom",
+          "determination": "possessive",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:507",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:12:op:1",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:11:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "a10c39cc3262ad47b56097751aaf0808"
+      },
+      "inputs": [
+        "identity:poss:mom:my",
+        "40a43adf40fbab3895f582a64bdbd5b8"
+      ],
+      "outputs": [
+        "a10c39cc3262ad47b56097751aaf0808"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "a10c39cc3262ad47b56097751aaf0808",
+          "relation": "tells",
+          "participants": [
+            {
+              "ref": "identity:poss:mom:my",
+              "occurrence": "6762565c84ccdfa81a0da732ce1f4c1e",
+              "role": "subject",
+              "standing": "hypothesis",
+              "surface": "my mom",
+              "resolution": "possessive_holding",
+              "possessiveAnchor": "my"
+            },
+            {
+              "ref": "40a43adf40fbab3895f582a64bdbd5b8",
+              "occurrence": "40a43adf40fbab3895f582a64bdbd5b8",
+              "surfaceKey": "surface:me_stories",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "me stories",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "618f2a252de7377f9dacf9ee563c3986",
+          "scope": {
+            "sequencePosition": 11,
+            "offset": 16
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:11",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 1,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:13:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:12:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "3af4be41ffa7ca782d99394cb2923bac"
+      },
+      "inputs": [],
+      "outputs": [
+        "3af4be41ffa7ca782d99394cb2923bac"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "3af4be41ffa7ca782d99394cb2923bac",
+          "surface": "my mom",
+          "canonicalSurface": "my mom",
+          "head": "mom",
+          "determination": "possessive",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:549",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:13:op:1",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:12:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "f4c2df355251143b732390ee7dd6558e"
+      },
+      "inputs": [],
+      "outputs": [
+        "f4c2df355251143b732390ee7dd6558e"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "f4c2df355251143b732390ee7dd6558e",
+          "surface": "a lullaby",
+          "canonicalSurface": "a lullaby",
+          "head": "lullaby",
+          "determination": "indefinite",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:549",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:13:op:2",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:12:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "02b9eb702f7bfb2df9d08a05ef359b7c"
+      },
+      "inputs": [
+        "identity:poss:mom:my",
+        "a0152a3aba707c5711030b5b1eebdec9"
+      ],
+      "outputs": [
+        "02b9eb702f7bfb2df9d08a05ef359b7c"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "02b9eb702f7bfb2df9d08a05ef359b7c",
+          "relation": "sings",
+          "participants": [
+            {
+              "ref": "identity:poss:mom:my",
+              "occurrence": "334c5bfe243cdb191d92bd151c5a94bd",
+              "role": "subject",
+              "standing": "hypothesis",
+              "surface": "my mom",
+              "resolution": "possessive_holding",
+              "possessiveAnchor": "my"
+            },
+            {
+              "ref": "a0152a3aba707c5711030b5b1eebdec9",
+              "occurrence": "a0152a3aba707c5711030b5b1eebdec9",
+              "surfaceKey": "surface:me_a_lullaby",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "me a lullaby",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "20ed2df1152a65c24de397278051f451",
+          "scope": {
+            "sequencePosition": 12,
+            "offset": 17
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:12",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 1,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:14:op:0",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:13:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "8c82e712615a9b20c324adbb7c5fea09"
+      },
+      "inputs": [],
+      "outputs": [
+        "8c82e712615a9b20c324adbb7c5fea09"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "8c82e712615a9b20c324adbb7c5fea09",
+          "surface": "my mom",
+          "canonicalSurface": "my mom",
+          "head": "mom",
+          "determination": "possessive",
+          "role": null,
+          "encounterRef": "file:273-i-love-my-mom-story-only.txt:594",
+          "edge": null,
+          "relation": null,
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::directDescriptorOccurrences",
+            "basis": "closed-class determiner plus witnessed lexical form"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:14:op:1",
+      "mode": "Generate",
+      "domain": "Existence",
+      "grain": "Ground",
+      "operator": "INS",
+      "terrain": "Void",
+      "stance": "Cultivating",
+      "witness": "observation:13:0",
+      "consequence": {
+        "kind": "referent_occurrence_witnessed",
+        "occurrence": "40d7cbbdbd3caf0281a0b80ffff5e1dc"
+      },
+      "inputs": [],
+      "outputs": [
+        "40d7cbbdbd3caf0281a0b80ffff5e1dc"
+      ],
+      "payload": {
+        "action": "graph-object",
+        "value": {
+          "schema": "EOReferentOccurrence@1",
+          "id": "40d7cbbdbd3caf0281a0b80ffff5e1dc",
+          "surface": "my mom so much!",
+          "canonicalSurface": "my mom so much",
+          "head": "much",
+          "determination": "possessive",
+          "role": "object",
+          "encounterRef": "encounter:13",
+          "edge": "d5852187853854349ee71e393bb5df55",
+          "relation": "love",
+          "standing": "unresolved_identity",
+          "provenance": {
+            "giver": "text/individuation::descriptorOccurrence",
+            "basis": "determiner-marked unresolved relation participant"
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:14:op:2",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": "observation:13:0",
+      "consequence": {
+        "kind": "relation_witnessed",
+        "edge": "d5852187853854349ee71e393bb5df55"
+      },
+      "inputs": [
+        "675dca7fea85c90be0f3fd6870b2ccb5",
+        "1f2a2888548f9faef52aacc2713ab3bb"
+      ],
+      "outputs": [
+        "d5852187853854349ee71e393bb5df55"
+      ],
+      "payload": {
+        "action": "hyperedge",
+        "value": {
+          "schema": "EOHyperedge@1",
+          "id": "d5852187853854349ee71e393bb5df55",
+          "relation": "love",
+          "participants": [
+            {
+              "ref": "675dca7fea85c90be0f3fd6870b2ccb5",
+              "occurrence": "675dca7fea85c90be0f3fd6870b2ccb5",
+              "surfaceKey": "surface:i",
+              "role": "subject",
+              "standing": "unresolved_surface",
+              "surface": "I",
+              "candidateReferents": []
+            },
+            {
+              "ref": "1f2a2888548f9faef52aacc2713ab3bb",
+              "occurrence": "1f2a2888548f9faef52aacc2713ab3bb",
+              "surfaceKey": "surface:my_mom_so_much",
+              "role": "object",
+              "standing": "unresolved_surface",
+              "surface": "my mom so much!",
+              "candidateReferents": []
+            }
+          ],
+          "witness": "8113c26524917e0e97abcd3bbf23bc6f",
+          "scope": {
+            "sequencePosition": 13,
+            "offset": 0
+          },
+          "eo": {
+            "op": "CON",
+            "grain": "Figure"
+          },
+          "meta": {
+            "polarity": "+",
+            "source": "file:273-i-love-my-mom-story-only.txt",
+            "encounterRef": "encounter:13",
+            "compositionStanding": {
+              "eligible": true,
+              "dominantClass": "VERB",
+              "share": 0.7528089887640449,
+              "basis": "treebank-dominant VERB — eligible as portable relation memory",
+              "giver": "UD_English-EWT via bin/priors/pos/en-ud-ewt.json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "schema": "EOOperation@1",
+      "id": "delta:14:op:3",
+      "mode": "Relate",
+      "domain": "Structure",
+      "grain": "Figure",
+      "operator": "CON",
+      "terrain": "Link",
+      "stance": "Binding",
+      "witness": null,
+      "consequence": {
+        "kind": "identity_hypothesis_opened",
+        "hypothesis": "identity:descriptor:a_lullaby"
+      },
+      "inputs": [
+        "882ec7620511d20439a7823c8eefdd56",
+        "f4c2df355251143b732390ee7dd6558e"
+      ],
+      "outputs": [
+        "identity:descriptor:a_lullaby"
+      ],
+      "payload": {
+        "action": "provisional",
+        "value": {
+          "schema": "EOIdentityHypothesis@1",
+          "id": "identity:descriptor:a_lullaby",
+          "surface": "a lullaby",
+          "determinations": [
+            "indefinite"
+          ],
+          "occurrenceRefs": [
+            "882ec7620511d20439a7823c8eefdd56",
+            "f4c2df355251143b732390ee7dd6558e"
+          ],
+          "encounterRefs": [
+            "encounter:12",
+            "file:273-i-love-my-mom-story-only.txt:549"
+          ],
+          "relationContexts": [
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            },
+            {
+              "edge": null,
+              "relation": null,
+              "role": null
+            }
+          ],
+          "standing": "live_hypothesis",
+          "provenance": {
+            "giver": "text/individuation::descriptorHypotheses",
+            "basis": "same descriptor recurred across distinct encounters; identity remains defeasible"
+          }
+        }
+      }
+    }
+  ],
+  "transformationHistoryRefs": [
+    "delta:1",
+    "delta:2",
+    "delta:3",
+    "delta:4",
+    "delta:5",
+    "delta:6",
+    "delta:7",
+    "delta:8",
+    "delta:9",
+    "delta:10",
+    "delta:11",
+    "delta:12",
+    "delta:13",
+    "delta:14"
+  ]
+}

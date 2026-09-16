@@ -11,7 +11,7 @@ import { runCodeLoop } from "./native/the-fold/code-loop.js";
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall } from "./heimdall.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -103,6 +103,31 @@ function modeFromHeaders(req, bodyMode) {
   const h = String(req.headers["x-er7-mode"] ?? "").trim().toLowerCase();
   if (h) return h;
   return bodyMode;
+}
+
+// WHO is at the door (organs/interlocutor.js, Buber): the mechanical signals a
+// request already carries, read into a bundle the runner turns into a belief
+// about whether an agent or a person is speaking. Nothing here is asked of the
+// model or read from the content of the ask — only the request's SHAPE (its
+// doorway, user-agent, tool definitions, transcript structure). `doorway` is the
+// one thing the handler knows that the body does not.
+function callerFromRequest(req, doorway, parsed = {}) {
+  const h = req.headers || {};
+  const messages = Array.isArray(parsed?.messages) ? parsed.messages : [];
+  const hasToolTurns = messages.some((m) =>
+    m?.role === "tool" || m?.role === "function" ||
+    (Array.isArray(m?.tool_calls) && m.tool_calls.length > 0) ||
+    (Array.isArray(m?.content) && m.content.some?.((c) => c?.type === "tool_use" || c?.type === "tool_result")));
+  return {
+    doorway,
+    userAgent: String(h["user-agent"] ?? ""),
+    declaredUser: String(h["x-er7-user"] ?? "").trim(),
+    tools: Array.isArray(parsed?.tools) ? parsed.tools.length : 0,
+    system: !!(parsed?.system || messages.some((m) => m?.role === "system")),
+    hasAssistantTurns: messages.some((m) => m?.role === "assistant"),
+    hasToolTurns,
+    messageCount: messages.length,
+  };
 }
 
 // HEIMDALL, WIRED IN — the admission gate on the proxy's OWN chat path. A
@@ -226,6 +251,19 @@ async function handleRequest(req, res) {
     return;
   }
 
+  // /heimdall/observe — a surface reports one finished call as IT measured it
+  // (Ollama's own counters, which every caller already receives on the done
+  // chunk). The bridge keeps the account of what each model really does; no
+  // watcher call is spent to find out. Loopback-bound like everything here.
+  if (req.method === "POST" && req.url === "/heimdall/observe") {
+    let raw = "";
+    for await (const chunk of req) raw += chunk;
+    try { observeCall(JSON.parse(raw || "{}")); } catch { /* a malformed report is dropped, never fatal */ }
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/v1/models") {
     try {
       const tags = await offeredOllamaModels();
@@ -263,7 +301,7 @@ async function handleRequest(req, res) {
         const parsed = JSON.parse(body);
         const job = await startDocumentJob({
           task: String(parsed.task ?? "").trim(),
-          model: parsed.model ?? "gemma2:2b",
+          model: parsed.model ?? "olmo2:7b",
           workspace: parsed.workspace ?? "",
           sessionId: parsed.sessionId ?? null,
           holonLevel: parsed.holonLevel ?? "section",
@@ -331,7 +369,7 @@ async function handleRequest(req, res) {
       res.end(JSON.stringify({
         status: job?.status ?? (projection != null ? "complete" : "unknown"),
         projection: projection ?? "",
-        job: job ? { jobId: job.jobId, chars: job.chars, sections: job.sections, createdAt: job.createdAt, updatedAt: job.updatedAt, error: job.error ?? null } : null,
+        job: job ? { jobId: job.jobId, chars: job.chars, sections: job.sections, createdAt: job.createdAt, updatedAt: job.updatedAt, error: job.error ?? null, satisfaction: job.satisfaction ?? null, totalStrain: job.totalStrain ?? null } : null,
       }));
     } catch (err) {
       res.writeHead(500, { "content-type": "application/json" });
@@ -400,6 +438,7 @@ async function handleRequest(req, res) {
         const result = await runProxyTurn({
           sessionId, userId, workspace, model, task, mode,
           chatHistory: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [],
+          caller: callerFromRequest(req, "ask", parsed),
           signal: turnAbort.signal,
         });
         clearTimeout(turnDeadline);
@@ -409,6 +448,7 @@ async function handleRequest(req, res) {
           answer: result.text,
           sessionId,
           model,
+          interlocutor: result.interlocutor ?? null,
           usage: { promptTokens: result.usage?.promptTokens ?? 0, completionTokens: result.usage?.completionTokens ?? 0 },
           relationEdges: result.relationEdges,
           referentBindings: result.referentBindings,
@@ -481,7 +521,7 @@ async function handleRequest(req, res) {
         if (!loopAbort.signal.aborted) loopAbort.abort();
       }, CODE_LOOP_DEADLINE_MS);
       try {
-        const result = await runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, signal: loopAbort.signal });
+        const result = await runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, caller: callerFromRequest(req, "code", parsed), signal: loopAbort.signal });
         clearTimeout(loopDeadline);
         res.removeListener("close", onDisconnect);
         res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
@@ -519,6 +559,7 @@ async function handleRequest(req, res) {
         return;
       }
       reqData.mode = modeFromHeaders(req, reqData.mode);
+      reqData.caller = callerFromRequest(req, "chat", parsed);
 
       // HEIMDALL, WIRED IN — admission on the proxy's own path.
       const admit = admitChatRequest(parsed);
@@ -746,6 +787,7 @@ async function handleRequest(req, res) {
         return;
       }
       reqData.mode = modeFromHeaders(req, reqData.mode);
+      reqData.caller = callerFromRequest(req, "ollama", parsed);
 
       // HEIMDALL, WIRED IN — admission on the proxy's own path.
       const admit = admitChatRequest(parsed);
@@ -895,6 +937,7 @@ async function handleRequest(req, res) {
         res.end(JSON.stringify({ type: "error", error: { type: "invalid_request_error", message: reqData.error } }));
         return;
       }
+      reqData.caller = callerFromRequest(req, "messages", parsed);
 
       const sessionId = sessionIdFromHeaders(req);
       const workspace = workspaceFromHeaders(req);

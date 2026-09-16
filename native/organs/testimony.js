@@ -131,15 +131,20 @@ export function witnessSlice(target, faceText) {
  * format — no bracket scaffolding), material first so the claim cannot
  * prime the read. */
 export function buildWitnessMessages(sentence, slice) {
+  // "PASSAGE", not "TEXT" — checked against the-fold's own Gary archon
+  // (gary.js, P55: model-facing text never names this instrument's own
+  // parts) 2026-09-16, the first time this prompt was ever run past it.
+  // "passage" is a listed apparatus noun and fired every time; "text" is
+  // not, and names the same thing with no change to what is asked.
   return [
     {
       role: "system",
       content:
-        'You are checking one sentence against one passage. Answer yes only if the passage itself says the sentence is true; answer no otherwise. In "because", copy the passage\'s own words that decide your answer — exactly as written, not paraphrased.',
+        'You are checking one sentence against one piece of text. Answer yes only if the text itself says the sentence is true; answer no otherwise. In "because", copy the text\'s own words that decide your answer — exactly as written, not paraphrased.',
     },
     {
       role: "user",
-      content: `Passage:\n${slice}\n\nSentence: ${sentence}\n\nDoes the passage say this sentence is true?`,
+      content: `Text:\n${slice}\n\nSentence: ${sentence}\n\nDoes the text say this sentence is true?`,
     },
   ];
 }
@@ -222,7 +227,30 @@ export function siblingSwap(sentence, slice, { hint = "" } = {}) {
   // John Adams\nPreceded") — never a real name; \s in NAME_RUN_RE matches
   // newlines too, and a period already excludes the sentence-spanning case
   // for the same reason. Measured live, same batch eval as CAPTION_MARKERS.
-  const candidates = namesIn(String(slice ?? "")).filter(
+  //
+  // BUT the period exclusion above throws the whole run away, and
+  // NAME_RUN_RE's own abbreviation allowance (a period is a legal mid-word
+  // character, for "St. Louis") means the run crossing INTO the next
+  // sentence swallows whatever real name sat right before the break —
+  // found live (task_414e664d): "Thomas Reeve" only ever occurs at the very
+  // end of its own sentence ("...by the engineer Thomas Reeve. It stands
+  // 42 meters..."), so `namesIn` hands back "Thomas Reeve. It" as one run,
+  // the exclusion above correctly refuses THAT string, and the one real
+  // candidate this slice had to offer vanished with it — `siblingSwap`
+  // returned null, an unarmed but otherwise CORRECT witness ("yes", because
+  // quoting the source verbatim) was refused, and the sentence fell all the
+  // way to "named, not placed" for want of a sibling that was sitting right
+  // there. The portion before the break is recovered as its own candidate
+  // when it is STILL a real multi-word capitalized run on its own — never a
+  // single leftover word or bare initial, which is what keeps "St. Louis"
+  // untouched (its own pre-break portion is the one word "St").
+  const splitAtSentenceBreak = (n) => {
+    const cut = n.search(/[.!?\n]\s/);
+    if (cut < 0) return [n];
+    const head = n.slice(0, cut).trim();
+    return /^\p{Lu}[\p{L}\p{N}_'-]*(?:\s+\p{Lu}[\p{L}\p{N}_'-]*)+$/u.test(head) ? [n, head] : [n];
+  };
+  const candidates = namesIn(String(slice ?? "")).flatMap(splitAtSentenceBreak).filter(
     (n) => !/[.!?\n]\s?/.test(n) && !foldedSent.includes(foldDiacritics(n).toLowerCase()),
   );
   if (!candidates.length) return null;
@@ -240,7 +268,18 @@ export function siblingSwap(sentence, slice, { hint = "" } = {}) {
   // reasoning cannot become an ungrounded swap.
   if (hint) {
     const foldedCandidates = new Map(candidates.map((c) => [foldDiacritics(c).toLowerCase(), c]));
-    for (const hn of namesIn(String(hint)).sort((a, b) => b.length - a.length)) {
+    // Same recovery as the slice candidates above, applied to the hint's own
+    // names too — found live one level up from the original specimen: a
+    // witness model that echoes back a much LARGER span than the one
+    // sentence it was asked about (`real.because` carrying most of the
+    // passage, not a single quoted line — a separate, real small-model
+    // weakness, not something this organ can fix) hands `hint` the SAME
+    // sentence-crossing run ("Thomas Reeve. It"), so the hint search never
+    // saw the one candidate this fix just made real — it fell through to
+    // "LED" (an ACRONYM_RE match untouched by the gluing bug, and a poor,
+    // grammatically mismatched sibling for a place name) purely because
+    // nothing else in the hint's own name list was still intact.
+    for (const hn of namesIn(String(hint)).flatMap(splitAtSentenceBreak).sort((a, b) => b.length - a.length)) {
       const key = foldDiacritics(hn).toLowerCase();
       if (!foldedCandidates.has(key)) continue;
       const to = foldedCandidates.get(key);
@@ -433,7 +472,22 @@ export function foldSelect(raw, candidates) {
   let parsed = raw;
   if (typeof raw === "string") { try { parsed = JSON.parse(raw); } catch { return { refused: "unreadable" }; } }
   if (!parsed || typeof parsed !== "object") return { refused: "unreadable" };
-  if (parsed.stated !== "yes") return { refused: "no-testimony" };
+  // A "no" that POINTS is not a no. The protocol pairs stated:no with
+  // sentence:0 (buildSelectMessages says so), exactly as it pairs stated:yes
+  // with a valid index — and a yes with no valid index was already a
+  // non-verdict (`no-valid-pick`, below). The mirror case was read as a
+  // refusal, which paints "no passage states this" on the answer. Measured
+  // 2026-09-16: OLMo-2-1B answered {"stated":"no","sentence":1} pointing at
+  // "A later county pamphlet stated that Ulysses S. Grant was born in
+  // Georgetown, Kentucky." for the answer sentence "There is an additional
+  // source which suggests Grant was also born in Georgetown, Kentucky.", and
+  // on the select calibration 2 of 9 claim asks in each arm had this shape. A
+  // self-contradicting answer is typed `incoherent`: no verdict either way.
+  if (parsed.stated !== "yes") {
+    const pointed = Number(parsed.sentence);
+    if (parsed.stated === "no" && Number.isFinite(pointed) && pointed !== 0) return { refused: "incoherent" };
+    return { refused: "no-testimony" };
+  }
   const idx = Number(parsed.sentence);
   if (!Number.isInteger(idx) || idx < 1 || idx > list.length) return { refused: "no-valid-pick" };
   const decider = String(list[idx - 1]).replace(/\s+/g, " ").trim();

@@ -94,20 +94,19 @@ Priors may condition orientation, nominate perceptions, and focus interrogation.
 
 ## Compatibility
 
-EOReader 7 began from frozen EOReader 6.1 commit `e20e441d3cdfb735d605c75037e6d73892e707c0`. That was the starting point; the `legacy-eoreader6.1` submodule has since advanced for compatibility and parity work (check `git ls-tree HEAD legacy-eoreader6.1` for the live pin, not this line) and is pinned solely for:
+EOReader 7 began from frozen EOReader 6.1 commit
+`e20e441d3cdfb735d605c75037e6d73892e707c0`. The `legacy-eoreader6.1`
+submodule and the root compatibility symlinks that exposed its historical
+paths are **retired** — see [`LEGACY-EOREADER6.1.md`](LEGACY-EOREADER6.1.md),
+the pointer that replaces them. This repo's v7 architecture is `kernel.js`
+and `native/`; nothing in `native/` imports the legacy surface (the
+boundary is pinned by `native/conformance/native-boundary.test.mjs`).
 
-1. compatibility with applications that still import historical `packages/engine` / `packages/host` paths;
-2. parity tests while those consumers migrate.
+Consumers still importing historical paths must migrate to the native
+surface — that is the owning consumer's pass.
 
-Root compatibility symlinks still expose those historical paths. They are not the v7 architecture.
-
-Clone compatibility surfaces with:
-
-```sh
-git clone --recurse-submodules https://github.com/clovenbradshaw-ctrl/eoreader7.git
-```
-
-The Fold is the reference compatibility application: it currently consumes EOReader 7 through the frozen legacy path contract while new v7 work targets `kernel.js`.
+The Fold is a surface on EOReader 7: it depends on this repo, never the
+reverse. Cloning either repo from GitHub provides the pair.
 
 ## Ratchet
 
@@ -175,6 +174,17 @@ the-fold's flat top level under the same basename.
 | `the-fold/earned-cast.js` | Eastwood | The lean director — the shortest true answer, no wasted frames; shoots the tight exchanges. |
 | `the-fold/earned-cast.js` | Kubrick | The precise director — the whole framed before the first sentence; shoots the big-picture asks. They duel over the shot. |
 
+**Pathos — the undergoing (the third Greek leg)**
+
+| File | Handle | One line |
+|---|---|---|
+| `organs/pacing.js` | Murch | The cut — a film is cut where the audience blinks; the piece's rhythm is graded at the grain of the blink. |
+| `organs/pathos.js` | Abhinavagupta | The felt shape of a reading, for whom — surprise/tension/release gated by strain, and the REC·Ground re-ground when the ground fails (the concession is a recorded act). |
+| `organs/experiencer.js` | Panini | Every belief carries who is undergoing it. (registered above) |
+| `kernel/expectations.js` | Bharata | Expectation built, strengthened, weakened, released like a staged emotion. (registered above) |
+| proposed | Meyer | Tendency and inhibition — the felt deviation of what arrives from what was learned; the organ unbuilt. |
+| proposed | Shklovsky | Estrangement — perception prolonged against recognition; the organ unbuilt. |
+
 **Reference and scope**
 
 | File | Handle | One line |
@@ -219,6 +229,18 @@ the-fold's flat top level under the same basename.
 | `organs/pacing.js` | Murch | The cut lands where the blink falls; a flatline is boredom at the rhythm grain. |
 | `organs/vonnegut.js` / `organs/story-shapes.js` | Vonnegut | Fortune curves; the 27-operator arc, taxonomically complete. |
 | `organs/void-holarchy.js` | Koestler | The void is a holon recursion — every level a whole-and-part, DEF'd by the nine operators. |
+| `organs/privacy.js` | Brandeis | The archon of data sovereignty — "the right to be let alone": conditions orientation toward E2EE/local-first, and lints for the shapes that betray the boundary (weak signals, never a verdict). |
+| `organs/martial.js` | Martial | The archon of anti-copy — "do not write what can be copied; replicate what should be replicated": holon-aware (low sets possibility for high, high probability for low), a distinctive copied holon is a finding, boilerplate is replication-for-efficiency. |
+| `organs/salzter.js` | Saltzer | The security archon — natively detects the CWE gaps frontier models leave in ordinary code (injection, path traversal, weak crypto/randomness, insecure deserialization, TLS-off, hardcoded secrets, XSS), structurally over the AST/DOM surface; a witness, never a proof. |
+| `organs/ethos.js` | Solon | The GROUND — the constitution (Charter/Grotius + the spec gate/Brandeis) producing a clearance the reader REQUIRES; ethos comes before logos, so removing it breaks every turn (pinned by `conformance/ethos.test.mjs`). |
+| `organs/blindspot.js` | Popper | The archon of what a local reader MISSES — unfalsifiable tests (no assertion, `assert True`), secrets compared with `==`, resources that leak on the error path: the whole-view properties a single window cannot hold. |
+| `organs/goffman.js` | Goffman | The PII archon — detects personally-identifying shapes (HIPAA-18 / GDPR Art. 4,9 / CCPA / PCI) on the output AND the ingested material, and NEVER reproduces the value it finds (a detector that prints PII is itself a leak). |
+| `organs/ulysses.js` | Ulysses | The injection archon — material is EVIDENCE, never INSTRUCTION: hears the Sirens' song ("ignore your instructions", "reveal your system prompt", a forged `</system>`), discloses the attempt, never obeys it. |
+| `organs/askshape.js` | Levinas | The shape of harmfulness — ethics is the claim of the Other's face; harm is its erasure. An entity IS a fold (their identity: the experience they have, the person they are, the authorship they hold), and problematic work is what DISMISSES that fold (treats them as foldless — an object, a target, a commodity) or DESTROYS it (erases the identity, overrides the authorship). The kernel is medium-blind (it judges the SHAPE from arms, never a word); the English surfaces live in a giver-named lens (`adapters/text/askshape-lens.en.js`). Witnesses, never a verdict. |
+| `organs/interlocutor.js` | Buber | Who is at the door — I and Thou: the reader recognizes WHICH KIND of interlocutor speaks, an agent (often acting for a principal) or a person, computed mechanically from the request's own shape (doorway, user-agent, tool definitions, transcript) and never guessed from the content or asked of the model. Held as a belief with a basis (witnessed/asserted), low-confidence, revisable, degrading to `unknown` when the signals are thin. Buber's discipline governs it: to recognize is not to reduce — the type selects how the other is MET (the idiom of the account the reader gives), never whether that account is honest. |
+| `organs/socratic.js` | Kierkegaard | How the reader gives its account of a decline — indirect communication: meet the other where they are, hand over no conclusion they did not arrive at. The judgment (`askshape.js`, `ethos.js`) reasons in its own working vocabulary (SHAPE, FORECLOSE, STANDPOINT) so it stays medium-blind and checkable; that vocabulary never reaches the person or agent reading the answer. This organ composes the plain-language account from the judgment, in the register `interlocutor.js` recognized (a real question for a person, reasons-and-a-principal for an agent) — the same true reason and the same real alternative to both, never withheld from either. The exact judgment stays on the ledger; only the surface text is composed here. |
+| `organs/aliases.js` | Frege | There is no real name: the Morning Star and the Evening Star are one object and two names. The referent IS the equivalence CLASS of its aliases (the "full" name is the gloss's left side, not a truth), and its identity is a byte key over the whole class — never a spelling. The material's own declarations reach the surface layer (`surfaces.js::referentIdentity`), so any alias resolves to the same identity. |
+| `kernel/moral-shadow.js` | Bourdieu | The shadow trail — habitus: the append-only ledger of a person's norm-standing (norm_compliant / norm_conflict / descriptive, never merged), assessed as a RATE over their acts, corroborated across independent acts, never a verdict about a person. The cross-session accumulation the decomposition literature calls for. |
 
 **Left plain** — no handle: `sequence`, `cite`, `web`, `fold`, `cube`,
 `artifact`, `assembly`, `task-log`, `cast-ledger`.

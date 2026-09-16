@@ -1,4 +1,16 @@
 import { sourceOfWitness as kernelSourceOfWitness, recipeOfWitness } from "../kernel/notes.js";
+import { numberSet } from "./grounding.js";
+
+// THE DECIDER CARRIES EVERY FIGURE THE CLAIM STATES (P31's company law, for
+// numbers). The arm swaps one end, so a claim that is right about its ends
+// and wrong about a year passes it: measured 2026-09-16, gemma2:2b pointed at
+// "A later county pamphlet stated that Ulysses S. Grant was born in
+// Georgetown, Kentucky." for "A later pamphlet claims he was born in
+// Georgetown, Kentucky, in 1850." and refused the swapped control. A figure
+// is compared by value (numberSet folds "1,842" and "1842"); a claim with no
+// figure is untouched. A pick whose decider lacks one is no verdict, never a
+// refusal — the sentence it points at may state everything else.
+export const figuresUnbacked = (claim, decider) => { const d = numberSet(String(decider ?? "")); return [...numberSet(String(claim ?? ""))].filter((n) => !d.has(n)); };
 // corroboration.js — the witness tier as the ledger's OFFICIAL second vote.
 // Handle: Bukhari — after al-Bukhari, whose hadith verification stands only on independent chains of transmission; a shared chain counts as one witness. Amendment XVII.
 //
@@ -867,7 +879,12 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
         // returns the SAME sentence for two different claims: that index
         // carries no information about what was asked. A picker that points
         // elsewhere discriminated, and its pick on the real claim stands.
-        if (armPick.verdict === "states" && armPick.index === picked.index)
+        // SAME SENTENCE, not same number: a turn hands a sentence and the
+        // paragraph holding it, so one stating sentence can be offered twice
+        // (measured live 2026-09-16, "Ulysses S. Grant was born in Point
+        // Pleasant, Ohio, in 1822." at candidates 1 and 2). A picker that
+        // points at the other copy for the swapped claim has not discriminated.
+        if (armPick.verdict === "states" && (armPick.index === picked.index || armPick.because === picked.because))
           return { refused: "indiscriminate", via: "select", arm: armClaim, at: picked.index };
         // The pick's address is the one CARRIED FORWARD from its cut — no
         // search. The decider shown is the source's own bytes (`raw`, line
@@ -875,6 +892,8 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
         // segmenter gave no offset, the address is honestly null rather
         // than guessed.
         const chosen = cands[picked.index - 1];
+        const unbackedFigures = figuresUnbacked(sentence, chosen.raw);
+        if (unbackedFigures.length) return { refused: "figure_unbacked", via: "select", because: chosen.raw, figures: unbackedFigures };
         return {
           verdict: "states",
           because: chosen.raw,
@@ -905,6 +924,8 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
   // vote does not land. Refused typed, never a conviction — the same
   // withhold-vs-convict rule as every refusal above.
   if (t.verdict === "states") {
+    const unbackedFigures = figuresUnbacked(sentence, t.because);
+    if (unbackedFigures.length) return { refused: "figure_unbacked", because: t.because, figures: unbackedFigures };
     const cf = testimony.featuresOfClaim ?? ((x) => new Set(String(x ?? "").toLowerCase().match(/\p{L}{4,}/gu) ?? []));
     const deciderFeats = cf(t.because);
     if (ends) {
@@ -1028,7 +1049,7 @@ export async function corroborateLedger(log, door, sources, {
   let asks = 0;
   const attested = [];
   const contradicted = [];
-  const refusals = { "no-slice": 0, "no-testimony": 0, insensitive: 0, uncontained: 0, unreadable: 0, unarmed: 0, decider_unrelated: 0, "unarmed-select": 0, indiscriminate: 0, other: 0 }; // the select path's own two typed refusals are tallied by name — measured landing in "other" on the first select-vs-generate run, a typed refusal counted as a wildcard
+  const refusals = { "no-slice": 0, "no-testimony": 0, insensitive: 0, uncontained: 0, unreadable: 0, unarmed: 0, decider_unrelated: 0, "unarmed-select": 0, indiscriminate: 0, incoherent: 0, figure_unbacked: 0, other: 0 }; // the select path's own two typed refusals are tallied by name — measured landing in "other" on the first select-vs-generate run, a typed refusal counted as a wildcard
   // Structurally hopeless candidates, skipped WITHOUT an ask — a
   // proposal-time refusal, tallied apart from the witness's own refusals
   // because no model call was spent and no testimony was heard.

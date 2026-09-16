@@ -499,6 +499,8 @@ test("foldSelect: a valid pick returns the candidate VERBATIM; an out-of-range o
   assert.deepEqual(foldSelect({ stated: "yes", sentence: 1 }, cands), { verdict: "states", because: "Napoleon faced Kutuzov at the river.", index: 1 });
   assert.equal(foldSelect({ stated: "yes", sentence: 9 }, cands).refused, "no-valid-pick");
   assert.equal(foldSelect({ stated: "no", sentence: 0 }, cands).refused, "no-testimony");
+  // A "no" that points at a sentence contradicts the protocol it was asked in (no ⇔ 0), the mirror of a yes with no valid pick: no verdict, never a refusal.
+  assert.equal(foldSelect({ stated: "no", sentence: 1 }, cands).refused, "incoherent");
   assert.equal(foldSelect("not json", cands).refused, "unreadable");
 });
 

@@ -1,0 +1,347 @@
+{
+  "schema": "ChapterSwarmRead@1",
+  "declared": {
+    "source": "file:fr-madame-bovary.txt",
+    "lang": "fra",
+    "prior": "pos-fra.json",
+    "giver": "chapter-swarm.mjs — Wilson's swarm",
+    "recipe": "read-real recursive pipeline, per chapter, minWitnesses:1 nomination",
+    "convention": "Chapitre <roman>",
+    "chapters": 12,
+    "cv": false,
+    "corroborationRule": "a pair nominated by >=2 chapters is promoted to GIVEN (Wilson giver); nomination is never licensing"
+  },
+  "chapters": [
+    {
+      "index": 1,
+      "numeral": "I",
+      "title": null,
+      "span": [
+        3381,
+        9372
+      ],
+      "chars": 5991,
+      "materialChars": 5991,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 3,
+      "relationEdges": 0,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 2,
+      "numeral": "II",
+      "title": null,
+      "span": [
+        9372,
+        19753
+      ],
+      "chars": 10381,
+      "materialChars": 10381,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 2,
+      "relationEdges": 1,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 3,
+      "numeral": "III",
+      "title": null,
+      "span": [
+        19753,
+        24106
+      ],
+      "chars": 4353,
+      "materialChars": 4353,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 2,
+      "relationEdges": 0,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 4,
+      "numeral": "IV",
+      "title": null,
+      "span": [
+        24106,
+        39883
+      ],
+      "chars": 15777,
+      "materialChars": 15777,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 2,
+      "relationEdges": 0,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 5,
+      "numeral": "V",
+      "title": null,
+      "span": [
+        39883,
+        45832
+      ],
+      "chars": 5949,
+      "materialChars": 5949,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 2,
+      "relationEdges": 0,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 6,
+      "numeral": "VI",
+      "title": null,
+      "span": [
+        45832,
+        58180
+      ],
+      "chars": 12348,
+      "materialChars": 12348,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 2,
+      "relationEdges": 1,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 7,
+      "numeral": "VII",
+      "title": null,
+      "span": [
+        58180,
+        65217
+      ],
+      "chars": 7037,
+      "materialChars": 7037,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 3,
+      "relationEdges": 0,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 8,
+      "numeral": "VIII",
+      "title": null,
+      "span": [
+        65217,
+        73032
+      ],
+      "chars": 7815,
+      "materialChars": 7815,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 2,
+      "relationEdges": 0,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 9,
+      "numeral": "IX",
+      "title": null,
+      "span": [
+        73032,
+        81058
+      ],
+      "chars": 8026,
+      "materialChars": 8026,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 2,
+      "relationEdges": 1,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 10,
+      "numeral": "X",
+      "title": null,
+      "span": [
+        81058,
+        106329
+      ],
+      "chars": 25271,
+      "materialChars": 25271,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 2,
+      "relationEdges": 0,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 11,
+      "numeral": "XI",
+      "title": null,
+      "span": [
+        106329,
+        115629
+      ],
+      "chars": 9300,
+      "materialChars": 9300,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 3,
+      "relationEdges": 0,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 12,
+      "numeral": "XII",
+      "title": null,
+      "span": [
+        115629,
+        116678
+      ],
+      "chars": 1049,
+      "materialChars": 1049,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 2,
+      "relationEdges": 0,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    }
+  ],
+  "hyperlexicon": {
+    "schema": "EOHyperlexicon@1",
+    "entries": 0,
+    "given": [],
+    "candidates": []
+  },
+  "corroborated": []
+}

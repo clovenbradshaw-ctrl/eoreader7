@@ -110,9 +110,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 241,
+          "seq": 240,
           "schema": "EOTObservation@1",
-          "id": "o240",
+          "id": "o239",
           "at": [
            12439,
            12450
@@ -200,9 +200,9 @@
             ]
            },
            {
-            "seq": 242,
+            "seq": 241,
             "schema": "EOTObservation@1",
-            "id": "o241",
+            "id": "o240",
             "at": [
              12472,
              12489
@@ -300,9 +300,9 @@
             ]
            },
            {
-            "seq": 244,
+            "seq": 243,
             "schema": "EOTObservation@1",
-            "id": "o242",
+            "id": "o241",
             "at": [
              12575,
              12620
@@ -318,52 +318,7 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 592,
-              "schema": "EOTObservation@1",
-              "id": "o242",
-              "at": [
-               12579,
-               12620
-              ],
-              "role": "proposition",
-              "end1": "now I’m",
-              "label": "out",
-              "end2": "like the largest telescope that ever was!",
-              "subjectBasis": "inherited",
-              "end1Ref": "ref:auto:i’m",
-              "operator": "CON",
-              "grain": "Ground",
-              "terrain": "Field",
-              "stance": "Tending",
-              "settledAs": "preposition",
-              "pass": 2,
-              "foundOnReread": true,
-              "children": [
-               {
-                "seq": 593,
-                "schema": "EOTObservation@1",
-                "id": "o243",
-                "at": [
-                 12584,
-                 12620
-                ],
-                "role": "proposition",
-                "end1": "now I’m",
-                "label": "like",
-                "end2": "the largest telescope that ever was!",
-                "subjectBasis": "inherited",
-                "end1Ref": "ref:auto:i’m",
-                "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-                "settledAs": null,
-                "pass": 2,
-                "foundOnReread": true,
-                "children": []
-               }
-              ]
-             }
-            ]
+            "children": []
            }
           ]
          }
@@ -383,7 +338,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 246,
+          "seq": 245,
           "schema": "EOTAbsence@1",
           "at": [
            12621,
@@ -391,7 +346,7 @@
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 3008 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "detail": "no token in this sentence was nominated by the 3009 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
           "children": []
          }
         ]
@@ -425,9 +380,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 247,
+            "seq": 246,
             "schema": "EOTObservation@1",
-            "id": "o243",
+            "id": "o242",
             "at": [
              12660,
              12676
@@ -445,9 +400,9 @@
             "children": []
            },
            {
-            "seq": 248,
+            "seq": 247,
             "schema": "EOTObservation@1",
-            "id": "o244",
+            "id": "o243",
             "at": [
              12736,
              12747
@@ -482,9 +437,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 249,
+          "seq": 248,
           "schema": "EOTObservation@1",
-          "id": "o245",
+          "id": "o244",
           "at": [
            12785,
            12837
@@ -501,9 +456,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 250,
+            "seq": 249,
             "schema": "EOTObservation@1",
-            "id": "o246",
+            "id": "o245",
             "at": [
              12798,
              12837
@@ -520,9 +475,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 251,
+              "seq": 250,
               "schema": "EOTObservation@1",
-              "id": "o247",
+              "id": "o246",
               "at": [
                12816,
                12837
@@ -557,48 +512,7 @@
         "inferred": true,
         "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
-        "children": [
-         {
-          "seq": 252,
-          "schema": "EOTObservation@1",
-          "id": "o248",
-          "at": [
-           12856,
-           12875
-          ],
-          "role": "proposition",
-          "end1": "I’m",
-          "label": "sure",
-          "end2": "_I_ shan’t be able!",
-          "subjectBasis": "stated",
-          "end1Ref": "ref:auto:i’m",
-          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-          "settledAs": null,
-          "children": [
-           {
-            "seq": 253,
-            "schema": "EOTObservation@1",
-            "id": "o249",
-            "at": [
-             12870,
-             12875
-            ],
-            "role": "proposition",
-            "end1": "I’m",
-            "label": "be",
-            "end2": "able!",
-            "subjectBasis": "inherited",
-            "end1Ref": "ref:auto:i’m",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
-            "children": []
-           }
-          ]
-         }
-        ]
+        "children": []
        },
        {
         "seq": 60,
@@ -629,9 +543,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 254,
+            "seq": 252,
             "schema": "EOTObservation@1",
-            "id": "o250",
+            "id": "o247",
             "at": [
              12958,
              12978
@@ -646,32 +560,12 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 594,
-              "schema": "EOTObservation@1",
-              "id": "o252",
-              "at": [
-               12967,
-               12978
-              ],
-              "role": "proposition",
-              "end1": "you",
-              "label": "best",
-              "end2": "way you can",
-              "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            },
            {
-            "seq": 256,
+            "seq": 254,
             "schema": "EOTObservation@1",
-            "id": "o251",
+            "id": "o248",
             "at": [
              12995,
              13007
@@ -686,32 +580,12 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 595,
-              "schema": "EOTObservation@1",
-              "id": "o254",
-              "at": [
-               13003,
-               13007
-              ],
-              "role": "proposition",
-              "end1": "I",
-              "label": "to",
-              "end2": "them",
-              "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            },
            {
-            "seq": 257,
+            "seq": 255,
             "schema": "EOTObservation@1",
-            "id": "o252",
+            "id": "o249",
             "at": [
              13069,
              13075
@@ -726,27 +600,7 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 596,
-              "schema": "EOTObservation@1",
-              "id": "o256",
-              "at": [
-               13072,
-               13075
-              ],
-              "role": "proposition",
-              "end1": "I",
-              "label": "to",
-              "end2": "go!",
-              "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            }
           ]
          }
@@ -781,7 +635,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 258,
+            "seq": 256,
             "schema": "EOTAbsence@1",
             "at": [
              13076,
@@ -880,9 +734,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 259,
+            "seq": 257,
             "schema": "EOTObservation@1",
-            "id": "o253",
+            "id": "o250",
             "at": [
              13158,
              13204
@@ -899,9 +753,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 260,
+              "seq": 258,
               "schema": "EOTObservation@1",
-              "id": "o254",
+              "id": "o251",
               "at": [
                13170,
                13204
@@ -918,44 +772,24 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 597,
+                "seq": 259,
                 "schema": "EOTObservation@1",
-                "id": "o259",
+                "id": "o252",
                 "at": [
-                 13173,
+                 13202,
                  13204
                 ],
                 "role": "proposition",
                 "end1": "she",
-                "label": "to",
-                "end2": "herself how she would manage it",
+                "label": "would manage",
+                "end2": "it",
                 "subjectBasis": "inherited",
-                "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-                "settledAs": null,
-                "pass": 2,
-                "foundOnReread": true,
-                "children": [
-                 {
-                  "seq": 261,
-                  "schema": "EOTObservation@1",
-                  "id": "o255",
-                  "at": [
-                   13202,
-                   13204
-                  ],
-                  "role": "proposition",
-                  "end1": "she",
-                  "label": "would manage",
-                  "end2": "it",
-                  "subjectBasis": "inherited",
-                  "operator": "CON",
-                  "grain": "Figure",
-                  "terrain": "Link",
-                  "stance": "Binding",
-                  "settledAs": "verb",
-                  "children": []
-                 }
-                ]
+                "operator": "CON",
+                "grain": "Figure",
+                "terrain": "Link",
+                "stance": "Binding",
+                "settledAs": "verb",
+                "children": []
                }
               ]
              }
@@ -994,9 +828,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 262,
+            "seq": 260,
             "schema": "EOTObservation@1",
-            "id": "o256",
+            "id": "o253",
             "at": [
              13221,
              13235
@@ -1014,64 +848,24 @@
             "children": []
            },
            {
-            "seq": 264,
+            "seq": 262,
             "schema": "EOTObservation@1",
-            "id": "o257",
+            "id": "o254",
             "at": [
-             13277,
+             13287,
              13314
             ],
             "role": "proposition",
-            "end1": "and how funny it’ll seem",
+            "end1": "They",
             "label": "sending",
             "end2": "presents to one’s own feet!",
-            "subjectBasis": "inherited (reduced clause — the noun before the comma)",
+            "subjectBasis": "inherited (reduced participial clause — the noun phrase before the comma)",
             "operator": "CON",
             "grain": "Figure",
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 598,
-              "schema": "EOTObservation@1",
-              "id": "o261",
-              "at": [
-               13299,
-               13314
-              ],
-              "role": "proposition",
-              "end1": "sending presents",
-              "label": "to",
-              "end2": "one’s own feet!",
-              "subjectBasis": "stated",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": [
-               {
-                "seq": 599,
-                "schema": "EOTObservation@1",
-                "id": "o262",
-                "at": [
-                 13309,
-                 13314
-                ],
-                "role": "proposition",
-                "end1": "sending presents",
-                "label": "own",
-                "end2": "feet!",
-                "subjectBasis": "inherited",
-                "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-                "settledAs": null,
-                "pass": 2,
-                "foundOnReread": true,
-                "children": []
-               }
-              ]
-             }
-            ]
+            "children": []
            }
           ]
          }
@@ -1147,7 +941,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 267,
+          "seq": 265,
           "schema": "EOTAbsence@1",
           "at": [
            13449,
@@ -1203,9 +997,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 268,
+            "seq": 266,
             "schema": "EOTObservation@1",
-            "id": "o258",
+            "id": "o255",
             "at": [
              13562,
              13590
@@ -1223,9 +1017,9 @@
             "children": []
            },
            {
-            "seq": 269,
+            "seq": 267,
             "schema": "EOTObservation@1",
-            "id": "o259",
+            "id": "o256",
             "at": [
              13643,
              13673
@@ -1240,27 +1034,7 @@
             "terrain": "Link",
             "stance": "Dissecting",
             "settledAs": "conjunction",
-            "children": [
-             {
-              "seq": 600,
-              "schema": "EOTObservation@1",
-              "id": "o266",
-              "at": [
-               13658,
-               13673
-              ],
-              "role": "proposition",
-              "end1": "golden key",
-              "label": "to",
-              "end2": "the garden door",
-              "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            }
           ]
          }
@@ -1294,7 +1068,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 271,
+          "seq": 269,
           "schema": "EOTAbsence@1",
           "at": [
            13678,
@@ -1302,7 +1076,7 @@
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 3008 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "detail": "no token in this sentence was nominated by the 3009 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
           "children": []
          }
         ]
@@ -1336,9 +1110,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 272,
+            "seq": 270,
             "schema": "EOTObservation@1",
-            "id": "o260",
+            "id": "o257",
             "at": [
              13697,
              13720
@@ -1355,9 +1129,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 273,
+              "seq": 271,
               "schema": "EOTObservation@1",
-              "id": "o261",
+              "id": "o258",
               "at": [
                13718,
                13720
@@ -1377,18 +1151,18 @@
             ]
            },
            {
-            "seq": 277,
+            "seq": 275,
             "schema": "EOTObservation@1",
-            "id": "o265",
+            "id": "o262",
             "at": [
-             13721,
+             13728,
              13878
             ],
             "role": "proposition",
-            "end1": "s as much as she could do",
+            "end1": "she",
             "label": "lying",
             "end2": "down on one side, to\nlook through into the garden with one eye; but to get through was more\nhopeless than ever: she sat down and began to cry again.",
-            "subjectBasis": "inherited (reduced clause — the noun before the comma)",
+            "subjectBasis": "inherited (reduced participial clause — the noun phrase before the comma)",
             "operator": "CON",
             "grain": "Figure",
             "terrain": "Link",
@@ -1396,9 +1170,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 274,
+              "seq": 272,
               "schema": "EOTObservation@1",
-              "id": "o262",
+              "id": "o259",
               "at": [
                13850,
                13877
@@ -1415,17 +1189,17 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 275,
+                "seq": 276,
                 "schema": "EOTObservation@1",
                 "id": "o263",
                 "at": [
-                 13865,
+                 13850,
                  13877
                 ],
                 "role": "proposition",
                 "end1": "she",
-                "label": "and began",
-                "end2": "to cry again",
+                "label": "sat",
+                "end2": "down and began to cry again",
                 "subjectBasis": "inherited",
                 "operator": "CON",
                 "grain": "Figure",
@@ -1434,24 +1208,66 @@
                 "settledAs": "verb",
                 "children": [
                  {
-                  "seq": 276,
+                  "seq": 273,
                   "schema": "EOTObservation@1",
-                  "id": "o264",
+                  "id": "o260",
                   "at": [
-                   13872,
+                   13865,
                    13877
                   ],
                   "role": "proposition",
                   "end1": "she",
-                  "label": "cry",
-                  "end2": "again",
+                  "label": "and began",
+                  "end2": "to cry again",
                   "subjectBasis": "inherited",
                   "operator": "CON",
                   "grain": "Figure",
                   "terrain": "Link",
                   "stance": "Binding",
                   "settledAs": "verb",
-                  "children": []
+                  "children": [
+                   {
+                    "seq": 277,
+                    "schema": "EOTObservation@1",
+                    "id": "o264",
+                    "at": [
+                     13865,
+                     13877
+                    ],
+                    "role": "proposition",
+                    "end1": "she",
+                    "label": "and began",
+                    "end2": "to cry again",
+                    "subjectBasis": "inherited",
+                    "operator": "CON",
+                    "grain": "Figure",
+                    "terrain": "Link",
+                    "stance": "Binding",
+                    "settledAs": "verb",
+                    "children": [
+                     {
+                      "seq": 274,
+                      "schema": "EOTObservation@1",
+                      "id": "o261",
+                      "at": [
+                       13872,
+                       13877
+                      ],
+                      "role": "proposition",
+                      "end1": "she",
+                      "label": "cry",
+                      "end2": "again",
+                      "subjectBasis": "inherited",
+                      "operator": "CON",
+                      "grain": "Figure",
+                      "terrain": "Link",
+                      "stance": "Binding",
+                      "settledAs": "verb",
+                      "children": []
+                     }
+                    ]
+                   }
+                  ]
                  }
                 ]
                }
@@ -1508,7 +1324,7 @@
            {
             "seq": 278,
             "schema": "EOTObservation@1",
-            "id": "o266",
+            "id": "o265",
             "at": [
              13893,
              13918
@@ -1525,71 +1341,31 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 601,
+              "seq": 279,
               "schema": "EOTObservation@1",
-              "id": "o273",
+              "id": "o266",
               "at": [
-               13896,
+               13899,
                13918
               ],
               "role": "proposition",
               "end1": "You",
-              "label": "to",
-              "end2": "be ashamed of yourself",
-              "subjectBasis": "stated",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": [
-               {
-                "seq": 279,
-                "schema": "EOTObservation@1",
-                "id": "o267",
-                "at": [
-                 13899,
-                 13918
-                ],
-                "role": "proposition",
-                "end1": "You",
-                "label": "be",
-                "end2": "ashamed of yourself",
-                "subjectBasis": "inherited",
-                "operator": "CON",
-                "grain": "Figure",
-                "terrain": "Link",
-                "stance": "Binding",
-                "settledAs": "verb",
-                "children": [
-                 {
-                  "seq": 602,
-                  "schema": "EOTObservation@1",
-                  "id": "o275",
-                  "at": [
-                   13910,
-                   13913
-                  ],
-                  "role": "proposition",
-                  "end1": "a great girl",
-                  "label": "like",
-                  "end2": "you",
-                  "subjectBasis": "stated",
-                  "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-                  "settledAs": null,
-                  "pass": 2,
-                  "foundOnReread": true,
-                  "children": []
-                 }
-                ]
-               }
-              ]
+              "label": "be",
+              "end2": "ashamed of yourself",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
              }
             ]
            },
            {
             "seq": 280,
             "schema": "EOTObservation@1",
-            "id": "o268",
+            "id": "o267",
             "at": [
              13970,
              13984
@@ -1608,7 +1384,7 @@
              {
               "seq": 281,
               "schema": "EOTObservation@1",
-              "id": "o269",
+              "id": "o268",
               "at": [
                13979,
                13984
@@ -1630,7 +1406,7 @@
            {
             "seq": 282,
             "schema": "EOTObservation@1",
-            "id": "o270",
+            "id": "o269",
             "at": [
              13993,
              14015
@@ -1649,7 +1425,7 @@
              {
               "seq": 283,
               "schema": "EOTObservation@1",
-              "id": "o271",
+              "id": "o270",
               "at": [
                14006,
                14015
@@ -1688,7 +1464,7 @@
          {
           "seq": 284,
           "schema": "EOTObservation@1",
-          "id": "o272",
+          "id": "o271",
           "at": [
            14042,
            14047
@@ -1738,7 +1514,7 @@
            {
             "seq": 285,
             "schema": "EOTObservation@1",
-            "id": "o273",
+            "id": "o272",
             "at": [
              14061,
              14076
@@ -1758,7 +1534,7 @@
            {
             "seq": 287,
             "schema": "EOTObservation@1",
-            "id": "o274",
+            "id": "o273",
             "at": [
              14122,
              14148
@@ -1778,7 +1554,7 @@
            {
             "seq": 288,
             "schema": "EOTObservation@1",
-            "id": "o275",
+            "id": "o274",
             "at": [
              14178,
              14205
@@ -1797,7 +1573,7 @@
              {
               "seq": 289,
               "schema": "EOTObservation@1",
-              "id": "o276",
+              "id": "o275",
               "at": [
                14187,
                14205
@@ -1865,7 +1641,7 @@
            {
             "seq": 291,
             "schema": "EOTObservation@1",
-            "id": "o277",
+            "id": "o276",
             "at": [
              14233,
              14275
@@ -1884,7 +1660,7 @@
              {
               "seq": 292,
               "schema": "EOTObservation@1",
-              "id": "o278",
+              "id": "o277",
               "at": [
                14263,
                14275
@@ -1900,65 +1676,6 @@
               "stance": "Tending",
               "settledAs": "preposition",
               "children": []
-             }
-            ]
-           },
-           {
-            "seq": 294,
-            "schema": "EOTObservation@1",
-            "id": "o279",
-            "at": [
-             14294,
-             14331
-            ],
-            "role": "proposition",
-            "end1": "she",
-            "label": "hastily",
-            "end2": "dried her eyes to see what was coming",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "children": [
-             {
-              "seq": 295,
-              "schema": "EOTObservation@1",
-              "id": "o280",
-              "at": [
-               14300,
-               14331
-              ],
-              "role": "proposition",
-              "end1": "she",
-              "label": "dried",
-              "end2": "her eyes to see what was coming",
-              "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Binding",
-              "settledAs": "verb",
-              "children": [
-               {
-                "seq": 296,
-                "schema": "EOTObservation@1",
-                "id": "o281",
-                "at": [
-                 14316,
-                 14331
-                ],
-                "role": "proposition",
-                "end1": "she",
-                "label": "see",
-                "end2": "what was coming",
-                "subjectBasis": "inherited",
-                "operator": "CON",
-                "grain": "Figure",
-                "terrain": "Link",
-                "stance": "Binding",
-                "settledAs": "verb",
-                "children": []
-               }
-              ]
              }
             ]
            }
@@ -1995,7 +1712,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 297,
+            "seq": 295,
             "schema": "EOTAbsence@1",
             "at": [
              14333,
@@ -2044,44 +1761,6 @@
                 "children": []
                }
               ]
-             },
-             {
-              "seq": 603,
-              "schema": "EOTObservation@1",
-              "id": "o289",
-              "at": [
-               14499,
-               14504
-              ],
-              "role": "proposition",
-              "end1": "along in a",
-              "label": "great",
-              "end2": "hurry",
-              "subjectBasis": "stated",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             },
-             {
-              "seq": 604,
-              "schema": "EOTObservation@1",
-              "id": "o290",
-              "at": [
-               14519,
-               14537
-              ],
-              "role": "proposition",
-              "end1": "muttering",
-              "label": "to",
-              "end2": "himself as he came",
-              "subjectBasis": "stated",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
              }
             ]
            }
@@ -2103,7 +1782,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 298,
+          "seq": 296,
           "schema": "EOTAbsence@1",
           "at": [
            14544,
@@ -2130,7 +1809,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 299,
+          "seq": 297,
           "schema": "EOTAbsence@1",
           "at": [
            14571,
@@ -2138,7 +1817,7 @@
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 3008 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "detail": "no token in this sentence was nominated by the 3009 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
           "children": []
          }
         ]
@@ -2172,9 +1851,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 300,
+            "seq": 298,
             "schema": "EOTObservation@1",
-            "id": "o282",
+            "id": "o278",
             "at": [
              14588,
              14621
@@ -2232,9 +1911,9 @@
               ]
              },
              {
-              "seq": 301,
+              "seq": 299,
               "schema": "EOTObservation@1",
-              "id": "o283",
+              "id": "o279",
               "at": [
                14608,
                14621
@@ -2286,9 +1965,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 302,
+            "seq": 300,
             "schema": "EOTObservation@1",
-            "id": "o284",
+            "id": "o280",
             "at": [
              14634,
              14688
@@ -2306,9 +1985,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 303,
+              "seq": 301,
               "schema": "EOTObservation@1",
-              "id": "o285",
+              "id": "o281",
               "at": [
                14660,
                14688
@@ -2326,9 +2005,9 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 304,
+                "seq": 302,
                 "schema": "EOTObservation@1",
-                "id": "o286",
+                "id": "o282",
                 "at": [
                  14673,
                  14688
@@ -2351,9 +2030,9 @@
             ]
            },
            {
-            "seq": 305,
+            "seq": 303,
             "schema": "EOTObservation@1",
-            "id": "o287",
+            "id": "o283",
             "at": [
              14802,
              14811
@@ -2372,9 +2051,9 @@
             "children": []
            },
            {
-            "seq": 306,
+            "seq": 304,
             "schema": "EOTObservation@1",
-            "id": "o288",
+            "id": "o284",
             "at": [
              14847,
              14854
@@ -2438,9 +2117,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 309,
+            "seq": 307,
             "schema": "EOTObservation@1",
-            "id": "o289",
+            "id": "o285",
             "at": [
              14930,
              14951
@@ -2459,9 +2138,9 @@
             "children": []
            },
            {
-            "seq": 312,
+            "seq": 310,
             "schema": "EOTObservation@1",
-            "id": "o290",
+            "id": "o286",
             "at": [
              14994,
              15049
@@ -2496,15 +2175,15 @@
         "script": "cased",
         "children": [
          {
-          "seq": 314,
+          "seq": 312,
           "schema": "EOTObservation@1",
-          "id": "o291",
+          "id": "o287",
           "at": [
            15082,
            15089
           ],
           "role": "proposition",
-          "end1": "How queer everything",
+          "end1": "queer everything",
           "label": "is",
           "end2": "to-day!",
           "subjectBasis": "stated",
@@ -2531,9 +2210,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 315,
+          "seq": 313,
           "schema": "EOTObservation@1",
-          "id": "o292",
+          "id": "o288",
           "at": [
            15116,
            15132
@@ -2566,9 +2245,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 316,
+          "seq": 314,
           "schema": "EOTObservation@1",
-          "id": "o293",
+          "id": "o289",
           "at": [
            15144,
            15178
@@ -2586,9 +2265,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 317,
+            "seq": 315,
             "schema": "EOTObservation@1",
-            "id": "o294",
+            "id": "o290",
             "at": [
              15165,
              15178
@@ -2637,7 +2316,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 320,
+          "seq": 318,
           "schema": "EOTAbsence@1",
           "at": [
            15237,
@@ -2676,27 +2355,7 @@
         "inferred": true,
         "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
-        "children": [
-         {
-          "seq": 605,
-          "schema": "EOTObservation@1",
-          "id": "o301",
-          "at": [
-           15390,
-           15398
-          ],
-          "role": "proposition",
-          "end1": "_that’s_",
-          "label": "great",
-          "end2": "puzzle!”",
-          "subjectBasis": "stated",
-          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-          "settledAs": null,
-          "pass": 2,
-          "foundOnReread": true,
-          "children": []
-         }
-        ]
+        "children": []
        },
        {
         "seq": 87,
@@ -2727,7 +2386,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 323,
+            "seq": 321,
             "schema": "EOTAbsence@1",
             "at": [
              15399,
@@ -2787,65 +2446,7 @@
            {
             "seq": 324,
             "schema": "EOTObservation@1",
-            "id": "o295",
-            "at": [
-             15561,
-             15572
-            ],
-            "role": "proposition",
-            "end1": "I’m",
-            "label": "sure",
-            "end2": "I’m not Ada",
-            "subjectBasis": "stated",
-            "end1Ref": "ref:auto:i’m",
-            "end2Ref": "ref:auto:i’m",
-            "selfReferent": true,
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "children": []
-           },
-           {
-            "seq": 325,
-            "schema": "EOTObservation@1",
-            "id": "o296",
-            "at": [
-             15645,
-             15666
-            ],
-            "role": "proposition",
-            "end1": "mine",
-            "label": "doesn’t",
-            "end2": "go in ringlets at all",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "children": [
-             {
-              "seq": 326,
-              "schema": "EOTObservation@1",
-              "id": "o297",
-              "at": [
-               15651,
-               15666
-              ],
-              "role": "proposition",
-              "end1": "mine",
-              "label": "in",
-              "end2": "ringlets at all",
-              "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Ground",
-              "terrain": "Field",
-              "stance": "Tending",
-              "settledAs": "preposition",
-              "children": []
-             }
-            ]
-           },
-           {
-            "seq": 327,
-            "schema": "EOTObservation@1",
-            "id": "o298",
+            "id": "o291",
             "at": [
              15693,
              15698
@@ -2905,9 +2506,9 @@
             ]
            },
            {
-            "seq": 328,
+            "seq": 325,
             "schema": "EOTObservation@1",
-            "id": "o299",
+            "id": "o292",
             "at": [
              15711,
              15730
@@ -2957,7 +2558,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 329,
+            "seq": 326,
             "schema": "EOTAbsence@1",
             "at": [
              15745,
@@ -3001,7 +2602,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 330,
+            "seq": 327,
             "schema": "EOTAbsence@1",
             "at": [
              15776,
@@ -3030,9 +2631,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 331,
+          "seq": 328,
           "schema": "EOTObservation@1",
-          "id": "o300",
+          "id": "o293",
           "at": [
            15858,
            15897
@@ -3050,9 +2651,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 332,
+            "seq": 329,
             "schema": "EOTObservation@1",
-            "id": "o301",
+            "id": "o294",
             "at": [
              15868,
              15897
@@ -3088,9 +2689,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 334,
+          "seq": 331,
           "schema": "EOTObservation@1",
-          "id": "o302",
+          "id": "o295",
           "at": [
            15931,
            15937
@@ -3108,9 +2709,9 @@
           "children": []
          },
          {
-          "seq": 335,
+          "seq": 332,
           "schema": "EOTObservation@1",
-          "id": "o303",
+          "id": "o296",
           "at": [
            15961,
            15969
@@ -3143,7 +2744,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 336,
+          "seq": 333,
           "schema": "EOTAbsence@1",
           "at": [
            16005,
@@ -3170,9 +2771,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 337,
+          "seq": 334,
           "schema": "EOTObservation@1",
-          "id": "o304",
+          "id": "o297",
           "at": [
            16110,
            16119
@@ -3205,9 +2806,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 511,
+          "seq": 504,
           "schema": "EOTObservation@1",
-          "id": "x433",
+          "id": "x420",
           "at": [
            16121,
            16233
@@ -3226,9 +2827,9 @@
           "basis": "identity evidence in this sentence (text_copular_identity); canonicalizationFloor 2, declared",
           "children": [
            {
-            "seq": 512,
+            "seq": 505,
             "schema": "EOTObservation@1",
-            "id": "x434",
+            "id": "x421",
             "at": [
              16121,
              16233
@@ -3265,9 +2866,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 339,
+          "seq": 336,
           "schema": "EOTObservation@1",
-          "id": "o305",
+          "id": "o298",
           "at": [
            16260,
            16270
@@ -3316,9 +2917,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 340,
+            "seq": 337,
             "schema": "EOTObservation@1",
-            "id": "o306",
+            "id": "o299",
             "at": [
              16331,
              16381
@@ -3335,9 +2936,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 341,
+              "seq": 338,
               "schema": "EOTObservation@1",
-              "id": "o307",
+              "id": "o300",
               "at": [
                16374,
                16381
@@ -3357,9 +2958,9 @@
             ]
            },
            {
-            "seq": 342,
+            "seq": 339,
             "schema": "EOTObservation@1",
-            "id": "o308",
+            "id": "o301",
             "at": [
              16394,
              16406
@@ -3374,32 +2975,12 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 606,
-              "schema": "EOTObservation@1",
-              "id": "o315",
-              "at": [
-               16397,
-               16406
-              ],
-              "role": "proposition",
-              "end1": "began",
-              "label": "to",
-              "end2": "repeat it",
-              "subjectBasis": "stated",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            },
            {
-            "seq": 343,
+            "seq": 340,
             "schema": "EOTObservation@1",
-            "id": "o309",
+            "id": "o302",
             "at": [
              16430,
              16448
@@ -3416,9 +2997,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 344,
+              "seq": 341,
               "schema": "EOTObservation@1",
-              "id": "o310",
+              "id": "o303",
               "at": [
                16441,
                16448
@@ -3438,9 +3019,9 @@
             ]
            },
            {
-            "seq": 345,
+            "seq": 342,
             "schema": "EOTObservation@1",
-            "id": "o311",
+            "id": "o304",
             "at": [
              16478,
              16507
@@ -3489,9 +3070,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 347,
+          "seq": 344,
           "schema": "EOTObservation@1",
-          "id": "o312",
+          "id": "o305",
           "at": [
            16555,
            16571
@@ -3553,9 +3134,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 349,
+            "seq": 346,
             "schema": "EOTObservation@1",
-            "id": "o313",
+            "id": "o306",
             "at": [
              16662,
              16669
@@ -3570,38 +3151,18 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 607,
-              "schema": "EOTObservation@1",
-              "id": "o321",
-              "at": [
-               16665,
-               16669
-              ],
-              "role": "proposition",
-              "end1": "he",
-              "label": "to",
-              "end2": "grin",
-              "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            },
            {
-            "seq": 350,
+            "seq": 347,
             "schema": "EOTObservation@1",
-            "id": "o314",
+            "id": "o307",
             "at": [
              16694,
              16703
             ],
             "role": "proposition",
-            "end1": "How neatly",
+            "end1": "neatly",
             "label": "spread",
             "end2": "his claws",
             "subjectBasis": "stated",
@@ -3613,9 +3174,9 @@
             "children": []
            },
            {
-            "seq": 352,
+            "seq": 349,
             "schema": "EOTObservation@1",
-            "id": "o315",
+            "id": "o308",
             "at": [
              16740,
              16766
@@ -3632,47 +3193,24 @@
             "settledAs": "preposition",
             "children": [
              {
-              "seq": 608,
+              "seq": 350,
               "schema": "EOTObservation@1",
-              "id": "o324",
+              "id": "o309",
               "at": [
-               16745,
+               16760,
                16766
               ],
               "role": "proposition",
               "end1": "little fishes",
-              "label": "with",
-              "end2": "gently smiling jaws!”",
+              "label": "smiling",
+              "end2": "jaws!”",
               "subjectBasis": "inherited",
               "operator": "CON",
-              "grain": "Ground",
-              "terrain": "Field",
-              "stance": "Tending",
-              "settledAs": "preposition",
-              "pass": 2,
-              "foundOnReread": true,
-              "children": [
-               {
-                "seq": 353,
-                "schema": "EOTObservation@1",
-                "id": "o316",
-                "at": [
-                 16760,
-                 16766
-                ],
-                "role": "proposition",
-                "end1": "little fishes",
-                "label": "smiling",
-                "end2": "jaws!”",
-                "subjectBasis": "inherited",
-                "operator": "CON",
-                "grain": "Figure",
-                "terrain": "Link",
-                "stance": "Binding",
-                "settledAs": "verb",
-                "children": []
-               }
-              ]
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
              }
             ]
            }
@@ -3723,27 +3261,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 354,
+            "seq": 352,
             "schema": "EOTObservation@1",
-            "id": "o317",
-            "at": [
-             16782,
-             16811
-            ],
-            "role": "proposition",
-            "end1": "I’m",
-            "label": "sure",
-            "end2": "those are not the right words",
-            "subjectBasis": "stated",
-            "end1Ref": "ref:auto:i’m",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "children": []
-           },
-           {
-            "seq": 356,
-            "schema": "EOTObservation@1",
-            "id": "o318",
+            "id": "o310",
             "at": [
              16852,
              16883
@@ -3760,9 +3280,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 363,
+              "seq": 359,
               "schema": "EOTObservation@1",
-              "id": "o324",
+              "id": "o316",
               "at": [
                16852,
                16856
@@ -3782,9 +3302,9 @@
             ]
            },
            {
-            "seq": 358,
+            "seq": 354,
             "schema": "EOTObservation@1",
-            "id": "o319",
+            "id": "o311",
             "at": [
              16896,
              16911
@@ -3802,9 +3322,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 359,
+              "seq": 355,
               "schema": "EOTObservation@1",
-              "id": "o320",
+              "id": "o312",
               "at": [
                16908,
                16911
@@ -3824,9 +3344,9 @@
             ]
            },
            {
-            "seq": 360,
+            "seq": 356,
             "schema": "EOTObservation@1",
-            "id": "o321",
+            "id": "o313",
             "at": [
              16931,
              16971
@@ -3843,130 +3363,45 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 609,
+              "seq": 357,
               "schema": "EOTObservation@1",
-              "id": "o329",
+              "id": "o314",
               "at": [
-               16934,
+               16937,
                16971
               ],
               "role": "proposition",
               "end1": "I",
-              "label": "shall have to",
-              "end2": "go and live in that poky little house",
-              "subjectBasis": "stated",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": [
-               {
-                "seq": 361,
-                "schema": "EOTObservation@1",
-                "id": "o322",
-                "at": [
-                 16937,
-                 16971
-                ],
-                "role": "proposition",
-                "end1": "I",
-                "label": "go",
-                "end2": "and live in that poky little house",
-                "subjectBasis": "inherited",
-                "operator": "CON",
-                "grain": "Figure",
-                "terrain": "Link",
-                "stance": "Binding",
-                "settledAs": "verb",
-                "children": [
-                 {
-                  "seq": 362,
-                  "schema": "EOTObservation@1",
-                  "id": "o323",
-                  "at": [
-                   16946,
-                   16971
-                  ],
-                  "role": "proposition",
-                  "end1": "I",
-                  "label": "live",
-                  "end2": "in that poky little house",
-                  "subjectBasis": "inherited",
-                  "operator": "CON",
-                  "grain": "Figure",
-                  "terrain": "Link",
-                  "stance": "Binding",
-                  "settledAs": "verb",
-                  "children": [
-                   {
-                    "seq": 610,
-                    "schema": "EOTObservation@1",
-                    "id": "o331",
-                    "at": [
-                     16949,
-                     16971
-                    ],
-                    "role": "proposition",
-                    "end1": "I",
-                    "label": "in",
-                    "end2": "that poky little house",
-                    "subjectBasis": "inherited",
-                    "operator": "CON",
-                    "grain": "Ground",
-                    "terrain": "Field",
-                    "stance": "Tending",
-                    "settledAs": "preposition",
-                    "pass": 2,
-                    "foundOnReread": true,
-                    "children": []
-                   }
-                  ]
-                 }
-                ]
-               }
-              ]
-             }
-            ]
-           },
-           {
-            "seq": 611,
-            "schema": "EOTObservation@1",
-            "id": "o332",
-            "at": [
-             16991,
-             17011
-            ],
-            "role": "proposition",
-            "end1": "have next",
-            "label": "to",
-            "end2": "no toys to play with",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "pass": 2,
-            "foundOnReread": true,
-            "children": [
-             {
-              "seq": 612,
-              "schema": "EOTObservation@1",
-              "id": "o333",
-              "at": [
-               17007,
-               17011
-              ],
-              "role": "proposition",
-              "end1": "have next",
-              "label": "to play",
-              "end2": "with",
+              "label": "go",
+              "end2": "and live in that poky little house",
               "subjectBasis": "inherited",
               "operator": "CON",
               "grain": "Figure",
               "terrain": "Link",
               "stance": "Binding",
               "settledAs": "verb",
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
+              "children": [
+               {
+                "seq": 358,
+                "schema": "EOTObservation@1",
+                "id": "o315",
+                "at": [
+                 16946,
+                 16971
+                ],
+                "role": "proposition",
+                "end1": "I",
+                "label": "live",
+                "end2": "in that poky little house",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Figure",
+                "terrain": "Link",
+                "stance": "Binding",
+                "settledAs": "verb",
+                "children": []
+               }
+              ]
              }
             ]
            }
@@ -3988,7 +3423,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 364,
+          "seq": 360,
           "schema": "EOTAbsence@1",
           "at": [
            17021,
@@ -4030,9 +3465,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 365,
+            "seq": 361,
             "schema": "EOTObservation@1",
-            "id": "o325",
+            "id": "o317",
             "at": [
              17067,
              17086
@@ -4051,9 +3486,9 @@
             "children": []
            },
            {
-            "seq": 366,
+            "seq": 362,
             "schema": "EOTObservation@1",
-            "id": "o326",
+            "id": "o318",
             "at": [
              17112,
              17122
@@ -4104,9 +3539,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 367,
+            "seq": 363,
             "schema": "EOTObservation@1",
-            "id": "o327",
+            "id": "o319",
             "at": [
              17133,
              17196
@@ -4123,9 +3558,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 368,
+              "seq": 364,
               "schema": "EOTObservation@1",
-              "id": "o328",
+              "id": "o320",
               "at": [
                17140,
                17196
@@ -4142,9 +3577,9 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 369,
+                "seq": 365,
                 "schema": "EOTObservation@1",
-                "id": "o329",
+                "id": "o321",
                 "at": [
                  17154,
                  17196
@@ -4183,9 +3618,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 370,
+          "seq": 366,
           "schema": "EOTObservation@1",
-          "id": "o330",
+          "id": "o322",
           "at": [
            17214,
            17250
@@ -4202,9 +3637,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 371,
+            "seq": 367,
             "schema": "EOTObservation@1",
-            "id": "o331",
+            "id": "o323",
             "at": [
              17224,
              17250
@@ -4221,9 +3656,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 372,
+              "seq": 368,
               "schema": "EOTObservation@1",
-              "id": "o332",
+              "id": "o324",
               "at": [
                17235,
                17250
@@ -4260,49 +3695,29 @@
         "script": "cased",
         "children": [
          {
-          "seq": 613,
+          "seq": 369,
           "schema": "EOTObservation@1",
-          "id": "o342",
+          "id": "o325",
           "at": [
-           17292,
+           17298,
            17309
           ],
           "role": "proposition",
           "end1": "I",
-          "label": "like",
-          "end2": "being that person",
+          "label": "being",
+          "end2": "that person",
           "subjectBasis": "stated",
-          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-          "settledAs": null,
-          "pass": 2,
-          "foundOnReread": true,
-          "children": [
-           {
-            "seq": 373,
-            "schema": "EOTObservation@1",
-            "id": "o333",
-            "at": [
-             17298,
-             17309
-            ],
-            "role": "proposition",
-            "end1": "I",
-            "label": "being",
-            "end2": "that person",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
-            "children": []
-           }
-          ]
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
          },
          {
-          "seq": 374,
+          "seq": 370,
           "schema": "EOTObservation@1",
-          "id": "o334",
+          "id": "o326",
           "at": [
            17321,
            17331
@@ -4351,9 +3766,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 376,
+            "seq": 372,
             "schema": "EOTObservation@1",
-            "id": "o335",
+            "id": "o327",
             "at": [
              17448,
              17482
@@ -4370,9 +3785,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 377,
+              "seq": 373,
               "schema": "EOTObservation@1",
-              "id": "o336",
+              "id": "o328",
               "at": [
                17465,
                17482
@@ -4409,9 +3824,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 378,
+          "seq": 374,
           "schema": "EOTObservation@1",
-          "id": "o337",
+          "id": "o329",
           "at": [
            17514,
            17530
@@ -4473,9 +3888,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 379,
+            "seq": 375,
             "schema": "EOTObservation@1",
-            "id": "o338",
+            "id": "o330",
             "at": [
              17546,
              17579
@@ -4492,9 +3907,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 380,
+              "seq": 376,
               "schema": "EOTObservation@1",
-              "id": "o339",
+              "id": "o331",
               "at": [
                17562,
                17579
@@ -4514,9 +3929,9 @@
             ]
            },
            {
-            "seq": 381,
+            "seq": 377,
             "schema": "EOTObservation@1",
-            "id": "o340",
+            "id": "o332",
             "at": [
              17686,
              17693
@@ -4551,9 +3966,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 382,
+          "seq": 378,
           "schema": "EOTObservation@1",
-          "id": "o341",
+          "id": "o333",
           "at": [
            17718,
            17724
@@ -4601,7 +4016,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 383,
+            "seq": 379,
             "schema": "EOTAbsence@1",
             "at": [
              17725,
@@ -4630,9 +4045,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 384,
+          "seq": 380,
           "schema": "EOTObservation@1",
-          "id": "o342",
+          "id": "o334",
           "at": [
            17758,
            17769
@@ -4665,9 +4080,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 385,
+          "seq": 381,
           "schema": "EOTObservation@1",
-          "id": "o343",
+          "id": "o335",
           "at": [
            17828,
            17830
@@ -4685,9 +4100,9 @@
           "children": []
          },
          {
-          "seq": 386,
+          "seq": 382,
           "schema": "EOTObservation@1",
-          "id": "o344",
+          "id": "o336",
           "at": [
            17842,
            17846
@@ -4705,9 +4120,9 @@
           "children": []
          },
          {
-          "seq": 387,
+          "seq": 383,
           "schema": "EOTObservation@1",
-          "id": "o345",
+          "id": "o337",
           "at": [
            17871,
            17876
@@ -4725,9 +4140,9 @@
           "children": []
          },
          {
-          "seq": 388,
+          "seq": 384,
           "schema": "EOTObservation@1",
-          "id": "o346",
+          "id": "o338",
           "at": [
            17887,
            17910
@@ -4746,9 +4161,9 @@
           "children": []
          },
          {
-          "seq": 389,
+          "seq": 385,
           "schema": "EOTObservation@1",
-          "id": "o347",
+          "id": "o339",
           "at": [
            17964,
            18018
@@ -4763,35 +4178,12 @@
           "terrain": "Link",
           "stance": "Binding",
           "settledAs": "verb",
-          "children": [
-           {
-            "seq": 614,
-            "schema": "EOTObservation@1",
-            "id": "o357",
-            "at": [
-             17968,
-             18018
-            ],
-            "role": "proposition",
-            "end1": "she soon",
-            "label": "out",
-            "end2": "that the cause of this was the fan she was holding",
-            "subjectBasis": "inherited",
-            "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "pass": 2,
-            "foundOnReread": true,
-            "children": []
-           }
-          ]
+          "children": []
          },
          {
-          "seq": 390,
+          "seq": 386,
           "schema": "EOTObservation@1",
-          "id": "o348",
+          "id": "o340",
           "at": [
            18037,
            18047
@@ -4810,9 +4202,9 @@
           "children": []
          },
          {
-          "seq": 391,
+          "seq": 387,
           "schema": "EOTObservation@1",
-          "id": "o349",
+          "id": "o341",
           "at": [
            18057,
            18096
@@ -4829,9 +4221,9 @@
           "settledAs": "preposition",
           "children": [
            {
-            "seq": 392,
+            "seq": 388,
             "schema": "EOTObservation@1",
-            "id": "o350",
+            "id": "o342",
             "at": [
              18071,
              18096
@@ -4880,7 +4272,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 393,
+          "seq": 389,
           "schema": "EOTAbsence@1",
           "at": [
            18101,
@@ -4907,9 +4299,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 395,
+          "seq": 391,
           "schema": "EOTObservation@1",
-          "id": "o351",
+          "id": "o343",
           "at": [
            18211,
            18237
@@ -4926,9 +4318,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 396,
+            "seq": 392,
             "schema": "EOTObservation@1",
-            "id": "o352",
+            "id": "o344",
             "at": [
              18228,
              18237
@@ -4978,7 +4370,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 398,
+            "seq": 394,
             "schema": "EOTAbsence@1",
             "at": [
              18266,
@@ -5007,9 +4399,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 399,
+          "seq": 395,
           "schema": "EOTObservation@1",
-          "id": "o353",
+          "id": "o345",
           "at": [
            18355,
            18360
@@ -5027,9 +4419,9 @@
           "children": []
          },
          {
-          "seq": 400,
+          "seq": 396,
           "schema": "EOTObservation@1",
-          "id": "o354",
+          "id": "o346",
           "at": [
            18399,
            18427
@@ -5077,7 +4469,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 402,
+            "seq": 398,
             "schema": "EOTAbsence@1",
             "at": [
              18538,
@@ -5135,9 +4527,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 403,
+            "seq": 399,
             "schema": "EOTObservation@1",
-            "id": "o355",
+            "id": "o347",
             "at": [
              18594,
              18622
@@ -5155,9 +4547,9 @@
             "children": []
            },
            {
-            "seq": 404,
+            "seq": 400,
             "schema": "EOTObservation@1",
-            "id": "o356",
+            "id": "o348",
             "at": [
              18631,
              18645
@@ -5207,9 +4599,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 405,
+            "seq": 401,
             "schema": "EOTObservation@1",
-            "id": "o357",
+            "id": "o349",
             "at": [
              18664,
              18692
@@ -5226,44 +4618,24 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 615,
+              "seq": 402,
               "schema": "EOTObservation@1",
-              "id": "o366",
+              "id": "o350",
               "at": [
-               18670,
+               18682,
                18692
               ],
               "role": "proposition",
               "end1": "she",
-              "label": "to",
-              "end2": "her chin in salt water",
+              "label": "in",
+              "end2": "salt water",
               "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": [
-               {
-                "seq": 406,
-                "schema": "EOTObservation@1",
-                "id": "o358",
-                "at": [
-                 18682,
-                 18692
-                ],
-                "role": "proposition",
-                "end1": "she",
-                "label": "in",
-                "end2": "salt water",
-                "subjectBasis": "inherited",
-                "operator": "CON",
-                "grain": "Ground",
-                "terrain": "Field",
-                "stance": "Tending",
-                "settledAs": "preposition",
-                "children": []
-               }
-              ]
+              "operator": "CON",
+              "grain": "Ground",
+              "terrain": "Field",
+              "stance": "Tending",
+              "settledAs": "preposition",
+              "children": []
              }
             ]
            }
@@ -5300,9 +4672,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 407,
+            "seq": 403,
             "schema": "EOTObservation@1",
-            "id": "o359",
+            "id": "o351",
             "at": [
              18727,
              18754
@@ -5319,9 +4691,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 408,
+              "seq": 404,
               "schema": "EOTObservation@1",
-              "id": "o360",
+              "id": "o352",
               "at": [
                18742,
                18754
@@ -5341,9 +4713,9 @@
             ]
            },
            {
-            "seq": 410,
+            "seq": 406,
             "schema": "EOTObservation@1",
-            "id": "o361",
+            "id": "o353",
             "at": [
              18792,
              18799
@@ -5361,9 +4733,9 @@
             "children": []
            },
            {
-            "seq": 411,
+            "seq": 407,
             "schema": "EOTObservation@1",
-            "id": "o362",
+            "id": "o354",
             "at": [
              18811,
              18821
@@ -5378,27 +4750,7 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 616,
-              "schema": "EOTObservation@1",
-              "id": "o371",
-              "at": [
-               18814,
-               18821
-              ],
-              "role": "proposition",
-              "end1": "she said",
-              "label": "to",
-              "end2": "herself",
-              "subjectBasis": "stated",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            }
           ]
          }
@@ -5433,9 +4785,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 412,
+            "seq": 408,
             "schema": "EOTObservation@1",
-            "id": "o363",
+            "id": "o355",
             "at": [
              18863,
              18871
@@ -5453,9 +4805,9 @@
             "children": []
            },
            {
-            "seq": 413,
+            "seq": 409,
             "schema": "EOTObservation@1",
-            "id": "o364",
+            "id": "o356",
             "at": [
              18886,
              18911
@@ -5473,9 +4825,9 @@
             "children": []
            },
            {
-            "seq": 415,
+            "seq": 411,
             "schema": "EOTObservation@1",
-            "id": "o365",
+            "id": "o357",
             "at": [
              19035,
              19062
@@ -5493,9 +4845,9 @@
             "children": []
            },
            {
-            "seq": 417,
+            "seq": 413,
             "schema": "EOTObservation@1",
-            "id": "o366",
+            "id": "o358",
             "at": [
              19226,
              19240
@@ -5544,9 +4896,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 418,
+          "seq": 414,
           "schema": "EOTObservation@1",
-          "id": "o367",
+          "id": "o359",
           "at": [
            19253,
            19277
@@ -5563,9 +4915,9 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 419,
+            "seq": 415,
             "schema": "EOTObservation@1",
-            "id": "o368",
+            "id": "o360",
             "at": [
              19268,
              19277
@@ -5615,7 +4967,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 420,
+            "seq": 416,
             "schema": "EOTAbsence@1",
             "at": [
              19278,
@@ -5624,28 +4976,7 @@
             "role": "arrangement",
             "reason": "gate_refused_no_two_ends",
             "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
-            "children": [
-             {
-              "seq": 421,
-              "schema": "EOTObservation@1",
-              "id": "o369",
-              "at": [
-               19308,
-               19337
-              ],
-              "role": "proposition",
-              "end1": "as she swam about",
-              "label": "trying",
-              "end2": "to find her way out.",
-              "subjectBasis": "inherited (reduced clause — the noun before the comma)",
-              "operator": "CON",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Binding",
-              "settledAs": "verb",
-              "children": []
-             }
-            ]
+            "children": []
            }
           ]
          }
@@ -5680,9 +5011,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 422,
+            "seq": 417,
             "schema": "EOTObservation@1",
-            "id": "o370",
+            "id": "o361",
             "at": [
              19350,
              19369
@@ -5717,9 +5048,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 423,
+          "seq": 418,
           "schema": "EOTObservation@1",
-          "id": "o371",
+          "id": "o362",
           "at": [
            19432,
            19445
@@ -5737,9 +5068,9 @@
           "children": []
          },
          {
-          "seq": 424,
+          "seq": 419,
           "schema": "EOTObservation@1",
-          "id": "o372",
+          "id": "o363",
           "at": [
            19454,
            19459
@@ -5772,9 +5103,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 425,
+          "seq": 420,
           "schema": "EOTObservation@1",
-          "id": "o373",
+          "id": "o364",
           "at": [
            19483,
            19495
@@ -5836,9 +5167,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 426,
+            "seq": 421,
             "schema": "EOTObservation@1",
-            "id": "o374",
+            "id": "o365",
             "at": [
              19645,
              19680
@@ -5855,9 +5186,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 427,
+              "seq": 422,
               "schema": "EOTObservation@1",
-              "id": "o375",
+              "id": "o366",
               "at": [
                19656,
                19680
@@ -5872,37 +5203,14 @@
               "terrain": "Link",
               "stance": "Binding",
               "settledAs": "verb",
-              "children": [
-               {
-                "seq": 617,
-                "schema": "EOTObservation@1",
-                "id": "o385",
-                "at": [
-                 19668,
-                 19680
-                ],
-                "role": "proposition",
-                "end1": "she",
-                "label": "or",
-                "end2": "hippopotamus",
-                "subjectBasis": "inherited",
-                "operator": "SEG",
-                "grain": "Figure",
-                "terrain": "Link",
-                "stance": "Dissecting",
-                "settledAs": "conjunction",
-                "pass": 2,
-                "foundOnReread": true,
-                "children": []
-               }
-              ]
+              "children": []
              }
             ]
            },
            {
-            "seq": 428,
+            "seq": 423,
             "schema": "EOTObservation@1",
-            "id": "o376",
+            "id": "o367",
             "at": [
              19725,
              19728
@@ -5920,9 +5228,9 @@
             "children": []
            },
            {
-            "seq": 429,
+            "seq": 424,
             "schema": "EOTObservation@1",
-            "id": "o377",
+            "id": "o368",
             "at": [
              19795,
              19810
@@ -5986,9 +5294,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 430,
+            "seq": 425,
             "schema": "EOTObservation@1",
-            "id": "o378",
+            "id": "o369",
             "at": [
              19828,
              19838
@@ -6038,9 +5346,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 431,
+            "seq": 426,
             "schema": "EOTObservation@1",
-            "id": "o379",
+            "id": "o370",
             "at": [
              19901,
              19928
@@ -6058,9 +5366,9 @@
             "children": []
            },
            {
-            "seq": 432,
+            "seq": 427,
             "schema": "EOTObservation@1",
-            "id": "o380",
+            "id": "o371",
             "at": [
              19970,
              19987
@@ -6078,9 +5386,9 @@
             "children": []
            },
            {
-            "seq": 433,
+            "seq": 428,
             "schema": "EOTObservation@1",
-            "id": "o381",
+            "id": "o372",
             "at": [
              20008,
              20014
@@ -6170,9 +5478,9 @@
             ]
            },
            {
-            "seq": 434,
+            "seq": 429,
             "schema": "EOTObservation@1",
-            "id": "o382",
+            "id": "o373",
             "at": [
              20054,
              20079
@@ -6207,7 +5515,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 436,
+          "seq": 431,
           "schema": "EOTAbsence@1",
           "at": [
            20080,
@@ -6249,9 +5557,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 437,
+            "seq": 432,
             "schema": "EOTObservation@1",
-            "id": "o383",
+            "id": "o374",
             "at": [
              20186,
              20236
@@ -6268,51 +5576,31 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 618,
+              "seq": 433,
               "schema": "EOTObservation@1",
-              "id": "o392",
+              "id": "o375",
               "at": [
-               20189,
+               20217,
                20236
               ],
               "role": "proposition",
               "end1": "right way of",
-              "label": "to",
-              "end2": "a mouse: she had never done such a thing before",
+              "label": "had never done",
+              "end2": "such a thing before",
               "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": [
-               {
-                "seq": 438,
-                "schema": "EOTObservation@1",
-                "id": "o384",
-                "at": [
-                 20217,
-                 20236
-                ],
-                "role": "proposition",
-                "end1": "right way of",
-                "label": "had never done",
-                "end2": "such a thing before",
-                "subjectBasis": "inherited",
-                "operator": "CON",
-                "grain": "Figure",
-                "terrain": "Link",
-                "stance": "Binding",
-                "settledAs": "verb",
-                "children": []
-               }
-              ]
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
              }
             ]
            },
            {
-            "seq": 439,
+            "seq": 434,
             "schema": "EOTObservation@1",
-            "id": "o385",
+            "id": "o376",
             "at": [
              20258,
              20300
@@ -6329,9 +5617,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 440,
+              "seq": 435,
               "schema": "EOTObservation@1",
-              "id": "o386",
+              "id": "o377",
               "at": [
                20270,
                20300
@@ -6348,9 +5636,9 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 441,
+                "seq": 436,
                 "schema": "EOTObservation@1",
-                "id": "o387",
+                "id": "o378",
                 "at": [
                  20273,
                  20300
@@ -6372,9 +5660,9 @@
             ]
            },
            {
-            "seq": 442,
+            "seq": 437,
             "schema": "EOTObservation@1",
-            "id": "o388",
+            "id": "o379",
             "at": [
              20468,
              20475
@@ -6438,45 +5726,6 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 443,
-            "schema": "EOTObservation@1",
-            "id": "o389",
-            "at": [
-             20500,
-             20518
-            ],
-            "role": "proposition",
-            "end1": "it",
-            "label": "doesn’t",
-            "end2": "understand English",
-            "subjectBasis": "stated",
-            "end2Ref": "ref:auto:english",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "children": [
-             {
-              "seq": 444,
-              "schema": "EOTObservation@1",
-              "id": "o390",
-              "at": [
-               20511,
-               20518
-              ],
-              "role": "proposition",
-              "end1": "it",
-              "label": "understand",
-              "end2": "English",
-              "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Binding",
-              "settledAs": "verb",
-              "children": []
-             }
-            ]
-           },
-           {
             "seq": 179,
             "schema": "EOTObservation@1",
             "id": "e178",
@@ -6515,28 +5764,6 @@
               "children": []
              }
             ]
-           },
-           {
-            "seq": 619,
-            "schema": "EOTObservation@1",
-            "id": "o400",
-            "at": [
-             20584,
-             20605
-            ],
-            "role": "proposition",
-            "end1": "come over",
-            "label": "with",
-            "end2": "William the Conqueror",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Ground",
-            "terrain": "Field",
-            "stance": "Tending",
-            "settledAs": "preposition",
-            "pass": 2,
-            "foundOnReread": true,
-            "children": []
            }
           ]
          }
@@ -6571,15 +5798,15 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 446,
+            "seq": 440,
             "schema": "EOTObservation@1",
-            "id": "o391",
+            "id": "o380",
             "at": [
              20708,
              20716
             ],
             "role": "proposition",
-            "end1": "ago anything",
+            "end1": "long ago anything",
             "label": "had",
             "end2": "happened",
             "subjectBasis": "stated",
@@ -6591,9 +5818,9 @@
             "children": []
            },
            {
-            "seq": 447,
+            "seq": 441,
             "schema": "EOTObservation@1",
-            "id": "o392",
+            "id": "o381",
             "at": [
              20732,
              20758
@@ -6643,7 +5870,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 449,
+            "seq": 443,
             "schema": "EOTAbsence@1",
             "at": [
              20759,
@@ -6670,52 +5897,7 @@
         "inferred": true,
         "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
         "script": "cased",
-        "children": [
-         {
-          "seq": 620,
-          "schema": "EOTObservation@1",
-          "id": "o403",
-          "at": [
-           20850,
-           20862
-          ],
-          "role": "proposition",
-          "end1": "a sudden leap",
-          "label": "out",
-          "end2": "of the water",
-          "subjectBasis": "stated",
-          "operator": "CON",
-          "grain": "Ground",
-          "terrain": "Field",
-          "stance": "Tending",
-          "settledAs": "preposition",
-          "pass": 2,
-          "foundOnReread": true,
-          "children": []
-         },
-         {
-          "seq": 621,
-          "schema": "EOTObservation@1",
-          "id": "o404",
-          "at": [
-           20900,
-           20906
-          ],
-          "role": "proposition",
-          "end1": "all over",
-          "label": "with",
-          "end2": "fright",
-          "subjectBasis": "stated",
-          "operator": "CON",
-          "grain": "Ground",
-          "terrain": "Field",
-          "stance": "Tending",
-          "settledAs": "preposition",
-          "pass": 2,
-          "foundOnReread": true,
-          "children": []
-         }
-        ]
+        "children": []
        },
        {
         "seq": 137,
@@ -6731,9 +5913,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 451,
+          "seq": 445,
           "schema": "EOTObservation@1",
-          "id": "o393",
+          "id": "o382",
           "at": [
            20919,
            20932
@@ -6781,9 +5963,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 452,
+            "seq": 446,
             "schema": "EOTObservation@1",
-            "id": "o394",
+            "id": "o383",
             "at": [
              20980,
              21006
@@ -6818,7 +6000,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 454,
+          "seq": 448,
           "schema": "EOTAbsence@1",
           "at": [
            21008,
@@ -6827,27 +6009,7 @@
           "role": "arrangement",
           "reason": "gate_refused_no_two_ends",
           "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
-          "children": [
-           {
-            "seq": 622,
-            "schema": "EOTObservation@1",
-            "id": "o407",
-            "at": [
-             21041,
-             21045
-            ],
-            "role": "proposition",
-            "end1": "you",
-            "label": "like",
-            "end2": "cats",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "pass": 2,
-            "foundOnReread": true,
-            "children": []
-           }
-          ]
+          "children": []
          }
         ]
        }
@@ -6879,7 +6041,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 455,
+          "seq": 449,
           "schema": "EOTAbsence@1",
           "at": [
            21051,
@@ -6887,7 +6049,7 @@
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 3008 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "detail": "no token in this sentence was nominated by the 3009 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
           "children": []
          }
         ]
@@ -6906,7 +6068,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 456,
+          "seq": 450,
           "schema": "EOTAbsence@1",
           "at": [
            21068,
@@ -6933,44 +6095,24 @@
         "script": "cased",
         "children": [
          {
-          "seq": 623,
+          "seq": 451,
           "schema": "EOTObservation@1",
-          "id": "o408",
+          "id": "o384",
           "at": [
-           21135,
+           21152,
            21156
           ],
           "role": "proposition",
-          "end1": "Would _you_",
-          "label": "like",
-          "end2": "cats if you were me?”",
+          "end1": "you",
+          "label": "were",
+          "end2": "me?”",
           "subjectBasis": "stated",
-          "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-          "settledAs": null,
-          "pass": 2,
-          "foundOnReread": true,
-          "children": [
-           {
-            "seq": 457,
-            "schema": "EOTObservation@1",
-            "id": "o395",
-            "at": [
-             21152,
-             21156
-            ],
-            "role": "proposition",
-            "end1": "you",
-            "label": "were",
-            "end2": "me?”",
-            "subjectBasis": "stated",
-            "operator": "CON",
-            "grain": "Figure",
-            "terrain": "Link",
-            "stance": "Binding",
-            "settledAs": "verb",
-            "children": []
-           }
-          ]
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
          }
         ]
        }
@@ -7017,7 +6159,7 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 458,
+            "seq": 452,
             "schema": "EOTAbsence@1",
             "at": [
              21160,
@@ -7046,9 +6188,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 459,
+          "seq": 453,
           "schema": "EOTObservation@1",
-          "id": "o396",
+          "id": "o385",
           "at": [
            21306,
            21347
@@ -7065,63 +6207,43 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 624,
+            "seq": 454,
             "schema": "EOTObservation@1",
-            "id": "o411",
+            "id": "o386",
             "at": [
-             21317,
+             21335,
              21347
             ],
             "role": "proposition",
             "end1": "think you’d",
-            "label": "to",
-            "end2": "cats if you could only see her",
+            "label": "could",
+            "end2": "only see her",
             "subjectBasis": "inherited",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "pass": 2,
-            "foundOnReread": true,
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
             "children": [
              {
-              "seq": 460,
+              "seq": 455,
               "schema": "EOTObservation@1",
-              "id": "o397",
+              "id": "o387",
               "at": [
-               21335,
+               21344,
                21347
               ],
               "role": "proposition",
               "end1": "think you’d",
-              "label": "could",
-              "end2": "only see her",
+              "label": "see",
+              "end2": "her",
               "subjectBasis": "inherited",
               "operator": "CON",
               "grain": "Figure",
               "terrain": "Link",
               "stance": "Binding",
               "settledAs": "verb",
-              "children": [
-               {
-                "seq": 461,
-                "schema": "EOTObservation@1",
-                "id": "o398",
-                "at": [
-                 21344,
-                 21347
-                ],
-                "role": "proposition",
-                "end1": "think you’d",
-                "label": "see",
-                "end2": "her",
-                "subjectBasis": "inherited",
-                "operator": "CON",
-                "grain": "Figure",
-                "terrain": "Link",
-                "stance": "Binding",
-                "settledAs": "verb",
-                "children": []
-               }
-              ]
+              "children": []
              }
             ]
            }
@@ -7158,28 +6280,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 625,
+            "seq": 456,
             "schema": "EOTObservation@1",
-            "id": "o413",
-            "at": [
-             21369,
-             21380
-            ],
-            "role": "proposition",
-            "end1": "such a",
-            "label": "dear",
-            "end2": "quiet thing",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "pass": 2,
-            "foundOnReread": true,
-            "children": []
-           },
-           {
-            "seq": 462,
-            "schema": "EOTObservation@1",
-            "id": "o399",
+            "id": "o388",
             "at": [
              21394,
              21396
@@ -7198,28 +6301,9 @@
             "children": []
            },
            {
-            "seq": 626,
+            "seq": 457,
             "schema": "EOTObservation@1",
-            "id": "o415",
-            "at": [
-             21406,
-             21413
-            ],
-            "role": "proposition",
-            "end1": "half",
-            "label": "to",
-            "end2": "herself",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "pass": 2,
-            "foundOnReread": true,
-            "children": []
-           },
-           {
-            "seq": 463,
-            "schema": "EOTObservation@1",
-            "id": "o400",
+            "id": "o389",
             "at": [
              21444,
              21452
@@ -7237,9 +6321,9 @@
             "children": []
            },
            {
-            "seq": 465,
+            "seq": 459,
             "schema": "EOTObservation@1",
-            "id": "o401",
+            "id": "o390",
             "at": [
              21489,
              21497
@@ -7257,44 +6341,24 @@
             "children": []
            },
            {
-            "seq": 467,
+            "seq": 461,
             "schema": "EOTObservation@1",
-            "id": "o402",
+            "id": "o391",
             "at": [
-             21498,
+             21507,
              21653
             ],
             "role": "proposition",
-            "end1": "ing so nicely by the fire",
+            "end1": "nicely",
             "label": "licking",
             "end2": "her\npaws and washing her face—and she is such a nice soft thing to\nnurse—and she’s such a capital one for catching mice—oh, I beg your\npardon!”",
-            "subjectBasis": "inherited (reduced clause — the noun before the comma)",
+            "subjectBasis": "inherited (reduced participial clause — the noun phrase before the comma)",
             "operator": "CON",
             "grain": "Figure",
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 627,
-              "schema": "EOTObservation@1",
-              "id": "o417",
-              "at": [
-               21576,
-               21631
-              ],
-              "role": "proposition",
-              "end1": "soft thing",
-              "label": "to",
-              "end2": "nurse—and she’s such a capital one for catching mice—oh",
-              "subjectBasis": "stated",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            }
           ]
          }
@@ -7329,9 +6393,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 468,
+            "seq": 462,
             "schema": "EOTObservation@1",
-            "id": "o403",
+            "id": "o392",
             "at": [
              21735,
              21769
@@ -7348,9 +6412,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 469,
+              "seq": 463,
               "schema": "EOTObservation@1",
-              "id": "o404",
+              "id": "o393",
               "at": [
                21743,
                21769
@@ -7364,9 +6428,9 @@
               "settledAs": null,
               "children": [
                {
-                "seq": 470,
+                "seq": 464,
                 "schema": "EOTObservation@1",
-                "id": "o405",
+                "id": "o394",
                 "at": [
                  21754,
                  21769
@@ -7420,9 +6484,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 471,
+            "seq": 465,
             "schema": "EOTObservation@1",
-            "id": "o406",
+            "id": "o395",
             "at": [
              21787,
              21825
@@ -7471,7 +6535,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 472,
+          "seq": 466,
           "schema": "EOTAbsence@1",
           "at": [
            21831,
@@ -7479,7 +6543,7 @@
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 3008 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "detail": "no token in this sentence was nominated by the 3009 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
           "children": []
          }
         ]
@@ -7512,9 +6576,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 474,
+          "seq": 468,
           "schema": "EOTObservation@1",
-          "id": "o407",
+          "id": "o396",
           "at": [
            21931,
            21949
@@ -7547,7 +6611,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 475,
+          "seq": 469,
           "schema": "EOTAbsence@1",
           "at": [
            21950,
@@ -7574,7 +6638,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 476,
+          "seq": 470,
           "schema": "EOTAbsence@1",
           "at": [
            22010,
@@ -7615,7 +6679,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 477,
+          "seq": 471,
           "schema": "EOTAbsence@1",
           "at": [
            22049,
@@ -7623,7 +6687,7 @@
           ],
           "role": "arrangement",
           "reason": "no_earned_verb_in_this_sentence",
-          "detail": "no token in this sentence was nominated by the 3008 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "detail": "no token in this sentence was nominated by the 3009 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
           "children": []
          }
         ]
@@ -7642,7 +6706,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 478,
+          "seq": 472,
           "schema": "EOTAbsence@1",
           "at": [
            22067,
@@ -7669,7 +6733,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 479,
+          "seq": 473,
           "schema": "EOTAbsence@1",
           "at": [
            22136,
@@ -7696,9 +6760,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 480,
+          "seq": 474,
           "schema": "EOTObservation@1",
-          "id": "o408",
+          "id": "o397",
           "at": [
            22282,
            22299
@@ -7715,44 +6779,24 @@
           "settledAs": "verb",
           "children": [
            {
-            "seq": 628,
+            "seq": 475,
             "schema": "EOTObservation@1",
-            "id": "o424",
+            "id": "o398",
             "at": [
-             22287,
+             22295,
              22299
             ],
             "role": "proposition",
             "end1": "I",
-            "label": "should like",
-            "end2": "to show you!",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "pass": 2,
-            "foundOnReread": true,
-            "children": [
-             {
-              "seq": 481,
-              "schema": "EOTObservation@1",
-              "id": "o409",
-              "at": [
-               22295,
-               22299
-              ],
-              "role": "proposition",
-              "end1": "I",
-              "label": "show",
-              "end2": "you!",
-              "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Binding",
-              "settledAs": "verb",
-              "children": []
-             }
-            ]
+            "label": "show",
+            "end2": "you!",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
            }
           ]
          }
@@ -7772,7 +6816,7 @@
         "script": "cased",
         "children": [
          {
-          "seq": 482,
+          "seq": 476,
           "schema": "EOTAbsence@1",
           "at": [
            22300,
@@ -7814,9 +6858,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 483,
+            "seq": 477,
             "schema": "EOTObservation@1",
-            "id": "o410",
+            "id": "o399",
             "at": [
              22417,
              22421
@@ -7834,9 +6878,9 @@
             "children": []
            },
            {
-            "seq": 484,
+            "seq": 478,
             "schema": "EOTObservation@1",
-            "id": "o411",
+            "id": "o400",
             "at": [
              22437,
              22462
@@ -7853,9 +6897,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 485,
+              "seq": 479,
               "schema": "EOTObservation@1",
-              "id": "o412",
+              "id": "o401",
               "at": [
                22448,
                22462
@@ -7875,9 +6919,9 @@
             ]
            },
            {
-            "seq": 486,
+            "seq": 480,
             "schema": "EOTObservation@1",
-            "id": "o413",
+            "id": "o402",
             "at": [
              22506,
              22545
@@ -7894,9 +6938,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 487,
+              "seq": 481,
               "schema": "EOTObservation@1",
-              "id": "o414",
+              "id": "o403",
               "at": [
                22534,
                22545
@@ -7911,34 +6955,14 @@
               "terrain": "Link",
               "stance": "Binding",
               "settledAs": "verb",
-              "children": [
-               {
-                "seq": 629,
-                "schema": "EOTObservation@1",
-                "id": "o431",
-                "at": [
-                 22537,
-                 22545
-                ],
-                "role": "proposition",
-                "end1": "I can’t",
-                "label": "to",
-                "end2": "a farmer",
-                "subjectBasis": "inherited",
-                "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-                "settledAs": null,
-                "pass": 2,
-                "foundOnReread": true,
-                "children": []
-               }
-              ]
+              "children": []
              }
             ]
            },
            {
-            "seq": 488,
+            "seq": 482,
             "schema": "EOTObservation@1",
-            "id": "o415",
+            "id": "o404",
             "at": [
              22570,
              22584
@@ -7973,60 +6997,45 @@
         "script": "cased",
         "children": [
          {
-          "seq": 234,
+          "seq": 483,
           "schema": "EOTObservation@1",
-          "id": "v233",
+          "id": "o405",
           "at": [
-           22615,
+           22624,
            22659
           ],
-          "role": "void",
-          "operator": "SIG",
-          "grain": "Ground",
-          "terrain": "Void",
-          "stance": "Tending",
-          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "role": "proposition",
+          "end1": "He",
+          "label": "says",
+          "end2": "it kills all the rats and—oh dear!”",
+          "subjectBasis": "stated",
+          "end1Ref": "ref:auto:alice",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
           "children": [
            {
-            "seq": 489,
+            "seq": 484,
             "schema": "EOTObservation@1",
-            "id": "o416",
+            "id": "o406",
             "at": [
-             22624,
+             22633,
              22659
             ],
             "role": "proposition",
             "end1": "He",
-            "label": "says",
-            "end2": "it kills all the rats and—oh dear!”",
-            "subjectBasis": "stated",
+            "label": "kills",
+            "end2": "all the rats and—oh dear!”",
+            "subjectBasis": "inherited",
+            "end1Ref": "ref:auto:alice",
             "operator": "CON",
             "grain": "Figure",
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 490,
-              "schema": "EOTObservation@1",
-              "id": "o417",
-              "at": [
-               22633,
-               22659
-              ],
-              "role": "proposition",
-              "end1": "He",
-              "label": "kills",
-              "end2": "all the rats and—oh dear!”",
-              "subjectBasis": "inherited",
-              "operator": "CON",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Binding",
-              "settledAs": "verb",
-              "children": []
-             }
-            ]
+            "children": []
            }
           ]
          }
@@ -8046,9 +7055,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 235,
+          "seq": 234,
           "schema": "EOTObservation@1",
-          "id": "v234",
+          "id": "v233",
           "at": [
            22660,
            22730
@@ -8061,9 +7070,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 492,
+            "seq": 486,
             "schema": "EOTObservation@1",
-            "id": "o418",
+            "id": "o407",
             "at": [
              22675,
              22691
@@ -8080,44 +7089,6 @@
             "stance": "Tending",
             "settledAs": "preposition",
             "children": []
-           },
-           {
-            "seq": 493,
-            "schema": "EOTObservation@1",
-            "id": "o419",
-            "at": [
-             22706,
-             22730
-            ],
-            "role": "proposition",
-            "end1": "I’m",
-            "label": "afraid",
-            "end2": "I’ve offended it again!”",
-            "subjectBasis": "stated",
-            "end1Ref": "ref:auto:i’m",
-            "end2Ref": "ref:auto:i’ve",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "children": [
-             {
-              "seq": 494,
-              "schema": "EOTObservation@1",
-              "id": "o420",
-              "at": [
-               22720,
-               22730
-              ],
-              "role": "proposition",
-              "end1": "I’m",
-              "label": "offended",
-              "end2": "it again!”",
-              "subjectBasis": "inherited",
-              "end1Ref": "ref:auto:i’m",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "children": []
-             }
-            ]
            }
           ]
          }
@@ -8137,9 +7108,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 236,
+          "seq": 235,
           "schema": "EOTObservation@1",
-          "id": "v235",
+          "id": "v234",
           "at": [
            22731,
            22850
@@ -8152,9 +7123,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 495,
+            "seq": 488,
             "schema": "EOTObservation@1",
-            "id": "o421",
+            "id": "o408",
             "at": [
              22793,
              22795
@@ -8203,9 +7174,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 237,
+          "seq": 236,
           "schema": "EOTObservation@1",
-          "id": "v236",
+          "id": "v235",
           "at": [
            22854,
            22897
@@ -8218,9 +7189,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 497,
+            "seq": 490,
             "schema": "EOTObservation@1",
-            "id": "o422",
+            "id": "o409",
             "at": [
              22868,
              22883
@@ -8237,9 +7208,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 498,
+              "seq": 491,
               "schema": "EOTObservation@1",
-              "id": "o423",
+              "id": "o410",
               "at": [
                22881,
                22883
@@ -8276,9 +7247,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 238,
+          "seq": 237,
           "schema": "EOTObservation@1",
-          "id": "v237",
+          "id": "v236",
           "at": [
            22898,
            22988
@@ -8291,9 +7262,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 499,
+            "seq": 492,
             "schema": "EOTObservation@1",
-            "id": "o424",
+            "id": "o411",
             "at": [
              22937,
              22962
@@ -8308,48 +7279,6 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 630,
-              "schema": "EOTObservation@1",
-              "id": "o442",
-              "at": [
-               22951,
-               22962
-              ],
-              "role": "proposition",
-              "end1": "we won’t",
-              "label": "or",
-              "end2": "dogs either",
-              "subjectBasis": "inherited",
-              "operator": "SEG",
-              "grain": "Figure",
-              "terrain": "Link",
-              "stance": "Dissecting",
-              "settledAs": "conjunction",
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
-           },
-           {
-            "seq": 631,
-            "schema": "EOTObservation@1",
-            "id": "o443",
-            "at": [
-             22982,
-             22988
-            ],
-            "role": "proposition",
-            "end1": "you don’t",
-            "label": "like",
-            "end2": "them!”",
-            "subjectBasis": "stated",
-            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-            "settledAs": null,
-            "pass": 2,
-            "foundOnReread": true,
             "children": []
            }
           ]
@@ -8370,9 +7299,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 239,
+          "seq": 238,
           "schema": "EOTObservation@1",
-          "id": "v238",
+          "id": "v237",
           "at": [
            22989,
            23273
@@ -8385,9 +7314,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 500,
+            "seq": 493,
             "schema": "EOTObservation@1",
-            "id": "o425",
+            "id": "o412",
             "at": [
              23076,
              23100
@@ -8404,9 +7333,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 501,
+              "seq": 494,
               "schema": "EOTObservation@1",
-              "id": "o426",
+              "id": "o413",
               "at": [
                23087,
                23100
@@ -8426,9 +7355,9 @@
             ]
            },
            {
-            "seq": 502,
+            "seq": 495,
             "schema": "EOTObservation@1",
-            "id": "o427",
+            "id": "o414",
             "at": [
              23169,
              23181
@@ -8443,32 +7372,12 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 632,
-              "schema": "EOTObservation@1",
-              "id": "o446",
-              "at": [
-               23172,
-               23181
-              ],
-              "role": "proposition",
-              "end1": "Let us",
-              "label": "to",
-              "end2": "the shore",
-              "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            },
            {
-            "seq": 504,
+            "seq": 497,
             "schema": "EOTObservation@1",
-            "id": "o428",
+            "id": "o415",
             "at": [
              23241,
              23271
@@ -8485,9 +7394,9 @@
             "settledAs": "verb",
             "children": [
              {
-              "seq": 505,
+              "seq": 498,
               "schema": "EOTObservation@1",
-              "id": "o429",
+              "id": "o416",
               "at": [
                23251,
                23271
@@ -8504,9 +7413,9 @@
               "settledAs": "verb",
               "children": [
                {
-                "seq": 506,
+                "seq": 499,
                 "schema": "EOTObservation@1",
-                "id": "o430",
+                "id": "o417",
                 "at": [
                  23258,
                  23271
@@ -8559,9 +7468,9 @@
         "script": "cased",
         "children": [
          {
-          "seq": 240,
+          "seq": 239,
           "schema": "EOTObservation@1",
-          "id": "v239",
+          "id": "v238",
           "at": [
            23277,
            23482
@@ -8574,9 +7483,9 @@
           "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
           "children": [
            {
-            "seq": 507,
+            "seq": 500,
             "schema": "EOTObservation@1",
-            "id": "o431",
+            "id": "o418",
             "at": [
              23284,
              23299
@@ -8591,32 +7500,12 @@
             "terrain": "Link",
             "stance": "Binding",
             "settledAs": "verb",
-            "children": [
-             {
-              "seq": 633,
-              "schema": "EOTObservation@1",
-              "id": "o451",
-              "at": [
-               23297,
-               23299
-              ],
-              "role": "proposition",
-              "end1": "It",
-              "label": "to",
-              "end2": "go",
-              "subjectBasis": "inherited",
-              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
-              "settledAs": null,
-              "pass": 2,
-              "foundOnReread": true,
-              "children": []
-             }
-            ]
+            "children": []
            },
            {
-            "seq": 508,
+            "seq": 501,
             "schema": "EOTObservation@1",
-            "id": "o432",
+            "id": "o419",
             "at": [
              23435,
              23444

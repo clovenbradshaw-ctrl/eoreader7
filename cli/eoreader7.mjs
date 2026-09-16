@@ -14,12 +14,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { stripContainer } from "../native/adapters/text/spans.js";
-import { createCausalTextPerceiver, textEncounters } from "../native/adapters/text/recursive.js";
-import { anchorAsDefiniteBinding } from "../native/adapters/text/anchoring.js";
-import { reviseTextFold } from "../native/adapters/text/revision.js";
-import { createRecursiveReader } from "../native/kernel/reading.js";
-import { createHyperlexicon, admitHyperlexiconCandidates } from "../native/kernel/hyperlexicon.js";
-import { createRelationCompositionLedger, acquireCompositionCandidates } from "../native/kernel/relation-composition.js";
+import { textEncounters } from "../native/adapters/text/recursive.js";
+import { readEncounters } from "../native/eval/lavar/lib/read-recipe.mjs";
+import { pathosOf, reGroundCondition, reGround, landReGround } from "../native/organs/pathos.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "..");
@@ -90,14 +87,8 @@ function normalizePosPrior(prior, sourcePath) {
   usage(`${sourcePath} is POSPrior@1 but has neither provenance.source nor giver.resource — cannot name it`);
 }
 
-const emptyRetrieve = (_fold, evidence) => Object.freeze({
-  schema: "EORelevantFold@1", witnessed: Object.freeze([...evidence]), provisional: Object.freeze([]),
-  expectations: Object.freeze([]), obligations: Object.freeze([]), exclusions: Object.freeze([]),
-  unresolvedAlternatives: Object.freeze([]), activeFrames: Object.freeze([]), receivedPriors: Object.freeze([]),
-});
-
-function load(filePath, source, limit) {
-  const stripped = stripContainer(fs.readFileSync(filePath, "utf8"));
+function load(filePath, source, limit, preStripped) {
+  const stripped = preStripped ?? stripContainer(fs.readFileSync(filePath, "utf8"));
   if (!stripped.looks_like_material) throw new Error(`${filePath} does not look like readable material`);
   const all = textEncounters(stripped.text, { source, offset: stripped.offset });
   return limit ? all.slice(0, limit) : all;
@@ -121,34 +112,37 @@ async function main() {
   const posPriorPath = resolvePosPrior(priorsArg);
   const POS_PRIOR = normalizePosPrior(JSON.parse(fs.readFileSync(posPriorPath, "utf8")), posPriorPath);
 
-  const adapters = {
-    revise: (a) => reviseTextFold({ ...a, canonicalizationFloor: CANONICALIZATION_FLOOR }),
-    retrieve: emptyRetrieve,
-  };
-  const perceivers = () => [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING })];
-
   const source = `file:${path.basename(filePath)}`;
-  const encounters = load(filePath, source, limit);
+  const stripped = stripContainer(fs.readFileSync(filePath, "utf8"));
+  if (!stripped.looks_like_material) throw new Error(`${filePath} does not look like readable material`);
+  const encounters = load(filePath, source, limit, stripped);
+  const materialText = stripped.text;
   console.error(`eoreader7: reading ${source} (${encounters.length} encounters, priors: ${path.relative(REPO_ROOT, posPriorPath)})...`);
 
-  const reader = createRecursiveReader({ perceivers: perceivers(), adapters });
-  for (const enc of encounters) await reader.step(enc);
-  const fold = reader.getFold();
-  const log = reader.getLog?.() ?? [];
-
-  const rawEntries = fold.graphEntries ?? [];
-  const projectedBindings = rawEntries.map(anchorAsDefiniteBinding).filter(Boolean);
-  const entries = [...rawEntries, ...projectedBindings];
-  const ledger = createRelationCompositionLedger(entries);
-  const stats = ledger.diagnostics();
-
-  const observed = acquireCompositionCandidates(entries, { minWitnesses: 2 });
-  const hyperlexicon = admitHyperlexiconCandidates(createHyperlexicon(), observed.map((c) => ({
-    left: c.left, right: c.right, giver: GIVER,
-    witnesses: (c.witnesses ?? []).slice(0, 3).map((w) => w?.[0]).filter(Boolean),
-    meta: { independentSupport: c.meta?.support ?? 0, rememberedLeft: false, rememberedRight: false },
-  })));
+  // The recipe itself lives in native/eval/lavar/lib/read-recipe.mjs — the
+  // SAME seam chapter-swarm.mjs reads through (reconciled 2026-09-13).
+  let { fold, log, entries, projectedBindings, participantBindings, stats, hyperlexicon } =
+    await readEncounters(encounters, { source, posPrior: POS_PRIOR, giver: GIVER, canonicalizationFloor: CANONICALIZATION_FLOOR, anchoring: ANCHORING });
   const composition = Object.values(hyperlexicon.composition);
+
+  // The pathos read: how the material was UNDERGOEN, for whom — rhythm (Murch's
+  // pacing), curve (surprise/tension/release from the fold's own machinery),
+  // strain (the hamartia-gate), and the RE-GROUND: when the ground fails
+  // (stale / collapse / contested), the concession is a recorded REC·Ground act
+  // landed on the log — the re-pouring is never silent.
+  const state = {
+    contested: fold.unresolvedAlternatives ?? [],
+    expired: fold.exclusions ?? [],
+    contradictions: [],
+  };
+  const pathos = pathosOf({ text: materialText, experiencer: { who: GIVER, read: source }, state, fold });
+  const groundCheck = reGroundCondition(pathos);
+  let reGroundAct = null;
+  if (groundCheck.kind !== "ground_holds") {
+    const act = reGround({ read: pathos, giver: GIVER, reScope: null });
+    log = landReGround(log, act);
+    reGroundAct = log[log.length - 1];
+  }
 
   const out = {
     schema: "EOReader7CLIRead@1",
@@ -165,7 +159,11 @@ async function main() {
       pairTypes: stats.pairTypes,
       repeatedPairTypes: stats.repeatedPairTypes,
       projectedBindings: projectedBindings.length,
-      graphEntries: rawEntries,
+      participantBindings: participantBindings.length,
+      // Persist the FULL record (raw + projected + participant bindings), not
+      // rawEntries: the EODefiniteBinding entries are what make a downstream
+      // re-read of this artifact reproduce the chemistry instead of 0 chains.
+      graphEntries: entries,
     },
     hyperlexicon: {
       schema: hyperlexicon.schema,
@@ -174,6 +172,14 @@ async function main() {
       candidates: composition.filter((e) => e.standing === "candidate").map((e) => ({ left: e.left, right: e.right, standing: e.standing, independentSupport: e.meta.independentSupport, witnesses: e.provenance?.witnesses ?? null })),
     },
     taskLog: { entries: log.entries?.length ?? log.length ?? 0 },
+    pathos: {
+      schema: pathos.schema,
+      forWhom: pathos.forWhom,
+      strain: pathos.strain,
+      rhythm: pathos.rhythm,
+      curve: pathos.curve,
+    },
+    reGround: reGroundAct,
   };
 
   const slug = path.basename(filePath).replace(/\.[^.]+$/, "").toLowerCase().replace(/[^a-z0-9]+/g, "-");
@@ -188,6 +194,8 @@ async function main() {
   console.log(JSON.stringify({
     relationEdges: stats.relationEdges, referentBindings: stats.referentBindings,
     hyperlexiconCandidates: composition.length, taskLogEntries: out.taskLog.entries,
+    pathosStrain: pathos.strain, pathosRhythm: `${pathos.rhythm.blinks} blink(s) over ${pathos.rhythm.n} sentence(s), mean ${pathos.rhythm.mean} words, variance ratio ${pathos.rhythm.ratio}${pathos.rhythm.flatline ? ", FLATLINE" : ""}`,
+    reGround: reGroundAct ? `${reGroundAct.cause.kind} -> REC·Ground landed at log:${reGroundAct.record.at}` : "ground_holds",
     outFiles: [readPath, foldPath, logPath],
   }, null, 2));
 }

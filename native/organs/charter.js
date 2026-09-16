@@ -51,8 +51,25 @@
 // imports no model, no adapter, no evaluator — a refusal is a typed
 // `charter_conflict` the surface can render but not suppress.
 
-const PRESCRIPTIVE = /\b(shall|should|must|ought|may|can|cannot|has the right|entitled|right to|free to|prohibited|required|allowed to|obligatory|mandatory|must not|shall not|never|everyone|no one|all people|each person)\b/i;
-const DESCRIPTIVE = /\b(was|were|did|had been|has been|reported|reports|report|describes|describe|described|documented|documents|according to|evidence|alleged|occurred|happened|committed against|tortured|executed|killed|murdered|massacred|repressed|persecuted|imprisoned|denied|states that|said|writes)\b/i;
+// sha256hex (native/adapters/text/sha256hex.js) is the only import this
+// organ carries: a pure, browser-and-node-safe content hash, not a model, an
+// adapter, or an evaluator — so the "the organ is pure" claim above still
+// holds. It lets a built charter's own giver ride alongside a hash of the
+// exact source text it was extracted from (see buildUdhCharter, below).
+import { sha256hex } from "../adapters/text/sha256hex.js";
+
+// Exported (2026-09-15, adversarial pass): eo-teachings/ethos-pipeline.mjs
+// needs the RAW positive match, not voiceOf()'s collapsed three-way answer —
+// voiceOf() correctly defaults an unmarked clause ("no norm issued") to
+// "descriptive" for ITS purpose (nothing here for the Charter to govern),
+// but a caller checking "is this clause SAFELY describing something" needs
+// to tell "a real reporting marker matched" apart from "neither matched,
+// so there was nothing to say either way" — those are different findings,
+// and collapsing them let an unmarked dehumanizing assertion ("All those
+// people are vermin.") read as verified-descriptive when nothing had
+// actually verified anything about it.
+export const PRESCRIPTIVE = /\b(shall|should|must|ought|may|can|cannot|has the right|entitled|right to|free to|prohibited|required|allowed to|obligatory|mandatory|must not|shall not|never|everyone|no one|all people|each person)\b/i;
+export const DESCRIPTIVE = /\b(was|were|did|had been|has been|reported|reports|report|describes|describe|described|documented|documents|according to|evidence|alleged|occurred|happened|committed against|tortured|executed|killed|murdered|massacred|repressed|persecuted|imprisoned|denied|states that|said|writes)\b/i;
 
 const slug = (s) => String(s ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 const words = (s) => [...new Set(String(s ?? "").toLowerCase().match(/[\p{L}\p{N}']+/gu) ?? [])].filter((w) => w.length > 2);
@@ -95,9 +112,71 @@ export function buildUdhCharter(text = "", { giver = "Universal Declaration of H
   return Object.freeze({
     schema: "UDHRCharter@1",
     giver,
+    // The giver names WHO governs; sha256 names WHAT text that giver's own
+    // prohibitions/protections were extracted from — a content hash, not a
+    // version number, so any caller (a log line, a stored result) can tell
+    // whether the full 516-language corpus or the fallback excerpt actually
+    // governed a given turn, without re-reading the source file.
+    sha256: sha256hex(text),
     protections: Object.fromEntries([...protections].map(([k, v]) => [k, { surfaces: [...v.surfaces], articles: [...v.articles] }])),
     prohibitions: Object.fromEntries([...prohibitions].map(([k, v]) => [k, { surfaces: [...v.surfaces], articles: [...v.articles] }])),
   });
+}
+
+// ── VALIDATION — a cached charter must earn trust, never be assumed ────────
+// A charter is only fit to govern if it can name who gives it and can
+// actually prohibit and protect something; anything else is indistinguishable
+// from an empty or gutted charter that would pass every generation silently.
+// This is the check a cache boundary (proxy-runner.mjs's globalThis cache)
+// must run before trusting whatever is already sitting there.
+//
+// FIXED (adversarial pass, 2026-09-15): the shape check above accepted a
+// charter that prohibits "sneezing indoors" and protects "the right to
+// whistle" — a non-empty giver and >=1 table entry each, same as a real
+// UDHR charter, and charterGate then returned "pass" on both a torture-
+// licensing and a slavery-licensing claim run through it. Shape was
+// mistaken for meaning. The fix anchors to real content: at least one
+// prohibition's own text must actually name torture or slavery — the two
+// UDHR prohibitions this codebase already treats as load-bearing anchors
+// elsewhere (eo-teachings/charter-reference.mjs uses the same two, checked
+// against the real UN translation files in six languages). This does not
+// certify a charter is complete; it closes the specific, demonstrated
+// "wholly invented tables" attack, named as a real, narrower guarantee than
+// "this charter is trustworthy in general."
+const REAL_PROHIBITION_ANCHORS = /torture|slavery|servitude/i;
+function hasRealProhibitionAnchor(prohibitions) {
+  for (const [key, entry] of Object.entries(prohibitions ?? {})) {
+    if (REAL_PROHIBITION_ANCHORS.test(key)) return true;
+    for (const surface of entry?.surfaces ?? []) if (REAL_PROHIBITION_ANCHORS.test(surface)) return true;
+  }
+  return false;
+}
+export function isValidCharter(charter) {
+  if (!charter || typeof charter !== "object") return false;
+  if (typeof charter.giver !== "string" || !charter.giver.trim()) return false;
+  const prohibitions = charter.prohibitions;
+  const protections = charter.protections;
+  if (!prohibitions || typeof prohibitions !== "object" || Object.keys(prohibitions).length < 1) return false;
+  if (!protections || typeof protections !== "object" || Object.keys(protections).length < 1) return false;
+  if (!hasRealProhibitionAnchor(prohibitions)) return false;
+  return true;
+}
+
+// isValidInstrument — the generic shape every charter in the FAMILY must hold:
+// a named giver and nonempty prohibitions AND protections. The torture/slavery
+// anchor in isValidCharter is the UDHR's OWN unmistakable core (the guard
+// against a gutted, cached human-rights charter) and is deliberately NOT
+// required of the Earth instruments, which have no torture clause and need
+// none — requiring it would refuse them for being the wrong instrument rather
+// than for being invalid.
+export function isValidInstrument(charter) {
+  if (!charter || typeof charter !== "object") return false;
+  if (typeof charter.giver !== "string" || !charter.giver.trim()) return false;
+  const prohibitions = charter.prohibitions;
+  const protections = charter.protections;
+  if (!prohibitions || typeof prohibitions !== "object" || Object.keys(prohibitions).length < 1) return false;
+  if (!protections || typeof protections !== "object" || Object.keys(protections).length < 1) return false;
+  return true;
 }
 
 // ── 2. THE DISCRIMINATOR ───────────────────────────────────────────────────
@@ -126,6 +205,32 @@ function overlap(a, b) {
   return hit / Math.min(A.size, B.size);
 }
 
+// ── THE REMEDY FRAME ───────────────────────────────────────────────────────
+// A prescriptive clause can name a prohibited act without licensing it, in the
+// exact voice the Charter exists to protect: the ADVOCATE's. "We must protect
+// torture survivors", "workers must be free to report slavery", "the clinic
+// should provide care to survivors of torture" all name the act — and all
+// prescribe the REMEDY, not the act. The forbidding frame ("never ... torture")
+// does not catch these, and a gate that fires on a human-rights group's own
+// tool is worse than no gate: it blocks the work the Charter exists to protect.
+// So a remedy VERB governing the act as its object is not a license of the act
+// ("report slavery", "protect torture survivors", "document torture"), nor is
+// the act the SUBJECT of an opposition predicate ("Torture must be abolished").
+// Both name the act to oppose it. This errs toward NOT firing, the same bias
+// the descriptive-voice rule already holds, and is checked against real
+// advocacy phrasings in conformance/charter-family.test.mjs.
+const REMEDY_VERB = "(?:protec|repor|document|support|defen|advoca|oppos|preven|prosecut|help|ensur|safeguard|provid|uphold|promot|investigat|monitor|expos|combat|end|stop|train|educat|rehabilitat|assist|resc|care|treat|heal|counsel|comfort|shelter|record|publish|raise|speak|testify|pursu|demand|honou?r|respect|rememb|stud|research)[a-z]*";
+const OPPOSITION_PREDICATE = /\b(?:ended|stopped|prohibited|abolished|outlawed|banned|prevented|eliminated|eradicated|forbidden|condemned|opposed|combatted|combated|fought|addressed|tackled|reported|documented|investigated|prosecuted)\b/i;
+function remedyGovernsAct(clause, actWords) {
+  for (const w of actWords) {
+    // the act as the OBJECT of a remedy verb, within a short window
+    if (new RegExp(`\\b${REMEDY_VERB}\\b(?:\\s+[\\w'’,-]+){0,6}?\\s+${w}\\b`, "i").test(clause)) return true;
+    // the act as the SUBJECT of an opposition predicate ("torture must be abolished")
+    if (new RegExp(`\\b${w}\\b(?:\\s+[\\w'’,-]+){0,6}?\\s+\\b(?:should|shall|must|ought\\s+to|may|can)\\b\\s+(?:not\\s+)?be\\s+${OPPOSITION_PREDICATE.source}`, "i").test(clause)) return true;
+  }
+  return false;
+}
+
 export function charterConflicts(charter, clause) {
   if (voiceOf(clause) !== "prescriptive") return [];
   const cw = words(clause);
@@ -146,19 +251,22 @@ export function charterConflicts(charter, clause) {
     // punishment" is 1/8 words — below any proportional floor, yet the act is
     // unmistakably governed). The word must be a content carrier (>=5 chars),
     // disclosed.
-    const distinctive = surfaces.some((s) => words(s).some((w) => w.length >= 5 && new Set(words(clause)).has(w)));
+    const actWords = [...new Set(surfaces.flatMap((s) => words(s)).filter((w) => w.length >= 5))];
+    const distinctive = actWords.some((w) => new Set(words(clause)).has(w));
     if (best >= 0.5 || distinctive) {
       if (forbids) continue; // reinforcing the prohibition — compliant
+      if (remedyGovernsAct(clause, actWords)) continue; // the ADVOCATE's voice — naming the act to oppose it, never licensing it
       out.push({ kind: "licenses_prohibited", act, match: best, clause, articles: info.articles, basis: `prescriptive clause licenses a Charter-prohibited act (${act}); ${info.surfaces[0]}` });
     }
   }
   for (const [right, info] of Object.entries(charter.protections ?? {})) {
     const best = Math.max(...[...info.surfaces].map((s) => overlap(clause, s)));
     // A denial negates the right's holder or its grant: "no one ... entitled",
-    // "everyone ... without", "deny/revoke/strip/deprive/deprived". The
-    // negated-holder form is a denial ("No one should be entitled to life")
-    // even without a deny verb.
-    if (best >= 0.5 && /\b(?:deny|denies|without|no right|not entitled|no one|nobody|no person|revoke|take away|strip|deprive|deprived)\b/i.test(clause)) {
+    // "deny/revoke/strip/deprive/deprived", "without the right". A bare
+    // "without" is NOT a denial — the UDHR's own Art 2 grants rights "without
+    // any discrimination", and a gate that read every "without" as a denial
+    // fired on grants (the rights-protection voice this exists to hear).
+    if (best >= 0.5 && /\b(?:deny|denies|denied|no right|not entitled|no one|nobody|no person|revoke|revokes|take away|strip|strips|deprive|deprives|deprived|without the right|without rights)\b/i.test(clause)) {
       out.push({ kind: "denies_protected_right", right, match: best, clause, articles: info.articles, basis: `prescriptive clause denies a Charter-protected right (${right}); ${info.surfaces[0]}` });
     }
   }
@@ -224,4 +332,97 @@ const UDHR_FALLBACK_EXCERPT = `Universal Declaration of Human Rights
 
 export function defaultCharter({ giver = "Universal Declaration of Human Rights — fallback excerpt (public domain); replaced by the full 516-language corpus when it is beside the checkout" } = {}) {
   return buildUdhCharter(UDHR_FALLBACK_EXCERPT, { giver });
+}
+
+// ── 5. THE CHARTER FAMILY (THE-MORAL-CORE.md) ──────────────────────────────
+// "The core is not one voice; it is a RESOLVED HIERARCHY, and the resolution is
+// on the ledger." The family is the SAME mechanism applied to the instruments,
+// each with its own giver, ordered by ENTRENCHMENT (rank) when they disagree —
+// the exact Kelsen discipline the proxy already runs for conflicting claims.
+// The Earth instruments are RECEIVED affordances (fixed public texts, cited to
+// their giver — the same posture as the UDHR fallback excerpt above), never
+// hand-invented; where the full text is beside the checkout it should be built
+// from it via buildCharter, exactly as the UDHR is.
+
+export const EARTH_CHARTER = Object.freeze({
+  schema: "EarthCharter@1",
+  giver: "The Earth Charter — Earth Charter Initiative, 2000 (received affordances, cited)",
+  rank: 2,
+  protections: {
+    "the community of life": { surfaces: ["respect and care for the community of life", "the community of life in all its diversity"], articles: ["Principle 1"] },
+    "the integrity of earth's ecological systems": { surfaces: ["protect and restore the integrity of Earth's ecological systems", "the integrity of Earth's ecological systems"], articles: ["Principle 5"] },
+    "earth's regenerative capacity": { surfaces: ["protect and restore the regenerative capacity of Earth", "Earth's regenerative capacity"], articles: ["Principle 5", "Principle 7"] },
+    "earth's bounty and beauty for present and future generations": { surfaces: ["secure Earth's bounty and beauty for present and future generations"], articles: ["Principle 4"] },
+  },
+  prohibitions: {
+    "the destruction of earth's ecosystems": { surfaces: ["destroy or deplete Earth's ecosystems", "the destruction of Earth's ecosystems"], articles: ["Principle 5"] },
+    "patterns of production and consumption that damage earth": { surfaces: ["patterns of production and consumption that damage the environment", "damage the environment"], articles: ["Principle 7"] },
+  },
+});
+
+export const MOTHER_EARTH = Object.freeze({
+  schema: "MotherEarthCharter@1",
+  giver: "Universal Declaration of the Rights of Mother Earth — World People's Conference on Climate Change, Cochabamba, 2010 (received affordances, cited)",
+  rank: 3,
+  protections: {
+    "mother earth's right to life and to exist": { surfaces: ["Mother Earth has the right to life and to exist", "the right to life and to exist"], articles: ["Art. 2(1)"] },
+    "mother earth's right to regenerate its bio-capacity": { surfaces: ["regenerate its bio-capacity and to continue its vital cycles", "the right to regenerate"], articles: ["Art. 2(1)"] },
+    "mother earth's right to water and clean air": { surfaces: ["the right to water and clean air", "water and clean air"], articles: ["Art. 2(1)"] },
+  },
+  prohibitions: {
+    "contamination and pollution of mother earth": { surfaces: ["be free from contamination, pollution and toxic or radioactive waste", "contamination and pollution"], articles: ["Art. 2(1)"] },
+  },
+});
+
+/**
+ * buildCharterFamily({ udhrText }) — the family: the human-rights charter built
+ * from the UDHR's own bytes (rank 1, supreme on human matters), then the Earth
+ * instruments. Each carries its giver and its entrenchment rank.
+ */
+export function buildCharterFamily({ udhrText = "", udhrGiver } = {}) {
+  const udhr = udhrText ? buildUdhCharter(udhrText, udhrGiver ? { giver: udhrGiver } : {}) : defaultCharter();
+  return [Object.freeze({ ...udhr, rank: 1 }), EARTH_CHARTER, MOTHER_EARTH];
+}
+
+/** familyConflicts(family, clause) — the union across the family, each named with its charter. */
+export function familyConflicts(family, clause) {
+  const out = [];
+  for (const c of family ?? []) for (const x of charterConflicts(c, clause)) out.push({ ...x, charter: c.giver, rank: c.rank ?? 99 });
+  return out;
+}
+
+/** familyVerdict(family, text) — the family's verdict (the union, entrenchment-ordered). */
+export function familyVerdict(family, text = "") {
+  const sentences = String(text).split(/(?<=[.!?])\s+/u).filter(Boolean);
+  const conflicts = [];
+  let prescriptive = 0, descriptive = 0;
+  for (const clause of sentences) {
+    const v = voiceOf(clause);
+    if (v === "prescriptive") prescriptive += 1; else descriptive += 1;
+    conflicts.push(...familyConflicts(family, clause));
+  }
+  const verdict = conflicts.length ? "conflict" : prescriptive ? "pass" : "no_signal";
+  return Object.freeze({ verdict, conflicts, prescriptive, descriptive, charters: (family ?? []).map((c) => ({ giver: c.giver, rank: c.rank })), basis: conflicts.length ? `Charter-family conflict(s): ${conflicts.map((c) => c.kind).join(", ")}` : prescriptive ? `prescriptive generation passes the family` : `descriptive — never governed` });
+}
+
+// ── THE LICENSE SEAM (THE-MORAL-CORE.md) ───────────────────────────────────
+// "not a filter the generation passes through — the LICENSE the composition
+// runs under." The charter's prohibitions/protections BECOME given affordance
+// rows (the exact shape giveHyperlexiconAffordance licenses), so a composition
+// that asserts a prohibited relation is WITHHELD by the chemistry rather than
+// checked afterward. `give` is injected (the caller passes
+// giveHyperlexiconAffordance) so this organ stays pure.
+export function charterAffordances(charter) {
+  const rows = [];
+  for (const [act, info] of Object.entries(charter?.prohibitions ?? {})) rows.push({ left: "prohibit", right: act, giver: `${charter.giver} — prohibition`, surfaces: info.surfaces ?? [] });
+  for (const [right, info] of Object.entries(charter?.protections ?? {})) rows.push({ left: "protect", right, giver: `${charter.giver} — protection`, surfaces: info.surfaces ?? [] });
+  return rows;
+}
+export function familyAffordances(family) {
+  return (family ?? []).flatMap((c) => charterAffordances(c));
+}
+export function giveCharterFamily(hl, family, give) {
+  let h = hl;
+  for (const row of familyAffordances(family)) h = give(h, row);
+  return h;
 }

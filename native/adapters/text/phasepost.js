@@ -115,20 +115,52 @@ export function makePhasepost({ actPrior, cellOf, definiteDeterminers, indefinit
   };
 
   /** Occurrence-level grain — RULE.md Part II step 3, mechanical and
-   * honestly rough (scored apart in the golden eval). */
-  const grainOf = ({ subject, object }) => {
-    const s = toks(subject);
+   * honestly rough (scored apart in the golden eval).
+   *
+   * READS end1/end2 FIRST, subject/object as a fallback — see classify()'s
+   * own header for why: end1/end2 is the typologically-neutral shape every
+   * strategy's reader already produces (position for English/Mandarin,
+   * case for Latin, and so on), and this function's JOB — which end is
+   * agent-like, which is patient-like — is exactly what each reader has
+   * already worked out, under whatever signal its own language supplies.
+   * The HEURISTICS below (a universal-quantifier check, a locative-
+   * preposition check) stay lang/en-scoped and untouched — real, useful,
+   * received signal for the language they were built from — this change
+   * only widens which FIELD they are read off, never what they test. */
+  const grainOf = ({ end1, end2, subject, object }) => {
+    const s = toks(end1 ?? subject);
     if (s.length && UNIVERSAL_QUANTIFIERS.has(s[0])) {
-      return { grain: "Pattern", because: "universal-quantified subject — the act lands on the whole kind" };
+      return { grain: "Pattern", because: "universal-quantified subject-like end — the act lands on the whole kind" };
     }
-    const o = toks(object);
-    if (!o.length) return { grain: "Ground", because: "no object — the act lands on its own unfolding state" };
-    if (LOCATIVE_PREPOSITIONS.has(o[0])) return { grain: "Ground", because: "locative-led object — the act lands on a place/field" };
+    const o = toks(end2 ?? object);
+    if (!o.length) return { grain: "Ground", because: "no object-like end — the act lands on its own unfolding state" };
+    if (LOCATIVE_PREPOSITIONS.has(o[0])) return { grain: "Ground", because: "locative-led object-like end — the act lands on a place/field" };
     return { grain: "Figure", because: "default: the act lands on one individual thing or claim" };
   };
 
   /**
-   * classify(edge) -> verdict. edge is {subject, verb|relation, object}.
+   * classify(edge) -> verdict. edge is {end1, label, end2} (hypergraph.js's
+   * own typologically-neutral shape, P76 — "two ordered ends and a label
+   * is already typologically neutral; what a language signals is only
+   * WHERE to look for them, never which one is the agent") OR the older
+   * {subject, verb|relation, object}, accepted as a fallback so nothing
+   * that already calls this breaks. end1/label/end2 is read FIRST.
+   *
+   * THE GENERALITY BOUNDARY, STATED PLAINLY: this widens the FIELD ACCESS
+   * to typologically-neutral, never the CONTENT this module reasons with —
+   * ActPrior@1 (the verb lexicon), COPULA_FORMS/AUXILIARIES/
+   * UNIVERSAL_QUANTIFIERS/LOCATIVE_PREPOSITIONS/NEGATIVE_EXISTENTIALS (the
+   * closed classes grainOf and the mechanical/copula rules read) are ALL
+   * still lang/en, unchanged. A non-English edge — say, Latin's own
+   * {end1, label, end2, end1Detail: {case: "Nom"}, end2Detail: {case:
+   * "Acc"}} from relations-case-marked.js (P77) — now reaches this
+   * function's role-reading (which end is agent-like) correctly, because
+   * that is exactly what end1/end2 already encode regardless of strategy;
+   * it still gaps or defaults through English-only heuristics past that
+   * point, honestly, because the LEXICON and the closed classes have no
+   * Latin entries. Building those is real, separate, unattempted work —
+   * this fix closes the naming mistake, not the omnilingual lexicon gap.
+   *
    * Verdict: { op, grain, cell, standing, because, candidates?, via? }
    *   standing: "mechanical" | "copula" | "lexical" | "contested" | "gap"
    * A contested verdict carries `candidates` (each {op, classes}) and NO
@@ -136,9 +168,9 @@ export function makePhasepost({ actPrior, cellOf, definiteDeterminers, indefinit
    * never coin-flips (P56).
    */
   const classify = (edge) => {
-    const subject = edge?.subject ?? "";
-    const relation = edge?.verb ?? edge?.relation ?? "";
-    const object = edge?.object ?? null;
+    const subject = edge?.end1 ?? edge?.subject ?? "";
+    const relation = edge?.label ?? edge?.verb ?? edge?.relation ?? "";
+    const object = edge?.end2 ?? edge?.object ?? null;
 
     // ── mechanical: existential-negative subject (A4) ──
     const subjToks = toks(subject);

@@ -1,5 +1,16 @@
 // wilson.mjs — THE SWARM, complete (2026-09-12).
 //
+// HEADS UP (2026-09-13): chapter-swarm.mjs is this archon's own discipline
+// applied to the RECURSIVE reading pipeline (read-real's recipe) PER CHAPTER
+// instead of the EOT ledger. The span-free bridge (lib/span-free-bridge.mjs)
+// adjudicates under "Wilson's swarm"; the read recipe is the shared seam
+// lib/read-recipe.mjs (cli/eoreader7.mjs reads through it too). Nomination at
+// one independent chain site per chapter; corroboration by the accumulator's
+// cross-chapter union to >=2; promotion to GIVEN with this archon named as
+// giver. CV is a SENSE, not a tier: a chapter the flat reader reads wrong
+// (native/organs/look.js weirdFormattingScore) is looked at before it is read
+// as prose — the trigger is never suppressed. See LAVAR.md 2026-09-13.
+//
 // Wilson, the archon of the swarm: an evolutionary swarm-storm of reading
 // variants at holonic levels, under the received hierarchy and the cube.
 //

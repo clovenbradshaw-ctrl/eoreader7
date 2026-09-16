@@ -10,7 +10,7 @@
 // and are exercised by the proxy's own integration path, not this file.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { weirdFormattingScore, shouldLook, isImageFileName } from "./look.js";
+import { weirdFormattingScore, shouldLook, isImageFileName, shouldLookPage } from "./look.js";
 import { lavarGradeReading } from "../the-fold/document-ledger.js";
 
 const PROSE = "Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do. Once or twice she had peeped into the book her sister was reading.";
@@ -54,6 +54,60 @@ test("isImageFileName covers the proxy's image extensions", () => {
   assert.ok(isImageFileName("scan.JPG"));
   assert.ok(!isImageFileName("notes.md"));
   assert.ok(!isImageFileName("book.txt"));
+});
+
+// ── shouldLookPage: the web organ's page trigger ───────────────────────────
+const PAGE_PROSE_HTML = "<html><head><title>An ordinary article</title></head><body><h1>Title</h1><p>Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do. Once or twice she had peeped into the book her sister was reading.</p></body></html>";
+const PAGE_PROSE_TEXT = "Title\n\nAlice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do. Once or twice she had peeped into the book her sister was reading.";
+
+test("shouldLookPage: an ordinary prose page does NOT need looking", () => {
+  const v = shouldLookPage({ url: "https://example.org/article", title: "An ordinary article", text: PAGE_PROSE_TEXT, html: PAGE_PROSE_HTML });
+  assert.equal(v.look, false);
+  assert.equal(v.auto, false);
+  assert.deepEqual(v.signals, []);
+});
+
+test("shouldLookPage: a page whose text face is empty fires AND auto-fires (JS shell / image page)", () => {
+  const v = shouldLookPage({ url: "https://example.org/app", text: "", html: "<html><head><title>App</title></head><body><div id='root'></div></body></html>" });
+  assert.equal(v.look, true);
+  assert.equal(v.auto, true);
+  assert.ok(v.signals.includes("empty_face"));
+});
+
+test("shouldLookPage: visual structure is a SURVEY signal, never an auto-fire — a page with a table AND extracted prose is read fine as text", () => {
+  const html = "<html><body><p>Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do. Once or twice she had peeped into the book her sister was reading.</p><table><tr><td>a</td><td>b</td></tr></table><img src='x.png' alt='a diagram'><figure><svg></svg></figure></body></html>";
+  const v = shouldLookPage({ url: "https://example.org/diagram", title: "Diagram", text: PAGE_PROSE_TEXT, html });
+  assert.equal(v.look, true, "survey says it is worth a look");
+  assert.equal(v.auto, false, "but the prose extracted fine — nothing auto-renders");
+  assert.ok(v.signals.includes("embedded_visual"));
+});
+
+test("shouldLookPage: embedded media (an iframe the dump drops whole) is survey-only, never auto", () => {
+  const v = shouldLookPage({ url: "https://example.org/embed", title: "Embed", text: "some text", html: "<html><body><p>some text</p><iframe src='https://example.org/other'></iframe></body></html>" });
+  assert.equal(v.look, true);
+  assert.equal(v.auto, false);
+  assert.ok(v.signals.includes("embedded_media"));
+});
+
+test("shouldLookPage: extracted text that itself reads wrong fires AND auto-fires, reusing the file trigger's own score", () => {
+  const boxText = ["┌─────────────┐", "│  box 1      │", "└─────────────┘", "┌─────────────┐", "│  box 2      │", "└─────────────┘"].join("\n");
+  const v = shouldLookPage({ url: "https://example.org/box", title: "Box", text: boxText, html: "<html><body><pre>box</pre></body></html>" });
+  assert.equal(v.look, true);
+  assert.equal(v.auto, true);
+  assert.ok(v.signals.some((s) => s.startsWith("weird_formatting")));
+});
+
+test("shouldLookPage: no html bytes and no text is not a page to look at (nothing rendered either)", () => {
+  const v = shouldLookPage({ url: "https://example.org/x", text: "", html: "" });
+  assert.equal(v.look, false);
+  assert.equal(v.auto, false);
+});
+
+test("shouldLookPage: the real Borodino article fires the survey but NOT auto (prose extracted fine)", () => {
+  const html = "<html><body><p>prose</p><table><tr><td>1</td><td>2</td></tr></table><img src='x'></body></html>";
+  const v = shouldLookPage({ url: "https://en.wikipedia.org/wiki/Battle_of_Borodino", title: "Battle of Borodino", text: "The Battle of Borodino took place near the village of Borodino on 7 September 1812 during Napoleon's invasion of Russia.", html });
+  assert.equal(v.look, true);
+  assert.equal(v.auto, false);
 });
 
 test("lavarGradeReading: a misread-formatting source is 'not reading well' and should look", () => {

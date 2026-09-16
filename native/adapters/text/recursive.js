@@ -374,7 +374,7 @@ function witnessRelatedPairs(store, sentences, refs, matcher = null) {
   }
 }
 
-export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 1, posPrior = null, descriptorAnchoring = null, addresses = "birth", idFactory = null, recipe = null } = {}) {
+export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 1, reprojectEvery = null, posPrior = null, descriptorAnchoring = null, addresses = "birth", idFactory = null, recipe = null } = {}) {
   // `refreshEvery` (2026-09-09): 1 is the default now — batching is an
   // engineering compromise, never a model of how reading works ("people
   // don't read in 25-sentence batches" — user direction, verbatim, the
@@ -423,6 +423,10 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
   // oscillation it produces stays reproducible (tests/referent-merge.test.js).
   if (addresses !== "founder" && addresses !== "birth") throw new TypeError('addresses is "founder" or "birth"');
   if (!Number.isInteger(refreshEvery) || refreshEvery < 1) throw new TypeError("refreshEvery must be a positive integer");
+  // reprojectEvery defaults to refreshEvery so every existing caller is
+  // byte-identical; only a caller that opts in batches the expensive tier.
+  if (reprojectEvery != null && (!Number.isInteger(reprojectEvery) || reprojectEvery < 1)) throw new TypeError("reprojectEvery must be a positive integer when declared");
+  const reprojectEveryFinal = reprojectEvery ?? refreshEvery;
   if (posPrior && (posPrior.schema !== "POSPrior@1" || !posPrior.provenance?.source)) throw new TypeError("posPrior must be a giver-named POSPrior@1");
   // CONTENT-ADDRESSED IDENTITY (2026-09-13, S114 — the git object model,
   // GitHub-inspired). The perceiver's edge ids were position-derived and
@@ -448,6 +452,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
   const priorSentences = [];
   let priorText = "";
   let relationRefreshFrom = 0;
+  let reprojectedTo = 0;
   const relationEvidence = new Map();
   let cache = { closed: new Set(), refs: new Map(), referents: [], matcher: surfaceMatcher(new Map(), []), gaps: [], merges: [], reassignments: [], verbs: new Set() };
   // discoverReferents re-clusters everything on every refresh, so the same
@@ -477,47 +482,51 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     foldedTo = priorSentences.length;
     const table = { freq: runningFreq, total: runningTotal };
     const closed = earnedClosedClass(table);
-    const surfaces = surfacesFromEvidence(surfaceEvidence, { functionWords: closed });
-    // ── THE EAR HAS NO CASE (S87, wired into the assembly 2026-09-12). The
-    // capitalisation-only discovery (S86) admits "I've"/"Latitude"/"Oh" and
-    // MISSES the real cast (the White Rabbit, her sister — kinship terms and
-    // lowercase introductions, S88). heardSurfaces finds beings by recurrence
-    // + positional signature + POS (the S2-heard layer), so the cast is
-    // COMPLETE, not capitalisation-thin. Union, never replacement — the
-    // capitalised surfaces stay; the heard beings join. minMentions 2 is the
-    // structural minimum (a pattern needs two occurrences); minShare/minMembers
-    // declared.
-    let heard = [];
-    if (posPrior) {
-      try { heard = heardSurfaces(priorSentences, { minMentions: 2, minShare: 0.3, minMembers: 2, posPrior, classifyWord, dominantClass }); }
-      catch { heard = []; }
-    }
-    if (heard.length) console.error(`[recursive] heardSurfaces added ${heard.length}: ${heard.map((h)=>h.surface).join(',')}`);
-    const combinedSurfaces = [...surfaces, ...heard];
-    const discovered = discoverReferents(combinedSurfaces, addresses === "birth" ? { prior: { refs: cache.refs, born: cache.born ?? new Map(), next: cache.bornNext ?? 0 } } : {});
-    // REASSIGNMENT ACROSS REFRESHES, RECORDED (P165). discoverReferents
-    // re-clusters from scratch every refresh, longest surface first. So at
-    // refresh k a fragment ("Vasili") that has cleared its sentence floor
-    // gets its own id; at refresh k+1 the fuller name ("Prince Vasili
-    // Kuragin") clears ITS floor, is processed first, the fragment now
-    // corefers with it and is REASSIGNED — but ref:auto:vasili was already
-    // emitted into the fold at refresh k and is never revisited. That orphan
-    // is the "three ids for one being" residue the-fold's P156 found and had
-    // to reconstruct by inference. The `merges` branch does not cover it:
-    // measured on 120 KB of real material it fired 0 times, because its
-    // condition (one surface spanning two established clusters' full token
-    // sets) is nearly unreachable under longest-first assignment.
-    //
-    // The old map is still in hand here. A surface whose id CHANGED is a
-    // reassignment, witnessed by that surface, and it is recorded where it
-    // was decided instead of being inferred downstream from dormancy.
-    const nextRefs = surfaceMap(discovered.events);
-    const originalSurface = new Map();
-    for (const e of discovered.events) if (e?.type === "DEF.admit" && !originalSurface.has(diaNorm(e.surface))) originalSurface.set(diaNorm(e.surface), e.surface);
-    const reassignments = [];
-    for (const [key, from] of cache.refs ?? []) {
-      const to = nextRefs.get(key);
-      if (to && to !== from) reassignments.push({ from, to, surface: originalSurface.get(key) ?? key, basis: "reassigned on refresh — the fuller name cleared its floor and this surface now points at a new address" });
+    // THE EXPENSIVE RE-PROJECTION RUNS AT A DECLARED CADENCE, NEVER EVERY
+    // REFRESH. The accumulation above is incremental (foldedTo); the cast
+    // re-derivation — heardSurfaces' full-prefix scan plus discoverReferents'
+    // from-scratch re-cluster — is O(prefix) + O(cast²). With refreshEvery:1
+    // that term ran every sentence. Measured 2026-09-13: two Wikipedia-scale
+    // pages held the CPU at ~99% for ~20 minutes with the cast past 400
+    // referents and not one section written. reprojectEvery batches the
+    // expensive tier (default = refreshEvery); between reprojections the last
+    // cast is reused while the relation batch and witness pairing below still
+    // fold every new sentence. The first content-bearing refresh always
+    // reprojects, so a short text is never starved — the same refusal that
+    // killed refreshEvery=25 for short books applies to this tier too.
+    const newSinceReproject = priorSentences.length - reprojectedTo;
+    const runReproject = newSinceReproject >= reprojectEveryFinal || (reprojectedTo === 0 && newSinceReproject > 0);
+    let surfaces = cache.surfaces ?? [];
+    let nextRefs = cache.refs ?? new Map();
+    let referents = cache.referents ?? [];
+    let discovered = null;
+    let reassignments = cache.reassignments ?? [];
+    if (runReproject) {
+      surfaces = surfacesFromEvidence(surfaceEvidence, { functionWords: closed });
+      let heard = [];
+      if (posPrior) {
+        try { heard = heardSurfaces(priorSentences, { minMentions: 2, minShare: 0.3, minMembers: 2, posPrior, classifyWord, dominantClass }); }
+        catch { heard = []; }
+      }
+      if (heard.length && process.env.ER7_DEBUG_READER === "1") console.error(`[recursive] heardSurfaces added ${heard.length}: ${heard.map((h)=>h.surface).join(',')}`);
+      const combinedSurfaces = [...surfaces, ...heard];
+      discovered = discoverReferents(combinedSurfaces, addresses === "birth" ? { prior: { refs: cache.refs, born: cache.born ?? new Map(), next: cache.bornNext ?? 0 } } : {});
+      // REASSIGNMENT ACROSS REPROJECTIONS, RECORDED (P165). discoverReferents
+      // re-clusters from scratch every reprojection, longest surface first. A
+      // fragment that cleared its floor is processed before the fuller name
+      // that would absorb it; the old map in hand here records any surface
+      // whose id CHANGED, witnessed by that surface — never inferred downstream.
+      nextRefs = surfaceMap(discovered.events);
+      const originalSurface = new Map();
+      for (const e of discovered.events) if (e?.type === "DEF.admit" && !originalSurface.has(diaNorm(e.surface))) originalSurface.set(diaNorm(e.surface), e.surface);
+      reassignments = [];
+      for (const [key, from] of cache.refs ?? []) {
+        const to = nextRefs.get(key);
+        if (to && to !== from) reassignments.push({ from, to, surface: originalSurface.get(key) ?? key, basis: "reassigned on refresh — the fuller name cleared its floor and this surface now points at a new address" });
+      }
+      referents = referentObjects(discovered.events);
+      if (referents.length && process.env.ER7_DEBUG_READER === "1") console.error(`[recursive] refresh cast ${referents.length}: ${referents.map((r)=>r.surfaces[0]).join(",")}`);
+      reprojectedTo = priorSentences.length;
     }
     const batchSentences = priorSentences.slice(relationRefreshFrom);
     const batchText = batchSentences.map((sentence) => sentence.text).join("\n");
@@ -532,8 +541,6 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     }
     // Fold-conditioned evidence, over the SAME new batch the vocabulary scan
     // uses — never a rescan of everything read so far.
-    const referents = referentObjects(discovered.events);
-    if (referents.length) console.error(`[recursive] refresh cast ${referents.length}: ${referents.map((r)=>r.surfaces[0]).join(",")}`);
     const matcher = surfaceMatcher(nextRefs, referents);
     witnessRelatedPairs(relationEvidence, batchSentences, nextRefs, matcher);
     relationRefreshFrom = priorSentences.length;
@@ -542,20 +549,16 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       refs: nextRefs,
       referents,
       matcher,
-      gaps: discovered.gaps,
+      surfaces,
+      gaps: discovered?.gaps ?? cache.gaps,
       // THE MERGE RECORD, KEPT (P165). discoverReferents detects when two
       // surface clusters name one being and records it — `merges.push({kept,
-      // folded, witness})` — and this cache used to read `events` and `gaps`
-      // and never `merges`. So the testimony was computed and thrown away,
-      // and the projection's own header — "a node at cursor 500 may be two
-      // nodes at cursor 200, and scrubbing the cursor SHOWS that" — was left
-      // to whoever compared two node lists. the-fold's cursor.js had to
-      // RECONSTRUCT merges from dormancy plus surface capture and mark every
-      // one `inferred`, because the record it needed was unavailable.
-      merges: discovered.merges ?? [],
+      // folded, witness})` — and the projection reads it (a node at cursor 500
+      // may be two nodes at cursor 200). Only recomputed at a reprojection.
+      merges: discovered?.merges ?? cache.merges,
       reassignments,
-      born: discovered.addresses?.born ?? cache.born,
-      bornNext: discovered.addresses?.next ?? cache.bornNext,
+      born: discovered?.addresses?.born ?? cache.born,
+      bornNext: discovered?.addresses?.next ?? cache.bornNext,
       verbs: admittedRelationVerbs(relationEvidence, minRelationSurfaces, posPrior),
     };
   };

@@ -212,28 +212,28 @@ const VOID_CELLS = [
   // BORN: relevant only when the material actually shows multiple beings/kinds
   // (several referents) or the question asks about kinds.
   { op: "NUL", grain: "Figure", terrain: "Entity", holon: "low", ask: (s) => `Does ${s} name ONE being that clears its ground, or several that must be kept apart?`, relevant: (q, r) => /(?:species|subspecies|kinds?|types?|varieties?)/i.test(q) || /\b(?:several|multiple|many|both|either)\b/i.test(q) || (r?.referents ?? 0) > 3 },
-  { op: "NUL", grain: "Pattern", terrain: "Kind", holon: "low", ask: (s) => `What KIND is ${s} — and do its kinds hold as kinds against the material, or are they unresolved?`, relevant: () => true },
+  { op: "NUL", grain: "Pattern", terrain: "Kind", holon: "low", ask: (s) => `What KIND is ${s} — and do its kinds hold as kinds against the material, or are they unresolved?`, relevant: (q, r) => /(?:species|subspecies|kinds?|types?|varieties?|classes?|categories?|forms?)/i.test(q) || (r?.referents ?? 0) > 2 },
   { op: "SIG", grain: "Ground", terrain: "Void", holon: "high", ask: (s) => `What is absent and must be found for the essay about ${s} to exist — what presence is currently missing?`, relevant: (q, r) => /(?:unknown|unclear|undocumented|scarcely|rarely|little known|not well)/i.test(q) || (r?.surprise ?? 0) === 0 },
   { op: "SIG", grain: "Figure", terrain: "Entity", holon: "low", ask: (s) => `Which ${s} is this — the names and the referent, so one being is meant, not a byte string?`, relevant: () => true }, // every essay resolves its subject
   // BORN: relevant when the material has multiple kinds/forms (subspecies, races).
   { op: "SIG", grain: "Pattern", terrain: "Kind", holon: "low", ask: (s) => `How many distinct ${s} keep recurring as the same kind across the sources — each candidate signed as a proposal?`, relevant: (q, r) => /(?:subspecies|populations?|variants?|forms?|races?)/i.test(q) || (r?.referents ?? 0) > 3 },
-  { op: "INS", grain: "Ground", terrain: "Void", holon: "low", ask: (s) => `What baseline account of ${s} must be built before any judgment can land on it?`, relevant: () => true },
+  { op: "INS", grain: "Ground", terrain: "Void", holon: "low", ask: (s) => `What baseline account of ${s} must be built before any judgment can land on it?`, relevant: (q, r) => /(?:baseline|overview|summary|history|began|started|origins?)/i.test(q) || (r?.referents ?? 0) > 0 },
   { op: "INS", grain: "Figure", terrain: "Entity", holon: "high", ask: (s) => `What does the essay bring into being about ${s} — the portrait, the thesis — what is born here that did not exist before?`, relevant: (q) => /\b(?:essay|paper|portrait|account|thesis|history)\b/i.test(q) },
-  { op: "INS", grain: "Pattern", terrain: "Kind", holon: "high", ask: (s) => `What established kind of account does the essay on ${s} instantiate — species description, conservation assessment, natural-history narrative?`, relevant: () => true },
+  { op: "INS", grain: "Pattern", terrain: "Kind", holon: "high", ask: (s) => `What established kind of account does the essay on ${s} instantiate — a technical account, a biography, a narrative — whichever the material supports?`, relevant: () => true },
   // ── Structure · how things hang together ──
   { op: "SEG", grain: "Ground", terrain: "Field", holon: "low", ask: (s) => `What extent must the essay cover, and in what units — ${s}'s range, scale, span — so a hole is a visible uncovered stretch?`, relevant: () => true },
-  { op: "SEG", grain: "Figure", terrain: "Link", holon: "high", ask: (s) => `What does the essay cut apart, and is the cut derived off the material's own bytes (ecology from anatomy, not a model's label)?`, relevant: (q) => /(?:geograph|range|habitat|distribution|extent|how far|where)/i.test(q) },
+  { op: "SEG", grain: "Figure", terrain: "Link", holon: "high", ask: (s) => `What does the essay cut apart, and is the cut derived off the material's own bytes, not a model's label?`, relevant: (q) => /(?:geograph|range|habitat|distribution|extent|how far|where|boundaries?)/i.test(q) },
   { op: "SEG", grain: "Pattern", terrain: "Network", holon: "low", ask: (s) => `Where do the parts of ${s}'s story part at natural seams — what separates into distinct chapters at the material's own bridges?`, relevant: (q) => /(?:chapter|section|part|stages?|phases?|periods?)/i.test(q) },
   // BORN: relevant when the material has relations (edges) to bind.
   { op: "CON", grain: "Ground", terrain: "Field", holon: "low", ask: (s) => `What connective field do ${s}'s relations live in — the ambient of possible relations before any single one is confirmed?`, relevant: (q, r) => /\b(?:predat|prey|habitat|relat|depend|threat|interact)\b/i.test(q) || (r?.relations ?? 0) > 0 },
-  { op: "CON", grain: "Figure", terrain: "Link", holon: "low", ask: (s) => `What binds each named thing to ${s} — the material's own edges: predator→prey, ${s}→forest, each span-verified?`, relevant: () => true }, // every essay binds its subject
-  { op: "CON", grain: "Pattern", terrain: "Network", holon: "low", ask: (s) => `What recurring relation runs through ${s}'s story — the same cycle (habitat loss → decline) found at a real recurrence floor?`, relevant: (q, r) => /(?:cycle|recurr|repeated|again|trend|pattern)/i.test(q) || (r?.relations ?? 0) > 2 },
+  { op: "CON", grain: "Figure", terrain: "Link", holon: "low", ask: (s) => `What binds each named thing to ${s} — the material's own edges, each span-verified against the bytes?`, relevant: (q, r) => /\b(?:predat|prey|habitat|relat|depend|threat|interact|linked|associated|connected|between)\b/i.test(q) || (r?.relations ?? 0) > 0 },
+  { op: "CON", grain: "Pattern", terrain: "Network", holon: "low", ask: (s) => `What recurring relation runs through ${s}'s story — the same cause → consequence cycle found at a real recurrence floor?`, relevant: (q, r) => /(?:cycle|recurr|repeated|again|trend|pattern|cause|consequence|led to)/i.test(q) || (r?.relations ?? 0) > 2 },
   // BORN: relevant when multiple sources were actually retained.
   { op: "SYN", grain: "Ground", terrain: "Field", holon: "high", ask: (s) => `What received readings of ${s} merge into ONE carried ground the essay stands on — which accounts compile, with typed gaps for absences?`, relevant: (q, r) => /(?:source|record|account|history|literature|several)/i.test(q) || (r?.sources ?? 0) > 1 },
   { op: "SYN", grain: "Figure", terrain: "Link", holon: "low", ask: (s) => `Where do two sources about ${s} agree into one claim with two witnesses — which re-sightings fold into the same note?`, relevant: (q, r) => /(?:agree|corroborat|witness|confirm|support|both)/i.test(q) || (r?.sources ?? 0) > 1 },
   { op: "SYN", grain: "Pattern", terrain: "Network", holon: "high", ask: (s) => `How do the essay's parts about ${s} compose — how do its relations chain so a reader walks from one section to the next without repetition?`, relevant: () => true },
   // ── Interpretation · what the reader holds ── (the essay's HIGH: Murch/Ranke)
-  { op: "DEF", grain: "Ground", terrain: "Atmosphere", holon: "high", ask: (s) => `What interpretive frame is the essay on ${s} declared in — conservation alarm, natural-history wonder, extinction narrative?`, relevant: () => true },
+  { op: "DEF", grain: "Ground", terrain: "Atmosphere", holon: "high", ask: (s) => `What interpretive frame is the essay on ${s} declared in — a chronicle, an argument, a portrait — whichever the material demands?`, relevant: () => true },
   { op: "DEF", grain: "Figure", terrain: "Lens", holon: "high", ask: (s) => `How many answers does the essay on ${s} hold — one thesis or several — DECLARED, never read off grammar?`, relevant: () => true },
   // BORN: relevant when the material shows a genuine dispute.
   { op: "DEF", grain: "Pattern", terrain: "Paradigm", holon: "high", ask: (s) => `What candidate framings of ${s} are proposed, which are REFUTED by the material, and which stay candidate — never given?`, relevant: (q, r) => /(?:debate|dispute|controv|interpret|framing|theor|argue)/i.test(q) || r?.disputes === true },
@@ -784,9 +784,18 @@ export function competencyGrade({ opening = "", body = [], materialPropositions 
 
 // ── KELSEN: THE PRIMARY MODALITY — the essay's claims resolve by the norm
 //    hierarchy, and the RESOLUTION IS SHOWN (teaching). ────────────────────
-// Kelsen's order (regime.js precedence): validity window first, then
-// specificity (lex specialis), then force, then recency (lex posterior),
-// then entrenchment — never a silent pick. The essay's propositions are
+// Kelsen's order (regime.js precedence, and its own exported
+// PRECEDENCE_STEPS / precedenceOrderPhrase() — the one copy of this order;
+// this comment is a restatement of it, kept in sync by hand since this file
+// stays dependency-free and does not import regime.js): validity window
+// first, then regime (a contested claim is never silently resolved — it
+// routes to landContest), then specificity (lex specialis), then force,
+// then recency (lex posterior), then entrenchment — never a silent pick.
+// AUDITED 2026-09-14: this comment used to drop "regime" entirely (5 of the
+// 6 steps) — see native/tests/document-ledger.test.js's dispute-veto case
+// for what that gap actually broke: `tagClaim` below was called without
+// `disputedBy`, so a disputed proposition could never even REACH the regime
+// check, whatever this comment claimed the order was. The essay's propositions are
 // graded through this: when two claims the essay carries conflict, the
 // order names a winner and WHY. The default mode is HYPER-GROUNDED — every
 // claim is a norm in a hierarchy, and the essay teaches the reader the
@@ -838,8 +847,18 @@ export function kelsenGrade({ propositions = [], index = null, precedence = null
         if (!sameAct || sameObject) continue; // not a functional clash — no conflict
         let aTag = null, bTag = null;
         if (typeof tagClaim === "function") {
-          try { aTag = tagClaim(a, { operator: "CON", enactedAt: i, queryTime }); } catch { aTag = null; }
-          try { bTag = tagClaim(b, { operator: "CON", enactedAt: j, queryTime }); } catch { bTag = null; }
+          // disputedBy RIDES OFF THE PROPOSITION ITSELF (2026-09-14 fix): a
+          // proposition carrying a live dispute (see proxy-runner.mjs's
+          // notesFromEdges, which attaches it from the notes ledger by
+          // noteId) used to be tagged with tagClaim's own default
+          // (disputedBy: []) here, unconditionally — the regime step of the
+          // precedence order could therefore never fire no matter how the
+          // proposition arrived, because nothing this file ever computes
+          // reached tagClaim. This is the one place that default is
+          // overridden; the veto is exercised (or not) by regime.js's own
+          // isSettled/precedence, never decided here.
+          try { aTag = tagClaim(a, { operator: "CON", disputedBy: a?.disputedBy ?? [], enactedAt: i, queryTime }); } catch { aTag = null; }
+          try { bTag = tagClaim(b, { operator: "CON", disputedBy: b?.disputedBy ?? [], enactedAt: j, queryTime }); } catch { bTag = null; }
         }
         if (!aTag || !bTag) continue;
         try {
@@ -855,6 +874,8 @@ export function kelsenGrade({ propositions = [], index = null, precedence = null
             reason: r.reason ?? null,
             why: r.reason === "validity_window"
               ? `${r.winner === "a" ? a.end1 : b.end1} prevails: the other claim is out of its validity window — validity is checked before force or specificity is ever consulted`
+              : r.reason === "route_to_landContest"
+                ? `neither claim is presented as settled: at least one is disputed by a source (regime is checked before force, specificity or entrenchment could ever pick a winner) — the disagreement is the finding here, not a resolution`
               : r.reason === "specificity"
                 ? `${r.winner === "a" ? a.end1 : b.end1} prevails: lex specialis — the more specific claim beats the general`
                 : r.reason === "force"
@@ -1025,9 +1046,12 @@ export function renderApaFootnotes(essay, webSources = new Map(), { maxFootnotes
     }
     // APA-ish author/year: host + year from the URL's page (no publication
     // date available to a fetch — the host is the named source, the year is
-    // the retrieval year, disclosed honestly).
-    let host = "Unknown";
-    try { host = new URL(best).hostname.replace(/^www\./, ""); } catch {}
+    // the retrieval year, disclosed honestly). A workspace source has no URL:
+    // its label is the file's path, so the host is the file's basename, and
+    // the year is the reading year — same disclosure, different address.
+    let host = "";
+    try { host = new URL(best).hostname.replace(/^www\./, ""); } catch { host = ""; }
+    if (!host) { try { host = String(best).split("/").filter(Boolean).pop() || "workspace"; } catch { host = "workspace"; } }
     const year = new Date().getFullYear();
     notes.push({ sentence, host, year, url: best, span, spanIndex: srcText.indexOf(span) });
   }
@@ -1266,7 +1290,7 @@ export function renderLiveEssayHtml({ docId, title = "the piece", jsonlPath, cit
   }
 
   function apa(c, i) {
-    const host = c.giver && c.kind !== 'unsupported' ? (c.source?.host ?? 'source') : c.giver ?? 'the model';
+    const host = c.kind !== 'unsupported' ? (c.source?.host ?? 'source') : (c.giver ?? 'the model');
     const year = new Date().getFullYear();
     const span = c.groundingText ? '\\u201c' + esc(c.groundingText.slice(0, 160)) + (c.groundingText.length > 160 ? '…' : '') + '\\u201d' : '';
     return c.kind === 'unsupported'
@@ -1274,7 +1298,7 @@ export function renderLiveEssayHtml({ docId, title = "the piece", jsonlPath, cit
       : '(' + esc(host) + ', ' + year + '). ' + span + (c.source?.url ? ' — ' + esc(c.source.url) : '');
   }
   function mla(c, i) {
-    const host = c.giver && c.kind !== 'unsupported' ? (c.source?.host ?? 'Source') : c.giver ?? 'the model';
+    const host = c.kind !== 'unsupported' ? (c.source?.host ?? 'Source') : (c.giver ?? 'the model');
     const year = new Date().getFullYear();
     const span = c.groundingText ? '\\u201c' + esc(c.groundingText.slice(0, 160)) + (c.groundingText.length > 160 ? '…' : '') + '\\u201d' : '';
     return c.kind === 'unsupported'
@@ -1420,8 +1444,13 @@ export function citationLedger(essay, webSources = new Map(), { maxCitations = 2
       atomSpans.push({ ...atom, at: [needleAt, needleAt + needle.length], supported: true, company: company.slice(0, 5) });
     }
     const supportedAtoms = atomSpans.filter((a) => a.supported);
-    let host = "Unknown";
-    try { host = new URL(best).hostname.replace(/^www\./, ""); } catch {}
+    // A URL source names its host; a workspace source names its file — the
+    // basename of the path (2026-09-13: workspace citations rendered as
+    // "(the model)" because host stayed empty — "workspace:" parses as a URL
+    // scheme with an empty hostname, so the fallback keys on empty host too).
+    let host = "";
+    try { host = new URL(best).hostname.replace(/^www\./, ""); } catch { host = ""; }
+    if (!host) { try { host = String(best).split("/").filter(Boolean).pop() || "workspace"; } catch { host = "workspace"; } }
     // THE GROUNDING TEXT: the verbatim source sentence(s) that actually
     // contain the supported atoms — what the source SAYS, not just where the
     // atoms sit. A citation must show the words that ground the claim, so a
@@ -1500,7 +1529,7 @@ export function appendLedgerLine(ledger, entry, { dir = null } = {}) {
   return line;
 }
 
-export function projectLedgerFile(filePath, { includeTitle = true } = {}) {
+export function projectLedgerFile(filePath, { includeTitle = true, embedCitations = true } = {}) {
   let text = "";
   try { text = fs.readFileSync(filePath, "utf8"); } catch { return null; }
   const ledger = { schema: SCHEMA, docId: path.basename(filePath, ".jsonl"), title: "", lines: [], superseded: new Set(), nextAddress: 0 };
@@ -1512,7 +1541,18 @@ export function projectLedgerFile(filePath, { includeTitle = true } = {}) {
     ledger.lines.push(obj);
     if (obj.supersedes) ledger.superseded.add(obj.supersedes);
   }
-  return projectDocument(ledger, { includeTitle });
+  const body = projectDocument(ledger, { includeTitle });
+  // INLINE CITATION MARKERS (2026-09-13): the essay's sentences get [n] after
+  // them from the sibling citations ledger — a claim is never read without
+  // its source visible at the claim. The artifact stays clean; only the
+  // projection carries the markers. Off via embedCitations:false.
+  if (!embedCitations) return body;
+  try {
+    const citesPath = String(filePath).replace(/\.jsonl$/, ".citations.json");
+    const cites = JSON.parse(fs.readFileSync(citesPath, "utf8"));
+    if (cites?.citations?.length) return embedInlineCitations(body, cites.citations);
+  } catch {}
+  return body;
 }
 
 export function projectLedgerChangelog(filePath, { declaredParts = null } = {}) {

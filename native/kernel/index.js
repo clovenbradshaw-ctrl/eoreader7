@@ -2,7 +2,7 @@ export { MODES, DOMAINS, GRAINS, TERRAIN_BY_DOMAIN, STANCE_BY_MODE, cellOf, alge
 export { receivedGround, eoOperation, deltaFold, applyObservation, applyDelta, reconstruct } from "./fold.js";
 export { deriveOrientation } from "./orientation.js";
 export { perceive } from "./perception.js";
-export { witness } from "./witness.js";
+export { witness, witnessVerbose } from "./witness.js";
 export { hyperedge, graphObject, indexHypergraphEntries, buildHypergraph, graphEntriesForIds, graphEdgesForRelation, graphEdgesAtSequence, relevantHypergraphNeighborhood } from "./hypergraph.js";
 export { identityAlternative, canonicalizeHyperedge, deriveIdentityRevision } from "./identity.js";
 export { addressOf, cubeAddresses, relevantNeighborhood, interrogateCube, deriveEOTransformations } from "./interrogation.js";
@@ -12,6 +12,7 @@ export { obligation, openObligation, resolveObligation, carryObligations } from 
 export { ENTRY_KINDS, OPERATOR_BASIS, OPERATOR_ORDER, createTaskLog, append as appendTaskLog, projectTasks } from "./task-log.js";
 export { createReadingTaskState, obligationMakesDifference, taskForObligation, taskPriority, scheduleTasks, reconcileObligationTasks, proposeObligationTasks, wakeTasks, executeClarificationTask, appendTaskResult } from "./reading-tasks.js";
 export { encounter, challengeCandidates, createRecursiveReader } from "./reading.js";
+export { createPerturbationChallenger } from "./perturbation-challenger.js";
 export { deriveExperiencePrior, mergeExperiencePriors, experienceNetworkSignatureKey } from "./experience-priors.js";
 export { mergeReceivedPriors, createPriorConditionedReader } from "./experienced-reading.js";
 export { deriveRhythmPrior, mergeRhythmPriors, composeExperience, scoreRhythmExpectations, readingGaps, medianOf } from "./rhythm-priors.js";
@@ -25,7 +26,7 @@ export { networkStanding, directedEdges } from "./network-standing.js";
 export { projectHypergraph, hyperlexiconAt } from "./hypergraph-projection.js";
 export { makeNotes, noteId, recipeId, REFUSALS as NOTE_REFUSALS, FRAME_TASK } from "./notes.js";
 export { affordancesFromDeclarations, closureAffordances, nominateFromExperience, createReactionSubstrate } from "./reaction.js";
-export { refuteRelation, auditChemistry, vetoedPairs } from "./refutation.js";
+export { refuteRelation, auditChemistry, vetoedPairs, voidCandidatesFrom } from "./refutation.js";
 export { assembly, createAssemblyRegistry, registerAssembly, resolveAssembly, registeredAssemblies, stampResult, absentAssemblies, contractViolations, stampDelta, contributionsOf, concedeAssembly, concededAssemblies, derivedUnderConceded } from "./assembly.js";
 export { sealArtifact, artifactTierViolations, producerMismatch, sameBody, materialHash, sealExperiencePrior, sealRhythmPrior, FORBIDDEN_BODY_KEYS } from "./artifact.js";
 export { deriveCastLedger, castLedgerConformance, sealCastLedger } from "./cast-ledger.js";

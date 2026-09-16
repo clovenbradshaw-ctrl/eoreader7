@@ -1,0 +1,403 @@
+[
+ {
+  "seq": 3,
+  "schema": "EOTObservation@1",
+  "id": "s2",
+  "at": [
+   0,
+   419
+  ],
+  "role": "section",
+  "inferred": true,
+  "basis": "a run of prose bounded by inferred scene breaks or by the chapter's own edges (S95 — an inferred extent with the evidence that licensed it)",
+  "children": [
+   {
+    "seq": 2,
+    "schema": "EOTObservation@1",
+    "id": "c1",
+    "at": [
+     0,
+     419
+    ],
+    "role": "chapter",
+    "inferred": true,
+    "basis": "no chapter-heading convention matched anywhere in the document — the whole document is the read unit (a verse collection, sutra text, or single work with no internal headings)",
+    "ordinal": 1,
+    "children": [
+     {
+      "seq": 4,
+      "schema": "EOTObservation@1",
+      "id": "p3",
+      "at": [
+       0,
+       22
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 6,
+        "schema": "EOTObservation@1",
+        "id": "s5",
+        "at": [
+         0,
+         22
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 13,
+          "schema": "EOTObservation@1",
+          "id": "o12",
+          "at": [
+           12,
+           22
+          ],
+          "role": "proposition",
+          "end1": "The Fox",
+          "label": "and",
+          "end2": "the Grapes",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:grapes",
+          "operator": "SEG",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Dissecting",
+          "settledAs": "conjunction",
+          "children": [
+           {
+            "seq": 9,
+            "schema": "EOTObservation@1",
+            "id": "e8",
+            "at": [
+             16,
+             22
+            ],
+            "role": "entity",
+            "referent": "ref:auto:grapes",
+            "surfaces": [
+             "Grapes"
+            ],
+            "occurrences": 3,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 10,
+              "schema": "EOTObservation@1",
+              "id": "d9",
+              "at": [
+               16,
+               22
+              ],
+              "role": "admission",
+              "referent": "ref:auto:grapes",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 5,
+      "schema": "EOTObservation@1",
+      "id": "p4",
+      "at": [
+       24,
+       418
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 7,
+        "schema": "EOTObservation@1",
+        "id": "s6",
+        "at": [
+         24,
+         203
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 11,
+          "schema": "EOTObservation@1",
+          "id": "v10",
+          "at": [
+           24,
+           203
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 14,
+            "schema": "EOTObservation@1",
+            "id": "o13",
+            "at": [
+             106,
+             126
+            ],
+            "role": "proposition",
+            "end1": "a vine",
+            "label": "was trained",
+            "end2": "along a high trellis",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           },
+           {
+            "seq": 15,
+            "schema": "EOTObservation@1",
+            "id": "o14",
+            "at": [
+             170,
+             202
+            ],
+            "role": "proposition",
+            "end1": "them by",
+            "label": "jumping",
+            "end2": "as high as he could into the air",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 16,
+              "schema": "EOTObservation@1",
+              "id": "o15",
+              "at": [
+               190,
+               202
+              ],
+              "role": "proposition",
+              "end1": "them by",
+              "label": "could",
+              "end2": "into the air",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 8,
+        "schema": "EOTObservation@1",
+        "id": "s7",
+        "at": [
+         204,
+         418
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 12,
+          "schema": "EOTObservation@1",
+          "id": "v11",
+          "at": [
+           204,
+           418
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 17,
+            "schema": "EOTObservation@1",
+            "id": "o16",
+            "at": [
+             215,
+             226
+            ],
+            "role": "proposition",
+            "end1": "it",
+            "label": "was",
+            "end2": "all in vain",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           },
+           {
+            "seq": 18,
+            "schema": "EOTObservation@1",
+            "id": "o17",
+            "at": [
+             242,
+             281
+            ],
+            "role": "proposition",
+            "end1": "they",
+            "label": "were",
+            "end2": "just out of reach: so he gave up trying",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 19,
+              "schema": "EOTObservation@1",
+              "id": "o18",
+              "at": [
+               272,
+               281
+              ],
+              "role": "proposition",
+              "end1": "they",
+              "label": "gave",
+              "end2": "up trying",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
+             }
+            ]
+           },
+           {
+            "seq": 20,
+            "schema": "EOTObservation@1",
+            "id": "o19",
+            "at": [
+             326,
+             335
+            ],
+            "role": "proposition",
+            "end1": "of dignity",
+            "label": "and",
+            "end2": "unconcern",
+            "subjectBasis": "stated",
+            "operator": "SEG",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Dissecting",
+            "settledAs": "conjunction",
+            "children": []
+           },
+           {
+            "seq": 21,
+            "schema": "EOTObservation@1",
+            "id": "o20",
+            "at": [
+             377,
+             381
+            ],
+            "role": "proposition",
+            "end1": "those",
+            "label": "were",
+            "end2": "ripe",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           },
+           {
+            "seq": 22,
+            "schema": "EOTObservation@1",
+            "id": "o21",
+            "at": [
+             393,
+             416
+            ],
+            "role": "proposition",
+            "end1": "I",
+            "label": "see",
+            "end2": "now they are quite sour",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 23,
+              "schema": "EOTObservation@1",
+              "id": "o22",
+              "at": [
+               406,
+               416
+              ],
+              "role": "proposition",
+              "end1": "I",
+              "label": "are",
+              "end2": "quite sour",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+]

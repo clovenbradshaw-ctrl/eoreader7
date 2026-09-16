@@ -1,0 +1,18 @@
+{
+ "chapter": 1,
+ "verbs": [
+  "lawgiver",
+  "charter",
+  "instruments"
+ ],
+ "cast": [
+  [
+   "Error",
+   "ref:auto:error"
+  ],
+  [
+   "Solon",
+   "ref:auto:solon"
+  ]
+ ]
+}

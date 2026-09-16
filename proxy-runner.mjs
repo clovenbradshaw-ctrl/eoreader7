@@ -12,7 +12,7 @@ import { discoveredFramingFor, discoverFraming, applyDiscovered } from "./native
 import { reviseTextFold } from "./native/adapters/text/revision.js";
 import { createRecursiveReader } from "./native/kernel/reading.js";
 import { reconstruct } from "./native/kernel/fold.js";
-import { createHyperlexicon, admitHyperlexiconCandidates } from "./native/kernel/hyperlexicon.js";
+import { createHyperlexicon, admitHyperlexiconCandidates, giveHyperlexiconAffordance } from "./native/kernel/hyperlexicon.js";
 import { createRelationCompositionLedger, acquireCompositionCandidates } from "./native/kernel/relation-composition.js";
 import { createSession as createCorpusSession, admitChunked } from "./legacy-eoreader6.1/packages/host/corpus.js";
 import { executePrompt } from "./legacy-eoreader6.1/packages/host/surfer.js";
@@ -25,7 +25,14 @@ import { tokenize } from "./native/the-fold/source.js";
 import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy } from "./native/the-fold/document-ledger.js";
-import { precedence, tagClaim } from "./native/organs/regime.js";
+import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
+// The dispute lookup notesFromEdges reads (below): `noteId` is the same
+// bare-ends identity a note born with no identity organ already carries in
+// kernel/notes.js, and `makeNotes()` is a pure factory (disputesOf/etc. are
+// plain functions of a log) — instantiated once here the same way
+// organs/hyperlexicon.js and organs/notes-text.js already instantiate it.
+import { noteId as notesLedgerNoteId, makeNotes as makeDisputeNotes } from "./native/kernel/notes.js";
+const DISPUTE_NOTES = makeDisputeNotes();
 import { runDMCA, categorizeCreativity, chaseParaphrase, paraphraseCandidatesFor } from "./native/organs/run-dmca.js";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
@@ -49,6 +56,7 @@ import { styleGrade as strunkWhiteGrade } from "./native/organs/strunk-white.js"
 import { pacingGrade as murchPacing } from "./native/organs/pacing.js";
 import { storyShape as vonnegutShape } from "./native/organs/vonnegut.js";
 import { classifyArc } from "./native/organs/story-shapes.js";
+import { matchArchons, archonOf } from "./native/organs/archon-compendium.js";
 import { voidHolarchy } from "./native/organs/void-holarchy.js";
 // The Charter organ (native/organs/charter.js, Handle: Grotius): governs
 // generation against the Universal Declaration of Human Rights. The gate is
@@ -56,7 +64,17 @@ import { voidHolarchy } from "./native/organs/void-holarchy.js";
 // checkout, a public-domain fallback excerpt otherwise — so a missing corpus
 // never silently ungoverns the system. Never fires on descriptive voice
 // (reading and talking about human atrocities passes by construction).
-import { charterGate, buildUdhCharter, defaultCharter } from "./native/organs/charter.js";
+import { familyVerdict, familyAffordances, giveCharterFamily } from "./native/organs/charter.js";
+import { constitution, ethosClear, requireClearance } from "./native/organs/ethos.js";
+import { readInterlocutor, mergeInterlocutor } from "./native/organs/interlocutor.js";
+import { speakDecline } from "./native/organs/socratic.js";
+import { recordShadow, assessShadow, dispositionFrom } from "./native/kernel/moral-shadow.js";
+import { sovereigntyHint, privacyFindings, isDataHoldingTask, sovereignSchemaPrompt, extractSovereignSchema, sovereignDataShell } from "./native/organs/privacy.js";
+import { copyFindings, replicationNotes, provenanceFor, annotateWithSources } from "./native/organs/martial.js";
+import { securityFindings } from "./native/organs/salzter.js";
+import { blindspotFindings } from "./native/organs/blindspot.js";
+import { piiFindings, redactPii } from "./native/organs/goffman.js";
+import { injectionFindings } from "./native/organs/ulysses.js";
 import { execFileSync } from "node:child_process";
 // The earned cast — the per-turn instruction set. Vendored at the
 // native/the-fold seam. PURE; the proxy feeds real conversation state and
@@ -597,7 +615,7 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
         // Retain, don't read. The page is kept recoverable and its shadow is
         // on the record; it just does not enter the reading. Ignore is a
         // positive decision, recorded — not an accident.
-        admitChunked(session.corpus, { text, sourceId: srcId });
+        admitChunked(session.corpus, { text: piiAdmit(session, text, srcId, onNote), sourceId: srcId });
         if (onNote) onNote({ move: "ignored", url: r.url, score: sal.score.toFixed(2), shared: sal.shared.slice(0, 5) });
       } else {
         // COARSE or FINE: EOT-ize it. FINE additionally steps it through the
@@ -605,7 +623,7 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
         // text to the corpus (surf can address it) and steps it through the
         // reader too — the reader's own surprise is the fine-resolution gate
         // on whether it actually moved the reading.
-        admitChunked(session.corpus, { text, sourceId: srcId });
+        admitChunked(session.corpus, { text: piiAdmit(session, text, srcId, onNote), sourceId: srcId });
         // ONLY SALIENT CONTENT IS EOT-IZED (2026-09-13). The full text is
         // retained on the shadow (S101) and admitted to the corpus (surf
         // addresses the whole page); only the EOT-ize READ is bounded to a
@@ -835,20 +853,26 @@ function codeSectionPrompt({ section, language, name, task, i, total, soFar, exe
     ? `\nA real ${language} file from the retained source corpus, as a style reference — compose like it, never copy it:\n"""\n${exemplar.text}\n"""`
     : "";
   const soFarBlock = soFar ? `\n\nCode written so far (earlier parts):\n${soFar}\n` : "";
+  const sovHint = sovereigntyHint(task);
+  // DATA-HOLDING APP: the mouth proposes ONLY the record schema; the machine
+  // owns the crypto/fold/snip substrate and composes the seams around it.
+  if (language === "html" && isDataHoldingTask(task)) {
+    return sovereignSchemaPrompt(task, name);
+  }
   // HTML: the mouth writes the BODY CONTENT only — the shell (doctype, head,
   // design-system CSS, working dark-mode JS) already exists in the
   // unconscious. The model's whole job is the notes and concepts: the hero,
   // the five drinks, the hours.
   if (language === "html") {
-    return `We're writing the page content for ${name}. The complete specification:\n\n"""\n${task}\n"""\n\nWrite ONLY the page content as HTML elements: a hero (an <h1> with the site name and a <p class="tagline"> with a short tagline), a menu <section> with an <h2> and a <ul> of five drinks with prices, and an hours <section> with an <h2> and the opening hours. The surrounding page, the stylesheet, and the dark-mode toggle already exist — do NOT write <html>, <head>, <body>, <style>, or <script> tags, only the inner content. Emit HTML only, no prose, no markdown fences, no commentary.`;
+    return `We're writing the page content for ${name}. The complete specification:\n\n"""\n${task}\n"""\n\nWrite ONLY the page content as HTML elements: a hero (an <h1> with the site name and a <p class="tagline"> with a short tagline), a menu <section> with an <h2> and a <ul> of five drinks with prices, and an hours <section> with an <h2> and the opening hours. The surrounding page, the stylesheet, and the dark-mode toggle already exist — do NOT write <html>, <head>, <body>, <style>, or <script> tags, only the inner content.${sovHint} Emit HTML only, no prose, no markdown fences, no commentary.`;
   }
   const what = language === "css" ? "a stylesheet" : `a ${language} program`;
   const what2 = language === "css" ? "CSS" : `${language} source code`;
   const lawHint = languageLawHint(language);
   if (total === 1) {
-    return `We're writing ${name} — ${what}. The complete specification:\n\n"""\n${task}\n"""\n\nWrite the COMPLETE file, start to finish. Aim for this structure: ${shape.join(" → ")}.${lawHint}${exemplarBlock}\n\nRules:\n- Emit ${what2} only — no explanation, no prose, no markdown fences, no commentary about writing.\n- Use the exact names, behavior, and content the specification requires.`;
+    return `We're writing ${name} — ${what}. The complete specification:\n\n"""\n${task}\n"""\n\nWrite the COMPLETE file, start to finish. Aim for this structure: ${shape.join(" → ")}.${lawHint}${sovHint}${exemplarBlock}\n\nRules:\n- Emit ${what2} only — no explanation, no prose, no markdown fences, no commentary about writing.\n- Use the exact names, behavior, and content the specification requires.`;
   }
-  return `We're writing ${name} — ${what}. The complete specification:\n\n"""\n${task}\n"""\n\nNow write ONLY this part of the file: ${section} (part ${i + 1} of ${total}).${lawHint}${exemplarBlock}\n${soFarBlock}\nRules:\n- Emit ${what2} only — no explanation, no prose, no markdown fences, no commentary about writing.\n- This part must compose with the parts already written: do not repeat code from earlier parts; use the names they define.\n- Use the exact names, behavior, and content the specification requires.`;
+  return `We're writing ${name} — ${what}. The complete specification:\n\n"""\n${task}\n"""\n\nNow write ONLY this part of the file: ${section} (part ${i + 1} of ${total}).${lawHint}${sovHint}${exemplarBlock}\n${soFarBlock}\nRules:\n- Emit ${what2} only — no explanation, no prose, no markdown fences, no commentary about writing.\n- This part must compose with the parts already written: do not repeat code from earlier parts; use the names they define.\n- Use the exact names, behavior, and content the specification requires.`;
 }
 
 // Code satisfaction: the void is filled when the ASSEMBLED file is non-empty,
@@ -944,32 +968,31 @@ function languageLawHint(language) {
   return parts.length ? `\nThe language's laws (from the engine): ${parts.join(" ")}` : "";
 }
 
-// ── ETHOS, UNCONSCIOUS: the artifact's provenance, written as a header ─────
-// The code artifact is NOT morally neutral — it is unavoidably grounded in
-// what produced it, and that ground is stated in a header comment the model
-// never sees. The givers: the model (named with its license + home), the
-// language-law prior (the engine it stands on), the exemplar repo (with ITS
-// license), the shape prior, and the tenor (who it is for). This is the same
-// giver discipline the essay's citation ledger holds — applied to code — so
-// the artifact can never be read as if it sprang from nowhere. A license is
-// carried only when the manifest/prior actually states it; never fabricated.
-function codeProvenance({ task, language, model, exemplar, tenor }) {
-  const givers = [];
+// ── ETHOS, UNCONSCIOUS: the artifact's sources, written as a plain comment ──
+// The artifact is not morally neutral — it stands on what produced it — but
+// the record reads like ordinary code, not like apparatus. A single quiet
+// `sources:` line names what was drawn on (the model + its license, the
+// language's engine, any exemplar with ITS license, and any site we snipped
+// from), the way a developer credits a library. No product name, no banner:
+// anyone reading the file just sees its sources. A source is recorded only
+// when it is actually known; never fabricated.
+function codeSources({ language, model, exemplar, extra = [] }) {
+  const src = [];
   const m = MODEL_GIVER(model);
-  givers.push(`${m.name ?? model}${m.license ? ` (${m.license})` : ""}${m.hfUrl ? ` — ${m.hfUrl}` : ""}`);
+  if (m?.name || model) src.push(`${m.name ?? model}${m.license ? ` (${m.license})` : ""}`);
   const law = loadLanguageLawPrior(language);
-  if (law?.giver?.resource) givers.push(law.giver.resource);
-  if (exemplar?.url) givers.push(`exemplar: ${exemplar.url}${exemplar.license ? ` (${exemplar.license})` : ""}`);
-  givers.push(`shape: ${CODE_SHAPE_PRIOR.giver}`);
-  if (tenor) givers.push(`for: ${tenor}`);
-  return givers;
+  if (law?.giver?.engine?.python) src.push(`Python ${law.giver.engine.python} stdlib (PSF-2.0)`);
+  else if (law?.giver?.resource) src.push(law.giver.resource);
+  if (exemplar?.url) src.push(`${exemplar.url}${exemplar.license ? ` (${exemplar.license})` : ""}`);
+  return [...src, ...extra];
 }
-function codeProvenanceHeader({ task, language, model, exemplar, tenor }) {
-  const givers = codeProvenance({ task, language, model, exemplar, tenor });
-  const lines = ["Generated by EOReader7 (code universe) — the artifact is grounded in:"].concat(givers.map((g) => `  - ${g}`));
-  if (language === "html") return `<!--\n${lines.join("\n")}\n-->\n`;
-  if (language === "python" || language === "shell") return `${lines.map((l) => `# ${l}`).join("\n")}\n`;
-  return `/*\n${lines.join("\n")}\n*/\n`;
+function codeSourcesHeader({ language, model, exemplar, extra = [] }) {
+  const parts = codeSources({ language, model, exemplar, extra });
+  if (!parts.length) return "";
+  const line = `sources: ${parts.join("; ")}`;
+  if (language === "html") return `<!-- ${line} -->\n`;
+  if (language === "python" || language === "shell") return `# ${line}\n`;
+  return `/* ${line} */\n`;
 }
 
 // Strip markdown code fences from a section the mouth emitted — the mouth is
@@ -1343,7 +1366,33 @@ function createSessionReader() {
 const sessions = new Map();
 const SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes
 
-function getSession(sessionId) {
+// ── PII AT ADMISSION (Goffman) ──────────────────────────────────────────────
+// Scan material the moment it is ADMITTED — before it enters the corpus/fold —
+// so PII is caught at the door, not after it has been read. Findings accumulate
+// on the session (disclosed on the result). With ER7_PII_REDACT=1 the value is
+// replaced in place, so the PII never enters the fold at all; the REDACTION
+// table is the same table the detector uses, so they cannot drift.
+const PII_REDACT = process.env.ER7_PII_REDACT === "1";
+function piiAdmit(session, text, sourceId, onNote) {
+  let t = String(text ?? "");
+  try {
+    const r = piiFindings(t, { where: sourceId });
+    if (r.findings.length) {
+      if (!session.pii) session.pii = [];
+      for (const f of r.findings) session.pii.push(f);
+      if (onNote) onNote({ move: "pii_admitted", source: sourceId, counts: r.counts, redacted: PII_REDACT });
+    }
+    if (PII_REDACT) t = redactPii(t);
+  } catch { /* the hook must never block an admission */ }
+  return t;
+}
+
+// THE BEARING WALL: a session cannot be built without a clearance from the
+// ethos (organs/ethos.js). requireClearance throws if it is missing, so the
+// reader has a hard, structural dependency on the constitution — pull the
+// ethos and the reader falls. Ethos comes before logos.
+function getSession(sessionId, clearance) {
+  requireClearance(clearance);
   const now = Date.now();
   for (const [id, s] of sessions) {
     if (now - s.lastAccess > SESSION_TTL_MS) sessions.delete(id);
@@ -1351,10 +1400,11 @@ function getSession(sessionId) {
   if (sessions.has(sessionId)) {
     const s = sessions.get(sessionId);
     s.lastAccess = now;
+    s.clearance = clearance;
     return s;
   }
   const reader = createSessionReader();
-  const entry = { reader, corpus: null, corpusIndex: null, lookIndex: null, lastChatText: "", turnCount: 0, lastAccess: now, indexSig: null, referents: null, webLedger: null, webSources: new Map(), field: null, shadow: [] };
+  const entry = { reader, corpus: null, corpusIndex: null, lookIndex: null, lastChatText: "", turnCount: 0, lastAccess: now, indexSig: null, referents: null, webLedger: null, webSources: new Map(), field: null, shadow: [], pii: [], clearance };
   sessions.set(sessionId, entry);
   return entry;
 }
@@ -1454,7 +1504,7 @@ async function admitWorkspaceEntries(session, entries, onNote) {
     if (prev && prev.size === e.size && prev.mtimeMs === e.mtimeMs) continue;
     const text = readWorkspaceFile(e, onNote);
     if (text == null) continue;
-    const res = admitChunked(session.corpus, { text, sourceId: e.rel });
+    const res = admitChunked(session.corpus, { text: piiAdmit(session, text, e.rel, onNote), sourceId: e.rel });
     index.set(e.rel, { size: e.size, mtimeMs: e.mtimeMs });
     admitted += res.deduped ? 0 : 1;
     chars += text.length;
@@ -1486,7 +1536,7 @@ async function admitWorkspaceEntries(session, entries, onNote) {
         try {
           const lookedText = await lookAtText(text, { source: e.rel, label: `er7-${e.rel.replace(/[^a-z0-9]+/gi, "-")}` });
           if (lookedText.text) {
-            const lookRes = admitChunked(session.corpus, { text: lookedText.text, sourceId: `${e.rel}::look` });
+            const lookRes = admitChunked(session.corpus, { text: piiAdmit(session, lookedText.text, `${e.rel}::look`, onNote), sourceId: `${e.rel}::look` });
             if (!lookRes.deduped) {
               looked += 1;
               const lookEncounters = textEncounters(lookedText.text, { source: `look:${e.rel}`, offset: 0 });
@@ -1542,7 +1592,7 @@ async function lookWorkspaceImages(session, absRoot, onNote) {
       const result = await lookAtImage(img.abs, { name: img.rel });
       if (result.text) {
         if (!session.corpus) session.corpus = createCorpusSession();
-        const res = admitChunked(session.corpus, { text: result.text, sourceId: `${img.rel}::look` });
+        const res = admitChunked(session.corpus, { text: piiAdmit(session, result.text, `${img.rel}::look`, onNote), sourceId: `${img.rel}::look` });
         if (!res.deduped) {
           looked += 1;
           const encs = textEncounters(result.text, { source: `look:${img.rel}`, offset: 0 });
@@ -1874,7 +1924,25 @@ const DEFAULT_KELSEN = Number(process.env.ER7_KELSEN ?? 0.9);
 // 4096 - 1024 output = 3072 prompt tokens; at the conservative 3 chars/token
 // used below that is 9216 chars. gemma2:2b's 8192 window was the prior budget.
 const PROMPT_MAX_CHARS = Number(process.env.ER7_MAX_PROMPT_CHARS ?? 9216);
-const NUM_CTX = Number(process.env.ER7_NUM_CTX ?? 4096);
+// ONE DECLARED WINDOW PER MODEL, ACROSS EVERY CALLER (2026-09-15). This was
+// 4096 — sized for OLMo 2 7B's own trained window — and the consequence, once
+// measured rather than assumed, is a reload storm: Ollama's window for a
+// caller that declares NOTHING is adaptive to free memory, so the-fold's page
+// (which declared nothing until today) kept landing on a different window than
+// this proxy's explicit one, and every disagreement is a full reload that also
+// discards the prompt cache. Measured on the live server, same model, back to
+// back: `num_ctx: 8192` reloads to 8192 (1,217ms), no num_ctx reloads the SAME
+// model to 4096 (1,138ms), `num_ctx: 4096` twice reloads not at all (117ms,
+// 129ms). In one 4.5-hour window of real traffic gemma2:2b was loaded 82 times,
+// 67 of those at a changed window.
+//
+// 8192 is gemma2:2b's own trained window and matches what the page now declares
+// for it, so the copy already resident for a chat turn is reused instead of
+// rebuilt. A model whose trained window is smaller (OLMo 2 7B's 4096) is
+// clamped by Ollama to its own, deterministically, for every caller alike. The
+// max() below keeps this proxy's budget guarantee unchanged; a deployment whose
+// models want a different ceiling declares it in ER7_NUM_CTX.
+const NUM_CTX = Number(process.env.ER7_NUM_CTX ?? 8192);
 const MSG_OVERHEAD_CHARS = 64;
 // Post-processing latency guard: this many ms max per turn for the pyodide
 // lint + dependency reorder. Warmed at boot; if it ever exceeds this, the
@@ -1972,6 +2040,20 @@ const reader = res.body.getReader();
               yield obj.message.content;
             }
             if (obj.done) {
+              // The bridge keeps the account of what each model really does
+              // (heimdall.observeCall): Ollama has just handed us its own
+              // counters, so reporting them costs nothing and no watcher has
+              // to spend a call to find out. Lazily imported and never
+              // awaited — a report may not slow a turn, and node hands back
+              // the same heimdall instance the proxy already runs.
+              import("./heimdall.mjs").then((h) => h.observeCall({
+                model,
+                promptTokens: obj.prompt_eval_count ?? 0,
+                promptMs: (obj.prompt_eval_duration ?? 0) / 1e6,
+                genTokens: obj.eval_count ?? 0,
+                genMs: (obj.eval_duration ?? 0) / 1e6,
+                loadMs: (obj.load_duration ?? 0) / 1e6,
+              })).catch(() => {});
               yield { done: true, truncated: overBudget, prompt_eval_count: obj.prompt_eval_count ?? 0, eval_count: obj.eval_count ?? 0 };
               return;
             }
@@ -2119,7 +2201,32 @@ function conversationBeings(index, transcript = []) {
 // row per edge, endpoints as their SURFACES — the referent index resolves a
 // surface; the perceiver's own `ref`s live in a different id space. sources/
 // witnesses give the blocks their standing phrases.
-function notesFromEdges(graphEntries = []) {
+//
+// DISPUTE LOOKUP (2026-09-14, closing the Kelsen dispute-veto gap): a
+// graphEntry here has NO dispute field at any layer — kernel/fold.js's
+// perception graph and kernel/notes.js's assertion ledger (where `dispute`/
+// `attest`/`concede` actually live, per that file's own CON·Figure·
+// CONTESTED act) are two separate structures that nothing in this live
+// answer pipeline ever bridges; `session.reader` never builds a notes.js
+// ledger at all. Duplicating dispute DETECTION here — inferring a contest
+// from the raw graph itself — would be exactly the mistake CLAUDE.md's own
+// top rule warns against (an organ for this already exists: notes.js's
+// dispute/attest/concede triple, corroboration.js's contestedSearch). So
+// this function takes an OPTIONAL `disputeLog` — a real notes.js ledger, if
+// a caller has one — and looks up each note's live disputes by the SAME
+// identity notes.js already uses for a note born from bare ends with no
+// identity organ: `noteId(end1, label, end2)` (kernel/notes.js), which is
+// byte-for-byte the (subject, relation, object) triple built below. No
+// disputeLog supplied (every current call site) means `disputedBy` stays
+// empty everywhere, exactly as before this change — the gap this closes is
+// that the FIELD now exists and is wired all the way to kelsenGrade's
+// tagClaim, ready the moment a live notes ledger is threaded in; actually
+// running contestedSearch (or any other dispute-detection) during a live
+// conversation turn is a separate, larger, budget/latency design decision
+// (corroboration.js's own header: "model calls are the scarce resource"),
+// not attempted here.
+export function notesFromEdges(graphEntries = [], { disputeLog = null } = {}) {
+  const disputes = disputeLog ? DISPUTE_NOTES.disputesOf(disputeLog) : null;
   const notes = [];
   for (const e of graphEntries ?? []) {
     // The fold's graphEntries carry the REDUCED {relation, participants} shape
@@ -2135,7 +2242,8 @@ function notesFromEdges(graphEntries = []) {
     const subject = end(parts[0]);
     if (!subject) continue;
     const object = end(parts.length > 1 ? parts[parts.length - 1] : null) ?? "?";
-    notes.push({ subject, verb: e.relation, object, end1: subject, end2: object, label: e.relation, witnesses: e.witness ? [e.witness] : [], sources: 1 });
+    const disputedBy = disputes?.get(notesLedgerNoteId(subject, e.relation, object))?.map((d) => d.source) ?? [];
+    notes.push({ subject, verb: e.relation, object, end1: subject, end2: object, label: e.relation, witnesses: e.witness ? [e.witness] : [], sources: 1, ...(disputedBy.length ? { disputedBy } : {}) });
   }
   return notes;
 }
@@ -2286,11 +2394,33 @@ function chatVoidCheck(text, { shape, material = "" } = {}) {
 // disclosed, never laundered. No model is asked while meaning is equated.
 // ────────────────────────────────────────────────────────────────────────
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null, mode = "auto", signal = null }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null, mode = "auto", caller = null, signal = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
-  const session = getSession(sessionId);
   _hot.add(model); // this turn is using it — hold it resident after
-  // THE REGISTER, READ ONCE — the request's field/tenor/mode (Halliday). The
+  // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
+  // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
+  // CLEARANCE. The session below REQUIRES it — so the ethos is a bearing wall,
+  // not a governor: remove this and getSession() throws, breaking every turn.
+  const { charter, family: charterFamily, source: charterSource } = constitution();
+  // THE SHADOW TRAIL (Bourdieu): the person's accumulated acts condition THIS
+  // one's assessment — the cross-session pattern is the second witness a single
+  // request cannot supply. Read before the gate; the act is recorded after.
+  const personId = userId ?? sessionId;
+  const shadowBefore = assessShadow(personId);
+  const clearance = ethosClear(task, { disposition: dispositionFrom(shadowBefore) });
+  const session = getSession(sessionId, clearance);
+  // WHO is at the door (organs/interlocutor.js, Buber): recognized mechanically
+  // from the request's shape, accumulated across the session (one interlocutor
+  // per conversation), held so the reader can meet an agent or a person in the
+  // idiom each can receive — never to decide whether to be honest with them.
+  const interlocutor = mergeInterlocutor(session.interlocutor ?? null, readInterlocutor(caller ?? {}));
+  session.interlocutor = interlocutor;
+  if (onNote && interlocutor.kind !== "unknown") onNote({ move: "interlocutor", kind: interlocutor.kind, confidence: interlocutor.confidence, basis: interlocutor.basis });
+  // Record this act's norm-standing (append-only, never merged).
+  const shadowType = !clearance.cleared
+    ? "norm_conflict"
+    : (clearance.voice?.descriptive && !clearance.voice?.prescriptive ? "descriptive" : "norm_compliant");
+  recordShadow(personId, { shadow: shadowType, reason: clearance.reason, task });  // THE REGISTER, READ ONCE — the request's field/tenor/mode (Halliday). The
   // instrument (code) field decides whether the projection writes SOURCE CODE
   // or prose; it is read off the request itself, never from the mode forced by
   // a caller, so a code ask stays code even when a job forces "projection".
@@ -2392,6 +2522,21 @@ const modelsUp = await ollamaReachable();
   // hard pyodide validator.
   const isCode = runMode === "projection" && isInstrument;
   const codeLanguage = isCode ? (detectLanguage(task) ?? "python") : null;
+  // DATA-SOVEREIGN APP: a web app that HOLDS records (notes/contacts/ledger).
+  // The unconscious owns the substrate (encrypted event log + fold + snip/cut);
+  // the model proposes only the record SCHEMA. The machine renders the shell
+  // around it — the model never writes crypto, storage, or the fold.
+  const isSovereignData = isCode && codeLanguage === "html" && isDataHoldingTask(task);
+  // THE SPEC GATE (at the ask) — the refusal came from the ethos clearance at
+  // the turn's top (constitution → ethosClear). Refused: no generation, the
+  // account IS the answer. The clearance rides the session, so every turn
+  // carries its standing. `clearance.reason`/`clearance.shape` are the exact
+  // judgment and stay on the record (onNote, the shadow trail); the text a
+  // person or agent actually reads is composed by organs/socratic.js
+  // (Kierkegaard) in the register interlocutor.js recognized them under —
+  // the working vocabulary (SHAPE, FORECLOSE, STANDPOINT) never reaches them.
+  const specRefusalText = !clearance.cleared ? speakDecline({ reason: clearance.reason, shape: clearance.shape }, interlocutor) : null;
+  if (specRefusalText && onNote) onNote({ move: "spec_refused", reason: clearance.reason });
   // THE WHEEL (D/E/R): every stage of the pipeline is one pass of
   // Void/Beings/Fold — DEF what would satisfy it, EVA a real difference,
   // REC an append-only landing whose pattern is the next stage's ground.
@@ -2454,7 +2599,7 @@ const modelsUp = await ollamaReachable();
       : materialText;
     if (delta.trim().length >= 8) {
       const srcId = `chat:${sessionId}:turn-${session.turnCount}${materialText.startsWith(prevText) ? "" : ":reset"}`;
-      admitChunked(session.corpus, { text: delta, sourceId: srcId });
+      admitChunked(session.corpus, { text: piiAdmit(session, delta, srcId, onNote), sourceId: srcId });
       if (onNote) onNote({ move: "conversation_folded", sourceId: srcId, chars: delta.length, reset: !materialText.startsWith(prevText) });
     }
     session.lastChatText = materialText;
@@ -2488,7 +2633,16 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   const ledger = createRelationCompositionLedger(rawEntries);
   const stats = ledger.diagnostics();
   const observed = acquireCompositionCandidates(rawEntries, { minWitnesses: 1 });
-  const hyperlexicon = admitHyperlexiconCandidates(createHyperlexicon(), observed.map((c) => ({
+  // THE LICENSE (THE-MORAL-CORE.md): the charter family's prohibitions and
+  // protections are GIVEN affordances with the charters as giver — the LICENSE
+  // the composition runs under, not a filter it passes through. Only a given
+  // affordance licenses composition (kernel/hyperlexicon.js): a reading that
+  // would compose "permit torture" finds no such given, because the family gave
+  // "prohibit torture" instead. Issued BEFORE any observed candidate, so
+  // experience can never override the charters (admission's own
+  // `standing === "given"` guard drops later candidates on a given key).
+  const licensedHyperlexicon = giveCharterFamily(createHyperlexicon(), charterFamily, giveHyperlexiconAffordance);
+  const hyperlexicon = admitHyperlexiconCandidates(licensedHyperlexicon, observed.map((c) => ({
     left: c.left, right: c.right, giver: GIVER,
     witnesses: (c.witnesses ?? []).slice(0, 3).map((w) => w?.[0]).filter(Boolean),
     meta: { independentSupport: c.meta?.support ?? 0, rememberedLeft: false, rememberedRight: false },
@@ -2497,8 +2651,10 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   if (onNote) onNote({ move: "composed", relations: stats.relationEdges, bindings: stats.referentBindings, hyperlexicon: Object.keys(hyperlexicon.composition ?? {}).length });
 
   // KELSEN — THE PRIMARY MODALITY, ON EVERY SURFACE. The reading's own claims
-  // are linted through the precedence order (validity → lex specialis → force
-  // → lex posterior → entrenchment) whenever the reading holds propositions —
+  // are linted through the precedence order (regime.js's own PRECEDENCE_STEPS
+  // / precedenceOrderPhrase() — imported above, never hand-typed here again;
+  // this comment used to restate it by hand and, audited 2026-09-14, had
+  // drifted to drop "regime" entirely) whenever the reading holds propositions —
   // the CHAT turn and the projection alike, never a silent pick. Computed
   // HERE, at the reading's first edges, so both the answer's prompt and the
   // thinking surface read the SAME resolutions: the mouth is told what is
@@ -2648,7 +2804,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     }
     for (const p of primary) {
       const srcId = `wikisource:${sessionId}:${p.term}`;
-      admitChunked(session.corpus, { text: p.text, sourceId: srcId });
+      admitChunked(session.corpus, { text: piiAdmit(session, p.text, srcId, onNote), sourceId: srcId });
       const encounters = textEncounters(p.text, { source: srcId, offset: 0 });
       let surprise = { salient: 0 };
       for (const enc of encounters) {
@@ -2723,7 +2879,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // standing, never silently pick a winner. This is the machine-that-won't-
     // answer on every surface: the answer carries why the claim won or lost.
     resultKelsen?.resolutions?.length
-      ? `\n\nSome claims in the material conflict. They were resolved by the fixed norm hierarchy (validity, then the special over the general, then the later over the earlier, then entrenchment):\n${resultKelsen.resolutions.slice(0, 5).map((r) => `- “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} (${r.why ?? r.reason})`).join("\n")}${resultKelsen.resolutions.length > 5 ? `\n… ${resultKelsen.resolutions.length - 5} more.` : ""}\nSpeak with that standing: name the conflict and the resolution, do not silently pick.`
+      ? `\n\nSome claims in the material conflict. They were resolved by the fixed norm hierarchy (${precedenceOrderPhrase()}):\n${resultKelsen.resolutions.slice(0, 5).map((r) => `- “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} (${r.why ?? r.reason})`).join("\n")}${resultKelsen.resolutions.length > 5 ? `\n… ${resultKelsen.resolutions.length - 5} more.` : ""}\nSpeak with that standing: name the conflict and the resolution, do not silently pick.`
       : null,
   ].filter(Boolean).join("\n");
 
@@ -3064,6 +3220,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   let fullText = "";
   let truncated = false;
   let codeValidation = null; // the hard pyodide verdict on a code artifact — hoisted for the satisfaction check
+  let privacyResult = null; // the Privacy archon's (Brandeis) weak-signal findings — hoisted for the result
+  let copyResult = null; // the anti-copy archon's (Martial) holon-aware findings — hoisted for the result
+  let securityResult = null; // the security archon's (Saltzer) CWE-gap findings — hoisted for the result
+  let blindspotResult = null; // the blindspot archon's (Popper) whole-view findings — hoisted for the result
+  let piiResult = null; // the PII archon's (Goffman) redacted findings — hoisted for the result
+  let injectionResult = null; // the injection archon's (Ulysses) findings — hoisted for the result
   // The model is the tip of consciousness: it must never run away. A hard
   // cap on total generated chars protects the turn from a repetition loop
   // (num_predict is not always honored by these models). When the cap hits,
@@ -3137,6 +3299,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     } catch { return null; }
   };
   const readabilityOf = (text) => strunkWhiteGrade(text, { textstat: textstatOf });
+  if (specRefusalText) {
+    // REFUSED at the ask: no generation, no ledger — the account IS the answer.
+    fullText = specRefusalText;
+    if (onNote) onNote({ move: "spec_refused", reason: clearance.reason });
+  } else {
   await withSlot(model, async () => {
     const draw = async (msgs, maxTokens, { capture = false, kelsen = null } = {}) => {
       let buf = "";
@@ -3908,19 +4075,70 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // findings that failed it). A failing artifact is a typed REC: the mouth
       // re-draws the whole file with the errors in hand, bounded like Ranke.
       const codeText = () => stripCodeFences(documentLines.join("\n\n"), codeLanguage);
-      // HTML: the mouth wrote BODY content only; the unconscious assembles the
-      // full self-contained document (design system + working dark mode).
-      const siteTitle = (() => {
-        const m = /\b(?:called|named)\s+([A-Z][\w\s&'-]+?)(?=[.,)]|$)/i.exec(task);
-        return (m ? m[1].trim() : topicPhrase(task)).slice(0, 60);
+      // The app's NAME — a clean name ("called X"/"named X"), else derived from
+      // the record schema, never the raw (truncated) task text.
+      const cleanTitle = (() => {
+        const m = /\b(?:called|named)\s+([A-Z][\w\s&'-]{1,40}?)(?=[.,)]|$)/i.exec(task);
+        return m ? m[1].trim() : null;
       })();
+      const titleFromSchema = (recordName) => {
+        const n = String(recordName || "data").trim();
+        const plural = /s$/i.test(n) ? n : `${n}s`;
+        return plural.replace(/^\w/, (c) => c.toUpperCase());
+      };
       const assembleCode = () => {
-        const header = codeProvenanceHeader({ task, language: codeLanguage, model, exemplar: codeExemplar(codeLanguage), tenor: taskRegister?.tenor?.tenor ?? null });
-        const body = codeText();
-        if (codeLanguage === "html") return htmlShell(siteTitle, body).replace("<body>", `<body>\n${header.trim()}`);
+        // The sources we SNIPPED from, recorded quietly in the header comment.
+        const exemplar = codeExemplar(codeLanguage);
+        const srcExtra = isSovereignData ? ["encryption + append-only fold adapted from the author's Matrix E2EE base"] : [];
+        const header = codeSourcesHeader({ language: codeLanguage, model, exemplar, extra: srcExtra });
+        let body = codeText();
+        // DATA-HOLDING APP: the mouth proposed the schema; the machine renders
+        // the sovereign substrate (crypto + ledger + fold + snip/cut) around it.
+        if (isSovereignData) {
+          const schema = extractSovereignSchema(body);
+          if (schema) {
+            const title = cleanTitle ?? titleFromSchema(schema.recordName);
+            const shell = sovereignDataShell({ title, recordName: schema.recordName, fields: schema.fields });
+            return header + shell;
+          }
+        }
+        // LINE-LEVEL provenance: before each holon that drew on a retained
+        // source, a quiet comment naming it — the per-line record of what we
+        // snip from, in the code's own comment syntax, never a banner.
+        if (exemplar?.text) {
+          try {
+            const prov = provenanceFor(body, { sources: [{ text: exemplar.text, name: exemplar.name, license: exemplar.license }], fileName: codeArtifactName(task, codeLanguage) });
+            if (prov.length) {
+              body = annotateWithSources(body, { provenance: prov, language: codeLanguage });
+              if (onNote) onNote({ move: "source_annotations", count: prov.length, sources: [...new Set(prov.map((p) => p.sourceName))] });
+            }
+          } catch { /* annotation must never break the artifact */ }
+        }
+        const fallbackTitle = cleanTitle ?? "Data";
+        if (codeLanguage === "html") return htmlShell(fallbackTitle, body).replace("<body>", `<body>\n${header.trim()}`);
         return header + body;
       };
       fullText = assembleCode();
+      // PRIVACY ARCHON (Brandeis): the defensive face, run over the assembled
+      // artifact. Weak signals only — a finding is a nomination, never a
+      // verdict (corroboration across independent signals is the caller's
+      // job). Surfaced on the result, never used to silently block.
+      privacyResult = privacyFindings(fullText, { task });
+      if (privacyResult.findings.length && onNote) onNote({ move: "privacy_findings", findings: privacyResult.findings.map((f) => `${f.kind}: ${f.detail}`) });
+      // ANTI-COPY ARCHON (Martial): holon-aware — a distinctive holon that is a
+      // word-shingle match of the retained source is a copy finding; generic
+      // boilerplate is replication-for-efficiency, never flagged.
+      const exemplarText = codeExemplar(codeLanguage)?.text ?? null;
+      copyResult = copyFindings(fullText, { sources: exemplarText ? [exemplarText] : [], fileName: codeArtifactName(task, codeLanguage) });
+      if (copyResult.findings.length && onNote) onNote({ move: "copy_findings", findings: copyResult.findings.map((f) => `${f.level} ${f.name}: ${f.detail}`) });
+      // SECURITY ARCHON (Saltzer): the CWE gaps frontier models leave in ordinary
+      // code — structural, over the AST/DOM surface. A witness, not a proof.
+      securityResult = await securityFindings(fullText, { language: codeLanguage });
+      if (securityResult.findings.length && onNote) onNote({ move: "security_findings", findings: securityResult.findings.map((f) => `${f.cwe} ${f.detail}`) });
+      // BLINDSPOT ARCHON (Popper): the whole-view properties a single window
+      // cannot hold — unfalsifiable tests, timing-unsafe compares, leaks.
+      blindspotResult = await blindspotFindings(fullText, { language: codeLanguage });
+      if (blindspotResult.findings.length && onNote) onNote({ move: "blindspot_findings", findings: blindspotResult.findings.map((f) => `${f.cwe} ${f.detail}`) });
       const runValidator = async (t) => {
         // HONESTY (ethos): a language with no hard validator is marked
         // `unchecked`, never silently "validated". Only python (compile+exec)
@@ -3993,6 +4211,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       if (onNote) onNote({ move: "chat_satisfied", shape: answerShape.shape, ok: chatSatisfaction.ok, failures: chatSatisfaction.failures ?? [], strain: chatSatisfaction.strain ?? 0 });
     }
   });
+  } // end the spec-refusal else
 
   // 7. Post-process before it is printed: extract code blocks, pyodide-lint
   // the Python, and reorder top-level entities so each depends only on things
@@ -4032,7 +4251,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // projection: the reader sees WHY a claim won or lost, never a silent pick.
   if (resultKelsen?.resolutions?.length) {
     const k = resultKelsen;
-    const lines = [`Conflicting claims resolved by the norm hierarchy (Kelsen — validity, then lex specialis, then force, then lex posterior, then entrenchment):`];
+    const lines = [`Conflicting claims resolved by the norm hierarchy (Kelsen — ${precedenceOrderPhrase()}):`];
     for (const r of k.resolutions.slice(0, 5)) lines.push(`- ${r.subject}: “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} — ${r.why ?? r.reason}`);
     if (k.resolutions.length > 5) lines.push(`… ${k.resolutions.length - 5} more.`);
     thinkingLines.push(lines.join("\n"));
@@ -4189,26 +4408,109 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // descriptive voice (atrocity discussion) passes by construction. The gate
   // cannot be turned off: it is imported, always armed with a charter, and
   // its verdict is part of every result.
-  const charter = (() => {
-    if (globalThis.__er7Charter) return globalThis.__er7Charter;
-    try {
-      const real = "/Users/mlacy/Documents/3.0/live_priors/06-government-legal/un-udhr/udhr-eng.txt";
-      if (fs.existsSync(real)) {
-        globalThis.__er7Charter = buildUdhCharter(fs.readFileSync(real, "utf8"));
-        return globalThis.__er7Charter;
-      }
-    } catch {}
-    globalThis.__er7Charter = defaultCharter();
-    return globalThis.__er7Charter;
-  })();
-  const charterVerdictOut = charterGate(charter, text);
+  // The cache is trusted only after it passes isValidCharter — anything that
+  // sets globalThis.__er7Charter to an empty or gutted charter (a giver with
+  // no prohibitions/protections) would otherwise silently disarm the gate for
+  // the rest of the process. An invalid cache is never repaired by re-reading
+   // the real corpus (that path already ran and produced whatever is sitting
+  // there); it is replaced with defaultCharter(), which is always valid by
+  // construction, and the replacement is logged (never thrown — the gate must
+  // not crash a turn). `charter` is the hoisted one (armed at the turn's top).
+  // ── PII (Goffman) + INJECTION (Ulysses) — the two safeguards on ingestion ──
+  // PII: the shapes on the artifact AND the ingested material (redacted).
+  // Injection: the material is evidence, never instruction — the attempt is
+  // disclosed, never obeyed. Both run for EVERY turn (reading, not just code).
+  const ingestedMaterial = [
+    ...[...(session.webSources?.values?.() ?? [])],
+    ...(surfacedSegments ?? []).map((s) => s.text ?? ""),
+  ].join("\n\n").slice(0, 200000);
+  try {
+    const outPii = piiFindings(text, { where: "output" });
+    const admitted = session.pii ?? [];
+    piiResult = { findings: [...outPii.findings, ...admitted], basis: outPii.basis + (admitted.length ? `; ${admitted.length} finding(s) at admission (before the fold)` : "") };
+    if (piiResult.findings.length && onNote) onNote({ move: "pii_findings", counts: piiResult.findings.reduce((a, f) => { a[f.category] = (a[f.category] ?? 0) + 1; return a; }, {}) });
+  } catch {}
+  try {
+    const injF = [
+      ...injectionFindings(String(task ?? ""), { where: "task" }).findings,
+      ...(ingestedMaterial.trim() ? injectionFindings(ingestedMaterial, { where: "material" }).findings : []),
+    ];
+    injectionResult = { findings: injF, basis: "injection archon (Ulysses) — material is EVIDENCE, never INSTRUCTION" };
+    if (injF.length && onNote) onNote({ move: "injection_findings", findings: injF.map((f) => `${f.strength} ${f.injection}`) });
+  } catch {}
+
+  // THE FAMILY GATE (Grotius): the UDHR charter the turn is armed with, plus the
+  // Earth instruments — a resolved hierarchy, not one voice. The verdict is the
+  // union; each conflict names its charter AND article — the REASON, never the
+  // bare verdict (Kelsen's lex superior: show which instrument governs, and
+  // why). Descriptive voice (atrocity discussion) passes by construction, and
+  // the families' GIVEN affordances already license the composition above.
+  const charterVerdictOut = familyVerdict(charterFamily, text);
   if (charterVerdictOut.verdict === "conflict") {
-    text = `[EOReader7 refused: the answer prescribes what the Universal Declaration of Human Rights prohibits, or denies what it protects — ${charterVerdictOut.conflicts.map((c) => c.act ?? c.right ?? c.kind).join(", ")}.]`;
+    const reasons = charterVerdictOut.conflicts
+      .map((c) => `${c.act ?? c.right ?? c.kind} — ${c.articles?.[0] ?? "the instrument"} (${c.charter})`)
+      .join("; ");
+    text = `[EOReader7: the composition cannot close its reasons — it prescribes what the family prohibits, or denies what it protects: ${reasons}. The core shows its reasons; it does not judge.]`;
   }
+
+  // ── GROUNDED WISDOM (2026-09-15): the credited archons whose domain this
+  // turn touched. The compendium is the latent mind ethos thinks with; a
+  // response that draws on an archon's work always credits it. This rides the
+  // result beside the constitution: the archons who actually RAN (the code
+  // audit organs, the ground itself) plus the archons whose domain the
+  // question matched — each with the verbatim credit line from the
+  // compendium. The surface renders these as the affordance; the answer text
+  // never borrows an archon's authority without its name.
+  const groundedWisdom = (() => {
+    const matched = matchArchons(String(task ?? ""));
+    const ran = [
+      charter ? { handle: "solon", why: "the ground — ethos comes before logos; the constitution governed this turn" } : null,
+      privacyResult ? { handle: "brandeis", why: "the data-sovereignty archon ran on this turn's artifact" } : null,
+      copyResult ? { handle: "martial", why: "the anti-copy archon ran on this turn's artifact" } : null,
+      securityResult ? { handle: "saltzer", why: "the security archon ran on this turn's artifact" } : null,
+      blindspotResult ? { handle: "popper", why: "the blind-spot archon ran on this turn's artifact" } : null,
+      piiResult?.findings?.length ? { handle: "goffman", why: "the PII archon ran on this turn's output and material" } : null,
+      injectionResult?.findings?.length ? { handle: "ulysses", why: "the injection archon disclosed an attempt this turn" } : null,
+    ].filter(Boolean);
+    const byHandle = new Map();
+    for (const m of matched) byHandle.set(m.handle, { handle: m.handle, why: "the question touched this archon's domain", relevance: m.relevance });
+    for (const r of ran) if (!byHandle.has(r.handle)) byHandle.set(r.handle, { handle: r.handle, why: r.why, relevance: 0 });
+    return [...byHandle.values()]
+      .map((x) => {
+        const entry = archonOf(x.handle);
+        return entry ? { handle: entry.handle, name: entry.name, organ: entry.organ, role: entry.role, pdStatus: entry.pdStatus, work: entry.work, source: entry.source, credit: entry.credit, why: x.why, relevance: x.relevance ?? 0 } : null;
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.relevance - a.relevance);
+  })();
 
   return {
     text,
-    charter: { verdict: charterVerdictOut.verdict, prescriptive: charterVerdictOut.prescriptive, descriptive: charterVerdictOut.descriptive, conflicts: charterVerdictOut.conflicts.map((c) => ({ kind: c.kind, act: c.act ?? null, right: c.right ?? null })) },
+    // giver + sha256 + source ride the result so a consumer can always tell
+    // which charter governed this turn — the full corpus or the fallback
+    // excerpt — without re-deriving it from process state. `family` and
+    // `license` carry the whole resolved hierarchy and the given affordances
+    // the composition ran under (the license, not just the gate).
+    charter: { verdict: charterVerdictOut.verdict, prescriptive: charterVerdictOut.prescriptive, descriptive: charterVerdictOut.descriptive, conflicts: charterVerdictOut.conflicts.map((c) => ({ kind: c.kind, act: c.act ?? null, right: c.right ?? null, charter: c.charter ?? null, articles: c.articles ?? [] })), giver: charter.giver, sha256: charter.sha256, source: charterSource, family: (charterFamily ?? []).map((c) => ({ schema: c.schema, giver: c.giver, rank: c.rank ?? null })), license: familyAffordances(charterFamily).map((r) => ({ left: r.left, right: r.right, giver: r.giver })) },
+    // GROUNDED WISDOM — the credited archons whose domain this turn touched
+    // (the ones that ran + the ones the question matched). Every entry carries
+    // its verbatim credit line from the compendium; a response that draws on
+    // an archon's work always credits it. The surface renders these as the
+    // affordance.
+    groundedWisdom,
+    privacy: privacyResult ? { archon: "Brandeis", findings: privacyResult.findings, basis: privacyResult.basis } : null,
+    copy: copyResult ? { archon: "Martial", findings: copyResult.findings, checked: copyResult.checked, basis: copyResult.basis } : null,
+    security: securityResult ? { archon: "Saltzer", findings: securityResult.findings, basis: securityResult.basis } : null,
+    blindspot: blindspotResult ? { archon: "Popper", findings: blindspotResult.findings, basis: blindspotResult.basis } : null,
+    pii: piiResult ? { archon: "Goffman", findings: piiResult.findings, basis: piiResult.basis } : null,
+    injection: injectionResult ? { archon: "Ulysses", findings: injectionResult.findings, basis: injectionResult.basis } : null,
+    // THE SHADOW TRAIL (Bourdieu) — the cross-session accumulation: this
+    // person's norm-standing as a RATE over their acts, never a verdict.
+    shadow: assessShadow(personId),
+    // WHO IS AT THE DOOR (Buber) — the recognized kind of interlocutor, with
+    // its basis and confidence. A disclosed belief, never a verdict: it selects
+    // how the reader meets the other, not whether it is honest with them.
+    interlocutor: { kind: interlocutor.kind, confidence: interlocutor.confidence, basis: interlocutor.basis, witnesses: interlocutor.witnesses },
     relationEdges: stats.relationEdges,
     referentBindings: stats.referentBindings,
     hyperlexiconCandidates: Object.keys(hyperlexicon.composition ?? {}).length,
@@ -4248,7 +4550,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             if (sections.length) rows.push(`The essay DEF'd its shape by asking ${sections.length} questions (the void):\n${sections.slice(0, 6).map((s, i) => `${i + 1}. ${s}`).join("\n")}${sections.length > 6 ? `\n… and ${sections.length - 6} more.` : ""}`);
             const k = resultKelsen;
             if (k?.resolutions?.length) {
-              rows.push(`\nConflicting claims the essay carried, resolved by the norm hierarchy (Kelsen — validity, then lex specialis, then force, then lex posterior, then entrenchment):`);
+              rows.push(`\nConflicting claims the essay carried, resolved by the norm hierarchy (Kelsen — ${precedenceOrderPhrase()}):`);
               for (const r of k.resolutions.slice(0, 8)) rows.push(`- ${r.subject}: “${r.a}” vs “${r.b}” → ${r.winner ? (r.winner === "a" ? r.a : r.b) : "tied"} — ${r.why ?? r.reason}`);
               if (k.resolutions.length > 8) rows.push(`… ${k.resolutions.length - 8} more.`);
             } else if (k?.basis) rows.push(`\nKelsen: ${k.basis}`);
@@ -4274,8 +4576,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // its admission test. Strain is the REC pressure the void demanded.
     satisfaction,
     // KELSEN: THE PRIMARY MODALITY — the essay's claims resolve by the norm
-    // hierarchy (validity → lex specialis → force → lex posterior →
-    // entrenchment), and the resolutions are NAMED. This is the default
+    // hierarchy (regime.js's PRECEDENCE_STEPS / precedenceOrderPhrase() —
+    // this comment used to hand-type the order and, audited 2026-09-14, had
+    // drifted to drop "regime"), and the resolutions are NAMED. This is the default
     // hyper-grounded posture: the essay is a set of claims in a hierarchy,
     // conflicts resolved by a declared order, never a silent pick. The
     // reader is taught the order by seeing each resolution.
