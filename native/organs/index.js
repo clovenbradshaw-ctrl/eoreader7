@@ -129,3 +129,18 @@ export { buildFactBlock, dedupeSourceText } from "./fact-block.js";
 export * as factBlockOrgan from "./fact-block.js";
 export { classifySentences, sentenceSpans, stripNarrationSentences, stripScaffoldNarration } from "./provenance.js";
 export * as provenanceOrgan from "./provenance.js";
+
+// Handle: Greenberg — see README.md's Handle table for the rationale. A
+// source-scan lens, not part of the reading pipeline any turn calls; kept in
+// the seam so a caller (chorus-lint's Tier-2 review, a CI check) can import
+// it the same way as every other organ, without a separate import path.
+export {
+  scanCapitalizationUnguarded,
+  scanSilentEnglishDefault,
+  scanSvoFieldLeak,
+  scanLatinPunctuationOnly,
+  scanSource,
+  scanFiles,
+  summarize,
+} from "./greenberg.js";
+export * as greenbergOrgan from "./greenberg.js";
