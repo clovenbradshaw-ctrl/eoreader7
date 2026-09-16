@@ -130,7 +130,18 @@ const contextOf = (note, { referentIndex = null } = {}) => {
 
 // ── reading the holograph through the injected door ───────────────────────
 
-const foldOf = (door, log) => (typeof door?.foldHyperlexicon === "function" ? door.foldHyperlexicon(log) : door?.fold?.(log) ?? []);
+// The door's fold under every name the organ has carried: the text face was
+// renamed hyperlexicon.js → notes-text.js and its fold with it
+// (foldHyperlexicon → foldNotes); the kernel door's is `fold`. Knowing only
+// the old name, this linter read ZERO notes through the renamed door and
+// returned ok:true on a contradictory ledger. A door with no fold at all is
+// refused: a linter that cannot read the notes must never report them clean.
+const FOLD_NAMES = Object.freeze(["foldHyperlexicon", "foldNotes", "fold"]);
+const foldOf = (door, log) => {
+  const name = FOLD_NAMES.find((k) => typeof door?.[k] === "function");
+  if (!name) throw new TypeError(`reasoning-lint: the injected door exposes no fold (${FOLD_NAMES.join(" / ")}) — refused rather than linted as an empty ledger`);
+  return door[name](log) ?? [];
+};
 const cutsOf = (door, log) => (typeof door?.foldCuts === "function" ? door.foldCuts(log) : []);
 const disputesOf = (door, log) => {
   try { return door?.disputesOf?.(log) ?? new Map(); } catch { return new Map(); }
@@ -160,6 +171,36 @@ function workingTag(note, task, disputed, tags, queryTime) {
 
 const foldText = (t) => String(t ?? "").trim().toLowerCase();
 const addressOf = (note) => `${foldText(note.end1)}|${foldText(note.label)}`;
+
+// ── one value per address, only where a giver said so ─────────────────────
+//
+// Two live notes at one address (end1|label) with different end2 are a
+// CONFLICT only if the relation takes one value. Most relations a reading
+// hears do not: measured on 3,539 notes read from five real Wikipedia pages,
+// the unconditional check convicted 459 "standing contradictions", nearly
+// all of them two true facts ("Lincoln met Mary Owens" / "Lincoln met Mary
+// Todd"). One-value-ness is functional(r) — a Pattern-grain claim a corpus
+// can refute but never earn (interpretation/declarations.js) — so it is read
+// off the declarations register, never assumed:
+//   given      a named giver declared it  → a disagreement convicts (the
+//              precedence order below decides it, or it stands tied)
+//   candidate  unrefuted here, never given → disclosed, never a conviction
+//   absent     nobody declared it          → not judged; counted as unjudged
+// `functional` absent (null) keeps the old reading for callers that never
+// supplied declarations — the ordinance acceptance case among them.
+function oneValueLookup(functional) {
+  if (functional == null) return null;
+  const rels = (xs) => new Set([...(xs ?? [])]
+    .filter((x) => typeof x === "string" || x?.declKind == null || x.declKind === "functional")
+    .map((x) => foldText(typeof x === "string" ? x : x?.rel))
+    .filter(Boolean));
+  const given = rels(functional.given);
+  const candidates = rels(functional.candidates);
+  return (label) => {
+    const l = foldText(label);
+    return given.has(l) ? "given" : candidates.has(l) ? "candidate" : null;
+  };
+}
 
 // ── cycle detection (begging the question, strict) ─────────────────────────
 
@@ -203,7 +244,7 @@ export function findClaimCycle(notes) {
  * map (regime.js `tagClaim` output), `conditions` the query's declared
  * scope conditions (lex specialis), `strictness` one of LINT_STRICTNESS.
  */
-export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = Date.now(), conditions = [], strictness = "standard", referentIndex = null } = {}) {
+export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = Date.now(), conditions = [], strictness = "standard", referentIndex = null, functional = null } = {}) {
   if (!door || !taskLog || typeof taskLog.projectTasks !== "function")
     throw new TypeError("reasoning-lint.lintLedger: door (notes bundle) and taskLog (with projectTasks) are injected");
   const findings = [];
@@ -264,12 +305,24 @@ export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = D
     if (!byAddress.has(key)) byAddress.set(key, []);
     byAddress.get(key).push(n);
   }
+  const oneValue = oneValueLookup(functional);
+  const unjudged = new Set();
   for (const [address, group] of byAddress) {
     if (group.length < 2) continue;
     for (let i = 0; i < group.length; i += 1) for (let j = i + 1; j < group.length; j += 1) {
       const a = group[i], b = group[j];
       if (foldText(a.end2) === foldText(b.end2)) continue;
       const aDisputed = contestedNotes.has(a.id), bDisputed = contestedNotes.has(b.id);
+      if (oneValue && !aDisputed && !bDisputed) {
+        const standing = oneValue(a.label);
+        if (standing === null) { unjudged.add(address); continue; }
+        if (standing === "candidate") {
+          findings.push(finding("candidate_conflict", "report", SEVERITY.WARN,
+            `two live claims at "${address}" disagree (${a.end2} vs ${b.end2}); "${a.label}" is only a candidate one-value relation — unrefuted here, never given by a named giver — disclosed, never a conviction`,
+            { at: `${a.id}+${b.id}`, ...ctx(a), ...ctx(b) }));
+          continue;
+        }
+      }
       const aTag = workingTag(a, tasks.get(a.id), aDisputed, tags, queryTime);
       const bTag = workingTag(b, tasks.get(b.id), bDisputed, tags, queryTime);
       if (!aDisputed && !bDisputed && aTag.cell && bTag.cell && aTag.grain && bTag.grain) {
@@ -359,9 +412,15 @@ export function lintLedger(log, { door, taskLog, tags = new Map(), queryTime = D
   return Object.freeze({
     ok: !visible.some((f) => f.severity === SEVERITY.ERROR),
     strictness,
+    // How many live notes this lint actually examined — disclosed so an
+    // "ok" over nothing can never pass for an "ok" over a ledger.
+    read: fold.length,
     findings: Object.freeze(visible),
     counts: Object.freeze(countFindings(visible)),
     contested: Object.freeze([...contestedNotes]),
+    // Addresses carrying several values that no one-value declaration covers:
+    // seen, and deliberately not judged. Present only when declarations were supplied.
+    ...(oneValue ? { unjudged: Object.freeze({ addresses: unjudged.size }) } : {}),
   });
 }
 
@@ -489,7 +548,7 @@ export async function lintInferences(inferences = [], { licenses = null, verify 
  * `tagsOf(id, note)` may supply the admission-time tag per note (the
  * seed's "tagged at admission, not reasoned about").
  */
-export async function lintContent({ text, convert, source = "lint-source", makeLedger, frame = null, strictness = "standard", queryTime = Date.now(), conditions = [], tagsOf = null, verify = null, refute = null, licenses = null, taskLog = { projectTasks }, referentIndex = null } = {}) {
+export async function lintContent({ text, convert, source = "lint-source", makeLedger, frame = null, strictness = "standard", queryTime = Date.now(), conditions = [], tagsOf = null, verify = null, refute = null, licenses = null, taskLog = { projectTasks }, referentIndex = null, functional = null } = {}) {
   if (typeof convert !== "function" || typeof makeLedger !== "function")
     throw new TypeError("reasoning-lint.lintContent: convert (text → arrangements) and makeLedger (fresh notes bundle) are injected");
   const { arrangements = [], inferences = [] } = convert(String(text ?? ""), { source }) ?? {};
@@ -498,7 +557,7 @@ export async function lintContent({ text, convert, source = "lint-source", makeL
   const tags = new Map();
   const admitted = door.admit ? door.admit(log, arrangements, { witness: source }) : { log, heard: [] };
   if (tagsOf) for (const h of admitted.heard ?? []) { const t = tagsOf(h.id, h); if (t) tags.set(h.id, t); }
-  const ledger = lintLedger(admitted.log, { door, taskLog, tags, queryTime, conditions, strictness, referentIndex });
+  const ledger = lintLedger(admitted.log, { door, taskLog, tags, queryTime, conditions, strictness, referentIndex, functional });
   const inference = await lintInferences(inferences, { licenses, verify, refute, strictness });
   const findings = [...ledger.findings, ...inference.findings];
   return Object.freeze({
@@ -541,7 +600,7 @@ export const findingKey = (f) => `${f.kind}|${f.level}|${f.severity}|${f.note ??
  * a contested note appears at the fold its dispute lands; a sunset expires
  * an obligation at the fold its window passes.
  */
-export function lintTimeline({ log, door, taskLog, cursors = null, strictness = "standard", tags = new Map(), queryTime = Date.now(), conditions = [], referentIndex = null, maxFolds = 40 } = {}) {
+export function lintTimeline({ log, door, taskLog, cursors = null, strictness = "standard", tags = new Map(), queryTime = Date.now(), conditions = [], referentIndex = null, functional = null, maxFolds = 40 } = {}) {
   if (!log?.entries?.length) return Object.freeze({ ok: true, strictness, folds: Object.freeze([]), transitions: Object.freeze([]) });
   const all = log.entries.map((e) => e.seq);
   const points = cursors && cursors.length
@@ -558,7 +617,7 @@ export function lintTimeline({ log, door, taskLog, cursors = null, strictness = 
     // write that lands there. A caller passing `log.nextSeq` after a dispute
     // gets the dispute; a caller passing the pre-dispute `nextSeq` does not.
     const at = Object.freeze({ ...log, entries: Object.freeze(log.entries.filter((e) => e.seq < cursor)) });
-    const lint = lintLedger(at, { door, taskLog, tags, queryTime, conditions, strictness, referentIndex });
+    const lint = lintLedger(at, { door, taskLog, tags, queryTime, conditions, strictness, referentIndex, functional });
     folds.push(Object.freeze({ cursor, ...lint, signature: Object.freeze(lint.findings.map(findingKey)) }));
   }
   const key = (f) => findingKey(f);

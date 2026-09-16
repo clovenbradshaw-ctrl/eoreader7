@@ -79,7 +79,17 @@ export const WITNESS_VERDICTS = Object.freeze(["states", "refused", "skipped"]);
  */
 export function endsFor(sentence, claims, sourceText = null, splitSentences = null) {
   const c = (claims ?? []).find((k) => k.sentence === sentence && k.end1 && k.end2);
-  if (c) return { end1: String(c.end1), end2: String(c.end2), from: "claim" };
+  // A CLAIM'S END IS AN ANCHOR ONLY IF IT CARRIES A WORD THE SOURCE USES —
+  // the same rule the fallback below learned on 2026-09-08, now applied to
+  // the claim path too. Measured live 2026-09-16: the relation tier read
+  // "According to one source, he was born in Point Pleasant, Ohio." as
+  // "he —was born→ in Point Pleasant"; "he" has no content feature, so
+  // statingCandidates' AND-gate offered nothing and a true sentence was
+  // marked "no passage states this". An end with no feature the source
+  // carries guarantees zero candidates; the sentence's own content words
+  // are asked instead.
+  const anchors = (end) => { const f = [...textFeatures(String(end))]; if (!f.length) return false; if (!sourceText) return true; const src = textFeatures(sourceText); return f.some((w) => src.has(w)); };
+  if (c && anchors(c.end1) && anchors(c.end2)) return { end1: String(c.end1), end2: String(c.end2), from: "claim" };
   const words = [...textFeatures(sentence)];
   if (words.length < 2) return null;
   const sourceFeatures = sourceText ? textFeatures(sourceText) : null;
@@ -145,7 +155,7 @@ export function settledBy(sentence, claims, matched = null) {
  * source so a stating sentence anywhere in what the answer was drafted from
  * can be pointed at.
  */
-export async function witnessSentences(sentences, claims, passages, { ask, selectAsk = null, splitSentences = null, testimony, maxAsks, fillerPool = null, armEitherEnd = false, matched = null } = {}) {
+export async function witnessSentences(sentences, claims, passages, { ask, selectAsk = null, splitSentences = null, testimony, maxAsks, fillerPool = null, armEitherEnd = false, matched = null, second = null } = {}) {
   if (!Number.isFinite(maxAsks)) throw new TypeError("witnessSentences: maxAsks is declared by the caller (P9)");
   const text = (passages ?? []).map((p) => String(p?.text ?? "")).filter(Boolean).join("\n\n");
   const source = { ref: "passages", text };
@@ -160,6 +170,52 @@ export async function witnessSentences(sentences, claims, passages, { ask, selec
     let w;
     try { w = await witnessNote(sentence, source, { ask, selectAsk, splitSentences, testimony, ends: { end1: ends.end1, end2: ends.end2 }, fillerPool, armEitherEnd }); }
     catch (err) { rows.push({ sentence, witness: "skipped", why: `witness threw: ${err?.message ?? err}` }); continue; }
+    // A SECOND WITNESS WHEN THE FIRST CONTRADICTS ITSELF. An `incoherent`
+    // answer (stated:no while pointing at a sentence — testimony.js::
+    // foldSelect) is no verdict, so the question is still open. Many small
+    // witnesses, never one that gets smarter: when the caller declares a
+    // second witness, the SAME question is put to it whole — claim and arm
+    // both, so the arm still tests one picker's discrimination, never a mix
+    // of two. It spends one more declared ask (P9). Measured 2026-09-16: the
+    // witness model OLMo-2-1B answered this shape on 2 of 9 claim asks in
+    // each arm of the select calibration; gemma2:2b never did, and on the
+    // live specimen ("There is an additional source which suggests Grant was
+    // also born in Georgetown, Kentucky.") it pointed at the pamphlet's own
+    // sentence and refused the swapped control. Neither model was better on
+    // the corpus paraphrase battery (1/9 and 0/9 true, 0/7 false each), so the
+    // first witness stays; the second only reads what the first left open.
+    // `indiscriminate` joins it (same day): a first witness that says yes to
+    // the claim AND to its swapped control has also failed as a witness, not
+    // found anything about the material — measured, OLMo-2-1B said yes to
+    // "…he was born in Point Pleasant, Ohio." and to "…born in Ulysses
+    // Pleasant, Ohio." alike. Composed over the calibration's recorded
+    // answers, the second reading was consulted 5 times per arm and added no
+    // grounding of a fabricated claim. A clean no, and the structural gaps
+    // (no candidate, unarmed, no valid pick), are never re-asked: those are
+    // facts about the material or the protocol, and another model cannot
+    // change them.
+    //
+    // A clean `no-testimony` joins them too (same day, on the live page): the
+    // first witness said a plain no to "There is also a later pamphlet that
+    // claims he was born in Georgetown, Kentucky." with the pamphlet's own
+    // sentence in front of it, while gemma2:2b pointed at it and refused the
+    // swapped control — and refused the false twin "…Georgetown, Ohio.". On
+    // the calibration OLMo-2-1B's answers had the same distribution on real
+    // and fabricated claims, so its no carries no more information than its
+    // yes. A no from one small witness is a vote, not the parliament's verdict:
+    // the second reads it, the row keeps both, and the first witness's own
+    // armed "states" still stands without a second ask. Composed over the
+    // calibration's recorded answers: consulted 6 times per arm, no
+    // fabricated claim grounded.
+    const READ_AGAIN = new Set(["incoherent", "indiscriminate", "no-testimony"]);
+    if (READ_AGAIN.has(w?.refused) && second?.selectAsk && asks < maxAsks) {
+      asks += 1;
+      let w2;
+      try { w2 = await witnessNote(sentence, source, { ask: second.ask ?? ask, selectAsk: second.selectAsk, splitSentences, testimony, ends: { end1: ends.end1, end2: ends.end2 }, fillerPool, armEitherEnd }); }
+      catch (err) { w2 = { refused: `second witness threw: ${err?.message ?? err}` }; }
+      rows.push({ sentence, ...rowFor(w2), ends, secondWitness: second.name ?? "second", firstWitness: w.refused });
+      continue;
+    }
     rows.push({ sentence, ...rowFor(w), ends });
   }
   return { rows, asks };

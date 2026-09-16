@@ -131,15 +131,20 @@ export function witnessSlice(target, faceText) {
  * format — no bracket scaffolding), material first so the claim cannot
  * prime the read. */
 export function buildWitnessMessages(sentence, slice) {
+  // "PASSAGE", not "TEXT" — checked against the-fold's own Gary archon
+  // (gary.js, P55: model-facing text never names this instrument's own
+  // parts) 2026-09-16, the first time this prompt was ever run past it.
+  // "passage" is a listed apparatus noun and fired every time; "text" is
+  // not, and names the same thing with no change to what is asked.
   return [
     {
       role: "system",
       content:
-        'You are checking one sentence against one passage. Answer yes only if the passage itself says the sentence is true; answer no otherwise. In "because", copy the passage\'s own words that decide your answer — exactly as written, not paraphrased.',
+        'You are checking one sentence against one piece of text. Answer yes only if the text itself says the sentence is true; answer no otherwise. In "because", copy the text\'s own words that decide your answer — exactly as written, not paraphrased.',
     },
     {
       role: "user",
-      content: `Passage:\n${slice}\n\nSentence: ${sentence}\n\nDoes the passage say this sentence is true?`,
+      content: `Text:\n${slice}\n\nSentence: ${sentence}\n\nDoes the text say this sentence is true?`,
     },
   ];
 }
@@ -467,7 +472,22 @@ export function foldSelect(raw, candidates) {
   let parsed = raw;
   if (typeof raw === "string") { try { parsed = JSON.parse(raw); } catch { return { refused: "unreadable" }; } }
   if (!parsed || typeof parsed !== "object") return { refused: "unreadable" };
-  if (parsed.stated !== "yes") return { refused: "no-testimony" };
+  // A "no" that POINTS is not a no. The protocol pairs stated:no with
+  // sentence:0 (buildSelectMessages says so), exactly as it pairs stated:yes
+  // with a valid index — and a yes with no valid index was already a
+  // non-verdict (`no-valid-pick`, below). The mirror case was read as a
+  // refusal, which paints "no passage states this" on the answer. Measured
+  // 2026-09-16: OLMo-2-1B answered {"stated":"no","sentence":1} pointing at
+  // "A later county pamphlet stated that Ulysses S. Grant was born in
+  // Georgetown, Kentucky." for the answer sentence "There is an additional
+  // source which suggests Grant was also born in Georgetown, Kentucky.", and
+  // on the select calibration 2 of 9 claim asks in each arm had this shape. A
+  // self-contradicting answer is typed `incoherent`: no verdict either way.
+  if (parsed.stated !== "yes") {
+    const pointed = Number(parsed.sentence);
+    if (parsed.stated === "no" && Number.isFinite(pointed) && pointed !== 0) return { refused: "incoherent" };
+    return { refused: "no-testimony" };
+  }
   const idx = Number(parsed.sentence);
   if (!Number.isInteger(idx) || idx < 1 || idx > list.length) return { refused: "no-valid-pick" };
   const decider = String(list[idx - 1]).replace(/\s+/g, " ").trim();

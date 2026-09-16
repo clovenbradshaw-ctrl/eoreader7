@@ -136,3 +136,103 @@ test("GFP Pass 41: a sentence the expectation already authors (matched) costs NO
   const c = witnessSentences;
   assert.ok(settledBy(falseS, [{ sentence: falseS, verdict: "contradicted" }], matchedContradicted) === false, "a contradicted claim is never 'already expected'");
 });
+
+test("a witness that says no while pointing at a sentence reached no verdict: the row is skipped, never a refusal that would paint 'no passage states this'", async () => {
+  // Live specimen 2026-09-16 (OLMo-2-1B): {"stated":"no","sentence":1}, pointing at the stating sentence.
+  const pointingNo = async (messages) => {
+    const cands = [...messages.find((m) => m.role === "user").content.matchAll(/^(\d+)\. (.*)$/gm)];
+    const hit = cands.find(([, , c]) => /replaced .*Barclay.*Kutuzov/.test(c));
+    return { stated: "no", sentence: hit ? Number(hit[1]) : 1 };
+  };
+  const { rows } = await witnessSentences([trueS], claims, passages, { ask, selectAsk: pointingNo, splitSentences, testimony, maxAsks: 4 });
+  assert.equal(rows[0].witness, "skipped");
+  assert.match(rows[0].why, /incoherent/);
+  // CONTROL: a clean no (sentence 0) is still a refusal.
+  const cleanNo = async () => ({ stated: "no", sentence: 0 });
+  const { rows: r2 } = await witnessSentences([trueS], claims, passages, { ask, selectAsk: cleanNo, splitSentences, testimony, maxAsks: 4 });
+  assert.equal(r2[0].witness, "refused");
+});
+
+test("a second witness reads what an incoherent first witness left open: claim and arm both go to it, it spends a declared ask, and the row names it; a clean refusal is never re-asked", async () => {
+  const pointingNo = async (messages) => ({ stated: "no", sentence: 1 });
+  const secondAsks = [];
+  const discriminating = async (messages) => { secondAsks.push(messages); return selectAsk(messages); };
+  const { rows, asks } = await witnessSentences([trueS], claims, passages, { ask, selectAsk: pointingNo, splitSentences, testimony, maxAsks: 4, second: { selectAsk: discriminating, name: "gemma2:2b" } });
+  assert.equal(rows[0].witness, "states");
+  assert.equal(rows[0].secondWitness, "gemma2:2b");
+  assert.equal(rows[0].firstWitness, "incoherent");
+  assert.ok(secondAsks.length >= 2, "the second witness was asked the claim AND its arm");
+  assert.equal(asks, 2, "the second reading spent one more declared ask");
+  // A clean no from the first witness is a vote, not the verdict: the second reads it, and the row keeps both.
+  secondAsks.length = 0;
+  const cleanNo = async () => ({ stated: "no", sentence: 0 });
+  const { rows: r2 } = await witnessSentences([trueS], claims, passages, { ask, selectAsk: cleanNo, splitSentences, testimony, maxAsks: 4, second: { selectAsk: discriminating, name: "gemma2:2b" } });
+  assert.equal(r2[0].witness, "states");
+  assert.equal(r2[0].firstWitness, "no-testimony");
+  // Both say no: refused, with the first witness's vote on the row.
+  const bothNo = await witnessSentences([trueS], claims, passages, { ask, selectAsk: cleanNo, splitSentences, testimony, maxAsks: 4, second: { selectAsk: cleanNo, name: "gemma2:2b" } });
+  assert.equal(bothNo.rows[0].witness, "refused");
+  // A structural gap (no candidate to offer) is never re-asked: another model cannot change it.
+  secondAsks.length = 0;
+  const nothing = await witnessSentences(["Zebras migrate across the Serengeti every year."], [], passages, { ask, selectAsk: cleanNo, splitSentences, testimony, maxAsks: 4, second: { selectAsk: discriminating, name: "gemma2:2b" } });
+  assert.notEqual(nothing.rows[0].witness, "states");
+  // Out of budget: the incoherent row stays a skip, never a spend past maxAsks.
+  const { rows: r3 } = await witnessSentences([trueS], claims, passages, { ask, selectAsk: pointingNo, splitSentences, testimony, maxAsks: 1, second: { selectAsk: discriminating, name: "gemma2:2b" } });
+  assert.equal(r3[0].witness, "skipped");
+});
+
+test("a claim end with no word the source carries is not an anchor: a pronoun subject falls back to the sentence's own content words", () => {
+  // Live specimen 2026-09-16: "he —was born→ in Point Pleasant" found no candidate and a true sentence read "no passage states this".
+  const src = "Ulysses S. Grant was born in Point Pleasant, Ohio, in 1822.";
+  const S = "According to one source, he was born in Point Pleasant, Ohio.";
+  const e = endsFor(S, [{ sentence: S, end1: "he", label: "was born", end2: "in Point Pleasant" }], src, splitSentences);
+  assert.notEqual(e.from, "claim");
+  assert.ok(src.toLowerCase().includes(e.end1) && src.toLowerCase().includes(e.end2), JSON.stringify(e));
+  // CONTROL: a claim whose ends both carry source words is still used as the claim.
+  const S2 = "Grant was born in Point Pleasant.";
+  assert.equal(endsFor(S2, [{ sentence: S2, end1: "Grant", label: "was born", end2: "in Point Pleasant" }], src, splitSentences).from, "claim");
+});
+
+test("the arm compares the sentence picked, not its number: the same stating sentence offered twice cannot pass a swapped claim as discrimination", async () => {
+  const dup = "After the Battle of Smolensk, the Tsar replaced the unpopular Barclay de Tolly with Mikhail Kutuzov, who on 18 August took over the army.";
+  const twice = [{ ref: "s", text: dup }, { ref: "c", text: `${dup} Kutuzov strengthened the line with earthworks.` }];
+  // picks the first copy for the real claim and the second copy for anything else
+  const copyPicker = async (messages) => {
+    const user = messages.find((m) => m.role === "user").content;
+    const claim = (user.match(/^Claim: "([\s\S]*?)"/) ?? [])[1] ?? "";
+    const copies = [...user.matchAll(/^(\d+)\. (.*)$/gm)].filter(([, , c]) => /replaced the unpopular Barclay/.test(c)).map(([, n]) => Number(n));
+    if (copies.length < 2) return { stated: "no", sentence: 0 };
+    return { stated: "yes", sentence: claim === trueS ? copies[0] : copies[1] };
+  };
+  const { rows } = await witnessSentences([trueS], claims, twice, { ask, selectAsk: copyPicker, splitSentences, testimony, maxAsks: 4 });
+  assert.notEqual(rows[0].witness, "states", JSON.stringify(rows[0]));
+});
+
+test("an indiscriminate first witness (yes to the claim and to its swapped control) is also read again by the second witness; the row says why", async () => {
+  const yesToEverything = async (messages) => {
+    const cands = [...messages.find((m) => m.role === "user").content.matchAll(/^(\d+)\. (.*)$/gm)];
+    const hit = cands.find(([, , c]) => /replaced .*Barclay.*Kutuzov/.test(c));
+    return hit ? { stated: "yes", sentence: Number(hit[1]) } : { stated: "no", sentence: 0 };
+  };
+  const { rows } = await witnessSentences([trueS], claims, passages, { ask, selectAsk: yesToEverything, splitSentences, testimony, maxAsks: 4, second: { selectAsk, name: "gemma2:2b" } });
+  assert.equal(rows[0].firstWitness, "indiscriminate");
+  assert.equal(rows[0].witness, "states");
+});
+
+test("a witnessed pick whose sentence lacks a figure the claim states is no verdict: right ends, wrong year, never grounded", async () => {
+  // Live precision check 2026-09-16: "…born in Georgetown, Kentucky, in 1850." grounded on a sentence with no year.
+  const yearS = "Mikhail Kutuzov replaced Barclay de Tolly as commander in 1799.";
+  const yearClaims = [{ sentence: yearS, end1: "Mikhail Kutuzov", label: "replaced", end2: "Barclay de Tolly", verdict: "unbound" }];
+  const pointsAtReplacement = async (messages) => {
+    const user = messages.find((m) => m.role === "user").content;
+    const claim = (user.match(/^Claim: "([\s\S]*?)"/) ?? [])[1] ?? "";
+    const hit = [...user.matchAll(/^(\d+)\. (.*)$/gm)].find(([, , c]) => /replaced .*Barclay.*Kutuzov/.test(c));
+    return claim === yearS && hit ? { stated: "yes", sentence: Number(hit[1]) } : { stated: "no", sentence: 0 };
+  };
+  const { rows } = await witnessSentences([yearS], yearClaims, passages, { ask, selectAsk: pointsAtReplacement, splitSentences, testimony, maxAsks: 4 });
+  assert.equal(rows[0].witness, "skipped");
+  assert.match(rows[0].why, /figure_unbacked/);
+  // CONTROL: the same witness on the year-less true sentence still grounds it.
+  const plain = await witnessSentences([trueS], claims, passages, { ask, selectAsk, splitSentences, testimony, maxAsks: 4 });
+  assert.equal(plain.rows[0].witness, "states");
+});

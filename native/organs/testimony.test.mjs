@@ -304,6 +304,11 @@ test("foldTestimony derives the verdict from the pair — never asked as a label
 test("buildWitnessMessages: material first, one question, prose — no bracket scaffolding", () => {
   const msgs = buildWitnessMessages(CLAIM.sentence, "some passage");
   assert.equal(msgs.length, 2);
-  assert.ok(msgs[1].content.startsWith("Passage:"), "the passage precedes the sentence so the claim cannot prime the read");
+  assert.ok(msgs[1].content.startsWith("Text:"), "the text precedes the sentence so the claim cannot prime the read");
   assert.ok(msgs[1].content.includes(CLAIM.sentence));
 });
+
+// The standing check against Gary (P55: model-facing text never names this
+// instrument's own parts) lives in the-fold's gary.test.mjs, not here —
+// this repo's organs must not import the-fold back (the boundary is one
+// way: the-fold depends on eoreader7's organs, never the reverse).

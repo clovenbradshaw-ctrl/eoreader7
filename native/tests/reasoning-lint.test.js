@@ -856,6 +856,65 @@ test("lintTimeline compares folds: a sunset expiry RESOLVES a finding at the fol
   assert.equal(t2.persisted.some((f) => f.kind === "expired_out_of_scope"), true, "the expired finding persists across the folds");
 });
 
+test("the linter reads the notes through every door the organ has been, and refuses a door it cannot read", async () => {
+  // The rename hyperlexicon.js → notes-text.js renamed the fold too
+  // (foldHyperlexicon → foldNotes). A linter that only knew the old name read
+  // ZERO notes through the new door and returned ok:true on a contradictory
+  // ledger — a clean bill of health it never examined. Pinned on all three
+  // doors with one contradiction: two sources, one address, two values.
+  const { makeNotesText } = await import("../organs/notes-text.js");
+  const text = makeNotesText(taskLog);
+  const doors = [
+    ["hyperlexicon.js", hl, hl.createHyperlexicon],
+    ["notes-text.js", text, text.createNotes],
+    ["kernel notes.js", kernel, kernel.createNotes],
+  ];
+  const edge = (value) => [{ subject: "curve[1,2]", verb: "has-rank", object: value, end1: "curve[1,2]", label: "has-rank", end2: value, spans: [{ at: "bytes:0-9", text: "curve[1,2]" }] }];
+  for (const [name, door, create] of doors) {
+    let log = create({ frame: { reader: "test", giver: "reasoning-lint.test.js" } });
+    log = door.admit(log, edge("3"), { witness: "descent:pari~ellrank" }).log;
+    log = door.admit(log, edge("5"), { witness: "sighting-b" }).log;
+    const r = lintLedger(log, { door, taskLog, strictness: "standard" });
+    assert.equal(r.read, 2, `${name}: the linter read both notes on the log`);
+    assert.equal(r.findings.some((f) => f.kind === "standing_contradiction"), true, `${name}: the contradiction on the log is found`);
+    assert.equal(r.ok, false, `${name}: a contradictory ledger is never reported coherent`);
+  }
+  const blind = { admit: hl.admit, foldCuts: hl.foldCuts };
+  assert.throws(() => lintLedger(hl.createHyperlexicon({ frame: { reader: "t", giver: "t" } }), { door: blind, taskLog }), /exposes no fold/, "a door with no fold is refused, never linted as empty");
+});
+
+test("with declarations supplied, only a GIVEN one-value relation convicts; a candidate is disclosed; an undeclared one is counted unjudged", () => {
+  // The unconditional same-address check convicted 459 "contradictions" on
+  // 3,539 notes read from five real Wikipedia pages — nearly all two true
+  // facts ("Lincoln met Mary Owens" / "Lincoln met Mary Todd"). One value per
+  // address is functional(r), a declaration with a giver, never an assumption.
+  const hear = (log, label, value, source) => hl.admit(log, [{ subject: "lincoln", verb: label, object: value, spans: [{ at: `${source}#0-9`, text: "lincoln" }] }], { witness: source }).log;
+  let log = fresh().log;
+  log = hear(log, "met", "mary owens", "a.txt");
+  log = hear(log, "met", "mary todd", "b.txt");
+  log = hear(log, "succeeded-by", "andrew johnson", "a.txt");
+  log = hear(log, "succeeded-by", "ulysses grant", "b.txt");
+  log = hear(log, "born-in", "kentucky", "a.txt");
+  log = hear(log, "born-in", "illinois", "b.txt");
+
+  const old = lintLedger(log, { door: hl, taskLog, strictness: "standard" });
+  assert.equal(old.counts.standing_contradiction, 3, "without declarations the old reading holds: every same-address disagreement convicts");
+  assert.equal(old.unjudged, undefined, "and no unjudged count is invented for a caller that supplied nothing");
+
+  const functional = { given: [{ declKind: "functional", rel: "born-in" }, { declKind: "transitive", rel: "met" }], candidates: ["succeeded-by"] };
+  const r = lintLedger(log, { door: hl, taskLog, strictness: "standard", functional });
+  assert.equal(r.counts.standing_contradiction, 1, "only the relation a giver declared one-valued convicts");
+  assert.ok(r.findings.find((f) => f.kind === "standing_contradiction").detail.includes("lincoln|born-in"));
+  assert.equal(r.counts.candidate_conflict, 1, "a candidate one-value relation is disclosed as a warning");
+  assert.equal(r.findings.find((f) => f.kind === "candidate_conflict").severity, "warn", "never an error");
+  assert.equal(r.unjudged.addresses, 1, "the undeclared relation's several values are counted, not judged — a transitive declaration is not a one-value one");
+  assert.equal(r.ok, false, "the given conflict still makes the ledger incoherent");
+
+  const none = lintLedger(log, { door: hl, taskLog, strictness: "standard", functional: { given: [], candidates: [] } });
+  assert.equal(none.ok, true, "an empty register convicts nobody");
+  assert.equal(none.unjudged.addresses, 3);
+});
+
 test("findingKey: the same finding across cursors is identified by kind×level×severity×note, never by prose", () => {
   const a = { kind: "contested_open", level: "report", severity: "warn", note: "x|y|z", at: "x|y|z", detail: "prose one" };
   const b = { kind: "contested_open", level: "report", severity: "warn", note: "x|y|z", at: "x|y|z", detail: "prose two" };
