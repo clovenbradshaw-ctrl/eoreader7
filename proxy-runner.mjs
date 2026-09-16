@@ -881,13 +881,47 @@ export const NEUTRAL_CHARACTER =
 const GROUND_OPTS = Object.freeze({ draws: 199, seed: 20260812, alpha: 0.05 });
 
 // surfacedSegments -> ground-attention.js's `records` shape. Each segment
-// already carries its real source address in `_ledger.source` (surfTask's
-// own addressing, never fabricated here) — this is a pure reshape, not a
-// second source of truth.
-function recordsFromSegments(surfacedSegments) {
+// already carries its real source address in `_ledger.source` where the
+// address ladder found one — a pure reshape, never a second source of
+// truth, PLUS two real, disclosed corrections found live this session:
+//
+// 1. THE CONVERSATION FOLD IS NOT A SOURCE. The reading folds the turn's
+//    own text into itself, and the field's resemblance recall can then
+//    hand that folded text straight back as though it were a
+//    corroborating passage — found live: a segment carrying the task's
+//    own words verbatim (`_ledger.source: "turn-0"`, or no source at all
+//    for the field's own copy). Caught by comparing a segment's text
+//    against the task directly (the honest, convention-agnostic signal)
+//    rather than pattern-matching a fold-id naming scheme this file has
+//    no declared knowledge of.
+//
+// 2. AN UNNAMED SOURCE IS NOT THE SAME UNNAMED SOURCE. Some field-
+//    recalled segments carry no `_ledger.source` at all (a real gap
+//    upstream, in whatever admits chunks into the field — not fixed
+//    here, disclosed). The old code collapsed every one of these to the
+//    SAME literal string "unlabeled", which corroboration.js's
+//    distinctSources/sharedTextGroups then read as ONE repeated source
+//    rather than several distinct, unidentified ones — silently
+//    deflating the very count the ground-selector's own criteria depend
+//    on. Each now gets its OWN synthetic ref instead: honest about being
+//    unidentified, honest about being distinct from every OTHER
+//    unidentified segment.
+function recordsFromSegments(surfacedSegments, task) {
+  const taskNorm = String(task ?? "").trim().toLowerCase();
+  let anon = 0;
   return (surfacedSegments ?? [])
     .filter((s) => s?.text)
-    .map((s) => ({ ref: s._ledger?.source ?? s._ledger?.heading ?? "unlabeled", text: String(s.text), kind: s._ledger?.addressed_by ?? null }));
+    .filter((s) => {
+      if (!taskNorm) return true;
+      const t = String(s.text).trim().toLowerCase();
+      const isEchoOfTask = t.includes(taskNorm) && s.text.length < taskNorm.length * 2 + 40;
+      return !isEchoOfTask;
+    })
+    .map((s) => ({
+      ref: s._ledger?.source ?? s._ledger?.heading ?? `unlabeled-${anon++}`,
+      text: String(s.text),
+      kind: s._ledger?.addressed_by ?? null,
+    }));
 }
 
 // One call site for the whole archon-activation loop: router -> ground-
@@ -902,7 +936,7 @@ function recordsFromSegments(surfacedSegments) {
 // EVA step against it is disclosed future work, not built here.
 async function groundFactFor(task, surfacedSegments) {
   try {
-    const records = recordsFromSegments(surfacedSegments);
+    const records = recordsFromSegments(surfacedSegments, task);
     if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] records:", JSON.stringify(records));
     const result = groundAttention(
       { task, records },
