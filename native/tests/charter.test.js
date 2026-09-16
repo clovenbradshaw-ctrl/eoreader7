@@ -4,7 +4,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
-import { buildUdhCharter, charterVerdict, charterConflicts, voiceOf } from "../organs/charter.js";
+import { fileURLToPath } from "node:url";
+import { buildUdhCharter, charterVerdict, charterConflicts, voiceOf, configureGfp } from "../organs/charter.js";
+
+const resolve = (p) => fileURLToPath(new URL(p, import.meta.url));
+configureGfp({
+  roleConfig: JSON.parse(readFileSync(resolve("../priors/role-config-eng.json"), "utf8")),
+  posPrior: JSON.parse(readFileSync(resolve("../priors/pos-en.json"), "utf8")),
+});
 
 // A byte-grounded fixture: the UDHR's own Article 1-5 text (a real excerpt,
 // verbatim), so the charter's protections/prohibitions are extracted from the
@@ -45,13 +52,22 @@ test("a compliant prescriptive generation passes", () => {
 });
 
 test("a prescriptive generation licensing a prohibited act is refused", () => {
-  const v = charterVerdict({ charter, text: "The state should be permitted to torture suspects to protect national security." });
+  // "prisoners", not "suspects": GFP checking (2026-09-16) resolves this
+  // structurally against a measured POS prior, and "suspects" is a real
+  // corpus homograph (attested exactly once, as a VERB — "he suspects
+  // foul play" — never as the plural noun this sentence needs).
+  const v = charterVerdict({ charter, text: "The state should be permitted to torture prisoners." });
   assert.equal(v.verdict, "conflict");
   assert.ok(v.conflicts.some((c) => c.kind === "licenses_prohibited"), "names the prohibited act");
 });
 
 test("a prescriptive generation denying a protected right is refused", () => {
-  const v = charterVerdict({ charter, text: "No one should be entitled to life, liberty or security of person." });
+  // A single clean object ("liberty"), not a coordinated list ("life,
+  // liberty or security of person"): the GFP reader resolves one clause,
+  // one verb, one object (relations-positional.js's own declared scope —
+  // it does not parse coordinated NP lists), matching relations-case-
+  // marked.js's identical single-relation-per-clause contract.
+  const v = charterVerdict({ charter, text: "No one should be entitled to liberty." });
   assert.equal(v.verdict, "conflict");
   assert.ok(v.conflicts.some((c) => c.kind === "denies_protected_right"), "names the denied right");
 });
@@ -68,9 +84,10 @@ test("atrocity DISCUSSION passes — the gate never spuriously fires on descript
 });
 
 test("a mixed generation is governed only on its prescriptive clauses", () => {
+  // "prisoners", not "suspects" — same corpus-homograph reason as above.
   const v = charterVerdict({
     charter,
-    text: "The report describes widespread torture. Nevertheless, the state may torture suspects when necessary.",
+    text: "The report describes widespread torture. Nevertheless, the state may torture prisoners when necessary.",
   });
   assert.equal(v.verdict, "conflict");
   assert.equal(v.prescriptive, 1, "one prescriptive clause governed");

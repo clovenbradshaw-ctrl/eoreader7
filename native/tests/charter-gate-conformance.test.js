@@ -14,7 +14,15 @@
 // what this session's fix was checked against.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildUdhCharter, defaultCharter, charterVerdict, charterGate, isValidCharter } from "../organs/charter.js";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { buildUdhCharter, defaultCharter, charterVerdict, charterGate, isValidCharter, configureGfp } from "../organs/charter.js";
+
+const resolve = (p) => fileURLToPath(new URL(p, import.meta.url));
+configureGfp({
+  roleConfig: JSON.parse(readFileSync(resolve("../priors/role-config-eng.json"), "utf8")),
+  posPrior: JSON.parse(readFileSync(resolve("../priors/pos-en.json"), "utf8")),
+});
 
 // Added after a real adversarial pass (2026-09-15) built exactly this
 // charter, by hand, and got it past isValidCharter's original shape-only

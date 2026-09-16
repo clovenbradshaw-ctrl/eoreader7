@@ -104,10 +104,68 @@ export function isHeadOfPhraseUpos(prevUpos) {
  * @param {Set<string>|null} [options.proclitics] a `ProcliticPrior@1`'s
  *   own set (S118) — a word still fused to a bound proclitic is read
  *   correctly rather than missed as unclassifiable.
+ * @param {boolean} [options.phrasalPredicates=false] OFF by default —
+ *   byte-identical to before. ON, a leading run of `auxiliaryVerbs`
+ *   members immediately before a verb-like token is COLLAPSED into that
+ *   token's own candidacy (`relations.js`'s own DR5 discipline, ported
+ *   here rather than reinvented: same name, same bounded shape,
+ *   `MAX_AUX_HOPS`). Without this, "should torture" reads as TWO
+ *   competing verb-like tokens (the modal is itself AUX-classified) and
+ *   every modal/prescriptive clause — the exact shape a charter-style
+ *   checker exists to read — refuses as `ambiguous_verb`.
+ * @param {Set<string>|null} [options.auxiliaryVerbs=null] the received
+ *   closed class of auxiliary/modal forms (priors.js's own
+ *   `AUXILIARY_VERBS` for English) — required when `phrasalPredicates` is
+ *   true. Checked by literal membership, never by the POS prior: an
+ *   auxiliary is a closed grammatical class with a named giver, the same
+ *   standing `relations.js` already holds it to, not a fact a sparse
+ *   corpus prior should have to re-attest.
+ * @param {Set<string>|null} [options.verbForms=null] an OPTIONAL
+ *   caller-asserted closed set of known verb surface forms (UniMorph,
+ *   or a small hand-curated dictionary-verifiable list, giver named by
+ *   the caller) — held to the SAME standing `auxiliaryVerbs` already is
+ *   in this file: checked by literal membership BEFORE the POS prior,
+ *   never deferred to it. A general web-text prior's evidence for a rare
+ *   or domain-specific verb is often thin enough to mislead rather than
+ *   inform (measured: "torture" appears exactly once in UD_English-EWT,
+ *   attested only as a NOUN — real evidence, but not enough of it to
+ *   outweigh a caller's own dictionary-sourced assertion that the word
+ *   is verb-capable). Classification is disclosed via `fromLexicon: true`
+ *   rather than silently presented as ordinary POS-prior evidence. Absent,
+ *   the prior's own reading is unchanged.
+ * @param {Set<string>|null} [options.subjectPronouns=null] an OPTIONAL
+ *   received closed class of pronoun forms (priors.js's own
+ *   `SUBJECT_PRONOUNS` for English) eligible to stand as a whole
+ *   end1/end2 — pronouns are a closed grammatical class, not a fact a
+ *   sparse corpus prior should have to attest per-form (measured: a
+ *   PRON-tagged "We"/"they" is otherwise invisible to `NOMINAL_CLASSES`,
+ *   which was tuned against Hebrew/Arabic's own named-subject news
+ *   prose). Absent, only `NOUN`/`PROPN` candidates are read, unchanged.
+ * @param {Set<string>|null} [options.nominalForms=null] `verbForms`'s own
+ *   twin for the OTHER class this file reads (NOUN/PROPN): a
+ *   caller-asserted closed set of known nominal surface forms, checked
+ *   before the POS prior, same reasoning (measured: "servitude" is not
+ *   attested at all in UD_English-EWT — a genuine corpus gap, not a
+ *   disputed reading). Absent, the prior's own reading is unchanged.
+ * @param {Set<string>|null} [options.chainBridge=null] an OPTIONAL closed
+ *   set of literal tokens the aux-chain walk may cross WITHOUT them being
+ *   verb-like themselves — English's infinitive marker "to" is the
+ *   measured case (`priors.js` has no export for it because it is not a
+ *   verb, an auxiliary, or a negation word; it is its own one-word closed
+ *   class). Without this, "should be free TO cause pollution" and
+ *   "should be allowed TO torture prisoners" read as two SEPARATE,
+ *   non-adjacent verb-like candidates ("should be (free)" / "cause") and
+ *   refuse as `ambiguous_verb` — found regressing an existing, real
+ *   Earth-Charter conformance case ("Factories should be free to cause
+ *   contamination and pollution") when `phrasalPredicates` was first
+ *   added, not a hypothetical. Only tokens literally in this set may sit
+ *   between two chain members; a genuine second clause ("...which critics
+ *   have called...") still refuses as ambiguous, unchanged.
  */
-export function extractPositionalRelation(text, { roleConfig, posPrior, classifyWord, dominantClass, classShare = 0.5, proclitics = null } = {}) {
+export function extractPositionalRelation(text, { roleConfig, posPrior, classifyWord, dominantClass, classShare = 0.5, proclitics = null, phrasalPredicates = false, auxiliaryVerbs = null, verbForms = null, subjectPronouns = null, nominalForms = null, chainBridge = null } = {}) {
   if (!roleConfig) throw new Error("extractPositionalRelation: roleConfig must be supplied");
   if (!posPrior || !classifyWord || !dominantClass) throw new Error("extractPositionalRelation: posPrior, classifyWord and dominantClass must all be supplied");
+  if (phrasalPredicates && !auxiliaryVerbs) throw new Error("extractPositionalRelation: phrasalPredicates requires auxiliaryVerbs — the received closed class it collapses, never guessed");
 
   const peel = (w) => {
     if (!proclitics) return w;
@@ -117,20 +175,90 @@ export function extractPositionalRelation(text, { roleConfig, posPrior, classify
   const rawWords = String(text ?? "").split(/\s+/).map(stripPunct).filter(Boolean);
   const words = rawWords.map((w) => ({ raw: w, stem: peel(w) }));
   const classOf = (stem) => dominantClass(classifyWord(stem, { posPrior }), { minShare: classShare });
-  const classified = words.map((w) => classOf(w.stem));
+  // `verbForms`/`nominalForms` membership is checked FIRST, before the POS
+  // prior — the same standing `auxiliaryVerbs` already holds in this file
+  // (a closed, caller-asserted class is never outvoted by a general
+  // corpus prior's own — often thin or entirely absent — evidence for
+  // that same word).
+  const lexClassOf = (stem) => {
+    const lower = stem.toLowerCase();
+    if (verbForms?.has(lower)) return { upos: "VERB", count: 0, share: 1, thraxClass: null, fromLexicon: true };
+    if (nominalForms?.has(lower)) return { upos: "NOUN", count: 0, share: 1, thraxClass: null, fromLexicon: true };
+    return classOf(stem);
+  };
+  const classified = words.map((w) => (verbForms || nominalForms ? lexClassOf(w.stem) : classOf(w.stem)));
 
-  const verbCandidates = words
+  let verbLikeIdx = words
     .map((w, i) => ({ i, w, c: classified[i] }))
     .filter((x) => VERB_LIKE.has(x.c?.upos));
+
+  let verbCandidates = verbLikeIdx;
+  if (phrasalPredicates && verbLikeIdx.length > 1) {
+    // Collapse a CONTIGUOUS run where every token but the last is a
+    // received auxiliary/modal form into ONE candidate at the run's own
+    // last index — "should torture" is one predicate, never two
+    // competing verb-like tokens. MAX_AUX_HOPS bounds the run exactly as
+    // relations.js's own DR5 does (never unbounded — same ReDoS lesson
+    // that file's own header already names).
+    const MAX_AUX_HOPS = 4;
+    // true when every original word position strictly between the two
+    // given original indices is a literal `chainBridge` member (e.g. "to")
+    // — never verb-like itself, so it can only ever BRIDGE a gap, never
+    // extend the run's own hop count.
+    const bridgedGap = (fromI, toI) => {
+      if (!chainBridge || toI <= fromI + 1) return false;
+      for (let p = fromI + 1; p < toI; p += 1) if (!chainBridge.has(words[p]?.stem?.toLowerCase())) return false;
+      return true;
+    };
+    const collapsed = [];
+    let k = 0;
+    while (k < verbLikeIdx.length) {
+      let j = k;
+      while (
+        j + 1 < verbLikeIdx.length &&
+        (j - k) < MAX_AUX_HOPS &&
+        (
+          // an ordinary adjacent auxiliary/modal step (unchanged)
+          (verbLikeIdx[j + 1].i === verbLikeIdx[j].i + 1 && auxiliaryVerbs.has(verbLikeIdx[j].w.stem.toLowerCase()))
+          // OR a pure infinitive-marker bridge — "to" itself is the
+          // justification for continuing the chain, independent of
+          // whether the word BEFORE it ("allowed", "required", "free")
+          // is a grammatical auxiliary; a control/catenative verb
+          // governing a "to V" complement is not itself an auxiliary,
+          // but the complement is still one predicate, not two.
+          || bridgedGap(verbLikeIdx[j].i, verbLikeIdx[j + 1].i)
+        )
+      ) j += 1;
+      if (j > k) {
+        // The joined text carries the ORIGINAL words BETWEEN chain members
+        // too (e.g. "should be allowed to torture", not "...allowedtorture"
+        // with "to" silently dropped) — sliced straight from `words` by
+        // original index, never re-derived from the (possibly bridged,
+        // non-contiguous) `verbLikeIdx` entries alone.
+        const raw = words.slice(verbLikeIdx[k].i, verbLikeIdx[j].i + 1).map((w) => w.raw).join(" ");
+        collapsed.push({ i: verbLikeIdx[j].i, w: { raw, stem: verbLikeIdx[j].w.stem }, c: verbLikeIdx[j].c });
+        k = j + 1;
+      } else {
+        collapsed.push(verbLikeIdx[k]);
+        k += 1;
+      }
+    }
+    verbCandidates = collapsed;
+  }
+
   if (verbCandidates.length === 0) return { end1: null, label: null, end2: null, gap: { reason: "no_verb_found" } };
   if (verbCandidates.length > 1) return { end1: null, label: null, end2: null, gap: { reason: "ambiguous_verb", candidates: verbCandidates.map((c) => c.w.raw) } };
   const verb = verbCandidates[0];
 
   // HEAD-OF-PHRASE ONLY (`isHeadOfPhraseUpos`, above — see its own
-  // docstring for the measured rationale and numbers).
+  // docstring for the measured rationale and numbers). A token literally
+  // in the received `subjectPronouns` closed class stands as a candidate
+  // end too, regardless of what the corpus prior attests for it (or fails
+  // to) — the same "closed class needs no corpus" posture `auxiliaryVerbs`
+  // above already holds, applied to the other end of the clause.
   const nominals = words
     .map((w, i) => ({ i, w, c: classified[i] }))
-    .filter((x) => x.i !== verb.i && NOMINAL_CLASSES.has(x.c?.upos) && (x.i === 0 || isHeadOfPhraseUpos(classified[x.i - 1]?.upos)));
+    .filter((x) => x.i !== verb.i && (NOMINAL_CLASSES.has(x.c?.upos) || subjectPronouns?.has(x.w.stem.toLowerCase())) && (x.i === 0 || isHeadOfPhraseUpos(classified[x.i - 1]?.upos)));
   const before = nominals.filter((n) => n.i < verb.i);
   const after = nominals.filter((n) => n.i > verb.i);
   const bySide = { before, after };

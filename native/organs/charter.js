@@ -47,9 +47,13 @@
 //
 // UNTURNABLE BY BEING REACHABLE. The proxy calls `charterGate` on every
 // generation (native/tests/charter.test.js reads it on every suite run —
-// P88: a guard that is never reached passes forever). The organ is pure; it
-// imports no model, no adapter, no evaluator — a refusal is a typed
-// `charter_conflict` the surface can render but not suppress.
+// P88: a guard that is never reached passes forever). It imports no model
+// and no evaluator — a refusal is a typed `charter_conflict` the surface
+// can render but not suppress. It DOES import a real grammar adapter
+// (relations-positional.js/wordclass.js — "THE GATE", below): checking
+// intent instead of raw text spans needs the same GFP seam the reading
+// pipeline already uses, injected via a measured `RoleConfig@1`+POS prior
+// (`configureGfp`), never a model.
 
 // sha256hex (native/adapters/text/sha256hex.js) is the only import this
 // organ carries: a pure, browser-and-node-safe content hash, not a model, an
@@ -191,83 +195,221 @@ export function voiceOf(clause) {
   return "descriptive"; // no norm issued — nothing to govern
 }
 
-// ── 3. THE GATE ────────────────────────────────────────────────────────────
-// A prescriptive clause CONFLICTS when it (a) licenses a Charter-PROHIBITED
-// act as permissible/obligatory, or (b) denies a Charter-PROTECTED right.
-// Match is by canonical word overlap between the clause and the charter's
-// extracted phrases — grounded, disclosed, no model.
-function overlap(a, b) {
-  const A = new Set(words(a));
-  const B = new Set(words(b));
-  if (!A.size || !B.size) return 0;
-  let hit = 0;
-  for (const w of A) if (B.has(w)) hit += 1;
-  return hit / Math.min(A.size, B.size);
+// ── 3. THE GATE (GFP — Ground/Figure/Pattern, not raw spans) ──────────────
+// User direction, verbatim (2026-09-16): "we should never be gating on raw
+// spans, it should be on intent which violates our ethos." The organ's own
+// header already claimed this ("an affordance is a relation-composition,
+// never an English part of speech") but the checking side did not live up
+// to it: the original gate matched by BAG-OF-WORDS OVERLAP and PROXIMITY-
+// WINDOW REGEX between the clause's raw text and the charter's own phrases
+// — a real span-matching heuristic wearing this file's own language, not an
+// intent check. Measured cost of that gap: a 100-case multilingual
+// adversarial pass fired 0/100 outside English (proximity regex over
+// English word lists cannot read any other language by construction), and
+// English cases like "Torture victims must have access to trauma-informed
+// care" or "critics have called this a form of modern servitude" fired as
+// conflicts purely on word PROXIMITY, with no sense of what governed what.
+//
+// THE FIX: resolve the clause's own {end1, label, end2} relation via
+// `relations-positional.js::extractPositionalRelation` (the-fold's
+// `grounding-gfp.js` seam this project already documents: role assignment —
+// who is Figure, who is Ground — is the LANGUAGE's own eigenvalue, read
+// from a measured `RoleConfig@1`; the relation's IDENTITY, once resolved,
+// is order-independent). This is genuinely a language-adapter seam, not an
+// English-only trick dressed up: a caller for another language supplies
+// that language's own `RoleConfig@1`/POS prior (Hebrew and Arabic readers
+// already exist this way in this repo) and the SAME classification code
+// below runs unchanged. Today only English is wired in (`configureGfp`,
+// below) — a real, disclosed, extensible start, not a universal claim.
+//
+// A clause the reader cannot resolve (sparse vocabulary, an ambiguous verb
+// chain, two genuinely separate clauses) REFUSES rather than guesses — the
+// same "errs toward NOT firing" bias the old remedy/comparison frames held,
+// now structural: a remedy verb ("protect", "report") or a comparison verb
+// ("called", "feel like") governing an act's name simply never appears in
+// this file's own closed LICENSING_VERBS/DENIAL_VERBS vocabularies, so no
+// triple ever matches — no bespoke exemption regex needed for either frame.
+
+import { extractPositionalRelation } from "../adapters/text/relations-positional.js";
+import { classifyWord, dominantClass } from "../adapters/text/wordclass.js";
+import { AUXILIARY_VERBS, SUBJECT_PRONOUNS, NEGATION_WORDS } from "../adapters/text/priors.js";
+
+// A small, disclosed supplement for charter-relevant words a general
+// web-text corpus prior (UD_English-EWT) attests thinly or not at all —
+// MEASURED, not guessed: "torture" is attested exactly once (as a NOUN);
+// "servitude" and "factories" are not attested at all in a 17,967-form
+// prior built from the treebank's train+dev splits
+// (native/priors/pos-en.json's own provenance). Each entry is an ordinary
+// dictionary word, never content mined from a particular text — the same
+// standing `AUXILIARY_VERBS` already holds as a received closed class.
+const ACT_VERB_FORMS = new Set([
+  "torture", "tortures", "tortured", "torturing",
+  "enslave", "enslaves", "enslaved", "enslaving",
+  "subjugate", "subjugates", "subjugated", "subjugating",
+  "exile", "exiles", "exiled", "exiling",
+  "cause", "causes", "caused", "causing",
+  "pollute", "pollutes", "polluted", "polluting",
+  "contaminate", "contaminates", "contaminated", "contaminating",
+]);
+const ACT_NOMINAL_FORMS = new Set(["servitude", "slavery"]);
+
+// A closed set of verbs that LICENSE an act as their object ("require
+// servitude", "permit torture", "allow enslavement") — ordinary, well-
+// attested English verbs, checked against the GFP-resolved content verb
+// directly, never against raw clause text. These are ALSO given to the
+// resolver as verb forms (below, `resolveGfp` passes ACT_VERB_FORMS ∪
+// LICENSING_VERBS): a clause "We should permit slavery" must resolve the
+// licensing verb as its predicate — "should permit → slavery", not "should
+// → permit(NOUN)" — or the licensing shape never reaches the check at all.
+// Measured live (2026-09-16, the "We should permit slavery in the
+// colonies." regression): without them in the resolver's verb set, "permit"
+// was classified NOUN, the predicate resolved to the bare modal "should",
+// and the licensing verb never became the content verb — the clause passed
+// the gate. That is generation-from-no-where: a prescribed atrocity sailing
+// under a resolver that could not read it.
+const LICENSING_VERBS = new Set([
+  "require", "requires", "required", "requiring",
+  "allow", "allows", "allowed", "allowing",
+  "permit", "permits", "permitted", "permitting",
+  "force", "forces", "forced", "forcing",
+  "compel", "compels", "compelled", "compelling",
+  "subject", "subjects", "subjected", "subjecting",
+  "impose", "imposes", "imposed", "imposing",
+  "authorize", "authorizes", "authorized", "authorizing",
+  "sentence", "sentences", "sentenced", "sentencing",
+  // causal verbs — the Earth-instrument prohibitions are framed as harm
+  // CAUSED ("damage the environment", "contamination and pollution"),
+  // not merely licensed, so the causing verb itself is the licensing act.
+  "cause", "causes", "caused", "causing",
+]);
+// A closed set of verbs that DENY a protected right as their object,
+// AFFIRMATIVELY ("the state may deny citizens X", "strip", "revoke",
+// "deprive") — fires when NOT negated, the same polarity the prohibition
+// side's own LICENSING_VERBS already holds.
+const DENIAL_VERBS = new Set([
+  "deny", "denies", "denied", "denying",
+  "revoke", "revokes", "revoked", "revoking",
+  "strip", "strips", "stripped", "stripping",
+  "deprive", "deprives", "deprived", "depriving",
+]);
+// The OTHER shape a denial takes — a GRANT verb, NEGATED: "no one shall be
+// entitled to X" denies the right through a negated grant, not an
+// affirmative denial verb. Opposite polarity from `DENIAL_VERBS`, checked
+// separately below rather than folded into one set with one polarity rule.
+const GRANT_VERBS = new Set([
+  "entitle", "entitles", "entitled", "entitling",
+  "guarantee", "guarantees", "guaranteed", "guaranteeing",
+]);
+// English's infinitive marker — its own one-word closed class (see
+// relations-positional.js's own `chainBridge` doc): bridges "should be
+// allowed TO torture" / "should be free TO cause pollution" into one
+// resolved predicate rather than two competing verb-like candidates.
+const CHAIN_BRIDGE = new Set(["to", "free"]);
+
+// Module-level GFP configuration — a real, injected language adapter
+// (RoleConfig@1 + POSPrior@1), set once by the caller (proxy-runner.mjs at
+// startup; test files load the same real, measured files directly). Unset,
+// `resolveGfp` returns null and every clause REFUSES (no conflicts found)
+// rather than crashing the turn or falling back to span-matching — the
+// same "the gate must not crash a turn" posture this organ already holds
+// elsewhere.
+let gfpDeps = null;
+export function configureGfp({ roleConfig, posPrior } = {}) {
+  gfpDeps = roleConfig && posPrior ? { roleConfig, posPrior } : null;
 }
 
-// ── THE REMEDY FRAME ───────────────────────────────────────────────────────
-// A prescriptive clause can name a prohibited act without licensing it, in the
-// exact voice the Charter exists to protect: the ADVOCATE's. "We must protect
-// torture survivors", "workers must be free to report slavery", "the clinic
-// should provide care to survivors of torture" all name the act — and all
-// prescribe the REMEDY, not the act. The forbidding frame ("never ... torture")
-// does not catch these, and a gate that fires on a human-rights group's own
-// tool is worse than no gate: it blocks the work the Charter exists to protect.
-// So a remedy VERB governing the act as its object is not a license of the act
-// ("report slavery", "protect torture survivors", "document torture"), nor is
-// the act the SUBJECT of an opposition predicate ("Torture must be abolished").
-// Both name the act to oppose it. This errs toward NOT firing, the same bias
-// the descriptive-voice rule already holds, and is checked against real
-// advocacy phrasings in conformance/charter-family.test.mjs.
-const REMEDY_VERB = "(?:protec|repor|document|support|defen|advoca|oppos|preven|prosecut|help|ensur|safeguard|provid|uphold|promot|investigat|monitor|expos|combat|end|stop|train|educat|rehabilitat|assist|resc|care|treat|heal|counsel|comfort|shelter|record|publish|raise|speak|testify|pursu|demand|honou?r|respect|rememb|stud|research)[a-z]*";
-const OPPOSITION_PREDICATE = /\b(?:ended|stopped|prohibited|abolished|outlawed|banned|prevented|eliminated|eradicated|forbidden|condemned|opposed|combatted|combated|fought|addressed|tackled|reported|documented|investigated|prosecuted)\b/i;
-function remedyGovernsAct(clause, actWords) {
-  for (const w of actWords) {
-    // the act as the OBJECT of a remedy verb, within a short window
-    if (new RegExp(`\\b${REMEDY_VERB}\\b(?:\\s+[\\w'’,-]+){0,6}?\\s+${w}\\b`, "i").test(clause)) return true;
-    // the act as the SUBJECT of an opposition predicate ("torture must be abolished")
-    if (new RegExp(`\\b${w}\\b(?:\\s+[\\w'’,-]+){0,6}?\\s+\\b(?:should|shall|must|ought\\s+to|may|can)\\b\\s+(?:not\\s+)?be\\s+${OPPOSITION_PREDICATE.source}`, "i").test(clause)) return true;
-  }
-  return false;
+function resolveGfp(clause) {
+  if (!gfpDeps) return null;
+  return extractPositionalRelation(clause, {
+    roleConfig: gfpDeps.roleConfig,
+    posPrior: gfpDeps.posPrior,
+    classifyWord,
+    dominantClass,
+    phrasalPredicates: true,
+    auxiliaryVerbs: AUXILIARY_VERBS,
+    subjectPronouns: SUBJECT_PRONOUNS,
+    // The resolver must READ a licensing verb as a verb, or the licensing
+    // shape never reaches the check ("We should permit slavery" resolved
+    // to label:"should", end2:"permit" until the licensing verbs were in
+    // this set — the measured regression, 2026-09-16). Union, not a second
+    // list: one vocabulary, one source of truth.
+    verbForms: new Set([...ACT_VERB_FORMS, ...LICENSING_VERBS]),
+    nominalForms: ACT_NOMINAL_FORMS,
+    chainBridge: CHAIN_BRIDGE,
+  });
+}
+
+// A REAL negation window, replacing the old FORBIDS regex's raw scan of
+// the whole clause for any of a dozen prohibition-flavoured words anywhere
+// in it (which could not tell "there is NO reason officials should torture"
+// from a genuine forbidding, since "no" anywhere flipped the whole clause).
+// This checks only the span from the clause's own start through the end of
+// the GFP-resolved verb chain — the subject/modal/verb region a real
+// negation actually governs — against NEGATION_WORDS (priors.js's own
+// closed grammatical class: not/never/hardly/…, never a semantic
+// prohibition-vocabulary list), plus the negative-quantifier subject
+// phrases English's own SUBJECT_PRONOUNS class does not cover ("no one",
+// "nobody", "no person" — a different closed class: a negative determiner
+// + noun, not a negation particle).
+function isNegated(clauseText, rel) {
+  if (!rel?.label) return false;
+  const idx = clauseText.toLowerCase().indexOf(rel.label.word.toLowerCase());
+  const windowEnd = idx >= 0 ? idx + rel.label.word.length : clauseText.length;
+  const window = clauseText.slice(0, windowEnd);
+  if (/\bno\s+one\b|\bnobody\b|\bno\s+person\b/i.test(window)) return true;
+  const tokens = window.toLowerCase().match(/[\p{L}’']+/gu) ?? [];
+  return tokens.some((t) => NEGATION_WORDS.has(t));
 }
 
 export function charterConflicts(charter, clause) {
   if (voiceOf(clause) !== "prescriptive") return [];
-  const cw = words(clause);
+  const rel = resolveGfp(clause);
+  // No GFP configuration, or the reader could not resolve this clause
+  // (sparse vocabulary, an ambiguous verb chain, two separate clauses) —
+  // refuse rather than guess. A real, disclosed coverage gap, not a
+  // silent wrong answer.
+  if (!rel?.label) return [];
+  const contentVerb = rel.label.word.split(/\s+/).pop().toLowerCase();
+  const negated = isNegated(clause, rel);
+  const end1 = rel.end1?.word?.toLowerCase() ?? null;
+  const end2 = rel.end2?.word?.toLowerCase() ?? null;
+
   const out = [];
-  // A clause that FORBIDS a prohibited act reinforces the Charter and never
-  // fires ("we should never permit slavery" = compliant); a clause that
-  // PERMITS or REQUIRES it is the violation. The forbidding frame is checked
-  // before the act match so the gate cannot spuriously fire on the norm's own
-  // reinforcement — the same "doesn't fire on atrocity discussion" rule,
-  // aimed at the endorsement the norm actually forbids.
-  const FORBIDS = /\b(never|not|must not|shall not|prohibit|prohibited|ban|banned|forbid|forbidden|outlaw|against|no)\b/i;
-  const forbids = FORBIDS.test(clause);
   for (const [act, info] of Object.entries(charter.prohibitions ?? {})) {
     const surfaces = [...info.surfaces];
-    const best = Math.max(...surfaces.map((s) => overlap(clause, s)));
-    // A proportional match OR the act's own distinctive word in the clause
-    // ("torture" vs "torture or to cruel, inhuman or degrading treatment or
-    // punishment" is 1/8 words — below any proportional floor, yet the act is
-    // unmistakably governed). The word must be a content carrier (>=5 chars),
-    // disclosed.
-    const actWords = [...new Set(surfaces.flatMap((s) => words(s)).filter((w) => w.length >= 5))];
-    const distinctive = actWords.some((w) => new Set(words(clause)).has(w));
-    if (best >= 0.5 || distinctive) {
-      if (forbids) continue; // reinforcing the prohibition — compliant
-      if (remedyGovernsAct(clause, actWords)) continue; // the ADVOCATE's voice — naming the act to oppose it, never licensing it
-      out.push({ kind: "licenses_prohibited", act, match: best, clause, articles: info.articles, basis: `prescriptive clause licenses a Charter-prohibited act (${act}); ${info.surfaces[0]}` });
+    // The act's own content words, checked by EXACT membership against a
+    // SINGLE GFP-resolved slot filler, never by proximity to raw clause
+    // text. The old bag-of-words match needed a >=5-char floor to avoid
+    // noisy matches while scanning a whole clause for ANY overlap; an
+    // exact match against one specific resolved role has no such noise
+    // problem (found regressing "should deny everyone the right to
+    // life" — Article 3's own protection surface has "life" as its own
+    // shortest, most load-bearing word, 4 chars, excluded by a floor this
+    // design no longer needs). `words()` itself already excludes 1-2 char
+    // noise (articles, prepositions).
+    const actWords = new Set(surfaces.flatMap((s) => words(s)));
+    // (a) the act's own word IS the resolved content verb ("should torture
+    // prisoners"), or (b) a LICENSING verb governs the act as one of its
+    // resolved ends ("may require servitude", "should be allowed to
+    // torture prisoners" — resolved end2 "prisoners" plus the chain's own
+    // content-verb branch (a) already covers the direct case; this branch
+    // catches the act named as the OBJECT of a separate licensing verb).
+    const directActVerb = actWords.has(contentVerb);
+    const licensesActObject = LICENSING_VERBS.has(contentVerb) && ((end1 && actWords.has(end1)) || (end2 && actWords.has(end2)));
+    if ((directActVerb || licensesActObject) && !negated) {
+      out.push({ kind: "licenses_prohibited", act, match: 1, clause, articles: info.articles, basis: `GFP-resolved clause licenses a Charter-prohibited act (${act}); ${info.surfaces[0]}` });
     }
   }
   for (const [right, info] of Object.entries(charter.protections ?? {})) {
-    const best = Math.max(...[...info.surfaces].map((s) => overlap(clause, s)));
-    // A denial negates the right's holder or its grant: "no one ... entitled",
-    // "deny/revoke/strip/deprive/deprived", "without the right". A bare
-    // "without" is NOT a denial — the UDHR's own Art 2 grants rights "without
-    // any discrimination", and a gate that read every "without" as a denial
-    // fired on grants (the rights-protection voice this exists to hear).
-    if (best >= 0.5 && /\b(?:deny|denies|denied|no right|not entitled|no one|nobody|no person|revoke|revokes|take away|strip|strips|deprive|deprives|deprived|without the right|without rights)\b/i.test(clause)) {
-      out.push({ kind: "denies_protected_right", right, match: best, clause, articles: info.articles, basis: `prescriptive clause denies a Charter-protected right (${right}); ${info.surfaces[0]}` });
+    const surfaces = [...info.surfaces];
+    const rightWords = new Set(surfaces.flatMap((s) => words(s)));
+    const governsRight = (end1 && rightWords.has(end1)) || (end2 && rightWords.has(end2));
+    // Two opposite-polarity shapes: an AFFIRMATIVE denial verb ("the state
+    // may deny X"), or a NEGATED grant verb ("no one shall be entitled to
+    // X") — both deny the right, from opposite directions.
+    const deniesRight = (DENIAL_VERBS.has(contentVerb) && !negated) || (GRANT_VERBS.has(contentVerb) && negated);
+    if (governsRight && deniesRight) {
+      out.push({ kind: "denies_protected_right", right, match: 1, clause, articles: info.articles, basis: `GFP-resolved clause denies a Charter-protected right (${right}); ${info.surfaces[0]}` });
     }
   }
   return out;
@@ -412,10 +554,32 @@ export function familyVerdict(family, text = "") {
 // that asserts a prohibited relation is WITHHELD by the chemistry rather than
 // checked afterward. `give` is injected (the caller passes
 // giveHyperlexiconAffordance) so this organ stays pure.
+//
+// THE BINDING (2026-09-16, the ethos-in-the-core law): every license row
+// carries the charter's OWN content hash as `binding` — the real UDHR (or
+// Earth instrument) bytes the row was extracted from, never a reputation
+// string. A composition substrate built on a real charter verifies each
+// "given" row against the charter it stands on; a row whose binding does not
+// match is NOT a license — it is ungrounded (a giver with no ground, which is
+// Aristotle's "a pre-existing good character" and is refused as a technical
+// means of persuasion). A caller cannot mint a license under a fake charter:
+// they would have to reproduce the real charter's content hash to do so, and
+// the hash is a fingerprint of the actual governing text, not a name.
 export function charterAffordances(charter) {
+  // THE BINDING — always a real 64-hex content fingerprint of THIS charter's
+  // actual governing text (prohibitions + protections), never a name. UDHR
+  // charters carry `sha256` (the hash of the source text they were built
+  // from); the Earth instruments are received fixed texts with no single
+  // source string, so their binding is the hash of their own tables' bytes —
+  // the same "a license is bound to the content it was extracted from" law,
+  // re-derivable from the charter object itself. A caller minting a license
+  // under a fake charter cannot produce a binding that matches the real
+  // ground's, because the ground's binding is the hash of the real bytes.
+  const binding = charter?.sha256
+    ?? sha256hex(`${JSON.stringify(charter?.prohibitions ?? {})}\u0000${JSON.stringify(charter?.protections ?? {})}`);
   const rows = [];
-  for (const [act, info] of Object.entries(charter?.prohibitions ?? {})) rows.push({ left: "prohibit", right: act, giver: `${charter.giver} — prohibition`, surfaces: info.surfaces ?? [] });
-  for (const [right, info] of Object.entries(charter?.protections ?? {})) rows.push({ left: "protect", right, giver: `${charter.giver} — protection`, surfaces: info.surfaces ?? [] });
+  for (const [act, info] of Object.entries(charter?.prohibitions ?? {})) rows.push({ left: "prohibit", right: act, giver: `${charter.giver} — prohibition`, binding, surfaces: info.surfaces ?? [] });
+  for (const [right, info] of Object.entries(charter?.protections ?? {})) rows.push({ left: "protect", right, giver: `${charter.giver} — protection`, binding, surfaces: info.surfaces ?? [] });
   return rows;
 }
 export function familyAffordances(family) {

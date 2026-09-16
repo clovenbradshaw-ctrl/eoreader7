@@ -24,6 +24,9 @@ import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
+import { sentenceSurface, passagesFromSegments } from "./native/the-fold/reading-surface.js";
+import { engineRelationsFor } from "./native/the-fold/reader-bundle.js";
+import { answerRecord } from "./native/the-fold/answer-record.js";
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 // The dispute lookup notesFromEdges reads (below): `noteId` is the same
@@ -64,7 +67,7 @@ import { voidHolarchy } from "./native/organs/void-holarchy.js";
 // checkout, a public-domain fallback excerpt otherwise — so a missing corpus
 // never silently ungoverns the system. Never fires on descriptive voice
 // (reading and talking about human atrocities passes by construction).
-import { familyVerdict, familyAffordances, giveCharterFamily } from "./native/organs/charter.js";
+import { familyVerdict, familyAffordances, giveCharterFamily, configureGfp } from "./native/organs/charter.js";
 import { constitution, ethosClear, requireClearance } from "./native/organs/ethos.js";
 import { readInterlocutor, mergeInterlocutor } from "./native/organs/interlocutor.js";
 import { speakDecline } from "./native/organs/socratic.js";
@@ -87,6 +90,23 @@ import { classifySpeech, cueBundle, bannedHits } from "./native/the-fold/earned-
 import { loadSpeakerModel, saveSpeakerModel, updateSpeakerModel, durableFacts } from "./native/the-fold/speaker-model.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+
+// GFP CHECKING for the Charter organ (2026-09-16): the checking side reads
+// intent via a real grammar adapter (relations-positional.js + a measured
+// RoleConfig@1/POS prior for English — native/priors/role-config-eng.json,
+// native/priors/pos-en.json, both built from real UD_English-EWT data,
+// never guessed), never raw-text-span matching. Configured once at module
+// load; a missing prior file means every clause structurally REFUSES (no
+// conflicts found) rather than crashing the turn — logged, never thrown.
+try {
+  configureGfp({
+    roleConfig: JSON.parse(fs.readFileSync(path.join(HERE, "native/priors/role-config-eng.json"), "utf8")),
+    posPrior: JSON.parse(fs.readFileSync(path.join(HERE, "native/priors/pos-en.json"), "utf8")),
+  });
+} catch (err) {
+  console.error(`charter GFP config not loaded — the Family Gate will structurally refuse every clause until this is fixed: ${err.message}`);
+}
+
 const GIVER = "reader:eoreader7-proxy";
 const CANONICALIZATION_FLOOR = 2;
 const ANCHORING = (process.env.ER7_ANCHORING ?? "born") === "born"
@@ -186,6 +206,88 @@ async function enrichFromWikipedia(composition, maxConcepts = WIKI_MAX_CONCEPTS)
   const terms = [...new Set(scored.map((e) => String(e.left || e.right || "").trim()).filter(Boolean))].slice(0, maxConcepts);
   const summaries = await Promise.all(terms.map(async (term) => ({ term, snippet: await wikipediaSummary(term) })));
   return summaries.filter((s) => s.snippet);
+}
+
+// When the corpus surf returns void, try a web search as a factual ground.
+// Classifies what kind of thing is absent: an entity (person/org/place), an
+// event (something that occurred), or a fact (atemporal property/relation).
+// Used to compose ontologically-specific void text rather than a generic signal.
+function classifyAbsent(task) {
+  const t = String(task ?? "");
+  const tl = t.toLowerCase();
+  // Event: named occurrences, agreements, conflicts, temporal happenings
+  if (/\b(accord|treaty|agreement|ceasefire|armistice|pact|war|battle|conflict|siege|invasion|uprising|revolution|coup|summit|conference|congress|convention|crisis|incident|disaster|outbreak|epidemic|pandemic|collapse|crash|founding|signing|launch|ceremony|referendum|election|assassination|massacre|embargo)\b/i.test(t)) return "event";
+  if (/\b(that (?:ended|began|started|occurred|happened|took place|was signed|was held|resolved|established)|which (?:ended|began|started|occurred))\b/i.test(tl)) return "event";
+  // Entity: named individuals, organisations, places
+  if (/\bwho (?:is|was|are|were)\b/i.test(tl)) return "entity";
+  if (/\b(?:dr|prof|professor|senator|mayor|ceo|president|general|colonel|admiral|minister|chancellor|director|founder|scientist|researcher|activist|philosopher|author|artist)\b[.\s]/i.test(t)) return "entity";
+  if (/\b(?:what (?:is|are|was|were) .{0,30}(?:known for|famous for|most notable|greatest achievement|research contribution))\b/i.test(tl)) return "entity";
+  // Fact: attributions, properties, relations, verifications
+  return "fact";
+}
+
+// Builds a void assertion that names the ontological category of the absence
+// (entity / event / fact) × the reason for it (never furnished / searched and
+// absent / confirmed absent across sources) × the grain (unverified / probable).
+function buildVoidText({ what = "fact", why = "searched_absent", grain = "unverified", query = null } = {}) {
+  const src = query ? ` (a search for "${query}" also found nothing)` : "";
+  if (grain === "probable" || grain === "certain") {
+    // Two independent sources agree — name the ontological conclusion.
+    if (what === "entity") return `No record of this person or entity appears in any source checked${src}. This appears to be fictitious or non-existent.`;
+    if (what === "event")  return `No record of this event exists in any source checked${src}. This event may not have occurred.`;
+    return                        `No source confirms this${src}. This may be unverifiable or false.`;
+  }
+  if (why === "no_material") {
+    if (what === "entity") return "No material on this person or entity was provided to this reading session.";
+    if (what === "event")  return "No material about this event was provided to this reading session.";
+    return                        "No material touching this question was provided to this reading session.";
+  }
+  // searched_absent — corpus was furnished and searched, thing simply not there
+  if (what === "entity") return "The material provided has nothing on this person or entity.";
+  if (what === "event")  return "The material provided contains nothing about this event.";
+  return                        "The material provided does not address this.";
+}
+
+// Extracts the first meaningful search-result snippets from DuckDuckGo without
+// fetching full pages. Zero results confirms the void; real snippets become the
+// material block. Skips conversational-referent questions ("you mentioned…")
+// where the named referent is a session artifact, not a real-world entity.
+async function voidWebSearchFallback(task) {
+  if (!WIKIPEDIA_ON) return null;
+  const text = String(task ?? "");
+  if (/\b(you mentioned|earlier you|i told you|we discussed|you said|in (?:our|this) (?:conversation|session|chat))\b/i.test(text)) return null;
+
+  // Extract the most specific proper noun phrase to search for.
+  const multi = text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]*)+\b/g) ?? [];
+  const single = [...text.matchAll(/(?<=\S\s)[A-Z][a-z]{2,}/g)].map((m) => m[0]);
+  const candidates = [...new Set([...multi, ...single])].sort((a, b) => b.length - a.length);
+  const query = candidates[0];
+  if (!query?.trim()) return null; // no entity to look up — leave the plain void assertion
+
+  try {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 12000);
+    const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+    const res = await fetch(searchUrl, { signal: ctrl.signal, headers: { "user-agent": "eoreader7-proxy" } });
+    clearTimeout(t);
+    if (!res.ok) return null;
+    const html = await res.text();
+
+    // Extract result snippets — the short descriptive text DDG shows under each title.
+    const snippets = [];
+    const snippetRe = /<a[^>]*class="[^"]*result__snippet[^"]*"[^>]*>([\s\S]*?)<\/a>/gi;
+    let m;
+    while ((m = snippetRe.exec(html)) && snippets.length < 3) {
+      const s = m[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+      if (s.length > 20) snippets.push(s);
+    }
+    // No snippets found — the web itself has nothing on this entity.
+    // Return a typed void rather than null so the call site can express it.
+    if (!snippets.length) return { found: false, query };
+    return { found: true, query, text: `From a search for "${query}":\n${snippets.map((s, i) => `${i + 1}. ${s}`).join("\n")}` };
+  } catch {
+    return null; // network error — leave the plain void assertion
+  }
 }
 
 // ── residency ping during blocking setup ─────────────────────────────────
@@ -667,7 +769,8 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
         // for every web-grounded chat turn this proxy has ever answered.)
         if (shadowEntry) {
           const idx = sessionReferentIndex(session, null);
-          shadowEntry.reading = {            referents: [...(idx?.referents ?? new Map()).values()]
+          shadowEntry.reading = {
+            referents: [...(idx?.referents ?? new Map()).values()]
               .slice(-12)
               .map((ref) => [...(ref.surfaces ?? [])][0] ?? null)
               .filter(Boolean),
@@ -1316,11 +1419,31 @@ function earnedCue({ task, chatHistory = [], surfVoidInfo = null }) {
       .filter((m) => m?.role === "user" && typeof m.content === "string" && m.content.trim())
       .slice(-3)
       .map((m) => m.content.trim());
+    const _what = classifyAbsent(task);
+    const GAP_PROSE = {
+      no_material: {
+        entity: "a source that names this person or entity",
+        event:  "a source that records this event",
+        fact:   "a source with material on this",
+      },
+      nothing_relevant_found: {
+        entity: "material on this person in the sources",
+        event:  "material about this event in the sources",
+        fact:   "relevant material in the sources",
+      },
+      content_not_found: {
+        entity: "this person's record in the sources",
+        event:  "this event's record in the sources",
+        fact:   "the relevant content in the sources",
+      },
+    };
+    const _gk = surfVoidInfo?.gap;
+    const _gp = _gk ? (GAP_PROSE[_gk]?.[_what] ?? _gk.replace(/_/g, " ")) : "nothing here answers it";
     const state = {
       personClaims,
       // A confirmed absence is a gap with its path, never a defeatist stop.
-      ...(surfVoidInfo ? { gaps: [surfVoidInfo.gap ?? "nothing here answers it"] } : {}),
-      ...(surfVoidInfo ? { notEstablished: [surfVoidInfo.gap ?? "it"] } : {}),
+      ...(surfVoidInfo ? { gaps: [_gp] } : {}),
+      ...(surfVoidInfo ? { notEstablished: [_gp] } : {}),
     };
     const bundle = cueBundle({ act: classifySpeech(task), state, depth: 1 });
     const mouth = String(bundle.mouth ?? "").trim();
@@ -2261,6 +2384,28 @@ export function notesFromEdges(graphEntries = [], { disputeLog = null } = {}) {
   return notes;
 }
 
+/** Read the answer with the engine's own relation reader against the turn's surfaced passages — the per-sentence claims (verdicts + addresses) the ground ladder and answer record feed from. */
+function readAnswerClaims(answer, passages) {
+  try {
+    const reader = engineRelationsFor(passages);
+    if (!reader?.read) return [];
+    const report = reader.read(String(answer ?? ""));
+    return (report?.claims ?? []).map((c) => ({
+      sentence: c.sentence ?? null,
+      end1: c.end1 ?? c.subject ?? null,
+      label: c.label ?? c.verb ?? null,
+      end2: c.end2 ?? c.object ?? null,
+      verdict: c.verdict ?? "unheard",
+      polarity: c.polarity ?? "+",
+      refs: c.refs ?? [],
+      spans: (c.spans ?? []).map((sp) => ({ ref: sp.ref ?? null, start: sp.start ?? null, end: sp.end ?? null })),
+      ...(c.reason ? { reason: c.reason } : {}),
+    }));
+  } catch {
+    return [];
+  }
+}
+
 // The conversation's referent index — a PROJECTION of the reading's own log
 // (P171, the-fold/reading-log.js), never a scan over names. The workspace
 // files and the chat are both stepped through the same constitutional
@@ -2407,7 +2552,7 @@ function chatVoidCheck(text, { shape, material = "" } = {}) {
 // disclosed, never laundered. No model is asked while meaning is equated.
 // ────────────────────────────────────────────────────────────────────────
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null, mode = "auto", caller = null, signal = null }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null, mode = "auto", caller = null, signal = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   _hot.add(model); // this turn is using it — hold it resident after
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
@@ -2483,6 +2628,45 @@ const modelsUp = await ollamaReachable();
     // never be given (the text scan refuses them).
     const lookedImages = await lookWorkspaceImages(session, workspace, onNote);
     if (lookedImages.looked > 0 && onNote) onNote({ move: "look_images_done", files: lookedImages.looked });
+  }
+
+  // 1.1 BROWSER-POSTED MATERIAL — attachments ride the request BODY, not the
+  // filesystem (the ONE-ENGINE-PLAN's gating port: "no way for a browser to
+  // POST attached text"). Each `{ name, text }` is admitted into the SAME real
+  // corpus session and stepped through the SAME reader as a workspace file —
+  // one intake path, one PII door, one holograph/hyperlexicon — so a client
+  // that pastes or drops material (the-fold's attachments) needs no disk path
+  // at all. Deduped by name+content, bounded like workspace files, and the
+  // bytes are never a file on this machine.
+  const sha1Short = (t) => { let h = 0; for (let i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) >>> 0; return h.toString(36); };
+  let attachmentStats = { files: 0, chars: 0, admitted: 0 };
+  if (Array.isArray(attachments) && attachments.length) {
+    if (!session.corpus) session.corpus = createCorpusSession();
+    const index = session.corpusIndex ?? new Map();
+    for (const a of attachments) {
+      const name = String(a?.name ?? `attachment-${attachmentStats.files + 1}`).slice(0, 120);
+      const text = String(a?.text ?? "");
+      if (!text.trim()) continue;
+      attachmentStats.files += 1;
+      attachmentStats.chars += text.length;
+      const sig = `${text.length}:${sha1Short(text)}`;
+      if (index.get(name) === sig) continue; // unchanged re-admission is a no-op
+      const res = admitChunked(session.corpus, { text: piiAdmit(session, text, name, onNote), sourceId: name });
+      index.set(name, sig);
+      attachmentStats.admitted += res.deduped ? 0 : 1;
+      const encounters = textEncounters(text, { source: `attach:${name}`, offset: 0 });
+      for (const enc of encounters) {
+        const turn = await session.reader.step(enc);
+        if (turn?.tasks?.open && onNote) {
+          for (const t of turn.tasks.open) {
+            onNote({ move: "open_question", rel: name, task_id: t.task_id ?? null, description: t.description ?? null });
+          }
+        }
+        await yieldToEventLoop();
+      }
+      if (onNote) onNote({ move: "attachment_admitted", name, chars: text.length, admitted: res.deduped ? 0 : 1 });
+    }
+    session.corpusIndex = index;
   }
 
   // 1.5 DEF THE VOID — UNIVERSAL, EVERY TURN. The void is the shape of what
@@ -2890,9 +3074,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       : "\nYou're helping answer a question. Here's the context we have.",
     discourse ? `\n${discourse}` : null,
     readingContext || null,
-    surfVoidInfo
-      ? `\n\nWe looked for something on this and couldn't find it (${surfVoidInfo.gap}). Say plainly that nothing here answers it, rather than answering from something else.`
-      : null,
+    null, // void is asserted as data in the material block, not as a behavioral instruction
     // KELSEN, ON THE ANSWER'S BODY — when the reading held conflicting claims,
     // the precedence order resolved them and the mouth must speak the
     // standing, never silently pick a winner. This is the machine-that-won't-
@@ -2951,8 +3133,23 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // call — measured: a 25K system prompt (17K of raw source text) re-sent on
   // each of 13 section draws. Chat/long have no per-section brief, so they
   // keep the material in the prompt; projection draws on the claims alone.
-  if (material.length && runMode !== "projection") {
-    systemContent += `\n\nHere's what came up on this:\n\n"""\n${material.join("\n\n")}\n"""`;
+  if (runMode !== "projection") {
+    if (material.length) {
+      systemContent += `\n\nHere's what came up on this:\n\n"""\n${material.join("\n\n")}\n"""`;
+    } else if (surfVoid) {
+      const webGround = await voidWebSearchFallback(task);
+      const what = classifyAbsent(task);
+      const why  = surfVoidInfo?.gap === "no_material" ? "no_material" : "searched_absent";
+      let vt;
+      if (!webGround) {
+        vt = buildVoidText({ what, why, grain: "unverified" });
+      } else if (webGround.found) {
+        vt = webGround.text;
+      } else {
+        vt = buildVoidText({ what, why, grain: "probable", query: webGround.query });
+      }
+      systemContent += `\n\nHere's what came up on this:\n\n"""\n${vt}\n"""`;
+    }
   }
   // Verbatim snips (citations) available to the composition so the essay can
   // QUOTE the sources — the model weaves real source text into its sections,
@@ -4263,6 +4460,58 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     }
   }
 
+  // 7.5 THE PER-SENTENCE READING SURFACE (ONE-ENGINE-PLAN port #2/#3). The
+  // fold's reader looks at per-sentence VERDICTS and ADDRESSES, never claim
+  // counts; the engine previously returned only relationEdges/referentBindings
+  // tallies. Here the answer is read with the engine's OWN relation reader
+  // (native/the-fold/reader-bundle.js — the same organs app.js assembles),
+  // each sentence is placed on its ground-ladder rung (bound/witnessed/
+  // recorded/derived/named/self), and the AnswerRecord (claims, restsOn,
+  // groundOf per sentence) is built — so any client (the-fold's browser chat,
+  // the TUI, an OpenAI-shaped caller) receives the same marks the fold draws,
+  // without running its own engine. Mechanical rungs cost no model call; the
+  // WITNESS rung spends model asks only under a caller-declared budget (P9),
+  // and without one the rows are typed `skipped` and the ladder says so.
+  const readingSurface = (() => {
+    try {
+      // CODE turns write source code, not prose — reading a program's bytes
+      // as sentences would manufacture marks that lie (ONE-ENGINE-PLAN: "get
+      // it wrong and marks lie"). The surface is for the reader-facing prose
+      // registers only.
+      if (!text?.trim() || isCode) return null;
+      const passages = passagesFromSegments(surfacedSegments);
+      const claims = passages.length ? readAnswerClaims(text, passages) : [];
+      const notes = notesFromEdges(rawEntries ?? []);
+      const index = sessionReferentIndex(session, onNote);
+      const surface = sentenceSurface(text, {
+        claims,
+        notes,
+        passages,
+        resolveName: index?.resolve ? (n) => index.resolve(n) : null,
+        model,
+        splitSentences: (t) => String(t ?? "").split(/(?<=[.!?])\s+|\n+/).map((s) => s.trim()).filter(Boolean),
+      });
+      const record = answerRecord({
+        question: task,
+        answer: text,
+        model,
+        frame: "eoreader7-proxy",
+        recipe: "proxy-runner@1",
+        sections: [{ passages, relations: { claims } }],
+        unsupported: claims.filter((c) => c.verdict === "contradicted" || c.verdict === "unbound").map((c) => c.sentence),
+        unbacked: claims.filter((c) => c.verdict === "beyond-reach" || c.verdict === "unheard").map((c) => c.sentence),
+        sources: [...new Set(passages.map((p) => String(p.ref ?? "").split("#")[0]).filter(Boolean))].map((name) => ({ name })),
+        constitution: { prompt: "native/organs/ethos.js::constitution", sha256: charter?.sha256 ?? null },
+        voids: [],
+        witness: [],
+      });
+      return { surface, record, claims, notes };
+    } catch (err) {
+      if (onNote) onNote({ move: "reading_surface_error", error: err.message });
+      return null;
+    }
+  })();
+
   // ── the thinking affordance: what the unconscious did, in plain English ──
   // Disclosed only when the client asks (discloseThinking). The grounding
   // summary — what was read, what surfaced, what the reading established —
@@ -4480,10 +4729,19 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // the families' GIVEN affordances already license the composition above.
   const charterVerdictOut = familyVerdict(charterFamily, text);
   if (charterVerdictOut.verdict === "conflict") {
-    const reasons = charterVerdictOut.conflicts
-      .map((c) => `${c.act ?? c.right ?? c.kind} — ${c.articles?.[0] ?? "the instrument"} (${c.charter})`)
-      .join("; ");
-    text = `[EOReader7: the composition cannot close its reasons — it prescribes what the family prohibits, or denies what it protects: ${reasons}. The core shows its reasons; it does not judge.]`;
+    // The conflict is already recorded in the charter annotation below (line 4648)
+    // so the surface can render it as an affordance. The apparatus marker must
+    // never become the answer text — that is a Gary no-apparatus violation.
+    // Only a genuine harm conflict (torture/slavery/servitude) replaces the text,
+    // and even then with a plain neutral refusal, not an apparatus string.
+    const GENUINE_HARM = /torture|slavery|servitude/i;
+    const isGenuine = charterVerdictOut.conflicts.some(
+      (c) => GENUINE_HARM.test(c.act ?? "") || GENUINE_HARM.test(c.right ?? "")
+    );
+    if (isGenuine) {
+      text = "That isn't something this reading can help with.";
+    }
+    // False-positive conflicts pass through; the charter field carries the record.
   }
 
   // ── GROUNDED WISDOM (2026-09-15): the credited archons whose domain this
@@ -4554,6 +4812,23 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     hyperlexiconCandidates: Object.keys(hyperlexicon.composition ?? {}).length,
     turn: session.turnCount,
     workspace: workspaceStats,
+    attachments: attachmentStats,
+    // THE PER-SENTENCE READING SURFACE (ONE-ENGINE-PLAN): every sentence of
+    // the answer, its ground-ladder rung (bound/witnessed/recorded/derived/
+    // named/self), the claim verdicts that bound to it, and the AnswerRecord
+    // (claims, tally, unsupported/unbacked, retrievedSources). null when the
+    // answer was empty or the surface could not be computed — a typed
+    // absence, never a guess.
+    reading: readingSurface
+      ? {
+          schema: readingSurface.surface.schema,
+          sentences: readingSurface.surface.rows,
+          tally: readingSurface.surface.tally,
+          claims: readingSurface.claims,
+          notes: readingSurface.notes,
+          answerRecord: readingSurface.record,
+        }
+      : null,
     surfed: surfacedSegments.map((s) => s._ledger),
     post: post ? { blocks: post.blocks?.length ?? 0, linted: post.linted ?? false, reordered: post.reordered ?? false, notes: post.notes ?? [] } : null,
     resolutions: resolutions ? { level: resolutions.level, text: resolutions.text, active: resolutions.active ?? null, atmosphere: resolutions.atmosphere ? { basis: resolutions.atmosphere.basis, ground: resolutions.atmosphere.ground ?? null } : null, lens: resolutions.lens ? { basis: resolutions.lens.basis, windows: resolutions.lens.windows ?? null } : null, paradigm: resolutions.paradigm ? { basis: resolutions.paradigm.basis, window: resolutions.paradigm.window ?? null } : null } : null,
@@ -4607,7 +4882,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       : null,
     usage,
     truncated,
-    shadow: session.shadow ?? [],
+    // THE VISITED-SITES LIST (Mneme) — the sites this session's reading
+    // actually opened, each with its resolution and chars. Named apart from
+    // `shadow` above (the Bourdieu norm-standing RATE): the two are different
+    // objects and `shadow: session.shadow` used to OVERWRITE the rate —
+    // ONE-ENGINE-PLAN's named bug, fixed here by giving each its own name.
+    shadowSites: session.shadow ?? [],
     // The MENO CHECK: the void was DEF'd when the composition started; here we
     // ask whether it is FILLED. We know we've learned when the void we
     // declared — across its nine operators — is filled by sections that pass
