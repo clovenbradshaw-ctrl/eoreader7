@@ -2657,32 +2657,38 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // pattern: a fact about what the corpus does NOT hold, never a behavioral
   // instruction stacked on top of it).
   if (session.corpus && session.corpus.documents.size > 0) {
-    // A projection task (an artifact with sections — essay/paper/report/spec,
-    // any generation with material to write from) wants the multi-doc surf:
-    // one windowed segment per source, so each section has its own grounded
-    // material — not the single best address a one-shot answer needs.
-    const surf = surfTask(session, task, onNote, { composition: runMode === "projection" });
-    surfacedSegments = surf.segments;
-    surfVoid = surf.void;
-    surfVoidInfo = surf.void ? { gap: surf.gap ?? "content_not_found", reason: surf.reason ?? null } : null;
-    workspaceStats.segments = surfacedSegments.length;
-    if (surf.void) workspaceStats.refusals = 1;
+    // Chat-format lines have no structural boundaries that surfTask's mechanical
+    // address ladder can navigate. When all corpus docs are chat: entries (no
+    // workspace or web material), route directly to conversationFoldSegments —
+    // the conversation-aware path that already handles this case correctly.
+    const hasNonChatMaterial = [...session.corpus.documents.keys()].some(k => !String(k ?? "").startsWith("chat:"));
 
-    // BROAD RECALL — a "summarize / what do you remember" question asks for
-    // the CONVERSATION, not a single addressed passage. The mechanical ladder
-    // has no cue for a meta question (it shares almost no tokens with the
-    // planted turns), so for this class the model is handed the conversation's
-    // OWN fold instead — the prior turns' words, addressed as a conversation,
-    // never a fabricated digest, and never the void-disclosed "nothing here
-    // answers it" that the ladder would otherwise return.
-    if (isBroadRecall(task)) {
+    if (hasNonChatMaterial) {
+      // A projection task (an artifact with sections — essay/paper/report/spec,
+      // any generation with material to write from) wants the multi-doc surf:
+      // one windowed segment per source, so each section has its own grounded
+      // material — not the single best address a one-shot answer needs.
+      const surf = surfTask(session, task, onNote, { composition: runMode === "projection" });
+      surfacedSegments = surf.segments;
+      surfVoid = surf.void || surf.segments.length === 0;
+      surfVoidInfo = (surf.void || surf.segments.length === 0)
+        ? { gap: surf.void ? (surf.gap ?? "content_not_found") : "nothing_relevant_found", reason: surf.reason ?? null }
+        : null;
+      workspaceStats.segments = surfacedSegments.length;
+      if (surfVoid) workspaceStats.refusals = 1;
+    }
+
+    // BROAD RECALL and chat-only: use the conversation's own fold — the prior
+    // turns' words addressed as a conversation, never the mechanical ladder
+    // (which has no cue for meta questions or unstructured chat lines).
+    if (isBroadRecall(task) || !hasNonChatMaterial) {
       const foldSegments = conversationFoldSegments(session, task, materialText);
       if (foldSegments.length) {
         surfacedSegments = foldSegments;
         surfVoid = false;
         surfVoidInfo = null;
         workspaceStats.segments = foldSegments.length;
-        if (onNote) onNote({ move: "surfaced", operator: "CONV", fan: foldSegments.length, docs: session.corpus.documents.size, broadRecall: true });
+        if (onNote) onNote({ move: "surfaced", operator: "CONV", fan: foldSegments.length, docs: session.corpus.documents.size, broadRecall: isBroadRecall(task) });
       }
     }
   } else {
@@ -2896,6 +2902,20 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     if (systemLen + taskLen + chatLen + cost > PROMPT_MAX_CHARS) break;
     keptChat.unshift({ role: m.role, content: m.content });
     chatLen += cost;
+  }
+  // When the client sends no history (stateless API call), reconstruct prior
+  // turns from the session corpus so opaque tokens and short prior exchanges
+  // reach the model verbatim — the semantic surf may miss them by topic mismatch.
+  if (!keptChat.length && session.corpus?.documents?.size) {
+    const priorTurns = transcriptFromSession(session, task);
+    for (const t of priorTurns) {
+      const qCost = String(t.question ?? "").length + MSG_OVERHEAD_CHARS;
+      const aCost = String(t.answer ?? "").length + MSG_OVERHEAD_CHARS;
+      if (systemLen + taskLen + chatLen + qCost + aCost > PROMPT_MAX_CHARS) break;
+      keptChat.push({ role: "user", content: t.question });
+      if (t.answer) keptChat.push({ role: "assistant", content: t.answer });
+      chatLen += qCost + aCost;
+    }
   }
 
   // Surfed material fills what remains — the most-relevant segments first,
