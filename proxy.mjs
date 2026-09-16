@@ -12,6 +12,15 @@ import { runCodeLoop } from "./native/the-fold/code-loop.js";
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
 import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall } from "./heimdall.mjs";
+// "Computed, not generated" — the-fold's own house rule (arithmetic.js),
+// reused directly rather than re-derived: a small model answering "what is
+// today's date?" from its stale training data, with nothing in THIS proxy's
+// pipeline checking it (no web access, no mechanical clock door of its
+// own), was found live. checkClock is pure and Node-safe (the arithmetic
+// door's own injected-mathjs functions need a vendored engine; this one
+// doesn't) — a shared fix here reaches every caller of this endpoint, not
+// only one client.
+import { checkClock } from "../the-fold/arithmetic.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -577,6 +586,26 @@ async function handleRequest(req, res) {
 
       const created = Math.floor(Date.now() / 1000);
       const id = `er7-${Date.now()}`;
+
+      // A mechanical door, checked before anything else spends a model call
+      // or a heimdall admission slot: "what is today's date?"/"what time is
+      // it?" etc. are answered from this machine's own real clock, never
+      // asked of the model. Real Date, real timezone — never a guess.
+      const clock = checkClock(reqData.task, { now: new Date() });
+      if (clock) {
+        log(`turn → session=${sessionId} clock op=${clock.op} — computed, zero model calls`);
+        const reading = { computed: true, mechanism: "clock", op: clock.op, sessionId };
+        if (reqData.stream) {
+          res.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-cache", connection: "keep-alive", "x-er7-session": sessionId });
+          for (const line of openAIStreamLines({ id, model: parsed.model, text: clock.display, created, reading })) res.write(line);
+          res.end("data: [DONE]\n\n");
+        } else {
+          const resp = openAIResponse({ id, model: parsed.model, text: clock.display, created, usage: { promptTokens: 0, completionTokens: 0 }, reading });
+          res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
+          res.end(JSON.stringify(resp));
+        }
+        return;
+      }
 
       if (reqData.stream) {
         res.writeHead(200, {
