@@ -68,23 +68,40 @@ const GROUND_FACT = Object.freeze({
   "doubt carried forward": "the accounts here diverge and do not reconcile — the doubt stands, not settled either way.",
 });
 
-// Nagarjuna's disclosed finding, worded into the EVA·Figure admission
-// cell: not "did the candidate pass," but what the candidate's standing
-// was actually traced back to and whether that tracing held up. Reuses
-// refuteRelation's OWN disclosure text where possible rather than
-// inventing a second, drifting description of what it found.
-function admissionFromRefutation(edges, winner, refuteRelation) {
+// Nagarjuna's disclosed finding, worded into two cells at once: EVA
+// (admission — not "did the candidate pass," but what its standing was
+// actually traced back to and whether that tracing held) and REC
+// (reopensOn — what NEW evidence would revise THIS finding specifically,
+// never a generic "if new evidence arrives"). A void whose reopening
+// condition is never stated cannot honestly be said to be chased at all
+// — REC left undeclared reads as "this is settled," which none of the
+// three branches below actually are. Reuses refuteRelation's OWN
+// disclosure text where possible rather than inventing a second,
+// drifting description of what it found.
+function nagarjunaFinding(edges, winner, refuteRelation) {
   if (!edges || !edges.length) {
-    return `"${winner}" has not been traced to anything that could refute it — no relation edges were offered for this material, so its standing is undetermined, not confirmed`;
+    return {
+      admission: `"${winner}" has not been traced to anything that could refute it — no relation edges were offered for this material, so its standing is undetermined, not confirmed`,
+      reopensOn: `any relation edges among these referents becoming available to check — right now there is nothing to trace`,
+    };
   }
   const refutation = refuteRelation(edges, "corroborates", {});
   if (refutation.power === "insufficient") {
-    return `"${winner}" has not been traced to anything that could refute it — ${refutation.powerDetail}`;
+    return {
+      admission: `"${winner}" has not been traced to anything that could refute it — ${refutation.powerDetail}`,
+      reopensOn: `a second resolved edge among these referents arriving — refutation needs at least two to say anything`,
+    };
   }
   if (refutation.refuted) {
-    return `"${winner}" does not stand on its own: tracing its dependencies out found ${refutation.reasons.join(", ")} — ${refutation.disclosure}`;
+    return {
+      admission: `"${winner}" does not stand on its own: tracing its dependencies out found ${refutation.reasons.join(", ")} — ${refutation.disclosure}`,
+      reopensOn: `the referents involved in that ${refutation.reasons.join("/")} being shown to be genuinely distinct standings (e.g. disjoint in time) rather than one conflated bridge — the same excusal refuteRelation's own interval check already grants elsewhere`,
+    };
   }
-  return `"${winner}" has been traced to its dependencies and none collapsed under a positive counterexample (uniqueness violation or cycle) — ${refutation.disclosure}`;
+  return {
+    admission: `"${winner}" has been traced to its dependencies and none collapsed under a positive counterexample (uniqueness violation or cycle) — ${refutation.disclosure}`,
+    reopensOn: `a new edge among these referents surfacing a uniqueness violation or a cycle — absence of one so far is not proof none exists`,
+  };
 }
 
 /**
@@ -133,8 +150,8 @@ export function groundAttention({ task, records, edges = null } = {}, {
 
   // Nagarjuna's contribution: word the admission test, never run a verdict
   // of its own. The declared void ships alongside the fact either way.
-  const admission = admissionFromRefutation(edges, verdict.winner, refuteRelation);
-  const declaredVoid = declareVoid({ slot: `${verdict.winner} — admission`, admission }, { cellOf });
+  const { admission, reopensOn } = nagarjunaFinding(edges, verdict.winner, refuteRelation);
+  const declaredVoid = declareVoid({ slot: `${verdict.winner} — admission`, admission, reopensOn }, { cellOf });
 
   const text = GROUND_FACT[verdict.winner];
   return Object.freeze({ fired: true, from: "ground", text, winner: verdict.winner, verdict, void: declaredVoid });

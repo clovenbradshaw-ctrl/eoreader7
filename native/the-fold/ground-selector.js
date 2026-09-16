@@ -87,32 +87,45 @@ function textGroups(records) {
 }
 
 // "what eyes and ears witnessed" (Mozi's criterion, per the log): measured
-// as CONCENTRATION, not mere presence — the highest fraction of any one
-// record's own sentences that open on a first-person token (a real,
-// received closed class, FIRST_PERSON, giver: lang/en; never a hand-
-// written pattern), maxShare-style (hub-monitor.mjs's own pattern, this
-// session). A first-run version counted RECORDS with >=1 first-person
-// sentence instead of fractions; found live while building this: once the
-// pooled sentence-count approached the number of first-person sentences,
-// the sentence-redeal null smeared at least one hit into nearly every
-// record almost every draw (a hypergeometric near-certainty, not a
-// coincidence), so presence alone never separated. A genuinely first-
-// person ACCOUNT is one record where the fraction is high while every
-// other record's fraction is near zero — concentration is what a random
-// redeal actually dilutes.
-function firstPersonConcentration(records) {
-  let best = 0;
-  for (const r of records) {
-    const sentences = splitSentences(String(r.text ?? ""));
-    if (!sentences.length) continue;
-    let hits = 0;
-    for (const s of sentences) {
-      const first = String(s?.text ?? s ?? "").trim().split(/\s+/)[0]?.replace(/[^\p{L}']/gu, "");
-      if (first && FIRST_PERSON.test(first)) hits += 1;
-    }
-    best = Math.max(best, hits / sentences.length);
+// as a SHARE OF THE TOTAL, not a fraction of one record's own sentences —
+// hub-monitor.mjs's real maxShare pattern (this session), applied here to
+// first-person sentence counts instead of graph degree. Second live
+// falsification, found chasing satisfaction on a real two-round prompt:
+// the FIRST fix (own-fraction, in this function's earlier form) still
+// degraded as evidence accumulated — round 2 added a genuine SECOND
+// firsthand witness and the criterion stopped clearing, because a bigger
+// pool of first-person sentences gives a per-record-fraction null more
+// raw material to accidentally concentrate into one redealt record, so
+// the ceiling rose faster than the (unchanged, per-record-capped-at-1.0)
+// signal could. A SHARE of the corpus-wide total does not have this
+// defect: it is bounded [0,1] by construction regardless of how much
+// first-person content exists in total, and under the sentence-redeal
+// null its EXPECTED value shrinks as more first-person sentences enter
+// the pool (more items to spread across N slots means less of any one
+// slot's expected share, not more) — so more real witnessed content
+// makes the null MORE conservative, not less, the direction evidence
+// should move it.
+//
+// `FIRST_PERSON` (a real, received closed class, giver: lang/en) is now
+// checked against ANY token in a sentence, not only its first word — the
+// FIRST falsification found live: real testimony ("The explosion knocked
+// me off my feet before I even registered the sound") routinely does not
+// open on the pronoun, and the position-restricted version scored it 0.
+function firstPersonSentenceCount(text) {
+  const sentences = splitSentences(String(text ?? ""));
+  let hits = 0;
+  for (const s of sentences) {
+    const tokens = String(s?.text ?? s ?? "").split(/[^\p{L}']+/u).filter(Boolean);
+    if (tokens.some((t) => FIRST_PERSON.test(t))) hits += 1;
   }
-  return best;
+  return hits;
+}
+
+function firstPersonShare(records) {
+  const counts = records.map((r) => firstPersonSentenceCount(r.text));
+  const total = counts.reduce((a, b) => a + b, 0);
+  if (!total) return 0;
+  return Math.max(...counts) / total;
 }
 
 // "doubt carried forward": mean divergence across INDEPENDENT pairs (pairs
@@ -144,7 +157,7 @@ const CRITERIA = Object.freeze([
   {
     id: "what eyes and ears witnessed",
     family: "text",
-    measure: firstPersonConcentration,
+    measure: firstPersonShare,
   },
   {
     id: "doubt carried forward",

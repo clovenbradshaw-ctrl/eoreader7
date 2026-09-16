@@ -76,6 +76,13 @@ test("groundAttention: a checked-and-clean relation set words the admission test
   assert.doesNotMatch(admissionCell.declared, /\bverified\b/);
 });
 
+test("groundAttention: the declared void's REC cell (reopensOn) is never left undeclared — a chased void states what would revise it", () => {
+  const r = groundAttention({ task: "was there an eyewitness account of the harbor fire?", records: FIRSTHAND_RECORDS }, deps);
+  const reopensCell = r.void.cells.find((c) => c.field === "reopensOn");
+  assert.equal(reopensCell.standing, "declared");
+  assert.match(reopensCell.declared, /relation edges/);
+});
+
 test("groundAttention: every mapped archon handle exists in the real compendium", () => {
   for (const handle of Object.keys(ARCHON_TO_CRITERION_MAP)) {
     assert.ok(ARCHONS.some((a) => a.handle === handle), `"${handle}" is not a real compendium entry`);
