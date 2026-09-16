@@ -145,6 +145,7 @@ the-fold's flat top level under the same basename.
 | `organs/corroboration.js` | Bukhari | Stands only on independent chains; shared chain = one witness. |
 | `organs/testimony.js` | Wigmore | Ask the witness twice, swapped twin, verdict from the pair. |
 | `organs/witness-sentences.js` | Khaldun | Check the report against the nature of things before admitting it. |
+| `organs/run-dmca.js` | YadaYadaYada | The archon of paraphrase — the seam between synthesis and source: a claim in other words either stands on the source's own bytes or it does not; grounded is grounded, invention is invention. Owns the whole omnilingual paraphrase system (the shadow chase, the record equate, the witness's read, the Rosetta projection) — Alexander and Ranke still adjudicate the cells, but the domain has one owner. |
 | `organs/grounding.js` | Mozi | It is in the bytes the eyes and ears can witness, or it isn't. |
 | `organs/quotes.js` | Dai | A quotation is verified to its source or not printed as one. |
 | `organs/source.js` | Nadim | Addressed catalogue; retrieval by where it sits, never by judgment. |

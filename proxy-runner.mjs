@@ -4762,6 +4762,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       blindspotResult ? { handle: "popper", why: "the blind-spot archon ran on this turn's artifact" } : null,
       piiResult?.findings?.length ? { handle: "goffman", why: "the PII archon ran on this turn's output and material" } : null,
       injectionResult?.findings?.length ? { handle: "ulysses", why: "the injection archon disclosed an attempt this turn" } : null,
+      categorized && (categorized.paraphraseCandidates > 0 || categorized.paraphraseUnmeasured) ? { handle: "yadayadayada", why: "the paraphrase archon ran this turn's meaning chase — the shadow named candidates, the record equated or refused, FOR a named whom" } : null,
     ].filter(Boolean);
     const byHandle = new Map();
     for (const m of matched) byHandle.set(m.handle, { handle: m.handle, why: "the question touched this archon's domain", relevance: m.relevance });

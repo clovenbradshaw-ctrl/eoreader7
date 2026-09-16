@@ -109,6 +109,17 @@ export const ARCHONS = Object.freeze([
     topics: ["report", "nature", "admit", "testimony", "social", "plausibility", "verify"],
   },
   {
+    handle: "yadayadayada",
+    name: "Yada Yada Yada",
+    organ: "organs/run-dmca.js",
+    role: "the archon of paraphrase — the seam between synthesis and source: a claim in other words either stands on the source's own bytes or it does not; grounded is grounded, invention is invention",
+    pdStatus: "nomination",
+    work: "The handle names a posture, not a claimed work: to paraphrase is to say the same thing in other words — compressing, restating, skipping the verbatim without changing what was meant. The discipline mechanized in this repo: paraphrase is chased by MEANING, never by character identity — the holograph equates when a write span is the same referent-bound relation the source's own reading already projected; the chase is model-free (the record's own claim rows decide, FOR a named whom, and even the empty hub is a standpoint); and a paraphrase beyond the received vocabulary is a named gap, never a guess.",
+    source: "the idiom 'yada yada yada' — the compressed restatement that skips the verbatim (the specific namesake's works are not asserted by this compendium)",
+    credit: "YadaYadaYada — the archon of paraphrase: a claim in other words either stands on the source's bytes or it does not; grounded is grounded, invention is invention.",
+    topics: ["paraphrase", "reword", "restatement", "meaning", "holograph", "synonym", "derive", "invent", "grounded", "chase"],
+  },
+  {
     handle: "mozi",
     name: "Mozi",
     organ: "organs/grounding.js",

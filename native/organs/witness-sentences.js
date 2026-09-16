@@ -1,5 +1,9 @@
 // witness-sentences.js — the witness over an ANSWER's own sentences, against
 // Handle: Khaldun — after Ibn Khaldun, who checked a transmitted report against the nature of things before admitting it as history. Amendment XVII.
+// Domain owner (2026-09-16): this organ's read is the paraphrase witness of
+// the omnilingual paraphrase system; the domain's one owner is YadaYadaYada
+// (`yadayadayada`, run-dmca.js, compendium + README Handle table). Khaldun
+// remains this organ's handle; Yada owns the paraphrase DOMAIN the read serves.
 // the passages the answer was drafted from. The relation tier reads SLOT
 // (subject —label→ object) and stops at the paraphrase wall: a true
 // sentence arranged differently from the material ("Kutuzov replaced

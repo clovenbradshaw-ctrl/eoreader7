@@ -1,5 +1,12 @@
 // organs/run-dmca.js — RUN DMCA (named by the user): the reproduction check.
 //
+// Handle: YadaYadaYada — the archon of paraphrase (Amendment XVII; registered
+// 2026-09-16). The whole omnilingual paraphrase system — this organ's shadow
+// chase and record equate, the witness's read, the Rosetta projection —
+// reports to ONE owner; the compendium entry and README Handle table carry
+// it, and every paraphrase chase credits it (the compendium's "always
+// credited in a response" rule).
+//
 // PARAPHRASE AND MEANING (user, 2026-09-14): "something is a paraphrase if it
 // isn't character identical but the holograph equates to the same thing. and
 // you do have to chase meaning." AND: "I don't think any model should be
@@ -43,6 +50,15 @@ import { cellOf } from "./creativity-table.js";
 import { splitSentences } from "../adapters/text/spans.js";
 import { statingCandidates } from "./corroboration.js";
 import { endsFor } from "./witness-sentences.js";
+
+/** The owner of the paraphrase domain — registered in the compendium and the README Handle table; every paraphrase chase credits it. */
+export const PARAPHRASE = Object.freeze({
+  name: "Yada Yada Yada",
+  handle: "yadayadayada",
+  after: "the idiom 'yada yada yada' — the compressed restatement that skips the verbatim without changing what was meant",
+  recipe: "paraphrase-v1",
+});
+
 // The question: did the mouth COMPOSE, or did it REPRODUCE a source's words?
 // Reproducing FOR QUOTATION (explicitly cited) is legitimate; reproducing
 // WITHOUT a citation is a DMCA violation — copy, not composition.
@@ -68,6 +84,12 @@ import { endsFor } from "./witness-sentences.js";
 // it cross into reproducing Ranke's sources? The citation ledger's split and
 // the DMD+Born reproduction boundary are the instruments of that seam.
 // Marshall upholds the law the seam enforces.
+// 2026-09-16 (the unification): the seam's CELLS still adjudicate as
+// Alexander's (Pattern×Structure) and Ranke's (the reproduction boundary),
+// but the DOMAIN now has one owner — YadaYadaYada (`yadayadayada`) — and
+// every paraphrase chase credits it by name. The owner is registered in the
+// compendium and the README Handle table; the two cell archons stay the
+// instruments the seam actually adjudicates with.
 
 const norm = (s) => String(s ?? "").toLowerCase().replace(/[^a-z0-9'\s]/g, " ").replace(/\s+/g, " ").trim();
 
@@ -259,8 +281,8 @@ export function categorizeCreativity({ text = "", sources = new Map(), citations
 
   const paraphraseBasis = dmca.paraphraseUnmeasured
     ? probe.spans.length
-      ? `Shadow chase found ${probe.spans.length} span(s) whose claim-vocabulary the sources' own sentences carry — the verbatim instrument cannot equate them, the WITNESS is the licensed door (chaseParaphrase). The sound spans share a surface with these source sentences: ${probe.spans.slice(0, 2).map((s) => `"${s.candidates[0]?.shown?.slice(0, 60) ?? ""}"`).join("; ")}.`
-      : `Shadow chase found NO claim-vocabulary tangent in the sources — a paraphrase beyond the received vocabulary (synonymy the engine has not earned) is outside every engine organ, said so, never papered over.`
+      ? `Shadow chase found ${probe.spans.length} span(s) whose claim-vocabulary the sources' own sentences carry — the verbatim instrument cannot equate them, the WITNESS is the licensed door (chaseParaphrase). The sound spans share a surface with these source sentences: ${probe.spans.slice(0, 2).map((s) => `"${s.candidates[0]?.shown?.slice(0, 60) ?? ""}"`).join("; ")}. The paraphrase archon (YadaYadaYada) owns this chase.`
+      : `Shadow chase found NO claim-vocabulary tangent in the sources — a paraphrase beyond the received vocabulary (synonymy the engine has not earned) is outside every engine organ, said so, never papered over. The paraphrase archon (YadaYadaYada) owns this chase.`
     : null;
 
   const derivedWindow = { n, min: Math.min(...window), max: Math.max(...window) };
