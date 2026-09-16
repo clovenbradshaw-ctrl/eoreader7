@@ -1,0 +1,30 @@
+{
+ "chapter": 1,
+ "verbs": [
+  "from",
+  "source",
+  "license"
+ ],
+ "cast": [
+  [
+   "Arabic Wikisource",
+   "ref:auto:arabic_wikisource"
+  ],
+  [
+   "Classical Arabic",
+   "ref:auto:classical_arabic"
+  ],
+  [
+   "Classical",
+   "ref:auto:classical_arabic"
+  ],
+  [
+   "Deliverance",
+   "ref:auto:deliverance"
+  ],
+  [
+   "Error",
+   "ref:auto:error"
+  ]
+ ]
+}

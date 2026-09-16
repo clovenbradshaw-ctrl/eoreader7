@@ -1,0 +1,57 @@
+{
+ "chapter": 1,
+ "verbs": [
+  "collection",
+  "ed",
+  "of",
+  "in",
+  "transliteration",
+  "e"
+ ],
+ "cast": [
+  [
+   "Electronic Texts",
+   "ref:auto:electronic_texts"
+  ],
+  [
+   "Göttingen Register",
+   "ref:auto:gottingen_register"
+  ],
+  [
+   "Indian Languages",
+   "ref:auto:indian_languages"
+  ],
+  [
+   "Kaṭha Upaniṣad",
+   "ref:auto:kaṭha_upaniṣad"
+  ],
+  [
+   "GRETIL",
+   "ref:auto:gretil"
+  ],
+  [
+   "Electronic",
+   "ref:auto:electronic_texts"
+  ],
+  [
+   "Göttingen",
+   "ref:auto:gottingen_register"
+  ],
+  [
+   "IAST",
+   "ref:auto:iast"
+  ],
+  [
+   "Indian",
+   "ref:auto:indian_languages"
+  ],
+  [
+   "Kaṭha",
+   "ref:auto:kaṭha_upaniṣad"
+  ],
+  [
+   "Olivelle",
+   "ref:auto:olivelle"
+  ]
+ ]
+}

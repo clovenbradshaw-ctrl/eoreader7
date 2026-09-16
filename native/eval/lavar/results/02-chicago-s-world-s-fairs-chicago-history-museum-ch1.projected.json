@@ -1,0 +1,4151 @@
+[
+ {
+  "seq": 3,
+  "schema": "EOTObservation@1",
+  "id": "s2",
+  "at": [
+   0,
+   6346
+  ],
+  "role": "section",
+  "inferred": true,
+  "basis": "a run of prose bounded by inferred scene breaks or by the chapter's own edges (S95 — an inferred extent with the evidence that licensed it)",
+  "children": [
+   {
+    "seq": 2,
+    "schema": "EOTObservation@1",
+    "id": "c1",
+    "at": [
+     0,
+     6346
+    ],
+    "role": "chapter",
+    "inferred": true,
+    "basis": "no chapter-heading convention matched anywhere in the document — the whole document is the read unit (a verse collection, sutra text, or single work with no internal headings)",
+    "ordinal": 1,
+    "children": [
+     {
+      "seq": 4,
+      "schema": "EOTObservation@1",
+      "id": "p3",
+      "at": [
+       0,
+       30
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 49,
+        "schema": "EOTObservation@1",
+        "id": "s48",
+        "at": [
+         0,
+         30
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 162,
+          "schema": "EOTAbsence@1",
+          "at": [
+           0,
+           30
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 3012 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": [
+           {
+            "seq": 150,
+            "schema": "EOTObservation@1",
+            "id": "e149",
+            "at": [
+             7,
+             14
+            ],
+            "role": "entity",
+            "referent": "ref:auto:chicago",
+            "surfaces": [
+             "Chicago"
+            ],
+            "occurrences": 16,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 151,
+              "schema": "EOTObservation@1",
+              "id": "d150",
+              "at": [
+               7,
+               14
+              ],
+              "role": "admission",
+              "referent": "ref:auto:chicago",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           },
+           {
+            "seq": 148,
+            "schema": "EOTObservation@1",
+            "id": "e147",
+            "at": [
+             17,
+             22
+            ],
+            "role": "entity",
+            "referent": "ref:auto:world",
+            "surfaces": [
+             "World"
+            ],
+            "occurrences": 24,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 149,
+              "schema": "EOTObservation@1",
+              "id": "d148",
+              "at": [
+               17,
+               22
+              ],
+              "role": "admission",
+              "referent": "ref:auto:world",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 5,
+      "schema": "EOTObservation@1",
+      "id": "p4",
+      "at": [
+       32,
+       59
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 50,
+        "schema": "EOTObservation@1",
+        "id": "s49",
+        "at": [
+         32,
+         59
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 163,
+          "schema": "EOTAbsence@1",
+          "at": [
+           32,
+           59
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 3012 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 6,
+      "schema": "EOTObservation@1",
+      "id": "p5",
+      "at": [
+       61,
+       215
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 51,
+        "schema": "EOTObservation@1",
+        "id": "s50",
+        "at": [
+         61,
+         79
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 164,
+          "schema": "EOTAbsence@1",
+          "at": [
+           61,
+           79
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 3012 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 52,
+        "schema": "EOTObservation@1",
+        "id": "s51",
+        "at": [
+         80,
+         98
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 165,
+          "schema": "EOTAbsence@1",
+          "at": [
+           80,
+           98
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 3012 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 53,
+        "schema": "EOTObservation@1",
+        "id": "s52",
+        "at": [
+         99,
+         215
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 166,
+          "schema": "EOTObservation@1",
+          "id": "o161",
+          "at": [
+           136,
+           214
+          ],
+          "role": "proposition",
+          "end1": "World’s Columbian Exposition",
+          "label": "and",
+          "end2": "the A Century Of Progress International Exposition were both hosted by Chicago",
+          "subjectBasis": "stated",
+          "end1Ref": "ref:auto:world",
+          "operator": "SEG",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Dissecting",
+          "settledAs": "conjunction",
+          "children": [
+           {
+            "seq": 130,
+            "schema": "EOTObservation@1",
+            "id": "e129",
+            "at": [
+             140,
+             149
+            ],
+            "role": "entity",
+            "referent": "ref:auto:a_century",
+            "surfaces": [
+             "A Century"
+            ],
+            "occurrences": 8,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 131,
+              "schema": "EOTObservation@1",
+              "id": "d130",
+              "at": [
+               140,
+               149
+              ],
+              "role": "admission",
+              "referent": "ref:auto:a_century",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           },
+           {
+            "seq": 120,
+            "schema": "EOTObservation@1",
+            "id": "e119",
+            "at": [
+             153,
+             175
+            ],
+            "role": "entity",
+            "referent": "ref:auto:progress_international",
+            "surfaces": [
+             "Progress International",
+             "Progress International Exposition",
+             "Progress",
+             "Progress Exposition"
+            ],
+            "occurrences": 21,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 121,
+              "schema": "EOTObservation@1",
+              "id": "d120",
+              "at": [
+               153,
+               175
+              ],
+              "role": "admission",
+              "referent": "ref:auto:progress_international",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 7,
+      "schema": "EOTObservation@1",
+      "id": "p6",
+      "at": [
+       217,
+       460
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 54,
+        "schema": "EOTObservation@1",
+        "id": "s53",
+        "at": [
+         217,
+         460
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 168,
+          "schema": "EOTObservation@1",
+          "id": "o162",
+          "at": [
+           422,
+           459
+          ],
+          "role": "proposition",
+          "end1": "displays",
+          "label": "from",
+          "end2": "participating countries and US states",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": [
+           {
+            "seq": 169,
+            "schema": "EOTObservation@1",
+            "id": "o163",
+            "at": [
+             436,
+             459
+            ],
+            "role": "proposition",
+            "end1": "displays",
+            "label": "participating",
+            "end2": "countries and US states",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 170,
+              "schema": "EOTObservation@1",
+              "id": "o164",
+              "at": [
+               450,
+               459
+              ],
+              "role": "proposition",
+              "end1": "displays",
+              "label": "and",
+              "end2": "US states",
+              "subjectBasis": "inherited",
+              "operator": "SEG",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Dissecting",
+              "settledAs": "conjunction",
+              "children": [
+               {
+                "seq": 152,
+                "schema": "EOTObservation@1",
+                "id": "e151",
+                "at": [
+                 450,
+                 452
+                ],
+                "role": "entity",
+                "referent": "ref:auto:us",
+                "surfaces": [
+                 "US"
+                ],
+                "occurrences": 2,
+                "operator": "SIG",
+                "grain": "Figure",
+                "terrain": "Entity",
+                "stance": "Binding",
+                "inferred": true,
+                "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+                "children": [
+                 {
+                  "seq": 153,
+                  "schema": "EOTObservation@1",
+                  "id": "d152",
+                  "at": [
+                   450,
+                   452
+                  ],
+                  "role": "admission",
+                  "referent": "ref:auto:us",
+                  "operator": "DEF",
+                  "grain": "Figure",
+                  "terrain": "Lens",
+                  "stance": "Dissecting",
+                  "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+                  "children": []
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 8,
+      "schema": "EOTObservation@1",
+      "id": "p7",
+      "at": [
+       462,
+       811
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 55,
+        "schema": "EOTObservation@1",
+        "id": "s54",
+        "at": [
+         462,
+         619
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": []
+       },
+       {
+        "seq": 56,
+        "schema": "EOTObservation@1",
+        "id": "s55",
+        "at": [
+         620,
+         811
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 171,
+          "schema": "EOTObservation@1",
+          "id": "o165",
+          "at": [
+           645,
+           753
+          ],
+          "role": "proposition",
+          "end1": "both fairs",
+          "label": "were",
+          "end2": "marred by problematic representations of different cultures or a lack of representation of African Americans",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:african_americans",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 172,
+            "schema": "EOTObservation@1",
+            "id": "o166",
+            "at": [
+             686,
+             753
+            ],
+            "role": "proposition",
+            "end1": "both fairs",
+            "label": "of",
+            "end2": "different cultures or a lack of representation of African Americans",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": [
+             {
+              "seq": 173,
+              "schema": "EOTObservation@1",
+              "id": "o167",
+              "at": [
+               708,
+               753
+              ],
+              "role": "proposition",
+              "end1": "both fairs",
+              "label": "or",
+              "end2": "a lack of representation of African Americans",
+              "subjectBasis": "inherited",
+              "operator": "SEG",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Dissecting",
+              "settledAs": "conjunction",
+              "children": [
+               {
+                "seq": 122,
+                "schema": "EOTObservation@1",
+                "id": "e121",
+                "at": [
+                 736,
+                 753
+                ],
+                "role": "entity",
+                "referent": "ref:auto:african_americans",
+                "surfaces": [
+                 "African Americans",
+                 "African"
+                ],
+                "occurrences": 4,
+                "operator": "SIG",
+                "grain": "Figure",
+                "terrain": "Entity",
+                "stance": "Binding",
+                "inferred": true,
+                "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+                "children": [
+                 {
+                  "seq": 123,
+                  "schema": "EOTObservation@1",
+                  "id": "d122",
+                  "at": [
+                   736,
+                   753
+                  ],
+                  "role": "admission",
+                  "referent": "ref:auto:african_americans",
+                  "operator": "DEF",
+                  "grain": "Figure",
+                  "terrain": "Lens",
+                  "stance": "Dissecting",
+                  "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+                  "children": []
+                 }
+                ]
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "seq": 174,
+          "schema": "EOTObservation@1",
+          "id": "o168",
+          "at": [
+           781,
+           787
+          ],
+          "role": "proposition",
+          "end1": "other",
+          "label": "marginalized",
+          "end2": "groups",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         },
+         {
+          "seq": 175,
+          "schema": "EOTObservation@1",
+          "id": "o169",
+          "at": [
+           801,
+           810
+          ],
+          "role": "proposition",
+          "end1": "much",
+          "label": "of",
+          "end2": "the world",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 9,
+      "schema": "EOTObservation@1",
+      "id": "p8",
+      "at": [
+       813,
+       1073
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 57,
+        "schema": "EOTObservation@1",
+        "id": "s56",
+        "at": [
+         813,
+         987
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 177,
+          "schema": "EOTObservation@1",
+          "id": "o170",
+          "at": [
+           832,
+           870
+          ],
+          "role": "proposition",
+          "end1": "you’ll",
+          "label": "find",
+          "end2": "digital resources related to the fairs",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 178,
+            "schema": "EOTObservation@1",
+            "id": "o171",
+            "at": [
+             861,
+             870
+            ],
+            "role": "proposition",
+            "end1": "you’ll",
+            "label": "to",
+            "end2": "the fairs",
+            "subjectBasis": "inherited",
+            "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+            "settledAs": null,
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 58,
+        "schema": "EOTObservation@1",
+        "id": "s57",
+        "at": [
+         988,
+         1073
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 181,
+          "schema": "EOTObservation@1",
+          "id": "o172",
+          "at": [
+           1007,
+           1072
+          ],
+          "role": "proposition",
+          "end1": "We’ll also",
+          "label": "examine",
+          "end2": "how the two fairs have affected the Museum’s collecting practices",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:museum",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 140,
+            "schema": "EOTObservation@1",
+            "id": "e139",
+            "at": [
+             1043,
+             1049
+            ],
+            "role": "entity",
+            "referent": "ref:auto:museum",
+            "surfaces": [
+             "Museum"
+            ],
+            "occurrences": 3,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 141,
+              "schema": "EOTObservation@1",
+              "id": "d140",
+              "at": [
+               1043,
+               1049
+              ],
+              "role": "admission",
+              "referent": "ref:auto:museum",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 10,
+      "schema": "EOTObservation@1",
+      "id": "p9",
+      "at": [
+       1075,
+       1169
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 59,
+        "schema": "EOTObservation@1",
+        "id": "s58",
+        "at": [
+         1075,
+         1169
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 183,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1075,
+           1169
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 11,
+      "schema": "EOTObservation@1",
+      "id": "p10",
+      "at": [
+       1171,
+       1277
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 60,
+        "schema": "EOTObservation@1",
+        "id": "s59",
+        "at": [
+         1171,
+         1238
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 184,
+          "schema": "EOTObservation@1",
+          "id": "o173",
+          "at": [
+           1190,
+           1222
+          ],
+          "role": "proposition",
+          "end1": "eye view",
+          "label": "of",
+          "end2": "the World's Columbian Exposition",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:world",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 61,
+        "schema": "EOTObservation@1",
+        "id": "s60",
+        "at": [
+         1239,
+         1260
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 186,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1239,
+           1260
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 3012 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 62,
+        "schema": "EOTObservation@1",
+        "id": "s61",
+        "at": [
+         1261,
+         1277
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 187,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1261,
+           1277
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 3012 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": [
+           {
+            "seq": 132,
+            "schema": "EOTObservation@1",
+            "id": "e131",
+            "at": [
+             1261,
+             1264
+            ],
+            "role": "entity",
+            "referent": "ref:auto:chm",
+            "surfaces": [
+             "CHM"
+            ],
+            "occurrences": 12,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 133,
+              "schema": "EOTObservation@1",
+              "id": "d132",
+              "at": [
+               1261,
+               1264
+              ],
+              "role": "admission",
+              "referent": "ref:auto:chm",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           },
+           {
+            "seq": 134,
+            "schema": "EOTObservation@1",
+            "id": "e133",
+            "at": [
+             1266,
+             1270
+            ],
+            "role": "entity",
+            "referent": "ref:auto:ichi",
+            "surfaces": [
+             "ICHi"
+            ],
+            "occurrences": 4,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 135,
+              "schema": "EOTObservation@1",
+              "id": "d134",
+              "at": [
+               1266,
+               1270
+              ],
+              "role": "admission",
+              "referent": "ref:auto:ichi",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 12,
+      "schema": "EOTObservation@1",
+      "id": "p11",
+      "at": [
+       1279,
+       1415
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 63,
+        "schema": "EOTObservation@1",
+        "id": "s62",
+        "at": [
+         1279,
+         1387
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 188,
+          "schema": "EOTObservation@1",
+          "id": "o174",
+          "at": [
+           1293,
+           1372
+          ],
+          "role": "proposition",
+          "end1": "Night view",
+          "label": "of",
+          "end2": "the dedication of the World's Columbian Exposition world's fair on State Street",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:world",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 64,
+        "schema": "EOTObservation@1",
+        "id": "s63",
+        "at": [
+         1388,
+         1397
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": null,
+        "children": [
+         {
+          "seq": 190,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1388,
+           1397
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 3012 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 65,
+        "schema": "EOTObservation@1",
+        "id": "s64",
+        "at": [
+         1398,
+         1415
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 191,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1398,
+           1415
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 3012 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 13,
+      "schema": "EOTObservation@1",
+      "id": "p12",
+      "at": [
+       1417,
+       1611
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 66,
+        "schema": "EOTObservation@1",
+        "id": "s65",
+        "at": [
+         1417,
+         1587
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 192,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1417,
+           1587
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": [
+           {
+            "seq": 136,
+            "schema": "EOTObservation@1",
+            "id": "e135",
+            "at": [
+             1581,
+             1584
+            ],
+            "role": "entity",
+            "referent": "ref:auto:ida",
+            "surfaces": [
+             "Ida",
+             "Ida B"
+            ],
+            "occurrences": 6,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 137,
+              "schema": "EOTObservation@1",
+              "id": "d136",
+              "at": [
+               1581,
+               1584
+              ],
+              "role": "admission",
+              "referent": "ref:auto:ida",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 67,
+        "schema": "EOTObservation@1",
+        "id": "s66",
+        "at": [
+         1588,
+         1594
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 193,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1588,
+           1594
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 3012 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 68,
+        "schema": "EOTObservation@1",
+        "id": "s67",
+        "at": [
+         1595,
+         1611
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 194,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1595,
+           1611
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 3012 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 14,
+      "schema": "EOTObservation@1",
+      "id": "p13",
+      "at": [
+       1613,
+       1722
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 69,
+        "schema": "EOTObservation@1",
+        "id": "s68",
+        "at": [
+         1613,
+         1696
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 195,
+          "schema": "EOTObservation@1",
+          "id": "o175",
+          "at": [
+           1634,
+           1680
+          ],
+          "role": "proposition",
+          "end1": "Northerly Island",
+          "label": "and",
+          "end2": "lagoon at the A Century of Progress Exposition",
+          "subjectBasis": "stated",
+          "operator": "SEG",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Dissecting",
+          "settledAs": "conjunction",
+          "children": [
+           {
+            "seq": 196,
+            "schema": "EOTObservation@1",
+            "id": "o176",
+            "at": [
+             1644,
+             1680
+            ],
+            "role": "proposition",
+            "end1": "Northerly Island",
+            "label": "at",
+            "end2": "the A Century of Progress Exposition",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 70,
+        "schema": "EOTObservation@1",
+        "id": "s69",
+        "at": [
+         1697,
+         1705
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": null,
+        "children": [
+         {
+          "seq": 198,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1697,
+           1705
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 3012 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 71,
+        "schema": "EOTObservation@1",
+        "id": "s70",
+        "at": [
+         1706,
+         1722
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 199,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1706,
+           1722
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 3012 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 15,
+      "schema": "EOTObservation@1",
+      "id": "p14",
+      "at": [
+       1724,
+       1837
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 72,
+        "schema": "EOTObservation@1",
+        "id": "s71",
+        "at": [
+         1724,
+         1792
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 200,
+          "schema": "EOTObservation@1",
+          "id": "o177",
+          "at": [
+           1749,
+           1785
+          ],
+          "role": "proposition",
+          "end1": "Burlington Zephyr",
+          "label": "at",
+          "end2": "the A Century of Progress Exposition",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 73,
+        "schema": "EOTObservation@1",
+        "id": "s72",
+        "at": [
+         1793,
+         1837
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 202,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1793,
+           1837
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 16,
+      "schema": "EOTObservation@1",
+      "id": "p15",
+      "at": [
+       1839,
+       1991
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 74,
+        "schema": "EOTObservation@1",
+        "id": "s73",
+        "at": [
+         1839,
+         1926
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": []
+       },
+       {
+        "seq": 75,
+        "schema": "EOTObservation@1",
+        "id": "s74",
+        "at": [
+         1927,
+         1991
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 204,
+          "schema": "EOTAbsence@1",
+          "at": [
+           1927,
+           1991
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 17,
+      "schema": "EOTObservation@1",
+      "id": "p16",
+      "at": [
+       1993,
+       2059
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 76,
+        "schema": "EOTObservation@1",
+        "id": "s75",
+        "at": [
+         1993,
+         2059
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 205,
+          "schema": "EOTObservation@1",
+          "id": "o178",
+          "at": [
+           2011,
+           2059
+          ],
+          "role": "proposition",
+          "end1": "The Souvenirs",
+          "label": "and",
+          "end2": "Stories of the 1893 World’s Columbian Exposition",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:world",
+          "operator": "SEG",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Dissecting",
+          "settledAs": "conjunction",
+          "children": [
+           {
+            "seq": 206,
+            "schema": "EOTObservation@1",
+            "id": "o179",
+            "at": [
+             2022,
+             2059
+            ],
+            "role": "proposition",
+            "end1": "The Souvenirs",
+            "label": "of",
+            "end2": "the 1893 World’s Columbian Exposition",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 18,
+      "schema": "EOTObservation@1",
+      "id": "p17",
+      "at": [
+       2061,
+       2268
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 77,
+        "schema": "EOTObservation@1",
+        "id": "s76",
+        "at": [
+         2061,
+         2268
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 154,
+          "schema": "EOTObservation@1",
+          "id": "v153",
+          "at": [
+           2061,
+           2268
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 126,
+            "schema": "EOTObservation@1",
+            "id": "e125",
+            "at": [
+             2108,
+             2123
+            ],
+            "role": "entity",
+            "referent": "ref:auto:rebekah_coffman",
+            "surfaces": [
+             "Rebekah Coffman",
+             "Rebekah"
+            ],
+            "occurrences": 4,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 127,
+              "schema": "EOTObservation@1",
+              "id": "d126",
+              "at": [
+               2108,
+               2123
+              ],
+              "role": "admission",
+              "referent": "ref:auto:rebekah_coffman",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 19,
+      "schema": "EOTObservation@1",
+      "id": "p18",
+      "at": [
+       2270,
+       2280
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 78,
+        "schema": "EOTObservation@1",
+        "id": "s77",
+        "at": [
+         2270,
+         2280
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 208,
+          "schema": "EOTAbsence@1",
+          "at": [
+           2270,
+           2280
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 20,
+      "schema": "EOTObservation@1",
+      "id": "p19",
+      "at": [
+       2282,
+       2330
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 79,
+        "schema": "EOTObservation@1",
+        "id": "s78",
+        "at": [
+         2282,
+         2288
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 209,
+          "schema": "EOTAbsence@1",
+          "at": [
+           2282,
+           2288
+          ],
+          "role": "arrangement",
+          "reason": "no_earned_verb_in_this_sentence",
+          "detail": "no token in this sentence was nominated by the 3012 verbs this reading earned from the chapter's own recurrence — revisable: a later pass carrying a wider vocabulary may find one, and would record it as a revision rather than a rewrite",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 80,
+        "schema": "EOTObservation@1",
+        "id": "s79",
+        "at": [
+         2289,
+         2330
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": []
+       }
+      ]
+     },
+     {
+      "seq": 21,
+      "schema": "EOTObservation@1",
+      "id": "p20",
+      "at": [
+       2332,
+       3041
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 81,
+        "schema": "EOTObservation@1",
+        "id": "s80",
+        "at": [
+         2332,
+         2380
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 211,
+          "schema": "EOTAbsence@1",
+          "at": [
+           2332,
+           2380
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 82,
+        "schema": "EOTObservation@1",
+        "id": "s81",
+        "at": [
+         2381,
+         2413
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 287,
+          "schema": "EOTObservation@1",
+          "id": "x221",
+          "at": [
+           2381,
+           2413
+          ],
+          "role": "expectation",
+          "expectation": "expectation:identity:the_ultimate:wells",
+          "hypothesis": "corroboration expected: the ultimate <-> wells",
+          "state": "open",
+          "movedFrom": null,
+          "operator": "INS",
+          "grain": "Figure",
+          "terrain": "Entity",
+          "stance": "Making",
+          "consequence": "expectation_opened",
+          "movesHolograph": false,
+          "basis": "identity evidence in this sentence (text_copular_identity); canonicalizationFloor 2, declared",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 83,
+        "schema": "EOTObservation@1",
+        "id": "s82",
+        "at": [
+         2414,
+         2522
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 155,
+          "schema": "EOTObservation@1",
+          "id": "v154",
+          "at": [
+           2414,
+           2522
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 84,
+        "schema": "EOTObservation@1",
+        "id": "s83",
+        "at": [
+         2523,
+         2794
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": []
+       },
+       {
+        "seq": 85,
+        "schema": "EOTObservation@1",
+        "id": "s84",
+        "at": [
+         2795,
+         3041
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 217,
+          "schema": "EOTObservation@1",
+          "id": "o180",
+          "at": [
+           2821,
+           2868
+          ],
+          "role": "proposition",
+          "end1": "The pamphlet",
+          "label": "is addressed",
+          "end2": "“To the seeker after truth” and contains essays",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         },
+         {
+          "seq": 218,
+          "schema": "EOTObservation@1",
+          "id": "o181",
+          "at": [
+           2917,
+           2925
+          ],
+          "role": "proposition",
+          "end1": "a topical focus",
+          "label": "on",
+          "end2": "lynching",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 22,
+      "schema": "EOTObservation@1",
+      "id": "p21",
+      "at": [
+       3043,
+       3053
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 86,
+        "schema": "EOTObservation@1",
+        "id": "s85",
+        "at": [
+         3043,
+         3053
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 220,
+          "schema": "EOTAbsence@1",
+          "at": [
+           3043,
+           3053
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 23,
+      "schema": "EOTObservation@1",
+      "id": "p22",
+      "at": [
+       3055,
+       3125
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 87,
+        "schema": "EOTObservation@1",
+        "id": "s86",
+        "at": [
+         3055,
+         3125
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": []
+       }
+      ]
+     },
+     {
+      "seq": 24,
+      "schema": "EOTObservation@1",
+      "id": "p23",
+      "at": [
+       3127,
+       3437
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 88,
+        "schema": "EOTObservation@1",
+        "id": "s87",
+        "at": [
+         3127,
+         3330
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 146,
+          "schema": "EOTObservation@1",
+          "id": "e145",
+          "at": [
+           3169,
+           3172
+          ],
+          "role": "entity",
+          "referent": "ref:auto:wce",
+          "surfaces": [
+           "WCE"
+          ],
+          "occurrences": 2,
+          "operator": "SIG",
+          "grain": "Figure",
+          "terrain": "Entity",
+          "stance": "Binding",
+          "inferred": true,
+          "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+          "children": [
+           {
+            "seq": 147,
+            "schema": "EOTObservation@1",
+            "id": "d146",
+            "at": [
+             3169,
+             3172
+            ],
+            "role": "admission",
+            "referent": "ref:auto:wce",
+            "operator": "DEF",
+            "grain": "Figure",
+            "terrain": "Lens",
+            "stance": "Dissecting",
+            "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+            "children": []
+           }
+          ]
+         },
+         {
+          "seq": 222,
+          "schema": "EOTObservation@1",
+          "id": "o182",
+          "at": [
+           3203,
+           3260
+          ],
+          "role": "proposition",
+          "end1": "Polish Chicagoans",
+          "label": "supported",
+          "end2": "their homeland‘s participation despite colonizing empires",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         },
+         {
+          "seq": 223,
+          "schema": "EOTObservation@1",
+          "id": "o183",
+          "at": [
+           3280,
+           3287
+          ],
+          "role": "proposition",
+          "end1": "mainly Russia",
+          "label": "and",
+          "end2": "Germany",
+          "subjectBasis": "stated",
+          "operator": "SEG",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Dissecting",
+          "settledAs": "conjunction",
+          "children": []
+         }
+        ]
+       },
+       {
+        "seq": 89,
+        "schema": "EOTObservation@1",
+        "id": "s88",
+        "at": [
+         3331,
+         3437
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 224,
+          "schema": "EOTObservation@1",
+          "id": "o184",
+          "at": [
+           3397,
+           3436
+          ],
+          "role": "proposition",
+          "end1": "industrialists still displayed",
+          "label": "and",
+          "end2": "performed for an international audience",
+          "subjectBasis": "stated",
+          "operator": "SEG",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Dissecting",
+          "settledAs": "conjunction",
+          "children": [
+           {
+            "seq": 225,
+            "schema": "EOTObservation@1",
+            "id": "o185",
+            "at": [
+             3407,
+             3436
+            ],
+            "role": "proposition",
+            "end1": "industrialists still displayed",
+            "label": "performed",
+            "end2": "for an international audience",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 25,
+      "schema": "EOTObservation@1",
+      "id": "p24",
+      "at": [
+       3439,
+       3449
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 90,
+        "schema": "EOTObservation@1",
+        "id": "s89",
+        "at": [
+         3439,
+         3449
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 226,
+          "schema": "EOTAbsence@1",
+          "at": [
+           3439,
+           3449
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 26,
+      "schema": "EOTObservation@1",
+      "id": "p25",
+      "at": [
+       3451,
+       3517
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 91,
+        "schema": "EOTObservation@1",
+        "id": "s90",
+        "at": [
+         3451,
+         3517
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 227,
+          "schema": "EOTObservation@1",
+          "id": "o186",
+          "at": [
+           3478,
+           3517
+          ],
+          "role": "proposition",
+          "end1": "Commemorating 130 Years",
+          "label": "of",
+          "end2": "the Parliament of the World’s Religions",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": [
+           {
+            "seq": 142,
+            "schema": "EOTObservation@1",
+            "id": "e141",
+            "at": [
+             3482,
+             3492
+            ],
+            "role": "entity",
+            "referent": "ref:auto:parliament",
+            "surfaces": [
+             "Parliament"
+            ],
+            "occurrences": 2,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 143,
+              "schema": "EOTObservation@1",
+              "id": "d142",
+              "at": [
+               3482,
+               3492
+              ],
+              "role": "admission",
+              "referent": "ref:auto:parliament",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 27,
+      "schema": "EOTObservation@1",
+      "id": "p26",
+      "at": [
+       3519,
+       3791
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 92,
+        "schema": "EOTObservation@1",
+        "id": "s91",
+        "at": [
+         3519,
+         3636
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": []
+       },
+       {
+        "seq": 93,
+        "schema": "EOTObservation@1",
+        "id": "s92",
+        "at": [
+         3637,
+         3791
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": []
+       }
+      ]
+     },
+     {
+      "seq": 28,
+      "schema": "EOTObservation@1",
+      "id": "p27",
+      "at": [
+       3793,
+       3803
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 94,
+        "schema": "EOTObservation@1",
+        "id": "s93",
+        "at": [
+         3793,
+         3803
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 230,
+          "schema": "EOTAbsence@1",
+          "at": [
+           3793,
+           3803
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 29,
+      "schema": "EOTObservation@1",
+      "id": "p28",
+      "at": [
+       3805,
+       3856
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 95,
+        "schema": "EOTObservation@1",
+        "id": "s94",
+        "at": [
+         3805,
+         3856
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 231,
+          "schema": "EOTObservation@1",
+          "id": "o187",
+          "at": [
+           3817,
+           3856
+          ],
+          "role": "proposition",
+          "end1": "What",
+          "label": "shall",
+          "end2": "I wear at the World’s Fair in Chicago?”",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 232,
+            "schema": "EOTObservation@1",
+            "id": "o188",
+            "at": [
+             3824,
+             3856
+            ],
+            "role": "proposition",
+            "end1": "What",
+            "label": "wear",
+            "end2": "at the World’s Fair in Chicago?”",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 30,
+      "schema": "EOTObservation@1",
+      "id": "p29",
+      "at": [
+       3858,
+       4072
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 96,
+        "schema": "EOTObservation@1",
+        "id": "s95",
+        "at": [
+         3858,
+         4072
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 234,
+          "schema": "EOTObservation@1",
+          "id": "o189",
+          "at": [
+           3875,
+           4071
+          ],
+          "role": "proposition",
+          "end1": "CHM",
+          "label": "and",
+          "end2": "insights analyst Marissa Croft writes about the gap in experience between high society dress and visitors to the 1893 World’s Columbian Exposition who traveled in from all over the world to attend",
+          "subjectBasis": "stated",
+          "end1Ref": "ref:auto:chm",
+          "operator": "SEG",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Dissecting",
+          "settledAs": "conjunction",
+          "children": [
+           {
+            "seq": 124,
+            "schema": "EOTObservation@1",
+            "id": "e123",
+            "at": [
+             3892,
+             3905
+            ],
+            "role": "entity",
+            "referent": "ref:auto:marissa_croft",
+            "surfaces": [
+             "Marissa Croft",
+             "Marissa"
+            ],
+            "occurrences": 4,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 125,
+              "schema": "EOTObservation@1",
+              "id": "d124",
+              "at": [
+               3892,
+               3905
+              ],
+              "role": "admission",
+              "referent": "ref:auto:marissa_croft",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           },
+           {
+            "seq": 235,
+            "schema": "EOTObservation@1",
+            "id": "o190",
+            "at": [
+             3913,
+             4071
+            ],
+            "role": "proposition",
+            "end1": "CHM",
+            "label": "writes",
+            "end2": "about the gap in experience between high society dress and visitors to the 1893 World’s Columbian Exposition who traveled in from all over the world to attend",
+            "subjectBasis": "inherited",
+            "end1Ref": "ref:auto:chm",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 31,
+      "schema": "EOTObservation@1",
+      "id": "p30",
+      "at": [
+       4074,
+       4084
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 97,
+        "schema": "EOTObservation@1",
+        "id": "s96",
+        "at": [
+         4074,
+         4084
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 237,
+          "schema": "EOTAbsence@1",
+          "at": [
+           4074,
+           4084
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 32,
+      "schema": "EOTObservation@1",
+      "id": "p31",
+      "at": [
+       4086,
+       4141
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 98,
+        "schema": "EOTObservation@1",
+        "id": "s97",
+        "at": [
+         4086,
+         4141
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 144,
+          "schema": "EOTObservation@1",
+          "id": "e143",
+          "at": [
+           4090,
+           4097
+          ],
+          "role": "entity",
+          "referent": "ref:auto:pioneer",
+          "surfaces": [
+           "Pioneer"
+          ],
+          "occurrences": 3,
+          "operator": "SIG",
+          "grain": "Figure",
+          "terrain": "Entity",
+          "stance": "Binding",
+          "inferred": true,
+          "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+          "children": [
+           {
+            "seq": 145,
+            "schema": "EOTObservation@1",
+            "id": "d144",
+            "at": [
+             4090,
+             4097
+            ],
+            "role": "admission",
+            "referent": "ref:auto:pioneer",
+            "operator": "DEF",
+            "grain": "Figure",
+            "terrain": "Lens",
+            "stance": "Dissecting",
+            "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+            "children": []
+           }
+          ]
+         },
+         {
+          "seq": 138,
+          "schema": "EOTObservation@1",
+          "id": "e137",
+          "at": [
+           4101,
+           4108
+          ],
+          "role": "entity",
+          "referent": "ref:auto:mexican",
+          "surfaces": [
+           "Mexican"
+          ],
+          "occurrences": 3,
+          "operator": "SIG",
+          "grain": "Figure",
+          "terrain": "Entity",
+          "stance": "Binding",
+          "inferred": true,
+          "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+          "children": [
+           {
+            "seq": 139,
+            "schema": "EOTObservation@1",
+            "id": "d138",
+            "at": [
+             4101,
+             4108
+            ],
+            "role": "admission",
+            "referent": "ref:auto:mexican",
+            "operator": "DEF",
+            "grain": "Figure",
+            "terrain": "Lens",
+            "stance": "Dissecting",
+            "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+            "children": []
+           }
+          ]
+         },
+         {
+          "seq": 238,
+          "schema": "EOTObservation@1",
+          "id": "o191",
+          "at": [
+           4120,
+           4141
+          ],
+          "role": "proposition",
+          "end1": "Pioneering Mexican Dancers",
+          "label": "of",
+          "end2": "the 1933 World’s Fair",
+          "subjectBasis": "stated",
+          "end1Ref": "ref:auto:mexican",
+          "end2Ref": "ref:auto:world",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 33,
+      "schema": "EOTObservation@1",
+      "id": "p32",
+      "at": [
+       4143,
+       4552
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 99,
+        "schema": "EOTObservation@1",
+        "id": "s98",
+        "at": [
+         4143,
+         4277
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 240,
+          "schema": "EOTObservation@1",
+          "id": "o192",
+          "at": [
+           4220,
+           4276
+          ],
+          "role": "proposition",
+          "end1": "visitors",
+          "label": "were",
+          "end2": "wowed by two professional dancers at the Mexican Village",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:mexican",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 241,
+            "schema": "EOTObservation@1",
+            "id": "o193",
+            "at": [
+             4257,
+             4276
+            ],
+            "role": "proposition",
+            "end1": "visitors",
+            "label": "at",
+            "end2": "the Mexican Village",
+            "subjectBasis": "inherited",
+            "operator": "CON",
+            "grain": "Ground",
+            "terrain": "Field",
+            "stance": "Tending",
+            "settledAs": "preposition",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 100,
+        "schema": "EOTObservation@1",
+        "id": "s99",
+        "at": [
+         4278,
+         4552
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 243,
+          "schema": "EOTObservation@1",
+          "id": "o194",
+          "at": [
+           4313,
+           4455
+          ],
+          "role": "proposition",
+          "end1": "husband-and-wife dance team",
+          "label": "of",
+          "end2": "Alfredo Cano and Bertha “Rosita” Musquiz enchanted audience members with the ir bright and intrica te garment s and traditional Mexican dances",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:mexican",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": [
+           {
+            "seq": 244,
+            "schema": "EOTObservation@1",
+            "id": "o195",
+            "at": [
+             4330,
+             4455
+            ],
+            "role": "proposition",
+            "end1": "husband-and-wife dance team",
+            "label": "and",
+            "end2": "Bertha “Rosita” Musquiz enchanted audience members with the ir bright and intrica te garment s and traditional Mexican dances",
+            "subjectBasis": "inherited",
+            "operator": "SEG",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Dissecting",
+            "settledAs": "conjunction",
+            "children": [
+             {
+              "seq": 245,
+              "schema": "EOTObservation@1",
+              "id": "o196",
+              "at": [
+               4364,
+               4455
+              ],
+              "role": "proposition",
+              "end1": "husband-and-wife dance team",
+              "label": "enchanted",
+              "end2": "audience members with the ir bright and intrica te garment s and traditional Mexican dances",
+              "subjectBasis": "inherited",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "children": []
+             }
+            ]
+           }
+          ]
+         },
+         {
+          "seq": 246,
+          "schema": "EOTObservation@1",
+          "id": "o197",
+          "at": [
+           4495,
+           4551
+          ],
+          "role": "proposition",
+          "end1": "often",
+          "label": "tell",
+          "end2": "intricate stories and legends as part of the performance",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": [
+           {
+            "seq": 247,
+            "schema": "EOTObservation@1",
+            "id": "o198",
+            "at": [
+             4517,
+             4551
+            ],
+            "role": "proposition",
+            "end1": "often",
+            "label": "and",
+            "end2": "legends as part of the performance",
+            "subjectBasis": "inherited",
+            "operator": "SEG",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Dissecting",
+            "settledAs": "conjunction",
+            "children": [
+             {
+              "seq": 248,
+              "schema": "EOTObservation@1",
+              "id": "o199",
+              "at": [
+               4536,
+               4551
+              ],
+              "role": "proposition",
+              "end1": "often",
+              "label": "of",
+              "end2": "the performance",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Ground",
+              "terrain": "Field",
+              "stance": "Tending",
+              "settledAs": "preposition",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 34,
+      "schema": "EOTObservation@1",
+      "id": "p33",
+      "at": [
+       4554,
+       4564
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 101,
+        "schema": "EOTObservation@1",
+        "id": "s100",
+        "at": [
+         4554,
+         4564
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 249,
+          "schema": "EOTAbsence@1",
+          "at": [
+           4554,
+           4564
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 35,
+      "schema": "EOTObservation@1",
+      "id": "p34",
+      "at": [
+       4566,
+       4611
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 102,
+        "schema": "EOTObservation@1",
+        "id": "s101",
+        "at": [
+         4566,
+         4611
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": []
+       }
+      ]
+     },
+     {
+      "seq": 36,
+      "schema": "EOTObservation@1",
+      "id": "p35",
+      "at": [
+       4613,
+       5098
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 103,
+        "schema": "EOTObservation@1",
+        "id": "s102",
+        "at": [
+         4613,
+         4684
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": []
+       },
+       {
+        "seq": 104,
+        "schema": "EOTObservation@1",
+        "id": "s103",
+        "at": [
+         4685,
+         5098
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 156,
+          "schema": "EOTObservation@1",
+          "id": "v155",
+          "at": [
+           4685,
+           5098
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 252,
+            "schema": "EOTObservation@1",
+            "id": "o200",
+            "at": [
+             4705,
+             4752
+            ],
+            "role": "proposition",
+            "end1": "Despite often",
+            "label": "being",
+            "end2": "overshadowed by larger and more dynamic objects",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 253,
+              "schema": "EOTObservation@1",
+              "id": "o201",
+              "at": [
+               4732,
+               4752
+              ],
+              "role": "proposition",
+              "end1": "Despite often",
+              "label": "and",
+              "end2": "more dynamic objects",
+              "subjectBasis": "inherited",
+              "operator": "SEG",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Dissecting",
+              "settledAs": "conjunction",
+              "children": []
+             }
+            ]
+           },
+           {
+            "seq": 254,
+            "schema": "EOTObservation@1",
+            "id": "o202",
+            "at": [
+             4769,
+             4917
+            ],
+            "role": "proposition",
+            "end1": "it",
+            "label": "has managed",
+            "end2": "to appear (with some modifications to its appearance over the years) at every significant Chicago fair and festival from the 1880s through the 1940s",
+            "subjectBasis": "stated",
+            "end2Ref": "ref:auto:chicago",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 255,
+              "schema": "EOTObservation@1",
+              "id": "o203",
+              "at": [
+               4779,
+               4917
+              ],
+              "role": "proposition",
+              "end1": "it",
+              "label": "appear",
+              "end2": "(with some modifications to its appearance over the years) at every significant Chicago fair and festival from the 1880s through the 1940s",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": [
+               {
+                "seq": 256,
+                "schema": "EOTObservation@1",
+                "id": "o204",
+                "at": [
+                 4841,
+                 4917
+                ],
+                "role": "proposition",
+                "end1": "it",
+                "label": "at",
+                "end2": "every significant Chicago fair and festival from the 1880s through the 1940s",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Ground",
+                "terrain": "Field",
+                "stance": "Tending",
+                "settledAs": "preposition",
+                "children": []
+               }
+              ]
+             }
+            ]
+           },
+           {
+            "seq": 260,
+            "schema": "EOTObservation@1",
+            "id": "o207",
+            "at": [
+             4929,
+             5098
+            ],
+            "role": "proposition",
+            "end1": "before",
+            "label": "including",
+            "end2": "both the 1893 World’s Columbian Exposition and the 1933–34 A Century of Progress International Exposition, before finding its forever home at the Chicago History Museum.",
+            "subjectBasis": "inherited (reduced participial clause — the noun phrase before the comma)",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 258,
+              "schema": "EOTObservation@1",
+              "id": "o205",
+              "at": [
+               5051,
+               5097
+              ],
+              "role": "proposition",
+              "end1": "before",
+              "label": "finding",
+              "end2": "its forever home at the Chicago History Museum",
+              "subjectBasis": "stated",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": [
+               {
+                "seq": 259,
+                "schema": "EOTObservation@1",
+                "id": "o206",
+                "at": [
+                 5071,
+                 5097
+                ],
+                "role": "proposition",
+                "end1": "before",
+                "label": "at",
+                "end2": "the Chicago History Museum",
+                "subjectBasis": "inherited",
+                "operator": "CON",
+                "grain": "Ground",
+                "terrain": "Field",
+                "stance": "Tending",
+                "settledAs": "preposition",
+                "children": []
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 37,
+      "schema": "EOTObservation@1",
+      "id": "p36",
+      "at": [
+       5100,
+       5110
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 105,
+        "schema": "EOTObservation@1",
+        "id": "s104",
+        "at": [
+         5100,
+         5110
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 262,
+          "schema": "EOTAbsence@1",
+          "at": [
+           5100,
+           5110
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 38,
+      "schema": "EOTObservation@1",
+      "id": "p37",
+      "at": [
+       5112,
+       5199
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 106,
+        "schema": "EOTObservation@1",
+        "id": "s105",
+        "at": [
+         5112,
+         5199
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 263,
+          "schema": "EOTObservation@1",
+          "id": "o208",
+          "at": [
+           5128,
+           5199
+          ],
+          "role": "proposition",
+          "end1": "Orange Cider",
+          "label": "at",
+          "end2": "the 1893 World’s Fair: Drink of the Gods or Soul-Destroying Concoction?",
+          "subjectBasis": "stated",
+          "end2Ref": "ref:auto:world",
+          "operator": "CON",
+          "grain": "Ground",
+          "terrain": "Field",
+          "stance": "Tending",
+          "settledAs": "preposition",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 39,
+      "schema": "EOTObservation@1",
+      "id": "p38",
+      "at": [
+       5201,
+       5352
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 107,
+        "schema": "EOTObservation@1",
+        "id": "s106",
+        "at": [
+         5201,
+         5352
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 265,
+          "schema": "EOTObservation@1",
+          "id": "o209",
+          "at": [
+           5218,
+           5351
+          ],
+          "role": "proposition",
+          "end1": "CHM",
+          "label": "and",
+          "end2": "insights analyst Marissa Croft teams up with YouTuber Kaz Rowe to share a tale of two ciders at the 1893 World’s Columbian Exposition",
+          "subjectBasis": "stated",
+          "end1Ref": "ref:auto:chm",
+          "operator": "SEG",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Dissecting",
+          "settledAs": "conjunction",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 40,
+      "schema": "EOTObservation@1",
+      "id": "p39",
+      "at": [
+       5354,
+       5364
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 108,
+        "schema": "EOTObservation@1",
+        "id": "s107",
+        "at": [
+         5354,
+         5364
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 267,
+          "schema": "EOTAbsence@1",
+          "at": [
+           5354,
+           5364
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 41,
+      "schema": "EOTObservation@1",
+      "id": "p40",
+      "at": [
+       5366,
+       5396
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 109,
+        "schema": "EOTObservation@1",
+        "id": "s108",
+        "at": [
+         5366,
+         5396
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": []
+       }
+      ]
+     },
+     {
+      "seq": 42,
+      "schema": "EOTObservation@1",
+      "id": "p41",
+      "at": [
+       5398,
+       5755
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 110,
+        "schema": "EOTObservation@1",
+        "id": "s109",
+        "at": [
+         5398,
+         5529
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 157,
+          "schema": "EOTObservation@1",
+          "id": "v156",
+          "at": [
+           5398,
+           5529
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 269,
+            "schema": "EOTObservation@1",
+            "id": "o210",
+            "at": [
+             5449,
+             5528
+            ],
+            "role": "proposition",
+            "end1": "1893 World’s Columbian Exposition",
+            "label": "opened",
+            "end2": "Chicago’s doors to millions and allowed the US to show off what it had to offer",
+            "subjectBasis": "stated",
+            "end1Ref": "ref:auto:world",
+            "end2Ref": "ref:auto:chicago",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 270,
+              "schema": "EOTObservation@1",
+              "id": "o211",
+              "at": [
+               5468,
+               5528
+              ],
+              "role": "proposition",
+              "end1": "1893 World’s Columbian Exposition",
+              "label": "to",
+              "end2": "millions and allowed the US to show off what it had to offer",
+              "subjectBasis": "inherited",
+              "end1Ref": "ref:auto:world",
+              "grain_gap": "connector does not settle in the received prior (Universal Dependencies has no Thrax-tradition category for it, e.g. the infinitive marker \"to\" is PART) — kept, not discarded",
+              "settledAs": null,
+              "children": [
+               {
+                "seq": 271,
+                "schema": "EOTObservation@1",
+                "id": "o212",
+                "at": [
+                 5489,
+                 5528
+                ],
+                "role": "proposition",
+                "end1": "1893 World’s Columbian Exposition",
+                "label": "and allowed",
+                "end2": "the US to show off what it had to offer",
+                "subjectBasis": "inherited",
+                "end1Ref": "ref:auto:world",
+                "operator": "CON",
+                "grain": "Figure",
+                "terrain": "Link",
+                "stance": "Binding",
+                "settledAs": "verb",
+                "children": []
+               }
+              ]
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 111,
+        "schema": "EOTObservation@1",
+        "id": "s110",
+        "at": [
+         5530,
+         5755
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 272,
+          "schema": "EOTObservation@1",
+          "id": "o213",
+          "at": [
+           5576,
+           5601
+          ],
+          "role": "proposition",
+          "end1": "replete with memorable architecture",
+          "label": "and",
+          "end2": "technological innovations",
+          "subjectBasis": "stated",
+          "operator": "SEG",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Dissecting",
+          "settledAs": "conjunction",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 43,
+      "schema": "EOTObservation@1",
+      "id": "p42",
+      "at": [
+       5757,
+       5767
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 112,
+        "schema": "EOTObservation@1",
+        "id": "s111",
+        "at": [
+         5757,
+         5767
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 274,
+          "schema": "EOTAbsence@1",
+          "at": [
+           5757,
+           5767
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 44,
+      "schema": "EOTObservation@1",
+      "id": "p43",
+      "at": [
+       5769,
+       5801
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 113,
+        "schema": "EOTObservation@1",
+        "id": "s112",
+        "at": [
+         5769,
+         5801
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 275,
+          "schema": "EOTObservation@1",
+          "id": "o214",
+          "at": [
+           5781,
+           5801
+          ],
+          "role": "proposition",
+          "end1": "The Rand",
+          "label": "is",
+          "end2": "Quicker Than the Eye",
+          "subjectBasis": "stated",
+          "operator": "CON",
+          "grain": "Figure",
+          "terrain": "Link",
+          "stance": "Binding",
+          "settledAs": "verb",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 45,
+      "schema": "EOTObservation@1",
+      "id": "p44",
+      "at": [
+       5803,
+       6151
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 114,
+        "schema": "EOTObservation@1",
+        "id": "s113",
+        "at": [
+         5803,
+         6041
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 158,
+          "schema": "EOTObservation@1",
+          "id": "v157",
+          "at": [
+           5803,
+           6041
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 128,
+            "schema": "EOTObservation@1",
+            "id": "e127",
+            "at": [
+             5866,
+             5876
+            ],
+            "role": "entity",
+            "referent": "ref:auto:sally_rand",
+            "surfaces": [
+             "Sally Rand",
+             "Sally"
+            ],
+            "occurrences": 4,
+            "operator": "SIG",
+            "grain": "Figure",
+            "terrain": "Entity",
+            "stance": "Binding",
+            "inferred": true,
+            "basis": "name-variant coreference (giver: surfaces/discoverReferents) — the surfaces were clustered by name-variant coreference and this is the being that cluster asserts",
+            "children": [
+             {
+              "seq": 129,
+              "schema": "EOTObservation@1",
+              "id": "d128",
+              "at": [
+               5866,
+               5876
+              ],
+              "role": "admission",
+              "referent": "ref:auto:sally_rand",
+              "operator": "DEF",
+              "grain": "Figure",
+              "terrain": "Lens",
+              "stance": "Dissecting",
+              "basis": "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
+              "children": []
+             }
+            ]
+           },
+           {
+            "seq": 277,
+            "schema": "EOTObservation@1",
+            "id": "o215",
+            "at": [
+             5887,
+             5909
+            ],
+            "role": "proposition",
+            "end1": "Sally Rand",
+            "label": "performed",
+            "end2": "her infamous fan dance",
+            "subjectBasis": "stated",
+            "end1Ref": "ref:auto:sally_rand",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           },
+           {
+            "seq": 278,
+            "schema": "EOTObservation@1",
+            "id": "o216",
+            "at": [
+             5941,
+             6040
+            ],
+            "role": "proposition",
+            "end1": "enthralled an",
+            "label": "estimated",
+            "end2": "2 million visitors and made the Streets of Paris one of the most profitable concessions at the fair",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 279,
+              "schema": "EOTObservation@1",
+              "id": "o217",
+              "at": [
+               5969,
+               6040
+              ],
+              "role": "proposition",
+              "end1": "enthralled an",
+              "label": "and made",
+              "end2": "the Streets of Paris one of the most profitable concessions at the fair",
+              "subjectBasis": "inherited",
+              "operator": "CON",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Binding",
+              "settledAs": "verb",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 115,
+        "schema": "EOTObservation@1",
+        "id": "s114",
+        "at": [
+         6042,
+         6095
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 159,
+          "schema": "EOTObservation@1",
+          "id": "v158",
+          "at": [
+           6042,
+           6095
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 281,
+            "schema": "EOTObservation@1",
+            "id": "o218",
+            "at": [
+             6071,
+             6094
+            ],
+            "role": "proposition",
+            "end1": "her performance",
+            "label": "was",
+            "end2": "not without controversy",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": []
+           }
+          ]
+         }
+        ]
+       },
+       {
+        "seq": 116,
+        "schema": "EOTObservation@1",
+        "id": "s115",
+        "at": [
+         6096,
+         6151
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 160,
+          "schema": "EOTObservation@1",
+          "id": "v159",
+          "at": [
+           6096,
+           6151
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": [
+           {
+            "seq": 282,
+            "schema": "EOTObservation@1",
+            "id": "o219",
+            "at": [
+             6121,
+             6149
+            ],
+            "role": "proposition",
+            "end1": "Local authorities",
+            "label": "deemed",
+            "end2": "her act “lewd and lascivious",
+            "subjectBasis": "stated",
+            "operator": "CON",
+            "grain": "Figure",
+            "terrain": "Link",
+            "stance": "Binding",
+            "settledAs": "verb",
+            "children": [
+             {
+              "seq": 283,
+              "schema": "EOTObservation@1",
+              "id": "o220",
+              "at": [
+               6139,
+               6149
+              ],
+              "role": "proposition",
+              "end1": "Local authorities",
+              "label": "and",
+              "end2": "lascivious",
+              "subjectBasis": "inherited",
+              "operator": "SEG",
+              "grain": "Figure",
+              "terrain": "Link",
+              "stance": "Dissecting",
+              "settledAs": "conjunction",
+              "children": []
+             }
+            ]
+           }
+          ]
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 46,
+      "schema": "EOTObservation@1",
+      "id": "p45",
+      "at": [
+       6153,
+       6321
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 117,
+        "schema": "EOTObservation@1",
+        "id": "s116",
+        "at": [
+         6153,
+         6321
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 161,
+          "schema": "EOTObservation@1",
+          "id": "v160",
+          "at": [
+           6153,
+           6321
+          ],
+          "role": "void",
+          "operator": "SIG",
+          "grain": "Ground",
+          "terrain": "Void",
+          "stance": "Tending",
+          "reached": "a third-person pronoun occurs here and no binding cleared the declared recall floor — the text points at a being this reading cannot name",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 47,
+      "schema": "EOTObservation@1",
+      "id": "p46",
+      "at": [
+       6323,
+       6333
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 118,
+        "schema": "EOTObservation@1",
+        "id": "s117",
+        "at": [
+         6323,
+         6333
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 285,
+          "schema": "EOTAbsence@1",
+          "at": [
+           6323,
+           6333
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "seq": 48,
+      "schema": "EOTObservation@1",
+      "id": "p47",
+      "at": [
+       6335,
+       6346
+      ],
+      "role": "paragraph",
+      "inferred": true,
+      "basis": "a run of text bounded by blank lines — the printed convention for a paragraph; this document carries no paragraph markup of its own (S95 — an inferred extent with the evidence that licensed it)",
+      "children": [
+       {
+        "seq": 119,
+        "schema": "EOTObservation@1",
+        "id": "s118",
+        "at": [
+         6335,
+         6346
+        ],
+        "role": "sentence",
+        "inferred": true,
+        "basis": "a terminator-bounded run, abbreviations and closing quotes accounted for (adapters/text/spans.js::splitSentences; S95 — the sentence is the address unit the ledger's recoverability tilts on, S101)",
+        "script": "cased",
+        "children": [
+         {
+          "seq": 286,
+          "schema": "EOTAbsence@1",
+          "at": [
+           6335,
+           6346
+          ],
+          "role": "arrangement",
+          "reason": "gate_refused_no_two_ends",
+          "detail": "a verb this reading earned occurs here, but extractRelations requires BOTH a subject group and an object group (S90: `if (!subject || !object) continue`) — an exclamation, a bare predicate adjective, or an intransitive clause satisfies neither, and that is a property of the gate, not of the material",
+          "children": []
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ }
+]

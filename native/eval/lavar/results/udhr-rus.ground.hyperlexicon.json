@@ -1,0 +1,1982 @@
+{
+  "schema": "EOHyperlexicon@1",
+  "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+  "language": "rus",
+  "role": "target",
+  "entries": 94,
+  "given": 91,
+  "candidates": 3,
+  "hyperlexicon": {
+    "schema": "EOHyperlexicon@1",
+    "composition": {
+      "поступать\u0000в отношении друг друга": {
+        "left": "поступать",
+        "right": "в отношении друг друга",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Они наделены разумом и совестью и должны поступать в отношении друг друга в духе братства."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 1,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "бы\u0000то ни было различия": {
+        "left": "бы",
+        "right": "то ни было различия",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 2\n\n      Каждый человек должен обладать всеми правами и всеми свободами, провозглашенными настоящей Декларацией, без какого бы то ни было различия, как-то в отношении расы, цвета кожи, пола, яз"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 2,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "ограниченной\u0000в своем суверенитете": {
+        "left": "ограниченной",
+        "right": "в своем суверенитете",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Кроме того, не должно проводиться никакого различия на основе политического, правового или международного статуса страны или территории, к которой человек принадлежит, независимо от того, является ли "
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 2,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "имеет\u0000право на жизнь": {
+        "left": "имеет",
+        "right": "право на жизнь",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 3\n\n      Каждый человек имеет право на жизнь, на свободу и на личную неприкосновенность."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 3,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "подвергаться\u0000пыткам": {
+        "left": "подвергаться",
+        "right": "пыткам",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 5\n\n      Никто не должен подвергаться пыткам или жестоким, бесчеловечным или унижающим его достоинство обращению и наказанию."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 5,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "бы\u0000он ни находился": {
+        "left": "бы",
+        "right": "он ни находился",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 6\n\n      Каждый человек, где бы он ни находился, имеет право на признание его правосубъектности."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 6,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "имеют\u0000право": {
+        "left": "имеют",
+        "right": "право",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Все люди имеют право на равную защиту от какой бы то ни было дискриминации, нарушающей настоящую Декларацию, и от какого бы то ни было подстрекательства к такой дискриминации."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 7,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "бы\u0000то ни было дискриминации": {
+        "left": "бы",
+        "right": "то ни было дискриминации",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Все люди имеют право на равную защиту от какой бы то ни было дискриминации, нарушающей настоящую Декларацию, и от какого бы то ни было подстрекательства к такой дискриминации."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 7,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "бы\u0000то ни было подстрекательства": {
+        "left": "бы",
+        "right": "то ни было подстрекательства",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Все люди имеют право на равную защиту от какой бы то ни было дискриминации, нарушающей настоящую Декларацию, и от какого бы то ни было подстрекательства к такой дискриминации."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 7,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "имеет\u0000право": {
+        "left": "имеет",
+        "right": "право",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Каждый работающий имеет право на справедливое и удовлетворительное вознаграждение, обеспечивающее достойное человека существование для него самого и его семьи, и дополняемое, при необходимости, другим"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "может\u0000быть подвергнут произвольному аресту": {
+        "left": "может",
+        "right": "быть подвергнут произвольному аресту",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 9\n\n      Никто не может быть подвергнут произвольному аресту, задержанию или изгнанию."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 9,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "было\u0000рассмотрено гласно": {
+        "left": "было",
+        "right": "рассмотрено гласно",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 10\n\n      Каждый человек, для определения его прав и обязанностей и для установления обоснованности предъявленного ему уголовного обвинения, имеет право, на основе полного равенства, на то, что"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 10,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "считаться\u0000невиновным до тех пор": {
+        "left": "считаться",
+        "right": "невиновным до тех пор",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 11\n\n\n\n          Каждый человек, обвиняемый в совершении преступления, имеет право считаться невиновным до тех пор, пока его виновность не будет установлена законным порядком путем гласного суде"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 11,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "будет\u0000установлена законным порядком путем гласного судебного разбирательства": {
+        "left": "будет",
+        "right": "установлена законным порядком путем гласного судебного разбирательства",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 11\n\n\n\n          Каждый человек, обвиняемый в совершении преступления, имеет право считаться невиновным до тех пор, пока его виновность не будет установлена законным порядком путем гласного суде"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 11,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "может\u0000быть осужден за преступление": {
+        "left": "может",
+        "right": "быть осужден за преступление",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Никто не может быть осужден за преступление на основании совершения какого-либо деяния или за бездействие, которые во время их совершения не составляли преступления по национальным законам или по межд"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 11,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "составляли\u0000преступления по национальным законам": {
+        "left": "составляли",
+        "right": "преступления по национальным законам",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Никто не может быть осужден за преступление на основании совершения какого-либо деяния или за бездействие, которые во время их совершения не составляли преступления по национальным законам или по межд"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 11,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "может\u0000также налагаться наказание более тяжкое": {
+        "left": "может",
+        "right": "также налагаться наказание более тяжкое",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Не может также налагаться наказание более тяжкое, нежели то, которое могло быть применено в то время, когда преступление было совершено."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 11,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "быть\u0000применено": {
+        "left": "быть",
+        "right": "применено",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Не может также налагаться наказание более тяжкое, нежели то, которое могло быть применено в то время, когда преступление было совершено."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 11,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "было\u0000совершено": {
+        "left": "было",
+        "right": "совершено",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Не может также налагаться наказание более тяжкое, нежели то, которое могло быть применено в то время, когда преступление было совершено."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 11,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "может\u0000подвергаться произвольному вмешательству": {
+        "left": "может",
+        "right": "подвергаться произвольному вмешательству",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 12\n\n      Никто не может подвергаться произвольному вмешательству в его личную и семейную жизнь, произвольным посягательствам на неприкосновенность его жилища, тайну его корреспонденции или на "
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 12,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "имеет\u0000право свободно передвигаться": {
+        "left": "имеет",
+        "right": "право свободно передвигаться",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 13\n\n\n\n          Каждый человек имеет право свободно передвигаться и выбирать себе местожительство в пределах каждого государства."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 13,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "имеет\u0000право покидать любую страну": {
+        "left": "имеет",
+        "right": "право покидать любую страну",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Каждый человек имеет право покидать любую страну, включая свою собственную, и возвращаться в свою страну."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 13,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "имеет\u0000право искать убежища": {
+        "left": "имеет",
+        "right": "право искать убежища",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 14\n\n\n\n          Каждый человек имеет право искать убежища от преследования в других странах и пользоваться этим убежищем."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 14,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "пользоваться\u0000этим убежищем": {
+        "left": "пользоваться",
+        "right": "этим убежищем",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 14\n\n\n\n          Каждый человек имеет право искать убежища от преследования в других странах и пользоваться этим убежищем."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 14,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "может\u0000быть использовано": {
+        "left": "может",
+        "right": "быть использовано",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Это право не может быть использовано в случае преследования, в действительности основанного на совершении неполитического преступления, или деяния, противоречащего целям и принципам Организации Объеди"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 14,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "может\u0000быть произвольно лишен своего гражданства": {
+        "left": "может",
+        "right": "быть произвольно лишен своего гражданства",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Никто не может быть произвольно лишен своего гражданства или права изменить свое гражданство."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 15,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "изменить\u0000свое гражданство": {
+        "left": "изменить",
+        "right": "свое гражданство",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Никто не может быть произвольно лишен своего гражданства или права изменить свое гражданство."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 15,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "пользуются\u0000одинаковыми правами": {
+        "left": "пользуются",
+        "right": "одинаковыми правами",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Они пользуются одинаковыми правами в отношении вступления в брак, во время состояния в браке и во время его расторжения."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 16,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "быть\u0000заключен только при свободном": {
+        "left": "быть",
+        "right": "заключен только при свободном",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Брак может быть заключен только при свободном и полном согласии обеих вступающих в брак сторон."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 16,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "является\u0000естественной": {
+        "left": "является",
+        "right": "естественной",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Семья является естественной и основной ячейкой общества и имеет право на защиту со стороны общества и государства."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 16,
+          "sentence": 3,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "имеет\u0000право владеть имуществом как единолично": {
+        "left": "имеет",
+        "right": "право владеть имуществом как единолично",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 17\n\n\n\n          Каждый человек имеет право владеть имуществом как единолично, так и совместно с другими."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 17,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "быть\u0000произвольно лишен своего имущества": {
+        "left": "быть",
+        "right": "произвольно лишен своего имущества",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Никто не должен быть произвольно лишен своего имущества."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 17,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "включает\u0000свободу менять свою религию": {
+        "left": "включает",
+        "right": "свободу менять свою религию",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 18\n\n      Каждый человек имеет право на свободу мысли, совести и религии; это право включает свободу менять свою религию или убеждения и свободу исповедовать свою религию или убеждения как един"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 18,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "включает\u0000свободу беспрепятственно придерживаться своих убеждений": {
+        "left": "включает",
+        "right": "свободу беспрепятственно придерживаться своих убеждений",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 19\n\n      Каждый человек имеет право на свободу убеждений и на свободное выражение их; это право включает свободу беспрепятственно придерживаться своих убеждений и свободу искать, получать и ра"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 19,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "может\u0000быть принуждаем вступать": {
+        "left": "может",
+        "right": "быть принуждаем вступать",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Никто не может быть принуждаем вступать в какую-либо ассоциацию."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 20,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "имеет\u0000право принимать участие": {
+        "left": "имеет",
+        "right": "право принимать участие",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 21\n\n\n\n          Каждый человек имеет право принимать участие в управлении своей страной непосредственно или через посредство свободно избранных представителей."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 21,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "имеет\u0000право равного доступа к государственной службе": {
+        "left": "имеет",
+        "right": "право равного доступа к государственной службе",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Каждый человек имеет право равного доступа к государственной службе в своей стране."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 21,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "быть\u0000основой власти правительства": {
+        "left": "быть",
+        "right": "основой власти правительства",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Воля народа должна быть основой власти правительства; эта воля должна находить себе выражение в периодических и нефальсифицированных выборах, которые должны проводиться при всеобщем и равном избирател"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 21,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "имеет\u0000право создавать профессиональные союзы": {
+        "left": "имеет",
+        "right": "право создавать профессиональные союзы",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Каждый человек имеет право создавать профессиональные союзы и входить в профессиональные союзы для защиты своих интересов."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 3,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "входить\u0000в профессиональные союзы для защиты своих интересов": {
+        "left": "входить",
+        "right": "в профессиональные союзы для защиты своих интересов",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Каждый человек имеет право создавать профессиональные союзы и входить в профессиональные союзы для защиты своих интересов."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 3,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "дают\u0000право": {
+        "left": "дают",
+        "right": "право",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Материнство и младенчество дают право на особое попечение и помощь."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 25,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "пользоваться\u0000одинаковой социальной защитой": {
+        "left": "пользоваться",
+        "right": "одинаковой социальной защитой",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Все дети, родившиеся в браке или вне брака, должны пользоваться одинаковой социальной защитой."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 25,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "быть\u0000бесплатным по меньшей мере": {
+        "left": "быть",
+        "right": "бесплатным по меньшей мере",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Образование должно быть бесплатным по меньшей мере в том, что касается начального и общего образования."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "касается\u0000начального": {
+        "left": "касается",
+        "right": "начального",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Образование должно быть бесплатным по меньшей мере в том, что касается начального и общего образования."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "быть\u0000обязательным": {
+        "left": "быть",
+        "right": "обязательным",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Начальное образование должно быть обязательным."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "быть\u0000общедоступным": {
+        "left": "быть",
+        "right": "общедоступным",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Техническое и профессиональное образование должно быть общедоступным, и высшее образование должно быть одинаково доступным для всех на основе способностей каждого."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 3,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "быть\u0000одинаково доступным": {
+        "left": "быть",
+        "right": "одинаково доступным",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Техническое и профессиональное образование должно быть общедоступным, и высшее образование должно быть одинаково доступным для всех на основе способностей каждого."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 3,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "быть\u0000направлено к полному развитию человеческой личности": {
+        "left": "быть",
+        "right": "направлено к полному развитию человеческой личности",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Образование должно быть направлено к полному развитию человеческой личности и к увеличению уважения к правам человека и основным свободам."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 4,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "имеют\u0000право приоритета": {
+        "left": "имеют",
+        "right": "право приоритета",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Родители имеют право приоритета в выборе вида образования для своих малолетних детей."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 6,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "имеет\u0000право свободно участвовать": {
+        "left": "имеет",
+        "right": "право свободно участвовать",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 27\n\n\n\n          Каждый человек имеет право свободно участвовать в культурной жизни общества, наслаждаться искусством, участвовать в научном прогрессе и пользоваться его благами."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 27,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "пользоваться\u0000его благами": {
+        "left": "пользоваться",
+        "right": "его благами",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 27\n\n\n\n          Каждый человек имеет право свободно участвовать в культурной жизни общества, наслаждаться искусством, участвовать в научном прогрессе и пользоваться его благами."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 27,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "быть\u0000полностью осуществлены": {
+        "left": "быть",
+        "right": "полностью осуществлены",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 28\n\n      Каждый человек имеет право на социальный и международный порядок, при котором права и свободы, изложенные в настоящей Декларации, могут быть полностью осуществлены."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 28,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "имеет\u0000обязанности перед обществом": {
+        "left": "имеет",
+        "right": "обязанности перед обществом",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 29\n\n\n\n          Каждый человек имеет обязанности перед обществом, в котором только и возможно свободное и полное развитие его личности."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "подвергаться\u0000только таким ограничениям": {
+        "left": "подвергаться",
+        "right": "только таким ограничениям",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "При осуществлении своих прав и свобод каждый человек должен подвергаться только таким ограничениям, какие установлены законом исключительно с целью обеспечения должного признания и уважения прав и сво"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "установлены\u0000законом исключительно с целью обеспечения должного признания": {
+        "left": "установлены",
+        "right": "законом исключительно с целью обеспечения должного признания",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "При осуществлении своих прав и свобод каждый человек должен подвергаться только таким ограничениям, какие установлены законом исключительно с целью обеспечения должного признания и уважения прав и сво"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "может\u0000быть истолковано": {
+        "left": "может",
+        "right": "быть истолковано",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 30\n\n      Ничто в настоящей Декларации не может быть истолковано, как предоставление какому-либо государству, группе лиц или отдельным лицам права заниматься какой-либо деятельностью или соверш"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 30,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "заниматься\u0000какой": {
+        "left": "заниматься",
+        "right": "какой",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 30\n\n      Ничто в настоящей Декларации не может быть истолковано, как предоставление какому-либо государству, группе лиц или отдельным лицам права заниматься какой-либо деятельностью или соверш"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 30,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "совершать\u0000действия": {
+        "left": "совершать",
+        "right": "действия",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 30\n\n      Ничто в настоящей Декларации не может быть истолковано, как предоставление какому-либо государству, группе лиц или отдельным лицам права заниматься какой-либо деятельностью или соверш"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 30,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "are born\u0000free": {
+        "left": "are born",
+        "right": "free",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 1\n\n      Все люди рождаются свободными и равными в своем достоинстве и правах."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 1,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 1·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "naissent\u0000libres": {
+        "left": "naissent",
+        "right": "libres",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 1\n\n      Все люди рождаются свободными и равными в своем достоинстве и правах."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 1,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 1·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "shall be held\u0000in slavery": {
+        "left": "shall be held",
+        "right": "in slavery",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 4\n\n      Никто не должен содержаться в рабстве или в подневольном состоянии; рабство и работорговля запрещаются во всех их видах."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 4,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 4·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "shall be prohibited\u0000in": {
+        "left": "shall be prohibited",
+        "right": "in",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 4\n\n      Никто не должен содержаться в рабстве или в подневольном состоянии; рабство и работорговля запрещаются во всех их видах."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 4,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 4·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "sera\u0000tenu": {
+        "left": "sera",
+        "right": "tenu",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 4\n\n      Никто не должен содержаться в рабстве или в подневольном состоянии; рабство и работорговля запрещаются во всех их видах."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 4,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 4·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "traite\u0000des esclaves sont interdits sous toutes leurs formes": {
+        "left": "traite",
+        "right": "des esclaves sont interdits sous toutes leurs formes",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 4\n\n      Никто не должен содержаться в рабстве или в подневольном состоянии; рабство и работорговля запрещаются во всех их видах."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 4,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 4·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "granted\u0000him by": {
+        "left": "granted",
+        "right": "him by",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 8\n\n      Каждый человек имеет право на эффективное восстановление в правах компетентными национальными судами в случаях нарушения его основных прав, предоставленных ему конституцией или законом"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 8,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 8·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "a\u0000droit": {
+        "left": "a",
+        "right": "droit",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 25\n\n\n\n          Каждый человек имеет право на такой жизненный уровень, включая пищу, одежду, жилище, медицинский уход и необходимое социальное обслуживание, который необходим для поддержания зд"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 25,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 25·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "sont\u0000reconnus par": {
+        "left": "sont",
+        "right": "reconnus par",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 8\n\n      Каждый человек имеет право на эффективное восстановление в правах компетентными национальными судами в случаях нарушения его основных прав, предоставленных ему конституцией или законом"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 8,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 8·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "has\u0000the": {
+        "left": "has",
+        "right": "the",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Каждый человек имеет право на защиту его моральных и материальных интересов, являющихся результатом научных, литературных или художественных трудов, автором которых он является."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 27,
+          "sentence": 1,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 27·1 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "resulting\u0000from": {
+        "left": "resulting",
+        "right": "from",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Каждый человек имеет право на защиту его моральных и материальных интересов, являющихся результатом научных, литературных или художественных трудов, автором которых он является."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 27,
+          "sentence": 1,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 27·1 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "is\u0000the author": {
+        "left": "is",
+        "right": "the author",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Каждый человек имеет право на защиту его моральных и материальных интересов, являющихся результатом научных, литературных или художественных трудов, автором которых он является."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 27,
+          "sentence": 1,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 27·1 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "est\u0000l’auteur": {
+        "left": "est",
+        "right": "l’auteur",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Каждый человек имеет право на защиту его моральных и материальных интересов, являющихся результатом научных, литературных или художественных трудов, автором которых он является."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 27,
+          "sentence": 1,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 27·1 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "marry\u0000and": {
+        "left": "marry",
+        "right": "and",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 16\n\n\n\n          Мужчины и женщины, достигшие совершеннолетия, имеют право без всяких ограничений по признаку расы, национальности или религии вступать в брак и основывать свою семью."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 16,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 16·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "found\u0000a family": {
+        "left": "found",
+        "right": "a family",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 16\n\n\n\n          Мужчины и женщины, достигшие совершеннолетия, имеют право без всяких ограничений по признаку расы, национальности или религии вступать в брак и основывать свою семью."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 16,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 16·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "partir\u0000de l’âge nubile": {
+        "left": "partir",
+        "right": "de l’âge nubile",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 16\n\n\n\n          Мужчины и женщины, достигшие совершеннолетия, имеют право без всяких ограничений по признаку расы, национальности или религии вступать в брак и основывать свою семью."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 16,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 16·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "marier\u0000et": {
+        "left": "marier",
+        "right": "et",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 16\n\n\n\n          Мужчины и женщины, достигшие совершеннолетия, имеют право без всяких ограничений по признаку расы, национальности или религии вступать в брак и основывать свою семью."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 16,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 16·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "fonder\u0000une famille": {
+        "left": "fonder",
+        "right": "une famille",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 16\n\n\n\n          Мужчины и женщины, достигшие совершеннолетия, имеют право без всяких ограничений по признаку расы, национальности или религии вступать в брак и основывать свою семью."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 16,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 16·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "is entitled\u0000to realization": {
+        "left": "is entitled",
+        "right": "to realization",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 22\n\n      Каждый человек, как член общества, имеет право на социальное обеспечение и на осуществление необходимых для поддержания его достоинства и для свободного развития его личности прав в э"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 22,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 22·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "fondée\u0000à obtenir": {
+        "left": "fondée",
+        "right": "à obtenir",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 22\n\n      Каждый человек, как член общества, имеет право на социальное обеспечение и на осуществление необходимых для поддержания его достоинства и для свободного развития его личности прав в э"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 22,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 22·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "tenu\u0000de l’organisation": {
+        "left": "tenu",
+        "right": "de l’organisation",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 22\n\n      Каждый человек, как член общества, имеет право на социальное обеспечение и на осуществление необходимых для поддержания его достоинства и для свободного развития его личности прав в э"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 22,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 22·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "pay\u0000for": {
+        "left": "pay",
+        "right": "for",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Каждый человек, без какой-либо дискриминации, имеет право на равную оплату за равный труд."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 1,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 23·1 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "ont\u0000droit": {
+        "left": "ont",
+        "right": "droit",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Каждый человек, без какой-либо дискриминации, имеет право на равную оплату за равный труд."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 1,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 23·1 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "working\u0000hours": {
+        "left": "working",
+        "right": "hours",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 24\n\n      Каждый человек имеет право на отдых и досуг, включая право на разумное ограничение рабочего дня и на оплачиваемый периодический отпуск."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 24,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 24·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "including\u0000reasonable limitation of working hours and periodic holidays with pay.": {
+        "left": "including",
+        "right": "reasonable limitation of working hours and periodic holidays with pay.",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 24\n\n      Каждый человек имеет право на отдых и досуг, включая право на разумное ограничение рабочего дня и на оплачиваемый периодический отпуск."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 24,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 24·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "a\u0000droit au repos": {
+        "left": "a",
+        "right": "droit au repos",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 24\n\n      Каждый человек имеет право на отдых и досуг, включая право на разумное ограничение рабочего дня и на оплачиваемый периодический отпуск."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 24,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 24·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "payés\u0000périodiques": {
+        "left": "payés",
+        "right": "périodiques",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 24\n\n      Каждый человек имеет право на отдых и досуг, включая право на разумное ограничение рабочего дня и на оплачиваемый периодический отпуск."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 24,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 24·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "living\u0000adequate": {
+        "left": "living",
+        "right": "adequate",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 25\n\n\n\n          Каждый человек имеет право на такой жизненный уровень, включая пищу, одежду, жилище, медицинский уход и необходимое социальное обслуживание, который необходим для поддержания зд"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 25,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 25·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "including\u0000food, clothing, housing and medical care and necessary social services, and the right to security in the event of unemployment, sickness, disability, widowhood, old age or other lack of livelihood in circumstances beyond his control.": {
+        "left": "including",
+        "right": "food, clothing, housing and medical care and necessary social services, and the right to security in the event of unemployment, sickness, disability, widowhood, old age or other lack of livelihood in circumstances beyond his control.",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 25\n\n\n\n          Каждый человек имеет право на такой жизненный уровень, включая пищу, одежду, жилище, медицинский уход и необходимое социальное обслуживание, который необходим для поддержания зд"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 25,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 25·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "assurer\u0000sa santé": {
+        "left": "assurer",
+        "right": "sa santé",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Статья 25\n\n\n\n          Каждый человек имеет право на такой жизненный уровень, включая пищу, одежду, жилище, медицинский уход и необходимое социальное обслуживание, который необходим для поддержания зд"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 25,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 25·0 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "shall promote\u0000understanding": {
+        "left": "shall promote",
+        "right": "understanding",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Образование должно содействовать взаимопониманию, терпимости и дружбе между всеми народами, расовыми и религиозными группами, и должно содействовать деятельности Организации Объединенных Наций по подд"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 5,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 26·5 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "shall\u0000further": {
+        "left": "shall",
+        "right": "further",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Образование должно содействовать взаимопониманию, терпимости и дружбе между всеми народами, расовыми и религиозными группами, и должно содействовать деятельности Организации Объединенных Наций по подд"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 5,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 26·5 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "favoriser\u0000la compréhension": {
+        "left": "favoriser",
+        "right": "la compréhension",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "witnesses": [
+          "Образование должно содействовать взаимопониманию, терпимости и дружбе между всеми народами, расовыми и религиозными группами, и должно содействовать деятельности Организации Объединенных Наций по подд"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 5,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 26·5 (eng+fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "has\u0000the right": {
+        "left": "has",
+        "right": "the right",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "witnesses": [
+          "Каждый человек имеет право на защиту закона от такого вмешательства или таких посягательств."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 12,
+          "sentence": 1,
+          "corroborated": false,
+          "referenceLangs": [
+            "eng"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 12·1 (eng read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "may\u0000in no case": {
+        "left": "may",
+        "right": "in no case",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "witnesses": [
+          "Осуществление этих прав и свобод ни в коем случае не должно противоречить целям и принципам Организации Объединенных Наций."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 2,
+          "corroborated": false,
+          "referenceLangs": [
+            "eng"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 29·2 (eng read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "a\u0000droit au travail": {
+        "left": "a",
+        "right": "droit au travail",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "witnesses": [
+          "Статья 23\n\n\n\n          Каждый человек имеет право на труд, на свободный выбор работы, на справедливые и благоприятные условия труда и на защиту от безработицы."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 0,
+          "corroborated": false,
+          "referenceLangs": [
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 23·0 (fra read an edge here; rus extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      }
+    },
+    "meta": {}
+  },
+  "disclosed": "61 own-read norms + 38 Rosetta-projected missing edges — corroborated projections GIVEN with the UDHR as giver, 1-of-2 candidates — each witnessed by rus's own aligned sentence"
+}

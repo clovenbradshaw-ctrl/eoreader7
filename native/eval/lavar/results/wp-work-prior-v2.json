@@ -1,0 +1,35 @@
+{
+ "schema": "EOWorkPrior@1",
+ "giver": "build-work-prior.mjs — the reading of War and Peace ch1-3 aligned (en) v2, earned as a received prior",
+ "sourceDocument": "War and Peace ch1-3 aligned (en) v2",
+ "fields": {
+  "verbs": [],
+  "chemistry": [],
+  "rhythm": {
+   "schema": "EORhythmPrior@1",
+   "id": "rhythm:War and Peace ch1-3 aligned (en) v2",
+   "giver": "build-work-prior.mjs — the reading of War and Peace ch1-3 aligned (en) v2, earned as a received prior",
+   "standing": "defeasible_experience_prior",
+   "witnessed": false,
+   "admissible": false,
+   "sourceCount": 1,
+   "sourceRefs": [
+    "War and Peace ch1-3 aligned (en) v2"
+   ],
+   "medianGap": null,
+   "gapCount": 0,
+   "workSupport": 1,
+   "memoryStanding": "single_work_memory",
+   "gapHistogram": [],
+   "provenance": {
+    "giver": "build-work-prior.mjs — the reading of War and Peace ch1-3 aligned (en) v2, earned as a received prior",
+    "basis": "completed_prior_readings",
+    "targetExcluded": true,
+    "rule": "pooled inter-mention gaps of admitted referents; median is a declared standard summary, not a tuned threshold",
+    "measured": "native/eval/results/narrative-rhythm-transfer.json — novel-learned rhythm scores a held-out novel at 92% of its own self-prior and ~3.3x its order-destroyed null"
+   }
+  },
+  "kinds": []
+ },
+ "basis": "reading one document earns the FULL field — relation forms, composition chemistry, return rhythm, and kinds — each offered to the next document as a received prior with a named giver; no cast crosses, referent identity never transfers"
+}
