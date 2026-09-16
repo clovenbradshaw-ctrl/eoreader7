@@ -24,7 +24,7 @@
 // the terminals this was built against (iTerm2, Terminal.app, VS Code's
 // integrated terminal). Slash commands are the documented fallback for any
 // environment where a binding above is intercepted first: /new, /close,
-// /model <name>, /code, /chat, /help, /quit.
+// /model <name>, /code, /chat, /help, /quit, /matrix, /github.
 //
 // Two modes per tab: "chat" sends straight to proxy-client.chatCompletion
 // (the fold's grounded pipeline — retrieval/checking/citations already
@@ -42,6 +42,8 @@ import { render, Box, Text, useApp, useInput, useStdout } from "ink";
 import TextInput from "ink-text-input";
 import * as proxyClient from "./proxy-client.mjs";
 import { runAgentTurn, AGENT_MAX_TURNS } from "./agent-loop.mjs";
+import { matrixLogin, matrixLogout, matrixStatus, matrixWhoAmI } from "./matrix-login.mjs";
+import { startGithubDeviceFlow, githubLogout, githubStatus, githubWhoAmI } from "./github-login.mjs";
 
 const h = React.createElement;
 const OLLAMA_URL = process.env.ER7_UPSTREAM || "http://localhost:11434";
@@ -119,6 +121,7 @@ function HelpOverlay() {
     h(Text, null, "Enter   send / approve     Esc     reject a pending confirmation"),
     h(Text, { bold: true, marginTop: 1 }, "Slash commands"),
     h(Text, null, "/new  /close  /model <name>  /code  /chat  /help  /quit"),
+    h(Text, null, "/matrix [status|login <hs> <user> <pw>|logout|whoami]  /github [status|login|logout]"),
     h(Text, { bold: true, marginTop: 1 }, "Modes"),
     h(Text, null, "chat — sent to the fold proxy's grounded reading pipeline."),
     h(Text, null, "code — a real tool-use loop against Ollama directly: read_file,"),
@@ -335,6 +338,67 @@ function App() {
       case "help":
         setHelpVisible((v) => !v);
         break;
+      // Matrix/GitHub, from here too (user direction: login from any
+      // interaction surface) — this CLI's own independent sign-in
+      // (matrix-login.mjs/github-login.mjs), never the browser's session,
+      // which a separate Node process has no way to read.
+      case "matrix": {
+        const [sub, ...rest2] = arg.split(/\s+/).filter(Boolean);
+        if (!sub || sub === "status") {
+          const st = matrixStatus();
+          pushMessage(tabId, "note", st.signedIn ? `matrix: signed in as ${st.userId} on ${st.homeserver}` : "matrix: not signed in — /matrix login <homeserver> <user> <password>");
+          break;
+        }
+        if (sub === "login") {
+          const [hs, user, ...pwParts] = rest2;
+          const pw = pwParts.join(" ");
+          if (!hs || !user || !pw) { pushMessage(tabId, "error", "/matrix login <homeserver> <user> <password> — this line stays in your terminal scrollback, unmasked"); break; }
+          pushMessage(tabId, "note", `signing in to ${hs}…`);
+          matrixLogin(hs, user, pw)
+            .then((creds) => pushMessage(tabId, "note", `signed in as ${creds.userId} on ${creds.homeserver} — credentials saved (mode 600) to this CLI's own ~/.eoreader7/credentials.json, separate from any browser session`))
+            .catch((e) => pushMessage(tabId, "error", `matrix login failed: ${e.message}`));
+          break;
+        }
+        if (sub === "logout") {
+          matrixLogout()
+            .then(() => pushMessage(tabId, "note", "signed out — token invalidated on the homeserver and forgotten here"))
+            .catch((e) => pushMessage(tabId, "error", `matrix logout failed: ${e.message}`));
+          break;
+        }
+        if (sub === "whoami") {
+          matrixWhoAmI()
+            .then((who) => pushMessage(tabId, "note", who ? `${who.userId} on ${who.homeserver} — session confirmed live against the homeserver` : "no valid session (not signed in, or the token no longer works)"))
+            .catch((e) => pushMessage(tabId, "error", `matrix whoami failed: ${e.message}`));
+          break;
+        }
+        pushMessage(tabId, "error", `unknown /matrix command "${sub}" — status | login <homeserver> <user> <password> | logout | whoami`);
+        break;
+      }
+      case "github": {
+        const [sub] = arg.split(/\s+/).filter(Boolean);
+        if (!sub || sub === "status") {
+          pushMessage(tabId, "note", githubStatus().connected ? "github: connected" : "github: not connected — /github login");
+          break;
+        }
+        if (sub === "login") {
+          startGithubDeviceFlow()
+            .then(({ userCode, verificationUri, poll }) => {
+              pushMessage(tabId, "note", `open ${verificationUri} and enter code: ${userCode} — waiting…`);
+              return poll();
+            })
+            .then(() => githubWhoAmI())
+            .then((who) => pushMessage(tabId, "note", `connected${who?.login ? ` as ${who.login}` : ""} — credentials saved (mode 600) to this CLI's own ~/.eoreader7/credentials.json`))
+            .catch((e) => pushMessage(tabId, "error", `github login failed: ${e.message}`));
+          break;
+        }
+        if (sub === "logout") {
+          githubLogout();
+          pushMessage(tabId, "note", "github: disconnected");
+          break;
+        }
+        pushMessage(tabId, "error", `unknown /github command "${sub}" — status | login | logout`);
+        break;
+      }
       case "quit":
       case "exit":
         exit();
