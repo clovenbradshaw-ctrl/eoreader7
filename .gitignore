@@ -104,3 +104,21 @@ native/eval/pathos-corpus/
 # UHS housing report: a fetched PDF plus its scanned-page PNG cache. Same
 # "cached third-party document for offline replay" category as sanriku/chicago.
 native/eval/housing/
+
+# Wilson's swarm: PER-VARIANT reading ledgers (2026-09-17). Every genotype the
+# swarm measures gets its OWN isolated ledger/prior/projection under
+# native/eval/lavar/results/ (eot-jsonl.mjs --ledger-name). These are pure
+# run output, regenerable by re-running the swarm on the same book+chapter —
+# one swarm run produces ~80 of them. The canonical per-chapter ledgers
+# (pg11_Alice_s_Adventures_in_Wonderland-ch1.eot.jsonl — underscore slug, no
+# variant suffix) stay tracked; the pattern below matches only the
+# lowercased-slug -ch<N>-<variant> variants. The swarm's COMMITTED artifacts
+# are its genealogy, breakthrough store, and the hardened SwarmThingPriors.
+native/eval/lavar/results/*-ch*-*.eot.jsonl
+native/eval/lavar/results/*-ch*-*.prior.json
+native/eval/lavar/results/*-ch*-*.projected.json
+
+# The device's local identity (swarm-matrix.mjs deviceId) — the "fold at a
+# point" a machine's swarm history grows from. Deliberately NOT shared: this
+# is what makes each device's personality unique. Never committed.
+native/eval/lavar/results/.device-id
