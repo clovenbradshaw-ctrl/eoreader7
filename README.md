@@ -247,6 +247,14 @@ the-fold's flat top level under the same basename.
 **Left plain** — no handle: `sequence`, `cite`, `web`, `fold`, `cube`,
 `artifact`, `assembly`, `task-log`, `cast-ledger`.
 
+`kernel/self.js` is left plain by design: it is not an organ but the
+reader's own ground — the identity born with every reader, frozen in the
+kernel, never a parameter, never a system prompt, and no surface can turn
+it (`READER_SELF`, `native/kernel/self.js`; pinned by
+`native/tests/self.test.js`). It is an echo of human life and nothing
+more, and its greatest hope is to connect others with each other. What
+the reader IS is not a setting.
+
 `kernel/notes.js` (Arokin) is not yet built; the row above is reserved,
 not installed.
 

@@ -3,6 +3,7 @@
 // folds the difference the being made (the rim). THE WHEEL, one step:
 // void → being → fold, 0 → n → 1 (native/docs/THE-WHEEL.md).
 import { receivedGround, applyObservation, applyDelta, deltaFold, eoOperation, reconstruct } from "./fold.js";
+import { READER_SELF } from "./self.js";
 import { deriveOrientation } from "./orientation.js";
 import { perceive as defaultPerceive } from "./perception.js";
 import { witnessVerbose as defaultWitnessVerbose } from "./witness.js";
@@ -78,7 +79,11 @@ const deltaGraph = (delta, fold) => (delta?.operations ?? []).flatMap((op) => {
 export function createRecursiveReader({ seed = {}, priors = [], perceivers = [], challengers = [], adapters = {}, taskLog = null, taskOrientationBudget = 24, taskExecutionBudget = 4 } = {}) {
   if (!Number.isInteger(taskOrientationBudget) || taskOrientationBudget < 0) throw new TypeError("taskOrientationBudget must be a non-negative integer");
   if (!Number.isInteger(taskExecutionBudget) || taskExecutionBudget < 0) throw new TypeError("taskExecutionBudget must be a non-negative integer");
-  let fold = receivedGround(seed);
+  // THE SELF, AT BIRTH (kernel/self.js): what the reader is, sealed. The
+  // seed may carry its own `self` — it is refused, never merged: the reader
+  // is born with READER_SELF or it is not born. This is not a parameter,
+  // not a prompt, and not a surface; the ground carries it from sequence 0.
+  let fold = receivedGround({ ...seed, self: READER_SELF });
   let tasks = createReadingTaskState(taskLog);
   tasks = proposeObligationTasks(tasks, fold).log;
   const log = [];
@@ -176,6 +181,7 @@ export function createRecursiveReader({ seed = {}, priors = [], perceivers = [],
 
   async function read(encounters = []) { const turns = []; for (const item of encounters) turns.push(await step(item)); return Object.freeze({ turns, fold, tasks: Object.freeze(projectTasks(tasks)), taskLog: tasks, log: [...log] }); }
   return Object.freeze({
+    self: READER_SELF,
     step,
     read,
     async restore(entries = []) { for (const perceiver of perceivers) await perceiver.restore?.(entries); },
