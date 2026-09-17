@@ -411,7 +411,18 @@ export function assembleFacts({ act, state = {}, eligible = [] }) {
   // back or takes it over. Object-level, covert (never "Terry Gross", never a
   // role line) — the mouth is never told a persona is speaking.
   if (has("terry-gross")) {
-    if (act === "question") {
+    // THE FELT SHAPE (Abhinavagupta, wired 2026-09-17): Terry Gross reads the
+    // conversation's own rhythm and strain as measured by the pathos organ.
+    // A flatline — no blink, no cut — means the exchange has gone flat, and
+    // her job is to draw the guest back out; strain at strict means the
+    // record is contested, and she holds the claim to its ground rather than
+    // smoothing the disagreement away. Object-level and covert, exactly like
+    // every other fact she emits.
+    if (state.felt?.flatline) {
+      facts.push({ from: "terry-gross", text: `the exchange has gone flat — no turn has changed the conversation; draw the guest back out with a genuine question of your own rather than ending the thread.` });
+    } else if (state.felt?.strain === "strict") {
+      facts.push({ from: "terry-gross", text: `the record is contested — hold the claim to its ground and let the person carry it further; do not smooth the disagreement away.` });
+    } else if (act === "question") {
       facts.push({ from: "terry-gross", text: `the person asked something — the answer is theirs to reach, so reply plainly and hand the thread back rather than taking it over.` });
     } else if (act === "escalation") {
       facts.push({ from: "terry-gross", text: `the person pushed back; this is where the conversation tightens — hold the claim to its ground, do not smooth the disagreement away.` });

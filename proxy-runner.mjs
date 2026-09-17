@@ -44,10 +44,17 @@ import { runDMCA, categorizeCreativity, chaseParaphrase, paraphraseCandidatesFor
 import { antistrauss } from "./native/the-fold/antistrauss.mjs";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
-// resemblance, resolution by state — no absolute address. Surf's SECOND// witness, beside the absolute-address ladder (executePrompt): when that
+// resemblance, resolution by state — no absolute address. Surf's SECOND
+// witness, beside the absolute-address ladder (executePrompt): when that
 // ladder returns a void or nothing, the field recalls what the cue resembles.
 import { Field } from "./native/the-fold/relative.js";
-import { dmdWindow } from "./native/kernel/activation.js";
+import { dmdWindow, gammaFor } from "./native/kernel/activation.js";
+// The felt shape (2026-09-13, Abhinavagupta) — the third Greek leg, wired
+// into EVERY turn: ethos (the ground) comes first, logos (the reading)
+// builds the record, and pathos names how the material was UNDERGOEN, for
+// whom. Previously only the CLI composed it; the proxy turn now computes it
+// and carries it on the result so every surface sees the triad whole.
+import { pathosOf, reGroundCondition, reGround, landReGround } from "./native/organs/pathos.js";
 // Web organ: the pure half of search and page ingestion (extractReadable,
 // parseSearchResults, extractUrls, normalizeUrl). The network egress lives
 // inline below — the proxy is the one sanctioned crossing (P13).
@@ -1429,7 +1436,7 @@ const voidSettleQuestion = (gap, task) => {
   return "a passage, named and addressed, that states what was looked for";
 };
 
-function earnedCue({ task, chatHistory = [], surfVoidInfo = null }) {
+function earnedCue({ task, chatHistory = [], surfVoidInfo = null, pathos = null, felt = null }) {
   try {
     const personClaims = (chatHistory ?? [])
       .filter((m) => m?.role === "user" && typeof m.content === "string" && m.content.trim())
@@ -1457,7 +1464,14 @@ function earnedCue({ task, chatHistory = [], surfVoidInfo = null }) {
     const _gp = _gk ? (GAP_PROSE[_gk]?.[_what] ?? _gk.replace(/_/g, " ")) : "nothing here answers it";
     const state = {
       personClaims,
-      // A confirmed absence is a gap with its path, never a defeatist stop.
+      // THE FELT SHAPE (Abhinavagupta) — the conversation's own rhythm and
+      // strain, as measured by the pathos organ on this very turn. Terry Gross
+      // reads it: a flatline (no blink, no cut) means the exchange has gone
+      // flat and she draws the guest out; strain at strict means the record
+      // is contested and she holds the claim to its ground. The felt shape is
+      // object-level, covert — never an apparatus word, never a role line.
+      ...(pathos ? { felt: { strain: pathos.strain, flatline: pathos.rhythm.flatline ?? false, blinks: pathos.rhythm.blinks ?? 0 } } : {}),
+      ...(felt ? { felt: { strain: felt.strain, flatline: felt.flatline ?? false, blinks: felt.blinks ?? 0 } } : {}),
       ...(surfVoidInfo ? { gaps: [_gp] } : {}),
       ...(surfVoidInfo ? { notEstablished: [_gp] } : {}),
     };
@@ -2302,21 +2316,50 @@ function isBroadRecall(task) {
 // documents (one per admitted turn, in order), capped like any surfed
 // segment. The CURRENT turn — just admitted, still unanswered — is excluded
 // (the model already holds it as its own task); the fold is what came before.
+//
+// DECAY RATE (Atta, 2026-09-17): the conversation is surfaced NEWEST-FIRST
+// with a decay window — the present is what the person just said, and older
+// turns fade unless reinforced, exactly the kernel's activation law
+// (activation.js: "trails evaporate unless reinforced"). The window is a
+// declared depth (ER7_CONVO_WINDOW, default 12 turns); a turn older than the
+// window has decayed below the activation floor and is dropped from the surf
+// (still reachable by the resolutions/atmosphere, never by the model's eye).
+// The previous code walked insertion order and hit the char cap from the
+// OLDEST turn — the farthest past ate the whole budget and the newest words
+// never reached the model. Measured backwards and fixed.
 function conversationFoldSegments(session, task, materialText = "") {
   const segments = [];
   let total = 0;
   const current = String(materialText ?? "").trim();
   const currentIs = (text) =>
     text === current || (current.endsWith(text) && text.includes(`[user]: ${task}`));
+  // Collect the chat docs with their turn order (the chat: sourceId embeds
+  // `turn-<n>`), then walk NEWEST first.
+  const docs = [];
   for (const [sourceId, doc] of session.corpus?.documents?.entries?.() ?? []) {
     if (!String(sourceId ?? "").startsWith("chat:")) continue;
     const text = String(doc?.text ?? doc ?? "").trim();
     if (!text || currentIs(text)) continue;
+    const turn = Number(/turn-(\d+)/.exec(String(sourceId ?? ""))?.[1] ?? docs.length);
+    docs.push({ sourceId, text, turn });
+  }
+  docs.sort((a, b) => b.turn - a.turn);
+  // DECAY: the window is a declared depth in turns; gamma = 1 - 1/window, so
+  // a turn `age` turns old has activation gamma^age. Below the floor it is
+  // gone from the surf — reinforcement is the only thing that keeps a trail.
+  const WINDOW = Number(process.env.ER7_CONVO_WINDOW ?? 12);
+  const FLOOR = Number(process.env.ER7_CONVO_FLOOR ?? 0.25);
+  const gamma = WINDOW > 1 ? gammaFor(WINDOW) : 0.8;
+  for (let i = 0; i < docs.length; i++) {
+    const d = docs[i];
+    const text = d.text;
+    const activation = Math.pow(gamma, i);
+    if (activation < FLOOR) break; // decayed below the floor — drop the trail
     total += text.length;
     if (total > SURF_MAX_TOTAL_CHARS) break;
     segments.push({
       text: text.slice(0, SURF_MAX_SEGMENT_CHARS),
-      _ledger: { source: sourceId, heading: null, addressed_by: "conversation", bytes: [0, text.length] },
+      _ledger: { source: d.sourceId, heading: null, addressed_by: "conversation", bytes: [0, text.length], decay: { age: i, activation: Number(activation.toFixed(3)), gamma } },
     });
   }
   return segments;
@@ -2575,6 +2618,74 @@ function chatVoidCheck(text, { shape, material = "" } = {}) {
   if (["research", "long"].includes(shape) && t.length < 40) { failures.push({ kind: "thin", detail: "the answer is almost empty — the void wanted substance" }); strain++; }
   if (/\b(as an ai|i can't|i cannot|i'm just|i'm not able|let me know if you)\b/i.test(t)) { failures.push({ kind: "meta", detail: "the answer talks about the instrument instead of answering" }); strain++; }
   return { ok: failures.length === 0, filled: failures.length ? 0 : 1, of: 1, failures, strain };
+}
+
+// ── THE CONTINUATION GATE (2026-09-17) — the mechanical validator that
+// decides whether a long-form continuation chunk is kept or REVERTED, the
+// coding-loop discipline (code-loop.js) applied to prose. The model never
+// grades itself: this function is the `testCommand` of the long answer, and
+// it is blind to which model wrote the chunk.
+//
+// What makes a continuation PASS:
+//   - it is substantial (≥ minChars of new prose — a couple of stray words
+//     are not a continuation);
+//   - it does not RESTART the answer (an "Here's my take / In summary /
+//     Let me explain" fresh opening means the model went back to the top
+//     instead of continuing where it was — the seam the uncueed loop exists
+//     to prevent);
+//   - it does not REPEAT the tail of what already exists (overlap — the
+//     model re-announcing the end of the previous chunk);
+//   - it is not a meta-narration about continuing ("Sure, I'll continue
+//     writing now...").
+//
+// A failing chunk is discarded — never appended, never left in the stream.
+export function proseContinuationCheck({ existing = "", incoming = "", minChars = 120, onNote = null } = {}) {
+  const inc = String(incoming ?? "").trim();
+  if (!inc) return { ok: false, reason: "empty_chunk" };
+  if (inc.length < minChars) return { ok: false, reason: `thin_chunk:${inc.length}<${minChars}` };
+  // A restart: the chunk opens like a fresh answer rather than mid-thought.
+  if (/^(here['’]?s (?:my|the|a|an) (?:take|answer|response)|in (?:summary|conclusion)|let me (?:explain|start|begin)|to (?:summarize|recap)|overall,|all things considered,|so, to answer)/i.test(inc)) {
+    return { ok: false, reason: "restarted_answer" };
+  }
+  // Meta-narration about the act of continuing — the mouth talking about the
+  // machine instead of carrying the thread.
+  if (/^(sure,? (?:i(?:'|’)ll|i will)|(?:i|i'?m) (?:will )?continue|(?:as|to) (?:requested|asked|instructed)|let me continue|i'?ll (?:continue|keep going|pick up))/i.test(inc)) {
+    return { ok: false, reason: "meta_continuation" };
+  }
+  // Overlap with the existing tail: if the chunk's opening words re-state the
+  // last words of what came before, it is repeating, not continuing (the model
+  // re-anchoring to the seam). Two probes: (1) the existing text's final ~40
+  // chars VERBATIM at the chunk's head — the strongest repeat signal; (2) a
+  // positional run of the last 12 words vs the first 12 (a long aligned
+  // prefix means the model literally re-started from the previous ending).
+  const ex = String(existing ?? "").trim();
+  if (ex) {
+    const words = (s) => String(s).toLowerCase().split(/\s+/).filter(Boolean);
+    const tail = words(ex).slice(-12);
+    const head = words(inc).slice(0, 12);
+    if (tail.length >= 4 && head.length >= 4) {
+      // POSITIONAL RUN: the model re-started from the previous ending — the
+      // chunk's opening words align in order with the existing text's closing
+      // words (a long shared prefix).
+      let shared = 0;
+      for (let i = 0; i < Math.min(tail.length, head.length); i++) if (tail[i] === head[i]) shared++; else break;
+      if (shared >= Math.max(4, Math.min(tail.length, head.length) / 2)) {
+        return { ok: false, reason: `tail_overlap:${shared}` };
+      }
+      // CONTAINMENT: the chunk's opening phrase (its first N words) appears
+      // verbatim anywhere in the existing text's final ~200 chars — the model
+      // re-announced an earlier sentence instead of continuing past it.
+      const headPhrase = head.slice(0, Math.max(5, Math.floor(head.length / 2))).join(" ");
+      if (headPhrase.split(" ").length >= 5) {
+        const exTailWords = words(ex).slice(-60);
+        const exTail = exTailWords.join(" ");
+        if (exTail.includes(headPhrase)) {
+          return { ok: false, reason: "tail_phrase_repeat" };
+        }
+      }
+    }
+  }
+  return { ok: true, chars: inc.length };
 }
 
 // ── THE PARAPHRASE CHASE (the meaning rule, 2026-09-14): "something is a
@@ -2838,6 +2949,41 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   }
   const fold = session.reader.getFold();
   session.turnCount++;
+
+  // ── PATHOS — THE FELT SHAPE, ON EVERY TURN (the third Greek leg) ──────
+  // Ethos (the ground) comes first; logos (the reading) builds the record;
+  // pathos names how the material was UNDERGOEN, FOR WHOM — rhythm (Murch),
+  // curve (surprise/tension/release from the fold's own machinery), strain
+  // (the hamartia-gate). A felt shape with no declared experiencer is
+  // REFUSED (organs/pathos.js): here the experiencer is the person at the
+  // door — the guest Terry Gross draws out — undergoing this session's
+  // exchange. Computed on the conversation's own material, so the felt shape
+  // rides every response, not just CLI reads.
+  let pathos = null;
+  let pathosReGround = null;
+  let pathosLog = session.pathosLog ?? null;
+  try {
+    const pathosState = {
+      contested: Array.isArray(fold.unresolvedAlternatives) ? fold.unresolvedAlternatives : [],
+      expired: Array.isArray(fold.exclusions) ? fold.exclusions : [],
+      contradictions: [],
+    };
+    const exper = { who: String(userId ?? "the-person").trim() || "the-person", read: `conversation:${sessionId}` };
+    pathos = pathosOf({ text: materialText, experiencer: exper, state: pathosState, fold });
+    const groundCheck = reGroundCondition(pathos);
+    if (groundCheck.kind !== "ground_holds") {
+      const act = reGround({ read: pathos, giver: GIVER, reScope: null });
+      pathosLog = landReGround(pathosLog ?? [], act);
+      session.pathosLog = pathosLog;
+      pathosReGround = pathosLog[pathosLog.length - 1];
+    }
+    if (onNote) onNote({ move: "pathos_read", strain: pathos.strain, flatline: pathos.rhythm.flatline, blinks: pathos.rhythm.blinks, curve: pathos.curve.measured ? "measured" : "unmeasured", reGround: groundCheck.kind });
+  } catch (err) {
+    // A pathos failure must never break a turn — the felt shape is carried
+    // when it can be and honestly absent when it cannot.
+    pathos = null;
+    if (onNote) onNote({ move: "pathos_failed", error: err.message });
+  }
 
   // Reader's task log — the "little logic notes".
   const taskLog = session.reader.getTasks?.() ?? [];
@@ -3208,7 +3354,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // ── the earned cast, this turn only. The model is never told it is
   // playing a role — it receives exactly the facts this turn earned, at the
   // object level, and nothing else. A cue with nothing to say adds nothing.
-  const cue = earnedCue({ task, chatHistory: keptChat, surfVoidInfo });
+  const cue = earnedCue({ task, chatHistory: keptChat, surfVoidInfo, pathos });
   if (cue?.mouth) {
     systemContent += `\n\nA few things to keep in mind as you answer:\n${cue.mouth}`;
     if (onNote) onNote({ move: "earned_cue", act: cue.act, strain: cue.strain, attentions: cue.eligible, chars: cue.mouth.length });
@@ -3591,6 +3737,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     const draw = async (msgs, maxTokens, { capture = false, kelsen = null } = {}) => {
       let buf = "";
       let stopped = false;
+      let tokenTruncated = false;
       for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen, signal })) {
         if (typeof chunk === "string") {
           if (fullText.length >= MAX_OUTPUT_CHARS) { truncated = true; stopped = true; break; }
@@ -3602,10 +3749,10 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         } else if (chunk?.done) {
           usage.promptTokens += chunk.prompt_eval_count;
           usage.completionTokens += chunk.eval_count;
-          if (chunk?.truncated) truncated = true;
+          if (chunk?.truncated) { truncated = true; tokenTruncated = true; }
         }
       }
-      return { buf, stopped };
+      return { buf, stopped, tokenTruncated };
     };
     // ── VARIATION, OWNED BY THE ORGAN ──────────────────────────────────────
     // The variation machinery (rejection-sampling draw + opening identity)
@@ -4477,10 +4624,62 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       }
     } else if (runMode === "long") {
       // ── LONG — a response that goes further than chat provides. ────────
-      // One extended single draw at a generous budget; no ledger, no editorial
-      // passes. The void is "answer thoroughly", filled in one sitting.
-      const r = await draw(ollamaMessages, LONG_MAX_TOKENS, { kelsen: compositionKelsen });
-      if (r?.stopped) truncated = true;
+      // UNCUEED MULTI-PROMPT CONTINUATION, GATED LIKE THE CODE LOOP
+      // (2026-09-17). The system does not ask the model to plan, outline,
+      // "name its shape", or "continue writing" — no meta-word reaches the
+      // mouth. It writes as far as it goes at a bounded budget; when it hits
+      // the token cap mid-thought (tokenTruncated, not a natural finish), the
+      // SAME draw is re-issued with the model's own prose as its last
+      // assistant turn. The thread is carried by its own words — the seam is
+      // invisible because there is no instruction to notice.
+      //
+      // THE PRECISION, THE CODING-LOOP DISCIPLINE: a continuation chunk is
+      // NOT trusted because the model wrote it. It is drawn into a scratch
+      // buffer, then a MECHANICAL validator (proseContinuationCheck) decides
+      // pass/fail — never the model's say-so, exactly as the code loop's own
+      // `testCommand` decides and the model never grades itself. A chunk that
+      // restarts the answer, repeats its own tail, or adds nothing substantial
+      // is REVERTED — nothing broken is left between rounds. Every round's
+      // verdict rides the note as a disclosed audit trail. Bounded like the
+      // loop (`LONG_MAX_CHUNKS`, disclosed, never silent/unbounded).
+      const LONG_CHUNK_TOKENS = Number(process.env.ER7_LONG_CHUNK_TOKENS ?? 700);
+      const LONG_MAX_CHUNKS = Number(process.env.ER7_LONG_MAX_CHUNKS ?? 4);
+      const LONG_MIN_CHUNK_CHARS = Number(process.env.ER7_LONG_MIN_CHUNK_CHARS ?? 120);
+      const longRounds = [];
+      const first = await draw(ollamaMessages, LONG_CHUNK_TOKENS, { kelsen: compositionKelsen, capture: true });
+      longRounds.push({ round: 1, chars: first.buf.length, tokenTruncated: first.tokenTruncated ?? false });
+      let chunks = 1;
+      // The continuation loop mirrors the code loop: draw to a scratch
+      // buffer, validate mechanically, keep only a passing chunk. `first` is
+      // already in fullText (capture=false was used above? no — see below:
+      // the first draw is captured then committed once it passes, so a bad
+      // first chunk is never in the stream either).
+      const commitFirst = () => { if (first.buf) { fullText += first.buf; if (onToken) onToken(first.buf); } };
+      const firstVerdict = proseContinuationCheck({ existing: "", incoming: first.buf, minChars: LONG_MIN_CHUNK_CHARS, onNote });
+      if (!firstVerdict.ok) {
+        if (onNote) onNote({ move: "long_chunk_rejected", round: 1, reason: firstVerdict.reason });
+      } else {
+        commitFirst();
+      }
+      while (firstVerdict.ok && chunks < LONG_MAX_CHUNKS && !truncated) {
+        // The model's own prose is the last assistant turn; the original ask
+        // stands as the person's question. No "continue", no outline, no cue.
+        const continuation = [...ollamaMessages, { role: "assistant", content: fullText }, { role: "user", content: task }];
+        const next = await draw(continuation, LONG_CHUNK_TOKENS, { kelsen: compositionKelsen, capture: true });
+        chunks++;
+        const verdict = proseContinuationCheck({ existing: fullText, incoming: next.buf, minChars: LONG_MIN_CHUNK_CHARS, onNote });
+        longRounds.push({ round: chunks, chars: next.buf.length, tokenTruncated: next.tokenTruncated ?? false, verdict: verdict.ok ? "kept" : `rejected:${verdict.reason}` });
+        if (!verdict.ok) {
+          // REVERT: the chunk is discarded, never appended — nothing broken
+          // is left between rounds. A rejected continuation is a typed stop.
+          if (onNote) onNote({ move: "long_chunk_rejected", round: chunks, reason: verdict.reason, kept: fullText.length });
+          break;
+        }
+        fullText += next.buf;
+        if (onToken) onToken(next.buf);
+        if (!next.tokenTruncated) break; // the model finished on its own — stop
+      }
+      if (onNote) onNote({ move: "long_continued", chunks, rounds: longRounds, keptChars: fullText.length, lastTruncated: longRounds.at(-1)?.tokenTruncated ?? false });
       chatSatisfaction = chatVoidCheck(fullText, { shape: "long", material: material.map((s) => s.text ?? "").join("\n") });
       if (onNote) onNote({ move: "chat_satisfied", shape: "long", ok: chatSatisfaction.ok, failures: chatSatisfaction.failures ?? [], strain: chatSatisfaction.strain ?? 0 });
     } else {
@@ -4903,7 +5102,44 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           forms: readingSurface.forms ?? [],
         }
       : null,
+    // THE FELT SHAPE (Abhinavagupta, the third Greek leg) — how the material
+    // was UNDERGOEN, for whom. Ethos carried the ground, logos built the
+    // record; pathos names the felt shape: rhythm (Murch), curve (surprise/
+    // tension/release from the fold's own machinery), strain (the hamartia-
+    // gate) — and the REC·Ground when the ground failed, a recorded
+    // concession, never an idle one. null when the read could not be formed
+    // (a typed absence, never a guess).
+    pathos: pathos
+      ? {
+          schema: pathos.schema,
+          forWhom: pathos.forWhom,
+          strain: pathos.strain,
+          rhythm: pathos.rhythm,
+          curve: pathos.curve,
+        }
+      : null,
+    reGround: pathosReGround ?? null,
     surfed: surfacedSegments.map((s) => s._ledger),
+    // WHAT WAS ACTIVATED WHILE THE MOUTH SPOKE (2026-09-17). The JSON
+    // discloses exactly which material was admitted to the turn and how
+    // present it was: each surfaced segment's source, its decayed activation
+    // (Atta's gamma over the conversation), whether it reached the model's
+    // own prompt (kept in `material`), and the pathos felt shape the turn
+    // carried. A consumer can see what the answer drew on — not just what
+    // the model said.
+    activated: {
+      segments: surfacedSegments.map((s) => ({
+        source: s._ledger?.source ?? null,
+        bytes: s._ledger?.bytes ?? null,
+        decay: s._ledger?.decay ?? null,
+        reachedPrompt: material.some((m) => m === s.text),
+      })),
+      materialChars: used,
+      materialSegments: material.length,
+      surfacedSegments: surfacedSegments.length,
+      fold: { relationEdges: stats.relationEdges, referentBindings: stats.referentBindings, unresolvedAlternatives: Array.isArray(fold?.unresolvedAlternatives) ? fold.unresolvedAlternatives.length : 0, exclusions: Array.isArray(fold?.exclusions) ? fold.exclusions.length : 0 },
+      pathos: pathos ? { strain: pathos.strain, flatline: pathos.rhythm.flatline, blinks: pathos.rhythm.blinks, curve: pathos.curve.measured ? "measured" : "unmeasured" } : null,
+    },
     void: surfVoidInfo ? { gap: surfVoidInfo.gap, reason: surfVoidInfo.reason ?? null, whatWouldSettle: surfVoidInfo.whatWouldSettle ?? null } : null,
     post: post ? { blocks: post.blocks?.length ?? 0, linted: post.linted ?? false, reordered: post.reordered ?? false, notes: post.notes ?? [] } : null,
     resolutions: resolutions ? { level: resolutions.level, text: resolutions.text, active: resolutions.active ?? null, atmosphere: resolutions.atmosphere ? { basis: resolutions.atmosphere.basis, ground: resolutions.atmosphere.ground ?? null } : null, lens: resolutions.lens ? { basis: resolutions.lens.basis, windows: resolutions.lens.windows ?? null } : null, paradigm: resolutions.paradigm ? { basis: resolutions.paradigm.basis, window: resolutions.paradigm.window ?? null } : null } : null,
