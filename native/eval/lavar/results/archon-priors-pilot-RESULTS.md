@@ -1,7 +1,14 @@
 # Archon priors pilot — Nietzsche (2026-09-17)
 
-**Driver:** `../archon-priors-pilot.mjs nietzsche` (reproduces from the two
-committed fixtures under `../fixtures/archon-priors/` — no network fetch).
+**Driver:** `../archon-priors-pilot.mjs nietzsche` — fetches its two texts
+from Project Gutenberg and caches them under `../fixtures/archon-priors/`
+(gitignored, the same fetched-third-party-text pattern
+`.github/workflows/frankenstein-native.yml` already uses for its own
+`curl ... --output /tmp/frankenstein.txt`; re-run reads the cache instead
+of re-fetching). The fixture text is NOT committed — the edition, URL and
+PD-basis are declared in `lib/archon-priors.mjs::ARCHON_ROSTER`, so a fetch
+reproduces byte-identical public-domain text and nothing is lost by not
+committing 15,000 lines of book text into git history.
 
 **What this tests.** The user's own plan (2026-09-17, verbatim): ground a
 swarm ant by priming it with a public-domain archon's own composition
