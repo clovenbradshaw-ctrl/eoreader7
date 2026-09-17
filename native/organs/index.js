@@ -145,9 +145,12 @@ export * as provenanceOrgan from "./provenance.js";
 // quote an archon's credited work and offer it as an affordance.
 export { ARCHON_COMPENDIUM, ARCHONS, ARCHON_COMPENDIUM_SCHEMA, archonOf, compendium, creditedQuote, matchArchons } from "./archon-compendium.js";
 export * as archonCompendium from "./archon-compendium.js";
-// The what organ (2026-09-16, Cuvier) — reconstructing what a giant code hunk
-// IS from its own structural bytes (module map, vendor stack, feature modules,
-// endpoints, declarations). Pure: imported by the seam exactly as its siblings
-// are; the code adapters it composes (adapters/code/*) import nothing back.
-export { CELL as WHAT_CELL, REFUSALS as WHAT_REFUSALS, whatIsThis } from "./what.js";
-export * as whatOrgan from "./what.js";
+// The what organ (2026-09-16, Cuvier) and the anchors organ (2026-09-16,
+// Tycho) are deliberately NOT re-exported here, exactly as look.js is not:
+// each composes an adapter (adapters/code/anchors.js) that imports node:fs at
+// module load, so a static re-export dragged a node built-in into every page
+// import and killed the whole module graph on a static host (net::ERR_FAILED
+// on `node:fs`, found driving the real GitHub Pages build). Their consumers —
+// the er7 proxy's workspace pass, the eval drivers, their own test files —
+// import them directly by path, server-side only, the same split the look.js
+// exclusion below already states for itself.
