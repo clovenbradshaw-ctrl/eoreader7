@@ -8,10 +8,14 @@ import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
 import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-agent.js";
+// AntiStrauss — the safety-and-ethics gate (native/the-fold/antistrauss.mjs).
+// Every model call that enters this proxy through runProxyTurn is gated
+// inside proxy-runner.mjs::streamOllamaChat, the single choke point before
+// the upstream Ollama fetch. See the module header for the full wiring map;
+// a refusal surfaces as an ERR_ANTISTRAUSS_BLOCKED error on the route below.
 // The watcher, wired IN (2026-09-13): heimdall's vitals, admission, status,
 // and surface-watching run inside this process — one process, no separate
-// steer port, no second checkout to drift. When imported, heimdall.mjs
-// exports its machinery and does not listen or loop on its own.
+// steer port, no second checkout to drift. When imported, heimdall.mjs// exports its machinery and does not listen or loop on its own.
 import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall } from "./heimdall.mjs";
 // "Computed, not generated" — the-fold's own house rule (arithmetic.js),
 // reused directly rather than re-derived: a small model answering "what is

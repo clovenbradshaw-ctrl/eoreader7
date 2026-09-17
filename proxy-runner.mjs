@@ -27,20 +27,23 @@ import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
 import { sentenceSurface, passagesFromSegments } from "./native/the-fold/reading-surface.js";
 import { engineRelationsFor } from "./native/the-fold/reader-bundle.js";
 import { answerRecord } from "./native/the-fold/answer-record.js";
+// AntiStrauss — the safety-and-ethics gate. EVERY model call in this proxy
+// is routed through native/the-fold/antistrauss.mjs (the import is static so
+// the proxy fails closed at boot if the gate cannot load). See the module
+// header for how it is wired and why it must never be bypassed.
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
-// The dispute lookup notesFromEdges reads (below): `noteId` is the same
-// bare-ends identity a note born with no identity organ already carries in
+// The dispute lookup notesFromEdges reads (below): `noteId` is the same// bare-ends identity a note born with no identity organ already carries in
 // kernel/notes.js, and `makeNotes()` is a pure factory (disputesOf/etc. are
 // plain functions of a log) — instantiated once here the same way
 // organs/hyperlexicon.js and organs/notes-text.js already instantiate it.
 import { noteId as notesLedgerNoteId, makeNotes as makeDisputeNotes } from "./native/kernel/notes.js";
 const DISPUTE_NOTES = makeDisputeNotes();
 import { runDMCA, categorizeCreativity, chaseParaphrase, paraphraseCandidatesFor } from "./native/organs/run-dmca.js";
+import { antistrauss } from "./native/the-fold/antistrauss.mjs";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
-// resemblance, resolution by state — no absolute address. Surf's SECOND
-// witness, beside the absolute-address ladder (executePrompt): when that
+// resemblance, resolution by state — no absolute address. Surf's SECOND// witness, beside the absolute-address ladder (executePrompt): when that
 // ladder returns a void or nothing, the field recalls what the cue resembles.
 import { Field } from "./native/the-fold/relative.js";
 import { dmdWindow } from "./native/kernel/activation.js";
@@ -2106,10 +2109,24 @@ const RESOLUTIONS_LEVEL = (() => { const raw = process.env.ER7_RESOLUTIONS; if (
 const KELSEN_MODALITY = (() => { const v = Number(process.env.ER7_KELSEN_MODALITY ?? ""); return [0, 0.5, 1].includes(v) ? v : 1; })();
 
 async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal } = {}) {
+  // ANTIStrauss — the safety-and-ethics gate (native/the-fold/antistrauss.mjs).
+  // THIS is the choke point every real model call in the proxy passes
+  // through (draw() → runProxyTurn → here). The gate settles a physics
+  // verdict against the prompt BEFORE anything reaches Ollama, and refuses
+  // the call (typed ERR_ANTISTRAUSS_BLOCKED) when the standing law is
+  // contravened. Do not add an upstream model call that skips this line.
+  const gate = antistrauss.gate({ model, messages, route: "chat" });
+  if (!gate.allow) {
+    throw Object.assign(new Error(gate.reason), { code: "ERR_ANTISTRAUSS_BLOCKED", antistrauss: gate.verdict });
+  }
+  // Audit accumulation for the post-call review row (digest-only, never raw).
+  let emitted = [];
+  const finishReview = (done) => {
+    antistrauss.review({ model, messages, output: emitted.join(""), route: "chat", verdict: gate.verdict, ok: done });
+  };
   for (let attempt = 0; attempt < CALL_RETRIES; attempt++) {
     const ctrl = new AbortController();
-    const onAbort = () => ctrl.abort();
-    if (signal) {
+    const onAbort = () => ctrl.abort();    if (signal) {
       if (signal.aborted) throw new Error("aborted");
       signal.addEventListener("abort", onAbort, { once: true });
     }
@@ -2181,13 +2198,14 @@ const reader = res.body.getReader();
                 overBudget = true;
                 ctrl.abort();
                 yield { done: true, truncated: true, prompt_eval_count: 0, eval_count: emittedTokens };
+                finishReview(true);
                 return;
               }
               yield obj.message.content;
+              emitted.push(obj.message.content);
             }
             if (obj.done) {
-              // The bridge keeps the account of what each model really does
-              // (heimdall.observeCall): Ollama has just handed us its own
+              // The bridge keeps the account of what each model really does              // (heimdall.observeCall): Ollama has just handed us its own
               // counters, so reporting them costs nothing and no watcher has
               // to spend a call to find out. Lazily imported and never
               // awaited — a report may not slow a turn, and node hands back
@@ -2201,18 +2219,17 @@ const reader = res.body.getReader();
                 loadMs: (obj.load_duration ?? 0) / 1e6,
               })).catch(() => {});
               yield { done: true, truncated: overBudget, prompt_eval_count: obj.prompt_eval_count ?? 0, eval_count: obj.eval_count ?? 0 };
+              finishReview(true);
               return;
             }
-          } catch { /* skip malformed lines */ }
-        }
+          } catch { /* skip malformed lines */ }        }
       }
       return; // stream ended without done=true
     } catch (err) {
-      if (attempt === CALL_RETRIES - 1) throw err;
+      if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
     } finally {
       clearTimeout(timer);
-      if (signal) signal.removeEventListener("abort", onAbort);
-    }
+      if (signal) signal.removeEventListener("abort", onAbort);    }
   }
 }
 
@@ -3335,11 +3352,24 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           sections = applied.sections; discoveredVoice = applied.voice; framingApplied = true; discoveredFelt = fp.framing?.feltTarget ?? null; discoveredFraming = fp.framing;
           wheel.turn("discovery", `reuse the footprints — a framing for ${field} was discovered before`, { from: "footprints", staging: fp.framing.staging.length }, { framing: fp.framing, basis: fp.basis }, { evaBasis: "the sidecar's latest footprint wins; no new model call — easier next time", operator: "INS", grain: "Pattern", face: "scout" });
         } else {
-          const d = await discoverFraming({ register: prelimShape.register, impression: staged, prior: sidecar, upstream: OLLAMA, model });
+          // ANTIStrauss: the discovery's model call must go through the SAME
+          // gated wire every other call uses. discoverFraming falls back to a
+          // raw upstream fetch when no `draw` is passed; routing it through
+          // streamOllamaChat (which runs the safety-and-ethics gate) closes
+          // the one path a model call could otherwise take without the gate.
+          const d = await discoverFraming({
+            register: prelimShape.register, impression: staged, prior: sidecar, upstream: OLLAMA, model,
+            draw: async (msgs, maxTokens) => {
+              let out = "";
+              for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, signal })) {
+                if (typeof chunk === "string") out += chunk;
+              }
+              return out;
+            },
+          });
           if (d?.framing) {
             const applied = applyDiscovered({ framing: d.framing, sections, questionFor: (f, t) => questionFor(prelimShape.register, f, t), topic });
-            sections = applied.sections; discoveredVoice = applied.voice; framingApplied = true; discoveredFelt = d.framing?.feltTarget ?? null; discoveredFraming = d.framing;
-            wheel.turn("discovery", `the LLM is tasked to go find what makes a good ${field}`, { from: d.from, staging: d.framing.staging.length, voice: !!d.framing.writeVoice }, { framing: d.framing, footprints: !!d.appended, basis: d.basis }, { evaBasis: "the LLM PROPOSES the framing; the wheel's EVA and the satisfaction organs dispose", operator: "INS", grain: "Pattern", face: "scout" });
+            sections = applied.sections; discoveredVoice = applied.voice; framingApplied = true; discoveredFelt = d.framing?.feltTarget ?? null; discoveredFraming = d.framing;            wheel.turn("discovery", `the LLM is tasked to go find what makes a good ${field}`, { from: d.from, staging: d.framing.staging.length, voice: !!d.framing.writeVoice }, { framing: d.framing, footprints: !!d.appended, basis: d.basis }, { evaBasis: "the LLM PROPOSES the framing; the wheel's EVA and the satisfaction organs dispose", operator: "INS", grain: "Pattern", face: "scout" });
             if (d.appended) { try { fs.writeFileSync(SIDECAR_PATH, JSON.stringify(d.appended, null, 2)); } catch {} }
           }
         }
