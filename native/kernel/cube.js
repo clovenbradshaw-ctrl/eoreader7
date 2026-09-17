@@ -112,6 +112,15 @@ export const isCurrentOperator = (op) => Object.prototype.hasOwnProperty.call(OP
 // case-prior builder (scripts/build-latin-case-prior.mjs) and by the Greek
 // person tier (eval/lavar/greek.mjs), so a language's morphological prior
 // carries its cube cell and the reader reads in language-independent cells.
+//
+// PROVENANCE (2026-09-17): derived by consequence, not assertion — the map's
+// cells are the ones the UD_Ancient_Greek-PROIEL and UD_Ancient_Greek-Perseus
+// endings actually settle to when tallied (see live_priors/digested/
+// GREEK-FLUENCY-LESSONS.md, lessons 5-6, 11): Person 2 -> SIG·Figure, 1 ->
+// SIG·Ground, 3 -> INS·Figure; Nom -> SEG·Figure, Acc -> CON·Figure, Gen ->
+// CON·Pattern, Dat -> CON·Ground; voice -> the Lens, mood -> the Atmosphere,
+// tense -> the Paradigm. The mapping is the theory; the priors are its
+// measurement.
 export const CELL_OF_GRAMMAR = Object.freeze({
   Case: { Nom: ["SEG", "Figure"], Acc: ["CON", "Figure"], Gen: ["CON", "Pattern"], Dat: ["CON", "Ground"], Voc: ["SIG", "Ground"], Loc: ["SIG", "Ground"], Ins: ["SIG", "Pattern"], Abl: ["SEG", "Ground"] },
   Person: { "1": ["SIG", "Ground"], "2": ["SIG", "Figure"], "3": ["INS", "Figure"] },

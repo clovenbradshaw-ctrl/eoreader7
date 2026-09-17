@@ -1030,7 +1030,7 @@ for (const sent of sentences) {
           ...(c.subjectCell ? { end1Cell: c.subjectCell } : {}),
           ...(c.objectCell ? { end2Cell: c.objectCell } : {}),
           operator: sigCell.op, grain: sigCell.grain, terrain: sigCell.terrain, stance: sigCell.stance,
-          disclosure: "case-marked clause: nominative subject and accusative/genitive object settled from the received GreekCasePrior@1; ends bind to the beings by stem recurrence",
+          disclosure: `case-marked clause: nominative subject and accusative/genitive object settled from ${GREEK_CASE_PRIOR?.schema ?? "the received Greek prior"} (${GREEK_CASE_PRIOR?.provenance?.giver ?? "giver undisclosed"}); ends bind to the beings by stem recurrence — the period is the prior's own provenance`,
         });
       }
       for (const c of prodrop) {
