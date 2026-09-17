@@ -1,4 +1,11 @@
-// organs/hive.js — THE HIVE: stir the nest through natural language.
+// organs/correction-rule.js — stir the nest through natural language.
+//
+// Renamed from hive.js (2026-09-17, LAVAR.md's Wilson reconciliation): this
+// organ mints ONE falsifiable rule from ONE correction and files it in ONE
+// ledger — no multiplicity, no walled standpoints, no corroboration. It was
+// never a hive; the old name was a metaphor ("stir the nest") that collided
+// with the stack's actual multi-instrument mechanisms and cost a session an
+// hour of confusion. See LAVAR.md 2026-09-17 for the full count.
 //
 // A correction is not another task. When a person says the machine's own
 // answer was wrong — "you wrote an essay, not a sonnet", "that was too
@@ -13,17 +20,17 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const HIVE_CORRECTION_SCHEMA = "HiveCorrection@1";
-export const HIVE_RULE_SCHEMA = "HiveCorrectionRule@1";
+export const CORRECTION_SCHEMA = "Correction@1";
+export const CORRECTION_RULE_SCHEMA = "CorrectionRule@1";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const DEFAULT_RULES_FILE = path.join(HERE, "hive-rules.jsonl");
+const DEFAULT_RULES_FILE = path.join(HERE, "correction-rules.jsonl");
 
-export function hiveRulesFile(explicit) {
-  return explicit ?? process.env.ER7_HIVE_RULES ?? DEFAULT_RULES_FILE;
+export function correctionRulesFile(explicit) {
+  return explicit ?? process.env.ER7_CORRECTION_RULES ?? DEFAULT_RULES_FILE;
 }
 
-export const NATURAL_SIZE_MAX_TOKENS = Number(process.env.ER7_HIVE_NATURAL_SIZE_MAX ?? 320);
+export const NATURAL_SIZE_MAX_TOKENS = Number(process.env.ER7_CORRECTION_NATURAL_SIZE_MAX ?? 320);
 
 // The register this organ hears. These are structural English frames for a
 // correction, not a list of genres, topics, lengths, or forbidden words.
@@ -122,7 +129,7 @@ export function detectCorrection(text) {
   const mismatch = productionMismatch(lowered) ?? requestedMismatch(lowered) ?? obligatoryMismatch(lowered);
   if (mismatch) {
     return {
-      schema: HIVE_CORRECTION_SCHEMA,
+      schema: CORRECTION_SCHEMA,
       kind: "output-form-mismatch",
       statement,
       actual: mismatch.actual,
@@ -137,7 +144,7 @@ export function detectCorrection(text) {
   const length = lengthVerdict(lowered);
   if (length) {
     return {
-      schema: HIVE_CORRECTION_SCHEMA,
+      schema: CORRECTION_SCHEMA,
       kind: "answer-length",
       statement,
       actual: null,
@@ -152,7 +159,7 @@ export function detectCorrection(text) {
   const ban = prohibition(statement);
   if (ban) {
     return {
-      schema: HIVE_CORRECTION_SCHEMA,
+      schema: CORRECTION_SCHEMA,
       kind: "prohibition",
       statement,
       actual: null,
@@ -173,7 +180,7 @@ function ruleId(parts) {
     h ^= record.charCodeAt(i);
     h = Math.imul(h, 0x01000193);
   }
-  return `ref:hive:correction:${(h >>> 0).toString(36)}`;
+  return `ref:correction:${(h >>> 0).toString(36)}`;
 }
 
 /**
@@ -185,11 +192,11 @@ export function falsifiableRule(correction, { at = new Date().toISOString(), sou
   if (!correction?.actionable) return null;
   if (correction.kind === "output-form-mismatch") {
     return {
-      schema: HIVE_RULE_SCHEMA,
+      schema: CORRECTION_RULE_SCHEMA,
       id: ruleId(["form", correction.expected, correction.actual]),
       at,
       source,
-      giver: "hive:mint",
+      giver: "correction:mint",
       standing: "disclosed",
       kind: correction.kind,
       dimension: correction.dimension,
@@ -212,11 +219,11 @@ export function falsifiableRule(correction, { at = new Date().toISOString(), sou
   }
   if (correction.kind === "answer-length") {
     return {
-      schema: HIVE_RULE_SCHEMA,
+      schema: CORRECTION_RULE_SCHEMA,
       id: ruleId(["length", correction.direction, correction.marker]),
       at,
       source,
-      giver: "hive:mint",
+      giver: "correction:mint",
       standing: "disclosed",
       kind: correction.kind,
       dimension: correction.dimension,
@@ -229,11 +236,11 @@ export function falsifiableRule(correction, { at = new Date().toISOString(), sou
     };
   }
   return {
-    schema: HIVE_RULE_SCHEMA,
+    schema: CORRECTION_RULE_SCHEMA,
     id: ruleId(["prohibition", correction.action ?? "", correction.expected ?? ""]),
     at,
     source,
-    giver: "hive:mint",
+    giver: "correction:mint",
     standing: "disclosed",
     kind: correction.kind,
     dimension: correction.dimension,
@@ -248,7 +255,7 @@ export function falsifiableRule(correction, { at = new Date().toISOString(), sou
 }
 
 export function readCorrectionRules(rulesFile) {
-  const file = hiveRulesFile(rulesFile);
+  const file = correctionRulesFile(rulesFile);
   if (!fs.existsSync(file)) return [];
   return fs.readFileSync(file, "utf8").split("\n").filter(Boolean).map((line) => {
     try {
@@ -256,7 +263,7 @@ export function readCorrectionRules(rulesFile) {
     } catch {
       return null;
     }
-  }).filter((rule) => rule?.schema === HIVE_RULE_SCHEMA);
+  }).filter((rule) => rule?.schema === CORRECTION_RULE_SCHEMA);
 }
 
 function termPattern(term) {
@@ -303,7 +310,7 @@ export function falsifiesFormRule(rule, { shape = null, mode = null, text = "" }
 
 /**
  * authorCorrectionRule(text) — hear NL, mint its falsifiable rule, and append
- * it to the hive ledger. A repeated identical correction reaffirms the
+ * it to the correction ledger. A repeated identical correction reaffirms the
  * existing rule rather than duplicating it.
  */
 export function authorCorrectionRule(text, { now = new Date().toISOString(), source = "user-correction", rulesFile, persist = true } = {}) {
@@ -312,7 +319,7 @@ export function authorCorrectionRule(text, { now = new Date().toISOString(), sou
   const rule = falsifiableRule(correction, { at: now, source });
   if (!rule) return { correction, rule: null, persisted: false, reason: "correction not actionable" };
   if (!persist) return { correction, rule, persisted: false, reason: "persistence disabled" };
-  const file = hiveRulesFile(rulesFile);
+  const file = correctionRulesFile(rulesFile);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   const existing = readCorrectionRules(file).some((entry) => entry.id === rule.id);
   if (existing) return { correction, rule, persisted: false, reason: "rule already standing" };

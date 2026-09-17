@@ -73,7 +73,7 @@ import { pacingGrade as murchPacing } from "./native/organs/pacing.js";
 import { storyShape as vonnegutShape } from "./native/organs/vonnegut.js";
 import { classifyArc } from "./native/organs/story-shapes.js";
 import { matchArchons, archonOf } from "./native/organs/archon-compendium.js";
-import { naturalSizeRuleForTask, authorCorrectionRule } from "./native/organs/hive.js";
+import { naturalSizeRuleForTask, authorCorrectionRule } from "./native/organs/correction-rule.js";
 import { voidHolarchy } from "./native/organs/void-holarchy.js";
 // The Charter organ (native/organs/charter.js, Handle: Grotius): governs
 // generation against the Universal Declaration of Human Rights. The gate is
@@ -3089,13 +3089,16 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // a caller, so a code ask stays code even when a job forces "projection".
   const taskRegister = deriveRegister(task, { genres: sidecarGenres() });
   const isInstrument = taskRegister?.field?.field === "instrument";
-  // THE HIVE TRIGGER — a correction of the machine's own answer authors a
-  // falsifiable rule in the hive ledger. Later requests are steered by
-  // discovered rules, never by another hardcoded genre branch.
+  // THE CORRECTION TRIGGER — a correction of the machine's own answer
+  // authors a falsifiable rule in the correction ledger (organs/correction-
+  // rule.js, renamed 2026-09-17 from hive.js — see LAVAR.md's Wilson
+  // reconciliation; this is a single-threaded rule minter, not a multi-
+  // instrument hive). Later requests are steered by discovered rules, never
+  // by another hardcoded genre branch.
   const correction = authorCorrectionRule(task, { source: "proxy-turn" });
   if (onNote && correction.rule) {
     onNote({
-      move: "hive_rule_authored",
+      move: "correction_rule_authored",
       id: correction.rule.id,
       kind: correction.rule.kind,
       dimension: correction.rule.dimension,
@@ -5961,7 +5964,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     totalStrain,
     thinking: thinkingBlock || null,
     answerShape: answerShape.shape,
-    hiveCorrection: correction.rule ? {
+    correctionRule: correction.rule ? {
       id: correction.rule.id,
       kind: correction.rule.kind,
       dimension: correction.rule.dimension,

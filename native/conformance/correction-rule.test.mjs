@@ -1,12 +1,12 @@
-// native/conformance/hive-correction.test.mjs — stir the nest with NL.
+// native/conformance/correction-rule.test.mjs — stir the nest with NL.
 //
 // A correction is heard as a correction, not as another task. The exact user
 // trigger from this investigation — "you wrote an essay, not a sonnet" — must
 // author a standing falsifiable rule, and that discovered rule must later
 // steer the router away from the composition pipeline. No genre noun is
-// hardcoded here or in the hive organ: the requested form comes from the
-// correction's own words, and an unrelated lyric form stays unsteered until
-// it is corrected too.
+// hardcoded here or in the correction-rule organ: the requested form comes
+// from the correction's own words, and an unrelated lyric form stays
+// unsteered until it is corrected too.
 //
 // General NL coverage:
 //   - produced/requested/obligatory form contrast;
@@ -19,10 +19,10 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-const dir = fs.mkdtempSync(path.join(os.tmpdir(), "er7-hive-correction-"));
-const rulesFile = path.join(dir, "hive-rules.jsonl");
-const priorRulesEnv = process.env.ER7_HIVE_RULES;
-process.env.ER7_HIVE_RULES = rulesFile;
+const dir = fs.mkdtempSync(path.join(os.tmpdir(), "er7-correction-rule-"));
+const rulesFile = path.join(dir, "correction-rules.jsonl");
+const priorRulesEnv = process.env.ER7_CORRECTION_RULES;
+process.env.ER7_CORRECTION_RULES = rulesFile;
 
 const {
   detectCorrection,
@@ -31,7 +31,7 @@ const {
   readCorrectionRules,
   naturalSizeRuleForTask,
   falsifiesFormRule,
-} = await import("../organs/hive.js");
+} = await import("../organs/correction-rule.js");
 const { detectAnswerShape } = await import("../../proxy-runner.mjs");
 
 const SONNET_CORRECTION = "you wrote an essay, not a sonnet";
@@ -55,7 +55,7 @@ test("without the discovered rule, the router does not special-case the genre", 
 test("the correction authors one standing falsifiable rule, reproducibly", () => {
   const first = authorCorrectionRule(SONNET_CORRECTION, { now: "2026-09-17T21:30:00.000Z", rulesFile });
   assert.equal(first.persisted, true);
-  assert.equal(first.rule?.schema, "HiveCorrectionRule@1");
+  assert.equal(first.rule?.schema, "CorrectionRule@1");
   assert.equal(first.rule?.expected, "sonnet");
   assert.equal(first.rule?.maxTokens <= 320, true);
   assert.match(first.rule?.falsifier ?? "", /composition/);
@@ -106,7 +106,7 @@ test("an ordinary producing ask and an unmarked report are not corrections", () 
 });
 
 test("cleanup", () => {
-  if (priorRulesEnv === undefined) delete process.env.ER7_HIVE_RULES;
-  else process.env.ER7_HIVE_RULES = priorRulesEnv;
+  if (priorRulesEnv === undefined) delete process.env.ER7_CORRECTION_RULES;
+  else process.env.ER7_CORRECTION_RULES = priorRulesEnv;
   fs.rmSync(dir, { recursive: true, force: true });
 });

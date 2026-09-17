@@ -1,8 +1,8 @@
 // native/conformance/lyric-shape.test.mjs — genres are not hardcoded.
 //
-// With no discovered hive correction in force, the answer router must not
+// With no discovered correction in force, the answer router must not
 // special-case a genre noun. A sonnet therefore falls through to the staged
-// pipeline exactly like an essay, story, or code ask. The hive-correction
+// pipeline exactly like an essay, story, or code ask. The correction-rule
 // battery proves the complementary half: once NL discovers the rule, later
 // requests invoking the corrected form are steered without a noun table.
 import { test } from "node:test";
@@ -12,9 +12,9 @@ import os from "node:os";
 import path from "node:path";
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "er7-shape-baseline-"));
-const rulesFile = path.join(dir, "hive-rules.jsonl");
-const priorRulesEnv = process.env.ER7_HIVE_RULES;
-process.env.ER7_HIVE_RULES = rulesFile;
+const rulesFile = path.join(dir, "correction-rules.jsonl");
+const priorRulesEnv = process.env.ER7_CORRECTION_RULES;
+process.env.ER7_CORRECTION_RULES = rulesFile;
 
 const { detectAnswerShape } = await import("../../proxy-runner.mjs");
 
@@ -49,7 +49,7 @@ test("a plain question is unchanged — open, at the full chat budget", () => {
 });
 
 test("cleanup", () => {
-  if (priorRulesEnv === undefined) delete process.env.ER7_HIVE_RULES;
-  else process.env.ER7_HIVE_RULES = priorRulesEnv;
+  if (priorRulesEnv === undefined) delete process.env.ER7_CORRECTION_RULES;
+  else process.env.ER7_CORRECTION_RULES = priorRulesEnv;
   fs.rmSync(dir, { recursive: true, force: true });
 });
