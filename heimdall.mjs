@@ -997,7 +997,12 @@ async function tick() {
     await probeSurface(surf);
     if (before !== surf.up) {
       log(`EVA — ${surf.name} (${surf.family}) ${surf.up ? "UP" : "DOWN"} (${surf.reason})`);
-      appendLog({ act: "eva", surface: surf.name, family: surf.family, up: surf.up, reason: surf.reason ?? null });
+      // A DOWN transition carries its finding class, so the rule-author holon
+      // can count it — a surface outage with no finding is invisible to the
+      // learning loop (measured 2026-09-17: 3 er7 refusals, never counted).
+      // Recoveries (UP) carry no finding: coming back is the control firing,
+      // not a new pattern.
+      appendLog({ act: "eva", surface: surf.name, family: surf.family, up: surf.up, reason: surf.reason ?? null, ...(surf.up === false ? { finding: "surface_down" } : {}) });
     }
     if (surf.up) { surf.restartTimes = []; continue; }
 
@@ -1721,6 +1726,15 @@ const DERIVED_TEMPLATES = Object.freeze({
   forward_failed: Object.freeze({
     control: "a re-forwarded request must land (a repeat forward_failed for the same probe concedes this rule)",
   }),
+  // A definitive surface refusal (nothing listening — ECONNREFUSED and kin,
+  // or a real non-200 from the health path). Learned 2026-09-17: er7 refused
+  // 3 times in 13min while a client spun thousands of instant failures
+  // against it, and the rule-author could not even count the pattern — a
+  // DOWN transition carried no finding class, so the learning loop was blind
+  // to the bridge's own outages. Control below.
+  surface_down: Object.freeze({
+    control: "a surface_down finding followed by successful crossings with no intervening re-forge, escalation, or recovery was a false conviction — the probe cried wolf, and that concedes this rule",
+  }),
 });
 
 /** Derive a rule from measured findings, or null when the pattern is not yet
@@ -1747,6 +1761,7 @@ const RULE_TEXT = Object.freeze({
   model_dropped: "hold the horses that served: a used model that drops is re-warmed (one per cadence, never into a saturated box) before the next caller eats the cold-load.",
   saturated: "admission is the gate: when the box is pegged, refuse with Retry-After and hold — never let a busy box be warmed into a deeper storm.",
   forward_failed: "a wedged upstream is a typed gap, never a hang — probe first, refuse with a reason, and retry only what can land.",
+  surface_down: "nothing listening is down, never busy: re-forge a forgeable surface at once, escalate a self surface at once, and confirm the recovery on a fresh probe — a timeout is never this finding.",
 });
 
 let derivedRules = loadDerivedRules();
