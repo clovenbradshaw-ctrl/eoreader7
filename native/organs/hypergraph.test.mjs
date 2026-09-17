@@ -1620,3 +1620,286 @@ test("a subject naming TWO unrelated beings carries NO face — disclosed ambigu
     assert.equal("end1Face" in e, false, `two-being subject must carry no face key at all, got ${e.end1Face}`);
   }
 });
+
+// Reproduces a third real specimen from mvp-acceptance.mjs (the-fold's own
+// MVP acceptance driver, question a2, 2026-09-17): "Who supervised the
+// West Area Computers section Johnson was originally assigned to?" against
+// the real Wikipedia article came back `unbound` with `nearest: []` — no
+// competing edge at all, unlike every other flagged question in that same
+// run (a3/a4/a7), which each carried a "(closest it does say: ...)" clause.
+//
+// Traced by running the real organs directly (not guessed): the article's
+// own sentence is "Originally assigned to the West Area Computers section
+// supervised by Dorothy Vaughan, Johnson was reassigned to the Guidance and
+// Control Division of Langley's Flight Research Division." — the true fact
+// ("Dorothy Vaughan supervised the West Area Computers section") sits
+// inside a REDUCED PASSIVE RELATIVE CLAUSE ("... section supervised by
+// Dorothy Vaughan") that itself modifies the object noun phrase of the
+// sentence's own fronted main clause ("Originally assigned to [NP]").
+//
+// extractRelations never produces an edge for the embedded clause AT ALL —
+// not a mis-extraction with a wrong subject (the disclosed "passive" and
+// "relative-clause" specimens in asserted-eval.md), but a full swallow: the
+// entire NP, embedded relative clause included, is absorbed as unparsed
+// tail text inside the OUTER clause's own object span. Confirmed directly:
+// even forcing "supervised" into the candidate verb set produces no
+// separate triple for it — the extractor operates on a shallow single verb
+// per outer-clause-boundary heuristic with no capacity to recurse into an
+// embedded relative clause, so `judge()`'s `nearest` search (which matches
+// on same-subject+verb or same-verb+object among the edges that DO exist)
+// has nothing to find: no edge anywhere carries the label "supervised".
+// This is a disclosed, structural, ARCHITECTURAL limit of extractRelations
+// (same family as asserted-eval.md's "passive"/"relative-clause" findings,
+// a new specific shape: a reduced relative clause embedded inside another
+// clause's own object), not a fixable bug in this file's matching logic —
+// not attempted here, per this codebase's own house rule against forcing a
+// narrow patch onto a genuine parser-depth limitation.
+test("an embedded reduced passive relative clause ('the NP supervised by X') swallowed whole inside its enclosing clause's object — disclosed, structural, real specimen behind mvp-acceptance's a2", async () => {
+  // Reproduced against the REAL fixture and the REAL production options
+  // (key for key with mvp-acceptance.mjs / app.js's own
+  // RELATION_READER_OPTIONS) — a small hand-typed synthetic passage does
+  // NOT reproduce this specimen: "supervised" is only nominated into the
+  // vocabulary through the reader's own referent-index-derived surfaces
+  // and blanked/rewritten passage text, which needs the real corpus scale
+  // and the real fixtures to exercise faithfully.
+  const { chunkSource, blankLabelRows } = await import("./source.js");
+  const { resolvePronouns } = await import(PROVIDER + "pronouns.js");
+  const { createLemmatizer, morphologyFromPrior } = await import(PROVIDER + "morphology.js");
+  const posPrior = JSON.parse(readFileSync(new URL("../eval/the-fold/fixtures/pos-prior-eng.json", import.meta.url), "utf8"));
+  const verbForms = new Set(JSON.parse(readFileSync(new URL("../eval/the-fold/fixtures/unimorph-eng-verb-forms.json", import.meta.url), "utf8")));
+  const morphPrior = morphologyFromPrior(JSON.parse(readFileSync(new URL("../eval/the-fold/fixtures/unimorph-morphology-prior.json", import.meta.url), "utf8")));
+  const sameAct = createLemmatizer(morphPrior.forms, { language: morphPrior.language }).sameAct;
+  const docText = readFileSync(new URL("../eval/the-fold/fixtures/katherine-johnson-body.txt", import.meta.url), "utf8");
+  const readerOrgans = {
+    ...(await organs()),
+    posPriorFor: () => posPrior, verbForms, oovLexicon: verbForms,
+    nounPhraseSubjects: true, phrasalPredicates: true, attestedVerbs: true, objectSpecificity: true,
+    createLemmatizer: () => ({ sameAct }), morphologyIndex: {},
+    blankFurniture: (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 }), resolvePronouns,
+  };
+  const passages = chunkSource("katherine-johnson.txt", docText);
+  const reader = makeRelationReader(readerOrgans)(passages, { pool: passages });
+  const report = reader.read("Dorothy Vaughan supervised the West Area Computers section Johnson was originally assigned to.");
+  const claim = report.claims.find((c) => c.label === "supervised");
+  assert.ok(claim, `a claim for "supervised" must still be judged, even though nothing binds it: ${JSON.stringify(report.claims, null, 2)}`);
+  assert.equal(claim.verdict, "unbound");
+  // The disclosed signature of this specific failure: no competing edge at
+  // all, because the material's own extraction never produced ANY edge
+  // labeled "supervised" (or same-act with it) for judge()'s nearest
+  // search to find — unlike the a3/a4/a7 specimens above, which each
+  // surface a real (if mismatched) nearest edge.
+  assert.deepEqual(claim.nearest, [], `this specimen's signature is an EMPTY nearest — no edge anywhere carries "supervised": ${JSON.stringify(claim.nearest)}`);
+  // Confirmed at the lower level too: even with "supervised" forced into
+  // the candidate verb vocabulary, extractRelations produces no triple for
+  // it at all — the embedded clause is swallowed whole into the outer
+  // clause's object, not mis-parsed with a wrong subject.
+  const { extractRelations } = await import(PROVIDER + "relations.js");
+  const direct = extractRelations(
+    "Originally assigned to the West Area Computers section supervised by Dorothy Vaughan , Johnson was reassigned to the Guidance and Control Division of Langley's Flight Research Division.",
+    { verbs: new Set(["supervised", "assigned", "reassigned"]), functionWords: new Set(), nounPhraseSubjects: true },
+  );
+  assert.equal(direct.some((t) => t.verb === "supervised"), false, `no triple should ever be produced for the embedded clause's own verb: ${JSON.stringify(direct, null, 2)}`);
+  assert.ok(
+    direct.some((t) => t.verb === "assigned" && /supervised by Dorothy Vaughan/.test(t.object)),
+    `the outer clause's own object must swallow the embedded clause's text whole: ${JSON.stringify(direct, null, 2)}`,
+  );
+});
+
+// FALSIFICATION (P71's generality gate): the specimen above is confirmed
+// on a genuinely different real passage — different domain (American Civil
+// War military history vs. NASA workplace history), different era (1861
+// vs. 1953), different names — real Wikipedia prose, not invented for this
+// test. "Outgoing president Buchanan had dithered in reinforcing its
+// garrison, commanded by Major Robert Anderson." carries the identical
+// construction (an embedded reduced passive relative clause, "commanded by
+// X", modifying the object of the sentence's own outer clause) and fails
+// the identical way: no triple for "commanded" at all, while the outer
+// clause's own verb ("dithered") still extracts. A plain-SVO control
+// stating the SAME fact ("Major Robert Anderson commanded the garrison at
+// Fort Sumter.") extracts cleanly, confirming the gap is specific to the
+// embedded construction, not to the word "commanded". Adversarially, a
+// THIRD real specimen — the identical construction set off mid-sentence by
+// commas rather than sentence-finally ("The Union Army troops, commanded
+// by Maj. Gen. Benjamin Butler, occupied the city the next day.") — fails
+// even more severely: the comma-delimited embedded clause breaks subject/
+// verb adjacency for the OUTER clause too, so NEITHER verb ("commanded" nor
+// "occupied") produces any triple at all, confirming this is one
+// architectural limit (verb-position-adjacent extraction with no clause
+// recursion and no tolerance for an interrupting parenthetical), not a
+// one-off quirk of the Katherine Johnson fixture.
+test("FALSIFICATION: the same embedded-reduced-relative-clause gap reproduces on genuinely different real material (Civil War, 1861) — architectural, not fixture-specific", async () => {
+  const { extractRelations } = await import(PROVIDER + "relations.js");
+
+  const sentenceFinal = "Outgoing president Buchanan had dithered in reinforcing its garrison, commanded by Major Robert Anderson.";
+  const finalTriples = extractRelations(sentenceFinal, { verbs: new Set(["dithered", "commanded"]), functionWords: new Set(), nounPhraseSubjects: true });
+  assert.equal(finalTriples.some((t) => t.verb === "commanded"), false, `the embedded clause's own verb must never surface as its own triple: ${JSON.stringify(finalTriples, null, 2)}`);
+  assert.ok(finalTriples.some((t) => t.verb === "dithered"), `the outer clause must still extract when the embedded clause is sentence-final: ${JSON.stringify(finalTriples, null, 2)}`);
+
+  const plainControl = "Major Robert Anderson commanded the garrison at Fort Sumter.";
+  const controlTriples = extractRelations(plainControl, { verbs: new Set(["commanded"]), functionWords: new Set(), nounPhraseSubjects: true });
+  assert.ok(
+    controlTriples.some((t) => t.verb === "commanded" && /Robert Anderson/.test(t.subject)),
+    `the SAME fact in plain SVO phrasing must extract cleanly — the gap is about the construction, not the word "commanded": ${JSON.stringify(controlTriples, null, 2)}`,
+  );
+
+  const midSentence = "The Union Army troops, commanded by Maj. Gen. Benjamin Butler, occupied the city the next day.";
+  const midTriples = extractRelations(midSentence, { verbs: new Set(["commanded", "occupied"]), functionWords: new Set(), nounPhraseSubjects: true });
+  assert.deepEqual(midTriples, [], `an embedded relative clause interrupting subject/verb adjacency mid-sentence must break the OUTER clause's extraction too — a more severe, adversarially-confirmed variant of the same architectural gap: ${JSON.stringify(midTriples, null, 2)}`);
+});
+
+// Reproduces a fourth real specimen from mvp-acceptance.mjs (question a3,
+// 2026-09-17): "Which astronaut asked NASA to have Johnson personally
+// verify the electronic computer's orbit calculations before his flight?"
+// against the real Wikipedia article came back `unbound`, disclosing the
+// nearest material edge as "officials —asked→ Johnson to verify the
+// computer's numbers" — the WRONG subject (John Glenn is the one who
+// asked, per the article's own words), even though the material states
+// exactly that fact a few words later in the same sentence: "...officials
+// asked Johnson to verify the computer's numbers; Glenn had asked for her
+// specifically and had refused to fly unless Johnson verified the
+// calculations."
+//
+// Traced by running the real organs directly (not guessed): unlike the a2
+// (embedded reduced relative clause) and a7 (passive voice / co-present
+// pronoun) specimens investigated above, this is NOT one of the disclosed
+// clause-extraction architectural gaps. `extractRelations` DOES produce a
+// correct top-level edge for the true agent — subject "Glenn", carrying
+// exactly the coordinated-verb-phrase construction MINE-1's own findings
+// already name as a known limit on the OBJECT side ("Glenn —had asked→ for
+// her specifically and had refused to fly..."). The subject is right; the
+// bug is that this edge could never be FOUND by `judge()`'s own
+// subject/verb matching at all: `phrasalPredicates` (relations.js's DR5,
+// on in production — RELATION_READER_OPTIONS in app.js) deliberately
+// carries the FULL predicate on an edge's own label ("had asked", not
+// "asked" — relations.js's own comment: "the full predicate is what `verb`
+// carries... exactly as a phrasal-predicate-aware downstream reader
+// (phasepost.js's own headVerb) expects"), but `judge()`'s two
+// `sameAct(e.label, t.verb)` call sites compared the RAW multi-word label
+// against the claim's own single-word verb directly — morphology.js's
+// `sameAct` operates on whole strings, never splits a phrase, so
+// `sameAct("had asked", "asked")` is false, exactly like
+// `sameAct("had asked", "had")` would be. The correct edge was excluded
+// from BOTH `sameSubjVerb` and `sameVerbObj` before either search could
+// ever consider it, so `nearest` fell back to a coincidentally
+// same-verb-different-subject edge instead.
+//
+// FIX: `judge()` now compares ACT identity through `headVerb`
+// (phasepost.js, already built and already used elsewhere in this
+// codebase for exactly this reduction — reused, not restated) before
+// calling `sameAct`, so a phrasal label reduces to its act-bearing head on
+// BOTH sides. This is a narrow, isolated integration gap (the existing
+// `headVerb` organ was simply never wired into this file's act-comparison
+// calls), not a new extraction capability and not a fix to any of the
+// disclosed clause-extraction architectural gaps (relative clauses, fronted
+// adverbials, coordinated verbs, passive voice) — the claim below still
+// correctly stays `unbound` (via `object_unspecific`, P36) rather than
+// flipping to `bound`, because the material's OWN object capture for this
+// coordinated-verb sentence ("for her specifically and had refused to fly
+// unless Johnson verified the calculations") is itself a real instance of
+// the coordinated-verb-phrase object-capture gap MINE-1 already discloses,
+// unaffected by this fix. What changes is that `nearest` now names the
+// CORRECT subject.
+test("act comparison reads the head verb, not the raw phrasal label: a claim's plain verb now finds a material edge stated with an auxiliary in front of it — the real specimen behind mvp-acceptance's a3", async () => {
+  const { createLemmatizer } = await import(PROVIDER + "morphology.js");
+  const prior = JSON.parse(readFileSync(new URL("../eval/the-fold/fixtures/unimorph-morphology-prior.json", import.meta.url), "utf8"));
+
+  const passages = [
+    {
+      ref: "kj.txt#0-400",
+      text:
+        "Johnson worked as a computer for NASA. " +
+        "When NASA used electronic computers for the first time to calculate John Glenn's orbit around earth, officials asked Johnson to verify the computer's numbers; " +
+        "Glenn had asked for her specifically and had refused to fly unless Johnson verified the calculations.",
+    },
+  ];
+  const reader = makeRelationReader({
+    ...(await organs()),
+    createLemmatizer,
+    morphologyIndex: prior.forms,
+    morphologyLanguage: prior.language,
+    phrasalPredicates: true,
+    objectSpecificity: true,
+  })(passages, { pool: passages });
+
+  const report = reader.read(
+    "John Glenn asked NASA to have Johnson personally verify the electronic computer's orbit calculations before his flight.",
+  );
+  const claim = report.claims.find((c) => c.label === "asked" && c.end1 === "John Glenn");
+  assert.ok(claim, `a claim for Glenn's own "asked" must still be judged: ${JSON.stringify(report.claims, null, 2)}`);
+  // Still unbound (the coordinated-verb-phrase object gap is real and
+  // untouched) — but `nearest` must now name the TRUE agent, not a
+  // coincidentally-matching different subject.
+  assert.equal(claim.verdict, "unbound");
+  assert.ok(
+    claim.nearest?.some((e) => e.end1 === "Glenn" && e.label === "had asked"),
+    `nearest must now surface the material's own edge for Glenn asking, not a wrong-subject coincidence: ${JSON.stringify(claim.nearest, null, 2)}`,
+  );
+  assert.equal(
+    claim.nearest?.some((e) => e.end1 === "officials"),
+    false,
+    `the wrong-subject "officials asked" edge must no longer be the disclosed nearest match, now that the real Glenn edge is reachable: ${JSON.stringify(claim.nearest, null, 2)}`,
+  );
+});
+
+// CONTROL: before this fix, `sameAct(e.label, t.verb)` compared raw labels
+// directly, so a material edge stated with NO auxiliary in front of its
+// verb (the ordinary case) matched exactly as before — this fix must not
+// change any claim whose relevant edges never carry an auxiliary at all.
+test("CONTROL: an ordinary non-phrasal same-verb match is unaffected by the head-verb reduction", async () => {
+  const { createLemmatizer } = await import(PROVIDER + "morphology.js");
+  const prior = JSON.parse(readFileSync(new URL("../eval/the-fold/fixtures/unimorph-morphology-prior.json", import.meta.url), "utf8"));
+  const passages = [
+    { ref: "p.txt#0-100", text: "Katherine Johnson calculated the trajectory for the mission." },
+  ];
+  const reader = makeRelationReader({
+    ...(await organs()),
+    createLemmatizer,
+    morphologyIndex: prior.forms,
+    morphologyLanguage: prior.language,
+    phrasalPredicates: true,
+    objectSpecificity: true,
+  })(passages, { pool: passages });
+  const report = reader.read("Katherine Johnson calculated the trajectory for the mission.");
+  const claim = report.claims.find((c) => c.label === "calculated");
+  assert.equal(claim?.verdict, "bound", JSON.stringify(claim, null, 2));
+});
+
+// FALSIFICATION (not the same specimen, not the same domain, not the same
+// era): the identical head-verb-reduction fix generalizes to genuinely
+// different real material — a Wikipedia-sourced mathematics article about
+// the continuum hypothesis (1878-2010s, set theory), nothing shared with
+// the Katherine Johnson/NASA specimen above but the English language and
+// this repo's own received UniMorph morphology prior. Confirmed BOTH ways:
+// before this fix (verified live via `git stash` against this exact file),
+// the identical claim came back `unbound` with an EMPTY `nearest` — the
+// correct edge ("Cohen —was awarded→ the Fields Medal in 1966...") could
+// not be found at all, because BOTH sides of the comparison carry an
+// auxiliary chain here ("has been awarded" vs "was awarded"), a stronger
+// case than the single-sided a3 specimen above. After this fix, the claim
+// binds cleanly to the material's real, byte-addressed sentence.
+test("FALSIFICATION: the head-verb reduction generalizes to a genuinely different real specimen (mathematics/set theory, 1878-2010s) — both claim and material carry a DIFFERENT auxiliary chain over the same act", async () => {
+  const { createLemmatizer } = await import(PROVIDER + "morphology.js");
+  const prior = JSON.parse(readFileSync(new URL("../eval/the-fold/fixtures/unimorph-morphology-prior.json", import.meta.url), "utf8"));
+  const CH_TEXT = readFileSync(new URL("../eval/the-fold/fixtures/continuum-hypothesis.txt", import.meta.url), "utf8");
+  // The real sentence, verbatim, isolated to keep the reader's own
+  // referent index small and deterministic for this test.
+  const sentence = "Cohen was awarded the Fields Medal in 1966 for his proof.";
+  assert.ok(CH_TEXT.includes(sentence), "the quoted sentence must be verbatim from the real fixture, not paraphrased");
+  const passages = [{ ref: "ch.txt#0-100", text: `Paul Cohen was a mathematician. ${sentence}` }];
+  const reader = makeRelationReader({
+    ...(await organs()),
+    createLemmatizer,
+    morphologyIndex: prior.forms,
+    morphologyLanguage: prior.language,
+    phrasalPredicates: true,
+    objectSpecificity: true,
+  })(passages, { pool: passages });
+  const report = reader.read("Paul Cohen has been awarded the Fields Medal in 1966 for his proof.");
+  const claim = report.claims.find((c) => /awarded/.test(c.label));
+  assert.ok(claim, `a claim for "has been awarded" must still be judged: ${JSON.stringify(report.claims, null, 2)}`);
+  assert.equal(claim.verdict, "bound", JSON.stringify(claim, null, 2));
+  assert.ok(
+    claim.spans?.some((sp) => sp.text === sentence),
+    `must bind to the material's own real sentence, byte-addressed: ${JSON.stringify(claim.spans, null, 2)}`,
+  );
+});
