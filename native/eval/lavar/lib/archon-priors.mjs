@@ -26,10 +26,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { stripContainer } from "../../../adapters/text/spans.js";
+import { stripContainer, splitSentences } from "../../../adapters/text/spans.js";
 import { readMaterialText } from "./read-recipe.mjs";
-import { compositionAffordance, pairKey, createHyperlexicon, giveHyperlexiconAffordance } from "../../../kernel/hyperlexicon.js";
+import { compositionAffordance, pairKey, createHyperlexicon, giveHyperlexiconAffordance, admitHyperlexiconCandidates } from "../../../kernel/hyperlexicon.js";
 import { lcg, shuffled } from "../../../kernel/rng.js";
+import { hyperedge } from "../../../kernel/hypergraph.js";
+import { acquireCompositionCandidates } from "../../../kernel/relation-composition.js";
+import { confirmedVerbSet, greekClauses, greekBeings } from "../greek.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -183,6 +186,45 @@ export function stripArchonReferents(hyperlexicon) {
  * the material"). It is why this function pools chunks across an archon's
  * WHOLE ROSTER of works rather than one.
  */
+// SHARED by buildArchonPrior and buildGreekArchonPrior — the accumulation
+// and promotion rule ("a pair nominated by >=minChunks distinct chunks is
+// GIVEN") is one algorithm regardless of which language extracted the
+// candidates. Only the extraction step differs between the two build
+// functions; this pair of helpers is what stays the same, so the rule
+// cannot drift between an English run and a Greek one.
+function foldCandidatesIntoNominations(candidates, chunkId, nominationByPair, witnessesFor) {
+  for (const c of candidates) {
+    // A LABEL WITH NO LETTER IS NOT CHEMISTRY. Measured live (Homer,
+    // 2026-09-17): the causal text perceiver's own relation-label
+    // extraction can surface bare dialogue punctuation (`", "`/`", "I"`)
+    // as a "relation," which corroborated across chunks by sheer
+    // frequency — real by this pipeline's own count, never real
+    // composition chemistry. This is a data-quality exclusion, never a
+    // threshold tuned toward a desired result: a label carrying no
+    // `\p{L}` character was never a candidate for an archon's own
+    // chemistry to begin with, whatever its count.
+    if (!/\p{L}/u.test(c.left) || !/\p{L}/u.test(c.right)) continue;
+    const k = pairKey(c.left, c.right);
+    const row = nominationByPair.get(k) ?? { left: c.left, right: c.right, chunks: new Set(), witnesses: new Set() };
+    row.chunks.add(chunkId);
+    for (const wit of witnessesFor(k)) row.witnesses.add(JSON.stringify(wit));
+    nominationByPair.set(k, row);
+  }
+}
+
+function promoteNominations(nominationByPair, minChunks, giver) {
+  // Promote pairs nominated by >=minChunks distinct chunks to GIVEN, on a
+  // real hyperlexicon, so stripArchonReferents' own wall (only "given" rows,
+  // witnesses stripped) is the SAME function that gates every other caller
+  // of this file — no second, looser promotion rule duplicated here.
+  let hl = createHyperlexicon();
+  const corroborated = [...nominationByPair.values()].filter((row) => row.chunks.size >= minChunks);
+  for (const row of corroborated) {
+    hl = giveHyperlexiconAffordance(hl, { left: row.left, right: row.right, giver, witnesses: [...row.witnesses].slice(0, 5).map((w) => JSON.parse(w)), meta: { independentSupport: row.chunks.size, chunks: [...row.chunks] } });
+  }
+  return stripArchonReferents(hl);
+}
+
 export async function buildArchonPrior(archonKey, texts, {
   posPrior = null,
   canonicalizationFloor,
@@ -220,38 +262,12 @@ export async function buildArchonPrior(archonKey, texts, {
       });
       totalEncounters += read.encounters.length;
       totalRelationEdges += read.stats.relationEdges ?? 0;
-      for (const c of read.candidates) {
-        // A LABEL WITH NO LETTER IS NOT CHEMISTRY. Measured live (Homer,
-        // 2026-09-17): the causal text perceiver's own relation-label
-        // extraction can surface bare dialogue punctuation
-        // (`", "`/`", "I"`) as a "relation," which corroborated across
-        // chunks by sheer frequency — real by this pipeline's own count,
-        // never real composition chemistry. This is a data-quality
-        // exclusion, never a threshold tuned toward a desired result: a
-        // label carrying no `\p{L}` character was never a candidate for
-        // an archon's own chemistry to begin with, whatever its count.
-        if (!/\p{L}/u.test(c.left) || !/\p{L}/u.test(c.right)) continue;
-        const k = pairKey(c.left, c.right);
-        const row = nominationByPair.get(k) ?? { left: c.left, right: c.right, chunks: new Set(), witnesses: new Set() };
-        row.chunks.add(chunkId);
-        for (const wit of (read.hyperlexicon.composition[k]?.witnesses ?? [])) row.witnesses.add(JSON.stringify(wit));
-        nominationByPair.set(k, row);
-      }
+      foldCandidatesIntoNominations(read.candidates, chunkId, nominationByPair, (k) => read.hyperlexicon.composition[k]?.witnesses ?? []);
       onChunk?.(totalChunks, work.title, w + 1, entry.works.length);
     }
   }
 
-  // Promote pairs nominated by >=minChunks distinct chunks to GIVEN, on a
-  // real hyperlexicon, so stripArchonReferents' own wall (only "given" rows,
-  // witnesses stripped) is the SAME function that gates every other caller
-  // of this file — no second, looser promotion rule duplicated here.
-  let hl = createHyperlexicon();
-  const corroborated = [...nominationByPair.values()].filter((row) => row.chunks.size >= minChunks);
-  for (const row of corroborated) {
-    hl = giveHyperlexiconAffordance(hl, { left: row.left, right: row.right, giver, witnesses: [...row.witnesses].slice(0, 5).map((w) => JSON.parse(w)), meta: { independentSupport: row.chunks.size, chunks: [...row.chunks] } });
-  }
-
-  const composition = stripArchonReferents(hl);
+  const composition = promoteNominations(nominationByPair, minChunks, giver);
   return Object.freeze({
     schema: ARCHON_PRIOR_SCHEMA,
     archon: archonKey,
@@ -339,6 +355,112 @@ export function shuffleArchonPrior(prior, { seed } = {}) {
     builtFrom: Object.freeze({ ...prior.builtFrom, shuffledFrom: prior.archon, seed }),
     composition: stripArchonReferents(hl),
     entryCount: rows.length,
+    at: Date.now(),
+  });
+}
+
+/**
+ * greekEntries(chunkText, verbs, posPrior, casePrior) — the Greek-language
+ * analogue of readMaterialText's own extraction, for buildGreekArchonPrior.
+ * Reuses greek.mjs's real case-marked clause reader (relations-language.js's
+ * positional gate refuses 254/259 sentences on Greek — measured, greek.mjs's
+ * own header — so the English path's readMaterialText would extract almost
+ * nothing from Greek text; this is the seam that actually reads it) rather
+ * than reinventing clause extraction. `greekBeings` supplies the tier-1
+ * referent identity a clause's subjectRef/objectRef bind to — without it
+ * every clause's refs are null and nothing can BRIDGE (kernel/
+ * relation-composition.js's own requirement: two edges compose only where
+ * one's object referent equals the other's subject referent). Returns real
+ * EOHyperedge@1 entries, the exact shape acquireCompositionCandidates (the
+ * SAME kernel organ the English path already uses) requires.
+ */
+export function greekEntries(chunkText, verbs, posPrior, casePrior) {
+  const beings = greekBeings(chunkText, posPrior, { minOccurrences: 2 });
+  const sentences = splitSentences(chunkText);
+  const edges = [];
+  let n = 0;
+  for (const sent of sentences) {
+    const clauses = greekClauses(sent.text, verbs, posPrior, casePrior, { beings });
+    for (const c of clauses) {
+      if (!c.subjectRef || !c.objectRef) continue; // no referent identity, no bridge — never fabricated
+      edges.push(hyperedge({
+        id: `grc-${n}`, relation: c.verb,
+        participants: [{ ref: c.subjectRef, standing: "referent" }, { ref: c.objectRef, standing: "referent" }],
+        witness: sent.text.length > 120 ? `${sent.text.slice(0, 120)}…` : sent.text,
+      }));
+      n += 1;
+    }
+  }
+  return edges;
+}
+
+/**
+ * buildGreekArchonPrior(archonKey, texts, { chunkChars, minChunks, onChunk })
+ * — the same chunk-and-accumulate design as buildArchonPrior (see THE
+ * MEASURED FINDING above), with the Greek clause reader as the extraction
+ * step instead of the English recursive reader. Requires a real
+ * `GreekCasePrior@1` at native/scripts/build-latin-case-prior.mjs's own
+ * output shape (built once, locally, from a real UD Ancient Greek treebank
+ * — `--lang=grc` — never fetched at read time; the reader has no network
+ * dependency, only the archon's own text does). `casePriorPath` is
+ * REQUIRED, never defaulted to a guessed location — a caller without a
+ * built case prior gets a clear refusal, not a silent empty read.
+ */
+export async function buildGreekArchonPrior(archonKey, texts, {
+  posPriorPath,
+  casePriorPath,
+  chunkChars = DEFAULT_ARCHON_CHUNK_CHARS,
+  minChunks = 2,
+  onChunk = null,
+} = {}) {
+  const entry = ARCHON_ROSTER[archonKey];
+  if (!entry) throw new TypeError(`archon-priors: "${archonKey}" is not on the confirmed public-domain roster`);
+  const textList = Array.isArray(texts) ? texts : [texts];
+  if (textList.length !== entry.works.length) {
+    throw new TypeError(`archon-priors: "${archonKey}" has ${entry.works.length} roster work(s); ${textList.length} text(s) were supplied`);
+  }
+  if (!posPriorPath || !fs.existsSync(posPriorPath)) throw new Error(`buildGreekArchonPrior: posPriorPath is required and must exist — got ${posPriorPath}`);
+  if (!casePriorPath || !fs.existsSync(casePriorPath)) throw new Error(`buildGreekArchonPrior: casePriorPath is required and must exist — got ${casePriorPath} (build with native/scripts/build-latin-case-prior.mjs --lang=grc)`);
+
+  const posPrior = JSON.parse(fs.readFileSync(posPriorPath, "utf8"));
+  const casePrior = JSON.parse(fs.readFileSync(casePriorPath, "utf8"));
+  const verbs = confirmedVerbSet(posPrior, 0.5);
+
+  const giver = `archon:${archonKey} (${entry.name}, read in the original Greek)`;
+  const nominationByPair = new Map();
+  let totalChars = 0, totalChunks = 0, totalClauseEdges = 0;
+
+  for (let w = 0; w < entry.works.length; w += 1) {
+    const work = entry.works[w];
+    const { text: body } = stripContainer(textList[w]);
+    if (!body.trim()) throw new Error(`archon-priors: "${archonKey}" work "${work.title}" stripped to nothing`);
+    totalChars += body.length;
+    const chunks = chunkArchonText(body, chunkChars);
+    for (let i = 0; i < chunks.length; i += 1) {
+      const chunkId = `w${w}c${i}`;
+      totalChunks += 1;
+      const edges = greekEntries(chunks[i], verbs, posPrior, casePrior);
+      totalClauseEdges += edges.length;
+      const candidates = acquireCompositionCandidates(edges, { minWitnesses: 1 });
+      const hlThisChunk = admitHyperlexiconCandidates(createHyperlexicon(), candidates.map((c) => ({
+        left: c.left, right: c.right, giver,
+        witnesses: (c.witnesses ?? []).slice(0, 3).map((wt) => wt?.[0]).filter(Boolean),
+        meta: { independentSupport: c.meta?.support ?? 0 },
+      })));
+      foldCandidatesIntoNominations(candidates, chunkId, nominationByPair, (k) => hlThisChunk.composition[k]?.witnesses ?? []);
+      onChunk?.(totalChunks, work.title, w + 1, entry.works.length);
+    }
+  }
+
+  const composition = promoteNominations(nominationByPair, minChunks, giver);
+  return Object.freeze({
+    schema: ARCHON_PRIOR_SCHEMA,
+    archon: archonKey,
+    giver: `archon:${archonKey}`,
+    source: Object.freeze({ name: entry.name, works: entry.works, language: "grc (original Ancient Greek)" }),
+    builtFrom: Object.freeze({ chars: totalChars, works: entry.works.length, chunks: totalChunks, minChunks, clauseEdges: totalClauseEdges, nominatedPairs: nominationByPair.size }),
+    composition,
+    entryCount: Object.keys(composition).length,
     at: Date.now(),
   });
 }
