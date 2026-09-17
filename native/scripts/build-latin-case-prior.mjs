@@ -58,6 +58,9 @@ const strip = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g
 const lines = readFileSync(IN, "utf8").split("\n");
 const caseTable = new Map();
 const verbTable = new Map();
+const voiceTable = new Map();
+const moodTable = new Map();
+const tenseTable = new Map();
 let nominalTokens = 0, verbTokens = 0, sentences = 0;
 
 for (const line of lines) {
@@ -79,12 +82,23 @@ for (const line of lines) {
     m.set(key, (m.get(key) ?? 0) + 1);
   }
   if ((upos === "VERB" || upos === "AUX") && featMap.VerbForm === "Fin" && featMap.Person && featMap.Number) {
+    // THE FULL VERBAL PARADIGM (2026-09-17), measured: the ending carries
+    // Person|Number (215/220), Voice (213/220), Mood (206/220) and Tense
+    // (193/220) at decisive shares — a native speaker settles all four from
+    // the verb itself. Each axis is tallied as its OWN projection so the
+    // reader settles each with its own confidence floor (one fused bundle
+    // would fragment to sparse rows).
     verbTokens++;
     const ending = strip(lower).slice(-VERB_ENDING_LEN);
-    const key = `${featMap.Person}|${featMap.Number}`;
-    if (!verbTable.has(ending)) verbTable.set(ending, new Map());
-    const m = verbTable.get(ending);
-    m.set(key, (m.get(key) ?? 0) + 1);
+    const tally = (table, key) => {
+      if (!table.has(ending)) table.set(ending, new Map());
+      const m = table.get(ending);
+      m.set(key, (m.get(key) ?? 0) + 1);
+    };
+    tally(verbTable, `${featMap.Person}|${featMap.Number}`);
+    if (featMap.Voice) tally(voiceTable, featMap.Voice);
+    if (featMap.Mood) tally(moodTable, featMap.Mood);
+    if (featMap.Tense) tally(tenseTable, featMap.Tense);
   }
 }
 
@@ -125,6 +139,9 @@ writeFileSync(OUT, JSON.stringify({
   },
   nominalEndings: toRankedObject(caseTable, "Case"),
   verbPersonalEndings: toRankedObject(verbTable, "Person"),
+  verbVoiceByEnding: toRankedObject(voiceTable, "Voice"),
+  verbMoodByEnding: toRankedObject(moodTable, "Mood"),
+  verbTenseByEnding: toRankedObject(tenseTable, "Tense"),
 }, null, 2));
 
 console.log(`sentences: ${sentences}; nominal tokens: ${nominalTokens} (${caseTable.size} distinct endings); verb tokens: ${verbTokens} (${verbTable.size} distinct endings)`);

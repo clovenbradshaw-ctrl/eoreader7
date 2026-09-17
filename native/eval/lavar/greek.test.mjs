@@ -4,7 +4,7 @@
 // word order; the seam recovers the clause and the gate refuses the garbage.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { prodropClauses, confirmedVerbSet, confirmGreekVerbs, nominalClass, greekBeings, personOf, personLabel, caseOf, greekClauses, beingRefOf } from "./greek.mjs";
+import { prodropClauses, confirmedVerbSet, confirmGreekVerbs, nominalClass, greekBeings, personOf, personLabel, caseOf, greekClauses, beingRefOf, paradigmOf, verbGloss, glossLanguages } from "./greek.mjs";
 
 const grcPrior = {
   forms: {
@@ -137,6 +137,27 @@ test("personLabel glosses the Greek grammatical persons", () => {
   assert.equal(personLabel(2, "Sing"), "you");
   assert.equal(personLabel(1, "Sing"), "I");
   assert.equal(personLabel(3, "Plur"), "they");
+});
+
+test("the paradigm gloss is a projection, renderable in any language with declared terms", () => {
+  const paradigm = { person: 2, number: "Sing", tense: "Pres", voice: "Act", mood: "Ind", personCell: { op: "SIG", grain: "Figure" }, tenseCell: { op: "EVA", grain: "Figure" }, voiceCell: { op: "EVA", grain: "Figure" }, moodCell: { op: "EVA", grain: "Ground" }, share: 1, ending: "εις" };
+  assert.equal(verbGloss(paradigm, "eng"), "2nd person singular, present indicative active — you");
+  assert.equal(verbGloss(paradigm, "ell"), "2ο πρόσωπο ενικού, ενεστώτας οριστική ενεργητική — εσύ");
+  assert.equal(verbGloss(paradigm, "fra"), "2e personne singulier, présent indicatif actif — tu");
+  assert.equal(verbGloss(paradigm, "spa"), "2da persona singular, presente indicativo activa — tú");
+  assert.deepEqual(glossLanguages(), ["eng", "ell", "fra", "spa"]);
+});
+
+test("paradigmOf settles the full verbal paradigm from the verb's ending, each axis to its cube cell", () => {
+  const prior = { ...grcCasePrior, verbVoiceByEnding: { εις: { total: 256, ranked: [{ key: "Act", count: 256, share: 1, cell: { op: "EVA", grain: "Figure", terrain: "Lens", stance: "Binding" } }] } }, verbMoodByEnding: { εις: { total: 256, ranked: [{ key: "Ind", count: 256, share: 1, cell: { op: "EVA", grain: "Ground", terrain: "Atmosphere", stance: "Tending" } }] } }, verbTenseByEnding: { εις: { total: 256, ranked: [{ key: "Pres", count: 256, share: 1, cell: { op: "EVA", grain: "Figure", terrain: "Lens", stance: "Binding" } }] } } };
+  const p = paradigmOf("θέλεις", prior);
+  assert.equal(p.person, 2);
+  assert.equal(p.tense, "Pres");
+  assert.equal(p.voice, "Act");
+  assert.equal(p.mood, "Ind");
+  assert.equal(p.voiceCell.terrain, "Lens", "active voice is the direct lens — EVA·Figure");
+  assert.equal(p.moodCell.terrain, "Atmosphere", "indicative is the settled atmosphere — EVA·Ground");
+  assert.equal(verbGloss(p, "ell"), "2ο πρόσωπο ενικού, ενεστώτας οριστική ενεργητική — εσύ");
 });
 
 // A GreekCasePrior@1-shaped nominalEndings fixture for the case reader.

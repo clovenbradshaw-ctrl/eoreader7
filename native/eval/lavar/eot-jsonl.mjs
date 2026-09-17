@@ -59,7 +59,7 @@ import { bindNarrationFrames, pronounResolver } from "../../adapters/text/perspe
 import { boundAnchorSpans } from "../../adapters/text/vocabulary.js";
 import * as cube from "../../kernel/cube.js";
 import { makeGrainTyper } from "./grain-typing.mjs";
-import { prodropClauses, confirmGreekVerbs, greekBeings, personOf, personLabel, greekClauses } from "./greek.mjs";
+import { prodropClauses, confirmGreekVerbs, greekBeings, personOf, personLabel, greekClauses, paradigmOf, verbGloss } from "./greek.mjs";
 import { receivedGround, applyDelta } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
 import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
@@ -322,6 +322,20 @@ emit({
   bytes: originBytes.length,
   newlines: originBytes.includes("\r\n") ? "crlf — addresses below are in the ORIGIN's own coordinates, mapped back through spans.js::normaliseNewlines (S26)" : "lf",
   addressing: "every `at` below is [start,end) into THIS source; containment is computed from those numbers, never declared",
+  // PROVENANCE, STAMPED AT THE DOOR (2026-09-17): what taught this reading and
+  // from what period. `--period` is RECEIVED from the caller, never guessed;
+  // absent, the stamp carries a declared null — the ledger is period-aware by
+  // saying so, never by assuming a date it does not have.
+  provenance: {
+    schema: "Provenance@1",
+    source: `file:${path.basename(sourcePath)}`,
+    giver: "eot-jsonl.mjs — the EOT ledger",
+    modality: "text",
+    bytes: originBytes.length,
+    period: (process.argv.find((a) => a.startsWith("--period=")) ?? "").replace("--period=", "") || null,
+    periodDisclosed: (process.argv.find((a) => a.startsWith("--period=")) ?? "") !== "",
+    sha256,
+  },
 });
 
 // ── line 1: the priors. What "how to read English" meant for this reading. ─
@@ -1020,24 +1034,31 @@ for (const sent of sentences) {
         });
       }
       for (const c of prodrop) {
-        // THE PERSON TIER (2026-09-17): the subject is not just "in the
-        // verb" — the received GreekCasePrior@1 settles WHICH person it is,
-        // from the verb's own ending (-εις → 2|Sing "you" at 100%). The
-        // void's "the text points at someone this reader cannot say who"
-        // becomes: it points at the grammatical you. Below the reader's
-        // confidence floor, the person stays unsettled — disclosed, never
-        // guessed.
-        const person = GREEK_CASE_PRIOR ? personOf(c.verb, GREEK_CASE_PRIOR) : null;
+        // THE FULL VERBAL PARADIGM (2026-09-17): a native speaker settles the
+        // verb from its own ending — person, tense, voice, mood, each to its
+        // cube cell. The void's "cannot say who" becomes: "2nd person
+        // singular, present indicative active — you".
+        const paradigm = GREEK_CASE_PRIOR ? paradigmOf(c.verb, GREEK_CASE_PRIOR) : null;
+        const gloss = paradigm ? verbGloss(paradigm) : null;
         const cAt = c.at ?? (c.object?.at ?? [0, 1]);
         emit({
           schema: "EOTProdrop@1", id: id("pd"), at: rawAt(sent.offset + cAt[0], sent.offset + cAt[1]),
           role: "proposition",
           verb: c.verb, ...(c.object ? { object: typeof c.object === "string" ? c.object : c.object.head } : {}),
           subjectBasis: "pro-drop",
-          ...(person ? { subjectPerson: person.person, subjectNumber: person.number, personShare: person.share, subjectCell: person.cell } : {}),
-          disclosure: person
-            ? `the clause's subject is grammaticalized in the verb — ${person.person}${person.number === "Sing" ? "st" : "nd"} person ${person.number === "Sing" ? "singular" : "plural"} (${personLabel(person.person, person.number)})${person.cell ? `, cell ${person.cell.op}·${person.cell.grain} (${person.cell.terrain})` : ""}, settled from the verb's ending "${person.ending}" by the received GreekCasePrior@1 at share ${person.share.toFixed(2)}; never fabricated into a referent, verb and object are the material's own words`
-            : "the clause's subject is grammaticalized in the verb (person/number) but its person did not clear the reader's confidence floor — settled means refusable, never guessed; verb and object are the material's own words",
+          ...(paradigm ? {
+            subjectPerson: paradigm.person, subjectNumber: paradigm.number,
+            verbTense: paradigm.tense, verbVoice: paradigm.voice, verbMood: paradigm.mood,
+            personShare: paradigm.share,
+            subjectCell: paradigm.personCell,
+            ...(paradigm.tenseCell ? { tenseCell: paradigm.tenseCell } : {}),
+            ...(paradigm.voiceCell ? { voiceCell: paradigm.voiceCell } : {}),
+            ...(paradigm.moodCell ? { moodCell: paradigm.moodCell } : {}),
+            gloss: gloss, // a projection — renderable in any language with declared terms (greek.mjs verbGloss)
+          } : {}),
+          disclosure: gloss
+            ? `the clause's subject is grammaticalized in the verb — the paradigm fields (person/tense/voice/mood + cells) are the structure; "${gloss}" is one projection, renderable in any language with declared gloss terms`
+            : "the clause's subject is grammaticalized in the verb (person/number) but its paradigm did not clear the reader's confidence floor — settled means refusable, never guessed; verb and object are the material's own words",
         });
       }
       if (overt.length || prodrop.length) continue; // the clause was heard; no absence to record

@@ -149,11 +149,102 @@ export function personOf(verbForm, casePrior, { minShare = 0.5, minCount = 20, e
   return { person: Number(person), number, share: top.share, count: top.count, ending, cell: top.cell ?? null };
 }
 
-/** personLabel(person, number) — the English gloss of a Greek grammatical
- * person, for the disclosure line. The Enchiridion's constant 2sg is "you". */
-export function personLabel(person, number) {
-  const map = { "1|Sing": "I", "2|Sing": "you", "3|Sing": "he/she/it", "1|Plur": "we", "2|Plur": "you (pl.)", "3|Plur": "they" };
-  return map[`${person}|${number}`] ?? "one";
+/** personLabel(person, number, lang) — the third-person term of a Greek
+ * grammatical person in the TARGET language. The gloss is a projection, never
+ * a baked English sentence: the structured paradigm renders in any language
+ * whose terms are declared. */
+export function personLabel(person, number, lang = "eng") {
+  const L = GLOSS_TERMS[lang] ?? GLOSS_TERMS.eng;
+  const key = `${person}|${number}`;
+  return L.persons[key] ?? L.persons[`${person}`] ?? "one";
+}
+
+// THE DECLARED GLOSS TERMS — received grammatical terminology per language,
+// disclosed, never tuned. The paradigm is a cube structure; these are its
+// projections. Adding a language is adding its terms, nothing else.
+const GLOSS_TERMS = {
+  eng: {
+    personWord: "person",
+    persons: { "1|Sing": "I", "2|Sing": "you", "3|Sing": "he/she/it", "1|Plur": "we", "2|Plur": "you (pl.)", "3|Plur": "they" },
+    num: { Sing: "singular", Plur: "plural" }, ord: { 1: "st", 2: "nd", 3: "rd" },
+    tense: { Pres: "present", Past: "past", Fut: "future" },
+    voice: { Act: "active", Mid: "middle", Pass: "passive" },
+    mood: { Ind: "indicative", Sub: "subjunctive", Opt: "optative", Imp: "imperative" },
+  },
+  ell: {
+    personWord: "πρόσωπο",
+    persons: { "1|Sing": "εγώ", "2|Sing": "εσύ", "3|Sing": "αυτός/αυτή/αυτό", "1|Plur": "εμείς", "2|Plur": "εσείς", "3|Plur": "αυτοί/αυτές" },
+    num: { Sing: "ενικού", Plur: "πληθυντικού" }, ord: { 1: "ο", 2: "ο", 3: "ο" },
+    tense: { Pres: "ενεστώτας", Past: "αόριστος", Fut: "μέλλοντας" },
+    voice: { Act: "ενεργητική", Mid: "μέση", Pass: "παθητική" },
+    mood: { Ind: "οριστική", Sub: "υποτακτική", Opt: "ευκτική", Imp: "προστακτική" },
+  },
+  fra: {
+    personWord: "personne",
+    persons: { "1|Sing": "je", "2|Sing": "tu", "3|Sing": "il/elle", "1|Plur": "nous", "2|Plur": "vous", "3|Plur": "ils/elles" },
+    num: { Sing: "singulier", Plur: "pluriel" }, ord: { 1: "re", 2: "e", 3: "e" },
+    tense: { Pres: "présent", Past: "passé", Fut: "futur" },
+    voice: { Act: "actif", Mid: "moyen", Pass: "passif" },
+    mood: { Ind: "indicatif", Sub: "subjonctif", Opt: "optatif", Imp: "impératif" },
+  },
+  spa: {
+    personWord: "persona",
+    persons: { "1|Sing": "yo", "2|Sing": "tú", "3|Sing": "él/ella", "1|Plur": "nosotros", "2|Plur": "vosotros", "3|Plur": "ellos/ellas" },
+    num: { Sing: "singular", Plur: "plural" }, ord: { 1: "ra", 2: "da", 3: "ra" },
+    tense: { Pres: "presente", Past: "pasado", Fut: "futuro" },
+    voice: { Act: "activa", Mid: "media", Pass: "pasiva" },
+    mood: { Ind: "indicativo", Sub: "subjuntivo", Opt: "optativo", Imp: "imperativo" },
+  },
+};
+
+/** verbGloss(paradigm, lang) — the native reading of a finite verb in the
+ * TARGET language: "2nd person singular, present indicative active — you" is
+ * one projection of a structure that also reads as "2ο πρόσωπο ενικού,
+ * ενεστώτας οριστική ενεργητική — εσύ" or "2e personne du singulier, présent
+ * indicatif actif — tu". Pure; declared terms; defaults to English. */
+export function verbGloss(paradigm, lang = "eng") {
+  if (!paradigm) return null;
+  const L = GLOSS_TERMS[lang] ?? GLOSS_TERMS.eng;
+  const person = personLabel(paradigm.person, paradigm.number, lang);
+  const gram = [paradigm.tense && L.tense[paradigm.tense], paradigm.mood && L.mood[paradigm.mood], paradigm.voice && L.voice[paradigm.voice]].filter(Boolean).join(" ") || "finite";
+  const num = paradigm.number ? (L.num[paradigm.number] ?? paradigm.number) : "";
+  const ord = L.ord[paradigm.person] ?? "";
+  return `${paradigm.person}${ord} ${L.personWord} ${num}, ${gram} — ${person}`;
+}
+
+/** glossLanguages() — the languages a paradigm gloss can be rendered in
+ * (the declared terms table). Adding a language is adding its terms. */
+export const glossLanguages = () => Object.keys(GLOSS_TERMS);
+
+/** paradigmOf(verbForm, casePrior, opts) — THE FULL VERBAL PARADIGM
+ * (2026-09-17). Measured: the Greek ending carries Person|Number (215/220),
+ * Voice (213/220), Mood (206/220) and Tense (193/220) at decisive shares — a
+ * NATIVE speaker settles all four from the verb itself. Each axis is read
+ * from its own projection with its own confidence floor, each mapped to its
+ * cube cell. Returns { person, number, tense, voice, mood, …cells }. */
+export function paradigmOf(verbForm, casePrior, { minShare = 0.5, minCount = 20, endingLen = 3 } = {}) {
+  if (!casePrior) return null;
+  const ending = strip(verbForm).slice(-endingLen);
+  const read = (table) => {
+    const e = table?.[ending];
+    if (!e?.ranked?.length) return null;
+    const top = e.ranked[0];
+    if (top.share < minShare || top.count < minCount) return null;
+    return top;
+  };
+  const person = read(casePrior.verbPersonalEndings);
+  const voice = read(casePrior.verbVoiceByEnding);
+  const mood = read(casePrior.verbMoodByEnding);
+  const tense = read(casePrior.verbTenseByEnding);
+  if (!person && !voice && !mood && !tense) return null;
+  const [p, num] = person?.key.split("|") ?? [null, null];
+  return {
+    person: p ? Number(p) : null, number: num ?? null,
+    voice: voice?.key ?? null, mood: mood?.key ?? null, tense: tense?.key ?? null,
+    personCell: person?.cell ?? null, voiceCell: voice?.cell ?? null, moodCell: mood?.cell ?? null, tenseCell: tense?.cell ?? null,
+    share: Math.min(person?.share ?? 1, voice?.share ?? 1, mood?.share ?? 1, tense?.share ?? 1),
+    ending,
+  };
 }
 
 /** caseOf(token, casePrior, opts) — the Case|Number of a word from its
