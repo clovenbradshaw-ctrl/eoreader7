@@ -223,14 +223,31 @@ function sandboxDir() {
 
 // Tolerant SSE reader: standard `event:`/`data:` blocks, falling back to bare
 // JSON lines. Resolves events as { type, data }.
+//
+// TEARDOWN RACE (2026-09-17, measured): when the consumer is done (idle seen,
+// terminal chunk yielded) it closes this generator while a `reader.read()`
+// is still in flight; cancelling then rejects the pending read with undici's
+// `TypeError: terminated` — into NOBODY, i.e. an unhandled rejection that
+// kills the whole proxy process. So the loop runs under a `closed` flag the
+// finally sets before cancelling: a rejection after close is the teardown
+// itself, swallowed; a rejection mid-stream (server actually died) still
+// throws to the caller, which retries the draw.
 async function* readSse(res, signal) {
   const reader = res.body.getReader();
   const decoder = new TextDecoder();
   let buf = "";
+  let closed = false;
   try {
     while (true) {
       if (signal?.aborted) throw new Error("cancelled");
-      const { done, value } = await reader.read();
+      let read;
+      try {
+        read = await reader.read();
+      } catch (err) {
+        if (closed) return;
+        throw err;
+      }
+      const { done, value } = read;
       if (done) break;
       buf += decoder.decode(value, { stream: true });
       let idx;
@@ -252,7 +269,8 @@ async function* readSse(res, signal) {
       }
     }
   } finally {
-    try { reader.cancel(); } catch { /* already closed */ }
+    closed = true;
+    try { await reader.cancel(); } catch { /* already closed */ }
   }
 }
 
