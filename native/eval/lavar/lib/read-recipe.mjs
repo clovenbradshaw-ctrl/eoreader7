@@ -35,14 +35,18 @@ const emptyRetrieve = (_fold, evidence) => Object.freeze({
 
 /**
  * readEncounters(encounters, { source, posPrior, giver, canonicalizationFloor,
- * anchoring }) — the core pipeline, from already-loaded encounters.
+ * anchoring, language, roleConfig }) — the core pipeline, from already-loaded
+ * encounters. `language` names the material; `roleConfig` is the ONLY thing
+ * that brings English-SVO online (the language dispatch, relations-language.js
+ * — all cognition reads GFP-shaped until a measured RoleConfig@1 is declared
+ * for the language).
  */
-export async function readEncounters(encounters = [], { source = "text", posPrior = null, giver = "reader:eoreader7", canonicalizationFloor = DEFAULT_CANONICALIZATION_FLOOR, anchoring = DEFAULT_ANCHORING } = {}) {
+export async function readEncounters(encounters = [], { source = "text", posPrior = null, giver = "reader:eoreader7", canonicalizationFloor = DEFAULT_CANONICALIZATION_FLOOR, anchoring = DEFAULT_ANCHORING, language = null, roleConfig = null } = {}) {
   const adapters = {
     revise: (a) => reviseTextFold({ ...a, canonicalizationFloor }),
     retrieve: emptyRetrieve,
   };
-  const perceivers = () => [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior, descriptorAnchoring: anchoring })];
+  const perceivers = () => [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior, descriptorAnchoring: anchoring, language, roleConfig })];
   const reader = createRecursiveReader({ perceivers: perceivers(), adapters });
   for (const enc of encounters) await reader.step(enc);
   const fold = reader.getFold();

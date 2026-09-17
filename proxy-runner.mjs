@@ -1488,7 +1488,17 @@ function createSessionReader() {
     revise: (a) => reviseTextFold({ ...a, canonicalizationFloor: CANONICALIZATION_FLOOR }),
     retrieve: emptyRetrieve,
   };
-  const perceivers = [createCausalTextPerceiver({ minRelationSurfaces: MIN_RELATION_SURFACES, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING, reprojectEvery: Number(process.env.ER7_REPROJECT_EVERY ?? 10) })];
+  // The language dispatch (2026-09-16): all cognition reads GFP-shaped by
+  // default; English-SVO comes online HERE because English ships a measured
+  // RoleConfig@1 (native/priors/role-config-eng.json — UD_English-EWT gold,
+  // never hand-typed). A language with no RoleConfig reads GFP. If the
+  // prior file is missing, `roleConfig` stays null and the reader is GFP —
+  // a typed absence, never a crash.
+  let engRoleConfig = null;
+  try {
+    engRoleConfig = JSON.parse(fs.readFileSync(path.join(HERE, "native/priors/role-config-eng.json"), "utf8"));
+  } catch {}
+  const perceivers = [createCausalTextPerceiver({ minRelationSurfaces: MIN_RELATION_SURFACES, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING, reprojectEvery: Number(process.env.ER7_REPROJECT_EVERY ?? 10), language: "eng", roleConfig: engRoleConfig })];
   return createRecursiveReader({ perceivers, adapters });
 }
 

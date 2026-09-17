@@ -54,6 +54,14 @@ export * as ranke from "./ranke.js";
 export * as notesText from "./notes-text.js";
 export { makeGrammarLens, mismatchedConnectors } from "./grammar-lens.js";
 export * as grammarLens from "./grammar-lens.js";
+// The language dispatch (2026-09-16): all cognition reads GFP-shaped by
+// default; English-SVO (or any positional language with a measured
+// RoleConfig@1) comes online ONLY when the caller declares one for the
+// language. Exported at the seam so the surface and the evals select a
+// reader by language without importing an adapter path directly.
+export { relationExtractorsFor } from "../adapters/text/relations-language.js";
+export { extractGfpRelations, discoverGfpVocabulary } from "../adapters/text/relations-gfp.js";
+export { makeGrainTyper, cellLabelOf, GRAIN_BY_THRAX } from "../adapters/text/grain-typing.js";
 export { stageFromEdges } from "./hl.js";
 export * as hl from "./hl.js";
 export { EVIDENCE_FLOOR, scanFunctionalCandidates, acquireCandidates, recheckCandidates, promoteAndDeclare } from "./hl-acquire.js";
@@ -137,3 +145,9 @@ export * as provenanceOrgan from "./provenance.js";
 // quote an archon's credited work and offer it as an affordance.
 export { ARCHON_COMPENDIUM, ARCHONS, ARCHON_COMPENDIUM_SCHEMA, archonOf, compendium, creditedQuote, matchArchons } from "./archon-compendium.js";
 export * as archonCompendium from "./archon-compendium.js";
+// The what organ (2026-09-16, Cuvier) — reconstructing what a giant code hunk
+// IS from its own structural bytes (module map, vendor stack, feature modules,
+// endpoints, declarations). Pure: imported by the seam exactly as its siblings
+// are; the code adapters it composes (adapters/code/*) import nothing back.
+export { CELL as WHAT_CELL, REFUSALS as WHAT_REFUSALS, whatIsThis } from "./what.js";
+export * as whatOrgan from "./what.js";

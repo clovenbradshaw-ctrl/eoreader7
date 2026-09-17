@@ -7,7 +7,7 @@ import { splitSentences } from "./spans.js";
 import { createSurfaceEvidence, accumulateSurfaceEvidence, surfacesFromEvidence, discoverReferents, diaNorm } from "./surfaces.js";
 import { heardSurfaces } from "../../organs/heard-surfaces.js";
 import { classifyWord, dominantClass } from "./wordclass.js";
-import { discoverRelationVocab, extractRelations } from "./relations.js";
+import { relationExtractorsFor } from "./relations-language.js";
 import { directDescriptorOccurrences, descriptorOccurrence } from "./individuation.js";
 import { createDescriptorAnchoring } from "./anchoring.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
@@ -15,6 +15,17 @@ import { hyperedge } from "../../kernel/hypergraph.js";
 const slug = (value) => diaNorm(value).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const WORD_RE = /[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu;
+
+// GFP figure gate — the received POS prior's function classes (the same set
+// relations-gfp.js uses). A form the treebank says is dominantly a function
+// class is not a figure; absent from the prior, it stays a candidate.
+const FUNCTION_CLASSES = new Set(["ADP", "CCONJ", "SCONJ", "DET", "PRON", "AUX", "PART", "INTJ", "NUM", "PUNCT", "SYM", "X"]);
+const dominantOf = (counts, total) => {
+  if (!total) return null;
+  let best = null, n = -1;
+  for (const [tag, count] of Object.entries(counts)) if (count > n) { n = count; best = tag; }
+  return best;
+};
 
 function surfaceMap(events = []) {
   const map = new Map();
@@ -374,7 +385,7 @@ function witnessRelatedPairs(store, sentences, refs, matcher = null) {
   }
 }
 
-export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 1, reprojectEvery = null, posPrior = null, descriptorAnchoring = null, addresses = "birth", idFactory = null, recipe = null } = {}) {
+export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 1, reprojectEvery = null, posPrior = null, descriptorAnchoring = null, addresses = "birth", idFactory = null, recipe = null, language = null, roleConfig = null } = {}) {
   // `refreshEvery` (2026-09-09): 1 is the default now — batching is an
   // engineering compromise, never a model of how reading works ("people
   // don't read in 25-sentence batches" — user direction, verbatim, the
@@ -428,6 +439,12 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
   if (reprojectEvery != null && (!Number.isInteger(reprojectEvery) || reprojectEvery < 1)) throw new TypeError("reprojectEvery must be a positive integer when declared");
   const reprojectEveryFinal = reprojectEvery ?? refreshEvery;
   if (posPrior && (posPrior.schema !== "POSPrior@1" || !posPrior.provenance?.source)) throw new TypeError("posPrior must be a giver-named POSPrior@1");
+  // THE LANGUAGE DISPATCH (2026-09-16): all cognition reads GFP-shaped by
+  // default; English-SVO (or any positional language with a measured
+  // RoleConfig@1) comes online ONLY when `roleConfig` is declared for the
+  // language (relations-language.js). `language` names the material for the
+  // record; it does not BY ITSELF bring SVO online — only a RoleConfig does.
+  const { mode, discoverRelationVocab, extractRelations } = relationExtractorsFor({ language, roleConfig, posPrior, classifyWord, dominantClass });
   // CONTENT-ADDRESSED IDENTITY (2026-09-13, S114 — the git object model,
   // GitHub-inspired). The perceiver's edge ids were position-derived and
   // source-blind (`edge:text:2:0`): the same id in War and Peace and in
@@ -482,6 +499,26 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     foldedTo = priorSentences.length;
     const table = { freq: runningFreq, total: runningTotal };
     const closed = earnedClosedClass(table);
+    // GFP FIGURES (2026-09-16): recurrence + company from the accumulated
+    // corpus — a figure is a content token heard at least `minRec` times,
+    // never capitalisation-gated (the GFP reader's own rule, relations-gfp.js).
+    // The same received POS prior that gates function classes elsewhere keeps
+    // figures out of the closed class; a missing prior keeps the freq floor.
+    const minFigureRec = 2;
+    const figures = new Set();
+    for (const [w, c] of runningFreq) {
+      const lower = w.toLowerCase();
+      if (c < minFigureRec || lower.length < 3) continue;
+      if (closed.has(lower)) continue;
+      if (posPrior?.forms?.[lower]) {
+        const counts = posPrior.forms[lower];
+        const total = Object.values(counts).reduce((a, b) => a + b, 0);
+        const func = FUNCTION_CLASSES.has(dominantOf(counts, total));
+        if (func) continue;
+      }
+      figures.add(lower);
+    }
+    cache = { ...cache, figures };
     // THE EXPENSIVE RE-PROJECTION RUNS AT A DECLARED CADENCE, NEVER EVERY
     // REFRESH. The accumulation above is incremental (foldedTo); the cast
     // re-derivation — heardSurfaces' full-prefix scan plus discoverReferents'
@@ -536,6 +573,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         functionWords: closed,
         minSurfaces: 1,
         posPrior,
+        figures: cache.figures ?? null,
       });
       mergeRelationEvidence(relationEvidence, relationResult.candidates);
     }
@@ -550,6 +588,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       referents,
       matcher,
       surfaces,
+      figures,
       gaps: discovered?.gaps ?? cache.gaps,
       // THE MERGE RECORD, KEPT (P165). discoverReferents detects when two
       // surface clusters name one being and records it — `merges.push({kept,
@@ -577,7 +616,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       const encounterRef = `encounter:${sequencePosition}`;
       if (priorSentences.length === 0 || priorSentences.length % refreshEvery === 0) refresh();
 
-      const relations = extractRelations(encounter.material, { verbs: cache.verbs, functionWords: cache.closed, phrasalPredicates: true });
+      const relations = extractRelations(encounter.material, { verbs: cache.verbs, functionWords: cache.closed, phrasalPredicates: true, figures: cache.figures ?? cache.verbs });
       // GUID IDENTITY (2026-09-13, S114): a GUID edge id and witness, so
       // the identity is collision-proof across readings. The hyperlexicon's
       // accumulator unions witnesses by id; a position-derived id collided
@@ -594,19 +633,20 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         // a collision to a shared bytes hash. The recipe is declared by the
         // assembly (read-real's `recipe`), so the same clause read under
         // two recipes is two acts.
-        const content = `edge|src:${sourceScope}|rel:${rel.verb}|subj:${rel.subject}|obj:${rel.object}|off:${rel.offset}|recipe:${recipe ?? ""}`;
+        const content = `edge|src:${sourceScope}|rel:${rel.label ?? rel.verb}|end1:${rel.end1 ?? rel.subject}|end2:${rel.end2 ?? rel.object}|off:${rel.offset}|recipe:${recipe ?? ""}`;
         const eid = newId(content);
         const ewit = newId(`${content}|wit`);
+        const grain = rel.grain && !rel.grain.grain_gap ? rel.grain.grain : (rel.grain_gap ? null : "Figure");
         return hyperedge({
           id: eid,
-          relation: rel.verb,
+          relation: rel.label ?? rel.verb,
           participants: [
-            resolveParticipant(rel.subject, cache.matcher, sequencePosition, index, "subject"),
-            resolveParticipant(rel.object, cache.matcher, sequencePosition, index, "object"),
+            resolveParticipant(rel.end1 ?? rel.subject, cache.matcher, sequencePosition, index, "end1"),
+            resolveParticipant(rel.end2 ?? rel.object, cache.matcher, sequencePosition, index, "end2"),
           ],
           witness: ewit,
           scope: { sequencePosition, offset: rel.offset },
-          eo: { op: "CON", grain: "Figure" },
+          eo: { op: rel.grain?.operator ?? "CON", grain: grain ?? "Figure" },
         // compositionStanding: whether this relation FORM is eligible to be
         // carried as portable experience or composed with another relation.
         // experience-priors.js reads exactly this field ("auxiliaries/noise
@@ -619,7 +659,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
         // the treebank says is dominantly AUX (or any non-VERB class) is
         // ineligible; a form ABSENT from the prior stays eligible, the same
         // absent-is-a-gap-not-a-mismatch polarity that gate already holds.
-        meta: { polarity: rel.polarity, source: encounter.source, encounterRef, compositionStanding: relationStanding(rel.verb, posPrior) },
+        meta: { polarity: rel.polarity, source: encounter.source, encounterRef, compositionStanding: relationStanding(rel.label ?? rel.verb, posPrior) },
         });
       });
 
