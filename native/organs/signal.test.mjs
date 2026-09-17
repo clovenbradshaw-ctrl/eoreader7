@@ -4,7 +4,7 @@
 // would carry none of the walls being tested.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { findSignal, phrase, scramble, REQUIRED } from "./index.js";
+import { findSignal, mechanismOf, phrase, scramble, REQUIRED } from "./index.js";
 import { discoverCompanyKinds } from "./index.js";
 
 const NUMBERS = { draws: 60, seed: 3, alpha: 0.05, minMentions: 6, minShare: 0.4, minMembers: 2 };
@@ -118,12 +118,56 @@ test("scramble keeps marginals exactly and destroys order", () => {
   assert.notEqual(after[0].text, before[0].text, "different order");
 });
 
-test("phrase() never phrases a verdict — only counts, ceilings and limits", async () => {
-  const r = await findSignal([{ ref: "a", material: 2 }, { ref: "b", material: 900 }], {
+test("phrase() never phrases a verdict — only counts, ceilings and limits", async () => {  const r = await findSignal([{ ref: "a", material: 2 }, { ref: "b", material: 900 }], {
     ...base, vocabulary: VOCAB,
     instruments: [{ recipe: "x", discretize: (m) => planted(40, m) }, { recipe: "y", discretize: (m) => planted(40, m + 5) }],
   });
   const said = phrase(r);
   assert.match(said, /search-aware ceiling/);
   assert.ok(!/\b(true|proves|confirms|real)\b/i.test(said), `no verdict language: ${said}`);
+});
+
+test("SHAM INDEPENDENCE: two recipes running one decoder are one instrument, never corroborated", async () => {
+  // the falsification: the same discretize function offered under two names.
+  // mechanismOf fingerprints the source, so the two recipes collapse to one
+  // mechanism by construction — no caller honesty required.
+  const same = (m) => planted(40, m);
+  const instruments = [
+    { recipe: "tracker-v1", discretize: same },
+    { recipe: "tracker-v2", discretize: same },
+  ];
+  assert.equal(mechanismOf(instruments[0]), mechanismOf(instruments[1]), "identical source, one mechanism");
+  const r = await findSignal([{ ref: "run-a", material: 2 }, { ref: "run-b", material: 700 }],
+    { ...base, instruments, vocabulary: VOCAB });
+  const found = r.findings.filter((f) => f.kind === "kind:before=zub");
+  assert.ok(found.length >= 1, "the kind is still found");
+  assert.ok(found.every((f) => !f.corroborated), "two names for one decoder are NOT corroborated");
+  assert.ok(found.every((f) => f.mechanisms.length === 1), "one mechanism carried");
+  assert.match(found[0].note, /one instrument only/);
+  assert.match(found[0].note, /2 recipes, one mechanism/, "the sham is named, not just refused");
+});
+
+test("an explicit mechanism declaration is kept verbatim and decides corroboration", async () => {
+  const a = { recipe: "cut-a", mechanism: "decoder-x", discretize: (m) => planted(40, m) };
+  const b = { recipe: "cut-b", mechanism: "decoder-x", discretize: (m) => planted(40, m + 5) };
+  assert.equal(mechanismOf(a), "decoder-x", "explicit declaration wins over the fingerprint");
+  const r = await findSignal([{ ref: "run-a", material: 2 }, { ref: "run-b", material: 700 }],
+    { ...base, instruments: [a, b], vocabulary: VOCAB });
+  const found = r.findings.filter((f) => f.kind === "kind:before=zub");
+  assert.ok(found.length >= 1, "the kind is still found");
+  assert.ok(found.every((f) => !f.corroborated), "a confessed-shared decoder does not corroborate");
+});
+
+test("a declared frame rides every finding and the result; absent, the result says unframed", async () => {
+  const instruments = [
+    { recipe: "cut-a", discretize: (m) => planted(40, m) },
+    { recipe: "cut-b", discretize: (m) => planted(40, m + 5) },
+  ];
+  const src = [{ ref: "run-a", material: 2 }, { ref: "run-b", material: 900 }];
+  const framed = await findSignal(src, { ...base, instruments, vocabulary: VOCAB, frame: { id: "frame:abc123" } });
+  assert.equal(framed.frame, "frame:abc123");
+  assert.ok(framed.findings.length >= 1);
+  assert.ok(framed.findings.every((f) => f.frame === "frame:abc123"), "every finding carries its view");
+  const unframed = await findSignal(src, { ...base, instruments, vocabulary: VOCAB });
+  assert.equal(unframed.frame, null, "absent frame is stated, never invented");
 });

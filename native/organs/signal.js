@@ -52,6 +52,16 @@
 // MEDIUM-BLIND BY CONSTRUCTION: material is opaque — only the caller's
 // instruments ever look inside it. Nothing here parses, tokenizes, folds
 // case, or knows what a word is.
+//
+// A VIEW FROM SOMEWHERE (frame + mechanism identity). A finding is only a
+// finding relative to the views that produced it, so two things ride every
+// result: (1) an optional declared `frame` ({ id }) — stamped onto every
+// finding and the result itself, so a verdict carries the ground it was
+// computed on (frame.js); an unframed result carries `frame: null` and
+// joins no cross-frame comparison. (2) MECHANISM identity, never recipe
+// names: `corroborated` counts distinct MECHANISMS, not distinct recipe
+// strings — two names for one decoder are one reading, caught here by
+// construction rather than by the caller's honesty (see mechanismOf).
 
 /** Every parameter this organ will not default. P4/P9: numbers are declared. */
 export const REQUIRED = Object.freeze(["draws", "seed", "alpha", "minMentions", "minShare", "minMembers"]);
@@ -66,6 +76,29 @@ export const REFUSALS = Object.freeze({
 
 const lcg = (seed) => { let s = seed >>> 0; return () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff); };
 
+/**
+ * mechanismOf(inst) — which decoder this instrument IS, as opposed to what
+ * it is CALLED. An explicit non-empty `inst.mechanism` string always wins
+ * (the caller confessing sameness across recipes, or distinctness across
+ * shared code, is a statement this organ keeps verbatim). Otherwise the
+ * fingerprint is the discretize function's own source text (FNV-1a, 8 hex
+ * chars): two recipes running byte-identical code are one mechanism even
+ * when their names differ — the sham-independence case, caught without
+ * requiring the caller's honesty.
+ *
+ * Disclosed limit: this is exact-source identity, not semantic equivalence.
+ * An alpha-renamed copy (`x=>x` vs `y=>y`) or a retyped equivalent escapes
+ * it. What it closes is the cheap, common case — the same function
+ * reference or the same source offered under two names.
+ */
+export function mechanismOf(inst) {
+  if (inst && typeof inst.mechanism === "string" && inst.mechanism.length) return inst.mechanism;
+  const src = String(inst?.discretize ?? "");
+  let h = 0x811c9dc5;
+  for (let i = 0; i < src.length; i++) { h ^= src.charCodeAt(i); h = Math.imul(h, 0x01000193); }
+  return `fn:${(h >>> 0).toString(16).padStart(8, "0")}`;
+}
+
 /** Destroy company, keep marginals: the one perturbation this organ spends. */
 export function scramble(events, rnd) {
   return events.map((e) => {
@@ -79,41 +112,54 @@ export function scramble(events, rnd) {
  * findSignal(sources, { instruments, vocabulary, discoverKinds, ...numbers })
  *
  * `sources`     [{ ref, material }]      — material is opaque to this organ
- * `instruments` [{ recipe, discretize }] — discretize(material) -> [{text}]
+ * `instruments` [{ recipe, discretize, mechanism? }] — discretize(material)
+ *               -> [{text}]. `recipe` is the display name; `mechanism` is an
+ *               optional caller-declared identity of the decoder itself.
+ *               Corroboration counts MECHANISMS (mechanismOf: explicit
+ *               `mechanism` wins, else the discretize source fingerprint),
+ *               so two recipes running one decoder never corroborate.
  * `vocabulary`  the symbols worth asking about (the caller's declaration of
  *               what could possibly be an event kind — never inferred here,
  *               because inferring it from the data is a second search)
  * `discoverKinds` the discovery organ (kind-standing.js::discoverCompanyKinds)
+ * `frame`       optional declared view ({ id }, frame.js::declareFrame) —
+ *               stamped onto every finding and the result. Absent: the
+ *               result carries `frame: null` (unframed, joins no comparison).
  *
- * Returns { findings, tried, searchCeiling, control, gaps } — never a bare
- * list. A finding carries its sources, its instruments, its share, and the
- * search-aware ceiling it had to beat.
+ * Returns { findings, tried, searchCeiling, control, gaps, frame } — never
+ * a bare list. A finding carries its sources, its instruments (recipes),
+ * its mechanisms, its share, the search-aware ceiling it had to beat, and
+ * the frame it was computed under.
  */
 export async function findSignal(sources, {
   instruments, vocabulary, discoverKinds,
   draws, seed, alpha, minMentions, minShare, minMembers,
-  clean = null, onProgress = null,
+  clean = null, onProgress = null, frame = null,
 } = {}) {
   if (typeof discoverKinds !== "function") throw new TypeError("findSignal: discoverKinds is injected — required, never defaulted");
-  if (!Array.isArray(sources) || !sources.length) return { refused: "no_sources", detail: REFUSALS.no_sources };
-  if (!Array.isArray(instruments) || !instruments.length) return { refused: "no_instruments", detail: REFUSALS.no_instruments };
+  if (!Array.isArray(sources) || !sources.length) return { refused: "no_sources", detail: REFUSALS.no_sources, frame: frame?.id ?? null };
+  if (!Array.isArray(instruments) || !instruments.length) return { refused: "no_instruments", detail: REFUSALS.no_instruments, frame: frame?.id ?? null };
   for (const k of REQUIRED) if (!Number.isFinite({ draws, seed, alpha, minMentions, minShare, minMembers }[k]))
-    return { refused: "undeclared", what: k, detail: REFUSALS.undeclared };
+    return { refused: "undeclared", what: k, detail: REFUSALS.undeclared, frame: frame?.id ?? null };
+  const frameId = frame?.id ?? null;
 
   const floors = { minMentions, minShare, minMembers, ...(clean ? { clean } : {}) };
   const gaps = [];
 
   // 1. every (source, instrument) pair becomes a stream, once.
+  // The stream carries BOTH the recipe (display name) and the mechanism
+  // (what the decoder is) — corroboration reads the second, gaps name the
+  // first.
   const streams = [];
   for (const src of sources) for (const inst of instruments) {
     let events = [];
     try { events = inst.discretize(src.material) ?? []; }
     catch (err) { gaps.push({ type: "instrument_threw", ref: src.ref, recipe: inst.recipe, detail: String(err?.message ?? err) }); continue; }
     if (!events.length) { gaps.push({ type: "no_events", ref: src.ref, recipe: inst.recipe }); continue; }
-    streams.push({ ref: src.ref, recipe: inst.recipe, events });
+    streams.push({ ref: src.ref, recipe: inst.recipe, mechanism: mechanismOf(inst), events });
     onProgress?.({ step: "discretized", ref: src.ref, recipe: inst.recipe, events: events.length });
   }
-  if (!streams.length) return { refused: "no_events", detail: REFUSALS.no_events, gaps };
+  if (!streams.length) return { refused: "no_events", detail: REFUSALS.no_events, gaps, frame: frameId };
 
   // 2. THE SEARCH-AWARE NULL, computed BEFORE anything is believed.
   // Per draw: scramble every stream, discover the best share each word
@@ -136,16 +182,17 @@ export async function findSignal(sources, {
   const searchCeiling = maxima[idx];
 
   // 3. the observed search, same organ, same floors.
-  const observed = new Map(); // `${word}|${signature}` -> {shares, refs, recipes}
+  const observed = new Map(); // `${word}|${signature}` -> {shares, refs, recipes, mechanisms}
   for (const st of streams) {
     for (const kind of discoverKinds(st.events, vocabulary, floors)) {
       for (const [word, share] of kind.share) {
         const key = `${word}|${kind.signature}`;
-        if (!observed.has(key)) observed.set(key, { word, signature: kind.signature, shares: [], refs: new Set(), recipes: new Set() });
+        if (!observed.has(key)) observed.set(key, { word, signature: kind.signature, shares: [], refs: new Set(), recipes: new Set(), mechanisms: new Set() });
         const rec = observed.get(key);
         rec.shares.push(share);
         rec.refs.add(st.ref);
         rec.recipes.add(st.recipe);
+        rec.mechanisms.add(st.mechanism);
       }
     }
   }
@@ -161,10 +208,14 @@ export async function findSignal(sources, {
   }
 
   // 5. what beat the search-aware ceiling, with both counts kept apart.
+  // Corroboration counts MECHANISMS, never recipe names: two recipes
+  // running one decoder are one instrument, and say so in the note.
   const findings = [];
   for (const rec of observed.values()) {
     const share = Math.max(...rec.shares);
     if (!(share > searchCeiling)) continue;
+    const mechN = rec.mechanisms.size;
+    const sham = rec.recipes.size > mechN;
     findings.push({
       subject: rec.word,
       kind: `kind:${rec.signature}`,
@@ -172,15 +223,17 @@ export async function findSignal(sources, {
       searchCeiling,
       sources: [...rec.refs],
       instruments: [...rec.recipes],
-      corroborated: rec.refs.size >= 2 && rec.recipes.size >= 2,
-      note: rec.refs.size < 2 ? "one source only" : rec.recipes.size < 2 ? "one instrument only — a systematic error of that instrument is invisible here" : null,
+      mechanisms: [...rec.mechanisms],
+      frame: frameId,
+      corroborated: rec.refs.size >= 2 && mechN >= 2,
+      note: rec.refs.size < 2 ? "one source only" : mechN < 2 ? `one instrument only — a systematic error of that instrument is invisible here${sham ? ` (${rec.recipes.size} recipes, one mechanism)` : ""}` : null,
     });
   }
   findings.sort((a, b) => b.share - a.share || a.subject.localeCompare(b.subject));
 
   const control = { survivors: controlSurvivors, passed: controlSurvivors === 0 };
-  if (!control.passed) return { refused: "control_survived", detail: REFUSALS.control_survived, control, searchCeiling, tried: streams.length, gaps };
-  return { findings, tried: streams.length, instrumentsTried: instruments.length, sourcesTried: sources.length, searchCeiling, control, gaps };
+  if (!control.passed) return { refused: "control_survived", detail: REFUSALS.control_survived, control, searchCeiling, tried: streams.length, gaps, frame: frameId };
+  return { findings, tried: streams.length, instrumentsTried: instruments.length, sourcesTried: sources.length, searchCeiling, control, gaps, frame: frameId };
 }
 
 /** A one-line honest reading of a result — counts and limits, never a verdict. */
