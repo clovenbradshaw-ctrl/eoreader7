@@ -335,6 +335,32 @@ export function greekClauses(sentText, verbs, posPrior, casePrior, { beings = []
   return out;
 }
 
+/** correlatives(sentText) — THE MASTERS-LEVEL TIER (2026-09-17). Beyond
+ * grammar to ARGUMENT: Greek philosophical prose is built on the μέν/δέ
+ * correlative — "on the one hand… on the other hand". The Enchiridion's
+ * thesis is one: "τὰ μὲν ἐστιν ἐφ' ἡμῖν, τὰ δὲ οὐκ ἐφ' ἡμῖν" (some things
+ * are up to us, others are not). For each δέ in the sentence, the reader
+ * names the LEFT half (the μέν-side, with or without the explicit μέν) and
+ * the RIGHT half (the δέ-side) — the contrastive architecture of the claim.
+ * Pure. */
+export function correlatives(sentText) {
+  const text = String(sentText ?? "");
+  const toks = tokenize(text);
+  const out = [];
+  for (let i = 0; i < toks.length; i += 1) {
+    // MATCH ON THE STRIPPED FORM: δέ's accent is not one codepoint (tonos
+    // 0x3AD and varia 0x1F72 render identically); the elided δ' is included.
+    const w = strip(toks[i].w);
+    if (w !== "δε" && w !== "δ") continue;
+    const left = text.slice(0, toks[i].start).trim();
+    const right = text.slice(toks[i].end).trim().replace(/^[,.··;:\s]+/, "").replace(/[,;:··\s]+$/, "");
+    if (left.length >= 2 && right.length >= 2) {
+      out.push({ left, right, leftHasMen: strip(left).includes("μεν"), at: [toks[i].start, toks[i].end] });
+    }
+  }
+  return out;
+}
+
 /** prodropClauses(sentText, verbs, prior) — the clauses the positional gate
  * refused: every earned verb, its case-marked nominal object after it (or
  * none), with the object's byte address. Pure; testable. */

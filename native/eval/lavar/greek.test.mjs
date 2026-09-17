@@ -4,7 +4,7 @@
 // word order; the seam recovers the clause and the gate refuses the garbage.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { prodropClauses, confirmedVerbSet, confirmGreekVerbs, nominalClass, greekBeings, personOf, personLabel, caseOf, greekClauses, beingRefOf, paradigmOf, verbGloss, glossLanguages } from "./greek.mjs";
+import { prodropClauses, confirmedVerbSet, confirmGreekVerbs, nominalClass, greekBeings, personOf, personLabel, caseOf, greekClauses, beingRefOf, paradigmOf, verbGloss, glossLanguages, correlatives } from "./greek.mjs";
 
 const grcPrior = {
   forms: {
@@ -217,4 +217,14 @@ test("greekClauses leaves the subject null for a pro-drop clause — the seam's 
   assert.equal(clauses.length, 1);
   assert.equal(clauses[0].subject, null);
   assert.equal(clauses[0].verb, "γίνεται");
+});
+
+test("correlatives names the argument's two halves — the masters-level architecture", () => {
+  const pairs = correlatives("τὰ μὲν ἐστιν ἐφ' ἡμῖν, τὰ δὲ οὐκ ἐφ' ἡμῖν.");
+  assert.equal(pairs.length, 1);
+  assert.equal(pairs[0].leftHasMen, true);
+  assert.ok(pairs[0].left.includes("τὰ μὲν"), "the LEFT is the μέν-side");
+  assert.ok(pairs[0].right.startsWith("οὐκ"), "the RIGHT is the δέ-side: not up to us");
+  assert.equal(correlatives("οὐδὲν γὰρ").length, 0, "no δέ, no correlative");
+  assert.equal(correlatives("τὸ δὲ").length, 0, "a δέ without both halves is not a correlative");
 });

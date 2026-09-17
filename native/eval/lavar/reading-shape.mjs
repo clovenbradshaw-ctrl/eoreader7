@@ -21,6 +21,7 @@ export function shapeOf(ledgerPath, bookPath) {
   const lines = fs.readFileSync(ledgerPath, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
   const props = lines.filter((l) => l.role === "proposition" && l.schema === "EOTObservation@1" && l.end1);
   const prodrop = lines.filter((l) => l.role === "proposition" && l.schema === "EOTProdrop@1" && l.object);
+  const correlatives = lines.filter((l) => l.schema === "EOTCorrelative@1");
   const sentences = lines.filter((l) => l.role === "sentence" && Array.isArray(l.at));
   const voids = lines.filter((l) => l.role === "void");
 
@@ -64,6 +65,9 @@ export function shapeOf(ledgerPath, bookPath) {
     sentences: sentences.length,
     emitted: props.length + prodrop.length,
     prodrop: prodrop.length,
+    // MASTERS AXIS (2026-09-17): the argument's correlative architecture
+    // (μέν/δέ halves). Measured, disclosed — not yet folded into fitness.
+    correlatives: correlatives.length,
     perSentence: sentences.length ? (props.length + prodrop.length) / sentences.length : 0,
     // ── THE HOLOGRAPH ITSELF (2026-09-12): the reading's own internal
     // findings are the error-correction signal — the record already names

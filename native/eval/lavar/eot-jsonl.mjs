@@ -59,7 +59,7 @@ import { bindNarrationFrames, pronounResolver } from "../../adapters/text/perspe
 import { boundAnchorSpans } from "../../adapters/text/vocabulary.js";
 import * as cube from "../../kernel/cube.js";
 import { makeGrainTyper } from "./grain-typing.mjs";
-import { prodropClauses, confirmGreekVerbs, greekBeings, personOf, personLabel, greekClauses, paradigmOf, verbGloss } from "./greek.mjs";
+import { prodropClauses, confirmGreekVerbs, greekBeings, personOf, personLabel, greekClauses, paradigmOf, verbGloss, correlatives } from "./greek.mjs";
 import { receivedGround, applyDelta } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
 import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
@@ -970,6 +970,21 @@ function readClause(subject, objText, objStart, depth, subjectRef = null) {
 }
 
 for (const sent of sentences) {
+  // THE MASTERS-LEVEL TIER (2026-09-17): beyond grammar to ARGUMENT. Greek
+  // philosophical prose is built on the μέν/δέ correlative (on-the-one-hand /
+  // on-the-other-hand); the Enchiridion's thesis is one. The reader names the
+  // two halves — the claim's contrastive architecture — as its own line.
+  if (GREEK) {
+    for (const c of correlatives(sent.text)) {
+      emit({
+        schema: "EOTCorrelative@1", id: id("co"), at: rawAt(sent.offset + c.at[0], sent.offset + c.at[1]),
+        role: "argument",
+        left: c.left, right: c.right, leftHasMen: c.leftHasMen,
+        relation: "μέν/δέ — on-the-one-hand / on-the-other-hand",
+        disclosure: "the correlative's two halves are the argument's contrastive architecture; the LEFT is the μέν-side, the RIGHT the δέ-side",
+      });
+    }
+  }
   // GREEK POSITIONAL SUPPRESSION (2026-09-17). S40, measured: the positional
   // subject-verb-object pattern breaks on case-marked free-word-order Greek.
   // With the 15k-verb Greek prior online, the positional extractor fires on
