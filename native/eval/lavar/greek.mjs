@@ -23,6 +23,8 @@
 // inflected noun for being un-attested would re-introduce the very deafness
 // this file exists to close. Boundaries are conservative, never greedy.
 
+import { stripDiacritics as strip, groupByStem, refOf } from "../../adapters/text/stem-identity.js";
+
 const TOKEN = /[\p{L}\p{N}’']+|[.,;:!?—–()«»“”]/gu;
 const NOMINAL = new Set(["NOUN", "PROPN", "ADJ", "PRON", "DET", "NUM"]);
 // The clause reader's nominal set excludes DET — the article is a case probe,
@@ -43,10 +45,11 @@ const tokenize = (text) => {
   return out;
 };
 
-/** stripDiacritics — NFD + drop combining marks. Greek ACCENTS MOVE between
- * cases (θά-να-τος → θα-νά-του): a stem comparison on raw letters sees the
- * shifted accent as a different word. The stem is the unaccented skeleton. */
-const strip = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+// stripDiacritics is the shared adapters/text/stem-identity.js primitive
+// (imported above as `strip`), not re-derived here — Greek ACCENTS MOVE
+// between cases (θά-να-τος → θα-νά-του), the exact reason that module's own
+// stem comparison exists. Re-exported under greek.mjs's own established
+// name for backward compatibility with any existing caller.
 export { strip as stripDiacritics };
 
 /** confirmedVerbSet(prior, share) — every form the received POSPrior@1
@@ -82,16 +85,81 @@ export function nominalClass(form, prior) {
   return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
 }
 
-/** greekBeings(chapterText, prior, { minOccurrences }) — THE ABSTRACT-BEING
- * TIER (2026-09-17). Ancient Greek prose is populated by article-marked
- * nominal phrases, not capitalised proper nouns: a being is a recurring
- * ARTICLE + NOMINAL-HEAD chunk (the head typed by the received POS prior),
- * its cased variants grouped by STEM (longest-common-prefix >= 5, at least
- * half the longer form). "ὁ κυβερνήτης" and "τῷ κυβερνήτῃ" are one being
- * (the helmsman) because their stems agree. Identity by consequence, made
- * morphological. Mechanical: the prior classifies, the article cases, the
- * stem groups — nobody types a being. */
-export function greekBeings(chapterText, prior, { minOccurrences = 2 } = {}) {
+// A capitalised token, Unicode-general (not a Latin-only [A-Z] check) — the
+// SAME shape surfaces.js's own CAP_TOKEN uses for English, applied here to a
+// different script for a reason that had to be MEASURED, not assumed: see
+// bareBeingCandidates's own header below for why no sentence-initial
+// exclusion is carried over from that English precedent.
+const CAP = /^[\p{Lu}][\p{L}ʼ’]*$/u;
+
+/** bareBeingCandidates(toks, prior) — internal collector for THE BARE-NAME
+ * TIER (2026-09-17, closing the gap CLAUDE.md's own session record names:
+ * "greekBeings's article-gated referent-identity mechanism does not find
+ * recurring beings on Homeric epic verse"). Two measured, disclosed facts
+ * license this, neither assumed:
+ *
+ * 1. Homeric proper names are largely ABSENT from a Koine/Attic-trained
+ *    POS prior's own vocabulary (checked directly: zero of six tested
+ *    Iliad character names — Ἀχιλλεύς, Ὀδυσσεύς, Ἀγαμέμνων, Ἕκτωρ — are
+ *    attested in the real GreekPOSPrior@1 at all), and the article-marked
+ *    tier above already measures zero beings across the whole corpus —
+ *    two of its own gates (article adjacency, prior attestation) both
+ *    structurally cannot fire on this material's own proper-name
+ *    vocabulary.
+ * 2. What the real fetched Perseus edition's own orthography DOES carry:
+ *    capitalisation reserved for proper names, not sentence-initial
+ *    position — MEASURED on 200,000 characters of the real Iliad text,
+ *    sentence-initial capitalisation (8.9%, 84/941) is indistinguishable
+ *    from the OVERALL word capitalisation rate (9.4%, 3049/32281).
+ *    English's near-100%-at-sentence-start confound (the reason
+ *    surfaces.js's own CAP_TOKEN callers exclude sentence-initial
+ *    position) simply does not exist in this edition's convention — so
+ *    no sentence-initial exclusion is carried over.
+ *
+ * A candidate is admitted when the prior is SILENT on the token (the exact
+ * class of tolerance greekClauses's own object-run already extends to
+ * unattested inflected nominals, applied here to unattested proper names)
+ * or when the prior confidently classifies it as NOMINAL; a token the
+ * prior confidently classifies as non-nominal (a capitalised conjunction,
+ * a capitalised verb at a real sentence start) is refused either way.
+ * Capitalisation only nominates a candidate — recurrence
+ * (minOccurrences) and the SAME stem-grouping mechanism the article tier
+ * already uses still do the actual identity work. A token immediately
+ * preceded by an article is skipped here (already counted by the tier
+ * above; counting it twice would inflate one true occurrence into two). */
+function bareBeingCandidates(toks, prior) {
+  const out = [];
+  for (let i = 0; i < toks.length; i += 1) {
+    const t = toks[i];
+    if (t.punct || !CAP.test(t.raw)) continue;
+    let p = i - 1;
+    while (p >= 0 && toks[p].punct) p -= 1;
+    if (p >= 0 && ARTICLES.has(toks[p].w)) continue; // already counted by the article tier
+    const cls = nominalClass(t.w, prior);
+    if (cls && !NOMINAL.has(cls)) continue; // prior confidently says non-nominal
+    out.push({ art: null, head: t.raw, headLower: t.w, at: [t.start, t.end] });
+  }
+  return out;
+}
+
+/** greekBeings(chapterText, prior, { minOccurrences, includeBare }) — THE
+ * ABSTRACT-BEING TIER (2026-09-17). Ancient Greek prose is populated by
+ * article-marked nominal phrases, not capitalised proper nouns: a being is
+ * a recurring ARTICLE + NOMINAL-HEAD chunk (the head typed by the received
+ * POS prior), its cased variants grouped by STEM (longest-common-prefix >=
+ * 5, at least half the longer form). "ὁ κυβερνήτης" and "τῷ κυβερνήτῃ" are
+ * one being (the helmsman) because their stems agree. Identity by
+ * consequence, made morphological. Mechanical: the prior classifies, the
+ * article cases, the stem groups — nobody types a being.
+ *
+ * includeBare (default false, so every existing caller is byte-identical):
+ * also folds bareBeingCandidates's own recurring capitalised tokens into
+ * the SAME stem groups, so a being found once articled and once bare (the
+ * ordinary Homeric pattern — a name alternates by metrical convenience)
+ * merges into one being with a combined occurrence count, rather than two
+ * separate, under-corroborated fragments. A being's `bare` field discloses
+ * whether every one of its occurrences came from the bare tier alone. */
+export function greekBeings(chapterText, prior, { minOccurrences = 2, includeBare = false } = {}) {
   const toks = tokenize(chapterText);
   const phrases = [];
   for (let i = 0; i < toks.length; i += 1) {
@@ -103,30 +171,17 @@ export function greekBeings(chapterText, prior, { minOccurrences = 2 } = {}) {
     if (!cls || !NOMINAL.has(cls)) continue;
     phrases.push({ art: toks[i].raw, head: toks[j].raw, headLower: toks[j].w, at: [toks[j].start, toks[j].end] });
   }
-  const stems = new Map(); // stem -> phrases
-  const assign = (ph) => {
-    const b = strip(ph.headLower);
-    for (const [stem, grp] of stems) {
-      const a = strip(stem);
-      const len = Math.min(a.length, b.length);
-      let lcp = 0;
-      while (lcp < len && a[lcp] === b[lcp]) lcp += 1;
-      if (lcp >= 5 && lcp / Math.max(a.length, b.length) >= 0.5) { grp.push(ph); return; }
-    }
-    stems.set(ph.headLower, [ph]);
-  };
-  for (const ph of phrases) assign(ph);
-  const out = [];
-  for (const [stem, grp] of stems) {
-    if (grp.length < minOccurrences) continue;
-    out.push({
-      stem,
-      surfaces: [...new Set(grp.map((g) => `${g.art} ${g.head}`))],
-      occurrences: grp.length,
-      at: grp[0].at,
-    });
-  }
-  return out.sort((a, b) => b.occurrences - a.occurrences);
+  if (includeBare) phrases.push(...bareBeingCandidates(toks, prior));
+  // The stem-grouping itself is the shared, language-agnostic primitive
+  // (adapters/text/stem-identity.js::groupByStem) — Greek supplies only
+  // the candidate phrases and, per group, its own surfaces/bare fields.
+  return groupByStem(phrases, { minOccurrences }).map((g) => ({
+    stem: g.stem,
+    surfaces: [...new Set(g.members.map((m) => (m.art ? `${m.art} ${m.head}` : m.head)))],
+    occurrences: g.occurrences,
+    at: g.at,
+    bare: g.members.every((m) => !m.art),
+  }));
 }
 
 /** personOf(verbForm, casePrior, opts) — THE PERSON TIER (2026-09-17). The
@@ -263,19 +318,15 @@ export function caseOf(token, casePrior, { minShare = 0.5, minCount = 10, ending
   return { case: Case, number, share: top.share, count: top.count, ending, cell: top.cell ?? null };
 }
 
-/** beingRefOf(headLower, beingsByStem) — bind a clause end to a tier-1 being
- * by stem recurrence (identity by consequence, made morphological): the head
- * and a being's stem share a prefix >= 5, at least half the longer form. */
+/** beingRefOf(headLower, beingsByStem) — bind a clause end to a tier-1
+ * being by the SAME stem comparison greekBeings itself used to discover
+ * it (adapters/text/stem-identity.js::refOf) — a discovery pass and a
+ * binding pass can never disagree about what counts as the same stem,
+ * because both call that one shared function. Greek's own referent
+ * namespace ("grc") is fixed here, never a caller-supplied parameter —
+ * this function IS the Greek adapter's binder. */
 export function beingRefOf(headLower, beingsByStem) {
-  const b = strip(headLower);
-  for (const [stem, _b] of beingsByStem) {
-    const a = strip(stem);
-    const len = Math.min(a.length, b.length);
-    let lcp = 0;
-    while (lcp < len && a[lcp] === b[lcp]) lcp += 1;
-    if (lcp >= 5 && lcp / Math.max(a.length, b.length) >= 0.5) return `ref:grc:auto:${stem}`;
-  }
-  return null;
+  return refOf(headLower, beingsByStem.keys(), { lang: "grc" });
 }
 
 /** greekClauses(sentText, verbs, posPrior, casePrior, { beings }) — THE
@@ -306,11 +357,41 @@ export function greekClauses(sentText, verbs, posPrior, casePrior, { beings = []
       // Greek predicate nominatives (the copula-thesis complement) are often
       // bare — "ὁ θάνατος ἐστίν φόβος" has no article on φόβος. The DET
       // itself is never collected (the article is a case probe, not a being).
+      //
+      // PRIOR SILENCE DOES NOT VETO A CASE READING (2026-09-17). A token the
+      // POS prior confidently classifies as non-nominal is still refused
+      // outright (cls && !CLAUSE_NOMINAL.has(cls)) — the prior's veto holds.
+      // But an UNATTESTED token (cls === null) is admitted when caseOf can
+      // settle its case from the ending alone — caseOf carries its OWN
+      // confidence floor (minShare/minCount) and needs no POS attestation to
+      // fire, so refusing it here for a DIFFERENT resource's silence was a
+      // narrower gate than either signal on its own requires. Measured
+      // reason: two different resources (a Koine/Attic-trained POS prior, a
+      // UD_Ancient_Greek-Perseus case prior) do not share one vocabulary —
+      // most Homeric proper names and many inflected common nouns are
+      // unattested in the POS prior specifically, and this gate was
+      // discarding every one of them before caseOf's own reading was ever
+      // consulted. A token with NEITHER signal (cls null AND no case) is
+      // still refused — there is nothing to go on either way.
+      //
+      // THE ARTICLE ITSELF MUST NOT SLIP THROUGH ON PRIOR SILENCE (found
+      // the moment the above widening shipped — an existing test regressed
+      // in the SAME pass that added it, caught before either landed). A
+      // Greek article declines to agree with its noun's own case, so its
+      // ENDING legitimately reads as a real case (τὸν ends -ον, the exact
+      // shape of a real accusative noun) — caseOf cannot and should not try
+      // to tell the two apart. When the token happens to be unattested in
+      // ONE particular POS prior instance, the widening above would have
+      // admitted the article itself as a nominal. ARTICLES is already this
+      // file's own closed, received, prior-independent list (used above by
+      // greekBeings) — checked first, unconditionally, before either signal.
       const nominals = [];
       for (let i = 0; i < seg.length; i += 1) {
+        if (ARTICLES.has(seg[i].w)) continue;
         const cls = nominalClass(seg[i].w, posPrior);
-        if (!cls || !CLAUSE_NOMINAL.has(cls)) continue;
+        if (cls && !CLAUSE_NOMINAL.has(cls)) continue;
         const c = caseOf(seg[i].w, casePrior, { minShare, minCount });
+        if (!cls && !c) continue;
         nominals.push({ head: seg[i].raw, headLower: seg[i].w, at: [seg[i].start, seg[i].end], case: c?.case ?? null, cell: c?.cell ?? null });
       }
       const nom = nominals.filter((n) => n.case === "Nom");
@@ -319,7 +400,18 @@ export function greekClauses(sentText, verbs, posPrior, casePrior, { beings = []
       const subject = nom.length ? nom[0] : null;
       let object = acc.length ? acc[0] : (gen.length ? gen[0] : null);
       if (!object) {
-        const after = nominals.filter((n) => n.at[0] > v.end);
+        // The predicate nominative must be a SECOND, DISTINCT nominal from
+        // the subject (n !== subject, an identity check on the object,
+        // never a value comparison — two textually-identical nominatives
+        // are two real occurrences and both may stand). Without this
+        // exclusion, a clause with only ONE nominative candidate re-selects
+        // its own subject as the "complement" ("X is X") — a real bug
+        // found 2026-09-17 the moment Homeric text (bare proper names, no
+        // article, often exactly one case-marked nominal per clause) first
+        // exercised this path; the earlier copula-thesis test never
+        // triggered it because its fixture always has two distinct Nom
+        // tokens (θάνατος, φόβος).
+        const after = nominals.filter((n) => n.at[0] > v.end && n !== subject);
         const predNom = after.find((n) => n.case === "Nom");
         if (predNom) object = predNom;
       }

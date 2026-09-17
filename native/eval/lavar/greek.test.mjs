@@ -104,6 +104,51 @@ test("greekBeings skips non-nominal heads — a verb under the article is not a 
   assert.equal(greekBeings(text, prior).length, 0);
 });
 
+// THE BARE-NAME TIER (2026-09-17) — closes the measured gap CLAUDE.md's own
+// session record names: Homeric proper names are largely unattested in a
+// Koine/Attic-trained prior and rarely article-marked, so the tier above
+// finds zero beings on real Homeric text (see greekEntries/archon-priors.mjs
+// for the full corpus-scale measurement). includeBare admits a RECURRING
+// capitalised token instead — real Greek editorial convention reserves the
+// mark for proper names, not sentence-initial position (measured on the real
+// fetched Iliad: sentence-initial capitalisation 8.9% vs overall 9.4% —
+// indistinguishable, unlike English's near-100% confound).
+
+test("greekBeings: bare capitalised recurrence is refused by default (byte-identical to before this tier existed), found only under includeBare", () => {
+  const text = "Σωκράτης ἦλθεν. εἶπε Σωκράτης πάλιν.";
+  const prior = { forms: {} }; // unattested — the tier admits on prior silence, same discipline greekClauses already holds for the object run
+  assert.equal(greekBeings(text, prior, { minOccurrences: 2 }).length, 0, "default: bare tier is off");
+  const beings = greekBeings(text, prior, { minOccurrences: 2, includeBare: true });
+  assert.equal(beings.length, 1);
+  assert.equal(beings[0].stem, "σωκράτης");
+  assert.equal(beings[0].occurrences, 2);
+  assert.equal(beings[0].bare, true, "every occurrence came from the bare tier — disclosed");
+});
+
+test("greekBeings: a bare occurrence and an article-headed occurrence of the same stem merge into ONE being, never double-counted", () => {
+  const text = "Ἀχιλλεύς ἦλθεν. ὁ Ἀχιλλεύς ἀπῆλθεν.";
+  const prior = { forms: { ἀχιλλεύς: { PROPN: 40 } } };
+  const beings = greekBeings(text, prior, { minOccurrences: 2, includeBare: true });
+  assert.equal(beings.length, 1);
+  assert.equal(beings[0].occurrences, 2, "two real occurrences — the article-headed one is not double-counted as also bare");
+  assert.equal(beings[0].bare, false, "at least one occurrence was article-headed");
+  assert.deepEqual(beings[0].surfaces.sort(), ["Ἀχιλλεύς", "ὁ Ἀχιλλεύς"].sort());
+});
+
+test("greekBeings: the bare tier is gated on CAPITALISATION — a recurring lowercase common noun is not admitted through it", () => {
+  const text = "ἀνὴρ ἦλθεν. εἶπε ἀνὴρ πάλιν.";
+  const prior = { forms: {} };
+  assert.equal(greekBeings(text, prior, { minOccurrences: 2, includeBare: true }).length, 0,
+    "uncapitalised recurrence is not a bare-tier candidate, prior-unattested or not");
+});
+
+test("greekBeings: the bare tier still refuses a capitalised token the prior confidently types as non-nominal", () => {
+  const text = "Καὶ ἦλθεν. εἶπε Καὶ πάλιν.";
+  const prior = { forms: { καὶ: { CCONJ: 9237, ADV: 1070 } } };
+  assert.equal(greekBeings(text, prior, { minOccurrences: 2, includeBare: true }).length, 0,
+    "the prior's own veto still holds under includeBare — capitalisation nominates, it does not override");
+});
+
 // A GreekCasePrior@1-shaped fixture (built by the one-master builder from
 // UD_Ancient_Greek-PROIEL): verb personal endings tagged with Person|Number
 // and their CUBE CELL (the universal grammar's projection).
@@ -194,6 +239,31 @@ test("greekClauses reads a clause by CASE: nominative subject, accusative object
   assert.equal(clauses[0].object.case, "Acc");
 });
 
+test("greekClauses: a token unattested in the POS prior is still admitted when caseOf settles its case from the ending alone", () => {
+  // "λόγον" here is UNATTESTED in this test's own small pos fixture (unlike
+  // the test above, which confirms it as NOUN) — the case-marked reader
+  // must not need the SAME prior to attest both the class and the case;
+  // caseOf's own floor is sufficient on its own.
+  const verbs = new Set(["βλέπει"]);
+  const pos = { forms: { κυβερνήτης: { NOUN: 10 }, βλέπει: { VERB: 8 } } }; // λόγον deliberately absent
+  const clauses = greekClauses("ὁ κυβερνήτης βλέπει τὸν λόγον.", verbs, pos, grcCasePriorFull, {});
+  assert.equal(clauses.length, 1);
+  assert.equal(clauses[0].object.head, "λόγον", "unattested but case-determinable — admitted, not silently dropped");
+});
+
+test("greekClauses: an article unattested in the POS prior is NEVER admitted as a nominal, even though its ending reads a real case", () => {
+  // The hazard the tolerance above creates and must not reintroduce: Greek
+  // articles decline to agree with their noun's case, so "τὸν" (Acc-shaped
+  // ending) can pass caseOf on its own ending exactly like a real
+  // accusative noun. ARTICLES is a closed, received, prior-independent
+  // list precisely so this can never depend on any one prior's coverage.
+  const verbs = new Set(["βλέπει"]);
+  const pos = { forms: { κυβερνήτης: { NOUN: 10 }, βλέπει: { VERB: 8 } } }; // τὸν and λόγον both unattested
+  const clauses = greekClauses("ὁ κυβερνήτης βλέπει τὸν λόγον.", verbs, pos, grcCasePriorFull, {});
+  assert.equal(clauses.length, 1);
+  assert.equal(clauses[0].object.head, "λόγον", "the article never wins the object slot by ending-coincidence alone");
+});
+
 test("greekClauses recovers the copula-thesis shape: subject | is | predicate", () => {
   const verbs = new Set(["ἐστίν"]);
   const pos = { forms: { θάνατος: { NOUN: 10 }, φόβος: { NOUN: 8 }, ἐστίν: { VERB: 20 } } };
@@ -202,6 +272,24 @@ test("greekClauses recovers the copula-thesis shape: subject | is | predicate", 
   assert.equal(clauses.length, 1);
   assert.equal(clauses[0].subject.head, "θάνατος");
   assert.equal(clauses[0].object.head, "φόβος", "the predicate nominative fills the complement slot");
+});
+
+test("greekClauses does not re-select its own subject as a predicate nominative — real Homeric bug (2026-09-17), single Nom candidate, verb-first order", () => {
+  // The generalisation of the copula-thesis fallback failed on exactly the
+  // shape Homer's own bare, article-sparse, often verb-initial clauses
+  // produce: ONE nominative-cased nominal and no accusative/genitive
+  // alternative. The old code searched `nominals` (unfiltered) for a
+  // second nominative AFTER the verb and found the SUBJECT's own token
+  // again, producing a self-referential "X is X" edge — caught live
+  // building the archon-priors bare-name tier, real Iliad text, real
+  // prior. Verb precedes the single Nom token, so it lands in the
+  // fallback's own `after` filter — the exact trigger.
+  const verbs = new Set(["βλέπει"]);
+  const pos = { forms: { κυβερνήτης: { NOUN: 10 }, βλέπει: { VERB: 8 } } };
+  const clauses = greekClauses("βλέπει ὁ κυβερνήτης.", verbs, pos, grcCasePriorFull, {});
+  assert.equal(clauses.length, 1);
+  assert.equal(clauses[0].subject.head, "κυβερνήτης");
+  assert.equal(clauses[0].object, null, "one nominative candidate, no accusative/genitive — no predicate complement, and never the subject itself");
 });
 
 test("beingRefOf binds a clause end to a tier-1 being by stem recurrence", () => {

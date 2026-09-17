@@ -124,3 +124,12 @@ native/eval/lavar/results/*-ch*-*.projected.json
 # point" a machine's swarm history grows from. Deliberately NOT shared: this
 # is what makes each device's personality unique. Never committed.
 native/eval/lavar/results/.device-id
+
+# Fetched public-domain archon texts (archon-priors-pilot.mjs) — the same
+# fetched-third-party-text category as frankenstein-native.yml's own
+# `curl ... --output /tmp/frankenstein.txt` (never committed, fetched fresh
+# each CI run). archon-priors-pilot.mjs fetches and caches locally the same
+# way; the URL, edition and PD-basis are declared in
+# lib/archon-priors.mjs::ARCHON_ROSTER and re-fetch reproduces byte-identical
+# public-domain text, so nothing is lost by not committing it.
+native/eval/lavar/fixtures/archon-priors/
