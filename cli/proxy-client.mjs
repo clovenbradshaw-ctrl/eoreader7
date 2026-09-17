@@ -147,7 +147,7 @@ export async function chatCompletion({ model, history = [], task, sessionId, wor
   for (;;) {
     const { res, body } = await postChatCompletion(headers, payload);
     if (res.ok) {
-      return { text: body?.choices?.[0]?.message?.content ?? "", reading: body?.reading ?? null };
+      return { text: body?.choices?.[0]?.message?.content ?? "", reading: body?.reading ?? null, model: body?.model ?? null };
     }
     const type = body?.error?.type;
     if (res.status === 429 && RETRYABLE_TYPES.has(type) && Date.now() - t0 < QUEUE_MAX_WAIT_MS) {

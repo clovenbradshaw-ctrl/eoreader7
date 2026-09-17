@@ -34,12 +34,39 @@ import TextInput from "ink-text-input";
 import path from "node:path";
 import * as proxyClient from "./proxy-client.mjs";
 import { AGENT_MAX_TURNS } from "../native/the-fold/sandboxed-agent.js";
-import { wrapText } from "./format.mjs";
+import { wrapText, snipLine } from "./format.mjs";
 import { matrixLogin, matrixLogout, matrixStatus, matrixWhoAmI } from "./matrix-login.mjs";
 import { startGithubDeviceFlow, githubLogout, githubStatus, githubWhoAmI } from "./github-login.mjs";
+// The archons' EOT rooms (the-fold/archon-hyphae.mjs) — the SAME verbs the
+// proxy and er7-client reach: record appends a lesson, print shows the FULL
+// conversation (every kind, both roles, gaps named), list the roster.
+import { provisionArchon, recordArchon, loadArchonConversation, renderConversation, roster, DEFAULT_HS, DEFAULT_ADMIN } from "../../the-fold/archon-hyphae.mjs";
 
 const h = React.createElement;
 const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+
+// TUI TRIPWIRE (2026-09-17): the chat message is the prose and nothing
+// else. The artifact's citation apparatus (a Sources appendix, APA
+// footnotes) renders in the BROWSER, folded client-side from the ledger —
+// never in the transcript. The producer (proxy-runner.mjs) already keeps
+// it out of the message; this is the defense-in-depth cut so even a
+// regression cannot print it in the terminal. A `## Sources (verbatim)`
+// or `## Footnotes` section — and anything under it until the next
+// heading — is dropped mechanically, with the message re-joined.
+export const stripCitationAppendix = (text) => {
+  const lines = String(text ?? "").split("\n");
+  const kept = [];
+  let dropping = false;
+  for (const line of lines) {
+    if (/^\s*#{1,3}\s+(Sources\s*\(verbatim\)|Footnotes)/i.test(line)) { dropping = true; continue; }
+    if (dropping) {
+      if (/^\s*#{1,3}\s+\S/.test(line)) dropping = false;
+      else continue;
+    }
+    kept.push(line);
+  }
+  return kept.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+};
 
 let _tabSeq = 0;
 function makeTab(overrides = {}) {
@@ -73,6 +100,8 @@ function roleColor(kind) {
   switch (kind) {
     case "user": return "cyan";
     case "assistant": return "green";
+    case "quote": return "yellow";
+    case "snip": return "yellow";
     case "tool-call": return "magenta";
     case "tool-result": return "gray";
     case "model": return "gray";
@@ -124,7 +153,14 @@ function QueueProbe({ sessionId }) {
 function TabBar({ tabs, activeId }) {
   return h(Box, null, tabs.map((t, i) => {
     const active = t.id === activeId;
-    const label = `${i + 1}:${t.title}${t.mode === "code" ? " [code]" : ""}${t.status === "busy" ? " …" : ""}`;
+    // The SELECTED model rides at the top of the box — on the active tab
+    // only, short form (er7: prefix stripped), never truncated: what answers
+    // is what you see, and inactive tabs stay narrow so the bar itself fits
+    // on one row. A plain-speech switch lands here the moment the turn
+    // returns (the tab adopts res.model below), so the top never lies about
+    // the next turn.
+    const msuffix = active && t.model ? ` · ${String(t.model).replace(/^er7:/, "")}` : "";
+    const label = `${i + 1}:${t.title}${msuffix}${t.mode === "code" ? " [code]" : ""}${t.status === "busy" ? " …" : ""}`;
     return h(Box, { key: t.id, marginRight: 1 },
       h(Text, { backgroundColor: active ? "blue" : undefined, color: active ? "white" : "gray", bold: active }, ` ${label} `));
   }));
@@ -136,33 +172,72 @@ function StatusLine({ proxyState, tab }) {
     proxyState.status === "starting" ? "starting er7 proxy…" :
     proxyState.status === "up" ? `proxy up :${proxyState.port}` :
     proxyState.status === "error" ? `proxy error: ${proxyState.error}` : "proxy unknown";
-  // The model is shown on RESPONSE, not here — it is disclosed when the
-  // answer arrives (each assistant message carries its model), never guessed
-  // up front.
+  // The SELECTED model rides at the top of the box (TabBar) — that is the
+  // tab's model, what the next turn will use, never a guess. The ANSWERING
+  // model is still disclosed per response (each assistant message carries
+  // its model); the tab adopts res.model after every turn, so a
+  // plain-speech switch shows up top the moment it lands.
   return h(Box, null,
     h(Text, { dimColor: true }, `${proxyText} · mode:${tab?.mode ?? "-"} · Heimdall will find you the fastest and safest way across the bifrost · Ctrl+H for help`));
 }
 
-function HelpOverlay() {
-  return h(Box, { flexDirection: "column", borderStyle: "round", borderColor: "yellow", paddingX: 1 },
-    h(Text, { bold: true }, "Keybindings"),
-    h(Text, null, "Ctrl+T  new tab            Ctrl+W  close tab"),
-    h(Text, null, "Ctrl+Right/Left  switch tabs    PageUp/PageDown  scroll (Ctrl+Up/Down also works, less reliably)"),
-    h(Text, null, "Up/Down  input history"),
-    h(Text, null, "Ctrl+H  toggle this help   Ctrl+C  quit"),
-    h(Text, null, "Enter   send"),
-    h(Text, { bold: true, marginTop: 1 }, "Slash commands"),
-    h(Text, null, "/new  /close  /model [n|name]  /code  /chat  /help  /quit"),
-    h(Text, null, "/matrix [status|login <hs> <user> <pw>|logout|whoami]  /github [status|login|logout]"),
-    h(Text, { bold: true, marginTop: 1 }, "Modes"),
-    h(Text, null, "chat — sent to the fold proxy's grounded reading pipeline."),
-    h(Text, null, "code — an open-ended coding loop over the SAME proxy, sandboxed:"),
-    h(Text, null, "  an in-memory virtual filesystem and JS run in a severed vm.Context —"),
-    h(Text, null, "  nothing touches the real disk or process, so nothing needs your"),
-    h(Text, null, `  approval. Capped at ${AGENT_MAX_TURNS} turns per task.`),
-    h(Text, { bold: true, marginTop: 1 }, "The rich view"),
-    h(Text, null, "For the facing page (sources · response · notes), markdown, and clickable"),
-    h(Text, null, "cross-links, run `eoreader7 -browser` — the terminal stays simple."));
+// The help's content is a single source of truth so the layout can measure
+// its real height (wrapped lines + margins + border) at the CURRENT terminal
+// width instead of assuming a fixed "17 rows" that overflows on any shape
+// shorter than that. `helpSectionsFor` drives both the drawn overlay and the
+// chrome-height calculation; they can never disagree, and on a short window
+// the overlay drops the lowest sections so the input never leaves the
+// screen.
+const HELP_SECTIONS = [
+  { bold: true, text: "Keybindings" },
+  { text: "Ctrl+T  new tab            Ctrl+W  close tab" },
+  { text: "Ctrl+Right/Left  switch tabs    PageUp/PageDown  scroll (Ctrl+Up/Down also works, less reliably)" },
+  { text: "Up/Down  input history" },
+  { text: "Ctrl+H  toggle this help   Ctrl+C  quit" },
+  { text: "Enter   send" },
+  { bold: true, marginTop: 1, text: "Slash commands" },
+  { text: "/new  /close  /model [n|name]  /code  /chat  /help  /quit" },
+  { text: "/matrix [status|login <hs> <user> <pw>|logout|whoami]  /github [status|login|logout]" },
+  { bold: true, marginTop: 1, text: "Modes" },
+  { text: "chat — sent to the fold proxy's grounded reading pipeline." },
+  { text: "code — an open-ended coding loop over the SAME proxy, sandboxed:" },
+  { text: "  an in-memory virtual filesystem and JS run in a severed vm.Context —" },
+  { text: "  nothing touches the real disk or process, so nothing needs your" },
+  { text: `  approval. Capped at ${AGENT_MAX_TURNS} turns per task.` },
+  { bold: true, marginTop: 1, text: "The rich view" },
+  { text: "For the facing page (sources · response · notes), markdown, and clickable" },
+  { text: "cross-links, run `eoreader7 -browser` — the terminal stays simple." },
+];
+
+// Returns the sections that fit within `maxInner` content rows (borders
+// excluded, caller accounts for them) and the total rows they occupy
+// (including margins). Sections that won't fit drop from the BOTTOM so the
+// keybindings — the most-used part — always survive a short window.
+function helpSectionsFor(cols, maxInner) {
+  const inner = Math.max(4, cols - 4); // border + paddingX: 2 + 2
+  const fit = [];
+  let rows = 0;
+  for (const s of HELP_SECTIONS) {
+    const lines = Math.max(1, wrapText(s.text, inner).length);
+    const margin = s.marginTop ? 1 : 0;
+    if (rows + margin + lines > maxInner) break;
+    fit.push(s);
+    rows += margin + lines;
+  }
+  return { sections: fit, rows };
+}
+
+function HelpOverlay({ cols, sections }) {
+  const inner = Math.max(4, (cols ?? 80) - 4);
+  const children = [];
+  sections.forEach((s, i) => {
+    wrapText(s.text, inner).forEach((line, j) => {
+      const marginT = s.marginTop && j === 0 ? 1 : undefined;
+      children.push(h(Text, { key: `h${i}-${j}`, bold: s.bold, marginTop: marginT }, line));
+    });
+  });
+  if (!children.length) return null;
+  return h(Box, { flexDirection: "column", borderStyle: "round", borderColor: "yellow", paddingX: 1 }, children);
 }
 
 function App() {
@@ -269,10 +344,27 @@ function App() {
         model: tab.model, history: tab.chatHistory, task: text, sessionId: tab.sessionId,
         onRetry: ({ attempt, retryAfterS, type, position }) => pushMessage(tabId, "note", `Heimdall: ${type === "not_your_turn" ? "not your turn yet" : type === "zipper" ? "merging — pass held" : type === "claimed" ? "turn claimed elsewhere" : "busy"} — retrying in ${retryAfterS}s${position ? ` (#${position})` : ""}`),
       });
-      pushMessage(tabId, "assistant", res.text, "assistant", { model: tab.model });
+      // Adopt who ANSWERED (a plain-speech switch moves the session server-
+      // side; the top of the box follows on the next render, never stale).
+      const answered = res.model ?? tab.model;
+      if (answered !== tab.model) {
+        pushMessage(tabId, "note", `model switched to ${answered} on your words — showing at the top from here on`);
+      }
+      // A mechanical quote is snipped, non-model prose: it renders in its own
+      // kind + color with a snip provenance line — never a [model] tag, so a
+      // reader can tell at a glance these words were cut from a source.
+      const isQuote = res.reading?.answerShape === "quote";
+      const snipUrl = res.reading?.quote?.url ?? null;
+      const cleanText = stripCitationAppendix(res.text);
+      pushMessage(tabId, isQuote ? "quote" : "assistant", cleanText, "assistant",
+        isQuote ? { snip: snipUrl } : { model: answered });
+      if (isQuote) {
+        pushMessage(tabId, "snip", snipLine(snipUrl), "note");
+      }
       updateTab(tabId, (t) => ({
         ...t,
-        chatHistory: [...t.chatHistory, { role: "user", content: text }, { role: "assistant", content: res.text }],
+        model: answered,
+        chatHistory: [...t.chatHistory, { role: "user", content: text }, { role: "assistant", content: cleanText }],
       }));
     } catch (err) {
       pushMessage(tabId, "error", `error: ${err.message}`);
@@ -301,7 +393,7 @@ function App() {
           pushMessage(tabId, "tool-result", `  ${r.output || "(no output)"}`);
         }
       }
-      if (res.done) pushMessage(tabId, "assistant", res.answer, "assistant", { model: tab.model });
+      if (res.done) pushMessage(tabId, "assistant", stripCitationAppendix(res.answer), "assistant", { model: tab.model });
       else pushMessage(tabId, "error", `hit the turn cap without a final answer.`);
     } catch (err) {
       pushMessage(tabId, "error", `error: ${err.message}`);
@@ -403,6 +495,48 @@ function App() {
         pushMessage(tabId, "error", `unknown /github command "${sub}" — status | login | logout`);
         break;
       }
+      case "archon": {
+        // /archon — the worktree-archons' EOT rooms on a Matrix homeserver.
+        //   /archon list                              the roster + homeserver
+        //   /archon print <slug>                      the FULL conversation, nothing hidden
+        //   /archon record <slug> <text...>           append one EOT lesson
+        //   /archon provision <slug> [@admin]         account + room + admin grant
+        const [sub, ...rest2] = arg.split(/\s+/).filter(Boolean);
+        const hs = DEFAULT_HS;
+        if (!sub || sub === "list") {
+          const names = roster();
+          pushMessage(tabId, "note", `archons (${names.length}) on ${hs} — /archon print <slug> for a full conversation`);
+          break;
+        }
+        if (sub === "print") {
+          const slug = rest2[0];
+          if (!slug) { pushMessage(tabId, "error", "/archon print <slug>"); break; }
+          loadArchonConversation(hs, slug)
+            .then((loaded) => pushMessage(tabId, "note", renderConversation(loaded)))
+            .catch((e) => pushMessage(tabId, "error", `archon print failed: ${e.message}`));
+          break;
+        }
+        if (sub === "record") {
+          const slug = rest2[0];
+          const text = rest2.slice(1).join(" ").trim();
+          if (!slug || !text) { pushMessage(tabId, "error", "/archon record <slug> <text...>"); break; }
+          recordArchon(hs, slug, { text, kind: "lesson" })
+            .then((r) => pushMessage(tabId, "note", `recorded ${slug} seq ${r.seq} → block ${r.block}`))
+            .catch((e) => pushMessage(tabId, "error", `archon record failed: ${e.message}`));
+          break;
+        }
+        if (sub === "provision") {
+          const slug = rest2[0];
+          const admin = rest2[1] ?? DEFAULT_ADMIN;
+          if (!slug) { pushMessage(tabId, "error", "/archon provision <slug> [@admin]"); break; }
+          provisionArchon(hs, slug, { admin })
+            .then((r) => pushMessage(tabId, "note", `provisioned ${slug}: ${r.user} · ${r.room} · admin ${admin}`))
+            .catch((e) => pushMessage(tabId, "error", `archon provision failed: ${e.message}`));
+          break;
+        }
+        pushMessage(tabId, "error", `unknown /archon command "${sub}" — list | print <slug> | record <slug> <text> | provision <slug>`);
+        break;
+      }
       case "quit":
       case "exit":
         exit();
@@ -463,17 +597,36 @@ function App() {
   const rows = stdout?.rows ?? 24;
   const cols = stdout?.columns ?? 80;
 
-  // Layout: the original, dead-simple arrangement — tab bar and status on TOP,
-  // the transcript box in the middle, the input anchored at the BOTTOM. The
-  // only change from the original is that the transcript box gets a fixed
-  // height a few rows short of the terminal instead of the old
-  // `minHeight: visibleRows + 2`, which overflowed by a line and scrolled
-  // the chrome off the top (e2e-verified).
-  const helpRows = helpVisible ? 17 : 0;
-  const boxHeight = Math.max(8, rows - 9 - helpRows);
-  const visibleRows = Math.max(3, boxHeight - 2);
+  // Layout serves ANY terminal shape or size, not a fixed one. Chrome GIVES
+  // GROUND to content: the input (border + line + border) is the only thing
+  // never dropped; the tab bar and status line show only while the transcript
+  // keeps at least 3 rows after them; the help overlay (when open) is exactly
+  // as tall as the sections that fit. The transcript is the LAST thing to
+  // go, never the first — a short window squeezes chrome, then the border,
+  // then nothing: bordered while a border fits (>= 3 rows), bare lines below
+  // that (no border tax), gone only when not even one content line fits.
+  // Help is computed ONCE here and handed to the overlay, so the drawn rows
+  // and the reserved chrome rows can never disagree. Prior fixed floors
+  // (`Math.max(8, rows - 9 - …)`, `Math.max(3, …)`, `Math.max(20, cols - 6)`)
+  // crashed short or narrow terminals; the only remaining floors are tiny
+  // and structural (a 3-row window still shows the input).
+  let remaining = rows - 3; // input
+  const showTab = remaining - 1 >= 3;
+  if (showTab) remaining -= 1;
+  const showStatus = remaining - 1 >= 3;
+  if (showStatus) remaining -= 1;
+  const help = helpVisible
+    ? helpSectionsFor(cols, Math.max(0, remaining - 2))
+    : { sections: [], rows: 0 };
+  const helpRows = help.sections.length ? help.rows + 2 : 0;
+  remaining -= helpRows;
+  const bordered = remaining >= 3;
+  const bareRows = !bordered && remaining >= 1 ? remaining : 0;
+  const boxHeight = bordered ? remaining : 0;
+  const hasTranscript = bordered || bareRows > 0;
+  const visibleRows = bordered ? Math.max(0, boxHeight - 2) : bareRows;
 
-  const wrapW = Math.max(20, cols - 6);
+  const wrapW = Math.max(1, cols - 6);
   const allLines = (activeTab?.messages ?? []).flatMap((m) => {
     const lines = wrapText(m.text, wrapW).map((line) => ({ kind: m.kind, text: line }));
     // The model is disclosed with the answer — the one place it is shown.
@@ -498,10 +651,14 @@ function App() {
   }
 
   return h(Box, { flexDirection: "column" },
-    h(TabBar, { tabs, activeId }),
-    h(StatusLine, { proxyState, tab: activeTab }),
-    helpVisible ? h(HelpOverlay) : null,
-    h(Box, { flexDirection: "column", borderStyle: "round", height: boxHeight, paddingX: 1 }, transcriptChildren),
+    showTab ? h(TabBar, { tabs, activeId }) : null,
+    showStatus ? h(StatusLine, { proxyState, tab: activeTab }) : null,
+    helpVisible && help.sections.length ? h(HelpOverlay, { cols, sections: help.sections }) : null,
+    hasTranscript
+      ? (bordered
+        ? h(Box, { flexDirection: "column", borderStyle: "round", height: boxHeight, paddingX: 1 }, transcriptChildren)
+        : h(Box, { flexDirection: "column", paddingX: 1 }, transcriptChildren.slice(-Math.max(1, bareRows))))
+      : (rows > 3 ? h(Text, { dimColor: true }, "terminal too short — the transcript is hidden, but resize and it returns") : null),
     h(Box, { borderStyle: "single", paddingX: 1 },
       h(Text, { dimColor: true }, "> "),
       h(TextInput, {

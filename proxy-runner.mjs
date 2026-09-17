@@ -33,7 +33,7 @@ import { answerRecord } from "./native/the-fold/answer-record.js";
 // is routed through native/the-fold/antistrauss.mjs (the import is static so
 // the proxy fails closed at boot if the gate cannot load). See the module
 // header for how it is wired and why it must never be bypassed.
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 // The dispute lookup notesFromEdges reads (below): `noteId` is the same
 // bare-ends identity a note born with no identity organ already carries in
@@ -105,7 +105,14 @@ import { loadSpeakerModel, saveSpeakerModel, updateSpeakerModel, durableFacts } 
 // names are generated through `opencode serve`, never Ollama — same
 // antistrauss gate, same draw contract, tools hard-disabled. Re-exported so
 // proxy.mjs (roster, health) reads the same discovery cache the turns use.
-import { upstreamModelFor, refreshOpencodeModels, opencodeReachable, OPENCODE_URL, streamOpencodeText } from "./opencode-upstream.mjs";
+import { upstreamModelFor, refreshOpencodeModels, opencodeReachable, OPENCODE_URL, streamOpencodeText, knownOpencodeModels } from "./opencode-upstream.mjs";
+// The snip hand (native/organs/verbatim-snip.js): a verbatim ask is SNIPPED
+// from a public-domain primary source (Wikisource), never generated from
+// weights. A settled snip is an observation and the observation wins; an
+// unwired work is a named gap, never a guess dressed as a quotation. The
+// complement of organs/quotes.js (Handle: Dai), which audits quotations
+// already in an answer — this hand decides what the mouth never writes.
+import { snipShape, cutSnip, formatQuote, DEFAULT_PASSAGE, MAX_SNIP_CHARS } from "./native/organs/verbatim-snip.js";
 export { upstreamModelFor, refreshOpencodeModels, opencodeReachable, OPENCODE_URL };
 export { knownOpencodeModels } from "./opencode-upstream.mjs";
 
@@ -481,12 +488,17 @@ function htmlToText(html) {
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/p>|<\/div>|<\/li>|<\/h[1-6]>|<\/td>/gi, "\n")
     .replace(/<[^>]+>/g, " ")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
+      .replace(/&nbsp;|&#0*160;|&#x0*[aA]0;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#0*39;|&#x0*27;/g, "'")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      // Numeric character references beyond the named few above (measured
+      // live: `&#32;` padding inside Wikisource verse lines leaked into a
+      // snip). Decimal + hex, BMP only — astral refs are out of scope.
+      .replace(/&#(\d+);/g, (_, n) => { const c = Number(n); return c > 0 && c < 65536 ? String.fromCharCode(c) : " "; })
+      .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => { const c = parseInt(h, 16); return c > 0 && c < 65536 ? String.fromCharCode(c) : " "; })
     .replace(/[ \t]+/g, " ")
     .replace(/\n[ \t]+/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
@@ -535,6 +547,61 @@ function resolutionFor(score, sharedCount, { coarseAt = 0.2, fineAt = 0.6 } = {}
   if (score >= coarseAt && sharedCount >= 1) return RESOLUTION_COARSE;
   return RESOLUTION_NONE;
 }
+
+// THE COMPOSITION-SURF SALIENCE GATE (2026-09-17, measured). A multi-source
+// artifact surfaces one windowed segment per corpus document — but "per
+// document" must mean per SALIENT document. Before this gate the composition
+// surf iterated every retained doc in insertion order: a stale Wikisource
+// page admitted turns earlier was surfaced for a haiku about debugging and
+// its six gun-legislation title variants filled the poem's Sources appendix.
+// Salience is membership in the task's vocabulary — the same coarse screen
+// salienceOf() applies at fetch time, applied HERE at surf time against THIS
+// task. A doc that failed its own fetch's screen, or was fetched for a
+// different task, is no one's source for this artifact. A doc that never
+// passes a salience gate is never surfaced, never cited, never quoted.
+export function salientDocsForTask(docs, task, { maxSegments = SURF_MAX_SEGMENTS } = {}) {
+  const out = [];
+  for (const [sourceId, doc] of (docs ?? new Map()).entries()) {
+    if (isConversationSource(sourceId)) continue;
+    const text = String(doc?.text ?? doc ?? "").trim();
+    if (!text || text.length < 50) continue;
+    const sal = salienceOf(text, task);
+    // salienceOf always tags RESOLUTION_NONE — the DECISION is
+    // resolutionFor's, exactly as the web intake applies it at fetch time.
+    const resolution = resolutionFor(sal.score, sal.shared.length);
+    if (resolution === RESOLUTION_NONE) continue;
+    out.push({ sourceId, text, score: sal.score, shared: sal.shared.length });
+  }
+  out.sort((a, b) => b.score - a.score);
+  return out.slice(0, maxSegments);
+}
+
+// PROVENANCE STAMP (2026-09-17, the audit trail). Every corpus admission
+// carries who admitted it: the turn, the task, the task's terms, and the
+// salience that earned it. Stamps are what make Roberts scoping (a doc is
+// citable under the hypothesis family that introduced it) and Atta decay
+// (reinforce on use, evaporate otherwise) implementable — and they make the
+// record answer "which turn left THIS behind?" without a forensic dig.
+function stampAdmission(session, srcId, { task, salience, resolution, kind }) {
+  try {
+    const doc = session.corpus?.documents?.get(srcId);
+    if (!doc) return;
+    doc._admitted = {
+      turn: session.turnCount,
+      task: String(task ?? "").slice(0, 200),
+      terms: [...new Set(String(task ?? "").toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 3))].slice(0, 20),
+      salience: Number(salience ?? 0),
+      resolution: resolution ?? null,
+      kind: kind ?? "web",
+      at: new Date().toISOString(),
+    };
+  } catch { /* a stamp failure never fails a turn */ }
+}
+
+// The source id behind a surfaced segment, however the path that surfaced it
+// named it (composition surf's `_ledger.source`, the one-shot ladder's
+// `source_id`, the field recall's `_ledger.source`).
+const segmentSourceOf = (s) => s?._ledger?.source ?? s?.source_id ?? s?.source ?? null;
 
 // ── shell detection via pyodide's HTMLParser (structural, not regex) ───────
 // The regex `looksLikeShell` on the TEXT face catches the "couldn't load"
@@ -787,11 +854,16 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
       if (shadowEntry) shadowEntry.resolution = resolution;
       let pageSurprise = { salient: 0, noise: 0, effects: 0, recanonicalizations: 0 };
       if (resolution === RESOLUTION_NONE) {
-        // Retain, don't read. The page is kept recoverable and its shadow is
-        // on the record; it just does not enter the reading. Ignore is a
-        // positive decision, recorded — not an accident.
-        admitChunked(session.corpus, { text: piiAdmit(session, text, srcId, onNote), sourceId: srcId });
-        if (onNote) onNote({ move: "ignored", url: r.url, score: sal.score.toFixed(2), shared: sal.shared.slice(0, 5) });
+        // THE SALIENCE GATE AT INTAKE (2026-09-17): an ignored page is
+        // RETAIN ONLY — its shadow and webSources bytes stay recoverable
+        // (S101), but it is NOT admitted to the corpus, so it can never be
+        // surfaced or cited. Before this, "ignore" meant "don't absorb into
+        // the reading" while the corpus still held the bytes for a later,
+        // different task — the measured door a stale page walked through
+        // (a haiku's appendix cited a gun-legislation page admitted turns
+        // earlier). Nomination is not admission: a page that failed its own
+        // fetch's coarse screen is no one's source.
+        if (onNote) onNote({ move: "ignored", url: r.url, score: sal.score.toFixed(2), shared: sal.shared.slice(0, 5), retained: "shadow-only" });
       } else {
         // COARSE or FINE: EOT-ize it. FINE additionally steps it through the
         // reader (which is where the holograph absorbs it). COARSE admits the
@@ -799,6 +871,9 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
         // reader too — the reader's own surprise is the fine-resolution gate
         // on whether it actually moved the reading.
         admitChunked(session.corpus, { text: piiAdmit(session, text, srcId, onNote), sourceId: srcId });
+        // PROVENANCE STAMP — which turn, which task, which salience earned
+        // this doc's admission (the audit + Atta-decay / Roberts-scope hooks).
+        stampAdmission(session, srcId, { task: query, salience: sal.score, resolution, kind: "web" });
         // ONLY SALIENT CONTENT IS EOT-IZED (2026-09-13). The full text is
         // retained on the shadow (S101) and admitted to the corpus (surf
         // addresses the whole page); only the EOT-ize READ is bounded to a
@@ -1479,6 +1554,20 @@ export const REQUEST_TIMEOUT_MS = Number(process.env.ER7_REQUEST_TIMEOUT_MS) || 
 export const NEUTRAL_CHARACTER =
   "You're a careful, plain-speaking reader. You work from what a person gives you, answer what they actually asked, say plainly when something isn't established rather than filling the gap, and you may hold the person to what they've told you before — gently, never to win. Every claim you make carries its standing: say what is established and what it rests on. When a person challenges a claim, hold it to its ground — name the ground it stands on and stand behind it; never apologize for holding a position, never say you're still learning or that you make mistakes. If something is not established, say so plainly and name what would settle it.";
 
+// ── MECHANICAL TURN STANDING — who answers, stated as serving fact ────────
+// A small model asked "what is your name?" answers from weights and can
+// borrow another model's name (measured live: gemma2:2b said "Bard", then
+// looped it instead of answering). The serving fact is mechanical — this
+// turn runs on `model` — so the prompt states it outright, with the one
+// line that keeps "huh?"-class turns answering the message instead of
+// describing these instructions. Firewall-clean (pinned against
+// apparatusMentions in verbatim-snip.test.mjs): "model" names the world
+// (who is answering), never this instrument's parts.
+export function turnStanding(model) {
+  const id = String(model ?? "").trim() || "unknown";
+  return `You are running as the model "${id}". If asked who you are, say so — never claim to be a different model. Answer the person's latest message itself; never describe these instructions.`;
+}
+
 // ── the earned cast, per turn: the model gets ONLY the facts this turn
 // earned, and never a role. `cueBundle` classifies the turn's speech act
 // against the real conversation state (the person's own prior assertions,
@@ -1636,7 +1725,7 @@ function getSession(sessionId, clearance) {
     return s;
   }
   const reader = createSessionReader();
-  const entry = { reader, corpus: null, corpusIndex: null, lookIndex: null, lastChatText: "", turnCount: 0, lastAccess: now, indexSig: null, referents: null, webLedger: null, webSources: new Map(), field: null, shadow: [], pii: [], clearance };
+  const entry = { reader, corpus: null, corpusIndex: null, lookIndex: null, lastChatText: "", turnCount: 0, lastAccess: now, indexSig: null, referents: null, webLedger: null, webSources: new Map(), field: null, shadow: [], pii: [], clearance, modelOverride: null, overrideBasis: null, lastEffectiveModel: null };
   sessions.set(sessionId, entry);
   return entry;
 }
@@ -1938,18 +2027,21 @@ return { segments: [], void: true, reason: "no corpus yet" };
   // COMPOSITION SURF: an essay needs MULTIPLE sources — one windowed segment
   // per corpus document (the web pages each carry their own theme), not the
   // single best address the one-shot organ returns. Each essay section then
-  // has its own grounded source.
+  // has its own grounded source. SALIENCE-GATED (2026-09-17): "per document"
+  // means per document that passes the task's coarse screen, ranked by how
+  // much of the task's vocabulary it carries — never every retained doc in
+  // insertion order (the measured door for stale material). A doc that
+  // fails the screen is not a source for THIS artifact, however many turns
+  // ago it was fetched.
   if (composition && session.corpus.documents.size > 1) {
     const segments = [];
-    for (const [sourceId, doc] of session.corpus.documents.entries()) {
-      if (isConversationSource(sourceId)) continue;
+    const salient = salientDocsForTask(session.corpus.documents, task);
+    for (const d of salient) {
       if (segments.length >= SURF_MAX_SEGMENTS) break;
-      const text = String(doc?.text ?? doc ?? "").trim();
-      if (!text || text.length < 50) continue;
-      const capped = text.slice(0, SURF_MAX_SEGMENT_CHARS);
+      const capped = d.text.slice(0, SURF_MAX_SEGMENT_CHARS);
       segments.push({
         text: capped,
-        _ledger: { source: sourceId, heading: null, addressed_by: "composition", bytes: [0, capped.length] },
+        _ledger: { source: d.sourceId, heading: null, addressed_by: "composition", bytes: [0, capped.length] },
       });
     }
     if (segments.length) {
@@ -2843,9 +2935,119 @@ export function proseContinuationCheck({ existing = "", incoming = "", minChars 
 // disclosed, never laundered. No model is asked while meaning is equated.
 // ────────────────────────────────────────────────────────────────────────
 
+// ── PLAIN-SPEECH MODEL SWITCH — "switch to haiku", "use something faster".
+// No precise command needed: a switch verb plus a model reference (roster id,
+// bare name, or alias class) moves THIS session to that model. Mechanical —
+// the reference is required, so "switch to a different topic" never fires.
+// The override persists until the client explicitly picks another model
+// (explicit beats inferred); the response always discloses who answered
+// (result.model + a model_switched note), never silently.
+const SWITCH_FRAME = /\b(switch|switching|change|changing|move|moving|swap|swapping|flip|flipping)\s+(to|over to|back to|onto)\b/i;
+const SWITCH_USE_VERB = /\b(use|using|try|trying|give me|get me|run|running)\b/i;
+const SWITCH_DECLARATIVE_USE = /\b(i|we)\s+(use|uses|try|tried|have been using|am using)\b/i;
+const SWITCH_SHORT_COMMAND = /^(?:please\s+)?(?:switch to|change to|use|try|give me|get me|run)\b/i;
+const SWITCH_ALIAS = /\b(fast|faster|fastest|quick|small|tiny|slow|smart|smarter|frontier|big|bigger|best|strong|cheap|cheapest|local|offline|remote|cloud)\b/i;
+
+// Cheap verb hints gating the roster fetch: a turn without any switch verb
+// never pays for discovery. The full detect (verb + model reference) still
+// decides — hints over-trigger, the gate does not.
+const SWITCH_VERB_HINT = /\b(switch|switching|change|changing|move|moving|swap|swapping|flip|flipping|give me|get me)\b/i;
+const SWITCH_USE_HINT = /\b(use|using|try|trying|run|running)\b.{0,28}\b(model|models|haiku|sonnet|opus|claude|deepseek|gemma|qwen|llama|olmo|moondream|phi|fast|faster|fastest|quick|small|slow|smart|frontier|big|best|cheap|local|remote)\b/i;
+
+/** Detect a plain-speech model switch. Returns { ref } or null. Pure. */
+export function detectModelSwitch(task, roster = []) {
+  const t = String(task ?? "");
+  if (!t || t.length > 500) return null; // switches are short asks, never essays
+  const low = t.toLowerCase();
+  const ids = roster.map(String).filter(Boolean);
+  let ref = null;
+  for (const id of ids) {
+    if (id && low.includes(id.toLowerCase())) { ref = id; break; }
+  }
+  if (!ref) {
+    const frags = new Map();
+    for (const id of ids) {
+      for (const f of id.toLowerCase().replace(/^er7:/, "").split(/[/:._-]+/)) {
+        if (f.length < 3) continue;
+        if (!frags.has(f)) frags.set(f, []);
+        frags.get(f).push(id);
+      }
+    }
+    const words = low.match(/[a-z0-9]+(?:[.-][a-z0-9]+)*/g) ?? [];
+    let best = null;
+    for (const w of words) {
+      if (frags.has(w) && (!best || w.length > best.length)) best = w;
+    }
+    const alias = SWITCH_ALIAS.exec(low)?.[1] ?? null;
+    if (best) ref = best;
+    else if (alias) ref = `@${alias}`;
+  }
+  if (!ref) return null; // no model reference, no switch — "switch topics" never fires
+  const frame = SWITCH_FRAME.test(t);
+  const shortCommand = t.trim().length <= 64 && SWITCH_SHORT_COMMAND.test(t.trim());
+  const useVerb = SWITCH_USE_VERB.test(t) && !SWITCH_DECLARATIVE_USE.test(t);
+  if (!frame && !shortCommand && !useVerb) return null;
+  return { ref };
+}
+
+/** Resolve a switch reference against the roster (er7:-prefixed ids).
+ *  Deterministic: exact id > unique fragment > flagship preference
+ *  (sonnet > opus > deepseek > haiku) > first. Alias classes map to the
+ *  roster, never to a guess outside it. Returns the id or null. Pure. */
+export function resolveModelTarget(ref, roster = [], { current = null } = {}) {
+  const ids = roster.map(String).filter(Boolean);
+  if (!ids.length || !ref) return null;
+  const low = (s) => String(s).toLowerCase();
+  const FLAGSHIP = ["sonnet", "opus", "deepseek", "haiku"];
+  if (!ref.startsWith("@")) {
+    const exact = ids.find((id) => low(id) === low(ref));
+    if (exact) return exact;
+    const cands = ids.filter((id) => {
+      const bare = low(id).replace(/^er7:/, "");
+      return bare.split(/[/:._-]+/).includes(low(ref)) || bare.includes(low(ref));
+    });
+    if (!cands.length) return null;
+    if (cands.length === 1) return cands[0];
+    for (const p of FLAGSHIP) {
+      const hit = cands.find((id) => low(id).includes(p));
+      if (hit) return hit;
+    }
+    return cands[0];
+  }
+  const cls = ref.slice(1);
+  const bare = (id) => String(id).replace(/^er7:/i, "");
+  const local = ids.filter((id) => !bare(id).includes("/"));
+  const remote = ids.filter((id) => bare(id).includes("/"));
+  const flagship = (list) => {
+    for (const p of FLAGSHIP) {
+      const hit = list.find((id) => low(id).includes(p));
+      if (hit) return hit;
+    }
+    return list[0] ?? null;
+  };
+  const smallest = (list) => {
+    const haiku = list.find((id) => /haiku/i.test(id));
+    if (haiku) return haiku;
+    return [...list].sort((a, b) => a.length - b.length)[0] ?? null;
+  };
+  switch (cls) {
+    case "fast": case "faster": case "fastest": case "quick":
+    case "small": case "tiny": case "cheap": case "cheapest":
+      return smallest(ids);
+    case "smart": case "smarter": case "frontier":
+    case "big": case "bigger": case "best": case "strong":
+      return flagship(remote.length ? remote : ids);
+    case "local": case "offline":
+      if (current && local.some((id) => low(id).replace(/^er7:/, "") === low(current))) return current;
+      return local.find((id) => /gemma/i.test(id)) ?? local[0] ?? null;
+    case "remote": case "cloud":
+      return flagship(remote);
+    default: return null; // "slow" and anything unknown: refuse to guess
+  }
+}
+
 export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null, mode = "auto", caller = null, signal = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
-  _hot.add(model); // this turn is using it — hold it resident after
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
   // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
   // CLEARANCE. The session below REQUIRES it — so the ethos is a bearing wall,
@@ -2883,6 +3085,167 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const speakerModel = userId ? loadSpeakerModel(userId) : null;
   const durable = speakerModel ? durableFacts(speakerModel) : [];
 
+  // ── PLAIN-SPEECH MODEL SWITCH, APPLIED — the session's override lives
+  // here (modelOverride / overrideBasis / lastEffectiveModel), so every
+  // caller shares it: opencode's /model command, the repo TUI, or plain
+  // words. Explicit beats inferred: a request naming a model different from
+  // both the last answer and the switch-time request is a deliberate move
+  // and clears the override. `model` is reassigned once, here, so the
+  // preflight, the draws, the keep-warm and the disclosed result all agree
+  // on who answers. Roster calls happen ONLY on switch-candidate turns (a
+  // cheap verb hint gates them); the full detect still decides.
+  {
+    const hint = SWITCH_VERB_HINT.test(task) || SWITCH_USE_HINT.test(task);
+    let sw = null;
+    if (hint) {
+      let roster = [];
+      try {
+        const up = await ollamaReachable();
+        roster = [...(up ?? []).map((m) => `er7:${m.name ?? m.model}`)];
+      } catch { /* ollama down — the opencode lane may still resolve */ }
+      try {
+        await refreshOpencodeModels().catch(() => null);
+        for (const id of knownOpencodeModels()) roster.push(`er7:${id}`);
+      } catch { /* the local roster stands alone */ }
+      const hit = detectModelSwitch(task, roster);
+      if (hit) {
+        const target = resolveModelTarget(hit.ref, roster, { current: model });
+        if (target) {
+          // Roster ids are er7:-prefixed; the turn runs on BARE ids (the
+          // door strips the prefix — Ollama would 400 a prefixed name).
+          const bare = String(target).replace(/^er7:/, "");
+          session.modelOverride = bare;
+          session.overrideBasis = model;
+          session.lastEffectiveModel = bare;
+          model = bare;
+          sw = { switched: true };
+          if (onNote) onNote({ move: "model_switched", to: bare, ref: hit.ref, basis: "plain-speech" });
+        } else if (onNote) {
+          onNote({ move: "model_switch_missed", ref: hit.ref });
+        }
+      }
+    }
+    if (!sw) {
+      if (session.modelOverride) {
+        if (model !== session.lastEffectiveModel && model !== session.overrideBasis) {
+          session.modelOverride = null; session.overrideBasis = null; // explicit move — honored
+        } else {
+          model = session.modelOverride;
+        }
+        session.lastEffectiveModel = model;
+      } else {
+        session.lastEffectiveModel = model;
+      }
+    }
+  }
+  _hot.add(model); // this turn is using it — hold the effective model resident after
+
+  // Fold an early-return turn into the session corpus so the conversation's
+  // own fold keeps continuity (transcriptFromSession reads these lines).
+  const foldEarlyTurn = (turnText) => {
+    try {
+      if (!session.corpus) session.corpus = createCorpusSession();
+      const firstLine = String(turnText ?? "").trim().split(/\r?\n/)[0].slice(0, 500);
+      const doc = `[user]: ${task}\n\n[assistant]: ${firstLine}`;
+      if (doc.trim().length >= 8) {
+        admitChunked(session.corpus, { text: piiAdmit(session, doc, `chat:${sessionId}:turn-${session.turnCount}`, onNote), sourceId: `chat:${sessionId}:turn-${session.turnCount}` });
+      }
+    } catch { /* the fold must never break an early answer */ }
+  };
+  const earlyResult = (text, { answerShape, mechanical = null, quote = null, truncated = false } = {}) => {
+    session.turnCount++;
+    foldEarlyTurn(text);
+    return {
+      text,
+      charter: null,
+      groundedWisdom: null,
+      privacy: null,
+      copy: null,
+      security: null,
+      blindspot: null,
+      pii: null,
+      injection: null,
+      shadow: [],
+      interlocutor: { kind: interlocutor.kind, confidence: interlocutor.confidence, basis: interlocutor.basis },
+      relationEdges: 0,
+      referentBindings: 0,
+      hyperlexiconCandidates: 0,
+      turn: session.turnCount,
+      workspace: { files: 0, chars: 0, segments: 0, refusals: 0 },
+      attachments: { files: 0, chars: 0, admitted: 0 },
+      reading: null,
+      pathos: null,
+      reGround: null,
+      surfed: [],
+      activated: null,
+      void: null,
+      post: null,
+      resolutions: null,
+      document: null,
+      usage,
+      truncated,
+      totalStrain: 0,
+      thinking: null,
+      answerShape,
+      mode: "chat",
+      model,
+      voidHolarchy: null,
+      mechanical,
+      quote,
+    };
+  };
+
+  // ── THE SNIP HAND — verbatim asks answered pre-model ───────────────────
+  // The reading already knows HOW to answer a quotation ask: snip the work's
+  // own words from a public-domain primary source (Wikisource), cut
+  // positionally, with provenance — no model tokens, no generation. Runs
+  // before the preflight so a snip is reachable even with the upstream down
+  // (when the source fetch itself succeeds). A source that cannot be reached
+  // falls through to the normal turn; an unwired work is a named mechanical
+  // refusal — a generated "quote" would be an invention wearing a source's
+  // name, so the model never gets the ask.
+  const snipGate = snipShape(task);
+  if (snipGate && clearance.cleared) {
+    if (!snipGate.work) {
+      if (onNote) onNote({ move: "quote_gap", gap: "no_source_wired", basis: "verbatim ask for a work with no wired public-domain source — refused mechanically, never generated" });
+      return earlyResult(
+        "I can't quote that verbatim — I only quote public-domain works I can snip word-for-word from their printed text (Shakespeare today: name a play, a sonnet, or a speech). Anything else I would have to make up, and a made-up quote is worse than none.",
+        { answerShape: "quote", mechanical: { rung: "verbatim-snip", gap: "no_source_wired", basis: "verbatim ask for an unwired work — named refusal, never a generated quotation" }, quote: null },
+      );
+    }
+    const snipQueries = snipGate.defaulted
+      ? [DEFAULT_PASSAGE.wikisource, "Shake-speares Sonnets, Never before Imprinted/Sonnet 18", "Shakespeare's Sonnets"]
+      : [snipGate.work.wikisource, snipGate.work.author];
+    let fetched = null;
+    let cut = null;
+    for (const q of snipQueries) {
+      try {
+        fetched = await wikisourceText(q);
+      } catch {
+        fetched = null;
+      }
+      if (!fetched?.text?.trim()) { fetched = null; continue; }
+      const trial = cutSnip(fetched.text, { maxChars: MAX_SNIP_CHARS });
+      // A versions/disambiguation page has no verse-length lines — keep
+      // hunting instead of snipping the scaffolding.
+      if (trial.snip && trial.longest > 30) { cut = trial; break; }
+      if (onNote) onNote({ move: "quote_thin", query: q, title: fetched.title ?? q, longest: trial.longest, basis: "no verse-length line — not quotable, keep hunting" });
+      fetched = null;
+    }
+    if (fetched?.text?.trim() && cut?.snip) {
+        const url = `https://en.wikisource.org/wiki/${encodeURIComponent(String(fetched.title ?? snipQueries[0]).replace(/ /g, "_"))}`;
+        const frame = snipGate.defaulted ? `${DEFAULT_PASSAGE.basis}. ` : "";
+        const text = `${frame}Quoted word-for-word from ${snipGate.work.author}:\n\n${formatQuote({ snip: cut.snip, title: fetched.title ?? snipQueries[0], author: snipGate.work.author, url })}`;
+        if (onNote) onNote({ move: "quote_said", rung: "verbatim-snip", title: fetched.title ?? snipQueries[0], chars: cut.snip.length, defaulted: snipGate.defaulted, basis: cut.basis });
+        return earlyResult(text, {
+          answerShape: "quote",
+          mechanical: { rung: "verbatim-snip", title: fetched.title ?? snipQueries[0], url, chars: cut.snip.length, defaulted: snipGate.defaulted, basis: cut.basis },
+          quote: { title: fetched.title ?? snipQueries[0], url, chars: cut.snip.length, defaulted: snipGate.defaulted },
+        });
+    }
+    if (onNote) onNote({ move: "quote_miss", basis: "the printed text could not be reached — falling through to the normal turn" });
+  }
+
   // 0. Preflight — fail fast, don't hang. The check hits the lane that owns
   // THIS model: an opencode-served model (Claude/DeepSeek) must not fail
   // because Ollama is down, and vice versa. Discovery refreshes first (cached
@@ -2904,6 +3267,50 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   if (modelsUp.length && !modelKnown) {
     if (onNote) onNote({ move: "model_missing", model, available: modelsUp.map((m) => m.name ?? m.model) });
   }
+  }
+
+  // ── SMALL-TALK FAST PATH — a short interpersonal turn is chat content ──
+  // ("my name is X, what is yours?", "huh?", "thanks"). The full pipeline's
+  // multi-KB system prompt (Kelsen conflicts, resolutions, surfed noise)
+  // collapses a small model on exactly these turns (measured live: gemma2:2b
+  // echoed its identity line instead of answering). One direct draw on the
+  // standing character + the conversation is the honest shape here — the
+  // turn still folds into the corpus, so continuity holds.
+  {
+    const _t = String(task ?? "").trim().toLowerCase();
+    const isSmallTalk =
+      /^(hi|hello|hey|howdy|greetings|good\s+(morning|afternoon|evening))[\s,!?]*$/.test(_t) ||
+      /^(clear|reset|help|status|what\s+can\s+you\s+do|who\s+are\s+you)[\s,!?]*$/.test(_t) ||
+      /^(huh|what|really|oh|ok|okay|thanks|thank you|yes|no|yeah|yep|nope|hmm|lol|nice|cool|got it|i see|fair enough|never ?mind|please|wow)[\s.!?]*$/.test(_t) ||
+      (_t.length < 160 && (/\bmy name is\b.{0,40}\b(your|yours|you)\b/.test(_t) || /\bwhat('s| is) your name\b/.test(_t)));
+    if (isSmallTalk && clearance.cleared && !opencodeRoute) {
+      const msgs = [{ role: "system", content: [NEUTRAL_CHARACTER, turnStanding(model), discourse ? `\n${discourse}` : null].filter(Boolean).join("\n") }];
+      for (const m of chatHistory ?? []) msgs.push({ role: m.role, content: m.content });
+      msgs.push({ role: "user", content: task });
+      let fullText = "";
+      let fastTruncated = false;
+      await withSlot(model, async () => {
+        for await (const chunk of streamOllamaChat(model, msgs, { maxTokens: CALL_MAX_TOKENS, onNote, signal })) {
+          if (typeof chunk === "string") {
+            fullText += chunk;
+            if (onToken) onToken(chunk);
+          } else if (chunk?.done) {
+            usage.promptTokens += chunk.prompt_eval_count ?? 0;
+            usage.completionTokens += chunk.eval_count ?? 0;
+            if (chunk?.truncated) fastTruncated = true;
+          }
+        }
+      });
+      let text = fullText;
+      if (fullText.trim()) {
+        try {
+          const post = await postprocessAnswer(fullText, { onNote, timeboxMs: POSTPROCESS_TIMEOUT_MS });
+          if (post && typeof post.text === "string" && post.text.trim() && post.text !== fullText) text = post.text;
+        } catch { /* the tooling never breaks the answer */ }
+      }
+      if (onNote) onNote({ move: "fast_path", shape: "chat", chars: fullText.length });
+      return earlyResult(text, { answerShape: "chat", truncated: fastTruncated });
+    }
   }
 
   // 1. Workspace — admit real files into the session corpus, then SURF the
@@ -3075,6 +3482,13 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     hasWeb = webResult.pages > 0;
   }
 
+  // MEMBERSHIP SET: the source ids THIS TURN grounded on — surfaced by its
+  // own surf, adopted by its own prompt, or admitted for it by its own
+  // primary-source hunt. The citation sweep ranges over this set, never
+  // over the whole accumulated corpus: a source the turn did not use is
+  // inadmissible, not merely filtered (2026-09-17, the stale-citation fix).
+  const turnUsedSourceIds = new Set();
+
   // 2. Surf AND fold the conversation itself: the chat history is admitted to
   // the same corpus session as the workspace (unique per-turn sourceId, so
   // the corpus's concat-on-readmission guard is never tripped), and the fold
@@ -3205,6 +3619,17 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // material — not the single best address a one-shot answer needs.
       const surf = surfTask(session, task, onNote, { composition: runMode === "projection" });
       surfacedSegments = surf.segments;
+      // MEMBERSHIP (2026-09-17, the cite set is the turn's grounding, never
+      // the pool): everything this turn's surf surfaced is this turn's
+      // material — in projection the section briefs come from the fold that
+      // read these very segments, so they are citable here; chat/long mark
+      // only what the material loop actually adopts below. Stale pages
+      // (fetched turns ago) are not in this set, so they can never be cited
+      // by this turn, however many downstream filters fail.
+      for (const s of surf.segments) {
+        const sid = segmentSourceOf(s);
+        if (sid) turnUsedSourceIds.add(sid);
+      }
       surfVoid = surf.void || surf.segments.length === 0;
       surfVoidInfo = (surf.void || surf.segments.length === 0)
         ? { gap: surf.void ? (surf.gap ?? "content_not_found") : "nothing_relevant_found", reason: surf.reason ?? null, whatWouldSettle: voidSettleQuestion(surf.void ? (surf.gap ?? "content_not_found") : "nothing_relevant_found", task) }
@@ -3345,7 +3770,14 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     }
     for (const p of primary) {
       const srcId = `wikisource:${sessionId}:${p.term}`;
-      admitChunked(session.corpus, { text: piiAdmit(session, p.text, srcId, onNote), sourceId: srcId });
+      // READ FIRST, ADMIT ONLY ON SALIENCE (2026-09-17): admission used to
+      // happen BEFORE the reader ran, unconditionally — the measured door
+      // the gun-legislation page walked through (admitted to the corpus at
+      // an earlier turn, cited by a haiku turns later). Now the reader steps
+      // the page and only a page that moved the reading is admitted; a
+      // zero-surprise page is retained on the shadow (the visit stays on
+      // the record) but never enters the corpus — it can be neither
+      // surfaced nor cited. Nomination is not admission.
       const encounters = textEncounters(p.text, { source: srcId, offset: 0 });
       let surprise = { salient: 0 };
       for (const enc of encounters) {
@@ -3357,8 +3789,16 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // Keep the shadow + a note so the reader's movement is disclosed, and
       // fold the primary source INTO the digest so the mouth speaks from it.
       session.shadow.push({ url: `https://en.wikisource.org/wiki/${encodeURIComponent(p.title.replace(/ /g, "_"))}`, title: p.title, seenAt: new Date().toISOString(), chars: p.text.length, resolution: "fine", reading: surprise.salient });
-      readingDigest += `\n\n[A primary source: ${p.title}]\n${p.text.slice(0, 3000)}${p.text.length > 3000 ? "…" : ""}`;
-      if (onNote) onNote({ move: "wikisource_primary", term: p.term, title: p.title, chars: p.text.length, salient: surprise.salient });
+      if (surprise.salient > 0) {
+        admitChunked(session.corpus, { text: piiAdmit(session, p.text, srcId, onNote), sourceId: srcId });
+        stampAdmission(session, srcId, { task, salience: surprise.salient, resolution: "fine", kind: "wikisource" });
+        // MEMBERSHIP: this page grounded THIS turn — it is citable here.
+        turnUsedSourceIds.add(srcId);
+        readingDigest += `\n\n[A primary source: ${p.title}]\n${p.text.slice(0, 3000)}${p.text.length > 3000 ? "…" : ""}`;
+        if (onNote) onNote({ move: "wikisource_primary", term: p.term, title: p.title, chars: p.text.length, salient: surprise.salient });
+      } else {
+        if (onNote) onNote({ move: "wikisource_ignored", term: p.term, title: p.title, retained: "shadow-only" });
+      }
     }
     } finally {
       clearInterval(residentTimer);
@@ -3402,6 +3842,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // with, plus the durable theory of mind (what the person has asserted
     // and its standing), type-level only. Never a persona name, never a role.
     NEUTRAL_CHARACTER,
+    // Who answers, as serving fact (turnStanding) — the small model never
+    // has to reach for a name from weights.
+    turnStanding(model),
     ...(durable.length ? [`\nWhat you remember about this person (from before):\n${durable.map((f) => `- ${f}`).join("\n")}`] : []),
     // Composition: the frame is "we're writing an essay about X" — never an
     // instruction to the model about its own identity or process.
@@ -3461,6 +3904,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     if (used + text.length > materialRoom) break;
     material.push(text);
     used += text.length;
+    // MEMBERSHIP: what the prompt actually adopts is what the turn used.
+    const sid = segmentSourceOf(s);
+    if (sid) turnUsedSourceIds.add(sid);
   }
 
   let systemContent = systemCore;
@@ -3496,7 +3942,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // Projection withholds them from the prompt too: the citations ledger and
   // footnotes carry the verbatim spans; the section briefs carry the claims.
   if (answerShape.shape === "composition" && runMode !== "projection" && session.webSources && session.webSources.size) {
-    const snips = snipsFromSources(session.webSources, { maxSnips: 8, maxChars: 200 });
+    // Same relevance gate as the appendix below: session-persistent pools,
+    // per-turn quotes. Stale quotes would steer the model, not just the
+    // appendix — worse — so they drop here too.
+    const gatedPrompt = relevantSources(session.webSources, task);
+    const snips = snipsFromSources(gatedPrompt.kept, { maxSnips: 8, maxChars: 200 });
     if (snips.length) {
       systemContent += `\n\nVerbatim from the sources (quote these where they support your writing, never invent a quote):\n\n"""\n${snips.map((s) => `- "${s.snip}"`).join("\n")}\n"""`;
     }
@@ -4591,6 +5041,34 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         if (citationSources.has(sid)) continue;
         if (doc?.text && String(doc.text).trim().length > 40) citationSources.set(sid, String(doc.text));
       }
+      // MEMBERSHIP GATE (2026-09-17, measured): the pools above accumulate
+      // across turns, so a stale Wikisource page admitted turns earlier
+      // reached a later poem's Sources appendix with zero shared vocabulary.
+      // A source is cited only when THIS TURN used it — the surf surfaced
+      // it, the prompt adopted it, or the primary-source hunt admitted it
+      // for this artifact. Unused docs are inadmissible, not filtered: they
+      // never enter the ledger, the footnotes, or the appendix below (all
+      // three read this same Map). The drop is disclosed, never silent.
+      // NO SKIP ON EMPTY (2026-09-17, falsification): the gate used to be
+      // guarded on `turnUsedSourceIds.size` — a turn that used NOTHING
+      // (no surf, no primary source) skipped the gate and cited the whole
+      // pool. Empty used-set means the turn has NO sources to cite: the
+      // intersection below drops everything, which is the honest result.
+      {
+        const beforeMembership = citationSources.size;
+        for (const k of [...citationSources.keys()]) if (!turnUsedSourceIds.has(k)) citationSources.delete(k);
+        const membershipDropped = beforeMembership - citationSources.size;
+        if (membershipDropped > 0 && onNote) onNote({ move: "citations_unused_dropped", dropped: membershipDropped, kept: citationSources.size, used: turnUsedSourceIds.size });
+      }
+      // RELEVANCE GATE: hygiene on the used set — a source the turn used is
+      // still only cited for the task it serves. Mechanical word overlap,
+      // never a model judgment, so the gate cannot invent relevance.
+      const gated = relevantSources(citationSources, task);
+      if (gated.dropped > 0) {
+        citationSources.clear();
+        for (const [k, v] of gated.kept) citationSources.set(k, v);
+        if (onNote) onNote({ move: "citations_stale_dropped", dropped: gated.dropped, kept: citationSources.size });
+      }
       if (documentLedger && citationSources.size) {
         const snips = snipsFromSources(citationSources);
         // The structured citation ledger: a JSON doc beside the essay with the
@@ -4623,7 +5101,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // (each citation's essaySentence gets [n] after it in the folded
         // prose). The server stores the STRUCTURED citations (citations.json)
         // and the footnote block as a `citations` ledger line — never a
-        // duplicate inline-marked body, never the footnotes twice.
+        // duplicate inline-marked body, never the footnotes twice. THE CHAT
+        // MESSAGE IS THE PROSE AND NOTHING ELSE (2026-09-17): footnotes and
+        // the Sources appendix used to ride documentLines/fullText/onToken,
+        // so the TUI transcript printed a raw source dump under the essay —
+        // that rendering belongs to the ARTIFACT (the browser's live HTML
+        // folds the ledger + citations client-side), never to the reply.
+        // The artifact is the ledger; the message is the prose.
         if (footnoteBlock) {
           appendLedgerLine(documentLedger, {
             role: "citations", title: "Footnotes (APA)", text: footnoteBlock,
@@ -4631,10 +5115,6 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             basis: "mechanical attribution of each essay sentence to its best-supporting web source, with the verbatim borrowed span",
           }, { dir: ESSAY_LEDGER_DIR });
           if (onThinking) onThinking(`\n### Footnotes (APA)\n\n${footnoteBlock}\n`);
-          const block = `\n${footnoteBlock}`;
-          documentLines.push(block);
-          fullText += block;
-          if (onToken) onToken(block);
         }
         if (snips.length) {
           const citationsText = snips.map((s) => `- "${s.snip}" — ${s.url}`).join("\n");
@@ -4644,10 +5124,6 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             basis: "verbatim snips taken mechanically from EOT-retained web sources — never generated",
           }, { dir: ESSAY_LEDGER_DIR });
           if (onThinking) onThinking(`\n### Sources (verbatim)\n\n${citationsText}\n`);
-          const citationBlock = `\n\n## Sources (verbatim)\n\n${citationsText}`;
-          documentLines.push(citationBlock);
-          fullText += citationBlock;
-          if (onToken) onToken(citationBlock);
         }
       }
       } else {
@@ -5460,6 +5936,8 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     thinking: thinkingBlock || null,
     answerShape: answerShape.shape,
     mode: runMode,
+    // The model that ANSWERED (plain-speech switch disclosed, never silent).
+    model,
     // THE VOID, DEFINED AND SATISFIED — universal across every mode. The
     // shape names what the answer must be; the questions are the void the
     // answer had to fill; satisfied is the verdict the mode earned (a

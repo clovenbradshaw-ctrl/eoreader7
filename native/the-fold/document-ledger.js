@@ -952,6 +952,9 @@ export function lavarGradeReading({ source = "", text = "", propositions = [], w
 // [] when no source text is retained.
 export function snipsFromSources(webSources, { maxSnips = 6, maxChars = 240 } = {}) {
   const out = [];
+  const seen = new Set(); // exact-normalized identities already emitted
+  const emittedWordSets = []; // word sets of emitted snips, for near-dupe suppression
+  const wordsOf = (s) => new Set(snipIdentity(s).split(" ").filter(Boolean));
   for (const [url, text] of (webSources ?? new Map()).entries()) {
     if (out.length >= maxSnips) break;
     if (!text) continue;
@@ -962,22 +965,101 @@ export function snipsFromSources(webSources, { maxSnips = 6, maxChars = 240 } = 
       .filter((s) => s.length > 40 && s.length <= maxChars);
     for (const s of sentences) {
       if (out.length >= maxSnips) break;
-      out.push({ url, snip: cleanSpan(s) });
+      const cleaned = cleanSpan(s);
+      const id = snipIdentity(cleaned);
+      if (!id || seen.has(id)) continue;
+      // NEAR-DUPES: one Wikisource page's title variants ("…Plastic Guns
+      // 2013 Steven J." vs "…Plastic Guns (January 16, 2013) Rep.") are
+      // distinct strings but the same words — without suppression they fill
+      // all maxSnips and starve every other source. A candidate whose words
+      // are ≥80% covered by an emitted snip adds nothing; the first variant
+      // stands for the family.
+      const words = wordsOf(cleaned);
+      let covered = false;
+      for (const prev of emittedWordSets) {
+        let inter = 0;
+        for (const w of words) if (prev.has(w)) inter++;
+        if (words.size > 0 && inter / words.size >= 0.8) { covered = true; break; }
+      }
+      if (covered) continue;
+      seen.add(id);
+      emittedWordSets.push(words);
+      out.push({ url, snip: cleaned });
     }
   }
   return out;
 }
 
+// ── citation relevance: a source is cited only for the task it serves ──────
+// The session corpus and webSources ACCUMULATE across turns (an earlier
+// projection turn's Wikisource lookup is still in the corpus at the next
+// poem), but the Sources appendix is built per turn with no relevance check
+// — measured 2026-09-17: "write a haiku about debugging code" cited six
+// gun-legislation snips admitted turns earlier. A source survives only when
+// it shares the task's vocabulary (≥2 distinct content words): same-turn
+// material was fetched FOR this task so it overlaps; a sustained-research
+// follow-up ("tell me more about the trolley problem") overlaps too; a
+// stale page shares nothing and drops. A task with fewer than 2 content
+// words cannot judge anything ("tell me more") — keep everything rather
+// than cite nothing on a vague follow-up. Mechanical word overlap, never a
+// model judgment, so the gate cannot invent relevance.
+const CITATION_STOPS = new Set(("about,above,after,again,against,among,before,between,could,doing,down,each,from,further,having,here,more,most,other,should,such,that,this,these,those,under,their,them,then,there,what,when,where,which,while,will,with,would,your,into,over,through,during,also,just,like,than,very,please").split(","));
+function contentWords(text) {
+  const words = String(text ?? "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter((w) => w.length >= 4 && !CITATION_STOPS.has(w));
+  return new Set(words);
+}
+export function relevantSources(sources, task) {
+  const entries = [...(sources ?? new Map()).entries()];
+  const taskWords = contentWords(task);
+  if (taskWords.size < 2) return { kept: sources, dropped: 0 };
+  const kept = new Map();
+  let dropped = 0;
+  for (const [id, text] of entries) {
+    const docWords = contentWords(String(text ?? "").slice(0, 8000));
+    let shared = 0;
+    for (const w of taskWords) if (docWords.has(w)) { shared++; if (shared >= 2) break; }
+    if (shared >= 2) kept.set(id, text);
+    else dropped++;
+  }
+  return { kept, dropped };
+}
+
 // Clean a verbatim span: strip the citation/reference debris a source page
 // carries in its own text — Wikipedia's "[ 89 ]", bracketed ref numbers,
-// and the trailing whitespace they leave — so a quoted span is the source's
-// own words, not its apparatus. Mechanical, never paraphrasing.
+// and the trailing whitespace they leave — and decode the HTML entities a
+// scraped page carries in its bytes (`&#160;`, `&nbsp;`, `&amp;` …), so a
+// quoted span is the source's own words, not its markup. Measured
+// 2026-09-17: a Wikisource legislation page reached a poem's Sources
+// appendix with `&#160;` intact and six near-identical title variants —
+// neither cleaning nor dedup existed. Mechanical, never paraphrasing.
+const HTML_ENTITIES = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " " };
+export function decodeHtmlEntities(s = "") {
+  return String(s).replace(/&(?:#(\d+)|#x([0-9a-fA-F]+)|([a-zA-Z]+));/g, (m, dec, hex, named) => {
+    if (dec) { const cp = Number(dec); return Number.isSafeInteger(cp) && cp > 0 ? String.fromCodePoint(cp) : m; }
+    if (hex) { const cp = parseInt(hex, 16); return Number.isSafeInteger(cp) && cp > 0 ? String.fromCodePoint(cp) : m; }
+    const key = String(named ?? "").toLowerCase();
+    return key in HTML_ENTITIES ? HTML_ENTITIES[key] : m;
+  });
+}
 export function cleanSpan(s = "") {
-  return String(s)
+  return decodeHtmlEntities(String(s))
+    .replace(/ /g, " ") // decoded &nbsp;/&#160; is whitespace, not a visible byte
     .replace(/\[\s*\d+(?:\s*,?\s*\d+)*\s*\]/g, "")
     .replace(/\s{2,}/g, " ")
     .replace(/\(\s*\)/g, "")
     .trim();
+}
+
+// A snip's dedup identity: lowercase, entities decoded, punctuation and
+// whitespace collapsed — two title variants of the same Wikisource page
+// ("…Plastic Guns 2013 Steven J." vs "…Plastic Guns (January 16, 2013)
+// Rep.") still differ here (they ARE different spans), but byte-identical
+// and case-only repeats collapse. Near-duplicate suppression beyond that
+// (the six variants above) is the relevance gate's job below: variants of
+// one stale page share the page's vocabulary, and a stale page shares
+// nothing with the task, so the whole family drops together.
+function snipIdentity(s = "") {
+  return decodeHtmlEntities(String(s)).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
 // ── serialization ───────────────────────────────────────────────────────────

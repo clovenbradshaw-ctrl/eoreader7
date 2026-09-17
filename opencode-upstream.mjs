@@ -204,9 +204,12 @@ export function upstreamModelFor(model) {
 
 // ── the draw ----------------------------------------------------------------
 // Convert Ollama-format chat messages to one opencode user message: system
-// turns become the `system` prompt, the rest join in order into a single text
-// part (a prompt_async call carries ONE user message; prior assistant turns
-// ride as their own verbatim prose, which is exactly the continuation thread).
+// turns become the `system` prompt, and every other turn keeps its role as a
+// plain label (`user:` / `assistant:`) in order — a normal transcript, the
+// same words in the same order with who-said-what intact. A prompt_async
+// call carries ONE user message, so roles ride as labels; flattening them
+// away (assistant prose as user prose) is exactly the confusion to avoid —
+// the model must never read its own prior words as the user's.
 function toOpencodePrompt(messages) {
   const system = [];
   const turns = [];
@@ -214,7 +217,8 @@ function toOpencodePrompt(messages) {
     const text = String(m?.content ?? "");
     if (!text) continue;
     if (m?.role === "system") system.push(text);
-    else turns.push(text);
+    else if (m?.role === "assistant") turns.push(`assistant: ${text}`);
+    else turns.push(`user: ${text}`);
   }
   return { system: system.join("\n\n") || undefined, text: turns.join("\n\n") };
 }
@@ -429,6 +433,21 @@ export async function* streamOpencodeText(
       });
     } catch { /* usage logging never fails a turn */ }
   };
+  // ROLE TRACKING — whose words each part belongs to. prompt_async posts OUR
+  // user message first, and the server streams part updates for it as well as
+  // for the reply; yielding both is the transcript-echo (measured 2026-09-17:
+  // every draw replayed the whole prompt as its own answer). message.updated
+  // carries each message's id AND role, always ahead of that message's parts
+  // (the server creates the message before streaming it) — so a text part is
+  // yielded only when its message is the assistant's reply. Unknown role
+  // (an event shape this server never sent) falls back to yielding, never to
+  // silence: the fallback is loud in the worst case, never a dropped answer.
+  const roleByMessage = new Map(); // message id -> "user" | "assistant" | ...
+  const roleOfPart = (props) => {
+    const mid = String(props?.part?.messageID ?? props?.messageID ?? "");
+    if (!mid) return null;
+    return roleByMessage.get(mid) ?? null;
+  };
   const seenByPart = new Map(); // part id -> chars already emitted (snapshot fallback)
   const takePiece = (part, delta) => {
     const seen = seenByPart.get(part?.id) ?? 0;
@@ -457,7 +476,11 @@ export async function* streamOpencodeText(
       // message.updated carries the cumulative AssistantMessage (tokens +
       // cost); the LAST one before idle is the draw's account. Filtered to
       // our session like everything else; user-role messages have no tokens.
-      if (type === "message.updated" && props.info?.role === "assistant") {
+      // Every message.updated ALSO seeds the role map (user AND assistant),
+      // so part events below can tell our prompt's words from the reply's.
+      if (type === "message.updated" && props.info?.id) {
+        roleByMessage.set(String(props.info.id), props.info.role ?? null);
+        if (props.info.role !== "assistant") continue; // our own prompt: tracked, never yielded
         noteUsage(props.info.tokens, props.info.cost);
         continue;
       }
@@ -476,6 +499,12 @@ export async function* streamOpencodeText(
         throw Object.assign(new Error(`opencode: model produced a non-text part (${props.part.type}) — tools are disabled for mouth draws`), { code: "ERR_OPENCODE_TOOL_BLOCKED" });
       }
       if (type === "message.part.updated" && props.part?.type === "text") {
+        // Only the reply's words are yielded. Our own prompt streams part
+        // updates too (same session, type text) — yielding them is the
+        // transcript-echo. Unknown role falls back to yielding (loud, never
+        // a dropped answer).
+        const role = roleOfPart(props);
+        if (role && role !== "assistant") continue;
         const piece = takePiece(props.part, props.delta);
         if (piece) {
           emittedChars += piece.length;
