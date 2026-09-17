@@ -25,6 +25,9 @@
 
 const TOKEN = /[\p{L}\p{N}’']+|[.,;:!?—–()«»“”]/gu;
 const NOMINAL = new Set(["NOUN", "PROPN", "ADJ", "PRON", "DET", "NUM"]);
+// The clause reader's nominal set excludes DET — the article is a case probe,
+// never a being; bare nominals are collected on their own case-marked ending.
+const CLAUSE_NOMINAL = new Set(["NOUN", "PROPN", "ADJ", "PRON", "NUM"]);
 const STOP = new Set(["VERB", "ADP", "SCONJ", "CCONJ", "ADV", "AUX"]);
 // The Greek definite article IS the case probe: ὁ (nom), τοῦ (gen), τῷ
 // (dat), τόν (acc) — the article marks its noun's grammatical role, and the
@@ -39,6 +42,12 @@ const tokenize = (text) => {
   });
   return out;
 };
+
+/** stripDiacritics — NFD + drop combining marks. Greek ACCENTS MOVE between
+ * cases (θά-να-τος → θα-νά-του): a stem comparison on raw letters sees the
+ * shifted accent as a different word. The stem is the unaccented skeleton. */
+const strip = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+export { strip as stripDiacritics };
 
 /** confirmedVerbSet(prior, share) — every form the received POSPrior@1
  * attests as (VERB+AUX)-dominant above the share floor: the sole authority
@@ -96,8 +105,9 @@ export function greekBeings(chapterText, prior, { minOccurrences = 2 } = {}) {
   }
   const stems = new Map(); // stem -> phrases
   const assign = (ph) => {
+    const b = strip(ph.headLower);
     for (const [stem, grp] of stems) {
-      const a = stem, b = ph.headLower;
+      const a = strip(stem);
       const len = Math.min(a.length, b.length);
       let lcp = 0;
       while (lcp < len && a[lcp] === b[lcp]) lcp += 1;
@@ -130,7 +140,7 @@ export function greekBeings(chapterText, prior, { minOccurrences = 2 } = {}) {
 export function personOf(verbForm, casePrior, { minShare = 0.5, minCount = 20, endingLen = 3 } = {}) {
   const table = casePrior?.verbPersonalEndings;
   if (!table) return null;
-  const ending = String(verbForm ?? "").toLowerCase().slice(-endingLen);
+  const ending = strip(verbForm).slice(-endingLen);
   const entry = table[ending];
   if (!entry?.ranked?.length) return null;
   const top = entry.ranked[0];
@@ -144,6 +154,94 @@ export function personOf(verbForm, casePrior, { minShare = 0.5, minCount = 20, e
 export function personLabel(person, number) {
   const map = { "1|Sing": "I", "2|Sing": "you", "3|Sing": "he/she/it", "1|Plur": "we", "2|Plur": "you (pl.)", "3|Plur": "they" };
   return map[`${person}|${number}`] ?? "one";
+}
+
+/** caseOf(token, casePrior, opts) — the Case|Number of a word from its
+ * ending, via the received GreekCasePrior@1 (the one-master builder's
+ * nominalEndings: word-ending -> Case|Number -> cube cell). The prior only
+ * tallies; the reader's own confidence floor decides — below it, a gap. */
+export function caseOf(token, casePrior, { minShare = 0.5, minCount = 10, endingLen = 2 } = {}) {
+  const table = casePrior?.nominalEndings;
+  if (!table) return null;
+  const ending = strip(token).slice(-endingLen);
+  const entry = table[ending];
+  if (!entry?.ranked?.length) return null;
+  const top = entry.ranked[0];
+  if (top.share < minShare || top.count < minCount) return null;
+  const [Case, number] = top.key.split("|");
+  return { case: Case, number, share: top.share, count: top.count, ending, cell: top.cell ?? null };
+}
+
+/** beingRefOf(headLower, beingsByStem) — bind a clause end to a tier-1 being
+ * by stem recurrence (identity by consequence, made morphological): the head
+ * and a being's stem share a prefix >= 5, at least half the longer form. */
+export function beingRefOf(headLower, beingsByStem) {
+  const b = strip(headLower);
+  for (const [stem, _b] of beingsByStem) {
+    const a = strip(stem);
+    const len = Math.min(a.length, b.length);
+    let lcp = 0;
+    while (lcp < len && a[lcp] === b[lcp]) lcp += 1;
+    if (lcp >= 5 && lcp / Math.max(a.length, b.length) >= 0.5) return `ref:grc:auto:${stem}`;
+  }
+  return null;
+}
+
+/** greekClauses(sentText, verbs, posPrior, casePrior, { beings }) — THE
+ * CASE-MARKED CLAUSE READER (2026-09-17). The positional reader's subject
+ * group is dead on free-order Greek; CASE is the grammar (the prior's own
+ * thesis). For each clause segment (bounded by punctuation) and each earned
+ * verb: the NOMINATIVE nominal is the subject (SEG·Figure), the ACCUSATIVE
+ * (or genitive) is the object, and a nominative after a subjectless verb is
+ * a predicate complement — the copula-thesis shape the seam could not see
+ * ("τὰ μέν ἐστιν ἐφ' ἡμῖν" — some things ARE in our power). Ends bind to
+ * the tier-1 beings by stem. Returns [{verb, subject, object, subjectRef,
+ * objectRef, subjectCell, objectCell}] — subject null means pro-drop. */
+export function greekClauses(sentText, verbs, posPrior, casePrior, { beings = [], minShare = 0.5, minCount = 10 } = {}) {
+  if (!(verbs instanceof Set) || !verbs.size || !casePrior) return [];
+  const beingsByStem = new Map(beings.map((b) => [b.stem, b]));
+  const toks = tokenize(sentText);
+  const segments = [];
+  let cur = [];
+  for (const t of toks) { if (t.punct) { if (cur.length) segments.push(cur); cur = []; } else cur.push(t); }
+  if (cur.length) segments.push(cur);
+  const out = [];
+  for (const seg of segments) {
+    const verbIdx = [];
+    for (let i = 0; i < seg.length; i += 1) if (verbs.has(seg[i].w)) verbIdx.push(i);
+    for (const vi of verbIdx) {
+      const v = seg[vi];
+      // BARE AND ARTICLE-HEADED NOMINALS, both case-marked by their ending:
+      // Greek predicate nominatives (the copula-thesis complement) are often
+      // bare — "ὁ θάνατος ἐστίν φόβος" has no article on φόβος. The DET
+      // itself is never collected (the article is a case probe, not a being).
+      const nominals = [];
+      for (let i = 0; i < seg.length; i += 1) {
+        const cls = nominalClass(seg[i].w, posPrior);
+        if (!cls || !CLAUSE_NOMINAL.has(cls)) continue;
+        const c = caseOf(seg[i].w, casePrior, { minShare, minCount });
+        nominals.push({ head: seg[i].raw, headLower: seg[i].w, at: [seg[i].start, seg[i].end], case: c?.case ?? null, cell: c?.cell ?? null });
+      }
+      const nom = nominals.filter((n) => n.case === "Nom");
+      const acc = nominals.filter((n) => n.case === "Acc");
+      const gen = nominals.filter((n) => n.case === "Gen");
+      const subject = nom.length ? nom[0] : null;
+      let object = acc.length ? acc[0] : (gen.length ? gen[0] : null);
+      if (!object) {
+        const after = nominals.filter((n) => n.at[0] > v.end);
+        const predNom = after.find((n) => n.case === "Nom");
+        if (predNom) object = predNom;
+      }
+      out.push({
+        verb: v.raw,
+        subject, object,
+        subjectRef: subject ? beingRefOf(subject.headLower, beingsByStem) : null,
+        objectRef: object ? beingRefOf(object.headLower, beingsByStem) : null,
+        subjectCell: subject?.cell ?? null, objectCell: object?.cell ?? null,
+      });
+    }
+  }
+  return out;
 }
 
 /** prodropClauses(sentText, verbs, prior) — the clauses the positional gate

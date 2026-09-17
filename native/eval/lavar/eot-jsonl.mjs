@@ -59,7 +59,7 @@ import { bindNarrationFrames, pronounResolver } from "../../adapters/text/perspe
 import { boundAnchorSpans } from "../../adapters/text/vocabulary.js";
 import * as cube from "../../kernel/cube.js";
 import { makeGrainTyper } from "./grain-typing.mjs";
-import { prodropClauses, confirmGreekVerbs, greekBeings, personOf, personLabel } from "./greek.mjs";
+import { prodropClauses, confirmGreekVerbs, greekBeings, personOf, personLabel, greekClauses } from "./greek.mjs";
 import { receivedGround, applyDelta } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
 import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
@@ -703,11 +703,13 @@ for (const [refId, info] of byReferent) {
 // 0 pure, referentPurity 0 on the Enchiridion. A Greek being is an
 // article-marked nominal phrase (the article IS the case probe where English
 // uses capitals), its cased variants grouped by stem. The same two acts,
-// kept apart: the DEF.admit lens line and the ENTITY it asserts.
+// kept apart: the DEF.admit lens line and the ENTITY it asserts. Hoisted
+// once so the clause reader below can bind its ends to the same beings.
+const GRC_BEINGS = GREEK ? greekBeings(chapterText, POS_PRIOR) : [];
 if (GREEK) {
   const sigCell = cube.cellOf("SIG", "Figure");
   const lensCell = cube.cellOf("DEF", "Figure");
-  for (const being of greekBeings(chapterText, POS_PRIOR)) {
+  for (const being of GRC_BEINGS) {
     const refId = `ref:grc:auto:${being.stem}`;
     let first = Infinity, firstSur = null;
     for (const sur of being.surfaces) {
@@ -990,7 +992,33 @@ for (const sent of sentences) {
     // object from the material's own words and discloses the subject as
     // grammaticalized; it never fabricates a referent.
     if (GREEK && hasEarnedVerb) {
+      // THE CASE-MARKED CLAUSE READER first (2026-09-17): a clause with an
+      // OVERT subject is read by CASE — nominative is the subject (SEG·Figure),
+      // accusative/genitive the object — and emitted as a full proposition
+      // with its ends BOUND to the tier-1 beings. This recovers the
+      // copula-thesis shape the seam could not see.
+      const overt = GREEK_CASE_PRIOR
+        ? greekClauses(sent.text, verbs, POS_PRIOR, GREEK_CASE_PRIOR, { beings: GRC_BEINGS }).filter((c) => c.subject)
+        : [];
+      // The pro-drop seam handles the clauses whose subject is truly
+      // grammaticalized in the verb — broad object capture + the person tier.
       const prodrop = prodropClauses(sent.text, verbs, POS_PRIOR);
+      const sigCell = cube.cellOf("SIG", "Figure");
+      for (const c of overt) {
+        const at = c.object?.at ?? c.subject.at;
+        emit({
+          schema: "EOTObservation@1", id: id("o"), at: rawAt(sent.offset + at[0], sent.offset + at[1]),
+          role: "proposition",
+          end1: c.subject.head, label: c.verb, ...(c.object ? { end2: c.object.head } : {}),
+          subjectBasis: "case-marked",
+          ...(c.subjectRef ? { end1Ref: c.subjectRef } : {}),
+          ...(c.objectRef ? { end2Ref: c.objectRef } : {}),
+          ...(c.subjectCell ? { end1Cell: c.subjectCell } : {}),
+          ...(c.objectCell ? { end2Cell: c.objectCell } : {}),
+          operator: sigCell.op, grain: sigCell.grain, terrain: sigCell.terrain, stance: sigCell.stance,
+          disclosure: "case-marked clause: nominative subject and accusative/genitive object settled from the received GreekCasePrior@1; ends bind to the beings by stem recurrence",
+        });
+      }
       for (const c of prodrop) {
         // THE PERSON TIER (2026-09-17): the subject is not just "in the
         // verb" — the received GreekCasePrior@1 settles WHICH person it is,
@@ -1000,10 +1028,11 @@ for (const sent of sentences) {
         // confidence floor, the person stays unsettled — disclosed, never
         // guessed.
         const person = GREEK_CASE_PRIOR ? personOf(c.verb, GREEK_CASE_PRIOR) : null;
+        const cAt = c.at ?? (c.object?.at ?? [0, 1]);
         emit({
-          schema: "EOTProdrop@1", id: id("pd"), at: rawAt(sent.offset + c.at[0], sent.offset + c.at[1]),
+          schema: "EOTProdrop@1", id: id("pd"), at: rawAt(sent.offset + cAt[0], sent.offset + cAt[1]),
           role: "proposition",
-          verb: c.verb, ...(c.object ? { object: c.object } : {}),
+          verb: c.verb, ...(c.object ? { object: typeof c.object === "string" ? c.object : c.object.head } : {}),
           subjectBasis: "pro-drop",
           ...(person ? { subjectPerson: person.person, subjectNumber: person.number, personShare: person.share, subjectCell: person.cell } : {}),
           disclosure: person
@@ -1011,7 +1040,7 @@ for (const sent of sentences) {
             : "the clause's subject is grammaticalized in the verb (person/number) but its person did not clear the reader's confidence floor — settled means refusable, never guessed; verb and object are the material's own words",
         });
       }
-      if (prodrop.length) continue; // the clause was heard; no absence to record
+      if (overt.length || prodrop.length) continue; // the clause was heard; no absence to record
     }
     emit({
       schema: "EOTAbsence@1",

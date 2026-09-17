@@ -49,6 +49,11 @@ const LICENSE = arg("license", "CC BY-NC-SA 2.5 — non-commercial, share-alike;
 const NOMINAL_UPOS = new Set(["NOUN", "PROPN", "ADJ", "PRON", "NUM"]);
 const CASE_ENDING_LEN = 2;
 const VERB_ENDING_LEN = 3;
+// DIACRITIC-FREE ENDINGS (2026-09-17). Greek accents sit ON final vowels
+// (τόν → "όν" ≠ "ον"): the ending key is built on the unaccented skeleton so
+// a lookup side strips the same way. Latin is ASCII — strip is a no-op, the
+// shipped Latin artifact is byte-identical.
+const strip = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
 const lines = readFileSync(IN, "utf8").split("\n");
 const caseTable = new Map();
@@ -67,7 +72,7 @@ for (const line of lines) {
 
   if (NOMINAL_UPOS.has(upos) && featMap.Case) {
     nominalTokens++;
-    const ending = lower.slice(-CASE_ENDING_LEN);
+    const ending = strip(lower).slice(-CASE_ENDING_LEN);
     const key = `${featMap.Case}|${featMap.Number ?? "?"}`;
     if (!caseTable.has(ending)) caseTable.set(ending, new Map());
     const m = caseTable.get(ending);
@@ -75,7 +80,7 @@ for (const line of lines) {
   }
   if ((upos === "VERB" || upos === "AUX") && featMap.VerbForm === "Fin" && featMap.Person && featMap.Number) {
     verbTokens++;
-    const ending = lower.slice(-VERB_ENDING_LEN);
+    const ending = strip(lower).slice(-VERB_ENDING_LEN);
     const key = `${featMap.Person}|${featMap.Number}`;
     if (!verbTable.has(ending)) verbTable.set(ending, new Map());
     const m = verbTable.get(ending);

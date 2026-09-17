@@ -4,7 +4,7 @@
 // word order; the seam recovers the clause and the gate refuses the garbage.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { prodropClauses, confirmedVerbSet, confirmGreekVerbs, nominalClass, greekBeings } from "./greek.mjs";
+import { prodropClauses, confirmedVerbSet, confirmGreekVerbs, nominalClass, greekBeings, personOf, personLabel, caseOf, greekClauses, beingRefOf } from "./greek.mjs";
 
 const grcPrior = {
   forms: {
@@ -102,4 +102,98 @@ test("greekBeings skips non-nominal heads — a verb under the article is not a 
   const text = "τὸ γίνεται οὕτως.";
   const prior = { forms: { γίνεται: { VERB: 8 } } };
   assert.equal(greekBeings(text, prior).length, 0);
+});
+
+// A GreekCasePrior@1-shaped fixture (built by the one-master builder from
+// UD_Ancient_Greek-PROIEL): verb personal endings tagged with Person|Number
+// and their CUBE CELL (the universal grammar's projection).
+const grcCasePrior = {
+  schema: "GreekCasePrior@1", language: "grc",
+  verbPersonalEndings: {
+    εις: { total: 256, ranked: [{ key: "2|Sing", count: 256, share: 1, cell: { op: "SIG", grain: "Figure", terrain: "Entity", stance: "Binding" } }] },
+    μαι: { total: 308, ranked: [{ key: "1|Sing", count: 308, share: 1, cell: { op: "SIG", grain: "Ground", terrain: "Void", stance: "Clearing" } }] },
+    ετο: { total: 716, ranked: [{ key: "3|Sing", count: 716, share: 1, cell: { op: "INS", grain: "Figure", terrain: "Entity", stance: "Making" } }] },
+    ξει: { total: 100, ranked: [{ key: "3|Sing", count: 40, share: 0.4, cell: { op: "INS", grain: "Figure", terrain: "Entity", stance: "Making" } }] },
+  },
+};
+
+test("personOf recovers the grammatical person from the verb ending, with its cube cell", () => {
+  const p = personOf("θέλεις", grcCasePrior);
+  assert.deepEqual({ person: p.person, number: p.number, share: p.share }, { person: 2, number: "Sing", share: 1 });
+  assert.equal(p.cell.op, "SIG");
+  assert.equal(p.cell.terrain, "Entity", "the addressee 'you' is the attended figure — SIG·Figure (Entity)");
+  const i = personOf("γίγνομαι", grcCasePrior);
+  assert.equal(i.person, 1);
+  assert.equal(i.cell.terrain, "Void", "the speaker is the unstated ground of the utterance — SIG·Ground (Void)");
+});
+
+test("personOf refuses below the reader's confidence floor — settled means refusable, never guessed", () => {
+  assert.equal(personOf("ποιήξει", grcCasePrior, { minShare: 0.5 }), null, "a 0.4 share does not clear the floor");
+  assert.equal(personOf("θέλεις", grcCasePrior, { minCount: 1000 }), null, "a low count does not clear the floor");
+  assert.equal(personOf("ἀγνώστος", grcCasePrior), null, "an unattested ending returns a gap, never a guess");
+});
+
+test("personLabel glosses the Greek grammatical persons", () => {
+  assert.equal(personLabel(2, "Sing"), "you");
+  assert.equal(personLabel(1, "Sing"), "I");
+  assert.equal(personLabel(3, "Plur"), "they");
+});
+
+// A GreekCasePrior@1-shaped nominalEndings fixture for the case reader.
+const grcCasePriorFull = {
+  ...grcCasePrior,
+  nominalEndings: {
+    ος: { total: 500, ranked: [{ key: "Nom|Sing", count: 400, share: 0.8, cell: { op: "SEG", grain: "Figure", terrain: "Link", stance: "Dissecting" } }] },
+    ου: { total: 300, ranked: [{ key: "Gen|Sing", count: 240, share: 0.8, cell: { op: "CON", grain: "Pattern", terrain: "Network", stance: "Tracing" } }] },
+    ον: { total: 400, ranked: [{ key: "Acc|Sing", count: 340, share: 0.85, cell: { op: "CON", grain: "Figure", terrain: "Link", stance: "Binding" } }] },
+    ης: { total: 200, ranked: [{ key: "Nom|Sing", count: 180, share: 0.9, cell: { op: "SEG", grain: "Figure", terrain: "Link", stance: "Dissecting" } }] },
+    α: { total: 300, ranked: [{ key: "Acc|Sing", count: 210, share: 0.7, cell: { op: "CON", grain: "Figure", terrain: "Link", stance: "Binding" } }] },
+  },
+};
+
+test("caseOf settles Case|Number from the word ending, with its cube cell", () => {
+  const n = caseOf("κυβερνήτης", grcCasePriorFull);
+  assert.equal(n.case, "Nom");
+  assert.equal(n.cell.op, "SEG", "the nominative subject is the differentiated figure — SEG·Figure");
+  const a = caseOf("τὸν", grcCasePriorFull);
+  assert.equal(a.case, "Acc");
+  assert.equal(a.cell.terrain, "Link");
+  assert.equal(caseOf("ἀγνώστος", grcCasePriorFull, { minCount: 100000 }), null, "below the floor, a gap — never a guess");
+});
+
+test("greekClauses reads a clause by CASE: nominative subject, accusative object", () => {
+  const verbs = new Set(["βλέπει"]);
+  const pos = { forms: { κυβερνήτης: { NOUN: 10 }, λόγον: { NOUN: 5 }, βλέπει: { VERB: 8 } } };
+  const clauses = greekClauses("ὁ κυβερνήτης βλέπει τὸν λόγον.", verbs, pos, grcCasePriorFull, {});
+  assert.equal(clauses.length, 1);
+  assert.equal(clauses[0].verb, "βλέπει");
+  assert.equal(clauses[0].subject.head, "κυβερνήτης");
+  assert.equal(clauses[0].object.head, "λόγον");
+  assert.equal(clauses[0].subject.case, "Nom");
+  assert.equal(clauses[0].object.case, "Acc");
+});
+
+test("greekClauses recovers the copula-thesis shape: subject | is | predicate", () => {
+  const verbs = new Set(["ἐστίν"]);
+  const pos = { forms: { θάνατος: { NOUN: 10 }, φόβος: { NOUN: 8 }, ἐστίν: { VERB: 20 } } };
+  // no accusative after the copula → a nominative predicate becomes the complement
+  const clauses = greekClauses("ὁ θάνατος ἐστίν φόβος.", verbs, pos, grcCasePriorFull, {});
+  assert.equal(clauses.length, 1);
+  assert.equal(clauses[0].subject.head, "θάνατος");
+  assert.equal(clauses[0].object.head, "φόβος", "the predicate nominative fills the complement slot");
+});
+
+test("beingRefOf binds a clause end to a tier-1 being by stem recurrence", () => {
+  const beingsByStem = new Map([["θάνατος", { stem: "θάνατος" }]]);
+  assert.equal(beingRefOf("θάνατος", beingsByStem), "ref:grc:auto:θάνατος");
+  assert.equal(beingRefOf("θανάτου", beingsByStem), "ref:grc:auto:θάνατος", "the genitive variant binds to the same being");
+  assert.equal(beingRefOf("γυνὴ", beingsByStem), null);
+});
+
+test("greekClauses leaves the subject null for a pro-drop clause — the seam's fallback", () => {
+  const verbs = new Set(["γίνεται"]);
+  const clauses = greekClauses("γίνεται γὰρ οὕτως.", verbs, { forms: {} }, grcCasePriorFull, {});
+  assert.equal(clauses.length, 1);
+  assert.equal(clauses[0].subject, null);
+  assert.equal(clauses[0].verb, "γίνεται");
 });
