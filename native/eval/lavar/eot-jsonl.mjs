@@ -59,6 +59,7 @@ import { bindNarrationFrames, pronounResolver } from "../../adapters/text/perspe
 import { boundAnchorSpans } from "../../adapters/text/vocabulary.js";
 import * as cube from "../../kernel/cube.js";
 import { makeGrainTyper } from "./grain-typing.mjs";
+import { prodropClauses, confirmGreekVerbs } from "./greek.mjs";
 import { receivedGround, applyDelta } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
 import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
@@ -202,6 +203,13 @@ const rawAt = (start, end) => [toRaw(start), toRaw(end)];
 // real prose, not merely under-listed here), and Hebrew has no neuter
 // "it" at all (every noun is grammatically masculine or feminine).
 const LANG = (process.argv.find((a) => a.startsWith("--lang=")) ?? "--lang=eng").replace("--lang=", "");
+// GREEK PRO-DROP (2026-09-17). Ancient Greek (grc) and modern Greek (ell)
+// grammaticalize the clause subject in the verb; the positional S90 gate
+// ("subject group AND object group") is an English assumption. When this is
+// true, a sentence whose earned verb the gate refused is re-read by the
+// pro-drop seam (greek.mjs): the verb named, its case-marked object captured,
+// the subject disclosed as grammaticalized — never fabricated.
+const GREEK = LANG === "ell" || LANG === "grc";
 // JavaScript's `\b` is an ASCII-only boundary (defined against `\w` =
 // [A-Za-z0-9_]) even with the `u` flag — it does NOT become Unicode-aware.
 // A boundary check right against a Greek, Hebrew, or Turkish dotless-ı
@@ -235,6 +243,17 @@ const LANG_PRONOUNS = {
   arb: wordBound("هو|هي|هما|هم|هن|هُوَ|هِيَ|هُمَا|هُمْ|هُنَّ"),
 };
 if (!LANG_PRONOUNS[LANG]) { console.error(`no pronoun set declared for --lang=${LANG} (declared: ${Object.keys(LANG_PRONOUNS).join(", ")})`); process.exit(2); }
+// VOID-SCAN PRONOUNS (2026-09-17). The void alarm fires on a THIRD-PERSON
+// PRONOUN the reading cannot bind — "the text points at someone and this
+// reader cannot say who." The grc set above includes the article forms
+// (ὁ/ἡ/οἱ/αἱ/τά…) for the article-as-third-person tier; but an article is
+// overwhelmingly a DETERMINER bound to its noun, not a pronoun reached for a
+// being. MEASURED on Epictetus' Enchiridion: the article forms flagged 168 of
+// 259 sentences as voids — the determiner flood drowning the signal. The void
+// scan therefore uses the TRUE pronoun set (the αὐτός family) for grc; every
+// other language keeps its declared set byte-identical. A disclosed linguistic
+// judgment, made once, never a number tuned against a golden.
+const VOID_PRONOUNS = { ...LANG_PRONOUNS, grc: wordBound("αὐτός|αὐτή|αὐτό|αὐτοί|αὐταί|αὐτά|αὐτοῦ|αὐτῆς|αὐτῶν|αὐτῷ|αὐτῇ|αὐτοῖς|αὐταῖς|αὐτόν|αὐτήν|αὐτὸν|αὐτὴν") };
 // GROUND override (2026-09-13): --pos=<path> selects WHICH received prior is
 // the floor for this read, so a ground experiment can compare UD-treebank
 // vs UniMorph-derived priors for the same material (the UniMorph grc/san
@@ -675,7 +694,7 @@ const boundRanges = new Set(boundSentences.map((b) => `${b.start}-${b.end}`));
 for (const cs of chapterSentences) {
   const key = `${cs.offset}-${cs.offset + cs.text.length}`;
   if (boundRanges.has(key)) continue;
-  if (!LANG_PRONOUNS[LANG].test(cs.text)) continue;
+  if (!VOID_PRONOUNS[LANG].test(cs.text)) continue;
   emit({
     schema: "EOTObservation@1", id: id("v"),
     at: rawAt(WIN[0] + cs.offset, WIN[0] + cs.offset + cs.text.length),
@@ -828,6 +847,17 @@ const receivedVerbs = [];
 }
 const opts = { verbs, phrasalPredicates: true, nounPhraseSubjects: !process.argv.includes("--no-nps") };
 
+// GREEK VERB GATE (2026-09-17). On pro-drop free-word-order Greek, the
+// positional slot-measure that earns ownVerbs nominates whatever sits in the
+// verb slot — measured: it earned "καὶ" (and), "τὸ" (the), and even the
+// file's English front-matter keys ("source", "license") as verbs. The
+// widening above ADDS prior-confirmed verbs but never REMOVES an
+// un-confirmed earning. For Greek the received POS prior is the sole
+// authority on what may head a relation: the slot-measure proposes, the
+// prior confirms, an un-confirmed proposal is refused — never guessed.
+// English and every positional language are byte-identical: GREEK-only.
+if (GREEK) confirmGreekVerbs(verbs, POS_PRIOR, GRAMMAR_MIN_SHARE);
+
 const carriesVerb = (t) => String(t ?? "").toLowerCase().split(/[^\p{L}\p{N}’']+/u).some((w) => verbs.has(w));
 const promoteLabel = (label, objectText) => {
   if (thraxOf(label) === "verb") return null;
@@ -875,7 +905,15 @@ function readClause(subject, objText, objStart, depth, subjectRef = null) {
 }
 
 for (const sent of sentences) {
-  const found = extractRelations(sent.text, opts);
+  // GREEK POSITIONAL SUPPRESSION (2026-09-17). S40, measured: the positional
+  // subject-verb-object pattern breaks on case-marked free-word-order Greek.
+  // With the 15k-verb Greek prior online, the positional extractor fires on
+  // every clause and emits garbage triples (measured: "Τῶν | ὄντων | τὰ μὲν
+  // ἐστιν" — ὄντων is a participle, not the verb). For Greek the positional
+  // path is OFF; the pro-drop seam (below) is the clause reader. It names the
+  // verb and its object; the copula-subject-complement shape (subject | is |
+  // complement) is a DISCLOSED loss until a case-marked tier lands.
+  const found = GREEK ? [] : extractRelations(sent.text, opts);
   // A SENTENCE THAT YIELDED NOTHING SAYS SO, AND SAYS WHY.
   //
   // Regression caught by the user reading the projection: "why are we not
@@ -895,6 +933,26 @@ for (const sent of sentences) {
   // further reading will change.
   if (!found.length) {
     const hasEarnedVerb = carriesVerb(sent.text);
+    // THE GREEK PRO-DROP SEAM (2026-09-17): the gate refused a clause that
+    // HAS a verb because Greek's subject is in the verb, not in a subject
+    // group. Re-read it through the seam BEFORE recording the absence — the
+    // absence is what the gate would have claimed, and for Greek it is the
+    // gate's assumption, not the material. The seam names the verb and its
+    // object from the material's own words and discloses the subject as
+    // grammaticalized; it never fabricates a referent.
+    if (GREEK && hasEarnedVerb) {
+      const prodrop = prodropClauses(sent.text, verbs, POS_PRIOR);
+      for (const c of prodrop) {
+        emit({
+          schema: "EOTProdrop@1", id: id("pd"), at: rawAt(sent.offset + c.at[0], sent.offset + c.at[1]),
+          role: "proposition",
+          verb: c.verb, ...(c.object ? { object: c.object } : {}),
+          subjectBasis: "pro-drop",
+          disclosure: "the clause's subject is grammaticalized in the verb (person/number), not stated as a token — never fabricated into a referent; verb and object are the material's own words",
+        });
+      }
+      if (prodrop.length) continue; // the clause was heard; no absence to record
+    }
     emit({
       schema: "EOTAbsence@1",
       at: rawAt(sent.offset, sent.offset + sent.text.length),
