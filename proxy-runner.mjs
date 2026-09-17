@@ -25,6 +25,7 @@ import { tokenize } from "./native/the-fold/source.js";
 import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
 import { sentenceSurface, passagesFromSegments } from "./native/the-fold/reading-surface.js";
+import { claimKindsOf } from "./native/organs/output-claims.js";
 import { engineRelationsFor } from "./native/the-fold/reader-bundle.js";
 import { answerRecord } from "./native/the-fold/answer-record.js";
 // AntiStrauss — the safety-and-ethics gate. EVERY model call in this proxy
@@ -1416,6 +1417,18 @@ export const NEUTRAL_CHARACTER =
 // (firewall-clean, covert-clean, cast-name-free by construction) to the
 // system content — never a persona name, never a "you are X" role line.
 // The ban is enforced here too: a leak drops the cue, never ships it.
+// THE VOID'S SETTLING QUESTION (2026-09-16, the critique — the void is a
+// regulative task, never a boundary): every declared absence carries the
+// question that would settle it, so the machine ASKS when the record runs out
+// instead of closing on a wall. Mechanical from the gap + the task, never a
+// guess about the material.
+const voidSettleQuestion = (gap, task) => {
+  const q = String(task ?? "").trim();
+  if (gap === "no_material") return "a source that establishes this session's subject — admit material, then the question is asked again against real bytes";
+  if (q) return `a passage, named and addressed in the admitted material, that states or denies: ${q.slice(0, 200)}`;
+  return "a passage, named and addressed, that states what was looked for";
+};
+
 function earnedCue({ task, chatHistory = [], surfVoidInfo = null }) {
   try {
     const personClaims = (chatHistory ?? [])
@@ -2896,7 +2909,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       surfacedSegments = surf.segments;
       surfVoid = surf.void || surf.segments.length === 0;
       surfVoidInfo = (surf.void || surf.segments.length === 0)
-        ? { gap: surf.void ? (surf.gap ?? "content_not_found") : "nothing_relevant_found", reason: surf.reason ?? null }
+        ? { gap: surf.void ? (surf.gap ?? "content_not_found") : "nothing_relevant_found", reason: surf.reason ?? null, whatWouldSettle: voidSettleQuestion(surf.void ? (surf.gap ?? "content_not_found") : "nothing_relevant_found", task) }
         : null;
       workspaceStats.segments = surfacedSegments.length;
       if (surfVoid) workspaceStats.refusals = 1;
@@ -2917,7 +2930,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     }
   } else {
     surfVoid = true;
-    surfVoidInfo = { gap: "no_material", reason: "no material established for this session" };
+    surfVoidInfo = { gap: "no_material", reason: "no material established for this session", whatWouldSettle: voidSettleQuestion("no_material", task) };
     if (onNote) onNote({ move: "surf_skip", reason: session.corpus ? "empty_corpus" : "no_corpus" });
   }
 
@@ -4523,6 +4536,24 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       const claims = passages.length ? readAnswerClaims(text, passages) : [];
       const notes = notesFromEdges(rawEntries ?? []);
       const index = sessionReferentIndex(session, onNote);
+      // THE FORM-TIER, WIRED (the critique — schema/image/fold): the surfaced
+      // material's OWN claim-forms are earned mechanically (output-claims.js:
+      // the derived hypothetical + the sequence register), each with its byte
+      // span, and handed to the ladder so every bound sentence can disclose
+      // what the READING supplied over the BYTES it certified. A language with
+      // no registered image set returns a typed gap — never a silent English
+      // match, and never a silent fabrication of a rule.
+      const claimForms = [];
+      for (const p of passages) {
+        try {
+          const r = claimKindsOf(p.text ?? "", {
+            splitSentences: (t) => String(t ?? "").split(/(?<=[.!?])\s+|\n+/).map((s) => s.trim()).filter(Boolean),
+            source: p.ref,
+          });
+          if (r?.gap) continue;
+          claimForms.push(...(r.forms ?? []), ...(r.sequence ?? []));
+        } catch { /* a passage that cannot be read for forms never invents a rule */ }
+      }
       const surface = sentenceSurface(text, {
         claims,
         notes,
@@ -4530,6 +4561,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         resolveName: index?.resolve ? (n) => index.resolve(n) : null,
         model,
         splitSentences: (t) => String(t ?? "").split(/(?<=[.!?])\s+|\n+/).map((s) => s.trim()).filter(Boolean),
+        forms: claimForms,
       });
       const record = answerRecord({
         question: task,
@@ -4545,7 +4577,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         voids: [],
         witness: [],
       });
-      return { surface, record, claims, notes };
+      return { surface, record, claims, notes, forms: claimForms };
     } catch (err) {
       if (onNote) onNote({ move: "reading_surface_error", error: err.message });
       return null;
@@ -4868,9 +4900,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           claims: readingSurface.claims,
           notes: readingSurface.notes,
           answerRecord: readingSurface.record,
+          forms: readingSurface.forms ?? [],
         }
       : null,
     surfed: surfacedSegments.map((s) => s._ledger),
+    void: surfVoidInfo ? { gap: surfVoidInfo.gap, reason: surfVoidInfo.reason ?? null, whatWouldSettle: surfVoidInfo.whatWouldSettle ?? null } : null,
     post: post ? { blocks: post.blocks?.length ?? 0, linted: post.linted ?? false, reordered: post.reordered ?? false, notes: post.notes ?? [] } : null,
     resolutions: resolutions ? { level: resolutions.level, text: resolutions.text, active: resolutions.active ?? null, atmosphere: resolutions.atmosphere ? { basis: resolutions.atmosphere.basis, ground: resolutions.atmosphere.ground ?? null } : null, lens: resolutions.lens ? { basis: resolutions.lens.basis, windows: resolutions.lens.windows ?? null } : null, paradigm: resolutions.paradigm ? { basis: resolutions.paradigm.basis, window: resolutions.paradigm.window ?? null } : null } : null,
     document: documentLedger

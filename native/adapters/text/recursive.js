@@ -45,7 +45,21 @@ function referentObjects(events = []) {
     if (!ref.surfaces.includes(event.surface)) ref.surfaces.push(event.surface);
     ref.provenance.push(event.provenance);
   }
-  return [...byId.values()].map((value) => Object.freeze({ ...value, surfaces: Object.freeze(value.surfaces), provenance: Object.freeze(value.provenance) }));
+  return [...byId.values()].map((value) => Object.freeze({
+    ...value,
+    // THE CONSTITUTION-STANDING (2026-09-16): a being is on the record when
+    // the reader admitted it BY EVIDENCE (recurrence past the material's own
+    // floor — S24/P38: "presence is not establishment") — never by presence.
+    // So every admitted referent carries `established_by_evidence` as its
+    // standing, plus the mention count that earned it. The finer ladder
+    // (hypothesized / sustained / contested) is the identity organ's to
+    // adjudicate — its live alternatives, splits and refusals — never this
+    // perceiver's, which only ever reports what it admitted.
+    standing: "established_by_evidence",
+    mentions: value.provenance.length,
+    surfaces: Object.freeze(value.surfaces),
+    provenance: Object.freeze(value.provenance),
+  }));
 }
 
 // Exported for cast-prior.js — one implementation of "does this material

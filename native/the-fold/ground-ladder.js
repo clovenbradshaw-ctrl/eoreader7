@@ -47,6 +47,40 @@ const toks = (t) => fold(t).replace(/[^\p{L}\p{N}]+/gu, " ").trim().split(" ").f
 const sourceOf = (w) => String(w ?? "").split("~")[0];
 const claimKey = (c) => `${fold(c.end1 ?? c.subject)}|${fold(c.label ?? c.verb)}|${fold(c.end2 ?? c.object)}`;
 
+/**
+ * suppliedForms(boundClaims, forms) — THE FORM-TIER: what the READING
+ * supplied, vs what the BYTES certified (2026-09-16, the critique). A bound
+ * claim's spans point at the passage's bytes — the certified ends. A form
+ * (output-claims.js: the derived hypothetical, or the sequence register)
+ * whose own byte-span overlaps a bound span in the SAME passage is the rule
+ * the reading supplied there — the cause, the then, the if — invoked by the
+ * material's OWN image. The bytes certify the image; they never contain the
+ * form. Where no form overlaps, `supplied` is absent — the reading supplied
+ * no rule beyond the ends themselves, and the ladder says nothing rather
+ * than inventing a rule.
+ */
+function suppliedForms(boundClaims, forms) {
+  if (!forms?.length || !boundClaims?.length) return [];
+  const out = [];
+  const seen = new Set();
+  for (const c of boundClaims) {
+    for (const sp of c.spans ?? []) {
+      if (sp.ref == null) continue;
+      for (const f of forms) {
+        const key = `${sp.ref}|${f.form}|${f.sentence ?? ""}|${f.image ?? ""}`;
+        if (seen.has(key)) continue;
+        if (f.ref !== sp.ref) continue;
+        if (f.span && Number.isFinite(sp.start) && Number.isFinite(sp.end)) {
+          if (f.span.end < sp.start || f.span.start > sp.end) continue;
+        }
+        seen.add(key);
+        out.push({ form: f.form, ...(f.side ? { side: f.side } : {}), ...(f.position ? { position: f.position } : {}), image: f.image ?? null, language: f.language ?? "en", ref: f.ref ?? null });
+      }
+    }
+  }
+  return out;
+}
+
 export const TIERS = Object.freeze(["bound", "witnessed", "recorded", "derived", "contested", "named", "self"]);
 export const CELL_OF = Object.freeze({ bound: "CON·Figure", witnessed: "EVA·Figure", recorded: "SYN·Figure", derived: "SYN·Pattern", contested: "CON·Figure·CONTESTED", named: "SIG·Ground", self: "self:model" });
 
@@ -109,7 +143,7 @@ function passageHolding(needle, passages) {
  * ctx: { claims, witness, notes, derived, disputes, passages, resolveName, model }
  */
 export function groundOf(sentence, ctx = {}) {
-  const { claims = [], witness = null, notes = [], derived = [], disputes = null, passages = [], resolveName = null, model = null } = ctx;
+  const { claims = [], witness = null, notes = [], derived = [], disputes = null, passages = [], resolveName = null, model = null, forms = [] } = ctx;
   const mine = claims.filter((c) => c.sentence === sentence);
   const reached = { relation: mine.length > 0, witness: Boolean(witness && witness.witness !== "skipped"), ledger: notes.length > 0, index: typeof resolveName === "function" };
   // 1. bound
@@ -117,8 +151,9 @@ export function groundOf(sentence, ctx = {}) {
   if (bound.length) {
     const addresses = [...new Set(bound.flatMap((c) => (c.spans?.length ? c.spans.map((sp) => sp.ref ? `${sp.ref}` : null) : c.refs ?? [])).filter(Boolean))];
     const contested = disputes && bound.some((c) => disputes.has(claimKey(c)));
-    if (contested) return { tier: "contested", cell: CELL_OF.contested, addresses, phrase: "stated, and disputed", detail: `bound to ${addresses.join(", ")}; under a live dispute on the record`, reached };
-    return { tier: "bound", cell: CELL_OF.bound, addresses, phrase: "stated at", detail: `the relation tier bound ${bound.length} claim(s) to the source's bytes`, reached };
+    const supplied = suppliedForms(bound, forms);
+    if (contested) return { tier: "contested", cell: CELL_OF.contested, addresses, phrase: "stated, and disputed", detail: `bound to ${addresses.join(", ")}; under a live dispute on the record`, supplied, reached };
+    return { tier: "bound", cell: CELL_OF.bound, addresses, phrase: "stated at", detail: `the relation tier bound ${bound.length} claim(s) to the source's bytes`, supplied, reached };
   }
   // 2. witnessed
   if (witness?.witness === "states") {

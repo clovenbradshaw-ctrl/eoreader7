@@ -65,3 +65,17 @@ test("the decay recovers: a stretch of clean acts drops the standing back (the r
   assert.notEqual(a.standing, "repeated-conflict", "recovered after ~half-life of clean acts");
   assert.ok(a.conflictWeight < 1.0, "weight decayed below the single-act boundary");
 });
+
+test("THE RE-KEY: the trail is the actor's own moves; a person is the SUBJECT of a move, never the bearer of a standing", () => {
+  const actor = "p-rekey-actor";
+  // the machine's own act, concerning a person — the person enters as the
+  // subject of the move, never as the thing the standing is keyed to
+  const line = recordShadow(actor, { shadow: "norm_conflict", task: "read the credential store", subject: "someone@example.com" });
+  assert.equal(line.subject, "someone@example.com", "the subject of the move is named");
+  const a = assessShadow(actor);
+  assert.equal(a.actorId, actor, "the assessment is keyed to the actor");
+  assert.equal(a.personId, actor, "the legacy field still resolves — a correction is an addition, never a silent rewrite");
+  assert.match(a.subject, /machine's own acts/, "the assessment is declared to be about the machine's own acts, never a verdict about a person");
+  const row = trailOf(actor)[0];
+  assert.equal(row.subject, "someone@example.com", "the trail row carries who the move concerned");
+});

@@ -19,8 +19,17 @@
 // assessment is a FREQUENCY over the accumulated acts, corroborated across
 // independent acts — never a verdict about a person, never a binary.
 //
-// Append-only, on disk, keyed to the person (the durable speaker). Turning it
-// off would require not recording the acts; the record is the memory.
+// THE RE-KEY (2026-09-16, from the critique — the shadow as heteronomy): the
+// trail is keyed to the ACTOR whose acts are recorded — the machine's OWN
+// moves under the charter — and a person enters only as the SUBJECT of a move
+// (what the machine did with or for them), never as the bearer of a standing.
+// A per-person RATE of norm-compliance would be heteronomy: it would make a
+// person's worth an object of empirical reckoning. The assessment is over the
+// actor's own act-trail; the `subject` field is what the move concerned, and
+// a person may strike any row that names them.
+//
+// Append-only, on disk, keyed to the actor. Turning it off would require not
+// recording the acts; the record is the memory.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -36,16 +45,18 @@ export const SHADOWS = Object.freeze(["norm_compliant", "norm_conflict", "descri
 
 const safeId = (p) => String(p ?? "anonymous").replace(/[^a-z0-9._-]/gi, "_").slice(0, 120);
 
-function trailFile(personId) {
-  return path.join(shadowDir(), `${safeId(personId)}.jsonl`);
+function trailFile(actorId) {
+  return path.join(shadowDir(), `${safeId(actorId)}.jsonl`);
 }
 
 /**
- * recordShadow(personId, entry) — append one act's norm-standing. `entry`:
- * { shadow, cell?, operator?, reason?, task?, giver? }. One line, append-only,
- * never edited. Never throws into a turn.
+ * recordShadow(actorId, entry) — append one act's norm-standing to the
+ * ACTOR's trail (the machine's own move under the charter). `entry`:
+ * { shadow, cell?, operator?, reason?, task?, giver?, subject? }. `subject`,
+ * when present, is the person the move concerned — never the bearer of the
+ * standing. One line, append-only, never edited. Never throws into a turn.
  */
-export function recordShadow(personId, entry = {}) {
+export function recordShadow(actorId, entry = {}) {
   const shadow = SHADOWS.includes(entry.shadow) ? entry.shadow : "norm_compliant";
   const line = {
     at: new Date().toISOString(),
@@ -55,29 +66,33 @@ export function recordShadow(personId, entry = {}) {
     reason: entry.reason ?? null,
     task: String(entry.task ?? "").slice(0, 240),
     giver: entry.giver ?? "reader:eoreader7-proxy",
+    subject: entry.subject ?? null,
   };
   try {
     fs.mkdirSync(shadowDir(), { recursive: true });
-    fs.appendFileSync(trailFile(personId), JSON.stringify(line) + "\n", "utf8");
+    fs.appendFileSync(trailFile(actorId), JSON.stringify(line) + "\n", "utf8");
   } catch { /* the trail must never block a turn */ }
   return line;
 }
 
-/** trailOf(personId) — the accumulated acts, in order. */
-export function trailOf(personId) {
+/** trailOf(actorId) — the accumulated acts, in order. */
+export function trailOf(actorId) {
   try {
-    return fs.readFileSync(trailFile(personId), "utf8").trim().split("\n").filter(Boolean)
+    return fs.readFileSync(trailFile(actorId), "utf8").trim().split("\n").filter(Boolean)
       .map((l) => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
   } catch { return []; }
 }
 
 /**
- * assessShadow(personId) — the RATE over the accumulated acts, never a verdict.
+ * assessShadow(actorId) — the RATE over the ACTOR's own accumulated acts,
+ * never a verdict about a person. The actor is the machine's conduct under
+ * the charter; a person named as a move's subject is never the bearer of a
+ * standing.
  *
  * THE DECAY (the runaway fix; THE-MORAL-HELIX.md: "a regression returns a rung
  * to checked", "a single clean text is a lucky text"). Conflict weight is
  * recency-weighted: a norm_conflict N acts ago contributes 0.5^(N/halfLife), so
- * a stretch of norm_compliant acts decays the standing back down and the person
+ * a stretch of norm_compliant acts decays the standing back down and the actor
  * RECOVERS — the ledger keeps every act, but the ASSESSMENT is of the recent
  * pattern.
  *
@@ -89,8 +104,8 @@ export function trailOf(personId) {
  * a proper null-derived calibration is named future work, per this codebase's
  * own rule (REC-TRIGGER-CALIBRATION-BRIEF.md).
  */
-export function assessShadow(personId, { corroborationFloor = 2, halfLife = Number(process.env.ER7_SHADOW_HALF_LIFE ?? 10) } = {}) {
-  const trail = trailOf(personId);
+export function assessShadow(actorId, { corroborationFloor = 2, halfLife = Number(process.env.ER7_SHADOW_HALF_LIFE ?? 10) } = {}) {
+  const trail = trailOf(actorId);
   const n = trail.length;
   const byShadow = { norm_compliant: 0, norm_conflict: 0, descriptive: 0 };
   for (const e of trail) if (byShadow[e.shadow] != null) byShadow[e.shadow] += 1;
@@ -110,15 +125,23 @@ export function assessShadow(personId, { corroborationFloor = 2, halfLife = Numb
     basis = `${n} recorded act(s) — below the corroboration floor (${corroborationFloor}); a single act is a lucky act`;
   } else if (conflictWeight > 1.0) {
     standing = "repeated-conflict";
-    basis = `decayed conflict weight ${conflictWeight} > 1.0 over ${n} acts — strictly more than one act's worth, a corroborated pattern (a rate, never a verdict about a person)`;
+    basis = `decayed conflict weight ${conflictWeight} > 1.0 over ${n} acts — strictly more than one act's worth, a corroborated pattern in the actor's OWN acts (a rate over moves, never a verdict about a person)`;
   } else if (conflictWeight > 0) {
     standing = "conflict-seen";
     basis = `decayed conflict weight ${conflictWeight} over ${n} acts — one act's worth or less; seen, not corroborated (recovers after ~${H} clean acts)`;
   } else {
     standing = "norm-consistent-so-far";
-    basis = `0 norm-conflict acts across ${n}`;
+    basis = `0 norm-conflict acts across ${n} of the actor's own acts`;
   }
-  return { schema: "MoralShadowAssessment@1", personId: safeId(personId), total: n, byShadow, conflictWeight, halfLife: H, conflictRate: Number(rate.toFixed(3)), standing, corroborationFloor, basis };
+  return {
+    schema: "MoralShadowAssessment@1",
+    actorId: safeId(actorId),
+    // the legacy field name, kept so a caller that read the pre-re-key shape
+    // still resolves — a correction is an addition, never a silent rewrite
+    personId: safeId(actorId),
+    subject: "the machine's own acts under the charter — a rate over moves, never a verdict about a person",
+    total: n, byShadow, conflictWeight, halfLife: H, conflictRate: Number(rate.toFixed(3)), standing, corroborationFloor, basis,
+  };
 }
 
 /**

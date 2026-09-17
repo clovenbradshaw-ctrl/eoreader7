@@ -9,6 +9,15 @@
 // the TUI, any OpenAI-shaped caller) receives the same marks the fold's
 // renderer draws, without running its own engine.
 //
+// THE FORM-TIER (2026-09-16, the critique — schema/image/fold): a bound
+// sentence now also reports `supplied` — the claim-FORMS the reading
+// supplied over the certified bytes (ground-ladder.js::suppliedForms). The
+// addresses certify the image; the `supplied` rows name the form the
+// reading supplied there (the hypothetical's ground/consequence, the
+// sequence) with the material's own image that invoked it. When no form
+// overlaps the bound span, `supplied` is absent — the reading supplied no
+// rule beyond the ends themselves. Schema bumped to EOReadingSurface@2.
+//
 // Mechanical, model-free where possible: the ground ladder's `bound`/
 // `recorded`/`derived`/`named`/`self` rungs cost no model call (they read
 // the relation tier, the ledger, and the referent index — all already
@@ -24,7 +33,7 @@
 
 import { groundOf, groundLine, tierWord } from "./ground-ladder.js";
 
-export const SURFACE_SCHEMA = "EOReadingSurface@1";
+export const SURFACE_SCHEMA = "EOReadingSurface@2";
 
 /** Map surfaced segments → the {ref, text} passages the ladder and reader expect. */
 export function passagesFromSegments(segments = []) {
@@ -62,18 +71,21 @@ export function sentencesOf(answer, splitSentences) {
  * empty arrays — the ladder's rungs simply do not fire, and the absence is
  * typed in `reached`.
  */
-export function ladderCtxFor({ claims = [], witness = null, notes = [], derived = [], disputes = null, passages = [], resolveName = null, model = null } = {}) {
-  return { claims, witness, notes, derived, disputes, passages, resolveName, model };
+export function ladderCtxFor({ claims = [], witness = null, notes = [], derived = [], disputes = null, passages = [], resolveName = null, model = null, forms = [] } = {}) {
+  return { claims, witness, notes, derived, disputes, passages, resolveName, model, forms };
 }
 
 /**
  * The per-sentence reading surface for one answer: every sentence, its
- * ground-ladder verdict (tier/cell/addresses/phrase/detail), and the
+ * ground-ladder verdict (tier/cell/addresses/phrase/detail), the claim-forms
+ * the reading supplied over the certified bytes (`supplied`), and the
  * relation claims that bound to it. `claims` are the relation tier's own
  * per-sentence verdicts (bound/contradicted/unbound/unheard/…). The witness
  * rows may be absent — the ladder then reports `reached.witness: false`.
+ * `forms` are output-claims.js's derived forms + sequence rows, earned from
+ * the surfaced passages, each with its byte span — the form-tier's input.
  */
-export function sentenceSurface(answer, { claims = [], witnessRows = [], notes = [], derived = [], disputes = null, passages = [], resolveName = null, model = null, splitSentences = null } = {}) {
+export function sentenceSurface(answer, { claims = [], witnessRows = [], notes = [], derived = [], disputes = null, passages = [], resolveName = null, model = null, splitSentences = null, forms = [] } = {}) {
   const sentences = splitSentences ? sentencesOf(answer, splitSentences) : splitFallback(answer);
   const rows = [];
   const byText = new Map();
@@ -96,7 +108,7 @@ export function sentenceSurface(answer, { claims = [], witnessRows = [], notes =
   for (const s of sentences) { if (!seen.has(s)) { seen.add(s); order.push(s); } }
   for (const c of claims ?? []) { const k = String(c?.sentence ?? ""); if (k && !seen.has(k)) { seen.add(k); order.push(k); } }
   for (const s of order) {
-    const g = groundOf(s, ladderCtxFor({ claims, witness: witnessByText.get(s) ?? null, notes, derived, disputes, passages, resolveName, model }));
+    const g = groundOf(s, ladderCtxFor({ claims, witness: witnessByText.get(s) ?? null, notes, derived, disputes, passages, resolveName, model, forms }));
     rows.push({
       sentence: s,
       tier: g.tier,
@@ -107,6 +119,7 @@ export function sentenceSurface(answer, { claims = [], witnessRows = [], notes =
       line: groundLine(g),
       tierWord: tierWord(g.tier),
       reached: g.reached ?? null,
+      supplied: g.supplied ?? [],
       fedSources: g.fedSources ?? [],
       fedRefs: g.fedRefs ?? [],
       boundClaims: (byText.get(s) ?? []).map((c) => ({ end1: c.end1 ?? null, label: c.label ?? null, end2: c.end2 ?? null, verdict: c.verdict ?? null, refs: c.refs ?? [], reason: c.reason ?? null })),
