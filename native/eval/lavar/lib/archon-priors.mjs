@@ -29,6 +29,7 @@ import { fileURLToPath } from "node:url";
 import { stripContainer } from "../../../adapters/text/spans.js";
 import { readMaterialText } from "./read-recipe.mjs";
 import { compositionAffordance, pairKey, createHyperlexicon, giveHyperlexiconAffordance } from "../../../kernel/hyperlexicon.js";
+import { lcg, shuffled } from "../../../kernel/rng.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -97,10 +98,27 @@ export const ARCHON_ROSTER = Object.freeze({
       { gutenbergId: 52263, title: "Twilight of the Idols / The Antichrist", translator: "Anthony M. Ludovici", pdBasis: "this translation published 1911 (Complete Works of Nietzsche, ed. Oscar Levy) — clear of any US term" },
     ]),
   }),
-  // Additional roster entries (Homer, Marcus Aurelius, Whitman, Tolstoy…)
-  // are named future work, per the pilot-first sequencing this pass
-  // committed to — not fabricated here without their own fetched-and-run
-  // pilot.
+  // Homer, deliberately chosen as the more FORMULAIC test (2026-09-17,
+  // second pilot): the Nietzsche pilot found ZERO cross-work corroboration
+  // at exact label-pair granularity, even pooled across 816K chars — a
+  // real, disclosed finding (results/archon-priors-pilot-RESULTS.md), but
+  // one that left nothing non-empty to test priming WITH. Homeric epithets
+  // ("swift-footed Achilles," "rosy-fingered Dawn") are famous for
+  // reproducing genuinely repeated phrase-level formulas BY DESIGN, which
+  // is exactly the shape that exact-label composition matching can catch —
+  // the sharpest available test of whether the zero above was a fact about
+  // exact-label matching's own power, or a fact about philosophical prose
+  // specifically.
+  homer: Object.freeze({
+    name: "Homer",
+    works: Object.freeze([
+      { gutenbergId: 6130, title: "The Iliad", translator: "Alexander Pope", pdBasis: "translation published 1715–1720 — centuries clear of any US or life+70 term" },
+      { gutenbergId: 1727, title: "The Odyssey", translator: "Samuel Butler", pdBasis: "translation published 1900 — clear of any US or life+70 term" },
+    ]),
+  }),
+  // Additional roster entries (Marcus Aurelius, Whitman, Tolstoy…) are
+  // named future work, per the pilot-first sequencing this pass committed
+  // to — not fabricated here without their own fetched-and-run pilot.
 });
 
 /**
@@ -274,4 +292,43 @@ export function compositionAffordanceWithArchon(hl, archonPrior, left, right, op
     return Object.freeze({ ...fromArchon, meta: Object.freeze({ ...fromArchon.meta, primedByArchon: archonPrior.archon }) });
   }
   return own;
+}
+
+/**
+ * shuffleArchonPrior(prior, { seed }) — THE FALSIFICATION CONTROL.
+ *
+ * "One ant is like an archon" is only a claim worth trusting if grounding
+ * with the archon's REAL chemistry does something a same-shaped FAKE
+ * chemistry does not. This is the standard "redeal" null this project uses
+ * everywhere it needs one (kernel/rng.js's own `lcg`/`shuffled`, reused —
+ * never a second, hand-rolled shuffle): every GIVEN row's `right` label is
+ * independently re-paired across the whole roster, via a Fisher-Yates
+ * shuffle of the collected `right` values against the UNCHANGED `left`
+ * values. This preserves the exact vocabulary and exact marginal frequency
+ * of both sides (a caller cannot tell this apart from the real prior by
+ * counting labels alone) while destroying the real co-occurrence — the one
+ * thing that could make a downstream effect genuinely attributable to the
+ * archon's own content rather than to "having some extra fallback prior at
+ * all." Deterministic and declared: the same `seed` reproduces the same
+ * shuffle, exactly as this project's other null constructions require.
+ */
+export function shuffleArchonPrior(prior, { seed } = {}) {
+  if (typeof seed !== "number") throw new TypeError("shuffleArchonPrior: seed is declared, never defaulted — a reproducible null names its own draw");
+  const rows = Object.values(prior.composition ?? {});
+  const rng = lcg(seed);
+  const rights = shuffled(rows.map((r) => r.right), rng);
+  let hl = createHyperlexicon();
+  rows.forEach((row, i) => {
+    hl = giveHyperlexiconAffordance(hl, { left: row.left, right: rights[i], giver: `${row.giver} (SHUFFLED CONTROL, seed:${seed})`, witnesses: [], meta: { shuffledControl: true, seed, independentSupport: row.meta?.independentSupport ?? null } });
+  });
+  return Object.freeze({
+    schema: ARCHON_PRIOR_SCHEMA,
+    archon: `${prior.archon}-shuffled-control`,
+    giver: `${prior.giver} (shuffled control, seed:${seed})`,
+    source: prior.source,
+    builtFrom: Object.freeze({ ...prior.builtFrom, shuffledFrom: prior.archon, seed }),
+    composition: stripArchonReferents(hl),
+    entryCount: rows.length,
+    at: Date.now(),
+  });
 }
