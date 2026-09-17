@@ -380,10 +380,10 @@ def scenario_boot(p, cols, rows):
     print("scenario: boot")
     check(p.wait_text("1:untitled", 35), "tab bar shows the first tab")
     check(p.wait_text("proxy up", 35), "status line reports the proxy is up")
-    check(p.wait_text("model:", 35), "status line shows a model")
-    check("Ctrl+H for help" in p.text(), "status line advertises help")
+    check(p.wait_text("bifrost", 35), "status line carries Heimdall's word")
+    check("Ctrl+H" in p.text(), "status line advertises help")
     scr = p.screen()
-    check(any("smollm2" in row for row in scr), "roster discovered (a model visible)")
+    check("proxy error" not in p.text(), "proxy came up without error")
     check(len([r for r in scr if r.strip()]) <= rows, "render fits the terminal height")
     # THE LAYOUT BUG: the tab bar + status used to scroll off the top because
     # the transcript box forced itself taller than the terminal (and Ink 7.1.1

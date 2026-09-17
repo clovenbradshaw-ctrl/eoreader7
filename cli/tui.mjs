@@ -75,6 +75,7 @@ function roleColor(kind) {
     case "assistant": return "green";
     case "tool-call": return "magenta";
     case "tool-result": return "gray";
+    case "model": return "gray";
     case "error": return "red";
     case "note": return "yellow";
     default: return undefined;
@@ -91,11 +92,11 @@ function Spinner() {
 }
 
 // Heimdall speaks while you wait: when a request is in flight, poll the
-// admission gate's own disclosure (GET /heimdall) and say where the turn
-// sits — "Heimdall: 2 ahead · ~240s" — instead of a silent spinner. A gate
-// that isn't answering stays silent (null -> render nothing, never a broken
-// line).
-function QueueProbe({ pollKey }) {
+// admission gate's own disclosure (GET /heimdall) and say where YOUR turn
+// sits — "you're #3 · ~240s" — only when you actually have a place in line.
+// A gate that isn't answering, or a turn that is being served right now
+// (not queued), stays silent — never a made-up queue.
+function QueueProbe({ sessionId }) {
   const [info, setInfo] = useState(null);
   useEffect(() => {
     let cancelled = false;
@@ -106,11 +107,18 @@ function QueueProbe({ pollKey }) {
     tick();
     const t = setInterval(tick, 2500);
     return () => { cancelled = true; clearInterval(t); };
-  }, [pollKey]);
-  if (!info || !info.workAhead) return null;
-  const eta = info.etaHuman ?? (info.etaMs != null ? `${Math.round(info.etaMs / 1000)}s` : null);
-  const ahead = info.workAhead === 0 ? "you're next" : `${info.workAhead} ahead`;
-  return h(Text, { dimColor: true }, `  ·  Heimdall: ${ahead}${eta ? ` · ~${eta}` : ""}`);
+  }, [sessionId]);
+  if (!info) return null;
+  const mine = (info.positions ?? []).find((p) => p.caller === sessionId);
+  if (!mine) return null; // not waiting — the turn is being served, or no wait
+  // Round-robin ETA: you wait for each person AHEAD to finish their current
+  // turn, never for the whole backlog — #2 waits ~one turn, not the pile.
+  const perTurn = info.perTurnMs ?? 0;
+  const myEta = perTurn > 0 && mine.position > 1 ? `${Math.max(1, Math.round(((mine.position - 1) * perTurn) / 1000))}s` : null;
+  const where = mine.position <= 1
+    ? "you're next"
+    : `you're #${mine.position}${myEta ? ` · ~${myEta}` : ""}`;
+  return h(Text, { dimColor: true }, `  ·  Heimdall: ${where}`);
 }
 
 function TabBar({ tabs, activeId }) {
@@ -128,10 +136,11 @@ function StatusLine({ proxyState, tab }) {
     proxyState.status === "starting" ? "starting er7 proxy…" :
     proxyState.status === "up" ? `proxy up :${proxyState.port}` :
     proxyState.status === "error" ? `proxy error: ${proxyState.error}` : "proxy unknown";
-  // The model is shown once the proxy returns the roster — never guessed.
-  const modelText = tab?.model ? ` · model:${tab.model}` : "";
+  // The model is shown on RESPONSE, not here — it is disclosed when the
+  // answer arrives (each assistant message carries its model), never guessed
+  // up front.
   return h(Box, null,
-    h(Text, { dimColor: true }, `${proxyText} · mode:${tab?.mode ?? "-"}${modelText} · Heimdall will find you the fastest and safest way across the bifrost · Ctrl+H for help`));
+    h(Text, { dimColor: true }, `${proxyText} · mode:${tab?.mode ?? "-"} · Heimdall will find you the fastest and safest way across the bifrost · Ctrl+H for help`));
 }
 
 function HelpOverlay() {
@@ -171,8 +180,8 @@ function App() {
     setTabs((prev) => prev.map((t) => (t.id === tabId ? updater(t) : t)));
   }, []);
 
-  const pushMessage = useCallback((tabId, kind, text, role = kind) => {
-    updateTab(tabId, (t) => ({ ...t, messages: [...t.messages, { role, kind, text }] }));
+  const pushMessage = useCallback((tabId, kind, text, role = kind, extra = {}) => {
+    updateTab(tabId, (t) => ({ ...t, messages: [...t.messages, { role, kind, text, ...extra }] }));
   }, [updateTab]);
 
   // ── Bootstrap: make sure the proxy is up, then discover the real model
@@ -195,7 +204,20 @@ function App() {
         if (cancelled) return;
         setModels(list);
         if (list.length) {
-          setTabs((prev) => prev.map((t) => (t.model ? t : { ...t, model: list[0] })));
+          // Default to the first model that is RESIDENT (already loaded — a
+          // cold load on this box can take minutes) and that the proxy does
+          // not disclose as hanging. The first roster entry is smollm2 (it
+          // hangs) and the next is a 30B — both would make the TUI feel like
+          // it never works. The resident set comes from /heimdall, never
+          // hardcoded.
+          const { quirks, resident } = await proxyClient.heimdallModelQuirks();
+          if (cancelled) return;
+          const ok = (m) => !proxyClient.modelHangs(quirks, m);
+          const defaultModel =
+            list.find((m) => resident.includes(proxyClient.stripPrefix(m)) && ok(m))
+            ?? list.find(ok)
+            ?? list[0];
+          setTabs((prev) => prev.map((t) => (t.model ? t : { ...t, model: defaultModel })));
         }
       } catch (err) {
         if (!cancelled) setProxyState({ status: "error", error: err.message });
@@ -245,9 +267,9 @@ function App() {
     try {
       const res = await proxyClient.chatCompletion({
         model: tab.model, history: tab.chatHistory, task: text, sessionId: tab.sessionId,
-        onRetry: ({ attempt, retryAfterS, type }) => pushMessage(tabId, "note", `${type === "saturated" ? "box" : "heimdall"} busy — retrying in ${retryAfterS}s (attempt ${attempt}/${proxyClient.CHAT_MAX_RETRIES})`),
+        onRetry: ({ attempt, retryAfterS, type, position }) => pushMessage(tabId, "note", `Heimdall: ${type === "not_your_turn" ? "not your turn yet" : type === "zipper" ? "merging — pass held" : type === "claimed" ? "turn claimed elsewhere" : "busy"} — retrying in ${retryAfterS}s${position ? ` (#${position})` : ""}`),
       });
-      pushMessage(tabId, "assistant", res.text);
+      pushMessage(tabId, "assistant", res.text, "assistant", { model: tab.model });
       updateTab(tabId, (t) => ({
         ...t,
         chatHistory: [...t.chatHistory, { role: "user", content: text }, { role: "assistant", content: res.text }],
@@ -266,7 +288,7 @@ function App() {
     try {
       const res = await proxyClient.agentCompletion({
         model: tab.model, task: text, sessionId: tab.sessionId,
-        onRetry: ({ attempt, retryAfterS, type }) => pushMessage(tabId, "note", `${type === "saturated" ? "box" : "heimdall"} busy — retrying in ${retryAfterS}s (attempt ${attempt}/${proxyClient.CHAT_MAX_RETRIES})`),
+        onRetry: ({ attempt, retryAfterS, type, position }) => pushMessage(tabId, "note", `Heimdall: ${type === "not_your_turn" ? "not your turn yet" : type === "zipper" ? "merging — pass held" : type === "claimed" ? "turn claimed elsewhere" : "busy"} — retrying in ${retryAfterS}s${position ? ` (#${position})` : ""}`),
       });
       // Every round is real and disclosed — nothing this loop did is hidden.
       for (const r of res.rounds ?? []) {
@@ -279,7 +301,7 @@ function App() {
           pushMessage(tabId, "tool-result", `  ${r.output || "(no output)"}`);
         }
       }
-      if (res.done) pushMessage(tabId, "assistant", res.answer);
+      if (res.done) pushMessage(tabId, "assistant", res.answer, "assistant", { model: tab.model });
       else pushMessage(tabId, "error", `hit the turn cap without a final answer.`);
     } catch (err) {
       pushMessage(tabId, "error", `error: ${err.message}`);
@@ -452,7 +474,12 @@ function App() {
   const visibleRows = Math.max(3, boxHeight - 2);
 
   const wrapW = Math.max(20, cols - 6);
-  const allLines = (activeTab?.messages ?? []).flatMap((m) => wrapText(m.text, wrapW).map((line) => ({ kind: m.kind, text: line })));
+  const allLines = (activeTab?.messages ?? []).flatMap((m) => {
+    const lines = wrapText(m.text, wrapW).map((line) => ({ kind: m.kind, text: line }));
+    // The model is disclosed with the answer — the one place it is shown.
+    if (m.model) lines.push({ kind: "model", text: `[${m.model}]` });
+    return lines;
+  });
   // Clamp the scroll so it can never overshoot the top of the transcript:
   // an unbounded offset (PageUp spam) collapsed the view to nothing.
   const scrollOffset = Math.min(activeTab?.scrollOffset ?? 0, Math.max(0, allLines.length - visibleRows));
@@ -464,7 +491,7 @@ function App() {
   if (start > 0) transcriptChildren.push(h(Text, { key: "more", dimColor: true }, `↑ ${start} more line(s) above (PageUp to scroll)`));
   shown.forEach((l, i) => transcriptChildren.push(h(Text, { key: `l${i}`, color: roleColor(l.kind) }, l.text)));
   if (activeTab?.status === "busy") {
-    transcriptChildren.push(h(Box, { key: "spinner" }, h(Spinner), h(Text, { dimColor: true }, " thinking…"), h(QueueProbe, { pollKey: `${activeTab.id}-${activeTab.messages.length}` })));
+    transcriptChildren.push(h(Box, { key: "spinner" }, h(Spinner), h(Text, { dimColor: true }, " thinking…"), h(QueueProbe, { sessionId: activeTab.sessionId })));
   }
   if (!allLines.length) {
     transcriptChildren.push(h(Text, { key: "hint", dimColor: true }, "ask anything — or /model to switch, /help for keys (the rich view is in `eoreader7 -browser`)" ));

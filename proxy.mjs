@@ -15,8 +15,9 @@ import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-
 // a refusal surfaces as an ERR_ANTISTRAUSS_BLOCKED error on the route below.
 // The watcher, wired IN (2026-09-13): heimdall's vitals, admission, status,
 // and surface-watching run inside this process — one process, no separate
-// steer port, no second checkout to drift. When imported, heimdall.mjs// exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall } from "./heimdall.mjs";
+// steer port, no second checkout to drift. When imported, heimdall.mjs
+// exports its machinery and does not listen or loop on its own.
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge } from "./heimdall.mjs";
 // "Computed, not generated" — the-fold's own house rule (arithmetic.js),
 // reused directly rather than re-derived: a small model answering "what is
 // today's date?" from its stale training data, with nothing in THIS proxy's
@@ -38,6 +39,58 @@ const math = create(all);
 // polarity backwards. Same shared-pipeline reasoning as `checkQuantity`
 // above — one fix here reaches every caller of this endpoint.
 import { checkLogicPuzzle } from "../the-fold/logic-puzzle.js";
+// A second, unrelated puzzle kind — attribute assignment (the zebra-puzzle
+// family), no truth-tellers, no self-referential statements — sharing
+// reasoning-core.js's solver with logic-puzzle.js and changing nothing
+// there. Proves the search itself is general, not tuned to one puzzle.
+import { checkPreferencePuzzle } from "../the-fold/preference-puzzle.js";
+import { runMechanical, precisionWinner, CONCLUSION } from "./native/organs/precision-race.js";
+
+// The mechanical pipeline: each mechanism either settles the question, names
+// a gap, or leaves it alone (native/organs/precision-race.js). It runs BESIDE
+// the normal turn, never instead of it — the model's draft is a prediction,
+// a settled mechanism is an observation, and the observation wins.
+const MECHANISMS = [
+  {
+    name: "quantity",
+    run(task) {
+      const f = checkQuantity(task, { math, now: new Date() });
+      if (!f) return null;
+      if (f.gap) return { concluded: false, gap: `${f.expression} — ${f.gap}` };
+      return { concluded: true, kind: CONCLUSION.BOUND, text: f.display, detail: { kind: f.kind ?? "arithmetic", op: f.op ?? null, expression: f.expression } };
+    },
+  },
+  {
+    name: "logic-puzzle",
+    run(task) {
+      const f = checkLogicPuzzle(task);
+      if (!f) return null;
+      const kind = f.valid.length === 1 ? CONCLUSION.BOUND : f.valid.length === 0 ? CONCLUSION.CONTRADICTED : CONCLUSION.CONTESTED;
+      return { concluded: true, kind, text: f.display, detail: { valid: f.valid, external: f.external, totalTried: f.totalTried } };
+    },
+  },
+  {
+    name: "preference-puzzle",
+    run(task) {
+      const f = checkPreferencePuzzle(task);
+      if (!f) return null;
+      const kind = f.valid.length === 1 ? CONCLUSION.BOUND : f.valid.length === 0 ? CONCLUSION.CONTRADICTED : CONCLUSION.CONTESTED;
+      return { concluded: true, kind, text: f.display, detail: { valid: f.valid, external: f.external, totalTried: f.totalTried } };
+    },
+  },
+];
+
+function raceReading(race) {
+  return {
+    winner: race.winner,
+    basis: race.basis,
+    mechanism: race.observation?.mechanism ?? null,
+    kind: race.observation?.kind ?? null,
+    detail: race.observation?.detail ?? null,
+    gaps: race.observation?.gaps ?? [],
+    superseded: race.superseded,
+  };
+}
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -168,10 +221,19 @@ function callerFromRequest(req, doorway, parsed = {}) {
 // hang; the refusal carries Retry-After so a client backs off. The proxy's
 // own surface inflight is marked on admission and released when the response
 // closes, so the ETA/queue disclosure is real.
-function admitChatRequest(parsed) {
-  const admit = admitChat(parsed ? JSON.stringify(parsed) : "{}");
+function admitChatRequest(parsed, headers = {}) {
+  const admit = admitChat(parsed ? JSON.stringify(parsed) : "{}", headers);
   if (admit.allowed) markInflight("er7", 1);
   return admit;
+}
+// A refusal answers with a REAL place in line (x-queue-position + the queue
+// disclosure) so a caller can say "Heimdall: you're #3 · ~2m" instead of a
+// bare 429. Every admission path shares this one shape.
+function refuseAdmission(res, admit) {
+  const headers = { "content-type": "application/json", "retry-after": String(admit.retryAfterS ?? 15) };
+  if (admit.queue?.position != null) headers["x-queue-position"] = String(admit.queue.position);
+  res.writeHead(admit.status, headers);
+  res.end(JSON.stringify({ error: admit.message, type: admit.type, retry_after: admit.retryAfterS, queue: admit.queue ?? null, zipper: admit.zipper ?? null }));
 }
 function releaseChatRequest() {
   markInflight("er7", -1);
@@ -180,12 +242,16 @@ function releaseChatRequest() {
 // was handed to the OS) or 'close' (the socket closed, possibly mid-stream on
 // a disconnect). Idempotent — a keep-alive connection must never leave the
 // mark stuck and 429 a false busy-lane.
-function releaseOnResponse(res) {
+function releaseOnResponse(res, claimId) {
   let released = false;
   const release = () => {
     if (released) return;
     released = true;
     releaseChatRequest();
+    // Free the turn's lease the moment it finishes (or fails / disconnects),
+    // so a device that stalled is not waited out for the whole lease — the
+    // recovery turn on another device starts as soon as the claim is gone.
+    if (claimId) releaseClaim(claimId);
   };
   res.on("finish", release);
   res.on("close", release);
@@ -300,7 +366,16 @@ async function handleRequest(req, res) {
   if (req.method === "GET" && req.url === "/v1/models") {
     try {
       const tags = await offeredOllamaModels();
-      const realNames = (tags.models ?? []).map((m) => m.name || m.model);
+      // HEIMDALL'S CALL: seed the doubt — a large model that has never
+      // answered is not offered until it proves itself; then keep only what
+      // this box can actually serve right now.
+      seedUnservableLarge(tags.models ?? []);
+      // HEIMDALL'S CALL: the roster is only what this box can actually serve
+      // right now — a model disclosed as hanging, or one that timed out with
+      // nothing returned, is not offered until it proves it answers.
+      const realNames = (tags.models ?? [])
+        .map((m) => m.name || m.model)
+        .filter((name) => isServable(name));
       const list = toOpenAIModelList(realNames);
       res.writeHead(200, { "content-type": "application/json" });
       res.end(JSON.stringify(list));
@@ -441,13 +516,12 @@ async function handleRequest(req, res) {
       const model = String(parsed?.model ?? "").trim() || "olmo2:7b";
       const mode = modeFromHeaders(req, typeof parsed?.mode === "string" ? parsed.mode : "auto");
 
-      const admit = admitChatRequest({ model });
+      const admit = admitChatRequest({ model }, req.headers);
       if (!admit.allowed) {
-        res.writeHead(admit.status, { "content-type": "application/json", "retry-after": String(admit.retryAfterS) });
-        res.end(JSON.stringify({ error: admit.message, type: admit.type, retry_after: admit.retryAfterS }));
+        refuseAdmission(res, admit);
         return;
       }
-      releaseOnResponse(res);
+      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""));
 
       // A body-supplied sessionId is honored first (a caller with no header
       // machinery can still keep one accumulating reader fold across calls
@@ -468,7 +542,10 @@ async function handleRequest(req, res) {
       };
       res.on("close", onDisconnect);
       const turnDeadline = setTimeout(() => {
-        if (!turnAbort.signal.aborted) turnAbort.abort();
+        if (!turnAbort.signal.aborted) {
+          markUnservable(model, "turned_no_answer");
+          turnAbort.abort();
+        }
       }, TURN_DEADLINE_MS);
       try {
         const result = await runProxyTurn({
@@ -477,6 +554,7 @@ async function handleRequest(req, res) {
           caller: callerFromRequest(req, "ask", parsed),
           signal: turnAbort.signal,
         });
+        markServable(model); // it answered — Heimdall keeps it servable
         clearTimeout(turnDeadline);
         res.removeListener("close", onDisconnect);
         res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
@@ -484,6 +562,7 @@ async function handleRequest(req, res) {
           answer: result.text,
           sessionId,
           model,
+          heimdall: bridgeMessage({ model }),
           interlocutor: result.interlocutor ?? null,
           usage: { promptTokens: result.usage?.promptTokens ?? 0, completionTokens: result.usage?.completionTokens ?? 0 },
           relationEdges: result.relationEdges,
@@ -535,13 +614,12 @@ async function handleRequest(req, res) {
       const model = String(parsed?.model ?? "").trim() || "olmo2:7b";
       const maxRounds = Number.isFinite(Number(parsed?.maxRounds)) ? Math.max(1, Math.min(10, Number(parsed.maxRounds))) : 3;
 
-      const admit = admitChatRequest({ model });
+      const admit = admitChatRequest({ model }, req.headers);
       if (!admit.allowed) {
-        res.writeHead(admit.status, { "content-type": "application/json", "retry-after": String(admit.retryAfterS) });
-        res.end(JSON.stringify({ error: admit.message, type: admit.type, retry_after: admit.retryAfterS }));
+        refuseAdmission(res, admit);
         return;
       }
-      releaseOnResponse(res);
+      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""));
 
       const sessionId = String(parsed?.sessionId ?? "").trim() || sessionIdFromHeaders(req);
       const userId = userIdFromHeaders(req);
@@ -605,13 +683,12 @@ async function handleRequest(req, res) {
       const model = String(parsed?.model ?? "").trim() || "olmo2:7b";
       const maxTurns = Number.isFinite(Number(parsed?.maxTurns)) ? Math.max(1, Math.min(AGENT_MAX_TURNS, Number(parsed.maxTurns))) : AGENT_MAX_TURNS;
 
-      const admit = admitChatRequest({ model });
+      const admit = admitChatRequest({ model }, req.headers);
       if (!admit.allowed) {
-        res.writeHead(admit.status, { "content-type": "application/json", "retry-after": String(admit.retryAfterS) });
-        res.end(JSON.stringify({ error: admit.message, type: admit.type, retry_after: admit.retryAfterS }));
+        refuseAdmission(res, admit);
         return;
       }
-      releaseOnResponse(res);
+      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""));
 
       const sessionId = String(parsed?.sessionId ?? "").trim() || sessionIdFromHeaders(req);
       const userId = userIdFromHeaders(req);
@@ -671,13 +748,12 @@ async function handleRequest(req, res) {
       reqData.caller = callerFromRequest(req, "chat", parsed);
 
       // HEIMDALL, WIRED IN — admission on the proxy's own path.
-      const admit = admitChatRequest(parsed);
+      const admit = admitChatRequest(parsed, req.headers);
       if (!admit.allowed) {
-        res.writeHead(admit.status, { "content-type": "application/json", "retry-after": String(admit.retryAfterS) });
-        res.end(JSON.stringify({ error: { message: admit.message, type: admit.type, retry_after: admit.retryAfterS } }));
+        refuseAdmission(res, admit);
         return;
       }
-      releaseOnResponse(res);
+      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""));
 
       const sessionId = sessionIdFromHeaders(req);
       const workspace = workspaceFromHeaders(req);
@@ -687,33 +763,9 @@ async function handleRequest(req, res) {
       const created = Math.floor(Date.now() / 1000);
       const id = `er7-${Date.now()}`;
 
-      // A mechanical door, checked before anything else spends a model call
-      // or a heimdall admission slot: "what is today's date?"/"17 times
-      // 24"/"how many days between March 3 and July 9?" etc. are computed
-      // by this machine, never asked of the model. Real Date, real
-      // timezone, real mathjs — never a guess. A typed `gap` (the engine
-      // claimed the question but could not compute an answer) is still
-      // shipped as the computed door's own answer, never silently fallen
-      // through to the model (the-fold's own app.js::arithmeticTurn takes
-      // the identical posture — P4, a wrong mechanical answer would be
-      // worse than none, but a claimed-and-unanswerable question is not a
-      // silent miss either).
-      const found = checkQuantity(reqData.task, { math, now: new Date() }) ?? checkLogicPuzzle(reqData.task);
-      if (found) {
-        const display = found.gap ? `${found.expression} — ${found.gap}` : found.display;
-        log(`turn → session=${sessionId} computed kind=${found.kind ?? "arithmetic"}${found.op ? ` op=${found.op}` : ""} — computed, zero model calls`);
-        const reading = { computed: true, mechanism: found.kind ?? "arithmetic", op: found.op ?? null, sessionId };
-        if (reqData.stream) {
-          res.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-cache", connection: "keep-alive", "x-er7-session": sessionId });
-          for (const line of openAIStreamLines({ id, model: parsed.model, text: display, created, reading })) res.write(line);
-          res.end("data: [DONE]\n\n");
-        } else {
-          const resp = openAIResponse({ id, model: parsed.model, text: display, created, usage: { promptTokens: 0, completionTokens: 0 }, reading });
-          res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
-          res.end(JSON.stringify(resp));
-        }
-        return;
-      }
+      // The mechanical pipeline starts now and runs on its own; the normal
+      // turn below proceeds exactly as it would without it.
+      const observationP = runMechanical(reqData.task, MECHANISMS);
 
       if (reqData.stream) {
         res.writeHead(200, {
@@ -740,7 +792,10 @@ async function handleRequest(req, res) {
         };
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
-          if (!turnAbort.signal.aborted) turnAbort.abort();
+          if (!turnAbort.signal.aborted) {
+            markUnservable(model, "turned_no_answer");
+            turnAbort.abort();
+          }
         }, TURN_DEADLINE_MS);
         const clearTurn = () => {
           clearTimeout(turnDeadline);
@@ -749,7 +804,11 @@ async function handleRequest(req, res) {
 
         let first = true;
         let reasoningOpen = false;
-        const emit = (token) => {
+        // A slow mechanism would delay the stream's first token by its own
+        // run time; today's mechanisms settle in well under a millisecond.
+        const observation = await observationP;
+        const mechanicalWins = observation.concluded;
+        const writeContent = (token) => {
           if (!token) return;
           const chunk = {
             id, object: "chat.completion.chunk", created, model: parsed.model,
@@ -762,6 +821,10 @@ async function handleRequest(req, res) {
           first = false;
           res.write(`data: ${JSON.stringify(chunk)}\n\n`);
         };
+        // When the observation has concluded, the computed text is the
+        // content and the model's tokens are kept as the superseded draft.
+        const emit = mechanicalWins ? () => {} : writeContent;
+        if (mechanicalWins) writeContent(observation.text);
         // EOReader7's own reading-pipeline notes — humanized to plain English
         // (never a raw JSON dump) and surfaced as reasoning deltas, one per
         // line, so the naked model's answer stays visually distinct from the
@@ -871,6 +934,7 @@ async function handleRequest(req, res) {
               void: result.void ?? null,
               mode: result.mode ?? null,
               usage: result.usage ?? null,
+              race: raceReading(precisionWinner({ observation, draft: result.text })),
             },
           })}\n\n`);
           res.write("data: [DONE]\n\n");
@@ -902,18 +966,24 @@ async function handleRequest(req, res) {
         };
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
-          if (!turnAbort.signal.aborted) turnAbort.abort();
+          if (!turnAbort.signal.aborted) {
+            markUnservable(model, "turned_no_answer");
+            turnAbort.abort();
+          }
         }, TURN_DEADLINE_MS);
         try {
           const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
-          const resp = openAIResponse({ id, model: parsed.model, text: result.text, created, usage: result.usage, reading: result });
+          const race = precisionWinner({ observation: await observationP, draft: result.text });
+          const resp = openAIResponse({ id, model: parsed.model, text: race.text, created, usage: result.usage, reading: result });
+          resp.reading.race = raceReading(race);
           resp.reading.sessionId = sessionId;
           resp.reading.thinking = result.thinking ?? null;
           resp.reading.answerShape = result.answerShape ?? null;
           resp.reading.truncated = result.truncated ?? false;
           resp.reading.document = result.document ?? null;
+          resp.heimdall = bridgeMessage({ model: parsed.model });
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify(resp));
         } catch (err) {
@@ -953,13 +1023,12 @@ async function handleRequest(req, res) {
       reqData.caller = callerFromRequest(req, "ollama", parsed);
 
       // HEIMDALL, WIRED IN — admission on the proxy's own path.
-      const admit = admitChatRequest(parsed);
+      const admit = admitChatRequest(parsed, req.headers);
       if (!admit.allowed) {
-        res.writeHead(admit.status, { "content-type": "application/json", "retry-after": String(admit.retryAfterS) });
-        res.end(JSON.stringify({ error: { message: admit.message, type: admit.type, retry_after: admit.retryAfterS } }));
+        refuseAdmission(res, admit);
         return;
       }
-      releaseOnResponse(res);
+      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""));
 
       const sessionId = sessionIdFromHeaders(req);
       const workspace = workspaceFromHeaders(req);
@@ -984,7 +1053,10 @@ async function handleRequest(req, res) {
         };
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
-          if (!turnAbort.signal.aborted) turnAbort.abort();
+          if (!turnAbort.signal.aborted) {
+            markUnservable(model, "turned_no_answer");
+            turnAbort.abort();
+          }
         }, TURN_DEADLINE_MS);
         const clearTurn = () => {
           clearTimeout(turnDeadline);
@@ -1032,7 +1104,10 @@ async function handleRequest(req, res) {
         };
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
-          if (!turnAbort.signal.aborted) turnAbort.abort();
+          if (!turnAbort.signal.aborted) {
+            markUnservable(model, "turned_no_answer");
+            turnAbort.abort();
+          }
         }, TURN_DEADLINE_MS);
         try {
           const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
@@ -1040,6 +1115,7 @@ async function handleRequest(req, res) {
           res.removeListener("close", onDisconnect);
           const resp = ollamaChatResponse({ model: parsed.model, text: result.text, createdAt, usage: result.usage, reading: result });
           resp.reading = { ...(result.reading ?? result), sessionId };
+          resp.heimdall = bridgeMessage({ model: parsed.model });
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify(resp));
         } catch (err) {
@@ -1127,7 +1203,10 @@ async function handleRequest(req, res) {
         };
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
-          if (!turnAbort.signal.aborted) turnAbort.abort();
+          if (!turnAbort.signal.aborted) {
+            markUnservable(model, "turned_no_answer");
+            turnAbort.abort();
+          }
         }, TURN_DEADLINE_MS);
         const clearTurn = () => {
           clearTimeout(turnDeadline);
@@ -1168,13 +1247,17 @@ async function handleRequest(req, res) {
         };
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
-          if (!turnAbort.signal.aborted) turnAbort.abort();
+          if (!turnAbort.signal.aborted) {
+            markUnservable(model, "turned_no_answer");
+            turnAbort.abort();
+          }
         }, TURN_DEADLINE_MS);
         try {
           const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
           const resp = anthropicMessageResponse({ id, model: parsed.model, text: result.text, usage: result.usage });
+          resp.heimdall = bridgeMessage({ model: parsed.model });
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify(resp));
         } catch (err) {
@@ -1214,6 +1297,88 @@ server.listen(PORT, "127.0.0.1", () => {
   // spawn a duplicate of itself).
   startWatcher({ selfPort: PORT });
   log("watcher: heimdall running inside the proxy");
+  // The residency holon's HYSTERESIS STATE and THRESHOLDS (module-scoped,
+  // persist across cadences — the ant bridge's memory of whether it is
+  // standing down, and the two separated lines it stands down/resumes at).
+  let _residencyStanding = "active";
+  let _residencyClearTicks = 0;
+  const _residencyStandbyIdle = Number(process.env.ER7_RESIDENCY_STANDBY_IDLE ?? 10);
+  const _residencyResumeIdle = Number(process.env.ER7_RESIDENCY_RESUME_IDLE ?? 30);
+  const _residencyClearTicksNeeded = Number(process.env.ER7_RESIDENCY_CLEAR_TICKS ?? 3);
+  // The residency holon — Heimdall's own DEF→EVA→REC child. It watches the
+  // models that have served turns and holds them resident (the "do not
+  // evict" policy): when a used model drops out of /api/ps, it re-warms it
+  // rather than letting the next caller eat the cold-load. It is the bridge's
+  // own hands on the keep-alive, at holon cadence, on the record.
+  declareLoop({
+    name: "residency",
+    def: "a model that has served a turn stays resident; a dropped one is re-warmed before the next caller pays the load — but never while the box is busy, and never flapping (hysteresis: stand down and resume at DIFFERENT thresholds, and only after the box has been clear for N consecutive ticks — the army-ant bridge's own lesson, Nature Comm. 2022)",
+    cadenceMs: Number(process.env.ER7_RESIDENCY_CADENCE_MS ?? 45000),
+    // HYSTERESIS (the army-ant bridge's lesson, Nature Comm. 2022 — declared
+    // constants above: standbyIdle/resumeIdle/clearTicks): stand down and
+    // resume at DIFFERENT cpuIdle thresholds, and only after N consecutive
+    // clear ticks, so load oscillating around one line never flaps the holon.
+    sense: async () => {
+      const idle = readVitals()?.cpuIdle ?? null;
+      // Standing-down state persists across cadences (module-scoped): once
+      // the holon stands down it stays down until the box is clear enough
+      // AND clear long enough — the ant bridge's hysteresis, never a snap.
+      if (_residencyStanding === "standby") {
+        // In standby: only a sustained clear box resumes warming.
+        if (idle == null) return { class: "stand_down", probe: "no_vitals", missing: [] };
+        if (idle < _residencyResumeIdle) {
+          _residencyClearTicks = 0;
+          return { class: "stand_down", probe: `idle_${Math.round(idle)}%<resume_${_residencyResumeIdle}%`, missing: [] };
+        }
+        _residencyClearTicks += 1;
+        if (_residencyClearTicks < _residencyClearTicksNeeded) {
+          return { class: "stand_down", probe: `clear_${_residencyClearTicks}/${_residencyClearTicksNeeded}`, missing: [] };
+        }
+        // Sustained clear — resume. Reset the state; the code below runs.
+        _residencyStanding = "active";
+        _residencyClearTicks = 0;
+        log(`REC — residency: box clear ${_residencyClearTicksNeeded} ticks at ${Math.round(idle)}% idle — warming resumed`);
+      }
+      // Active: stand down on saturation (the standby line), then hysteresis
+      // decides when warming may return.
+      if (idle != null && idle <= _residencyStandbyIdle) {
+        _residencyStanding = "standby";
+        _residencyClearTicks = 0;
+        log(`REC — residency: box pegged at ${Math.round(idle)}% idle — stand down (resume only at ≥${_residencyResumeIdle}% for ${_residencyClearTicksNeeded} ticks)`);
+        return { class: "stand_down", probe: `saturated_idle_${Math.round(idle)}%`, missing: [] };
+      }
+      const resident = new Set((loadedModels() ?? []).map((m) => m.name));
+      const used = hotModelSet();
+      const missing = [...used].filter((m) => !resident.has(m));
+      return missing.length ? { class: "model_dropped", probe: missing.slice(0, 1).join(","), missing: missing.slice(0, 1) } : null;
+    },
+    act: async (finding) => {
+      if (finding.class === "stand_down") {
+        return { note: `stand-down: ${finding.probe} — no re-warm this cadence` };
+      }
+      const warmed = [];
+      for (const m of finding.missing) {
+        try { if (await keepModelHot(m)) warmed.push(m); } catch { /* one bad warm is not a finding */ }
+      }
+      return { note: warmed.length ? `re-warmed: ${warmed.join(", ")}` : null, warmed };
+    },
+  });
+  log("holon: residency declared (saturation-gated, hysteretic)");
+
+  // THE RULE-AUTHOR HOLON — the swarm reads its own ledger and writes its
+  // own standing rules (Wilson, 2026-09-17). Every tick it counts how often
+  // each finding-class recurred in the window; a pattern past the floor
+  // earns a derived rule (giver heimdall, standing disclosed, falsifying
+  // control carried), adopted once and never re-derived every tick. The
+  // bridge learns its own rules from its own recorded history — no mind.
+  declareLoop({
+    name: "rule-author",
+    def: "the swarm reads its own ledger: a finding that recurs past the floor earns a standing rule (with its falsifying control); the bridge writes its own emergent law",
+    cadenceMs: Number(process.env.ER7_RULE_AUTHOR_CADENCE_MS ?? 120000),
+    sense: makeRuleAuthorHolon().sense,
+    act: makeRuleAuthorHolon().act,
+  });
+  log("holon: rule-author declared (emergent rules from the ledger)");
   // Pre-load pyodide (WASM Python) in the background so the FIRST turn's
   // post-processing does not pay the ~10-16s cold-load. Fire-and-forget.
   warmPostprocess().then(({ available, error }) => {

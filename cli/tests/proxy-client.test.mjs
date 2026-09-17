@@ -6,7 +6,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
 
-process.env.ER7_PROXY_PORT = "18463"; // unlikely to collide with a real proxy
+process.env.ER7_PROXY_PORT = "18463";
+process.env.ER7_QUEUE_MAX_WAIT = "1200"; // tiny retry budget for the give-up test (the real gate is TIME now, not an attempt count) // unlikely to collide with a real proxy
 // Dynamic import: must run AFTER the env var above is set, since
 // er7-proxy.mjs reads ER7_PROXY_PORT once at module-evaluation time.
 const { listModels, chatCompletion, withPrefix, stripPrefix, CHAT_MAX_RETRIES } = await import("../proxy-client.mjs");

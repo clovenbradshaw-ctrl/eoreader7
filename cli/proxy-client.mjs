@@ -65,6 +65,31 @@ export async function heimdallQueue() {
   }
 }
 
+/** The proxy's disclosed model state (GET /heimdall): modelQuirks (a quirk
+ *  that says a model "hangs" is why it must never be the default — smollm2
+ *  literally never answers on the system role) and the RESIDENT models
+ *  (ollamaModels — already loaded, so a request starts immediately instead of
+ *  a cold load that can take minutes under load). Returns
+ *  { quirks, resident } (resident = bare model names, e.g. "gemma2:2b"). */
+export async function heimdallModelQuirks() {
+  try {
+    const res = await fetch(`${BASE}/heimdall`, { signal: AbortSignal.timeout(3000) });
+    if (!res.ok) return { quirks: {}, resident: [] };
+    const body = await res.json();
+    return {
+      quirks: body?.modelQuirks ?? {},
+      resident: (body?.ollamaModels ?? []).map((m) => m?.name).filter(Boolean),
+    };
+  } catch {
+    return { quirks: {}, resident: [] };
+  }
+}
+
+export function modelHangs(quirks, modelId) {
+  const q = quirks?.[stripPrefix(modelId)] ?? {};
+  return q?.systemRole === "hangs" || /hang/i.test(q?.note ?? "");
+}
+
 // heimdall's admission gate (../heimdall.mjs::admitChat) refuses a request
 // with a TYPED, RETRYABLE 429 — "saturated" (the box) or "lane_full" (the
 // model family's own concurrency cap, 1 by default) — carrying retry_after
@@ -76,8 +101,22 @@ export async function heimdallQueue() {
 // for something as small as two messages landing a few hundred ms apart.
 // This is that backoff, bounded so a genuinely wedged proxy still surfaces
 // a real error rather than retrying forever.
-const RETRYABLE_TYPES = new Set(["saturated", "lane_full"]);
-export const CHAT_MAX_RETRIES = 5;
+//
+// The queue refusals ("not_your_turn", "zipper", "claimed") are the SAME
+// retryable family: a turn waits its place in line. The budget is TIME, not
+// a small attempt count — a queue ETA of minutes must not die at 75 seconds
+// (a real, found failure: every request gave up before it was ever served).
+const RETRYABLE_TYPES = new Set(["saturated", "lane_full", "not_your_turn", "zipper", "claimed"]);
+export const CHAT_MAX_RETRIES = 40; // headroom figure; the real gate is QUEUE_MAX_WAIT_MS
+const QUEUE_MAX_WAIT_MS = Number(process.env.ER7_QUEUE_MAX_WAIT ?? 10 * 60 * 1000);
+
+async function waitRetry(res, body, attempt, onRetry) {
+  const type = body?.error?.type;
+  const queue = body?.error?.queue ?? body?.queue ?? null;
+  const retryAfterS = Number(body?.error?.retry_after ?? res.headers.get("retry-after") ?? 2);
+  onRetry?.({ attempt, retryAfterS, type, position: queue?.position ?? null, etaHuman: queue?.etaHuman ?? null });
+  await new Promise((r) => setTimeout(r, Math.max(1, retryAfterS) * 1000));
+}
 
 async function postChatCompletion(headers, payload) {
   const res = await fetch(`${BASE}/v1/chat/completions`, { method: "POST", headers, body: JSON.stringify(payload) });
@@ -104,17 +143,16 @@ export async function chatCompletion({ model, history = [], task, sessionId, wor
   const payload = { model: withPrefix(model), messages, stream: false };
 
   let attempt = 0;
+  const t0 = Date.now();
   for (;;) {
     const { res, body } = await postChatCompletion(headers, payload);
     if (res.ok) {
       return { text: body?.choices?.[0]?.message?.content ?? "", reading: body?.reading ?? null };
     }
     const type = body?.error?.type;
-    if (res.status === 429 && RETRYABLE_TYPES.has(type) && attempt < CHAT_MAX_RETRIES) {
+    if (res.status === 429 && RETRYABLE_TYPES.has(type) && Date.now() - t0 < QUEUE_MAX_WAIT_MS) {
       attempt += 1;
-      const retryAfterS = Number(body?.error?.retry_after ?? res.headers.get("retry-after") ?? 2);
-      onRetry?.({ attempt, retryAfterS, type });
-      await new Promise((r) => setTimeout(r, retryAfterS * 1000));
+      await waitRetry(res, body, attempt, onRetry);
       continue;
     }
     throw new Error(body?.error?.message || `POST /v1/chat/completions: ${res.status}`);
@@ -138,6 +176,7 @@ export async function agentCompletion({ model, task, sessionId, maxTurns, onRetr
   // reached Ollama unstripped and came back a plain "ollama 400".
   const payload = { model: stripPrefix(model), task, sessionId, maxTurns };
   let attempt = 0;
+  const t0 = Date.now();
   for (;;) {
     const res = await fetch(`${BASE}/v1/agent`, { method: "POST", headers, body: JSON.stringify(payload) });
     const body = await res.json().catch(() => ({}));
@@ -147,11 +186,12 @@ export async function agentCompletion({ model, task, sessionId, maxTurns, onRetr
     // shape. Two different response shapes on two sibling routes, kept as
     // each route's own file already had it rather than silently unified.
     const type = body?.type;
-    if (res.status === 429 && RETRYABLE_TYPES.has(type) && attempt < CHAT_MAX_RETRIES) {
+    if (res.status === 429 && RETRYABLE_TYPES.has(type) && Date.now() - t0 < QUEUE_MAX_WAIT_MS) {
       attempt += 1;
+      const queue = body?.queue ?? null;
       const retryAfterS = Number(body?.retry_after ?? res.headers.get("retry-after") ?? 2);
-      onRetry?.({ attempt, retryAfterS, type });
-      await new Promise((r) => setTimeout(r, retryAfterS * 1000));
+      onRetry?.({ attempt, retryAfterS, type, position: queue?.position ?? null, etaHuman: queue?.etaHuman ?? null });
+      await new Promise((r) => setTimeout(r, Math.max(1, retryAfterS) * 1000));
       continue;
     }
     throw new Error(typeof body?.error === "string" ? body.error : `POST /v1/agent: ${res.status}`);

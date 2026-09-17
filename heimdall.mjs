@@ -48,6 +48,7 @@
 // restart env is reproduced from the same vars used to launch it.
 
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawn } from "node:child_process";
@@ -71,6 +72,314 @@ const STEER_PORT = Number(process.env.ER7_HEIMDALL_PORT ?? 11437);
 // invisibly behind one; the cap tracks that real capacity. 0 = unlimited.
 const FAMILY_CAP = Number(process.env.ER7_FAMILY_CAP ?? 4);
 const RETRY_AFTER_S = Number(process.env.ER7_RETRY_AFTER ?? 15);
+// ── The queue, and the jump-the-cue passes (2026-09-17) ───────────────────
+// A saturated box or full lane now answers with a REAL place in line, not a
+// bare "try again". A bounded stock of one-use pass codes lets a caller jump
+// the cue — but only a bounded ZIPPER_JUMP places, and only while the zipper
+// alternation allows it: after a pass is redeemed, the next ZIPPER_DENSITY
+// admissions must be pass-free, so pass-holders and everyone else merge like
+// traffic at a merge — a pass train never starves the line.
+const PASS_STOCK = Number(process.env.ER7_PASS_STOCK ?? 3);          // codes minted per window
+const PASS_WINDOW_MS = Number(process.env.ER7_PASS_WINDOW ?? 15 * 60 * 1000);
+const ZIPPER_JUMP = Number(process.env.ER7_ZIPPER_JUMP ?? 2);        // a pass jumps at most N places
+const ZIPPER_DENSITY = Number(process.env.ER7_ZIPPER_DENSITY ?? 2);  // normal admissions after a pass
+const WAITER_TTL_MS = Number(process.env.ER7_WAITER_TTL ?? 120 * 1000); // a stale waiter gives up its place
+// ── THE SLA (2026-09-17): the longest anyone waits is tracked, committed,
+// and kept as short as possible. A waiter who has been in line longer than
+// the SLA is pulled to the ABSOLUTE front (longest-waiting first), so the
+// guarantee is enforced by the schedule, not just reported. The target is a
+// floor — Heimdall aims as short as the box allows.
+const SLA_MAX_WAIT_MS = Number(process.env.ER7_SLA_MS ?? 120 * 1000); // 2 min by default
+export function slaOverMs(w) {
+  return w?.enteredAt ? Date.now() - w.enteredAt - SLA_MAX_WAIT_MS : 0;
+}
+export function slaDisclosure() {
+  const now = Date.now();
+  const waits = [...waiters.values()].map((w) => ({ waitS: Math.max(0, Math.round((now - (w.enteredAt ?? now)) / 1000)) }));
+  const longest = waits.length ? Math.max(...waits.map((w) => w.waitS)) : 0;
+  return {
+    targetS: Math.round(SLA_MAX_WAIT_MS / 1000),
+    longestWaitS: longest,
+    over: longest > SLA_MAX_WAIT_MS / 1000,
+    rule: `the longest anyone waits is tracked and enforced, round-robin: a waiter past ${Math.round(SLA_MAX_WAIT_MS / 1000)}s is pulled to the front, but the SLA lane and the normal lane merge one-and-one — no over-SLA train ever starves the line, and the SLA is always as short as the box allows.`,
+  };
+}
+// Test seam — only the queue's own unit tests set this (the running proxy
+// never imports it): forces admission state that live vitals cannot be
+// relied on to produce inside a test process.
+let _testSaturated = null;
+let _testDevice = null;
+let _testNow = null;
+const effectiveDevice = () => _testDevice ?? DEVICE_ID;
+const nowMs = () => _testNow ?? Date.now();
+export const __queueTest = {
+  setSaturated(v) { _testSaturated = v; },
+  setDevice(id) { _testDevice = id; },
+  setNow(ts) { _testNow = ts; },
+  reset() {
+    waiters.clear(); lastServed.clear(); passes.length = 0; zipperLock = 0; claims.clear();
+    profiles.clear(); unservable.clear(); _testSaturated = null; _testDevice = null; _testNow = null;
+  },
+};
+// ── Requestor profiles and rationing (2026-09-17) ─────────────────────────
+// Every requestor gets a PROFILE — who they are, what class of work they do
+// (interactive = a human waiting; batch = a background swarm), how much they
+// have used in this window — and is RATIONED: a bounded number of turns per
+// window per class, so no single requestor (or a whole swarm) can hog the
+// box. Swarm/batch work is also queued BEHIND interactive work: it is served
+// only when no human's turn is waiting.
+const RATION_WINDOW_MS = Number(process.env.ER7_RATION_WINDOW ?? 15 * 60 * 1000);
+const RATION_TURNS = {
+  interactive: Number(process.env.ER7_RATION_TURNS_INTERACTIVE ?? 40), // a human can't outpace this
+  batch: Number(process.env.ER7_RATION_TURNS_BATCH ?? 600),            // a swarm runs big, but still capped
+};
+const profiles = new Map(); // person -> { priority, turns, windowStart, lastAt, lastServeAt }
+// Servable models — HEIMDALL'S CALL, measured against reality, not a dictum:
+// a model is unservable if it is disclosed as hanging, or if it actually
+// timed out recently (nothing came back). A model that PROVES it answers (a
+// successful observed call) is served again — so if the box can handle a big
+// model, it is welcome; if it does nothing, it is dropped until it works.
+const unservable = new Map(); // model -> { at, reason }
+const UNSERVABLE_COOLDOWN_MS = Number(process.env.ER7_UNSERVABLE_COOLDOWN ?? 10 * 60 * 1000);
+export function markUnservable(model, reason) {
+  if (!model) return;
+  unservable.set(model, { at: Date.now(), reason });
+  appendLog({ act: "eva", finding: "unservable", model, reason, giver: "heimdall", standing: "disclosed" });
+}
+export function markServable(model) {
+  if (!model) return;
+  unservable.delete(String(model).replace(/^er7:/, ""));
+}
+export function isServable(model, quirks = MODEL_QUIRKS) {
+  if (!model) return false;
+  const bare = String(model).replace(/^er7:/, "");
+  const q = quirks?.[bare] ?? {};
+  if (q?.systemRole === "hangs" || /hang/i.test(q?.note ?? "")) return false;
+  const u = unservable.get(bare);
+  if (u && Date.now() - u.at < UNSERVABLE_COOLDOWN_MS) return false;
+  return true;
+}
+export function servableDisclosure() {
+  return {
+    cooldownS: Math.round(UNSERVABLE_COOLDOWN_MS / 1000),
+    rule: "Heimdall decides what this box can serve, measured: a model disclosed as hanging, or one that actually timed out with nothing returned, is dropped from the roster until it proves it answers. If the box can handle a bigger model, it is welcome — it just has to answer.",
+    unservable: [...unservable.entries()].map(([m, u]) => ({ model: m, reason: u.reason, at: u.at })),
+  };
+}
+// Test seam — only the queue's own unit tests set this (the running proxy
+// never imports it): forces admission state that live vitals cannot be
+// relied on to produce inside a test process.
+
+/** The work class of a request: a caller declares it (x-er7-priority), and
+ *  the fallback guesses from the caller's name — a swarm (chapter-swarm,
+ *  evals, batch readers) is batch; everything else (a human at a terminal or
+ *  a page) is interactive. Batch is queued behind interactive, always. */
+function priorityOf(headers = {}) {
+  const declared = String(headers["x-er7-priority"] || "").trim().toLowerCase();
+  if (declared === "batch" || declared === "background" || declared === "swarm") return "batch";
+  if (declared === "interactive") return "interactive";
+  const who = String(headers["x-er7-user"] || headers["x-er7-caller"] || headers["x-er7-session"] || "").toLowerCase();
+  if (/^(swarm|chapter|eval|batch|wilson|primed|rosetta)/.test(who)) return "batch";
+  return "interactive";
+}
+
+/** A requestor's profile, created on first touch and rationed per window. */
+function profileOf(key, headers) {
+  const now = Date.now();
+  let p = profiles.get(key);
+  if (!p) {
+    p = { priority: priorityOf(headers), turns: 0, windowStart: now, lastAt: now, lastServeAt: 0 };
+    profiles.set(key, p);
+  } else if (now - p.windowStart > RATION_WINDOW_MS) {
+    p.turns = 0; p.windowStart = now; // a fresh ration window
+  }
+  p.lastAt = now;
+  return p;
+}
+
+/** Whether a requestor has spent their ration. Over-quota is a typed refusal,
+ *  not a silent stall. */
+function rationed(profile) {
+  const cap = RATION_TURNS[profile.priority] ?? RATION_TURNS.batch;
+  return profile.turns >= cap;
+}
+
+/** The ration disclosure: quotas per class and each profile's usage. */
+export function rationDisclosure() {
+  const now = Date.now();
+  return {
+    windowS: Math.round(RATION_WINDOW_MS / 1000),
+    turns: RATION_TURNS,
+    rule: `every requestor is profiled and rationed per ${Math.round(RATION_WINDOW_MS / 60000)} min: a human is capped at ${RATION_TURNS.interactive} turns, a background swarm at ${RATION_TURNS.batch} — and swarm work is always queued behind interactive work.`,
+    profiles: [...profiles.entries()].map(([key, p]) => ({
+      caller: key, priority: p.priority, turns: p.turns, cap: RATION_TURNS[p.priority] ?? RATION_TURNS.batch,
+      resetInS: Math.max(0, Math.round((p.windowStart + RATION_WINDOW_MS - now) / 1000)),
+    })),
+  };
+}
+// A turn is inferred ONCE, BY ONE DEVICE AT A TIME, anywhere on the fleet —
+// but the claim is a LEASE, not a permanent lock. If the claiming device
+// stalls or fails, the lease is reclaimed and another device serves the turn:
+// that is the recovery, and it is exactly why another device exists — to make
+// up for a local delay or failure, never to duplicate the inference while the
+// first device is still honestly serving.
+const CLAIM_TTL_MS = Number(process.env.ER7_CLAIM_TTL ?? 5 * 60 * 1000);
+const DEVICE_ID = String(process.env.ER7_DEVICE || os.hostname()).slice(0, 64);
+
+// waiters: an ordered line, keyed by the PERSON's identity (see personKeyOf —
+// a person is ONE place in line no matter how many sessions, tabs, or devices
+// they pile work onto). Only WAITING people are in it: a caller who is being
+// served right now is not in the line, and lastServed remembers who just got
+// served so their next message re-joins BEHIND people who are still waiting.
+const waiters = new Map(); // person -> { at, pass, servedAt }
+const lastServed = new Map(); // person -> ts of their last serve (round-robin)
+// The one-use pass stock for the current window.
+const passes = []; // { code, mintedAt, redeemedAt }
+let zipperLock = 0; // normal admissions still owed before another pass may jump
+// Turn claims (leases), so inference is never duplicated across devices —
+// and so a stalled or failed device's lease can be reclaimed by another.
+const claims = new Map(); // claimId -> { device, at }
+
+function mintPasses() {
+  const now = Date.now();
+  passes.forEach((p) => { if (now - p.mintedAt > PASS_WINDOW_MS) p.redeemedAt = now; }); // rotate expired
+  while (passes.filter((p) => p.redeemedAt == null).length < PASS_STOCK) {
+    passes.push({ code: `BIFROST-${Math.random().toString(36).slice(2, 6).toUpperCase()}`, mintedAt: now, redeemedAt: null });
+  }
+}
+
+/** The person behind a request, by precedence: a human (x-er7-user) before a
+ *  device/app (x-er7-caller) before a conversation (x-er7-session). This is
+ *  what "each person" means for fairness: one place in line per person, so
+ *  ten tabs from one person are still one place, and a 25-message backlog is
+ *  still one place. */
+function personKeyOf(headers = {}) {
+  return String(headers["x-er7-user"] || headers["x-er7-caller"] || headers["x-er7-session"] || "anon").slice(0, 64);
+}
+
+/** A presented pass code is honored only if it is a real, unredeemed code of
+ *  the current window — anything else is a typed 400, never a silent
+ *  misorder. */
+function validPassCode(code, headers = {}) {
+  if (!code) return null;
+  return passes.find((p) => p.code === code && p.redeemedAt == null) ?? null;
+}
+
+/** The turn's claim id — the thing that must be inferred exactly once, even
+ *  when the fleet spans devices. The caller tags each turn with x-er7-claim;
+ *  a request without one falls back to the session. */
+function claimIdOf(headers = {}) {
+  return String(headers["x-er7-claim"] || headers["x-er7-session"] || "claim").slice(0, 96);
+}
+
+/** Claim the turn for this device — a LEASE, recoverable. A fresh claim held
+ *  by another device is the "already being inferred elsewhere" refusal (no
+ *  double inference); a claim that is stale (the other device stalled or
+ *  failed — a delay THIS device exists to make up for) or already ours is
+ *  taken over / confirmed. */
+function claimTurn(headers = {}) {
+  const id = claimIdOf(headers);
+  const existing = claims.get(id);
+  const now = Date.now();
+  const device = effectiveDevice();
+  if (existing && now - existing.at < CLAIM_TTL_MS) {
+    if (existing.device !== device) return { ok: false, id, device: existing.device, stale: false };
+    return { ok: true, id, device, reclaimed: false }; // a retry of our own live turn
+  }
+  const reclaimed = Boolean(existing && existing.device !== device);
+  claims.set(id, { device, at: now });
+  return { ok: true, id, device, reclaimed };
+}
+
+/** Release a claim when this device finishes or FAILS a turn, so the next
+ *  device (the recovery) does not wait out the whole lease. Cross-device
+ *  release is the same call on the shared ledger; locally it is immediate. */
+export function releaseClaim(id) {
+  const existing = claims.get(id);
+  if (existing && existing.device === effectiveDevice()) claims.delete(id);
+}
+
+function pruneWaiters() {
+  const now = Date.now();
+  for (const [k, w] of waiters) {
+    if (now - w.at > WAITER_TTL_MS) waiters.delete(k);
+  }
+}
+
+/** Rank a waiter within its lane: interactive work first (a human waiting),
+ *  then batch/swarm work — the swarm is always at the back of the cue. Within
+ *  a lane, the round-robin holds (last-served sorts last), so a fresh caller
+ *  cuts in front of a backlog. */
+function laneRank([, w]) {
+  return (w.priority === "batch" ? 1 : 0) * 1e12 + (w.servedAt ?? 0);
+}
+
+/** The LINE, in service order — SLA-enforced AND round-robin. A waiter past
+ *  the SLA is pulled toward the front, but the SLA lane and the normal lane
+ *  ZIPPER (one over-SLA, one normal, one over-SLA…), so the guarantee holds
+ *  without an over-SLA train starving the line — everyone keeps moving. */
+function lineOrder() {
+  const normal = [...waiters.entries()]
+    .filter(([, w]) => slaOverMs(w) <= 0)
+    .sort((a, b) => laneRank(a) - laneRank(b));
+  const over = [...waiters.entries()]
+    .filter(([, w]) => slaOverMs(w) > 0)
+    .sort((a, b) => slaOverMs(b[1]) - slaOverMs(a[1])); // longest past the SLA first
+  const merged = [];
+  for (let i = 0; i < Math.max(over.length, normal.length); i++) {
+    if (i < over.length) merged.push(over[i]);
+    if (i < normal.length) merged.push(normal[i]);
+  }
+  return merged;
+}
+
+/** A pass held for the zipper (presented while the alternation owes normal
+ *  calls) is not yet eligible to serve — it blocks nobody, and the line
+ *  advances past it. */
+function isZipperHeld(w) {
+  return Boolean(w?.pass && zipperLock > 0);
+}
+
+/** The rank of a caller among those ELIGIBLE to serve right now — a held pass
+ *  is skipped, so the line keeps moving past it. Used for admission: position
+ *  1 means it is genuinely your turn. */
+function eligiblePositionOf(key) {
+  let rank = 0;
+  for (const [k, w] of lineOrder()) {
+    if (isZipperHeld(w)) continue;
+    rank += 1;
+    if (k === key) return rank;
+  }
+  return 0;
+}
+
+/** A waiter's disclosed position: their rank in the line (with a held pass's
+ *  ZIPPER_JUMP applied), for the queue disclosure. */
+function effectivePositionOf(key) {
+  const entries = lineOrder();
+  const idx = entries.findIndex(([k]) => k === key);
+  if (idx === -1) return 0; // not queued
+  const base = idx + 1;
+  const w = waiters.get(key);
+  if (w?.pass && zipperLock <= 0) return Math.max(1, base - ZIPPER_JUMP);
+  return base;
+}
+
+/** The zipper rule, disclosed so a caller can read why a jump was refused. */
+export function zipperDisclosure() {
+  mintPasses();
+  return {
+    stock: PASS_STOCK,
+    windowS: Math.round(PASS_WINDOW_MS / 1000),
+    jump: ZIPPER_JUMP,
+    density: ZIPPER_DENSITY,
+    lock: zipperLock,
+    rule: `a pass jumps at most ${ZIPPER_JUMP} place(s); after one is redeemed the next ${ZIPPER_DENSITY} admissions are pass-free — callers merge, they do not queue-jump en masse.`,
+    codes: passes.filter((p) => p.redeemedAt == null).map((p) => p.code),
+    remaining: passes.filter((p) => p.redeemedAt == null).length,
+    redeemed: passes.filter((p) => p.redeemedAt != null).length,
+  };
+}
 const LOG_FILE = path.join(HERE, "heimdall-log.jsonl");
 
 const ts = () => new Date().toISOString();
@@ -308,9 +617,9 @@ export const isBoxSaturated = boxSaturated;
 // now. ETA is a count of work ahead scaled by a measured per-turn time —
 // never a promise, always an honest estimate ("~N request(s) ahead, each
 // roughly M seconds").
-let lastTurnMs = 120000; // seed: a plausible long turn until real ones land
-const TURN_MS_SEED = 120000;
-const TURN_MS_FLOOR = 10000;
+let lastTurnMs = 20000; // seed: a realistic single turn until real ones land
+const TURN_MS_SEED = 20000;
+const TURN_MS_FLOOR = 5000;
 function recordTurnMs(ms) {
   if (!Number.isFinite(ms) || ms <= 0) return;
   lastTurnMs = Math.round(0.6 * lastTurnMs + 0.4 * ms); // EWMA
@@ -325,14 +634,37 @@ export function disclosure() {
   const v = cachedVitals() ?? {};
   const cpuBusy = v.cpuIdle == null ? null : Math.round(100 - v.cpuIdle);
   const gpuBusy = v.gpuUtil; // device utilization % — the GPU's actual load
-  const workAhead = surfaces.reduce((a, s) => a + s.inflight, 0);
+  const workAhead = surfaces.reduce((a, s) => a + s.inflight, 0) + waiters.size;
   const eta = etaFor(workAhead);
   return {
     at: ts(),
     cpu: cpuBusy == null ? { busy: null, idle: null, note: "not measured yet" } : { busy: cpuBusy, idle: Math.round(v.cpuIdle) },
     gpu: gpuBusy == null ? { busy: null, note: "not measured yet" } : { busy: gpuBusy, idle: Math.round(100 - gpuBusy) },
     load: v.load1 ?? null,
-    queue: { workAhead, perTurnMs: eta.perTurnMs, etaMs: eta.etaMs, etaHuman: eta.etaMs ? `${Math.round(eta.etaMs / 1000)}s` : "now" },
+    queue: {
+      workAhead,
+      perTurnMs: eta.perTurnMs,
+      etaMs: eta.etaMs,
+      etaHuman: eta.etaMs ? `${Math.round(eta.etaMs / 1000)}s` : "now",
+      // the live line, head first — who is waiting and where each sits
+      positions: [...waiters.keys()].map((k) => ({ caller: k, position: effectivePositionOf(k) })),
+    },
+    // multi-device: which device is serving, what turns are claimed (inferred
+    // once, by one device at a time), and how a stalled or failed device's
+    // lease is reclaimed so another device makes up the delay.
+    device: DEVICE_ID,
+    claims: [...claims.entries()].map(([id, c]) => ({ id, device: c.device, ageS: Math.round((Date.now() - c.at) / 1000) })),
+    recovery: {
+      leaseS: Math.round(CLAIM_TTL_MS / 1000),
+      rule: `a turn is inferred once, by one device at a time; if that device stalls or fails, its lease is reclaimed and another device serves the turn — the other device exists to make up the delay, never to double the inference.`,
+    },
+    zipper: zipperDisclosure(),
+    // profiles and rations: who is calling, what class, how much they've used
+    rationing: rationDisclosure(),
+    // the SLA: the longest anyone is waiting, and whether the box is holding it
+    sla: slaDisclosure(),
+    // which models Heimdall will actually let the box serve (measured, not dictated)
+    servable: servableDisclosure(),
     saturated: boxSaturated(cachedVitals()),
     surfacesUp: surfaces.filter((s) => s.up === true).length,
     surfacesTotal: surfaces.length,
@@ -465,6 +797,8 @@ export function modelQuirksOf(model) {
  */
 export function observeCall({ model, promptTokens = 0, promptMs = 0, genTokens = 0, genMs = 0, loadMs = 0 } = {}) {
   if (!model) return null;
+  // A successful call is proof the model answers — Heimdall keeps it servable.
+  markServable(model);
   const t = throughput.get(model) ?? { calls: 0, promptTokens: 0, promptMs: 0, genTokens: 0, genMs: 0, loads: 0, loadMs: 0, genRate: null, promptRate: null };
   t.calls++;
   t.promptTokens += promptTokens; t.promptMs += promptMs;
@@ -509,6 +843,28 @@ export function loadedWindowOf(model) {
 /** Every model resident right now, or null when the read failed. */
 export function loadedModels() {
   return ollamaModels;
+}
+
+/** Seed what Heimdall is willing to serve: a model LARGER than the box has
+ *  ever proven it can answer is assumed unservable until it actually answers
+ *  (a successful observed call promotes it). This is why a 30B that "did
+ *  nothing" is not offered — it has to prove itself to get back on the
+ *  roster. A name with no size marker is left alone. */
+export function modelIsBiggerThan(name, floorB = 4) {
+  const m = /(?:^|[^a-z0-9.])(\d+(?:\.\d+)?)b(?:$|[^a-z0-9])/i.exec(String(name).replace(/^er7:/, ""));
+  if (!m) return false;
+  return Number(m[1]) > floorB;
+}
+export function seedUnservableLarge(models = loadedModels()) {
+  for (const m of models) {
+    const name = m?.name ?? m?.model ?? m;
+    if (!name) continue;
+    const bare = String(name).replace(/^er7:/, "");
+    if (modelIsBiggerThan(bare) && !unservable.has(bare)) {
+      unservable.set(bare, { at: Date.now(), reason: "large_unproven" });
+      appendLog({ act: "eva", finding: "unservable_seeded", model: bare, reason: "large_unproven", giver: "heimdall", standing: "disclosed" });
+    }
+  }
 }
 
 async function refreshOllamaModels() {
@@ -758,22 +1114,161 @@ export function heimdallStatus() {
 // with a typed refusal (never a hang). The proxy calls this on its OWN chat
 // path (marking its own surface's inflight), exactly as the standalone steer
 // server did for the surface it forwarded to.
-export function admitChat(body = "{}") {
+//
+// `headers` carries the caller's identity (x-er7-session / x-er7-caller) and
+// an optional one-use pass (x-er7-pass). The gate now answers refusals with
+// a REAL place in line: `queue.position` (1-based, stable across retries —
+// retrying does not shuffle you), and a pass lets you zipper up ZIPPER_JUMP
+// places once the alternation allows it. Admission is head-only: when a slot
+// is free you are admitted if you are at the head of the line, otherwise you
+// get `not_your_turn` with your position — the queue actually means
+// something now.
+export function admitChat(body = "{}", headers = {}) {
+  mintPasses();
+  pruneWaiters();
   const model = modelOf(body);
   const family = familyOfRequest(model);
-  const saturated = boxSaturated(cachedVitals());
-  if (saturated) {
-    appendLog({ act: "eva", finding: "saturated", family, model, retryAfterS: RETRY_AFTER_S });
-    return { allowed: false, status: 429, type: "saturated", family, model, retryAfterS: RETRY_AFTER_S, message: `box saturated — retry after ${RETRY_AFTER_S}s` };
+  const key = personKeyOf(headers);
+  const passCode = String(headers["x-er7-pass"] || "").trim() || null;
+  const pass = validPassCode(passCode, headers);
+  if (passCode && !pass) {
+    appendLog({ act: "eva", finding: "bad_pass", key, code: passCode });
+    return { allowed: false, status: 400, type: "bad_pass", message: `no such jump-the-cue pass: ${passCode}` };
   }
-  if (FAMILY_CAP > 0 && family !== "any") {
-    const familyInflight = surfaces.filter((s) => s.family === family).reduce((a, s) => a + s.inflight, 0);
-    if (familyInflight >= FAMILY_CAP) {
-      appendLog({ act: "eva", finding: "lane_full", family, model, inflight: familyInflight, retryAfterS: RETRY_AFTER_S });
-      return { allowed: false, status: 429, type: "lane_full", family, model, retryAfterS: RETRY_AFTER_S, message: `family ${family} busy — retry after ${RETRY_AFTER_S}s` };
+
+  // Every requestor is profiled and rationed: a swarm that has spent its
+  // window is refused up front (typed, never a stall), and its priority class
+  // decides where it sits in the line — batch is always behind interactive.
+  const profile = profileOf(key, headers);
+  if (rationed(profile)) {
+    const resetInS = Math.max(0, Math.round((profile.windowStart + RATION_WINDOW_MS - Date.now()) / 1000));
+    appendLog({ act: "eva", finding: "rationed", key, priority: profile.priority, turns: profile.turns, cap: RATION_TURNS[profile.priority] });
+    return {
+      allowed: false, status: 429, type: "rationed", family, model, retryAfterS: Math.min(60, Math.max(5, resetInS)),
+      message: `${key} has used ${profile.turns}/${RATION_TURNS[profile.priority]} turns this window — the ration resets in ~${resetInS}s. Heimdall holds the line for everyone.`,
+      ration: rationDisclosure(),
+    };
+  }
+
+  // HEIMDALL'S CALL: a model this box cannot actually serve right now (known
+  // to hang, or timed out with nothing returned) is refused, not silently
+  // stalled — and the refusal names the models that DO answer.
+  if (!isServable(model)) {
+    appendLog({ act: "eva", finding: "unservable_refused", key, model, family });
+    return {
+      allowed: false, status: 503, type: "model_unavailable", family, model, retryAfterS: 15,
+      message: `${model} is not answering on this box right now (Heimdall dropped it). Pick a model the box can serve — /v1/models lists them.`,
+      servable: servableDisclosure(),
+    };
+  }
+
+  // Every caller holds a place in the line (first touch enqueues them, so a
+  // retry is never shuffled). A pass jump during a live zipper merge is held,
+  // not misordered.
+  const saturated = _testSaturated ?? boxSaturated(cachedVitals());
+  const familyInflight = FAMILY_CAP > 0 && family !== "any"
+    ? surfaces.filter((s) => s.family === family).reduce((a, s) => a + s.inflight, 0)
+    : 0;
+  const laneFull = FAMILY_CAP > 0 && family !== "any" && familyInflight >= FAMILY_CAP;
+  const busy = saturated || laneFull;
+  const existing = waiters.get(key);
+  if (!existing) {
+    // Enqueue with the round-robin marker (when this person was last served),
+    // their work class (batch = the swarm, always at the back), and enteredAt
+    // — the honest start of their wait, for the SLA. enteredAt never refreshes
+    // on retry, so the longest-wait metric is real.
+    waiters.set(key, { at: Date.now(), enteredAt: nowMs(), pass: pass ? pass.code : null, servedAt: lastServed.get(key) ?? 0, priority: profile.priority });
+  } else {
+    existing.at = Date.now();
+    if (pass) existing.pass = pass.code;
+  }
+
+  if (pass && zipperLock > 0) {
+    // The merge is zippering: the pass is held (never redeemed) until the
+    // alternation drains — a jump now would cut a pass-train through.
+    const eff = effectivePositionOf(key);
+    appendLog({ act: "eva", finding: "zipper_held", key, code: pass.code, lock: zipperLock });
+    return {
+      allowed: false, status: 429, type: "zipper", family, model, retryAfterS: Math.max(2, RETRY_AFTER_S),
+      message: `the merge is zippering — ${zipperLock} normal call(s) go first, then your pass jumps you up. Heimdall keeps the pass for you.`,
+      queue: queueOf(key, eff),
+      zipper: zipperDisclosure(),
+    };
+  }
+
+  // If a slot is genuinely free, admit — but only the caller at the HEAD of
+  // the line. Head is not "who arrived first": it is "who has been waiting
+  // longest since their last serve" (round-robin, one serve per person), so a
+  // fresh caller's single message cuts in front of someone else's 25-message
+  // backlog instead of waiting behind the pile.
+  if (!busy) {
+    // eligible, not merely effective: a pass HELD for the zipper blocks nobody
+    const position = eligiblePositionOf(key);
+    if (position === 1) {
+      // The turn must be inferred once, by one device — but the lease is
+      // recoverable: a stale claim (the local device stalled or failed) is
+      // reclaimed here, which is what another device is for.
+      const claim = claimTurn(headers);
+      if (!claim.ok) {
+        appendLog({ act: "eva", finding: "claimed", key, claim: claim.id, device: claim.device });
+        return {
+          allowed: false, status: 429, type: "claimed", family, model, retryAfterS: Math.max(2, RETRY_AFTER_S),
+          message: `this turn is already being inferred on ${claim.device} — Heimdall will not run it twice; it will be retried on another device if ${claim.device} stalls.`,
+          claim: { id: claim.id, device: claim.device },
+        };
+      }
+      // Serve. Zipper alternation: a pass that jumps starts a lock; a normal
+      // admission that follows a pass pays one of the owed normal slots.
+      if (pass) {
+        pass.redeemedAt = Date.now();
+        zipperLock = ZIPPER_DENSITY;
+        appendLog({ act: "crossing", finding: "pass_redeemed", key, code: pass.code });
+      } else if (zipperLock > 0) {
+        zipperLock -= 1;
+      }
+      // FAIR QUEUE: the caller just got served — remember it (their next
+      // message re-joins the BACK of the line) and take them OUT of the
+      // waiting line while they serve, so the queue shows only people still
+      // waiting, never the caller who is mid-turn. Their ration counts this
+      // turn.
+      profile.turns += 1;
+      profile.lastServeAt = Date.now();
+      lastServed.set(key, Date.now());
+      waiters.delete(key);
+      return { allowed: true, family, model, pass: pass ? pass.code : null, claim, priority: profile.priority };
     }
+    // The box has room, but it is not your turn yet — hold your place.
+    const eff = position;
+    appendLog({ act: "eva", finding: "not_your_turn", key, position: eff, family });
+    return {
+      allowed: false, status: 429, type: "not_your_turn", family, model, retryAfterS: Math.max(2, RETRY_AFTER_S),
+      message: `a slot is free but it is not your turn — you are #${eff} in line. Heimdall keeps your place; retrying does not shuffle you.`,
+      queue: queueOf(key, eff),
+    };
   }
-  return { allowed: true, family, model };
+
+  // Refused (saturated / lane full): you hold your place. A retry keeps it.
+  const eff = effectivePositionOf(key);
+  const reason = saturated ? "saturated" : "lane_full";
+  appendLog({ act: "eva", finding: reason, key, position: eff, family, model, retryAfterS: RETRY_AFTER_S });
+  return {
+    allowed: false, status: 429, type: reason, family, model, retryAfterS: RETRY_AFTER_S,
+    message: `${reason === "saturated" ? "box saturated" : `family ${family} busy`} — you are #${eff} in line (${queueOf(key, eff).etaHuman}). Heimdall keeps your place; retrying does not shuffle you.`,
+    queue: queueOf(key, eff),
+    zipper: zipperDisclosure(),
+  };
+}
+
+function queueOf(key, position) {
+  const workAhead = surfaces.reduce((a, s) => a + s.inflight, 0) + waiters.size;
+  const eta = etaFor(Math.max(0, workAhead));
+  return {
+    position: position ?? effectivePositionOf(key),
+    workAhead,
+    perTurnMs: eta.perTurnMs,
+    etaMs: eta.etaMs,
+    etaHuman: eta.etaMs ? `${Math.round(eta.etaMs / 1000)}s` : "now",
+  };
 }
 
 let _watcherStarted = false;
