@@ -227,6 +227,7 @@ the-fold's flat top level under the same basename.
 | `organs/signal.js` | Platanista | Probe, listen; a clean nothing is a result. |
 | `organs/variation.js` | Brillat-Savarin | Varied draws, rejection-sampled; mechanical snip first, EOT-recorded. |
 | `organs/strunk-white.js` | Strunk & White | Readability grade plus the classic style-rule detectors. |
+| `organs/output-holograph.js` | Koestler | The holograph typing — every generated sentence a pointer: a byte address into the record, or `self:model`, marked; the holograph projects which was the model and which was us. |
 | `organs/pacing.js` | Murch | The cut lands where the blink falls; a flatline is boredom at the rhythm grain. |
 | `organs/vonnegut.js` / `organs/story-shapes.js` | Vonnegut | Fortune curves; the 27-operator arc, taxonomically complete. |
 | `organs/void-holarchy.js` | Koestler | The void is a holon recursion — every level a whole-and-part, DEF'd by the nine operators. |

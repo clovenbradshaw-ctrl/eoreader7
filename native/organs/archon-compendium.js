@@ -708,6 +708,17 @@ export const ARCHONS = Object.freeze([
     credit: "Arthur Koestler — the holon: every level a whole-and-part of the levels around it (1967).",
     topics: ["holon", "holarchy", "whole", "part", "nest", "level", "koestler"],
   },
+  {
+    handle: "output-holograph",
+    name: "The Holograph Typing",
+    organ: "organs/output-holograph.js",
+    role: "generated content whose JSON carries, per sentence, the pointer into the record — a byte address for every sentence grounded in the verified material, self:model for the mouth's own prose — so the holograph projects what was the model vs what was us",
+    pdStatus: "nomination",
+    work: "The HOLOGRAPH's own three tiers (native/docs/THE-HOLOGRAPH.md), made operational for ARBITRARY GENERATED CONTENT: a sentence is typed MATERIAL iff it carries a verified arrangement's ends through the same fold and morphology the record uses (Parmenides' same, never grammatical names), with the arrangement's byte address as its ref; a sentence carrying none is SELF:MODEL, the mouth's own prose, marked and never laundered. Mechanical typing — no model is ever asked which of its own sentences it grounded. A ground fact with no byte span is a typed gap, never a guessed address.",
+    source: "THE-HOLOGRAPH.md (the instrument's own holograph, cited not re-derived); Koestler's holon",
+    credit: "The holograph typing (output-holograph) — every sentence a pointer: a byte address into the record, or self:model, marked; the holograph projects which was the model and which was us.",
+    topics: ["holograph", "pointer", "self-model", "ground", "byte-address", "koestler", "provenance", "sentence-typing"],
+  },
   // ── THE ARCHONS (the code-discipline organs) ─────────────────────────────
   {
     handle: "brandeis",
