@@ -73,6 +73,7 @@ import { pacingGrade as murchPacing } from "./native/organs/pacing.js";
 import { storyShape as vonnegutShape } from "./native/organs/vonnegut.js";
 import { classifyArc } from "./native/organs/story-shapes.js";
 import { matchArchons, archonOf } from "./native/organs/archon-compendium.js";
+import { naturalSizeRuleForTask, authorCorrectionRule } from "./native/organs/hive.js";
 import { voidHolarchy } from "./native/organs/void-holarchy.js";
 // The Charter organ (native/organs/charter.js, Handle: Grotius): governs
 // generation against the Universal Declaration of Human Rights. The gate is
@@ -1436,7 +1437,7 @@ function groundSeed(session, { sidecar = null, framing = null, field = null, cou
 // the law refuses kitsch.
 const RANKE_RULE = "Compose your own sentences. You may state a grounded fact (it will be cited to its source) or invent (it will be labeled as yours) — but never copy a source's words as your own prose. A sentence lifted from the material is refused.";
 
-function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegments, resolutions) {
+export function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegments, resolutions) {
   const t = task.toLowerCase().trim();
   if (/^(hi|hello|hey|howdy|greetings|good\s+(morning|afternoon|evening))[\s,!?]*$/.test(t))
     return { shape: "greeting", maxTokens: 64, modality: "brief" };
@@ -1451,6 +1452,17 @@ function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegment
   // a poem, a nocturne, a film, an essay — the register resolves the FIELD
   // (open set) and the MODE (medium). The essay is one field among many.
   const reg = deriveRegister(t, { genres: sidecarGenres() });
+  // THE DISCOVERED RULE BOOK (hive) — genres are DISCOVERED on the fly, never
+  // hardcoded. When a person corrects an answer ("you wrote an essay, not a
+  // sonnet") the hive author derives a falsifiable rule naming the genre and
+  // its governing constraint; the shape router consults that rule book HERE.
+  // A discovered natural-size rule (a sonnet is filled at its own size, never
+  // as a grounded essay) short-circuits the composition pipeline for that
+  // genre — the correction literally re-shapes the router. No rule yet means
+  // no steering: the request falls through to the staged pipeline as before.
+  const discovered = naturalSizeRuleForTask(t);
+  if (discovered)
+    return { shape: "natural", maxTokens: discovered.maxTokens, modality: "natural-size", register: reg, rule: discovered.id };
   const produce = /\b(?:write|compose|draft|prepare|generate|produce|make|tell|build|create|implement|code)\b/i.test(t);
   const aimsAt = /\b(?:on|about|covering|addressing)\b/i.test(t);
   const multiPart = /\b(multi-?part|long-?form|several sections|a several-part piece|numbered sections)\b/i.test(t);
@@ -2839,7 +2851,7 @@ function normalizeMode(m) {
 function chatVoidCheck(text, { shape, material = "" } = {}) {
   const t = String(text ?? "").trim();
   if (!t) return { ok: false, filled: 0, of: 1, failures: [{ kind: "unfilled", detail: "the void named an answer; nothing was written" }], strain: 1 };
-  if (["greeting", "command", "trivial"].includes(shape))
+  if (["greeting", "command", "trivial", "natural"].includes(shape))
     return { ok: true, filled: 1, of: 1, failures: [], strain: 0, basis: `${shape} — a small void, filled in one answer` };
   const failures = [];
   let strain = 0;
@@ -3077,6 +3089,20 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // a caller, so a code ask stays code even when a job forces "projection".
   const taskRegister = deriveRegister(task, { genres: sidecarGenres() });
   const isInstrument = taskRegister?.field?.field === "instrument";
+  // THE HIVE TRIGGER — a correction of the machine's own answer authors a
+  // falsifiable rule in the hive ledger. Later requests are steered by
+  // discovered rules, never by another hardcoded genre branch.
+  const correction = authorCorrectionRule(task, { source: "proxy-turn" });
+  if (onNote && correction.rule) {
+    onNote({
+      move: "hive_rule_authored",
+      id: correction.rule.id,
+      kind: correction.rule.kind,
+      dimension: correction.rule.dimension,
+      persisted: correction.persisted,
+      falsifier: correction.rule.falsifier,
+    });
+  }
 
   // The person's durable theory of mind — loaded at the turn's start so the
   // character carries continuity across sessions, while this conversation's
@@ -5328,7 +5354,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         if (r?.stopped) truncated = true;
         chunks = 1;
         longRounds.push({ round: 1, chars: r.buf.length, tokenTruncated: r?.tokenTruncated ?? false });
-        const extendable = !["greeting", "command", "trivial", "void"].includes(answerShape.shape);
+        const extendable = !["greeting", "command", "trivial", "void", "natural"].includes(answerShape.shape);
         if (extendable && r?.tokenTruncated && !truncated) {
           if (onNote) onNote({ move: "long_auto_engaged", shape: answerShape.shape, afterChars: fullText.length });
           chunks = await continueUncued(chunks);
@@ -5935,6 +5961,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     totalStrain,
     thinking: thinkingBlock || null,
     answerShape: answerShape.shape,
+    hiveCorrection: correction.rule ? {
+      id: correction.rule.id,
+      kind: correction.rule.kind,
+      dimension: correction.rule.dimension,
+      persisted: correction.persisted,
+      falsifier: correction.rule.falsifier,
+    } : null,
     mode: runMode,
     // The model that ANSWERED (plain-speech switch disclosed, never silent).
     model,
