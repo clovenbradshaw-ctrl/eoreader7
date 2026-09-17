@@ -62,6 +62,16 @@ export const OPENCODE_URL = (process.env.ER7_OPENCODE_URL ?? "http://127.0.0.1:4
 export const OPENCODE_ON = (process.env.ER7_OPENCODE ?? "1") !== "0";
 export const OPENCODE_TIMEOUT_MS = Number(process.env.ER7_OPENCODE_TIMEOUT_MS ?? 290000);
 export const OPENCODE_MODELS_CACHE_MS = Number(process.env.ER7_OPENCODE_MODELS_CACHE_MS ?? 60000);
+// AUTH: `opencode serve` answers 401 when OPENCODE_SERVER_PASSWORD is set in
+// its environment (basic auth, user `opencode` unless overridden). The proxy
+// runs in that same environment, so it presents the same credentials —
+// without this every call to the lane 401s. Absent password = no header.
+function opencodeAuthHeader() {
+  const pw = process.env.OPENCODE_SERVER_PASSWORD;
+  if (!pw) return {};
+  const user = process.env.OPENCODE_SERVER_USERNAME ?? "opencode";
+  return { authorization: `Basic ${Buffer.from(`${user}:${pw}`).toString("base64")}` };
+}
 // THE NARROW DOOR (2026-09-17): only Claude and DeepSeek models ride this
 // lane for now — everything else stays on Ollama even if the opencode server
 // could serve it. Substring match on the full `providerID/modelID`, so it
@@ -90,7 +100,7 @@ async function fetchJson(url, { method = "GET", body = null, timeoutMs = 8000 } 
   try {
     const res = await fetch(url, {
       method,
-      headers: { "content-type": "application/json" },
+      headers: { "content-type": "application/json", ...opencodeAuthHeader() },
       signal: ctrl.signal,
       ...(body === null ? {} : { body: JSON.stringify(body) }),
     });
@@ -290,7 +300,7 @@ export async function* streamOpencodeText(
   }
   let sse = null;
   try {
-    sse = await fetch(`${OPENCODE_URL}/event?directory=${encodeURIComponent(dir)}`, { signal: ctrl.signal });
+    sse = await fetch(`${OPENCODE_URL}/event?directory=${encodeURIComponent(dir)}`, { signal: ctrl.signal, headers: { ...opencodeAuthHeader() } });
     if (!sse.ok) throw new Error(`opencode GET /event: ${sse.status}`);
   } catch (err) {
     clearTimeout(timer);
@@ -305,7 +315,7 @@ export async function* streamOpencodeText(
     try {
       const r = await fetch(`${OPENCODE_URL}/session/${encodeURIComponent(sessionID)}/prompt_async?directory=${encodeURIComponent(dir)}`, {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", ...opencodeAuthHeader() },
         signal: pctrl.signal,
         body: JSON.stringify({
           model: { providerID, modelID },
