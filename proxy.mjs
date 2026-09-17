@@ -3,7 +3,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { MODEL_PREFIX, parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote, parseAnthropicRequest, flattenAnthropicContent, anthropicCountTokensResponse, anthropicMessageResponse, anthropicStreamStart, anthropicContentBlockStart, anthropicContentBlockDelta, anthropicContentBlockStop, anthropicMessageDelta, anthropicMessageStop } from "./proxy-api.mjs";
-import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus, refreshOpencodeModels } from "./proxy-runner.mjs";
+import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus, refreshOpencodeModels, upstreamModelFor } from "./proxy-runner.mjs";
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
@@ -1458,12 +1458,17 @@ server.listen(PORT, "127.0.0.1", () => {
     const warmSet = hotModelSet();
     if (warmSet.size) log(`keep-warm: will hold resident: ${[...warmSet].join(", ")} (keep_alive ${OLLAMA_KEEP_ALIVE_S}s)`);
     for (const model of warmSet) {
+      if (upstreamModelFor(model)) continue; // no Ollama copy to hold — not a failure
       keepModelHot(model).then((ok) => {
         log(`keep-warm: ${model} ${ok ? "resident" : "NOT CONFIRMED"}`);
       });
     }
     setInterval(() => {
       for (const model of hotModelSet()) {
+        // Opencode-lane models have no Ollama copy to hold: keepModelHot
+        // no-ops for them (falsy), which is NOT a failure — skip silently
+        // instead of crying "was it pulled?" every interval.
+        if (upstreamModelFor(model)) continue;
         keepModelHot(model).then((ok) => {
           if (!ok && !_warnedOnce.has(model)) {
             _warnedOnce.add(model);

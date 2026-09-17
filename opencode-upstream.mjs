@@ -84,6 +84,21 @@ function allowedByDoor(id) {
   const low = String(id ?? "").toLowerCase();
   return OPENCODE_ALLOW.some((sub) => low.includes(sub));
 }
+// THE DEAD LIST (2026-09-17): model ids the provider catalog ADVERTISES but
+// the account cannot actually serve — discovered by trying (`claude-sonnet-4`
+// answers `Model is unavailable`, 400, non-retryable, while its siblings
+// 4-5/4-6/5 serve fine). Exact full-id match, plus `prefix*` entries — never
+// a bare substring, so excluding `opencode/claude-sonnet-4` cannot catch
+// `opencode/claude-sonnet-4-6`. Applies at DISCOVERY (roster never offers
+// them) and at routing (a direct call falls through to the Ollama lane and
+// its honest 404 instead of a confusing provider 400). ER7_OPENCODE_EXCLUDE
+// overrides; empty clears.
+const OPENCODE_EXCLUDE = String(process.env.ER7_OPENCODE_EXCLUDE ?? "opencode/claude-sonnet-4")
+  .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+function excludedByDeadList(id) {
+  const low = String(id ?? "").toLowerCase();
+  return OPENCODE_EXCLUDE.some((e) => e.endsWith("*") ? low.startsWith(e.slice(0, -1)) : low === e);
+}
 
 // Best-effort disable list when /experimental/tool/ids is unreachable
 // (older server): the built-in opencode 1.x tool ids. The watchdog below is
@@ -148,9 +163,10 @@ export async function refreshOpencodeModels({ force = false, timeoutMs = 8000 } 
     for (const p of prov?.all ?? []) {
       if (!connected.has(p?.id)) continue;
       // The narrow door is applied at DISCOVERY, not just at routing: the
-      // /v1/models roster only ever offers what this lane may serve.
+      // /v1/models roster only ever offers what this lane may serve — minus
+      // the dead list (advertised but unservable ids).
       for (const id of fullModelIds(p.id, p?.models)) {
-        if (allowedByDoor(id)) found.add(id);
+        if (allowedByDoor(id) && !excludedByDeadList(id)) found.add(id);
       }
     }
     _models = found;
@@ -180,6 +196,7 @@ export function upstreamModelFor(model) {
   const id = stripPrefix(model);
   if (!id || !_models.has(id)) return null;
   if (!allowedByDoor(id)) return null;
+  if (excludedByDeadList(id)) return null;
   const slash = id.indexOf("/");
   if (slash < 1) return null;
   return { providerID: id.slice(0, slash), modelID: id.slice(slash + 1) };
@@ -475,8 +492,12 @@ export async function* streamOpencodeText(
         }
       }
       if (type === "session.error" || type === "message.error" || type === "server.error") {
-        const msg = props.error?.message ?? props.message ?? data?.error?.message ?? "unknown opencode error";
-        throw new Error(`opencode: ${String(msg).slice(0, 300)}`);
+        const msg = props.error?.message ?? props.error?.data?.message ?? props.message ?? data?.error?.message ?? data?.error?.data?.message ?? "unknown opencode error";
+        // The raw event rides along (bounded): a bare "unknown" with no shape
+        // is undiagnosable, and this is the only place the shape is visible.
+        let shape = "";
+        try { shape = ` | event: ${JSON.stringify(data).slice(0, 300)}`; } catch { /* stringify never fails a turn */ }
+        throw new Error(`opencode: ${String(msg).slice(0, 200)}${shape}`);
       }
       if (type === "session.idle" || (type === "session.status" && props.status?.type === "idle")) {
         yield doneChunk(overBudget);
