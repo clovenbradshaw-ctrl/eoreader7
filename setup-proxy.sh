@@ -37,13 +37,52 @@ say "EOReader7 setup"
 command -v node >/dev/null 2>&1 || { echo "  error: node is required"; exit 1; }
 ok "node $(node -v)"
 
-# --- 1. Ollama upstream ------------------------------------------------------
-say "Checking Ollama upstream at $UPSTREAM..."
-if curl -s -m 3 "$UPSTREAM/api/tags" > /dev/null 2>&1; then
-  ok "upstream reachable (models listed on /api/tags)"
+# --- 0. Ollama — install if missing, then tune the daemon's memory policy ----
+# eoreader7's mouth is a local model runner; without it the proxy has nothing
+# to read with. On macOS the clean install is Homebrew; fall back to the
+# official installer when brew is absent. The daemon env (below) is set
+# through launchctl so it survives a reboot the way the shell's env cannot.
+say "Checking Ollama — the local model runner the proxy reads through..."
+if command -v ollama >/dev/null 2>&1; then
+  ok "ollama present: $(ollama --version 2>/dev/null | head -1 || echo "installed")"
 else
-  echo "  warning: Ollama not responding at $UPSTREAM — start it (brew services start ollama)"
+  say "Installing Ollama..."
+  if command -v brew >/dev/null 2>&1; then
+    brew install ollama >/dev/null 2>&1 && ok "installed via Homebrew" || { echo "  error: brew install ollama failed — install manually from https://ollama.com"; }
+  else
+    curl -fsSL https://ollama.com/install.sh | sh && ok "installed via official script" || { echo "  error: Ollama install failed — install manually from https://ollama.com"; }
+  fi
 fi
+if ! curl -s -m 3 "$UPSTREAM/api/tags" > /dev/null 2>&1; then
+  # Not answering yet — start it. Homebrew service first, then the app, then
+  # warn (a first `ollama run <model>` will finish the job).
+  brew services start ollama >/dev/null 2>&1 \
+    || open -a "Ollama" >/dev/null 2>&1 \
+    || echo "  warning: Ollama not answering at $UPSTREAM — start it (brew services start ollama)"
+fi
+
+# --- 0b. Ollama daemon memory policy — the "do not evict" rule, server-side --
+# These are the durable dials the research (2026-09-17) said matter most on a
+# shared box:
+#   OLLAMA_KEEP_ALIVE          — hold models resident (eviction is the cost the
+#                                next caller pays; the proxy already sends its
+#                                own per-request keep_alive on top of this).
+#   OLLAMA_MAX_LOADED_MODELS   — allow more than one model to co-reside so a
+#                                second caller is not forced to evict the first.
+#   OLLAMA_CONTEXT_LENGTH      — bound the auto-fit window: with it unset,
+#                                Ollama sizes context to VRAM and a small model
+#                                can squat 7+ GB of KV cache, starving others.
+#                                The proxy declares its own num_ctx per request;
+#                                this caps callers that do not.
+#   OLLAMA_NUM_PARALLEL        — slots per model; memory scales as slots x ctx.
+# launchctl setenv applies to launchd-launched processes (the Ollama.app
+# server is one), so this survives reboots. It does NOT change a running
+# server until that server restarts — disclosed, never a silent surprise.
+say "Tuning the Ollama daemon's memory policy (launchctl, durable)..."
+launchctl setenv OLLAMA_KEEP_ALIVE "${OLLAMA_KEEP_ALIVE:-1h}" 2>/dev/null && ok "OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE:-1h}"
+launchctl setenv OLLAMA_MAX_LOADED_MODELS "${OLLAMA_MAX_LOADED_MODELS:-3}" 2>/dev/null && ok "OLLAMA_MAX_LOADED_MODELS=${OLLAMA_MAX_LOADED_MODELS:-3}"
+launchctl setenv OLLAMA_CONTEXT_LENGTH "${OLLAMA_CONTEXT_LENGTH:-16384}" 2>/dev/null && ok "OLLAMA_CONTEXT_LENGTH=${OLLAMA_CONTEXT_LENGTH:-16384}"
+launchctl setenv OLLAMA_NUM_PARALLEL "${OLLAMA_NUM_PARALLEL:-4}" 2>/dev/null && ok "OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL:-4}"
 
 # --- 2. link er7-proxy onto PATH ---------------------------------------------
 if [ "$LINK" = "1" ]; then

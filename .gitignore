@@ -74,6 +74,8 @@ proxy.log
 test run/
 documents/
 heimdall-log.jsonl
+heimdall-derived-rules.json
+heimdall-choice-cache.json
 antistrauss-log.jsonl
 native/the-fold/speaker-models/*.json
 _dbg_*.mjs

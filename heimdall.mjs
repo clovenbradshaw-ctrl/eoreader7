@@ -667,6 +667,9 @@ async function tick() {
   await refreshVitals().catch(() => {});
   refreshSlowVitals().catch(() => {});
   refreshOllamaModels().catch(() => {});
+  // THE HOLONIC TREE — every declared child watcher (each a whole-and-part
+  // DEF→EVA→REC holon) runs after the surface pass, on its own cadence.
+  await runHolonTree().catch((err) => log(`holon tree error: ${err.message}`));
   const full = cachedVitals();
   const saturated = boxSaturated(full);
   const vitalsChanged = !lastVitals || Math.abs((full?.load1 ?? 0) - (lastVitals.load1 ?? 0)) > 2 || full?.gpuUtil !== lastVitals.gpuUtil || full?.ollamaPid !== lastVitals.ollamaPid;
@@ -738,6 +741,10 @@ export function heimdallStatus() {
     vitals: cachedVitals() ?? null,
     ollamaModels,
     modelQuirks: MODEL_QUIRKS,
+    holons: holonTree(),
+    mintedRules: mintedRules(),
+    derivedRules: derivedRuleStore(),
+    roomMouths: roomMouthStore(),
     throughput: throughputOf(),
     surfaces: surfaces.map((s) => ({
       name: s.name, family: s.family, port: s.port, up: s.up, reason: s.reason,
@@ -886,7 +893,61 @@ export const HEIMDALL_PATHS = Object.freeze({
     { name: "tesseract-psm6", kind: "mechanical", model: "tesseract", costClass: "fast", capability: "precise-ocr" },
     { name: "tesseract-psm3", kind: "mechanical", model: "tesseract", costClass: "fast", capability: "precise-ocr" },
   ]),
+  // ROOM MOUTHS — machines reached through a Matrix room (P119), each
+  // offering models of its own. These are filled by the room wiring
+  // (matrix-client.js / the other agent's crossing) and are NOT a static
+  // roster: a mouth that comes or goes is added/removed live. costClass is
+  // the measured network hop's cost — remote inference pays the room's seal
+  // + transfer, so a fast local horse outranks a remote one of equal speed.
+  room: Object.freeze([]),
 });
+
+// ── THE ROOM-MOUTH REGISTRY ──────────────────────────────────────────────
+// The live set of remote machines the bridge can cross inference to. Each
+// entry mirrors huginn.js's roomCandidateOf shape: id `room:@who:server
+// <model>`, user `@who:server`, the offered model, and what the machine
+// measured of itself (device, gpu, spare) — the same evidence a local horse
+// carries, one register over. The room wiring (matrix-client.js) calls
+// upsertRoomMouth/removeRoomMouth as mouths come and go; heimdallStatus
+// surfaces the set so a caller can see which remote horses the bridge knows.
+const roomMouths = new Map(); // id -> { id, user, model, device, gpu, home, at }
+export function upsertRoomMouth(m) {
+  const id = (m?.id) || (m?.user && m?.model ? "room:" + String(m.user).replace(/^@/, "") + " " + m.model : null);
+  if (!id) return null;
+  roomMouths.set(id, { id, user: m.user, model: m.model, device: m.device ?? null, gpu: m.gpu ?? null, home: m.home ?? "remote", at: Date.now() });
+  appendLog({ act: "eva", finding: "room_mouth", id, user: m.user, model: m.model, device: m.device ?? null, giver: "heimdall", standing: "disclosed" });
+  return roomMouths.get(id);
+}
+export function removeRoomMouth(id) {
+  if (roomMouths.delete(id)) {
+    appendLog({ act: "eva", finding: "room_mouth_left", id, giver: "heimdall", standing: "disclosed" });
+    return true;
+  }
+  return false;
+}
+export function roomMouthStore() {
+  return [...roomMouths.values()].map((m) => ({ ...m, at: new Date(m.at).toISOString() }));
+}
+
+/** The room paths the bridge knows for a given job kind and model — the
+ *  seam the room wiring (matrix-client.js) feeds. Each path mirrors
+ *  huginn.js's roomCandidateOf shape so the prioritizer ranks a remote
+ *  mouth beside a local horse on the same measured scale. `model` may be
+ *  null to return every mouth offering any model (the failover form). */
+export function roomPathsFor(kind, { model = null } = {}) {
+  const all = [...roomMouths.values()];
+  const byModel = model ? all.filter((m) => m.model === model) : all;
+  return byModel.map((m) => ({
+    name: m.id,
+    kind,
+    model: m.model,
+    costClass: "remote",
+    capability: "room-mouth",
+    user: m.user,
+    gpu: m.gpu ?? null,
+    home: m.home ?? "remote",
+  }));
+}
 
 // cost-class-aware experiment budgets (ms): a fast path is cut early.
 const EXPERIMENT_BUDGET_MS = Object.freeze({ fast: 15000, normal: 45000, expensive: 90000 });
@@ -998,6 +1059,281 @@ export function lintedNote({ kind, level, severity, note, giver, standing, probe
   const entry = { at: new Date().toISOString(), act: "note", kind, level, severity, note, giver, standing, probe, docClass };
   appendLog(entry);
   return entry;
+}
+
+// ── THE HOLONIC LOOP TREE ────────────────────────────────────────────────
+// DEF: every watcher is a whole-and-part. The root tick is the root holon; a
+// concern may declare a CHILD holon — its own DEF (the void it watches), EVA
+// (a sense that probes and returns a finding or null), REC (an act that
+// re-zeros on that finding) — and that holon may declare holons of its own.
+// A holon is bounded the way the root is: it runs on its own cadence, its
+// sense is single-flight (a slow sense never stacks), and its act may spend
+// the SNACK (one bounded, cached mind-call) but never a probe of its own
+// that creates the load it measures. Findings land on the ledger, giver
+// heimdall, standing disclosed.
+const HOLONS = new Map(); // name -> holon
+
+export function declareLoop({ name, def, cadenceMs = 30000, sense, act, parent = null }) {
+  if (HOLONS.has(name)) return HOLONS.get(name);
+  const holon = { name, def, cadenceMs, sense, act, parent, last: 0, running: false, findings: [], children: [] };
+  HOLONS.set(name, holon);
+  if (parent && HOLONS.has(parent)) HOLONS.get(parent).children.push(name);
+  appendLog({ act: "def", holon: name, def, cadenceMs, parent: parent ?? null, giver: "heimdall", standing: "disclosed" });
+  return holon;
+}
+
+export function holonTree() {
+  return [...HOLONS.entries()].map(([name, h]) => ({
+    name, def: h.def, cadenceMs: h.cadenceMs, parent: h.parent,
+    children: h.children, findings: h.findings.length, running: h.running,
+  }));
+}
+
+async function runHolon(h) {
+  if (h.running) return; // single-flight: a slow sense never stacks
+  if (Date.now() - h.last < h.cadenceMs) return;
+  h.running = true;
+  h.last = Date.now();
+  try {
+    const finding = await h.sense();
+    if (finding) {
+      h.findings.push(finding);
+      h.findings = h.findings.slice(-8);
+      const acted = await h.act(finding);
+      appendLog({ act: "rec", holon: h.name, finding: finding.class ?? null, probe: finding.probe ?? null, ...acted, giver: "heimdall", standing: "disclosed" });
+      if (acted?.note) {
+        lintedNote({ kind: "infra", level: "warn", severity: "medium", note: `${h.name}: ${acted.note}`, giver: "heimdall", standing: "disclosed", probe: finding.probe ?? h.name });
+      }
+    }
+  } catch (err) {
+    appendLog({ act: "eva", holon: h.name, error: err.message, giver: "heimdall", standing: "disclosed" });
+  } finally {
+    h.running = false;
+  }
+}
+
+async function runHolonTree() {
+  for (const h of HOLONS.values()) {
+    await runHolon(h);
+    for (const c of h.children) { const child = HOLONS.get(c); if (child) await runHolon(child); }
+  }
+}
+
+// ── THE SNACK ────────────────────────────────────────────────────────────
+// A finding that recurs is a candidate for a RULE: instead of re-deciding
+// every tick, consult a mind ONCE per (class:probe) window and keep the
+// minted rule. This is the one model call the watcher may spend — a snack,
+// never a meal — bounded by budget, cached so a recurring finding never
+// re-pays it, and linted (giver mind:<model>, standing disclosed) so the
+// reasoning stays on the record in the shape the lint machinery reads.
+const RULE_CACHE = new Map(); // `${class}:${probe}` -> { rule, giver, mintedAt }
+const RULE_TTL_MS = 60 * 60 * 1000;
+
+export async function mintRule({ finding, evidence = "", mind = "qwen3:30b-a3b", budgetMs = 60000 }) {
+  const key = `${finding?.class ?? "?"}:${finding?.probe ?? ""}`;
+  const hit = RULE_CACHE.get(key);
+  if (hit && Date.now() - hit.mintedAt < RULE_TTL_MS) return hit;
+  const prompt = [
+    "Heimdall keeps the local model bridge on schedule. A finding just recurred.",
+    "",
+    `finding: ${JSON.stringify(finding ?? {}, null, 2)}`,
+    evidence ? `evidence: ${evidence}` : null,
+    "",
+    "Give ONE operational rule to keep things flowing — short, concrete, actionable, plain prose. No preamble.",
+  ].filter(Boolean).join("\n");
+  let rule, giver;
+  try {
+    const r = await consultMind(prompt, { mind, maxTokens: 160, timeoutMs: budgetMs });
+    rule = r.text.trim();
+    giver = r.giver;
+  } catch (err) {
+    rule = `(snack failed: ${err.message})`;
+    giver = "heimdall";
+  }
+  const entry = { rule, giver, mintedAt: Date.now(), finding: finding?.class ?? null, probe: finding?.probe ?? null };
+  RULE_CACHE.set(key, entry);
+  lintedNote({ kind: "infra", level: "warn", severity: "medium", note: `heimdall rule (${key}): ${rule}`, giver, standing: "disclosed", probe: key });
+  return entry;
+}
+
+export function mintedRules() {
+  return [...RULE_CACHE.entries()].map(([k, v]) => ({ key: k, rule: v.rule, giver: v.giver, mintedAt: v.mintedAt }));
+}
+
+// ── THE DERIVED RULE-AUTHOR — the swarm writes its own rules ──────────────
+// The snack (above) CONSULTS a mind when a finding recurs. This is the
+// other half of "the system writes its own emergent rules": read the
+// bridge's own append-only ledger — the pheromone trail every finding,
+// every act, every crossing deposits — and DERIVE a standing rule from the
+// measured pattern itself. No mind call: the rule IS the generalization of
+// what the ledger shows happened, stated in the house's own act-vocabulary
+// (DEF→EVA→REC), with the recurrence count as its evidence.
+//
+// The wall (II.23, "a control built to fail"): a derived rule is only minted
+// when the pattern has recurred PAST A MEASURED FLOOR (a single event is a
+// fact, not a pattern — three in the window is), and each rule carries its
+// falsifying control — the counterfactual that, if it fires, concedes the
+// rule (REC). A rule that cannot be refuted is a superstition wearing a
+// rule's clothes, and is not minted.
+//
+// The derived rules live beside the snack's in a persistent store, keyed by
+// (finding-class:probe) so a recurring pattern never re-derives every tick.
+const DERIVED_RULES_FILE = path.join(HERE, "heimdall-derived-rules.json");
+const DERIVED_FLOOR = Number(process.env.ER7_DERIVED_RULE_FLOOR ?? 3);
+const DERIVED_WINDOW_MS = Number(process.env.ER7_DERIVED_RULE_WINDOW ?? 30 * 60 * 1000);
+
+// The rule templates: how a recorded finding becomes a standing rule. Each
+// carries its falsifying control — the counterfactual that concedes it.
+// PURE, no ledger access: given the measured facts, say what the bridge
+// learned. Giver is always heimdall (the ledger's own voice), standing
+// disclosed, and the rule rides the lint machinery like every other note.
+const DERIVED_TEMPLATES = Object.freeze({
+  window_changed: Object.freeze({
+    control: "a caller asking the SAME num_ctx as the loaded window must NOT trigger a reload (a reload on a matching window would concede this rule)",
+  }),
+  model_dropped: Object.freeze({
+    control: "a re-warmed model must NOT drop again within one keep_alive window of the warm (a drop right after re-warm concedes this rule)",
+  }),
+  saturated: Object.freeze({
+    control: "a refusal at saturation must be followed by a recovery, not a stall (a saturation refusal that never recovers concedes this rule)",
+  }),
+  forward_failed: Object.freeze({
+    control: "a re-forwarded request must land (a repeat forward_failed for the same probe concedes this rule)",
+  }),
+});
+
+/** Derive a rule from measured findings, or null when the pattern is not yet
+ *  a pattern. `count` is how many times this class recurred in the window;
+ *  `first`/`last` bound the span. A rule carries the observation it was
+ *  derived from and its falsifying control — both on the record. */
+export function deriveRule({ class: cls, probe = null, count, first, last, model = null } = {}) {
+  if (count < DERIVED_FLOOR) return null; // a single event is a fact, not a pattern
+  const tpl = DERIVED_TEMPLATES[cls];
+  if (!tpl) return null; // a class with no template is unmeasured — no rule
+  const spanMin = first && last ? Math.max(1, Math.round((last - first) / 60000)) : null;
+  const rule = [
+    `${cls} recurred ${count} times in ${spanMin ? `${spanMin}min` : "the window"}${model ? ` (${model})` : ""} — the bridge's own ledger says:`,
+    RULE_TEXT[cls],
+    `Control: ${tpl.control}`,
+  ].join(" ");
+  return { class: cls, probe, count, spanMin, model, rule, giver: "heimdall", standing: "disclosed", control: tpl.control };
+}
+
+// The plain-language rule each recorded finding class earns — stated in the
+// house's own voice, never a preference dressed as a fact.
+const RULE_TEXT = Object.freeze({
+  window_changed: "declare ONE num_ctx per model and hold it — a model reloaded at a different window pays a full load every switch.",
+  model_dropped: "hold the horses that served: a used model that drops is re-warmed (one per cadence, never into a saturated box) before the next caller eats the cold-load.",
+  saturated: "admission is the gate: when the box is pegged, refuse with Retry-After and hold — never let a busy box be warmed into a deeper storm.",
+  forward_failed: "a wedged upstream is a typed gap, never a hang — probe first, refuse with a reason, and retry only what can land.",
+});
+
+let derivedRules = loadDerivedRules();
+function loadDerivedRules() {
+  try {
+    const d = JSON.parse(fs.readFileSync(DERIVED_RULES_FILE, "utf8"));
+    return new Map(Object.entries(d));
+  } catch { return new Map(); }
+}
+function saveDerivedRules() {
+  try { fs.writeFileSync(DERIVED_RULES_FILE, JSON.stringify(Object.fromEntries(derivedRules))); } catch { /* never crashes the watcher */ }
+}
+
+/** Record a derived rule. Keyed by (class:probe) so a recurring pattern
+ *  never re-derives every tick; the rule carries its evidence and control. */
+export function adoptDerivedRule(r) {
+  if (!r) return null;
+  const key = `${r.class}:${r.probe ?? ""}`;
+  derivedRules.set(key, { ...r, adoptedAt: Date.now() });
+  saveDerivedRules();
+  lintedNote({ kind: "infra", level: "warn", severity: "medium", note: `heimdall derived rule (${key}): ${r.rule}`, giver: r.giver, standing: r.standing, probe: key });
+  return r;
+}
+
+export function derivedRuleStore() {
+  return [...derivedRules.entries()].map(([k, v]) => ({ key: k, ...v }));
+}
+
+/** CONCEDE a derived rule (REC): its falsifying control fired. The rule's
+ *  own text stays on the record (append-only — a conceded rule is a rule
+ *  that WAS), but it no longer stands. */
+export function concedeDerivedRule(key, { reason } = {}) {
+  if (!derivedRules.has(key)) return null;
+  const prior = derivedRules.get(key);
+  derivedRules.set(key, { ...prior, standing: "conceded", concededAt: Date.now(), concededReason: reason ?? "control fired" });
+  saveDerivedRules();
+  lintedNote({ kind: "infra", level: "warn", severity: "medium", note: `heimdall derived rule CONCEDED (${key}): ${reason ?? "control fired"}`, giver: "heimdall", standing: "disclosed", probe: key });
+  return derivedRules.get(key);
+}
+
+// ── THE RULE-AUTHOR HOLON — the swarm watches its own ledger ──────────────
+// The emergent loop itself: every tick, read the bridge's own append-only
+// ledger, count how often each finding-class recurred in the window, and
+// DERIVE a standing rule when the pattern has earned one (past DERIVED_FLOOR).
+// The rule is adopted only when absent (a recurring pattern never re-derives
+// every tick), and a rule whose falsifying control fires is conceded. This
+// is the swarm becoming literate: the bridge learns its own rules from its
+// own recorded history, no mind, no hand.
+export function makeRuleAuthorHolon({ logLines = logTail, now = Date.now, log = () => {} } = {}) {
+  return {
+    sense: async () => {
+      const lines = logLines(4000); // enough history for the window
+      const counts = new Map(); // class:probe -> { class, probe, count, first, last, model }
+      const t0 = now() - DERIVED_WINDOW_MS;
+      for (const line of lines) {
+        let e; try { e = JSON.parse(line); } catch { continue; }
+        if (!e?.act) continue;
+        const cls = e.finding ?? e.class ?? null;
+        const probe = e.model ?? e.probe ?? e.surface ?? null;
+        if (!cls) continue;
+        const at = Date.parse(e.at ?? "");
+        if (!Number.isFinite(at) || at < t0) continue;
+        const key = `${cls}:${probe ?? ""}`;
+        const c = counts.get(key) ?? { class: cls, probe, count: 0, first: at, last: at, model: probe };
+        c.count += 1;
+        if (at < c.first) c.first = at;
+        if (at > c.last) c.last = at;
+        counts.set(key, c);
+      }
+      // A class that recurred past the floor and has no LIVE derived rule yet.
+      const candidates = [...counts.values()].filter((c) => c.count >= DERIVED_FLOOR);
+      const ready = [];
+      for (const c of candidates) {
+        const key = `${c.class}:${c.probe ?? ""}`;
+        const existing = derivedRules.get(key);
+        if (existing && existing.standing !== "conceded") continue; // already stands
+        ready.push(c);
+      }
+      return ready.length ? { class: "pattern_earned", candidates: ready } : null;
+    },
+    act: async (finding) => {
+      const adopted = [];
+      for (const c of finding.candidates) {
+        const r = deriveRule({ ...c, first: c.first, last: c.last });
+        if (r) { adoptDerivedRule(r); adopted.push(r); }
+      }
+      return { note: adopted.length ? `adopted ${adopted.length} derived rule(s): ${adopted.map((r) => `${r.class}:${r.probe}`).join(", ")}` : null, adopted: adopted.length };
+    },
+  };
+}
+
+// ── THE MESSAGE — what a response is told ────────────────────────────────
+// The bridge ALWAYS states which model returned an answer (attribution is
+// not optional). Heimdall's own words are rarer than that: he speaks into a
+// response ONLY when there has been a problem (a finding to disclose), and
+// even then at most once per RATE window — a god at Bifröst groans when the
+// bridge does, not on every passing foot. `note` is the finding; without it
+// there is no message at all.
+let lastSpokeAt = 0;
+const MESSAGE_RATE_MS = Number(process.env.ER7_HEIMDALL_MESSAGE_RATE_MS ?? 60000);
+
+export function bridgeMessage({ model = null, note = null } = {}) {
+  const now = Date.now();
+  const m = { giver: "heimdall", standing: "disclosed", at: ts(), model };
+  if (!note) return m; // nothing wrong — state the model, hold the tongue
+  if (now - lastSpokeAt < MESSAGE_RATE_MS) return m; // spoke too recently — stay silent
+  lastSpokeAt = now;
+  return { ...m, note };
 }
 
 // ── THE SELF-SCHEDULING LOOP ─────────────────────────────────────────────
