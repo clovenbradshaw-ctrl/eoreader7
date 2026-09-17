@@ -6107,3 +6107,76 @@ before and after, zero regressions.
 **Reviewed and left as is, disclosed rather than silently accepted:** `buildSelectMessages`'s "Do not invent; only choose from the list." still flags `information-not-prohibition` — kept, because `SELECT_SCHEMA`'s own `sentence` field is a bare, unranged integer (nothing structurally prevents an out-of-range pick), so the prohibition is doing real, checked work against a real failure mode, not priming free-text generation the way the rule's own measured harm (P32) describes. Kondo's `reviewTurn`, run over the real four-call two-witness sequence (claim + arm, on each of two models), found one real `unprefixed` cost: the candidate-sentence list (~25 tokens) is resent verbatim on the arm call after the claim call, because `witnessNote` deliberately asks the claim and its sibling-swapped arm as two INDEPENDENT single-turn calls — combining them into one multi-turn conversation would let the model's own claim answer anchor its arm answer, which is exactly the bias the arm exists to catch. Reviewed and kept, not cut.
 
 **Verified:** the-fold's `gary.test.mjs` +2 cases (11/11); this repo's `testimony.test.mjs`/`witness-sentences.test.mjs`/`corroboration.test.mjs`/`bridge-witness.test.mjs`/`ranke.test.mjs` 111/111; the-fold's full suite 2584 tests, the same 11 failure names as before this pass. Ranke's own citation policy (P182, `isWikipediaSource`) is untouched — confirmed no hunk of this session's diff falls near it.
+
+## S128 — the falsification protocol for relation/coreference organs: three legs plus omnilingual-or-named-scope, and "declined" as a first-class outcome (2026-09-17)
+
+> **giver:** earned-here, from the 2026-09-17 the-fold MVP-acceptance
+> fabrication-swarm session (eight agents, `mvp-acceptance.mjs`)
+
+**Generality:** not-applicable — this entry is a discipline about how a
+class of fix is investigated and disclosed, not a claim about a reading
+mechanism's own reach.
+
+**Falsification:** not-applicable — this entry names the organ files it
+governs as a governed CLASS; it is not itself an investigation of a fix
+to one of them, so its own gate does not apply to itself.
+
+the-fold's POLICIES.md P244 is the paired law; this entry states the same
+discipline in this repo's own register, because both repos' own
+generality gates (S31/P71) are already deliberately shared vocabulary
+rather than independently invented per repo, and this narrower gate
+follows the same precedent.
+
+S31's own gate answers "does this entry's claim of `universal` hold up."
+It has nothing to say about an entry that never claims `universal` at all
+— which is most of what a relation/coreference-organ investigation
+actually produces. The swarm that motivated this entry chased five
+findings out of `mvp-acceptance.mjs` that all read, from the driver's own
+one-bucket vocabulary, as "fabrication." One was a real, narrow organ bug
+(this repo's own 87f9a9f, headVerb never wired into judge()'s two
+sameAct() call sites — landed, `specimen-scoped`, English-only configured
+pipeline honestly disclosed as the reason a non-English replay was not
+attempted). Four were correct, disclosed refusals of a would-be fix
+(12c4487's objectSpecificity/passive-voice case is the reference: "found
+and disclosed, not fixed... fixing it narrowly would mean inventing
+exception handling this repo's house rule forbids"). A separate,
+three-round pronoun-binding investigation (local gender evidence, then
+syntactic role, then external knowledge via Wikidata/Wiktionary) declined
+all three candidate mechanisms, each with its own checked, stated reason.
+None of these five outcomes is caught or credited by S31's own gate,
+because none of them claims `universal`. `5739a5b` (`mvp-acceptance.mjs`,
+"stop conflating unbound with fabrication") is the fix at the tool level:
+an acceptance driver with no bucket for "correctly declined" reads a
+disclosed refusal identically to an actual bug.
+
+**The gate, narrower than S31's own three legs and additive to them.**
+Any investigation of a relation-extraction, coreference, or binding organ
+(`organs/hypergraph.js`, `adapters/text/pronouns.js`,
+`adapters/text/relations.js`, `adapters/text/surfaces.js`,
+`adapters/text/morphology.js`, and their the-fold-side callers) must
+disclose two things beyond S31's own three legs:
+
+4. **Omnilingual disclosure, not omnilingual coverage** — either a real
+   non-English/non-Latin-script replay and its result (this repo's own
+   S64 real-Russian-Borodino MHC replay, or the swarm's own
+   `session-stress-omnilingual.mjs`), or an explicit statement of why the
+   pipeline's current configuration makes the non-attempt honest rather
+   than a silent omission — matching S24's own already-earned rule that a
+   disclosed narrow scope is never worse than a false cross-script claim,
+   applied here as a required disclosure rather than a discretionary one.
+5. **"Declined, and here is why" is a complete, first-class result of
+   this protocol**, not a lesser one than a landed fix — the three-round
+   pronoun-binding decline above is the reference case, and it closes off
+   three specific wrong directions with real, checked evidence exactly as
+   much as a fix would have.
+
+**Enforced.** The matching case appended to
+`native/conformance/reading-spec.test.mjs` scans every `## S<N>` header at
+N ≥ 128 whose text names one of the organ files above and requires a
+`Falsification:` line reading `ran (` / `not attempted —` / `declined —`
+— the identical three-state vocabulary this leg requires, distinct from
+S31's own `**Generality:**` tag so an entry cannot satisfy both gates
+with one borrowed line. Like every other gate in this document, this
+checks disclosure only — no test can confirm a decline's stated reason is
+actually correct, the same limit S31 itself already states for its own
+gate.
