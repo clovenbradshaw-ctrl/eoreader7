@@ -1021,6 +1021,159 @@ test("lemma widening never lets an UNRELATED verb bind — it is not a general f
   assert.equal(claim?.verdict, "unheard", "married shares no lemma with underwent/traveled — it must stay outside the material's vocabulary, not get swept in");
 });
 
+// Reproduces a real specimen from mvp-acceptance.mjs (the-fold's own MVP
+// acceptance driver, 2026-09-17): "Who played Katherine Johnson in the
+// film Hidden Figures?" against a real Wikipedia article came back
+// `unbound`, with the disclosed nearest edge reading "Henson —plays→
+// Johnson" — a tense mismatch on its face ("played" vs "plays"). Traced by
+// running the real reader (not guessed): `sameAct("played", "plays")` is
+// TRUE — lemma widening works correctly here, matching subject AND verb.
+// The real cause is `objectSpecificity` (P36), working exactly as
+// designed: the claim's object ("Katherine Johnson in the film Hidden
+// Figures") is not fully stated by the one edge whose subject+verb match
+// ("Johnson" alone) — the fuller sentence that states person AND film
+// together ("She was portrayed by Taraji P. Henson in the ... film Hidden
+// Figures") is a PASSIVE construction the extractor mis-parses (subject
+// "She", verb "was", object "portrayed by Taraji P...") — a known,
+// disclosed, structural limit of extractRelations (asserted-eval.md's own
+// "passive" specimen: "wanted bezukhov —married→ helene; heard instead
+// 'Helene was' —married→ 'by Pierre Bezukhov'"), not a lemma/morphology
+// bug and not something this test attempts to fix. This pins the correct,
+// designed behavior of the two organs that ARE involved (sameAct,
+// objectSpecificity) so the next pass does not re-diagnose this as a
+// tense-matching defect. (The synthetic material below is deliberately
+// minimal — it reproduces the two-organ mechanism, not the passive-voice
+// extraction miss itself, which needs a larger corpus to establish the
+// full name as a referent before the mis-parse can even be reached.)
+test("a tense-shifted claim with a MORE SPECIFIC object than any single matching edge states: subject+verb bind (sameAct works), object_unspecific still refuses it — the real specimen behind mvp-acceptance's a7", async () => {
+  const { createLemmatizer } = await import(PROVIDER + "morphology.js");
+  const prior = JSON.parse(readFileSync(new URL("../eval/the-fold/fixtures/unimorph-morphology-prior.json", import.meta.url), "utf8"));
+  const sameAct = createLemmatizer(prior.forms, { language: prior.language }).sameAct;
+  assert.equal(sameAct("played", "plays"), true, "played/plays are the same act via the received lemma table — this is not where the specimen fails");
+
+  const passages = [
+    {
+      ref: "kj.txt#0-300",
+      text: "Taraji Henson starred in several films that decade. Henson plays Johnson in the movie Hidden Figures.",
+    },
+  ];
+  const reader = makeRelationReader({ ...(await organs()), createLemmatizer, morphologyIndex: prior.forms, morphologyLanguage: prior.language, objectSpecificity: true })(passages, { pool: passages });
+  const report = reader.read("Henson played Katherine Johnson in the film Hidden Figures.");
+  const claim = report.claims.find((c) => c.label === "played");
+  assert.ok(claim, JSON.stringify(report.claims, null, 2));
+  // Subject and verb DID match (sameAct bound "played" to "plays") — the
+  // claim reaches objectSpecificity's own refusal, it is not beyond-reach.
+  assert.equal(claim.verdict, "unbound");
+  assert.equal(claim.reason.startsWith("object_unspecific"), true, claim.reason);
+  assert.ok(
+    claim.nearest.some((e) => e.label === "plays" && e.end2 === "Johnson in the movie Hidden Figures"),
+    `nearest must show the exact edge the material actually states: ${JSON.stringify(claim.nearest)}`,
+  );
+});
+
+test("CONTROL: the identical claim against a passage stating the FULL object in one edge binds cleanly — proving objectSpecificity's refusal above is about specificity, not the tense", async () => {
+  const { createLemmatizer } = await import(PROVIDER + "morphology.js");
+  const prior = JSON.parse(readFileSync(new URL("../eval/the-fold/fixtures/unimorph-morphology-prior.json", import.meta.url), "utf8"));
+  const passages = [
+    {
+      ref: "kj.txt#0-300",
+      text: "Taraji Henson starred in several films that decade. Henson plays Katherine Johnson in the film Hidden Figures.",
+    },
+  ];
+  const reader = makeRelationReader({ ...(await organs()), createLemmatizer, morphologyIndex: prior.forms, morphologyLanguage: prior.language, objectSpecificity: true })(passages, { pool: passages });
+  const report = reader.read("Henson played Katherine Johnson in the film Hidden Figures.");
+  const claim = report.claims.find((c) => c.label === "played");
+  assert.equal(claim?.verdict, "bound", JSON.stringify(claim, null, 2));
+});
+
+// Reproduces another real specimen from mvp-acceptance.mjs (question a4,
+// 2026-09-17): "What award did President Obama present to Johnson in
+// 2015?" against a real Wikipedia article came back `unbound`, with the
+// disclosed nearest edge reading "President Barack Obama —presented→ her
+// with the Presidential Medal of Freedom" against the claim "President
+// Obama —presented→ Katherine Johnson with the Presidential Medal of
+// Freedom in 2015" — the VERB matches exactly, and the mismatch reads, on
+// its face, like a subject/object title or coreference miss.
+//
+// Traced by running the real organs (not guessed): the SUBJECT side is
+// NOT the bug. `makeReferentIndex`'s own resolver already unifies a
+// title-bearing mention with its fuller form — `resolve("President
+// Obama")` and `resolve("President Barack Obama")` return the identical
+// referent id, exactly as this organ's own header claims for "a name's
+// referential connection." Confirmed first, below, as its own pinned
+// case, so the next pass does not re-suspect title normalization here.
+//
+// The real cause is entirely OBJECT-side, and it is a disclosed,
+// MEASURED, deliberately-declared-off architectural limit of
+// `adapters/text/pronouns.js`, not a fixable bug in this file:
+// READING-SPEC.md's S22 ("Co-presence is evidence, never an answer") —
+// "a pronoun sharing its sentence with a named surface is also left
+// alone" (pronouns.js's own header) is the REFUSED regime this file's
+// `pronounBindingsFor` runs in (it declares only `minActivation`/
+// `minMargin`, never `contestedMargin`/`nullTest`). The sentence "...
+// President Barack Obama presented her with the Presidential Medal of
+// Freedom" carries BOTH the pronoun "her" AND a named surface
+// ("President Barack Obama") — so the REFUSED regime never even attempts
+// to bind "her", by explicit design: disambiguating a pronoun among
+// several co-mentioned referents is declared out of scope for the
+// default regime. S22 ALSO records that the alternative (the ADJUDICATED
+// regime, `contestedMargin`/`nullTest`) was built, measured, and
+// deliberately NOT adopted — "novel lift did not rise and its survivors
+// are rare-referent self-echo... the bottleneck is the SIGNAL, not the
+// criterion." Turning it on here would not reliably fix this specimen
+// and risks reintroducing exactly the over-confident-binding class this
+// codebase has repeatedly walled off — so this is pinned as the correct,
+// disclosed, current behavior of two organs working exactly as designed
+// (index.resolve's title coreference; pronoun binding's REFUSED regime),
+// not "fixed" by widening either one.
+test("SUBJECT-SIDE title coreference is NOT the bug: a title-bearing mention resolves to the same referent as its fuller form", async () => {
+  const passages = [
+    {
+      ref: "kj.txt#0-200",
+      text:
+        "Katherine Johnson worked as a NASA mathematician for decades. " +
+        "On November 24, 2015, President Barack Obama presented her with the Presidential Medal of Freedom.",
+    },
+  ];
+  const { makeReferentIndex } = await import("./cast.js");
+  const index = makeReferentIndex(await organs())(passages);
+  const short = index.resolve("President Obama");
+  const full = index.resolve("President Barack Obama");
+  assert.ok(short.size > 0, "President Obama must resolve to a referent at all");
+  assert.deepEqual([...short], [...full], "a title-bearing mention and its fuller form must resolve to the SAME referent");
+});
+
+test("OBJECT-SIDE: the real cause is the pronoun's REFUSED-regime co-presence limit (S22), not a coreference bug — pinned as the real specimen behind mvp-acceptance's a4", async () => {
+  const { resolvePronouns } = await import(PROVIDER + "pronouns.js");
+  const passages = [
+    {
+      ref: "kj.txt#0-200",
+      text:
+        "Katherine Johnson worked as a NASA mathematician for decades. " +
+        "On November 24, 2015, President Barack Obama presented her with the Presidential Medal of Freedom.",
+    },
+  ];
+  const reader = makeRelationReader({ ...(await organs()), resolvePronouns, objectSpecificity: true })(passages, { pool: passages });
+  const report = reader.read("President Obama presented Katherine Johnson with the Presidential Medal of Freedom.");
+  const claim = report.claims.find((c) => c.label === "presented");
+  assert.ok(claim, JSON.stringify(report.claims, null, 2));
+  // SUBJECT resolved fine — "President Obama" reached the same referent as
+  // the material's "President Barack Obama" (endpoints.subject is
+  // "referent", never "none"/"tokens").
+  assert.equal(claim.endpoints.subject, "referent");
+  assert.equal(claim.verdict, "unbound");
+  assert.equal(claim.reason.startsWith("object_unspecific"), true, claim.reason);
+  // The disclosed cause, visible on the record: the nearest material edge
+  // still carries the UNRESOLVED pronoun "her" as its object, because
+  // pronounBindingsFor never attempted to bind it (the sentence also names
+  // "President Barack Obama", so the REFUSED regime declines the frame
+  // entirely — S22's own documented behavior, not a defect here).
+  assert.ok(
+    claim.nearest.some((e) => e.label === "presented" && /\bher\b/.test(e.end2)),
+    `the nearest edge must still show the unresolved pronoun "her" as its object — the material-side extraction never rewrote it: ${JSON.stringify(claim.nearest)}`,
+  );
+});
+
 test("a declared NON-English morphologyLanguage disables the English suffix rule end to end, not only inside morphology.js's own unit tests", async () => {
   // "traveled"/"travels" are REGULAR English inflection (the "-ed"/"-s"
   // rule, not the irregular table this fixture's own morphologyIndex
