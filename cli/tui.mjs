@@ -339,10 +339,34 @@ function App() {
     const tab = tabs.find((t) => t.id === tabId);
     pushMessage(tabId, "user", `> ${text}`);
     updateTab(tabId, (t) => ({ ...t, status: "busy" }));
+    // The LIVE answer bubble: pushed empty before the request, filled
+    // token-by-token as the SSE stream arrives, reconciled with the final
+    // grounded text at DONE time. Ink repaints on every setTabs, so each
+    // delta lands on screen in real time — no waiting for the whole turn.
+    const appendToken = (delta) => {
+      updateTab(tabId, (t) => {
+        const idx = t.messages.findLastIndex((m) => m.streaming);
+        if (idx < 0) return t;
+        const next = t.messages.slice();
+        next[idx] = { ...next[idx], text: next[idx].text + delta };
+        return { ...t, messages: next };
+      });
+    };
+    const finalizeStream = (kind, finalText, extra = {}) => {
+      updateTab(tabId, (t) => {
+        const idx = t.messages.findLastIndex((m) => m.streaming);
+        if (idx < 0) return t;
+        const next = t.messages.slice();
+        next[idx] = { role: "assistant", kind, text: finalText, streaming: false, ...extra };
+        return { ...t, messages: next };
+      });
+    };
+    pushMessage(tabId, "assistant", "", "assistant", { streaming: true });
     try {
       const res = await proxyClient.chatCompletion({
         model: tab.model, history: tab.chatHistory, task: text, sessionId: tab.sessionId,
         onRetry: ({ attempt, retryAfterS, type, position }) => pushMessage(tabId, "note", `Heimdall: ${type === "not_your_turn" ? "not your turn yet" : type === "zipper" ? "merging — pass held" : type === "claimed" ? "turn claimed elsewhere" : "busy"} — retrying in ${retryAfterS}s${position ? ` (#${position})` : ""}`),
+        onToken: appendToken,
       });
       // Adopt who ANSWERED (a plain-speech switch moves the session server-
       // side; the top of the box follows on the next render, never stale).
@@ -356,7 +380,10 @@ function App() {
       const isQuote = res.reading?.answerShape === "quote";
       const snipUrl = res.reading?.quote?.url ?? null;
       const cleanText = stripCitationAppendix(res.text);
-      pushMessage(tabId, isQuote ? "quote" : "assistant", cleanText, "assistant",
+      // Reconcile: the streamed draft is replaced by the final grounded
+      // text (appendix cut, quote typed) — the bubble never duplicates and
+      // chatHistory carries exactly what the screen shows.
+      finalizeStream(isQuote ? "quote" : "assistant", cleanText,
         isQuote ? { snip: snipUrl } : { model: answered });
       if (isQuote) {
         pushMessage(tabId, "snip", snipLine(snipUrl), "note");
@@ -367,7 +394,8 @@ function App() {
         chatHistory: [...t.chatHistory, { role: "user", content: text }, { role: "assistant", content: cleanText }],
       }));
     } catch (err) {
-      pushMessage(tabId, "error", `error: ${err.message}`);
+      // The live bubble becomes the error — no empty ghost left behind.
+      finalizeStream("error", `error: ${err.message}`);
     } finally {
       updateTab(tabId, (t) => ({ ...t, status: "idle" }));
     }
@@ -628,7 +656,11 @@ function App() {
 
   const wrapW = Math.max(1, cols - 6);
   const allLines = (activeTab?.messages ?? []).flatMap((m) => {
-    const lines = wrapText(m.text, wrapW).map((line) => ({ kind: m.kind, text: line }));
+    // A streaming bubble carries a live cursor so the eye can tell
+    // in-flight text from a finished answer — even before the first token
+    // (empty text + cursor), so the wait never looks dead.
+    const body = m.streaming ? `${m.text ?? ""}▍` : m.text;
+    const lines = wrapText(body, wrapW).map((line) => ({ kind: m.kind, text: line }));
     // The model is disclosed with the answer — the one place it is shown.
     if (m.model) lines.push({ kind: "model", text: `[${m.model}]` });
     return lines;
@@ -644,7 +676,12 @@ function App() {
   if (start > 0) transcriptChildren.push(h(Text, { key: "more", dimColor: true }, `↑ ${start} more line(s) above (PageUp to scroll)`));
   shown.forEach((l, i) => transcriptChildren.push(h(Text, { key: `l${i}`, color: roleColor(l.kind) }, l.text)));
   if (activeTab?.status === "busy") {
-    transcriptChildren.push(h(Box, { key: "spinner" }, h(Spinner), h(Text, { dimColor: true }, " thinking…"), h(QueueProbe, { sessionId: activeTab.sessionId })));
+    // Once streamed text is on screen the cursor IS the liveness signal —
+    // the spinner only covers the gap before the first token arrives.
+    const live = [...(activeTab.messages ?? [])].reverse().find((m) => m.streaming);
+    if (!live || !live.text) {
+      transcriptChildren.push(h(Box, { key: "spinner" }, h(Spinner), h(Text, { dimColor: true }, " thinking…"), h(QueueProbe, { sessionId: activeTab.sessionId })));
+    }
   }
   if (!allLines.length) {
     transcriptChildren.push(h(Text, { key: "hint", dimColor: true }, "ask anything — or /model to switch, /help for keys (the rich view is in `eoreader7 -browser`)" ));

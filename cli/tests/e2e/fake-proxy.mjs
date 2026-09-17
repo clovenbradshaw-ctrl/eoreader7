@@ -87,6 +87,36 @@ http
         send(429, { error: { message: "family er7 busy — retry after 0s", type: "lane_full", retry_after: 0 } });
         return;
       }
+      // Streaming clients (stream: true) get the real SSE wire shape —
+      // content deltas, then the final envelope chunk carrying reading +
+      // model, then [DONE] — so the TUI's live path is exercised, not just
+      // the one-shot path. Chunks are small and flushed with a short pause
+      // so a test can observe partial text before the tail arrives.
+      if (body.stream) {
+        const answer = process.env.FIXTURE_ANSWER ?? CHAT_ANSWER;
+        const id = `er7-${Date.now()}`;
+        const created = Math.floor(Date.now() / 1000);
+        res.writeHead(200, { "content-type": "text/event-stream", "cache-control": "no-cache", connection: "keep-alive" });
+        const pieces = answer.match(/[\s\S]{1,24}/g) ?? [answer];
+        let first = true;
+        for (const piece of pieces) {
+          const chunk = {
+            id, object: "chat.completion.chunk", created, model: body.model,
+            choices: [{ index: 0, delta: first ? { role: "assistant", content: piece } : { content: piece }, finish_reason: null }],
+          };
+          first = false;
+          res.write(`data: ${JSON.stringify(chunk)}\n\n`);
+          await new Promise((r) => setTimeout(r, 15));
+        }
+        res.write(`data: ${JSON.stringify({
+          id, object: "chat.completion.chunk", created, model: body.model,
+          choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
+          reading: { relationEdges: 3, referentBindings: 7, hyperlexiconCandidates: 2 },
+        })}\n\n`);
+        res.write("data: [DONE]\n\n");
+        res.end();
+        return;
+      }
       send(200, {
         choices: [{ message: { role: "assistant", content: process.env.FIXTURE_ANSWER ?? CHAT_ANSWER } }],
         reading: { relationEdges: 3, referentBindings: 7, hyperlexiconCandidates: 2 },

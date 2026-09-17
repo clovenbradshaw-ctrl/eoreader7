@@ -5,16 +5,21 @@
 // so "the TUI starts the proxy" and "er7-proxy start" are the exact same
 // code path, never two implementations that can drift.
 //
-// Grounded chat (mode: "chat" in a tab) goes through here, non-streaming
-// (stream: false) even though proxy.mjs's own /v1/chat/completions CAN
-// stream token-by-token for a plain answer (see proxy-runner.mjs's draw()).
-// Disclosed design choice, not an oversight: the fold's own documented
-// scope (the-fold/CLAUDE.md, "the model proxy") states streaming is meant
-// to be single-shot — a draft must not be shown before the grounding/
-// correction pass has run against it — and post-processing can still
-// rewrite fullText after the raw stream finishes, so an SSE relay here
-// could show text that the final answer later disagrees with. Simpler and
-// honest: one request, one wait, a "thinking…" spinner, one answer.
+// Grounded chat (mode: "chat" in a tab) streams token-by-token when the
+// caller passes onToken (stream: true on the wire — proxy.mjs's own SSE
+// path, the same one er7-client.mjs::chatStream and the-fold's browser
+// chat draw LIVE from). Without onToken the call stays one-shot
+// (stream: false) with the "thinking…" spinner: one request, one wait,
+// one answer.
+//
+// Honesty note on what streams: the SSE deltas are runProxyTurn's own
+// composition chunks (proxy.mjs wires its emit straight into
+// runProxyTurn's onToken), i.e. the grounded pipeline's text as it is
+// drawn — not a pre-grounding draft. A small post-process pass (code
+// lint/reorder, answer fixups) can still touch up fullText after the raw
+// stream; the streamed text IS the answer every other live surface shows,
+// and the TUI reconciles it at DONE time (stripCitationAppendix + the
+// final reading/model envelope) rather than holding everything back.
 
 import { isUp, start, PORT } from "./er7-proxy.mjs";
 
@@ -125,21 +130,32 @@ async function postChatCompletion(headers, payload) {
 }
 
 /**
- * POST /v1/chat/completions, non-streaming. `history` is the prior turns of
- * THIS tab ([{role:'user'|'assistant', content}]); `task` is the newest
- * user message. sessionId sticks the conversation to one accumulating
- * reader fold on the proxy's side (see proxy.mjs sessionIdFromHeaders) —
- * the proxy's own persistence, not anything this client tracks.
+ * POST /v1/chat/completions. `history` is the prior turns of THIS tab
+ * ([{role:'user'|'assistant', content}]); `task` is the newest user
+ * message. sessionId sticks the conversation to one accumulating reader
+ * fold on the proxy's side (see proxy.mjs sessionIdFromHeaders) — the
+ * proxy's own persistence, not anything this client tracks.
  *
  * `onRetry({ attempt, retryAfterS, type })` is called before each backoff
  * wait, so a caller like the TUI can show "family busy, retrying in Ns…"
  * instead of the request just appearing to hang.
+ *
+ * `onToken(delta)` turns the call into a live stream (stream: true on the
+ * wire, SSE parsed incrementally — the transcript updates in real time
+ * instead of waiting for the whole answer). `onThinking(text)` receives
+ * the reading-pipeline's reasoning_content notes when the proxy emits
+ * them. Both are optional; without onToken the call is one-shot
+ * (stream: false). Either way the resolved value is the same shape:
+ * { text, reading, model }.
  */
-export async function chatCompletion({ model, history = [], task, sessionId, workspace, onRetry }) {
+export async function chatCompletion({ model, history = [], task, sessionId, workspace, onRetry, onToken, onThinking }) {
   const messages = [...history, { role: "user", content: task }];
   const headers = { "content-type": "application/json" };
   if (sessionId) headers["x-er7-session"] = sessionId;
   if (workspace) headers["x-er7-workspace"] = workspace;
+  if (typeof onToken === "function") {
+    return chatCompletionStream({ model, messages, headers, onRetry, onToken, onThinking });
+  }
   const payload = { model: withPrefix(model), messages, stream: false };
 
   let attempt = 0;
@@ -156,6 +172,70 @@ export async function chatCompletion({ model, history = [], task, sessionId, wor
       continue;
     }
     throw new Error(body?.error?.message || `POST /v1/chat/completions: ${res.status}`);
+  }
+}
+
+/**
+ * POST /v1/chat/completions with stream: true — SSE parsed incrementally
+ * so the caller can paint each content delta live. The retry contract is
+ * honored BEFORE the stream opens (a 429 is still JSON, never SSE); once
+ * the 200 event-stream is open the turn is being served and the body is
+ * drained to [DONE]. The final envelope chunk carries the same
+ * { reading, model } the one-shot path returns, so streaming and
+ * non-streaming resolve to the same shape.
+ */
+export async function chatCompletionStream({ model, messages, headers = {}, onRetry, onToken, onThinking }) {
+  const payload = { model: withPrefix(model), messages, stream: true };
+  const reqHeaders = { "content-type": "application/json", ...headers };
+  let attempt = 0;
+  const t0 = Date.now();
+  for (;;) {
+    const res = await fetch(`${BASE}/v1/chat/completions`, { method: "POST", headers: reqHeaders, body: JSON.stringify(payload) });
+    const contentType = res.headers.get("content-type") ?? "";
+    if (!res.ok || !contentType.includes("text/event-stream")) {
+      const body = await res.json().catch(() => ({}));
+      const type = body?.error?.type;
+      if (res.status === 429 && RETRYABLE_TYPES.has(type) && Date.now() - t0 < QUEUE_MAX_WAIT_MS) {
+        attempt += 1;
+        await waitRetry(res, body, attempt, onRetry);
+        continue;
+      }
+      throw new Error(body?.error?.message || `POST /v1/chat/completions: ${res.status}`);
+    }
+    // The stream is open — drain it to [DONE], forwarding content deltas
+    // live and capturing the final envelope (reading + answering model).
+    let full = "";
+    let reading = null;
+    let answerModel = null;
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = "";
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += decoder.decode(value, { stream: true });
+      const lines = buf.split("\n");
+      buf = lines.pop();
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed.startsWith("data:")) continue;
+        const data = trimmed.slice(5).trim();
+        if (!data || data === "[DONE]") continue;
+        let chunk;
+        try { chunk = JSON.parse(data); } catch { continue; }
+        if (chunk?.model) answerModel = chunk.model;
+        if (chunk?.reading) reading = chunk.reading;
+        const delta = chunk?.choices?.[0]?.delta ?? {};
+        if (typeof delta.content === "string" && delta.content) {
+          full += delta.content;
+          try { onToken?.(delta.content); } catch { /* a UI paint must never kill the stream */ }
+        }
+        if (typeof delta.reasoning_content === "string" && delta.reasoning_content) {
+          try { onThinking?.(delta.reasoning_content); } catch { /* same — notes are advisory */ }
+        }
+      }
+    }
+    return { text: full, reading, model: answerModel };
   }
 }
 
