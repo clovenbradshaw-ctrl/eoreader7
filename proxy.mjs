@@ -974,6 +974,12 @@ async function handleRequest(req, res) {
               answerShape: result.answerShape ?? null,
               truncated: result.truncated ?? false,
               document: result.document ?? null,
+              // A mechanical verdict (verbatim snip) rides the chunk whole,
+              // so every surface can render non-model prose as snipped —
+              // visually distinct from generated text — never as the model's
+              // own words.
+              mechanical: result.mechanical ?? null,
+              quote: result.quote ?? null,
               // THE FULL READING, STREAMED — the per-sentence surface, the
               // charter verdict, the archons, the void, the resolutions, the
               // satisfaction. A UI drawing marks LIVE (the-fold's browser

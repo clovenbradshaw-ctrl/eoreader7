@@ -34,6 +34,18 @@ export function wrapText(text, width) {
   return out;
 }
 
+// ── Snipped-verbatim provenance line ──
+// A mechanical quote (the snip hand's cut) is non-model prose: the TUI
+// renders it in its own kind + color, and this line — never a [model] tag —
+// says where the words came from. Pure, so the contract is unit-testable:
+// the line must name the non-model standing with or without a URL.
+export function snipLine(url) {
+  const u = String(url ?? "").trim();
+  return u
+    ? `[snipped — non-model verbatim · ${u}]`
+    : `[snipped — non-model verbatim]`;
+}
+
 // ── Facing page row model (a "full response" rendered as a book spread) ──
 // Left page: the SOURCES — each material fact with its permanent address and
 // the VERBATIM SNIP resolved from the real file. Right page: the RESPONSE,
