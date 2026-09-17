@@ -45,14 +45,16 @@ test("a rerun of the SAME material is the same witness re-testifying — not a s
   assert.equal(nominees[0].corroborations, 1);
 });
 
-test("the self-name is derived by consequence: stable under reruns, different when the consequence differs", () => {
+test("the self-name is derived by consequence: stable under reruns and across material; echoes are witness history, not identity", () => {
   const a = thingName({ variant: "nps", echo: "r111", terrain: ["Link"], mhc: 7 });
   const b = thingName({ variant: "nps", echo: "r111", terrain: ["Link"], mhc: 7 });
   assert.equal(a, b, "same consequence, same name — recomputable anywhere");
   const c = thingName({ variant: "deep", echo: "r111", terrain: ["Field"], mhc: 6 });
-  assert.notEqual(a, c, "a different consequence hardens into a DIFFERENT self-named thing");
-  const d = thingName({ variant: "nps", echo: "r010", terrain: ["Link"], mhc: 7 });
-  assert.notEqual(a, d, "a different realized echo is a different fold at a point");
+  assert.notEqual(a, c, "a different KIND of consequence hardens into a different self-named thing");
+  // The same genotype winning DIFFERENT material (different realized echo) is
+  // ONE thing: it makes the same kind of difference on a different ground.
+  const ch2 = thingName({ variant: "nps", echo: "r110", terrain: ["Link"], mhc: 7 });
+  assert.equal(a, ch2, "echo is witness history, not identity — the same variant on another ground is the same thing");
 });
 
 test("the label is a consequence report — the dominant cell's stance and terrain", () => {

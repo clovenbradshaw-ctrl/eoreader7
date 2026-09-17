@@ -11,9 +11,13 @@
 // SELF-NAMING, BY CONSEQUENCE (identity-is-the-fold-at-a-point.md's own
 // doctrine: two figures are the same iff they make the same difference to
 // the ground). The name is never assigned: it is DERIVED from what the thing
-// makes happen — a content hash over (variant genotype + realized echo +
-// sorted terrain cells + mhc). Recomputable anywhere, no central authority;
-// the same genotype on different material hardens into DIFFERENT names.
+// MAKES HAPPEN — a content hash over (variant genotype + dominant terrain
+// cells + mhc), i.e. the KIND of difference it makes: its cube role.
+// Recomputable anywhere, no central authority. The realized ECHO per material
+// is the thing's WITNESS HISTORY, not its identity — the same genotype
+// winning ch1 with echo r111 and ch2 with echo r110 is ONE thing, because
+// it makes the same kind of difference on both grounds; different material is
+// a different ground, so the same figure's shape differs there by necessity.
 //
 // THE LABEL is a consequence report, never a hand-picked word: the cube cell
 // of the variant's dominant organ — its stance and terrain (kernel/cube.js).
@@ -46,10 +50,12 @@ const ORGANS = [
 const CELL_OF_ORGAN = Object.fromEntries(ORGANS.map((o) => [o.id, o.cell]));
 
 /** A content-address: FNV-1a over the consequence record, base36. The name
- * is a fold of what the thing does, so it is stable, recomputable, and
- * identical wherever the same consequence recurs. */
+ * is a fold of the KIND of difference the thing makes (variant + dominant
+ * terrain cells + mhc), so it is stable across material and devices — the
+ * same variant winning different chapters is one thing; the realized echoes
+ * are its history, not its identity. */
 export function thingName({ variant = "", echo = "", terrain = [], mhc = 0 } = {}) {
-  const record = [variant, echo, [...terrain].sort().join("/"), mhc].join("|");
+  const record = [variant, [...terrain].sort().join("/"), mhc].join("|");
   let h = 0x811c9dc5;
   for (let i = 0; i < record.length; i += 1) { h ^= record.charCodeAt(i); h = Math.imul(h, 0x01000193); }
   return `ref:auto:swarm:${(h >>> 0).toString(36)}`;
@@ -110,7 +116,7 @@ export function harden(entries, { lineage } = { lineage: () => [] }) {
     // one chapter).
     const independent = new Set(row.entries.map((e) => e.shadow?.pointer)).size;
     const mass = row.entries.reduce((a, e) => a + (e.mass ?? 0), 0);
-    const base = { name: thingName(row), variant: row.variant, echo: row.echo, terrain: row.terrain, mhc: row.mhc };
+    const base = { name: thingName(row), variant: row.variant, terrain: row.terrain, mhc: row.mhc, echoes: [...new Set(row.entries.map((e) => e.echo))] };
     if (independent >= 2) {
       things.push({
         schema: "SwarmThing@1", ...base,
