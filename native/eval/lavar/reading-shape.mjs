@@ -41,7 +41,12 @@ export function shapeOf(ledgerPath, bookPath) {
     const surfaces = (e.surfaces ?? []).filter((s) => s && s.length >= 3);
     let real = false;
     for (const s of surfaces) {
-      const re = new RegExp(`\\b${s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi");
+      // UNICODE-AWARE WORD BOUNDARY (2026-09-17): the ASCII `\b` treats Greek
+      // (and every non-Latin) letter as a non-word character, so `\bὁ\b` never
+      // matched and referentPurity was silently 0 for all non-Latin material
+      // — a measurement bug, not a property of the text. Lookarounds on the
+      // Unicode letter/number classes are the boundary Greek needs.
+      const re = new RegExp(`(?<![\\p{L}\\p{N}])${s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}\\p{N}])`, "giu");
       const m = [...raw.matchAll(re)];
       if (m.length >= 2 && m.some((mm) => { const lineStart = raw.lastIndexOf("\n", mm.index) + 1; return raw.slice(lineStart, mm.index).trim() !== ""; })) { real = true; break; }
     }

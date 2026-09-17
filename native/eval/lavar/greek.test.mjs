@@ -4,7 +4,7 @@
 // word order; the seam recovers the clause and the gate refuses the garbage.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { prodropClauses, confirmedVerbSet, confirmGreekVerbs, nominalClass } from "./greek.mjs";
+import { prodropClauses, confirmedVerbSet, confirmGreekVerbs, nominalClass, greekBeings } from "./greek.mjs";
 
 const grcPrior = {
   forms: {
@@ -72,4 +72,34 @@ test("nominalClass reads the prior's dominant class mechanically", () => {
   assert.equal(nominalClass("χωρίον", grcPrior), "NOUN");
   assert.equal(nominalClass("γίνεται", grcPrior), "VERB");
   assert.equal(nominalClass("unattested-form", grcPrior), null);
+});
+
+test("greekBeings discovers a being from an article-cased noun that recurs", () => {
+  const text = "ὁ κυβερνήτης ἦλθεν. τῷ κυβερνήτῃ εἶπε. ὁ κυβερνήτης ἀπῆλθεν.";
+  const prior = { forms: { κυβερνήτης: { NOUN: 10 }, κυβερνήτῃ: { NOUN: 4 } } };
+  const beings = greekBeings(text, prior, { minOccurrences: 2 });
+  assert.equal(beings.length, 1);
+  assert.equal(beings[0].stem, "κυβερνήτης");
+  assert.deepEqual(beings[0].surfaces, ["ὁ κυβερνήτης", "τῷ κυβερνήτῃ"], "cased variants of one stem are one being");
+  assert.equal(beings[0].occurrences, 3);
+});
+
+test("greekBeings groups cased variants by stem — identity by consequence, made morphological", () => {
+  const text = "ἡ πατρίς ἐστι. τῇ πατρίδι δίδομεν.";
+  const prior = { forms: { πατρίς: { NOUN: 5 }, πατρίδι: { NOUN: 3 } } };
+  const beings = greekBeings(text, prior, { minOccurrences: 2 });
+  assert.equal(beings.length, 1);
+  assert.deepEqual(beings[0].surfaces, ["ἡ πατρίς", "τῇ πατρίδι"]);
+});
+
+test("greekBeings refuses a single occurrence — a being recurs", () => {
+  const text = "ὁ κυβερνήτης ἦλθεν.";
+  const prior = { forms: { κυβερνήτης: { NOUN: 10 } } };
+  assert.equal(greekBeings(text, prior, { minOccurrences: 2 }).length, 0);
+});
+
+test("greekBeings skips non-nominal heads — a verb under the article is not a being", () => {
+  const text = "τὸ γίνεται οὕτως.";
+  const prior = { forms: { γίνεται: { VERB: 8 } } };
+  assert.equal(greekBeings(text, prior).length, 0);
 });

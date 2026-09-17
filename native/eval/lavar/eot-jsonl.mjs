@@ -59,7 +59,7 @@ import { bindNarrationFrames, pronounResolver } from "../../adapters/text/perspe
 import { boundAnchorSpans } from "../../adapters/text/vocabulary.js";
 import * as cube from "../../kernel/cube.js";
 import { makeGrainTyper } from "./grain-typing.mjs";
-import { prodropClauses, confirmGreekVerbs } from "./greek.mjs";
+import { prodropClauses, confirmGreekVerbs, greekBeings } from "./greek.mjs";
 import { receivedGround, applyDelta } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
 import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
@@ -682,6 +682,41 @@ for (const [refId, info] of byReferent) {
     operator: lens.op, grain: lens.grain, terrain: lens.terrain, stance: lens.stance,
     basis: "DEF.admit — surfaces/discoverReferents judged these surfaces to name one being; revisable without the text changing",
   });
+}
+
+// THE GREEK ABSTRACT-BEING TIER (2026-09-17). Capitalisation-based referent
+// discovery is dead on lowercase ancient orthography — measured: 4 referents,
+// 0 pure, referentPurity 0 on the Enchiridion. A Greek being is an
+// article-marked nominal phrase (the article IS the case probe where English
+// uses capitals), its cased variants grouped by stem. The same two acts,
+// kept apart: the DEF.admit lens line and the ENTITY it asserts.
+if (GREEK) {
+  const sigCell = cube.cellOf("SIG", "Figure");
+  const lensCell = cube.cellOf("DEF", "Figure");
+  for (const being of greekBeings(chapterText, POS_PRIOR)) {
+    const refId = `ref:grc:auto:${being.stem}`;
+    let first = Infinity, firstSur = null;
+    for (const sur of being.surfaces) {
+      const i = chapterText.indexOf(sur);
+      if (i >= 0 && i < first) { first = i; firstSur = sur; }
+    }
+    if (!Number.isFinite(first)) continue;
+    emit({
+      schema: "EOTObservation@1", id: id("e"),
+      at: rawAt(WIN[0] + first, WIN[0] + first + firstSur.length),
+      role: "entity", referent: refId, surfaces: being.surfaces, occurrences: being.occurrences,
+      operator: sigCell.op, grain: sigCell.grain, terrain: sigCell.terrain, stance: sigCell.stance,
+      inferred: true,
+      basis: `article-case + stem recurrence (giver: native/priors/pos-grc.json) — the cased variants ${being.surfaces.join(", ")} share the stem ${being.stem}; the article cases them, the stem groups them, the recurrence asserts the being`,
+    });
+    emit({
+      schema: "EOTObservation@1", id: id("d"),
+      at: rawAt(WIN[0] + first, WIN[0] + first + firstSur.length),
+      role: "admission", referent: refId,
+      operator: lensCell.op, grain: lensCell.grain, terrain: lensCell.terrain, stance: lensCell.stance,
+      basis: "DEF.admit — the article-cased stem names one being across its case forms; revisable without the text changing",
+    });
+  }
 }
 
 // SIG · Ground — the VOID. A pronoun reached for a being and the reading

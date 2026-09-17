@@ -25,6 +25,20 @@
 
 const TOKEN = /[\p{L}\p{N}’']+|[.,;:!?—–()«»“”]/gu;
 const NOMINAL = new Set(["NOUN", "PROPN", "ADJ", "PRON", "DET", "NUM"]);
+const STOP = new Set(["VERB", "ADP", "SCONJ", "CCONJ", "ADV", "AUX"]);
+// The Greek definite article IS the case probe: ὁ (nom), τοῦ (gen), τῷ
+// (dat), τόν (acc) — the article marks its noun's grammatical role, and the
+// reader uses it where English uses capital letters.
+const ARTICLES = new Set(["ὁ", "ἡ", "οἱ", "αἱ", "τό", "τά", "τὸν", "τήν", "τοῦ", "τῆς", "τῶν", "τῷ", "τῇ", "τοῖς", "ταῖς"]);
+
+const tokenize = (text) => {
+  const out = [];
+  for (const m of text.matchAll(TOKEN)) out.push({
+    w: m[0].toLowerCase(), raw: m[0], start: m.index, end: m.index + m[0].length,
+    punct: /^[.,;:!?—–()«»“”]$/.test(m[0]),
+  });
+  return out;
+};
 
 /** confirmedVerbSet(prior, share) — every form the received POSPrior@1
  * attests as (VERB+AUX)-dominant above the share floor: the sole authority
@@ -57,6 +71,52 @@ export function nominalClass(form, prior) {
   const counts = prior?.forms?.[form];
   if (!counts) return null;
   return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+}
+
+/** greekBeings(chapterText, prior, { minOccurrences }) — THE ABSTRACT-BEING
+ * TIER (2026-09-17). Ancient Greek prose is populated by article-marked
+ * nominal phrases, not capitalised proper nouns: a being is a recurring
+ * ARTICLE + NOMINAL-HEAD chunk (the head typed by the received POS prior),
+ * its cased variants grouped by STEM (longest-common-prefix >= 5, at least
+ * half the longer form). "ὁ κυβερνήτης" and "τῷ κυβερνήτῃ" are one being
+ * (the helmsman) because their stems agree. Identity by consequence, made
+ * morphological. Mechanical: the prior classifies, the article cases, the
+ * stem groups — nobody types a being. */
+export function greekBeings(chapterText, prior, { minOccurrences = 2 } = {}) {
+  const toks = tokenize(chapterText);
+  const phrases = [];
+  for (let i = 0; i < toks.length; i += 1) {
+    if (!ARTICLES.has(toks[i].w)) continue;
+    let j = i + 1;
+    while (j < toks.length && toks[j].punct) j += 1;
+    if (j >= toks.length) continue;
+    const cls = nominalClass(toks[j].w, prior);
+    if (!cls || !NOMINAL.has(cls)) continue;
+    phrases.push({ art: toks[i].raw, head: toks[j].raw, headLower: toks[j].w, at: [toks[j].start, toks[j].end] });
+  }
+  const stems = new Map(); // stem -> phrases
+  const assign = (ph) => {
+    for (const [stem, grp] of stems) {
+      const a = stem, b = ph.headLower;
+      const len = Math.min(a.length, b.length);
+      let lcp = 0;
+      while (lcp < len && a[lcp] === b[lcp]) lcp += 1;
+      if (lcp >= 5 && lcp / Math.max(a.length, b.length) >= 0.5) { grp.push(ph); return; }
+    }
+    stems.set(ph.headLower, [ph]);
+  };
+  for (const ph of phrases) assign(ph);
+  const out = [];
+  for (const [stem, grp] of stems) {
+    if (grp.length < minOccurrences) continue;
+    out.push({
+      stem,
+      surfaces: [...new Set(grp.map((g) => `${g.art} ${g.head}`))],
+      occurrences: grp.length,
+      at: grp[0].at,
+    });
+  }
+  return out.sort((a, b) => b.occurrences - a.occurrences);
 }
 
 /** prodropClauses(sentText, verbs, prior) — the clauses the positional gate
