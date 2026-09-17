@@ -37,6 +37,24 @@ say "EOReader7 setup"
 command -v node >/dev/null 2>&1 || { echo "  error: node is required"; exit 1; }
 ok "node $(node -v)"
 
+# --- 0b. git submodules -------------------------------------------------------
+# proxy-runner.mjs imports from legacy-eoreader6.1/packages/host/*.js — an
+# unchecked-out submodule fails that import with no hint that a submodule is
+# even involved. Init it here so a fresh clone works without anyone having to
+# rediscover this mid-task.
+if [ -f "$REPO_DIR/.gitmodules" ] && command -v git >/dev/null 2>&1; then
+  say "Checking git submodules..."
+  # Check a file the code actually imports, not just "is the dir non-empty"
+  # — a partial checkout (dotfiles present, packages/ missing) looks
+  # non-empty but still fails proxy-runner.mjs's import at runtime.
+  if [ ! -f "$REPO_DIR/legacy-eoreader6.1/packages/host/corpus.js" ]; then
+    (cd "$REPO_DIR" && git submodule update --init --force --recursive) && ok "legacy-eoreader6.1 checked out" \
+      || echo "  warning: submodule checkout failed — proxy-runner.mjs will fail to import legacy-eoreader6.1/*"
+  else
+    ok "legacy-eoreader6.1 already checked out"
+  fi
+fi
+
 # --- 1. Ollama upstream ------------------------------------------------------
 say "Checking Ollama upstream at $UPSTREAM..."
 if curl -s -m 3 "$UPSTREAM/api/tags" > /dev/null 2>&1; then
@@ -54,6 +72,26 @@ if [ "$LINK" = "1" ]; then
   else
     echo "  warning: npm link failed — run 'npm link' in $REPO_DIR/cli manually; proxy will still run via node."
   fi
+fi
+
+# --- 2b. GPU check — the proxy's turn/request deadlines assume GPU-speed ------
+# inference (ER7_TURN_DEADLINE_MS defaults to 5min, ER7_REQUEST_TIMEOUT_MS to
+# ~4m50s — fine on the Apple-Silicon boxes this was built for). On a CPU-only
+# host a single grounded turn can genuinely take 15-25+ minutes, and the
+# default deadline aborts it mid-generation with no indication the box, not
+# the model, was the bottleneck. Detect once here instead of leaving every
+# CPU-only session to rediscover it by timing out.
+HAS_GPU=0
+if command -v nvidia-smi >/dev/null 2>&1 && nvidia-smi -L >/dev/null 2>&1; then
+  HAS_GPU=1
+elif [ "$(uname -s 2>/dev/null)" = "Darwin" ]; then
+  HAS_GPU=1
+fi
+if [ "$HAS_GPU" = "0" ]; then
+  export ER7_TURN_DEADLINE_MS="${ER7_TURN_DEADLINE_MS:-1800000}"
+  export ER7_REQUEST_TIMEOUT_MS="${ER7_REQUEST_TIMEOUT_MS:-1740000}"
+  say "No GPU detected — raising turn deadlines for CPU-speed inference"
+  ok "ER7_TURN_DEADLINE_MS=$ER7_TURN_DEADLINE_MS  ER7_REQUEST_TIMEOUT_MS=$ER7_REQUEST_TIMEOUT_MS"
 fi
 
 # --- 3. run the proxy ----------------------------------------------------------

@@ -58,9 +58,18 @@ async function start() {
     console.log(`er7 proxy already running on http://127.0.0.1:${PORT}`);
     return;
   }
-  const child = spawn("node", [PROXY], { cwd: REPO_ROOT, detached: true, stdio: "ignore" });
-  child.unref();
   fs.writeFileSync(LOG, "");
+  // stdio must not be "ignore" — proxy.mjs logs its own startup errors to
+  // stderr, and dropping that meant "failed to start" never said why,
+  // despite the log file this same function truncates a line above.
+  const logFd = fs.openSync(LOG, "a");
+  const child = spawn("node", [PROXY], {
+    cwd: REPO_ROOT,
+    detached: true,
+    stdio: ["ignore", logFd, logFd],
+  });
+  fs.closeSync(logFd);
+  child.unref();
   for (let i = 0; i < 50; i++) {
     await new Promise((r) => setTimeout(r, 200));
     if (isUp()) {
