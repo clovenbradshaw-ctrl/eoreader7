@@ -1,0 +1,206 @@
+{
+  "entries": [
+    {
+      "kind": "evidence",
+      "task_id": "frame:0",
+      "operator": "DEF",
+      "operator_basis": "declared",
+      "grain": "Ground",
+      "cell": "DEF·Ground",
+      "stance": "Clearing",
+      "terrain": "Atmosphere",
+      "mode": "Differentiate",
+      "domain": "Interpretation",
+      "description": "frame: what this reader stands on",
+      "frame": {
+        "reader": "LaVar reading directly — no automated organ (the positional slot organ measured 0/90 on this material: ambiguous_verb on English's noun-verb conversion), no per-text coref prior injected",
+        "method": "word-by-word: each clause read in the order it appears in War and Peace, the proposition it states identified by hand at the GFP level (figure — act — ground, never subject-verb-object), the exact substring backing it self-verified against the real file bytes before admission",
+        "scope": "the passages a fan-fiction of the Borodino sequence would compose from — Napoleon's orders at the river, Kutuzov's reports, Pierre's fear — read in document order",
+        "date": "2026-09-16"
+      },
+      "seq": 0,
+      "depends_on": [],
+      "evidence": []
+    },
+    {
+      "kind": "propose",
+      "task_id": "napoleon|gave|his orders",
+      "operator": "INS",
+      "operator_basis": "produced",
+      "grain": "Figure",
+      "cell": "INS·Figure",
+      "stance": "Making",
+      "terrain": "Entity",
+      "mode": "Generate",
+      "domain": "Existence",
+      "description": "Napoleon gave his orders",
+      "end1": "Napoleon",
+      "label": "gave",
+      "end2": "his orders",
+      "witnesses": [
+        "primary:the-fold/pg2600.txt~lavar-fiction-read-v1"
+      ],
+      "spans": [
+        {
+          "ref": "../../../../the-fold/pg2600.txt",
+          "at": "../../../../the-fold/pg2600.txt#2155863-2155887"
+        }
+      ],
+      "seq": 1,
+      "depends_on": [],
+      "evidence": []
+    },
+    {
+      "kind": "propose",
+      "task_id": "the orders|had been executed|before he gave them",
+      "operator": "INS",
+      "operator_basis": "produced",
+      "grain": "Figure",
+      "cell": "INS·Figure",
+      "stance": "Making",
+      "terrain": "Entity",
+      "mode": "Generate",
+      "domain": "Existence",
+      "description": "the orders had been executed before he gave them",
+      "end1": "the orders",
+      "label": "had been executed",
+      "end2": "before he gave them",
+      "witnesses": [
+        "primary:the-fold/pg2600.txt~lavar-fiction-read-v1"
+      ],
+      "spans": [
+        {
+          "ref": "../../../../the-fold/pg2600.txt",
+          "at": "../../../../the-fold/pg2600.txt#2155911-2155926"
+        }
+      ],
+      "seq": 2,
+      "depends_on": [],
+      "evidence": []
+    },
+    {
+      "kind": "propose",
+      "task_id": "napoleon|looked up and down|the river",
+      "operator": "INS",
+      "operator_basis": "produced",
+      "grain": "Figure",
+      "cell": "INS·Figure",
+      "stance": "Making",
+      "terrain": "Entity",
+      "mode": "Generate",
+      "domain": "Existence",
+      "description": "Napoleon looked up and down the river",
+      "end1": "Napoleon",
+      "label": "looked up and down",
+      "end2": "the river",
+      "witnesses": [
+        "primary:the-fold/pg2600.txt~lavar-fiction-read-v1"
+      ],
+      "spans": [
+        {
+          "ref": "../../../../the-fold/pg2600.txt",
+          "at": "../../../../the-fold/pg2600.txt#1627286-1627323"
+        }
+      ],
+      "seq": 3,
+      "depends_on": [],
+      "evidence": []
+    },
+    {
+      "kind": "propose",
+      "task_id": "napoleon|sat down on|a log",
+      "operator": "INS",
+      "operator_basis": "produced",
+      "grain": "Figure",
+      "cell": "INS·Figure",
+      "stance": "Making",
+      "terrain": "Entity",
+      "mode": "Generate",
+      "domain": "Existence",
+      "description": "Napoleon sat down on a log",
+      "end1": "Napoleon",
+      "label": "sat down on",
+      "end2": "a log",
+      "witnesses": [
+        "primary:the-fold/pg2600.txt~lavar-fiction-read-v1"
+      ],
+      "spans": [
+        {
+          "ref": "../../../../the-fold/pg2600.txt",
+          "at": "../../../../the-fold/pg2600.txt#1627341-1627358"
+        }
+      ],
+      "seq": 4,
+      "depends_on": [],
+      "evidence": []
+    },
+    {
+      "kind": "propose",
+      "task_id": "the poles|shouted|vivat",
+      "operator": "INS",
+      "operator_basis": "produced",
+      "grain": "Figure",
+      "cell": "INS·Figure",
+      "stance": "Making",
+      "terrain": "Entity",
+      "mode": "Generate",
+      "domain": "Existence",
+      "description": "the Poles shouted Vivat",
+      "end1": "the Poles",
+      "label": "shouted",
+      "end2": "Vivat",
+      "witnesses": [
+        "primary:the-fold/pg2600.txt~lavar-fiction-read-v1"
+      ],
+      "spans": [
+        {
+          "ref": "../../../../the-fold/pg2600.txt",
+          "at": "../../../../the-fold/pg2600.txt#1627174-1627200"
+        }
+      ],
+      "seq": 5,
+      "depends_on": [],
+      "evidence": []
+    },
+    {
+      "kind": "propose",
+      "task_id": "the troops|pressed against|one another",
+      "operator": "INS",
+      "operator_basis": "produced",
+      "grain": "Figure",
+      "cell": "INS·Figure",
+      "stance": "Making",
+      "terrain": "Entity",
+      "mode": "Generate",
+      "domain": "Existence",
+      "description": "the troops pressed against one another",
+      "end1": "the troops",
+      "label": "pressed against",
+      "end2": "one another",
+      "witnesses": [
+        "primary:the-fold/pg2600.txt~lavar-fiction-read-v1"
+      ],
+      "spans": [
+        {
+          "ref": "../../../../the-fold/pg2600.txt",
+          "at": "../../../../the-fold/pg2600.txt#1627242-1627270"
+        }
+      ],
+      "seq": 6,
+      "depends_on": [],
+      "evidence": []
+    }
+  ],
+  "nextSeq": 7,
+  "admits": [
+    "NUL",
+    "SIG",
+    "INS",
+    "SEG",
+    "CON",
+    "SYN",
+    "DEF",
+    "EVA",
+    "REC"
+  ]
+}

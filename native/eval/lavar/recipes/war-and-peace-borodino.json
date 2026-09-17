@@ -1,0 +1,21 @@
+{
+  "sourcePath": "../../../../the-fold/pg2600.txt",
+  "witness": "primary:the-fold/pg2600.txt~lavar-fiction-read-v1",
+  "frame": {
+    "reader": "LaVar reading directly — no automated organ (the positional slot organ measured 0/90 on this material: ambiguous_verb on English's noun-verb conversion), no per-text coref prior injected",
+    "method": "word-by-word: each clause read in the order it appears in War and Peace, the proposition it states identified by hand at the GFP level (figure — act — ground, never subject-verb-object), the exact substring backing it self-verified against the real file bytes before admission",
+    "scope": "the passages a fan-fiction of the Borodino sequence would compose from — Napoleon's orders at the river, Kutuzov's reports, Pierre's fear — read in document order",
+    "date": "2026-09-16"
+  },
+  "hearings": [
+    { "end1": "Napoleon", "label": "gave", "end2": "his orders", "quote": "Napoleon gave his orders" },
+    { "end1": "the orders", "label": "had been executed", "end2": "before he gave them", "quote": "executed before" },
+    { "end1": "Napoleon", "label": "looked up and down", "end2": "the river", "quote": "Napoleon looked up and down the river" },
+    { "end1": "Napoleon", "label": "dismounted", "end2": "", "quote": "dismounted" },
+    { "end1": "Napoleon", "label": "sat down on", "end2": "a log", "quote": "sat down on a log" },
+    { "end1": "the Poles", "label": "shouted", "end2": "Vivat", "quote": "“Vivat!” shouted the Poles" },
+    { "end1": "the troops", "label": "pressed against", "end2": "one another", "quote": "pressing against one another" },
+    { "end1": "Davout", "label": "was alive", "end2": "", "quote": "Davout was alive" },
+    { "end1": "the reports", "label": "were necessarily untrustworthy", "end2": "", "quote": "necessarily untrustworthy" }
+  ]
+}
