@@ -11,6 +11,22 @@
 // (native/organs/look.js weirdFormattingScore) is looked at before it is read
 // as prose — the trigger is never suppressed. See LAVAR.md 2026-09-13.
 //
+// HEADS UP (2026-09-16): the swarm was deaf for a wiring reason, and the
+// cube told us how to make it hear. (1) The admission gate was fed the
+// CORRECTION delta (f2-f1 from the reread), which the reread routinely makes
+// negative — so bornAcceptance refused every candidate even when it beat the
+// best by +0.013 (measured: 416 births, 0 kept). The gate now admits on the
+// IMPROVEMENT over the best (the elenchus-bar.mjs contract), never the
+// correction delta. (2) The Differentiate face was unwired: the swarm bred
+// and re-seeded but never split, so every variant was "turn an organ off"
+// and the full reader won by monotonicity. A SEG pass now splits the best
+// into terrain-specialists, and selection is per-terrain (one champion per
+// terrain), so a specialist can outread the generalist on its own ground.
+// (3) Every variant now measures against its OWN isolated ledger
+// (eot-jsonl.mjs --ledger-name), so no reading is ever merged into another's.
+// (4) Every birth carries its cell's STANCE (kernel/cube.js) — the raw
+// material of device personality. See swarm-gate.mjs.
+//
 // Wilson, the archon of the swarm: an evolutionary swarm-storm of reading
 // variants at holonic levels, under the received hierarchy and the cube.
 //
@@ -40,7 +56,8 @@ import { fileURLToPath } from "node:url";
 import { shapeOf } from "./reading-shape.mjs";
 import { dmd, economySVD } from "../../kernel/dmd.js";
 import { closureOf, witnessAnswer } from "../../kernel/ground-closure.js";
-import { elenchusBar, bornAcceptance, RERUN_NULL } from "./elenchus-bar.mjs";
+import { elenchusBar, RERUN_NULL } from "./elenchus-bar.mjs";
+import { createSwarmGate, stanceOf, specialistsOf } from "./swarm-gate.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CH = Number(process.argv[2] ?? 1);
@@ -91,6 +108,10 @@ const flagsFor = (ids) => { const out = []; for (const id of ids) for (const f o
 const nameFor = (ids) => ids.map((id) => byId.get(id).name).join("+") || "earned-only";
 const levelOf = (ids) => Math.max(...ids.map((i) => byId.get(i).level));
 const terrainOf = (ids) => ids.map((i) => byId.get(i).terrain);
+// THE VARIANT LEDGER (2026-09-16): each genotype measures against its OWN
+// ledger — eot-jsonl.mjs's --ledger-name. Without isolation, every variant's
+// shape read the shared accumulating union and the swarm could hear nothing.
+const variantLedger = (ids) => path.join(HERE, "results", `${path.basename(BOOK, ".txt").toLowerCase().replace(/[^a-z0-9]+/g, "-")}-ch${CH}-${nameFor(ids)}.eot.jsonl`);
 
 // ── 3. CONTEXT (the swarm is contextual) ──
 const head = fs.readFileSync(BOOK, "utf8").slice(0, 4000);
@@ -150,7 +171,7 @@ function accomplishment(ids, shape, f, { lexicon = null, note = "" } = {}) {
     witness: (() => { const w = witnessOf(shape); return { verdict: w.verdict, openness: w.openness, nullOpenness: w.nullOpenness, answer: witnessAnswer(w).action }; })(),
     lexicon, note,
   };
-  fs.appendFileSync(LEDGER, JSON.stringify(entry) + "\n");
+  fs.appendFileSync(variantLedger(ids), JSON.stringify(entry) + "\n");
   return entry;
 }
 // ── THE ERROR-CORRECTION CHASE ── the swarm does not score a reading cold.
@@ -171,14 +192,19 @@ function correctedFitness(ids, nf) {
   const delta = f2 - f1;
   return { f: f1 + CORRECTION_BONUS * Math.max(0, delta), f1, f2, delta, s2 };
 }
-function run(ids, loop) { const extra = loop ? ["--prior=1"] : []; spawnSync("node", [path.join(HERE, "eot-jsonl.mjs"), BOOK, String(CH), ...langFlags, ...flagsFor(ids), ...extra], { encoding: "utf8", timeout: 120000 }); return shapeOf(LEDGER, BOOK); }
-function golden() { if (!IS_AIW) return null; try { const g = JSON.parse(fs.readFileSync(path.join(HERE, "goldens", `aiw-ch${CH}.json`), "utf8")); const LS = fs.readFileSync(LEDGER, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)); const props = LS.filter((l) => l.role === "proposition" && l.schema === "EOTObservation@1" && l.end1); const norm = (t) => String(t ?? "").split(/\s+/).join(" ").toLowerCase().trim(); const ct = (t) => (norm(t).match(/[\p{L}\p{N}’']+/gu) ?? []).filter((w) => !["the","a","an","and","or","of","to","in","with","her","his","its","their","our","my","your","there","she","he","it","they","was","were","had","have","been","being","as","at","by","for","from","on","that","this","these","those"].includes(w)); const sets = props.map((a) => ({ e1: new Set(ct(a.end1)), e2: new Set(ct(a.end2)) })); let cov = 0; for (const p of g.propositions) { const e1 = new Set(ct(p.end1)), pred = new Set([...ct(p.label), ...ct(p.end2)]); if (!e1.size && !pred.size) { cov += 1; continue; } if (sets.some(({ e1: A, e2: B }) => (e1.size === 0 || [...e1].some((w) => A.has(w))) && (pred.size === 0 || [...pred].some((w) => B.has(w))))) cov += 1; } return cov / g.propositions.length * 100; } catch { return null; } }
+function run(ids, loop) {
+  const ledger = variantLedger(ids);
+  const extra = loop ? ["--prior=1"] : [];
+  spawnSync("node", [path.join(HERE, "eot-jsonl.mjs"), BOOK, String(CH), `--ledger-name=${path.basename(ledger, ".eot.jsonl")}`, ...langFlags, ...flagsFor(ids), ...extra], { encoding: "utf8", timeout: 120000 });
+  return shapeOf(ledger, BOOK);
+}
+function golden(ledgerPath) { if (!IS_AIW) return null; try { const g = JSON.parse(fs.readFileSync(path.join(HERE, "goldens", `aiw-ch${CH}.json`), "utf8")); const LS = fs.readFileSync(ledgerPath, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l)); const props = LS.filter((l) => l.role === "proposition" && l.schema === "EOTObservation@1" && l.end1); const norm = (t) => String(t ?? "").split(/\s+/).join(" ").toLowerCase().trim(); const ct = (t) => (norm(t).match(/[\p{L}\p{N}’']+/gu) ?? []).filter((w) => !["the","a","an","and","or","of","to","in","with","her","his","its","their","our","my","your","there","she","he","it","they","was","were","had","have","been","being","as","at","by","for","from","on","that","this","these","those"].includes(w)); const sets = props.map((a) => ({ e1: new Set(ct(a.end1)), e2: new Set(ct(a.end2)) })); let cov = 0; for (const p of g.propositions) { const e1 = new Set(ct(p.end1)), pred = new Set([...ct(p.label), ...ct(p.end2)]); if (!e1.size && !pred.size) { cov += 1; continue; } if (sets.some(({ e1: A, e2: B }) => (e1.size === 0 || [...e1].some((w) => A.has(w))) && (pred.size === 0 || [...pred].some((w) => B.has(w))))) cov += 1; } return cov / g.propositions.length * 100; } catch { return null; } }
 
 // ── 5. STIGMERGY (shadows+echoes, breakthrough only), DMD+Born, survivalism, genealogy ──
 const shadows = [];
 const GENEALOGY = path.join(HERE, "results", "swarm-genealogy.jsonl");
 const genealogy = [];
-const recordBirth = (gen, parents, ids, c) => { const e = { born: gen, parents: parents.map((p) => nameFor(p.ids) ?? "seed"), genotype: ids.join("+"), context: c, fate: "alive" }; genealogy.push(e); fs.appendFileSync(GENEALOGY, JSON.stringify(e) + "\n"); return e; };
+const recordBirth = (gen, parents, ids, c, stance = "Watching") => { const e = { born: gen, parents: parents.map((p) => nameFor(p.ids) ?? "seed"), genotype: ids.join("+"), context: c, stance, fate: "alive" }; genealogy.push(e); fs.appendFileSync(GENEALOGY, JSON.stringify(e) + "\n"); return e; };
 const recordFate = (e, fate, shape) => { e.fate = fate; if (shape !== undefined) e.shape = shape; fs.appendFileSync(GENEALOGY, JSON.stringify({ ...e, __fate: true }) + "\n"); };
 const fitnessSeries = new Map();
 const recordSeries = (ids, f) => { const k = ids.join(","); const a = fitnessSeries.get(k) ?? []; a.push(f); fitnessSeries.set(k, a); };
@@ -194,7 +220,7 @@ const recordSeries = (ids, f) => { const k = ids.join(","); const a = fitnessSer
 // winners keyed to their residue, not the actions that found them.
 const BREAKTHROUGHS = path.join(HERE, "results", "swarm-breakthroughs.jsonl");
 const readingEcho = (shape) => { const b = [shape.referentPurity >= 0.5 ? 1 : 0, shape.voidRate < 0.5 ? 1 : 0, shape.perSentence >= 2 ? 1 : 0].join(""); return `r${b}`; };
-const readingShadow = (shape) => ({ script: ctx.script, lang: LANG, axes: { purity: shape.referentPurity, void: shape.voidRate, signal: shape.emitted }, pointer: LEDGER });
+const readingShadow = (ids, shape) => ({ script: ctx.script, lang: LANG, axes: { purity: shape.referentPurity, void: shape.voidRate, signal: shape.emitted }, pointer: variantLedger(ids) });
 const preserveBreakthrough = (ids, shape, f, gen, delta = 0) => {
   // THE TRAIL IS BORN-WEIGHTED (2026-09-13). The correction delta is the
   // ant's return; the trail it lays is that return's born mass Δ²/ΣΔ² over
@@ -202,7 +228,7 @@ const preserveBreakthrough = (ids, shape, f, gen, delta = 0) => {
   // a reroll leaves nothing — the strength a future system retrieves by.
   const totalMass = observedDeltas.reduce((a, b) => a + b * b, 0);
   const mass = delta > 0 && totalMass > 0 ? (delta * delta) / totalMass : 0;
-  const entry = { schema: "SwarmBreakthrough@1", at: new Date().toISOString().slice(0, 10), gen, echo: readingEcho(shape), shadow: readingShadow(shape), variant: ids.join("+"), mhc: levelOf(ids), terrain: terrainOf(ids), shape: f, mass, delta };
+  const entry = { schema: "SwarmBreakthrough@1", at: new Date().toISOString().slice(0, 10), gen, echo: readingEcho(shape), shadow: readingShadow(ids, shape), variant: ids.join("+"), mhc: levelOf(ids), terrain: terrainOf(ids), shape: f, mass, delta };
   fs.appendFileSync(BREAKTHROUGHS, JSON.stringify(entry) + "\n");
   return entry;
 };
@@ -307,12 +333,18 @@ const ELENCHUS_BAR = elenchusBar(rerunShapes);
 // move below it is the read's own noise, never a surprise.
 startle.floor = ELENCHUS_BAR;
 console.log(`elenchus bar: rerun-null over ${RERUN_NULL.draws} reads of the seed (draws ${RERUN_NULL.draws}, seed ${RERUN_NULL.seed}) — floor ${rerunShapes[0].toFixed(6)} vs reruns → bar ${ELENCHUS_BAR.toExponential(2)} (the old +0.005 is ${(0.005 / ELENCHUS_BAR).toFixed(0)}x above this)`);
-// The colony's observed improvements — the population bornAcceptance is
-// judged against. Every correctedFitness delta lands here.
+// The colony's observed corrections — the ant's return, for the breakthrough
+// trail's born mass (preserveBreakthrough). Kept separate from the ADMISSION
+// gauge: admitting on the correction delta (which the reread routinely makes
+// negative) is the wiring that refused 416 births and kept 0.
 const observedDeltas = [];
-// one shared admission: the candidate's improvement must clear the MEASURED
-// bar AND carry born mass over the population's own deltas.
-const admits = (improvement, delta) => improvement >= ELENCHUS_BAR && bornAcceptance({ delta, populationDeltas: observedDeltas });
+// THE GATE (2026-09-16): one shared admission, IMPROVEMENT-over-champion. A
+// candidate clears the MEASURED bar AND carries born mass over the colony's
+// own observed IMPROVEMENTS (never its correction deltas) — the contract
+// elenchus-bar.mjs's bornAcceptance documents. Per-terrain champions let a
+// specialist be selected against its own ground, not the global best.
+const gate = createSwarmGate({ bar: ELENCHUS_BAR });
+for (const p of pop) gate.record(p.ids, terrainOf, p.f); // the seed champions every terrain it covers
 let descents = 0;
 for (let gen = 1; gen <= GENS; gen++) {
   const ranked = [...pop].sort((a, b) => b.f - a.f);
@@ -321,7 +353,21 @@ for (let gen = 1; gen <= GENS; gen++) {
   {
     const rand = LEGAL[Math.floor(Math.random() * LEGAL.length)];
     const rk = rand.join(",");
-    if (!seen.has(rk)) { seen.set(rk, true); const rc = correctedFitness(rand, NOISE_FLOOR); const rf = rc.f; const cDelta = rc.delta; observedDeltas.push(cDelta); recordSeries(rand, rf); const rb = recordBirth(gen, [], rand, `${ctx.script}:${LANG}`); if (admits(rf - best.f, cDelta)) { recordFate(rb, "kept", rf); best = { ids: rand, s: rc.s2, f: rf }; moved = true; preserveBreakthrough(rand, rc.s2, rf, gen, cDelta); console.log(`  gen ${gen} RANDOM KEPT ${nameFor(rand)}: ${rf.toFixed(3)} (REC·Ground — a random proposal broke through, preserved)`); } else { recordFate(rb, "refused", rf); console.log(`  gen ${gen} RANDOM ${nameFor(rand)}: ${rf.toFixed(3)} refused (exploration, lineage kept)`); } }
+    if (!seen.has(rk)) {
+      seen.set(rk, true);
+      const rc = correctedFitness(rand, NOISE_FLOOR); const rf = rc.f; const cDelta = rc.delta;
+      observedDeltas.push(cDelta);
+      const rImp = rf - gate.championFor(rand, terrainOf, best.f);
+      gate.recordImprovement(rImp);
+      recordSeries(rand, rf);
+      const rb = recordBirth(gen, [], rand, `${ctx.script}:${LANG}`, stanceOf("REC", "Ground"));
+      if (gate.admits(rImp)) {
+        recordFate(rb, "kept", rf); gate.record(rand, terrainOf, rf);
+        if (rf > best.f) best = { ids: rand, s: rc.s2, f: rf };
+        moved = true; preserveBreakthrough(rand, rc.s2, rf, gen, cDelta);
+        console.log(`  gen ${gen} RANDOM KEPT ${nameFor(rand)}: ${rf.toFixed(3)} (REC·Ground — a random proposal broke through, preserved)`);
+      } else { recordFate(rb, "refused", rf); console.log(`  gen ${gen} RANDOM ${nameFor(rand)}: ${rf.toFixed(3)} refused (exploration, lineage kept)`); }
+    }
   }
   // BREED (CON·Figure) + MUTATE (SIG/INS·Figure). SELECTION IS BY BORN
   // MASS (2026-09-13): bornWeights was defined and never called — the DMD
@@ -344,20 +390,25 @@ for (let gen = 1; gen <= GENS; gen++) {
       const trial = p.ids.includes(o.id) ? p.ids.filter((x) => x !== o.id) : [...p.ids, o.id];
       if (!legal(trial)) { elenchus.push({ gen, proposal: `${nameFor(p.ids)}+/-${o.name}`, reason: "DAG" }); continue; }
       const key = trial.join(",");
-      const birth = recordBirth(gen, [p], trial, `${ctx.script}:${LANG}`);
+      const birth = recordBirth(gen, [p], trial, `${ctx.script}:${LANG}`, stanceOf("CON", "Figure"));
       if (seen.has(key)) { recordFate(birth, "retried"); continue; }
       seen.set(key, true);
-      const c = correctedFitness(trial, NOISE_FLOOR); const s = c.s2; const f = c.f; const cDelta = c.delta; observedDeltas.push(cDelta); recordSeries(trial, f);
+      const c = correctedFitness(trial, NOISE_FLOOR); const s = c.s2; const f = c.f; const cDelta = c.delta; observedDeltas.push(cDelta);
+      const improvement = f - gate.championFor(trial, terrainOf, best.f);
+      gate.recordImprovement(improvement);
+      recordSeries(trial, f);
       // BORN-CHARGED: a kept trial replenishes; a refused (uninformative)
       // trial costs the energy of its own reroll. The parent is NOT charged
       // for breeding — foraging is not the cost; rerolling is.
-      if (admits(f - best.f, cDelta)) {
+      if (gate.admits(improvement)) {
         shadows.push({ gen, ...{ level: levelOf(trial), terrain: terrainOf(trial), ids: trial, shape: f } });
         preserveBreakthrough(trial, s, f, gen, cDelta);
         energy.set(key, (energy.get(key) ?? ENERGY_START) + ENERGY_GAIN);
         recordFate(birth, "kept", f);
-        console.log(`  gen ${gen} KEPT ${nameFor(trial)} @MHC${levelOf(trial)} ${terrainOf(trial).join("/")}: ${f.toFixed(3)} (+${(f - best.f).toFixed(3)}) — shadow left, energy ${energy.get(key)}`);
-        best = { ids: trial, s, f }; moved = true;
+        gate.record(trial, terrainOf, f);
+        if (f > best.f) best = { ids: trial, s, f };
+        moved = true;
+        console.log(`  gen ${gen} KEPT ${nameFor(trial)} @MHC${levelOf(trial)} ${terrainOf(trial).join("/")}: ${f.toFixed(3)} (+${improvement.toFixed(3)}) — shadow left, energy ${energy.get(key)}`);
       } else { elenchus.push({ gen, proposal: `${nameFor(trial)}`, f, reason: "degraded" }); energy.set(key, (energy.get(key) ?? ENERGY_START) - ENERGY_COST); recordFate(birth, "refused", f); console.log(`  gen ${gen} REFUSED ${nameFor(trial)}: ${f.toFixed(3)} (energy ${energy.get(key)})`); }
     }
     // DORMANCY: legal variants never die — only a variant that keeps
@@ -365,7 +416,40 @@ for (let gen = 1; gen <= GENS; gen++) {
     if ((energy.get(p.ids.join(",")) ?? ENERGY_START) <= 0) { pop = pop.filter((x) => x.ids.join(",") !== p.ids.join(",")); recordFate(genealogy.filter((e) => e.genotype === p.ids.join("+") && e.fate === "alive").slice(-1)[0] ?? {}, "dormant"); console.log(`  gen ${gen} ${nameFor(p.ids)} DORMANT (starvation of real finds — the act of foraging never cost it)`); }
   }
   while (pop.length > CARRY) { const w = pop.sort((a, b) => a.f - b.f)[0]; pop = pop.filter((x) => x !== w); recordFate(genealogy.filter((e) => e.genotype === w.ids.join("+") && e.fate === "alive").slice(-1)[0] ?? {}, "dormant"); console.log(`  gen ${gen} ${nameFor(w.ids)} DORMANT (capacity) — lineage preserved`); }
-  // LOOPS ON LOOPS (EVA·Ground / the atmosphere's reread).
+  // SEG · THE DIFFERENTIATE FACE (2026-09-16). The swarm bred (Relate) and
+  // re-seeded (Generate) but never split (Differentiate): every variant was
+  // "turn an organ off", so the full reader won by monotonicity and the
+  // swarm's 0-kept record is exactly that hole. SEG·Figure splits the best
+  // into its terrain-specialists; each specialist is measured against ITS
+  // terrain's champion, so a specialist that outreads the generalist on its
+  // own ground is kept — the landscape stops being monotone.
+  for (const { t, ids: spec } of specialistsOf(best.ids, { terrainOfOrgan: (id) => byId.get(id).terrain, depsOf, legal })) {
+    const key = spec.join(",");
+    if (seen.has(key)) continue;
+    seen.set(key, true);
+    const birth = recordBirth(gen, [best], spec, `${ctx.script}:${LANG}:seg`, stanceOf("SEG", "Figure"));
+    const c = correctedFitness(spec, NOISE_FLOOR);
+    observedDeltas.push(c.delta);
+    const sImp = c.f - gate.championFor(spec, terrainOf, best.f);
+    gate.recordImprovement(sImp);
+    recordSeries(spec, c.f);
+    if (gate.admits(sImp)) {
+      gate.record(spec, terrainOf, c.f);
+      recordFate(birth, "kept", c.f);
+      preserveBreakthrough(spec, c.s2, c.f, gen, c.delta);
+      if (c.f > best.f) best = { ids: spec, s: c.s2, f: c.f };
+      moved = true;
+      console.log(`  gen ${gen} SEG KEPT ${nameFor(spec)} → ${t} (Dissecting — a specialist outread the generalist): ${c.f.toFixed(3)}`);
+    } else {
+      recordFate(birth, "refused", c.f);
+      console.log(`  gen ${gen} SEG ${nameFor(spec)} → ${t}: ${c.f.toFixed(3)} refused (the generalist still holds ${t})`);
+    }
+  }
+  // LOOPS ON LOOPS (EVA·Ground / the atmosphere's reread). Re-run the first
+  // read first: with per-variant ledgers the reread must diff against ITS OWN
+  // read, never a stale foreign ledger (the -0.365 "reread" in the old log
+  // was the earned-only read folded into another variant's union).
+  run(best.ids, false);
   const sl = run(best.ids, true); const fl = fitness(sl, NOISE_FLOOR);
   console.log(`  gen ${gen} reread loop on ${nameFor(best.ids)}: ${fl.toFixed(3)} (was ${best.f.toFixed(3)})`);
   if (fl > best.f) best = { ids: best.ids, s: sl, f: fl };
@@ -391,18 +475,21 @@ for (let gen = 1; gen <= GENS; gen++) {
     const reseed = lowerIds.length ? lowerIds : ["received"];
     if (legal(reseed)) {
       console.log(`  gen ${gen} DESCENT (REC): shape ${best.f.toFixed(3)} below bar -> re-ground @MHC${levelOf(reseed)} ${terrainOf(reseed).join("/")} (${nameFor(reseed)})`);
+      const birth = recordBirth(gen, [best], reseed, `${ctx.script}:${LANG}:re`, stanceOf("REC", "Ground"));
       const rc2 = correctedFitness(reseed, NOISE_FLOOR); const rf = rc2.f;
-      if (rf > best.f) { best = { ids: reseed, s: rc2.s2, f: rf }; moved = true; console.log(`  gen ${gen} DESCENT KEPT ${nameFor(reseed)}: ${rf.toFixed(3)} (+${(rf - best.f).toFixed(3)})`); }
+      if (rf > best.f) { best = { ids: reseed, s: rc2.s2, f: rf }; gate.record(reseed, terrainOf, rf); recordFate(birth, "kept", rf); moved = true; console.log(`  gen ${gen} DESCENT KEPT ${nameFor(reseed)}: ${rf.toFixed(3)} (+${(rf - best.f).toFixed(3)})`); }
+      else recordFate(birth, "refused", rf);
     }
   }
   if (!moved && fl <= best.f) { console.log(`  gen ${gen} approaching the limit — no current improvement (a pause, never a finish; the swarm keeps the trajectory).`); if (gen >= 2) break; }
 }
 
-const g = golden();
+const g = golden(variantLedger(best.ids));
 const prior = queryBreakthroughs(best.s);
 console.log(`startle: ${startle.fired} REC-firing surprise(s) on the reading system`);
 const finalWitness = witnessOf(best.s);
 console.log(`witness: the field is ${finalWitness.verdict} — openness ${finalWitness.openness === null ? "n/a" : finalWitness.openness.toFixed(3)} vs the null's ${finalWitness.nullOpenness === null ? "n/a" : finalWitness.nullOpenness.toFixed(3)} (${witnessAnswer(finalWitness).action})`);
+console.log(`terrain champions: ${[...gate.bestByTerrain.entries()].map(([t, v]) => `${t}=${nameFor(v.ids)}@${v.f.toFixed(3)}`).join(" · ") || "none"}`);
 console.log(`breakthrough store: ${prior.length} prior winner(s) keyed to this reading's echo (${readingEcho(best.s)}) — future systems retrieve by this residue`);
 console.log(`\nCURRENT BEST (asymptotic — no final answer, always revisable): ${nameFor(best.ids)} @MHC${levelOf(best.ids)} terrain ${terrainOf(best.ids).join("/")} — shape ${best.f.toFixed(3)}${best.delta !== undefined ? ` (correction +${best.delta.toFixed(3)})` : ""} | golden: ${g === null ? "none" : g.toFixed(1) + "%"} | descents ${descents}`);
 console.log(`elenchus ${elenchus.length} (${elenchus.filter((e) => e.reason === "DAG").length} DAG, ${elenchus.length - elenchus.filter((e) => e.reason === "DAG").length} degraded) · genealogy ${genealogy.length} births (append-only ${path.relative(process.cwd(), GENEALOGY)}) · shadows ${shadows.length} breakthroughs`);

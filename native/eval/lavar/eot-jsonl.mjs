@@ -120,6 +120,18 @@ const READ_CHAPTER = Number(process.argv[3] ?? 1);
 const PRIOR_CHAPTERS = (process.argv.find((a) => a.startsWith("--prior=")) ?? "")
   .replace("--prior=", "").split(",").map((x) => Number(x.trim())).filter(Boolean);
 
+// A SWARM LEDGER NAME isolates one reading's output from another's
+// (2026-09-16). The swarm (wilson.mjs) measures EACH variant against its OWN
+// ledger: without isolation, every variant's shape reads the same shared
+// accumulating union and the swarm hears nothing (measured: 21 genotypes,
+// one identical 16-digit shape — elenchus-bar.mjs's own record). With
+// `--ledger-name=<slug>`, BOTH the `.eot.jsonl` ledger and the `.prior.json`
+// resolve to that slug, so a variant's read and reread stay hermetic. The
+// prior load below also becomes optional (load if present) — a variant's
+// first pass earns its own prior; there is nothing to fail on.
+const LEDGER_NAME = (process.argv.find((a) => a.startsWith("--ledger-name=")) ?? "").replace("--ledger-name=", "");
+const baseName = LEDGER_NAME || `${path.basename(sourcePath, ".txt")}-ch${READ_CHAPTER}`;
+
 // A LEXICON PRIOR is a DIFFERENT kind of prior than the reread above, and it
 // is loaded through a DIFFERENT, narrower door on purpose. --prior=N reads
 // THIS SAME document's own earlier chapter — verbs AND cast, because it is
@@ -460,10 +472,15 @@ const inWindow = (start, end) => start >= WIN[0] && end <= WIN[1];
 // replacement: what this chapter earns on its own is kept whole, and the
 // prior only ever widens what can be heard.
 const loadedPriors = [];
-for (const n of PRIOR_CHAPTERS) {
-  const f = path.join(HERE, "results", `${path.basename(sourcePath, ".txt")}-ch${n}.prior.json`);
-  if (!fs.existsSync(f)) { console.error(`prior for chapter ${n} not found (${path.basename(f)}) — read it first`); process.exit(2); }
-  loadedPriors.push({ chapter: n, ...JSON.parse(fs.readFileSync(f, "utf8")) });
+if (LEDGER_NAME) {
+  const f = path.join(HERE, "results", `${LEDGER_NAME}.prior.json`);
+  if (fs.existsSync(f)) loadedPriors.push({ chapter: READ_CHAPTER, ...JSON.parse(fs.readFileSync(f, "utf8")) });
+} else {
+  for (const n of PRIOR_CHAPTERS) {
+    const f = path.join(HERE, "results", `${path.basename(sourcePath, ".txt")}-ch${n}.prior.json`);
+    if (!fs.existsSync(f)) { console.error(`prior for chapter ${n} not found (${path.basename(f)}) — read it first`); process.exit(2); }
+    loadedPriors.push({ chapter: n, ...JSON.parse(fs.readFileSync(f, "utf8")) });
+  }
 }
 
 
@@ -1273,7 +1290,7 @@ emit({
 // the very mechanism built to honour it. The pass-1 reading survived only
 // because it had been copied aside by hand.
 let priorLines = [];
-const ledgerPath = path.join(HERE, "results", `${path.basename(sourcePath, ".txt")}-ch${READ_CHAPTER}.eot.jsonl`);
+const ledgerPath = path.join(HERE, "results", `${baseName}.eot.jsonl`);
 if (loadedPriors.length && fs.existsSync(ledgerPath)) {
   priorLines = fs.readFileSync(ledgerPath, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
 }
@@ -1405,15 +1422,15 @@ if (priorLines.length) {
 
 const outDir = path.join(HERE, "results");
 fs.mkdirSync(outDir, { recursive: true });
-const base = `${path.basename(sourcePath, ".txt")}-ch${READ_CHAPTER}`; // a ledger per chapter — one file per reading, never overwritten by the next
+const base = baseName; // a ledger per variant under the swarm (--ledger-name); per chapter otherwise. One file per reading, never overwritten by the next.
 const jsonlPath = path.join(outDir, `${base}.eot.jsonl`);
 fs.writeFileSync(jsonlPath, lines.map((l) => JSON.stringify(l)).join("\n") + "\n");
 
 // This reading's own earned prior, for whatever reads next — including a
-// reread of this same chapter.
+// reread of this same chapter (or this same swarm variant).
 fs.mkdirSync(path.join(HERE, "results"), { recursive: true });
 fs.writeFileSync(
-  path.join(HERE, "results", `${path.basename(sourcePath, ".txt")}-ch${READ_CHAPTER}.prior.json`),
+  path.join(HERE, "results", `${baseName}.prior.json`),
   JSON.stringify({ chapter: READ_CHAPTER, verbs: [...ownVerbs], cast: [...surfaceToReferent] }, null, 1),
 );
 
