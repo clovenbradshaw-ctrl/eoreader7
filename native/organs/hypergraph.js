@@ -165,6 +165,7 @@ import { blankStructure, numberSet } from "./grounding.js";
 import { commonTerms, CORPUS_MINIMUM } from "./cite.js";
 import { foldDiacritics } from "./source.js";
 import { orderArm, standingOf } from "./asserted.js";
+import { headVerb } from "../adapters/text/phasepost.js";
 
 // ── declared numbers, each with its justification ───────────────────────────
 //
@@ -978,6 +979,28 @@ export function makeRelationReader(organs) {
   const sameAct = createLemmatizer
     ? createLemmatizer(morphologyIndex, { language: morphologyLanguage }).sameAct
     : (a, b) => a === b;
+  // Act-comparison reads the HEAD verb, never the raw label. extractRelations
+  // with `phrasalPredicates` on (relations.js's own DR5) deliberately carries
+  // the FULL predicate on an edge's own `label`/a triple's own `verb` — "had
+  // asked", not "asked" — because a downstream reader that wants the whole
+  // predicate (display, phasepost.js's own classify) needs it whole. Act
+  // EQUALITY is a different question: `sameAct("had asked", "asked")` reads
+  // the two as two different multi-word tokens (morphology.js's own
+  // `sameAct` operates on whole strings, never splits a phrase), so a bound
+  // claim whose material states the identical act with an auxiliary in front
+  // ("Glenn HAD ASKED for her specifically") could never match a claim
+  // stating it without one ("Glenn asked NASA to..."), and `nearest`'s own
+  // disclosure silently fell through to an unrelated, coincidentally-
+  // single-word-verb edge instead. `headVerb` (phasepost.js, already built
+  // for exactly this reduction, reused rather than restated) strips the
+  // received auxiliary/negation class and returns the act-bearing head; a
+  // relation that reduces to nothing (a bare copula, "was") keeps its own
+  // lowercased text so copula-only comparisons are unaffected. Applied to
+  // BOTH sides so a phrasal claim verb compares correctly against a plain
+  // material one and vice versa; a no-op when `phrasalPredicates` is off,
+  // since every label is already a single anchor token in that case.
+  const actHead = (v) => headVerb(v).head ?? String(v ?? "").toLowerCase();
+  const sameActLabel = (a, b) => sameAct(actHead(a), actHead(b));
 
   return function relationsFor(passages, { pool = null, assert = null, negationWords = undefined } = {}) {
     const list = (passages ?? []).filter((p) => p && typeof p.text === "string" && p.text.trim());
@@ -2003,7 +2026,7 @@ export function makeRelationReader(organs) {
         };
       }
       const sameSubjVerb = candidateEdges.filter(
-        (e) => sameAct(e.label, t.verb) && intersects(e.subjectEnd.referents, subj.referents),
+        (e) => sameActLabel(e.label, t.verb) && intersects(e.subjectEnd.referents, subj.referents),
       );
       // Computed once, attached to every verdict below that reaches this
       // point — a reader needs cardinality regardless of whether THIS
@@ -2101,7 +2124,7 @@ export function makeRelationReader(organs) {
       // it: same subject and verb first (what the subject actually did),
       // then same verb and object (who actually did this to the object).
       const sameVerbObj = candidateEdges.filter(
-        (e) => sameAct(e.label, t.verb) && !sameSubjVerb.includes(e) && endpointsMatch(e.objectEnd, obj),
+        (e) => sameActLabel(e.label, t.verb) && !sameSubjVerb.includes(e) && endpointsMatch(e.objectEnd, obj),
       );
 
       // Slot competition (P32's named follow-up, added 2026-08-19): the
