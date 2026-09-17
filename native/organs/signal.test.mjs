@@ -158,8 +158,7 @@ test("an explicit mechanism declaration is kept verbatim and decides corroborati
   assert.ok(found.every((f) => !f.corroborated), "a confessed-shared decoder does not corroborate");
 });
 
-test("a declared frame rides every finding and the result; absent, the result says unframed", async () => {
-  const instruments = [
+test("a declared frame rides every finding and the result; absent, the result says unframed", async () => {  const instruments = [
     { recipe: "cut-a", discretize: (m) => planted(40, m) },
     { recipe: "cut-b", discretize: (m) => planted(40, m + 5) },
   ];
@@ -170,4 +169,34 @@ test("a declared frame rides every finding and the result; absent, the result sa
   assert.ok(framed.findings.every((f) => f.frame === "frame:abc123"), "every finding carries its view");
   const unframed = await findSignal(src, { ...base, instruments, vocabulary: VOCAB });
   assert.equal(unframed.frame, null, "absent frame is stated, never invented");
+});
+
+test("findings carry which archons found them; unowned instruments run but say so", async () => {
+  const instruments = [
+    { recipe: "cut-a", archon: "muninn", discretize: (m) => planted(40, m) },
+    { recipe: "cut-b", discretize: (m) => planted(40, m + 5) },
+  ];
+  const r = await findSignal([{ ref: "run-a", material: 2 }, { ref: "run-b", material: 900 }],
+    { ...base, instruments, vocabulary: VOCAB });
+  const zub = r.findings.filter((f) => f.kind === "kind:before=zub");
+  assert.ok(zub.length >= 1, "the kind is still found");
+  assert.ok(zub.every((f) => f.archons.includes("muninn")), "the attributing archon rides the finding");
+  assert.match(phrase(r), /Attributed standpoints: muninn/);
+});
+
+test("TWO ARCHONS RUNNING ONE DECODER ARE ONE VIEW — archons never co-sign by label", async () => {
+  // the archon-laundered sham: distinct names AND distinct archons, one
+  // mechanism. Corroboration reads mechanisms, so both names on one
+  // decoder still refuse — the wall the usefulness claim stands on.
+  const same = (m) => planted(40, m);
+  const instruments = [
+    { recipe: "cut-a", archon: "muninn", discretize: same },
+    { recipe: "cut-b", archon: "lavar", discretize: same },
+  ];
+  const r = await findSignal([{ ref: "run-a", material: 2 }, { ref: "run-b", material: 700 }],
+    { ...base, instruments, vocabulary: VOCAB });
+  const found = r.findings.filter((f) => f.kind === "kind:before=zub");
+  assert.ok(found.length >= 1, "the kind is still found");
+  assert.deepEqual(found[0].archons.sort(), ["lavar", "muninn"], "both names disclosed");
+  assert.ok(found.every((f) => !f.corroborated), "two archons, one decoder: NOT corroborated");
 });

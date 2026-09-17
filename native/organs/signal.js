@@ -112,12 +112,17 @@ export function scramble(events, rnd) {
  * findSignal(sources, { instruments, vocabulary, discoverKinds, ...numbers })
  *
  * `sources`     [{ ref, material }]      — material is opaque to this organ
- * `instruments` [{ recipe, discretize, mechanism? }] — discretize(material)
- *               -> [{text}]. `recipe` is the display name; `mechanism` is an
- *               optional caller-declared identity of the decoder itself.
- *               Corroboration counts MECHANISMS (mechanismOf: explicit
- *               `mechanism` wins, else the discretize source fingerprint),
- *               so two recipes running one decoder never corroborate.
+ * `instruments` [{ recipe, discretize, mechanism?, archon? }] — discretize
+ *               (material) -> [{text}]. `recipe` is the display name;
+ *               `mechanism` is an optional caller-declared identity of the
+ *               decoder itself. Corroboration counts MECHANISMS (mechanismOf:
+ *               explicit `mechanism` wins, else the discretize source
+ *               fingerprint), so two recipes running one decoder never
+ *               corroborate. `archon` is an optional handle off solon.js's
+ *               register naming whose standpoint wields the instrument —
+ *               carried onto every finding as `archons`, never counted
+ *               toward corroboration (two archons running one mechanism are
+ *               still one view).
  * `vocabulary`  the symbols worth asking about (the caller's declaration of
  *               what could possibly be an event kind — never inferred here,
  *               because inferring it from the data is a second search)
@@ -128,8 +133,9 @@ export function scramble(events, rnd) {
  *
  * Returns { findings, tried, searchCeiling, control, gaps, frame } — never
  * a bare list. A finding carries its sources, its instruments (recipes),
- * its mechanisms, its share, the search-aware ceiling it had to beat, and
- * the frame it was computed under.
+ * its mechanisms, its archons (attributed standpoints, possibly empty —
+ * an unowned instrument still runs, and says so), its share, the
+ * search-aware ceiling it had to beat, and the frame it was computed under.
  */
 export async function findSignal(sources, {
   instruments, vocabulary, discoverKinds,
@@ -147,16 +153,17 @@ export async function findSignal(sources, {
   const gaps = [];
 
   // 1. every (source, instrument) pair becomes a stream, once.
-  // The stream carries BOTH the recipe (display name) and the mechanism
-  // (what the decoder is) — corroboration reads the second, gaps name the
-  // first.
+  // The stream carries recipe (display name), mechanism (what the decoder
+  // is), and archon (whose standpoint wields it, possibly null) —
+  // corroboration reads the mechanism, findings disclose all three.
+  const archonOf = (inst) => (typeof inst?.archon === "string" && inst.archon.length ? inst.archon : null);
   const streams = [];
   for (const src of sources) for (const inst of instruments) {
     let events = [];
     try { events = inst.discretize(src.material) ?? []; }
-    catch (err) { gaps.push({ type: "instrument_threw", ref: src.ref, recipe: inst.recipe, detail: String(err?.message ?? err) }); continue; }
-    if (!events.length) { gaps.push({ type: "no_events", ref: src.ref, recipe: inst.recipe }); continue; }
-    streams.push({ ref: src.ref, recipe: inst.recipe, mechanism: mechanismOf(inst), events });
+    catch (err) { gaps.push({ type: "instrument_threw", ref: src.ref, recipe: inst.recipe, archon: archonOf(inst), detail: String(err?.message ?? err) }); continue; }
+    if (!events.length) { gaps.push({ type: "no_events", ref: src.ref, recipe: inst.recipe, archon: archonOf(inst) }); continue; }
+    streams.push({ ref: src.ref, recipe: inst.recipe, mechanism: mechanismOf(inst), archon: archonOf(inst), events });
     onProgress?.({ step: "discretized", ref: src.ref, recipe: inst.recipe, events: events.length });
   }
   if (!streams.length) return { refused: "no_events", detail: REFUSALS.no_events, gaps, frame: frameId };
@@ -182,17 +189,18 @@ export async function findSignal(sources, {
   const searchCeiling = maxima[idx];
 
   // 3. the observed search, same organ, same floors.
-  const observed = new Map(); // `${word}|${signature}` -> {shares, refs, recipes, mechanisms}
+  const observed = new Map(); // `${word}|${signature}` -> {shares, refs, recipes, mechanisms, archons}
   for (const st of streams) {
     for (const kind of discoverKinds(st.events, vocabulary, floors)) {
       for (const [word, share] of kind.share) {
         const key = `${word}|${kind.signature}`;
-        if (!observed.has(key)) observed.set(key, { word, signature: kind.signature, shares: [], refs: new Set(), recipes: new Set(), mechanisms: new Set() });
+        if (!observed.has(key)) observed.set(key, { word, signature: kind.signature, shares: [], refs: new Set(), recipes: new Set(), mechanisms: new Set(), archons: new Set() });
         const rec = observed.get(key);
         rec.shares.push(share);
         rec.refs.add(st.ref);
         rec.recipes.add(st.recipe);
         rec.mechanisms.add(st.mechanism);
+        if (st.archon) rec.archons.add(st.archon);
       }
     }
   }
@@ -224,6 +232,7 @@ export async function findSignal(sources, {
       sources: [...rec.refs],
       instruments: [...rec.recipes],
       mechanisms: [...rec.mechanisms],
+      archons: [...rec.archons],
       frame: frameId,
       corroborated: rec.refs.size >= 2 && mechN >= 2,
       note: rec.refs.size < 2 ? "one source only" : mechN < 2 ? `one instrument only — a systematic error of that instrument is invisible here${sham ? ` (${rec.recipes.size} recipes, one mechanism)` : ""}` : null,
@@ -242,5 +251,9 @@ export function phrase(result) {
   if (!result.findings.length)
     return `nothing beat the search-aware ceiling (${result.searchCeiling.toFixed(3)}) across ${result.tried} stream(s) from ${result.sourcesTried} source(s) × ${result.instrumentsTried} instrument(s). The control passed, so this is a measured absence, not a failure to look.`;
   const corr = result.findings.filter((f) => f.corroborated).length;
-  return `${result.findings.length} finding(s) beat the search-aware ceiling ${result.searchCeiling.toFixed(3)}; ${corr} corroborated by ≥2 sources AND ≥2 instruments, ${result.findings.length - corr} standing on one source or one instrument.`;
+  const who = [...new Set(result.findings.flatMap((f) => f.archons ?? []))].sort();
+  const unattributed = result.findings.filter((f) => !(f.archons ?? []).length).length;
+  return `${result.findings.length} finding(s) beat the search-aware ceiling ${result.searchCeiling.toFixed(3)}; ${corr} corroborated by ≥2 sources AND ≥2 mechanisms, ${result.findings.length - corr} standing on one source or one mechanism.` +
+    (who.length ? ` Attributed standpoints: ${who.join(", ")}.` : ` No standpoint attributed.`) +
+    (unattributed ? ` ${unattributed} finding(s) from unowned instruments.` : ``);
 }
