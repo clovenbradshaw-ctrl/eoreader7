@@ -750,7 +750,7 @@ const windowSeen = new Map(); // model -> { contextLength, switches: [ms] }
 // answered at 15.8 tok/s on an idle box and averaged 4.4 tok/s across a real
 // 4.5-hour working window — the same model, ~3.6x slower under contention.
 // A number like that is invisible without this.
-const throughput = new Map(); // model -> { calls, promptTokens, promptMs, genTokens, genMs, loads, loadMs, genRate, promptRate }
+const throughput = new Map(); // model -> { calls, promptTokens, promptMs, genTokens, genMs, loads, loadMs, genRate, promptRate, ungatedCalls, upstream, reasoningTokens, cacheReadTokens, cacheWriteTokens, costTotal }
 const EWMA = 0.3;
 
 // ── WHAT EACH MODEL DOESN'T SAY UNTIL YOU ASK, MEASURED LIVE ───────────────
@@ -794,15 +794,28 @@ export function modelQuirksOf(model) {
  * One finished call, as its caller already measured it. Every field optional:
  * a caller that knows only some of them still contributes what it has, and a
  * zero-duration read is dropped rather than turned into an infinite rate.
+ *
+ * UNGATED calls (upstream: "opencode") never touched the local box: no
+ * keep-alive, no VRAM, no reload — so they are counted apart
+ * (`ungatedCalls`, never mixed into the local contention picture) and their
+ * rates are never computed (no local ms exist to divide by). USED vs SAVED:
+ * every call banks prompt+gen as used; cache-read tokens bank as saved (the
+ * provider served them cut-rate from cache instead of full recompute), and
+ * cost totals ride alongside for the spenders that report it.
  */
-export function observeCall({ model, promptTokens = 0, promptMs = 0, genTokens = 0, genMs = 0, loadMs = 0 } = {}) {
+export function observeCall({ model, promptTokens = 0, promptMs = 0, genTokens = 0, genMs = 0, loadMs = 0, ungated = false, upstream = null, reasoningTokens = 0, cacheReadTokens = 0, cacheWriteTokens = 0, cost = null } = {}) {
   if (!model) return null;
   // A successful call is proof the model answers — Heimdall keeps it servable.
   markServable(model);
-  const t = throughput.get(model) ?? { calls: 0, promptTokens: 0, promptMs: 0, genTokens: 0, genMs: 0, loads: 0, loadMs: 0, genRate: null, promptRate: null };
+  const t = throughput.get(model) ?? { calls: 0, promptTokens: 0, promptMs: 0, genTokens: 0, genMs: 0, loads: 0, loadMs: 0, genRate: null, promptRate: null, ungatedCalls: 0, upstream: null, reasoningTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0, costTotal: 0, costCalls: 0 };
   t.calls++;
   t.promptTokens += promptTokens; t.promptMs += promptMs;
   t.genTokens += genTokens; t.genMs += genMs;
+  if (ungated) { t.ungatedCalls++; if (upstream) t.upstream = upstream; }
+  t.reasoningTokens += reasoningTokens;
+  t.cacheReadTokens += cacheReadTokens;
+  t.cacheWriteTokens += cacheWriteTokens;
+  if (cost !== null && cost !== undefined && Number.isFinite(Number(cost))) { t.costTotal += Number(cost); t.costCalls++; }
   // A load_duration over ~100ms is a real (re)load, not a cache hit: measured
   // on this box, an already-resident model answers with ~120ms and a genuine
   // reload with ~1,200ms.
@@ -830,6 +843,19 @@ export function throughputOf(model = null) {
     genSeconds: Math.round(t.genMs / 1000), promptSeconds: Math.round(t.promptMs / 1000),
     reloads: t.loads, reloadSeconds: Math.round(t.loadMs / 1000),
     window: loadedWindowOf(m),
+    // The ungated lane, kept apart: how many calls never touched this box,
+    // and where they went instead. Rates above are local-box only — an
+    // ungated call contributes tokens, never seconds.
+    ungatedCalls: t.ungatedCalls ?? 0,
+    ...(t.upstream ? { upstream: t.upstream } : {}),
+    // USED vs SAVED, where the caller reported it: used = prompt + gen (+
+    // reasoning when split out); saved = cache-read tokens the provider
+    // served cut-rate instead of full price. Cost totals ride for spenders.
+    tokensUsed: (t.promptTokens ?? 0) + (t.genTokens ?? 0),
+    tokensSaved: t.cacheReadTokens ?? 0,
+    ...((t.reasoningTokens ?? 0) > 0 ? { reasoningTokens: t.reasoningTokens } : {}),
+    ...((t.cacheWriteTokens ?? 0) > 0 ? { cacheWriteTokens: t.cacheWriteTokens } : {}),
+    ...((t.costCalls ?? 0) > 0 ? { costTotal: Math.round((t.costTotal ?? 0) * 1e6) / 1e6, costCalls: t.costCalls } : {}),
   });
   if (model) { const t = throughput.get(model); return t ? shape(model, t) : null; }
   return [...throughput.entries()].map(([m, t]) => shape(m, t)).sort((a, b) => b.genSeconds - a.genSeconds);

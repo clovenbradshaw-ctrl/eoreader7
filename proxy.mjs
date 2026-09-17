@@ -3,7 +3,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { MODEL_PREFIX, parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote, parseAnthropicRequest, flattenAnthropicContent, anthropicCountTokensResponse, anthropicMessageResponse, anthropicStreamStart, anthropicContentBlockStart, anthropicContentBlockDelta, anthropicContentBlockStop, anthropicMessageDelta, anthropicMessageStop } from "./proxy-api.mjs";
-import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus } from "./proxy-runner.mjs";
+import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus, refreshOpencodeModels } from "./proxy-runner.mjs";
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
@@ -45,6 +45,11 @@ import { checkLogicPuzzle } from "../the-fold/logic-puzzle.js";
 // there. Proves the search itself is general, not tuned to one puzzle.
 import { checkPreferencePuzzle } from "../the-fold/preference-puzzle.js";
 import { runMechanical, precisionWinner, CONCLUSION } from "./native/organs/precision-race.js";
+// Archons on a Matrix homeserver (the-fold/archon-hyphae.mjs): one account +
+// one EOT room per worktree-archon, the operator always an admin of every
+// room, and the same record/print/list verbs reachable from THIS surface —
+// the proxy every other surface talks to. One implementation, every door.
+import { provisionArchon, recordArchon, loadArchonConversation, renderConversation, roster, DEFAULT_HS } from "../the-fold/archon-hyphae.mjs";
 
 // The mechanical pipeline: each mechanism either settles the question, names
 // a gap, or leaves it alone (native/organs/precision-race.js). It runs BESIDE
@@ -376,7 +381,15 @@ async function handleRequest(req, res) {
       const realNames = (tags.models ?? [])
         .map((m) => m.name || m.model)
         .filter((name) => isServable(name));
-      const list = toOpenAIModelList(realNames);
+      // THE SECOND LANE: Claude/DeepSeek models the opencode server can serve
+      // (discovery already applies the narrow door, so this list is only what
+      // the lane may actually serve). Best-effort — an opencode outage never
+      // breaks the local roster, it just offers no remote models.
+      let opencodeIds = [];
+      try {
+        opencodeIds = [...await refreshOpencodeModels()];
+      } catch { /* the local roster stands on its own */ }
+      const list = toOpenAIModelList([...realNames, ...opencodeIds]);
       res.writeHead(200, { "content-type": "application/json" });
       res.end(JSON.stringify(list));
     } catch (err) {
@@ -479,6 +492,58 @@ async function handleRequest(req, res) {
         projection: projection ?? "",
         job: job ? { jobId: job.jobId, chars: job.chars, sections: job.sections, createdAt: job.createdAt, updatedAt: job.updatedAt, error: job.error ?? null, satisfaction: job.satisfaction ?? null, totalStrain: job.totalStrain ?? null } : null,
       }));
+    } catch (err) {
+      res.writeHead(500, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: { message: err.message } }));
+    }
+    return;
+  }
+
+  // /v1/archons — the archons' EOT rooms on a Matrix homeserver, read from
+  // THIS surface (the one every other surface talks through). record appends
+  // an EOT entry to an archon's room; conversation prints the FULL stream —
+  // every entry of every kind, both roles, gaps named, nothing hidden. All
+  // three verbs are the-fold/archon-hyphae.mjs's one implementation, so a
+  // call from the TUI, the browser, or a raw client sees the identical text.
+  if (req.method === "GET" && req.url === "/v1/archons") {
+    try {
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify({ archons: roster(), homeserver: DEFAULT_HS }));
+    } catch (err) {
+      res.writeHead(500, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: { message: err.message } }));
+    }
+    return;
+  }
+
+  if (req.method === "POST" && /^\/v1\/archons\/[^/]+\/record$/.test(req.url)) {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", async () => {
+      try {
+        const slug = decodeURIComponent(req.url.split("/")[3]);
+        const parsed = JSON.parse(body || "{}");
+        const text = String(parsed.text ?? parsed.task ?? "").trim();
+        if (!text) { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ error: { message: "record needs text" } })); return; }
+        const r = await recordArchon(parsed.homeserver ?? DEFAULT_HS, slug, { text, kind: parsed.kind ?? "lesson", role: parsed.role ?? "assistant" });
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify(r));
+      } catch (err) {
+        res.writeHead(500, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: { message: err.message } }));
+      }
+    });
+    return;
+  }
+
+  if (req.method === "GET" && /^\/v1\/archons\/[^/]+\/conversation$/.test(req.url)) {
+    try {
+      const slug = decodeURIComponent(req.url.split("/")[3]);
+      const hs = req.headers["x-er7-homeserver"] ?? DEFAULT_HS;
+      const loaded = await loadArchonConversation(hs, slug);
+      const text = renderConversation(loaded);
+      res.writeHead(200, { "content-type": "text/plain; charset=utf-8" });
+      res.end(text);
     } catch (err) {
       res.writeHead(500, { "content-type": "application/json" });
       res.end(JSON.stringify({ error: { message: err.message } }));

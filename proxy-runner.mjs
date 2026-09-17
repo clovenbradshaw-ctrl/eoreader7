@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
+import { isCodeHunk, codeEncounters } from "./native/adapters/code/encounters.js";
 import { diaNorm, namesCorefer } from "./native/adapters/text/surfaces.js";
 import { deriveRegister, detectLanguage, questionFor, writeVoiceFor } from "./native/kernel/register.js";
 import { createSeededRng, seedFrom } from "./native/kernel/rng.js";
@@ -34,7 +35,8 @@ import { answerRecord } from "./native/the-fold/answer-record.js";
 // header for how it is wired and why it must never be bypassed.
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
-// The dispute lookup notesFromEdges reads (below): `noteId` is the same// bare-ends identity a note born with no identity organ already carries in
+// The dispute lookup notesFromEdges reads (below): `noteId` is the same
+// bare-ends identity a note born with no identity organ already carries in
 // kernel/notes.js, and `makeNotes()` is a pure factory (disputesOf/etc. are
 // plain functions of a log) — instantiated once here the same way
 // organs/hyperlexicon.js and organs/notes-text.js already instantiate it.
@@ -99,6 +101,13 @@ import { classifySpeech, cueBundle, bannedHits } from "./native/the-fold/earned-
 // across sessions. SPECIFICS stay in the per-session chat history; this
 // store holds only what the person has asserted and its standing.
 import { loadSpeakerModel, saveSpeakerModel, updateSpeakerModel, durableFacts } from "./native/the-fold/speaker-model.js";
+// The opencode lane (opencode-upstream.mjs): Claude/DeepSeek models a caller
+// names are generated through `opencode serve`, never Ollama — same
+// antistrauss gate, same draw contract, tools hard-disabled. Re-exported so
+// proxy.mjs (roster, health) reads the same discovery cache the turns use.
+import { upstreamModelFor, refreshOpencodeModels, opencodeReachable, OPENCODE_URL, streamOpencodeText } from "./opencode-upstream.mjs";
+export { upstreamModelFor, refreshOpencodeModels, opencodeReachable, OPENCODE_URL };
+export { knownOpencodeModels } from "./opencode-upstream.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -161,11 +170,17 @@ export const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
 // one — which is exactly the failure we just ate. Real request bodies carry a
 // long keep_alive, and the proxy pings recently-used models on an interval
 // (keepModelHot) so the load never drops between turns. In seconds.
-// Off by default: one small model, loaded on demand, unloaded on Ollama's own
-// schedule. Keep-warm pinning is a real feature for later, but on a 24GB
-// machine it fought itself (every model touched got an hour of residency,
-// three models stacked up, the box dragged). ER7_KEEP_ALIVE_S > 0 re-enables it.
-export const OLLAMA_KEEP_ALIVE_S = Number(process.env.ER7_KEEP_ALIVE_S ?? 0);
+// Heimdall's policy (2026-09-17): DO NOT EVICT. Multiple systems (the er7
+// proxy, the fold surfaces, code jobs) hit the same local models, and every
+// eviction pays a cold-load that stalls the next caller's turn — so a model
+// that has served a turn is held resident by default instead of being
+// dropped on Ollama's 5m clock. The one legitimate eviction — a user who
+// explicitly ASKED for a particular model — is not wired up yet, so until it
+// is, the default is to hold. ER7_KEEP_ALIVE_S overrides; 0 forces the old
+// drop-on-idle behavior. The server-side OLLAMA_KEEP_ALIVE (set by
+// setup-proxy.sh) backs the same rule at the daemon, so a caller that skips
+// the proxy still gets the hold.
+export const OLLAMA_KEEP_ALIVE_S = Number(process.env.ER7_KEEP_ALIVE_S ?? 3600);
 
 // --- feature toggles (defaults: hyperlexicon ON, wikipedia enrichment OFF,
 //     web search OFF — the proxy is the sanctioned egress, P13) -------------
@@ -259,21 +274,68 @@ function buildVoidText({ what = "fact", why = "searched_absent", grain = "unveri
   return                        "The material provided does not address this.";
 }
 
+// A hard egress gate cannot hinge on a spelling fact. The old extractor only
+// hunted when the task contained a CAPITALISED noun phrase — a void about
+// "brownian motion" or "the history of sewing machines" stayed unsearched, and
+// a void phrased in all-caps was equally invisible. The subject of a void is
+// chosen by CONTENT WORDS (case-insensitive); capitalization only breaks a
+// tie. And a web hunt is an EGRESS, so it answers to the one sanctioned egress
+// toggle (WEB_SEARCH_ON, P13) — never to the Wikipedia-enrichment toggle.
+const VOID_STOPWORDS = new Set(
+  ("the a an and or but of in on at to for with by from is are was were be been being am do does did has have had " +
+   "what which who whom whose when where why how this that these those it its he she him her they them we us you your " +
+   "i my me our their please can could will would should shall may might about into over under there then than as so nor").split(" ")
+);
+
+// selectVoidQuery(task) — the most specific subject phrase to search for,
+// chosen without depending on case: the longest run of content words wins, a
+// mixed-case word only breaks a tie. Capped so a search stays a search.
+function selectVoidQuery(task) {
+  const tokens = String(task ?? "").split(/\s+/).filter(Boolean);
+  const words = tokens.map((t) => t.replace(/[^a-zA-Z0-9'-]/g, ""));
+  const content = words.map((w) => w.length > 2 && !VOID_STOPWORDS.has(w.toLowerCase()) && !/^\d+$/.test(w));
+
+  const runs = [];
+  let start = -1;
+  for (let i = 0; i <= words.length; i++) {
+    if (i < words.length && content[i]) {
+      if (start === -1) start = i;
+    } else if (start !== -1) {
+      runs.push([start, i - 1]);
+      start = -1;
+    }
+  }
+
+  let best = null;
+  let bestScore = -1;
+  for (const [a, b] of runs) {
+    const caps = words.slice(a, b + 1).filter((w) => /[A-Z]/.test(w) && /[a-z]/.test(w)).length;
+    const score = (b - a + 1) * 3 + caps;
+    if (score > bestScore) { best = [a, b]; bestScore = score; }
+  }
+
+  if (!best) {
+    // No content-word run — fall back to the longest single content word.
+    const singles = words.map((w, i) => (content[i] ? { w, i } : null)).filter(Boolean);
+    if (!singles.length) return null;
+    best = [singles.reduce((m, s) => (s.w.length > m.w.length ? s : m)).i];
+    best = [best[0], best[0]];
+  }
+
+  return words.slice(best[0], best[1] + 1).slice(0, 6).join(" ").trim() || null;
+}
+
 // Extracts the first meaningful search-result snippets from DuckDuckGo without
 // fetching full pages. Zero results confirms the void; real snippets become the
 // material block. Skips conversational-referent questions ("you mentioned…")
 // where the named referent is a session artifact, not a real-world entity.
 async function voidWebSearchFallback(task) {
-  if (!WIKIPEDIA_ON) return null;
+  if (!WEB_SEARCH_ON) return null;
   const text = String(task ?? "");
   if (/\b(you mentioned|earlier you|i told you|we discussed|you said|in (?:our|this) (?:conversation|session|chat))\b/i.test(text)) return null;
 
-  // Extract the most specific proper noun phrase to search for.
-  const multi = text.match(/\b[A-Z][a-z]+(?:\s+[A-Z][a-z]*)+\b/g) ?? [];
-  const single = [...text.matchAll(/(?<=\S\s)[A-Z][a-z]{2,}/g)].map((m) => m[0]);
-  const candidates = [...new Set([...multi, ...single])].sort((a, b) => b.length - a.length);
-  const query = candidates[0];
-  if (!query?.trim()) return null; // no entity to look up — leave the plain void assertion
+  const query = selectVoidQuery(text);
+  if (!query) return null; // nothing findable to look up — leave the plain void assertion
 
   try {
     const ctrl = new AbortController();
@@ -1615,6 +1677,14 @@ function isTextFile(fileName) {
   return true;
 }
 
+// A bounded head probe decides whether a giant file is code-shaped — reading
+// 4 KB of a 3.2 MB bundle to make the admission decision, never the whole
+// thing at the scan stage (the bounded read happens at admit time).
+const HEAD_PROBE_CHARS = 4096;
+function headOf(abs) {
+  try { return fs.readFileSync(abs, "utf8").slice(0, HEAD_PROBE_CHARS); } catch { return ""; }
+}
+
 function workspaceEntries(absRoot, onNote, { maxFiles = MAX_WORKSPACE_FILES, maxChars = MAX_WORKSPACE_CHARS } = {}) {
   const entries = [];
   let readChars = 0;
@@ -1646,7 +1716,13 @@ function workspaceEntries(absRoot, onNote, { maxFiles = MAX_WORKSPACE_FILES, max
         continue;
       }
       if (stat.size > MAX_FILE_CHARS) {
-continue;
+        // A giant file is not silently dropped. If its head scans as a code
+        // hunk (a minified bundle, a build artifact — the what-organ's
+        // material, S128), admit a BOUNDED slice of it under a `giant` flag so
+        // the reading steps code-grain encounters over a disclosed window
+        // instead of skipping the file or choking on a monster "sentence".
+        if (isCodeHunk(headOf(full))) entries.push({ abs: full, rel: full.slice(absRoot.length).replace(/^\//, ""), size: stat.size, mtimeMs: stat.mtimeMs, giant: true });
+        continue;
       }
       if (readChars + stat.size > maxChars) {
 continue;
@@ -1678,7 +1754,15 @@ async function admitWorkspaceEntries(session, entries, onNote) {
     index.set(e.rel, { size: e.size, mtimeMs: e.mtimeMs });
     admitted += res.deduped ? 0 : 1;
     chars += text.length;
-    const encounters = textEncounters(text, { source: `workspace:${e.rel}`, offset: 0 });
+    // A code-shaped file is stepped at CODE grain (adapters/code/encounters.js
+    // — statement/line granular, hard-capped, byte-anchored), never through
+    // the prose sentence machinery a minified line of 1.8 MB would choke on.
+    const encounters = isCodeHunk(text)
+      ? codeEncounters(text, { source: `workspace:${e.rel}`, offset: 0 })
+      : textEncounters(text, { source: `workspace:${e.rel}`, offset: 0 });
+    if (e.giant && onNote) {
+      onNote({ move: "giant_code_admitted", rel: e.rel, bytes: e.size, scannedChars: text.length, skippedChars: Math.max(0, e.size - text.length) });
+    }
     for (const enc of encounters) {
       const turn = await session.reader.step(enc);
       if (turn?.tasks?.open && onNote) {
@@ -1694,7 +1778,9 @@ async function admitWorkspaceEntries(session, entries, onNote) {
     // is rendered to an image and read by CV/OCR + a vision model, and the
     // looked-at reading is admitted as its own source — so the model
     // speaks from what the thing IS, not from the flat bytes it misread.
-    if (onNote) {
+    // A giant code hunk is never looked at: minified source is not a
+    // formatting misread, and rendering megabytes of it would be pure waste.
+    if (onNote && !e.giant) {
       const gate = shouldLook({ fileName: e.rel, text });
       if (gate.look && session.lookIndex?.get(e.rel) !== `${e.size}:${e.mtimeMs}`) {
         // LaVar tells us if we are reading well — the misread-formatting
@@ -2028,6 +2114,9 @@ const hotModelName = (model) => String(model ?? "").replace(/^er7:/, "");
 export async function keepModelHot(model) {
   const m = hotModelName(model);
   if (!m) return;
+  // Opencode-served models (Claude/DeepSeek) have no Ollama copy: pinging
+  // Ollama with their id would only log a 404 every interval tick.
+  if (upstreamModelFor(m)) return;
   if (OLLAMA_KEEP_ALIVE_S <= 0) return;
   _hot.add(m);
   if (_hotting.has(m)) return _hotting.get(m);
@@ -2151,9 +2240,57 @@ async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kel
   const finishReview = (done) => {
     antistrauss.review({ model, messages, output: emitted.join(""), route: "chat", verdict: gate.verdict, ok: done });
   };
+  // ── OPENCODE LANE (Claude/DeepSeek only, for now) ────────────────────────
+  // The gate above already ran — antistrauss covers EVERY mouth, whichever
+  // server speaks. Same yield contract as below (strings + a terminal {done})
+  // so draw() needs no changes, same retry discipline, same heimdall account.
+  // The lane decision reads the discovery cache only (no fetch on the hot
+  // path); the turn preflight warms it before any draw runs.
+  const upstream = upstreamModelFor(model);
+  if (upstream) {
+    if (onNote) onNote({ move: "opencode_lane", provider: upstream.providerID, model: upstream.modelID });
+    for (let attempt = 0; attempt < CALL_RETRIES; attempt++) {
+      try {
+        for await (const chunk of streamOpencodeText(upstream, messages, { maxTokens: maxTokens ?? CALL_MAX_TOKENS, signal, onNote })) {
+          if (typeof chunk === "string") {
+            yield chunk;
+            emitted.push(chunk);
+          } else if (chunk?.done) {
+            import("./heimdall.mjs").then((h) => h.observeCall({
+              model,
+              promptTokens: chunk.prompt_eval_count ?? 0,
+              promptMs: 0,
+              genTokens: chunk.eval_count ?? 0,
+              genMs: 0,
+              loadMs: 0,
+              // UNGATED: this call never touched the local box (no VRAM, no
+              // keep-alive, no reload) — Heimdall counts it apart, and the
+              // used-vs-saved ledger rides on the server's own counters.
+              ungated: true,
+              upstream: "opencode",
+              reasoningTokens: chunk.reasoningTokens ?? 0,
+              cacheReadTokens: chunk.cacheRead ?? 0,
+              cacheWriteTokens: chunk.cacheWrite ?? 0,
+              cost: chunk.cost ?? null,
+            })).catch(() => {});
+            if (onNote && !chunk.estimated) onNote({ move: "opencode_usage", provider: upstream.providerID, model: upstream.modelID, input: chunk.prompt_eval_count ?? 0, output: chunk.eval_count ?? 0, cacheRead: chunk.cacheRead ?? 0, cacheWrite: chunk.cacheWrite ?? 0, ...(chunk.cost == null ? {} : { cost: chunk.cost }) });
+            yield chunk;
+            finishReview(true);
+            return;
+          }
+        }
+        finishReview(true);
+        return;
+      } catch (err) {
+        if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
+      }
+    }
+    return;
+  }
   for (let attempt = 0; attempt < CALL_RETRIES; attempt++) {
     const ctrl = new AbortController();
-    const onAbort = () => ctrl.abort();    if (signal) {
+    const onAbort = () => ctrl.abort();
+    if (signal) {
       if (signal.aborted) throw new Error("aborted");
       signal.addEventListener("abort", onAbort, { once: true });
     }
@@ -2168,11 +2305,11 @@ const res = await fetch(`${OLLAMA}/api/chat`, {
           messages,
           stream: true,
           // Keep the model resident for the DURATION of the work. A long
-          // composition runs 5-10+ minutes, longer than Ollama's default 5-min
+          // composition runs 5-10+ minutes, longer than Ollama's 5-min default
           // keep_alive — without this the model unloads mid-essay and the draw
-          // hangs retrying. This is a per-request floor, NOT the keep-warm
-          // machinery: even with ER7_KEEP_ALIVE_S=0 the model stays up for the
-          // time it takes to answer, then Ollama's own unload applies.
+          // hangs retrying. This is a per-request floor, aligned with the
+          // server-side OLLAMA_KEEP_ALIVE (setup-proxy.sh sets 1h): the bridge
+          // holds what it asked the daemon to hold, never lower.
           keep_alive: `${Math.max(OLLAMA_KEEP_ALIVE_S, 1200)}s`,
           ...(json ? { format: json === true ? "json" : json } : {}),
           options: {
@@ -2232,7 +2369,8 @@ const reader = res.body.getReader();
               emitted.push(obj.message.content);
             }
             if (obj.done) {
-              // The bridge keeps the account of what each model really does              // (heimdall.observeCall): Ollama has just handed us its own
+              // The bridge keeps the account of what each model really does
+              // (heimdall.observeCall): Ollama has just handed us its own
               // counters, so reporting them costs nothing and no watcher has
               // to spend a call to find out. Lazily imported and never
               // awaited — a report may not slow a turn, and node hands back
@@ -2249,14 +2387,16 @@ const reader = res.body.getReader();
               finishReview(true);
               return;
             }
-          } catch { /* skip malformed lines */ }        }
+          } catch { /* skip malformed lines */ }
+        }
       }
       return; // stream ended without done=true
     } catch (err) {
       if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
     } finally {
       clearTimeout(timer);
-      if (signal) signal.removeEventListener("abort", onAbort);    }
+      if (signal) signal.removeEventListener("abort", onAbort);
+    }
   }
 }
 
@@ -2743,8 +2883,19 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const speakerModel = userId ? loadSpeakerModel(userId) : null;
   const durable = speakerModel ? durableFacts(speakerModel) : [];
 
-  // 0. Preflight — fail fast, don't hang.
-const modelsUp = await ollamaReachable();
+  // 0. Preflight — fail fast, don't hang. The check hits the lane that owns
+  // THIS model: an opencode-served model (Claude/DeepSeek) must not fail
+  // because Ollama is down, and vice versa. Discovery refreshes first (cached
+  // — a warm cache costs nothing) so the lane decision below is current.
+  await refreshOpencodeModels().catch(() => null);
+  const opencodeRoute = upstreamModelFor(model);
+  if (opencodeRoute) {
+    if (!(await opencodeReachable())) {
+      if (onNote) onNote({ move: "upstream_down", target: OPENCODE_URL });
+      throw new Error(`opencode upstream ${OPENCODE_URL} is not responding — check that 'opencode serve' is running.`);
+    }
+  } else {
+  const modelsUp = await ollamaReachable();
   if (modelsUp === null) {
     if (onNote) onNote({ move: "upstream_down", target: OLLAMA });
     throw new Error(`Ollama upstream ${OLLAMA} is not responding — check 'er7-proxy log' and that Ollama is running.`);
@@ -2752,6 +2903,7 @@ const modelsUp = await ollamaReachable();
   const modelKnown = modelsUp.some((m) => (m.name ?? m.model) === model);
   if (modelsUp.length && !modelKnown) {
     if (onNote) onNote({ move: "model_missing", model, available: modelsUp.map((m) => m.name ?? m.model) });
+  }
   }
 
   // 1. Workspace — admit real files into the session corpus, then SURF the
@@ -3528,7 +3680,8 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           });
           if (d?.framing) {
             const applied = applyDiscovered({ framing: d.framing, sections, questionFor: (f, t) => questionFor(prelimShape.register, f, t), topic });
-            sections = applied.sections; discoveredVoice = applied.voice; framingApplied = true; discoveredFelt = d.framing?.feltTarget ?? null; discoveredFraming = d.framing;            wheel.turn("discovery", `the LLM is tasked to go find what makes a good ${field}`, { from: d.from, staging: d.framing.staging.length, voice: !!d.framing.writeVoice }, { framing: d.framing, footprints: !!d.appended, basis: d.basis }, { evaBasis: "the LLM PROPOSES the framing; the wheel's EVA and the satisfaction organs dispose", operator: "INS", grain: "Pattern", face: "scout" });
+            sections = applied.sections; discoveredVoice = applied.voice; framingApplied = true; discoveredFelt = d.framing?.feltTarget ?? null; discoveredFraming = d.framing;
+            wheel.turn("discovery", `the LLM is tasked to go find what makes a good ${field}`, { from: d.from, staging: d.framing.staging.length, voice: !!d.framing.writeVoice }, { framing: d.framing, footprints: !!d.appended, basis: d.basis }, { evaBasis: "the LLM PROPOSES the framing; the wheel's EVA and the satisfaction organs dispose", operator: "INS", grain: "Pattern", face: "scout" });
             if (d.appended) { try { fs.writeFileSync(SIDECAR_PATH, JSON.stringify(d.appended, null, 2)); } catch {} }
           }
         }
@@ -4622,75 +4775,94 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         if (onNote) onNote({ move: "document_ledger", docId: documentLedger.docId, parts: documentLines.length, declared: def, kind: "code", language: codeLanguage, validated: codeValidation?.ok ?? null });
       }
       }
-    } else if (runMode === "long") {
-      // ── LONG — a response that goes further than chat provides. ────────
-      // UNCUEED MULTI-PROMPT CONTINUATION, GATED LIKE THE CODE LOOP
-      // (2026-09-17). The system does not ask the model to plan, outline,
-      // "name its shape", or "continue writing" — no meta-word reaches the
-      // mouth. It writes as far as it goes at a bounded budget; when it hits
-      // the token cap mid-thought (tokenTruncated, not a natural finish), the
-      // SAME draw is re-issued with the model's own prose as its last
-      // assistant turn. The thread is carried by its own words — the seam is
-      // invisible because there is no instruction to notice.
+    } else {
+      // ── SINGLE-ANSWER VOICE: chat AND long, one body. ──────────────────
+      // THE LONG FORM, AUTO-ENGAGED (2026-09-17): a chat answer that hits the
+      // token cap mid-thought is a long answer the shape system didn't foresee
+      // (a research/open ask at CALL_MAX_TOKENS) — cutting it there is a
+      // cutoff, not a size. So every single-answer turn draws first, and when
+      // the draw ends tokenTruncated (cap, not a natural finish) the SAME
+      // uncued continuation the long mode uses keeps going — bounded,
+      // validated, disclosed — until the model finishes on its own.
+      // Micro-shapes where stopping IS correct (greeting/command/trivial/void)
+      // never extend. No meta-word ("continue", outline, plan) ever reaches
+      // the mouth: the model's own prose is the last assistant turn, the
+      // original ask stands as the person's question.
       //
       // THE PRECISION, THE CODING-LOOP DISCIPLINE: a continuation chunk is
       // NOT trusted because the model wrote it. It is drawn into a scratch
       // buffer, then a MECHANICAL validator (proseContinuationCheck) decides
-      // pass/fail — never the model's say-so, exactly as the code loop's own
-      // `testCommand` decides and the model never grades itself. A chunk that
-      // restarts the answer, repeats its own tail, or adds nothing substantial
-      // is REVERTED — nothing broken is left between rounds. Every round's
-      // verdict rides the note as a disclosed audit trail. Bounded like the
-      // loop (`LONG_MAX_CHUNKS`, disclosed, never silent/unbounded).
+      // pass/fail — never the model's say-so. A chunk that restarts the
+      // answer, repeats its own tail, or adds nothing substantial is REVERTED.
+      // Every round's verdict rides the note as a disclosed audit trail.
+      // Bounded (LONG_MAX_CHUNKS), disclosed, never silent/unbounded.
       const LONG_CHUNK_TOKENS = Number(process.env.ER7_LONG_CHUNK_TOKENS ?? 700);
       const LONG_MAX_CHUNKS = Number(process.env.ER7_LONG_MAX_CHUNKS ?? 4);
       const LONG_MIN_CHUNK_CHARS = Number(process.env.ER7_LONG_MIN_CHUNK_CHARS ?? 120);
       const longRounds = [];
-      const first = await draw(ollamaMessages, LONG_CHUNK_TOKENS, { kelsen: compositionKelsen, capture: true });
-      longRounds.push({ round: 1, chars: first.buf.length, tokenTruncated: first.tokenTruncated ?? false });
-      let chunks = 1;
-      // The continuation loop mirrors the code loop: draw to a scratch
-      // buffer, validate mechanically, keep only a passing chunk. `first` is
-      // already in fullText (capture=false was used above? no — see below:
-      // the first draw is captured then committed once it passes, so a bad
-      // first chunk is never in the stream either).
-      const commitFirst = () => { if (first.buf) { fullText += first.buf; if (onToken) onToken(first.buf); } };
-      const firstVerdict = proseContinuationCheck({ existing: "", incoming: first.buf, minChars: LONG_MIN_CHUNK_CHARS, onNote });
-      if (!firstVerdict.ok) {
-        if (onNote) onNote({ move: "long_chunk_rejected", round: 1, reason: firstVerdict.reason });
-      } else {
-        commitFirst();
-      }
-      while (firstVerdict.ok && chunks < LONG_MAX_CHUNKS && !truncated) {
-        // The model's own prose is the last assistant turn; the original ask
-        // stands as the person's question. No "continue", no outline, no cue.
-        const continuation = [...ollamaMessages, { role: "assistant", content: fullText }, { role: "user", content: task }];
-        const next = await draw(continuation, LONG_CHUNK_TOKENS, { kelsen: compositionKelsen, capture: true });
-        chunks++;
-        const verdict = proseContinuationCheck({ existing: fullText, incoming: next.buf, minChars: LONG_MIN_CHUNK_CHARS, onNote });
-        longRounds.push({ round: chunks, chars: next.buf.length, tokenTruncated: next.tokenTruncated ?? false, verdict: verdict.ok ? "kept" : `rejected:${verdict.reason}` });
-        if (!verdict.ok) {
-          // REVERT: the chunk is discarded, never appended — nothing broken
-          // is left between rounds. A rejected continuation is a typed stop.
-          if (onNote) onNote({ move: "long_chunk_rejected", round: chunks, reason: verdict.reason, kept: fullText.length });
-          break;
+      // Commits respect the output ceiling even for scratch-drawn chunks: a
+      // commit that would overflow lands only its fitting head and types the
+      // stop (truncated), so the loop below always terminates.
+      const commitChunk = (buf) => {
+        if (!buf) return true;
+        if (fullText.length >= MAX_OUTPUT_CHARS) { truncated = true; return false; }
+        const room = MAX_OUTPUT_CHARS - fullText.length;
+        const piece = buf.length > room ? buf.slice(0, room) : buf;
+        fullText += piece;
+        if (onToken) onToken(piece);
+        if (buf.length > room) truncated = true;
+        return buf.length <= room;
+      };
+      const continueUncued = async (chunks) => {
+        while (chunks < LONG_MAX_CHUNKS && !truncated) {
+          const continuation = [...ollamaMessages, { role: "assistant", content: fullText }, { role: "user", content: task }];
+          const next = await draw(continuation, LONG_CHUNK_TOKENS, { kelsen: compositionKelsen, capture: true });
+          chunks++;
+          const verdict = proseContinuationCheck({ existing: fullText, incoming: next.buf, minChars: LONG_MIN_CHUNK_CHARS, onNote });
+          longRounds.push({ round: chunks, chars: next.buf.length, tokenTruncated: next.tokenTruncated ?? false, verdict: verdict.ok ? "kept" : `rejected:${verdict.reason}` });
+          if (!verdict.ok) {
+            // REVERT: the chunk is discarded, never appended — nothing broken
+            // is left between rounds. A rejected continuation is a typed stop.
+            if (onNote) onNote({ move: "long_chunk_rejected", round: chunks, reason: verdict.reason, kept: fullText.length });
+            break;
+          }
+          commitChunk(next.buf);
+          if (!next.tokenTruncated) break; // the model finished on its own — stop
         }
-        fullText += next.buf;
-        if (onToken) onToken(next.buf);
-        if (!next.tokenTruncated) break; // the model finished on its own — stop
+        return chunks;
+      };
+      let chunks = 0;
+      let shapeForCheck = answerShape.shape;
+      if (runMode === "long") {
+        const first = await draw(ollamaMessages, LONG_CHUNK_TOKENS, { kelsen: compositionKelsen, capture: true });
+        chunks = 1;
+        longRounds.push({ round: 1, chars: first.buf.length, tokenTruncated: first.tokenTruncated ?? false });
+        // The first draw is captured then committed once it passes, so a bad
+        // first chunk is never in the stream either.
+        const firstVerdict = proseContinuationCheck({ existing: "", incoming: first.buf, minChars: LONG_MIN_CHUNK_CHARS, onNote });
+        if (!firstVerdict.ok) {
+          if (onNote) onNote({ move: "long_chunk_rejected", round: 1, reason: firstVerdict.reason });
+        } else {
+          commitChunk(first.buf);
+          chunks = await continueUncued(chunks);
+        }
+        shapeForCheck = "long";
+      } else {
+        const r = await draw(ollamaMessages, answerShape.maxTokens ?? CALL_MAX_TOKENS, { kelsen: compositionKelsen });
+        if (r?.stopped) truncated = true;
+        chunks = 1;
+        longRounds.push({ round: 1, chars: r.buf.length, tokenTruncated: r?.tokenTruncated ?? false });
+        const extendable = !["greeting", "command", "trivial", "void"].includes(answerShape.shape);
+        if (extendable && r?.tokenTruncated && !truncated) {
+          if (onNote) onNote({ move: "long_auto_engaged", shape: answerShape.shape, afterChars: fullText.length });
+          chunks = await continueUncued(chunks);
+        }
       }
-      if (onNote) onNote({ move: "long_continued", chunks, rounds: longRounds, keptChars: fullText.length, lastTruncated: longRounds.at(-1)?.tokenTruncated ?? false });
-      chatSatisfaction = chatVoidCheck(fullText, { shape: "long", material: material.map((s) => s.text ?? "").join("\n") });
-      if (onNote) onNote({ move: "chat_satisfied", shape: "long", ok: chatSatisfaction.ok, failures: chatSatisfaction.failures ?? [], strain: chatSatisfaction.strain ?? 0 });
-    } else {
-      // ── CHAT — the default surface. ────────────────────────────────────
-      // Every answer is a void defined and satisfied at its natural size: a
-      // greeting gets a sentence, a command an acknowledgment, a research
-      // question a grounded answer — one draw, never a sectioned artifact.
-      const r = await draw(ollamaMessages, answerShape.maxTokens ?? CALL_MAX_TOKENS, { kelsen: compositionKelsen });
-      if (r?.stopped) truncated = true;
-      chatSatisfaction = chatVoidCheck(fullText, { shape: answerShape.shape, material: material.map((s) => s.text ?? "").join("\n") });
-      if (onNote) onNote({ move: "chat_satisfied", shape: answerShape.shape, ok: chatSatisfaction.ok, failures: chatSatisfaction.failures ?? [], strain: chatSatisfaction.strain ?? 0 });
+      if (runMode === "long" || longRounds.length > 1) {
+        if (onNote) onNote({ move: "long_continued", chunks, rounds: longRounds, keptChars: fullText.length, lastTruncated: longRounds.at(-1)?.tokenTruncated ?? false });
+      }
+      chatSatisfaction = chatVoidCheck(fullText, { shape: shapeForCheck, material: material.map((s) => s.text ?? "").join("\n") });
+      if (onNote) onNote({ move: "chat_satisfied", shape: shapeForCheck, ok: chatSatisfaction.ok, failures: chatSatisfaction.failures ?? [], strain: chatSatisfaction.strain ?? 0 });
     }
   });
   } // end the spec-refusal else

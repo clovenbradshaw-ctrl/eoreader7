@@ -230,7 +230,17 @@ export function humanizeNote(note) {
   const { move } = note ?? {};
   switch (move) {
     case "upstream_down":
-      return `Ollama isn't responding at ${note.target}.`;
+      return note.target && String(note.target).includes("opencode")
+        ? `The opencode server isn't responding at ${note.target} — check that 'opencode serve' is running.`
+        : `Ollama isn't responding at ${note.target}.`;
+    case "opencode_lane":
+      return `Answering via the opencode server (${note.provider}/${note.model}) — outside the local box's queue.`;
+    case "opencode_usage": {
+      const parts = [`${note.output ?? 0} out / ${note.input ?? 0} in`];
+      if (note.cacheRead) parts.push(`${note.cacheRead} from cache`);
+      if (note.cost != null) parts.push(`cost ${note.cost}`);
+      return `Opencode usage: ${parts.join(", ")}.`;
+    }
     case "model_missing":
       return `Model "${note.model}" isn't pulled — available: ${(note.available ?? []).join(", ") || "(none)"}.`;
     case "reader_note":
@@ -247,6 +257,8 @@ export function humanizeNote(note) {
       return `Couldn't read ${note.rel}: ${note.error}`;
     case "reading":
       return `Reading: ${note.count} encounter(s) across ${note.chars} chars.`;
+    case "giant_code_admitted":
+      return `Admitted a bounded slice of the giant code file ${note.rel}: ${(note.scannedChars ?? 0).toLocaleString()} of ${(note.bytes ?? 0).toLocaleString()} bytes (${(note.skippedChars ?? 0).toLocaleString()} skipped, disclosed).`;
     case "open_question":
       return note.description ? `Open question noticed while reading: ${note.description}` : null;
     case "referent_index":
@@ -343,6 +355,12 @@ export function humanizeNote(note) {
       return `Mode: ${note.mode}${note.basis ? ` — ${note.basis}` : ""}.`;
     case "chat_satisfied":
       return `The answer filled its void${note.failures?.length ? ` — ${note.failures.map((f) => f.detail).join("; ")}` : ""}.`;
+    case "long_auto_engaged":
+      return `The first draw hit the token cap mid-thought — continuing in the answer's own words (${note.shape}, ${note.afterChars} chars so far).`;
+    case "long_continued":
+      return note.chunks > 1 ? `Long answer, ${note.chunks} round(s), ${note.keptChars} chars kept.` : null;
+    case "long_chunk_rejected":
+      return `A continuation round added nothing sound — reverted (${note.reason}).`;
     case "shape_check":
       return `Shape check: ${note.ok ? "the piece matches its declared form." : `missing — ${(note.failures ?? []).join("; ")}`}`;
     case "shape_recheck":
