@@ -1,0 +1,39 @@
+{
+  "schema": "EOHolographOutput@1",
+  "question": "continue the scene at the river, carrying shanta-rasa",
+  "inspiredBy": {
+    "material": [
+      { "fact": "the Poles shouted Vivat", "ref": "material.txt#38" },
+      { "fact": "Napoleon sat down on a log", "ref": "material.txt#80" },
+      { "fact": "the stillness was the calm", "ref": "material.txt#128" }
+    ],
+    "direction": {
+      "giver": "Abhinavagupta",
+      "source": "material.txt#0-37",
+      "quote": "shanta-rasa — the quiet river is the calm before the strike"
+    }
+  },
+  "prose": [
+    { "text": "The Poles shouted Vivat across the water, and the banks answered.", "ground": "material", "ref": "material.txt#38", "groundedOn": "the Poles shouted Vivat", "carry": 1 },
+    { "text": "Napoleon watched from the log, weighing the stillness before the strike.", "ground": "material", "ref": "material.txt#80", "groundedOn": "Napoleon sat down on a log", "carry": 0.5 },
+    { "text": "A hush settled, the calm that the river itself seemed to hold.", "ground": "material", "ref": "material.txt#128", "groundedOn": "the stillness was the calm", "carry": 0.5 },
+    { "text": "He gave his orders with the quiet of a man who has already won.", "ground": "self:model", "source": "the mouth", "carry": 0 }
+  ],
+  "tiers": {
+    "holograph": [
+      { "text": "The Poles shouted Vivat across the water, and the banks answered.", "ground": "material", "ref": "material.txt#38" },
+      { "text": "Napoleon watched from the log, weighing the stillness before the strike.", "ground": "material", "ref": "material.txt#80" }
+    ],
+    "shadow": [
+      { "ground": "material", "ref": "material.txt#38" },
+      { "ground": "material", "ref": "material.txt#80" }
+    ],
+    "echo": { "at": "something like this was said here", "sentences": 3, "model": 1 }
+  },
+  "verdict": {
+    "total": 4,
+    "material": 3,
+    "model": 1,
+    "line": "3 of 4 sentence(s) grounded in the record; 1 is the mouth's own prose, marked self:model."
+  }
+}

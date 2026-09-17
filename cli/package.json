@@ -6,7 +6,8 @@
   "description": "Commandline entry point onto eoreader7's real reading pipeline.",
   "bin": {
     "eoreader7": "./eoreader7.mjs",
-    "er7-proxy": "./er7-proxy.mjs"
+    "er7-proxy": "./er7-proxy.mjs",
+    "TheFold": "./TheFold.mjs"
   },
   "dependencies": {
     "ink": "^7.1.1",
@@ -14,6 +15,9 @@
     "react": "^19.2.0"
   },
   "scripts": {
-    "test": "node --test tests/**/*.test.mjs"
+    "test": "node --test tests/holograph.test.mjs tests/tui-units.test.mjs tests/proxy-client.test.mjs tests/credentials.test.mjs tests/github-login.test.mjs tests/matrix-login.test.mjs",
+    "test:e2e": "node --test tests/tui.e2e.test.mjs",
+    "test:browser": "node tests/browser-smoke.mjs",
+    "test:e2e:one": "python3 tests/e2e/drive.py --scenario"
   }
 }

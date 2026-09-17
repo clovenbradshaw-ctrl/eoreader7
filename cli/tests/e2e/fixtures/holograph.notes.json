@@ -1,0 +1,8 @@
+{
+  "schema": "EOHolographOutput@1",
+  "notes": [
+    { "move": "admit", "text": "Admitted material.txt into the reading (173 chars)." },
+    { "move": "reading", "text": "Folded the river passage; shanta-rasa direction applied." },
+    { "move": "ground", "text": "Sentence 1 grounded on 'the Poles shouted Vivat'." }
+  ]
+}

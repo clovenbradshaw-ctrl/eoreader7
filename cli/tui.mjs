@@ -1,54 +1,40 @@
-// tui.mjs — the interactive terminal UI: multiple tabbed conversations in
-// one running process, each either "grounded chat" or "coding agent" —
-// both server-side, over the SAME proxy.mjs every caller of this instrument
-// uses (native/the-fold/sandboxed-agent.js for the coding loop, sandboxed:
-// an in-memory virtual filesystem, JS run in a severed vm.Context, nothing
-// real). This file is a thin client; it holds no model-calling or tool-
-// execution logic of its own. Built with Ink (React for the terminal).
+// tui.mjs — the interactive terminal UI, kept deliberately simple. Multiple
+// tabbed conversations in one running process, each either "grounded chat"
+// or "coding agent" — both server-side, over the SAME proxy.mjs every caller
+// of this instrument uses. This file is a thin client: it holds no
+// model-calling or tool-execution logic of its own. Built with Ink (React
+// for the terminal).
 //
-// No JSX: this file runs directly under `node` (this repo's whole CLI has
-// no build/transpile step — eoreader7.mjs and er7-proxy.mjs are both run
-// as-is), and plain .mjs has no JSX support without a compiler. Every
-// element below is React.createElement, aliased to `h`.
+// The RICH stuff (the facing page — sources · response · notes — markdown,
+// copy, clickable cross-links) lives in the browser version:
+// `eoreader7 -browser`. The terminal stays simple on purpose.
+//
+// No JSX: this file runs directly under `node` and plain .mjs has no JSX
+// support without a compiler. Every element below is React.createElement,
+// aliased to `h`.
 //
 // Keybindings (also shown in the Ctrl+H help overlay):
 //   Ctrl+T          new tab
 //   Ctrl+W          close current tab (refused on the last remaining tab)
 //   Ctrl+Right       next tab
 //   Ctrl+Left        previous tab
-//   Ctrl+H          toggle this help overlay
-//   PageUp/PageDown scroll the transcript (more reliable across terminals
-//                   than Ctrl+Up/Down, which many terminal emulators
-//                   intercept for their own use — also bound, as a second
-//                   try where it does work)
+//   Ctrl+H          toggle this help overlay (bound via the '/help' twin
+//                   too: many terminals deliver Ctrl+H as a plain backspace
+//                   byte that Ink parses as key.backspace, not ctrl+h)
+//   PageUp/PageDown scroll the transcript (also Ctrl+Up/Down, less reliable)
+//   Up/Down         in the input: recall previous/next input (history)
 //   Ctrl+C          quit (also available as /quit)
 //   Enter           send the input line
-// Chosen to avoid the readline/emacs Ctrl+N/Ctrl+P/Ctrl+B/Ctrl+F family and
-// avoid plain Tab (many terminal emulators already claim Ctrl+Tab for their
-// own tab switching) — Ctrl+Arrow and Ctrl+letter combos below are free in
-// the terminals this was built against (iTerm2, Terminal.app, VS Code's
-// integrated terminal). Slash commands are the documented fallback for any
-// environment where a binding above is intercepted first: /new, /close,
-// /model [n|name] (bare: lists the roster, numbered), /code, /chat, /help,
-// /quit, /matrix, /github.
-//
-// Two modes per tab: "chat" sends straight to proxy-client.chatCompletion
-// (the fold's grounded pipeline — retrieval/checking/citations already
-// run there, this file adds none of that). "code" sends to proxy-
-// client.agentCompletion, the server-side sandboxed coding loop — same
-// posture, this file draws the transcript and holds no loop logic itself.
-//
-// The proxy's chat completion is treated here as a single request/response
-// (see proxy-client.mjs's header for why streaming is not used here even
-// though the wire can technically emit tokens) — so a tab shows a
-// "thinking…" spinner while a request is in flight, never fabricated
-// incremental text.
+// Slash commands: /new, /close, /model [n|name] (bare lists the roster),
+// /code, /chat, /help, /quit, /matrix, /github.
 
 import React, { useCallback, useEffect, useState } from "react";
 import { render, Box, Text, useApp, useInput, useStdout } from "ink";
 import TextInput from "ink-text-input";
+import path from "node:path";
 import * as proxyClient from "./proxy-client.mjs";
 import { AGENT_MAX_TURNS } from "../native/the-fold/sandboxed-agent.js";
+import { wrapText } from "./format.mjs";
 import { matrixLogin, matrixLogout, matrixStatus, matrixWhoAmI } from "./matrix-login.mjs";
 import { startGithubDeviceFlow, githubLogout, githubStatus, githubWhoAmI } from "./github-login.mjs";
 
@@ -66,20 +52,13 @@ function makeTab(overrides = {}) {
     messages: [], // {role, kind, text}
     draft: "",
     scrollOffset: 0,
+    inputHistory: [],
+    historyIdx: 0,
     // MUST be unique across process launches, not just within one process:
     // the proxy persists a reading ledger to disk keyed literally by this
-    // string (proxy-runner.mjs: `proxy:session:${sessionId}` as the
-    // source/docId), so a reused sessionId reattaches whatever an EARLIER,
-    // unrelated process wrote there. `${pid}` alone collides the moment the
-    // OS reuses a pid across two `eoreader7` launches — found live: a real
-    // leftover ledger from a prior run (tui-1-58760:2.jsonl, about an
-    // unrelated topic) silently reattached to a brand-new "hi"/essay
-    // conversation that happened to land on the same pid. randomUUID is
-    // generated once per tab and never reused, by construction.
+    // string, so a reused sessionId reattaches whatever an EARLIER, unrelated
+    // process wrote there. randomUUID is generated once per tab, never reused.
     sessionId: `tui-${_tabSeq}-${process.pid}-${crypto.randomUUID().slice(0, 8)}`,
-    // code mode's own continuity (the virtual filesystem, prior turns) is
-    // held server-side, keyed by sessionId (proxy.mjs's agentFilesBySession)
-    // — nothing to track here beyond the id itself.
     chatHistory: [], // {role, content} turns sent to the proxy, chat mode continuity
     ...overrides,
   };
@@ -120,21 +99,24 @@ function TabBar({ tabs, activeId }) {
   }));
 }
 
-function StatusLine({ proxyState, model, tab }) {
+function StatusLine({ proxyState, tab }) {
   const proxyText =
     proxyState.status === "checking" ? "checking proxy…" :
     proxyState.status === "starting" ? "starting er7 proxy…" :
     proxyState.status === "up" ? `proxy up :${proxyState.port}` :
     proxyState.status === "error" ? `proxy error: ${proxyState.error}` : "proxy unknown";
+  // The model is shown once the proxy returns the roster — never guessed.
+  const modelText = tab?.model ? ` · model:${tab.model}` : "";
   return h(Box, null,
-    h(Text, { dimColor: true }, `${proxyText} · mode:${tab?.mode ?? "-"} · model:${model ?? "(none)"} · Ctrl+H for help`));
+    h(Text, { dimColor: true }, `${proxyText} · mode:${tab?.mode ?? "-"}${modelText} · Heimdall will find you the fastest and safest way across the bifrost · Ctrl+H for help`));
 }
 
 function HelpOverlay() {
   return h(Box, { flexDirection: "column", borderStyle: "round", borderColor: "yellow", paddingX: 1 },
     h(Text, { bold: true }, "Keybindings"),
     h(Text, null, "Ctrl+T  new tab            Ctrl+W  close tab"),
-    h(Text, null, "Ctrl+Right/Left  switch tabs    PageUp/PageDown  scroll transcript (Ctrl+Up/Down also works, less reliably)"),
+    h(Text, null, "Ctrl+Right/Left  switch tabs    PageUp/PageDown  scroll (Ctrl+Up/Down also works, less reliably)"),
+    h(Text, null, "Up/Down  input history"),
     h(Text, null, "Ctrl+H  toggle this help   Ctrl+C  quit"),
     h(Text, null, "Enter   send"),
     h(Text, { bold: true, marginTop: 1 }, "Slash commands"),
@@ -145,7 +127,10 @@ function HelpOverlay() {
     h(Text, null, "code — an open-ended coding loop over the SAME proxy, sandboxed:"),
     h(Text, null, "  an in-memory virtual filesystem and JS run in a severed vm.Context —"),
     h(Text, null, "  nothing touches the real disk or process, so nothing needs your"),
-    h(Text, null, `  approval. Capped at ${AGENT_MAX_TURNS} turns per task.`));
+    h(Text, null, `  approval. Capped at ${AGENT_MAX_TURNS} turns per task.`),
+    h(Text, { bold: true, marginTop: 1 }, "The rich view"),
+    h(Text, null, "For the facing page (sources · response · notes), markdown, and clickable"),
+    h(Text, null, "cross-links, run `eoreader7 -browser` — the terminal stays simple."));
 }
 
 function App() {
@@ -226,6 +211,10 @@ function App() {
     });
   }, [activeId]);
 
+  const scrollTab = useCallback((tabId, delta) => {
+    updateTab(tabId, (t) => ({ ...t, scrollOffset: Math.max(0, t.scrollOffset + delta) }));
+  }, [updateTab]);
+
   const runChat = useCallback(async (tabId, text) => {
     const tab = tabs.find((t) => t.id === tabId);
     pushMessage(tabId, "user", `> ${text}`);
@@ -256,9 +245,7 @@ function App() {
         model: tab.model, task: text, sessionId: tab.sessionId,
         onRetry: ({ attempt, retryAfterS, type }) => pushMessage(tabId, "note", `${type === "saturated" ? "box" : "heimdall"} busy — retrying in ${retryAfterS}s (attempt ${attempt}/${proxyClient.CHAT_MAX_RETRIES})`),
       });
-      // Every round is real and disclosed — nothing this loop did is hidden,
-      // the same "hidden drawing, never a hidden finding" posture the-fold
-      // itself holds. Nothing here needed approval: it's all sandboxed.
+      // Every round is real and disclosed — nothing this loop did is hidden.
       for (const r of res.rounds ?? []) {
         if (r.gap) { pushMessage(tabId, "error", `(turn ${r.turn}) ${r.gap.reason}`); continue; }
         if (r.action === "list") pushMessage(tabId, "tool-call", `→ list: ${r.files.join(", ") || "(empty)"}`);
@@ -302,9 +289,6 @@ function App() {
           pushMessage(tabId, "note", `available models:\n${listing}\n/model <number|name> to switch`);
           break;
         }
-        // A number picks by the position the list above just showed
-        // (1-based, matching what a person reads off the screen — 0-based
-        // would be the one time this whole file counts from zero).
         const asIndex = /^\d+$/.test(arg) ? Number(arg) - 1 : null;
         const match = (asIndex !== null ? models[asIndex] : null)
           ?? models.find((m) => m === arg || m === proxyClient.withPrefix(arg))
@@ -317,10 +301,6 @@ function App() {
       case "help":
         setHelpVisible((v) => !v);
         break;
-      // Matrix/GitHub, from here too (user direction: login from any
-      // interaction surface) — this CLI's own independent sign-in
-      // (matrix-login.mjs/github-login.mjs), never the browser's session,
-      // which a separate Node process has no way to read.
       case "matrix": {
         const [sub, ...rest2] = arg.split(/\s+/).filter(Boolean);
         if (!sub || sub === "status") {
@@ -331,22 +311,22 @@ function App() {
         if (sub === "login") {
           const [hs, user, ...pwParts] = rest2;
           const pw = pwParts.join(" ");
-          if (!hs || !user || !pw) { pushMessage(tabId, "error", "/matrix login <homeserver> <user> <password> — this line stays in your terminal scrollback, unmasked"); break; }
+          if (!hs || !user || !pw) { pushMessage(tabId, "error", "/matrix login <homeserver> <user> <password>"); break; }
           pushMessage(tabId, "note", `signing in to ${hs}…`);
           matrixLogin(hs, user, pw)
-            .then((creds) => pushMessage(tabId, "note", `signed in as ${creds.userId} on ${creds.homeserver} — credentials saved (mode 600) to this CLI's own ~/.eoreader7/credentials.json, separate from any browser session`))
+            .then((creds) => pushMessage(tabId, "note", `signed in as ${creds.userId} on ${creds.homeserver}`))
             .catch((e) => pushMessage(tabId, "error", `matrix login failed: ${e.message}`));
           break;
         }
         if (sub === "logout") {
           matrixLogout()
-            .then(() => pushMessage(tabId, "note", "signed out — token invalidated on the homeserver and forgotten here"))
+            .then(() => pushMessage(tabId, "note", "signed out"))
             .catch((e) => pushMessage(tabId, "error", `matrix logout failed: ${e.message}`));
           break;
         }
         if (sub === "whoami") {
           matrixWhoAmI()
-            .then((who) => pushMessage(tabId, "note", who ? `${who.userId} on ${who.homeserver} — session confirmed live against the homeserver` : "no valid session (not signed in, or the token no longer works)"))
+            .then((who) => pushMessage(tabId, "note", who ? `${who.userId} on ${who.homeserver} — session confirmed` : "no valid session"))
             .catch((e) => pushMessage(tabId, "error", `matrix whoami failed: ${e.message}`));
           break;
         }
@@ -366,7 +346,7 @@ function App() {
               return poll();
             })
             .then(() => githubWhoAmI())
-            .then((who) => pushMessage(tabId, "note", `connected${who?.login ? ` as ${who.login}` : ""} — credentials saved (mode 600) to this CLI's own ~/.eoreader7/credentials.json`))
+            .then((who) => pushMessage(tabId, "note", `connected${who?.login ? ` as ${who.login}` : ""}`))
             .catch((e) => pushMessage(tabId, "error", `github login failed: ${e.message}`));
           break;
         }
@@ -389,10 +369,16 @@ function App() {
 
   const handleSubmit = useCallback((text) => {
     const tabId = activeId;
-    updateTab(tabId, (t) => ({ ...t, draft: "" }));
+    updateTab(tabId, (t) => ({ ...t, draft: "", historyIdx: 0 }));
     if (!text.trim()) return;
     if (text.startsWith("/")) { handleSlash(tabId, text.trim()); return; }
     setTabs((prev) => prev.map((t) => (t.id === tabId && t.title === "untitled" ? { ...t, title: titleFrom(text) } : t)));
+    updateTab(tabId, (t) => ({
+      ...t,
+      inputHistory: t.inputHistory.length && t.inputHistory[t.inputHistory.length - 1] === text.trim()
+        ? t.inputHistory
+        : [...t.inputHistory, text.trim()].slice(-100),
+    }));
     const tab = tabs.find((t) => t.id === tabId);
     if (tab.status === "busy") { pushMessage(tabId, "note", "still working on the previous task — please wait."); return; }
     if (!tab.model) { pushMessage(tabId, "error", "no model selected yet (still discovering the roster?)."); return; }
@@ -405,41 +391,67 @@ function App() {
     if (key.ctrl && input === "w") { closeTab(activeId); return; }
     if (key.ctrl && key.rightArrow) { cycleTab(1); return; }
     if (key.ctrl && key.leftArrow) { cycleTab(-1); return; }
+    // Ctrl+H: many terminals send 0x08, which Ink parses as key.backspace.
+    // Bind both forms; an empty draft + backspace means help, not erase.
     if (key.ctrl && input === "h") { setHelpVisible((v) => !v); return; }
-    if (key.ctrl && key.upArrow) { updateTab(activeId, (t) => ({ ...t, scrollOffset: t.scrollOffset + 3 })); return; }
-    if (key.ctrl && key.downArrow) { updateTab(activeId, (t) => ({ ...t, scrollOffset: Math.max(0, t.scrollOffset - 3) })); return; }
-    // Ctrl+Arrow is notoriously unreliable across terminal emulators (many
-    // intercept it for their own tab/window switching, or never forward a
-    // distinguishable escape sequence for it at all) — PageUp/PageDown are
-    // real, dedicated keys almost every terminal sends consistently, so
-    // they're a more dependable way to scroll, not merely a second binding
-    // for the same thing. A bigger jump than Ctrl+Up/Down's 3, matching an
-    // actual "page" rather than a nudge.
-    if (key.pageUp) { updateTab(activeId, (t) => ({ ...t, scrollOffset: t.scrollOffset + 10 })); return; }
-    if (key.pageDown) { updateTab(activeId, (t) => ({ ...t, scrollOffset: Math.max(0, t.scrollOffset - 10) })); return; }
+    if (key.backspace && activeTab?.draft === "" && !key.meta) { setHelpVisible((v) => !v); return; }
+    if (key.upArrow) {
+      const hist = activeTab?.inputHistory;
+      if (!hist || !hist.length) return;
+      const nextIdx = Math.max(0, (activeTab.historyIdx || 0) - 1);
+      updateTab(activeId, (t) => ({ ...t, draft: hist[Math.max(0, hist.length - 1 - nextIdx)] ?? "", historyIdx: nextIdx }));
+      return;
+    }
+    if (key.downArrow) {
+      const tab = activeTab;
+      if (!tab || tab.historyIdx === 0) return;
+      const nextIdx = tab.historyIdx - 1;
+      updateTab(activeId, (t) => ({ ...t, draft: nextIdx === 0 ? "" : (tab.inputHistory[tab.inputHistory.length - nextIdx] ?? ""), historyIdx: nextIdx }));
+      return;
+    }
+    if (key.pageUp) { scrollTab(activeId, 12); return; }
+    if (key.pageDown) { scrollTab(activeId, -12); return; }
+    if (key.ctrl && key.upArrow) { scrollTab(activeId, 3); return; }
+    if (key.ctrl && key.downArrow) { scrollTab(activeId, -3); return; }
   });
 
   const rows = stdout?.rows ?? 24;
-  const reservedRows = 8; // tab bar, status, input box, margins
-  const visibleRows = Math.max(3, rows - reservedRows);
-  const allLines = (activeTab?.messages ?? []).flatMap((m) => m.text.split("\n").map((line) => ({ kind: m.kind, text: line })));
-  const scrollOffset = activeTab?.scrollOffset ?? 0;
+  const cols = stdout?.columns ?? 80;
+
+  // Layout: the original, dead-simple arrangement — tab bar and status on TOP,
+  // the transcript box in the middle, the input anchored at the BOTTOM. The
+  // only change from the original is that the transcript box gets a fixed
+  // height a few rows short of the terminal instead of the old
+  // `minHeight: visibleRows + 2`, which overflowed by a line and scrolled
+  // the chrome off the top (e2e-verified).
+  const helpRows = helpVisible ? 17 : 0;
+  const boxHeight = Math.max(8, rows - 9 - helpRows);
+  const visibleRows = Math.max(3, boxHeight - 2);
+
+  const wrapW = Math.max(20, cols - 6);
+  const allLines = (activeTab?.messages ?? []).flatMap((m) => wrapText(m.text, wrapW).map((line) => ({ kind: m.kind, text: line })));
+  // Clamp the scroll so it can never overshoot the top of the transcript:
+  // an unbounded offset (PageUp spam) collapsed the view to nothing.
+  const scrollOffset = Math.min(activeTab?.scrollOffset ?? 0, Math.max(0, allLines.length - visibleRows));
   const end = Math.max(0, allLines.length - scrollOffset);
   const start = Math.max(0, end - visibleRows);
   const shown = allLines.slice(start, end);
 
   const transcriptChildren = [];
   if (start > 0) transcriptChildren.push(h(Text, { key: "more", dimColor: true }, `↑ ${start} more line(s) above (PageUp to scroll)`));
-  shown.forEach((l, i) => transcriptChildren.push(h(Text, { key: i, color: roleColor(l.kind) }, l.text)));
+  shown.forEach((l, i) => transcriptChildren.push(h(Text, { key: `l${i}`, color: roleColor(l.kind) }, l.text)));
   if (activeTab?.status === "busy") {
     transcriptChildren.push(h(Box, { key: "spinner" }, h(Spinner), h(Text, { dimColor: true }, " thinking…")));
+  }
+  if (!allLines.length) {
+    transcriptChildren.push(h(Text, { key: "hint", dimColor: true }, "ask anything — or /model to switch, /help for keys (the rich view is in `eoreader7 -browser`)" ));
   }
 
   return h(Box, { flexDirection: "column" },
     h(TabBar, { tabs, activeId }),
-    h(StatusLine, { proxyState, model: activeTab?.model, tab: activeTab }),
+    h(StatusLine, { proxyState, tab: activeTab }),
     helpVisible ? h(HelpOverlay) : null,
-    h(Box, { flexDirection: "column", borderStyle: "round", minHeight: visibleRows + 2, paddingX: 1 }, transcriptChildren),
+    h(Box, { flexDirection: "column", borderStyle: "round", height: boxHeight, paddingX: 1 }, transcriptChildren),
     h(Box, { borderStyle: "single", paddingX: 1 },
       h(Text, { dimColor: true }, "> "),
       h(TextInput, {
@@ -450,11 +462,6 @@ function App() {
 }
 
 export function runTui() {
-  // Ink's useInput needs a real TTY to enable raw mode; without one it
-  // throws mid-render (a confusing stack trace) rather than a clear
-  // message. Piping/redirecting eoreader7 with no args (CI, a script, a
-  // non-interactive shell) is a real, expected way this gets invoked by
-  // mistake — fail with one clear line instead.
   if (!process.stdin.isTTY) {
     console.error("eoreader7: the interactive TUI needs a real terminal (stdin is not a TTY).");
     console.error("Run it directly in a terminal, or use `eoreader7 <file>` for the batch reader.");
