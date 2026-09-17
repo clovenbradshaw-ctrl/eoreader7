@@ -90,6 +90,29 @@ function Spinner() {
   return h(Text, { color: "yellow" }, SPINNER_FRAMES[i]);
 }
 
+// Heimdall speaks while you wait: when a request is in flight, poll the
+// admission gate's own disclosure (GET /heimdall) and say where the turn
+// sits — "Heimdall: 2 ahead · ~240s" — instead of a silent spinner. A gate
+// that isn't answering stays silent (null -> render nothing, never a broken
+// line).
+function QueueProbe({ pollKey }) {
+  const [info, setInfo] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    const tick = async () => {
+      const q = await proxyClient.heimdallQueue();
+      if (!cancelled && q) setInfo(q);
+    };
+    tick();
+    const t = setInterval(tick, 2500);
+    return () => { cancelled = true; clearInterval(t); };
+  }, [pollKey]);
+  if (!info || !info.workAhead) return null;
+  const eta = info.etaHuman ?? (info.etaMs != null ? `${Math.round(info.etaMs / 1000)}s` : null);
+  const ahead = info.workAhead === 0 ? "you're next" : `${info.workAhead} ahead`;
+  return h(Text, { dimColor: true }, `  ·  Heimdall: ${ahead}${eta ? ` · ~${eta}` : ""}`);
+}
+
 function TabBar({ tabs, activeId }) {
   return h(Box, null, tabs.map((t, i) => {
     const active = t.id === activeId;
@@ -441,7 +464,7 @@ function App() {
   if (start > 0) transcriptChildren.push(h(Text, { key: "more", dimColor: true }, `↑ ${start} more line(s) above (PageUp to scroll)`));
   shown.forEach((l, i) => transcriptChildren.push(h(Text, { key: `l${i}`, color: roleColor(l.kind) }, l.text)));
   if (activeTab?.status === "busy") {
-    transcriptChildren.push(h(Box, { key: "spinner" }, h(Spinner), h(Text, { dimColor: true }, " thinking…")));
+    transcriptChildren.push(h(Box, { key: "spinner" }, h(Spinner), h(Text, { dimColor: true }, " thinking…"), h(QueueProbe, { pollKey: `${activeTab.id}-${activeTab.messages.length}` })));
   }
   if (!allLines.length) {
     transcriptChildren.push(h(Text, { key: "hint", dimColor: true }, "ask anything — or /model to switch, /help for keys (the rich view is in `eoreader7 -browser`)" ));

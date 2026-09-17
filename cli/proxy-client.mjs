@@ -49,6 +49,22 @@ export async function listModels() {
   return (body.data ?? []).map((m) => m.id);
 }
 
+/** GET /heimdall — the admission gate's own disclosure: how busy the box is
+ *  and where a caller sits in the queue. Returns the queue disclosure
+ *  ({ workAhead, perTurnMs, etaMs, etaHuman }) or null if the gate is not
+ *  answering. A caller waiting on a turn can show "Heimdall: N ahead · ~Xs"
+ *  instead of a silent spinner. */
+export async function heimdallQueue() {
+  try {
+    const res = await fetch(`${BASE}/heimdall`, { signal: AbortSignal.timeout(3000) });
+    if (!res.ok) return null;
+    const body = await res.json();
+    return body?.disclosure?.queue ?? null;
+  } catch {
+    return null;
+  }
+}
+
 // heimdall's admission gate (../heimdall.mjs::admitChat) refuses a request
 // with a TYPED, RETRYABLE 429 — "saturated" (the box) or "lane_full" (the
 // model family's own concurrency cap, 1 by default) — carrying retry_after
