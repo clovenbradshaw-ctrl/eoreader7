@@ -116,7 +116,11 @@ export function harden(entries, { lineage } = { lineage: () => [] }) {
     // one chapter).
     const independent = new Set(row.entries.map((e) => e.shadow?.pointer)).size;
     const mass = row.entries.reduce((a, e) => a + (e.mass ?? 0), 0);
-    const base = { name: thingName(row), variant: row.variant, terrain: row.terrain, mhc: row.mhc, echoes: [...new Set(row.entries.map((e) => e.echo))] };
+    const base = {
+      name: thingName(row), variant: row.variant, terrain: row.terrain, mhc: row.mhc,
+      echoes: [...new Set(row.entries.map((e) => e.echo))],
+      remote: row.entries[0].remote, pointer: row.entries[0].shadow?.pointer,
+    };
     if (independent >= 2) {
       things.push({
         schema: "SwarmThing@1", ...base,
