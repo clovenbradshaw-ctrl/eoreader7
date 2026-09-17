@@ -17,6 +17,7 @@ const priorRulesEnv = process.env.ER7_CORRECTION_RULES;
 process.env.ER7_CORRECTION_RULES = rulesFile;
 
 const { detectAnswerShape } = await import("../../proxy-runner.mjs");
+const { deriveRegister, writeVoiceFor } = await import("../kernel/register.js");
 
 const autoMode = (shape) =>
   shape === "composition" ? "projection" : shape === "long" ? "long" : "chat";
@@ -46,6 +47,31 @@ test("a plain question is unchanged — open, at the full chat budget", () => {
     assert.equal(shape.shape, "open", `"${task}" should be open, got ${shape.shape}`);
     assert.equal(autoMode(shape.shape), "chat", `"${task}" should chat`);
   }
+});
+
+// THE ACTUAL FAILURE (2026-09-17, "write me a sonnet about dolphins"): the
+// staged pipeline correctly falls through to "composition" above, but its
+// write voice had no "lyric" entry, so writeVoiceFor silently returned the
+// EXPOSITION voice — "OPEN THE PIECE WITH A THESIS… ANSWER WITH THE
+// MATERIAL'S OWN FACTS" — and a small model followed those instructions
+// literally, writing a cited paragraph of dolphin facts instead of a poem.
+// This is the other half of the fix: a lyric or music register must get its
+// OWN voice, never the exposition fallback.
+test("a lyric register gets a real voice, never the silent exposition fallback", () => {
+  const register = deriveRegister("write me a sonnet about dolphins", { genres: [] });
+  assert.equal(register.field.field, "lyric");
+  const voice = writeVoiceFor(register, "dolphins");
+  const opening = voice.opening("dolphins");
+  assert.doesNotMatch(opening, /OPEN THE PIECE WITH A THESIS/i, "a poem must not be told to open with an essay's thesis");
+  assert.doesNotMatch(opening, /MATERIAL'S OWN FACTS/i, "a poem must not be told to answer with cited facts");
+  assert.match(opening, /poem/i, "the lyric voice must actually name what it is writing");
+});
+
+test("a music register also gets a real voice, never the silent exposition fallback", () => {
+  const register = deriveRegister("compose a nocturne about the sea", { genres: [] });
+  assert.equal(register.field.field, "music");
+  const voice = writeVoiceFor(register, "the sea");
+  assert.doesNotMatch(voice.opening("the sea"), /OPEN THE PIECE WITH A THESIS/i);
 });
 
 test("cleanup", () => {

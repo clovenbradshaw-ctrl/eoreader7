@@ -100,6 +100,32 @@ function obligatoryMismatch(text) {
   return { actual, expected, basis: "obligatory-form contrast" };
 }
 
+// A BARE REJECTION: the person names only the FORM their own prior ask
+// already implied — "that not a sonnet", "that's not a sonnet", "not a
+// sonnet" — with no production verb and no second, contrasting form. This
+// is, empirically, the single most common shape a real terse correction
+// actually takes: the live trigger for this organ was exactly "that not a
+// sonnet", typed that tersely, and it matched NONE of the three contrast
+// patterns above — there was no production verb ("wrote"/"gave"/…) for
+// productionMismatch to anchor on, and SELF_REFERENCE required a trailing
+// noun ("that answer") a person drops in practice. Anchored to the WHOLE
+// statement (like prohibition() above) so it only fires on a turn that is
+// NOTHING BUT this rejection — never on a "not a X" clause sitting inside an
+// unrelated sentence. `actual` is unknown from this text alone (the rejected
+// form was never restated) — the falsifiable rule still stands on its
+// `forbiddenShapes`/`forbiddenModes` check, which needs no rejected form.
+const BARE_SELF_REFERENCE = "(?:that|this|it)(?:'s|s|\\s+is|\\s+was)?";
+function bareRejection(text) {
+  const m = new RegExp(
+    `^(?:${BARE_SELF_REFERENCE}\\s+)?(?:isn't|wasn't|is\\s+not|was\\s+not|not)\\s+${FORM}[.!]?$`,
+    "i",
+  ).exec(text.trim());
+  if (!m) return null;
+  const expected = cleanForm(m[1]);
+  if (!expected) return null;
+  return { actual: null, expected, basis: "bare rejection (no production verb, no restated actual form)" };
+}
+
 function lengthVerdict(text) {
   const m = /\b(too\s+(long|short|wordy|verbose|terse|brief)|shorten(?:\s+it)?|expand(?:\s+it)?|be\s+(?:more\s+)?concise|keep\s+it\s+(?:short|brief|tight))\b/i.exec(text);
   if (!m) return null;
@@ -126,7 +152,7 @@ export function detectCorrection(text) {
   const statement = normalizeText(text);
   if (!statement) return null;
   const lowered = statement.toLowerCase();
-  const mismatch = productionMismatch(lowered) ?? requestedMismatch(lowered) ?? obligatoryMismatch(lowered);
+  const mismatch = productionMismatch(lowered) ?? requestedMismatch(lowered) ?? obligatoryMismatch(lowered) ?? bareRejection(lowered);
   if (mismatch) {
     return {
       schema: CORRECTION_SCHEMA,

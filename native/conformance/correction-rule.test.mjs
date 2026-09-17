@@ -105,6 +105,37 @@ test("an ordinary producing ask and an unmarked report are not corrections", () 
   assert.equal(detectCorrection("you wrote an essay about debugging code"), null);
 });
 
+// THE LIVE TRIGGER FOR THIS FIX (2026-09-17): a person corrects a sonnet ask
+// with "that not a sonnet" — no production verb, no restated actual form,
+// SELF_REFERENCE's trailing noun ("that answer") dropped. Before this, that
+// exact real phrasing was heard as nothing at all: no rule was authored, and
+// the very next "write a sonnet" ask would have made the identical mistake.
+test("a bare rejection with no restated actual form is still heard as a correction", () => {
+  for (const statement of [
+    "that not a sonnet",
+    "that's not a sonnet",
+    "this is not a sonnet",
+    "it wasn't a sonnet",
+    "not a sonnet",
+  ]) {
+    const correction = detectCorrection(statement);
+    assert.equal(correction?.kind, "output-form-mismatch", `"${statement}" must be heard as a correction`);
+    assert.equal(correction?.expected, "sonnet");
+    assert.equal(correction?.actual, null, "the rejected form was never restated — this is honestly unknown, not guessed");
+    assert.equal(correction?.actionable, true);
+  }
+});
+
+test("a bare rejection still authors a rule that steers the next matching ask", () => {
+  const heard = authorCorrectionRule("that not a sonnet", { now: "2026-09-17T21:40:00.000Z", rulesFile });
+  assert.equal(heard.persisted, true);
+  assert.equal(heard.rule?.expected, "sonnet");
+  const discovered = naturalSizeRuleForTask("write me a sonnet about dolphins", { rulesFile });
+  assert.ok(discovered, "a later sonnet ask, in the exact shape from the live trigger, must now be steered");
+  const shape = detectAnswerShape("write me a sonnet about dolphins", false, false, false, [], null);
+  assert.equal(shape.shape, "natural");
+});
+
 test("cleanup", () => {
   if (priorRulesEnv === undefined) delete process.env.ER7_CORRECTION_RULES;
   else process.env.ER7_CORRECTION_RULES = priorRulesEnv;

@@ -166,6 +166,28 @@ const VOICE_BY_FIELD = {
     opening: (topic) => `WRITE ONLY SOURCE CODE for ${topic}: the file's header and imports. Emit code only — no explanation, no prose, no markdown fences.`,
     body: (topic) => `WRITE ONLY SOURCE CODE for ${topic}: this part of the file. Emit code only — no explanation, no prose, no markdown fences — composing with the parts already written.`,
   },
+  // LYRIC (poem/sonnet/haiku/villanelle/ode/verse): the mouth writes VERSE,
+  // never an argument about its subject. This voice used to be undeclared,
+  // so a poem ask silently fell back to the exposition voice below — "OPEN
+  // WITH A THESIS… ANSWER WITH THE MATERIAL'S OWN FACTS" — which is why a
+  // "write me a sonnet about dolphins" ask came back as a cited paragraph of
+  // dolphin facts: the mouth was doing exactly what it was told, and what it
+  // was told was an essay's instructions. The form itself (how many lines,
+  // what meter, what rhyme) is whatever the person actually named — this
+  // voice states the discipline, never the specific form, so it serves a
+  // sonnet and a haiku and an ode alike (the open-table rule: a genre is
+  // registered, never a branch).
+  lyric: {
+    opening: (topic) => `Write ONLY the poem itself, about ${topic}, in the exact form you were asked for (its line count, its meter, its rhyme scheme are the whole discipline — honor them precisely). No thesis, no argument, no citation, no title unless the form itself is titled, no explanation before or after. Let images and turns carry the meaning; state nothing as a claim.`,
+    body: (topic) => `Continue the poem about ${topic} in the same form and voice already begun. No explanation, no restating what a poem is, no commentary about the writing — only the next lines.`,
+  },
+  // MUSIC (song/sonata/nocturne/etude/symphony): a mouth with no instrument
+  // describes the piece in prose — its gesture and motion, never an argument
+  // about the subject it is named for.
+  music: {
+    opening: (topic) => `Describe ONLY the piece of music itself, named for ${topic} — its gesture, its movement, its instrumentation, its turns. No thesis, no argument about ${topic}, no citation, no explanation before or after.`,
+    body: (topic) => `Continue describing the piece named for ${topic} in the same voice already begun. No explanation, no commentary about the writing — only the next passage.`,
+  },
 };
 export function writeVoiceFor(register, topic = "the subject") {
   const f = register?.field?.field;
