@@ -173,19 +173,42 @@ test("greekEntries: real repeated names bridge across clauses into real composit
   }
 });
 
-test("THE MEASURED HOMER FINDING, pinned: real clauses with no recurring article-gated being bridge to NOTHING", () => {
-  // Reproduces the real diagnosis (2026-09-17, Perseus UD_Ancient_Greek
-  // treebank, real Homeric text): greekClauses extracts real clauses fine
-  // (subject+object present), but greekBeings' article-gate finds no
-  // tier-1 being when the same referent is never named via a repeated
-  // ARTICLE+NOMINAL phrase within the passage — Homeric epic's own sparser
-  // article usage relative to the Koine/Attic prose (Epictetus) this organ
-  // was built and measured against. Every clause here has a real subject
-  // and object (unlike the empty-beings case, this is not a parsing
-  // failure) but NEITHER ever recurs behind an article, so nothing bridges
-  // — pinned as the honest, disclosed limit, not silently left unasserted.
+test("THE MEASURED HOMER FINDING, pinned and now NARROWED: a name that never recurs bridges to nothing, article-gated or bare", () => {
+  // Reproduces the real 2026-09-17 diagnosis at the scale where it still
+  // holds. The ORIGINAL finding this test pinned — "Homeric epic's sparser
+  // article usage means greekBeings finds no tier-1 being at all" — was
+  // real but was a diagnosis of the ARTICLE-GATED tier alone; it has since
+  // been CLOSED at corpus scale (see the two tests below, and
+  // greekEntries's own header) by a genuinely new bare-name tier
+  // (greek.mjs::greekBeings's includeBare option, wired on unconditionally
+  // in greekEntries). What THIS specific two-sentence fixture still shows,
+  // honestly, is narrower: recurrence is required by EITHER tier
+  // (minOccurrences), and neither "Ἀχιλῆος" nor any other nominal here
+  // occurs twice within these two sentences — so nothing bridges, not
+  // because the being-identity mechanism is blind to Homer, but because a
+  // being that is never mentioned twice cannot be corroborated by any
+  // recurrence-gated organ, the same structural floor greekBeings's other
+  // tests already pin ("greekBeings refuses a single occurrence").
   const verbs = confirmedVerbSet(GRC_POS_PRIOR, 0.5);
   const text = "μῆνιν ἄειδε θεὰ Πηληϊάδεω Ἀχιλῆος. πολλὰς δὲ ψυχὰς Ἄϊδι προΐαψεν ἡρώων.";
   const edges = greekEntries(text, verbs, GRC_POS_PRIOR, GRC_CASE_PRIOR);
-  assert.equal(edges.length, 0, "no recurring article-gated being — the real, disclosed Homer finding");
+  assert.equal(edges.length, 0, "no referent recurs even once more in this two-sentence fixture — the recurrence floor, not the being tier, is what's tested here");
+});
+
+test("greekEntries: THE GAP CLOSED — a proper name unattested in the prior, never article-marked, still bridges via the bare tier", () => {
+  // The real fix for the finding above, at fixture scale: an invented
+  // 2nd-declension-shaped name ("Πάτροκλος"/"Πάτροκλον", nominative/
+  // accusative, real Greek endings) used the way Homer actually uses
+  // character names — bare, capitalised, never behind an article — used to
+  // bridge to nothing (the original, now-superseded finding). It is
+  // entirely UNATTESTED in GRC_POS_PRIOR (nominalClass returns null), the
+  // exact condition bareBeingCandidates's own header names as admissible on
+  // prior silence.
+  const verbs = confirmedVerbSet(GRC_POS_PRIOR, 0.5);
+  const text = "Πάτροκλος εἶδεν τὸν ἄνθρωπον. ὁ ἄνθρωπος εἶδεν Πάτροκλον.";
+  const edges = greekEntries(text, verbs, GRC_POS_PRIOR, GRC_CASE_PRIOR);
+  assert.ok(edges.length >= 1, `expected the bare-tier being to bridge at least one clause, got ${edges.length}`);
+  const refs = new Set();
+  for (const e of edges) for (const p of e.participants) refs.add(p.ref);
+  assert.ok([...refs].some((r) => r.includes("πάτροκλος")), "the unattested, never-articled name resolved to a real referent");
 });

@@ -112,3 +112,177 @@ epithets, which recur by design in a way philosophical aphorism does not)
 is the more promising next test of whether `minChunks:2` is reachable at
 all with exact-label matching, before concluding the grain-level fallback
 is strictly required. Not attempted this pass.
+
+## Archon priors pilot — Homer, read in the original Ancient Greek (2026-09-17, second pilot)
+
+**Driver:** `buildGreekArchonPrior("homer", [iliadText, odysseyText],
+{posPriorPath, casePriorPath})` — the Greek-language analogue of
+`buildArchonPrior`, over Project Gutenberg #6130 (*The Iliad*, tr. Alexander
+Pope, 1715–1720) and #1727 (*The Odyssey*, tr. Samuel Butler, 1900) **read
+in their original Ancient Greek** (the Perseus Digital Library's
+`canonical-greekLit` TEI edition of the Monro/Allen Greek text — the
+translator/PD-basis fields on the roster name the PUBLIC-DOMAIN ENGLISH
+Gutenberg works, since the Greek text itself long predates any copyright
+term; the translations are listed because they are what "gutenbergId" on
+the roster actually resolves to and were the pilot's first, since-corrected
+approach — see below). User direction, verbatim, mid-pass: *"We're doing
+this in Greek, right?"* — closing a first cut that had (wrongly) read the
+ENGLISH translations through the same case-marked Greek reader.
+
+**Why Greek needed its own reading, not English's.** `greek.mjs`'s own
+header (2026-09-17): the positional reader's clause gate (`eot-jsonl.mjs`'s
+S90) refuses 254/259 real sentences of Epictetus' Enchiridion, because
+Ancient Greek grammaticalizes its subject IN the verb and orders words
+freely — the English `readMaterialText` path used for Nietzsche above would
+extract almost nothing from real Greek. `greekEntries` (this file) is the
+Greek-specific analogue: `greekClauses`'s case-marked reader (nominative
+subject / accusative-or-genitive object, by ENDING not position) supplies
+the clauses; `greekBeings` supplies the referent identity a clause's
+`subjectRef`/`objectRef` bind to, without which `kernel/
+relation-composition.js`'s bridge requirement (one edge's object referent
+equals the next edge's subject referent) can never be met and nothing can
+compose.
+
+### Three real defects found building this, each fixed and pinned as a regression
+
+**1. `greekBeings`'s article-gate finds ZERO beings on real Homeric text.**
+The tier as originally built (this pass, before the fix below) requires a
+recurring ARTICLE + NOMINAL-HEAD phrase — the shape Koine/Attic prose
+(Epictetus, the organ's own calibration material) reliably supplies.
+Measured directly: across the WHOLE real Iliad+Odyssey corpus (1,230,726
+chars), `greekBeings(text, prior, {minOccurrences:2})` returns **0**
+beings — Homeric epic's own proper names are overwhelmingly BARE (never
+preceded by an article) and are largely unattested in a Koine/Attic-trained
+POS prior at all (checked: 0 of 6 tested Iliad character names attested in
+`pos-grc.json`'s 29,986-form vocabulary). Fixed with a genuinely new tier,
+`bareBeingCandidates`/`greekBeings`'s `includeBare` option: a RECURRING
+CAPITALISED token is admitted as a candidate when the prior is silent on it
+(the same tolerance discipline the file already states for `prodropClauses`'s
+object run, generalized here) or when the prior confidently confirms it
+nominal; a token the prior confidently types non-nominal is still refused.
+Licensed by measurement, not assumed: sentence-initial capitalisation in
+this real Perseus edition (8.9%, 84/941 tokens sampled) is statistically
+indistinguishable from the OVERALL word capitalisation rate (9.4%,
+3,049/32,281) — unlike English's near-100%-at-sentence-start confound
+(the reason `surfaces.js`'s own `CAP_TOKEN` callers exclude sentence-initial
+position), this edition's orthography reserves the mark for proper names
+specifically, so no sentence-initial exclusion is needed or carried over.
+Result: 0 → 581 beings across the same corpus, with real, recognisable
+Homeric names and places at the top (Ἀχαιῶν/Achaeans 320 occ., Ἕκτορος/Hector
+251, Ἀχιλλεύς/Achilles 231, Τρώων/Trojans 196, Ἀτρεΐδης/son-of-Atreus
+(Agamemnon) 168, Ἀθήνη/Athena 105, …). Pinned in `greek.test.mjs` (4 new
+cases: refused by default, found under `includeBare`, a bare and an
+article-headed occurrence of the same stem merging into ONE being rather
+than double-counting, and two negative controls — a lowercase common noun
+and a prior-confirmed non-nominal capitalised token — both correctly
+refused).
+
+**2. `greekClauses`'s predicate-nominative fallback re-selected its own
+subject.** With real Homeric beings finally in hand, `greekEntries` began
+producing edges — including self-referential ones: `Ἀπόλλωνος —ἔχων→
+Ἀπόλλωνος` ("Apollo has Apollo"). Traced directly (byte-level tracing
+against the real prior, not guessed): when a clause has exactly ONE
+nominative-cased nominal (Homer's own bare, often verb-initial clauses
+supply this constantly) and no accusative/genitive alternative, the old
+fallback (`nominals.filter(n => n.at[0] > v.end).find(n => n.case ===
+"Nom")`) searched the SAME `nominals` array the subject was already drawn
+from and re-found the identical token. The pre-existing copula-thesis test
+("ὁ θάνατος ἐστίν φόβος") never exercised this path because its fixture
+always supplies two DISTINCT nominative tokens. Fixed with a one-line
+identity exclusion (`n !== subject`) — the predicate complement must be a
+second, distinct nominal, never the subject re-selected. Pinned as a
+regression (`greek.test.mjs`, verb-first single-nominative fixture); the
+existing copula-thesis test still passes unchanged.
+
+**3. `greekClauses`'s own nominal-collection loop required POS-prior
+attestation SEPARATELY from `caseOf`'s own case-ending reading, discarding
+every genuinely case-determinable but POS-unattested token before `caseOf`
+was ever consulted.** `caseOf` needs no POS attestation — it reads case from
+the word's own ending against a DIFFERENT resource (the case-prior) with
+its own confidence floor. Requiring BOTH resources to agree on the same
+form was a narrower gate than either alone. Fixed: a token the POS prior
+confidently classifies non-nominal is still refused outright (the prior's
+veto holds); an UNATTESTED token is now admitted when `caseOf` can settle
+its case. One hazard this immediately surfaced and closed in the same
+edit: the Greek ARTICLE itself (τόν, τῆς, …) declines to agree with its
+noun's case, so an unattested article's own ending can read as a real case
+exactly like a real noun's — `ARTICLES` (already this file's own closed,
+received, prior-independent list, used by `greekBeings` above) is now
+checked first, unconditionally, before either signal, so no prior's
+coverage gap can ever let an article itself win a subject/object slot.
+Pinned as two regressions (an unattested-but-case-determinable common noun
+now correctly admitted; an unattested article never admitted despite a
+real ending match) alongside the pre-existing case-reading test, which
+still passes unchanged.
+
+### Result
+
+| corpus | chars | works | chunks | clause edges | distinct nominated pairs | promoted (minChunks:2) |
+|---|---|---|---|---|---|---|
+| Iliad + Odyssey, real Greek | 1,230,726 | 2 | 63 | **43** (0 before fix #1) | 3 | **0** |
+
+**The referent-identity gap is closed — real Homeric clauses now bridge,
+with correct referents (Agamemnon↔Atreides, Hector↔Patroclus, Athena↔Pallas,
+Telemachus↔Antinous, Nestor, Odysseus, …) and zero self-loops after fix #2.
+But exact VERB-LABEL-PAIR corroboration across 2+ independent chunks is
+STILL zero** — the same wall the Nietzsche pilot above already measured,
+now cleanly separated from the referent-identity confound that made the
+ORIGINAL "Homer finds nothing" diagnosis ambiguous between two different
+causes. Of the 3 distinct composition-candidate pairs the whole corpus
+nominates, each appears in exactly ONE chunk; none repeat.
+
+**This generalizes, not narrows, the earlier finding.** Homer was chosen
+specifically as "the more repetitive archon or genre" most likely to defeat
+the Nietzsche result (per this document's own prior section) — famous for
+formulaic, deliberately-repeated epithets. Even so, once the referent gap
+no longer confounds the measurement, exact relation-LABEL-pair
+corroboration (as opposed to referent recurrence, which `greekBeings`
+demonstrates is genuinely abundant — 581 beings) remains rare across
+independent passages of real natural-language text, formulaic epic verse
+included. The natural next measurement remains exactly what the Nietzsche
+section above already named and did not attempt: `kernel/
+hyperlexicon.js::compositionAffordance`'s existing structural GRAIN-level
+fallback, rather than a further-tightened or further-relaxed exact-label
+match. Not attempted this pass either — this pilot's own scope was closing
+the referent-identity gap that made the prior Homer measurement
+uninterpretable, which is now done and cleanly disclosed.
+
+### What is verified and shipped (this pilot)
+
+- `greek.mjs` — `bareBeingCandidates` (new), `greekBeings`'s `includeBare`
+  option (additive, default `false`, every pre-existing caller and all 22
+  pre-existing tests byte-identical), the predicate-nominative and
+  prior-silence fixes to `greekClauses` (both additive-safe, confirmed by
+  the pre-existing copula-thesis and case-reading tests still passing
+  unchanged). `greek.test.mjs`: 22 pre-existing + 7 new = 29/29 passing.
+- `lib/archon-priors.mjs`'s `greekEntries` wired to `includeBare: true`
+  unconditionally (its own header now states why, with the measured
+  numbers).
+- `lib/archon-priors.test.mjs`'s own prior "THE MEASURED HOMER FINDING"
+  test (which had pinned the NOW-SUPERSEDED, narrower diagnosis — "Homer's
+  sparser article usage means greekBeings finds nothing at all") rewritten
+  to state honestly what it still demonstrates at fixture scale (recurrence
+  is required by either tier; a name mentioned once bridges to nothing
+  regardless), plus a new companion test proving the real fix (an
+  unattested, never-articled invented name recurring bare now bridges via
+  `greekEntries`). `lib/archon-priors.test.mjs`: 13 pre-existing + 1 new
+  (net) = 14/14 passing.
+- `greek.test.mjs` + `archon-priors.test.mjs` combined: 43/43 passing.
+- Full native suite (`node --test native/conformance/*.test.mjs
+  native/conformance/**/*.test.mjs native/organs/*.test.mjs
+  native/kernel/*.test.*`, 911 tests): failure set diffed by NAME against
+  the pre-this-pass baseline via `git stash` — byte-identical (18 failures,
+  same 18 by name), zero regressions.
+
+### What is NOT done, disclosed rather than implied
+
+**`archon-falsification.mjs` (Wilson + Aristotle + Pythia, grounding a
+novel Alice in Wonderland reading with the archon's own chemistry) was NOT
+run to completion.** Its own early-exit (`if (archonPrior.entryCount === 0)
+{ ...REFUSING... }`) is the correct, honest behavior given this pilot's own
+measured `entryCount: 0` — running it anyway would mean either fabricating
+non-empty chemistry or silently lowering `minChunks` without disclosure,
+neither of which this pass does. The falsification demonstration remains
+built and ready (unchanged from its prior state) for the moment a
+non-empty archon prior exists to test it against — which now depends on
+the grain-level fallback named above, not on anything Greek-specific.

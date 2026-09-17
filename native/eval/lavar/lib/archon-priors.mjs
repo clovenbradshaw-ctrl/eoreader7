@@ -373,9 +373,19 @@ export function shuffleArchonPrior(prior, { seed } = {}) {
  * one's object referent equals the other's subject referent). Returns real
  * EOHyperedge@1 entries, the exact shape acquireCompositionCandidates (the
  * SAME kernel organ the English path already uses) requires.
+ *
+ * includeBare: true — Homeric epic (this archon's own material) is exactly
+ * the case greekBeings's own header names: proper names largely unattested
+ * in a Koine/Attic-trained prior, rarely article-marked. Measured directly
+ * (see greek.test.mjs, "THE BARE-NAME TIER"): without it, greekBeings finds
+ * ZERO beings across the whole Iliad+Odyssey corpus and greekEntries can
+ * bind no clause to any referent at all — every subjectRef/objectRef stays
+ * null and nothing survives the `if (!c.subjectRef || !c.objectRef)` wall
+ * two lines below. With it: real, recognisable beings (Achilles, Hector,
+ * Agamemnon, the Achaeans, Troy) recur dozens to hundreds of times per work.
  */
 export function greekEntries(chunkText, verbs, posPrior, casePrior) {
-  const beings = greekBeings(chunkText, posPrior, { minOccurrences: 2 });
+  const beings = greekBeings(chunkText, posPrior, { minOccurrences: 2, includeBare: true });
   const sentences = splitSentences(chunkText);
   const edges = [];
   let n = 0;
