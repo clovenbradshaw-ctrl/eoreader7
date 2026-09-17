@@ -205,3 +205,37 @@ test("S30 predates the gate and is correctly NOT required to carry the tag", () 
   assert.ok(s30, "sanity: S30 exists");
   assert.doesNotMatch(s30.text, GENERALITY_TAG, "S30 predates S31's gate — no tag is required or assumed");
 });
+
+// ── S128: relation/coreference-organ entries disclose their falsification standing ──
+// Paired with the-fold's POLICIES.md P244 and its falsification-gate.test.mjs:
+// P71/S31's own gate fires only on a `universal` claim, which says nothing
+// about a narrow fix (or a disclosed decline) to a relation/coreference
+// organ that never makes that claim at all. This is a finer-grained,
+// class-scoped gate: any `## S<N>` entry at N >= 128 that names one of the
+// governed organ files must ALSO disclose whether the falsification
+// protocol ran, was not attempted with a named reason, or was declined
+// with a named reason. Disclosure only, never truth — see S128's own text.
+const RELATION_ORGAN_RE = /\b(hypergraph\.js|pronouns\.js|relations\.js|surfaces\.js|morphology\.js)\b/;
+const FALSIFICATION_TAG =
+  /\*\*Falsification:\*\*\s*(ran \(|not attempted —|declined —|not-applicable)/;
+
+test("S128: this entry exists and declares its own falsification standing", () => {
+  const spec = read("../READING-SPEC.md");
+  const s128 = lawSections(spec).find((e) => e.n === 128);
+  assert.ok(s128, "S128 must exist in READING-SPEC.md");
+  assert.match(s128.text, FALSIFICATION_TAG, "S128 must tag its own claim");
+});
+
+test("S128+: every reading-spec entry from here on that names a governed relation/coreference organ discloses its falsification standing", () => {
+  const spec = read("../READING-SPEC.md");
+  const entries = lawSections(spec).filter((e) => e.n >= 128);
+  assert.ok(entries.length > 0, "at least S128 itself must be scanned");
+  for (const e of entries) {
+    if (!RELATION_ORGAN_RE.test(e.text)) continue;
+    assert.match(
+      e.text,
+      FALSIFICATION_TAG,
+      `S${e.n} names a governed organ and must declare Falsification: ran (...) | not attempted — ... | declined — ... | not-applicable (S128, paired with the-fold's P244)`,
+    );
+  }
+});
