@@ -59,6 +59,10 @@ const LANGUAGES = {
   rus: { file: "udhr-rus.txt", prior: "pos-rus.json", heading: /^[ \t]*Статья[ \t]+(\d+)[ \t]*$/iu, numeral: (m) => Number(m[1]) },
   arb: { file: "udhr-arb.txt", prior: "pos-arb.json", heading: /^[ \t]*المادة[ \t]+(\d+)[ \t]*$/iu, numeral: (m) => Number(m[1]) },
   cmn_hans: { file: "udhr-cmn_hans.txt", prior: "pos-cmn.json", heading: /^[ \t]*第([一二三四五六七八九十]+)条[ \t]*$/u, numeral: (m) => CN_NUM[m[1]] ?? null },
+  // GREEK (2026-09-17) — MODERN Greek (ell, monotonic), the UN's official
+  // translation: the independent human product the ancient treebanks never
+  // touched. Headings are uppercase ΑΡΘΡΟ.
+  ell: { file: "udhr-ell_monotonic.txt", prior: "pos-ell.json", heading: /^[ \t]*ΑΡΘΡΟ[ \t]+(\d+)[ \t]*$/iu, numeral: (m) => Number(m[1]) },
 };
 const REFERENCE = ["eng", "fra"]; // the two that read fully — the Rosetta's corroborating pair
 
