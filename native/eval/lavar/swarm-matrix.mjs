@@ -56,11 +56,11 @@ export function eventId(op, body) {
 export function localEvents(device = deviceId()) {
   const out = [];
   for (const e of readBreakthroughs()) {
-    out.push({ op: "INS", body: { variant: e.variant, echo: e.echo, terrain: e.terrain, mhc: e.mhc, pointer: e.shadow?.pointer, shape: e.shape } });
+    out.push({ op: "INS", body: { variant: e.variant, echo: e.echo, terrain: e.terrain, mhc: e.mhc, pointer: e.shadow?.pointer, shape: e.shape, modality: e.modality ?? "text" } });
   }
   const { things } = harden(readBreakthroughs());
   for (const t of things) {
-    out.push({ op: "DEF", body: { name: t.name, label: t.label, variant: t.variant, stance: t.stance, witnesses: t.witnesses } });
+    out.push({ op: "DEF", body: { name: t.name, label: t.label, variant: t.variant, stance: t.stance, witnesses: t.witnesses, modalities: t.modalities ?? ["text"] } });
   }
   return out;
 }

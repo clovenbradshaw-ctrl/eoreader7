@@ -65,6 +65,30 @@ test("the label is a consequence report — the dominant cell's stance and terra
   assert.equal([op, grain, terrain].join(" "), "INS Figure Link");
 });
 
+test("the same variant winning on text AND vision material is ONE thing, hardened across modalities", () => {
+  const { things } = harden([
+    breakthrough("nps", "/book-a-ch1", { modality: "text" }),
+    breakthrough("nps", "/plate-7-render", { modality: "vision" }),
+  ]);
+  assert.equal(things.length, 1, "two independent senses corroborate the same kind of difference — one thing");
+  assert.deepEqual(things[0].modalities, ["text", "vision"]);
+});
+
+test("the finder filters by modality, and a cross-modal thing answers a single-modality query too", () => {
+  const surf = { name: "device", breakthroughs: "/tmp/modality-bt.jsonl", lineage: () => [] };
+  fs.writeFileSync("/tmp/modality-bt.jsonl", [
+    JSON.stringify(breakthrough("nps", "/book-a-ch1", { modality: "text" })),
+    JSON.stringify(breakthrough("nps", "/plate-7-render", { modality: "vision" })),
+  ].join("\n") + "\n");
+  const all = findThings({}, [surf]);
+  assert.equal(all.things[0].modalities.join(","), "text,vision");
+  const visionOnly = findThings({ modality: "vision" }, [surf]);
+  assert.equal(visionOnly.things.length, 1, "the cross-modal thing is found by its vision witness");
+  const audioOnly = findThings({ modality: "audio" }, [surf]);
+  assert.equal(audioOnly.things.length, 0, "no audio witness yet — nothing is claimed across a sense that has not borne witness");
+  fs.unlinkSync("/tmp/modality-bt.jsonl");
+});
+
 test("findThings fans out across surfaces and tags each match with its surface", () => {
   const device = { name: "device", breakthroughs: "/tmp/device-swarm-bt.jsonl", lineage: () => [] };
   const github = { name: "github", breakthroughs: "/tmp/github-swarm-bt.jsonl", lineage: () => [] };

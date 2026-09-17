@@ -119,6 +119,7 @@ export function harden(entries, { lineage } = { lineage: () => [] }) {
     const base = {
       name: thingName(row), variant: row.variant, terrain: row.terrain, mhc: row.mhc,
       echoes: [...new Set(row.entries.map((e) => e.echo))],
+      modalities: [...new Set(row.entries.map((e) => e.modality ?? "text"))],
       remote: row.entries[0].remote, pointer: row.entries[0].shadow?.pointer,
     };
     if (independent >= 2) {
@@ -153,6 +154,7 @@ export function findThings(query = {}, surfaces = defaultSurfaces()) {
       if (query.name && t.name !== query.name) return false;
       if (query.echo && t.echo !== query.echo) return false;
       if (query.terrain && !(t.terrain ?? []).includes(query.terrain)) return false;
+      if (query.modality && !(t.modalities ?? ["text"]).includes(query.modality)) return false;
       if (query.minMass && (t.mass ?? 0) < query.minMass) return false;
       if (query.text && !JSON.stringify(t).toLowerCase().includes(query.text.toLowerCase())) return false;
       return true;
@@ -181,6 +183,6 @@ export function defaultSurfaces() {
 // ── CLI: node swarm-things.mjs [--echo r111] [--terrain Link] [--name ref:...] ──
 if (import.meta.url === `file://${process.argv[1]}`) {
   const arg = (k, d = null) => process.argv.find((a) => a.startsWith(`--${k}=`))?.split("=")[1] ?? d;
-  const { things, nominees, surfaces } = findThings({ echo: arg("echo"), terrain: arg("terrain"), name: arg("name"), minMass: arg("minMass") ? Number(arg("minMass")) : undefined, text: arg("text") });
+  const { things, nominees, surfaces } = findThings({ echo: arg("echo"), terrain: arg("terrain"), name: arg("name"), modality: arg("modality"), minMass: arg("minMass") ? Number(arg("minMass")) : undefined, text: arg("text") });
   console.log(JSON.stringify({ surfaces, things, nominees }, null, 2));
 }

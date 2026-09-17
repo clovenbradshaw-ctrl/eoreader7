@@ -82,11 +82,21 @@ export function terrainEmphasis(entries = readBreakthroughs()) {
   return Object.fromEntries(Object.entries(counts).map(([t, c]) => [t, c / total]).sort((a, b) => b[1] - a[1]));
 }
 
+/** modalityEmphasis(entries) — the modalities the device's winners occupy
+ * (text / vision / audio / code): where its character is expressed. */
+export function modalityEmphasis(entries = readBreakthroughs()) {
+  const counts = {};
+  for (const e of entries) counts[e.modality ?? "text"] = (counts[e.modality ?? "text"] ?? 0) + 1;
+  const total = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
+  return Object.fromEntries(Object.entries(counts).map(([m, c]) => [m, c / total]).sort((a, b) => b[1] - a[1]));
+}
+
 /** persona() — the DevicePersona@1: device id, the stance/mode profile, the
- * terrain emphasis, and the hardened things it owns. */
+ * terrain emphasis, the modality emphasis, and the hardened things it owns. */
 export function persona({ device = null, genealogy = readGenealogy(), entries = readBreakthroughs() } = {}) {
   const profile = stanceProfile(genealogy);
   const terrain = terrainEmphasis(entries);
+  const modality = modalityEmphasis(entries);
   const { things } = harden(entries);
   return {
     schema: "DevicePersona@1",
@@ -98,7 +108,8 @@ export function persona({ device = null, genealogy = readGenealogy(), entries = 
       modeEmphasis: profile.modes,
     },
     terrainEmphasis: terrain,
-    ownsThings: things.map((t) => ({ name: t.name, label: t.label, variant: t.variant })),
+    modalityEmphasis: modality,
+    ownsThings: things.map((t) => ({ name: t.name, label: t.label, variant: t.variant, modalities: t.modalities ?? ["text"] })),
     at: new Date().toISOString().slice(0, 10),
   };
 }

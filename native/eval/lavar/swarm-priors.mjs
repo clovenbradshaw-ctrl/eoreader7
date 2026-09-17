@@ -52,6 +52,7 @@ export function promote({ entries = readBreakthroughs(LOCAL), sharedDir = SHARED
       terrain: t.terrain,
       mhc: t.mhc,
       echo: t.echo,
+      modalities: t.modalities ?? ["text"],
       mass: t.mass,
       witnesses: t.witnesses,
       independentSources: t.independentSources,

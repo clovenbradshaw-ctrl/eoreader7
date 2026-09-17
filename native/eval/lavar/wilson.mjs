@@ -64,6 +64,14 @@ const CH = Number(process.argv[2] ?? 1);
 const BOOK = (process.argv.find((a) => a.startsWith("--book=")) ?? "--book=/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt").replace("--book=", "");
 const GENS = Number((process.argv.find((a) => a.startsWith("--gens=")) ?? "--gens=3").replace("--gens=", ""));
 const LANG = (process.argv.find((a) => a.startsWith("--lang=")) ?? "--lang=eng").replace("--lang=", "");
+// THE MODALITY AXIS (2026-09-17): the cube is the same algebra across every
+// modality — text, vision (look.js reads an image into a reading), audio
+// (whisper), code. The swarm's material decides: run with --modality=vision
+// over vision-derived material and the kept variant's breakthrough carries
+// that modality, so a thing hardens ACROSS modalities — the same variant
+// winning on text AND on a vision-sensed page is corroborated by independent
+// senses, not just independent books.
+const MODALITY = (process.argv.find((a) => a.startsWith("--modality=")) ?? "--modality=text").replace("--modality=", "");
 const langFlags = LANG === "eng" ? [] : [`--lang=${LANG}`];
 const IS_AIW = BOOK.includes("Alice_s_Adventures");
 const LEDGER = path.join(HERE, "results", `${path.basename(BOOK, ".txt")}-ch${CH}.eot.jsonl`);
@@ -228,7 +236,7 @@ const preserveBreakthrough = (ids, shape, f, gen, delta = 0) => {
   // a reroll leaves nothing — the strength a future system retrieves by.
   const totalMass = observedDeltas.reduce((a, b) => a + b * b, 0);
   const mass = delta > 0 && totalMass > 0 ? (delta * delta) / totalMass : 0;
-  const entry = { schema: "SwarmBreakthrough@1", at: new Date().toISOString().slice(0, 10), gen, echo: readingEcho(shape), shadow: readingShadow(ids, shape), variant: ids.join("+"), mhc: levelOf(ids), terrain: terrainOf(ids), shape: f, mass, delta };
+  const entry = { schema: "SwarmBreakthrough@1", at: new Date().toISOString().slice(0, 10), gen, echo: readingEcho(shape), shadow: readingShadow(ids, shape), variant: ids.join("+"), mhc: levelOf(ids), terrain: terrainOf(ids), shape: f, mass, delta, modality: MODALITY };
   fs.appendFileSync(BREAKTHROUGHS, JSON.stringify(entry) + "\n");
   return entry;
 };
