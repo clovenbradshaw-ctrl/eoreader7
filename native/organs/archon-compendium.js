@@ -852,6 +852,17 @@ export const ARCHONS = Object.freeze([
     credit: "Edward O. Wilson — a colony's intelligence is division of labor plus stigmergy, never one member commanding the rest; consilience is independent evidence jumping together (1971/1998).",
     topics: ["hive", "wilson", "eusocial", "eusociality", "colony", "swarm", "caste", "stigmergy", "consilience", "superorganism", "division of labor", "solve", "solver", "steer"],
   },
+  {
+    handle: "pythia",
+    name: "Pythia",
+    organ: "organs/pythia.js",
+    role: "THE ORACLE — a stochastic result read only through a separate, declared interpretation step; ambiguity is a real, reachable outcome",
+    pdStatus: "conceptual",
+    work: "Not a work to quote but a PROCESS on the historical record: the Delphic oracle's own utterance and its interpretation were two separate, sequential acts, performed by different roles, never collapsed into one. Herodotus records the structural failure mode directly — Croesus of Lydia, told before his war on Persia that he would 'destroy a great empire,' acted on the utterance without a real interpretation step and destroyed his own (Histories 1.53, 1.91). The organ encodes the PROCESS, not the words: a raw rate over repeated trials (the utterance) may not be read as a verdict directly; it must pass through a caller-declared threshold and ambiguity band (the interpretation), and the result must be able to come back genuinely undecided.",
+    source: "Herodotus, Histories, Book 1 (c. 430 BCE)",
+    credit: "Pythia (via Herodotus, Histories 1.53/1.91) — an oracle's utterance and its interpretation are two separate acts; Croesus's own war is the recorded case of skipping the second.",
+    topics: ["pythia", "oracle", "uncertainty", "ambiguous", "ambiguity", "interpretation", "threshold", "stochastic", "trials", "verdict", "confidence", "croesus"],
+  },
 ]);
 
 // ── HELPERS ────────────────────────────────────────────────────────────────

@@ -212,7 +212,16 @@ function golden(ledgerPath) { if (!IS_AIW) return null; try { const g = JSON.par
 const shadows = [];
 const GENEALOGY = path.join(HERE, "results", "swarm-genealogy.jsonl");
 const genealogy = [];
-const recordBirth = (gen, parents, ids, c, stance = "Watching") => { const e = { born: gen, parents: parents.map((p) => nameFor(p.ids) ?? "seed"), genotype: ids.join("+"), context: c, stance, fate: "alive" }; genealogy.push(e); fs.appendFileSync(GENEALOGY, JSON.stringify(e) + "\n"); return e; };
+// THE ARCHON CREDIT (2026-09-17, disclosed as ready-but-unfed): when an
+// ant is grounded by a named archon's own composition chemistry
+// (lib/archon-priors.mjs's EOArchonPrior@1 — not yet wired into
+// correctedFitness/run() below, which still spawns eot-jsonl.mjs with no
+// archon parameter at all), the birth record names it instead of leaving
+// the credit generic — the same discipline archon-compendium.js already
+// runs at the engine level, pushed down to the individual ant. `archon` is
+// additive and defaults to null so every existing call site (none of
+// which pass one yet) is byte-identical.
+const recordBirth = (gen, parents, ids, c, stance = "Watching", archon = null) => { const e = { born: gen, parents: parents.map((p) => nameFor(p.ids) ?? "seed"), genotype: ids.join("+"), context: c, stance, archon, fate: "alive" }; genealogy.push(e); fs.appendFileSync(GENEALOGY, JSON.stringify(e) + "\n"); return e; };
 const recordFate = (e, fate, shape) => { e.fate = fate; if (shape !== undefined) e.shape = shape; fs.appendFileSync(GENEALOGY, JSON.stringify({ ...e, __fate: true }) + "\n"); };
 const fitnessSeries = new Map();
 const recordSeries = (ids, f) => { const k = ids.join(","); const a = fitnessSeries.get(k) ?? []; a.push(f); fitnessSeries.set(k, a); };
@@ -229,14 +238,19 @@ const recordSeries = (ids, f) => { const k = ids.join(","); const a = fitnessSer
 const BREAKTHROUGHS = path.join(HERE, "results", "swarm-breakthroughs.jsonl");
 const readingEcho = (shape) => { const b = [shape.referentPurity >= 0.5 ? 1 : 0, shape.voidRate < 0.5 ? 1 : 0, shape.perSentence >= 2 ? 1 : 0].join(""); return `r${b}`; };
 const readingShadow = (ids, shape) => ({ script: ctx.script, lang: LANG, axes: { purity: shape.referentPurity, void: shape.voidRate, signal: shape.emitted }, pointer: variantLedger(ids) });
-const preserveBreakthrough = (ids, shape, f, gen, delta = 0) => {
+const preserveBreakthrough = (ids, shape, f, gen, delta = 0, archon = null) => {
   // THE TRAIL IS BORN-WEIGHTED (2026-09-13). The correction delta is the
   // ant's return; the trail it lays is that return's born mass Δ²/ΣΔ² over
   // the colony's observed improvements. A real find leaves a strong trail,
   // a reroll leaves nothing — the strength a future system retrieves by.
   const totalMass = observedDeltas.reduce((a, b) => a + b * b, 0);
   const mass = delta > 0 && totalMass > 0 ? (delta * delta) / totalMass : 0;
-  const entry = { schema: "SwarmBreakthrough@1", at: new Date().toISOString().slice(0, 10), gen, echo: readingEcho(shape), shadow: readingShadow(ids, shape), variant: ids.join("+"), mhc: levelOf(ids), terrain: terrainOf(ids), shape: f, mass, delta, modality: MODALITY };
+  // GIVER, NAMED (plan point 4): an archon-grounded ant's own breakthrough
+  // names THAT archon, never the swarm generically — additive, defaults to
+  // "wilson" so every existing call site is unaffected until an ant is
+  // actually primed by an archon's chemistry (see recordBirth above).
+  const giver = archon ? `archon:${archon}` : "wilson";
+  const entry = { schema: "SwarmBreakthrough@1", at: new Date().toISOString().slice(0, 10), gen, giver, echo: readingEcho(shape), shadow: readingShadow(ids, shape), variant: ids.join("+"), mhc: levelOf(ids), terrain: terrainOf(ids), shape: f, mass, delta, modality: MODALITY };
   fs.appendFileSync(BREAKTHROUGHS, JSON.stringify(entry) + "\n");
   return entry;
 };
