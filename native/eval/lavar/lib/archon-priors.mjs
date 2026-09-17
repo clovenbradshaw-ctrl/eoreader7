@@ -221,6 +221,16 @@ export async function buildArchonPrior(archonKey, texts, {
       totalEncounters += read.encounters.length;
       totalRelationEdges += read.stats.relationEdges ?? 0;
       for (const c of read.candidates) {
+        // A LABEL WITH NO LETTER IS NOT CHEMISTRY. Measured live (Homer,
+        // 2026-09-17): the causal text perceiver's own relation-label
+        // extraction can surface bare dialogue punctuation
+        // (`", "`/`", "I"`) as a "relation," which corroborated across
+        // chunks by sheer frequency — real by this pipeline's own count,
+        // never real composition chemistry. This is a data-quality
+        // exclusion, never a threshold tuned toward a desired result: a
+        // label carrying no `\p{L}` character was never a candidate for
+        // an archon's own chemistry to begin with, whatever its count.
+        if (!/\p{L}/u.test(c.left) || !/\p{L}/u.test(c.right)) continue;
         const k = pairKey(c.left, c.right);
         const row = nominationByPair.get(k) ?? { left: c.left, right: c.right, chunks: new Set(), witnesses: new Set() };
         row.chunks.add(chunkId);
