@@ -1,0 +1,308 @@
+{
+  "schema": "EOHolographOutput@1",
+  "question": "continue the scene at the river, carrying shanta-rasa",
+  "inspiredBy": {
+    "material": [
+      {
+        "fact": "the Poles shouted Vivat",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "fact": "the troops pressed against one another",
+        "ref": "pg2600.txt#1627242"
+      },
+      {
+        "fact": "Napoleon looked up and down the river",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "fact": "Napoleon sat down on a log",
+        "ref": "pg2600.txt#1627341"
+      },
+      {
+        "fact": "Napoleon gave his orders",
+        "ref": "pg2600.txt#2155863"
+      },
+      {
+        "fact": "the orders had been executed before he gave them",
+        "ref": "pg2600.txt#2155911"
+      }
+    ],
+    "direction": {
+      "giver": "Abhinavagupta",
+      "source": "eo-teachings/sources/dhvanyaloka-locana-shankar.txt#102607-102685",
+      "quote": "śānta-rasa — peacefulness as the prelude to the storm; the stillness of the river and the log is a quiet before action"
+    }
+  },
+  "prose": [
+    {
+      "text": "As the morning sun rose over the river, casting a warm glow across the tranquil surface, the air was filled with the sound of laughter and cheers from the ranks of the Poles, their banners fluttering in the gentle breeze like a joyful canopy.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627174",
+      "groundedOn": "the Poles shouted Vivat",
+      "carry": 0.5
+    },
+    {
+      "text": "The words \"Vivat!\"",
+      "ground": "material",
+      "ref": "pg2600.txt#1627174",
+      "groundedOn": "the Poles shouted Vivat",
+      "carry": 0.5
+    },
+    {
+      "text": "echoed through the trees, and the soldiers' faces, once solemn in the early morning gloom, now wore an unmistakable grin, their eyes gleaming with a fierce, uncontainable enthusiasm.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "It was a moment of pure exhilaration, as the enemy was repelled and the day was young.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "But it was not just the Poles who were filled with energy.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627174",
+      "groundedOn": "the Poles shouted Vivat",
+      "carry": 0.5
+    },
+    {
+      "text": "Napoleon, seated on a log, watched the proceedings with a keen eye, his gaze sweeping the river with a mixture of fascination and disdain.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627286",
+      "groundedOn": "Napoleon looked up and down the river",
+      "carry": 1
+    },
+    {
+      "text": "He had faced countless battles, and yet, he could not help but be impressed by the tenacity of the Poles, their unwavering resolve in the face of overwhelming odds.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627174",
+      "groundedOn": "the Poles shouted Vivat",
+      "carry": 0.5
+    },
+    {
+      "text": "As he sat there, his heart pounding with anticipation, he felt a subtle shift in the air, a sense of tension that was building, like the drumbeat of a storm.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "It was a feeling that he had come to associate with the Poles, with their unyielding spirit and their fierce determination to fight.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627174",
+      "groundedOn": "the Poles shouted Vivat",
+      "carry": 0.5
+    },
+    {
+      "text": "And it was this feeling that Napoleon knew he had to harness, to channel into his own strength, into the power that had carried him to the pinnacle of his career.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627286",
+      "groundedOn": "Napoleon looked up and down the river",
+      "carry": 0.5
+    },
+    {
+      "text": "With a quiet nod, he began to speak, his voice low and deliberate, his words carrying across the river to the waiting soldiers.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627286",
+      "groundedOn": "Napoleon looked up and down the river",
+      "carry": 0.5
+    },
+    {
+      "text": "His orders had been given, and they had been executed, but Napoleon knew that the real work was only just beginning.",
+      "ground": "material",
+      "ref": "pg2600.txt#2155863",
+      "groundedOn": "Napoleon gave his orders",
+      "carry": 1
+    },
+    {
+      "text": "The Poles had taken the first step, and now it was up to him to take the next.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627174",
+      "groundedOn": "the Poles shouted Vivat",
+      "carry": 0.5
+    },
+    {
+      "text": "The stillness of the river was broken, and the sound of drums and trumpets echoed across the water, a clarion call to arms that sent a shiver down Napoleon's spine.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627286",
+      "groundedOn": "Napoleon looked up and down the river",
+      "carry": 1
+    },
+    {
+      "text": "He knew that the storm was coming, and he was ready, his eyes fixed on the horizon, his heart pounding with anticipation.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "For in this moment, he was Napoleon, the master of the battlefield, the one who would shape the course of history.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627286",
+      "groundedOn": "Napoleon looked up and down the river",
+      "carry": 0.5
+    }
+  ],
+  "tiers": {
+    "holograph": [
+      {
+        "text": "As the morning sun rose over the river, casting a warm glow across the tranquil surface, the air was filled with the sound of laughter and cheers from the ranks of the Poles, their banners fluttering in the gentle breeze like a joyful canopy.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "text": "The words \"Vivat!\"",
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "text": "echoed through the trees, and the soldiers' faces, once solemn in the early morning gloom, now wore an unmistakable grin, their eyes gleaming with a fierce, uncontainable enthusiasm.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "It was a moment of pure exhilaration, as the enemy was repelled and the day was young.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "But it was not just the Poles who were filled with energy.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "text": "Napoleon, seated on a log, watched the proceedings with a keen eye, his gaze sweeping the river with a mixture of fascination and disdain.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "text": "He had faced countless battles, and yet, he could not help but be impressed by the tenacity of the Poles, their unwavering resolve in the face of overwhelming odds.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "text": "As he sat there, his heart pounding with anticipation, he felt a subtle shift in the air, a sense of tension that was building, like the drumbeat of a storm.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "It was a feeling that he had come to associate with the Poles, with their unyielding spirit and their fierce determination to fight.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "text": "And it was this feeling that Napoleon knew he had to harness, to channel into his own strength, into the power that had carried him to the pinnacle of his career.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "text": "With a quiet nod, he began to speak, his voice low and deliberate, his words carrying across the river to the waiting soldiers.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "text": "His orders had been given, and they had been executed, but Napoleon knew that the real work was only just beginning.",
+        "ground": "material",
+        "ref": "pg2600.txt#2155863"
+      },
+      {
+        "text": "The Poles had taken the first step, and now it was up to him to take the next.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "text": "The stillness of the river was broken, and the sound of drums and trumpets echoed across the water, a clarion call to arms that sent a shiver down Napoleon's spine.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "text": "He knew that the storm was coming, and he was ready, his eyes fixed on the horizon, his heart pounding with anticipation.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "For in this moment, he was Napoleon, the master of the battlefield, the one who would shape the course of history.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      }
+    ],
+    "shadow": [
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#2155863"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      }
+    ],
+    "echo": {
+      "at": "something like this was said here",
+      "sentences": 12,
+      "model": 4
+    }
+  },
+  "verdict": {
+    "total": 16,
+    "material": 12,
+    "model": 4,
+    "line": "12 of 16 sentence(s) grounded in the record; 4 are the mouth's own prose, marked self:model."
+  }
+}

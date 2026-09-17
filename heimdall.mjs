@@ -421,6 +421,43 @@ const windowSeen = new Map(); // model -> { contextLength, switches: [ms] }
 const throughput = new Map(); // model -> { calls, promptTokens, promptMs, genTokens, genMs, loads, loadMs, genRate, promptRate }
 const EWMA = 0.3;
 
+// ── WHAT EACH MODEL DOESN'T SAY UNTIL YOU ASK, MEASURED LIVE ───────────────
+// The window and the throughput are the bridge's numbers; the QUIRKS are the
+// model's own, learned the hard way and kept so the next caller does not
+// rediscover them (2026-09-17, the fiction-write session):
+//
+//   smollm2:1.7b — HANGS on a `system`-role message. The same prompt, with
+//     the instruction folded into the `user` turn, writes fluent prose in
+//     seconds; with a `system` role it never returns (measured: the call
+//     timed out at 90-120s while /api/ps showed the model resident). Its
+//     template was trained on user/assistant turns; the system role is a
+//     template hallucination, not a feature.
+//   hf.co/allenai/OLMo-2-0425-1B-Instruct-GGUF — the HF import loads to a
+//     HUGE default window (minutes to load; observed hung for 4+ minutes),
+//     but a DECLARED num_ctx:2048 loads in ~3.5s. Always bound the window
+//     (Heimdall's loadedWindowOf discipline: declare what you need, never
+//     let the import's default hang).
+//   every small model — the load is paid ONCE; a model resident in /api/ps
+//     answers in seconds, but any request asking a DIFFERENT num_ctx than
+//     the loaded window forces a full reload (measured 2026-09-15 on
+//     gemma2:2b: 238 loads in 4.5h from exactly that). Declare the window
+//     consistently, warm with keep_alive, and the load is paid once.
+const MODEL_QUIRKS = Object.freeze({
+  "smollm2:1.7b": Object.freeze({
+    systemRole: "hangs",
+    note: "fold the instruction into the user turn — the system role is a template hallucination, not a feature",
+  }),
+  "hf.co/allenai/OLMo-2-0425-1B-Instruct-GGUF:latest": Object.freeze({
+    defaultWindow: "huge",
+    note: "always declare num_ctx (2048 loads in ~3.5s; the default window takes minutes and can hang)",
+  }),
+});
+
+/** The declared quirks for a model, or null — the bridge's own record. */
+export function modelQuirksOf(model) {
+  return MODEL_QUIRKS[String(model ?? "")] ?? null;
+}
+
 /**
  * One finished call, as its caller already measured it. Every field optional:
  * a caller that knows only some of them still contributes what it has, and a
@@ -700,6 +737,7 @@ export function heimdallStatus() {
     disclosure: disclosure(),
     vitals: cachedVitals() ?? null,
     ollamaModels,
+    modelQuirks: MODEL_QUIRKS,
     throughput: throughputOf(),
     surfaces: surfaces.map((s) => ({
       name: s.name, family: s.family, port: s.port, up: s.up, reason: s.reason,

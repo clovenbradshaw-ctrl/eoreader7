@@ -1,0 +1,442 @@
+{
+  "schema": "EOHolographOutput@1",
+  "prose": [
+    {
+      "text": "Napoleon sat on a log, the sun beating down upon his weathered face as he gazed out upon the winding River Vistula.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627286",
+      "groundedOn": "Napoleon looked up and down the river",
+      "carry": 1
+    },
+    {
+      "text": "His eyes, a deep shade of indigo, seemed to absorb the light around him, reflecting a mix of intensity and contemplation.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "The battle-hardened French leader was lost in thought, his mind consumed by the looming threat of the Russian forces.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "Just a fortnight prior, the French army had crossed into Russia, their mission to quell the uprising and bring the country back under their control.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "But now, as Napoleon sat on his log, he knew the tide was turning.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627341",
+      "groundedOn": "Napoleon sat down on a log",
+      "carry": 1
+    },
+    {
+      "text": "The Russians, instead of surrendering, had chosen to fight back.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "Napoleon's gaze drifted back to the river, his eyes scanning the water as if searching for answers.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627286",
+      "groundedOn": "Napoleon looked up and down the river",
+      "carry": 1
+    },
+    {
+      "text": "He knew that the Russians would not give up without a fight, and that the French army would soon face the fiercest and most determined foe they had ever known.",
+      "ground": "material",
+      "ref": "pg2600.txt#2155911",
+      "groundedOn": "the orders had been executed before he gave them",
+      "carry": 0.5
+    },
+    {
+      "text": "As he sat there, the sounds of war grew louder – the clang of swords, the wail of muskets, and the thunder of hooves.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "The Poles, those brave warriors who had joined the French cause, shouted \"Vivat!\"",
+      "ground": "material",
+      "ref": "pg2600.txt#1627174",
+      "groundedOn": "the Poles shouted Vivat",
+      "carry": 1
+    },
+    {
+      "text": "in jubilant spirit.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "Napoleon smiled to himself, feeling a surge of pride at the sight of their fervor.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627286",
+      "groundedOn": "Napoleon looked up and down the river",
+      "carry": 0.5
+    },
+    {
+      "text": "Just then, the sound of drums echoed through the air, growing louder with each passing moment.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "The French army was preparing for battle.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "Napoleon knew that he had to make a decision, to choose his order of battle and his tactics.",
+      "ground": "material",
+      "ref": "pg2600.txt#2155863",
+      "groundedOn": "Napoleon gave his orders",
+      "carry": 1
+    },
+    {
+      "text": "He stood up, his eyes scanning the horizon once more, and then, to his satisfaction, he gave his orders.",
+      "ground": "material",
+      "ref": "pg2600.txt#2155911",
+      "groundedOn": "the orders had been executed before he gave them",
+      "carry": 1
+    },
+    {
+      "text": "The troops had been ordered days before, but now the time had come to put them into action.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627242",
+      "groundedOn": "the troops pressed against one another",
+      "carry": 0.5
+    },
+    {
+      "text": "Napoleon gave his orders with precision, his voice ringing out across the river.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627286",
+      "groundedOn": "Napoleon looked up and down the river",
+      "carry": 1
+    },
+    {
+      "text": "The orders had been executed before he gave them, but now they would be put into effect, and the fate of Russia would be decided.",
+      "ground": "material",
+      "ref": "pg2600.txt#2155911",
+      "groundedOn": "the orders had been executed before he gave them",
+      "carry": 1
+    },
+    {
+      "text": "As Napoleon stood up to inspect his forces, he couldn't help but feel a mix of trepidation and determination.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627286",
+      "groundedOn": "Napoleon looked up and down the river",
+      "carry": 0.5
+    },
+    {
+      "text": "He knew that the road ahead would be fraught with danger, but he also knew that the French army would not falter.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "They would fight with courage and valor, and the Russians would soon learn that the French were not to be underestimated.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "The battle had begun, and Napoleon stood at the forefront, his eyes fixed on the horizon, ready to lead his troops into the fray.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627242",
+      "groundedOn": "the troops pressed against one another",
+      "carry": 0.5
+    },
+    {
+      "text": "The Poles shouted \"Vivat!\"",
+      "ground": "material",
+      "ref": "pg2600.txt#1627174",
+      "groundedOn": "the Poles shouted Vivat",
+      "carry": 1
+    },
+    {
+      "text": "once more, their cheers echoing across the river as they prepared to join their allies in the fray.",
+      "ground": "material",
+      "ref": "pg2600.txt#1627286",
+      "groundedOn": "Napoleon looked up and down the river",
+      "carry": 0.5
+    },
+    {
+      "text": "The French army had entered a new phase, one where victory or defeat hung precariously in the balance.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    },
+    {
+      "text": "The outcome was far from certain, but one thing was clear – the war in Russia was far from over.",
+      "ground": "self:model",
+      "source": "the mouth",
+      "carry": 0
+    }
+  ],
+  "tiers": {
+    "holograph": [
+      {
+        "text": "Napoleon sat on a log, the sun beating down upon his weathered face as he gazed out upon the winding River Vistula.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "text": "His eyes, a deep shade of indigo, seemed to absorb the light around him, reflecting a mix of intensity and contemplation.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "The battle-hardened French leader was lost in thought, his mind consumed by the looming threat of the Russian forces.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "Just a fortnight prior, the French army had crossed into Russia, their mission to quell the uprising and bring the country back under their control.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "But now, as Napoleon sat on his log, he knew the tide was turning.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627341"
+      },
+      {
+        "text": "The Russians, instead of surrendering, had chosen to fight back.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "Napoleon's gaze drifted back to the river, his eyes scanning the water as if searching for answers.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "text": "He knew that the Russians would not give up without a fight, and that the French army would soon face the fiercest and most determined foe they had ever known.",
+        "ground": "material",
+        "ref": "pg2600.txt#2155911"
+      },
+      {
+        "text": "As he sat there, the sounds of war grew louder – the clang of swords, the wail of muskets, and the thunder of hooves.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "The Poles, those brave warriors who had joined the French cause, shouted \"Vivat!\"",
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "text": "in jubilant spirit.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "Napoleon smiled to himself, feeling a surge of pride at the sight of their fervor.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "text": "Just then, the sound of drums echoed through the air, growing louder with each passing moment.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "The French army was preparing for battle.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "Napoleon knew that he had to make a decision, to choose his order of battle and his tactics.",
+        "ground": "material",
+        "ref": "pg2600.txt#2155863"
+      },
+      {
+        "text": "He stood up, his eyes scanning the horizon once more, and then, to his satisfaction, he gave his orders.",
+        "ground": "material",
+        "ref": "pg2600.txt#2155911"
+      },
+      {
+        "text": "The troops had been ordered days before, but now the time had come to put them into action.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627242"
+      },
+      {
+        "text": "Napoleon gave his orders with precision, his voice ringing out across the river.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "text": "The orders had been executed before he gave them, but now they would be put into effect, and the fate of Russia would be decided.",
+        "ground": "material",
+        "ref": "pg2600.txt#2155911"
+      },
+      {
+        "text": "As Napoleon stood up to inspect his forces, he couldn't help but feel a mix of trepidation and determination.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "text": "He knew that the road ahead would be fraught with danger, but he also knew that the French army would not falter.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "They would fight with courage and valor, and the Russians would soon learn that the French were not to be underestimated.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "The battle had begun, and Napoleon stood at the forefront, his eyes fixed on the horizon, ready to lead his troops into the fray.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627242"
+      },
+      {
+        "text": "The Poles shouted \"Vivat!\"",
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "text": "once more, their cheers echoing across the river as they prepared to join their allies in the fray.",
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "text": "The French army had entered a new phase, one where victory or defeat hung precariously in the balance.",
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "text": "The outcome was far from certain, but one thing was clear – the war in Russia was far from over.",
+        "ground": "self:model",
+        "ref": null
+      }
+    ],
+    "shadow": [
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627341"
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#2155911"
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#2155863"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#2155911"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627242"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#2155911"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627242"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627174"
+      },
+      {
+        "ground": "material",
+        "ref": "pg2600.txt#1627286"
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      },
+      {
+        "ground": "self:model",
+        "ref": null
+      }
+    ],
+    "echo": {
+      "at": "something like this was said here",
+      "sentences": 15,
+      "model": 12
+    }
+  },
+  "verdict": {
+    "total": 27,
+    "material": 15,
+    "model": 12,
+    "line": "15 of 27 sentence(s) grounded in the record; 12 are the mouth's own prose, marked self:model."
+  }
+}
