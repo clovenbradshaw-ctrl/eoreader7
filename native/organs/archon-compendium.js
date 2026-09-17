@@ -830,6 +830,28 @@ export const ARCHONS = Object.freeze([
     credit: "Pierre Bourdieu — habitus: a person's standing is a rate over their acts, never a verdict about them (1972).",
     topics: ["shadow", "habitus", "norm", "standing", "disposition", "rate", "person", "accumulate"],
   },
+  {
+    handle: "aristotle",
+    name: "Aristotle",
+    organ: "organs/logos.js",
+    role: "the WARRANT — a conclusion is examined for soundness, never accepted merely because it was stated",
+    pdStatus: "public-domain",
+    work: "The founder of formal logic: a syllogism is valid by its FORM, apart from who states it or how persuasively. 'It is the mark of an instructed mind to rest satisfied with the degree of precision which the nature of the subject admits, and not to seek exactness where only an approximation is possible.' A conclusion drawn from premises is warranted only where the reasoning itself survives examination — the same discipline this organ composes kernel/refutation.js to enforce over a composed relation: refuted by a real counterexample, or unrefuted, or honestly insufficient to examine at all — never simply asserted.",
+    source: "Prior Analytics; Posterior Analytics; Nicomachean Ethics I.3 (4th century BCE)",
+    credit: "Aristotle — a syllogism is valid by its form; a conclusion is warranted only where it survives examination (4th century BCE).",
+    topics: ["logos", "logic", "syllogism", "warrant", "reasoning", "proof", "validity", "refutation", "wilson", "hive"],
+  },
+  {
+    handle: "wilson",
+    name: "Edward O. Wilson",
+    organ: "organs/wilson.js",
+    role: "steering the HIVE — a swarm of castes of specialized organs solving one problem, coordinating by what each leaves on the shared record rather than by command",
+    pdStatus: "fair-use",
+    work: "The naturalist of eusociality and consilience: a colony's intelligence is not any one ant's — it is the DIVISION OF LABOR among castes (each specialized to one task) plus STIGMERGY, coordination through traces left in a shared environment (a pheromone trail, a comb cell) rather than direct signaling between individuals. 'Eusociality... the culminating point of social evolution.' Consilience is his companion claim: real understanding comes from the JUMPING TOGETHER of independent lines of evidence, never from one discipline speaking alone. This organ is named for both: it composes independently-earned legs (ground, warrant, felt shape) the way a colony composes castes, and each leg's own record — never a command from Wilson itself — is what the next caller reads.",
+    source: "The Insect Societies (1971); Sociobiology (1975); Consilience: The Unity of Knowledge (1998)",
+    credit: "Edward O. Wilson — a colony's intelligence is division of labor plus stigmergy, never one member commanding the rest; consilience is independent evidence jumping together (1971/1998).",
+    topics: ["hive", "wilson", "eusocial", "eusociality", "colony", "swarm", "caste", "stigmergy", "consilience", "superorganism", "division of labor", "solve", "solver", "steer"],
+  },
 ]);
 
 // ── HELPERS ────────────────────────────────────────────────────────────────

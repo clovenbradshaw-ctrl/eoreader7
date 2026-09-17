@@ -102,31 +102,31 @@ test("op/grain are required — a solution steered at no cube cell is guessed, n
 test("THE BEARING WALL, all three legs: requireSolution refuses a plain object shaped like a solution", () => {
   assert.throws(() => requireSolution(undefined), /no valid solution/);
   assert.throws(() => requireSolution({}), /no valid solution/);
-  assert.throws(() => requireSolution({ schema: SOLUTION_SCHEMA }), /no valid ethos leg/);
+  assert.throws(() => requireSolution({ schema: SOLUTION_SCHEMA }), /no valid ethos caste/);
 });
 
 test("THE BEARING WALL: a forged ethos leg (hand-written, never run through ethosClear) is refused", () => {
   const real = wilsonSolve(baseArgs());
   const forged = { ...real, ethos: { schema: "EthosClearance@1", cleared: true } }; // missing charterSha256 etc — not a real clearance
-  assert.throws(() => requireSolution(forged), /no valid ethos leg/);
+  assert.throws(() => requireSolution(forged), /no valid ethos caste/);
 });
 
 test("THE BEARING WALL: a forged logos leg is refused, even if it claims warranted:true", () => {
   const real = wilsonSolve(baseArgs());
   const forged = { ...real, logos: { schema: "LogosWarrant@1", verdict: "made-up", warranted: true } };
-  assert.throws(() => requireSolution(forged), /no valid logos leg/);
+  assert.throws(() => requireSolution(forged), /no valid logos caste/);
 });
 
 test("THE BEARING WALL: a forged pathos leg (wrong schema tag) is refused", () => {
   const real = wilsonSolve(baseArgs());
   const forged = { ...real, pathos: { schema: "NotPathos@1" } };
-  assert.throws(() => requireSolution(forged), /no valid pathos leg/);
+  assert.throws(() => requireSolution(forged), /no valid pathos caste/);
 });
 
 test("THE BEARING WALL: a solution missing a leg entirely (deleted, not forged) is refused", () => {
   const real = wilsonSolve(baseArgs());
   const { logos, ...withoutLogos } = real;
-  assert.throws(() => requireSolution(withoutLogos), /no valid logos leg/);
+  assert.throws(() => requireSolution(withoutLogos), /no valid logos caste/);
 });
 
 test("a real, fully-composed solution passes requireSolution cleanly", () => {
@@ -139,5 +139,5 @@ test("insufficient examination (fewer than two matching edges) is not silently t
   const solution = wilsonSolve(baseArgs({ edges: thin }));
   assert.equal(solution.logos.verdict, "insufficient");
   assert.equal(solution.logos.warranted, false);
-  assert.throws(() => requireSolution(solution), /no valid logos leg/);
+  assert.throws(() => requireSolution(solution), /no valid logos caste/);
 });
