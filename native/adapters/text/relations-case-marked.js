@@ -114,6 +114,9 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import { groupByStem, refOf } from "./stem-identity.js";
+import { splitSentences } from "./spans.js";
+import { hyperedge } from "../../kernel/hypergraph.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -166,7 +169,7 @@ const LATIN_PREPOSITIONS = new Set([
   "sine", "sub", "super", "trans", "extra", "infra", "intra", "supra", "ultra",
 ]);
 
-function classifyNominal(casePrior, word) {
+export function classifyNominal(casePrior, word) {
   const lower = word.toLowerCase();
   if (LATIN_PREPOSITIONS.has(lower)) return null;
   const ending = lower.slice(-CASE_ENDING_LEN);
@@ -307,4 +310,164 @@ export function extractCaseMarkedRelation(text, { casePrior = defaultLatinCasePr
     end2: end2 ? { word: end2.word, case: end2.case, number: end2.number } : null,
     gap: gaps.length ? gaps : null,
   };
+}
+
+// ---------------------------------------------------------------------
+// THE BEING TIER (2026-09-17) — referent identity across a passage, so
+// extractCaseMarkedRelation's own per-sentence ends can BRIDGE
+// (kernel/relation-composition.js's requirement: one edge's object
+// referent equals the next edge's subject referent) the same way
+// greek.mjs::greekEntries already bridges Ancient Greek clauses. Latin's
+// own shape is genuinely different from Greek's, not a copy: Latin has NO
+// definite article to gate a "being" candidate on (a fact about the
+// language — greek.mjs's ARTICLES set has no Latin analogue), so every
+// case-determinable nominal is a candidate directly, without an article
+// adjacency check.
+//
+// THE BARE-CAPITALISATION FALLBACK DOES NOT CARRY GREEK'S OWN FINDING
+// OVER UNCHECKED. greek.mjs's bareBeingCandidates needs no sentence-
+// initial exclusion because that was MEASURED, not assumed, on the real
+// Perseus Greek edition (sentence-initial capitalisation 8.9% vs overall
+// 9.4% — indistinguishable). The identical measurement on a real fetched
+// Latin edition (Cicero's In Catilinam, Perseus/A.C. Clark) gives the
+// OPPOSITE answer: sentence-initial capitalisation 19.1% (115/601) vs
+// overall 4.7% (604/12734) — a real confound this edition's convention
+// carries that Greek's does not. So Latin's bare tier keeps the
+// sentence-initial exclusion (the same one English's surfaces.js::
+// CAP_TOKEN already holds, for the identical reason), never Greek's
+// "no exclusion needed" design.
+
+const TOKEN_RE = /[\p{L}\p{N}’']+|[.,;:!?—–()«»“”]/gu;
+const PUNCT_RE = /^[.,;:!?—–()«»“”]$/;
+const SENTENCE_END = new Set([".", "?", "!"]);
+const CAP_TOKEN = /^[\p{Lu}][\p{L}’']*$/u;
+
+function tokenizeOffsets(text) {
+  const out = [];
+  for (const m of text.matchAll(TOKEN_RE)) {
+    out.push({ raw: m[0], w: m[0].toLowerCase(), start: m.index, end: m.index + m[0].length, punct: PUNCT_RE.test(m[0]) });
+  }
+  return out;
+}
+
+// THE CASE-ENDING PRIOR CARRIES NO PART-OF-SPEECH INFORMATION AND ADMITS
+// NOTHING WITHOUT ONE (measured, not assumed — found running this exact
+// tier against real fetched Cicero: "etiam" (also/even, ADV), "tamen"
+// (however, ADV), "autem" (but/moreover, ADV), "vobis"/"huius"/"omnium"
+// (PRON/DET) all decline into recognisably nominal-ending shapes and
+// classifyNominal has no way to tell them from a real noun — it was built
+// for extractCaseMarkedRelation's own already-narrowed, single-sentence,
+// verb-excluded word set, never as a passage-wide POS filter).
+// classifyLatinPOS is an OPTIONAL second opinion, from a genuinely
+// different resource (a POSPrior@1 built the SAME language-general way
+// pos-grc.json already is, from the SAME real UD_Latin-Perseus data —
+// native/scripts/build-pos-prior.mjs, unmodified): a token the POS prior
+// confidently types non-nominal is refused outright — the identical
+// "prior silence does not veto a case reading, but a confident opposing
+// classification does" discipline greek.mjs::greekClauses now holds,
+// generalized to a second language rather than re-derived. Injectable and
+// optional (posPrior may be omitted — the case-ending signal alone is
+// still real and still gates preposition/ending-unattested tokens), but a
+// caller building real chemistry from this tier should supply one; the
+// pollution above is what omitting it costs.
+const LATIN_NOMINAL_POS = new Set(["NOUN", "PROPN", "ADJ", "PRON", "NUM"]);
+function classifyLatinPOS(word, posPrior) {
+  const counts = posPrior?.forms?.[word.toLowerCase()];
+  if (!counts) return null;
+  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+}
+
+/**
+ * latinBeingCandidates(toks, casePrior, posPrior) — every recurring-
+ * candidate occurrence in a token stream: a token the case-prior
+ * classifies nominal in ANY case (no article gate — see this section's
+ * own header) UNLESS a supplied posPrior confidently types it non-
+ * nominal, or — only when the case-prior is silent on it, and only when
+ * it is NOT sentence-initial — a capitalised token.
+ */
+function latinBeingCandidates(toks, casePrior, posPrior) {
+  const out = [];
+  let sentenceStart = true;
+  for (let i = 0; i < toks.length; i += 1) {
+    const t = toks[i];
+    if (t.punct) { if (SENTENCE_END.has(t.raw)) sentenceStart = true; continue; }
+    const wasSentenceStart = sentenceStart;
+    sentenceStart = false;
+    const pos = classifyLatinPOS(t.raw, posPrior);
+    if (pos && !LATIN_NOMINAL_POS.has(pos)) continue; // the POS prior's own veto — a confident non-nominal is refused regardless of its case ending
+    const nominal = classifyNominal(casePrior, t.raw);
+    if (nominal) { out.push({ head: t.raw, headLower: t.w, at: [t.start, t.end], case: nominal.case }); continue; }
+    if (LATIN_PREPOSITIONS.has(t.w)) continue;
+    if (!wasSentenceStart && CAP_TOKEN.test(t.raw)) {
+      out.push({ head: t.raw, headLower: t.w, at: [t.start, t.end], case: null });
+    }
+  }
+  return out;
+}
+
+/**
+ * latinBeings(passageText, { casePrior, posPrior, minOccurrences }) —
+ * recurring referents across a Latin passage: the case-marked analogue of
+ * greek.mjs::greekBeings, built on the SAME shared stem-grouping
+ * primitive (adapters/text/stem-identity.js::groupByStem) so the two
+ * language adapters can never disagree about what "the same being
+ * recurring" means, only about how a candidate occurrence is found.
+ * posPrior is optional but strongly recommended — see
+ * latinBeingCandidates's own header for the measured cost of omitting it.
+ */
+export function latinBeings(passageText, { casePrior = defaultLatinCasePrior(), posPrior = null, minOccurrences = 2 } = {}) {
+  const toks = tokenizeOffsets(passageText);
+  const candidates = latinBeingCandidates(toks, casePrior, posPrior);
+  return groupByStem(candidates, { minOccurrences }).map((g) => ({
+    stem: g.stem,
+    surfaces: [...new Set(g.members.map((m) => m.head))],
+    occurrences: g.occurrences,
+    at: g.at,
+  }));
+}
+
+/**
+ * latinRefOf(headLower, beingsByStem) — bind a clause end to a discovered
+ * Latin being by the SAME stem comparison latinBeings used to find it
+ * (adapters/text/stem-identity.js::refOf) — mirrors greek.mjs::
+ * beingRefOf exactly, with Latin's own referent namespace ("lat").
+ */
+export function latinRefOf(headLower, beingsByStem) {
+  return refOf(headLower, beingsByStem.keys(), { lang: "lat" });
+}
+
+/**
+ * latinEntries(passageText, { casePrior, beings }) — the passage-level
+ * analogue of greek.mjs::greekEntries. Splits into sentences
+ * (adapters/text/spans.js::splitSentences, the SAME splitter
+ * archon-priors.mjs's own greekEntries already uses — one sentence
+ * boundary reader, not two that could disagree), extracts a case-marked
+ * relation per sentence (extractCaseMarkedRelation, this file's own
+ * declared single-finite-verb scope — a sentence with zero or multiple
+ * verbs contributes nothing here either, exactly as that function's own
+ * header states), and emits a real EOHyperedge@1 only where BOTH ends
+ * bind to a discovered referent — never fabricated, the identical wall
+ * greekEntries already holds (`if (!c.subjectRef || !c.objectRef)
+ * continue`).
+ */
+export function latinEntries(passageText, { casePrior = defaultLatinCasePrior(), posPrior = null, beings } = {}) {
+  const beingList = beings ?? latinBeings(passageText, { casePrior, posPrior });
+  const beingsByStem = new Map(beingList.map((b) => [b.stem, b]));
+  const sentences = splitSentences(passageText);
+  const edges = [];
+  let n = 0;
+  for (const sent of sentences) {
+    const rel = extractCaseMarkedRelation(sent.text, { casePrior });
+    if (!rel.end1 || !rel.end2) continue;
+    const subjectRef = latinRefOf(rel.end1.word.toLowerCase(), beingsByStem);
+    const objectRef = latinRefOf(rel.end2.word.toLowerCase(), beingsByStem);
+    if (!subjectRef || !objectRef) continue;
+    edges.push(hyperedge({
+      id: `lat-${n}`, relation: rel.label.word,
+      participants: [{ ref: subjectRef, standing: "referent" }, { ref: objectRef, standing: "referent" }],
+      witness: sent.text.length > 120 ? `${sent.text.slice(0, 120)}…` : sent.text,
+    }));
+    n += 1;
+  }
+  return edges;
 }

@@ -23,6 +23,8 @@
 // inflected noun for being un-attested would re-introduce the very deafness
 // this file exists to close. Boundaries are conservative, never greedy.
 
+import { stripDiacritics as strip, groupByStem, refOf } from "../../adapters/text/stem-identity.js";
+
 const TOKEN = /[\p{L}\p{N}’']+|[.,;:!?—–()«»“”]/gu;
 const NOMINAL = new Set(["NOUN", "PROPN", "ADJ", "PRON", "DET", "NUM"]);
 // The clause reader's nominal set excludes DET — the article is a case probe,
@@ -43,10 +45,11 @@ const tokenize = (text) => {
   return out;
 };
 
-/** stripDiacritics — NFD + drop combining marks. Greek ACCENTS MOVE between
- * cases (θά-να-τος → θα-νά-του): a stem comparison on raw letters sees the
- * shifted accent as a different word. The stem is the unaccented skeleton. */
-const strip = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+// stripDiacritics is the shared adapters/text/stem-identity.js primitive
+// (imported above as `strip`), not re-derived here — Greek ACCENTS MOVE
+// between cases (θά-να-τος → θα-νά-του), the exact reason that module's own
+// stem comparison exists. Re-exported under greek.mjs's own established
+// name for backward compatibility with any existing caller.
 export { strip as stripDiacritics };
 
 /** confirmedVerbSet(prior, share) — every form the received POSPrior@1
@@ -169,31 +172,16 @@ export function greekBeings(chapterText, prior, { minOccurrences = 2, includeBar
     phrases.push({ art: toks[i].raw, head: toks[j].raw, headLower: toks[j].w, at: [toks[j].start, toks[j].end] });
   }
   if (includeBare) phrases.push(...bareBeingCandidates(toks, prior));
-  const stems = new Map(); // stem -> phrases
-  const assign = (ph) => {
-    const b = strip(ph.headLower);
-    for (const [stem, grp] of stems) {
-      const a = strip(stem);
-      const len = Math.min(a.length, b.length);
-      let lcp = 0;
-      while (lcp < len && a[lcp] === b[lcp]) lcp += 1;
-      if (lcp >= 5 && lcp / Math.max(a.length, b.length) >= 0.5) { grp.push(ph); return; }
-    }
-    stems.set(ph.headLower, [ph]);
-  };
-  for (const ph of phrases) assign(ph);
-  const out = [];
-  for (const [stem, grp] of stems) {
-    if (grp.length < minOccurrences) continue;
-    out.push({
-      stem,
-      surfaces: [...new Set(grp.map((g) => (g.art ? `${g.art} ${g.head}` : g.head)))],
-      occurrences: grp.length,
-      at: grp[0].at,
-      bare: grp.every((g) => !g.art),
-    });
-  }
-  return out.sort((a, b) => b.occurrences - a.occurrences);
+  // The stem-grouping itself is the shared, language-agnostic primitive
+  // (adapters/text/stem-identity.js::groupByStem) — Greek supplies only
+  // the candidate phrases and, per group, its own surfaces/bare fields.
+  return groupByStem(phrases, { minOccurrences }).map((g) => ({
+    stem: g.stem,
+    surfaces: [...new Set(g.members.map((m) => (m.art ? `${m.art} ${m.head}` : m.head)))],
+    occurrences: g.occurrences,
+    at: g.at,
+    bare: g.members.every((m) => !m.art),
+  }));
 }
 
 /** personOf(verbForm, casePrior, opts) — THE PERSON TIER (2026-09-17). The
@@ -330,19 +318,15 @@ export function caseOf(token, casePrior, { minShare = 0.5, minCount = 10, ending
   return { case: Case, number, share: top.share, count: top.count, ending, cell: top.cell ?? null };
 }
 
-/** beingRefOf(headLower, beingsByStem) — bind a clause end to a tier-1 being
- * by stem recurrence (identity by consequence, made morphological): the head
- * and a being's stem share a prefix >= 5, at least half the longer form. */
+/** beingRefOf(headLower, beingsByStem) — bind a clause end to a tier-1
+ * being by the SAME stem comparison greekBeings itself used to discover
+ * it (adapters/text/stem-identity.js::refOf) — a discovery pass and a
+ * binding pass can never disagree about what counts as the same stem,
+ * because both call that one shared function. Greek's own referent
+ * namespace ("grc") is fixed here, never a caller-supplied parameter —
+ * this function IS the Greek adapter's binder. */
 export function beingRefOf(headLower, beingsByStem) {
-  const b = strip(headLower);
-  for (const [stem, _b] of beingsByStem) {
-    const a = strip(stem);
-    const len = Math.min(a.length, b.length);
-    let lcp = 0;
-    while (lcp < len && a[lcp] === b[lcp]) lcp += 1;
-    if (lcp >= 5 && lcp / Math.max(a.length, b.length) >= 0.5) return `ref:grc:auto:${stem}`;
-  }
-  return null;
+  return refOf(headLower, beingsByStem.keys(), { lang: "grc" });
 }
 
 /** greekClauses(sentText, verbs, posPrior, casePrior, { beings }) — THE
