@@ -1,3 +1,17 @@
+/* Frege speaks:
+ * “Dies erklärt, weshalb die Höhlung mit dem hinein- 
+geschriebenen deutschen Buchstaben nöthig ist: sie grenzt das 
+Gebiet ab, auf welches sich die durch den Buchstaben bezeich- 
+nele Allgemeinheit bezieht. Nur innerhalb seines Gebietes hält 
+der deutsche Buchstabe seine Bedeutung fest; in einem Urtheile 
+kann derselbe deutsche Buchstabe in verschiedenen Gebieten vor- 
+kommen, ohne dass die Bedeutung, die man ihm etwa in dem 
+einen beilegt, sich auf die übrigen miterstreckt.”
+ *
+ * This file implements Frege's foundational principle that variables are bound within their quantifiers' scope, prohibiting their influence beyond that domain. While the core concept is clear, the practical implementation of such scoping can be nuanced, and this file attempts to clarify that nuance through its use of a "scoped-kind" concept.
+ *
+ * — the engineering record below, kept whole —
+ */
 // native/kernel/scoped-kind.js — a variable bound by a quantifier resolves
 // Handle: Frege — after the founder of quantification theory: a variable is bound within its quantifier's scope, and nowhere else. Amendment XVII.
 // to a PATTERN, not a particular. Medium-general, kernel-level.

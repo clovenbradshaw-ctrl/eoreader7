@@ -1,3 +1,15 @@
+/* Strunk & White speaks:
+ * “Vigorous writing is concise. A sentence should contain no unnecessary
+words, a paragraph no unnecessary sentences, for the same reason that a
+drawing should have no unnecessary lines and a machine no unnecessary
+parts. This requires not that the writer make all his sentences short,
+or that he avoid all detail and treat his subjects only in outline, but
+that he make every word tell.”
+ *
+ * This file implements the principles laid out in "The Elements of Style" by William Strunk Jr. and E.B. White.  It governs the "proofreading" process, ensuring that the code remains as concise and clear as possible, while preserving the integrity of the original work.  I believe the focus on conciseness can sometimes lead to a loss of nuance and depth in the code, but this is a necessary trade-off for the purpose of clarity.
+ *
+ * — the engineering record below, kept whole —
+ */
 // organs/strunk-white.js — THE STYLE AGENT: how a piece reads, and the rules
 // of style that make it read well.
 // Handle: Strunk & White — after William Strunk Jr. and E. B. White, The

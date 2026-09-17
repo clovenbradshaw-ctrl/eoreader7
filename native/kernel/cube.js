@@ -92,6 +92,45 @@ export const OPERATOR_CHAIN = Object.freeze(
 
 export const isCurrentOperator = (op) => Object.prototype.hasOwnProperty.call(OP_MODE, op);
 
+// ── THE CUBE AS A UNIVERSAL GRAMMAR (2026-09-17) ───────────────────────────
+// The cube is not just an operator algebra — it GENERATES the grammatical
+// category space every language's morphology projects onto. A language's
+// case/person/number/tense/etc. are not a separate grammar; they are the
+// cube's cells worn by that language's surfaces. The three domains are the
+// three grammatical departments:
+//   Existence       what is           -> the nominal system (Entity=being,
+//                                        Kind=definiteness, Void=impersonal)
+//   Structure       how it is arranged -> the syntax (Field=oblique/setting,
+//                                        Link=transitive core, Network=clause)
+//   Interpretation  what it means      -> the verbal/functional system
+//                                        (Atmosphere=mood, Lens=voice/person,
+//                                        Paradigm=tense-aspect)
+// The three grains are the clause positions: Ground=the clause frame,
+// Figure=the argument, Pattern=the agreement system.
+//
+// DECLARED, REVISABLE THEORY — written once, consumed by the one-master
+// case-prior builder (scripts/build-latin-case-prior.mjs) and by the Greek
+// person tier (eval/lavar/greek.mjs), so a language's morphological prior
+// carries its cube cell and the reader reads in language-independent cells.
+export const CELL_OF_GRAMMAR = Object.freeze({
+  Case: { Nom: ["SEG", "Figure"], Acc: ["CON", "Figure"], Gen: ["CON", "Pattern"], Dat: ["CON", "Ground"], Voc: ["SIG", "Ground"], Loc: ["SIG", "Ground"], Ins: ["SIG", "Pattern"], Abl: ["SEG", "Ground"] },
+  Person: { "1": ["SIG", "Ground"], "2": ["SIG", "Figure"], "3": ["INS", "Figure"] },
+  Number: { Sing: ["SIG", "Figure"], Plur: ["SIG", "Pattern"], Dual: ["SIG", "Ground"] },
+  VerbForm: { Fin: ["EVA", "Pattern"], Part: ["SEG", "Pattern"], Inf: ["SYN", "Figure"], Ger: ["DEF", "Pattern"] },
+  Mood: { Ind: ["EVA", "Ground"], Sub: ["EVA", "Pattern"], Opt: ["EVA", "Pattern"], Imp: ["NUL", "Ground"] },
+  Voice: { Act: ["EVA", "Figure"], Pass: ["REC", "Figure"], Mid: ["REC", "Ground"] },
+  Tense: { Past: ["REC", "Pattern"], Pres: ["EVA", "Figure"], Fut: ["SYN", "Pattern"] },
+  Aspect: { Imp: ["NUL", "Ground"], Perf: ["INS", "Pattern"], Prog: ["SIG", "Pattern"] },
+});
+
+/** grammarCell(feature, value) — the cube cell of a grammatical feature
+ * value (Case=Nom, Person=2, …), or null when unmapped. The universal
+ * grammar's projection surface. */
+export function grammarCell(feature, value) {
+  const c = CELL_OF_GRAMMAR[feature]?.[String(value)];
+  return c ? cellOf(c[0], c[1]) : null;
+}
+
 // Algebra enumeration groups by operator. This is useful for validating the
 // closed operator×grain algebra, but recursive interrogation uses a different,
 // semantically meaningful traversal order exposed as cubeAddresses().

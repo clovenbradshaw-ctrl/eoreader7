@@ -1,3 +1,12 @@
+/* Vasana speaks:
+ * “And  the  serial-order  (santana)  of  undifferentiated-consciousness  and  of  the 
+subconscious-impressions  (vasana)  is,  like  the  serial-order  of  seed  and  sprout, 
+without  beginning.”
+ *
+ * This file implements the concept of Vasana, the residual impressions of past experience that condition later perception without being perceived themselves.  While the file's mechanics are sound, I believe it oversimplifies the complex interplay between perception, memory, and consciousness.  A deeper understanding of the role of "pre-conscious" experience is necessary for a complete grasp of this concept.
+ *
+ * — the engineering record below, kept whole —
+ */
 // Handle: Vasana — after the residual impressions of past experience that condition later perception without being perceived themselves. Amendment XVII.
 // THE WHEEL (native/docs/THE-WHEEL.md): these are the VOID's — the earned
 // and received, the character the hub carries into the next read; Vasana is

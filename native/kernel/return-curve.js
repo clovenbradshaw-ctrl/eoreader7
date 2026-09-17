@@ -1,3 +1,13 @@
+/* Sockeye speaks:
+ * “the  majority  were  four  years  old  and 
+hence  in  accord  with  the  theory.  But  the  smallest  members  of  the  run  (almost  invariably 
+males)  were  but  three  years  old,  while  a  considerable  number  of  the  larger  fish  were 
+unmistakably  in  theii'  fifth  year.”
+ *
+ * This file implements the  "return-curve" model, where salmon identity is tracked through a curve representing their  "homing" to the natal stream, rather than a single point.  This model, grounded in the  natural process of salmon migration, is distinct from traditional models based on fixed points in time and space.
+ *
+ * — the engineering record below, kept whole —
+ */
 // native/kernel/return-curve.js — how identity RETURNS, measured. Omnimodal.
 // Handle: Sockeye — after the salmon's natal homing: how an identity comes home, run as a curve rather than a point. Amendment XVII.
 //

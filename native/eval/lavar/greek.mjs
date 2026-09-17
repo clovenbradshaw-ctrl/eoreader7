@@ -119,6 +119,33 @@ export function greekBeings(chapterText, prior, { minOccurrences = 2 } = {}) {
   return out.sort((a, b) => b.occurrences - a.occurrences);
 }
 
+/** personOf(verbForm, casePrior, opts) — THE PERSON TIER (2026-09-17). The
+ * GreekCasePrior@1 (built by build-latin-case-prior.mjs's one-master
+ * mechanism from UD_Ancient_Greek-PROIEL) tallies Person|Number by the
+ * verb's word-ending: -εις → 2|Sing at 100%, -μαι → 1|Sing, -ουσι → 3|Plur.
+ * A pro-drop clause's implicit subject is recoverable from the verb itself.
+ * The prior only tallies; the consumer's own confidence floor decides
+ * (minShare/minCount) — the prior never guesses, the reader refuses below it.
+ */
+export function personOf(verbForm, casePrior, { minShare = 0.5, minCount = 20, endingLen = 3 } = {}) {
+  const table = casePrior?.verbPersonalEndings;
+  if (!table) return null;
+  const ending = String(verbForm ?? "").toLowerCase().slice(-endingLen);
+  const entry = table[ending];
+  if (!entry?.ranked?.length) return null;
+  const top = entry.ranked[0];
+  if (top.share < minShare || top.count < minCount) return null;
+  const [person, number] = top.key.split("|");
+  return { person: Number(person), number, share: top.share, count: top.count, ending, cell: top.cell ?? null };
+}
+
+/** personLabel(person, number) — the English gloss of a Greek grammatical
+ * person, for the disclosure line. The Enchiridion's constant 2sg is "you". */
+export function personLabel(person, number) {
+  const map = { "1|Sing": "I", "2|Sing": "you", "3|Sing": "he/she/it", "1|Plur": "we", "2|Plur": "you (pl.)", "3|Plur": "they" };
+  return map[`${person}|${number}`] ?? "one";
+}
+
 /** prodropClauses(sentText, verbs, prior) — the clauses the positional gate
  * refused: every earned verb, its case-marked nominal object after it (or
  * none), with the object's byte address. Pure; testable. */

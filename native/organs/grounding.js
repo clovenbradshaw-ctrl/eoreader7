@@ -1,3 +1,19 @@
+/* Mozi speaks:
+ * “Therefore 
+there  must  be  three  tests.  What  are  the  three  tests  ? Motse 
+said  : Its  basis,  its  verifiability,  and  its  applicability.  How 
+is  it  to  be  based  ? It  should  be  based  on  the  deeds  of  the 
+ancient  sage-kings.  How  is  it  to  be  verified  ? It  is  to  be 
+verified  by  the  senses  of  hearing  and  sight  of  the  common 
+people.  How  is  it  to  be  applied  ? It  is  to  be  applied  by 
+adopting  it  in  government  and  observing  its  benefits  to  the 
+country  and  the  people.  This  is  what  is  meant  by  the  three 
+tests  of  every  doctrine.”
+ *
+ * This file, grounded in Mozi's teachings, implements a strict framework for determining truth and validity.  While the "eyes and ears" principle provides a clear starting point, I believe it's important to critically evaluate claims beyond sensory perception, particularly in situations where subjective interpretation and context play a role.
+ *
+ * — the engineering record below, kept whole —
+ */
 // grounding.js — is every checkable claim in this answer actually in the bytes?
 // Handle: Mozi — after Mozi's test of the senses: a claim stands if it is in what the eyes and ears can witness, or it doesn't stand at all. Amendment XVII.
 //

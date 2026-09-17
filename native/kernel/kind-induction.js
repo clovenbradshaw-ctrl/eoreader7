@@ -1,3 +1,11 @@
+/* Kanada speaks:
+ * “The notions, Genus and Species, are relative to the 
+Understanding.”
+ *
+ * This file implements Kanada's atomist principles of kind-induction.  It relies on the observation that instances share common features and characteristics, and these shared features are sufficient to infer a kind.  However, the file should not be used as a basis for an arbitrary or biased kind-induction, as this would be a misapplication of the atomist principles.
+ *
+ * — the engineering record below, kept whole —
+ */
 // Handle: Kanada — after the Vaisheshika atomist: a kind (samanya) is induced from what its instances share, nothing declared in advance. Amendment XVII.
 
 import { createKindGraphStructureLedger } from "./kind-graph-structure.js";

@@ -1,3 +1,13 @@
+/* Tala speaks:
+ * “tatam  calvavanaddham  ca  [  ghanam  siisiram  eva  ca 
+caturvtdham  tu  vljneyam  |  atodyam  laksananvltam  (1) 
+tatam  tantrikrtam  jneyam  |  avanaddham  tu  pauskaram 
+ghanam  talas  tu  vijneyah  |  susiro  vamsa  eva  ca  (2)”
+ *
+ * This file implements the Tala rhythm cycle, a fundamental structure in Indian classical music.  It embodies the principle of  rhythm as independent of content,  a concept often obscured by modern music's dependence on lyrics.  My challenge is to ensure that the code remains faithful to this underlying rhythm, without losing the ability to express the complexities of human expression.
+ *
+ * — the engineering record below, kept whole —
+ */
 // native/kernel/rhythm-priors.js — the WHEN half of portable experience.
 // Handle: Tala — after the Indian classical rhythmic cycle: the WHEN, held independent of whatever content rides on top of it. Amendment XVII.
 //

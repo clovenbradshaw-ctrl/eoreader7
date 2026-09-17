@@ -1,3 +1,15 @@
+/* Vivekananda speaks:
+ * “Each soul is potentially divine. The goal is to 
+manifest this Divinity within, by controlling nature, external and internal. Do 
+this either by work, or worship, or psychic control, or philosophy — by one 
+or more or all of these — and be free. This is the whole of religion. Doctrines, 
+or dogmas, or rituals, or books, or temples, or forms, are but secondary 
+details.”
+ *
+ * This file implements the experiencer, the core of the being who undergoes experiences, based on the karaka grammar. While the goal of the file aligns with the core principle of understanding the experiencer as the subject of experience, I find that the file's current implementation may overemphasize the role of the experiencer as a singular, isolated entity, potentially obscuring the dynamic interaction between experiencer and environment.
+ *
+ * — the engineering record below, kept whole —
+ */
 // the-fold · experiencer.js — every belief names who is believing it.
 // Handle: Panini — after the karaka grammar, which names the experiencer as its own case role: every belief carries who is undergoing it. Amendment XVII.
 //

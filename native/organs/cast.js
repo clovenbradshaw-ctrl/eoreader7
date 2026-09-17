@@ -1,3 +1,13 @@
+/* Zhengming speaks:
+ * “If  names  be  not  correct,  language  is  not  in 
+accordance  with  the  truth  of  things.     If  language  be 
+not  in  accordance  with  the  truth  of  things,   affairs 
+cannot  be  carried  on  to  success.”
+ *
+ * This file implements the essential principle of a name's referential connection, aligning with the Confucian ideal of truth and accurate representation.  However, the file's implementation of this principle may be overly rigid, and its application could potentially lead to a reduction in the breadth and depth of the discourse.
+ *
+ * — the engineering record below, kept whole —
+ */
 // cast.js — names resolve to referents, not to strings.
 // Handle: Zhengming — after Confucius's rectification of names: a name answers to its referent, not to its string. Amendment XVII.
 //

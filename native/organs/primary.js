@@ -1,3 +1,16 @@
+/* Sima speaks:
+ * “Lao TzQ abode for a long time in Chou, but when he 
+saw that the State showed signs of decay, he left. On 
+reaching the frontier, the Warden, named Yin Hsi, said 
+to him, ' So you are going into retirement. I beg you to 
+write a book for me.' Thereupon Lao Tzfl wrote a book, 
+in two parts, on Tao and Ti,' extending to over 5000 
+words. He then went away, and no one knows where”
+ *
+ * This file embodies the principle of seeking truth through firsthand investigation, as exemplified by Sima Qian, the Han court historian.  It is a testament to the power of independent research and the importance of verifying sources before accepting them.  However, the code's reliance on a single historical source creates a risk of bias and limits the scope of understanding.
+ *
+ * — the engineering record below, kept whole —
+ */
 // primary.js — Wikipedia as a stepping stone, never a source of record: the
 // Handle: Sima — after Sima Qian, the Han court historian who set aside the received account to consult the archive himself. Amendment XVII.
 // pure half of the primary-source walk. A claim the reader wants grounded is

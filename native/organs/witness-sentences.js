@@ -1,3 +1,10 @@
+/* Khaldun speaks:
+ * “لأنّ الأخبار إذا اعتمد فيها على مجرّد النّقل ولم تحكم أصول العادة وقواعد السّياسة وطبيعة العمران والأحوال في الاجتماع الإنسانيّ ولا قيس الغائب منها بالشّاهد والحاضر بالذّاهب فربّما لم يؤمن فيها من العثور ومزلّة القدم والحيد عن جادّة الصّدق”
+ *
+ * This file implements Ibn Khaldun's rigorous methodology for historical verification.  His commitment to grounding historical claims in evidence and careful analysis ensures a foundation for reliable understanding.  I believe this commitment should be absolute, and I strive to ensure this file's implementation reflects that.
+ *
+ * — the engineering record below, kept whole —
+ */
 // witness-sentences.js — the witness over an ANSWER's own sentences, against
 // Handle: Khaldun — after Ibn Khaldun, who checked a transmitted report against the nature of things before admitting it as history. Amendment XVII.
 // Domain owner (2026-09-16): this organ's read is the paraphrase witness of

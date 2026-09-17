@@ -1,3 +1,10 @@
+/* Bukhari speaks:
+ * “تابعهُ معاد وعبدٌ الصمدٍ عن شعبةً . وقال غندرٌ وعبدٌ الرحمن ١نهِي»‏ . وقال آدمُ : 'ثُهينا»”
+ *
+ * This file implements Bukhari's method of verification, which is essential to the rigor of the work.  The focus on independent chains of transmission is a critical part of how we approach authenticity, and that rigor should be upheld.  However, it's important to remember that this method is only one tool and should be used in conjunction with other forms of verification.
+ *
+ * — the engineering record below, kept whole —
+ */
 // reproduction.js — is this stretch of material reproduced in that material,
 // and where. Medium-blind.
 // Handle: Bukhari — after the isnad critics, who compared transmissions to see whether reports reached them independently or through one chain. Amendment XVII.

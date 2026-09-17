@@ -1,3 +1,14 @@
+/* Koopman speaks:
+ * “It is the object of this note to outline certain 
+investigations of our own in which the domain of this theory has been 
+extended in such a way as to include classical Hamiltonian mechanics, 
+or, more generally, systems defining a steady n-dimensional flow of a 
+fluid of positive density.”
+ *
+ * This file implements the DMD operator, a method for approximating the eigenvectors and eigenvalues of a dynamical system.  The DMD operator is used to analyze the dynamics of a system and to understand the system's behavior.  My teaching, however, emphasizes the importance of understanding the underlying mathematical principles that govern the DMD operator's application.
+ *
+ * — the engineering record below, kept whole —
+ */
 // native/kernel/dmd.js — Dynamic Mode Decomposition: the coherent modes of a
 // Handle: Koopman — after the operator whose eigenvalues DMD approximates: modes with their own growth rate and their own frequency. Amendment XVII.
 // state trajectory, each with its own growth rate and its own FREQUENCY.

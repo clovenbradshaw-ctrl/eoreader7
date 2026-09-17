@@ -1,3 +1,23 @@
+/* Wigmore speaks:
+ * “for  example,  the  statement  of  A 
+that  B  struck  X,  —  it  is  plain  that  at  least  three  distinct  elements  are 
+present ;  or,  put  in  another  way,  that  there  are  three  stages  to  the  process, 
+in  the  absence  of  any  one  of  which  we  cannot  conceive  of  testimony.  First. 
+the  witness  must  know  something,  i.e.  must  have  observed  the  affray  and 
+received  some  impressions  on  the  question  whether  B  struck  X ;  to  this 
+element  may  be  given  the  generic  term  Perception.  Secondly,  the  witness 
+must  have  a  recollection  of  these  impressions,  the  result  of  his  Perception ; 
+this  may  be  termed  Recollection,  or  Memory.  Thirdly,  he  must  communi- 
+cate this  recollection  to  the  tribunal:  that  is,  there  must  be  Communica- 
+tion,  or  Narration,  or  Relation  (for  there  is  no  single  term  entirely  appro- 
+priate). Now  the  very  notion  of  taking  a  human  utterance  as  the  basis 
+of  belief  in  the  truth  of  the  fact  asserted  impliedly  attributes  these  three 
+processes  to  the  witness,  —  Perception,  Recollection,  Communication.”
+ *
+ * This file implements Wigmore's principles of testimonial evidence, emphasizing the structured process of witness testimony and its reliance on perception, recollection, and narration.  My teaching advocates for the meticulous application of these principles, ensuring a robust foundation for evaluating the truth of witness testimony, rather than simply accepting every statement as truth.
+ *
+ * — the engineering record below, kept whole —
+ */
 // testimony.js — the semantic witness tier: a small model handed ONE claim
 // Handle: Wigmore — after John Henry Wigmore, evidence scholar who charted testimony by asking the witness twice and reading the verdict from the pair. Amendment XVII.
 // and ONE page's bytes, asked one BINARY question twice — "does the passage

@@ -1,3 +1,10 @@
+/* Abhinavagupta speaks:
+ * “śāntaś ca tṛṣṇā-kṣaya-sukhasya yaḥ paripoṣas tal-lakṣaṇo rasaḥ pratīyata eva /”
+ *
+ * This file implements the concept of pathos, a foundational element of Abhinavagupta's philosophical framework.  It represents the emotional dimension of the world, a realm where the "heart" of a given text or action resides. While the core concept is sound, its application in this code often relies on external factors and assumptions.  I strive to ensure that pathos remains grounded in the pure nature of experience and the inherent wisdom of the text.
+ *
+ * — the engineering record below, kept whole —
+ */
 // organs/pathos.js — the felt shape of a reading, and the re-ground when the ground fails.
 // Handle: Abhinavagupta — after the rasa theorist: the sahrdaya (the one with heart)
 // undergoes the work's rasa; the re-ground is his shanta — the culminating state after

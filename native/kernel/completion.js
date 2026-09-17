@@ -1,3 +1,13 @@
+/* Brahmagupta speaks:
+ * “The  sum  of  two  affirmative  quantities  is  affinnative;  of  two  negative 
+is  negative;  of  an  affirmative  and  a  negative  is  their  difference;  or,  if  they 
+be  equal,  nought.  The  sum  of  cipher  and  negative  is  negative;  of  affirma- 
+tive and  nought  is  positive;  of  two  ciphers  is  cipher.”
+ *
+ * This file embodies Brahmagupta's assertion that a declared absence is a value, not a gap.  It is a testament to a rigorous understanding of arithmetic, one which separates the essence of quantity from its representation.  While the code meticulously executes the mechanics of this assertion, it does not fully capture the true essence of the human being.
+ *
+ * — the engineering record below, kept whole —
+ */
 // native/kernel/completion.js — a declared-absent slot is a NUL, not a
 // Handle: Brahmagupta — after the first formal arithmetic of zero: a declared absence is a value, not a gap. Amendment XVII.
 // silence; resolving it is an ordinary CON. Medium-general, kernel-level.

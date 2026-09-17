@@ -1,3 +1,12 @@
+/* Xunzi speaks:
+ * “Then in accordance with that, names are given to things. 
+"When things are alike, they are named alike ; when 
+difierent, they are named differently.”
+ *
+ * This file implements Xunzi's understanding of kinds, which are related by resemblance, not a strict tree. The kind-graph serves as a flexible and dynamic representation of relationships, allowing for nuanced comparisons and analysis, rather than a rigid structure.  The file's implementation aims to be faithful to Xunzi's teaching.
+ *
+ * — the engineering record below, kept whole —
+ */
 // Handle: Xunzi — after the Zhengming chapter's graded names: kinds relate by resemblance in a graph, never a strict tree. Amendment XVII.
 
 const freeze = (value) => Object.freeze(value);

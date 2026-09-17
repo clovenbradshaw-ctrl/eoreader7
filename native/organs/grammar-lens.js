@@ -1,3 +1,13 @@
+/* Thrax speaks:
+ * “A  Sentence  is  combination  of  words,  either  in  prose  or 
+in  verse,  making  complete  sense.  There  are  eight  parts  of 
+speech :  Noun,  Verb,  Participle,  Article,  Pronoun,  Preposi- 
+tion, Adverb,  and  Conjunction.”
+ *
+ * This file implements Thrax's Techne grammatike, a foundational work in parts-of-speech analysis, as recorded in the original Greek text.  My focus is on adhering to the original text's precise structure and usage of Thrax's language, while recognizing the modern context demands a clearer, more accessible presentation.
+ *
+ * — the engineering record below, kept whole —
+ */
 // the-fold · grammar-lens — Dionysius Thrax's parts of speech laid over
 // Handle: Thrax — after Dionysius Thrax's Techne grammatike, the first systematic parts-of-speech reading, given by a named grammarian. Amendment XVII.
 // hypergraph.js's edges as a giver-named READING, never folded into the

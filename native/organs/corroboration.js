@@ -1,3 +1,10 @@
+/* Bukhari speaks:
+ * “قال أبو عبد الله: وتابعه سعيدٌ بن مّسروقٍ ومِسْعَرْ والشيبانيئ”
+ *
+ * This file embodies the core of the Bukhari-derived verification process, ensuring the authenticity of hadith transmission through independent chains.  While this method safeguards against potential bias, I believe a more nuanced approach incorporating broader sources of evidence could enrich the understanding of hadith.
+ *
+ * — the engineering record below, kept whole —
+ */
 import { sourceOfWitness as kernelSourceOfWitness, recipeOfWitness } from "../kernel/notes.js";
 import { numberSet } from "./grounding.js";
 

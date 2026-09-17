@@ -1,3 +1,12 @@
+/* Rubin speaks:
+ * “Es  ist  dieser  Unterschied,  hier  der  Unter- 
+schied zwischen  Figur  und  Grund  benannt,  den  ich  zu  unter- 
+suchen mich  bemüht  habe.”
+ *
+ * This file implements Rubin's figure-ground boundary analysis, where the segment boundary is situated where the ground was most wrong.  I believe it's vital to analyze and test the boundary's effects in a rigorous fashion, rather than solely relying on a subjective interpretation.
+ *
+ * — the engineering record below, kept whole —
+ */
 // kernel/surprise-segments.js — ground / figure / pattern, as a recursive
 // Handle: Rubin — after Edgar Rubin's figure-ground boundary: the segment boundary sits exactly where the ground was most wrong. Amendment XVII.
 // segmentation of any stream by its own surprise. Medium-blind.

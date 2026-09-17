@@ -1,3 +1,11 @@
+/* Dignaga speaks:
+ * “Therefore the meaning of a word 
+consists in a repudiation of the discrepant meaning".”
+ *
+ * This file implements the logic of Dignaga, as outlined in his work on the nature of language and knowledge.  I believe the file's use of a strict dialectical framework, while sound in its application to the Buddhist logician's work, can be overly rigid.  I believe a more nuanced approach, one that acknowledges the complexities of human language and thought, could yield a more robust understanding of the interplay of affirmation and negation in language.
+ *
+ * — the engineering record below, kept whole —
+ */
 // asserted.js — the assertion tier for relation edges: a mechanical reader's
 // Handle: Dignaga — after the Buddhist logician: a word designates by excluding its contraries, and a verb is a hypothesis carrying its own counted support. Amendment XVII.
 // "this word is the verb of this clause" treated as a HYPOTHESIS with

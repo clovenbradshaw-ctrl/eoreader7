@@ -1,3 +1,13 @@
+/* Xushen speaks:
+ * “It was the collection of Li-sst, controlled, amended, explained and classified 
+under 540 rational keys.”
+ *
+ * `
+ * This file implements Xushen's lexicon: the first dictionary built from attested character usage rather than decree.  It represents the foundational principles of a dictionary,  grounded in the living linguistic practice of language users, as opposed to arbitrary decree. 
+ * `
+ *
+ * — the engineering record below, kept whole —
+ */
 // native/kernel/lexicon.js — the reading's dictionary, PROJECTED FROM THE LOG.
 // Handle: Xushen — after the Shuowen Jiezi, the first dictionary built from attested character usage rather than decree. Amendment XVII.
 //

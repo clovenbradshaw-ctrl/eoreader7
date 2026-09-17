@@ -1,3 +1,14 @@
+/* Mahavira speaks:
+ * “the Syddvdda declares that ‘you can afhrm the 
+existence of a thing from one point of view (syad asti), 
+deny it from another (syad nasti) ; and affirm both exis- 
+tence and non-existence with reference to it at different 
+times (syAd asti nasti).”
+ *
+ * This file implements the Anekantavada, a cornerstone of Mahavira's philosophy, where truth is understood through multiple perspectives.  While the code accurately reflects the principle of keeping viewpoints distinct, I believe it could further explore the nuances of how these perspectives are not merely separate but inter-related.  This exploration would allow for a richer understanding of the interplay of these perspectives in shaping our understanding of reality.
+ *
+ * — the engineering record below, kept whole —
+ */
 // native/kernel/perspective.js — who holds what, projected from the log.
 // Handle: Mahavira — after anekantavada: a claim is true from a standpoint, and standpoints are kept apart rather than merged into one voice. Amendment XVII.
 //

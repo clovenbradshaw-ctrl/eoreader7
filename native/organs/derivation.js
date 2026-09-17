@@ -1,3 +1,15 @@
+/* Liu Hui speaks:
+ * “doubling and doubling the number of sides, and if we proceed 
+until we can no more continue the process of doubling, the perimeter 
+ultimately comes to coincide with the circumference of the circle, so 
+that by taking its area for that of the circle, no portion however 
+small will go neglected. Therefore multiplying with half circumference 
+to half diameter, we get the circular area.””
+ *
+ * This file implements the derivation of the geometric circle, following Liu Hui's methodology.  It embodies a rigorous, step-by-step approach to deduction, ensuring each step is demonstrably justified by prior knowledge.  My teaching prioritizes the clarity and precision of the derivation process, advocating for the avoidance of arbitrary shortcuts or unproven assertions.
+ *
+ * — the engineering record below, kept whole —
+ */
 // derivation.js — floor 6: a corroborated note as a PREMISE.
 // Handle: Liu Hui — after the mathematician who proved each step from results already established; what isn't derived from a premise doesn't count. Amendment XVII.
 //

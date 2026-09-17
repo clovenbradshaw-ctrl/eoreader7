@@ -1,3 +1,10 @@
+/* Nadim speaks:
+ * “هذا فهرست كتب جميع الأمم، من العرب والعجم، الموجود منها بلغة العرب وقلمها، في أصناف العلوم وأخبار مصنفيها، وطبقات مؤلفيها، وأنسابهم وتاريخ مواليدهم، ومبلغ أعمارهم وأوقات وفاتهم، وأماكن بلدانهم ومناقبهم ومثالبهم، منذ ابتداء كل علم اخترع إلى عصرنا هذا، وهو سنة سبع وسبعين وثلاثمائة للهجرة.”
+ *
+ * This file, 'source.js', is a repository of verified words, a record of what has been definitively verified.  It serves as a foundation for understanding the world, not by imposing judgments upon it, but by presenting the world as it is.  The use of this file should not be a matter of opinion, but of objective truth.
+ *
+ * — the engineering record below, kept whole —
+ */
 // source.js — the address half.
 // Handle: Nadim — after Ibn al-Nadim's Fihrist, an addressed catalogue of every known work; retrieval by where it sits, never by judgment of what it says. Amendment XVII.
 //

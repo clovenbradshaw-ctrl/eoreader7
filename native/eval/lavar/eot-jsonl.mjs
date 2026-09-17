@@ -59,7 +59,7 @@ import { bindNarrationFrames, pronounResolver } from "../../adapters/text/perspe
 import { boundAnchorSpans } from "../../adapters/text/vocabulary.js";
 import * as cube from "../../kernel/cube.js";
 import { makeGrainTyper } from "./grain-typing.mjs";
-import { prodropClauses, confirmGreekVerbs, greekBeings } from "./greek.mjs";
+import { prodropClauses, confirmGreekVerbs, greekBeings, personOf, personLabel } from "./greek.mjs";
 import { receivedGround, applyDelta } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
 import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
@@ -254,6 +254,20 @@ if (!LANG_PRONOUNS[LANG]) { console.error(`no pronoun set declared for --lang=${
 // other language keeps its declared set byte-identical. A disclosed linguistic
 // judgment, made once, never a number tuned against a golden.
 const VOID_PRONOUNS = { ...LANG_PRONOUNS, grc: wordBound("αὐτός|αὐτή|αὐτό|αὐτοί|αὐταί|αὐτά|αὐτοῦ|αὐτῆς|αὐτῶν|αὐτῷ|αὐτῇ|αὐτοῖς|αὐταῖς|αὐτόν|αὐτήν|αὐτὸν|αὐτὴν") };
+// THE GREEK CASE/PERSON PRIOR (2026-09-17) — the received morphological
+// ground for the person tier. Built by the ONE-MASTER builder
+// (scripts/build-latin-case-prior.mjs, language-general) from
+// UD_Ancient_Greek-PROIEL, living in live_priors beside the other derived
+// priors. The reader only tallies-reads it; the person tier's confidence
+// floor is the reader's own (personOf), never the prior's. Absent, the tier
+// stays off, disclosed. `--grc-case=<path>` overrides, the --pos= pattern.
+const GREEK_CASE_PRIOR_PATH = (process.argv.find((a) => a.startsWith("--grc-case=")) ?? "").replace("--grc-case=", "") ||
+  path.join(HERE, "../../../../live_priors/derived-priors/case-priors/case-marking-grc.json");
+let GREEK_CASE_PRIOR = null;
+if (GREEK) {
+  try { GREEK_CASE_PRIOR = JSON.parse(fs.readFileSync(GREEK_CASE_PRIOR_PATH, "utf8")); }
+  catch (e) { console.error(`greek case prior absent (${path.relative(process.cwd(), GREEK_CASE_PRIOR_PATH)}) — the person tier stays off, disclosed`); }
+}
 // GROUND override (2026-09-13): --pos=<path> selects WHICH received prior is
 // the floor for this read, so a ground experiment can compare UD-treebank
 // vs UniMorph-derived priors for the same material (the UniMorph grc/san
@@ -978,12 +992,23 @@ for (const sent of sentences) {
     if (GREEK && hasEarnedVerb) {
       const prodrop = prodropClauses(sent.text, verbs, POS_PRIOR);
       for (const c of prodrop) {
+        // THE PERSON TIER (2026-09-17): the subject is not just "in the
+        // verb" — the received GreekCasePrior@1 settles WHICH person it is,
+        // from the verb's own ending (-εις → 2|Sing "you" at 100%). The
+        // void's "the text points at someone this reader cannot say who"
+        // becomes: it points at the grammatical you. Below the reader's
+        // confidence floor, the person stays unsettled — disclosed, never
+        // guessed.
+        const person = GREEK_CASE_PRIOR ? personOf(c.verb, GREEK_CASE_PRIOR) : null;
         emit({
           schema: "EOTProdrop@1", id: id("pd"), at: rawAt(sent.offset + c.at[0], sent.offset + c.at[1]),
           role: "proposition",
           verb: c.verb, ...(c.object ? { object: c.object } : {}),
           subjectBasis: "pro-drop",
-          disclosure: "the clause's subject is grammaticalized in the verb (person/number), not stated as a token — never fabricated into a referent; verb and object are the material's own words",
+          ...(person ? { subjectPerson: person.person, subjectNumber: person.number, personShare: person.share, subjectCell: person.cell } : {}),
+          disclosure: person
+            ? `the clause's subject is grammaticalized in the verb — ${person.person}${person.number === "Sing" ? "st" : "nd"} person ${person.number === "Sing" ? "singular" : "plural"} (${personLabel(person.person, person.number)})${person.cell ? `, cell ${person.cell.op}·${person.cell.grain} (${person.cell.terrain})` : ""}, settled from the verb's ending "${person.ending}" by the received GreekCasePrior@1 at share ${person.share.toFixed(2)}; never fabricated into a referent, verb and object are the material's own words`
+            : "the clause's subject is grammaticalized in the verb (person/number) but its person did not clear the reader's confidence floor — settled means refusable, never guessed; verb and object are the material's own words",
         });
       }
       if (prodrop.length) continue; // the clause was heard; no absence to record

@@ -1,3 +1,12 @@
+/* Ise speaks:
+ * “No.  24)  is  a  very  short  formula.  It  announces  to  the  Sun- 
+Goddess  the  rebuilding  of  her  shrine,  which  took  place  every 
+twentieth  year.”
+ *
+ * This file implements the principle of permanence in the face of cyclical renewal, a concept central to the understanding of the Ise shrine's Shikinen Sengu.  My teaching is that identity is not merely a static point in time, but rather a dynamic process of ongoing re-creation and transformation, a process that must be reflected in the way we understand and interpret our own lives.
+ *
+ * — the engineering record below, kept whole —
+ */
 // Handle: Ise — after the Ise shrine's Shikinen Sengu: the same shrine persists through total periodic rebuilding. Amendment XVII.
 
 import { eoOperation, deltaFold, chainView } from "./fold.js";

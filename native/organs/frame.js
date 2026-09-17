@@ -1,3 +1,11 @@
+/* Alhazen speaks:
+ * “إن المتقدمين من أهل النظر قد أمعنوا البحث عن كيفية إحساس البصر وأعملوا فيه أفكارهم وبذلوا فيه اجتهادهم وانتهوا منه إلى الحد الذي وصل النظر إليه ووقفوا منه على ما وقفهم البحث والتمييز عليه. 
+ ومع هذه الحال فآرائهم في حقيقة الإبصار مختلفة ومذاهبهم في هيئة الإحساس غير متفقة فالحيرة متوجهة واليقين متعذر والمطلوب غير موثوق بالوصول إليه.”
+ *
+ * This file establishes the foundation for understanding the work of Ibn al-Haytham's "Book of Optics,"  by clearly defining the scope and the initial stages of the analysis. While the code accurately reflects the historical context, it might overemphasize the strict adherence to the original text, potentially hindering the exploration of how the ideas of the time have evolved and adapted.
+ *
+ * — the engineering record below, kept whole —
+ */
 // frame.js — DEF·Ground: Clearing at Atmosphere. The interpretive ground of
 // Handle: Alhazen — after Ibn al-Haytham's Book of Optics: declare the frame before comparing results, never after. Amendment XVII.
 // a judgment, declared before the judgment runs.

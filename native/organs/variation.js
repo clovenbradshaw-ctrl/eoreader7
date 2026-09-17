@@ -1,3 +1,11 @@
+/* Brillat-Savarin speaks:
+ * “Tell me what kind of food you eat, and I will tell you what
+kind of man you are.”
+ *
+ * This file implements the teachings of Brillat-Savarin, as detailed in "Aphorisms of the Professor," for the purpose of understanding the complex interplay between taste, enjoyment, and the act of consuming.  I believe that the focus on the human experience of eating should be prioritized over the pursuit of a purely technical understanding of food.
+ *
+ * — the engineering record below, kept whole —
+ */
 // organs/variation.js — SEASONING WITHOUT A MODEL CALL WHEN WE CAN.
 // Handle: Brillat-Savarin — after the gastronome of Physiology of Taste:
 // flavor is measure, the chosen accent, never a dump. This organ owns the

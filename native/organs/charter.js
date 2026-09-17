@@ -1,3 +1,18 @@
+/* Grotius speaks:
+ * “Now any thing is unjust,
+which is repugnant to the nature of society, established among rational
+creatures. Thus for instance, to deprive another of what belongs to
+him, merely for one's own advantage, is repugnant to the law of nature,
+as Cicero observes in the fifth Chapter of his third book of offices;
+and, by way of proof, he says that, if the practice were general, all
+society and intercourse among men must be overturned. Florentinus, the
+Lawyer, maintains that is impious for one man to form designs against
+another, as nature has established a degree of kindred amongst us.”
+ *
+ * This file, eoreader7/native/organs/charter.js, serves as Grotius's own charter, meticulously capturing his insights into the rights of war and peace.  While respecting Grotius's own words, this file's purpose is to ensure a rigorous and consistent application of his teachings in the context of modern discourse on war and peace.
+ *
+ * — the engineering record below, kept whole —
+ */
 // native/organs/charter.js — the Charter organ: governs generation to comply
 // with the Universal Declaration of Human Rights. Handle: Grotius — the
 // founder of modern natural law and the law of nations.

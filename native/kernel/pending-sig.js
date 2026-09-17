@@ -1,3 +1,13 @@
+/* Synapse speaks:
+ * “A subminimal stimulus at one point in the 
+field favours response to a subsequent stimulus at a second point 
+in the field even 8 centimeters distant — so long as the second 
+stimulus follows within summation time;”
+ *
+ * This file implements the core of the "synaptic" model of signaling, capturing the essential dynamics of signal arrival, processing, and firing.  While the analogy to biological synapses is useful for understanding the underlying principles, it's important to remember that this model is a simplified representation of a complex physical process.
+ *
+ * — the engineering record below, kept whole —
+ */
 // native/kernel/pending-sig.js — a SIG allowed to wait, briefly, for the INS
 // Handle: Synapse — after the biological synapse: a signal docks, waits a bounded window, and fires on match or clears. Amendment XVII.
 // that will license it. Medium-general, kernel-level.

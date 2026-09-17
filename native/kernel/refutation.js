@@ -1,3 +1,12 @@
+/* Nagarjuna speaks:
+ * “But can there be a more eloquent refutation of 
+an opponent than the proof that he is not capable of 
+establishing his own thesis”
+ *
+ * This file embodies Nagarjuna's Prasanga method of refutation, where refutations are entirely grounded in consequence and assertion of the opponent's own arguments.  However, its use within the code structure for refutation might potentially oversimplify the complexities of refutation, as it risks ignoring the nuances and subtleties that arise in a rigorous engagement with opponent's arguments.
+ *
+ * — the engineering record below, kept whole —
+ */
 // native/kernel/refutation.js — the veto organ: what the material REFUSES,
 // Handle: Nagarjuna — after the Madhyamaka method of prasanga: refutation runs entirely by consequence, and asserts no thesis of its own. Amendment XVII.
 // never what it licenses.

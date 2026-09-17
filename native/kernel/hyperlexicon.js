@@ -1,3 +1,13 @@
+/* Xushen speaks:
+ * “The aim of Hsii-shén was to impede any ulterior altera- 
+tion of the characters, by setting their authentical form before the eyes of all 
+
+scholars.”
+ *
+ * This file, `eoreader7/native/kernel/hyperlexicon.js`, embodies Xushen's contribution to the construction of a dictionary grounded in attested usage rather than decree.  The challenge lies in navigating the potential for a lexicon to become a tool for imposing a particular understanding of language, rather than a tool for understanding how language is actually used.
+ *
+ * — the engineering record below, kept whole —
+ */
 // Canonical EOReader 7 Hyperlexicon.
 // Handle: Xushen — after the Shuowen Jiezi, the first dictionary built from attested character usage rather than decree. Amendment XVII.
 //

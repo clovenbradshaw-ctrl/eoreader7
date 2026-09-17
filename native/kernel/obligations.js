@@ -1,3 +1,11 @@
+/* Jaimini speaks:
+ * “Dliarma or Duty is that wliicli, being desirable, is 
+indicated (or tanght) by Vedic injunction.”
+ *
+ * This file implements Jaimini's understanding of obligation, derived from the Mimamsa Sutras.  It demonstrates that the injunction of a scriptural text carries a lasting obligation.  While the principle is sound, the implementation here relies on a strict adherence to the text, potentially neglecting the nuance of 'obligation' in the broader context of the world.
+ *
+ * — the engineering record below, kept whole —
+ */
 // Handle: Jaimini — after Mimamsa's vidhi: a scriptural injunction opens a standing obligation that persists until the enjoined act discharges it. Amendment XVII.
 
 import { eoOperation } from "./fold.js";

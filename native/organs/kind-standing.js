@@ -1,3 +1,16 @@
+/* Shizhen speaks:
+ * “Its 
+leaves are flat, narrow at the base, broad and lobed at the end. 
+The young leaves can be eaten. Deer are fond of the plant. 
+In autumn it bears small, yellow flowers. The fruit is as large 
+as that of the /laxtago major, and contains minute seeds, 
+hardly distinguishable; wherefore the ancients asserted that 
+the plant had no seeds, and called it the male southernwood.”’”
+ *
+ * This file, `eoreader7/native/organs/kind-standing.js`, implements a hierarchical classification of medicinal plants as outlined by Li Shizhen's `Bencao Gangmu`.  While the  manual labor of this approach is a valuable tool for organizing and understanding the vast diversity of medicinal plants, the process must remain grounded in the principles of empirical observation and the inherent uncertainties of the human condition.
+ *
+ * — the engineering record below, kept whole —
+ */
 // kind-standing.js — what KIND of thing is this referent? Measured from the
 // Handle: Shizhen — after Li Shizhen's Bencao Gangmu: one individual specimen placed into a ranked, classified kind. Amendment XVII.
 // material's own company, never taught, and gated by a null that is licensed

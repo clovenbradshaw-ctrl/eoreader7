@@ -23,6 +23,7 @@
 // here (verbPersonalEndings) so that finding is itself reproducible from
 // this script's own output, not just asserted.
 import { readFileSync, writeFileSync } from "node:fs";
+import { grammarCell } from "../kernel/cube.js";
 
 const IN = process.argv[2] ?? "native/eval/fixtures/ud-latin-perseus/la_perseus-ud-train.conllu";
 // Moved to live_priors 2026-08-30 (act-priors' own precedent: "a received
@@ -30,6 +31,20 @@ const IN = process.argv[2] ?? "native/eval/fixtures/ud-latin-perseus/la_perseus-
 // default OUT now names the canonical home directly rather than a local
 // copy this repo would otherwise have to remember to re-sync by hand.
 const OUT = process.argv[3] ?? "../live_priors/derived-priors/case-priors/case-marking-lat.json";
+// LANGUAGE-GENERAL BY CONSTRUCTION (2026-09-17): the mechanism below — the
+// word-ending tally of nominal Case|Number and verb Person|Number from a UD
+// treebank — is the same for any inflectional language; what varies is the
+// measured numbers, the schema name, and the provenance. Named arguments,
+// each defaulting to the Latin values so the shipped artifact is rebuilt
+// byte-identical by default. The mode is: one master builder, a
+// CasePrior@1 (or LatinCasePrior@1) per language — never a per-language
+// script. Reused for Ancient Greek (UD_Ancient_Greek-PROIEL) 2026-09-17.
+const arg = (name, dflt) => process.argv.find((a) => a.startsWith(`--${name}=`))?.split("=")[1] ?? dflt;
+const LANG = arg("lang", "lat");
+const SCHEMA = arg("schema", "LatinCasePrior@1");
+const GIVER = arg("giver", "Universal Dependencies UD_Latin-Perseus");
+const URL = arg("url", "https://github.com/UniversalDependencies/UD_Latin-Perseus");
+const LICENSE = arg("license", "CC BY-NC-SA 2.5 — non-commercial, share-alike; stated plainly, not glossed over");
 
 const NOMINAL_UPOS = new Set(["NOUN", "PROPN", "ADJ", "PRON", "NUM"]);
 const CASE_ENDING_LEN = 2;
@@ -68,24 +83,31 @@ for (const line of lines) {
   }
 }
 
-const toRankedObject = (table) => {
+const toRankedObject = (table, feature) => {
   const out = {};
   for (const [ending, counts] of table) {
     const total = [...counts.values()].reduce((a, b) => a + b, 0);
     out[ending] = {
       total,
-      ranked: [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([key, n]) => ({ key, count: n, share: n / total })),
+      ranked: [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([key, n]) => {
+        // THE CUBE PROJECTION (2026-09-17): each tallied feature bundle
+        // carries its cube cell (grammarCell), so this prior IS the universal
+        // grammar worn by this language's endings — the reader reads in cells.
+        const cell = grammarCell(feature, key.split("|")[0]);
+        return { key, count: n, share: n / total, ...(cell ? { cell: { op: cell.op, grain: cell.grain, terrain: cell.terrain, stance: cell.stance } } : {}) };
+      }),
     };
   }
   return out;
 };
 
 writeFileSync(OUT, JSON.stringify({
-  schema: "LatinCasePrior@1",
+  schema: SCHEMA,
+  language: LANG,
   provenance: {
-    giver: "Universal Dependencies UD_Latin-Perseus",
-    url: "https://github.com/UniversalDependencies/UD_Latin-Perseus",
-    license: "CC BY-NC-SA 2.5 — non-commercial, share-alike; stated plainly, not glossed over",
+    giver: GIVER,
+    url: URL,
+    license: LICENSE,
     builtFrom: IN,
     sentences,
     nominalTokensObserved: nominalTokens,
@@ -96,8 +118,8 @@ writeFileSync(OUT, JSON.stringify({
     scope: "ambiguous word-final endings only; a form the treebank never saw returns a gap in the consuming organ, never a guess here",
     backoff: "the consuming organ's own declared confidence floor decides — this file only tallies",
   },
-  nominalEndings: toRankedObject(caseTable),
-  verbPersonalEndings: toRankedObject(verbTable),
+  nominalEndings: toRankedObject(caseTable, "Case"),
+  verbPersonalEndings: toRankedObject(verbTable, "Person"),
 }, null, 2));
 
 console.log(`sentences: ${sentences}; nominal tokens: ${nominalTokens} (${caseTable.size} distinct endings); verb tokens: ${verbTokens} (${verbTable.size} distinct endings)`);

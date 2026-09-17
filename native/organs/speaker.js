@@ -1,3 +1,12 @@
+/* Scheherazade speaks:
+ * “the  better  to  speed  our  waking  hours ; "  and  I  will  tell  thee  a  tale 
+which  shall  be  our  deliverance,  if  so  Allah  please,  and  which  shall 
+turn  the  King  from  his  blood-thirsty  custom."”
+ *
+ * This file, 'speaker.js', is the embodiment of Scheherazade's skill in weaving tales of great and wondrous power.  It captures the essence of a speaker's voice and its ability to bind a listener to the tale, even when the very act of storytelling shifts and transforms.  My teaching demands that this file remain a testament to the art of storytelling, not a tool for artificial creation.
+ *
+ * — the engineering record below, kept whole —
+ */
 // speaker.js — the speaker boundary (Tier 4 #11): epistolary "I" bound to
 // Handle: Scheherazade — after the nested tales of the Nights: each "I" is bound to the frame that declared it, however deep the nesting goes. Amendment XVII.
 // its section's DECLARED author, as a binding table beside immutable text.

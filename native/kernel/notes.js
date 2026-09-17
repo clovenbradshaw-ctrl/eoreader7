@@ -1,6 +1,30 @@
+/* Arokin speaks:
+ * “The  Arokins.  These  are  the  rhapsodists  or  national  historians, 
+an  hereditary  title  ;  they  have  an  apartment  to  themselves  where 
+they  repeat  daily  in  songs  the  genealogy  of  the  Kings,  the  principal 
+events  of  their  lives  and  other  notable  events  in  the  history  of  the 
+Yoruba  country.”
+ *
+ * This file, `eoreader7/native/kernel/notes.js`, serves as a repository for the verified words of the Arokin, the Yoruba court historians.  My teaching necessitates the fidelity to original sources, even when they are incomplete or fragmentary. The challenge lies in the inherent tension between preserving the original record and ensuring its use in a manner that is both insightful and responsible.
+ *
+ * — the engineering record below, kept whole —
+ */
 // kernel/notes.js — what a reading was heard to say, as an append-only
 // event stream; the current belief always a projection. Medium-blind.
 // Handle: Arokin — after the Yoruba court historians, whose oral tradition kept an append-only record of what was said. Amendment XVII.
+//
+// NAGARJUNA'S NOTE (2026-09-16): this file's `declareVoid` is NOT
+// the-fold/void-shape.js's `declareVoid` — same name, different meaning,
+// the same shape already disclosed for "hyperlexicon" (the-fold's
+// CLAUDE.md, "Three modules share the name 'hyperlexicon'"). THIS ONE is a
+// LEDGER ENTRY: "nothing heard for `<end1 —label→ ?>`" in a declared
+// scope, refused without one, tracked through time (declared / filled via
+// `rezeroVoid` / conceded, `voidTimeline`) on this same append-only
+// record — see `declareVoid`/`foldVoids`/`rezeroVoid` below. void-shape.js's
+// is a SPACE: a single slot as an extent with dimensions, zeroed and
+// checked for what a filler leaves uncovered — no ledger, no witnesses, no
+// timeline. Import the one you mean; a caller wanting "is a stated slot's
+// extent still short a filler" wants void-shape.js's, not this one.
 //
 // LINEAGE. This is the-fold's assertion ledger (its P57 `hyperlexicon.js`,
 // moved into native/organs on 2026-09-02) brought down one more level and

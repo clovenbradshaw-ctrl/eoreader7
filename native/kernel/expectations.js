@@ -1,3 +1,12 @@
+/* Bharata speaks:
+ * “The  statement  of  the  Ndtyagdstra  is  simple.  Sentiment  is  pro- 
+duced from  the  union  of  the  determinants  (vibhdva),  the  conse- 
+quents (anubhdva),  and  the  transitory  feelings  {vyabhicdrin).”
+ *
+ * This file implements the Bharata's  approach to expectations, as defined in the Natyashastra's rasa theory.  I believe this framework, while insightful, can sometimes fall into a trap of rigid emotional scaffolding.  The file should instead strive for nuanced understanding of expectations, acknowledging their fluidity and the complexities of human experience.
+ *
+ * — the engineering record below, kept whole —
+ */
 // Handle: Bharata — after the Natyashastra's rasa theory: an expectation is built, strengthened, weakened, and released like a staged emotion. Amendment XVII.
 
 import { eoOperation } from "./fold.js";
