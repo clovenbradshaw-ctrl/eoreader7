@@ -28,7 +28,7 @@
 // Slash commands: /new, /close, /model [n|name] (bare lists the roster),
 // /code, /chat, /help, /quit, /matrix, /github.
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useReducer, useState } from "react";
 import { render, Box, Text, useApp, useInput, useStdout } from "ink";
 import TextInput from "ink-text-input";
 import path from "node:path";
@@ -37,10 +37,6 @@ import { AGENT_MAX_TURNS } from "../native/the-fold/sandboxed-agent.js";
 import { wrapText, snipLine } from "./format.mjs";
 import { matrixLogin, matrixLogout, matrixStatus, matrixWhoAmI } from "./matrix-login.mjs";
 import { startGithubDeviceFlow, githubLogout, githubStatus, githubWhoAmI } from "./github-login.mjs";
-// The archons' EOT rooms (the-fold/archon-hyphae.mjs) — the SAME verbs the
-// proxy and er7-client reach: record appends a lesson, print shows the FULL
-// conversation (every kind, both roles, gaps named), list the roster.
-import { provisionArchon, recordArchon, loadArchonConversation, renderConversation, roster, DEFAULT_HS, DEFAULT_ADMIN } from "../../the-fold/archon-hyphae.mjs";
 
 const h = React.createElement;
 const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
@@ -166,7 +162,12 @@ function TabBar({ tabs, activeId }) {
   }));
 }
 
-function StatusLine({ proxyState, tab }) {
+// Pure text builder so the layout math below can measure the SAME string
+// Ink is about to paint — see the row-budget comment in App() for why this
+// split matters (a status line that wraps to 2 rows at normal terminal
+// widths, while the chrome budget still assumes 1, desyncs Ink's redraw and
+// swallows the tab bar out from under it).
+function statusLineText(proxyState, tab) {
   const proxyText =
     proxyState.status === "checking" ? "checking proxy…" :
     proxyState.status === "starting" ? "starting er7 proxy…" :
@@ -177,8 +178,11 @@ function StatusLine({ proxyState, tab }) {
   // model is still disclosed per response (each assistant message carries
   // its model); the tab adopts res.model after every turn, so a
   // plain-speech switch shows up top the moment it lands.
-  return h(Box, null,
-    h(Text, { dimColor: true }, `${proxyText} · mode:${tab?.mode ?? "-"} · Heimdall will find you the fastest and safest way across the bifrost · Ctrl+H for help`));
+  return `${proxyText} · mode:${tab?.mode ?? "-"} · Heimdall will find you the fastest and safest way across the bifrost · Ctrl+H for help`;
+}
+
+function StatusLine({ text }) {
+  return h(Box, null, h(Text, { dimColor: true }, text));
 }
 
 // The help's content is a single source of truth so the layout can measure
@@ -243,6 +247,24 @@ function HelpOverlay({ cols, sections }) {
 function App() {
   const { exit } = useApp();
   const { stdout } = useStdout();
+  // Ink paints once per state change — it never re-runs a component just
+  // because the TERMINAL resized. `stdout.rows`/`.columns` below are read
+  // fresh on every render, but nothing forced a render on resize, so the
+  // layout math (rows, visibleRows, the whole scroll window) froze at
+  // whatever size was current at the LAST unrelated render (a token
+  // arriving, a keypress) — a live "make the window taller" never reached
+  // the screen. This is the actual cause of "never lets us scroll no matter
+  // how tall we make it": there was nothing wrong with the scroll math,
+  // there was no signal telling React the inputs to that math had changed.
+  // Node's stdout emits its own "resize" event; the terminal's SIGWINCH is
+  // otherwise invisible to this component tree.
+  const [, bumpOnResize] = useReducer((n) => n + 1, 0);
+  useEffect(() => {
+    if (!stdout) return undefined;
+    const onResize = () => bumpOnResize();
+    stdout.on("resize", onResize);
+    return () => stdout.off("resize", onResize);
+  }, [stdout]);
   const [tabs, setTabs] = useState(() => [makeTab()]);
   const [activeId, setActiveId] = useState(() => tabs[0].id);
   const [models, setModels] = useState([]);
@@ -523,48 +545,6 @@ function App() {
         pushMessage(tabId, "error", `unknown /github command "${sub}" — status | login | logout`);
         break;
       }
-      case "archon": {
-        // /archon — the worktree-archons' EOT rooms on a Matrix homeserver.
-        //   /archon list                              the roster + homeserver
-        //   /archon print <slug>                      the FULL conversation, nothing hidden
-        //   /archon record <slug> <text...>           append one EOT lesson
-        //   /archon provision <slug> [@admin]         account + room + admin grant
-        const [sub, ...rest2] = arg.split(/\s+/).filter(Boolean);
-        const hs = DEFAULT_HS;
-        if (!sub || sub === "list") {
-          const names = roster();
-          pushMessage(tabId, "note", `archons (${names.length}) on ${hs} — /archon print <slug> for a full conversation`);
-          break;
-        }
-        if (sub === "print") {
-          const slug = rest2[0];
-          if (!slug) { pushMessage(tabId, "error", "/archon print <slug>"); break; }
-          loadArchonConversation(hs, slug)
-            .then((loaded) => pushMessage(tabId, "note", renderConversation(loaded)))
-            .catch((e) => pushMessage(tabId, "error", `archon print failed: ${e.message}`));
-          break;
-        }
-        if (sub === "record") {
-          const slug = rest2[0];
-          const text = rest2.slice(1).join(" ").trim();
-          if (!slug || !text) { pushMessage(tabId, "error", "/archon record <slug> <text...>"); break; }
-          recordArchon(hs, slug, { text, kind: "lesson" })
-            .then((r) => pushMessage(tabId, "note", `recorded ${slug} seq ${r.seq} → block ${r.block}`))
-            .catch((e) => pushMessage(tabId, "error", `archon record failed: ${e.message}`));
-          break;
-        }
-        if (sub === "provision") {
-          const slug = rest2[0];
-          const admin = rest2[1] ?? DEFAULT_ADMIN;
-          if (!slug) { pushMessage(tabId, "error", "/archon provision <slug> [@admin]"); break; }
-          provisionArchon(hs, slug, { admin })
-            .then((r) => pushMessage(tabId, "note", `provisioned ${slug}: ${r.user} · ${r.room} · admin ${admin}`))
-            .catch((e) => pushMessage(tabId, "error", `archon provision failed: ${e.message}`));
-          break;
-        }
-        pushMessage(tabId, "error", `unknown /archon command "${sub}" — list | print <slug> | record <slug> <text> | provision <slug>`);
-        break;
-      }
       case "quit":
       case "exit":
         exit();
@@ -641,8 +621,18 @@ function App() {
   let remaining = rows - 3; // input
   const showTab = remaining - 1 >= 3;
   if (showTab) remaining -= 1;
-  const showStatus = remaining - 1 >= 3;
-  if (showStatus) remaining -= 1;
+  // The status line is one long, unbroken Text — Ink wraps it to however
+  // many physical rows it actually needs at the CURRENT terminal width, not
+  // the 1 row a narrower comment once assumed. At anything under ~118
+  // columns (most real terminal windows) it wraps to 2, and if this budget
+  // still charged it only 1, Ink's painted height would exceed what this
+  // layout reserved for it — desyncing the redraw and swallowing the tab
+  // bar and transcript out from under it (verified against the e2e harness:
+  // this is what "content cut off, can't scroll" turned out to be).
+  const statusText = statusLineText(proxyState, activeTab);
+  const statusRows = Math.max(1, wrapText(statusText, cols).length);
+  const showStatus = remaining - statusRows >= 3;
+  if (showStatus) remaining -= statusRows;
   const help = helpVisible
     ? helpSectionsFor(cols, Math.max(0, remaining - 2))
     : { sections: [], rows: 0 };
@@ -689,7 +679,7 @@ function App() {
 
   return h(Box, { flexDirection: "column" },
     showTab ? h(TabBar, { tabs, activeId }) : null,
-    showStatus ? h(StatusLine, { proxyState, tab: activeTab }) : null,
+    showStatus ? h(StatusLine, { text: statusText }) : null,
     helpVisible && help.sections.length ? h(HelpOverlay, { cols, sections: help.sections }) : null,
     hasTranscript
       ? (bordered

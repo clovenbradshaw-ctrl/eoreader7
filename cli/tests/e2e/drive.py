@@ -8,8 +8,8 @@ character grid of everything the TUI painted, and asserts on the *screen*
 Usage:
   python3 drive.py --scenario <name> [--cols 100 --rows 30]
 
-Scenarios: boot, help, chat, tabs, model, scroll, agent, facing, notes,
-history, search
+Scenarios: boot, help, chat, tabs, model, scroll, resize, agent, facing,
+notes, history, search
 
 Exits 0 on pass, 1 on failure (assertion text printed to stderr).
 """
@@ -295,6 +295,27 @@ class Pty:
             time.sleep(0.05)
         return False
 
+    def resize(self, rows, cols):
+        # A LIVE resize — no keypress. This is the real-world trigger the
+        # bug report described ("no matter how tall we make it"): the PTY's
+        # window size changes underneath the running process, exactly like a
+        # person dragging a terminal window taller. TIOCSWINSZ updates what
+        # the child sees when it asks the fd for its size; SIGWINCH is the
+        # notification a real terminal sends so the child knows to ask. The
+        # emulator's own grid is rebuilt at the new size — a real terminal
+        # doesn't reflow its scrollback on resize either, and the assertions
+        # below only care about the frame the app paints after the resize
+        # settles, not about pixels the old, wrong-sized grid was holding.
+        self.rows = rows
+        self.cols = cols
+        fcntl.ioctl(self.master, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
+        with self._lock:
+            self.emulator = TerminalEmulator(rows, cols)
+        try:
+            os.killpg(self.proc.pid, signal.SIGWINCH)
+        except (OSError, ProcessLookupError):
+            pass
+
     def kill(self):
         try:
             os.killpg(self.proc.pid, signal.SIGKILL)
@@ -464,6 +485,27 @@ def scenario_scroll(p, cols, rows):
     check(p.wait_text("Tail.", 4), "scroll back down returns to the bottom of the transcript")
 
 
+def scenario_resize(p, cols, rows):
+    print("scenario: resize")
+    # THE BUG: "it never lets us scroll in the window and see more no matter
+    # how tall we make it". Root cause was not the scroll math — it was that
+    # nothing told React the terminal HAD changed size. `stdout.rows` was
+    # only ever read at render time; a live SIGWINCH (dragging the window
+    # taller) never triggered a re-render, so the transcript box froze at
+    # whatever size was current the last time something else redrew it. This
+    # scenario resizes the live PTY with no keypress at all and checks the
+    # painted frame actually follows.
+    check(wait_prompt(p), "app rendered its input prompt")
+    type_and_send(p, "what is the fold?")
+    check(p.wait_text("Tail.", 8), "grounded answer arrives (its tail is visible)")
+    p.resize(10, cols)
+    check(p.wait_absent("How the fold reads", 4), "shrinking the live window (no keypress) hides the answer's header")
+    check(p.wait_text("Tail.", 2), "shrunk window still anchors on the bottom of the transcript")
+    p.resize(45, cols)
+    check(p.wait_text("How the fold reads", 4), "growing the live window (no keypress) reveals the header again")
+    check(p.wait_text("Tail.", 2), "grown window still shows the tail — the whole answer now fits, no PageUp needed")
+
+
 def scenario_agent(p, cols, rows):
     print("scenario: agent")
     check(wait_prompt(p), "app rendered its input prompt")
@@ -503,6 +545,7 @@ SCENARIOS = {
     "tabs": scenario_tabs,
     "model": scenario_model,
     "scroll": scenario_scroll,
+    "resize": scenario_resize,
     "agent": scenario_agent,
     "history": scenario_history,
     "search": scenario_search,

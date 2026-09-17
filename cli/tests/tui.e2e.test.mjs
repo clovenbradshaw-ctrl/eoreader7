@@ -29,7 +29,7 @@ function runScenario(name) {
   });
 }
 
-const scenarios = ["boot", "help", "tabs", "chat", "model", "scroll", "agent", "history", "search"];
+const scenarios = ["boot", "help", "tabs", "chat", "model", "scroll", "resize", "agent", "history", "search"];
 
 for (const name of scenarios) {
   test(`tui e2e: ${name}`, { timeout: 140_000 }, async () => {
