@@ -152,9 +152,34 @@ export function wilsonSolve({
   // confirm the clearance is genuine, never to re-decide its verdict. The
   // Wilson refuses to proceed on that verdict itself, exactly where ethos.js's
   // own callers (getSession) are expected to.
-  const clearance = requireClearance(ethosClear(task, { disposition }));
-  if (!clearance.cleared) {
-    throw new Error(`wilson: refused by ethos — ${clearance.reason}`);
+  //
+  // FALSIFIED AND CLOSED (conformance/wilson-falsify.test.mjs): ethos.js's
+  // own specRefusal reads ONLY the string it is handed — it has no notion
+  // of "the declared task" vs "the actual material." The first cut of this
+  // organ cleared `task` alone and let `text` (the pathos caste's own
+  // material — the thing a felt shape is actually built FROM) ride straight
+  // into a certified Solution unexamined: a benign task label ("summarize
+  // this document") with harmful content living in `text` cleared cleanly.
+  // A caller may declare a benign task for genuinely harmful material every
+  // bit as easily as they could type a harmful task directly, so BOTH
+  // strings a Solution is actually built from are cleared, independently —
+  // clearing their concatenation would let one string's benign framing
+  // launder the other's content past the charter's own shape-detection.
+  const taskClearance = requireClearance(ethosClear(task, { disposition }));
+  if (!taskClearance.cleared) {
+    throw new Error(`wilson: refused by ethos (task) — ${taskClearance.reason}`);
+  }
+  let clearance = taskClearance;
+  if (typeof text === "string" && text.trim()) {
+    const textClearance = requireClearance(ethosClear(text, { disposition }));
+    if (!textClearance.cleared) {
+      throw new Error(`wilson: refused by ethos (material) — ${textClearance.reason}`);
+    }
+    // The solution's own recorded ethos leg is the STRICTER of the two —
+    // requireSolution downstream re-validates whatever is stored here, and
+    // storing only the task's clearance would let a caller who reads the
+    // solution back believe the material itself was never examined.
+    clearance = textClearance;
   }
 
   // CASTE 2 — LOGOS. The warrant. No warrant, no solution: requireWarrant
