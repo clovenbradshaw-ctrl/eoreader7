@@ -209,6 +209,41 @@ test("sanskritClauses leaves the subject null for a pro-drop clause", () => {
   assert.equal(clauses[0].subject, null);
 });
 
+test("preferPre decides between competing nominatives across the verb", () => {
+  const verbs = new Set(["paśyati"]);
+  const pos = { forms: { rājā: { NOUN: 10 }, putram: { NOUN: 5 }, paśyati: { VERB: 8 }, devaḥ: { NOUN: 6 } } };
+  const prior = { ...sanCasePrior, nominalEndings: { ...sanCasePrior.nominalEndings, "aḥ": { total: 100, ranked: [{ key: "Nom|Sing", count: 90, share: 0.9, cell: null }] } } };
+  const pre = sanskritClauses("rājā putram paśyati devaḥ.", verbs, pos, prior, {});
+  assert.equal(pre[0].subject.head, "rājā", "SOV seeks the subject before the verb");
+  const post = sanskritClauses("rājā putram paśyati devaḥ.", verbs, pos, prior, { preferPre: false });
+  assert.equal(post[0].subject.head, "devaḥ", "verse order seeks it after the verb");
+});
+
+test("useOblique:false leaves the object empty rather than filling an oblique", () => {
+  const verbs = new Set(["gacchati"]);
+  const pos = { forms: { rājā: { NOUN: 10 }, agninā: { NOUN: 6 }, gacchati: { VERB: 8 } } };
+  const off = sanskritClauses("rājā agninā gacchati.", verbs, pos, sanCasePrior, { useOblique: false });
+  assert.equal(off[0].subject.head, "rājā");
+  assert.equal(off[0].object, null, "no accusative, oblique refused — a gap, never a guess");
+});
+
+test("useParticiple:false skips Case-carrying verbals", () => {
+  const verbs = new Set(["paśyati"]);
+  const pos = { forms: { paśyati: { VERB: 8 }, gacchantam: { VERB: 9 } } };
+  const prior = { ...sanCasePrior, nominalEndings: { ...sanCasePrior.nominalEndings, tam: { total: 100, ranked: [{ key: "Acc|Sing", count: 95, share: 0.95, cell: null }] } } };
+  const on = sanskritClauses("gacchantam paśyati.", verbs, pos, prior, {});
+  assert.equal(on[0].object.head, "gacchantam", "the participle reads nominally by default");
+  const off = sanskritClauses("gacchantam paśyati.", verbs, pos, prior, { useParticiple: false });
+  assert.equal(off[0].object, null);
+});
+
+test("itiBoundary:false lets the quote leak into the matrix clause", () => {
+  const verbs = new Set(["āha", "gacchati"]);
+  const pos = { forms: { gacchati: { VERB: 8 }, āha: { VERB: 9 }, rājā: { NOUN: 10 } } };
+  const open = sanskritClauses("gacchati iti āha rājā.", verbs, pos, sanCasePrior, { itiBoundary: false });
+  assert.equal(open[0].subject.head, "rājā", "without the boundary the matrix subject binds the quoted verb");
+});
+
 test("beingRefOf binds a clause end to a tier-1 being by stem recurrence", () => {
   const beingsByStem = new Map([["yajñam", { stem: "yajñam" }]]);
   assert.equal(beingRefOf("yajñasya", beingsByStem), "ref:san:auto:yajñam");

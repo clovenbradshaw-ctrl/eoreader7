@@ -328,8 +328,23 @@ const OBLIQUE = ["Ins", "Gen", "Dat", "Loc"];
  * 6), never clause heads — only earned FINITE verbs head clauses here.
  * An imperative beside a vocative addresses, never nominates: a lone Voc
  * subject beside an Imp verb is refused (Greek vocative precedent).
- * Ends bind to tier-1 beings by stem. subject null means pro-drop. */
-export function sanskritClauses(sentText, verbs, posPrior, casePrior, { beings = [], minShare = 0.5, minCount = 10 } = {}) {
+ * Ends bind to tier-1 beings by stem. subject null means pro-drop.
+ *
+ * STRUCTURE TOGGLES (2026-09-18, colony two): preferPre, useOblique,
+ * useParticiple, itiBoundary — each defaulting to the shipped behavior.
+ * The sanskrit-clause-swarm colony breeds subsets of {pre, obl, part, iti}
+ * (presence = on) through eoSwarm's union; the second disjunct of each
+ * pair is absence, never a second token, so every union stays legal.
+ * OUTCOME: the shipped full set WON (f=0.3062 vs bare 0.2543 — every
+ * toggle pulls weight: pre lifts subjects 35.2→37.7, obl lifts objects
+ * 15.7→17.3, iti lifts objects 15.7→17.7). Two learnings recorded, not
+ * smoothed: (1) the participle probe was over-broad (any non-nominal
+ * token — ants punished part-combos to the bottom) and is now gated to
+ * VERB/AUX-typed tokens, finding 6's letter; (2) Wilson's born-mass bar
+ * counts squared NEGATIVE improvements, so an early degradation inflates
+ * the bar for later real wins ([pre,iti] 0.3124 refused under a 0.3062
+ * champion) — the shared gate's property, reported here, never forked. */
+export function sanskritClauses(sentText, verbs, posPrior, casePrior, { beings = [], minShare = 0.5, minCount = 10, preferPre = true, useOblique = true, useParticiple = true, itiBoundary = true } = {}) {
   if (!(verbs instanceof Set) || !verbs.size || !casePrior) return [];
   const beingsByStem = new Map(beings.map((b) => [b.stem, b]));
   const toks = tokenize(sentText);
@@ -339,7 +354,7 @@ export function sanskritClauses(sentText, verbs, posPrior, casePrior, { beings =
   for (const t of toks) {
     if (t.punct) { flush(); continue; }
     cur.push(t);
-    if (ITI.has(t.w)) flush(); // the quotative closes its clause
+    if (itiBoundary && ITI.has(t.w)) flush(); // the quotative closes its clause
   }
   flush();
   const out = [];
@@ -357,6 +372,14 @@ export function sanskritClauses(sentText, verbs, posPrior, casePrior, { beings =
         if (!cls || !NOMINAL.has(cls)) {
           // Finding 6: a Case-carrying participle reads nominally even
           // where the prior's dominant class is verbal — probe its ending.
+          // Gated by useParticiple (colony-two toggle): off skips the token.
+          // AND gated to VERB/AUX-typed tokens (2026-09-18, colony two
+          // learned): probing EVERY non-nominal token hallucinated nominals
+          // out of adverbs and conjunctions whose endings happen to vote —
+          // the ants punished part-combos to the bottom (part alone
+          // f=0.1991 vs bare 0.2543). Finding 6 is about VERB-tagged
+          // Part-forms with Case, and the branch now says exactly that.
+          if (!useParticiple || (cls !== null && cls !== "VERB" && cls !== "AUX")) continue;
           const c = caseOf(seg[i].raw, casePrior, { minShare, minCount });
           if (c) nominals.push({ head: seg[i].raw, headLower: seg[i].w, at: [seg[i].start, seg[i].end], case: c.case, cell: c.cell, caseSrc: "participle", pos: i });
           continue;
@@ -366,23 +389,26 @@ export function sanskritClauses(sentText, verbs, posPrior, casePrior, { beings =
       }
       const before = nominals.filter((n) => n.pos < vi);
       const after = nominals.filter((n) => n.pos > vi);
+      // preferPre (colony-two toggle): SOV seeks the role before the verb
+      // first, verse order after it first; the other side still fills.
+      const first = preferPre ? before : after;
       const prefer = (list) => list.length ? list : nominals;
-      // Subject: nominative, preverbal preferred; a lone vocative beside an
+      const firstPick = (pred) => prefer(first).find(pred) ?? nominals.find(pred) ?? null;
+      // Subject: nominative, preferred side first; a lone vocative beside an
       // imperative is an address, never a subject.
-      let subject = prefer(before).find((n) => n.case === "Nom")
-        ?? nominals.find((n) => n.case === "Nom") ?? null;
+      let subject = firstPick((n) => n.case === "Nom");
       if (subject && verbImp && subject.case === "Voc") subject = null;
       if (!subject) {
         const voc = nominals.find((n) => n.case === "Voc");
         subject = (voc && !verbImp) ? voc : null;
       }
-      // Object: accusative (preverbal first), else Ins/Gen/Dat/Loc oblique,
-      // else a second nominative as predicate complement (copula-thesis).
-      let object = prefer(before).find((n) => n.case === "Acc")
-        ?? nominals.find((n) => n.case === "Acc") ?? null;
-      if (!object) {
+      // Object: accusative (preferred side first), else Ins/Gen/Dat/Loc
+      // oblique (gated by useOblique), else a second nominative as
+      // predicate complement (copula-thesis).
+      let object = firstPick((n) => n.case === "Acc");
+      if (!object && useOblique) {
         for (const ob of OBLIQUE) {
-          object = prefer(before).find((n) => n.case === ob) ?? nominals.find((n) => n.case === ob) ?? null;
+          object = firstPick((n) => n.case === ob);
           if (object) break;
         }
       }
@@ -390,7 +416,6 @@ export function sanskritClauses(sentText, verbs, posPrior, casePrior, { beings =
         const noms = nominals.filter((n) => n.case === "Nom" && n !== subject);
         if (noms.length) object = noms[0];
       }
-      void after;
       out.push({
         verb: v.raw,
         subject, object,
