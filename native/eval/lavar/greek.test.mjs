@@ -460,3 +460,13 @@ test("AUX participle takes no nominative: ἡ ὄντος σε keeps its object"
   assert.equal(clauses[0].subject, null, "a genitive absolute expects its Genitive, never a nominative");
   assert.equal(clauses[0].object.head, "σε");
 });
+
+test("injection seams: caller exception and marker maps override the Greek defaults", () => {
+  const exc = new Map([["κυβερνητης", { case: "Dat", number: "Sing" }]]);
+  const r = caseOf("κυβερνήτης", genEtaPrior, { exceptionCases: exc });
+  assert.equal(r.case, "Dat", "a caller exception beats both tally and enclitics");
+  assert.equal(r.src, "exception");
+  const markers = new Map([["προ", "Gen|Sing"]]);
+  assert.equal(articleProbe(["πρό"], 1, markers).case, "Gen", "a caller marker map drives the probe");
+  assert.equal(articleProbe(["ὁ"], 1, markers), null, "…and the Greek articles with it are gone");
+});

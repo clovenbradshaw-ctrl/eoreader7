@@ -141,11 +141,11 @@ export function defaultLatinCasePrior() {
 const MIN_ENDING_VOLUME = 5; // an ending attested fewer times than this in training is too noisy to trust
 const MIN_TOP_SHARE = 0.4; // the top reading must clear this share of the ending's own distribution, or it is a gap
 
-function topReading(table, ending) {
+function topReading(table, ending, { minVolume = MIN_ENDING_VOLUME, minShare = MIN_TOP_SHARE } = {}) {
   const entry = table[ending];
-  if (!entry || entry.total < MIN_ENDING_VOLUME) return null;
+  if (!entry || entry.total < minVolume) return null;
   const top = entry.ranked[0];
-  if (!top || top.share < MIN_TOP_SHARE) return null;
+  if (!top || top.share < minShare) return null;
   return top;
 }
 
@@ -166,11 +166,17 @@ const LATIN_PREPOSITIONS = new Set([
   "sine", "sub", "super", "trans", "extra", "infra", "intra", "supra", "ultra",
 ]);
 
-function classifyNominal(casePrior, word) {
+function classifyNominal(casePrior, word, { excludeForms = LATIN_PREPOSITIONS, exceptionCases = null, minVolume = MIN_ENDING_VOLUME, minShare = MIN_TOP_SHARE } = {}) {
   const lower = word.toLowerCase();
-  if (LATIN_PREPOSITIONS.has(lower)) return null;
+  // exceptionCases: a closed form -> { case, number } map checked BEFORE
+  // the ending vote (the enclitic-dative shape: a stripped ending can merge
+  // two categories no tally will ever separate — Ancient Greek μοι/σοι read
+  // Nom|Plur 27/27 against gold Dat). Received per language, never mined.
+  const exc = exceptionCases?.get?.(lower);
+  if (exc) return { word, ending: lower, case: exc.case, number: exc.number, share: 1, exception: true };
+  if (excludeForms.has(lower)) return null;
   const ending = lower.slice(-CASE_ENDING_LEN);
-  const reading = topReading(casePrior.nominalEndings, ending);
+  const reading = topReading(casePrior.nominalEndings, ending, { minVolume, minShare });
   if (!reading) return null;
   const [Case, Number] = reading.key.split("|");
   return { word, ending, case: Case, number: Number, share: reading.share };
@@ -254,14 +260,23 @@ const stripPunct = (w) => w.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "");
  * @param {string} [options.verbHint] an exact form to treat as the
  *   clause's verb, bypassing verb-finding — isolates role-assignment
  *   accuracy for measurement. Production callers never pass this.
+ * @param {number} [options.minVolume] floor on an ending's training
+ *   volume (default MIN_ENDING_VOLUME). @param {number} [options.minShare]
+ *   floor on the top reading's share (default MIN_TOP_SHARE). The reader's
+ *   own floors, declared per call — the Greek seam bred 0.6/20 on its own
+ *   gold; Latin ships 5/0.4 until someone breeds better.
+ * @param {Set} [options.excludeForms] closed forms never candidates
+ *   (default LATIN_PREPOSITIONS). @param {Map} [options.exceptionCases]
+ *   closed form -> { case, number } read before the ending vote (default
+ *   null — Greek's enclitic datives are the standing instance).
  */
-export function extractCaseMarkedRelation(text, { casePrior = defaultLatinCasePrior(), verbHint = null } = {}) {
+export function extractCaseMarkedRelation(text, { casePrior = defaultLatinCasePrior(), verbHint = null, minVolume = MIN_ENDING_VOLUME, minShare = MIN_TOP_SHARE, excludeForms = LATIN_PREPOSITIONS, exceptionCases = null } = {}) {
   const words = String(text ?? "").split(/\s+/).map(stripPunct).filter(Boolean);
 
   let verbCandidates = words
     .map((w) => ({ w, v: classifyVerb(w) }))
     .filter((x) => x.v)
-    .filter((x) => !x.v.weak || !classifyNominal(casePrior, x.w));
+    .filter((x) => !x.v.weak || !classifyNominal(casePrior, x.w, { excludeForms, exceptionCases, minVolume, minShare }));
 
   let chosenVerb = null;
   if (verbHint) {
@@ -277,7 +292,7 @@ export function extractCaseMarkedRelation(text, { casePrior = defaultLatinCasePr
   }
   if (!chosenVerb) return { end1: null, label: null, end2: null, gap: { reason: "no_verb_found" } };
 
-  const nominals = words.filter((w) => w !== chosenVerb.w).map((w) => classifyNominal(casePrior, w)).filter(Boolean);
+  const nominals = words.filter((w) => w !== chosenVerb.w).map((w) => classifyNominal(casePrior, w, { excludeForms, exceptionCases, minVolume, minShare })).filter(Boolean);
   let nominatives = nominals.filter((n) => n.case === "Nom");
   const accusatives = nominals.filter((n) => n.case === "Acc");
   const obliques = nominals.filter((n) => n.case === "Dat" || n.case === "Abl" || n.case === "Gen");

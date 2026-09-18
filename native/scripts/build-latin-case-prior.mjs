@@ -5,8 +5,9 @@
 //
 // WORD-ENDING KEYED, NOT FORM KEYED. Latin is inflectional: the prior
 // needs to generalize to word forms the 1,334 training sentences never
-// saw, so the key is a word's final 2 characters (the standard
-// simplification for Latin declension endings), not the exact form.
+// saw, so the key is a word's final --case-ending-len characters (default
+// 2, the standard simplification for Latin declension endings), not the
+// exact form. Verb personal endings use --verb-ending-len (default 3).
 // Some endings are genuinely decisive in this corpus ("-am" is 100%
 // Acc|Sing); most are not ("-is" spans five distinct Case|Number
 // readings). Both are kept, with real counts — the caller decides its
@@ -61,8 +62,8 @@ const LICENSE = arg("license", "CC BY-NC-SA 2.5 — non-commercial, share-alike;
 const STRIP = arg("strip", "nfd");
 
 const NOMINAL_UPOS = new Set(["NOUN", "PROPN", "ADJ", "PRON", "NUM"]);
-const CASE_ENDING_LEN = 2;
-const VERB_ENDING_LEN = 3;
+const CASE_ENDING_LEN = Number(arg("case-ending-len", 2));
+const VERB_ENDING_LEN = Number(arg("verb-ending-len", 3));
 // DIACRITIC-FREE ENDINGS (2026-09-17). Greek accents sit ON final vowels
 // (τόν → "όν" ≠ "ον"): the ending key is built on the unaccented skeleton so
 // a lookup side strips the same way. Latin is ASCII — strip is a no-op, the

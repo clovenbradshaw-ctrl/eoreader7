@@ -62,15 +62,19 @@ const ARTICLE_CASE = new Map([
   ["τω", "Dat|Sing"], ["τη", "Dat|Sing"], ["τοις", "Dat|Plur"], ["ταις", "Dat|Plur"],
 ]);
 
-/** articleProbe(prevForms, window) — the nearest preceding unambiguous
- * article within `window` tokens back, or null. Pure; the map decides. */
-export function articleProbe(prevForms = [], window = 1) {
+/** articleProbe(prevForms, window, markerCases) — the nearest preceding
+ * unambiguous article within `window` tokens back, or null. The marker map
+ * (default ARTICLE_CASE) is injectable so a second case-marking language
+ * reuses the mechanism with its own markers — the same seam
+ * relations-case-marked.js holds for exceptions. Pure; the map decides.
+ * (All map keys are stripped-lowercase forms, like the input they match.) */
+export function articleProbe(prevForms = [], window = 1, markerCases = ARTICLE_CASE) {
   const forms = Array.isArray(prevForms) ? prevForms : [];
   for (let d = 1; d <= window && d <= forms.length; d += 1) {
     const f = strip(String(forms[forms.length - d] ?? "").toLowerCase());
     if (!f || /^[.,;:!?—–()«»“”]+$/.test(forms[forms.length - d])) return null;
-    if (ARTICLE_CASE.has(f)) {
-      const [Case, number] = ARTICLE_CASE.get(f).split("|");
+    if (markerCases.has(f)) {
+      const [Case, number] = markerCases.get(f).split("|");
       const cell = grammarCell("Case", Case);
       return { case: Case, number, dist: d, cell: cell ? { op: cell.op, grain: cell.grain, terrain: cell.terrain, stance: cell.stance } : null };
     }
@@ -314,7 +318,16 @@ const ENCLITIC_DATIVES = new Map([
   ["μοι", "Sing"], ["σοι", "Sing"], ["εμοι", "Sing"],
   ["υμιν", "Plur"], ["ημιν", "Plur"],
 ]);
-export function caseOf(token, casePrior, { minShare = 0.5, minCount = 10, endingLen = 2, articleMode = "off", prevForms = null, articleWindow = 1, weakBelow = 0.8 } = {}) {
+export function caseOf(token, casePrior, { minShare = 0.5, minCount = 10, endingLen = 2, articleMode = "off", prevForms = null, articleWindow = 1, weakBelow = 0.8, exceptionCases = null, markerCases = ARTICLE_CASE } = {}) {
+  // exceptionCases (a caller's own closed form -> { case, number } map, keys
+  // are stripped-lowercase forms) is checked before everything, including
+  // the Greek enclitics below — the shared relations-case-marked.js seam,
+  // one register over.
+  const callerExc = exceptionCases?.get?.(strip(token).toLowerCase());
+  if (callerExc) {
+    const cell = grammarCell("Case", callerExc.case);
+    return { case: callerExc.case, number: callerExc.number, share: 1, count: 0, ending: strip(token).slice(-endingLen), cell: cell ? { op: cell.op, grain: cell.grain, terrain: cell.terrain, stance: cell.stance } : null, src: "exception" };
+  }
   const encliticNum = ENCLITIC_DATIVES.get(strip(token).toLowerCase());
   if (encliticNum) {
     const cell = grammarCell("Case", "Dat");
@@ -329,7 +342,7 @@ export function caseOf(token, casePrior, { minShare = 0.5, minCount = 10, ending
     ? (() => { const [Case, number] = top.key.split("|"); return { case: Case, number, share: top.share, count: top.count, ending, cell: top.cell ?? null, src: "ending" }; })()
     : null;
   if (articleMode !== "off" && prevForms) {
-    const probe = articleProbe(prevForms, articleWindow);
+    const probe = articleProbe(prevForms, articleWindow, markerCases);
     if (probe && (articleMode === "strict" || !vote || vote.share < weakBelow)) {
       return { case: probe.case, number: probe.number, share: vote?.share ?? null, count: vote?.count ?? 0, ending, cell: probe.cell ?? vote?.cell ?? null, src: "article" };
     }
@@ -423,10 +436,10 @@ export function carryRelatives(subs, verbs) {
  *   before → null (a neuter plural cannot subject a plural verb; a
  *   topicalized object is refused rather than guessed).
  * Without verb tables (verbNum null) το/τά stay gaps — as before. */
-export function substantiveOf(tok, nextTok, verbNum, verbStart, posPrior) {
+export function substantiveOf(tok, nextTok, verbNum, verbStart, posPrior, markerCases = ARTICLE_CASE) {
   if (!tok || nominalClass(tok.w, posPrior) !== "DET") return null;
   const f = strip(tok.w);
-  const isUnamb = ARTICLE_CASE.has(f);
+  const isUnamb = markerCases.has(f);
   const isNeut = f === "το" || f === "τα";
   if (!isUnamb && !isNeut) return null;
   if (nextTok) {
@@ -435,7 +448,7 @@ export function substantiveOf(tok, nextTok, verbNum, verbStart, posPrior) {
   }
   const cellFor = (c) => { const cell = grammarCell("Case", c); return cell ? { op: cell.op, grain: cell.grain, terrain: cell.terrain, stance: cell.stance } : null; };
   if (isUnamb) {
-    const [Case, number] = ARTICLE_CASE.get(f).split("|");
+    const [Case, number] = markerCases.get(f).split("|");
     return { case: Case, number, cell: cellFor(Case), src: "substantive" };
   }
   if (!verbNum) return null;
@@ -489,7 +502,7 @@ export function beingRefOf(headLower, beingsByStem) {
  * ("τὰ μέν ἐστιν ἐφ' ἡμῖν" — some things ARE in our power). Ends bind to
  * the tier-1 beings by stem. Returns [{verb, subject, object, subjectRef,
  * objectRef, subjectCell, objectCell}] — subject null means pro-drop. */
-export function greekClauses(sentText, verbs, posPrior, casePrior, { beings = [], minShare = 0.6, minCount = 20, articleMode = "soft", articleWindow = 1, openerMatch = "accent", carry = true, selfFoldRefuse = true, copAccRefuse = "substantive", auxPartRefuse = true } = {}) {
+export function greekClauses(sentText, verbs, posPrior, casePrior, { beings = [], minShare = 0.6, minCount = 20, articleMode = "soft", articleWindow = 1, openerMatch = "accent", carry = true, selfFoldRefuse = true, copAccRefuse = "substantive", auxPartRefuse = true, exceptionCases = null, markerCases = ARTICLE_CASE } = {}) {
   if (!(verbs instanceof Set) || !verbs.size || !casePrior) return [];
   const beingsByStem = new Map(beings.map((b) => [b.stem, b]));
   const toks = tokenize(sentText);
@@ -533,13 +546,13 @@ export function greekClauses(sentText, verbs, posPrior, casePrior, { beings = []
         if (cls === "DET") {
           // A lone article is its phrase's head (τὰ μὲν ἐστιν — the things
           // ARE); an article with its noun is never doubled (ὁ κυβερνήτης).
-          const sub = substantiveOf(seg[i], seg[i + 1] ?? null, verbNum, v.start, posPrior);
+          const sub = substantiveOf(seg[i], seg[i + 1] ?? null, verbNum, v.start, posPrior, markerCases);
           if (sub && !(auxPartRefuse && sub.case === "Nom" && verbAuxBare)) nominals.push({ head: seg[i].raw, headLower: seg[i].w, at: [seg[i].start, seg[i].end], case: sub.case, cell: sub.cell, caseSrc: sub.src });
           continue;
         }
         if (!cls || !CLAUSE_NOMINAL.has(cls)) continue;
         const prevForms = seg.slice(Math.max(0, i - 3), i).map((t) => t.raw);
-        const c = caseOf(seg[i].w, casePrior, { minShare, minCount, articleMode, prevForms, articleWindow });
+        const c = caseOf(seg[i].w, casePrior, { minShare, minCount, articleMode, prevForms, articleWindow, exceptionCases, markerCases });
         nominals.push({ head: seg[i].raw, headLower: seg[i].w, at: [seg[i].start, seg[i].end], case: c?.case ?? null, cell: c?.cell ?? null, caseSrc: c?.src ?? null });
       }
       const nom = nominals.filter((n) => n.case === "Nom");
