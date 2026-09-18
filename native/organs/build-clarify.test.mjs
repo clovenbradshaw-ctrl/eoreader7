@@ -4,7 +4,7 @@
 // never as three parallel gates.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildClarify, questionsFor, answerFills, recordRound, SCHEMA, MAX_ROUNDS } from "./build-clarify.js";
+import { buildClarify, questionsFor, answerFills, recordRound, foldAnswersFromTask, SCHEMA, MAX_ROUNDS } from "./build-clarify.js";
 import { languageForDeclared } from "../../proxy-runner.mjs";
 import { voidHolarchy } from "./void-holarchy.js";
 
@@ -158,4 +158,37 @@ test("the declared shape re-derives the language: a declared SITE is html, whate
   assert.equal(languageForDeclared({ slot: "a CLI tool for dolphins" }, "python"), "python", "a tool is not a site — the declared words, never a guess");
   assert.equal(languageForDeclared({ slot: "the build's parts: site" }, "python"), "html", "admits naming a site re-derives too");
   assert.equal(languageForDeclared(null, "python"), "python", "no declared shape leaves the language alone");
+});
+
+test("foldAnswersFromTask maps a reply onto the open cells by POSITION and clause grain — never English vocabulary", () => {
+  const qs = [
+    { cell: "anchor", ask: "who is it for?" },
+    { cell: "cardinality", ask: "how many?" },
+  ];
+  // Positional: clause i answers question i. No word-matching.
+  const both = foldAnswersFromTask("for me, three profiles", qs);
+  assert.equal(both.length, 2, "one reply can answer two cells, each on its own position");
+  assert.deepEqual(both.map((f) => f.cell), ["anchor", "cardinality"]);
+  assert.deepEqual(both.map((f) => f.value), ["for me", "three profiles"]);
+
+  // LANGUAGE-BLIND: a non-English reply folds identically — the structure is
+  // position and punctuation, never the English wording of the question.
+  const es = foldAnswersFromTask("para mí, tres perfiles", qs);
+  assert.equal(es.length, 2, "Spanish folds the same as English — the fold is not English-shaped");
+  assert.deepEqual(es.map((f) => f.cell), ["anchor", "cardinality"]);
+  assert.deepEqual(es.map((f) => f.value), ["para mí", "tres perfiles"]);
+
+  // Fewer clauses than questions: the rest stay open (the door re-asks).
+  const one = foldAnswersFromTask("para el grupo", qs);
+  assert.equal(one.length, 1, "a single clause answers only the first open cell");
+  assert.equal(one[0].cell, "anchor");
+
+  // A clause that answers nothing still occupies its position — the value is
+  // the person's own words, never invented, and the next question stays open.
+  const none = foldAnswersFromTask("sin idea", qs);
+  assert.equal(none.length, 1, "a one-clause reply fills the first position with its own words");
+
+  // Silence is not a reply.
+  assert.equal(foldAnswersFromTask("", qs).length, 0);
+  assert.equal(foldAnswersFromTask("   ", qs).length, 0);
 });

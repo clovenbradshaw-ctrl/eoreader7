@@ -158,6 +158,52 @@ function guessCell(value, levelVoid) {
 }
 
 /**
+ * foldAnswersFromTask(reply, questions, { cells }) — a person's plain reply
+ * mapped onto the open cells. The questions carry their cell names and their
+ * plain ask/wouldSettle; the reply is matched cell-by-cell: a cell is
+ * answered only when the reply's own content words overlap its ask or its
+ * wouldSettle (the same OR-shaped generosity P31's company rule uses, and
+ * the same discipline — a cell is NEVER guessed from silence). A reply that
+ * answers nothing yields []: the door re-asks rather than mis-fill.
+ *
+ * The fold is per-QUESTION, never whole-message: "for me, three profiles"
+ * answers anchor ("who it is for" ← "for me") AND cardinality ("how many" ←
+ * "three") independently, each on its own cell. Order-free, additive.
+ */
+/**
+ * foldAnswersFromTask(reply, questions) — a person's plain reply mapped onto
+ * the open cells STRUCTURALLY, never by vocabulary. The reply is split into
+ * clauses at PUNCTUATION (the medium's own grain — a comma is a boundary in
+ * every language, the same way the sentence is text's grain in the holarchy),
+ * and clause i answers question i in the order asked. Position is the earned
+ * signal, exactly as relations.js finds a slot positionally and never by
+ * English; a clause that ends up answering nothing keeps that question open
+ * (the door re-asks rather than mis-fill). "para mí, tres perfiles" folds as
+ * correctly as "for me, three profiles" — no English, no word-matching, no
+ * per-language prior.
+ *
+ * A reply with FEWER clauses than open questions leaves the rest open. A
+ * reply with MORE clauses than questions takes the first N (the surplus is
+ * the person's own words, never a fill of a cell they did not reach).
+ */
+export function foldAnswersFromTask(reply, questions = []) {
+  const t = String(reply ?? "").trim();
+  if (!t) return Object.freeze([]);
+  const clauses = t
+    .split(/[.,;!?。！？；\n]+/)
+    .map((c) => c.trim())
+    .filter(Boolean);
+  if (!clauses.length) return Object.freeze([]);
+  const out = [];
+  for (let i = 0; i < clauses.length && i < (questions ?? []).length; i++) {
+    const cell = String(questions[i]?.cell ?? "").trim();
+    if (!cell) continue;
+    out.push({ cell, value: clauses[i] });
+  }
+  return Object.freeze(out);
+}
+
+/**
  * buildClarify({ task, level, modality, fieldsByLevel, answers, round,
  * standing, clear, lint, reGround, log, budget }) → the round's verdict.
  *
