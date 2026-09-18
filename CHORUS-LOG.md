@@ -269,3 +269,16 @@ fast: 3 files (README.md, native/kernel/prior-query.js, native/docs/THE-PRIORS-S
 | Simon/Chekhov | (untested source) | native/kernel/prior-query.js | noted, not fixed | queryMeaningPotential has zero test coverage — pre-existing (this diff only added a Handle comment, changed no logic); left in THE-PRIORS-SURVEY.md's follow-up list is the mis-shaped discovered "lyric" framing, not this — noting the gap here too since chorus surfaced it independently |
 
 clean: Feynman/Dijkstra/Alexander/Frankfurt/Ostrom/Greenberg/Diaconis/Kondo/Lévi-Strauss — no constant tuned, no base-unit coupling, no composition gate, nothing generated/placeholder, no credit misassigned, no language-universal claim, no null invented, no dead code touched or stash-reclaim performed by this diff.
+
+## 2026-09-17 — prior-query.js: test coverage + injectable paths; clear the bad lyric framing (archon-bayes-priors, eoreader7)
+
+fast: 3 files (native/kernel/prior-query.js, native/conformance/prior-query.test.mjs, native/docs/THE-PRIORS-SURVEY.md) · 8/8 new tests pass (working-tree scope, 1 file counted) · law: ok (same pre-existing dup headers as the prior entry, unrelated)
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Simon/Chekhov | (prior entry's own "noted, not fixed") | native/conformance/prior-query.test.mjs | fixed | the gap chorus-lint surfaced two runs ago is closed: 8 real cases, injected fixture, no reliance on the real corpus's current contents |
+| Feynman | (fabricated-content check) | live_priors/derived-priors/arc-priors/fortune-prior-v1.json | clean | the bad entry was DELETED, not replaced with another invented framing — `framingFor` verified live to return null afterward, never a fabricated substitute |
+| Dijkstra | (base-unit coupling) | native/kernel/prior-query.js:34-46 | clean | `livePriorsDir()`/`{ liveDir }` follow the exact `correctionRulesFile`/`ER7_CORRECTION_RULES` shape already established in organs/correction-rule.js — one injection pattern, not a second one invented |
+
+clean: Marshall/Pearl/Holmes/Alexander/Frankfurt/Ostrom/Greenberg/Diaconis/Kondo/Lévi-Strauss — no law cited or edited, no independence claim, no identity merge, no composition gate touched, no credit misassigned, no language-universal claim, no null invented, no dead code moved.
+
+Full conformance suite in this fresh worktree showed 9 failures beyond this diff's own tests; traced every one to a missing gitignored fetch (legacy-eoreader6.1, mirrored from the main checkout via a local, uncommitted symlink to verify) rather than to this change — the three files that actually import prior-query.js (correction-rule.test.mjs, lyric-shape.test.mjs, prior-query.test.mjs) are 22/22 once that gap is closed.
