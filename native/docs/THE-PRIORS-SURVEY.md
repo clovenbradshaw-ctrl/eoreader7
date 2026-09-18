@@ -118,20 +118,33 @@ likelihood (via `organs/correction-rule.js`'s ledger, which is the one
 place actual outcome data — corrected vs. accepted — already accumulates),
 that would be a second, later, separately-justified step, not this one.
 
+## Done as a direct follow-up to this survey (2026-09-17)
+
+- **The bad "lyric" framing was removed** from
+  `live_priors/derived-priors/arc-priors/fortune-prior-v1.json` (the
+  narrative-prose entry described above) — `framingFor(sidecar, {genre:
+  "lyric"})` now honestly returns `null` again, verified live. This was the
+  cheap, safe half of item 1 below; it does not fix the mechanism that let
+  a mis-shaped proposal in, which remains open.
+- **`kernel/prior-query.js` now has real test coverage**
+  (`native/conformance/prior-query.test.mjs`, 8 cases) — chorus-lint's own
+  Simon/Chekhov finding, closed. Its paths are also now injectable
+  (`livePriorsDir()`, `ER7_LIVE_PRIORS`, `{ liveDir }` on `loadSidecar`/
+  `queryMeaningPotential`) rather than hardcoded, matching the
+  `correctionRulesFile`/`ER7_CORRECTION_RULES` pattern `correction-rule.js`
+  already established — needed to test the cascade against a controlled
+  fixture instead of the real, constantly-changing corpus.
+
 ## Left for a follow-up pass, not done here
 
-1. **The discovered "lyric" framing is genre-inappropriate** (narrative
-   prose, not verse) and will be handed to the next real sonnet/poem
-   request as an exemplar until fixed. Two independent, separately-scoped
-   fixes, neither done here: (a) `discoverFraming`/`applyDiscovered` should
-   check a proposal's SHAPE against what its own genre's voice discipline
-   requires before accepting it (a mechanical check — e.g. a lyric field
-   proposing a `writeVoice` with no line breaks is a structural mismatch,
-   not a content judgment) — this is a real gap in `kernel/discovery.js`,
-   not specific to lyric; (b) in the meantime, someone with write access to
-   `live_priors/derived-priors/arc-priors/fortune-prior-v1.json` should
-   either delete the bad `lyric` entry or append a better one (append-only:
-   the latest wins).
+1. **`discoverFraming`/`applyDiscovered` accept any well-formed JSON with no
+   check that a proposal's SHAPE actually matches the genre it claims** —
+   the real mechanism that let a narrative-prose exemplar stand in for
+   "lyric" (a mechanical check — e.g. a lyric field proposing a
+   `writeVoice` with no line breaks is a structural mismatch, not a content
+   judgment — this is a real gap in `kernel/discovery.js`, not specific to
+   lyric). The bad entry itself is gone (see above); this is the part that
+   would stop the next one from landing.
 2. `native/kernel/register.js` should say, at `VOICE_BY_FIELD`'s own
    definition, that it is the fallback layer `prior-query.js` promises
    callers, not a peer mechanism — a doc fix, not a behavior change.
