@@ -57,6 +57,7 @@ import { dmdWindow, gammaFor } from "./native/kernel/activation.js";
 // whom. Previously only the CLI composed it; the proxy turn now computes it
 // and carries it on the result so every surface sees the triad whole.
 import { pathosOf, reGroundCondition, reGround, landReGround } from "./native/organs/pathos.js";
+import { findClaimCycle } from "./native/organs/reasoning-lint.js";
 // Web organ: the pure half of search and page ingestion (extractReadable,
 // parseSearchResults, extractUrls, normalizeUrl). The network egress lives
 // inline below — the proxy is the one sanctioned crossing (P13).
@@ -75,6 +76,7 @@ import { classifyArc } from "./native/organs/story-shapes.js";
 import { matchArchons, archonOf } from "./native/organs/archon-compendium.js";
 import { naturalSizeRuleForTask, authorCorrectionRule } from "./native/organs/correction-rule.js";
 import { voidHolarchy } from "./native/organs/void-holarchy.js";
+import { buildClarify, recordRound, SCHEMA as CLARIFY_SCHEMA, MAX_ROUNDS as CLARIFY_MAX_ROUNDS } from "./native/organs/build-clarify.js";
 // The Charter organ (native/organs/charter.js, Handle: Grotius): governs
 // generation against the Universal Declaration of Human Rights. The gate is
 // ALWAYS armed — the full 516-language UN corpus when it is beside the
@@ -1234,13 +1236,65 @@ ${body}
 // file, told the whole spec, the code written so far (to compose, not repeat),
 // and the shape it must aim at. No essay voice, no RANKE prose rule — code's
 // own discipline (emit source, compose with earlier parts, exact names).
-function codeSectionPrompt({ section, language, name, task, i, total, soFar, exemplar }) {
+// The plain-language name of a declared cell — Gary's law: the mouth never
+// sees the apparatus name ("anchor", "cardinality"), only what it means.
+const DECLARED_PHRASE = Object.freeze({
+  slot: "what it is",
+  anchor: "who it is for",
+  admits: "what it contains",
+  extent: "how much it covers",
+  relation: "how the parts belong to it",
+  composition: "how the parts fit together",
+  cardinality: "how many",
+  admission: "what counts as good",
+  reopensOn: "what would change it",
+});
+const declaredPhrase = (k) => DECLARED_PHRASE[k] ?? k;
+
+// What a bare code ask is writing, by language (Gary-minimal).
+const whatFor = (language) => (language === "css" ? "a stylesheet" : `a ${language} program`);
+
+// What a declared build is: the declared slot/admits, in the person's own
+// words, never an apparatus cell name — a myspace-like site is a SITE, not
+// "a python program", whatever detectLanguage fell back to.
+const declaredWhat = (declared, language) => {
+  const slot = String(declared?.slot ?? "").trim();
+  if (slot) return slot;
+  const admits = String(declared?.admits ?? "").trim();
+  return admits ? `a build containing ${admits}` : whatFor(language);
+};
+
+// THE DECLARED SHAPE RE-DERIVES THE LANGUAGE (pure half, pinned by the
+// build-clarify suite): a build whose own words name a SITE is an html
+// artifact, whatever detection fell back to ("a myspace-like site" reads no
+// extension → python by default; the person said SITE). Reads the declared
+// slot/admits the same way the register does — never a second vocabulary.
+const SITE_WORDS = /(site|web ?page|page|homepage|web ?app)\b/i;
+export const languageForDeclared = (declared, language) =>
+  declared && SITE_WORDS.test(String(declared.slot ?? declared.admits ?? "")) && language !== "html" ? "html" : language;
+
+function codeSectionPrompt({ section, language, name, task, i, total, soFar, exemplar, declared = null }) {
   const shape = CODE_SHAPE_PRIOR.parts[language] ?? CODE_SHAPE_PRIOR.parts.python;
   const exemplarBlock = exemplar
     ? `\nA real ${language} file from the retained source corpus, as a style reference — compose like it, never copy it:\n"""\n${exemplar.text}\n"""`
     : "";
   const soFarBlock = soFar ? `\n\nCode written so far (earlier parts):\n${soFar}\n` : "";
   const sovHint = sovereigntyHint(task);
+  // THE DECLARED SHAPE (build-clarify's licensed void, when the ask-back
+  // door ran): the person's own answers — who it is for, how many — carried
+  // to the mouth so it builds TO the declared shape, never free. Plain words
+  // only (Gary: as little as possible, no apparatus); absent when the door
+  // did not run (a bare code ask stays exactly as before, byte-identical).
+  const declaredBlock = declared
+  ? `\n\nThe shape is already decided — build to it:\n${Object.entries(declared).filter(([, v]) => v != null && v !== "").map(([k, v]) => `- ${declaredPhrase(k)}: ${typeof v === "object" ? JSON.stringify(v) : v}`).join("\n")}`
+  : "";
+  // LEAD WITH THE DECLARED SHAPE when the door ran: the person's answers are
+  // the primary spec (the shape prior is the fallback for a bare ask). A
+  // build declared as a *site* must not read "python program" and drift.
+  const declaredLead = declared
+    ? `We're building ${name} — ${declaredWhat(declared, language)}. ${declaredBlock}\n\nThe specification:\n\n"""\n${task}\n"""`
+    : `We're writing ${name} — ${whatFor(language)}. The complete specification:\n\n"""\n${task}\n"""`;
+
   // DATA-HOLDING APP: the mouth proposes ONLY the record schema; the machine
   // owns the crypto/fold/snip substrate and composes the seams around it.
   if (language === "html" && isDataHoldingTask(task)) {
@@ -1257,9 +1311,9 @@ function codeSectionPrompt({ section, language, name, task, i, total, soFar, exe
   const what2 = language === "css" ? "CSS" : `${language} source code`;
   const lawHint = languageLawHint(language);
   if (total === 1) {
-    return `We're writing ${name} — ${what}. The complete specification:\n\n"""\n${task}\n"""\n\nWrite the COMPLETE file, start to finish. Aim for this structure: ${shape.join(" → ")}.${lawHint}${sovHint}${exemplarBlock}\n\nRules:\n- Emit ${what2} only — no explanation, no prose, no markdown fences, no commentary about writing.\n- Use the exact names, behavior, and content the specification requires.`;
+    return `${declaredLead}.\n\nWrite the COMPLETE file, start to finish. Aim for this structure: ${shape.join(" → ")}.${lawHint}${sovHint}${exemplarBlock}\n\nRules:\n- Emit ${what2} only — no explanation, no prose, no markdown fences, no commentary about writing.\n- Use the exact names, behavior, and content the specification requires.`;
   }
-  return `We're writing ${name} — ${what}. The complete specification:\n\n"""\n${task}\n"""\n\nNow write ONLY this part of the file: ${section} (part ${i + 1} of ${total}).${lawHint}${sovHint}${exemplarBlock}\n${soFarBlock}\nRules:\n- Emit ${what2} only — no explanation, no prose, no markdown fences, no commentary about writing.\n- This part must compose with the parts already written: do not repeat code from earlier parts; use the names they define.\n- Use the exact names, behavior, and content the specification requires.`;
+  return `${declaredLead}.\n\nNow write ONLY this part of the file: ${section} (part ${i + 1} of ${total}).${lawHint}${sovHint}${exemplarBlock}\n${soFarBlock}\nRules:\n- Emit ${what2} only — no explanation, no prose, no markdown fences, no commentary about writing.\n- This part must compose with the parts already written: do not repeat code from earlier parts; use the names they define.\n- Use the exact names, behavior, and content the specification requires.`;
 }
 
 // Code satisfaction: the void is filled when the ASSEMBLED file is non-empty,
@@ -1739,6 +1793,29 @@ const voidSettleQuestion = (gap, task) => {
   if (gap === "no_material") return "a source that establishes this session's subject — admit material, then the question is asked again against real bytes";
   if (q) return `a passage, named and addressed in the admitted material, that states or denies: ${q.slice(0, 200)}`;
   return "a passage, named and addressed, that states what was looked for";
+};
+
+// The declared cells a build ask brings with it — what the TASK itself
+// states, never a guess. The genuinely open, build-blocking cells (anchor:
+// who it is FOR; cardinality: how many fillers) stay undeclared so the
+// ask-back door asks them instead of inventing answers. Each declared cell
+// is read off the ask's own words, the same way every other door reads the
+// question's own words (READING-POLICY) rather than a domain vocabulary.
+const buildVoidFields = (task) => {
+  const t = String(task ?? "").trim();
+  const slot = t.replace(/^(?:make|build|create|generate|write|let'?s make)\b/i, "").trim().replace(/[.。]$/, "") || "this build";
+  const kindWords = (t.match(/\b(?:site|app|page|web ?page|dashboard|tool|game|profile|blog)\b/gi) ?? []).map((w) => w.toLowerCase());
+  const admits = kindWords.length ? `the build's parts: ${[...new Set(kindWords)].join(", ")}` : "the build's parts";
+  return {
+    slot,
+    admits,
+    extent: { from: 0, to: 6 },
+    relation: "is a part of",
+    composition: "parts compose the whole; none overlap in role",
+    admission: "a part that serves the build's declared purpose, grounded in what is given",
+    reopensOn: "a part that is thin, ungrounded, or changes the declared shape",
+    // anchor and cardinality are genuinely open — the person must name them.
+  };
 };
 
 function earnedCue({ task, chatHistory = [], surfVoidInfo = null, pathos = null, felt = null, trajectoryBoredom = null }) {
@@ -3228,7 +3305,7 @@ export function resolveModelTarget(ref, roster = [], { current = null } = {}) {
   }
 }
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, kelsen = null, mode = "auto", caller = null, signal = null }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
   // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
@@ -3719,7 +3796,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // code — its shape is CODE_SHAPE_PRIOR, its voice is code, its check is the
   // hard pyodide validator.
   const isCode = runMode === "projection" && isInstrument;
-  const codeLanguage = isCode ? (detectLanguage(task) ?? "python") : null;
+  let codeLanguage = isCode ? (detectLanguage(task) ?? "python") : null;
   // DATA-SOVEREIGN APP: a web app that HOLDS records (notes/contacts/ledger).
   // The unconscious owns the substrate (encrypted event log + fold + snip/cut);
   // the model proposes only the record SCHEMA. The machine renders the shell
@@ -3735,6 +3812,121 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // the working vocabulary (SHAPE, FORECLOSE, STANDPOINT) never reaches them.
   const specRefusalText = !clearance.cleared ? speakDecline({ reason: clearance.reason, shape: clearance.shape }, interlocutor) : null;
   if (specRefusalText && onNote) onNote({ move: "spec_refused", reason: clearance.reason });
+
+  // ── THE ASK-BACK DOOR (build-clarify.js — the recursive void) ──────────
+  // A BUILD-SHAPED ask ("make a ... site/app") does NOT generate until the
+  // void it would fill is declared across the nine operators. The three
+  // registers run IN ORDER: ethos already cleared at the turn's top (the
+  // clearance above); logos is Degrees Kelsen over the void + answers (a
+  // cycle refuses the answer before it lands); pathos is the re-ground
+  // reading of the round. When build-blocking cells are undeclared the turn
+  // RETURNS the questions — real JSON, no generation — and the person's
+  // answers ride back through the SAME session (`resumeAnswered` carrying
+  // {cell, value} + `openBefore` from the prior round), re-declaring the
+  // void each time until licensed or still_under_specified.
+  const buildAskGate = () => {
+    if (clearance?.cleared !== true) return null;
+    if (runMode !== "projection") return null;
+    const t = String(task ?? "").trim();
+    if (!/^(?:make|build|create|generate|write|let'?s make)\b/i.test(t)) return null;
+    if (!/(?:site|app|page|web ?page|dashboard|tool|game)\b/i.test(t)) return null;
+    return t;
+  };
+  const buildTask = buildAskGate();
+  if (buildTask) {
+    const openBeforeArr = (Array.isArray(openBefore) && openBefore.length)
+      ? openBefore.map(String)
+      : (session?.buildRounds?.length
+          ? (session.buildRounds.at(-1)?.round?.void?.levels?.[0]?.void?.undeclared ?? []).map((u) => u.field)
+          : null);
+    const answers = Array.isArray(resumeAnswered)
+      ? resumeAnswered.filter((a) => a && typeof a === "object" && (a.cell || a.value)).map((a) => ({ cell: String(a.cell ?? "").trim(), value: String(a.value ?? "").trim() }))
+      : [];
+    const standing = session?.buildStanding ?? [];
+    const roundCount = Array.isArray(session?.buildRounds) ? session.buildRounds.length : 0;
+    // THE RE-GROUND: the void is re-declared FROM the answers — each filled
+    // cell becomes a declared cell of the current void, so the recursion
+    // narrows and closes (the pathos of one ring is the ethos of the next).
+    // Declared cells ACCUMULATE on the session across rounds; a round never
+    // loses what an earlier round already named.
+    const declaredFromAnswers = Object.fromEntries(
+      answers.filter((a) => a.cell && a.value).map((a) => [a.cell, a.value]),
+    );
+    // The session's declared map starts from what the TASK itself declared
+    // (slot = the thing to build, admits = its parts), then accumulates the
+    // person's answers across rounds. A licensed build thus carries the full
+    // declared shape — slot included — so downstream (language re-derivation,
+    // the generation prompt) reads the build's own words, never a guess.
+    const accumulatedDeclared = { ...buildVoidFields(buildTask), ...(session?.buildDeclared ?? {}), ...declaredFromAnswers };
+    const clarify = buildClarify({
+      task: buildTask, modality: "code", round: roundCount,
+      openBefore: openBeforeArr,
+      answers,
+      standing,
+      fieldsByLevel: { whole: { ...buildVoidFields(buildTask), ...accumulatedDeclared } },
+      // ETHOS is already the turn's clearance; the door re-checks nothing.
+      clear: () => ({ cleared: true }),
+      // LOGOS: Degrees Kelsen over the standing + the answers' own claims.
+      lint: ({ notes }) => {
+        const cycle = findClaimCycle(notes ?? []);
+        return cycle ? { cycles: [cycle] } : { cycles: [] };
+      },
+      // PATHOS: the round's re-ground reading — an answer that fills an
+      // open cell holds the ground; one that fills nothing does not move it.
+      reGround: ({ fills }) => fills.length
+        ? { kind: "ground_holds", basis: `${fills.length} cell(s) filled — the ground absorbs what arrived` }
+        : { kind: "ground_unmoved", basis: "no cell filled this round — no altitude change" },
+      budget: CLARIFY_MAX_ROUNDS,
+    });
+    const landed = recordRound(session.buildRounds ?? (session.buildRounds = []), clarify);
+    session.buildRounds = landed;
+    session.buildDeclared = accumulatedDeclared;
+    session.buildStanding = [...standing, ...(clarify.fills ?? []).map((f) => ({ end1: "the person", label: "declared", end2: f.value.slice(0, 120) }))];
+    if (clarify.kind === "needs-clarification") {
+      if (onNote) onNote({ move: "clarify_asked", round: clarify.round, cells: clarify.questions.map((q) => q.cell) });
+      const text = clarify.questions.map((q) => q.ask).join("\n");
+      return earlyResult(text, {
+        answerShape: "needs-clarification",
+        mechanical: {
+          rung: "build-clarify", round: clarify.round, schema: CLARIFY_SCHEMA,
+          openBefore: clarify.void.levels[0].void.undeclared.map((u) => u.field),
+          questions: clarify.questions.map((q) => ({ cell: q.cell, ask: q.ask, wouldSettle: q.wouldSettle })),
+          asksBack: true,
+        },
+        truncated: false,
+      });
+    }
+    if (clarify.kind === "still_under_specified") {
+      if (onNote) onNote({ move: "clarify_stalled", round: clarify.round, basis: clarify.basis });
+      return earlyResult(`An answer is still missing — ${clarify.basis ?? "the build is not yet specified."}`, {
+        answerShape: "needs-clarification",
+        mechanical: { rung: "build-clarify", round: clarify.round, schema: CLARIFY_SCHEMA, stalled: true, basis: clarify.basis ?? null },
+        truncated: false,
+      });
+    }
+    if (clarify.kind === "refused") {
+      if (onNote) onNote({ move: "clarify_refused", reason: clarify.reason });
+      return earlyResult(`This build is refused — ${clarify.reason ?? "unknown reason."}`, {
+        answerShape: "needs-clarification",
+        mechanical: { rung: "build-clarify", round: clarify.round, schema: CLARIFY_SCHEMA, refused: clarify.reason ?? null },
+        truncated: false,
+      });
+    }
+    // licensed: generation may begin — the void is declared, the build falls
+    // through to the normal code pipeline below with the declared shape.
+    if (onNote) onNote({ move: "clarify_licensed", round: clarify.round, cells: (clarify.fills ?? []).map((f) => f.cell) });
+    // THE DECLARED SHAPE RE-DERIVES THE LANGUAGE: a build declared as a
+    // *site* is an html artifact, whatever detectLanguage fell back to
+    // ("a myspace-like site" reads no extension → python by default; the
+    // person said SITE). The declared slot/admits are the person's own
+    // words; the re-derivation reads them the same way the register does,
+    // never a second vocabulary.
+    const declaredSlotWords = String(session?.buildDeclared?.slot ?? session?.buildDeclared?.admits ?? "").toLowerCase();
+    if (isCode && languageForDeclared(session?.buildDeclared ?? {}, codeLanguage) !== codeLanguage) {
+      codeLanguage = languageForDeclared(session?.buildDeclared ?? {}, codeLanguage);
+      if (onNote) onNote({ move: "declared_language", from: detectLanguage(task) ?? "python", to: codeLanguage, basis: "the declared shape names a site" });
+    }
+  }
   // THE WHEEL (D/E/R): every stage of the pipeline is one pass of
   // Void/Beings/Fold — DEF what would satisfy it, EVA a real difference,
   // REC an append-only landing whose pattern is the next stage's ground.
@@ -4902,6 +5094,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
               total: plannedSections.length,
               soFar: documentLines.length ? documentLines.join("\n\n").slice(-3000) : "",
               exemplar: i === 0 ? codeExemplar(codeLanguage) : null,
+              declared: session?.buildDeclared ?? null,
             })
           : plannedSections.length > 1
           ? (isOpening
