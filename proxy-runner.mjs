@@ -2556,6 +2556,25 @@ function isBroadRecall(task) {
   return BROAD_RECALL_RE.test(String(task ?? ""));
 }
 
+// GATE for conversationFoldSegments (2026-09-18, fixing the two-agent echo
+// loop): the fold is a SUBSTITUTE for chat history the caller did not send
+// — the same rationale transcriptFromSession states for itself ("when the
+// client sends no history"), and that function IS properly gated on
+// `!keptChat.length`. A caller that sends its full `chatHistory` each
+// request (every real client, and eval/the-fold/two-agent-stress.mjs) has
+// the prior turns as real conversation turns already; re-surfacing those
+// same turns AGAIN as "Here's what came up on this" material handed the
+// model its own prior reply as grounding to summarize/paraphrase rather
+// than as the conversation to continue — two chatty small models
+// paraphrasing their own last paraphrase, every turn, converges on a fixed
+// phrase (the "## Dispute Resolution" attractor seen live) within ~10
+// turns, because nothing compared the "material" against what had already
+// been said. Exported so the decision is tested at the pure layer.
+export function shouldUseConversationFold(task, chatHistory, hasNonChatMaterial) {
+  if (Array.isArray(chatHistory) && chatHistory.length) return false;
+  return isBroadRecall(task) || !hasNonChatMaterial;
+}
+
 // The conversation's own fold, as surfaced segments: the corpus's chat
 // documents (one per admitted turn, in order), capped like any surfed
 // segment. The CURRENT turn — just admitted, still unanswered — is excluded
@@ -3670,7 +3689,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // BROAD RECALL and chat-only: use the conversation's own fold — the prior
     // turns' words addressed as a conversation, never the mechanical ladder
     // (which has no cue for meta questions or unstructured chat lines).
-    if (isBroadRecall(task) || !hasNonChatMaterial) {
+    if (shouldUseConversationFold(task, chatHistory, hasNonChatMaterial)) {
       const foldSegments = conversationFoldSegments(session, task, materialText);
       if (foldSegments.length) {
         surfacedSegments = foldSegments;
