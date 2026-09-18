@@ -257,3 +257,15 @@ Constitution: `../eo-constitution/CONSTITUTION.md` + this repo's READING-SPEC.md
 | Marshall | meta | the-fold CLAUDE.md "self plane"; this diff | clean | no law edited by this diff; the split (pure organs in the seam, I/O at the caller) is READING-SPEC's own standing rule, cited in the seam comment |
 
 clean: Simon/Chekhov/Ostrom/Pearl — the new module (sha256hex.js) is imported by all four adapters which are imported by tests; no credit/blame or independence claim touched.
+
+## 2026-09-17 — Handle: Bayes on kernel/prior-query.js + priors survey (archon-bayes-priors, eoreader7)
+
+fast: 3 files (README.md, native/kernel/prior-query.js, native/docs/THE-PRIORS-SURVEY.md) · no test imports prior-query.js, none affected · law: ok (citations resolve 1/1; pre-existing dup headers in the-fold POLICIES.md P115/P116/P117/P19/P233 and READING-SPEC.md S17/S96, unrelated to this diff)
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Marshall | II.10 (THE-THREE-MATHEMATICS.md) | THE-PRIORS-SURVEY.md:110 | clean | the quoted clause ("an invented ratio is a change of units that fails invisibly") is verbatim from the source's own II.10 citation; no law edited, nothing self-enacted |
+| Pearl | (corroboration/independence language) | README.md:210 | false-positive-on-review | cites organs/corroboration.js's refusal to invent a likelihood ratio as PRECEDENT for a naming choice, not as an independence claim about two signals |
+| Holmes | (identity language) | THE-PRIORS-SURVEY.md:36 | clean | no entity merge — the live_priors path eoreader7's prior-query.js reads (`live_priors/derived-priors/`) and the corpus the-fold's priors.js describes were confirmed the SAME directory on disk (`ls /Users/mlacy/Documents/3.0/live_priors/`), not assumed from name overlap |
+| Simon/Chekhov | (untested source) | native/kernel/prior-query.js | noted, not fixed | queryMeaningPotential has zero test coverage — pre-existing (this diff only added a Handle comment, changed no logic); left in THE-PRIORS-SURVEY.md's follow-up list is the mis-shaped discovered "lyric" framing, not this — noting the gap here too since chorus surfaced it independently |
+
+clean: Feynman/Dijkstra/Alexander/Frankfurt/Ostrom/Greenberg/Diaconis/Kondo/Lévi-Strauss — no constant tuned, no base-unit coupling, no composition gate, nothing generated/placeholder, no credit misassigned, no language-universal claim, no null invented, no dead code touched or stash-reclaim performed by this diff.
