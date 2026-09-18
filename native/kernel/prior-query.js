@@ -9,6 +9,21 @@
 //   5. the web (the hunt) — when the egress is open
 // Each contributor is named with its provenance; the query is OPEN — a new
 // prior family is registered, never a new branch.
+//
+// Handle: Bayes — after asking what is already believed before generating
+// from nothing. NOT a claim of calibrated probability: this module never
+// computes a posterior or a likelihood ratio (organs/corroboration.js
+// already drew that line — "the witness's true p(yes|true)/p(yes|false)
+// have not been measured, and inventing them would be worse than unit
+// steps"). Bayes's actual job is narrower and honest: consult every real
+// prior family this house has (native/kernel/rhythm-priors.js/Tala for
+// WHEN, native/kernel/experience-priors.js/Vasana for residual cross-work
+// impressions, this cascade for genre/staging via live_priors/derived-priors)
+// BEFORE a caller falls back to a hand-written template — never silently
+// skip the asking. Registered 2026-09-17 (archon-bayes-priors) after a
+// "write me a sonnet" request was answered from register.js's VOICE_BY_FIELD
+// template alone, though this exact cascade — with one real "lyric" entry
+// already in the sidecar — sits one function call away. Amendment XVII.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";

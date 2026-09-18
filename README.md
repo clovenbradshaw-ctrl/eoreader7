@@ -207,6 +207,7 @@ the-fold's flat top level under the same basename.
 | `kernel/return-curve.js` | Sockeye | How an identity comes home, as a curve. |
 | `kernel/rhythm-priors.js` | Tala | The WHEN, held independent of content. |
 | `kernel/experience-priors.js` | Vasana | Residual impressions that condition later perception. |
+| `kernel/prior-query.js` | Bayes | Asks what every prior family already knows (sidecar, genre priors, reading priors, live_priors) before a caller falls back to a hand-written template — never a claim of calibrated probability (see `organs/measure.js`/Fisher and `organs/corroboration.js`/Bukhari's own refusal to invent an unmeasured likelihood ratio). |
 | `kernel/completion.js` | Brahmagupta | A declared absence is a value, not a gap. |
 
 **Structure, kind, dynamics**
