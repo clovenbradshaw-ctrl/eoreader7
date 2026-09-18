@@ -772,11 +772,19 @@ async function handleRequest(req, res) {
         if (!loopAbort.signal.aborted) loopAbort.abort();
       }, CODE_LOOP_DEADLINE_MS);
       try {
-        const result = await runOpenCodingLoop({ sessionId, userId, model, task, files, maxTurns, caller: callerFromRequest(req, "agent", parsed), signal: loopAbort.signal });
+        // Disclosure rides with the response: every virtual-file move the
+        // loop makes is collected here (agent_list/read/write/run/done, plus
+        // the inner reading pipeline's own notes tagged with agentTurn) and
+        // returned as `notes` — the record, alongside `rounds` (the display).
+        // Nothing leaves the sandbox to produce it: virtual Map + severed
+        // vm.Context only, no real disk, no egress.
+        const notes = [];
+        const onNote = (n) => { if (n && typeof n === "object") notes.push(n); };
+        const result = await runOpenCodingLoop({ sessionId, userId, model, task, files, maxTurns, caller: callerFromRequest(req, "agent", parsed), signal: loopAbort.signal, onNote });
         clearTimeout(loopDeadline);
         res.removeListener("close", onDisconnect);
         res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
-        res.end(JSON.stringify({ done: result.done, answer: result.answer, rounds: result.rounds, files: Object.fromEntries(result.files) }));
+        res.end(JSON.stringify({ done: result.done, answer: result.answer, rounds: result.rounds, files: Object.fromEntries(result.files), notes }));
       } catch (err) {
         clearTimeout(loopDeadline);
         res.removeListener("close", onDisconnect);

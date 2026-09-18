@@ -3921,20 +3921,32 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         const sid = segmentSourceOf(s);
         if (sid) turnUsedSourceIds.add(sid);
       }
-      // QUA-FILE GUARANTEE: a file this turn resolved (mention, basename,
-      // anaphor, attachment) is surfaced even when the address ladder did
-      // not rank it — a bounded window of its own bytes, carrying its file
-      // identity in _ledger + membership so citations and the facing page
-      // show the file the answer stood on. The mouth receives content only,
-      // never the name; the record keeps which file it was.
+      // QUA-FILE GUARANTEE (bounded by the surf cap): a file this turn
+      // resolved (mention, basename, anaphor, attachment) is surfaced even
+      // when the address ladder did not rank it — a bounded window of its
+      // own bytes, carrying its file identity in _ledger + membership so
+      // citations and the facing page show the file the answer stood on.
+      // The mouth receives content only, never the name; the record keeps
+      // which file it was. When the cap is already full the file is NOT
+      // silently dropped: a file_dropped note names it on the record, so a
+      // missing citation is explainable, never mysterious.
+      // Operator-pointed segments go FIRST: the downstream prompt budget
+      // (materialRoom) takes surfacedSegments in order, so a file the
+      // operator named beats ladder-ranked material to the mouth — the
+      // ladder is cut first, never the pointed-at file. Membership follows
+      // the same order.
+      const pointed = [];
       for (const f of nlFiles) {
-        if (surfacedSegments.length >= SURF_MAX_SEGMENTS) break;
         if (turnUsedSourceIds.has(f.sourceId)) continue;
+        if (surfacedSegments.length + pointed.length >= SURF_MAX_SEGMENTS) {
+          if (onNote) onNote({ move: "file_dropped", sourceId: f.sourceId, kind: f.kind, reason: "surf cap full — ladder segments filled the budget" });
+          continue;
+        }
         const doc = session.corpus.documents.get(f.sourceId);
         const text = String(doc?.text ?? doc ?? "").trim();
         if (!text) continue;
         const capped = text.slice(0, SURF_MAX_SEGMENT_CHARS);
-        surfacedSegments.push({
+        pointed.push({
           text: capped,
           _ledger: { source: f.sourceId, heading: null, addressed_by: "file-mention", bytes: [0, capped.length] },
         });
@@ -3942,6 +3954,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         touchFileActivation(session, f.sourceId, "surfaced");
         if (onNote) onNote({ move: "file_surfaced", sourceId: f.sourceId, kind: f.kind, chars: capped.length });
       }
+      surfacedSegments = [...pointed, ...surfacedSegments];
       // Touch everything the ladder surfaced too — being read IS pointing.
       for (const s of surfacedSegments) {
         const sid = segmentSourceOf(s);

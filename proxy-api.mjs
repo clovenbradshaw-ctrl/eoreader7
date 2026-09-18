@@ -379,6 +379,38 @@ export function humanizeNote(note) {
       return `Murch on pacing: ${note.basis}`;
     case "murch_applied":
       return `Murch applied ${note.applied} revision(s) this pass.`;
+    // FILES AS FILES — the record's own pointing, rendered for the thinking
+    // panel (never the mouth: these lines ride reasoning_content, and the
+    // firewall's mouth-facing rule is untouched). A turn that tabbed through
+    // files says which ones, and what was missing stays a named gap.
+    case "file_mentioned":
+      return `Asked about file(s): ${(note.mentions ?? []).join(", ")}.`;
+    case "file_resolved":
+      return `Reading "${note.sourceId}" for this turn (${note.kind}${note.chars ? `, ${note.chars} chars` : ""}${note.cached ? ", already admitted" : ""}${note.score != null ? `, activation ${note.score}` : ""}).`;
+    case "file_missing":
+      return `No such file for "${note.mention}" — ${note.reason ?? "not in scope"}.`;
+    case "file_unreadable":
+      return `"${note.rel ?? note.mention}" isn't readable as text — ${note.reason ?? "its contents are not invented"}.`;
+    case "file_surfaced":
+      return `Surfaced "${note.sourceId}" into the material (${note.kind}, ${note.chars} chars).`;
+    case "file_dropped":
+      return `Could not surface "${note.sourceId}" (${note.kind}) — ${note.reason ?? "budget full"}.`;
+    case "agent_list":
+      return `Sandbox: listed ${(note.files ?? []).length} virtual file(s).`;
+    case "agent_read":
+      return `Sandbox: read "${note.path}" (${note.contentChars} chars, turn ${note.turn}).`;
+    case "agent_read_miss":
+      return `Sandbox: no virtual file "${note.path}" (turn ${note.turn}).`;
+    case "agent_write":
+      return `Sandbox: wrote "${note.path}" (${note.contentChars} chars, virtual — not the real disk).`;
+    case "agent_run":
+      return `Sandbox: ran JS (${note.outputChars} chars out${note.ok ? "" : ", errored"}, turn ${note.turn}).`;
+    case "agent_done":
+      return `Sandbox: done after turn ${note.turn}.`;
+    case "agent_cap":
+      return `Sandbox: turn cap (${note.turns}) — unfinished.`;
+    case "agent_gap":
+      return `Sandbox: unparsed action (turn ${note.turn}) — ${note.reason ?? "no recognized ACTION block"}.`;
     case "ranke":
       return `Ranke, pass ${note.round}: ${note.ungrounded.length} section(s) drifted from the material — rewritten from the documents (Quellenkritik).`;
     case "outline_evolved":

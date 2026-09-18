@@ -433,6 +433,10 @@ function App() {
         onRetry: ({ attempt, retryAfterS, type, position }) => pushMessage(tabId, "note", `Heimdall: ${type === "not_your_turn" ? "not your turn yet" : type === "zipper" ? "merging — pass held" : type === "claimed" ? "turn claimed elsewhere" : "busy"} — retrying in ${retryAfterS}s${position ? ` (#${position})` : ""}`),
       });
       // Every round is real and disclosed — nothing this loop did is hidden.
+      // Rounds are the display (what the loop did, step by step); `notes`
+      // is the disclosure record (per-file moves + the inner reading
+      // pipeline's own notes, each tagged with agentTurn). Both paint here;
+      // neither leaves the sandbox — virtual files only, never real disk.
       for (const r of res.rounds ?? []) {
         if (r.gap) { pushMessage(tabId, "error", `(turn ${r.turn}) ${r.gap.reason}`); continue; }
         if (r.action === "list") pushMessage(tabId, "tool-call", `→ list: ${r.files.join(", ") || "(empty)"}`);
@@ -442,6 +446,15 @@ function App() {
           pushMessage(tabId, "tool-call", `→ run (sandboxed JS)`);
           pushMessage(tabId, "tool-result", `  ${r.output || "(no output)"}`);
         }
+      }
+      for (const n of res.notes ?? []) {
+        if (!n || typeof n !== "object") continue;
+        if (n.move === "agent_read") pushMessage(tabId, "note", `tabbed to ${n.path} (${n.contentChars} chars, turn ${n.turn})`);
+        else if (n.move === "agent_write") pushMessage(tabId, "note", `wrote ${n.path} (${n.contentChars} chars, sandboxed, turn ${n.turn})`);
+        else if (n.move === "agent_run") pushMessage(tabId, "note", `ran sandboxed JS (${n.outputChars} chars out, turn ${n.turn})`);
+        else if (n.move === "agent_read_miss") pushMessage(tabId, "note", `miss: no virtual file ${n.path} (turn ${n.turn})`);
+        else if (n.move === "agent_done") pushMessage(tabId, "note", `done after turn ${n.turn}`);
+        else if (n.move === "agent_cap") pushMessage(tabId, "note", `turn cap (${n.turns}) — unfinished`);
       }
       if (res.done) pushMessage(tabId, "assistant", stripCitationAppendix(res.answer), "assistant", { model: tab.model });
       else pushMessage(tabId, "error", `hit the turn cap without a final answer.`);

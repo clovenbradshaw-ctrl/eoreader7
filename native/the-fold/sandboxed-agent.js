@@ -28,6 +28,14 @@
 // extended from its two actions (read/patch) to five (read/write/list/run/
 // done), because an open-ended loop needs to create files and execute code,
 // not only patch an existing one.
+//
+// MOUTH-SEES-NAMES, BY DESIGN HERE: unlike the chat path (where the system
+// never hands the mouth a filename), this loop's ACTION grammar REQUIRES
+// paths — list shows names, read/write take PATH. That is the tool-door
+// exception, the same shape as OpenCode/Claude Code's read/write verbs:
+// the model must name what it touches to be auditable. The names are
+// VIRTUAL (the in-memory Map, never real disk), every move is disclosed on
+// onNote + rounds, and nothing here reaches the real machine.
 
 import vm from "node:vm";
 import { runProxyTurn } from "../../proxy-runner.mjs";
@@ -132,27 +140,36 @@ function renderFiles(files) {
  * is the FINAL virtual filesystem state, so a caller can read back what
  * was built. Never throws for an ordinary run — only for a malformed call.
  */
-export async function runOpenCodingLoop({ sessionId, userId = null, model, task, files = new Map(), maxTurns = AGENT_MAX_TURNS, caller = null, signal = null }) {
+export async function runOpenCodingLoop({ sessionId, userId = null, model, task, files = new Map(), maxTurns = AGENT_MAX_TURNS, caller = null, signal = null, onNote = null }) {
   if (!task || typeof task !== "string") throw new Error("task must be a declared string");
   const rounds = [];
   let lastNote = null;
+  // Disclosure, not display: every file move this loop makes is emitted on
+  // onNote (the same stream the workspace path emits scanning/admitted/surf
+  // on), so a caller can record which virtual file was touched, when, and
+  // with how many chars — without the mouth ever seeing a filename. The
+  // sandbox stays sandboxed: this changes only what is REPORTED, never what
+  // is reachable (the virtual Map + severed vm.Context below, no node:fs).
+  const note = (move) => { try { onNote?.(move); } catch { /* notes are advisory, never fatal */ } };
 
   for (let turn = 1; turn <= maxTurns; turn += 1) {
     const roundTask = turn === 1
       ? `${task}\n\nVirtual files so far:\n${renderFiles(files)}\n\n${ACTION_FORMAT}`
       : `${task}\n\n${lastNote}\n\n${ACTION_FORMAT}`;
 
-    const result = await runProxyTurn({ sessionId, userId, model, task: roundTask, chatHistory: [], mode: "chat", caller, signal });
+    const result = await runProxyTurn({ sessionId, userId, model, task: roundTask, chatHistory: [], mode: "chat", caller, signal }, null, (n) => note({ ...n, agentTurn: turn }));
     const parsed = parseAction(result.text);
 
     if (!parsed.ok) {
       rounds.push({ turn, gap: parsed.gap, raw: result.text });
+      note({ move: "agent_gap", turn, kind: parsed.gap?.kind ?? "unparsed_action", reason: parsed.gap?.reason ?? null });
       lastNote = `Your last reply did not match a recognized action (${parsed.gap.reason}). Use exactly one of the formats below.`;
       continue;
     }
 
     if (parsed.action === "list") {
       rounds.push({ turn, action: "list", files: [...files.keys()] });
+      note({ move: "agent_list", turn, files: [...files.keys()] });
       lastNote = `Virtual files:\n${renderFiles(files)}`;
       continue;
     }
@@ -161,10 +178,12 @@ export async function runOpenCodingLoop({ sessionId, userId = null, model, task,
       const content = files.get(parsed.path);
       if (content === undefined) {
         rounds.push({ turn, action: "read", path: parsed.path, gap: { kind: "no_such_file", reason: `no virtual file named "${parsed.path}" — ACTION: list to see what exists` } });
+        note({ move: "agent_read_miss", turn, path: parsed.path });
         lastNote = `There is no virtual file named "${parsed.path}" yet. ACTION: list to see what exists, or ACTION: write to create it.`;
         continue;
       }
       rounds.push({ turn, action: "read", path: parsed.path, contentChars: content.length });
+      note({ move: "agent_read", turn, path: parsed.path, contentChars: content.length });
       lastNote = `Content of "${parsed.path}":\n\n${content}`;
       continue;
     }
@@ -172,6 +191,7 @@ export async function runOpenCodingLoop({ sessionId, userId = null, model, task,
     if (parsed.action === "write") {
       files.set(parsed.path, parsed.content);
       rounds.push({ turn, action: "write", path: parsed.path, contentChars: parsed.content.length });
+      note({ move: "agent_write", turn, path: parsed.path, contentChars: parsed.content.length, sandboxed: true });
       lastNote = `Wrote "${parsed.path}" (${parsed.content.length} chars) to the sandbox. This is virtual — nothing touched the real disk.`;
       continue;
     }
@@ -179,14 +199,17 @@ export async function runOpenCodingLoop({ sessionId, userId = null, model, task,
     if (parsed.action === "run") {
       const ran = runSandboxedJs(parsed.code);
       rounds.push({ turn, action: "run", code: parsed.code, ok: ran.ok, output: ran.output });
+      note({ move: "agent_run", turn, ok: ran.ok, outputChars: (ran.output ?? "").length, sandboxed: true });
       lastNote = `Sandbox output:\n\n${ran.output || "(no output)"}`;
       continue;
     }
 
     // done
     rounds.push({ turn, action: "done", answer: parsed.answer });
+    note({ move: "agent_done", turn, answerChars: (parsed.answer ?? "").length });
     return { done: true, answer: parsed.answer, rounds, files };
   }
 
+  note({ move: "agent_cap", turns: maxTurns, done: false });
   return { done: false, answer: null, rounds, files };
 }
