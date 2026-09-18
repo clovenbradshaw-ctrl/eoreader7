@@ -27,7 +27,10 @@
 // stated principle ("ask the model for exactly ONE... mechanical action")
 // extended from its two actions (read/patch) to five (read/write/list/run/
 // done), because an open-ended loop needs to create files and execute code,
-// not only patch an existing one.
+// not only patch an existing one. The loop serves the same received
+// language knowledge as code-loop.js (generation briefs in turn 1,
+// keyword refusal on write) — the write verb replaces whole files, so the
+// patch-time FIND machinery has no seat here; the propose-time gate does.
 //
 // MOUTH-SEES-NAMES, BY DESIGN HERE: unlike the chat path (where the system
 // never hands the mouth a filename), this loop's ACTION grammar REQUIRES
@@ -39,6 +42,9 @@
 
 import vm from "node:vm";
 import { runProxyTurn } from "../../proxy-runner.mjs";
+import { detectCodeLanguage, generationBriefFor } from "../adapters/code/language.js";
+import { loadCodeKeywordPrior, keywordSetOf } from "../adapters/text/code-structure.js";
+import { declaresKeyword } from "../adapters/code/mechanical.js";
 
 export const AGENT_MAX_TURNS = 25;
 const RUN_TIMEOUT_MS = 3000;
@@ -130,7 +136,43 @@ function safeStringify(v) {
 function renderFiles(files) {
   const names = [...files.keys()];
   if (!names.length) return "(no virtual files yet)";
-  return names.join("\n");
+  return names.map((n) => {
+    const lang = detectCodeLanguage(n);
+    return lang ? `${n} (${lang})` : n;
+  }).join("\n");
+}
+
+/**
+ * checkWriteContent(path, content) -> { ok:true } | { ok:false, gap }.
+ * Propose-time keyword gate for whole-file writes (the write verb has no
+ * FIND to anchor, so code-loop.js's patch-time gate cannot apply here):
+ * content that binds a hard keyword of the file's own language is refused
+ * before it reaches the virtual Map, with the refused names as evidence.
+ * Pure and model-free — the seam the tests pin (runOpenCodingLoop itself
+ * needs a live mouth). Unknown language or absent prior admits, exactly
+ * as the code loop does. NOTE: ACTION: run executes JavaScript only
+ * (ACTION_FORMAT states it) — a Python file here is writable text the
+ * sandbox cannot execute, disclosed, not a silent half-language.
+ */
+export function checkWriteContent(path, content) {
+  const lang = detectCodeLanguage(path);
+  const refused = declaresKeyword(content, path, keywordSetOf(loadCodeKeywordPrior(lang)));
+  if (refused.length) {
+    return { ok: false, gap: { kind: "keyword_declaration", names: refused, reason: `"${refused.join('", "')}" cannot be declared in ${lang || "this file"} (received closed class) — nothing was stored` } };
+  }
+  return { ok: true };
+}
+
+/** languageBlockFor(files) -> prompt scaffolding for the virtual files'
+ *  detected languages (received CodeKeywordPrior@1; shapes illustrative).
+ *  Empty string when no file has both a language and a prior — the loop
+ *  then behaves exactly as before. */
+export function languageBlockFor(files) {
+  const langs = [...new Set([...files.keys()].map(detectCodeLanguage).filter(Boolean))];
+  const briefs = langs.map(generationBriefFor).filter(Boolean).join("\n\n");
+  return briefs
+    ? `\n\nLanguage scaffolding (received CodeKeywordPrior@1; shapes illustrative — exact bytes still rule):\n\n${briefs}`
+    : "";
 }
 
 /**
@@ -154,7 +196,7 @@ export async function runOpenCodingLoop({ sessionId, userId = null, model, task,
 
   for (let turn = 1; turn <= maxTurns; turn += 1) {
     const roundTask = turn === 1
-      ? `${task}\n\nVirtual files so far:\n${renderFiles(files)}\n\n${ACTION_FORMAT}`
+      ? `${task}\n\nVirtual files so far:\n${renderFiles(files)}${languageBlockFor(files)}\n\n${ACTION_FORMAT}`
       : `${task}\n\n${lastNote}\n\n${ACTION_FORMAT}`;
 
     const result = await runProxyTurn({ sessionId, userId, model, task: roundTask, chatHistory: [], mode: "chat", caller, signal }, null, (n) => note({ ...n, agentTurn: turn }));
@@ -189,6 +231,13 @@ export async function runOpenCodingLoop({ sessionId, userId = null, model, task,
     }
 
     if (parsed.action === "write") {
+      const checked = checkWriteContent(parsed.path, parsed.content);
+      if (!checked.ok) {
+        rounds.push({ turn, action: "write", path: parsed.path, gap: checked.gap });
+        note({ move: "agent_write_refused", turn, path: parsed.path, kind: checked.gap.kind, names: checked.gap.names });
+        lastNote = `Your write to "${parsed.path}" was refused (${checked.gap.reason}). Write different content — this is virtual, but the language's closed class still holds.`;
+        continue;
+      }
       files.set(parsed.path, parsed.content);
       rounds.push({ turn, action: "write", path: parsed.path, contentChars: parsed.content.length });
       note({ move: "agent_write", turn, path: parsed.path, contentChars: parsed.content.length, sandboxed: true });

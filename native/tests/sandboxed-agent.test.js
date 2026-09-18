@@ -4,7 +4,7 @@
 // eval verification for that half, driven live against the real server).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parseAction, runSandboxedJs } from "../the-fold/sandboxed-agent.js";
+import { parseAction, runSandboxedJs, checkWriteContent, languageBlockFor } from "../the-fold/sandboxed-agent.js";
 
 test("parseAction: list", () => {
   assert.deepEqual(parseAction("ACTION: list"), { ok: true, action: "list" });
@@ -75,4 +75,28 @@ test("runSandboxedJs: cannot reach a real file even by trying — fs is not a gl
   const r = runSandboxedJs("require('fs').readFileSync('/etc/passwd', 'utf8')");
   assert.equal(r.ok, false);
   assert.match(r.output, /require is not defined/i);
+});
+
+test("checkWriteContent: python binding a hard keyword is refused pre-store", () => {
+  const r = checkWriteContent("app.py", "def class():\n    pass\n");
+  assert.equal(r.ok, false);
+  assert.equal(r.gap.kind, "keyword_declaration");
+  assert.deepEqual(r.gap.names, ["class"]);
+});
+
+test("checkWriteContent: ordinary content admitted, strangers admitted", () => {
+  assert.deepEqual(checkWriteContent("app.py", "def main():\n    pass\n"), { ok: true });
+  assert.deepEqual(checkWriteContent("notes.txt", "def class():\n    pass\n"), { ok: true });
+  assert.equal(checkWriteContent("k.js", "function class() {\n}\n").ok, false);
+  // .ts has no keyword prior (grammar-heuristic junk, deliberately unloaded) — admitted, disclosed
+  assert.deepEqual(checkWriteContent("a.ts", "function class() {\n}\n"), { ok: true });
+});
+
+test("languageBlockFor: briefs for known languages, empty string otherwise", () => {
+  const block = languageBlockFor(new Map([["app.py", "x"], ["k.js", "y"]]));
+  assert.match(block, /def name\(params\):/);
+  assert.match(block, /function name\(params\) \{/);
+  assert.match(block, /CodeKeywordPrior@1/);
+  assert.equal(languageBlockFor(new Map()), "");
+  assert.equal(languageBlockFor(new Map([["Makefile", "x"]])), "");
 });

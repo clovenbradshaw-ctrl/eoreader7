@@ -68,6 +68,36 @@ export function keywordSetOf(prior) {
   return prior?.keywords?.length ? new Set(prior.keywords) : null;
 }
 
+// ── CodeNamePrior@1 per-language splits ────────────────────────────────────
+// Vendored tallies: native/priors/code-name-<family>.json (built by
+// native/scripts/build-code-name-prior-split.mjs — recipes identical to the
+// blended builder, sum-checked at build time). Same loader discipline as
+// above: read once, null when absent. Families: py, c, go, js (js covers
+// the whole ts/tsx/js/mjs/jsx recipe family the split builder measured).
+const CODE_NAME_SPLIT_FILE = Object.freeze({ py: "code-name-py.json", c: "code-name-c.json", go: "code-name-go.json", js: "code-name-js.json" });
+const _nameSplitCache = new Map();
+export function loadCodeNamePriorSplit(family) {
+  const fam = String(family ?? "").toLowerCase();
+  if (!CODE_NAME_SPLIT_FILE[fam]) return null;
+  if (!_nameSplitCache.has(fam)) {
+    let prior = null;
+    try {
+      prior = JSON.parse(fs.readFileSync(new URL(`../../priors/${CODE_NAME_SPLIT_FILE[fam]}`, import.meta.url), "utf8"));
+      if (prior?.schema !== "CodeNamePrior@1") prior = null;
+    } catch { prior = null; }
+    _nameSplitCache.set(fam, prior);
+  }
+  return _nameSplitCache.get(fam);
+}
+
+/** loadCodeNamePriorSplits() -> { py, c, go, js } — each a CodeNamePrior@1
+ *  or null when its file is absent. A present-but-thin family (one repo)
+ *  attests nothing at floor 2, so every name there is admitted — the safe
+ *  default, disclosed, never a silent skip. */
+export function loadCodeNamePriorSplits() {
+  return { py: loadCodeNamePriorSplit("py"), c: loadCodeNamePriorSplit("c"), go: loadCodeNamePriorSplit("go"), js: loadCodeNamePriorSplit("js") };
+}
+
 const IDENT = /^[A-Za-z_$][\w$]*$/;
 
 // XID idents — PEP 3131 (python) and the JS engine both accept non-ASCII
@@ -104,11 +134,26 @@ function extOf(fileName) {
   return i === -1 ? "" : fileName.slice(i).toLowerCase();
 }
 
-// A declaration's BODY EXTENT — brace-matched from wherever its own regex
+// The split-prior family for a file — derived from the RECIPES table
+// itself (no second extension map to drift: the recipe that reads the
+// file names the family). Returns py | c | go | js | null.
+function familyOfFile(fileName) {
+  const ext = extOf(fileName);
+  for (const recipe of RECIPES) {
+    if (!recipe.exts.includes(ext)) continue;
+    if (recipe.lang === "c" || recipe.lang === "go") return recipe.lang;
+    if (recipe.lang.startsWith("python")) return "py";
+    if (recipe.lang.startsWith("js")) return "js";
+  }
+  return null;
+}
+
+// Exported for the mechanical tier (extent-aware anchoring in the loop):
+// a declaration's BODY EXTENT — brace-matched from wherever its own regex
 // left off, to the closing brace at the same depth. Indentation-only
 // languages (Python) have no brace to match; their extent is measured to
 // the next line at or below the declaration's own indent, or end of text.
-function braceExtent(text, fromIndex) {
+export function braceExtent(text, fromIndex) {
   let i = text.indexOf("{", fromIndex);
   if (i === -1) return text.length;
   let depth = 0;
@@ -119,7 +164,7 @@ function braceExtent(text, fromIndex) {
   return text.length;
 }
 
-function indentExtent(text, declLineStart) {
+export function indentExtent(text, declLineStart) {
   const lines = text.slice(declLineStart).split("\n");
   const declLine = lines[0];
   const declIndent = (declLine.match(/^[ \t]*/) ?? [""])[0].length;
@@ -142,7 +187,7 @@ function indentExtent(text, declLineStart) {
 // because the header text precedes the name inside the sliced body
 // (found live: "function dmdWindow(x) {...}" wrongly counted dmdWindow as
 // calling itself once, from its own signature).
-function bodyStartOf(text, fromIndex, isPython) {
+export function bodyStartOf(text, fromIndex, isPython) {
   if (isPython) {
     const lineStart = text.lastIndexOf("\n", fromIndex) + 1;
     const lineEnd = text.indexOf("\n", fromIndex);
@@ -296,7 +341,7 @@ export function genericityOf(prior, name) {
 }
 
 /**
- * codeGist({ index, question, dmdCut, dmdWindow, prior, genericFloor }) ->
+ * codeGist({ index, question, dmdCut, dmdWindow, prior, languagePriors, genericFloor }) ->
  * { declared: {rows, window, basis}, calls: {rows, window, basis}, disclosure }
  *
  * `dmdCut` is IMPORTED from native/the-fold/resolutions.js (never
@@ -310,13 +355,31 @@ export function genericityOf(prior, name) {
  * material's own record does not need retelling, and dropping it before
  * the measurement means the DMD window is spent on what is actually
  * distinctive here, not padded with `init`/`main`/`run`.
+ *
+ * `languagePriors` ({ py, c, go, js } from loadCodeNamePriorSplits, all
+ * optional) judges each name against its OWN language's codebases: a name
+ * declared by a `.py` file is generic only if Python repos declare it.
+ * A name whose language has no split loaded falls back to the blended
+ * `prior` (admit-the-unseen still holds — an absent split is not a
+ * refusal). Without `languagePriors` the behavior is byte-identical to
+ * before. A name declared in files of two languages is judged on its
+ * first declaring file's language (disclosed simplification — mixed-
+ * language homonyms are rare, and the fallback is admission, not refusal).
  */
-export function codeGist({ index, question = "", dmdCut, prior = null, genericFloor = 2 } = {}) {
+export function codeGist({ index, question = "", dmdCut, prior = null, languagePriors = null, genericFloor = 2 } = {}) {
   if (typeof dmdCut !== "function") throw new TypeError("codeGist: dmdCut is injected (native/the-fold/resolutions.js's own export) — never re-derived here");
   const askedTokens = String(question ?? "").match(/[A-Za-z_$][\w$]*/g) ?? [];
   const asked = new Set(askedTokens.filter((t) => index.entities.has(t)));
 
   const isGeneric = (name) => {
+    if (languagePriors) {
+      const fam = familyOfFile(index.fileOf(name) ?? "");
+      const split = (fam && languagePriors[fam]) || null;
+      if (split) {
+        const g = genericityOf(split, name);
+        return g !== null && g >= genericFloor;
+      }
+    }
     const g = genericityOf(prior, name);
     return g !== null && g >= genericFloor;
   };
@@ -343,6 +406,7 @@ export function codeGist({ index, question = "", dmdCut, prior = null, genericFl
   const callsCut = dmdCut(edgeRows, activeForCalls, { reachOf: (r) => [...r.ids] });
 
   const genericDropped = [...index.entities.keys()].filter(isGeneric);
+  const splitLangs = languagePriors ? Object.keys(languagePriors).filter((k) => languagePriors[k]) : [];
   return {
     declared: declaredCut,
     calls: callsCut,
@@ -353,9 +417,12 @@ export function codeGist({ index, question = "", dmdCut, prior = null, genericFl
       genericDropped: genericDropped.length,
       genericFloor,
       priorLoaded: Boolean(prior),
-      basis: prior
-        ? `${genericDropped.length} of ${index.entities.size} declared names recur in >= ${genericFloor} independent real repos (live_priors CodeNamePrior@1) and were dropped before the DMD cut`
-        : "no CodeNamePrior@1 loaded — every declared name treated as equally distinctive (disclosed, not a silent skip)",
+      languagePriorsLoaded: splitLangs,
+      basis: splitLangs.length
+        ? `${genericDropped.length} of ${index.entities.size} declared names recur in >= ${genericFloor} independent real repos of their OWN language (per-language CodeNamePrior@1: ${splitLangs.join("/")}; a language with no split falls back to the blended prior) and were dropped before the DMD cut`
+        : prior
+          ? `${genericDropped.length} of ${index.entities.size} declared names recur in >= ${genericFloor} independent real repos (live_priors CodeNamePrior@1) and were dropped before the DMD cut`
+          : "no CodeNamePrior@1 loaded — every declared name treated as equally distinctive (disclosed, not a silent skip)",
     },
   };
 }

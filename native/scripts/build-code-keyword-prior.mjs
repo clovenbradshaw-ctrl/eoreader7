@@ -55,6 +55,16 @@ if (giver.language !== LANGUAGE) {
 const keywords = [...(giver.lexical?.keywords ?? [])];
 const softKeywords = [...(giver.lexical?.softKeywords ?? [])];
 const builtins = Array.isArray(giver.builtins) ? [...giver.builtins] : [];
+// stdlib modules (python only): the engine's own `sys.stdlib_module_names`
+// as the law prior records it. Projected for the NameError remedy (a
+// failure naming X is fixable iff X is importable — received, never a
+// guess). Underscore-privates (`_abc`) are counted but not projected: an
+// import fix for one is never the remedy. JS tree-sitter priors carry no
+// equivalent list — absence, not zero (see polarity note in header).
+
+const lexicon = giver.lexicon ?? {};
+const stdlibAll = Array.isArray(lexicon.stdlibModules) ? lexicon.stdlibModules : [];
+const stdlibModules = stdlibAll.filter((m) => /^[A-Za-z]/.test(m));
 
 // The giver's own junk check (measured on the typescript prior: its 21
 // "keywords" are grammar.js-heuristic debris like `binary`, `call`,
@@ -86,11 +96,14 @@ writeFileSync(
       keywords_read: keywords.length,
       soft_keywords_read: softKeywords.length,
       builtins_read: builtins.length,
+      stdlib_modules_read: stdlibAll.length,
+      stdlib_modules_projected: stdlibModules.length,
       note: "hard keywords refuse (cannot name a being); soft keywords and builtins are recorded but never refuse (legally declarable — shadowing is a fact about the material, not a parse failure)",
     },
     keywords,
     softKeywords,
     builtins,
+    stdlibModules,
   }),
 );
 console.error(

@@ -184,12 +184,16 @@ function composeSchemaAccount(scan) {
  * `keywords` is the optional CodeKeywordPrior@1 hard-keyword set for the
  * file's own language (native/priors/code-kw-*.json via
  * code-structure.js::loadCodeKeywordPrior + keywordSetOf) — refused as
- * declared names, never trusted for anything else. `scan` may be
+ * declared names, never trusted for anything else. `languagePriors` is the
+ * optional per-language name-prior map ({ py, c, go, js } via
+ * loadCodeNamePriorSplits) — each name judged generic only against its
+ * own language's codebases, falling back to the blended `prior` where no
+ * split is loaded. `scan` may be
  * pre-supplied to reuse one scan across calls.
  * A GraphQL schema artifact (introspection JSON) routes to the schema account
  * — the same Cuvier reconstruction, different skeleton.
  */
-export function whatIsThis({ text, fileName = "artifact", question = "", dmdCut, prior = null, keywords = null, scan = null, maxScanChars = 400_000 } = {}) {
+export function whatIsThis({ text, fileName = "artifact", question = "", dmdCut, prior = null, keywords = null, languagePriors = null, scan = null, maxScanChars = 400_000 } = {}) {
   if (typeof dmdCut !== "function") return Object.freeze({ ...REFUSALS.dmd_cut_injected, schema: "WhatIsThis@1", fileName });
   const s = String(text ?? "");
   if (!s.trim()) return Object.freeze({ ...REFUSALS.empty, schema: "WhatIsThis@1", fileName });
@@ -220,7 +224,7 @@ export function whatIsThis({ text, fileName = "artifact", question = "", dmdCut,
   const hunkScan = scan ?? scanHunk(s, { fileName, maxScanChars });
   const window = s.slice(0, maxScanChars);
   const index = buildCodeIndex([{ fileName, text: window }], { keywords });
-  const gist = codeGist({ index, question, dmdCut, prior });
+  const gist = codeGist({ index, question, dmdCut, prior, languagePriors });
 
   const { lines, evidence } = composeAccount({ scan: hunkScan, gist, window });
 

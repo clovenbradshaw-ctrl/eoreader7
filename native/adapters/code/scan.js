@@ -114,6 +114,36 @@ const IMPORT_PATH_RE = /(?:from\s*|import\s*\(\s*)["'](\.{0,2}\/[A-Za-z0-9._@/-]
 // zero module rows). Captures the TOP module word (`flask` from
 // `flask.app`), the unit the map classifies on; relative dots stripped.
 const PY_IMPORT_RE = /^[ \t]*(?:from\s+(\.?[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\s+import\s+[^\n#]+|import\s+([A-Za-z_]\w*(?:\s*\.\s*[A-Za-z_]\w*)*(?:\s*,\s*[A-Za-z_]\w*(?:\s*\.\s*[A-Za-z_]\w*)*)*))/gm;
+
+/**
+ * importSpans(text) -> [{ start, end, statement, kind }]
+ * Every import STATEMENT with byte offsets — the locator `moduleMapFrom`
+ * deliberately does not provide (its rows are names, never addresses).
+ * `kind` is "js" (quoted-path import) or "py" (`import`/`from…import`);
+ * `statement` is the full matched line. The mechanical tier needs this
+ * for import-block anchors (insert after the last span) and missing-import
+ * fixes (INS at a real address). Fresh regexes per call — the module
+ * consts above carry shared `lastIndex` state and must not be exported.
+ */
+export function importSpans(text) {
+  const s = String(text ?? "");
+  const out = [];
+  const jsRe = new RegExp(IMPORT_PATH_RE.source, "gm");
+  let m;
+  while ((m = jsRe.exec(s))) {
+    const lineStart = s.lastIndexOf("\n", m.index) + 1;
+    let lineEnd = s.indexOf("\n", m.index);
+    if (lineEnd === -1) lineEnd = s.length;
+    out.push({ start: lineStart, end: lineEnd, statement: s.slice(lineStart, lineEnd), kind: "js" });
+  }
+  const pyRe = new RegExp(PY_IMPORT_RE.source, PY_IMPORT_RE.flags);
+  while ((m = pyRe.exec(s))) {
+    out.push({ start: m.index, end: m.index + m[0].length, statement: m[0], kind: "py" });
+  }
+  out.sort((a, b) => a.start - b.start);
+  return out;
+}
+
 /**
  * moduleMapFrom(text, { maxAssets }) -> { rows, total, vendor, feature, asset, basis }
  * Every module/asset name the bundle's own bytes state — hashed filenames,

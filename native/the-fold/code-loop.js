@@ -38,6 +38,10 @@ import path from "node:path";
 import { execSync } from "node:child_process";
 import { readOps, applyOps } from "./patch.js";
 import { detectCodeLanguage, generationBriefFor, mismatchNoteFor } from "../adapters/code/language.js";
+import { loadCodeKeywordPrior, keywordSetOf } from "../adapters/text/code-structure.js";
+import { declaresKeyword, suggestWiderFind } from "../adapters/code/mechanical.js";
+import { pyCheckSyntax, suggestImportFix } from "../adapters/code/py-engine.js";
+import { emptyForecast, forecastKey, forecast, observe, forecastError } from "./forecast.js";
 import { runProxyTurn } from "../../proxy-runner.mjs";
 
 const SKIP_DIRS = new Set([".git", "node_modules", ".venv", "venv", "dist", "build", ".next", "__pycache__", ".cache", "coverage"]);
@@ -183,6 +187,13 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
   const reads = new Map(); // real content of every file read on request so far
   let lastNote = null; // what actually happened last round, stated plainly — never a fabricated "it failed" when nothing was even tried
   let finalTestOutput = null;
+  // Predictive processing, session-scoped: the loop predicts P(green)
+  // from (op, language, syntax) BEFORE spending each test round, then the
+  // real exit code disposes and the error updates the tally for the next
+  // round. Starts empty (maximal uncertainty); pre-test refusals (gaps,
+  // keyword, syntax) produce no outcome and teach nothing — only a real
+  // verdict updates the prior. Cross-run persistence: named unattempted.
+  let forecastPrior = emptyForecast();
 
   // Generative language knowledge, served once in round 1 (bounded,
   // disclosed — later rounds carry only failure-shaped nudges). Each
@@ -244,6 +255,18 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
     }
 
     const before = fs.readFileSync(located.resolved, "utf8");
+    // Propose-time keyword gate (S83 polarity, received CodeKeywordPrior@1):
+    // an ADD that binds a hard keyword can never pass tests — refuse before
+    // touching disk, with the refused names as evidence. Null prior (unknown
+    // language, absent file) admits everything, exactly as before.
+    const kwPrior = loadCodeKeywordPrior(detectCodeLanguage(proposal.path));
+    const refusedNames = declaresKeyword(proposal.add, proposal.path, keywordSetOf(kwPrior));
+    if (refusedNames.length) {
+      const gap = { kind: "keyword_declaration", names: refusedNames, reason: `"${refusedNames.join('", "')}" cannot be declared in ${detectCodeLanguage(proposal.path) || "this file"} (received closed class) — nothing was changed on disk` };
+      rounds.push({ round, action: "patch", path: proposal.path, gap });
+      lastNote = `Your proposed patch on "${proposal.path}" did not apply (${gap.reason}). Propose different names, with find text copied exactly from the file.`;
+      continue;
+    }
     const ops = readOps([{ find: proposal.find, add: proposal.add }]);
     const applied = ops ? applyOps(before, ops) : { ok: false, gap: { kind: "malformed", reason: "find/add did not resolve to a real op" } };
     if (!applied.ok) {
@@ -256,23 +279,76 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
         applied.gap?.kind === "unlocated" || applied.gap?.kind === "ambiguous"
           ? mismatchNoteFor({ fileName: proposal.path, find: proposal.find })
           : null;
-      lastNote = `Your proposed patch on "${proposal.path}" did not apply (${applied.gap.reason}). Nothing was changed on disk. Try again with find text copied exactly from the file.${mismatch ? `\n\n${mismatch}` : ""}`;
+      // Extent-aware widening: when every occurrence of the find sits
+      // inside one declaration, offer its header line (sliced from the
+      // file, never composed) as the unique anchor.
+      const wider =
+        applied.gap?.kind === "ambiguous" && !mismatch
+          ? suggestWiderFind(before, proposal.path, proposal.find)
+          : null;
+      const extra = mismatch ?? (wider ? `Mechanical note: every occurrence of your FIND sits inside \`${wider.find}\` (${wider.basis.split(";")[0]}). Anchor on that declaration line — copied byte-for-byte — to make it unique.` : null);
+      lastNote = `Your proposed patch on "${proposal.path}" did not apply (${applied.gap.reason}). Nothing was changed on disk. Try again with find text copied exactly from the file.${extra ? `\n\n${extra}` : ""}`;
       continue;
     }
 
     fs.writeFileSync(located.resolved, applied.code);
     const op = ops[0].op;
+    // Syntax pre-check (Python only: the running grammar via ast, never a
+    // regex): patched bytes that don't parse never reach the test command
+    // — "doesn't parse" and "parses but fails" finally separate, and no
+    // test round is burned on the former. Null (no python3 on the box) →
+    // proceed untested, recorded on the round, never a silent skip.
+    let syntax = "unchecked-not-python";
+    if (detectCodeLanguage(proposal.path) === "python") {
+      const verdict = pyCheckSyntax(applied.code, proposal.path);
+      if (verdict === null) {
+        syntax = "skipped-no-engine";
+      } else if (!verdict.ok) {
+        fs.writeFileSync(located.resolved, before); // nothing unparseable is ever left on disk
+        const gap = { kind: "syntax_error", reason: `the patched file does not parse (${verdict.error.msg}, line ${verdict.error.lineno}: ${verdict.error.line}) — nothing was written, no test was run` };
+        rounds.push({ round, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: false, reverted: false, gap });
+        lastNote = `Your proposed patch on "${proposal.path}" ${gap.reason}. Fix the syntax with find text copied exactly from the file.`;
+        continue;
+      } else {
+        syntax = "checked";
+      }
+    }
     const test = runTestCommand(testCommand, root, testTimeoutMs);
     finalTestOutput = test.output;
 
-    if (test.exitCode === 0) {
-      rounds.push({ round, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: true, reverted: false, testExitCode: 0, testOutput: test.output });
+    // The prediction, made BEFORE the verdict above was known, and its
+    // error now that it is: recorded on the round, learned into the
+    // session prior. |error| ≥ 0.5 with history is surprise (a confident
+    // prior revised by witness) and the next note says so.
+    const fcKey = forecastKey({ op, language: detectCodeLanguage(proposal.path) ?? "?", syntax });
+    const fc = forecast(forecastPrior, fcKey);
+    const won = test.exitCode === 0;
+    const err = forecastError(fc.p, won);
+    forecastPrior = observe(forecastPrior, fcKey, won);
+    const fcRecord = Object.freeze({ key: fcKey, p: fc.p, trials: fc.trials, error: err });
+    const surprise = Math.abs(err) >= 0.5 && fc.trials >= 2
+      ? ` Surprise: predicted ${fc.p.toFixed(2)} green (${fc.trials} trials) but the test ${won ? "passed" : "failed"} — prior updated.`
+      : "";
+
+    if (won) {
+      rounds.push({ round, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: true, reverted: false, syntax, forecast: fcRecord, testExitCode: 0, testOutput: test.output });
       return { done: true, rounds, finalTestOutput: test.output };
     }
 
     fs.writeFileSync(located.resolved, before); // physics: never leave a failing change on disk
-    rounds.push({ round, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: true, reverted: true, testExitCode: test.exitCode, testOutput: test.output });
-    lastNote = `Your previous patch on "${proposal.path}" was applied and tested for real. It failed, and has been reverted (the file below no longer has your change). The real test output was:\n\n${test.output}`;
+    rounds.push({ round, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: true, reverted: true, syntax, forecast: fcRecord, testExitCode: test.exitCode, testOutput: test.output });
+    // NameError remedy (first remedy-table row, end to end): the failure
+    // names its own fix when the name is a stdlib module — suggest the
+    // exact find/add for the next round, derived not invented. Anything
+    // else keeps the existing note untouched.
+    let remedy = "";
+    if (detectCodeLanguage(proposal.path) === "python") {
+      const fix = suggestImportFix({ failureOutput: test.output, fileText: before, stdlibModules: kwPrior?.stdlibModules });
+      if (fix.ok) {
+        remedy = `\n\nMechanical suggestion (received stdlib, exact bytes — verify against the file before proposing): ${fix.basis}.\nFIND:\n${fix.find}\nADD:\n${fix.add}`;
+      }
+    }
+    lastNote = `Your previous patch on "${proposal.path}" was applied and tested for real. It failed, and has been reverted (the file below no longer has your change). The real test output was:\n\n${test.output}${remedy}${surprise}`;
   }
 
   return { done: false, rounds, finalTestOutput };
