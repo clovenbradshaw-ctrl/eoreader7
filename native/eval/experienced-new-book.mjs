@@ -67,7 +67,11 @@ const adapters = {
   revise: (args) => reviseTextFold({ ...args, canonicalizationFloor: CANONICALIZATION_FLOOR }),
   retrieve: emptyRetrieve,
 };
-const perceivers = () => [createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery: 25, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING })];
+// refreshEvery:25 was the pre-2026-09-09 batched default, killed in
+// read-real.mjs for reading short books into an empty fold (recursive.js:403-
+// 433); this driver never picked up that fix. Dropped here to fall through
+// to createCausalTextPerceiver's own default (refreshEvery:1).
+const perceivers = () => [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING })];
 
 function load(path, source, limit) {
   const stripped = stripContainer(fs.readFileSync(path, "utf8"));
