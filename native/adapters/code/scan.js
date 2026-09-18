@@ -31,7 +31,7 @@
 //   "first N".
 
 const ASSET_EXT = new Set([".css", ".png", ".svg", ".jpg", ".jpeg", ".gif", ".webp", ".woff", ".woff2", ".ttf", ".json", ".map", ".html", ".ico", ".avif"]);
-const CODE_EXT = new Set([".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx"]);
+const CODE_EXT = new Set([".js", ".mjs", ".cjs", ".ts", ".tsx", ".jsx", ".py"]);
 const CODE_OR_ASSET_EXT = new Set([...ASSET_EXT, ...CODE_EXT]);
 
 // Received package-ecosystem names — the class of received knowledge spans.js
@@ -108,6 +108,12 @@ const HASHED_ASSET_RE = new RegExp(`["']([A-Za-z0-9._@-]*[A-Za-z0-9]-[A-Za-z0-9]
 const ASSETS_DIR_RE = new RegExp(`["']((?:\\.\\/)?assets\\/[A-Za-z0-9._@/-]+\\.${EXT_CLASS})["']`, "g");
 const IMPORT_PATH_RE = /(?:from\s*|import\s*\(\s*)["'](\.{0,2}\/[A-Za-z0-9._@/-]+\.(?:js|mjs|cjs|ts|tsx))["']/g;
 
+// Python's own import syntax — `import flask`, `import os, sys`,
+// `from flask import Flask`, `from . import x` — which IMPORT_PATH_RE's
+// JS-quoted-path shape never matches (measured: real Flask source →
+// zero module rows). Captures the TOP module word (`flask` from
+// `flask.app`), the unit the map classifies on; relative dots stripped.
+const PY_IMPORT_RE = /^[ \t]*(?:from\s+(\.?[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\s+import\s+[^\n#]+|import\s+([A-Za-z_]\w*(?:\s*\.\s*[A-Za-z_]\w*)*(?:\s*,\s*[A-Za-z_]\w*(?:\s*\.\s*[A-Za-z_]\w*)*)*))/gm;
 /**
  * moduleMapFrom(text, { maxAssets }) -> { rows, total, vendor, feature, asset, basis }
  * Every module/asset name the bundle's own bytes state — hashed filenames,
@@ -134,6 +140,19 @@ export function moduleMapFrom(text, { maxAssets = 80 } = {}) {
     let m;
     while ((m = re.exec(s))) add(m[1]);
   }
+  // Python imports ride the same dedup key; their basis is disclosed as
+  // read off `import`/`from…import` syntax (never a JS quoted path).
+  // `import a, b` yields one row per module; dotted paths collapse to top.
+  PY_IMPORT_RE.lastIndex = 0;
+  {
+    let m;
+    while ((m = PY_IMPORT_RE.exec(s))) {
+      const mods = (m[1] ?? m[2] ?? "").split(",").map((x) => x.trim().split(".")[0].replace(/^\.+/, "")).filter(Boolean);
+      for (const mod of mods) {
+        if (/^[A-Za-z_]\w*$/.test(mod)) add(mod);
+      }
+    }
+  }
   const rows = found.slice(0, maxAssets).map(classifyAsset);
   const vendor = rows.filter((r) => r.kind === "vendor").length;
   const feature = rows.filter((r) => r.kind === "feature").length;
@@ -146,7 +165,7 @@ export function moduleMapFrom(text, { maxAssets = 80 } = {}) {
     feature,
     asset,
     infra,
-    basis: `${found.length} module/asset names read off the bundle's own import/asset syntax (hashed filenames, assets/ paths, explicit imports), ${feature} classed feature / ${vendor} vendor / ${asset} asset / ${infra} infra`,
+    basis: `${found.length} module/asset names read off the bundle's own import/asset syntax (hashed filenames, assets/ paths, explicit JS imports, python import/from statements), ${feature} classed feature / ${vendor} vendor / ${asset} asset / ${infra} infra`,
   };
 }
 

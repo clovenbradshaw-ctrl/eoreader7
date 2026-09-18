@@ -37,6 +37,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execSync } from "node:child_process";
 import { readOps, applyOps } from "./patch.js";
+import { detectCodeLanguage, generationBriefFor, mismatchNoteFor } from "../adapters/code/language.js";
 import { runProxyTurn } from "../../proxy-runner.mjs";
 
 const SKIP_DIRS = new Set([".git", "node_modules", ".venv", "venv", "dist", "build", ".next", "__pycache__", ".cache", "coverage"]);
@@ -183,6 +184,24 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
   let lastNote = null; // what actually happened last round, stated plainly — never a fabricated "it failed" when nothing was even tried
   let finalTestOutput = null;
 
+  // Generative language knowledge, served once in round 1 (bounded,
+  // disclosed — later rounds carry only failure-shaped nudges). Each
+  // listed file is tagged with its detected language (extension map only;
+  // a stranger is untagged, never misdiagnosed), and every language
+  // present with a received prior gets its scaffolding block: the
+  // declaration shapes to anchor on and the closed class that can never
+  // be a name. Scaffolding only — the physics below (exact bytes, real
+  // tests) still validates every byte the mouth emits.
+  const fileLangs = new Map(files.map((f) => [f, detectCodeLanguage(f)]));
+  const listedFiles = files.map((f) => (fileLangs.get(f) ? `${f} (${fileLangs.get(f)})` : f));
+  const briefs = [...new Set([...fileLangs.values()].filter(Boolean))]
+    .map((lang) => generationBriefFor(lang))
+    .filter(Boolean)
+    .join("\n\n");
+  const languageBlock = briefs
+    ? `\n\nLanguage scaffolding (received CodeKeywordPrior@1; shapes illustrative — exact file bytes still rule):\n\n${briefs}`
+    : "";
+
   for (let round = 1; round <= maxRounds; round += 1) {
     const roundContent =
       round === 1
@@ -190,7 +209,7 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
         : `${renderFiles(root, files)}${renderReadFiles(reads)}`;
     const roundTask =
       round === 1
-        ? `${task}\n\nFiles in the workspace (${root}):\n${files.join("\n")}\n\n${PROPOSAL_FORMAT}`
+        ? `${task}\n\nFiles in the workspace (${root}):\n${listedFiles.join("\n")}${languageBlock}\n\n${PROPOSAL_FORMAT}`
         : `${task}\n\n${lastNote}\n\n${PROPOSAL_FORMAT}`;
 
     const turn = await runProxyTurn({ sessionId, userId, model, task: roundTask, chatHistory: [{ role: "user", content: roundContent }], workspace: root, mode: "chat", caller, signal });
@@ -229,7 +248,15 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
     const applied = ops ? applyOps(before, ops) : { ok: false, gap: { kind: "malformed", reason: "find/add did not resolve to a real op" } };
     if (!applied.ok) {
       rounds.push({ round, action: "patch", path: proposal.path, gap: applied.gap });
-      lastNote = `Your proposed patch on "${proposal.path}" did not apply (${applied.gap.reason}). Nothing was changed on disk. Try again with find text copied exactly from the file.`;
+      // Language-shaped remedy note (Thea-usable shape: a witnessed,
+      // mechanical fact + the received prior that names it). Only when the
+      // proposal's own bytes carry another language's declaration shape;
+      // an ordinary unlocated find keeps the existing nudge untouched.
+      const mismatch =
+        applied.gap?.kind === "unlocated" || applied.gap?.kind === "ambiguous"
+          ? mismatchNoteFor({ fileName: proposal.path, find: proposal.find })
+          : null;
+      lastNote = `Your proposed patch on "${proposal.path}" did not apply (${applied.gap.reason}). Nothing was changed on disk. Try again with find text copied exactly from the file.${mismatch ? `\n\n${mismatch}` : ""}`;
       continue;
     }
 
@@ -239,12 +266,12 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
     finalTestOutput = test.output;
 
     if (test.exitCode === 0) {
-      rounds.push({ round, action: "patch", path: proposal.path, op, applied: true, reverted: false, testExitCode: 0, testOutput: test.output });
+      rounds.push({ round, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: true, reverted: false, testExitCode: 0, testOutput: test.output });
       return { done: true, rounds, finalTestOutput: test.output };
     }
 
     fs.writeFileSync(located.resolved, before); // physics: never leave a failing change on disk
-    rounds.push({ round, action: "patch", path: proposal.path, op, applied: true, reverted: true, testExitCode: test.exitCode, testOutput: test.output });
+    rounds.push({ round, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: true, reverted: true, testExitCode: test.exitCode, testOutput: test.output });
     lastNote = `Your previous patch on "${proposal.path}" was applied and tested for real. It failed, and has been reverted (the file below no longer has your change). The real test output was:\n\n${test.output}`;
   }
 

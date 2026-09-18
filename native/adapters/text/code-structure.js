@@ -33,7 +33,49 @@
 // seen is what makes the material distinctive. The prior is optional and
 // disclosed when absent — never a silent skip.
 
+import fs from "node:fs";
+
+// ── CodeKeywordPrior@1 loading ───────────────────────────────────────────
+// Vendored received closed classes: native/priors/code-kw-<code>.json
+// (built by native/scripts/build-code-keyword-prior.mjs from live_priors'
+// LanguageLawPrior@1 — engine-introspected / tree-sitter-derived, never
+// hand-typed). Same discipline as organs/martial.js::loadCodeNamePrior:
+// read once, null when absent (the safe default — admit the unseen, never
+// refuse what no gate was built to judge). Codes: py (python), js
+// (javascript). There is deliberately NO typescript alias — Ant 1 measured
+// its keyword list as grammar-heuristic junk (3/21 intersect javascript).
+const CODE_KW_FILE = Object.freeze({ py: "code-kw-py.json", js: "code-kw-js.json" });
+const CODE_KW_LANG = Object.freeze({ python: "py", py: "py", javascript: "js", js: "js" });
+const _kwCache = new Map();
+export function loadCodeKeywordPrior(language) {
+  const code = CODE_KW_LANG[String(language ?? "").toLowerCase()];
+  if (!code) return null;
+  if (!_kwCache.has(code)) {
+    let prior = null;
+    try {
+      prior = JSON.parse(fs.readFileSync(new URL(`../../priors/${CODE_KW_FILE[code]}`, import.meta.url), "utf8"));
+      if (prior?.schema !== "CodeKeywordPrior@1") prior = null;
+    } catch { prior = null; }
+    _kwCache.set(code, prior);
+  }
+  return _kwCache.get(code);
+}
+
+/** keywordSetOf(prior) -> Set of hard keywords, or null when no prior —
+ *  null means "no refusal gate loaded" (admit everything, disclosed). Soft
+ *  keywords and builtins are NEVER in the set: both are legally declarable. */
+export function keywordSetOf(prior) {
+  return prior?.keywords?.length ? new Set(prior.keywords) : null;
+}
+
 const IDENT = /^[A-Za-z_$][\w$]*$/;
+
+// XID idents — PEP 3131 (python) and the JS engine both accept non-ASCII
+// identifiers; the ASCII-only IDENT above is the Western-centrism the
+// python language-law prior names outright ("the Western-centrism is in
+// the recipe, never in the engine"). XID recipes carry their own ident;
+// every other recipe keeps IDENT, byte-identical.
+const IDENT_XID_PY = /^[\p{ID_Start}_][\p{ID_Continue}]*$/u;
 
 // ── per-language declaration recipes ─────────────────────────────────────
 // Same recipes as live_priors/scripts/build-code-name-prior.mjs's own
@@ -49,6 +91,12 @@ const RECIPES = [
   { lang: "js-function", exts: [".ts", ".tsx", ".js", ".mjs", ".jsx"], re: /^[ \t]*(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s*\*?\s+([A-Za-z_$][\w$]*)/gm, kind: "function" },
   { lang: "js-class", exts: [".ts", ".tsx", ".js", ".mjs", ".jsx"], re: /^[ \t]*(?:export\s+)?(?:default\s+)?(?:abstract\s+)?class\s+([A-Za-z_$][\w$]*)/gm, kind: "class" },
   { lang: "js-const-arrow", exts: [".ts", ".tsx", ".js", ".mjs", ".jsx"], re: /^[ \t]*(?:export\s+)?const\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s*)?\(?[^=]*?\)?\s*=>/gm, kind: "function" },
+  // XID twins of the two python recipes above (same shapes, Unicode
+  // identifier law). Additive: an ASCII `def foo` matches the ASCII recipe
+  // first and dedups by (name, start); only a name ASCII cannot spell
+  // reaches these. Without them `def Διαβάζω` parses to nothing (measured).
+  { lang: "python-def-xid", exts: [".py"], re: /^[ \t]*(?:async\s+)?def\s+([\p{ID_Start}_][\p{ID_Continue}]*)/gmu, kind: "function", ident: IDENT_XID_PY },
+  { lang: "python-class-xid", exts: [".py"], re: /^[ \t]*class\s+([\p{ID_Start}_][\p{ID_Continue}]*)/gmu, kind: "class", ident: IDENT_XID_PY },
 ];
 
 function extOf(fileName) {
@@ -105,22 +153,30 @@ function bodyStartOf(text, fromIndex, isPython) {
 }
 
 /**
- * parseDeclarations(text, fileName) -> [{ name, kind, start, end }]
+ * parseDeclarations(text, fileName, { keywords }) -> [{ name, kind, start, end }]
  * Every declaration this file's own syntax actually states, read off the
  * matching recipe for its extension. `start`/`end` are the declaration's
  * own byte range in `text` (the header through its body's closing brace,
  * or its indent-delimited extent for Python) — never a guessed span.
+ * `keywords` is an optional Set (or array) of the file's own language hard
+ * keywords — CodeKeywordPrior@1's `keywords`, received, never hand-typed.
+ * A captured name the giver settles as a keyword can never name a being
+ * (S83's asymmetric polarity: refuse the settled, admit the unseen — so a
+ * null prior changes nothing, and `def class` no longer declares `class`).
  */
-export function parseDeclarations(text, fileName) {
+export function parseDeclarations(text, fileName, { keywords = null } = {}) {
   const ext = extOf(fileName);
+  const refused = keywords ? new Set(keywords) : null;
   const out = [];
   for (const recipe of RECIPES) {
     if (!recipe.exts.includes(ext)) continue;
     const re = new RegExp(recipe.re.source, recipe.re.flags);
+    const ident = recipe.ident ?? IDENT;
     let m;
     while ((m = re.exec(text))) {
       const name = m[1];
-      if (!IDENT.test(name)) continue;
+      if (!ident.test(name)) continue;
+      if (refused?.has(name)) continue;
       const lineStart = text.lastIndexOf("\n", m.index) + 1;
       const isPython = recipe.lang.startsWith("python");
       const end = isPython ? indentExtent(text, lineStart) : braceExtent(text, re.lastIndex);
@@ -172,19 +228,23 @@ export function callEdges(text, entities) {
 }
 
 /**
- * buildCodeIndex(files) -> { entities, edges, resolve, describe, fileOf }
+ * buildCodeIndex(files, { keywords }) -> { entities, edges, resolve, describe, fileOf }
  * `files` is [{ fileName, text }, ...] (already-read workspace/session
  * files). Merges every file's own declarations and call edges into one
- * project-level structure. `resolve(name)` is EXACT, case-sensitive match
- * against a declared name — code identity is a real, exact fact (unlike
- * prose coreference, there is no fuzziness to earn here: two identifiers
- * differing by one character are two different bindings, full stop).
+ * project-level structure. `keywords` passes through to parseDeclarations
+ * (one shared set, or per-file via `file.keywords` when a workspace mixes
+ * languages — each file is refused only on its own language's closed
+ * class, never another's: `case` is hard in JS and declarable in Python).
+ * `resolve(name)` is EXACT, case-sensitive match against a declared name —
+ * code identity is a real, exact fact (unlike prose coreference, there is
+ * no fuzziness to earn here: two identifiers differing by one character
+ * are two different bindings, full stop).
  */
-export function buildCodeIndex(files = []) {
+export function buildCodeIndex(files = [], { keywords = null } = {}) {
   const entities = new Map(); // name -> [{ name, kind, file, start, end }]
   const edgeTally = new Map(); // "caller\u0000callee" -> { count, files: Set }
   for (const f of files ?? []) {
-    const decls = parseDeclarations(f.text, f.fileName);
+    const decls = parseDeclarations(f.text, f.fileName, { keywords: f.keywords ?? keywords });
     for (const d of decls) {
       if (!entities.has(d.name)) entities.set(d.name, []);
       entities.get(d.name).push({ ...d, file: f.fileName });

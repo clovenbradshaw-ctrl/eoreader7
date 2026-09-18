@@ -176,16 +176,20 @@ function composeSchemaAccount(scan) {
 }
 
 /**
- * whatIsThis({ text, fileName, question, dmdCut, prior, scan, maxScanChars }) ->
+ * whatIsThis({ text, fileName, question, dmdCut, prior, keywords, scan, maxScanChars }) ->
  * { schema: "WhatIsThis@1", fileName, account, evidence, scan, gist, disclosure }
  * Reconstruct what a giant code hunk IS from its own structural bytes.
  * `dmdCut` is injected (the-fold/resolutions.js) — never re-derived. `prior`
  * is the optional CodeNamePrior@1 (live_priors) passed through to codeGist.
- * `scan` may be pre-supplied to reuse one scan across calls.
+ * `keywords` is the optional CodeKeywordPrior@1 hard-keyword set for the
+ * file's own language (native/priors/code-kw-*.json via
+ * code-structure.js::loadCodeKeywordPrior + keywordSetOf) — refused as
+ * declared names, never trusted for anything else. `scan` may be
+ * pre-supplied to reuse one scan across calls.
  * A GraphQL schema artifact (introspection JSON) routes to the schema account
  * — the same Cuvier reconstruction, different skeleton.
  */
-export function whatIsThis({ text, fileName = "artifact", question = "", dmdCut, prior = null, scan = null, maxScanChars = 400_000 } = {}) {
+export function whatIsThis({ text, fileName = "artifact", question = "", dmdCut, prior = null, keywords = null, scan = null, maxScanChars = 400_000 } = {}) {
   if (typeof dmdCut !== "function") return Object.freeze({ ...REFUSALS.dmd_cut_injected, schema: "WhatIsThis@1", fileName });
   const s = String(text ?? "");
   if (!s.trim()) return Object.freeze({ ...REFUSALS.empty, schema: "WhatIsThis@1", fileName });
@@ -215,7 +219,7 @@ export function whatIsThis({ text, fileName = "artifact", question = "", dmdCut,
 
   const hunkScan = scan ?? scanHunk(s, { fileName, maxScanChars });
   const window = s.slice(0, maxScanChars);
-  const index = buildCodeIndex([{ fileName, text: window }]);
+  const index = buildCodeIndex([{ fileName, text: window }], { keywords });
   const gist = codeGist({ index, question, dmdCut, prior });
 
   const { lines, evidence } = composeAccount({ scan: hunkScan, gist, window });
@@ -227,12 +231,13 @@ export function whatIsThis({ text, fileName = "artifact", question = "", dmdCut,
     evidence,
     scan: hunkScan,
     gist,
-    disclosure: Object.freeze({
-      scannedChars: hunkScan.scannedChars,
-      skippedChars: hunkScan.skippedChars,
-      sampled: hunkScan.sampled,
-      priorLoaded: Boolean(prior),
-      basis: `scanned ${hunkScan.scannedChars.toLocaleString()} of ${hunkScan.bytes.toLocaleString()} bytes${hunkScan.sampled ? ` (${hunkScan.skippedChars.toLocaleString()} skipped, disclosed)` : ""}; account composed only from byte-supported statements`,
-    }),
+      disclosure: Object.freeze({
+        scannedChars: hunkScan.scannedChars,
+        skippedChars: hunkScan.skippedChars,
+        sampled: hunkScan.sampled,
+        priorLoaded: Boolean(prior),
+        keywordPriorLoaded: Boolean(keywords),
+        basis: `scanned ${hunkScan.scannedChars.toLocaleString()} of ${hunkScan.bytes.toLocaleString()} bytes${hunkScan.sampled ? ` (${hunkScan.skippedChars.toLocaleString()} skipped, disclosed)` : ""}${keywords ? "; hard keywords refused as declared names (received CodeKeywordPrior@1)" : "; no keyword prior — every captured name admitted (disclosed, not a silent skip)"}; account composed only from byte-supported statements`,
+      }),
   });
 }

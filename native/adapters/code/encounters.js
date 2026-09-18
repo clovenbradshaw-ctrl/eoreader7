@@ -43,6 +43,15 @@ export const CODE_MAX_ENCOUNTER_CHARS = 16_000;
 //   3. DENSE STATEMENTS — a high brace/semicolon density per 1000 chars on a
 //      long-line file (a JSON blob has braces too, but not with this density
 //      of semicolons).
+//   4. PYTHON-SHAPED DEFINITIONS — line-anchored `def ` / `class ` /
+//      `import ` / `from x import y` (received Python declaration syntax,
+//      disclosed). A pure-Python file has short lines and no braces, so
+//      signals 1–3 never fire and the organ wrongly refuses it as not-code
+//      (measured: real 65 KB Flask app with 110 such lines → false; 200 KB
+//      of prose → 0). The bar is three such lines plus call parens at twice
+//      that count (a ratio test, not a fixed floor — a 10-line sample and
+//      a 65 KB app both clear it), so prose mentioning "import" once
+//      cannot pass.
 export function isCodeHunk(text) {
   const t = String(text ?? "");
   if (!t) return false;
@@ -54,6 +63,9 @@ export function isCodeHunk(text) {
   const statements = (t.match(/[;{}]/g)?.length ?? 0);
   const density = (statements / t.length) * 1000;
   if (density > 20 && lineCount < t.length / 80) return true;
+  const pyDefs = (t.match(/^[ \t]*(?:def |class |import |from \S+ import )/gm) ?? []).length;
+  const pyParens = (t.match(/\(/g) ?? []).length;
+  if (pyDefs >= 3 && pyParens >= 2 * pyDefs) return true;
   return false;
 }
 
