@@ -38,13 +38,27 @@ const OUT = process.argv[3] ?? "../live_priors/derived-priors/case-priors/case-m
 // each defaulting to the Latin values so the shipped artifact is rebuilt
 // byte-identical by default. The mode is: one master builder, a
 // CasePrior@1 (or LatinCasePrior@1) per language — never a per-language
-// script. Reused for Ancient Greek (UD_Ancient_Greek-PROIEL) 2026-09-17.
+// script. Reused for Ancient Greek (UD_Ancient_Greek-PROIEL) 2026-09-17
+// and Vedic Sanskrit (UD_Sanskrit-Vedic, --strip=none) 2026-09-18.
 const arg = (name, dflt) => process.argv.find((a) => a.startsWith(`--${name}=`))?.split("=")[1] ?? dflt;
 const LANG = arg("lang", "lat");
 const SCHEMA = arg("schema", "LatinCasePrior@1");
 const GIVER = arg("giver", "Universal Dependencies UD_Latin-Perseus");
 const URL = arg("url", "https://github.com/UniversalDependencies/UD_Latin-Perseus");
 const LICENSE = arg("license", "CC BY-NC-SA 2.5 — non-commercial, share-alike; stated plainly, not glossed over");
+// STRIP MODE (2026-09-18, omnimodal L8: the cleaner is injectable, never
+// widened). `nfd` (default) drops combining marks — safe for Latin (ASCII
+// no-op) and Greek (accents move between cases, stems are stable). `none`
+// keeps the form byte-identical after lowercasing — REQUIRED for Sanskrit
+// IAST, where every diacritic is phonemic: NFD-strip collapses ā→a, ś→s,
+// ṛ→r, ṇ→n, ḥ→h (measured 2026-09-18: 10/10 probe forms destroyed),
+// merging distinct declensions the way the music run's default cleaner
+// stripped "d5" to "d" and silently emptied every kind. The Vedic treebank
+// carries no accent marks to strip (measured: zero combining marks in the
+// 23MB train — all non-ASCII is phonemic IAST), so `none` loses nothing.
+// New inflectional languages pick their mode; the default rebuilds the
+// shipped Latin artifact byte-identical.
+const STRIP = arg("strip", "nfd");
 
 const NOMINAL_UPOS = new Set(["NOUN", "PROPN", "ADJ", "PRON", "NUM"]);
 const CASE_ENDING_LEN = 2;
@@ -52,8 +66,9 @@ const VERB_ENDING_LEN = 3;
 // DIACRITIC-FREE ENDINGS (2026-09-17). Greek accents sit ON final vowels
 // (τόν → "όν" ≠ "ον"): the ending key is built on the unaccented skeleton so
 // a lookup side strips the same way. Latin is ASCII — strip is a no-op, the
-// shipped Latin artifact is byte-identical.
-const strip = (s) => String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+// shipped Latin artifact is byte-identical. Sanskrit IAST runs with
+// --strip=none (see STRIP above): the key keeps ā/ś/ṣ/ṇ/ḥ/ṃ distinct.
+const strip = (s) => STRIP === "none" ? String(s ?? "") : String(s ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
 const lines = readFileSync(IN, "utf8").split("\n");
 const caseTable = new Map();
@@ -81,7 +96,15 @@ for (const line of lines) {
     const m = caseTable.get(ending);
     m.set(key, (m.get(key) ?? 0) + 1);
   }
-  if ((upos === "VERB" || upos === "AUX") && featMap.VerbForm === "Fin" && featMap.Person && featMap.Number) {
+  if ((upos === "VERB" || upos === "AUX") && featMap.Person && featMap.Number && (featMap.VerbForm === "Fin" || (!featMap.VerbForm && featMap.Mood))) {
+    // FINITE = VerbForm=Fin, OR bare Mood+Person with no VerbForm at all
+    // (2026-09-18): UD_Sanskrit-Vedic never annotates VerbForm on finite
+    // verbs (measured: 22,763/22,763 finite VERB/AUX carry Mood+Person with
+    // VerbForm absent; participles instead carry VerbForm=Part + Case and
+    // stay on the nominal tier). Latin and Greek always tag VerbForm=Fin
+    // on finites (measured: 0 bare in la_perseus-train, 0 in
+    // grc_proiel-test), so the second disjunct is a proven no-op for the
+    // shipped artifacts.
     // THE FULL VERBAL PARADIGM (2026-09-17), measured: the ending carries
     // Person|Number (215/220), Voice (213/220), Mood (206/220) and Tense
     // (193/220) at decisive shares — a native speaker settles all four from
