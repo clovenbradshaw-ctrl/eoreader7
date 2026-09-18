@@ -571,6 +571,40 @@ export function detectRedundancy(documentLines = [], { shuffles = 300, pValue = 
   return findings;
 }
 
+// ── TRAJECTORY BOREDOM — the same detector, pointed at a CONVERSATION ─────
+// detectRedundancy was built for one essay's own sections; a multi-turn chat
+// has the identical shape — each assistant turn is a "section" — and the
+// identical failure mode: two chatty small models converged, within ~10
+// turns, onto a fixed point ("## Dispute Resolution", restated with less
+// change each time) all the way to turn 35+ before the test was stopped by
+// hand. That is Fisher's null test (detectRepetition, above) applied to
+// TURNS instead of PARAGRAPHS — no new statistic, no new threshold: the
+// same permutation p<0.05 this file already uses for essay composition.
+// THE WINDOW is never hand-picked: it is whatever turns the caller already
+// kept (proxy-runner.mjs's own prompt-budget walk), never a fresh N chosen
+// for this purpose. `detectTrajectoryBoredom` refuses (bored:false) below
+// detectRepetition's own stated floor of two sections — a two-turn chat has
+// nothing to compare a trajectory against yet.
+export function detectTrajectoryBoredom(assistantTurns = [], { shuffles = 400, pValue = 0.05 } = {}) {
+  const turns = (assistantTurns ?? []).map((t) => String(t ?? "").trim()).filter((t) => t.length > 20);
+  if (turns.length < 2) {
+    return { bored: false, basis: null, n: turns.length, findings: [] };
+  }
+  const findings = detectRedundancy(turns, { shuffles, pValue });
+  if (!findings.length) return { bored: false, basis: null, n: turns.length, findings: [] };
+  // The strongest finding carries the fact — openings (Fisher) first, since
+  // that is exactly the "every turn opens on the same heading" attractor;
+  // otherwise the first repeated-fact/template finding, in the order
+  // detectRedundancy already produces them.
+  const lead = findings.find((f) => f.kind === "repetition") ?? findings[0];
+  return {
+    bored: true,
+    basis: `the conversation's content has stopped changing over the last ${turns.length} turns — ${lead.detail}`,
+    n: turns.length,
+    findings,
+  };
+}
+
 const STOP_WORDS = new Set("the and for with that this from under through after during was were are is had has have by to of in on at it its their there here which where when how what who into across over been being not but or as than then so such only also very just".split(" "));
 
 // The whole-document satisfaction: every planned section satisfied. Returns

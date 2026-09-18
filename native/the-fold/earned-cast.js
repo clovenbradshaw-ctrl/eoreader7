@@ -418,7 +418,15 @@ export function assembleFacts({ act, state = {}, eligible = [] }) {
     // record is contested, and she holds the claim to its ground rather than
     // smoothing the disagreement away. Object-level and covert, exactly like
     // every other fact she emits.
-    if (state.felt?.flatline) {
+    // TRAJECTORY BOREDOM ("boring is itself a surprise to avoid", user,
+    // 2026-09-17): checked FIRST — it is a stronger, multi-turn signal than
+    // pacing.js's single-text flatline below, measured by document-ledger's
+    // own Fisher permutation test over the assistant's actual turns, not a
+    // heuristic about one text's sentence rhythm. The fact stated is exactly
+    // what was measured — a fact, never an instruction to "be creative".
+    if (state.felt?.trajectoryBored) {
+      facts.push({ from: "terry-gross", text: `${state.felt.trajectoryBasis}.` });
+    } else if (state.felt?.flatline) {
       facts.push({ from: "terry-gross", text: `the exchange has gone flat — no turn has changed the conversation; draw the guest back out with a genuine question of your own rather than ending the thread.` });
     } else if (state.felt?.strain === "strict") {
       facts.push({ from: "terry-gross", text: `the record is contested — hold the claim to its ground and let the person carry it further; do not smooth the disagreement away.` });

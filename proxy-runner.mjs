@@ -33,7 +33,7 @@ import { answerRecord } from "./native/the-fold/answer-record.js";
 // is routed through native/the-fold/antistrauss.mjs (the import is static so
 // the proxy fails closed at boot if the gate cannot load). See the module
 // header for how it is wired and why it must never be bypassed.
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 // The dispute lookup notesFromEdges reads (below): `noteId` is the same
 // bare-ends identity a note born with no identity organ already carries in
@@ -603,6 +603,134 @@ function stampAdmission(session, srcId, { task, salience, resolution, kind }) {
 // named it (composition surf's `_ledger.source`, the one-shot ladder's
 // `source_id`, the field recall's `_ledger.source`).
 const segmentSourceOf = (s) => s?._ledger?.source ?? s?.source_id ?? s?.source ?? null;
+
+// NL FILE MENTIONS — interacting WITH a file qua file, while the mouth is
+// only ever fed bytes. The operator names a file in plain language ("what
+// does foo.js do?", "in package.json…", "@src/bar.ts"); the SYSTEM resolves
+// the mention mechanically against the declared workspace root (or the
+// attachment names), admits the real bytes as a file-scoped corpus doc, and
+// carries the file's identity in the record (_ledger.source,
+// turnUsedSourceIds → cite.js attaches post-hoc → facing page shows the
+// file). The mouth never receives a filename from the system — only the
+// surfaced byte content "as if from nowhere", plus whatever names the USER
+// itself typed in its own question (the question, not system inventory).
+// A mention that resolves to nothing is a typed gap (file_missing), never a
+// guess; a mention of a binary/refused kind is file_unreadable, never
+// invented contents. Bounded: a handful of mentions, each size-capped.
+const NL_MENTION_MAX = 5;
+function extractNlFileMentions(task) {
+  const text = String(task ?? "");
+  const found = [];
+  const push = (raw) => {
+    const c = String(raw ?? "").trim().replace(/^[@"'`“”‘’<([]+/, "").replace(/[.,;:!?"'`“”‘’>)\]]+$/, "").trim();
+    if (!c || c.length > 256 || /\s/.test(c)) return;
+    // A file mention is path-shaped: has a slash, or a dot-extension tail.
+    // A bare word ("package") is not a file; "package.json" is.
+    if (!c.includes("/") && !/\.[A-Za-z0-9]{1,5}$/.test(c)) return;
+    if (!found.includes(c)) found.push(c);
+  };
+  // @path mentions first (explicit addressing), then backticked, then
+  // double-quoted, then bare path-shaped tokens. Class order encodes
+  // explicitness (an @-address outranks an incidental filename), not text
+  // position. The @ form requires a separator before it, so an email
+  // address (user@example.com — @ mid-word) is never a file mention.
+  // Token classes are unicode-aware (\p{L}\p{N}): a filename is whatever
+  // the filesystem holds, not ASCII.
+  for (const m of text.matchAll(/(^|[\s([])@([\p{L}\p{N}_.\-+/\\]{2,200})/gu)) push(m[2]);
+  for (const m of text.matchAll(/`([^`]{1,200})`/g)) push(m[1]);
+  for (const m of text.matchAll(/"([^"]{1,200})"/g)) push(m[1]);
+  for (const m of text.matchAll(/(^|[\s([])([\p{L}\p{N}_.\-]+\/[\p{L}\p{N}_.\-+/\\]{1,180}|[\p{L}\p{N}_.\-]+\.[A-Za-z0-9]{1,5})(?=[\s)\].,;:!?]|$)/gu)) push(m[2]);
+  return found.slice(0, NL_MENTION_MAX);
+}
+
+// Resolve one mention to a real file strictly inside the workspace root.
+// Same physics as code-loop.js::resolveRealFile: real bytes or a typed gap,
+// never a name spoken into existence.
+function resolveMentionedFile(absRoot, mention) {
+  const clean = String(mention ?? "").replace(/\\/g, "/").replace(/^\.\//, "").trim();
+  if (!clean || clean.includes("..")) return { ok: false, gap: { kind: "invalid_path", reason: `"${mention}" escapes the workspace` } };
+  let root;
+  try { root = fs.realpathSync(path.resolve(absRoot)); } catch { return { ok: false, gap: { kind: "no_workspace", reason: "workspace root is not readable" } }; }
+  let resolved;
+  try { resolved = fs.realpathSync(path.resolve(root, clean)); } catch { return { ok: false, gap: { kind: "file_missing", reason: `no such file: ${clean}` } }; }
+  if (resolved !== root && !resolved.startsWith(root + path.sep)) {
+    return { ok: false, gap: { kind: "invalid_path", reason: `"${clean}" resolves outside the workspace` } };
+  }
+  let stat;
+  try { stat = fs.statSync(resolved); } catch { return { ok: false, gap: { kind: "file_missing", reason: `no such file: ${clean}` } }; }
+  if (!stat.isFile()) return { ok: false, gap: { kind: "not_a_file", reason: `"${clean}" is not a file` } };
+  const rel = resolved.slice(root.length).replace(/^\//, "");
+  if (!isTextFile(rel)) return { ok: false, gap: { kind: "file_unreadable", reason: `"${rel}" is not a readable text kind — its contents are not invented`, rel } };
+  if (stat.size > MAX_FILE_CHARS) return { ok: false, gap: { kind: "file_too_large", reason: `"${rel}" is larger than the bounded read window`, rel } };
+  return { ok: true, rel, abs: resolved, size: stat.size, mtimeMs: stat.mtimeMs };
+}
+
+// FILE ACTIVATION — the session's own pointing history (Atta's discipline:
+// trails evaporate unless reinforced). Every file the session admits,
+// surfaces, or resolves a mention against is touched with the current turn;
+// ranking at read time scores count against age (count / (1 + age)), so a
+// file touched often and recently outranks a file touched once long ago.
+// This is what lets "it", "that file", "the config" resolve to what the
+// operator is actually pointing at — the record's own history, never a
+// model guess, never a filename handed to the mouth.
+function touchFileActivation(session, sourceId, kind) {
+  try {
+    const sid = String(sourceId ?? "");
+    if (!sid || sid.startsWith("chat:") || sid.startsWith("proxy:session:")) return;
+    if (!session.fileActivation) session.fileActivation = new Map();
+    const prev = session.fileActivation.get(sid) ?? { count: 0, lastTurn: 0, kinds: [] };
+    prev.count += 1;
+    prev.lastTurn = session.turnCount ?? 0;
+    if (kind && !prev.kinds.includes(kind)) prev.kinds.push(kind);
+    session.fileActivation.set(sid, prev);
+  } catch { /* activation must never break a turn */ }
+}
+
+function rankFileActivation(session, { kindFilter = null, limit = 3 } = {}) {
+  const now = session.turnCount ?? 0;
+  const out = [];
+  for (const [sourceId, a] of (session.fileActivation ?? new Map()).entries()) {
+    if (kindFilter && !kindFilter(sourceId)) continue;
+    // Dead trails stay dead: a source evicted from the corpus no longer
+    // names anything pointable.
+    if (session.corpus && !session.corpus.documents.has(sourceId)) continue;
+    out.push({ sourceId, score: (a.count ?? 0) / (1 + Math.max(0, now - (a.lastTurn ?? 0))) });
+  }
+  out.sort((x, y) => y.score - x.score);
+  return out.slice(0, limit);
+}
+
+// Basename fallback: "package.json" for "pkg/sub/package.json" — ranked by
+// activation so a repeated name resolves to the file in play, never by
+// directory luck. Exact rel-path resolution above always wins; this only
+// runs on its typed miss.
+function resolveBasenameMention(session, mention) {
+  const base = String(mention ?? "").replace(/\\/g, "/").split("/").pop();
+  if (!base) return null;
+  const cands = rankFileActivation(session, { limit: 25 }).filter((c) =>
+    String(c.sourceId).replace(/\\/g, "/").split("/").pop() === base ||
+    String(c.sourceId).split("::")[0].endsWith(`/${base}`) ||
+    String(c.sourceId).split("::")[0] === base);
+  return cands.length ? cands[0].sourceId : null;
+}
+
+// Anaphoric file reference: "what does it do?", "that file", "the config",
+// "the test", "the source". Returns a kind filter (or null for the bare
+// "it/that file" = whatever is most active), never a guess at content.
+const ANAPHOR_RE = /\b(it|this file|that file|the file|these files|those files|the config|the test|the tests|the source|the doc|the readme)\b/i;
+function anaphorKindFilter(task) {
+  const t = String(task ?? "").toLowerCase();
+  if (/\bconfig\b|\bpackage\.json\b/.test(t)) return (sid) => /(^|\/)package\.json$|config|\.json$|\.ya?ml$|\.toml$/i.test(String(sid).split("::")[0]);
+  if (/\btests?\b|\bspec\b/.test(t)) return (sid) => /test|spec|e2e/i.test(String(sid).split("::")[0]);
+  if (/\breadme\b|\bdocs?\b/.test(t)) return (sid) => /readme|\.md$|\.txt$/i.test(String(sid).split("::")[0]);
+  if (/\bsource\b|\bcode\b|\bscript\b/.test(t)) return (sid) => /\.(m?js|ts|py|mjs)$/i.test(String(sid).split("::")[0]);
+  return null; // bare "it/that file": most-active file, whatever kind
+}
+
+// Exported for tests: the NL file mechanics are pure/mechanical (extract,
+// resolve, rank), never model judgments — so they are pinned like
+// parseProposal/parseAction, not left to integration luck.
+export { extractNlFileMentions, resolveMentionedFile, touchFileActivation, rankFileActivation, resolveBasenameMention, anaphorKindFilter, ANAPHOR_RE, NL_MENTION_MAX };
 
 // ── shell detection via pyodide's HTMLParser (structural, not regex) ───────
 // The regex `looksLikeShell` on the TEXT face catches the "couldn't load"
@@ -1437,11 +1565,25 @@ function groundSeed(session, { sidecar = null, framing = null, field = null, cou
 // the law refuses kitsch.
 const RANKE_RULE = "Compose your own sentences. You may state a grounded fact (it will be cited to its source) or invent (it will be labeled as yours) — but never copy a source's words as your own prose. A sentence lifted from the material is refused.";
 
+// SELF-REFERENTIAL / META (P-chitchat-pollution, 2026-09-17): a question ABOUT
+// the assistant itself — "what are you", "what can you help with", "who are
+// you", "introduce yourself" — never names an external fact to look up, so it
+// must never fall through to the "open" shape (which the web-search gate
+// below treats as research-shaped). The earlier anchored command regex only
+// matched the WHOLE turn ("who are you" alone); a real greeting wraps the
+// same question in a sentence ("Hello — can you tell me what you are and what
+// you can help with?") and slipped past it, landing on "open" and firing
+// ~2500 live web searches with query text derived from that non-sequitur
+// sentence. This is a search anywhere in the turn, not an anchor.
+const SELF_REFERENTIAL_RE = /\bwhat\s+(?:are\s+you\b|you\s+are\b)|\bwho\s+are\s+you\b|\bwhat\s+can\s+you\s+(?:do|help)\b|\bwhat\s+do\s+you\s+do\b|\btell\s+me\s+about\s+(?:yourself|you\b)|\bintroduce\s+yourself\b|\bwhat\s+are\s+you\s+capable\s+of\b/i;
+
 export function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegments, resolutions) {
   const t = task.toLowerCase().trim();
   if (/^(hi|hello|hey|howdy|greetings|good\s+(morning|afternoon|evening))[\s,!?]*$/.test(t))
     return { shape: "greeting", maxTokens: 64, modality: "brief" };
   if (/^(clear|reset|help|status|what\s+can\s+you\s+do|who\s+are\s+you)[\s,!?]*$/.test(t))
+    return { shape: "command", maxTokens: 128, modality: "brief" };
+  if (SELF_REFERENTIAL_RE.test(t))
     return { shape: "command", maxTokens: 128, modality: "brief" };
   if (/^(count|list|enumerate)\s+(to\s+)?\d+/.test(t))
     return { shape: "trivial", maxTokens: 64, modality: "direct" };
@@ -1599,7 +1741,7 @@ const voidSettleQuestion = (gap, task) => {
   return "a passage, named and addressed, that states what was looked for";
 };
 
-function earnedCue({ task, chatHistory = [], surfVoidInfo = null, pathos = null, felt = null }) {
+function earnedCue({ task, chatHistory = [], surfVoidInfo = null, pathos = null, felt = null, trajectoryBoredom = null }) {
   try {
     const personClaims = (chatHistory ?? [])
       .filter((m) => m?.role === "user" && typeof m.content === "string" && m.content.trim())
@@ -1638,6 +1780,14 @@ function earnedCue({ task, chatHistory = [], surfVoidInfo = null, pathos = null,
       ...(surfVoidInfo ? { gaps: [_gp] } : {}),
       ...(surfVoidInfo ? { notEstablished: [_gp] } : {}),
     };
+    // TRAJECTORY BOREDOM, folded into the same `felt` object pacing.js's
+    // flatline already lands in (2026-09-17) — a DIFFERENT measurement (the
+    // conversation's TURNS, not one text's sentence rhythm), same channel.
+    // Merged rather than replacing `felt`, so a pacing flatline this same
+    // turn is not silently dropped.
+    if (trajectoryBoredom?.bored) {
+      state.felt = { ...(state.felt ?? {}), trajectoryBored: true, trajectoryBasis: trajectoryBoredom.basis };
+    }
     const bundle = cueBundle({ act: classifySpeech(task), state, depth: 1 });
     const mouth = String(bundle.mouth ?? "").trim();
     if (!mouth) return null;
@@ -1737,7 +1887,7 @@ function getSession(sessionId, clearance) {
     return s;
   }
   const reader = createSessionReader();
-  const entry = { reader, corpus: null, corpusIndex: null, lookIndex: null, lastChatText: "", turnCount: 0, lastAccess: now, indexSig: null, referents: null, webLedger: null, webSources: new Map(), field: null, shadow: [], pii: [], clearance, modelOverride: null, overrideBasis: null, lastEffectiveModel: null };
+  const entry = { reader, corpus: null, corpusIndex: null, lookIndex: null, lastChatText: "", turnCount: 0, lastAccess: now, indexSig: null, referents: null, webLedger: null, webSources: new Map(), field: null, shadow: [], pii: [], fileActivation: null, clearance, modelOverride: null, overrideBasis: null, lastEffectiveModel: null };
   sessions.set(sessionId, entry);
   return entry;
 }
@@ -1853,6 +2003,7 @@ async function admitWorkspaceEntries(session, entries, onNote) {
     if (text == null) continue;
     const res = admitChunked(session.corpus, { text: piiAdmit(session, text, e.rel, onNote), sourceId: e.rel });
     index.set(e.rel, { size: e.size, mtimeMs: e.mtimeMs });
+    touchFileActivation(session, e.rel, e.giant ? "giant-code" : "workspace");
     admitted += res.deduped ? 0 : 1;
     chars += text.length;
     // A code-shaped file is stepped at CODE grain (adapters/code/encounters.js
@@ -3330,7 +3481,8 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       /^(hi|hello|hey|howdy|greetings|good\s+(morning|afternoon|evening))[\s,!?]*$/.test(_t) ||
       /^(clear|reset|help|status|what\s+can\s+you\s+do|who\s+are\s+you)[\s,!?]*$/.test(_t) ||
       /^(huh|what|really|oh|ok|okay|thanks|thank you|yes|no|yeah|yep|nope|hmm|lol|nice|cool|got it|i see|fair enough|never ?mind|please|wow)[\s.!?]*$/.test(_t) ||
-      (_t.length < 160 && (/\bmy name is\b.{0,40}\b(your|yours|you)\b/.test(_t) || /\bwhat('s| is) your name\b/.test(_t)));
+      (_t.length < 160 && (/\bmy name is\b.{0,40}\b(your|yours|you)\b/.test(_t) || /\bwhat('s| is) your name\b/.test(_t))) ||
+      (_t.length < 200 && SELF_REFERENTIAL_RE.test(_t));
     if (isSmallTalk && clearance.cleared && !opencodeRoute) {
       const msgs = [{ role: "system", content: [NEUTRAL_CHARACTER, turnStanding(model), discourse ? `\n${discourse}` : null].filter(Boolean).join("\n") }];
       for (const m of chatHistory ?? []) msgs.push({ role: m.role, content: m.content });
@@ -3411,6 +3563,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       if (index.get(name) === sig) continue; // unchanged re-admission is a no-op
       const res = admitChunked(session.corpus, { text: piiAdmit(session, text, name, onNote), sourceId: name });
       index.set(name, sig);
+      touchFileActivation(session, name, "attachment");
       attachmentStats.admitted += res.deduped ? 0 : 1;
       const encounters = textEncounters(text, { source: `attach:${name}`, offset: 0 });
       for (const enc of encounters) {
@@ -3425,6 +3578,96 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       if (onNote) onNote({ move: "attachment_admitted", name, chars: text.length, admitted: res.deduped ? 0 : 1 });
     }
     session.corpusIndex = index;
+  }
+
+  // 1.2 NL FILE MENTIONS — the operator asks about particular files in plain
+  // language; the system meets the file qua file. Each mention is resolved
+  // mechanically against the declared workspace (or matched exactly against
+  // an attachment name); a resolved file is force-admitted as its own
+  // file-scoped corpus doc + stepped through the fold reader even when the
+  // bulk scan skipped it (caps, ordering) — bounded per file, PII-gated,
+  // code-vs-prose grained like every other admission. The mouth is fed only
+  // the bytes (via surfacedSegments below, content without names); the FILE
+  // (which file, what kind, what was missing) travels onNote + _ledger +
+  // turnUsedSourceIds, so citations and the facing page can show the file
+  // the answer stood on. Nothing here invents bytes for a missing/unreadable
+  // mention — those are typed gaps on the record.
+  let nlFiles = []; // [{ rel|name, sourceId, kind: workspace|attachment }]
+  {
+    const mentions = extractNlFileMentions(task);
+    const attachmentNames = new Set((Array.isArray(attachments) ? attachments : []).map((a) => String(a?.name ?? "")));
+    if (mentions.length && onNote) onNote({ move: "file_mentioned", mentions });
+    const absRoot = workspace && fs.existsSync(workspace) ? path.resolve(workspace) : null;
+    // An anaphoric ask with no path-shaped mention ("what does it do?",
+    // "that file") resolves against the activation ledger — what this
+    // session has actually been pointing at — with a kind filter when the
+    // words name one ("the config", "the test"), most-active file otherwise.
+    if (!mentions.length && absRoot && ANAPHOR_RE.test(task)) {
+      const top = rankFileActivation(session, { kindFilter: anaphorKindFilter(task), limit: 1 })[0];
+      if (top) {
+        nlFiles.push({ rel: top.sourceId, sourceId: top.sourceId, kind: "anaphor" });
+        touchFileActivation(session, top.sourceId, "mention");
+        if (onNote) onNote({ move: "file_resolved", mention: "(anaphor)", sourceId: top.sourceId, kind: "anaphor", score: Number(top.score.toFixed(3)) });
+      } else if (onNote) {
+        onNote({ move: "file_missing", mention: "(anaphor)", reason: "no file in scope yet this session — name one or admit a workspace first" });
+      }
+    }
+    for (const m of mentions) {
+      if (nlFiles.length >= NL_MENTION_MAX) break;
+      // Attachments first: an exact name match is already admitted above —
+      // just carry its file identity into this turn's membership below.
+      if (attachmentNames.has(m)) {
+        nlFiles.push({ rel: m, sourceId: m, kind: "attachment" });
+        touchFileActivation(session, m, "mention");
+        if (onNote) onNote({ move: "file_resolved", mention: m, sourceId: m, kind: "attachment" });
+        continue;
+      }
+      if (!absRoot) {
+        if (onNote) onNote({ move: "file_missing", mention: m, reason: "no workspace in scope for this turn" });
+        continue;
+      }
+      const r = resolveMentionedFile(absRoot, m);
+      if (!r.ok) {
+        // Exact resolution missed — try the basename against activation
+        // history before declaring it missing ("package.json" for the
+        // package.json this session has been reading).
+        if (r.gap?.kind === "file_missing") {
+          const via = resolveBasenameMention(session, m);
+          if (via) {
+            nlFiles.push({ rel: via, sourceId: via, kind: "basename" });
+            touchFileActivation(session, via, "mention");
+            if (onNote) onNote({ move: "file_resolved", mention: m, sourceId: via, kind: "basename" });
+            continue;
+          }
+        }
+        if (onNote) onNote({ move: r.gap?.kind === "file_missing" ? "file_missing" : "file_unreadable", mention: m, reason: r.gap?.reason ?? null, rel: r.gap?.rel ?? null });
+        continue;
+      }
+      // Force-admit when the bulk scan did not (or not yet): real bytes,
+      // real sourceId, real reader steps — the file entering the record.
+      try {
+        if (!session.corpus) session.corpus = createCorpusSession();
+        const index = session.corpusIndex ?? new Map();
+        const prev = index.get(r.rel);
+        if (!prev || prev.size !== r.size || prev.mtimeMs !== r.mtimeMs) {
+          const text = fs.readFileSync(r.abs, "utf8").slice(0, MAX_FILE_CHARS);
+          const res = admitChunked(session.corpus, { text: piiAdmit(session, text, r.rel, onNote), sourceId: r.rel });
+          index.set(r.rel, { size: r.size, mtimeMs: r.mtimeMs });
+          session.corpusIndex = index;
+          const encounters = isCodeHunk(text)
+            ? codeEncounters(text, { source: `workspace:${r.rel}`, offset: 0 })
+            : textEncounters(text, { source: `workspace:${r.rel}`, offset: 0 });
+          for (const enc of encounters) { await session.reader.step(enc); await yieldToEventLoop(); }
+          if (onNote) onNote({ move: "file_resolved", mention: m, sourceId: r.rel, kind: "workspace", admitted: res.deduped ? 0 : 1, chars: text.length });
+        } else if (onNote) {
+          onNote({ move: "file_resolved", mention: m, sourceId: r.rel, kind: "workspace", admitted: 0, cached: true });
+        }
+        nlFiles.push({ rel: r.rel, sourceId: r.rel, kind: "workspace" });
+        touchFileActivation(session, r.rel, "mention");
+      } catch (err) {
+        if (onNote) onNote({ move: "file_unreadable", mention: m, reason: err?.message ?? null, rel: r.rel });
+      }
+    }
   }
 
   // 1.5 DEF THE VOID — UNIVERSAL, EVERY TURN. The void is the shape of what
@@ -3677,6 +3920,32 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       for (const s of surf.segments) {
         const sid = segmentSourceOf(s);
         if (sid) turnUsedSourceIds.add(sid);
+      }
+      // QUA-FILE GUARANTEE: a file this turn resolved (mention, basename,
+      // anaphor, attachment) is surfaced even when the address ladder did
+      // not rank it — a bounded window of its own bytes, carrying its file
+      // identity in _ledger + membership so citations and the facing page
+      // show the file the answer stood on. The mouth receives content only,
+      // never the name; the record keeps which file it was.
+      for (const f of nlFiles) {
+        if (surfacedSegments.length >= SURF_MAX_SEGMENTS) break;
+        if (turnUsedSourceIds.has(f.sourceId)) continue;
+        const doc = session.corpus.documents.get(f.sourceId);
+        const text = String(doc?.text ?? doc ?? "").trim();
+        if (!text) continue;
+        const capped = text.slice(0, SURF_MAX_SEGMENT_CHARS);
+        surfacedSegments.push({
+          text: capped,
+          _ledger: { source: f.sourceId, heading: null, addressed_by: "file-mention", bytes: [0, capped.length] },
+        });
+        turnUsedSourceIds.add(f.sourceId);
+        touchFileActivation(session, f.sourceId, "surfaced");
+        if (onNote) onNote({ move: "file_surfaced", sourceId: f.sourceId, kind: f.kind, chars: capped.length });
+      }
+      // Touch everything the ladder surfaced too — being read IS pointing.
+      for (const s of surfacedSegments) {
+        const sid = segmentSourceOf(s);
+        if (sid) touchFileActivation(session, sid, "surfaced");
       }
       surfVoid = surf.void || surf.segments.length === 0;
       surfVoidInfo = (surf.void || surf.segments.length === 0)
@@ -4001,10 +4270,24 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   }
   if (onNote) onNote({ move: "prompt_budget", system: systemCore.length, chat: keptChat.length, chatChars: chatLen, materialSegments: runMode === "projection" ? 0 : material.length, materialChars: runMode === "projection" ? 0 : used, taskChars: taskLen, max: PROMPT_MAX_CHARS, projection: runMode === "projection" ? "compact — section briefs carry the claims" : null });
 
+  // TRAJECTORY BOREDOM — "boring is itself a surprise to avoid" (user,
+  // 2026-09-17). Not the same thing as pacing.js's flatline (one text's own
+  // sentence-rhythm) or holon.js's per-turn echo/reproduction verdicts (one
+  // repeated sentence): this is the same Fisher permutation test
+  // document-ledger.js already uses on an essay's sections, pointed at the
+  // assistant's own turns in the ALREADY-KEPT chat window (never a fresh
+  // window size chosen for this) — the two-model loop that motivated this
+  // (401b81c) opened on "## Dispute Resolution" every turn, restated with
+  // less change each time. When it fires, `trajectoryBoredom.basis` is a
+  // measured fact, fed to the model exactly like every other earned-cast
+  // fact — never an instruction to "be more creative."
+  const trajectoryBoredom = detectTrajectoryBoredom(keptChat.filter((m) => m.role === "assistant").map((m) => m.content));
+  if (onNote && trajectoryBoredom.bored) onNote({ move: "trajectory_boredom", n: trajectoryBoredom.n, basis: trajectoryBoredom.basis });
+
   // ── the earned cast, this turn only. The model is never told it is
   // playing a role — it receives exactly the facts this turn earned, at the
   // object level, and nothing else. A cue with nothing to say adds nothing.
-  const cue = earnedCue({ task, chatHistory: keptChat, surfVoidInfo, pathos });
+  const cue = earnedCue({ task, chatHistory: keptChat, surfVoidInfo, pathos, trajectoryBoredom });
   if (cue?.mouth) {
     systemContent += `\n\nA few things to keep in mind as you answer:\n${cue.mouth}`;
     if (onNote) onNote({ move: "earned_cue", act: cue.act, strain: cue.strain, attentions: cue.eligible, chars: cue.mouth.length });
