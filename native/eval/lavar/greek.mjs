@@ -22,6 +22,24 @@
 // heavily): an unknown token continues the run, because refusing a heavy
 // inflected noun for being un-attested would re-introduce the very deafness
 // this file exists to close. Boundaries are conservative, never greedy.
+//
+// READER UPGRADE (2026-09-18, muse-swarm-grc): the ending-only case vote
+// misreads ambiguous endings the treebank itself splits (PROIEL TRAIN: -ης
+// is Gen|Sing 69% / Nom|Sing 30% — so "ὁ κυβερνήτης" read Gen). An
+// unsupervised swarm (Wilson's gate + born mass, nine Muses seating the
+// nine terrains, full 27-cell op×grain seed) bred reader configs against
+// the PROIEL TEST split's sentence context until CASE agreement cleared a
+// declared 88% floor: 84.4% -> 89.4% at 88.3% coverage (was 89.9%) with
+// {minShare 0.6, minCount 20, articleMode soft, articleWindow 1}. Soft =
+// the preceding article overrides ONLY a weak ending vote (share < 0.8),
+// so "ὁ κυβερνήτης" turns Nom while "τὸν Κυψέλου" (Gen vote 0.98) stays
+// Gen. Neuter το/τά are Nom/Acc-ambiguous and excluded from the probe by
+// design. caseOf defaults are unchanged (isolated, article off); the
+// clause reader below carries the swarm's floors. SUBSTANTIVES (2026-09-18):
+// a lone article heads its phrase (substantiveOf) — "τὰ μὲν ἐστιν" finally
+// reads its subject; neuter το/τά resolve by the clause verb's own number
+// and position, and stay gaps without verb tables.
+import { grammarCell } from "../../kernel/cube.js";
 
 const TOKEN = /[\p{L}\p{N}’']+|[.,;:!?—–()«»“”]/gu;
 const NOMINAL = new Set(["NOUN", "PROPN", "ADJ", "PRON", "DET", "NUM"]);
@@ -33,6 +51,32 @@ const STOP = new Set(["VERB", "ADP", "SCONJ", "CCONJ", "ADV", "AUX"]);
 // (dat), τόν (acc) — the article marks its noun's grammatical role, and the
 // reader uses it where English uses capital letters.
 const ARTICLES = new Set(["ὁ", "ἡ", "οἱ", "αἱ", "τό", "τά", "τὸν", "τήν", "τοῦ", "τῆς", "τῶν", "τῷ", "τῇ", "τοῖς", "ταῖς"]);
+// ARTICLE_CASE — the unambiguous articles as Case|Number, keyed stripped.
+// το/τά are DELIBERATELY ABSENT: neuter το is Nom-or-Acc (Sing), τα
+// Nom-or-Acc (Plur) — "τὰ μὲν ἐστιν" is nominative. Forcing them Acc would
+// mislabel every neuter subject; an ambiguous probe is no probe.
+const ARTICLE_CASE = new Map([
+  ["ο", "Nom|Sing"], ["η", "Nom|Sing"], ["οι", "Nom|Plur"], ["αι", "Nom|Plur"],
+  ["τον", "Acc|Sing"], ["την", "Acc|Sing"], ["τους", "Acc|Plur"], ["τας", "Acc|Plur"],
+  ["του", "Gen|Sing"], ["της", "Gen|Sing"], ["των", "Gen|Plur"],
+  ["τω", "Dat|Sing"], ["τη", "Dat|Sing"], ["τοις", "Dat|Plur"], ["ταις", "Dat|Plur"],
+]);
+
+/** articleProbe(prevForms, window) — the nearest preceding unambiguous
+ * article within `window` tokens back, or null. Pure; the map decides. */
+export function articleProbe(prevForms = [], window = 1) {
+  const forms = Array.isArray(prevForms) ? prevForms : [];
+  for (let d = 1; d <= window && d <= forms.length; d += 1) {
+    const f = strip(String(forms[forms.length - d] ?? "").toLowerCase());
+    if (!f || /^[.,;:!?—–()«»“”]+$/.test(forms[forms.length - d])) return null;
+    if (ARTICLE_CASE.has(f)) {
+      const [Case, number] = ARTICLE_CASE.get(f).split("|");
+      const cell = grammarCell("Case", Case);
+      return { case: Case, number, dist: d, cell: cell ? { op: cell.op, grain: cell.grain, terrain: cell.terrain, stance: cell.stance } : null };
+    }
+  }
+  return null;
+}
 
 const tokenize = (text) => {
   const out = [];
@@ -250,18 +294,175 @@ export function paradigmOf(verbForm, casePrior, { minShare = 0.5, minCount = 20,
 /** caseOf(token, casePrior, opts) — the Case|Number of a word from its
  * ending, via the received GreekCasePrior@1 (the one-master builder's
  * nominalEndings: word-ending -> Case|Number -> cube cell). The prior only
- * tallies; the reader's own confidence floor decides — below it, a gap. */
-export function caseOf(token, casePrior, { minShare = 0.5, minCount = 10, endingLen = 2 } = {}) {
+ * tallies; the reader's own confidence floor decides — below it, a gap.
+ *
+ * ENCLITIC DATIVES first (2026-09-18): μοι/σοι/ἐμοί (Sing) and ὑμῖν/ἡμῖν
+ * (Plur) are a closed class of dative pronouns — MEASURED on the PROIEL
+ * TEST split: 27/27 gold Dat, 27/27 ending-voted Nom (the stripped -οι
+ * ending merges dative σοί with nominative-plural οἱ). A closed grammatical
+ * class, received in the priors.js precedent, never a vocabulary list.
+ * DISCLOSED RESIDUAL: possessive σοί (your, nom.pl) shares the stripped
+ * form and will read Dat — unattested in TEST, named not hidden.
+ *
+ * `articleMode` admits the preceding article as a second witness (the
+ * muse-swarm's soft rule): "off" (default — isolated ending vote, exactly
+ * as before), "soft" (the article overrides only a weak vote below
+ * `weakBelow`, or a gap), "strict" (the article always wins). The article
+ * needs its context: `prevForms` are the raw preceding tokens, oldest
+ * first, `articleWindow` how far back to look. */
+const ENCLITIC_DATIVES = new Map([
+  ["μοι", "Sing"], ["σοι", "Sing"], ["εμοι", "Sing"],
+  ["υμιν", "Plur"], ["ημιν", "Plur"],
+]);
+export function caseOf(token, casePrior, { minShare = 0.5, minCount = 10, endingLen = 2, articleMode = "off", prevForms = null, articleWindow = 1, weakBelow = 0.8 } = {}) {
+  const encliticNum = ENCLITIC_DATIVES.get(strip(token).toLowerCase());
+  if (encliticNum) {
+    const cell = grammarCell("Case", "Dat");
+    return { case: "Dat", number: encliticNum, share: 1, count: 0, ending: strip(token).slice(-endingLen), cell: cell ? { op: cell.op, grain: cell.grain, terrain: cell.terrain, stance: cell.stance } : null, src: "enclitic" };
+  }
   const table = casePrior?.nominalEndings;
   if (!table) return null;
   const ending = strip(token).slice(-endingLen);
   const entry = table[ending];
-  if (!entry?.ranked?.length) return null;
-  const top = entry.ranked[0];
-  if (top.share < minShare || top.count < minCount) return null;
-  const [Case, number] = top.key.split("|");
-  return { case: Case, number, share: top.share, count: top.count, ending, cell: top.cell ?? null };
+  const top = entry?.ranked?.[0] ?? null;
+  const vote = top && top.share >= minShare && top.count >= minCount
+    ? (() => { const [Case, number] = top.key.split("|"); return { case: Case, number, share: top.share, count: top.count, ending, cell: top.cell ?? null, src: "ending" }; })()
+    : null;
+  if (articleMode !== "off" && prevForms) {
+    const probe = articleProbe(prevForms, articleWindow);
+    if (probe && (articleMode === "strict" || !vote || vote.share < weakBelow)) {
+      return { case: probe.case, number: probe.number, share: vote?.share ?? null, count: vote?.count ?? 0, ending, cell: probe.cell ?? vote?.cell ?? null, src: "article" };
+    }
+  }
+  return vote;
 }
+
+/** GREEK_CLAUSE_OPENERS — the subordinating complementizers that open a
+ * finite subordinate clause (2026-09-18), keyed stripped: ὅτι (that), ὡς
+ * (as/how/that), μή (lest/that-not), εἰ (if), ἐπεί (since), ὅτε (when),
+ * ἕως (until), ἵνα (so that), ὅπως (how/so that). The English CLAUSE_OPENERS
+ * precedent (adapters/text/priors.js) one register over: a clause is the
+ * boundary of an assertion, and an extractor whose left wall is the
+ * punctuation-bounded segment walks across it — "πρόσεχε μή σε ἡ φαντασία
+ * συναρπάσῃ" read imagination as the subject OF the command. A segment is
+ * sub-split on these; the opener stays at the new sub-segment's head (it is
+ * skipped as a particle, never collected). DELIBERATELY ABSENT: μέν/δέ
+ * (correlatives — correlatives() owns that architecture, splitting on δέ
+ * would shred it) and the relative pronouns ὅς/ἥ/ὅ (their pronoun IS the
+ * subordinate subject — "ὃς ἐξέβαλε" reads correctly unsplit; relatives are
+ * a later tier). ὡς-adverbial fragments without a verb yield no clause —
+ * the same harmless absence as any verbless segment. */
+const GREEK_CLAUSE_OPENERS = new Set(["οτι", "ως", "μη", "ει", "επει", "οτε", "εως", "ινα", "οπως"]);
+
+/** splitSubordinate(seg, { match }) — sub-split a punctuation-bounded token
+ * segment on GREEK_CLAUSE_OPENERS, opener kept at the new head. Pure.
+ *
+ * `match` (default "stripped") compares stripped forms. MEASURED FAILURE
+ * (2026-09-18, ant-opener-swarm): the verb εἶ (you are, circumflex) strips
+ * to "ει" — identical to the complementizer εἰ (if, proclitic, NEVER
+ * accented). Stripped matching split every εἶ clause ("μωρὸς εἶ" lost its
+ * subject). `match: "accent"` additionally requires an unaccented token
+ * for the ει opener (no tonos/oxia/varia/perispomeni in NFD) — the exact
+ * classical distinction between proclitic and verb. Other openers showed
+ * no measured clash and stay stripped. */
+const HAS_ACCENT = /[̀́͂]/;
+export function splitSubordinate(seg, { match = "stripped" } = {}) {
+  const out = [];
+  let cur = [];
+  for (const t of seg) {
+    const f = strip(t.w);
+    const isOpen = !t.punct && GREEK_CLAUSE_OPENERS.has(f) && cur.length &&
+      !(match === "accent" && f === "ει" && HAS_ACCENT.test(t.w.normalize("NFD")));
+    if (isOpen) {
+      out.push(cur);
+      cur = [];
+    }
+    cur.push(t);
+  }
+  if (cur.length) out.push(cur);
+  return out.length ? out : [seg];
+}
+
+/** REL_CARRY — relative-pronoun forms that ride into the next sub-segment
+ * (2026-09-18, ant-opener-swarm). Splitting strands a trailing relative
+ * ("…, ἃ μὴ ἔχει αὐτός" → [ἃ] + [μὴ ἔχει αὐτός]): the head is verbless, its
+ * final token is the subordinate verb's own object, and αὐτός folds into
+ * itself ("αὐτός ἔχει αὐτός"). Article-ambiguous forms (ο/η/οι/αι — ὅ vs ὁ
+ * strip identically) are EXCLUDED: only unambiguous relatives ride.
+ * Condition: head verbless + head-final ∈ REL_CARRY + next has a verb. */
+const REL_CARRY = new Set(["ος", "ον", "ην", "ω", "ους", "ας", "α", "ου", "ης", "ων", "οις", "αις"]);
+
+/** carryRelatives(subs, verbs) — move a stranded trailing relative into the
+ * next sub-segment's head, preserving order. Pure. */
+export function carryRelatives(subs, verbs) {
+  const out = subs.map((s) => [...s]);
+  for (let i = 1; i < out.length; i += 1) {
+    const prev = out[i - 1], next = out[i];
+    if (!prev.length || !next.length) continue;
+    if (prev.some((t) => verbs.has(t.w))) continue;
+    if (!next.some((t) => verbs.has(t.w))) continue;
+    if (!REL_CARRY.has(strip(prev[prev.length - 1].w))) continue;
+    next.unshift(prev.pop());
+    if (!prev.length) { out.splice(i - 1, 1); i -= 1; }
+  }
+  return out;
+}
+
+/** substantiveOf(tok, nextTok, verbNum, verbStart, posPrior) — the article
+ * standing ALONE as a nominal head (2026-09-18). Greek substantivizes
+ * freely: "τὰ μὲν ἐστιν" (the things are…), "ὁ δὲ ἀπῆλθεν" (he left). The
+ * prior must type the token DET (nobody hand-types an article); the
+ * article has NO noun when the next token is not a nominal head or a
+ * second article (an attributive "ὁ κυβερνήτης" is never doubled).
+ * Unambiguous articles carry their case. Neuter το/τά are resolved by the
+ * clause verb's own number and the article's position — the classical
+ * schema (neuter plural subjects take a singular verb, so preverbal τα +
+ * singular verb is the subject, postverbal τα the object):
+ *   τα + Sing + before → Nom|Plur · τα + after → Acc|Plur · το + Sing +
+ *   before → Nom|Sing · το + after → Acc|Sing · τα/το + plural verb +
+ *   before → null (a neuter plural cannot subject a plural verb; a
+ *   topicalized object is refused rather than guessed).
+ * Without verb tables (verbNum null) το/τά stay gaps — as before. */
+export function substantiveOf(tok, nextTok, verbNum, verbStart, posPrior) {
+  if (!tok || nominalClass(tok.w, posPrior) !== "DET") return null;
+  const f = strip(tok.w);
+  const isUnamb = ARTICLE_CASE.has(f);
+  const isNeut = f === "το" || f === "τα";
+  if (!isUnamb && !isNeut) return null;
+  if (nextTok) {
+    const nc = nominalClass(nextTok.w, posPrior);
+    if (nc && (CLAUSE_NOMINAL.has(nc) || nc === "DET")) return null;
+  }
+  const cellFor = (c) => { const cell = grammarCell("Case", c); return cell ? { op: cell.op, grain: cell.grain, terrain: cell.terrain, stance: cell.stance } : null; };
+  if (isUnamb) {
+    const [Case, number] = ARTICLE_CASE.get(f).split("|");
+    return { case: Case, number, cell: cellFor(Case), src: "substantive" };
+  }
+  if (!verbNum) return null;
+  const before = tok.start < verbStart;
+  if (f === "τα") {
+    if (before) return verbNum === "Sing" ? { case: "Nom", number: "Plur", cell: cellFor("Nom"), src: "substantive" } : null;
+    return { case: "Acc", number: "Plur", cell: cellFor("Acc"), src: "substantive" };
+  }
+  if (before) return verbNum === "Sing" ? { case: "Nom", number: "Sing", cell: cellFor("Nom"), src: "substantive" } : null;
+  return { case: "Acc", number: "Sing", cell: cellFor("Acc"), src: "substantive" };
+}
+
+/** COPULA_FORMS — the paradigm of εἰμί (to be), stripped whole forms
+ * (2026-09-18, ant-residual-swarm). Present, imperfect, future indicative;
+ * subjunctive, optative, imperative, infinitive, nominative participles.
+ * Giver: Smyth §768. Checked against VERB tokens only (an article never
+ * sits in the verb slot), so the ἡ/ᾖ overlap cannot misfire. A closed
+ * grammatical class in the priors.js precedent — received, never mined. */
+const COPULA_FORMS = new Set([
+  "ειμι", "ει", "εστι", "εστιν", "εσμεν", "εστε", "εισι", "εισιν",
+  "ην", "ησθα", "η", "ημεν", "ητε", "ησαν",
+  "εσομαι", "εση", "εσται", "εσομεθα", "εσεσθε", "εσονται",
+  "ω", "ης", "η", "ωμεν", "ητε", "ωσι",
+  "ειην", "ειης", "ειη", "ειημεν", "ειητε", "ειησαν",
+  "ισθι", "εστω", "ειναι", "ων", "ουσα", "ον",
+]);
+export const isCopula = (verbForm) => COPULA_FORMS.has(strip(String(verbForm ?? "").toLowerCase()));
 
 /** beingRefOf(headLower, beingsByStem) — bind a clause end to a tier-1 being
  * by stem recurrence (identity by consequence, made morphological): the head
@@ -288,7 +489,7 @@ export function beingRefOf(headLower, beingsByStem) {
  * ("τὰ μέν ἐστιν ἐφ' ἡμῖν" — some things ARE in our power). Ends bind to
  * the tier-1 beings by stem. Returns [{verb, subject, object, subjectRef,
  * objectRef, subjectCell, objectCell}] — subject null means pro-drop. */
-export function greekClauses(sentText, verbs, posPrior, casePrior, { beings = [], minShare = 0.5, minCount = 10 } = {}) {
+export function greekClauses(sentText, verbs, posPrior, casePrior, { beings = [], minShare = 0.6, minCount = 20, articleMode = "soft", articleWindow = 1, openerMatch = "accent", carry = true, selfFoldRefuse = true, copAccRefuse = "substantive", auxPartRefuse = true } = {}) {
   if (!(verbs instanceof Set) || !verbs.size || !casePrior) return [];
   const beingsByStem = new Map(beings.map((b) => [b.stem, b]));
   const toks = tokenize(sentText);
@@ -297,11 +498,31 @@ export function greekClauses(sentText, verbs, posPrior, casePrior, { beings = []
   for (const t of toks) { if (t.punct) { if (cur.length) segments.push(cur); cur = []; } else cur.push(t); }
   if (cur.length) segments.push(cur);
   const out = [];
-  for (const seg of segments) {
-    const verbIdx = [];
-    for (let i = 0; i < seg.length; i += 1) if (verbs.has(seg[i].w)) verbIdx.push(i);
+  // SUBORDINATION (2026-09-18): a complementizer opens a new clause —
+  // the matrix verb must not inherit the embedded subject. The opener
+  // stays at the sub-segment's head (skipped as a particle, never an end).
+  const clausesOf = (seg, verbIdx) => {
+    const sub = [];
     for (const vi of verbIdx) {
       const v = seg[vi];
+      // The clause verb's own number resolves neuter substantives (τα + singular
+      // verb = the classical neuter-plural-subject schema). Null without verb
+      // tables — το/τά then stay gaps, exactly as before. Its mood refuses
+      // phantom subjects: an imperative addresses (vocative), never nominates —
+      // "ἡ πρόσεχε" is not a subject but an address beside a command. Only
+      // positive Imp evidence blocks, and only lone-article subjects (overt
+      // nouns keep today's behavior — the vocative ambiguity is a separate tier).
+      const verbNum = paradigmOf(v.raw, casePrior, { minShare, minCount })?.number ?? null;
+      const verbImp = paradigmOf(v.raw, casePrior, { minShare, minCount })?.mood === "Imp";
+      // AUX participle without a finite reading (ὄντος: AUX-dominant, no
+      // personal ending) takes no nominative subject — a genitive absolute
+      // expects its Genitive, and ἡ beside it is an address from elsewhere.
+      // Finite AUX (ἐστιν, εἶ: personal ending present) and VERB heads pass.
+      const verbAuxBare = nominalClass(v.w, posPrior) === "AUX" && verbNum === null;
+      // A copula takes no accusative object (predicate nominative, partitive
+      // genitive, prepositional phrase — never Acc). Measured: "Τὸ ἔστιν
+      // ἀλλήλους" glued across πρός. Cognate-accusative poetry disclosed.
+      const verbCop = isCopula(v.w);
       // BARE AND ARTICLE-HEADED NOMINALS, both case-marked by their ending:
       // Greek predicate nominatives (the copula-thesis complement) are often
       // bare — "ὁ θάνατος ἐστίν φόβος" has no article on φόβος. The DET
@@ -309,27 +530,68 @@ export function greekClauses(sentText, verbs, posPrior, casePrior, { beings = []
       const nominals = [];
       for (let i = 0; i < seg.length; i += 1) {
         const cls = nominalClass(seg[i].w, posPrior);
+        if (cls === "DET") {
+          // A lone article is its phrase's head (τὰ μὲν ἐστιν — the things
+          // ARE); an article with its noun is never doubled (ὁ κυβερνήτης).
+          const sub = substantiveOf(seg[i], seg[i + 1] ?? null, verbNum, v.start, posPrior);
+          if (sub && !(auxPartRefuse && sub.case === "Nom" && verbAuxBare)) nominals.push({ head: seg[i].raw, headLower: seg[i].w, at: [seg[i].start, seg[i].end], case: sub.case, cell: sub.cell, caseSrc: sub.src });
+          continue;
+        }
         if (!cls || !CLAUSE_NOMINAL.has(cls)) continue;
-        const c = caseOf(seg[i].w, casePrior, { minShare, minCount });
-        nominals.push({ head: seg[i].raw, headLower: seg[i].w, at: [seg[i].start, seg[i].end], case: c?.case ?? null, cell: c?.cell ?? null });
+        const prevForms = seg.slice(Math.max(0, i - 3), i).map((t) => t.raw);
+        const c = caseOf(seg[i].w, casePrior, { minShare, minCount, articleMode, prevForms, articleWindow });
+        nominals.push({ head: seg[i].raw, headLower: seg[i].w, at: [seg[i].start, seg[i].end], case: c?.case ?? null, cell: c?.cell ?? null, caseSrc: c?.src ?? null });
       }
       const nom = nominals.filter((n) => n.case === "Nom");
       const acc = nominals.filter((n) => n.case === "Acc");
       const gen = nominals.filter((n) => n.case === "Gen");
-      const subject = nom.length ? nom[0] : null;
-      let object = acc.length ? acc[0] : (gen.length ? gen[0] : null);
+      const subject = nom.length ? (nom.find((n) => n.caseSrc !== "substantive" || !verbImp) ?? null) : null;
+      // A BARE ARTICLE cannot predicate a copula ("τὰ ἐστιν τὰ" says
+      // nothing), but an ending-marked accusative can BE a neuter predicate
+      // ("ἀτιμία ἐστὶ κακόν" — dishonor IS evil: κακόν is Nom neuter wearing
+      // an Acc-looking -ον). copAccRefuse "substantive" splits exactly there;
+      // "refuse" also drops neuter predicates (measured loss, ant-residual
+      // round 2); masculine/feminine Acc after a copula ("ἀλλήλους" across
+      // πρός) is cross-phrase glue a phrase-boundary tier must own — gender
+      // decides it and the reader has no gender. Cognate-accusative poetry
+      // disclosed as before.
+      let object;
+      if (verbCop && copAccRefuse) {
+        const accKept = copAccRefuse === "substantive"
+          ? acc.filter((n) => n.caseSrc !== "substantive")
+          : [];
+        object = accKept.length ? accKept[0] : (gen.length ? gen[0] : null);
+      } else {
+        object = acc.length ? acc[0] : (gen.length ? gen[0] : null);
+      }
       if (!object) {
         const after = nominals.filter((n) => n.at[0] > v.end);
-        const predNom = after.find((n) => n.case === "Nom");
+        // A bare-article predicate complement says nothing ("ὁ ἐστιν ὁ") —
+        // refused, while ending-based complements ("φόβος") still fill it.
+        // A self-predication says nothing either ("νόμος ἐστὶν νόμος" —
+        // the ledger's anti-self-referent law: end1 == end2 is a fold).
+        const predNom = after.find((n) => n.case === "Nom" && n.caseSrc !== "substantive" &&
+          !(selfFoldRefuse && subject && strip(n.headLower) === strip(subject.headLower)));
         if (predNom) object = predNom;
       }
-      out.push({
+      sub.push({
         verb: v.raw,
         subject, object,
         subjectRef: subject ? beingRefOf(subject.headLower, beingsByStem) : null,
         objectRef: object ? beingRefOf(object.headLower, beingsByStem) : null,
         subjectCell: subject?.cell ?? null, objectCell: object?.cell ?? null,
       });
+    }
+    return sub;
+  };
+  for (const seg of segments) {
+    let subs = splitSubordinate(seg, { match: openerMatch });
+    if (carry) subs = carryRelatives(subs, verbs);
+    for (const sub of subs) {
+      const subVerbs = [];
+      for (let i = 0; i < sub.length; i += 1) if (verbs.has(sub[i].w)) subVerbs.push(i);
+      if (!subVerbs.length) continue;
+      out.push(...clausesOf(sub, subVerbs));
     }
   }
   return out;
