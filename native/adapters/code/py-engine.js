@@ -23,6 +23,7 @@ import { importSpans } from "./scan.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PY_FACTS = path.join(HERE, "..", "..", "scripts", "py-facts.py");
+const PY_DIAGNOSE = path.join(HERE, "..", "..", "scripts", "py-diagnose.py");
 const TIMEOUT_MS = 15000;
 const MAX_BUFFER = 4 * 1024 * 1024;
 
@@ -74,6 +75,36 @@ export function pyCheckSyntax(text, fileName = "check.py") {
   const f = doc.files[0];
   if (!f) return null;
   return f.ok ? { ok: true } : { ok: false, error: f.error };
+}
+
+/**
+ * pyDiagnose({ solutionPath, testPath, entry, timeoutMs }) ->
+ * { lines: ["ARGS=… GOT=… WANT=…", …] } | null.
+ * Executed expected-vs-actual for a failed patch (py-diagnose.py: ast on
+ * the test, sealed eval of the entry call against the CURRENT solution
+ * bytes). Plaintext lines starting with ARGS=; anything else is noise
+ * and dropped. Null when python3 is absent/slow/surprising — the caller
+ * keeps the existing note untouched. Same bounds as everything here
+ * (argv only, timeout, 4 MB cap). Trust: the solution already runs under
+ * the caller's own test command; this adds no new execution of mouth
+ * code beyond calling the entry with the test's own literal args.
+ */
+export function pyDiagnose({ solutionPath, testPath, entry, timeoutMs = TIMEOUT_MS } = {}) {
+  if (!solutionPath || !testPath || !entry) throw new Error("pyDiagnose needs solutionPath, testPath, entry");
+  let out;
+  try {
+    out = execFileSync("python3", [PY_DIAGNOSE, String(solutionPath), String(testPath), String(entry)], {
+      encoding: "utf8",
+      timeout: Math.max(1000, Math.min(TIMEOUT_MS, Number(timeoutMs) || TIMEOUT_MS)),
+      maxBuffer: MAX_BUFFER,
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+  } catch {
+    return null;
+  }
+  const lines = String(out ?? "").split("\n").map((l) => l.trim()).filter((l) => l.startsWith("ARGS="));
+  if (!lines.length) return null;
+  return { lines: lines.slice(0, 3) };
 }
 
 // ---------------------------------------------------------------------------

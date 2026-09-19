@@ -74,7 +74,15 @@ function blankQuoted(s, out, i, triple, interp) {
       blank(j, k); j = k; continue;
     }
     if (closer(j)) {
-      blank(litStart, j); blank(j, j + closeLen); return j + closeLen;
+      blank(litStart, j); blank(j, j + closeLen);
+      // A blanked string is still one argument: stamp the closing quote's
+      // first byte so arity counters see non-empty (`f("hi")` is 1, not 0 —
+      // found by falsification: bare-assert harness tests pass one string
+      // and stubbed 0-arg). `0` is never an identifier-start (IDENT_RE
+      // cannot match it) and in valid code the byte after a string close
+      // is never an identifier char, so no consumer can merge or count it.
+      out[j] = "0";
+      return j + closeLen;
     }
     if (interp && ch === "{") {
       if (s[j + 1] === "{") { j += 2; continue; }

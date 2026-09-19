@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { pyFactsOf, pyCheckSyntax, jsCheckSyntax, hasTsc, tsCheckSyntax, suggestImportFix } from "../adapters/code/py-engine.js";
+import { pyFactsOf, pyCheckSyntax, jsCheckSyntax, hasTsc, tsCheckSyntax, suggestImportFix, pyDiagnose } from "../adapters/code/py-engine.js";
 import { syntaxGateFor, precheckSyntax } from "../the-fold/code-loop.js";
 import { readOps, applyOps } from "../the-fold/patch.js";
 
@@ -184,4 +184,43 @@ test("precheckSyntax: the loop's `syntax` round word covers the new path", () =>
   } else {
     assert.deepEqual(tsCheckSyntax("const x: number = 1;\n", "a.ts"), { ok: true });
   }
+});
+
+test("pyDiagnose: executed got-vs-want with verified relations (the 100% push)", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pydiag-"));
+  const sol = path.join(dir, "solution.py");
+  const tst = path.join(dir, "test_body.py");
+  fs.writeFileSync(sol, "def filter_evens(arg0):\n    for num in arg0:\n        if num % 2 == 0:\n            yield num\n");
+  fs.writeFileSync(tst, "assert filter_evens([1,2,3,4]) == [2,4]\n");
+  const d = pyDiagnose({ solutionPath: sol, testPath: tst, entry: "filter_evens" });
+  assert.ok(d && d.lines.length === 1);
+  assert.match(d.lines[0], /ARGS=\(\[1, 2, 3, 4\],\)/);
+  assert.match(d.lines[0], /\[types generator->list\(len 2\)\]/);
+  assert.match(d.lines[0], /\[list\(your_return\)==want\]/);
+  assert.match(d.lines[0], /WANT=\[2, 4\]/);
+  // No direct asserts (already-green task shape) → null, never a throw.
+  fs.writeFileSync(tst, "x = 1\nassert x == 1\n");
+  assert.equal(pyDiagnose({ solutionPath: sol, testPath: tst, entry: "filter_evens" }), null);
+  // Malformed call throws; everything else is null.
+  assert.throws(() => pyDiagnose({ solutionPath: sol }));
+});
+
+test("pyDiagnose: Basic/15 near-miss names the trailing-dot repair (wall correction, 2026-09-19)", () => {
+  // The mouth enters a composition attractor (join of first letters) but
+  // omits the trailing '.'. The diagnosis must name the ONE-EDIT repair
+  // ("want is your return plus '.' at the end"), not "recompose" — this
+  // pins the corrected understanding: the answer is in the distribution,
+  // the miss is an affix, and the note has to say so.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "pydiag15-"));
+  const sol = path.join(dir, "solution.py");
+  const tst = path.join(dir, "test_body.py");
+  fs.writeFileSync(sol, 'def get_initials(arg0):\n    words = arg0.split()\n    initials = ".".join(word[0].upper() for word in words)\n    return initials\n');
+  fs.writeFileSync(tst, 'assert get_initials("Ada Lovelace") == "A.L."\n');
+  const d = pyDiagnose({ solutionPath: sol, testPath: tst, entry: "get_initials" });
+  assert.ok(d && d.lines.length === 1);
+  assert.match(d.lines[0], /GOT='A\.L'/);
+  assert.match(d.lines[0], /\[common prefix 3 long; lengths 3->4\]/);
+  assert.match(d.lines[0], /\[want is your return \(uppercased\) plus '\.' at the end\]/);
+  assert.match(d.lines[0], /\[input->want: want-parts are the FIRST LETTERS of the input words: \['Ada', 'Lovelace'\] -> \['A', 'L'\]\]/);
+  assert.match(d.lines[0], /WANT='A\.L\.'/);
 });

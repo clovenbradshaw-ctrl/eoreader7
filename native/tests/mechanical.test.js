@@ -110,6 +110,12 @@ test("callArityOf: skips the name's own def line and import lines", () => {
   assert.deepEqual(callArityOf(text, "s.py", "serve"), { count: 1, arities: [1] });
 });
 
+test("falsified then fixed: a single string argument is arity 1, not 0 (bare-assert harness tests stubbed 0-arg)", () => {
+  assert.deepEqual(callArityOf('assert capitalize_words("hello world") == "Hello World"', "test_body.py", "capitalize_words"), { count: 1, arities: [1] });
+  assert.deepEqual(callArityOf("assert g() == 1", "t.py", "g"), { count: 1, arities: [0] });
+  assert.deepEqual(callArityOf('assert g("a", "b") == 1', "t.py", "g"), { count: 1, arities: [2] });
+});
+
 test("falsified then fixed: f-string expressions are code, literals are not", () => {
   const mi = (t) => missingImports(t, "s.py", { keywords: PY, builtins: PY_BUILTINS }).map((r) => r.name);
   assert.deepEqual(mi('def f():\n    return f"{missing_var} ok"\n'), ["missing_var"]);

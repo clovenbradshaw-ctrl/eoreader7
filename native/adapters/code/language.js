@@ -75,9 +75,18 @@ export function generationBriefFor(language) {
   const title = lang ? lang[0].toUpperCase() + lang.slice(1) : lang;
   lines.push(`This file is ${title}. Anchor every FIND on a real declaration line shaped like: ${shapes ? shapes.join("  /  ") : "(no received shapes — copy lines exactly as shown in the file)"}.`);
   if (prior?.keywords?.length) {
-    lines.push(`Never propose a declared name from this received closed class (${prior.keywords.length} hard keywords, CodeKeywordPrior@1 ${prior.language} — they cannot name anything in ${title}): ${prior.keywords.join(", ")}.`);
+    // Gary's law (P55): facts the mouth can reason from, never prohibitions
+    // ("never propose X" teaches a small model to say X) and never apparatus
+    // vocabulary (schema names stay in code and round records, not prompts).
+    // P55-compliant AND conservative: a positive instruction (allowed —
+    // Gary bans prohibitions, not instructions), no apparatus terms, and
+    // the fence the old "Never propose…" provided: invent no names.
+    // A/B 2026-09-19: old wording + example = 75%, this wording + example
+    // = 70% — one task apart (Basic/20), same failed core otherwise;
+    // within sampling until replicated. The door holds either way.
+    lines.push(`Declared names come from outside this received closed class (${prior.keywords.length} hard keywords — they cannot name anything): ${prior.keywords.join(", ")}. Invent no names of your own: every name your patch declares is already declared in the file above.`);
   } else {
-    lines.push(`No keyword prior is loaded for ${title} — every captured name is admitted (disclosed, not a silent skip).`);
+    lines.push(`No keyword list is loaded for ${title} — every captured name is admitted (disclosed, not a silent skip).`);
   }
   lines.push(`(Shapes illustrative; only exact file bytes apply, and the real test command decides.)`);
   return lines.join("\n");

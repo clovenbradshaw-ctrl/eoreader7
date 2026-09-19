@@ -50,7 +50,9 @@ export const AGENT_MAX_TURNS = 25;
 const RUN_TIMEOUT_MS = 3000;
 const MAX_OUTPUT_CHARS = 8000;
 
-const ACTION_FORMAT = `Respond with exactly one action, in exactly one of these formats and nothing else.
+// Exported for Gary's door test (mouth-facing constants are pinned against
+// apparatus vocabulary and prohibitions — see native/tests/gary-doors.test.js).
+export const ACTION_FORMAT = `Respond with exactly one action, in exactly one of these formats and nothing else.
 
 To list the virtual files that exist so far:
 ACTION: list
@@ -171,7 +173,7 @@ export function languageBlockFor(files) {
   const langs = [...new Set([...files.keys()].map(detectCodeLanguage).filter(Boolean))];
   const briefs = langs.map(generationBriefFor).filter(Boolean).join("\n\n");
   return briefs
-    ? `\n\nLanguage scaffolding (received CodeKeywordPrior@1; shapes illustrative — exact bytes still rule):\n\n${briefs}`
+    ? `\n\nLanguage scaffolding (received keyword lists; shapes illustrative — exact bytes still rule):\n\n${briefs}`
     : "";
 }
 

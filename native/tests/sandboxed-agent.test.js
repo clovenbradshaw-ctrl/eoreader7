@@ -96,7 +96,7 @@ test("languageBlockFor: briefs for known languages, empty string otherwise", () 
   const block = languageBlockFor(new Map([["app.py", "x"], ["k.js", "y"]]));
   assert.match(block, /def name\(params\):/);
   assert.match(block, /function name\(params\) \{/);
-  assert.match(block, /CodeKeywordPrior@1/);
+  assert.match(block, /received keyword lists/);
   assert.equal(languageBlockFor(new Map()), "");
   assert.equal(languageBlockFor(new Map([["Makefile", "x"]])), "");
 });

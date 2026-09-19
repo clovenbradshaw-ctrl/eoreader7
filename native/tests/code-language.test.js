@@ -121,7 +121,7 @@ test("detectCodeLanguage: extension map only, strangers are null", () => {
 test("generationBriefFor: received keywords, illustrative shapes, provenance — null where nothing is received", () => {
   const brief = generationBriefFor("python");
   assert.match(brief, /def name\(params\):/);
-  assert.match(brief, /CodeKeywordPrior@1/);
+  assert.match(brief, /received closed class/); // provenance without apparatus vocabulary (Gary's door: schema names stay out of prompts)
   assert.match(brief, /class, /); // the closed class is listed, not gestured at
   assert.match(brief, /illustrative/);
   assert.ok(generationBriefFor("javascript").includes("function name(params) {"));
