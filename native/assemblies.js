@@ -121,11 +121,18 @@ export const LENS = assembly({
   layer: "lattice",
   cells: [],
   terrains: ["Lens"],
-  organs: ["native/kernel/perspective.js"],
+  organs: [
+    "native/kernel/perspective.js",
+    // ToM is the fold at any for-whom: self/user/entity as frames, folded at
+    // three altitudes (atmosphere/lens/paradigm), higher-order by depth,
+    // adjudicated by the parliament. Its three legs ARE the lens gate's
+    // three legs — material=atmosphere, relevance=lens, coherence=paradigm.
+    "native/kernel/theory-of-mind.js",
+  ],
   regimes: {},
   consumes: [],
   produces: [],
-  stagesNotRun: ["measurement on real material — organ exists, unmeasured (§2 state)"],
+  stagesNotRun: ["measurement on real material — organ exists, unmeasured (§2 state); the FOR-THEM fold and the parliament have walls in native/tests/theory-of-mind.test.js, no live caller"],
   dynamics: [],
 });
 
