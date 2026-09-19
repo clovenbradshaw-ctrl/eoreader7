@@ -370,6 +370,47 @@ Confirmation: `evaluate.py` on the 2026-09-19T22-12-13-816Z samples
 reports `Score: 20/20 = 100.0%` (all 20 replayed completions re-passed
 the real asserts).
 
+## THE ONE-CHARACTER PROBE (2026-09-19): the wall was presentation, not capability
+
+The edit-ant needed ground truth about WHY the small mouth failed, so we
+probed it directly. Cleanest possible isolation — no FIND/ADD grammar, no
+file listing, no round loop — just "here's a function returning 'A.L',
+the test wants 'A.L.', fix it":
+
+- **24/25 passed the real test.** The 1.5b mouth CAN execute a
+  one-character edit. The loop's failure was never capability.
+- Prompt A/B found the discriminator: the raw diagnosis wording ("want is
+  your return plus '.' at the end") is too abstract; the mouth ignores it
+  and echoes. The working shape names the exact got/want as a concrete
+  instruction: *"returns 'A.L' but the tests expect 'A.L.' (a trailing
+  period). Fix ONLY the return statement."* 8/8. The values are the
+  diagnosis's OWN verified bytes — rendered sharply, never invented.
+- Routing mattered too: `runProxyTurn` (mode chat) answered in prose
+  ("the function is already correct"); the raw `/api/chat` endpoint with
+  `stream:false` returns only the completion — the measured shape.
+
+The edit-ant (`dispatchEditAnt` in harness-run.mjs) now: reads the
+append-only log for the task's best recorded near-miss (a body whose
+diagnosis is a pure suffix/prefix miss, e.g. the join+upper composition —
+NOT a letter-filter loop), computes the diagnosis LIVE via pyDiagnose,
+renders it sharply (suffix-miss shape OR positional-diff shape for
+lists), and takes ONE direct code-only turn against the local ollama.
+Measured on the full battery with mouth+ants: **Basic/05 and Basic/15
+converted by the edit-ant** (the 1.5b mouth had never green'd them
+round-1). Basic/20's near-miss is STRUCTURAL (FizzBuzz combos) — the
+edit-ant's one-edit scope doesn't fit it; that task needs a bigger mouth
+or the fold replay (which holds a recorded green).
+
+Full system, three honest scores:
+- small mouth alone: 19/20
+- mouth + loop-ant + edit-ant: 19/20 (Basic/20 structural wall)
+- fold projection: 20/20, re-verified against the real test
+
+The decomposition claim, now measured: a task that needs a ONE-character
+edit is a tiny task the 1.5b mouth executes reliably (24/25). A task
+that needs a STRUCTURAL rewrite is still out of its reach — the fold
+covers those with replay, and bigger mouths already own every cell.
+
 ## Contention note (run 4: 55% is load, not regression)
 
 Run 4 scored 11/20 with SIX empty-crash failures (untouched stubs)

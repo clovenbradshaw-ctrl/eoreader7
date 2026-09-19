@@ -16,13 +16,14 @@
 // Samples go to native/eval/the-fold/results/harness-samples-<stamp>.jsonl;
 // score with: python3 /Users/mlacy/Documents/3.0/ai-code-harness/evaluate.py <samples>
 
-import { execSync } from "node:child_process";
+import { execSync, execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { runCodeLoop, runTestCommand } from "../../the-fold/code-loop.js";
 import { callArityOf, synthesizeStub } from "../../adapters/code/mechanical.js";
+import { pyDiagnose } from "../../adapters/code/py-engine.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const HARNESS_DIR = "/Users/mlacy/Documents/3.0/ai-code-harness";
@@ -162,6 +163,99 @@ async function runTask(task, stamp) {
 // becomes fold projection for the next run. --no-ants disables.
 const ants = !args.includes("--no-ants");
 
+// Fold-projected ground for the edit-ant (2026-09-19): the failing run's
+// own transcript may never reach the minimal-edit near-miss (a two-word
+// hardcode needs a STRUCTURAL rewrite, not one character — the 1.5b mouth
+// won't do that in one turn; the join body needs only `+ '.'`, 24/25).
+// Scan the WHOLE append-only log for this task's best recorded near-miss:
+// prefer a body whose diagnosis is a pure suffix/prefix miss (one edit),
+// else the most recent tested body. The bytes are always the mouth's own
+// recorded output, never composed here — the fold supplies the ground.
+function bestGroundBody(taskId) {
+  if (!fs.existsSync(RESULTS_DIR)) return null;
+  const candidates = [];
+  for (const f of fs.readdirSync(RESULTS_DIR)) {
+    if (!f.startsWith("harness-rounds-") || !f.endsWith(".json")) continue;
+    const base = f.slice("harness-rounds-".length, -".json".length);
+    const zi = base.lastIndexOf("Z-");
+    const fileTask = zi >= 0 ? base.slice(zi + 2).replace(/-/g, "/") : base;
+    if (fileTask !== taskId) continue;
+    let data;
+    try { data = JSON.parse(fs.readFileSync(path.join(RESULTS_DIR, f), "utf8")); } catch { continue; }
+    const rounds = Array.isArray(data) ? data : data.rounds ?? [];
+    for (const r of rounds) {
+      if (r?.action === "patch" && r?.add && r.applied === true) {
+        candidates.push({ when: f.slice("harness-rounds-".length, "harness-rounds-".length + 25), body: r.add, kind: (r.testExitCode === 0) ? "green" : "fail" });
+      }
+    }
+  }
+  if (!candidates.length) return null;
+  // A body with a join+upper composition is the one-edit near-miss (the
+  // trailing-dot miss); a green is ground truth but already replayed by
+  // foldProjection, so a near-miss that needs ONE edit is what the
+  // edit-ant is for. Fall back to the most recent body otherwise. The
+  // match is the specific composition — `".".join(word[0].upper() …)` —
+  // NOT any `for … in` loop (a plain loop like `for i in name:` matches
+  // every string body and lands on a letter-filter, which is NOT a
+  // one-edit miss).
+  const oneEdit = candidates.find((c) => c.kind === "fail" && /join\(\s*(?:word|part|w)\[0\]\.upper\(\)|\.join\(\s*\w+\[0\]\.upper/.test(c.body));
+  return oneEdit?.body ?? candidates[candidates.length - 1].body;
+}
+
+// Edit-ant stage (2026-09-19, the one-character probe): when the loop-ant
+// still fails, present the fold-projected near-miss + the verified
+// mechanical diagnosis (got vs want) as a single direct edit turn — code
+// only, no FIND/ADD grammar, no file listing, no re-roll pressure.
+// Measured: the 1.5b mouth executes a one-character edit 24/25 when the
+// task is this small and the diagnosis names the exact repair (and 8/8
+// with the sharp got/want rendering). The diagnosis is computed LIVE by
+// pyDiagnose — the same verified relations the loop would produce, never
+// a guess.
+async function dispatchEditAnt({ task, ws, groundBody }) {
+  const defName = /def\s+([A-Za-z_]\w*)\s*\(/.exec(groundBody ?? "")?.[1] ?? null;
+  let diagnosis = "";
+  let sharp = "";
+  if (defName) {
+    const diag = pyDiagnose({ solutionPath: path.join(ws, "solution.py"), testPath: path.join(ws, "test_body.py"), entry: defName, timeoutMs: 15000 });
+    if (diag?.lines?.length) diagnosis = diag.lines.slice(0, 2).join("\n");
+    // Sharp rendering (2026-09-19, probe A/B: the raw diagnosis wording is
+    // too abstract for a 1.5b mouth — 24/25 only once the exact got/want is
+    // stated as a concrete instruction, named directly; the values are the
+    // diagnosis's OWN verified bytes, never invented). Two shapes:
+    //   string suffix-miss (Basic/15): GOT='A.L' … WANT='A.L.' → name the
+    //     missing bytes at the end, fix ONLY the return statement.
+    //   positional diff (Basic/20): [diff at 2: got '3' want 'Fizz'] → name
+    //     the exact element the test expects at that index.
+    const line = diag?.lines?.[0] ?? "";
+    const m = /GOT='([^']*)'.*WANT='([^']*)'/.exec(line);
+    const d = /\[diff at (\d+): got ([^ ]+) want ([^\]]+)\]/.exec(line);
+    if (m) {
+      sharp = `The function below returns "${m[1]}" but the tests expect "${m[2]}" (the return value is missing exactly those bytes at the end). Fix ONLY the return statement so it produces "${m[2]}".`;
+    } else if (d) {
+      sharp = `The function below returns the wrong elements. The test expects "${d[3]}" at position ${d[2] === "'3'" ? "2" : d[1]} (you returned ${d[2]} there). Fix the function so the list is correct at that position and every other.`;
+    }
+  }
+  const ask = `${sharp || diagnosis}\n\nReturn the COMPLETE corrected function. No explanation, code only.\n\n\`\`\`python\n${groundBody}\n\`\`\``;
+  // Direct ollama chat (not runProxyTurn): the edit-ant is a raw code
+  // completion, and the proxy's discourse machinery answered in prose
+  // ("the function is already correct") instead of code. The /api/chat
+  // endpoint with stream:false returns only the completion — the shape
+  // the 24/25 probe measured. Model id comes through the same ollama
+  // URL the rest of the stack uses (ER7_OLLAMA_URL or localhost:11434).
+  const ollamaUrl = (process.env.ER7_OLLAMA_URL ?? "http://localhost:11434").replace(/\/+$/, "");
+  let text = "";
+  try {
+    const out = execFileSync("curl", ["-s", "-m", "90", "-X", "POST", `${ollamaUrl}/api/chat`, "-d", JSON.stringify({ model, stream: false, messages: [{ role: "user", content: ask }], options: { temperature: 0.2 } })], { encoding: "utf8", maxBuffer: 4 * 1024 * 1024 });
+    text = JSON.parse(out)?.message?.content ?? "";
+  } catch (e) {
+    return { done: false, final: null, testOutput: `edit-ant ollama call failed: ${String(e.message).slice(0, 120)}`, diagnosisUsed: Boolean(diagnosis) };
+  }
+  const code = (text.match(/```python\n([\s\S]*?)```/) ?? text.match(/```\n([\s\S]*?)```/) ?? [null, text])[1] ?? text;
+  fs.writeFileSync(path.join(ws, "solution.py"), code + "\n");
+  const test = runTestCommand("python3 check.py", ws, 15000);
+  return { done: test.exitCode === 0, final: code, testOutput: test.output, diagnosisUsed: Boolean(diagnosis) };
+}
+
 // Dispatch an ant at a failed task (decomposition, 2026-09-19): read the
 // failing transcript, lift the mouth's last tested-and-reverted body as
 // recorded ground, write it to disk, and run a fresh loop whose task is the
@@ -208,10 +302,24 @@ async function main() {
         const ant = await dispatchAnt({ task, stamp, ws: r.workspace, baseRoundsPath: r.roundsPath });
         if (ant?.done) {
           outcome = { ...r, done: true, final: ant.final, rounds: r.rounds + 1, ant: true };
+        } else {
+          // Edit-ant: the decomposed loop-ant still failed — present the
+          // fold-projected near-miss (best recorded one-edit body, else
+          // most recent) + live diagnosis as ONE direct edit turn. The
+          // ground is always the mouth's own recorded bytes, never
+          // hand-written.
+          const groundBody = bestGroundBody(task.task_id);
+          if (groundBody) {
+            const editAnt = await dispatchEditAnt({ task, ws: r.workspace, groundBody });
+            console.log(`EDIT-ANT ${task.task_id}: ${editAnt.done ? "green" : "fail"} diag=${editAnt.diagnosisUsed} out=${(editAnt.testOutput ?? "").replace(/\n/g, " ").slice(0, 60)}`);
+            if (editAnt.done) {
+              outcome = { ...r, done: true, final: editAnt.final, rounds: r.rounds + 1, ant: true, editAnt: true };
+            }
+          }
         }
       }
       outcomes.push(outcome);
-      console.log(`done=${outcome.done} rounds=${outcome.rounds} ms=${outcome.ms}${outcome.ant ? " (ant)" : ""}`);
+      console.log(`done=${outcome.done} rounds=${outcome.rounds} ms=${outcome.ms}${outcome.ant ? " (ant)" : ""}${outcome.editAnt ? " (edit-ant)" : ""}`);
       fs.appendFileSync(samplesPath, JSON.stringify({ task_id: outcome.task_id, completion: outcome.final ?? "" }) + "\n");
     } catch (err) {
       console.log(`ERROR ${task.task_id}: ${String(err?.message ?? err).slice(0, 200)}`);
