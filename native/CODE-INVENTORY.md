@@ -116,10 +116,17 @@ test or measurement that moved it, cited inline.
 - HAVE parallel arbitrators (`precision-race` first-settled-wins;
   `runSandboxedJs` severed execution; `witnessRegressed` tiebreak
   exists but is NOT called by the loop — exit code alone decides).
-- GAP `runCodeLoop` end-to-end (needs a live mouth; driver-tested
-  only); per-behavior gates in the production path (lesson, not
-  mechanism — the tournament + failing-test-as-subtask is the designed
-  shape, unbuilt).
+- HAVE per-behavior build driver (`organs/composed-fixer.js`,
+  `organs/composed-fixer.test.mjs`): derives one gate per failing assert
+  from the workspace's own test bytes (`deriveBehaviors`), synthesizes a
+  runnable per-behavior gate against the real entry (`gateSpecFor`,
+  python + node lanes), runs `runCodeLoop` per sub-task so each green
+  sub-win is BANKED and only the whole gate decides the whole
+  (`runComposedFix`), and stops stalled sub-loops early (`detectStall`).
+  6 tests pin it, incl. the end-to-end banked path. Eval + production
+  path both usable; declared gates (`gates:`) pass through verbatim.
+- HAVE `runCodeLoop` end-to-end (needs a live mouth; driver-tested
+  only).
 
 ## E. Generation aids (scaffolding, never law)
 
@@ -133,11 +140,21 @@ test or measurement that moved it, cited inline.
 ## F. Open gaps, ranked (the work order from here)
 
 1. Composed fixer driver + failing-test-as-subtask loop (per-behavior
-   gates, banked partial wins) — serving BOTH mouth paths once built.
-   (`/v1/agent` now shares the priors; the driver is the remaining
-   gap, not the knowledge.)
-2. Composed fixer driver + failing-test-as-subtask loop (per-behavior
-   gates, banked partial wins).
+   gates, banked partial wins) — built (`organs/composed-fixer.js`),
+   driver-tested only; needs a live-mouth run (qwen2.5-coder or the
+   gemma2 agent lane) on a real multi-file task to falsify banked wins
+   against the box's actual mouth. The driver is the remaining gap, not
+   the knowledge.
+2. ASK-SHAPE review routing — built (`verdict` shape in `detectAnswerShape`,
+   pinned by `native/conformance/verdict-shape.test.mjs`). Control B
+   (2026-09-19): a verdict-shaped review ask ("does the patch make the test
+   pass? answer YES or NO") was classified composition — the artifact
+   language fed the register's code signal and the ask entered the
+   code-generation pipeline, surfacing the mouth's one-word verdict as if it
+   were a generated artifact. Now a review act + artifact + outcome (or an
+   explicit binary-answer instruction) routes to a brief chat judgment,
+   excluded from long-extend. Plain questions and named-genre compositions
+   are pinned unchanged.
 3. Builtin syntax gate (parse-fail vs test-fail separated).
 4. Go-vs-C second split; `martial.js` off blended-only; stale blended
    rebuild (26 vs 73 files); TS/C/Go gates; ASCII leftovers.

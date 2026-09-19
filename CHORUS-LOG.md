@@ -418,3 +418,13 @@ fast: 36 files · affected tests pass 66/66 (correct path; chorus-fast's tests/c
 | Diaconis/Feynman/Holmes/Pearl/Ostrom/Frankfurt/Alexander/Greenberg/LeviStrauss | canon bytes | canon/*.txt | false-positive-on-review | OCR noise inside the committed texts, not measurement; lenses tripped on corpus prose
 | Marshall | law | (none edited) | clean | no law file edited; the one code citation (P5.2) resolves; S02/S07 cited in canon OCR only
 clean: none — canon bytes trip every lens by their own prose; all false positives
+
+## 2026-09-19 — per-behavior build driver + verdict-shaped ask routing (main, composed-fixer)
+
+fast: working-tree diff (multi-session) · affected tests 30/30 pass (composed-fixer, verdict-shape, code-loop, build-clarify) · law: none edited; CODE-INVENTORY entries updated (living inventory, not law); chorus-fast FAIL = the pre-existing native/tests/conformance baseline failures, identical on `git stash` (lyric-shape, shape-battery, ethos, chitchat, correction-rule, conversation-fold, native-boundary, recursive-reader-e2e, ethos-compendium, root-canonical, bypass 1/2) — zero regressions from this diff
+| Simon/Chekhov | new module | native/organs/composed-fixer.js:1 | noted | NASCENT, not dead: built + driver-tested + imported by its test, but not yet wired into a production seam (harness / /v1/code); disclosed as driver-tested in CODE-INVENTORY F.1, next step is a live-mouth run
+| Diaconis | measurement | native/conformance/verdict-shape.test.mjs:14 | clean | the effect is real and measured: detectAnswerShape re-routed Control B's exact verdict ask composition→verdict (200 tokens, chat); plain questions and named-genre compositions pinned unchanged; no tuned constant
+| Frankfurt | gate truth | native/organs/composed-fixer.js:113 | clean | synthesized gates import the REAL entry from the REAL module and execute under real python3/node (green asserted in tests) — never a placeholder verdict
+| Dijkstra | base unit | proxy-runner.mjs:1688 | clean | verdict routing is per-ask shape logic at the same seam as greeting/command/void/natural; extendable + chatVoidCheck exclusions updated at their own sites; no toLowerCase standing in for identity
+| Kondo | dead code | proxy-runner.mjs:2573 | clean | VERDICT_MAX_TOKENS + VERDICT_RES both consumed; "verdict" added to both exclusion lists; code-loop `turn` seam defaults to the unchanged runProxyTurn mouth (proxy.mjs/harness-run.mjs callers untouched)
+clean: Holmes/Pearl/Ostrom/Alexander/Greenberg/LeviStrauss/Marshall — no identity merge, no corroboration claim, no credit/absence, composition organ self-contained, no language-grammar smuggling (shape regexes are the repo's existing English seam), no law edited

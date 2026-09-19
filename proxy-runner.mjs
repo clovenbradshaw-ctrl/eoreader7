@@ -1672,6 +1672,25 @@ export function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfaced
     return { shape: "trivial", maxTokens: 64, modality: "direct" };
   if (surfVoid && !surfacedSegments.length)
     return { shape: "void", maxTokens: 256, modality: "disclosed-fact" };
+  // VERDICT ASKS (falsified 2026-09-19, Control B): a review/verdict-shaped
+  // ask — "does this patch pass the test", "review this code", "is this
+  // correct" — previously fell through to the register/composition logic,
+  // where the artifact language ("patch", "test", "python") drove it into the
+  // CODE pipeline: the mouth's one-word verdict ("YES") came back surfaced as
+  // a generated artifact. A verdict is a JUDGMENT, not a production — small
+  // token budget, chat mode, no essay/code organs. The trigger needs BOTH the
+  // review act and a real artifact+outcome (or an explicit binary-answer
+  // instruction): a plain "how does X work?" never matches, and neither does
+  // "write a review about X" (a composition, named genre — that stays below).
+  const VERDICT_RES = [
+    /\b(?:answer|reply|say)\s+(?:with\s+|me\s+)?(?:exactly\s+)?(?:one\s+word|yes|no|yes\s+or\s+no|yes\/no)\b/i,
+    /\b(?:review|check|verify|evaluate|assess)\b[\s\S]{0,140}\b(?:test|patch|code|function|implementation|solution|spec)[\s\S]{0,60}\b(?:pass(?:es|ed)?|correct|satisf|meet|fail(?:s|ed)?|works?|verdict)\b/i,
+    /\b(?:does|did|will)\s+(?:the\s+)?(?:patch|test|code|function|implementation|solution)[\s\S]{0,60}\b(?:pass|work|correct|satisf|meet|fail)\b/i,
+    /\b(?:is|are)\s+(?:this|the|my|our|your)\s+(?:patch|test|code|function|implementation|solution)[\s\S]{0,60}\b(?:correct|working|passing|valid|right|broken|wrong)\b/i,
+  ];
+  if (VERDICT_RES.some((re) => re.test(t))) {
+    return { shape: "verdict", maxTokens: VERDICT_MAX_TOKENS, modality: "brief" };
+  }
   // THE REGISTER (Halliday) — no hardcoded "essay mode". ANY named genre the
   // person asks us to produce enters the staged-artifact pipeline: a story,
   // a poem, a nocturne, a film, an essay — the register resolves the FIELD
@@ -2552,6 +2571,9 @@ export function hotModelSet() {
 
 const CALL_MAX_TOKENS = 1024;
 const CALL_RETRIES = 2;
+// A verdict answer is a JUDGMENT (YES/NO + a reason), never a production —
+// small budget, no long-extend (see the extendable exclusion below).
+const VERDICT_MAX_TOKENS = 200;
 // The LONG flavor of long-form: a single answer that goes further than chat
 // provides (an extended response, no artifact, no ledger). One bounded draw
 // at a generous budget — the void is "answer thoroughly", filled in one
@@ -3340,7 +3362,7 @@ function normalizeMode(m) {
 function chatVoidCheck(text, { shape, material = "" } = {}) {
   const t = String(text ?? "").trim();
   if (!t) return { ok: false, filled: 0, of: 1, failures: [{ kind: "unfilled", detail: "the void named an answer; nothing was written" }], strain: 1 };
-  if (["greeting", "command", "trivial", "natural"].includes(shape))
+  if (["greeting", "command", "trivial", "natural", "verdict"].includes(shape))
     return { ok: true, filled: 1, of: 1, failures: [], strain: 0, basis: `${shape} — a small void, filled in one answer` };
   const failures = [];
   let strain = 0;
@@ -6229,7 +6251,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         if (r?.stopped) truncated = true;
         chunks = 1;
         longRounds.push({ round: 1, chars: r.buf.length, tokenTruncated: r?.tokenTruncated ?? false });
-        const extendable = !["greeting", "command", "trivial", "void", "natural"].includes(answerShape.shape);
+        const extendable = !["greeting", "command", "trivial", "void", "natural", "verdict"].includes(answerShape.shape);
         if (extendable && r?.tokenTruncated && !truncated) {
           if (onNote) onNote({ move: "long_auto_engaged", shape: answerShape.shape, afterChars: fullText.length });
           chunks = await continueUncued(chunks);
