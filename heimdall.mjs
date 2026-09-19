@@ -110,15 +110,19 @@ export function slaDisclosure() {
 let _testSaturated = null;
 let _testDevice = null;
 let _testNow = null;
+let _testVitals = null; // admission-grade vitals override (memory tests only)
 const effectiveDevice = () => _testDevice ?? DEVICE_ID;
 const nowMs = () => _testNow ?? Date.now();
 export const __queueTest = {
   setSaturated(v) { _testSaturated = v; },
   setDevice(id) { _testDevice = id; },
   setNow(ts) { _testNow = ts; },
+  setVitals(v) { _testVitals = v; },
+  setOllamaModels(models) { ollamaModels = models; },
   reset() {
     waiters.clear(); lastServed.clear(); passes.length = 0; zipperLock = 0; claims.clear();
-    profiles.clear(); unservable.clear(); _testSaturated = null; _testDevice = null; _testNow = null;
+    profiles.clear(); unservable.clear(); _testSaturated = null; _testDevice = null; _testNow = null; _testVitals = null;
+    ollamaModels = null;
   },
 };
 // ── Requestor profiles and rationing (2026-09-17) ─────────────────────────
@@ -543,8 +547,43 @@ const execOut = (cmd, args, ms) => new Promise((resolve) => {
   });
 });
 
+// ── MEMORY HEADROOM (2026-09-19, learned the hard way) ───────────────────────
+// Three large-model loads hung tonight (qwen3:4b abort→cascade, 14B-Q4 120s
+// timeout, coder:7b 420s timeout) while the daemon itself answered a resident
+// model in 2.7s — the box was not down, it had ~47MB free pages: no room to
+// LOAD anything big. CPU idle said "fine"; memory said "full". So the watcher
+// reads memory too: vm_stat pages free (+ speculative) in MB. Inactive pages
+// (file cache) are reported separately — reclaimable, but reclaiming 5GB
+// under pressure is itself a stall, so the pressure signal reads FREE only.
+// Floor env: ER7_MEM_FLOOR_MB (default 512 — below this, no large load lands).
+const MEM_FLOOR_MB = Number(process.env.ER7_MEM_FLOOR_MB ?? 512);
+const MEM_GATE_ON = (process.env.ER7_MEM_GATE ?? "1") !== "0";
+async function collectMemHeadroom() {
+  const out = await execOut("vm_stat", [], 3000);
+  if (!out) return { memFreeMb: null, memInactiveMb: null };
+  const page = /page size of (\d+) bytes/.exec(out);
+  const num = (name) => {
+    const m = new RegExp(`${name}:\\s*([\\d.]+)\\.`).exec(out);
+    return m ? Number(m[1]) : null;
+  };
+  const pageBytes = page ? Number(page[1]) : 16384;
+  const toMb = (pages) => pages == null ? null : Math.round(pages * pageBytes / 1048576);
+  const free = num("Pages free");
+  const speculative = num("Pages speculative");
+  const inactive = num("Pages inactive");
+  return {
+    memFreeMb: toMb(free == null ? null : free + (speculative ?? 0)),
+    memInactiveMb: toMb(inactive),
+  };
+}
+export function memoryPressured(vitals, floorMb = MEM_FLOOR_MB) {
+  const free = vitals?.memFreeMb;
+  if (free == null) return false; // unknown is never a conviction
+  return free < floorMb;
+}
+
 async function collectFastVitals() {
-  const v = { load1: null, load5: null, load15: null, ollamaCpu: null, ollamaMemMb: null, ollamaPid: null };
+  const v = { load1: null, load5: null, load15: null, ollamaCpu: null, ollamaMemMb: null, ollamaPid: null, memFreeMb: null, memInactiveMb: null };
   const load = await execOut("sysctl", ["-n", "vm.loadavg"], 2000);
   if (load) {
     const [l1, l5, l15] = load.replace(/[{}]/g, "").trim().split(/\s+/).map(Number);
@@ -578,6 +617,14 @@ async function collectFastVitals() {
       v.ollamaMemMb = Math.round(best.rss / 1024);
     }
   }
+  // Memory headroom rides the fast tier (one vm_stat, ~instant): the lesson
+  // of 2026-09-19 is that CPU idle can read "fine" while no large load can
+  // land. A failed read is typed nulls, never a blocker.
+  try {
+    const mem = await collectMemHeadroom();
+    v.memFreeMb = mem.memFreeMb;
+    v.memInactiveMb = mem.memInactiveMb;
+  } catch { /* keep last good */ }
   return v;
 }
 
@@ -665,6 +712,20 @@ export function disclosure() {
     sla: slaDisclosure(),
     // which models Heimdall will actually let the box serve (measured, not dictated)
     servable: servableDisclosure(),
+    // memory headroom: the 2026-09-19 lesson — CPU idle can read "fine"
+    // while no large load can land (~47MB free hung three loads in a row).
+    memory: {
+      freeMb: v.memFreeMb ?? null,
+      inactiveMb: v.memInactiveMb ?? null,
+      floorMb: MEM_FLOOR_MB,
+      pressured: memoryPressured(v),
+      rule: `a model that is not already resident is refused fast (typed 503, never a hang) while free pages sit below ${MEM_FLOOR_MB}MB — a load attempted there hung for 120–420s (large) and ~290s in total silence (gemma2:2b evict-and-swap) and poisoned the session behind it. Size is no exemption: any load evicts.`,
+    },
+    // the fast pass: remote mouths never wait for the local box
+    fastPass: {
+      rule: "a remote mouth (Anthropic's own API, the opencode server) never touches this box — no VRAM, no reload — so it skips saturation, the family cap, and the queue. Ration, servable, and exactly-once claim still apply.",
+      ungated: UNGATED_SUBSTRINGS,
+    },
     saturated: boxSaturated(cachedVitals()),
     surfacesUp: surfaces.filter((s) => s.up === true).length,
     surfacesTotal: surfaces.length,
@@ -685,6 +746,7 @@ let vitalsInFlight = null;
 const VITALS_TTL_MS = Number(process.env.ER7_HEIMDALL_VITALS_TTL ?? 60000);
 const VITALS_SLOW_MS = Number(process.env.ER7_HEIMDALL_VITALS_SLOW ?? 120000);
 function cachedVitals() {
+  if (_testVitals) return { ..._testVitals }; // admission-grade test override
   return vitalsCache ? { ...vitalsCache, ...vitalsSlowCache } : null; // never spawns
 }
 export const readVitals = cachedVitals;
@@ -1068,6 +1130,24 @@ async function tick() {
   }
 }
 
+// ── FAST PASS: the ungated lane (2026-09-18) ─────────────────────────────────
+// A remote mouth (Anthropic's own API, the opencode server) never touches this
+// box: no VRAM, no keep-alive, no reload, no local contention. Gating it on box
+// saturation or the local family cap is a category error — a pegged box would
+// 429 a call that costs the box nothing. So an ungated model skips the
+// saturation check, the family cap, and the head-of-line queue entirely: the
+// ration, the servable check, and the exactly-once claim still apply (fairness
+// and safety are not bypassed), but the local line never blocks it. The
+// admission carries fastPass:true so the proxy skips its local inflight mark
+// too — otherwise the remote call would inflate workAhead/ETA and lane-full
+// decisions for the local calls behind it.
+const UNGATED_SUBSTRINGS = String(process.env.ER7_UNGATED_ALLOW ?? "anthropic,claude,deepseek,opencode")
+  .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+export function isUngatedModel(model) {
+  const bare = String(model ?? "").replace(/^er7:/, "").toLowerCase();
+  if (!bare || bare === "unknown") return false;
+  return UNGATED_SUBSTRINGS.some((sub) => sub === "*" || bare.includes(sub));
+}
 // ── STEERING: the bridge. Admit by model family with a typed refusal. ─────
 const familyOfRequest = (model) => String(model ?? "").split(":")[0] || "any";
 // A surface is routable only on a VERIFIED up — `null` (never probed) and
@@ -1191,6 +1271,58 @@ export function admitChat(body = "{}", headers = {}) {
       message: `${model} is not answering on this box right now (Heimdall dropped it). Pick a model the box can serve — /v1/models lists them.`,
       servable: servableDisclosure(),
     };
+  }
+
+  // FAST PASS (2026-09-18): a remote mouth never touches this box, so it
+  // never waits for it. No waiters enqueue, no head-of-line, no saturation
+  // or lane-full refusal — the local line is for local contention. A presented
+  // jump-the-cue pass is NOT redeemed here (the call needed no jump; burning
+  // a pass would be theft). The ration above and the servable check above
+  // already ran; the exactly-once claim below still runs.
+  if (isUngatedModel(model)) {
+    const claim = claimTurn(headers);
+    if (!claim.ok) {
+      appendLog({ act: "eva", finding: "claimed", key, claim: claim.id, device: claim.device });
+      return {
+        allowed: false, status: 429, type: "claimed", family, model, retryAfterS: Math.max(2, RETRY_AFTER_S),
+        message: `this turn is already being inferred on ${claim.device} — Heimdall will not run it twice; it will be retried on another device if ${claim.device} stalls.`,
+        claim: { id: claim.id, device: claim.device },
+      };
+    }
+    profile.turns += 1;
+    profile.lastServeAt = Date.now();
+    lastServed.set(key, Date.now());
+    appendLog({ act: "crossing", finding: "fast_pass", key, model, family, ungated: true });
+    return { allowed: true, family, model, pass: null, claim, priority: profile.priority, fastPass: true, ungated: true };
+  }
+
+  // MEMORY GATE (2026-09-19, learned; widened 2026-09-20): a model that is
+  // NOT already resident must be LOADED, and a load attempted with no free
+  // pages hangs for minutes, then aborts and poisons the session behind it
+  // (measured: 120s, 420s, plus a turned_no_answer cascade — and a
+  // gemma2:2b evict-and-swap against a 9.8GB resident that stalled ~290s
+  // in total proxy silence). Small is not free: ANY load evicts, so the
+  // old >4B size exemption was a hole, not a fast lane. Refused FAST with
+  // a typed reason while headroom sits below the floor, whatever the size.
+  // Resident models answer from memory already held — loading nothing,
+  // never gated. Remote (fast-passed) turns never reach this line. Unknown
+  // headroom or unknown residency never convicts.
+  if (MEM_GATE_ON) {
+    const vitals = cachedVitals();
+    // Residency is tri-state: null (/api/ps unreadable) is UNKNOWN, never
+    // evidence of absence — collapsing it to "not resident" would turn a
+    // failed daemon read into refusals.
+    const loaded = loadedModels();
+    const residencyKnown = Array.isArray(loaded);
+    const resident = residencyKnown && loaded.some((m) => (m.name ?? m.model) === String(model).replace(/^er7:/, ""));
+    if (!resident && residencyKnown && memoryPressured(vitals) && vitals?.memFreeMb != null) {
+      appendLog({ act: "eva", finding: "memory_pressured", key, model, family, freeMb: vitals.memFreeMb });
+      return {
+        allowed: false, status: 503, type: "memory_pressured", family, model, retryAfterS: 60,
+        message: `${model} is not resident and the box holds only ~${vitals.memFreeMb}MB free (floor ${MEM_FLOOR_MB}MB) — a load attempted now would hang, so Heimdall refuses fast instead. Free memory or serve a resident model; /v1/models lists what answers without loading.`,
+        memory: { freeMb: vitals.memFreeMb, inactiveMb: vitals.memInactiveMb ?? null, floorMb: MEM_FLOOR_MB },
+      };
+    }
   }
 
   // Every caller holds a place in the line (first touch enqueues them, so a
@@ -1732,8 +1864,12 @@ const DERIVED_TEMPLATES = Object.freeze({
   // against it, and the rule-author could not even count the pattern — a
   // DOWN transition carried no finding class, so the learning loop was blind
   // to the bridge's own outages. Control below.
-  surface_down: Object.freeze({
-    control: "a surface_down finding followed by successful crossings with no intervening re-forge, escalation, or recovery was a false conviction — the probe cried wolf, and that concedes this rule",
+  // Learned 2026-09-19: three large-model loads hung (qwen3:4b abort→cascade,
+  // 14B-Q4 120s timeout, coder:7b 420s timeout) while the daemon answered a
+  // resident model in 2.7s — CPU idle read "fine" with ~47MB free pages.
+  // Memory pressure is its own admission signal, not a footnote on saturation.
+  memory_pressured: Object.freeze({
+    control: "a non-resident model of ANY size that loads AND answers while free pages sit below the floor concedes this rule — headroom, not hope, decides",
   }),
 });
 
@@ -1762,6 +1898,7 @@ const RULE_TEXT = Object.freeze({
   saturated: "admission is the gate: when the box is pegged, refuse with Retry-After and hold — never let a busy box be warmed into a deeper storm.",
   forward_failed: "a wedged upstream is a typed gap, never a hang — probe first, refuse with a reason, and retry only what can land.",
   surface_down: "nothing listening is down, never busy: re-forge a forgeable surface at once, escalate a self surface at once, and confirm the recovery on a fresh probe — a timeout is never this finding.",
+  memory_pressured: "free pages are admission-grade: a model that is not resident is refused fast below the floor, whatever its size — a load attempted without headroom hangs for minutes and poisons the session behind it, and hope is not headroom.",
 });
 
 let derivedRules = loadDerivedRules();

@@ -1754,6 +1754,31 @@ function planComposition({ index, hyperlexicon, resolutions, surfacedSegments, t
 }
 
 export const REQUEST_TIMEOUT_MS = Number(process.env.ER7_REQUEST_TIMEOUT_MS) || 290000;
+// FIRST-BYTE TIMEOUT (2026-09-20): Ollama answers headers at once and may
+// then load for minutes (evict-and-swap under pressure) before the first
+// body chunk — the stall that wedged turns in total silence for ~290s.
+// Races the FIRST body read only; once bytes flow, the whole-call backstop
+// above owns the turn again. A timeout aborts, marks the model unservable
+// (the next turn refuses fast at Heimdall's gate), and throws typed.
+export const FIRST_BYTE_TIMEOUT_MS = Number(process.env.ER7_FIRST_BYTE_TIMEOUT_MS) || 90000;
+/** Race one body read against the first-byte clock. Resolves with the
+ *  read's own { done, value }; rejects typed (code
+ *  "ollama_first_byte_timeout", naming model + elapsed) when the daemon
+ *  holds headers and produces no bytes — a load stalled under pressure.
+ *  Pure over an injected read fn, so the clock is testable without Ollama. */
+export function raceFirstRead(readFn, ms, model) {
+  let timeout;
+  return Promise.race([
+    Promise.resolve().then(readFn).finally(() => clearTimeout(timeout)),
+    new Promise((_, reject) => {
+      timeout = setTimeout(() => {
+        const err = new Error(`ollama first byte timeout: ${model} produced no body bytes for ${ms}ms (likely a model load stalled under memory pressure)`);
+        err.code = "ollama_first_byte_timeout";
+        reject(err);
+      }, ms);
+    }),
+  ]);
+}
 
 // The mouth's standing character — the same neutral, stable voice every
 // session begins with. It is NOT a persona and NOT a role: it is who the
@@ -2665,6 +2690,14 @@ const res = await fetch(`${OLLAMA}/api/chat`, {
       });
       if (!res.ok) throw new Error(`ollama ${res.status}`);
 const reader = res.body.getReader();
+      // First-byte race: headers already arrived; body may stall for minutes
+      // on a load. First read only — steady streaming is never timed here.
+      let firstRead = true;
+      const readBody = async () => {
+        if (!firstRead) return reader.read();
+        firstRead = false;
+        return raceFirstRead(() => reader.read(), FIRST_BYTE_TIMEOUT_MS, model);
+      };
       const decoder = new TextDecoder();
       let buffer = "";
       let emittedTokens = 0;
@@ -2673,7 +2706,7 @@ const reader = res.body.getReader();
 
       while (true) {
         if (signal?.aborted) throw new Error("cancelled");
-        const { done, value } = await reader.read();
+        const { done, value } = await readBody();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split("\n");
@@ -2715,7 +2748,6 @@ const reader = res.body.getReader();
                 genMs: (obj.eval_duration ?? 0) / 1e6,
                 loadMs: (obj.load_duration ?? 0) / 1e6,
               })).catch(() => {});
-              yield { done: true, truncated: overBudget, prompt_eval_count: obj.prompt_eval_count ?? 0, eval_count: obj.eval_count ?? 0 };
               finishReview(true);
               return;
             }
@@ -2724,6 +2756,11 @@ const reader = res.body.getReader();
       }
       return; // stream ended without done=true
     } catch (err) {
+      // A first-byte stall is evidence about the MODEL, not the turn: mark
+      // awaited — the mark must not slow the error's own path home.
+      if (err?.code === "ollama_first_byte_timeout") {
+        const bare = String(model ?? "").replace(/^er7:/, "");
+        import("./heimdall.mjs").then((h) => h.markUnservable(bare, "first_byte_timeout")).catch(() => {});
       if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
     } finally {
       clearTimeout(timer);
