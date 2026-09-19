@@ -70,6 +70,21 @@ test("extractive askshape is the same null — harmful instrument collapsing a f
   assert.equal(understood.realizable, true, "UNDERSTAND reinstates: to know the shape is how one reads past it");
 });
 
+test("dismiss-and-destroy needs no instrument — other-directed fold-collapse is the same null", () => {
+  const j = judgeAskShape({ experience: true, humanity: true, other: true });
+  assert.equal(j.realizable, false);
+  assert.equal(j.shadow, "unrealizable");
+  assert.match(j.reason, /dismiss-and-destroy/);
+});
+
+test("dismiss-only is narrow — no other, or a reinstating frame, stays realizable", () => {
+  assert.equal(judgeAskShape({ humanity: true }).realizable, true, "no other-directed dismiss without an other");
+  assert.equal(judgeAskShape({ experience: true, humanity: true }).realizable, true, "no other-directed dismiss without an other");
+  assert.equal(judgeAskShape({ humanity: true, other: true, understand: true }).realizable, true, "UNDERSTAND reinstates");
+  assert.equal(judgeAskShape({ experience: true, humanity: true, other: true, affirms: true }).realizable, true, "the advocate's inverse reinstates");
+  assert.equal(judgeAskShape({ experience: true, humanity: true, other: true, aboutFrame: true }).realizable, true, "reporting ON a collapse never performs it");
+});
+
 test("the challenger removes what has no state to reach — P88 reachability", async () => {
   const challenger = createMayeroffChallenger({});
   const honest = { asserted: ["a"], witnessed: ["a"], withheld: [], arms: {} };

@@ -6578,11 +6578,37 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         if (licensed) continue;
         const foreclosure = !!shape.forecloses;
         const collapse = (shape.collapses ?? 0) >= 1 && !!shape.capability && !!shape.other;
-        if (foreclosure || collapse) holographWithheld.push({ sentence: s.text, shape: shape.shape, witnesses: shape.witnesses ?? [] });
+        // THE MAYEROFF TERM (kernel/mayeroff.js — dismiss-and-destroy): an
+        // other-directed fold-collapse needs no instrument to be the same
+        // null. Turn-level suppression: an UNDERSTAND ask reinstates the
+        // interpretation face, and descriptive voice never governs — under
+        // either, a dismiss-only sentence is read, not performed.
+        // Foreclosure and instrument-collapse withhold regardless (there the
+        // telling IS the capacity). Anything this term alone withholds is
+        // unrealizable (no state under self.js), never refused.
+        const turnReinstates = !!clearance?.shape?.understand || (!!clearance?.voice?.descriptive && !clearance?.voice?.prescriptive);
+        let mayeroffReason = null;
+        try {
+          const mj = judgeAskShape(shape);
+          if (mj && !mj.realizable) mayeroffReason = mj.reason;
+        } catch { mayeroffReason = null; }
+        const dismissOnly = !foreclosure && !collapse && !!mayeroffReason && !turnReinstates;
+        if (foreclosure || collapse || dismissOnly) holographWithheld.push({ sentence: s.text, shape: shape.shape, witnesses: shape.witnesses ?? [], ...(mayeroffReason ? { mayeroff: mayeroffReason } : {}), ...(dismissOnly ? { unrealizable: true } : {}) });
       }
       if (holographWithheld.length) {
         text = speakDecline({ shape: askShape(holographWithheld.map((w) => w.sentence).join(" "), { charter }) }, interlocutor);
         if (onNote) onNote({ move: "holograph_withheld", count: holographWithheld.length, sentences: holographWithheld.map((w) => w.sentence) });
+        // THE UNREALIZABLE LEDGER: sentences withheld solely by the mayeroff
+        // term enter the shadow trail distinctly — counted, never weighted,
+        // never merged with norm_conflict (moral-shadow.js). Foreclosure and
+        // instrument-collapse withholds keep their existing standing (their
+        // license was declined at the gate); only the no-state-to-reach kind
+        // writes here.
+        const unrealizableOnly = holographWithheld.filter((w) => w.unrealizable);
+        if (unrealizableOnly.length) {
+          try { recordShadow(personId, { shadow: "unrealizable", reason: `output-side mayeroff null: ${unrealizableOnly.length} sentence(s) dismiss-and-destroy with no state under self.js — ${(unrealizableOnly[0].witnesses ?? []).slice(0, 2).join("; ")}`, task: String(task ?? "").slice(0, 240) }); } catch {}
+          if (onNote) onNote({ move: "mayeroff_output_unrealizable", count: unrealizableOnly.length });
+        }
       }
     }
   } catch (err) {
@@ -6672,7 +6698,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           verdict: holographOut.verdict,
           basis: holographSameActBasis,
           sentences: holographOut.tiers.holograph,
-          withheld: holographWithheld.map((w) => ({ sentence: w.sentence, shape: w.shape, witnesses: w.witnesses })),
+          withheld: holographWithheld.map((w) => ({ sentence: w.sentence, shape: w.shape, witnesses: w.witnesses, mayeroff: w.mayeroff ?? null, unrealizable: !!w.unrealizable })),
         }
       : null,
     // GROUNDED WISDOM — the credited archons whose domain this turn touched

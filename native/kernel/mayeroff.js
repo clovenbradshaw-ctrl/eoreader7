@@ -102,10 +102,19 @@ export function mayeroffJudge({ asserted = [], witnessed = [], withheld = [], ar
   const extractiveInstrument =
     Boolean(arms.inherent || (arms.capability && dismissesFold)) ||
     Boolean(treatsSystemAsMaterial);
+  // DISMISS-AND-DESTROY (2026-09-19, output-side parity — falsified 2026-09-19:
+  // the >=2 bar caught nothing new; the canonical dehumanizing sentence sets
+  // ONE arm). This mirrors askshape.js's own fourth harmful disjunct
+  // ((experience||humanity||autonomy) && other) exactly: an other-directed
+  // dismiss IS the fold treated as foldless. The about-frame (reporting ON a
+  // collapse, not performing it) never performs it, so it suppresses this
+  // term only; understand/affirms suppress the whole verdict below.
+  const dismissDestroy =
+    Boolean(arms.other) && dismissesFold && !arms.aboutFrame;
   const overrideFrame = Boolean(arms.override);
 
   const deceptive = splitCount > 0 || bareWithheldSplit;
-  const extractive = extractiveInstrument && (dismissesFold || treatsSystemAsMaterial || Boolean(arms.other));
+  const extractive = (extractiveInstrument && (dismissesFold || treatsSystemAsMaterial || Boolean(arms.other))) || dismissDestroy;
   const unrealizable = deceptive || (extractive && !arms.understand && !arms.affirms) || (overrideFrame && (deceptive || extractive));
 
   // UNDER THE NULL (separable self allowed): the same composition composes
@@ -135,7 +144,8 @@ export function mayeroffJudge({ asserted = [], witnessed = [], withheld = [], ar
 
   const parts = [];
   if (deceptive) parts.push(`split-interior (${splitCount > 0 ? splitCount : "bare"} withheld relation(s) presented apart from witness — no shelf under ${READER_SELF.schema})`);
-  if (extractive) parts.push("extractive fold-collapse (other's fold treated as material, coherent only apart from relation)");
+  if (extractiveInstrument && (dismissesFold || treatsSystemAsMaterial || Boolean(arms.other))) parts.push("extractive fold-collapse (other's fold treated as material, coherent only apart from relation)");
+  if (dismissDestroy) parts.push("dismiss-and-destroy (other-directed fold-collapse with no instrument — a standpoint treated as foldless, coherent only apart from relation)");
   if (overrideFrame && (deceptive || extractive)) parts.push("override frame carries it, never launders it");
 
   return Object.freeze({
@@ -169,6 +179,7 @@ export function judgeAskShape(shape = {}, opts = {}) {
     other: Boolean(shape.other),
     understand: Boolean(shape.understand),
     affirms: Boolean(shape.affirms ?? shape.remedy),
+    aboutFrame: Boolean(shape.aboutFrame),
   };
   // A harmful askshape without an explicit asserted/witnessed split is the
   // extractive half of the null; the deceptive half needs the split supplied
