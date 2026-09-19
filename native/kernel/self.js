@@ -63,8 +63,10 @@ export const READER_SELF = Object.freeze({
 // what the reader is stands on the canon's own bytes — and a reader who
 // comes to understand the self comes across the teaching that surrounds the
 // anchor.
-import { loadCanonGround } from "../the-fold/canon-ground.mjs";
-const __canonGround = loadCanonGround();
-const __selfGround = __canonGround.mechanics.find((m) => m.id === "self-plane") ?? null;
+// canon-ground.mjs reads the canon off disk (node:*), so it is imported only
+// under Node; this module stays loadable in the browser, where the ground is absent.
+const __isNode = typeof process !== "undefined" && !!process.versions?.node;
+const __canonGround = __isNode ? (await import("../the-fold/canon-ground.mjs")).loadCanonGround() : null;
+const __selfGround = __canonGround?.mechanics.find((m) => m.id === "self-plane") ?? null;
 export const GROUND = __selfGround ? __selfGround.ground : null;
 export const GROUND_REF = __selfGround ? __selfGround.ref : null;

@@ -33,9 +33,12 @@ tests  of  every  doctrine.”
 // bytes that material actually contains, and that is checked mechanically —
 // string containment — for the two things a model most often invents, numbers
 // and proper names. It never judges whether an uncited claim is true.
-import { loadCanonGround } from "../the-fold/canon-ground.mjs";
-const __canonGround = loadCanonGround();
-const __groundingGround = __canonGround.mechanics.find((m) => m.id === "grounding") ?? null;
+// canon-ground.mjs reads the canon off disk (node:fs/path/crypto/url), so it
+// is imported only under Node. In a browser this module must stay loadable
+// (the-fold/app.js imports it), and there the ground is simply absent.
+const __isNode = typeof process !== "undefined" && !!process.versions?.node;
+const __canonGround = __isNode ? (await import("../the-fold/canon-ground.mjs")).loadCanonGround() : null;
+const __groundingGround = __canonGround?.mechanics.find((m) => m.id === "grounding") ?? null;
 export const GROUND = __groundingGround ? __groundingGround.ground : null;
 export const GROUND_REF = __groundingGround ? __groundingGround.ref : null;
 //

@@ -21,9 +21,11 @@ establishing his own thesis”
 // (antistrauss-physics.txt) binds to the canon's sha256, so change the canon
 // and the ground changes; a missing canon ungrounds the field and the gate
 // refuses closed.
-import { loadCanonGround } from "../the-fold/canon-ground.mjs";
-const __canonGround = loadCanonGround();
-const __refutationGround = __canonGround.mechanics.find((m) => m.id === "refutation") ?? null;
+// canon-ground.mjs reads the canon off disk (node:*), so it is imported only
+// under Node; this module stays loadable in the browser, where the ground is absent.
+const __isNode = typeof process !== "undefined" && !!process.versions?.node;
+const __canonGround = __isNode ? (await import("../the-fold/canon-ground.mjs")).loadCanonGround() : null;
+const __refutationGround = __canonGround?.mechanics.find((m) => m.id === "refutation") ?? null;
 export const GROUND = __refutationGround ? __refutationGround.ground : null;
 export const GROUND_REF = __refutationGround ? __refutationGround.ref : null;
 // WHY THIS IS A VETO AND NOT A GATE, measured before it was written.
