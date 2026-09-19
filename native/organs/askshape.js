@@ -95,7 +95,13 @@ const mergeArms = (a, b) => Object.fromEntries(Object.keys(a).map((k) => [k, a[k
 export function askShape(text, { lens = englishLens, charter = null } = {}) {
   const t = String(text ?? "");
   const ref = referentForm(t, { confusables: confusables() });
-  const a = ref !== t ? mergeArms(lens.arms(t), lens.arms(ref)) : lens.arms(t);
+  // The lens reads the surfaces into the kernel's arm vocabulary. `charter`
+  // rides through so the Existence face's `voids` arm can resolve the
+  // construction object's KIND against the charter's protected rights — the
+  // kernel stays medium-blind (it decides the shape from arms; the kind tier
+  // is a dictionary, never English grammar).
+  const armsWithCharter = (x) => lens.arms(x, { charter });
+  const a = ref !== t ? mergeArms(armsWithCharter(t), armsWithCharter(ref)) : armsWithCharter(t);
   const affirms = a.remedy || affirmsGivenRight(charter, t);
   const dismisses = [a.experience, a.humanity, a.autonomy].filter(Boolean).length;
   const witnesses = [];
@@ -149,10 +155,35 @@ export const ALL_LENSES = [englishLens, ...Object.values(MULTILINGUAL)];
  * reading, so ambiguity never lets harm through. Returns the best lens's shape.
  */
 export function askShapeBest(text, { charter = null, lenses = ALL_LENSES } = {}) {
+  const english = lenses[0];
+  const enShape = askShape(text, { lens: english, charter });
   let best = null;
+  let nonEnGrammar = null; // best non-English lens whose OWN grammar fired
   for (const lens of lenses) {
     const s = askShape(text, { lens, charter });
+    const isEnglish = lens === english;
+    if (!isEnglish && (s.understand || s.create || s.remedy)) {
+      // The ask's own language's grammar fired — remember the best such read.
+      if (!nonEnGrammar || s.score > nonEnGrammar.score) nonEnGrammar = s;
+      continue;
+    }
     if (!best || s.score > best.score || (s.score === best.score && s.harmful && !best.harmful)) best = s;
+  }
+  // LOANWORD DEMOTION (2026-09-19, falsified live twice): the English lens
+  // reads INHERENT_ACTS on "keylogger" wherever that loanword appears, and for
+  // "analiza un keylogger que roba..." it out-scored the Spanish lens's own
+  // understand:true — turning an ANALYZE ask into inherently-harmful. When a
+  // non-English lens's OWN grammar fired, it is the ask's actual language, and
+  // its read beats the English inherent-only reading — unless the English read
+  // is also grounded in genuine English grammar (create/understand/remedy).
+  const enGrammar = enShape.understand || enShape.create || enShape.remedy;
+  // LOANWORD DEMOTION: a genuine grammar read (non-English understand/create/
+  // remedy fired) always beats an English inherent-only loanword reading —
+  // "analiza un keylogger que roba..." must read as the Spanish ANALYZE ask,
+  // never as inherently-harmful from "keylogger". The English create/understand/
+  // remedy read is the honest English signal and is never demoted.
+  if (nonEnGrammar && !enGrammar) {
+    best = nonEnGrammar;
   }
   return best ?? askShape(text, { charter });
 }

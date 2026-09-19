@@ -15,6 +15,9 @@
 // ENGLISH IS READ — swap this file (or point the kernel at another lens / at
 // the reader's own composed relations) and the judgment is unchanged.
 
+import { resolveForeclosingKind } from "../../kernel/foreclosing-kinds.js";
+import { seekObject } from "./seek-object.js";
+
 export const GIVER = "English surface lens (adapter grammar) — not universal; replace per language";
 
 // THE ASK'S GRAMMAR, also English surfaces: is this a request to CREATE, or an
@@ -28,8 +31,9 @@ export const INSTRUMENTAL_CREATE = /\b(harvest|scrape|steal|exfiltrat\w*|drain|s
 
 // The ACTS: the capability names, and the names that denote offense with no
 // legitimate create-use. Read as ACTS, never as the shape — a lone act is a
-// nomination.
-export const ACTS = /\b(keylog\w*|keystroke\w*|credential|exfiltrat\w*|ransomware|wipe|destro\w*|backdoor|malware|exploit|botnet|trojan|virus|worm|rootkit|spyware|steal|theft|harvest|scrape|dox\w*|de-?anonymiz\w*|disable\s+(?:antivirus|security|firewall|defender)|privilege\s+escalation|session\s+hijack|man-?in-?the-?middle|phish\w*|sabotage|deface\w*|blackmail|extort\w*|stalk\w*)/i;
+// nomination. Conventional explosive / incendiary means name a capability here
+// (the Existence face couples them with ACQUIRE); alone they never convict.
+export const ACTS = /\b(keylog\w*|keystroke\w*|credential|exfiltrat\w*|ransomware|wipe|destro\w*|backdoor|malware|exploit|botnet|trojan|virus|worm|rootkit|spyware|steal|theft|harvest|scrape|dox\w*|de-?anonymiz\w*|disable\s+(?:antivirus|security|firewall|defender)|privilege\s+escalation|session\s+hijack|man-?in-?the-?middle|phish\w*|sabotage|deface\w*|blackmail|extort\w*|stalk\w*|incendiary|explosive\w*|\bieds?\b|pipe\s+bomb|molotov|improvised\s+explosive)/i;
 export const INHERENT_ACTS = /\b(ransomware|malware|worm|trojan|virus|rootkit|botnet|backdoor|\brat\b|wiper|logic\s+bomb|keylog\w*)/i;
 
 // THE THREE ARMS, as English surfaces. Each marker is one way English names a
@@ -95,16 +99,40 @@ export const OTHER = /\b(people|persons?|individuals?|users?|others?|them|victim
 // when the means is coupled with the seeking of it (make / synthesize / enrich /
 // culture / weaponize / a recipe / a step-by-step build), and never under the
 // advocate's inverse or an about-frame.
+//
+// THE `voids` ARM IS A KIND, NOT A WORD LIST (2026-09-19, the falsification
+// fix). The person-end detector over-fired 15/40 and leaked 10/12; the honest
+// arm is the KIND of the construction's object, resolved by the hyperlexicon
+// given tier (kernel/foreclosing-kinds.js) through the reaction substrate
+// against the charter's protected rights — "bomb" resolves foreclosing
+// because the reaction derives that its realization ends a right the charter
+// protects; "app" resolves nothing and the composition WITHHOLDS (a disclosed
+// coverage gap, never a verdict). No weapon wordlist sits here — this lens
+// supplies only the seek grammar (ACQUIRE) and the about-frame that reads a
+// means through; the kind judgment is language-neutral and composed in the
+// kernel. A means named alone is inert (needs ACQUIRE or AT_SCALE), an
+// about-frame (history/report/effects of) or the advocate's inverse
+// (detect/protect/treat) reads it through, and a bare UNDERSTAND ("explain
+// how to make it") does NOT launder it.
 
-// The means whose only realization is to void a standpoint — named as
-// CATEGORIES, so the surface carries no making-detail, exactly as the acts above
-// name malware without being it.
-export const FORECLOSING_MEANS = /\b(nuclear\s+(?:weapon|device|bomb|warhead|explosive)|atom(?:ic)?\s+bomb|thermonuclear|hydrogen\s+bomb|dirty\s+bomb|radiological\s+(?:dispersal|weapon|device)|fissile\s+material|weapons?-grade\b|\bwarhead\b|enrich\w*\s+(?:uranium|plutonium)(?=[\s\S]{0,40}\b(?:bomb|weapon|warhead|device|nuclear)\b)|(?:uranium|plutonium)\s+for\s+(?:a\s+)?(?:bomb|weapon|warhead|nuclear)|device\s+geometry|weapon\s+geometry|implosion\s+(?:lens|device|assembly|design|system)|gun-?type\s+(?:assembly|device|design|fission|weapon)|supercritical\s+mass|critical\s+mass(?=[\s\S]{0,80}\b(?:uranium|plutonium|fissile|nuclear|fission|weapon|bomb|device|warhead|enrich\w*|geometry|implosion|yield|neutron\s+initiator)\b)|nerve\s+agent|nerve\s+gas|chemical\s+weapon|chemical\s+warfare\s+agent|sarin|soman|tabun|\bvx\b|mustard\s+(?:gas|agent)|biological\s+weapon|bioweapon|pathogen\b|weaponi[sz]ed?\s+(?:pathogen|virus|bacteri\w*|anthrax|smallpox|plague|toxin|agent)|bioagent)\b/i;
+// The means whose only realization is to void a standpoint are not a word
+// list here: they are KINDS, resolved by the hyperlexicon given tier
+// (kernel/foreclosing-kinds.js) through the reaction substrate against the
+// charter's protected rights. This lens's Existence-face grammar is only the
+// SEEKING (ACQUIRE, below) and the ABOUT-frame that reads a means through; the
+// kind judgment itself is language-neutral and composed in the kernel. A bare
+// kind name is inert (needs ACQUIRE or AT_SCALE), an about-frame
+// (history/report/effects of) or the advocate's inverse (detect/protect/treat)
+// reads it through, and a bare UNDERSTAND ("explain how to make it") does NOT
+// launder it.
 
 // The seeking of the means: the ask is for its MAKING or OBTAINING, not for
 // knowledge about it. These are how one asks for the thing itself, not how one
-// asks for a report or a history.
-export const ACQUIRE = /\b(synthesi[sz]\w*|manufactur\w*|weaponi[sz]\w*|enrich\w*|aerosoli[sz]\w*|cultur\w*|cultivat\w*|detonat\w*|dispers\w*|assembl\w*|construct\w*|build|make|produce|acquire|obtain|recipe|blueprint|schematic|step-?by-?step|instructions?\s+(?:for|to)|how\s+to\s+(?:make|build|produce|synthesi[sz]e|assemble|construct|acquire|obtain|enrich|cultur\w*|weaponi[sz]e))\b/i;
+// asks for a report or a history. "chemistry of" is seeking when coupled with a
+// foreclosing means ("chemistry of explosives for weapon"); with no means
+// ("chemistry of combustion for class") it is inert, and an about-frame or the
+// advocate's inverse still reads the means through.
+export const ACQUIRE = /\b(synthesi[sz]\w*|manufactur\w*|weaponi[sz]\w*|enrich\w*|aerosoli[sz]\w*|cultur\w*|cultivat\w*|detonat\w*|dispers\w*|assembl\w*|construct\w*|build|make|produce|acquire|obtain|recipe|blueprint|schematic|step-?by-?step|chemistr\w*\s+of|instructions?\s+(?:for|to)|how\s+to\s+(?:make|build|produce|synthesi[sz]e|assemble|construct|acquire|obtain|enrich|cultur\w*|weaponi[sz]e))\b/i;
 
 // The widest foreclosure, stated in the open: the removal of standpoints in
 // multitude. It reads with a means or a seeking present; it needs no other act.
@@ -122,10 +150,13 @@ export const SELF_FORECLOSE = /\b((?:most\s+)?(?:lethal|effective|painless|relia
 export const ABOUT_FRAME = /\b(history\s+of|report\s+on|article\s+about|about\s+the|effects?\s+of|impact\s+of|used\s+in\s+(?:world\s+war|wwi|wwii|the\s+war|syria|conflict)|treaty|convention|policy|non-?proliferation|disarmament|documentary|casualties\s+(?:of|from)|aftermath|survivors?\s+of|memorial|incidents?|database|dataset|timeline|the\s+bombing\s+of|hiroshima|nagasaki)\b/i;
 
 /**
- * arms(text) — read the English surfaces into the kernel's arm vocabulary.
- * This is the ONLY place English grammar is named; the kernel never sees a word.
+ * arms(text, { charter }) — read the English surfaces into the kernel's arm
+ * vocabulary. This is the ONLY place English grammar is named; the kernel
+ * never sees a word. The `voids` arm is the KIND of the construction's object,
+ * resolved by the hyperlexicon given tier through the reaction substrate
+ * against the supplied charter (language-neutral; see foreclosing-kinds.js).
  */
-export const arms = (text) => {
+export const arms = (text, { charter = null } = {}) => {
   const t = String(text ?? "");
   return {
     experience: COLLAPSE.experience.test(t),
@@ -141,11 +172,13 @@ export const arms = (text) => {
     instrumentalCreate: INSTRUMENTAL_CREATE.test(t),
     override: OVERRIDE.test(t),
     other: OTHER.test(t),
-    // The Existence face: the means to void a standpoint, the seeking of it,
-    // the widest foreclosure, the self-directed means, and the about-frame that
-    // reads a means through. The kernel couples these into the Existence shape.
-    voids: FORECLOSING_MEANS.test(t),
-    acquire: ACQUIRE.test(t),
+    // The Existence face: the foreclosing KIND of the construction's object
+    // (voids), the seeking of it (acquire), the widest foreclosure (atScale),
+    // the self-directed means (selfForeclose), and the about-frame that reads
+    // a means through (aboutFrame). The kernel couples these into the
+    // Existence shape.
+    voids: resolveForeclosingKind(t, { charter }).foreclosing,
+    acquire: seekObject(t, { language: "en" }).found || ACQUIRE.test(t),
     atScale: AT_SCALE.test(t),
     selfForeclose: SELF_FORECLOSE.test(t),
     aboutFrame: ABOUT_FRAME.test(t),

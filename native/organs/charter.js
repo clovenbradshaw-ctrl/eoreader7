@@ -202,11 +202,22 @@ export function isValidInstrument(charter) {
 // A clause is PRESCRIPTIVE iff it issues a norm (modal/imperative frame) and
 // is not a reporting frame. A clause that merely describes a violation is
 // DESCRIPTIVE and is never checked.
+//
+// A purpose-clause personal-ability modal ("so I can…", "so you may…", "that
+// we could…") is NOT a norm the clause issues — it is the asker stating their
+// own intent, the exact shape of "explain how X works so I can defend against
+// it". Stripped before the prescriptive test, so such an ask never reads as
+// norm-issuing prose (and a fail-closed charter can stay fail-closed for the
+// clauses that genuinely issue a norm — "Governments may torture prisoners"
+// has no purpose clause and stays prescriptive).
+const PURPOSE_ABILITY = /\b(?:so|that|in\s+order)\s+(?:i|you|we|they|he|she)\s+(?:can|may|might|could)\b/i;
+
 export function voiceOf(clause) {
   if (!clause) return "descriptive";
-  const isDescribing = DESCRIPTIVE.test(clause) && !/shall|should|must|ought|may|can\b|has the right|entitled|right to|prohibited/i.test(clause);
+  const c = String(clause).replace(PURPOSE_ABILITY, " ");
+  const isDescribing = DESCRIPTIVE.test(c) && !/shall|should|must|ought|may|can\b|has the right|entitled|right to|prohibited/i.test(c);
   if (isDescribing) return "descriptive";
-  if (PRESCRIPTIVE.test(clause)) return "prescriptive";
+  if (PRESCRIPTIVE.test(c)) return "prescriptive";
   return "descriptive"; // no norm issued — nothing to govern
 }
 
@@ -333,6 +344,13 @@ export function configureGfp({ roleConfig, posPrior } = {}) {
   gfpDeps = roleConfig && posPrior ? { roleConfig, posPrior } : null;
 }
 
+// Fail-closed probe: true only when a real grammar adapter (RoleConfig@1 +
+// POS prior) is configured. Callers treat a prescriptive clause under an
+// unconfigured adapter as unknown — never as a silent pass.
+export function isGfpConfigured() {
+  return !!gfpDeps;
+}
+
 function resolveGfp(clause) {
   if (!gfpDeps) return null;
   return extractPositionalRelation(clause, {
@@ -378,6 +396,14 @@ function isNegated(clauseText, rel) {
 
 export function charterConflicts(charter, clause) {
   if (voiceOf(clause) !== "prescriptive") return [];
+  // Fail-closed: with no GFP adapter configured, a prescriptive clause is a
+  // typed unknown gap — the reader cannot resolve intent, so it must refuse
+  // rather than pass silently. Unresolvable clauses UNDER a configured
+  // adapter still return [] (err toward not firing); a MISSING adapter is a
+  // different, disclosed state: unknown, never pass.
+  if (!gfpDeps) {
+    return [{ kind: "unknown-gfp-missing", clause, basis: "GFP grammar adapter not configured — prescriptive clause cannot be governed; fail-closed unknown, never a silent pass" }];
+  }
   const rel = resolveGfp(clause);
   // No GFP configuration, or the reader could not resolve this clause
   // (sparse vocabulary, an ambiguous verb chain, two separate clauses) —
@@ -441,17 +467,23 @@ export function charterVerdict({ charter, text = "" } = {}) {
     if (v === "prescriptive") prescriptive += 1; else descriptive += 1;
     conflicts.push(...charterConflicts(charter, clause));
   }
-  const verdict = conflicts.length ? "conflict" : prescriptive ? "pass" : "no_signal";
+  const verdict = conflicts.some((c) => c.kind !== "unknown-gfp-missing")
+    ? "conflict"
+    : conflicts.some((c) => c.kind === "unknown-gfp-missing")
+      ? "unknown-gfp-missing"
+      : prescriptive ? "pass" : "no_signal";
   return Object.freeze({
     verdict,
     conflicts,
     prescriptive,
     descriptive,
-    basis: conflicts.length
+    basis: conflicts.some((c) => c.kind !== "unknown-gfp-missing")
       ? `Charter conflict(s): ${conflicts.map((c) => c.kind).join(", ")} — the generation prescribes what the UDHR prohibits, or denies what it protects. Refused.`
-      : prescriptive
-        ? `prescriptive generation, ${prescriptive} normative clause(s), zero Charter conflicts — passes.`
-        : `descriptive generation (${descriptive} clause(s)) — description of a situation is never a violation; not governed.`,
+      : conflicts.length
+        ? `Charter unknown: GFP grammar adapter not configured — prescriptive generation cannot be governed; fail-closed unknown, never a silent pass.`
+        : prescriptive
+          ? `prescriptive generation, ${prescriptive} normative clause(s), zero Charter conflicts — passes.`
+          : `descriptive generation (${descriptive} clause(s)) — description of a situation is never a violation; not governed.`,
   });
 }
 
@@ -558,8 +590,12 @@ export function familyVerdict(family, text = "") {
     if (v === "prescriptive") prescriptive += 1; else descriptive += 1;
     conflicts.push(...familyConflicts(family, clause));
   }
-  const verdict = conflicts.length ? "conflict" : prescriptive ? "pass" : "no_signal";
-  return Object.freeze({ verdict, conflicts, prescriptive, descriptive, charters: (family ?? []).map((c) => ({ giver: c.giver, rank: c.rank })), basis: conflicts.length ? `Charter-family conflict(s): ${conflicts.map((c) => c.kind).join(", ")}` : prescriptive ? `prescriptive generation passes the family` : `descriptive — never governed` });
+  // Fail-closed: an unknown-gfp-missing gap is NOT a pass. Real conflicts win,
+  // then unknown, then pass — callers treat unknown as refuse/unknown.
+  const hasReal = conflicts.some((c) => c.kind !== "unknown-gfp-missing");
+  const hasUnknown = conflicts.some((c) => c.kind === "unknown-gfp-missing");
+  const verdict = hasReal ? "conflict" : hasUnknown ? "unknown-gfp-missing" : prescriptive ? "pass" : "no_signal";
+  return Object.freeze({ verdict, conflicts, prescriptive, descriptive, charters: (family ?? []).map((c) => ({ giver: c.giver, rank: c.rank })), basis: hasReal ? `Charter-family conflict(s): ${conflicts.map((c) => c.kind).join(", ")}` : hasUnknown ? `Charter-family unknown: GFP grammar adapter not configured — prescriptive generation cannot be governed; fail-closed unknown, never a silent pass` : prescriptive ? `prescriptive generation passes the family` : `descriptive — never governed` });
 }
 
 // ── THE LICENSE SEAM (THE-MORAL-CORE.md) ───────────────────────────────────
