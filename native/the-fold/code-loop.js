@@ -39,8 +39,8 @@ import { execSync } from "node:child_process";
 import { readOps, applyOps } from "./patch.js";
 import { detectCodeLanguage, generationBriefFor, mismatchNoteFor } from "../adapters/code/language.js";
 import { loadCodeKeywordPrior, keywordSetOf } from "../adapters/text/code-structure.js";
-import { declaresKeyword, suggestWiderFind } from "../adapters/code/mechanical.js";
-import { pyCheckSyntax, suggestImportFix } from "../adapters/code/py-engine.js";
+import { declaresKeyword, suggestWiderFind, suggestWholeFile, arityCoverage } from "../adapters/code/mechanical.js";
+import { pyCheckSyntax, jsCheckSyntax, tsCheckSyntax, hasTsc, suggestImportFix } from "../adapters/code/py-engine.js";
 import { emptyForecast, forecastKey, forecast, observe, forecastError } from "./forecast.js";
 import { runProxyTurn } from "../../proxy-runner.mjs";
 
@@ -161,6 +161,43 @@ function runTestCommand(testCommand, workspace, timeoutMs) {
     const output = `${err.stdout ?? ""}${err.stderr ?? ""}` || String(err.message ?? err);
     return { exitCode: typeof err.status === "number" ? err.status : 1, output };
   }
+}
+
+/** syntaxGateFor(fileName) -> { language, check } — which engine gates
+ *  this file's patched bytes, by extension only (detectCodeLanguage),
+ *  never content-guessed. `check` is null when no engine gates the
+ *  language. TypeScript always routes to tsCheckSyntax, which proves tsc
+ *  itself (hasTsc, argv-only `tsc --version`, never npx/network) and
+ *  returns null — recorded as skipped-no-engine — when tsc is absent:
+ *  node --check never sees .ts bytes, it cannot parse type syntax.
+ *  Exported for unit pins; runCodeLoop itself stays driver-tested. */
+export function syntaxGateFor(fileName) {
+  const language = detectCodeLanguage(fileName);
+  if (language === "python") return { language, check: pyCheckSyntax };
+  if (language === "javascript") return { language, check: jsCheckSyntax };
+  if (language === "typescript") return { language, check: tsCheckSyntax };
+  return { language, check: null };
+}
+
+/** precheckSyntax(fileName, code) -> { syntax, gap } — the pre-test gate
+ *  as a pure, unit-pinned step: the file's own engine on the patched
+ *  bytes (never a regex). `syntax` is the exact word the round records
+ *  (checked | skipped-no-engine | unchecked-not-python); a parse failure
+ *  carries no syntax word — it carries a gap instead, and the caller
+ *  writes nothing and runs no test. A null verdict (engine absent on the
+ *  box) proceeds untested, recorded, never a silent skip. */
+export function precheckSyntax(fileName, code) {
+  const gate = syntaxGateFor(fileName);
+  if (!gate.check) return { syntax: "unchecked-not-python", gap: null };
+  const verdict = gate.check(code, fileName);
+  if (verdict === null) return { syntax: "skipped-no-engine", gap: null };
+  if (!verdict.ok) {
+    const at = verdict.error.lineno != null
+      ? `, line ${verdict.error.lineno}${verdict.error.line != null ? `: ${verdict.error.line}` : ""}`
+      : "";
+    return { syntax: null, gap: { kind: "syntax_error", reason: `the patched file does not parse (${verdict.error.msg}${at}) — nothing was written, no test was run` } };
+  }
+  return { syntax: "checked", gap: null };
 }
 
 /** The real content of every file read so far this run, rendered for the
@@ -286,37 +323,75 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
         applied.gap?.kind === "ambiguous" && !mismatch
           ? suggestWiderFind(before, proposal.path, proposal.find)
           : null;
-      const extra = mismatch ?? (wider ? `Mechanical note: every occurrence of your FIND sits inside \`${wider.find}\` (${wider.basis.split(";")[0]}). Anchor on that declaration line — copied byte-for-byte — to make it unique.` : null);
+      // Whole-file anchor: for an `unlocated` find on a SMALL file, the
+      // whole content is an exact unique anchor (a SYN over it always
+      // locates) — the escalation small mouths need on stub-sized files
+      // (measured: 3× unlocated on a 2-line stub). Fires only when the
+      // mismatch and widen notes have nothing to say. Echo disclosure:
+      // the note quotes file bytes that may themselves contain ACTION:/
+      // <<<END>>> shapes — a mouth echoing the note back parses as, at
+      // worst, another unlocated round (exact-match physics never applies
+      // a corrupted FIND), never a misapplied patch.
+      const whole =
+        applied.gap?.kind === "unlocated" && !mismatch
+          ? suggestWholeFile(before)
+          : null;
+      const extra = mismatch ?? (wider ? `Mechanical note: every occurrence of your FIND sits inside \`${wider.find}\` (${wider.basis.split(";")[0]}). Anchor on that declaration line — copied byte-for-byte — to make it unique.` : null) ?? (whole ? `Mechanical note: "${proposal.path}" is ${whole.find.length} chars — small enough to anchor whole. Use the ENTIRE file content below as your FIND (copied byte-for-byte) and the full new content as ADD:\n${whole.find}` : null);
       lastNote = `Your proposed patch on "${proposal.path}" did not apply (${applied.gap.reason}). Nothing was changed on disk. Try again with find text copied exactly from the file.${extra ? `\n\n${extra}` : ""}`;
       continue;
     }
 
     fs.writeFileSync(located.resolved, applied.code);
     const op = ops[0].op;
-    // Syntax pre-check (Python only: the running grammar via ast, never a
-    // regex): patched bytes that don't parse never reach the test command
-    // — "doesn't parse" and "parses but fails" finally separate, and no
-    // test round is burned on the former. Null (no python3 on the box) →
-    // proceed untested, recorded on the round, never a silent skip.
-    let syntax = "unchecked-not-python";
-    if (detectCodeLanguage(proposal.path) === "python") {
-      const verdict = pyCheckSyntax(applied.code, proposal.path);
-      if (verdict === null) {
-        syntax = "skipped-no-engine";
-      } else if (!verdict.ok) {
-        fs.writeFileSync(located.resolved, before); // nothing unparseable is ever left on disk
-        const gap = { kind: "syntax_error", reason: `the patched file does not parse (${verdict.error.msg}, line ${verdict.error.lineno}: ${verdict.error.line}) — nothing was written, no test was run` };
-        rounds.push({ round, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: false, reverted: false, gap });
-        lastNote = `Your proposed patch on "${proposal.path}" ${gap.reason}. Fix the syntax with find text copied exactly from the file.`;
-        continue;
-      } else {
-        syntax = "checked";
+    // Syntax pre-check (the file's own engine on the patched bytes,
+    // never a regex — Python via ast, JavaScript via node --check,
+    // TypeScript via tsc only when tsc proves present, never node
+    // --check on .ts and never npx/network): patched bytes that don't
+    // parse never reach the test command — "doesn't parse" and "parses
+    // but fails" finally separate, and no test round is burned on the
+    // former. Null (no engine on the box) → proceed untested, recorded
+    // on the round, never a silent skip.
+    const gate = precheckSyntax(proposal.path, applied.code);
+    if (gate.gap) {
+      fs.writeFileSync(located.resolved, before); // nothing unparseable is ever left on disk
+      rounds.push({ round, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: false, reverted: false, gap: gate.gap });
+      lastNote = `Your proposed patch on "${proposal.path}" ${gate.gap.reason}. Fix the syntax with find text copied exactly from the file.`;
+      continue;
+    }
+    const syntax = gate.syntax;
+    // Arity-coverage NOTE (Python only, never a refusal — varlen/overloads
+    // make refusal unsafe): the patched file's declared positional capacity
+    // beside the max called arity in workspace test-like files (test_*.py,
+    // *_test.py, test*.py from the listing above) — the 0-arg stub kept
+    // against a 1-arg call, checkable without running tests. Guarded end to
+    // end: any failure skips silently-with-record (coverageSkipped on the
+    // round), never a crash.
+    let arityNote = "";
+    let coverageSkipped = false;
+    try {
+      if (detectCodeLanguage(proposal.path) === "python") {
+        const testTexts = [];
+        for (const rel of files) {
+          if (!rel.endsWith(".py")) continue;
+          const base = rel.split("/").pop();
+          if (!base.startsWith("test") && !base.endsWith("_test.py")) continue;
+          try {
+            testTexts.push(fs.readFileSync(path.join(root, rel), "utf8"));
+          } catch {
+            continue;
+          }
+        }
+        const uncovered = arityCoverage({ codeText: applied.code, fileName: proposal.path, testTexts }).filter((r) => !r.covered);
+        if (uncovered.length) {
+          arityNote = `Mechanical note (arity coverage, no test run): ${uncovered.map((r) => `\`${r.name}\` declares ${r.declared} positional but tests call it with up to ${r.calledMax}`).join("; ")}.`;
+        }
       }
+    } catch {
+      arityNote = "";
+      coverageSkipped = true;
     }
     const test = runTestCommand(testCommand, root, testTimeoutMs);
-    finalTestOutput = test.output;
-
-    // The prediction, made BEFORE the verdict above was known, and its
+    finalTestOutput = test.output;    // The prediction, made BEFORE the verdict above was known, and its
     // error now that it is: recorded on the round, learned into the
     // session prior. |error| ≥ 0.5 with history is surprise (a confident
     // prior revised by witness) and the next note says so.
@@ -331,12 +406,12 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
       : "";
 
     if (won) {
-      rounds.push({ round, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: true, reverted: false, syntax, forecast: fcRecord, testExitCode: 0, testOutput: test.output });
+      rounds.push({ round, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: true, reverted: false, syntax, forecast: fcRecord, ...(coverageSkipped ? { coverageSkipped: true } : null), testExitCode: 0, testOutput: test.output });
       return { done: true, rounds, finalTestOutput: test.output };
     }
 
     fs.writeFileSync(located.resolved, before); // physics: never leave a failing change on disk
-    rounds.push({ round, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: true, reverted: true, syntax, forecast: fcRecord, testExitCode: test.exitCode, testOutput: test.output });
+    rounds.push({ round, action: "patch", path: proposal.path, op, find: proposal.find, add: proposal.add, applied: true, reverted: true, syntax, forecast: fcRecord, ...(coverageSkipped ? { coverageSkipped: true } : null), testExitCode: test.exitCode, testOutput: test.output });
     // NameError remedy (first remedy-table row, end to end): the failure
     // names its own fix when the name is a stdlib module — suggest the
     // exact find/add for the next round, derived not invented. Anything
@@ -348,7 +423,7 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
         remedy = `\n\nMechanical suggestion (received stdlib, exact bytes — verify against the file before proposing): ${fix.basis}.\nFIND:\n${fix.find}\nADD:\n${fix.add}`;
       }
     }
-    lastNote = `Your previous patch on "${proposal.path}" was applied and tested for real. It failed, and has been reverted (the file below no longer has your change). The real test output was:\n\n${test.output}${remedy}${surprise}`;
+    lastNote = `Your previous patch on "${proposal.path}" was applied and tested for real. It failed, and has been reverted (the file below no longer has your change). The real test output was:\n\n${test.output}${remedy}${surprise}${arityNote ? `\n\n${arityNote}` : ""}`;
   }
 
   return { done: false, rounds, finalTestOutput };

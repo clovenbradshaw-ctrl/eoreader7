@@ -30,12 +30,77 @@ const escapeRegExp = (s) => String(s ?? "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&
 const bound = (name) => new RegExp(`(?<![\\p{ID_Continue}$])${escapeRegExp(name)}(?![\\p{ID_Continue}$])`, "gu");
 
 // ── string/comment stripper (offsets preserved: replaced by spaces) ───────
-// Heuristic, disclosed: triple-quoted strings first, backslash escapes
-// honored, template `${}` treated as string through the closing backtick.
-// Strips ALL comment styles (`#`, `//`, `/*…*/`) regardless of language —
-// for arity/identifier counting this only ever blanks code in the rare
-// case (`//` floor-division in Python), losing a site, never inventing
-// one. Offsets are preserved throughout, so spans still line up.
+// Heuristic, disclosed: backslash escapes honored; strips ALL comment
+// styles (`#`, `//`, `/*…*/`) regardless of language (blanking a rare
+// `//` floor-division in Python loses a site, never invents one).
+// Interpolation is KEPT as code: f/t-strings (`f"{x}"`, `f"""…{y}…"""`)
+// and JS templates (`` `${z}` ``) execute their `{…}` spans, so literal
+// parts blank and expression spans stay. Nested quoted runs inside an
+// expression blank one level (`f"{d['key']}"` keeps `d`, drops `key`);
+// nested f-strings inside expressions (f"{f'{w}'}") are the disclosed
+// residual — the inner name is missed. Offsets preserved throughout.
+function blankQuoted(s, out, i, triple, interp) {
+  const blank = (a, b) => { for (let k = Math.max(0, a); k < Math.min(s.length, b); k++) out[k] = " "; };
+  const openLen = triple ? 3 : 1;
+  const closer = (j) => (triple ? s.startsWith(s.slice(i, i + 3), j) : s[j] === s[i]);
+  const closeLen = triple ? 3 : 1;
+  blank(i, i + openLen);
+  let j = i + openLen;
+  let litStart = j;
+  let depth = 0;
+  while (j < s.length) {
+    const ch = s[j];
+    if (ch === "\\") { j += 2; continue; }
+    if (!triple && s[i] === "`" && ch === "\n") {
+      // Unterminated template: a still-open expression is code without a
+      // verdict — keep it (do NOT blank the trailing span); a literal
+      // tail blanks as usual. Found by falsification (`f"oops {exx"`).
+      if (depth === 0) blank(litStart, j);
+      return j;
+    }
+    // At depth > 0 a quote ALWAYS opens a nested string (an outer close
+    // with unclosed braces cannot occur in valid code — and in invalid
+    // code blanking to the nested match harms nothing the closer branch
+    // wouldn't). This orders nested-before-closer: same-quote nesting
+    // (`f"{d["key"]}"`, legal since PEP 701) blanks the inner run
+    // instead of swallowing the expression. Found by falsification.
+    if (depth > 0 && (ch === '"' || ch === "'" || ch === "`")) {
+      let k = j + 1;
+      while (k < s.length) {
+        if (s[k] === "\\") { k += 2; continue; }
+        if (s[k] === ch) { k += 1; break; }
+        k += 1;
+      }
+      blank(j, k); j = k; continue;
+    }
+    if (closer(j)) {
+      blank(litStart, j); blank(j, j + closeLen); return j + closeLen;
+    }
+    if (interp && ch === "{") {
+      if (s[j + 1] === "{") { j += 2; continue; }
+      if (depth === 0) blank(litStart, j);
+      depth += 1; j += 1; continue;
+    }
+    if (interp && ch === "}") {
+      if (depth === 0) { j += (s[j + 1] === "}" ? 2 : 1); continue; }
+      depth -= 1;
+      if (depth === 0) litStart = j + 1;
+      j += 1; continue;
+    }
+    // Conversion flags (`{val!r}`): `!` + s/r/a is formatting, never a
+    // name — blank the two bytes (but never `!=`, the real operator).
+    // Found by falsification (`r` reported as a missing import).
+    if (interp && depth > 0 && ch === "!" && /[sra]/.test(s[j + 1] ?? "") && /[}\]:,)\s]/.test(s[j + 2] ?? "")) {
+      blank(j, j + 2); j += 2; continue;
+    }
+    j += 1;
+  }
+  // EOF with an expression still open: same rule as the template guard —
+  // keep the code, blank only a literal tail.
+  if (depth === 0) blank(litStart, j);
+  return j;
+}
+
 function stripNonCode(text) {
   const s = String(text ?? "");
   const out = new Array(s.length).fill(null);
@@ -58,21 +123,16 @@ function stripNonCode(text) {
       if (j === -1) j = s.length;
       blank(i, j); i = j; continue;
     }
-    const triple = s.startsWith("'''", i) ? "'''" : s.startsWith('"""', i) ? '"""' : null;
-    if (triple) {
-      let j = s.indexOf(triple, i + 3);
-      j = j === -1 ? s.length : j + 3;
-      blank(i, j); i = j; continue;
-    }
-    if (c === '"' || c === "'" || c === "`") {
-      let j = i + 1;
-      while (j < s.length) {
-        if (s[j] === "\\") { j += 2; continue; }
-        if (s[j] === c) { j += 1; break; }
-        if (c === "`" && s[j] === "\n") break; // unterminated template guard
-        j += 1;
-      }
-      blank(i, Math.min(j, s.length)); i = Math.min(j, s.length); continue;
+    const triple = s.startsWith("'''", i) ? true : s.startsWith('"""', i);
+    if (triple || c === '"' || c === "'" || c === "`") {
+      // Interpolation prefix? Letters immediately before the quote that
+      // are all string-prefix letters with an f/F/t/T among them
+      // (`rf"…"`, `t'…'`); backtick templates always interpolate.
+      let pk = i - 1, prefix = "";
+      while (pk >= 0 && /[A-Za-z]/.test(s[pk])) { prefix = s[pk] + prefix; pk -= 1; }
+      const interp = c === "`" || (/[fFtT]/.test(prefix) && /^[bBuUrRfFtT]*$/.test(prefix) && prefix.length > 0);
+      i = blankQuoted(s, out, i, !!triple, interp);
+      continue;
     }
     i += 1;
   }
@@ -83,19 +143,25 @@ function stripNonCode(text) {
 /**
  * arityAt(str, open) -> arity (number) | null.
  * Top-level comma count inside the parens opening at `open` (+1 when
- * non-empty). Null when unbalanced — a skipped site, never a guess.
+ * non-empty), where top-level means depth 1 across ALL bracket kinds —
+ * commas inside `[...]`/`{...}` are elements, not arguments (found by
+ * falsification: `f([1, 2, 3, 4])` counted 4, stubbing 5 params).
+ * Null when unbalanced — a skipped site, never a guess.
  * Shared by callArity (per-body) and callArityOf (per-name).
  */
 function arityAt(str, open) {
   let depth = 0;
   let commas = 0;
   let empty = true;
+  const pairs = { "(": ")", "[": "]", "{": "}" };
+  const closers = new Set(Object.values(pairs));
   for (let j = open; j < str.length; j++) {
     const ch = str[j];
-    if (ch === "(") { depth += 1; continue; }
-    if (ch === ")") {
+    if (pairs[ch]) { depth += 1; continue; }
+    if (closers.has(ch)) {
       depth -= 1;
       if (depth === 0) return empty && commas === 0 ? 0 : commas + 1;
+      if (depth < 0) return null;
       continue;
     }
     if (depth === 1 && ch === ",") commas += 1;
@@ -150,11 +216,13 @@ export function callArity(text, entities) {
  * callee is missing by definition and callArity's entity table can never
  * contain it. Searches the whole stripped text with import spans blanked
  * (an imported name is not a call site), skipping the name's own
- * declaration header (`def serve(` reads params, not args) and decorator
- * lines. Returns every witnessed arity, sorted unique, with the site
- * count. Zero sites → `{ count: 0, arities: [] }` (caller decides the
- * default — this function never invents a 0-arg stub from silence... the
- * driver uses max-or-0 explicitly).
+ * declaration header (`def serve(` reads params, not args) and
+ * attribute calls (`app.serve(` is the object's business). Decorator
+ * uses (`@serve(80, 443)`) ARE counted — a decorator with arguments is
+ * a real call site. Returns every witnessed arity, sorted unique, with
+ * the site count. Zero sites → `{ count: 0, arities: [] }` (caller
+ * decides the default — this function never invents a 0-arg stub from
+ * silence; the driver uses max-or-0 explicitly).
  */
 export function callArityOf(text, fileName, name) {
   const s = String(text ?? "");
@@ -170,14 +238,144 @@ export function callArityOf(text, fileName, name) {
   while ((m = re.exec(stripped))) {
     const lineStart = stripped.lastIndexOf("\n", m.index) + 1;
     const before = stripped.slice(lineStart, m.index);
+    // The name's own declaration header reads PARAMETERS, not args.
     if (/^\s*(?:async\s+)?def\s*$/.test(before)) continue;
     if (/^\s*class\s*$/.test(before)) continue;
-    if (/^\s*@/.test(stripped.slice(lineStart).split("\n")[0] ?? "")) continue;
+    // Attribute calls (`app.route(`) are the object's business, not a
+    // module-level binding's — consistent with missingImports, which
+    // never counts dot-preceded names as bare references.
+    if (before.endsWith(".")) continue;
     const arity = arityAt(stripped, m.index + m[0].length - 1);
     if (arity === null) continue;
     arities.push(arity);
   }
   return { count: arities.length, arities: [...new Set(arities)].sort((a, b) => a - b) };
+}
+
+/**
+ * positionalCapacity(src, decl) -> { capacity, vararg }.
+ * ParseDeclarations-adjacent param parsing (recipes carry no param
+ * shapes): the paren run opening at/after the declaration's own start is
+ * matched to its close, split top-level (nesting- and quote-aware), and
+ * each part counts as one positional parameter — annotations and defaults
+ * stripped, never interpreted. A part starting with `*` (`*args`,
+ * `**kw`, or the bare `*` kwonly marker) sets vararg and counts nothing:
+ * disclosed simplification — a bare `*` alone does not accept unlimited
+ * positionals, but over-exempting is the safe direction for a NOTE gate.
+ * JS rest (`...args`) is treated the same. Never throws; weird input is
+ * capacity 0, no vararg.
+ */
+function positionalCapacity(src, decl) {
+  try {
+    const s = String(src ?? "");
+    const from = decl?.start ?? 0;
+    const open = s.indexOf("(", from);
+    if (open === -1 || open > (decl?.end ?? s.length)) return { capacity: 0, vararg: false };
+    let depth = 0;
+    let close = -1;
+    for (let i = open; i < s.length; i++) {
+      if (s[i] === "(") depth += 1;
+      else if (s[i] === ")") { depth -= 1; if (depth === 0) { close = i; break; } }
+    }
+    if (close === -1) return { capacity: 0, vararg: false };
+    const inner = s.slice(open + 1, close);
+    const parts = [];
+    let d = 0;
+    let quote = null;
+    let cur = "";
+    for (let i = 0; i < inner.length; i++) {
+      const ch = inner[i];
+      if (quote) {
+        cur += ch;
+        if (ch === "\\") { cur += inner[i + 1] ?? ""; i += 1; continue; }
+        if (ch === quote) quote = null;
+        continue;
+      }
+      if (ch === '"' || ch === "'") { quote = ch; cur += ch; continue; }
+      if (ch === "(" || ch === "[" || ch === "{") d += 1;
+      else if (ch === ")" || ch === "]" || ch === "}") d = Math.max(0, d - 1);
+      if (ch === "," && d === 0) { parts.push(cur); cur = ""; continue; }
+      cur += ch;
+    }
+    parts.push(cur);
+    let capacity = 0;
+    let vararg = false;
+    for (const part of parts) {
+      const p = part.trim();
+      if (!p) continue;
+      if (p === "/") continue; // posonly separator is a marker, not a parameter (found by falsification: counted as one)
+      if (p.startsWith("*") || p.startsWith("...")) { vararg = true; continue; }
+      capacity += 1;
+    }
+    return { capacity, vararg };
+  } catch {
+    return { capacity: 0, vararg: false };
+  }
+}
+
+/**
+ * arityCoverage({ codeText, fileName, testTexts }) ->
+ * [{ name, declared, calledMax, covered }].
+ * The 0-arg-stub gate, checkable WITHOUT running tests: for each declared
+ * FUNCTION in codeText (parseDeclarations on the file's own bytes), the
+ * positional capacity (count of positional params; INFINITE when a
+ * *args/vararg splat is present) beside the max called arity witnessed
+ * across testTexts (callArityOf per test text — import lines blanked, the
+ * name's own def line and attribute calls skipped, same as the stub case).
+ * covered is false ONLY when calledMax exceeds the declared capacity with
+ * no vararg to absorb it (varlen/overloads make refusal unsafe, so this
+ * is a NOTE for the loop, never a refusal). testTexts accepts strings or
+ * { text | content | code } holders; weird input yields []. Pure, no I/O.
+ * Serialization note: `declared` is Infinity under vararg, which JSON
+ * renders as null in round transcripts — null-declared with covered:true
+ * reads as unbounded, never as unknown (unknown would be a missing row).
+ */
+export function arityCoverage({ codeText, fileName, testTexts } = {}) {
+  try {
+    const src = String(codeText ?? "");
+    if (!src) return [];
+    const fname = String(fileName ?? "");
+    if (!fname) return [];
+    const decls = parseDeclarations(src, fname).filter((d) => d?.kind === "function");
+    if (!decls.length) return [];
+    const raw = Array.isArray(testTexts) ? testTexts : (testTexts == null ? [] : [testTexts]);
+    const texts = [];
+    for (const t of raw) {
+      if (typeof t === "string") { texts.push(t); continue; }
+      if (t && typeof t === "object") {
+        const v = t.text ?? t.content ?? t.code ?? null;
+        if (typeof v === "string") texts.push(v);
+      }
+    }
+    const seen = new Set();
+    const out = [];
+    for (const d of decls) {
+      if (!d?.name || seen.has(d.name)) continue;
+      seen.add(d.name);
+      const { capacity, vararg } = positionalCapacity(src, d);
+      let calledMax = 0;
+      for (const t of texts) {
+        let r = null;
+        try {
+          r = callArityOf(t, fname, d.name);
+        } catch {
+          continue;
+        }
+        for (const a of r?.arities ?? []) {
+          if (typeof a === "number" && a > calledMax) calledMax = a;
+        }
+      }
+      out.push({
+        name: d.name,
+        declared: vararg ? Infinity : capacity,
+        calledMax,
+        covered: vararg ? true : !(calledMax > capacity),
+      });
+    }
+    return out;
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -359,6 +557,20 @@ export function importAnchor(text) {
 }
 
 /**
+ * suggestWholeFile(text, { maxChars }) -> { find, basis } | null.
+ * For an `unlocated` gap on a SMALL file: the whole file content IS an
+ * exact, unique anchor (sliced, never composed) — a SYN over it always
+ * locates. Returns null above the cap (large files need real anchors;
+ * a whole-file FIND there is prompt bloat, not help) or for empty text.
+ * Default cap 2000 chars: stub-sized files, the exact population that
+ * strands small mouths (measured: 3× unlocated on a 2-line stub).
+ */
+export function suggestWholeFile(text, { maxChars = 2000 } = {}) {
+  const s = String(text ?? "");
+  if (!s || s.length > maxChars) return null;
+  return { find: s, basis: `file is ${s.length} chars (≤ ${maxChars}) — the whole file is an exact unique anchor; SYN over it always locates` };
+}
+/**
  * suggestWiderFind(text, fileName, find) -> { find, basis } | null.
  * For an `ambiguous` gap: when EVERY occurrence of `find` sits inside one
  * declaration's own span, return that declaration's header line (sliced
@@ -424,6 +636,14 @@ export function renameIn(text, fileName, oldName, newName, { keywords = null } =
   const decls = parseDeclarations(s, fileName);
   if (!decls.some((d) => d.name === oldName)) {
     return { ok: false, gap: { kind: "unlocated", name: oldName, reason: `"${oldName}" is declared nowhere in ${fileName}` } };
+  }
+  // A rename onto a live binding MERGES two identities while reporting
+  // ok:true — the one outcome this module must never produce (found by
+  // falsification: rename add→total yielded two `def total`). Refuse with
+  // the collision named; a true merge is a human's decision, not a
+  // mechanical one's.
+  if (decls.some((d) => d.name === newName)) {
+    return { ok: false, gap: { kind: "collision", name: newName, reason: `"${newName}" is already declared in ${fileName} — renaming "${oldName}" onto it would merge two bindings` } };
   }
   const re = bound(oldName);
   const count = (s.match(re) ?? []).length;

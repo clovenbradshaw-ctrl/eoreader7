@@ -91,6 +91,18 @@ test("isCodeHunk admits pure python (measured: 65 KB Flask app with 110 decl lin
   assert.equal(isCodeHunk(prose), false);
 });
 
+test("isCodeHunk refuses prose ABOUT code (falsified: essay with def/class/import line shapes was admitted)", () => {
+  const essay = [
+    "We must import the idea carefully.",
+    "The class def system rewards patience.",
+    "def poetry is not code at all.",
+    "class struggle shapes history (and more words here).",
+    "import patience, daily (x) (y) (z) (w) (v) (u).",
+    "from habit we import discipline (a) (b) (c) (d).",
+  ].join("\n");
+  assert.equal(isCodeHunk(essay), false); // clears the line-shape bar and paren ratio — but no colon-terminated declaration header exists
+});
+
 test("moduleMapFrom reads python imports (measured: real Flask source yielded zero rows)", () => {
   const map = moduleMapFrom("import flask\nimport os, sys\nfrom flask import Flask\nfrom helpers import run\n", {});
   assert.ok(map.total >= 4, `expected >=4 module rows, got ${map.total}`);

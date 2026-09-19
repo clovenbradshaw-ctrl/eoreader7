@@ -65,7 +65,12 @@ export function isCodeHunk(text) {
   if (density > 20 && lineCount < t.length / 80) return true;
   const pyDefs = (t.match(/^[ \t]*(?:def |class |import |from \S+ import )/gm) ?? []).length;
   const pyParens = (t.match(/\(/g) ?? []).length;
-  if (pyDefs >= 3 && pyParens >= 2 * pyDefs) return true;
+  // ...plus at least one colon-terminated declaration header (found by
+  // falsification: prose ABOUT code — "def poetry is not code at all",
+  // "class struggle shapes history" — clears the line-shape bar and the
+  // paren ratio, but never ends a declaration line with a colon).
+  const pyHeader = /^[ \t]*(?:async\s+)?def\s+\S.*:\s*$|^[ \t]*class\s+\S.*:\s*$/m.test(t);
+  if (pyDefs >= 3 && pyParens >= 2 * pyDefs && pyHeader) return true;
   return false;
 }
 

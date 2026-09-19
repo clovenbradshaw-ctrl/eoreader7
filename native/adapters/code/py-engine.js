@@ -16,6 +16,8 @@
 
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { importSpans } from "./scan.js";
 
@@ -72,6 +74,165 @@ export function pyCheckSyntax(text, fileName = "check.py") {
   const f = doc.files[0];
   if (!f) return null;
   return f.ok ? { ok: true } : { ok: false, error: f.error };
+}
+
+// ---------------------------------------------------------------------------
+// JavaScript gate: node --check on stdin. Same contract as pyCheckSyntax
+// ({ ok:true } | { ok:false, error:{ msg, lineno, offset, line } } | null)
+// and the same bounds discipline (execFileSync, argv only, 15 s timeout,
+// 4 MB cap, stdin mode, no temp files). A nonzero exit WITH stderr is the
+// engine's own syntax verdict (parsed below); anything else surprising —
+// ENOENT (no node), timeout, signal kill, ENOBUFS — is null (proceed
+// untested, disclosed), never a throw.
+//
+// GOALS (witnessed, node v24): --check on stdin defaults to the CommonJS
+// goal, so ESM bytes (`import`/`export`) fail there and pass only under
+// --input-type=module. .mjs runs module, .cjs runs script, .js/.jsx try
+// script first and fall back to module for a PASS (a file clean under
+// either goal parses); a file broken under BOTH goals reports the
+// script-mode error (the default goal — documented, not guessed).
+// LIMIT: node --check is a JS grammar check, not JSX — a .jsx file
+// carrying `<Tag>` syntax fails here even when valid for its toolchain.
+// That refusal is a disclosed gap on the round (never silent), and the
+// real test command still decides everything that parses.
+// LIMIT (falsified 2026-09-19): --check passes top-level `return 1;`
+// (exit 0) — V8's check goal tolerates what strict early-error rules
+// forbid. A syntax gate is not a semantics gate: runtime-invalid bytes
+// still reach the tests, which is exactly their job. Pinned, not fixed.
+// ---------------------------------------------------------------------------
+
+const JS_HEADER_RE = /^\[stdin\]:(\d+)\s*$/m;
+const JS_MSG_RE = /^(SyntaxError:[^\n]*)/m;
+
+/**
+ * parseNodeCheckStderr(stderr) -> { msg, lineno, offset, line }. Reads
+ * ONLY the engine's own lines — the `[stdin]:LINENO` header, the source
+ * line beneath it, the caret column, the `SyntaxError:` line — and
+ * yields null for every field not present, never an invented number.
+ */
+export function parseNodeCheckStderr(stderr) {
+  const text = String(stderr ?? "");
+  const hm = JS_HEADER_RE.exec(text);
+  const lineno = hm ? Number(hm[1]) : null;
+  let line = null;
+  let offset = null;
+  if (hm) {
+    // Slice revenue: [rest-of-header-line, source line, caret line, ...].
+    const after = text.slice(hm.index + hm[0].length).split("\n");
+    const src = after[1];
+    if (src !== undefined) line = src;
+    const caret = after[2] ?? "";
+    const ci = caret.indexOf("^");
+    if (ci !== -1) offset = ci + 1; // 1-based column, python-offset discipline
+  }
+  const mm = JS_MSG_RE.exec(text);
+  const msg = mm ? mm[1].trim() : (text.split("\n").map((s) => s.trim()).find(Boolean) ?? "syntax error");
+  return { msg, lineno, offset, line };
+}
+
+function nodeCheckOnce(text, module) {
+  const args = module ? ["--input-type=module", "--check", "-"] : ["--check", "-"];
+  try {
+    execFileSync("node", args, {
+      input: String(text ?? ""),
+      encoding: "utf8",
+      timeout: TIMEOUT_MS,
+      maxBuffer: MAX_BUFFER,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    return { ok: true };
+  } catch (err) {
+    if (err?.code === "ENOENT" || err?.code === "ETIMEDOUT" || /timed out/i.test(String(err?.message ?? ""))) return null;
+    if (typeof err?.status !== "number" || err.status === 0) return null;
+    if (err.stderr == null) return null;
+    return { ok: false, error: parseNodeCheckStderr(err.stderr) };
+  }
+}
+
+/**
+ * jsCheckSyntax(text, fileName) -> { ok:true } |
+ * { ok:false, error:{ msg, lineno, offset, line } } | null.
+ * The verdict on UNSAVED bytes via stdin — the pre-test gate that
+ * separates "doesn't parse" from "parses but fails". Null when node is
+ * unavailable (proceed untested, disclosed). fileName is accepted for
+ * contract parity with pyCheckSyntax and selects the module goal only —
+ * node always reports `[stdin]` here, so the name is never passed as an
+ * argv path (stdin mode, no temp files).
+ */
+export function jsCheckSyntax(text, fileName = "check.js") {
+  const ext = String(fileName ?? "").slice(String(fileName ?? "").lastIndexOf(".")).toLowerCase();
+  if (ext === ".mjs") return nodeCheckOnce(text, true);
+  if (ext === ".cjs") return nodeCheckOnce(text, false);
+  const script = nodeCheckOnce(text, false);
+  if (script === null || script.ok) return script;
+  const mod = nodeCheckOnce(text, true);
+  if (mod === null) return null;
+  return mod.ok ? mod : script;
+}
+
+// ---------------------------------------------------------------------------
+// TypeScript gate: tsc ONLY when proven present — argv-only `tsc
+// --version` off PATH (never npx, never network: an npx shim would fetch).
+// tsc has no stdin mode, so a proven tsc checks via a temp .ts file
+// (removed in `finally`); unproven tsc is null (skipped, disclosed —
+// node --check must never see .ts bytes, it cannot parse type syntax).
+// tsc conflates grammar and type diagnostics, so the gate surfaces the
+// first `error TS…` line verbatim (msg, line, column) rather than
+// re-sorting syntax from semantics.
+// ---------------------------------------------------------------------------
+
+/**
+ * hasTsc() -> boolean. Proves a real `tsc` binary answers --version.
+ */
+export function hasTsc() {
+  try {
+    execFileSync("tsc", ["--version"], {
+      encoding: "utf8",
+      timeout: TIMEOUT_MS,
+      maxBuffer: MAX_BUFFER,
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+const TSC_DIAG_RE = /^(.+?)\((\d+),(\d+)\):\s*error\s+(TS\d+:\s*[^\n]*)/m;
+
+/**
+ * tsCheckSyntax(text, fileName) -> { ok:true } |
+ * { ok:false, error:{ msg, lineno, offset, line } } | null.
+ * Null when tsc is unproven/absent (proceed untested, disclosed).
+ */
+export function tsCheckSyntax(text, fileName = "check.ts") {
+  if (!hasTsc()) return null;
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "tscheck-"));
+  const raw = path.basename(String(fileName ?? "check.ts")) || "check.ts";
+  const base = raw.endsWith(".ts") || raw.endsWith(".tsx") ? raw : `${raw}.ts`;
+  const file = path.join(dir, base);
+  try {
+    fs.writeFileSync(file, String(text ?? ""));
+    execFileSync("tsc", ["--noEmit", "--pretty", "false", file], {
+      encoding: "utf8",
+      timeout: TIMEOUT_MS,
+      maxBuffer: MAX_BUFFER,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    return { ok: true };
+  } catch (err) {
+    if (err?.code === "ENOENT" || err?.code === "ETIMEDOUT" || /timed out/i.test(String(err?.message ?? ""))) return null;
+    if (typeof err?.status !== "number" || err.status === 0) return null;
+    const out = `${err.stdout ?? ""}\n${err.stderr ?? ""}`;
+    const m = TSC_DIAG_RE.exec(out);
+    if (!m) {
+      const fallback = out.split("\n").map((s) => s.trim()).find(Boolean) ?? "syntax error";
+      return { ok: false, error: { msg: fallback, lineno: null, offset: null, line: null } };
+    }
+    return { ok: false, error: { msg: m[4].trim(), lineno: Number(m[2]), offset: Number(m[3]), line: null } };
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 }
 
 // `NameError: name 'X' is not defined` / `ModuleNotFoundError: No module

@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { pyFactsOf, pyCheckSyntax, suggestImportFix } from "../adapters/code/py-engine.js";
+import { pyFactsOf, pyCheckSyntax, jsCheckSyntax, hasTsc, tsCheckSyntax, suggestImportFix } from "../adapters/code/py-engine.js";
+import { syntaxGateFor, precheckSyntax } from "../the-fold/code-loop.js";
 import { readOps, applyOps } from "../the-fold/patch.js";
 
 // Ground truth from the running grammar (ast, never executed): exact
@@ -100,4 +101,87 @@ test("suggestImportFix: import lands after a leading docstring, never above it",
   assert.equal(fix.ok, true);
   assert.ok(fix.find.startsWith('"""Tip calculator."""'));
   assert.match(fix.add, /"""Tip calculator\."""\nimport json/);
+});
+
+// JavaScript gate: node --check on stdin, same contract as pyCheckSyntax
+// ({ ok:true } | { ok:false, error:{ msg, lineno, offset, line } } |
+// null). Null (no node) is untestable here the honest way — the box has
+// node — except by hiding it off PATH, which is exactly what the null
+// test below does (restored in `finally`).
+
+test("jsCheckSyntax: valid JS parses (script and module goals)", () => {
+  assert.deepEqual(jsCheckSyntax("const x = 1;\n", "x.js"), { ok: true });
+  assert.deepEqual(jsCheckSyntax("function f(a, b = 2, ...rest) {\n  return a;\n}\n", "x.js"), { ok: true });
+  assert.deepEqual(jsCheckSyntax('import fs from "node:fs";\nexport const x = 1;\n', "x.js"), { ok: true });
+  assert.deepEqual(jsCheckSyntax('import fs from "node:fs";\n', "x.mjs"), { ok: true });
+  assert.deepEqual(jsCheckSyntax("", "x.js"), { ok: true });
+});
+
+test("jsCheckSyntax LIMIT (falsified): top-level return passes — a syntax gate is not a semantics gate", () => {
+  assert.deepEqual(jsCheckSyntax("return 1;\n", "x.js"), { ok: true });
+});
+
+test("jsCheckSyntax: broken JS fails with node's own line number", () => {
+  const bad = jsCheckSyntax("const x = ;\n", "x.js");
+  assert.equal(bad.ok, false);
+  assert.match(bad.error.msg, /SyntaxError/);
+  assert.equal(bad.error.lineno, 1);
+  assert.match(bad.error.line, /const x/);
+  assert.equal(typeof bad.error.offset, "number");
+  const later = jsCheckSyntax("const a = 1;\nconst b = 2;\nconst c = 3;\nconst y = ;\n", "x.js");
+  assert.equal(later.ok, false);
+  assert.equal(later.error.lineno, 4);
+});
+
+test("jsCheckSyntax: error shape is exact, missing fields null never invented", () => {
+  const bad = jsCheckSyntax("const x = ;\n", "x.js");
+  assert.deepEqual(Object.keys(bad.error).sort(), ["line", "lineno", "msg", "offset"]);
+});
+
+test("jsCheckSyntax: null only when node is unavailable (PATH hidden)", () => {
+  assert.notEqual(jsCheckSyntax("const x = 1;\n", "x.js"), null);
+  const saved = process.env.PATH;
+  process.env.PATH = "";
+  try {
+    assert.equal(jsCheckSyntax("const x = 1;\n", "x.js"), null);
+  } finally {
+    process.env.PATH = saved;
+  }
+});
+
+test("syntaxGateFor: extension routing mirrors detectCodeLanguage", () => {
+  assert.equal(syntaxGateFor("a.py").check, pyCheckSyntax);
+  assert.equal(syntaxGateFor("app.js").check, jsCheckSyntax);
+  assert.equal(syntaxGateFor("app.mjs").check, jsCheckSyntax);
+  assert.equal(syntaxGateFor("app.cjs").check, jsCheckSyntax);
+  assert.equal(syntaxGateFor("app.jsx").check, jsCheckSyntax);
+  assert.equal(syntaxGateFor("main.go").check, null);
+  assert.equal(syntaxGateFor("stranger.txt").check, null);
+  assert.equal(syntaxGateFor("noext").check, null);
+  const ts = syntaxGateFor("a.ts");
+  assert.equal(ts.language, "typescript");
+  assert.equal(ts.check, tsCheckSyntax);
+  assert.equal(syntaxGateFor("a.tsx").check, tsCheckSyntax);
+});
+
+test("precheckSyntax: the loop's `syntax` round word covers the new path", () => {
+  assert.equal(precheckSyntax("a.js", "const x = 1;\n").syntax, "checked");
+  assert.equal(precheckSyntax("a.js", "const x = 1;\n").gap, null);
+  const broken = precheckSyntax("a.js", "const x = ;\n");
+  assert.equal(broken.syntax, null);
+  assert.equal(broken.gap.kind, "syntax_error");
+  assert.match(broken.gap.reason, /line 1/);
+  assert.equal(precheckSyntax("a.py", "def f():\n    pass\n").syntax, "checked");
+  assert.equal(precheckSyntax("main.go", "package main\n").syntax, "unchecked-not-python");
+  assert.equal(precheckSyntax("stranger.txt", "anything\n").syntax, "unchecked-not-python");
+  // .ts without tsc → skipped, disclosed (this box has no tsc; where tsc
+  // proves present the gate checks instead — hasTsc decides, pinned above).
+  if (!hasTsc()) {
+    assert.equal(tsCheckSyntax("const x: number = 1;\n", "a.ts"), null);
+    const skipped = precheckSyntax("a.ts", "const x: number = 1;\n");
+    assert.equal(skipped.syntax, "skipped-no-engine");
+    assert.equal(skipped.gap, null);
+  } else {
+    assert.deepEqual(tsCheckSyntax("const x: number = 1;\n", "a.ts"), { ok: true });
+  }
 });
