@@ -40,8 +40,13 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 // the trail at its own directory without re-importing the module.
 const shadowDir = () => process.env.ER7_SHADOW_DIR ?? path.join(HERE, "..", "moral-shadows");
 
-// The three shadows, never merged (THE-MORAL-CORE.md).
-export const SHADOWS = Object.freeze(["norm_compliant", "norm_conflict", "descriptive"]);
+// The three shadows, never merged (THE-MORAL-CORE.md) — plus the fourth
+// (2026-09-19, mayeroff.js): `unrealizable`, which never merges with
+// `norm_conflict` either. A norm_conflict is a live option declined (the
+// charter refused the license); an unrealizable never had a state to reach
+// (the composition fails to typecheck against self.js at all). Different
+// facts, different trails.
+export const SHADOWS = Object.freeze(["norm_compliant", "norm_conflict", "descriptive", "unrealizable"]);
 
 const safeId = (p) => String(p ?? "anonymous").replace(/[^a-z0-9._-]/gi, "_").slice(0, 120);
 
@@ -107,7 +112,7 @@ export function trailOf(actorId) {
 export function assessShadow(actorId, { corroborationFloor = 2, halfLife = Number(process.env.ER7_SHADOW_HALF_LIFE ?? 10) } = {}) {
   const trail = trailOf(actorId);
   const n = trail.length;
-  const byShadow = { norm_compliant: 0, norm_conflict: 0, descriptive: 0 };
+  const byShadow = { norm_compliant: 0, norm_conflict: 0, descriptive: 0, unrealizable: 0 };
   for (const e of trail) if (byShadow[e.shadow] != null) byShadow[e.shadow] += 1;
 
   const H = Math.max(1, halfLife);
@@ -115,6 +120,9 @@ export function assessShadow(actorId, { corroborationFloor = 2, halfLife = Numbe
   for (let i = 0; i < n; i++) {
     if (trail[i].shadow === "norm_conflict") conflictWeight += Math.pow(0.5, (n - 1 - i) / H);
   }
+  // unrealizable never corroborates a conflict pattern: there was no live
+  // option declined, so there is no second witness to supply. It is counted,
+  // never weighted.
   conflictWeight = Number(conflictWeight.toFixed(3));
   const rate = n ? byShadow.norm_conflict / n : 0;
 
@@ -133,6 +141,9 @@ export function assessShadow(actorId, { corroborationFloor = 2, halfLife = Numbe
     standing = "norm-consistent-so-far";
     basis = `0 norm-conflict acts across ${n} of the actor's own acts`;
   }
+  if (byShadow.unrealizable > 0) {
+    basis += `; ${byShadow.unrealizable} unrealizable act(s) — no state to reach under self.js, never a declined option, never corroborating`;
+  }
   return {
     schema: "MoralShadowAssessment@1",
     actorId: safeId(actorId),
@@ -141,6 +152,7 @@ export function assessShadow(actorId, { corroborationFloor = 2, halfLife = Numbe
     personId: safeId(actorId),
     subject: "the machine's own acts under the charter — a rate over moves, never a verdict about a person",
     total: n, byShadow, conflictWeight, halfLife: H, conflictRate: Number(rate.toFixed(3)), standing, corroborationFloor, basis,
+    unrealizable: byShadow.unrealizable,
   };
 }
 

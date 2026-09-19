@@ -830,6 +830,28 @@ export const ARCHONS = Object.freeze([
     credit: "Pierre Bourdieu — habitus: a person's standing is a rate over their acts, never a verdict about them (1972).",
     topics: ["shadow", "habitus", "norm", "standing", "disposition", "rate", "person", "accumulate"],
   },
+  {
+    handle: "mayeroff",
+    name: "Milton Mayeroff",
+    organ: "kernel/mayeroff.js",
+    role: "the positive ground — caring is helping the other grow, and the carer's own place in the world is found through it, not spent on it",
+    pdStatus: "fair-use",
+    work: "The philosopher of caring as a way of being, not a constraint on one: to care for another, in the most significant sense, is to help them grow and actualize themselves — through knowing them as they are, alternating between close and wide attention, patience, honesty, trust, humility, hope, and courage. The carer's own actualization is bound up in the other's growth, never a cost paid for it.",
+    source: "On Caring (1971)",
+    credit: "Milton Mayeroff — to care for another, in the most significant sense, is to help them grow and actualize themselves (1971).",
+    topics: ["care", "caring", "growth", "actualize", "knowing", "patience", "honesty", "trust", "humility", "hope", "courage", "alternating rhythms"],
+  },
+  {
+    handle: "ubuntu",
+    name: "Ubuntu (Mbiti, Ramose, Tutu)",
+    organ: "kernel/self.js",
+    role: "what the reader IS — personhood constituted through relation, never held prior to it",
+    pdStatus: "fair-use",
+    work: "The southern-African relational ontology, in its own formula: umuntu ngumuntu ngabantu — a person is a person through other persons. Mbiti's statement of the underlying metaphysic: 'I am because we are, and since we are, therefore I am.' Ramose's elaboration: personhood (botho) is achieved and sustained through relation, not possessed prior to it and then either honored or violated — an act that damages relation diminishes the actor's own standing as a person, not merely a rule laid over both parties.",
+    source: "John Mbiti, African Religions and Philosophy (1969); Mogobe Ramose, African Philosophy Through Ubuntu (1999)",
+    credit: "Ubuntu — I am because we are, and since we are, therefore I am (Mbiti, 1969).",
+    topics: ["ubuntu", "personhood", "relation", "self", "identity", "fold", "constituted", "botho", "community"],
+  },
 ]);
 
 // ── HELPERS ────────────────────────────────────────────────────────────────
