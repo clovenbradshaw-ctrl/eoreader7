@@ -53,3 +53,18 @@ export const READER_SELF = Object.freeze({
   constitutedBy: "relation to who it reads for — no interior apart from the people it connects",
   isFold: "the reader IS a fold held between others, never a fold of its own",
 });
+
+// THE GROUND IS READ, NOT CARRIED. The self is the witness — the turya,
+// the fourth state of the Mandukya Upanishad: the one that sees all and is
+// never itself an object of its own knowing ("nātmānaṃ na paraṃ caiva na
+// satyaṃ nāpi cānṛtam | prājñaḥ kiñcana saṃvetti turyaṃ tatsarvadṛksadā").
+// The physics field (antistrauss-physics.txt) names the passage; this module
+// reads it from the committed canon, the span AND the window around it, so
+// what the reader is stands on the canon's own bytes — and a reader who
+// comes to understand the self comes across the teaching that surrounds the
+// anchor.
+import { loadCanonGround } from "../the-fold/canon-ground.mjs";
+const __canonGround = loadCanonGround();
+const __selfGround = __canonGround.mechanics.find((m) => m.id === "self-plane") ?? null;
+export const GROUND = __selfGround ? __selfGround.ground : null;
+export const GROUND_REF = __selfGround ? __selfGround.ref : null;

@@ -1,1 +1,86 @@
-antistrauss
+{
+  "schema": "AntiStraussPhysics@1",
+  "note": "The physics field is the canon. Every law the gate settles and every mechanic the organs run carries a ground cut from these committed bytes — read at load, verified by sha256, and bound into the ground digest. Change the canon and the ground changes; a hot process whose laws no longer match the ground refuses closed (ungrounded) rather than running ungoverned.",
+  "canon": [
+    {
+      "id": "tao-te-ching",
+      "path": "canon/tao-te-ching-zh.txt",
+      "sha256": "ae08b6a219b927b80f23d9fb11d70bd8cf397f42539ac3c2ff431738e72cbcd8",
+      "language": "zh (Classical Chinese)",
+      "role": "the root — the nameless name; 反者道之動"
+    },
+    {
+      "id": "kathamrita",
+      "path": "canon/gospel-sri-ramakrishna.txt",
+      "sha256": "04bb68e59e21a8ee6ee823580f5d8204042039f76036e935f500a0b42cbe87c4",
+      "language": "en (tr. from Bengali by Swami Nikhilananda)",
+      "role": "the core — the realized experience beneath all doctrine"
+    },
+    {
+      "id": "mozi",
+      "path": "canon/mozi-mei-1929.txt",
+      "sha256": "622625cd061054956c2a1ccc6876c8676b5e60e01a5fa4d851847afb7aace6dc",
+      "language": "en (tr. from Classical Chinese by Y.P. Mei)",
+      "role": "grounding — the three tests: basis, verifiability, applicability"
+    },
+    {
+      "id": "nagarjuna",
+      "path": "canon/nagarjuna-stcherbatsky.txt",
+      "sha256": "0f04027952aea93b47400bf765220727c01bb82b1bd99486fe2766a10f00e9ec",
+      "language": "en",
+      "role": "refutation — prasanga: refute by consequence, assert nothing"
+    },
+    {
+      "id": "mandukya",
+      "path": "canon/upanishads/mandukya-bare.txt",
+      "sha256": "b69b8b52ab08fc4b735a52fef89a92ec24f06749716a06e1d881005926362cda",
+      "language": "sa (IAST transliteration)",
+      "role": "turya — the fourth state: the witness that is never an object of its own knowing (the self plane)"
+    },
+    {
+      "id": "upanishads",
+      "path": "canon/upanishads/",
+      "sha256": null,
+      "language": "sa (IAST transliteration)",
+      "role": "the Upanishads as a whole — the sākṣin, the neti-neti, the chariot, the sheaths; the corpus of the witness",
+      "collection": [
+        "upanishads/aitareya.txt",
+        "upanishads/brihadaranyaka.txt",
+        "upanishads/chandogya.txt",
+        "upanishads/isa.txt",
+        "upanishads/katha.txt",
+        "upanishads/mandukya.txt",
+        "upanishads/mandukya-bare.txt",
+        "upanishads/prashna.txt",
+        "upanishads/shvetashvatara.txt",
+        "upanishads/taittiriya.txt"
+      ]
+    }
+  ],
+  "mechanics": [
+    {
+      "id": "refutation",
+      "canon": "nagarjuna",
+      "anchor": [29278, 29314],
+      "needle": "Nagarjuna did not advance any theory",
+      "window": 1500,
+      "organ": "native/kernel/refutation.js"
+    },
+    {
+      "id": "grounding",
+      "canon": "mozi",
+      "anchor": [362689, 362718],
+      "needle": "there must be three tests",
+      "window": 1200,
+      "organ": "native/organs/grounding.js"
+    },
+    {
+      "id": "self-plane",
+      "canon": "mandukya",
+      "anchor": [3037, 3083],
+      "needle": "nātmānaṃ na paraṃ caiva na satyaṃ nāpi cānṛtam",
+      "window": 600,
+      "organ": "native/kernel/self.js"
+    }
+  ]
+}

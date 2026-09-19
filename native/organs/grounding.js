@@ -17,12 +17,27 @@ tests  of  every  doctrine.”
 // grounding.js — is every checkable claim in this answer actually in the bytes?
 // Handle: Mozi — after Mozi's test of the senses: a claim stands if it is in what the eyes and ears can witness, or it doesn't stand at all. Amendment XVII.
 //
+// THE GROUND IS READ, NOT CARRIED. This organ does not own its teaching as a
+// comment — it reads it from the committed canon (eoreader7/canon/, the
+// three tests: basis, verifiability, applicability), the span AND the window
+// around it. `GROUND` is the canon's own bytes and `GROUND_REF` is the byte
+// address they live at. To understand what this organ stands on, read what
+// is around that span. The ground is load-bearing: the physics field
+// (antistrauss-physics.txt) binds to the canon's sha256, so change the canon
+// and the ground changes; a missing canon ungrounds the field and the gate
+// refuses closed.
+//
 // Ported from eochatX's app/client/eo-citation-check.ts (itself a port of
 // eoWebLLM's, itself a port of eochat's server/citation-check.js). The
 // organising idea is unchanged: a claim attached to material must be backed by
 // bytes that material actually contains, and that is checked mechanically —
 // string containment — for the two things a model most often invents, numbers
 // and proper names. It never judges whether an uncited claim is true.
+import { loadCanonGround } from "../the-fold/canon-ground.mjs";
+const __canonGround = loadCanonGround();
+const __groundingGround = __canonGround.mechanics.find((m) => m.id === "grounding") ?? null;
+export const GROUND = __groundingGround ? __groundingGround.ground : null;
+export const GROUND_REF = __groundingGround ? __groundingGround.ref : null;
 //
 // This complements what was already here. `checkCitations` in source.js checks
 // ADDRESSES: did the answer cite something it was handed. `attribute` in
@@ -704,7 +719,7 @@ export function corroborateAtoms(answer, passages) {
  */
 export function checkGrounding(answer, passages, { question = "", resolveName = null } = {}) {
   if (!passages?.length) {
-    return { sentences: 0, atomsChecked: 0, findings: [], clean: true, examined: false, truncated: null };
+    return { sentences: 0, atomsChecked: 0, findings: [], clean: true, examined: false, truncated: null, groundRef: GROUND_REF };
   }
   const index = buildUnionIndex(passages);
   // Per-passage entries for the number-company check only (numberSupporters,
@@ -787,6 +802,10 @@ export function checkGrounding(answer, passages, { question = "", resolveName = 
     findings: kept,
     clean: findings.length === 0,
     examined: true,
+    // THE GROUND — the canon byte address this organ stands on (Mozi's
+    // three tests), carried on the record so a reader tracing a grounding
+    // verdict meets the teaching that grounds it.
+    groundRef: GROUND_REF,
     truncated:
       findings.length > kept.length
         ? { reported: kept.length, total: findings.length, dropped: findings.length - kept.length }

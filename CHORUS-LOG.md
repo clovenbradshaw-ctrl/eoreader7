@@ -257,3 +257,164 @@ Constitution: `../eo-constitution/CONSTITUTION.md` + this repo's READING-SPEC.md
 | Marshall | meta | the-fold CLAUDE.md "self plane"; this diff | clean | no law edited by this diff; the split (pure organs in the seam, I/O at the caller) is READING-SPEC's own standing rule, cited in the seam comment |
 
 clean: Simon/Chekhov/Ostrom/Pearl — the new module (sha256hex.js) is imported by all four adapters which are imported by tests; no credit/blame or independence claim touched.
+
+## 2026-09-16 — grow the organs for "what is this?" on a giant code hunk: code-grain encounters + the Cuvier what-organ (eoreader7, working; S128)
+fast: 8 files · 27 new tests pass (code-hunk, code-scan, proxy-notes, what-organ) · law: ok — S128 added with Generality, citations resolve (P13 S39 S128); the 7 failing affected tests are pre-existing (root-package CJS/ESM: text.js/kernel.js, and the WIP recursive.js) — none imports this diff's files (verified individually)
+
+| lens | cell | citation | file:line | verdict | one line |
+|---|---|---|---|---|---|
+| Feynman | EVA | adapters/code/encounters.js (CODE_MAX_ENCOUNTER_CHARS, compliance) | fixed | the 16,000-char cap is a hard guarantee verified by codeEncountersCompliance (0 violations on the real 1.8 MB monster line) — an admission cap, never a threshold tuned to a golden |
+| Dijkstra | NUL | adapters/code/scan.js (VENDOR_WORD/FINGERPRINTS/ASSET_NAME) | clean | allowlists are received package names, disclosed as received knowledge per row; identity by exact names word-bounded, never casing/hash (bareName strips path prefixes for the boundary test only) |
+| Holmes | SIG | adapters/code/scan.js moduleMapFrom dedup | clean | one asset stated as `assets/X.js` and `./X.js` is ONE row (normalised dedup key) — a real alias merge, not surface-overlap merging of distinct assets |
+| Pearl | CON | adapters/code/scan.js composeVendors | clean | fingerprint and map-row for the same vendor merge into ONE identity; map-only vendors carry count 0 — repetition inside one signal is never sold as independent corroboration |
+| Alexander | SYN | organs/what.js (dmdCut injected, typed refusals) | clean | composition is gate-checked: no dmdCut, non-code, empty → typed gaps; the account is composed only from byte-supported claims |
+| Greenberg | DEF | adapters/code/encounters.js isCodeHunk; scan.js CLEAN_LITERAL | clean | no language claim added — isCodeHunk is structural (long lines/bundle markers/statement density); the ASCII clean-literal bar is disclosed (non-Latin literals are not surfaced, never mis-asserted) |
+| Kondo | REC | organs/what.js + adapters/code/* | clean | every new export is consumed (seam, CLI, proxy admission, tests); what.js is fully wired (seam + capacity row + CLI + proxy), not nascent |
+| Marshall | meta | native/READING-SPEC.md S128 | fixed | S128 carries Generality + measured defect + verified; citations resolve; no P edited |
+| Simon/Chekhov | INS | capacities.js, proxy-api.mjs humanizeNote | fixed | capacities.js now covered (what.test.mjs imports findCapacity); the new giant_code_admitted note has proxy-notes.test.js; CLI change proven live on the real 3.2 MB bundle (grain:"code", completes where it timed out) |
+
+clean: Feynman — no other constant/skip/swallowed error in the diff; Ostrom — no credit/blame claim touched.
+
+## 2026-09-16 — S129: the Cuvier organ reads a GraphQL schema artifact (adapters/code/graphql.js) and produces a structured overview of swarm_graphql_schema.json (eoreader7, working)
+fast: 3 files · 38 tests pass (code-hunk, code-scan, graphql-schema, proxy-notes, what-organ) · law: ok — S129 added with Generality, citations resolve (4); the one failing affected test (GREEK connectives) is pre-existing WIP recursive.js, unverified here (does not import this diff's files)
+
+| lens | cell | citation | file:line | verdict | one line |
+|---|---|---|---|---|---|
+| Feynman | EVA | adapters/code/graphql.js schemaScan counts | clean | every figure is read off __schema.types; no constant tuned to the specimen (measured on the real 693 KB schema: 215 types, 63/128/27 root fields — all from the document) |
+| Dijkstra | NUL | adapters/code/graphql.js typeRefName / kind-count | clean | the base unit is the introspection kind + leaf name (NON_NULL/LIST unwrapped); no locale or hashing assumption; evidence anchors resolve to real byte offsets in the raw document |
+| Holmes | SIG | adapters/code/graphql.js domain tally | clean | the tally is over the schema's OWN first type-name words with Root/PageInfo and convention tails excluded — no alias merge, no surface-overlap identity |
+| Alexander | SYN | organs/what.js schema routing | clean | schema artifacts route to the schema account BEFORE the code-hunk gate with an explicit kind ("graphql_schema") and gist:null — no silent composition default |
+| Greenberg | DEF | adapters/code/graphql.js FIRST_WORD | clean | the first-word split is a received GraphQL PascalCase convention (the spec's own naming law), disclosed, never a Latin-only assumption about content |
+| Marshall | meta | native/READING-SPEC.md S129 | fixed | S129 carries Generality + measured gap + verified; the capacity row and README handle row updated to match; citations resolve |
+| Simon/Chekhov | INS | adapters/code/graphql.js + what.js | fixed | the new adapter has 11 tests (graphql-schema.test.js) and the organ gained schema cases; proxy-api.mjs's note coverage (added S128 session) now clears its "no test imports" note |
+
+clean: Pearl/Ostrom/Kondo — no corroboration or credit claim touched; every new export is consumed (organ, seam, tests), nothing dead.
+
+## 2026-09-17 — TUI streams inference live over SSE, reconciled at DONE (main, cli scope)
+fast: scoped (full chorus-fast.sh timed out on the crowded tree) · 16 unit tests pass (proxy-client 8, stream 2 new, tui-units 6) · e2e boot/chat/scroll/history PASS · law: ok — no P/S citations added or edited
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Simon/Chekhov | new export chatCompletionStream | cli/proxy-client.mjs:178, cli/tests/proxy-client-stream.test.mjs:1 | fixed | new export consumed by tui runChat and imported by its own test + e2e chat via fake-proxy SSE; nothing unwired |
+| Diaconis | delta timing assert | cli/tests/proxy-client-stream.test.mjs:94 | clean | incrementality measured (20ms server spacing, ≥15ms observed gap), not batched-at-DONE |
+| Feynman | error paths | cli/proxy-client.mjs:196, cli/tests/proxy-client-stream.test.mjs:100 | clean | malformed SSE lines skipped like er7-client, 4xx throws with zero deltas, no silent skip |
+| Dijkstra | SSE/JSON gate | cli/proxy-client.mjs:190 | clean | stream drained only on 200 + event-stream content-type; 429 body still JSON-retried; getReader already the repo's idiom |
+| Kondo | superseded path | cli/proxy-client.mjs:151 | clean | one-shot path intact and tested, postChatCompletion still used; only my 5 tui hunks staged, others' layout hunks left untouched |
+clean: Pearl/Ostrom/Alexander/Marshall/Greenberg/Holmes/Frankfurt/Lévi-Strauss — no corroboration, credit, composition, law, language, identity, placeholder, or stash claim touched
+
+## 2026-09-18 — Sanskrit competency to Greek parity + omnimodal instrument lessons (eoreader7, working; san seam)
+fast: 7 files (+6 fixtures) · 26 affected tests pass (sanskrit 22, competence 4) · law: ok — no P/S citations added or edited (L-labels are omnimodal-lesson tags, not law); WARNs pre-existing (POLICIES P115/116/117/19/233, READING-SPEC S17/S96)
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Diaconis | seed-42 null, 20 draws | lavar/sanskrit-competence.test.mjs:56 | clean | observed 74.6% vs shuffled max 29.9% (45pt margin on a 20pt bar); rerun bar collapses to epsilon on the deterministic read — the effect exists |
+| Feynman | MWT skip + 0.2 margin | lavar/sanskrit-competence.test.mjs:42 | clean | the skip is UD multiword ranges (same as Greek/Latin readers), never silent; floors sit below measurement, never tuned to it |
+| Dijkstra | unicode TOKEN + normForm | lavar/sanskrit.mjs:72 | clean | property-class tokenizer, no Latin-only split; lowercase is not identity-laundering (IAST has no turkic-I; Devanagari arrives via the treebank's own Translit) |
+| Holmes | stem rule LCP>=4 | lavar/sanskrit.mjs:147 | clean | grouping rule stated with its sandhi-opaque residual (agnir/agnaye stays split) — no surface-overlap merge beyond the rule |
+| Pearl | two decoders | lavar/sanskrit-competence.test.mjs:88 | clean | Vedic IAST-direct vs UFAL Translit-field (different teams/registers/scripts); UFAL reported, never gated — no independence overclaim |
+| Ostrom | circularity note | lavar/sanskrit-competence.test.mjs:6 | clean | TRAIN-built prior tested on TEST of the same tradition, disclosed as the tradition's own-rule generalization |
+| Alexander | seam composition | lavar/sanskrit.mjs:315 | clean | clause reader composes only prior-typed votes + declared operating point (0.5/10, sanskrit-swarm); gaps propagate, never defaulted |
+| Greenberg | --lang=san scope | lavar/sanskrit.mjs:1 | clean | new language ships its own declared instrument (IAST, SOV, 8 cases, Dual); master builder proven byte-identical for Latin — nothing smuggled as universal |
+| Simon/Chekhov | new module wiring | lavar/sanskrit.mjs:1 | clean | every export consumed by sanskrit.test.mjs/sanskrit-competence.test.mjs; swarm driver is a person-run CLI (wilson-driver class), builder hunk proven no-op for shipped artifacts |
+| Kondo | eval + driver | lavar/sanskrit-swarm.mjs:1 | clean | fixtures are vendored eval data (skipped class); driver re-runnable with declared usage — nothing dead, nothing stray |
+| Lévi-Strauss | stash × problems | — | clean | structural toggles named as the next colony; no stash piece claimed |
+clean: Marshall/Frankfurt — no law edited or cited, no placeholder or number-for-a-prior anywhere in the diff
+
+## 2026-09-18 — code learns Python + JS the Greek way, generatively (main, staged 11 files)
+fast: 11 files · 120 affected tests pass · law: WARN pre-existing dups only (P115 P116 P117 P19 P233, S17 S96)
+| lens | citation | file:line | verdict | one line |
+| Feynman | measured bar, no tuned constant | adapters/code/encounters.js:68 | clean | pyDefs>=3 + parens>=2x measured (Flask 110/321, prose 0/200KB); try/catch loaders return null per martial.js precedent, disclosed |
+| Dijkstra | extension lowercasing | adapters/code/language.js:44 | clean | toLowerCase on the extension suffix only; file identity keys untouched, no locale-sensitive comparison |
+| Holmes | shared dedup key | adapters/code/scan.js:143 | clean | bare `flask` vs hashed `flask-abc12345.js` stay distinct keys — no surface-overlap merge |
+| Ostrom | scoped absence | eval/results/code-language-priors-RESULTS.md:102 | clean | third-language absence stated as specimen-scoped; credit to engine/tree-sitter givers |
+| Alexander | disclosure composition | organs/what.js:240 | clean | keywordPriorLoaded added beside priorLoaded (still pinned true); gaps propagate, never defaulted |
+| Greenberg | per-language scope | adapters/code/language.js:69 | clean | TS/C/Go detected but ungated (loader null, brief null); XID recipes additive; nothing smuggled as universal |
+| Marshall | S83 S84 cited, none edited | — | clean | asymmetric polarity + additive factory + safe default faithfully applied; WARN dups pre-existing |
+| Simon/Chekhov | new modules | adapters/code/language.js:1 | noted | language.js consumed by code-loop.js + 13-case test; build-code-keyword-prior.mjs output-tested like build-pos-prior (pos-prior.test.js precedent); code-loop.js had no test importer before either |
+| Lévi-Strauss | stash × problems | — | clean | 0 of 22 stashed pieces match the named open problems (per-language name split, TS/C/Go) |
+clean: Diaconis/Frankfurt/Pearl/Kondo — no RNG or null, no placeholder, no shared-cause counting, no dead code (priors vendored + loaded, briefs served in round 1)
+
+## 2026-09-18 — Greek clause reader: article probe, substantives, subordination, three refusals (main, native/eval/lavar)
+fast: 2 files · 43 affected tests pass · law: ok (0 citations, nothing new to cite)
+| Diaconis | — | greek.mjs:30 | clean | effects on PROIEL TEST split the prior never saw; deterministic audits, thresholds declared pre-breeding |
+| Feynman | — | greek.mjs:32 | noted | weakBelow 0.8 set, not bred — declared constant, sensitivity untested; future swarm gene |
+| Dijkstra | — | greek.mjs:69 | fixed-in-diff | strip-as-identity failure (εἶ/εἰ) found and fixed via accent-awareness; rest position-gated |
+| Greenberg | — | greek.test.mjs:269 | clean | all machinery inside the --lang=grc/ell seam; cube cells the shared declared projection |
+clean: Greenberg, Diaconis (nothing to report beyond the rows above)
+
+## 2026-09-18 — per-language name priors: split Python first (main, staged 9 files)
+fast: 9 files · 97 affected tests pass · law: WARN pre-existing dups only (P115 P116 P117 P19 P233, S17 S96)
+| lens | citation | file:line | verdict | one line |
+| Diaconis | null/RNG/measurement | priors/code-name-js.json:1113 | clean | `loadSeed` is measured corpus data (a declared name), not randomness; builder has no RNG — tallies are order-independent, sum-checked 4819=4819 |
+| Feynman | floor constant >= 2 | scripts/build-code-name-prior-split.mjs:149 | clean | RECURRENCE_FLOOR precedent (P58), same as blended builder; reported beside counts, consumer-overridable via genericFloor — never tuned to a golden |
+| Dijkstra | lowercasing + sha256 | adapters/text/code-structure.js:80 | clean | toLowerCase on the family code against a fixed allowlist; names stay exact case-sensitive; sha256 is content fingerprinting, never identity |
+| Holmes | one entity or two | priors/code-name-c.json:406 | clean | same name in two families stays two rows (no cross-family merge); mixed-language homonym judged on first file — disclosed in codeGist header |
+| Pearl | independence | adapters/text/code-structure.js:421 | clean | splits are sole witnesses per language, never counted as independent corroboration of one fact; sum-check is consistency, sold as consistency |
+| Ostrom | claim scope | eval/results/code-name-split-RESULTS.md:26 | clean | fixture baseline + stable-value-only live pins + Flask agreement-disclosed; stale-blended and thin-family limits named in-file |
+| Marshall | S83 S84 cited, none edited | — | clean | polarity + additive factory + blended fallback faithfully applied; WARN dups pre-existing |
+| Simon/Chekhov | builder unimported | scripts/build-code-name-prior-split.mjs:1 | noted | output-tested like build-pos-prior (loader pins 310/1786 real tallies; reproduce line in doc); seam covered by 6-case suite + 97 affected green |
+clean: Alexander/Greenberg/LeviStrauss/Frankfurt/Kondo — not routed; no composition change, no new grammar, stash checked last commit
+
+## 2026-09-18 — code competency arc: name splits + mechanical tier + agent wiring + py-engine + forecast/create-learn (main, staged 31 files)
+fast: 31 files · 186 affected tests pass · law: citations resolve (P16 S83 S84); WARN pre-existing dups only
+| lens | citation | file:line | verdict | one line |
+| Diaconis | null/RNG/measurement | kernel/tournament.js:32 | clean | null tester → recorded gap never win (pinned); unknown forecast 0.5 disclosed; engine null → recipes; no RNG anywhere; Laplace declared not fitted (2-row ledger, said so) |
+| Feynman | constants/skips/swallows | the-fold/forecast.js:44 | clean | floors from P58 precedent, timeouts declared bounds, surprise 0.5+history declared threshold never fitted; exec/rank failures → null per martial precedent, pinned |
+| Dijkstra | locale/script/hash | adapters/code/mechanical.js:27 | clean | XID lookarounds not \b; sha256 content fingerprint never identity; family allowlists fixed; lowercasing never identity |
+| Holmes | one entity or two | code-structure.js:422 | clean | per-family rows never cross-merge; mixed-language homonym first-file rule disclosed; qname-qualified engine identity exact |
+| Pearl | independence | code-structure.js:422 | clean | sum-check sold as consistency not corroboration; forecast prior and test verdict genuinely independent; winner rule disclosed order |
+| Ostrom | scope | eval/results/code-name-split-RESULTS.md:26 | clean | four docs scope specimen vs universal; stale-blended/thin-family/TS-junk/calibration-ledger all named; credit to engine/tree-sitter/UD givers |
+| Frankfurt | placeholders | adapters/code/mechanical.js:300 | clean | NotImplementedError bodies + arg0 placeholders disclosed as absence not substance; 212 stdlib projected from 300 received; no invented numbers |
+| Alexander | composition | the-fold/code-loop.js:248 | clean | keyword→apply→syntax→test→forecast each typed-gap; fallbacks explicit proceeding-disclosed; no silent default-compose |
+| Kondo | dead/nascent | kernel/tournament.js:1 | noted | tournament nascent (tests + named fixer driver, never dead); construction.js dead pre-existing test-only, not this diff; workspaces in os.tmpdir outside repo |
+| LeviStrauss | stash × problems | — | clean | 0 of 22 match; fixer driver + battery remain open with no stash piece claiming them |
+| Marshall | P16 S83 S84 cited, none edited | — | clean | trials append losers refused; forecast updates return new frozen objects (pinned); rounds push-only; polarity/additive/fallback faithfully applied |
+| Simon/Chekhov | new modules | adapters/code/mechanical.js:1 | noted | all consumed (loop/agent/driver/tests) except tournament (tests + named driver — same note as Kondo); builders output-tested; create-learn person-run eval with RESULTS |
+clean: Greenberg — no new grammar smuggled (XID/recetables per-language declared); Frankfurts other half — no UNLICENSED (builder-header precedent holds)
+
+## 2026-09-18 — Colony two: Sanskrit clause structure learns, shipped reader confirmed (eoreader7, working; san clauses)
+fast: 3 files · 30 affected tests pass (sanskrit 26, competence 4) · law: ok — no P/S citations added or edited; WARNs pre-existing
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Diaconis | rerun bar, deterministic | lavar/sanskrit-clause-swarm.mjs:23 | clean | no RNG anywhere; bar is the measured rerun epsilon over 5 draws — nothing to recover, nothing faked |
+| Feynman | MWT skip + 0.5 floors | lavar/sanskrit-clause-swarm.mjs:43 | clean | skip is UD range/empty rows (reader-standard); floors are colony one's received operating point, emission reported beside fitness |
+| Dijkstra | lowercased verb match | lavar/sanskrit-clause-swarm.mjs:99 | clean | both sides lowercased symmetrically (L8 basis); no locale standing in for identity |
+| Ostrom | emission vs role blame | lavar/sanskrit-clause-swarm.mjs:96 | clean | gate misses are emission loss (78.2% reported), role misses score only emitted clauses — blame at the right scope |
+| Alexander | SEG skipped, declared | lavar/sanskrit-clause-swarm.mjs:10 | clean | skip follows eoSwarm's own contract (no terrains to decompose), stated in the header — never a silent default |
+| Greenberg | Sanskrit-only driver | lavar/sanskrit-clause-swarm.mjs:99 | clean | no new language assumption; IAST instrument and SOV scope carried over declared from the seam |
+| Simon/Chekhov | driver + toggles | lavar/sanskrit-clause-swarm.mjs:1 | clean | 4 toggle unit tests pin the seam; driver is person-run CLI verified across two runs (pre/post participle fix) |
+clean: Marshall/Holmes/Pearl/Frankfurt/Kondo/Lévi-Strauss — no law, identity, corroboration, placeholder, dead-code, or stash claim touched
+
+## 2026-09-18 — Universalize Greek morphology seams: builder ending-lens args, shared organ injection points (main, native/{scripts,adapters/text}, lavar)
+fast: 4 files · 59 affected tests pass · law: ok (0 citations) · note: build-latin-case-prior.mjs has no importing test (run-script, verified direct)
+| Dijkstra | — | greek.mjs:326 | clean | exception keys stripped-lowercase both sides; the test caught my accented key, contract enforced visibly; misses fall through in disclosed order |
+| Simon/Chekhov | — | build-latin-case-prior.mjs | clean | new args wired to both lens constants, nothing depends on them; defaults≡explicit proven, len-3 run fragments 122→605 as documented |
+clean: Simon/Chekhov (nothing unverified became a dependency)
+
+## 2026-09-18 — Veda instruments: sandhi splitter, pos-san.json, sandhi-tolerant correlatives (eoreader7, working; san instruments)
+fast: 6 files · 40 affected tests pass (sanskrit 28, sandhi 8, competence 4) · law: ok — no P/S citations added or edited; WARNs pre-existing
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Feynman | minlen-2 + attestation | lavar/sanskrit-sandhi.mjs:57 | clean | the length floor is declared wordhood from the eha misfire (comment says so), attestation is the received prior; empty means gap, tested |
+| Dijkstra | norm lowercase | lavar/sanskrit-sandhi.mjs:45 | clean | same L8-covered basis as the seam; IAST lowercasing symmetric both sides |
+| Greenberg | Aṣṭādhyāyī-cited rules | lavar/sanskrit-sandhi.mjs:14 | clean | Sanskrit-only instrument by filename and citation (6.1/8.2–3) — declared, never universal |
+| Kondo | -as fallback + artifact | lavar/sanskrit-sandhi.mjs:115 | clean | the fallback branch executes (loop tries -aḥ then -as), not dead; pos-san.json now consumed by the clause-swarm driver (identical outcome to 16 digits) — nascent closed |
+| Simon/Chekhov | new module wiring | lavar/sanskrit-sandhi.mjs:1 | clean | 8 unit tests + RV 1.1 demo deltas (9 splits, agne ×2→×4, devaḥ subject, yad/tat found); seam wiring of splits is the declared next |
+clean: Marshall/Diaconis/Holmes/Pearl/Ostrom/Frankfurt/Alexander/Lévi-Strauss — no law, randomness, identity, corroboration, credit, placeholder, composition, or stash claim touched
+
+## 2026-09-19 — falsification fixes + harness battery at 80% (main, staged 10 files)
+fast: 10 files · 112 affected tests pass · law: no P/S citations in diff lines; WARN pre-existing dups only
+| lens | citation | file:line | verdict | one line |
+| Feynman | measured bar, never tuned | adapters/code/encounters.js:73 | clean | pyDefs>=3 + parens>=2x + colon-header, each measured (Flask/prose/essay); essay written AFTER the bar to break it (test name says falsified) — adversarial by design, never a fitted golden |
+| Dijkstra | suffix lowercasing | adapters/code/py-engine.js:159 | clean | extension routing only; XID lookarounds not \b; identity untouched everywhere |
+| Ostrom | claim scope | eval/results/harness-baseline-RESULTS.md:1 | clean | per-run table with box-state caveat; 55% contention run reported not hidden; credit to harness authors + gemma; control 0/20 frames the mouth at +15 |
+| Frankfurt | placeholders | adapters/code/mechanical.js:224 | clean | arg0 placeholders + never-invent-0-arg default disclosed; stub bodies honest absence |
+| Alexander | composition | adapters/code/mechanical.js:562 | clean | whole-file composes slice-only; loop chains mismatch→wider→whole with fallthrough, no silent default-compose |
+| Simon/Chekhov | new driver | eval/the-fold/harness-run.mjs:1 | noted | person-run eval class (wilson-driver precedent) but EXERCISED not untested: 4 full battery runs + control through it; runCodeLoop same standing as before |
+clean: Diaconis/Holmes/Pearl/Greenberg/Kondo/LeviStrauss/Marshall/Frankfurt-half — not routed; no RNG, no identity merge (collision refusal), no corroboration claim, no new grammar, stash checked last commit, no law edited, no UNLICENSED
+
+## 2026-09-19 — the canon IS the ground: AntiStrauss physics field byte-grounded on the committed sacred texts (main, canon-ground)
+fast: 36 files · affected tests pass 66/66 (correct path; chorus-fast's tests/conformance invocation is a pre-existing runner-path quirk) · law: WARN none-new (dup:P115 P116 P117 P19 P233 dup:S17 S96 pre-existing; cite: S02 S07 are OCR noise in canon bytes, not code citations; P5.2 in canon-ground.mjs resolves)
+| Simon/Chekhov | new module | native/the-fold/canon-ground.mjs:1 | clean | imported by conformance test + grounding/refutation/self/antistrauss; no unwired export (GROUND/GROUND_REF consumed by the conformance test and the record)
+| Kondo | stray | canon/*.provenance.json | noted | documented convention (canon/README.md) — sha256 sidecars the conformance test reads; Kondo's name-scan cannot see it
+| Diaconis/Feynman/Holmes/Pearl/Ostrom/Frankfurt/Alexander/Greenberg/LeviStrauss | canon bytes | canon/*.txt | false-positive-on-review | OCR noise inside the committed texts, not measurement; lenses tripped on corpus prose
+| Marshall | law | (none edited) | clean | no law file edited; the one code citation (P5.2) resolves; S02/S07 cited in canon OCR only
+clean: none — canon bytes trip every lens by their own prose; all false positives

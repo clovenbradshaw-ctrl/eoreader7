@@ -11,6 +11,21 @@ establishing his own thesis”
 // Handle: Nagarjuna — after the Madhyamaka method of prasanga: refutation runs entirely by consequence, and asserts no thesis of its own. Amendment XVII.
 // never what it licenses.
 //
+// THE GROUND IS READ, NOT CARRIED. This organ does not own its teaching as a
+// comment — it reads it from the committed canon (eoreader7/canon/, the
+// prasanga passage: "he used only prasanga-vākya or reductio ad absurdum
+// argument... on the very principles accepted by them"), the span AND the
+// window around it. `GROUND` is the canon's own bytes and `GROUND_REF` is the
+// byte address they live at. To understand what this organ stands on, read
+// what is around that span. The ground is load-bearing: the physics field
+// (antistrauss-physics.txt) binds to the canon's sha256, so change the canon
+// and the ground changes; a missing canon ungrounds the field and the gate
+// refuses closed.
+import { loadCanonGround } from "../the-fold/canon-ground.mjs";
+const __canonGround = loadCanonGround();
+const __refutationGround = __canonGround.mechanics.find((m) => m.id === "refutation") ?? null;
+export const GROUND = __refutationGround ? __refutationGround.ground : null;
+export const GROUND_REF = __refutationGround ? __refutationGround.ref : null;
 // WHY THIS IS A VETO AND NOT A GATE, measured before it was written.
 // the-fold's `eval/falsification-probe.mjs` ran six corpora with ground
 // truth declared in advance through the real door and the real kernel
@@ -314,6 +329,11 @@ export function refuteRelation(edges = [], relation, { expectUnique = false, cyc
   return freeze({
     schema: "EORelationRefutation@1",
     relation,
+    // THE GROUND — the canon byte address this organ stands on (Nagarjuna's
+    // prasanga: refute by consequence, assert nothing), carried on the record
+    // so a reader tracing a refutation verdict meets the teaching that
+    // grounds it.
+    groundRef: GROUND_REF,
     examined: resolved.length,
     ofEdges: matching.length,
     unresolved,
