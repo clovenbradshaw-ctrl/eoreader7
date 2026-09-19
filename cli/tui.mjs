@@ -200,7 +200,7 @@ const HELP_SECTIONS = [
   { text: "Ctrl+H  toggle this help   Ctrl+C  quit" },
   { text: "Enter   send" },
   { bold: true, marginTop: 1, text: "Slash commands" },
-  { text: "/new  /close  /model [n|name]  /code  /chat  /help  /quit" },
+  { text: "/new  /close  /model [n|name]  /code  /chat  /swarm <pointing> [:: material]  /help  /quit" },
   { text: "/matrix [status|login <hs> <user> <pw>|logout|whoami]  /github [status|login|logout]" },
   { bold: true, marginTop: 1, text: "Modes" },
   { text: "chat — sent to the fold proxy's grounded reading pipeline." },
@@ -496,6 +496,32 @@ function App() {
         if (!match) { pushMessage(tabId, "error", `no model matching "${arg}" — /model lists what's available`); break; }
         updateTab(tabId, (t) => ({ ...t, model: match }));
         pushMessage(tabId, "note", `model set to ${match}`);
+        break;
+      }
+      case "swarm": {
+        // /swarm <NL pointing> [:: <material>] — explicit swarm dispatch.
+        // No `::`: the ants read this tab's own transcript (the conversation
+        // is the material). Swarm phrasing in ordinary chat ALSO auto-routes
+        // server-side (proxy.mjs); this slash is the explicit door with
+        // chosen material. No model call either way.
+        const parts = arg.split(/\s*::\s*/);
+        const nl = (parts[0] ?? "").trim();
+        if (!nl) { pushMessage(tabId, "error", "usage: /swarm <pointing, e.g. \"swarm the cast ants\"> [:: <material>]"); break; }
+        const tab = tabs.find((t) => t.id === tabId);
+        const transcript = (tab?.messages ?? []).map((m) => m.text ?? "").filter(Boolean).join("\n\n");
+        const material = parts.length > 1 ? parts.slice(1).join(" :: ") : transcript;
+        if (!material.trim()) { pushMessage(tabId, "error", "no material: paste text after `::` or swarm from a tab with a transcript."); break; }
+        pushMessage(tabId, "user", `> /swarm ${nl}`);
+        updateTab(tabId, (t) => ({ ...t, status: "busy" }));
+        proxyClient.swarmCompletion({ task: nl, text: material, name: `tui-${tabId}` })
+          .then((report) => {
+            pushMessage(tabId, "assistant", report.answer ?? "(empty swarm report)", "assistant", { model: tab?.model });
+            updateTab(tabId, (t) => ({ ...t, status: "idle" }));
+          })
+          .catch((e) => {
+            pushMessage(tabId, "error", `swarm failed: ${e.message}`);
+            updateTab(tabId, (t) => ({ ...t, status: "idle" }));
+          });
         break;
       }
       case "help":

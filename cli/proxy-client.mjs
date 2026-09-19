@@ -277,3 +277,18 @@ export async function agentCompletion({ model, task, sessionId, maxTurns, onRetr
     throw new Error(typeof body?.error === "string" ? body.error : `POST /v1/agent: ${res.status}`);
   }
 }
+
+/**
+ * POST /v1/swarm — explicit swarm dispatch (swarm-server.mjs, wired).
+ * No model call and no Heimdall admission: pure organ reads, so no
+ * retry loop — a failure is a real error, never a capacity wait.
+ * Returns the report { routed, mode, pointed, best, ants, answer }.
+ */
+export async function swarmCompletion({ task, text, attachments, name, query, claim }) {
+  const headers = { "content-type": "application/json" };
+  const payload = { task, text, attachments, name, query, claim };
+  const res = await fetch(`${BASE}/v1/swarm`, { method: "POST", headers, body: JSON.stringify(payload) });
+  const body = await res.json().catch(() => ({}));
+  if (res.ok) return body;
+  throw new Error(typeof body?.error === "string" ? body.error : `POST /v1/swarm: ${res.status}`);
+}

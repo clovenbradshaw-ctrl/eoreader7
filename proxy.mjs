@@ -4,6 +4,7 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { MODEL_PREFIX, parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote, parseAnthropicRequest, flattenAnthropicContent, anthropicCountTokensResponse, anthropicMessageResponse, anthropicStreamStart, anthropicContentBlockStart, anthropicContentBlockDelta, anthropicContentBlockStop, anthropicMessageDelta, anthropicMessageStop } from "./proxy-api.mjs";
 import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus, refreshOpencodeModels, upstreamModelFor } from "./proxy-runner.mjs";
+import { runSwarmTurn } from "./swarm-server.mjs";
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
@@ -558,6 +559,42 @@ async function handleRequest(req, res) {
   // three LLM-shaped protocols use below — a busy box refuses this path
   // exactly as it refuses theirs, never a quieter unguarded backdoor to the
   // same resource.
+  // POST /v1/swarm — explicit swarm dispatch (capacity-swarm, wired).
+  // { task (NL pointing), text?, attachments?[{name,text}], name?, query?, claim? }
+  // No model call and no Heimdall admission: pure organ reads, each capacity
+  // capped at its own 8000 chars by capacity-runner.js; the bar is measured
+  // per call. Returns the JSON-safe report + `answer` prose.
+  if (req.method === "POST" && req.url === "/v1/swarm") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", async () => {
+      let parsed;
+      try {
+        parsed = JSON.parse(body);
+      } catch {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: "bad json" }));
+        return;
+      }
+      const task = String(parsed?.task ?? "");
+      const sessionId = sessionIdFromHeaders(req);
+      const texts = [
+        ...(typeof parsed?.text === "string" && parsed.text ? [{ name: String(parsed?.name ?? "swarm-material"), text: parsed.text }] : []),
+        ...(Array.isArray(parsed?.attachments) ? parsed.attachments.map((a, i) => ({ name: String(a?.name ?? `attachment-${i + 1}`).slice(0, 120), text: String(a?.text ?? "") })).filter((a) => a.text.trim()) : []),
+      ];
+      try {
+        const report = runSwarmTurn({ task, texts, name: String(parsed?.name ?? "swarm-material"), query: parsed?.query, claim: parsed?.claim, force: true });
+        res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
+        res.end(JSON.stringify({ sessionId, ...report }));
+      } catch (err) {
+        log(`swarm execution error: ${err.message}`);
+        if (!res.headersSent) res.writeHead(500, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
+    return;
+  }
+
   if (req.method === "POST" && req.url === "/v1/ask") {
     let body = "";
     req.on("data", (c) => (body += c));
@@ -587,6 +624,42 @@ async function handleRequest(req, res) {
         return;
       }
       releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""));
+      // SWARM AUTO-ROUTE (swarm-server.mjs — capacity-swarm): NL that names
+      // swarming never reaches the model. The pointed capacities run through
+      // Wilson's own gate over this turn's own material (attachments +
+      // history) and the measured report IS the answer — no model call, bar
+      // measured per turn. Ordinary chat is untouched (intent gate: only
+      // swarm/ants/every-capacity phrasing routes).
+      const swarmTurn = runSwarmTurn({
+        task: reqData.task,
+        texts: [
+          ...(reqData.attachments ?? []).map((a) => ({ name: a.name, text: a.text })),
+          ...(reqData.chatHistory ?? []).map((m, i) => ({ name: `history-${i}`, text: m.content })),
+        ],
+        name: "chat-turn",
+      });
+      if (swarmTurn.routed) {
+        const created = Math.floor(Date.now() / 1000);
+        const id = `er7-${Date.now()}`;
+        const swarmReading = { sessionId, answerShape: "swarm", swarm: { ...swarmTurn, answer: undefined }, truncated: false };
+        if (reqData.stream) {
+          res.writeHead(200, {
+            "content-type": "text/event-stream",
+            "cache-control": "no-cache",
+            connection: "keep-alive",
+            "x-er7-session": sessionId,
+          });
+          for (const line of openAIStreamLines({ id, model: parsed.model, text: swarmTurn.answer, created, reading: swarmReading })) res.write(line);
+          res.end();
+        } else {
+          const resp = openAIResponse({ id, model: parsed.model, text: swarmTurn.answer, created, usage: { promptTokens: 0, completionTokens: 0 }, reading: swarmReading });
+          resp.reading.sessionId = sessionId;
+          resp.heimdall = bridgeMessage({ model: parsed.model });
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify(resp));
+        }
+        return;
+      }
 
       // A body-supplied sessionId is honored first (a caller with no header
       // machinery can still keep one accumulating reader fold across calls

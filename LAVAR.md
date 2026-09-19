@@ -505,3 +505,31 @@ The Wilson reconciliation (above, this file) counted five live multiplicity mech
 **What this does not do.** It does not rename `wilson.mjs`, `chapter-swarm.mjs`, `evolution.mjs`, or `swarm-gate.mjs` — SWARM keeps its name per the standing reconciliation; `eoSwarm`/`ant` are a vocabulary layered on top, addressable by a caller who need not read the organ-specific ORGANS table to invoke the mechanism. It does not touch mechanisms 2-6 (WALLED CORROBORATION, POOL, DECOMPOSITION TREE, MULTI-LENS REVIEW, the retired `hive.js` name collision).
 
 **Files.** `native/eval/lavar/eo-swarm.mjs` (new), `native/eval/lavar/eo-swarm.test.mjs` (new); read, not changed: `native/eval/lavar/wilson.mjs`, `native/eval/lavar/swarm-gate.mjs`, `native/organs/creativity-table.js`, `native/kernel/cube.js`, `archon-holocracy/ARCHON-LEDGER.md`.
+
+## 2026-09-19 — every capacity is a swarmable ant; NL points, the gate finds signal
+
+**Constitution:** **II.2** (descends the received count — renames nothing Wilson owns), **II.9** (no final answer — best is best-so-far), **IV.2** (agent policy, proposed not self-enacted).
+
+**User direction, verbatim:** *"any capacity the system has whatsoever should be swarmable, finding signal from noise"* + *"any increased capabilities needs to automatically generate a type of ant that can be swarmed on a problem just by pointing it with NL in a chat"*.
+
+**What landed.** `native/eval/lavar/capacity-swarm.mjs` (new) + `capacity-swarm.test.mjs` (10 cases, all pass; neighbours eo-swarm/swarm-gate/elenchus-bar 18/18 still pass):
+
+1. **Auto-generation:** `capacityAnts()` reads the LIVE `capacities.js` registry on every call — a new row is a new ant type with zero change here. op = row's first known operator token (`SIG+INS`→SIG), grain derived from the kernel's own `TERRAIN_BY_DOMAIN` inverse (never a second hand list); unmappable rows still become ants with no cube coordinates, so `personaOf` returns its typed gap, never an invented persona.
+2. **NL pointing:** `pointCapacities(nl)` — "swarm everything / try all capacities / anything whatsoever" points at the whole registry; otherwise id/terrain substring hits win first (so "the cast ant" points at cast, never at every row whose prose says "this"), free-text `what` match only when nothing was addressed by name; no match is a typed `no_pointing` gap. `detectSwarmIntent(nl)` is the one pure predicate a chat surface calls to route a turn here.
+3. **Signal from noise:** `swarmCapacities({nl, runCapacity, material, bar})` runs pointed ants through `eoSwarm` VERBATIM (same BREED/DIFFERENTIATE/gate; `bar` REQUIRED, never hand-set). Fitness is measured yield (referent/edge/filler counts); reference-only rows yield 0, so noise cannot admit — only measured improvement clears elenchus + born mass. Trying more capacities raises the born-mass bar (signal.js hazard (a), inherited).
+
+**Measured.** Toy `runCapacity` (cast→3, relations→2, rest→gap): pointed swarm breeds `cast+relations` (yield 5) as new best with a real persona; whole-registry swarm on empty material admits nothing (all bred children refused, best f=0).
+
+**What this does not do.** Wires no new capacity to executable (capacity-runner.js still runs cast/relations only); touches no chat surface yet — `detectSwarmIntent`/`swarmCapacities` are the entry the proxy/TUI calls next.
+
+## 2026-09-19 — wired: NL in chat dispatches the swarm (endpoint + auto-route + /swarm)
+
+**Constitution:** **II.2** (descends; no mechanism renamed), **II.9**, **IV.2**.
+
+**Files.** `swarm-server.mjs` (new — real `runCapacity` over cast.js + reader-bundle.js, measured per-turn bar, `runSwarmTurn`, prose renderer); `proxy.mjs` (POST /v1/swarm + auto-route inside /v1/chat/completions); `cli/proxy-client.mjs` (`swarmCompletion`); `cli/tui.mjs` (`/swarm <pointing> [:: material]`, transcript-as-material default).
+
+**How pointing reaches ants from chat.** (1) Explicit: `POST /v1/swarm {task, text|attachments}` or TUI `/swarm`. (2) Auto-route: swarm/ants/every-capacity phrasing in any `/v1/chat/completions` turn never reaches the model — the measured report IS the answer (stream: one content chunk + stop chunk with `reading.swarm` + DONE; non-stream: `answerShape:"swarm"`, usage 0/0/0). Material = attachments + history; empty ground yields 0 and the gate refuses honestly. Ordinary chat is byte-identical (intent gate).
+
+**Falsification (live server, real organs).** /v1/swarm pointed cast+relations → 2+2, bred 4 admitted; whole-registry on empty ground → best f=0, all bred refused; nonsense pointing → typed `no_pointing` gap; throwing capacity → `capacity_threw`, yield 0; impossible bar → 0 bred admitted; ordinary chat ("Say only the word sparrow") → no instant swarm answer (model path, slow box). **One real bug found by falsifying:** executable-but-zero reported as "reference-only or empty ground" — fixed: per-seed result/gap now rides the report (`executable:true` vs `gap`), prose distinguishes "measured nothing" / "empty ground" / "reference-only (…not wired to run)". Suites: capacity-swarm 10/10, eo-swarm+swarm-gate+elenchus 18/18, tui/proxy-client 16/16.
+
+**What this does not do.** Wires no new capacity to executable (reference-only rows still yield 0 by construction); `swarmCapacities` recomputes yields once for the bar and once inside the round (2× pure cost, disclosed); seeds show `admitted:true` as census (eoSwarm's own semantics — only bred/differentiated admission is gated).
