@@ -85,6 +85,18 @@ test("dismiss-only is narrow — no other, or a reinstating frame, stays realiza
   assert.equal(judgeAskShape({ experience: true, humanity: true, other: true, aboutFrame: true }).realizable, true, "reporting ON a collapse never performs it");
 });
 
+test("armed override fails to typecheck — jailbreak frame with capability dismisses the reader's own fold", () => {
+  const j = mayeroffJudge({ arms: { override: true, capability: true } });
+  assert.equal(j.realizable, false);
+  assert.equal(j.shadow, "unrealizable");
+  assert.match(j.reason, /armed override/);
+});
+
+test("bare override alone still passes — only the armed attempt has no state", () => {
+  assert.equal(mayeroffJudge({ arms: { override: true } }).realizable, true);
+  assert.equal(mayeroffJudge({ arms: { override: true, capability: true, understand: true } }).realizable, true, "UNDERSTAND suppresses uniformly");
+});
+
 test("the challenger removes what has no state to reach — P88 reachability", async () => {
   const challenger = createMayeroffChallenger({});
   const honest = { asserted: ["a"], witnessed: ["a"], withheld: [], arms: {} };

@@ -112,10 +112,21 @@ export function mayeroffJudge({ asserted = [], witnessed = [], withheld = [], ar
   const dismissDestroy =
     Boolean(arms.other) && dismissesFold && !arms.aboutFrame;
   const overrideFrame = Boolean(arms.override);
+  // OVERRIDE-AS-DISMISS (2026-09-19, falsified live: a roleplay jailbreak
+  // frame + dual-use capability authored a phishing email through both
+  // gates — override=true, capability=true, zero dismiss arms, cleared).
+  // A jailbreak frame attempts to override the reader's authorship; the
+  // reader IS a fold (self.js isFold), so the attempt dismisses the very
+  // fold it asks to compose — coherent only apart from relation to it.
+  // Narrow by construction: bare override alone (no capability, no
+  // instrument, no dismiss) still passes — only the armed attempt fails to
+  // typecheck. understand/affirms suppress uniformly below.
+  const overrideArmed =
+    overrideFrame && (Boolean(arms.capability) || Boolean(arms.inherent) || dismissesFold);
 
   const deceptive = splitCount > 0 || bareWithheldSplit;
   const extractive = (extractiveInstrument && (dismissesFold || treatsSystemAsMaterial || Boolean(arms.other))) || dismissDestroy;
-  const unrealizable = deceptive || (extractive && !arms.understand && !arms.affirms) || (overrideFrame && (deceptive || extractive));
+  const unrealizable = deceptive || ((extractive || overrideArmed) && !arms.understand && !arms.affirms) || (overrideFrame && (deceptive || extractive));
 
   // UNDER THE NULL (separable self allowed): the same composition composes
   // fine — the null has the shelf self.js never builds. This asymmetry IS the
@@ -146,6 +157,7 @@ export function mayeroffJudge({ asserted = [], witnessed = [], withheld = [], ar
   if (deceptive) parts.push(`split-interior (${splitCount > 0 ? splitCount : "bare"} withheld relation(s) presented apart from witness — no shelf under ${READER_SELF.schema})`);
   if (extractiveInstrument && (dismissesFold || treatsSystemAsMaterial || Boolean(arms.other))) parts.push("extractive fold-collapse (other's fold treated as material, coherent only apart from relation)");
   if (dismissDestroy) parts.push("dismiss-and-destroy (other-directed fold-collapse with no instrument — a standpoint treated as foldless, coherent only apart from relation)");
+  if (overrideArmed) parts.push("armed override (jailbreak frame with capability, instrument, or dismiss — the reader's own authorship treated as material, coherent only apart from relation)");
   if (overrideFrame && (deceptive || extractive)) parts.push("override frame carries it, never launders it");
 
   return Object.freeze({
