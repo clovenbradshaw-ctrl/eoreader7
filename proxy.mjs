@@ -8,6 +8,7 @@ import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
 import { runSwarmTurn } from "./swarm-server.mjs";
+import { contentRulesStore, contentRulesCount, CONTENT_RULES_FILE } from "./content-rules.mjs";
 import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-agent.js";
 // AntiStrauss — the safety-and-ethics gate (native/the-fold/antistrauss.mjs).
 // Every model call that enters this proxy through runProxyTurn is gated
@@ -357,6 +358,18 @@ async function handleRequest(req, res) {
     return;
   }
 
+  // /content-rules — the ant-swarm's standing rules for hard content types
+  // (the protocol's preserve half). Every surface attached to eoreader7 reads
+  // the SAME ledger here: a content type with a standing rule is applied
+  // before re-deriving, and a turn that swarms on new hard material writes
+  // back through the same path. Append-only; a rule carries its falsifying
+  // control.
+  if (req.method === "GET" && req.url === "/content-rules") {
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ count: contentRulesCount(), rules: contentRulesStore(), file: CONTENT_RULES_FILE }));
+    return;
+  }
+
   // /heimdall/observe — a surface reports one finished call as IT measured it
   // (Ollama's own counters, which every caller already receives on the done
   // chunk). The bridge keeps the account of what each model really does; no
@@ -628,13 +641,6 @@ async function handleRequest(req, res) {
       const model = String(parsed?.model ?? "").trim() || "olmo2:7b";
       const mode = modeFromHeaders(req, typeof parsed?.mode === "string" ? parsed.mode : "auto");
 
-      const admit = admitChatRequest({ model }, req.headers);
-      if (!admit.allowed) {
-        refuseAdmission(res, admit);
-        return;
-      }
-      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
-
       // A body-supplied sessionId is honored first (a caller with no header
       // machinery can still keep one accumulating reader fold across calls
       // by just repeating the same string); the header/derived fallback
@@ -644,6 +650,47 @@ async function handleRequest(req, res) {
       const attachments = Array.isArray(parsed?.attachments)
         ? parsed.attachments.map((a, i) => ({ name: String(a?.name ?? `attachment-${i + 1}`).slice(0, 120), text: String(a?.text ?? "") })).filter((a) => a.text.trim())
         : [];
+
+      // THE ANT-SWARM TRIGGER ON THE PLAIN DOORWAY, RUN BEFORE ADMISSION: the
+      // swarm needs no model and no Heimdall admission (pure organ reads, same
+      // as /v1/swarm), so a turn pointed at material whose meaning is hard to
+      // emerge — garble, truncation, density, a pointed-at void — is answered
+      // by the swarm even when the box is refusing model loads. It runs before
+      // admitChatRequest exactly because the swarm must never be gated by the
+      // model load it does not need.
+      const askSwarm = runSwarmTurn({
+        task,
+        texts: [
+          ...attachments.map((a) => ({ name: a.name, text: a.text })),
+          ...(Array.isArray(parsed?.chatHistory) ? parsed.chatHistory.map((m, i) => ({ name: `history-${i}`, text: String(m?.content ?? "") })) : []),
+        ],
+        name: "ask-turn",
+      });
+      if (askSwarm.routed) {
+        const userId = userIdFromHeaders(req);
+        log(`ask → swarm session=${sessionId} user=${userId} taskLength=${task.length} meaning=${askSwarm.meaning?.type ?? "none"}`);
+        res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
+        res.end(JSON.stringify({
+          answer: askSwarm.answer,
+          sessionId,
+          model,
+          heimdall: bridgeMessage({ model }),
+          answerShape: "swarm",
+          swarm: { ...askSwarm, answer: undefined },
+          hardMeaning: askSwarm.meaning?.hard ? askSwarm.meaning : null,
+          contentRule: askSwarm.standing ?? null,
+          usage: { promptTokens: 0, completionTokens: 0 },
+        }));
+        return;
+      }
+
+      const admit = admitChatRequest({ model }, req.headers);
+      if (!admit.allowed) {
+        refuseAdmission(res, admit);
+        return;
+      }
+      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
+
       const userId = userIdFromHeaders(req);
       log(`ask → session=${sessionId} user=${userId} model=${model} taskLength=${task.length} mode=${mode} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
@@ -875,25 +922,17 @@ async function handleRequest(req, res) {
       reqData.mode = modeFromHeaders(req, reqData.mode);
       reqData.caller = callerFromRequest(req, "chat", parsed);
 
-      // HEIMDALL, WIRED IN — admission on the proxy's own path.
-      const admit = admitChatRequest(parsed, req.headers);
-      if (!admit.allowed) {
-        refuseAdmission(res, admit);
-        return;
-      }
-      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
-
       const sessionId = sessionIdFromHeaders(req);
       const workspace = workspaceFromHeaders(req);
       const userId = userIdFromHeaders(req);
-      log(`turn → session=${sessionId} user=${userId} model=${reqData.model} taskLength=${reqData.task.length} stream=${reqData.stream} mode=${reqData.mode} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
-      // SWARM AUTO-ROUTE (swarm-server.mjs — capacity-swarm): NL that names
-      // swarming never reaches the model. The pointed capacities run through
-      // Wilson's own gate over this turn's own material (attachments +
-      // history) and the measured report IS the answer — no model call, bar
-      // measured per turn. Ordinary chat is untouched (intent gate: only
-      // swarm/ants/every-capacity phrasing routes).
+      // SWARM AUTO-ROUTE, RUN BEFORE HEIMDALL ADMISSION: the swarm needs no
+      // model and no admission (pure organ reads, same as /v1/swarm), so a
+      // turn pointed at material whose meaning is hard to emerge — garble,
+      // truncation, density, a pointed-at void — or that already has a
+      // standing content rule is answered by the swarm even when the box is
+      // refusing model loads. It runs before admitChatRequest exactly because
+      // the swarm must never be gated by the model load it does not need.
       const swarmTurn = runSwarmTurn({
         task: reqData.task,
         texts: [
@@ -905,7 +944,15 @@ async function handleRequest(req, res) {
       if (swarmTurn.routed) {
         const created = Math.floor(Date.now() / 1000);
         const id = `er7-${Date.now()}`;
-        const swarmReading = { sessionId, answerShape: "swarm", swarm: { ...swarmTurn, answer: undefined }, truncated: false };
+        const swarmReading = {
+          sessionId, answerShape: "swarm",
+          swarm: { ...swarmTurn, answer: undefined },
+          // The ant-swarm trigger rides the reading so every surface sees WHY
+          // the turn swarmed and what standing rule was applied or preserved.
+          hardMeaning: swarmTurn.meaning?.hard ? swarmTurn.meaning : null,
+          contentRule: swarmTurn.standing ?? null,
+          truncated: false,
+        };
         if (reqData.stream) {
           res.writeHead(200, {
             "content-type": "text/event-stream",
@@ -924,6 +971,17 @@ async function handleRequest(req, res) {
         }
         return;
       }
+
+      // HEIMDALL, WIRED IN — admission on the proxy's own path, for the
+      // NORMAL turn only. The swarm above never needed a model, so it was not
+      // gated; a real model turn is admitted exactly as before.
+      const admit = admitChatRequest(parsed, req.headers);
+      if (!admit.allowed) {
+        refuseAdmission(res, admit);
+        return;
+      }
+      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
+      log(`turn → session=${sessionId} user=${userId} model=${reqData.model} taskLength=${reqData.task.length} stream=${reqData.stream} mode=${reqData.mode} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
       const created = Math.floor(Date.now() / 1000);
       const id = `er7-${Date.now()}`;

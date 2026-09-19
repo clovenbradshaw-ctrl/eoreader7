@@ -25,6 +25,8 @@ import { splitSentences } from "./native/adapters/text/spans.js";
 import { extractSurfaces, discoverReferents, namesCorefer, diaNorm } from "./native/adapters/text/surfaces.js";
 import { elenchusBar, RERUN_NULL } from "./native/eval/lavar/elenchus-bar.mjs";
 import { detectSwarmIntent, pointCapacities, swarmCapacities } from "./native/eval/lavar/capacity-swarm.mjs";
+import { detectHardMeaning, signalControl } from "./native/eval/lavar/hard-meaning.mjs";
+import { contentRuleFor, preserveContentRule } from "./content-rules.mjs";
 
 let _runCapacity = null;
 /** The proxy's own capacity dispatch — built once, same organs as the turn. */
@@ -55,12 +57,22 @@ export function measuredBar(runCapacity, seeds, text, name) {
 
 export function runSwarmTurn({ task, texts = [], name = "chat-material", query, claim, force = false } = {}) {
   const intent = detectSwarmIntent(task);
-  if (!intent.swarm && !force) return { routed: false, reason: intent.reason };
+  // THE HARD-MEANING TRIGGER (the protocol's trigger half): a turn pointed at
+  // material whose meaning a plain reading cannot hold (garble, truncation,
+  // density, a pointed-at void) routes to the swarm even when the NL never
+  // names swarming. The detector is mechanical and conservative — ordinary
+  // chat with clean material never fires (measured guard, 2026-09-19). The
+  // ledger is consulted first: a content type with a standing rule is applied
+  // by naming it, not re-derived from scratch.
+  const meaning = detectHardMeaning({ task, texts });
+  const standing = meaning.hard ? contentRuleFor(meaning.type) : null;
+  if (!intent.swarm && !force && !meaning.hard) return { routed: false, reason: intent.reason };
   const pointing = pointCapacities(task);
   if (pointing.gap) {
     return {
       routed: true, mode: "gap", answer: `Swarm: ${pointing.reason}.`,
       pointed: [], best: null, ants: [],
+      meaning, standing,
     };
   }
   const text = (texts ?? []).map((t) => (typeof t === "string" ? t : t?.text ?? "")).join("\n\n");
@@ -68,7 +80,7 @@ export function runSwarmTurn({ task, texts = [], name = "chat-material", query, 
   const bar = measuredBar(runCapacity, pointing.ants, text, name);
   const out = swarmCapacities({ nl: task, runCapacity, material: { text, name }, bar, query, claim });
   if (out.gap) {
-    return { routed: true, mode: "gap", answer: `Swarm: ${out.reason}.`, pointed: [], best: null, ants: [] };
+    return { routed: true, mode: "gap", answer: `Swarm: ${out.reason}.`, pointed: [], best: null, ants: [], meaning, standing };
   }
   // reports[] (per-seed yield + raw result/gap) joined onto the census:
   // an executable capacity that measured zero is "measured nothing", a
@@ -91,15 +103,63 @@ export function runSwarmTurn({ task, texts = [], name = "chat-material", query, 
     pointed: out.pointed,
     best: { ids: out.swarm.best.ids, f: out.swarm.best.f },
     ants,
-    answer: renderSwarmAnswer(out, bar),
+    answer: renderSwarmAnswer(out, bar, { meaning, standing }),
+    meaning, standing,
   };
+  // THE RULE-AUTHOR HALF (the protocol's preserve half): a swarm that RAN on
+  // hard material has just measured what the material holds. When the swarm
+  // converged on signal — or failed in a way that is a property of the
+  // content type, not this instance — the surviving read is written to the
+  // ledger so the next turn pointed at the same type applies it instead of
+  // re-deriving. Deterministic organ yields make the read reproducible.
+  preserveHardMeaningRule({ meaning, out, bar });
   return report;
 }
 
+/** preserveHardMeaningRule — after a swarm runs on hard material, write the
+ *  standing rule for that content type. Converged (best cleared the bar):
+ *  the surviving capacities are the read. Failed with no material anywhere:
+ *  the typed gap itself is the rule. Never called when meaning held. */
+export function preserveHardMeaningRule({ meaning = null, out = null, bar = 0 } = {}) {
+  if (!meaning?.hard || !meaning.type) return null;
+  const falsifying = signalControl(meaning.type);
+  const best = out?.swarm?.best ?? null;
+  const converged = best && Number.isFinite(best.f) && best.f > bar && best.f > 0;
+  const noMaterial = (out?.reports ?? []).every((r) => r?.result?.gap === "no_material");
+  // A type that DEFEATED every executable capacity — material present, but
+  // every seed measured zero — is a type-level finding: the plain capacities
+  // cannot bind it, so the read must be a restoration first, never a trust.
+  const materialPresent = (out?.reports ?? []).some((r) => r?.result?.gap !== "no_material");
+  const defeatedEveryCapacity = materialPresent && (out?.reports ?? []).every((r) => {
+    if (r?.result?.gap === "not_yet_executable") return true; // reference-only rows are not a defeat
+    return (r?.yield ?? 0) === 0;
+  });
+  let read = null;
+  if (converged) {
+    read = `swarm converged: capacities ${best.ids.join("+")} measured signal ${best.f} on ${meaning.type} material — the surviving read is the capacities that bound the signal, not a single-pass guess`;
+  } else if (noMaterial) {
+    read = `swarm ran and every capacity measured "no_material" — the ${meaning.type} material has no readable ground; report the typed gap, never a confident reading`;
+  } else if (defeatedEveryCapacity) {
+    read = `swarm ran and every executable capacity measured zero on ${meaning.type} material — the plain capacities cannot bind it; restore the likely intended text first (${meaning.type}), then re-read, and report only meaning the restored reading and the literal both survive`;
+  }
+  if (!read) return null; // a non-converging swarm on hard material is a case to study, not a rule yet
+  return preserveContentRule({
+    type: meaning.type,
+    signal: meaning.type,
+    read,
+    falsifying,
+    basis: `hard meaning auto-routed this turn (${meaning.basis ?? meaning.type})`,
+  });
+}
+
 /** Plain-prose answer — measured counts only, no model verdicts. */
-export function renderSwarmAnswer(out, bar) {
+export function renderSwarmAnswer(out, bar, { meaning = null, standing = null } = {}) {
   const bySeed = new Map((out.reports ?? []).map((r) => [r.capacity, r]));
   const lines = [];
+  if (meaning?.hard) {
+    const applied = standing ? ` — applying the standing rule for ${meaning.type}: ${standing.read}` : "";
+    lines.push(`Hard meaning (${meaning.type}): ${meaning.signals[0]?.detail ?? ""}${applied}.`);
+  }
   lines.push(`Swarm (${out.mode === "all" ? "all capacities" : "pointed capacities"}): ${out.pointed.join(", ")}.`);
   const seeds = out.swarm.ants.filter((a) => a.kind !== "bred" && a.kind !== "differentiated");
   for (const sd of seeds) {

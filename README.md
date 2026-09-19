@@ -258,6 +258,24 @@ the reader IS is not a setting.
 `kernel/notes.js` (Arokin) is not yet built; the row above is reserved,
 not installed.
 
+## Ant-swarm on hard meaning (2026-09-19)
+
+The ant-swarm protocol runs ON every surface attached to eoreader7, not only
+in an agent host. A turn pointed at material whose meaning is hard to emerge —
+garble, truncation, encoding failure, notation density, a pointed-at void —
+is auto-routed to the capacity-swarm (`native/eval/lavar/hard-meaning.mjs`
+detects it deterministically; `swarm-server.mjs::runSwarmTurn` routes it) even
+when the NL never names swarming and even when Heimdall is refusing model
+loads — the swarm needs no model, so it is never gated by one. The trigger
+runs before admission on every doorway (`/v1/ask`, `/v1/chat/completions`,
+`/v1/swarm`, the TUI, the browser, the fold).
+
+The swarm also PRESERVES what it learns: when it runs on hard material it
+writes a standing rule for that content type to `content-rules.json`
+(`content-rules.mjs`; append-only, falsifying control carried) — and reads the
+same ledger first, so a content type with a standing rule is applied before
+being re-derived. `GET /content-rules` serves the ledger to every surface.
+
 ## Before committing: the two-tier chorus (2026-09-05)
 
 Run `~/.claude/skills/chorus-lint/chorus-fast.sh` from the repo root. In
