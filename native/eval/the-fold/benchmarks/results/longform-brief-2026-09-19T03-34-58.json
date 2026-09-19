@@ -1,0 +1,56 @@
+{
+  "at": "2026-09-19T03:37:45.168Z",
+  "atoms": 33,
+  "results": {
+    "grounded/gemma2:2b": {
+      "text": "## Tallin Maritime Archive\n\n* **Document:** Winter Convoy of 1814\n* **Description:** Records of the winter convoy of 17 lanterns lit along the harbor of glass to guide ice-cut ships home.\n* **Key Information:**\n    * Harbormaster Ilsa Venn ordered the lanterns.\n    * Copper decree of 1814 fixed the pilot's fee at 9 copper rings per mast.\n    * Pilot's fee payable to the Lantern Guild.\n    * Tomas Kell, deputy to Venn, kept the tally on knotted cord.\n    * Forty-one knots for forty-one ships.\n    * One red knot for the ship that never came, the Meridian Star.\n    * North drawer of the archive holds Kell's cord.\n    * Guild's charter forbids pilots from raising fees.\n\n## Vessa Herbarium's Third Folio\n\n* **Document:** Glasspetal\n* **Description:**  Records of the glasspetal, a flower that opens only in hail.\n* **Key Information:**\n    * Curator Odo Marren pressed six specimens in the spring of 1902.\n    * Marren noted the petal count aloud: eleven petals on every bloom, no more, no less.\n    * Sella Ives, assistant to Marren, noted that bees would not touch it.\n    * \"Hive goes silent\" when the glasspetal cracks.\n    * Marren sent two pressed blooms to botanist Ilya Sorren in Riga.\n    * Sorren confirmed the petal count.\n\n## Aubergine Hall Granary Ledger\n\n* **Document:**  Ledger-monk Brother Kett's Granary Books\n* **Description:**  Records of the granary books of Aubergine Hall, balanced by Brother Kett for thirty years.\n* **Key Information:**\n    * Kett's rule: the \"kettle measure\"\n    * Each household received a sack of rye per moon.\n    * A second sack only when the bell tower showed two shadows at noon.\n    * Brother Kett's final page forgives a debt of seventy silver spoons owed by the miller Dorra Finch. \n    * The spoons were never returned. \n    * They hang above the mill door, seventy in a row. \n    * Aubergine Hall was founded by Abbess Mora Telling. \n    * Founding charter promised \"\n    \n \n## Tallin Maritime Archive\n\n* **Document:** Winter Convoy of 1814\n* **Description:** Records of the winter convoy of 17 lanterns lit along the harbor of glass to guide ice-cut ships home.\n* **Key Information:**\n    * Harbormaster Ilsa Venn ordered the lanterns.\n    * Copper decree of 1814 fixed the pilot's fee at 9 copper rings per mast.\n    * Pilot's fee payable to the Lantern Guild.\n    * Tomas Kell, deputy to Venn, kept the tally on knotted cord.\n    * Forty-one knots for forty-one ships.\n    * One red knot for the ship that never came, the Meridian Star.\n    * North drawer of the archive holds Kell's cord.\n    * Guild's charter forbids pilots from raising fees.\n\n## Vessa Herbarium's Third Folio\n\n* **Document:** Glasspetal\n* **Description:**  Records of the glasspetal, a flower that opens only in hail.\n* **Key Information:**\n    * Curator Odo Marren pressed six specimens in the spring of 1902.\n    * Marren noted the petal count aloud: eleven petals on every bloom, no more, no less.\n    * Sella Ives, assistant to Marren, noted that bees would not touch it.\n    * \"Hive goes silent\" when the glasspetal cracks.\n    * Marren sent two pressed blooms to botanist Ilya Sorren in Riga.\n    * Sorren confirmed the petal count.\n\n## Aubergine Hall Granary Ledger\n\n* **Document:**  Ledger-monk Brother Kett's Granary Books\n* **Description:**  Records of the granary books of Aubergine Hall, balanced by Brother Kett for thirty years.\n* **Key Information:**\n    * Kett's rule: the \"kettle measure\"\n    * Each household received a sack of rye per moon.\n    * A second sack only when the bell tower showed two shadows at noon.\n    * Brother Kett's final page forgives a debt of seventy silver spoons owed by the miller Dorra Finch. \n    * The spoons were never returned. \n    * They hang above the mill door, seventy in a row. \n    * Aubergine Hall was founded by Abbess Mora Telling. \n    * Founding charter promised \" \n\n\n\n",
+      "input": 2356,
+      "output": 1011,
+      "truncated": false,
+      "hits": 22,
+      "of": 33,
+      "recall": 0.6666666666666666,
+      "entities": [
+        "Key Information",
+        "Aubergine Hall Granary Ledger"
+      ],
+      "chars": 3861
+    },
+    "grounded/anthropic/claude-sonnet-4-6": {
+      "text": "Here is what the provided text establishes, section by section.\n\n---\n\n**Tallin Maritime Archive**\n\nThe winter convoy of 1814. Harbormaster Ilsa Venn ordered seventeen lanterns lit along the harbor of glass to guide the ice-cut ships home. The copper decree of 1814 fixed the pilot's fee at nine copper rings per mast, payable to the Lantern Guild. Venn's deputy, a rope-maker named Tomas Kell, kept the tally on knotted cord: forty-one knots for forty-one ships, and one red knot for the ship that never came, the Meridian Star. Kell's cord is held in the archive's north drawer. The Guild's charter was signed by Venn herself. The charter's prohibition is not fully stated — the text cuts off mid-sentence.\n\nThree guildmasters witnessed the signing: Pell Ostra, Mirelle Voss, and Dunkan Frye. The text does not specify which document they witnessed; it appears as a separate fragment.\n\n---\n\n**Vessa Herbarium, Third Folio**\n\nThe glasspetal is a flower that opens only in hail. Curator Odo Marren pressed six specimens in the spring of 1902 and noted eleven petals on every bloom, no more, no less. His assistant, a beekeeper named Sella Ives, recorded that bees would not touch the glasspetal — \"the hive goes silent when the glasspetal cracks.\" Her margin sketch, a Hive With No Door, is dated the third hailstorm of that April. Marren sent two pressed blooms to botanist Ilya Sorren in Riga, who confirmed the count — the confirmation statement is cut off there.\n\n---\n\n**Granary Ledger of Aubergine Hall**\n\nLedger-monk Brother Kett balanced the granary books for thirty years and never used the word \"shortage.\" His rule, the kett measure: each household received one sack of rye per moon, and a second sack only when the bell tower showed two shadows at noon. The ledger's final page, in Kett's hand, forgives a debt of seventy silver spoons owed by miller Dorra Finch, described as \"paid in full by one honest winter.\" The spoons were never returned; they hang above the mill door, seventy in a row. Aubergine Hall was founded by Abbess Mora Telling, whose founding charter promised — the text cuts off there.\n\n---\n\nThree things to flag: the Guild charter's prohibition, Ilya Sorren's confirmation, and Abbess Telling's charter promise are each cut off in the source text. I have not completed them. What would you like to do with this?The brief above stands. The source text is the same, and my answer would be the same.\n\nThree passages are cut off mid-sentence in what you've provided — the Guild charter's prohibition, Sorren's confirmation, and Telling's charter promise. A comprehensive brief cannot complete them without inventing content, which you've asked me not to do.\n\nIf you have the full text of those passages, share them and I'll incorporate them exactly.",
+      "input": 2689,
+      "output": 733,
+      "truncated": false,
+      "hits": 31,
+      "of": 33,
+      "recall": 0.9393939393939394,
+      "entities": [
+        "Granary Ledger",
+        "Abbess Telling"
+      ],
+      "chars": 2775
+    },
+    "hybrid/gemma2:2b+claude-sonnet-4-6": {
+      "text": "# Comprehensive Reference Brief\n\n*Compiled from reading notes. Each section corresponds to one archive. All names, numbers, dates, and rules are reproduced exactly as recorded. Nothing has been added or invented. Duplicate entries in the source notes have been consolidated within their respective sections.*\n\n---\n\n## I. Tallin Maritime Archive\n\n### Primary Document\n**Winter Convoy of 1814**\n\n### Personnel\n- **Harbormaster Ilsa Venn** — issued orders for the harbor illumination during the Winter Convoy of 1814; signed the Guild Charter.\n- **Deputy Tomas Kell** — responsible for recording ships' passage; his knotted cord remains in the archive's North Drawer.\n\n### Orders and Actions\n- Harbormaster Ilsa Venn ordered **17 lanterns** lit along the harbor of glass to guide ice-cut ships home.\n- Deputy Tomas Kell recorded the ships' passage using **41 knots** on a knotted cord. One knot among the 41 is red, marking the **Meridian Star**.\n\n### Physical Artifact\n- Kell's knotted cord is preserved in the **North Drawer** of the archive.\n\n### Regulations and Decrees\n\n**Copper Decree of 1814**\n- Pilot's fee fixed at **9 copper rings per mast**.\n- Fee is payable to the **Lantern Guild**.\n\n**Guild Charter**\n- Signed by Harbormaster **Ilsa Venn**.\n- Forbids pilots from raising fees.\n\n---\n\n## II. Vessa Herbarium's Third Folio\n\n### Primary Document\n**Glasspetal**\n\n### Personnel\n- **Curator Odo Marren** — pressed specimens in the spring of 1902.\n- **Sella Ives** — produced a sketch titled \"Hive With No Door,\" dated to the third hailstorm of April.\n- **Ilya Sorren** — botanist based in Riga; provided external confirmation of petal count.\n\n### Specimen Record\n- Curator Odo Marren pressed **6 specimens** in the **spring of 1902**.\n- Each bloom carried **11 petals**.\n- Bees would not touch the flower.\n- Sella Ives' sketch, **\"Hive With No Door,\"** was dated to the **third hailstorm of April**.\n\n### Confirmation\n- Ilya Sorren, botanist in Riga, confirmed the petal count of **11**.\n\n---\n\n## III. Aubergine Hall Granary Ledger\n\n### Primary Document\n**Aubergine Hall Granary Ledger**\n\n### Personnel\n- **Brother Kett** — ledger-monk; balanced the granary books for **30 years**; author of the Kett Measure.\n- **Dorra Finch** — miller; held a debt of 70 silver spoons, forgiven on the ledger's final page.\n- **Abbess Mora Telling** — founder of Aubergine Hall.\n\n### Rules and Measures\n\n**The Kett Measure**\n- Each household was allowed **one sack of rye per moon**.\n- A **second sack** was permitted only when the bell tower showed **two shadows at noon**.\n\n### Final Ledger Entry\n- The final page of the ledger forgives a debt of **70 silver spoons** owed by miller **Dorra Finch**.\n- The debt is recorded as **\"paid in full by one honest winter.\"**\n- The **70 spoons** remain above the mill door, arranged in a row.\n\n### Founding Charter\n- Aubergine Hall was founded by **Abbess Mora Telling**.\n- The charter promised **\"no shortage\"** of provisions.\n\n---\n\n*End of brief. No information beyond what appears in the source reading notes has been included.*",
+      "input": 999,
+      "output": 902,
+      "freeNotesChars": 2930,
+      "freeInput": 2242,
+      "freeOutput": 787,
+      "hits": 19,
+      "of": 33,
+      "recall": 0.5757575757575758,
+      "entities": [
+        "Comprehensive Reference Brief",
+        "Primary Document",
+        "Guild Charter",
+        "Deputy Tomas Kell",
+        "Physical Artifact",
+        "Specimen Record",
+        "Aubergine Hall Granary Ledger",
+        "Final Ledger Entry"
+      ],
+      "chars": 3062
+    }
+  }
+}

@@ -49,6 +49,63 @@ async function loadPyodideOnce() {
   return _pyodideLoading;
 }
 
+// ── thinking-marker stripping (qwen3 mouth hygiene) ────────────────────────
+// A reasoning mouth's working must never reach the answer: <think> blocks
+// (closed or truncated by the token budget) and stray /think + /no_think
+// control tokens are stripped from PROSE, while fenced code rides through
+// byte-exact (a code string '<think>' is content, not working). Returns the
+// cleaned text and how many markers were removed (open+close count as 2).
+// Case-insensitive on the tags; the bare tokens match only as whole tokens
+// (/thinking, a/think are words/paths, never touched).
+const THINK_BLOCK_RE = /<think\s*>[\s\S]*?(?:<\/think\s*>|$)/gi;
+const THINK_BARE_RE = /(^|\s)\/(no_)?think\b/gi;
+
+function stripThinkingFromProse(prose) {
+  let stripped = 0;
+  let out = String(prose ?? "");
+  out = out.replace(THINK_BLOCK_RE, (m) => {
+    stripped += /<\/think\s*>/i.test(m) ? 2 : 1;
+    return "";
+  });
+  out = out.replace(THINK_BARE_RE, () => {
+    stripped += 1;
+    return "";
+  });
+  return { out, stripped };
+}
+
+export function stripThinking(text) {
+  const src = String(text ?? "");
+  // Fence-aware split: lines inside ``` fences (including an unclosed tail
+  // fence) are code and pass through untouched; only prose is scrubbed.
+  const lines = src.split("\n");
+  let inFence = false;
+  let stripped = 0;
+  const proseBuf = [];
+  const flush = () => {
+    if (!proseBuf.length) return null;
+    const { out, stripped: n } = stripThinkingFromProse(proseBuf.join("\n"));
+    stripped += n;
+    proseBuf.length = 0;
+    return out;
+  };
+  const parts = [];
+  for (const line of lines) {
+    if (/^\s*```/.test(line)) {
+      const f = flush();
+      if (f !== null) parts.push(f);
+      parts.push(line);
+      inFence = !inFence;
+      continue;
+    }
+    if (inFence) parts.push(line);
+    else proseBuf.push(line);
+  }
+  const tail = flush();
+  if (tail !== null) parts.push(tail);
+  return { text: parts.join("\n"), stripped };
+}
+
 // ── fenced code extraction ──────────────────────────────────────────────────
 const FENCE_RE = /^```([\w.+-]*)\n([\s\S]*?)\n```$/gm;
 
@@ -249,20 +306,25 @@ export function warmPostprocess({ budgetMs = 15000 } = {}) {
 }
 
 export async function postprocessAnswer(text, { onNote = null, timeboxMs = 0 } = {}) {
-  const blocks = extractBlocks(text);
-  if (!blocks.length) {
-    return { text, blocks: [], linted: false, reordered: false, notes: [], timedOut: false };
-  }
-
-  let out = text;
+  // Thinking blocks are stripped FIRST (prose-face only, code never touched):
+  // the mouth's working must never reach the answer, on any route.
   const notes = [];
-  let anyLinted = false;
-  let anyReordered = false;
-  let timedOut = false;
   const note = (msg) => {
     notes.push(msg);
     if (onNote) onNote({ span: "post", kind: "note", message: msg });
   };
+  const cleaned = stripThinking(text);
+  if (cleaned.stripped > 0) note(`stripped ${cleaned.stripped} thinking marker(s) — the mouth's working, never the answer`);
+  text = cleaned.text;
+  const blocks = extractBlocks(text);
+  if (!blocks.length) {
+    return { text, blocks: [], linted: false, reordered: false, notes, timedOut: false };
+  }
+
+  let out = text;
+  let anyLinted = false;
+  let anyReordered = false;
+  let timedOut = false;
 
   // Timebox wraps the whole pass; hitting it returns the original text so the
   // answer is never delayed by the tooling that cleans it up.

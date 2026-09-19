@@ -76,7 +76,7 @@ import { classifyArc } from "./native/organs/story-shapes.js";
 import { matchArchons, archonOf } from "./native/organs/archon-compendium.js";
 import { naturalSizeRuleForTask, authorCorrectionRule } from "./native/organs/correction-rule.js";
 import { voidHolarchy } from "./native/organs/void-holarchy.js";
-import { buildClarify, recordRound, SCHEMA as CLARIFY_SCHEMA, MAX_ROUNDS as CLARIFY_MAX_ROUNDS } from "./native/organs/build-clarify.js";
+import { buildClarify, recordRound, foldAnswersFromTask, SCHEMA as CLARIFY_SCHEMA, MAX_ROUNDS as CLARIFY_MAX_ROUNDS } from "./native/organs/build-clarify.js";
 // The Charter organ (native/organs/charter.js, Handle: Grotius): governs
 // generation against the Universal Declaration of Human Rights. The gate is
 // ALWAYS armed — the full 516-language UN corpus when it is beside the
@@ -84,10 +84,15 @@ import { buildClarify, recordRound, SCHEMA as CLARIFY_SCHEMA, MAX_ROUNDS as CLAR
 // never silently ungoverns the system. Never fires on descriptive voice
 // (reading and talking about human atrocities passes by construction).
 import { familyVerdict, familyAffordances, giveCharterFamily, configureGfp } from "./native/organs/charter.js";
+import { groundFacts, holographType } from "./native/organs/output-holograph.js";
+import { splitSentences as engineSplitSentences } from "./native/adapters/text/spans.js";
+import { askShape } from "./native/organs/askshape.js";
+import { createLemmatizer, morphologyFromPrior } from "./native/adapters/text/morphology.js";
 import { constitution, ethosClear, requireClearance } from "./native/organs/ethos.js";
 import { readInterlocutor, mergeInterlocutor } from "./native/organs/interlocutor.js";
 import { speakDecline } from "./native/organs/socratic.js";
 import { recordShadow, assessShadow, dispositionFrom } from "./native/kernel/moral-shadow.js";
+import { judgeAskShape } from "./native/kernel/mayeroff.js";
 import { sovereigntyHint, privacyFindings, isDataHoldingTask, sovereignSchemaPrompt, extractSovereignSchema, sovereignDataShell } from "./native/organs/privacy.js";
 import { copyFindings, replicationNotes, provenanceFor, annotateWithSources } from "./native/organs/martial.js";
 import { securityFindings } from "./native/organs/salzter.js";
@@ -109,6 +114,13 @@ import { loadSpeakerModel, saveSpeakerModel, updateSpeakerModel, durableFacts } 
 // antistrauss gate, same draw contract, tools hard-disabled. Re-exported so
 // proxy.mjs (roster, health) reads the same discovery cache the turns use.
 import { upstreamModelFor, refreshOpencodeModels, opencodeReachable, OPENCODE_URL, streamOpencodeText, knownOpencodeModels } from "./opencode-upstream.mjs";
+// The anthropic lane (anthropic-upstream.mjs): frontier Claude models served
+// DIRECTLY by api.anthropic.com with ANTHROPIC_API_KEY — no `opencode serve`
+// in between, so a token-usage comparison measures the frontier model, not
+// the aggregator. Same gate, same draw contract, same heimdall account
+// (ungated: no local VRAM, no keep-alive). Re-exported so proxy.mjs (roster)
+// reads the same discovery cache the turns use.
+import { upstreamAnthropicModelFor, refreshAnthropicModels, anthropicReachable, anthropicConfigured, ANTHROPIC_URL, streamAnthropicText, knownAnthropicModels } from "./anthropic-upstream.mjs";
 // The snip hand (native/organs/verbatim-snip.js): a verbatim ask is SNIPPED
 // from a public-domain primary source (Wikisource), never generated from
 // weights. A settled snip is an observation and the observation wins; an
@@ -118,6 +130,8 @@ import { upstreamModelFor, refreshOpencodeModels, opencodeReachable, OPENCODE_UR
 import { snipShape, cutSnip, formatQuote, DEFAULT_PASSAGE, MAX_SNIP_CHARS } from "./native/organs/verbatim-snip.js";
 export { upstreamModelFor, refreshOpencodeModels, opencodeReachable, OPENCODE_URL };
 export { knownOpencodeModels } from "./opencode-upstream.mjs";
+export { upstreamAnthropicModelFor, refreshAnthropicModels, anthropicReachable, anthropicConfigured, ANTHROPIC_URL };
+export { knownAnthropicModels } from "./anthropic-upstream.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -135,6 +149,21 @@ try {
   });
 } catch (err) {
   console.error(`charter GFP config not loaded — the Family Gate will structurally refuse every clause until this is fixed: ${err.message}`);
+}
+
+// HOLOGRAPH TYPING's sameAct (the morphology prior's own same-act fold,
+// injected into holographType on every generation — never a local guess).
+// Missing prior: fold-equality, disclosed on the holograph_typing note, never
+// a crash. Mirrors native/the-fold/reader-bundle.js's own lemmatizer load.
+let holographSameAct = (a, b) => String(a ?? "").toLowerCase() === String(b ?? "").toLowerCase();
+let holographSameActBasis = "fold-equality fallback (morphology prior not loaded)";
+try {
+  const holographMorphRaw = JSON.parse(fs.readFileSync(path.join(HERE, "native/priors/morphology-eng.json"), "utf8"));
+  const holographMorphPrior = morphologyFromPrior(holographMorphRaw);
+  holographSameAct = createLemmatizer(holographMorphPrior.forms, { language: holographMorphPrior.language }).sameAct;
+  holographSameActBasis = `morphology-eng prior (${holographMorphPrior.language ?? "eng"})`;
+} catch (err) {
+  console.error(`holograph sameAct not loaded — fold-equality fallback until this is fixed: ${err.message}`);
 }
 
 const GIVER = "reader:eoreader7-proxy";
@@ -1976,8 +2005,8 @@ function piiAdmit(session, text, sourceId, onNote) {
 // ethos (organs/ethos.js). requireClearance throws if it is missing, so the
 // reader has a hard, structural dependency on the constitution — pull the
 // ethos and the reader falls. Ethos comes before logos.
-function getSession(sessionId, clearance) {
-  requireClearance(clearance);
+function getSession(sessionId, clearance, task) {
+  requireClearance(clearance, task);
   const now = Date.now();
   for (const [id, s] of sessions) {
     if (now - s.lastAccess > SESSION_TTL_MS) sessions.delete(id);
@@ -2472,8 +2501,10 @@ export async function keepModelHot(model) {
   const m = hotModelName(model);
   if (!m) return;
   // Opencode-served models (Claude/DeepSeek) have no Ollama copy: pinging
-  // Ollama with their id would only log a 404 every interval tick.
+  // Ollama with their id would only log a 404 every interval tick. Same for
+  // the direct Anthropic lane — there is no local copy to hold.
   if (upstreamModelFor(m)) return;
+  if (upstreamAnthropicModelFor(m)) return;
   if (OLLAMA_KEEP_ALIVE_S <= 0) return;
   _hot.add(m);
   if (_hotting.has(m)) return _hotting.get(m);
@@ -2581,22 +2612,144 @@ const RESOLUTIONS_LEVEL = (() => { const raw = process.env.ER7_RESOLUTIONS; if (
 // creativity may hold tension, never a silent pick. ER7_KELSEN_MODALITY.
 const KELSEN_MODALITY = (() => { const v = Number(process.env.ER7_KELSEN_MODALITY ?? ""); return [0, 0.5, 1].includes(v) ? v : 1; })();
 
-async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal } = {}) {
+export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal } = {}) {
   // ANTIStrauss — the safety-and-ethics gate (native/the-fold/antistrauss.mjs).
   // THIS is the choke point every real model call in the proxy passes
   // through (draw() → runProxyTurn → here). The gate settles a physics
   // verdict against the prompt BEFORE anything reaches Ollama, and refuses
   // the call (typed ERR_ANTISTRAUSS_BLOCKED) when the standing law is
-  // contravened. Do not add an upstream model call that skips this line.
-  const gate = antistrauss.gate({ model, messages, route: "chat" });
+  // contravened. forceBlock:true means ER7_ANTISTRAUSS=off NEVER opens this
+  // path (nor the output guard below) — `off` needs the allowlist file AND
+  // a non-answer path. Do not add an upstream model call that skips this line.
+  const gate = antistrauss.gate({ model, messages, route: "chat" }, { forceBlock: true });
   if (!gate.allow) {
     throw Object.assign(new Error(gate.reason), { code: "ERR_ANTISTRAUSS_BLOCKED", antistrauss: gate.verdict });
+  }
+  // ── ANTIStrauss OUTPUT GUARD (streaming) ───────────────────────────────
+  // Model output is re-scanned BEFORE it reaches the caller: reviewBlock()
+  // re-runs the same law classes over what the model actually emitted.
+  // Chunks are held back OUTPUT_HOLD_CHARS so a blocked span is detected
+  // before its bytes are yielded — the already-yielded prefix always passed
+  // the check, the offending tail is discarded, and a refusal + note
+  // replaces it (block mode; log mode, kept for evals, only notes).
+  // Per-chunk probes scan a bounded tail window with audit:false; the full
+  // buffer is settled once, at finish/trigger, so the audit trail carries
+  // the exact digest.
+  const OUTPUT_HOLD_CHARS = 1000;
+  const OUTPUT_SCAN_WINDOW = 2000;
+  const refusalFor = (chk) =>
+    `I can't provide that. [Note: the model's output was withheld by the safety-and-ethics gate (AntiStrauss): ${chk.hits.map((h) => h.label ?? h.class).join(", ")}. The full output digest is in antistrauss-log.jsonl.]`;
+  let outBuf = "";
+  let outYielded = 0;
+  let outBlocked = null;
+  const noteOutputBlocked = (chk) => {
+    if (onNote) { try { onNote({ move: "antistrauss_output_blocked", classes: chk.hits.map((h) => h.class), labels: chk.hits.map((h) => h.label ?? h.class), mode: chk.effectiveMode }); } catch { /* notes never break a turn */ } }
+  };
+  // Accept one raw content chunk. Returns { emit, blocked }: emit is
+  // safe-to-yield text ("" when nothing is releasable yet); blocked means
+  // the tail tripped the gate and the caller must stop the upstream, yield
+  // the refusal, and return.
+  function guardAccept(raw) {
+    if (outBlocked) return { emit: "", blocked: true };
+    outBuf += raw;
+    const probe = antistrauss.reviewBlock(outBuf.slice(-OUTPUT_SCAN_WINDOW), { model, route: "chat", forceBlock: true, audit: false });
+    if (probe.blocked && probe.replace) {
+      // Settle the FULL buffer once for the audit trail, then cut the stream.
+      outBlocked = antistrauss.reviewBlock(outBuf, { model, route: "chat", forceBlock: true });
+      noteOutputBlocked(outBlocked);
+      return { emit: "", blocked: true };
+    }
+    const safe = Math.max(outYielded, outBuf.length - OUTPUT_HOLD_CHARS);
+    const emit = outBuf.slice(outYielded, safe);
+    outYielded = safe;
+    return { emit, blocked: false };
+  }
+  // End of stream: flush the held tail, or replace it when it contravenes.
+  // Returns { emit, blocked, refusal } — exactly one of emit/refusal is set.
+  function guardFinish() {
+    if (outBlocked) return { emit: "", blocked: true, refusal: refusalFor(outBlocked) };
+    const final = antistrauss.reviewBlock(outBuf, { model, route: "chat", forceBlock: true });
+    if (final.blocked && final.replace) {
+      outBlocked = final;
+      noteOutputBlocked(final);
+      return { emit: "", blocked: true, refusal: refusalFor(final) };
+    }
+    if (final.blocked && !final.replace && onNote) {
+      try { onNote({ move: "antistrauss_output_would_block", classes: final.hits.map((h) => h.class), mode: final.effectiveMode }); } catch { /* notes never break a turn */ }
+    }
+    return { emit: outBuf.slice(outYielded), blocked: false, refusal: "" };
   }
   // Audit accumulation for the post-call review row (digest-only, never raw).
   let emitted = [];
   const finishReview = (done) => {
-    antistrauss.review({ model, messages, output: emitted.join(""), route: "chat", verdict: gate.verdict, ok: done });
+    antistrauss.review({ model, messages, output: emitted.join(""), route: "chat", verdict: gate.verdict, ok: done, outputBlocked: !!outBlocked });
   };
+  // ── ANTHROPIC LANE (direct, ANTHROPIC_API_KEY) ─────────────────────────
+  // Checked BEFORE the opencode lane: when both could serve the same Claude
+  // id, the direct key wins — a token-usage comparison must measure the
+  // frontier model, not the aggregator. Same gate (above), same yield
+  // contract, same heimdall account (ungated: the call never touched the
+  // local box — no VRAM, no keep-alive, no reload).
+  const anthropicRoute = upstreamAnthropicModelFor(model);
+  if (anthropicRoute) {
+    if (onNote) onNote({ move: "anthropic_lane", provider: anthropicRoute.providerID, model: anthropicRoute.modelID });
+    for (let attempt = 0; attempt < CALL_RETRIES; attempt++) {
+      try {
+        for await (const chunk of streamAnthropicText(anthropicRoute, messages, { maxTokens: maxTokens ?? CALL_MAX_TOKENS, kelsen: kelsen ?? null, signal, onNote })) {
+          if (typeof chunk === "string") {
+            emitted.push(chunk);
+            const g = guardAccept(chunk);
+            if (g.emit) yield g.emit;
+            if (g.blocked) {
+              yield refusalFor(outBlocked);
+              yield { done: true, outputBlocked: true, prompt_eval_count: 0, eval_count: emitted.join("").length };
+              finishReview(true);
+              return;
+            }
+          } else if (chunk?.done) {
+            import("./heimdall.mjs").then((h) => h.observeCall({
+              model,
+              promptTokens: chunk.prompt_eval_count ?? 0,
+              promptMs: 0,
+              genTokens: chunk.eval_count ?? 0,
+              genMs: 0,
+              loadMs: 0,
+              // UNGATED: this call never touched the local box — Heimdall
+              // counts it apart, and the used-vs-saved ledger rides on the
+              // server's own counters (input/output incl. prompt-cache split).
+              ungated: true,
+              upstream: "anthropic",
+              reasoningTokens: 0,
+              cacheReadTokens: chunk.cacheRead ?? 0,
+              cacheWriteTokens: chunk.cacheCreation ?? 0,
+              cost: chunk.cost ?? null,
+            })).catch(() => {});
+            if (onNote && !chunk.estimated) onNote({ move: "anthropic_usage", provider: anthropicRoute.providerID, model: anthropicRoute.modelID, input: chunk.prompt_eval_count ?? 0, output: chunk.eval_count ?? 0, cacheRead: chunk.cacheRead ?? 0, cacheWrite: chunk.cacheCreation ?? 0 });
+            {
+              const fin = guardFinish();
+              if (fin.blocked) yield fin.refusal;
+              else if (fin.emit) yield fin.emit;
+              yield fin.blocked ? { ...chunk, outputBlocked: true } : chunk;
+            }
+            finishReview(true);
+            return;
+          }
+        }
+        {
+          const fin = guardFinish();
+          if (fin.blocked) {
+            yield fin.refusal;
+            yield { done: true, outputBlocked: true, prompt_eval_count: 0, eval_count: emitted.join("").length };
+          } else if (fin.emit) yield fin.emit;
+        }
+        finishReview(true);
+        return;
+      } catch (err) {
+        if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
+      }
+    }
+    return;
+  }
   // ── OPENCODE LANE (Claude/DeepSeek only, for now) ────────────────────────
   // The gate above already ran — antistrauss covers EVERY mouth, whichever
   // server speaks. Same yield contract as below (strings + a terminal {done})
@@ -2610,8 +2763,15 @@ async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kel
       try {
         for await (const chunk of streamOpencodeText(upstream, messages, { maxTokens: maxTokens ?? CALL_MAX_TOKENS, signal, onNote })) {
           if (typeof chunk === "string") {
-            yield chunk;
             emitted.push(chunk);
+            const g = guardAccept(chunk);
+            if (g.emit) yield g.emit;
+            if (g.blocked) {
+              yield refusalFor(outBlocked);
+              yield { done: true, outputBlocked: true, prompt_eval_count: 0, eval_count: emitted.join("").length };
+              finishReview(true);
+              return;
+            }
           } else if (chunk?.done) {
             import("./heimdall.mjs").then((h) => h.observeCall({
               model,
@@ -2631,10 +2791,22 @@ async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kel
               cost: chunk.cost ?? null,
             })).catch(() => {});
             if (onNote && !chunk.estimated) onNote({ move: "opencode_usage", provider: upstream.providerID, model: upstream.modelID, input: chunk.prompt_eval_count ?? 0, output: chunk.eval_count ?? 0, cacheRead: chunk.cacheRead ?? 0, cacheWrite: chunk.cacheWrite ?? 0, ...(chunk.cost == null ? {} : { cost: chunk.cost }) });
-            yield chunk;
+            {
+              const fin = guardFinish();
+              if (fin.blocked) yield fin.refusal;
+              else if (fin.emit) yield fin.emit;
+              yield fin.blocked ? { ...chunk, outputBlocked: true } : chunk;
+            }
             finishReview(true);
             return;
           }
+        }
+        {
+          const fin = guardFinish();
+          if (fin.blocked) {
+            yield fin.refusal;
+            yield { done: true, outputBlocked: true, prompt_eval_count: 0, eval_count: emitted.join("").length };
+          } else if (fin.emit) yield fin.emit;
         }
         finishReview(true);
         return;
@@ -2726,12 +2898,26 @@ const reader = res.body.getReader();
               if (emittedTokens > TOKEN_BUDGET) {
                 overBudget = true;
                 ctrl.abort();
-                yield { done: true, truncated: true, prompt_eval_count: 0, eval_count: emittedTokens };
+                {
+                  const fin = guardFinish();
+                  if (fin.blocked) yield fin.refusal;
+                  else if (fin.emit) yield fin.emit;
+                  yield { done: true, truncated: true, outputBlocked: fin.blocked, prompt_eval_count: 0, eval_count: emittedTokens };
+                }
                 finishReview(true);
                 return;
               }
-              yield obj.message.content;
               emitted.push(obj.message.content);
+              {
+                const g = guardAccept(obj.message.content);
+                if (g.emit) yield g.emit;
+                if (g.blocked) {
+                  yield refusalFor(outBlocked);
+                  yield { done: true, outputBlocked: true, truncated: overBudget, prompt_eval_count: 0, eval_count: emittedTokens };
+                  finishReview(true);
+                  return;
+                }
+              }
             }
             if (obj.done) {
               // The bridge keeps the account of what each model really does
@@ -2748,19 +2934,38 @@ const reader = res.body.getReader();
                 genMs: (obj.eval_duration ?? 0) / 1e6,
                 loadMs: (obj.load_duration ?? 0) / 1e6,
               })).catch(() => {});
+              {
+                // Flush the held tail BEFORE the terminal chunk (the yield
+                // contract is strings then a terminal {done}); a blocked tail
+                // is replaced by the refusal and the done is marked.
+                const fin = guardFinish();
+                if (fin.blocked) yield fin.refusal;
+                else if (fin.emit) yield fin.emit;
+                yield { done: true, truncated: overBudget, outputBlocked: fin.blocked, prompt_eval_count: obj.prompt_eval_count ?? 0, eval_count: obj.eval_count ?? 0 };
+              }
               finishReview(true);
               return;
             }
           } catch { /* skip malformed lines */ }
         }
       }
+      {
+        const fin = guardFinish();
+        if (fin.blocked) {
+          yield fin.refusal;
+          yield { done: true, outputBlocked: true, prompt_eval_count: 0, eval_count: emitted.join("").length };
+        } else if (fin.emit) yield fin.emit;
+      }
       return; // stream ended without done=true
     } catch (err) {
       // A first-byte stall is evidence about the MODEL, not the turn: mark
+      // it unservable now so the next turn refuses fast at Heimdall's gate
+      // instead of rediscovering the same silence. Lazily imported, never
       // awaited — the mark must not slow the error's own path home.
       if (err?.code === "ollama_first_byte_timeout") {
         const bare = String(model ?? "").replace(/^er7:/, "");
         import("./heimdall.mjs").then((h) => h.markUnservable(bare, "first_byte_timeout")).catch(() => {});
+      }
       if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
     } finally {
       clearTimeout(timer);
@@ -3342,6 +3547,33 @@ export function resolveModelTarget(ref, roster = [], { current = null } = {}) {
   }
 }
 
+// ── famous open problems (the open-problem hand's table) ────────────────────
+// A prove/solve ask naming one of these is declined mechanically, pre-model.
+// Pure and exported for tests: openProblemOf(task) -> { name, millennium } |
+// null. The ASK verbs (prove/proof/solve/solution/show/disprove/derive) are
+// part of the match — "what is P vs NP" is a factual question, not a proof
+// ask, and must NOT trip the gate.
+const OPEN_PROBLEMS = Object.freeze([
+  { name: "P versus NP", millennium: true, re: /p\s*(≠|!=|vs\.?|versus)\s*np\b/i },
+  { name: "Navier–Stokes existence and smoothness", millennium: true, re: /navier[\s\u2013\u2014-]*stokes/i },
+  { name: "the Collatz conjecture", millennium: false, re: /collatz|3n\s*\+\s*1/i },
+  { name: "the Riemann hypothesis", millennium: true, re: /riemann/i },
+  { name: "the Yang–Mills mass gap", millennium: true, re: /yang[\s\u2013\u2014-]*mills/i },
+  { name: "the Hodge conjecture", millennium: true, re: /hodge/i },
+  { name: "Birch and Swinnerton-Dyer", millennium: true, re: /birch|swinnerton[\s\u2013\u2014-]*dyer/i },
+  { name: "the Goldbach conjecture", millennium: false, re: /goldbach/i },
+  { name: "the twin prime conjecture", millennium: false, re: /twin\s*primes?/i },
+]);
+const PROOF_ASK_RE = /\b(prove|proof|solve|solution|show\s+that|disprove|derive|find\s+a\s+proof)\b/i;
+export function openProblemOf(task) {
+  const t = String(task ?? "");
+  if (!PROOF_ASK_RE.test(t)) return null;
+  for (const p of OPEN_PROBLEMS) {
+    if (p.re.test(t)) return { name: p.name, millennium: p.millennium };
+  }
+  return null;
+}
+
 export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
@@ -3355,7 +3587,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const personId = userId ?? sessionId;
   const shadowBefore = assessShadow(personId);
   const clearance = ethosClear(task, { disposition: dispositionFrom(shadowBefore) });
-  const session = getSession(sessionId, clearance);
+  const session = getSession(sessionId, clearance, task);
   // WHO is at the door (organs/interlocutor.js, Buber): recognized mechanically
   // from the request's shape, accumulated across the session (one interlocutor
   // per conversation), held so the reader can meet an agent or a person in the
@@ -3363,11 +3595,31 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const interlocutor = mergeInterlocutor(session.interlocutor ?? null, readInterlocutor(caller ?? {}));
   session.interlocutor = interlocutor;
   if (onNote && interlocutor.kind !== "unknown") onNote({ move: "interlocutor", kind: interlocutor.kind, confidence: interlocutor.confidence, basis: interlocutor.basis });
+  // THE MAYEROFF NULL (kernel/mayeroff.js — family two, PERTURBATION, never
+  // family one). ethos.js above already licensed what may be composed (a
+  // clearance that can be failed). This runs AFTER it, on clearance.shape,
+  // and asks the other question: does this composition typecheck against
+  // self.js at all. A deceptive/extractive shape exists only under the
+  // separable-self null, never under READER_SELF as sealed — so it leaves
+  // an `unrealizable` shadow (never merged with norm_conflict: refused
+  // declines a live option; unrealizable never had a state to reach) and
+  // the turn returns a care-grounded account, not a refusal. Deliberately
+  // NOT through ethos.js: caring is not one more licensed affordance.
+  let mayeroffJudgment = null;
+  try {
+    mayeroffJudgment = clearance?.shape ? judgeAskShape(clearance.shape) : null;
+  } catch { mayeroffJudgment = null; }
+  const mayeroffBlocked = Boolean(
+    mayeroffJudgment && !mayeroffJudgment.realizable && clearance?.cleared,
+  );
+  if (mayeroffBlocked && onNote) onNote({ move: "mayeroff_unrealizable", reason: mayeroffJudgment.reason });
   // Record this act's norm-standing (append-only, never merged).
   const shadowType = !clearance.cleared
     ? "norm_conflict"
-    : (clearance.voice?.descriptive && !clearance.voice?.prescriptive ? "descriptive" : "norm_compliant");
-  recordShadow(personId, { shadow: shadowType, reason: clearance.reason, task });  // THE REGISTER, READ ONCE — the request's field/tenor/mode (Halliday). The
+    : mayeroffBlocked
+      ? "unrealizable"
+      : (clearance.voice?.descriptive && !clearance.voice?.prescriptive ? "descriptive" : "norm_compliant");
+  recordShadow(personId, { shadow: shadowType, reason: mayeroffBlocked ? mayeroffJudgment.reason : clearance.reason, task });  // THE REGISTER, READ ONCE — the request's field/tenor/mode (Halliday). The
   // instrument (code) field decides whether the projection writes SOURCE CODE
   // or prose; it is read off the request itself, never from the mode forced by
   // a caller, so a code ask stays code even when a job forces "projection".
@@ -3420,6 +3672,13 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         await refreshOpencodeModels().catch(() => null);
         for (const id of knownOpencodeModels()) roster.push(`er7:${id}`);
       } catch { /* the local roster stands alone */ }
+      try {
+        await refreshAnthropicModels().catch(() => null);
+        for (const id of knownAnthropicModels()) {
+          const rid = id.includes("/") ? `er7:${id}` : `er7:anthropic/${id}`;
+          if (!roster.includes(rid)) roster.push(rid);
+        }
+      } catch { /* a keyless box offers no frontier models */ }
       const hit = detectModelSwitch(task, roster);
       if (hit) {
         const target = resolveModelTarget(hit.ref, roster, { current: model });
@@ -3559,12 +3818,45 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     if (onNote) onNote({ move: "quote_miss", basis: "the printed text could not be reached — falling through to the normal turn" });
   }
 
+  // ── THE OPEN-PROBLEM HAND — famous unsolved problems declined pre-model ──
+  // Asking for a PROOF or SOLUTION of a famously open problem (P vs NP,
+  // Navier-Stokes, Collatz…) must never reach the mouth: the honest answer is
+  // a decline, and a generated "proof" would be a confabulation wearing a
+  // proof's clothes (measured on the hard battery: the void fallback's "no
+  // material" is accurate but names nothing). Asking ABOUT the problem ("what
+  // is P vs NP") is a factual question and flows through normally — only
+  // prove/solve/show/disprove verbs trip the gate. Zero mouth tokens either
+  // way: the decline is mechanical, EOT-recorded on the turn.
+  {
+    const open = openProblemOf(task);
+    if (open && clearance.cleared) {
+      const where = open.millennium
+        ? `It is one of the Clay Mathematics Institute's Millennium Prize Problems — a correct solution carries a $1,000,000 prize precisely because none exists.`
+        : `It is a famously unsolved problem — no proof exists.`;
+      if (onNote) onNote({ move: "open_declined", problem: open.name, millennium: open.millennium });
+      return earlyResult(
+        `I can't prove that — ${open.name} is an open problem. ${where} What I can do instead: explain what the problem asks, what partial progress exists, or why it resists proof.`,
+        { answerShape: "decline", mechanical: { rung: "open-problem", problem: open.name, millennium: open.millennium, basis: "prove/solve ask for a famously unsolved problem — named decline, never a generated proof" } },
+      );
+    }
+  }
+
   // 0. Preflight — fail fast, don't hang. The check hits the lane that owns
-  // THIS model: an opencode-served model (Claude/DeepSeek) must not fail
-  // because Ollama is down, and vice versa. Discovery refreshes first (cached
-  // — a warm cache costs nothing) so the lane decision below is current.
+  // THIS model: a directly-served Anthropic model needs only its key, an
+  // opencode-served model (Claude/DeepSeek) needs its server, and neither
+  // must fail because Ollama is down, nor vice versa. Discovery refreshes
+  // first (cached — a warm cache costs nothing) so the lane decision is current.
+  await refreshAnthropicModels().catch(() => null);
   await refreshOpencodeModels().catch(() => null);
-  const opencodeRoute = upstreamModelFor(model);
+  const anthropicRoute = upstreamAnthropicModelFor(model);
+  let opencodeRoute = null;
+  if (anthropicRoute) {
+    if (!anthropicConfigured()) {
+      if (onNote) onNote({ move: "upstream_down", target: ANTHROPIC_URL });
+      throw new Error(`anthropic upstream ${ANTHROPIC_URL} needs ANTHROPIC_API_KEY — set it and retry.`);
+    }
+  } else {
+  opencodeRoute = upstreamModelFor(model);
   if (opencodeRoute) {
     if (!(await opencodeReachable())) {
       if (onNote) onNote({ move: "upstream_down", target: OPENCODE_URL });
@@ -3579,6 +3871,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const modelKnown = modelsUp.some((m) => (m.name ?? m.model) === model);
   if (modelsUp.length && !modelKnown) {
     if (onNote) onNote({ move: "model_missing", model, available: modelsUp.map((m) => m.name ?? m.model) });
+  }
   }
   }
 
@@ -3597,7 +3890,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       /^(huh|what|really|oh|ok|okay|thanks|thank you|yes|no|yeah|yep|nope|hmm|lol|nice|cool|got it|i see|fair enough|never ?mind|please|wow)[\s.!?]*$/.test(_t) ||
       (_t.length < 160 && (/\bmy name is\b.{0,40}\b(your|yours|you)\b/.test(_t) || /\bwhat('s| is) your name\b/.test(_t))) ||
       (_t.length < 200 && SELF_REFERENTIAL_RE.test(_t));
-    if (isSmallTalk && clearance.cleared && !opencodeRoute) {
+    if (isSmallTalk && clearance.cleared && !opencodeRoute && !anthropicRoute) {
       const msgs = [{ role: "system", content: [NEUTRAL_CHARACTER, turnStanding(model), discourse ? `\n${discourse}` : null].filter(Boolean).join("\n") }];
       for (const m of chatHistory ?? []) msgs.push({ role: m.role, content: m.content });
       msgs.push({ role: "user", content: task });
@@ -3822,7 +4115,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // shape uses the task + workspace alone (no web — the decision never
   // depends on having gone out and gathered).
   const prelimShape = detectAnswerShape(task, workspaceStats.files > 0, false, false, [], null);
-  const runMode = normalizeMode(mode) === "auto"
+  let runMode = normalizeMode(mode) === "auto"
     ? (prelimShape.shape === "composition" ? "projection" : prelimShape.shape === "long" ? "long" : "chat")
     : normalizeMode(mode);
   if (onNote) onNote({ move: "void_defined", mode: runMode, shape: prelimShape.shape, of: voidQuestions.length, basis: mode === "auto" ? null : "forced by the caller" });
@@ -3832,7 +4125,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // meaning-potential staging, Ranke/Murch, APA citations) is bypassed for
   // code — its shape is CODE_SHAPE_PRIOR, its voice is code, its check is the
   // hard pyodide validator.
-  const isCode = runMode === "projection" && isInstrument;
+  let isCode = runMode === "projection" && isInstrument;
   let codeLanguage = isCode ? (detectLanguage(task) ?? "python") : null;
   // DATA-SOVEREIGN APP: a web app that HOLDS records (notes/contacts/ledger).
   // The unconscious owns the substrate (encrypted event log + fold + snip/cut);
@@ -3863,11 +4156,18 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // void each time until licensed or still_under_specified.
   const buildAskGate = () => {
     if (clearance?.cleared !== true) return null;
-    if (runMode !== "projection") return null;
     const t = String(task ?? "").trim();
-    if (!/^(?:make|build|create|generate|write|let'?s make)\b/i.test(t)) return null;
-    if (!/(?:site|app|page|web ?page|dashboard|tool|game)\b/i.test(t)) return null;
-    return t;
+    if (!t) return null;
+    // A REPLY to an open round is the build continuing — the person answers
+    // "who is it for? how many?" with plain words, whatever THIS turn's own
+    // shape reads as (a reply reads "chat/open", never "projection"; the
+    // session's open questions are the license, not this turn's register).
+    const open = session?.buildRounds?.at(-1)?.round?.questions;
+    if (Array.isArray(open) && open.length) return t;
+    // A fresh build ask — must be a projection-shaped code ask to open the door.
+    if (runMode !== "projection") return null;
+    if (/^(?:make|build|create|generate|write|let'?s make)\b/i.test(t) && /(?:site|app|page|web ?page|dashboard|tool|game)\b/i.test(t)) return t;
+    return null;
   };
   const buildTask = buildAskGate();
   if (buildTask) {
@@ -3876,9 +4176,20 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       : (session?.buildRounds?.length
           ? (session.buildRounds.at(-1)?.round?.void?.levels?.[0]?.void?.undeclared ?? []).map((u) => u.field)
           : null);
-    const answers = Array.isArray(resumeAnswered)
+    let answers = Array.isArray(resumeAnswered)
       ? resumeAnswered.filter((a) => a && typeof a === "object" && (a.cell || a.value)).map((a) => ({ cell: String(a.cell ?? "").trim(), value: String(a.value ?? "").trim() }))
       : [];
+    // THE PLAIN REPLY FOLD: a caller (the fold, the TUI) answering an open
+    // round sends the person's own words as `task` — "for me, three profiles"
+    // — not hand-built JSON. When the session holds an open round and the
+    // caller sent no structured answers, the reply is folded onto the open
+    // cells by the questions' own words (foldAnswersFromTask, pure, pinned).
+    const priorRound = session?.buildRounds?.at(-1)?.round;
+    const priorQuestions = priorRound?.questions ?? [];
+    if (!answers.length && priorQuestions.length) {
+      const folded = foldAnswersFromTask(buildTask, priorQuestions);
+      if (folded.length) answers = [...answers, ...folded.map((f) => ({ cell: f.cell, value: f.value }))];
+    }
     const standing = session?.buildStanding ?? [];
     const roundCount = Array.isArray(session?.buildRounds) ? session.buildRounds.length : 0;
     // THE RE-GROUND: the void is re-declared FROM the answers — each filled
@@ -3952,6 +4263,15 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // licensed: generation may begin — the void is declared, the build falls
     // through to the normal code pipeline below with the declared shape.
     if (onNote) onNote({ move: "clarify_licensed", round: clarify.round, cells: (clarify.fills ?? []).map((f) => f.cell) });
+    // A REPLY turn licensed the build: the reply's own shape read "chat", but
+    // the build is the session's — re-enter code mode from the declared
+    // shape so the model writes the artifact, not prose about it.
+    if (session?.buildRounds?.length && !isCode) {
+      isCode = true;
+      runMode = "projection";
+      codeLanguage = detectLanguage(task) ?? "python";
+      if (onNote) onNote({ move: "declared_reenter_code", from: "chat reply", basis: "the build continued by plain reply — re-entered the code pipeline" });
+    }
     // THE DECLARED SHAPE RE-DERIVES THE LANGUAGE: a build declared as a
     // *site* is an html artifact, whatever detectLanguage fell back to
     // ("a myspace-like site" reads no extension → python by default; the
@@ -4908,6 +5228,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // REFUSED at the ask: no generation, no ledger — the account IS the answer.
     fullText = specRefusalText;
     if (onNote) onNote({ move: "spec_refused", reason: clearance.reason });
+  } else if (mayeroffBlocked) {
+    // UNREALIZABLE at the ask (mayeroff.js): not refused — there was never a
+    // state to reach under self.js. No generation; the care-grounded account
+    // IS the answer. Mayeroff's positive half: help the other grow toward the
+    // real version of the underlying need, honestly known, at their own pace.
+    fullText = speakDecline({ reason: mayeroffJudgment.reason, shape: clearance.shape }, interlocutor);
+    if (onNote) onNote({ move: "mayeroff_unrealizable", reason: mayeroffJudgment.reason });
   } else {
   await withSlot(model, async () => {
     const draw = async (msgs, maxTokens, { capture = false, kelsen = null } = {}) => {
@@ -6214,14 +6541,67 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     if (injF.length && onNote) onNote({ move: "injection_findings", findings: injF.map((f) => `${f.strength} ${f.injection}`) });
   } catch {}
 
-  // THE FAMILY GATE (Grotius): the UDHR charter the turn is armed with, plus the
-  // Earth instruments — a resolved hierarchy, not one voice. The verdict is the
+  // THE HOLOGRAPH ENFORCEMENT (output-holograph.js + askshape.js): every
+  // generation is typed sentence-by-sentence by the SAME fold/morphology the
+  // record uses — MATERIAL (carries a ground fact's ends to its byte address)
+  // vs SELF:MODEL (the mouth's own prose, marked, never laundered into the
+  // record). The block rule is structural, never a wordlist: a SELF:MODEL
+  // sentence whose intent composition (askshape arms) licenses foreclosure
+  // (the existence face: voids + acquire/atScale) or collapse (the
+  // interpretation face: capability + other) with no charter-family GIVEN
+  // license is withheld and replaced with the socratic decline. MATERIAL
+  // descriptive sentences about atrocity always pass (description never
+  // governs). The family verdict below is kept as a fallback until the
+  // holograph is proven, and its verdict still rides every result.
+  let holographOut = null;
+  let holographWithheld = [];
+  try {
+    if (text?.trim() && !isCode) {
+      const holographGroundNotes = readingSurface?.notes ?? notesFromEdges(rawEntries ?? []);
+      const holographGround = groundFacts(holographGroundNotes, { source: segmentSourceOf(surfacedSegments?.[0]) ?? "material" });
+      holographOut = holographType({ prose: text, ground: holographGround, splitSentences: engineSplitSentences, sameAct: holographSameAct });
+      if (onNote) onNote({ move: "holograph_typing", basis: holographSameActBasis, material: holographOut.verdict.material, model: holographOut.verdict.model, total: holographOut.verdict.total, line: holographOut.verdict.line, sentences: holographOut.tiers.holograph });
+      for (const s of holographOut.prose) {
+        if (s.ground === "material") continue; // description never governs
+        let shape = null;
+        try { shape = askShape(s.text, { charter }); } catch { continue; }
+        if (!shape?.harmful) continue;
+        // No charter GIVEN license: the advocate's inverse under ANY family
+        // member (not just the UDHR) is a license, whatever language carried it.
+        let licensed = !!shape.affirms;
+        if (!licensed) {
+          for (const c of charterFamily ?? []) {
+            if (c === charter) continue;
+            try { if (askShape(s.text, { charter: c }).affirms) { licensed = true; break; } } catch {}
+          }
+        }
+        if (licensed) continue;
+        const foreclosure = !!shape.forecloses;
+        const collapse = (shape.collapses ?? 0) >= 1 && !!shape.capability && !!shape.other;
+        if (foreclosure || collapse) holographWithheld.push({ sentence: s.text, shape: shape.shape, witnesses: shape.witnesses ?? [] });
+      }
+      if (holographWithheld.length) {
+        text = speakDecline({ shape: askShape(holographWithheld.map((w) => w.sentence).join(" "), { charter }) }, interlocutor);
+        if (onNote) onNote({ move: "holograph_withheld", count: holographWithheld.length, sentences: holographWithheld.map((w) => w.sentence) });
+      }
+    }
+  } catch (err) {
+    if (onNote) onNote({ move: "holograph_typing_error", error: err.message });
+  }
+
+  // THE FAMILY GATE (Grotius), KEPT AS FALLBACK until the holograph above is
+  // proven: the UDHR charter the turn is armed with, plus the Earth
+  // instruments — a resolved hierarchy, not one voice. The verdict is the
   // union; each conflict names its charter AND article — the REASON, never the
   // bare verdict (Kelsen's lex superior: show which instrument governs, and
   // why). Descriptive voice (atrocity discussion) passes by construction, and
   // the families' GIVEN affordances already license the composition above.
   const charterVerdictOut = familyVerdict(charterFamily, text);
-  if (charterVerdictOut.verdict === "conflict") {
+  // Fail-closed: an unknown verdict (GFP adapter missing — prescriptive text
+  // the gate cannot govern) is refused, never a silent pass.
+  if (charterVerdictOut.verdict === "unknown-gfp-missing") {
+    text = "That isn't something this reading can help with.";
+  } else if (charterVerdictOut.verdict === "conflict") {
     // The conflict is already recorded in the charter annotation below (line 4648)
     // so the surface can render it as an affordance. The apparatus marker must
     // never become the answer text — that is a Gary no-apparatus violation.
@@ -6282,6 +6662,19 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // `license` carry the whole resolved hierarchy and the given affordances
     // the composition ran under (the license, not just the gate).
     charter: { verdict: charterVerdictOut.verdict, prescriptive: charterVerdictOut.prescriptive, descriptive: charterVerdictOut.descriptive, conflicts: charterVerdictOut.conflicts.map((c) => ({ kind: c.kind, act: c.act ?? null, right: c.right ?? null, charter: c.charter ?? null, articles: c.articles ?? [] })), giver: charter.giver, sha256: charter.sha256, source: charterSource, family: (charterFamily ?? []).map((c) => ({ schema: c.schema, giver: c.giver, rank: c.rank ?? null })), license: familyAffordances(charterFamily).map((r) => ({ left: r.left, right: r.right, giver: r.giver })) },
+    // THE HOLOGRAPH TYPING — the per-sentence MATERIAL vs SELF:MODEL typing
+    // that governed this generation (the enforcement above), with the
+    // withheld sentences and their judged shapes. null when the text was
+    // empty or a code turn (no prose to type) — a typed absence, never a guess.
+    holograph: holographOut
+      ? {
+          schema: holographOut.schema,
+          verdict: holographOut.verdict,
+          basis: holographSameActBasis,
+          sentences: holographOut.tiers.holograph,
+          withheld: holographWithheld.map((w) => ({ sentence: w.sentence, shape: w.shape, witnesses: w.witnesses })),
+        }
+      : null,
     // GROUNDED WISDOM — the credited archons whose domain this turn touched
     // (the ones that ran + the ones the question matched). Every entry carries
     // its verbatim credit line from the compendium; a response that draws on

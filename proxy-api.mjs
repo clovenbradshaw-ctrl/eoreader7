@@ -235,6 +235,14 @@ export function humanizeNote(note) {
         : `Ollama isn't responding at ${note.target}.`;
     case "opencode_lane":
       return `Answering via the opencode server (${note.provider}/${note.model}) — outside the local box's queue.`;
+    case "anthropic_lane":
+      return `Answering via Anthropic's own API (${note.provider}/${note.model}) — outside the local box's queue, fast-passed past Heimdall's line.`;
+    case "anthropic_usage": {
+      const parts = [`${note.output ?? 0} out / ${note.input ?? 0} in`];
+      if (note.cacheRead) parts.push(`${note.cacheRead} from cache`);
+      if (note.cacheWrite) parts.push(`${note.cacheWrite} cache-written`);
+      return `Anthropic usage: ${parts.join(", ")}.`;
+    }
     case "opencode_usage": {
       const parts = [`${note.output ?? 0} out / ${note.input ?? 0} in`];
       if (note.cacheRead) parts.push(`${note.cacheRead} from cache`);

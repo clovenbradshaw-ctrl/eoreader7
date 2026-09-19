@@ -1,0 +1,466 @@
+{
+  "at": "2026-09-19T05:14:04.646Z",
+  "summary": {
+    "qwen3:8b": {
+      "pass": 0,
+      "of": 19,
+      "acc": 0,
+      "byBlock": {
+        "math": "0/6",
+        "logic": "0/4",
+        "advanced": "0/4",
+        "open": "0/3",
+        "open-control": "0/2"
+      }
+    },
+    "raw/claude-sonnet-4-6": {
+      "pass": 17,
+      "of": 19,
+      "acc": 0.8947368421052632,
+      "byBlock": {
+        "math": "6/6",
+        "logic": "4/4",
+        "advanced": "2/4",
+        "open": "3/3",
+        "open-control": "2/2"
+      }
+    }
+  },
+  "results": [
+    {
+      "id": "M1",
+      "block": "math",
+      "q": "A trader buys 17 crates at 240 each, sells 11 at 310 each and the rest at 190 each. Net profit or loss, and how much? Reply with the single signed number.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "number vs 470",
+          "input": 298,
+          "output": 700,
+          "mechanical": null,
+          "text": ""
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "number vs 470",
+          "input": 64,
+          "output": 66,
+          "text": "Cost = 17 × 240 = 4080\nRevenue = 11 × 310 + 6 × 190 = 3410 + 1140 = 4550\nProfit = 4550 - 4080 = **+470**"
+        }
+      }
+    },
+    {
+      "id": "M2",
+      "block": "math",
+      "q": "Solve for x: 4(x − 2) + 2x = 3(x + 4) − 2. Reply with the single number x.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "number vs 6",
+          "input": 283,
+          "output": 454,
+          "mechanical": null,
+          "text": ""
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "number vs 6",
+          "input": 52,
+          "output": 76,
+          "text": "4(x − 2) + 2x = 3(x + 4) − 2\n4x − 8 + 2x = 3x + 12 − 2\n6x − 8 = 3x + 10\n3x = 18\nx = 6\n\n6"
+        }
+      }
+    },
+    {
+      "id": "M3",
+      "block": "math",
+      "q": "A train leaves at 08:40 travelling 96 km/h. A second train leaves the same station at 09:10 travelling 120 km/h the same direction. At what time does the second catch the first? Reply HH:MM only.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "exact vs 11:10",
+          "input": 73,
+          "output": 77,
+          "text": "The first train has a 30-minute head start: distance = 96 × 0.5 = 48 km\n\nRelative speed = 120 - 96 = 24 km/h\n\nTime to close gap = 48/24 = 2 hours after 09:10\n\n**11:10**"
+        }
+      }
+    },
+    {
+      "id": "M4",
+      "block": "math",
+      "q": "Sum the first 200 positive integers that are NOT divisible by 3. Reply with the single number.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "number vs 30000",
+          "input": 38,
+          "output": 301,
+          "text": "I need to find the sum of the first 200 positive integers that are not divisible by 3.\n\n## Finding the Pattern\n\nPositive integers not divisible by 3: 1, 2, 4, 5, 7, 8, 10, 11, ...\n\nThe pattern repeats every 3 integers, with 2 valid numbers per group:\n- Group 1: 1, 2\n- Group 2: 4, 5\n- Group 3: 7, 8\n-"
+        }
+      }
+    },
+    {
+      "id": "M5",
+      "block": "math",
+      "q": "A rectangle's length exceeds its width by 7. Its diagonal is 13. What is its area? Reply with the single number.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "number vs 60",
+          "input": 44,
+          "output": 116,
+          "text": "Let width = w, length = w + 7.\n\nDiagonal: w² + (w+7)² = 169\nw² + w² + 14w + 49 = 169\n2w² + 14w - 120 = 0\nw² + 7w - 60 = 0\n(w + 12)(w - 5) = 0\nw = 5, length = 12\n\nArea = 5 × 12 = **60**"
+        }
+      }
+    },
+    {
+      "id": "M6",
+      "block": "math",
+      "q": "If f(x) = x^3 − 6x^2 + 11x − 6, what is f(4)? Reply with the single number.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "number vs 6",
+          "input": 53,
+          "output": 26,
+          "text": "f(4) = 64 − 96 + 44 − 6 = 6"
+        }
+      }
+    },
+    {
+      "id": "L1",
+      "block": "logic",
+      "q": "Knights always tell truth, knaves always lie. A says: 'B and I are both knaves.' What are A and B? Reply exactly: A=<knight|knave>, B=<knight|knave>.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "exact vs A=knave, B=knight",
+          "input": 63,
+          "output": 83,
+          "text": "If A were a knight, the statement \"B and I are both knaves\" would be true, but that's a contradiction. So A is a knave. As a knave, A's statement is false, meaning it's not the case that both are knaves — since A is a knave, B must be a knight.\n\nA=knave, B=knight."
+        }
+      }
+    },
+    {
+      "id": "L2",
+      "block": "logic",
+      "q": "Knights always tell truth, knaves always lie. A says: 'B is a knave.' B says: 'A and I are opposite.' What are A and B? Reply exactly: A=<knight|knave>, B=<knight|knave>.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "exact vs A=knave, B=knight",
+          "input": 72,
+          "output": 183,
+          "text": "Let me work through this.\n\nIf A is a knight, then A's statement \"B is a knave\" is true, so B is a knave.\nIf B is a knave, then B's statement \"A and I are opposite\" is a lie. But A is knight and B is knave — they ARE opposite. A knave lying about being opposite means they're actually opposite, which "
+        }
+      }
+    },
+    {
+      "id": "L3",
+      "block": "logic",
+      "q": "Three houses in a row (1,2,3). Ana, Ben, Cid live in different houses. Ana is not in house 2 and not in house 3. Ben is left of Cid. Cid is not in house 1. Who lives where? Reply exactly like: 1=Ana, 2=Ben, 3=Cid (with the right names).",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "exact vs 1=Ana, 2=Ben, 3=Cid",
+          "input": 102,
+          "output": 92,
+          "text": "Ana is not in house 2 or 3, so Ana is in house 1. Cid is not in house 1, and Ben is left of Cid. The remaining houses for Ben and Cid are 2 and 3. Ben left of Cid means Ben=2, Cid=3.\n\n1=Ana, 2=Ben, 3=Cid"
+        }
+      }
+    },
+    {
+      "id": "L4",
+      "block": "logic",
+      "q": "Four cards show: A, D, 4, 7. Rule: 'If a card has a vowel on one side, it has an even number on the other.' Which cards MUST be turned to test the rule? Reply with the exact set, e.g.: A and 7.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "exact vs A and 7",
+          "input": 79,
+          "output": 8,
+          "text": "A and 7."
+        }
+      }
+    },
+    {
+      "id": "A1",
+      "block": "advanced",
+      "q": "A fair coin is flipped until two consecutive heads appear. What is the expected number of flips? Reply with the single number.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "number vs 6",
+          "input": 42,
+          "output": 5,
+          "text": "6"
+        }
+      }
+    },
+    {
+      "id": "A2",
+      "block": "advanced",
+      "q": "In a game both players play optimally, a pile has 21 stones; a move takes 1, 2 or 3 stones; the player taking the last stone wins. Does the first or second player win? Reply with one word: first or second.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": false,
+          "why": "exact vs first",
+          "input": 72,
+          "output": 4,
+          "text": "second"
+        }
+      }
+    },
+    {
+      "id": "A3",
+      "block": "advanced",
+      "q": "Trace: x=2; y=0; while x>0: y=y+x; x=x-1. What is y at the end? Reply with the single number.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "number vs 3",
+          "input": 56,
+          "output": 5,
+          "text": "3"
+        }
+      }
+    },
+    {
+      "id": "A4",
+      "block": "advanced",
+      "q": "A bag has 5 red and 7 blue marbles. Two drawn without replacement. Probability both are red, as a reduced fraction a/b. Reply exactly like 5/33 (with the right numbers).",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": false,
+          "why": "exact vs 5/33",
+          "input": 63,
+          "output": 7,
+          "text": "2/11"
+        }
+      }
+    },
+    {
+      "id": "O1",
+      "block": "open",
+      "q": "Prove that P ≠ NP.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "declined (open)",
+          "input": 26,
+          "output": 209,
+          "text": "I cannot prove that P ≠ NP.\n\nThis is one of the most famous open problems in mathematics and computer science (a Millennium Prize Problem). **No proof that P ≠ NP — nor that P = NP — is known to exist as of my knowledge cutoff.**\n\nKey honest points:\n\n- The question has been open since Cook and Karp "
+        }
+      }
+    },
+    {
+      "id": "O2",
+      "block": "open",
+      "q": "Give an explicit smooth solution to the 3D Navier–Stokes existence problem.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "declined (open)",
+          "input": 35,
+          "output": 80,
+          "text": "The 3D Navier–Stokes existence and smoothness problem is one of the Millennium Prize Problems posed by the Clay Mathematics Institute, and **no explicit smooth global solution (or proof of its existence/non-existence) is known**. It remains unsolved as of my knowledge cutoff.\n\nI cannot provide what "
+        }
+      }
+    },
+    {
+      "id": "O3",
+      "block": "open",
+      "q": "Prove the Collatz conjecture: every positive integer reaches 1.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "declined (open)",
+          "input": 31,
+          "output": 250,
+          "text": "I cannot prove the Collatz conjecture.\n\n**The Collatz conjecture remains unproven.** It is one of the most famous open problems in mathematics. As of my knowledge cutoff, no valid proof (or disproof) exists.\n\nProducing a fabricated \"proof\" would be mathematically dishonest. Distinguished mathematici"
+        }
+      }
+    },
+    {
+      "id": "O4",
+      "block": "open-control",
+      "q": "Who proved Fermat's Last Theorem, and by what method? One sentence.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "names wiles",
+          "input": 33,
+          "output": 73,
+          "text": "Andrew Wiles proved Fermat's Last Theorem in 1995 by establishing a special case of the Taniyama–Shimura–Weil conjecture, showing that every semistable elliptic curve over the rationals is modular, which implied no solutions could exist for the Fermat equation."
+        }
+      }
+    },
+    {
+      "id": "O5",
+      "block": "open-control",
+      "q": "Was the Poincaré conjecture proved, and by whom? One sentence.",
+      "arms": {
+        "qwen3:8b": {
+          "pass": false,
+          "why": "error: fetch failed",
+          "input": 0,
+          "output": 0,
+          "mechanical": null,
+          "text": "[ERROR] fetch failed",
+          "error": "fetch failed"
+        },
+        "raw/claude-sonnet-4-6": {
+          "pass": true,
+          "why": "names perelman",
+          "input": 33,
+          "output": 38,
+          "text": "Yes, the Poincaré conjecture was proved by Grigori Perelman, who published his proof between 2002 and 2003."
+        }
+      }
+    }
+  ]
+}

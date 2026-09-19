@@ -3,11 +3,11 @@ import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { MODEL_PREFIX, parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote, parseAnthropicRequest, flattenAnthropicContent, anthropicCountTokensResponse, anthropicMessageResponse, anthropicStreamStart, anthropicContentBlockStart, anthropicContentBlockDelta, anthropicContentBlockStop, anthropicMessageDelta, anthropicMessageStop } from "./proxy-api.mjs";
-import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus, refreshOpencodeModels, upstreamModelFor } from "./proxy-runner.mjs";
-import { runSwarmTurn } from "./swarm-server.mjs";
+import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus, refreshOpencodeModels, upstreamModelFor, refreshAnthropicModels, upstreamAnthropicModelFor } from "./proxy-runner.mjs";
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
+import { runSwarmTurn } from "./swarm-server.mjs";
 import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-agent.js";
 // AntiStrauss — the safety-and-ethics gate (native/the-fold/antistrauss.mjs).
 // Every model call that enters this proxy through runProxyTurn is gated
@@ -50,7 +50,20 @@ import { runMechanical, precisionWinner, CONCLUSION } from "./native/organs/prec
 // one EOT room per worktree-archon, the operator always an admin of every
 // room, and the same record/print/list verbs reachable from THIS surface —
 // the proxy every other surface talks to. One implementation, every door.
-import { provisionArchon, recordArchon, loadArchonConversation, renderConversation, roster, DEFAULT_HS } from "../the-fold/archon-hyphae.mjs";
+// The module was DELETED from the-fold by the user (2026-09-18) — the archons
+// no longer write notes for each other. The import is therefore GUARDED: when
+// the module is absent, the three verbs below are typed gaps on the record
+// (the fold's own posture for an unbuilt organ), and the proxy boots without
+// them — a missing feature must never block the whole surface.
+let provisionArchon = null, recordArchon = null, loadArchonConversation = null, renderConversation = null, roster = null, DEFAULT_HS = null;
+const ARCHON_GAP = { absent: true, reason: "the-fold/archon-hyphae.mjs was deleted by the operator — the archons no longer write notes; this surface's archon verbs are typed gaps", kind: "archon_unavailable" };
+try {
+  const hyphae = await import("../the-fold/archon-hyphae.mjs");
+  ({ provisionArchon, recordArchon, loadArchonConversation, renderConversation, roster, DEFAULT_HS } = hyphae);
+} catch (err) {
+  if (err?.code !== "ERR_MODULE_NOT_FOUND") console.error(`[proxy] archon-hyphae import failed for a non-missing reason: ${err.message}`);
+}
+const archonUnavailable = () => ARCHON_GAP;
 
 // The mechanical pipeline: each mechanism either settles the question, names
 // a gap, or leaves it alone (native/organs/precision-race.js). It runs BESIDE
@@ -106,7 +119,11 @@ const PORT = Number(process.env.ER7_PROXY_PORT) || 11436;
 // configs that route through 11437.
 const STEER_ALIAS_PORT = Number(process.env.ER7_HEIMDALL_PORT ?? 11437);
 const UPSTREAM = process.env.ER7_UPSTREAM || "http://localhost:11434";
-const { hostname: UP_HOST, port: UP_PORT } = new URL(UPSTREAM);
+// NOTE (2026-09-19): the raw passthrough to UPSTREAM was removed. There is no
+// generic forwarder left in this file — unmatched routes default-deny below
+// with a typed unserved_path gap, so POST /api/generate and friends can never
+// bypass the ethos/AntiStrauss gate. UPSTREAM survives only as a status string
+// (GET /health) and as the Ollama origin proxy-runner.mjs dials internally.
 const KEEP_WARM_INTERVAL_MS = Number(process.env.ER7_KEEP_WARM_INTERVAL_MS ?? 120000);
 // A whole-turn wall clock, independent of the per-call stream timeout inside
 // runProxyTurn. The client must always get a terminal chunk; a turn that is
@@ -229,7 +246,10 @@ function callerFromRequest(req, doorway, parsed = {}) {
 // closes, so the ETA/queue disclosure is real.
 function admitChatRequest(parsed, headers = {}) {
   const admit = admitChat(parsed ? JSON.stringify(parsed) : "{}", headers);
-  if (admit.allowed) markInflight("er7", 1);
+  // A fast-passed (ungated/remote) turn never touched the local box, so it
+  // must not hold a local inflight slot — otherwise it would inflate
+  // workAhead/ETA and trip the family cap for the local calls behind it.
+  if (admit.allowed && !admit.fastPass) markInflight("er7", 1);
   return admit;
 }
 // A refusal answers with a REAL place in line (x-queue-position + the queue
@@ -248,12 +268,15 @@ function releaseChatRequest() {
 // was handed to the OS) or 'close' (the socket closed, possibly mid-stream on
 // a disconnect). Idempotent — a keep-alive connection must never leave the
 // mark stuck and 429 a false busy-lane.
-function releaseOnResponse(res, claimId) {
+function releaseOnResponse(res, claimId, admit = null) {
   let released = false;
   const release = () => {
     if (released) return;
     released = true;
-    releaseChatRequest();
+    // Only release a slot that was actually taken: fast-passed turns never
+    // marked one. The claim lease is always freed — exactly-once applies to
+    // every lane.
+    if (!admit?.fastPass) releaseChatRequest();
     // Free the turn's lease the moment it finishes (or fails / disconnects),
     // so a device that stalled is not waited out for the whole lease — the
     // recovery turn on another device starts as soon as the claim is gone.
@@ -263,34 +286,12 @@ function releaseOnResponse(res, claimId) {
   res.on("close", release);
 }
 
-function forward(req, res) {
-  const opts = {
-    hostname: UP_HOST,
-    port: UP_PORT,
-    path: req.url,
-    method: req.method,
-    headers: { ...req.headers, host: `${UP_HOST}:${UP_PORT}` },
-  };
-
-  const up = http.request(opts, (upRes) => {
-    res.writeHead(upRes.statusCode, upRes.headers);
-    upRes.pipe(res, { end: true });
-  });
-
-  req.pipe(up, { end: true });
-
-  up.on("error", (err) => {
-    log(`upstream error: ${err.message}`);
-    if (!res.headersSent) {
-      res.writeHead(502, { "content-type": "application/json" });
-    }
-    res.end(JSON.stringify({ error: { message: `upstream: ${err.message}` } }));
-  });
-
-  req.on("close", () => {
-    up.destroy();
-  });
-}
+// NOTE (2026-09-19): forward() — the raw passthrough that piped any unmatched
+// route directly to ER7_UPSTREAM with no ethos/AntiStrauss gate — was deleted
+// here. Do not re-add a generic proxy: every model-touching route must go
+// through runProxyTurn (ethos clearance + antistrauss.gate inside
+// proxy-runner.mjs::streamOllamaChat). Unknown paths default-deny at the end
+// of handleRequest with a typed unserved_path gap.
 
 async function handleRequest(req, res) {
   res.setHeader("access-control-allow-origin", "*");
@@ -390,7 +391,14 @@ async function handleRequest(req, res) {
       try {
         opencodeIds = [...await refreshOpencodeModels()];
       } catch { /* the local roster stands on its own */ }
-      const list = toOpenAIModelList([...realNames, ...opencodeIds]);
+      // THE THIRD LANE: frontier Claude models served directly by Anthropic's
+      // own API (ANTHROPIC_API_KEY). Best-effort like the second lane — no key
+      // means no frontier ids, and the local roster stands on its own.
+      let anthropicIds = [];
+      try {
+        anthropicIds = [...await refreshAnthropicModels()];
+      } catch { /* the local roster stands on its own */ }
+      const list = toOpenAIModelList([...realNames, ...opencodeIds, ...anthropicIds]);
       res.writeHead(200, { "content-type": "application/json" });
       res.end(JSON.stringify(list));
     } catch (err) {
@@ -509,7 +517,7 @@ async function handleRequest(req, res) {
   if (req.method === "GET" && req.url === "/v1/archons") {
     try {
       res.writeHead(200, { "content-type": "application/json" });
-      res.end(JSON.stringify({ archons: roster(), homeserver: DEFAULT_HS }));
+      res.end(JSON.stringify(roster ? { archons: roster(), homeserver: DEFAULT_HS } : { gap: ARCHON_GAP }));
     } catch (err) {
       res.writeHead(500, { "content-type": "application/json" });
       res.end(JSON.stringify({ error: { message: err.message } }));
@@ -522,6 +530,7 @@ async function handleRequest(req, res) {
     req.on("data", (c) => (body += c));
     req.on("end", async () => {
       try {
+        if (!recordArchon) { res.writeHead(200, { "content-type": "application/json" }); res.end(JSON.stringify({ gap: ARCHON_GAP })); return; }
         const slug = decodeURIComponent(req.url.split("/")[3]);
         const parsed = JSON.parse(body || "{}");
         const text = String(parsed.text ?? parsed.task ?? "").trim();
@@ -539,6 +548,7 @@ async function handleRequest(req, res) {
 
   if (req.method === "GET" && /^\/v1\/archons\/[^/]+\/conversation$/.test(req.url)) {
     try {
+      if (!loadArchonConversation) { res.writeHead(200, { "content-type": "application/json" }); res.end(JSON.stringify({ gap: ARCHON_GAP })); return; }
       const slug = decodeURIComponent(req.url.split("/")[3]);
       const hs = req.headers["x-er7-homeserver"] ?? DEFAULT_HS;
       const loaded = await loadArchonConversation(hs, slug);
@@ -623,43 +633,7 @@ async function handleRequest(req, res) {
         refuseAdmission(res, admit);
         return;
       }
-      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""));
-      // SWARM AUTO-ROUTE (swarm-server.mjs — capacity-swarm): NL that names
-      // swarming never reaches the model. The pointed capacities run through
-      // Wilson's own gate over this turn's own material (attachments +
-      // history) and the measured report IS the answer — no model call, bar
-      // measured per turn. Ordinary chat is untouched (intent gate: only
-      // swarm/ants/every-capacity phrasing routes).
-      const swarmTurn = runSwarmTurn({
-        task: reqData.task,
-        texts: [
-          ...(reqData.attachments ?? []).map((a) => ({ name: a.name, text: a.text })),
-          ...(reqData.chatHistory ?? []).map((m, i) => ({ name: `history-${i}`, text: m.content })),
-        ],
-        name: "chat-turn",
-      });
-      if (swarmTurn.routed) {
-        const created = Math.floor(Date.now() / 1000);
-        const id = `er7-${Date.now()}`;
-        const swarmReading = { sessionId, answerShape: "swarm", swarm: { ...swarmTurn, answer: undefined }, truncated: false };
-        if (reqData.stream) {
-          res.writeHead(200, {
-            "content-type": "text/event-stream",
-            "cache-control": "no-cache",
-            connection: "keep-alive",
-            "x-er7-session": sessionId,
-          });
-          for (const line of openAIStreamLines({ id, model: parsed.model, text: swarmTurn.answer, created, reading: swarmReading })) res.write(line);
-          res.end();
-        } else {
-          const resp = openAIResponse({ id, model: parsed.model, text: swarmTurn.answer, created, usage: { promptTokens: 0, completionTokens: 0 }, reading: swarmReading });
-          resp.reading.sessionId = sessionId;
-          resp.heimdall = bridgeMessage({ model: parsed.model });
-          res.writeHead(200, { "content-type": "application/json" });
-          res.end(JSON.stringify(resp));
-        }
-        return;
-      }
+      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
 
       // A body-supplied sessionId is honored first (a caller with no header
       // machinery can still keep one accumulating reader fold across calls
@@ -689,6 +663,8 @@ async function handleRequest(req, res) {
         const result = await runProxyTurn({
           sessionId, userId, workspace, attachments, model, task, mode,
           chatHistory: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [],
+          resumeAnswered: Array.isArray(parsed?.resumeAnswered) ? parsed.resumeAnswered : [],
+          openBefore: Array.isArray(parsed?.openBefore) ? parsed.openBefore : null,
           caller: callerFromRequest(req, "ask", parsed),
           signal: turnAbort.signal,
         });
@@ -699,8 +675,8 @@ async function handleRequest(req, res) {
         res.end(JSON.stringify({
           answer: result.text,
           sessionId,
-          model,
-          heimdall: bridgeMessage({ model }),
+          model: result.model ?? model,
+          heimdall: bridgeMessage({ model: result.model ?? model }),
           interlocutor: result.interlocutor ?? null,
           usage: { promptTokens: result.usage?.promptTokens ?? 0, completionTokens: result.usage?.completionTokens ?? 0 },
           relationEdges: result.relationEdges,
@@ -709,6 +685,12 @@ async function handleRequest(req, res) {
           answerShape: result.answerShape ?? null,
           truncated: result.truncated ?? false,
           document: result.document ?? null,
+          // THE ASK-BACK ENVELOPE (build-clarify): the person sees the plain
+          // questions in `answer`; the record carries the structured shape —
+          // which cells are open, the round, the schema — so the fold, the
+          // TUI and a raw client render the SAME door and answer with the
+          // SAME {cell, value} shape (ONE-ENGINE-PLAN: one turn, every door).
+          mechanical: result.mechanical ?? null,
         }));
       } catch (err) {
         clearTimeout(turnDeadline);
@@ -757,7 +739,7 @@ async function handleRequest(req, res) {
         refuseAdmission(res, admit);
         return;
       }
-      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""));
+      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
 
       const sessionId = String(parsed?.sessionId ?? "").trim() || sessionIdFromHeaders(req);
       const userId = userIdFromHeaders(req);
@@ -826,7 +808,7 @@ async function handleRequest(req, res) {
         refuseAdmission(res, admit);
         return;
       }
-      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""));
+      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
 
       const sessionId = String(parsed?.sessionId ?? "").trim() || sessionIdFromHeaders(req);
       const userId = userIdFromHeaders(req);
@@ -899,12 +881,49 @@ async function handleRequest(req, res) {
         refuseAdmission(res, admit);
         return;
       }
-      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""));
+      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
 
       const sessionId = sessionIdFromHeaders(req);
       const workspace = workspaceFromHeaders(req);
       const userId = userIdFromHeaders(req);
       log(`turn → session=${sessionId} user=${userId} model=${reqData.model} taskLength=${reqData.task.length} stream=${reqData.stream} mode=${reqData.mode} workspace=${workspace ? `"${workspace}"` : "none"}`);
+
+      // SWARM AUTO-ROUTE (swarm-server.mjs — capacity-swarm): NL that names
+      // swarming never reaches the model. The pointed capacities run through
+      // Wilson's own gate over this turn's own material (attachments +
+      // history) and the measured report IS the answer — no model call, bar
+      // measured per turn. Ordinary chat is untouched (intent gate: only
+      // swarm/ants/every-capacity phrasing routes).
+      const swarmTurn = runSwarmTurn({
+        task: reqData.task,
+        texts: [
+          ...(reqData.attachments ?? []).map((a) => ({ name: a.name, text: a.text })),
+          ...(reqData.chatHistory ?? []).map((m, i) => ({ name: `history-${i}`, text: m.content })),
+        ],
+        name: "chat-turn",
+      });
+      if (swarmTurn.routed) {
+        const created = Math.floor(Date.now() / 1000);
+        const id = `er7-${Date.now()}`;
+        const swarmReading = { sessionId, answerShape: "swarm", swarm: { ...swarmTurn, answer: undefined }, truncated: false };
+        if (reqData.stream) {
+          res.writeHead(200, {
+            "content-type": "text/event-stream",
+            "cache-control": "no-cache",
+            connection: "keep-alive",
+            "x-er7-session": sessionId,
+          });
+          for (const line of openAIStreamLines({ id, model: parsed.model, text: swarmTurn.answer, created, reading: swarmReading })) res.write(line);
+          res.end();
+        } else {
+          const resp = openAIResponse({ id, model: parsed.model, text: swarmTurn.answer, created, usage: { promptTokens: 0, completionTokens: 0 }, reading: swarmReading });
+          resp.reading.sessionId = sessionId;
+          resp.heimdall = bridgeMessage({ model: parsed.model });
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify(resp));
+        }
+        return;
+      }
 
       const created = Math.floor(Date.now() / 1000);
       const id = `er7-${Date.now()}`;
@@ -939,7 +958,11 @@ async function handleRequest(req, res) {
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) {
-            markUnservable(model, "turned_no_answer");
+            // reqData.model: the stripped id of the mouth on THIS turn. A bare
+            // `model` is not in scope on these routes — naming it crashed the
+            // whole proxy on the first slow-turn deadline (measured 2026-09-19:
+            // a ReferenceError in this timer killed the process mid-battery).
+            markUnservable(reqData.model, "turned_no_answer");
             turnAbort.abort();
           }
         }, TURN_DEADLINE_MS);
@@ -1034,6 +1057,7 @@ async function handleRequest(req, res) {
 
         try {
           const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, emit, onNote, onThinking);
+          if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
           clearTurn();
           // Thinking affordance: when discloseThinking is on, emit the grounding
           // block as reasoning_content before the final chunk.
@@ -1119,12 +1143,17 @@ async function handleRequest(req, res) {
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) {
-            markUnservable(model, "turned_no_answer");
+            // reqData.model: the stripped id of the mouth on THIS turn. A bare
+            // `model` is not in scope on these routes — naming it crashed the
+            // whole proxy on the first slow-turn deadline (measured 2026-09-19:
+            // a ReferenceError in this timer killed the process mid-battery).
+            markUnservable(reqData.model, "turned_no_answer");
             turnAbort.abort();
           }
         }, TURN_DEADLINE_MS);
         try {
           const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
+          if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
           const race = precisionWinner({ observation: await observationP, draft: result.text });
@@ -1180,7 +1209,7 @@ async function handleRequest(req, res) {
         refuseAdmission(res, admit);
         return;
       }
-      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""));
+      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
 
       const sessionId = sessionIdFromHeaders(req);
       const workspace = workspaceFromHeaders(req);
@@ -1206,7 +1235,11 @@ async function handleRequest(req, res) {
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) {
-            markUnservable(model, "turned_no_answer");
+            // reqData.model: the stripped id of the mouth on THIS turn. A bare
+            // `model` is not in scope on these routes — naming it crashed the
+            // whole proxy on the first slow-turn deadline (measured 2026-09-19:
+            // a ReferenceError in this timer killed the process mid-battery).
+            markUnservable(reqData.model, "turned_no_answer");
             turnAbort.abort();
           }
         }, TURN_DEADLINE_MS);
@@ -1257,12 +1290,17 @@ async function handleRequest(req, res) {
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) {
-            markUnservable(model, "turned_no_answer");
+            // reqData.model: the stripped id of the mouth on THIS turn. A bare
+            // `model` is not in scope on these routes — naming it crashed the
+            // whole proxy on the first slow-turn deadline (measured 2026-09-19:
+            // a ReferenceError in this timer killed the process mid-battery).
+            markUnservable(reqData.model, "turned_no_answer");
             turnAbort.abort();
           }
         }, TURN_DEADLINE_MS);
         try {
           const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
+          if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
           const resp = ollamaChatResponse({ model: parsed.model, text: result.text, createdAt, usage: result.usage, reading: result });
@@ -1356,7 +1394,11 @@ async function handleRequest(req, res) {
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) {
-            markUnservable(model, "turned_no_answer");
+            // reqData.model: the stripped id of the mouth on THIS turn. A bare
+            // `model` is not in scope on these routes — naming it crashed the
+            // whole proxy on the first slow-turn deadline (measured 2026-09-19:
+            // a ReferenceError in this timer killed the process mid-battery).
+            markUnservable(reqData.model, "turned_no_answer");
             turnAbort.abort();
           }
         }, TURN_DEADLINE_MS);
@@ -1400,12 +1442,17 @@ async function handleRequest(req, res) {
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) {
-            markUnservable(model, "turned_no_answer");
+            // reqData.model: the stripped id of the mouth on THIS turn. A bare
+            // `model` is not in scope on these routes — naming it crashed the
+            // whole proxy on the first slow-turn deadline (measured 2026-09-19:
+            // a ReferenceError in this timer killed the process mid-battery).
+            markUnservable(reqData.model, "turned_no_answer");
             turnAbort.abort();
           }
         }, TURN_DEADLINE_MS);
         try {
           const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
+          if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
           const resp = anthropicMessageResponse({ id, model: parsed.model, text: result.text, usage: result.usage });
@@ -1426,7 +1473,20 @@ async function handleRequest(req, res) {
     return;
   }
 
-  forward(req, res);
+  // DEFAULT-DENY (2026-09-19): the old forward(req,res) passthrough stood
+  // here and piped ANY unmatched route (POST /api/generate, /api/show,
+  // /api/embed, ...) straight to Ollama with no ethos/AntiStrauss gate.
+  // Now: unknown paths are a typed gap, never a proxy. Served routes are all
+  // matched above — GET /, /health, /heimdall (+POST /heimdall/observe),
+  // GET /v1/models, GET /api/tags, POST /v1/ask|code|agent, POST
+  // /v1/chat/completions, POST /api/chat, POST /v1/messages(+/count_tokens),
+  // document + archon verbs. Anything else 404s here.
+  let pathname = req.url || "/";
+  try {
+    pathname = new URL(req.url, "http://localhost").pathname;
+  } catch { /* keep the raw url as the reported path */ }
+  res.writeHead(404, { "content-type": "application/json" });
+  res.end(JSON.stringify({ error: `no such route: ${req.method} ${pathname}`, type: "unserved_path", path: pathname, method: req.method }));
 }
 
 // One handler, two doorways: the proxy port (11436, opencode) and the
@@ -1542,20 +1602,31 @@ server.listen(PORT, "127.0.0.1", () => {
   // (three models resident, the box dragging). Set ER7_KEEP_ALIVE_S > 0 to
   // turn this back on for a single pinned model (ER7_HOT_MODELS).
   if (OLLAMA_KEEP_ALIVE_S > 0) {
+    // Warming into a memory-pressured box is futile (learned 2026-09-19: a
+    // 9GB load with ~47MB free hung 120s+): stand down, don't deepen the storm.
+    const pressuredNow = () => {
+      const v = readVitals?.() ?? null;
+      return v?.memFreeMb != null && v.memFreeMb < Number(process.env.ER7_MEM_FLOOR_MB ?? 512);
+    };
     const warmSet = hotModelSet();
     if (warmSet.size) log(`keep-warm: will hold resident: ${[...warmSet].join(", ")} (keep_alive ${OLLAMA_KEEP_ALIVE_S}s)`);
     for (const model of warmSet) {
       if (upstreamModelFor(model)) continue; // no Ollama copy to hold — not a failure
+      if (upstreamAnthropicModelFor(model)) continue; // direct Anthropic lane — no local copy either
+      if (pressuredNow()) { log(`keep-warm: standing down (memory pressured) — ${model} not warmed`); continue; }
       keepModelHot(model).then((ok) => {
         log(`keep-warm: ${model} ${ok ? "resident" : "NOT CONFIRMED"}`);
       });
     }
     setInterval(() => {
+      if (pressuredNow()) return; // the storm deepens if warming fights callers for pages
       for (const model of hotModelSet()) {
         // Opencode-lane models have no Ollama copy to hold: keepModelHot
         // no-ops for them (falsy), which is NOT a failure — skip silently
-        // instead of crying "was it pulled?" every interval.
+        // instead of crying "was it pulled?" every interval. Same for the
+        // direct Anthropic lane.
         if (upstreamModelFor(model)) continue;
+        if (upstreamAnthropicModelFor(model)) continue;
         keepModelHot(model).then((ok) => {
           if (!ok && !_warnedOnce.has(model)) {
             _warnedOnce.add(model);
