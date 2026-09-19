@@ -33,22 +33,14 @@ import { elenchusBar, RERUN_NULL } from "./elenchus-bar.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const TEST = path.join(HERE, "../fixtures/ud-sanskrit-vedic/sa_vedic-ud-test.conllu");
-const TRAIN = "/tmp/sa_vedic-train.conllu";
 const CASE_PRIOR = JSON.parse(fs.readFileSync("/Users/mlacy/Documents/3.0/live_priors/derived-priors/case-priors/case-marking-san.json", "utf8"));
 
 // ── received instruments (TRAIN only) ──
-const posForms = {};
-{
-  for (const line of fs.readFileSync(TRAIN, "utf8").split("\n")) {
-    if (!line.trim() || line.startsWith("#")) continue;
-    const c = line.split("\t");
-    if (c.length < 6 || !/^\d+$/.test(c[0])) continue;
-    const form = c[1].toLowerCase(), upos = c[3];
-    if (!form || !upos || upos === "_") continue;
-    (posForms[form] ??= {})[upos] = (posForms[form][upos] ?? 0) + 1;
-  }
-}
-const posPrior = { forms: posForms };
+// pos-san.json: the shipped POSPrior@1 (TRAIN tallies, built by
+// build-pos-prior.mjs) — the driver consumes the artifact, never a
+// private recount, so production and colony read the same bytes.
+const posPrior = JSON.parse(fs.readFileSync(path.join(HERE, "../../priors/pos-san.json"), "utf8"));
+const posForms = posPrior.forms;
 const VERBS = confirmedVerbSet(posPrior, 0.5);
 
 // ── gold clauses (TEST only, scored never read) ──

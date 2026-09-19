@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import {
   prodropClauses, confirmedVerbSet, confirmSanskritVerbs, nominalClass,
   sanskritBeings, personOf, personLabel, caseOf, sanskritClauses, beingRefOf,
-  paradigmOf, verbGloss, glossLanguages, correlatives, normForm,
+  paradigmOf, verbGloss, glossLanguages, correlatives, normForm, corrKey,
 } from "./sanskrit.mjs";
 
 const sanPrior = {
@@ -257,4 +257,18 @@ test("correlatives names the yad/tad halves — the argument architecture", () =
   assert.ok(pairs[0].left.includes("yad"), "the LEFT is the yad-side");
   assert.ok(pairs[0].right.startsWith("satyam"), "the RIGHT is the tad-side");
   assert.equal(correlatives("gacchati eva").length, 0, "no tad, no correlative");
+});
+
+test("correlatives survive final devoicing: tat is tad before voiceless (RV 1.1.6)", () => {
+  const pairs = correlatives("yad aṅga dāśuṣe tvam bhadram tat satyam.");
+  assert.equal(pairs.length, 1, "sandhied tat answers the yad-side");
+  assert.equal(pairs[0].leftHasYad, true);
+  assert.ok(pairs[0].right.startsWith("satyam"));
+});
+
+test("corrKey guards the closed set: abhavat is not tad", () => {
+  assert.equal(corrKey("tad", new Set(["tad"])), "tad");
+  assert.equal(corrKey("tat", new Set(["tad"])), "tad", "final t→d restoration");
+  assert.equal(corrKey("abhavat", new Set(["tad"])), null, "restored abhavad is not in the set — no match");
+  assert.equal(corrKey("gacchati", new Set(["tad"])), null);
 });

@@ -100,6 +100,21 @@ const ITI = new Set(["iti"]);
 const CORR_RIGHT = new Set(["tad", "tathā", "tatra", "tadā", "tatas", "tasmāt", "tena"]);
 const CORR_LEFT = new Set(["yad", "yathā", "yatra", "yadā", "yas", "yā", "yat", "ye", "yena", "yasmāt"]);
 
+/** corrKey(w, set) — sandhi-tolerant closed-class lookup (2026-09-18):
+ * running verse devoices finals (tad → tat before voiceless: RV 1.1.6
+ * "tavet tat satyam"). Try the form, then final t→d restoration. The
+ * restored form must be IN the closed set — an open lookup would match
+ * any -t word (abhavat is not tad). yad↔yat symmetric on the left. */
+export function corrKey(w, set) {
+  const f = normForm(w);
+  if (set.has(f)) return f;
+  if (f.endsWith("t")) {
+    const restored = f.slice(0, -1) + "d";
+    if (set.has(restored)) return restored;
+  }
+  return null;
+}
+
 const tokenize = (text) => {
   const out = [];
   for (const m of String(text ?? "").matchAll(TOKEN)) out.push({
@@ -439,7 +454,7 @@ export function correlatives(sentText) {
   const out = [];
   for (let i = 0; i < toks.length; i += 1) {
     const t = toks[i];
-    if (t.punct || !CORR_RIGHT.has(t.w)) continue;
+    if (t.punct || !corrKey(t.w, CORR_RIGHT)) continue;
     const left = text.slice(0, t.start).trim();
     const right = text.slice(t.end).trim().replace(/^[,.।॥|;:\s]+/, "").replace(/[,;.।॥|:\s]+$/, "");
     if (left.length >= 2 && right.length >= 2) {
