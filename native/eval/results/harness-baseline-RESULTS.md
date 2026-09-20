@@ -438,6 +438,32 @@ Basic/10 and 17 on round 2, Basic/15 converted by the ant pipeline
 time the small local mouth itself, with decomposition but no fold
 replay and no bigger model, covered the full battery.
 
+## NOVEL TIER (2026-09-20): 4/10, two wall shapes, invented names hold
+
+`--bench tasks-novel.jsonl`: 10 tasks with invented identifiers
+(quuxzorp, blorp, sturdy-words) so no mouth can have memorized them.
+Battery (qwen2.5-coder:1.5b, rounds 3, candidates 3, edit-turns 4,
+olmo2:7b squatting 13GB mid-run — contention disclosed):
+evaluate.py with TASKS_FILE=tasks-novel.jsonl: **Score: 4/10 = 40.0%**
+(green: Novel/02, 06, 07, 10 — three of them round-1).
+
+Two wall shapes, both new:
+- **Near-miss, wrong operation (01, 03, 05, 08):** the mouth reaches the
+  right structure but the wrong verb — `s.count(word)` instead of word
+  counts (03), `[::-1]` instead of splitting on '::' (05),
+  `sorted(word)` instead of grouping (08), branch stubs without the
+  combo case (01). Decomposition candidates: each is one verb away,
+  but the edit-ant's suffix/positional sharp shapes don't cover
+  verb-substitution.
+- **No body at all (04, 09):** zero applied draws — the mouth never
+  produced a parseable patch under invented names + contention. This is
+  a format collapse, not a code miss; ants have nothing to decompose
+  from (bestGroundBody returns null and the pipeline ends honestly).
+
+The novel tier is doing its job: it separates memorized shapes from
+generalized ones. The 4/10 is the honest generalization score of the
+full stack on unseen identifiers.
+
 ## Contention note (run 4: 55% is load, not regression)
 
 Run 4 scored 11/20 with SIX empty-crash failures (untouched stubs)

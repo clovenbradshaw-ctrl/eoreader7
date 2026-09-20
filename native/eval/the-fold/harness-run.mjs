@@ -36,6 +36,10 @@ const opt = (name, dflt) => {
 };
 const onlyTask = opt("--task", null);
 const runAll = args.includes("--all");
+// --bench <file>: which benchmark file to load from HARNESS_DIR (default
+// tasks.jsonl). The novel tier (tasks-novel.jsonl) uses invented names so
+// a mouth cannot have memorized them — the honest generalization test.
+const benchFile = opt("--bench", "tasks.jsonl");
 const maxRounds = Number(opt("--rounds", "3"));
 const model = opt("--model", "qwen3:30b-a3b");
 const stubArityMode = opt("--stub-arity", null);
@@ -57,7 +61,7 @@ const replay = args.includes("--replay");
 const skipSet = new Set(String(opt("--skip", "") ?? "").split(",").map((s) => s.trim()).filter(Boolean));
 
 function loadTasks() {
-  return fs.readFileSync(path.join(HARNESS_DIR, "tasks.jsonl"), "utf8")
+  return fs.readFileSync(path.join(HARNESS_DIR, benchFile), "utf8")
     .split("\n").filter((l) => l.trim()).map((l) => JSON.parse(l));
 }
 
@@ -290,7 +294,7 @@ async function dispatchEditAntLoop({ task, ws, groundBody }) {
     current = r.final;
     console.log(`  edit-ant turn ${turn}/${editTurns}: still failing`);
   }
-  return { done: false, final: current, testOutput: "edit-ant exhausted its turns", diagnosisUsed: true };
+  return { done: false, final: current, testOutput: "edit-ant exhausted its turns", diagnosisUsed: true, turns: editTurns };
 }
 
 // Dispatch an ant at a failed task (decomposition, 2026-09-19): read the
