@@ -4,27 +4,36 @@
 #   ./setup-proxy.sh                install/link the proxy, wire opencode
 #   ./setup-proxy.sh --no-link      don't npm-link the er7-proxy bin
 #   ./setup-proxy.sh --no-config    don't touch opencode configs
+#   ./setup-proxy.sh --no-models    don't pull the small local models
 #
 # Does (idempotently):
-#   1. Checks Ollama upstream is reachable.
-#   2. Installs `er7-proxy` so it's on PATH (npm link).
-#   3. Starts the proxy on :11436 if it isn't already running.
-#   4. Wires EVERY opencode config it can find (project + global) to the
+#   1. Checks Ollama (or another local model harness) is installed, running,
+#      and reachable — installing it if it is not.
+#   2. Pulls a few small models so the proxy has a mouth (skip: --no-models).
+#   3. Installs `er7-proxy` so it's on PATH (npm link).
+#   4. Starts the proxy on :11436 if it isn't already running.
+#   5. Wires EVERY opencode config it can find (project + global) to the
 #      er7: provider with streaming models.
-#   5. Installs the er7-session opencode plugin so each conversation keeps
+#   6. Installs the er7-session opencode plugin so each conversation keeps
 #      its own accumulating EOReader7 reader fold.
+#
+# The whole machine, one line from a fresh shell:
+#   curl -fsSL https://raw.githubusercontent.com/clovenbradshaw-ctrl/eoreader7/main/install.sh | bash
 set -e
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PORT="${ER7_PROXY_PORT:-11436}"
 UPSTREAM="${ER7_UPSTREAM:-http://localhost:11434}"
+MODELS="${ER7_MODELS:-gemma2:2b smollm2:1.7b qwen2.5-coder:1.5b nomic-embed-text}"
 LINK=1
 CONFIG=1
+MODELS_ON=1
 
 for arg in "$@"; do
   case "$arg" in
     --no-link) LINK=0 ;;
     --no-config) CONFIG=0 ;;
+    --no-models) MODELS_ON=0 ;;
   esac
 done
 
@@ -84,6 +93,28 @@ launchctl setenv OLLAMA_MAX_LOADED_MODELS "${OLLAMA_MAX_LOADED_MODELS:-3}" 2>/de
 launchctl setenv OLLAMA_CONTEXT_LENGTH "${OLLAMA_CONTEXT_LENGTH:-16384}" 2>/dev/null && ok "OLLAMA_CONTEXT_LENGTH=${OLLAMA_CONTEXT_LENGTH:-16384}"
 launchctl setenv OLLAMA_NUM_PARALLEL "${OLLAMA_NUM_PARALLEL:-4}" 2>/dev/null && ok "OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL:-4}"
 
+# --- 1b. pull a few small models so the proxy has a mouth ----------------------
+# Without a local model the proxy refuses everything. Default set is deliberately
+# small (each under ~2 GB) so a fresh box is usable in minutes: a tiny general
+# reader, a tiny coder, and a tiny embedding model. ER7_MODELS overrides the
+# whole list (space-separated tags); pulls are skipped when already present.
+if [ "$MODELS_ON" = "1" ]; then
+  say "Ensuring the small local models are pulled (ER7_MODELS to override)..."
+  if ! curl -s -m 3 "$UPSTREAM/api/tags" > /dev/null 2>&1; then
+    echo "  warning: Ollama not answering at $UPSTREAM yet — skipping model pulls (start it, then re-run setup-proxy.sh)"
+  else
+    PRESENT="$(ollama list 2>/dev/null | awk '{print $1}')"
+    for m in $MODELS; do
+      if printf '%s\n' "$PRESENT" | grep -qx "$m"; then
+        ok "$m already present"
+      else
+        echo "    pulling $m ..."
+        ollama pull "$m" || echo "  warning: pull of $m failed (skip with --no-models)"
+      fi
+    done
+  fi
+fi
+
 # --- 2. link er7-proxy onto PATH ---------------------------------------------
 if [ "$LINK" = "1" ]; then
   say "Installing er7-proxy command (npm link, eoreader7-cli)..."
@@ -95,7 +126,11 @@ if [ "$LINK" = "1" ]; then
   fi
 fi
 
-# --- 3. run the proxy ----------------------------------------------------------
+# --- 3. run the proxy + external heimdall fleet ---------------------------------
+# `er7-proxy start` brings up the fleet (heimdall-fleet.mjs, port 11438) first,
+# then the proxy as a thin sandbox — a wedged proxy can never take its own
+# watcher down (the 2026-09-20 lesson). The bare-node fallback below mirrors
+# that: fleet up first, then proxy with ER7_EXTERNAL_HEIMDALL=1.
 say "Starting EOReader7 proxy on port $PORT..."
 if command -v er7-proxy >/dev/null 2>&1; then
   er7-proxy start || true
@@ -103,7 +138,8 @@ else
   if lsof -i :"$PORT" > /dev/null 2>&1; then
     ok "proxy already running on :$PORT"
   else
-    (cd "$REPO_DIR" && nohup node proxy.mjs > proxy.log 2>&1 &)
+    (cd "$REPO_DIR" && ER7_EXTERNAL_HEIMDALL=1 nohup node heimdall-fleet.mjs --operator log > heimdall-fleet.log 2>&1 &)
+    (cd "$REPO_DIR" && ER7_EXTERNAL_HEIMDALL=1 nohup node proxy.mjs > proxy.log 2>&1 &)
     sleep 1
   fi
 fi
@@ -176,6 +212,7 @@ echo
 echo "  proxy       http://127.0.0.1:$PORT/v1   (health: http://127.0.0.1:$PORT/health)"
 echo "  model       er7/er7:olmo2:7b"
 echo "  commands    er7-proxy {start|stop|restart|status|log}"
-echo "  remote      curl -fsSL https://raw.githubusercontent.com/clovenbradshaw-ctrl/eoreader7/main/setup-proxy.sh | bash"
+echo "  fleet       er7-proxy {fleet:start|fleet:stop|fleet:status|fleet:log}"
+echo "  one line    curl -fsSL https://raw.githubusercontent.com/clovenbradshaw-ctrl/eoreader7/main/install.sh | bash"
 echo
 echo "  Restart opencode, then pick the er7 model (e.g. er7/er7:olmo2:7b)."

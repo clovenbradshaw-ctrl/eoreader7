@@ -71,6 +71,8 @@ native/eval/the-fold/results/conversation/
 # EOReader7 proxy runtime
 proxy.log
 .er7-proxy.pid
+heimdall-fleet.log
+.er7-fleet.pid
 test run/
 documents/
 heimdall-log.jsonl

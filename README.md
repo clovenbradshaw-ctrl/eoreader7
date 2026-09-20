@@ -10,6 +10,22 @@ import { createRecursiveReader } from "./kernel.js";
 
 The native implementation lives in `native/kernel/`. It has no implementation dependency on EOReader 6.1.
 
+## Installing the whole machine
+
+From a fresh shell, one line:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/clovenbradshaw-ctrl/eoreader7/main/install.sh | bash
+```
+
+It clones the repo, checks the local model harness (installing Ollama if no
+local model runner is present), pulls a few small models so the proxy has a
+mouth, links `er7-proxy` onto PATH, starts the proxy on `:11436`, and wires
+every opencode config it can find to the `er7:` provider. Overrides: `ER7_DIR`
+(where to clone), `ER7_MODELS` (space-separated model tags to pull),
+`ER7_PROXY_PORT`, `ER7_UPSTREAM`. `./install.sh --no-link --no-config
+--no-models` skips the corresponding steps.
+
 ## Connecting to eoreader7
 
 `proxy.mjs` (`./setup-proxy.sh` installs it) is the connection surface — one
@@ -59,6 +75,34 @@ connection), `x-er7-user` (durable identity across sessions), `x-er7-workspace`
 (`auto`/`chat`/`long`/`origami`). `/v1/ask` also accepts `sessionId` and
 `workspace` directly in the request body, for callers with no header
 machinery.
+
+## Interactive surfaces
+
+Two thin, no-build clients sit over that same proxy, so anyone can talk to
+it without speaking HTTP:
+
+- **`eoreader7` (no args)** — the terminal TUI (`cli/tui.mjs`, Ink). Tabs,
+  grounded chat + sandboxed coding agent per tab, `/model` roster switch,
+  input history (Up/Down), word-wrapped transcript (nothing is ever cut off
+  silently), and the **facing page**: `/facing <holograph.json>` renders a
+  full response as a book spread — the SOURCES that inspired it on the left
+  (permanent address · byte offset · **verbatim snip** read from the real
+  file via `cli/holograph.mjs`), the RESPONSE on the right tagged sentence
+  by sentence to its source fact (`[S#]`) or marked `[M]` when it's the
+  mouth's own prose, and the reasoning NOTES collapsible below (`Ctrl+N`).
+- **`eoreader7 -browser`** — the same surface in a browser
+  (`cli/browser.mjs` + `browser/`, port `ER7_WEB_PORT`, default 11438).
+  Deliberately stripped down next to the fold, but able to do more than a
+  terminal: markdown rendering, copy buttons, mouse-driven tabs, per-tab
+  state kept in `localStorage`, model picker, transcript export, and a
+  clickable facing page (click a sentence to highlight its source fact and
+  vice versa). Every model call goes through the same `proxy-client.mjs`
+  retry contract as the TUI; every holograph is loaded through the same
+  `holograph.mjs` resolver — the browser never reimplements a schema.
+
+Both are what this repo considers a *full response*: the inspired text and
+the record it was inspired by kept together, with the reasoning that
+connected them.
 
 ## Canonical cycle
 
@@ -231,6 +275,8 @@ the-fold's flat top level under the same basename.
 | `organs/pacing.js` | Murch | The cut lands where the blink falls; a flatline is boredom at the rhythm grain. |
 | `organs/vonnegut.js` / `organs/story-shapes.js` | Vonnegut | Fortune curves; the 27-operator arc, taxonomically complete. |
 | `organs/void-holarchy.js` | Koestler | The void is a holon recursion — every level a whole-and-part, DEF'd by the nine operators. |
+| `organs/apollo.js` | Apollo | The homeostasis archon — dynamic awareness of every channel (turn latency, cpu idle, API calls, generation, refusals) against its own EWMA baseline; surprise (alarm/runaway) dispatches an eoSwarm, never acts alone. |
+| `organs/thea.js` | Thea | The remedy archon — crafts the remedy from Apollo's finding plus the swarm's report, in Heimdall's own vocabulary (pace/defer/downgrade/escalate/re-forge/quarantine); proposes, never executes. |
 | `organs/privacy.js` | Brandeis | The archon of data sovereignty — "the right to be let alone": conditions orientation toward E2EE/local-first, and lints for the shapes that betray the boundary (weak signals, never a verdict). |
 | `organs/martial.js` | Martial | The archon of anti-copy — "do not write what can be copied; replicate what should be replicated": holon-aware (low sets possibility for high, high probability for low), a distinctive copied holon is a finding, boilerplate is replication-for-efficiency. |
 | `organs/salzter.js` | Saltzer | The security archon — natively detects the CWE gaps frontier models leave in ordinary code (injection, path traversal, weak crypto/randomness, insecure deserialization, TLS-off, hardcoded secrets, XSS), structurally over the AST/DOM surface; a witness, never a proof. |
@@ -243,6 +289,12 @@ the-fold's flat top level under the same basename.
 | `organs/socratic.js` | Kierkegaard | How the reader gives its account of a decline — indirect communication: meet the other where they are, hand over no conclusion they did not arrive at. The judgment (`askshape.js`, `ethos.js`) reasons in its own working vocabulary (SHAPE, FORECLOSE, STANDPOINT) so it stays medium-blind and checkable; that vocabulary never reaches the person or agent reading the answer. This organ composes the plain-language account from the judgment, in the register `interlocutor.js` recognized (a real question for a person, reasons-and-a-principal for an agent) — the same true reason and the same real alternative to both, never withheld from either. The exact judgment stays on the ledger; only the surface text is composed here. |
 | `organs/aliases.js` | Frege | There is no real name: the Morning Star and the Evening Star are one object and two names. The referent IS the equivalence CLASS of its aliases (the "full" name is the gloss's left side, not a truth), and its identity is a byte key over the whole class — never a spelling. The material's own declarations reach the surface layer (`surfaces.js::referentIdentity`), so any alias resolves to the same identity. |
 | `kernel/moral-shadow.js` | Bourdieu | The shadow trail — habitus: the append-only ledger of a person's norm-standing (norm_compliant / norm_conflict / descriptive, never merged), assessed as a RATE over their acts, corroborated across independent acts, never a verdict about a person. The cross-session accumulation the decomposition literature calls for. |
+
+**Artifact identity**
+
+| File | Handle | One line |
+|---|---|---|
+| `organs/what.js` | Cuvier | "Show me a bone and I will reconstruct the beast" — what IS this giant hunk: a giant code artifact's own structural bytes (module map, vendor stack, feature modules, endpoint literals, banners, declared names) reconstructed into an account of what the artifact IS, byte-anchored, never a verdict; a giant hunk is scanned within a declared window with every skipped byte disclosed. The admission fix that makes a 3.2 MB bundle step-able through the reader is `adapters/code/encounters.js` (code encounters, never a 1.8 MB "sentence"). The same reconstruction reads a GraphQL schema artifact (introspection JSON) since S129 — type inventory, root operations, Connection pagination, mutation Payloads, enums, unions, domain vocabulary, mutation verbs. READING-SPEC S128/S129. |
 
 **Left plain** — no handle: `sequence`, `cite`, `web`, `fold`, `cube`,
 `artifact`, `assembly`, `task-log`, `cast-ledger`.
