@@ -2248,6 +2248,22 @@ async function lookWorkspaceImages(session, absRoot, onNote) {
     if (session.lookIndex?.get(img.rel) === key) continue;
     try {
       const result = await lookAtImage(img.abs, { name: img.rel });
+      // THE CONTINUOUS LEARNING LOOP: whatever the look found — the CV
+      // parent's named boxes (the expensive path) or the child's own
+      // fast-path memory — feeds the mnemonic store, so the next image is
+      // recognized from memory alone, without the CV model (the pipeline
+      // organ's own report says what was learned and from which seam).
+      try {
+        const mnemonic = await import("./native/organs/mnemonic-pipeline.js");
+        const mstore = mnemonic.loadStore();
+        const learned = await mnemonic.learnFromLook(mstore, result);
+        mnemonic.saveStore(mstore);
+        if (learned.taught > 0 && onNote) onNote({ move: "mnemonic_taught", rel: img.rel, taught: learned.taught, from: learned.from });
+        if (onNote && learned.from === "fast-path") onNote({ move: "mnemonic_memory", rel: img.rel, regions: learned.absorbedRegions });
+      } catch {
+        // the mnemonic store is optional machinery — its absence never
+        // breaks the reading
+      }
       if (result.text) {
         if (!session.corpus) session.corpus = createCorpusSession();
         const res = admitChunked(session.corpus, { text: piiAdmit(session, result.text, `${img.rel}::look`, onNote), sourceId: `${img.rel}::look` });

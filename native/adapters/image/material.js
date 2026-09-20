@@ -23,6 +23,27 @@ const decodeGrayImage = (path, { w = 64, h = 64 } = {}) =>
 
 export const load = async (path, opts = {}) => decodeGrayImage(path, opts);
 
+// ── color: the same perceiver, one channel richer. The child's color face
+//    decodes rgb24 at the grid size (ffmpeg, same decoder, same discipline)
+//    — the luminance grid AND the color planes side by side, so a lesson
+//    can carry both the shadow and the hue layout of the thing. ──────────
+const decodeColorImage = (path, { w = 64, h = 64 } = {}) =>
+  new Promise((resolve, reject) => {
+    const args = ["-v", "error", "-i", path, "-vf", `scale=${w}:${h}`, "-pix_fmt", "rgb24", "-f", "rawvideo", "-vframes", "1", "pipe:1"];
+    const proc = spawn("ffmpeg", args);
+    const chunks = [];
+    let err = "";
+    proc.stdout.on("data", (d) => chunks.push(d));
+    proc.stderr.on("data", (d) => { err += d; });
+    proc.on("error", reject);
+    proc.on("close", (code) => {
+      if (code !== 0) return reject(new Error(`ffmpeg color decode failed (${code}): ${err.slice(0, 300)}`));
+      resolve({ buf: Buffer.concat(chunks), w, h });
+    });
+  });
+
+export const loadColor = async (path, opts = {}) => decodeColorImage(path, opts);
+
 export const reduce = ({ buf, w, h }, { fraction = 1 } = {}) => {
   const readRows = Math.max(2, Math.floor(h * fraction));
   const material = [];

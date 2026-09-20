@@ -64,6 +64,24 @@ test or measurement that moved it, cited inline.
 - WALL prose identity (`resolve` exact case-sensitive; camelCase grants
   nothing — negative control `source-code__flask-app-py-RAW.json`);
   product naming (libraries/bundlers only, never the application).
+- HAVE the child's memory (`kernel/shadow-echo.js` + `kernel/kind-universe.js`
+  + `organs/mnemonic.js`): the SHADOW and ECHO of the raw bytes, quantized to
+  144 bytes per image (28 for a series, 48 for text) — the size rule: a
+  memory larger than its source is not a memory. The CV parent teaches
+  (OpenCV/OCR + vision, `organs/look.js`), the child recognizes without any
+  CV model: byte-derived figure/ground proposal (frame's own mean/std,
+  connected components), tight-box crops, per-kind DMD frameworks with the
+  leave-one-out nearest bound as the verdict floor, every reading against a
+  VOID (the nearest other kind), falsifiable (DEF refutes a lesson), splits
+  when a kind's members stop being mutually reachable (SEG), novelty signed
+  as provisional kinds and corroborated to confirmed ones (SIG→CON), holonic
+  parts (a recognized region's interior figures are its parts), omnimodal
+  (image grid / audio+video series / text motif windows — one store, one
+  framework). Every item carries its de-lossy handle: source path + sha256 +
+  pixel region + memory/source byte ratio. Proven on real files
+  (`organs/mnemonic-e2e.test.mjs`: PNG + WAV written by the test, ffmpeg
+  decoded, recognized where it is in pixel coordinates; 22 unit + 5 e2e
+  green).
 
 ## C. Proposal (derived bytes, typed gaps)
 
@@ -160,6 +178,13 @@ test or measurement that moved it, cited inline.
    rebuild (26 vs 73 files); TS/C/Go gates; ASCII leftovers.
 5. Competency battery per language (the number all of the above moves;
    carries the briefs on/off A/B for free).
+6. The child (mnemonic) on the real CV-sample dataset (`organs/mnemonic*.mjs`
+   + `kernel/shadow-echo.js` + `kernel/kind-universe.js`) — built and tested
+   on synthetic shapes + self-written PNGs/WAVs (22 unit + 5 e2e tests, all
+   green); the next falsification is the Kaggle
+   `benai9916/computer-vision-sample-images` corpus, teaching "dog" from
+   actual dog photographs and recognizing them from the 144-byte shadow/echo
+   alone.
 
 Sections B–E cite the row that proves each HAVE (test file or RESULTS
 doc); anything here without a citation is the next edit's job.

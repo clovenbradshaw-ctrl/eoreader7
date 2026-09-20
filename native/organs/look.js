@@ -44,6 +44,28 @@ import { detectVisualStructure, toLedgerLines, foldVisual } from "../eval/lavar/
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
 
+// ── the child: a fast-path memory read BEFORE any CV model runs ────────────
+// organs/mnemonic.js keeps the SHADOW and ECHO of previously taught regions
+// (the CV parent taught them); when the child recognizes a new image's raw
+// bytes, the looking seam answers from memory — no OpenCV, no ollama, no
+// vision model. Disabled loudly-named: ER7_MNEMONIC=0 turns it off; an
+// unreadable store or a decode failure falls through to CV with the error
+// disclosed, never silently swallowed.
+import {
+  loadStore as _loadMnemonicStore,
+  mnemonicLook,
+  teachFromLook as _teachFromLook,
+  recognizeImage as _recognizeImage,
+  recognizeRegion as _recognizeRegion,
+  recognizeSeries as _recognizeSeries,
+  teachGrid as _teachGrid,
+  teachSeries as _teachSeries,
+  STORE_PATH as MNEMONIC_STORE_PATH,
+} from "./mnemonic.js";
+
+// Re-exported so the proxy reads ONE looking seam (this file's own rule).
+export { teachFromLook, recognizeImage, recognizeRegion, recognizeSeries, teachGrid, teachSeries, STORE_PATH as MNEMONIC_STORE_PATH } from "./mnemonic.js";
+
 export const VISION_LADDER = Object.freeze([
   { model: "moondream", label: "moondream" },
   { model: "qwen2.5vl:7b", label: "qwen2.5vl" },
@@ -218,12 +240,65 @@ export async function settleRead(visionRead, factLines, model) {
 }
 
 // ── lookAtImage: the full two-sense read of one image ──────────────────────
-// Mechanical (OpenCV boxes + per-region OCR) first, then a vision read of
-// the whole, judged against the mechanical facts, escalated only on a real
+// THE CHILD FIRST: the mnemonic fast path (shadow/echo memory, no CV model)
+// runs before anything else — a recognized thing answers from memory in
+// milliseconds. Then, when the child has nothing, the CV parent: Mechanical
+// (OpenCV boxes + per-region OCR) first, then a vision read of the whole,
+// judged against the mechanical facts, escalated only on a real
 // disagreement, fused into ONE plain description + the addressed facts.
 // Returns null on a truly empty read (nothing mechanical, no vision answer)
-// — a caller renders its own wording around that.
+// — a caller renders its own wording around that. The parent's read carries
+// width/height — its spatial coordinates — so the child's lessons always
+// know where in the real image the thing was.
+const mnemonicEnabled = () => process.env.ER7_MNEMONIC !== "0";
+
+function mnemonicLedgerLines(imagePath, fast) {
+  const lines = [];
+  for (const region of fast.regions ?? []) {
+    for (const name of region.recognized ?? []) {
+      lines.push({
+        schema: "EOTObservation@1", role: "mnemonic-region",
+        id: `mn${region.region.join("x")}-${name}`,
+        at: { image: imagePath, region: region.pixelRegion ?? region.region },
+        label: name,
+        witnesses: ["mnemonic-shadow-echo(figure-ground proposal, quantized 144B descriptor, DMD framework)"],
+        verify: "re-run the CV parent (OpenCV/OCR + vision) on this region and confirm the concept label",
+      });
+    }
+  }
+  return lines;
+}
+
 export async function lookAtImage(imagePath, { visionModel = VISION_LADDER[0].model, arrowColorBGR, name = path.basename(imagePath) } = {}) {
+  // THE CHILD'S FAST PATH — memory before model. Nothing here uses OpenCV,
+  // ollama, or a vision model; a match is a memory read, and it says so.
+  let fast = null;
+  let fastPathError = null;
+  if (mnemonicEnabled()) {
+    try {
+      const store = _loadMnemonicStore();
+      fast = await mnemonicLook(store, imagePath);
+    } catch (err) {
+      fastPathError = err.message;
+    }
+  }
+  if (fast) {
+    const ledgerLines = mnemonicLedgerLines(imagePath, fast);
+    return {
+      imagePath, name,
+      text: fast.text,
+      boxCount: 0, edgeCount: 0,
+      boxes: [], connectors: [],
+      width: null, height: null,
+      visionRead: null, visionModelUsed: null, visionSettled: true,
+      unresolvedReason: null, detectorError: null, visionError: null,
+      standing: fast.standing,
+      fastPath: { matched: true, concepts: fast.concepts, regions: fast.regions, wholeImage: fast.wholeImage },
+      ledgerLines,
+      fold: foldVisual(ledgerLines),
+    };
+  }
+
   let detected = null;
   let detectorError = null;
   try {
@@ -263,7 +338,7 @@ export async function lookAtImage(imagePath, { visionModel = VISION_LADDER[0].mo
   const settled = await settleRead(visionRead, factLines, visionModelUsed);
 
   if (!boxes.length && !visionRead) {
-    return { imagePath, name, text: "", boxCount: 0, edgeCount: 0, visionRead: null, visionModelUsed: null, visionSettled: true, unresolvedReason: null, detectorError, visionError, mechanicalStanding: null, visionStanding: null };
+    return { imagePath, name, text: "", boxCount: 0, edgeCount: 0, width, height, visionRead: null, visionModelUsed: null, visionSettled: true, unresolvedReason: null, detectorError, visionError, fastPath: { matched: false, error: fastPathError ?? null }, mechanicalStanding: null, visionStanding: null };
   }
 
   const readable = boxes.filter((b) => b.text && b.text.trim());
@@ -290,12 +365,14 @@ export async function lookAtImage(imagePath, { visionModel = VISION_LADDER[0].mo
     text: lines.join("\n"),
     boxCount: boxes.length, edgeCount: connectors.length,
     boxes, connectors,
+    width, height,
     visionRead: settled.visionRead,
     visionModelUsed,
     visionSettled: settled.settled,
     visionTurns: settled.turns,
     unresolvedReason: settled.unresolvedReason,
     detectorError, visionError,
+    fastPath: { matched: false, error: fastPathError ?? null },
     standing,
     ledgerLines: toLedgerLines(detected ?? { image: imagePath, boxes, connectors }),
     fold: foldVisual(toLedgerLines(detected ?? { image: imagePath, boxes, connectors })),
