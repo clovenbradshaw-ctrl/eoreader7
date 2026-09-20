@@ -1,0 +1,15 @@
+{
+  "title": "Imagine East Bank Vision Plan — Executive Summary",
+  "publisher": "Metro Planning Dept.",
+  "adopted": "2022-10-06",
+  "url": "https://www.nashville.gov/sites/default/files/2022-11/Imagine-East-Bank-Executive-Summary.pdf?ct=1668799051",
+  "license": "public — Metro Nashville planning document",
+  "extraction": {
+    "tool": "pdftotext",
+    "mode": "layout"
+  },
+  "pdf_sha256": "8adcad2190c10d31775683925cd1d8c5e90a96692efd6c18c812beb176a58e20",
+  "txt_sha256": "0c7dee6b93be0e5ef9b1cb039a94b100915d1fb8c4d25c072dce7f8d6d312366",
+  "chars": 116810,
+  "pages": 13
+}

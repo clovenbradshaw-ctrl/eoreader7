@@ -17,14 +17,17 @@ function pageFor(pagemap, byteStart) {
 }
 
 /**
- * extractLinks({ text, doc, mode, pagemap, cap }) -> links[]
+ * extractLinks({ text, doc, mode, pagemap, cap, vocab }) -> links[]
  * `doc` is the link's FULL retained path (e.g. "nashville/ground/x.txt" or
  * "inst/a.txt") — the address the gate resolves against the ground. The
  * underlying organ's instance-shaped id/doc are replaced with the block's
  * domain-neutral forms. Deterministic: same layer in, same rows out.
+ * `vocab` (optional) is the discovery dialogue's limited schema — when
+ * present its agencies/places/quantities/goals REPLACE the extractor's
+ * received defaults, so the vocabulary is discovered, not model-authored.
  */
-export function extractLinks({ text, doc, mode = "layout", pagemap = null, cap = 3500 }) {
-  const rows = extractPlanRows({ text, doc, mode });
+export function extractLinks({ text, doc, mode = "layout", pagemap = null, cap = 3500, vocab = null }) {
+  const rows = extractPlanRows({ text, doc, mode, vocab });
   const links = rows
     .map((r, i) => ({ ...r, id: `surface:${doc}:row:${String(i + 1).padStart(4, "0")}`, doc }))
     .map((r) => ({ ...r, page: pagemap ? pageFor(pagemap, r.at[0]) : null }))

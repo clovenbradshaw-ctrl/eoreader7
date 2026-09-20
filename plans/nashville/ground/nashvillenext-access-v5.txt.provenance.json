@@ -1,0 +1,15 @@
+{
+  "title": "NashvilleNext Volume V — Access Nashville 2040",
+  "publisher": "Metro Planning Dept.",
+  "adopted": "2015-06-22",
+  "url": "https://filetransfer.nashville.gov/portals/0/sitecontent/Planning/docs/NashvilleNext/PlanVolumes/next-volume5-AccessNashville2040.pdf",
+  "license": "public — Metro Nashville planning document",
+  "extraction": {
+    "tool": "pdftotext",
+    "mode": "layout"
+  },
+  "pdf_sha256": "a3d01310e79cc82c690d8965c4710b8ddd371f0a1aff36992994b8eb9dc004fe",
+  "txt_sha256": "1f72600f63331f556ec91f149f9792d67b1e68da763860b3e900aee4b3aa30b2",
+  "chars": 436614,
+  "pages": 133
+}

@@ -1,0 +1,68 @@
+{
+  "city": "nashville",
+  "name": "Nashville — Davidson County",
+  "docs": [
+    {
+      "id": "nashvillenext-access-v5",
+      "title": "NashvilleNext Volume V — Access Nashville 2040",
+      "category": "general plan",
+      "scale": "county",
+      "publisher": "Metro Planning Dept.",
+      "adopted": "2015-06-22",
+      "url": "https://filetransfer.nashville.gov/portals/0/sitecontent/Planning/docs/NashvilleNext/PlanVolumes/next-volume5-AccessNashville2040.pdf",
+      "license": "public — Metro Nashville planning document",
+      "extraction": "layout",
+      "pdf_sha256": "a3d01310e79cc82c690d8965c4710b8ddd371f0a1aff36992994b8eb9dc004fe"
+    },
+    {
+      "id": "nmotion-final",
+      "title": "nMotion Strategic Plan — Final Report (Dec 2016)",
+      "category": "transit",
+      "scale": "region",
+      "publisher": "Nashville MTA / RTA",
+      "adopted": "2016-12",
+      "url": "https://www.nmotion.info/wp-content/uploads/2017/01/nMotion-Final-Report-161223.pdf",
+      "license": "public — Nashville MTA/RTA (nMotion 2016)",
+      "extraction": "raw",
+      "pdf_sha256": "a4afa538bd4afaca05da5c04b66fe75da4d5d113774c989c64d42a3b5c468b03",
+      "seedFrom": "proof/nashville/ground/nmotion-final.pdf"
+    },
+    {
+      "id": "east-bank-exec",
+      "title": "Imagine East Bank Vision Plan — Executive Summary",
+      "category": "district vision",
+      "scale": "district",
+      "publisher": "Metro Planning Dept.",
+      "adopted": "2022-10-06",
+      "url": "https://www.nashville.gov/sites/default/files/2022-11/Imagine-East-Bank-Executive-Summary.pdf?ct=1668799051",
+      "license": "public — Metro Nashville planning document",
+      "extraction": "layout",
+      "pdf_sha256": "8adcad2190c10d31775683925cd1d8c5e90a96692efd6c18c812beb176a58e20",
+      "seedFrom": "proof/nashville/ground/east-bank-exec.pdf"
+    },
+    {
+      "id": "uhs-full-report",
+      "title": "Unified Housing Strategy (UHS) — Full Report",
+      "category": "housing",
+      "scale": "county",
+      "publisher": "Metro Planning — Housing Division",
+      "adopted": "2025",
+      "url": "https://www.nashville.gov/sites/default/files/2025-09/UHS-Full-Report.pdf?ct=1759160211",
+      "license": "public — Metro Nashville planning document",
+      "extraction": "layout",
+      "pdf_sha256": "5e1efe62d89a889bd528d27a3446e3d6856e5c2147079916683aeb77d87d69a2"
+    },
+    {
+      "id": "carp-final",
+      "title": "Climate Adaptation and Resilience Plan (CARP) — Final",
+      "category": "climate",
+      "scale": "county",
+      "publisher": "Mayor's Office",
+      "adopted": "2024-09",
+      "url": "https://www.nashville.gov/sites/default/files/2024-09/Climate_Adaptation_Resilience_Plan_Final.pdf",
+      "license": "public — Metro Nashville planning document",
+      "extraction": "layout",
+      "pdf_sha256": "573a1030dd643044e2cc971f69813083d88e00e3af3ffeb3dd2a01f1a1f5cbcb"
+    }
+  ]
+}

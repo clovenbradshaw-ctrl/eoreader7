@@ -1,0 +1,157 @@
+{
+  "city": "nashville",
+  "name": "Nashville — Davidson County",
+  "documents": [
+    {
+      "id": "nashvillenext-access-v5",
+      "category": "general plan",
+      "scale": "county"
+    },
+    {
+      "id": "nmotion-final",
+      "category": "transit",
+      "scale": "region"
+    },
+    {
+      "id": "east-bank-exec",
+      "category": "district vision",
+      "scale": "district"
+    },
+    {
+      "id": "uhs-full-report",
+      "category": "housing",
+      "scale": "county"
+    },
+    {
+      "id": "carp-final",
+      "category": "climate",
+      "scale": "county"
+    }
+  ],
+  "topics": [
+    {
+      "id": "percent",
+      "label": "percent",
+      "queries": [
+        "percent"
+      ]
+    },
+    {
+      "id": "units",
+      "label": "units",
+      "queries": [
+        "units"
+      ]
+    },
+    {
+      "id": "dollar",
+      "label": "dollar",
+      "queries": [
+        "dollar"
+      ]
+    },
+    {
+      "id": "distance",
+      "label": "distance",
+      "queries": [
+        "distance"
+      ]
+    },
+    {
+      "id": "climate",
+      "label": "climate",
+      "queries": [
+        "climate",
+        "climate adaptation",
+        "nashville climate",
+        "nashville climate adaptation",
+        "metro nashville climate",
+        "metro nashville climate adaptation"
+      ]
+    },
+    {
+      "id": "other-climate-hazards",
+      "label": "Other Climate Hazards",
+      "queries": [
+        "other",
+        "climate",
+        "hazards",
+        "climate adaptation",
+        "nashville climate",
+        "nashville climate adaptation",
+        "metro nashville climate",
+        "metro nashville climate adaptation"
+      ]
+    },
+    {
+      "id": "transportation-network",
+      "label": "Transportation Network",
+      "queries": [
+        "transportation",
+        "network"
+      ]
+    },
+    {
+      "id": "downtown-nashville",
+      "label": "Downtown Nashville",
+      "queries": [
+        "downtown",
+        "nashville",
+        "metro nashville",
+        "access nashville",
+        "nashville climate",
+        "nashville climate adaptation",
+        "metro nashville climate",
+        "metro nashville climate adaptation"
+      ]
+    }
+  ],
+  "metrics": {
+    "registries": [
+      "districts",
+      "violations-by-district",
+      "landlords",
+      "housing-stress"
+    ],
+    "placeDistricts": {}
+  },
+  "vocab": {
+    "agencies": [
+      "MDHA",
+      "MTA",
+      "RTA",
+      "Barnes Fund",
+      "DOT",
+      "MPO",
+      "MWS",
+      "HUD",
+      "TDOT",
+      "NDOT",
+      "CSP",
+      "Metro Public"
+    ],
+    "places": [
+      "East Bank",
+      "Complete Streets",
+      "Dickerson Pike",
+      "Nolensville Pike",
+      "Avenue South",
+      "Old Hickory Boulevard",
+      "Murfreesboro Pike",
+      "Clarksville Pike",
+      "Jefferson Street",
+      "Downtown Nashville",
+      "Avenue North",
+      "River North"
+    ],
+    "quantities": [
+      "percent",
+      "units",
+      "dollar",
+      "distance",
+      "climate"
+    ],
+    "goals": []
+  },
+  "decidedBy": "autonomous"
+}

@@ -124,3 +124,19 @@ native/eval/lavar/results/*-ch*-*.projected.json
 # point" a machine's swarm history grows from. Deliberately NOT shared: this
 # is what makes each device's personality unique. Never committed.
 native/eval/lavar/results/.device-id
+
+# Runtime state — the current-facts environment (kinds, dated links, stigmergic trails)
+state/
+
+# Nashville plans surface — derived artifacts, not sources
+plans/**/ground/*.pdf
+plans/**/ground/*.txt.pagemap.json
+plans/nashville/nashville.html
+plans/nashville/surface-terrain-mockup.html
+plans/nashville/discovery/
+plans/nashville/ledger/
+plans/nashville/metrics/
+plans/ohs/
+plans/proof/
+plans/nashville/data/
+plans/sample/

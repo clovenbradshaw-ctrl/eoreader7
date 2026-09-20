@@ -1,0 +1,15 @@
+{
+  "title": "nMotion Strategic Plan — Final Report (Dec 2016)",
+  "publisher": "Nashville MTA / RTA",
+  "adopted": "2016-12",
+  "url": "https://www.nmotion.info/wp-content/uploads/2017/01/nMotion-Final-Report-161223.pdf",
+  "license": "public — Nashville MTA/RTA (nMotion 2016)",
+  "extraction": {
+    "tool": "pdftotext",
+    "mode": "raw"
+  },
+  "pdf_sha256": "a4afa538bd4afaca05da5c04b66fe75da4d5d113774c989c64d42a3b5c468b03",
+  "txt_sha256": "4784dd1e87cf844c7c1748476457f5366bafdd7a425236bd3aedb01a8012368f",
+  "chars": 86295,
+  "pages": 51
+}

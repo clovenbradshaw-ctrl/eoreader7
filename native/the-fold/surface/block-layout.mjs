@@ -98,11 +98,17 @@ const LIB_PATH = join(HERE, "layout-conventions.json");
 const DEFAULT_LIBRARY = {
   schema: LAYOUT_RULES_SCHEMA,
   rules: [
-    { name: "prose", signals: [], settle: "prose", foundVia: "received" },
-    { name: "column_merge", signals: ["wide_whitespace_runs", "narrow_column"], settle: "column_merge", foundVia: "received", note: "wide whitespace runs with narrow lines — columns interleaved in the flat layer" },
-    { name: "column_merge_short", signals: ["wide_whitespace_runs", "sub_sentence_lines"], settle: "column_merge", foundVia: "received", note: "wide whitespace with sub-sentence lines — a columned layout" },
-    { name: "table_tuple", signals: ["table_rows"], settle: "table_tuple", foundVia: "received", note: "pipe/bar-delimited rows — a table at the page grain" },
+    // ORDER IS THE SETTLE'S PRIORITY: a page that fires MULTIPLE signals is
+    // settled by the FIRST rule whose signals all fire, so the strongest
+    // shape claims it. A diagram (box_drawing) that also carries whitespace
+    // runs must be LOOKED at, never flat-merged as columns; a table that
+    // also has wide runs must be tupled, never column-split.
     { name: "box_diagram", signals: ["box_drawing"], settle: "cv", foundVia: "received", note: "box-drawing marks a diagram the flat layer cannot hold — look" },
+    { name: "table_tuple", signals: ["table_rows"], settle: "table_tuple", foundVia: "received", note: "pipe/bar-delimited rows — a table at the page grain" },
+    { name: "column_merge", signals: ["wide_whitespace_runs"], settle: "column_merge", foundVia: "received", note: "wide whitespace runs — a columned page; the settle's own band check confirms real gutters or reads flat, disclosed" },
+    { name: "column_merge_short", signals: ["wide_whitespace_runs", "narrow_column"], settle: "column_merge", foundVia: "received", note: "wide whitespace + narrow lines — columned data" },
+    { name: "column_merge_subline", signals: ["wide_whitespace_runs", "sub_sentence_lines"], settle: "column_merge", foundVia: "received", note: "wide whitespace with sub-sentence lines — a columned layout" },
+    { name: "prose", signals: [], settle: "prose", foundVia: "received" },
   ],
 };
 
@@ -133,65 +139,72 @@ export function resetLayoutLibrary() {
 // column-specific signals the settle needs (bands, chrome) and the raw
 // per-line structure (trimmed lines + their leading-space offsets) that
 // column_merge operates on. All mechanical.
-const BAND_MIN_LINES = 4; // a whitespace band must recur on >= this many lines to be a real column gutter
-const BAND_GAP = 2; // a band is a run of >= this many spaces
+const BAND_MIN_LINES = 4; // a page is column-shaped when >= this many lines carry a mid-line gutter
+const BAND_GAP = 2; // a gutter is a run of >= this many spaces
+const MARGIN_MAX = 8; // a run at offset <= this is a page margin, never a gutter
 
-/** bandAnalysis(text) — the column gutters: leading-space offsets where many
- * lines carry a wide whitespace run. Returns { bands, columns } where
- * `columns` is the per-line split at the agreed bands. Pure. */
-export function bandAnalysis(text) {
-  const lines = String(text ?? "").split("\n");
-  const bands = new Map(); // spaceOffset -> count of lines whose line has a run of >= BAND_GAP spaces there
-  const runs = [];
-  for (const line of lines) {
-    const offsets = [];
-    let i = 0;
-    const s = line.replace(/\s+$/g, "");
-    while (i < s.length) {
-      if (s[i] === " ") {
-        let j = i;
-        while (j < s.length && s[j] === " ") j += 1;
-        if (j - i >= BAND_GAP) { offsets.push(i); bands.set(i, (bands.get(i) ?? 0) + 1); }
-        i = j;
-      } else i += 1;
-    }
-    if (offsets.length) runs.push({ line, offsets });
+/** midGutterOf(line) — the FIRST mid-line whitespace run with content on
+ * both sides, beyond the margin. null when the line is not column-shaped.
+ * Pure. */
+export function midGutterOf(line) {
+  const s = String(line ?? "").replace(/\s+$/g, "");
+  let i = 0;
+  while (i < s.length) {
+    if (s[i] === " ") {
+      let j = i;
+      while (j < s.length && s[j] === " ") j += 1;
+      if (j - i >= BAND_GAP && i > MARGIN_MAX && s.slice(0, i).trim() && s.slice(j).trim()) return i;
+      i = j;
+    } else i += 1;
   }
-  const real = [...bands.entries()].filter(([, n]) => n >= BAND_MIN_LINES).sort((a, b) => a[0] - b[0]).map(([o]) => o);
-  return { bands: real, runs };
+  return null;
 }
 
-/** columnMerge(text, { bands }) — split each line at the agreed gutter
- * offsets and emit one stream per column, in reading order (left to right).
- * A line that does not reach a band is left in the column it started in.
- * Pure. Returns [{ column, text }] + the per-line cells. */
-export function columnMerge(text, { bands = [] } = {}) {
-  if (!bands.length) return { columns: [{ column: 0, text }], cells: [] };
+/** bandAnalysis(text) — is the page column-shaped, and where do the gutters
+ * sit? A page is column-shaped when >= BAND_MIN_LINES carry a mid-line
+ * gutter (content on BOTH sides of a whitespace run past the margin).
+ * Real pdftotext columns have RAGGED gutters (each line's gutter sits
+ * where the left column's text ends), so the analysis reports the gutter
+ * PER LINE, never one fixed offset — `splitAt` is the per-line split
+ * positions, and `bands` is the observed gutter-offset range. Pure. */
+export function bandAnalysis(text) {
   const lines = String(text ?? "").split("\n");
-  const cols = bands.map((_, i) => []);
+  const splitAt = [];
+  for (const line of lines) {
+    const g = midGutterOf(line);
+    if (g !== null) splitAt.push(g);
+  }
+  const columnShaped = splitAt.length >= BAND_MIN_LINES;
+  return {
+    columnShaped,
+    splitAt,
+    bands: columnShaped ? [Math.min(...splitAt), Math.max(...splitAt)] : [],
+    columnLines: splitAt.length,
+    totalLines: lines.length,
+  };
+}
+
+/** columnMerge(text, { bands = [] }) — split each column-shaped line at ITS
+ * OWN first mid-line gutter (the ragged-gutter reality), and emit one
+ * stream per column in reading order (left to right). A line with no gutter
+ * is left whole in column 0. Pure. Returns [{ column, text }] + cells. */
+export function columnMerge(text, { bands = [] } = {}) {
+  const lines = String(text ?? "").split("\n");
+  const cols = [[], []];
   const cells = [];
   for (const line of lines) {
-    let start = 0;
-    const trimmed = line.replace(/\s+$/g, "");
-    let assigned = null;
-    for (let b = 0; b < bands.length; b += 1) {
-      const band = bands[b];
-      if (trimmed.length > band) {
-        const cell = trimmed.slice(start, band).trim();
-        cols[b].push(cell);
-        cells.push({ line: line.slice(0, 40), column: b, cell });
-        start = band;
-        assigned = b;
-      }
+    const g = midGutterOf(line);
+    if (g === null) {
+      const t = line.trim();
+      if (!t) continue;
+      cols[0].push(t);
+      cells.push({ line: line.slice(0, 40), column: 0, cell: t });
+      continue;
     }
-    const tail = trimmed.slice(start).trim();
-    if (assigned === null) {
-      cols[0].push(tail);
-      cells.push({ line: line.slice(0, 40), column: 0, cell: tail });
-    } else if (tail) {
-      cols[cols.length - 1].push(tail);
-      cells.push({ line: line.slice(0, 40), column: cols.length - 1, cell: tail });
-    }
+    const left = line.slice(0, g).trim();
+    const right = line.slice(g).trim();
+    if (left) { cols[0].push(left); cells.push({ line: line.slice(0, 40), column: 0, cell: left }); }
+    if (right) { cols[1].push(right); cells.push({ line: line.slice(0, 40), column: 1, cell: right }); }
   }
   return {
     columns: cols.map((c, i) => ({ column: i, text: c.join("\n") })).filter((c) => c.text.trim()),
@@ -227,9 +240,9 @@ export function settlePage({ text, rule }) {
     return { shape: "prose", text, note: "the page reads fine flat — no settle" };
   }
   if (name === "column_merge") {
-    const { bands, runs } = bandAnalysis(text);
+    const { bands, splitAt } = bandAnalysis(text);
     if (!bands.length) {
-      return { shape: "prose", text, note: "column_merge requested but no recurring whitespace band found — read flat, disclosed" };
+      return { shape: "prose", text, note: "column_merge requested but no recurring mid-line gutter found — read flat, disclosed" };
     }
     const { columns, cells } = columnMerge(text, { bands });
     return {
@@ -261,32 +274,37 @@ export function settlePage({ text, rule }) {
   return { shape: "prose", text, note: `unknown settle ${name} — read flat, disclosed` };
 }
 
-/** matchLayoutRule(text, { lib = null } = {}) — the FIRST rule whose every
- * required signal fires on the page (the "prose" rule matches any page, so
- * a page with no signal settles prose). Returns { rule, signals, score }. */
+/** matchLayoutRule(text, { lib = null } = {}) — the FIRST rule whose
+ * required signals all fire on the page. A rule with NO signals ("prose")
+ * is the fallback and must NOT vacuously match — it is only returned when
+ * no other rule fires. Returns { rule, signals, score }. */
 export function matchLayoutRule(text, { lib = null } = {}) {
   const library = lib ?? loadLibrary();
   const { score, signals } = weirdFormattingScore(text);
   const fired = new Set(signals);
   for (const rule of library.rules) {
-    if ((rule.signals ?? []).every((s) => fired.has(s))) {
+    const req = rule.signals ?? [];
+    if (!req.length) continue;
+    if (req.every((s) => fired.has(s))) {
       return { rule, signals, score, matched: true };
     }
   }
-  return { rule: library.rules[0] ?? { name: "prose", settle: "prose" }, signals, score, matched: false };
+  return { rule: library.rules.find((r) => (r.signals ?? []).length === 0) ?? { name: "prose", settle: "prose" }, signals, score, matched: false };
 }
 
 /** REC: a CV verdict on a page shape becomes a new rule, so the same shape
  * is mechanical next time. `signals` are the signals that fired on the
  * page; `settle` is what the visual sense found (the shape recovered);
- * the rule is appended only if no existing rule already fires on those
+ * the rule is inserted at the FRONT (a CV-settled shape is the strongest
+ * evidence — the exact signal set it settled must win over the received
+ * general shapes), and only if no existing rule already fires on those
  * exact signals. Append-only — never overwrites. */
 export function recLayoutRule({ signals = [], settle, note, foundVia = "cv-recd" }) {
   const lib = loadLibrary();
   const key = [...signals].sort().join("+");
   const already = lib.rules.some((r) => [...(r.signals ?? [])].sort().join("+") === key);
   if (already) return { rec: false, lib };
-  lib.rules.push({ name: `recd_${settle}`, signals, settle, foundVia, note: note ?? `REC'd from a visual-sense settlement on this page shape` });
+  lib.rules.unshift({ name: `recd_${settle}`, signals, settle, foundVia, note: note ?? `REC'd from a visual-sense settlement on this page shape` });
   saveLibrary(lib);
   return { rec: true, lib };
 }
@@ -294,7 +312,13 @@ export function recLayoutRule({ signals = [], settle, note, foundVia = "cv-recd"
 /** layoutRead({ text, lib = null }) — the full page-settle door: match the
  * rule set, apply the settle, return the readable text + the shape +
  * whether CV was demanded. A caller that gets `demandsCV: true` renders
- * the page and looks (visual-rec.mjs / look.js), then RECs. */
+ * the page and looks (visual-rec.mjs / look.js), then RECs.
+ *
+ * The column_merge rule fires on wide_whitespace_runs alone, and the
+ * settle's own band check confirms REAL gutters (content on both sides of
+ * a recurring whitespace run beyond the margin). A page whose whitespace
+ * is only a margin reads flat with the disclosure — the settle never
+ * invents a column split. */
 export function layoutRead(text, { lib = null } = {}) {
   const { rule, signals, score } = matchLayoutRule(text, { lib });
   const settled = settlePage({ text, rule });

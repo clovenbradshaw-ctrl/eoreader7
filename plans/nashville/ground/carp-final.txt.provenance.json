@@ -1,0 +1,15 @@
+{
+  "title": "Climate Adaptation and Resilience Plan (CARP) — Final",
+  "publisher": "Mayor's Office",
+  "adopted": "2024-09",
+  "url": "https://www.nashville.gov/sites/default/files/2024-09/Climate_Adaptation_Resilience_Plan_Final.pdf",
+  "license": "public — Metro Nashville planning document",
+  "extraction": {
+    "tool": "pdftotext",
+    "mode": "layout"
+  },
+  "pdf_sha256": "573a1030dd643044e2cc971f69813083d88e00e3af3ffeb3dd2a01f1a1f5cbcb",
+  "txt_sha256": "a42ffc1409ad878a2a94ac93b9ad13d62d468877c0c273f24c826b5354ff4461",
+  "chars": 739641,
+  "pages": 247
+}
