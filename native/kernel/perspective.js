@@ -123,6 +123,7 @@ const stanceOf = (op) => {
  */
 export function projectPerspectives(entries = [], { atSeq = null, claimOf = (op) => op?.payload?.claim ?? null } = {}) {
   if (atSeq != null && !Number.isInteger(atSeq)) throw new TypeError("projectPerspectives: a cursor is an integer seq — a lens reads at a cursor it names (II.17)");
+  if (atSeq != null && atSeq < 0) throw new TypeError("projectPerspectives: a cursor is a prefix, never a suffix — a negative seq would read end-relative, a projection the caller never named");
   const list = Array.isArray(entries) ? entries : [];
   const slice = atSeq == null ? list : list.slice(0, atSeq);
 

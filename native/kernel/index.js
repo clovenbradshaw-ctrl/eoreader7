@@ -24,7 +24,7 @@ export { TRAIL_HALF_LIFE_DAYS, STIGMERGY_SCHEMA, TRAIL_WINDOW, EXPLORE_EPSILON, 
 export { createRelationCompositionLedger, relationCompositionChains, acquireCompositionCandidates, evaluateRelationCompositions, consequentialWithheldCompositions } from "./relation-composition.js";
 export { TERRAINS, terrainOf, createTerrainIndex, indexTerrainEntries, snapshotTerrainState, snapshotTerrainReferents, projectTerrainState, terrainCounts } from "./terrain-state.js";
 export { createEmergentTerrainIndex, indexEmergentTerrainEntries, snapshotEmergentTerrainState, projectEmergentTerrains, mergeTerrainStates } from "./emergent-terrain.js";
-export { terrainAntimatter, mindAntimatter, sessionAntimatter, collide, intersection } from "./antimatter.js";
+export { terrainAntimatter, mindAntimatter, sessionAntimatter, collide, intersection, renderAntimatterLine } from "./antimatter.js";
 export { projectLexicon, lexiconTrajectory } from "./lexicon.js";
 export { createTerrainActivation, dmdWindow } from "./terrain-activation.js";
 export { networkStanding, directedEdges } from "./network-standing.js";

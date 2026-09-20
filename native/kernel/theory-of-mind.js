@@ -159,6 +159,7 @@ import { createForWhom, createForWhomFold, foldForWhom, gateForWhomFold, coheren
 import { READER_SELF } from "./self.js";
 import { interpretiveAtmosphereFactorField } from "./atmosphere-math.js";
 import { interpretiveParadigmModels } from "./terrain-math.js";
+import { mindAntimatter, collide } from "./antimatter.js";
 
 const freeze = Object.freeze;
 
@@ -336,6 +337,17 @@ export function foldUniverseAt(forWhom, { holder = null, entries = [], atSeq = n
   if (gate.coherentEvaluable === false) gaps.push(freeze({ type: "coherence_withheld", detail: `the discovery trajectory is too short (${gate.trajectoryLength} < ${minTrajectory}) for the DMD leg to be evaluable — withheld, never refused (for-whom.js's own gate)` }));
 
   const held = perspective ? perspective.beliefs.filter((b) => b.stance === STANCE.HOLDS) : [];
+
+  // THE NEGATIVE SPACE — what this mind does not know, derived from what its
+  // world raised (antimatter.js): the claims it holds against the material's
+  // contradiction (undermined) and the questions its world asked that it
+  // never answered (unsettled), plus the collision — the residue of belief
+  // meeting its own hole, which is a question, not an answer. A model of a
+  // mind that carries only what the mind holds is a theory of presence; the
+  // false-belief task is a test of absence, and this field is that test.
+  const negative = mindAntimatter(projected, target);
+  const collision = collide(freeze({ holder: target, perspective: perspective ?? null }), negative);
+
   return freeze({
     schema: "EOUniverse@1",
     holder: target,
@@ -384,6 +396,8 @@ export function foldUniverseAt(forWhom, { holder = null, entries = [], atSeq = n
           unclaimedActs: perspective.unclaimedActs,
         })
       : null,
+    negative,
+    collision,
     seen: freeze({ totalDiscovered: fwFold.totalDiscovered, relevantDiscovered: fwFold.relevantDiscovered, encounters: fwFold.encounters, trajectoryLength: gate.trajectoryLength }),
     gaps: freeze(gaps),
   });
@@ -431,6 +445,26 @@ export function universeOf(forWhom, { holder = null, entries = [], atSeq = null,
       if (op?.terrain === "Lens" && op?.payload?.holder === target) ownActs.push(op);
     }
   }
+
+  // THE BEING'S BLINDSPOTS — the negative space of its own world
+  // (antimatter.js): the claims it holds against the material's
+  // contradiction (it does not know its own contradiction exists) and the
+  // questions its own world raised that it never answered. The world is
+  // DECLARED — the being itself and the holders its own acts relay through
+  // (their via chains) — so claims raised outside the world are reported as
+  // OUTSIDE, never as the being's own: the being is out of the loop on them
+  // (the irony wall), and out of the loop means they do not affect it. The
+  // FOR-THEM universe is what the being knows; the blindspots are what it
+  // does not know, and a being is not modelled without its holes — the
+  // collision of the two is the residue, which is a question, not an answer.
+  // THE IRONY WALL, AT THE WORLD'S OWN BOUNDARY: the reader is never in a
+  // being's world — its knowledge is the reading's, never the being's own,
+  // and one relayed op must not pull the reader's whole claim set into the
+  // being's blindspots (falsified 2026-09-19, by the swarm). The world is
+  // the being itself and the non-reader holders its own acts relay through.
+  const worldHolders = freeze([target, ...ownActs.flatMap((op) => op?.payload?.via ?? []).filter((h) => h !== READER)]);
+  const blindspots = mindAntimatter(projected, target, { world: worldHolders });
+  const collision = collide(freeze({ holder: target, perspective: perspective ?? null }), blindspots);
 
   // The shape of the being's OWN experience: its acts across its own
   // encounters. Reader-attributed participation is not in this trajectory —
@@ -520,6 +554,8 @@ export function universeOf(forWhom, { holder = null, entries = [], atSeq = null,
       conflicting: readerKnows.conflicting,
       count: readerKnows.conflicting.length,
     }),
+    blindspots,
+    collision,
     altitudes: freeze({
       atmosphere: freeze({ ground: forWhom.ground, priors: forWhom.priors, obligations: mine.length, field: atmosphere, tension: atmosphere.tensionAvailable ? atmosphere.tension : null, admitted: material }),
       lens: freeze({ perspective, heldCount: held.length, admitted: lensAdmitted }),
@@ -678,6 +714,17 @@ export function parliament(folds = [], { question = null, projected = null } = {
   // from the fold list (a body sitting two minds appears once here, twice there).
   const bodies = {};
   for (const f of admitted) bodies[f.body] = (bodies[f.body] ?? 0) + 1;
+  // THE HOLES LEDGER — the essay's collision of holes, surfaced at the
+  // parliament: every admitted mind's negative space, counted apart. A fold
+  // that carried no negative space reports null, never a measured zero —
+  // a hole that was not measured is not a hole that does not exist.
+  const holes = admitted.map((f) => freeze({
+    holder: f.holder,
+    undermined: f.negative?.counted?.undermined ?? null,
+    unsettled: f.negative?.counted?.unsettled ?? null,
+    outside: f.negative?.counted?.outside ?? null,
+    residue: f.collision?.counted?.residue ?? null,
+  }));
   return freeze({
     schema: "EOParliament@1",
     question: question ?? null,
@@ -686,7 +733,8 @@ export function parliament(folds = [], { question = null, projected = null } = {
     refused: freeze(refused),
     agreements: freeze(agreements),
     contests: freeze(contests),
+    holes: freeze(holes),
     bodies: freeze(bodies),
-    counted: freeze({ folds: list.length, admitted: admitted.length, refused: refused.length, agreements: agreements.length, contests: contests.length }),
+    counted: freeze({ folds: list.length, admitted: admitted.length, refused: refused.length, agreements: agreements.length, contests: contests.length, holes: holes.length }),
   });
 }

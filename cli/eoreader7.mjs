@@ -17,6 +17,8 @@ import { stripContainer } from "../native/adapters/text/spans.js";
 import { textEncounters } from "../native/adapters/text/recursive.js";
 import { readEncounters } from "../native/eval/lavar/lib/read-recipe.mjs";
 import { pathosOf, reGroundCondition, reGround, landReGround } from "../native/organs/pathos.js";
+import { sessionAntimatter, intersection } from "../native/kernel/antimatter.js";
+import { projectPerspectives } from "../native/kernel/perspective.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "..");
@@ -195,6 +197,28 @@ async function main() {
   const readPath = path.join(outDir, `${slug}.eoreader7.json`);
   const foldPath = path.join(outDir, `${slug}.eoreader7.fold.json`);
   const logPath = path.join(outDir, `${slug}.eoreader7.log.json`);
+  // THE SESSION'S ANTI-MATTER, WRITTEN DOWN BESIDE ITS FINDINGS (the essay
+  // "The anti-matter of every terrain"): the terrains this read did NOT
+  // touch and the questions this chain cannot answer, on the record with
+  // the read — a gap is a result, and the read's own holes are part of the
+  // read (antimatter.js's recordBound wall).
+  const antiMatter = sessionAntimatter(log);
+  out.antimatter = {
+    schema: antiMatter.schema,
+    line: antiMatter.line,
+    untouchedTerrains: antiMatter.untouchedTerrains,
+    questions: antiMatter.questions,
+    counted: antiMatter.counted,
+    disclosure: antiMatter.disclosure,
+  };
+  // THE MISREAD REGION (the essay's section five, wired): the claims this
+  // read holds that the material never raised, and the claims it holds that
+  // the material contradicts — the read's own failure region, written beside
+  // its findings, because a named misreading is a question, not a failure.
+  out.intersection = intersection(projectPerspectives(log));
+  // THE ESSAY'S "THAT LOG": the session line appended to terrains.log beside
+  // the artifacts — the machine's own holes on the record, not a sermon.
+  fs.appendFileSync(path.join(outDir, "terrains.log"), `\n[${new Date().toISOString().slice(0, 10)} ${source}]\n${antiMatter.line}\n`);
   fs.writeFileSync(readPath, JSON.stringify(out, null, 2) + "\n");
   fs.writeFileSync(foldPath, JSON.stringify(fold, null, 2) + "\n");
   fs.writeFileSync(logPath, JSON.stringify(log, null, 2) + "\n");
@@ -204,6 +228,7 @@ async function main() {
     hyperlexiconCandidates: composition.length, taskLogEntries: out.taskLog.entries,
     pathosStrain: pathos.strain, pathosRhythm: `${pathos.rhythm.blinks} blink(s) over ${pathos.rhythm.n} sentence(s), mean ${pathos.rhythm.mean} words, variance ratio ${pathos.rhythm.ratio}${pathos.rhythm.flatline ? ", FLATLINE" : ""}`,
     reGround: reGroundAct ? `${reGroundAct.cause.kind} -> REC·Ground landed at log:${reGroundAct.record.at}` : "ground_holds",
+    antiMatter: antiMatter.line,
     outFiles: [readPath, foldPath, logPath],
   }, null, 2));
 }
