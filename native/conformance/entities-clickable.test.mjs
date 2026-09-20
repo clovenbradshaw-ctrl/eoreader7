@@ -11,8 +11,9 @@
 //   F5 · multi-word entities (spaces inside the surface) still match
 //   F6 · the case-insensitive match works ("east bank" in prose matches
 //        the "East Bank" entity)
-//   F7 · the click handler routes to openInspector('being', <full name>)
-//   F8 · the native page overlay emits NO span for non-entity words
+//   F7 · the click handler routes to the light verb (the bare surface has no inspector)
+//   F8 · the bare surface ships no native word overlay at all — nothing
+//        non-entity can ever be clickable from one
 //   F9 · buildEntityList reads the beings panel (beads) — the clickable
 //        set IS the entity set, nothing else
 //
@@ -133,15 +134,17 @@ test("F6: lowercase 'east bank' in prose still matches the entity", () => {
 });
 
 // F7 · the click handler routes to the profile
-test("F7: the shipped click handler opens the being profile", () => {
+test("F7: the shipped click handler lights the being everywhere", () => {
   assert.ok(script.includes("closest('.eword')"), "handler listens for entity spans");
-  assert.ok(script.includes("openInspector('being', entity)"), "click opens the profile for the FULL entity name");
-  assert.ok(script.includes("toggleLight(ed)"), "click also lights it everywhere");
+  assert.ok(script.includes("toggleLight(ed)"), "click lights the FULL entity name everywhere");
+  assert.ok(!script.includes("openInspector"), "the bare surface has no inspector — the click never opens a chrome panel");
 });
 
-// F8 · native page overlay emits spans ONLY for entities
-test("F8: native overlay skips non-entity words entirely", () => {
-  assert.ok(script.includes("if (!beingSet[wd.t.toLowerCase()]) continue;"), "non-entity words get no overlay span");
+// F8 · the bare surface ships no native overlay at all, so no non-entity word can
+// ever be clickable from one
+test("F8: the bare surface emits no native word overlay", () => {
+  assert.ok(!script.includes("nativepages"), "no native-page payload is embedded");
+  assert.ok(!script.includes(".nword"), "no native word overlay span is ever created");
 });
 
 // F9 · clickable set == the beings panel

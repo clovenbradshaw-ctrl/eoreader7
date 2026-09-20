@@ -35,7 +35,12 @@ const GROUNDING_CELLS = Object.freeze(Object.fromEntries(
 // from the item's own `grounding` field when the data declares it, else the
 // surface's role default (source / row / measure / being / network).
 const escAttr = (s) => esc(s).replace(/"/g, "&quot;");
+// The bare render strips every piece of chrome — the grounding chips included.
+// Set per-call inside renderSurface; groundingChip is synchronous and never
+// re-entrant, so a module flag is safe here.
+let BARE_CHIPS = false;
 function groundingChip(kind, item, opts = {}) {
+  if (BARE_CHIPS) return "";
   const c = surfaceCellOf(kind, item?.grounding);
   const detail = {
     cell: `${c.op}·${c.grain}`,
@@ -244,21 +249,23 @@ const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").
 const KIND_LABEL = { goal: "goal", number: "number", name: "agency", place: "place" };
 const rowRef = (l) => `${l.doc}#${l.at[0]}-${l.at[1]}`;
 
-export function renderSurface({ def, ground, links, metrics, projections, gate, nativePages, geoPoints }) {
+export function renderSurface({ def, ground, links, metrics, projections, gate, nativePages, geoPoints, bare = false }) {
+  BARE_CHIPS = bare;
   const kindLabel = (k) => KIND_LABEL[k] ?? k;
   const docIdOf = (p) => p.split("/").pop().replace(".txt", "");
   const LENSES = def.topics ?? [];
 
   // ── LINK rows: tagged with doc, kind, beings, lenses ───────────────────
   const lensFor = (l) => LENSES.filter((t) => (t.queries ?? []).some((q) => `${l.verbatim} ${l.fields?.section ?? ""}`.toLowerCase().includes(String(q).toLowerCase()))).map((t) => t.id).join(" ");
-  const rowsHtml = links.map((l) => {
+  const rowHtml = (l) => {
     const ref = rowRef(l);
     const lens = lensFor(l);
     const gchip = groundingChip("row", l, { ref, verbatim: l.verbatim, kind: kindLabel(l.kind), source: docIdOf(l.doc), page: l.page });
     const f = l.fields ?? {};
     const slot = (label, cls, value) => `<div class="slot s-${cls}"><span class="slot-lbl">${label}</span><span class="slot-val${value ? "" : " empty"}"${value && (cls === "agency" || cls === "place") ? ` data-hol="${cls}" title="this being — click to focus it"` : ""}>${value ? esc(value) : "—"}</span></div>`;
     return `<div class="row" data-doc="${esc(docIdOf(l.doc))}" data-kind="${esc(l.kind)}" data-agency="${esc(f.agency ?? "")}" data-place="${esc(f.place ?? "")}"${lens ? ` data-lens="${esc(lens)}"` : ""} data-hay="${esc(`${l.verbatim} ${ref} ${kindLabel(l.kind)} ${f.agency ?? ""} ${f.place ?? ""} ${f.section ?? ""}`.toLowerCase())}"><div class="row-head"><span class="kind kind-${esc(l.kind)}">${esc(kindLabel(l.kind))}</span>${gchip}<span class="ref" data-byte="${esc(ref)}" data-page="p.${l.page}">${esc(ref)}</span><span class="page">p.${l.page}</span></div><div class="verbatim">${esc(l.verbatim)}</div><div class="slots">${slot("agency", "agency", f.agency)}${slot("place", "place", f.place)}${slot("amount", "amount", f.amount)}${slot("year", "year", f.year)}${slot("section", "section", f.section)}</div></div>`;
-  }).join("");
+  };
+  const rowsHtml = links.map(rowHtml).join("");
 
   // ── counts ──────────────────────────────────────────────────────────────
   const agencyCount = {}, placeCount = {};
@@ -389,7 +396,7 @@ export function renderSurface({ def, ground, links, metrics, projections, gate, 
     });
     let native = "";
     const np = nativePages?.[d.id];
-    if (np && np.length) native = `\n<script type="application/json" id="nativepages-${esc(d.id)}">${jsonScriptSafe(np)}</script>`;
+    if (!bare && np && np.length) native = `\n<script type="application/json" id="nativepages-${esc(d.id)}">${jsonScriptSafe(np)}</script>`;
     return `<script type="application/json" id="doctext-${esc(d.id)}">${jsonScriptSafe({ text, marks })}</script>\n<script type="application/json" id="readertext-${esc(d.id)}">${jsonScriptSafe({ text: rf.text, marks: remapMarks(marks, rf.map, rf.text.length), paras: rf.paras, startles })}</script>${native}`;
   }).join("\n");
 
@@ -429,6 +436,351 @@ export function renderSurface({ def, ground, links, metrics, projections, gate, 
   const lensPills = LENSES.map((t) => `<span class="pill on" data-lens="${esc(t.id)}">${esc(t.label)}</span>`).join("");
   const kindPills = Object.entries(kinds).map(([k, n]) => `<span class="pill on" data-kind="${esc(k)}"><span class="kind kind-${esc(k)}">${esc(kindLabel(k))}</span> ${n}</span>`).join("");
 
+  // ── BARE — the chrome-less single scroll. The five content terrains, all
+  // visible, one under the other; the only verbs are open-a-document and
+  // light-a-being. No header, no rail, no inspector, no timeline, no map,
+  // no toggles, no grounding modal, no footer. Everything retained stays.
+  if (bare) {
+    const perDoc = {};
+    for (const l of links) { const id = docIdOf(l.doc); (perDoc[id] ??= []).push(l); }
+    const rowsGrouped = ground.docs.filter((d) => perDoc[d.id]?.length).map((d) =>
+      `<h3 class="reg-h">${esc(d.title)} <span class="doc-meta">${perDoc[d.id].length} row${perDoc[d.id].length > 1 ? "s" : ""}</span></h3>${perDoc[d.id].map(rowHtml).join("")}`
+    ).join("");
+    return `<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Fold — ${esc(def.name)} plans surface</title>
+<style>
+  :root { --bg:#0d0b16; --bg2:#141126; --bg3:#1b1735; --line:#2b2450; --line2:#3a3170; --ink:#ece9fb; --muted:#8f88b3; --dim:#6b6492; --violet:#a78bfa; --violet2:#8b5cf6; --violet3:#7c3aed; --ok:#4ade80; --bad:#f87171; --amber:#fbbf24; --ground:#c2572f; --figure:#2f6b8f; --pattern:#3f7d4a; }
+  * { box-sizing: border-box; }
+  html, body { overflow-x: hidden; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: Georgia, serif; line-height: 1.6; }
+  main { max-width: 96rem; margin: 0 auto; padding: 1rem 1.4rem 4rem; }
+  section { margin: 0 0 3rem; }
+  h2.sec-title { margin: 0 0 .5rem; font-size: 1rem; font-weight: 600; }
+  h2.sec-title .count { font-family: ui-monospace, monospace; font-size: .66rem; font-weight: 400; color: var(--dim); }
+  .reg-h { font-size: .95rem; margin: .8rem 0 .35rem; }
+  .doc-meta { font-family: ui-monospace, monospace; font-size: .7rem; color: var(--dim); font-weight: 400; }
+  .empty { font-family: ui-monospace, monospace; font-size: .68rem; color: var(--dim); padding: .15rem .4rem; }
+  button { font-family: ui-monospace, monospace; font-size: .68rem; color: var(--muted); background: var(--bg2); border: 1px solid var(--line2); border-radius: 6px; padding: .26rem .5rem; cursor: pointer; }
+  button:hover { color: var(--ink); border-color: var(--violet2); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .6rem; }
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: .6rem .7rem; background: var(--bg3); cursor: pointer; transition: border-color .15s; }
+  .card:hover { border-color: var(--violet2); }
+  .card h3 { margin: 0 0 .15rem; font-size: .88rem; }
+  .card p { margin: .1rem 0; font-family: ui-monospace, monospace; font-size: .66rem; color: var(--muted); }
+  .basis { font-size: .64rem; color: var(--dim); font-family: ui-monospace, monospace; }
+  .reader-head { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin: 0 0 .6rem; padding-bottom: .5rem; border-bottom: 1px solid var(--line); }
+  .reader-title { font-family: ui-monospace, monospace; font-size: .78rem; color: var(--ink); }
+  .reader-text { font-family: Georgia, serif; font-size: 1.05rem; line-height: 1.85; max-width: 54rem; padding: .2rem .3rem; }
+  .reader-text h3 { color: var(--violet); font-size: 1.12rem; margin: 1.05rem 0 .4rem; font-weight: 600; }
+  .reader-text p { margin: .5rem 0; }
+  .eword { border-bottom: 1px dotted rgba(74, 222, 128, .5); cursor: pointer; }
+  .eword:hover { color: var(--ok); border-color: var(--ok); background: rgba(74, 222, 128, .1); }
+  .eword-hot { background: rgba(74, 222, 128, .3); border-radius: 2px; box-shadow: 0 0 0 1px rgba(74, 222, 128, .35); }
+  .hit { border-radius: 3px; padding: 0 .1rem; cursor: pointer; }
+  .hit-goal { background: rgba(139, 92, 246, .22); }
+  .hit-number { background: rgba(251, 191, 36, .25); }
+  .hit-name { background: rgba(74, 222, 128, .22); }
+  .hit-place { background: rgba(74, 222, 128, .16); border-bottom: 1px dashed var(--amber); }
+  .hit:hover { outline: 1px solid var(--violet); }
+  .beads { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .5rem; }
+  .bead { position: relative; display: flex; align-items: stretch; gap: .6rem; background: var(--bg3); border: 1px solid var(--line); border-radius: 8px; padding: .5rem .55rem; cursor: pointer; transition: border-color .15s, opacity .2s; text-align: left; }
+  .bead:hover { border-color: var(--violet2); }
+  .bead-bar { flex: none; width: 4px; border-radius: 999px; background: var(--violet2); }
+  .bead-bar-place { background: var(--amber); }
+  .bead.split .bead-bar { background: var(--bad); }
+  .bead-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .12rem; }
+  .bead-name { font-family: Georgia, serif; font-size: .88rem; color: var(--ink); display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
+  .bead-meta { font-family: ui-monospace, monospace; font-size: .64rem; color: var(--dim); }
+  .bead-count { color: var(--muted); }
+  .bead-state { font-family: ui-monospace, monospace; font-size: .56rem; text-transform: uppercase; letter-spacing: .04em; padding: .06rem .35rem; border-radius: 3px; border: 1px solid var(--line2); }
+  .bead-state.lit { color: var(--ok); border-color: var(--ok); }
+  .bead-state.dim { color: var(--amber); border-color: var(--amber); }
+  .bead-state.unresolved { color: var(--bad); border-color: var(--bad); border-style: dashed; }
+  .bead-dchips { display: flex; gap: .25rem; flex-wrap: wrap; margin-top: .18rem; }
+  .bead-dchip { font-family: ui-monospace, monospace; font-size: .56rem; color: var(--muted); background: rgba(143, 136, 179, .08); border: 1px solid var(--line); border-radius: 3px; padding: .05rem .3rem; }
+  .bead.dim { opacity: .15; }
+  .bead.lit { border-color: var(--violet2); background: var(--bg2); }
+  .bead.lit .bead-bar { box-shadow: 0 0 12px var(--violet2); }
+  .bead.place-lit .bead-bar { background: var(--ok); box-shadow: 0 0 12px var(--ok); }
+  .bead.place-dim .bead-bar { background: var(--amber); box-shadow: 0 0 10px var(--amber); }
+  .bead.place-unres .bead-bar { background: transparent; border: 1px dashed var(--bad); }
+  .split-pair { display: flex; align-items: center; gap: .8rem; margin-top: .5rem; flex-wrap: wrap; }
+  .split-pair .bead { flex: 1 1 200px; }
+  .split-edge { font-family: ui-monospace, monospace; font-size: .6rem; color: var(--bad); border-top: 2px dashed var(--bad); padding-top: .25rem; }
+  .slot-legend { font-family: ui-monospace, monospace; font-size: .64rem; color: var(--dim); margin: 0 0 .7rem; }
+  .slot-legend b { color: var(--violet); font-weight: 500; }
+  .row { border-left: 2px solid var(--line2); padding: .3rem .8rem; margin: .45rem 0 .45rem .3rem; border-radius: 0 6px 6px 0; display: block; }
+  .row.dim { opacity: .35; }
+  .row-head { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; font-family: ui-monospace, monospace; font-size: .7rem; color: var(--dim); }
+  .slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .3rem .5rem; margin-top: .45rem; }
+  .slot { border: 1px dashed var(--line); border-radius: 6px; padding: .18rem .45rem .22rem; background: var(--bg3); min-width: 0; }
+  .slot-lbl { display: block; font-size: .54rem; text-transform: uppercase; letter-spacing: .07em; color: var(--dim); }
+  .slot-val { font-family: ui-monospace, monospace; font-size: .72rem; color: var(--ink); word-break: break-word; }
+  .slot-val.empty { color: var(--dim); font-style: italic; }
+  .slot-val[data-hol] { cursor: pointer; color: var(--violet); border-bottom: 1px dotted var(--violet2); }
+  .slot-val[data-hol]:hover { color: var(--ink); background: rgba(139, 92, 246, .12); border-radius: 3px; }
+  .kind { font-size: .6rem; text-transform: uppercase; letter-spacing: .06em; padding: .1rem .4rem; border-radius: 3px; background: rgba(139, 92, 246, .14); color: var(--violet); }
+  .kind-number { background: rgba(251, 191, 36, .12); color: var(--amber); }
+  .kind-name { background: rgba(74, 222, 128, .12); color: var(--ok); }
+  .ref { color: var(--violet); cursor: help; }
+  .page { color: var(--dim); }
+  .verbatim { margin: .15rem 0 .05rem; font-size: .92rem; color: var(--ink); }
+  .f-network svg { width: 100%; height: auto; display: block; }
+  .f-network .node { fill: var(--bg2); stroke: var(--violet2); stroke-width: 1.5; cursor: pointer; transition: opacity .2s; }
+  .f-network .node-doc { stroke: var(--ok); }
+  .f-network .node-place { stroke: var(--amber); }
+  .f-network .edge { stroke: var(--line2); stroke-dasharray: 3 5; fill: none; cursor: pointer; transition: opacity .2s; }
+  .f-network .g-node:hover .node { stroke: var(--violet); fill: var(--violet); }
+  .f-network .g-edge:hover .edge { stroke: var(--violet); }
+  .f-network .node-label { font-family: ui-monospace, monospace; font-size: 8px; fill: var(--muted); pointer-events: none; }
+  .f-network .dim { opacity: .1; }
+  .subgraph { margin-top: .8rem; }
+  .subgraph.dim { opacity: .3; }
+  .sub-head { cursor: pointer; }
+  .sub-head:hover { color: var(--violet); }
+  .legend { font-family: ui-monospace, monospace; font-size: .62rem; color: var(--dim); padding: .2rem 0 .4rem; }
+  .subgrid { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin-top: .5rem; }
+  @media (max-width: 1200px) { .subgrid { grid-template-columns: 1fr; } }
+  .dline { font-family: ui-monospace, monospace; font-size: .66rem; color: var(--muted); padding: .28rem .45rem; border-bottom: 1px solid var(--line); }
+  .dline b { color: var(--violet); }
+  .dline .num { color: var(--amber); }
+  @media (max-width: 900px) { .beads { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <section id="sec-sources">
+    <div id="sources-list">
+      <h2 class="sec-title">the sources <span class="count">${ground.docs.length} retained plans · hashed · page-bridged</span></h2>
+      <div class="cards">${ground.docs.map((d) => `<div class="card" data-doc="${esc(d.id)}"><h3>${esc(d.title)}</h3><p>${esc(d.category)} · ${esc(d.scale)} · ${esc(d.adopted)}</p><p>${d.pages} pages · ${d.chars.toLocaleString()} chars</p><p class="basis">pdf ${esc(d.pdf_sha256.slice(0, 8))}… · ${esc(d.license)}</p></div>`).join("")}</div>
+    </div>
+    <div id="sources-reader" style="display:none">
+      <div class="reader-head"><button id="reader-back">← back to sources</button><span class="reader-title" id="reader-title"></span></div>
+      <div id="reader-body" class="reader-text"></div>
+    </div>
+  </section>
+  <section id="sec-beings">
+    <h2 class="sec-title">the beings <span class="count">agencies who act · places the plans name</span></h2>
+    <div class="beads">${Object.entries(agencyCount).sort((a, b) => b[1] - a[1]).map(([a, n]) => beingCard(a, n, "agency")).join("")}</div>
+    <div class="beads">${Object.entries(placeCount).sort((a, b) => b[1] - a[1]).map(([p, n]) => placeCard(p, n)).join("")}</div>
+    <div class="split-pair">${beingCard("MTA", agencyCount["MTA"] ?? 0, "agency", { split: true })}<span class="split-edge">✗ not merged — no received prior</span>${beingCard("WeGo", agencyCount["WeGo"] ?? 0, "agency", { split: true })}</div>
+  </section>
+  <section id="sec-connections">
+    <h2 class="sec-title">the asserted connections <span class="count">${links.length} rows · every one byte-cited</span></h2>
+    <p class="slot-legend">each connection is the same box with the same slots — <b>agency · place · amount · year · section</b> — plus its byte ref and page. an empty slot renders as <b>—</b>: the row does not carry that field. click an agency or place value, or a being anywhere, to light it.</p>
+    <div id="rows">${rowsGrouped}</div>
+  </section>
+  <section id="sec-network">
+    <h2 class="sec-title">the web <span class="count">edges are beings named in documents — hover an edge for its byte ref</span></h2>
+    <div class="f-network">${graph(topBeings, docIds, mainEdgeCounts, 620, 24)}</div>
+    <p class="legend">violet = agencies · amber = places · green = documents · stroke width = rows</p>
+    <div class="subgrid">${subgraphs}</div>
+  </section>
+  <section id="sec-measures">${fieldInner}</section>
+</main>
+${docPayloads}
+<script>
+  function escHtml(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  var rows = Array.prototype.slice.call(document.querySelectorAll('#rows .row'));
+  var beads = Array.prototype.slice.call(document.querySelectorAll('.bead'));
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var subgraphs = Array.prototype.slice.call(document.querySelectorAll('.subgraph'));
+  var gNodes = Array.prototype.slice.call(document.querySelectorAll('.g-node'));
+  var gEdges = Array.prototype.slice.call(document.querySelectorAll('.g-edge'));
+
+  var light = null;
+  var beingOf = function (r) { return (r.dataset.agency || '') + ' ' + (r.dataset.place || ''); };
+  var litBy = function (name) { return light && !light.lens && !light.a && light === name.toLowerCase(); };
+
+  // ── the reader — the retained text, rendered; nothing else ─────────────
+  var rDocCache = {};
+  function fallbackParas(text) {
+    var paras = [], start = 0;
+    for (var p = 0; p <= text.length; p++) {
+      if (p === text.length || text[p] === '\\n') {
+        if (p > start) paras.push({ start: start, end: p, heading: false });
+        start = p + 1;
+      }
+    }
+    if (!paras.length && text.length) paras.push({ start: 0, end: text.length, heading: false });
+    return paras;
+  }
+  function getReaderData(id) {
+    if (rDocCache[id]) return rDocCache[id];
+    var data = null;
+    var el = document.getElementById('readertext-' + id);
+    if (el) { try { data = JSON.parse(el.textContent); } catch (e) { data = null; } }
+    if (!data || !data.text) {
+      var raw = document.getElementById('doctext-' + id);
+      var txt = raw ? JSON.parse(raw.textContent).text : '';
+      data = { text: txt, marks: [], paras: fallbackParas(txt) };
+    }
+    if (!data.paras || !data.paras.length) data.paras = fallbackParas(data.text);
+    data.marks = (data.marks || []).slice().sort(function (a, b) { return a.start - b.start; });
+    rDocCache[id] = data;
+    return data;
+  }
+  var entityList = [];
+  function buildEntityList() {
+    entityList = [];
+    var seen = {};
+    var beads2 = document.querySelectorAll('.bead');
+    for (var bi = 0; bi < beads2.length; bi++) {
+      var nm = beads2[bi].dataset.light;
+      if (!nm) continue;
+      var lower = nm.toLowerCase();
+      if (seen[lower]) continue;
+      seen[lower] = true;
+      entityList.push({ name: nm, lower: lower, len: lower.length });
+    }
+    entityList.sort(function (a, b) { return b.len - a.len; });
+  }
+  function isWordChar(c) { return c && /[A-Za-z0-9']/.test(c); }
+  function wordify(seg) {
+    if (!entityList.length) return escHtml(seg);
+    var low = seg.toLowerCase();
+    var out = '', cursor = 0;
+    while (cursor < seg.length) {
+      var best = null;
+      for (var i = 0; i < entityList.length; i++) {
+        var idx = low.indexOf(entityList[i].lower, cursor);
+        if (idx === -1) continue;
+        if (!best || idx < best.idx || (idx === best.idx && entityList[i].len > best.len)) {
+          best = { idx: idx, ent: entityList[i] };
+        }
+      }
+      if (!best) break;
+      var before = seg[best.idx - 1], after = seg[best.idx + best.ent.len];
+      if (isWordChar(before) || isWordChar(after)) { cursor = best.idx + 1; continue; }
+      if (best.idx > cursor) out += escHtml(seg.slice(cursor, best.idx));
+      out += '<span class="eword" data-entity="' + escHtml(best.ent.name) + '" title="' + escHtml(best.ent.name) + '">' + escHtml(seg.slice(best.idx, best.idx + best.ent.len)) + '</span>';
+      cursor = best.idx + best.ent.len;
+    }
+    out += escHtml(seg.slice(cursor));
+    return out;
+  }
+  function markAttrs(m) {
+    var who = m.agency || m.place || '';
+    return 'class="hit hit-' + m.kind + '"' +
+      (m.agency ? ' data-agency="' + escHtml(m.agency) + '"' : '') +
+      (m.place ? ' data-place="' + escHtml(m.place) + '"' : '') +
+      ' title="' + escHtml(m.kind + (who ? ' · ' + who : '') + ' · ' + m.ref) + '"';
+  }
+  function paragraphHtml(rt, pi) {
+    var par = rt.paras[pi];
+    var p0 = par.start, p1 = par.end;
+    var seg = rt.text.slice(p0, p1);
+    var out = '', pos = 0;
+    var ms = rt.marks;
+    for (var i = 0; i < ms.length; i++) {
+      var m = ms[i];
+      if (m.end <= p0 || m.start >= p1) continue;
+      var s = Math.max(m.start, p0), e = Math.min(m.end, p1);
+      if (s > pos) out += wordify(seg.slice(pos - p0, s - p0));
+      out += '<mark ' + markAttrs(m) + '>' + escHtml(seg.slice(s - p0, e - p0)) + '</mark>';
+      pos = e;
+    }
+    if (pos < p1) out += wordify(seg.slice(pos - p0));
+    return par.heading ? '<h3>' + out + '</h3>' : '<p>' + out + '</p>';
+  }
+  function openReader(docId) {
+    buildEntityList();
+    var rt = getReaderData(docId);
+    var out = '';
+    for (var pi = 0; pi < rt.paras.length; pi++) out += paragraphHtml(rt, pi);
+    document.getElementById('reader-body').innerHTML = out;
+    document.getElementById('reader-title').textContent = docId;
+    document.getElementById('sources-list').style.display = 'none';
+    document.getElementById('sources-reader').style.display = '';
+    document.getElementById('sources-reader').scrollIntoView({ block: 'start' });
+  }
+  document.getElementById('reader-back').addEventListener('click', function () {
+    document.getElementById('sources-reader').style.display = 'none';
+    document.getElementById('sources-list').style.display = '';
+  });
+
+  // ── the light verb — one click lights it everywhere ────────────────────
+  function refresh() {
+    var i;
+    for (i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      var m = !light ? true :
+        light.lens ? (r.dataset.lens || '').split(' ').indexOf(light.lens) !== -1
+        : light.a ? r.dataset.agency === light.a && r.dataset.doc === light.p
+        : beingOf(r).toLowerCase().indexOf(light) !== -1;
+      r.classList.toggle('dim', !m);
+    }
+    for (i = 0; i < beads.length; i++) {
+      var b = beads[i], name = b.dataset.light.toLowerCase();
+      b.classList.toggle('lit', litBy(name));
+      b.classList.toggle('dim', light && !litBy(name));
+    }
+    for (i = 0; i < gNodes.length; i++) {
+      var g = gNodes[i];
+      g.classList.toggle('dim', light && !litBy(g.dataset.node.toLowerCase()));
+    }
+    for (i = 0; i < gEdges.length; i++) {
+      var ge = gEdges[i];
+      var hit = light && !light.lens && !light.a ? (ge.dataset.a.toLowerCase() === light || ge.dataset.p.toLowerCase() === light) : false;
+      ge.classList.toggle('dim', (light && !light.lens && !light.a && !hit) || (light && light.lens));
+    }
+    for (i = 0; i < subgraphs.length; i++) {
+      var sg = subgraphs[i];
+      var keep = !light || (light.lens ? light.lens === sg.dataset.lens : true);
+      sg.classList.toggle('dim', !keep);
+    }
+  }
+  function toggleLight(name) { light = light === name ? null : name; refresh(); }
+
+  for (var ci = 0; ci < cards.length; ci++) cards[ci].addEventListener('click', function () { openReader(this.dataset.doc); });
+  for (var i2 = 0; i2 < beads.length; i2++) beads[i2].addEventListener('click', function () { toggleLight(this.dataset.light.toLowerCase()); });
+  for (var i4 = 0; i4 < gNodes.length; i4++) gNodes[i4].addEventListener('click', function () { toggleLight(this.dataset.node.toLowerCase()); });
+  for (var i5 = 0; i5 < gEdges.length; i5++) gEdges[i5].addEventListener('click', function () { toggleLight({ a: this.dataset.a, p: this.dataset.p }); });
+  for (var i6 = 0; i6 < subgraphs.length; i6++) {
+    (function (sg) {
+      var head = sg.querySelector('.sub-head');
+      if (head) head.addEventListener('click', function () { toggleLight({ lens: head.dataset.lensLight }); });
+    })(subgraphs[i6]);
+  }
+  document.getElementById('rows').addEventListener('click', function (ev) {
+    var sv = ev.target.closest('.slot-val[data-hol]');
+    if (sv) {
+      var nm = sv.textContent.trim();
+      if (nm && nm !== '—') toggleLight(nm.toLowerCase());
+    }
+  });
+  document.getElementById('reader-body').addEventListener('click', function (ev) {
+    var t = ev.target;
+    if (t.closest('.hit')) {
+      var hit = t.closest('.hit');
+      var name = (hit.dataset.agency || hit.dataset.place || '').toLowerCase();
+      if (name) toggleLight(name);
+      return;
+    }
+    if (t.closest('.eword')) {
+      var ew = t.closest('.eword');
+      var ed = ew.dataset.entity.toLowerCase();
+      toggleLight(ed);
+      var ews = document.getElementById('reader-body').querySelectorAll('.eword');
+      for (var ex = 0; ex < ews.length; ex++) {
+        if (ews[ex] === ew) continue;
+        if (ews[ex].dataset.entity.toLowerCase() === ed) ews[ex].classList.add('eword-hot');
+        else ews[ex].classList.remove('eword-hot');
+      }
+    }
+  });
+
+  refresh();
+  buildEntityList();
+</script>
+</body>
+</html>`;
+  }
   return `<!doctype html>
 <html lang="en" data-theme="dark">
 <head>
