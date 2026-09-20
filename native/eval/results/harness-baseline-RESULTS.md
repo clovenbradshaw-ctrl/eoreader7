@@ -411,6 +411,33 @@ edit is a tiny task the 1.5b mouth executes reliably (24/25). A task
 that needs a STRUCTURAL rewrite is still out of its reach — the fold
 covers those with replay, and bigger mouths already own every cell.
 
+## COMPOUNDING EDIT-ANT: 20/20 from the local 1.5b mouth alone (2026-09-20)
+
+The structural wall decomposed into a sequence of one-edits. The
+compounding rule: each edit-ant turn recomputes the sharp diagnosis
+against the CURRENT body (the mouth's own progress becomes the next
+task), bounded at --edit-turns. Two fixes made it work:
+
+- **First failing assert, not first assert.** pyDiagnose emits asserts
+  in order; Basic/20's 5-case passes while its 15-case fails, so
+  line[0] is GOT==WANT and the sharp prompt taught nothing. The edit-ant
+  now scans for the first line where GOT ≠ WANT and decomposes by the
+  assert that actually fails. Robust got/want extraction: GOT ends at
+  the first ` [` (a relation), WANT is the tail — lists no longer break
+  the comparison.
+- **Condition-naming for structural misses.** Basic/20's turn 1
+  restructured the filter into the Fizz/Buzz ternary (real progress!)
+  but missed the FizzBuzz branch. The positional sharp prompt names the
+  element AND that it's produced by a branch that must change — the
+  mouth adds the i%15==0 branch (5/6 in the probe).
+
+Full battery (2026-09-20T02-55-29-888Z, qwen2.5-coder:1.5b, rounds 3,
+candidates 3, edit-turns 4, NO --replay): 17/20 green round-1 cold,
+Basic/10 and 17 on round 2, Basic/15 converted by the ant pipeline
+(edit-ant turn 1). evaluate.py: **Score: 20/20 = 100.0%** — the first
+time the small local mouth itself, with decomposition but no fold
+replay and no bigger model, covered the full battery.
+
 ## Contention note (run 4: 55% is load, not regression)
 
 Run 4 scored 11/20 with SIX empty-crash failures (untouched stubs)

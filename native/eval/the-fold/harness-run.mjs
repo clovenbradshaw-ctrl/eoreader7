@@ -40,6 +40,7 @@ const maxRounds = Number(opt("--rounds", "3"));
 const model = opt("--model", "qwen3:30b-a3b");
 const stubArityMode = opt("--stub-arity", null);
 const candidates = Number(opt("--candidates", "1"));
+const editTurns = Number(opt("--edit-turns", "3"));
 // --replay: fold projection. Before burning any draws, consult the
 // append-only log (harness-rounds-*.json) for a recorded green on this
 // task and replay its exact bytes. A solved task is a recorded artifact;
@@ -226,13 +227,31 @@ async function dispatchEditAnt({ task, ws, groundBody }) {
     //     missing bytes at the end, fix ONLY the return statement.
     //   positional diff (Basic/20): [diff at 2: got '3' want 'Fizz'] → name
     //     the exact element the test expects at that index.
-    const line = diag?.lines?.[0] ?? "";
+    // Pick the FIRST FAILING assert, not the first assert: pyDiagnose emits
+    // asserts in order, and when the first case passes but a later one fails
+    // (Basic/20: the 5-case passes, the 15-case fails), line[0] is GOT==WANT
+    // — a sharp prompt built on it says "returns X but expects X" and teaches
+    // nothing. Decompose by the assert that actually fails.
+    const lines = diag?.lines ?? [];
+    let failIdx = -1;
+    for (let i = 0; i < lines.length; i++) {
+      // Robust got/want extraction: the py-diagnose line is
+      //   ARGS=… GOT=<repr> [relation] … WANT=<repr>
+      // where relations are bracketed and may contain spaces. GOT ends at
+      // the first ` [` (a relation) or at ` WANT=`. WANT is the tail.
+      const wantAt = lines[i].indexOf(" WANT=");
+      const gotEnd = lines[i].indexOf(" [", "GOT=".length);
+      const got = lines[i].slice(lines[i].indexOf("GOT=") + 4, gotEnd > 0 && gotEnd < wantAt ? gotEnd : wantAt);
+      const want = lines[i].slice(wantAt + 6);
+      if (got !== want) { failIdx = i; break; }
+    }
+    const line = lines[failIdx >= 0 ? failIdx : 0] ?? "";
     const m = /GOT='([^']*)'.*WANT='([^']*)'/.exec(line);
     const d = /\[diff at (\d+): got ([^ ]+) want ([^\]]+)\]/.exec(line);
     if (m) {
       sharp = `The function below returns "${m[1]}" but the tests expect "${m[2]}" (the return value is missing exactly those bytes at the end). Fix ONLY the return statement so it produces "${m[2]}".`;
     } else if (d) {
-      sharp = `The function below returns the wrong elements. The test expects "${d[3]}" at position ${d[2] === "'3'" ? "2" : d[1]} (you returned ${d[2]} there). Fix the function so the list is correct at that position and every other.`;
+      sharp = `The function below returns the wrong elements. The test expects "${d[3]}" at position ${d[2] === "'3'" ? "2" : d[1]} (you returned ${d[2]} there). The element at that position is produced by a branch of the function that must produce "${d[3]}". Fix the function so the list is correct at that position and every other.`;
     }
   }
   const ask = `${sharp || diagnosis}\n\nReturn the COMPLETE corrected function. No explanation, code only.\n\n\`\`\`python\n${groundBody}\n\`\`\``;
@@ -254,6 +273,24 @@ async function dispatchEditAnt({ task, ws, groundBody }) {
   fs.writeFileSync(path.join(ws, "solution.py"), code + "\n");
   const test = runTestCommand("python3 check.py", ws, 15000);
   return { done: test.exitCode === 0, final: code, testOutput: test.output, diagnosisUsed: Boolean(diagnosis) };
+}
+
+// Compounding edit-ant (2026-09-19, the structural wall): ONE turn fails on
+// structural misses because the mouth makes progress but not all the way
+// (Basic/20: turn 1 restructures the filter into the Fizz/Buzz ternary but
+// misses the FizzBuzz branch; a SECOND turn against the NEW body converts
+// 6/6). Each turn recomputes the sharp diagnosis against the CURRENT body,
+// so the decomposition compounds — the mouth's own progress becomes the
+// next task. Bounded at --edit-turns (default 3); a green stops it.
+async function dispatchEditAntLoop({ task, ws, groundBody }) {
+  let current = groundBody;
+  for (let turn = 1; turn <= editTurns; turn++) {
+    const r = await dispatchEditAnt({ task, ws, groundBody: current });
+    if (r.done) return { ...r, turns: turn };
+    current = r.final;
+    console.log(`  edit-ant turn ${turn}/${editTurns}: still failing`);
+  }
+  return { done: false, final: current, testOutput: "edit-ant exhausted its turns", diagnosisUsed: true };
 }
 
 // Dispatch an ant at a failed task (decomposition, 2026-09-19): read the
@@ -310,8 +347,8 @@ async function main() {
           // hand-written.
           const groundBody = bestGroundBody(task.task_id);
           if (groundBody) {
-            const editAnt = await dispatchEditAnt({ task, ws: r.workspace, groundBody });
-            console.log(`EDIT-ANT ${task.task_id}: ${editAnt.done ? "green" : "fail"} diag=${editAnt.diagnosisUsed} out=${(editAnt.testOutput ?? "").replace(/\n/g, " ").slice(0, 60)}`);
+            const editAnt = await dispatchEditAntLoop({ task, ws: r.workspace, groundBody });
+            console.log(`EDIT-ANT ${task.task_id}: ${editAnt.done ? "green" : "fail"} turns=${editAnt.turns} diag=${editAnt.diagnosisUsed} out=${(editAnt.testOutput ?? "").replace(/\n/g, " ").slice(0, 60)}`);
             if (editAnt.done) {
               outcome = { ...r, done: true, final: editAnt.final, rounds: r.rounds + 1, ant: true, editAnt: true };
             }
