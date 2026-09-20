@@ -276,6 +276,22 @@ writes a standing rule for that content type to `content-rules.json`
 same ledger first, so a content type with a standing rule is applied before
 being re-derived. `GET /content-rules` serves the ledger to every surface.
 
+## Heimdall, out of the sandbox (2026-09-20)
+
+Heimdall is a hive-mind: a fleet of watchers, each in its OWN process,
+watching itself, its peers, and raising to the operator before terminating
+anything. The proxy is the sandbox — with `ER7_EXTERNAL_HEIMDALL=1` it does
+not self-supervise; a standalone `node heimdall-fleet.mjs` (port 11438)
+watches it from outside, so a wedged proxy (the 10-hour 98.5% CPU self-loop of
+2026-09-19) can never take its own watcher down, and its termination is always
+the operator's explicit YES, never a silent kill. Three layers:
+`native/heimdall/self-health.mjs` (event-loop lag + self-CPU → healthy/
+lagging/wedged), `native/heimdall/peer-mesh.mjs` (registry + escalation state
+machine), `native/heimdall/fleet.mjs` + `heimdall-fleet.mjs` (the supervisor
+loop + operator decision endpoint). Remote peers ride the the-fold Matrix
+fleet room (`--operator matrix`, the reserved seam). Design:
+`native/docs/HEIMDALL-FLEET.md`. Tests: `cd native && npm run test:heimdall`.
+
 ## Before committing: the two-tier chorus (2026-09-05)
 
 Run `~/.claude/skills/chorus-lint/chorus-fast.sh` from the repo root. In

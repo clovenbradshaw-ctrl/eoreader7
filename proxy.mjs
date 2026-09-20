@@ -1575,8 +1575,22 @@ server.listen(PORT, "127.0.0.1", () => {
   // fold surfaces' re-forge) on this process. The er7 surface IS this proxy:
   // its own port is watched for status but never re-forged (a proxy cannot
   // spawn a duplicate of itself).
-  startWatcher({ selfPort: PORT });
-  log("watcher: heimdall running inside the proxy");
+  //
+  // EXTERNAL SUPERVISION (2026-09-20): set ER7_EXTERNAL_HEIMDALL=1 to run the
+  // hive-mind OUT of this process (node heimdall-fleet.mjs, a separate
+  // process, watches this proxy from outside). The lesson: a proxy that wedges
+  // into a CPU self-loop (10h at 98.5%) takes an in-process watcher down with
+  // it — nobody outside could see it. When an external fleet is present, this
+  // proxy stays a thin sandbox: no in-process watcher, no self-re-forge, and
+  // the fleet's /heimdall at ER7_HEIMDALL_FLEET_PORT (default 11438) is the
+  // gate the operator reads. The proxy still answers its OWN /heimdall (the
+  // disclosure), so the external watcher has something honest to probe.
+  if ((process.env.ER7_EXTERNAL_HEIMDALL ?? "0") !== "1") {
+    startWatcher({ selfPort: PORT });
+    log("watcher: heimdall running inside the proxy");
+  } else {
+    log(`watcher: EXTERNAL heimdall — proxy is a sandbox; fleet on http://127.0.0.1:${process.env.ER7_HEIMDALL_FLEET_PORT ?? 11438}`);
+  }
   // The residency holon's HYSTERESIS STATE and THRESHOLDS (module-scoped,
   // persist across cadences — the ant bridge's memory of whether it is
   // standing down, and the two separated lines it stands down/resumes at).
