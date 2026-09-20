@@ -1600,7 +1600,10 @@ ${geoPayload}
     scope = readerState.doc; showSection('connections'); refresh();
   });
   document.getElementById('startle-count').addEventListener('click', function () {
-    var s = document.getElementById('reader-body').querySelector('.startle');
+    var body = document.getElementById('reader-body');
+    var guard = 0;
+    while (!body.querySelector('.startle') && guard < 300) { if (!rMore()) break; guard++; }
+    var s = body.querySelector('.startle');
     if (s) s.scrollIntoView({ block: 'center' });
   });
   for (var ci = 0; ci < cards.length; ci++) cards[ci].addEventListener('click', function () { openReader(this.dataset.doc); openInspector('doc', this.dataset.doc); });

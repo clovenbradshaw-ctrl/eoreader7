@@ -25,6 +25,16 @@ const sha = (p) => createHash("sha256").update(readFileSync(p)).digest("hex");
 // ── instance: manifest + def ──────────────────────────────────────────────
 const manifest = JSON.parse(readFileSync(join(NASH, "manifest.json"), "utf8"));
 const def = JSON.parse(readFileSync(join(NASH, "nashville.surfacedef.json"), "utf8"));
+// The place->district lighting map is OWNED by this pipeline, not by the
+// live surfacedef: plans/discover-nashville.mjs rewrites the whole file
+// (including metrics.placeDistricts) on every autonomous cycle and has no
+// concept of districts, so trusting that field from the live file makes
+// the lighting projection flicker to empty whenever that process runs
+// concurrently. Merge the pinned mapping in unconditionally, every build.
+// See CODING-LESSONS.md — "the discovery-dialogue write race."
+def.metrics = def.metrics ?? {};
+def.metrics.placeDistricts = JSON.parse(readFileSync(join(NASH, "placeDistricts.json"), "utf8"));
+delete def.metrics.placeDistricts._comment;
 
 // ── block 1 · ground (Void): retain or verify ─────────────────────────────
 const ground = await retainGround({ manifest, dir: GROUND, seedBase: HERE });
@@ -124,11 +134,16 @@ writeFileSync(join(NASH, "metrics", "metrics-nashville.json"), JSON.stringify(me
 
 // ── block 7 · surface (Lens): render only a gated surface ─────────────────
 const nativePages = {};
+// SKIP_NATIVE=1 skips the slow pdftoppm/pdf.js render (ESCAPE HATCH for slow
+// machines or partial verification — the native view degrades to a notice;
+// verified full renders live in the committed artifact).
+if (!process.env.SKIP_NATIVE) {
 for (const d of ground.docs) {
   const pages = await buildNativePages(d);
   if (pages) { nativePages[d.id] = pages; console.log(`native: ${d.id} — ${pages.length} pages rendered + word-linked`); }
   else console.log(`native: ${d.id} — skipped (pdf.js/pdftoppm unavailable or failed)`);
 }
+} else console.log("native: skipped via SKIP_NATIVE — artifact will degrade to reader/source");
 const geoPoints = (() => {
   try {
     const geo = JSON.parse(readFileSync(join(NASH, "data", "nashville-geo.json"), "utf8"));
@@ -165,7 +180,11 @@ const geoPoints = (() => {
   }
 })();
 const html = renderSurface({ def, ground, links, metrics, projections, gate, nativePages, geoPoints });
-const out = join(dirname(HERE), "native", "the-fold", "plans-surface.html");
+// RESOLVED OUTPUT COLLISION (see CODING-LESSONS.md #11): the autonomous
+// discover session intermittently rebuilds plans-surface.html with its own
+// pipeline, clobbering this driver's output mid-session. This pipeline
+// writes its own distinct artifact so the two never share an output file.
+const out = join(dirname(HERE), "native", "the-fold", "plans-surface-holograph.html");
 writeFileSync(out, html);
 console.log("\nwrote", out, (html.length / 1e6).toFixed(2), "MB");
 console.log("cast:", cast.referents.size, "referents · links:", links.length, "· metrics:", metrics.length, "· networks:", projections.networks.length, "· lit places:", projections.places.filter((p) => p.state === "lit").length);
