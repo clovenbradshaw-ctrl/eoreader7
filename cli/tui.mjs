@@ -27,6 +27,7 @@
 //   Enter           send the input line
 // Slash commands: /new, /close, /model [n|name] (bare lists the roster),
 // /code, /chat, /help, /quit, /matrix, /github.
+// /browser toggles to the browser surface; /sessions lists live reader folds.
 
 import React, { useCallback, useEffect, useReducer, useState } from "react";
 import { render, Box, Text, useApp, useInput, useStdout } from "ink";
@@ -37,6 +38,7 @@ import { AGENT_MAX_TURNS } from "../native/the-fold/sandboxed-agent.js";
 import { wrapText, snipLine } from "./format.mjs";
 import { matrixLogin, matrixLogout, matrixStatus, matrixWhoAmI } from "./matrix-login.mjs";
 import { startGithubDeviceFlow, githubLogout, githubStatus, githubWhoAmI } from "./github-login.mjs";
+import { serveBuiltIn } from "./browser.mjs";
 
 const h = React.createElement;
 const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
@@ -201,7 +203,7 @@ const HELP_SECTIONS = [
   { text: "Enter   send" },
   { bold: true, marginTop: 1, text: "Slash commands" },
   { text: "/new  /close  /model [n|name]  /code  /chat  /swarm <pointing> [:: material]  /help  /quit" },
-  { text: "/matrix [status|login <hs> <user> <pw>|logout|whoami]  /github [status|login|logout]" },
+  { text: "/browser  (toggle to the browser surface)  /sessions  (see live reader folds)  /matrix [...]  /github [...]" },
   { bold: true, marginTop: 1, text: "Modes" },
   { text: "chat — sent to the fold proxy's grounded reading pipeline." },
   { text: "code — an open-ended coding loop over the SAME proxy, sandboxed:" },
@@ -522,6 +524,34 @@ function App() {
             pushMessage(tabId, "error", `swarm failed: ${e.message}`);
             updateTab(tabId, (t) => ({ ...t, status: "idle" }));
           });
+        break;
+      }
+      case "browser": {
+        // /browser — the TUI→browser toggle: open the browser surface in the
+        // default browser. The built-in /ui lives on the proxy itself (no
+        // sibling repo needed); if The Fold's own serve.mjs is present it is
+        // the richer fold surface — either way, the SAME proxy answers behind
+        // it, so the same session carries across the toggle.
+        pushMessage(tabId, "note", "opening the browser surface…");
+        serveBuiltIn({ open: true })
+          .then((url) => pushMessage(tabId, "note", `browser surface → ${url} (this session stays live behind it)`))
+          .catch((e) => pushMessage(tabId, "error", `could not open browser: ${e.message}`));
+        break;
+      }
+      case "sessions": {
+        // /sessions — the surface to SEE sessions: every live reader fold on
+        // the proxy, newest first, and where THIS tab's fold sits in it.
+        pushMessage(tabId, "note", "reading live sessions…");
+        proxyClient.listSessions()
+          .then((data) => {
+            const list = data?.sessions ?? [];
+            const tab = tabs.find((t) => t.id === tabId);
+            if (!list.length) { pushMessage(tabId, "note", "no live sessions on the proxy yet — send a message to claim one."); return; }
+            const lines = list.map((s, i) =>
+              `  ${i + 1}. ${s.sessionId}${s.sessionId === tab?.sessionId ? "  ← this tab" : ""} — ${s.turnCount ?? 0} turn(s), ${s.mode ?? "auto"}, ${s.model ?? "?"}, ${s.ageS != null ? `${Math.round(s.ageS / 60)}m` : "?"} ago — "${(s.lastChatText || "").slice(0, 60)}"`);
+            pushMessage(tabId, "note", `live sessions (${list.length}):\n${lines.join("\n")}`);
+          })
+          .catch((e) => pushMessage(tabId, "error", `sessions failed: ${e.message}`));
         break;
       }
       case "help":

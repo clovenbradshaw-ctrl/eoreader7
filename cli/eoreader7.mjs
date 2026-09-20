@@ -2,6 +2,8 @@
 // eoreader7 — commandline entry point onto the real reading pipeline.
 //
 //   eoreader7 <file> [--priors <dir>|live_priors] [--limit N] [--out <dir>]
+//   eoreader7 -browser    the built-in browser surface (no sibling repo)
+//   eoreader7 -fold       the richer The Fold browser surface (sibling repo)
 //
 // Runs the same machinery as native/eval/lavar/read-real.mjs (the recursive
 // reader, in textEncounters' own order, feeding the holograph and
@@ -15,6 +17,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { stripContainer } from "../native/adapters/text/spans.js";
 import { textEncounters } from "../native/adapters/text/recursive.js";
+import { isCodeHunk, codeEncounters } from "../native/adapters/code/encounters.js";
 import { readEncounters } from "../native/eval/lavar/lib/read-recipe.mjs";
 import { pathosOf, reGroundCondition, reGround, landReGround } from "../native/organs/pathos.js";
 import { sessionAntimatter, intersection } from "../native/kernel/antimatter.js";
@@ -92,13 +95,38 @@ function normalizePosPrior(prior, sourcePath) {
 function load(filePath, source, limit, preStripped) {
   const stripped = preStripped ?? stripContainer(fs.readFileSync(filePath, "utf8"));
   if (!stripped.looks_like_material) throw new Error(`${filePath} does not look like readable material`);
-  const all = textEncounters(stripped.text, { source, offset: stripped.offset });
+  // A code-shaped file is read at CODE grain (adapters/code/encounters.js —
+  // statement/line granular, hard-capped, byte-anchored) — never through the
+  // prose sentence machinery a minified line of 1.8 MB would choke on (S128).
+  // The prose reader stays the instrument for prose; `isCodeHunk` is the
+  // structural selector, never a language claim.
+  const all = isCodeHunk(stripped.text)
+    ? codeEncounters(stripped.text, { source, offset: stripped.offset })
+    : textEncounters(stripped.text, { source, offset: stripped.offset });
   return limit ? all.slice(0, limit) : all;
 }
 
 async function main() {
   const args = process.argv.slice(2);
   if (args.includes("-h") || args.includes("--help")) usage();
+  // `eoreader7 -browser` (also launchable as `TheFold`): the local version
+  // of The Fold — the browser surface served from the sibling the-fold repo,
+  // with the er7 proxy up behind it. Everything else about invocation is
+  // unchanged: no args = interactive TUI, a file path = the one-shot batch
+  // reader.
+  if (args[0] === "-browser" || args[0] === "--browser") {
+    const { serveBuiltIn } = await import("./browser.mjs");
+    await serveBuiltIn();
+    return;
+  }
+  // -fold / --fold: the RICHER browser surface — The Fold (the sibling
+  // the-fold repo's web app), when it is present. The built-in /ui above is
+  // the default (no dependency); this is the opt-in to the full fold.
+  if (args[0] === "-fold" || args[0] === "--fold") {
+    const { serveFold } = await import("./browser.mjs");
+    await serveFold();
+    return;
+  }
   // No arguments at all: launch the interactive TUI (tabs, grounded chat +
   // coding agent) instead of the one-shot batch reader below. Every other
   // invocation shape (a file path, -h/--help) is unchanged.
@@ -160,6 +188,7 @@ async function main() {
       source, encounters: encounters.length, limit: limit ?? null,
       canonicalizationFloor: CANONICALIZATION_FLOOR, anchoring: ANCHORING, giver: GIVER,
       priors: path.relative(REPO_ROOT, posPriorPath),
+      grain: isCodeHunk(stripped.text) ? "code" : "prose",
       recipe: "causalTextPerceiver_reviseTextFold_refresh1",
     },
     holograph: {

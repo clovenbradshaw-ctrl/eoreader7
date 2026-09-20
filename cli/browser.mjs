@@ -22,6 +22,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as proxyClient from "./proxy-client.mjs";
+import { PORT } from "./er7-proxy.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(HERE, "..");
@@ -35,6 +36,29 @@ async function foldUp(port = FOLD_PORT) {
   } catch {
     return false;
   }
+}
+
+/** The built-in browser surface: the self-contained /ui page the proxy itself
+ *  serves (browser/index.html, no sibling repo, no build). This is the default
+ *  browser experience now — drive eoreader7 from a browser through the same
+ *  API every caller uses. If The Fold's serve.mjs is present as a sibling it
+ *  remains the richer fold surface (serveFold below); either way the SAME
+ *  proxy answers behind it, so a session carries across the toggle.
+ *
+ *  Returns the URL the page is served at. */
+export async function serveBuiltIn({ open = true } = {}) {
+  const port = PORT;
+  if (!proxyClient.isUp()) {
+    const res = await proxyClient.ensureRunning();
+    if (!proxyClient.isUp()) throw new Error(res.error || "failed to start the er7 proxy");
+  }
+  const url = `http://127.0.0.1:${port}/ui`;
+  console.log(`eoreader7 -browser → built-in surface on ${url}`);
+  if (open && process.env.ER7_NO_OPEN !== "1") {
+    const cmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
+    exec(`${cmd} ${url}`);
+  }
+  return url;
 }
 
 /** Bring The Fold up locally and return its URL. Boots the er7 proxy first
@@ -83,7 +107,10 @@ export async function serveFold({ open = true, port } = {}) {
 
 const isMain = path.resolve(process.argv[1] ?? "") === path.resolve(fileURLToPath(import.meta.url));
 if (isMain) {
-  serveFold().catch((err) => {
+  // Default: the built-in browser surface (no sibling repo). `-fold` opts into
+  // the richer The Fold surface when the sibling is present.
+  const which = process.argv[2] === "-fold" ? serveFold() : serveBuiltIn();
+  which.catch((err) => {
     console.error(`eoreader7 -browser: ${err.message}`);
     process.exitCode = 1;
   });

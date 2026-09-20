@@ -70,6 +70,19 @@ export async function heimdallQueue() {
   }
 }
 
+/** GET /v1/sessions — the surface to SEE sessions: every live reader fold on
+ *  the proxy, newest first (sessionId, turnCount, lastChatText, model, mode,
+ *  age). Reuse a sessionId (x-er7-session) to keep one accumulating fold. */
+export async function listSessions() {
+  try {
+    const res = await fetch(`${BASE}/v1/sessions`, { signal: AbortSignal.timeout(3000) });
+    if (!res.ok) return { count: 0, sessions: [] };
+    return await res.json();
+  } catch {
+    return { count: 0, sessions: [] };
+  }
+}
+
 /** The proxy's disclosed model state (GET /heimdall): modelQuirks (a quirk
  *  that says a model "hangs" is why it must never be the default — smollm2
  *  literally never answers on the system role) and the RESIDENT models

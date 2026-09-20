@@ -93,15 +93,22 @@ it without speaking HTTP:
   file via `cli/holograph.mjs`), the RESPONSE on the right tagged sentence
   by sentence to its source fact (`[S#]`) or marked `[M]` when it's the
   mouth's own prose, and the reasoning NOTES collapsible below (`Ctrl+N`).
-- **`eoreader7 -browser`** — the same surface in a browser
-  (`cli/browser.mjs` + `browser/`, port `ER7_WEB_PORT`, default 11438).
-  Deliberately stripped down next to the fold, but able to do more than a
-  terminal: markdown rendering, copy buttons, mouse-driven tabs, per-tab
-  state kept in `localStorage`, model picker, transcript export, and a
-  clickable facing page (click a sentence to highlight its source fact and
-  vice versa). Every model call goes through the same `proxy-client.mjs`
-  retry contract as the TUI; every holograph is loaded through the same
-  `holograph.mjs` resolver — the browser never reimplements a schema.
+  `/browser` toggles to the browser surface; `/sessions` lists every live
+  reader fold on the proxy.
+- **`eoreader7 -browser`** — the **built-in browser surface**: a
+  self-contained page the proxy itself serves at `http://127.0.0.1:11436/ui`
+  (`browser/index.html`). No sibling repo, no build — it drives the proxy
+  through the SAME API every caller uses (`/v1/models`, `/v1/ask`,
+  `/v1/sessions`): model picker, chat, and a **sessions panel** that shows
+  every live reader fold and resumes one by clicking it. Session state rides
+  in `localStorage`, so a refresh keeps the same fold. `eoreader7 -fold`
+  opts into the richer **The Fold** surface (`cli/browser.mjs` +
+  `browser/`) when the sibling repo is present. Either way the same proxy
+  answers behind it, so a session carries across the TUI/browser toggle.
+- **`GET /v1/sessions`** — the surface to SEE sessions, for any caller:
+  every live reader fold on the proxy, newest first (`sessionId`,
+  `turnCount`, `lastChatText`, `model`, `mode`, age). Reuse a sessionId to
+  keep one accumulating fold; list them here.
 
 Both are what this repo considers a *full response*: the inspired text and
 the record it was inspired by kept together, with the reasoning that

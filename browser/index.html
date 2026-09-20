@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EOReader 7 — browser surface</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; background: #101014; color: #d8d8e0; }
+  header { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-bottom: 1px solid #26262e; background: #15151b; position: sticky; top: 0; z-index: 5; }
+  header h1 { font-size: 15px; margin: 0; color: #fff; }
+  header .proxy { font-size: 12px; color: #9aa; }
+  header .health { font-size: 12px; }
+  header .health.up { color: #4caf50; }
+  header .health.down { color: #f44336; }
+  header .spacer { flex: 1; }
+  header a.btn { color: #9aa; text-decoration: none; font-size: 12px; border: 1px solid #33333e; padding: 3px 10px; border-radius: 4px; }
+  header a.btn:hover { color: #fff; border-color: #4a4a58; }
+  main { display: grid; grid-template-columns: 300px 1fr; height: calc(100vh - 49px); }
+  @media (max-width: 800px) { main { grid-template-columns: 1fr; } .sessions { max-height: 180px; overflow: auto; } }
+  .sessions { border-right: 1px solid #26262e; background: #121218; overflow-y: auto; padding: 12px; }
+  .sessions h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #667; margin: 0 0 10px; }
+  .session { border: 1px solid #26262e; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; cursor: pointer; background: #16161d; }
+  .session:hover { border-color: #4a7; }
+  .session.active { border-color: #4a7; box-shadow: 0 0 0 1px #4a7; }
+  .session .id { font-size: 11px; color: #9aa; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .session .last { font-size: 12px; color: #cdc; margin-top: 3px; max-height: 3em; overflow: hidden; }
+  .session .meta { font-size: 11px; color: #667; margin-top: 4px; }
+  .session .meta b { color: #9aa; font-weight: 500; }
+  .sessions .empty { color: #556; font-size: 12px; padding: 20px 4px; text-align: center; }
+  .chat { display: flex; flex-direction: column; height: 100%; }
+  .transcript { flex: 1; overflow-y: auto; padding: 16px 20px; }
+  .turn { margin-bottom: 14px; }
+  .turn .role { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+  .turn.user .role { color: #7db; }
+  .turn.assistant .role { color: #9c9; }
+  .turn.error .role { color: #e55; }
+  .turn .body { white-space: pre-wrap; word-wrap: break-word; color: #e4e4ec; }
+  .turn .meta { font-size: 11px; color: #667; margin-top: 4px; }
+  .controls { border-top: 1px solid #26262e; padding: 10px 16px; background: #15151b; display: flex; flex-direction: column; gap: 8px; }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .row label { font-size: 12px; color: #9aa; }
+  select, input[type=text] { background: #1b1b23; color: #e4e4ec; border: 1px solid #33333e; border-radius: 5px; padding: 6px 10px; font: inherit; }
+  select:focus, input[type=text]:focus { outline: none; border-color: #4a7; }
+  #task { flex: 1; }
+  #send { background: #2a6; color: #fff; border: none; border-radius: 5px; padding: 7px 16px; font: inherit; cursor: pointer; }
+  #send:hover { background: #3a7; }
+  #send:disabled { background: #333; color: #667; cursor: wait; }
+  .hint { font-size: 11px; color: #556; }
+  .loading { color: #9aa; font-style: italic; }
+</style>
+</head>
+<body>
+<header>
+  <h1>EOReader 7</h1>
+  <span class="proxy">proxy <span id="port">:11436</span></span>
+  <span id="health" class="health">…</span>
+  <span class="spacer"></span>
+  <a class="btn" href="#" id="toggle-tui" title="Run the terminal TUI in a new terminal window">open in TUI</a>
+  <a class="btn" href="#" id="new-session" title="Start a fresh reader fold">new session</a>
+</header>
+<main>
+  <aside class="sessions">
+    <h2>Sessions</h2>
+    <div id="sessions-list"></div>
+  </aside>
+  <section class="chat">
+    <div class="transcript" id="transcript"></div>
+    <div class="controls">
+      <div class="row">
+        <label for="model">model</label>
+        <select id="model"></select>
+        <label for="task" style="margin-left:6px">task</label>
+        <input id="task" type="text" placeholder="Ask the reader anything — no model prefix, no chat scaffolding." autocomplete="off">
+        <button id="send">send</button>
+      </div>
+      <div class="row hint">
+        <span>Talk to the proxy the same way any client does: POST /v1/ask on port 11436.</span>
+        <span id="session-hint"></span>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+"use strict";
+const PORT = 11436;
+const BASE = `${location.protocol}//${location.hostname}:${PORT}`;
+const $ = (id) => document.getElementById(id);
+let sessionId = localStorage.getItem("er7-session") || "";
+
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function addTurn(role, text, meta) {
+  const box = $("transcript");
+  const el = document.createElement("div");
+  el.className = `turn ${role}`;
+  el.innerHTML = `<div class="role">${esc(role)}</div><div class="body">${esc(text)}</div>` + (meta ? `<div class="meta">${esc(meta)}</div>` : "");
+  box.appendChild(el);
+  box.scrollTop = box.scrollHeight;
+  return el;
+}
+
+async function health() {
+  const el = $("health");
+  try {
+    const r = await fetch(`${BASE}/health`);
+    if (r.ok) { el.textContent = "proxy up"; el.className = "health up"; }
+    else { el.textContent = "proxy down"; el.className = "health down"; }
+  } catch {
+    el.textContent = "proxy down"; el.className = "health down";
+  }
+}
+
+async function loadModels() {
+  try {
+    const r = await fetch(`${BASE}/v1/models`);
+    const data = await r.json();
+    const models = Array.isArray(data.data) ? data.data : Array.isArray(data.models) ? data.models : [];
+    const sel = $("model");
+    sel.innerHTML = "";
+    const saved = localStorage.getItem("er7-model");
+    const names = models.map((m) => m.id ?? m.name ?? m.model).filter(Boolean);
+    if (!names.length) {
+      const o = document.createElement("option");
+      o.value = "olmo2:7b"; o.textContent = "olmo2:7b";
+      sel.appendChild(o);
+    } else {
+      for (const n of names) {
+        const o = document.createElement("option");
+        o.value = n; o.textContent = n;
+        sel.appendChild(o);
+      }
+    }
+    if (saved && names.includes(saved)) sel.value = saved;
+    else if (names.includes("olmo2:7b")) sel.value = "olmo2:7b";
+    sel.onchange = () => localStorage.setItem("er7-model", sel.value);
+  } catch (e) {
+    const sel = $("model");
+    sel.innerHTML = `<option value="olmo2:7b">olmo2:7b</option>`;
+  }
+}
+
+async function loadSessions() {
+  const list = $("sessions-list");
+  try {
+    const r = await fetch(`${BASE}/v1/sessions`);
+    const data = await r.json();
+    const sessions = data.sessions ?? [];
+    list.innerHTML = "";
+    if (!sessions.length) {
+      list.innerHTML = `<div class="empty">No live sessions yet — send a task.</div>`;
+      return;
+    }
+    for (const s of sessions) {
+      const el = document.createElement("div");
+      el.className = "session" + (s.sessionId === sessionId ? " active" : "");
+      const age = s.ageS != null ? (s.ageS < 60 ? `${s.ageS}s` : `${Math.round(s.ageS / 60)}m`) : "—";
+      el.innerHTML = `
+        <div class="id" title="${esc(s.sessionId)}">${esc(s.sessionId)}</div>
+        <div class="last">${esc(s.lastChatText || "(empty)")}</div>
+        <div class="meta"><b>${s.turnCount ?? 0}</b> turn(s) · <b>${esc(s.model ?? "?")}</b> · <b>${esc(s.mode ?? "auto")}</b> · ${age} ago</div>`;
+      el.onclick = () => { sessionId = s.sessionId; localStorage.setItem("er7-session", sessionId); refresh(); };
+      list.appendChild(el);
+    }
+  } catch {
+    list.innerHTML = `<div class="empty">proxy not answering — is er7-proxy running?</div>`;
+  }
+}
+
+function refresh() {
+  health();
+  loadModels();
+  loadSessions();
+  $("session-hint").textContent = sessionId ? `session: ${sessionId}` : "session: derived from connection (send a task to claim one)";
+}
+
+async function send() {
+  const input = $("task");
+  const task = input.value.trim();
+  if (!task) return;
+  input.value = "";
+  const model = $("model").value;
+  const sendBtn = $("send");
+  sendBtn.disabled = true;
+  addTurn("user", task);
+  const wait = addTurn("assistant", "reading…", "");
+  wait.querySelector(".body").className = "body loading";
+  try {
+    const r = await fetch(`${BASE}/v1/ask`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ task, model, sessionId }),
+    });
+    if (!r.ok) {
+      let msg = `HTTP ${r.status}`;
+      try { const e = await r.json(); msg = e.error?.message ?? e.error ?? msg; } catch {}
+      wait.remove();
+      addTurn("error", msg);
+      return;
+    }
+    const data = await r.json();
+    sessionId = data.sessionId || sessionId;
+    localStorage.setItem("er7-session", sessionId);
+    wait.querySelector(".body").innerHTML = "";
+    wait.querySelector(".body").textContent = data.answer ?? "(no answer)";
+    const meta = [
+      `model ${data.model ?? model}`,
+      data.answerShape ? `shape ${data.answerShape}` : "",
+      data.usage ? `${data.usage.promptTokens ?? 0}→${data.usage.completionTokens ?? 0} tokens` : "",
+    ].filter(Boolean).join(" · ");
+    wait.querySelector(".meta")?.remove();
+    wait.insertAdjacentHTML("beforeend", `<div class="meta">${esc(meta)}</div>`);
+    refresh();
+  } catch (e) {
+    wait.remove();
+    addTurn("error", `could not reach proxy: ${e.message}`);
+  } finally {
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+$("send").onclick = send;
+$("task").addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+$("new-session").onclick = () => {
+  sessionId = "";
+  localStorage.removeItem("er7-session");
+  $("transcript").innerHTML = "";
+  refresh();
+};
+$("toggle-tui").onclick = (e) => {
+  e.preventDefault();
+  try {
+    const cmd = process.platform === "darwin" ? "open" : "xdg-open";
+  } catch {}
+  // Open a fresh terminal running the TUI. Best-effort per platform.
+  const platform = navigator.platform;
+  if (platform.includes("Mac")) {
+    fetch(`http://127.0.0.1:${PORT}/ui/tui`, { method: "POST" }).catch(() => {});
+  } else {
+    alert("Run `eoreader7` in a terminal to open the TUI. (A browser can only open the proxy.)");
+  }
+};
+setInterval(refresh, 8000);
+refresh();
+</script>
+</body>
+</html>

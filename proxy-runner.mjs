@@ -2083,6 +2083,31 @@ export function resetSession(sessionId) {
   sessions.delete(sessionId);
 }
 
+// GET /v1/sessions — the surface to SEE sessions: every live reader fold on
+// this proxy, newest first, with enough to tell them apart (what it last read,
+// how many turns, how stale) without dumping any content. Identity is the
+// session id — a caller reuses it by sending the same x-er7-session string.
+export function listSessions() {
+  const now = Date.now();
+  const out = [];
+  for (const [id, s] of sessions) {
+    out.push({
+      sessionId: id,
+      turnCount: s.turnCount ?? 0,
+      lastChatText: String(s.lastChatText ?? "").slice(0, 140),
+      lastAccessAt: s.lastAccess ?? null,
+      ageS: s.lastAccess ? Math.round((now - s.lastAccess) / 1000) : null,
+      model: s.lastEffectiveModel ?? null,
+      mode: s.mode ?? null,
+      referents: s.referents ? s.referents.length : null,
+      piiFindings: Array.isArray(s.pii) ? s.pii.length : 0,
+      clearance: s.clearance ?? null,
+    });
+  }
+  out.sort((a, b) => (b.lastAccessAt ?? 0) - (a.lastAccessAt ?? 0));
+  return { count: out.length, sessions: out };
+}
+
 // --- workspace (physics over real files) ---------------------------------------
 // EOReader7 does not ask a model to browse or bookmark files (small local
 // models cannot be trusted to tool-call). The proxy reads the files itself
@@ -3701,6 +3726,11 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const shadowBefore = assessShadow(personId);
   const clearance = ethosClear(task, { disposition: dispositionFrom(shadowBefore) });
   const session = getSession(sessionId, clearance, task);
+  // The sessions surface (GET /v1/sessions) reads these: what this fold last
+  // read, in which mode, with which model — updated on every turn.
+  session.mode = mode;
+  session.lastChatText = String(task ?? "");
+  session.lastEffectiveModel = model ?? session.lastEffectiveModel ?? null;
   // WHO is at the door (organs/interlocutor.js, Buber): recognized mechanically
   // from the request's shape, accumulated across the session (one interlocutor
   // per conversation), held so the reader can meet an agent or a person in the

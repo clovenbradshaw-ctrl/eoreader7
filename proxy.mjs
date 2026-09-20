@@ -3,7 +3,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { MODEL_PREFIX, parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote, parseAnthropicRequest, flattenAnthropicContent, anthropicCountTokensResponse, anthropicMessageResponse, anthropicStreamStart, anthropicContentBlockStart, anthropicContentBlockDelta, anthropicContentBlockStop, anthropicMessageDelta, anthropicMessageStop } from "./proxy-api.mjs";
-import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus, refreshOpencodeModels, upstreamModelFor, refreshAnthropicModels, upstreamAnthropicModelFor } from "./proxy-runner.mjs";
+import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus, refreshOpencodeModels, upstreamModelFor, refreshAnthropicModels, upstreamAnthropicModelFor, listSessions } from "./proxy-runner.mjs";
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
@@ -333,6 +333,8 @@ async function handleRequest(req, res) {
         anthropic: { messages: "POST /v1/messages", countTokens: "POST /v1/messages/count_tokens" },
       },
       documents: { start: "POST /v1/documents", poll: "GET /v1/documents/:id" },
+      sessions: { list: "GET /v1/sessions", description: "Every live reader fold on this proxy, newest first. Reuse a sessionId (x-er7-session header or body field) to keep one accumulating fold; list them here." },
+      ui: { description: "The built-in browser surface — no sibling repo needed.", open: "GET /ui" },
       headers: {
         "x-er7-session": "stick a conversation to one accumulating reader fold (optional; a stable session is derived from the connection otherwise)",
         "x-er7-user": "durable identity across sessions (optional)",
@@ -440,6 +442,21 @@ async function handleRequest(req, res) {
     } catch (err) {
       res.writeHead(502, { "content-type": "application/json" });
       res.end(JSON.stringify({ error: { message: `failed to fetch tags from upstream: ${err.message}` } }));
+    }
+    return;
+  }
+
+  // GET /v1/sessions — the surface to SEE sessions: every live reader fold on
+  // this proxy, newest first. A caller keeps one fold by repeating the same
+  // sessionId (header x-er7-session or body field); this route is where the
+  // list of those folds is read back out.
+  if (req.method === "GET" && req.url === "/v1/sessions") {
+    try {
+      res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" });
+      res.end(JSON.stringify(listSessions()));
+    } catch (err) {
+      res.writeHead(500, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: { message: err.message } }));
     }
     return;
   }
@@ -1271,6 +1288,51 @@ async function handleRequest(req, res) {
       reqData.mode = modeFromHeaders(req, reqData.mode);
       reqData.caller = callerFromRequest(req, "ollama", parsed);
 
+      // SWARM AUTO-ROUTE, RUN BEFORE HEIMDALL ADMISSION — mirror of the
+      // /v1/chat/completions path: the swarm needs no model and no admission
+      // (pure organ reads), so a turn pointed at material whose meaning is
+      // hard to emerge is answered by the swarm even when the box is refusing
+      // model loads. This is the web app's own door onto the collision
+      // chamber: the surviving read carries its named holes — the residue
+      // rides the reading envelope, and the Anti-matter line rides the
+      // answer prose the app already renders.
+      const swarmTurn = runSwarmTurn({
+        task: reqData.task,
+        texts: [
+          ...(reqData.attachments ?? []).map((a) => ({ name: a.name, text: a.text })),
+          ...(reqData.chatHistory ?? []).map((m, i) => ({ name: `history-${i}`, text: m.content })),
+        ],
+        name: "chat-turn",
+      });
+      if (swarmTurn.routed) {
+        const swarmSessionId = sessionIdFromHeaders(req);
+        const swarmReading = {
+          sessionId: swarmSessionId, answerShape: "swarm",
+          swarm: { ...swarmTurn, answer: undefined },
+          hardMeaning: swarmTurn.meaning?.hard ? swarmTurn.meaning : null,
+          contentRule: swarmTurn.standing ?? null,
+          truncated: false,
+        };
+        const swarmCreatedAt = new Date().toISOString();
+        if (reqData.stream) {
+          res.writeHead(200, {
+            "content-type": "application/x-ndjson",
+            "cache-control": "no-cache",
+            connection: "keep-alive",
+            "x-er7-session": swarmSessionId,
+          });
+          for (const line of ollamaChatStreamLines({ model: parsed.model, text: swarmTurn.answer, createdAt: swarmCreatedAt, usage: { promptTokens: 0, completionTokens: 0 }, reading: swarmReading })) res.write(line);
+          res.end();
+        } else {
+          const resp = ollamaChatResponse({ model: parsed.model, text: swarmTurn.answer, createdAt: swarmCreatedAt, usage: { promptTokens: 0, completionTokens: 0 }, reading: swarmReading });
+          resp.reading = { ...swarmReading, sessionId: swarmSessionId };
+          resp.heimdall = bridgeMessage({ model: parsed.model });
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify(resp));
+        }
+        return;
+      }
+
       // HEIMDALL, WIRED IN — admission on the proxy's own path.
       const admit = admitChatRequest(parsed, req.headers);
       if (!admit.allowed) {
@@ -1538,6 +1600,46 @@ async function handleRequest(req, res) {
         }
       }
     });
+    return;
+  }
+
+  // GET /ui — the built-in browser surface: a self-contained page that drives
+  // this proxy through the SAME API every caller uses (/v1/models, /v1/ask,
+  // /v1/sessions). No sibling repo, no build, no the-fold dependency. This is
+  // the "drive eoreader7 from a browser" surface.
+  if (req.method === "GET" && (req.url === "/ui" || req.url === "/ui/")) {
+    const uiPath = path.join(HERE, "browser", "index.html");
+    try {
+      const html = fs.readFileSync(uiPath, "utf8");
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
+      res.end(html);
+    } catch {
+      res.writeHead(404, { "content-type": "text/plain" });
+      res.end("built-in UI not found (browser/index.html) — but the API is here: POST /v1/ask");
+    }
+    return;
+  }
+
+  // POST /ui/tui — the browser→TUI toggle: open a fresh terminal running the
+  // TUI on this box. macOS: Terminal.app via osascript. Other platforms: name
+  // the command so the operator can run it themselves (a browser cannot open a
+  // terminal on every platform; disclosed, never silent).
+  if (req.method === "POST" && req.url === "/ui/tui") {
+    const { spawn } = await import("node:child_process");
+    if (process.platform === "darwin") {
+      try {
+        const child = spawn("osascript", ["-e", `tell application "Terminal" to do script "eoreader7"`], { detached: true, stdio: "ignore" });
+        child.unref();
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify({ opened: true, surface: "tui", note: "Terminal.app launched running eoreader7" }));
+      } catch (err) {
+        res.writeHead(500, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: { message: `could not open Terminal: ${err.message}` } }));
+      }
+    } else {
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify({ opened: false, surface: "tui", note: "run `eoreader7` in a terminal to open the TUI" }));
+    }
     return;
   }
 
