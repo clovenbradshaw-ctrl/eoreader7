@@ -6,6 +6,11 @@
 // script is that check, run on demand:
 //
 //   - It reads heimdall-log.jsonl and heimdall-derived-rules.json.
+//   - The log is a TRIMMED memory now (the 2026-09-19 snapshot-and-trim):
+//     old raw lines are folded into snapshots in state/heimdall-memory.json,
+//     and the lesson notes' text SURVIVES the fold — so this walk reads both
+//     the raw log and the folded notes, and sees the whole recorded history
+//     within the snapshot retention.
 //   - For the model_dropped class it measures: after a re-warm of model M,
 //     does M drop again within the keep_alive window (75s)? Every such
 //     repeat is a conceded control.
@@ -25,6 +30,7 @@ import { adoptDerivedRule, derivedRuleStore, lintedNote } from "./heimdall.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const LOG_FILE = path.join(HERE, "heimdall-log.jsonl");
+const MEMORY_FILE = path.join(HERE, "state", "heimdall-memory.json");
 const KEEP_ALIVE_WINDOW_S = 75; // measured: er7:gemma2:2b re-warms cycle at 45-75s
 
 function loadLog() {
@@ -34,6 +40,23 @@ function loadLog() {
     try { events.push(JSON.parse(line)); } catch { /* skip malformed */ }
   }
   return events;
+}
+
+// Folded lesson notes from the memory snapshots (state/heimdall-memory.json):
+// the trimmed log no longer holds the old raw note lines, but the fold kept
+// their TEXT, so the whole-history walk still sees them. Same shape as a raw
+// note event ({ at, note }), marked folded so the read is honest about it.
+function loadMemoryNotes() {
+  try {
+    const d = JSON.parse(fs.readFileSync(MEMORY_FILE, "utf8"));
+    const notes = [];
+    for (const tier of ["hourly", "daily"]) {
+      for (const b of Object.values(d[tier] ?? {})) {
+        for (const n of b?.notes ?? []) notes.push({ at: n.at, note: n.note, folded: true });
+      }
+    }
+    return notes;
+  } catch { return []; }
 }
 
 // For each model_dropped rule, walk the log: a re-warm of the probe model
@@ -66,7 +89,7 @@ function resolveModelDropped(rules, events) {
 }
 
 const rules = derivedRuleStore();
-const events = loadLog();
+const events = [...loadMemoryNotes(), ...loadLog()];
 const conceded = resolveModelDropped(rules, events);
 
 console.log(`resolving ${rules.length} derived rules against ${events.length} log events`);

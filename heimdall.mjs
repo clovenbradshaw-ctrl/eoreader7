@@ -17,8 +17,9 @@
 // difference made a difference, the sign (pattern / noise / gap) over the
 // aperture's measured surprise and the correspondence acts, never a metric
 // displayed and never a verdict from an unmeasured gap. Heimdall is the
-// boss: the surfaces, the steering, the admission and the re-forging stay
-// here; the three answer only under the bridge. The register lives in
+// boss: the surfaces, the steering, the admission, the re-forging, and (since
+// 2026-09-19) the reaping of background strays stay here; the three answer
+// only under the bridge. The register lives in
 // the-fold's solon.js — the one authoritative list, never restated here.
 //
 // The loop, in this system's own act vocabulary:
@@ -35,7 +36,13 @@
 //     429 + Retry-After refusal; routing across proxies to the SAME Ollama
 //     serializes anyway, so the bridge shapes admission, never pretending
 //     to spread load that cannot spread.
-//   - Every act lands on an append-only log (heimdall-log.jsonl).
+//   - Every act lands on a log (heimdall-log.jsonl) — append-only while it
+//     is fresh, then SNAPSHOT and TRIM (2026-09-19): the memory is not
+//     infinite. Recent past stays verbatim (full resolution); past a horizon
+//     the raw lines fold into hourly snapshots, then daily, then are
+//     released — higher resolution for the more recent past. The learner
+//     (the rule-author holon) reads through the fold, so trimming never
+//     blinds it.
 //
 // DUAL MODE (2026-09-13): the watcher now runs INSIDE the proxy. The proxy
 // imports this module, starts the watcher, serves /heimdall itself, and
@@ -401,6 +408,246 @@ export function logTail(n = 12) {
     return fs.existsSync(LOG_FILE) ? fs.readFileSync(LOG_FILE, "utf8").trim().split("\n").slice(-n) : [];
   } catch { return []; }
 }
+
+// ── MEMORY: the ledger is not infinite ─────────────────────────────────────
+// Every act lands on the ledger, but a ledger that keeps every raw line
+// forever is a memory that grows without bound — by 2026-09-19 the vitals
+// rows alone (one ~every tick) were already MBs of forever. The law of this
+// daemon's memory: SNAPSHOT, then TRIM, with HIGHER RESOLUTION FOR THE MORE
+// RECENT PAST. The ledger keeps the recent past raw (full resolution); past
+// the raw horizon the lines FOLD into hourly snapshots (what happened, how
+// often, what the box measured — the pheromone trail preserved, the bytes
+// returned); past the warm horizon the hourly snapshots fold into daily ones
+// (coarser still); past the cold horizon the memory is released. The swarm
+// that "learns its own rules from its own recorded history" (the rule-author
+// holon) reads through the same fold, so trimming never blinds the learner —
+// the finding-counts survive even when the verbatim lines are gone.
+//
+// The walls (this project's own law, applied to the trim):
+//   - A fold NEVER loses a finding the learner counts on: counts, first/last
+//     bounds, the act breakdown, vitals min/max/last, and the lesson notes'
+//     text all survive; only the verbatim redundancy is returned.
+//   - A line that cannot be aged (no parseable `at`) is NEVER folded — it
+//     stays raw, because folding it would be guessing its age.
+//   - The consolidation is synchronous and atomic (write-tmp-rename), so a
+//     live appendLog can never interleave into a half-trimmed log.
+//   - A consolidation failure NEVER takes the watcher down; it is skipped
+//     and retried next cadence.
+const MEMORY_FILE = path.join(HERE, "state", "heimdall-memory.json");
+const RAW_HORIZON_MS = Number(process.env.ER7_HEIMDALL_RAW_HORIZON ?? 6 * 60 * 60 * 1000);         // full-resolution recent past
+const WARM_HORIZON_MS = Number(process.env.ER7_HEIMDALL_WARM_HORIZON ?? 7 * 24 * 60 * 60 * 1000);  // hourly snapshots kept this long
+const COLD_HORIZON_MS = Number(process.env.ER7_HEIMDALL_COLD_HORIZON ?? 90 * 24 * 60 * 60 * 1000); // daily snapshots kept this long
+const CONSOLIDATE_MS = Number(process.env.ER7_HEIMDALL_CONSOLIDATE ?? 15 * 60 * 1000);
+const SNAPSHOT_NOTES_CAP = Number(process.env.ER7_HEIMDALL_SNAPSHOT_NOTES ?? 50);
+
+const hourKeyOf = (at) => new Date(Math.floor(at / 3600000) * 3600000).toISOString();
+const dayKeyOf = (at) => new Date(Math.floor(at / 86400000) * 86400000).toISOString();
+
+const emptyBucket = () => ({ findings: {}, acts: {}, vitals: { rows: 0, saturated: 0, slowPaused: 0, by: {} }, notes: [] });
+
+// Fold ONE ledger entry into a snapshot bucket. The finding survives as a
+// counted class (the shape the rule-author holon counts); a vitals row folds
+// to per-metric min/max/last (never every row); a lesson note keeps its text
+// (bounded per bucket, most recent kept).
+function foldEntryInto(b, e, at) {
+  const cls = e.finding ?? e.class ?? null;
+  if (cls) {
+    const probe = e.model ?? e.probe ?? e.surface ?? null;
+    const fkey = `${cls}:${probe ?? "-"}`;
+    const f = b.findings[fkey] ?? { class: cls, probe, count: 0, first: at, last: at };
+    f.count += 1;
+    f.first = Math.min(f.first, at);
+    f.last = Math.max(f.last, at);
+    b.findings[fkey] = f;
+  }
+  const act = e.act ?? "?";
+  b.acts[act] = (b.acts[act] ?? 0) + 1;
+  if (e.kind === "vitals") {
+    b.vitals.rows += 1;
+    if (e.saturated) b.vitals.saturated += 1;
+    if (e.slowPaused) b.vitals.slowPaused += 1;
+    for (const k of ["load1", "load5", "load15", "cpuUser", "cpuSys", "cpuIdle", "gpuUtil", "ollamaCpu", "ollamaMemMb", "memFreeMb", "memInactiveMb"]) {
+      const v = e[k];
+      if (!Number.isFinite(v)) continue;
+      const s = b.vitals.by[k] ?? { min: v, max: v, last: v };
+      s.min = Math.min(s.min, v);
+      s.max = Math.max(s.max, v);
+      s.last = v;
+      b.vitals.by[k] = s;
+    }
+  }
+  if (e.act === "note" && typeof e.note === "string" && e.note) {
+    b.notes.push({ at: e.at, note: e.note });
+    if (b.notes.length > SNAPSHOT_NOTES_CAP) b.notes = b.notes.slice(b.notes.length - SNAPSHOT_NOTES_CAP);
+  }
+}
+
+/** Merge two snapshot buckets additively (the same hour/day heard twice is
+ *  one act, counts summed, bounds widened, notes kept to the cap). */
+export function mergeMemoryBuckets(a = emptyBucket(), b = emptyBucket()) {
+  const out = emptyBucket();
+  for (const bkt of [a, b]) {
+    for (const [fkey, f] of Object.entries(bkt.findings ?? {})) {
+      const m = out.findings[fkey] ?? { class: f.class, probe: f.probe, count: 0, first: f.first, last: f.last };
+      m.count += f.count;
+      m.first = Math.min(m.first, f.first);
+      m.last = Math.max(m.last, f.last);
+      out.findings[fkey] = m;
+    }
+    for (const [act, n] of Object.entries(bkt.acts ?? {})) out.acts[act] = (out.acts[act] ?? 0) + n;
+    const v = bkt.vitals ?? {};
+    out.vitals.rows += v.rows ?? 0;
+    out.vitals.saturated += v.saturated ?? 0;
+    out.vitals.slowPaused += v.slowPaused ?? 0;
+    for (const [k, s] of Object.entries(v.by ?? {})) {
+      const m = out.vitals.by[k] ?? { min: s.min, max: s.max, last: s.last };
+      m.min = Math.min(m.min, s.min);
+      m.max = Math.max(m.max, s.max);
+      m.last = s.last;
+      out.vitals.by[k] = m;
+    }
+    out.notes = [...out.notes, ...(bkt.notes ?? [])].slice(-SNAPSHOT_NOTES_CAP);
+  }
+  return out;
+}
+
+/** The fold, pure and testable: partition ledger lines by age into what
+ *  stays RAW (younger than the raw horizon — full resolution), what folds
+ *  into an HOUR bucket (past raw, within warm), what folds into a DAY bucket
+ *  (past warm, within cold), and what is RELEASED (past cold — the memory is
+ *  not infinite). Lines that cannot be aged stay raw. */
+export function foldMemoryLines(lines, { now = Date.now(), rawHorizonMs = RAW_HORIZON_MS, warmHorizonMs = WARM_HORIZON_MS, coldHorizonMs = COLD_HORIZON_MS } = {}) {
+  const rawCut = now - rawHorizonMs;
+  const warmCut = now - warmHorizonMs;
+  const coldCut = now - coldHorizonMs;
+  const keep = [];
+  const hourly = new Map();
+  const daily = new Map();
+  for (const line of lines) {
+    if (typeof line !== "string" || !line.trim()) continue;
+    let e; try { e = JSON.parse(line); } catch { keep.push(line); continue; }
+    const at = Number.isFinite(e?.at) ? e.at : (e?.at ? Date.parse(e.at) : NaN);
+    if (!Number.isFinite(at)) { keep.push(line); continue; } // unaged stays raw — never guess an age
+    if (at >= rawCut) { keep.push(line); continue; }         // recent past: full resolution
+    if (at < coldCut) continue;                              // past the cold horizon: released
+    const target = at >= warmCut ? hourly : daily;
+    const key = at >= warmCut ? hourKeyOf(at) : dayKeyOf(at);
+    const b = target.get(key) ?? emptyBucket();
+    foldEntryInto(b, e, at);
+    target.set(key, b);
+  }
+  return { keep, hourly: [...hourly.entries()], daily: [...daily.entries()] };
+}
+
+/** A consolidation seam: fold + store + trim against ANY log/memory files
+ *  (the daemon uses its real paths; tests use a temp dir). */
+export function makeMemoryConsolidator({ logFile, memoryFile, rawHorizonMs = RAW_HORIZON_MS, warmHorizonMs = WARM_HORIZON_MS, coldHorizonMs = COLD_HORIZON_MS, now = Date.now, log = () => {} } = {}) {
+  const nowFn = typeof now === "function" ? now : () => now;
+  const readLogLines = () => {
+    if (!fs.existsSync(logFile)) return [];
+    return fs.readFileSync(logFile, "utf8").split("\n").filter((l) => l.trim());
+  };
+  const readStore = () => {
+    try {
+      const d = JSON.parse(fs.readFileSync(memoryFile, "utf8"));
+      return { schema: "EOHeimdallMemory@1", consolidatedAt: d.consolidatedAt ?? null, hourly: d.hourly ?? {}, daily: d.daily ?? {} };
+    } catch {
+      return { schema: "EOHeimdallMemory@1", consolidatedAt: null, hourly: {}, daily: {} };
+    }
+  };
+  const saveStore = (store) => {
+    fs.mkdirSync(path.dirname(memoryFile), { recursive: true });
+    const tmp = `${memoryFile}.${process.pid}.tmp`;
+    fs.writeFileSync(tmp, JSON.stringify(store, null, 2));
+    fs.renameSync(tmp, memoryFile);
+  };
+  const writeLog = (keep) => {
+    fs.mkdirSync(path.dirname(logFile), { recursive: true });
+    const tmp = `${logFile}.${process.pid}.tmp`;
+    fs.writeFileSync(tmp, keep.join("\n") + (keep.length ? "\n" : ""));
+    fs.renameSync(tmp, logFile);
+  };
+  const fold = (lines, opts = {}) => foldMemoryLines(lines, { now: nowFn(), rawHorizonMs, warmHorizonMs, coldHorizonMs, ...opts });
+  const consolidate = () => {
+    const at = nowFn();
+    try {
+      const raw = readLogLines();
+      const { keep, hourly, daily } = fold(raw);
+      const store = readStore();
+      for (const [k, b] of hourly) store.hourly[k] = mergeMemoryBuckets(store.hourly[k], b);
+      for (const [k, b] of daily) store.daily[k] = mergeMemoryBuckets(store.daily[k], b);
+      // Promote: an hourly bucket that aged past the warm horizon folds into
+      // its day (the coarser tier) and leaves the finer one.
+      const warmCut = at - warmHorizonMs;
+      for (const [k, b] of Object.entries(store.hourly)) {
+        const bAt = Date.parse(k);
+        if (Number.isFinite(bAt) && bAt < warmCut) {
+          store.daily[dayKeyOf(bAt)] = mergeMemoryBuckets(store.daily[dayKeyOf(bAt)], b);
+          delete store.hourly[k];
+        }
+      }
+      // Release: past the cold horizon the memory is not infinite.
+      const coldCut = at - coldHorizonMs;
+      for (const [k] of Object.entries(store.hourly)) if (Number.isFinite(Date.parse(k)) && Date.parse(k) < warmCut) delete store.hourly[k];
+      for (const [k] of Object.entries(store.daily)) if (Number.isFinite(Date.parse(k)) && Date.parse(k) < coldCut) delete store.daily[k];
+      store.consolidatedAt = new Date(at).toISOString();
+      saveStore(store);
+      const trimmed = keep.length !== raw.length;
+      if (trimmed) writeLog(keep);
+      return { folded: raw.length - keep.length, kept: keep.length, trimmed, hourly: Object.keys(store.hourly).length, daily: Object.keys(store.daily).length, at: store.consolidatedAt };
+    } catch (err) {
+      log(`memory consolidate failed: ${err.message}`);
+      return { folded: 0, kept: 0, trimmed: false, hourly: 0, daily: 0, error: err.message };
+    }
+  };
+  // The read path the learner uses: raw recent lines + synthetic snapshot
+  // lines for buckets overlapping the span — each snapshot line carries its
+  // folded `count` and first/last, so a long window over a trimmed history
+  // still counts what happened.
+  const linesForWindow = (n = 4000, spanMs = DERIVED_WINDOW_MS, at = nowFn()) => {
+    const raw = readLogLines().filter((l) => l.trim()).slice(-n);
+    const out = [...raw];
+    const from = at - spanMs;
+    const store = readStore();
+    for (const tier of ["hourly", "daily"]) {
+      for (const [k, b] of Object.entries(store[tier] ?? {})) {
+        const bAt = Date.parse(k);
+        if (!Number.isFinite(bAt)) continue;
+        for (const [fkey, f] of Object.entries(b.findings ?? {})) {
+          if (!(f.last >= from)) continue; // bucket ends before the window: nothing to count
+          out.push(JSON.stringify({
+            act: "snapshot", tier, bucket: k, finding: f.class, probe: f.probe,
+            count: f.count, first: new Date(f.first).toISOString(), last: new Date(f.last).toISOString(),
+            at: new Date(f.last).toISOString(),
+          }));
+        }
+      }
+    }
+    return out.slice(-n);
+  };
+  const disclosure = () => {
+    const store = readStore();
+    let rawLines = 0, rawBytes = 0;
+    try { const txt = fs.readFileSync(logFile, "utf8"); rawLines = txt.split("\n").filter((l) => l.trim()).length; rawBytes = txt.length; } catch { /* unreadable log: report 0, never guess */ }
+    return {
+      schema: "EOHeimdallMemory@1",
+      consolidatedAt: store.consolidatedAt ?? null,
+      rawHorizonMs, warmHorizonMs, coldHorizonMs, consolidateMs: CONSOLIDATE_MS,
+      rawLines, rawBytes,
+      hourlyBuckets: Object.keys(store.hourly).length,
+      dailyBuckets: Object.keys(store.daily).length,
+      rule: "the ledger is not infinite: recent past stays verbatim, older past folds to hourly then daily snapshots (counts, vitals min/max/last, and lesson notes survive the fold), and past the cold horizon the memory is released — higher resolution for the more recent past",
+    };
+  };
+  return { fold, consolidate, readStore, linesForWindow, disclosure };
+}
+
+const memory = makeMemoryConsolidator({ logFile: LOG_FILE, memoryFile: MEMORY_FILE, now: () => _testNow ?? Date.now() });
+let lastConsolidateAt = 0; // first tick consolidates, then every CONSOLIDATE_MS
+export const consolidateMemory = () => memory.consolidate();
+export const memoryDisclosure = () => memory.disclosure();
+/** The learner's read: raw recent lines + folded snapshot lines for the span. */
+export const memoryLinesForWindow = (n = 4000, spanMs = DERIVED_WINDOW_MS) => memory.linesForWindow(n, spanMs);
 
 const fetchWithTimeout = async (url, ms) => {
   const ctrl = new AbortController();
@@ -1045,9 +1292,291 @@ async function selfDefense() {
   lastSlowProbeChildren = probes;
 }
 
+// ── THE DUPLICATE REAPER: the background must not breed ────────────────────
+// Measured 2026-09-19: the box carried 40+ `node serve.mjs 0` orphans (the
+// fold's test/eval harnesses spawn an ephemeral-port server whose stop()
+// never runs when the parent dies), a second proxy.mjs, stale `node --test`
+// runners days old — background processes clogging CPU/RAM that nobody owns.
+// Heimdall's remit expands: he does not only watch the NAMED surfaces, he
+// watches the WHOLE background for strays and reaps them — a REC, recorded
+// on the ledger, bounded like every other REC.
+//
+// The walls (a kill is the strongest act this daemon takes):
+//   - NEVER kill by bare name. A pid dies only on a KNOWN stray signature:
+//     an ephemeral `serve.mjs 0` orphan past its grace (ppid 1 — its spawner
+//     is gone, and nothing addresses a random port); a same-model
+//     llama-server duplicate (Ollama runs ONE runner per model — the second
+//     same-blob runner is surplus by definition; the oldest holder is kept);
+//     a `node --test` older than the age cap (a test run that outlived its
+//     parent); a server process holding NO listening port at all (it failed
+//     to bind but never exited — verified by lsof, never guessed).
+//   - NEVER the self, NEVER an ancestor of the self, NEVER pid ≤ 1.
+//   - A single instance is never a duplicate — no conviction on a suspicion.
+//   - A contested same-port group with no lsof proof is REPORTED, never
+//     killed (an unverified probe convicts nothing — the surface rule).
+//   - Bounded per act (REAP_MAX_KILLS) and escalating: SIGTERM first, SIGKILL
+//     only for a pid that survived a TERM and is still stray on re-sense.
+//   - ER7_REAP_OFF=1 disables killing entirely (census-only: sense and
+//     disclose, never touch). The off switch is the standing control.
+const REAP_MS = Number(process.env.ER7_REAP_CADENCE ?? 5 * 60 * 1000);
+const REAP_SERVE_GRACE_MS = Number(process.env.ER7_REAP_SERVE_GRACE ?? 10 * 60 * 1000);
+const REAP_TEST_AGE_MS = Number(process.env.ER7_REAP_TEST_AGE ?? 2 * 60 * 60 * 1000);
+const REAP_MAX_KILLS = Number(process.env.ER7_REAP_MAX_KILLS ?? 5);
+const REAP_KILL_ON = (process.env.ER7_REAP_OFF ?? "0") !== "1";
+
+/** Parse a `ps` etime ([dd-]hh:mm:ss) to seconds, or null when it is not a time. */
+export function parseEtime(s) {
+  const m = /^(?:(\d+)-)?(?:(\d+):)?(\d+):(\d\d)$/.exec(String(s ?? "").trim());
+  if (!m) return null;
+  return Number(m[1] ?? 0) * 86400 + Number(m[2] ?? 0) * 3600 + Number(m[3]) * 60 + Number(m[4]);
+}
+
+/** The census, pure and testable: group a process table into herds, name the
+ *  strays (killable on signature alone) and the contested groups (same-port
+ *  claims that need lsof proof before anyone dies). Rows are
+ *  { pid, ppid, ageS, rssKb, args }. */
+export function censusBackground(rows, { now = Date.now(), selfPid = process.pid, serveGraceMs = REAP_SERVE_GRACE_MS, testAgeMs = REAP_TEST_AGE_MS } = {}) {
+  const list = Array.isArray(rows) ? rows : [];
+  const byPid = new Map(list.map((r) => [r.pid, r]));
+  // The safe set: the self and every ancestor up the ppid chain — a reaper
+  // that can kill its own parent is a loaded gun pointed at its own head.
+  const safe = new Set([selfPid]);
+  let anc = byPid.get(selfPid)?.ppid;
+  while (anc != null && anc > 1 && !safe.has(anc)) { safe.add(anc); anc = byPid.get(anc)?.ppid; }
+  const strays = [];
+  const contested = [];
+  const herds = {};
+  const bump = (sig) => { herds[sig] = (herds[sig] ?? 0) + 1; };
+  const modelGroups = new Map(); // blob -> rows
+  const serverGroups = new Map(); // "script[:port]" -> rows
+  for (const r of list) {
+    if (!(r.pid > 1) || safe.has(r.pid)) continue;
+    const args = String(r.args ?? "");
+    const ageS = r.ageS ?? 0;
+    // 1) Ephemeral fold servers: `serve.mjs 0` binds a random port. Past its
+    // grace with ppid 1 its spawner is gone and nothing addresses that port —
+    // an orphan by construction, not by suspicion.
+    if (/serve\.mjs\s+0(\s|$)/.test(args)) {
+      bump("serve-ephemeral");
+      if (r.ppid === 1 && ageS * 1000 >= serveGraceMs) {
+        strays.push({ pid: r.pid, ppid: r.ppid, ageS, rssKb: r.rssKb ?? null, signature: "serve-ephemeral", reason: `ephemeral-port orphan (ppid 1, age ${ageS}s past ${Math.round(serveGraceMs / 60000)}min grace)` });
+      }
+      continue;
+    }
+    // 2) Same-model llama runners: grouped here, decided below. A bare
+    // `ollama serve` (no --model) is the server itself — never a runner.
+    const mm = /llama-server\b/.test(args) ? /--model\s+(\S+)/.exec(args) : null;
+    if (mm) {
+      const key = `llama:${mm[1].split("/").pop()}`;
+      bump(key);
+      if (!modelGroups.has(key)) modelGroups.set(key, []);
+      modelGroups.get(key).push(r);
+      continue;
+    }
+    // 3) Stale test runners: a `node --test` older than the cap outlived
+    // whatever spawned it. Recent ones are someone's live run — hands off.
+    if (/(^|\s)node\s+--test\b/.test(args)) {
+      bump("test-runner");
+      if (ageS * 1000 >= testAgeMs) {
+        strays.push({ pid: r.pid, ppid: r.ppid, ageS, rssKb: r.rssKb ?? null, signature: "test-runner", reason: `stale test runner (age ${ageS}s past ${Math.round(testAgeMs / 3600000)}h cap)` });
+      }
+      continue;
+    }
+    // 4) Fixed-role servers: grouped by script + claimed port for the
+    // contested check below (lsof decides who actually holds what).
+    const pm = /(proxy\.mjs|explore-server\.mjs|serve\.mjs)(?:\s+(\d+))?(\s|$)/.exec(args);
+    if (pm) {
+      const key = pm[2] ? `${pm[1]}:${pm[2]}` : `${pm[1]}:bare`;
+      bump(key);
+      if (!serverGroups.has(key)) serverGroups.set(key, []);
+      serverGroups.get(key).push(r);
+      continue;
+    }
+  }
+  // Same-model duplicates: keep the OLDEST holder (the runner the server
+  // converged on); newer same-blob arrivals are the surplus. The ledger
+  // names the keeper, so the act is auditable.
+  for (const [key, group] of modelGroups) {
+    if (group.length < 2) continue;
+    const ordered = [...group].sort((a, b) => (b.ageS ?? 0) - (a.ageS ?? 0) || a.pid - b.pid);
+    const [keep, ...rest] = ordered;
+    for (const r of rest) {
+      strays.push({ pid: r.pid, ppid: r.ppid, ageS: r.ageS, rssKb: r.rssKb ?? null, signature: key, reason: `same-model duplicate (keeping oldest pid ${keep.pid}, age ${keep.ageS ?? 0}s)` });
+    }
+  }
+  for (const [key, group] of serverGroups) {
+    if (group.length < 2) continue;
+    contested.push({ key, pids: group.map((r) => ({ pid: r.pid, ageS: r.ageS ?? 0, rssKb: r.rssKb ?? null })) });
+  }
+  // rowsRead rides along so a caller can tell "no strays" apart from "no
+  // reading" — an empty table is a failed probe, never a clean bill.
+  return { strays, contested, herds, rowsRead: list.length, at: new Date(now).toISOString() };
+}
+
+/** The act, injectable for tests: TERM each stray within budget, KILL only a
+ *  pid that survived a previous TERM. `termed` carries the escalation state
+ *  (pid -> termedAt); the daemon passes its own map, tests a fresh one. */
+export function reapBackground({ strays = [], kill = () => false, maxKills = REAP_MAX_KILLS, now = Date.now(), termed = new Map() } = {}) {
+  const termedOut = [], killed = [], gone = [], skipped = [];
+  let budget = maxKills;
+  for (const s of strays) {
+    if (budget <= 0) { skipped.push({ ...s, why: "kill_cap" }); continue; }
+    const prev = termed.get(s.pid);
+    const signal = prev != null ? "SIGKILL" : "SIGTERM";
+    let r;
+    try { r = kill(s.pid, signal); } catch { r = false; }
+    if (r === "gone") { gone.push({ ...s }); termed.delete(s.pid); continue; }
+    if (!r) { skipped.push({ ...s, why: "kill_failed" }); continue; }
+    budget -= 1;
+    if (signal === "SIGKILL") { killed.push({ ...s, signal }); termed.delete(s.pid); }
+    else { termedOut.push({ ...s, signal }); termed.set(s.pid, now); }
+  }
+  for (const [pid, at] of termed) if (now - at > 3600000) termed.delete(pid); // forget stale TERM records
+  return { termed: termedOut, killed, gone, skipped, at: new Date(now).toISOString() };
+}
+
+async function readProcessTable() {
+  const out = await execOut("ps", ["-Ao", "pid=,ppid=,etime=,rss=,args="], 5000);
+  if (!out) return [];
+  const rows = [];
+  for (const line of out.split("\n")) {
+    const m = /^\s*(\d+)\s+(\d+)\s+(\S+)\s+(\d+)\s+(.*)$/.exec(line);
+    if (!m) continue;
+    const ageS = parseEtime(m[3]);
+    if (ageS == null) continue;
+    rows.push({ pid: Number(m[1]), ppid: Number(m[2]), ageS, rssKb: Number(m[4]), args: m[5] });
+  }
+  return rows;
+}
+
+/** lsof proof: pid -> the set of TCP ports it actually holds LISTEN on, or
+ *  null when the probe could not complete (then nobody dies — unverified). */
+async function listeningPorts() {
+  const out = await execOut("lsof", ["-iTCP", "-sTCP:LISTEN", "-P", "-n"], 5000);
+  if (!out) return null;
+  const held = new Map();
+  for (const line of out.split("\n")) {
+    const m = /^\S+\s+(\d+)\s.*TCP\s+(?:\S+:)?(\d+)\s+\(LISTEN\)/.exec(line);
+    if (!m) continue;
+    const pid = Number(m[1]), port = Number(m[2]);
+    if (!held.has(pid)) held.set(pid, new Set());
+    held.get(pid).add(port);
+  }
+  return held;
+}
+
+const reaperTermed = new Map(); // pid -> SIGTERM issued at (escalation state)
+let lastReapReport = null;
+let lastReapAt = 0; // first tick reaps, then every REAP_MS
+
+/** The live reaper: census the background, resolve contested groups against
+ *  lsof proof, kill the strays within budget, record every death on the
+ *  ledger. Returns the report (also disclosed in /heimdall). */
+export async function liveReap({ censusRows = null } = {}) {
+  const at = Date.now();
+  const rows = censusRows ?? await readProcessTable();
+  const census = censusBackground(rows, { now: at, selfPid: process.pid });
+  const strays = [...census.strays];
+  const unresolved = [];
+  if (census.contested.length) {
+    const held = await listeningPorts();
+    if (!held) {
+      for (const g of census.contested) unresolved.push(g.key); // no proof: report only
+    } else {
+      for (const g of census.contested) {
+        const portsOf = (pid) => held.get(pid) ?? new Set();
+        const withPorts = g.pids.filter((p) => portsOf(p.pid).size > 0);
+        const portless = g.pids.filter((p) => portsOf(p.pid).size === 0);
+        // A server process holding NO listening port failed to bind but never
+        // exited — a stray by measurement, not by suspicion.
+        for (const p of portless) {
+          strays.push({ pid: p.pid, ageS: p.ageS, rssKb: p.rssKb, signature: g.key, reason: `claims ${g.key} but holds no listening port` });
+        }
+        // Everyone holds a port but they share one: keep the oldest holder.
+        const byPort = new Map();
+        for (const p of withPorts) {
+          for (const port of portsOf(p.pid)) {
+            if (!byPort.has(port)) byPort.set(port, []);
+            byPort.get(port).push(p);
+          }
+        }
+        for (const [port, holders] of byPort) {
+          if (holders.length < 2) continue;
+          const ordered = [...holders].sort((a, b) => (b.ageS ?? 0) - (a.ageS ?? 0) || a.pid - b.pid);
+          for (const h of ordered.slice(1)) {
+            strays.push({ pid: h.pid, ageS: h.ageS, rssKb: h.rssKb, signature: g.key, reason: `shares bound port ${port} (keeping oldest holder pid ${ordered[0].pid})` });
+          }
+        }
+        if (!portless.length && ![...byPort.values()].some((hs) => hs.length > 1)) unresolved.push(g.key);
+      }
+    }
+  }
+  if (!REAP_KILL_ON || !strays.length) {
+    const report = {
+      at: new Date(at).toISOString(), off: !REAP_KILL_ON,
+      census: { rowsRead: census.rowsRead ?? rows.length, strays: census.strays.length, contested: census.contested.length, unresolved, herds: census.herds },
+      termed: [], killed: [], gone: [], skipped: REAP_KILL_ON ? [] : strays.map((s) => ({ ...s, why: "reap_off" })),
+    };
+    lastReapReport = report;
+    return report;
+  }
+  const r = reapBackground({
+    strays,
+    kill: (pid, sig) => {
+      try { process.kill(pid, 0); } catch { return "gone"; } // already dead: a mercy, not a kill
+      try { process.kill(pid, sig); return true; } catch { return false; }
+    },
+    now: at, termed: reaperTermed,
+  });
+  for (const k of [...r.termed, ...r.killed]) {
+    appendLog({ act: "rec", finding: "duplicate_reaped", pid: k.pid, signal: k.signal, signature: k.signature, reason: k.reason, ageS: k.ageS ?? null, rssKb: k.rssKb ?? null, giver: "heimdall", standing: "disclosed" });
+  }
+  if (r.termed.length || r.killed.length) {
+    lintedNote({
+      kind: "infra", level: "warn", severity: "medium",
+      note: `heimdall reaped ${r.termed.length + r.killed.length} background strays (${[...r.termed, ...r.killed].map((k) => `${k.signature}#${k.pid}`).join(", ")}) — the background must not breed`,
+      giver: "heimdall", standing: "disclosed", probe: "reaper",
+    });
+  }
+  lastReapReport = {
+    ...r,
+    census: { rowsRead: census.rowsRead ?? rows.length, strays: census.strays.length, contested: census.contested.length, unresolved, herds: census.herds },
+  };
+  return lastReapReport;
+}
+
+export function reaperDisclosure() {
+  return {
+    cadenceMs: REAP_MS, killOn: REAP_KILL_ON, maxKills: REAP_MAX_KILLS,
+    serveGraceMs: REAP_SERVE_GRACE_MS, testAgeMs: REAP_TEST_AGE_MS,
+    last: lastReapReport,
+    rule: "the background must not breed: ephemeral serve.mjs orphans past their grace, same-model llama duplicates, stale test runners, and server processes holding no port are reaped (TERM, then KILL for survivors), bounded per act and recorded on the ledger — never the self, never an ancestor, never on an unverified probe, never with the off switch set",
+  };
+}
+
 async function tick() {
   // SELF-DEFENSE first: adjust the watcher's own behavior before measuring.
   await selfDefense();
+
+  // MEMORY — the ledger is not infinite (2026-09-19): fold the raw history
+  // past the raw horizon into snapshots and trim it, on its own cadence. A
+  // snapshot-consolidation failure is a skip, never a crash (consolidateMemory
+  // catches and reports). First tick always consolidates, so a long-running
+  // log is trimmed the moment the daemon boots.
+  if (Date.now() - lastConsolidateAt >= CONSOLIDATE_MS) {
+    lastConsolidateAt = Date.now();
+    consolidateMemory();
+  }
+
+  // THE REAPER — the background must not breed (2026-09-19): census the
+  // process table and reap the strays on its own cadence. A reaper failure
+  // is a skip, never a crash (liveReap catches into the report; the catch
+  // below is the belt). First tick reaps, so a bred-up box is cleaned the
+  // moment the daemon boots.
+  if (Date.now() - lastReapAt >= REAP_MS) {
+    lastReapAt = Date.now();
+    liveReap().catch((err) => log(`reaper error: ${err.message}`));
+  }
 
   // SURFACE PROBES FIRST — routing depends on them and they are fast. They
   // must never wait on the slow vitals tier: `top -l 1` takes ~50s+ on a
@@ -1218,6 +1747,8 @@ export function heimdallStatus() {
       inflight: s.inflight, cmd: s.cmd, restartsInWindow: s.restartTimes.length,
     })),
     logTail: logTail(12),
+    memory: memoryDisclosure(),
+    reaper: reaperDisclosure(),
   };
 }
 
@@ -1460,6 +1991,16 @@ const steer = http.createServer(async (req, res) => {
   if (req.method === "GET" && req.url === "/heimdall") {
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify(heimdallStatus()));
+    return;
+  }
+  // ── POST /reap — run the duplicate reaper on demand (same pass the tick
+  // runs on its own cadence). Returns the report: what was TERM/KILLed, what
+  // was skipped, what stays contested. The off switch (ER7_REAP_OFF=1) turns
+  // this into a census-only read.
+  if (req.method === "POST" && req.url === "/reap") {
+    const r = await liveReap().catch((err) => ({ error: err.message }));
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify(r));
     return;
   }
   if (req.method === "GET" && (req.url === "/v1/models" || req.url === "/api/tags")) {
@@ -1947,7 +2488,7 @@ export function concedeDerivedRule(key, { reason } = {}) {
 // every tick), and a rule whose falsifying control fires is conceded. This
 // is the swarm becoming literate: the bridge learns its own rules from its
 // own recorded history, no mind, no hand.
-export function makeRuleAuthorHolon({ logLines = logTail, now = Date.now, log = () => {} } = {}) {
+export function makeRuleAuthorHolon({ logLines = memoryLinesForWindow, now = Date.now, log = () => {} } = {}) {
   return {
     sense: async () => {
       const lines = logLines(4000); // enough history for the window
@@ -1959,13 +2500,18 @@ export function makeRuleAuthorHolon({ logLines = logTail, now = Date.now, log = 
         const cls = e.finding ?? e.class ?? null;
         const probe = e.model ?? e.probe ?? e.surface ?? null;
         if (!cls) continue;
-        const at = Date.parse(e.at ?? "");
+        // A SNAPSHOT line is a FOLDED set of occurrences (the memory's trim):
+        // it carries its own first/last and a count instead of one `at`. The
+        // window filter reads the folded first, and the count multiplies — the
+        // learner sees the pattern exactly as the verbatim ledger would.
+        const at = Date.parse(e.first ?? e.at ?? "");
         if (!Number.isFinite(at) || at < t0) continue;
         const key = `${cls}:${probe ?? ""}`;
         const c = counts.get(key) ?? { class: cls, probe, count: 0, first: at, last: at, model: probe };
-        c.count += 1;
+        c.count += Number.isFinite(e.count) ? e.count : 1;
         if (at < c.first) c.first = at;
-        if (at > c.last) c.last = at;
+        const last = Date.parse(e.last ?? "");
+        if (Number.isFinite(last) && last > c.last) c.last = last;
         counts.set(key, c);
       }
       // A class that recurred past the floor and has no LIVE derived rule yet.

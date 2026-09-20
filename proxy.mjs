@@ -19,7 +19,7 @@ import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge, liveReap } from "./heimdall.mjs";
 // "Computed, not generated" — the-fold's own house rule (arithmetic.js),
 // reused directly rather than re-derived: a small model answering "what is
 // today's date?" from its stale training data, with nothing in THIS proxy's
@@ -380,6 +380,16 @@ async function handleRequest(req, res) {
     try { observeCall(JSON.parse(raw || "{}")); } catch { /* a malformed report is dropped, never fatal */ }
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
+  // POST /heimdall/reap — run the duplicate reaper on demand (the same pass
+  // the watcher's tick runs on its own cadence). Served locally: the watcher
+  // runs inside this process. ER7_REAP_OFF=1 turns it into a census-only read.
+  if (req.method === "POST" && req.url === "/heimdall/reap") {
+    const r = await liveReap().catch((err) => ({ error: err.message }));
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify(r));
     return;
   }
 
