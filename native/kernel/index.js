@@ -19,9 +19,12 @@ export { deriveExperiencePrior, mergeExperiencePriors, experienceNetworkSignatur
 export { mergeReceivedPriors, createPriorConditionedReader } from "./experienced-reading.js";
 export { deriveRhythmPrior, mergeRhythmPriors, composeExperience, scoreRhythmExpectations, readingGaps, medianOf } from "./rhythm-priors.js";
 export { createHyperlexicon, normalizeHyperlexicon, compositionAffordance, admitHyperlexiconCandidates, giveHyperlexiconAffordance, pairKey, HL_SCHEMA, HL } from "./hyperlexicon.js";
+export { ROUTE_SCHEMA, ROUTE_TYPES, KIND_PREFIX, LINK_VERB, TERM_KIND, TERM_PARAMETER, kindId, linkId, isTermKind, withTermStructure, kindNotes, parseRouteRequest, linkCurrent, currentLinkOf, buildRouteIndex, hop, routeAsk, serializeRoutes, loadRoutes } from "./hyperlexicon-routes.js";
+export { TRAIL_HALF_LIFE_DAYS, STIGMERGY_SCHEMA, TRAIL_WINDOW, EXPLORE_EPSILON, ageDays, trailWeight, deposit, trailStats, routeOrderFor } from "./stigmergy.js";
 export { createRelationCompositionLedger, relationCompositionChains, acquireCompositionCandidates, evaluateRelationCompositions, consequentialWithheldCompositions } from "./relation-composition.js";
 export { TERRAINS, terrainOf, createTerrainIndex, indexTerrainEntries, snapshotTerrainState, snapshotTerrainReferents, projectTerrainState, terrainCounts } from "./terrain-state.js";
 export { createEmergentTerrainIndex, indexEmergentTerrainEntries, snapshotEmergentTerrainState, projectEmergentTerrains, mergeTerrainStates } from "./emergent-terrain.js";
+export { terrainAntimatter, mindAntimatter, sessionAntimatter, collide, intersection } from "./antimatter.js";
 export { projectLexicon, lexiconTrajectory } from "./lexicon.js";
 export { createTerrainActivation, dmdWindow } from "./terrain-activation.js";
 export { networkStanding, directedEdges } from "./network-standing.js";

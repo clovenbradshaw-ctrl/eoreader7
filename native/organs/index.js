@@ -145,6 +145,12 @@ export * as provenanceOrgan from "./provenance.js";
 // quote an archon's credited work and offer it as an affordance.
 export { ARCHON_COMPENDIUM, ARCHONS, ARCHON_COMPENDIUM_SCHEMA, archonOf, compendium, creditedQuote, matchArchons } from "./archon-compendium.js";
 export * as archonCompendium from "./archon-compendium.js";
+// Apollo (homeostasis) + Thea (remedy): pure, browser-safe. The dispatch
+// bridge (apollo-swarm.js, eoSwarm wiring) is server-side only — import by path.
+export { APOLLO_CHANNELS, APOLLO_REFUSALS, createBaseline, observe as apolloObserve, surpriseOf as apolloSurpriseOf, snapshot as apolloSnapshot } from "./apollo.js";
+export * as apollo from "./apollo.js";
+export { THEA_ACTIONS, THEA_REFUSALS, craftRemedy } from "./thea.js";
+export * as thea from "./thea.js";
 // The what organ (2026-09-16, Cuvier) and the anchors organ (2026-09-16,
 // Tycho) are deliberately NOT re-exported here, exactly as look.js is not:
 // each composes an adapter (adapters/code/anchors.js) that imports node:fs at
@@ -154,3 +160,10 @@ export * as archonCompendium from "./archon-compendium.js";
 // the er7 proxy's workspace pass, the eval drivers, their own test files —
 // import them directly by path, server-side only, the same split the look.js
 // exclusion below already states for itself.
+// The current-facts witness (2026-09-19, Wilson) — the hyperlexicon's kinds,
+// their dated links, and the stigmergic trails of the hops that found them.
+// Server-side only, like the what/anchor organs: it composes kernel/rng-less
+// pure modules plus node:fs for the environment file, so it is NOT statically
+// re-exported for the same static-host reason as what.js/anchor.js above.
+export { createCurrentFactsStore, extractHolder, termFromRecord } from "./current-facts.js";
+export * as currentFacts from "./current-facts.js";

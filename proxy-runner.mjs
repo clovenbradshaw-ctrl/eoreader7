@@ -128,6 +128,16 @@ import { upstreamAnthropicModelFor, refreshAnthropicModels, anthropicReachable, 
 // complement of organs/quotes.js (Handle: Dai), which audits quotations
 // already in an answer — this hand decides what the mouth never writes.
 import { snipShape, cutSnip, formatQuote, DEFAULT_PASSAGE, MAX_SNIP_CHARS } from "./native/organs/verbatim-snip.js";
+// THE GATE ON A FACT WITH NO GROUND (Heimdall/Ranke): a checkable open-now claim is
+// grounded first (a declared web check) and, failing that, ships with one plain,
+// dated sentence APPENDED (P186: a check may find, never overwrite). The SURGICAL
+// gate (Wilson: the environment is the medium) strikes a sentence that commits to
+// a value the environment's kind+link contradicts, and splices the mechanical
+// replacement assembled from the kind and the link.
+import { factShape, isUngroundedFact, decideGate, holderQueryFor, applyVerdictGate } from "./native/organs/fact-gate.js";
+import { currentHolder } from "./native/organs/current-holder.js";
+import { createCurrentFactsStore } from "./native/organs/current-facts.js";
+import { lensForAsk } from "./native/adapters/text/fact-lenses.js";
 export { upstreamModelFor, refreshOpencodeModels, opencodeReachable, OPENCODE_URL };
 export { knownOpencodeModels } from "./opencode-upstream.mjs";
 export { upstreamAnthropicModelFor, refreshAnthropicModels, anthropicReachable, anthropicConfigured, ANTHROPIC_URL };
@@ -368,8 +378,11 @@ function selectVoidQuery(task) {
 // fetching full pages. Zero results confirms the void; real snippets become the
 // material block. Skips conversational-referent questions ("you mentioned…")
 // where the named referent is a session artifact, not a real-world entity.
-async function voidWebSearchFallback(task) {
-  if (!WEB_SEARCH_ON) return null;
+async function voidWebSearchFallback(task, { force = false } = {}) {
+  // `force`: the caller has DECLARED this search (a checkable open-now fact with
+  // no ground, and the person's per-request web consent) — the env toggle is the
+  // process-wide default, never the only door.
+  if (!WEB_SEARCH_ON && !force) return null;
   const text = String(task ?? "");
   if (/\b(you mentioned|earlier you|i told you|we discussed|you said|in (?:our|this) (?:conversation|session|chat))\b/i.test(text)) return null;
 
@@ -400,6 +413,30 @@ async function voidWebSearchFallback(task) {
   } catch {
     return null; // network error — leave the plain void assertion
   }
+}
+
+// ── THE CURRENT-FACTS ENVIRONMENT (Wilson, 2026-09-19) ────────────────────
+// One store per process, one file on disk: kinds, their dated links, and the
+// stigmergic trails of the hops that found them. Every turn, every surface
+// reads the SAME environment. The refresh job re-checks stale links through
+// the live doors (the dated record for a kind with a jurisdiction, the web
+// search otherwise) and deposits the outcome as a trail.
+const FACTS_REFRESH_MS = 6 * 60 * 60 * 1000; // every 6 hours, when the web door is on
+const FACTS_BOOT_DELAY_MS = 5000;
+let _factsStore = null;
+function currentFactsStore() {
+  if (!_factsStore) {
+    _factsStore = createCurrentFactsStore({
+      file: process.env.ER7_FACTS_FILE ?? path.join(HERE, "state", "current-facts.json"),
+      search: WEB_SEARCH_ON ? voidWebSearchFallback : null,
+      lensForAsk,
+    });
+    if (WEB_SEARCH_ON) {
+      setTimeout(() => { _factsStore.refreshStale({ ttlDays: 30, datedLookup: currentHolder }).catch(() => {}); }, FACTS_BOOT_DELAY_MS).unref?.();
+      setInterval(() => { _factsStore.refreshStale({ ttlDays: 30, datedLookup: currentHolder }).catch(() => {}); }, FACTS_REFRESH_MS).unref?.();
+    }
+  }
+  return _factsStore;
 }
 
 // ── residency ping during blocking setup ─────────────────────────────────
@@ -2913,6 +2950,13 @@ const reader = res.body.getReader();
       let emittedTokens = 0;
       const TOKEN_BUDGET = maxTokens ?? CALL_MAX_TOKENS;
       let overBudget = false;
+      // Stream-shape witnesses (visibility only — never feed sampling,
+      // budgets, retries, or guards): did a done frame arrive, what reason
+      // Ollama gave, Ollama's own eval_count, first server error frame.
+      let doneSeen = false;
+      let doneReason = null;
+      let doneEvalCount = 0;
+      let streamErr = null;
 
       while (true) {
         if (signal?.aborted) throw new Error("cancelled");
@@ -2924,13 +2968,25 @@ const reader = res.body.getReader();
         for (const line of lines) {
           const trimmed = line.trim();
           if (!trimmed) continue;
+          // Parse first, alone: the old shared catch swallowed obj.error
+          // frames into silence. Malformed lines skip; error frames are
+          // recorded (machine-side note) and skipped — never thrown.
+          let obj;
+          try { obj = JSON.parse(trimmed); } catch { continue; }
+          if (obj?.error) {
+            if (!streamErr) {
+              streamErr = String(obj.error);
+              if (onNote) { try { onNote({ move: "ollama_error_frame", error: streamErr }); } catch { /* notes never break a turn */ } }
+            }
+            continue;
+          }
           try {
-            const obj = JSON.parse(trimmed);
-            if (obj.error) throw new Error(`ollama: ${obj.error}`);
             if (obj.message?.content) {
               // HARD CAP: never let the model run away past its budget. The
-              // tip of consciousness must not loop. Count output tokens; when
-              // the budget is exhausted, stop yielding AND stop the reader so
+              // tip of consciousness must not loop. Count content-bearing SSE
+              // frames (one per message-content line — NOT tokens; the trip
+              // point is in chunks, mislabeled pre-2026-09-19); when the
+              // budget is exhausted, stop yielding AND stop the reader so
               // the server stops generating (abort, not just stop reading).
               emittedTokens++;
               if (emittedTokens > TOKEN_BUDGET) {
@@ -2940,7 +2996,7 @@ const reader = res.body.getReader();
                   const fin = guardFinish();
                   if (fin.blocked) yield fin.refusal;
                   else if (fin.emit) yield fin.emit;
-                  yield { done: true, truncated: true, outputBlocked: fin.blocked, prompt_eval_count: 0, eval_count: emittedTokens };
+                  yield { done: true, truncated: true, outputBlocked: fin.blocked, prompt_eval_count: 0, eval_count: emittedTokens, doneSeen: false, doneReason: "budget" };
                 }
                 finishReview(true);
                 return;
@@ -2951,13 +3007,16 @@ const reader = res.body.getReader();
                 if (g.emit) yield g.emit;
                 if (g.blocked) {
                   yield refusalFor(outBlocked);
-                  yield { done: true, outputBlocked: true, truncated: overBudget, prompt_eval_count: 0, eval_count: emittedTokens };
+                  yield { done: true, outputBlocked: true, truncated: overBudget, prompt_eval_count: 0, eval_count: emittedTokens, doneSeen: false, doneReason: "blocked" };
                   finishReview(true);
                   return;
                 }
               }
             }
             if (obj.done) {
+              doneSeen = true;
+              doneReason = obj.done_reason ?? null;
+              doneEvalCount = obj.eval_count ?? 0;
               // The bridge keeps the account of what each model really does
               // (heimdall.observeCall): Ollama has just handed us its own
               // counters, so reporting them costs nothing and no watcher has
@@ -2979,7 +3038,7 @@ const reader = res.body.getReader();
                 const fin = guardFinish();
                 if (fin.blocked) yield fin.refusal;
                 else if (fin.emit) yield fin.emit;
-                yield { done: true, truncated: overBudget, outputBlocked: fin.blocked, prompt_eval_count: obj.prompt_eval_count ?? 0, eval_count: obj.eval_count ?? 0 };
+                yield { done: true, truncated: overBudget, outputBlocked: fin.blocked, prompt_eval_count: obj.prompt_eval_count ?? 0, eval_count: obj.eval_count ?? 0, doneSeen: true, doneReason: obj.done_reason ?? null, serverEvalCount: doneEvalCount };
               }
               finishReview(true);
               return;
@@ -2991,9 +3050,25 @@ const reader = res.body.getReader();
         const fin = guardFinish();
         if (fin.blocked) {
           yield fin.refusal;
-          yield { done: true, outputBlocked: true, prompt_eval_count: 0, eval_count: emitted.join("").length };
+          yield { done: true, outputBlocked: true, prompt_eval_count: 0, eval_count: emitted.join("").length, doneSeen, doneReason, streamErr };
         } else if (fin.emit) yield fin.emit;
       }
+      // Stream ended without done=true — previously a silent return with
+      // partial text (measured: 31-char 'ACTION: patch\nPATH: solution.py').
+      // Flush + classify the stranded tail, then SAY so on a terminal chunk.
+      buffer += decoder.decode();
+      const tail = buffer.trim();
+      let tailParsedAs = tail ? "unparsable" : "empty";
+      if (tail) {
+        try {
+          const t = JSON.parse(tail);
+          if (t?.done) { doneSeen = true; doneReason = t.done_reason ?? null; doneEvalCount = t.eval_count ?? 0; tailParsedAs = "done"; }
+          else if (t?.message?.content) tailParsedAs = "content";
+          else if (t?.error) { if (!streamErr) streamErr = String(t.error); tailParsedAs = "error"; }
+          else tailParsedAs = "other";
+        } catch { /* tailParsedAs stays "unparsable" */ }
+      }
+      yield { done: true, truncated: overBudget, outputBlocked: false, prompt_eval_count: 0, eval_count: emitted.join("").length, doneSeen, doneReason, serverEvalCount: doneEvalCount, streamErr, leftoverChars: tail.length, leftoverTail: tail.slice(-120), tailParsedAs };
       return; // stream ended without done=true
     } catch (err) {
       // A first-byte stall is evidence about the MODEL, not the turn: mark
@@ -3612,7 +3687,7 @@ export function openProblemOf(task) {
   return null;
 }
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
   // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
@@ -3953,7 +4028,40 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           if (post && typeof post.text === "string" && post.text.trim() && post.text !== fullText) text = post.text;
         } catch { /* the tooling never breaks the answer */ }
       }
-      if (onNote) onNote({ move: "fast_path", shape: "chat", chars: fullText.length });
+      // The fast path has no material and runs no search by design; if its draft
+      // is itself a checkable open-now claim, the ENVIRONMENT is consulted first
+      // (the stigmergic route over kinds and links — no web door needed for a
+      // fact the environment already holds), and the surgical gate strikes a
+      // sentence that commits to a value the kind+link contradicts.
+      try {
+        const store = currentFactsStore();
+        const resolved = store.resolve(task);
+        let kind = resolved.kind, link = resolved.link;
+        const hq = holderQueryFor({ ask: task, answer: text });
+        if ((webConsent || WEB_SEARCH_ON) && !kind && hq) {
+          const h = await currentHolder(hq);
+          if (h.found) {
+            store.adoptDatedRecord({ head: hq.role, text: h.text, ref: h.ref });
+            const again = store.resolve(task);
+            kind = again.kind; link = again.link;
+          }
+        }
+        const v = applyVerdictGate({ ask: task, answer: text, ground: [], kind, link, route: resolved.route, now: new Date(), lens: resolved.lens ?? lensForAsk(task) });
+        if (v.gated) {
+          text = v.text;
+          // THE ALARM IS NOT THE STRIKE. A contradicted draft means the DRAFT
+          // disagreed with the link — the link is the ground, it is not
+          // demoted for being right. The link is only suspect when a FRESH
+          // door disagrees with it; that disagreement lands here as an
+          // adoption above, not as a veto.
+          if (onToken) onToken(`\n\n${v.replacement}`);
+          if (onNote) onNote({ move: "fast_path", shape: "chat", chars: fullText.length, verdict: v.verdict, route: resolved.route, kind: kind?.label ?? null });
+        } else {
+          const g = decideGate({ ask: task, answer: text, ground: [], context: [discourse, ...(chatHistory ?? []).map((m) => m?.content ?? "")].filter(Boolean).join("\n"), lens: lensForAsk(task) });
+          if (g.open && g.append) { const tail = `\n\n${g.append}`; text += tail; if (onToken) onToken(tail); }
+          if (onNote) onNote({ move: "fast_path", shape: "chat", chars: fullText.length, verdict: v.verdict, route: resolved.route ?? null });
+        }
+      } catch { /* an addition, never a break */ }
       return earlyResult(text, { answerShape: "chat", truncated: fastTruncated });
     }
   }
@@ -4826,6 +4934,8 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     if (sid) turnUsedSourceIds.add(sid);
   }
 
+  // The fact gate's standing for this turn (read again after the draw).
+  const factGate = { searched: false, ground: [] };
   let systemContent = systemCore;
   // THE MOUTH NEVER READS RAW BYTES IN A PROJECTION (2026-09-13). A section
   // draw must voice the reading, not re-read the source: the per-section
@@ -4838,7 +4948,24 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     if (material.length) {
       systemContent += `\n\nHere's what came up on this:\n\n"""\n${material.join("\n\n")}\n"""`;
     } else if (surfVoid) {
-      const webGround = await voidWebSearchFallback(task);
+      // GROUND FIRST (INS·Ground, the declared preflight): the engine has just
+      // found no ground for this ask. If the ask is itself a checkable open-now
+      // fact, the web check is declared here — before a word is drawn — under
+      // the person's per-request consent (the fold's web switch) or the env door.
+      const factAsk = factShape(task);
+      const declaredFactCheck = factAsk.fact && factAsk.scope === "open-now" && (webConsent || WEB_SEARCH_ON);
+      const webGround = await voidWebSearchFallback(task, { force: declaredFactCheck });
+      factGate.searched = Boolean(webGround);
+      if (onNote && factAsk.fact) onNote({ move: "fact_preflight", scope: factAsk.scope, declared: declaredFactCheck, found: webGround?.found ?? null, query: webGround?.query ?? null });
+      if (webGround?.found) factGate.ground = [{ text: webGround.text, ref: `web-search:${webGround.query}` }];
+      // The web's own finding is ADOPTED into the environment (Wilson): the
+      // role becomes a kind, the finding a link, so the route that resolved
+      // it is faster next time — the colony keeps what its scouts found.
+      if (webGround?.found && factAsk.fact && factAsk.jurisdiction?.head) {
+        try {
+          currentFactsStore().adoptWebFinding({ head: factAsk.jurisdiction.head, groundText: webGround.text, query: webGround.query });
+        } catch { /* adoption never breaks the turn */ }
+      }
       const what = classifyAbsent(task);
       const why  = surfVoidInfo?.gap === "no_material" ? "no_material" : "searched_absent";
       let vt;
@@ -5182,6 +5309,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   let totalStrain = 0; // the cumulative correction load — how hard the piece was to write
   let fullText = "";
   let truncated = false;
+  // Last draw's stream-shape witnesses + cut count (machine-side, never guards).
+  let streamMeta = null;
+  let streamCuts = 0;
   let codeValidation = null; // the hard pyodide verdict on a code artifact — hoisted for the satisfaction check
   let privacyResult = null; // the Privacy archon's (Brandeis) weak-signal findings — hoisted for the result
   let copyResult = null; // the anti-copy archon's (Martial) holon-aware findings — hoisted for the result
@@ -5279,6 +5409,16 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       let buf = "";
       let stopped = false;
       let tokenTruncated = false;
+      // Stream-shape witnesses from the terminal chunk (null = no terminal
+      // chunk observed: pre-patch lanes whose done carries no witnesses).
+      // doneSeen===false never sets truncated here — visibility only.
+      let doneSeen = null;
+      let doneReason = null;
+      let serverEvalCount = null;
+      let streamErr = null;
+      let leftoverChars = null;
+      let leftoverTail = null;
+      let tailParsedAs = null;
       for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen, signal })) {
         if (typeof chunk === "string") {
           if (fullText.length >= MAX_OUTPUT_CHARS) { truncated = true; stopped = true; break; }
@@ -5291,9 +5431,18 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           usage.promptTokens += chunk.prompt_eval_count;
           usage.completionTokens += chunk.eval_count;
           if (chunk?.truncated) { truncated = true; tokenTruncated = true; }
+          if (chunk.doneSeen !== undefined) doneSeen = chunk.doneSeen;
+          if (chunk.doneReason !== undefined) doneReason = chunk.doneReason;
+          if (chunk.serverEvalCount !== undefined) serverEvalCount = chunk.serverEvalCount;
+          if (chunk.streamErr !== undefined) streamErr = chunk.streamErr;
+          if (chunk.leftoverChars !== undefined) leftoverChars = chunk.leftoverChars;
+          if (chunk.leftoverTail !== undefined) leftoverTail = chunk.leftoverTail;
+          if (chunk.tailParsedAs !== undefined) tailParsedAs = chunk.tailParsedAs;
         }
       }
-      return { buf, stopped, tokenTruncated };
+      if (doneSeen === false) streamCuts++;
+      streamMeta = { doneSeen, doneReason, serverEvalCount, streamErr, leftoverChars, leftoverTail, tailParsedAs, bufChars: buf.length };
+      return { buf, stopped, tokenTruncated, doneSeen, doneReason, serverEvalCount, streamErr, leftoverChars, leftoverTail, tailParsedAs };
     };
     // ── VARIATION, OWNED BY THE ORGAN ──────────────────────────────────────
     // The variation machinery (rejection-sampling draw + opening identity)
@@ -6299,6 +6448,82 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     }
   }
 
+  // 7.4 THE FACT GATE (Heimdall/Ranke + Wilson). A checkable open-now fact that
+  // reached this point has either been grounded first (the preflight above put a
+  // search in the prompt) or it has not. The decision is mechanical and lives HERE,
+  // in the one engine, so every surface (TUI, API, the fold's thin client) gets
+  // the same answer. The ENVIRONMENT is consulted first: the stigmergic route over
+  // kinds and links. A sentence that commits to a value the kind+link contradicts
+  // is STRUCK and replaced mechanically (assembled from the kind and the link —
+  // never model-phrased); a grounded draft ships with the dated "checked" note;
+  // an ungrounded open-now claim ships with one plain, dated sentence APPENDED.
+  let factGateOut = null;
+  let factKind = null, factLink = null, factRoute = null;
+  if (!isCode && text.trim()) {
+    try {
+      const ctx = [discourse, ...(chatHistory ?? []).map((m) => m?.content ?? "")].filter(Boolean).join("\n");
+      // THE STIGMERGIC ROUTE FIRST: the environment's own kinds and links — a
+      // question already resolved by a previous turn (any session) is grounded
+      // by the route without spending a web door.
+      const store = currentFactsStore();
+      const resolved = store.resolve(task);
+      factRoute = resolved.route ?? null;
+      factKind = resolved.kind ?? null;
+      factLink = resolved.link ?? null;
+      // A DATED ground for "who holds this office?": the search snippet is a list article's lead paragraph and never
+      // names the current holder, so the role is looked up in a record that carries start/end dates (current-holder.js),
+      // aimed at the jurisdiction the answer itself chose. Same egress consent as the preflight above. A found record
+      // is ADOPTED into the environment (a kind of things that have terms, and its dated link) so the route that
+      // resolved it is faster next time — the colony keeps what its scouts found.
+      if ((webConsent || WEB_SEARCH_ON) && !factGate.ground.some((g) => g?.kind === "current-holder")) {
+        const hq = holderQueryFor({ ask: task, answer: text });
+        if (hq) {
+          const h = await currentHolder(hq);
+          if (onNote) onNote({ move: "current_holder", role: hq.role, jurisdiction: hq.jurisdiction, found: h.found, why: h.why ?? null });
+          if (h.found) {
+            factGate.ground = [...factGate.ground, { kind: "current-holder", text: h.text, ref: h.ref }];
+            factGate.searched = true;
+            try {
+              store.adoptDatedRecord({ head: hq.role, text: h.text, ref: h.ref });
+              // THE FRESH DOOR OUTRANKS THE ENVIRONMENT: the record's own
+              // bytes overwrite a stale link (adoption above), and the
+              // resolution is re-read so the verdict below sees the door's
+              // holder, not the stale one.
+              const fresh = store.resolve(task);
+              factRoute = fresh.route ?? factRoute;
+              factKind = fresh.kind ?? factKind;
+              factLink = fresh.link ?? factLink;
+            } catch { /* adoption never breaks the turn */ }
+          }
+        }
+      }
+      if (factKind && factLink && !factGate.ground.some((g) => g?.kind === "current-holder")) {
+        factGate.ground = [...factGate.ground, { kind: "current-holder", text: `${factLink.holder} holds ${factKind.label}${factLink.since ? `, since ${factLink.since}` : ""}${factLink.until ? `, until ${factLink.until}` : ""}.`, ref: factLink.ref }];
+        factGate.searched = true;
+      }
+      const verdictOut = applyVerdictGate({ ask: task, answer: text, ground: factGate.ground, kind: factKind, link: factLink, route: factRoute, now: new Date(), lens: lensForAsk(task) });
+      if (verdictOut.gated) {
+        text = verdictOut.text;
+        if (onToken) onToken(`\n\n${verdictOut.replacement}`);
+        // THE ALARM IS NOT THE STRIKE (2026-09-19, falsified live): a
+        // contradicted draft disagrees with the LINK — the link is the
+        // ground and is not demoted for being right. A link becomes suspect
+        // only when a FRESH door contradicts it; the dated-record adoption
+        // above already overwrites a stale link with the door's own bytes,
+        // so a veto is never issued from this site.
+        if (onNote) onNote({ move: "fact_gate", verdict: verdictOut.verdict, count: verdictOut.count, searched: factGate.searched, route: factRoute, kind: factKind?.label ?? null });
+      } else {
+        factGateOut = decideGate({ ask: task, answer: text, ground: factGate.ground, context: ctx, searched: factGate.searched, groundSource: factKind && factLink ? "the refreshed facts check" : "a web search", lens: lensForAsk(task) });
+        if (factGateOut.open && factGateOut.append) {
+          const tail = `\n\n${factGateOut.append}`;
+          text += tail;
+          if (onToken) onToken(tail);
+        }
+        if (onNote && factGateOut.open) onNote({ move: "fact_gate", searched: factGate.searched, grounded: factGateOut.grounded, jurisdiction: factGateOut.jurisdiction?.assumed ?? null, basis: factGateOut.basis });
+      }
+    } catch { /* the gate is an addition; it never breaks an answer */ }
+  }
+
   // 7.5 THE PER-SENTENCE READING SURFACE (ONE-ENGINE-PLAN port #2/#3). The
   // fold's reader looks at per-sentence VERDICTS and ADDRESSES, never claim
   // counts; the engine previously returned only relationEdges/referentBindings
@@ -6770,6 +6995,17 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // (claims, tally, unsupported/unbacked, retrievedSources). null when the
     // answer was empty or the surface could not be computed — a typed
     // absence, never a guess.
+    factGate: {
+      verdict: factGateOut?.verdict ?? null,
+      open: factGateOut?.open ?? false,
+      searched: factGateOut?.searched ?? false,
+      grounded: factGateOut?.grounded ?? null,
+      jurisdiction: factGateOut?.jurisdiction ?? null,
+      basis: factGateOut?.basis ?? null,
+      route: factRoute ?? null,
+      kind: factKind ? { id: factKind.id, label: factKind.label, jurisdiction: factKind.jurisdiction ?? null, parameters: factKind.parameters ?? [], memberOf: factKind.memberOf ?? [] } : null,
+      link: factLink ? { holder: factLink.holder, since: factLink.since ?? null, until: factLink.until ?? null, at: factLink.at ?? null, ref: factLink.ref ?? null } : null,
+    },
     reading: readingSurface
       ? {
           schema: readingSurface.surface.schema,
@@ -6872,6 +7108,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       : null,
     usage,
     truncated,
+    // Stream-shape witnesses for the last draw (null on pre-model paths):
+    // doneSeen/doneReason/serverEvalCount/streamErr/leftoverChars/tailParsedAs.
+    stream: streamMeta ? { ...streamMeta, cuts: streamCuts } : null,
     // THE VISITED-SITES LIST (Mneme) — the sites this session's reading
     // actually opened, each with its resolution and chars. Named apart from
     // `shadow` above (the Bourdieu norm-standing RATE): the two are different
