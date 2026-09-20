@@ -1,0 +1,241 @@
+{
+  "runAt": "2026-09-20T22:06:43.991Z",
+  "models": {
+    "used": [],
+    "note": "Zero model calls anywhere in this pipeline. Both papers' prose (the markdown narrative) was drafted by the agent producing this deliverable, by hand, outside this driver; every FACT and NUMBER it cites was verified by this driver's own mechanical run (test execution, wc -l, git rev-parse, and the real network crossings below), not by a model call. composeWhitepaper/anchorClaim/renderWhitepaperHtml are pure and mechanical — see their own source for confirmation; none imports a model client."
+  },
+  "repos": {
+    "eoreader7": {
+      "commit": "6fb757af177581fb1d3137683bbce351a5a45751",
+      "dirty": true,
+      "path": "/tmp/claude-0/-home-user/d0315706-60bc-58e2-8fc3-5e5791dcfabf/scratchpad/work/eoreader7/"
+    },
+    "theFold": {
+      "present": false,
+      "note": "the-fold not present in this checkout — no claim in the whitepaper rests on reading it live in this session"
+    }
+  },
+  "events": [
+    {
+      "at": "2026-09-20T22:06:44.007Z",
+      "event": "measure-start"
+    },
+    {
+      "at": "2026-09-20T22:06:44.180Z",
+      "event": "test-run",
+      "file": "native/organs/whitepaper.test.mjs",
+      "tests": 5,
+      "pass": 5,
+      "fail": 0
+    },
+    {
+      "at": "2026-09-20T22:06:44.335Z",
+      "event": "test-run",
+      "file": "native/organs/archive-anchor.test.mjs",
+      "tests": 11,
+      "pass": 11,
+      "fail": 0
+    },
+    {
+      "at": "2026-09-20T22:06:44.360Z",
+      "event": "measure-done",
+      "testResults": {
+        "native/organs/whitepaper.test.mjs": {
+          "tests": 5,
+          "pass": 5,
+          "fail": 0
+        },
+        "native/organs/archive-anchor.test.mjs": {
+          "tests": 11,
+          "pass": 11,
+          "fail": 0
+        }
+      },
+      "kernelLines": "1078",
+      "obligationLines": "100",
+      "rankeLines": "550",
+      "testFileCount": "274",
+      "sourceFileCount": "261"
+    },
+    {
+      "at": "2026-09-20T22:06:44.371Z",
+      "event": "archive-attempt",
+      "url": "https://arxiv.org/abs/1706.03762"
+    },
+    {
+      "at": "2026-09-20T22:06:44.476Z",
+      "event": "archive-failed",
+      "url": "https://arxiv.org/abs/1706.03762",
+      "detail": "save request: HTTP 403"
+    },
+    {
+      "at": "2026-09-20T22:06:44.477Z",
+      "event": "compose-done",
+      "paper": "eoreader7",
+      "coverage": {
+        "anchored": 0,
+        "unanchored": 1,
+        "notAUrl": 3,
+        "total": 4
+      }
+    },
+    {
+      "at": "2026-09-20T22:06:44.477Z",
+      "event": "archive-attempt",
+      "url": "https://en.wikipedia.org/wiki/Kepler-452b"
+    },
+    {
+      "at": "2026-09-20T22:06:44.491Z",
+      "event": "archive-failed",
+      "url": "https://en.wikipedia.org/wiki/Kepler-452b",
+      "detail": "save request: HTTP 403"
+    },
+    {
+      "at": "2026-09-20T22:06:44.491Z",
+      "event": "compose-done",
+      "paper": "stress-test",
+      "coverage": {
+        "anchored": 0,
+        "unanchored": 1,
+        "notAUrl": 1,
+        "total": 2
+      }
+    }
+  ],
+  "claims": [
+    {
+      "paper": "eoreader7",
+      "coverage": {
+        "anchored": 0,
+        "unanchored": 1,
+        "notAUrl": 3,
+        "total": 4
+      }
+    },
+    {
+      "paper": "stress-test",
+      "coverage": {
+        "anchored": 0,
+        "unanchored": 1,
+        "notAUrl": 1,
+        "total": 2
+      }
+    }
+  ],
+  "verifications": [
+    {
+      "claim": "native/kernel/notes.js is 1,078 lines",
+      "verifiedAgainst": "wc -l native/kernel/notes.js",
+      "value": "1078",
+      "at": "2026-09-20T22:06:44.360Z",
+      "commit": "6fb757af177581fb1d3137683bbce351a5a45751"
+    },
+    {
+      "claim": "native/organs/obligation.js is 100 lines",
+      "verifiedAgainst": "wc -l native/organs/obligation.js",
+      "value": "100",
+      "at": "2026-09-20T22:06:44.360Z",
+      "commit": "6fb757af177581fb1d3137683bbce351a5a45751"
+    },
+    {
+      "claim": "274 test files / 261 non-test source files under native/",
+      "verifiedAgainst": "find native -name '*.test.*js' | wc -l ; find native -name '*.js' -not -name '*.test.*' | wc -l",
+      "value": {
+        "testFileCount": "274",
+        "sourceFileCount": "261"
+      },
+      "at": "2026-09-20T22:06:44.360Z",
+      "commit": "6fb757af177581fb1d3137683bbce351a5a45751"
+    },
+    {
+      "claim": "whitepaper.test.mjs and archive-anchor.test.mjs pass in full, this session",
+      "verifiedAgainst": "node --test",
+      "value": {
+        "native/organs/whitepaper.test.mjs": {
+          "tests": 5,
+          "pass": 5,
+          "fail": 0
+        },
+        "native/organs/archive-anchor.test.mjs": {
+          "tests": 11,
+          "pass": 11,
+          "fail": 0
+        }
+      },
+      "at": "2026-09-20T22:06:44.360Z",
+      "commit": "6fb757af177581fb1d3137683bbce351a5a45751"
+    },
+    {
+      "claim": "eoreader7's assertion ledger (kernel/notes.js) requires a byte-addressed span for every note it admits",
+      "quote": "An end or the label is missing, so there is no arrangement to hold. No byte-addressed span backs it — P5.2 applied at the door.",
+      "sourceUrl": null,
+      "standing": "not_a_url",
+      "reason": null,
+      "detail": null,
+      "snapshotUrlAttempted": null,
+      "verifiedAgainst": "organs/archive-anchor.js::anchorClaim, live network call this session",
+      "at": "2026-09-20T22:06:44.477Z",
+      "commit": "6fb757af177581fb1d3137683bbce351a5a45751"
+    },
+    {
+      "claim": "the obligation ledger (organs/obligation.js) types clause standings as not-yet-visited, satisfied, violated, or waived",
+      "quote": "export const STANDINGS = Object.freeze([\"not-yet-visited\", \"satisfied\", \"violated\", \"waived\"]);",
+      "sourceUrl": null,
+      "standing": "not_a_url",
+      "reason": null,
+      "detail": null,
+      "snapshotUrlAttempted": null,
+      "verifiedAgainst": "organs/archive-anchor.js::anchorClaim, live network call this session",
+      "at": "2026-09-20T22:06:44.477Z",
+      "commit": "6fb757af177581fb1d3137683bbce351a5a45751"
+    },
+    {
+      "claim": "this session's own test run confirmed 5 of 5 whitepaper-composer tests passing",
+      "quote": "run this session via node --test, real organs, no stubs of composeWhitepaper's own logic",
+      "sourceUrl": null,
+      "standing": "not_a_url",
+      "reason": null,
+      "detail": null,
+      "snapshotUrlAttempted": null,
+      "verifiedAgainst": "organs/archive-anchor.js::anchorClaim, live network call this session",
+      "at": "2026-09-20T22:06:44.477Z",
+      "commit": "6fb757af177581fb1d3137683bbce351a5a45751"
+    },
+    {
+      "claim": "the original Transformer paper is titled \"Attention Is All You Need\"",
+      "quote": "The dominant sequence transduction models are based on complex recurrent or convolutional neural networks",
+      "sourceUrl": "https://arxiv.org/abs/1706.03762",
+      "standing": "unanchored",
+      "reason": "archive_failed",
+      "detail": "save request: HTTP 403",
+      "snapshotUrlAttempted": null,
+      "verifiedAgainst": "organs/archive-anchor.js::anchorClaim, live network call this session",
+      "at": "2026-09-20T22:06:44.477Z",
+      "commit": "6fb757af177581fb1d3137683bbce351a5a45751"
+    },
+    {
+      "claim": "Kepler-452b was announced by NASA's Kepler mission team",
+      "quote": "Kepler-452b is a super-Earth exoplanet orbiting within the inner edge of the habitable zone of the G-type star Kepler-452",
+      "sourceUrl": "https://en.wikipedia.org/wiki/Kepler-452b",
+      "standing": "unanchored",
+      "reason": "archive_failed",
+      "detail": "save request: HTTP 403",
+      "snapshotUrlAttempted": null,
+      "verifiedAgainst": "organs/archive-anchor.js::anchorClaim, live network call this session",
+      "at": "2026-09-20T22:06:44.491Z",
+      "commit": "6fb757af177581fb1d3137683bbce351a5a45751"
+    },
+    {
+      "claim": "the discovery was announced on July 23, 2015",
+      "quote": "announced July 23, 2015",
+      "sourceUrl": null,
+      "standing": "not_a_url",
+      "reason": null,
+      "detail": null,
+      "snapshotUrlAttempted": null,
+      "verifiedAgainst": "organs/archive-anchor.js::anchorClaim, live network call this session",
+      "at": "2026-09-20T22:06:44.491Z",
+      "commit": "6fb757af177581fb1d3137683bbce351a5a45751"
+    }
+  ]
+}
