@@ -15,8 +15,11 @@ The native implementation lives in `native/kernel/`. It has no implementation de
 From a fresh shell, one line:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/clovenbradshaw-ctrl/eoreader7/main/install.sh | bash
+curl -fsSL https://bit.ly/install-eoreader7 | bash
 ```
+
+The same installer also answers as `https://bit.ly/install-the-fold` — two
+short links, one install script, same result.
 
 It clones the repo, checks the local model harness (installing Ollama if no
 local model runner is present), pulls a few small models so the proxy has a

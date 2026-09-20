@@ -18,7 +18,7 @@
 #      its own accumulating EOReader7 reader fold.
 #
 # The whole machine, one line from a fresh shell:
-#   curl -fsSL https://raw.githubusercontent.com/clovenbradshaw-ctrl/eoreader7/main/install.sh | bash
+#   curl -fsSL https://bit.ly/install-eoreader7 | bash
 set -e
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -213,6 +213,6 @@ echo "  proxy       http://127.0.0.1:$PORT/v1   (health: http://127.0.0.1:$PORT/
 echo "  model       er7/er7:olmo2:7b"
 echo "  commands    er7-proxy {start|stop|restart|status|log}"
 echo "  fleet       er7-proxy {fleet:start|fleet:stop|fleet:status|fleet:log}"
-echo "  one line    curl -fsSL https://raw.githubusercontent.com/clovenbradshaw-ctrl/eoreader7/main/install.sh | bash"
+echo "  one line    curl -fsSL https://bit.ly/install-eoreader7 | bash   (also https://bit.ly/install-the-fold)"
 echo
 echo "  Restart opencode, then pick the er7 model (e.g. er7/er7:olmo2:7b)."

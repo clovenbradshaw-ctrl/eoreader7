@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # eoreader7 — one line from a fresh shell, and the whole machine is on.
 #
-#   curl -fsSL https://raw.githubusercontent.com/clovenbradshaw-ctrl/eoreader7/main/install.sh | bash
+#   curl -fsSL https://bit.ly/install-eoreader7 | bash
+#   (also: https://bit.ly/install-the-fold — same script, shorter name)
 #
 # Does:
 #   1. Clones eoreader7 into $ER7_DIR (default ~/eoreader7) if not already there.
