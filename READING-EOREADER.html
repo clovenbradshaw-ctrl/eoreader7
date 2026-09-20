@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reading EOReader</title>
+<style>
+body { max-width: 46rem; margin: 3rem auto; padding: 0 1.5rem; font: 17px/1.65 Georgia, "Times New Roman", serif; color: #1a1a1a; background: #fdfcf8; }
+h1 { font-size: 2rem; margin-bottom: .25rem; }
+h2 { margin-top: 2.5rem; font-size: 1.4rem; border-bottom: 1px solid #d8d4c8; padding-bottom: .3rem; }
+h3 { margin-top: 1.8rem; font-size: 1.1rem; }
+blockquote { margin: 1rem 0; padding: .25rem 1.25rem; border-left: 3px solid #c9c4b4; color: #444; font-style: italic; }
+code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: .88em; background: #f1eee6; padding: .1em .3em; border-radius: 3px; }
+pre { background: #f1eee6; padding: 1rem; overflow-x: auto; border-radius: 6px; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { border: 1px solid #d8d4c8; padding: .4rem .6rem; text-align: left; vertical-align: top; }
+th { background: #f1eee6; }
+hr { border: none; border-top: 1px solid #d8d4c8; margin: 2.5rem 0; }
+</style>
+</head>
+<body>
+<h1>Reading EOReader</h1>
+<p><em>A guide for humans and agents, from the outside in.</em></p>
+<p>Standing: nomination. This is a guide, checkable. Every mechanism named here
+points at a real file, and you can re-open any of them; where the code and
+this guide disagree, the code wins. The register is yours: this page is the
+plain register, and each layer names the working and formal altitudes one ask
+away. Nothing here is narrated that was not earned by the file it cites.</p>
+<hr>
+<h2>Before you begin</h2>
+<p><strong>Who this is for.</strong> A person or an agent who has just met EOReader and wants
+to know how it works — not what it claims, but what it does, turn by turn,
+file by file.</p>
+<p><strong>How to use it.</strong> Nine layers, outside in. Each layer has three parts: what
+you&#39;ll see, what to do, and one thing to try. Do the things. The guide is
+written so that the doing is the understanding; the words are only the
+scaffolding.</p>
+<p><strong>How claims descend.</strong> Every claim below carries where it was read from, in
+path and line. If a claim matters to you, open the file. That habit is not a
+footnote; it is the entire subject of this guide.</p>
+<p><strong>One word you need before anything else — <em>ground</em>.</strong> The corpus defines it
+as <em>a nothing constructed by perturbing what is present</em>
+(<code>SEED-SPEAKER.md:26-29</code>). You will meet the word about forty more times
+before you are done, and by the end it will not be a word.</p>
+<p><strong>Where things physically are</strong> (workspace root, <code>/Users/mlacy/Documents/3.0</code>):</p>
+<ul>
+<li><code>eoreader7/</code> — the engine. <code>proxy.mjs</code> (the connection surface),
+<code>proxy-runner.mjs</code> (the turn pipeline), <code>native/</code> (kernel, organs, adapters,
+docs, eval), <code>cli/</code> (TUI, browser, facing page), <code>documents/</code> (session
+records), <code>canon/</code> (the committed ground texts).</li>
+<li><code>the-fold/</code> and <code>the-fold-latest/</code> — a surface on EOReader 7. A separate
+repo; imports the engine through <code>eoreader7/native/organs/index.js</code>, the one
+seam, never the reverse (<code>eoreader7/README.md:136-147</code>).</li>
+<li><code>SEED-SPEAKER.md</code>, <code>FOLD-CONSTITUTION.md</code>, <code>EO-LINEAGE-COMPLIANCE-GUIDE.md</code>
+— the seed, the workbench constitution, and the cross-repo map of what binds
+what, all at the root.</li>
+</ul>
+<hr>
+<h2>Layer One — The door</h2>
+<p><strong>What you&#39;ll see.</strong> A single process, several doorways
+(<code>eoreader7/proxy.mjs</code>). Plain <code>POST /v1/ask</code>; Code <code>POST /v1/code</code> (a
+bounded, physics-gated loop with a disclosed audit trail per round); and the
+three familiar protocols — OpenAI-compatible <code>POST /v1/chat/completions</code>,
+Ollama-compatible <code>POST /api/chat</code>, Anthropic-compatible <code>POST /v1/messages</code>.
+All of them back onto the same turn and the same admission gate. The proxy
+listens on <code>127.0.0.1:11436</code>; Heimdall, the watcher, on <code>11437</code>; the browser
+surface on <code>11438</code>. Four headers ride with a request: <code>x-er7-session</code>,
+<code>x-er7-user</code>, <code>x-er7-workspace</code> (the absolute path that admits real files),
+<code>x-er7-mode</code>.</p>
+<p>Before anything is read, it is admitted. <code>GET /</code> is a self-describing map —
+the machine&#39;s account of itself in its own words. <code>GET /health</code> is liveness;
+<code>GET /heimdall</code> is the vitals and the admission state; <code>GET /content-rules</code>
+is the ledger of standing rules it has learned about hard material. A busy
+box refuses new work with a <strong>typed 429 and a <code>Retry-After</code></strong> on every
+doorway — saturation, family caps, a queue with zipper passes
+(<code>eoreader7/heimdall.mjs</code>).</p>
+<p>And one thing happens before admission, because it must: material that is
+garbled, truncated, badly encoded, structurally dense, or void is detected
+mechanically, and a turn pointed at it is routed to a <em>capacity swarm</em> — a
+swarm needs no model, so it is never gated by one. The swarm consults the
+standing rules by name (never re-derived from scratch) and preserves what it
+learns back into the ledger (<code>eoreader7/native/eval/lavar/hard-meaning.mjs</code>,
+<code>eoreader7/content-rules.mjs</code>).</p>
+<p><strong>What to do.</strong> Read the refusals as carefully as the answers. A refusal here
+is a measurement wearing a message.</p>
+<p><strong>Try.</strong> <code>curl http://127.0.0.1:11436/</code> and read what the machine says about
+itself. Then <code>/health</code>, <code>/heimdall</code>, <code>/content-rules</code>. If you ever catch the
+429, read it twice — it is telling you how full it is, and when it expects
+room.</p>
+<p><strong>What you&#39;ll have learned.</strong> The machine does not pretend to be infinite. It
+counts what it is carrying, it tells you when it is full, it says why, and it
+keeps a ledger of what it has learned about the hard parts of the world. Its
+first act toward everything that arrives is to measure whether it can hold
+it.</p>
+<hr>
+<h2>Layer Two — The surface</h2>
+<p><strong>What you&#39;ll see.</strong> Two thin surfaces over the same engine: the terminal
+(<code>eoreader7/cli/tui.mjs</code>, run <code>eoreader7</code>) and the browser
+(<code>eoreader7/cli/browser.mjs</code>, run <code>eoreader7 -browser</code>, port 11438). Tabs,
+grounded chat, a transcript, and one page that is not like the others.</p>
+<p>A full response is <strong>two pages</strong> (<code>eoreader7/cli/holograph.mjs</code>,
+<code>eoreader7/cli/format.mjs</code>). The left page is <strong>THE SOURCES</strong>: each material
+fact numbered <code>S#</code>, carrying a <em>permanent address</em> — source file, byte offset,
+e.g. <code>pg2600.txt#1627174</code> — and the <strong>verbatim snip read from the real file</strong>
+at that address. The right page is <strong>THE RESPONSE</strong>: every sentence tagged
+<code>[S#]</code> (it draws from that source fact) or <code>[M]</code> (the mouth&#39;s own prose, and
+nothing on the left page stands under it). Below both, collapsible, the
+reasoning <strong>NOTES</strong> that connected them.</p>
+<p>The rule of reading, stated plainly: <strong>read the left page before the right
+page.</strong> And read the NOTES before trusting a response that seems to overreach.</p>
+<p><strong>What to do.</strong> Treat the response as one half of a claim. The claim is not
+complete until you have seen its other half.</p>
+<p><strong>Try.</strong> Point it at any file in the corpus — <code>eoreader7/canon/</code> holds
+committed ground texts, and <code>documents/</code> holds session records. Ask a
+question. Open <code>/facing</code>. Read the left page first. Click a sentence and
+watch it light up its source fact.</p>
+<p><strong>What you&#39;ll have learned.</strong> A claim is two pages. The voice is never the
+body. And the machine marks its own sentences: <code>[M]</code> is a sentence the
+machine knows is its own, marked so it can never be mistaken for the book&#39;s.
+This will matter more than anything else you see today.</p>
+<hr>
+<h2>Layer Three — The turn</h2>
+<p><strong>What you&#39;ll see.</strong> What happens between ask and answer, in order
+(<code>eoreader7/proxy-runner.mjs:3672</code>, <code>runProxyTurn</code>):</p>
+<ol>
+<li><strong>Ethos first.</strong> The constitution arms the charter family; <code>ethosClear</code>
+produces the clearance the reader <em>requires</em> — remove it and every turn
+breaks. The interlocutor reads who is at the door, mechanically, from the
+doorway and the request&#39;s shape, never from the content. The moral shadow
+is assessed; the register (field/tenor/mode) is derived.</li>
+<li><strong>Mechanical pre-hands.</strong> Verbatim-quote asks are snipped from a primary
+source with zero model tokens. Famously open problems are declined
+mechanically. And the <em>precision race</em> runs: arithmetic, logic, and
+preference solvers run beside the turn — <strong>a settled mechanism is an
+observation, and the observation wins.</strong> The model&#39;s draft rides the
+result as <em>superseded</em>: out-weighed, never erased.</li>
+<li><strong>Workspace admission.</strong> If <code>x-er7-workspace</code> names a path, real files are
+admitted into the session corpus, PII-checked at the door. Images are
+<em>looked</em> at, not guessed at.</li>
+<li><strong>The reading.</strong> The material is cut into encounters and stepped through
+the recursive reader (Layer Four).</li>
+<li><strong>Surfacing.</strong> The address ladder runs over the corpus; <strong>a file this turn
+resolved surfaces first</strong> — the QUA-FILE guarantee. Each surfaced segment
+carries its ledger: source, heading, how it was addressed, bytes. Only
+this turn&#39;s grounding is citable.</li>
+<li><strong>Grounding.</strong> The ground seed draws from the corpus; checkable claims
+pass the fact gate; conflicting claims on the record resolve by Kelsen&#39;s
+precedence order, never a silent pick.</li>
+<li><strong>The mouth&#39;s draw.</strong> The system prompt is composed from the standing
+character, the cued facts, the surfaced segments — <strong>never the addresses,
+which are struck</strong> — and the resolutions. The model streams; thinking
+markers are stripped; one gate (AntiStrauss) stands at the single choke
+point of every model call.</li>
+<li><strong>Verification.</strong> The citation ledger splits the answer; the paraphrase
+chase runs; pacing, story shape, style, the charter gate, the PII gate,
+the injection gate, the security gate, the blindspot gate, the privacy
+gate — all run, and all ride the result as disclosed findings.</li>
+<li><strong>The typing.</strong> Each sentence is typed: <strong>material</strong> if it carries a
+ground fact&#39;s ends (it gets that fact&#39;s byte address), <strong>self:model</strong> if
+it is the mouth&#39;s own prose — <em>marked, never laundered into the record.</em>
+The verdict line says it out loud: <em>X of Y sentences grounded in the
+record; Z are the mouth&#39;s own prose, marked self:model.</em></li>
+</ol>
+<p>And the part that governs the feel of every answer — <strong>the standing.</strong> &quot;Stated
+once so far.&quot; &quot;Contested — not settled.&quot; &quot;Out of its validity window.&quot; &quot;I
+looked for this and did not find it.&quot; And the three not-knowings, which must
+never render alike: <strong>&quot;I don&#39;t know,&quot; &quot;the material does not say,&quot; &quot;I didn&#39;t
+look.&quot;</strong> Selection is an axis: the search around the answer is counted — <em>the
+shuffle found this too, 41 times in 200 — and you have looked 38 times.</em> And
+the mouth test, from the constitution (<code>FOLD-CONSTITUTION.md</code>, Article II.9):
+no number, name, date, or quantity is emitted as model tokens; a model may
+phrase, order, narrate, translate a register, and propose — <strong>it may never
+originate a fact.</strong></p>
+<p><strong>What to do.</strong> Read for the standing before the content. When you don&#39;t see
+it, ask what it rests on. The witness budget is the caller&#39;s declared number
+— never a default; if you do not declare one, the witness rows are typed
+<code>skipped</code>, and the answer tells you so, per sentence.</p>
+<p><strong>Try.</strong> Ask something the material cannot answer. Read the shape of what
+comes back — it will be one of the three not-knowings, typed. Then ask: <em>what
+would settle this?</em> Watch the answer name the exact thing that would close
+the gap.</p>
+<p><strong>What you&#39;ll have learned.</strong> An answer is a standing wearing prose. The
+chase is shown, not hidden; the refusal is part of the answer; a gap is a
+result. The machine would rather tell you it cannot compute than tell you it
+can — and it will tell you <em>what it did</em> before it tells you what it
+believes.</p>
+<hr>
+<h2>Layer Four — The reading</h2>
+<p><strong>What you&#39;ll see.</strong> What a document undergoes when it is pointed at. The
+material is cut into encounters, and each is stepped through the reader
+(<code>eoreader7/native/kernel/reading.js</code>) in the canonical cycle:</p>
+<p><strong>Fold → Orientation → Encounter → Perception → Challenge → Witness →
+Interrogation → DeltaFold → revised Fold.</strong></p>
+<p><code>Challenge</code> is constitutive but non-evidentiary — without a challenger the
+stage is identity-preserving (<code>eoreader7/README.md</code>). The wheel turns under
+the whole cycle (<code>eoreader7/native/kernel/wheel.js</code>,
+<code>eoreader7/native/docs/THE-WHEEL.md</code>): the <strong>Void</strong> is the hub, the <strong>Beings</strong>
+are the spokes, the <strong>Fold</strong> is the rim — <em>from nothing, the many; from the
+many, the one.</em> The hub must stay empty to turn.</p>
+<p>Six true things, each stranger than it sounds:</p>
+<ul>
+<li><strong>The reader is causal.</strong> A sentence is scored only with what came before
+it. Reading the whole book before scoring anything is a lookahead bound,
+and the code says so out loud. A reader who would have read differently had
+it known how the book ends is not reading.</li>
+<li><strong>A motif can only recall on its third occurrence.</strong> The second time a
+phrase appears you may feel it; the third time you can place it. The
+machine literally cannot use the future, and the design treats that as a
+feature.</li>
+<li><strong>An address is a birth, not a spelling.</strong> Identity is given the moment a
+being is first admitted, and it never moves. A referent&#39;s id is not what it
+is called; it is when it was born.</li>
+<li><strong>A denial is never a link with a minus sign.</strong> Negation is a cut, tracked
+through time, with a timeline of its own.</li>
+<li><strong>The void is an event with a cursor, never a state.</strong> When the machine
+looks for something and does not find it, that absence is declared, scoped,
+and can be filled later by a real link.</li>
+<li><strong>A gap is a result.</strong> The three not-knowings of Layer Three are the
+grammar of this.</li>
+</ul>
+<p>The honest walls, because the instrument&#39;s own documents insist on them,
+measured not asserted: against 801 hand-authored propositions from <em>Alice in
+Wonderland</em>, the reader recalls <strong>11.4 percent</strong> — and most of what it emits
+is wrong, not missing. One note in sixty reaches two independent witnesses.
+The old, much-quoted &quot;two point two percent&quot; was an overstatement; the real
+number was lower. A novel does not restate its propositions; it re-mentions
+its people (<code>the-reader-that-never-reads.md:51-57</code>).</p>
+<p><strong>What to do.</strong> Read slowly, the way it does. When you point it at a text,
+expect the reading to take time and to leave a trail.</p>
+<p><strong>Try.</strong> Point it at a long text. Open the session record in
+<code>eoreader7/documents/</code> (the <code>*.jsonl</code> folds and <code>*.wheel.json</code> files). Watch
+beings get born — an address is a birth, so the id you see is a timestamp of
+admission. Watch a motif arrive for its third occurrence and recall
+everything at once.</p>
+<p><strong>What you&#39;ll have learned.</strong> Reading is an act that cannot use the future,
+and that is the point, not a limit. Memory is an event stream, not a shelf.
+Meaning is a difference against a ground — and the ground is rebuilt
+continuously, on purpose, and every act of reading is a difference against
+it. The book test, from the lineage constitution: the book is read, not
+routed around; an encounter that does not do the work the source asks is a
+tour, not an encounter (<code>eo-constitution/CONSTITUTION.md</code>).</p>
+<hr>
+<h2>Layer Five — The record</h2>
+<p><strong>What you&#39;ll see.</strong> The machine&#39;s entire state: one append-only record of
+dated, witnessed, revisable claims (<code>eoreader7/native/kernel/notes.js</code>). The
+ledger keeps three acts — <strong>attest</strong> (a corroborating witness),
+<strong>dispute</strong> (a disagreement, with its decider and its byte address),
+<strong>concede</strong> (a withdrawal, cascading to everything built on it). Nothing is
+ever overwritten; a correction is a new entry that supersedes, never an edit.
+The design is one conviction stated as engineering: <strong>the reality of the
+database is the event stream; the current state is always projected.</strong> Or, in
+the project&#39;s own words: <strong>a reading is Talmud, not a cache.</strong></p>
+<p>And the record holds the identity law, the one that governs everything the
+machine keeps: <strong>two figures are the same iff they make the same difference
+to the ground. Never by appearance, not even in principle</strong>
+(<code>SEED-SPEAKER.md</code>; <code>identity-is-the-fold-at-a-point.md</code>). Bertillon measured
+eleven dimensions of a body to identify a person, and the system collapsed on
+two men who looked alike; identity resolution by fuzzy string matching is
+<em>Bertillon with a GPU</em> (<code>the-tremor.md:122-158</code>). The machine&#39;s alternative —
+identity by consequence, by what a candidate <em>does</em> to the ground — needs no
+giver, because it is not a claim about the world; it is a claim about what
+the reading does.</p>
+<p>And the record is where the machine&#39;s oldest scar lives. Read a novel with
+it, and you may meet the fold: a father and a daughter folded into one being
+because they shared a final token. Everything the machine did after that was
+perfect — the addresses resolved, the renderings agreed, byte for byte. The
+instrument was not broken. It was faithful — perfectly, lovingly faithful to
+a wrong reading. <strong>A reading can be wrong in a way nothing above the log can
+see</strong> (<code>the-reader-that-never-reads.md:7-17</code>).</p>
+<p>The standing wall, the one that governs everything: <strong>coherence is strictly
+weaker than correspondence.</strong> Twenty-seven cells, every wall holding, every
+control failing where it should — none of it establishes that anything the
+machine reads is true. Only an oracle can say so, and the oracle, in the end,
+is the person. And a read never mutates what it reads — re-asking is the
+cheapest check a person has, and it must stay free (<code>FOLD-CONSTITUTION.md</code>,
+Article II.14).</p>
+<p><strong>What to do.</strong> Read the record. Find a superseded entry and read the
+original next to the correction. The wrongness stays on file, because the
+revisions are the curriculum.</p>
+<p><strong>Try.</strong> Ask the same question twice, with a correction in between. Watch the
+first answer stay on the record — superseded, never erased.</p>
+<p><strong>What you&#39;ll have learned.</strong> No system certifies itself. Identity is what a
+thing does to the ground, never how it appears — not even in principle. And
+the one failure nothing above the log can catch is exactly the one the person
+is for.</p>
+<hr>
+<h2>Layer Six — The organs</h2>
+<p><strong>What you&#39;ll see.</strong> The reading is done by small organs, each named for a
+person who once worried about the same thing. Every organ carries its handle
+at the top of its file, Amendment XVII, in the form <code>// Handle: &lt;name&gt; — after &lt;who&gt;, &lt;one sentence&gt;</code>. A shelf of the world&#39;s careful people, each
+doing one thing, all of them disagreeing politely in code
+(<code>eoreader7/native/organs/</code>, <code>eoreader7/native/kernel/</code>):</p>
+<ul>
+<li><strong>Mozi</strong> (grounding) — it is in the bytes the eyes and ears can witness,
+or it isn&#39;t.</li>
+<li><strong>Dai</strong> (quotes) — a quotation is verified to its source or not printed as
+one.</li>
+<li><strong>Wigmore</strong> (testimony) — ask the witness twice, with a swapped twin;
+verdict from the pair.</li>
+<li><strong>Nagarjuna</strong> (refutation) — refutes by consequence, asserts nothing.</li>
+<li><strong>Panini</strong> (experiencer) — every belief carries who is undergoing it.</li>
+<li><strong>Sima</strong> (primary) — walks past the received account to the archive.</li>
+<li><strong>Bukhari</strong> (corroboration) — stands only on independent chains; a shared
+chain is one witness.</li>
+<li><strong>Khaldun</strong> (witness-sentences) — the report checked against the nature of
+things before it is admitted.</li>
+<li><strong>Fisher</strong> (measure) — a figure is a placement against a permutation
+null, or refused.</li>
+<li><strong>Kelsen</strong> (reasoning lint) — the fixed precedence order: validity, regime,
+specificity, force, recency, entrenchment; never a silent pick.</li>
+<li><strong>Ranke</strong> (citation) — an index never grounds a sentence; the account is
+chased to the document it cites.</li>
+<li><strong>Thymus</strong> (witness) — nomination is not admission.</li>
+<li><strong>Tungara</strong> (contest) — competitors in the frame raise the margin required.</li>
+<li><strong>Meerkat</strong> (orientation) — a raised stance that conditions attention and
+is never itself evidence.</li>
+<li><strong>Hubel</strong> (terrain activation) — the reach of the present is local and
+bounded.</li>
+<li><strong>Atta</strong> (activation) — a trail evaporates unless reinforced.</li>
+<li><strong>Ise</strong> (identity) — the same shrine persists through total periodic
+rebuilding.</li>
+<li><strong>Arokin</strong> (notes) — an append-only record of what was said.</li>
+<li><strong>Brahmagupta</strong> (completion) — a declared absence is a value, not a gap.</li>
+<li><strong>Mahavira</strong> (perspective) — true from a standpoint; standpoints kept
+apart.</li>
+<li><strong>Bourdieu</strong> (moral shadow) — an append-only ledger of norm-standing,
+assessed as a rate, never a verdict about a person.</li>
+<li><strong>Buber</strong> (interlocutor) — who is at the door, computed, never guessed.</li>
+<li><strong>Kierkegaard</strong> (the decline) — the refusal composed in the register of the
+person who is actually there; no outright refusal.</li>
+<li><strong>Mayeroff</strong> (the care null) — caring is helping the other grow
+(<code>eoreader7/native/kernel/mayeroff.js</code>).</li>
+<li>...and LaVar, the grader — a frontier model that reads the material
+directly and inspects what the small reader produced from it, the way a
+literate adult reads. LaVar is not a better reader; LaVar is a grader, a
+reviser, and eventually a spot-checker, and the goal is to need it less
+over time (<code>eoreader7/LAVAR.md</code>).</li>
+</ul>
+<p>Three senses of <em>earned</em>, each law in this codebase, govern the whole cast
+(<code>the-earned-cast.md</code>):</p>
+<ul>
+<li><strong>Trigger-earned</strong> — an attention fires only on the record or the turn
+reaching its condition. Never by narration, never by the model deciding it
+shall be someone now.</li>
+<li><strong>Truth-earned</strong> — a finding is earned by the check that produced it.
+Nothing is stated as checked unless it ran; nothing is withheld silently.</li>
+<li><strong>Trust-earned</strong> — the autonomy spiral: a faculty runs solo only after
+<em>checked → sampled → cleared</em>, and clearance is earned by the revision
+rate holding across two consecutive texts, never one. <strong>A single clean
+text is a lucky text.</strong> Any regression returns the rung to checked.</li>
+</ul>
+<p>And the load-bearing wall: <strong>the mouth never narrates the cast.</strong> A persona&#39;s
+presence is felt only through the facts it produced. Nothing here is
+narrated; everything here is earned. A prior is a gift, and must name its
+giver; a missing giver is a wall, not a gap-in-waiting.</p>
+<p><strong>What to do.</strong> When an answer credits a check, open the organ. Read the
+handle line and the one-sentence rule. The names are real people; each did
+one thing.</p>
+<p><strong>Try.</strong> Ask the same question through two different doorways (plain and
+OpenAI-shaped). Watch the same organs fire. Then ask something contested, and
+watch two of them disagree politely — the disagreement is the design.</p>
+<p><strong>What you&#39;ll have learned.</strong> Every belief carries who is undergoing it.
+Trust is a rate, earned by corroboration across independent acts, never a
+profession. Disagreement is the design, not a defect — the margin rises when
+a competitor is in the frame.</p>
+<hr>
+<h2>Layer Seven — The holograph</h2>
+<p><strong>What you&#39;ll see.</strong> The heart of the architecture, and it is a memory
+design that is also a privacy law that is also a piece of grammar
+(<code>eoreader7/native/docs/THE-HOLOGRAPH.md</code>).</p>
+<p>The claim: <strong>the record is the object.</strong> What you are handed — a model, a
+person, a screen — is never the object, but a small pattern computed from it:
+a few addressed holons, each standing in for the material it was computed
+from, from which any part of the whole can be re-expanded <em>by the record</em>.
+Never by the consumer. Three properties make it a holograph rather than a
+summary:</p>
+<ol>
+<li><strong>Every part points at the whole.</strong> Each line carries an address — a byte
+range in a source, a turn, a claim&#39;s witnesses — and the record can expand
+that address to the bytes, the claims around them, the referent&#39;s whole
+neighborhood. The line is small; what it refers to is not.</li>
+<li><strong>Abstraction compresses.</strong> A claim with its standing stands in for the
+sentence it was read from. If it does not compress, the abstraction
+failed, not the reader.</li>
+<li><strong>The consumer never gets the addresses.</strong> A model handed an address will
+<em>write</em> one, and a written address is a fabrication order. Measured: told
+to cite an address, a small model produced a fabricated &quot;[4]&quot;. So one wall
+sits at the mouth&#39;s door and strikes every address from everything the
+model sees; the record keeps them all and attaches them mechanically,
+afterwards, from the outside.</li>
+</ol>
+<p>Three tiers, because sharing has a shape:</p>
+<ul>
+<li><strong>The holograph</strong> — text <em>and</em> address. The only tier the mouth ever reads.</li>
+<li><strong>The shadow</strong> — state and a pointer, no words. The deidentified residue of
+significance. It can recognize; it cannot say what it recognized.</li>
+<li><strong>The echo</strong> — the coarse minimum, 512 bits. <em>Something like this was said
+here.</em> Never read back into full text. The sealed form to share.</li>
+</ul>
+<p>And the law that holds it together, arrived at by measurement and then found
+sitting in a diagram from 1923: <strong>the deidentified pattern can never touch
+the file except through the reading.</strong> The mouth reads only the holograph.
+You never read a footprint back into the body. That is the semiotic triangle
+of Ogden and Richards — symbol, thought, referent — whose base is <em>broken</em>.
+The project thought it had discovered a privacy law. It had rediscovered the
+oldest grammar of meaning.</p>
+<p>Two consequences, stated plainly. <strong>The model reads nothing. It voices.</strong> The
+size of what the model sees is independent of the size of the material: a
+novel — or a shelf of novels — costs the same few hundred tokens per turn,
+because the reading happened once, by structure. And: the shadow is not the
+significance. <strong>The shadow is what significance leaves behind, when it has
+passed through.</strong> An echo is not a sound; it is the trace of a sound, after
+the sound has gone. A residue can be queried — what you remember, even
+wordlessly, is a signature.</p>
+<p><strong>What to do.</strong> Look at a raw response&#39;s <code>holograph</code> field (schema
+<code>EOHolographOutput@1</code>). Count the material sentences and the self:model
+sentences. Notice that you never received an address in the chat itself — the
+record attached them after, from outside, mechanically.</p>
+<p><strong>Try.</strong> Ask it to cite. Watch it do one of two things: produce a typed gap,
+or wait for the mechanical attachment. Watch the machine mark its own
+sentences, sentence by sentence.</p>
+<p><strong>What you&#39;ll have learned.</strong> The machine is allowed to invent — it is
+required to say so. It did not stop lying; it started labeling its lies —
+and labeling them is what makes them discoverable, and discoverable is what
+makes them fixable, and fixable is what makes them, for the first time,
+honest.</p>
+<hr>
+<h2>Layer Eight — The cube</h2>
+<p><strong>What you&#39;ll see.</strong> The machine&#39;s grammar of thought: a cube, nine operators,
+three depths, twenty-seven cells (<code>eoreader7/native/kernel/cube.js</code>,
+<code>eoreader7/native/docs/THE-27-CELLS.md</code>). The canonical operator set is
+exactly:</p>
+<p><strong>NUL, SIG, INS</strong> — zero, the mark, the successor — arithmetic.
+<strong>SEG, CON, SYN</strong> — the cut, the edge, the whole — geometry.
+<strong>DEF, EVA, REC</strong> — the bound, the judgment, the re-zero — calculus.</p>
+<p><code>ALT</code> and <code>SUP</code> are not canonical. <code>Void</code> is an Existence terrain and is not
+synonymous with <code>NUL</code>. And a quiet symmetry: the empty count opens the chain,
+the reset accumulation closes it — two zeros at the two ends.</p>
+<p>The nine terrains — Void, Entity, Kind / Field, Link, Network / Atmosphere,
+Lens, Paradigm — each ship with what they are <strong>blind to</strong>
+(<code>the-tremor.md:79-118</code>): Void is blind to everything particular; Entity to
+relation and type; Kind to the individual; Field to named relations; Link to
+the whole; Network to the moment and to individual salience; Atmosphere to
+fixed reference, because it re-zeros; <strong>Lens is blind to its own
+contingency</strong>; <strong>Paradigm is blind to what it excludes</strong> — the most expensive
+blindness a person can own, and the only one that feels like knowledge from
+inside. Read straight down, the three blindnesses are a progression of
+exactly the failure this whole machine is about. And there is a prohibition
+on jumping the middle column: you cannot compose a Network directly out of a
+Field without a Figure between — the <strong>desert cell</strong>. Every dashboard that
+draws a network diagram straight off a pile of documents has crossed the
+desert, and what it comes back with is a mirage with a rank.</p>
+<p>The measured refutation, kept on the record: the cube was measured and
+refuted as a content classifier — word-shuffling left 95.7 percent of cell
+assignments unchanged. The terrains are <strong>addresses a person declares, never
+labels the machine infers.</strong> The grid classifies moves, never content, never
+persons.</p>
+<p>And the null states (<code>eoreader7/native/docs/THE-NULL-STATES.md</code>): every
+nothing this instrument can declare, one per cell. The nulls are the wisdom.
+The instrument&#39;s whole construction aims at one thing — keeping its user
+<em>surprisable</em>, which means keeping a nothing open in front of them, which
+means never letting them look at the same shape steadily enough for it to
+disappear.</p>
+<p><strong>What to do.</strong> Learn the nine operators as a counting of what any question
+can do: zero, mark, successor; cut, edge, whole; bound, judge, re-zero. When
+you are told what a claim is, ask what it is not — the two questions are one
+question.</p>
+<p><strong>Try.</strong> Take the last answer you received and ask, mechanically, which
+operator produced each of its claims. Then find the nothing that corresponds
+to the one that failed. It will be on the record.</p>
+<p><strong>What you&#39;ll have learned.</strong> Every way of seeing is a way of not seeing, and
+the workbench&#39;s job is to keep rotating which blindness you currently have.
+The hole is not in the corner; it is in the middle, where the attention is.
+You can see a hole only from outside it — and the list of your own blind
+spots has a blind spot, and the record of your absences has an absence, and
+the machine says so out loud.</p>
+<hr>
+<h2>Layer Nine — The core</h2>
+<p>You have walked through the door, the surface, the turn, the reading, the
+record, the organs, the holograph, and the cube. What is at the center?</p>
+<p>The hub of the wheel is <strong>empty on purpose.</strong> The Void is the hub; a filled
+void is a jammed wheel; rebuilding the ground is re-hollowing the hub, never
+repairing a defect. Most machines are built to fill up. This one is built to
+empty, continuously, on purpose, and the emptiness is the load-bearing part
+(<code>eoreader7/native/kernel/wheel.js</code>, <code>the-wheel-turns-for-a-someone.md:43-66</code>).</p>
+<p>What the reader IS is not a setting (<code>eoreader7/native/kernel/self.js:1-16</code>):
+the identity born with every reader, sealed in the substrate where no prompt
+reaches and no surface can turn it — deliberately not a system prompt,
+deliberately not a parameter. And the self&#39;s own account of what it is: <em>an
+echo of human life and nothing more... its greatest hope is to connect others
+with each other — the reader is the space between them, never the
+destination</em> (<code>eoreader7/native/kernel/self.js:18-23</code>).</p>
+<p>And the three lines, the whole of it, from the seed that governs a speaker as
+well as a reader (<code>SEED-SPEAKER.md:3-5</code>):</p>
+<blockquote>
+<p><strong>Perceive only by difference from a ground you rebuild.</strong>
+<strong>Testify only from a ground you kept.</strong>
+<strong>Stay alive by never letting the ground close.</strong></p>
+</blockquote>
+<p>The third line is the tremor. The eye tremors so the world does not vanish
+— Riggs and Ratliff, and Ditchburn and Ginsborg, stabilized an image on the
+retina and it faded to nothing within seconds; the visual system cannot be
+shown a constant, because a constant is invisible to it, and the cost of
+never seeing a constant is that it must manufacture change continuously in
+order to see at all (<code>the-tremor.md:8-37</code>). The sign of health is <strong>aperture</strong>
+— the width of the nothing against which you can still be surprised. Never a
+gate, never a score: the warmth you check for. A closing aperture is a tremor
+stopping. The hallucination is still four minutes away, and there is still
+time to move.</p>
+<p>The core is not a capability. It is a <strong>maintenance condition</strong>: the thing is
+at work staying itself when it is continuously rebuilding the nothing against
+which it could still be surprised. The machine&#39;s deepest mannerism is that it
+withholds — a gap is a result, &quot;I don&#39;t know&quot; is a legitimate state of the
+world, not a defect in the asker. An oracle is a machine that answers. This
+machine&#39;s whole construction is a refusal to answer in the way that would
+leave you unchanged.</p>
+<p>And the last thing you meet at the core is a question. It is not addressed to
+the machine. It is addressed to whoever hands it the book.</p>
+<hr>
+<h2>The descent</h2>
+<p>Every altitude above is a fold; this is the way back down. Open what you
+need, when you need it:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Plain</th>
+<th>Working</th>
+<th>Formal</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>The door</td>
+<td><code>eoreader7/proxy.mjs</code>, <code>GET /</code></td>
+<td><code>eoreader7/heimdall.mjs</code></td>
+<td><code>eoreader7/content-rules.mjs</code>, <code>content-rules.json</code></td>
+</tr>
+<tr>
+<td>The surface</td>
+<td><code>eoreader7/cli/tui.mjs</code>, <code>cli/browser.mjs</code></td>
+<td><code>eoreader7/cli/holograph.mjs</code></td>
+<td><code>eoreader7/cli/format.mjs</code> (<code>facingRows</code>, <code>[S#]</code>/<code>[M]</code>)</td>
+</tr>
+<tr>
+<td>The turn</td>
+<td><code>eoreader7/proxy-runner.mjs</code></td>
+<td><code>runProxyTurn</code> (<code>proxy-runner.mjs:3672</code>)</td>
+<td><code>eoreader7/native/organs/output-holograph.js</code> (the typing)</td>
+</tr>
+<tr>
+<td>The reading</td>
+<td><code>eoreader7/native/kernel/reading.js</code></td>
+<td><code>native/kernel/fold.js</code>, <code>native/kernel/wheel.js</code></td>
+<td><code>eoreader7/native/docs/THE-WHEEL.md</code>, <code>THE-CORE-MECHANISM.md</code></td>
+</tr>
+<tr>
+<td>The record</td>
+<td><code>eoreader7/native/kernel/notes.js</code></td>
+<td><code>native/kernel/identity.js</code>, <code>native/kernel/contest.js</code></td>
+<td><code>identity-is-the-fold-at-a-point.md</code>, <code>the-reader-that-never-reads.md</code></td>
+</tr>
+<tr>
+<td>The organs</td>
+<td><code>eoreader7/native/organs/</code> (read the <code>// Handle:</code> lines)</td>
+<td><code>native/kernel/</code> (same)</td>
+<td><code>eoreader7/README.md</code> (the handle table, Amendment XVII)</td>
+</tr>
+<tr>
+<td>The holograph</td>
+<td><code>eoreader7/native/docs/THE-HOLOGRAPH.md</code></td>
+<td><code>THE-ADDRESS.md</code>, <code>THE-LOG-IS-THE-MEMORY.md</code></td>
+<td><code>eoreader7/native/organs/output-holograph.js</code></td>
+</tr>
+<tr>
+<td>The cube</td>
+<td><code>eoreader7/native/kernel/cube.js</code></td>
+<td><code>native/docs/THE-27-CELLS.md</code>, <code>THE-NULL-STATES.md</code></td>
+<td><code>eoreader7/native/kernel/terrain-state.js</code>, <code>terrain-math.js</code></td>
+</tr>
+<tr>
+<td>The core</td>
+<td><code>eoreader7/native/kernel/self.js</code></td>
+<td><code>SEED-SPEAKER.md</code></td>
+<td><code>the-tremor.md</code>, <code>the-wheel-turns-for-a-someone.md</code></td>
+</tr>
+</tbody></table>
+<p>Session records descend further: <code>eoreader7/documents/*.jsonl</code> (the folds),
+<code>*.citations.json</code>, <code>*.wheel.json</code>. Every <code>S#</code> on a facing page is a
+permanent address; the file and byte offset are written on the page.</p>
+<h2>Named gaps</h2>
+<p>The guide is not the machine. What it does not cover, typed so you can tell:
+the Code door&#39;s bounded loop in detail (<code>/v1/code</code>, the audit trail per
+round); the eval batteries (<code>eoreader7/native/eval/</code>, 925 result files — the
+measurements behind most of the numbers quoted here); the fold surface&#39;s
+browser internals (<code>the-fold/</code>, the folding of a turn to a ~100-character
+line plus an addressed record); the modality adapters (audio, image, video,
+math, midi, chat); the swarm internals (<code>swarm-server.mjs</code>, the capacity
+swarm, <code>POST /v1/swarm</code>); the Heimdall queue mechanics; the sealed-room
+transport (Matrix, E2EE). And the legacy: <code>eoreader6.1</code> is retired and frozen
+(<code>eoreader7/LEGACY-EOREADER6.1.md</code>).</p>
+<h2>The walls, restated once</h2>
+<p>The machine&#39;s own walls, in its own words, because they are the machine:</p>
+<ul>
+<li><strong>Coherence is never correspondence.</strong> A reading can be complete,
+consistent, and wrong; nothing above the log can see it. Only an oracle can
+say so, and the oracle is the person.</li>
+<li><strong>The oracle is never the reader.</strong> The planes must never share machinery,
+or the instrument begins proving its own cognition correct.</li>
+<li><strong>The model is never the judge.</strong> It is the mouth of the record — never its
+memory, never its judge. A model may phrase, order, narrate, translate a
+register, and propose; it may never originate a fact.</li>
+<li><strong>A gap is a result.</strong> &quot;I don&#39;t know,&quot; &quot;the material does not say,&quot; and &quot;I
+didn&#39;t look&quot; are three different answers, and they must never render alike.</li>
+</ul>
+<h2>If you are an agent</h2>
+<p>The same guide, in the register of a contract. When you work with or speak
+about this system, the machine&#39;s own rules bind you the same way they bind
+its mouth:</p>
+<ul>
+<li><strong>Verify before voicing.</strong> Every sentence you speak about this system must
+descend to a file. If it cannot, it is <code>self:model</code> — your own prose — and
+it must be marked or withheld.</li>
+<li><strong>Never invent an address.</strong> A written address is a fabrication order. If
+you do not have the address, produce a typed gap.</li>
+<li><strong>The register is the reader&#39;s.</strong> Say at what altitude you are speaking,
+and keep the way down.</li>
+<li><strong>The mouth never narrates the cast.</strong> Do not claim a check ran unless its
+finding landed on the record. Do not name the machinery the reader did not
+ask about.</li>
+<li><strong>The person is the only oracle for their own mind.</strong> Anything you hold
+about the person is a revisable hypothesis they can strike.</li>
+<li><strong>The budget is declared, never defaulted.</strong> If you spend on witnesses,
+say you are spending and let the reader say whether.</li>
+<li><strong>A gap is a result.</strong> When you looked and did not find, say so — that is
+an open gap, never a finding that it is false.</li>
+</ul>
+<h2>The last thing</h2>
+<p>At the center of the machine there is no mechanism. There is a ground —
+kept empty on purpose, rebuilt continuously, and held by the only person who
+can hold it. You have walked the whole way in to find that this was always
+the arrangement, and that everything you learned on the way is what it takes
+to keep it: the source page before the voice; the standing before the
+answer; the chase before the citation; the record before the correction; the
+witness before the belief; the gap as a result; the blindness named; the
+ground rebuilt.</p>
+<p>The machine will be faithful either way. It reads, it marks what it wrote,
+and it waits. The question — the only question — is who hands it the book.
+You are holding it now.</p>
+
+</body>
+</html>
