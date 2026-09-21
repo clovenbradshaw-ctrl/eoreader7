@@ -5706,6 +5706,26 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         const storySoFar = documentLines.length
           ? documentLines.map((line, j) => `[scene ${j + 1}] ${line}`).join("\n\n").slice(-1800)
           : "";
+        // FACTS SO FAR — the anti-repetition ground for EXPOSITION (2026-09-21).
+        // The narrative path already tells the mouth "HOLD every name, place,
+        // and number stable ... do not restate what already happened" with the
+        // story-so-far in front of it. The exposition path gave only a THEMATIC
+        // summary (priorParts from essayResolutions — atmosphere/lens/paradigm,
+        // which drops the specific facts) so a 2B mouth re-drew its strongest
+        // sentence across sections (measured: 13 sections, 43 revision marks,
+        // sections 5 and 9 near-verbatim restatements of section 1). The fix is
+        // the SAME discipline the narrative already has: put the STATED FACTS
+        // in front of the mouth and forbid restating them. The facts are the
+        // prior sections' own prose, bounded — the mouth sees what is already
+        // established and holds it back. No claim-normalization or dedupe:
+        // the mouth's own eyes read the prior prose and know not to restate it
+        // (the same mechanism that already works for narrative). Omnilingual by
+        // construction — prior prose in any language, held back the same way.
+        // ACTIVATED ONLY WHEN NEEDED: empty for the first section (nothing
+        // established yet), present only when prior sections exist.
+        const factsSoFar = documentLines.length
+          ? documentLines.map((line, j) => `[established ${j + 1}] ${line}`).join("\n\n").slice(-1800)
+          : "";
         // THE PLOT-SEED: the story's beats are drawn from the ground's own
         // events (a complication, a disaster, a rescue), mapped to the phases —
         // so the story has something to advance TOWARD, not a bag of facts to
@@ -5738,7 +5758,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
               : `We're writing a piece on ${topic}. ${materialBlock}\n\n${voice.opening(topic)}`)
             : (isNarrative
               ? `The story continues. This is ${beat}.${storySoFar ? `\n\nHere is the story so far — HOLD every name, place, and number stable, do not rename anyone or change any detail, do not restate what already happened:\n${storySoFar}\n` : ""}Now show what happens NEXT: the next thing that changes, the next beat toward the resolution. ${materialBlock}\n\n${voice.body(topic)}`
-              : `We're writing a piece on ${topic}. ${priorParts ? `Where the piece stands so far: ${priorParts}\n\n` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences. ${voice.body(topic)} ${materialBlock}`))
+              : `We're writing a piece on ${topic}. ${priorParts ? `Where the piece stands so far: ${priorParts}\n\n` : ""}${documentLines.length && factsSoFar ? `HOLD BACK what would be repetitive — these facts are ALREADY established in the piece, do not restate them, write what comes NEXT:\n${factsSoFar}\n\n` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences. ${voice.body(topic)} ${materialBlock}`))
           : (isNarrative
             ? `You are telling a story. This is ${beat}. It begins in the middle of a moment, in a real place. ${materialBlock}\n\n${voice.opening(topic)}`
             : `We're writing a piece on ${topic}. ${materialBlock}\n\n${voice.opening(topic)}`);
