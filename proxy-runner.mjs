@@ -76,6 +76,7 @@ import { classifyArc } from "./native/organs/story-shapes.js";
 import { matchArchons, archonOf } from "./native/organs/archon-compendium.js";
 import { naturalSizeRuleForTask, authorCorrectionRule } from "./native/organs/correction-rule.js";
 import { voidHolarchy } from "./native/organs/void-holarchy.js";
+import { createShapeRegister, reconsiderShape, repairStaleComposition } from "./native/organs/essay-shape-register.js";
 import { buildClarify, recordRound, foldAnswersFromTask, SCHEMA as CLARIFY_SCHEMA, MAX_ROUNDS as CLARIFY_MAX_ROUNDS } from "./native/organs/build-clarify.js";
 // The Charter organ (native/organs/charter.js, Handle: Grotius): governs
 // generation against the Universal Declaration of Human Rights. The gate is
@@ -247,6 +248,25 @@ const WIKI_MAX_CONCEPTS = Number(process.env.ER7_WIKI_MAX_CONCEPTS ?? 3);
 const WIKI_TIMEOUT_MS = Number(process.env.ER7_WIKI_TIMEOUT_MS ?? 3500);
 const WEB_SEARCH_ON = (process.env.ER7_WEB_SEARCH ?? "0") === "1";
 const WEB_MAX_PAGES = Number(process.env.ER7_WEB_MAX_PAGES ?? 3);
+
+// THE NON-MOVING EDIT CUT (2026-09-21): a rewrite whose content tokens are
+// ~identical to the section it replaces is a NO-OP, not a fix — the
+// degenerate-loop guard (ranke_nonmove). The ratio is DECLARED (P9: budgets
+// named, never tuned): a rewrite sharing 90%+ of its content tokens with the
+// original moved nothing.
+const NON_MOVING_EDIT_RATIO = 0.9;
+
+/** Token Jaccard similarity — the shared-content fraction of two texts,
+ * folded to lowercase content tokens. 0 = no shared token, 1 = identical. */
+function similarity(a, b) {
+  const toks = (s) => new Set(String(s ?? "").toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 2));
+  const A = toks(a), B = toks(b);
+  if (!A.size && !B.size) return 1;
+  let inter = 0;
+  for (const t of A) if (B.has(t)) inter += 1;
+  const union = A.size + B.size - inter;
+  return union ? inter / union : 0;
+}
 
 const wikiSummaryCache = new Map();
 
@@ -2083,31 +2103,6 @@ export function resetSession(sessionId) {
   sessions.delete(sessionId);
 }
 
-// GET /v1/sessions — the surface to SEE sessions: every live reader fold on
-// this proxy, newest first, with enough to tell them apart (what it last read,
-// how many turns, how stale) without dumping any content. Identity is the
-// session id — a caller reuses it by sending the same x-er7-session string.
-export function listSessions() {
-  const now = Date.now();
-  const out = [];
-  for (const [id, s] of sessions) {
-    out.push({
-      sessionId: id,
-      turnCount: s.turnCount ?? 0,
-      lastChatText: String(s.lastChatText ?? "").slice(0, 140),
-      lastAccessAt: s.lastAccess ?? null,
-      ageS: s.lastAccess ? Math.round((now - s.lastAccess) / 1000) : null,
-      model: s.lastEffectiveModel ?? null,
-      mode: s.mode ?? null,
-      referents: s.referents ? s.referents.length : null,
-      piiFindings: Array.isArray(s.pii) ? s.pii.length : 0,
-      clearance: s.clearance ?? null,
-    });
-  }
-  out.sort((a, b) => (b.lastAccessAt ?? 0) - (a.lastAccessAt ?? 0));
-  return { count: out.length, sessions: out };
-}
-
 // --- workspace (physics over real files) ---------------------------------------
 // EOReader7 does not ask a model to browse or bookmark files (small local
 // models cannot be trusted to tool-call). The proxy reads the files itself
@@ -3726,11 +3721,6 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const shadowBefore = assessShadow(personId);
   const clearance = ethosClear(task, { disposition: dispositionFrom(shadowBefore) });
   const session = getSession(sessionId, clearance, task);
-  // The sessions surface (GET /v1/sessions) reads these: what this fold last
-  // read, in which mode, with which model — updated on every turn.
-  session.mode = mode;
-  session.lastChatText = String(task ?? "");
-  session.lastEffectiveModel = model ?? session.lastEffectiveModel ?? null;
   // WHO is at the door (organs/interlocutor.js, Buber): recognized mechanically
   // from the request's shape, accumulated across the session (one interlocutor
   // per conversation), held so the reader can meet an agent or a person in the
@@ -4262,6 +4252,14 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // QUESTIONS first (from the task + topic; the reading is still empty, so
   // no material can steer the shape).
   const topic = topicPhrase(task);
+  // THE SHAPE IS AN ASSERTION, NEVER A FIXED LADDER (2026-09-21): this turn
+  // asserts its own essay-shape register — every cell CANDIDATE, concedable
+  // when the material refutes its universal claim (organs/essay-shape-
+  // register.js). The void is composed through this register, so a cell the
+  // material refuted is never asked, and a future pass can concede cells on
+  // real specimens. One register per turn: no document's refutation silently
+  // mutates a shared table.
+  const shapeRegister = createShapeRegister();
   // The reading state the born gate consults: what the hunt actually found.
   // Available BEFORE the full read: sources retained + the reader's running
   // state. `stats`/`session.referents` fill in later (the enriched re-ask).
@@ -4278,7 +4276,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // told. Grading the echo is scoring the prompt, not the reading.
   const handedKeys = new Set();
   const keyOf = (p) => `${p.end1 ?? ""}|${p.label ?? ""}|${p.end2 ?? ""}`;
-  const preVoid = voidCellsFor({ topic, question: task, openQuestions: [], shadowReferents: [], reading: readingState() });
+  const preVoid = voidCellsFor({ topic, question: task, openQuestions: [], shadowReferents: [], reading: readingState(), shapeRegister });
   // The origami SECTIONS are the CONTENT cells (grounded prose about the
   // subject); the shape-instrument cells steer internally but are not reader
   // sections. The seed question is still the first content question.
@@ -5131,13 +5129,44 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       .sort((a, b) => beingQuality(b.id, b.s) - beingQuality(a.id, a.s))
       .slice(0, 3)
       .map(({ s }) => s);
+    // THE BELONGING GATE (2026-09-21, ethos first — Mozi: a claim stands on
+    // what the eyes and ears can witness, or it does not stand). A session's
+    // referents are the SESSION's beings, not the TASK's. A referent that
+    // shares no content word with the task's own topic is refused admission
+    // to this turn's void — the battery-and-lighthouse essay was exactly this
+    // leak: the shape came from a session's retained referents, never the
+    // ask. The gate's words are the task's own (topic + task, folded to
+    // content tokens); a referent passes only on a real shared token. The
+    // refused referents are DISCLOSED, never silent.
+    const taskWords = new Set(
+      [topic, task].join(" ").toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 2 && !["the", "and", "for", "with", "about", "white", "paper", "write"].includes(w)),
+    );
+    const belongsToTask = (s) => {
+      const words = String(s ?? "").toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 2);
+      return words.some((w) => taskWords.has(w));
+    };
+    const belongingRefs = refs.filter(belongsToTask);
+    const refusedRefs = refs.filter((s) => !belongsToTask(s));
+    if (refusedRefs.length) {
+      if (onNote) onNote({ move: "belonging_gate", refused: refusedRefs, reason: "session referents sharing no content word with the task are refused the void — the task's shape is the task's own", kept: belongingRefs });
+    }
     const openQ = (session.reader.getTasks?.() ?? [])
       .filter((t) => t?.status === "open" && t?.questions?.length)
       .flatMap((t) => t.questions ?? [])
       .filter((q) => q && q.length > 10)
       .slice(0, 2);
-    if (openQ.length || refs.length) {
-      const enriched = voidCellsFor({ topic, question: task, openQuestions: openQ, shadowReferents: refs, reading: readingState({ relations: stats?.relationEdges ?? 0 }) });
+    // THE BELONGING GATE COVERS OPEN QUESTIONS TOO (2026-09-21): the session's
+    // open-task questions are the SESSION's questions, not the TASK's — the
+    // "moment of no return" and "unraveling" sections leaked through here even
+    // after refs were gated. A question sharing no content word with the task
+    // is refused the void, disclosed, never silently dropped.
+    const belongingOpenQ = openQ.filter(belongsToTask);
+    const refusedOpenQ = openQ.filter((q) => !belongsToTask(q));
+    if (refusedOpenQ.length) {
+      if (onNote) onNote({ move: "belonging_gate_open", refused: refusedOpenQ, reason: "open session questions sharing no content word with the task are refused the void", kept: belongingOpenQ });
+    }
+    if (belongingOpenQ.length || belongingRefs.length) {
+      const enriched = voidCellsFor({ topic, question: task, openQuestions: belongingOpenQ, shadowReferents: belongingRefs, reading: readingState({ relations: stats?.relationEdges ?? 0 }), shapeRegister });
       // The SECTIONS are the ESSAY-CONTENT cells (the reader-facing prose).
       // The shape-instrument cells (when would the essay revise, what does it
       // declare) steer the composition internally but are not sections of a
@@ -5205,13 +5234,26 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // The structural organs dispose of whatever the LLM proposes.
       const field = prelimShape.register.field.field;
       let framingApplied = false;
+      // THE GROUND COMES FIRST (2026-09-21, the 3-agent paper benchmark): the
+      // discovery's staging is a genre-ARC ("the moment of no return") — the
+      // fallback for an EMPTY ground. When the workspace/web actually holds
+      // material, the essay's sections must be themed from THAT content, never
+      // replaced by a narrative arc the material doesn't discuss. A grounded
+      // essay section ("what the Cumberland river did for Nashville") written
+      // to an arc theme ("the revelation") shares nothing with the material →
+      // satisfaction flags it ungrounded → Ranke/Murch churn without growth
+      // (measured: 4 × 500-char sections + 13 revisions, ~2500 chars total,
+      // instead of a 5-page paper). The discovery still supplies the WRITE
+      // VOICE and felt target when grounded; only its section-staging is
+      // declined in favor of the material's own structure.
+      const groundBeforeDiscovery = (session.webSources?.size ?? 0) > 0 || (workspaceStats.files ?? 0) > 0 || surfacedSegments.length > 0;
       try {
         const sidecar = loadSidecar();
         const fp = discoveredFramingFor(sidecar, { genre: field, medium: prelimShape.register.mode });
         if (fp) {
-          const applied = applyDiscovered({ framing: fp.framing, sections, questionFor: (f, t) => questionFor(prelimShape.register, f, t), topic });
+          const applied = applyDiscovered({ framing: fp.framing, sections, questionFor: (f, t) => questionFor(prelimShape.register, f, t), topic, keepSectionsWhenGrounded: groundBeforeDiscovery });
           sections = applied.sections; discoveredVoice = applied.voice; framingApplied = true; discoveredFelt = fp.framing?.feltTarget ?? null; discoveredFraming = fp.framing;
-          wheel.turn("discovery", `reuse the footprints — a framing for ${field} was discovered before`, { from: "footprints", staging: fp.framing.staging.length }, { framing: fp.framing, basis: fp.basis }, { evaBasis: "the sidecar's latest footprint wins; no new model call — easier next time", operator: "INS", grain: "Pattern", face: "scout" });
+          wheel.turn("discovery", `reuse the footprints — a framing for ${field} was discovered before`, { from: "footprints", staging: fp.framing.staging.length, grounded: groundBeforeDiscovery }, { framing: fp.framing, basis: fp.basis }, { evaBasis: "the sidecar's latest footprint wins; no new model call — easier next time", operator: "INS", grain: "Pattern", face: "scout" });
         } else {
           // ANTIStrauss: the discovery's model call must go through the SAME
           // gated wire every other call uses. discoverFraming falls back to a
@@ -5229,9 +5271,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             },
           });
           if (d?.framing) {
-            const applied = applyDiscovered({ framing: d.framing, sections, questionFor: (f, t) => questionFor(prelimShape.register, f, t), topic });
+            const applied = applyDiscovered({ framing: d.framing, sections, questionFor: (f, t) => questionFor(prelimShape.register, f, t), topic, keepSectionsWhenGrounded: groundBeforeDiscovery });
             sections = applied.sections; discoveredVoice = applied.voice; framingApplied = true; discoveredFelt = d.framing?.feltTarget ?? null; discoveredFraming = d.framing;
-            wheel.turn("discovery", `the LLM is tasked to go find what makes a good ${field}`, { from: d.from, staging: d.framing.staging.length, voice: !!d.framing.writeVoice }, { framing: d.framing, footprints: !!d.appended, basis: d.basis }, { evaBasis: "the LLM PROPOSES the framing; the wheel's EVA and the satisfaction organs dispose", operator: "INS", grain: "Pattern", face: "scout" });
+            wheel.turn("discovery", `the LLM is tasked to go find what makes a good ${field}`, { from: d.from, staging: d.framing.staging.length, voice: !!d.framing.writeVoice, grounded: groundBeforeDiscovery }, { framing: d.framing, footprints: !!d.appended, basis: d.basis }, { evaBasis: "the LLM PROPOSES the framing; the wheel's EVA and the satisfaction organs dispose", operator: "INS", grain: "Pattern", face: "scout" });
             if (d.appended) { try { fs.writeFileSync(SIDECAR_PATH, JSON.stringify(d.appended, null, 2)); } catch {} }
           }
         }
@@ -5865,6 +5907,21 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // with their ungrounded standing disclosed by the satisfaction check.
         if (!hasGrounding) {
           if (onNote) onNote({ move: "ranke", round: round + 1, ungrounded: rankeFindings.map((f) => f.sectionIndex), declared: "no ground to rewrite from — gaps disclosed, not churned" });
+          // THE DISCLOSURE RIDES THE RECORD, NEVER ONLY THE CHAT NOTE. A
+          // falsified claim (what-broke-falsify G6): the model's own admission
+          // ("I don't have a grounded source for this") lived only in the chat
+          // answer, so the composed document carried the ungrounded prose with
+          // no visible disclosure on the ledger. Here the same gap is written
+          // as a typed ledger line — a reader of the ARTIFACT sees it, not
+          // only a reader of the transcript.
+          if (documentLedger) appendLedgerLine(documentLedger, {
+            role: "revision",
+            title: `ranke: ungrounded — no ground, disclosed`,
+            text: `DISCLOSED UNGROUNDED: this composition has no material ground (no web egress, no workspace corpus). ${rankeFindings.length} section(s) folded to no material referent and stand as written, NOT rewritten from the record. Any cited source in the prose is the model's own claim, not a verified citation.`,
+            giver: "eoreader7:ranke",
+            supersedes: null,
+            basis: `RANKE: no ground to rewrite from — ${rankeFindings.map((f) => (f.sectionIndex ?? "?" ) + 1).join(", ")}`,
+          }, { dir: ESSAY_LEDGER_DIR });
           break;
         }
         if (onNote) onNote({ move: "ranke", round: round + 1, ungrounded: rankeFindings.map((f) => f.sectionIndex) });
@@ -5899,6 +5956,23 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           if (rewrite.stopped) { truncated = true; break; }
           const fixText = rewrite.buf.trim();
           if (!fixText) continue;
+          // THE NON-MOVING EDIT CUT (2026-09-21, Pathos/Murch — "a film is
+          // cut where the audience blinks"). The degenerate loop the falsify
+          // tier exposed (wp-improve, 15× byte-identical sections): a rewrite
+          // that did not actually change the section is a NO-OP, not a fix —
+          // the rewrite loop was churning the same prose forever against an
+          // empty ground. A rewrite that leaves the section byte-identical
+          // (or collapses it to a near-twin) is refused as a non-move: it
+          // consumes the same rewrite budget as any other failed attempt, so
+          // the loop terminates by its own convergence guard instead of
+          // spinning. Disclosed on the record, never silent.
+          const sectionBefore = String(documentLines[i] ?? "").trim();
+          const identical = sectionBefore === fixText;
+          const collapseRatio = identical ? 1 : 1 - (similarity(sectionBefore, fixText));
+          if (identical || collapseRatio >= NON_MOVING_EDIT_RATIO) {
+            if (onNote) onNote({ move: "ranke_nonmove", sectionIndex: i, identical, similarity: (1 - collapseRatio), detail: "the rewrite did not move the section — a non-moving edit is not a fix; budget consumed, loop terminates" });
+            continue;
+          }
           documentLines[i] = fixText;
           if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `ranke: ungrounded @ ${i + 1}`, text: fixText, giver: model, supersedes: null, basis: `RANKE: ${f.detail}` }, { dir: ESSAY_LEDGER_DIR });
         }
@@ -5947,6 +6021,61 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           for (let fi = 0; fi < documentLines.length; fi++) {
             if (fisher.repeated.includes(documentLines[fi])) {
               findings.push({ kind: "repetition", sectionIndex: fi, detail: `the opening repeats another section's — Fisher's null shows it recurs above chance (${fisher.repeated.length} section(s) share the same opening construction)` });
+            }
+          }
+          // THE HOLONIC REPAIR — BOREDOM IS SURPRISING (2026-09-21, Meyer).
+          // A piece that restates the same section across N slots is a felt
+          // deviation of ZERO, which is itself the signal. Murch flags it;
+          // the repair does NOT fall to another model draw (a 2B mouth re-
+          // drifts toward its strongest sentence — measured: 43 revision
+          // marks, sections still 0.48-overlapping). Instead the mechanical
+          // register-walk repairs the WHOLE across all nine terrains: it
+          // concedes every shape assertion the flat specimen demonstrates
+          // false (SYN·Pattern's own falsifying control: "a document whose
+          // parts are a flat list, never chained") and CHAINS the duplicates
+          // by merging — keeping the longest variant of each flat group and
+          // folding any distinct content. The concession is REC, never an
+          // edit, and it is grounded FOR WHOM: the specimen names the
+          // experiencer's own read, so the refutation is not the machine's
+          // private judgment but a recorded act under the person's lens.
+          if (hasGrounding && documentLines.length >= 2) {
+            const holonic = repairStaleComposition({
+              register: shapeRegister,
+              sections: documentLines,
+              specimen: `${pathos?.forWhom?.who ?? userId ?? "the-person"} reading ${topic} — the piece paced flat, ${fisher.repeated.length} section(s) restating one construction`,
+              // THE REPAIR SITS ON REFERENTS, NEVER SPANS (the user's rule):
+              // the session's reading index is the being-face — the same
+              // index the holographic satisfaction folds against. Sections
+              // pair when they resolve to the SAME beings; a merge never
+              // fuses two different beings into one voice.
+              referents: sessionReferentIndex(session, null),
+            });
+            // THE REPAIR IS GROUNDED FOR WHOM, AND THE CONTENT'S OWN
+            // STANDPOINTS STAY APART (2026-09-21, Panini + Mahavira +
+            // Scheherazade). The experiencer is the person at the door — the
+            // same forWhom the pathos read declared; the perspectives map
+            // discloses which standpoints the chained piece holds apart, so
+            // the merge is never a voice-flattening. Both ride the repair.
+            if (holonic.perspectives && pathos?.forWhom?.who) {
+              holonic.perspectives = { ...holonic.perspectives, forWhom: pathos.forWhom.who };
+            }
+            if (holonic.merged.length !== documentLines.length) {
+              // The merge is a CHAINING, not a rewrite: the sections' own
+              // content survives; only the restatements fuse. The refuted
+              // shape cells are recorded on the register (REC, for-whom-
+              // grounded specimen), and the concession lands on the pathos
+              // log as a re-ground — the felt shape of the repair, recorded.
+              const holonicFrom = documentLines.length;
+              documentLines = holonic.merged;
+              if (onNote) onNote({ move: "holonic_repair", merged: holonic.merged.length, from: holonicFrom, conceded: holonic.conceded.length, terrains: "Void·Entity·Kind·Field·Link·Network·Atmosphere·Lens·Paradigm", groundedOn: holonic.groundedOn, forWhom: holonic.perspectives?.forWhom ?? null, standpoints: holonic.perspectives?.keptApart ?? [], basis: holonic.basis });
+              if (pathos?.forWhom) {
+                try {
+                  const act = reGround({ read: pathos, giver: GIVER, reScope: [topic] });
+                  pathosLog = landReGround(pathosLog ?? [], act);
+                  session.pathosLog = pathosLog;
+                } catch {}
+              }
+              break; // the whole is chained — the flat list is gone; no model rewrite needed
             }
           }
         }
