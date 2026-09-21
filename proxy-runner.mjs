@@ -34,6 +34,8 @@ import { answerRecord } from "./native/the-fold/answer-record.js";
 // is routed through native/the-fold/antistrauss.mjs (the import is static so
 // the proxy fails closed at boot if the gate cannot load). See the module
 // header for how it is wired and why it must never be bypassed.
+import { groundGate, draftGate, foldGate, tightenGate, arriveGate, chainStrain, measuredInflation, lastSentence as lastSentenceOmni } from "./native/the-fold/spiral-contract.js";
+import { deposit as depositAdmitted, matterWords as matterWordsOmni, admit as admitCandidate, measureVariance, measureBondNull, claimCore as claimCoreOmni, segmentSentences as segmentSentencesOmni, wordTokens as wordTokensOmni, nameGate as referentNameGate, bond as bondOf } from "./native/the-fold/admission.js";
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom, holonicSatisfaction, holonTreeFromText, holonicTreeSatisfaction, holonAssertionTree, holonicAssertionSatisfaction, holonLeaves } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 import { inventedNameRuns as verifyInventedNameRuns, isMetaSentence as verifyIsMetaSentence } from "./native/the-fold/referent-verify.js";
@@ -191,29 +193,29 @@ const ANCHORING = (process.env.ER7_ANCHORING ?? "born") === "born"
 // ── THE MODEL, NAMED — a giver with an identity, never an anonymous string.
 // Every claim the model states is cited to THIS giver (the user's
 // discipline: the model stating something is a giver that should be cited,
-// with what we know about it — its name, its release, its home). The model
-// is OLMo 2 7B (Allen Institute for AI, 2024): a 7B-parameter decoder-only
-// transformer, Apache-2.0, quantized (Q4_K_M) and served locally via Ollama.
-// Its training data (Dolma / OLMo-mix), code, weights and logs are all
-// published by its maker — the ethically-sourced model this proxy runs now.
-// The registry is data, not code: a caller who runs a different model
-// replaces this entry and every citation renames the giver.
+// with what we know about it — its name, its release, its home). The
+// registry is data, not code: a caller who runs a different model replaces
+// this entry and every citation renames the giver. 2026-09-21, user
+// direction: olmo2:7b is gone from this machine and is the default of
+// nothing — every ~15 min a scoped keep-resident ping was loading it at
+// 6.2 GiB, and the daemon evicted the 2B chat model to make room, which
+// was the reload storm. The one served model is gemma2:2b.
 const MODEL_REGISTRY = Object.freeze({
-  id: "olmo2:7b", // the Ollama id the proxy serves
-  hf: "allenai/OLMo-2-1124-7B-Instruct",
-  hfUrl: "https://huggingface.co/allenai/OLMo-2-1124-7B-Instruct",
-  name: "OLMo 2 7B",
-  family: "OLMo 2",
-  org: "Allen Institute for AI (Ai2)",
-  released: "2024-11-24",
-  license: "Apache-2.0",
-  params: "7B",
-  note: "decoder-only transformer; Apache-2.0; fully open — training data (Dolma/OLMo-mix), code, weights and logs published by Ai2; served locally via Ollama (Q4_K_M).",
-  quant: "Q4_K_M",
+  id: "gemma2:2b", // the Ollama id the proxy serves
+  hf: "google/gemma-2-2b-it",
+  hfUrl: "https://huggingface.co/google/gemma-2-2b-it",
+  name: "Gemma 2 2B",
+  family: "Gemma 2",
+  org: "Google DeepMind",
+  released: "2024-07-31",
+  license: "Gemma Terms of Use",
+  params: "2B",
+  note: "decoder-only transformer, instruction-tuned; served locally via Ollama (Q4_0).",
+  quant: "Q4_0",
 });
 export const MODEL_GIVER = (model) => {
   const m = String(model ?? "").replace(/^er7:/, "").replace(/:q\d+(_\d+)?$/, "");
-  if (m === "olmo2:7b" || m === "olmo2:7b-instruct" || m === "olmo2:latest") return MODEL_REGISTRY;
+  if (m === "gemma2:2b" || m === "gemma2:latest" || m === "gemma2:2b-instruct") return MODEL_REGISTRY;
   return { id: model ?? "?", hfUrl: null, name: String(model ?? "?") };
 };
 const DEFAULT_POS_PRIOR = path.join(HERE, "legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json");
@@ -471,8 +473,9 @@ function currentFactsStore() {
 // a job timeout. This is NOT keep-warm (ER7_KEEP_ALIVE_S stays 0): it is a
 // scoped ping that runs only while setup is actively working, and the caller
 // clears it when done. Returns the timer handle.
-function keepResidentDuringSetup() {
-  const model = "olmo2:7b";
+function keepResidentDuringSetup(model = MODEL_REGISTRY.id) {
+  // the job's own model, never a hard-coded one: the old "olmo2:7b" here
+  // loaded a 6.2 GiB model every long-form setup and evicted the chat model
   let running = false;
   const ping = async () => {
     if (running) return;
@@ -1616,11 +1619,7 @@ function essayThemes({ task, surfacedSegments, material }) {
   const themes = [];
   // From the material's own sentences: the themes the sources actually raise.
   const text = (material && material.length ? material.join(" ") : "") + " " + (surfacedSegments?.length ? surfacedSegments.map((s) => s.text ?? "").join(" ") : "");
-  const sentences = String(text)
-    .replace(/\s+/g, " ")
-    .split(/(?<=[.!?])\s+(?=[A-Z])/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 60 && s.length < 220);
+  const sentences = segmentSentencesOmni(text).filter((s) => s.length > 60 && s.length < 220);
   // Pick up to 3 sentences that look like topic carriers (not the essay-site
   // boilerplate the search surface often leads with).
   const seen = new Set();
@@ -2379,7 +2378,7 @@ function ensureField(session) {
       // whole documents makes every random cue overlap by topic word. Chunks
       // keep the temporal-adjacency synapses (sentences joined in order) that
       // the field's spread uses.
-      const sentences = text.split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim()).filter((s) => s.length > 30);
+      const sentences = segmentSentencesOmni(text).filter((s) => s.length > 30);
       for (const s of sentences) f.admit(s, { sourceId });
     }
   }
@@ -3174,7 +3173,7 @@ const reader = res.body.getReader();
       }
       // the host that failed this attempt: a refusal stands it down (the
       // next attempt picks another); a timeout is not a conviction
-      closeHost({ ok: false, refused: /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND/.test(String(err?.cause?.code ?? err?.code ?? "")) });
+      closeHost({ ok: false, refused: /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND/.test(String(err?.cause?.code ?? err?.code ?? "")) || /^ollama 5\d\d$/.test(String(err?.message ?? "")) });
       if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
       await retryUnderLoad(attempt, model, { local: true }).catch((e) => { finishReview(false); throw e; });
     } finally {
@@ -4902,7 +4901,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // expires during it, so the first draw cold-loads and can blow the job
     // timeout. This is NOT keep-warm (which stays off): it is a scoped
     // residency ping for the duration of active setup work, cleared after.
-    const residentTimer = keepResidentDuringSetup();
+    const residentTimer = keepResidentDuringSetup(typeof model === "string" && model ? model.replace(/^er7:/, "") : MODEL_REGISTRY.id);
     try {
     const hlTerms = [...new Set(
       Object.values(digestInfo.composition)
@@ -5527,17 +5526,42 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // a confident 1933-fair fabrication). This hands each part ONLY the source
   // sentences that share its terms — a few thousand chars, never the page.
   const SECTION_WINDOW_CHARS = Number(process.env.ER7_SECTION_WINDOW_CHARS ?? 2500);
+  // THE MATERIAL'S OWN VOCABULARY, MEASURED ONCE (2026-09-21).
+  // Every selector below used to run on hand-written English word lists — a
+  // stopword set, a "claim variants" set with `cumberland` and `nashville`
+  // compiled into it, and an ASCII-only tokenizer that returned the EMPTY
+  // STRING for every sentence of Chinese, Arabic, Russian, Hindi and Japanese.
+  // The consequence was not a degradation but a wall: the first sentence
+  // deposited "" in the claim registry and every later sentence in the
+  // document collided with it, so a non-Latin piece could never exceed one
+  // sentence. What replaces the lists is a measurement over THIS material
+  // (native/the-fold/admission.js): which of its own words are spread as
+  // widely as independent scattering would already spread them, and how much
+  // two arbitrary passages of it already share. Measured once per material,
+  // held for the whole composition.
+  const __omniCache = new Map();
+  const omniOf = (material) => {
+    const key = String(material ?? "");
+    let v = __omniCache.get(key);
+    if (!v) {
+      const variance = measureVariance(key);
+      v = { variance, bondNull: measureBondNull(key, undefined, variance), gate: referentNameGate(key) };
+      __omniCache.set(key, v);
+    }
+    return v;
+  };
   const WINDOW_STOP = new Set("the and for with that this from under through after during was were are is had has have by to of in on at it its their there here which where when how what who into across over been being not but or as than then so such only also very just an a your our their its".split(" "));
   const groundedWindowFor = (section, claims, material, usedSentences = null, handedClaims = null, position = 0) => {
     const text = String(material ?? "");
     if (text.length < 60) return "";
     const terms = new Set();
     const pool = `${section} ${(claims ?? []).map((p) => `${p.end1 ?? ""} ${p.end2 ?? ""}`).join(" ")}`;
-    for (const t of pool.toLowerCase().split(/[^a-z']+/)) {
-      if (t.length > 3 && !WINDOW_STOP.has(t)) terms.add(t);
+    const { variance: omniVariance } = omniOf(text);
+    for (const t of wordTokensOmni(pool)) {
+      if (!WINDOW_STOP.has(t) && !omniVariance.has(t)) terms.add(t);
     }
     if (!terms.size) return "";
-    const sentences = String(text).replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim()).filter((s) => s.length > 40 && s.length < 400);
+    const sentences = segmentSentencesOmni(text).filter((s) => s.length > 40 && s.length < 400);
     // THE STIGMERGIC TRAIL, CLAIM-CORE LEVEL (2026-09-21, Wilson run deeper):
     // `usedSentences` holds exact sentences, their opening templates, AND the
     // CLAIM-CORE of each used sentence — the being·relation pair the mouth
@@ -5552,19 +5576,15 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // omnilingual, since it keys on the referent-relation structure, never a
     // lexicon. This is the register's SYN·Figure ("re-sightings fold into the
     // same note") made mechanical on the window itself.
-    const openingTemplate = (s) => {
-      const words = String(s).toLowerCase().replace(/[^a-z' ]+/g, " ").replace(/\s+/g, " ").trim().split(" ").filter((w) => w.length > 4 && !WINDOW_STOP.has(w));
-      return words.slice(0, 5).join(" ");
-    };
-    const CLAIM_VARIANTS = new Set(["played","served","significant","vital","crucial","critical","major","role","growth","port","city","artery","impact","influence","development","journey","course"]);
-    const claimCoreOf = (s) => {
-      // The claim's skeleton: the being-nouns and the change-verbs, with the
-      // variance words stripped. "The Cumberland River played a significant
-      // role in Nashville's growth" and "served as a vital artery for
-      // Nashville's growth" both reduce to the same core.
-      const words = String(s).toLowerCase().replace(/[^a-z' ]+/g, " ").replace(/\s+/g, " ").trim().split(" ").filter((w) => w.length > 3 && !WINDOW_STOP.has(w) && !CLAIM_VARIANTS.has(w));
-      return words.slice(0, 6).join(" ");
-    };
+    const openingTemplate = (s) => wordTokensOmni(s).filter((w) => !WINDOW_STOP.has(w)).slice(0, 5).join(" ");
+    // The claim's skeleton: the sentence's words with THIS MATERIAL'S variance
+    // words stripped, so "played a significant role in Nashville's growth" and
+    // "served as a vital artery for Nashville's growth" reduce to the same
+    // core. The variance words are measured off the material, never listed —
+    // the older comment here claimed to be "omnilingual, since it keys on the
+    // referent-relation structure, never a lexicon" while a hand-written
+    // English lexicon sat on the line below it.
+    const claimCoreOf = (s) => claimCoreOmni(s, omniVariance);
     const usedTemplates = new Set();
     const usedCores = new Set();
     if (usedSentences) {
@@ -5810,6 +5830,56 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // recorded; no later section re-reads it. The window is always UNUSED
       // material, so the mouth must find new facts section by section.
       const usedSentences = new Set();
+      // ── THE SPIRAL CONTRACT, LAYER 1: GROUND (2026-09-21, the user's law:
+      // "hyper-defined layers, explicit revisable work product at each loop;
+      // low sets possibility for high, high probability for low"). The ground
+      // is measured once and gated once. A ground that fails the LOW gate
+      // has nothing to measure a null on; a ground that fails the HIGH gate
+      // cannot tell a continuation from chance. Neither stops the draw — the
+      // Ranke disclosure already names an ungrounded piece — but neither
+      // LICENSES a revision: no redraw is spent on a piece with no ground to
+      // redraw from. The verdict is on the record.
+      const spiralBudget = Number(process.env.ER7_SPIRAL_BUDGET ?? 1);
+      const groundProduct = (() => {
+        const g = String(groundingText() ?? "");
+        const m = omniOf(g);
+        return { sentences: segmentSentencesOmni(g).length, variance: m.variance, bondNull: m.bondNull, gate: m.gate };
+      })();
+      const groundLow = groundGate.low(groundProduct);
+      const groundHigh = groundLow.pass ? groundGate.high(groundProduct) : { pass: false, basis: groundLow.basis, missing: "ground" };
+      const groundLicensed = groundLow.pass && groundHigh.pass;
+      const contractRecord = { ground: { low: groundLow, high: groundHigh, licensed: groundLicensed }, draft: [], fold: null, tighten: null, arrive: null };
+      if (onNote) onNote({ move: "contract_ground", licensed: groundLicensed, low: groundLow.basis, high: groundHigh.basis, gate: groundProduct.gate?.gate, sentences: groundProduct.sentences, bondCeiling: groundProduct.bondNull?.max ?? null });
+      if (documentLedger) {
+        try {
+          appendLedgerLine(documentLedger, {
+            role: "ground", title: groundLicensed ? "Ground licensed" : "Ground not licensed",
+            text: `low: ${groundLow.basis}\nhigh: ${groundHigh.basis}\nreferent gate: ${groundProduct.gate?.gate ?? "?"}\nbond ceiling (two arbitrary passages): ${groundProduct.bondNull?.max?.toFixed?.(3) ?? "n/a"}`,
+            giver: "eoreader7:contract", basis: groundLicensed ? "ground measured — revisions licensed" : "ground unlicensed — no revision will be spent",
+          }, { dir: ESSAY_LEDGER_DIR });
+        } catch {}
+      }
+      // The shared admitter: the same two-road selector the section loop runs,
+      // reachable from the fold so a gap beat's redraw is admitted by the
+      // SAME rule as every other sentence. (The section loop keeps its own
+      // inline copy because it carries the section's window-scoped registry.)
+      const admitWide = (text, { priorLanding = "", registry = null, section = "" } = {}) => {
+        const ground = String(groundingText() ?? "");
+        const { variance, bondNull, gate } = omniOf(ground);
+        const reg = registry ?? new Set();
+        const grounded = (cand) => { try { const r = propsIndex?.resolveIn?.(cand); const ids = r instanceof Set ? r : new Set(r ?? []); return ids.size > 0; } catch { return false; } };
+        const out = { survivors: [], roads: [], refusals: [] };
+        const priorCore = priorLanding ? claimCoreOmni(priorLanding, variance) : "";
+        for (const cand of segmentSentencesOmni(text).filter((x) => x.length > 20)) {
+          if (priorCore && claimCoreOmni(cand, variance) === priorCore) { out.refusals.push({ kind: "relanding", given: "model" }); continue; }
+          if (verifyIsMetaSentence(cand)) { out.refusals.push({ kind: "meta", given: "model" }); continue; }
+          const v = admitCandidate(cand, { ground, priorLanding, instruction: `${task}\n${section}`, registry: reg, variance, bondNull, isGrounded: grounded, invented: gate.applies ? ((x) => verifyInventedNameRuns(x, ground)) : null });
+          if (!v.admit) { out.refusals.push(...(v.refused ?? [])); continue; }
+          out.survivors.push(cand); out.roads.push(v.road); depositAdmitted(reg, v);
+          usedSentences.add(cand); if (v.core) usedSentences.add(v.core);
+        }
+        return out;
+      };
       for (let i = 0; i < plannedSections.length && !truncated; i++) {
         const section = plannedSections[i];
         if (onNote) onNote({ move: "composing_section", index: i + 1, of: plannedSections.length, section });
@@ -6051,11 +6121,8 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // "served as a vital artery for Nashville's growth" are the SAME claim.
         // The global registry keys on this; a claim deposited by any section is
         // absent from every later window. Same set the window's trail uses.
-        const CLAIM_VARIANTS_STABLE = new Set(["played","served","significant","vital","crucial","critical","major","role","growth","port","city","artery","impact","influence","development","journey","course","waterway","river","cumberland","nashville"]);
-        const claimCoreOfStable = (s) => {
-          const words = String(s).toLowerCase().replace(/[^a-z' ]+/g, " ").replace(/\s+/g, " ").trim().split(" ").filter((w) => w.length > 3 && !WINDOW_STOP.has(w) && !CLAIM_VARIANTS_STABLE.has(w));
-          return words.slice(0, 6).join(" ");
-        };
+        const { variance: omniVar, bondNull: omniBondNull, gate: omniGate } = omniOf(groundingText());
+        const claimCoreOfStable = (x) => claimCoreOmni(x, omniVar);
         // THE REFERENT-VERIFY GATE (2026-09-21, the user's law "nothing is held
         // unattributed"): a sentence is admitted only when every capitalized
         // name it carries is grounded. Punctuation (comma, period, colon,
@@ -6147,53 +6214,131 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             const out = new Set();
             if (usedSentences) {
               for (const u of usedSentences) {
-                if (u.includes(" ")) out.add(claimCoreOfStable(u));
-                else out.add(u);
+                if (u.includes(" ")) {
+                  out.add(claimCoreOfStable(u));
+                  for (const w of matterWordsOmni(u, groundForGate, omniVar)) out.add(`w:${w}`);
+                } else out.add(u);
               }
             }
             return out;
           })();
-          const normWords2 = (x) => new Set(String(x).toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 4));
-          const paragraphSentences = String(paragraphBuf).replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim()).filter((s) => s.length > 20);
+          // THE PARAGRAPH SPLIT BY THE SCRIPT'S OWN RULES (2026-09-21). The
+          // predecessor required an ASCII capital after the break, so a
+          // Chinese, Arabic, Hindi or Japanese paragraph never split at all:
+          // one candidate, one refusal, an empty section.
+          const paragraphSentences = segmentSentencesOmni(paragraphBuf).filter((s) => s.length > 20);
+          // TWO ROADS INTO THE PIECE (2026-09-21, the swarm's converging
+          // verdict on the projected Cumberland essay: "thirteen topics, none
+          // of them a turn").
+          //
+          // The predecessor admitted a sentence only when it was GROUNDED and
+          // its claim was NEW. Both tests reward a fresh assertion about the
+          // subject and punish a sentence that TURNS: a bridging sentence
+          // carries pronouns and connectives, resolves to few referents, and
+          // has a thin claim core. So the survivors were, structurally, a list
+          // of assertions — the fold collapsed duplicates but could not create
+          // motion, because motion had no road in.
+          //
+          // Now a sentence survives on MATTER (grounded, claim-new) or on
+          // MOTION (it bonds to where the piece just landed harder than two
+          // arbitrary passages of this material bond to each other, carries no
+          // invented referent, and is not meta). Matter alone is a list;
+          // motion alone is drift. The road each sentence took is on the
+          // record, and so is every refusal, with its given.
           const survivors = [];
+          const roads = [];
+          const refusals = [];
+          const priorCore = priorLanding ? claimCoreOfStable(priorLanding) : "";
           for (const cand of paragraphSentences) {
-            const core = claimCoreOfStable(cand);
-            if (globalRegistry.has(core)) continue;
-            if (!groundedCand(cand)) continue;
-            // THE REFERENT-VERIFY GATE: a sentence carrying a name the ground
-            // has never seen is an invented referent — refuse it. The mouth's
-            // fabricated "Thomas Duke / Vanderbilt / Jefferson" all died here
-            // (the workspace names only Walker, the Duke of Cumberland,
-            // Robertson, Donelson); the real names passed because they appear
-            // in the admitted ground.
-            if (inventedNameRuns(cand).length) continue;
-            // META-SENTENCE FILTER (mechanical): the mouth must write the
-            // piece, never talk about writing it. "The user requested a piece
-            // on the Cumberland River" is meta — refused like any other
-            // ungrounded sentence, so the essay can't leak instructions into
-            // its prose (measured 2026-09-21: every section of the projection
-            // run carried "The user is requested to write about...").
-            if (/the user|requested a|requested to|will explore|essay (?:will|is|should)|this essay|the essay(?:'s| is| will| should)|asked to write|subject is|called upon|to answer this|is to (?:be|write)|its significance is (?:undeniable|a subject)/i.test(cand)) continue;
-            // Do not re-state the prior landing verbatim.
-            const cWords = normWords2(cand);
-            const priorWords = normWords2(priorLanding);
-            if (priorWords.size && [...cWords].filter((w) => priorWords.has(w)).length / Math.max(1, cWords.size) >= 0.7) continue;
+            // A verbatim re-landing is refused mechanically: the candidate's
+            // claim core IS the prior landing's. No overlap percentage — a
+            // hand-set fraction would have refused exactly the bridging
+            // sentences the motion road exists to admit.
+            if (priorCore && claimCoreOfStable(cand) === priorCore) { refusals.push({ kind: "relanding", given: "model" }); continue; }
+            if (isMetaSentence(cand)) { refusals.push({ kind: "meta", given: "model" }); continue; }
+            const verdict = admitCandidate(cand, {
+              ground: groundForGate,
+              priorLanding,
+              // THE CELL'S OWN WORDING IS INSTRUCTION, NOT MATERIAL (2026-09-21,
+              // measured: "Is it a kind that holds firm against the material..."
+              // — a void cell's question — appeared verbatim as essay prose).
+              // A sentence that bonds to the question harder than to the
+              // ground is the mouth answering the scaffolding, not writing.
+              instruction: `${task}\n${section}`,
+              registry: globalRegistry,
+              variance: omniVar,
+              bondNull: omniBondNull,
+              isGrounded: groundedCand,
+              // The capitalization gate guards only scripts that HAVE case.
+              // Where the script has none it is a silent no-op, and the
+              // reading's own referent index carries the guard instead — said
+              // out loud rather than assumed.
+              invented: omniGate.applies ? ((x) => inventedNameRuns(x)) : null,
+            });
+            if (!verdict.admit) { refusals.push(...(verdict.refused ?? [])); continue; }
             survivors.push(cand);
+            roads.push(verdict.road);
+            depositAdmitted(globalRegistry, verdict);
             usedSentences.add(cand);
-            usedSentences.add(core);
+            if (verdict.core) usedSentences.add(verdict.core);
           }
-          if (onNote) onNote({ move: "paragraph_snip", section, sentences: paragraphSentences.length, kept: survivors.length, basis: survivors.length < paragraphSentences.length ? `snipped ${paragraphSentences.length - survivors.length} repeated/ungrounded sentence(s)` : "no snipping needed" });
+          if (onNote) onNote({
+            move: "paragraph_snip",
+            section,
+            sentences: paragraphSentences.length,
+            kept: survivors.length,
+            matter: roads.filter((r) => r === "matter").length,
+            motion: roads.filter((r) => r === "motion").length,
+            gate: omniGate.gate,
+            basis: survivors.length < paragraphSentences.length
+              ? `snipped ${paragraphSentences.length - survivors.length}: ${[...new Set(refusals.map((r) => r.kind))].join(", ")}`
+              : "no snipping needed",
+          });
+          // ── THE SPIRAL CONTRACT, LAYER 3: DRAFT. The section's product is
+          // its survivors with their roads. LOW: anything survived. HIGH:
+          // matter, and (past the opening) motion. A section that fails HIGH
+          // on motion is a fresh topic, not a turn — the licensed revision is
+          // ONE redraw opening on the prior landing ALONE, no window, because
+          // the window is where the mouth finds fresh topics to re-assert.
+          // Bounded by the budget; every attempt on the record.
+          {
+            let draftProduct = { survivors, roads, refusals };
+            let draftHigh = draftGate.high(draftProduct, { isOpening: false });
+            let spent = 0;
+            const attempts = [{ pass: draftHigh.pass, basis: draftHigh.basis }];
+            while (!draftHigh.pass && groundLicensed && spent < spiralBudget && priorLanding && draftHigh.missing === "motion") {
+              spent++;
+              const redrawTask = `Continue the piece from exactly where it left off. Write the next passage (${holonPhrase}) of the piece itself.\n\nThe piece just said:\n"${lastSentenceOmni(priorLanding)}"\n\nWrite the passage now.`;
+              if (onThinking) onThinking(`\n### ${section} (redraw for motion, ${spent}/${spiralBudget})\n\n`);
+              const [redo] = await Promise.allSettled([draw([{ role: "system", content: systemContent }, ...keptChat.slice(-2), { role: "user", content: redrawTask }], PARAGRAPH_MAX, { kelsen: compositionKelsen })]);
+              const redoText = redo.status === "fulfilled" ? String(redo.value?.buf ?? "").trim() : "";
+              const more = admitWide(redoText, { priorLanding, registry: globalRegistry, section });
+              // Keep the motion sentences the redraw found; matter it also
+              // found is welcome. Order: the turn first, then the rest.
+              const turn = more.survivors.filter((_, k) => more.roads[k] === "motion");
+              const rest = more.survivors.filter((_, k) => more.roads[k] !== "motion");
+              if (turn.length) {
+                survivors.unshift(...turn); roads.unshift(...turn.map(() => "motion"));
+                survivors.push(...rest); roads.push(...rest.map(() => "matter"));
+              }
+              refusals.push(...more.refusals);
+              draftProduct = { survivors, roads, refusals };
+              draftHigh = draftGate.high(draftProduct, { isOpening: false });
+              attempts.push({ pass: draftHigh.pass, basis: draftHigh.basis, redrawSentences: more.survivors.length });
+            }
+            contractRecord.draft.push({ section, pass: draftHigh.pass, missing: draftHigh.missing ?? null, attempts, exhausted: !draftHigh.pass && spent >= spiralBudget });
+            if (onNote) onNote({ move: "contract_draft", section, pass: draftHigh.pass, missing: draftHigh.missing ?? null, attempts: attempts.length, basis: draftHigh.basis });
+          }
           buf = survivors.join(" ");
-          if (!buf.trim() && paragraphBuf.trim() && !paraStopped) {
-            // NOTHING SURVIVED THE SNIP — but the paragraph was real prose. Keep
-            // the first grounded sentence as the section's floor rather than
-            // falling back to a re-asked topic (the fallback re-introduces the
-            // repetition). The floor is STILL subject to the full admission —
-            // it must fold to a referent AND carry no invented name AND not be
-            // meta (2026-09-21: the floor once bypassed the gate, and the
-            // fabricated "Thomas Duke"/"Bob expects the river" slipped in via
-            // the first-ground floor). The floor is folded + deposited.
-            const firstGrounded = paragraphSentences.find((cand) => groundedCand(cand) && !inventedNameRuns(cand).length && !isMetaSentence(cand));
+          // THE FLOOR IS GONE (2026-09-21, falsified live): it kept "the first
+          // grounded sentence" when nothing survived the snip WITHOUT asking
+          // the registry, and an exact repeat of section 4's last sentence
+          // became the whole of section 5. An empty section is now a product
+          // that fails the draft gate's LOW — and the fold's gap redraw is
+          // what handles an empty part, admitted by the same rule as
+          // everything else. A repeated floor is worse than a named gap.
+          if (false) {
+            const firstGrounded = null;
             if (firstGrounded) {
               buf = firstGrounded;
               usedSentences.add(firstGrounded);
@@ -6242,7 +6387,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           // they apply to EVERY sentence the mouth writes, whatever branch
           // produced it. The survivors here are folded + deposited exactly like
           // the sentence-at-a-time path's.
-          const openSentences = String(buf).replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim()).filter((s) => s.length > 20);
+          const openSentences = segmentSentencesOmni(buf).filter((s) => s.length > 20);
           const openRegistry = (() => {
             const out = new Set();
             if (usedSentences) {
@@ -6316,7 +6461,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // itself — the piece's own sentences and their claim-cores evaporate
         // from every future window. Absence, never a stated rule.
         if (!isCode && buf && documentLines.length) {
-          String(buf).replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim()).filter((s) => s.length > 20).forEach((s) => usedSentences.add(s));
+          segmentSentencesOmni(buf).filter((s) => s.length > 20).forEach((s) => usedSentences.add(s));
         }
         if (i < plannedSections.length - 1 && onToken) onToken("\n\n");
 
@@ -6913,6 +7058,44 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           const wideParts = [...documentLines];
           const atoms = wideToAtoms(wideParts, { ground: groundingText() });
           const folded = foldWideToShape(atoms, { ground: groundingText() });
+          // ── THE SPIRAL CONTRACT, LAYER 4: FOLD. LOW: a beat filled. HIGH:
+          // no gap. A gap is not "(empty)" in a finished piece — it is the
+          // fold's own statement of the NEXT SECTION TO DRAW, opening on the
+          // landing of the beat before it and drawing on the ground window
+          // for the beat's own charge. Bounded by the budget per gap; the
+          // redraw is admitted by the same two-road rule as every sentence.
+          {
+            const foldLow = foldGate.low(folded);
+            let foldHigh = foldLow.pass ? foldGate.high(folded) : { pass: false, basis: foldLow.basis, missing: "beat", gaps: [] };
+            const attempts = [{ pass: foldHigh.pass, basis: foldHigh.basis }];
+            let filledByRedraw = 0;
+            if (!foldHigh.pass && groundLicensed && foldHigh.gaps?.length) {
+              const foldRegistry = new Set([...usedSentences].filter((u) => !u.includes(" ")));
+              for (const instr of foldGate.revise(folded, foldHigh) ?? []) {
+                const beat = folded.beats[instr.beatIndex];
+                if (!beat) continue;
+                let spent = 0;
+                while (spent < spiralBudget && (beat.gap || !String(beat.text ?? "").trim())) {
+                  spent++;
+                  const charge = `${beat.title}${beat.charge ? ` — ${String(beat.charge).slice(0, 160)}` : ""}`;
+                  const win = groundedWindowFor(charge, [], groundingText(), usedSentences, null, instr.beatIndex);
+                  const redrawTask = instr.priorLanding
+                    ? `Continue the piece from exactly where it left off. Write the next passage (as a short paragraph) of the piece itself.\n\nThe piece just said:\n"${instr.priorLanding}"\n\nHere is what this passage is about:\n"${beat.title}"\n\nGrounded source text:\n"""\n${win ?? ""}\n"""\n\nWrite the passage now.`
+                    : `Write the part: ${beat.title}, as a short paragraph of the piece itself.\n\nGrounded source text:\n"""\n${win ?? ""}\n"""\n\nWrite the passage now.`;
+                  if (onThinking) onThinking(`\n### ${beat.title} (gap beat redraw, ${spent}/${spiralBudget})\n\n`);
+                  const [redo] = await Promise.allSettled([draw([{ role: "system", content: systemContent }, { role: "user", content: redrawTask }], 450, { kelsen: compositionKelsen })]);
+                  const redoText = redo.status === "fulfilled" ? String(redo.value?.buf ?? "").trim() : "";
+                  const got = admitWide(redoText, { priorLanding: instr.priorLanding, registry: foldRegistry, section: beat.title });
+                  if (got.survivors.length) { beat.text = got.survivors.join(" "); beat.gap = false; filledByRedraw++; }
+                  if (onNote) onNote({ move: "contract_fold_redraw", beat: beat.title, filled: !beat.gap, kept: got.survivors.length, roads: got.roads, refused: [...new Set(got.refusals.map((r) => r.kind))] });
+                }
+              }
+              foldHigh = foldGate.high(folded);
+              attempts.push({ pass: foldHigh.pass, basis: foldHigh.basis, filledByRedraw });
+            }
+            contractRecord.fold = { pass: foldHigh.pass, missing: foldHigh.missing ?? null, attempts, filledByRedraw };
+            if (onNote) onNote({ move: "contract_fold", pass: foldHigh.pass, filledByRedraw, basis: foldHigh.basis });
+          }
           const foldedBeats = folded.beats.filter((b) => !b.gap).map((b) => b.text).filter(Boolean);
           if (onNote) onNote({ move: "fold_done", beats: folded.beats.length, filled: foldedBeats.length, residual: folded.residual.length, refused: folded.refused.length, basis: folded.basis });
           // THE FOLD IS THE ESSAY'S SHAPE (2026-09-21, the user's "the full
@@ -6981,7 +7164,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
               cut: (t) => {
                 const lines = String(t).split("\n\n");
                 const target = lines[b] ?? "";
-                const cleaned = findWordHits(target, INFLATION_WORDS).reduce((acc, h) => acc.replace(new RegExp(`\\b${h.word}\\b`, "gi"), ""), target).replace(/,\s*,/g, ",").replace(/\s{2,}/g, " ");
+                // INFLATION MEASURED, NOT LISTED (2026-09-21): a word the
+                // ground never said, in a sentence whose grounded claim stands
+                // without it. No English intensifier list; runs in any script.
+                const decoration = measuredInflation(target, groundingText(), omniOf(groundingText()).variance);
+                const cleaned = decoration.reduce((acc, h) => acc.replace(new RegExp(`(^|[^\\p{L}\\p{N}])${h.word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?=$|[^\\p{L}\\p{N}])`, "giu"), "$1"), target).replace(/,\s*,/g, ",").replace(/\s{2,}/g, " ").trim();
                 lines[b] = cleaned;
                 return lines.join("\n\n");
               },
@@ -7002,7 +7189,21 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           // fold. The rotations that changed the text are folded back into the
           // beats the projection reads.
           if (spiral.text && spiral.text !== foldedBeats.join("\n\n")) {
-            const tightened = String(spiral.text).split("\n\n").filter((t) => t.trim());
+            let tightened = String(spiral.text).split("\n\n").filter((t) => t.trim());
+            // ── THE SPIRAL CONTRACT, LAYER 5: TIGHTEN. HIGH: no cut took a
+            // beat's matter or motion with it. A beat the cut broke reverts to
+            // its pre-cut text — reverting is the recorded revision.
+            {
+              const m = omniOf(groundingText());
+              const tHigh = tightenGate.high({ beats: tightened }, { before: foldedBeats, variance: m.variance, bondNull: m.bondNull });
+              if (!tHigh.pass) {
+                for (const r of tightenGate.revise({ beats: tightened }, tHigh, { before: foldedBeats }) ?? []) {
+                  if (r.text) tightened[r.beatIndex] = r.text;
+                }
+              }
+              contractRecord.tighten = { pass: tHigh.pass, basis: tHigh.basis, reverted: tHigh.broken ?? [] };
+              if (onNote) onNote({ move: "contract_tighten", pass: tHigh.pass, reverted: tHigh.broken ?? [], basis: tHigh.basis });
+            }
             if (tightened.length) {
               documentLines = tightened;
               if (onNote) onNote({ move: "spiral_applied", parts: tightened.length, basis: "the tightened text replaced the folded documentLines" });
@@ -7012,19 +7213,51 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           // triad (every unit required + influx-stable + strain constant).
           // The verdict replaces the naive strain-0 stop: it names WHICH
           // signal is missing, always usable.
+          // ── THE SPIRAL CONTRACT, LAYER 6: ARRIVE. The removal test needs a
+          // satisfaction that MOVES when a required beat is removed. The old
+          // one ("strain 1 if over 25 words") never moved, so the detector
+          // reported "still a list" on every piece longer than a sentence,
+          // forever. chainStrain counts the adjacent beat pairs whose bond
+          // does not clear the material's null — broken links. Remove a beat
+          // the chain needs and its neighbours face each other and fail.
           const unitSatisfaction = (t) => {
-            const words = String(t ?? "").split(/\s+/).filter(Boolean).length;
-            return { strain: words > 25 ? 1 : 0 };
+            const m = omniOf(groundingText());
+            return chainStrain(t, { variance: m.variance, bondNull: m.bondNull });
           };
           const conc = isConcrescent({ whole: spiral.text, units: foldedBeats, sat: unitSatisfaction, log: spiral.log });
           if (onNote) onNote({ move: "concrescence", reached: conc.concrescent, signals: conc.signals, basis: conc.basis });
+          contractRecord.arrive = arriveGate.high(conc);
+          if (onNote) onNote({ move: "contract_arrive", pass: contractRecord.arrive.pass, missing: contractRecord.arrive.missingAll ?? [], basis: contractRecord.arrive.basis });
+          appendLedgerLine(documentLedger, {
+            role: "contract", title: "Spiral contract — every layer's gates",
+            text: [
+              `ground: ${contractRecord.ground.licensed ? "licensed" : "NOT licensed"} — ${contractRecord.ground.high.basis}`,
+              ...contractRecord.draft.map((d) => `draft "${String(d.section).slice(0, 60)}": ${d.pass ? "pass" : `FAIL (${d.missing})`} after ${d.attempts.length} attempt(s)${d.exhausted ? " — budget exhausted" : ""}`),
+              `fold: ${contractRecord.fold ? (contractRecord.fold.pass ? "pass" : `FAIL (${contractRecord.fold.missing})`) + ` — ${contractRecord.fold.filledByRedraw} gap(s) filled by redraw` : "not run"}`,
+              `tighten: ${contractRecord.tighten ? (contractRecord.tighten.pass ? "pass" : `reverted ${contractRecord.tighten.reverted.length} beat(s)`) : "no cut"}`,
+              `arrive: ${contractRecord.arrive.pass ? "arrived" : contractRecord.arrive.basis}`,
+            ].join("\n"),
+            giver: "eoreader7:contract", basis: `budget ${spiralBudget} revision(s) per layer; low gate = possibility, high gate = probability`,
+          }, { dir: ESSAY_LEDGER_DIR });
           appendLedgerLine(documentLedger, {
             role: "concrescence", title: conc.concrescent ? "Concrescence reached" : "Concrescence not yet",
             text: `${conc.basis}\n\nsignals: ${Object.entries(conc.signals).map(([k, v]) => `${k}=${v}`).join(", ")}`,
             giver: "eoreader7:concrescence", basis: conc.basis,
           }, { dir: ESSAY_LEDGER_DIR });
         } catch (foldErr) {
+          // A SWALLOWED ERROR IS AN UNATTRIBUTED REFUSAL (2026-09-21, found
+          // live: the fold threw, the note went nowhere a reader could see,
+          // and the job finished "unsatisfied" with no fold, tighten, contract
+          // or verdict line — the ledger looked like the fold never ran). The
+          // error is now a ledger line with its given.
           if (onNote) onNote({ move: "fold_error", detail: String(foldErr?.message ?? foldErr).slice(0, 160) });
+          try {
+            appendLedgerLine(documentLedger, {
+              role: "fold", title: "Fold error",
+              text: `the fold phase threw and the piece was left as the wide draft: ${String(foldErr?.stack ?? foldErr?.message ?? foldErr).slice(0, 600)}`,
+              giver: "eoreader7:fold", basis: "an error is a refusal with a given, never silence",
+            }, { dir: ESSAY_LEDGER_DIR });
+          } catch {}
         }
       }
       } else {

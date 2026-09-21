@@ -43,7 +43,7 @@ import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, restartSurface, sampleVitalsNow, backgroundTasks, killTask, memoryPressured, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, restartSurface, sampleVitalsNow, backgroundTasks, killTask, memoryPressured, memoryPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope } from "./heimdall.mjs";
 // "Computed, not generated" — the-fold's own house rule (arithmetic.js),
 // reused directly rather than re-derived: a small model answering "what is
 // today's date?" from its stale training data, with nothing in THIS proxy's
@@ -139,6 +139,41 @@ function raceReading(race) {
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = Number(process.env.ER7_PROXY_PORT) || 11436;
+// The surface this proxy IS, on the watcher's registry ("er7", port 11436).
+// Every live token/call event emitted from this process belongs to it, so the
+// watch surface can show which content is being generated for which server.
+const OWN_SURFACE = "er7";
+
+// WHICH SERVER IS THIS TURN GOING THROUGH (2026-09-21). Every fold page
+// calls this proxy from the browser, so until now every fold turn read as
+// er7's and the fold spans on the watch never moved. The page's Origin (or
+// Referer) names the port it was served from; that port names a registered
+// surface. An explicit x-er7-surface header is honored only when it names a
+// registered surface. Anything else is er7's own traffic.
+function surfaceFromRequest(req) {
+  const h = req?.headers || {};
+  const declared = String(h["x-er7-surface"] ?? "").trim();
+  if (declared && getSurfaces().some((s) => s.name === declared)) return declared;
+  for (const k of ["origin", "referer"]) {
+    const v = String(h[k] ?? "");
+    const m = /^https?:\/\/[^/]*?:(\d+)/.exec(v);
+    if (m) { const s = surfaceByPort(m[1]); if (s) return s.name; }
+  }
+  return OWN_SURFACE;
+}
+// The words that went IN — the task, or the last user message — capped so
+// the watch shows the prompt beside the answer without carrying a corpus.
+function promptTextOf(task, messages) {
+  if (typeof task === "string" && task.trim()) return task.slice(0, 2000);
+  const arr = Array.isArray(messages) ? messages : [];
+  for (let i = arr.length - 1; i >= 0; i--) {
+    const m = arr[i];
+    if (m?.role !== "user") continue;
+    const c = typeof m.content === "string" ? m.content : Array.isArray(m.content) ? m.content.map((x) => x?.text ?? "").join(" ") : "";
+    if (c.trim()) return c.slice(0, 2000);
+  }
+  return "";
+}
 // The heimdall alias port — claude and older clients point here. Same server,
 // same code; keeping it means the merged watcher doesn't break existing
 // configs that route through 11437.
@@ -665,7 +700,7 @@ async function handleRequest(req, res) {
     });
     // real traffic (a finished call's own counters) — live-only, not persisted
     const offLive = onLive((entry) => {
-      try { res.write(`event: ${entry.act === "token" ? "token" : "traffic"}\ndata: ${JSON.stringify(entry)}\n\n`); } catch { /* dead socket: dropped */ }
+      try { res.write(`event: ${entry.act === "token" ? "token" : entry.act === "prompt" ? "prompt" : "traffic"}\ndata: ${JSON.stringify(entry)}\n\n`); } catch { /* dead socket: dropped */ }
     });
     const statusTimer = setInterval(() => {
       try { res.write(`event: status\ndata: ${JSON.stringify({ status: heimdallStatus() })}\n\n`); } catch { /* dead socket: dropped */ }
@@ -1098,8 +1133,11 @@ const job = await startDocumentJob({
       const turnT0 = Date.now(); // real prompt→response wall time, disclosed by Heimdall
       const _tid = beginTurn({ sessionId, model }); // E1: phase instrumentation
       _inflight++;
+      const surface = surfaceFromRequest(req);
+      noteSurfaceActivity(surface, "begin");
+      emitLive({ act: "prompt", surface, model, sessionId, text: promptTextOf(task, parsed?.chatHistory) });
       try {
-        const result = await runProxyTurn({
+        const result = await turnScope.run({ sessionId }, () => runProxyTurn({
           sessionId, userId, workspace, attachments, model, task, mode,
           chatHistory: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [],
           resumeAnswered: Array.isArray(parsed?.resumeAnswered) ? parsed.resumeAnswered : [],
@@ -1111,15 +1149,16 @@ const job = await startDocumentJob({
         }, (chunk) => {
           // every generated chunk rides the live sink so the watch surface can
           // show the actual text as it is written (monitor-only; never stored).
-          if (typeof chunk === "string" && chunk) emitLive({ act: "token", model, sessionId, text: chunk });
-        });
+          if (typeof chunk === "string" && chunk) { noteSurfaceActivity(surface, "chars", { chars: chunk.length }); emitLive({ act: "token", surface, model, sessionId, text: chunk }); }
+        }));
         markServable(model); // it answered — Heimdall keeps it servable
         recordTurnMs(Date.now() - turnT0);
         endTurn(_tid); // E1: one row per turn — draws · load · prompt · gen
         _inflight--;
+        noteSurfaceActivity(surface, "end");
         // the finished text rides out as a final token event, so the watch
         // surface shows the actual output even when per-chunk streaming is lost
-        if (result?.text) emitLive({ act: "token", model: result.model ?? model, sessionId, text: result.text, final: true });
+        if (result?.text) emitLive({ act: "token", surface, model: result.model ?? model, sessionId, text: result.text, final: true });
         clearTimeout(turnDeadline);
         res.removeListener("close", onDisconnect);
         const observation = await observationP;
@@ -1152,6 +1191,8 @@ const job = await startDocumentJob({
       } catch (err) {
         clearTimeout(turnDeadline);
         res.removeListener("close", onDisconnect);
+        noteSurfaceActivity(surface, "end"); // a failed turn is still a finished one
+        emitLive({ act: "token", surface, model, sessionId, text: `[${err?.message === "cancelled" ? "cancelled" : "error: " + err.message}]`, final: true, error: true });
         log(`ask execution error: ${err.message}`);
         if (!res.headersSent) {
           res.writeHead(err?.message === "cancelled" ? 499 : 500, { "content-type": "application/json" });
@@ -1529,21 +1570,25 @@ const job = await startDocumentJob({
           emitThinking(`\n${disclosureLine}\n`);
         }
 
+        const surface = surfaceFromRequest(req);
         try {
           const emitBoth = (chunk) => {
             try { emit(chunk); } catch { /* the real client's emit is untouched by a monitor */ }
-            if (typeof chunk === "string" && chunk) emitLive({ act: "token", model: reqData?.model ?? model, sessionId, text: chunk });
+            if (typeof chunk === "string" && chunk) { noteSurfaceActivity(surface, "chars", { chars: chunk.length }); emitLive({ act: "token", surface, model: reqData?.model ?? model, sessionId, text: chunk }); }
           };
           const _ctid = beginTurn({ sessionId, model: reqData?.model ?? model });
           _inflight++;
-          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, emitBoth, onNote, onThinking);
+          noteSurfaceActivity(surface, "begin");
+          emitLive({ act: "prompt", surface, model: reqData?.model ?? model, sessionId, text: promptTextOf(reqData?.task, reqData?.messages ?? parsed?.messages) });
+          const result = await turnScope.run({ sessionId }, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, emitBoth, onNote, onThinking));
           endTurn(_ctid);
           _inflight--;
+          noteSurfaceActivity(surface, "end");
           if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
           // The finished text rides out as a final token event (same contract
           // as /v1/ask) so the watch surface closes this door's stream panel
           // instead of leaving it blinking forever.
-          if (result?.text) emitLive({ act: "token", model: parsed.model ?? reqData?.model ?? model, sessionId, text: result.text, final: true });
+          if (result?.text) emitLive({ act: "token", surface, model: parsed.model ?? reqData?.model ?? model, sessionId, text: result.text, final: true });
           clearTurn();
           // Thinking affordance: when discloseThinking is on, emit the grounding
           // block as reasoning_content before the final chunk.
@@ -1603,6 +1648,8 @@ const job = await startDocumentJob({
           res.end();
         } catch (err) {
           clearTurn();
+          noteSurfaceActivity(surface, "end"); // a failed turn is still a finished one
+          emitLive({ act: "token", surface, model: reqData?.model ?? model, sessionId, text: `[${err?.message === "cancelled" ? "cancelled" : "error: " + err.message}]`, final: true, error: true });
           log(`proxy execution error: ${err.message}`);
           // A cancelled turn is not an error to the client that is still
           // listening; it is a clean stop. A dead client gets nothing (it is
@@ -2285,8 +2332,9 @@ server.listen(PORT, "127.0.0.1", () => {
       if (memPressed) {
         _residencyStanding = "standby";
         _residencyClearTicks = 0;
-        log(`REC — residency: memory pressured (swap ${vt?.swapPct ?? "?"}%, avail ${vt?.memAvailableMb ?? "?"}MB) — stand down`);
-        return { class: "stand_down", probe: `memory_pressured(swap ${vt?.swapPct ?? "?"}%)`, missing: [] };
+        const why = memoryPressureReason(vt) || "pressured";
+        log(`REC — residency: memory pressured (${why}) — stand down`);
+        return { class: "stand_down", probe: `memory_pressured(${why})`, missing: [] };
       }
       if (idle != null && idle <= _residencyStandbyIdle) {
         _residencyStanding = "standby";

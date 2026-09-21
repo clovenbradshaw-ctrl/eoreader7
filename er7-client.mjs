@@ -17,14 +17,20 @@
 //   node er7-client.mjs chat --model er7:gemma2:2b --message "hi" [--stream]
 //   node er7-client.mjs documents --task "essay prompt" [--model NAME] [--poll] [--wait-ms 3000]
 //
+// Archons — the worktree-archons' EOT rooms, read through the proxy surface
+// (the same module every surface calls):
+//   node er7-client.mjs archon list
+//   node er7-client.mjs archon conversation <slug> [--homeserver HYPHAE.SOCIAL]
+//   node er7-client.mjs archon record <slug> --text "..." [--kind lesson]
+//
 // Env: ER7_URL (default http://localhost:11436).
 
 const ER7_URL = (process.env.ER7_URL || "http://localhost:11436").replace(/\/+$/, "");
 
-async function request(path, { method = "GET", body } = {}) {
+async function request(path, { method = "GET", body, headers } = {}) {
   const res = await fetch(`${ER7_URL}${path}`, {
     method,
-    headers: body ? { "content-type": "application/json" } : undefined,
+    headers: { ...(body ? { "content-type": "application/json" } : {}), ...(headers ?? {}) },
     body: body ? JSON.stringify(body) : undefined,
   });
   const text = await res.text();
@@ -53,7 +59,7 @@ export async function models() {
   return json?.data ?? [];
 }
 
-export async function ask(task, { model = "olmo2:7b", mode, sessionId, workspace, chatHistory } = {}) {
+export async function ask(task, { model = "gemma2:2b", mode, sessionId, workspace, chatHistory } = {}) {
   const { json } = await request("/v1/ask", {
     method: "POST",
     body: { task, model, mode, sessionId, workspace, chatHistory },
@@ -110,7 +116,7 @@ export async function chatStream({ model, messages, discloseThinking, kelsen, mo
   return full;
 }
 
-export async function documents({ task, model = "olmo2:7b", workspace, sessionId, holonLevel, poll = false, waitMs = 3000, maxTries = 200 } = {}) {
+export async function documents({ task, model = "gemma2:2b", workspace, sessionId, holonLevel, poll = false, waitMs = 3000, maxTries = 200 } = {}) {
   const { json: job } = await request("/v1/documents", {
     method: "POST",
     body: { task, model, workspace, sessionId, holonLevel },
@@ -133,6 +139,9 @@ function usage() {
       "       node er7-client.mjs ask <question> [--model NAME] [--mode auto|chat|long|projection] [--session ID] [--workspace PATH]",
       "       node er7-client.mjs chat --model er7:<model> --message <text> [--stream] [--mode auto|chat|long|projection]",
       "       node er7-client.mjs documents --task <prompt> [--model NAME] [--poll]",
+      "       node er7-client.mjs archon list",
+      "       node er7-client.mjs archon conversation <slug> [--homeserver HYPHAE.SOCIAL]",
+      "       node er7-client.mjs archon record <slug> --text <lesson>",
     ].join("\n")
   );
 }
@@ -193,6 +202,33 @@ async function main() {
         console.log(r.choices?.[0]?.message?.content ?? JSON.stringify(r, null, 2));
       }
       break;
+    }
+    case "archon": {
+      // One command, every surface: the archons' EOT rooms through the proxy.
+      const [verb, ...tail] = positional;
+      if (verb === "list") {
+        const { json } = await request("/v1/archons");
+        console.log(json?.archons?.join("\n") ?? "(none)");
+        break;
+      }
+      if (verb === "conversation") {
+        const slug = tail[0];
+        if (!slug) return usage();
+        const hs = opts.homeserver || opts.hs || "hyphae.social";
+        const { json, status } = await request(`/v1/archons/${encodeURIComponent(slug)}/conversation`, { headers: { "x-er7-homeserver": hs } });
+        if (typeof json === "string") console.log(json);
+        else { console.log(`conversation ${slug}: ${status}`); if (json?.error) console.error(json.error.message); }
+        break;
+      }
+      if (verb === "record") {
+        const slug = tail[0];
+        const text = opts.text ?? opts.task ?? tail.slice(1).join(" ");
+        if (!slug || !text) return usage();
+        const { json } = await request(`/v1/archons/${encodeURIComponent(slug)}/record`, { method: "POST", body: { homeserver: opts.homeserver || opts.hs || "hyphae.social", text, kind: opts.kind ?? "lesson" } });
+        console.log(`recorded ${slug} seq ${json?.seq} → block ${json?.block}`);
+        break;
+      }
+      return usage();
     }
     case "documents": {
       if (!opts.task) return usage();

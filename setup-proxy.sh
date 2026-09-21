@@ -187,7 +187,7 @@ if [ "$CONFIG" = "1" ]; then
       er.options.baseURL = `http://127.0.0.1:${port}/v1`;
       er.api = "openai";
       er.models = er.models ?? {};
-      er.models["er7:olmo2:7b"] = { name: "EOReader7 OLMo 2 7B (Grounded)" };
+      er.models["er7:gemma2:2b"] = { name: "EOReader7 Gemma 2 2B (Grounded)" };
       er.models["er7:gemma2:2b"] = { name: "EOReader7 Gemma 2 2B (Grounded)" };
       er.models["er7:llama3.1:8b"] = { name: "EOReader7 Llama 3.1 8B (Grounded)" };
       er.models["er7:qwen2.5-coder:7b"] = { name: "EOReader7 Qwen2.5 Coder 7B (Grounded)" };
@@ -214,9 +214,9 @@ fi
 say "Done."
 echo
 echo "  proxy       http://127.0.0.1:$PORT/v1   (health: http://127.0.0.1:$PORT/health)"
-echo "  model       er7/er7:olmo2:7b"
+echo "  model       er7/er7:gemma2:2b"
 echo "  commands    er7-proxy {start|stop|restart|status|log}"
 echo "  fleet       er7-proxy {fleet:start|fleet:stop|fleet:status|fleet:log}"
 echo "  one line    curl -fsSL https://bit.ly/install-eoreader7 | bash   (also https://bit.ly/install-the-fold)"
 echo
-echo "  Restart opencode, then pick the er7 model (e.g. er7/er7:olmo2:7b)."
+echo "  Restart opencode, then pick the er7 model (e.g. er7/er7:gemma2:2b)."

@@ -68,6 +68,213 @@ const isMain = (() => {
 })();
 
 const OLLAMA_URL = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
+
+// ── INFERENCE HOSTS: many small servers, one picker (2026-09-21) ──────────
+// Our incentives are not a GPU farm's. The models are small and the box is
+// shared, so a turn's cost is not generation throughput — it is the COLD
+// LOAD (seconds, and it evicts what was resident) and the PROMPT EVAL (the
+// prefix cache only helps on the server that already saw the prefix).
+// Measured on this box 2026-09-21: one turn = 7.8s wall, of which prompt
+// eval 1.7s, generation 4.4s for 32 tokens, load 10ms because the model
+// was resident. A naive round robin across N servers would pay a cold load
+// on every server for every model and throw away every prefix cache. So
+// the picker is, in order:
+//   1. STICKY — a session stays on the host that last served it while that
+//      host is up and the model is still resident there (prefix cache, no
+//      reload).
+//   2. RESIDENT FIRST — among the rest, a host with the model resident
+//      (/api/ps, probed each cadence) outranks one that must load it —
+//      unless its expected wait exceeds the other's wait plus the load cost
+//      MEASURED on that other host (its own load_duration EWMA), never a
+//      hand-set constant.
+//   3. SHORTEST EXPECTED WAIT — in-flight × measured mean turn ms on that
+//      host for that model; unmeasured hosts score at the mean of the
+//      measured ones, so they are tried, never starved or preferred.
+//   4. ROTATE TIES — an idle fleet spreads instead of pinning the first host.
+// A host that refuses (ECONNREFUSED) is stood down until the next cadence
+// probes it back; a single timeout never convicts (the last state stands).
+// Configure with ER7_OLLAMA_HOSTS="name=http://host:port,name=url"; the
+// default is the one local daemon, so nothing changes for a one-box setup.
+const HOST_EWMA = 0.3;
+function parseHosts() {
+  const raw = String(process.env.ER7_OLLAMA_HOSTS ?? "").trim();
+  const out = [];
+  for (const spec of raw.split(",").map((x) => x.trim()).filter(Boolean)) {
+    const eq = spec.indexOf("=");
+    const name = eq === -1 ? spec.replace(/^https?:\/\//, "").replace(/[^a-z0-9.-]/gi, "_") : spec.slice(0, eq).trim();
+    const url = (eq === -1 ? spec : spec.slice(eq + 1).trim()).replace(/\/+$/, "");
+    if (!/^https?:\/\//.test(url)) continue;
+    out.push({ name, url });
+  }
+  if (!out.length) out.push({ name: "local", url: OLLAMA_URL });
+  return out.map((h) => ({
+    ...h, inflight: 0, calls: 0, picks: 0, fails: 0, lastAt: null, downAt: null, downReason: null,
+    meanMs: new Map(),   // model -> EWMA turn ms on this host
+    loadMs: null,        // EWMA of REAL loads (load_duration > 100ms) on this host
+    resident: new Map(), // model -> expiresAt (from /api/ps) — what is hot here
+  }));
+}
+const hosts = parseHosts();
+const sessionHost = new Map(); // sessionId -> host name (stickiness)
+let hostRotate = 0;
+export const inferenceHosts = () => hosts;
+export function hostByName(name) { return hosts.find((h) => h.name === name) ?? null; }
+function hostUp(h) { return h.downAt == null; }
+function hostResident(h, model) {
+  const exp = h.resident.get(model);
+  if (exp == null) return false;
+  return Date.parse(exp) > Date.now() || !Number.isFinite(Date.parse(exp));
+}
+/** Pick the host for a turn. Returns { host, reason, order }. */
+export function pickHost({ model = null, session = null } = {}) {
+  const up = hosts.filter((h) => hostUp(h) && !h.shapeMismatch);
+  if (!up.length) return { host: hosts[0], reason: "all_hosts_down_trying_first", order: hosts.map((h) => h.name) };
+  if (model) maybePrewarm(model);
+  // 1. sticky
+  if (session && sessionHost.has(session)) {
+    const h = hostByName(sessionHost.get(session));
+    if (h && hostUp(h) && (!model || hostResident(h, model))) { h.picks++; return { host: h, reason: "sticky_session", order: [h.name] }; }
+  }
+  // 3. expected wait per host
+  const measured = up.map((h) => (model ? h.meanMs.get(model) : null)).filter((v) => Number.isFinite(v) && v > 0);
+  const typical = measured.length ? measured.reduce((a, b) => a + b, 0) / measured.length : 1;
+  const waitOf = (h) => h.inflight * ((model && h.meanMs.get(model)) || typical);
+  const loadCostOf = (h) => (h.loadMs ?? 0);
+  // 2. resident first, unless waiting for the resident host costs more than
+  //    loading elsewhere (that host's own measured load cost)
+  let cands = up.slice();
+  if (model) {
+    const res = cands.filter((h) => hostResident(h, model));
+    const cold = cands.filter((h) => !hostResident(h, model));
+    if (res.length && cold.length) {
+      const bestRes = Math.min(...res.map(waitOf));
+      const bestColdTotal = Math.min(...cold.map((h) => waitOf(h) + loadCostOf(h)));
+      cands = bestRes <= bestColdTotal ? res : cands;
+    }
+  }
+  const waits = new Map(cands.map((h) => [h.name, waitOf(h)]));
+  const min = Math.min(...waits.values());
+  const tied = cands.filter((h) => waits.get(h.name) === min);
+  // 4. rotate ties
+  const pick = tied.length > 1 ? tied[hostRotate++ % tied.length] : tied[0];
+  pick.picks++;
+  if (session) sessionHost.set(session, pick.name);
+  if (sessionHost.size > 5000) { const first = sessionHost.keys().next().value; sessionHost.delete(first); }
+  const order = cands.slice().sort((x, y) => waits.get(x.name) - waits.get(y.name)).map((h) => h.name);
+  const reason = tied.length > 1 ? "rotate_tie" : (model && hostResident(pick, model)) ? "resident_shortest_wait" : "shortest_expected_wait";
+  return { host: pick, reason, order };
+}
+// ADMITTED, NOT YET STARTED: a turn passes the door seconds before it
+// reaches a daemon (the mechanical pipeline runs first), so a burst looks
+// idle at the door if only host in-flight is counted. Each admission lands a
+// stamp; the next hostBegin consumes the oldest; a stamp older than 60s is a
+// turn that never reached a host (answered mechanically, or failed) and is
+// dropped — the count can never leak upward.
+const admittedPending = [];
+export function noteAdmitted() { admittedPending.push(Date.now()); }
+function pendingCount() {
+  const cut = Date.now() - 60000;
+  while (admittedPending.length && admittedPending[0] < cut) admittedPending.shift();
+  return admittedPending.length;
+}
+export function hostBegin(name) {
+  if (admittedPending.length) admittedPending.shift();
+  const h = hostByName(name); if (!h) return;
+  h.inflight += 1; h.lastAt = Date.now();
+}
+export function hostEnd(name, { model = null, ms = null, ok = true, loadMs = 0, refused = false } = {}) {
+  const h = hostByName(name); if (!h) return;
+  h.inflight = Math.max(0, h.inflight - 1);
+  h.lastAt = Date.now();
+  if (ok) {
+    h.calls += 1;
+    if (h.downAt != null) { h.downAt = null; h.downReason = null; appendLog({ act: "rec", finding: "host_back", host: name }); }
+    if (model && Number.isFinite(ms) && ms > 0) {
+      const prev = h.meanMs.get(model);
+      h.meanMs.set(model, prev == null ? Math.round(ms) : Math.round((1 - HOST_EWMA) * prev + HOST_EWMA * ms));
+      // it just answered with this model: resident here until the daemon's keep-alive (refreshed by /api/ps)
+      if (!h.resident.has(model)) h.resident.set(model, new Date(Date.now() + 600000).toISOString());
+    }
+    if (loadMs > 100) h.loadMs = h.loadMs == null ? Math.round(loadMs) : Math.round((1 - HOST_EWMA) * h.loadMs + HOST_EWMA * loadMs);
+  } else {
+    h.fails += 1;
+    if (refused) { h.downAt = Date.now(); h.downReason = "refused"; appendLog({ act: "eva", finding: "host_down", host: name, reason: "refused" }); }
+  }
+}
+/** The least expected wait for a model over the hosts that answer: in-flight
+ *  × that host's measured mean for the model. null when no host has a
+ *  measurement — unmeasured is never a hold. */
+export function expectedWaitMs(model) {
+  let best = null;
+  const up = hosts.filter((h) => hostUp(h) && !h.shapeMismatch);
+  // turns admitted but not yet on a host will spread over the up hosts
+  const pendingEach = up.length ? Math.ceil(pendingCount() / up.length) : 0;
+  for (const h of up) {
+    const mean = h.meanMs.get(model);
+    if (!Number.isFinite(mean) || mean <= 0) continue;
+    const ahead = h.inflight + pendingEach;
+    const ms = ahead * mean;
+    if (best == null || ms < best.ms) best = { ms, host: h.name, inflight: ahead, meanMs: mean };
+  }
+  return best ?? { ms: null, host: null, inflight: 0, meanMs: null };
+}
+
+/** SAME SHAPE (item 4): every host must run the same context window for a
+ *  model it has loaded, or a switch between hosts is a reload. Compared from
+ *  each host's own /api/ps; a host whose loaded window differs from the
+ *  majority is marked and skipped by the picker until it matches. */
+function checkHostShapes() {
+  const windows = new Map(); // model -> Map(ctx -> [hosts])
+  for (const h of hosts) for (const [m, info] of h.residentInfo ?? []) {
+    if (!Number.isFinite(info?.contextLength)) continue;
+    const byCtx = windows.get(m) ?? new Map();
+    byCtx.set(info.contextLength, [...(byCtx.get(info.contextLength) ?? []), h.name]);
+    windows.set(m, byCtx);
+  }
+  for (const h of hosts) {
+    let mismatch = null;
+    for (const [m, info] of h.residentInfo ?? []) {
+      const byCtx = windows.get(m); if (!byCtx || byCtx.size < 2) continue;
+      const majority = [...byCtx.entries()].sort((a, b) => b[1].length - a[1].length)[0][0];
+      if (info.contextLength !== majority) mismatch = { model: m, window: info.contextLength, majority };
+    }
+    if (mismatch && !h.shapeMismatch) appendLog({ act: "eva", finding: "host_shape_mismatch", host: h.name, ...mismatch });
+    if (!mismatch && h.shapeMismatch) appendLog({ act: "rec", finding: "host_shape_ok", host: h.name });
+    h.shapeMismatch = mismatch;
+  }
+}
+
+/** PRE-WARM (item 4): when a host's queue is longer than one of its own
+ *  turns (in-flight × mean > mean, i.e. someone is already waiting), warm the
+ *  model on an up host that does not have it resident — before the next
+ *  prompt pays the cold load. One warm per host per cadence, fire-and-forget,
+ *  and never into a host that is standing down. The trigger is the host's
+ *  own measurement, not a constant. */
+const prewarmAt = new Map();
+export function maybePrewarm(model) {
+  if (!model) return null;
+  const queued = hosts.filter((h) => hostUp(h) && h.inflight > 1 && hostResident(h, model));
+  if (!queued.length) return null;
+  const cold = hosts.filter((h) => hostUp(h) && !h.shapeMismatch && !hostResident(h, model) && Date.now() - (prewarmAt.get(h.name) ?? 0) > 60000);
+  if (!cold.length) return null;
+  const target = cold[0];
+  prewarmAt.set(target.name, Date.now());
+  appendLog({ act: "rec", finding: "host_prewarm", host: target.name, model, because: `${queued[0].name} has ${queued[0].inflight} in flight` });
+  fetch(`${target.url}/api/generate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ model, keep_alive: "1h" }), signal: AbortSignal.timeout(120000) })
+    .then((r) => { if (r.ok) target.resident.set(model, new Date(Date.now() + 3600000).toISOString()); })
+    .catch(() => {});
+  return target.name;
+}
+
+export function hostsDisclosure() {
+  return hosts.map((h) => ({
+    name: h.name, url: h.url, up: hostUp(h), downReason: h.downReason, inflight: h.inflight, calls: h.calls, picks: h.picks, fails: h.fails,
+    lastAt: h.lastAt ? new Date(h.lastAt).toISOString() : null,
+    shapeMismatch: h.shapeMismatch ?? null,
+    loadMs: h.loadMs, meanMs: Object.fromEntries(h.meanMs), resident: [...h.resident.keys()],
+    sessions: [...sessionHost.values()].filter((n) => n === h.name).length,
+  }));
+}
 let CHECK_INTERVAL_MS = Number(process.env.ER7_HEIMDALL_INTERVAL ?? 15000); // runtime-adjustable (see SETTINGS)
 const HEALTH_TIMEOUT_MS = Number(process.env.ER7_HEIMDALL_HEALTH_TIMEOUT ?? 15000);
 let MAX_RESTARTS = Number(process.env.ER7_HEIMDALL_MAX_RESTARTS ?? 3); // runtime-adjustable
@@ -96,7 +303,7 @@ let WAITER_TTL_MS = Number(process.env.ER7_WAITER_TTL ?? 120 * 1000); // a stale
 // the SLA is pulled to the ABSOLUTE front (longest-waiting first), so the
 // guarantee is enforced by the schedule, not just reported. The target is a
 // floor — Heimdall aims as short as the box allows.
-let SLA_MAX_WAIT_MS = Number(process.env.ER7_SLA_MS ?? 120 * 1000); // 2 min by default (runtime-adjustable)
+let SLA_MAX_WAIT_MS = Number(process.env.ER7_SLA_MS ?? 12 * 1000); // 12s by default (user direction 2026-09-21; was 2 min) — runtime-adjustable
 export function slaOverMs(w) {
   return w?.enteredAt ? Date.now() - w.enteredAt - SLA_MAX_WAIT_MS : 0;
 }
@@ -759,6 +966,12 @@ const surfaces = SURFACE_SPECS.map((s) => ({
   url: `http://127.0.0.1:${s.port}`,
   healthUrl: `http://127.0.0.1:${s.port}${HEALTH_PATH_OF(s.name)}`,
   up: null, reason: null, lastState: null, restartTimes: [], inflight: 0,
+  // ACTIVITY (2026-09-21): what is going through THIS server — turns begun
+  // and finished, turns in flight, when it last moved, and the characters
+  // written in the last window. The proxy attributes every turn to the
+  // surface that asked (the page's origin port), so a fold page's traffic
+  // reads on the fold's span, not on er7's.
+  activity: { calls: 0, turns: 0, lastAt: null, samples: [] },
 }));
 
 // The surface this watcher IS, when imported into the proxy: its own port is
@@ -766,6 +979,49 @@ const surfaces = SURFACE_SPECS.map((s) => ({
 // itself). null when running standalone.
 let selfPort = null;
 export const getSurfaces = () => surfaces;
+
+/** The registered surface listening on a port, or null. The proxy maps a
+ *  request's Origin/Referer port here so traffic is attributed to the
+ *  server whose page sent it — mechanically, never declared. */
+export function surfaceByPort(port) {
+  const n = Number(port);
+  if (!Number.isFinite(n)) return null;
+  return surfaces.find((s) => s.port === n) ?? null;
+}
+
+const ACTIVITY_WINDOW_MS = 8000;
+/** Land one activity event on a surface: "begin" (a turn started), "chars"
+ *  (n characters written), "end" (a turn finished). Unknown names land on
+ *  nothing — a surface not registered is not measured, never guessed. */
+export function noteSurfaceActivity(name, phase, { chars = 0 } = {}) {
+  const s = surfaces.find((x) => x.name === name);
+  if (!s) return null;
+  const a = s.activity;
+  const now = Date.now();
+  a.lastAt = now;
+  if (phase === "begin") { a.turns += 1; a.calls += 1; }
+  else if (phase === "end") { a.turns = Math.max(0, a.turns - 1); }
+  else if (phase === "chars" && chars > 0) {
+    a.samples.push({ at: now, chars });
+    if (a.samples.length > 400) a.samples.splice(0, a.samples.length - 400);
+  }
+  return a;
+}
+function activityDisclosure(s) {
+  const a = s.activity;
+  const now = Date.now();
+  a.samples = a.samples.filter((x) => x.at > now - ACTIVITY_WINDOW_MS);
+  const chars = a.samples.reduce((n, x) => n + x.chars, 0);
+  const span = a.samples.length ? now - a.samples[0].at : 0;
+  return {
+    calls: a.calls,
+    inflight: a.turns + s.inflight,
+    lastAt: a.lastAt ? new Date(a.lastAt).toISOString() : null,
+    idleS: a.lastAt ? Math.round((now - a.lastAt) / 1000) : null,
+    charsPerS: span > 0 ? Math.round((chars * 1000) / span) : 0,
+    moving: a.turns > 0 || s.inflight > 0 || (a.lastAt != null && now - a.lastAt < 3000),
+  };
+}
 export const markInflight = (name, delta) => {
   const s = surfaces.find((x) => x.name === name);
   if (s) s.inflight = Math.max(0, s.inflight + delta);
@@ -938,6 +1194,19 @@ async function readSwap() {
   const used = Number((/used = ([\d.]+)M/.exec(out) || [])[1]);
   if (!Number.isFinite(total) || !Number.isFinite(used)) return {};
   return { swapTotalMb: Math.round(total), swapUsedMb: Math.round(used), swapPct: Math.round((100 * used) / Math.max(1, total)) };
+}
+/** WHY memory reads pressured — the label must name the test that fired,
+ *  never the stale swap level (the holon's old label printed "swap 97%" for
+ *  a churn conviction and read as a level conviction). */
+export function memoryPressureReason(vitals, floorMb = MEM_FLOOR_MB) {
+  if (!vitals) return null;
+  const churn = vitals.swapOutPerS ?? null;
+  if (churn != null && churn >= SWAP_CHURN_PPS) return `thrashing: ${Math.round(churn)} pages/s swapped out (ceiling ${SWAP_CHURN_PPS})`;
+  const avail = vitals.memAvailableMb ?? vitals.memFreeMb;
+  if (avail != null && avail < floorMb) return `only ${avail}MB usable, floor ${floorMb}MB`;
+  const free = vitals.memFreeMb ?? null;
+  if (free != null && free < 256) return `only ${free}MB truly free`;
+  return null;
 }
 export function memoryPressured(vitals, floorMb = MEM_FLOOR_MB) {
   if (!vitals) return false; // unknown is never a conviction
@@ -1263,7 +1532,7 @@ export function modelQuirksOf(model) {
  * provider served them cut-rate from cache instead of full recompute), and
  * cost totals ride alongside for the spenders that report it.
  */
-export function observeCall({ model, promptTokens = 0, promptMs = 0, genTokens = 0, genMs = 0, loadMs = 0, ungated = false, upstream = null, reasoningTokens = 0, cacheReadTokens = 0, cacheWriteTokens = 0, cost = null } = {}) {
+export function observeCall({ model, surface = null, host = null, promptTokens = 0, promptMs = 0, genTokens = 0, genMs = 0, loadMs = 0, ungated = false, upstream = null, reasoningTokens = 0, cacheReadTokens = 0, cacheWriteTokens = 0, cost = null } = {}) {
   if (!model) return null;
   // A successful call is proof the model answers — Heimdall keeps it servable.
   markServable(model);
@@ -1296,7 +1565,7 @@ export function observeCall({ model, promptTokens = 0, promptMs = 0, genTokens =
     _turn.loadMs += loadMs || 0; _turn.promptMs += promptMs || 0; _turn.genMs += genMs || 0;
     _turn.promptTokens += promptTokens || 0; _turn.genTokens += genTokens || 0;
   } else if (_turn && ungated) { _turn.remote += 1; }
-  emitLive({ act: "call", model, promptTokens, genTokens, genMs, promptMs, reloaded: loadMs > 100, ungated: !!ungated, upstream: upstream ?? null });
+  emitLive({ act: "call", surface: surface ?? "er7", host: host ?? null, model, promptTokens, genTokens, genMs, promptMs, reloaded: loadMs > 100, ungated: !!ungated, upstream: upstream ?? null });
   return t;
 }
 
@@ -1306,6 +1575,14 @@ export function observeCall({ model, promptTokens = 0, promptMs = 0, genTokens =
 // real turns, the token levers are the wrong ones (prompt/load is the target).
 let _turn = null;
 let _turnSeq = 0;
+// THE TURN'S OWN SCOPE (2026-09-21): `_turn` is one global, so under a burst
+// every concurrent turn read the LAST session begun and the picker stuck all
+// of them to one host (measured: three of eight waited 9.5s while the other
+// host sat idle). AsyncLocalStorage carries each turn's session down to the
+// call site correctly under any concurrency.
+import { AsyncLocalStorage } from "node:async_hooks";
+export const turnScope = new AsyncLocalStorage();
+export const currentTurnSession = () => turnScope.getStore()?.sessionId ?? null;
 const TURN_PHASES = [];
 export function beginTurn({ sessionId = null, model = null } = {}) {
   _turn = { id: ++_turnSeq, sessionId, model, startAt: Date.now(), draws: 0, loadMs: 0, promptMs: 0, genMs: 0, promptTokens: 0, genTokens: 0, remote: 0 };
@@ -1401,6 +1678,22 @@ export function seedUnservableLarge(models = loadedModels()) {
 }
 
 export async function refreshOllamaModels() {
+  // every host's own /api/ps: what is resident WHERE, and which hosts answer
+  await Promise.all(hosts.map(async (h) => {
+    try {
+      const r = await fetchWithTimeout(`${h.url}/api/ps`, 3000);
+      if (!r.ok) return;
+      const b = await r.json();
+      h.resident = new Map((b?.models ?? []).map((m) => [m.name ?? m.model, m.expires_at ?? null]).filter(([n]) => n));
+      h.residentInfo = new Map((b?.models ?? []).map((m) => [m.name ?? m.model, { contextLength: Number.isFinite(m.context_length) ? m.context_length : null }]).filter(([n]) => n));
+      if (h.downAt != null) { h.downAt = null; h.downReason = null; appendLog({ act: "rec", finding: "host_back", host: h.name }); }
+    } catch (e) {
+      const code = e?.cause?.code ?? e?.code ?? "";
+      if (/ECONNREFUSED|ENOTFOUND|EHOSTUNREACH/.test(String(code)) && h.downAt == null) { h.downAt = Date.now(); h.downReason = String(code); appendLog({ act: "eva", finding: "host_down", host: h.name, reason: String(code) }); }
+      // a timeout keeps the last known state — never convict on a suspicion
+    }
+  }));
+  checkHostShapes();
   let models;
   try {
     const res = await fetchWithTimeout(`${OLLAMA_URL}/api/ps`, 3000);
@@ -2692,11 +2985,13 @@ export function heimdallStatus() {
     mintedRules: mintedRules(),
     derivedRules: derivedRuleStore(),
     roomMouths: roomMouthStore(),
+    hosts: [...hostsDisclosure(), ...roomMouthStore().map((m) => ({ name: m.id, url: `matrix:${m.user}`, kind: "room", up: true, inflight: 0, calls: 0, picks: 0, fails: 0, lastAt: m.at, resident: [m.model], meanMs: {}, loadMs: null, sessions: 0, pickable: false }))],
     throughput: throughputOf(),
     surfaces: surfaces.map((s) => ({
       name: s.name, family: s.family, port: s.port, up: s.up, reason: s.reason,
       inflight: s.inflight, cmd: s.cmd, restartsInWindow: s.restartTimes.length,
       restartable: !(selfPort != null && s.port === selfPort),
+      activity: activityDisclosure(s),
     })),
     logTail: logTail(12),
     memory: memoryDisclosure(),
@@ -2829,6 +3124,21 @@ export function admitChat(body = "{}", headers = {}) {
   // retry is never shuffled). A pass jump during a live zipper merge is held,
   // not misordered.
   const saturated = _testSaturated ?? boxSaturated(cachedVitals());
+  // EXPECTED WAIT (2026-09-21): the picker's own evidence — the least
+  // (in-flight × measured mean turn) over the hosts that answer — is the
+  // honest "when would this start". Past the SLA it is held with that ETA,
+  // in words, instead of queueing silently inside the daemon (NUM_PARALLEL
+  // is invisible from here). Unmeasured hosts never hold: no evidence, no
+  // conviction.
+  const ew = expectedWaitMs(String(model ?? "").replace(/^er7:/, ""));
+  if (ew.ms != null && ew.ms > SLA_MAX_WAIT_MS) {
+    appendLog({ act: "eva", finding: "expected_wait", key, model, family, waitMs: ew.ms, host: ew.host, inflight: ew.inflight, meanMs: ew.meanMs });
+    return {
+      allowed: false, status: 429, type: "expected_wait", family, model, retryAfterS: Math.max(2, Math.ceil(ew.ms / 1000)),
+      message: `every server is busy — the least wait is ~${Math.ceil(ew.ms / 1000)}s on ${ew.host} (${ew.inflight} ahead at ~${(ew.meanMs / 1000).toFixed(1)}s each), past the ${Math.round(SLA_MAX_WAIT_MS / 1000)}s promise. Heimdall holds the turn; retry in ${Math.ceil(ew.ms / 1000)}s.`,
+      expectedWait: ew,
+    };
+  }
   const familyInflight = FAMILY_CAP > 0 && family !== "any"
     ? surfaces.filter((s) => s.family === family).reduce((a, s) => a + s.inflight, 0)
     : 0;
@@ -2898,6 +3208,7 @@ export function admitChat(body = "{}", headers = {}) {
       profile.lastServeAt = Date.now();
       lastServed.set(key, Date.now());
       waiters.delete(key);
+      noteAdmitted();
       return { allowed: true, family, model, pass: pass ? pass.code : null, claim, priority: profile.priority };
     }
     // The box has room, but it is not your turn yet — hold your place.

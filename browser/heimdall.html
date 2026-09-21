@@ -7,7 +7,7 @@
 <style>
   :root {
     color-scheme: dark;
-    --bg:#05060a; --ink:#d9dce6; --mut:#6b7385; --dim:#3a4152; --line:#232a3d;
+    --bg:#05060a; --ink:#e6e9f2; --mut:#aab2c4; --dim:#8f98ad; --line:#232a3d;
     --blue:#6fd0ff; --gold:#ffd166; --red:#ff5c5c; --vio:#a78bfa; --grn:#4cc38a; --amb:#ffb454; --teal:#4fe3c0;
   }
   * { box-sizing: border-box; }
@@ -31,22 +31,25 @@
   header a { color:var(--mut); text-decoration:none; font-size:12px; border:1px solid var(--line); padding:3px 10px; border-radius:3px; }
   header a:hover { color:var(--ink); border-color:var(--blue); }
 
-  #stage { display:block; width:100%; height:196px; margin:14px 0 4px; }
+  .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  :focus-visible { outline:2px solid var(--blue); outline-offset:2px; }
+  #stage { display:block; width:100%; height:240px; margin:14px 0 4px; }
 
   #facts { margin:6px 0 0; }
   .row { display:flex; gap:16px; padding:7px 0; border-bottom:1px solid #12151f; align-items:baseline; }
-  .row .k { width:78px; flex:none; color:var(--dim); font-size:12px; letter-spacing:.16em; }
+  .row .k { width:92px; flex:none; color:var(--ink); font-size:12px; letter-spacing:.14em; font-weight:700; }
   .row .v { color:var(--ink); }
   .good{color:var(--grn)} .bad{color:var(--red)} .warn{color:var(--amb)} .mut{color:var(--mut)}
   .blue{color:var(--blue)} .gold{color:var(--gold)} .vio{color:var(--vio)} .dim{color:var(--dim)}
   #last { padding:8px 0 0; color:var(--dim); font-size:12px; }
 
   .block { margin-top:22px; }
-  .block h3 { margin:0 0 8px; font-size:11px; letter-spacing:.16em; color:var(--vio); font-weight:700; }
+  .block h3 { margin:0 0 8px; font-size:12px; letter-spacing:.16em; color:var(--vio); font-weight:700; }
   .list { border-top:1px solid #12151f; }
   .ch, .srv { display:flex; gap:12px; align-items:baseline; padding:6px 0; border-bottom:1px solid #12151f; font-size:13px; flex-wrap:wrap; }
   .ch .nm, .srv .nm { min-width:190px; color:var(--ink); }
   .ch .nums { color:var(--mut); } .ch .last { color:var(--dim); }
+  .srv .srv-flow { margin-left:auto; font-variant-numeric:tabular-nums; white-space:nowrap; }
   .loglist { max-height:300px; overflow-y:auto; }
   .lrow { padding:2px 0; white-space:pre; font-size:12.5px; }
   .lrow.bad { color:var(--red); } .lrow.vio{color:var(--vio)} .lrow.gold{color:var(--gold)} .lrow.grn{color:var(--grn)} .lrow.blue{color:var(--blue)} .lrow.mut{color:var(--mut)}
@@ -54,12 +57,12 @@
   .filters input[type=text], .filters input:not([type]) { background:#0b0e16; color:var(--ink); border:1px solid var(--line); border-radius:4px; padding:5px 8px; font:inherit; font-size:12px; width:220px; }
   .filters select { background:#0b0e16; color:var(--ink); border:1px solid var(--line); border-radius:4px; padding:5px 8px; font:inherit; font-size:12px; }
   .filters label { color:var(--mut); font-size:12px; }
-  button.rs { background:#131a2b; color:var(--blue); border:1px solid var(--line); border-radius:4px; padding:2px 10px; font:inherit; font-size:11px; cursor:pointer; }
+  button.rs { background:#131a2b; color:var(--blue); border:1px solid var(--line); border-radius:4px; padding:2px 10px; font:inherit; font-size:12px; cursor:pointer; }
   button.rs:hover { border-color:var(--blue); color:#fff; }
   #toast { position:fixed; right:18px; bottom:18px; background:#131a2b; border:1px solid var(--line); color:var(--ink); padding:8px 14px; border-radius:5px; font-size:12px; opacity:0; transition:opacity .2s; pointer-events:none; }
   #toast.show { opacity:1; }
   .tach { display:flex; gap:12px; align-items:center; padding:4px 0; font-size:13px; }
-  .tach .k { width:44px; flex:none; color:var(--dim); letter-spacing:.14em; font-size:11px; }
+  .tach .k { width:44px; flex:none; color:var(--dim); letter-spacing:.14em; font-size:12px; }
   .tach .bar { display:inline-flex; }
   .tach .bar > span { display:inline-block; height:12px; }
   .tach .val { width:44px; text-align:right; font-weight:700; }
@@ -71,7 +74,7 @@
   button.kill { background:#2a1216; color:var(--red); border-color:#5a2226; }
   .waffle { display:grid; grid-template-columns:repeat(20,1fr); gap:1px; margin-bottom:6px; max-width:300px; width:100%; }
   .wcell { aspect-ratio:1; border-radius:1px; display:block; }
-  .wlegend { display:flex; flex-wrap:wrap; gap:2px 12px; font-size:11px; }
+  .wlegend { display:flex; flex-wrap:wrap; gap:2px 12px; font-size:12px; }
   .wlg { display:flex; align-items:center; gap:5px; }
   .wlg .sw { width:9px; height:9px; border-radius:2px; display:inline-block; flex:none; }
   .gentext { max-height:260px; overflow-y:auto; white-space:pre-wrap; word-break:break-word; font:inherit; font-size:12.5px; line-height:1.5; color:var(--ink); background:#080b12; border:1px solid #12151f; border-radius:4px; padding:8px 10px; margin:0; }
@@ -84,19 +87,31 @@
   .g-needle line { stroke:#3a4152; stroke-width:2.6; stroke-linecap:round; }
   .g-needle circle { fill:#3a4152; }
   .g-val { font-weight:700; font-size:15px; font-family:var(--mono); margin-top:2px; font-variant-numeric:tabular-nums; min-width:3ch; display:inline-block; }
-  .g-label { font-size:10px; letter-spacing:.14em; color:var(--dim); text-transform:uppercase; margin-top:1px; }
-  .g-note { font-size:10px; color:var(--mut); }
+  .g-label { font-size:12px; letter-spacing:.14em; color:var(--dim); text-transform:uppercase; margin-top:1px; }
+  .g-note { font-size:12px; color:var(--mut); }
   .gstream { background:#080b12; border:1px solid #12151f; border-radius:4px; padding:8px 10px; }
   .gstream.done { opacity:.72; }
   .gstream.err { border-color:#5a2226; }
-  .g-head { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; font-size:11px; color:var(--mut); margin-bottom:4px; }
+  .g-head { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; font-size:12px; color:var(--mut); margin-bottom:4px; }
   .g-head .g-time { color:var(--dim); }
   .g-head .g-model { color:var(--blue); font-weight:700; }
+  .g-head .g-surf { color:var(--teal); font-weight:700; }
   .g-head .g-sess { color:var(--dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px; }
   .g-head .g-status { color:var(--grn); }
   .gstream.done .g-status { color:var(--mut); }
   .gstream.err .g-status { color:var(--red); }
   .g-body { white-space:pre-wrap; word-break:break-word; font:inherit; font-size:12.5px; line-height:1.5; color:var(--ink); }
+  .g-prompt { white-space:pre-wrap; word-break:break-word; font-size:12px; line-height:1.45; color:var(--mut); border-left:2px solid #233; padding:2px 8px; margin:2px 0 6px; max-height:7.5em; overflow:hidden; }
+  .g-prompt::before { content:"› "; color:var(--teal); }
+  .gstream.hidden { display:none; }
+  .gstream.err .g-body { color:var(--amb); }
+  #gen-filter { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 8px; }
+  #gen-filter .chip { font:inherit; font-size:12px; padding:2px 8px; border-radius:10px; border:1px solid var(--line); background:#0a0e17; color:var(--mut); cursor:pointer; }
+  #gen-filter .chip.on { color:var(--teal); border-color:var(--teal); }
+  #gen-filter .chip .n { color:var(--dim); margin-left:4px; }
+  #gen-filter .chip.moving { box-shadow:0 0 8px rgba(79,227,192,.35); }
+  .srv .act { color:var(--mut); font-size:12px; }
+  .srv .act .mv { color:var(--teal); }
   .g-caret { color:var(--grn); animation:caret-blink 1s steps(1) infinite; }
   .gstream.done .g-caret { animation:none; opacity:0; }
   @keyframes caret-blink { 50% { opacity:0; } }
@@ -112,7 +127,7 @@
   #reader .r-head button { background:none; border:1px solid var(--line); color:var(--mut); border-radius:4px; padding:2px 10px; cursor:pointer; font:inherit; }
   #reader .r-head button:hover { color:var(--ink); border-color:var(--vio); }
   #r-body { flex:1; overflow-y:auto; padding:12px 16px; font-size:12.5px; }
-  #r-body h4 { margin:14px 0 6px; font-size:11px; letter-spacing:.16em; color:var(--dim); font-weight:700; }
+  #r-body h4 { margin:14px 0 6px; font-size:12px; letter-spacing:.16em; color:var(--dim); font-weight:700; }
   #r-body .kv { display:flex; gap:10px; padding:2px 0; border-bottom:1px solid #101420; }
   #r-body .kv .k { width:96px; color:var(--dim); flex:none; }
   #r-body .kv .v { color:var(--ink); white-space:pre-wrap; word-break:break-word; }
@@ -123,12 +138,12 @@
   #r-body .acts button:hover { border-color:var(--blue); color:#fff; }
 
   #chat { margin-top:22px; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
-  #chat h3 { margin:0; padding:8px 12px; font-size:11px; letter-spacing:.16em; color:var(--vio); border-bottom:1px solid var(--line); }
+  #chat h3 { margin:0; padding:8px 12px; font-size:12px; letter-spacing:.16em; color:var(--vio); border-bottom:1px solid var(--line); }
   #chatlog { max-height:240px; overflow-y:auto; padding:10px 12px; font-size:13px; }
   #chatlog div { white-space:pre-wrap; }
   #chatlog .you { color:var(--blue); } #chatlog .he { color:var(--ink); }
   #chatlog .he.refused { color:var(--amb); } #chatlog .he.applied { color:var(--grn); }
-  #chatlog .dis { color:var(--dim); font-size:11px; }
+  #chatlog .dis { color:var(--dim); font-size:12px; }
   .askrow { display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--line); }
   .askrow input { flex:1; background:#0b0e16; color:var(--ink); border:1px solid var(--line); border-radius:4px; padding:8px 10px; font:inherit; font-size:13px; }
   .askrow input:focus { outline:none; border-color:var(--vio); }
@@ -142,21 +157,22 @@
     <span class="t">⚡ HEIMDALL · BIFRÖST</span>
     <span id="conn" class="on"><span class="dot"></span><span id="conntext">connecting</span></span>
     <span class="spacer"></span>
-    <span id="horn">▸ HORN RESTING</span>
+    <span id="horn">▸ ALL QUIET</span>
     <a href="/ui">drive /ui</a>
     <a href="/heimdall">JSON</a>
   </header>
 
-  <canvas id="stage"></canvas>
+  <canvas id="stage" role="img" aria-labelledby="stage-alt" tabindex="0"></canvas>
+  <p id="stage-alt" class="sr-only" aria-live="polite"></p>
 
   <div id="panels">
     <div class="panel">
-      <section id="facts">
-        <div class="row"><span class="k">HEALTH</span><span class="v" id="f-health">…</span></div>
-        <div class="row"><span class="k">FLOW</span><span class="v" id="f-flow">…</span></div>
-        <div class="row"><span class="k">LINE</span><span class="v" id="f-line">…</span></div>
-        <div class="row"><span class="k">WASTE</span><span class="v" id="f-waste">…</span></div>
-        <div class="row"><span class="k">HORN</span><span class="v" id="f-horn">…</span></div>
+      <section id="facts" aria-live="polite" aria-atomic="false">
+        <div class="row"><span class="k" title="Is every server answering?">IS IT UP</span><span class="v" id="f-health">…</span></div>
+        <div class="row"><span class="k" title="Is anything being written right now, and how fast?">IS IT BUSY</span><span class="v" id="f-flow">…</span></div>
+        <div class="row"><span class="k" title="If I send a prompt now, when does it start?">WILL I WAIT</span><span class="v" id="f-line">…</span></div>
+        <div class="row"><span class="k" title="Where is time being lost that could be saved?">LOST TIME</span><span class="v" id="f-waste">…</span></div>
+        <div class="row"><span class="k" title="Is anything broken that needs a hand?">ALARM</span><span class="v" id="f-horn">…</span></div>
       </section>
       <div id="last"></div>
       <section class="block" id="gauges">
@@ -167,8 +183,13 @@
 
     <div class="panel">
       <section class="block" id="gen">
-        <h3>✍ MODEL OUTPUT · THE MODEL'S OWN WORDS <span id="gen-head" class="dim"></span></h3>
-        <div id="gen-list"></div>
+        <h3>✍ WHAT IS GOING THROUGH · PROMPT IN, WORDS OUT, BY SERVER <span id="gen-head" class="dim"></span></h3>
+        <div id="gen-filter"></div>
+        <div id="gen-list" aria-live="polite" aria-relevant="additions text"></div>
+      </section>
+      <section class="block" id="hosts">
+        <h3>⚙ INFERENCE SERVERS · WHO ANSWERS THE NEXT PROMPT <span id="hosts-head" class="dim"></span></h3>
+        <div id="host-list" class="list"></div>
       </section>
       <section class="block" id="servers">
         <h3>SERVERS · CLICK TO RE-FORGE</h3>
@@ -178,15 +199,15 @@
 
     <div class="panel">
       <section id="chat">
-        <h3>🗣 ASK HEIMDALL — HE SPEAKS ONLY OF THE BRIDGE</h3>
-        <div id="chatlog"></div>
-        <div class="askrow"><input id="askinput" type="text" autocomplete="off" placeholder="what's down · is it overloaded · how busy · change a setting"><button id="asksend">ask</button></div>
+        <h3>🗣 ASK HEIMDALL — ABOUT THE SERVERS, MODELS, AND THE LINE</h3>
+        <div id="chatlog" aria-live="polite"></div>
+        <div class="askrow"><input id="askinput" type="text" autocomplete="off" aria-label="Ask Heimdall" placeholder="what's down · is it overloaded · how busy · change a setting"><button id="asksend">ask</button></div>
       </section>
     </div>
   </div>
 </div>
 <aside id="reader" hidden>
-  <div class="r-head"><span id="r-title">event</span><button id="r-close">✕</button></div>
+  <div class="r-head"><span id="r-title">event</span><button id="r-close" aria-label="Close">✕</button></div>
   <div id="r-body"></div>
 </aside>
 <div id="toast"></div>
@@ -203,7 +224,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<"
 const BASE = (location.protocol === "http:" || location.protocol === "https:") ? location.origin : "http://127.0.0.1:11436";
 const FLEET_PORTS = [11438, 11439];
 
-const state = { status: null, fleet: [], drops: [], horn: false, blasts: 0, lastEventAt: 0, es: "on", last: null, chans: {}, log: [], gen: new Map() };
+const state = { status: null, fleet: [], drops: [], horn: false, blasts: 0, lastEventAt: 0, es: "on", last: null, chans: {}, log: [], gen: new Map(), surf: {}, genFilter: "" };
 
 /* ── the live stream ──────────────────────────────────────────────────── */
 const es = new EventSource(`${BASE}/heimdall/live`);
@@ -217,6 +238,11 @@ es.addEventListener("traffic", (e) => {
 es.addEventListener("token", (e) => {
   state.lastEventAt = Date.now();
   onToken(JSON.parse(e.data));
+});
+// the words that went IN, on the server they went in through
+es.addEventListener("prompt", (e) => {
+  state.lastEventAt = Date.now();
+  onPrompt(JSON.parse(e.data));
 });
 es.onerror = () => setConn("recon");
 es.onopen = () => setConn("on");
@@ -234,20 +260,29 @@ pollFleet(); setInterval(pollFleet, 6000);
 /* ── the system, merged: the fleet supervisors hold the real health of every
    active process; the proxy holds the flow, the line, and the waste. ─────── */
 function systemOf(st) {
+  // The spans are the servers traffic goes THROUGH (the proxy's registered
+  // surfaces, each carrying its own activity). The fleet's probes overlay
+  // health by name — its verdict on up/down outranks the proxy's unprobed
+  // null — and fleet-only peers (the supervisors) are appended after.
   const peers = [];
   for (const f of (state.fleet || [])) for (const p of (f.peers || [])) peers.push(p);
-  if (peers.length) {
-    const by = {}; for (const p of peers) if (!by[p.name]) by[p.name] = p;
-    return {
-      source: "fleet", load: (state.fleet[0]?.boxLoad?.load1) ?? null, saturated: !!state.fleet[0]?.boxLoad?.saturated,
-      surfaces: Object.values(by).map((p) => ({
-        name: p.name, port: (String(p.address || "").split(":").pop()) || "?",
-        up: p.up === true ? true : p.up === false ? false : null, reason: p.reason || null,
-        standing: p.standing || null, saturated: (p.saturatedTicks || 0) > 0,
-      })),
-    };
+  const by = {}; for (const p of peers) if (!by[p.name]) by[p.name] = p;
+  const base = (st?.surfaces || []).map((s) => {
+    const p = by[s.name];
+    return p ? { ...s, up: p.up === true ? true : p.up === false ? false : s.up, reason: p.reason || s.reason, standing: p.standing || null, saturated: (p.saturatedTicks || 0) > 0 } : { ...s };
+  });
+  const seen = new Set(base.map((s) => s.name));
+  for (const p of Object.values(by)) {
+    if (seen.has(p.name)) continue;
+    base.push({ name: p.name, port: (String(p.address || "").split(":").pop()) || "?", up: p.up === true ? true : p.up === false ? false : null, reason: p.reason || null, standing: p.standing || null, saturated: (p.saturatedTicks || 0) > 0, activity: null, supervisor: true });
   }
-  return { source: "proxy", load: st?.vitals?.load1 ?? null, saturated: !!st?.disclosure?.saturated, surfaces: st?.surfaces || [] };
+  const f0 = state.fleet[0];
+  return {
+    source: peers.length ? "fleet+proxy" : "proxy",
+    load: f0?.boxLoad?.load1 ?? st?.vitals?.load1 ?? null,
+    saturated: !!(f0?.boxLoad?.saturated || st?.disclosure?.saturated),
+    surfaces: base,
+  };
 }
 
 /* ── the five ─────────────────────────────────────────────────────────── */
@@ -264,26 +299,42 @@ function render() {
   const waiting = (d.queue?.positions || []).length;
 
   // 1 — HEALTH
-  const down = sys.surfaces.filter((s) => s.up === false && !String(s.reason || "").startsWith("unverified"));
-  const unv = sys.surfaces.filter((s) => s.up === false && String(s.reason || "").startsWith("unverified"));
+  const servers = sys.surfaces.filter((s) => !s.supervisor);
+  const isUp = (s) => s.up === true || (s.activity?.idleS != null && s.activity.idleS < 300); // answered a prompt in the last 5 min = up
+  const down = servers.filter((s) => s.up === false && !String(s.reason || "").startsWith("unverified"));
+  const upN = servers.filter(isUp).length;
+  const unknown = servers.filter((s) => !isUp(s) && s.up !== false);
+  const watchers = sys.surfaces.filter((s) => s.supervisor);
+  const watchersUp = watchers.filter((s) => s.up === true).length;
   $("f-health").innerHTML = down.length
-    ? `<span class="bad">● ${down.length} DOWN — ${down.map((s) => esc(s.name)).join(", ")}</span>`
-    : `<span class="good">● ${sys.surfaces.filter((s) => s.up === true).length}/${sys.surfaces.length} UP</span>`
-      + (unv.length ? ` <span class="warn">· ${unv.length} unverified</span>` : "")
-      + ` <span class="dim">(${sys.source})</span>`;
+    ? `<span class="bad">● ${down.map((s) => esc(s.name)).join(", ")} ${down.length === 1 ? "is" : "are"} down</span>`
+    : upN === servers.length
+      ? `<span class="good">● yes — all ${servers.length} servers answering</span>`
+      : `<span class="good">● ${upN} of ${servers.length} servers answering</span> <span class="dim">· ${unknown.map((s) => esc(s.name)).join(", ")} quiet, not checked</span>`;
+  if (watchers.length) $("f-health").innerHTML += ` <span class="dim">· ${watchersUp}/${watchers.length} watchers healthy</span>`;
 
   // 2 — FLOW
-  $("f-flow").innerHTML = `<span class="${lane ? (lane < 6 ? 'warn' : 'gold') : 'dim'}">${lane == null ? "no calls yet" : lane.toFixed(1) + " tok/s"}</span>`
-    + ` <span class="mut">·</span> ${calls} call${calls === 1 ? "" : "s"}${ungated ? ` <span class="dim">(${ungated} remote)</span>` : ""}`
-    + ` <span class="mut">·</span> ${workAhead} in flight`
-    + (sys.load != null ? ` <span class="mut">·</span> load <span class="blue">${Number(sys.load).toFixed(1)}</span>${(d.saturated || sys.saturated) ? ` <span class="bad">PEGGED</span>` : ""}` : "");
+  const writingNow = (st.surfaces || []).reduce((n, s) => n + (s.activity?.inflight || 0), 0);
+  const cores = st.vitals?.coreCount || 8;
+  // "maxed out" is the proxy's own CPU-idle reading (≤10% idle), never the
+  // load average, which is noise on macOS and read "maxed" on an idle box
+  const loadTxt = sys.load == null ? "" : d.saturated
+    ? ` <span class="mut">·</span> <span class="bad">the CPU is maxed out (${100 - (st.vitals?.cpuIdle ?? 0)}% busy)</span>`
+    : ` <span class="mut">·</span> <span class="dim">CPU ${100 - (st.vitals?.cpuIdle ?? 0)}% busy${Number(sys.load) > cores ? `, other programs are loading it (load ${Number(sys.load).toFixed(1)} on ${cores} cores)` : ""}</span>`;
+  $("f-flow").innerHTML = (writingNow
+    ? `<span class="good">yes — ${writingNow} answer${writingNow === 1 ? "" : "s"} being written now</span>`
+    : `<span class="dim">no — idle</span>`)
+    + (lane == null ? ` <span class="dim">· no prompts yet</span>` : ` <span class="mut">·</span> ${calls} prompt${calls === 1 ? "" : "s"} answered${ungated ? ` <span class="dim">(${ungated} by a remote model)</span>` : ""} <span class="mut">·</span> writes <span class="${lane < 6 ? 'warn' : 'gold'}">${lane.toFixed(0)} words/s</span>${lane < 6 ? ` <span class="warn">— slow</span>` : ""}`)
+    + loadTxt;
 
   // 3 — LINE
   const sla = d.sla || {};
   $("f-line").innerHTML = waiting === 0
-    ? `<span class="good">clear</span> <span class="dim">— next starts now</span>`
-    : `<span class="warn">${waiting} waiting</span> <span class="dim">·</span> next in <span class="gold">${esc(d.queue?.etaHuman || "?")}</span>`;
-  $("f-line").innerHTML += ` <span class="mut">·</span> SLA ${sla.targetS ?? "?"}s <span class="dim">(longest ${sla.longestWaitS ?? 0}s${sla.over ? ", OVER" : ""})</span>`;
+    ? `<span class="good">no — a prompt sent now starts right away</span>`
+    : `<span class="warn">yes — ${waiting} ahead of you</span>, about <span class="gold">${esc(d.queue?.etaHuman || "?")}</span>`;
+  $("f-line").innerHTML += sla.over
+    ? ` <span class="mut">·</span> <span class="bad">someone has waited ${sla.longestWaitS}s, past the ${sla.targetS}s promise</span>`
+    : ` <span class="mut">·</span> <span class="dim">promise: nobody waits more than ${sla.targetS ?? "?"}s</span>`;
 
   // 4 — WASTE
   $("f-waste").innerHTML = waste();
@@ -292,13 +343,13 @@ function render() {
   const anyDown = down.length > 0;
   state.horn = anyDown;
   $("f-horn").innerHTML = anyDown
-    ? `<span class="bad">⚡ raised — ${down.map((s) => esc(s.name)).join(", ")} down</span> <span class="dim">· ${state.blasts} blast(s) this session</span>`
-    : `<span class="mut">resting</span> <span class="dim">· ${state.blasts} blast(s) this session</span>`;
-  const h = $("horn"); h.className = anyDown ? "raised" : ""; h.innerHTML = anyDown ? "📯 HORN RAISED" : "▸ HORN RESTING";
+    ? `<span class="bad">⚡ yes — ${down.map((s) => esc(s.name)).join(", ")} ${down.length === 1 ? "is" : "are"} down and need${down.length === 1 ? "s" : ""} a restart</span>`
+    : `<span class="good">no — nothing is broken</span>${state.blasts ? ` <span class="dim">· ${state.blasts} alarm${state.blasts === 1 ? "" : "s"} earlier this session</span>` : ""}`;
+  const h = $("horn"); h.className = anyDown ? "raised" : ""; h.innerHTML = anyDown ? "📯 SOMETHING IS DOWN" : "▸ ALL QUIET";
   document.title = anyDown ? `⚡ Heimdall — ${down[0].name} down` : "Heimdall · what he sees";
 
   $("last").textContent = state.last ? `last — ${state.last}` : "";
-  renderGauges(); renderServers();
+  renderGauges(); renderServers(); renderHosts();
 }
 
 /* ── TURN PHASES (E1): where the time went, per model ─────────────────── */
@@ -311,7 +362,7 @@ function renderPhases() {
     return `<div class="mrow"><span class="mn">${esc(m.model)}</span><span class="dim">${m.turns}t \u00b7 ${(m.draws / n).toFixed(1)} draws/t \u00b7 <span class="${genPct != null && genPct < 30 ? 'warn' : ''}">gen ${genPct == null ? "?" : genPct + "%"}</span> \u00b7 load ${Math.round(m.loadMs / n)}ms \u00b7 prompt ${Math.round(m.promptMs / n)}ms \u00b7 gen ${Math.round(m.genMs / n)}ms</span></div>`;
   }).join("");
   const recent = (p.recent || []).slice(-6).reverse().map((t) => `<div class="lrow mut">${esc(String(t.model))} \u00b7 draws ${t.draws} \u00b7 gen ${t.genPct == null ? "?" : t.genPct + "%"} \u00b7 wall ${Math.round((t.wallMs || 0) / 1000)}s</div>`).join("");
-  $("ph-list").innerHTML = (rows || `<div class="mrow dim">no turn has completed since the instrument started</div>`) + (recent ? `<div class="dim" style="font-size:11px;margin-top:4px">recent</div>${recent}` : "");
+  $("ph-list").innerHTML = (rows || `<div class="mrow dim">no turn has completed since the instrument started</div>`) + (recent ? `<div class="dim" style="font-size:12px;margin-top:4px">recent</div>${recent}` : "");
 }
 
 /* ── REPORTS: systems flagging a path, and Heimdall's fix ─────────────── */
@@ -415,6 +466,8 @@ function renderGauges() {
   const tokps = agg.s > 0 ? agg.t / agg.s : null;
   const calls = tp.reduce((a, m) => a + (m.calls || 0), 0);
   setGauge("FLOW", tokps == null ? null : Math.min(100, (100 * tokps) / 30), tokps == null ? "no calls yet" : `${tokps.toFixed(1)} tok/s \u00b7 ${calls} call${calls === 1 ? "" : "s"}`, tokps == null ? null : tokps.toFixed(1));
+  // no dial per server: a server's activation is shown ON the bridge — its
+  // curtain, its arc, and its name all colour by how much is going through
 }
 
 /* ── TASKS: what else is running, and end it ──────────────────────────── */
@@ -495,33 +548,62 @@ async function evictModel(name, btn) {
 let _genPending = "";
 function onToken(t) {
   if (!t.text) return;
+  const surface = t.surface || "er7";
   const model = t.model || "?";
   const sessionId = t.sessionId || "";
-  const g = ensureGen(`${sessionId}::${model}`, model, sessionId);
+  const g = ensureGen(`${surface}::${sessionId}::${model}`, model, sessionId, surface);
   if (t.final) {
     g.done = true;
     g.stream.classList.add("done");
+    if (t.error) g.stream.classList.add("err");
     g.caret.remove();
     g.body.textContent = t.text;
-    g.statusEl.textContent = "done";
+    g.statusEl.textContent = t.error ? "failed" : "done";
   } else {
+    // per-surface flow: the chars actually being written, as they land
+    const sf = state.surf[surface] = state.surf[surface] || { samples: [], chars: 0 };
+    sf.chars += t.text.length;
+    sf.samples.push({ at: Date.now(), chars: t.text.length });
     // insert ahead of the caret so the cursor rides the latest token
     g.caret.insertAdjacentText("beforebegin", t.text);
     g.text += t.text;
     trimGen(g, 12000);
     g.statusEl.textContent = "streaming…";
-    // the actual words flow on the bridge: a drop every ~10 new characters
-    _genPending += t.text;
-    const words = _genPending.replace(/\s+/g, " ");
-    if (words.trim().length >= 10) {
-      spawnDrop(words.trim().slice(-16), spanX("er7"), 190);
-      _genPending = "";
+    // the actual words flow on the bridge: a drop every ~10 new characters,
+    // at the span of the surface that is writing them
+    // the actual words flow on the bridge, in readable runs, on the span
+    // of the server writing them (answers green; prompts ride violet)
+    const pend = (state.pending = state.pending || {});
+    pend[surface] = (pend[surface] || "") + t.text;
+    const words = pend[surface].replace(/\s+/g, " ");
+    if (words.trim().length >= 36 || /[.!?]\s*$/.test(words)) {
+      spawnDrop(words.trim().slice(0, 48), spanX(surface), 150, surface);
+      pend[surface] = "";
     }
   }
   scrollGen();
   renderGen();
 }
-function ensureGen(id, model, sessionId) {
+function onPrompt(p) {
+  const surface = p.surface || "er7";
+  const g = ensureGen(`${surface}::${p.sessionId || ""}::${p.model || "?"}`, p.model || "?", p.sessionId || "", surface);
+  if (p.text) g.promptEl.textContent = p.text;
+  g.statusEl.textContent = "thinking…";
+  // a fresh prompt on a panel that already answered: this is a new turn,
+  // clear the old words so the panel reads prompt → answer, not a pile
+  if (g.done) {
+    g.done = false;
+    g.stream.classList.remove("done", "err");
+    g.body.textContent = "";
+    g.body.append(g.caret);
+    g.text = "";
+  }
+  $("gen-list").prepend(g.stream);
+  spawnDrop(String(p.text || "").replace(/\s+/g, " ").trim().slice(0, 48), spanX(surface), 300, surface);
+  applyGenFilter();
+  renderGen();
+}
+function ensureGen(id, model, sessionId, surface) {
   const existing = state.gen.get(id);
   if (existing) return existing;
   // the model-output log is bounded: retire the oldest finished entry once it
@@ -535,18 +617,52 @@ function ensureGen(id, model, sessionId) {
   const wrap = document.createElement("div");
   wrap.className = "gstream";
   const now = new Date().toTimeString().slice(0, 8);
-  wrap.innerHTML = `<div class="g-head"><span class="g-time">${now}</span><span class="g-model">${esc(model)}</span>${sessionId ? `<span class="g-sess">${esc(sessionId)}</span>` : ""}<span class="g-status">streaming…</span></div><div class="g-body"></div>`;
+  wrap.dataset.surface = surface || "er7";
+  wrap.innerHTML = `<div class="g-head"><span class="g-time">${now}</span><span class="g-model">${esc(model)}</span>${surface ? `<span class="g-surf">${esc(surface)}</span>` : ""}${sessionId ? `<span class="g-sess">${esc(sessionId)}</span>` : ""}<span class="g-status">streaming…</span></div><div class="g-prompt" hidden></div><div class="g-body"></div>`;
   const body = wrap.querySelector(".g-body");
+  const promptEl = wrap.querySelector(".g-prompt");
+  promptEl.hidden = false;
   const caret = document.createElement("span");
   caret.className = "g-caret";
   caret.textContent = "\u258c";
   body.append(caret);
   $("gen-list").prepend(wrap);
-  const rec = { id, model, sessionId, stream: wrap, body, caret, statusEl: wrap.querySelector(".g-status"), text: "", done: false };
+  const rec = { id, model, sessionId, surface, stream: wrap, body, caret, promptEl, statusEl: wrap.querySelector(".g-status"), text: "", done: false };
   state.gen.set(id, rec);
+  if (state.genFilter && rec.surface !== state.genFilter) wrap.classList.add("hidden");
   scrollGen();
   return rec;
 }
+// FILTER BY SERVER: one chip per registered surface, lit while that server
+// is moving; click to see only what goes through it.
+function applyGenFilter() {
+  for (const g of state.gen.values()) g.stream.classList.toggle("hidden", !!state.genFilter && g.surface !== state.genFilter);
+}
+function renderGenFilter() {
+  const st = state.status; if (!st) return;
+  const counts = {};
+  for (const g of state.gen.values()) counts[g.surface] = (counts[g.surface] || 0) + 1;
+  const surfs = st.surfaces || [];
+  const chip = (name, label, moving, n) => `<button class="chip${state.genFilter === name ? " on" : ""}${moving ? " moving" : ""}" data-s="${esc(name)}">${esc(label)}${n ? `<span class="n">${n}</span>` : ""}</button>`;
+  $("gen-filter").innerHTML = chip("", "all", false, state.gen.size)
+    + surfs.map((s) => chip(s.name, s.name, !!s.activity?.moving, counts[s.name] || 0)).join("");
+  $("gen-filter").querySelectorAll(".chip").forEach((b) => { b.onclick = () => { state.genFilter = b.dataset.s; renderGenFilter(); applyGenFilter(); }; });
+}
+// per-surface writing speed: chars streaming through this server right now,
+// measured on the last 8s of token events it emitted. The same honest number
+// as the box FLOW dial, split per server.
+function surfFlow(name) {
+  const s = state.surf[name];
+  if (!s || !s.samples.length) return null;
+  const now = Date.now();
+  const cutoff = now - 8000;
+  s.samples = s.samples.filter((x) => x.at > cutoff);
+  if (!s.samples.length) return null;
+  const spanMs = now - s.samples[0].at;
+  const chars = s.samples.reduce((a, x) => a + x.chars, 0);
+  return spanMs > 0 ? (chars * 1000) / spanMs : null;
+}
+const fmtK = (n) => n >= 1000 ? (n / 1000).toFixed(1) + "k" : String(n);
 function scrollGen() {
   // newest at the top: keep the latest entry in view
   const list = $("gen-list");
@@ -566,7 +682,9 @@ function trimGen(g, max) {
 }
 function renderGen() {
   const n = state.gen.size;
-  $("gen-head").textContent = n ? `\u00b7 ${n} output${n === 1 ? "" : "s"} in the log` : "\u2014 nothing written yet";
+  const moving = [...state.gen.values()].filter((g) => !g.done).length;
+  $("gen-head").textContent = n ? `\u00b7 ${n} turn${n === 1 ? "" : "s"}${moving ? ` \u00b7 ${moving} writing now` : ""}` : "\u2014 nothing has gone through yet";
+  renderGenFilter();
 }
 
 /* ── CHANNELS: exactly what's going through, per lane ─────────────────── */
@@ -586,6 +704,23 @@ function renderChannels() {
 }
 
 /* ── SERVERS: click to re-forge ───────────────────────────────────────── */
+/* ── INFERENCE HOSTS: the picker's evidence, per server ──────────────── */
+function renderHosts() {
+  const st = state.status; if (!st) return;
+  const hs = st.hosts || [];
+  const el = $("host-list"); if (!el) return;
+  const up = hs.filter((h) => h.up).length;
+  $("hosts-head").textContent = hs.length ? `\u00b7 ${up}/${hs.length} up \u00b7 sticky session \u2192 resident first \u2192 shortest measured wait \u2192 rotate ties` : "";
+  if (!hs.length) { el.innerHTML = `<div class="srv dim">no inference hosts registered</div>`; return; }
+  el.innerHTML = hs.map((h) => {
+    const means = Object.entries(h.meanMs || {}).map(([m, ms]) => `${esc(m.replace(/^er7:/, ""))} ${(ms / 1000).toFixed(1)}s`).join(" \u00b7 ");
+    const res = (h.resident || []).map((m) => esc(m.replace(/^er7:/, ""))).join(", ");
+    return `<div class="srv"><span class="nm">${esc(h.name)} <span class="dim">${esc(h.url.replace(/^https?:\/\//, ""))}</span></span>`
+      + (h.up ? `<span class="good">up</span>` : `<span class="bad">down${h.downReason ? " \u00b7 " + esc(h.downReason) : ""}</span>`)
+      + ` <span class="act">${h.inflight ? `<span class="mv">${h.inflight} in flight</span> \u00b7 ` : ""}${h.calls} served \u00b7 ${h.picks} picked${h.fails ? ` \u00b7 <span class="warn">${h.fails} failed</span>` : ""}${h.sessions ? ` \u00b7 ${h.sessions} sticky` : ""}</span>`
+      + `<span class="srv-flow">${res ? `<span class="good">hot: ${res}</span>` : `<span class="dim">nothing resident</span>`}${h.loadMs ? ` <span class="dim">\u00b7 load ${(h.loadMs / 1000).toFixed(1)}s</span>` : ""}${means ? ` <span class="dim">\u00b7 ${means}/turn</span>` : ""}</span></div>`;
+  }).join("");
+}
 function renderServers() {
   const st = state.status; if (!st) return;
   const el = $("srv-list");
@@ -595,9 +730,17 @@ function renderServers() {
     const unv = s.up === false && String(s.reason || "").startsWith("unverified");
     const down = s.up === false && !unv;
     const txt = s.up === true ? `<span class="good">up</span>` : down ? `<span class="bad">down</span>` : unv ? `<span class="warn">unverified</span>` : `<span class="dim">unprobed</span>`;
+    const f = surfFlow(s.name);
+    const sf = state.surf[s.name];
+    const a = s.activity || {};
+    const readout = f == null
+      ? (a.moving ? `<span class="good">moving</span>` : s.up === true || a.calls ? `<span class="dim">idle</span>` : `<span class="dim">\u2014</span>`)
+      : `<span class="${f < 6 ? 'warn' : 'good'}">${f.toFixed(1)} tok/s</span>${sf && sf.chars ? ` <span class="dim">\u00b7 ${fmtK(sf.chars)} chars</span>` : ""}`;
+    const act = `<span class="act">${a.inflight ? `<span class="mv">${a.inflight} in flight</span> \u00b7 ` : ""}${a.calls || 0} turn${a.calls === 1 ? "" : "s"}${a.idleS != null ? ` \u00b7 last ${fmtAge(a.idleS)} ago` : " \u00b7 never"}</span>`;
     return `<div class="srv"><span class="nm">${esc(s.name)} :${s.port}</span> ${txt} <span class="dim">${esc(s.family || "")}</span>`
       + (s.restartable ? ` <button class="rs" data-name="${esc(s.name)}">\u21bb restart</button>` : ` <span class="dim">(this proxy \u2014 restart the process)</span>`)
-      + (s.restartsInWindow ? ` <span class="warn">\u2736${s.restartsInWindow}</span>` : "") + `</div>`;
+      + (s.restartsInWindow ? ` <span class="warn">\u2736${s.restartsInWindow}</span>` : "")
+      + ` ${act}<span class="srv-flow">${readout}</span></div>`;
   }).join("");
   el.querySelectorAll("button.rs").forEach((b) => { b.onclick = () => restartServer(b.dataset.name, b); });
 }
@@ -691,15 +834,28 @@ function waste() {
   const d = st.disclosure || {};
   const out = [];
   const tp = Array.isArray(st.throughput) ? st.throughput : [];
+  const nHosts = (st.hosts || []).length || 1;
   for (const m of tp) {
-    if (m.reloads) out.push(`<span class="gold">${esc(m.model)}</span> reloaded ${m.reloads}× (${Math.round((m.reloadSeconds || 0) / m.reloads)}s each) <span class="dim">— pin one num_ctx</span>`);
-    if (m.genTokPerSec != null && m.genTokPerSec < 6) out.push(`<span class="gold">${esc(m.model)}</span> at ${m.genTokPerSec} tok/s <span class="dim">— contention</span>`);
+    if (m.reloads) {
+      const each = Math.round((m.reloadSeconds || 0) / m.reloads);
+      // with several inference servers each one loads its own copy once —
+      // that is expected; more reloads than servers means a model got
+      // evicted and re-read from disk
+      const expected = m.reloads <= nHosts;
+      out.push(`<span class="${expected ? "dim" : "gold"}">${Math.round(m.reloadSeconds || 0)}s</span> loading ${esc(m.model.replace(/^er7:/, ""))} from disk (${m.reloads}× at ${each}s)${expected ? ` <span class="dim">— once per server, expected</span>` : ` <span class="dim">— it keeps getting evicted; keep it resident</span>`}`);
+    }
+    if (m.genTokPerSec != null && m.genTokPerSec < 6) out.push(`<span class="gold">${esc(m.model.replace(/^er7:/, ""))}</span> is writing slowly (${m.genTokPerSec} words/s) <span class="dim">— something else is using the machine</span>`);
   }
-  if (d.memory?.pressured) out.push(`<span class="warn">memory ${d.memory.freeMb}MB under floor ${d.memory.floorMb}MB</span> <span class="dim">— loads will hang</span>`);
-  if (d.queue?.workAhead > 0) out.push(`the line is ${d.queue.workAhead} deep <span class="dim">— batch waits behind interactive</span>`);
-  const un = (d.servable?.unservable || []).length;
-  if (un) out.push(`<span class="warn">${un} model(s) dropped</span> <span class="dim">— hung / timed out</span>`);
-  if (!out.length) return `<span class="good">clean</span> <span class="dim">— nothing measured to fix</span>`;
+  if (d.memory?.pressured) out.push(`<span class="warn">memory is short (${d.memory.availableMb ?? d.memory.freeMb}MB usable)</span> <span class="dim">— a new model would take minutes to load</span>`);
+  if (d.queue?.workAhead > 0) out.push(`${d.queue.workAhead} prompt${d.queue.workAhead === 1 ? "" : "s"} waiting in line`);
+  // "unproven" is not "failed": a big model the box has never been let to
+  // load is held back on purpose; only one that hung or timed out is lost time
+  const uns = d.servable?.unservable || [];
+  const failed = uns.filter((u) => u.reason !== "large_unproven");
+  const held = uns.length - failed.length;
+  if (failed.length) out.push(`<span class="warn">${failed.map((u) => esc(u.model)).join(", ")} stopped answering</span> <span class="dim">— not offered until ${failed.length === 1 ? "it answers" : "they answer"} again</span>`);
+  else if (held && out.length === 0) out.push(`<span class="dim">${held} big model${held === 1 ? "" : "s"} held back until ${held === 1 ? "it proves it" : "they prove they"} can answer on this box — by design, not a fault</span>`);
+  if (!out.length) return `<span class="good">none — nothing measured to fix</span>`;
   return out.slice(0, 2).join(' <span class="mut">·</span> ');
 }
 
@@ -712,7 +868,6 @@ function onAct(a) {
   state.log.push(a);
   if (state.log.length > 1200) state.log.shift();
   if (["surface_down","restart_storm","self_down"].includes(a.finding)) { state.blasts += 1; }
-  spawnDrop(dropLabel(a), a.surface ? spanX(a.surface) : randX(), 165);
   render();
 }
 function dropLabel(a) {
@@ -730,12 +885,25 @@ function spawnTraffic(c) {
   ch.push({ p: c.promptTokens || 0, g: c.genTokens || 0, ms: (c.genMs || 0) + (c.promptMs || 0), at: Date.now() });
   if (ch.length > 20) ch.shift();
   const tok = c.genTokens ? `${c.genTokens}t` : (c.promptTokens ? `${c.promptTokens}pt` : "");
-  spawnDrop(`${model}${tok ? " " + tok : ""}${c.ungated ? " ↗" : ""}${c.reloaded ? " ↻" : ""}`.slice(0, 20), spanX("er7"), c.ungated ? 45 : 165);
+  // only words ride the bridge — a finished call is bookkeeping, not text
 }
-function spawnDrop(label, x, hue) {
+// A rider: a run of words that travels the bridge LEFT TO RIGHT along the
+// arc, entering at its server's span and riding off the far end. Prompts
+// ride violet, answers ride green; each has its own lane above the arc so
+// concurrent riders don't overwrite each other.
+// A run of the actual words travels LEFT TO RIGHT on a straight lane
+// above the arc, entering at its server's span. Each server owns a lane so
+// runs never overwrite each other; a run that would overlap the previous
+// one on its lane waits behind it.
+function spawnDrop(label, x, hue, surface = "") {
   if (!label) return;
-  state.drops.push({ x, y: 0, vy: 0.5 + Math.random() * 0.7, label, hue });
-  if (state.drops.length > 60) state.drops.shift();
+  const spans = bridgeSpans();
+  const li = Math.max(0, spans.findIndex((s) => s.name === surface));
+  const lane = li % 5;
+  const prev = state.drops.filter((d) => d.lane === lane).pop();
+  const startX = prev ? Math.max(x, prev.x + prev.label.length + 2) : x;
+  state.drops.push({ x: startX, lane, vx: 0.5, label, hue, born: Date.now() });
+  if (state.drops.length > 40) state.drops.shift();
 }
 
 /* ── the bridge strip: the systems, and only the traffic that really passes */
@@ -754,46 +922,98 @@ function resize() {
 window.addEventListener("resize", resize); resize();
 
 const x0 = () => 1, x1 = () => COLS - 1;
-function sysCount() { return (systemOf(state.status).surfaces.length) || 1; }
-function spanX(name) { const sys = systemOf(state.status).surfaces; const i = sys.findIndex((s) => s.name === name); const n = sys.length || 1; const a = x0(), b = x1();
-  if (i < 0) return a + Math.floor(Math.random() * (b - a));
-  const span = (b - a) / n; return Math.floor(a + (i + 0.15 + Math.random() * 0.7) * span); }
+// how alive a span is, 0..1: the words streaming through it now (tok/s over
+// the last 8s), or a turn in flight that has not written yet
+function spanActivity(name) {
+  const f = surfFlow(name);
+  const a = (state.status?.surfaces || []).find((s) => s.name === name)?.activity || {};
+  let v = f == null ? 0 : Math.min(1, f / 20);
+  if (a.moving || a.inflight) v = Math.max(v, 0.35);
+  return v;
+}
+function bridgeSpans() { return systemOf(state.status).surfaces.filter((s) => !s.supervisor); }
+function sysCount() { return bridgeSpans().length || 1; }
+function spanX(name) { const sys = bridgeSpans(); const i = sys.findIndex((s) => s.name === name); const n = sys.length || 1; const a = x0(), b = x1();
+  if (i < 0) return a;
+  const span = (b - a) / n; return Math.floor(a + i * span); }
 function randX() { return x0() + Math.floor(Math.random() * (x1() - x0())); }
 
 let lastFrame = 0;
 function frame(now) {
   requestAnimationFrame(frame);
-  if (now - lastFrame < 70) return;
+  // when nothing moves the bridge breathes at 4 fps; when words are going
+  // through it animates at full rate
+  const anyMoving = state.drops.length > 0 || (state.status?.surfaces || []).some((s) => s.activity?.moving) || Object.keys(state.surf).some((k) => surfFlow(k) != null);
+  if (now - lastFrame < (anyMoving ? 50 : 250)) return;
   lastFrame = now;
   const t = (now / 1000) % 3600;
   ctx.clearRect(0, 0, SW, SH);
-  const sys = systemOf(state.status), surfs = sys.surfaces, n = surfs.length || 1;
+  const sys = systemOf(state.status), surfs = bridgeSpans(), n = surfs.length || 1;
   const a = x0(), b = x1(), span = (b - a) / n;
-  const baseY = Math.round(ROWS * 0.5), arch = Math.round(ROWS * 0.3);
+  const baseY = Math.round(ROWS * 0.62), arch = Math.round(ROWS * 0.22);
   const arcY = (x) => { const tt = (x - (a + b) / 2) / ((b - a) / 2); return Math.round(baseY - arch * (1 - tt * tt)); };
-  const hue = (x) => ((x - a) / (b - a)) * 280;
-
-  // the arc: one span per system, lit by its health
+  // THE BIFRÖST IS AN AURORA, NOT A RAINBOW. Curtains of light hang above
+  // the arc, one per system: green where it is well, a violet fringe at
+  // the top, teal at the foot. A span with words going through it
+  // brightens and its curtain ripples faster; a quiet span barely breathes.
+  // Nothing here is a health verdict — the colour under the arc still says
+  // DOWN in red and unverified in amber; the curtain says how much is moving.
+  const acts = surfs.map((s) => spanActivity(s.name));
+  const drift = t * 0.35;
+  const CURTAIN = ["\u2591", "\u2592", "\u2593", "\u2588"];
   for (let x = a; x < b; x++) {
     const i = Math.min(n - 1, Math.floor((x - a) / span));
     const s = surfs[i] || {};
     const unv = s.up === false && String(s.reason || "").startsWith("unverified");
     const down = s.up === false && !unv;
     const y = arcY(x);
-    ctx.fillStyle = down ? "rgba(46,20,22,1)" : unv ? "hsla(40,80%,46%,.7)" : `hsla(${hue(x)},82%,${s.up === true ? 54 : 30}%,${s.up === true ? 0.85 : 0.4})`;
-    ctx.fillText("█", x * CW, y * CH);
-    ctx.fillStyle = down ? "rgba(28,16,18,1)" : "rgba(20,22,30,.6)";
-    ctx.fillText("░", x * CW, (y + 1) * CH);
+    const act = acts[i] || 0;
+    // shimmer: two slow sines drifting in opposite directions, sped up by
+    // activity, so a busy span ripples and an idle one drifts
+    const speed = 0.6 + act * 3.2;
+    const ph = Math.sin(x * 0.55 + drift * speed) * 0.5 + Math.sin(x * 0.21 - drift * speed * 0.7 + i) * 0.5;
+    const glow = down ? 0 : 0.55 + act * 0.45;
+    const curtainH = down ? 0 : Math.round((y - 1) * Math.min(1, 0.6 + act * 0.5 + 0.12 * ph));
+    for (let k = 1; k <= curtainH; k++) {
+      const yy = y - k; if (yy < 1) break;
+      const frac = k / Math.max(1, curtainH);
+      // the aurora's own order, bottom up: teal → green → yellow-green →
+      // pink → violet, each band drifting a little with time; activity
+      // pulls the upper bands toward magenta the way a strong storm does
+      const bandHue = frac < 0.2 ? 168 : frac < 0.45 ? 135 : frac < 0.6 ? 95 : frac < 0.8 ? 330 : 275;
+      const hue = (bandHue + 14 * Math.sin(drift * 0.6 + x * 0.08 + frac * 3) - act * (frac > 0.5 ? 25 : 0) + 360) % 360;
+      // brightest just above the arc, fading toward the crown, rippling
+      const local = (0.35 + 0.65 * Math.max(0, 1 - frac)) * (0.6 + 0.4 * Math.sin(x * 0.9 + k * 0.6 + drift * speed * 1.4));
+      const alpha = Math.min(0.95, glow * local * (0.7 + 0.3 * ph));
+      if (alpha < 0.06) continue;
+      ctx.fillStyle = `hsla(${hue},${unv ? 30 : 92}%,${58 + 14 * act}%,${alpha})`;
+      ctx.fillText(CURTAIN[Math.min(3, Math.floor(alpha * 3.4))], x * CW, yy * CH);
+    }
+    // the arc: the bridge itself, aurora-green, red where a system is down
+    ctx.fillStyle = down ? "rgba(90,30,34,1)" : unv ? "hsla(40,80%,46%,.7)" : `hsla(${165 - 75 * act + 10 * ph},${70 + 25 * act}%,${38 + 34 * act}%,${0.55 + 0.45 * act})`;
+    ctx.fillText("\u2588", x * CW, y * CH);
+    ctx.fillStyle = down ? "rgba(40,18,20,1)" : `hsla(165,60%,30%,${0.35 + 0.4 * act})`;
+    ctx.fillText("\u2591", x * CW, (y + 1) * CH);
   }
-  // names + state under each span
+  // names under each span: fitted to the span, coloured by ACTIVATION —
+  // grey asleep, teal warm, green→yellow→white as words pour through;
+  // red only for a system the fleet has measured DOWN
   for (let i = 0; i < n; i++) {
     const s = surfs[i] || {};
-    const mx = Math.floor(a + (i + 0.5) * span);
-    const up = s.up === true, unv = s.up === false && String(s.reason || "").startsWith("unverified"), down = s.up === false && !unv;
-    ctx.fillStyle = down ? "rgba(255,92,92,.95)" : unv ? "rgba(255,180,84,.95)" : up ? "rgba(79,227,192,.95)" : "rgba(107,115,133,.9)";
-    const nm = `${s.name} :${s.port}`;
-    ctx.fillText(nm.slice(0, Math.max(4, span * 1.6)), (mx - Math.floor(nm.length / 2)) * CW, (ROWS - 2) * CH);
-    ctx.fillText(down ? "DOWN" : unv ? "?" : up ? (s.standing || "UP") : "—", (mx - 2) * CW, (ROWS - 1) * CH);
+    const act = acts[i] || 0;
+    const left = Math.floor(a + i * span), width = Math.max(3, Math.floor(span) - 1);
+    const unv = s.up === false && String(s.reason || "").startsWith("unverified"), down = s.up === false && !unv;
+    const ag = s.activity || {};
+    const idle = ag.idleS;
+    let nm = String(s.name || "");
+    const full = `${nm} :${s.port}`;
+    nm = full.length <= width ? full : nm.slice(0, width);
+    const lit = act > 0.02 || ag.moving;
+    ctx.fillStyle = down ? "rgba(255,92,92,.95)" : lit ? `hsla(${120 - 60 * Math.min(1, act * 1.3)},${80 + 20 * act}%,${60 + 30 * act}%,1)` : ag.calls ? "rgba(79,227,192,1)" : "rgba(170,178,196,1)";
+    ctx.fillText(nm, left * CW, (ROWS - 2) * CH);
+    const sub = down ? "DOWN" : lit ? (ag.inflight ? `${ag.inflight} writing` : "moving") : idle == null ? "asleep" : `${fmtAge(idle)} ago`;
+    ctx.fillStyle = down ? "rgba(255,92,92,.95)" : lit ? "rgba(233,255,240,.9)" : "rgba(170,178,196,.95)";
+    ctx.fillText(sub.slice(0, width), left * CW, (ROWS - 1) * CH);
   }
   // the flow: ONLY real traffic, falling at the measured speed
   const tp = Array.isArray(state.status?.throughput) ? state.status.throughput : [];
@@ -801,21 +1021,35 @@ function frame(now) {
   const tokps = agg.s > 0 ? agg.t / agg.s : null;
   const flow = 0.35 + 1.3 * Math.min(1, (tokps ?? 0) / 14);
   for (const d of state.drops) {
-    d.y += d.vy * flow;
-    for (let k = 0; k < d.label.length; k++) {
-      const y = Math.floor(d.y) - k;
-      if (y < 0 || y >= ROWS - 2) continue;
-      ctx.fillStyle = k === 0 ? "rgba(255,255,255,.98)" : `hsla(${d.hue},90%,62%,${Math.max(0, 0.95 - k * 0.14)})`;
-      ctx.fillText(d.label[k], d.x * CW, y * CH);
-    }
+    d.x += d.vx * flow;
+    // straight lane, left to right: the whole run on one row
+    const y = 1 + d.lane;
+    const x = Math.floor(d.x);
+    if (x >= b) continue;
+    ctx.fillStyle = `hsla(${d.hue},85%,70%,.96)`;
+    ctx.fillText(d.label.slice(0, Math.max(0, b - x)), x * CW, y * CH);
   }
-  state.drops = state.drops.filter((d) => d.y <= ROWS);
-  ctx.fillStyle = "rgba(107,115,133,.85)";
+  state.drops = state.drops.filter((d) => d.x < b);
+  ctx.fillStyle = "rgba(170,178,196,1)";
   ctx.fillText(`flow ${tokps == null ? "—" : tokps.toFixed(1) + " tok/s"}${state.drops.length ? ` · ${state.drops.length} passing` : ""}`, a * CW, 0);
 }
 requestAnimationFrame(frame);
 
 setInterval(() => { if (Date.now() - state.lastEventAt > 9000) setConn("recon"); }, 4000);
+// the bridge, in words — the same evidence the canvas draws, for anyone who
+// cannot see it; updated every 2s, only when it changes
+let _altLast = "";
+setInterval(() => {
+  const spans = bridgeSpans();
+  const parts = spans.map((s) => {
+    const a = s.activity || {};
+    const st = s.up === false ? "down" : a.inflight ? `${a.inflight} answer${a.inflight === 1 ? "" : "s"} being written` : a.moving ? "moving" : a.idleS == null ? "asleep" : `last used ${fmtAge(a.idleS)} ago`;
+    return `${s.name}: ${st}`;
+  });
+  const riding = state.drops.slice(-3).map((d) => `"${d.label}"`).join(", ");
+  const txt = `The bridge. ${parts.join(". ")}.${riding ? ` Words passing now: ${riding}.` : " No words passing."}`;
+  if (txt !== _altLast) { _altLast = txt; const el = $("stage-alt"); if (el) el.textContent = txt; }
+}, 2000);
 
 /* ── ask heimdall ─────────────────────────────────────────────────────── */
 function addChat(who, text, res) {

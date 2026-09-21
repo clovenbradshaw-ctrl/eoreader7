@@ -75,7 +75,6 @@ const DEFAULT_MODELS = [
   { name: "phi3:mini", tier: "small" },
   { name: "gemma2:2b", tier: "small" },
   { name: "llama3.2", tier: "small" },
-  { name: "olmo2:7b", tier: "mid" },
   { name: "qwen3:8b", tier: "mid" },
   { name: "qwen2.5:14b-instruct-q4_K_M", tier: "large" },
 ];

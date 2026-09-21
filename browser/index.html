@@ -57,6 +57,7 @@
   <span class="proxy">proxy <span id="port">:11436</span></span>
   <span id="health" class="health">…</span>
   <span class="spacer"></span>
+  <a class="btn" href="/heimdall-ui" title="What Heimdall is seeing, live — every surface, every model, the line">heimdall watch</a>
   <a class="btn" href="#" id="toggle-tui" title="Run the terminal TUI in a new terminal window">open in TUI</a>
   <a class="btn" href="#" id="new-session" title="Start a fresh reader fold">new session</a>
 </header>
@@ -123,7 +124,7 @@ async function loadModels() {
     const names = models.map((m) => m.id ?? m.name ?? m.model).filter(Boolean);
     if (!names.length) {
       const o = document.createElement("option");
-      o.value = "olmo2:7b"; o.textContent = "olmo2:7b";
+      o.value = "gemma2:2b"; o.textContent = "gemma2:2b";
       sel.appendChild(o);
     } else {
       for (const n of names) {
@@ -133,11 +134,11 @@ async function loadModels() {
       }
     }
     if (saved && names.includes(saved)) sel.value = saved;
-    else if (names.includes("olmo2:7b")) sel.value = "olmo2:7b";
+    else if (names.includes("gemma2:2b")) sel.value = "gemma2:2b";
     sel.onchange = () => localStorage.setItem("er7-model", sel.value);
   } catch (e) {
     const sel = $("model");
-    sel.innerHTML = `<option value="olmo2:7b">olmo2:7b</option>`;
+    sel.innerHTML = `<option value="gemma2:2b">gemma2:2b</option>`;
   }
 }
 
