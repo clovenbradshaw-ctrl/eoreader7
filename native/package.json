@@ -6,6 +6,7 @@
   "scripts": {
     "test": "node --test \"conformance/*.test.mjs\" \"tests/*.test.js\"",
     "test:organs": "node --test \"organs/*.test.mjs\"",
-    "test:heimdall": "node --test \"heimdall/*.test.mjs\""
+    "test:heimdall": "node --test \"heimdall/*.test.mjs\"",
+    "benchmark:heimdall": "node eval/heimdall/benchmark.mjs"
   }
 }

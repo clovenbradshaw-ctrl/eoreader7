@@ -45,3 +45,26 @@ test("falsifying control: lag alone never reads wedged below the threshold", () 
   sh.__selfTest.setLag({ samples: [50, 60, 40], worst: 60, count: 0 });
   assert.equal(sh.selfStanding().standing, "healthy");
 });
+
+test("RECOVERY: a process that HAD a bad episode reads healthy once the window is clean (the standing is the recent window, never the all-time peak)", () => {
+  // The 2026-09-20 incident's aftermath: a process whose event loop once stalled
+  // (worst 8577894ms) but has fired on time since must NOT read wedged forever.
+  // The monotonic all-time-worst design reported a recovered fleet as wedged for
+  // days; the falsifying control ("a busy-but-answering process must never read
+  // wedged") demands the standing come from the recent window.
+  sh.__selfTest.setLag({ samples: [1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2], worst: 8577894, count: 35 });
+  const s = sh.selfStanding();
+  assert.equal(s.standing, "healthy", "a recovered process must read healthy");
+  assert.equal(s.lateCount, 0, "no recent sample fired late");
+  assert.ok(s.peakLagMs >= 8577894, "the all-time peak is kept as history");
+  assert.ok(s.peakLagMs > s.worstLagMs, "history (peak) is disclosed apart from the standing window");
+});
+
+test("RECOVERY: a window that is STILL late reads wedged — recovery only clears a real recovery", () => {
+  sh.__selfTest.setLag({ samples: [1000, 1000, 1000, 1000, 1000], worst: 1000, count: 5 });
+  assert.equal(sh.selfStanding().standing, "wedged");
+  // Now the loop recovers: the late samples age out of the window.
+  sh.__selfTest.setLag({ samples: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], worst: 1000, count: 5 });
+  assert.equal(sh.selfStanding().standing, "healthy", "recovery clears the wedge");
+  assert.equal(sh.selfStanding().worstLagMs, 1);
+});

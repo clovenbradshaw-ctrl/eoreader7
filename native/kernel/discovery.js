@@ -31,18 +31,33 @@ export async function discoverFraming({ register, impression = null, prior = nul
   const mode = register?.mode ?? "text";
   const tenor = register?.tenor?.tenor ?? "general";
   const evidence = impression?.evidence ?? [];
-  const footprints = evidence.map((e) => `- ${e.from}: ${e.basis}`).join("\n") || "- none yet";
+  // THE FOOTPRINT — the possibility, never the machine's own sentences
+  // (2026-09-20, omnilingual): the evidence `basis` strings are the instrument
+  // talking about ITS OWN operations ("the egress is open — genre material is
+  // hunted and appended, never assumed"). Handing them to the LLM as content
+  // invites an echo in ANY language — the same basis was restated verbatim by
+  // a small model and became essay sections, and a translated echo (German,
+  // Chinese, Arabic, Russian of the same sentence) evades any surface filter.
+  // The universal is to never offer the basis at all: the LLM gets the phases
+  // and shapes the machine actually SAW (the possibility space), not the
+  // prose about how the machine saw them. When there is no seen content, the
+  // prompt already names the honest fallback (the genre's generic arc).
+  const seenPhases = [...new Set(evidence.flatMap((e) => e.phases ?? []).filter((p) => p && String(p).length > 2))].slice(0, 10);
+  const seenShapes = [...new Set(evidence.flatMap((e) => e.shapes ?? []).filter((s) => s && String(s).length > 2))].slice(0, 5);
+  const footprints = [
+    seenPhases.length ? `the phases the machine has actually seen (possibility): ${seenPhases.join(" | ")}` : null,
+    seenShapes.length ? `the shapes the machine has actually measured: ${seenShapes.join(" | ")}` : null,
+  ].filter(Boolean).join("; ") || "the machine has seen no phases yet — supply the genre's generic arc as a fallback, but name the beat of each phase";
   // THE POSSIBILITY SPACE (the low level — the machine's own footprint):
   // the phases and shapes it has ACTUALLY seen. The high level (the LLM) may
   // only propose a PROBABILITY over this space — rank/select/name within it,
   // or supply the generic arc only when the space is empty. A proposal is a
-  // probability distribution, never a free invention.
-  const possiblePhases = [...new Set(evidence.flatMap((e) => e.phases ?? []).filter(Boolean))].slice(0, 10);
-  const possibleShapes = [...new Set(evidence.flatMap((e) => e.shapes ?? []).filter(Boolean))].slice(0, 5);
-  const possibility = [
-    possiblePhases.length ? `the phases the machine has actually seen (possibility): ${possiblePhases.join(" | ")}` : "the machine has seen no phases yet — supply the genre's generic arc as a fallback, but name the beat of each phase",
-    possibleShapes.length ? `the shapes the machine has actually measured: ${possibleShapes.join(" | ")}` : "no measured shape yet",
-  ].join("; ");
+  // probability distribution, never a free invention. (seenPhases/seenShapes
+  // above are the same set — one computation; `possibility` is `footprints`,
+  // shown once in the ask.)
+  const possiblePhases = seenPhases;
+  const possibleShapes = seenShapes;
+  const possibility = footprints;
 
   const ask = (refusal = null) => [
     `You are discovering what makes a good ${genre} carried in ${mode} for ${tenor}.`,
@@ -108,6 +123,26 @@ export async function discoverFraming({ register, impression = null, prior = nul
   if (!framing) return { framing: null, appended: false, from, basis };
 
   framing.staging = framing.staging.map((s) => String(s).trim()).filter((s) => s && s.length > 2).slice(0, 7);
+
+  // THE OMNILINGUAL GUARANTEE (2026-09-20, Chomsky — the universal over the
+  // lexical): a staging phase is a genre beat ("the moment of no return"),
+  // NEVER the machine's own words about the hunt. The measured defect: the
+  // prompt once handed the LLM the evidence `basis` sentences ("the egress is
+  // open — genre material is hunted and appended, never assumed") and a small
+  // model echoed one verbatim as a staging phase — which became an essay
+  // section ("What is The web is hunted and appended...?"). Any SURFACE filter
+  // against that defect is language-bound: an English keyword list misses the
+  // German, Chinese, or Arabic restatement of the same sentence, and even a
+  // character-overlap test only compares against the bases actually present,
+  // which are themselves written in whatever language the instrument speaks.
+  // The universal fix is STRUCTURAL, not lexical: the machine's own basis prose
+  // is never offered to the model (see the footprints above — only the seen
+  // phases and shapes are). A sentence that was never handed over cannot be
+  // restated in any language. There is nothing to filter; the filter would be
+  // the language-bound mistake. The falsifying control: if the basis sentences
+  // ever reach the prompt again (a regression in the footprints build), the
+  // defect returns — pinned by discovery.test.mjs.
+  //
 
   const appended = prior ? appendFraming(prior, { genre, medium: mode, framing, basis: `discovered by the LLM over the possibility space: ${evidence.length} footprints consulted`, giver: `model:${model ?? "draw"}` }) : false;
   return { framing, appended, from, basis };

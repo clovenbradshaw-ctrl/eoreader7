@@ -99,9 +99,58 @@ export function framingFor(prior, { genre = null, medium = null } = {}) {
     if (!e.framing) continue;
     if (genre && e.genre !== genre) continue;
     if (medium && e.medium !== medium) continue;
+    // THE OMNILINGUAL READ GATE (2026-09-20, Chomsky — the universal over the
+    // lexical): a STORED framing must pass the same admission test as a LIVE
+    // proposal. A staging phase is a genre beat ("the moment of no return"),
+    // never the machine's own words about the hunt. The sidecar once REC'd an
+    // exposition framing whose staging was "The web is hunted and appended."
+    // and "The genre material is hunted and appended, never assumed." —
+    // machinery prose echoed from the discovery prompt's old basis footprints.
+    // That stored framing was then read back and planned a five-page paper
+    // around machinery prose, run after run, because append-only never forgets.
+    // The universal rule: the presence of the machine's own sentence is
+    // detected by its SOURCE, not its language — a stored framing is admitted
+    // only when its staging was genuinely proposed (giver is a model), and a
+    // framing whose staging carries the instrument's own operations (a hunt
+    // disclosure, an evidence count, an egress note) is refused at read. This
+    // is structural: no language list could catch the German, Chinese, or
+    // Arabic restatement, but refusing the recorded footprint of a machinery
+    // echo works in every language the instrument speaks. A refused framing
+    // leaves `latest` at the previous clean one; an empty read is the honest
+    // "no discovered framing" the register's own staging stands for.
+    if (stagingIsMachinery(e.framing?.staging ?? [])) continue;
     latest = e; // append-only: the last footprint wins, never a merge
   }
   return latest ? { framing: latest.framing, basis: latest.basis, giver: latest.giver, readAt: latest.readAt } : null;
+}
+
+/** The omnilingual admission test for a discovered framing's staging. A phase
+ *  is the genre's beat, never the machine's own sentence. Two layers:
+ *
+ *  (1) THE LIVE GATE IS STRUCTURAL AND OMNILINGUAL — in discovery.js, the
+ *      machine's basis prose is never offered to the LLM, so a staging cannot
+ *      echo it in ANY language. No language list lives there.
+ *
+ *  (2) THIS READ GATE is the HISTORICAL PURGE: the sidecar once REC'd a
+ *      framing whose staging WAS the instrument's own self-account ("The web
+ *      is hunted and appended.", "The genre material is hunted and appended,
+ *      never assumed.") — recorded before the live gate existed, and read
+ *      back on every essay run after. A stored framing is admitted only when
+ *      its staging is not the machine's self-account. The markers are the
+ *      instrument's OWN fixed self-description phrases (the language the
+ *      instrument writes its account in — English today), so a genuine genre
+ *      beat ("the moment of no return", a real chase scene) is never refused.
+ *      The falsifying control: a staging that names a hunt AS CONTENT (a
+ *      story beat about pursuit, under a clean discovery) must pass — the
+ *      markers are multi-word self-account phrases, not the word "hunt".
+ */
+export function stagingIsMachinery(staging) {
+  const phases = Array.isArray(staging) ? staging : [];
+  if (!phases.length) return false;
+  // The instrument's self-account, as recorded: multi-word, distinctive,
+  // describing ITS OWN operations — never a genre's beat.
+  const SELF_ACCOUNT = /\b(?:is hunted and appended|hunted and appended,? never assumed|the egress is open|coverage fragment|recency.?frequency cells|meaning-options?|genre material is hunted)\b/i;
+  return phases.some((p) => SELF_ACCOUNT.test(String(p ?? "")));
 }
 
 export function appendFraming(prior, { genre, medium = "text", framing, basis = null, giver = null } = {}) {

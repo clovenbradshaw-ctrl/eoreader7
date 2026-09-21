@@ -881,8 +881,8 @@ class T(HTMLParser):
 // Gore is ITERATIVE, bounded by a DMD boundary (gore.js): gather is capped
 // where additional results stop adding reach; a composition calls back with
 // cueGoDeeper for a theme the piece needs, and doubleCheck on a claim's atoms.
-async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "gather", maxPages = WEB_MAX_PAGES } = {}) {
-  if (!WEB_SEARCH_ON || !query.trim()) return { searched: false, pages: 0, chars: 0 };
+async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "gather", maxPages = WEB_MAX_PAGES, webConsent = false } = {}) {
+  if ((!WEB_SEARCH_ON && !webConsent) || !query.trim()) return { searched: false, pages: 0, chars: 0 };
   const started = Date.now();
   const searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
   let searchHtml;
@@ -1643,7 +1643,7 @@ function sidecarGenres() {
 // shuffled by a seeded RNG and picked as the story's cast. Every member keeps
 // its PROVENANCE, so the story is traceable to what inspired it; the seed is
 // recorded so the draw is reproducible.
-function groundSeed(session, { sidecar = null, framing = null, field = null, count = 4 } = {}) {
+function groundSeed(session, { sidecar = null, framing = null, field = null, count = 4, seed = null } = {}) {
   const ground = [];
   // 1. the reader's named beings (proper-noun referents the read established)
   try {
@@ -1666,8 +1666,8 @@ function groundSeed(session, { sidecar = null, framing = null, field = null, cou
   for (const s of (framing?.staging ?? [])) ground.push({ name: String(s), provenance: ["the discovered framing"] });
   const uniq = [...new Map(ground.map((g) => [g.name, g])).values()].filter((g) => g.name && g.name.length > 2);
   if (!uniq.length) return { seed: null, cast: [], basis: "no named ground — the story's cast is the register's own" };
-  const seed = seedFrom(`${Date.now()}:${Math.random()}`); // a fresh random seed each run, recorded for reproducibility
-  const rng = createSeededRng(seed);
+  const effectiveSeed = seed ?? seedFrom(`${Date.now()}:${Math.random()}`); // caller-seeded or fresh; recorded for reproducibility
+  const rng = createSeededRng(effectiveSeed);
   const pool = [...uniq].slice(0, 24);
   const picked = [];
   while (picked.length < count && pool.length) {
@@ -1675,7 +1675,7 @@ function groundSeed(session, { sidecar = null, framing = null, field = null, cou
     const b = pool.splice(i, 1)[0];
     picked.push({ name: b.name, provenance: b.provenance });
   }
-  return { seed, cast: picked, basis: `cast drawn at random (seed ${seed}) from ${uniq.length} grounded name(s): sidecar staging + framing beats + the read's beings` };
+  return { seed: effectiveSeed, cast: picked, basis: `cast drawn at random (seed ${effectiveSeed}) from ${uniq.length} grounded name(s): sidecar staging + framing beats + the read's beings` };
 }
 
 // RANKE'S LAW (anti-kitsch, anti-plagiarism): the mouth COMPOSES its own
@@ -1766,22 +1766,22 @@ export function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfaced
 // A natural topic phrase out of a task, for the essay's own voice: "Write a
 // five-page essay on dolphins" → "dolphins"; "explain how the kernel works"
 // → "how the kernel works". Never an apparatus name.
-function topicPhrase(task) {
+export function topicPhrase(task) {
   const t = String(task ?? "").trim();
-  // The topic is the leading noun-phrase, NOT any "about"/"on" — "what she
-  // wrote about the Analytical Engine" must not hijack the essay's subject.
-  // Prefer the most SPECIFIC pattern first (a biography/analysis/history OF
-  // X names the subject directly), then the FIRST "about" (the essay's own
-  // frame), then a leading noun phrase.
   const ofSubject = /\b(?:biography|account|history|analysis|study)\s+of\s+([^,;:.!?]+)/i.exec(t)?.[1] ?? null;
   if (ofSubject) return ofSubject.trim().replace(/\s+/g, " ");
   const about = /\babout\b\s+([^,;:.!?]+)/i.exec(t)?.[1] ?? null;
-  if (about) return about.trim().replace(/\s+/g, " ");
-  // Fallback: the leading phrase, cut at a word boundary and stripped of a
-  // dangling fragment — "explaining how reference counting works…" must not
-  // truncate mid-noun into "…JavaScript en" or leave a trailing "the".
-  const short = t.slice(0, 80).replace(/^(write|explain|describe|summarize|outline|compose|report|discuss|analyze)\s+/i, "").trim();
-  const cut = short.replace(/\s+[a-z]+$/, "").trim(); // drop a trailing dangling word
+  if (about) {
+    const subject = about
+      .replace(/^\(?\s*(?:\d+|\w+)\s*(?:words?|pages?|paragraphs?|sentences?|characters?|minutes?|sheets?)\s*\)?\s*(?:on|regarding|concerning|about)\s+/i, "")
+      .trim();
+    if (subject && !/^(?:words?|pages?|paragraphs?|sentences?|characters?|minutes?|sheets?)\b/i.test(subject)) return subject.replace(/\s+/g, " ");
+  }
+  let short = t.slice(0, 120).replace(/^(write|explain|describe|summarize|outline|compose|report|discuss|analyze)\s+/i, "").trim();
+  const wasTruncated = t.length > 120;
+  short = short.replace(/^(?:a|an|the)?\s*(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)?[-\s]?(?:page|pages?|paged|page-long)?\s*(?:paper|essay|report|article|document|piece|brief|memo|post)\s+(?:on|about|regarding|concerning)\s+/i, "").trim();
+  short = short.replace(/[.。]$/, "").trim();
+  const cut = wasTruncated ? short.replace(/\s+[a-z]+$/, "").trim() : short;
   return (cut || short || "this").replace(/\s+/g, " ").trim();
 }
 // LaVar's rule, applied: do not hand-roll a reading loop. The composition's
@@ -3712,7 +3712,7 @@ export function openProblemOf(task) {
   return null;
 }
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
   // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
@@ -4341,8 +4341,20 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     const open = session?.buildRounds?.at(-1)?.round?.questions;
     if (Array.isArray(open) && open.length) return t;
     // A fresh build ask — must be a projection-shaped code ask to open the door.
+    // The artifact word must be a real SOFTWARE build target. The discriminator
+    // is the count: "write a five-page paper on X" contains both "write" and
+    // "page", but "five-page" is a page-count, not a web page — the build door
+    // must not ask "who is it for?" at a prose essay. A concrete software
+    // target (site/app/dashboard/tool/game/web page) wins even when prose words
+    // appear ("make a site that reviews books" is a build). A bare "page" is a
+    // build target only when it is NOT a page-count and NOT beside a prose noun.
     if (runMode !== "projection") return null;
-    if (/^(?:make|build|create|generate|write|let'?s make)\b/i.test(t) && /(?:site|app|page|web ?page|dashboard|tool|game)\b/i.test(t)) return t;
+    const verb = /^(?:make|build|create|generate|write|let'?s make)\b/i.test(t);
+    const softwareTarget = /(?:site|app|dashboard|tool|game|web ?page|landing ?page|homepage)\b/i.test(t);
+    const pageCount = /\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|\d+)[- ]\s*page\b/i.test(t);
+    const barePage = /\bpage\b/i.test(t) && !pageCount;
+    const proseNoun = /\b(?:paper|essay|report|article|document|thesis|dissertation|story|novel|book|poem|brief|memo|letter|post)\b/i.test(t);
+    if (verb && (softwareTarget || (barePage && !proseNoun))) return t;
     return null;
   };
   const buildTask = buildAskGate();
@@ -4489,7 +4501,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   let hasWeb = false;
   if (runMode === "projection" && !isCode) {
     // Projection hunts the web for its shape — the void's own hunt.
-    webResult = await searchAndAdmitWeb(session, sessionId, seedQuery, onNote, { move: "gather" });
+    webResult = await searchAndAdmitWeb(session, sessionId, seedQuery, onNote, { move: "gather", webConsent });
     hasWeb = webResult.pages > 0;
   } else if (WEB_SEARCH_ON && (prelimShape.shape === "research" || prelimShape.shape === "open")) {
     // A research-shaped chat ask may gather when the web door is open
@@ -5547,7 +5559,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // THE GROUND-SEED: the story's cast is drawn at random FROM the ground
       // (the beings the reading established, with their sources), once — so
       // every scene is traceable to what inspired it. Recorded in the wheel.
-      storySeed = prelimShape?.register?.field?.field === "narrative" ? groundSeed(session, { sidecar: loadSidecar(), framing: discoveredFraming, field: prelimShape.register.field.field, count: 4 }) : null;
+      storySeed = prelimShape?.register?.field?.field === "narrative" ? groundSeed(session, { sidecar: loadSidecar(), framing: discoveredFraming, field: prelimShape.register.field.field, count: 4, seed }) : null;
       // Evolve the outline as sections land: re-read the reading's referents;
       // a being the essay has not yet covered is a theme the outline missed.
       // REC: supersede the outline line and add the section.
@@ -5577,7 +5589,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           const cuePlan = cueGoDeeperPlan(section, { query: `${topic} ${section}` });
           if (onNote) onNote({ move: "gore", cue: section, query: cuePlan.query });
           if (onThinking) onThinking(`\n[Gore: gathering on "${section}"]\n`);
-          goreStrike = searchAndAdmitWeb(session, sessionId, cuePlan.query, onNote, { move: "go-deeper", maxPages: 2 })
+          goreStrike = searchAndAdmitWeb(session, sessionId, cuePlan.query, onNote, { move: "go-deeper", maxPages: 2, webConsent })
             .then((r) => ({ landed: true, result: r }))
             .catch(() => ({ landed: false }));
         }
@@ -7282,7 +7294,7 @@ export function documentJobIds() {
 // Start a composition job. Returns { docId, sessionId } immediately; the
 // work continues in the background. `onToken` receives each streamed chunk;
 // the projection file is rewritten as sections land.
-export async function startDocumentJob({ task, model, workspace = "", sessionId = null, holonLevel = "section", resumeDocId = null } = {}) {
+export async function startDocumentJob({ task, model, workspace = "", sessionId = null, holonLevel = "section", resumeDocId = null, webConsent = false, seed = null } = {}) {
   const sid = sessionId ?? `er7-doc-${Date.now()}`;
   const jobId = sid; // the essay's ledger lives at ${sessionId}:${turnCount} — use the SAME id so the projection finds it
   const job = {
@@ -7363,7 +7375,7 @@ export async function startDocumentJob({ task, model, workspace = "", sessionId 
         for (let attempt = 0; attempt < 3; attempt++) {
           try {
             return await runProxyTurn(
-              { sessionId: sid, model, task, workspace, holonLevel: job.holonLevel, resumeAnswered: answeredTitles, resumePlan: planQuestions, mode: "projection" },
+              { sessionId: sid, model, task, workspace, holonLevel: job.holonLevel, resumeAnswered: answeredTitles, resumePlan: planQuestions, mode: "projection", webConsent, seed },
               (chunk) => { job.chars += chunk.length; job.updatedAt = Date.now(); },
               (note) => { if (note?.move === "composing_section") job.sections++; },
               (thinking) => job.updatedAt = Date.now(),

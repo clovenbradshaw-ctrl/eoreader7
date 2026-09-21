@@ -44,23 +44,42 @@ function execOut(cmd, args, ms) {
 }
 
 // ── state ────────────────────────────────────────────────────────────────────
-let lagSamples = [];       // most recent late-fire deltas (ms)
-let worstLagMs = 0;        // worst late-fire seen this window
-let lateCount = 0;         // samples that fired more than LAG_WORST_MS late
+// The standing is a RECENT-window property, never an all-time worst. `lagSamples`
+// is the sliding window (the last WINDOW_MAX samples of late-fire deltas); the
+// standing, the late-count, and the "worst lag" are all DERIVED from that window
+// on read. A process that had one bad episode years ago and has been answering
+// since MUST read healthy — the falsifying control is honored by construction
+// (a monotonic all-time worst would report a recovered process as wedged forever).
+// The all-time peak is kept for disclosure only (history), and never drives the
+// standing.
+let lagSamples = [];       // most recent late-fire deltas (ms), the standing window
+let peakLagMs = 0;         // all-time worst late-fire seen (disclosure/history only)
 let selfCpu = null;        // own %CPU, last read
 let cpuReadAt = 0;
 let startedAt = Date.now();
 let heartbeatTimer = null;
 let cpus = null;           // test override
 
+export const WINDOW_MAX = 16; // how many recent samples decide the standing
+
+/** Derived from the window: how many recent samples fired late, and the window's
+ *  worst. These — not the all-time peak — are what `standing` means. */
+function recentLag() {
+  const worstLagMs = lagSamples.length ? Math.max(...lagSamples) : 0;
+  const lateCount = lagSamples.filter((s) => s > LAG_WORST_MS).length;
+  return { worstLagMs, lateCount };
+}
+
 export const __selfTest = {
   setCpus(v) { cpus = v; },
   setLag({ samples = null, worst = null, count = null } = {}) {
+    // The standing contract is window-derived: tests set the window `samples`
+    // and the standing must follow from it. The `worst`/`count` fields are
+    // accepted for back-compat but the standing is always read off samples.
     if (samples != null) lagSamples = samples;
-    if (worst != null) worstLagMs = worst;
-    if (count != null) lateCount = count;
+    if (worst != null) peakLagMs = worst;
   },
-  get state() { return { lagSamples, worstLagMs, lateCount, selfCpu }; },
+  get state() { const r = recentLag(); return { lagSamples, ...r, peakLagMs, selfCpu }; },
 };
 
 /** The event-loop heartbeat. Call once to start; the returned handle is the
@@ -74,10 +93,9 @@ export function startHeartbeat({ onLag = null } = {}) {
     const late = now - lastExpected.at - LAG_TICK_MS;
     lastExpected.at = now;
     lagSamples.push(Math.max(0, late));
-    if (lagSamples.length > 16) lagSamples.shift();
-    if (late > LAG_WORST_MS) lateCount += 1;
-    if (late > worstLagMs) worstLagMs = late;
-    onLag?.({ late, count: lateCount, worst: worstLagMs });
+    if (lagSamples.length > WINDOW_MAX) lagSamples.shift();
+    if (late > peakLagMs) peakLagMs = late;
+    onLag?.({ late, count: recentLag().lateCount, worst: recentLag().worstLagMs });
   };
   heartbeatTimer = setInterval(hb, LAG_TICK_MS);
   hb(); // first sample immediately
@@ -95,8 +113,14 @@ export async function readSelfCpu({ now = Date.now() } = {}) {
   return selfCpu;
 }
 
-/** Standing: healthy / lagging / wedged, with the evidence and the control. */
+/** Standing: healthy / lagging / wedged, with the evidence and the control.
+ *  The standing is a RECENT-window property (the falsifying control, honored):
+ *  a process whose worst lag is in the past but whose recent window is clean
+ *  reads healthy — a recovered process must not be reported as wedged forever.
+ *  `worstLagMs` and `lateCount` are the recent-window values that DECIDE the
+ *  standing; `peakLagMs` is the all-time worst, disclosure-only history. */
 export function selfStanding() {
+  const { worstLagMs, lateCount } = recentLag();
   const wedge = lateCount >= WEDGE_SAMPLES;
   const lagging = worstLagMs > LAG_WORST_MS;
   const standing = wedge ? "wedged" : lagging ? "lagging" : "healthy";
@@ -105,11 +129,13 @@ export function selfStanding() {
     at: ts(),
     uptimeMs: Date.now() - startedAt,
     worstLagMs,
+    peakLagMs,
     lateCount,
     lastLagMs: lagSamples.length ? lagSamples[lagSamples.length - 1] : null,
     cpuPct: selfCpu,
     // falsifying control: a busy-but-answering process must never read wedged.
-    // A probe answering AFTER late fires breaks the standing — the fleet
+    // The standing is the recent window; the all-time peak is history and never
+    // convicts. A probe answering AFTER late fires breaks the standing — the fleet
     // re-checks before terminating and will not terminate on lag alone.
     falsifyingControl: "a late heartbeat followed by an answered probe concedes wedged",
   };

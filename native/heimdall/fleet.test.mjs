@@ -2,7 +2,10 @@
 // raise candidates to the operator, terminate only on explicit consent.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createFleet } from "./fleet.mjs";
+import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
+import { createFleet, configuredPeers } from "./fleet.mjs";
 import { peerFromAddress } from "./peer-mesh.mjs";
 
 function makeFleet({ self, probe, raise, peers = [] } = {}) {
@@ -85,4 +88,60 @@ test("self-health is disclosed on every tick", async () => {
   const fleet = makeFleet({ self: () => ({ pid: 7, standing: "wedged", at: new Date().toISOString() }) });
   await fleet.tick();
   assert.equal(fleet.status().self.standing, "wedged");
+});
+
+test("MULTI-HEIMDALL: env-configured peers let one fleet watch another fleet", async () => {
+  // A second fleet answers /heimdall at :11439; the first fleet must learn to
+  // probe it as a peer (coordination), not only the proxy's own addresses.
+  process.env.ER7_HEIMDALL_PEERS = "fleet2=http://127.0.0.1:11439";
+  try {
+    const probed = [];
+    const fleet = createFleet({
+      tickMs: 1000, probeTimeoutMs: 500, operatorChannel: "log",
+      self: () => ({ pid: 1, standing: "healthy" }),
+      probe: async (peer) => { probed.push(peer.name); return { ok: true, status: 200, body: { self: { standing: "healthy" } } }; },
+    });
+    await fleet.tick();
+    assert.ok(probed.includes("fleet2"), "the second fleet is probed as a peer");
+    const f2 = fleet.status().peers.find((p) => p.name === "fleet2");
+    assert.ok(f2, "fleet2 is in the mesh");
+    assert.equal(f2.up, true);
+  } finally {
+    delete process.env.ER7_HEIMDALL_PEERS;
+  }
+});
+
+test("MULTI-HEIMDALL: a peer fleet that goes silent is raised to the operator like any peer", async () => {
+  process.env.ER7_HEIMDALL_PEERS = "fleet3=http://127.0.0.1:11440";
+  try {
+    const raised = [];
+    const fleet = createFleet({
+      tickMs: 1000, probeTimeoutMs: 500, operatorChannel: "log",
+      self: () => ({ pid: 1, standing: "healthy" }),
+      probe: async (peer) => (peer.name === "fleet3" ? { ok: false, reason: "probe_ECONNREFUSED" } : { ok: true, status: 200, body: {} }),
+      raise: async (_m, esc) => { raised.push(esc); return { sent: true }; },
+    });
+    await fleet.tick();
+    const esc = raised.find((e) => e.peer === "fleet3");
+    assert.ok(esc, "the silent peer fleet is raised");
+    assert.match(esc.ask, /should we terminate fleet3/);
+  } finally {
+    delete process.env.ER7_HEIMDALL_PEERS;
+  }
+});
+
+test("MULTI-HEIMDALL: a persisted peers file survives when the env is absent (restart-safe mesh)", () => {
+  // A managed restart (`er7-proxy restart`) spawns the fleet without the ad-hoc
+  // env; the mesh must survive via the peers file beside the pid.
+  const file = path.join(os.tmpdir(), `er7-peers-${Date.now()}`);
+  process.env.ER7_HEIMDALL_PEERS_FILE = file;
+  try {
+    fs.writeFileSync(file, "fleet-restart=http://127.0.0.1:11441\n");
+    delete process.env.ER7_HEIMDALL_PEERS;
+    const names = configuredPeers().map((p) => p.name);
+    assert.ok(names.includes("fleet-restart"), "the persisted peer is in the mesh after a 'restart'");
+  } finally {
+    delete process.env.ER7_HEIMDALL_PEERS_FILE;
+    fs.rmSync(file, { force: true });
+  }
 });

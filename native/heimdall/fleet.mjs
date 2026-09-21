@@ -23,6 +23,9 @@
 // not need the proxy to serve to be the proxy's watcher.
 import { createMesh, peerFromAddress, SATURATED_SUSPECT_TICKS } from "./peer-mesh.mjs";
 import { selfSnapshot } from "./self-health.mjs";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 export const FLEET_TICK_MS = Number(process.env.ER7_HEIMDALL_FLEET_TICK_MS ?? 10000);
 export const PROBE_TIMEOUT_MS = Number(process.env.ER7_HEIMDALL_PROBE_TIMEOUT_MS ?? 4000);
@@ -35,6 +38,38 @@ const WELL_KNOWN = [
   { name: "er7", address: "http://127.0.0.1:11436" },
   { name: "heimdall-alias", address: "http://127.0.0.1:11437" },
 ];
+
+/** Extend the well-known peers with configured ones. The config lives in the
+ *  environment (ER7_HEIMDALL_PEERS, comma-separated "name=address[,name=...]"),
+ *  and — so a managed restart (`er7-proxy restart`) does not lose the mesh —
+ *  falls back to the peers file written beside the pid (see fleetPeersFile in
+ *  er7-proxy.mjs). This is what lets MULTIPLE heimdall fleets coordinate across
+ *  restarts: each fleet peers with the proxy AND with the other fleets, so a
+ *  fleet that stops ticking or self-reports wedged is raised by its peers, not
+ *  just by the proxy it watches. */
+export function configuredPeers() {
+  const raw = String(process.env.ER7_HEIMDALL_PEERS ?? "").trim()
+    || readPeersFile();
+  const extra = [];
+  for (const spec of raw.split(",").map((s) => s.trim()).filter(Boolean)) {
+    const eq = spec.indexOf("=");
+    if (eq === -1) { extra.push({ name: spec, address: spec.startsWith("http") ? spec : `http://127.0.0.1:${spec}` }); continue; }
+    const name = spec.slice(0, eq).trim();
+    const addr = spec.slice(eq + 1).trim();
+    extra.push({ name, address: addr.startsWith("http") ? addr : `http://127.0.0.1:${addr}` });
+  }
+  return [...WELL_KNOWN, ...extra];
+}
+
+/** Read the persisted peer config (if the launcher wrote one). */
+function readPeersFile() {
+  try {
+    const p = process.env.ER7_HEIMDALL_PEERS_FILE || path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "..", ".er7-fleet.peers");
+    return fs.readFileSync(p, "utf8").trim();
+  } catch {
+    return "";
+  }
+}
 
 async function probePeer(peer, { timeoutMs = PROBE_TIMEOUT_MS } = {}) {
   const ctrl = new AbortController();
@@ -112,8 +147,9 @@ export function createFleet({
   boxLoad = readBoxLoad,
 } = {}) {
   const mesh = createMesh({ peers });
-  // seed the registry with the well-known local peers (and any caller peers)
-  for (const wk of WELL_KNOWN) {
+  // seed the registry with the well-known local peers (and any caller peers),
+  // plus env-configured peer heimdalls so fleets watch each other
+  for (const wk of configuredPeers()) {
     if (![...mesh.registry.keys()].includes(wk.name)) mesh.upsertPeer(peerFromAddress(wk.address, { name: wk.name }));
   }
 

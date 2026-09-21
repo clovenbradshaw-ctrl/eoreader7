@@ -159,3 +159,43 @@ Rules now carried, updated by the run:
   saturation IS a suspect.
 - **A fleet discloses its own last tick.** Self-watch is bounded by the loop;
   the out-of-sandbox peer is what closes it.
+
+## Recovery and coordination (2026-09-20, the benchmark run)
+
+Two standing rules were found violated by the live fleet and fixed.
+
+**Fix 1 — a recovered process read `wedged` forever.** The old self-health
+kept `lateCount` and `worstLagMs` as monotonic accumulators: a process whose
+event loop once stalled for seconds (the 10-hour incident's aftermath) kept
+reporting `standing: "wedged"` with `worstLagMs` in the millions even after
+`lastLagMs` dropped to 1ms — for days, in the live fleet. That is the 
+falsifying control ("a busy-but-answering process must never read wedged")
+violated by construction: the standing was the all-time worst, never the
+current state. **The fix:** the standing is now derived from the recent
+sliding window (`lagSamples`, the last `WINDOW_MAX`=16 samples) on every read
+— `worstLagMs`/`lateCount` are window values, the all-time peak is disclosed
+as `peakLagMs` (history, never a verdict). A process that had a bad episode
+and has been firing on time since reads `healthy`. Pinned by the two
+`RECOVERY:` tests in `self-health.test.mjs`.
+
+**Fix 2 — fleets could not watch each other.** `WELL_KNOWN` was hardcoded to
+the proxy's own two addresses, so a second heimdall fleet had nothing to peer
+with — the hive-mind's own premise ("no single watcher is unreachable") was
+unwired for local fleets. **The fix:** `ER7_HEIMDALL_PEERS` (`name=address,`
+comma-separated) extends the well-known set (`fleet.mjs::configuredPeers`),
+so N fleets coordinate: each probes the proxy AND the other fleets, and a
+fleet that stops ticking or self-reports wedged is raised by its peers, not
+just by the thing it watches. Pinned by the two `MULTI-HEIMDALL:` tests in
+`fleet.test.mjs`.
+
+```
+# fleet 1 — watches the proxy and fleet 2
+ER7_HEIMDALL_PEERS="fleet2=http://127.0.0.1:11439" node heimdall-fleet.mjs
+# fleet 2 — watches the proxy and fleet 1
+ER7_HEIMDALL_FLEET_PORT=11439 ER7_HEIMDALL_PEERS="er7=http://127.0.0.1:11436,fleet1=http://127.0.0.1:11438" node heimdall-fleet.mjs
+```
+
+The operational benchmark that measures both is `native/eval/heimdall/benchmark.mjs`
+(`npm run benchmark:heimdall` in `native/`) — scores doorways, latency,
+concurrency (no silent stalls), SLA, fleet health (no stale wedge), and
+coordination (every expected peer in the mesh) on a 0–100 scale.

@@ -123,6 +123,16 @@ export async function startFleet({ quiet = false } = {}) {
     if (!quiet) console.log(`heimdall fleet already running on http://127.0.0.1:${FLEET_PORT}`);
     return { started: false, alreadyRunning: true, port: FLEET_PORT };
   }
+  // Persist the peer mesh config so a restart (`er7-proxy restart`) does not
+  // lose it: the fleet reads ER7_HEIMDALL_PEERS first, then falls back to this
+  // file. A multi-heimdall mesh survives managed restarts.
+  const peers = process.env.ER7_HEIMDALL_PEERS ?? "";
+  if (peers.trim()) {
+    try {
+      const peersFile = process.env.ER7_HEIMDALL_PEERS_FILE || path.join(REPO_ROOT, ".er7-fleet.peers");
+      fs.writeFileSync(peersFile, peers.trim() + "\n");
+    } catch {}
+  }
   const out = fs.openSync(FLEET_LOG, "a");
   const child = spawn("node", [FLEET, "--operator", "log"], { cwd: REPO_ROOT, detached: true, stdio: ["ignore", out, out] });
   child.unref();
