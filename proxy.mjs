@@ -19,7 +19,7 @@ import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge, liveReap } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge, liveReap, consolidateMemory, runHolonTree } from "./heimdall.mjs";
 // "Computed, not generated" — the-fold's own house rule (arithmetic.js),
 // reused directly rather than re-derived: a small model answering "what is
 // today's date?" from its stale training data, with nothing in THIS proxy's
@@ -469,12 +469,22 @@ async function handleRequest(req, res) {
     req.on("end", async () => {
       try {
         const parsed = JSON.parse(body);
+        // HOLON LEVEL, VALIDATED (2026-09-20, falsification B7): an unknown
+        // value used to degrade silently to full-section behavior — a
+        // visible typed gap, never a default, is the house law.
+        const HOLON_LEVELS = new Set(["section", "paragraph", "sentence"]);
+        const holonLevel = parsed.holonLevel ?? "section";
+        if (!HOLON_LEVELS.has(holonLevel)) {
+          res.writeHead(400, { "content-type": "application/json" });
+          res.end(JSON.stringify({ error: { message: `holonLevel must be one of ${[...HOLON_LEVELS].join(", ")} — got "${holonLevel}"`, type: "unknown_holon_level" } }));
+          return;
+        }
         const job = await startDocumentJob({
           task: String(parsed.task ?? "").trim(),
           model: parsed.model ?? "olmo2:7b",
           workspace: parsed.workspace ?? "",
           sessionId: parsed.sessionId ?? null,
-          holonLevel: parsed.holonLevel ?? "section",
+          holonLevel,
         });
         res.writeHead(202, { "content-type": "application/json" });
         res.end(JSON.stringify(job));
@@ -684,7 +694,10 @@ async function handleRequest(req, res) {
       // emerge — garble, truncation, density, a pointed-at void — is answered
       // by the swarm even when the box is refusing model loads. It runs before
       // admitChatRequest exactly because the swarm must never be gated by the
-      // model load it does not need.
+      // model load it does not need. What actually routes (swarm-server.mjs):
+      // NL naming swarming, force, or the hard-meaning detector firing. A
+      // standing content rule annotates a hard-meaning turn; it never routes
+      // by itself (corrected 2026-09-20 — the old comment overstated it).
       const askSwarm = runSwarmTurn({
         task,
         texts: [
@@ -733,6 +746,12 @@ async function handleRequest(req, res) {
           turnAbort.abort();
         }
       }, TURN_DEADLINE_MS);
+      // THE MECHANICAL RACE, ON THIS DOOR TOO (falsification F3): the plain
+      // doorway now runs the same observation-vs-prediction race
+      // /v1/chat/completions already ran — a settled mechanism's computed
+      // text is the answer, the model's draft rides as superseded, and a gap
+      // is disclosed without suppressing anything.
+      const observationP = runMechanical(task, MECHANISMS);
       try {
         const result = await runProxyTurn({
           sessionId, userId, workspace, attachments, model, task, mode,
@@ -745,9 +764,10 @@ async function handleRequest(req, res) {
         markServable(model); // it answered — Heimdall keeps it servable
         clearTimeout(turnDeadline);
         res.removeListener("close", onDisconnect);
+        const race = precisionWinner({ observation: await observationP, draft: result.text });
         res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
         res.end(JSON.stringify({
-          answer: result.text,
+          answer: race.text,
           sessionId,
           model: result.model ?? model,
           heimdall: bridgeMessage({ model: result.model ?? model }),
@@ -759,6 +779,7 @@ async function handleRequest(req, res) {
           answerShape: result.answerShape ?? null,
           truncated: result.truncated ?? false,
           document: result.document ?? null,
+          race: raceReading(race),
           // THE ASK-BACK ENVELOPE (build-clarify): the person sees the plain
           // questions in `answer`; the record carries the structured shape —
           // which cells are open, the round, the schema — so the fold, the
@@ -956,10 +977,13 @@ async function handleRequest(req, res) {
       // SWARM AUTO-ROUTE, RUN BEFORE HEIMDALL ADMISSION: the swarm needs no
       // model and no admission (pure organ reads, same as /v1/swarm), so a
       // turn pointed at material whose meaning is hard to emerge — garble,
-      // truncation, density, a pointed-at void — or that already has a
-      // standing content rule is answered by the swarm even when the box is
-      // refusing model loads. It runs before admitChatRequest exactly because
-      // the swarm must never be gated by the model load it does not need.
+      // truncation, density, a pointed-at void — is answered by the swarm
+      // even when the box is refusing model loads. It runs before
+      // admitChatRequest exactly because the swarm must never be gated by the
+      // model load it does not need. What actually routes (swarm-server.mjs):
+      // NL naming swarming, force, or the hard-meaning detector firing. A
+      // standing content rule annotates a hard-meaning turn; it never routes
+      // by itself (corrected 2026-09-20 — the old comment overstated it).
       const swarmTurn = runSwarmTurn({
         task: reqData.task,
         texts: [
@@ -1061,7 +1085,10 @@ async function handleRequest(req, res) {
         // A slow mechanism would delay the stream's first token by its own
         // run time; today's mechanisms settle in well under a millisecond.
         const observation = await observationP;
-        const mechanicalWins = observation.concluded;
+        // The same predicate on every door (falsification F4): only a
+        // SETTLED conclusion suppresses the model — a BEYOND_REACH gap is
+        // never a win, on any wire.
+        const mechanicalWins = observation.concluded && observation.kind !== CONCLUSION.BEYOND_REACH;
         const writeContent = (token) => {
           if (!token) return;
           const chunk = {
@@ -1292,10 +1319,13 @@ async function handleRequest(req, res) {
       // /v1/chat/completions path: the swarm needs no model and no admission
       // (pure organ reads), so a turn pointed at material whose meaning is
       // hard to emerge is answered by the swarm even when the box is refusing
-      // model loads. This is the web app's own door onto the collision
-      // chamber: the surviving read carries its named holes — the residue
-      // rides the reading envelope, and the Anti-matter line rides the
-      // answer prose the app already renders.
+      // model loads. What actually routes (swarm-server.mjs): NL naming
+      // swarming, force, or the hard-meaning detector firing — a standing
+      // content rule annotates but never routes (corrected 2026-09-20). This
+      // is the web app's own door onto the collision chamber: the surviving
+      // read carries its named holes — the residue rides the reading
+      // envelope, and the Anti-matter line rides the answer prose the app
+      // already renders.
       const swarmTurn = runSwarmTurn({
         task: reqData.task,
         texts: [
@@ -1348,6 +1378,12 @@ async function handleRequest(req, res) {
 
       const createdAt = new Date().toISOString();
 
+      // THE MECHANICAL RACE, ON THIS DOOR TOO (falsification F3): the ollama
+      // door now runs the same observation-vs-prediction race the openai
+      // door already ran. A settled mechanism's computed text is the answer
+      // on both wire shapes; a gap is disclosed, never suppressing.
+      const observationP = runMechanical(reqData.task, MECHANISMS);
+
       if (reqData.stream) {
         res.writeHead(200, {
           "content-type": "application/x-ndjson",
@@ -1380,7 +1416,11 @@ async function handleRequest(req, res) {
 
         try {
           let first = true;
-          await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
+          // A slow mechanism would delay the stream's first token by its own
+          // run time; today's mechanisms settle in well under a millisecond.
+          const observation = await observationP;
+          const mechanicalWins = observation.concluded && observation.kind !== CONCLUSION.BEYOND_REACH;
+          const writeChunk = (token) => {
             if (!token) return;
             res.write(JSON.stringify({
               model: parsed.model, created_at: createdAt,
@@ -1388,6 +1428,11 @@ async function handleRequest(req, res) {
               done: false,
             }) + "\n");
             first = false;
+          };
+          const emit = mechanicalWins ? () => {} : writeChunk;
+          if (mechanicalWins) writeChunk(observation.text);
+          await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
+            emit(token);
           });
           clearTurn();
           res.write(JSON.stringify({
@@ -1433,8 +1478,9 @@ async function handleRequest(req, res) {
           if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
-          const resp = ollamaChatResponse({ model: parsed.model, text: result.text, createdAt, usage: result.usage, reading: result });
-          resp.reading = { ...(result.reading ?? result), sessionId };
+          const race = precisionWinner({ observation: await observationP, draft: result.text });
+          const resp = ollamaChatResponse({ model: parsed.model, text: race.text, createdAt, usage: result.usage, reading: result });
+          resp.reading = { ...(result.reading ?? result), sessionId, race: raceReading(race) };
           resp.heimdall = bridgeMessage({ model: parsed.model });
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify(resp));
@@ -1458,6 +1504,10 @@ async function handleRequest(req, res) {
   // (runProxyTurn), so a Claude Code conversation folds its own session lane
   // and gets the grounded prompt like anything else. Streaming emits the
   // anthropic event shape (message_start → content_block_* → message_stop).
+  // GATED LIKE THE OTHER DOORS (2026-09-20, the last dissent closed): the
+  // swarm auto-route runs before admission, heimdall admission runs before
+  // the turn, and the mechanical race runs beside it — a Claude Code prompt
+  // now waits in line exactly like an OpenAI-shaped one.
   // POST /v1/messages/count_tokens — the SDK's usage estimator; a cheap
   // char/4 guess, never a round trip through the reading.
   if (req.method === "POST" && req.url === "/v1/messages/count_tokens") {
@@ -1505,6 +1555,62 @@ async function handleRequest(req, res) {
 
       const id = `msg_er7_${Date.now()}`;
 
+      // SWARM AUTO-ROUTE, RUN BEFORE HEIMDALL ADMISSION — mirror of the
+      // other chat doors (2026-09-20, the last dissent closed): the swarm
+      // needs no model and no admission, so a turn pointed at material whose
+      // meaning is hard to emerge is answered on the Anthropic wire too,
+      // even when the box is refusing model loads. What actually routes
+      // (swarm-server.mjs): NL naming swarming, force, or the hard-meaning
+      // detector firing — a standing content rule annotates but never routes.
+      const swarmTurn = runSwarmTurn({
+        task: reqData.task,
+        texts: [
+          ...(reqData.attachments ?? []).map((a) => ({ name: a.name, text: a.text })),
+          ...(reqData.chatHistory ?? []).map((m, i) => ({ name: `history-${i}`, text: m.content })),
+        ],
+        name: "messages-turn",
+      });
+      if (swarmTurn.routed) {
+        const swarmSessionId = sessionIdFromHeaders(req);
+        if (reqData.stream) {
+          res.writeHead(200, {
+            "content-type": "text/event-stream",
+            "cache-control": "no-cache",
+            connection: "keep-alive",
+            "x-er7-session": swarmSessionId,
+          });
+          res.write(anthropicStreamStart({ id, model: parsed.model }));
+          res.write(anthropicContentBlockStart(0));
+          res.write(anthropicContentBlockDelta(0, swarmTurn.answer));
+          res.write(anthropicContentBlockStop(0));
+          res.write(anthropicMessageDelta({ outputTokens: 0 }));
+          res.write(anthropicMessageStop());
+          res.end();
+        } else {
+          const resp = anthropicMessageResponse({ id, model: parsed.model, text: swarmTurn.answer, usage: { promptTokens: 0, completionTokens: 0 } });
+          resp.heimdall = bridgeMessage({ model: parsed.model });
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify(resp));
+        }
+        return;
+      }
+
+      // HEIMDALL, WIRED IN — admission on the Anthropic door too: a
+      // saturated box or a full family lane refuses with the SAME typed 429
+      // shape every other door uses, and the inflight mark is released
+      // exactly once on finish or close.
+      const admit = admitChatRequest({ model: reqData.model }, req.headers);
+      if (!admit.allowed) {
+        refuseAdmission(res, admit);
+        return;
+      }
+      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
+
+      // THE MECHANICAL RACE — on this door too: a settled mechanism's
+      // computed text is the answer on the Anthropic wire as well; a gap is
+      // disclosed, never suppressing.
+      const observationP = runMechanical(reqData.task, MECHANISMS);
+
       if (reqData.stream) {
         res.writeHead(200, {
           "content-type": "text/event-stream",
@@ -1539,12 +1645,21 @@ async function handleRequest(req, res) {
 
         let outputTokens = 0;
         try {
-          res.write(anthropicStreamStart({ id, model: parsed.model }));
-          res.write(anthropicContentBlockStart(0));
-          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
+          // A slow mechanism would delay the stream's first token by its own
+          // run time; today's mechanisms settle in well under a millisecond.
+          const observation = await observationP;
+          const mechanicalWins = observation.concluded && observation.kind !== CONCLUSION.BEYOND_REACH;
+          const emitDelta = (token) => {
             if (!token) return;
             outputTokens += 1;
             res.write(anthropicContentBlockDelta(0, token));
+          };
+          const emit = mechanicalWins ? () => {} : emitDelta;
+          res.write(anthropicStreamStart({ id, model: parsed.model }));
+          res.write(anthropicContentBlockStart(0));
+          if (mechanicalWins) emitDelta(observation.text);
+          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
+            emit(token);
           });
           clearTurn();
           res.write(anthropicContentBlockStop(0));
@@ -1585,7 +1700,8 @@ async function handleRequest(req, res) {
           if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
-          const resp = anthropicMessageResponse({ id, model: parsed.model, text: result.text, usage: result.usage });
+          const race = precisionWinner({ observation: await observationP, draft: result.text });
+          const resp = anthropicMessageResponse({ id, model: parsed.model, text: race.text, usage: result.usage });
           resp.heimdall = bridgeMessage({ model: parsed.model });
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify(resp));
@@ -1743,7 +1859,14 @@ server.listen(PORT, "127.0.0.1", () => {
         log(`REC — residency: box pegged at ${Math.round(idle)}% idle — stand down (resume only at ≥${_residencyResumeIdle}% for ${_residencyClearTicksNeeded} ticks)`);
         return { class: "stand_down", probe: `saturated_idle_${Math.round(idle)}%`, missing: [] };
       }
-      const resident = new Set((loadedModels() ?? []).map((m) => m.name));
+      // An unmeasured resident set is never a conviction (house law;
+      // falsification F4, round 3): in external mode the model table is
+      // never refreshed, and reporting every hot model as "dropped" against
+      // an empty measurement would fabricate findings the rule-author could
+      // mint into a false derived rule. Unknown → no finding.
+      const loaded = loadedModels();
+      if (loaded == null) return null;
+      const resident = new Set(loaded.map((m) => m.name));
       const used = hotModelSet();
       const missing = [...used].filter((m) => !resident.has(m));
       return missing.length ? { class: "model_dropped", probe: missing.slice(0, 1).join(","), missing: missing.slice(0, 1) } : null;
@@ -1767,14 +1890,55 @@ server.listen(PORT, "127.0.0.1", () => {
   // earns a derived rule (giver heimdall, standing disclosed, falsifying
   // control carried), adopted once and never re-derived every tick. The
   // bridge learns its own rules from its own recorded history — no mind.
+  // ONE INSTANCE (2026-09-20, falsification A4-fix): the holon's sense and
+  // act come from the SAME factory call — two separate makeRuleAuthorHolon()
+  // calls would silently diverge the moment per-instance state lands.
+  const ruleAuthor = makeRuleAuthorHolon();
   declareLoop({
     name: "rule-author",
     def: "the swarm reads its own ledger: a finding that recurs past the floor earns a standing rule (with its falsifying control); the bridge writes its own emergent law",
     cadenceMs: Number(process.env.ER7_RULE_AUTHOR_CADENCE_MS ?? 120000),
-    sense: makeRuleAuthorHolon().sense,
-    act: makeRuleAuthorHolon().act,
+    sense: ruleAuthor.sense,
+    act: ruleAuthor.act,
   });
   log("holon: rule-author declared (emergent rules from the ledger)");
+  // THE MEMORY HOLON (2026-09-20, improvement B6): when heimdall runs wired
+  // into this proxy, consolidation is a declared DEF→EVA→REC holon of its
+  // own — the ledger is not infinite, and the fold happens on a cadence,
+  // never on the request path. The watcher tick's own consolidation is
+  // STANDALONE-only now (heimdall.mjs gates it on isMain), so the same act
+  // never runs twice.
+  let _lastMemoryAt = 0;
+  const MEMORY_CADENCE_MS = Number(process.env.ER7_HEIMDALL_CONSOLIDATE ?? 15 * 60 * 1000);
+  declareLoop({
+    name: "memory",
+    def: "the watcher's ledger is not infinite: recent past stays raw, older past folds to hourly then daily snapshots, past the cold horizon the memory is released — consolidated on its own cadence, never on the request path",
+    cadenceMs: MEMORY_CADENCE_MS,
+    sense: async () => {
+      if (Date.now() - _lastMemoryAt < MEMORY_CADENCE_MS) return null;
+      return { class: "consolidate_due", probe: "memory" };
+    },
+    act: async () => {
+      _lastMemoryAt = Date.now();
+      const r = consolidateMemory();
+      return { note: `memory folded: ${r.folded ?? 0} line(s) released, ${r.kept ?? 0} kept raw (${r.hourly ?? 0} hourly, ${r.daily ?? 0} daily buckets)` };
+    },
+  });
+  log("holon: memory declared (ledger fold on its own cadence)");
+  // THE HOLON DRIVER IN FLEET MODE (2026-09-20, falsification F6): with
+  // ER7_EXTERNAL_HEIMDALL=1 the watcher never runs here, so the tick never
+  // drives runHolonTree — the memory holon was declared but never sensed and
+  // the ledger grew unbounded. The holon tree is the proxy's own concern
+  // (its models, its rules, its memory), so it is driven on a cadence even
+  // when the watcher is external. Each holon keeps its own single-flight and
+  // cadence gate — this interval only offers the tick.
+  if ((process.env.ER7_EXTERNAL_HEIMDALL ?? "0") === "1") {
+    const holonDriverMs = Number(process.env.ER7_HOLON_DRIVER_MS ?? 30000);
+    setInterval(() => {
+      runHolonTree().catch((err) => log(`holon tree error: ${err.message}`));
+    }, holonDriverMs).unref();
+    log(`holon driver: external heimdall — holon tree driven locally every ${holonDriverMs}ms`);
+  }
   // Pre-load pyodide (WASM Python) in the background so the FIRST turn's
   // post-processing does not pay the ~10-16s cold-load. Fire-and-forget.
   warmPostprocess().then(({ available, error }) => {

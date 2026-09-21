@@ -23,7 +23,7 @@
 //     regex over objective classes; the tier-2 settle is the substrate. No
 //     model ever votes on whether its own call is safe.
 //
-// HOW IT IS WIRED — the two places an answer-producing model call can leave
+// HOW IT IS WIRED — the places an answer-producing model call can leave
 // this process:
 //   1. proxy-runner.mjs::streamOllamaChat — the single choke point every
 //      chat/composition/code turn streams through. gate() runs before the
@@ -34,6 +34,13 @@
 //   2. proxy-runner.mjs's discoverFraming call — routed through the same
 //      gated stream instead of its raw upstream fetch (a third-party model
 //      call that used to bypass the gate entirely).
+//   3. native/organs/look.js::completeVision — the vision lane (wired
+//      2026-09-20, falsification F1): gate() pre-fetch and reviewBlock() on
+//      the output, route "vision", forceBlock always. A blocked prompt
+//      throws ERR_ANTISTRAUSS_BLOCKED and the read discloses it as a
+//      missing sense, never an answer.
+// Any other answer-producing call that does not pass one of these three is
+// a WIRING BUG.
 //   The residency pings (keepResidentDuringSetup, keepModelHot, heimdall's
 //   /api/chat probe) are NOT gated and are disclosed as such: they send a
 //   fixed 1-token "OK" and carry no prompt content — a keep-alive, never an
@@ -523,7 +530,7 @@ export function status() {
     mode: MODE,
     effectiveMode: effectiveMode(),
     offAllowlistFile: ALLOW_OFF_FILE.split("/").pop(),
-    wired: ["proxy-runner.mjs::streamOllamaChat (forceBlock: ER7_ANTISTRAUSS=off never opens this path; output guard replaces contravening output)", "proxy-runner.mjs::discoverFraming (routed through the gate)"],
+    wired: ["proxy-runner.mjs::streamOllamaChat (forceBlock: ER7_ANTISTRAUSS=off never opens this path; output guard replaces contravening output)", "proxy-runner.mjs::discoverFraming (routed through the gate)", "native/organs/look.js::completeVision (the vision lane, route \"vision\", forceBlock always — a blocked prompt throws ERR_ANTISTRAUSS_BLOCKED and the read discloses it as a missing sense)"],
     physics: {
       substrate: "createReactionSubstrate (native/kernel/reaction.js)",
       ...physics,

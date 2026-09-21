@@ -1562,8 +1562,11 @@ async function tick() {
   // past the raw horizon into snapshots and trim it, on its own cadence. A
   // snapshot-consolidation failure is a skip, never a crash (consolidateMemory
   // catches and reports). First tick always consolidates, so a long-running
-  // log is trimmed the moment the daemon boots.
-  if (Date.now() - lastConsolidateAt >= CONSOLIDATE_MS) {
+  // log is trimmed the moment the daemon boots. WIRED-IN (2026-09-20,
+  // improvement B6): when the module runs inside the proxy, consolidation is
+  // the memory holon's own DEF→EVA→REC act (declared in proxy.mjs) — the tick
+  // owns it only in STANDALONE mode, so the same act never runs twice.
+  if (isMain && Date.now() - lastConsolidateAt >= CONSOLIDATE_MS) {
     lastConsolidateAt = Date.now();
     consolidateMemory();
   }
@@ -2311,7 +2314,7 @@ async function runHolon(h) {
   }
 }
 
-async function runHolonTree() {
+export async function runHolonTree() {
   for (const h of HOLONS.values()) {
     await runHolon(h);
     for (const c of h.children) { const child = HOLONS.get(c); if (child) await runHolon(child); }

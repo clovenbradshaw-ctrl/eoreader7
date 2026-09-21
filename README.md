@@ -329,14 +329,21 @@ is auto-routed to the capacity-swarm (`native/eval/lavar/hard-meaning.mjs`
 detects it deterministically; `swarm-server.mjs::runSwarmTurn` routes it) even
 when the NL never names swarming and even when Heimdall is refusing model
 loads — the swarm needs no model, so it is never gated by one. The trigger
-runs before admission on every doorway (`/v1/ask`, `/v1/chat/completions`,
-`/v1/swarm`, the TUI, the browser, the fold).
+runs before admission on the chat-shaped doors (`/v1/ask`,
+`/v1/chat/completions`, `/api/chat`); `/v1/swarm` is the explicit door
+(`force: true`). The Anthropic-shaped `/v1/messages` door was gated the same
+way on 2026-09-20 — swarm auto-route, heimdall admission, and the mechanical
+race all run there now (the last door standing is standing no longer). The
+code-shaped doors (`/v1/code`, `/v1/agent`) and `/v1/documents` run their own
+gates instead. Corrected 2026-09-20 — the old wording overclaimed "every
+doorway".
 
 The swarm also PRESERVES what it learns: when it runs on hard material it
 writes a standing rule for that content type to `content-rules.json`
 (`content-rules.mjs`; append-only, falsifying control carried) — and reads the
-same ledger first, so a content type with a standing rule is applied before
-being re-derived. `GET /content-rules` serves the ledger to every surface.
+same ledger on every hard-meaning turn, applying the standing rule by name
+alongside the swarm's re-derivation (never instead of it — a rule annotates,
+it does not preempt). `GET /content-rules` serves the ledger to every surface.
 
 ## Heimdall, out of the sandbox (2026-09-20)
 

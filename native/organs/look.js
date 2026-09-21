@@ -40,9 +40,18 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { detectVisualStructure, toLedgerLines, foldVisual } from "../eval/lavar/visual-rec.mjs";
+// AntiStrauss, wired IN (2026-09-20, falsification F1): the vision sense was
+// the one model output the safety-and-ethics gate never saw — completeVision
+// fetched OLLAMA directly from inside runProxyTurn. The gate now runs on
+// every vision model call, exactly as it does on streamOllamaChat: pre-call
+// gate with forceBlock, output reviewed with forceBlock, a blocked call
+// throws ERR_ANTISTRAUSS_BLOCKED and the caller discloses it as a vision
+// error — a missing sense is never an answer. Same module, same ground.
+import { gate as antistraussGate, reviewBlock as antistraussReviewBlock } from "../the-fold/antistrauss.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
+const VISION_BLOCKED_TEXT = "This reading's vision sense was withheld by the safety-and-ethics gate (AntiStrauss).";
 
 // ── the child: a fast-path memory read BEFORE any CV model runs ────────────
 // organs/mnemonic.js keeps the SHADOW and ECHO of previously taught regions
@@ -159,6 +168,15 @@ async function blobToBase64(imagePath) {
 }
 
 async function completeVision(messages, { model = VISION_LADDER[0].model, maxTokens = 250, temperature = 0, timeoutMs = 120000 } = {}) {
+  // THE SAFETY GATE, ON THE VISION LANE TOO (falsification F1): a model call
+  // is a model call — the prompt is scanned before the fetch, forceBlock
+  // always (the vision path never honors ER7_ANTISTRAUSS=off), and the
+  // returned text is reviewed before it can become a reading. A blocked
+  // prompt throws; a blocked output is replaced with the refusal text.
+  const gate = antistraussGate({ model, messages, route: "vision" }, { forceBlock: true });
+  if (!gate.allow) {
+    throw Object.assign(new Error(`ERR_ANTISTRAUSS_BLOCKED: ${gate.reason}`), { code: "ERR_ANTISTRAUSS_BLOCKED", antistrauss: gate.verdict });
+  }
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
@@ -170,7 +188,10 @@ async function completeVision(messages, { model = VISION_LADDER[0].model, maxTok
     });
     if (!res.ok) throw new Error(`ollama ${res.status}`);
     const data = await res.json();
-    return { text: (data?.message?.content ?? "").trim() };
+    const raw = (data?.message?.content ?? "").trim();
+    const review = antistraussReviewBlock(raw, { model, route: "vision", forceBlock: true });
+    if (review.replace) return { text: VISION_BLOCKED_TEXT, blocked: true };
+    return { text: raw, blocked: false };
   } finally {
     clearTimeout(timer);
   }
@@ -207,14 +228,24 @@ async function judgeSenseAgreement(visionRead, factLines, model) {
   if (!visionRead) return { agrees: true, reason: "no vision read to check" };
   if (!factLines.length) return { agrees: true, reason: "no mechanical facts to check against" };
   try {
-    const { text } = await completeVision([
+    const r = await completeVision([
       {
         role: "user",
         content: `A vision model said something shows: "${visionRead}"\n\nA mechanical detector separately found:\n${factLines.join("\n")}\n\nDoes the vision model's description plausibly agree with the mechanical findings, or does it contradict them? Reply with exactly one word first, AGREES or DISAGREES, then a colon and one short sentence naming the specific problem if it disagrees.`,
       },
     ], { model, maxTokens: 60 });
-    return { agrees: !/^DISAGREES/i.test(text), reason: text };
-  } catch {
+    // An output-review block must not masquerade as agreement (falsification
+    // F1, round 3): the block is named and carried to the reading.
+    if (r.blocked) {
+      return { agrees: true, reason: "judge output withheld by the safety-and-ethics gate", blocked: VISION_BLOCKED_TEXT };
+    }
+    return { agrees: !/^DISAGREES/i.test(r.text), reason: r.text };
+  } catch (err) {
+    // A gate block must not masquerade as agreement: the block is named and
+    // carried to the reading, not silently settled (falsification F2).
+    if (err?.code === "ERR_ANTISTRAUSS_BLOCKED") {
+      return { agrees: true, reason: "judge call failed, proceeding without escalation", blocked: err.message };
+    }
     return { agrees: true, reason: "judge call failed, proceeding without escalation" };
   }
 }
@@ -229,14 +260,35 @@ export async function settleRead(visionRead, factLines, model) {
   let judged = await judgeSenseAgreement(current, factLines, model);
   while (!judged.agrees && turns < MAX_ESCALATIONS) {
     const correction = judged.reason.replace(/^DISAGREES:?\s*/i, "").trim();
-    const { text } = await completeVision([
-      { role: "user", content: `Describe this plainly and factually: what does it show? A few sentences. A second look is being taken because: ${correction} Look again and correct that specifically if it's right.` },
-    ], { model });
-    current = text || current;
+    // A gate block on the escalation call must not destroy the whole read
+    // (falsification F1): the escalation is a missing sense, disclosed — the
+    // mechanical facts and the first vision read already stand on their own.
+    let escalation = null;
+    let escalationBlocked = null;
+    let escalationFailed = null;
+    try {
+      const r = await completeVision([
+        { role: "user", content: `Describe this plainly and factually: what does it show? A few sentences. A second look is being taken because: ${correction} Look again and correct that specifically if it's right.` },
+      ], { model });
+      // An output-review block carries its reason text, never a bare boolean
+      // (falsification F2, round 3).
+      if (r.blocked) { escalationBlocked = VISION_BLOCKED_TEXT; break; }
+      escalation = r.text;
+    } catch (err) {
+      // Only a gate block is a gate event; any other failure is named as
+      // itself, never misattributed to the gate (falsification F3, round 3).
+      if (err?.code === "ERR_ANTISTRAUSS_BLOCKED") {
+        escalationBlocked = err.message;
+        break;
+      }
+      escalationFailed = `escalation call failed: ${err?.message ?? err}`;
+      break;
+    }
+    current = escalation || current;
     turns += 1;
     judged = await judgeSenseAgreement(current, factLines, model);
   }
-  return { visionRead: current, turns, settled: judged.agrees, unresolvedReason: judged.agrees ? null : judged.reason };
+  return { visionRead: current, turns, settled: judged.agrees, unresolvedReason: judged.agrees ? null : judged.reason, judgeBlocked: judged.blocked ?? null, escalationBlocked, escalationFailed };
 }
 
 // ── lookAtImage: the full two-sense read of one image ──────────────────────
@@ -325,10 +377,17 @@ export async function lookAtImage(imagePath, { visionModel = VISION_LADDER[0].mo
   for (const rung of rungs) {
     try {
       const b64 = await blobToBase64(imagePath);
-      const { text } = await completeVision([
+      const r = await completeVision([
         { role: "user", content: "Describe this image plainly and factually: what is it a picture of, what does it show. A few sentences.", images: [b64] },
       ], { model: rung.model });
-      if (text) { visionRead = text; visionModelUsed = rung.model; break; }
+      // A BLOCKED OUTPUT IS A MISSING SENSE, NOT AN ANSWER (falsification
+      // F7): it must not stop the ladder — the block is disclosed into
+      // visionError and the next rung runs, exactly like an empty read.
+      if (r.blocked) {
+        visionError = visionError ? `${visionError}; ${VISION_BLOCKED_TEXT}` : VISION_BLOCKED_TEXT;
+        continue;
+      }
+      if (r.text) { visionRead = r.text; visionModelUsed = rung.model; break; }
     } catch (err) {
       visionError = visionError ? `${visionError}; ${err.message}` : err.message;
     }
@@ -356,6 +415,9 @@ export async function lookAtImage(imagePath, { visionModel = VISION_LADDER[0].mo
     }
   }
   if (!settled.settled) lines.push("", `(the vision read and the mechanical findings still disagree after ${settled.turns} tries: ${settled.unresolvedReason})`);
+  if (settled.judgeBlocked) lines.push("", `(the agreement check was withheld by the safety-and-ethics gate: ${settled.judgeBlocked})`);
+  if (settled.escalationBlocked) lines.push("", `(the escalation look was withheld by the safety-and-ethics gate: ${settled.escalationBlocked})`);
+  if (settled.escalationFailed) lines.push("", `(${settled.escalationFailed})`);
   if (detectorError) lines.push("", `(the mechanical detector did not run: ${detectorError})`);
   if (visionError) lines.push("", `(no vision model answered: ${visionError})`);
 
