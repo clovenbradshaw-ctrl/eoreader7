@@ -75,6 +75,14 @@
       "organ": "native/organs/grounding.js"
     },
     {
+      "id": "kleene-up",
+      "canon": "mozi",
+      "anchor": [362689, 362718],
+      "needle": "there must be three tests",
+      "window": 1200,
+      "organ": "native/organs/kleene-up.js"
+    },
+    {
       "id": "self-plane",
       "canon": "mandukya",
       "anchor": [3037, 3083],

@@ -12,6 +12,19 @@
  *   source and the choice of the default passage when the person names no
  *   passage — both disclosed, never silent.
  *
+ * KLEENEUP (2026-09-21): the FINDING in this organ moved off regex and onto
+ * the physics primitives (native/kernel/kleene-up.js — Handle: Kleene). The
+ * old QUOTE_VERB / EXACTNESS / QUOTE_ME_FRAME / EXACT_TEXT_OF word-class
+ * regexes and the QUOTABLE_WORKS `match` regexes are gone; what they did is
+ * now MEASUREMENT: single words are measured against the TOKENIZED field
+ * (the tokenizer — whitespace/punctuation splitting — is structural grammar,
+ * disclosed, and it is what preserves the word-boundary semantics `\b`
+ * used to fake), and multi-word phrases are measured as needles in the
+ * folded raw field at their byte addresses. Absence is a result. The
+ * remaining regexes below are STRUCTURAL and stay, disclosed: `cutSnip`'s
+ * scaffolding skip and the positional cut parse the page's grammar — parsing
+ * is not finding, and kleeneUp does not claim it.
+ *
  * Relation to organs/quotes.js (Handle: Dai): that organ VERIFIES
  * quotations already in an answer against the offered material (verbatim /
  * drifted / unlocated) and repairs drift — a post-hoc audit. This organ is
@@ -27,39 +40,76 @@
  *   - It never paraphrases the snip. The bytes are the bytes.
  */
 
-// A verbatim ask: the person wants the work's own words, not prose about it.
-// Requires BOTH a quotation verb and an exactness marker (or an explicit
-// "quote me X" frame), so "tell me about Hamlet" never fires — that is a
-// question ABOUT the work, and the normal turn owns it.
-//
-// Falsified 2026-09-17: the first version fired English-only, so a French /
-// German / Spanish / Italian verbatim ask fell through to the normal turn —
-// exactly the unprotected path where a model invents a "quote" from weights.
-// The triggers below cover EN/FR/DE/ES/IT; the works stay proper nouns
-// (Shakespeare, Hamlet, Macbeth, sonnet), which travel across languages, so
-// only the intent frames needed widening. A language not covered still falls
-// through — disclosed, and the unwired-work refusal below is the backstop
-// against invention, never a generated quotation.
-const QUOTE_VERB =
-  /\b(quot(?:e|ing|e me|e us)|recit(?:e|e me)|read me|cite|cite-moi|cit(?:ez|e moi)|zitier(?:e| mir)?|zitat|cita(?:me|tion)?|cítame|citami|citazione)\b/i;
+import { findNeedles } from "../kernel/kleene-up.js";
 
-const EXACTNESS =
-  /\b(verbatim|word for word|word-for-word|exact(?:ly| words| text| lines)?|original(?: words| text| lines)?|actual words|as (?:he|she|they|shakespeare) wrote|mot p[oö]ur mot|texte? (?:exact|original)|w[öo]rtlich|wortw[öo]rtlich|exakte?(?:n|m|r|s)? (?:text|worte|zeilen)|palabra por palabra|texto (?:exacto|original)|parola per parola|testo (?:esatto|originale))\b/i;
+// ── the word classes, as NEEDLE SETS (semantic reduction — kleeneUp) ──────
+// The single-word needles are measured against the tokenized field, so a word
+// boundary is real (a "cite" token is not "cited" or "recite"); the phrase
+// needles are measured in the folded raw field at their byte addresses. The
+// set below is the same language the old word-class regexes named — EN/FR/DE/
+// ES/IT — decomposed mechanically, never invented. Falsified 2026-09-17:
+// English-only fired first; the works stay proper nouns and only the intent
+// frames needed widening. A language not covered still falls through —
+// disclosed, and the unwired-work refusal below is the backstop against
+// invention, never a generated quotation.
+const QUOTE_VERB_WORDS = Object.freeze([
+  "quote", "quoting", "recite", "cite", "citez", "zitat", "cita", "citación",
+  "zitier", "zitiere", "citazione",
+]);
+const QUOTE_VERB_PHRASES = Object.freeze([
+  "quote me", "quote us", "recite me", "read me", "cite-moi", "cite moi",
+  "zitier mir", "citame", "cítame", "citami",
+]);
 
-const QUOTE_ME_FRAME =
-  /\bquot(?:e|ing)\s+me\b|\bcite-moi\b|\bzitier\s+mir\b|\bc[ií]ta(?:me)?\b|\bcitami\b/i;
+const EXACTNESS_WORDS = Object.freeze([
+  "verbatim", "exact", "exactly", "original", "actual", "wörtlich", "wortwörtlich",
+]);
+const EXACTNESS_PHRASES = Object.freeze([
+  "word for word", "word-for-word", "exact words", "exact text", "exact lines",
+  "original words", "original text", "original lines", "actual words",
+  "as he wrote", "as she wrote", "as they wrote", "as shakespeare wrote",
+  "mot pour mot", "mot pôur mot", "texte exact", "texte original",
+  "exakte text", "exakte worte", "exakte zeilen",
+  "exakten text", "exakten worte", "exakten zeilen",
+  "exakter text", "exakter worte", "exakter zeilen",
+  "palabra por palabra", "texto exacto", "texto original",
+  "parola per parola", "testo esatto", "testo originale",
+]);
 
-const EXACT_TEXT_OF =
-  /\b(?:exact|original|full|texte? (?:exact|original)|exakte?(?:n|m|r|s)?|texto (?:exacto|original)|testo (?:esatto|originale))\s+(?:text|words|lines|passage|texte|worte|zeilen|texto|testo)\s+of\b|\btexte\s+(?:exact|original)\s+de\b|\btexto\s+(?:exacto|original)\s+de\b/i;
+// A quote-me frame ALONE fires (no exactness marker required).
+const QUOTE_ME_FRAME_PHRASES = Object.freeze([
+  "quote me", "quoting me", "cite-moi", "zitier mir", "cítame", "citami",
+]);
+
+// The exact-text-of frame: the words-of ask — "the exact text of X".
+const EXACT_TEXT_OF_PHRASES = Object.freeze([
+  "exact text of", "exact words of", "exact lines of", "exact passage of",
+  "original text of", "original words of", "original lines of", "original passage of",
+  "full text of", "full words of", "full lines of", "full passage of",
+  "texte exact de", "texte original de",
+  "texto exacto de", "texto original de",
+  "testo esatto di", "testo originale di",
+]);
+
+// The tokenizer — STRUCTURAL grammar (splitting the field into words), stays.
+// It is what gives the single-word needles their real boundaries.
+const TOKEN_SPLIT = /[^\p{L}\p{N}]+/u;
+const tokensOf = (t) => String(t).toLocaleLowerCase("en-US").split(TOKEN_SPLIT).filter(Boolean);
+const hasWord = (tokens, word) => tokens.includes(word);
+const hasAnyWord = (tokens, words) => words.some((w) => hasWord(tokens, w));
+const hasAnyPhrase = (folded, phrases) =>
+  findNeedles(folded, phrases, { all: false }).counted.found > 0;
 
 // Works this organ can reach mechanically today: public-domain authors whose
 // primary texts live on Wikisource. The map is deliberate and small — a work
 // is added by wiring its source, never by letting the model reach for one.
+// Each work is a NEEDLE (measured at its byte address in the ask), not a
+// pattern: "shakespeare" is found, never /shakespeare/i'd.
 export const QUOTABLE_WORKS = Object.freeze([
-  { match: /shakespeare/i, author: "William Shakespeare", wikisource: "William Shakespeare" },
-  { match: /\bhamlet\b/i, author: "William Shakespeare", wikisource: "Hamlet" },
-  { match: /\bmacbeth\b/i, author: "William Shakespeare", wikisource: "Macbeth" },
-  { match: /\bsonnet\b/i, author: "William Shakespeare", wikisource: "Shakespeare's Sonnets" },
+  { needles: ["shakespeare"], author: "William Shakespeare", wikisource: "William Shakespeare" },
+  { needles: ["hamlet"], author: "William Shakespeare", wikisource: "Hamlet" },
+  { needles: ["macbeth"], author: "William Shakespeare", wikisource: "Macbeth" },
+  { needles: ["sonnet"], author: "William Shakespeare", wikisource: "Shakespeare's Sonnets" },
 ]);
 
 // The disclosed default: the person named an author but no passage. The
@@ -76,6 +126,8 @@ export const DEFAULT_PASSAGE = Object.freeze({
 // Measured live: the pinned default first resolved to a versions page and
 // the snip quoted the version list instead of the sonnet — so the cut
 // skips these lines mechanically before cutting, never by meaning.
+// STRUCTURAL (parsing the page's grammar) — disclosed, and kleeneUp leaves
+// it: parsing is not finding.
 const BOILERPLATE_RES = [
   /^[←→]$/,
   /^for other versions of this work/i,
@@ -108,6 +160,17 @@ const isBoilerplate = (line) => {
 
 export const MAX_SNIP_CHARS = 600;
 
+// The passage-named check: fixed phrases are NEEDLES (to be / shall i
+// compare); the sonnet/act/scene + number coupling is token grammar
+// (STRUCTURAL, disclosed) — a digit token measured right after the name.
+const PASSAGE_PHRASES = Object.freeze(["to be", "shall i compare"]);
+const PASSAGE_WORDS = Object.freeze(["hamlet", "macbeth", "act", "scene"]);
+const namesPassage = (tokens, folded) =>
+  hasAnyWord(tokens, PASSAGE_WORDS) ||
+  hasAnyPhrase(folded, PASSAGE_PHRASES) ||
+  // sonnet/act/scene followed by a numeral — token grammar, structural.
+  (tokens.includes("sonnet") && /^\d+$/.test(tokens[tokens.indexOf("sonnet") + 1] ?? ""));
+
 /**
  * Detect a mechanical-snip ask. Returns `{ work, defaulted }` or null.
  * `work` is the QUOTABLE_WORKS entry the snip should be cut from;
@@ -117,19 +180,22 @@ export const MAX_SNIP_CHARS = 600;
 export function snipShape(task) {
   const t = String(task ?? "").trim();
   if (!t) return null;
+  const folded = t.toLocaleLowerCase("en-US");
+  const tokens = tokensOf(t);
   const wantsQuote =
-    (QUOTE_VERB.test(t) && EXACTNESS.test(t)) ||
-    QUOTE_ME_FRAME.test(t) ||
-    EXACT_TEXT_OF.test(t);
+    (hasAnyWord(tokens, QUOTE_VERB_WORDS) || hasAnyPhrase(folded, QUOTE_VERB_PHRASES)) &&
+    (hasAnyWord(tokens, EXACTNESS_WORDS) || hasAnyPhrase(folded, EXACTNESS_PHRASES)) ||
+    hasAnyPhrase(folded, QUOTE_ME_FRAME_PHRASES) ||
+    hasAnyPhrase(folded, EXACT_TEXT_OF_PHRASES);
   if (!wantsQuote) return null;
-  const work = QUOTABLE_WORKS.find((w) => w.match.test(t)) ?? null;
+  const work =
+    QUOTABLE_WORKS.find((w) => findNeedles(folded, w.needles, { all: false }).counted.found > 0) ?? null;
   if (!work) {
     // A verbatim ask for a work with no wired source: not ours to serve.
     // The caller names the gap (no_source_wired) — never a model "quote".
     return { work: null, defaulted: false, gap: "no_source_wired" };
   }
-  const namesPassage = /\b(hamlet|macbeth|sonnet\s*\d+|act\s+\d+|scene\s+\d+|to\s+be|shall\s+i\s+compare)\b/i.test(t);
-  return { work, defaulted: !namesPassage, gap: null };
+  return { work, defaulted: !namesPassage(tokens, folded), gap: null };
 }
 
 /**

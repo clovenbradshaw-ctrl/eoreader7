@@ -1,5 +1,81 @@
 # Chorus log — append-only, one entry per lint run
 
+## 2026-09-21 — kleeneUp pre-commit chorus (branch `archon-kleeneup`, staged diff)
+
+fast: 14 files · affected tests 39/39 pass (kleene-up 19, verbatim-snip 10, content-rules 5 × 8 runs — the ordering flake fixed) · law: ok (P5.2 cited, verified against POLICIES.md — the self-verification discipline, exactly the ADDRESS-BOUND wall; pre-existing dup-header WARNs P115/P116/P117/P19/P233 and S17/S96, untouched by this diff)
+
+**Tier 1 FAIL is pre-existing base breakage, disclosed:** the committed
+`native/organs/index.js` exports from `./apollo.js`, but `apollo.js` /
+`apollo-swarm.js` / `apollo.test.mjs` are UNTRACKED files sitting in the main
+worktree's dirty working tree — they are not in commit `926462e` (this
+branch's base) nor in `main`'s tip `3fade7d`. Every test that imports
+`organs/index.js` therefore fails `ERR_MODULE_NOT_FOUND` on a clean checkout
+(measured: 129 failures here, 0 on the main worktree where the dirty tree
+carries apollo.js). Per this log's own 2026-09-19 incident — a bare commit
+swept another session's pre-staged files into a commit — this diff does NOT
+carry apollo.js: it is another session's in-flight work, not this archon's,
+and the base will self-heal when that work commits. The FAIL is not this
+diff; the affected tests that import ONLY this diff's files all pass.
+
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Simon/Chekhov | — new module no test imports | native/organs/kleene-up.js | fixed | the organ was unwired at first; now imported and verified in native/tests/kleene-up.test.mjs (CELL, REFUSALS, KINDS, auditField) — the physics kernel tested, the organ seam wired |
+| Marshall | P5.2 | native/kernel/kleene-up.js:14 (ADDRESS-BOUND wall) | clean | P5.2 in the-fold POLICIES.md is the self-verification discipline (an assertion with no bytes is `unaddressed`) — the wall (address holds the needle or is refused) is that doctrine applied to finding/snipping, not a stretched citation |
+| Feynman | III.3 | README.md (sweep counts) | clean | 1786 / 749 / 1008 / 29 are the actual survey's counted fields in kleeneup-report.json — reproducible by `node scripts/kleene-up.mjs`, not a tuned number |
+| Diaconis | II.23 | native/tests/kleene-up.test.mjs (falsifying controls) | clean | a pattern-bleed span and a drifted-address refusal are both pinned by real tests — the effect exists and would be caught if it stopped |
+| Diaconis | II.23 | content-rules.mjs:80 `sort` (measured flake) | fixed | the store's newest-sharpened-first sort TIED on identical same-millisecond `lastSharpenAt` and fell to unstable insertion order (the ordering test flaked ~40% of runs, zebra beating alpha by luck); added a monotone preservation-order tiebreaker — the later-preserved rule wins a tie, never the sort's mood |
+| Frankfurt | III.3 | kleeneup-report.json / kleeneup-migration.md | clean | both are generated artifacts carrying measured counts and real file:line pointers, no placeholders; `runAt` timestamp disclosed |
+| Kondo | — stray / dead | scripts/kleene-up.mjs | noted | the CLI is a command a person runs (exempt); the report + migration files are referenced by the README, not stray |
+
+clean: Dijkstra (locale fold is typed en-US and offset-mapped), Greenberg (no language parameter introduced; the tokenizer is disclosed grammar), Alexander (no composition seam added), Holmes (no alias/identity merge), Pearl (no corroboration claim), Ostrom (no credit/scope claim).
+
+## 2026-09-21 — kleeneUp: the regex-eviction archon is born (branch `archon-kleeneup`)
+
+Build (not a lint run): a new worktree, `eoreader7-archon-kleeneup`, branched
+from `926462e` (main has since advanced one commit to `3fade7d`; this archon
+is based on the older tip, disclosed). The mission: remove regex-based
+FINDING and SNIPPING and re-seat it on the physics system — a thing is found
+by its byte address in the field, never by a pattern; a snip is cut at a
+permanent address, never by a match.
+
+What landed, each verified green in-session:
+- `native/kernel/kleene-up.js` (Handle: Kleene) — the physics primitives:
+  `findNeedle`/`findNeedles` (needle measurement with folded index + original
+  offset map), `windowAt` (the encounter around an anchor), `snipAt` (verbatim
+  cut, sha256 ground, drifted address REFUSED — never silently re-found), and
+  `reduceRegex` naming each pattern literal / semantic / structural /
+  typed_gap. 17/17 tests (`native/tests/kleene-up.test.mjs`), falsifying
+  controls carried (pattern matching bleeds across a span; a needle does not;
+  a drifted ground is refused).
+- `native/organs/kleene-up.js` — the organ seam (SIG·Figure, typed refusals,
+  `auditField`), grounded in the physics canon: mechanic `kleene-up` cut from
+  the Mozi three tests, sha256-verified by `canon-ground.mjs` (load check:
+  ungrounded false, mechanic located).
+- `native/organs/verbatim-snip.js` — the worked migration: the word-class
+  intent regexes (QUOTE_VERB / EXACTNESS / QUOTE_ME_FRAME / EXACT_TEXT_OF)
+  and the QUOTABLE_WORKS `match` regexes replaced by needle measurement over
+  the tokenized field (single words — the tokenizer is structural grammar,
+  disclosed) and the folded raw field (phrases). The remaining regexes are
+  the scaffold parser (structural) and are disclosed as kept. Public API
+  unchanged; 10/10 tests green.
+- `scripts/kleene-up.mjs` — the standing sweep: surveys the repo, names every
+  regex occurrence, writes `kleeneup-report.json`, `--plan` writes the
+  migration plan. Current count: **1786** occurrences — **749 migratable**
+  (651 literal + 98 semantic), **1008 structural** (kept, disclosed), **29
+  typed gaps** (named). It measures; it never blind-rewrites — an archon that
+  evicted regex with a regex would be hoist by its own petard. The sweep has
+  already consumed two of its own occurrences (the classifier's
+  `/i/.test(flags)` literals became `flags.includes("i")`): the archon
+  cleans what it preaches.
+
+Disclosed limitations: the survey scanner is line-wise (a regex spanning
+lines can be missed, a division sign can be misread as a literal); the
+classification is of PATTERNS, so a literal pattern used in `.replace`/
+`.split` is an operation the reviewer must judge; the classifier's own
+structural tests remain regexes (grammar, not finding). The migration is
+per-file work under the organ's own audit; `verbatim-snip.js` is the worked
+example, not the whole sweep.
+
 ## 2026-09-08 — organs/hyperlexicon.js renamed to notes-text.js, and every collision it caused (branch `rename-notes-text-face`)
 
 fast: 5 staged files (+ ~40 mechanically-edited importers, `git add -A` pending) · 11 affected test files, 178/178 pass · law: ok (citations resolve; two pre-existing dup-header WARNs — P115/P116/P117/P19 in the-fold, S17 here — neither touched by this diff, confirmed identical on `git stash`)

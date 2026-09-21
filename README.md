@@ -2,6 +2,47 @@
 
 EOReader 7 now has a native canonical recursive-reading kernel.
 
+## kleeneUp — the regex-eviction archon (this worktree, 2026-09-21)
+
+This worktree is the **kleeneUp** archon. Its mission: remove regex-based
+FINDING and SNIPPING across the codebase and re-seat it on the physics system
+— a thing is found by its **byte address** in the field, never by a pattern
+guessed over it, and a thing is snipped at its **permanent address**, never
+by a match. Named for Stephen Kleene, the founder of regular languages — the
+house it evicts by name.
+
+The physics primitives live in the kernel:
+
+- `native/kernel/kleene-up.js` — **Handle: Kleene**. `findNeedle` /
+  `findNeedles` measure which needles sit in the field, at which addresses
+  (case-folding is the only normalization; the map returns the original
+  bytes). `windowAt` cuts the encounter around an anchor; `snipAt` cuts
+  verbatim bytes at a permanent address, verifying the ground and REFUSING a
+  drifted address, never silently re-found. `reduceRegex` names what a
+  pattern IS — `literal` (one needle), `semantic` (a word class = a needle
+  set over the tokenized field), `structural` (parses or sanitizes —
+  grammar, not finding; disclosed, kept), `typed_gap` (backrefs / lookaround
+  / dynamic — a named gap). Absence is a result, never a guess.
+- `native/organs/kleene-up.js` — the organ seam: SIG·Figure, the typed
+  refusals, `auditField` (the standing measure over a field). Its ground is
+  the Mozi three tests in the physics canon (`antistrauss-physics.txt`,
+  mechanic `kleene-up`, sha256-verified).
+- `native/organs/verbatim-snip.js` — the worked migration: the word-class
+  intent regexes and the work `match` regexes are GONE; what they did is now
+  needle measurement over the tokenized field (single words) and the folded
+  raw field (phrases). The remaining regexes are structural (the scaffold
+  parser) and disclosed as such. Public API unchanged; 10/10 tests green.
+- `scripts/kleene-up.mjs` — the standing sweep. Surveys the repo, names
+  every regex occurrence (`kleeneup-report.json`), writes the migration plan
+  (`--plan`). It is a measurement, never a blind rewrite.
+
+**Current sweep (2026-09-21):** 1786 regex occurrences — 749 migratable
+(651 literal + 98 semantic), 1008 structural (kept, disclosed), 29 typed
+gaps (named). The migration is per-file work under the organ's own audit,
+never a regex replacing a regex. The sweep has already consumed two of its
+own (the classifier's `/i/.test(flags)` literals → `flags.includes("i")`):
+the archon cleans what it preaches.
+
 New code should import:
 
 ```js

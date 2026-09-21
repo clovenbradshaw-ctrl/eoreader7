@@ -24,6 +24,15 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const CONTENT_RULES_FILE = process.env.ER7_CONTENT_RULES_FILE ?? path.join(HERE, "content-rules.json");
 
 let contentRules = loadContentRules();
+// The preservation order tiebreaker: two sharpens in the same millisecond
+// must not tie the newest-sharpened-first sort into insertion order (measured
+// 2026-09-21 — the ordering test flaked ~40% of runs on identical
+// `lastSharpenAt`). This counter is a monotone sequence over the SAME process
+// as the store's sort; it is never persisted, so a fresh process's order is
+// its own. The later-preserved rule wins a same-millisecond tie — which is
+// what "newest sharpened" means when the clock cannot distinguish.
+const contentRulesSeq = new Map();
+let contentRulesSeqCounter = 0;
 function loadContentRules() {
   try {
     const d = JSON.parse(fs.readFileSync(CONTENT_RULES_FILE, "utf8"));
@@ -69,15 +78,22 @@ export function preserveContentRule({ type, signal = null, read = null, falsifyi
     rule.read = read.length >= prior.read.length ? read : prior.read;
   }
   contentRules.set(key, rule);
+  contentRulesSeq.set(key, ++contentRulesSeqCounter);
   saveContentRules();
   return rule;
 }
 
-/** contentRulesStore() — the whole ledger as a list, newest-sharpened first. */
+/** contentRulesStore() — the whole ledger as a list, newest-sharpened first.
+ *  Ties in `lastSharpenAt` break by preservation order (the later-preserved
+ *  rule wins), never by insertion-order luck of an unstable sort. */
 export function contentRulesStore() {
   return [...contentRules.entries()]
     .map(([type, r]) => ({ type, ...r }))
-    .sort((a, b) => (b.lastSharpenAt ?? 0) - (a.lastSharpenAt ?? 0));
+    .sort((a, b) => {
+      const t = (b.lastSharpenAt ?? 0) - (a.lastSharpenAt ?? 0);
+      if (t !== 0) return t;
+      return (contentRulesSeq.get(b.type) ?? 0) - (contentRulesSeq.get(a.type) ?? 0);
+    });
 }
 
 /** contentRulesCount() — how many standing rules the swarm has preserved. */
