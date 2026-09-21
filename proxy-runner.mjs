@@ -18,6 +18,7 @@ import { createRelationCompositionLedger, acquireCompositionCandidates } from ".
 import { createSession as createCorpusSession, admitChunked } from "./legacy-eoreader6.1/packages/host/corpus.js";
 import { executePrompt } from "./legacy-eoreader6.1/packages/host/surfer.js";
 import { postprocessAnswer, postprocessCode, validatePython, validateHtml, warmPostprocess, getPyodide } from "./postprocess.mjs";
+import { validateLanguage } from "./native/organs/lang-validators.js";
 // The three resolutions — brought in from the-fold (vendored at
 // native/the-fold/): the discourse restated at three grains by the reading's
 // own organs (atmosphere, lens, paradigm), never by a model's compression.
@@ -35,6 +36,10 @@ import { answerRecord } from "./native/the-fold/answer-record.js";
 // header for how it is wired and why it must never be bypassed.
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom, holonicSatisfaction, holonTreeFromText, holonicTreeSatisfaction, holonAssertionTree, holonicAssertionSatisfaction, holonLeaves } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
+import { inventedNameRuns as verifyInventedNameRuns, isMetaSentence as verifyIsMetaSentence } from "./native/the-fold/referent-verify.js";
+import { wideToAtoms, foldWideToShape } from "./native/the-fold/essay-fold.js";
+import { isConcrescent } from "./native/the-fold/concrescence.js";
+import { createSpiral, rotate, spiralPath, INFLATION_WORDS, findWordHits } from "./native/the-fold/revision-spiral.js";
 // The dispute lookup notesFromEdges reads (below): `noteId` is the same
 // bare-ends identity a note born with no identity organ already carries in
 // kernel/notes.js, and `makeNotes()` is a pure factory (disputesOf/etc. are
@@ -1799,8 +1804,14 @@ export function topicPhrase(task) {
   }
   let short = t.slice(0, 120).replace(/^(write|explain|describe|summarize|outline|compose|report|discuss|analyze)\s+/i, "").trim();
   const wasTruncated = t.length > 120;
-  short = short.replace(/^(?:a|an|the)?\s*(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)?[-\s]?(?:page|pages?|paged|page-long)?\s*(?:paper|essay|report|article|document|piece|brief|memo|post)\s+(?:on|about|regarding|concerning)\s+/i, "").trim();
-  short = short.replace(/[.。]$/, "").trim();
+  short = short.replace(/^(?:a|an|the)?\s*(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)?[-\s]?(?:page|pages?|paged|page-long|paragraph|paragraphs?|para|section|sections?|part|parts?)?\s*(?:paper|essay|report|article|document|piece|brief|memo|post)\s+(?:on|about|regarding|concerning)\s+/i, "").trim();
+  // THE SUBJECT STOPS AT THE ASK'S OWN BOUNDARY (2026-09-21, the "five-
+  // paragraph essay on the Cumberland River" fix): after the essay-form is
+  // stripped, the remaining words are the SUBJECT up to the first sentence
+  // end — "the Cumberland River in Nashville" — and the ask's instructions
+  // ("Give it a title. Real prose...") are NOT the subject. Cut at the first
+  // terminal period; a subject that has none keeps the whole phrase.
+  short = short.split(/[.!?。！？]\s*/)[0].trim();
   const cut = wasTruncated ? short.replace(/\s+[a-z]+$/, "").trim() : short;
   return (cut || short || "this").replace(/\s+/g, " ").trim();
 }
@@ -2958,8 +2969,20 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
       signal.addEventListener("abort", onAbort, { once: true });
     }
     const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+    // WHICH SERVER (2026-09-21): heimdall picks the host — sticky per session,
+    // resident first, shortest measured wait, rotate ties (heimdall.mjs
+    // "INFERENCE HOSTS"). One local daemon is the default, so this is the
+    // same call as before on a one-box setup.
+    const H = await import("./heimdall.mjs");
+    const picked = H.pickHost({ model, session: H.currentTurnSession() });
+    const host = picked.host;
+    H.hostBegin(host.name);
+    const hostT0 = Date.now();
+    let hostClosed = false;
+    const closeHost = (o) => { if (hostClosed) return; hostClosed = true; H.hostEnd(host.name, { model, ms: Date.now() - hostT0, ...o }); };
+    if (onNote && hosts_note_once(host.name, picked.reason)) onNote({ move: "host_pick", host: host.name, reason: picked.reason });
     try {
-const res = await fetch(`${OLLAMA}/api/chat`, {
+const res = await fetch(`${host.url}/api/chat`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         signal: ctrl.signal,
@@ -3091,8 +3114,10 @@ const reader = res.body.getReader();
               // to spend a call to find out. Lazily imported and never
               // awaited — a report may not slow a turn, and node hands back
               // the same heimdall instance the proxy already runs.
+              closeHost({ ok: true, loadMs: (obj.load_duration ?? 0) / 1e6 });
               import("./heimdall.mjs").then((h) => h.observeCall({
                 model,
+                host: host.name,
                 promptTokens: obj.prompt_eval_count ?? 0,
                 promptMs: (obj.prompt_eval_duration ?? 0) / 1e6,
                 genTokens: obj.eval_count ?? 0,
@@ -3147,14 +3172,21 @@ const reader = res.body.getReader();
         const bare = String(model ?? "").replace(/^er7:/, "");
         import("./heimdall.mjs").then((h) => h.markUnservable(bare, "first_byte_timeout")).catch(() => {});
       }
+      // the host that failed this attempt: a refusal stands it down (the
+      // next attempt picks another); a timeout is not a conviction
+      closeHost({ ok: false, refused: /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND/.test(String(err?.cause?.code ?? err?.code ?? "")) });
       if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
       await retryUnderLoad(attempt, model, { local: true }).catch((e) => { finishReview(false); throw e; });
     } finally {
       clearTimeout(timer);
+      closeHost({ ok: false }); // no-op if the done chunk or the catch already closed it
       if (signal) signal.removeEventListener("abort", onAbort);
     }
   }
 }
+// one note per (host, reason) per turn would be ideal; per call is what we
+// have — noted only when the pick was not the obvious sole host
+function hosts_note_once(name, reason) { return reason !== "sticky_session" && reason !== "shortest_expected_wait" ? true : false; }
 
 // --- turn execution -----------------------------------------------------------
 
@@ -5240,8 +5272,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // FIRST; only then does the generous void cap (ER7_MAX_SECTIONS) bound it.
     // A task that names no count keeps the void's full sweep.
     .slice(0, (() => {
-      const nMatch = String(task ?? "").match(/\b(\d+)[\s-]*(?:paragraph|part|section)s?\b/i);
-      if (nMatch) return Math.max(1, Math.min(Number(nMatch[1]), Number(process.env.ER7_MAX_SECTIONS ?? 20)));
+      // THE EXTENT IS THE VOID'S OWN (2026-09-21): no regex, no task-word
+      // counting. The mouth writes WIDE — whatever the void def's, capped only
+      // against runaway. The FOLD assembles the wide draft into the asked-for
+      // shape (five paragraphs from twelve parts) AFTER the writing; the fold
+      // is the machinery, and it sees the whole draft, not a truncated one.
       return Number(process.env.ER7_MAX_SECTIONS ?? 20);
     })());
   // CODE: the artifact's sections are its structural units (CODE_SHAPE_PRIOR),
@@ -6023,37 +6058,38 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         };
         // THE REFERENT-VERIFY GATE (2026-09-21, the user's law "nothing is held
         // unattributed"): a sentence is admitted only when every capitalized
-        // name-run it carries actually appears in the ground. A run is a
-        // contiguous stretch of capitalized words ("Thomas Vanderbilt"); the
-        // sentence's FIRST word is skipped (every sentence capitalizes its
-        // opener) unless followed by another capital. A name-run the ground has
-        // never seen ("Thomas Jefferson named the river's source Duke's Creek")
-        // is an invented referent — the sentence is refused mechanically, never
-        // negotiated with the mouth. This is what killed the "Thomas Duke /
-        // Vanderbilt / Jefferson" hallucinations of the 2026-09-21 run: the
-        // workspace named only Walker, the Duke of Cumberland, Robertson,
-        // Donelson; the model's invented names carried no ground trace.
-        const groundTextLower = String(groundingText() ?? "").replace(/\s+/g, " ").toLowerCase();
-        const inventedNameRuns = (s) => {
-          const words = String(s).replace(/[.,;:()"']/g, " ").replace(/\s+/g, " ").trim().split(" ");
-          const runs = [];
-          let cur = [];
-          for (let i = 0; i < words.length; i++) {
-            const w = words[i];
-            const isCap = /^[A-Z][a-z]{1,}/.test(w);
-            if (isCap && i === 0 && !(words[i + 1] && /^[A-Z][a-z]{1,}/.test(words[i + 1]))) continue;
-            if (isCap && w.length > 2) { cur.push(w); continue; }
-            if (cur.length) { runs.push(cur); cur = []; }
-          }
-          if (cur.length) runs.push(cur);
-          return runs
-            .filter((r) => r.length >= 1)
-            .filter((r) => {
-              const seq = r.join(" ").toLowerCase();
-              const singletons = ["the", "this", "it", "its", "they", "their", "there", "he", "she", "her", "him", "his", "when", "what", "why", "how", "but", "and", "as", "at", "in", "on", "by", "for", "from", "with", "of"];
-              if (r.length === 1 && singletons.includes(seq)) return false;
-              return !groundTextLower.includes(seq);
-            });
+        // name it carries is grounded. Punctuation (comma, period, colon,
+        // semicolon, connective) BREAKS a name run — "Cherokee, Chickasaw, and
+        // Shawnee" is three grounded single names, never one invented string.
+        // A run of TWO+ capitalized words ("Thomas Vanderbilt", "Duke's Creek")
+        // is grounded only when the WHOLE sequence appears in the ground —
+        // "Thomas Duke" dies because the ground has "Duke of Cumberland" but
+        // never "Thomas Duke". A SINGLE capitalized word is grounded when the
+        // ground contains it or it is a common discourse opener (However, Thus).
+        // This is what killed the "Thomas Duke / Vanderbilt / Jefferson"
+        // hallucinations of the 2026-09-21 run: the workspace named only Walker,
+        // the Duke of Cumberland, Robertson, Donelson — the model's invented
+        // names carried no ground trace. A refused sentence is cut mechanically,
+        // never negotiated with the mouth.
+        // THE REFERENT-VERIFY GATE — now the falsified module
+        // (native/the-fold/referent-verify.js, 9/9 falsify tests green). It
+        // carries the law "all content has a given — if it's the model, that's
+        // the source" (§III): a refused run is attributed, never vanished. The
+        // ground text is the field the mouth may not exceed.
+        const groundForGate = String(groundingText() ?? "");
+        const inventedNameRuns = (s) => verifyInventedNameRuns(s, groundForGate);
+        const isMetaSentence = (s) => verifyIsMetaSentence(s);
+        // THE GROUNDED-CANDIDATE CHECK, SHARED BY BOTH DRAW PATHS (2026-09-21):
+        // a sentence folds to a material referent when the reading's proposition
+        // index resolves it to an id. Both the paragraph snip and the
+        // opening/narrative snip admit only grounded candidates.
+        const groundedCand = (cand) => {
+          try {
+            const resolved = propsIndex?.resolveIn?.(cand);
+            const ids = resolved instanceof Set ? resolved : new Set(resolved ?? []);
+            if (ids.size) return true;
+          } catch {}
+          return false;
         };
         let buf = "";
         let stopped = false;
@@ -6117,14 +6153,6 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             }
             return out;
           })();
-          const groundedCand = (cand) => {
-            try {
-              const resolved = propsIndex?.resolveIn?.(cand);
-              const ids = resolved instanceof Set ? resolved : new Set(resolved ?? []);
-              if (ids.size) return true;
-            } catch {}
-            return false;
-          };
           const normWords2 = (x) => new Set(String(x).toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 4));
           const paragraphSentences = String(paragraphBuf).replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim()).filter((s) => s.length > 20);
           const survivors = [];
@@ -6160,8 +6188,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             // NOTHING SURVIVED THE SNIP — but the paragraph was real prose. Keep
             // the first grounded sentence as the section's floor rather than
             // falling back to a re-asked topic (the fallback re-introduces the
-            // repetition). The floor is still folded + deposited.
-            const firstGrounded = paragraphSentences.find(groundedCand);
+            // repetition). The floor is STILL subject to the full admission —
+            // it must fold to a referent AND carry no invented name AND not be
+            // meta (2026-09-21: the floor once bypassed the gate, and the
+            // fabricated "Thomas Duke"/"Bob expects the river" slipped in via
+            // the first-ground floor). The floor is folded + deposited.
+            const firstGrounded = paragraphSentences.find((cand) => groundedCand(cand) && !inventedNameRuns(cand).length && !isMetaSentence(cand));
             if (firstGrounded) {
               buf = firstGrounded;
               usedSentences.add(firstGrounded);
@@ -6235,7 +6267,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           if (openSurvivors.length) {
             buf = openSurvivors.join(" ");
           } else if (openSentences.length && !stopped) {
-            const firstOk = openSentences.find((s) => !inventedNameRuns(s).length && !/the user|requested a|this essay|essay (?:will|is|should)|asked to write/i.test(s));
+            const firstOk = openSentences.find((s) => !inventedNameRuns(s).length && !isMetaSentence(s));
             if (firstOk) {
               buf = firstOk;
               usedSentences.add(firstOk);
@@ -6865,6 +6897,136 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           if (onThinking) onThinking(`\n### Sources (verbatim)\n\n${citationsText}\n`);
         }
       }
+      // ── THE FOLD → THE SPIRAL → THE CONCRESCENCE (2026-09-21, the design) ──
+      // The mouth wrote WIDE (every void cell, twelve sections, no cap). Now
+      // the MACHINERY assembles: the fold values the wide draft into the asked
+      // shape, the spiral tightens the folded beats toward mutual requirement,
+      // and the concrescence detector reads the rotation stream to say whether
+      // the piece has ARRIVED. Each phase deposits a usable artifact to the
+      // ledger BEFORE the next runs — the watchmaker's shelf: kill the run at
+      // any boundary and the ledger holds a finished instrument, not a
+      // half-essay. The fold is the VALUATION phase; the spiral is the
+      // COMPARATIVE phase; the detector names satisfaction — strain CONSTANT,
+      // never zero.
+      if (documentLedger && documentLines.length >= 2) {
+        try {
+          const wideParts = [...documentLines];
+          const atoms = wideToAtoms(wideParts, { ground: groundingText() });
+          const folded = foldWideToShape(atoms, { ground: groundingText() });
+          const foldedBeats = folded.beats.filter((b) => !b.gap).map((b) => b.text).filter(Boolean);
+          if (onNote) onNote({ move: "fold_done", beats: folded.beats.length, filled: foldedBeats.length, residual: folded.residual.length, refused: folded.refused.length, basis: folded.basis });
+          // THE FOLD IS THE ESSAY'S SHAPE (2026-09-21, the user's "the full
+          // projected essay must be created by eoreader7"): the wide draft's
+          // parts are SUPERSEDED by the folded beats, and each beat becomes a
+          // `role: part` line — so `projectDocument` (which reads only
+          // "part"/"citations") emits the FOLDED ESSAY, not the wide draft.
+          // The wide parts remain in the ledger as superseded history (§V:
+          // the losing readings are kept). The projection is eoreader7's own.
+          // EVERY wide part is superseded — a beat with no 1:1 counterpart
+          // still supersedes one wide part each, so no wide section leaks into
+          // the projection (measured 2026-09-21: folding 13 parts into 5 beats
+          // left 8 wide parts alive and the projection mixed both).
+          const widePartIds = documentLedger.lines
+            .filter((l) => l.role === "part" && !documentLedger.superseded.has(l.id))
+            .map((l) => l.id);
+          const beatTitles = folded.beats.map((b) => b.title);
+          const foldedPartIds = [];
+          folded.beats.forEach((beat, bi) => {
+            if (beat.gap || !beat.text.trim()) return;
+            // Each folded beat supersedes the wide part at its index; any wide
+            // part beyond the beat count is superseded by the fold's final
+            // line below. No wide section stays alive.
+            const sup = widePartIds[bi] ?? null;
+            const beatLine = appendLedgerLine(documentLedger, {
+              role: "part", title: beat.title, text: beat.text.trim(), giver: "eoreader7:fold",
+              supersedes: sup, basis: `folded beat "${beat.title}" — supersedes the wide draft section${sup ? "" : " (no matching wide part)"}`,
+            }, { dir: ESSAY_LEDGER_DIR });
+            foldedPartIds.push(beatLine.id);
+          });
+          // The wide parts with NO folded beat to pair with (index ≥ beats)
+          // are superseded by the fold's final line — the fold is ONE act
+          // replacing the whole wide draft, and every wide section is revised
+          // (supersedes takes an array: the fold batches the remaining parts).
+          const unsupersededWide = widePartIds.slice(folded.beats.length);
+          if (unsupersededWide.length && foldedPartIds.length) {
+            appendLedgerLine(documentLedger, {
+              role: "fold", title: "Fold (supersedes remaining wide sections)",
+              text: unsupersededWide.length === 1
+                ? `folded: the remaining wide section is superseded by the folded essay`
+                : `folded: the remaining ${unsupersededWide.length} wide sections are superseded by the folded essay`,
+              giver: "eoreader7:fold", supersedes: unsupersededWide,
+              basis: `the fold supersedes every wide draft section not paired to a beat — the projection reads only the folded essay`,
+            }, { dir: ESSAY_LEDGER_DIR });
+          }
+          // documentLines now carries the FOLDED essay — the projected artifact.
+          const foldedDocument = folded.beats.filter((b) => !b.gap && b.text.trim()).map((b) => b.text.trim());
+          if (foldedDocument.length) documentLines = foldedDocument;
+          appendLedgerLine(documentLedger, {
+            role: "fold", title: `Fold (${folded.beats.length} beats)`,
+            text: folded.beats.map((b, i) => `${b.title}${b.gap ? " [gap]" : ""}: ${b.text || "(empty)"}`).join("\n\n"),
+            giver: "eoreader7:fold", basis: folded.basis,
+          }, { dir: ESSAY_LEDGER_DIR });
+          // THE SPIRAL over the folded beats — one rotation per beat, cutting
+          // the inflationary diction and false-tension the probes can name.
+          // Each rotation records its level, its gathered world, and what it
+          // broke in the OTHER two appeals (the re-read). The LOG is the
+          // piece's lineage — its scars — deposited as a ledger line.
+          let spiral = createSpiral({ text: foldedBeats.join("\n\n") });
+          let rotations = 0;
+          for (let b = 0; b < foldedBeats.length && rotations < 12; b++) {
+            const before = spiral.text;
+            const r = rotate(spiral, {
+              cell: "micro.ethos", level: "paragraph", gathered: 1,
+              basis: `Zinsser over beat "${beatTitles[b] ?? b}" — strip the inflation the probe names`,
+              cut: (t) => {
+                const lines = String(t).split("\n\n");
+                const target = lines[b] ?? "";
+                const cleaned = findWordHits(target, INFLATION_WORDS).reduce((acc, h) => acc.replace(new RegExp(`\\b${h.word}\\b`, "gi"), ""), target).replace(/,\s*,/g, ",").replace(/\s{2,}/g, " ");
+                lines[b] = cleaned;
+                return lines.join("\n\n");
+              },
+            });
+            if (r.refused) break;
+            spiral = r;
+            if (spiral.text !== before) rotations++;
+          }
+          if (onNote) onNote({ move: "spiral_rotations", count: spiral.log.length, rotations, basis: spiralPath(spiral).slice(0, 3).join(" | ") });
+          appendLedgerLine(documentLedger, {
+            role: "tighten", title: "Spiral rotations",
+            text: spiralPath(spiral).join("\n"),
+            giver: "eoreader7:spiral", basis: `${spiral.log.length} rotation(s), ${rotations} changed the text`,
+          }, { dir: ESSAY_LEDGER_DIR });
+          // THE TIGHTENING FLOWS INTO THE PROJECTION (2026-09-21): the spiral's
+          // cuts are not a side-note — the tightened text REPLACES documentLines
+          // so the projected essay is the tightened one, not the pre-spiral
+          // fold. The rotations that changed the text are folded back into the
+          // beats the projection reads.
+          if (spiral.text && spiral.text !== foldedBeats.join("\n\n")) {
+            const tightened = String(spiral.text).split("\n\n").filter((t) => t.trim());
+            if (tightened.length) {
+              documentLines = tightened;
+              if (onNote) onNote({ move: "spiral_applied", parts: tightened.length, basis: "the tightened text replaced the folded documentLines" });
+            }
+          }
+          // THE CONCRESCENCE DETECTOR — reads the rotation stream for the
+          // triad (every unit required + influx-stable + strain constant).
+          // The verdict replaces the naive strain-0 stop: it names WHICH
+          // signal is missing, always usable.
+          const unitSatisfaction = (t) => {
+            const words = String(t ?? "").split(/\s+/).filter(Boolean).length;
+            return { strain: words > 25 ? 1 : 0 };
+          };
+          const conc = isConcrescent({ whole: spiral.text, units: foldedBeats, sat: unitSatisfaction, log: spiral.log });
+          if (onNote) onNote({ move: "concrescence", reached: conc.concrescent, signals: conc.signals, basis: conc.basis });
+          appendLedgerLine(documentLedger, {
+            role: "concrescence", title: conc.concrescent ? "Concrescence reached" : "Concrescence not yet",
+            text: `${conc.basis}\n\nsignals: ${Object.entries(conc.signals).map(([k, v]) => `${k}=${v}`).join(", ")}`,
+            giver: "eoreader7:concrescence", basis: conc.basis,
+          }, { dir: ESSAY_LEDGER_DIR });
+        } catch (foldErr) {
+          if (onNote) onNote({ move: "fold_error", detail: String(foldErr?.message ?? foldErr).slice(0, 160) });
+        }
+      }
       } else {
       // ── CODE: hard logos validation + bounded REC ─────────────────────────
       // The essay organs (Ranke/Murch/citations) are prose; code's own check
@@ -6943,7 +7105,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // and html (HTMLParser) have a real witness; every other language
         // discloses that no validator ran — the machine-that-won't-answer
         // posture, aimed at the artifact's own claim of correctness.
-        const v = codeLanguage === "python" ? await validatePython(t) : codeLanguage === "html" ? await validateHtml(t) : { ok: true, findings: [], unchecked: true, basis: "no hard validator for this language" };
+        const v = codeLanguage === "python" ? await validatePython(t) : codeLanguage === "html" ? await validateHtml(t) : await validateLanguage(codeLanguage, t);
         // SPEC-DERIVED EVA: the task's own requirements (counts, named
         // content, named definitions) are findings too — a dropped "prices" or
         // a missing "hours" section is a typed gap the REC loop repairs.

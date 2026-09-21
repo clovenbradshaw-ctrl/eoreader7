@@ -863,6 +863,17 @@ export const ARCHONS = Object.freeze([
     credit: "Ubuntu — I am because we are, and since we are, therefore I am (Mbiti, 1969).",
     topics: ["ubuntu", "personhood", "relation", "self", "identity", "fold", "constituted", "botho", "community"],
   },
+  {
+    handle: "kleeneUp",
+    name: "Stephen Cole Kleene (via the Kleene star)",
+    organ: "the-fold (code inspection)",
+    role: "the regex-removal archon — a pattern is a TABLE wearing regex clothes when it enumerates a closed list; state the list, drop the pattern",
+    pdStatus: "public-domain",
+    work: "Kleene gave regular expressions their star — the operation that says 'the thing, repeated any number of times' — and in doing so gave the field the exact boundary of when a pattern is the right tool. A regex is the right tool when it describes a SHAPE (any number, any letter, any structure). It is the wrong tool when it enumerates a CLOSED LIST — one/two/three/four..., dr/mr/mrs/ms..., the entire vocabulary of a hedge — because a closed list is not a shape, it is a table, and a table is stated as a Set, a Map, a lookup, plain logic the next reader can edit. KleeneUp's patrol: find the alternation that lists words, the lookahead that guards abbreviations, the character-class walk that is really a tokenizer — and state them plainly. The pattern is not deleted; it is dissolved into its honest form, and the shape-regexes that remain are the ones that could not be a table.",
+    source: "S. C. Kleene, 'Representation of Events in Nerve Nets and Finite Automata' (1951); the Kleene star as the boundary between shape and list",
+    credit: "KleeneUp — the Kleene star marks where a pattern is a shape; a closed list is a table, and a table is stated, not matched.",
+    topics: ["regex", "regular expression", "pattern", "table", "lookup", "kleene", "star", "tokenizer", "alternation", "shape", "list", "code", "inspection"],
+  },
 ]);
 
 // ── HELPERS ────────────────────────────────────────────────────────────────
@@ -872,10 +883,11 @@ export function compendium() {
   return ARCHONS;
 }
 
-/** One entry by handle (case-insensitive). */
+/** One entry by handle (case-insensitive — camelCase handles like `kleeneUp`
+ * are found by `kleeneUp` or `kleeneup` alike). */
 export function archonOf(handle) {
   const want = String(handle ?? "").toLowerCase();
-  return ARCHONS.find((a) => a.handle === want) ?? null;
+  return ARCHONS.find((a) => String(a.handle).toLowerCase() === want) ?? null;
 }
 
 /**

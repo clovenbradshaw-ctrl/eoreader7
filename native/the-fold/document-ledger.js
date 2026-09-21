@@ -49,6 +49,9 @@ export function appendDocumentObservation(ledger, entry) {
     kind: entry.kind ?? null,
     title: entry.title ?? null,
     text: entry.text ?? "",
+    // supersedes may be a single id or an ARRAY of ids (2026-09-21): the fold
+    // replaces the whole wide draft — one observation can supersede many wide
+    // sections at once. A single id is preserved for the revision discipline.
     supersedes: entry.supersedes ?? null,
     giver: entry.giver ?? null,
     basis: entry.basis ?? null,
@@ -56,7 +59,8 @@ export function appendDocumentObservation(ledger, entry) {
   };
   ledger.lines.push(line);
   if (line.supersedes) {
-    ledger.superseded.add(line.supersedes);
+    const ids = Array.isArray(line.supersedes) ? line.supersedes : [line.supersedes];
+    for (const id of ids) ledger.superseded.add(id);
   } else {
     ledger.nextAddress = Math.max(ledger.nextAddress, at[1]);
   }
@@ -266,9 +270,20 @@ const isEssayCell = (op, grain, holon) => holon === "low";
 // the composition loop internally and are not emitted as reader-facing
 // sections — a "when would the essay take back a claim" question is a
 // conversation instrument, not a section of a standalone piece.
-export function voidCellsFor({ topic, question = "", openQuestions = [], shadowReferents = [], reading = null } = {}) {
+//
+// THE SHAPE IS AN ASSERTION, NEVER A FIXED LADDER (2026-09-21): when a caller
+// injects `shapeRegister` (organs/essay-shape-register.js), the fixed
+// VOID_CELLS universality is replaced by the register's own standings — a cell
+// the material has REFUTED is never emitted, whatever its relevance gate
+// says, and its refusal is disclosed in `withheld`. The register's `ask` and
+// `holon` are read for every holding cell, so the composition composes against
+// the assertions that still hold. Without a register, behavior is unchanged
+// (the received ladder stands) — a caller that never asserts a shape keeps
+// the inherited one, disclosed as received, never silently upgraded.
+export function voidCellsFor({ topic, question = "", openQuestions = [], shadowReferents = [], reading = null, shapeRegister = null } = {}) {
   const t = String(topic ?? "").trim() || "this subject";
   const cells = [];
+  const withheld = [];
   const seen = new Set();
   const push = (questionText, meta) => {
     const k = questionText.toLowerCase().replace(/\s+/g, " ").trim();
@@ -281,12 +296,22 @@ export function voidCellsFor({ topic, question = "", openQuestions = [], shadowR
   // found (reading), not only the question's words. A cell is relevant when
   // either the question asks it OR the reading's state demands it — the void
   // is born from what was found, never a fixed count.
-  for (const cell of VOID_CELLS) {
-    const relevant = cell.relevant(question ?? "", reading ?? {});
-    if (relevant) push(cell.ask(t), { op: cell.op, grain: cell.grain, terrain: cell.terrain, relevant: true, cell: `${cell.op}·${cell.grain}`, essay: isEssayCell(cell.op, cell.grain, cell.holon) });
-    else cells.push({ question: null, op: cell.op, grain: cell.grain, terrain: cell.terrain, relevant: false, cell: `${cell.op}·${cell.grain}`, essay: isEssayCell(cell.op, cell.grain, cell.holon) });
+  const source = shapeRegister?.cells?.length ? shapeRegister.cells : VOID_CELLS;
+  for (const cell of source) {
+    const op = cell.op, grain = cell.grain;
+    const cellKey = `${op}·${grain}`;
+    // THE SHAPE-REGISTER WALL: a cell the material REFUTED is never emitted,
+    // whatever the relevance gate says — its refusal disclosed, never silent.
+    if (cell.standing === "REFUTED") {
+      withheld.push({ op, grain, cell: cellKey, reason: `refuted: ${cell.claim ?? "the material contradicted this cell"}` });
+      cells.push({ question: null, op, grain, terrain: cell.terrain ?? null, relevant: false, cell: cellKey, essay: false, standing: "REFUTED", refused: cell.claim ?? null });
+      continue;
+    }
+    const relevant = typeof cell.relevant === "function" ? cell.relevant(question ?? "", reading ?? {}) : cell.relevant !== false;
+    if (relevant) push(cell.ask(t), { op, grain, terrain: cell.terrain, relevant: true, cell: cellKey, essay: isEssayCell(op, grain, cell.holon), ...(cell.standing ? { standing: cell.standing } : {}) });
+    else cells.push({ question: null, op, grain, terrain: cell.terrain ?? null, relevant: false, cell: cellKey, essay: isEssayCell(op, grain, cell.holon) });
   }
-  return { cells, of: cells.length, relevant: cells.filter((c) => c.relevant).length, notRelevant: cells.filter((c) => !c.relevant).length, subject: t };
+  return { cells, withheld, of: cells.length, relevant: cells.filter((c) => c.relevant).length, notRelevant: cells.filter((c) => !c.relevant).length, subject: t };
 }
 
 // ── SATISFACTION and STRAIN ─────────────────────────────────────────────────
@@ -421,6 +446,383 @@ export function satisfactionOfSection(sectionText, { theme = "", material = "", 
     }
   }
   return { ok: failures.length === 0, failures, strain };
+}
+
+// ── HOLONIC SATISFACTION — THE GENERAL (2026-09-21, the user's law) ────────
+// Meaning is the THREE-PART SHAPE at every holon level: a holon opens (sets a
+// strain), turns (develops it), and resolves (satisfies the strain, landing
+// somewhere the opener did not predict). A holon without all three is
+// structured dissonance — no meaning. This general applies the SAME shape
+// check to ANY holon — whole, section, paragraph, sentence — omnimodal: the
+// function does not know or care what kind of text it is handed. It splits
+// the text into its three parts (opening / turn / resolution), checks the
+// shape, and recurses into each part at the finer grain — satisfaction(whole),
+// satisfaction(whole.partOne), satisfaction(whole.partOne.partTwo). The parts
+// nest, so the caller can address any path. The strain rides down: a part
+// satisfies only in relation to the level above — the response relation ("each
+// new unit is in response to the end of the last").
+const SENTENCE_RE = /(?<=[.!?])\s+(?=[A-Z])/;
+function holonSplitSentences(text) {
+  return String(text ?? "")
+    .replace(/\s+/g, " ")
+    .split(SENTENCE_RE)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+function holonContentWords(text) {
+  return new Set(String(text ?? "").toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 3));
+}
+// Split a holon into its three parts by the tri-partite law. A holon with
+// fewer than three units is an ATOM — its shape is checked whole (a single
+// sentence still has its own mini-arc: it sets up and lands). Three+ units
+// group by thirds: opening = first third, resolution = last third, turn = the
+// middle. The turn is allowed to be empty only for a 2-unit holon (opening +
+// resolution with no body — degenerate, measured as strain).
+export function splitHolonIntoThree(text, { sentences = false } = {}) {
+  const units = sentences ? holonSplitSentences(text) : String(text ?? "").split(/\n\s*\n/).map((p) => p.trim()).filter((p) => p.length > 0);
+  const n = units.length;
+  if (n < 3) return { opening: units[0] ?? "", turn: units[1] ?? "", resolution: units[n - 1] ?? "", atom: n < 2 };
+  const first = Math.max(1, Math.floor(n / 3));
+  const last = Math.max(1, n - Math.floor(n / 3));
+  return { opening: units.slice(0, first).join("\n\n"), turn: units.slice(first, last).join("\n\n"), resolution: units.slice(last).join("\n\n"), atom: false };
+}
+const HOLON_ATOM_RE = /\b(here's|here is|let me know if you|as an ai|i can't|i cannot|let me know|this essay|in this piece|in conclusion|to conclude|finally)\b/i;
+// The act-verbs a claim rests on — the SAME set the assertion extractor uses
+// for labels. An opening "sets a strain" when it commits with one of these.
+const HOLON_CLAIM_RE = /\b(is|are|was|were|will|would|should|must|could|plays|played|serves|served|built|builds|made|makes|drives|driven|means|created|became|become|leaves|threatens|depends|drains|flows|carries|carried|shaped|shapes|binds|bound|feeds|fed|cuts|cut|joins|joined|marks|named|holds|held|gives|gave|keeps|kept|turns|turned|releases|released|rises|rose|ends|ended)\b/i;
+// The general. `level` names the current grain ("whole" | "section" |
+// "paragraph" | "sentence") for disclosure; the shape checks do not branch on
+// it — a whole and a sentence are checked the SAME way. `theme` is the void
+// this holon must answer (rides down); `prior` is the ENDING of the previous
+// unit at this level — the response relation: a holon opens ON the prior's
+// ending, it does not re-open from scratch.
+export function holonicSatisfaction(text, { level = "whole", theme = "", material = "", prior = "", role = "" } = {}) {
+  const t = String(text ?? "").trim();
+  const failures = [];
+  let strain = 0;
+  if (!t) { failures.push({ kind: "unfilled", level, detail: "the holon is empty" }); strain++; }
+  const sent = holonSplitSentences(t);
+  // ATOM: a single sentence is still a holon — it must carry a complete
+  // thought (set up + land), carry the theme's content, and not be meta. The
+  // `drift` check fires only for the OPENING role — a turn or resolution
+  // atom is SUPPOSED to develop away from the void's own words (that is what
+  // turning means); only the strain-setter must name what it answers.
+  if (sent.length < 2) {
+    if (HOLON_ATOM_RE.test(t)) { failures.push({ kind: "meta", level, detail: "the sentence talks about the writing instead of being the piece" }); strain++; }
+    if (t.length < 30) { failures.push({ kind: "thin", level, detail: "the sentence is too short to carry meaning" }); strain++; }
+    if (theme && role !== "turn" && role !== "resolution") {
+      const words = holonContentWords(theme);
+      const used = [...words].filter((w) => t.toLowerCase().includes(w)).length;
+      if (words.size >= 3 && used === 0) { failures.push({ kind: "drift", level, detail: "the sentence names nothing of the void it must answer" }); strain++; }
+    }
+    return { ok: failures.length === 0, failures, strain, level, parts: null, opening: t, turn: "", resolution: t, atom: true };
+  }
+  // ATOMIC TURN/RESOLUTION: a 2-sentence sub-part has no middle and no body —
+  // it is a claim plus a landing, not a 3-part holon. It is measured as an
+  // atom pair: the two sentences must each be a complete thought, the second
+  // responding to the first, and neither turning into meta. The full 3-part
+  // shape is reserved for holons with three+ sentences — the law applies at
+  // every level, but a 2-sentence fragment has only two of the three parts to
+  // show, so forcing opening/turn/resolution onto it manufactures dissonance.
+  if (sent.length === 2) {
+    const [s1, s2] = sent;
+    const r1 = holonicSatisfaction(s1, { level: "sentence", theme, prior, role: role || "opening" });
+    const r2 = holonicSatisfaction(s2, { level: "sentence", theme, prior: s1, role: role === "turn" ? "turn" : "resolution" });
+    strain += r1.strain + r2.strain;
+    for (const f of [...r1.failures, ...r2.failures]) failures.push(f);
+    return { ok: failures.length === 0, failures, strain, level, parts: [r1, r2], opening: s1, turn: "", resolution: s2, atom: false };
+  }
+  // THE SHAPE AT THIS LEVEL: split into opening / turn / resolution.
+  const { opening, turn, resolution, atom } = splitHolonIntoThree(t, { sentences: true });
+  // 1. OPENING SETS A STRAIN — it must commit to something the piece can be
+  // held to (a claim or a question about the theme), and it must respond to
+  // the prior unit's ending rather than re-answering the whole from scratch.
+  const openingWords = holonContentWords(opening);
+  const openMakesClaim = HOLON_CLAIM_RE.test(opening) && openingWords.size >= 4;
+  if (!openMakesClaim) { failures.push({ kind: "no_strain", level, detail: "the opening sets no strain — no claim, no commitment the piece must satisfy" }); strain++; }
+  if (prior && holonContentWords(prior).size >= 4) {
+    const priorWords = holonContentWords(prior);
+    const openedOn = [...priorWords].filter((w) => opening.toLowerCase().includes(w)).length;
+    if (openedOn === 0) { failures.push({ kind: "no_response", level, detail: "the holon opens without responding to the previous unit's ending" }); strain++; }
+  }
+  // 2. TURN DEVELOPS THE STRAIN — the middle must ADD new content, not restate
+  // the opening. Novelty = middle words absent from the opening.
+  const turnWords = holonContentWords(turn);
+  if (turnWords.size) {
+    const novelty = [...turnWords].filter((w) => !opening.toLowerCase().includes(w)).length / turnWords.size;
+    if (novelty < 0.4) { failures.push({ kind: "no_turn", level, detail: "the middle restates the opening instead of turning it" }); strain++; }
+  }
+  // 3. RESOLUTION SATISFIES THE STRAIN AND LANDS UNEXPECTED — it must return
+  // to the opening's terms (closure: the strain is answered) while introducing
+  // something the opener did not predict (surprise: it lands somewhere new).
+  const resWords = holonContentWords(resolution);
+  const closure = [...resWords].filter((w) => opening.toLowerCase().includes(w)).length;
+  const surprise = [...resWords].filter((w) => !opening.toLowerCase().includes(w) && !turn.toLowerCase().includes(w)).length;
+  if (closure < 1 || resWords.size < 4) { failures.push({ kind: "no_resolution", level, detail: "the ending does not return to the strain the opening set" }); strain++; }
+  if (surprise < 1) { failures.push({ kind: "no_landing", level, detail: "the ending lands exactly where the opener predicted — it re-states instead of satisfying" }); strain++; }
+  // RECURSE: each part is itself a holon at the finer grain. The parts nest —
+  // this is satisfaction(whole.partOne.partTwo). The response relation rides
+  // down: the resolution of part N is the prior ending of part N+1. Each part
+  // carries its ROLE so the atom check knows whether a stray sentence is the
+  // strain-setter (must name the void) or a turn/landing (may develop away).
+  const parts = [];
+  const roles = ["opening", "turn", "resolution"];
+  for (const [i, part] of [{ opening }, { turn }, { resolution }].entries()) {
+    if (!part.opening && !part.turn) continue;
+    const partText = part.opening || part.turn || part.resolution;
+    if (partText.split(/\s+/).length < 2) continue;
+    const prev = i > 0 ? [{ opening }, { turn }, { resolution }][i - 1].resolution : prior;
+    const r = holonicSatisfaction(partText, { level: "sentence", theme, material, prior: prev || "", role: roles[i] });
+    parts.push(r);
+    strain += r.strain;
+    for (const f of r.failures) failures.push({ ...f, in: partText.slice(0, 40) });
+  }
+  return { ok: failures.length === 0, failures, strain, level, parts, opening, turn, resolution, atom };
+}
+// HOLONIC WHOLE: satisfaction(documentLines) — the whole essay is a holon; the
+// sections are its parts. The whole's satisfaction is the general applied to
+// the assembled prose, with the sections kept addressable as parts.
+export function holonicWholeSatisfaction(documentLines = [], { theme = "" } = {}) {
+  const assembled = (documentLines ?? []).map((d) => String(d ?? "")).join("\n\n");
+  const r = holonicSatisfaction(assembled, { level: "whole", theme });
+  return { ...r, sectionCount: (documentLines ?? []).length };
+}
+
+// ── THE HOLON TREE — THE ESSAY'S NATIVE FORMAT (2026-09-21) ────────────────
+// Sections are NOT a flat list. The essay is a TREE addressed by path —
+// satisfaction(whole), satisfaction(whole.opening),
+// satisfaction(whole.opening.turn), satisfaction(whole.opening.turn.resolution)
+// — where every node is one of the three parts (opening / turn / resolution),
+// carries its assembled prose, and holds its OWN three parts as children.
+// The leaf is the sentence (an atom — too small to divide further at this
+// grain). `documentLines` — the flat array the loop appends to — is a
+// SERIALIZATION of the tree's leaves in order, never the shape itself. The
+// tree IS the shape; the flat array is how it is stored in the ledger.
+// THE THREE-PART LAW governs the format: a node with three+ sentences divides
+// into opening / turn / resolution; fewer than three sentences is an atom.
+// The roles are always the same at every depth — the format is omnimodal:
+// a whole, a section, a paragraph, a sentence are all the same node type.
+export function holonNode({ path, role = "whole", text = "", parts = [] } = {}) {
+  return { path, role, text: String(text ?? ""), parts };
+}
+// Address a node by its holon path — satisfaction(whole.partOne) is literally
+// holonAt(root, "whole.partOne"). Returns null for an unknown path, never a
+// guess.
+export function holonAt(root, path = "whole") {
+  if (path === "whole" || !path) return root ?? null;
+  const parts = String(path).split(".");
+  let node = root;
+  for (const p of parts.slice(1)) {
+    if (!node) return null;
+    const child = (node.parts ?? []).find((c) => c.role === p);
+    if (!child) return null;
+    node = child;
+  }
+  return node ?? null;
+}
+// The leaves of a tree, in order — the flat documentLines serialization.
+export function holonLeaves(root) {
+  const out = [];
+  const walk = (n) => {
+    if (!n) return;
+    if ((n.parts ?? []).length === 0) out.push(n.text);
+    else for (const c of n.parts) walk(c);
+  };
+  walk(root);
+  return out;
+}
+// Build a holon tree from flat prose. The tri-partite split is applied
+// recursively at every depth until the atoms (sentences) are reached.
+export function holonTreeFromText(text, { path = "whole", role = "whole" } = {}) {
+  const t = String(text ?? "").trim();
+  const sent = holonSplitSentences(t);
+  if (sent.length < 3) {
+    // ATOM: a sentence (or a short paragraph) is a leaf — it has no children,
+    // its whole shape is checked as itself. A single long sentence is still
+    // an atom: dividing it would make fragments, not parts.
+    return holonNode({ path, role, text: t });
+  }
+  const { opening, turn, resolution } = splitHolonIntoThree(t, { sentences: true });
+  const parts = [];
+  for (const [roleName, partText] of [["opening", opening], ["turn", turn], ["resolution", resolution]]) {
+    if (!partText) continue;
+    parts.push(holonTreeFromText(partText, { path: `${path}.${roleName}`, role: roleName }));
+  }
+  return holonNode({ path, role, text: t, parts });
+}
+export function holonTreeFromLines(documentLines = [], { theme = "" } = {}) {
+  const assembled = (documentLines ?? []).map((d) => String(d ?? "")).join("\n\n");
+  return holonTreeFromText(assembled);
+}
+// Satisfy the tree: run the general on a node, and on each of its children,
+// returning the result addressed by the child's path — the recursive form of
+// satisfaction(whole.partOne.partTwo). `prior` is the ending of the previous
+// node at this level (the response relation rides down).
+export function holonicTreeSatisfaction(root, { theme = "" } = {}) {
+  const visit = (node, prior) => {
+    const r = holonicSatisfaction(node.text, { level: node.role === "whole" ? "whole" : "section", theme, prior });
+    const children = [];
+    let prevText = prior;
+    for (const c of node.parts ?? []) {
+      const cr = visit(c, prevText);
+      children.push({ path: c.path, role: c.role, ...cr });
+      prevText = c.text;
+    }
+    return { path: node.path, role: node.role, ...r, children };
+  };
+  return visit(root, "");
+}
+// Format a holon tree as an addressable outline — the shape made visible. Each
+// node renders with its path and role so the reader can address any part.
+export function formatHolonTree(root, { depth = 0 } = {}) {
+  if (!root) return "";
+  const pad = "  ".repeat(depth);
+  const role = root.role !== "whole" ? ` [${root.role}]` : "";
+  const head = `${pad}${root.path}${role}`;
+  const body = root.text ? ` — ${String(root.text).replace(/\s+/g, " ").slice(0, 80)}${String(root.text).length > 80 ? "…" : ""}` : "";
+  const lines = [`${head}${body}`];
+  for (const c of root.parts ?? []) lines.push(...formatHolonTree(c, { depth: depth + 1 }).split("\n"));
+  return lines.join("\n");
+}
+
+// ── THE SECTION IS AN EOT ASSERTION — N-DIMENSIONAL (2026-09-21) ───────────
+// A section is NOT prose in a tree. It is an ASSERTION node addressable along
+// every axis the record owns:
+//   holon      : path + role (whole.opening.turn) — the tree dimension
+//   assertion  : the CLAIM it asserts — { subject, label, object }, folded
+//                through the referent index (EOT, never prose)
+//   cells      : the 27-cell register assertions it answers (op·grain keys)
+//   referents  : the beings it folds to — it participates in the record
+//   sources    : the material spans that ground it
+//   standing   : CANDIDATE until a revision supersedes it — REVISABLE
+//   supersedes/history : the revision edge (REC, never an edit — the same
+//                discipline reconsiderShape concedes a shape cell with)
+// The tree carries the shape; the assertion node carries the MEANING. Fold
+// the flat documentLines through the referent index and the register and the
+// tree becomes the record's own object, not the writer's text.
+const HOLON_LABEL_RE = /\b(played|serves?|served|built|builds|made|makes|drains?|flows?|carries?|carried|created|became|become|depends?|threatens?|shaped|shapes|binds?|bound|feeds?|fed|cuts?|cut|joins?|joined|marks?|named|drives?|drove|holds?|held|gives?|gave|keeps?|kept|turns?|turned|releases?|released|rises?|rose|ends?|ended)\b/i;
+// Extract the EOT assertion a section's prose makes — mechanically, through
+// the referent index. `index` is the material's referent index (resolveIn /
+// represent); the section's beings are its referents, the label is the
+// section's strongest act-verb, the object is what the label is done to.
+export function holonAssertionFromText(text, { index = null, register = null, topic = "" } = {}) {
+  const t = String(text ?? "").trim();
+  const resolveIn = (tx) => {
+    try {
+      const r = index?.resolveIn?.(String(tx ?? ""));
+      return r instanceof Set ? r : new Set(r ?? []);
+    } catch { return new Set(); }
+  };
+  const represent = (id) => { try { return index?.represent?.(id) ?? id; } catch { return id; } };
+  const referents = [...resolveIn(t)];
+  // SUBJECT: the first being the section folds to (or the topic, when the
+  // section names no referent — the claim is about the subject).
+  const subject = referents[0] ? represent(referents[0]) : (topic || null);
+  // LABEL: the section's act — the predicate the claim rests on. Mechanical,
+  // the strongest act-verb in the first half of the prose.
+  let label = null;
+  const verbMatch = t.slice(0, Math.ceil(t.length * 0.6)).match(HOLON_LABEL_RE);
+  if (verbMatch) label = verbMatch[1];
+  // OBJECT: the being the label is done to — a referent OTHER than the
+  // subject, or the noun phrase following the verb.
+  let object = null;
+  if (subject) {
+    object = referents.slice(1)[0] ? represent(referents[1]) : null;
+  }
+  if (!object && label) {
+    const after = t.slice((t.match(HOLON_LABEL_RE)?.index ?? 0) + label.length, (t.match(HOLON_LABEL_RE)?.index ?? 0) + label.length + 80);
+    const nouns = after.match(/[A-Z][a-z]+(?:\s+[a-z]+)*/g);
+    if (nouns) object = nouns[0];
+  }
+  const assertion = subject && label ? { subject: String(subject), label, object: object ? String(object) : null } : null;
+  // CELLS: which register assertions the section's prose answers. Each cell's
+  // ask(topic) names the shape the section should instantiate; a section that
+  // shares the cell's content-nouns (beyond the topic itself) carries it. A
+  // REFUTED cell is never attributed (the register refuses it).
+  const cells = [];
+  if (register && Array.isArray(register.cells)) {
+    const stop = new Set(["what","which","does","the","a","an","and","of","to","in","on","at","for","that","this","is","are","it","its","from","with"]);
+    const tLower = t.toLowerCase();
+    for (const cell of register.cells) {
+      if (cell.standing === "REFUTED") continue;
+      const ask = String(cell.ask?.(topic || "this subject") ?? "");
+      const words = new Set(ask.toLowerCase().split(/[^a-z]+/).filter((w) => w.length > 4 && !stop.has(w)));
+      if (words.size === 0) continue;
+      const hit = [...words].filter((w) => tLower.includes(w)).length / words.size;
+      if (hit >= 0.4) cells.push(`${cell.op}·${cell.grain}`);
+    }
+  }
+  return { assertion, referents, cells, subject, label, object };
+}
+// FOLD the flat documentLines into an n-dimensional assertion tree. Each leaf
+// carries its assertion, cells, and referents; each non-leaf carries the union
+// of its parts' referents and cells (the whole's claim is the composition of
+// its parts' claims). The tree is the record's object — revisable (a node can
+// be superseded), addressable by any dimension.
+export function holonAssertionTree(documentLines = [], { index = null, register = null, topic = "", theme = "" } = {}) {
+  const tree = holonTreeFromLines(documentLines, { theme });
+  const visit = (node) => {
+    const a = holonAssertionFromText(node.text, { index, register, topic });
+    const children = (node.parts ?? []).map(visit);
+    const referents = [...new Set([...a.referents, ...children.flatMap((c) => c.referents)])];
+    const cells = [...new Set([...a.cells, ...children.flatMap((c) => c.cells)])];
+    return {
+      ...node,
+      assertion: a.assertion,
+      referents,
+      cells,
+      sources: a.sources ?? [],
+      standing: "CANDIDATE",
+      supersedes: null,
+      history: [],
+      parts: children,
+    };
+  };
+  return visit(tree);
+}
+// REVISE a node — the EOT discipline on a section. A revision SUPERSEDES the
+// node (appended to its history, never an in-place edit — the same rule
+// reconsiderShape concedes a cell with). The tree is returned with the node
+// revised; the prior text is never lost, it is the superseded history.
+export function reviseHolonNode(root, { path, newText, reason = "", index = null, register = null, topic = "" } = {}) {
+  if (!root) return { refused: { type: "no_root", detail: "reviseHolonNode: a tree is required" } };
+  if (path === "whole") return { refused: { type: "cannot_revise_whole", detail: "reviseHolonNode: the whole cannot be superseded, only its parts" } };
+  const visit = (node) => {
+    if (node.path === path) {
+      const a = holonAssertionFromText(newText, { index, register, topic });
+      return {
+        ...node,
+        text: newText,
+        assertion: a.assertion,
+        referents: a.referents,
+        cells: a.cells,
+        standing: "REVISED",
+        supersedes: node.path,
+        history: [...(node.history ?? []), { was: node.standing ?? "CANDIDATE", text: node.text, at: new Date().toISOString(), reason: String(reason ?? "revision") }],
+        parts: (node.parts ?? []).map(visit),
+      };
+    }
+    return { ...node, parts: (node.parts ?? []).map(visit) };
+  };
+  return { tree: visit(root) };
+}
+// THE SATISFACTION OF THE ASSERTION TREE — the general, folded over the
+// n-dimensional object. Each node's 3-part shape is measured; the parts'
+// strains ride up. The node carries its own satisfaction so any dimension
+// (path, claim, cell) can be asked "does this hold?"
+export function holonicAssertionSatisfaction(root, { theme = "", index = null, register = null, topic = "" } = {}) {
+  const visit = (node, prior) => {
+    const r = holonicSatisfaction(node.text, { level: node.role === "whole" ? "whole" : "section", theme, prior });
+    const children = [];
+    let prevText = prior;
+    for (const c of node.parts ?? []) {
+      const cr = visit(c, prevText);
+      children.push(cr);
+      prevText = c.text;
+    }
+    return { path: node.path, role: node.role, assertion: node.assertion, cells: node.cells, referents: node.referents, ...r, children };
+  };
+  return visit(root, "");
 }
 
 // ── FISHER'S NULL TEST FOR REPETITION ──────────────────────────────────────
