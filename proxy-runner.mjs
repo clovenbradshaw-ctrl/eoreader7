@@ -35,7 +35,7 @@ import { answerRecord } from "./native/the-fold/answer-record.js";
 // the proxy fails closed at boot if the gate cannot load). See the module
 // header for how it is wired and why it must never be bypassed.
 import { groundGate, draftGate, foldGate, tightenGate, arriveGate, chainStrain, measuredInflation, lastSentence as lastSentenceOmni } from "./native/the-fold/spiral-contract.js";
-import { deposit as depositAdmitted, matterWords as matterWordsOmni, admit as admitCandidate, measureVariance, measureBondNull, claimCore as claimCoreOmni, segmentSentences as segmentSentencesOmni, wordTokens as wordTokensOmni, nameGate as referentNameGate, bond as bondOf } from "./native/the-fold/admission.js";
+import { deposit as depositAdmitted, admit as admitCandidate, measureVariance, measureBondNull, claimCore as claimCoreOmni, segmentSentences as segmentSentencesOmni, wordTokens as wordTokensOmni, nameGate as referentNameGate, bond as bondOf } from "./native/the-fold/admission.js";
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom, holonicSatisfaction, holonTreeFromText, holonicTreeSatisfaction, holonAssertionTree, holonicAssertionSatisfaction, holonLeaves } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 import { inventedNameRuns as verifyInventedNameRuns, isMetaSentence as verifyIsMetaSentence } from "./native/the-fold/referent-verify.js";
@@ -2685,7 +2685,11 @@ async function retryUnderLoad(attempt, model, { local = false } = {}) {
       const v = h.readVitals?.() ?? null;
       pressured = (h.memoryPressured?.(v) ?? false) || (h.isBoxSaturated?.(v) ?? false);
     } catch { pressured = false; }
-    if (pressured) {
+    // ER7_PRESSURE_HOLD=0 is a HARNESS knob for measured test runs on a box
+    // whose swap is chronically high (2026-09-21: swap at 94% for hours, so
+    // every first-byte timeout ended a run before its fold — the harness was
+    // measured, not the pipeline). Production leaves it on.
+    if (pressured && (process.env.ER7_PRESSURE_HOLD ?? "1") !== "0") {
       throw Object.assign(new Error(`box is pressured — heimdall holds the turn; retry later (attempt ${attempt + 1} of ${CALL_RETRIES} not re-fired into the storm)`), {
         code: "ERR_BOX_PRESSURED", retryable: false, retryAfterS: 30,
       });
@@ -3113,7 +3117,14 @@ const reader = res.body.getReader();
               // to spend a call to find out. Lazily imported and never
               // awaited — a report may not slow a turn, and node hands back
               // the same heimdall instance the proxy already runs.
-              closeHost({ ok: true, loadMs: (obj.load_duration ?? 0) / 1e6 });
+              // QUEUE INSIDE THE DAEMON (2026-09-21): total_duration is Ollama's
+              // own wall for this request; minus load+prompt+gen it is the time
+              // the request sat in the daemon's queue behind OTHER callers —
+              // evals, other proxies, anything that talks to Ollama directly and
+              // never passes this gate. Measured, never inferred from load average.
+              const _workMs = ((obj.load_duration ?? 0) + (obj.prompt_eval_duration ?? 0) + (obj.eval_duration ?? 0)) / 1e6;
+              const _queueMs = Math.max(0, (obj.total_duration ?? 0) / 1e6 - _workMs);
+              closeHost({ ok: true, loadMs: (obj.load_duration ?? 0) / 1e6, queueMs: _queueMs });
               import("./heimdall.mjs").then((h) => h.observeCall({
                 model,
                 host: host.name,
@@ -3122,6 +3133,7 @@ const reader = res.body.getReader();
                 genTokens: obj.eval_count ?? 0,
                 genMs: (obj.eval_duration ?? 0) / 1e6,
                 loadMs: (obj.load_duration ?? 0) / 1e6,
+                queueMs: _queueMs,
               })).catch(() => {});
               {
                 // Flush the held tail BEFORE the terminal chunk (the yield
@@ -5830,6 +5842,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // recorded; no later section re-reads it. The window is always UNUSED
       // material, so the mouth must find new facts section by section.
       const usedSentences = new Set();
+      // ONLY THE PIECE DEPOSITS MATTER (2026-09-21, falsified live: every
+      // section after the opening was refused "repeat" — the window's own
+      // sentences ride in `usedSentences` so the mouth cannot copy them, and
+      // the registry was deriving matter words from that trail, so the
+      // MATERIAL pre-emptied the matter vocabulary before the piece said a
+      // word). Matter words are deposited here, by admitted sentences alone.
+      const matterRegistry = new Set();
       // ── THE SPIRAL CONTRACT, LAYER 1: GROUND (2026-09-21, the user's law:
       // "hyper-defined layers, explicit revisable work product at each loop;
       // low sets possibility for high, high probability for low"). The ground
@@ -5875,7 +5894,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           if (verifyIsMetaSentence(cand)) { out.refusals.push({ kind: "meta", given: "model" }); continue; }
           const v = admitCandidate(cand, { ground, priorLanding, instruction: `${task}\n${section}`, registry: reg, variance, bondNull, isGrounded: grounded, invented: gate.applies ? ((x) => verifyInventedNameRuns(x, ground)) : null });
           if (!v.admit) { out.refusals.push(...(v.refused ?? [])); continue; }
-          out.survivors.push(cand); out.roads.push(v.road); depositAdmitted(reg, v);
+          out.survivors.push(cand); out.roads.push(v.road); depositAdmitted(reg, v); depositAdmitted(matterRegistry, v);
           usedSentences.add(cand); if (v.core) usedSentences.add(v.core);
         }
         return out;
@@ -6160,6 +6179,8 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         };
         let buf = "";
         let stopped = false;
+        let drawFailure = "";
+        let snipSummary = "";
         if (sentenceAtATime) {
           // THE PARAGRAPH, DRAWN WIDE, SNIPPED MECHANICALLY (2026-09-21, the
           // user's synthesis: "we did have fairly decent longform essay writing
@@ -6184,7 +6205,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           // actually landed, not on re-answering "the role of the Cumberland
           // River in Nashville's growth" (measured: every section re-asking the
           // topic question opened "The Cumberland River played a vital role...").
-          const priorLanding = documentLines.length ? String(documentLines[documentLines.length - 1] ?? "").trim() : "";
+          // THE PRIOR LANDING IS THE LAST PLACE THE PIECE ACTUALLY LANDED
+          // (2026-09-21, falsified live: an empty section left "" as the prior
+          // landing, which closed the motion road AND the redraw for the next
+          // section, and eleven sections emptied in a cascade). The landing is
+          // the last non-empty part, however many empty ones lie between.
+          const priorLanding = [...documentLines].reverse().map((l) => String(l ?? "").trim()).find(Boolean) ?? "";
           const paraTask = priorLanding
             ? `Continue the piece from exactly where it left off. Write the next passage (${holonPhrase}) of the piece itself.\n\nThe piece just said:\n"${priorLanding.split(/(?<=[.!?])\s+/).filter(Boolean).pop() ?? priorLanding}"\n\nHere is what this passage is about:\n"${section}"\n\nGrounded source text:\n"""\n${secWindow ?? ""}\n"""\n\nWrite the passage now.`
             : `${isQuestion ? `Answer this: ${section}` : `Write the part: ${section}`}, ${holonPhrase}. ${voice.body(topic)} ${windowBlock}`;
@@ -6202,6 +6228,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           ]);
           paragraphBuf = paraRes.status === "fulfilled" ? String(paraRes.value?.buf ?? "").trim() : "";
           if (paraRes.status === "fulfilled" && paraRes.value?.stopped) { paraStopped = true; }
+          // A REFUSED DRAW IS A GIVEN, NOT AN EMPTY PART (2026-09-21, found
+          // live: eleven sections were empty because heimdall held the turn
+          // under load, and the ledger said "composition section, strain 0"
+          // for each — the harness was measured and the record blamed the
+          // selector). The draw's failure is carried to the part line.
+          drawFailure = paraRes.status === "rejected" ? String(paraRes.reason?.message ?? paraRes.reason ?? "draw failed").slice(0, 160) : (paragraphBuf ? "" : "the mouth returned nothing");
           // THE MECHANICAL SNIP (2026-09-21): the paragraph overshoots (it
           // repeats, drifts, copies) — the machinery keeps only the sentences
           // that FOLD to a material referent (grounded) and carry a claim the
@@ -6214,12 +6246,13 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             const out = new Set();
             if (usedSentences) {
               for (const u of usedSentences) {
-                if (u.includes(" ")) {
-                  out.add(claimCoreOfStable(u));
-                  for (const w of matterWordsOmni(u, groundForGate, omniVar)) out.add(`w:${w}`);
-                } else out.add(u);
+                if (u.includes(" ")) out.add(claimCoreOfStable(u));
+                else out.add(u);
               }
             }
+            // Matter words come ONLY from what the piece admitted — never from
+            // the window's sentences that ride in the trail.
+            for (const w of matterRegistry) if (String(w).startsWith("w:")) out.add(w);
             return out;
           })();
           // THE PARAGRAPH SPLIT BY THE SCRIPT'S OWN RULES (2026-09-21). The
@@ -6278,7 +6311,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             if (!verdict.admit) { refusals.push(...(verdict.refused ?? [])); continue; }
             survivors.push(cand);
             roads.push(verdict.road);
-            depositAdmitted(globalRegistry, verdict);
+            depositAdmitted(globalRegistry, verdict); depositAdmitted(matterRegistry, verdict);
             usedSentences.add(cand);
             if (verdict.core) usedSentences.add(verdict.core);
           }
@@ -6327,6 +6360,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
               attempts.push({ pass: draftHigh.pass, basis: draftHigh.basis, redrawSentences: more.survivors.length });
             }
             contractRecord.draft.push({ section, pass: draftHigh.pass, missing: draftHigh.missing ?? null, attempts, exhausted: !draftHigh.pass && spent >= spiralBudget });
+            snipSummary = `${survivors.length} kept (${roads.filter((r) => r === "matter").length} matter, ${roads.filter((r) => r === "motion").length} motion) of ${paragraphSentences.length}` + (refusals.length ? `; refused: ${[...new Set(refusals.map((r) => r.kind))].join(", ")}` : "");
             if (onNote) onNote({ move: "contract_draft", section, pass: draftHigh.pass, missing: draftHigh.missing ?? null, attempts: attempts.length, basis: draftHigh.basis });
           }
           buf = survivors.join(" ");
@@ -6445,7 +6479,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           // end. An essay still lands each section as its own part line.
           if (!isCode) appendLedgerLine(documentLedger, {
             role: "part", title: section, text: buf.trim(), giver: model,
-            basis: `composition section, strain ${strainAdded}`,
+            basis: `composition section, strain ${strainAdded}${drawFailure ? ` — draw refused: ${drawFailure}` : ""}${snipSummary ? ` — ${snipSummary}` : ""}`,
           }, { dir: ESSAY_LEDGER_DIR });
           documentLines.push(isCode ? stripCodeFences(buf, codeLanguage) : buf.trim());
         }

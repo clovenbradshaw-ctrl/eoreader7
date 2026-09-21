@@ -844,6 +844,7 @@ function waste() {
       const expected = m.reloads <= nHosts;
       out.push(`<span class="${expected ? "dim" : "gold"}">${Math.round(m.reloadSeconds || 0)}s</span> loading ${esc(m.model.replace(/^er7:/, ""))} from disk (${m.reloads}× at ${each}s)${expected ? ` <span class="dim">— once per server, expected</span>` : ` <span class="dim">— it keeps getting evicted; keep it resident</span>`}`);
     }
+    if (m.queueSeconds >= 2) out.push(`<span class="gold">${m.queueSeconds}s</span> waiting inside Ollama behind other programs' requests <span class="dim">— evals or other proxies talking to the daemon directly; the gate now counts this wait</span>`);
     if (m.genTokPerSec != null && m.genTokPerSec < 6) out.push(`<span class="gold">${esc(m.model.replace(/^er7:/, ""))}</span> is writing slowly (${m.genTokPerSec} words/s) <span class="dim">— something else is using the machine</span>`);
   }
   if (d.memory?.pressured) out.push(`<span class="warn">memory is short (${d.memory.availableMb ?? d.memory.freeMb}MB usable)</span> <span class="dim">— a new model would take minutes to load</span>`);

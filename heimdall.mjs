@@ -182,12 +182,15 @@ export function hostBegin(name) {
   const h = hostByName(name); if (!h) return;
   h.inflight += 1; h.lastAt = Date.now();
 }
-export function hostEnd(name, { model = null, ms = null, ok = true, loadMs = 0, refused = false } = {}) {
+export function hostEnd(name, { model = null, ms = null, ok = true, loadMs = 0, refused = false, queueMs = null } = {}) {
   const h = hostByName(name); if (!h) return;
   h.inflight = Math.max(0, h.inflight - 1);
   h.lastAt = Date.now();
   if (ok) {
     h.calls += 1;
+    // the daemon's queue behind callers this gate never saw — an EWMA that
+    // decays to zero once the foreign load is gone
+    if (Number.isFinite(queueMs)) h.queueMs = h.queueMs == null ? Math.round(queueMs) : Math.round((1 - HOST_EWMA) * h.queueMs + HOST_EWMA * queueMs);
     if (h.downAt != null) { h.downAt = null; h.downReason = null; appendLog({ act: "rec", finding: "host_back", host: name }); }
     if (model && Number.isFinite(ms) && ms > 0) {
       const prev = h.meanMs.get(model);
@@ -213,8 +216,8 @@ export function expectedWaitMs(model) {
     const mean = h.meanMs.get(model);
     if (!Number.isFinite(mean) || mean <= 0) continue;
     const ahead = h.inflight + pendingEach;
-    const ms = ahead * mean;
-    if (best == null || ms < best.ms) best = { ms, host: h.name, inflight: ahead, meanMs: mean };
+    const ms = ahead * mean + (h.queueMs ?? 0);
+    if (best == null || ms < best.ms) best = { ms, host: h.name, inflight: ahead, meanMs: mean, queueMs: h.queueMs ?? 0 };
   }
   return best ?? { ms: null, host: null, inflight: 0, meanMs: null };
 }
@@ -271,6 +274,7 @@ export function hostsDisclosure() {
     name: h.name, url: h.url, up: hostUp(h), downReason: h.downReason, inflight: h.inflight, calls: h.calls, picks: h.picks, fails: h.fails,
     lastAt: h.lastAt ? new Date(h.lastAt).toISOString() : null,
     shapeMismatch: h.shapeMismatch ?? null,
+    queueMs: h.queueMs ?? null,
     loadMs: h.loadMs, meanMs: Object.fromEntries(h.meanMs), resident: [...h.resident.keys()],
     sessions: [...sessionHost.values()].filter((n) => n === h.name).length,
   }));
@@ -1532,7 +1536,7 @@ export function modelQuirksOf(model) {
  * provider served them cut-rate from cache instead of full recompute), and
  * cost totals ride alongside for the spenders that report it.
  */
-export function observeCall({ model, surface = null, host = null, promptTokens = 0, promptMs = 0, genTokens = 0, genMs = 0, loadMs = 0, ungated = false, upstream = null, reasoningTokens = 0, cacheReadTokens = 0, cacheWriteTokens = 0, cost = null } = {}) {
+export function observeCall({ model, surface = null, host = null, queueMs = 0, promptTokens = 0, promptMs = 0, genTokens = 0, genMs = 0, loadMs = 0, ungated = false, upstream = null, reasoningTokens = 0, cacheReadTokens = 0, cacheWriteTokens = 0, cost = null } = {}) {
   if (!model) return null;
   // A successful call is proof the model answers — Heimdall keeps it servable.
   markServable(model);
@@ -1558,10 +1562,12 @@ export function observeCall({ model, surface = null, host = null, promptTokens =
     t.promptRate = t.promptRate == null ? rate : EWMA * rate + (1 - EWMA) * t.promptRate;
   }
   throughput.set(model, t);
+  t.queueMs = (t.queueMs ?? 0) + (queueMs || 0);
   if (_turn && !ungated) {
     // TURN PHASES (experiment E1): attribute this call's own timings to the
     // turn that is running, so "where the time goes" is measured, not argued.
     _turn.draws += 1;
+    _turn.queueMs = (_turn.queueMs ?? 0) + (queueMs || 0);
     _turn.loadMs += loadMs || 0; _turn.promptMs += promptMs || 0; _turn.genMs += genMs || 0;
     _turn.promptTokens += promptTokens || 0; _turn.genTokens += genTokens || 0;
   } else if (_turn && ungated) { _turn.remote += 1; }
@@ -1595,7 +1601,7 @@ export function endTurn(id) {
   t.genPct = t.wallMs ? Math.round((100 * t.genMs) / t.wallMs) : null;
   t.at = new Date().toISOString();
   TURN_PHASES.push(t); if (TURN_PHASES.length > 300) TURN_PHASES.shift();
-  appendLog({ act: "crossing", finding: "turn_phases", sessionId: t.sessionId, model: t.model, draws: t.draws, loadMs: t.loadMs, promptMs: t.promptMs, genMs: t.genMs, wallMs: t.wallMs, genPct: t.genPct, promptTokens: t.promptTokens, genTokens: t.genTokens, remote: t.remote });
+  appendLog({ act: "crossing", finding: "turn_phases", sessionId: t.sessionId, model: t.model, draws: t.draws, loadMs: t.loadMs, promptMs: t.promptMs, genMs: t.genMs, queueMs: t.queueMs ?? 0, wallMs: t.wallMs, genPct: t.genPct, promptTokens: t.promptTokens, genTokens: t.genTokens, remote: t.remote });
   return t;
 }
 // The mechanism-match instrument (the falsifier for the "skip generation" claim):
@@ -1626,6 +1632,7 @@ export function throughputOf(model = null) {
     genTokens: t.genTokens, promptTokens: t.promptTokens,
     genSeconds: Math.round(t.genMs / 1000), promptSeconds: Math.round(t.promptMs / 1000),
     reloads: t.loads, reloadSeconds: Math.round(t.loadMs / 1000),
+    queueSeconds: Math.round((t.queueMs ?? 0) / 1000), // waited inside the daemon behind callers this gate never saw
     window: loadedWindowOf(m),
     // The ungated lane, kept apart: how many calls never touched this box,
     // and where they went instead. Rates above are local-box only — an
