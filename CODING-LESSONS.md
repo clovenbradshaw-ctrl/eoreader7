@@ -939,3 +939,42 @@ inside the daemon 8.7–11.5s. After a REAL relaunch with four slots
 waited 0.0s, turns 0.5–3.6s under the same eval. Heimdall's own restart
 now defaults `OLLAMA_MAX_LOADED_MODELS` to 3 like the script, so the two
 config sources agree (post-mortem follow-up 2 closed).
+
+## 56. A per-language competency number is only as good as the harness's own failure modes — seven of them, found live (2026-09-21)
+Built a competency ledger per (language × model): a floor gate (compile/parse) and a call test on
+held-out cases, with a measured null (`native/organs/lang-competency.js`, `lang-validators.js`,
+`lang-levers.js`; 27 spec-stated tasks × javascript, typescript, python, ruby). Every row of the first
+tables was wrong for a reason the harness owned, and each was found by looking inside a "wall" before
+believing it:
+1. **Draws at temperature 0.2 are one sample.** Five seeds gave five byte-identical outputs from
+   gemma2:2b; "12 draws per cell" was 4 samples. The unit of evidence is the TASK; one draw per task.
+   Independent draws exist only at a higher temperature (the best-of-k arm).
+2. **One crash zeroed every case.** All cases were called in one expression, so an exception on the
+   empty-grid case scored every held-out case as failed and inflated the walls. Each case is now
+   isolated (`{"__error": …}` for that case only).
+3. **A spec's arity was ambiguous.** "takes a grid, a list of rows of integers…" read as two
+   parameters, so every call raised a TypeError. State parameters ("takes exactly one argument, a
+   grid, which is…"). Three ambiguities in agent-authored specs surfaced this way (repeat_prefix with
+   k > len(s); kv_lookup with "=" in a key; the grid arity).
+4. **A held-out case must be licensed by a spec sentence** (lesson 24) — and a case whose expected
+   value equals the "none" sentinel (`second_largest([0,-1]) → -1`) cannot discriminate: a constant
+   -1 passes it.
+5. **The toolchain is part of the reading.** Ruby here is 2.6 (no `Array#tally`); a model that writes
+   modern Ruby fails for a toolchain reason. Every row records the toolchain version.
+6. **TypeScript's gap was naming drift, measured, not assumed:** 10 of 27 raw drafts do not define the
+   stated function name, 1 of 27 with two examples in the ask. The fix is the examples (and a
+   diagnostic naming the missing identifier), never an alias — an alias makes the test pass while the
+   code ignores its spec and hides the class from the ledger.
+7. **A spec is a stimulus.** Editing one in response to the model's behaviour is tuning the test to the
+   model. The rule that held: change a spec only to state parameters or license a case, uniformly across
+   the tasks it applies to, and key every row by a hash of what it asked and checked (`specHash`) so
+   two wordings never pool.
+
+What the levers earned, on 27 tasks at one draw each: examples fixed TypeScript naming; a repair loop
+fed runtime errors and visible got/want did not beat examples alone (49 of 108 runs used all four
+rounds and still failed); deterministic code extraction added nothing measurable. Four tasks
+(`repeat_prefix`, `shortest_palindrome`, `top_counts`, `max_depth`) fail in every arm for reasons visible
+in the drafts. The ledger does not rank languages: 27 tasks and one draw cannot separate 12/27 from 13/27.
+**Falsifying control:** a per-language claim is real only if it survives (a) per-case isolation,
+(b) a spec whose parameters and edges are stated, and (c) a task-clustered interval — and a wall is real
+only after one draft has been read.

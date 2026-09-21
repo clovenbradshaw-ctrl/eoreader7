@@ -79,3 +79,23 @@ test("competency: 4/4 against a 0/12 null is far above it; 0/4 is not", () => {
   assert.ok(competency([mk(1), mk(1), mk(1), mk(1)], "python", "m", nul).pAboveNull < 0.01);
   assert.equal(competency([mk(0), mk(0), mk(0), mk(0)], "python", "m", nul).pAboveNull, 1);
 });
+
+// A crash on ONE case must not zero out the others (audit 2026-09-21: the grid tasks' "walls" were
+// this — an empty-grid crash scored every held-out case as failed).
+const CRASHES_ON_EMPTY = {
+  javascript: "const sum_evens = (xs) => { if (xs.length === 0) throw new Error('empty'); return xs.filter((x) => x % 2 === 0).reduce((a, b) => a + b, 0); };",
+  typescript: "const sum_evens = (xs: number[]): number => { if (xs.length === 0) throw new Error('empty'); return xs.filter((x) => x % 2 === 0).reduce((a, b) => a + b, 0); };",
+  python: "def sum_evens(xs):\n    if not xs:\n        raise ValueError('empty')\n    return sum(x for x in xs if x % 2 == 0)",
+  ruby: "def sum_evens(xs)\n  raise ArgumentError, 'empty' if xs.empty?\n  xs.select(&:even?).sum\nend",
+};
+for (const lang of CALL_LANGUAGES) {
+  test(`crash isolation: one crashing case leaves the others scored in ${lang}`, async (t) => {
+    if (!(await toolchainAvailable(lang))) return t.skip(`${lang} toolchain absent`);
+    const task = TASKS.find((x) => x.id === "sum_evens");
+    const r = await scoreDraw(task, lang, CRASHES_ON_EMPTY[lang]);
+    assert.equal(r.floorOk, true);
+    assert.deepEqual(r.cases, [true, false, true, true], `${lang}: ${JSON.stringify(r)}`);
+    assert.ok(r.got[1].__error, "the crashing case carries its error");
+    assert.equal(r.callOk, false, "one crash still fails the draw overall");
+  });
+}

@@ -12,10 +12,14 @@
 // to a model; `cases` and the reference solutions never are.
 import { appendFileSync, existsSync, readFileSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
+import { createHash } from "node:crypto";
 import { canonLanguage, runWithHarness, validateLanguage, toolchainAvailable } from "./lang-validators.js";
 import { NEW_TASKS as STRING_TASKS } from "./lang-tasks/strings.js";
 import { NEW_TASKS as LIST_TASKS } from "./lang-tasks/lists.js";
 import { NEW_TASKS as STRUCTURAL_TASKS } from "./lang-tasks/structural.js";
+import { NEW_TASKS as GRID_TASKS } from "./lang-tasks/grid.js";
+import { NEW_TASKS as PARSE_TASKS } from "./lang-tasks/parse.js";
+import { NEW_TASKS as SEQ_TASKS } from "./lang-tasks/seq.js";
 
 // Argument literals are numbers, strings and arrays only — valid, identical
 // JSON in every target language, so no per-language literal translation.
@@ -33,7 +37,7 @@ const BASE_TASKS = [
   },
   {
     id: "repeat_prefix", snake: "repeat_prefix",
-    spec: "Write a function repeat_prefix that takes a string s and an integer k and returns the first k characters of s repeated k times joined together. If s is empty it returns an empty string, and if k is larger than the length of s the whole of s is used as the prefix.",
+    spec: "Write a function repeat_prefix that takes a string s and an integer k and returns the first k characters of s repeated k times joined together. If s is empty it returns an empty string, and if k is larger than the length of s then the prefix is the whole of s, and the result is still that prefix repeated k times.",
     cases: [{ args: ["abc", 2], expect: "abab" }, { args: ["", 3], expect: "" }, { args: ["xy", 3], expect: "xyxyxy" }, { args: ["hello", 1], expect: "h" }],
     ref: {
       javascript: "const __F__ = (s, k) => s.slice(0, k).repeat(k);",
@@ -66,9 +70,11 @@ const BASE_TASKS = [
   },
 ];
 
-// Authored in three scratch batches (strings, lists, structural), each reference verified in
-// all four languages and each held-out case licensed by a spec sentence. Ids must stay unique.
-export const TASKS = [...BASE_TASKS, ...STRING_TASKS, ...LIST_TASKS, ...STRUCTURAL_TASKS];
+// Authored in six batches. Batches 1-3 (strings, lists, structural): each reference verified in all four
+// languages, each held-out case licensed by a spec sentence. Batches 4-6 (grid, parse, seq) add an
+// independent second implementation compared on 300+ random inputs (not fully blind — same session).
+// Ids must stay unique.
+export const TASKS = [...BASE_TASKS, ...STRING_TASKS, ...LIST_TASKS, ...STRUCTURAL_TASKS, ...GRID_TASKS, ...PARSE_TASKS, ...SEQ_TASKS];
 if (new Set(TASKS.map((t) => t.id)).size !== TASKS.length) throw new Error("lang-competency: duplicate task id");
 
 // The first two cases are VISIBLE (shown as examples to the lift arms); the rest
@@ -84,14 +90,18 @@ export const CALL_LANGUAGES = ["javascript", "typescript", "python", "ruby"];
 const nameFor = (task) => task.snake;
 const lit = (v) => JSON.stringify(v);
 
-// The caller: one explicit call per case (no spread — a typed language checks
-// each call), printing one JSON array of results for a deep-equal compare.
+// The caller: one explicit call per case (no spread — a typed language checks each call),
+// each isolated so a crash on ONE case (say the empty grid) cannot zero out the rest — an error
+// becomes {"__error": ...} for that case only (audit 2026-09-21: a single crash was scoring every
+// held-out case as failed and inflating the walls). Printed as one JSON array for a deep-equal compare.
 export function harnessFor(task, language, name = nameFor(task)) {
   const lang = canonLanguage(language);
-  const calls = task.cases.map((c) => `${name}(${c.args.map(lit).join(", ")})`);
-  if (lang === "javascript" || lang === "typescript") return `console.log(JSON.stringify([${calls.join(", ")}]));`;
-  if (lang === "python") return `import json\nprint(json.dumps([${calls.join(", ")}]))`;
-  if (lang === "ruby") return `require 'json'\nputs [${calls.join(", ")}].to_json`;
+  const call = (c) => `${name}(${c.args.map(lit).join(", ")})`;
+  if (lang === "javascript" || lang === "typescript") {
+    return `const __r = (f${lang === "typescript" ? ": () => unknown" : ""}) => { try { return f(); } catch (e) { return { __error: String(e) }; } };\nconsole.log(JSON.stringify([${task.cases.map((c) => `__r(() => ${call(c)})`).join(", ")}]));`;
+  }
+  if (lang === "python") return `import json\ndef __r(f):\n    try:\n        return f()\n    except Exception as e:\n        return {"__error": repr(e)}\nprint(json.dumps([${task.cases.map((c) => `__r(lambda: ${call(c)})`).join(", ")}]))`;
+  if (lang === "ruby") return `require 'json'\ndef __r\n  yield\nrescue StandardError => e\n  { "__error" => e.message }\nend\nputs [${task.cases.map((c) => `__r { ${call(c)} }`).join(", ")}].to_json`;
   return null;
 }
 
@@ -118,7 +128,7 @@ export function feedbackFor(task, s) {
   if (!s.floorOk) return `It does not compile or parse: ${s.why}`;
   if (s.cases && s.got) {
     const bad = VISIBLE.filter((i) => !s.cases[i]);
-    if (bad.length) return bad.map((i) => `${task.snake}(${task.cases[i].args.map(lit).join(", ")}) returned ${JSON.stringify(s.got[i])} but it should return ${JSON.stringify(task.cases[i].expect)}.`).join(" ");
+    if (bad.length) return bad.map((i) => s.got[i]?.__error ? `${task.snake}(${task.cases[i].args.map(lit).join(", ")}) raised an error: ${String(s.got[i].__error).slice(0, 120)}.` : `${task.snake}(${task.cases[i].args.map(lit).join(", ")}) returned ${JSON.stringify(s.got[i])} but it should return ${JSON.stringify(task.cases[i].expect)}.`).join(" ");
     return "";
   }
   return `Running it failed: ${s.why}`;
@@ -178,3 +188,7 @@ export function competency(rows, language, model, nullResult, arm = null) {
   const p0 = (nullResult.passes + 1) / (nullResult.n + 2);
   return { language: lang, model, n, passes, floorPasses, rate: n ? passes / n : null, nullRate: nullResult.rate, pAboveNull: n ? pAtLeast(passes, n, p0) : null };
 }
+
+// A short hash of what a task ASKS and CHECKS, stamped on every ledger row so rows
+// measured against an earlier wording of a spec are never pooled with later ones.
+export const specHash = (task) => createHash("sha1").update(JSON.stringify([task.spec, task.cases])).digest("hex").slice(0, 8);
