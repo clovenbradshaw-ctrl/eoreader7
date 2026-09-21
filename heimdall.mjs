@@ -68,17 +68,17 @@ const isMain = (() => {
 })();
 
 const OLLAMA_URL = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
-const CHECK_INTERVAL_MS = Number(process.env.ER7_HEIMDALL_INTERVAL ?? 15000);
+let CHECK_INTERVAL_MS = Number(process.env.ER7_HEIMDALL_INTERVAL ?? 15000); // runtime-adjustable (see SETTINGS)
 const HEALTH_TIMEOUT_MS = Number(process.env.ER7_HEIMDALL_HEALTH_TIMEOUT ?? 15000);
-const MAX_RESTARTS = Number(process.env.ER7_HEIMDALL_MAX_RESTARTS ?? 3);
+let MAX_RESTARTS = Number(process.env.ER7_HEIMDALL_MAX_RESTARTS ?? 3); // runtime-adjustable
 const RESTART_WINDOW_MS = Number(process.env.ER7_HEIMDALL_WINDOW ?? 10 * 60 * 1000);
 const STEER_PORT = Number(process.env.ER7_HEIMDALL_PORT ?? 11437);
 // Per-family admission cap (concurrent in-flight requests). Ollama is run
 // CPU-only with OLLAMA_NUM_PARALLEL=4 (launchctl env, set 2026-09-16) so up
 // to 4 requests per model genuinely run side by side instead of queuing
 // invisibly behind one; the cap tracks that real capacity. 0 = unlimited.
-const FAMILY_CAP = Number(process.env.ER7_FAMILY_CAP ?? 4);
-const RETRY_AFTER_S = Number(process.env.ER7_RETRY_AFTER ?? 15);
+let FAMILY_CAP = Number(process.env.ER7_FAMILY_CAP ?? 2); // runtime-adjustable
+let RETRY_AFTER_S = Number(process.env.ER7_RETRY_AFTER ?? 15); // runtime-adjustable
 // ── The queue, and the jump-the-cue passes (2026-09-17) ───────────────────
 // A saturated box or full lane now answers with a REAL place in line, not a
 // bare "try again". A bounded stock of one-use pass codes lets a caller jump
@@ -86,17 +86,17 @@ const RETRY_AFTER_S = Number(process.env.ER7_RETRY_AFTER ?? 15);
 // alternation allows it: after a pass is redeemed, the next ZIPPER_DENSITY
 // admissions must be pass-free, so pass-holders and everyone else merge like
 // traffic at a merge — a pass train never starves the line.
-const PASS_STOCK = Number(process.env.ER7_PASS_STOCK ?? 3);          // codes minted per window
+let PASS_STOCK = Number(process.env.ER7_PASS_STOCK ?? 3);          // codes minted per window (runtime-adjustable)
 const PASS_WINDOW_MS = Number(process.env.ER7_PASS_WINDOW ?? 15 * 60 * 1000);
-const ZIPPER_JUMP = Number(process.env.ER7_ZIPPER_JUMP ?? 2);        // a pass jumps at most N places
-const ZIPPER_DENSITY = Number(process.env.ER7_ZIPPER_DENSITY ?? 2);  // normal admissions after a pass
-const WAITER_TTL_MS = Number(process.env.ER7_WAITER_TTL ?? 120 * 1000); // a stale waiter gives up its place
+let ZIPPER_JUMP = Number(process.env.ER7_ZIPPER_JUMP ?? 2);        // a pass jumps at most N places (runtime-adjustable)
+let ZIPPER_DENSITY = Number(process.env.ER7_ZIPPER_DENSITY ?? 2);  // normal admissions after a pass (runtime-adjustable)
+let WAITER_TTL_MS = Number(process.env.ER7_WAITER_TTL ?? 120 * 1000); // a stale waiter gives up its place (runtime-adjustable)
 // ── THE SLA (2026-09-17): the longest anyone waits is tracked, committed,
 // and kept as short as possible. A waiter who has been in line longer than
 // the SLA is pulled to the ABSOLUTE front (longest-waiting first), so the
 // guarantee is enforced by the schedule, not just reported. The target is a
 // floor — Heimdall aims as short as the box allows.
-const SLA_MAX_WAIT_MS = Number(process.env.ER7_SLA_MS ?? 120 * 1000); // 2 min by default
+let SLA_MAX_WAIT_MS = Number(process.env.ER7_SLA_MS ?? 120 * 1000); // 2 min by default (runtime-adjustable)
 export function slaOverMs(w) {
   return w?.enteredAt ? Date.now() - w.enteredAt - SLA_MAX_WAIT_MS : 0;
 }
@@ -396,16 +396,66 @@ const LOG_FILE = path.join(HERE, "heimdall-log.jsonl");
 const ts = () => new Date().toISOString();
 const log = (msg) => process.stderr.write(`[${ts()}] [heimdall] ${msg}\n`);
 
+// ── THE LIVE SINK (2026-09-20): what Heimdall is seeing, broadcast ────────
+// The append-only ledger is the record; the live sink is the shadow that
+// rides beside it so a surface can show the watcher's acts the moment they
+// land. The ledger writes FIRST — a broadcast failure never touches the
+// record, and a dead sink is dropped, never fatal. The proxy subscribes
+// here to serve GET /heimdall/live (a stream of the same rows the ledger
+// keeps, plus status snapshots on a short cadence).
+const liveSinks = new Set();
+export function onLog(fn) {
+  liveSinks.add(fn);
+  return () => liveSinks.delete(fn);
+}
+// A SECOND, live-only sink (2026-09-20): real traffic that is worth showing in
+// real time but NOT worth a ledger line per event — a finished call's own
+// counters. The watch surface streams these so the bridge carries what really
+// passed through; they are never persisted (the ledger keeps FINDINGS, not
+// every call), so the record's character does not change.
+const liveOnlySinks = new Set();
+export function onLive(fn) {
+  liveOnlySinks.add(fn);
+  return () => liveOnlySinks.delete(fn);
+}
+export function emitLive(ev) {
+  const row = { at: ts(), ...ev };
+  for (const fn of liveOnlySinks) { try { fn(row); } catch {} }
+}
+
 function appendLog(entry) {
+  const row = { at: ts(), ...entry };
   try {
     fs.mkdirSync(path.dirname(LOG_FILE), { recursive: true });
-    fs.appendFileSync(LOG_FILE, JSON.stringify({ at: ts(), ...entry }) + "\n", "utf8");
+    fs.appendFileSync(LOG_FILE, JSON.stringify(row) + "\n", "utf8");
   } catch { /* the log must never crash the watcher */ }
+  for (const fn of liveSinks) { try { fn(row); } catch {} }
 }
 
 export function logTail(n = 12) {
   try {
     return fs.existsSync(LOG_FILE) ? fs.readFileSync(LOG_FILE, "utf8").trim().split("\n").slice(-n) : [];
+  } catch { return []; }
+}
+/** The ledger, parsed, for a filterable view: the last n rows as objects.
+ *  A `filter` ({key|surface|model|sessionId|finding}) selects one THREAD — the
+ *  rows that share an identity — so a reader can pull the whole story. */
+export function logLines(n = 400, filter = null) {
+  try {
+    if (!fs.existsSync(LOG_FILE)) return [];
+    const all = fs.readFileSync(LOG_FILE, "utf8").trim().split("\n").filter(Boolean);
+    const take = Math.max(1, Math.min(8000, Number(n) || 400));
+    let arr = all.slice(-take).map((l) => { try { return JSON.parse(l); } catch { return { at: null, act: "?", raw: l }; } });
+    if (filter && typeof filter === "object") {
+      const eq = (a, b) => String(a ?? "") === String(b ?? "");
+      arr = arr.filter((r) =>
+        (!filter.key || eq(r.key, filter.key)) &&
+        (!filter.surface || eq(r.surface, filter.surface)) &&
+        (!filter.model || eq(r.model, filter.model)) &&
+        (!filter.sessionId || eq(r.sessionId, filter.sessionId)) &&
+        (!filter.finding || eq(r.finding, filter.finding)));
+    }
+    return arr;
   } catch { return []; }
 }
 
@@ -768,9 +818,40 @@ function reforgeSurface(surf) {
   const env = { ...process.env, ...restartEnvFor(surf.name) };
   log(`REC — ${surf.name} down (${surf.reason}); re-forging: ${surf.cmd}`);
   appendLog({ act: "rec", surface: surf.name, family: surf.family, reason: surf.reason, cmd: surf.cmd });
+  // Capture the child's own stdout/stderr to state/reforge-<name>.log — a
+  // re-forge that dies silently (a bad cwd, a wrong arg, an instant exit) is
+  // otherwise invisible, which is exactly the fold-8819/8837 mystery: the
+  // spawn happens and nothing listens. The death is now on the record.
+  let out = "ignore";
+  try { fs.mkdirSync(path.join(HERE, "state"), { recursive: true }); out = fs.openSync(path.join(HERE, "state", `reforge-${surf.name}.log`), "a"); } catch { /* fall back to ignore */ }
   const [cmd0, ...rest] = surf.cmd.split(/\s+/);
-  const child = spawn(cmd0, rest, { cwd: surf.cwd, env, detached: true, stdio: "ignore" });
+  let child;
+  try { child = spawn(cmd0, rest, { cwd: surf.cwd, env, detached: true, stdio: out === "ignore" ? "ignore" : ["ignore", out, out] }); }
+  catch (err) { appendLog({ act: "eva", finding: "reforge_spawn_error", surface: surf.name, error: err.message }); return; }
+  child.on("error", (err) => appendLog({ act: "eva", finding: "reforge_spawn_error", surface: surf.name, error: err.message }));
+  child.on("exit", (code, signal) => appendLog({ act: "eva", finding: "reforge_child_exit", surface: surf.name, pid: child.pid, code, signal: signal ?? null, cmd: surf.cmd }));
   child.unref();
+}
+
+// ── MANUAL RESTART — the operator asks, by name (2026-09-20) ──────────────
+// The same REC the watcher runs on a measured breakdown, now on the
+// operator's word. The SAME walls hold: never the self (a proxy cannot
+// re-forge itself), and never a restart storm (bounded per window — the
+// storm is itself a finding, so a person cannot make a loop of it either).
+// Every manual re-forge lands on the ledger, tagged as such.
+export function restartSurface(name) {
+  const surf = surfaces.find((s) => s.name === String(name ?? "").trim());
+  if (!surf) return { ok: false, error: `no such surface: ${name}` };
+  if (selfPort != null && surf.port === selfPort) return { ok: false, error: `${surf.name} is this proxy itself — a proxy cannot re-forge itself; restart the process` };
+  const now = Date.now();
+  surf.restartTimes = surf.restartTimes.filter((t) => now - t < RESTART_WINDOW_MS);
+  if (surf.restartTimes.length >= MAX_RESTARTS) {
+    return { ok: false, error: `restart storm: ${surf.restartTimes.length} in ${Math.round(RESTART_WINDOW_MS / 60000)}min — refusing (raise maxRestarts to allow more)` };
+  }
+  surf.restartTimes.push(now);
+  reforgeSurface(surf);
+  appendLog({ act: "rec", finding: "manual_restart", surface: surf.name, cmd: surf.cmd, key: "operator", giver: "heimdall", standing: "disclosed" });
+  return { ok: true, surface: surf.name, cmd: surf.cmd, restartsInWindow: surf.restartTimes.length, note: `re-forging ${surf.name} — ${surf.cmd}` };
 }
 
 // ── DEF: the void we watch ───────────────────────────────────────────────
@@ -803,8 +884,9 @@ const execOut = (cmd, args, ms) => new Promise((resolve) => {
 // (file cache) are reported separately — reclaimable, but reclaiming 5GB
 // under pressure is itself a stall, so the pressure signal reads FREE only.
 // Floor env: ER7_MEM_FLOOR_MB (default 512 — below this, no large load lands).
-const MEM_FLOOR_MB = Number(process.env.ER7_MEM_FLOOR_MB ?? 512);
-const MEM_GATE_ON = (process.env.ER7_MEM_GATE ?? "1") !== "0";
+let MEM_FLOOR_MB = Number(process.env.ER7_MEM_FLOOR_MB ?? 512); // runtime-adjustable
+let SWAP_CEIL_PCT = Number(process.env.ER7_SWAP_CEIL ?? 85); // swap above this is a concern (runtime-adjustable)
+let MEM_GATE_ON = (process.env.ER7_MEM_GATE ?? "1") !== "0"; // runtime-adjustable
 async function collectMemHeadroom() {
   const out = await execOut("vm_stat", [], 3000);
   if (!out) return { memFreeMb: null, memInactiveMb: null };
@@ -818,15 +900,66 @@ async function collectMemHeadroom() {
   const free = num("Pages free");
   const speculative = num("Pages speculative");
   const inactive = num("Pages inactive");
+  const compressor = num("Pages occupied by compressor");
+  const swapins = num("Swapins");
+  const swapouts = num("Swapouts");
   return {
     memFreeMb: toMb(free == null ? null : free + (speculative ?? 0)),
     memInactiveMb: toMb(inactive),
+    memAvailableMb: toMb((free ?? 0) + (speculative ?? 0) + (inactive ?? 0)),
+    memCompressorMb: toMb(compressor),
+    swapInPages: swapins,
+    swapOutPages: swapouts,
   };
 }
+// SWAP CHURN — the LIVE signal. A high swap LEVEL is history (macOS never
+// moves pages back on its own); swap OUT pages per second is whether the box
+// is thrashing RIGHT NOW. High and flat is fine; churn is what costs.
+let _swapPrev = null;
+function swapRates(swapIn, swapOut) {
+  const now = Date.now();
+  let inPerS = null, outPerS = null;
+  if (_swapPrev && swapIn != null && swapOut != null) {
+    const dt = Math.max(0.5, (now - _swapPrev.at) / 1000);
+    inPerS = Math.max(0, Math.round(((swapIn - _swapPrev.in) / dt) * 10) / 10);
+    outPerS = Math.max(0, Math.round(((swapOut - _swapPrev.out) / dt) * 10) / 10);
+  }
+  if (swapIn != null && swapOut != null) _swapPrev = { in: swapIn, out: swapOut, at: now };
+  return { inPerS, outPerS };
+}
+let SWAP_CHURN_PPS = Number(process.env.ER7_SWAP_CHURN_PPS ?? 100); // pages/s out = thrashing (runtime-adjustable)
+// Swap is the honest pressure signal on macOS: "free" is always low (the OS
+// keeps cache), but swap filling up means the box is THRASHING — that is what
+// "maxed out" looks like, and why load is high while CPU sits idle.
+async function readSwap() {
+  const out = await execOut("sysctl", ["-n", "vm.swapusage"], 3000);
+  if (!out) return {};
+  const total = Number((/total = ([\d.]+)M/.exec(out) || [])[1]);
+  const used = Number((/used = ([\d.]+)M/.exec(out) || [])[1]);
+  if (!Number.isFinite(total) || !Number.isFinite(used)) return {};
+  return { swapTotalMb: Math.round(total), swapUsedMb: Math.round(used), swapPct: Math.round((100 * used) / Math.max(1, total)) };
+}
 export function memoryPressured(vitals, floorMb = MEM_FLOOR_MB) {
-  const free = vitals?.memFreeMb;
-  if (free == null) return false; // unknown is never a conviction
-  return free < floorMb;
+  if (!vitals) return false; // unknown is never a conviction
+  // SWAP LEVEL is a stale watermark on macOS (it drains only on reboot) — a
+  // box that once peaked reads "full" forever. The live signal is CHURN
+  // (pages swapped out per second): high and flat is fine; thrashing is what
+  // costs. Convicting on the level alone stood the residency holon down for
+  // days and refused every non-resident load on a healthy box, so every
+  // evicted model paid a cold load — measured: calls 500'd with "fetch
+  // failed" while the daemon answered the same resident model in 1.3s.
+  const churn = vitals.swapOutPerS ?? null;
+  if (churn != null && churn >= SWAP_CHURN_PPS) return true;
+  // Judge on AVAILABLE memory (free + reclaimable inactive), never on "free"
+  // alone — free excludes the cache the box can give back on demand.
+  const avail = vitals.memAvailableMb ?? vitals.memFreeMb;
+  if (avail != null && avail < floorMb) return true;
+  // Truly out of free pages is still admission-grade (the 2026-09-19 lesson:
+  // a 9GB load with ~47MB free hung 120s+ — reclaimable cache was not free
+  // enough to load into).
+  const free = vitals.memFreeMb ?? null;
+  if (free != null && free < 256) return true;
+  return false;
 }
 
 async function collectFastVitals() {
@@ -871,6 +1004,12 @@ async function collectFastVitals() {
     const mem = await collectMemHeadroom();
     v.memFreeMb = mem.memFreeMb;
     v.memInactiveMb = mem.memInactiveMb;
+    v.memAvailableMb = mem.memAvailableMb;
+    v.memCompressorMb = mem.memCompressorMb;
+    v.swapInPages = mem.swapInPages; v.swapOutPages = mem.swapOutPages;
+    const r = swapRates(mem.swapInPages, mem.swapOutPages);
+    v.swapInPerS = r.inPerS; v.swapOutPerS = r.outPerS;
+    Object.assign(v, await readSwap());
   } catch { /* keep last good */ }
   return v;
 }
@@ -912,10 +1051,14 @@ export const isBoxSaturated = boxSaturated;
 // never a promise, always an honest estimate ("~N request(s) ahead, each
 // roughly M seconds").
 let lastTurnMs = 20000; // seed: a realistic single turn until real ones land
+let lastTurnActualMs = null; // the last MEASURED prompt→response wall time (this door)
+let turnSamples = 0;
 const TURN_MS_SEED = 20000;
 const TURN_MS_FLOOR = 5000;
-function recordTurnMs(ms) {
+export function recordTurnMs(ms) {
   if (!Number.isFinite(ms) || ms <= 0) return;
+  lastTurnActualMs = Math.round(ms);
+  turnSamples++;
   lastTurnMs = Math.round(0.6 * lastTurnMs + 0.4 * ms); // EWMA
 }
 function etaFor(workAhead) {
@@ -938,6 +1081,8 @@ export function disclosure() {
     queue: {
       workAhead,
       perTurnMs: eta.perTurnMs,
+      lastMs: lastTurnActualMs,
+      samples: turnSamples,
       etaMs: eta.etaMs,
       etaHuman: eta.etaMs ? `${Math.round(eta.etaMs / 1000)}s` : "now",
       // the live line, head first — who is waiting and where each sits
@@ -964,7 +1109,17 @@ export function disclosure() {
     memory: {
       freeMb: v.memFreeMb ?? null,
       inactiveMb: v.memInactiveMb ?? null,
+      availableMb: v.memAvailableMb ?? null,
+      compressorMb: v.memCompressorMb ?? null,
+      swapUsedMb: v.swapUsedMb ?? null,
+      swapTotalMb: v.swapTotalMb ?? null,
+      swapPct: v.swapPct ?? null,
+      swapInPerS: v.swapInPerS ?? null,
+      swapOutPerS: v.swapOutPerS ?? null,
+      swapChurnCeil: SWAP_CHURN_PPS,
+      thrashing: v.swapOutPerS != null && v.swapOutPerS >= SWAP_CHURN_PPS,
       floorMb: MEM_FLOOR_MB,
+      swapCeilPct: SWAP_CEIL_PCT,
       pressured: memoryPressured(v),
       rule: `a model that is not already resident is refused fast (typed 503, never a hang) while free pages sit below ${MEM_FLOOR_MB}MB — a load attempted there hung for 120–420s (large) and ~290s in total silence (gemma2:2b evict-and-swap) and poisoned the session behind it. Size is no exemption: any load evicts.`,
     },
@@ -1088,10 +1243,6 @@ const MODEL_QUIRKS = Object.freeze({
     systemRole: "hangs",
     note: "fold the instruction into the user turn — the system role is a template hallucination, not a feature",
   }),
-  "hf.co/allenai/OLMo-2-0425-1B-Instruct-GGUF:latest": Object.freeze({
-    defaultWindow: "huge",
-    note: "always declare num_ctx (2048 loads in ~3.5s; the default window takes minutes and can hang)",
-  }),
 });
 
 /** The declared quirks for a model, or null — the bridge's own record. */
@@ -1138,7 +1289,54 @@ export function observeCall({ model, promptTokens = 0, promptMs = 0, genTokens =
     t.promptRate = t.promptRate == null ? rate : EWMA * rate + (1 - EWMA) * t.promptRate;
   }
   throughput.set(model, t);
+  if (_turn && !ungated) {
+    // TURN PHASES (experiment E1): attribute this call's own timings to the
+    // turn that is running, so "where the time goes" is measured, not argued.
+    _turn.draws += 1;
+    _turn.loadMs += loadMs || 0; _turn.promptMs += promptMs || 0; _turn.genMs += genMs || 0;
+    _turn.promptTokens += promptTokens || 0; _turn.genTokens += genTokens || 0;
+  } else if (_turn && ungated) { _turn.remote += 1; }
+  emitLive({ act: "call", model, promptTokens, genTokens, genMs, promptMs, reloaded: loadMs > 100, ungated: !!ungated, upstream: upstream ?? null });
   return t;
+}
+
+// ── TURN PHASES (E1) — the instrument every speed experiment reads from ───
+// One row per turn: how many draws, and how the wall time split across model
+// LOAD, PROMPT eval, and GENERATION. Falsifier: if genMs is <30% of wallMs on
+// real turns, the token levers are the wrong ones (prompt/load is the target).
+let _turn = null;
+let _turnSeq = 0;
+const TURN_PHASES = [];
+export function beginTurn({ sessionId = null, model = null } = {}) {
+  _turn = { id: ++_turnSeq, sessionId, model, startAt: Date.now(), draws: 0, loadMs: 0, promptMs: 0, genMs: 0, promptTokens: 0, genTokens: 0, remote: 0 };
+  return _turn.id;
+}
+export function endTurn(id) {
+  if (!_turn || _turn.id !== id) return null;
+  const t = _turn; _turn = null;
+  t.wallMs = Date.now() - t.startAt;
+  t.genPct = t.wallMs ? Math.round((100 * t.genMs) / t.wallMs) : null;
+  t.at = new Date().toISOString();
+  TURN_PHASES.push(t); if (TURN_PHASES.length > 300) TURN_PHASES.shift();
+  appendLog({ act: "crossing", finding: "turn_phases", sessionId: t.sessionId, model: t.model, draws: t.draws, loadMs: t.loadMs, promptMs: t.promptMs, genMs: t.genMs, wallMs: t.wallMs, genPct: t.genPct, promptTokens: t.promptTokens, genTokens: t.genTokens, remote: t.remote });
+  return t;
+}
+// The mechanism-match instrument (the falsifier for the "skip generation" claim):
+// every time a mechanism settles a real task, its match lands on the ledger. A
+// WRONG settled mechanism on a real task shows up here — which is exactly what
+// would prove a blanket skip unsafe.
+export function noteMechanism({ mechanism = null, kind = null, winner = null, task = null } = {}) {
+  appendLog({ act: "crossing", finding: "mechanism_match", mechanism, kind, winner, task: String(task ?? "").slice(0, 140) });
+}
+
+export function phaseStats() {
+  const byModel = {};
+  for (const t of TURN_PHASES) {
+    const k = t.model || "?";
+    const m = byModel[k] ?? (byModel[k] = { model: k, turns: 0, draws: 0, loadMs: 0, promptMs: 0, genMs: 0, wallMs: 0, genTokens: 0 });
+    m.turns++; m.draws += t.draws; m.loadMs += t.loadMs; m.promptMs += t.promptMs; m.genMs += t.genMs; m.wallMs += t.wallMs; m.genTokens += t.genTokens;
+  }
+  return { turns: TURN_PHASES.length, recent: TURN_PHASES.slice(-20), byModel: Object.values(byModel) };
 }
 
 /** What a model is doing lately: rates, totals, and how often it reloaded. */
@@ -1322,7 +1520,7 @@ const REAP_MS = Number(process.env.ER7_REAP_CADENCE ?? 5 * 60 * 1000);
 const REAP_SERVE_GRACE_MS = Number(process.env.ER7_REAP_SERVE_GRACE ?? 10 * 60 * 1000);
 const REAP_TEST_AGE_MS = Number(process.env.ER7_REAP_TEST_AGE ?? 2 * 60 * 60 * 1000);
 const REAP_MAX_KILLS = Number(process.env.ER7_REAP_MAX_KILLS ?? 5);
-const REAP_KILL_ON = (process.env.ER7_REAP_OFF ?? "0") !== "1";
+let REAP_KILL_ON = (process.env.ER7_REAP_OFF ?? "0") !== "1"; // runtime-adjustable
 
 /** Parse a `ps` etime ([dd-]hh:mm:ss) to seconds, or null when it is not a time. */
 export function parseEtime(s) {
@@ -1433,6 +1631,180 @@ export function reapBackground({ strays = [], kill = () => false, maxKills = REA
   }
   for (const [pid, at] of termed) if (now - at > 3600000) termed.delete(pid); // forget stale TERM records
   return { termed: termedOut, killed, gone, skipped, at: new Date(now).toISOString() };
+}
+
+const safePids = (byPid) => {
+  const safe = new Set([process.pid]);
+  let anc = byPid.get(process.pid)?.ppid;
+  while (anc != null && anc > 1 && !safe.has(anc)) { safe.add(anc); anc = byPid.get(anc)?.ppid; }
+  return safe;
+};
+/** The background tasks an operator can see and, by name, end. The reaper's
+ *  OWN walls hold: the self, every ancestor, and pid 1 are protected — a task
+ *  view that can kill its own parent is a loaded gun at its own head. */
+export async function backgroundTasks() {
+  const rows = await readProcessTable();
+  const census = censusBackground(rows);
+  const strayPids = new Set(census.strays.map((s) => s.pid));
+  const byPid = new Map(rows.map((r) => [r.pid, r]));
+  const safe = safePids(byPid);
+  // Only real background jobs — node/python/ollama runners and the known
+  // server scripts — never an app bundle that merely has "node_modules" in a path.
+  const isTask = (args) => {
+    if (/^\/(Applications|System|Library|usr\/lib)\//.test(args)) return false;
+    const exe = args.trim().split(/\s+/)[0].split("/").pop();
+    if (/^(node|python3?|ollama|llama-server|deno|bun|ruby|uvicorn|gunicorn)$/.test(exe)) return true;
+    return /(serve\.mjs|proxy\.mjs|explore-server\.mjs|heimdall-fleet\.mjs|kotva|\bfold\b)/.test(args);
+  };
+  const interesting = rows.filter((r) => r.pid > 1 && isTask(String(r.args ?? "")));
+  return {
+    rowsRead: census.rowsRead ?? rows.length,
+    strays: census.strays, contested: census.contested, herds: census.herds,
+    tasks: interesting.sort((a, b) => (b.rssKb || 0) - (a.rssKb || 0)).map((r) => ({
+      pid: r.pid, ppid: r.ppid, ageS: r.ageS, rssMb: Math.round((r.rssKb || 0) / 1024), args: r.args.slice(0, 200),
+      self: r.pid === process.pid, protected: r.pid === 1 || safe.has(r.pid), stray: strayPids.has(r.pid),
+    })),
+  };
+}
+/** Unload one resident model now (Ollama keep_alive:0) — frees its weights +
+ *  KV cache. The operator's and the reporter's hand on "available". */
+export async function evictModel(name) {
+  const m = String(name || "").trim();
+  if (!m) return { ok: false, error: "name required" };
+  try {
+    const r = await fetch(`${OLLAMA_URL}/api/generate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ model: m, keep_alive: 0 }), signal: AbortSignal.timeout(8000) });
+    if (!r.ok) return { ok: false, error: `ollama HTTP ${r.status}` };
+  } catch (e) { return { ok: false, error: e.message }; }
+  appendLog({ act: "rec", finding: "model_evicted", model: m, key: "heimdall", giver: "heimdall", standing: "disclosed" });
+  return { ok: true, model: m, note: `${m} unloaded` };
+}
+
+// ── SYSTEM REPORTS — a surface flags an issue, Heimdall fixes its path ─────
+// Any system (a fold surface, the fleet, an agent, a caller) may report a
+// blocked or broken path. Heimdall DEFs it on the ledger, then TRIES the path
+// within the same REC walls as his own acts: a named surface is re-forged
+// (never the self, never a storm); memory pressure is relieved by evicting the
+// largest idle model; a refused model is checked against the servable set. If
+// nothing here can fix it, the report is ESCALATED — never silently dropped.
+export async function handleReport({ from = "unknown", issue = "", kind = "", detail = "", need = null } = {}) {
+  const text = `${issue} ${kind} ${detail} ${need ?? ""}`.toLowerCase();
+  appendLog({ act: "def", finding: "system_report", from: String(from).slice(0, 60), issue: String(issue).slice(0, 200), kind: kind || null, detail: String(detail).slice(0, 300) });
+  const vt = cachedVitals() || {};
+  const attempts = [];
+  let fixed = false;
+
+  // 1) a named surface is the path → re-forge it (bounded by restartSurface's walls)
+  const named = surfaces.find((s) => s.name && text.includes(String(s.name).toLowerCase()));
+  const surfaceish = /\b(surface|unreachable|down|refus|connect|proxy|fold|bridge|\b5\d\d\b)\b/.test(text) || kind === "surface" || need === "surface";
+  if (named && surfaceish) {
+    const r = restartSurface(named.name);
+    attempts.push({ action: `restart ${named.name}`, ...r });
+    fixed = r.ok;
+  } else if (surfaceish) {
+    attempts.push({ action: "probe surfaces", up: surfaces.filter((s) => s.up === true).length, total: surfaces.length, surfaces: surfaces.map((s) => ({ name: s.name, up: s.up, reason: s.reason })) });
+  }
+
+  // 2) memory / swap pressure → free the path: evict the largest idle model
+  const memish = /\b(memory|swap|ram|oom|pressure|avail)\b/.test(text) || kind === "memory";
+  if (memish) {
+    const loaded = Array.isArray(loadedModels()) ? loadedModels() : [];
+    const biggest = [...loaded].sort((a, b) => (b.size_vram || b.size || 0) - (a.size_vram || a.size || 0))[0];
+    if (biggest && (vt.swapPct ?? 0) >= SWAP_CEIL_PCT) {
+      const nm = biggest.name || biggest.model;
+      const r = await evictModel(nm);
+      attempts.push({ action: `evict ${nm}`, ...r });
+      fixed = fixed || r.ok;
+    }
+    attempts.push({ note: "swap is sticky: freeing RAM does not lower the swap LEVEL; only quitting apps or a reboot drains it. Churn (pg/s out) is the live signal, not the level." });
+  }
+
+  // 3) a refused / unservable model → name what can answer instead
+  const modelish = /\b(model|ollama|load|unservable|dropped|hung|timeout|first byte)\b/.test(text) || kind === "model";
+  if (modelish) {
+    const un = (servableDisclosure().unservable || []).map((u) => u.model);
+    attempts.push({ action: "servable", dropped: un, resid: (Array.isArray(loadedModels()) ? loadedModels() : []).map((m) => m.name) });
+  }
+
+  if (!attempts.length) attempts.push({ note: "no path matched the report — escalate to the operator" });
+  const outcome = fixed ? "path_fixed" : attempts.some((a) => a.ok) ? "path_attempted" : "path_escalated";
+  appendLog({ act: fixed ? "rec" : "eva", finding: outcome, from: String(from).slice(0, 60), actions: attempts.map((a) => a.action || "note").slice(0, 4) });
+  return {
+    from, issue: String(issue).slice(0, 200), fixed, outcome, attempts,
+    disclosure: { giver: "heimdall", standing: "disclosed", rule: "a reported path issue is DEF'd on the ledger, then re-forged within the REC walls (never the self, never a storm); if no path can be fixed from here, the report is ESCALATED, never silently dropped" },
+  };
+}
+export async function killTask(pid) {
+  pid = Number(pid);
+  if (!Number.isInteger(pid) || pid <= 1) return { ok: false, error: "refusing pid 1 / invalid pid" };
+  const rows = await readProcessTable();
+  const byPid = new Map(rows.map((r) => [r.pid, r]));
+  if (safePids(byPid).has(pid)) return { ok: false, error: `refusing ${pid} — it is this process or one of its parents` };
+  const row = byPid.get(pid);
+  if (!row) return { ok: false, error: `no such pid: ${pid}` };
+  try { process.kill(pid, "SIGTERM"); } catch (e) { return { ok: false, error: `kill failed: ${e.message}` }; }
+  appendLog({ act: "rec", finding: "manual_kill", pid, args: row.args.slice(0, 160), key: "operator", giver: "heimdall", standing: "disclosed" });
+  return { ok: true, pid, signal: "SIGTERM", note: `sent SIGTERM to ${pid} (${row.args.slice(0, 80)})` };
+}
+
+// The apps Heimdall will never quit on his own: the system UI, the model
+// server, the browser holding the watch surface, and every `node`/opencode
+// process (the surface's proxy, this session's host, the fold/fleet servers).
+const NEVER_QUIT = /WindowServer|kernel_task|launchd|loginwindow|\bDock\b|Finder|SystemUIServer|ControlCenter|NotificationCenter|coreaudiod|bluetoothd|ollama serve|llama-server|Ollama\.app|Brave Browser|Google Chrome|Chromium|Safari|Firefox|Microsoft Edge|Arc|Comet|Chrome Helper|WebKit|WebContent|\bnode\b|opencode|OpenCode|\bCode Helper\b|electron\.app/i;
+
+/** SPECIAL: quit the biggest memory-hog processes so RAM AND its swapped pages
+ *  are released — the only lever that drains swap short of a reboot. Gated by
+ *  the `quitHogs` setting; the same walls as killTask hold (never the self,
+ *  never an ancestor, never pid 1), plus: never the system UI, never the model
+ *  server. Every quit is ledgered. */
+export async function quitMemoryHogs({ max = 4 } = {}) {
+  if (!QUIT_HOGS_ON) return { ok: false, enabled: false, error: 'the quitHogs setting is OFF — enable it first: "set quitHogs on"' };
+  const rows = await readProcessTable().catch(() => []);
+  const byPid = new Map(rows.map((r) => [r.pid, r]));
+  const safe = safePids(byPid);
+  const SKIP = NEVER_QUIT;
+  const hogs = rows
+    .filter((r) => r.pid > 1 && !safe.has(r.pid) && !SKIP.test(String(r.args || "")))
+    .map((r) => ({ pid: r.pid, rssMb: Math.round((r.rssKb || 0) / 1024), args: String(r.args || "") }))
+    .sort((a, b) => b.rssMb - a.rssMb)
+    .slice(0, Math.max(1, Math.min(12, Number(max) || 4)));
+  const quit = [];
+  for (const h of hogs) {
+    try {
+      process.kill(h.pid, "SIGTERM");
+      quit.push(h);
+      appendLog({ act: "rec", finding: "hog_quit", pid: h.pid, rssMb: h.rssMb, args: h.args.slice(0, 120), key: "operator", giver: "heimdall", standing: "disclosed" });
+    } catch (e) { appendLog({ act: "eva", finding: "hog_quit_failed", pid: h.pid, error: e.message }); }
+  }
+  const freedMb = quit.reduce((a, h) => a + h.rssMb, 0);
+  return { ok: true, enabled: true, quit, freedMb, note: `asked ${quit.length} memory hog(s) (~${freedMb}MB resident) to quit — quitting releases RAM AND its swapped pages, the only way to drain swap without a reboot` };
+}
+
+/** SPECIAL: quit ANY user app (all of them, not just the top hog), keeping the
+ *  surface (browser + proxy), this session's host, the model server, and the
+ *  system. Gated by the `quitApps` setting (off by default). Every quit is
+ *  ledgered. `keepSurface:false` would quit the browser and node too — the
+ *  surface's own tab included. */
+export async function quitApps({ keepSurface = true, max = 60 } = {}) {
+  if (!QUIT_APPS_ON) return { ok: false, enabled: false, error: 'the quitApps setting is OFF — enable it first: "set quitApps on"' };
+  const rows = await readProcessTable().catch(() => []);
+  const byPid = new Map(rows.map((r) => [r.pid, r]));
+  const safe = safePids(byPid);
+  const keep = (r) => r.pid <= 1 || safe.has(r.pid) || /^\/(System|usr|sbin)\//.test(String(r.args || "")) || (keepSurface && NEVER_QUIT.test(String(r.args || "")));
+  const apps = rows
+    .filter((r) => !keep(r))
+    .map((r) => ({ pid: r.pid, rssMb: Math.round((r.rssKb || 0) / 1024), args: String(r.args || "") }))
+    .sort((a, b) => b.rssMb - a.rssMb)
+    .slice(0, Math.max(1, Math.min(200, Number(max) || 60)));
+  const quit = [];
+  for (const h of apps) {
+    try {
+      process.kill(h.pid, "SIGTERM");
+      quit.push(h);
+      appendLog({ act: "rec", finding: "app_quit", pid: h.pid, rssMb: h.rssMb, args: h.args.slice(0, 120), key: "operator", giver: "heimdall", standing: "disclosed" });
+    } catch (e) { appendLog({ act: "eva", finding: "app_quit_failed", pid: h.pid, error: e.message }); }
+  }
+  const freedMb = quit.reduce((a, h) => a + h.rssMb, 0);
+  return { ok: true, enabled: true, quit, freedMb, note: `asked ${quit.length} app process(es) (~${freedMb}MB) to quit${keepSurface ? " — the surface, this session, the model server and the system were kept" : ""}` };
 }
 
 async function readProcessTable() {
@@ -1675,7 +2047,13 @@ async function tick() {
 // decisions for the local calls behind it.
 const UNGATED_SUBSTRINGS = String(process.env.ER7_UNGATED_ALLOW ?? "anthropic,claude,deepseek,opencode")
   .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+let FAST_PASS_ON = true; // runtime-adjustable: the remote (ungated) lane
+let QUIT_HOGS_ON = false; // SPECIAL setting (off): allow quitting memory-hog apps
+let QUIT_APPS_ON = false; // SPECIAL setting (off): allow quitting ANY app
+let PARALLELISM = Number(process.env.ER7_OLLAMA_PARALLEL ?? 2); // concurrent model calls (NUM_PARALLEL)
+export const currentParallelism = () => PARALLELISM; // the ceiling any concurrent draws respect
 export function isUngatedModel(model) {
+  if (!FAST_PASS_ON) return false;
   const bare = String(model ?? "").replace(/^er7:/, "").toLowerCase();
   if (!bare || bare === "unknown") return false;
   return UNGATED_SUBSTRINGS.some((sub) => sub === "*" || bare.includes(sub));
@@ -1723,6 +2101,513 @@ async function forwardTo(res, method, targetUrl, headers, body) {
   return { sentBytes, status: up.status };
 }
 
+// ── THE KNOBS — Heimdall's own settings, adjustable by his operator ───────
+// The operator can ask Heimdall (POST /heimdall/ask) to change a bounded set
+// of settings. Each knob has a type, a range, a plain-language "about", and
+// the live environment default it can be reset to. A change is validated,
+// applied to the live value the decisions already read, appended to the
+// ledger, and persisted — so it survives a restart and is always disclosed.
+const SETTINGS_FILE = path.join(HERE, "state", "heimdall-settings.json");
+const SETTINGS = {
+  // SPECIAL (off by default): permit Heimdall to QUIT the biggest memory-hog
+  // apps. Quitting is the only way to release RAM *and its swapped pages* —
+  // the lever nothing else here has. Apps may lose unsaved work, so it is a
+  // deliberate opt-in; every quit lands on the ledger, and the walls hold:
+  // never the self, never an ancestor, never pid 1, never the system UI or
+  // the model server.
+  quitHogs: { def: false, type: "bool", about: "SPECIAL: allow Heimdall to quit the biggest memory-hog apps to free RAM and drain swap (off by default; apps may lose unsaved work)", aliases: ["quit hogs", "quit memory hogs", "memory hogs", "kill hogs", "quit apps"] },
+  quitApps: { def: false, type: "bool", about: "SPECIAL: allow Heimdall to quit ANY app (all user apps, not just the top hog) — keeps the surface and system by default", aliases: ["quit apps", "quit all apps", "close all apps", "quit everything"] },
+  parallelism: { def: PARALLELISM, type: "int", min: 1, max: 8, about: "concurrent model calls the server runs at once (NUM_PARALLEL) — more helps BATCH throughput (many independent draws: essay sections, code sections, files), costs per-call latency; apply with \"restart the model server\"", aliases: ["parallelism", "num parallel", "parallel"] },
+  familyCap:    { def: FAMILY_CAP,  type: "int",  min: 0,  max: 64,   about: "max turns of one model family in flight at once (0 = unlimited)", aliases: ["family cap", "familycap"] },
+  retryAfterS:  { def: RETRY_AFTER_S, type: "int", min: 1, max: 600,   about: "seconds a refused caller is told to wait", aliases: ["retry after", "retryafter", "retry-after"] },
+  slaSeconds:   { def: Math.round(SLA_MAX_WAIT_MS / 1000), type: "int", min: 5, max: 3600, about: "the longest anyone should wait before being pulled to the front", aliases: ["sla", "sla seconds", "max wait"] },
+  memFloorMb:   { def: MEM_FLOOR_MB, type: "int", min: 64, max: 65536, about: "free MB below which a non-resident load is refused fast", aliases: ["memory floor", "mem floor"] },
+  memGate:      { def: MEM_GATE_ON, type: "bool", about: "refuse non-resident loads while memory is under the floor", aliases: ["memory gate", "mem gate"] },
+  passStock:    { def: PASS_STOCK,  type: "int",  min: 0,  max: 64,   about: "jump-the-cue passes minted per window", aliases: ["pass stock", "passes"] },
+  zipperJump:   { def: ZIPPER_JUMP, type: "int",  min: 0,  max: 32,   about: "places a pass may jump", aliases: ["zipper jump"] },
+  zipperDensity:{ def: ZIPPER_DENSITY, type: "int", min: 0, max: 32,  about: "pass-free admissions after a pass is redeemed", aliases: ["zipper density"] },
+  waiterTtlSeconds: { def: Math.round(WAITER_TTL_MS / 1000), type: "int", min: 10, max: 3600, about: "a quiet waiter gives up their place after this long", aliases: ["waiter ttl", "wait ttl"] },
+  maxRestarts:  { def: MAX_RESTARTS, type: "int", min: 0,  max: 32,   about: "re-forges allowed per surface in the window before the storm is a finding", aliases: ["max restarts", "restarts", "restart limit"] },
+  reapKill:     { def: REAP_KILL_ON, type: "bool", about: "whether the reaper may terminate strays (off = census only)", aliases: ["reap kill", "reaper", "reap"] },
+  checkIntervalSeconds: { def: Math.round(CHECK_INTERVAL_MS / 1000), type: "int", min: 5, max: 3600, about: "how often the watcher probes every surface", aliases: ["check interval", "probe interval", "cadence", "tick interval"] },
+  fastPass:     { def: true, type: "bool", about: "whether remote lanes skip the local queue", aliases: ["fast pass", "fastpass", "ungated", "remote lane"] },
+  swapCeilPct:  { def: SWAP_CEIL_PCT, type: "int", min: 50, max: 100, about: "swap level (%) that counts as pressure \u2014 refused only when also churning or starved", aliases: ["swap ceiling", "swap ceil", "swap limit"] },
+  swapChurnPps: { def: SWAP_CHURN_PPS, type: "int", min: 0, max: 5000, about: "swap-out pages/second that count as active thrashing", aliases: ["swap churn", "churn"] },
+};
+function applySetting(name, value, { persist = true } = {}) {
+  const key = canonicalSetting(name);
+  if (!key) return { ok: false, error: `no such setting: ${name}` };
+  const spec = SETTINGS[key];
+  const v = coerceSetting(value, spec);
+  if (v == null) return { ok: false, error: `bad value for ${key} (${spec.type}${spec.min != null ? ` ${spec.min}–${spec.max}` : ""}): ${value}` };
+  const from = settingValue(key);
+  switch (key) {
+    case "familyCap": FAMILY_CAP = v; break;
+    case "retryAfterS": RETRY_AFTER_S = v; break;
+    case "slaSeconds": SLA_MAX_WAIT_MS = v * 1000; break;
+    case "memFloorMb": MEM_FLOOR_MB = v; break;
+    case "memGate": MEM_GATE_ON = v; break;
+    case "passStock": PASS_STOCK = v; break;
+    case "zipperJump": ZIPPER_JUMP = v; break;
+    case "zipperDensity": ZIPPER_DENSITY = v; break;
+    case "waiterTtlSeconds": WAITER_TTL_MS = v * 1000; break;
+    case "maxRestarts": MAX_RESTARTS = v; break;
+    case "reapKill": REAP_KILL_ON = v; break;
+    case "checkIntervalSeconds": CHECK_INTERVAL_MS = v * 1000; selfDefenseIntervalMs = v * 1000; break;
+    case "fastPass": FAST_PASS_ON = v; break;
+    case "quitHogs": QUIT_HOGS_ON = v; break;
+    case "quitApps": QUIT_APPS_ON = v; break;
+    case "parallelism": PARALLELISM = v; break;
+    case "swapCeilPct": SWAP_CEIL_PCT = v; break;
+    case "swapChurnPps": SWAP_CHURN_PPS = v; break;
+    default: return { ok: false, error: `no such setting: ${key}` };
+  }
+  if (persist) saveSettings();
+  return { ok: true, setting: key, from, to: v };
+}
+function canonicalSetting(name) {
+  const n = String(name ?? "").toLowerCase().trim().replace(/[\s_-]+/g, " ");
+  if (!n) return null;
+  if (SETTINGS[n]) return n;
+  let best = null, bestLen = 0;
+  for (const [key, spec] of Object.entries(SETTINGS)) {
+    for (const al of [key.toLowerCase(), ...(spec.aliases || [])]) {
+      if (al.length > bestLen && n.includes(al)) { best = key; bestLen = al.length; }
+    }
+  }
+  return best;
+}
+function coerceSetting(value, spec) {
+  if (spec.type === "bool") {
+    if (typeof value === "boolean") return value;
+    const s = String(value ?? "").toLowerCase().trim();
+    if (["1", "true", "on", "yes", "enable", "enabled", "raise", "up"].includes(s)) return true;
+    if (["0", "false", "off", "no", "disable", "disabled", "down"].includes(s)) return false;
+    return null;
+  }
+  const n = Math.round(Number(String(value ?? "").match(/-?\d+/)?.[0]));
+  if (!Number.isFinite(n)) return null;
+  if (n < spec.min || n > spec.max) return null;
+  return n;
+}
+function settingValue(name) {
+  switch (name) {
+    case "familyCap": return FAMILY_CAP;
+    case "retryAfterS": return RETRY_AFTER_S;
+    case "slaSeconds": return Math.round(SLA_MAX_WAIT_MS / 1000);
+    case "memFloorMb": return MEM_FLOOR_MB;
+    case "memGate": return MEM_GATE_ON;
+    case "passStock": return PASS_STOCK;
+    case "zipperJump": return ZIPPER_JUMP;
+    case "zipperDensity": return ZIPPER_DENSITY;
+    case "waiterTtlSeconds": return Math.round(WAITER_TTL_MS / 1000);
+    case "maxRestarts": return MAX_RESTARTS;
+    case "reapKill": return REAP_KILL_ON;
+    case "checkIntervalSeconds": return Math.round(CHECK_INTERVAL_MS / 1000);
+    case "fastPass": return FAST_PASS_ON;
+    case "quitHogs": return QUIT_HOGS_ON;
+    case "quitApps": return QUIT_APPS_ON;
+    case "parallelism": return PARALLELISM;
+    case "swapCeilPct": return SWAP_CEIL_PCT;
+    case "swapChurnPps": return SWAP_CHURN_PPS;
+    default: return null;
+  }
+}
+function saveSettings() {
+  const out = {};
+  for (const key of Object.keys(SETTINGS)) {
+    const v = settingValue(key);
+    if (v !== SETTINGS[key].def) out[key] = v;
+  }
+  try { fs.mkdirSync(path.dirname(SETTINGS_FILE), { recursive: true }); fs.writeFileSync(SETTINGS_FILE, JSON.stringify(out, null, 2)); } catch { /* a failed save never breaks a change */ }
+}
+function loadSettings() {
+  try {
+    const o = JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf8"));
+    for (const [k, v] of Object.entries(o)) if (SETTINGS[k]) applySetting(k, v, { persist: false });
+  } catch { /* no file yet: the env defaults stand */ }
+}
+loadSettings();
+/** The knobs, disclosed: current value, default, range, and whether overridden. */
+export function heimdallSettings() {
+  return Object.entries(SETTINGS).map(([name, spec]) => {
+    const value = settingValue(name);
+    return { name, value, default: spec.def, type: spec.type, min: spec.min ?? null, max: spec.max ?? null, about: spec.about, overridden: value !== spec.def };
+  });
+}
+export function setHeimdallSetting(name, value, opts = {}) {
+  const r = applySetting(name, value, opts);
+  if (r.ok) appendLog({ act: "crossing", finding: "setting_changed", setting: r.setting, from: r.from, to: r.to, key: opts.key ?? "operator", giver: "heimdall", standing: "disclosed" });
+  return r;
+}
+
+// ── ASK HEIMDALL — the operator chat, confined to the bridge ──────────────
+// Heimdall answers for ONE domain: the watch. Surfaces, models, the line,
+// the box's vitals, where the efficiency is, his rules, his child watchers,
+// and his settings. He does not speak of anything else — the domain gate is
+// the ethos, and an off-domain ask gets a typed decline, never an invention.
+// His answers are his own DISCLOSED state, composed from GET /heimdall with
+// zero model tokens: he reports what he measures, and nothing he has not
+// measured. A setting ask is applied (validated, ledgered, persisted) and
+// confirmed. Every ask and answer lands on the ledger.
+const DOMAIN_HELP =
+  "I keep the bridge. Ask me of the surfaces, the models, the line, the box's breath, " +
+  "where the efficiency is, my rules, my child watchers, or my settings \u2014 and I will " +
+  "answer from what I have measured. I will not speak of anything else.";
+function askDisclosure() {
+  return { giver: "heimdall", standing: "disclosed", groundedIn: "GET /heimdall", tokens: 0 };
+}
+function fmtTokps(m) { return m.genTokPerSec == null ? "unmeasured" : `${m.genTokPerSec} tok/s (${Math.round(1000 / m.genTokPerSec)} ms/tok)`; }
+function efficiencyFindings() {
+  const d = disclosure();
+  const out = [];
+  const un = d.servable?.unservable || [];
+  if (un.length) out.push(`${un.length} model(s) dropped from the roster: ${un.map((u) => u.model).join(", ")} \u2014 they hung or timed out.`);
+  if (d.memory?.pressured) out.push(`memory is under the ${d.memory.floorMb}MB floor (${d.memory.freeMb}MB free) \u2014 a load would hang; free memory or serve resident models.`);
+  if (d.queue?.workAhead > 0) out.push(`the line is ${d.queue.workAhead} deep (~${d.queue.etaHuman}); batch work waits behind interactive by design.`);
+  if (d.saturated) out.push(`the box is pegged (CPU idle ${d.cpu?.idle ?? "?"}%) \u2014 throughput falls under contention; free headroom or route work off-box.`);
+  for (const m of throughputOf()) {
+    if (m.ungatedCalls) continue;
+    if (m.reloads) out.push(`${m.model} reloaded ${m.reloads}\u00d7 (${Math.round((m.reloadSeconds || 0) / m.reloads)}s each) \u2014 declare one num_ctx and warm with keep_alive to pay the load once.`);
+    if (m.genTokPerSec != null && m.genTokPerSec < 6) out.push(`${m.model} is at ${m.genTokPerSec} tok/s \u2014 it has run ~3.6\u00d7 faster on a free box.`);
+  }
+  return out;
+}
+// ── THE FACTS BRIEF — the grounded state every answer stands on ───────────
+// The watchman answers from what he measured. This brief is that measurement,
+// assembled once: the systems, the CRASH EVIDENCE from the ledger (so "why do
+// they keep crashing?" has real material), the models, the line, the box, and
+// the rules. It grounds both the mechanical answer and the framed turn.
+const CONCERN = new Set(["surface_down","restart_storm","self_down","unservable","unservable_refused","unservable_seeded","turned_no_answer","model_dropped","window_changed","forward_failed","first_byte_timeout","memory_pressured","saturated","rationed","claimed","bad_pass","zipper_held","setting_refused"]);
+function concernScan(limit = 500) {
+  const counts = {}, last = {};
+  for (const r of logLines(limit)) {
+    const f = r.finding; if (!f || !CONCERN.has(f)) continue;
+    counts[f] = (counts[f] || 0) + 1; last[f] = r;
+  }
+  return { counts, last };
+}
+async function buildFacts(st, d, sys) {
+  const L = [];
+  L.push(`SYSTEMS (source: ${sys.source}${sys.load != null ? `, load ${Number(sys.load).toFixed(1)}${sys.saturated ? " PEGGED" : ""}` : ""}):`);
+  for (const s of sys.surfaces) {
+    L.push(`- ${s.name} :${s.port} ${s.up === true ? "UP" : s.up === false ? (String(s.reason || "").startsWith("unverified") ? "UNVERIFIED" : "DOWN") : "NEVER PROBED"}`
+      + `${s.standing ? ` (${s.standing})` : ""}${s.saturated ? " saturated" : ""}${s.escalation ? ` escalation:${s.escalation}` : ""}${s.reason ? ` reason=${s.reason}` : ""}${s.restartsInWindow ? ` restarts=${s.restartsInWindow}` : ""}`);
+  }
+  const { counts, last } = concernScan();
+  const keys = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+  if (keys.length) {
+    L.push("CONCERNING (recent ledger findings, most frequent first):");
+    for (const k of keys.slice(0, 12)) {
+      const r = last[k];
+      L.push(`- ${k} \u00d7${counts[k]}\u2014 last: ${[r.surface, r.model, r.reason ? "reason=" + r.reason : null, r.message].filter(Boolean).join(" ") || "(no detail)"}`.replace("\u2014", " \u2014 "));
+    }
+  } else L.push("CONCERNING: nothing concerning in the recent ledger.");
+  const tp = throughputOf();
+  if (tp.length) {
+    L.push("MODELS:");
+    for (const m of tp) L.push(`- ${m.model}: ${m.calls} call(s), ${m.genTokPerSec == null ? "rate unmeasured" : m.genTokPerSec + " tok/s"}${m.reloads ? `, ${m.reloads} reload(s) avg ${Math.round((m.reloadSeconds || 0) / m.reloads)}s` : ""}${m.window ? `, window ${m.window}` : ""}${m.ungatedCalls ? `, ${m.ungatedCalls} ungated` : ""}`);
+    const un = d.servable?.unservable || [];
+    if (un.length) L.push(`- dropped (hung/timed out): ${un.map((u) => u.model).join(", ")}`);
+  }
+  // RAM — the live memory picture, so "how do we reduce RAM load?" has material
+  const v = st.vitals || {};
+  const procRows = await readProcessTable().catch(() => []);
+  const top = procRows.filter((r) => r.pid > 1)
+    .map((r) => ({ pid: r.pid, mb: Math.round((r.rssKb || 0) / 1024), cmd: String(r.args || "").split(/\s+/).slice(0, 3).join(" ").slice(0, 48) }))
+    .sort((a, b) => b.mb - a.mb).slice(0, 6);
+  L.push(`RAM: ${v.memAvailableMb ?? "?"}MB available (free ${v.memFreeMb ?? "?"}MB + reclaimable inactive), total ${v.memTotalMb ?? "?"}MB, compressor ${v.memCompressorMb ?? "?"}MB; SWAP ${v.swapUsedMb ?? "?"}MB / ${v.swapTotalMb ?? "?"}MB = ${v.swapPct ?? "?"}%${(v.swapPct ?? 0) >= 85 ? " \u2014 THRASHING" : ""}; floor ${d.memory?.floorMb}MB${d.memory?.pressured ? " \u2014 PRESSURED" : ""}.`);
+  L.push(`TOP MEMORY: ${top.map((t) => `${t.pid} ${t.mb}MB ${t.cmd}`).join(" | ")}`);
+  const resident = Array.isArray(st.ollamaModels) ? st.ollamaModels.map((m) => m.name || m.model) : null;
+  L.push(`RESIDENT MODELS: ${resident && resident.length ? resident.join(", ") : "none read"}.`);
+  L.push("LEVERS (what can be tuned): ollama OLLAMA_MAX_LOADED_MODELS (co-resident count) \u00b7 OLLAMA_KEEP_ALIVE (how long a model holds its RAM) \u00b7 per-model num_ctx (a bigger window = more RAM, and switching windows forces a reload) \u00b7 heimdall setting memFloorMb/memGate (refuses a non-resident load under the floor) \u00b7 fewer/smaller co-resident models \u00b7 /v1/models is the roster.");
+  L.push(`LINE: ${d.queue?.workAhead ?? 0} ahead, ETA ${d.queue?.etaHuman ?? "now"}; ${d.queue?.samples ? `last turn ${(d.queue.lastMs / 1000).toFixed(1)}s, avg ${(d.queue.perTurnMs / 1000).toFixed(1)}s over ${d.queue.samples}` : "no timed turn yet"}; SLA ${d.sla?.targetS}s, longest wait ${d.sla?.longestWaitS}s.`);
+  L.push(`BOX: load ${sys.load ?? "?"}, CPU ${d.cpu?.busy == null ? "unmeasured" : d.cpu.busy + "%"}, GPU ${d.gpu?.busy == null ? "unmeasured" : d.gpu.busy + "%"}, memory ${d.memory?.freeMb == null ? "unmeasured" : d.memory.freeMb + "MB"} (floor ${d.memory?.floorMb}MB)${d.memory?.pressured ? " PRESSURED" : ""}.`);
+  const rs = [...derivedRuleStore(), ...mintedRules()];
+  if (rs.length) L.push(`RULES: ${rs.map((r) => `${r.key || r.finding}=${r.standing}${r.count ? `(\u00d7${r.count})` : ""}`).join(", ")}.`);
+  return L.join("\n");
+}
+
+export async function heimdallAsk(ask, { caller = "anon", fleet = null } = {}) {
+  const text = String(ask ?? "").trim();
+  const at = ts();
+  if (!text) return { intent: "empty", answer: DOMAIN_HELP, refused: false, disclosure: askDisclosure() };
+  const lower = text.toLowerCase();
+  appendLog({ act: "eva", finding: "heimdall_ask", key: caller, ask: text.slice(0, 240) });
+
+  // An IMPERATIVE ("quit the memory hogs", "free memory", "close the apps") is
+  // an ACTION, not a setting query — it must not be swallowed by the quitHogs
+  // setting's aliases, which would otherwise just report the value.
+  if (/\b(quit|kill|close|free|drain)\b[\s\S]{0,24}\b(hogs?|memory|apps?|swap|everything)\b/.test(lower) && !/\b(set|what|value|range|default|describe|turn)\b/.test(lower)) {
+    const all = /\b(all|every|everything)\b/.test(lower);
+    const r = all ? await quitApps({ keepSurface: true }) : await quitMemoryHogs({ max: 4 });
+    const answer = r.ok
+      ? `Quit ${r.quit.length} ${all ? "app process(es)" : "hog(s)"} (~${r.freedMb}MB resident): ${r.quit.map((h) => `${h.pid} ${String(h.args).split(/\s+/)[0].split("/").pop()}`).join(", ") || "none"}. ${r.note}`
+      : r.error;
+    appendLog({ act: "crossing", finding: "heimdall_answer", key: caller, intent: all ? "quit_all_apps" : "hogs", ok: r.ok });
+    return { intent: all ? "quit_all_apps" : "hogs", answer, refused: !r.ok, disclosure: askDisclosure() };
+  }
+
+  // 1) a setting named → change it or report it
+  const setName = canonicalSetting(lower);
+  if (setName) {
+    const spec = SETTINGS[setName];
+    const hasValue = /\d/.test(lower) || /\b(on|off|true|false|enable|disable|enabled|disabled|yes|no|up|down)\b/.test(lower);
+    if (!hasValue) {
+      const v = settingValue(setName);
+      const answer = `${setName} = ${v}. Range ${spec.type === "bool" ? "on/off" : `${spec.min}\u2013${spec.max}`}. ${spec.about}.`;
+      appendLog({ act: "crossing", finding: "heimdall_answer", key: caller, intent: "setting_query", setting: setName, value: v });
+      return { intent: "setting", setting: setName, answer, refused: false, disclosure: askDisclosure() };
+    }
+    const valueToken = spec.type === "bool"
+      ? (lower.match(/\b(on|off|true|false|enable|disable|enabled|disabled|yes|no|up|down)\b/) || [])[0]
+      : (lower.match(/-?\d+/) || [])[0];
+    const r = setHeimdallSetting(setName, valueToken, { key: caller });
+    if (!r.ok) {
+      appendLog({ act: "eva", finding: "setting_refused", key: caller, setting: setName, value: valueToken });
+      return { intent: "setting", setting: setName, answer: `I cannot set ${setName} to ${valueToken}. ${r.error}.`, refused: true, disclosure: askDisclosure() };
+    }
+    const eff = { familyCap: "a full model family now refuses with a typed 429", slaSeconds: "the SLA target moved", memGate: "the memory gate is now " + (r.to ? "on" : "off"), reapKill: "the reaper is now " + (r.to ? "killing strays" : "census only"), fastPass: "the remote lane is now " + (r.to ? "open" : "closed"), checkIntervalSeconds: "the watcher's probe cadence moved" }[r.setting] || "the value moved";
+    const answer = `Done. ${r.setting}: ${r.from} \u2192 ${r.to}. ${eff}. Recorded on the ledger and persisted.`;
+    appendLog({ act: "crossing", finding: "heimdall_answer", key: caller, intent: "setting_change", setting: r.setting, from: r.from, to: r.to });
+    return { intent: "setting", setting: r.setting, applied: { from: r.from, to: r.to }, answer, refused: false, disclosure: askDisclosure() };
+  }
+
+  // 2) the domain gate: what is this ask about?
+  const H = {
+    modelserver: /\b(ollama|model server|model runner)\b[\s\S]{0,30}\b(restart|reboot|unwedge|revive|stuck|wedged|hang|dead|frozen)\b|\b(restart|reboot|unwedge|revive)\b[\s\S]{0,24}\b(ollama|model server|model runner)\b/,
+    surfaces: /\b(surface|surfaces|bridge|spans?|up|down|health|probe|unverified|er7|fold|running|active|serving|live|systems?|processes|servers?|procs?|what'?s (up|on|running)|what is running|who'?s (up|running))\b/,
+    models: /\b(model|models|ollama|token|tok\/s|throughput|reload|window|forge|generat|llm|weights)/,
+    hogs: /\b(memory hogs?|quit (the )?(memory )?hogs?|kill hogs|free (up )?(the )?memory|free memory|close (the )?apps?|quit apps?|drain swap)\b/,
+    timing: /\b(time|timing|how long|latency|response time|takes?|duration|per turn|turn time|how fast|milliseconds|seconds|prompt to response|delay)\b/,
+    queue: /\b(queue|line|wait|waiting|eta|sla|ration|pass(es)?|zipper|ahead|backlog)\b/,
+    vitals: /\b(cpu|gpu|memory|mem\b|load|box|saturat|vitals|breath|ram|pegged|headroom)/,
+    efficiency: /\b(efficien|slow|optim|speed|improv|bottleneck|cost|waste|faster|why.*(slow|wait))/,
+    rules: /\b(rules?|foresight|derived|learn|standing|control|conceded)/,
+    holons: /\b(holons?|child watchers?|the nine|watchers?)/,
+    reaper: /\b(reap|strays?|background process)/,
+    summary: /\b(status|report|overview|summary|how.*(going|things)|what.*(see|seeing|running|up|on)|state of|happening|going on|everything|overall|currently|right now|who is|what is)\b/,
+    help: /\b(help|what can you|what do you|commands?|settings list|list.*settings|what are the settings)\b/,
+  };
+  // NO KEYWORD MATCH IS NOT A REFUSAL. An open question about the bridge
+  // ("why do they keep crashing?") is exactly what a watchman must answer;
+  // the domain firewall now rides on the framed turn below, and the grounded
+  // facts gathered here are what it answers from. Only an empty ask declines.
+  const intent = Object.keys(H).find((k) => H[k].test(lower)) || "open";
+
+  const st = heimdallStatus();
+  const d = st.disclosure || {};
+  // The system, merged: an external fleet's peer mesh is the real health of
+  // every active eoreader-affecting process; without it, this proxy's own
+  // (maybe unprobed) surfaces. Heimdall answers from whichever really watched.
+  const sys = (Array.isArray(fleet) && fleet.length)
+    ? (() => {
+        const peers = [];
+        for (const f of fleet) for (const p of (f.peers || [])) peers.push(p);
+        const by = {};
+        for (const p of peers) if (!by[p.name]) by[p.name] = p;
+        return {
+          source: "fleet", load: fleet[0]?.boxLoad?.load1 ?? null, saturated: !!fleet[0]?.boxLoad?.saturated,
+          surfaces: Object.values(by).map((p) => ({
+            name: p.name, port: (String(p.address || "").split(":").pop()) || "?", family: "",
+            up: p.up === true ? true : p.up === false ? false : null, reason: p.reason || null,
+            inflight: 0, restartsInWindow: 0, standing: p.standing || null,
+            saturated: (p.saturatedTicks || 0) > 0,
+            escalation: p.escalation?.status === "pending" ? (/conced|answered/i.test(p.escalation.reason || "") ? "conceding" : "pending") : null,
+          })),
+        };
+      })()
+    : { source: "proxy", load: st.vitals?.load1 ?? null, saturated: !!d.saturated, surfaces: st.surfaces };
+  let lines = [];
+  switch (intent) {
+    case "help":
+    case "summary": {
+      const up = sys.surfaces.filter((s) => s.up === true).length;
+      const down = sys.surfaces.filter((s) => s.up === false && !String(s.reason || "").startsWith("unverified"));
+      lines.push(`${up}/${sys.surfaces.length} systems up (${sys.source})${down.length ? `; DOWN: ${down.map((s) => s.name).join(", ")}` : ""}.`);
+      lines.push(`${sys.surfaces.filter((s) => s.up === true).map((s) => s.name).join(", ") || "nothing"} answering.`);
+      lines.push(`The line: ${d.queue?.workAhead ?? 0} ahead, ~${d.queue?.etaHuman ?? "now"}${(d.saturated || sys.saturated) ? "; the box is pegged" : ""} · load ${sys.load ?? "?"}.`);
+      const forge = throughputOf().filter((m) => !m.ungatedCalls && m.genTokPerSec != null).sort((a, b) => b.genTokPerSec - a.genTokPerSec)[0];
+      if (forge) lines.push(`Fastest model: ${forge.model} at ${forge.genTokPerSec} tok/s.`);
+      lines.push(`CPU ${d.cpu?.busy ?? "unmeasured"}, GPU ${d.gpu?.busy ?? "unmeasured"}, memory ${d.memory?.freeMb ?? "unmeasured"}MB free (floor ${d.memory?.floorMb}).`);
+      if (intent === "help") lines.push(DOMAIN_HELP, `My knobs: ${heimdallSettings().map((s) => s.name).join(", ")}.`);
+      break;
+    }
+    case "surfaces":
+      for (const s of sys.surfaces) lines.push(`${s.name} :${s.port} ${s.up === true ? "UP" : s.up === false ? (String(s.reason || "").startsWith("unverified") ? "UNVERIFIED" : "DOWN") : "NEVER PROBED"}`
+        + `${s.standing ? ` (${s.standing})` : ""}${s.family ? ` family ${s.family}` : ""}${s.saturated ? " \u2014 saturated" : ""}`
+        + `${s.escalation === "pending" ? " \u2014 ESCALATION PENDING" : s.escalation === "conceding" ? " \u2014 escalation conceding (it answered)" : ""}`
+        + `${s.inflight ? `, ${s.inflight} in flight` : ""}${s.restartsInWindow ? `, ${s.restartsInWindow} re-forge(s)` : ""}${s.reason ? ` (${s.reason})` : ""}.`);
+      break;
+    case "models": {
+      const tp = throughputOf();
+      if (!tp.length) lines.push("No model has answered yet \u2014 the forge is cold.");
+      for (const m of tp) lines.push(`${m.model}: ${m.calls} call(s), ${fmtTokps(m)}${m.reloads ? `, ${m.reloads} reload(s) averaging ${Math.round((m.reloadSeconds || 0) / m.reloads)}s` : ", no reloads"}${m.window ? `, window ${m.window}` : ""}${m.ungatedCalls ? ` (${m.ungatedCalls} ungated \u2192 ${m.upstream || "remote"})` : ""}.`);
+      const un = d.servable?.unservable || [];
+      if (un.length) lines.push(`Dropped: ${un.map((u) => u.model).join(", ")}.`);
+      break;
+    }
+    case "timing": {
+      const q = d.queue || {};
+      if (q.samples) lines.push(`Last prompt \u2192 response: ${(q.lastMs / 1000).toFixed(1)}s (this door); average ~${(q.perTurnMs / 1000).toFixed(1)}s over ${q.samples} timed turn(s). That is the WHOLE turn \u2014 any wait in the line plus generation.`);
+      else lines.push(`No turn has been timed on this door yet this session \u2014 I will not quote the old seed (${(q.perTurnMs / 1000).toFixed(0)}s) as if it were measured. Send a turn and ask again.`);
+      lines.push(`Per model: ${throughputOf().filter((m) => !m.ungatedCalls).map((m) => `${m.model} ${m.genTokPerSec == null ? "unmeasured" : `${m.genTokPerSec} tok/s (${Math.round(1000 / m.genTokPerSec)} ms/tok)`}`).join(", ") || "none measured"}.`);
+      const prom = throughputOf().filter((m) => m.promptTokPerSec != null);
+      if (prom.length) lines.push(`Prompt eval: ${prom.map((m) => `${m.model} ${Math.round(m.promptTokPerSec)} tok/s`).join(", ")}.`);
+      lines.push(`First token is NOT separately instrumented \u2014 I time the whole turn only. The wait in the line is ${q.workAhead ?? 0} ahead, ETA ${q.etaHuman ?? "now"}.`);
+      break;
+    }
+    case "queue": {
+      const pos = [...(d.queue?.positions || [])].sort((a, b) => a.position - b.position);
+      lines.push(`Ahead ${d.queue?.workAhead ?? 0}, ETA ${d.queue?.etaHuman ?? "now"}, ~${Math.round((d.queue?.perTurnMs || 0) / 1000)}s per turn.`);
+      lines.push(`SLA ${d.sla?.targetS}s; longest wait ${d.sla?.longestWaitS}s${d.sla?.over ? " (OVER)" : ""}.`);
+      lines.push(pos.length ? pos.map((p) => `#${p.position} ${p.caller}`).join(", ") : "The line is clear.");
+      lines.push(`Passes: ${d.zipper?.remaining ?? 0} available, jump \u2264 ${d.zipper?.jump}, then ${d.zipper?.density} pass-free. Time-to-first-token is not instrumented here \u2014 this wait is the measured one.`);
+      break;
+    }
+    case "vitals":
+      lines.push(`load ${sys.load ?? d.load ?? "?"}${sys.saturated ? " (pegged)" : ""}.`);
+      lines.push(`CPU ${d.cpu?.busy == null ? "unmeasured" : d.cpu.busy + "% busy (" + d.cpu.idle + "% idle)"}, GPU ${d.gpu?.busy == null ? "unmeasured" : d.gpu.busy + "%"}.`);
+      lines.push(`Ollama pid ${st.vitals?.ollamaPid ?? "?"}, ${st.vitals?.ollamaCpu ?? "?"}% cpu, ${st.vitals?.ollamaMemMb ?? "?"}MB.`);
+      lines.push(`Memory ${d.memory?.freeMb == null ? "unmeasured" : d.memory.freeMb + "MB free"}, floor ${d.memory?.floorMb}MB${d.memory?.pressured ? " \u2014 PRESSURED" : ""}.`);
+      break;
+    case "efficiency": {
+      const f = efficiencyFindings();
+      lines = f.length ? f : ["Nothing is being wasted that I can measure: no reloads, no pressure, the line is clear and the box breathes."];
+      break;
+    }
+    case "rules": {
+      const rs = [...derivedRuleStore(), ...mintedRules().map((r) => ({ ...r, source: "mint" }))];
+      if (!rs.length) lines.push("No rule yet \u2014 nothing has recurred past its floor.");
+      for (const r of rs) lines.push(`${r.key || r.finding}: ${r.standing}${r.count ? ` (${r.count}\u00d7)` : ""} \u2014 ${r.rule}${r.control ? ` [control: ${r.control}]` : ""}`);
+      break;
+    }
+    case "holons":
+      for (const h of holonTree()) lines.push(`${h.name}: ${h.running ? "running" : "idle"}, every ${Math.round(h.cadenceMs / 1000)}s, ${h.findings} finding(s) \u2014 ${h.def}`);
+      break;
+    case "reaper": {
+      const rep = reaperDisclosure();
+      lines.push(`Reaper ${rep.killOn ? "killing" : "census-only"}, every ${Math.round(rep.cadenceMs / 1000)}s, max ${rep.maxKills} per act.`);
+      if (rep.last) lines.push(`Last pass: ${rep.last.census?.strays ?? 0} stray(s), ${(rep.last.termed || []).length} termed, ${(rep.last.killed || []).length} killed.`);
+      break;
+    }
+    case "hogs": {
+      const r = await quitMemoryHogs({ max: 4 });
+      if (!r.ok) lines.push(r.error, "Quitting your biggest memory hogs is the only thing here that drains swap \u2014 but it can lose unsaved work, so it stays off until you turn it on.");
+      else { lines.push(`Quit ${r.quit.length} hog(s) (~${r.freedMb}MB resident): ${r.quit.map((h) => `${h.pid} ${String(h.args).split(/\s+/)[0].split("/").pop()}`).join(", ")}.`); lines.push(r.note); }
+      break;
+    }
+    case "modelserver": {
+      const r = await restartModelServer();
+      lines.push(r.ok ? `${r.note}. Killed ${r.killed.length} old process(es); give it ~2s to come up.` : `could not restart the model server: ${r.error}`);
+      break;
+    }
+  }
+  const facts = await buildFacts(st, d, sys);
+  if (!lines.length) lines.push(facts); // an open question: the brief IS the fallback answer
+  const answer = lines.join("\n");
+  appendLog({ act: "crossing", finding: "heimdall_answer", key: caller, intent, lines: lines.length });
+  return { intent, answer, facts, refused: false, disclosure: askDisclosure() };
+}
+
+// ── LIGHT VITALS — the tachometers (2026-09-20) ──────────────────────────
+// A cheap sampler for the gauges, usable even when the watcher runs OUT of
+// this process (ER7_EXTERNAL_HEIMDALL=1): CPU total AND per-core from
+// os.cpus() deltas (no subprocess), load from os.loadavg(), memory from one
+// vm_stat, GPU from ioreg on a slow throttle. It fills the SAME vitals cache
+// the watcher uses, so every surface reads one reading.
+let _cpuPrev = null;
+let _gpuCache = null, _gpuAt = 0;
+const GPU_TTL_MS = Number(process.env.ER7_GPU_TTL ?? 5000);
+export async function sampleVitalsNow() {
+  const v = { ...(vitalsCache || {}) };
+  const cores = os.cpus();
+  if (_cpuPrev && _cpuPrev.length === cores.length) {
+    const per = []; let tu = 0, ts = 0, ti = 0, total = 0;
+    for (let i = 0; i < cores.length; i++) {
+      const a = cores[i].times, b = _cpuPrev[i].times;
+      const du = a.user - b.user, dsys = a.sys - b.sys, di = a.idle - b.idle;
+      const dt = (du + dsys + di + ((a.nice || 0) - (b.nice || 0)) + ((a.irq || 0) - (b.irq || 0))) || 1;
+      per.push(Math.max(0, Math.min(100, Math.round((100 * (dt - di)) / dt))));
+      tu += du; ts += dsys; ti += di; total += dt;
+    }
+    v.cpuUser = Math.round((100 * tu) / total);
+    v.cpuSys = Math.round((100 * ts) / total);
+    v.cpuIdle = Math.round((100 * ti) / total);
+    v.cores = per;
+  }
+  _cpuPrev = cores;
+  v.coreCount = cores.length;
+  const la = os.loadavg();
+  v.load1 = la[0]; v.load5 = la[1]; v.load15 = la[2];
+  try {
+    const mem = await collectMemHeadroom();
+    v.memFreeMb = mem.memFreeMb; v.memInactiveMb = mem.memInactiveMb; v.memAvailableMb = mem.memAvailableMb; v.memCompressorMb = mem.memCompressorMb;
+    v.swapInPages = mem.swapInPages; v.swapOutPages = mem.swapOutPages;
+    const r = swapRates(mem.swapInPages, mem.swapOutPages);
+    v.swapInPerS = r.inPerS; v.swapOutPerS = r.outPerS;
+  } catch { /* keep last */ }
+  Object.assign(v, await readSwap().catch(() => ({})));
+  v.memTotalMb = Math.round(os.totalmem() / 1048576);
+  if (Date.now() - _gpuAt > GPU_TTL_MS) {
+    try {
+      const ioreg = await execOut("ioreg", ["-c", "AppleGPU", "-l"], 8000);
+      const gm = ioreg ? /"Device Utilization %"=(\d+)/.exec(ioreg) : null;
+      _gpuCache = gm ? Number(gm[1]) : _gpuCache;
+    } catch { /* a failed GPU read keeps the last */ }
+    _gpuAt = Date.now();
+  }
+  v.gpuUtil = _gpuCache;
+  vitalsCache = { ...(vitalsCache || {}), ...v };
+  vitalsCacheAt = Date.now();
+  return v;
+}
+
+// ── THE MODEL SERVER — the thing everything else waits on ─────────────────
+// The 2026-09-21 lesson: an Ollama.app `serve` can WEDGE (0% CPU for 30+ min,
+// /api/ps resident, every generate hanging) and nothing restarts it — every
+// turn then stalls to its deadline. This is the lever + the watchdog that ends
+// that class: restart `ollama serve` directly with the tuned, non-wedging env
+// (concurrency 2, window 4096, one resident model, CPU-only), never the app.
+const OLLAMA_BIN = process.env.ER7_OLLAMA_BIN ?? "/Applications/Ollama.app/Contents/Resources/ollama";
+export function modelServerConfig() {
+  return {
+    bin: OLLAMA_BIN,
+    env: {
+      OLLAMA_NUM_PARALLEL: String(PARALLELISM),
+      OLLAMA_CONTEXT_LENGTH: process.env.ER7_OLLAMA_CTX ?? "4096",
+      OLLAMA_MAX_LOADED_MODELS: process.env.ER7_OLLAMA_MAX_LOADED ?? "1",
+      OLLAMA_NUM_GPU: process.env.ER7_OLLAMA_NUM_GPU ?? "0",
+      OLLAMA_KEEP_ALIVE: process.env.ER7_OLLAMA_KEEP_ALIVE ?? "10m",
+      OLLAMA_HOST: process.env.OLLAMA_HOST ?? "127.0.0.1:11434",
+    },
+  };
+}
+export async function restartModelServer() {
+  const rows = await readProcessTable().catch(() => []);
+  const killed = [];
+  for (const r of rows) {
+    if (/Ollama\.app\/Contents\/Resources\/ollama serve|llama-server/i.test(String(r.args || ""))) {
+      try { process.kill(r.pid, "SIGTERM"); killed.push(r.pid); } catch { /* already gone */ }
+    }
+  }
+  await new Promise((r) => setTimeout(r, 1500));
+  const { bin, env } = modelServerConfig();
+  let child;
+  try { child = spawn(bin, ["serve"], { env: { ...process.env, ...env }, detached: true, stdio: "ignore" }); }
+  catch (e) { appendLog({ act: "eva", finding: "model_server_restart_failed", error: e.message }); return { ok: false, error: e.message }; }
+  child.unref();
+  appendLog({ act: "rec", finding: "model_server_restart", pid: child.pid, killed, config: env, key: "operator", giver: "heimdall", standing: "disclosed" });
+  return { ok: true, pid: child.pid, killed, note: `restarted ollama serve (parallel ${env.OLLAMA_NUM_PARALLEL}, ctx ${env.OLLAMA_CONTEXT_LENGTH}, max_loaded ${env.OLLAMA_MAX_LOADED_MODELS}, gpu ${env.OLLAMA_NUM_GPU})` };
+}
+/** One cheap liveness probe of the model server (never spawns load of its own). */
+export async function probeModelServer({ timeoutMs = 4000 } = {}) {
+  try {
+    const r = await fetch(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(timeoutMs) });
+    return { ok: r.ok, status: r.status };
+  } catch (e) { return { ok: false, error: e?.cause?.code ?? e.message }; }
+}
+
 // ── THE MERGED API — what the proxy uses when heimdall runs inside it. ─────
 // The full status object (what /heimdall serves), the chat admission gate
 // (saturation + family cap), and the watcher kickoff. The standalone steer
@@ -1736,6 +2621,7 @@ export function heimdallStatus() {
     steerPort: STEER_PORT,
     familyCap: FAMILY_CAP,
     retryAfterS: RETRY_AFTER_S,
+    settings: heimdallSettings(),
     disclosure: disclosure(),
     vitals: cachedVitals() ?? null,
     ollamaModels,
@@ -1748,10 +2634,12 @@ export function heimdallStatus() {
     surfaces: surfaces.map((s) => ({
       name: s.name, family: s.family, port: s.port, up: s.up, reason: s.reason,
       inflight: s.inflight, cmd: s.cmd, restartsInWindow: s.restartTimes.length,
+      restartable: !(selfPort != null && s.port === selfPort),
     })),
     logTail: logTail(12),
     memory: memoryDisclosure(),
     reaper: reaperDisclosure(),
+    phases: phaseStats(),
   };
 }
 
@@ -1843,18 +2731,34 @@ export function admitChat(body = "{}", headers = {}) {
   // headroom or unknown residency never convicts.
   if (MEM_GATE_ON) {
     const vitals = cachedVitals();
+    // BOX-LEVEL SWAP GUARD (2026-09-20; corrected to CHURN, 2026-09-21): swap
+    // LEVEL alone is history — macOS never moves pages back, so a box can sit
+    // at 92% swap with idle app pages and plenty of AVAILABLE RAM and still
+    // serve fine. What costs is CHURN (pages swapping out NOW) or true
+    // starvation (available below the floor). Refuse only then; a high-but-
+    // idle swap does not block a turn the box can actually serve.
+    const churning = vitals?.swapOutPerS != null && vitals.swapOutPerS >= SWAP_CHURN_PPS;
+    const starved = (vitals?.memAvailableMb ?? Infinity) < MEM_FLOOR_MB * 2;
+    if (vitals?.swapPct != null && vitals.swapPct >= SWAP_CEIL_PCT && (churning || starved)) {
+      appendLog({ act: "eva", finding: "memory_pressured", key, model, family, swapPct: vitals.swapPct, swapOutPerS: vitals.swapOutPerS ?? null, availableMb: vitals.memAvailableMb ?? null });
+      return {
+        allowed: false, status: 503, type: "memory_pressured", family, model, retryAfterS: 30,
+        message: `the box is ${churning ? "thrashing" : "starved"} \u2014 swap ${vitals.swapPct}% full, ${vitals.swapOutPerS ?? "?"} pg/s out, ${vitals.memAvailableMb ?? "?"}MB available. Heimdall holds the turn so the box can drain; retry shortly or route to the remote lane.`,
+        memory: { swapPct: vitals.swapPct, swapOutPerS: vitals.swapOutPerS ?? null, swapUsedMb: vitals.swapUsedMb, swapTotalMb: vitals.swapTotalMb, availableMb: vitals.memAvailableMb ?? null, floorMb: MEM_FLOOR_MB },
+      };
+    }
     // Residency is tri-state: null (/api/ps unreadable) is UNKNOWN, never
     // evidence of absence — collapsing it to "not resident" would turn a
     // failed daemon read into refusals.
     const loaded = loadedModels();
     const residencyKnown = Array.isArray(loaded);
     const resident = residencyKnown && loaded.some((m) => (m.name ?? m.model) === String(model).replace(/^er7:/, ""));
-    if (!resident && residencyKnown && memoryPressured(vitals) && vitals?.memFreeMb != null) {
-      appendLog({ act: "eva", finding: "memory_pressured", key, model, family, freeMb: vitals.memFreeMb });
+    if (!resident && residencyKnown && memoryPressured(vitals) && vitals?.memAvailableMb != null) {
+      appendLog({ act: "eva", finding: "memory_pressured", key, model, family, availableMb: vitals.memAvailableMb });
       return {
         allowed: false, status: 503, type: "memory_pressured", family, model, retryAfterS: 60,
-        message: `${model} is not resident and the box holds only ~${vitals.memFreeMb}MB free (floor ${MEM_FLOOR_MB}MB) — a load attempted now would hang, so Heimdall refuses fast instead. Free memory or serve a resident model; /v1/models lists what answers without loading.`,
-        memory: { freeMb: vitals.memFreeMb, inactiveMb: vitals.memInactiveMb ?? null, floorMb: MEM_FLOOR_MB },
+        message: `${model} is not resident and the box holds only ~${vitals.memAvailableMb}MB available (floor ${MEM_FLOOR_MB}MB) \u2014 a load attempted now would hang, so Heimdall refuses fast instead. Free memory or serve a resident model; /v1/models lists what answers without loading.`,
+        memory: { availableMb: vitals.memAvailableMb, freeMb: vitals.memFreeMb ?? null, floorMb: MEM_FLOOR_MB },
       };
     }
   }
@@ -1947,7 +2851,13 @@ export function admitChat(body = "{}", headers = {}) {
   // Refused (saturated / lane full): you hold your place. A retry keeps it.
   const eff = effectivePositionOf(key);
   const reason = saturated ? "saturated" : "lane_full";
-  appendLog({ act: "eva", finding: reason, key, position: eff, family, model, retryAfterS: RETRY_AFTER_S });
+  // The refusal carries the reading it was made on (cpuIdle, load, swap,
+  // available) so the throttle is FALSIFIABLE: a stream of `saturated` rows
+  // at idle >= 15% proves boxSaturated is twitchy; rows at idle <= 10% prove
+  // the peg is real. Never a refusal without its evidence.
+  const _v = cachedVitals() || {};
+  appendLog({ act: "eva", finding: reason, key, position: eff, family, model, retryAfterS: RETRY_AFTER_S,
+    cpuIdle: _v.cpuIdle ?? null, load1: _v.load1 ?? null, swapPct: _v.swapPct ?? null, availableMb: _v.memAvailableMb ?? null });
   return {
     allowed: false, status: 429, type: reason, family, model, retryAfterS: RETRY_AFTER_S,
     message: `${reason === "saturated" ? "box saturated" : `family ${family} busy`} — you are #${eff} in line (${queueOf(key, eff).etaHuman}). Heimdall keeps your place; retrying does not shuffle you.`,
@@ -2088,7 +2998,7 @@ export const HEIMDALL_PATHS = Object.freeze({
     { name: "qwen2.5vl:7b", kind: "vision", model: "qwen2.5vl:7b", costClass: "normal", capability: "general-precise" },
   ]),
   minds: Object.freeze([
-    { name: "olmo2:7b", kind: "mind", model: "olmo2:7b", costClass: "cheap", capability: "reasoning-lite" },
+    { name: "gemma2:2b", kind: "mind", model: "gemma2:2b", costClass: "cheap", capability: "reasoning-lite" },
     { name: "qwen3:30b-a3b", kind: "mind", model: "qwen3:30b-a3b", costClass: "expensive", capability: "reasoning" },
   ]),
   mechanical: Object.freeze([

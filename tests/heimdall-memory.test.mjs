@@ -29,7 +29,7 @@ test("memoryPressured: below/above the floor", () => {
 
 test("MEMORY GATE: a large non-resident model is refused fast under pressure", () => {
   __queueTest.setSaturated(false);
-  __queueTest.setVitals({ memFreeMb: 47, cpuIdle: 70 }); // idle CPU, full memory
+  __queueTest.setVitals({ memFreeMb: 47, memAvailableMb: 47, cpuIdle: 70 }); // idle CPU, full memory
   __queueTest.setOllamaModels([]); // /api/ps read OK, model known-absent (not unknown)
   const r = call("A", "qwen2.5:14b-instruct-q4_K_M");
   assert.equal(r.allowed, false);
@@ -50,7 +50,7 @@ test("MEMORY GATE: a NON-resident small model is refused fast under pressure (20
   // with ~218MB free against a 9.8GB resident and stalled ~290s in total
   // proxy silence. Small is not free — any load evicts.
   __queueTest.setSaturated(false);
-  __queueTest.setVitals({ memFreeMb: 218, cpuIdle: 70 });
+  __queueTest.setVitals({ memFreeMb: 218, memAvailableMb: 218, cpuIdle: 70 });
   __queueTest.setOllamaModels([{ name: "qwen3:8b" }]); // gemma2:2b NOT resident
   const r = call("A", "er7:gemma2:2b");
   assert.equal(r.allowed, false);

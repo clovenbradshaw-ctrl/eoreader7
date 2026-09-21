@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heimdall · what he sees</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg:#05060a; --ink:#d9dce6; --mut:#6b7385; --dim:#3a4152; --line:#232a3d;
+    --blue:#6fd0ff; --gold:#ffd166; --red:#ff5c5c; --vio:#a78bfa; --grn:#4cc38a; --amb:#ffb454; --teal:#4fe3c0;
+  }
+  * { box-sizing: border-box; }
+  html,body { margin:0; height:100%; background:var(--bg); color:var(--ink);
+    font:14px/1.6 ui-monospace,"SFMono-Regular",Menlo,Consolas,"Liberation Mono",monospace; }
+  #wrap { max-width:1560px; margin:0 auto; padding:0 20px 40px; }
+  #panels { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:22px; align-items:start; }
+  .panel { min-width:0; }
+  @media (max-width:1200px) { #panels { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+  @media (max-width:820px) { #panels { grid-template-columns:1fr; } }
+
+  header { display:flex; align-items:center; gap:14px; padding:14px 0 10px; border-bottom:1px solid var(--line); }
+  header .t { font-size:16px; font-weight:700; letter-spacing:.14em; color:var(--blue); }
+  header .spacer { flex:1; }
+  #conn { font-size:12px; color:var(--mut); }
+  #conn .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:-1px; }
+  #conn.on .dot { background:var(--grn); } #conn.recon .dot { background:var(--amb); } #conn.off .dot { background:var(--red); }
+  #horn { font-size:13px; font-weight:700; padding:3px 12px; border:1px solid var(--line); border-radius:3px; color:var(--mut); }
+  #horn.raised { color:#0a0505; background:var(--red); border-color:var(--red); animation:thud .5s steps(2) infinite; }
+  @keyframes thud { 0%{opacity:1} 50%{opacity:.5} 100%{opacity:1} }
+  header a { color:var(--mut); text-decoration:none; font-size:12px; border:1px solid var(--line); padding:3px 10px; border-radius:3px; }
+  header a:hover { color:var(--ink); border-color:var(--blue); }
+
+  #stage { display:block; width:100%; height:196px; margin:14px 0 4px; }
+
+  #facts { margin:6px 0 0; }
+  .row { display:flex; gap:16px; padding:7px 0; border-bottom:1px solid #12151f; align-items:baseline; }
+  .row .k { width:78px; flex:none; color:var(--dim); font-size:12px; letter-spacing:.16em; }
+  .row .v { color:var(--ink); }
+  .good{color:var(--grn)} .bad{color:var(--red)} .warn{color:var(--amb)} .mut{color:var(--mut)}
+  .blue{color:var(--blue)} .gold{color:var(--gold)} .vio{color:var(--vio)} .dim{color:var(--dim)}
+  #last { padding:8px 0 0; color:var(--dim); font-size:12px; }
+
+  .block { margin-top:22px; }
+  .block h3 { margin:0 0 8px; font-size:11px; letter-spacing:.16em; color:var(--vio); font-weight:700; }
+  .list { border-top:1px solid #12151f; }
+  .ch, .srv { display:flex; gap:12px; align-items:baseline; padding:6px 0; border-bottom:1px solid #12151f; font-size:13px; flex-wrap:wrap; }
+  .ch .nm, .srv .nm { min-width:190px; color:var(--ink); }
+  .ch .nums { color:var(--mut); } .ch .last { color:var(--dim); }
+  .loglist { max-height:300px; overflow-y:auto; }
+  .lrow { padding:2px 0; white-space:pre; font-size:12.5px; }
+  .lrow.bad { color:var(--red); } .lrow.vio{color:var(--vio)} .lrow.gold{color:var(--gold)} .lrow.grn{color:var(--grn)} .lrow.blue{color:var(--blue)} .lrow.mut{color:var(--mut)}
+  .filters { display:flex; gap:10px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
+  .filters input[type=text], .filters input:not([type]) { background:#0b0e16; color:var(--ink); border:1px solid var(--line); border-radius:4px; padding:5px 8px; font:inherit; font-size:12px; width:220px; }
+  .filters select { background:#0b0e16; color:var(--ink); border:1px solid var(--line); border-radius:4px; padding:5px 8px; font:inherit; font-size:12px; }
+  .filters label { color:var(--mut); font-size:12px; }
+  button.rs { background:#131a2b; color:var(--blue); border:1px solid var(--line); border-radius:4px; padding:2px 10px; font:inherit; font-size:11px; cursor:pointer; }
+  button.rs:hover { border-color:var(--blue); color:#fff; }
+  #toast { position:fixed; right:18px; bottom:18px; background:#131a2b; border:1px solid var(--line); color:var(--ink); padding:8px 14px; border-radius:5px; font-size:12px; opacity:0; transition:opacity .2s; pointer-events:none; }
+  #toast.show { opacity:1; }
+  .tach { display:flex; gap:12px; align-items:center; padding:4px 0; font-size:13px; }
+  .tach .k { width:44px; flex:none; color:var(--dim); letter-spacing:.14em; font-size:11px; }
+  .tach .bar { display:inline-flex; }
+  .tach .bar > span { display:inline-block; height:12px; }
+  .tach .val { width:44px; text-align:right; font-weight:700; }
+  .cores { display:flex; gap:2px; align-items:flex-end; height:36px; padding:2px 0 6px 56px; }
+  .cores .core { display:inline-block; width:12px; border-radius:1px 1px 0 0; }
+  .task { display:flex; gap:10px; align-items:baseline; padding:3px 0; border-bottom:1px solid #12151f; font-size:12px; }
+  .task .pid { width:52px; color:var(--blue); flex:none; }
+  .task .args { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink); }
+  button.kill { background:#2a1216; color:var(--red); border-color:#5a2226; }
+  .waffle { display:grid; grid-template-columns:repeat(20,1fr); gap:1px; margin-bottom:6px; max-width:300px; width:100%; }
+  .wcell { aspect-ratio:1; border-radius:1px; display:block; }
+  .wlegend { display:flex; flex-wrap:wrap; gap:2px 12px; font-size:11px; }
+  .wlg { display:flex; align-items:center; gap:5px; }
+  .wlg .sw { width:9px; height:9px; border-radius:2px; display:inline-block; flex:none; }
+  .gentext { max-height:260px; overflow-y:auto; white-space:pre-wrap; word-break:break-word; font:inherit; font-size:12.5px; line-height:1.5; color:var(--ink); background:#080b12; border:1px solid #12151f; border-radius:4px; padding:8px 10px; margin:0; }
+  #gen-list { display:flex; flex-direction:column; gap:8px; max-height:58vh; overflow-y:auto; padding-right:2px; }
+  .gauges { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px; }
+  @media (max-width:1200px) { .gauges { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+  .gauge { text-align:center; background:#0b0e16; border:1px solid #12151f; border-radius:6px; padding:8px 6px 10px; }
+  .gauge svg { width:100%; max-width:118px; display:block; margin:0 auto; }
+  .g-needle { transform-origin: 60px 60px; transition: transform 1s cubic-bezier(.25,.8,.3,1); }
+  .g-needle line { stroke:#3a4152; stroke-width:2.6; stroke-linecap:round; }
+  .g-needle circle { fill:#3a4152; }
+  .g-val { font-weight:700; font-size:15px; font-family:var(--mono); margin-top:2px; font-variant-numeric:tabular-nums; min-width:3ch; display:inline-block; }
+  .g-label { font-size:10px; letter-spacing:.14em; color:var(--dim); text-transform:uppercase; margin-top:1px; }
+  .g-note { font-size:10px; color:var(--mut); }
+  .gstream { background:#080b12; border:1px solid #12151f; border-radius:4px; padding:8px 10px; }
+  .gstream.done { opacity:.72; }
+  .gstream.err { border-color:#5a2226; }
+  .g-head { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; font-size:11px; color:var(--mut); margin-bottom:4px; }
+  .g-head .g-time { color:var(--dim); }
+  .g-head .g-model { color:var(--blue); font-weight:700; }
+  .g-head .g-sess { color:var(--dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:200px; }
+  .g-head .g-status { color:var(--grn); }
+  .gstream.done .g-status { color:var(--mut); }
+  .gstream.err .g-status { color:var(--red); }
+  .g-body { white-space:pre-wrap; word-break:break-word; font:inherit; font-size:12.5px; line-height:1.5; color:var(--ink); }
+  .g-caret { color:var(--grn); animation:caret-blink 1s steps(1) infinite; }
+  .gstream.done .g-caret { animation:none; opacity:0; }
+  @keyframes caret-blink { 50% { opacity:0; } }
+  .mrow { display:flex; gap:8px; justify-content:space-between; font-size:12px; padding:1px 0; }
+  .mrow .mn { color:var(--ink); }
+  .lrow { cursor:pointer; }
+  .lrow:hover { background:rgba(167,139,250,.08); }
+  #reader { position:fixed; top:0; right:0; bottom:0; width:min(560px,92vw); z-index:5;
+    background:rgba(7,9,15,.98); border-left:1px solid var(--line); display:flex; flex-direction:column; }
+  #reader[hidden] { display:none; }
+  #reader .r-head { display:flex; align-items:center; gap:10px; padding:12px 16px; border-bottom:1px solid var(--line); }
+  #reader .r-head span { flex:1; font-weight:700; color:var(--vio); letter-spacing:.06em; }
+  #reader .r-head button { background:none; border:1px solid var(--line); color:var(--mut); border-radius:4px; padding:2px 10px; cursor:pointer; font:inherit; }
+  #reader .r-head button:hover { color:var(--ink); border-color:var(--vio); }
+  #r-body { flex:1; overflow-y:auto; padding:12px 16px; font-size:12.5px; }
+  #r-body h4 { margin:14px 0 6px; font-size:11px; letter-spacing:.16em; color:var(--dim); font-weight:700; }
+  #r-body .kv { display:flex; gap:10px; padding:2px 0; border-bottom:1px solid #101420; }
+  #r-body .kv .k { width:96px; color:var(--dim); flex:none; }
+  #r-body .kv .v { color:var(--ink); white-space:pre-wrap; word-break:break-word; }
+  #r-body .thread div { padding:2px 0; white-space:pre; cursor:pointer; }
+  #r-body .thread div:hover { background:rgba(167,139,250,.08); }
+  #r-body .acts { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  #r-body .acts button { background:#131a2b; color:var(--blue); border:1px solid var(--line); border-radius:4px; padding:4px 12px; font:inherit; font-size:12px; cursor:pointer; }
+  #r-body .acts button:hover { border-color:var(--blue); color:#fff; }
+
+  #chat { margin-top:22px; border:1px solid var(--line); border-radius:6px; overflow:hidden; }
+  #chat h3 { margin:0; padding:8px 12px; font-size:11px; letter-spacing:.16em; color:var(--vio); border-bottom:1px solid var(--line); }
+  #chatlog { max-height:240px; overflow-y:auto; padding:10px 12px; font-size:13px; }
+  #chatlog div { white-space:pre-wrap; }
+  #chatlog .you { color:var(--blue); } #chatlog .he { color:var(--ink); }
+  #chatlog .he.refused { color:var(--amb); } #chatlog .he.applied { color:var(--grn); }
+  #chatlog .dis { color:var(--dim); font-size:11px; }
+  .askrow { display:flex; gap:8px; padding:10px 12px; border-top:1px solid var(--line); }
+  .askrow input { flex:1; background:#0b0e16; color:var(--ink); border:1px solid var(--line); border-radius:4px; padding:8px 10px; font:inherit; font-size:13px; }
+  .askrow input:focus { outline:none; border-color:var(--vio); }
+  .askrow button { background:var(--vio); color:#0b0817; border:none; border-radius:4px; padding:8px 16px; font:inherit; font-weight:700; cursor:pointer; }
+  .askrow button:hover { background:#c4b1ff; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <header>
+    <span class="t">⚡ HEIMDALL · BIFRÖST</span>
+    <span id="conn" class="on"><span class="dot"></span><span id="conntext">connecting</span></span>
+    <span class="spacer"></span>
+    <span id="horn">▸ HORN RESTING</span>
+    <a href="/ui">drive /ui</a>
+    <a href="/heimdall">JSON</a>
+  </header>
+
+  <canvas id="stage"></canvas>
+
+  <div id="panels">
+    <div class="panel">
+      <section id="facts">
+        <div class="row"><span class="k">HEALTH</span><span class="v" id="f-health">…</span></div>
+        <div class="row"><span class="k">FLOW</span><span class="v" id="f-flow">…</span></div>
+        <div class="row"><span class="k">LINE</span><span class="v" id="f-line">…</span></div>
+        <div class="row"><span class="k">WASTE</span><span class="v" id="f-waste">…</span></div>
+        <div class="row"><span class="k">HORN</span><span class="v" id="f-horn">…</span></div>
+      </section>
+      <div id="last"></div>
+      <section class="block" id="gauges">
+        <h3>◉ TACHOMETERS</h3>
+        <div id="g-list" class="gauges"></div>
+      </section>
+    </div>
+
+    <div class="panel">
+      <section class="block" id="gen">
+        <h3>✍ MODEL OUTPUT · THE MODEL'S OWN WORDS <span id="gen-head" class="dim"></span></h3>
+        <div id="gen-list"></div>
+      </section>
+      <section class="block" id="servers">
+        <h3>SERVERS · CLICK TO RE-FORGE</h3>
+        <div id="srv-list" class="list"></div>
+      </section>
+    </div>
+
+    <div class="panel">
+      <section id="chat">
+        <h3>🗣 ASK HEIMDALL — HE SPEAKS ONLY OF THE BRIDGE</h3>
+        <div id="chatlog"></div>
+        <div class="askrow"><input id="askinput" type="text" autocomplete="off" placeholder="what's down · is it overloaded · how busy · change a setting"><button id="asksend">ask</button></div>
+      </section>
+    </div>
+  </div>
+</div>
+<aside id="reader" hidden>
+  <div class="r-head"><span id="r-title">event</span><button id="r-close">✕</button></div>
+  <div id="r-body"></div>
+</aside>
+<div id="toast"></div>
+
+<script>
+"use strict";
+/* Heimdall — what he sees. Five things and nothing else:
+   HEALTH (is anything broken) · FLOW (is work moving, how fast) · LINE (who
+   waits, how long) · WASTE (where time is lost) · HORN (does he speak when it
+   matters). The bridge strip shows the same five: the systems, and only the
+   traffic that really passes through. Everything else was subtracted. */
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+const BASE = (location.protocol === "http:" || location.protocol === "https:") ? location.origin : "http://127.0.0.1:11436";
+const FLEET_PORTS = [11438, 11439];
+
+const state = { status: null, fleet: [], drops: [], horn: false, blasts: 0, lastEventAt: 0, es: "on", last: null, chans: {}, log: [], gen: new Map() };
+
+/* ── the live stream ──────────────────────────────────────────────────── */
+const es = new EventSource(`${BASE}/heimdall/live`);
+es.addEventListener("hello", (e) => { state.status = JSON.parse(e.data).status; state.lastEventAt = Date.now(); setConn("on"); render(); });
+es.addEventListener("status", (e) => { state.status = JSON.parse(e.data).status; state.lastEventAt = Date.now(); render(); });
+es.addEventListener("act", (e) => { const a = JSON.parse(e.data); state.lastEventAt = Date.now(); onAct(a); });
+es.addEventListener("traffic", (e) => {
+  state.lastEventAt = Date.now();
+  spawnTraffic(JSON.parse(e.data));
+});
+es.addEventListener("token", (e) => {
+  state.lastEventAt = Date.now();
+  onToken(JSON.parse(e.data));
+});
+es.onerror = () => setConn("recon");
+es.onopen = () => setConn("on");
+function setConn(k) { state.es = k; $("conn").className = k; $("conntext").textContent = k === "on" ? "LIVE" : k === "recon" ? "reconnecting…" : "off"; }
+
+async function pollFleet() {
+  const out = [];
+  for (const port of FLEET_PORTS) {
+    try { const r = await fetch(`http://127.0.0.1:${port}/heimdall`, { signal: AbortSignal.timeout(3000) }); if (r.ok) out.push(await r.json()); } catch {}
+  }
+  state.fleet = out; render();
+}
+pollFleet(); setInterval(pollFleet, 6000);
+
+/* ── the system, merged: the fleet supervisors hold the real health of every
+   active process; the proxy holds the flow, the line, and the waste. ─────── */
+function systemOf(st) {
+  const peers = [];
+  for (const f of (state.fleet || [])) for (const p of (f.peers || [])) peers.push(p);
+  if (peers.length) {
+    const by = {}; for (const p of peers) if (!by[p.name]) by[p.name] = p;
+    return {
+      source: "fleet", load: (state.fleet[0]?.boxLoad?.load1) ?? null, saturated: !!state.fleet[0]?.boxLoad?.saturated,
+      surfaces: Object.values(by).map((p) => ({
+        name: p.name, port: (String(p.address || "").split(":").pop()) || "?",
+        up: p.up === true ? true : p.up === false ? false : null, reason: p.reason || null,
+        standing: p.standing || null, saturated: (p.saturatedTicks || 0) > 0,
+      })),
+    };
+  }
+  return { source: "proxy", load: st?.vitals?.load1 ?? null, saturated: !!st?.disclosure?.saturated, surfaces: st?.surfaces || [] };
+}
+
+/* ── the five ─────────────────────────────────────────────────────────── */
+function render() {
+  const st = state.status; if (!st) return;
+  const d = st.disclosure || {};
+  const sys = systemOf(st);
+  const tp = Array.isArray(st.throughput) ? st.throughput : [];
+  const tokps = tp.filter((m) => !m.ungatedCalls).reduce((a, m) => { a.t += m.genTokens || 0; a.s += m.genSeconds || 0; return a; }, { t: 0, s: 0 });
+  const lane = tokps.s > 0 ? tokps.t / tokps.s : null;
+  const calls = tp.reduce((a, m) => a + (m.calls || 0), 0);
+  const ungated = tp.reduce((a, m) => a + (m.ungatedCalls || 0), 0);
+  const workAhead = d.queue?.workAhead ?? 0;
+  const waiting = (d.queue?.positions || []).length;
+
+  // 1 — HEALTH
+  const down = sys.surfaces.filter((s) => s.up === false && !String(s.reason || "").startsWith("unverified"));
+  const unv = sys.surfaces.filter((s) => s.up === false && String(s.reason || "").startsWith("unverified"));
+  $("f-health").innerHTML = down.length
+    ? `<span class="bad">● ${down.length} DOWN — ${down.map((s) => esc(s.name)).join(", ")}</span>`
+    : `<span class="good">● ${sys.surfaces.filter((s) => s.up === true).length}/${sys.surfaces.length} UP</span>`
+      + (unv.length ? ` <span class="warn">· ${unv.length} unverified</span>` : "")
+      + ` <span class="dim">(${sys.source})</span>`;
+
+  // 2 — FLOW
+  $("f-flow").innerHTML = `<span class="${lane ? (lane < 6 ? 'warn' : 'gold') : 'dim'}">${lane == null ? "no calls yet" : lane.toFixed(1) + " tok/s"}</span>`
+    + ` <span class="mut">·</span> ${calls} call${calls === 1 ? "" : "s"}${ungated ? ` <span class="dim">(${ungated} remote)</span>` : ""}`
+    + ` <span class="mut">·</span> ${workAhead} in flight`
+    + (sys.load != null ? ` <span class="mut">·</span> load <span class="blue">${Number(sys.load).toFixed(1)}</span>${(d.saturated || sys.saturated) ? ` <span class="bad">PEGGED</span>` : ""}` : "");
+
+  // 3 — LINE
+  const sla = d.sla || {};
+  $("f-line").innerHTML = waiting === 0
+    ? `<span class="good">clear</span> <span class="dim">— next starts now</span>`
+    : `<span class="warn">${waiting} waiting</span> <span class="dim">·</span> next in <span class="gold">${esc(d.queue?.etaHuman || "?")}</span>`;
+  $("f-line").innerHTML += ` <span class="mut">·</span> SLA ${sla.targetS ?? "?"}s <span class="dim">(longest ${sla.longestWaitS ?? 0}s${sla.over ? ", OVER" : ""})</span>`;
+
+  // 4 — WASTE
+  $("f-waste").innerHTML = waste();
+
+  // 5 — HORN
+  const anyDown = down.length > 0;
+  state.horn = anyDown;
+  $("f-horn").innerHTML = anyDown
+    ? `<span class="bad">⚡ raised — ${down.map((s) => esc(s.name)).join(", ")} down</span> <span class="dim">· ${state.blasts} blast(s) this session</span>`
+    : `<span class="mut">resting</span> <span class="dim">· ${state.blasts} blast(s) this session</span>`;
+  const h = $("horn"); h.className = anyDown ? "raised" : ""; h.innerHTML = anyDown ? "📯 HORN RAISED" : "▸ HORN RESTING";
+  document.title = anyDown ? `⚡ Heimdall — ${down[0].name} down` : "Heimdall · what he sees";
+
+  $("last").textContent = state.last ? `last — ${state.last}` : "";
+  renderGauges(); renderServers();
+}
+
+/* ── TURN PHASES (E1): where the time went, per model ─────────────────── */
+function renderPhases() {
+  const p = state.status?.phases; if (!p) return;
+  $("ph-note").innerHTML = `<span class="dim">\u2014 ${p.turns} turn(s) timed</span>`;
+  const rows = (p.byModel || []).map((m) => {
+    const genPct = m.wallMs ? Math.round((100 * m.genMs) / m.wallMs) : null;
+    const n = m.turns || 1;
+    return `<div class="mrow"><span class="mn">${esc(m.model)}</span><span class="dim">${m.turns}t \u00b7 ${(m.draws / n).toFixed(1)} draws/t \u00b7 <span class="${genPct != null && genPct < 30 ? 'warn' : ''}">gen ${genPct == null ? "?" : genPct + "%"}</span> \u00b7 load ${Math.round(m.loadMs / n)}ms \u00b7 prompt ${Math.round(m.promptMs / n)}ms \u00b7 gen ${Math.round(m.genMs / n)}ms</span></div>`;
+  }).join("");
+  const recent = (p.recent || []).slice(-6).reverse().map((t) => `<div class="lrow mut">${esc(String(t.model))} \u00b7 draws ${t.draws} \u00b7 gen ${t.genPct == null ? "?" : t.genPct + "%"} \u00b7 wall ${Math.round((t.wallMs || 0) / 1000)}s</div>`).join("");
+  $("ph-list").innerHTML = (rows || `<div class="mrow dim">no turn has completed since the instrument started</div>`) + (recent ? `<div class="dim" style="font-size:11px;margin-top:4px">recent</div>${recent}` : "");
+}
+
+/* ── REPORTS: systems flagging a path, and Heimdall's fix ─────────────── */
+const REPORT_FINDINGS = new Set(["system_report", "path_fixed", "path_attempted", "path_escalated"]);
+function renderReports() {
+  const rows = state.log.filter((r) => REPORT_FINDINGS.has(r.finding)).slice(-50).reverse();
+  $("rep-note").innerHTML = rows.length ? `<span class="dim">\u2014 ${rows.length} recent</span>` : `<span class="dim">\u2014 none</span>`;
+  $("rep-list").innerHTML = rows.length ? rows.map((r) => {
+    const t = r.at ? new Date(r.at).toTimeString().slice(0, 8) : "--:--:--";
+    const cls = r.finding === "path_fixed" ? "grn" : r.finding === "path_escalated" ? "bad" : r.finding === "path_attempted" ? "gold" : "vio";
+    const txt = r.finding === "system_report"
+      ? `\u2691 ${t} ${r.from || "?"} \u2014 ${r.issue || r.kind || ""}`
+      : `${r.finding.replace("path_", "").toUpperCase()} ${t} ${r.from || ""} ${(r.actions || []).join(", ")}`;
+    return `<div class="lrow ${cls}">${esc(txt)}</div>`;
+  }).join("") : `<div class="lrow mut">no system has flagged a path</div>`;
+}
+async function flagIssue() {
+  const from = ($("rep-from").value || "").trim() || "operator";
+  const issue = ($("rep-issue").value || "").trim();
+  if (!issue) return;
+  $("rep-issue").value = "";
+  try {
+    const r = await fetch(`${BASE}/heimdall/report`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ from, issue }) });
+    const d = await r.json();
+    toast(`${d.outcome || "reported"}${d.fixed ? " \u2014 path fixed" : ""}`);
+  } catch (e) { toast(`report failed: ${e.message}`); }
+}
+
+/* ── quit memory hogs (special setting, off by default) ───────────────── */
+async function quitHogs() {
+  const b = $("hogs-btn"); b.disabled = true; const old = b.textContent; b.textContent = "…";
+  try {
+    const r = await fetch(`${BASE}/heimdall/memory/hogs`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ max: 4 }) });
+    const d = await r.json();
+    toast(d.ok ? `quit ${d.quit.length} hog(s) (~${d.freedMb}MB resident)` : `refused: ${d.error}`);
+    if (d.ok) setTimeout(refreshModels, 1500);
+  } catch (e) { toast(`failed: ${e.message}`); }
+  b.disabled = false; b.textContent = old;
+}
+
+/* ── TACHOMETERS: analog dials, built ONCE — needles sweep, blocks hold ── */
+const _gaugeColor = (p) => p == null ? "#3a4152" : p >= 88 ? "#ff5c5c" : p >= 65 ? "#ffb454" : "#4cc38a";
+const _gaugeAngle = (p) => (Math.PI * (180 + 1.8 * p)) / 180;
+function _gaugeArc(p0, p1, r, w, stroke) {
+  const pt = (p) => { const a = _gaugeAngle(p); return `${(60 + r * Math.cos(a)).toFixed(2)} ${(60 + r * Math.sin(a)).toFixed(2)}`; };
+  return `<path d="M ${pt(p0)} A ${r} ${r} 0 0 1 ${pt(p1)}" fill="none" stroke="${stroke}" stroke-width="${w}" stroke-linecap="round"/>`;
+}
+const _gauges = new Map();
+function ensureGauge(label) {
+  const got = _gauges.get(label);
+  if (got) return got;
+  const ticks = [];
+  for (let t = 0; t <= 100; t += 10) {
+    const a = _gaugeAngle(t);
+    const r0 = 46, r1 = t % 20 === 0 ? 39 : 43;
+    ticks.push(`<line x1="${(60 + r0 * Math.cos(a)).toFixed(2)}" y1="${(60 + r0 * Math.sin(a)).toFixed(2)}" x2="${(60 + r1 * Math.cos(a)).toFixed(2)}" y2="${(60 + r1 * Math.sin(a)).toFixed(2)}" stroke="${t % 20 === 0 ? "#6b7385" : "#3a4152"}" stroke-width="1.4"/>`);
+  }
+  const div = document.createElement("div");
+  div.className = "gauge";
+  div.innerHTML = `<svg viewBox="0 0 120 74">`
+    + _gaugeArc(0, 65, 46, 7, "#1d5c40")
+    + _gaugeArc(65, 88, 46, 7, "#8a6a1f")
+    + _gaugeArc(88, 100, 46, 7, "#6b2a28")
+    + ticks.join("")
+    + `<g class="g-needle"><line x1="60" y1="60" x2="60" y2="27"/><circle cx="60" cy="60" r="3.2"/></g>`
+    + `</svg><div class="g-val">\u2014</div><div class="g-label">${label}</div><div class="g-note"></div>`;
+  $("g-list").append(div);
+  const rec = { needle: div.querySelector(".g-needle"), line: div.querySelector(".g-needle line"), pin: div.querySelector(".g-needle circle"), val: div.querySelector(".g-val"), note: div.querySelector(".g-note") };
+  _gauges.set(label, rec);
+  return rec;
+}
+function setGauge(label, pct, note, val) {
+  const g = ensureGauge(label);
+  const p = pct == null ? null : Math.max(0, Math.min(100, pct));
+  // the needle is drawn pointing up; rotate it around the pivot — the CSS
+  // transition makes each 3s tick a sweep, not a snap.
+  g.needle.style.transform = `rotate(${p == null ? -90 : 1.8 * p - 90}deg)`;
+  const col = _gaugeColor(p);
+  g.line.setAttribute("stroke", col);
+  g.pin.setAttribute("fill", col);
+  g.val.textContent = val || (p == null ? "\u2014" : Math.round(p) + "%");
+  g.val.style.color = col;
+  g.note.textContent = note || "";
+}
+function renderGauges() {
+  const st = state.status;
+  const v = st?.vitals || {};
+  const cpu = v.cpuIdle == null ? null : 100 - v.cpuIdle;
+  const cores = v.coreCount || (Array.isArray(v.cores) ? v.cores.length : null);
+  const memBase = v.memAvailableMb ?? v.memFreeMb;
+  const memPct = v.memTotalMb && memBase != null ? Math.round(100 * (1 - memBase / v.memTotalMb)) : null;
+  setGauge("CPU", cpu, cores ? `${cores} cores` : "");
+  setGauge("GPU", v.gpuUtil, "");
+  setGauge("RAM", memPct, memBase != null ? `${memBase}MB avail / ${v.memTotalMb ?? "?"}MB` : "unmeasured");
+  // FLOW — the tok/s actually streaming out of the model right now, on a
+  // fixed 0-30 scale. This is the honest "what is being written" speed, and
+  // the needle moves; loadavg (noisy on macOS, and this box runs genuinely
+  // oversubscribed) is gone from the dials.
+  const tp = Array.isArray(st?.throughput) ? st.throughput : [];
+  const agg = tp.filter((m) => !m.ungatedCalls).reduce((x, m) => { x.t += m.genTokens || 0; x.s += m.genSeconds || 0; return x; }, { t: 0, s: 0 });
+  const tokps = agg.s > 0 ? agg.t / agg.s : null;
+  const calls = tp.reduce((a, m) => a + (m.calls || 0), 0);
+  setGauge("FLOW", tokps == null ? null : Math.min(100, (100 * tokps) / 30), tokps == null ? "no calls yet" : `${tokps.toFixed(1)} tok/s \u00b7 ${calls} call${calls === 1 ? "" : "s"}`, tokps == null ? null : tokps.toFixed(1));
+}
+
+/* ── TASKS: what else is running, and end it ──────────────────────────── */
+const fmtAge = (s) => s == null ? "?" : s >= 3600 ? `${(s / 3600).toFixed(1)}h` : s >= 60 ? `${Math.round(s / 60)}m` : `${s}s`;
+async function refreshTasks() {
+  try {
+    const r = await fetch(`${BASE}/heimdall/tasks`);
+    const d = await r.json();
+    if (d.error) { $("t-list").innerHTML = `<div class="task mut">${esc(d.error)}</div>`; return; }
+    $("task-note").innerHTML = (d.strays && d.strays.length) ? `<span class="bad">— ${d.strays.length} stray</span>` : `<span class="good">— no strays</span>`;
+    $("t-list").innerHTML = (d.tasks || []).map((t) => `<div class="task"><span class="pid">${t.pid}</span>`
+      + `<span class="args" title="${esc(t.args)}">${esc(t.args)}</span>`
+      + `<span class="dim">${t.rssMb}MB · ${fmtAge(t.ageS)}</span> `
+      + (t.self ? `<span class="blue">self</span>` : t.protected ? `<span class="dim">protected</span>` : t.stray ? `<span class="bad">stray</span>` : "")
+      + (!t.protected ? ` <button class="rs kill" data-pid="${t.pid}">\u2716 end</button>` : "") + `</div>`).join("")
+      || `<div class="task mut">no matching processes</div>`;
+    $("t-list").querySelectorAll("button.kill").forEach((b) => { b.onclick = () => endTask(b.dataset.pid, b); });
+  } catch (e) { $("t-list").innerHTML = `<div class="task mut">tasks unavailable (${esc(e.message)})</div>`; }
+}
+async function endTask(pid, btn) {
+  btn.disabled = true; btn.textContent = "…";
+  try {
+    const r = await fetch(`${BASE}/heimdall/kill`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ pid: Number(pid) }) });
+    const d = await r.json();
+    toast(d.ok ? d.note : `refused: ${d.error}`);
+  } catch (e) { toast(`kill failed: ${e.message}`); }
+  setTimeout(refreshTasks, 700);
+}
+
+/* ── MODELS · the memory waffle: 100 cells = 100% of RAM ──────────────── */
+const MODEL_PAL = ["#6fd0ff", "#a78bfa", "#4cc38a", "#ffd166", "#ff8fab", "#ffb454", "#7ee0e0", "#c4b1ff"];
+async function refreshModels() {
+  try {
+    const d = await (await fetch(`${BASE}/heimdall/models`)).json();
+    const total = d.totalMb || 24576, cellMb = total / 100;
+    const hot = new Set(d.hot || []);
+    const buckets = [];
+    (d.resident || []).forEach((m, i) => buckets.push({ name: m.name, mb: m.sizeMb || m.vramMb || 0, color: MODEL_PAL[i % MODEL_PAL.length], hot: hot.has(m.name), resident: true }));
+    const modelMb = buckets.reduce((a, b) => a + b.mb, 0);
+    const oll = Math.max(0, (d.ollamaMemMb || 0) - modelMb);
+    if (oll > 0) buckets.push({ name: "ollama + KV cache", mb: oll, color: "#3b82f6" });
+    const used = buckets.reduce((a, b) => a + b.mb, 0);
+    const avail = d.availableMb || 0;
+    const other = Math.max(0, total - used - avail);
+    if (other > 0) buckets.push({ name: "other apps + kernel + compressed", mb: other, color: "#3a4152" });
+    if (avail > 0) buckets.push({ name: "available (free + reclaimable)", mb: avail, color: "#143a24" });
+    const cells = [];
+    for (const b of buckets) { const n = Math.max(0, Math.round(b.mb / cellMb)); for (let i = 0; i < n && cells.length < 100; i++) cells.push(b); }
+    while (cells.length < 100) cells.push({ color: "#0c1018" });
+    $("waffle").innerHTML = cells.slice(0, 100).map((c) => `<span class="wcell" style="background:${c.color}" title="${esc((c.name || "") + (c.mb ? " \u2014 " + (c.mb / 1024).toFixed(1) + "GB" : ""))}"></span>`).join("");
+    $("m-total").textContent = `\u00b7 ${(total / 1024).toFixed(1)}GB RAM \u00b7 1 cell = ${Math.round(cellMb)}MB`;
+    $("wlegend").innerHTML = buckets.filter((b) => b.mb > 0).map((b) => `<div class="wlg"><span class="sw" style="background:${b.color}"></span> ${b.hot ? "\u2605 " : ""}${esc(b.name)} <span class="dim">${(b.mb / 1024).toFixed(1)}GB \u00b7 ${Math.round((100 * b.mb) / total)}%</span></div>`).join("");
+    $("mhot").innerHTML = (d.hot || []).length ? `\u2605 prioritized (kept hot): ${d.hot.map(esc).join(", ")}` : `\u2605 prioritized: none held hot`;
+    const res = d.resident || [];
+    $("mlist").innerHTML = res.length
+      ? res.map((m) => `<div class="mrow"><span class="mn">${hot.has(m.name) ? "\u2605 " : ""}${esc(m.name)}</span> <span class="dim">${((m.sizeMb || 0) / 1024).toFixed(2)}GB \u00b7 ctx ${m.contextLength ?? "?"} \u00b7 until ${m.expiresAt ? new Date(m.expiresAt).toTimeString().slice(0, 5) : "?"}</span> <button class="rs ev" data-name="${esc(m.name)}">\u2716 evict</button></div>`).join("")
+      : `<div class="mrow dim">nothing resident \u2014 no model is loaded right now</div>`;
+    $("mlist").querySelectorAll("button.ev").forEach((b) => { b.onclick = () => evictModel(b.dataset.name, b); });
+    const resNames = new Set(res.map((m) => m.name));
+    $("minstalled").innerHTML = (d.installed || []).filter((m) => !resNames.has(m.name)).map((m) => `<div class="mrow dim"><span>${esc(m.name)}</span><span>${(m.sizeMb / 1024).toFixed(2)}GB</span></div>`).join("");
+  } catch { /* models endpoint unavailable */ }
+}
+async function evictModel(name, btn) {
+  btn.disabled = true; btn.textContent = "\u2026";
+  try {
+    const r = await fetch(`${BASE}/heimdall/models/evict`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name }) });
+    const d = await r.json();
+    toast(d.ok ? `${name} unloaded \u2014 memory freed` : `evict refused: ${d.error}`);
+  } catch (e) { toast(`evict failed: ${e.message}`); }
+  setTimeout(refreshModels, 900);
+}
+
+/* ── GENERATING: the actual text, as it is written ────────────────────── */
+// One stream panel PER INSTANCE (a session × model pair), so concurrent
+// generations are readable instead of one interleaved blob. Keyed by
+// `${sessionId}::${model}`; a `final` token closes the panel's cursor. The
+// cap retires the oldest panel once too many instances are writing at once.
+let _genPending = "";
+function onToken(t) {
+  if (!t.text) return;
+  const model = t.model || "?";
+  const sessionId = t.sessionId || "";
+  const g = ensureGen(`${sessionId}::${model}`, model, sessionId);
+  if (t.final) {
+    g.done = true;
+    g.stream.classList.add("done");
+    g.caret.remove();
+    g.body.textContent = t.text;
+    g.statusEl.textContent = "done";
+  } else {
+    // insert ahead of the caret so the cursor rides the latest token
+    g.caret.insertAdjacentText("beforebegin", t.text);
+    g.text += t.text;
+    trimGen(g, 12000);
+    g.statusEl.textContent = "streaming…";
+    // the actual words flow on the bridge: a drop every ~10 new characters
+    _genPending += t.text;
+    const words = _genPending.replace(/\s+/g, " ");
+    if (words.trim().length >= 10) {
+      spawnDrop(words.trim().slice(-16), spanX("er7"), 190);
+      _genPending = "";
+    }
+  }
+  scrollGen();
+  renderGen();
+}
+function ensureGen(id, model, sessionId) {
+  const existing = state.gen.get(id);
+  if (existing) return existing;
+  // the model-output log is bounded: retire the oldest finished entry once it
+  // grows past the cap, newest stay on the screen.
+  while (state.gen.size >= 50) {
+    const oldest = state.gen.values().next().value;
+    if (!oldest) break;
+    oldest.stream.remove();
+    state.gen.delete(oldest.id);
+  }
+  const wrap = document.createElement("div");
+  wrap.className = "gstream";
+  const now = new Date().toTimeString().slice(0, 8);
+  wrap.innerHTML = `<div class="g-head"><span class="g-time">${now}</span><span class="g-model">${esc(model)}</span>${sessionId ? `<span class="g-sess">${esc(sessionId)}</span>` : ""}<span class="g-status">streaming…</span></div><div class="g-body"></div>`;
+  const body = wrap.querySelector(".g-body");
+  const caret = document.createElement("span");
+  caret.className = "g-caret";
+  caret.textContent = "\u258c";
+  body.append(caret);
+  $("gen-list").prepend(wrap);
+  const rec = { id, model, sessionId, stream: wrap, body, caret, statusEl: wrap.querySelector(".g-status"), text: "", done: false };
+  state.gen.set(id, rec);
+  scrollGen();
+  return rec;
+}
+function scrollGen() {
+  // newest at the top: keep the latest entry in view
+  const list = $("gen-list");
+  list.scrollTop = 0;
+}
+function trimGen(g, max) {
+  let excess = g.body.textContent.length - max;
+  if (excess <= 0) return;
+  while (excess > 0 && g.body.childNodes.length > 1) {
+    const first = g.body.firstChild;
+    if (first.nodeType === 3) {
+      if (first.length > excess) { first.splitText(excess); excess = 0; }
+      else { excess -= first.length; first.remove(); }
+    } else first.remove();
+  }
+  g.text = g.body.textContent;
+}
+function renderGen() {
+  const n = state.gen.size;
+  $("gen-head").textContent = n ? `\u00b7 ${n} output${n === 1 ? "" : "s"} in the log` : "\u2014 nothing written yet";
+}
+
+/* ── CHANNELS: exactly what's going through, per lane ─────────────────── */
+function renderChannels() {
+  const st = state.status; if (!st) return;
+  const tp = (Array.isArray(st.throughput) ? st.throughput : []).filter((m) => (m.calls || 0) > 0 || (m.ungatedCalls || 0) > 0);
+  const el = $("ch-list");
+  if (!tp.length) { el.innerHTML = `<div class="ch dim">no traffic observed yet</div>`; return; }
+  el.innerHTML = tp.map((m) => {
+    const recent = (state.chans[m.model] || []).slice(-3)
+      .map((r) => `${r.p}\u2192${r.g}${r.ms ? ` ${(r.ms / 1000).toFixed(1)}s` : ""}`).join("   ");
+    const rate = m.genTokPerSec == null ? "\u2014" : `${m.genTokPerSec} tok/s \u00b7 ${Math.round(1000 / m.genTokPerSec)} ms/tok`;
+    return `<div class="ch"><span class="nm">${esc(m.model)}${m.ungatedCalls ? ` <span class="dim">\u2197 ${esc(m.upstream || "remote")}</span>` : ""}</span>`
+      + `<span class="nums">${m.calls} call(s) \u00b7 ${rate} \u00b7 ${((m.promptTokens || 0) / 1000).toFixed(1)}k in / ${((m.genTokens || 0) / 1000).toFixed(1)}k out</span>`
+      + (recent ? `<span class="last">last ${esc(recent)}</span>` : "") + `</div>`;
+  }).join("");
+}
+
+/* ── SERVERS: click to re-forge ───────────────────────────────────────── */
+function renderServers() {
+  const st = state.status; if (!st) return;
+  const el = $("srv-list");
+  const surfs = st.surfaces || [];
+  if (!surfs.length) { el.innerHTML = `<div class="srv dim">no surfaces registered</div>`; return; }
+  el.innerHTML = surfs.map((s) => {
+    const unv = s.up === false && String(s.reason || "").startsWith("unverified");
+    const down = s.up === false && !unv;
+    const txt = s.up === true ? `<span class="good">up</span>` : down ? `<span class="bad">down</span>` : unv ? `<span class="warn">unverified</span>` : `<span class="dim">unprobed</span>`;
+    return `<div class="srv"><span class="nm">${esc(s.name)} :${s.port}</span> ${txt} <span class="dim">${esc(s.family || "")}</span>`
+      + (s.restartable ? ` <button class="rs" data-name="${esc(s.name)}">\u21bb restart</button>` : ` <span class="dim">(this proxy \u2014 restart the process)</span>`)
+      + (s.restartsInWindow ? ` <span class="warn">\u2736${s.restartsInWindow}</span>` : "") + `</div>`;
+  }).join("");
+  el.querySelectorAll("button.rs").forEach((b) => { b.onclick = () => restartServer(b.dataset.name, b); });
+}
+async function restartServer(name, btn) {
+  btn.disabled = true; btn.textContent = "\u21bb …";
+  try {
+    const r = await fetch(`${BASE}/heimdall/restart`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name }) });
+    const d = await r.json();
+    toast(d.ok ? `re-forging ${name} — ${d.cmd}` : `refused: ${d.error}`);
+  } catch (e) { toast(`restart failed: ${e.message}`); }
+  btn.disabled = false; btn.textContent = "\u21bb restart";
+}
+
+/* ── LOG: the ledger, filterable, concern highlighted ─────────────────── */
+const CONCERN = new Set(["surface_down","restart_storm","self_down","rationed","claimed","bad_pass","zipper_held","memory_pressured","unservable","unservable_refused","unservable_seeded","turned_no_answer","forward_failed","first_byte_timeout","setting_refused","off_domain_refused","manual_restart"]);
+function logText(r) {
+  const t = r.at ? new Date(r.at).toTimeString().slice(0, 8) : "--:--:--";
+  let s = `${t} ${String(r.act || "?").toUpperCase().padEnd(4)}`;
+  if (r.finding) s += ` ${r.finding}`;
+  if (r.surface) s += ` ${r.surface}`;
+  if (r.holon) s += ` holon:${r.holon}`;
+  if (r.model) s += ` ${r.model}`;
+  if (r.key) s += ` ${r.key}`;
+  if (r.reason) s += ` (${r.reason})`;
+  if (r.setting) s += ` ${r.setting}\u2192${r.to}`;
+  if (r.ask) s += ` "${r.ask}"`;
+  return s;
+}
+function renderLog() {
+  const st = state.status; if (!st) return;
+  const f = ($("log-filter").value || "").toLowerCase();
+  const act = $("log-act").value;
+  const onlyC = $("log-concern-only").checked;
+  const rows = state.log.filter((r) => {
+    if (act && r.act !== act) return false;
+    if (onlyC && !CONCERN.has(r.finding)) return false;
+    if (f && !logText(r).toLowerCase().includes(f)) return false;
+    return true;
+  }).slice(-500).reverse();
+  const concern = state.log.filter((r) => CONCERN.has(r.finding)).length;
+  $("log-concern").innerHTML = concern ? `<span class="bad">\u2014 ${concern} concerning</span>` : `<span class="good">\u2014 all clear</span>`;
+  state.logView = rows;
+  $("log-list").innerHTML = rows.length
+    ? rows.map((r, i) => { const c = CONCERN.has(r.finding); const cls = c ? "bad" : ({ def: "vio", rec: "gold", crossing: "grn", eva: "blue" }[r.act] || "mut"); return `<div class="lrow ${cls}" data-i="${i}">${esc(logText(r))}</div>`; }).join("")
+    : `<div class="lrow mut">nothing matches the filter</div>`;
+  $("log-list").querySelectorAll(".lrow[data-i]").forEach((el) => { el.onclick = () => openReader(state.logView[Number(el.dataset.i)]); });
+}
+
+/* ── THE READER: click a row, see the whole thread ────────────────────── */
+function openReader(r) {
+  if (!r) return;
+  $("reader").hidden = false;
+  $("r-title").textContent = `${String(r.act || "?").toUpperCase()}${r.finding ? " \u00b7 " + r.finding : ""}${r.surface ? " \u00b7 " + r.surface : ""}${r.model ? " \u00b7 " + r.model : ""}`;
+  const kv = Object.entries(r).map(([k, v]) => `<div class="kv"><span class="k">${esc(k)}</span><span class="v">${esc(v && typeof v === "object" ? JSON.stringify(v) : v)}</span></div>`).join("");
+  const acts = [];
+  if (r.surface) acts.push(`<button id="r-restart">\u21bb restart ${esc(r.surface)}</button>`);
+  if (r.pid) acts.push(`<button id="r-kill">\u2716 end pid ${esc(r.pid)}</button>`);
+  acts.push(`<button id="r-ask">\ud83d\udde3 ask heimdall</button>`);
+  $("r-body").innerHTML = `<h4>EVENT</h4>${kv}<h4 id="r-thread-h">THREAD</h4><div class="thread" id="r-thread">loading\u2026</div><div class="acts">${acts.join("")}</div>`;
+  const rb = $("r-restart"); if (rb) rb.addEventListener("click", () => restartServer(r.surface, rb));
+  const kb = $("r-kill"); if (kb) kb.addEventListener("click", () => endTask(r.pid, kb));
+  const ab = $("r-ask"); if (ab) ab.addEventListener("click", () => { $("askinput").value = `explain this event: ${logText(r)}`.slice(0, 200); $("askinput").focus(); closeReader(); });
+  loadThread(r);
+}
+async function loadThread(r) {
+  const q = new URLSearchParams({ limit: "500" });
+  if (r.sessionId) q.set("sessionId", r.sessionId);
+  else if (r.key) q.set("key", r.key);
+  else if (r.surface) q.set("surface", r.surface);
+  else if (r.model) q.set("model", r.model);
+  else if (r.finding) q.set("finding", r.finding);
+  try {
+    const d = await (await fetch(`${BASE}/heimdall/log?${q}`)).json();
+    const arr = (d.lines || []).slice().reverse();
+    $("r-thread-h").textContent = `THREAD \u00b7 ${arr.length} row(s) sharing ${esc(r.sessionId ? "session " + r.sessionId : r.key ? "key " + r.key : r.surface ? "surface " + r.surface : r.model ? "model " + r.model : r.finding ? "finding " + r.finding : "the ledger")}`;
+    $("r-thread").innerHTML = arr.length ? arr.map((x, i) => `<div data-i="${i}">${esc(logText(x))}</div>`).join("") : `<div class="mut">no related rows</div>`;
+    $("r-thread").querySelectorAll("div[data-i]").forEach((el) => { el.onclick = () => openReader(arr[Number(el.dataset.i)]); });
+  } catch (e) { $("r-thread").innerHTML = `<div class="mut">thread unavailable (${esc(e.message)})</div>`; }
+}
+function closeReader() { $("reader").hidden = true; }
+$("r-close").addEventListener("click", closeReader);
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeReader(); });
+
+function toast(msg) {
+  const el = $("toast"); el.textContent = msg; el.classList.add("show");
+  clearTimeout(toast._t); toast._t = setTimeout(() => el.classList.remove("show"), 2600);
+}
+
+function waste() {
+  const st = state.status; if (!st) return "…";
+  const d = st.disclosure || {};
+  const out = [];
+  const tp = Array.isArray(st.throughput) ? st.throughput : [];
+  for (const m of tp) {
+    if (m.reloads) out.push(`<span class="gold">${esc(m.model)}</span> reloaded ${m.reloads}× (${Math.round((m.reloadSeconds || 0) / m.reloads)}s each) <span class="dim">— pin one num_ctx</span>`);
+    if (m.genTokPerSec != null && m.genTokPerSec < 6) out.push(`<span class="gold">${esc(m.model)}</span> at ${m.genTokPerSec} tok/s <span class="dim">— contention</span>`);
+  }
+  if (d.memory?.pressured) out.push(`<span class="warn">memory ${d.memory.freeMb}MB under floor ${d.memory.floorMb}MB</span> <span class="dim">— loads will hang</span>`);
+  if (d.queue?.workAhead > 0) out.push(`the line is ${d.queue.workAhead} deep <span class="dim">— batch waits behind interactive</span>`);
+  const un = (d.servable?.unservable || []).length;
+  if (un) out.push(`<span class="warn">${un} model(s) dropped</span> <span class="dim">— hung / timed out</span>`);
+  if (!out.length) return `<span class="good">clean</span> <span class="dim">— nothing measured to fix</span>`;
+  return out.slice(0, 2).join(' <span class="mut">·</span> ');
+}
+
+/* ── acts → drops, horn, last line ────────────────────────────────────── */
+const BAD = new Set(["surface_down","restart_storm","self_down","rationed","claimed","bad_pass","zipper_held","memory_pressured","unservable","unservable_refused","turned_no_answer","forward_failed"]);
+function onAct(a) {
+  const at = new Date(a.at).toTimeString().slice(0, 8);
+  const f = a.finding || a.act;
+  state.last = `${at} ${a.act}${a.finding ? " " + a.finding : ""}${a.surface ? " " + a.surface : ""}${a.model ? " " + a.model : ""}`;
+  state.log.push(a);
+  if (state.log.length > 1200) state.log.shift();
+  if (["surface_down","restart_storm","self_down"].includes(a.finding)) { state.blasts += 1; }
+  spawnDrop(dropLabel(a), a.surface ? spanX(a.surface) : randX(), 165);
+  render();
+}
+function dropLabel(a) {
+  const cut = (s) => String(s).trim().slice(0, 20);
+  if (a.act === "crossing") return cut(`${a.finding || "crossing"}${a.model ? " " + a.model : ""}`);
+  if (a.act === "eva") return cut(`${a.finding || "eva"}${a.surface ? " " + a.surface : ""}`);
+  if (a.act === "rec") return cut(`reforge ${a.surface || a.holon || ""}`);
+  if (a.act === "def") return a.holon ? cut(`def ${a.holon}`) : "void";
+  return cut(a.finding || a.act || "");
+}
+function spawnTraffic(c) {
+  const model = String(c.model || "?").replace(/^er7:/, "");
+  // record it on its channel — exactly what went through, on which lane
+  const ch = state.chans[model] = state.chans[model] || [];
+  ch.push({ p: c.promptTokens || 0, g: c.genTokens || 0, ms: (c.genMs || 0) + (c.promptMs || 0), at: Date.now() });
+  if (ch.length > 20) ch.shift();
+  const tok = c.genTokens ? `${c.genTokens}t` : (c.promptTokens ? `${c.promptTokens}pt` : "");
+  spawnDrop(`${model}${tok ? " " + tok : ""}${c.ungated ? " ↗" : ""}${c.reloaded ? " ↻" : ""}`.slice(0, 20), spanX("er7"), c.ungated ? 45 : 165);
+}
+function spawnDrop(label, x, hue) {
+  if (!label) return;
+  state.drops.push({ x, y: 0, vy: 0.5 + Math.random() * 0.7, label, hue });
+  if (state.drops.length > 60) state.drops.shift();
+}
+
+/* ── the bridge strip: the systems, and only the traffic that really passes */
+const cv = $("stage"), ctx = cv.getContext("2d");
+let SW = 0, SH = 0, CW = 8, CH = 14, COLS = 0, ROWS = 0;
+function resize() {
+  const dpr = Math.min(1.5, window.devicePixelRatio || 1);
+  SW = cv.clientWidth; SH = cv.clientHeight;
+  cv.width = Math.floor(SW * dpr); cv.height = Math.floor(SH * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.font = '600 13px ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace';
+  ctx.textBaseline = "top";
+  CW = Math.max(6, ctx.measureText("M").width); CH = 14;
+  COLS = Math.max(20, Math.floor(SW / CW)); ROWS = Math.max(6, Math.floor(SH / CH));
+}
+window.addEventListener("resize", resize); resize();
+
+const x0 = () => 1, x1 = () => COLS - 1;
+function sysCount() { return (systemOf(state.status).surfaces.length) || 1; }
+function spanX(name) { const sys = systemOf(state.status).surfaces; const i = sys.findIndex((s) => s.name === name); const n = sys.length || 1; const a = x0(), b = x1();
+  if (i < 0) return a + Math.floor(Math.random() * (b - a));
+  const span = (b - a) / n; return Math.floor(a + (i + 0.15 + Math.random() * 0.7) * span); }
+function randX() { return x0() + Math.floor(Math.random() * (x1() - x0())); }
+
+let lastFrame = 0;
+function frame(now) {
+  requestAnimationFrame(frame);
+  if (now - lastFrame < 70) return;
+  lastFrame = now;
+  const t = (now / 1000) % 3600;
+  ctx.clearRect(0, 0, SW, SH);
+  const sys = systemOf(state.status), surfs = sys.surfaces, n = surfs.length || 1;
+  const a = x0(), b = x1(), span = (b - a) / n;
+  const baseY = Math.round(ROWS * 0.5), arch = Math.round(ROWS * 0.3);
+  const arcY = (x) => { const tt = (x - (a + b) / 2) / ((b - a) / 2); return Math.round(baseY - arch * (1 - tt * tt)); };
+  const hue = (x) => ((x - a) / (b - a)) * 280;
+
+  // the arc: one span per system, lit by its health
+  for (let x = a; x < b; x++) {
+    const i = Math.min(n - 1, Math.floor((x - a) / span));
+    const s = surfs[i] || {};
+    const unv = s.up === false && String(s.reason || "").startsWith("unverified");
+    const down = s.up === false && !unv;
+    const y = arcY(x);
+    ctx.fillStyle = down ? "rgba(46,20,22,1)" : unv ? "hsla(40,80%,46%,.7)" : `hsla(${hue(x)},82%,${s.up === true ? 54 : 30}%,${s.up === true ? 0.85 : 0.4})`;
+    ctx.fillText("█", x * CW, y * CH);
+    ctx.fillStyle = down ? "rgba(28,16,18,1)" : "rgba(20,22,30,.6)";
+    ctx.fillText("░", x * CW, (y + 1) * CH);
+  }
+  // names + state under each span
+  for (let i = 0; i < n; i++) {
+    const s = surfs[i] || {};
+    const mx = Math.floor(a + (i + 0.5) * span);
+    const up = s.up === true, unv = s.up === false && String(s.reason || "").startsWith("unverified"), down = s.up === false && !unv;
+    ctx.fillStyle = down ? "rgba(255,92,92,.95)" : unv ? "rgba(255,180,84,.95)" : up ? "rgba(79,227,192,.95)" : "rgba(107,115,133,.9)";
+    const nm = `${s.name} :${s.port}`;
+    ctx.fillText(nm.slice(0, Math.max(4, span * 1.6)), (mx - Math.floor(nm.length / 2)) * CW, (ROWS - 2) * CH);
+    ctx.fillText(down ? "DOWN" : unv ? "?" : up ? (s.standing || "UP") : "—", (mx - 2) * CW, (ROWS - 1) * CH);
+  }
+  // the flow: ONLY real traffic, falling at the measured speed
+  const tp = Array.isArray(state.status?.throughput) ? state.status.throughput : [];
+  const agg = tp.filter((m) => !m.ungatedCalls).reduce((x, m) => { x.t += m.genTokens || 0; x.s += m.genSeconds || 0; return x; }, { t: 0, s: 0 });
+  const tokps = agg.s > 0 ? agg.t / agg.s : null;
+  const flow = 0.35 + 1.3 * Math.min(1, (tokps ?? 0) / 14);
+  for (const d of state.drops) {
+    d.y += d.vy * flow;
+    for (let k = 0; k < d.label.length; k++) {
+      const y = Math.floor(d.y) - k;
+      if (y < 0 || y >= ROWS - 2) continue;
+      ctx.fillStyle = k === 0 ? "rgba(255,255,255,.98)" : `hsla(${d.hue},90%,62%,${Math.max(0, 0.95 - k * 0.14)})`;
+      ctx.fillText(d.label[k], d.x * CW, y * CH);
+    }
+  }
+  state.drops = state.drops.filter((d) => d.y <= ROWS);
+  ctx.fillStyle = "rgba(107,115,133,.85)";
+  ctx.fillText(`flow ${tokps == null ? "—" : tokps.toFixed(1) + " tok/s"}${state.drops.length ? ` · ${state.drops.length} passing` : ""}`, a * CW, 0);
+}
+requestAnimationFrame(frame);
+
+setInterval(() => { if (Date.now() - state.lastEventAt > 9000) setConn("recon"); }, 4000);
+
+/* ── ask heimdall ─────────────────────────────────────────────────────── */
+function addChat(who, text, res) {
+  const box = $("chatlog");
+  const d = document.createElement("div");
+  d.className = who === "you" ? "you" : (res?.refused ? "he refused" : res?.applied ? "he applied" : "he");
+  d.textContent = (who === "you" ? "› " : "⚡ ") + text;
+  box.append(d);
+  if (res?.disclosure) {
+    const dd = document.createElement("div");
+    dd.className = "dis";
+    dd.textContent = `   ${res.disclosure.giver} · ${res.disclosure.standing} · ${res.disclosure.groundedIn} · ${res.disclosure.tokens} tokens${res.disclosure.turnMs ? ` · ${(res.disclosure.turnMs / 1000).toFixed(1)}s` : ""}${res.disclosure.note ? ` · ${res.disclosure.note}` : ""}`;
+    box.append(dd);
+  }
+  while (box.children.length > 100) box.firstChild.remove();
+  box.scrollTop = box.scrollHeight;
+}
+async function askHeimdall(q) {
+  q = String(q ?? "").trim(); if (!q) return;
+  addChat("you", q);
+  const box = $("chatlog");
+  const ph = document.createElement("div"); ph.className = "he dim"; ph.textContent = "⚡ … going through";
+  box.append(ph); box.scrollTop = box.scrollHeight;
+  try {
+    const r = await fetch(`${BASE}/heimdall/ask`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ask: q }) });
+    const d = await r.json();
+    ph.remove();
+    addChat("heimdall", d.answer ?? "(he said nothing)", d);
+  } catch (e) {
+    ph.remove();
+    addChat("heimdall", `I cannot hear you — the bridge is silent (${e.message}).`, { refused: true });
+  }
+}
+$("asksend").onclick = () => { const i = $("askinput"); askHeimdall(i.value); i.value = ""; };
+$("askinput").addEventListener("keydown", (e) => { if (e.key === "Enter") { askHeimdall(e.target.value); e.target.value = ""; } });
+addChat("heimdall", "Ask me of the surfaces, the models, the line, the box, where the efficiency is, or my settings — nothing else.", { disclosure: { giver: "heimdall", standing: "disclosed", groundedIn: "GET /heimdall", tokens: 0 } });
+</script>
+</body>
+</html>

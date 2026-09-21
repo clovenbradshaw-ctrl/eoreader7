@@ -3,7 +3,31 @@ import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { MODEL_PREFIX, parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote, parseAnthropicRequest, flattenAnthropicContent, anthropicCountTokensResponse, anthropicMessageResponse, anthropicStreamStart, anthropicContentBlockStart, anthropicContentBlockDelta, anthropicContentBlockStop, anthropicMessageDelta, anthropicMessageStop } from "./proxy-api.mjs";
-import { offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S, startDocumentJob, documentJobStatus, refreshOpencodeModels, upstreamModelFor, refreshAnthropicModels, upstreamAnthropicModelFor, listSessions } from "./proxy-runner.mjs";
+import * as ProxyRunner from "./proxy-runner.mjs";
+// Namespace-imported and destructured so a sibling editing proxy-runner.mjs
+// can never take this process down by removing one export: a missing name is
+// undefined (and defaulted below), never a fatal static-import error.
+const {
+  offeredOllamaModels, runProxyTurn, keepModelHot, hotModelSet, OLLAMA_KEEP_ALIVE_S,
+  startDocumentJob, documentJobStatus, refreshOpencodeModels, upstreamModelFor,
+  refreshAnthropicModels, upstreamAnthropicModelFor,
+} = ProxyRunner;
+const listSessions = ProxyRunner.listSessions || (() => []);
+let _inflight = 0; // turns currently running — the model watchdog never fires during one
+
+// The mechanical code build (2026-09-21): a discrete multi-unit coding task is
+// decomposed, the units drawn CONCURRENTLY, then assembled and validated —
+// triggered by a REGULAR NL PROMPT, not a hand-built harness.
+import { detectBuildTask, buildCodeTask } from "./native/organs/code-build.js";
+
+// The default model, chosen from what the box can ACTUALLY serve — hot first,
+// then resident — never a hard-coded name that may be seeded unservable (the
+// old `olmo2:7b` default 503'd every model-less ask; measured).
+function pickDefaultModel() {
+  try { const hot = [...hotModelSet()][0]; if (hot) return String(hot).replace(/^er7:/, ""); } catch { /* no hot set */ }
+  try { const res = loadedModels(); const n = Array.isArray(res) ? res.map((m) => m.name || m.model).find(Boolean) : null; if (n) return n; } catch { /* unknown residency */ }
+  return process.env.ER7_DEFAULT_MODEL || "gemma2:2b";
+}
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
@@ -19,7 +43,7 @@ import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge, liveReap, consolidateMemory, runHolonTree } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, restartSurface, sampleVitalsNow, backgroundTasks, killTask, memoryPressured, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism } from "./heimdall.mjs";
 // "Computed, not generated" — the-fold's own house rule (arithmetic.js),
 // reused directly rather than re-derived: a small model answering "what is
 // today's date?" from its stale training data, with nothing in THIS proxy's
@@ -335,6 +359,7 @@ async function handleRequest(req, res) {
       documents: { start: "POST /v1/documents", poll: "GET /v1/documents/:id" },
       sessions: { list: "GET /v1/sessions", description: "Every live reader fold on this proxy, newest first. Reuse a sessionId (x-er7-session header or body field) to keep one accumulating fold; list them here." },
       ui: { description: "The built-in browser surface — no sibling repo needed.", open: "GET /ui" },
+      heimdall: { description: "The watch — what Heimdall is seeing, live: every surface, every model's throughput, the sequence of prompts, CPU/GPU.", surface: "GET /heimdall-ui", stream: "GET /heimdall/live" },
       headers: {
         "x-er7-session": "stick a conversation to one accumulating reader fold (optional; a stable session is derived from the connection otherwise)",
         "x-er7-user": "durable identity across sessions (optional)",
@@ -360,12 +385,305 @@ async function handleRequest(req, res) {
     return;
   }
 
+  // /heimdall/ask — talk to Heimdall, the watchman. He answers for ONE
+  // domain (the surfaces, the models, the line, the box's breath, the
+  // efficiency, his rules, his child watchers, his settings) from his own
+  // disclosed state; an off-domain ask gets a typed decline, never an
+  // invention. A setting ask is validated, applied live, ledgered, and
+  // persisted. Model-free: zero tokens.
+  if (req.method === "POST" && req.url === "/heimdall/ask") {
+    let raw = "";
+    for await (const chunk of req) raw += chunk;
+    let parsed = {};
+    try { parsed = JSON.parse(raw || "{}"); } catch { /* a malformed ask is an empty ask */ }
+    const ask = String(parsed.ask ?? parsed.task ?? "").trim();
+    const caller = String(req.headers["x-er7-user"] || req.headers["x-er7-caller"] || parsed.caller || "operator").slice(0, 64);
+    let fleet = [];
+    try {
+      const ports = [process.env.ER7_HEIMDALL_FLEET_PORT ?? 11438, 11439];
+      const got = await Promise.all(ports.map((p) => fetch(`http://127.0.0.1:${p}/heimdall`, { signal: AbortSignal.timeout(1500) }).then((r) => r.ok ? r.json() : null).catch(() => null)));
+      fleet = got.filter(Boolean);
+    } catch { /* no fleet answering: he answers from his own probes */ }
+    const gate = await heimdallAsk(ask, { caller, fleet });
+
+    // OFF-DOMAIN, settings actions, empty, and the help listing stay mechanical:
+    // the first is a firewall, the second is an action, the rest is a list —
+    // none is a question to reason about.
+    if (gate.refused || gate.intent === "setting" || gate.intent === "empty" || gate.intent === "help" || gate.intent === "modelserver" || gate.intent === "hogs" || gate.intent === "quit_all_apps") {
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify(gate));
+      return;
+    }
+
+    // Otherwise the question GOES THROUGH FOR REAL: a genuine eoreader7 turn
+    // (the same pipeline every door uses), confined to the bridge by the frame
+    // and GROUNDED in the very facts the gate computed — so it can phrase the
+    // watchman's answer, never invent one. If the turn cannot run, the grounded
+    // facts ARE the answer.
+    let model = "gemma2:2b";
+    try {
+      const hot = [...hotModelSet()][0];
+      const resident = loadedModels();
+      const names = Array.isArray(resident) ? resident.map((m) => m.name || m.model) : [];
+      if (hot) model = hot; else if (names[0]) model = names[0];
+    } catch { /* fall back to the small default */ }
+    const frame = [
+      "You are Heimdall, the watchman who keeps the Bifr\u00f6st bridge \u2014 the local model surfaces of eoreader7.",
+      "You answer ONLY about the bridge: the surfaces (which systems are up), the models and their speed, the line (the queue), the box (CPU/GPU/memory), where the efficiency is, your rules, your child watchers, your settings.",
+      "If the ask is not about the bridge, refuse in one sentence and stop.",
+      "Speak in the watchman's terse, declarative register. Use ONLY the measured facts below. Invent no number. If something was not measured, say so plainly. Do not ask follow-up questions.",
+      "When asked how to fix, reduce, or improve something, give a concrete, ORDERED plan: name each step, the number that drives it, and the lever it turns \u2014 grounded in the facts.",
+      "",
+      "MEASURED FACTS (from the ledger and GET /heimdall):",
+      gate.facts || gate.answer,
+      "",
+      `OPERATOR ASK: ${ask}`,
+    ].join("\n");
+    try {
+      const t0 = Date.now();
+      const up = await fetch(`http://127.0.0.1:${PORT}/v1/ask`, {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-er7-session": "heimdall-watch", "x-er7-user": "heimdall-operator", "x-er7-priority": "interactive" },
+        body: JSON.stringify({ task: frame, model, sessionId: "heimdall-watch" }),
+        signal: AbortSignal.timeout(90000),
+      });
+      const data = await up.json().catch(() => null);
+      const text = data && typeof data.answer === "string" ? data.answer.trim() : "";
+      if (up.ok && text) {
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify({
+          intent: gate.intent, answer: text, refused: false, grounded: gate.answer,
+          disclosure: { giver: data.model || model, standing: "disclosed", groundedIn: "GET /heimdall + an eoreader7 turn", tokens: (data.usage?.promptTokens ?? 0) + (data.usage?.completionTokens ?? 0), turnMs: Date.now() - t0 },
+        }));
+        return;
+      }
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify({ ...gate, disclosure: { ...gate.disclosure, groundedIn: "GET /heimdall (the turn did not answer)", note: data?.error?.message || `HTTP ${up.status}` } }));
+      return;
+    } catch (err) {
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify({ ...gate, disclosure: { ...gate.disclosure, groundedIn: "GET /heimdall (the turn did not run)", note: err.message } }));
+      return;
+    }
+  }
+
+  // /heimdall/vitals — the tachometers: CPU total + per-core, load, RAM, GPU.
+  if (req.method === "GET" && req.url === "/heimdall/vitals") {
+    const v = await sampleVitalsNow().catch(() => null);
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify(v ?? { error: "vitals unavailable" }));
+    return;
+  }
+
+  // /heimdall/models — which models are loaded, prioritized, and how much RAM
+  // each holds (for the memory waffle). Resident from Ollama /api/ps; the
+  // installed roster from /api/tags; the priority (hot) set from the proxy.
+  if (req.method === "GET" && req.url === "/heimdall/models") {
+    let ps = [], tags = [];
+    try { const r = await fetch(`${UPSTREAM}/api/ps`, { signal: AbortSignal.timeout(3000) }); if (r.ok) ps = (await r.json()).models ?? []; } catch { /* ollama silent */ }
+    try { const r = await fetch(`${UPSTREAM}/api/tags`, { signal: AbortSignal.timeout(3000) }); if (r.ok) tags = (await r.json()).models ?? []; } catch { /* ollama silent */ }
+    let hot = [];
+    try { hot = [...hotModelSet()].map((n) => String(n).replace(/^er7:/, "")); } catch { /* no hot set */ }
+    const st = heimdallStatus();
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({
+      totalMb: st.vitals?.memTotalMb ?? null,
+      availableMb: st.vitals?.memAvailableMb ?? null,
+      ollamaMemMb: st.vitals?.ollamaMemMb ?? null,
+      hot,
+      resident: ps.map((m) => ({ name: m.name, sizeMb: Math.round((m.size || 0) / 1048576), vramMb: Math.round((m.size_vram || 0) / 1048576), contextLength: m.context_length ?? null, expiresAt: m.expires_at ?? null })),
+      installed: tags.map((m) => ({ name: m.name, sizeMb: Math.round((m.size || 0) / 1048576) })).sort((a, b) => b.sizeMb - a.sizeMb),
+      unservable: st.disclosure?.servable?.unservable || [],
+    }));
+    return;
+  }
+
+  // /heimdall/models/evict — unload one resident model NOW (Ollama keep_alive:0).
+  // Frees its weights + KV cache on demand: the operator's hand on "available".
+  if (req.method === "POST" && req.url === "/heimdall/models/evict") {
+    let raw = "";
+    for await (const chunk of req) raw += chunk;
+    let parsed = {};
+    try { parsed = JSON.parse(raw || "{}"); } catch { /* malformed */ }
+    const name = String(parsed.name || "").trim();
+    if (!name) { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ ok: false, error: "name required" })); return; }
+    const r = await evictModel(name).catch((err) => ({ ok: false, error: err.message }));
+    res.writeHead(r.ok ? 200 : 400, { "content-type": "application/json" });
+    res.end(JSON.stringify(r));
+    return;
+  }
+
+  // /heimdall/apps/quit — SPECIAL: quit ANY user app (gated by the quitApps
+  // setting, off by default). Keeps the surface, this session, the model server
+  // and the system unless keepSurface:false.
+  if (req.method === "POST" && req.url === "/heimdall/apps/quit") {
+    let raw = "";
+    for await (const chunk of req) raw += chunk;
+    let parsed = {};
+    try { parsed = JSON.parse(raw || "{}"); } catch { /* defaults */ }
+    const r = await quitApps({ keepSurface: parsed.keepSurface !== false, max: parsed.max }).catch((err) => ({ ok: false, error: err.message }));
+    res.writeHead(r.ok ? 200 : 400, { "content-type": "application/json" });
+    res.end(JSON.stringify(r));
+    return;
+  }
+
+  // /heimdall/memory/hogs — SPECIAL: quit the biggest memory-hog apps to free
+  // RAM and drain swap. Gated by the quitHogs setting (off by default).
+  if (req.method === "POST" && req.url === "/heimdall/memory/hogs") {
+    let raw = "";
+    for await (const chunk of req) raw += chunk;
+    let parsed = {};
+    try { parsed = JSON.parse(raw || "{}"); } catch { /* default max */ }
+    const r = await quitMemoryHogs({ max: parsed.max }).catch((err) => ({ ok: false, error: err.message }));
+    res.writeHead(r.ok ? 200 : 400, { "content-type": "application/json" });
+    res.end(JSON.stringify(r));
+    return;
+  }
+
+  // /v1/build — a discrete multi-unit coding task, built mechanically: the
+  // units drawn concurrently, assembled and validated. The same path a plain
+  // NL prompt takes on /v1/ask when it names such a task.
+  if (req.method === "POST" && req.url === "/v1/build") {
+    let raw = "";
+    for await (const chunk of req) raw += chunk;
+    let parsed = {};
+    try { parsed = JSON.parse(raw || "{}"); } catch { /* malformed */ }
+    const r = await buildCodeTask({ task: String(parsed.task ?? ""), model: parsed.model || "qwen2.5-coder:1.5b", testCommand: parsed.testCommand || null, out: parsed.out || null, parallelism: parsed.parallelism || currentParallelism() }).catch((e) => ({ ok: false, error: e.message }));
+    res.writeHead(r.ok ? 200 : 400, { "content-type": "application/json" });
+    res.end(JSON.stringify(r));
+    return;
+  }
+
+  // /heimdall/model/restart — restart the model server (ollama serve) directly
+  // with the tuned, non-wedging env. The lever against the wedge.
+  if (req.method === "POST" && req.url === "/heimdall/model/restart") {
+    const r = await restartModelServer().catch((err) => ({ ok: false, error: err.message }));
+    res.writeHead(r.ok ? 200 : 500, { "content-type": "application/json" });
+    res.end(JSON.stringify(r));
+    return;
+  }
+
+  // /heimdall/report — a system flags a broken/blocked path; Heimdall tries to
+  // fix it along the bridge (re-forge a surface, free memory, name a servable
+  // model), and escalates if he cannot. Never silently dropped.
+  if (req.method === "POST" && req.url === "/heimdall/report") {
+    let raw = "";
+    for await (const chunk of req) raw += chunk;
+    let parsed = {};
+    try { parsed = JSON.parse(raw || "{}"); } catch { /* malformed report */ }
+    const r = await handleReport(parsed).catch((err) => ({ fixed: false, outcome: "path_escalated", error: err.message }));
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify(r));
+    return;
+  }
+
+  // /heimdall/tasks — the background tasks (the reaper's census + what's
+  // running), and /heimdall/kill to end one by pid — same walls as the reaper.
+  if (req.method === "GET" && req.url === "/heimdall/tasks") {
+    const t = await backgroundTasks().catch((err) => ({ error: err.message }));
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify(t));
+    return;
+  }
+  if (req.method === "POST" && req.url === "/heimdall/kill") {
+    let raw = "";
+    for await (const chunk of req) raw += chunk;
+    let parsed = {};
+    try { parsed = JSON.parse(raw || "{}"); } catch { /* malformed: refused below */ }
+    const r = await killTask(parsed.pid).catch((err) => ({ ok: false, error: err.message }));
+    res.writeHead(r.ok ? 200 : 400, { "content-type": "application/json" });
+    res.end(JSON.stringify(r));
+    return;
+  }
+
+  // /heimdall/log — the ledger, parsed, for a filterable view; ?key/&surface/
+  // &model/&sessionId/&finding pull one THREAD (the rows sharing an identity).
+  if (req.method === "GET" && req.url.startsWith("/heimdall/log")) {
+    let limit = 400, filter = null;
+    try {
+      const u = new URL(req.url, "http://x");
+      limit = Number(u.searchParams.get("limit")) || 400;
+      const f = {};
+      for (const k of ["key", "surface", "model", "sessionId", "finding"]) { const val = u.searchParams.get(k); if (val) f[k] = val; }
+      filter = Object.keys(f).length ? f : null;
+    } catch { /* default: the tail */ }
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ lines: logLines(limit, filter) }));
+    return;
+  }
+
+  // /heimdall/restart — the operator re-forges one surface by name. The same
+  // walls hold as the watcher's REC: never the self, never a restart storm.
+  if (req.method === "POST" && req.url === "/heimdall/restart") {
+    let raw = "";
+    for await (const chunk of req) raw += chunk;
+    let parsed = {};
+    try { parsed = JSON.parse(raw || "{}"); } catch { /* a malformed ask is an empty one */ }
+    const r = restartSurface(parsed.name);
+    res.writeHead(r.ok ? 200 : 400, { "content-type": "application/json" });
+    res.end(JSON.stringify(r));
+    return;
+  }
+
+  // /heimdall/settings — the knobs, disclosed (GET), or set one directly
+  // (POST {name, value}). The chat is the primary door; this is the plain one.
+  if (req.method === "GET" && req.url === "/heimdall/settings") {
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ settings: heimdallSettings() }));
+    return;
+  }
+  if (req.method === "POST" && req.url === "/heimdall/settings") {
+    let raw = "";
+    for await (const chunk of req) raw += chunk;
+    let parsed = {};
+    try { parsed = JSON.parse(raw || "{}"); } catch { /* malformed: a typed refusal below */ }
+    let out;
+    if (parsed.reset) { const def = heimdallSettings().find((s) => s.name === parsed.name); out = def ? setHeimdallSetting(parsed.name, def.default, { key: "operator" }) : { ok: false, error: `no such setting: ${parsed.name}` }; }
+    else out = setHeimdallSetting(parsed.name, parsed.value, { key: "operator" });
+    res.writeHead(out.ok ? 200 : 400, { "content-type": "application/json" });
+    res.end(JSON.stringify(out));
+    return;
+  }
+
+  // /heimdall/live — what Heimdall is seeing, in real time (2026-09-20): an
+  // SSE stream of every act he takes (the append-only ledger, broadcast the
+  // moment each row lands) plus a full status snapshot on a short cadence,
+  // so the surfaces, vitals, queue, and throughput stay live between the
+  // watcher's own ticks. The numbers are the SAME ones /heimdall serves —
+  // nothing new is measured here, only watched. Loopback-bound like
+  // everything else.
+  if (req.method === "GET" && req.url === "/heimdall/live") {
+    res.writeHead(200, {
+      "content-type": "text/event-stream",
+      "cache-control": "no-store",
+      connection: "keep-alive",
+      "access-control-allow-origin": "*",
+    });
+    res.write(`event: hello\ndata: ${JSON.stringify({ status: heimdallStatus() })}\n\n`);
+    const off = onLog((entry) => {
+      try { res.write(`event: act\ndata: ${JSON.stringify(entry)}\n\n`); } catch { /* dead socket: dropped, never fatal */ }
+    });
+    // real traffic (a finished call's own counters) — live-only, not persisted
+    const offLive = onLive((entry) => {
+      try { res.write(`event: ${entry.act === "token" ? "token" : "traffic"}\ndata: ${JSON.stringify(entry)}\n\n`); } catch { /* dead socket: dropped */ }
+    });
+    const statusTimer = setInterval(() => {
+      try { res.write(`event: status\ndata: ${JSON.stringify({ status: heimdallStatus() })}\n\n`); } catch { /* dead socket: dropped */ }
+    }, 3000);
+    const keepalive = setInterval(() => {
+      try { res.write(": h\n\n"); } catch { /* dead socket: dropped */ }
+    }, 15000);
+    res.on("close", () => { off(); offLive(); clearInterval(statusTimer); clearInterval(keepalive); });
+    return;
+  }
+
   // /content-rules — the ant-swarm's standing rules for hard content types
   // (the protocol's preserve half). Every surface attached to eoreader7 reads
-  // the SAME ledger here: a content type with a standing rule is applied
-  // before re-deriving, and a turn that swarms on new hard material writes
-  // back through the same path. Append-only; a rule carries its falsifying
-  // control.
+  // the SAME ledger here: a hard-meaning turn applies its standing rule by
+  // name alongside the swarm's re-derivation (never instead of it), and a
+  // turn that swarms on new hard material writes back through the same path.
+  // Append-only; a rule carries its falsifying control. (Corrected
+  // 2026-09-20 — the old wording overstated the rule's preemption.)
   if (req.method === "GET" && req.url === "/content-rules") {
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify({ count: contentRulesCount(), rules: contentRulesStore(), file: CONTENT_RULES_FILE }));
@@ -471,7 +789,8 @@ async function handleRequest(req, res) {
         const parsed = JSON.parse(body);
         // HOLON LEVEL, VALIDATED (2026-09-20, falsification B7): an unknown
         // value used to degrade silently to full-section behavior — a
-        // visible typed gap, never a default, is the house law.
+        // visible typed gap, never a default, is the house law. The three
+        // accepted write-granularities are the text holarchy's part names.
         const HOLON_LEVELS = new Set(["section", "paragraph", "sentence"]);
         const holonLevel = parsed.holonLevel ?? "section";
         if (!HOLON_LEVELS.has(holonLevel)) {
@@ -479,12 +798,14 @@ async function handleRequest(req, res) {
           res.end(JSON.stringify({ error: { message: `holonLevel must be one of ${[...HOLON_LEVELS].join(", ")} — got "${holonLevel}"`, type: "unknown_holon_level" } }));
           return;
         }
-        const job = await startDocumentJob({
+const job = await startDocumentJob({
           task: String(parsed.task ?? "").trim(),
-          model: parsed.model ?? "olmo2:7b",
+          model: parsed.model ?? pickDefaultModel(),
           workspace: parsed.workspace ?? "",
           sessionId: parsed.sessionId ?? null,
-          holonLevel,
+          holonLevel: parsed.holonLevel ?? "section",
+          webConsent: parsed.webConsent === true || parsed.webConsent === "true",
+          seed: parsed.seed != null ? String(parsed.seed) : null,
         });
         res.writeHead(202, { "content-type": "application/json" });
         res.end(JSON.stringify(job));
@@ -673,9 +994,31 @@ async function handleRequest(req, res) {
         res.end(JSON.stringify({ error: 'task is required — the text to read, e.g. { "task": "..." }' }));
         return;
       }
+
+      // A REGULAR NL PROMPT that names a discrete multi-unit coding task is
+      // recognized as a mechanical BUILD: compute the structure, draw only the
+      // independent units (concurrently), assemble and validate. Not the model
+      // turn — this shape is code.
+      if (detectBuildTask(task)) {
+        const b = await buildCodeTask({
+          task, model: String(parsed?.model ?? "").trim() || "qwen2.5-coder:1.5b",
+          testCommand: parsed?.testCommand ?? null, out: parsed?.out ?? null, parallelism: currentParallelism(),
+        }).catch((e) => ({ ok: false, error: e.message }));
+        if (b.ok) {
+          log(`ask → BUILD units=${b.units.length} tokens=${b.tokens} wallMs=${b.wallMs} verified=${b.verified}`);
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify({
+            answer: `Recognized a discrete build: computed the structure, drew ${b.draws} independent unit(s) concurrently (${b.units.join(", ")}) — ${b.tokens} tokens, ${b.wallMs}ms; ${b.verified === true ? "the test passed" : b.verified === "syntax_only" ? "syntax-checked (no test given)" : "VERIFICATION FAILED"}.`,
+            kind: b.kind, units: b.units, draws: b.draws, tokens: b.tokens, wallMs: b.wallMs, verified: b.verified, verifyError: b.verifyError,
+            code: b.code, disclosure: b.disclosure,
+          }));
+          return;
+        }
+        // not a discrete build after all → fall through to the normal turn
+      }
       // Same default the /v1/documents job uses — one literal, not a second
       // magic constant for the same choice.
-      const model = String(parsed?.model ?? "").trim() || "olmo2:7b";
+      const model = String(parsed?.model ?? "").trim() || pickDefaultModel();
       const mode = modeFromHeaders(req, typeof parsed?.mode === "string" ? parsed.mode : "auto");
 
       // A body-supplied sessionId is honored first (a caller with no header
@@ -752,6 +1095,9 @@ async function handleRequest(req, res) {
       // text is the answer, the model's draft rides as superseded, and a gap
       // is disclosed without suppressing anything.
       const observationP = runMechanical(task, MECHANISMS);
+      const turnT0 = Date.now(); // real prompt→response wall time, disclosed by Heimdall
+      const _tid = beginTurn({ sessionId, model }); // E1: phase instrumentation
+      _inflight++;
       try {
         const result = await runProxyTurn({
           sessionId, userId, workspace, attachments, model, task, mode,
@@ -760,11 +1106,27 @@ async function handleRequest(req, res) {
           openBefore: Array.isArray(parsed?.openBefore) ? parsed.openBefore : null,
           caller: callerFromRequest(req, "ask", parsed),
           signal: turnAbort.signal,
+          webConsent: parsed?.webConsent === true || parsed?.webConsent === "true",
+          seed: parsed?.seed != null ? String(parsed.seed) : null,
+        }, (chunk) => {
+          // every generated chunk rides the live sink so the watch surface can
+          // show the actual text as it is written (monitor-only; never stored).
+          if (typeof chunk === "string" && chunk) emitLive({ act: "token", model, sessionId, text: chunk });
         });
         markServable(model); // it answered — Heimdall keeps it servable
+        recordTurnMs(Date.now() - turnT0);
+        endTurn(_tid); // E1: one row per turn — draws · load · prompt · gen
+        _inflight--;
+        // the finished text rides out as a final token event, so the watch
+        // surface shows the actual output even when per-chunk streaming is lost
+        if (result?.text) emitLive({ act: "token", model: result.model ?? model, sessionId, text: result.text, final: true });
         clearTimeout(turnDeadline);
         res.removeListener("close", onDisconnect);
-        const race = precisionWinner({ observation: await observationP, draft: result.text });
+        const observation = await observationP;
+        const race = precisionWinner({ observation, draft: result.text });
+        if (observation?.concluded && String(observation.kind) !== "BEYOND_REACH") {
+          noteMechanism({ mechanism: observation.mechanism, kind: String(observation.kind), winner: race.winner, task });
+        }
         res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
         res.end(JSON.stringify({
           answer: race.text,
@@ -826,7 +1188,7 @@ async function handleRequest(req, res) {
         res.end(JSON.stringify({ error: 'task, workspace and testCommand are all required — e.g. { "task": "...", "workspace": "/abs/path", "testCommand": "npm test" }' }));
         return;
       }
-      const model = String(parsed?.model ?? "").trim() || "olmo2:7b";
+      const model = String(parsed?.model ?? "").trim() || pickDefaultModel();
       const maxRounds = Number.isFinite(Number(parsed?.maxRounds)) ? Math.max(1, Math.min(10, Number(parsed.maxRounds))) : 3;
 
       const admit = admitChatRequest({ model }, req.headers);
@@ -895,7 +1257,7 @@ async function handleRequest(req, res) {
         res.end(JSON.stringify({ error: 'task is required — e.g. { "task": "write a function that..." }' }));
         return;
       }
-      const model = String(parsed?.model ?? "").trim() || "olmo2:7b";
+      const model = String(parsed?.model ?? "").trim() || pickDefaultModel();
       const maxTurns = Number.isFinite(Number(parsed?.maxTurns)) ? Math.max(1, Math.min(AGENT_MAX_TURNS, Number(parsed.maxTurns))) : AGENT_MAX_TURNS;
 
       const admit = admitChatRequest({ model }, req.headers);
@@ -1168,8 +1530,20 @@ async function handleRequest(req, res) {
         }
 
         try {
-          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, emit, onNote, onThinking);
+          const emitBoth = (chunk) => {
+            try { emit(chunk); } catch { /* the real client's emit is untouched by a monitor */ }
+            if (typeof chunk === "string" && chunk) emitLive({ act: "token", model: reqData?.model ?? model, sessionId, text: chunk });
+          };
+          const _ctid = beginTurn({ sessionId, model: reqData?.model ?? model });
+          _inflight++;
+          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, emitBoth, onNote, onThinking);
+          endTurn(_ctid);
+          _inflight--;
           if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
+          // The finished text rides out as a final token event (same contract
+          // as /v1/ask) so the watch surface closes this door's stream panel
+          // instead of leaving it blinking forever.
+          if (result?.text) emitLive({ act: "token", model: parsed.model ?? reqData?.model ?? model, sessionId, text: result.text, final: true });
           clearTurn();
           // Thinking affordance: when discloseThinking is on, emit the grounding
           // block as reasoning_content before the final chunk.
@@ -1736,6 +2110,23 @@ async function handleRequest(req, res) {
     return;
   }
 
+  // GET /heimdall-ui — the heimdall watch surface: what Heimdall is seeing,
+  // live in the browser, drawn as the bridge itself. Self-contained, no
+  // build; streams /heimdall/live and reads the same numbers /heimdall
+  // serves — the picture is the data, never a rendering of anything else.
+  if (req.method === "GET" && req.url === "/heimdall-ui") {
+    const uiPath = path.join(HERE, "browser", "heimdall.html");
+    try {
+      const html = fs.readFileSync(uiPath, "utf8");
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
+      res.end(html);
+    } catch {
+      res.writeHead(404, { "content-type": "text/plain" });
+      res.end("heimdall watch surface not found (browser/heimdall.html) — the stream is here: GET /heimdall/live");
+    }
+    return;
+  }
+
   // POST /ui/tui — the browser→TUI toggle: open a fresh terminal running the
   // TUI on this box. macOS: Terminal.app via osascript. Other platforms: name
   // the command so the operator can run it themselves (a browser cannot open a
@@ -1808,6 +2199,25 @@ server.listen(PORT, "127.0.0.1", () => {
     log("watcher: heimdall running inside the proxy");
   } else {
     log(`watcher: EXTERNAL heimdall — proxy is a sandbox; fleet on http://127.0.0.1:${process.env.ER7_HEIMDALL_FLEET_PORT ?? 11438}`);
+    // no in-process watcher, but the tachometers still need a reading: sample
+    // CPU/GPU/RAM lightly so every surface discloses live vitals.
+    sampleVitalsNow().catch(() => {});
+    setInterval(() => { sampleVitalsNow().catch(() => {}); }, 2000);
+  }
+  // THE MODEL WATCHDOG (2026-09-21): the wedge that cost every turn its
+  // deadline gets an ending — probe the model server cheaply; after 3 misses
+  // with no turn in flight, restart `ollama serve` in the tuned config. A
+  // healthy-but-busy server is never restarted (the probe is /api/tags, and a
+  // turn in flight stands it down). ER7_MODEL_WATCHDOG=0 disables it.
+  if ((process.env.ER7_MODEL_WATCHDOG ?? "1") !== "0") {
+    let hits = 0;
+    setInterval(async () => {
+      if (_inflight > 0) return;
+      const p = await probeModelServer().catch(() => ({ ok: false }));
+      if (p.ok) { hits = 0; return; }
+      hits += 1;
+      if (hits >= 3) { hits = 0; const r = await restartModelServer().catch(() => null); log(`watchdog: model server unresponsive 3× — restarted ${r?.ok ? r.note : "(failed)"}`); }
+    }, 30000);
   }
   // The residency holon's HYSTERESIS STATE and THRESHOLDS (module-scoped,
   // persist across cadences — the ant bridge's memory of whether it is
@@ -1831,13 +2241,21 @@ server.listen(PORT, "127.0.0.1", () => {
     // resume at DIFFERENT cpuIdle thresholds, and only after N consecutive
     // clear ticks, so load oscillating around one line never flaps the holon.
     sense: async () => {
-      const idle = readVitals()?.cpuIdle ?? null;
-      // Standing-down state persists across cadences (module-scoped): once
-      // the holon stands down it stays down until the box is clear enough
-      // AND clear long enough — the ant bridge's hysteresis, never a snap.
+      const vt = readVitals();
+      const idle = vt?.cpuIdle ?? null;
+      // MEMORY IS THE BINDING CONSTRAINT on this box (measured: swap 97%,
+      // compressor 8GB, CPU 24% — the CPU-idle lines never saw it). Warming a
+      // model into a thrashing box is how churn was born: warm → evicted →
+      // drop → warm. So memory pressure stands the holon down exactly like CPU
+      // saturation, and only a memory-clear box may resume.
+      const memPressed = memoryPressured(vt);
       if (_residencyStanding === "standby") {
         // In standby: only a sustained clear box resumes warming.
         if (idle == null) return { class: "stand_down", probe: "no_vitals", missing: [] };
+        if (memPressed) {
+          _residencyClearTicks = 0;
+          return { class: "stand_down", probe: `memory_pressured(swap ${vt?.swapPct ?? "?"}%)`, missing: [] };
+        }
         if (idle < _residencyResumeIdle) {
           _residencyClearTicks = 0;
           return { class: "stand_down", probe: `idle_${Math.round(idle)}%<resume_${_residencyResumeIdle}%`, missing: [] };
@@ -1851,8 +2269,14 @@ server.listen(PORT, "127.0.0.1", () => {
         _residencyClearTicks = 0;
         log(`REC — residency: box clear ${_residencyClearTicksNeeded} ticks at ${Math.round(idle)}% idle — warming resumed`);
       }
-      // Active: stand down on saturation (the standby line), then hysteresis
-      // decides when warming may return.
+      // Active: stand down on saturation (the standby line) or on memory
+      // pressure, then hysteresis decides when warming may return.
+      if (memPressed) {
+        _residencyStanding = "standby";
+        _residencyClearTicks = 0;
+        log(`REC — residency: memory pressured (swap ${vt?.swapPct ?? "?"}%, avail ${vt?.memAvailableMb ?? "?"}MB) — stand down`);
+        return { class: "stand_down", probe: `memory_pressured(swap ${vt?.swapPct ?? "?"}%)`, missing: [] };
+      }
       if (idle != null && idle <= _residencyStandbyIdle) {
         _residencyStanding = "standby";
         _residencyClearTicks = 0;
@@ -1867,7 +2291,11 @@ server.listen(PORT, "127.0.0.1", () => {
       const loaded = loadedModels();
       if (loaded == null) return null;
       const resident = new Set(loaded.map((m) => m.name));
-      const used = hotModelSet();
+      // Residency is for LOCAL, generative models only: an embedding model is
+      // not held warm for turns, and a REMOTE model (ungated lane) has no
+      // local residency to keep — treating either as "dropped" is a category
+      // error that minted churn findings (nomic-embed ×869, haiku ×308).
+      const used = new Set([...hotModelSet()].filter((m) => !/embed/i.test(String(m)) && !isUngatedModel(m)));
       const missing = [...used].filter((m) => !resident.has(m));
       return missing.length ? { class: "model_dropped", probe: missing.slice(0, 1).join(","), missing: missing.slice(0, 1) } : null;
     },
@@ -1986,13 +2414,21 @@ server.listen(PORT, "127.0.0.1", () => {
   }
 });
 
-process.on("SIGINT", () => {
-  log("shutting down");
+// Shutdown must actually terminate — the zombie-proxy lesson (2026-09-20).
+// `server.close(cb)` stops accepting but WAITS for every existing connection
+// to end, and a watch tab's SSE /heimdall/live connection never closes on its
+// own, so the old process lingered forever with no listening socket but its
+// full ~430MB footprint, one per restart, pushing an already swap-starved box
+// deeper into the pressure that was causing the restarts. Close the servers,
+// drop the long-lived SSE connections so the close callback can fire, and a
+// hard deadline exits whatever still holds the loop.
+function shutdown(sig) {
+  log(`shutting down (${sig})`);
   server.close(() => process.exit(0));
   aliasServer.close();
-});
-process.on("SIGTERM", () => {
-  log("shutting down");
-  server.close(() => process.exit(0));
-  aliasServer.close();
-});
+  try { server.closeAllConnections(); } catch {}
+  try { aliasServer.closeAllConnections(); } catch {}
+  setTimeout(() => process.exit(0), 1500).unref();
+}
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
