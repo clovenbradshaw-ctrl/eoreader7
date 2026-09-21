@@ -890,3 +890,52 @@ unit-consistent but could not be exercised on one box. Pre-warm never
 triggered because the picker routed the cold host directly. The hive
 across boxes (delegated controllers, headless controller, room mouths
 routed) remains the plan in MULTI-SERVER.md and INFERENCE-HOSTS.md.
+
+## 43. The run that measured the harness, and the meta rule falsified twice (2026-09-21)
+
+The second grounded run came back with eleven of twelve sections empty, and
+the first reading was that the new selector had refused everything. It had
+not. The job's own error said "box is pressured — heimdall holds the turn":
+under a load average above forty, the first draw of each section timed out
+on its first byte and the retry was refused by the traffic-jam discipline,
+so eleven sections had nothing to admit. The ledger said "composition
+section, strain 0" for each — the harness was measured and the record
+blamed the selector. Lesson 88's law again: state the reader's
+configuration before claiming anything about the material. A part line now
+carries the draw's failure ("draw refused: ...") and the snip summary (kept
+N of M, matter/motion counts, refusal kinds), so an empty part says which.
+And the prior landing is the last NON-empty part, so one empty section no
+longer closes the motion road and the redraw for every section after it.
+
+The meta rule was falsified twice, offline, before it went live again. First
+form: a sentence is meta when it bonds to the instruction harder than to the
+ground. Feeding the void cell's question into the instruction (to catch the
+cell's wording leaking into prose) made "The Cumberland River shaped
+Nashville's growth as a port" meta, because the task names the river and the
+growth, and on a six-sentence ground those words are not yet variance. The
+subject's own words cannot discriminate: a word the instruction shares with
+the ground IS the subject; only a word the instruction alone has is
+scaffolding ("write", "essay", "kind", "hold", "material"). Second form:
+count scaffold hits against ground hits, variance stripped — and it then
+refused a TURN ("But they are not the whole of it, as...") because its
+connectives were scaffold words. A turn is exempt: a sentence bonded to the
+prior landing above the ceiling is the piece continuing, and a chain cannot
+start from a leak because the first leak has no prior to bond to.
+
+Two of the test failures on the way were the tests' own: a turn written to
+share one word with its prior is not a turn by the measure (0.182 against a
+ceiling of 0.333 on real material), and a meta assertion that omitted the
+variance the real call always passes. Write the test's turn so it clears
+the ceiling it is testing.
+
+### 38b. The daemon had one slot (2026-09-21, evening)
+
+`OLLAMA_NUM_PARALLEL` was 1 on the live daemon — `launchctl setenv` had
+been written by setup-proxy.sh but Ollama.app was never relaunched after,
+so every request from every caller queued single-file. Measured while
+another session's eval drew on the same model: model work 0.5s, waited
+inside the daemon 8.7–11.5s. After a REAL relaunch with four slots
+(`osascript quit` alone did not restart it; the process had to be stopped):
+waited 0.0s, turns 0.5–3.6s under the same eval. Heimdall's own restart
+now defaults `OLLAMA_MAX_LOADED_MODELS` to 3 like the script, so the two
+config sources agree (post-mortem follow-up 2 closed).

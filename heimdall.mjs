@@ -2892,7 +2892,7 @@ export function modelServerConfig() {
     env: {
       OLLAMA_NUM_PARALLEL: String(PARALLELISM),
       OLLAMA_CONTEXT_LENGTH: process.env.ER7_OLLAMA_CTX ?? "8192",
-      OLLAMA_MAX_LOADED_MODELS: process.env.ER7_OLLAMA_MAX_LOADED ?? "1",
+      OLLAMA_MAX_LOADED_MODELS: process.env.ER7_OLLAMA_MAX_LOADED ?? "3", // matches setup-proxy.sh's launchctl value; "1" evicted the chat model for any second model
       OLLAMA_NUM_GPU: process.env.ER7_OLLAMA_NUM_GPU ?? "0",
       OLLAMA_KEEP_ALIVE: process.env.ER7_OLLAMA_KEEP_ALIVE ?? "10m",
       OLLAMA_HOST: process.env.OLLAMA_HOST ?? "127.0.0.1:11434",
