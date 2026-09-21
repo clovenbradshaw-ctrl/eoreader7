@@ -4,7 +4,7 @@
 //   er7-proxy start            start the proxy (daemon, logs to proxy.log)
 //   er7-proxy stop             stop the proxy
 //   er7-proxy status           is it up? where? (proxy + heimdall fleet)
-//   er7-proxy restart          stop then start
+//   er7-proxy restart          stop then start (atomic: waits for the old process to die)
 //   er7-proxy log              tail the runtime log
 //   er7-proxy fleet:start      start the external heimdall fleet supervisor
 //   er7-proxy fleet:stop       stop the fleet
@@ -34,6 +34,14 @@ const LOG = process.env.ER7_PROXY_LOG || path.join(REPO_ROOT, "proxy.log");
 const PID_FILE = path.join(REPO_ROOT, ".er7-proxy.pid");
 const FLEET_LOG = path.join(REPO_ROOT, "heimdall-fleet.log");
 const FLEET_PID_FILE = path.join(REPO_ROOT, ".er7-fleet.pid");
+// Atomic restart (2026-09-21): `restart` must never spawn over a draining
+// instance. The proxy answers SIGTERM gracefully (shutdown() closes the
+// listening socket, drops connections, and exits within ~1.5s), so stop()
+// WAITS for the pid to actually die before start() spawns; a process that
+// survives the grace window is escalated to SIGKILL, never left to squat the
+// port while a replacement tries to bind it.
+const STOP_WAIT_MS = Number(process.env.ER7_PROXY_STOP_WAIT ?? 5000);
+const STOP_POLL_MS = 150;
 
 // isUp/start are exported so the TUI (tui.mjs, via proxy-client.mjs) can
 // reuse the EXACT same health check and boot sequence `er7-proxy start`
@@ -68,24 +76,52 @@ function readPid(file) {
   }
 }
 
-function stopOne(pidFile, name) {
-  const pid = readPid(pidFile);
-  if (pid) {
-    try {
-      process.kill(pid, "SIGTERM");
-      fs.unlinkSync(pidFile);
-      console.log(`stopped ${name} (pid ${pid})`);
-      return;
-    } catch {
-      fs.unlinkSync(pidFile);
-    }
-  }
-  console.log(`${name} not running`);
+// pidAlive guards pid > 1 on purpose: process.kill(0, ...) signals the whole
+// process group, and a garbage pid file must never reach that call.
+function pidAlive(pid) {
+  if (!(pid > 1)) return false;
+  try { process.kill(pid, 0); return true; } catch { return false; }
 }
 
-function stop() {
-  stopOne(PID_FILE, "er7 proxy");
-  stopOne(FLEET_PID_FILE, "heimdall fleet");
+async function waitUntilGone(pid, { timeoutMs = STOP_WAIT_MS } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (!pidAlive(pid)) return true;
+    await new Promise((r) => setTimeout(r, STOP_POLL_MS));
+  }
+  return !pidAlive(pid);
+}
+
+// Stop ONE process and WAIT until it is actually gone before returning. A
+// graceful SIGTERM is given the full window; a process that survives it is
+// escalated to SIGKILL. The port is free before anyone spawns a replacement.
+async function stopOne(pidFile, name, { wait = true } = {}) {
+  const pid = readPid(pidFile);
+  if (!pid || !(pid > 1)) {
+    console.log(`${name} not running`);
+    return;
+  }
+  if (!pidAlive(pid)) {
+    fs.unlinkSync(pidFile); // stale pid file: the process is already gone
+    console.log(`${name} not running (stale pid ${pid})`);
+    return;
+  }
+  try { process.kill(pid, "SIGTERM"); } catch {}
+  if (wait) {
+    if (!(await waitUntilGone(pid))) {
+      try { process.kill(pid, "SIGKILL"); } catch {}
+      await waitUntilGone(pid);
+    }
+  } else {
+    await new Promise((r) => setTimeout(r, 100));
+  }
+  try { fs.unlinkSync(pidFile); } catch {}
+  console.log(`stopped ${name} (pid ${pid})`);
+}
+
+async function stop() {
+  await stopOne(PID_FILE, "er7 proxy");
+  await stopOne(FLEET_PID_FILE, "heimdall fleet");
 }
 
 // `quiet` lets a caller (the TUI) boot the proxy without this module's own
@@ -103,19 +139,47 @@ export async function start({ quiet = false } = {}) {
   }
   const env = { ...process.env };
   if (fleet.started || fleet.alreadyRunning) env.ER7_EXTERNAL_HEIMDALL = "1";
-  const child = spawn("node", [PROXY], { cwd: REPO_ROOT, detached: true, stdio: "ignore", env });
-  child.unref();
-  fs.writeFileSync(LOG, "");
-  for (let i = 0; i < 50; i++) {
-    await new Promise((r) => setTimeout(r, 200));
-    if (isUp()) {
+  // Spawn with retry: a child that crashes before it answers /health (almost
+  // always EADDRINUSE — the previous instance's socket was still draining) is
+  // a FALSE failure, never a real one. Retry after the port settles instead of
+  // reporting failure and leaving the box dark.
+  const MAX_ATTEMPTS = 3;
+  let lastError = null;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    const child = spawn("node", [PROXY], { cwd: REPO_ROOT, detached: true, stdio: "ignore", env });
+    // Keep the handle referenced until the child proves it is up, so an early
+    // crash is observable and retried rather than silently orphaned.
+    let exited = null;
+    child.once("exit", (code, signal) => { exited = { code, signal }; });
+    fs.writeFileSync(LOG, "");
+    let answered = false;
+    for (let i = 0; i < 50; i++) {
+      await new Promise((r) => setTimeout(r, 200));
+      if (isUp()) { answered = true; break; }
+      if (exited) break;
+    }
+    if (answered) {
+      child.unref();
+      if (exited) {
+        // Something else answered /health while our child crashed — adopt, and
+        // never overwrite a running process's pid with a dead child's.
+        if (!quiet) console.log(`er7 proxy already running on http://127.0.0.1:${PORT} (our spawn exited)`);
+        return { started: false, alreadyRunning: true, port: PORT, fleet };
+      }
       fs.writeFileSync(PID_FILE, String(child.pid));
       if (!quiet) console.log(`er7 proxy listening on http://127.0.0.1:${PORT} (pid ${child.pid})`);
       return { started: true, alreadyRunning: false, port: PORT, pid: child.pid, fleet };
     }
+    child.unref();
+    if (!exited) {
+      if (!quiet) console.error("er7 proxy failed to start — check proxy.log");
+      return { started: false, alreadyRunning: false, port: PORT, error: "timed out waiting for /health", fleet };
+    }
+    lastError = `attempt ${attempt} child exited before answering (code ${exited.code}, signal ${exited.signal})`;
+    await new Promise((r) => setTimeout(r, 500 * attempt));
   }
-  if (!quiet) console.error("er7 proxy failed to start — check proxy.log");
-  return { started: false, alreadyRunning: false, port: PORT, error: "timed out waiting for /health", fleet };
+  if (!quiet) console.error(`er7 proxy failed to start after ${MAX_ATTEMPTS} attempts — check proxy.log`);
+  return { started: false, alreadyRunning: false, port: PORT, error: lastError, fleet };
 }
 
 export async function startFleet({ quiet = false } = {}) {
@@ -160,10 +224,14 @@ if (isMain) {
       await start();
       break;
     case "stop":
-      stop();
+      await stop();
       break;
     case "restart":
-      stop();
+      // Proxy only — the external fleet survives a proxy restart, so its
+      // raise state (pending escalations) is not lost. stopOne WAITS until the
+      // old proxy is actually dead, so start() never spawns over a draining
+      // socket (the EADDRINUSE/EADDRINUSE churn that killed mid-run turns).
+      await stopOne(PID_FILE, "er7 proxy");
       await start();
       break;
     case "status":
@@ -181,7 +249,7 @@ if (isMain) {
       await startFleet();
       break;
     case "fleet:stop":
-      stopOne(FLEET_PID_FILE, "heimdall fleet");
+      await stopOne(FLEET_PID_FILE, "heimdall fleet");
       break;
     case "fleet:status":
       console.log(isFleetUp() ? `heimdall fleet running on http://127.0.0.1:${FLEET_PORT}` : "heimdall fleet not running");

@@ -2570,6 +2570,8 @@ export async function sampleVitalsNow() {
 // that class: restart `ollama serve` directly with the tuned, non-wedging env
 // (concurrency 2, window 4096, one resident model, CPU-only), never the app.
 const OLLAMA_BIN = process.env.ER7_OLLAMA_BIN ?? "/Applications/Ollama.app/Contents/Resources/ollama";
+const MODEL_RESTART_WINDOW_MS = Number(process.env.ER7_MODEL_RESTART_WINDOW ?? 10 * 60 * 1000);
+let lastModelRestartAt = 0;
 export function modelServerConfig() {
   return {
     bin: OLLAMA_BIN,
@@ -2583,7 +2585,26 @@ export function modelServerConfig() {
     },
   };
 }
-export async function restartModelServer() {
+export async function restartModelServer({ force = false } = {}) {
+  // GATED (2026-09-21): a model-server restart is the box's most violent act —
+  // every in-flight turn dies with it. Only a server that is actually
+  // UNRESPONSIVE is restarted (a healthy-but-busy server is never cold-killed),
+  // and only once per window. The ledger's own churn is the finding this exists
+  // to end: three "restart the model server" asks in 11 minutes, each one
+  // killing every turn on the box and making the proxy look broken.
+  const now = Date.now();
+  if (!force && now - lastModelRestartAt < MODEL_RESTART_WINDOW_MS) {
+    const waitS = Math.max(1, Math.round((MODEL_RESTART_WINDOW_MS - (now - lastModelRestartAt)) / 1000));
+    appendLog({ act: "eva", finding: "model_server_restart_capped", waitS, key: "operator", giver: "heimdall", standing: "disclosed" });
+    return { ok: false, capped: true, waitS, error: `the model server was restarted recently — Heimdall holds another restart for ~${waitS}s. Each restart kills every turn in flight; the box needs time to settle.` };
+  }
+  if (!force) {
+    const alive = await probeModelServer();
+    if (alive.ok) {
+      appendLog({ act: "eva", finding: "model_server_healthy_refused", key: "operator", giver: "heimdall", standing: "disclosed" });
+      return { ok: false, healthy: true, error: "the model server answers — it is busy, not stuck. Restarting a healthy-but-busy server kills every in-flight turn; Heimdall refuses." };
+    }
+  }
   const rows = await readProcessTable().catch(() => []);
   const killed = [];
   for (const r of rows) {
@@ -2597,6 +2618,7 @@ export async function restartModelServer() {
   try { child = spawn(bin, ["serve"], { env: { ...process.env, ...env }, detached: true, stdio: "ignore" }); }
   catch (e) { appendLog({ act: "eva", finding: "model_server_restart_failed", error: e.message }); return { ok: false, error: e.message }; }
   child.unref();
+  lastModelRestartAt = Date.now();
   appendLog({ act: "rec", finding: "model_server_restart", pid: child.pid, killed, config: env, key: "operator", giver: "heimdall", standing: "disclosed" });
   return { ok: true, pid: child.pid, killed, note: `restarted ollama serve (parallel ${env.OLLAMA_NUM_PARALLEL}, ctx ${env.OLLAMA_CONTEXT_LENGTH}, max_loaded ${env.OLLAMA_MAX_LOADED_MODELS}, gpu ${env.OLLAMA_NUM_GPU})` };
 }
