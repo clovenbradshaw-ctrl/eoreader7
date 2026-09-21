@@ -2647,6 +2647,45 @@ export function hotModelSet() {
 
 const CALL_MAX_TOKENS = 1024;
 const CALL_RETRIES = 2;
+// TRAFFIC-JAM DISCIPLINE (2026-09-21): a retry is load, and a retry fired
+// into a box that is already thrashing is load added to the very failure it
+// exists to ride out. Before re-firing, ASK the box: if memory is pressured
+// or the CPU is pegged, don't retry at all — fail fast with a typed throw so
+// heimdall's gate 429s the next arrival instead of this turn stacking another
+// model load on top of the one that just died. When the box is merely busy,
+// back off with an exponential-ish wait so a stalled lane gets a real chance
+// to finish instead of being re-fired into its own tail. The measured reason:
+// under swap churn a first-byte timeout fired again at once, reloaded the
+// model, and added a fresh ~7s load to a box that had none to give.
+const RETRY_BACKOFF_MS = Number(process.env.ER7_RETRY_BACKOFF_MS ?? 1500);
+async function retryUnderLoad(attempt, model, { local = false } = {}) {
+  // LOCAL LANE ONLY (2026-09-21): the pressured-throw is for a retry that
+  // would LOAD a model into a thrashing box — that is load added to the very
+  // failure it rides out. Remote lanes (anthropic/opencode) never touch this
+  // box, so local pressure must not gate them (the fast-pass law: a remote
+  // mouth is never refused on local saturation). They still back off.
+  if (local) {
+    // The box's own word, read through heimdall's lazy import — never through
+    // this caller's memory of it. Unknown pressure never convicts: an
+    // unreadable vitals table is "not pressured", so a healthy box is never
+    // slowed by a failed read.
+    let pressured = false;
+    try {
+      const h = await import("./heimdall.mjs");
+      const v = h.readVitals?.() ?? null;
+      pressured = (h.memoryPressured?.(v) ?? false) || (h.isBoxSaturated?.(v) ?? false);
+    } catch { pressured = false; }
+    if (pressured) {
+      throw Object.assign(new Error(`box is pressured — heimdall holds the turn; retry later (attempt ${attempt + 1} of ${CALL_RETRIES} not re-fired into the storm)`), {
+        code: "ERR_BOX_PRESSURED", retryable: false, retryAfterS: 30,
+      });
+    }
+  }
+  // Busy but not pressured: give the lane room before re-firing. The wait
+  // grows with the attempt so a twice-failed draw backs off harder instead of
+  // hammering the same dead lane.
+  await new Promise((r) => setTimeout(r, RETRY_BACKOFF_MS * (attempt + 1)));
+}
 // A verdict answer is a JUDGMENT (YES/NO + a reason), never a production —
 // small budget, no long-extend (see the extendable exclusion below).
 const VERDICT_MAX_TOKENS = 200;
@@ -2839,6 +2878,7 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
         return;
       } catch (err) {
         if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
+        await retryUnderLoad(attempt, model).catch((e) => { finishReview(false); throw e; });
       }
     }
     return;
@@ -2905,6 +2945,7 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
         return;
       } catch (err) {
         if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
+        await retryUnderLoad(attempt, model).catch((e) => { finishReview(false); throw e; });
       }
     }
     return;
@@ -3107,6 +3148,7 @@ const reader = res.body.getReader();
         import("./heimdall.mjs").then((h) => h.markUnservable(bare, "first_byte_timeout")).catch(() => {});
       }
       if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
+      await retryUnderLoad(attempt, model, { local: true }).catch((e) => { finishReview(false); throw e; });
     } finally {
       clearTimeout(timer);
       if (signal) signal.removeEventListener("abort", onAbort);
