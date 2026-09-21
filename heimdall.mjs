@@ -1400,7 +1400,7 @@ export function seedUnservableLarge(models = loadedModels()) {
   }
 }
 
-async function refreshOllamaModels() {
+export async function refreshOllamaModels() {
   let models;
   try {
     const res = await fetchWithTimeout(`${OLLAMA_URL}/api/ps`, 3000);
@@ -2571,13 +2571,27 @@ export async function sampleVitalsNow() {
 // (concurrency 2, window 4096, one resident model, CPU-only), never the app.
 const OLLAMA_BIN = process.env.ER7_OLLAMA_BIN ?? "/Applications/Ollama.app/Contents/Resources/ollama";
 const MODEL_RESTART_WINDOW_MS = Number(process.env.ER7_MODEL_RESTART_WINDOW ?? 10 * 60 * 1000);
-let lastModelRestartAt = 0;
+// The last model-server restart is PERSISTED (2026-09-21), never just in
+// memory: the proxy is re-forged by the fleet when it wedges, and an
+// in-memory `lastModelRestartAt` resets to 0 on every restart — which quietly
+// defeated the window cap and let the watchdog cold-restart ollama serve
+// minutes apart (measured: model_server_restart at 03:57, 04:05, 04:08). The
+// restart timestamp now rides the state file, so the window survives a
+// re-forge and the box's most violent act stays once-per-window for real.
+const MODEL_RESTART_STATE_FILE = path.join(HERE, "state", "model-server-restart.json");
+let lastModelRestartAt = loadLastModelRestart();
+function loadLastModelRestart() {
+  try { return Number(JSON.parse(fs.readFileSync(MODEL_RESTART_STATE_FILE, "utf8")).lastRestartAt) || 0; } catch { return 0; }
+}
+function saveLastModelRestart() {
+  try { fs.mkdirSync(path.dirname(MODEL_RESTART_STATE_FILE), { recursive: true }); fs.writeFileSync(MODEL_RESTART_STATE_FILE, JSON.stringify({ lastRestartAt: Date.now(), at: ts() })); } catch { /* a failed save never breaks a restart */ }
+}
 export function modelServerConfig() {
   return {
     bin: OLLAMA_BIN,
     env: {
       OLLAMA_NUM_PARALLEL: String(PARALLELISM),
-      OLLAMA_CONTEXT_LENGTH: process.env.ER7_OLLAMA_CTX ?? "4096",
+      OLLAMA_CONTEXT_LENGTH: process.env.ER7_OLLAMA_CTX ?? "8192",
       OLLAMA_MAX_LOADED_MODELS: process.env.ER7_OLLAMA_MAX_LOADED ?? "1",
       OLLAMA_NUM_GPU: process.env.ER7_OLLAMA_NUM_GPU ?? "0",
       OLLAMA_KEEP_ALIVE: process.env.ER7_OLLAMA_KEEP_ALIVE ?? "10m",
@@ -2619,15 +2633,41 @@ export async function restartModelServer({ force = false } = {}) {
   catch (e) { appendLog({ act: "eva", finding: "model_server_restart_failed", error: e.message }); return { ok: false, error: e.message }; }
   child.unref();
   lastModelRestartAt = Date.now();
+  saveLastModelRestart();
   appendLog({ act: "rec", finding: "model_server_restart", pid: child.pid, killed, config: env, key: "operator", giver: "heimdall", standing: "disclosed" });
   return { ok: true, pid: child.pid, killed, note: `restarted ollama serve (parallel ${env.OLLAMA_NUM_PARALLEL}, ctx ${env.OLLAMA_CONTEXT_LENGTH}, max_loaded ${env.OLLAMA_MAX_LOADED_MODELS}, gpu ${env.OLLAMA_NUM_GPU})` };
 }
-/** One cheap liveness probe of the model server (never spawns load of its own). */
-export async function probeModelServer({ timeoutMs = 4000 } = {}) {
+/** One cheap liveness probe of the model server (never spawns load of its own).
+ *  LESSON 22 (2026-09-21): the failure surface is a real generate, not the
+ *  tags endpoint. A wedged server answers /api/tags instantly while every
+ *  generate hangs past 120 s — the probe that only checks tags calls a
+ *  wedged server "healthy, busy not stuck" and the remedy gate refuses to fix
+ *  the exact wedge it exists to end. Probe a 1-token generate on a small
+ *  resident model under a strict timeout; /api/tags alone is not a liveness
+ *  signal for a model server. */
+const PROBE_MODEL = process.env.ER7_PROBE_MODEL ?? "gemma2:2b";
+export async function probeModelServer({ timeoutMs = 8000 } = {}) {
   try {
-    const r = await fetch(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(timeoutMs) });
-    return { ok: r.ok, status: r.status };
-  } catch (e) { return { ok: false, error: e?.cause?.code ?? e.message }; }
+    const tags = await fetch(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(4000) });
+    if (!tags.ok) return { ok: false, status: tags.status, surface: "tags" };
+    const r = await fetch(`${OLLAMA_URL}/api/chat`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        model: PROBE_MODEL,
+        stream: false,
+        messages: [{ role: "user", content: "Say OK" }],
+        options: { num_predict: 4, temperature: 0 },
+      }),
+      signal: AbortSignal.timeout(timeoutMs),
+    });
+    if (!r.ok) return { ok: false, status: r.status, surface: "generate" };
+    const j = await r.json().catch(() => null);
+    if (!j || !j.done) return { ok: false, surface: "generate", reason: "no done on a finished generate" };
+    return { ok: true, status: 200, surface: "generate" };
+  } catch (e) {
+    return { ok: false, surface: "generate", error: e?.cause?.code ?? e.message };
+  }
 }
 
 // ── THE MERGED API — what the proxy uses when heimdall runs inside it. ─────

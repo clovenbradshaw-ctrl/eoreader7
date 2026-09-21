@@ -78,11 +78,15 @@ fi
 #                                own per-request keep_alive on top of this).
 #   OLLAMA_MAX_LOADED_MODELS   — allow more than one model to co-reside so a
 #                                second caller is not forced to evict the first.
-#   OLLAMA_CONTEXT_LENGTH      — bound the auto-fit window: with it unset,
-#                                Ollama sizes context to VRAM and a small model
-#                                can squat 7+ GB of KV cache, starving others.
-#                                The proxy declares its own num_ctx per request;
-#                                this caps callers that do not.
+#   OLLAMA_CONTEXT_LENGTH      — THE one window for the whole box (2026-09-21):
+#                                every caller declares no num_ctx, so Ollama
+#                                loads each model once at this single value and
+#                                no request can disagree with another — the
+#                                reload storm (measured 23 full reloads in one
+#                                session) dies by construction. Sized to cover
+#                                the proxy's prompt budget + output (8192 >=
+#                                3072 prompt + 1024 output), not larger: a big
+#                                KV cache starves the memory-starved box.
 #   OLLAMA_NUM_PARALLEL        — slots per model; memory scales as slots x ctx.
 # launchctl setenv applies to launchd-launched processes (the Ollama.app
 # server is one), so this survives reboots. It does NOT change a running
@@ -90,7 +94,7 @@ fi
 say "Tuning the Ollama daemon's memory policy (launchctl, durable)..."
 launchctl setenv OLLAMA_KEEP_ALIVE "${OLLAMA_KEEP_ALIVE:-1h}" 2>/dev/null && ok "OLLAMA_KEEP_ALIVE=${OLLAMA_KEEP_ALIVE:-1h}"
 launchctl setenv OLLAMA_MAX_LOADED_MODELS "${OLLAMA_MAX_LOADED_MODELS:-3}" 2>/dev/null && ok "OLLAMA_MAX_LOADED_MODELS=${OLLAMA_MAX_LOADED_MODELS:-3}"
-launchctl setenv OLLAMA_CONTEXT_LENGTH "${OLLAMA_CONTEXT_LENGTH:-16384}" 2>/dev/null && ok "OLLAMA_CONTEXT_LENGTH=${OLLAMA_CONTEXT_LENGTH:-16384}"
+launchctl setenv OLLAMA_CONTEXT_LENGTH "${OLLAMA_CONTEXT_LENGTH:-8192}" 2>/dev/null && ok "OLLAMA_CONTEXT_LENGTH=${OLLAMA_CONTEXT_LENGTH:-8192}"
 launchctl setenv OLLAMA_NUM_PARALLEL "${OLLAMA_NUM_PARALLEL:-4}" 2>/dev/null && ok "OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL:-4}"
 
 # --- 1b. pull a few small models so the proxy has a mouth ----------------------

@@ -33,7 +33,7 @@ import { answerRecord } from "./native/the-fold/answer-record.js";
 // is routed through native/the-fold/antistrauss.mjs (the import is static so
 // the proxy fails closed at boot if the gate cannot load). See the module
 // header for how it is wired and why it must never be bypassed.
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom, holonicSatisfaction, holonTreeFromText, holonicTreeSatisfaction, holonAssertionTree, holonicAssertionSatisfaction, holonLeaves } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 // The dispute lookup notesFromEdges reads (below): `noteId` is the same
 // bare-ends identity a note born with no identity organ already carries in
@@ -2613,10 +2613,13 @@ export async function keepModelHot(model) {
           prompt: "",
           stream: false,
           keep_alive: OLLAMA_KEEP_ALIVE_S + "s",
-          // Pin the SAME context real turns use, so the resident copy matches
-          // what requests run under — and so a warm-load doesn't squat on
-          // Ollama's huge 262k default and evict other models.
-          options: { num_predict: 1, num_ctx: Math.max(NUM_CTX, Math.ceil(PROMPT_MAX_CHARS / 3) + CALL_MAX_TOKENS) },
+          // Declare NO window (2026-09-21): the resident copy runs under the
+          // server's single OLLAMA_CONTEXT_LENGTH, exactly like real turns.
+          // A warm-load that declared its own num_ctx reloaded the runner
+          // whenever the real turns disagreed — the reload storm this line
+          // used to feed. OLLAMA_CONTEXT_LENGTH caps the KV squat; no caller
+          // needs to pin anything.
+          options: { num_predict: 1 },
         }),
       });
       if (!res.ok) throw new Error(`keep-warm /api/generate: ${res.status}`);
@@ -2665,32 +2668,27 @@ const DEFAULT_KELSEN = Number(process.env.ER7_KELSEN ?? 0.9);
 // A MAX prompt budget, not a timid one: the context is filled to near this
 // ceiling every turn, chat history with precedence (the turn's own recent
 // line of talk is what continuity lives on), then masked/grounded material
-// fills the room that remains. text length ≈ 4 chars/token. The Ollama
-// request carries num_ctx >= this + output so the budget is actually
-// reachable; ER7_NUM_CTX raises it on slower/smaller deployments.
+// fills the room that remains. text length ≈ 4 chars/token. The server-side
+// OLLAMA_CONTEXT_LENGTH must cover this + output so the budget is actually
+// reachable.
 // Sized for OLMo 2 7B's 4096-token window (the proxy's default model):
 // 4096 - 1024 output = 3072 prompt tokens; at the conservative 3 chars/token
 // used below that is 9216 chars. gemma2:2b's 8192 window was the prior budget.
 const PROMPT_MAX_CHARS = Number(process.env.ER7_MAX_PROMPT_CHARS ?? 9216);
-// ONE DECLARED WINDOW PER MODEL, ACROSS EVERY CALLER (2026-09-15). This was
-// 4096 — sized for OLMo 2 7B's own trained window — and the consequence, once
-// measured rather than assumed, is a reload storm: Ollama's window for a
-// caller that declares NOTHING is adaptive to free memory, so the-fold's page
-// (which declared nothing until today) kept landing on a different window than
-// this proxy's explicit one, and every disagreement is a full reload that also
-// discards the prompt cache. Measured on the live server, same model, back to
-// back: `num_ctx: 8192` reloads to 8192 (1,217ms), no num_ctx reloads the SAME
-// model to 4096 (1,138ms), `num_ctx: 4096` twice reloads not at all (117ms,
-// 129ms). In one 4.5-hour window of real traffic gemma2:2b was loaded 82 times,
-// 67 of those at a changed window.
+// ONE WINDOW FOR THE WHOLE BOX, DECIDED BY THE SERVER (2026-09-21). The
+// 2026-09-15 attempt made each caller DECLARE the same window — but declared
+// windows only agree while every caller remembers to declare, and the box
+// still reloads whenever any caller forgets or disagrees. Measured on the
+// live server the same day: a call carrying `num_ctx: 8192` while the runner
+// sits at the server default (OLLAMA_CONTEXT_LENGTH) forces a full reload
+// (~1.2s, discarding the prompt cache); 23 such reloads in one session.
 //
-// 8192 is gemma2:2b's own trained window and matches what the page now declares
-// for it, so the copy already resident for a chat turn is reused instead of
-// rebuilt. A model whose trained window is smaller (OLMo 2 7B's 4096) is
-// clamped by Ollama to its own, deterministically, for every caller alike. The
-// max() below keeps this proxy's budget guarantee unchanged; a deployment whose
-// models want a different ceiling declares it in ER7_NUM_CTX.
-const NUM_CTX = Number(process.env.ER7_NUM_CTX ?? 8192);
+// The fix is to declare NOTHING on every caller. Ollama then loads the model
+// once, at the server's single OLLAMA_CONTEXT_LENGTH, and no request can
+// disagree with any other — the window becomes unanimous by construction.
+// The proxy's budget guarantee holds because OLLAMA_CONTEXT_LENGTH is set
+// (setup-proxy.sh) to cover PROMPT_MAX_CHARS + output; a deployment that
+// wants a different ceiling changes that ONE server value, never a caller.
 const MSG_OVERHEAD_CHARS = 64;
 // Post-processing latency guard: this many ms max per turn for the pyodide
 // lint + dependency reorder. Warmed at boot; if it ever exceeds this, the
@@ -2707,7 +2705,7 @@ const RESOLUTIONS_LEVEL = (() => { const raw = process.env.ER7_RESOLUTIONS; if (
 // creativity may hold tension, never a silent pick. ER7_KELSEN_MODALITY.
 const KELSEN_MODALITY = (() => { const v = Number(process.env.ER7_KELSEN_MODALITY ?? ""); return [0, 0.5, 1].includes(v) ? v : 1; })();
 
-export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal } = {}) {
+export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal, stop } = {}) {
   // ANTIStrauss — the safety-and-ethics gate (native/the-fold/antistrauss.mjs).
   // THIS is the choke point every real model call in the proxy passes
   // through (draw() → runProxyTurn → here). The gate settles a physics
@@ -2938,7 +2936,10 @@ const res = await fetch(`${OLLAMA}/api/chat`, {
           ...(json ? { format: json === true ? "json" : json } : {}),
           options: {
             num_predict: maxTokens ?? CALL_MAX_TOKENS,
-            num_ctx: Math.max(NUM_CTX, Math.ceil(PROMPT_MAX_CHARS / 3) + (maxTokens ?? CALL_MAX_TOKENS)),
+            // Declare NO num_ctx (2026-09-21): every caller loads the model at
+            // the server's single OLLAMA_CONTEXT_LENGTH, so no request can
+            // disagree with another and the reload storm cannot recur. The
+            // budget guarantee lives in the server default, not a caller.
             // KELSEN-DEGREES → Ollama's native temperature: high Kelsen
             // (bound to the material) maps to low temperature; low Kelsen
             // (impressionistic) maps high. Our gauge is how tightly the
@@ -2952,6 +2953,12 @@ const res = await fetch(`${OLLAMA}/api/chat`, {
             // claim's words pulls the sampling toward them — fidelity
             // becomes mechanical, not hoped for.
             ...(logitsBias && Object.keys(logitsBias).length ? { logits_bias: logitsBias } : {}),
+            // THE ONE-SENTENCE STOP (2026-09-21): a sentence draw passes a
+            // stop sequence so the stream halts at the first sentence-end —
+            // "one sentence" becomes a STRUCTURAL fact of the sampling, never
+            // a request the mouth must obey. The absence of the wrong path
+            // (there is no path past the first period) is the guardrail.
+            ...(stop && stop.length ? { stop } : {}),
           },
         }),
       });
@@ -5183,10 +5190,18 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     // ledger) are skipped on a resumed run — the essay continues, it never
     // restarts. The ledger already holds those parts; appending is the only write.
     .filter((q) => !resumeAnswered.includes(String(q).toLowerCase().trim()))
-    // The essay's extent is the void's own — a generous cap against runaway,
-    // not a fixed truncation of the DEF'd shape. A 27-cell sweep can stay
-    // relevant; ER7_MAX_SECTIONS raises it for long pieces.
-    .slice(0, Number(process.env.ER7_MAX_SECTIONS ?? 20));
+    // THE VOID'S EXTENT IS THE TASK'S, THEN THE VOID'S OWN (2026-09-21): a
+    // "five-paragraph essay" ask is DEF'd as FIVE parts — the shape the writer
+    // was told to write, measured 2026-09-21 when a "five-paragraph essay"
+    // projection wrote twelve because the void sweep outgrew the ask. An
+    // explicit "N-paragraph"/"N-section" count in the task caps the outline
+    // FIRST; only then does the generous void cap (ER7_MAX_SECTIONS) bound it.
+    // A task that names no count keeps the void's full sweep.
+    .slice(0, (() => {
+      const nMatch = String(task ?? "").match(/\b(\d+)[\s-]*(?:paragraph|part|section)s?\b/i);
+      if (nMatch) return Math.max(1, Math.min(Number(nMatch[1]), Number(process.env.ER7_MAX_SECTIONS ?? 20)));
+      return Number(process.env.ER7_MAX_SECTIONS ?? 20);
+    })());
   // CODE: the artifact's sections are its structural units (CODE_SHAPE_PRIOR),
   // never the essay void-cells — a code ask DEF's its shape as header, core,
   // CLI, entry, usage; the essay sweep has no bearing on a file's parts.
@@ -5389,7 +5404,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   if (documentLedger) {
     try { fs.mkdirSync(ESSAY_LEDGER_DIR, { recursive: true }); } catch {}
   }
-  const documentLines = [];
+  let documentLines = [];
   let totalStrain = 0; // the cumulative correction load — how hard the piece was to write
   let fullText = "";
   let truncated = false;
@@ -5436,7 +5451,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   // sentences that share its terms — a few thousand chars, never the page.
   const SECTION_WINDOW_CHARS = Number(process.env.ER7_SECTION_WINDOW_CHARS ?? 2500);
   const WINDOW_STOP = new Set("the and for with that this from under through after during was were are is had has have by to of in on at it its their there here which where when how what who into across over been being not but or as than then so such only also very just an a your our their its".split(" "));
-  const groundedWindowFor = (section, claims, material) => {
+  const groundedWindowFor = (section, claims, material, usedSentences = null, handedClaims = null, position = 0) => {
     const text = String(material ?? "");
     if (text.length < 60) return "";
     const terms = new Set();
@@ -5446,15 +5461,123 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     }
     if (!terms.size) return "";
     const sentences = String(text).replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim()).filter((s) => s.length > 40 && s.length < 400);
+    // THE STIGMERGIC TRAIL, CLAIM-CORE LEVEL (2026-09-21, Wilson run deeper):
+    // `usedSentences` holds exact sentences, their opening templates, AND the
+    // CLAIM-CORE of each used sentence — the being·relation pair the mouth
+    // grounded on. A candidate sentence is excluded when it carries a used
+    // claim-core, even under paraphrase: "played a significant role in
+    // Nashville's growth" and "served as a vital artery for Nashville's
+    // growth" are the SAME claim (Cumberland-becomes-Nashville's-growth) in
+    // different clothing. The measured failure: template-level evaporation
+    // missed synonym-variant openers (significant/vital/crucial role), so the
+    // mouth re-anchored on the strongest semantic claim of the source in every
+    // window. The claim-core trail evaporates the MEANING, not the surface —
+    // omnilingual, since it keys on the referent-relation structure, never a
+    // lexicon. This is the register's SYN·Figure ("re-sightings fold into the
+    // same note") made mechanical on the window itself.
+    const openingTemplate = (s) => {
+      const words = String(s).toLowerCase().replace(/[^a-z' ]+/g, " ").replace(/\s+/g, " ").trim().split(" ").filter((w) => w.length > 4 && !WINDOW_STOP.has(w));
+      return words.slice(0, 5).join(" ");
+    };
+    const CLAIM_VARIANTS = new Set(["played","served","significant","vital","crucial","critical","major","role","growth","port","city","artery","impact","influence","development","journey","course"]);
+    const claimCoreOf = (s) => {
+      // The claim's skeleton: the being-nouns and the change-verbs, with the
+      // variance words stripped. "The Cumberland River played a significant
+      // role in Nashville's growth" and "served as a vital artery for
+      // Nashville's growth" both reduce to the same core.
+      const words = String(s).toLowerCase().replace(/[^a-z' ]+/g, " ").replace(/\s+/g, " ").trim().split(" ").filter((w) => w.length > 3 && !WINDOW_STOP.has(w) && !CLAIM_VARIANTS.has(w));
+      return words.slice(0, 6).join(" ");
+    };
+    const usedTemplates = new Set();
+    const usedCores = new Set();
+    if (usedSentences) {
+      for (const u of usedSentences) {
+        if (u.includes(" ")) { // a sentence, not a template — derive both
+          usedTemplates.add(openingTemplate(u));
+          const core = claimCoreOf(u);
+          if (core.split(" ").length >= 2) usedCores.add(core);
+        } else {
+          usedTemplates.add(u);
+        }
+      }
+    }
     const scored = [];
+    // THE HANDED-CLAIM EXCLUSION (2026-09-21): a claim already handed to a
+    // previous section's mouth is SPENT — no sibling section re-grounds on it.
+    // The 27-cell sweep's sibling openings all resolve to the same theme
+    // ("the role of the Cumberland River in Nashville's growth"), so without
+    // this every window ranks the same top source sentence first (measured:
+    // sections 1,2,3,5,7,9,10 of the sentence-run all opened "The Cumberland
+    // River played a vital role..."). handedKeys holds end1|label|end2 keys;
+    // a sentence carrying a handed claim's subject or object is excluded —
+    // the claim is absent from later windows, not forbidden.
+    const handedWords = new Set();
+    if (handedClaims) {
+      for (const k of handedClaims) {
+        for (const w of String(k).toLowerCase().split(/[^a-z']+/)) if (w.length > 4) handedWords.add(w);
+      }
+    }
     for (const s of sentences) {
+      // HOLD BACK WHAT WOULD BE REPETITIVE (2026-09-21): excluded are (a) an
+      // exact used sentence, (b) any sentence opening with a used template,
+      // (c) any sentence carrying a used claim-core — the re-sighting of a
+      // claim already grounded on, whatever its surface. The mouth cannot
+      // re-anchor on the strongest claim of the source because the claim is
+      // absent from the window, not because a rule forbade it.
+      const core = claimCoreOf(s);
+      if (usedSentences && (usedSentences.has(s) || usedTemplates.has(openingTemplate(s)) || (core.split(" ").length >= 2 && usedCores.has(core)))) continue;
+      // (d) any sentence carrying a claim already handed to an earlier section
+      // — the sibling-opening repetition dies at the source, not at the guard.
+      if (handedWords.size) {
+        const lc = s.toLowerCase();
+        const carryingHanded = [...handedWords].filter((w) => lc.includes(w)).length;
+        if (carryingHanded >= 2) continue;
+      }
       const lc = s.toLowerCase();
       const hits = [...terms].filter((t) => lc.includes(t)).length;
       if (hits >= 2) scored.push({ s, hits });
     }
-    scored.sort((a, b) => b.hits - a.hits);
+    // THE EXHAUSTED-GROUND FALLBACK (2026-09-21): when every relevant sentence
+    // is already used, an empty window would silently drop grounding. The
+    // honest answer is to still hand the mouth the material it has already
+    // grounded on, MARKED — "already established, write this ANEW from a
+    // different angle, never the same sentence." The ground is not withdrawn
+    // (a section with no ground at all is ungrounded), it is re-approached.
+    const exhausted = !scored.length && usedSentences && usedSentences.size > 0;
+    let source = exhausted
+      ? sentences.filter((s) => usedSentences.has(s)).slice(0, 3).map((s) => ({ s, hits: 1, used: true }))
+      : scored;
+    source.sort((a, b) => b.hits - a.hits);
+    // THE ROTATING WINDOW (2026-09-21): sibling sections resolve to the same
+    // theme, so without this every section ranks the SAME top sentence first
+    // and opens by copying it ("The Cumberland River is a major waterway of
+    // the southeastern United States" — measured in every run). The window is
+    // not a fixed top-N: it ROTATES through the top candidates by the
+    // section's own identity, so a different top sentence leads each section.
+    // The strongest claim is served once, then a lower-ranked claim leads the
+    // next section — the ground is the same, but the ENTRY POINT differs. This
+    // is the French-flag gradient applied to the window: each section reads its
+    // own local dose, not the embryo's most prominent sentence every time.
+    if (source.length > 2) {
+      // THE ROTATION SEED: the section's identity AND its position in the
+      // composition. The identity alone is near-identical across sibling
+      // sections (all "the role of the Cumberland River in Nashville's
+      // growth"), so identity-only rotation would give siblings the same
+      // lead — the position index breaks the tie and advances the entry
+      // point monotonically through the material as the essay climbs.
+      let seed = 0;
+      const seedSrc = `${position ?? 0}|${section ?? ""}`;
+      for (const ch of seedSrc) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+      const top = source.slice(0, 6);
+      const rest = source.slice(6);
+      const rotated = [...top.slice(seed % top.length), ...top.slice(0, seed % top.length), ...rest];
+      source = rotated;
+    }
     let out = "", n = 0;
-    for (const { s } of scored) { if (out.length + s.length > SECTION_WINDOW_CHARS) break; out += (n++ ? " " : "") + s; }
+    for (const { s, used } of source) {
+      if (out.length + s.length > SECTION_WINDOW_CHARS) break;
+      out += (n++ ? " " : "") + (used ? `[already grounded — write this anew, never the same sentence] ${s}` : s);
+    }
     return out.trim();
   };
   // READABILITY — how the piece READS, in addition to what it repeats.
@@ -5489,7 +5612,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
     if (onNote) onNote({ move: "mayeroff_unrealizable", reason: mayeroffJudgment.reason });
   } else {
   await withSlot(model, async () => {
-    const draw = async (msgs, maxTokens, { capture = false, kelsen = null } = {}) => {
+    const draw = async (msgs, maxTokens, { capture = false, kelsen = null, stop = null } = {}) => {
       let buf = "";
       let stopped = false;
       let tokenTruncated = false;
@@ -5503,7 +5626,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       let leftoverChars = null;
       let leftoverTail = null;
       let tailParsedAs = null;
-      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen, signal })) {
+      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen, signal, stop })) {
         if (typeof chunk === "string") {
           if (fullText.length >= MAX_OUTPUT_CHARS) { truncated = true; stopped = true; break; }
           if (!capture) {
@@ -5605,6 +5728,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // Evolve the outline as sections land: re-read the reading's referents;
       // a being the essay has not yet covered is a theme the outline missed.
       // REC: supersede the outline line and add the section.
+      // HOLD BACK WHAT WOULD BE REPETITIVE — the USED-source set, carried
+      // across the whole composition. Every sentence a section grounds on is
+      // recorded; no later section re-reads it. The window is always UNUSED
+      // material, so the mouth must find new facts section by section.
+      const usedSentences = new Set();
       for (let i = 0; i < plannedSections.length && !truncated; i++) {
         const section = plannedSections[i];
         if (onNote) onNote({ move: "composing_section", index: i + 1, of: plannedSections.length, section });
@@ -5640,13 +5768,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // (atmosphere/lens/paradigm), so this section knows what the piece has
         // established and can COMPOSE with it — transition, build, never
         // restate — without the mouth being buried in the raw prose.
-        const essayIndex = sessionReferentIndex(session, onNote);
-        const essayStanding = documentLines.length
-          ? essayResolutions({ sections: plannedSections, documentLines, index: essayIndex, rawEntries, onNote })
-          : null;
-        const priorParts = essayStanding
-          ? essayStanding
-          : documentLines.map((_, j) => `"${plannedSections[j]}"`).join(", ");
+        // THE VOID IS CONCRETE (2026-09-21): the mouth is NOT given the essay's
+        // accumulated standing — no thematic summary, no prior prose dump. Each
+        // section is its own concrete void, grounded only on its own source
+        // tokens. The essay's continuity is carried by the ledger, never by the
+        // prompt (the log is the memory; the mouth needs only this void's
+        // tokens at this moment).
         // HOLON LEVEL: the granularity of the task is an experimentable
         // variable. "section" writes the whole part in one draw; "paragraph"
         // asks for a paragraph; "sentence" asks for a few focused sentences
@@ -5676,11 +5803,26 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // THE MEASURED CUT: the section's own claims + the source window that
         // grounds them. The window is computed once per section and handed to
         // the brief — the mouth voices real source sentences, never the page
-        // and never nothing.
+        // and never nothing. The HANDED-CLAIM snapshot: claims handed to
+        // EARLIER sections are excluded from this section's window (sibling
+        // openings must not re-ground on the same claim) — but this section's
+        // own claims are handed AFTER the snapshot, so its own window keeps
+        // them. The snapshot is the boundary of what is already spent.
+        const handedKeysBefore = new Set(handedKeys);
         const secProps = propsForSection(section);
-        const secWindow = groundedWindowFor(section, secProps, groundingText());
+        const secWindow = groundedWindowFor(section, secProps, groundingText(), usedSentences, handedKeysBefore, i);
+        // Record the sentences this window actually used — the next section
+        // cannot re-read them.
+        if (secWindow) {
+          String(secWindow).replace(/\s+/g, " ").split(/(?<=[.!?])\s+/).map((s) => s.trim()).filter((s) => s.length > 20).forEach((s) => usedSentences.add(s));
+        }
         const claimBlock = secProps.length ? `Here are the material's claims this part should carry:\n${secProps.map((p) => `- ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}` : "";
-        const windowBlock = secWindow ? `\n\nGrounded source text for THIS part — its real names, places, dates and figures come from here:\n"""\n${secWindow}\n"""` : "";
+        // THE MINIMAL WINDOW (2026-09-21): the raw source tokens for THIS void,
+        // with no meta-label. The mouth reads the material as the material —
+        // the label ("Grounded source text... its real names, places, dates")
+        // is instructional scaffolding the mouth does not need; the register
+        // voice already names what to draw from it.
+        const windowBlock = secWindow ? `\n\nGrounded source text:\n"""\n${secWindow}\n"""` : "";
         const isNarrative = prelimShape?.register?.field?.field === "narrative";
         const baseVoice = writeVoiceFor(prelimShape?.register, topic);
         const voice = discoveredVoice ? {
@@ -5706,26 +5848,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         const storySoFar = documentLines.length
           ? documentLines.map((line, j) => `[scene ${j + 1}] ${line}`).join("\n\n").slice(-1800)
           : "";
-        // FACTS SO FAR — the anti-repetition ground for EXPOSITION (2026-09-21).
-        // The narrative path already tells the mouth "HOLD every name, place,
-        // and number stable ... do not restate what already happened" with the
-        // story-so-far in front of it. The exposition path gave only a THEMATIC
-        // summary (priorParts from essayResolutions — atmosphere/lens/paradigm,
-        // which drops the specific facts) so a 2B mouth re-drew its strongest
-        // sentence across sections (measured: 13 sections, 43 revision marks,
-        // sections 5 and 9 near-verbatim restatements of section 1). The fix is
-        // the SAME discipline the narrative already has: put the STATED FACTS
-        // in front of the mouth and forbid restating them. The facts are the
-        // prior sections' own prose, bounded — the mouth sees what is already
-        // established and holds it back. No claim-normalization or dedupe:
-        // the mouth's own eyes read the prior prose and know not to restate it
-        // (the same mechanism that already works for narrative). Omnilingual by
-        // construction — prior prose in any language, held back the same way.
-        // ACTIVATED ONLY WHEN NEEDED: empty for the first section (nothing
-        // established yet), present only when prior sections exist.
-        const factsSoFar = documentLines.length
-          ? documentLines.map((line, j) => `[established ${j + 1}] ${line}`).join("\n\n").slice(-1800)
-          : "";
+        // THE VOID IS CONCRETE, THE MOUTH IS MINIMAL (2026-09-21): each section is
+        // its own concrete void grounded only on its own source tokens. No
+        // prior-prose dump, no stated prohibition — the absence of the already-
+        // used sentences and their opening templates in the window IS the
+        // guardrail (the mouth cannot re-open with a used boilerplate because
+        // the path is not there, not because a rule forbade it).
         // THE PLOT-SEED: the story's beats are drawn from the ground's own
         // events (a complication, a disaster, a rescue), mapped to the phases —
         // so the story has something to advance TOWARD, not a bag of facts to
@@ -5739,6 +5867,21 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         const materialBlock = isNarrative
           ? `${castBlock}${secProps.length ? `\nThe story's world holds these truths — let them shape the world, but write them in YOUR OWN words:\n${secProps.map((p) => `- ${p.end1 ?? ""} ${p.label} ${p.end2 ?? ""}`).join("\n")}` : ""}${secWindow ? `\n\nThe world, in its own words (its real names, places, storms come from here — read these, then write your own sentences):\n"""\n${secWindow}\n"""` : ""}\n\n${RANKE_RULE}`
           : `${claimBlock}${windowBlock}\n\n${RANKE_RULE}`;
+        // THE MINIMAL MOUTH (2026-09-21, the user's law: less is more, voids
+        // are concrete, rules are not stated — the absence of wrong paths is
+        // the guardrail). The mouth is given ONLY the stray pre-verbal tokens
+        // it needs for THIS void at THIS moment:
+        //   1. the concrete void — the section question itself;
+        //   2. the source tokens THIS void can ground on (its claims + window);
+        //   3. nothing else — no priorParts summary, no factsSoFar dump, no
+        //      stated prohibition.
+        // The guardrail against repetition is the ABSENCE of the wrong paths:
+        // the already-grounded sentences and their opening templates were
+        // excluded from the window (usedSentences), so the mouth cannot re-
+        // open with a used boilerplate — not because a rule forbade it, but
+        // because the path is not there. A stated rule ("HOLD BACK...") was
+        // measured to still let a 2B mouth paraphrase the same boilerplate
+        // across sections 6-11; absence cannot be paraphrased away.
         const sectionTask = isCode
           ? codeSectionPrompt({
               section,
@@ -5758,7 +5901,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
               : `We're writing a piece on ${topic}. ${materialBlock}\n\n${voice.opening(topic)}`)
             : (isNarrative
               ? `The story continues. This is ${beat}.${storySoFar ? `\n\nHere is the story so far — HOLD every name, place, and number stable, do not rename anyone or change any detail, do not restate what already happened:\n${storySoFar}\n` : ""}Now show what happens NEXT: the next thing that changes, the next beat toward the resolution. ${materialBlock}\n\n${voice.body(topic)}`
-              : `We're writing a piece on ${topic}. ${priorParts ? `Where the piece stands so far: ${priorParts}\n\n` : ""}${documentLines.length && factsSoFar ? `HOLD BACK what would be repetitive — these facts are ALREADY established in the piece, do not restate them, write what comes NEXT:\n${factsSoFar}\n\n` : ""}Now ${isQuestion ? `answer this: ${section}` : `write the part on ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences. ${voice.body(topic)} ${materialBlock}`))
+              : `${isQuestion ? `Answer this: ${section}` : `Write the part: ${section}`}, ${holonPhrase}. Write it as a substantial passage of the piece itself — several sentences. ${voice.body(topic)} ${windowBlock}`))
           : (isNarrative
             ? `You are telling a story. This is ${beat}. It begins in the middle of a moment, in a real place. ${materialBlock}\n\n${voice.opening(topic)}`
             : `We're writing a piece on ${topic}. ${materialBlock}\n\n${voice.opening(topic)}`);
@@ -5772,33 +5915,294 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // the sections bound.)
         const drawBudget = isCode ? holonBudget : (hasGrounding ? holonBudget : Math.min(holonBudget, 400));
         if (onThinking) onThinking(`\n### ${section} (${holonLevel})\n\n`);
-        // The draw runs NOW, in parallel with the Gore strike. Whichever lands
-        // first flows; the strike's result is folded into the reading whenever
-        // it arrives.
-        const [drawRes] = await Promise.allSettled([
-          draw(
-            [
-              { role: "system", content: systemContent },
-              ...keptChat,
-              { role: "user", content: sectionTask },
-            ],
-            drawBudget,
-            { kelsen: compositionKelsen },
-          ),
-        ]);
-        // The Gore strike is FIRE-AND-FORGET: it never gates the section. The
-        // draw is the only thing the section waits for. Whatever the strike
-        // lands is admitted to the reading and feeds the sections that follow;
-        // if it has not returned by then, this section simply does not use it.
-        // (Previously Promise.allSettled awaited BOTH, so a slow web fetch
-        // stretched every section to max(draw, gore) — the speed killer.)
-        if (goreStrike?.then) {
-          goreStrike
-            .then((r) => { if (r?.landed && onNote) onNote({ move: "gore_landed", cue: section, pages: r.result?.pages ?? 0 }); })
-            .catch(() => {});
+        // THE PARAGRAPH WRITTEN ONE SENTENCE AT A TIME (2026-09-21, the user's
+        // law — "if we can write an essay one sentence at a time, we've got
+        // it"). Each sentence is its own draw. The next sentence's VOID is the
+        // previous sentence's ENDING: the piece lands somewhere we did not
+        // predict when we opened the sentence before, and the next sentence is
+        // a RESPONSE to that landing — it does not re-answer the section from
+        // scratch (the measured repetition came from re-answering the same
+        // static void; a sentence that opens on the last sentence's ending
+        // cannot re-open on the topic). The mouth is minimal: only the stray
+        // pre-verbal tokens it needs at this moment — the ending it must
+        // respond to, and this void's grounded source tokens. No stated rules:
+        // the absence of the wrong path is the guardrail. The 3-part shape is
+        // NOT pre-sliced; it EMERGES from the recursion (opening sets a strain,
+        // sentences turn it, the last resolves it) and is MEASURED by the
+        // holonic general, which stops the loop when the paragraph's shape
+        // resolves (or the section budget is exhausted).
+        const sentenceAtATime = !isCode && !isNarrative && !isOpening;
+        // THE STRUCTURE ENDS ITS OWN UNITS — LEARNED, NEVER STATED (2026-09-21,
+        // the user's law: "it needs to learn from context what would end a
+        // particular piece of structure"). The stop sequence is NOT a fixed
+        // [". ", "! ", "\n"] — that is a stated rule, modality-blind, and it
+        // would end a code line at a period or a haiku at a newline. A unit's
+        // boundary is a property of the STRUCTURE being written, read off its
+        // context: the register's FIELD (verse ends on a line, code on a
+        // statement, prose on a sentence), the MODE (a musical gesture ends on
+        // a rest, not a period), and the MATERIAL'S OWN terminators (how the
+        // source prose ACTUALLY closes its sentences is the strongest signal
+        // for prose — the mouth ends a sentence the way the ground does). A
+        // LEARNED boundary (the discovered framing's endings) wins when it
+        // exists. The French flag applied to endings: the boundary is read
+        // from the local gradient of the structure, never imposed by a rule.
+        function structureEndingsFor({ field = "", mode = "", material = "", discoveredEndings = null } = {}) {
+          if (Array.isArray(discoveredEndings) && discoveredEndings.length) return discoveredEndings;
+          if (field === "instrument") return ["\n", ";"];
+          if (field === "lyric") return ["\n"];
+          if (mode && mode !== "text") return ["\n"];
+          if (material && material.length > 20) {
+            const ends = {};
+            const m = String(material).replace(/\s+/g, " ");
+            for (const p of [".", "!", "?", "…"]) {
+              const re = new RegExp("\\" + p + "(?=\\s|$)", "g");
+              const n = (m.match(re) ?? []).length;
+              if (n > 0) ends[p] = n;
+            }
+            const sorted = Object.entries(ends).sort((a, b) => b[1] - a[1]);
+            if (sorted.length) {
+              const top = sorted[0][0];
+              return top === "…" ? ["…"] : [top + " "];
+            }
+          }
+          return [". ", "! ", "? "];
         }
-        let { buf = "", stopped = false } = drawRes.status === "fulfilled" ? drawRes.value : {};
-        if (stopped) break;
+        const structureStop = structureEndingsFor({ field: prelimShape?.register?.field?.field, mode: prelimShape?.register?.mode, material: groundingText() });
+        // THE CLAIM-CORE (2026-09-21): the mechanical identity of a sentence's
+        // claim — the being-nouns and change-verbs with variance words
+        // stripped, so "played a significant role in Nashville's growth" and
+        // "served as a vital artery for Nashville's growth" are the SAME claim.
+        // The global registry keys on this; a claim deposited by any section is
+        // absent from every later window. Same set the window's trail uses.
+        const CLAIM_VARIANTS_STABLE = new Set(["played","served","significant","vital","crucial","critical","major","role","growth","port","city","artery","impact","influence","development","journey","course","waterway","river","cumberland","nashville"]);
+        const claimCoreOfStable = (s) => {
+          const words = String(s).toLowerCase().replace(/[^a-z' ]+/g, " ").replace(/\s+/g, " ").trim().split(" ").filter((w) => w.length > 3 && !WINDOW_STOP.has(w) && !CLAIM_VARIANTS_STABLE.has(w));
+          return words.slice(0, 6).join(" ");
+        };
+        // THE REFERENT-VERIFY GATE (2026-09-21, the user's law "nothing is held
+        // unattributed"): a sentence is admitted only when every capitalized
+        // name-run it carries actually appears in the ground. A run is a
+        // contiguous stretch of capitalized words ("Thomas Vanderbilt"); the
+        // sentence's FIRST word is skipped (every sentence capitalizes its
+        // opener) unless followed by another capital. A name-run the ground has
+        // never seen ("Thomas Jefferson named the river's source Duke's Creek")
+        // is an invented referent — the sentence is refused mechanically, never
+        // negotiated with the mouth. This is what killed the "Thomas Duke /
+        // Vanderbilt / Jefferson" hallucinations of the 2026-09-21 run: the
+        // workspace named only Walker, the Duke of Cumberland, Robertson,
+        // Donelson; the model's invented names carried no ground trace.
+        const groundTextLower = String(groundingText() ?? "").replace(/\s+/g, " ").toLowerCase();
+        const inventedNameRuns = (s) => {
+          const words = String(s).replace(/[.,;:()"']/g, " ").replace(/\s+/g, " ").trim().split(" ");
+          const runs = [];
+          let cur = [];
+          for (let i = 0; i < words.length; i++) {
+            const w = words[i];
+            const isCap = /^[A-Z][a-z]{1,}/.test(w);
+            if (isCap && i === 0 && !(words[i + 1] && /^[A-Z][a-z]{1,}/.test(words[i + 1]))) continue;
+            if (isCap && w.length > 2) { cur.push(w); continue; }
+            if (cur.length) { runs.push(cur); cur = []; }
+          }
+          if (cur.length) runs.push(cur);
+          return runs
+            .filter((r) => r.length >= 1)
+            .filter((r) => {
+              const seq = r.join(" ").toLowerCase();
+              const singletons = ["the", "this", "it", "its", "they", "their", "there", "he", "she", "her", "him", "his", "when", "what", "why", "how", "but", "and", "as", "at", "in", "on", "by", "for", "from", "with", "of"];
+              if (r.length === 1 && singletons.includes(seq)) return false;
+              return !groundTextLower.includes(seq);
+            });
+        };
+        let buf = "";
+        let stopped = false;
+        if (sentenceAtATime) {
+          // THE PARAGRAPH, DRAWN WIDE, SNIPPED MECHANICALLY (2026-09-21, the
+          // user's synthesis: "we did have fairly decent longform essay writing
+          // on a 2b when it was asked to write paragraphs — this effort caused
+          // regressions. the smaller the model, the more we prompt it with
+          // precisely what we want and nothing more, virtually no 'dont's. small
+          // models have tourettes"). So: the mouth is asked for a PARAGRAPH —
+          // its natural competence — with a minimal positive prompt (the void +
+          // this position's ground, no prohibitions, no "don't repeat"). The
+          // MODEL writes longform; the MACHINERY is the selector: the paragraph
+          // is split into sentences, each is folded through the referent index
+          // (grounded?) and checked against the global claim-registry
+          // (repeated?), and only the survivors are kept. The mouth never sees
+          // a "don't" — the repetition is cut mechanically, after the fact,
+          // because a small model cannot be talked out of its default and the
+          // absence of the repeated claim is the only guardrail that holds.
+          const PARAGRAPH_MAX = Math.min(drawBudget, 500);
+          let paragraphBuf = "";
+          let paraStopped = false;
+          // THE VOID IS THE PRIOR LANDING, NEVER THE RE-ASKED TOPIC (2026-09-21):
+          // the section continues the piece — it opens on where the piece
+          // actually landed, not on re-answering "the role of the Cumberland
+          // River in Nashville's growth" (measured: every section re-asking the
+          // topic question opened "The Cumberland River played a vital role...").
+          const priorLanding = documentLines.length ? String(documentLines[documentLines.length - 1] ?? "").trim() : "";
+          const paraTask = priorLanding
+            ? `Continue the piece from exactly where it left off. Write the next passage (${holonPhrase}) of the piece itself.\n\nThe piece just said:\n"${priorLanding.split(/(?<=[.!?])\s+/).filter(Boolean).pop() ?? priorLanding}"\n\nHere is what this passage is about:\n"${section}"\n\nGrounded source text:\n"""\n${secWindow ?? ""}\n"""\n\nWrite the passage now.`
+            : `${isQuestion ? `Answer this: ${section}` : `Write the part: ${section}`}, ${holonPhrase}. ${voice.body(topic)} ${windowBlock}`;
+          if (onThinking) onThinking(`\n### ${section} (paragraph draw)\n\n`);
+          const [paraRes] = await Promise.allSettled([
+            draw(
+              [
+                { role: "system", content: systemContent },
+                ...keptChat.slice(-2),
+                { role: "user", content: paraTask },
+              ],
+              PARAGRAPH_MAX,
+              { kelsen: compositionKelsen },
+            ),
+          ]);
+          paragraphBuf = paraRes.status === "fulfilled" ? String(paraRes.value?.buf ?? "").trim() : "";
+          if (paraRes.status === "fulfilled" && paraRes.value?.stopped) { paraStopped = true; }
+          // THE MECHANICAL SNIP (2026-09-21): the paragraph overshoots (it
+          // repeats, drifts, copies) — the machinery keeps only the sentences
+          // that FOLD to a material referent (grounded) and carry a claim the
+          // registry has not already deposited (new). The survivors are the
+          // section; their claims are deposited globally so no later section —
+          // and no sibling — re-grounds on them. This is the model-as-generator,
+          // machinery-as-selector division, and it is the ONLY repetition guard
+          // (the mouth was told none).
+          const globalRegistry = (() => {
+            const out = new Set();
+            if (usedSentences) {
+              for (const u of usedSentences) {
+                if (u.includes(" ")) out.add(claimCoreOfStable(u));
+                else out.add(u);
+              }
+            }
+            return out;
+          })();
+          const groundedCand = (cand) => {
+            try {
+              const resolved = propsIndex?.resolveIn?.(cand);
+              const ids = resolved instanceof Set ? resolved : new Set(resolved ?? []);
+              if (ids.size) return true;
+            } catch {}
+            return false;
+          };
+          const normWords2 = (x) => new Set(String(x).toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 4));
+          const paragraphSentences = String(paragraphBuf).replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim()).filter((s) => s.length > 20);
+          const survivors = [];
+          for (const cand of paragraphSentences) {
+            const core = claimCoreOfStable(cand);
+            if (globalRegistry.has(core)) continue;
+            if (!groundedCand(cand)) continue;
+            // THE REFERENT-VERIFY GATE: a sentence carrying a name the ground
+            // has never seen is an invented referent — refuse it. The mouth's
+            // fabricated "Thomas Duke / Vanderbilt / Jefferson" all died here
+            // (the workspace names only Walker, the Duke of Cumberland,
+            // Robertson, Donelson); the real names passed because they appear
+            // in the admitted ground.
+            if (inventedNameRuns(cand).length) continue;
+            // META-SENTENCE FILTER (mechanical): the mouth must write the
+            // piece, never talk about writing it. "The user requested a piece
+            // on the Cumberland River" is meta — refused like any other
+            // ungrounded sentence, so the essay can't leak instructions into
+            // its prose (measured 2026-09-21: every section of the projection
+            // run carried "The user is requested to write about...").
+            if (/the user|requested a|requested to|will explore|essay (?:will|is|should)|this essay|the essay(?:'s| is| will| should)|asked to write|subject is|called upon|to answer this|is to (?:be|write)|its significance is (?:undeniable|a subject)/i.test(cand)) continue;
+            // Do not re-state the prior landing verbatim.
+            const cWords = normWords2(cand);
+            const priorWords = normWords2(priorLanding);
+            if (priorWords.size && [...cWords].filter((w) => priorWords.has(w)).length / Math.max(1, cWords.size) >= 0.7) continue;
+            survivors.push(cand);
+            usedSentences.add(cand);
+            usedSentences.add(core);
+          }
+          if (onNote) onNote({ move: "paragraph_snip", section, sentences: paragraphSentences.length, kept: survivors.length, basis: survivors.length < paragraphSentences.length ? `snipped ${paragraphSentences.length - survivors.length} repeated/ungrounded sentence(s)` : "no snipping needed" });
+          buf = survivors.join(" ");
+          if (!buf.trim() && paragraphBuf.trim() && !paraStopped) {
+            // NOTHING SURVIVED THE SNIP — but the paragraph was real prose. Keep
+            // the first grounded sentence as the section's floor rather than
+            // falling back to a re-asked topic (the fallback re-introduces the
+            // repetition). The floor is still folded + deposited.
+            const firstGrounded = paragraphSentences.find(groundedCand);
+            if (firstGrounded) {
+              buf = firstGrounded;
+              usedSentences.add(firstGrounded);
+              usedSentences.add(claimCoreOfStable(firstGrounded));
+              if (onNote) onNote({ move: "paragraph_floor", section, kept: 1 });
+            }
+          }
+          stopped = paraStopped;
+        } else {
+          // The draw runs NOW, in parallel with the Gore strike. Whichever
+          // lands first flows; the strike's result is folded into the reading
+          // whenever it arrives.
+          const [drawRes] = await Promise.allSettled([
+            draw(
+              [
+                { role: "system", content: systemContent },
+                ...keptChat,
+                { role: "user", content: sectionTask },
+              ],
+              drawBudget,
+              { kelsen: compositionKelsen },
+            ),
+          ]);
+          // The Gore strike is FIRE-AND-FORGET: it never gates the section. The
+          // draw is the only thing the section waits for. Whatever the strike
+          // lands is admitted to the reading and feeds the sections that follow;
+          // if it has not returned by then, this section simply does not use it.
+          // (Previously Promise.allSettled awaited BOTH, so a slow web fetch
+          // stretched every section to max(draw, gore) — the speed killer.)
+          if (goreStrike?.then) {
+            goreStrike
+              .then((r) => { if (r?.landed && onNote) onNote({ move: "gore_landed", cue: section, pages: r.result?.pages ?? 0 }); })
+              .catch(() => {});
+          }
+          const d = drawRes.status === "fulfilled" ? drawRes.value : {};
+          buf = d.buf ?? "";
+          stopped = !!d.stopped;
+          // THE OPENING/NARRATIVE PATH IS NOT EXEMPT FROM THE MACHINERY
+          // (2026-09-21): the essay-true run wrote openings through this plain
+          // draw path, and every opening re-grounding the same claim survived —
+          // "The Cumberland River's flow cuts through the heart of Nashville"
+          // opened nearly all twelve sections, and "The user is requested to
+          // write about the Cumberland River" leaked into the prose, because
+          // this branch never ran the snip. The mechanical filters — registry,
+          // referent-verify, meta — are selector rules, not prose-style rules;
+          // they apply to EVERY sentence the mouth writes, whatever branch
+          // produced it. The survivors here are folded + deposited exactly like
+          // the sentence-at-a-time path's.
+          const openSentences = String(buf).replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim()).filter((s) => s.length > 20);
+          const openRegistry = (() => {
+            const out = new Set();
+            if (usedSentences) {
+              for (const u of usedSentences) {
+                if (u.includes(" ")) out.add(claimCoreOfStable(u));
+                else out.add(u);
+              }
+            }
+            return out;
+          })();
+          const openSurvivors = [];
+          for (const cand of openSentences) {
+            const core = claimCoreOfStable(cand);
+            if (openRegistry.has(core)) continue;
+            if (!groundedCand(cand)) continue;
+            if (inventedNameRuns(cand).length) continue;
+            if (/the user|requested a|requested to|will explore|essay (?:will|is|should)|this essay|the essay(?:'s| is| will| should)|asked to write|subject is|called upon|to answer this|is to (?:be|write)|its significance is (?:undeniable|a subject)/i.test(cand)) continue;
+            openSurvivors.push(cand);
+            usedSentences.add(cand);
+            usedSentences.add(core);
+          }
+          if (openSurvivors.length) {
+            buf = openSurvivors.join(" ");
+          } else if (openSentences.length && !stopped) {
+            const firstOk = openSentences.find((s) => !inventedNameRuns(s).length && !/the user|requested a|this essay|essay (?:will|is|should)|asked to write/i.test(s));
+            if (firstOk) {
+              buf = firstOk;
+              usedSentences.add(firstOk);
+              usedSentences.add(claimCoreOfStable(firstOk));
+            }
+          }
+          if (onNote) onNote({ move: "open_snip", section, sentences: openSentences.length, kept: openSurvivors.length, basis: openSurvivors.length < openSentences.length ? `snipped ${openSentences.length - openSurvivors.length} repeated/ungrounded/meta sentence(s) from the opening/narrative draw` : "no snipping needed" });
+          if (stopped) break;
+        }
         if (onThinking) onThinking(buf + (i < plannedSections.length - 1 ? "\n\n" : ""));
 
         // ── FIRST DRAFT LANDS; the EDITOR corrects, not this loop ──────────
@@ -5825,6 +6229,20 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             basis: `composition section, strain ${strainAdded}`,
           }, { dir: ESSAY_LEDGER_DIR });
           documentLines.push(isCode ? stripCodeFences(buf, codeLanguage) : buf.trim());
+        }
+        // THE DEPOSIT (2026-09-21): the section's OWN prose is folded into the
+        // stigmergic trail — the essay's claims become the record, so no later
+        // section re-grounds on them. The trail used to deposit only the WINDOW
+        // sentences (what was read); the mouth's OUTPUT (what it wrote) was
+        // never deposited, so a section that wrote "The Cumberland River flows
+        // 688 miles from its headwaters..." as a paraphrase left no trace, and
+        // later sections re-grounded on the same claim (measured: sections
+        // 6/9/10 of the browser run all opened with the identical "major
+        // waterway... flows 688 miles" pair). The deposit is the writing
+        // itself — the piece's own sentences and their claim-cores evaporate
+        // from every future window. Absence, never a stated rule.
+        if (!isCode && buf && documentLines.length) {
+          String(buf).replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((s) => s.trim()).filter((s) => s.length > 20).forEach((s) => usedSentences.add(s));
         }
         if (i < plannedSections.length - 1 && onToken) onToken("\n\n");
 

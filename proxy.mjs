@@ -43,7 +43,7 @@ import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, restartSurface, sampleVitalsNow, backgroundTasks, killTask, memoryPressured, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, restartSurface, sampleVitalsNow, backgroundTasks, killTask, memoryPressured, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels } from "./heimdall.mjs";
 // "Computed, not generated" — the-fold's own house rule (arithmetic.js),
 // reused directly rather than re-derived: a small model answering "what is
 // today's date?" from its stale training data, with nothing in THIS proxy's
@@ -2209,10 +2209,21 @@ server.listen(PORT, "127.0.0.1", () => {
   // with no turn in flight, restart `ollama serve` in the tuned config. A
   // healthy-but-busy server is never restarted (the probe is /api/tags, and a
   // turn in flight stands it down). ER7_MODEL_WATCHDOG=0 disables it.
+  // GATE FIXED 2026-09-21: the gate reads the SURFACE inflight (markInflight
+  // "er7" — incremented by admitChatRequest on EVERY admitted door, the code
+  // and documents doors included), never the local `_inflight` counter, which
+  // only the /v1/ask and /v1/messages handlers incremented. A /v1/code loop
+  // running under a stale `_inflight === 0` let this watchdog cold-restart
+  // ollama mid-loop, killing every in-flight turn on the box (measured:
+  // UND_ERR_SOCKET / UND_ERR_HEADERS_TIMEOUT on the code door while the model
+  // server was restarted underneath it). The surface inflight is the honest
+  // gate: it marks a turn as soon as admission admits it and releases it when
+  // the response closes, on every door.
   if ((process.env.ER7_MODEL_WATCHDOG ?? "1") !== "0") {
     let hits = 0;
     setInterval(async () => {
-      if (_inflight > 0) return;
+      const er7 = getSurfaces().find((s) => s.name === "er7");
+      if ((er7?.inflight ?? 0) > 0) { hits = 0; return; }
       const p = await probeModelServer().catch(() => ({ ok: false }));
       if (p.ok) { hits = 0; return; }
       hits += 1;
@@ -2364,8 +2375,16 @@ server.listen(PORT, "127.0.0.1", () => {
     const holonDriverMs = Number(process.env.ER7_HOLON_DRIVER_MS ?? 30000);
     setInterval(() => {
       runHolonTree().catch((err) => log(`holon tree error: ${err.message}`));
+      // THE WINDOW EYE IN FLEET MODE (2026-09-21, post-mortem falsification
+      // 5.2): refreshOllamaModels fires the window_changed finding — a model
+      // reloaded at a different num_ctx than the loaded window — and it only
+      // ran inside the in-process watcher, which external mode disables. The
+      // traffic-jam detector was therefore OFF on the operator's live box
+      // while gemma2:2b was being reloaded 23× at disagreeing windows. Drive
+      // the same eye here, on the driver the holon tree already uses.
+      refreshOllamaModels().catch((err) => log(`ollama window eye error: ${err.message}`));
     }, holonDriverMs).unref();
-    log(`holon driver: external heimdall — holon tree driven locally every ${holonDriverMs}ms`);
+    log(`holon driver: external heimdall — holon tree + window eye driven locally every ${holonDriverMs}ms`);
   }
   // Pre-load pyodide (WASM Python) in the background so the FIRST turn's
   // post-processing does not pay the ~10-16s cold-load. Fire-and-forget.
@@ -2422,10 +2441,33 @@ server.listen(PORT, "127.0.0.1", () => {
 // deeper into the pressure that was causing the restarts. Close the servers,
 // drop the long-lived SSE connections so the close callback can fire, and a
 // hard deadline exits whatever still holds the loop.
+// DRAIN FIRST (2026-09-21): a SIGTERM mid-turn used to closeAllConnections
+// immediately — a /v1/code loop in flight (measured: the code door) was cut
+// dead by the re-forge, the caller saw UND_ERR_SOCKET and the box looked
+// broken. In-flight turns get a bounded drain window to finish; only the
+// long-lived SSE watch streams are closed at once (they never finish on
+// their own). A turn that is still running at the deadline is still cut, but
+// a turn given a real chance to complete is no longer collateral.
+const SHUTDOWN_DRAIN_MS = Number(process.env.ER7_SHUTDOWN_DRAIN_MS ?? 30000);
 function shutdown(sig) {
   log(`shutting down (${sig})`);
   server.close(() => process.exit(0));
   aliasServer.close();
+  const inflight = getSurfaces().find((s) => s.name === "er7")?.inflight ?? 0;
+  if (inflight > 0) {
+    log(`shutdown: ${inflight} turn(s) in flight — draining up to ${Math.round(SHUTDOWN_DRAIN_MS / 1000)}s before the hard close`);
+    const t0 = Date.now();
+    const drain = setInterval(() => {
+      const nowInflight = getSurfaces().find((s) => s.name === "er7")?.inflight ?? 0;
+      if (nowInflight <= 0 || Date.now() - t0 > SHUTDOWN_DRAIN_MS) {
+        clearInterval(drain);
+        try { server.closeAllConnections(); } catch {}
+        try { aliasServer.closeAllConnections(); } catch {}
+        setTimeout(() => process.exit(0), 200).unref();
+      }
+    }, 250);
+    return;
+  }
   try { server.closeAllConnections(); } catch {}
   try { aliasServer.closeAllConnections(); } catch {}
   setTimeout(() => process.exit(0), 1500).unref();
