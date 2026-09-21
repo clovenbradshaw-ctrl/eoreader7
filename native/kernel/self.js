@@ -66,7 +66,14 @@ export const READER_SELF = Object.freeze({
 // canon-ground.mjs reads the canon off disk (node:*), so it is imported only
 // under Node; this module stays loadable in the browser, where the ground is absent.
 const __isNode = typeof process !== "undefined" && !!process.versions?.node;
-const __canonGround = __isNode ? (await import("../the-fold/canon-ground.mjs")).loadCanonGround() : null;
-const __selfGround = __canonGround?.mechanics.find((m) => m.id === "self-plane") ?? null;
+let __canonGround = null;
+async function __loadCanonGround() {
+  if (__canonGround === null) {
+    const m = await import("../the-fold/canon-ground.mjs");
+    __canonGround = m.loadCanonGround();
+  }
+  return __canonGround;
+}
+const __selfGround = __isNode ? (await __loadCanonGround()).mechanics.find((m) => m.id === "self-plane") : null;
 export const GROUND = __selfGround ? __selfGround.ground : null;
 export const GROUND_REF = __selfGround ? __selfGround.ref : null;

@@ -79,6 +79,7 @@
 //       -au Nom|Dual 0.34 ×9). Coverage and agreement are reported per axis
 //       so a degenerate axis cannot hide inside a mean.
 import { grammarCell } from "../../kernel/cube.js";
+import { GRAMMAR_MIN_SHARE } from "../../adapters/text/grain-typing.js";
 
 // IAST + Devanagari aware: letters AND combining marks stay inside the
 // token (Vedic accents, where present, ride on marks — stripped nowhere).
@@ -132,7 +133,7 @@ export const normForm = (s) => String(s ?? "").toLowerCase();
 /** confirmedVerbSet(prior, share) — every form the received POSPrior@1
  * attests as (VERB+AUX)-dominant above the share floor: the sole authority
  * on what may head a relation in Sanskrit. Mechanical; the prior decides. */
-export function confirmedVerbSet(prior, share = 0.5) {
+export function confirmedVerbSet(prior, share = GRAMMAR_MIN_SHARE) {
   const forms = prior?.forms ?? prior ?? {};
   const confirmed = new Set();
   for (const [form, tags] of Object.entries(forms)) {
@@ -146,7 +147,7 @@ export function confirmedVerbSet(prior, share = 0.5) {
 /** confirmSanskritVerbs(verbs, prior, share) — filter the earned vocabulary
  * to the prior-confirmed verbs. An un-confirmed proposal is refused — never
  * guessed. Mutates the Set, returns it. */
-export function confirmSanskritVerbs(verbs, prior, share = 0.5) {
+export function confirmSanskritVerbs(verbs, prior, share = GRAMMAR_MIN_SHARE) {
   const confirmed = confirmedVerbSet(prior, share);
   for (const v of verbs) if (!confirmed.has(v)) verbs.delete(v);
   return verbs;
@@ -207,7 +208,7 @@ export function sanskritBeings(chapterText, prior, { minOccurrences = 2 } = {}) 
  * SanskritCasePrior@1 tallies Person|Number(+Dual) by the verb's final 3
  * IAST characters, unstripped: -ati → 3|Sing at 0.98, -nti → 3|Plur at
  * 0.97. The prior only tallies; the consumer's own floor decides. */
-export function personOf(verbForm, casePrior, { minShare = 0.5, minCount = 20, endingLen = 3 } = {}) {
+export function personOf(verbForm, casePrior, { minShare = GRAMMAR_MIN_SHARE, minCount = 20, endingLen = 3 } = {}) {
   const table = casePrior?.verbPersonalEndings;
   if (!table) return null;
   const ending = normForm(verbForm).slice(-endingLen);
@@ -270,7 +271,7 @@ export const glossLanguages = () => Object.keys(GLOSS_TERMS);
  * in Vedic (801/22,763 finite tokens carry Voice — the table has 32
  * endings): a missing voice axis is a gap, and a paradigm with only voice
  * missing is still returned. Returns null only when NO axis clears. */
-export function paradigmOf(verbForm, casePrior, { minShare = 0.5, minCount = 20, endingLen = 3 } = {}) {
+export function paradigmOf(verbForm, casePrior, { minShare = GRAMMAR_MIN_SHARE, minCount = 20, endingLen = 3 } = {}) {
   if (!casePrior) return null;
   const ending = normForm(verbForm).slice(-endingLen);
   const read = (table) => {
@@ -300,7 +301,7 @@ export function paradigmOf(verbForm, casePrior, { minShare = 0.5, minCount = 20,
  * is LOWERCASED, never stripped (L8). No article probe exists (finding 1);
  * no enclitic override exists (finding 2 — measured ambiguous, forced
  * readings would be guesses). Below the floor: a gap, never a guess. */
-export function caseOf(token, casePrior, { minShare = 0.5, minCount = 10, endingLen = 2 } = {}) {
+export function caseOf(token, casePrior, { minShare = GRAMMAR_MIN_SHARE, minCount = 10, endingLen = 2 } = {}) {
   const table = casePrior?.nominalEndings;
   if (!table) return null;
   const ending = normForm(token).slice(-endingLen);
@@ -359,7 +360,7 @@ const OBLIQUE = ["Ins", "Gen", "Dat", "Loc"];
  * counts squared NEGATIVE improvements, so an early degradation inflates
  * the bar for later real wins ([pre,iti] 0.3124 refused under a 0.3062
  * champion) — the shared gate's property, reported here, never forked. */
-export function sanskritClauses(sentText, verbs, posPrior, casePrior, { beings = [], minShare = 0.5, minCount = 10, preferPre = true, useOblique = true, useParticiple = true, itiBoundary = true } = {}) {
+export function sanskritClauses(sentText, verbs, posPrior, casePrior, { beings = [], minShare = GRAMMAR_MIN_SHARE, minCount = 10, preferPre = true, useOblique = true, useParticiple = true, itiBoundary = true } = {}) {
   if (!(verbs instanceof Set) || !verbs.size || !casePrior) return [];
   const beingsByStem = new Map(beings.map((b) => [b.stem, b]));
   const toks = tokenize(sentText);

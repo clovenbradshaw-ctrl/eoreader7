@@ -7,6 +7,7 @@ import { splitSentences } from "./spans.js";
 import { createSurfaceEvidence, accumulateSurfaceEvidence, surfacesFromEvidence, discoverReferents, diaNorm } from "./surfaces.js";
 import { heardSurfaces } from "../../organs/heard-surfaces.js";
 import { classifyWord, dominantClass } from "./wordclass.js";
+import { GRAMMAR_MIN_SHARE } from "./grain-typing.js";
 import { relationExtractorsFor } from "./relations-language.js";
 import { directDescriptorOccurrences, descriptorOccurrence } from "./individuation.js";
 import { createDescriptorAnchoring } from "./anchoring.js";
@@ -249,7 +250,7 @@ function lexicalNounOccurrences(text, sequencePosition, encounterRef, posPrior, 
     if (!counts) continue;
     const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
     const nounShare = total ? (counts.NOUN ?? 0) / total : 0;
-    if (nounShare <= 0.5) continue;
+    if (nounShare <= GRAMMAR_MIN_SHARE) continue;
     const surfaceKey = `surface:${slug(raw) || "unknown"}`;
     // A4 (THE-ADDRESS.md): a lexical occurrence is content — the id hashes
     // the source, the byte span and the surface itself, so a re-read of the
@@ -342,7 +343,7 @@ function mergeRelationEvidence(store, candidates = []) {
 // lists"; P3: "never patch a missing prior by loosening an engine gate").
 // The grammar prior's role here is unchanged and one-directional: it may
 // REFUSE a candidate (verbDominant === false) and may never admit one.
-function admittedRelationVerbs(store, minSurfaces, posPrior) {
+function admittedRelationVerbs(store, minSurfaces, posPrior, language = null) {
   const verbs = new Set();
   for (const [verb, record] of store) {
     if (record.verbDominant === false) continue; // grammar refuses; it never admits
@@ -361,14 +362,21 @@ function admittedRelationVerbs(store, minSurfaces, posPrior) {
   // Rationale named (LAVAR §8), never tuned against a golden. Without this,
   // a pronoun-narrated text (AIW ch1) reads ZERO relation edges at the
   // earned-only floor — measured 2026-09-12 (the "best version" experiment).
-  if (posPrior) {
+  // THE PRIOR'S OWN DECLARED LANGUAGE GATES THE TIER (Chomsky, 2026-09-20):
+  // an English treebank's table is "honestly no gate" on a Russian page
+  // (the-fold POLICIES.md P74) — so a prior whose declared `language`
+  // contradicts the material's declared language is a typed refusal, never
+  // applied. A prior that declares no language, or material whose language
+  // is undeclared, falls open exactly as before (P41's posture: silence
+  // convicts nothing).
+  if (posPrior && (!posPrior.language || !language || posPrior.language === language)) {
     const forms = posPrior.forms ?? posPrior;
     for (const [form, tags] of Object.entries(forms)) {
       const counts = Object.values(tags);
       const total = counts.reduce((a, b) => a + b, 0);
       if (!total) continue;
       const verbish = (tags.VERB ?? 0) + (tags.AUX ?? 0);
-      if (verbish / total > 0.5) verbs.add(form);
+      if (verbish / total >= GRAMMAR_MIN_SHARE) verbs.add(form);
     }
   }
   return verbs;
@@ -452,7 +460,16 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
   // byte-identical; only a caller that opts in batches the expensive tier.
   if (reprojectEvery != null && (!Number.isInteger(reprojectEvery) || reprojectEvery < 1)) throw new TypeError("reprojectEvery must be a positive integer when declared");
   const reprojectEveryFinal = reprojectEvery ?? refreshEvery;
-  if (posPrior && (posPrior.schema !== "POSPrior@1" || !posPrior.provenance?.source)) throw new TypeError("posPrior must be a giver-named POSPrior@1");
+  // GIVER-NAME DISCIPLINE, ONE SCHEMA TWO SPELLINGS: POSPrior@1's own
+  // builder (live_priors/scripts/build-pos-prior.mjs) names the giver in
+  // `giver.resource` (with per-file sha256 provenance in `giver.files`),
+  // while the Greek fixture spells it `provenance.source`. Both are the
+  // same contract — a POSPrior@1 that names no giver is refused — so both
+  // spellings pass and neither shape is excluded (reconciled 2026-09-20;
+  // the fold's served eng prior carried `giver` only and every consumer
+  // silently fell back to presence — the-fold POLICIES.md P237's standing
+  // "page's constitutional reader is not running" finding).
+  if (posPrior && (posPrior.schema !== "POSPrior@1" || !(posPrior.provenance?.source || posPrior.giver?.resource))) throw new TypeError("posPrior must be a giver-named POSPrior@1");
   // THE LANGUAGE DISPATCH (2026-09-16): all cognition reads GFP-shaped by
   // default; English-SVO (or any positional language with a measured
   // RoleConfig@1) comes online ONLY when `roleConfig` is declared for the
@@ -612,7 +629,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       reassignments,
       born: discovered?.addresses?.born ?? cache.born,
       bornNext: discovered?.addresses?.next ?? cache.bornNext,
-      verbs: admittedRelationVerbs(relationEvidence, minRelationSurfaces, posPrior),
+      verbs: admittedRelationVerbs(relationEvidence, minRelationSurfaces, posPrior, language),
     };
   };
 
@@ -789,7 +806,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
           if (!counts) return true;
           const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
           const nounShare = total ? ((counts.NOUN ?? 0) + (counts.PROPN ?? 0)) / total : 0;
-          return nounShare > 0.5;
+          return nounShare > GRAMMAR_MIN_SHARE;
         });
         anchorEvidence = anchoring.observe(currentSentence, descriptorOccs, cache.referents).evidence;
         // The occurrences themselves are perceptions too — emitted so a

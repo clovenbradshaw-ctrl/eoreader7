@@ -30,6 +30,7 @@
 //     definition"). The object is where the language leaves it.
 
 import { nominalClass, confirmedVerbSet } from "./greek.mjs";
+import { GRAMMAR_MIN_SHARE } from "../../adapters/text/grain-typing.js";
 
 const TOKEN = /[\p{L}\p{N}’']+|[.,;:!?—–()«»“”]/gu;
 // A clause-initial subject group may open with any nominal class the prior
@@ -58,7 +59,7 @@ const tokenize = (text) => {
  * refused — never guessed. Mutates the Set, returns it. English was the one
  * language left ungated (the GREEK-only comment); the same defect measured on
  * English is this gate. */
-export function confirmEnglishVerbs(verbs, prior, share = 0.5) {
+export function confirmEnglishVerbs(verbs, prior, share = GRAMMAR_MIN_SHARE) {
   const confirmed = confirmedVerbSet(prior, share);
   for (const v of verbs) if (!confirmed.has(v)) verbs.delete(v);
   return verbs;
@@ -70,7 +71,7 @@ export function confirmEnglishVerbs(verbs, prior, share = 0.5) {
  * mood: imperative "you", subjunctive "it". Returns [{verb, object, at}] with
  * the object the maximal nominal run after the verb; the subject is disclosed
  * as grammaticalized, never fabricated. */
-export function englishImperatives(sentText, verbs, prior, { minShare = 0.5 } = {}) {
+export function englishImperatives(sentText, verbs, prior, { minShare = GRAMMAR_MIN_SHARE } = {}) {
   const out = [];
   if (!(verbs instanceof Set) || !verbs.size) return out;
   const toks = tokenize(sentText);

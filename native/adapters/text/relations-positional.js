@@ -37,6 +37,7 @@
 // hand-typed vocabulary, matching `heard-surfaces.js`/`identity-
 // evidence.js`'s own established injection pattern.
 import { peelProclitics } from "../../organs/heard-surfaces.js";
+import { GRAMMAR_MIN_SHARE } from "./grain-typing.js";
 
 const NOMINAL_CLASSES = Object.freeze(new Set(["NOUN", "PROPN"]));
 const VERB_LIKE = Object.freeze(new Set(["VERB", "AUX"]));
@@ -99,8 +100,9 @@ export function isHeadOfPhraseUpos(prevUpos) {
  * @param {object} options.posPrior a received `POSPrior@1`.
  * @param {function} options.classifyWord `wordclass.js::classifyWord`.
  * @param {function} options.dominantClass `wordclass.js::dominantClass`.
- * @param {number} [options.classShare=0.5] the confidence floor a class
- *   reading must clear — the caller's, per P4.
+ * @param {number} [options.classShare=GRAMMAR_MIN_SHARE] the confidence
+ *   floor a class reading must clear — the one share constant
+ *   (grain-typing.js), never a per-file 0.5.
  * @param {Set<string>|null} [options.proclitics] a `ProcliticPrior@1`'s
  *   own set (S118) — a word still fused to a bound proclitic is read
  *   correctly rather than missed as unclassifiable.
@@ -162,7 +164,7 @@ export function isHeadOfPhraseUpos(prevUpos) {
  *   between two chain members; a genuine second clause ("...which critics
  *   have called...") still refuses as ambiguous, unchanged.
  */
-export function extractPositionalRelation(text, { roleConfig, posPrior, classifyWord, dominantClass, classShare = 0.5, proclitics = null, phrasalPredicates = false, auxiliaryVerbs = null, verbForms = null, subjectPronouns = null, nominalForms = null, chainBridge = null } = {}) {
+export function extractPositionalRelation(text, { roleConfig, posPrior, classifyWord, dominantClass, classShare = GRAMMAR_MIN_SHARE, proclitics = null, phrasalPredicates = false, auxiliaryVerbs = null, verbForms = null, subjectPronouns = null, nominalForms = null, chainBridge = null } = {}) {
   if (!roleConfig) throw new Error("extractPositionalRelation: roleConfig must be supplied");
   if (!posPrior || !classifyWord || !dominantClass) throw new Error("extractPositionalRelation: posPrior, classifyWord and dominantClass must all be supplied");
   if (phrasalPredicates && !auxiliaryVerbs) throw new Error("extractPositionalRelation: phrasalPredicates requires auxiliaryVerbs — the received closed class it collapses, never guessed");

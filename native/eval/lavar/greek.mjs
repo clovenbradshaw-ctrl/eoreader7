@@ -40,6 +40,7 @@
 // reads its subject; neuter το/τά resolve by the clause verb's own number
 // and position, and stay gaps without verb tables.
 import { grammarCell } from "../../kernel/cube.js";
+import { GRAMMAR_MIN_SHARE } from "../../adapters/text/grain-typing.js";
 
 const TOKEN = /[\p{L}\p{N}’']+|[.,;:!?—–()«»“”]/gu;
 const NOMINAL = new Set(["NOUN", "PROPN", "ADJ", "PRON", "DET", "NUM"]);
@@ -100,7 +101,7 @@ export { strip as stripDiacritics };
 /** confirmedVerbSet(prior, share) — every form the received POSPrior@1
  * attests as (VERB+AUX)-dominant above the share floor: the sole authority
  * on what may head a relation in Greek. Mechanical; the prior decides. */
-export function confirmedVerbSet(prior, share = 0.5) {
+export function confirmedVerbSet(prior, share = GRAMMAR_MIN_SHARE) {
   const forms = prior?.forms ?? prior ?? {};
   const confirmed = new Set();
   for (const [form, tags] of Object.entries(forms)) {
@@ -116,7 +117,7 @@ export function confirmedVerbSet(prior, share = 0.5) {
  * in the verb slot; on free-order Greek that is not a verb (measured: "καὶ",
  * "τὸ", even English front-matter keys). The prior confirms; an un-confirmed
  * proposal is refused — never guessed. Mutates the Set, returns it. */
-export function confirmGreekVerbs(verbs, prior, share = 0.5) {
+export function confirmGreekVerbs(verbs, prior, share = GRAMMAR_MIN_SHARE) {
   const confirmed = confirmedVerbSet(prior, share);
   for (const v of verbs) if (!confirmed.has(v)) verbs.delete(v);
   return verbs;
@@ -185,7 +186,7 @@ export function greekBeings(chapterText, prior, { minOccurrences = 2 } = {}) {
  * The prior only tallies; the consumer's own confidence floor decides
  * (minShare/minCount) — the prior never guesses, the reader refuses below it.
  */
-export function personOf(verbForm, casePrior, { minShare = 0.5, minCount = 20, endingLen = 3 } = {}) {
+export function personOf(verbForm, casePrior, { minShare = GRAMMAR_MIN_SHARE, minCount = 20, endingLen = 3 } = {}) {
   const table = casePrior?.verbPersonalEndings;
   if (!table) return null;
   const ending = strip(verbForm).slice(-endingLen);
@@ -270,7 +271,7 @@ export const glossLanguages = () => Object.keys(GLOSS_TERMS);
  * NATIVE speaker settles all four from the verb itself. Each axis is read
  * from its own projection with its own confidence floor, each mapped to its
  * cube cell. Returns { person, number, tense, voice, mood, …cells }. */
-export function paradigmOf(verbForm, casePrior, { minShare = 0.5, minCount = 20, endingLen = 3 } = {}) {
+export function paradigmOf(verbForm, casePrior, { minShare = GRAMMAR_MIN_SHARE, minCount = 20, endingLen = 3 } = {}) {
   if (!casePrior) return null;
   const ending = strip(verbForm).slice(-endingLen);
   const read = (table) => {
@@ -318,7 +319,7 @@ const ENCLITIC_DATIVES = new Map([
   ["μοι", "Sing"], ["σοι", "Sing"], ["εμοι", "Sing"],
   ["υμιν", "Plur"], ["ημιν", "Plur"],
 ]);
-export function caseOf(token, casePrior, { minShare = 0.5, minCount = 10, endingLen = 2, articleMode = "off", prevForms = null, articleWindow = 1, weakBelow = 0.8, exceptionCases = null, markerCases = ARTICLE_CASE } = {}) {
+export function caseOf(token, casePrior, { minShare = GRAMMAR_MIN_SHARE, minCount = 10, endingLen = 2, articleMode = "off", prevForms = null, articleWindow = 1, weakBelow = 0.8, exceptionCases = null, markerCases = ARTICLE_CASE } = {}) {
   // exceptionCases (a caller's own closed form -> { case, number } map, keys
   // are stripped-lowercase forms) is checked before everything, including
   // the Greek enclitics below — the shared relations-case-marked.js seam,

@@ -165,6 +165,8 @@ import { blankStructure, numberSet } from "./grounding.js";
 import { commonTerms, CORPUS_MINIMUM } from "./cite.js";
 import { foldDiacritics } from "./source.js";
 import { orderArm, standingOf } from "./asserted.js";
+import { GRAMMAR_MIN_SHARE } from "../adapters/text/grain-typing.js";
+export { GRAMMAR_MIN_SHARE };
 
 // ── declared numbers, each with its justification ───────────────────────────
 //
@@ -188,7 +190,7 @@ export const MIN_SURFACES_PER_VERB = 1;
 // identical justification carried over: a literal majority is the
 // smallest bar that means "more than everything else combined" rather
 // than a curve fit to any one word or golden.
-export const GRAMMAR_MIN_SHARE = 0.5;
+
 
 // Display bound on the nearest-edge disclosure, not on belief: every edge
 // stays in the report's own graph; only the per-claim nearest list is
@@ -840,6 +842,11 @@ export function makeRelationReader(organs) {
     discoverRelationVocab,
     extractRelations,
     tokenize,
+    // `extractorsMode` — "legacy" (default) | "dispatch". A dispatch
+    // extractor (relationExtractorsFor's GFP or RoleConfig@1 mode) is
+    // self-gating: it must run even when the vocabulary pass returns
+    // nothing, which is by design for both dispatch modes.
+    extractorsMode = "legacy",
     verbForms = null,
     // `oovLexicon` — OPTIONAL, a Set of known verb surface forms used ONLY to
     // gate an out-of-vocabulary connector at the POS gate (discoverRelationVocab's
@@ -1330,7 +1337,7 @@ export function makeRelationReader(organs) {
     // form (no attestation) still widens — the lexicon is the only witness
     // it has, which is exactly the starvation case this widening exists for.
     if (verbForms) {
-      const nonverbDominant = (w) => { const att = posPrior?.forms?.[w]; if (!att) return false; const total = Object.values(att).reduce((a, b) => a + b, 0); return total > 0 && ((att.VERB ?? 0) + (att.AUX ?? 0)) / total <= 0.5; };
+      const nonverbDominant = (w) => { const att = posPrior?.forms?.[w]; if (!att) return false; const total = Object.values(att).reduce((a, b) => a + b, 0); return total > 0 && ((att.VERB ?? 0) + (att.AUX ?? 0)) / total <= GRAMMAR_MIN_SHARE; };
       // a form that occurs CAPITALISED away from a sentence start more often
       // than it occurs lowercase is a surface, not an act: "Buzz" recurs in
       // every Apollo passage and UD attests "buzz" as a verb, so the widening
@@ -1591,17 +1598,29 @@ export function makeRelationReader(organs) {
     // A shape neither rule fits keeps P43's typed refusal, unchanged.
     const posPriorNow = organs.posPriorFor ? organs.posPriorFor() : null;
     const shareOf = (w, tags) => { const att = posPriorNow?.forms?.[String(w).toLowerCase()]; if (!att) return null; const total = Object.values(att).reduce((a, b) => a + b, 0); return total > 0 ? tags.reduce((a, k) => a + (att[k] ?? 0), 0) / total : null; };
-    const auxDominant = (w) => (shareOf(w, ["AUX"]) ?? 0) >= 0.5;
-    const verbAttested = (w) => { const lw = String(w).toLowerCase(); return verbs.has(lw) || Boolean(organs.verbForms?.has?.(lw)) || (shareOf(lw, ["VERB", "AUX"]) ?? 0) >= 0.5; };
+    const auxDominant = (w) => (shareOf(w, ["AUX"]) ?? 0) >= GRAMMAR_MIN_SHARE;
+    const verbAttested = (w) => { const lw = String(w).toLowerCase(); return verbs.has(lw) || Boolean(organs.verbForms?.has?.(lw)) || (shareOf(lw, ["VERB", "AUX"]) ?? 0) >= GRAMMAR_MIN_SHARE; };
+    // THE ARRANGEMENT IS THE CONTRACT (Chomsky, 2026-09-20 — the language-
+    // universality archon): the reader's constructed edges and claims carry
+    // ONLY the earned names end1/label/end2, and a raw extractor triple may
+    // arrive in EITHER the legacy SVO shape ({subject, verb, object} —
+    // eoreader6 relations.js) or the neutral shape ({end1, label, end2,
+    // cell, grain} — the language dispatch's GFP and positional readers).
+    // `endOf` reads the arrangement first and falls back to the legacy
+    // names, so the fold can inject the dispatch's neutral extractors and
+    // this tier never has to know which extractor produced the triple.
+    const end1Of = (t) => t?.end1 ?? t?.subject;
+    const labelOf = (t) => t?.label ?? t?.verb;
+    const end2Of = (t) => t?.end2 ?? t?.object;
     const foldNegation = (t) => {
       if (!negationInUse || !t) return t;
-      const vt = String(t.verb ?? "").trim().split(/\s+/).filter(Boolean);
+      const vt = String(labelOf(t) ?? "").trim().split(/\s+/).filter(Boolean);
       if (vt.length > 1 && negationInUse.has(vt[0].toLowerCase())) {
-        return { ...t, verb: vt.slice(1).join(" "), polarity: "-", negationFolded: "act" };
+        return { ...t, [labelOf(t) === undefined ? "verb" : "label"]: vt.slice(1).join(" "), polarity: "-", negationFolded: "act" };
       }
-      const ot = String(t.object ?? "").trim().split(/\s+/).filter(Boolean);
+      const ot = String(end2Of(t) ?? "").trim().split(/\s+/).filter(Boolean);
       if (ot.length > 2 && negationInUse.has(ot[0].toLowerCase()) && vt.length && auxDominant(vt[vt.length - 1]) && verbAttested(ot[1])) {
-        return { ...t, verb: ot[1], object: ot.slice(2).join(" "), polarity: "-", negationFolded: "object" };
+        return { ...t, [labelOf(t) === undefined ? "verb" : "label"]: ot[1], [end2Of(t) === undefined ? "object" : "end2"]: ot.slice(2).join(" "), polarity: "-", negationFolded: "object" };
       }
       return t;
     };
@@ -1688,11 +1707,22 @@ export function makeRelationReader(organs) {
         const sentenceText = readSentenceText(pi, si);
         let triples = [];
         try {
-          triples = verbs.size
+          // THE GATE IS THE EXTRACTOR'S (Chomsky, 2026-09-20): a legacy
+          // vocabulary-gated extractor needs `verbs` before it can emit;
+          // a dispatch extractor (relations-language.js — GFP or a
+          // measured RoleConfig@1) is self-gating by design and DELIBERATELY
+          // returns an empty vocabulary (`discoverGfpVocabulary` says so in
+          // its own header; the SVO mode's vocabulary is empty because the
+          // positional reader assigns roles from the config, not from a
+          // word list). Gating those on `verbs.size` would silence the
+          // reader entirely — so a caller that injected dispatch extractors
+          // declares `extractorsMode: "dispatch"` and the gate falls open.
+          triples = verbs.size || extractorsMode === "dispatch"
             ? extractRelations(sentenceText, {
                 verbs,
                 functionWords,
                 negationWords,
+                ...(extractorsMode === "dispatch" ? { figures: new Set(surfaces.map((x) => String(x).toLowerCase())) } : {}),
                 ...(phrasalPredicates ? { phrasalPredicates } : {}),
                 ...(nounPhraseSubjects ? { nounPhraseSubjects, ...(verbWall ? { verbWall } : {}), ...(adpositions ? { adpositions } : {}) } : {}),
               })
@@ -1708,9 +1738,9 @@ export function makeRelationReader(organs) {
             : null;
         for (const t0 of triples) {
         const t = foldNegation(t0);
-        const subjectEnd = endpoint(t.subject, true);
-        const objectEnd = endpoint(t.object, Boolean(createLemmatizer));
-        const bucketKey = bucketOf(t.verb, t.polarity);
+        const subjectEnd = endpoint(end1Of(t), true);
+        const objectEnd = endpoint(end2Of(t), Boolean(createLemmatizer));
+        const bucketKey = bucketOf(labelOf(t), t.polarity);
         let bucket = buckets.get(bucketKey);
         if (!bucket) buckets.set(bucketKey, (bucket = []));
         const existing = bucket.find(
@@ -1736,7 +1766,7 @@ export function makeRelationReader(organs) {
             // arrangementOf. Raw extractor triples (`t.*`) keep the
             // extractor's own shape; the rename is of what this tier
             // BUILDS, not of what it receives.
-            ...arrangementOf(t),
+            ...{ end1: end1Of(t), label: labelOf(t), end2: end2Of(t) },
             polarity: t.polarity,
             subjectEnd,
             objectEnd,
@@ -1832,9 +1862,9 @@ export function makeRelationReader(organs) {
           if (
             sample.some(
               (t) =>
-                t.verb === e.label &&
-                endpointsMatch(endFor(t.subject), e.subjectEnd) &&
-                endpointsMatch(endFor(t.object), e.objectEnd),
+                labelOf(t) === e.label &&
+                endpointsMatch(endFor(end1Of(t)), e.subjectEnd) &&
+                endpointsMatch(endFor(end2Of(t)), e.objectEnd),
             )
           )
             fired++;
@@ -1879,12 +1909,12 @@ export function makeRelationReader(organs) {
     function judge(sentence, t) {
       const claim = {
         sentence,
-        ...arrangementOf(t),
+        ...{ end1: end1Of(t), label: labelOf(t), end2: end2Of(t) },
         polarity: t.polarity,
         // Same disclosure edgeFace carries, at claim scale: whether the
         // connector position the answer used is grammatically plausible as
         // a verb, per real treebank evidence — null when no posPrior ran.
-        grammar: vocabGrammar.get(t.verb) ?? null,
+        grammar: vocabGrammar.get(labelOf(t)) ?? null,
       };
       // A claim built on a word that is not grammatically a verb is not a
       // proposition to check at all — the SAME gate as an unresolved
@@ -1907,7 +1937,7 @@ export function makeRelationReader(organs) {
         return {
           ...claim,
           verdict: "beyond-reach",
-          reason: `“${t.verb}” is not grammatically a verb here — real usage says ${dominant.thraxClass} (${Math.round(dominant.share * 100)}% of the time) — a limit of this extraction, not a mark against the answer`,
+          reason: `“${labelOf(t)}” is not grammatically a verb here — real usage says ${dominant.thraxClass} (${Math.round(dominant.share * 100)}% of the time) — a limit of this extraction, not a mark against the answer`,
         };
       }
       // FIRST-PERSON DEIXIS (added 2026-09-09 — POLICIES.md P180 / READING-
@@ -1935,18 +1965,18 @@ export function makeRelationReader(organs) {
       // against; every other subject shape leaves it as the full edge set,
       // byte-identical to before this pass.
       let candidateEdges = edges;
-      if (firstPersonLed(t.subject)) {
+      if (firstPersonLed(end1Of(t))) {
         candidateEdges = sameSpeakerRef ? edges.filter((e) => (e.refs ?? []).some(sameSpeakerRef)) : [];
         if (!candidateEdges.length) {
           return {
             ...claim,
             verdict: "beyond-reach",
-            reason: `“${t.subject}” is a first-person claim — “I”/“my” names whoever is speaking, not a stable entity — and nothing here shows this answer and the material share a speaker; comparing them would treat two different people's “I” as one claim — a limit of this check, not a mark against the answer`,
+            reason: `“${end1Of(t)}” is a first-person claim — “I”/“my” names whoever is speaking, not a stable entity — and nothing here shows this answer and the material share a speaker; comparing them would treat two different people's “I” as one claim — a limit of this check, not a mark against the answer`,
           };
         }
       }
-      const subj = endpoint(t.subject, true);
-      const obj = endpoint(t.object, Boolean(createLemmatizer));
+      const subj = endpoint(end1Of(t), true);
+      const obj = endpoint(end2Of(t), Boolean(createLemmatizer));
       // Disclosed on EVERY claim, whatever the verdict — a bound claim
       // resting on a recurring-form subject ("Butterflies") is real, but
       // it is not the same strength of fact as one resting on a named
@@ -1988,22 +2018,22 @@ export function makeRelationReader(organs) {
         return {
           ...claim,
           verdict: "beyond-reach",
-          reason: `“${t.subject}” doesn't resolve to anyone or anything this material establishes — a limit of this check, not a mark against the answer`,
+          reason: `“${end1Of(t)}” doesn't resolve to anyone or anything this material establishes — a limit of this check, not a mark against the answer`,
         };
       }
       // Claim side of the polarity-never-measured rule (see `negationLed`).
       // Checked here rather than before endpoint resolution because the
       // `endpoints` disclosure above is still true and still worth carrying
       // on a claim this tier is about to decline.
-      if (negationLed(t.object)) {
+      if (negationLed(end2Of(t))) {
         return {
           ...claim,
           verdict: "beyond-reach",
-          reason: `the negation in “${t.object}” landed inside the object, not before the verb — this claim's polarity was never measured, so it is not one this tier can check; a limit of this extraction, not a mark against the answer`,
+          reason: `the negation in “${end2Of(t)}” landed inside the object, not before the verb — this claim's polarity was never measured, so it is not one this tier can check; a limit of this extraction, not a mark against the answer`,
         };
       }
       const sameSubjVerb = candidateEdges.filter(
-        (e) => sameAct(e.label, t.verb) && intersects(e.subjectEnd.referents, subj.referents),
+        (e) => sameAct(e.label, labelOf(t)) && intersects(e.subjectEnd.referents, subj.referents),
       );
       // Computed once, attached to every verdict below that reaches this
       // point — a reader needs cardinality regardless of whether THIS
@@ -2041,7 +2071,7 @@ export function makeRelationReader(organs) {
           return {
             ...claim,
             verdict: "unbound",
-            reason: `object_unspecific: the material states this subject and act, but no passage states the whole of “${t.object}” — only part of it`,
+            reason: `object_unspecific: the material states this subject and act, but no passage states the whole of “${end2Of(t)}” — only part of it`,
             nearest: agree.slice(0, NEAREST_EDGES_MAX).map(edgeFace),
             ...cardinality,
           };
@@ -2094,14 +2124,14 @@ export function makeRelationReader(organs) {
         return {
           ...claim,
           verdict: "beyond-reach",
-          reason: `“${t.object}” carries nothing comparable — no name and no content word — a limit of this check, not a mark against the answer`,
+          reason: `“${end2Of(t)}” carries nothing comparable — no name and no content word — a limit of this check, not a mark against the answer`,
         };
       }
       // No edge binds this claim. Show what the material DOES bind around
       // it: same subject and verb first (what the subject actually did),
       // then same verb and object (who actually did this to the object).
       const sameVerbObj = candidateEdges.filter(
-        (e) => sameAct(e.label, t.verb) && !sameSubjVerb.includes(e) && endpointsMatch(e.objectEnd, obj),
+        (e) => sameAct(e.label, labelOf(t)) && !sameSubjVerb.includes(e) && endpointsMatch(e.objectEnd, obj),
       );
 
       // Slot competition (P32's named follow-up, added 2026-08-19): the
@@ -2131,7 +2161,7 @@ export function makeRelationReader(organs) {
         // here: when BOTH the claim's object and a candidate edge's object
         // carry a number, they must share one, or the candidate is not
         // eligible to compete for this slot at all.
-        const claimNums = numberSet(t.object);
+        const claimNums = numberSet(end2Of(t));
         const numbersAgree = (e) => {
           const edgeNums = numberSet(e.end2);
           if (!claimNums.size || !edgeNums.size) return true; // nothing to disagree about
@@ -2220,10 +2250,11 @@ export function makeRelationReader(organs) {
         edges: edges.map(edgeFace),
         claims: [],
       };
-      if (!verbs.size) {
+      if (!verbs.size && extractorsMode !== "dispatch") {
         // A material too small or too nameless to measure a vocabulary from
         // is a typed gap, not a clean bill: this tier did not run, and the
-        // report says so instead of implying "no relation drift".
+        // report says so instead of implying "no relation drift". A
+        // dispatch extractor is self-gating — it runs regardless.
         report.vocabulary.gap =
           "no relation vocabulary could be measured from this material — the relation tier did not run";
         return report;
@@ -2252,7 +2283,7 @@ export function makeRelationReader(organs) {
 
         let heard = [];
         try {
-          heard = extractRelations(sentence, { verbs: sentenceVerbs, functionWords, ...(phrasalPredicates ? { phrasalPredicates } : {}), ...(nounPhraseSubjects ? { nounPhraseSubjects, ...(verbWall ? { verbWall } : {}), ...(adpositions ? { adpositions } : {}) } : {}) });
+          heard = extractRelations(sentence, { verbs: sentenceVerbs, functionWords, ...(extractorsMode === "dispatch" ? { figures: new Set(surfaces.map((x) => String(x).toLowerCase())) } : {}), ...(phrasalPredicates ? { phrasalPredicates } : {}), ...(nounPhraseSubjects ? { nounPhraseSubjects, ...(verbWall ? { verbWall } : {}), ...(adpositions ? { adpositions } : {}) } : {}) });
         } catch {
           heard = [];
         }
@@ -2266,15 +2297,15 @@ export function makeRelationReader(organs) {
         try {
           const unheardVerbs = new Set([...answerVerbs].filter((v) => !verbs.has(v) && !sameActExtra.has(v)));
           if (unheardVerbs.size) {
-            for (const t of extractRelations(sentence, { verbs: unheardVerbs, functionWords, ...(phrasalPredicates ? { phrasalPredicates } : {}), ...(nounPhraseSubjects ? { nounPhraseSubjects, ...(verbWall ? { verbWall } : {}), ...(adpositions ? { adpositions } : {}) } : {}) })) {
-              const subj = endpoint(t.subject, true);
+            for (const t of extractRelations(sentence, { verbs: unheardVerbs, functionWords, ...(extractorsMode === "dispatch" ? { figures: new Set(surfaces.map((x) => String(x).toLowerCase())) } : {}), ...(phrasalPredicates ? { phrasalPredicates } : {}), ...(nounPhraseSubjects ? { nounPhraseSubjects, ...(verbWall ? { verbWall } : {}), ...(adpositions ? { adpositions } : {}) } : {}) })) {
+              const subj = endpoint(end1Of(t), true);
               if (!subj.referents.size) continue; // a pronoun subject is noise here, not a claim about the cast
               report.claims.push({
                 sentence,
-                ...arrangementOf(t),
+                ...{ end1: end1Of(t), label: labelOf(t), end2: end2Of(t) },
                 polarity: t.polarity,
                 verdict: "unheard",
-                reason: `the material never uses the verb “${t.verb}”, so there is nothing to compare this against — a limit of this check, not a mark against the answer`,
+                reason: `the material never uses the verb “${labelOf(t)}”, so there is nothing to compare this against — a limit of this check, not a mark against the answer`,
               });
             }
           }

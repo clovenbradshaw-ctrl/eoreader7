@@ -36,9 +36,19 @@ tests  of  every  doctrine.”
 // canon-ground.mjs reads the canon off disk (node:fs/path/crypto/url), so it
 // is imported only under Node. In a browser this module must stay loadable
 // (the-fold/app.js imports it), and there the ground is simply absent.
+// Browser-safe: the canon-ground module imports node:* (fs/path/crypto/url), so
+// it can never be a STATIC graph edge in a page. The import is deferred into a
+// lazy loader the browser never reaches; under Node it resolves the same canon.
 const __isNode = typeof process !== "undefined" && !!process.versions?.node;
-const __canonGround = __isNode ? (await import("../the-fold/canon-ground.mjs")).loadCanonGround() : null;
-const __groundingGround = __canonGround?.mechanics.find((m) => m.id === "grounding") ?? null;
+let __canonGround = null;
+async function __loadCanonGround() {
+  if (__canonGround === null) {
+    const m = await import("../the-fold/canon-ground.mjs");
+    __canonGround = m.loadCanonGround();
+  }
+  return __canonGround;
+}
+const __groundingGround = __isNode ? (await __loadCanonGround()).mechanics.find((m) => m.id === "grounding") : null;
 export const GROUND = __groundingGround ? __groundingGround.ground : null;
 export const GROUND_REF = __groundingGround ? __groundingGround.ref : null;
 //

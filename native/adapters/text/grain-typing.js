@@ -18,7 +18,15 @@
 import { classifyWord, dominantClass } from "./wordclass.js";
 import * as cube from "../../kernel/cube.js";
 
-const GRAMMAR_MIN_SHARE = 0.5; // the production sidecar recipe's own value, matched not chosen
+// THE ONE VERB-SHARE THRESHOLD (Chomsky, 2026-09-20 — the language-
+// universality archon): every (VERB+AUX)-share gate in the reading stack
+// reads THIS constant — the adapter layer's definition, imported by
+// recursive.js's received-prior tier and by hypergraph.js's vocabulary
+// gate. It used to be spelled `> 0.5` here, `>= 0.5` there and
+// `>= GRAMMAR_MIN_SHARE` elsewhere — three spellings of one number, the
+// drift class this project's postmortems keep naming (P22/P24).
+// "the production sidecar recipe's own value, matched not chosen"
+export const GRAMMAR_MIN_SHARE = 0.5;
 
 export const GRAIN_BY_THRAX = Object.freeze({
   verb: { op: "CON", grain: "Figure" },

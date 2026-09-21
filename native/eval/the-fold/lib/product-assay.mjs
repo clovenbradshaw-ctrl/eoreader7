@@ -112,7 +112,8 @@ export async function organs({ language = "eng" } = {}) {
   const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
   const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
   const { resolvePronouns } = await import(`${NATIVE}/adapters/text/pronouns.js`);
-  const { discoverRelationVocab, extractRelations } = await import(`${NATIVE}/adapters/text/relations.js`);
+  const { relationExtractorsFor } = await import(`${NATIVE}/adapters/text/relations-language.js`);
+  const { classifyWord, dominantClass } = await import(`${NATIVE}/adapters/text/wordclass.js`);
   const M = await import(`${NATIVE}/adapters/text/morphology.js`);
   const P = await import(`${NATIVE}/adapters/text/priors.js`);
   const cube = await import(`${NATIVE}/kernel/cube.js`);
@@ -124,6 +125,22 @@ export async function organs({ language = "eng" } = {}) {
   const isEnglish = language === "eng";
   const posPriorPath = isEnglish ? `${FIX}pos-prior-eng.json` : `${FIX}pos-prior-${language}.json`;
   const posPrior = existsSync(posPriorPath) ? JSON.parse(readFileSync(posPriorPath, "utf8")) : null;
+  // THE LANGUAGE DISPATCH (Chomsky, 2026-09-20), mirroring app.js: the
+  // extractors are the dispatch's — GFP unless a measured RoleConfig@1 for
+  // this language is DECLARED, and declared means demonstrated. The eng
+  // RoleConfig (eoreader7/native/priors/role-config-eng.json) is loaded
+  // and held ready, but its positional reader was measured on Hebrew/Arabic
+  // (S121/S122) and refuses the fold's own battery material ("Ulysses S.
+  // Grant was born in Point Pleasant, Ohio" → ambiguous_verb, zero edges,
+  // measured 2026-09-20) — so it is NOT declared and the fold reads GFP.
+  // The BECOMING `chomsky-eng-svo-demonstrated` (the-fold/chomsky.test.mjs)
+  // is the gate that flips SVO_DECLARED, by measurement on the fold's own
+  // material. Anything else reads GFP too.
+  const SVO_DECLARED = false;
+  const roleConfigPath = `${NATIVE}/priors/role-config-${language}.json`;
+  const roleConfig = SVO_DECLARED && existsSync(roleConfigPath) ? JSON.parse(readFileSync(roleConfigPath, "utf8")) : null;
+  const dispatch = relationExtractorsFor({ language, roleConfig: posPrior && roleConfig ? roleConfig : null, posPrior, classifyWord, dominantClass });
+  const { discoverRelationVocab, extractRelations } = dispatch;
   // English only, per the header note above — a non-English caller degrades
   // to no lexical widening/lemma-folding rather than a wrong one.
   const verbForms = isEnglish ? new Set(JSON.parse(readFileSync(`${FIX}unimorph-eng-verb-forms.json`, "utf8"))) : null;
@@ -138,6 +155,7 @@ export async function organs({ language = "eng" } = {}) {
   // null at the door — the door's own disclosed behaviour.
   const RELATION_READER_OPTIONS = {
     splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, discoverRelationVocab, extractRelations, tokenize,
+    extractorsMode: "dispatch",
     posPriorFor: posPrior ? () => posPrior : null,
     verbForms, oovLexicon: verbForms,
     nounPhraseSubjects: true, phrasalPredicates: true, attestedVerbs: true,

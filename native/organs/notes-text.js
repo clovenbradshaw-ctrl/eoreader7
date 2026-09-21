@@ -53,6 +53,7 @@
 // because nothing accumulated and nothing was admitted) is in the kernel's
 // lineage note and in notes-text.test.mjs, unchanged.
 import { makeNotes, noteId, recipeId as kernelRecipeId, REFUSALS as NOTE_REFUSALS } from "../kernel/notes.js";
+import { GRAMMAR_MIN_SHARE } from "../adapters/text/grain-typing.js";
 
 /** The one identity for an assertion, so two sightings of it are one task. */
 export const assertionId = (subject, verb, object) => noteId(subject, verb, object);
@@ -105,7 +106,7 @@ export function makeNotesText(taskLog) {
    * else (incomplete, unaddressed, the accumulated log returned first) is
    * the kernel's own.
    */
-  function admit(log, edges, { classifyConnector = null, minShare = 0.5, witness = null } = {}) {
+  function admit(log, edges, { classifyConnector = null, minShare = GRAMMAR_MIN_SHARE, witness = null } = {}) {
     const originals = new Map();
     const arrangements = (edges ?? []).map((e) => {
       const a = {

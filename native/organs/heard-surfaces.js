@@ -56,6 +56,7 @@
 // `discoverCompanyKinds`, which is itself pure.
 
 import { discoverCompanyKinds } from "./kind-standing.js";
+import { GRAMMAR_MIN_SHARE } from "../adapters/text/grain-typing.js";
 
 // ── THE SECOND GATE: a received word-class prior, used ASYMMETRICALLY ──────
 //
@@ -173,7 +174,7 @@ const applyProcliticPeel = (text, proclitics, posPrior) =>
  * or `Set` for this material's language. Omitted, behaviour is
  * byte-identical to before this existed (no caller currently supplies it).
  */
-export function heardSurfaces(sentences, { minMentions, minShare, minMembers, nullArm = null, clean, posPrior = null, classifyWord = null, dominantClass = null, classShare = 0.5, proclitics = null } = {}) {
+export function heardSurfaces(sentences, { minMentions, minShare, minMembers, nullArm = null, clean, posPrior = null, classifyWord = null, dominantClass = null, classShare = GRAMMAR_MIN_SHARE, proclitics = null } = {}) {
   for (const [k, v] of Object.entries({ minMentions, minShare, minMembers }))
     if (!Number.isFinite(v)) throw new Error(`heardSurfaces: ${k} must be declared`);
   const gated = posPrior && classifyWord && dominantClass;

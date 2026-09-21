@@ -8,6 +8,7 @@
 // (`yadayadayada`, run-dmca.js, compendium + README Handle table).
 //
 import { DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS, COPULA_PARADIGM, SUBJECT_PRONOUNS, NEVER_A_NAME, SENTENCE_TERMINATORS } from "./priors.js";
+import { GRAMMAR_MIN_SHARE } from "./grain-typing.js";
 
 const WORD = /\p{L}[\p{L}\p{M}'’]*/gu;
 const TITLE = /^\p{Lu}/u;
@@ -314,7 +315,7 @@ const attackEvidence = (text, alternatives, supports, witness, giver) => {
 export function textIdentityEvidence(text, {
   alternatives = [], witness = null, giver = "lang/en:text-identity@1",
   determiners = null, copulaParadigm = null, subjectPronouns = null, neverAName = null,
-  posPrior = null, classifyWord = null, dominantClass = null, classShare = 0.5,
+  posPrior = null, classifyWord = null, dominantClass = null, classShare = GRAMMAR_MIN_SHARE,
 } = {}) {
   const source = String(text ?? "");
   const dets = determiners ?? new Set([...DEFINITE_DETERMINERS, ...INDEFINITE_DETERMINERS]);
