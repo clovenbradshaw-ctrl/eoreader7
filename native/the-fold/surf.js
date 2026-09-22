@@ -29,6 +29,25 @@ import { parseSearchResults, extractReadable, hostOf, WEB_UA, WEB_FETCH_TIMEOUT_
 
 export const SURF_SCHEMA = "EOSurf@1";
 
+// Measured live 2026-09-22 (surf-falsify.test.mjs's own live run + a direct
+// timed call): a single search or fetch through liveWeb answers in well
+// under a second on an open network, and every one of them is genuinely
+// bounded by WEB_FETCH_TIMEOUT_MS (organs/web.js) — the AbortController in
+// liveWeb's `get()` covers the whole call, redirects included, with no
+// retry loop anywhere in this file. What is NOT bounded is the PASS: this
+// loop runs each query's search, then each hunt's own allocation of
+// fetches, one after another, and each of those calls is individually
+// entitled to the full WEB_FETCH_TIMEOUT_MS. With `surfQueries`' own 2-3
+// queries and up to `maxSources` fetches per hunt, a run where the search
+// endpoint is slow or rate-limiting (not reproduced live today, but not
+// ruled out either) can legitimately sum to several minutes even though no
+// single call ever hangs — many bounded waits stacking sequentially, not a
+// broken timeout. `maxTotalMs` names an outer bound on the WHOLE pass so a
+// caller (a learn/hunt route driving this) is never stuck past a known
+// ceiling: a declared starting point (P9 — not measured, easy to widen once
+// real usage says otherwise), not a promise that anything under it is fast.
+export const SURF_MAX_TOTAL_MS = 90_000;
+
 /** The queries, from the void alone. Each carries context; the templates are
  *  declared (a starting point, stated as such), not measured. */
 export function surfQueries(spec) {
@@ -52,22 +71,47 @@ export function surfQueries(spec) {
 }
 
 /**
- * surf({ spec, search, fetch, perQuery, maxSources }) → EOSurf@1
+ * surf({ spec, search, fetch, perQuery, maxSources, maxTotalMs }) → EOSurf@1
  *   search(q) → { blocked, offEndpoint, results:[{title,url,snippet}] } | throws
  *   fetch(url) → { text, title, chars } | throws
+ * Every individual search/fetch is the CALLER's own timeout to keep (liveWeb,
+ * below, bounds each one by WEB_FETCH_TIMEOUT_MS) — but this loop runs them
+ * one after another, so the whole PASS is only bounded if something bounds
+ * it: `maxTotalMs` (default SURF_MAX_TOTAL_MS) does that, skipping whatever
+ * queries/fetches remain once the deadline passes rather than letting a slow
+ * or rate-limiting endpoint stack bounded waits into an unbounded one.
+ * `result.timeBounded` and `result.basis` say so when it fires — a cut pass
+ * is disclosed, never presented as "nothing more was there."
  * Candidates are distinct by URL and drawn across hosts first (one per host
  * before a second from any), so "multiple sources" is a property of the
  * product, not a hope.
  */
-export async function surf({ spec, search, fetch, perQuery = 6, maxSources = 6, queries = null } = {}) {
+export async function surf({ spec, search, fetch, perQuery = 6, maxSources = 6, queries = null, maxTotalMs = SURF_MAX_TOTAL_MS, now = () => Date.now() } = {}) {
   queries = queries ?? surfQueries(spec);
+  const deadline = maxTotalMs == null ? null : now() + maxTotalMs;
+  const timeUp = () => deadline != null && now() >= deadline;
+  let timeBoundedAt = null; // first moment the pass was cut short, disclosed rather than silently truncated
+  // A safety net under an injected search/fetch that carries NO timeout of
+  // its own (liveWeb's already do, via organs/web.js's AbortController — this
+  // is for whatever else gets passed in): races the call against the pass's
+  // OWN remaining budget, real wall-clock, so one in-flight call can never
+  // outlive the whole pass by more than the time it had left when it began.
+  const withDeadline = (promise) => {
+    if (deadline == null) return promise;
+    const msLeft = Math.max(0, deadline - now());
+    return new Promise((resolve, reject) => {
+      const t = setTimeout(() => reject(new Error(`surf: pass deadline exceeded (${msLeft}ms remained when this call started)`)), msLeft);
+      promise.then((v) => { clearTimeout(t); resolve(v); }, (e) => { clearTimeout(t); reject(e); });
+    });
+  };
   const runs = [];
   const candidates = [];
   const seen = new Set();
   for (const query of queries) {
     if (!query.q) { runs.push({ ...query, status: "not run", results: 0, hosts: [] }); continue; }
+    if (timeUp()) { timeBoundedAt = timeBoundedAt ?? "search"; runs.push({ ...query, status: "not run: time-bounded", results: 0, hosts: [] }); continue; }
     let res;
-    try { res = await search(query.q); }
+    try { res = await withDeadline(search(query.q)); }
     catch (e) { runs.push({ ...query, status: "search failed", error: String(e?.message ?? e).slice(0, 200), results: 0, hosts: [] }); continue; }
     if (res?.blocked) { runs.push({ ...query, status: "blocked", results: 0, hosts: [] }); continue; }
     if (res?.offEndpoint) { runs.push({ ...query, status: "off endpoint", results: 0, hosts: [] }); continue; }
@@ -99,8 +143,9 @@ export async function surf({ spec, search, fetch, perQuery = 6, maxSources = 6, 
   }
   const sources = [];
   for (const c of toFetch) {
+    if (timeUp()) { timeBoundedAt = timeBoundedAt ?? "fetch"; sources.push({ ...c, status: "not fetched: time-bounded", chars: 0, text: "" }); continue; }
     try {
-      const page = await fetch(c.url);
+      const page = await withDeadline(fetch(c.url));
       sources.push({ ...c, status: "fetched", chars: page?.chars ?? String(page?.text ?? "").length, pageTitle: page?.title ?? "", text: String(page?.text ?? ""), headings: page?.headings ?? [] });
     } catch (e) {
       sources.push({ ...c, status: "fetch failed", error: String(e?.message ?? e).slice(0, 200), chars: 0, text: "" });
@@ -117,9 +162,11 @@ export async function surf({ spec, search, fetch, perQuery = 6, maxSources = 6, 
     fetched: fetched.length,
     hosts: hostsFetched,
     multiple: hostsFetched.length >= 2,
-    basis: !reached
+    timeBounded: timeBoundedAt != null,
+    basis: (!reached
       ? `the web was not reached: ${runs.map((r) => `${r.hunt}: ${r.status}`).join("; ")} — a failed search, not an empty one`
-      : `${runs.length} quer${runs.length === 1 ? "y" : "ies"} (${runs.map((r) => `${r.hunt}: ${r.status}, ${r.results}`).join("; ")}); ${candidates.length} distinct candidate(s); ${fetched.length} fetched from ${hostsFetched.length} host(s)${hostsFetched.length < 2 ? " — NOT multiple sources" : ""}`,
+      : `${runs.length} quer${runs.length === 1 ? "y" : "ies"} (${runs.map((r) => `${r.hunt}: ${r.status}, ${r.results}`).join("; ")}); ${candidates.length} distinct candidate(s); ${fetched.length} fetched from ${hostsFetched.length} host(s)${hostsFetched.length < 2 ? " — NOT multiple sources" : ""}`)
+      + (timeBoundedAt != null ? ` — TIME-BOUNDED at ${maxTotalMs}ms (cut short at ${timeBoundedAt}): the remainder was never run, not a real absence` : ""),
   };
 }
 

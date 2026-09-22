@@ -5,7 +5,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { declareVoidSpec } from "./void-spec.js";
-import { surfQueries, surf, surfLines, liveWeb } from "./surf.js";
+import { surfQueries, surf, surfLines, liveWeb, SURF_MAX_TOTAL_MS } from "./surf.js";
 
 const spec = (task) => declareVoidSpec({ task });
 
@@ -91,6 +91,37 @@ test("an off-endpoint page and a thrown search are typed per query, and the othe
   assert.equal(s.fetched, 1);
   assert.equal(s.multiple, false, "one host is not multiple sources");
   assert.match(s.basis, /NOT multiple sources/);
+});
+
+test("maxTotalMs bounds the WHOLE pass, not just one call: a search that never resolves does not hang surf() forever", async () => {
+  const neverResolves = () => new Promise(() => {}); // no fixture time-out here — surf()'s own deadline must fire first
+  const t0 = Date.now();
+  const s = await surf({ spec: spec("write a sonnet"), search: neverResolves, fetch: async () => { throw new Error("must not fetch"); }, maxTotalMs: 30 });
+  const ms = Date.now() - t0;
+  // The FIRST query is already past deadline-check only before it starts, so
+  // one in-flight call can still outlast the nominal budget — the discipline
+  // this proves is "does not hang forever", not "never a millisecond over".
+  assert.ok(ms < 5000, `surf() must not hang indefinitely on a call that never resolves (took ${ms}ms)`);
+});
+
+test("maxTotalMs, once past, skips the remaining queries and fetches and discloses it on the product — never presented as 'nothing was there'", async () => {
+  let clock = 0;
+  const now = () => clock;
+  const web = {
+    search: async (q) => { clock += 30; return { results: [{ url: `https://x.example/${q}`, title: q }, { url: `https://y.example/${q}`, title: q }] }; },
+    fetch: async (url) => { clock += 30; return { text: `page ${url} `.repeat(5), chars: 100 }; },
+  };
+  const s = await surf({ spec: spec("write an essay on rivers"), search: web.search, fetch: web.fetch, maxTotalMs: 45, now });
+  assert.equal(s.timeBounded, true);
+  assert.match(s.basis, /TIME-BOUNDED at 45ms/);
+  assert.ok(s.queries.some((q) => q.status === "not run: time-bounded"), "at least one query never ran once the deadline passed");
+});
+
+test("with no maxTotalMs override, the default SURF_MAX_TOTAL_MS still applies (a caller cannot forget to bound the pass)", async () => {
+  let calls = 0;
+  const now = () => calls * (SURF_MAX_TOTAL_MS + 1); // each call jumps the fake clock past the whole budget
+  const s = await surf({ spec: spec("write an essay on rivers"), search: async () => { calls += 1; return { results: [] }; }, fetch: async () => ({ text: "x", chars: 1 }), now });
+  assert.equal(s.timeBounded, true, "the second query must never run: the first call already spent the default budget");
 });
 
 test("liveWeb wraps organs/web.js: a DDG HTML page parses to results, an HTTP 403 is blocked, a page body extracts to text", async () => {
