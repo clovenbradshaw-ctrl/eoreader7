@@ -643,6 +643,17 @@ export const ARCHONS = Object.freeze([
     topics: ["surprise", "boundary", "segment", "ground", "wrong", "rupture"],
   },
   {
+    handle: "polanyi",
+    name: "Polanyi (system nomination)",
+    organ: "the-fold/expertise.js",
+    role: "expertise — a form known by corroborated encounter, revisable, never asserted from one reading",
+    pdStatus: "nomination",
+    work: "The handle names a posture: expertise as something built from repeated, corroborated encounters with a kind rather than declared from a single reading or told in advance — 'we know more than we can state outright' as a posture toward a form's shape, not a claim on the namesake's specific arguments. This compendium asserts no specific work of the namesake. Made operational here as the same provisional → corroborated → confirmed pipeline organs/mnemonic.js already runs for a taught image concept (kernel/kind-universe.js), applied to a taught FORM: a shape learned once (learnParadigmEmergent / learnForm, paradigm.js / form-prior.js) is provisional; found again from a DIFFERENT source, it corroborates; at kernel/kind-universe.js's CANONICALIZATION_FLOOR (2 distinct sources) it is confirmed. Every revision lands on document-ledger.js's own append-only ledger, kind = the form's name, supersedes its own prior revision — never edited, only revised, every line naming the source that taught it.",
+    source: "system nomination — no specific public-domain work claimed",
+    credit: "Polanyi — expertise built from corroborated encounter, revisable, provenance kept (system nomination).",
+    topics: ["expertise", "tacit", "corroboration", "provisional", "confirmed", "revision", "form", "shape", "kind"],
+  },
+  {
     handle: "itti-baldi",
     name: "Itti & Baldi (system nomination)",
     organ: "kernel/bayes-surprise.js",

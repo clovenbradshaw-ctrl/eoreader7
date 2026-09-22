@@ -1,0 +1,56 @@
+{
+  "concepts": {
+    "limerick": {
+      "revision": 2,
+      "modality": "image",
+      "status": "confirmed",
+      "signedAt": 1790092454545,
+      "occurrences": [
+        {
+          "id": "1p57tbb",
+          "source": "gutenberg:pg982 (first half)",
+          "region": null,
+          "at": 1790092454545,
+          "falsified": false,
+          "basis": "SIG:novel_occurrence"
+        },
+        {
+          "id": "hj00yh",
+          "source": "gutenberg:pg982 (second half)",
+          "region": null,
+          "at": 1790092456707,
+          "falsified": false,
+          "basis": "SIG:novel_occurrence"
+        }
+      ],
+      "items": [],
+      "confirmedAt": 1790092456708
+    },
+    "jig": {
+      "revision": 2,
+      "modality": "image",
+      "status": "confirmed",
+      "signedAt": 1790092458836,
+      "occurrences": [
+        {
+          "id": "1a2mkde",
+          "source": "nottingham:jigs (first half)",
+          "region": null,
+          "at": 1790092458836,
+          "falsified": false,
+          "basis": "SIG:novel_occurrence"
+        },
+        {
+          "id": "y7stye",
+          "source": "nottingham:jigs (second half)",
+          "region": null,
+          "at": 1790092460881,
+          "falsified": false,
+          "basis": "SIG:novel_occurrence"
+        }
+      ],
+      "items": [],
+      "confirmedAt": 1790092460882
+    }
+  }
+}
