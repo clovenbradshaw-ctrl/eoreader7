@@ -31,6 +31,7 @@ function pickDefaultModel() {
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
+import { getCodeDrawMonitor, shipCodeDrawResult } from "./native/kernel/code-draw-monitor.js";
 import { runSwarmTurn } from "./swarm-server.mjs";
 import { contentRulesStore, contentRulesCount, CONTENT_RULES_FILE } from "./content-rules.mjs";
 import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-agent.js";
@@ -1302,8 +1303,24 @@ const job = await startDocumentJob({
         const result = await runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, caller: callerFromRequest(req, "code", parsed), signal: loopAbort.signal });
         clearTimeout(loopDeadline);
         res.removeListener("close", onDisconnect);
+        // metacognition standing check (native/kernel/code-draw-standing.js,
+        // wired via native/kernel/code-draw-monitor.js's one live process-
+        // wide singleton): a PURE ADDITION — the draft above is never
+        // rewritten, only a mechanical disclosure is appended when it
+        // fires. roundsExhausted is a real in-flight feature (`!result.
+        // done` is exactly "the repair loop spent its whole round budget
+        // and still failed" — code-loop.js's own only path to done:false).
+        // hasRegressions and bokDisagreed stay at their declared-false
+        // default and bokUnknown is explicit true: this live loop has no
+        // RepairLedger and never runs a bok-of-K arm (those exist only in
+        // the offline lang-competency-run.mjs eval harness this monitor
+        // was calibrated against) — a genuinely unavailable feature, per
+        // code-draw-standing.js's own rule folded to false/unknown rather
+        // than invented.
+        const monitorCheck = getCodeDrawMonitor().check({ roundsExhausted: !result.done, bokUnknown: true });
+        const shipped = shipCodeDrawResult(result, monitorCheck);
         res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
-        res.end(JSON.stringify(result));
+        res.end(JSON.stringify(shipped));
       } catch (err) {
         clearTimeout(loopDeadline);
         res.removeListener("close", onDisconnect);
