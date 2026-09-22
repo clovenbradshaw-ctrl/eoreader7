@@ -156,6 +156,63 @@ test("STAGE 3, SURF: without a web the stage is recorded as not run; with one, i
   } finally { cleanup(wet.docId); }
 });
 
+test("STAGES 8–9: the pathos pass loops until Gebser arrives, bounded by a call budget, and the piece lands last with every loop's verdict beneath it", async () => {
+  // Pass 1 fixes the steamboats sentence and fails the warehouses one (the
+  // rewrite loses its anchors); pass 2 fixes the warehouses one. Clark's
+  // refused bridge keeps something licensed throughout, so the loop must
+  // be stopped by the budget or by a changeless pass — never by arrival.
+  let warehouses = 0;
+  const draw = async (msgs) => {
+    const u = msgs[msgs.length - 1].content;
+    if (u.includes("Rewrite this sentence plainly")) return /warehouses/.test(u) ? (++warehouses === 1 ? "Nothing." : "Warehouses lined the waterfront by the 1850s.") : "Steamboats reached Nashville in 1819 and carried cotton to New Orleans.";
+    if (u.includes("carries the reader from")) return "Time passed.";
+    if (/flood/.test(u)) return "The flood of 1927 covered the low city. The flood of 2010 crested at 51.86 feet.";
+    return "The bustling steamboats reached Nashville in 1819 and carried cotton to New Orleans. The bustling warehouses lined the waterfront by the 1850s.";
+  };
+  const { docId } = await runPipeline({ task: "Write a piece from this material.", groundFiles: [groundFile], id: "test-pipe-pathos", draw, pathosBudget: 10 });
+  try {
+    const lines = read(docId);
+    const arrivals = lines.filter((l) => l.role === "arrive");
+    assert.ok(arrivals.length >= 2, `the loop must run more than one pass when something is still licensed (ran ${arrivals.length})`);
+    assert.ok(arrivals.every((l, i) => new RegExp(`^Gebser · pass ${i + 1} · `).test(l.title)), "each pass has its own arrival verdict");
+    assert.match(arrivals.at(-1).title, /stopped$/);
+    assert.match(arrivals.at(-1).text, /stopped: (a pass that changed nothing|the budget of 10 model call\(s\) is spent|nothing left licensing a revision)/);
+    assert.ok(lines.some((l) => l.role === "check" && /^Loop · pathos 2 · /.test(l.title)), "pass 2's loops are checked like pass 1's");
+    assert.ok(lines.some((l) => l.role === "flesh" && /tightened/.test(l.title) && /Warehouses lined/.test(l.text)), "pass 2's rewrite landed");
+    const summary = lines.find((l) => l.role === "summary");
+    assert.match(summary.text, /pathos passes: [2-9] \(budget 10 call\(s\); stopped: /);
+    // Stage 9: the piece is the last line, with the loop verdicts counted beneath it.
+    const last = lines.at(-1);
+    assert.equal(last.role, "piece");
+    assert.match(last.title, /^Piece: 2 part\(s\)$/);
+    assert.match(last.basis, /^\d+ loop verdict\(s\) on the record beneath this line/);
+    assert.equal(Number(last.basis.match(/^(\d+)/)[1]), lines.filter((l) => l.role === "check").length);
+    assert.match(last.text, /Steamboats reached Nashville|steamboats reached Nashville/);
+  } finally { cleanup(docId); }
+  // The same run under a budget of one call stops at pass 1, and says why.
+  warehouses = 0;
+  const tight = await runPipeline({ task: "Write a piece from this material.", groundFiles: [groundFile], id: "test-pipe-pathos-budget", draw, pathosBudget: 1 });
+  try {
+    const lines = read(tight.docId);
+    const arrivals = lines.filter((l) => l.role === "arrive");
+    assert.equal(arrivals.length, 1);
+    assert.match(arrivals[0].text, /stopped: the budget of 1 model call\(s\) is spent/);
+    assert.match(arrivals[0].basis, /^diaphaneity [\d.]+ · [1-9]\d* of 1 model call\(s\) spent on pathos/);
+  } finally { cleanup(tight.docId); }
+});
+
+test("STAGE 8, ADDITIVE ONLY: a pass that changes nothing ends the loop, and the first arrival that arrives ends it too", async () => {
+  const draw = async () => "Steamboats reached Nashville in 1819 and carried cotton to New Orleans, and by the 1850s warehouses lined the waterfront.";
+  const { docId } = await runPipeline({ task: "Write a piece from this material.", groundFiles: [groundFile], id: "test-pipe-pathos-settle", draw, pathosBudget: 50 });
+  try {
+    const lines = read(docId);
+    const arrivals = lines.filter((l) => l.role === "arrive");
+    assert.equal(arrivals.length, 1, "with a budget of 50, only arriving or a changeless pass can stop at pass 1");
+    assert.match(arrivals[0].text, /stopped: (nothing left licensing a revision|a pass that changed nothing)|arrived/);
+    assert.ok(lines.at(-1).role === "piece");
+  } finally { cleanup(docId); }
+});
+
 test("HORA, NOT TEMPUS: a level that fails leaves the last stable loop's piece, and the run completes", async () => {
   let n = 0;
   const draw = async (msgs) => {

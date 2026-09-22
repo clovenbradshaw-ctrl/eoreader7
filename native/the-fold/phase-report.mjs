@@ -52,6 +52,9 @@ const PHASES = [
   { key: "impression",title: "Impression",  asks: "what has this instrument seen of that kind?",      roles: [], wheel: "impression" },
   { key: "discovery", title: "Framing",     asks: "what makes a good one, and in whose voice?",       roles: [], wheel: "discovery" },
   { key: "void",      title: "Void",        asks: "what must this piece answer?",                     roles: ["void", "plan"] },
+  { key: "surf",      title: "Surf",        asks: "what did the web hold that is shaped like the void, and from how many sources?", roles: ["surf"] },
+  { key: "shape",     title: "Shape",       asks: "what shape do the sources agree the form has?",     roles: ["shape"] },
+  { key: "hunt",      title: "Hunt",        asks: "what earned admission to the ground, and what was refused?", roles: ["hunt"] },
   { key: "ground",    title: "Ground",      asks: "what material may this piece be measured against?", roles: ["ground"] },
   { key: "eot-draft", title: "EOT draft",   asks: "what will the piece claim, part by part, and on which bytes?", roles: ["eot-draft"] },
   { key: "eot",       title: "EOT statements", asks: "each statement, and what the flesh later taught the structure", roles: ["eot"] },
@@ -68,6 +71,7 @@ const PHASES = [
   { key: "arrive",    title: "Arrival · Gebser", asks: "is the origin present in every part, none of it lost, and no single perspective with the last word?", roles: ["arrive", "concrescence"] },
   { key: "contract",  title: "Gates",       asks: "what did every layer's low and high gate say?",    roles: ["contract"] },
   { key: "summary",   title: "Run summary", asks: "what did this run cost, and where did it land?",   roles: ["summary"] },
+  { key: "piece",     title: "Piece",       asks: "what stands, with every loop's verdict beneath it?", roles: ["piece"] },
   { key: "sources",   title: "Sources",     asks: "what is quoted, verbatim, from where?",            roles: ["citations"] },
 ];
 
