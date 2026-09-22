@@ -37,7 +37,7 @@ import { voidHolarchy } from "../organs/void-holarchy.js";
 import { deriveRegister, writeVoiceFor } from "../kernel/register.js";
 import { voidCellsFor } from "./document-ledger.js";
 import { drawnParts } from "./eot-draft.js";
-import { detectFormReferentCue, resolveFormReferent } from "./form-referent.js";
+import { detectFormReferentCue, resolveFormReferent, FORM_REFERENT_CUES } from "./form-referent.js";
 
 export const VOID_SPEC_SCHEMA = "EOVoidSpec@1";
 
@@ -52,7 +52,13 @@ const v = (value, basis, source) => ({ value, basis, source });
  *  ask still yields its form-word ("rite @ whiteppr" → whiteppr) for SURF to
  *  go and resolve. null when the ask has no such phrase. */
 export function candidateFormToken(task) {
-  let words = String(task ?? "").trim().split(/\s+/).filter(Boolean);
+  // An anaphor is not a form-word ("write it again" names no form; "write
+  // another sonnet like before" names one): the cues and the pronouns they
+  // ride on are removed before the head noun is read.
+  let t = String(task ?? "");
+  for (const re of FORM_REFERENT_CUES) t = t.replace(new RegExp(re.source, "gi"), " ");
+  t = t.replace(/\b(it|that|this|one|them|these|those)\b/gi, " ");
+  let words = t.trim().split(/\s+/).filter(Boolean);
   if (words[0] && /^please$/i.test(words[0])) words = words.slice(1);
   words = words.slice(1);
   if (words[0] && /^(a|an|the|me|us)$/i.test(words[0])) words = words.slice(1);
@@ -121,7 +127,7 @@ export function topicOf(task) {
   // A bare form-ask ("write a sonnet") names a form and no subject. Measured
   // 2026-09-21: this returned the whole ask, verb included, and the void's
   // slot was declared [asked] "write a sonnet". No subject is null, stated.
-  if (candidateFormToken(t)) return null;
+  if (candidateFormToken(t) || detectFormReferentCue(t)) return null;
   return t.replace(/[.?!]+$/, "").trim() || null;
 }
 

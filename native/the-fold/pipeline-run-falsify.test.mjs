@@ -99,6 +99,31 @@ test("THE VOID is declared on every level, each operator with its basis, before 
   } finally { cleanup(docId); }
 });
 
+test("STAGE 3, SURF: without a web the stage is recorded as not run; with one, its sources land with provenance before the ground", async () => {
+  const draw = async () => "Steamboats reached Nashville in 1819 and carried cotton to New Orleans, and by the 1850s warehouses lined the waterfront.";
+  const dry = await runPipeline({ task: "Write an essay on the river.", groundFiles: [groundFile], id: "test-pipe-surf-dry", draw });
+  try {
+    const s = read(dry.docId).find((l) => l.role === "surf");
+    assert.ok(s, "no surf line");
+    assert.match(s.title, /not run/);
+    assert.match(s.basis, /unmeasured/);
+  } finally { cleanup(dry.docId); }
+  const web = {
+    search: async (q) => ({ results: [{ url: `https://one.example/${encodeURIComponent(q)}`, title: q }, { url: "https://two.example/p", title: "two" }] }),
+    fetch: async (url) => ({ title: url, text: "A page about the river. ".repeat(20), chars: 480 }),
+  };
+  const wet = await runPipeline({ task: "Write an essay on the river.", groundFiles: [groundFile], id: "test-pipe-surf-wet", draw, web });
+  try {
+    const lines = read(wet.docId);
+    const s = lines.find((l) => l.role === "surf");
+    assert.match(s.title, /^Surf: \d+ source\(s\) from 2 host\(s\)$/);
+    assert.match(s.text, /one\.example/);
+    assert.match(s.text, /two\.example/);
+    assert.ok(lines.findIndex((l) => l.role === "surf") < lines.findIndex((l) => l.role === "ground"), "surf must land before the ground");
+    assert.ok(lines.findIndex((l) => l.role === "register") < lines.findIndex((l) => l.role === "surf"), "surf follows the void's form");
+  } finally { cleanup(wet.docId); }
+});
+
 test("HORA, NOT TEMPUS: a level that fails leaves the last stable loop's piece, and the run completes", async () => {
   let n = 0;
   const draw = async (msgs) => {

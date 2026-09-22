@@ -1,0 +1,187 @@
+{
+  "write a sonnet": {
+    "schema": "EOSurf@1",
+    "queries": [
+      {
+        "hunt": "exemplars",
+        "q": "what is a sonnet",
+        "basis": "the form-word with the ask's own subject as context",
+        "status": "ok",
+        "results": 5,
+        "hosts": [
+          "litcharts.com",
+          "britannica.com",
+          "literarydevices.net",
+          "en.wikipedia.org",
+          "liberalarts.oregonstate.edu"
+        ]
+      },
+      {
+        "hunt": "exemplars",
+        "q": "sonnet examples full text",
+        "basis": "the form-word, asking for instances rather than a definition",
+        "status": "ok",
+        "results": 5,
+        "hosts": [
+          "americanliterature.com",
+          "folger.edu",
+          "nosweatshakespeare.com",
+          "shakespeares-sonnets.com",
+          "opensourceshakespeare.org"
+        ]
+      }
+    ],
+    "candidates": 10,
+    "sources": [
+      {
+        "hunt": "exemplars",
+        "query": "what is a sonnet",
+        "url": "https://www.litcharts.com/literary-devices-and-terms/sonnet",
+        "host": "litcharts.com",
+        "title": "Sonnet - Definition and Examples | LitCharts",
+        "snippet": "A sonnet is a type of fourteen-line poem that follows a set rhyme scheme and meter. Learn about the different types of sonnets, such as the Italian and English sonnets, and see examples of each.",
+        "status": "fetched",
+        "chars": 24858,
+        "pageTitle": "Sonnet - Definition and Examples | LitCharts",
+        "text": "Sonnet\n\nSonnet Definition\n\nSonnet Examples\n\nSonnet Function\n\nSonnet Resources\n\nSign In\nSign up for A +\n\nGuides\n\n-\nLiterature Guides\n\n-\nPoetry Guides\n\n-\nShakespeare Translations\n\n-\nLiterary Terms\n\n-\nMind Maps\n\nTools\n\n-\nAsk LitCharts AI\n\n-\nDiscussion Question Generator\n\n-\nEssay Prompt Generator\n\n-\nQuiz Question Generator\n\nSign In\nSign up for A +\nSign up\n\nUpgrade to A +\n\nSonnet\n\nDownload\nthis entire guide (PDF)\n\nDefinition\n\nExamples\n\nFunction\n\nResources\n\nSonnet Definition\n\nWhat is a sonnet? Here’s a quick and simple definition:\n\nA sonnet is a type of fourteen-line poem. Traditionally, the fourteen lines of a sonnet consist of an octave (or two quatrains making up a stanza of 8 lines) and a sestet (a stanza of six lines). Sonnets generally use a meter of iambic pentameter, and follow a set rhyme scheme . Within these general guidelines for what makes a sonnet, there are a wide variety of variations. The two most common sonnet variations are the Italian sonnet (also called a Petrarchan sonnet), and the English sonnet (also called a Shakespearean sonnet). The main difference between the Italian and English sonnet is in the rhyme schemes they use.\n\nSome additional key details about sonnets:\n\n- For hundreds of years, the sonnet form was reserved for poems about unrequited love, but since the 17th century sonnets have been written about a wide variety of subjects.\n\n- Sonnets have become so popular, and are written in so many places, that over time many, many variations of the sonnet form have evolved.\n\n- Sonnets are sometimes written in groups, where each individual sonnet can stand alone but are also linked with the others in the group.\n\nHow to Pronounce Sonnet\n\nHere's how to pronounce sonnet: sahn -it\n\nSonnets, Meter, and Rhyme Scheme\n\nMany (but not all) sonnets have a strict meter and a defined rhyme scheme. For that reason, it's helpful to have a strong grasp of what meter and rhyme scheme are. We provide more details about these terms on their own pages, but here's a quick primer:\n\n-\nMeter : A pattern of stressed and unstressed syllables that creates the rhythm of lines of poetry. The units of meter are called feet . Feet have different stress patterns. For instance, an iamb is a foot with an unstressed syllable followed by a stressed syllable (de- fine ), while a trochee has the opposite: a stressed syllable followed by an unstressed syllable ( Po -et). Poetic meters are defined by both the type and number of feet they contain. For example, iambic pentameter is a type of meter used in many sonnets that contains five iambs per line (thus the prefix “penta,” which means five).\n\n-\nRhyme scheme : Poems such as sonnets that make use of end rhymes (rhymes at the end of each line), often do so according to a repeating, predetermined pattern. That pattern is called a rhyme scheme. Rhyme schemes are described using letters of the alphabet, so that each line of verse that corresponds to a specific type of rhyme used in the poem is assigned a letter, beginning with the letter A. For example, a four-line poem in which the first line rhymes with the third, and the second line rhymes with the fourth has the rhyme scheme ABAB.\n\nTypes of Sonnet\n\nSonnets have been written all over the world and in many different languages: French, Italian, Spanish, Polish, Czech, Russian, Urdu, and German poets have all made significant contributions to the evolution of the form. Since the sonnet's invention in Italy in the 13th century, new variations on the traditional form have been regularly born. Below is a summary of the different types of sonnets, with brief explanations of their particular forms and how each of them arose.\n\nThe Italian Sonnet\n\nAlthough the form of the sonnet is said to have been invented by Giacomo da Lentini in the 13th century, it was popularized by a poet from Tuscany named Francesco Petrarch, who used the form to write poems expressing his unrequited love for a woman named Laura. The original form of the Italian sonnet is therefore kn"
+      },
+      {
+        "hunt": "exemplars",
+        "query": "what is a sonnet",
+        "url": "https://www.britannica.com/art/sonnet",
+        "host": "britannica.com",
+        "title": "Sonnet | Definition, Examples, & Facts | Britannica",
+        "snippet": "Sonnet, fixed verse form of Italian origin consisting of 14 lines that are typically five-foot iambics rhyming according to a prescribed scheme. The form seems to have originated in the 13th century among the Sicilian school of court poets, who were influenced by the love poetry of Provencal troubadours.",
+        "status": "fetch failed",
+        "error": "HTTP 403",
+        "chars": 0,
+        "text": ""
+      },
+      {
+        "hunt": "exemplars",
+        "query": "what is a sonnet",
+        "url": "https://literarydevices.net/what-is-a-sonnet-structure-rules-classic-examples/",
+        "host": "literarydevices.net",
+        "title": "What Is a Sonnet? Structure, Rules & Classic Examples",
+        "snippet": "A sonnet is a compact poem that balances strict form with expressive depth. With fourteen lines of iambic pentameter and a carefully chosen rhyme scheme, it invites poets to explore themes ranging from love to mortality while adhering to a disciplined structure.",
+        "status": "fetched",
+        "chars": 8492,
+        "pageTitle": "What Is a Sonnet? Structure, Rules & Classic Examples - Literary Devices",
+        "text": "What Is a Sonnet? Structure, Rules & Classic Examples\n\nA sonnet is a compact poem that balances strict form with expressive depth. With fourteen lines of iambic pentameter and a carefully chosen rhyme scheme, it invites poets to explore themes ranging from love to mortality while adhering to a disciplined structure.\n\nComprehensive Guide to Sonnets\n\nI. Introduction\n\nA sonnet is a poetic form that originated in Italy during the 13th century and later flourished in England. Its name comes from the Italian word “sonetto,” meaning “little song.” Over centuries, poets have adapted the sonnet to suit their creative visions, yet its core elements—length, meter , rhyme, and thematic turn—remain constant.\n\nII. Core Structural Elements\n\n- Length: 14 lines – a concise canvas that forces precision.\n- Meter: iambic pentameter – ten syllables per line, alternating unstressed–stressed beats.\n- Rhyme Scheme : patterns that distinguish sonnet types; each scheme creates its own musicality.\n\nIII. Major Sonnet Forms\n\nForm Rhyme Scheme Typical Structure Key Features Shakespearean (English) ABAB CDCD EFEF GG 3 quatrains + 2 couplets Volta after the 12th line; often a resolution or twist Petrarchan (Italian) ABBA ABBA CDE CDE 2 octaves + 2 sestets Volta between octave and sestet ; thematic shift Spenserian ABAB BCBC CDCD EE 4 quatrains + couplet Interlocking rhyme, more complex pattern Other Variants – e.g., French sonnet (ABBA CDEFGF) Varied Adapted to modern free‑form styles Flexibility in rhyme and meter\n\nIV. Rhyme and Sound\n\nRhyme adds musicality, but poets often employ slant rhymes , internal rhymes , or end‑rhymes to maintain flow without forcing awkward words.\n\nExample: In Shakespeare’s “Sonnet 18,” the rhyme scheme ABAB CDCD EFEF GG is evident: “Shall I compare thee to a summer’s day? / Thou art more lovely and more temperate.” The final couplet, “So long as men can breathe or eyes can see, / So long lives this poem, and this love shall be,” delivers the resolution.\n\nEnjambment —continuing a sentence beyond the line break —helps preserve meter while adding dramatic tension.\n\nV. Meter & Rhythm\n\nIambic pentameter consists of five pairs of syllables: unstressed followed by stressed. A typical line might read:\n\nExample: “Shall I compare thee to a summer’s day?” – unstressed (shall) / stressed (I), unstressed (compare) / stressed (thee), etc.\n\nPoets sometimes insert trochees , spondees , or anapests to emphasize particular words, creating subtle variations that enrich the poem’s emotional texture.\n\nVI. Volta (Turn)\n\nThe volta is a pivotal shift in theme or perspective . In a Shakespearean sonnet, it typically appears after line 12; in a Petrarchan, after line 8.\n\nExample: In “Sonnet 18,” the volta occurs at line 13: “So long as men can breathe or eyes can see.” The poem moves from describing beauty to asserting its enduring nature.\n\nThis turn often introduces a resolution, twist, or new insight that completes the narrative arc.\n\nVII. Themes & Content\n\n- Love: idealized affection in Petrarchan sonnets; complex relationships in Shakespearean ones.\n- Nature: vivid imagery of seasons and landscapes.\n- Time & Mortality: reflections on fleeting existence.\n\nThe chosen form influences the poem’s tone . For instance, a Petrarchan sonnet may focus on unattainable love, while a Shakespearean sonnet can explore paradoxes within human relationships.\n\nVIII. Poetic Devices in Sonnets\n\n- Metaphor & Simile : “Your eyes are the stars that shine.”\n- Alliteration & Assonance : “Softly, softly, the sea sings.”\n- Imagery: vivid descriptions of light or weather.\n- Personification : “Time whispers through the leaves.”\n- Repetition & Parallelism : repeated phrases to reinforce themes.\n\nIX. Classic Examples (Brief Analysis)\n\n- Shakespeare: “Sonnet 18” – showcases perfect rhyme, iambic pentameter, and a clear volta that affirms the poem’s lasting beauty.\n- Petrarch: “Canzone di Petrarca” – illustrates the octave’s idealized love and the sestet’s reflective resolution.\n- Spe"
+      },
+      {
+        "hunt": "exemplars",
+        "query": "what is a sonnet",
+        "url": "https://en.wikipedia.org/wiki/Sonnet",
+        "host": "en.wikipedia.org",
+        "title": "Sonnet - Wikipedia",
+        "snippet": "A sonnet is a fixed poetic form with a structure traditionally consisting of fourteen lines adhering to a set rhyming scheme. [1] The term derives from the Italian word sonetto (lit. 'little song', from the Latin word sonus, lit. 'sound'). Originating in 13th-century Sicily, the sonnet was in time taken up in many European-language areas, mainly to express romantic love at first, although ...",
+        "status": "fetched",
+        "chars": 76347,
+        "pageTitle": "Sonnet - Wikipedia",
+        "text": "Jump to content\n\nFrom Wikipedia, the free encyclopedia\n\nPoetic form, traditionally fourteen specifically rhymed lines\n\nThis article is about the form of poetry. For other uses, see Sonnet (disambiguation) .\n\nLiterature\n\nOral literature\n\n- Folklore\n\n- ceremonial poetry\n\n- epics\n\n- evocation\n\n- fable\n\n- fairy tale\n\n- folk play\n\n- folksong\n\n- incantation\n\n- legend\n\n- memorate\n\n- myth\n\n- proverb\n\n- urban legend\n\n- Oration\n\n- Performance\n\n- lyrics\n\n- spoken word\n\n- storytelling\n\n- Saying\n\nMajor written forms\n\n- Drama\n\n- closet drama\n\n- Poetry\n\n- lyric\n\n- narrative\n\n- Prose\n\n- narrative\n\n- Didactic\n\n- Moral\n\n- Nonsense\n\n- verse\n\n- Ergodic\n\n- Electronic\n\n- Religious\n\nLong prose fiction\n\n- Anthology\n\n- Serial\n\n- Novel / romance\n\nMedium prose fiction\n\n- Novella\n\n- Novelette\n\nShort prose fiction\n\n- Short story\n\n- Drabble\n\n- Sketch\n\n- Flash fiction\n\n- Parable\n\n- Wisdom\n\nProse genres\n\nFiction\n\n- Children's\n\n- Encyclopedic\n\n- Genre\n\n- action\n\n- adventure\n\n- coming-of-age\n\n- crime\n\n- erotic\n\n- fantasy\n\n- horror\n\n- military\n\n- paranormal\n\n- romance\n\n- science fiction\n\n- supernatural\n\n- western\n\n- Historical\n\n- Realist\n\n- Speculative\n\nNon-fiction\n\n- Academic\n\n- history\n\n- philosophy\n\n- Anecdote\n\n- Epistle\n\n- Essay\n\n- Journalism\n\n- Letter\n\n- Life\n\n- Nature\n\n- Persuasive\n\n- Travelogue\n\nPoetry genres\n\nNarrative\n\n- Children\n\n- Epic\n\n- Epyllion\n\n- Dramatic\n\n- Verse novel\n\n- National\n\nLyric\n\n- Ballad\n\n- Elegy\n\n- Epigram\n\n- Subhāṣita\n\n- Ghazal\n\n- Haiku\n\n- Hymn\n\n- Limerick\n\n- Lyrics\n\n- Ode\n\n- Qasida\n\n- Sonnet\n\n- Villanelle\n\nDramatic genres\n\n- Comedy\n\n- Libretto\n\n- Musical\n\n- Opera\n\n- Play\n\n- historical\n\n- moral\n\n- Satire\n\n- Script\n\n- Tragedy\n\n- Tragicomedy\n\nHistory\n\n- Ancient\n\n- Medieval\n\n- Early medieval\n\n- Early modern\n\n- Renaissance\n\n- 18th\n\n- 19th\n\n- 20th\n\n- Contemporary\n\n- 21st\n\nMedia\n\n- Voice\n\n- audiobook\n\n- speech\n\n- Writing\n\n- book\n\n- digital electronics\n\n- ebook\n\n- manuscript\n\nLists and outlines\n\n- Outline\n\n- Glossary\n\n- Books\n\n- Epic\n\n- folk-epics\n\n- Poets\n\n- Writers\n\n- Movements\n\n- poetry groups\n\n- Cycles\n\n- Literary awards\n\n- poetry\n\n- Short story collection / Cycle\n\n- Lost literary work\n\n- lacuna\n\nTheory and criticism\n\n- Sociology\n\n- Magazines\n\n- Composition\n\n- Language\n\n- Narrative\n\n- Comparative\n\n- Circle\n\n- Society\n\n- Post-literate Society\n\n- Peer\n\n- Feud\n\n- Estate\n\n- Workshop\n\n- Circle\n\nLiterature portal\n\n- v\n\n- t\n\n- e\n\nA sonnet is a fixed poetic form with a structure traditionally consisting of fourteen lines adhering to a set rhyming scheme . [ 1 ] The term derives from the Italian word sonetto ( lit.   ' little song ' , from the Latin word sonus , lit.   ' sound ' ). Originating in 13th-century Sicily , the sonnet was in time taken up in many European-language areas, mainly to express romantic love at first, although eventually any subject was considered acceptable. Many formal variations were also introduced, including abandonment of the quatorzain limit – and even of rhyme altogether in modern times.\n\nRomance languages\n\n[ edit ]\n\nSicilian\n\n[ edit ]\n\nGiacomo da Lentini is credited with the sonnet's invention at the Court of Frederick II in the Sicilian city of Palermo . The Sicilian School of poets who surrounded Lentini then spread the form to the mainland. Those earliest sonnets no longer survive in the original Sicilian language , however, but only after being translated into Tuscan dialect . The form consisted of a pair of quatrains followed by a pair of tercets with the symmetrical rhyme scheme\n\nA\nB\nA\nB\nA\nB\nA\nB\n\nC\nD\nC\nD\nC\nD\n\n{\\displaystyle \\mathrm {ABABABAB\\,\\,CDCDCD} }\n\n, where the sense is carried forward in a new direction after the midway break .\n\nPeter Dronke has commented that there was something intrinsic to its flexible form that contributed to the sonnet's survival far beyond its region of origin. [ 2 ] William Baer suggests that the first eight lines of the earliest Sicilian sonnets are identical to the eight-line Sicilian folksong stanza known as the Strambotto . To this, da Lentini (or whoever else invented the f"
+      }
+    ],
+    "fetched": 3,
+    "hosts": [
+      "litcharts.com",
+      "literarydevices.net",
+      "en.wikipedia.org"
+    ],
+    "multiple": true,
+    "basis": "2 queries (exemplars: ok, 5; exemplars: ok, 5); 10 distinct candidate(s); 3 fetched from 3 host(s)"
+  },
+  "rite @ whiteppr": {
+    "schema": "EOSurf@1",
+    "queries": [
+      {
+        "hunt": "exemplars",
+        "q": "what is a whiteppr",
+        "basis": "the form-word with the ask's own subject as context",
+        "status": "ok",
+        "results": 5,
+        "hosts": [
+          "en.wikipedia.org",
+          "maglr.com",
+          "visme.co",
+          "owl.purdue.edu",
+          "investopedia.com"
+        ]
+      },
+      {
+        "hunt": "exemplars",
+        "q": "whiteppr examples full text",
+        "basis": "the form-word, asking for instances rather than a definition",
+        "status": "ok",
+        "results": 5,
+        "hosts": [
+          "storydoc.com",
+          "venngage.com",
+          "thatwhitepaperguy.com",
+          "upliftcontent.com",
+          "template.net"
+        ]
+      }
+    ],
+    "candidates": 10,
+    "sources": [
+      {
+        "hunt": "exemplars",
+        "query": "what is a whiteppr",
+        "url": "https://en.wikipedia.org/wiki/White_paper",
+        "host": "en.wikipedia.org",
+        "title": "White paper - Wikipedia",
+        "snippet": "A white paper is an informative report that explains a complex issue and presents the sponsor's philosophy on the matter. These documents are meant to help readers understand an issue, solve a problem, or make a decision.",
+        "status": "fetched",
+        "chars": 14357,
+        "pageTitle": "White paper - Wikipedia",
+        "text": "Jump to content\n\nFrom Wikipedia, the free encyclopedia\n\nPreliminary document for evaluation of approach\n\nFor other uses, see Copy paper and White paper (disambiguation) .\n\nA white paper is an informative report that explains a complex issue and presents the sponsor's philosophy on the matter. These documents are meant to help readers understand an issue, solve a problem, or make a decision.\n\nThe term originated in the early 20th century to mean a type of position paper or industry report published by a department of the UK government. Earlier forms of these reports were called \" command papers \".\n\nWhite papers are used often in business, and sometimes in politics and academia. Since the 1990s, these documents have proliferated as sales or marketing documents in business; for more than 10 years, a majority of business-to-business (B2B) marketers report that they created a white paper within the past year. [ 1 ] A commercial white paper is akin to a marketing presentation designed to promote a certain product to customers. [ 2 ] [ 3 ] As such, it can be considered content marketing or grey literature .\n\nWhite papers in business-to business marketing\n\n[ edit ]\n\nThe most prolific publishers of white papers today are business-to-business companies. These white papers are long-form content that use selected facts and logical arguments to promote the offering(s) from the company sponsoring the report. The main goal is to persuade target readers in a certain vertical market or role to agree with the sponsor's conclusions and select their offering. In most companies, white papers are created by content marketing teams or the contractors they hire, based on online research and interviews with company executives.\n\nCorporate white papers are often used to generate sales leads, establish thought leadership , make a business case, grow email lists, grow audiences, and build the sponsor's credibility. The audiences for a B2B white paper can include prospective customers, channel partners, journalists, analysts, bloggers, investors, or any other stakeholders.\n\nWhite papers are considered a form of content marketing or inbound marketing; in other words, sponsored content available on the web with or without registration, intended to raise the visibility of the sponsor to search engines and build web traffic. A B2B white paper generally argues that one particular technology , product , ideology, [ 4 ] or methodology is superior to all others for solving a specific business problem.\n\nThere are essentially three main types of commercial white papers [ 5 ] :\n\n- Backgrounder : Describes the features and benefits of a certain vendor's offering; either a product, service, or methodology. This type of white paper is best used to accompany a product launch or support a technical evaluation towards the bottom of the sales funnel or the end of the customer journey . This is the least challenging type to produce, since much of the content is readily available from the sponsor.\n\n- Numbered list : Presents a set of tips, questions, or points about a certain business issue. This type is best used to get attention with new or provocative views, or cast aspersions on competitors. Also called a listicle , this is the fastest type to create; a numbered list can often be devised from a single brainstorming session, and each item can be presented as a separate point, not part of a step-by-step logical argument.\n\n- Problem/solution : Recommends a new, improved solution to a nagging business problem. This type is best used to generate leads at the top of the sales funnel or the start of the customer journey , to build mind share , or to inform and persuade stakeholders. This type is the most challenging to produce, since they require extensive research and persuasive writing; often these must create a compelling mental map of a market space and position several competing companies within that space. A properly done problem/solution white paper can build trust and cr"
+      },
+      {
+        "hunt": "exemplars",
+        "query": "what is a whiteppr",
+        "url": "https://www.maglr.com/blog/a-guide-to-white-papers-what-is-a-white-paper-and-how-to-write-one-step-by-step",
+        "host": "maglr.com",
+        "title": "What is a white paper? Definition, structure & how to write one",
+        "snippet": "A white paper is an in-depth, research-based document that presents expert insights, analysis, and solutions on a specific topic. Organizations use white papers to educate their audience, establish authority, and support decision-making — typically in a formal, objective tone.",
+        "status": "fetched",
+        "chars": 10945,
+        "pageTitle": "What is a white paper? Definition, structure & how to write one - Maglr",
+        "text": "Last updated on\n\nMarch 6, 2026\n\nWhite papers are an effective tool to show your knowledge and expertise as a company. This builds trust among your readers and could eventually help you generate leads. Interested in creating an interactive white paper ? We’ll walk you through the process in steps.\n\nKey takeaways:\n\n-\nDefinition: A white paper is an in-depth, research-based document presenting insights and solutions on a specific topic, aiming to educate and establish thought leadership.\n\n-\nStructure: It typically includes a title page, introduction, problem statement, background research, solution, evidence, conclusion, and references.\n\n-\nTone: The content should be formal, factual, and non-promotional.\n\n-\nFormat: Digital, interactive formats are recommended for better engagement and lead generation.\n\n-\nAccessibility: Ensure responsive design and shareability on platforms relevant to the target audience.\n\nWhat is a white paper?\n\nA white paper is an in-depth, research-based document that presents expert insights, analysis, and solutions on a specific topic. Organizations use white papers to educate their audience, establish authority, and support decision-making — typically in a formal, objective tone. Unlike blog posts or marketing brochures, a white paper prioritizes evidence over promotion.\n\nWhat is the purpose of a white paper?\n\nMost of the marketing communications are about business operations and aim to promote services and products. A white paper does not necessarily have a direct relation to your organisation. It can have several purposes , for example:\n\n- educating readers\n\n- establishing thought leadership\n\n- generating and nurturing leads\n\n- demonstrating expertise\n\n- standing out from competitors\n\n- building trust\n\nThe key to writing a good white paper is to not make it overly promotional. Your aim should be to provide facts and not to sell. Naturally, it may play a supporting role in generating and converting leads eventually.\n\nFor more information on how to convert leads with white papers (including examples), be sure to check out our blog 7 ways to increase your conversions with online white papers .\n\nHow to write and format a white paper\n\nThe typical structure includes a title page, an introduction with a problem statement, background research, a proposed solution, and a conclusion. While that sounds straightforward, you may ask what the exact steps are for writing and formatting. Not to worry, we have put together a guide that takes you through the process of creating your white paper step-by-step.\n\n1. Determine your audience and goal\n\nYou can’t create a white paper if you don’t know who it is for. Therefore, you must determine what your goal is (for example: generating leads) and who you are targeting. Your target audience is often a group outside the industry that is looking for more in-depth information .\n\nTo attract leads within your selected group, you must make your white paper appealing to read. The best way to do so is to address a challenge within the industry and present a compelling solution. If you are unsure which topic to address, this is a sign that you may need to do more research about the problems that your target group faces. Once you have selected your topic, identify clear goals to tailor your content to.\n\n2. Choose your medium\n\nWhen publishing a white paper, you will need to pick a medium. Nowadays, everyone prefers to consume and share content online. However, many organisations choose a PDF format while there are better options available. Read here why the (interactive) PDF is dead and why digital publishing is the new solution.\n\nDigital publishing is more engaging and allows the incorporation of dynamic elements, for example, multimedia, data visualisation and animations. Above all, a digital publication is highly suitable for gating content to generate leads. Whichever medium you pick, make sure it is shareable on the channels your target audience resides at, such as via email or social "
+      },
+      {
+        "hunt": "exemplars",
+        "query": "what is a whiteppr",
+        "url": "https://visme.co/blog/how-to-write-a-white-paper/",
+        "host": "visme.co",
+        "title": "How to Write a White Paper (Examples & Best Practices) - Visme",
+        "snippet": "This guide explains what a white paper is, how to structure it, and how to write one that builds authority and drives leads.",
+        "status": "fetched",
+        "chars": 49125,
+        "pageTitle": "How to Write a White Paper (Examples & Best Practices)",
+        "text": "Get the practical and simple design tricks to take your slides from “meh” to “stunning”!\nDownload for free\n\n-\n\nHome\n\n-\n\nBlog\n\n-\n\nBusiness\n\n-\nHow to Write a White Paper (Examples, Structure & Best Practices)\n\nHow to Write a White Paper (Examples, Structure & Best Practices)\n\nWritten by\nOrana Velarde\n\nPublished at\nMar 06, 2026\n\nEdited by: Unenabasi Ekeruke\n\nReviewed by: Victoria Taylor\n\nWhitepapers are powerful assets for marketers and businesses.\n\nAccording to a 2023 B2B Content Marketing report , 43% of B2B marketers admitted that whitepapers produced the best results for their content marketing efforts last year.\n\nWhat’s so important about whitepapers? They establish you as a thoughtful leader and build trust with your audience by providing authoritative content backed by research.\n\nWhite papers can help move the needle for your sales team as well. A Demand Gen Report revealed that 71% of B2B buyers used white papers to analyze purchasing decisions.\n\nSo, if you're looking to funnel in high-quality leads, you can use whitepapers as a lead magnet. They not only provide value but also instill confidence in the minds of your readers about the product, service or idea you’re selling.\n\nSo, how do you create whitepapers that fetch impressive results, and how does it fit into your content marketing strategy?\n\nIn this article, we’ll walk you through a step-by-step tutorial on how to write a white paper. We’ve also included some great design tips for taking your white papers to the next level as well as advice on how to properly distribute and promote your white paper.\n\nIf you prefer to watch rather than read instructions, here is a video summary of the steps in this guide.\n\nWant to skip the tutorial and get started? Use Visme to create a professional white paper in your browser using free customizable templates , design tools and multiple download options.\n\nHere’s a short selection of 8 easy-to-edit white paper templates you can edit, share and download with Visme. View more templates below:\n\nTable of Contents\n\n- What is a White Paper?\n\n- How to Write a White Paper in 10 Steps\n\n- How to Format a White Paper\n\n- Main Types of White Papers with Real-Life Examples\n\n- White Paper Design Tips & Best Practices\n\n- How to Market & Promote Your White Paper\n\n- White Paper FAQs\n\nQuick Read\n\n- A white paper is a document used by business professionals to share in-depth information about a specific topic, typically to generate leads, build trust and increase sales.\n\n- To write a white paper, you must choose a topic, conduct research, understand your audience, create an outline, write an attention-grabbing title and introduction, break up the content with subheadings and back it up with data.\n\n- For better results, start with a template, create an enticing cover page, add a table of contents and relevant imagery, choose fonts and colors well, make your data beautiful and stay on brand.\n\n- After publishing a white paper, promote it with a landing page, Visme Forms, paid or organic social media and email marketing.\n\n- Use Visme white paper templates to get a head start and use Visme Forms to collect leads while sharing your findings with an interested audience.\n\nWhat is a White Paper?\n\nA white paper is an authoritative, research-backed document that presents a problem, analyzes it in depth, and proposes a well-reasoned solution or position. Originally a term used in government policy, it has become a staple in business and B2B marketing as a way to demonstrate expertise, educate an audience, and support complex decision-making.\n\nUnlike a blog post or a brochure, a white paper is evidence-led. It relies on data, research, and structured argument rather than opinion or promotion. The goal is to inform first,and influence second.\n\nA white paper typically includes a cover page, table of contents, executive summary, introduction, detailed body sections, conclusion with a call to action, references, and appendix. A clean, professional design enhances readab"
+      },
+      {
+        "hunt": "exemplars",
+        "query": "what is a whiteppr",
+        "url": "https://owl.purdue.edu/owl/subject_specific_writing/professional_technical_writing/white_papers/index.html",
+        "host": "owl.purdue.edu",
+        "title": "White Paper: Purpose and Audience - Purdue OWL®",
+        "snippet": "A white paper is a certain type of report that is distinctive in terms of purpose, audience, and organization. This resource will explain these issues and provide some other tips to enhance white paper content.",
+        "status": "fetched",
+        "chars": 2262,
+        "pageTitle": "Purpose and Audience - Purdue OWL® - Purdue University",
+        "text": "White Paper: Purpose and Audience\n\nWelcome to the Purdue OWL\n\nThis page is brought to you by the OWL at Purdue University. When printing this page, you must include the entire legal notice.\n\nCopyright ©1995-2018 by The Writing Lab & The OWL at Purdue and Purdue University. All rights reserved. This material may not be published, reproduced, broadcast, rewritten, or redistributed without permission. Use of this site constitutes acceptance of our terms and conditions of fair use.\n\nWhat is a White Paper?\n\nOriginally, the term white paper was used as shorthand to refer to an official government report, indicating that the document is authoritative and informative in nature. Writers typically use this genre when they argue a specific position or propose a solution to a problem, addressing the audience outside of their organization. Today, white papers have become popular marketing tools for corporations especially on the Internet since many potential customers search for information on the Web. Corporations use white papers to sell information or new products as solutions that would serve their customers' needs.\n\nThe Purpose of a White Paper\n\nTypically, the purpose of a white paper is to advocate that a certain position is the best way to go or that a certain solution is best for a particular problem. When it is used for commercial purposes, it could influence the decision-making processes of current and prospective customers.\n\nWhat Kind of Problems Do Readers Want to Solve?\n\nThe audience for a white paper can be the general public or multiple companies that seek solutions to their problems or needs. Typically, you will not know your audience personally, unlike when you write a recommendation report for your client. And yet, in order to persuade your audience, you need to focus on their needs. If you can address the problems that your readers want to solve, they will read your white paper for a solution. Otherwise, your white paper may not be read. It is important to emphasize your readers' interests rather than your interests, as shown in the example below:\n\nNot: This white paper introduces ABC company's new freight service.\n\nInstead: This white paper discusses how to choose a freight service company that best fits your needs."
+      }
+    ],
+    "fetched": 4,
+    "hosts": [
+      "en.wikipedia.org",
+      "maglr.com",
+      "visme.co",
+      "owl.purdue.edu"
+    ],
+    "multiple": true,
+    "basis": "2 queries (exemplars: ok, 5; exemplars: ok, 5); 10 distinct candidate(s); 4 fetched from 4 host(s)"
+  }
+}

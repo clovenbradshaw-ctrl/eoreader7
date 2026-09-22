@@ -100,6 +100,11 @@ test("candidateFormToken reads the ask's form-word off its grammar — head noun
   assert.equal(candidateFormToken("please write a short story about a dog"), "story");
   assert.equal(candidateFormToken("write a manifesto"), "manifesto", "an unregistered form-word is still a form-word");
   assert.equal(candidateFormToken("hello"), null, "one word names no form");
+  // An anaphor is not a form-word (measured 2026-09-22: "write it again" gave
+  // "again", and SURF would have gone looking for "what is a again").
+  assert.equal(candidateFormToken("write it again"), null);
+  assert.equal(candidateFormToken("give me another one"), null);
+  assert.equal(candidateFormToken("write another sonnet like before"), "sonnet", "a form-word beside an anaphor is still read");
 });
 
 test("declareForm, the gate: received sign → declared; no sign → unmeasured with the form-word carried; anaphor → measured off this engine's own ledger", () => {

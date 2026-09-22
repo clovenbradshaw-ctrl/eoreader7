@@ -26,6 +26,7 @@ import { createDocumentLedger, appendLedgerLine } from "./document-ledger.js";
 import { buildDraft, draftLines, floorProjection, drawnParts } from "./eot-draft.js";
 import { buildReferents, attachReferents } from "./referents.js";
 import { declareVoidSpec, declareForm, voidSpecLines, topicOf } from "./void-spec.js";
+import { surf, surfLines, liveWeb } from "./surf.js";
 import { loadEotParser, attachEot, notationOf, clauseComplete, clauseCore } from "./eot-notation.js";
 import { arrangeEssay, arrangedDraft, outlineLines, selectToBudget } from "./arrange.js";
 import { steerOutline } from "./steer.js";
@@ -42,7 +43,7 @@ const DOCS = path.join(HERE, "..", "..", "documents");
 
 const arg = (name, dflt = null) => { const i = process.argv.indexOf(`--${name}`); return i > 0 ? process.argv[i + 1] : dflt; };
 
-export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b", id = null, draw = null, arrange = null, flesh = "prosify", onStage = null } = {}) {
+export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b", id = null, draw = null, arrange = null, flesh = "prosify", web = null, onStage = null } = {}) {
   const docId = `${id ?? `pipe-${Date.now()}`}:1`;
   const ledger = createDocumentLedger({ docId, title: task.slice(0, 80) });
   const write = (role, title, text, basis, giver = "eoreader7:pipeline", supersedes = null) => {
@@ -73,6 +74,19 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   let voice = { opening: typeof voiceRaw.opening === "function" ? voiceRaw.opening(spoken) : voiceRaw.opening, body: typeof voiceRaw.body === "function" ? voiceRaw.body(spoken) : voiceRaw.body };
   write("register", `Register: ${field ?? "unresolved"}`, `field: ${field} [${form.basis}] — ${form.source}\nform-word: ${form.token ?? "(none)"}${form.cue ? `\nanaphor: "${form.cue}"${form.referent ? ` → ${form.referent.docId}: "${form.referent.prompt}"` : " (unresolved)"}` : ""}\nmode: ${register?.mode}\ntenor: ${register?.tenor?.tenor}\ntopic: ${topic ?? "(none stated)"}\nvoice declared for this field: ${voiceIsDeclaredFor(register)}\n\nopening voice:\n${voice.opening}\n\nbody voice:\n${voice.body}`, register?.basis ?? "derived from the ask");
 
+
+  // 3. SURF — seek across multiple sources for material shaped like the void
+  // (surf.js): exemplars of the form-word, sources about the subject. The web
+  // is injected; without one the stage is recorded as not run, never as "the
+  // web had nothing". What comes back is CANDIDATE material with provenance —
+  // stage 4 judges it, and it never outranks the operator's ground.
+  let surfed = null;
+  if (web) {
+    surfed = await surf({ spec: declareVoidSpec({ task, form }), search: web.search, fetch: web.fetch });
+    write("surf", `Surf: ${surfed.fetched} source(s) from ${surfed.hosts.length} host(s)${surfed.multiple ? "" : " — not multiple"}`, surfLines(surfed).join("\n"), surfed.basis, "eoreader7:surf");
+  } else {
+    write("surf", "Surf: not run", "no web given — the ground is the operator's material only", "unmeasured: stage 3 needs a web (surf.js liveWeb); nothing was sought, so nothing was found", "eoreader7:surf");
+  }
 
   // 4. GROUND — exactly the material given, with its sources named.
   const ground = groundFiles.map((f) => fs.readFileSync(f, "utf8")).join("\n\n");
@@ -386,8 +400,8 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
 if (import.meta.url === `file://${process.argv[1]}`) {
   const task = arg("task");
   const groundArg = arg("ground");
-  if (!task || !groundArg) { console.error('usage: pipeline-run.mjs --task "…" --ground FILE[,FILE] [--model gemma2:2b] [--id NAME]'); process.exit(1); }
-  const out = await runPipeline({ task, groundFiles: groundArg.split(","), model: arg("model", "gemma2:2b"), id: arg("id"), onStage: (s) => console.error(`  · ${s.role}: ${s.title}`) });
+  if (!task || !groundArg) { console.error('usage: pipeline-run.mjs --task "…" --ground FILE[,FILE] [--model gemma2:2b] [--id NAME] [--web]'); process.exit(1); }
+  const out = await runPipeline({ task, groundFiles: groundArg.split(","), model: arg("model", "gemma2:2b"), id: arg("id"), web: process.argv.includes("--web") ? liveWeb() : null, onStage: (s) => console.error(`  · ${s.role}: ${s.title}`) });
   console.log(out.report);
   process.exit(0);
 }
