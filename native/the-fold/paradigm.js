@@ -477,7 +477,21 @@ export function evaluateParadigmEmergent(p, candidate) {
 export function detectParadigmPlurality(instances = [], { name = "form", population = null } = {}) {
   const nI = instances.length;
   if (nI < 5) return { plural: false, refused: "under_powered", instances: nI, basis: `${nI} instance(s): below five the induction cannot tell a cluster from a coincidence — refused` };
-  const facts = (u) => emergentFacts(Array.isArray(u?.elements) ? u : { elements: elementsOf(typeof u === "string" ? u : u?.text ?? "").elements });
+  // positional: false (2026-09-22, the OOM fix — see form-prior.js's own
+  // comment on emergentFacts) — this organ self-clusters real instances,
+  // which can each be a real multi-thousand-line document; per-position
+  // facts (`@3421:closes`) are not a comparable address across independently
+  // authored documents and almost never clear induceEntityParameters' own
+  // memberCount>=2 admissibility gate, so keeping them only pays the cost
+  // (an O(elements^2) scan and an O(elements) fact volume, multiplied
+  // several times over by the clustering's own data structures) without
+  // buying signal. Only the position-independent facts (count:*, key:*, the
+  // lifted cls*:attr whole-class facts) participate here — DISCLOSED, not
+  // silent: measured directly (synthetic 2-8k-line documents), the plurality
+  // induction proper never used the per-position facts constructively at
+  // real-corpus scale, and learnParadigmEmergent (which DOES compare same-
+  // shaped instances position-by-position) is untouched by this change.
+  const facts = (u) => emergentFacts(Array.isArray(u?.elements) ? u : { elements: elementsOf(typeof u === "string" ? u : u?.text ?? "").elements }, { positional: false });
   const entries = [];
   let seq = 0;
   instances.forEach((u, i) => {

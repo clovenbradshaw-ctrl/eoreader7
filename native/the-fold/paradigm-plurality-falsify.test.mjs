@@ -81,3 +81,39 @@ test("THE CONTROL: a random split of ONE mixed-but-uniform population (shuffled 
   const r = detectParadigmPlurality(instances, { name: "entries only" });
   assert.equal(r.plural, false, r.basis);
 });
+
+// SCALING FALSIFIER (2026-09-22). Measured live: at 97 real NASA NTRS
+// technical-report instances (each tens-to-hundreds of KB, thousands of
+// "line" elements), detectParadigmPlurality OOM'd a 6GB heap without ever
+// printing a result — form-prior.js's emergentFacts fed every per-position
+// fact (@k:attr, @k:attr=, @k:attr+1 for every one of thousands of lines) to
+// the affinity-basin induction, an O(elements^2) scan per instance whose
+// O(elements) output was then duplicated several times over by the
+// clustering's own data structures (the flat evidence array, the
+// entity-feature index, the structural-entity clone, the per-entity
+// affinity profile). The fix (form-prior.js: emergentFacts' `positional`
+// option; paradigm.js: detectParadigmPlurality passes `positional: false`)
+// drops the per-position facts this organ never needed — real documents
+// rarely repeat a value at the exact same absolute line number, so those
+// facts almost never clear induceEntityKindCandidates' own memberCount>=2
+// admissibility gate anyway. This test reproduces the SAME shape of input
+// that OOM'd (many instances, each with thousands of elements) at a size
+// scaled down to run in seconds rather than the full multi-thousand-line,
+// ~100-instance corpus (kept as a manual, opt-in repro in
+// native/.scratch-repro.mjs-style scripts, not committed here) — and
+// asserts it completes and returns a sane, well-formed result rather than
+// hanging or exhausting memory.
+test("SCALING: many large (thousand-plus-line) instances complete detectParadigmPlurality quickly, without OOM", () => {
+  let s = 1234;
+  const rnd2 = () => { s = (s * 1103515245 + 12345) % 2147483648; return s / 2147483648; };
+  const WORDS = ["thrust", "vector", "payload", "orbit", "thermal", "propellant", "guidance", "telemetry", "structure", "avionics"];
+  const line = () => Array.from({ length: 6 + Math.floor(rnd2() * 8) }, () => WORDS[Math.floor(rnd2() * WORDS.length)]).join(" ");
+  const doc = (nLines) => Array.from({ length: nLines }, line).join("\n");
+  const instances = Array.from({ length: 24 }, (_, i) => ({ id: `doc-${i}`, text: doc(1200) }));
+  const t0 = Date.now();
+  const r = detectParadigmPlurality(instances, { name: "large-synthetic-report" });
+  const elapsed = Date.now() - t0;
+  assert.ok(elapsed < 15000, `expected the bounded (positional: false) path to finish in well under 15s, took ${elapsed}ms`);
+  assert.ok(typeof r.plural === "boolean", "detectParadigmPlurality returned a well-formed result rather than hanging or crashing");
+  assert.ok(r.basis && typeof r.basis === "string", "the result still carries a disclosed basis");
+});
