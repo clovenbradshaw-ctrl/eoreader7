@@ -1,66 +1,75 @@
-# The generation pipeline's next build: terrain × stance arrangement (2026-09-21)
+# Experiment: how discovered structure should make the EOT skeleton, and how flesh should grow on it (2026-09-21)
 
-## Why
+## The question
 
 The generation pipeline (native/the-fold: `eot-draft.js` → `arrange.js` →
-`steer.js` → `prosify.js` → archons → `loop-check.js`) still groups and
-selects a source's statements with hand-built heuristics: shared named beings,
-word overlap. On a real four-document dossier (the OHS audit records) that
-failed both ways. First one section swallowed 69 of 78 sentences, then there
-were 34 sections, and the final selection left out every audit finding
-(lessons 65–68).
+`steer.js` → `prosify.js` → archons → `loop-check.js`) now has four kinds of
+structure it can discover in any source.
 
-The engine's own cube should be doing this. Every EOTRich address the parser
-attaches (native/kernel/eot-rich.js via `eot-notation.js`) maps through
-`cellOf(op, grain)` (native/kernel/cube.js) to one of nine **terrains**, what
-a statement is about, and one of nine **stances**, what it does.
+- **Referents**: who each statement names (`referents.js`).
+- **Kinds**: series such as rated observations and graded recommendations, found by the engine's own kind organ (`kinds.js` over kernel/kind-induction.js + entity-kind-induction.js) at p = 0.008 on the OHS dossier.
+- **Terrain and stance** for every EOTRich address, through `cellOf(op, grain)` (kernel/cube.js). Measured on OHS, stance leans separate the acts that words could not.
+  - Making: a recommendation.
+  - Composing: a motion carried.
+  - Tracing: reported speech.
+  - Binding: classifying.
+  - Unraveling: an outcome.
+  - Clearing: negation, weak until weighted by rarity.
+- **Extent**: the dates and years each statement carries.
 
-Measured on the OHS dossier, a statement's stance lean against the dossier's
-own baseline already separates the acts that words could not:
+Nobody knows yet the best way to turn that structure into the EOT skeleton,
+or the best way to put flesh on the skeleton recursively. So this is an
+experiment, not a build order: the same sources, several arms, measured the
+same way.
 
-| stance | the act | example |
-|---|---|---|
-| Making | prescribing | "Management should continue efforts to implement…" |
-| Composing | deciding | "A motion … was made, seconded, and carried." |
-| Tracing | reported speech | "Councilmember Welsch presented her request…" |
-| Binding | classifying | "The Division is a division within Metro Social Services." |
-| Unraveling | an outcome | "Status: Implemented." |
-| Clearing | absence (negation is `DEF·Ground`) | "The Division did not retain the minutes." (weak until rarity-weighted) |
+## Arms
 
-The kind organ (kernel/kind-induction.js + kernel/entity-kind-induction.js,
-capacities `kinds` / `kindnull`) was fed statement evidence by
-`native/the-fold/kinds.js`. It found the audit's real series at p = 0.008: the
-risk ratings (×6) and the recommendation statuses (×7).
+**Skeleton arms** need no model. They are cheap, so every arm runs on every source.
 
-## Build order
+| arm | how the EOT outline is made |
+|---|---|
+| A0 control | the committed arrangement: beings joined by the occupancy and runs nulls, size split, time repair |
+| A1 kinds first | kinds fold each series into one stated kind plus saturating spans; the rest stays in material order |
+| A2 stance moves | sections by rarity-weighted stance lean, ordered by the form's moves: frame → findings → prescriptions → outcomes → accounts → decisions |
+| A3 terrain roles | sections by rarity-weighted terrain lean |
+| A4 terrain × stance | A2 and A3 combined, with kinds folded inside |
+| A5 mouth-led | raw paragraphs, membership decided only by the one-question yes/no votes |
 
-Test each step on the OHS and Cumberland probes before any live run.
+**Flesh arms** run on the best two skeletons.
 
-1. **Statement profile.**
-   - Addresses: every node, feature, arc and marker cell of a statement's EOTRich record.
-   - Mapping: each address goes through `cellOf` to a terrain and a stance.
-   - Weighting: each address is weighted by its surprisal in *this* source, −log(share of that terrain/stance among all its addresses), so a rare act (Clearing is 1% of the OHS addresses) counts. No constants.
-   - Output: each statement's lean, its profile minus the source baseline.
-   - Test: a recommendation leans Making, a motion Composing, reported speech Tracing, a negated finding Clearing.
-2. **Kinds, fixed.**
-   - Span saturation counts a statement's distinctive values (rating and status words), not only beings and figures. It chose 0 of 6 risk-rating spans.
-   - The label feature ("Observation B,", "Recommendation D.1,") gets its own null, because a numbered series is evidence at any size. The global prevalence floor dropped "Observation A…F" (6 of 140).
-   - A basin spread through the whole source is ground, not a section. Reuse the occupancy and runs nulls in `arrange.js`; an 83-statement basin was measured.
-3. **Terrain × stance outline** (`arrange.js`).
-   - Sections are statements grouped by kind, and otherwise by shared dominant terrain role and stance move, kept adjacent. This replaces the being-union and Jaccard merge.
-   - Order follows the form's moves: Binding (frame) → Clearing/Dissecting (findings) → Making (prescriptions) → Unraveling (outcomes) → Tracing (accounts) → Composing (decisions). The material's order is kept within a move, and time inversions are still repaired.
-   - A kind section states the kind once (`kindSentence`, with computed counts such as "six of seven implemented") and carries its saturating spans, each linked to its exact bytes.
-4. **Steering prompt** (`steer.js`).
-   - Each section is rendered for the mouth as information: its role and move in one plain line, the kind sentence if any, then the saturating spans verbatim.
-   - One question per call, yes/no, no apparatus words. Re-run Gary's audit (the-fold/gary.js) over every prompt.
-5. **Stance and Lens mismatch** (Kidder & Todd, `archon-rules.js`). A prose sentence whose stance or Lens differs from the source statements it carries becomes a finding that licenses restore. Two cases:
-   - a Making/Composing cause where the source only Traces ("the audit's findings sparked…");
-   - a recommendation credited to the committee when the source's Lens is the auditors.
-6. **Loop check** (`loop-check.js`). It already measures facts carried, the ask's questions answered, and findings licensing a revision. Add that every section's move is still present: a dropped move is a loss.
+- **F1**, today's path: each section's prose is drawn whole, with finer draws and floors beneath it.
+- **F2**, level by level (Hora). Every level is loop-checked against the one below.
+  1. One sentence per section. That makes a complete abstract, usable on its own.
+  2. Each sentence grows to a paragraph carrying the section's kind and spans.
+  3. The remaining spans are woven in.
+
+## Measures, the same for every arm
+
+- **Skeleton** (no model): the ask's questions covered; how much of the source the kinds fold; move-order violations and time inversions; section count against the declared form; the largest section's share of statements.
+- **Piece** (`loop-check.js`): facts carried, the ask's questions answered, findings still licensing a revision, model calls and seconds.
+- **Judgment**: a blind pairwise editor verdict with the sources open (which piece is better, plus each piece's factual errors). This catches invented causes and misattribution.
+
+## Sources
+
+- Cumberland: tidy, already shaped like an essay.
+- OHS: four real audit documents, messy.
+- A meeting transcript.
+- A narrative.
+
+A method that only works on audit reports is only for audit reports.
+
+## Order
+
+1. Build the statement profile: rarity-weighted terrain and stance leans.
+2. Run all six skeleton arms offline on all four sources, into one table.
+3. Run F1 and F2 live on the two best skeletons.
+4. Get the blind editor verdicts.
+
+Each step's results are appended to this file.
 
 ## Open, not decided here
 
-Should negation and absence verbs address to `NUL`, putting them on the Void
-terrain, in the universal grammar? Today negation lands at `DEF·Ground`
-(Atmosphere) and "lacks" is `CON·Figure` (Link). The grammar belongs to the
-"EOT enrichment" session. The stance face already carries absence as Clearing.
+Should negation and absence verbs address to `NUL`, the Void terrain, in the
+universal grammar? Today negation is `DEF·Ground` (Atmosphere) and "lacks" is
+`CON·Figure` (Link). The "EOT enrichment" session owns the grammar. The
+stance face already carries absence as Clearing.
