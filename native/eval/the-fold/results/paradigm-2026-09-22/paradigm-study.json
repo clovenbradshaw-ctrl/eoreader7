@@ -1,0 +1,1231 @@
+{
+  "English sonnet (Shakespeare)": {
+    "basis": "English sonnet (Shakespeare): 25 feature(s) in 11 measured cell(s); 14 parts; scheme ABABCDCDEFEFGG; the Interpretation row judged",
+    "features": [
+      {
+        "cell": "NUL·Ground",
+        "key": "class:heading",
+        "support": 1,
+        "contrast": 0.4691943127962085,
+        "p": 3.904957539259382e-17
+      },
+      {
+        "cell": "NUL·Ground",
+        "key": "block-breaks",
+        "support": 1,
+        "contrast": 0.4218009478672986,
+        "p": 2.8535966330321103e-19
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "indentation",
+        "support": 1,
+        "contrast": 0.8436018957345972,
+        "p": 0.00014066867181105678
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "content-starts-capitalized",
+        "support": 1,
+        "contrast": 0.8293838862559242,
+        "p": 0.00005859573649739342
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "content-ends-punctuated",
+        "support": 1,
+        "contrast": 0.7725118483412322,
+        "p": 0.0000015417665898666558
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "starts:and",
+        "support": 0.8166666666666667,
+        "contrast": 0.2796208530805687,
+        "p": 6.754240283692492e-14
+      },
+      {
+        "cell": "INS·Ground",
+        "key": "INS:share-headings",
+        "support": 1,
+        "contrast": null,
+        "p": 2.2108981312385367e-12
+      },
+      {
+        "cell": "INS·Figure",
+        "key": "first-part:line",
+        "support": 1,
+        "contrast": 0.8246445497630331,
+        "p": 0.000043635122923585595
+      },
+      {
+        "cell": "INS·Figure",
+        "key": "last-part:line",
+        "support": 1,
+        "contrast": 0.8056872037914692,
+        "p": 0.000013221610812239939
+      },
+      {
+        "cell": "SEG·Ground",
+        "key": "SEG:blocks",
+        "support": 1,
+        "contrast": null,
+        "p": 7.283063041541027e-14
+      },
+      {
+        "cell": "SEG·Figure",
+        "key": "seam-after-part-4",
+        "support": 0.5932203389830508,
+        "contrast": null,
+        "p": 3.0901444328343174e-10
+      },
+      {
+        "cell": "SEG·Figure",
+        "key": "seam-after-part-8",
+        "support": 0.5932203389830508,
+        "contrast": null,
+        "p": 3.0901444328343174e-10
+      },
+      {
+        "cell": "SEG·Figure",
+        "key": "seam-after-part-12",
+        "support": 0.5254237288135594,
+        "contrast": null,
+        "p": 1.9421306395465082e-7
+      },
+      {
+        "cell": "SEG·Figure",
+        "key": "seam-after-part-14",
+        "support": 1,
+        "contrast": null,
+        "p": 6.109132673062287e-42
+      },
+      {
+        "cell": "SEG·Pattern",
+        "key": "elements=14",
+        "support": 0.9833333333333333,
+        "contrast": 0.11374407582938388,
+        "p": 8.8902684975744e-39
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(1,3)",
+        "support": 0.7796610169491526,
+        "contrast": null,
+        "p": 8.38770240776447e-41
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(2,4)",
+        "support": 0.7627118644067796,
+        "contrast": null,
+        "p": 3.6778342751002533e-39
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(5,7)",
+        "support": 0.864406779661017,
+        "contrast": null,
+        "p": 1.0589731333164214e-49
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(6,8)",
+        "support": 0.7288135593220338,
+        "contrast": null,
+        "p": 5.37661422075214e-36
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(9,11)",
+        "support": 0.7796610169491526,
+        "contrast": null,
+        "p": 8.38770240776447e-41
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(10,12)",
+        "support": 0.847457627118644,
+        "contrast": null,
+        "p": 8.07506597687655e-48
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(13,14)",
+        "support": 0.7627118644067796,
+        "contrast": null,
+        "p": 3.6778342751002533e-39
+      },
+      {
+        "cell": "CON·Pattern",
+        "key": "scheme ABABCDCDEFEFGG",
+        "support": 0.7893462469733653,
+        "contrast": null,
+        "p": 1.0589731333164214e-49
+      },
+      {
+        "cell": "SYN·Ground",
+        "key": "SYN:syllables-per-part",
+        "support": 1,
+        "contrast": null,
+        "p": 0.00009057503397658095
+      },
+      {
+        "cell": "SYN·Ground",
+        "key": "SYN:evenness(cv)",
+        "support": 1,
+        "contrast": null,
+        "p": 0
+      }
+    ],
+    "scheme": "ABABCDCDEFEFGG",
+    "count": 14,
+    "satisfies": {
+      "cut": 0.75,
+      "balancedAccuracy": 0.9833333333333334,
+      "basis": "a candidate satisfies when it holds at least 75% of the measured features — the cut that best separates the 60 instances from the 211 (balanced accuracy 98%, in sample)"
+    },
+    "heldOut": {
+      "instances": "60/60",
+      "others": "1/210",
+      "byForm": {
+        "Petrarchan sonnet (Browning)": "1/22",
+        "limerick": "0/56",
+        "man page": "0/60",
+        "statute section": "0/4",
+        "recipe": "0/40",
+        "obituary": "0/17",
+        "encyclopedia prose": "0/10"
+      }
+    }
+  },
+  "Petrarchan sonnet (Browning)": {
+    "basis": "Petrarchan sonnet (Browning): 23 feature(s) in 6 measured cell(s); 14 parts; scheme ABBAABBACDCDCD; the Interpretation row judged",
+    "features": [
+      {
+        "cell": "SIG·Figure",
+        "key": "starts:i",
+        "support": 0.5454545454545454,
+        "contrast": 0.10040160642570281,
+        "p": 0.0000018171325265981018
+      },
+      {
+        "cell": "SEG·Figure",
+        "key": "seam-after-part-14",
+        "support": 1,
+        "contrast": null,
+        "p": 4.096879679967786e-17
+      },
+      {
+        "cell": "SEG·Pattern",
+        "key": "elements=14",
+        "support": 1,
+        "contrast": 0.24497991967871485,
+        "p": 5.567561601200497e-13
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(1,4)",
+        "support": 0.5909090909090909,
+        "contrast": null,
+        "p": 8.409416967424894e-7
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(1,5)",
+        "support": 0.5909090909090909,
+        "contrast": null,
+        "p": 8.409416967424894e-7
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(1,8)",
+        "support": 0.7727272727272727,
+        "contrast": null,
+        "p": 2.4401095413499746e-11
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(2,3)",
+        "support": 0.7727272727272727,
+        "contrast": null,
+        "p": 2.4401095413499746e-11
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(2,6)",
+        "support": 0.8181818181818182,
+        "contrast": null,
+        "p": 1.0354769631858402e-12
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(2,7)",
+        "support": 0.5454545454545454,
+        "contrast": null,
+        "p": 0.00000714875943397177
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(3,6)",
+        "support": 0.6818181818181818,
+        "contrast": null,
+        "p": 6.7539408643137085e-9
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(3,7)",
+        "support": 0.5454545454545454,
+        "contrast": null,
+        "p": 0.00000714875943397177
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(4,5)",
+        "support": 0.6363636363636364,
+        "contrast": null,
+        "p": 8.273490033524561e-8
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(4,8)",
+        "support": 0.6818181818181818,
+        "contrast": null,
+        "p": 6.7539408643137085e-9
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(5,8)",
+        "support": 0.6818181818181818,
+        "contrast": null,
+        "p": 6.7539408643137085e-9
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(6,7)",
+        "support": 0.6363636363636364,
+        "contrast": null,
+        "p": 8.273490033524561e-8
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(9,11)",
+        "support": 0.8636363636363636,
+        "contrast": null,
+        "p": 3.3264625789794155e-14
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(9,13)",
+        "support": 0.7727272727272727,
+        "contrast": null,
+        "p": 2.4401095413499746e-11
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(10,12)",
+        "support": 0.5454545454545454,
+        "contrast": null,
+        "p": 0.00000714875943397177
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(10,14)",
+        "support": 0.5909090909090909,
+        "contrast": null,
+        "p": 8.409416967424894e-7
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(11,13)",
+        "support": 0.7727272727272727,
+        "contrast": null,
+        "p": 2.4401095413499746e-11
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(12,14)",
+        "support": 0.7727272727272727,
+        "contrast": null,
+        "p": 2.4401095413499746e-11
+      },
+      {
+        "cell": "CON·Pattern",
+        "key": "scheme ABBAABBACDCDCD",
+        "support": 0.6818181818181818,
+        "contrast": null,
+        "p": 3.3264625789794155e-14
+      },
+      {
+        "cell": "SYN·Ground",
+        "key": "SYN:evenness(cv)",
+        "support": 1,
+        "contrast": null,
+        "p": 7.786556288635893e-7
+      }
+    ],
+    "scheme": "ABBAABBACDCDCD",
+    "count": 14,
+    "satisfies": {
+      "cut": 0.4090909090909091,
+      "balancedAccuracy": 0.9979919678714859,
+      "basis": "a candidate satisfies when it holds at least 41% of the measured features — the cut that best separates the 22 instances from the 249 (balanced accuracy 100%, in sample)"
+    },
+    "heldOut": {
+      "instances": "22/22",
+      "others": "0/248",
+      "byForm": {
+        "English sonnet (Shakespeare)": "0/60",
+        "limerick": "0/56",
+        "man page": "0/60",
+        "statute section": "0/4",
+        "recipe": "0/40",
+        "obituary": "0/17",
+        "encyclopedia prose": "0/10"
+      }
+    }
+  },
+  "limerick": {
+    "basis": "limerick: 22 feature(s) in 13 measured cell(s); 5 parts; scheme AABBA; the Interpretation row judged",
+    "features": [
+      {
+        "cell": "NUL·Ground",
+        "key": "class:heading",
+        "support": 1,
+        "contrast": 0.4790697674418605,
+        "p": 7.645840664548365e-16
+      },
+      {
+        "cell": "NUL·Ground",
+        "key": "block-breaks",
+        "support": 1,
+        "contrast": 0.43255813953488376,
+        "p": 8.46068651480299e-18
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "content-starts-capitalized",
+        "support": 1,
+        "contrast": 0.8325581395348837,
+        "p": 0.00012265203195948286
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "content-ends-punctuated",
+        "support": 1,
+        "contrast": 0.7767441860465116,
+        "p": 0.000004270059989809911
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "starts:there",
+        "support": 1,
+        "contrast": 0.13023255813953488,
+        "p": 2.793151935683145e-37
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "starts:who",
+        "support": 0.5357142857142857,
+        "contrast": 0.05581395348837209,
+        "p": 2.733415960018358e-15
+      },
+      {
+        "cell": "INS·Ground",
+        "key": "INS:share-headings",
+        "support": 1,
+        "contrast": null,
+        "p": 1.8283596858736928e-11
+      },
+      {
+        "cell": "INS·Figure",
+        "key": "first-part:line",
+        "support": 1,
+        "contrast": 0.827906976744186,
+        "p": 0.00009342431370530424
+      },
+      {
+        "cell": "INS·Figure",
+        "key": "last-part:line",
+        "support": 1,
+        "contrast": 0.8093023255813954,
+        "p": 0.00003102645507643726
+      },
+      {
+        "cell": "SEG·Ground",
+        "key": "SEG:elements",
+        "support": 1,
+        "contrast": null,
+        "p": 0
+      },
+      {
+        "cell": "SEG·Ground",
+        "key": "SEG:blocks",
+        "support": 1,
+        "contrast": null,
+        "p": 7.986944439153376e-13
+      },
+      {
+        "cell": "SEG·Figure",
+        "key": "seam-after-part-5",
+        "support": 0.9821428571428571,
+        "contrast": null,
+        "p": 3.361919107433575e-34
+      },
+      {
+        "cell": "SEG·Pattern",
+        "key": "elements=5",
+        "support": 1,
+        "contrast": 0.009302325581395349,
+        "p": 3.0199030584066296e-56
+      },
+      {
+        "cell": "CON·Ground",
+        "key": "CON:adjacent-rhyme",
+        "support": 0.8928571428571429,
+        "contrast": null,
+        "p": 0
+      },
+      {
+        "cell": "CON·Ground",
+        "key": "CON:adjacent-same-first",
+        "support": 0.9821428571428571,
+        "contrast": null,
+        "p": 1.1213252548714081e-12
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(1,2)",
+        "support": 0.6071428571428571,
+        "contrast": null,
+        "p": 8.412034945936083e-12
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(2,5)",
+        "support": 0.5714285714285714,
+        "contrast": null,
+        "p": 4.669394745771341e-10
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "rhyme(3,4)",
+        "support": 0.8035714285714286,
+        "contrast": null,
+        "p": 5.924133987692221e-25
+      },
+      {
+        "cell": "CON·Figure",
+        "key": "sameEnd(1,5)",
+        "support": 0.9107142857142857,
+        "contrast": null,
+        "p": 1.1209600000000034e-48
+      },
+      {
+        "cell": "CON·Pattern",
+        "key": "scheme AABBA",
+        "support": 0.7232142857142857,
+        "contrast": null,
+        "p": 1.1209600000000034e-48
+      },
+      {
+        "cell": "SYN·Ground",
+        "key": "SYN:syllables-per-part",
+        "support": 1,
+        "contrast": null,
+        "p": 0
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "starts:there before starts:who",
+        "support": 1,
+        "contrast": null,
+        "p": 1.8626451492309587e-9
+      }
+    ],
+    "scheme": "AABBA",
+    "count": 5,
+    "satisfies": {
+      "cut": 0.7142857142857143,
+      "balancedAccuracy": 1,
+      "basis": "a candidate satisfies when it holds at least 71% of the measured features — the cut that best separates the 56 instances from the 215 (balanced accuracy 100%, in sample)"
+    },
+    "heldOut": {
+      "instances": "56/56",
+      "others": "0/214",
+      "byForm": {
+        "English sonnet (Shakespeare)": "0/60",
+        "Petrarchan sonnet (Browning)": "0/22",
+        "man page": "0/60",
+        "statute section": "0/4",
+        "recipe": "0/40",
+        "obituary": "0/17",
+        "encyclopedia prose": "0/10"
+      }
+    }
+  },
+  "man page": {
+    "basis": "man page: 40 feature(s) in 8 measured cell(s); the Interpretation row judged",
+    "features": [
+      {
+        "cell": "SIG·Ground",
+        "key": "class:heading",
+        "support": 1,
+        "contrast": 0.24644549763033174,
+        "p": 3.027568421283109e-29
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "heading:all-capitals",
+        "support": 1,
+        "contrast": 0.052132701421800945,
+        "p": 2.6350652815739132e-49
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "indentation",
+        "support": 1,
+        "contrast": 0.8436018957345972,
+        "p": 0.00014066867181105678
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "block-breaks",
+        "support": 1,
+        "contrast": 0.2938388625592417,
+        "p": 3.880845799295669e-26
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "heading:name",
+        "support": 1,
+        "contrast": 0,
+        "p": 1.0291023311952438e-61
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "heading:synopsis",
+        "support": 0.55,
+        "contrast": 0,
+        "p": 3.001720586906672e-26
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "heading:description",
+        "support": 0.95,
+        "contrast": 0.004739336492890996,
+        "p": 9.480684055374987e-54
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "starts:a",
+        "support": 0.5166666666666667,
+        "contrast": 0.08056872037914692,
+        "p": 1.0074772260947573e-12
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "starts:the",
+        "support": 0.7666666666666667,
+        "contrast": 0.2985781990521327,
+        "p": 8.579315354945822e-11
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "starts:if",
+        "support": 0.6666666666666666,
+        "contrast": 0.06635071090047394,
+        "p": 3.0886586996216866e-21
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "heading:see",
+        "support": 0.6666666666666666,
+        "contrast": 0.004739336492890996,
+        "p": 1.2744438695927654e-31
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "heading:also",
+        "support": 0.6666666666666666,
+        "contrast": 0.004739336492890996,
+        "p": 1.2744438695927654e-31
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "starts:this",
+        "support": 0.65,
+        "contrast": 0.0947867298578199,
+        "p": 1.5239023303878527e-17
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "starts:perl",
+        "support": 0.6333333333333333,
+        "contrast": 0,
+        "p": 3.972514001540072e-31
+      },
+      {
+        "cell": "INS·Ground",
+        "key": "INS:share-headings",
+        "support": 1,
+        "contrast": null,
+        "p": 0
+      },
+      {
+        "cell": "INS·Figure",
+        "key": "first-part:line",
+        "support": 1,
+        "contrast": 0.8246445497630331,
+        "p": 0.000043635122923585595
+      },
+      {
+        "cell": "INS·Figure",
+        "key": "last-part:line",
+        "support": 1,
+        "contrast": 0.8056872037914692,
+        "p": 0.000013221610812239939
+      },
+      {
+        "cell": "SEG·Ground",
+        "key": "SEG:elements",
+        "support": 0.8666666666666667,
+        "contrast": null,
+        "p": 0
+      },
+      {
+        "cell": "SEG·Ground",
+        "key": "SEG:blocks",
+        "support": 1,
+        "contrast": null,
+        "p": 0
+      },
+      {
+        "cell": "CON·Ground",
+        "key": "CON:adjacent-rhyme",
+        "support": 0.9666666666666667,
+        "contrast": null,
+        "p": 0.0000019347391684299
+      },
+      {
+        "cell": "CON·Ground",
+        "key": "CON:adjacent-same-first",
+        "support": 1,
+        "contrast": null,
+        "p": 0
+      },
+      {
+        "cell": "SYN·Ground",
+        "key": "SYN:syllables-per-part",
+        "support": 0.95,
+        "contrast": null,
+        "p": 1.3319167990744063e-10
+      },
+      {
+        "cell": "SYN·Ground",
+        "key": "SYN:evenness(cv)",
+        "support": 1,
+        "contrast": null,
+        "p": 0
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:name before heading:synopsis",
+        "support": 1,
+        "contrast": null,
+        "p": 2.328306436538702e-10
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:name before heading:description",
+        "support": 1,
+        "contrast": null,
+        "p": 1.387778780781446e-17
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:name before starts:a",
+        "support": 1,
+        "contrast": null,
+        "p": 9.313225746154776e-10
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:name before starts:the",
+        "support": 1,
+        "contrast": null,
+        "p": 2.8421709430403995e-14
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:name before starts:if",
+        "support": 1,
+        "contrast": null,
+        "p": 1.8189894035458565e-12
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:name before heading:see",
+        "support": 1,
+        "contrast": null,
+        "p": 1.8189894035458565e-12
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:name before heading:also",
+        "support": 1,
+        "contrast": null,
+        "p": 1.8189894035458565e-12
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:name before starts:this",
+        "support": 1,
+        "contrast": null,
+        "p": 3.63797880709172e-12
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:synopsis before heading:description",
+        "support": 0.967741935483871,
+        "contrast": null,
+        "p": 2.980232238769536e-8
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:description before starts:the",
+        "support": 0.9777777777777777,
+        "contrast": null,
+        "p": 2.6147972675971675e-12
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:description before starts:if",
+        "support": 0.9743589743589743,
+        "contrast": null,
+        "p": 1.455191522836694e-10
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:description before heading:see",
+        "support": 1,
+        "contrast": null,
+        "p": 3.63797880709172e-12
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:description before heading:also",
+        "support": 1,
+        "contrast": null,
+        "p": 3.63797880709172e-12
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:description before starts:this",
+        "support": 1,
+        "contrast": null,
+        "p": 1.455191522836688e-11
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "starts:the before heading:see",
+        "support": 0.8857142857142857,
+        "contrast": null,
+        "p": 0.0000034654513001442146
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "starts:the before heading:also",
+        "support": 0.8857142857142857,
+        "contrast": null,
+        "p": 0.0000034654513001442146
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:also before heading:see",
+        "support": 0.975,
+        "contrast": null,
+        "p": 7.457856554537969e-11
+      }
+    ],
+    "scheme": null,
+    "count": null,
+    "satisfies": {
+      "cut": 0.35,
+      "balancedAccuracy": 0.990521327014218,
+      "basis": "a candidate satisfies when it holds at least 35% of the measured features — the cut that best separates the 60 instances from the 211 (balanced accuracy 99%, in sample)"
+    },
+    "heldOut": {
+      "instances": "60/60",
+      "others": "3/210",
+      "byForm": {
+        "English sonnet (Shakespeare)": "0/60",
+        "Petrarchan sonnet (Browning)": "0/22",
+        "limerick": "0/56",
+        "statute section": "0/4",
+        "recipe": "4/40",
+        "obituary": "0/17",
+        "encyclopedia prose": "0/10"
+      }
+    }
+  },
+  "statute section": {
+    "basis": "statute section: 6 feature(s) in 3 measured cell(s); the Interpretation row judged",
+    "features": [
+      {
+        "cell": "NUL·Ground",
+        "key": "indentation",
+        "support": 1,
+        "contrast": 0.09774436090225569,
+        "p": 0.000014476759230881421
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "marker:paren-arabic",
+        "support": 0.8,
+        "contrast": 0,
+        "p": 2.2748937471061856e-8
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "marker:paren-alpha",
+        "support": 0.6,
+        "contrast": 0.007518796992481203,
+        "p": 0.000030142853361234348
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "heading-level:4",
+        "support": 0.8,
+        "contrast": 0,
+        "p": 2.2748937471061856e-8
+      },
+      {
+        "cell": "INS·Figure",
+        "key": "first-part:item",
+        "support": 0.8,
+        "contrast": 0,
+        "p": 2.2748937471061856e-8
+      },
+      {
+        "cell": "INS·Figure",
+        "key": "last-part:heading",
+        "support": 0.8,
+        "contrast": 0.03007518796992481,
+        "p": 0.00001099080407098908
+      }
+    ],
+    "scheme": null,
+    "count": null,
+    "satisfies": {
+      "cut": 0.16666666666666666,
+      "balancedAccuracy": 0.9323308270676691,
+      "basis": "a candidate satisfies when it holds at least 17% of the measured features — the cut that best separates the 5 instances from the 266 (balanced accuracy 93%, in sample)"
+    },
+    "heldOut": {
+      "instances": "4/4",
+      "others": "34/266",
+      "byForm": {
+        "English sonnet (Shakespeare)": "0/60",
+        "Petrarchan sonnet (Browning)": "0/22",
+        "limerick": "0/56",
+        "man page": "0/60",
+        "recipe": "6/40",
+        "obituary": "17/17",
+        "encyclopedia prose": "9/10"
+      }
+    }
+  },
+  "recipe": {
+    "basis": "recipe: 23 feature(s) in 9 measured cell(s); the Interpretation row judged",
+    "features": [
+      {
+        "cell": "NUL·Ground",
+        "key": "content-ends-punctuated",
+        "support": 0.5609756097560976,
+        "contrast": 0.15217391304347827,
+        "p": 8.849686282754857e-8
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "class:heading",
+        "support": 1,
+        "contrast": 0.30434782608695654,
+        "p": 6.324655602878741e-19
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "heading-level:2",
+        "support": 1,
+        "contrast": 0,
+        "p": 1.4375740304453837e-49
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "class:item",
+        "support": 1,
+        "contrast": 0.14347826086956522,
+        "p": 1.6370655429996203e-28
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "marker:bullet",
+        "support": 1,
+        "contrast": 0.034782608695652174,
+        "p": 6.483143559820932e-41
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "marker:arabic",
+        "support": 0.975609756097561,
+        "contrast": 0.04782608695652174,
+        "p": 1.508087244407025e-36
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "block-breaks",
+        "support": 1,
+        "contrast": 0.34347826086956523,
+        "p": 3.2133453667638026e-17
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "heading:ingredients",
+        "support": 1,
+        "contrast": 0,
+        "p": 1.4375740304453837e-49
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "heading:procedure",
+        "support": 0.9024390243902439,
+        "contrast": 0,
+        "p": 1.750212254059936e-41
+      },
+      {
+        "cell": "SIG·Figure",
+        "key": "starts:add",
+        "support": 0.5609756097560976,
+        "contrast": 0.030434782608695653,
+        "p": 1.8362614580201703e-16
+      },
+      {
+        "cell": "INS·Ground",
+        "key": "INS:share-items",
+        "support": 1,
+        "contrast": null,
+        "p": 0
+      },
+      {
+        "cell": "INS·Ground",
+        "key": "INS:share-headings",
+        "support": 1,
+        "contrast": null,
+        "p": 0
+      },
+      {
+        "cell": "INS·Figure",
+        "key": "first-part:heading",
+        "support": 0.5365853658536586,
+        "contrast": 0.02608695652173913,
+        "p": 4.688537908424838e-16
+      },
+      {
+        "cell": "INS·Figure",
+        "key": "last-part:item",
+        "support": 0.7073170731707317,
+        "contrast": 0,
+        "p": 9.177232139068596e-30
+      },
+      {
+        "cell": "INS·Figure",
+        "key": "last-part:line",
+        "support": 0.9024390243902439,
+        "contrast": 0.017391304347826098,
+        "p": 1.6566449153448612e-36
+      },
+      {
+        "cell": "INS·Figure",
+        "key": "first-part:line",
+        "support": 0.5365853658536586,
+        "contrast": 0.04347826086956519,
+        "p": 5.876120185796619e-14
+      },
+      {
+        "cell": "SEG·Ground",
+        "key": "SEG:elements",
+        "support": 0.8536585365853658,
+        "contrast": null,
+        "p": 0.0000014130368923837011
+      },
+      {
+        "cell": "SEG·Ground",
+        "key": "SEG:blocks",
+        "support": 1,
+        "contrast": null,
+        "p": 0.000003124834751622174
+      },
+      {
+        "cell": "CON·Ground",
+        "key": "CON:adjacent-rhyme",
+        "support": 0.975609756097561,
+        "contrast": null,
+        "p": 1.856772291475295e-8
+      },
+      {
+        "cell": "CON·Ground",
+        "key": "CON:labels-count-up",
+        "support": 0.9512195121951219,
+        "contrast": null,
+        "p": 0
+      },
+      {
+        "cell": "SYN·Ground",
+        "key": "SYN:evenness(cv)",
+        "support": 1,
+        "contrast": null,
+        "p": 1.3929302156157064e-11
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:ingredients before heading:procedure",
+        "support": 1,
+        "contrast": null,
+        "p": 1.455191522836688e-11
+      },
+      {
+        "cell": "SYN·Figure",
+        "key": "heading:ingredients before starts:add",
+        "support": 1,
+        "contrast": null,
+        "p": 2.3841857910156245e-7
+      }
+    ],
+    "scheme": null,
+    "count": null,
+    "satisfies": {
+      "cut": 0.6956521739130435,
+      "balancedAccuracy": 1,
+      "basis": "a candidate satisfies when it holds at least 70% of the measured features — the cut that best separates the 41 instances from the 230 (balanced accuracy 100%, in sample)"
+    },
+    "heldOut": {
+      "instances": "40/40",
+      "others": "1/230",
+      "byForm": {
+        "English sonnet (Shakespeare)": "0/60",
+        "Petrarchan sonnet (Browning)": "0/22",
+        "limerick": "0/56",
+        "man page": "1/60",
+        "statute section": "0/4",
+        "obituary": "0/17",
+        "encyclopedia prose": "0/10"
+      }
+    }
+  },
+  "obituary": {
+    "basis": "obituary: 4 feature(s) in 3 measured cell(s); the Interpretation row judged",
+    "features": [
+      {
+        "cell": "NUL·Ground",
+        "key": "indentation",
+        "support": 1,
+        "contrast": 0.06299212598425197,
+        "p": 3.0206446040387785e-18
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "block-breaks",
+        "support": 1,
+        "contrast": 0.41338582677165353,
+        "p": 6.64641603719834e-7
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "content-ends-a-sentence",
+        "support": 0.9411764705882353,
+        "contrast": 0.2204724409448819,
+        "p": 2.1557225088931458e-9
+      },
+      {
+        "cell": "SYN·Ground",
+        "key": "SYN:syllables-per-part",
+        "support": 1,
+        "contrast": null,
+        "p": 9.595879646440153e-12
+      }
+    ],
+    "scheme": null,
+    "count": null,
+    "satisfies": {
+      "cut": 1,
+      "balancedAccuracy": 0.9666512274201019,
+      "basis": "a candidate satisfies when it holds at least 100% of the measured features — the cut that best separates the 17 instances from the 254 (balanced accuracy 97%, in sample)"
+    },
+    "heldOut": {
+      "instances": "12/17",
+      "others": "3/253",
+      "byForm": {
+        "English sonnet (Shakespeare)": "0/60",
+        "Petrarchan sonnet (Browning)": "0/22",
+        "limerick": "0/56",
+        "man page": "0/60",
+        "statute section": "3/4",
+        "recipe": "0/40",
+        "encyclopedia prose": "0/10"
+      }
+    }
+  },
+  "encyclopedia prose": {
+    "basis": "encyclopedia prose: 4 feature(s) in 4 measured cell(s); the Interpretation row judged",
+    "features": [
+      {
+        "cell": "NUL·Ground",
+        "key": "indentation",
+        "support": 1,
+        "contrast": 0.08461538461538465,
+        "p": 1.638923639706533e-11
+      },
+      {
+        "cell": "SIG·Ground",
+        "key": "content-ends-a-sentence",
+        "support": 0.9090909090909091,
+        "contrast": 0.23846153846153847,
+        "p": 0.000009292116088839745
+      },
+      {
+        "cell": "SEG·Ground",
+        "key": "SEG:elements",
+        "support": 1,
+        "contrast": null,
+        "p": 5.9172760691339477e-8
+      },
+      {
+        "cell": "SYN·Ground",
+        "key": "SYN:syllables-per-part",
+        "support": 1,
+        "contrast": null,
+        "p": 7.139788000820602e-7
+      }
+    ],
+    "scheme": null,
+    "count": null,
+    "satisfies": {
+      "cut": 0.75,
+      "balancedAccuracy": 0.9557692307692307,
+      "basis": "a candidate satisfies when it holds at least 75% of the measured features — the cut that best separates the 11 instances from the 260 (balanced accuracy 96%, in sample)"
+    },
+    "heldOut": {
+      "instances": "10/10",
+      "others": "22/260",
+      "byForm": {
+        "English sonnet (Shakespeare)": "0/60",
+        "Petrarchan sonnet (Browning)": "0/22",
+        "limerick": "0/56",
+        "man page": "1/60",
+        "statute section": "3/4",
+        "recipe": "3/40",
+        "obituary": "15/17"
+      }
+    }
+  }
+}

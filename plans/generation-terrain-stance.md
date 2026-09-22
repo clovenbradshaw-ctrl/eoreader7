@@ -435,3 +435,53 @@ is stated; a stated claim outranks it. Owed: a background rate for block
 sizes measured on the material-hunt pages (pages not about any form) so a
 2-line block's noise is a null, not a hand-set exclusion; and anthology
 sources (Poetry Foundation 403s to this instrument) for whole instances.
+
+### Step 5 — the universal hunt: DEF·Paradigm and EVA·Paradigm (2026-09-22)
+
+The user: "what is it about the HUNT that these all require that is a
+universal kind?" — then, of my first answer (count, evenness, role words,
+answering positions, order), "'how many parts' idk about that," and "what
+is the more EO universal way." The answer adopted: the cube is the question
+set. A form is asked each of the nine operators at each of the three
+grains, measured on its instances against the rest of the population as
+the null. Counting is not a primitive: it is what SEG (where the material
+cuts itself) looks like for some forms. The Existence and Structure rows
+are measured; the Interpretation row (DEF, EVA, REC — the frame, the
+verdict, the turn) is judgement, asked of the mouth and cached. "What
+satisfies" is DEF·Paradigm; "an intelligent EVA" is EVA·Paradigm — cells
+the capacity registry had empty.
+
+Built: `the-fold/sound.js` (rhyme and syllables by spelling, its limit
+stated), `the-fold/medium.js` (any text — plain, Markdown, wikitext — as a
+sequence of classed elements; a collection cut at its recurring
+separator), `the-fold/paradigm.js` (learnParadigm, evaluateParadigm).
+Two bars: chance ruled out at 1/T over every test the definition LOOKED AT,
+and held by more instances than not.
+
+The control, before any result was believed: a true random split of one
+population must yield nothing. It caught three defects, in order — a
+per-cell level (a one-test cell had level 1: p = 0.42 admitted); a
+random-comparator sort that is not a shuffle (the "random" halves differed
+in composition); and T counted only after a pre-filter that reads the same
+counts (1.2 false features per coincidence). After all three: 0 features
+in 30 of 30 random splits of 580 real units.
+
+Live, eight forms, each learned on half its instances against the union of
+the others, evaluated on the held-out half (`results/paradigm-2026-09-22/`):
+
+| form | learned, nothing about it written in | held out |
+|---|---|---|
+| English sonnet | 14 parts (98% vs 11%), ABABCDCDEFEFGG, seams after 4/8/12/14 | 60/60 in, 1/210 false |
+| Petrarchan sonnet | 14 parts, ABBAABBACDCDCD — told apart from Shakespeare untold | 22/22 in, 0/248 false |
+| limerick | 5 parts, AABBA, line 5 ends on line 1's word (Lear's), "There" before "Who" | 56/56 in, 0/214 false |
+| man page | capitals headings NAME → SYNOPSIS → DESCRIPTION → SEE ALSO | 60/60 in, 3/210 false (headed recipes) |
+| recipe | Ingredients before Procedure, lists, steps counting up, "Add…" | 40/40 in, 1/230 false |
+| obituary · statute · encyclopedia prose | only "no indentation" and the like | do not separate from one another |
+
+The three prose forms fail honestly: their difference ("died", "survived
+by", "shall") is mid-sentence, where the role-word family does not look,
+and in the order of what is said, which is SYN·Pattern — the parse's own
+cube addresses across a unit's positions (profile.js). That is the next
+layer. Known confounds recorded, not hidden: macOS ships many Perl manuals
+("starts:perl"); a definition is relative to its population (a sonnet
+"lacks 'there'" because limericks are in the population).
