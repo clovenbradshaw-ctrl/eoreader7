@@ -145,3 +145,10 @@ test("medium: segmentCollection refuses a recurring skeleton that isn't more uni
   const seg = segmentCollection("one paragraph, no separator.", { rnd });
   assert.equal(seg.units.length, 1, "no recurring separator at all — unaffected by the null test");
 });
+
+test("medium: markupOf — a markdown document mixing '##' headings with bare '*' bullets is still read as markdown, its headings still real headings (the live bug: bullets alone outnumbering headings flipped the whole doc to wikitext, reading every '##' as a nested list marker)", () => {
+  const text = "## Headline\n\nSome text.\n\n## Source\n\n* item one\n* item two\n* item three\n";
+  assert.equal(markupOf(text), "markdown");
+  const headings = elementsOf(text).elements.filter((e) => e.cls === "heading").map((e) => e.text);
+  assert.deepEqual(headings, ["Headline", "Source"]);
+});

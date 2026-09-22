@@ -53,8 +53,23 @@ const expandTabs = (s) => { let out = ""; for (const ch of s) out += ch === "\t"
 export function markupOf(text) {
   const lines = String(text ?? "").split("\n");
   if (lines.filter((l) => /^X:\s*\d+/.test(l)).length >= 1 && lines.some((l) => /^K:/.test(l)) && lines.some((l) => /\|/.test(l) && !/^[A-Za-z]:/.test(l))) return "abc";
-  const wiki = lines.filter((l) => /^=+[^=].*[^=]=+\s*$/.test(l) || /^(\*|#)+\s/.test(l) || /'''|\[\[|\{\{/.test(l)).length;
+  // Two live bugs, reproduced and fixed 2026-09-22, both from the same
+  // root cause: a "*"-bullet line is used by BOTH markdown and wikitext
+  // lists, and a bare "#" line is used by markdown headings AND
+  // MediaWiki's own ordered-list marker — neither one, alone, actually
+  // tells the two apart. A generated document mixing "## Section"
+  // headings with "* item" bullets (an extremely ordinary markdown shape)
+  // was being misread as wikitext, and every "##" heading then parsed as
+  // a nested list marker instead of a heading — zero headings found.
+  // WIKI-EXCLUSIVE markup (==heading==, '''bold''', [[links]], {{templates}})
+  // is never used by markdown at all; a real markdown heading signal
+  // (>= 2 "#" lines) wins immediately over ambiguous bullets when no
+  // wiki-exclusive marker appears anywhere in the text.
+  const wikiExclusive = lines.filter((l) => /^=+[^=].*[^=]=+\s*$/.test(l) || /'''|\[\[|\{\{/.test(l)).length;
+  const bullets = lines.filter((l) => /^[*:;]+\s/.test(l)).length;
   const md = lines.filter((l) => /^#{1,6}\s/.test(l) || /\]\(https?:/.test(l)).length;
+  if (md >= 2 && wikiExclusive === 0) return "markdown";
+  const wiki = wikiExclusive + bullets;
   return wiki > md && wiki >= 2 ? "wikitext" : md >= 2 ? "markdown" : "plain";
 }
 
