@@ -51,6 +51,25 @@ export function shapeClaims(text) {
   return out;
 }
 
+/** INSTANCES, not descriptions: a page about sonnets often holds a sonnet.
+ *  extractReadable keeps line breaks (measured 2026-09-22: Wikipedia's
+ *  Sonnet 18 came back as fourteen consecutive lines), and prose comes back
+ *  one paragraph per line — so a block of two or more consecutive lines
+ *  between blank lines is verse (or a list, which its markers give away).
+ *  Each such block is one instance; its shape is its line count. */
+export function instanceShapes(text) {
+  const out = [];
+  for (const block of String(text ?? "").split(/\n\s*\n/)) {
+    const lines = block.split("\n").map((l) => l.trim()).filter(Boolean);
+    if (lines.length < 2) continue;
+    if (lines.some((l) => /^([-•*]|\d+[.)])\s/.test(l))) continue;
+    if (lines.every((l) => l.split(/\s+/).length <= 2)) continue;
+    if (!lines.every((l) => /[a-z]/.test(l))) continue; // label rows ("Q1 Q2 Q3 C") are not verse
+    out.push({ lines: lines.length, first: lines[0].slice(0, 60) });
+  }
+  return out;
+}
+
 /** Heading content words, per source (lowercased, function words out). */
 const headingWords = (src) => new Set((src.headings ?? []).flatMap((h) => draftWords(h)).filter((w) => !isFunctionWord(w) && w.length > 2));
 
@@ -94,16 +113,25 @@ export function learnShape(sources, { formWord = null } = {}) {
   for (const s of fetched) for (const w of headingWords(s)) (hw.get(w) ?? hw.set(w, new Set()).get(w)).add(s.host);
   const skip = new Set([formWord, formWord ? `${formWord}s` : null, ...name.map((n) => n.word)].filter(Boolean));
   const parts = [...hw].map(([w, hs]) => ({ word: w, support: hs.size })).filter((p) => majority(p.support) && !skip.has(p.word)).sort((a, b) => b.support - a.support || a.word.localeCompare(b.word));
-  const agreedUnits = Object.entries(units).filter(([, u]) => u.top).map(([unit, u]) => ({ unit, n: u.top.n, support: u.top.support }));
+  // instances: the line counts of verse blocks the pages themselves hold,
+  // by host support — the same majority rule as the stated claims. A count
+  // the instances agree on is a measurement of the form, not a report of it.
+  const inst = new Map();
+  for (const s of fetched) for (const b of new Set(instanceShapes(s.text).map((x) => x.lines))) (inst.get(b) ?? inst.set(b, new Set()).get(b)).add(s.host);
+  const instanceClaims = [...inst].map(([n, hs]) => ({ n, hosts: [...hs], support: hs.size })).sort((a, b) => b.support - a.support || b.n - a.n);
+  const instances = { claims: instanceClaims, agreed: instanceClaims.filter((c) => majority(c.support)).sort((a, b) => b.n - a.n), blocks: fetched.reduce((k, s) => k + instanceShapes(s.text).length, 0) };
+  instances.top = instances.agreed[0] ?? null;
+  const agreedUnits = Object.entries(units).filter(([, u]) => u.top).map(([unit, u]) => ({ unit, n: u.top.n, support: u.top.support, by: "stated" }));
+  if (instances.top && !agreedUnits.some((a) => a.unit === "line")) agreedUnits.push({ unit: "line", n: instances.top.n, support: instances.top.support, by: "instances" });
   const learned = agreedUnits.length > 0 || parts.length > 0;
   return {
     schema: SHAPE_SCHEMA, formWord, hosts: H,
-    name, units, parts, agreedUnits, learned,
+    name, units, parts, instances, agreedUnits, learned,
     basis: H === 0
       ? "no fetched source: nothing to learn a shape from"
       : !learned
         ? `${H} host(s), no count-and-unit claim and no heading word stated by more hosts than not — the shape is not learned (an honest gap, not a default)`
-        : `${H} host(s)${name.length ? `, which call it "${name.map((n) => n.word).join(" ")}"` : ""}: ${agreedUnits.map((a) => `${a.n} ${a.unit}${a.n === 1 ? "" : "s"} (${a.support}/${H})`).join(", ") || "no agreed count"}${parts.length ? `; named parts: ${parts.slice(0, 8).map((p) => `${p.word} (${p.support}/${H})`).join(", ")}` : ""} — a claim counts only when more fetched hosts than not state it`,
+        : `${H} host(s)${name.length ? `, which call it "${name.map((n) => n.word).join(" ")}"` : ""}: ${agreedUnits.map((a) => `${a.n} ${a.unit}${a.n === 1 ? "" : "s"} (${a.support}/${H}${a.by === "instances" ? ", measured on the pages' own verse blocks" : ""})`).join(", ") || "no agreed count"}${instances.top && agreedUnits.some((a) => a.unit === "line" && a.by === "stated") ? `; the pages' own verse blocks: ${instances.top.n} lines (${instances.top.support}/${H})` : ""}${parts.length ? `; named parts: ${parts.slice(0, 8).map((p) => `${p.word} (${p.support}/${H})`).join(", ")}` : ""} — a claim counts only when more fetched hosts than not state it`,
   };
 }
 
@@ -169,6 +197,7 @@ export async function surfForShape({ spec, web, rounds = 2, perQuery = 6, maxSou
 export function shapeLines(shape) {
   const out = [];
   for (const [unit, u] of Object.entries(shape.units ?? {})) out.push(`${unit.padEnd(10)} ${u.claims.map((c) => `${c.n} (${c.support}/${shape.hosts}${u.agreed.includes(c) ? " ✓" : ""})`).join("  ")}`);
+  if (shape.instances?.claims?.length) out.push(`instances  ${shape.instances.claims.slice(0, 10).map((c) => `${c.n} lines (${c.support}/${shape.hosts}${shape.instances.agreed.includes(c) ? " ✓" : ""})`).join("  ")}  · ${shape.instances.blocks} verse block(s)`);
   if (shape.name?.length) out.push(`name       ${shape.name.map((p) => `${p.word} (${p.support}/${shape.hosts})`).join("  ")}`);
   if (shape.parts?.length) out.push(`parts      ${shape.parts.slice(0, 12).map((p) => `${p.word} (${p.support}/${shape.hosts})`).join("  ")}`);
   return out;

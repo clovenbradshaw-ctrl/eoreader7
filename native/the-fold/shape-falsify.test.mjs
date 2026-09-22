@@ -6,7 +6,7 @@
 // shared — and the stage said so instead of defaulting.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { shapeClaims, learnShape, matchShape, surfForShape, shapeLines } from "./shape.js";
+import { shapeClaims, learnShape, matchShape, surfForShape, shapeLines, instanceShapes } from "./shape.js";
 import { declareVoidSpec } from "./void-spec.js";
 
 test("shapeClaims reads count-and-unit claims in digits, words and compounds, and nothing else", () => {
@@ -28,7 +28,7 @@ test("a shape is what MORE HOSTS THAN NOT state — the live sonnet case: 14 lin
   assert.deepEqual(shape.units.line.top, { n: 14, hosts: ["a", "b", "c", "d"], support: 4 });
   assert.equal(shape.units.line.agreed.length, 1, "8 lines on 2 of 4 hosts is not more than not");
   assert.equal(shape.units.syllable.top, null, "ten syllables on 1 of 4 hosts is a candidate, not a shape");
-  assert.deepEqual(shape.agreedUnits, [{ unit: "line", n: 14, support: 4 }]);
+  assert.deepEqual(shape.agreedUnits, [{ unit: "line", n: 14, support: 4, by: "stated" }]);
   assert.equal(shape.learned, true);
   assert.match(shape.basis, /14 lines \(4\/4\)/);
 });
@@ -71,6 +71,27 @@ test("the form's NAME is what a majority of page titles call it — the garbled 
   assert.deepEqual(shape.name.map((n) => n.word), ["paper", "white"]);
   assert.deepEqual(shape.parts.map((p) => p.word), ["purpose"], "white/paper are the name, not parts; audience and problem are on 1/3");
   assert.match(shape.basis, /call it "paper white"|call it "white paper"/);
+});
+
+test("INSTANCES: a verse block the pages themselves hold is measured, not reported — its line count counts by the same majority; lists and label rows are not verse", () => {
+  const poem = Array.from({ length: 14 }, (_, i) => `Line ${i + 1} of the poem, with its meter and its rhyme.`).join("\n");
+  const list = "- first item here\n- second item here\n- third item here";
+  const labels = "Q1 Q2 Q3 C\nA B";
+  assert.deepEqual(instanceShapes(`Prose paragraph.\n\n${poem}\n\n${list}\n\n${labels}\n\nMore prose.`).map((b) => b.lines), [14]);
+  const shape = learnShape([
+    src("a", `About the form.\n\n${poem}`),
+    src("b", `Another page.\n\n${poem}\n\n${list}`),
+    src("c", "A page that says nothing and holds no instance."),
+  ], { formWord: "sonnet" });
+  assert.equal(shape.instances.blocks, 2);
+  assert.deepEqual(shape.instances.top, { n: 14, hosts: ["a", "b"], support: 2 });
+  assert.deepEqual(shape.agreedUnits, [{ unit: "line", n: 14, support: 2, by: "instances" }], "no stated claim: the instances alone give the line count");
+  assert.match(shape.basis, /14 lines \(2\/3, measured on the pages' own verse blocks\)/);
+  // A stated claim outranks the instances for the same unit, and both are shown.
+  const both = learnShape([src("a", `A sonnet has fourteen lines.\n\n${poem}`), src("b", `14 lines.\n\n${poem}`), src("c", "Fourteen lines, they say.")]);
+  assert.equal(both.agreedUnits.find((a) => a.unit === "line").by, "stated");
+  assert.match(both.basis, /the pages' own verse blocks: 14 lines \(2\/3\)/);
+  assert.ok(shapeLines(both).some((l) => /^instances\s+14 lines \(2\/3 ✓\)/.test(l)));
 });
 
 test("nothing agreed is an honest gap, not a default — the live white-paper case", () => {

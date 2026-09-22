@@ -421,3 +421,17 @@ Runs 2 and 3 (same ask, `--budget 24`; `results/nine-stages-2026-09-22/`):
   licensed by exactly one yes. Its first falsifier caught the fallback
   picking the most recent ledger overall instead of the most recent
   sharing one.
+
+Shape from INSTANCES (shape.js `instanceShapes`, 2026-09-22): a block of two
+or more consecutive lines between blank lines in a fetched page is verse
+(extractReadable keeps line breaks; prose comes back one paragraph per
+line), and its line count is a measurement of the form, counted by the same
+majority. Live: the description pages the exemplar queries reach quote
+FRAGMENTS — sonnet pages: 2-line blocks on 2/4 hosts, 14 lines on 1/4 (28
+verse blocks); haiku pages: 2 lines on 3/5, 3 lines on 2/5. So the stated
+claims (14 lines 4/4; 3 lines 4/5) and the pages' own blocks disagree, and
+the basis says so. The instance count fills the line unit only when nothing
+is stated; a stated claim outranks it. Owed: a background rate for block
+sizes measured on the material-hunt pages (pages not about any form) so a
+2-line block's noise is a null, not a hand-set exclusion; and anthology
+sources (Poetry Foundation 403s to this instrument) for whole instances.
