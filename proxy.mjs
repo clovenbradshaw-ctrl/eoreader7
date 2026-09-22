@@ -1619,6 +1619,13 @@ const job = await startDocumentJob({
               // own words.
               mechanical: result.mechanical ?? null,
               quote: result.quote ?? null,
+              // The CHECKED text and the fact gate that produced it. The
+              // content deltas above are the live draft plus any appended
+              // replacement, so a streaming client that wants the answer the
+              // non-streaming body would have returned needs it said once,
+              // here. Found 2026-09-22 when the-fold's chat moved to streaming.
+              text: result.text ?? null,
+              factGate: result.factGate ?? null,
               // THE FULL READING, STREAMED — the per-sentence surface, the
               // charter verdict, the archons, the void, the resolutions, the
               // satisfaction. A UI drawing marks LIVE (the-fold's browser

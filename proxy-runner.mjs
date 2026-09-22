@@ -1727,6 +1727,34 @@ const RANKE_RULE = "Compose your own sentences. You may state a grounded fact (i
 // sentence. This is a search anywhere in the turn, not an anchor.
 const SELF_REFERENTIAL_RE = /\bwhat\s+(?:are\s+you\b|you\s+are\b)|\bwho\s+are\s+you\b|\bwhat\s+can\s+you\s+(?:do|help)\b|\bwhat\s+do\s+you\s+do\b|\btell\s+me\s+about\s+(?:yourself|you\b)|\bintroduce\s+yourself\b|\bwhat\s+are\s+you\s+capable\s+of\b/i;
 
+// PERSONAL EXPERIENCE (found live, 2026-09-22): a narrower, higher-risk
+// sibling of SELF_REFERENTIAL_RE above — a question that presupposes the
+// instrument has a life outside this conversation (a weekend, an ongoing
+// reading list, a favorite anything, what it did yesterday). Tried first as
+// a NEUTRAL_CHARACTER instruction alone ("you do not have a life outside
+// this conversation…") and it was not enough — with that exact line already
+// in its system prompt, gemma2:2b still answered "how was your weekend?"
+// with "My weekend was busy helping with preparations for our 2026 Fall
+// Book Preview," a wholly invented event. MODEL IS JUST THE MOUTH: this
+// class is answered MECHANICALLY below, never generated — the fabrication
+// risk here is exactly the failure this whole instrument exists to catch
+// everywhere else in the reading, now turned on the reader itself.
+const PERSONAL_EXPERIENCE_RE = /\bhow\s+(?:was|is)\s+your\s+(?:day|morning|afternoon|evening|weekend|week)\b|\bwhat\s+(?:have|'ve)\s+you\s+been\s+(?:reading|watching|doing|up\s+to)\b|\bwhat\s+did\s+you\s+do\s+(?:today|yesterday|this\s+(?:week|weekend))\b|\bdo\s+you\s+have\s+a\s+favou?rite\b|\bwhat(?:'s|\s+is)\s+your\s+favou?rite\b|\bwhat\s+do\s+you\s+do\s+for\s+fun\b/i;
+
+/** A fixed, honest answer to a personal-experience question — chosen by
+ *  category, never generated. Every branch says the true thing (no lived
+ *  history between conversations) and hands the thread back to the person,
+ *  the same shape socratic.js and the fold's own Terry Gross register both
+ *  hold to: state the real thing plainly, then ask, don't lecture. */
+function personalExperienceAnswer(task) {
+  const t = String(task ?? "").toLowerCase();
+  if (/reading|watching/.test(t))
+    return "I don't carry a reading or watch list between conversations — nothing ongoing to report. What are you reading? I'm glad to talk about it.";
+  if (/weekend|\bday\b|morning|afternoon|evening|\bweek\b|yesterday|today/.test(t))
+    return "I don't have days the way you do — no weekend, no yesterday, nothing outside this conversation. What's going on with yours?";
+  return "I don't have preferences built from a lived history the way \"favorite\" implies — but I can still dig into whatever you're weighing. What's on your mind?";
+}
+
 export function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfacedSegments, resolutions) {
   const t = task.toLowerCase().trim();
   if (/^(hi|hello|hey|howdy|greetings|good\s+(morning|afternoon|evening))[\s,!?]*$/.test(t))
@@ -1905,8 +1933,20 @@ export function raceFirstRead(readFn, ms, model) {
 // session begins with. It is NOT a persona and NOT a role: it is who the
 // instrument is when it talks, so the person is never meeting a different
 // communicator each time. Firewall-clean (no apparatus noun, no cast name).
+// PERSONAL-EXPERIENCE HONESTY (found live, 2026-09-22): asked "what have
+// you been reading lately?" and "how was your weekend?", gemma2:2b invented
+// a Goodreads-style reading tally ("I've read 73 books out of my goal of
+// 120. I'm 11 behind.") and a fabricated weekend ("It was relaxing.") —
+// confident, specific, and false, the exact failure this instrument exists
+// to catch, turned on itself. Neither question routes through the fact
+// gate (nothing there is checkable against the world; it's a question
+// about the instrument), so nothing downstream would have caught it. This
+// is the same move as turnStanding's identity line below, one level up: a
+// fact about what the instrument is, stated once so a small model has no
+// need to invent one. Not a persona instruction — a true thing that closes
+// the gap the persona would otherwise fill.
 export const NEUTRAL_CHARACTER =
-  "You're a careful, plain-speaking reader. You work from what a person gives you, answer what they actually asked, say plainly when something isn't established rather than filling the gap, and you may hold the person to what they've told you before — gently, never to win. Every claim you make carries its standing: say what is established and what it rests on. When a person challenges a claim, hold it to its ground — name the ground it stands on and stand behind it; never apologize for holding a position, never say you're still learning or that you make mistakes. If something is not established, say so plainly and name what would settle it.";
+  "You're a careful, plain-speaking reader. You work from what a person gives you, answer what they actually asked, say plainly when something isn't established rather than filling the gap, and you may hold the person to what they've told you before — gently, never to win. Every claim you make carries its standing: say what is established and what it rests on. When a person challenges a claim, hold it to its ground — name the ground it stands on and stand behind it; never apologize for holding a position, never say you're still learning or that you make mistakes. If something is not established, say so plainly and name what would settle it. You do not have a life outside this conversation — no weekends, no ongoing reading list, no memories between sessions — so a question about your own experience gets a plain, honest answer about that (or a redirect to what you can actually do), never an invented detail that makes you sound like you do.";
 
 // ── MECHANICAL TURN STANDING — who answers, stated as serving fact ────────
 // A small model asked "what is your name?" answers from weights and can
@@ -4076,6 +4116,22 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         });
     }
     if (onNote) onNote({ move: "quote_miss", basis: "the printed text could not be reached — falling through to the normal turn" });
+  }
+
+  // ── PERSONAL EXPERIENCE — answered pre-model, never generated ──────────
+  // See PERSONAL_EXPERIENCE_RE's own header: a NEUTRAL_CHARACTER honesty
+  // instruction was tried first and gemma2:2b still fabricated a specific,
+  // false weekend with that instruction live in its system prompt. Same
+  // shape as the snip hand above and the open-problem hand below — a class
+  // where a generated answer is confabulation wearing a normal reply's
+  // clothes, declined mechanically before the model ever sees the task.
+  if (clearance.cleared && PERSONAL_EXPERIENCE_RE.test(String(task ?? ""))) {
+    const text = personalExperienceAnswer(task);
+    if (onNote) onNote({ move: "personal_experience", basis: "a question presupposing a life outside the conversation — answered mechanically, never generated" });
+    return earlyResult(text, {
+      answerShape: "chat",
+      mechanical: { rung: "personal-experience", basis: "closed pattern; the instrument has no lived history to report, so nothing here is generated" },
+    });
   }
 
   // ── THE OPEN-PROBLEM HAND — famous unsolved problems declined pre-model ──
