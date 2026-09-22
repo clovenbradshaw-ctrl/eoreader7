@@ -26,6 +26,7 @@ import { resolutionBlocks } from "./native/the-fold/resolutions.js";
 import { tokenize } from "./native/the-fold/source.js";
 import { logitBiasFor, logitsBiasObject } from "./native/organs/gemma2-tokenizer.mjs";
 import { readingIndexFromLog } from "./native/the-fold/reading-log.js";
+import { readableTranscript } from "./native/the-fold/transcript-reading.js";
 import { sentenceSurface, passagesFromSegments } from "./native/the-fold/reading-surface.js";
 import { claimKindsOf } from "./native/organs/output-claims.js";
 import { engineRelationsFor } from "./native/the-fold/reader-bundle.js";
@@ -4710,8 +4711,41 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   materialLines.push(`[user]: ${task}`);
   const materialText = materialLines.join("\n\n");
 
-const encounters = textEncounters(materialText, { source: `proxy:session:${sessionId}`, offset: 0 });
-  if (onNote) onNote({ move: "reading", count: encounters.length, chars: materialText.length });
+  // HEIMDALL FOLDS, IT NEVER REPLAYS: session.reader is a persistent,
+  // per-session accumulator (kernel/reading.js's step() extends
+  // fold/graphIndex/log one encounter at a time — it never recomputes from
+  // scratch), so handing it the FULL conversation every turn does not just
+  // waste time, it re-witnesses old sentences as new ones, inflating their
+  // independent-support counts turn after turn (measured: a live session's
+  // wall time climbed 13.7s -> 67.8s over five turns as the unmeasured,
+  // non-draw share of that time grew with the replayed history). Only the
+  // text since the last fold is admitted; a clean append is diffed against
+  // session.lastChatText (the same check the corpus admission below already
+  // trusts) and the offset continues from where the prior turn left off, so
+  // textEncounters' sentence anchors land on the same absolute positions a
+  // full replay would have produced. A history that was EDITED, not just
+  // appended to (a regenerate), cannot be diffed as a clean append — real,
+  // but even then a large message is never forced through unbounded: it is
+  // capped to its most recent FOLD_RESET_MAX_CHARS and the cap is disclosed.
+  const FOLD_RESET_MAX_CHARS = Number(process.env.ER7_FOLD_RESET_MAX_CHARS ?? 20000);
+  const prevChatText = session.lastChatText ?? "";
+  const cleanAppend = materialText.startsWith(prevChatText);
+  let foldText = cleanAppend ? materialText.slice(prevChatText.length) : materialText;
+  let foldOffset = cleanAppend ? prevChatText.length : 0;
+  let foldCapped = false;
+  if (!cleanAppend && foldText.length > FOLD_RESET_MAX_CHARS) {
+    foldOffset = materialText.length - FOLD_RESET_MAX_CHARS;
+    foldText = materialText.slice(foldOffset);
+    foldCapped = true;
+  }
+
+  // The reader is handed the transcript with its role marks BLANKED (the-fold/
+  // transcript-reading.js): measured, the marks became beings ("user",
+  // "assistant") and turned each question's first word into a name ("Tell",
+  // "What"). Same length, so every anchor keeps its absolute position.
+  const encounters = textEncounters(readableTranscript(materialText).slice(foldOffset, foldOffset + foldText.length), { source: `proxy:session:${sessionId}`, offset: foldOffset });
+  if (onNote) onNote({ move: "reading", count: encounters.length, chars: foldText.length, totalChars: materialText.length, folded: cleanAppend, capped: foldCapped });
+  if (!cleanAppend && onNote) onNote({ move: foldCapped ? "fold_reset_capped" : "fold_reset", chars: materialText.length, keptChars: foldText.length });
 
   for (const enc of encounters) {
     const turn = await session.reader.step(enc);
