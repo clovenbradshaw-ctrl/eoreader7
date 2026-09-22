@@ -1702,3 +1702,64 @@ Measured after the first boot: free memory 49 MB → 3.8 GB, compressor
 9.6 GB → 3.4 GB, swap-out 2,732 pages/s → 0. Owed: a phone-served call end
 to end (the phone was mid-relink), and a room mouth registered without the
 bridge.
+
+## 70. A lint nobody has seen fire is not a lint; a regex nobody has seen match is not a parser (2026-09-22)
+
+Proving the generation pipeline's stages one at a time — each with its
+own falsifier before the next was wired — turned up two organs that had
+been silently doing nothing:
+
+- `organs/web.js` `extractReadable` captured headings with a pattern that
+  closed on `</h\1>` where the group already held the "h": it wanted
+  `</hh2>` and matched nothing, on every page, since it was written. The
+  shape stage's "named parts" had no input until a live Wikipedia page with
+  nine `<h2>`s returned zero headings and the question was asked.
+- `arrange.js`'s Kelsen lint (conflicting figures, circular claim) reads
+  notes the parser builds from subject, root and object. Nobody had ever
+  constructed a violation and watched it fire. Measured: notes exist on 8
+  of 33 OHS statements and 30 of 60 narrative ones, and "Marlow Dam cost
+  four million dollars" parses as an imperative — so the first falsifier
+  written for it could not fire at all. The lint is alive on the pairs the
+  parser handles ("The audit found 12 / 14 recommendations") and dead on
+  proper-noun-initial sentences, and now the tests say which.
+
+The rule: a check that has never been observed firing on a constructed
+violation is a comment, not a check. Write the violation first, watch it
+fire, then trust it — and record where it cannot fire.
+
+## 71. Closed grammar may be listed; open content must be induced — and the ruler is not the shape (2026-09-22)
+
+The user: "we dont want a set of shapes pre-set." A table mapping genre
+nouns to fields (`FIELD_BY_NOUN`) can never be complete, and a bigger table
+is the same mistake. But three small lists survived the objection, and the
+distinction is worth stating:
+
+- the anaphoric cues ("again", "another one", "the same", "like before")
+  are closed English grammar — a referent INTO the conversation, resolved
+  off this engine's own ledger, never a genre;
+- the units of measure (line, stanza, paragraph, word, page …) are the
+  RULER; the shape is what the ruler reads across sources, and it counts
+  only when more fetched hosts than not state it — the majority rule the
+  subject anchor already lives by, not a new threshold;
+- the form's NAME is what a majority of page titles call it: the garbled
+  ask "rite @ whiteppr", searched with its own context, surfed to five pages
+  titled "white paper" and named itself from them.
+
+Grammar (closed, small, listable) versus content (open, must be induced or
+looked up) is the same line kind-induction.js draws. Measured on the live
+surf: sonnet 14 lines on 4/4 hosts; haiku 3 lines and 17 syllables (and 5,
+a part); "5 paragraphs" for an essay on exactly 4 of 8 hosts — half is not
+more than not, and the stage said "no agreed shape" instead of rounding up.
+
+## 72. Context resolves what the token cannot, and fixtures cannot find what only the live web shows (2026-09-22)
+
+Searched alone, "whiteppr" returns slang noise; searched as "what is a
+whiteppr", DuckDuckGo's own tolerance resolves it to the white paper. So
+every SURF query carries the ask's surrounding words — the token never goes
+out by itself. And the first live end-to-end run found what six fixture
+suites could not: the material hunt's six pages about the Cumberland never
+reached the hunt, because a URL both hunts found kept only the first hunt's
+label and one fetch budget was spent on exemplar pages before any material
+page. A fixture web returns what you told it to; only the real one shares
+URLs across queries. Fixed, pinned with the live case's shape, and the next
+live run is owed before the fix is believed.

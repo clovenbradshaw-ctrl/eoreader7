@@ -473,8 +473,12 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
 if (import.meta.url === `file://${process.argv[1]}`) {
   const task = arg("task");
   const groundArg = arg("ground");
-  if (!task || !groundArg) { console.error('usage: pipeline-run.mjs --task "…" --ground FILE[,FILE] [--model gemma2:2b] [--id NAME] [--web]'); process.exit(1); }
-  const out = await runPipeline({ task, groundFiles: groundArg.split(","), model: arg("model", "gemma2:2b"), id: arg("id"), web: process.argv.includes("--web") ? liveWeb() : null, onStage: (s) => console.error(`  · ${s.role}: ${s.title}`) });
+  if (!task || !groundArg) { console.error('usage: pipeline-run.mjs --task "…" --ground FILE[,FILE] [--model gemma2:2b] [--id NAME] [--web] [--budget CALLS]'); process.exit(1); }
+  // --budget: model calls the pathos loop may spend. Measured on nine-live-1
+  // (2026-09-22): the default (the prose pass's own count, 6) was spent
+  // inside pass 1 (9 tighten + 3 turns), so on real material the default is
+  // one pass; a second pass needs the budget stated.
+  const out = await runPipeline({ task, groundFiles: groundArg.split(","), model: arg("model", "gemma2:2b"), id: arg("id"), web: process.argv.includes("--web") ? liveWeb() : null, pathosBudget: arg("budget") ? Number(arg("budget")) : null, onStage: (s) => console.error(`  · ${s.role}: ${s.title}`) });
   console.log(out.report);
   process.exit(0);
 }

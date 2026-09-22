@@ -355,3 +355,48 @@ void, gated by a shape-match check before anything is admitted as ground)
 comes first — "if we don't hunt for the shape of what would satisfy,
 everything breaks." That stage does not exist in this pipeline yet; ground
 is still hand-fed files. Not started as code in this session.
+
+### Step 4 — the nine stages, wired and proven one layer at a time (2026-09-22)
+
+The user's flow, restated as nine stages (prompt → void → surf → shape-match
+→ hunt/ground → skeleton → skeleton loop → pathos pass → piece), and the
+direction: "wire it up, and prove each layer one at a time, falsifying as
+you go." Each stage got its own module and falsifier before the next was
+wired; each was committed on its own. What each proved, and what the first
+live end-to-end run (nine-live-1, the Cumberland ground, gemma2:2b, the real
+web; `results/nine-stages-2026-09-22/`) then showed:
+
+| stage | module | proven | live (nine-live-1) |
+|---|---|---|---|
+| 2 VOID | void-spec.js `declareForm`, `candidateFormToken`; form-referent.js | the form is a gate: an anaphor ("again") resolves off this engine's own ledger (measured); a table sign is declared, never called a measurement; anything else is unmeasured with the form-word carried ("rite @ whiteppr" → "whiteppr"). A bare form-ask's slot is null, not the ask itself. | exposition [declared], topic read |
+| 3 SURF | surf.js | queries from the void, every one carrying context (a bare garbled token searched alone is noise; with context it resolves); candidates across hosts; every web failure typed | 8 hosts, 2 rounds; DDG blocked queries typed as blocked on another run |
+| 4 SHAPE | shape.js | no table: a count-and-unit claim is the shape only when more fetched hosts than not state it. Sonnet 14 lines (4/4); haiku 3 lines, 17 syllables and 5 (a part); white paper: no agreed count, parts purpose/audience/problem, NAME "white paper" from the page titles — the garbled ask resolved by the sources. `matchShape` measures what the engine can count; NO → one more surf round, then stop | "5 paragraphs" on 4/8 hosts — exactly half, not more than not: no agreed shape, selection fell to the disclosed default |
+| 5 HUNT | hunt.js | tier 0 by being handed over; a fetched paragraph earns tier 1 by naming a being of the subject; furniture and off-subject pages refused; exemplar pages never ground; a richer fetched duplicate leaves and the operator's statement stands | 0 admitted — the material pages never reached the hunt (see the defect below) |
+| 6 SKELETON | arrange.js `licenses`, `exclude`; selectToBudget reads the learned shape | Clark's off-thesis section may leave only if it answers none of the ask's questions; Kelsen's conflict licenses only across tiers; ask > learned shape > received default | 1 finding (no tension), nothing licensed |
+| 7 SK. LOOP | skeleton-loop.js | one licensed finding per loop, rebuilt not patched, a loop losing a question undone, bounded by the findings licensed at the start | settled at loop 0 |
+| 8 PATHOS | pipeline-run.mjs loop | additive passes until Gebser arrives (and the shape matches where measurable); stops typed: arrived / nothing licensed / undone / changeless / budget | pass 1 spent 12 calls against a default budget of 6: stopped by budget; diaphaneity 0.52 (13 of 25 sentences transparent), 13 findings still licensing |
+| 9 PIECE | "piece" line | last on the ledger, counting the loop verdicts beneath it | 4 parts, 5 verdicts |
+
+Found only by proving, not by reading:
+
+- `organs/web.js` `extractReadable`: the heading regex closed on `</hh2>`
+  (the group already held the "h"). Every hunted source's headings had
+  always been empty. Fixed against a live Wikipedia page with nine `<h2>`s.
+- Kelsen's conflicting-figures lint in arrange.js had never been shown to
+  fire. It depends on the parser finding subject, root and object — 8 of 33
+  OHS statements, 30 of 60 narrative — and "Marlow Dam cost …" parses as an
+  imperative. The falsifier uses a pair it parses.
+- surf.js: a URL found by both hunts kept the first label, and one fetch
+  budget was spent on exemplar pages first — so the live run's six pages
+  about the river never reached the hunt as material. Fixed after the run
+  (1ba5a23); the next live run is owed.
+- The default pathos budget (the prose pass's own call count) is spent
+  inside pass 1 on real material; a second pass needs `--budget`.
+
+Owed, in order: a live run with the surf fix (material admitted, tier 1 on
+the ledger); a live run with a stated budget to see pass 2 reduce Zinsser's
+findings; the ambiguity tier of the form gate (a licensed yes/no question
+over the candidates form-referent.js gathers, steer.js's discipline); shape
+extraction from INSTANCES of a form (line counts of the poems themselves)
+beside the descriptions; the mouth writing lines, not sentences, when the
+shape is lines.
