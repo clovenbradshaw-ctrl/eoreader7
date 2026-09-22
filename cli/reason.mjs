@@ -23,15 +23,14 @@
 //
 // Organs: GFP core (organs/reasoning-lint.js lintGfp), R1 inference licences
 // (lintInferences), refutation by measured counterexample, equations by mathjs,
-// "a must precede b" by exhaustive search (organs/reasoning-core.js solveCSP —
-// refuted when a consistent order puts b first). Exit 1 when anything errs.
+// "a must precede b" by the GFP core's cycle check (a cycle when "b before a"
+// is added is the proof; otherwise a topological order is the counterexample).
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { create, all } from "mathjs";
 import { gfpClaim, claimFromTriple, claimKey, caselessIdentity, exactIdentity } from "../native/kernel/gfp-claim.js";
 import { lintGfp, lintInferences, lintLedger } from "../native/organs/reasoning-lint.js";
-import { finiteDomain, declareVariable, declareConstraint, makeCSP, solveCSP } from "../native/organs/reasoning-core.js";
 
 const math = create(all);
 const limitedEvaluate = math.evaluate;
@@ -39,6 +38,8 @@ math.import({ import: () => { throw new Error("disabled"); }, createUnit: () => 
 
 const args = process.argv.slice(2);
 const asJson = args.includes("--json");
+const compact = args.includes("--compact");
+const doAnts = args.includes("--ants");
 const file = args.find((a) => !a.startsWith("--"));
 const input = JSON.parse(file ? fs.readFileSync(file, "utf8") : fs.readFileSync(0, "utf8"));
 
@@ -124,31 +125,106 @@ const infs = [
 ];
 const inf = await lintInferences(infs, { licenses: new Set(input.licenses ?? []), verify, refute, strictness: "strict" });
 
-// Order claims: "a must precede b" is refuted by any consistent order with b first.
+// Order claims: "a must precede b in every consistent order" holds exactly when
+// adding "b before a" to the declared prerequisites closes a cycle. The GFP
+// core's own cycle check decides it (linear, any size): a cycle is the proof;
+// no cycle, and a topological order of the extended prerequisites is the
+// counterexample, shown. (An exhaustive search over orders — the first form —
+// cannot finish past ~10 items; a satisfiability question needs one witness.)
 const orderFindings = [];
 if (input.order?.items?.length && input.order.claims?.length) {
   const items = input.order.items;
-  const base = [];
-  for (let i = 0; i < items.length; i++) for (let j = i + 1; j < items.length; j++)
-    base.push(declareConstraint(`distinct:${items[i]}|${items[j]}`, [items[i], items[j]], (x) => x[items[i]] !== x[items[j]]));
-  for (const [a, b] of input.order.before ?? []) base.push(declareConstraint(`before:${a}->${b}`, [a, b], (x) => x[a] < x[b]));
-  const vars = items.map((n) => declareVariable(n, finiteDomain(items.map((_, i) => i + 1))));
-  const all = solveCSP(makeCSP(vars, base));
-  for (const c of input.order.claims) {
-    const counter = all.solutions.find((s) => s[c.then] < s[c.first]);
-    if (counter) {
-      const seq = [...items].sort((x, y) => counter[x] - counter[y]).join(" → ");
-      orderFindings.push({ kind: "order_not_entailed", severity: "error", at: c.ref ?? null, detail: `"${c.first} must precede ${c.then}" does not follow from the declared prerequisites — a consistent order puts ${c.then} first: ${seq} (${all.solutions.length} consistent orders searched)` });
+  const before = input.order.before ?? [];
+  const declared = new Set(items);
+  // Every id `before`/`claims` depends on must be in `items`, or `topo`'s
+  // indegree/adjacency maps (built from `items` alone) silently miscount an
+  // edge touching an undeclared id — an id that can never reach indegree 0
+  // by construction, not because the graph truly has no valid order. That
+  // used to surface as `topo` returning null on a perfectly acyclic graph
+  // and a crash at the `.join` below; it is now a disclosed finding instead.
+  const used = new Set();
+  for (const [a, b] of before) { used.add(a); used.add(b); }
+  for (const c of input.order.claims) { used.add(c.first); used.add(c.then); }
+  const undeclared = [...used].filter((id) => !declared.has(id));
+  if (undeclared.length) {
+    orderFindings.push({ kind: "order_item_undeclared", severity: "error", at: "/order", detail: `${undeclared.length} id(s) appear in "before" or a claim but were never declared in order.items: ${undeclared.join(", ")} — every id an order claim depends on must be in the declared universe, or no order (valid or counterexample) can be built over it` });
+  } else {
+    const topo = (edges) => {
+      const indeg = new Map(items.map((n) => [n, 0])), adj = new Map(items.map((n) => [n, []]));
+      for (const [a, b] of edges) { adj.get(a)?.push(b); indeg.set(b, (indeg.get(b) ?? 0) + 1); }
+      const ready = items.filter((n) => indeg.get(n) === 0), out = [];
+      while (ready.length) { const n = ready.shift(); out.push(n); for (const m of adj.get(n) ?? []) { indeg.set(m, indeg.get(m) - 1); if (indeg.get(m) === 0) ready.push(m); } }
+      return out.length === items.length ? out : null;
+    };
+    const precedes = (a, b, extra = {}) => gfpClaim({ ground: "/order", rel: "precedes", roles: { ARG0: a, ARG1: b }, ...extra });
+    const base = lintGfp(before.map(([a, b]) => precedes(a, b)), { acyclic: ["precedes"], strictness: "strict" });
+    if (base.findings.some((f) => f.kind === "circular")) {
+      orderFindings.push({ kind: "order_prerequisites_circular", severity: "error", at: "/order", detail: `the declared prerequisites themselves close a cycle — ${base.findings.find((f) => f.kind === "circular").detail}` });
     } else {
-      orderFindings.push({ kind: "order_entailed", severity: "info", at: c.ref ?? null, detail: `"${c.first} must precede ${c.then}" holds in every one of ${all.solutions.length} consistent orders` });
+      for (const c of input.order.claims) {
+        // A reflexive claim ("X must precede X") is never a genuine order
+        // constraint — no prerequisite graph can make an item precede
+        // itself. Left unguarded, `precedes(c.then, c.first)` builds a bare
+        // self-loop, which the cycle check always reports as a cycle
+        // (correctly, in isolation), so every reflexive claim would read as
+        // "entailed" regardless of the declared prerequisites — a
+        // content-independent false positive, not a witnessed proof.
+        if (c.first === c.then) {
+          orderFindings.push({ kind: "order_reflexive_claim", severity: "error", at: c.ref ?? null, detail: `"${c.first} must precede ${c.then}" is not a coherent order constraint — an item cannot precede itself, so this is never entailed by any set of prerequisites (a bare self-loop is not a proof)` });
+          continue;
+        }
+        const withCounter = lintGfp([...before.map(([a, b]) => precedes(a, b)), precedes(c.then, c.first)], { acyclic: ["precedes"], strictness: "strict" });
+        const cycle = withCounter.findings.find((f) => f.kind === "circular");
+        if (cycle) {
+          orderFindings.push({ kind: "order_entailed", severity: "info", at: c.ref ?? null, detail: `"${c.first} must precede ${c.then}" holds in every consistent order: putting ${c.then} first closes a cycle (${cycle.detail.replace(/^.*returns to its start: /, "").replace(/ — .*$/, "")})` });
+        } else {
+          const seq = topo([...before, [c.then, c.first]]);
+          orderFindings.push({ kind: "order_not_entailed", severity: "error", at: c.ref ?? null, detail: `"${c.first} must precede ${c.then}" does not follow from the declared prerequisites — a consistent order puts ${c.then} first: ${seq.join(" → ")}` });
+        }
+      }
     }
   }
 }
 
-const findings = [...gfp.findings, ...inf.findings, ...orderFindings, ...unread, ...ledgerFindings];
+// Wilson's ants: falsification by edge-case testing on high-force claims.
+let antFindings = [];
+if (doAnts) {
+  const strict = declared.filter((c) => c.force === "strict");
+  const tough = gfp.findings.filter((f) => f.severity === "error" || (f.severity === "warn" && f.kind === "several-valued"));
+  for (const claim of strict) {
+    const roles = Object.values(claim.roles ?? {}).filter(Boolean);
+    if (roles.length >= 2) {
+      const antTests = [
+        { variant: "empty_string", roles: roles.map(() => "") },
+        { variant: "null_role", roles: roles.map((r, i) => i === 0 ? null : r) },
+        { variant: "recursive", roles: roles.map((r) => `${r}(${r})`) },
+        { variant: "self_ref", roles: roles.map((r) => r === roles[0] ? `${r} = ${r}` : r) },
+      ];
+      for (const test of antTests) {
+        try {
+          const testClaim = gfpClaim({ ...claim, roles: Object.fromEntries(Object.keys(claim.roles ?? {}).map((k, i) => [k, test.roles[i]])), id: `ant_${claim.id}_${test.variant}`, ground: claim.ground });
+          const testResult = lintGfp([testClaim], { ...decl, identity, strictness: "strict" });
+          if (testResult.findings.some((f) => f.severity === "error")) {
+            antFindings.push({ kind: "ant_falsified", severity: "info", at: claim.ground, detail: `ant test "${test.variant}" falsifies: ${claim.roles.ARG0} ${claim.rel} ${claim.roles.ARG1}`, variant: test.variant });
+          }
+        } catch (e) { /* test variant produced exception: also a probe result */ }
+      }
+    }
+  }
+}
+
+const findings = [...gfp.findings, ...inf.findings, ...orderFindings, ...unread, ...ledgerFindings, ...antFindings];
 const errors = findings.filter((f) => f.severity === "error");
 const vouched = text ? { sentences: sentencesTotal, read: sentencesTotal - unread.length, edges: read.length, declared: declared.length, corroborated } : null;
-const out = { ok: errors.length === 0, errors: errors.length, findings, vouched, gfp: { counts: gfp.counts, unjudged: gfp.unjudged, apart: gfp.apart, holons: gfp.holons, basis: gfp.basis }, inference: inf.counts };
+// The grounds this run checked — the hooks read them to know which files the
+// reasoning covered (cli/claude-code-state.mjs coverageOf).
+const grounds = [...new Set(declared.map((c) => c.ground))];
+// declaredClaims: the input's own claims, verbatim, no transformation — the
+// durable-log content Part B of the reason-claims design (2026-09-22) reads
+// back out of a Bash tool_response. Only ever emitted by the asJson branch
+// below (JSON.stringify(out, ...)); --compact and plain-text mode print their
+// own separate formatted output and never touch this field.
+const out = { ok: errors.length === 0, errors: errors.length, grounds, findings, vouched, gfp: { counts: gfp.counts, unjudged: gfp.unjudged, apart: gfp.apart, holons: gfp.holons, basis: gfp.basis }, inference: inf.counts, declaredClaims: input.claims ?? [] };
 
 // The marker a hook reads: reasoning was handed to the engine this turn.
 try {
@@ -158,11 +234,21 @@ try {
 } catch { /* the marker is a convenience; the verdict above stands without it */ }
 
 if (asJson) console.log(JSON.stringify(out, null, 1));
-else {
+else if (compact) {
+  const header = `eoreader7 reason · ${claims.length} claim(s) · ${infs.length} inference(s) · ${input.order?.claims?.length ?? 0} order claim(s) → ${out.ok ? "✓ OK" : `✗ ${errors.length} ERROR(S)`}`;
+  console.log(header);
+  if (!out.ok) {
+    for (const f of errors) console.log(`  ✗ ${f.kind}${f.at ? ` @ ${f.at}` : ""}: ${f.detail.split("\n")[0]}`);
+  }
+  if (antFindings.length) console.log(`  ⚠ ${antFindings.length} falsification(s) from ants`);
+  console.log(`  grounds: ${JSON.stringify(grounds)}`);
+  console.log(`  (details hidden; pass --json for full report)`);
+} else {
   console.log(`eoreader7 reason · ${claims.length} claim(s) · ${infs.length} inference(s) · ${input.order?.claims?.length ?? 0} order claim(s) → ${out.ok ? "OK" : `${errors.length} ERROR(S)`}`);
   if (vouched) console.log(`  engine vouches for ${vouched.read}/${vouched.sentences} sentence(s) it could read · ${vouched.edges} relation(s) read · ${vouched.corroborated}/${vouched.declared} declared claim(s) independently read`);
   for (const f of findings) console.log(`  [${f.severity}] ${f.kind}${f.at ? ` @ ${f.at}` : ""}\n      ${f.detail}`);
   if (gfp.unjudged) console.log(`  (${gfp.unjudged} several-valued pair(s) of undeclared relations counted, not judged)`);
   if (gfp.apart) console.log(`  (${gfp.apart} pair(s) in sibling holons held apart)`);
+  console.log(`  grounds: ${JSON.stringify(grounds)}`);
 }
 process.exit(out.ok ? 0 : 1);
