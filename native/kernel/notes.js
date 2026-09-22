@@ -229,11 +229,18 @@ export function standingOf(note) {
  */
 export function claimContestedByLedger(claim, notes) {
   const end1 = claim?.end1, label = claim?.label, end2 = claim?.end2;
-  if (!end1 || !label || !end2 || claim?.verdict === "contradicted") return { contested: false };
+  if (!end1 || !label || !end2 || claim?.verdict === "contradicted") return { contested: false, note: null };
   const key = noteId(end1, label, end2);
-  const note = (notes ?? []).find((n) => (n?.id ?? noteId(n?.end1, n?.label, n?.end2)) === key);
+  const note = (notes ?? []).find((n) => (n?.id ?? noteId(n?.end1, n?.label, n?.end2)) === key) ?? null;
   const disputedBy = note?.disputedBy ?? [];
-  if (!note || !disputedBy.length) return { contested: false };
+  // `note` rides BOTH branches now (not only when disputed) — additive,
+  // every existing caller reading only `.contested`/`.disputedBy`/`.because`
+  // is unaffected — so a caller can read a MATCHED note's own standing
+  // (corroborated vs single-witness) even when nobody has disputed it yet.
+  // Closes a real exploit (found by adversarial falsification, 2026-09-22):
+  // a caller trusting any undisputed ledger match equally could be handed a
+  // single-witness, unverified value and treat it as settled.
+  if (!note || !disputedBy.length) return { contested: false, note };
   return { contested: true, disputedBy, note, because: `disputed by ${[...new Set(disputedBy)].join(", ")}` };
 }
 
