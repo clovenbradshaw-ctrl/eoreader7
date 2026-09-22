@@ -197,6 +197,47 @@ export function standingOf(note) {
 }
 
 /**
+ * claimContestedByLedger(claim, notes) — does an arrangement
+ * {end1, label, end2} match a note this ledger already carries a LIVE
+ * DISPUTE against?
+ *
+ * Medium-agnostic and model-free: end1/label/end2 are this kernel's own
+ * neutral naming — an arrangement about any medium's own ends and the
+ * label between them is read the same way here, never a face's own
+ * vocabulary (a face wanting to accept its own naming translates at ITS
+ * OWN call site, the same seam organs/hyperlexicon.js's own hear()
+ * wrapper already uses for every other kernel function). Keyed by
+ * noteId, the SAME canonical identity every note on this ledger is
+ * already keyed by (hear's own canonId), so this never re-derives a
+ * second notion of "the same arrangement."
+ *
+ * Deliberately narrower than a caller's own fuller reading might be (a
+ * face comparing an arrangement against retrieved material directly, not
+ * only against this ledger's own standing, is a face-owned concept this
+ * kernel does not have and should not invent a second copy of): this
+ * checks ONLY whether the ledger's own fold() already disputes the
+ * matching note (disputedBy.length > 0, fold()'s own re-derivation from
+ * disputesOf — see fold's header above). A caller wanting a richer
+ * reading composes this with its own comparison; this stays the one
+ * thing every consumer of this ledger can ask without inventing its own
+ * copy.
+ *
+ * An arrangement the caller has already marked "contradicted" (by
+ * whatever means) is skipped here, mirroring this file's own P137 rule
+ * one register up: a claim already known false is not "on the record"
+ * for this purpose either.
+ */
+export function claimContestedByLedger(claim, notes) {
+  const end1 = claim?.end1, label = claim?.label, end2 = claim?.end2;
+  if (!end1 || !label || !end2 || claim?.verdict === "contradicted") return { contested: false };
+  const key = noteId(end1, label, end2);
+  const note = (notes ?? []).find((n) => (n?.id ?? noteId(n?.end1, n?.label, n?.end2)) === key);
+  const disputedBy = note?.disputedBy ?? [];
+  if (!note || !disputedBy.length) return { contested: false };
+  return { contested: true, disputedBy, note, because: `disputed by ${[...new Set(disputedBy)].join(", ")}` };
+}
+
+/**
  * makeNotes({ taskLog, cellOf, identity }) — the ledger, over an injected
  * task-log (default: this kernel's own) so a caller that reads through a
  * different provider of the same algebra can still keep its notes here.
