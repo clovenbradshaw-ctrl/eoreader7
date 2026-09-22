@@ -146,6 +146,13 @@ test("STAGE 3, SURF: without a web the stage is recorded as not run; with one, i
     assert.match(g.title, /\(tier 1\)/);
     assert.ok(lines.findIndex((l) => l.role === "hunt") < lines.findIndex((l) => l.role === "ground"));
     assert.ok(lines.findIndex((l) => l.role === "shape") < lines.findIndex((l) => l.role === "hunt"));
+    // STAGES 6–7: the skeleton loop's loop 0 lands, then the settled arrangement.
+    const loop0 = lines.find((l) => l.role === "arrange" && /^Skeleton loop 0/.test(l.title));
+    assert.ok(loop0, "no skeleton loop 0 line");
+    assert.match(loop0.text, /statements placed/);
+    const arr = lines.find((l) => l.role === "arrange" && /^Arrangement:/.test(l.title));
+    assert.match(arr.basis, /loop\(s\) after the composition/);
+    assert.ok(lines.indexOf(loop0) < lines.indexOf(arr));
   } finally { cleanup(wet.docId); }
 });
 

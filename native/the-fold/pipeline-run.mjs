@@ -29,6 +29,7 @@ import { declareVoidSpec, declareForm, voidSpecLines, topicOf } from "./void-spe
 import { surfLines, liveWeb } from "./surf.js";
 import { surfForShape, shapeLines } from "./shape.js";
 import { huntGround, huntLines } from "./hunt.js";
+import { skeletonLoop, skeletonLoopLine } from "./skeleton-loop.js";
 import { loadEotParser, attachEot, notationOf, clauseComplete, clauseCore } from "./eot-notation.js";
 import { arrangeEssay, arrangedDraft, outlineLines, selectToBudget } from "./arrange.js";
 import { steerOutline } from "./steer.js";
@@ -160,8 +161,12 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
     for await (const chunk of streamOllamaChat(model, messages, { maxTokens })) if (typeof chunk === "string") out += chunk;
     return out;
   });
-  let outline = (arrange ?? arrangeEssay)({ draft, spec });
-  write("arrange", `Arrangement: ${outline.slots.length} slot(s)`, outlineLines(outline, draft).join("\n"), outline.basis, "eoreader7:arrange");
+  // 6 → 7. THE SKELETON, THEN THE SKELETON LOOP (skeleton-loop.js): the
+  // outline composed and reason-linted, then recomposed — one licensed
+  // finding per loop, judged against the last — until nothing is licensed.
+  const sk = skeletonLoop({ draft, spec, shape, task, arrange, onLoop: (l) => write("arrange", `Skeleton loop ${l.n} · ${l.judge.verdict}${l.judge.keep ? "" : " · undone"}`, skeletonLoopLine(l), l.judge.why, "eoreader7:skeleton-loop") });
+  let outline = sk.outline;
+  write("arrange", `Arrangement: ${outline.slots.length} slot(s)${sk.settled ? " · settled" : ""}`, outlineLines(outline, draft).join("\n"), `${outline.basis}; ${sk.basis}`, "eoreader7:arrange");
   // THE MOUTH STEERS SOME PHYSICS (steer.js): it votes on which of the ask's
   // questions each section answers and whether neighbours are one section;
   // the mechanics license or refuse each vote, and every vote is recorded.
@@ -172,7 +177,7 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   }
   // SELECTION: the sections closest to the ask fill the length the ask states,
   // or the essay form's declared shape; everything else stays in the sources.
-  const sel = selectToBudget({ outline, draft, task });
+  const sel = selectToBudget({ outline, draft, task, shape });
   if (sel.dropped.length) {
     outline = sel.outline;
     write("arrange", `Selection: ${sel.dropped.length} section(s) left out`, sel.dropped.map((d) => `${d.slot}: ${d.statements.map((id) => draftText.get(id)).join(" ").slice(0, 160)}…`).join("\n"), `${sel.budget?.basis} — ${sel.dropped[0].why}`, "eoreader7:select");

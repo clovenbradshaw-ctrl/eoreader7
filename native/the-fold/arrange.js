@@ -85,9 +85,13 @@ function notesOf(pt) {
   return out;
 }
 
-export function arrangeEssay({ draft, spec = null } = {}) {
+export function arrangeEssay({ draft, spec = null, exclude = null } = {}) {
   const parts = drawnParts(draft);
-  const points = parts.flatMap((p) => (p.children ?? []).map((pt) => ({ ...pt, part: p.id })));
+  // RECOMPOSITION (skeleton-loop.js, stage 7): a statement a finding licensed
+  // out of the skeleton is left out of the material the next loop composes
+  // from — the outline is rebuilt, never patched.
+  const left = exclude instanceof Set ? exclude : new Set(exclude ?? []);
+  const points = parts.flatMap((p) => (p.children ?? []).filter((pt) => !left.has(pt.id)).map((pt) => ({ ...pt, part: p.id })));
   // ONE FACT, ONE STATEMENT: two sources stating the same fact (an agenda and
   // its minutes both giving the meeting's date, time and room) would be said
   // twice. The poorer statement leaves the outline (restatement.js,
@@ -350,9 +354,17 @@ export function arrangeEssay({ draft, spec = null } = {}) {
   // the present-day port, which names Nashville, was called off-thesis.)
   const thesisWords = new Set(thesis?.words ?? []);
   const thesisBeings = new Set([...(thesis?.all ?? []), ...subject]);
+  // WHAT A FINDING LICENSES (stage 7, skeleton-loop.js): an off-thesis group
+  // that also answers none of the ask's questions may leave the skeleton
+  // (Clark: every section earns its place); one that answers a question
+  // stays and is only reported — the ask outranks the thesis.
+  const askWords = new Set(draftWords(String(draft?.task ?? "").match(/\b(?:on|about|of|regarding|concerning)\s+(.+?)[.?!]*$/i)?.[1] ?? "").filter((w) => !isFunctionWord(w)));
   groups.forEach((g, i) => {
     const bears = g.statements.some((f) => f.all.some((id) => thesisBeings.has(id)) || f.words.some((w) => thesisWords.has(w)));
-    if (thesis && !bears) findings.push({ kind: "off_thesis", owner: "Roy Peter Clark", group: i, detail: `group ${i + 1} shares no being or word with the thesis — a part with no job in this argument` });
+    if (thesis && !bears) {
+      const answers = g.statements.some((f) => f.words.some((w) => askWords.has(w)));
+      findings.push({ kind: "off_thesis", owner: "Roy Peter Clark", group: i, statements: g.statements.map((f) => f.pt.id), licenses: answers ? null : "leave-out", detail: `group ${i + 1} shares no being or word with the thesis — a part with no job in this argument${answers ? "; it answers the ask, so it stays" : ""}` });
+    }
   });
   const links = [];
   for (let i = 1; i < groups.length; i++) {
@@ -372,7 +384,14 @@ export function arrangeEssay({ draft, spec = null } = {}) {
       if (claims.has(key)) {
         const prev = claims.get(key);
         const differ = nums.some((x) => !prev.nums.includes(x));
-        if (differ && prev.id !== f.pt.id) findings.push({ kind: "conflicting_figures", owner: "Kelsen (reasoning-lint.js)", detail: `"${n.end1} ${n.label}" is given ${prev.nums.join(", ")} in ${prev.id} and ${nums.join(", ")} in ${f.pt.id}` });
+        if (differ && prev.id !== f.pt.id) {
+          // Across tiers the operator's figure stands (hunt.js: fetched
+          // material never outranks it) — the fetched statement may leave.
+          // Within one tier both stand and the conflict is reported.
+          const ta = tierOf.get(prev.id) ?? 0, tb = tierOf.get(f.pt.id) ?? 0;
+          const fetched = ta !== tb ? (ta > tb ? prev.id : f.pt.id) : null;
+          findings.push({ kind: "conflicting_figures", owner: "Kelsen (reasoning-lint.js)", statements: fetched ? [fetched] : [prev.id, f.pt.id], licenses: fetched ? "prefer-operator" : null, detail: `"${n.end1} ${n.label}" is given ${prev.nums.join(", ")} in ${prev.id} and ${nums.join(", ")} in ${f.pt.id}${fetched ? ` — ${fetched} is fetched material and may leave` : " — both are the operator's; reported, not resolved"}` });
+        }
       } else claims.set(key, { nums, id: f.pt.id });
     }
   }
@@ -467,10 +486,15 @@ export function arrangedDraft(draft, outline) {
  * close, the form's own shape, and the rest on body sections.
  */
 export const DECLARED_FORM = Object.freeze({ paragraphs: 5, basis: "declared: the essay's received form — a thesis paragraph, three body sections, a close; any length the ask states overrides it" });
-export function selectToBudget({ outline, draft, task = "" } = {}) {
+export function selectToBudget({ outline, draft, task = "", shape = null } = {}) {
   // SELECT HARD (user, 2026-09-21: "don't write everything in the dossier").
-  // With no length asked, the form's own declared shape is the budget.
-  const asked = askedExtentOf(task) ?? { n: DECLARED_FORM.paragraphs, unit: "paragraph", declared: true };
+  // The ask's stated length first; else the shape LEARNED from the sources
+  // (shape.js, stage 4 — "we dont want a set of shapes pre-set"); only then
+  // the received default, disclosed as a default.
+  const learned = (shape?.agreedUnits ?? []).find((a) => ["paragraph", "section", "part", "word", "sentence"].includes(a.unit));
+  const asked = askedExtentOf(task)
+    ?? (learned ? { n: learned.n, unit: learned.unit, learned: `${learned.support}/${shape.hosts} host(s)` } : null)
+    ?? { n: DECLARED_FORM.paragraphs, unit: "paragraph", declared: true };
   if (!outline?.slots) return { outline, dropped: [], budget: null };
   const text = new Map(drawnParts(draft).flatMap((p) => p.children.map((pt) => [pt.id, pt.text])));
   const bodies = outline.slots.filter((s) => s.slot !== "thesis" && s.slot !== "return");
@@ -504,9 +528,10 @@ export function selectToBudget({ outline, draft, task = "" } = {}) {
   }
   const dropped = bodies.filter((s) => !keep.has(s));
   const slots = outline.slots.filter((s) => !dropped.includes(s));
+  const whose = asked.declared ? "the declared form's" : asked.learned ? `the learned shape's (${asked.learned})` : "the asked";
   return {
-    outline: { ...outline, slots, basis: `${outline.basis}; ${dropped.length} section(s) left out to fit ${asked.declared ? "the declared form's" : "the asked"} ${asked.n} ${asked.unit}(s)` },
-    dropped: dropped.map((s) => ({ slot: s.slot, statements: s.statements, why: `over ${asked.declared ? "the declared form's" : "the asked"} length (${asked.n} ${asked.unit}s); closer sections kept` })),
-    budget: { ...budget, basis: asked.declared ? DECLARED_FORM.basis : "asked" },
+    outline: { ...outline, slots, basis: `${outline.basis}; ${dropped.length} section(s) left out to fit ${whose} ${asked.n} ${asked.unit}(s)` },
+    dropped: dropped.map((s) => ({ slot: s.slot, statements: s.statements, why: `over ${whose} length (${asked.n} ${asked.unit}s); closer sections kept` })),
+    budget: { ...budget, basis: asked.declared ? DECLARED_FORM.basis : asked.learned ? `measured: the shape learned from ${asked.learned} (shape.js)` : "asked" },
   };
 }
