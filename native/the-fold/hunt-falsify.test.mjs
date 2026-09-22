@@ -68,6 +68,44 @@ test("with no operator material and a stated subject, admission is by the subjec
   assert.match(none.basis, /NO GROUND/);
 });
 
+test("NOR OUTWEIGHS: at most as many fetched paragraphs as the operator handed over, the ones naming the most of the subject first; headings and bare bullets earn nothing (live: 68 against 8)", () => {
+  const { R, subject } = withSubject();
+  const filler = Array.from({ length: 12 }, (_, i) => `Nashville saw paragraph ${i + 1} of the river's story.`);
+  const rich = "Nashville and the Cumberland River grew together on the wharf.";
+  const surfed = { sources: [
+    page("wiki.example", "material", ["Nashville & History", "FAQ: the river in Nashville", "- Nashville's Batman Building sits near the Cumberland River.", rich, ...filler].join("\n\n")),
+    page("late.example", "material", "Nashville is on the Cumberland River, which is named on this late page."),
+  ] };
+  const h = huntGround({ operator: { id: "op.md", text: OPERATOR }, surfed, topic: "Nashville", R, subject });
+  assert.equal(h.bound, 2, "the operator handed over two paragraphs");
+  const total = h.sources.filter((s) => s.tier === 1).reduce((n, s) => n + s.admitted, 0);
+  assert.equal(total, 2, "no more fetched paragraphs than the operator's own");
+  const wiki = h.sources.find((s) => s.id === "wiki.example");
+  assert.ok(wiki.text.includes(rich), "the paragraph naming both Nashville and the Cumberland ranks first");
+  assert.ok(!/Nashville & History|FAQ:/.test(wiki.text), "a heading with no sentence in it is not a statement");
+  assert.ok(!wiki.text.startsWith("- "), "a list marker is stripped");
+  assert.match(wiki.why, /more carried the subject but the operator's extent was filled/);
+  assert.match(h.basis, /at most 2 paragraph\(s\) — the operator's own extent/);
+  const late = h.refused.find((r) => r.id === "late.example") ?? h.sources.find((s) => s.id === "late.example");
+  assert.ok(late, "the late page is either admitted within the bound or refused with the reason");
+  // With nothing handed over, the bound is stated as absent.
+  const open = huntGround({ operator: { id: "none", text: "" }, surfed, topic: "Nashville" });
+  assert.equal(open.bound, null);
+  assert.match(open.basis, /unbounded: nothing was handed over/);
+});
+
+test("the thesis is the operator's: a fetched general sentence cannot be the claim while the operator's material holds a candidate", () => {
+  const { R, subject } = withSubject();
+  const surfed = { sources: [page("wiki.example", "material", "Nashville is the river city of the South, and the river is its whole history.")] };
+  const h = huntGround({ operator: { id: "op.md", text: OPERATOR }, surfed, topic: "Nashville", R, subject });
+  assert.equal(h.admitted, 1);
+  const draft = attachReferents(buildDraft({ task: "Write an essay on Nashville.", ground: h.ground, sources: h.map }), buildReferents(h.ground));
+  const o = arrangeEssay({ draft });
+  const fetchedIds = new Set(drawnParts(draft).filter((p) => p.tier === 1).flatMap((p) => p.children.map((c) => c.id)));
+  assert.ok(o.thesis, "a thesis was chosen");
+  assert.ok(!fetchedIds.has(o.thesis.id), `the thesis (${o.thesis.text}) must come from tier 0`);
+});
+
 test("FETCHED MATERIAL NEVER OUTRANKS THE OPERATOR'S: a richer fetched duplicate leaves and the operator's statement stands", () => {
   const { R, subject } = withSubject();
   const richer = "The flood of 2010 crested at 51.86 feet in Nashville, Tennessee, on the Cumberland River, the highest since 1937.";

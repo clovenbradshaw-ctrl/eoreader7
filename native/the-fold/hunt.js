@@ -49,13 +49,35 @@ export function huntGround({ operator = { id: "ground", text: "" }, surfed = nul
   const test = hasSubject ? "a paragraph is admitted when it names a being of the subject (referents.js over the operator's material)" : topicWords.length ? `a paragraph is admitted when it carries a word of the ask's subject ("${topicWords.join(", ")}")` : "no subject and no topic: nothing fetched can earn admission";
   const refused = [];
   let exemplars = 0;
+  // FETCHED MATERIAL NEVER OUTRANKS — NOR OUTWEIGHS. Measured live 2026-09-22
+  // (nine-live-2): three admitted pages brought 68 paragraphs against the
+  // operator's 8, a fetched heading ("Nashville & History") became the
+  // thesis, and the mouth voted 71 times over the swamp. The operator's own
+  // extent is the bound: at most as many fetched paragraphs as the operator
+  // handed over, the ones naming the most beings of the subject first. A
+  // heading or a bare list item — no sentence ending in it — is not a
+  // statement and earns nothing (the same seam eot-draft draws).
+  const opParagraphs = paragraphsOf(opText).length;
+  const subjectCount = (par) => (hasSubject ? [...subject].filter((id) => R.resolveText(par).has(id)).length : 1);
+  const candidates = [];
+  const perSource = new Map();
   for (const s of surfed?.sources ?? []) {
     if (s.status !== "fetched" || !s.text) continue;
     if (!(s.hunts ?? [s.hunt]).includes("material")) { exemplars++; continue; }
-    const pars = paragraphsOf(s.text);
-    const kept = pars.map((p) => ({ p, why: carries(p) })).filter((x) => x.why);
-    if (!kept.length) { refused.push({ id: s.host, url: s.url, why: `${pars.length} paragraph(s), none ${hasSubject ? "names a being of the subject" : topicWords.length ? "carries a word of the subject" : "can be tested"}` }); continue; }
-    sources.push({ id: s.host, tier: 1, url: s.url, text: kept.map((x) => x.p).join("\n\n"), why: `${kept.length} of ${pars.length} paragraph(s) earned admission (e.g. ${kept[0].why})`, paragraphs: pars.length, admitted: kept.length });
+    const pars = paragraphsOf(s.text).map((p) => p.replace(/^[-•*]\s+/, ""));
+    const sentenced = pars.filter((p) => /[.!?]["')\]]?(\s|$)/.test(p));
+    const kept = sentenced.map((p) => ({ p, why: carries(p) })).filter((x) => x.why).map((x) => ({ ...x, source: s, score: subjectCount(x.p), order: candidates.length }));
+    perSource.set(s.url, { s, pars: pars.length, sentenced: sentenced.length, kept });
+    candidates.push(...kept);
+  }
+  const bound = opParagraphs > 0 ? opParagraphs : null;
+  const ranked = [...candidates].sort((a, b) => b.score - a.score || a.order - b.order);
+  const admittedSet = new Set(bound != null ? ranked.slice(0, bound) : ranked);
+  for (const { s, pars, sentenced, kept } of perSource.values()) {
+    const mine = kept.filter((k) => admittedSet.has(k));
+    if (!kept.length) { refused.push({ id: s.host, url: s.url, why: `${pars} paragraph(s), ${sentenced} with a sentence, none ${hasSubject ? "names a being of the subject" : topicWords.length ? "carries a word of the subject" : "can be tested"}` }); continue; }
+    if (!mine.length) { refused.push({ id: s.host, url: s.url, why: `${kept.length} of ${pars} paragraph(s) carried the subject, but the operator's own extent (${bound} paragraph(s)) was filled by paragraphs naming more of it` }); continue; }
+    sources.push({ id: s.host, tier: 1, url: s.url, text: mine.map((x) => x.p).join("\n\n"), why: `${mine.length} of ${pars} paragraph(s) earned admission (e.g. ${mine[0].why})${kept.length > mine.length ? `; ${kept.length - mine.length} more carried the subject but the operator's extent was filled` : ""}`, paragraphs: pars, admitted: mine.length });
   }
   // The combined ground: tier 0 first, then tier 1 in surf order; every
   // source's byte range recorded so a span can be traced to its source.
@@ -69,7 +91,8 @@ export function huntGround({ operator = { id: "ground", text: "" }, surfed = nul
   const admitted = sources.filter((s) => s.tier === 1);
   return {
     schema: HUNT_SCHEMA, sources, map, ground, admitted: admitted.length, refused, exemplars, test,
-    basis: `${test}; ${admitted.length} fetched source(s) admitted (tier 1, after the operator's material), ${refused.length} refused${exemplars ? `, ${exemplars} exemplar page(s) read for the shape only` : ""}${!opText.trim() && !admitted.length ? " — NO GROUND: nothing handed over, nothing earned" : ""}`,
+    bound,
+    basis: `${test}; ${admitted.length} fetched source(s) admitted (tier 1, after the operator's material${bound != null ? `, at most ${bound} paragraph(s) — the operator's own extent` : ", unbounded: nothing was handed over"}), ${refused.length} refused${exemplars ? `, ${exemplars} exemplar page(s) read for the shape only` : ""}${!opText.trim() && !admitted.length ? " — NO GROUND: nothing handed over, nothing earned" : ""}`,
   };
 }
 

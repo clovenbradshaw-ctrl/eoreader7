@@ -200,8 +200,14 @@ export function arrangeEssay({ draft, spec = null, exclude = null } = {}) {
   // Low before high: when no statement meets the strict bar (a weak subject
   // leaves every general sentence naming "someone else"), the bar relaxes to
   // general-and-not-a-turn, and the outline says so rather than going empty.
-  const pool = strict.length ? strict : feat.filter((f) => f.general && !f.contrast);
+  let pool = strict.length ? strict : feat.filter((f) => f.general && !f.contrast);
   if (!strict.length && pool.length) weakened.push("no general statement names only the subject; the thesis was chosen among general statements that name other beings");
+  // THE THESIS IS THE OPERATOR'S (hunt.js tiers): a fetched sentence may not
+  // be the claim the whole piece makes while the operator's material holds
+  // any candidate (measured live 2026-09-22: a fetched heading, "Nashville &
+  // History", became the thesis).
+  const own = pool.filter((f) => (tierOf.get(f.pt.id) ?? 0) === 0);
+  if (own.length) pool = own;
   const candidates = pool.map((f) => ({ f, score: recur(f) })).sort((a, b) => b.score - a.score || a.f.pt.span.start - b.f.pt.span.start);
   const thesis = candidates[0]?.f ?? null;
 
