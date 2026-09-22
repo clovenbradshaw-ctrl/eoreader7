@@ -43,7 +43,8 @@ import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, restartSurface, sampleVitalsNow, backgroundTasks, killTask, warmPressureTest, warmPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, restartSurface, sampleVitalsNow, backgroundTasks, killTask, warmPressureTest, warmPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope } from "./heimdall.mjs";
+import { heldKey, findHeld, holdTurn, heldById, heldReceipt, awaitHeld } from "./held-turns.mjs";
 import { resolveServerKey, channelObserve, channelRefused, pickHost, hostBegin, hostEnd, reconcileModelServers, ledgerEva, setChannelBound, liveReapIfDue, holdWindow, hopOf, messagesOf, streamAccounting, hostOwnedByPid } from "./heimdall.mjs";
 import { MODEL_SERVER_URL, CHANNEL_PORT } from "./native/kernel/model-server.js";
 import { antistrauss } from "./native/the-fold/antistrauss.mjs";
@@ -333,8 +334,9 @@ function releaseChatRequest() {
 // mark stuck and 429 a false busy-lane.
 function releaseOnResponse(res, claimId, admit = null) {
   let released = false;
+  let deferred = false;
   const release = () => {
-    if (released) return;
+    if (released || deferred) return;
     released = true;
     // Only release a slot that was actually taken: fast-passed turns never
     // marked one. The claim lease is always freed — exactly-once applies to
@@ -347,6 +349,14 @@ function releaseOnResponse(res, claimId, admit = null) {
   };
   res.on("finish", release);
   res.on("close", release);
+  // A HELD turn keeps running after its response is sent: its slot is freed
+  // when the turn itself settles, not when the socket closes.
+  return {
+    until(promise) {
+      deferred = true;
+      Promise.resolve(promise).finally(() => { deferred = false; release(); }).catch(() => {});
+    },
+  };
 }
 
 // NOTE (2026-09-19): forward() — the raw passthrough that piped any unmatched
@@ -806,6 +816,22 @@ async function handleRequest(req, res) {
   // this proxy, newest first. A caller keeps one fold by repeating the same
   // sessionId (header x-er7-session or body field); this route is where the
   // list of those folds is read back out.
+  // A HELD TURN'S RECEIPT: the finished answer when it is ready, the receipt
+  // while it still runs. Only the requester who started it may collect it.
+  if (req.method === "GET" && req.url.startsWith("/v1/held/")) {
+    const e = heldById(decodeURIComponent(req.url.slice("/v1/held/".length)));
+    if (!e || e.requester !== sessionIdFromHeaders(req)) {
+      res.writeHead(404, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: { message: "no held turn with that id for this requester (finished answers are held for a while, then released)" } }));
+      return;
+    }
+    if (e.status === "done") { res.writeHead(200, { "content-type": "application/json", "x-er7-held": e.id }); res.end(JSON.stringify(e.result)); return; }
+    if (e.status === "failed") { res.writeHead(500, { "content-type": "application/json" }); res.end(JSON.stringify({ error: { message: e.error } })); return; }
+    res.writeHead(202, { "content-type": "application/json", "retry-after": "15" });
+    res.end(JSON.stringify(heldReceipt(e)));
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/v1/sessions") {
     try {
       res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" });
@@ -1123,7 +1149,6 @@ const job = await startDocumentJob({
       res.on("close", onDisconnect);
       const turnDeadline = setTimeout(() => {
         if (!turnAbort.signal.aborted) {
-          markUnservable(model, "turned_no_answer");
           turnAbort.abort();
         }
       }, TURN_DEADLINE_MS);
@@ -1429,6 +1454,23 @@ const job = await startDocumentJob({
         return;
       }
 
+      // HELD, NOT RE-RUN: the same request from the same requester, already
+      // running or finished, is answered from the hold — no second admission,
+      // no second turn.
+      const holdKey = reqData.stream ? null : heldKey(sessionId, "/v1/chat/completions", { model: parsed.model, messages: parsed.messages, mode: reqData.mode });
+      const alreadyHeld = holdKey ? findHeld(holdKey) : null;
+      if (alreadyHeld) {
+        try {
+          const w = await awaitHeld(alreadyHeld, TURN_DEADLINE_MS);
+          if (w.done) { res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId, "x-er7-held": alreadyHeld.id }); res.end(JSON.stringify(w.result)); }
+          else { res.writeHead(202, { "content-type": "application/json", "x-er7-session": sessionId, "retry-after": "15" }); res.end(JSON.stringify(heldReceipt(alreadyHeld))); }
+        } catch (err) {
+          res.writeHead(500, { "content-type": "application/json" });
+          res.end(JSON.stringify({ error: { message: err.message } }));
+        }
+        return;
+      }
+
       // HEIMDALL, WIRED IN — admission on the proxy's own path, for the
       // NORMAL turn only. The swarm above never needed a model, so it was not
       // gated; a real model turn is admitted exactly as before.
@@ -1437,7 +1479,7 @@ const job = await startDocumentJob({
         refuseAdmission(res, admit);
         return;
       }
-      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
+      const lease = releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
       log(`turn → session=${sessionId} user=${userId} model=${reqData.model} taskLength=${reqData.task.length} stream=${reqData.stream} mode=${reqData.mode} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
       const created = Math.floor(Date.now() / 1000);
@@ -1473,11 +1515,6 @@ const job = await startDocumentJob({
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) {
-            // reqData.model: the stripped id of the mouth on THIS turn. A bare
-            // `model` is not in scope on these routes — naming it crashed the
-            // whole proxy on the first slow-turn deadline (measured 2026-09-19:
-            // a ReferenceError in this timer killed the process mid-battery).
-            markUnservable(reqData.model, "turned_no_answer");
             turnAbort.abort();
           }
         }, TURN_DEADLINE_MS);
@@ -1680,50 +1717,41 @@ const job = await startDocumentJob({
           }
         }
       } else {
-        // RESILIENCE: bound the non-streaming turn too — a wedged turn must
-        // return a typed error, never leave the client hanging. HOISTED above
-        // the try/catch (same as the streaming path): the catch block must be
-        // able to clearTimeout the deadline and remove the disconnect listener
-        // without a ReferenceError killing the whole server.
-        const turnAbort = new AbortController();
-        const onDisconnect = () => {
-          if (res.writableEnded) return; // response finished — not a disconnect
-          if (!turnAbort.signal.aborted) turnAbort.abort();
-        };
-        res.on("close", onDisconnect);
-        const turnDeadline = setTimeout(() => {
-          if (!turnAbort.signal.aborted) {
-            // reqData.model: the stripped id of the mouth on THIS turn. A bare
-            // `model` is not in scope on these routes — naming it crashed the
-            // whole proxy on the first slow-turn deadline (measured 2026-09-19:
-            // a ReferenceError in this timer killed the process mid-battery).
-            markUnservable(reqData.model, "turned_no_answer");
-            turnAbort.abort();
-          }
-        }, TURN_DEADLINE_MS);
-        try {
-          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
-          if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
-          clearTimeout(turnDeadline);
-          res.removeListener("close", onDisconnect);
+        // HELD, NEVER PUNISHED (2026-09-22): the turn is not tied to the
+        // client's socket and is never aborted for being slow. Past the
+        // deadline the client gets a receipt; the turn finishes into the hold,
+        // and the same request (or GET /v1/held/:id) collects it. The model is
+        // not dropped — a slow turn says nothing about whether the model works.
+        const entry = holdTurn(holdKey, async () => {
+          const result = await runProxyTurn({ sessionId, userId, workspace, ...reqData });
+          const answeredBy = result?.model ?? parsed.model; // plain-speech switch disclosed: the envelope names who answered
           const race = precisionWinner({ observation: await observationP, draft: result.text });
-          const resp = openAIResponse({ id, model: parsed.model, text: race.text, created, usage: result.usage, reading: result });
+          const resp = openAIResponse({ id, model: answeredBy, text: race.text, created, usage: result.usage, reading: result });
           resp.reading.race = raceReading(race);
           resp.reading.sessionId = sessionId;
           resp.reading.thinking = result.thinking ?? null;
           resp.reading.answerShape = result.answerShape ?? null;
           resp.reading.truncated = result.truncated ?? false;
           resp.reading.document = result.document ?? null;
-          resp.heimdall = bridgeMessage({ model: parsed.model });
-          res.writeHead(200, { "content-type": "application/json" });
-          res.end(JSON.stringify(resp));
-        } catch (err) {
-          clearTimeout(turnDeadline);
-          res.removeListener("close", onDisconnect);
-          log(`proxy execution error: ${err.message}`);
-          if (!res.headersSent) {
-            res.writeHead(err?.message === "cancelled" ? 499 : 500, { "content-type": "application/json" });
+          resp.heimdall = bridgeMessage({ model: answeredBy });
+          return resp;
+        }, { requester: sessionId });
+        lease.until(entry.promise);
+        try {
+          const w = await awaitHeld(entry, TURN_DEADLINE_MS);
+          if (res.writableEnded || res.destroyed) return; // client gone; the answer waits in the hold
+          if (w.done) {
+            res.writeHead(200, { "content-type": "application/json" });
+            res.end(JSON.stringify(w.result));
+          } else {
+            log(`turn held → session=${sessionId} ${entry.id} (past ${Math.round(TURN_DEADLINE_MS / 1000)}s, still running)`);
+            res.writeHead(202, { "content-type": "application/json", "x-er7-session": sessionId, "retry-after": "15" });
+            res.end(JSON.stringify(heldReceipt(entry)));
           }
+        } catch (err) {
+          log(`proxy execution error: ${err.message}`);
+          if (res.writableEnded || res.destroyed) return;
+          if (!res.headersSent) res.writeHead(500, { "content-type": "application/json" });
           res.end(JSON.stringify({ error: { message: err.message } }));
         }
       }
@@ -1839,11 +1867,6 @@ const job = await startDocumentJob({
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) {
-            // reqData.model: the stripped id of the mouth on THIS turn. A bare
-            // `model` is not in scope on these routes — naming it crashed the
-            // whole proxy on the first slow-turn deadline (measured 2026-09-19:
-            // a ReferenceError in this timer killed the process mid-battery).
-            markUnservable(reqData.model, "turned_no_answer");
             turnAbort.abort();
           }
         }, TURN_DEADLINE_MS);
@@ -1903,11 +1926,6 @@ const job = await startDocumentJob({
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) {
-            // reqData.model: the stripped id of the mouth on THIS turn. A bare
-            // `model` is not in scope on these routes — naming it crashed the
-            // whole proxy on the first slow-turn deadline (measured 2026-09-19:
-            // a ReferenceError in this timer killed the process mid-battery).
-            markUnservable(reqData.model, "turned_no_answer");
             turnAbort.abort();
           }
         }, TURN_DEADLINE_MS);
@@ -2068,11 +2086,6 @@ const job = await startDocumentJob({
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) {
-            // reqData.model: the stripped id of the mouth on THIS turn. A bare
-            // `model` is not in scope on these routes — naming it crashed the
-            // whole proxy on the first slow-turn deadline (measured 2026-09-19:
-            // a ReferenceError in this timer killed the process mid-battery).
-            markUnservable(reqData.model, "turned_no_answer");
             turnAbort.abort();
           }
         }, TURN_DEADLINE_MS);
@@ -2125,11 +2138,6 @@ const job = await startDocumentJob({
         res.on("close", onDisconnect);
         const turnDeadline = setTimeout(() => {
           if (!turnAbort.signal.aborted) {
-            // reqData.model: the stripped id of the mouth on THIS turn. A bare
-            // `model` is not in scope on these routes — naming it crashed the
-            // whole proxy on the first slow-turn deadline (measured 2026-09-19:
-            // a ReferenceError in this timer killed the process mid-battery).
-            markUnservable(reqData.model, "turned_no_answer");
             turnAbort.abort();
           }
         }, TURN_DEADLINE_MS);

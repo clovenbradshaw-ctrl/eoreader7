@@ -449,3 +449,10 @@ fast: 11 files · root 88/88 · native 98/103 — the 5 native failures pre-exis
 | Kondo | unwired | heimdall.mjs exports | noted | ruleLeverOf / channelPort / modelServerUrl have test-only consumers (kept as the test seam); roomPathsFor remains unwired, pre-existing and named in INFERENCE-HOSTS "Not yet" |
 | Simon/Chekhov | untested module | native/kernel/model-server.js | fixed | address test added (tests/heimdall-channel.test.mjs imports the module directly) |
 clean: (routed eight, all answered)
+
+## 2026-09-22 — Heimdall holds a slow turn instead of dropping its model (eoreader7, staged 4 files)
+fast: 4 files · 8 affected tests 79/79 · law: ok (0 citations); WARN pre-existing duplicates P115 P116 P117 P19 P233 / S17 S96 (carried)
+| Greenberg | language scope | held-turns.mjs:58 | false-positive-on-review | `object: "er7.held"` is the JSON envelope's type field, not an SVO field |
+| Kondo | unwired | heimdall.mjs markUnservable | noted | still live: proxy-runner.mjs:3260 drops a model on first_byte_timeout — a second punishment path, out of this diff's scope, now on the 60 s cooldown |
+| Simon/Chekhov | new module | held-turns.mjs | noted | imported by tests/held-turns.test.mjs and wired in proxy.mjs; the route-level hold (202 receipt, GET /v1/held/:id, resend reuse) proven live on a :11476 proxy, not by an automated route test |
+clean: LeviStrauss

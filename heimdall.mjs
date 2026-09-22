@@ -400,7 +400,11 @@ const profiles = new Map(); // person -> { priority, turns, windowStart, lastAt,
 // successful observed call) is served again — so if the box can handle a big
 // model, it is welcome; if it does nothing, it is dropped until it works.
 const unservable = new Map(); // model -> { at, reason }
-const UNSERVABLE_COOLDOWN_MS = Number(process.env.ER7_UNSERVABLE_COOLDOWN ?? 10 * 60 * 1000);
+// Short on purpose: while dropped, no call reaches the model, so it can never
+// "prove it answers" — the cooldown is the only way back in. Measured
+// 2026-09-22: a 10-minute cooldown locked out a whole conversation after one
+// turn stalled in web reading before the model was ever called.
+const UNSERVABLE_COOLDOWN_MS = Number(process.env.ER7_UNSERVABLE_COOLDOWN ?? 60 * 1000);
 export function markUnservable(model, reason) {
   if (!model) return;
   unservable.set(model, { at: Date.now(), reason });
@@ -418,6 +422,11 @@ export function isServable(model, quirks = MODEL_QUIRKS) {
   const u = unservable.get(bare);
   if (u && Date.now() - u.at < UNSERVABLE_COOLDOWN_MS) return false;
   return true;
+}
+function unservableRemainingS(model) {
+  const u = unservable.get(String(model ?? "").replace(/^er7:/, ""));
+  if (!u) return 0;
+  return Math.max(1, Math.ceil((UNSERVABLE_COOLDOWN_MS - (Date.now() - u.at)) / 1000));
 }
 export function servableDisclosure() {
   return {
@@ -3340,7 +3349,7 @@ export function admitChat(body = "{}", headers = {}) {
   if (!isServable(model)) {
     appendLog({ act: "eva", finding: "unservable_refused", key, model, family });
     return {
-      allowed: false, status: 503, type: "model_unavailable", family, model, retryAfterS: 15,
+      allowed: false, status: 503, type: "model_unavailable", family, model, retryAfterS: unservableRemainingS(model) || 15,
       message: `${model} is not answering on this box right now (Heimdall dropped it). Pick a model the box can serve — /v1/models lists them.`,
       servable: servableDisclosure(),
     };
