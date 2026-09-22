@@ -643,6 +643,17 @@ export const ARCHONS = Object.freeze([
     topics: ["surprise", "boundary", "segment", "ground", "wrong", "rupture"],
   },
   {
+    handle: "itti-baldi",
+    name: "Itti & Baldi (system nomination)",
+    organ: "kernel/bayes-surprise.js",
+    role: "Bayesian surprise — how far an arrival moves belief, the delta to the holograph",
+    pdStatus: "nomination",
+    work: "The handle names a posture: surprise measured as the change an observation makes to belief — the divergence of the posterior from the prior — rather than as the observation's improbability. A rare event a reader already expects to be rare moves nothing; an event that rewrites the expectation moves a lot. This compendium asserts no specific work of the namesakes.",
+    source: "system nomination — no specific public-domain work claimed",
+    credit: "Itti & Baldi — surprise is the delta to belief, not the rarity of the event (system nomination).",
+    topics: ["surprise", "bayesian", "belief", "delta", "posterior", "prior", "holograph", "learning"],
+  },
+  {
     handle: "hubel",
     name: "David H. Hubel",
     organ: "kernel/terrain-activation.js",

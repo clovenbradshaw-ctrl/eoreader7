@@ -485,3 +485,39 @@ cube addresses across a unit's positions (profile.js). That is the next
 layer. Known confounds recorded, not hidden: macOS ships many Perl manuals
 ("starts:perl"); a definition is relative to its population (a sonnet
 "lacks 'there'" because limericks are in the population).
+
+### Step 6 — Bayesian surprise as the delta to the holograph (2026-09-22)
+
+The user: "we've lost the idea of using bayesian surprise and activation …
+that's the key," then "we need the bayesian surprise as the delta to the
+holograph," and "a void is one of the most useful pieces of information,
+the most maybe." The archons called: Rubin (surprisal, surprise-segments.js),
+Vasana and Tala (priors of what and when), Atta (activation decays unless
+used), Meyer and Shklovsky (meaning at deviation from learned tendency;
+organs/pathos.js, still proposed), the synapse (a rhyme is a pending signal),
+and a new nomination, Itti & Baldi — surprise as belief change, KL(posterior
+‖ prior), which the compendium did not have.
+
+Built: `kernel/bayes-surprise.js` (the holograph's Pattern grain as Dirichlet
+slots; surprisal and Bayesian surprise both, never confused; ABSENT as a
+value every slot carries; a novel bucket so the unseen stays possible; decay
+by a declared gamma) and `the-fold/form-prior.js` (learnForm: a form is what
+becomes predictable, against the same instances with their order destroyed;
+learned when one more instance stops changing the definition — dmdWindow's
+rule; kindBoundaries: a new kind is what moves the kind being read NOW more
+than its own members do, against the scan's maximum on permuted streams).
+
+Each defect found by its own falsifier or live run: the whole-stream shuffle
+is the wrong ground (the user: "be sure each hunt has a proper, relative
+ground"); a slot never seen gave 0 bits — absence had to be a value (the void
+fix recovered the limerick → sonnet boundary); a one-valued slot gave 0 bits
+on every repeat — the unseen had to stay possible.
+
+Live: the delta to the FORM falls 1.81 → 0.15 bits (limerick), 2.52 → 0.24
+(English sonnet), 2.64 → 0.66 (Petrarchan — its sestets vary); the delta to
+the CONTENT stays high (end words are what each instance fills). Found
+unsupervised: limerick → sonnet → limerick at 40 and 80; English → Petrarchan
+at 50; nothing in four single-kind controls. Missed: every change between
+variable-length forms (man page → recipe, recipe → obituary): hundreds of
+position slots drown the few role slots per fact — the next fix averages
+within slot families (position, role) before across.
