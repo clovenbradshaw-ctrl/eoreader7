@@ -42,6 +42,7 @@ import { elementsOf } from "./medium.js";
 import { emergentFacts } from "./form-prior.js";
 import { unitFacts, PARADIGM_SCHEMA } from "./paradigm.js";
 import { CANONICALIZATION_FLOOR } from "../kernel/corroboration.js";
+import { permutationCount } from "../kernel/nullcheck.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const KIND_MEMORY_PATH = path.join(HERE, "..", "memory", "kind-memory.json");
@@ -181,8 +182,7 @@ export function splitProposal(store, name, { draws = 400, rnd = Math.random } = 
   // and destroy only WHICH sources, which is the whole claim. Features that
   // happen to be held by two sources each would rarely name the SAME two.
   const shuffled = () => held.map((ss) => { const pool = [...sources]; for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; } return new Set(pool.slice(0, ss.size)); });
-  let ge = 0;
-  for (let d = 0; d < draws; d++) if (maxPerfect(shuffled()).n >= obs.n) ge++;
+  const { ge } = permutationCount(draws, () => maxPerfect(shuffled()).n, (n) => n >= obs.n);
   const p = (ge + 1) / (draws + 1), level = 1 / held.length;
   return { propose: p <= level, p, level, perfectSplits: obs.n, sides: [obs.A, sources.filter((s) => !obs.A.includes(s))], basis: `${obs.n} of ${held.length} feature(s) split the sources perfectly at the same cut; features whose source-sets are shuffled to the same sizes do as well p=${p.toFixed(4)} against level 1/${held.length}` };
 }

@@ -26,6 +26,7 @@
 //   line      everything else: a verse line, a prose paragraph, a sentence
 
 import { syllables, rhymeKeys } from "./sound.js";
+import { permutationCount } from "../kernel/nullcheck.js";
 
 export const MEDIUM_SCHEMA = "EOMedium@1";
 
@@ -233,9 +234,8 @@ function randomCutCv(totalLen, n, rnd) {
  *  pieces. Exported for testing without a live document. */
 export function uniformityP(realCv, totalLen, n, { draws = 200, rnd = Math.random } = {}) {
   if (n < 2 || totalLen < n) return 1;
-  let atLeastAsUniform = 0;
-  for (let d = 0; d < draws; d++) if (randomCutCv(totalLen, n, rnd) <= realCv) atLeastAsUniform++;
-  return atLeastAsUniform / draws;
+  const { ge } = permutationCount(draws, () => randomCutCv(totalLen, n, rnd), (cv) => cv <= realCv);
+  return ge / draws;
 }
 
 /**
