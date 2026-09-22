@@ -29,10 +29,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { sidOf, loadState, saveState, newTurn, engineRunOf, uncovered, exempt, steeringOff, logError } from "./claude-code-state.mjs";
 
-// EO_LEDGER_DIR moves the ledger out of the repo: the Claude Code plugin
-// (claude-code/) sets it to its persistent data dir, because a plugin's own
-// install folder is replaced on every update.
-const DOCS = process.env.EO_LEDGER_DIR || path.join(path.dirname(new URL(import.meta.url).pathname), "..", "documents");
+const DOCS = path.join(path.dirname(new URL(import.meta.url).pathname), "..", "documents");
 const EXCERPT = 4000;
 
 // The declared table of secret shapes. Anything matching is replaced before it

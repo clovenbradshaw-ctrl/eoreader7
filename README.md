@@ -41,7 +41,9 @@ claude plugin marketplace add clovenbradshaw-ctrl/eoreader7 --sparse .claude-plu
 claude plugin install eo-reason@eoreader7
 ```
 
-See `claude-code/README.md` for how the plugin is built from this tree.
+The plugin carries no copy of the engine: its hooks run from this clone
+(`$ER7_DIR`, default `~/eoreader7`), so run `npm ci` here first. See
+`claude-code/README.md`.
 
 ## Connecting to eoreader7
 
