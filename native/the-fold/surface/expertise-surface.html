@@ -106,6 +106,25 @@
 </style>
 </head>
 <body>
+<div id="manualModal" role="dialog" aria-modal="true">
+  <div class="card">
+    <div class="head"><b id="manualTitle">manual</b><span style="flex:1"></span><button id="manualClose">✕</button></div>
+    <pre id="manualBody">loading…</pre>
+  </div>
+</div>
+<div class="gmodal" id="gmodal" role="dialog" aria-modal="true">
+  <div class="gmodal-card">
+    <div class="gmodal-head">
+      <span class="gmodal-glyph" id="gmodal-glyph"></span>
+      <div>
+        <div class="gmodal-title" id="gmodal-title"></div>
+        <div class="gmodal-addr" id="gmodal-addr"></div>
+      </div>
+      <button class="gmodal-close" id="gmodal-close">✕</button>
+    </div>
+    <div id="gmodal-body"></div>
+  </div>
+</div>
 <header>
   <div><h1>Polanyi</h1><span class="sub">the expertise archon — local model only, no frontier model</span></div>
   <div id="gh"><button id="ghLogin">Sign in with GitHub</button></div>
@@ -378,24 +397,5 @@ document.addEventListener("keydown", (ev) => {
 $("#gmodal").addEventListener("click", (ev) => { if (ev.target.id === "gmodal") closeGrounding(); });
 $("#gmodal-close").addEventListener("click", closeGrounding);
 </script>
-<div id="manualModal" role="dialog" aria-modal="true">
-  <div class="card">
-    <div class="head"><b id="manualTitle">manual</b><span style="flex:1"></span><button id="manualClose">✕</button></div>
-    <pre id="manualBody">loading…</pre>
-  </div>
-</div>
-<div class="gmodal" id="gmodal" role="dialog" aria-modal="true">
-  <div class="gmodal-card">
-    <div class="gmodal-head">
-      <span class="gmodal-glyph" id="gmodal-glyph"></span>
-      <div>
-        <div class="gmodal-title" id="gmodal-title"></div>
-        <div class="gmodal-addr" id="gmodal-addr"></div>
-      </div>
-      <button class="gmodal-close" id="gmodal-close">✕</button>
-    </div>
-    <div id="gmodal-body"></div>
-  </div>
-</div>
 </body>
 </html>
