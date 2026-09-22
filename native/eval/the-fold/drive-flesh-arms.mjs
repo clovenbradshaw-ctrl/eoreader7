@@ -27,7 +27,10 @@ const model = arg("model", "gemma2:2b");
 const prefix = arg("prefix", "ts");
 const id = `${prefix}-${flesh.toLowerCase()}-${arm.toLowerCase()}`;
 
-const TASK = "Write an essay on what the audit found about the Office of Homeless Services and how the audit committee responded.";
+// The task is overridable so the same driver can chase other material
+// (2026-09-21: a narrative excerpt, a spoken oral-argument transcript) —
+// the OHS task remains the default so existing invocations are unaffected.
+const TASK = arg("task", "Write an essay on what the audit found about the Office of Homeless Services and how the audit committee responded.");
 // The flesh phase runs on the recommendations follow-up — the OHS document
 // whose stance structure is the experiment's (graded recommendations, the
 // committee's responses) — a bounded slice of the four-document dossier. The
@@ -79,10 +82,17 @@ try {
   const summaryLine = fs.readFileSync(ledgerPath, "utf8").split("\n").find((l) => l.includes('"role":"summary"'));
   if (summaryLine) summary = JSON.parse(summaryLine).text;
 } catch {}
-fs.writeFileSync(path.join(out, `flesh-${flesh.toLowerCase()}-${arm.toLowerCase()}.json`), JSON.stringify({
+// The output filename is PREFIX-scoped, not just flesh/arm-scoped — running
+// this driver against a different source under the OHS defaults' filename
+// would silently overwrite that source's committed results (measured risk,
+// not yet a real mistake: caught before running the narrative/transcript
+// chase). "ts" (the original OHS runs) keeps its historic bare filename;
+// any other prefix gets its own.
+const fileTag = prefix === "ts" ? `${flesh.toLowerCase()}-${arm.toLowerCase()}` : `${prefix}-${flesh.toLowerCase()}-${arm.toLowerCase()}`;
+fs.writeFileSync(path.join(out, `flesh-${fileTag}.json`), JSON.stringify({
   docId, arm, flesh, model, ground: GROUND[0], seconds: Math.round((Date.now() - t0) / 1000),
   summary,
   parts: result?.parts?.map((p) => ({ id: p.id, status: p.status, of: p.of, floored: p.floored, pieces: (p.pieces ?? []).length })) ?? null,
   levels: result?.levels ?? null,
 }, null, 2));
-console.error(`\nwrote ${path.join(out, `flesh-${flesh.toLowerCase()}-${arm.toLowerCase()}.json`)} · ${docId}`);
+console.error(`\nwrote ${path.join(out, `flesh-${fileTag}.json`)} · ${docId}`);
