@@ -372,6 +372,8 @@ export function paradigmLines(p) {
 // generated, never assigned by hand to a named relation.
 import { emergentFacts } from "./form-prior.js";
 import { ABSENT } from "../kernel/bayes-surprise.js";
+import { kindEvidence, createKindInductionIndex } from "../kernel/kind-induction.js";
+import { induceEntityKindCandidates } from "../kernel/entity-kind-induction.js";
 
 export function cellOfFact(slot, value) {
   if (value === ABSENT) return "NUL·Figure";
@@ -445,4 +447,64 @@ export function evaluateParadigmEmergent(p, candidate) {
   const held = scored.filter((f) => String(u.has(f.slot) ? u.get(f.slot) : ABSENT) === f.value).length;
   const score = scored.length ? held / scored.length : 0;
   return { satisfies: score >= p.satisfies.cut, score, held, of: scored.length };
+}
+
+// ── DISCOVERED PLURALITY (2026-09-22). learn-pass.js's own `stance`
+// (expertise-agent.js's extractStance) lets a PERSON declare that one name
+// spans more than one paradigm ("white paper — tech sector" vs "white paper
+// — food science"). This is the other half: given instances all filed under
+// ONE name with no declared stance, does the engine's OWN reading find that
+// they cluster into more than one real sub-paradigm? It reuses the SAME
+// evidence learnParadigmEmergent already extracts (form-prior.js's
+// emergentFacts — no separate feature set invented) and the SAME induction
+// this engine already trusts elsewhere for "is this a real kind, or
+// coincidence" (kernel/entity-kind-induction.js's affinity-basin clustering
+// with its random-subset binding-energy null, wired the way kinds.js already
+// wires it onto statements). Nothing here forks the recording — a caller
+// that finds `plural: true` DISCLOSES it; auto-forking one paradigm into
+// several ledger entries is a bigger behavior change, left undone on
+// purpose (see learn-pass.js's own call site).
+/**
+ * detectParadigmPlurality(instances, { name, population }) →
+ *   { plural: false, basis, diagnostics }  — the common case: no real split
+ *   { plural: true, clusters: [{ members, distinguishingFacts }], unclustered, basis, diagnostics }
+ * `population` here is only a label for the induction's own seeded null and
+ * its kind keys (kernel/entity-kind-induction.js's own `population` option)
+ * — it is NOT the comparison ground learnParadigmEmergent measures against;
+ * the instances cluster against THEMSELVES, the same self-clustering
+ * kinds.js already does for one draft's statements.
+ */
+export function detectParadigmPlurality(instances = [], { name = "form", population = null } = {}) {
+  const nI = instances.length;
+  if (nI < 5) return { plural: false, refused: "under_powered", instances: nI, basis: `${nI} instance(s): below five the induction cannot tell a cluster from a coincidence — refused` };
+  const facts = (u) => emergentFacts(Array.isArray(u?.elements) ? u : { elements: elementsOf(typeof u === "string" ? u : u?.text ?? "").elements });
+  const entries = [];
+  let seq = 0;
+  instances.forEach((u, i) => {
+    const id = (typeof u === "object" && u?.id != null) ? String(u.id) : `instance-${i}`;
+    for (const [slot, value] of facts(u)) entries.push(kindEvidence({ id: `pp-${++seq}`, entityRef: id, featureKey: slot, featureValue: value, sequencePosition: i }));
+  });
+  const index = createKindInductionIndex(entries);
+  const popLabel = population || `paradigm:${name}`;
+  const induced = induceEntityKindCandidates(index.entityFeatures, { population: popLabel });
+  const validatedCount = induced.diagnostics.validated;
+  if (validatedCount < 2) {
+    return {
+      plural: false, instances: nI, diagnostics: induced.diagnostics,
+      basis: validatedCount === 1
+        ? `one stable cluster among ${nI} instances (random-subset binding-energy null) — a single paradigm, not a plural one`
+        : `no cluster of these ${nI} instances bound to itself beyond the random-subset binding-energy null — a single paradigm`,
+    };
+  }
+  const clusters = induced.candidates.map((c) => ({
+    members: [...c.memberRefs],
+    distinguishingFacts: (c.distinguishingParameters ?? []).map((p) => ({ key: p.featureKey, value: p.featureValue, prevalence: +p.prevalence.toFixed(3), distinctiveness: +p.distinctiveness.toFixed(3) })),
+    cohesion: c.cohesion, pValue: c.cohesionNull?.pValue ?? null,
+  }));
+  const clustered = new Set(clusters.flatMap((c) => c.members));
+  const unclustered = instances.map((u, i) => (typeof u === "object" && u?.id != null) ? String(u.id) : `instance-${i}`).filter((id) => !clustered.has(id));
+  return {
+    plural: true, instances: nI, clusters, unclustered, diagnostics: induced.diagnostics,
+    basis: `${clusters.length} stable clusters found among ${nI} instances (random-subset binding-energy null, each cluster's own p ≤ ${Math.max(...clusters.map((c) => c.pValue ?? 1)).toFixed(3)}); ${unclustered.length} instance(s) outside any stable cluster — "${name}" may not be one paradigm`,
+  };
 }
