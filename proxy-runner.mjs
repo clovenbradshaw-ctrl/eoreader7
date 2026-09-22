@@ -75,6 +75,7 @@ import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEA
 // disagreement, and a text→image render for text whose formatting the
 // plain-text reader is reading wrong.
 import { isImageFileName, lookAtImage, lookAtText, shouldLook, weirdFormattingScore } from "./native/organs/look.js";
+import { MODEL_SERVER_URL } from "./native/kernel/model-server.js";
 import { mechanicalRevision, variedDraw } from "./native/organs/variation.js";
 import { styleGrade as strunkWhiteGrade } from "./native/organs/strunk-white.js";
 import { pacingGrade as murchPacing } from "./native/organs/pacing.js";
@@ -220,7 +221,10 @@ export const MODEL_GIVER = (model) => {
 };
 const DEFAULT_POS_PRIOR = path.join(HERE, "legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json");
 
-export const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
+// The daemon's PRIVATE address (native/kernel/model-server.js): the runner's
+// own draws go straight to it — the door already admitted them — never back
+// through the channel on the conventional port.
+export const OLLAMA = MODEL_SERVER_URL;
 
 // Model warmth: Ollama unloads a model after its keep_alive window (default
 // 5m), so an idle gap between turns pays a multi-GB cold-load on the next

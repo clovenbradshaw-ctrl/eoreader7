@@ -1645,3 +1645,60 @@ relation between the clause and its oblique dependent, SEG·Ground. And
 "struck Nashville" (a direct object) is not ground, however place-like the
 word is, because it is a syntactic argument, not an oblique — the test
 rewrote the sentence to keep the two apart and checks both directions.
+
+## 69. One channel on the box: the daemon is Heimdall's, the port is the door (2026-09-21)
+
+The evening's drag had no algorithm behind it. Two Ollama installs answered
+one port — homebrew on `127.0.0.1:11434`, Ollama.app on `[::]:11434` — and
+`localhost` resolves to `::1` on this box, so every module that said
+`localhost` reached one daemon and the host picker (`127.0.0.1`) reached the
+other; each reloaded what the other held. 105 files called the daemon
+directly with no admission. Two proxies in one checkout drove one ledger.
+The watchdog read a probe timeout at 93% swap as a wedge and restarted the
+daemon, and the Ollama.app menu-bar process respawned its own one pid ahead
+of ours. `OLLAMA_NUM_GPU` had been in the "CPU-only" config for days; the
+server does not read it.
+
+What holds now, each with the control that would break it:
+
+- **One address, derived.** `native/kernel/model-server.js` is the only
+  place the daemon's URL is written; heimdall.mjs, proxy.mjs,
+  proxy-runner.mjs and look.js import it. A second literal anywhere is the
+  drift that split the traffic.
+- **The daemon is private; the channel is public.** `ollama serve` binds
+  `127.0.0.1:11435` (OLLAMA_HOST derived from the URL). The proxy holds
+  `11434` on BOTH loopback families. Control: `localhost` and `127.0.0.1`
+  must answer with `x-heimdall-channel`; one without the other is the split
+  again.
+- **Admission per SERVER.** The connection names the process (lsof peer port
+  → pid → argv); a script that sends no header is still one place in the
+  round-robin, on the batch ration behind interactive work. A refused server
+  that retries inside its Retry-After doubles its hold (bounded by the SLA)
+  and past the floor is `retry_storm`. Measured within a minute of boot: an
+  eval that ignored Retry-After was held to 22s.
+- **One window.** A caller's `num_ctx` is dropped and disclosed. Control: the
+  loaded window must not change when a caller asks for another.
+- **Multiple daemons → quit and reconcile** (the operator's word). Never on
+  an unverified lsof: the first boot reconciled while lsof timed out and was
+  right by luck; now an unverified census quits nothing and the probe
+  retries.
+- **A timeout under memory pressure is memory, not a wedge.** The watchdog
+  stands down; `restartModelServer` refuses under pressure.
+- **One driver per checkout** (`state/heimdall-driver.lock`); a second proxy
+  is a door only.
+- **The learner eats observations only** — act `eva`, or a snapshot folded
+  from them — never a holon's own acts. Before: its top pattern was its own
+  `pattern_earned`, 59 an hour, adopting nothing.
+- **Rules as levers, on trial.** `saturated`/`expected_wait` move
+  `familyCap` one step; `memory_pressured` evicts the least-recent resident.
+  The window after is judged against the window before by a permutation null
+  (α 0.05, disclosed); held keeps the lever, conceded reverts it, a conceded
+  key waits four windows. Nothing about the box is hand-set except α.
+- **The bridge is a host by measurement**: `/bridge/hello` says `bridge`, its
+  `/api/ps` says what the phones hold, and it is a standby until they hold
+  something. Never a cold candidate, never bounced back to.
+
+Measured after the first boot: free memory 49 MB → 3.8 GB, compressor
+9.6 GB → 3.4 GB, swap-out 2,732 pages/s → 0. Owed: a phone-served call end
+to end (the phone was mid-relink), and a room mouth registered without the
+bridge.

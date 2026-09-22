@@ -60,6 +60,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawn } from "node:child_process";
 import http from "node:http";
+import { MODEL_SERVER_URL, CHANNEL_PORT, modelServerHost, modelServerPort } from "./native/kernel/model-server.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const isMain = (() => {
@@ -67,7 +68,13 @@ const isMain = (() => {
   catch { return false; }
 })();
 
-const OLLAMA_URL = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
+// The daemon's PRIVATE address (native/kernel/model-server.js): only Heimdall
+// speaks to it. Everyone else on the box reaches the model through the
+// CHANNEL on CHANNEL_PORT (the proxy holds it, both address families), so a
+// script that never heard of Heimdall still waits its turn.
+const OLLAMA_URL = MODEL_SERVER_URL;
+export const modelServerUrl = () => OLLAMA_URL;
+export const channelPort = () => CHANNEL_PORT;
 
 // ── INFERENCE HOSTS: many small servers, one picker (2026-09-21) ──────────
 // Our incentives are not a GPU farm's. The models are small and the box is
@@ -107,8 +114,18 @@ function parseHosts() {
     out.push({ name, url });
   }
   if (!out.length) out.push({ name: "local", url: OLLAMA_URL });
+  // THE FLEET, BY DEFAULT (2026-09-21): the phone bridge (`heimdall up`,
+  // 3.0/heimdall) is a host whenever it is up — that is how "across Matrix"
+  // reaches this picker: a phone that accepted duty holds a model, the bridge
+  // lists it in /api/ps, and it ranks beside the local daemon on the same
+  // measured scale. ER7_FLEET_URL="" opts out. Marked `auto` so an absent
+  // bridge is a standby, never a host_down alarm.
+  if (process.env.ER7_FLEET_URL !== "" && !out.some((h) => h.name === "fleet")) {
+    out.push({ name: "fleet", url: String(process.env.ER7_FLEET_URL ?? "http://127.0.0.1:8790").replace(/\/+$/, ""), auto: true });
+  }
   return out.map((h) => ({
     ...h, inflight: 0, calls: 0, picks: 0, fails: 0, lastAt: null, downAt: null, downReason: null,
+    kind: null,          // "daemon" | "bridge" — measured on the first /bridge/hello probe, never assumed
     meanMs: new Map(),   // model -> EWMA turn ms on this host
     loadMs: null,        // EWMA of REAL loads (load_duration > 100ms) on this host
     resident: new Map(), // model -> expiresAt (from /api/ps) — what is hot here
@@ -125,15 +142,31 @@ function hostResident(h, model) {
   if (exp == null) return false;
   return Date.parse(exp) > Date.now() || !Number.isFinite(Date.parse(exp));
 }
-/** Pick the host for a turn. Returns { host, reason, order }. */
-export function pickHost({ model = null, session = null } = {}) {
-  const up = hosts.filter((h) => hostUp(h) && !h.shapeMismatch);
-  if (!up.length) return { host: hosts[0], reason: "all_hosts_down_trying_first", order: hosts.map((h) => h.name) };
+/** A BRIDGE holds no model of its own: it is a host only while a phone
+ *  behind it holds one (its /api/ps lists exactly those). With none, it is
+ *  a standby — never picked, never a cold candidate (it cannot load what the
+ *  phones did not choose), never counted toward expected wait. Before the
+ *  bridge is even reached (kind unknown) it is a standby as well: an absent
+ *  bridge is an absence, not a server. Read as data; the-fold's isPinnedModel
+ *  is the same rule one register over. */
+export function hostStandby(h) {
+  if (h.kind === "bridge") return h.resident.size === 0;
+  return h.kind == null && !!h.auto;
+}
+/** Pick the host for a turn. Returns { host, reason, order }. `exclude` names
+ *  the host a re-entered turn came from (the bridge that fell through), so a
+ *  turn never bounces back to it. */
+export function pickHost({ model = null, session = null, exclude = null } = {}) {
+  const up = hosts.filter((h) => hostUp(h) && !h.shapeMismatch && !hostStandby(h) && h.name !== exclude);
+  if (!up.length) {
+    const first = hosts.find((h) => h.kind !== "bridge" && !h.auto) ?? hosts[0];
+    return { host: first, reason: "all_hosts_down_trying_first", order: hosts.map((h) => h.name) };
+  }
   if (model) maybePrewarm(model);
   // 1. sticky
   if (session && sessionHost.has(session)) {
     const h = hostByName(sessionHost.get(session));
-    if (h && hostUp(h) && (!model || hostResident(h, model))) { h.picks++; return { host: h, reason: "sticky_session", order: [h.name] }; }
+    if (h && hostUp(h) && h.name !== exclude && !hostStandby(h) && (!model || hostResident(h, model))) { h.picks++; return { host: h, reason: "sticky_session", order: [h.name] }; }
   }
   // 3. expected wait per host
   const measured = up.map((h) => (model ? h.meanMs.get(model) : null)).filter((v) => Number.isFinite(v) && v > 0);
@@ -141,8 +174,11 @@ export function pickHost({ model = null, session = null } = {}) {
   const waitOf = (h) => h.inflight * ((model && h.meanMs.get(model)) || typical);
   const loadCostOf = (h) => (h.loadMs ?? 0);
   // 2. resident first, unless waiting for the resident host costs more than
-  //    loading elsewhere (that host's own measured load cost)
-  let cands = up.slice();
+  //    loading elsewhere (that host's own measured load cost). A bridge is a
+  //    candidate only where a phone already holds the model.
+  let cands = up.filter((h) => !(h.kind === "bridge" && model && !hostResident(h, model)));
+  if (!cands.length) cands = up.filter((h) => h.kind !== "bridge");
+  if (!cands.length) cands = up.slice();
   if (model) {
     const res = cands.filter((h) => hostResident(h, model));
     const cold = cands.filter((h) => !hostResident(h, model));
@@ -209,7 +245,7 @@ export function hostEnd(name, { model = null, ms = null, ok = true, loadMs = 0, 
  *  measurement — unmeasured is never a hold. */
 export function expectedWaitMs(model) {
   let best = null;
-  const up = hosts.filter((h) => hostUp(h) && !h.shapeMismatch);
+  const up = hosts.filter((h) => hostUp(h) && !h.shapeMismatch && !hostStandby(h));
   // turns admitted but not yet on a host will spread over the up hosts
   const pendingEach = up.length ? Math.ceil(pendingCount() / up.length) : 0;
   for (const h of up) {
@@ -258,7 +294,8 @@ export function maybePrewarm(model) {
   if (!model) return null;
   const queued = hosts.filter((h) => hostUp(h) && h.inflight > 1 && hostResident(h, model));
   if (!queued.length) return null;
-  const cold = hosts.filter((h) => hostUp(h) && !h.shapeMismatch && !hostResident(h, model) && Date.now() - (prewarmAt.get(h.name) ?? 0) > 60000);
+  // never a bridge: the phones behind it choose their own models
+  const cold = hosts.filter((h) => hostUp(h) && !h.shapeMismatch && h.kind !== "bridge" && !h.auto && !hostResident(h, model) && Date.now() - (prewarmAt.get(h.name) ?? 0) > 60000);
   if (!cold.length) return null;
   const target = cold[0];
   prewarmAt.set(target.name, Date.now());
@@ -274,6 +311,7 @@ export function hostsDisclosure() {
     name: h.name, url: h.url, up: hostUp(h), downReason: h.downReason, inflight: h.inflight, calls: h.calls, picks: h.picks, fails: h.fails,
     lastAt: h.lastAt ? new Date(h.lastAt).toISOString() : null,
     shapeMismatch: h.shapeMismatch ?? null,
+    kind: h.kind ?? null, standby: hostStandby(h), auto: !!h.auto,
     queueMs: h.queueMs ?? null,
     loadMs: h.loadMs, meanMs: Object.fromEntries(h.meanMs), resident: [...h.resident.keys()],
     sessions: [...sessionHost.values()].filter((n) => n === h.name).length,
@@ -712,7 +750,10 @@ const emptyBucket = () => ({ findings: {}, acts: {}, vitals: { rows: 0, saturate
 // (bounded per bucket, most recent kept).
 function foldEntryInto(b, e, at) {
   const cls = e.finding ?? e.class ?? null;
-  if (cls) {
+  // Only OBSERVATIONS fold into findings (2026-09-21): a holon's own act
+  // (rec, holon set) is counted under `acts`, never as a finding the learner
+  // could read back through the fold as a pattern of its own making.
+  if (cls && e.act === "eva" && !e.holon) {
     const probe = e.model ?? e.probe ?? e.surface ?? null;
     const fkey = `${cls}:${probe ?? "-"}`;
     const f = b.findings[fkey] ?? { class: cls, probe, count: 0, first: at, last: at };
@@ -1235,6 +1276,30 @@ export function memoryPressured(vitals, floorMb = MEM_FLOOR_MB) {
   return false;
 }
 
+// KEEP-WARM PRESSURE (2026-09-21, the reload storm): holding a model resident
+// is NOT a new load — the pages are already allocated. So the gate for
+// warming/keeping is AVAILABLE memory (free + reclaimable inactive), never
+// "truly free", which sits chronically at ~50MB on macOS because the OS keeps
+// everything in cache. The free floor above exists to refuse a NEW load into a
+// box that cannot take one (the 2026-09-19 lesson); it must not also stand the
+// residency holon down — that is how a held model drops and every next prompt
+// pays a cold load (measured: 132 reloads in a session while the box sat
+// idle). Swap churn still stands a warm down: thrashing is never the moment to
+// touch the model table.
+const WARM_FLOOR_MB = Number(process.env.ER7_WARM_FLOOR_MB ?? 512);
+export function warmPressureReason(vitals, floorMb = WARM_FLOOR_MB) {
+  if (!vitals) return null;
+  const churn = vitals.swapOutPerS ?? null;
+  if (churn != null && churn >= SWAP_CHURN_PPS) return `thrashing: ${Math.round(churn)} pages/s swapped out (ceiling ${SWAP_CHURN_PPS})`;
+  const avail = vitals.memAvailableMb ?? vitals.memFreeMb;
+  if (avail != null && avail < floorMb) return `only ${avail}MB available, warm floor ${floorMb}MB`;
+  return null;
+}
+export function warmPressureTest(vitals, floorMb = WARM_FLOOR_MB) {
+  if (!vitals) return false; // unknown is never a conviction
+  return warmPressureReason(vitals, floorMb) != null;
+}
+
 async function collectFastVitals() {
   const v = { load1: null, load5: null, load15: null, ollamaCpu: null, ollamaMemMb: null, ollamaPid: null, memFreeMb: null, memInactiveMb: null };
   const load = await execOut("sysctl", ["-n", "vm.loadavg"], 2000);
@@ -1404,6 +1469,9 @@ export function disclosure() {
     saturated: boxSaturated(cachedVitals()),
     surfacesUp: surfaces.filter((s) => s.up === true).length,
     surfacesTotal: surfaces.length,
+    // the model server, and whether MORE than one daemon answers it (the
+    // dual-daemon collision the reload storm's root — see checkModelServerCollision)
+    modelServer: { collision: lastCollision },
   };
 }
 
@@ -1688,6 +1756,15 @@ export async function refreshOllamaModels() {
   // every host's own /api/ps: what is resident WHERE, and which hosts answer
   await Promise.all(hosts.map(async (h) => {
     try {
+      // What KIND of host this is, measured once: a bridge answers
+      // /bridge/hello with `bridge: true`; a daemon 404s it. Until it answers
+      // at all, an auto host stays a standby (hostStandby).
+      if (h.kind == null) {
+        const hello = await fetchWithTimeout(`${h.url}/bridge/hello`, 3000);
+        const b = hello.ok ? await hello.json().catch(() => null) : null;
+        h.kind = b?.bridge ? "bridge" : "daemon";
+        appendLog({ act: "eva", finding: "host_kind", host: h.name, kind: h.kind });
+      }
       const r = await fetchWithTimeout(`${h.url}/api/ps`, 3000);
       if (!r.ok) return;
       const b = await r.json();
@@ -1734,6 +1811,10 @@ export async function refreshOllamaModels() {
     windowSeen.set(m.name, { contextLength: m.contextLength, switches });
   }
   ollamaModels = models;
+  // The second eye, on the same cadence: is MORE than one ollama daemon
+  // answering the model port? Two daemons with disagreeing windows/keep-alives
+  // are the reload storm's root — detected here, throttled, disclosed.
+  checkModelServerCollision().catch((err) => log(`collision eye error: ${err.message}`));
 }
 
 // ── SELF-DEFENSE: the watcher watches its own watching ────────────────────
@@ -1821,6 +1902,7 @@ const REAP_SERVE_GRACE_MS = Number(process.env.ER7_REAP_SERVE_GRACE ?? 10 * 60 *
 const REAP_TEST_AGE_MS = Number(process.env.ER7_REAP_TEST_AGE ?? 2 * 60 * 60 * 1000);
 const REAP_MAX_KILLS = Number(process.env.ER7_REAP_MAX_KILLS ?? 5);
 let REAP_KILL_ON = (process.env.ER7_REAP_OFF ?? "0") !== "1"; // runtime-adjustable
+let RECONCILE_DAEMONS_ON = (process.env.ER7_RECONCILE_OFF ?? "0") !== "1"; // runtime-adjustable: multiple ollama → quit and reconcile to one
 
 /** Parse a `ps` etime ([dd-]hh:mm:ss) to seconds, or null when it is not a time. */
 export function parseEtime(s) {
@@ -2123,8 +2205,8 @@ async function readProcessTable() {
 
 /** lsof proof: pid -> the set of TCP ports it actually holds LISTEN on, or
  *  null when the probe could not complete (then nobody dies — unverified). */
-async function listeningPorts() {
-  const out = await execOut("lsof", ["-iTCP", "-sTCP:LISTEN", "-P", "-n"], 5000);
+async function listeningPorts(ms = 5000) {
+  const out = await execOut("lsof", ["-iTCP", "-sTCP:LISTEN", "-P", "-n"], ms);
   if (!out) return null;
   const held = new Map();
   for (const line of out.split("\n")) {
@@ -2137,9 +2219,103 @@ async function listeningPorts() {
   return held;
 }
 
+// MODEL-SERVER COLLISION (2026-09-21, the reload storm's root): two `ollama
+// serve` daemons answering the SAME model port each hold their own copy of the
+// loaded model — own window, own keep_alive, own queue. Requests split between
+// them; every request that lands on the daemon whose copy has expired reloads
+// (measured: 132 reloads while the box sat idle), and each daemon's independent
+// queue is the "waiting inside Ollama behind other programs' requests" the
+// dashboard counts. This is the config drift the 2026-09-21 post-mortem named
+// (5.1, Attack 2 — the two server-config sources can drift). Detected HERE, in
+// code, by the same lsof proof the reaper already trusts — never on a
+// suspicion.
+export function modelServerCollisionOf(heldPorts, rows) {
+  if (!heldPorts || !Array.isArray(rows)) return null; // unverified — never a conviction
+  // Only `ollama serve` daemons count — a llama-server runner holds a DIFFERENT
+  // port and the two daemons here are the collision. The args must name the
+  // server, never a runner, never a proxy of it.
+  const isDaemon = (pid) => { const r = rows.find((x) => x.pid === pid); return !!r && /ollama\s+serve\b/.test(String(r.args)); };
+  const daemonsOn = (port) => [...heldPorts.entries()].filter(([, ports]) => ports.has(port)).map(([pid]) => pid).filter(isDaemon);
+  const port = modelServerPort();
+  let daemons = daemonsOn(port);
+  // Two daemons on the daemon's port is the collision. A daemon on the
+  // CHANNEL's port is one too (2026-09-21): it takes the callers the channel
+  // exists to admit, and each half of the traffic reloads the other's model.
+  let on = port;
+  if (daemons.length < 2 && CHANNEL_PORT !== port) { const stray = daemonsOn(CHANNEL_PORT); if (stray.length) { daemons = stray; on = CHANNEL_PORT; } }
+  if (!daemons.length || (on === port && daemons.length < 2)) return null;
+  return { port: on, pids: daemons, args: daemons.map((pid) => rows.find((x) => x.pid === pid)?.args ?? `pid ${pid}`) };
+}
+export async function modelServerCollision() {
+  const held = await listeningPorts();
+  const rows = await readProcessTable().catch(() => []);
+  markHostPids(held);
+  return modelServerCollisionOf(held, rows);
+}
+/** Which pid holds each host's port (the same lsof proof), so the channel can
+ *  see a host calling it — the bridge falling through to its own upstream —
+ *  and never route that call back to the host it came from. Unverified →
+ *  the last reading stands. */
+export function markHostPids(held) {
+  if (!held) return;
+  for (const h of hosts) {
+    const port = Number(new URL(h.url).port || "80");
+    const owner = [...held.entries()].find(([, ports]) => ports.has(port))?.[0] ?? null;
+    if (owner != null) h.pid = owner;
+  }
+}
+export function hostOwnedByPid(pid) {
+  if (pid == null) return null;
+  return hosts.find((h) => h.pid === pid)?.name ?? null;
+}
+let lastCollision = null; // the last confirmed collision, disclosed in /heimdall
+let _lastCollisionProbe = 0;
+let lastCollisionRaise = 0;
+const COLLISION_PROBE_MS = Number(process.env.ER7_COLLISION_PROBE_MS ?? 120000);
+/** Probe for the dual-daemon collision on its own cadence (lsof is a subprocess
+ *  spawn — on a loaded box it is not free, so it is throttled, never on the
+ *  request path). Emits the finding and the escalation once per window. */
+export async function checkModelServerCollision() {
+  if (Date.now() - _lastCollisionProbe < COLLISION_PROBE_MS) return lastCollision;
+  _lastCollisionProbe = Date.now();
+  const coll = await modelServerCollision();
+  const port = modelServerPort();
+  if (coll) {
+    lastCollision = { ...coll, at: new Date().toISOString() };
+    if (Date.now() - lastCollisionRaise >= RESTART_WINDOW_MS) {
+      lastCollisionRaise = Date.now();
+      appendLog({ act: "eva", finding: "model_server_collision", port: coll.port, pids: coll.pids, giver: "heimdall", standing: "disclosed" });
+      lintedNote({
+        kind: "infra", level: "escalate", severity: "high",
+        note: `model server collision: ${coll.pids.length} ollama daemon(s) (${coll.pids.join(", ")}) on port ${coll.port} — requests split, every miss reloads the model, queues double. ${RECONCILE_DAEMONS_ON ? "Reconciling: one daemon, on the private address, kept." : "reconcileDaemons is off — keep ONE daemon by hand."}`,
+        giver: "heimdall", standing: "disclosed", probe: `port ${coll.port}`,
+      });
+      // The operator's rule (2026-09-21): multiple ollama → quit and reconcile.
+      if (RECONCILE_DAEMONS_ON) {
+        const r = await reconcileModelServers().catch((err) => ({ ok: false, error: err.message }));
+        if (!r.ok) appendLog({ act: "eva", finding: "model_server_reconcile_failed", error: r.error ?? r.note ?? null, giver: "heimdall", standing: "disclosed" });
+        else lastCollision = null; // re-measured on the next probe; a collision that survives a reconcile concedes the act
+      }
+    }
+  } else if (lastCollision) {
+    appendLog({ act: "rec", finding: "model_server_single", port, giver: "heimdall", standing: "disclosed" });
+    lastCollision = null;
+  }
+  return lastCollision;
+}
+
 const reaperTermed = new Map(); // pid -> SIGTERM issued at (escalation state)
 let lastReapReport = null;
 let lastReapAt = 0; // first tick reaps, then every REAP_MS
+/** The reaper on its own cadence for a driver OUTSIDE the standalone tick
+ *  (the proxy in external-heimdall mode, 2026-09-21: the reaper had no caller
+ *  there — `reaper.last` read null on the live box while a model sat loaded
+ *  twice). First call reaps; then every REAP_MS. */
+export function liveReapIfDue() {
+  if (Date.now() - lastReapAt < REAP_MS) return null;
+  lastReapAt = Date.now();
+  return liveReap().catch((err) => { log(`reaper error: ${err.message}`); return null; });
+}
 
 /** The live reaper: census the background, resolve contested groups against
  *  lsof proof, kill the strays within budget, record every death on the
@@ -2433,6 +2609,7 @@ const SETTINGS = {
   fastPass:     { def: true, type: "bool", about: "whether remote lanes skip the local queue", aliases: ["fast pass", "fastpass", "ungated", "remote lane"] },
   swapCeilPct:  { def: SWAP_CEIL_PCT, type: "int", min: 50, max: 100, about: "swap level (%) that counts as pressure \u2014 refused only when also churning or starved", aliases: ["swap ceiling", "swap ceil", "swap limit"] },
   swapChurnPps: { def: SWAP_CHURN_PPS, type: "int", min: 0, max: 5000, about: "swap-out pages/second that count as active thrashing", aliases: ["swap churn", "churn"] },
+  reconcileDaemons: { def: RECONCILE_DAEMONS_ON, type: "bool", about: "when more than one ollama daemon is found, quit the extras (and the Ollama.app respawner) and keep one on the private address", aliases: ["reconcile daemons", "reconcile", "reconcile ollama", "one daemon"] },
 };
 function applySetting(name, value, { persist = true } = {}) {
   const key = canonicalSetting(name);
@@ -2460,6 +2637,7 @@ function applySetting(name, value, { persist = true } = {}) {
     case "parallelism": PARALLELISM = v; break;
     case "swapCeilPct": SWAP_CEIL_PCT = v; break;
     case "swapChurnPps": SWAP_CHURN_PPS = v; break;
+    case "reconcileDaemons": RECONCILE_DAEMONS_ON = v; break;
     default: return { ok: false, error: `no such setting: ${key}` };
   }
   if (persist) saveSettings();
@@ -2510,6 +2688,7 @@ function settingValue(name) {
     case "parallelism": return PARALLELISM;
     case "swapCeilPct": return SWAP_CEIL_PCT;
     case "swapChurnPps": return SWAP_CHURN_PPS;
+    case "reconcileDaemons": return RECONCILE_DAEMONS_ON;
     default: return null;
   }
 }
@@ -2578,7 +2757,7 @@ function efficiencyFindings() {
 // assembled once: the systems, the CRASH EVIDENCE from the ledger (so "why do
 // they keep crashing?" has real material), the models, the line, the box, and
 // the rules. It grounds both the mechanical answer and the framed turn.
-const CONCERN = new Set(["surface_down","restart_storm","self_down","unservable","unservable_refused","unservable_seeded","turned_no_answer","model_dropped","window_changed","forward_failed","first_byte_timeout","memory_pressured","saturated","rationed","claimed","bad_pass","zipper_held","setting_refused"]);
+const CONCERN = new Set(["surface_down","restart_storm","self_down","unservable","unservable_refused","unservable_seeded","turned_no_answer","model_dropped","window_changed","forward_failed","first_byte_timeout","memory_pressured","saturated","rationed","claimed","bad_pass","zipper_held","setting_refused","model_server_collision"]);
 function concernScan(limit = 500) {
   const counts = {}, last = {};
   for (const r of logLines(limit)) {
@@ -2893,11 +3072,102 @@ export function modelServerConfig() {
       OLLAMA_NUM_PARALLEL: String(PARALLELISM),
       OLLAMA_CONTEXT_LENGTH: process.env.ER7_OLLAMA_CTX ?? "8192",
       OLLAMA_MAX_LOADED_MODELS: process.env.ER7_OLLAMA_MAX_LOADED ?? "3", // matches setup-proxy.sh's launchctl value; "1" evicted the chat model for any second model
-      OLLAMA_NUM_GPU: process.env.ER7_OLLAMA_NUM_GPU ?? "0",
       OLLAMA_KEEP_ALIVE: process.env.ER7_OLLAMA_KEEP_ALIVE ?? "10m",
-      OLLAMA_HOST: process.env.OLLAMA_HOST ?? "127.0.0.1:11434",
+      // The daemon binds the PRIVATE address derived from its own URL, never
+      // a second literal (2026-09-21). OLLAMA_NUM_GPU was carried here until
+      // then; the server does not read it (`ollama serve --help` lists every
+      // variable it honors), so "CPU-only" was never in effect — dropped.
+      OLLAMA_HOST: modelServerHost(),
     },
   };
+}
+/** Who holds the daemon's private port (lsof proof), or null unverified. */
+async function daemonPortHolders() {
+  const held = await listeningPorts();
+  if (!held) return null;
+  const port = modelServerPort();
+  return [...held.entries()].filter(([, ports]) => ports.has(port)).map(([pid]) => pid).filter((pid) => pid !== process.pid);
+}
+function spawnModelServer() {
+  const { bin, env } = modelServerConfig();
+  const child = spawn(bin, ["serve"], { env: { ...process.env, ...env }, detached: true, stdio: "ignore" });
+  child.unref();
+  return { child, env };
+}
+/** ENSURE (boot and after a reconcile): a daemon that refuses on its private
+ *  address is started — no kill, no window cap, nothing is running to be
+ *  restarted. A daemon that answers is left exactly as it is; one that holds
+ *  the port without answering is a finding, never spawned over. */
+export async function ensureModelServer() {
+  try {
+    const r = await fetch(`${OLLAMA_URL}/api/version`, { signal: AbortSignal.timeout(3000) });
+    if (r.ok) return { ok: true, started: false, version: (await r.json().catch(() => ({})))?.version ?? null };
+  } catch (e) {
+    const code = e?.cause?.code ?? e?.code ?? "";
+    if (!/ECONNREFUSED|EHOSTUNREACH|ENOTFOUND/.test(String(code))) {
+      return { ok: false, started: false, error: `the daemon at ${OLLAMA_URL} did not answer (${code || e.message}) — not refused, so not restarted` };
+    }
+  }
+  const holders = await daemonPortHolders();
+  if (holders?.length) {
+    appendLog({ act: "eva", finding: "model_server_port_held", port: modelServerPort(), pids: holders, giver: "heimdall", standing: "disclosed" });
+    return { ok: false, started: false, error: `port ${modelServerPort()} is held by pid ${holders.join(",")} but does not answer` };
+  }
+  let child, env;
+  try { ({ child, env } = spawnModelServer()); }
+  catch (e) { appendLog({ act: "eva", finding: "model_server_start_failed", error: e.message }); return { ok: false, started: false, error: e.message }; }
+  appendLog({ act: "rec", finding: "model_server_started", pid: child.pid, config: env, key: "boot", giver: "heimdall", standing: "disclosed" });
+  return { ok: true, started: true, pid: child.pid, note: `started ollama serve on ${env.OLLAMA_HOST} (parallel ${env.OLLAMA_NUM_PARALLEL}, ctx ${env.OLLAMA_CONTEXT_LENGTH}, max_loaded ${env.OLLAMA_MAX_LOADED_MODELS})` };
+}
+/** RECONCILE (2026-09-21 — the operator's rule: "if there are multiple
+ *  ollama, heimdall can quit and reconcile"). One daemon, on the private
+ *  address, supervised here. Every other `ollama serve` — on the channel's
+ *  port, beside ours on the daemon's port, anywhere — is quit; the
+ *  Ollama.app menu-bar process is quit too, because it respawns its own
+ *  daemon behind the watcher's back (measured 21:50: its daemon took the
+ *  port one pid ahead of ours); runners orphaned by a quit daemon are
+ *  reaped. Then the daemon is ensured. Bounded per act, ledgered, never the
+ *  self, never an ancestor, never pid 1; `reconcileDaemons` is the off
+ *  switch. Control: a reconcile that leaves two daemons answering concedes
+ *  this act — the next probe would find the same collision. */
+export async function reconcileModelServers({ force = false } = {}) {
+  if (!RECONCILE_DAEMONS_ON && !force) return { ok: false, enabled: false, note: "reconcileDaemons is off — census only" };
+  const rows = await readProcessTable().catch(() => []);
+  // A boot-time act can afford a slow census; an unverified one quits nothing
+  // (the reaper's own law). Measured 22:49: lsof timed out on the loaded box
+  // and every daemon read "on no port" — right by luck, not by proof.
+  const held = await listeningPorts(15000);
+  if (!held) {
+    appendLog({ act: "eva", finding: "model_server_reconcile_unverified", giver: "heimdall", standing: "disclosed" });
+    return { ok: false, unverified: true, error: "lsof gave no proof of who holds which port — nothing quit (never on an unverified probe); the collision probe retries on its cadence" };
+  }
+  const byPid = new Map(rows.map((r) => [r.pid, r]));
+  const safe = safePids(byPid);
+  const port = modelServerPort();
+  const portsOf = (pid) => held?.get(pid) ?? new Set();
+  const daemons = rows.filter((r) => r.pid > 1 && !safe.has(r.pid) && /\bollama\s+serve\b/.test(String(r.args || "")));
+  // keep the oldest daemon that holds OUR private port; everything else goes
+  const ours = daemons.filter((r) => portsOf(r.pid).has(port)).sort((a, b) => (b.ageS ?? 0) - (a.ageS ?? 0));
+  const keep = ours[0] ?? null;
+  const quit = [];
+  const term = (r, why) => { try { process.kill(r.pid, "SIGTERM"); quit.push({ pid: r.pid, why, args: String(r.args || "").slice(0, 100) }); } catch { /* already gone */ } };
+  for (const r of daemons) {
+    if (keep && r.pid === keep.pid) continue;
+    const p = portsOf(r.pid);
+    term(r, p.has(CHANNEL_PORT) ? `daemon on the channel port ${CHANNEL_PORT}` : p.has(port) ? `second daemon on ${port}` : `daemon on ${[...p].join(",") || "no port"}`);
+  }
+  for (const r of rows) if (r.pid > 1 && !safe.has(r.pid) && /Ollama\.app\/Contents\/MacOS\/Ollama\b/.test(String(r.args || ""))) term(r, "Ollama.app respawns its own daemon");
+  for (const r of rows) if (r.pid > 1 && !safe.has(r.pid) && /llama-server|\bollama runner\b/.test(String(r.args || "")) && (!keep || r.ppid !== keep.pid)) term(r, "runner of a quit daemon");
+  if (quit.length) {
+    const gone = (pid) => { try { process.kill(pid, 0); return false; } catch { return true; } };
+    const until = Date.now() + 6000;
+    while (Date.now() < until && !quit.every((q) => gone(q.pid))) await new Promise((r) => setTimeout(r, 500));
+    for (const q of quit) if (!gone(q.pid)) { try { process.kill(q.pid, "SIGKILL"); q.killed = true; } catch { /* gone */ } }
+    appendLog({ act: "rec", finding: "model_servers_reconciled", kept: keep?.pid ?? null, port, quit, key: "heimdall", giver: "heimdall", standing: "disclosed" });
+    lintedNote({ kind: "infra", level: "warn", severity: "medium", note: `heimdall reconciled the model servers: kept ${keep ? `pid ${keep.pid} on ${port}` : "none"}, quit ${quit.length} (${quit.map((q) => `${q.pid}: ${q.why}`).join("; ")})`, giver: "heimdall", standing: "disclosed", probe: "model-server" });
+  }
+  const ensured = await ensureModelServer();
+  return { ok: true, kept: keep?.pid ?? null, quit, ensured };
 }
 export async function restartModelServer({ force = false } = {}) {
   // GATED (2026-09-21): a model-server restart is the box's most violent act —
@@ -2913,29 +3183,44 @@ export async function restartModelServer({ force = false } = {}) {
     return { ok: false, capped: true, waitS, error: `the model server was restarted recently — Heimdall holds another restart for ~${waitS}s. Each restart kills every turn in flight; the box needs time to settle.` };
   }
   if (!force) {
+    // A restart cannot make memory (2026-09-21): under pressure a slow daemon
+    // is slow, not stuck — the 21:50 restart was a probe that timed out at
+    // 93% swap, and it bred a second daemon. Under pressure: stand down.
+    const vt = cachedVitals();
+    if (warmPressureTest(vt)) {
+      appendLog({ act: "eva", finding: "model_server_restart_refused_pressure", reason: warmPressureReason(vt), key: "operator", giver: "heimdall", standing: "disclosed" });
+      return { ok: false, pressured: true, error: `the box is under memory pressure (${warmPressureReason(vt)}) — a restart cannot make memory, and would kill every turn in flight for nothing. Free memory (evict a model, quit a hog) instead.` };
+    }
     const alive = await probeModelServer();
     if (alive.ok) {
       appendLog({ act: "eva", finding: "model_server_healthy_refused", key: "operator", giver: "heimdall", standing: "disclosed" });
       return { ok: false, healthy: true, error: "the model server answers — it is busy, not stuck. Restarting a healthy-but-busy server kills every in-flight turn; Heimdall refuses." };
     }
   }
-  const rows = await readProcessTable().catch(() => []);
+  // Kill by MEASUREMENT — whoever holds the daemon's port (lsof) — never by
+  // name: the name-matched kill missed the homebrew daemon and hit nothing
+  // else, and spawned over a port still held. The port must be free before
+  // anything is spawned on it.
+  const holders = await daemonPortHolders();
   const killed = [];
-  for (const r of rows) {
-    if (/Ollama\.app\/Contents\/Resources\/ollama serve|llama-server/i.test(String(r.args || ""))) {
-      try { process.kill(r.pid, "SIGTERM"); killed.push(r.pid); } catch { /* already gone */ }
-    }
+  for (const pid of holders ?? []) { try { process.kill(pid, "SIGTERM"); killed.push(pid); } catch { /* already gone */ } }
+  const until = Date.now() + 8000;
+  let stillHeld = holders ?? [];
+  while (stillHeld.length && Date.now() < until) {
+    await new Promise((r) => setTimeout(r, 500));
+    stillHeld = (await daemonPortHolders()) ?? [];
   }
-  await new Promise((r) => setTimeout(r, 1500));
-  const { bin, env } = modelServerConfig();
-  let child;
-  try { child = spawn(bin, ["serve"], { env: { ...process.env, ...env }, detached: true, stdio: "ignore" }); }
+  if (stillHeld.length) {
+    appendLog({ act: "eva", finding: "model_server_port_held", port: modelServerPort(), pids: stillHeld, key: "operator", giver: "heimdall", standing: "disclosed" });
+    return { ok: false, error: `port ${modelServerPort()} is still held by pid ${stillHeld.join(",")} after SIGTERM — refusing to spawn a second daemon on it` };
+  }
+  let child, env;
+  try { ({ child, env } = spawnModelServer()); }
   catch (e) { appendLog({ act: "eva", finding: "model_server_restart_failed", error: e.message }); return { ok: false, error: e.message }; }
-  child.unref();
   lastModelRestartAt = Date.now();
   saveLastModelRestart();
   appendLog({ act: "rec", finding: "model_server_restart", pid: child.pid, killed, config: env, key: "operator", giver: "heimdall", standing: "disclosed" });
-  return { ok: true, pid: child.pid, killed, note: `restarted ollama serve (parallel ${env.OLLAMA_NUM_PARALLEL}, ctx ${env.OLLAMA_CONTEXT_LENGTH}, max_loaded ${env.OLLAMA_MAX_LOADED_MODELS}, gpu ${env.OLLAMA_NUM_GPU})` };
+  return { ok: true, pid: child.pid, killed, note: `restarted ollama serve on ${env.OLLAMA_HOST} (parallel ${env.OLLAMA_NUM_PARALLEL}, ctx ${env.OLLAMA_CONTEXT_LENGTH}, max_loaded ${env.OLLAMA_MAX_LOADED_MODELS})` };
 }
 /** One cheap liveness probe of the model server (never spawns load of its own).
  *  LESSON 22 (2026-09-21): the failure surface is a real generate, not the
@@ -3004,6 +3289,8 @@ export function heimdallStatus() {
     memory: memoryDisclosure(),
     reaper: reaperDisclosure(),
     phases: phaseStats(),
+    channel: channelDisclosure(),
+    trials: trialsDisclosure(),
   };
 }
 
@@ -3116,7 +3403,11 @@ export function admitChat(body = "{}", headers = {}) {
     // failed daemon read into refusals.
     const loaded = loadedModels();
     const residencyKnown = Array.isArray(loaded);
-    const resident = residencyKnown && loaded.some((m) => (m.name ?? m.model) === String(model).replace(/^er7:/, ""));
+    const bare = String(model).replace(/^er7:/, "");
+    // Resident on ANOTHER inference host (a paired phone, a second box) is
+    // resident too: the turn goes there and loads nothing on this box.
+    const residentElsewhere = hosts.some((h) => h.name !== "local" && hostUp(h) && hostResident(h, bare));
+    const resident = residentElsewhere || (residencyKnown && loaded.some((m) => (m.name ?? m.model) === bare));
     if (!resident && residencyKnown && memoryPressured(vitals) && vitals?.memAvailableMb != null) {
       appendLog({ act: "eva", finding: "memory_pressured", key, model, family, availableMb: vitals.memAvailableMb });
       return {
@@ -3592,7 +3883,7 @@ async function runHolon(h) {
       h.findings.push(finding);
       h.findings = h.findings.slice(-8);
       const acted = await h.act(finding);
-      appendLog({ act: "rec", holon: h.name, finding: finding.class ?? null, probe: finding.probe ?? null, ...acted, giver: "heimdall", standing: "disclosed" });
+      appendLog({ act: "rec", holon: h.name, finding: finding.class ?? null, probe: finding.probe ?? null, evidence: finding.evidence ?? undefined, ...acted, giver: "heimdall", standing: "disclosed" });
       if (acted?.note) {
         lintedNote({ kind: "infra", level: "warn", severity: "medium", note: `${h.name}: ${acted.note}`, giver: "heimdall", standing: "disclosed", probe: finding.probe ?? h.name });
       }
@@ -3773,6 +4064,357 @@ export function concedeDerivedRule(key, { reason } = {}) {
   return derivedRules.get(key);
 }
 
+// ── RULES AS LEVERS — a derived rule is TRIED, never merely written (2026-09-21) ──
+// A rule that only says what happened is a diary. A rule with a LEVER names
+// the setting it moves; adopting it applies the move ON TRIAL, and the trial
+// carries its own falsifying control: the finding's rate per bucket over the
+// window BEFORE the move against the window AFTER, judged by a permutation
+// null (the pooled buckets relabeled 2000 ways) — the box's own spread
+// decides, never a hand-set margin. Held → the lever stays and the rule
+// stands as `held` with its evidence. Not held → the lever is reverted and
+// the rule is conceded. One trial at a time, one bounded step per rule, and
+// a conceded key waits four windows before it is tried again — the loop
+// learns; it never flaps.
+const RULE_LEVERS = Object.freeze({
+  saturated: Object.freeze({ setting: "familyCap", step: -1, floor: 1 }),
+  expected_wait: Object.freeze({ setting: "familyCap", step: -1, floor: 1 }),
+  memory_pressured: Object.freeze({ act: "evict_lru" }),
+});
+const TRIALS_FILE = path.join(HERE, "state", "heimdall-trials.json");
+const TRIAL_ALPHA = Number(process.env.ER7_TRIAL_ALPHA ?? 0.05); // the one calibration constant, disclosed
+const TRIAL_BUCKETS = Number(process.env.ER7_TRIAL_BUCKETS ?? 15);
+const TRIAL_PERMUTATIONS = Number(process.env.ER7_TRIAL_PERMUTATIONS ?? 2000);
+const TRIAL_RETRY_WINDOWS = 4;
+const meanOfBuckets = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
+function saveTrials() {
+  try { fs.mkdirSync(path.dirname(TRIALS_FILE), { recursive: true }); fs.writeFileSync(TRIALS_FILE, JSON.stringify(_trials, null, 2)); } catch { /* never breaks the watcher */ }
+}
+function loadTrials() {
+  let t = { active: null, history: [] };
+  try { t = { active: null, history: [], ...JSON.parse(fs.readFileSync(TRIALS_FILE, "utf8")) }; } catch { /* first run */ }
+  // A trial that outlived its process is unmeasurable (its window was cut):
+  // the lever goes back, the trial is recorded as abandoned, never judged.
+  if (t.active) {
+    const a = t.active;
+    if (a.setting != null && a.from != null) applySetting(a.setting, a.from, { persist: true });
+    t.history.push({ ...a, outcome: "abandoned", endedAt: Date.now(), reason: "process restarted mid-trial; lever reverted" });
+    t.history = t.history.slice(-20);
+    t.active = null;
+  }
+  return t;
+}
+let _trials = loadTrials();
+saveTrials();
+/** Count one finding class (and probe, when given) per bucket over [t0, t1)
+ *  from ledger lines — observations only (act eva, no holon); a folded
+ *  snapshot counts by its own count. Pure. */
+export function bucketCounts(lines, { cls, probe = null, t0, t1, buckets = TRIAL_BUCKETS }) {
+  const out = new Array(buckets).fill(0);
+  const width = (t1 - t0) / buckets;
+  if (!(width > 0)) return out;
+  for (const line of lines) {
+    let e; try { e = typeof line === "string" ? JSON.parse(line) : line; } catch { continue; }
+    if (!e || !(e.act === "eva" || e.act === "snapshot") || e.holon) continue;
+    if ((e.finding ?? e.class) !== cls) continue;
+    if (probe != null && (e.model ?? e.probe ?? e.surface ?? null) !== probe) continue;
+    const at = Date.parse(e.first ?? e.at ?? "");
+    if (!Number.isFinite(at) || at < t0 || at >= t1) continue;
+    const i = Math.min(buckets - 1, Math.floor((at - t0) / width));
+    out[i] += Number.isFinite(e.count) ? e.count : 1;
+  }
+  return out;
+}
+/** Permutation null for "the trial buckets run lower than the baseline
+ *  buckets": p = P(a random relabeling of the pooled buckets shows a drop at
+ *  least as large as the one observed). Pure; `rnd` injected for tests. */
+export function permutationP(baseline, trial, { n = TRIAL_PERMUTATIONS, rnd = Math.random } = {}) {
+  const nb = baseline.length;
+  if (!nb || !trial.length) return 1;
+  const observed = meanOfBuckets(baseline) - meanOfBuckets(trial);
+  const pooled = [...baseline, ...trial];
+  let atLeast = 0;
+  for (let i = 0; i < n; i++) {
+    for (let j = pooled.length - 1; j > 0; j--) { const k = Math.floor(rnd() * (j + 1)); [pooled[j], pooled[k]] = [pooled[k], pooled[j]]; }
+    if (meanOfBuckets(pooled.slice(0, nb)) - meanOfBuckets(pooled.slice(nb)) >= observed) atLeast++;
+  }
+  return (atLeast + 1) / (n + 1);
+}
+export function ruleLeverOf(cls) { return RULE_LEVERS[cls] ?? null; }
+/** Evict the least-recently-used resident model (soonest expires_at), never
+ *  `keep`, never an embedder, only when two or more are resident — memory is
+ *  made, not hoped for. */
+export async function evictLeastRecent({ keep = null } = {}) {
+  const loaded = loadedModels();
+  if (!Array.isArray(loaded) || loaded.length < 2) return null;
+  const cands = loaded.filter((m) => m.name && m.name !== keep && !/embed/i.test(m.name))
+    .sort((x, y) => (Date.parse(x.expiresAt ?? 0) || 0) - (Date.parse(y.expiresAt ?? 0) || 0));
+  return cands[0] ? evictModel(cands[0].name) : null;
+}
+/** Start a trial for an adopted rule with a lever. Returns the trial, or null:
+ *  no lever, a trial already running, nothing left to move (the lever at its
+ *  wall), or a concession too recent to retry. Baseline = the window that
+ *  earned the rule. `apply` is injected by tests. */
+export function startTrialFor(rule, { lines = memoryLinesForWindow(4000), now = Date.now(), apply = null } = {}) {
+  if (!rule || _trials.active) return null;
+  const lever = RULE_LEVERS[rule.class];
+  if (!lever) return null;
+  const key = `${rule.class}:${rule.probe ?? ""}`;
+  const lastConceded = _trials.history.filter((h) => h.key === key && h.outcome === "conceded").at(-1);
+  if (lastConceded && now - (lastConceded.endedAt ?? 0) < DERIVED_WINDOW_MS * TRIAL_RETRY_WINDOWS) return null;
+  const baseline = bucketCounts(lines, { cls: rule.class, probe: rule.probe ?? null, t0: now - DERIVED_WINDOW_MS, t1: now });
+  const trial = { key, class: rule.class, probe: rule.probe ?? null, startedAt: now, endsAt: now + DERIVED_WINDOW_MS, baseline, setting: null, from: null, to: null, act: null };
+  if (lever.setting) {
+    const spec = SETTINGS[lever.setting];
+    const from = settingValue(lever.setting);
+    const to = Math.max(lever.floor ?? spec.min ?? -Infinity, Math.min(spec.max ?? Infinity, from + lever.step));
+    if (to === from) return null;
+    const r = (apply ?? ((s, v) => setHeimdallSetting(s, v, { key: "trial" })))(lever.setting, to);
+    if (!r?.ok) return null;
+    Object.assign(trial, { setting: lever.setting, from, to });
+  } else if (lever.act) {
+    trial.act = lever.act;
+    if (apply) apply(lever.act, rule.probe ?? null);
+    else if (lever.act === "evict_lru") evictLeastRecent({ keep: rule.probe ?? null }).catch(() => {});
+  }
+  _trials.active = trial;
+  saveTrials();
+  appendLog({ act: "rec", finding: "trial_started", key, setting: trial.setting, from: trial.from, to: trial.to, trialAct: trial.act, baseline, giver: "heimdall", standing: "disclosed" });
+  return trial;
+}
+/** Judge the active trial once its window has run: held (lever stays, rule
+ *  `held` with its evidence) or conceded (lever reverted, rule conceded).
+ *  Returns the outcome row, or null when nothing is due. */
+export function settleTrialIfDue({ lines = memoryLinesForWindow(4000), now = Date.now(), apply = null, rnd = Math.random } = {}) {
+  const a = _trials.active;
+  if (!a || now < a.endsAt) return null;
+  const after = bucketCounts(lines, { cls: a.class, probe: a.probe, t0: a.startedAt, t1: a.endsAt });
+  const p = permutationP(a.baseline, after, { rnd });
+  const held = p <= TRIAL_ALPHA && meanOfBuckets(after) < meanOfBuckets(a.baseline);
+  const row = { ...a, after, p, alpha: TRIAL_ALPHA, outcome: held ? "held" : "conceded", endedAt: now };
+  if (held) {
+    const prior = derivedRules.get(a.key);
+    if (prior) { derivedRules.set(a.key, { ...prior, standing: "held", trial: { p, baseline: a.baseline, after, setting: a.setting, from: a.from, to: a.to, act: a.act, heldAt: now } }); saveDerivedRules(); }
+  } else {
+    if (a.setting != null && a.from != null) (apply ?? ((s, v) => setHeimdallSetting(s, v, { key: "trial" })))(a.setting, a.from);
+    concedeDerivedRule(a.key, { reason: `trial: ${a.class} ran ${meanOfBuckets(a.baseline).toFixed(2)}→${meanOfBuckets(after).toFixed(2)} per bucket, p=${p.toFixed(3)} (alpha ${TRIAL_ALPHA}) — the lever did not move it; reverted` });
+  }
+  _trials.history.push(row); _trials.history = _trials.history.slice(-20); _trials.active = null; saveTrials();
+  appendLog({ act: "rec", finding: held ? "trial_held" : "trial_conceded", key: a.key, p, baseline: a.baseline, after, setting: a.setting, from: a.from, to: a.to, giver: "heimdall", standing: "disclosed" });
+  return row;
+}
+export function trialsDisclosure() {
+  return {
+    alpha: TRIAL_ALPHA, buckets: TRIAL_BUCKETS, windowMs: DERIVED_WINDOW_MS, levers: RULE_LEVERS, active: _trials.active, history: _trials.history.slice(-10),
+    rule: "a derived rule with a lever is tried, not merely written: the lever moves one bounded step, the finding's rate per bucket after is judged against the window before by a permutation null, and a lever that did not move the finding is reverted and the rule conceded",
+  };
+}
+export function _resetTrialsForTest() { _trials = { active: null, history: [] }; }
+
+// ── THE CHANNEL — every server on this box reaches the model through one door ──
+// (2026-09-21) The daemon's conventional port is Heimdall's now. A caller is
+// a SERVER — a process — known by the connection itself (lsof: the peer port
+// → pid → argv), so a script that sends no header still holds its own place
+// in the line: round-robin per server, not per person, on the plain model
+// wire. The channel measures every call per server (tokens in/out, wall,
+// load) and enforces Retry-After: a server that retries inside its hold is
+// the `retry_storm` finding, and its hold doubles, bounded by the SLA.
+const channelServers = new Map(); // key -> stats
+function channelEntry(key, meta = {}) {
+  let s = channelServers.get(key);
+  if (!s) {
+    s = { key, label: meta.label ?? key, pid: meta.pid ?? null, calls: 0, fails: 0, refused: 0, earlyRetries: 0, tokensIn: 0, tokensOut: 0, msEwma: null, loadMsEwma: null, firstAt: Date.now(), lastAt: null, holdUntil: 0, holdS: 0, stormLogged: false, models: {} };
+    channelServers.set(key, s);
+    if (channelServers.size > 500) channelServers.delete(channelServers.keys().next().value);
+  }
+  if (meta.label) s.label = meta.label;
+  if (meta.pid) s.pid = meta.pid;
+  return s;
+}
+export function channelObserve(key, { label, pid, model = null, host = null, ms = null, loadMs = 0, promptTokens = 0, evalTokens = 0, ok = true, status = null } = {}) {
+  const s = channelEntry(key, { label, pid });
+  s.lastAt = Date.now();
+  if (ok) s.calls += 1; else s.fails += 1;
+  s.tokensIn += promptTokens || 0; s.tokensOut += evalTokens || 0;
+  if (Number.isFinite(ms) && ms > 0) s.msEwma = s.msEwma == null ? Math.round(ms) : Math.round((1 - HOST_EWMA) * s.msEwma + HOST_EWMA * ms);
+  if (Number.isFinite(loadMs) && loadMs > 100) s.loadMsEwma = s.loadMsEwma == null ? Math.round(loadMs) : Math.round((1 - HOST_EWMA) * s.loadMsEwma + HOST_EWMA * loadMs);
+  if (model) { const m = s.models[model] ?? { calls: 0, host: null }; m.calls += 1; if (host) m.host = host; s.models[model] = m; }
+  appendLog({ act: "crossing", finding: "channel_call", key, model, host, ms, loadMs: loadMs || 0, promptTokens, evalTokens, ok, status });
+  return s;
+}
+/** A refusal to `key` with `retryAfterS`: the hold this server must actually
+ *  keep. Early (inside its hold) → the hold doubles, bounded by the SLA, and
+ *  past the floor it is the `retry_storm` finding, once per hold. */
+export function channelRefused(key, retryAfterS, { now = Date.now(), label, pid } = {}) {
+  const s = channelEntry(key, { label, pid });
+  s.refused += 1;
+  const base = Math.max(1, Number(retryAfterS) || RETRY_AFTER_S);
+  const capS = Math.max(base, Math.round(SLA_MAX_WAIT_MS / 1000));
+  let storm = false;
+  if (now < s.holdUntil) {
+    s.earlyRetries += 1;
+    s.holdS = Math.min(capS, Math.max(base, s.holdS * 2));
+    if (s.earlyRetries >= DERIVED_FLOOR && !s.stormLogged) {
+      s.stormLogged = true; storm = true;
+      appendLog({ act: "eva", finding: "retry_storm", key, probe: key, earlyRetries: s.earlyRetries, holdS: s.holdS });
+    }
+  } else {
+    s.holdS = base; s.earlyRetries = 0; s.stormLogged = false;
+  }
+  s.holdUntil = now + s.holdS * 1000;
+  return { retryAfterS: s.holdS, early: s.earlyRetries > 0, storm };
+}
+let _channelBound = null; // set by the proxy once it holds (or fails to hold) the port
+export function setChannelBound(state) { _channelBound = state; }
+/** One observation on the ledger from a caller outside this module (the
+ *  proxy's channel door): act eva, the learner's own food. */
+export function ledgerEva(finding, fields = {}) { appendLog({ act: "eva", finding, ...fields }); }
+export function channelDisclosure() {
+  const now = Date.now();
+  return {
+    port: CHANNEL_PORT, daemon: OLLAMA_URL, bound: _channelBound,
+    servers: [...channelServers.values()]
+      .map((s) => ({ ...s, firstAt: new Date(s.firstAt).toISOString(), lastAt: s.lastAt ? new Date(s.lastAt).toISOString() : null, holdUntil: s.holdUntil > now ? new Date(s.holdUntil).toISOString() : null }))
+      .sort((a, b) => (b.calls + b.fails + b.refused) - (a.calls + a.fails + a.refused)),
+    rule: "one door on the box: every model call from every server lands on the channel, waits its turn per SERVER (the connection names the process), is held to the model's one window, and is measured — tokens, wall, load — so the levers have evidence",
+  };
+}
+/** ONE WINDOW: a caller's num_ctx is dropped — the daemon's single
+ *  OLLAMA_CONTEXT_LENGTH is the window per model (setup-proxy.sh; lesson
+ *  22: a differing window is a full reload). Returns what was asked, or
+ *  null. Mutates `parsed`. Pure otherwise. */
+export function holdWindow(parsed) {
+  let asked = null;
+  if (parsed && typeof parsed === "object") {
+    if (parsed.options && typeof parsed.options === "object" && parsed.options.num_ctx != null) { asked = parsed.options.num_ctx; delete parsed.options.num_ctx; }
+    if (parsed.num_ctx != null) { asked = asked ?? parsed.num_ctx; delete parsed.num_ctx; }
+  }
+  return asked;
+}
+/** The hop marks a re-entered turn carries (the bridge fell through). Pure. */
+export function hopOf(headers = {}) {
+  const hop = Number(headers["x-heimdall-hop"] ?? 0) || 0;
+  const from = String(headers["x-heimdall-from"] || "").trim() || null;
+  return { hop, from };
+}
+/** The messages a wire body carries, for the pre-call gate. Pure. */
+export function messagesOf(parsed) {
+  if (Array.isArray(parsed?.messages)) {
+    return parsed.messages.map((m) => ({
+      role: m?.role ?? "user",
+      content: typeof m?.content === "string" ? m.content : Array.isArray(m?.content) ? m.content.map((p) => p?.text ?? "").join("\n") : String(m?.content ?? ""),
+    }));
+  }
+  if (typeof parsed?.prompt === "string") return [{ role: "user", content: parsed.prompt }];
+  return [];
+}
+/** The daemon's own accounting from the LAST object of a stream (Ollama
+ *  NDJSON or an OpenAI `data:` chunk with usage). Pure. */
+export function streamAccounting(tail) {
+  // The counts sit at the END of the final object on every wire (Ollama's
+  // done object, streamed or not; an OpenAI usage chunk), so the last match
+  // in the kept tail is the answer even when the body outran the tail and
+  // the last line is no longer whole JSON (measured: zeros on every
+  // non-streamed answer longer than the tail, 2026-09-21).
+  const s = String(tail ?? "");
+  const last = (re) => { let m = null; for (const x of s.matchAll(re)) m = x; return m ? Number(m[1]) || 0 : 0; };
+  return {
+    promptTokens: last(/"prompt_eval_count"\s*:\s*(\d+)/g) || last(/"prompt_tokens"\s*:\s*(\d+)/g),
+    evalTokens: last(/"eval_count"\s*:\s*(\d+)/g) || last(/"completion_tokens"\s*:\s*(\d+)/g),
+    loadMs: Math.round(last(/"load_duration"\s*:\s*(\d+)/g) / 1e6) || 0,
+  };
+}
+/** Parse `lsof -nP -iTCP:<port> -sTCP:ESTABLISHED -Fpcn +c 0`: the peer
+ *  (client-side) port of every connection INTO the channel → { pid, cmd }.
+ *  IPv4 and IPv6 loopback both. Pure. */
+export function parseLsofEstablished(text, port, selfPid = process.pid) {
+  const out = new Map();
+  let pid = null, cmd = null;
+  for (const raw of String(text ?? "").split("\n")) {
+    const line = raw.trim();
+    if (!line) continue;
+    const tag = line[0], val = line.slice(1);
+    if (tag === "p") { pid = Number(val); cmd = null; continue; }
+    if (tag === "c") { cmd = val; continue; }
+    if (tag !== "n" || pid == null || pid === selfPid) continue;
+    const m = /^\[?([^\]\s]*?)\]?:(\d+)->\[?([^\]\s]*?)\]?:(\d+)$/.exec(val);
+    if (!m || Number(m[4]) !== Number(port)) continue; // the client side points AT the channel
+    out.set(Number(m[2]), { pid, cmd: cmd ?? null });
+  }
+  return out;
+}
+/** The server's label from its argv: the script it runs (last two path
+ *  segments), else the command. Pure. */
+export function serverLabelOf(args) {
+  const toks = String(args ?? "").trim().split(/\s+/).filter(Boolean);
+  const script = toks.find((t) => /\.(mjs|cjs|js|ts|py)$/.test(t) && !/^-/.test(t));
+  const pick = script ?? toks[0] ?? "?";
+  return pick.split("/").filter(Boolean).slice(-2).join("/");
+}
+/** Parse macOS `netstat -anv -p tcp` (the kernel's own table, ~70 ms even on
+ *  a loaded box where lsof walks every process's fds for seconds): the
+ *  client-side rows whose FOREIGN port is the channel → local port → pid.
+ *  Columns: Proto Recv-Q Send-Q Local Foreign (state) rhiwat shiwat pid …
+ *  Addresses end in `.port` (`127.0.0.1.50650`, `::1.58000`). Pure. */
+export function parseNetstatEstablished(text, port, selfPid = process.pid) {
+  const out = new Map();
+  for (const raw of String(text ?? "").split("\n")) {
+    const f = raw.trim().split(/\s+/);
+    if (f.length < 9 || !/^tcp/.test(f[0]) || f[5] !== "ESTABLISHED") continue;
+    const portOf = (addr) => Number(addr.slice(addr.lastIndexOf(".") + 1));
+    if (portOf(f[4]) !== Number(port)) continue; // foreign side is the channel: this is the client's row
+    const pid = Number(f[8]);
+    if (!Number.isFinite(pid) || pid === selfPid) continue;
+    out.set(portOf(f[3]), { pid, cmd: null });
+  }
+  return out;
+}
+let _peerCache = { at: 0, map: null, pending: null };
+const _argsCache = new Map(); // pid -> { at, label }
+async function peerTable() {
+  const now = Date.now();
+  if (_peerCache.map && now - _peerCache.at < 1000) return _peerCache.map;
+  if (_peerCache.pending) return _peerCache.pending;
+  // netstat first (fast, kernel table); lsof only when it gives nothing
+  _peerCache.pending = execOut("netstat", ["-anv", "-p", "tcp"], 3000)
+    .then(async (out) => {
+      let map = parseNetstatEstablished(out ?? "", CHANNEL_PORT);
+      if (!map.size) map = parseLsofEstablished((await execOut("lsof", ["-nP", `-iTCP:${CHANNEL_PORT}`, "-sTCP:ESTABLISHED", "-Fpcn", "+c", "0"], 4000)) ?? "", CHANNEL_PORT);
+      _peerCache = { at: Date.now(), map, pending: null };
+      return map;
+    })
+    .catch(() => { _peerCache.pending = null; return new Map(); });
+  return _peerCache.pending;
+}
+async function labelOfPid(pid) {
+  const hit = _argsCache.get(pid);
+  if (hit && Date.now() - hit.at < 60000) return hit.label;
+  const out = await execOut("ps", ["-o", "args=", "-p", String(pid)], 1500).catch(() => null);
+  const label = out && out.trim() ? serverLabelOf(out.trim()) : null;
+  _argsCache.set(pid, { at: Date.now(), label });
+  if (_argsCache.size > 500) _argsCache.delete(_argsCache.keys().next().value);
+  return label;
+}
+/** The server behind a socket: `<script>#<pid>`, cached on the socket for its
+ *  lifetime (keep-alive makes the lookup once per connection). Unknown →
+ *  `port:<peer port>`: still its own place in line, never a shared "anon". */
+export async function resolveServerKey(socket) {
+  if (!socket) return { key: "anon", label: "anon", pid: null };
+  if (socket.er7Server) return socket.er7Server;
+  if (socket.er7ServerPending) return socket.er7ServerPending;
+  const port = socket.remotePort;
+  socket.er7ServerPending = (async () => {
+    let key = `port:${port}`, label = key, pid = null;
+    try {
+      const peer = (await peerTable()).get(port);
+      if (peer?.pid) { pid = peer.pid; label = (await labelOfPid(pid)) ?? peer.cmd ?? `pid${pid}`; key = `${label}#${pid}`; }
+    } catch { /* unknown stays a port key */ }
+    const r = { key, label, pid };
+    socket.er7Server = r; socket.er7ServerPending = null;
+    return r;
+  })();
+  return socket.er7ServerPending;
+}
+
 // ── THE RULE-AUTHOR HOLON — the swarm watches its own ledger ──────────────
 // The emergent loop itself: every tick, read the bridge's own append-only
 // ledger, count how often each finding-class recurred in the window, and
@@ -3785,11 +4427,19 @@ export function makeRuleAuthorHolon({ logLines = memoryLinesForWindow, now = Dat
   return {
     sense: async () => {
       const lines = logLines(4000); // enough history for the window
+      // A trial whose window has run is judged first — its lever's evidence
+      // is these same lines.
+      try { settleTrialIfDue({ lines, now: now() }); } catch (err) { log(`trial settle error: ${err.message}`); }
       const counts = new Map(); // class:probe -> { class, probe, count, first, last, model }
       const t0 = now() - DERIVED_WINDOW_MS;
       for (const line of lines) {
         let e; try { e = JSON.parse(line); } catch { continue; }
         if (!e?.act) continue;
+        // OBSERVATIONS ONLY (2026-09-21): the learner counts what the bridge
+        // MEASURED (act eva, no holon), never what a holon DID about it. Its
+        // own stand_down and pattern_earned acts were its top "patterns" — a
+        // learner feeding on itself, 59 self-findings an hour, adopting none.
+        if (!(e.act === "eva" || e.act === "snapshot") || e.holon) continue; // a snapshot folds observations only (foldEntryInto)
         const cls = e.finding ?? e.class ?? null;
         const probe = e.model ?? e.probe ?? e.surface ?? null;
         if (!cls) continue;
@@ -3824,7 +4474,16 @@ export function makeRuleAuthorHolon({ logLines = memoryLinesForWindow, now = Dat
         const r = deriveRule({ ...c, first: c.first, last: c.last });
         if (r) { adoptDerivedRule(r); adopted.push(r); }
       }
-      return { note: adopted.length ? `adopted ${adopted.length} derived rule(s): ${adopted.map((r) => `${r.class}:${r.probe}`).join(", ")}` : null, adopted: adopted.length };
+      // A rule with a lever goes on TRIAL the moment it is adopted (one at a
+      // time; startTrialFor declines the rest and they wait for the next tick).
+      const started = [];
+      for (const r of adopted) {
+        try {
+          const t = startTrialFor(r, { lines: logLines(4000), now: now() });
+          if (t) started.push(`${t.key} ${t.setting ? `${t.setting} ${t.from}→${t.to}` : t.act}`);
+        } catch (err) { log(`trial start error: ${err.message}`); }
+      }
+      return { note: adopted.length ? `adopted ${adopted.length} derived rule(s): ${adopted.map((r) => `${r.class}:${r.probe}`).join(", ")}${started.length ? ` — on trial: ${started.join("; ")}` : ""}` : null, adopted: adopted.length, trials: started.length };
     },
   };
 }

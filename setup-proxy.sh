@@ -63,11 +63,15 @@ else
   fi
 fi
 if ! curl -s -m 3 "$UPSTREAM/api/tags" > /dev/null 2>&1; then
-  # Not answering yet — start it. Homebrew service first, then the app, then
-  # warn (a first `ollama run <model>` will finish the job).
-  brew services start ollama >/dev/null 2>&1 \
-    || open -a "Ollama" >/dev/null 2>&1 \
-    || echo "  warning: Ollama not answering at $UPSTREAM — start it (brew services start ollama)"
+  # Not answering yet — and that is fine (2026-09-21): the DAEMON IS HEIMDALL'S.
+  # The proxy starts `ollama serve` itself on a private loopback port
+  # (native/kernel/model-server.js, default 127.0.0.1:11435) and holds the
+  # conventional port (11434) as the CHANNEL every other process lands on.
+  # A daemon started here by hand — `brew services start ollama` (a launchd
+  # service on 11434, forever) or the Ollama.app menu-bar app (respawns its
+  # own daemon) — is exactly the second daemon Heimdall then has to quit and
+  # reconcile. So: never start one here. The proxy below brings it up.
+  ok "Ollama not answering at $UPSTREAM yet — the proxy starts and owns the daemon"
 fi
 
 # --- 0b. Ollama daemon memory policy — the "do not evict" rule, server-side --

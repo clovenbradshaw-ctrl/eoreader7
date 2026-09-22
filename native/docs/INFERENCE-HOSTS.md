@@ -78,11 +78,99 @@ the least (in-flight + admitted-not-started) × measured mean over the up
 hosts exceeds the SLA (12s). Unmeasured hosts never hold. Verified under a
 2s SLA with a 12-prompt burst.
 
+## The channel — one door on the box (2026-09-21, later the same day)
+
+**Handle: the channel.** Code: `native/kernel/model-server.js` (the one
+address), `proxy.mjs` (`handleChannel`, `bootChannel`, the driver lock),
+`heimdall.mjs` (`reconcileModelServers`, `ensureModelServer`,
+`resolveServerKey`, `channelObserve`, `channelRefused`, `hostStandby`,
+rules-as-levers), tests in `tests/heimdall-channel.test.mjs`.
+
+What the evening measured before the change: two Ollama installs on one
+port (homebrew on `127.0.0.1:11434`, Ollama.app on `[::]:11434`), and
+`localhost` resolving to `::1` on this box — so half the callers reached one
+daemon and half the other, each daemon reloading what the other had
+resident; 105 files across eoreader7, the-fold and heimdall calling the
+daemon directly with no admission at all; two proxies in one checkout
+writing one ledger; a watchdog that read a probe timeout at 93% swap as a
+wedge and restarted the daemon, which bred the second one.
+
+The arrangement now:
+
+1. **The daemon is private.** `ollama serve` binds the address derived from
+   `MODEL_SERVER_URL` (default `127.0.0.1:11435`). Only Heimdall speaks to
+   it; the proxy's own draws go straight there.
+2. **Heimdall holds 11434, both families.** `127.0.0.1` and `::1`, so
+   `localhost` and the dotted address land on the same door. Every one of
+   the 105 direct callers lands on the channel unchanged.
+3. **The channel admits per SERVER.** The calling process is resolved from
+   the connection (lsof: peer port → pid → argv, cached per socket) and
+   presented to the same line as `x-er7-caller`; a script that sends no
+   header is still its own place in the round-robin, on the batch ration
+   behind interactive work. A refused server gets `Retry-After` and a
+   position; one that retries inside its hold doubles the hold (bounded by
+   the SLA) and past the floor is the `retry_storm` finding.
+4. **One window.** A caller's `num_ctx` is dropped and disclosed
+   (`x-heimdall-window: held (asked N)`, `window_held` on the ledger); the
+   daemon's single `OLLAMA_CONTEXT_LENGTH` is the window per model.
+5. **The gate runs here too.** `antistrauss.gate` before every
+   answer-generating call on the channel; embeddings excepted.
+6. **The picker decides the host.** Sticky per server, resident first,
+   shortest wait, rotate ties — and the fleet bridge (`heimdall up`, port
+   8790) is a host by default: `bridge` by measurement (`/bridge/hello`),
+   a **standby** until a phone behind it holds a model, a candidate for
+   exactly the models the phones hold, never a cold candidate, never the
+   target of a turn that came from it (hop mark, or the caller's pid owning
+   the bridge's port).
+7. **Every call is measured per server** — tokens in and out, wall, load —
+   and disclosed at `GET /heimdall` → `channel.servers`.
+8. **Multiple daemons → quit and reconcile** (the operator's rule). The
+   collision probe finds a second `ollama serve` on the daemon's port, or any
+   on the channel's, and `reconcileModelServers` keeps the oldest on the
+   private port, quits the rest, quits the Ollama.app respawner, reaps
+   orphaned runners, then ensures the daemon. Never on an unverified lsof
+   (nothing quit; the probe retries). `reconcileDaemons` is the off switch.
+9. **One driver per checkout.** `state/heimdall-driver.lock` names the proxy
+   that drives holons, reaper, watchdog and channel; a second proxy in the
+   same directory is a door only.
+10. **A probe timeout under memory pressure is memory, not a wedge**; the
+    watchdog stands down (`probe_timeout_under_pressure`), and
+    `restartModelServer` refuses under pressure — a restart cannot make
+    memory.
+11. **Rules as levers.** A derived rule whose class names a lever
+    (`saturated`/`expected_wait` → `familyCap` −1; `memory_pressured` →
+    evict the least-recent resident) is applied on trial for one window; the
+    finding's rate per bucket after is judged against the window before by a
+    permutation null (α 0.05, the one disclosed constant); held → the lever
+    stays and the rule stands `held`; not → reverted and conceded; a
+    conceded key waits four windows. The learner reads observations only
+    (act `eva`, or a snapshot folded from them) — never a holon's own acts.
+
+Measured on the first boot (22:49): reconcile quit two daemons, the
+menu-bar app and their runners; one daemon on 11435 (ctx 8192, 2 slots);
+channel bound on both families; free memory 49 MB → 3.8 GB, compressor
+9.6 GB → 3.4 GB, swap-out 2,732 pg/s → 0 within a minute; two eval
+processes from other sessions admitted per pid, one of them held for
+retrying inside its Retry-After.
+
+Falsifying controls, run:
+- `localhost` and `127.0.0.1` on 11434 must both answer with
+  `x-heimdall-channel`. (Held.)
+- A caller's `num_ctx` must not change the loaded window. (Held:
+  `x-heimdall-window: held (asked 4096)`.)
+- A model no phone holds must never be sent to the bridge. (Held: 404 from
+  `local`, `x-heimdall-host: local`.)
+- Two daemons after a reconcile would concede the act. (None found on the
+  next probe.)
+
 ## Not yet
 
-- The picker knows hosts on this box or on a LAN by URL. Room mouths
-  (machines reached through the Matrix fleet room) are the same shape one
-  register over — `roomPathsFor` in `heimdall.mjs` — and are still unwired.
+- A phone-served call end to end: the phone was mid-relink when the bridge
+  restarted, so the bridge read as standby (correct) and the proof is owed.
+- Room mouths registered directly (`roomPathsFor`) are still unwired; today
+  "across Matrix" reaches the picker through the bridge's `/api/ps`.
 - The current turn's session comes from `_turn`, a single global; under
   true concurrency two turns can share it for a moment and stickiness
   degrades to shortest wait. Correct, just less sticky.
+- The channel's server identity is `port:<n>` when lsof cannot answer in
+  time on a loaded box; still a distinct place in line, just unnamed.

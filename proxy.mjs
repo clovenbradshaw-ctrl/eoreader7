@@ -43,7 +43,10 @@ import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, restartSurface, sampleVitalsNow, backgroundTasks, killTask, memoryPressured, memoryPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markUnservable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, restartSurface, sampleVitalsNow, backgroundTasks, killTask, warmPressureTest, warmPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope } from "./heimdall.mjs";
+import { resolveServerKey, channelObserve, channelRefused, pickHost, hostBegin, hostEnd, reconcileModelServers, ledgerEva, setChannelBound, liveReapIfDue, holdWindow, hopOf, messagesOf, streamAccounting, hostOwnedByPid } from "./heimdall.mjs";
+import { MODEL_SERVER_URL, CHANNEL_PORT } from "./native/kernel/model-server.js";
+import { antistrauss } from "./native/the-fold/antistrauss.mjs";
 // "Computed, not generated" — the-fold's own house rule (arithmetic.js),
 // reused directly rather than re-derived: a small model answering "what is
 // today's date?" from its stale training data, with nothing in THIS proxy's
@@ -178,7 +181,7 @@ function promptTextOf(task, messages) {
 // same code; keeping it means the merged watcher doesn't break existing
 // configs that route through 11437.
 const STEER_ALIAS_PORT = Number(process.env.ER7_HEIMDALL_PORT ?? 11437);
-const UPSTREAM = process.env.ER7_UPSTREAM || "http://localhost:11434";
+const UPSTREAM = process.env.ER7_UPSTREAM || MODEL_SERVER_URL; // the daemon's private address — the proxy's reads never loop through its own channel
 // NOTE (2026-09-19): the raw passthrough to UPSTREAM was removed. There is no
 // generic forwarder left in this file — unmatched routes default-deny below
 // with a typed unserved_path gap, so POST /api/generate and friends can never
@@ -2213,6 +2216,179 @@ const job = await startDocumentJob({
   res.end(JSON.stringify({ error: `no such route: ${req.method} ${pathname}`, type: "unserved_path", path: pathname, method: req.method }));
 }
 
+// ── ONE DRIVER PER CHECKOUT (2026-09-21) ──────────────────────────────────
+// Two proxies in one working directory (measured: 11436 and an experiment on
+// 11466, five hours side by side) each ran the holon tree, the reaper and
+// the watchdog against ONE ledger and ONE rules file — the last writer won,
+// and the older one's in-process watcher could re-forge the newer. The
+// driver lock names the one process that drives; every other proxy in the
+// checkout is a door only. A dead holder's lock is stale and taken.
+const DRIVER_LOCK = path.join(HERE, "state", "heimdall-driver.lock");
+function acquireDriverLock() {
+  try {
+    const cur = JSON.parse(fs.readFileSync(DRIVER_LOCK, "utf8"));
+    if (cur?.pid && cur.pid !== process.pid) {
+      try { process.kill(cur.pid, 0); return { held: false, pid: cur.pid, port: cur.port ?? null }; }
+      catch { /* the holder is gone: stale */ }
+    }
+  } catch { /* no lock yet */ }
+  try { fs.mkdirSync(path.dirname(DRIVER_LOCK), { recursive: true }); fs.writeFileSync(DRIVER_LOCK, JSON.stringify({ pid: process.pid, port: PORT, at: new Date().toISOString() })); }
+  catch (e) { log(`driver lock: could not write (${e.message}) — driving anyway`); }
+  return { held: true, pid: process.pid };
+}
+function releaseDriverLock() {
+  try { const cur = JSON.parse(fs.readFileSync(DRIVER_LOCK, "utf8")); if (cur?.pid === process.pid) fs.unlinkSync(DRIVER_LOCK); } catch { /* not ours or already gone */ }
+}
+
+// ── THE CHANNEL DOOR (2026-09-21) — Ollama's port, held by Heimdall ───────
+// Every server on this box that addresses the model at its conventional
+// port lands HERE — the fold's servers, the evals, the bridge, any script
+// (105 files did so directly; none had to change) — and passes: admission
+// keyed by the calling SERVER (resolved from the connection; round-robin per
+// server, the batch ration behind interactive work), the model's one window
+// (a caller's num_ctx is dropped and disclosed), the AntiStrauss pre-call
+// gate, the host picker (the local daemon or a phone through the bridge),
+// then a streamed forward whose client disconnect aborts the daemon's work.
+// Every call is measured per server. Read-only management routes pass to the
+// local daemon. Nothing else is served — the same default-deny as the proxy.
+const CHANNEL_ANSWER_ROUTES = new Set(["/api/chat", "/api/generate", "/api/embed", "/api/embeddings", "/v1/chat/completions", "/v1/completions", "/v1/embeddings"]);
+const CHANNEL_READ_ROUTES = new Set(["/api/tags", "/api/ps", "/api/version", "/api/show", "/v1/models"]);
+const CHANNEL_ID = `heimdall:${CHANNEL_PORT}`;
+const channelServers = [];
+function channelJson(res, status, obj, extra = {}) {
+  res.writeHead(status, { "content-type": "application/json", "x-heimdall-channel": CHANNEL_ID, ...extra });
+  res.end(JSON.stringify(obj));
+}
+function channelReadBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    req.on("data", (c) => chunks.push(c));
+    req.on("end", () => resolve(Buffer.concat(chunks)));
+    req.on("error", reject);
+  });
+}
+async function handleChannel(req, res) {
+  const t0 = Date.now();
+  let pathname = req.url || "/";
+  try { pathname = new URL(req.url, "http://localhost").pathname; } catch { /* raw url stands */ }
+  if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
+  const isAnswer = req.method === "POST" && CHANNEL_ANSWER_ROUTES.has(pathname);
+  const isRead = CHANNEL_READ_ROUTES.has(pathname) && (req.method === "GET" || req.method === "POST");
+  if (!isAnswer && !isRead) return channelJson(res, 404, { error: `no such route on the channel: ${req.method} ${pathname}`, type: "unserved_path", path: pathname, method: req.method });
+  const raw = await channelReadBody(req).catch(() => Buffer.alloc(0));
+  if (isRead) {
+    try {
+      const up = await fetch(`${MODEL_SERVER_URL}${req.url}`, { method: req.method, headers: { "content-type": req.headers["content-type"] || "application/json" }, body: req.method === "GET" ? undefined : raw, signal: AbortSignal.timeout(10000) });
+      res.writeHead(up.status, { "content-type": up.headers.get("content-type") || "application/json", "x-heimdall-channel": CHANNEL_ID });
+      if (!up.body) return res.end();
+      for await (const chunk of up.body) res.write(chunk);
+      return res.end();
+    } catch (e) {
+      return channelJson(res, 502, { error: `the model server at ${MODEL_SERVER_URL} did not answer: ${e?.cause?.code ?? e.message}`, type: "model_server_unreachable" });
+    }
+  }
+  let parsed;
+  try { parsed = JSON.parse(raw.toString("utf8") || "{}"); } catch { return channelJson(res, 400, { error: "bad json", type: "bad_json" }); }
+  const model = String(parsed?.model ?? "").trim() || null;
+  if (!model) return channelJson(res, 400, { error: "model required", type: "no_model" });
+  // WHO — the server behind the connection, unless the caller declared itself
+  const who = await resolveServerKey(req.socket);
+  const headers = { ...req.headers };
+  if (!headers["x-er7-user"] && !headers["x-er7-caller"] && !headers["x-er7-session"]) headers["x-er7-caller"] = who.key;
+  // a server is not a human: the batch ration, behind interactive work, unless it says otherwise
+  if (!headers["x-er7-priority"] && !headers["x-er7-user"]) headers["x-er7-priority"] = "batch";
+  const { hop, from } = hopOf(headers);
+  if (hop >= 2) return channelJson(res, 508, { error: "the channel saw this turn twice — a loop, refused", type: "loop" });
+  // ADMISSION — a re-entered turn (the bridge fell through) was admitted already
+  let admit = null;
+  if (hop === 0) {
+    admit = admitChatRequest(parsed, headers);
+    if (!admit.allowed) {
+      const hold = channelRefused(who.key, admit.retryAfterS ?? 15, { label: who.label, pid: who.pid });
+      const h = { "retry-after": String(hold.retryAfterS), "x-heimdall-server": who.key };
+      if (admit.queue?.position != null) h["x-queue-position"] = String(admit.queue.position);
+      return channelJson(res, admit.status, { error: admit.message, type: admit.type, retry_after: hold.retryAfterS, early_retry: hold.early || undefined, queue: admit.queue ?? null }, h);
+    }
+    releaseOnResponse(res, admit.claim?.id ?? null, admit);
+  }
+  // THE GATE — every answer-generating call, the channel's included
+  if (!/embed/.test(pathname)) {
+    const gate = antistrauss.gate({ model, messages: messagesOf(parsed), route: "chat" }, { forceBlock: true });
+    if (!gate.allow) return channelJson(res, 403, { error: gate.reason, type: "antistrauss_blocked", verdict: gate.verdict ?? null });
+  }
+  // ONE WINDOW
+  const askedWindow = holdWindow(parsed);
+  if (askedWindow != null) ledgerEva("window_held", { key: who.key, model, asked: askedWindow });
+  // WHICH HOST — sticky per server, resident first, shortest wait; never the
+  // host this turn came from: named by the hop mark, or measured — the caller
+  // IS a host (the bridge falling through to its upstream, hop mark or not).
+  const exclude = from ?? hostOwnedByPid(who.pid);
+  const picked = pickHost({ model, session: who.key, exclude });
+  const host = picked.host;
+  hostBegin(host.name);
+  const ac = new AbortController();
+  let closedByClient = false;
+  res.on("close", () => { if (!res.writableFinished) { closedByClient = true; ac.abort(); } });
+  let status = null, ok = false, tail = "";
+  try {
+    const up = await fetch(`${host.url}${pathname}`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-heimdall-hop": String(hop + 1), "x-heimdall-from": host.name, "x-er7-caller": headers["x-er7-caller"] ?? who.key, "x-er7-priority": headers["x-er7-priority"] ?? "batch" },
+      body: JSON.stringify(parsed),
+      signal: ac.signal,
+    });
+    status = up.status;
+    const out = { "content-type": up.headers.get("content-type") || "application/json", "x-heimdall-channel": CHANNEL_ID, "x-heimdall-host": host.name, "x-heimdall-pick": picked.reason, "x-heimdall-server": who.key };
+    if (askedWindow != null) out["x-heimdall-window"] = `held (asked ${askedWindow})`;
+    res.writeHead(up.status, out);
+    // fetch's body yields Uint8Arrays, whose toString() is "104,101,…" — decode
+    // through a Buffer or the tail is digits and the accounting reads zero
+    // (measured 22:56: the body carried prompt_eval_count 36, the ledger 0).
+    if (up.body) for await (const chunk of up.body) { res.write(chunk); tail = (tail + Buffer.from(chunk).toString("utf8")).slice(-4096); }
+    res.end();
+    ok = up.ok;
+  } catch (e) {
+    const code = e?.cause?.code ?? e?.code ?? e?.name ?? "";
+    if (!res.headersSent) channelJson(res, closedByClient ? 499 : 502, { error: `${host.name} did not answer: ${code || e.message}`, type: closedByClient ? "client_closed" : "host_failed", host: host.name });
+    else res.end();
+    hostEnd(host.name, { model, ms: Date.now() - t0, ok: false, refused: /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND/.test(String(code)) });
+    channelObserve(who.key, { label: who.label, pid: who.pid, model, host: host.name, ms: Date.now() - t0, ok: false, status: closedByClient ? 499 : 502 });
+    return;
+  }
+  const acct = streamAccounting(tail);
+  hostEnd(host.name, { model, ms: Date.now() - t0, ok, loadMs: acct.loadMs });
+  channelObserve(who.key, { label: who.label, pid: who.pid, model, host: host.name, ms: Date.now() - t0, loadMs: acct.loadMs, promptTokens: acct.promptTokens, evalTokens: acct.evalTokens, ok, status });
+}
+/** Hold the channel: reconcile the daemons to one (the operator's rule), make
+ *  sure ours answers, then bind BOTH loopback families — `localhost` resolves
+ *  to ::1 here and 127.0.0.1 elsewhere, and a daemon on one family with the
+ *  channel on the other is the split this door exists to end. A held port is
+ *  a finding, retried while it drains, never a silent bypass. */
+async function bootChannel() {
+  const r = await reconcileModelServers().catch((e) => ({ ok: false, error: e.message }));
+  log(`channel: reconcile — kept ${r.kept ?? "none"}, quit ${(r.quit ?? []).length}${r.ensured?.note ? `; ${r.ensured.note}` : r.ensured?.error ? `; ${r.ensured.error}` : r.error ? `; ${r.error}` : ""}`);
+  const bind = (host) => new Promise((resolve) => {
+    const s = http.createServer(handleChannel);
+    s.on("error", (e) => resolve({ ok: false, error: e.code || e.message }));
+    s.listen(CHANNEL_PORT, host, () => resolve({ ok: true, server: s }));
+  });
+  const families = [{ host: "127.0.0.1", server: null, error: null }, { host: "::1", server: null, error: null }];
+  for (let attempt = 1; attempt <= 8; attempt++) {
+    for (const f of families) {
+      if (f.server) continue;
+      const b = await bind(f.host);
+      if (b.ok) { f.server = b.server; f.error = null; channelServers.push(b.server); } else f.error = b.error;
+    }
+    if (families.every((f) => f.server || f.error !== "EADDRINUSE")) break;
+    await new Promise((r) => setTimeout(r, 1500));
+  }
+  const state = { bound: families.some((f) => f.server), port: CHANNEL_PORT, daemon: MODEL_SERVER_URL, families: families.map((f) => ({ host: f.host, bound: !!f.server, error: f.error })) };
+  setChannelBound(state);
+  if (state.bound) log(`channel: holding ${families.filter((f) => f.server).map((f) => `${f.host}:${CHANNEL_PORT}`).join(" and ")} → ${MODEL_SERVER_URL}`);
+  const held = families.filter((f) => !f.server && f.error === "EADDRINUSE");
+  if (held.length) { log(`channel: ${held.map((f) => f.host).join(",")}:${CHANNEL_PORT} is HELD by another process — callers there bypass Heimdall`); ledgerEva("channel_port_held", { port: CHANNEL_PORT, hosts: held.map((f) => f.host) }); }
+}
+
 // One handler, two doorways: the proxy port (11436, opencode) and the
 // heimdall alias port (11437, claude / older clients). Same code, one process.
 const server = http.createServer(handleRequest);
@@ -2241,7 +2417,16 @@ server.listen(PORT, "127.0.0.1", () => {
   // the fleet's /heimdall at ER7_HEIMDALL_FLEET_PORT (default 11438) is the
   // gate the operator reads. The proxy still answers its OWN /heimdall (the
   // disclosure), so the external watcher has something honest to probe.
-  if ((process.env.ER7_EXTERNAL_HEIMDALL ?? "0") !== "1") {
+  const driver = acquireDriverLock();
+  if (!driver.held) {
+    log(`driver: PASSIVE — pid ${driver.pid} holds state/heimdall-driver.lock; this proxy is a door only (no watcher, no holon driver, no reaper, no watchdog, no channel)`);
+  } else {
+    // THE CHANNEL: reconcile the daemons, ensure ours, hold Ollama's port.
+    bootChannel().catch((err) => log(`channel boot error: ${err.message}`));
+  }
+  if (!driver.held) {
+    // a door only: nothing below drives
+  } else if ((process.env.ER7_EXTERNAL_HEIMDALL ?? "0") !== "1") {
     startWatcher({ selfPort: PORT });
     log("watcher: heimdall running inside the proxy");
   } else {
@@ -2266,13 +2451,19 @@ server.listen(PORT, "127.0.0.1", () => {
   // server was restarted underneath it). The surface inflight is the honest
   // gate: it marks a turn as soon as admission admits it and releases it when
   // the response closes, on every door.
-  if ((process.env.ER7_MODEL_WATCHDOG ?? "1") !== "0") {
+  if (driver.held && (process.env.ER7_MODEL_WATCHDOG ?? "1") !== "0") {
     let hits = 0;
     setInterval(async () => {
       const er7 = getSurfaces().find((s) => s.name === "er7");
       if ((er7?.inflight ?? 0) > 0) { hits = 0; return; }
       const p = await probeModelServer().catch(() => ({ ok: false }));
       if (p.ok) { hits = 0; return; }
+      // Under memory pressure a probe timeout is MEMORY, not a wedge
+      // (2026-09-21): the 21:50 restart was three timeouts at 93% swap, and
+      // it bred a second daemon. A restart cannot make memory — stand down
+      // and let the memory levers work; the timeout is its own finding.
+      const vt = readVitals();
+      if (warmPressureTest(vt)) { hits = 0; ledgerEva("probe_timeout_under_pressure", { reason: warmPressureReason(vt), surface: p.surface ?? null }); return; }
       hits += 1;
       if (hits >= 3) { hits = 0; const r = await restartModelServer().catch(() => null); log(`watchdog: model server unresponsive 3× — restarted ${r?.ok ? r.note : "(failed)"}`); }
     }, 30000);
@@ -2301,26 +2492,32 @@ server.listen(PORT, "127.0.0.1", () => {
     sense: async () => {
       const vt = readVitals();
       const idle = vt?.cpuIdle ?? null;
-      // MEMORY IS THE BINDING CONSTRAINT on this box (measured: swap 97%,
+      // MEMORY IS THE BINDING CONSTRAINT on this box (measured: swap churn,
       // compressor 8GB, CPU 24% — the CPU-idle lines never saw it). Warming a
       // model into a thrashing box is how churn was born: warm → evicted →
       // drop → warm. So memory pressure stands the holon down exactly like CPU
-      // saturation, and only a memory-clear box may resume.
-      const memPressed = memoryPressured(vt);
+      // saturation, and only a memory-clear box may resume. The test is the
+      // WARM-specific one (available memory + churn), not the admission gate's
+      // free-floor test: holding a model resident is not a new load, and the
+      // chronically ~50MB "truly free" on macOS must not drop a held model so
+      // the next prompt pays a cold load (measured: 132 reloads, box idle).
+      const memPressed = warmPressureTest(vt);
       if (_residencyStanding === "standby") {
         // In standby: only a sustained clear box resumes warming.
         if (idle == null) return { class: "stand_down", probe: "no_vitals", missing: [] };
         if (memPressed) {
           _residencyClearTicks = 0;
-          return { class: "stand_down", probe: `memory_pressured(swap ${vt?.swapPct ?? "?"}%)`, missing: [] };
+          // A STABLE probe and the measured value as evidence (2026-09-21): a
+          // value baked into the probe split one pattern into six ledger keys.
+          return { class: "stand_down", probe: "memory_pressured", evidence: warmPressureReason(vt) ?? null, missing: [] };
         }
         if (idle < _residencyResumeIdle) {
           _residencyClearTicks = 0;
-          return { class: "stand_down", probe: `idle_${Math.round(idle)}%<resume_${_residencyResumeIdle}%`, missing: [] };
+          return { class: "stand_down", probe: "idle_below_resume", evidence: `idle ${Math.round(idle)}% < resume ${_residencyResumeIdle}%`, missing: [] };
         }
         _residencyClearTicks += 1;
         if (_residencyClearTicks < _residencyClearTicksNeeded) {
-          return { class: "stand_down", probe: `clear_${_residencyClearTicks}/${_residencyClearTicksNeeded}`, missing: [] };
+          return { class: "stand_down", probe: "clearing", evidence: `clear ${_residencyClearTicks}/${_residencyClearTicksNeeded}`, missing: [] };
         }
         // Sustained clear — resume. Reset the state; the code below runs.
         _residencyStanding = "active";
@@ -2332,15 +2529,15 @@ server.listen(PORT, "127.0.0.1", () => {
       if (memPressed) {
         _residencyStanding = "standby";
         _residencyClearTicks = 0;
-        const why = memoryPressureReason(vt) || "pressured";
+        const why = warmPressureReason(vt) || "pressured";
         log(`REC — residency: memory pressured (${why}) — stand down`);
-        return { class: "stand_down", probe: `memory_pressured(${why})`, missing: [] };
+        return { class: "stand_down", probe: "memory_pressured", evidence: why, missing: [] };
       }
       if (idle != null && idle <= _residencyStandbyIdle) {
         _residencyStanding = "standby";
         _residencyClearTicks = 0;
         log(`REC — residency: box pegged at ${Math.round(idle)}% idle — stand down (resume only at ≥${_residencyResumeIdle}% for ${_residencyClearTicksNeeded} ticks)`);
-        return { class: "stand_down", probe: `saturated_idle_${Math.round(idle)}%`, missing: [] };
+        return { class: "stand_down", probe: "saturated", evidence: `idle ${Math.round(idle)}%`, missing: [] };
       }
       // An unmeasured resident set is never a conviction (house law;
       // falsification F4, round 3): in external mode the model table is
@@ -2360,7 +2557,7 @@ server.listen(PORT, "127.0.0.1", () => {
     },
     act: async (finding) => {
       if (finding.class === "stand_down") {
-        return { note: `stand-down: ${finding.probe} — no re-warm this cadence` };
+        return { note: `stand-down: ${finding.probe}${finding.evidence ? ` (${finding.evidence})` : ""} — no re-warm this cadence` };
       }
       const warmed = [];
       for (const m of finding.missing) {
@@ -2419,7 +2616,7 @@ server.listen(PORT, "127.0.0.1", () => {
   // (its models, its rules, its memory), so it is driven on a cadence even
   // when the watcher is external. Each holon keeps its own single-flight and
   // cadence gate — this interval only offers the tick.
-  if ((process.env.ER7_EXTERNAL_HEIMDALL ?? "0") === "1") {
+  if (driver.held && (process.env.ER7_EXTERNAL_HEIMDALL ?? "0") === "1") {
     const holonDriverMs = Number(process.env.ER7_HOLON_DRIVER_MS ?? 30000);
     setInterval(() => {
       runHolonTree().catch((err) => log(`holon tree error: ${err.message}`));
@@ -2431,6 +2628,10 @@ server.listen(PORT, "127.0.0.1", () => {
       // while gemma2:2b was being reloaded 23× at disagreeing windows. Drive
       // the same eye here, on the driver the holon tree already uses.
       refreshOllamaModels().catch((err) => log(`ollama window eye error: ${err.message}`));
+      // THE REAPER IN FLEET MODE (2026-09-21): it lived only in the standalone
+      // tick, so on the operator's live box it never ran — `reaper.last` null
+      // while one model sat loaded twice. Its own cadence, driven here.
+      liveReapIfDue();
     }, holonDriverMs).unref();
     log(`holon driver: external heimdall — holon tree + window eye driven locally every ${holonDriverMs}ms`);
   }
@@ -2447,10 +2648,12 @@ server.listen(PORT, "127.0.0.1", () => {
   if (OLLAMA_KEEP_ALIVE_S > 0) {
     // Warming into a memory-pressured box is futile (learned 2026-09-19: a
     // 9GB load with ~47MB free hung 120s+): stand down, don't deepen the storm.
-    const pressuredNow = () => {
-      const v = readVitals?.() ?? null;
-      return v?.memFreeMb != null && v.memFreeMb < Number(process.env.ER7_MEM_FLOOR_MB ?? 512);
-    };
+    // The WARM-specific pressure test judges on AVAILABLE memory (free +
+    // reclaimable inactive), never "truly free" — chronically ~50MB on macOS
+    // because the OS keeps everything in cache, so a free-based gate here would
+    // latch the keep-warm off forever and let the held model drop (measured:
+    // 132 reloads while the box sat idle). Churn still stands a warm down.
+    const pressuredNow = () => warmPressureTest(readVitals?.() ?? null);
     const warmSet = hotModelSet();
     if (warmSet.size) log(`keep-warm: will hold resident: ${[...warmSet].join(", ")} (keep_alive ${OLLAMA_KEEP_ALIVE_S}s)`);
     for (const model of warmSet) {
@@ -2499,8 +2702,10 @@ server.listen(PORT, "127.0.0.1", () => {
 const SHUTDOWN_DRAIN_MS = Number(process.env.ER7_SHUTDOWN_DRAIN_MS ?? 30000);
 function shutdown(sig) {
   log(`shutting down (${sig})`);
+  releaseDriverLock();
   server.close(() => process.exit(0));
   aliasServer.close();
+  for (const s of channelServers) { try { s.close(); } catch { /* already closed */ } }
   const inflight = getSurfaces().find((s) => s.name === "er7")?.inflight ?? 0;
   if (inflight > 0) {
     log(`shutdown: ${inflight} turn(s) in flight — draining up to ${Math.round(SHUTDOWN_DRAIN_MS / 1000)}s before the hard close`);
