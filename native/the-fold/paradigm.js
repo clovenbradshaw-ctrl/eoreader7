@@ -376,6 +376,7 @@ import { ABSENT } from "../kernel/bayes-surprise.js";
 export function cellOfFact(slot, value) {
   if (value === ABSENT) return "NUL·Figure";
   if (slot.startsWith("count:")) return "SEG·Ground";
+  if (slot.includes("*:")) return value === "varies" ? "INS·Pattern" : "SYN·Pattern";
   if (slot.startsWith("key:")) return "SIG·Ground";
   if (slot.endsWith("=")) return value === "none" ? "NUL·Figure" : "CON·Figure";
   if (slot.endsWith("+1")) return value === "none" ? "NUL·Figure" : "SYN·Figure";
@@ -403,7 +404,29 @@ export function learnParadigmEmergent({ name = "form", instances = [], populatio
   }
   features.sort((a, b) => a.p - b.p || b.support - a.support);
   const holdsF = (f, u) => String(u.has(f.slot) ? u.get(f.slot) : ABSENT) === f.value;
-  const score = (u) => (features.length ? features.filter((f) => holdsF(f, u)).length / features.length : 0);
+  // COMPRESSION, BY DOMINANCE (no threshold): a feature is dropped when a
+  // kept one holds on at least the same instances and on no more of the
+  // population — it adds nothing the kept one does not say better. Its name
+  // is kept on the one that dominates it (`same`). Measured: rhyme keys,
+  // last words and the voids implied by a count had each been a feature.
+  const bits = (f, list) => list.map((u) => (holdsF(f, u) ? 1 : 0));
+  const subset = (a, b) => a.every((x, i) => !x || b[i]); // a ⊆ b
+  const kept = [];
+  for (const f of features) {
+    const fi = bits(f, I), fp = bits(f, P);
+    const by = kept.find((g) => subset(fi, g.bi) && subset(g.bp, fp));
+    if (by) { (by.f.same ??= []).push(f.key); continue; }
+    kept.push({ f, bi: fi, bp: fp });
+  }
+  const pruned = features.length - kept.length;
+  // DEF and EVA are different acts (measured: dominance left "limerick vs
+  // sonnet" defined by count = 5 alone — right for telling them apart, wrong
+  // for satisfaction: five lines of prose would satisfy it). The DEFINITION
+  // is compressed — dominated features folded under what dominates them —
+  // but SATISFACTION is scored against every admitted feature.
+  const all = [...features];
+  features.length = 0; for (const k of kept) features.push(k.f);
+  const score = (u) => (all.length ? all.filter((f) => holdsF(f, u)).length / all.length : 0);
   const sI = I.map(score), sP = P.map(score);
   let best = { cut: 1, acc: 0 };
   for (const c of [...new Set([...sI, ...sP])]) { const acc = (sI.filter((s) => s >= c).length / nI + sP.filter((s) => s < c).length / nP) / 2; if (acc > best.acc) best = { cut: c, acc }; }
@@ -411,13 +434,15 @@ export function learnParadigmEmergent({ name = "form", instances = [], populatio
   return {
     schema: PARADIGM_SCHEMA, name, revision, emergent: true, instances: nI, population: nP, tests, level, features, byCell,
     satisfies: { cut: best.cut, balancedAccuracy: best.acc }, facts,
-    basis: `${name}: ${features.length} emergent feature(s) of ${tests} (slot, value) pairs looked at (level 1/${tests}), in ${Object.keys(byCell).length} cell(s): ${Object.entries(byCell).map(([c, fs]) => `${c} ${fs.length}`).join(", ")}`,
+    pruned, all,
+    basis: `${name}: ${features.length} emergent feature(s) (${pruned} dominated, folded into them) of ${tests} (slot, value) pairs looked at (level 1/${tests}), in ${Object.keys(byCell).length} cell(s): ${Object.entries(byCell).map(([c, fs]) => `${c} ${fs.length}`).join(", ")}`,
   };
 }
 export function evaluateParadigmEmergent(p, candidate) {
   if (p?.refused) return { satisfies: null, score: null };
   const u = p.facts(candidate);
-  const held = p.features.filter((f) => String(u.has(f.slot) ? u.get(f.slot) : ABSENT) === f.value).length;
-  const score = p.features.length ? held / p.features.length : 0;
-  return { satisfies: score >= p.satisfies.cut, score, held, of: p.features.length };
+  const scored = p.all ?? p.features;
+  const held = scored.filter((f) => String(u.has(f.slot) ? u.get(f.slot) : ABSENT) === f.value).length;
+  const score = scored.length ? held / scored.length : 0;
+  return { satisfies: score >= p.satisfies.cut, score, held, of: scored.length };
 }

@@ -6,7 +6,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { lgamma, digamma, klDirichlet, klAdmit, createHolograph, admit, ABSENT } from "../kernel/bayes-surprise.js";
-import { learnForm, kindBoundaries, turnOf, formFacts } from "./form-prior.js";
+import { learnForm, kindBoundaries, turnOf, formFacts, formHas } from "./form-prior.js";
 
 let seed = 17;
 const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
@@ -57,7 +57,8 @@ test("THE VOID IS INFORMATION: a slot the holograph expected to be absent, arriv
 test("learnForm: what becomes predictable is the form — line 5 ends on line 1's word, it opens on 'there' — and the end words stay content; the delta to the form falls", () => {
   seed = 17;
   const fp = learnForm(Array.from({ length: 60 }, limerick));
-  const has = (slot, value) => fp.form.some((f) => f.slot === slot && String(f.value) === value);
+  // a merged fact answers to all its names (compression: tested once)
+  const has = (slot, value) => formHas(fp, slot, value);
   assert.ok(has("@4:ends-as", "@0"), fp.form.map((f) => `${f.slot}=${f.value}`).join(", "));
   assert.ok(has("@0:first-word", "there"));
   assert.ok(has("@3:rhymes-with", "@2"));
@@ -68,7 +69,8 @@ test("learnForm: what becomes predictable is the form — line 5 ends on line 1'
   // return to the first line's word breaks exactly that slot.
   const broken = limerick().split("\n"); broken[4] = "And that was the end of the day.";
   const t = turnOf(fp, broken.join("\n"));
-  assert.ok(t.breaks.some((b) => b.slot === "@4:ends-as"), JSON.stringify(t.breaks));
+  const f4 = fp.form.find((x) => x.slot === "@4:ends-as" || (x.same ?? []).some((s) => s.slot === "@4:ends-as"));
+  assert.ok(t.breaks.some((b) => b.slot === f4.slot), JSON.stringify(t.breaks));
 });
 
 test("THE CONTROL: the same instances with their lines shuffled have no positional form — nothing can become predictable at a position that means nothing", () => {

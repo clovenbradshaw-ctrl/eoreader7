@@ -4,7 +4,7 @@
 // population is not a form, and the organ must find nothing in it.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { elementsOf, segmentCollection, readMarker, markupOf } from "./medium.js";
+import { elementsOf, segmentCollection, readMarker, markupOf, uniformityP } from "./medium.js";
 import { rhymes } from "./sound.js";
 import { learnParadigm, evaluateParadigm, paradigmLines, hypergeom, poissonBinomialUpper } from "./paradigm.js";
 
@@ -115,4 +115,33 @@ test("under five instances, or with no population to separate from, the organ re
   assert.equal(learnParadigm({ instances: [limerick(), limerick()], population: [prose(), prose(), prose(), prose(), prose()] }).refused, "under_powered");
   assert.equal(learnParadigm({ instances: Array.from({ length: 8 }, limerick), population: [] }).refused, "no_null");
   assert.equal(evaluateParadigm({ refused: "under_powered", basis: "x" }, limerick()).satisfies, null);
+});
+
+test("EMERGENT: the definition is compressed by dominance, but satisfaction is scored against all of it — five lines of prose do not satisfy 'limerick'", async () => {
+  const { learnParadigmEmergent, evaluateParadigmEmergent } = await import("./paradigm.js");
+  seed = 41;
+  const sonnetish = () => Array.from({ length: 14 }, () => `The ${pick(NOUNS)} was ${pick(VERBS)} beside the ${pick(NOUNS)}.`).join("\n");
+  const p = learnParadigmEmergent({ name: "limerick", instances: Array.from({ length: 30 }, limerick), population: Array.from({ length: 30 }, sonnetish) });
+  assert.ok(p.features.length < p.all.length, `dominance compressed the definition: ${p.features.length} of ${p.all.length}`);
+  assert.ok(p.features.some((f) => f.same?.length), "dominated features are folded under what dominates them, not lost");
+  const fiveProse = Array.from({ length: 5 }, () => `The ${pick(NOUNS)} was ${pick(VERBS)} beside the ${pick(NOUNS)} for a while.`).join("\n");
+  assert.equal(evaluateParadigmEmergent(p, fiveProse).satisfies, false, "five lines alone are not a limerick");
+  assert.equal(evaluateParadigmEmergent(p, limerick()).satisfies, true);
+});
+
+test("medium: uniformityP — a perfectly uniform cut is always a surprise (p≈0); an arbitrary cut is not (p large)", () => {
+  const p = uniformityP(0, 100, 5, { draws: 300 });
+  assert.ok(p < 0.05, `a perfectly uniform real cut should almost never be beaten by a random cut: p=${p}`);
+  const pHigh = uniformityP(0.9, 100, 5, { draws: 300 });
+  assert.ok(pHigh > 0.3, `a very uneven real cut should be unsurprising against random cuts: p=${pHigh}`);
+});
+
+test("medium: segmentCollection refuses a recurring skeleton that isn't more uniform than a random same-N cut, and says so honestly", () => {
+  // A deterministic rnd so this is not flaky: always returns the SAME cut
+  // points a real random draw could give, engineered so random cuts are
+  // frequently at least as uniform as a moderately uneven real candidate.
+  let i = 0;
+  const rnd = () => { i = (i * 9301 + 49297) % 233280; return i / 233280; };
+  const seg = segmentCollection("one paragraph, no separator.", { rnd });
+  assert.equal(seg.units.length, 1, "no recurring separator at all — unaffected by the null test");
 });

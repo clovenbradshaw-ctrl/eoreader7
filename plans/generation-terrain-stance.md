@@ -521,3 +521,37 @@ at 50; nothing in four single-kind controls. Missed: every change between
 variable-length forms (man page → recipe, recipe → obituary): hundreds of
 position slots drown the few role slots per fact — the next fix averages
 within slot families (position, role) before across.
+
+## The layers, revisited (2026-09-22)
+
+What the whole of this plan is building towards, bottom up, each layer
+standing on the one below — what is BUILT and measured, what is PARTIAL,
+what is OWED. The organizing claim, reached this session: the cube is the
+question set (nine operators × three grains), every hunt compares against a
+proper RELATIVE ground, the void is information, the model is only the
+mouth, and a kind is learned the way a person learns one — by expectation,
+until one more instance stops moving the holograph.
+
+| # | layer | what it does | status | where |
+|---|---|---|---|---|
+| 0 | **Ground readers** | any medium → a sequence of classed elements with their own attributes | BUILT for plain text, Markdown, wikitext, ABC notation; sound by spelling (no pronunciation dictionary — a named gap); MIDI, images, video exist as separate adapters, not yet elements | `the-fold/medium.js`, `sound.js`; `adapters/*` |
+| 1 | **Emergent facts** | slot TYPES generated from the reader's own attributes × SIG / CON (equality) / SYN (succession); absence a value; class-wide facts lifted to the whole | BUILT; compression by lifting and implication | `form-prior.js emergentFacts` |
+| 2 | **Relative grounds** | every hunt names its null: the same instances order-destroyed; the neighbours; the kind being read now; the population | BUILT for all four — but the NEIGHBOURHOODS (verse / tune / document / prose) are still declared by the study, not discovered | `paradigm.js`, `form-prior.js` |
+| 3 | **DEF·Paradigm** (contrast) | what separates a form's instances from its ground; the definition compressed by dominance, satisfaction scored against all of it | BUILT, ruler and emergent; the three prose forms fail (their difference is mid-sentence and in move order) | `paradigm.js` |
+| 4 | **Expectation / Bayesian surprise** | the delta each instance makes to the holograph; the form is what becomes predictable, content what stays surprising; learned when one more stops moving it | BUILT; closed-form admission | `kernel/bayes-surprise.js`, `form-prior.js learnForm` |
+| 5 | **Kinds, unsupervised** | a new kind is what moves the kind being read now more than its own members do | BUILT for fixed-length forms (L→S→L, English→Petrarchan); MISSES changes between variable-length forms | `form-prior.js kindBoundaries` |
+| 6 | **The parse layer** | the prose forms' difference: the order of what is said (SYN·Pattern — the arc), role words mid-sentence | OWED — the EOT parser's cube addresses across a unit's positions (`profile.js`) are the input | — |
+| 7 | **Referent slots** | the same hunt over a referent's relations instead of a text's positions; relation-instances reified as kinds (a president's tenures) | OWED — designed; test: `fixtures/succession-terms.json` + fetched entities | — |
+| 8 | **Memory of kinds** | a learned paradigm stored with its sources, provisional → corroborated → confirmed → falsifiable; the second sonnet costs a lookup | OWED — the pattern exists for vision (`organs/mnemonic.js`, `kernel/kind-universe.js`) | — |
+| 9 | **The Interpretation row, judged** | DEF / EVA / REC cells asked of the mouth, one licensed yes/no each, verdicts cached; the turn given a mechanical handle as residual surprise | PARTIAL — residual surprise (`turnOf`), the form gate's ambiguity tier; nothing else asked yet | `form-prior.js turnOf`, `form-referent.js` |
+| 10 | **The instance hunt, automated** | from a definition page to whole instances (wiki categories, Gutenberg, local manuals, tune books) and their neighbours — from SEVERAL SOURCES per form, and a feature must hold across more sources than not, not only more instances (measured under compression: from one source each, Shakespeare's sonnet was defined by "line 14 indented 4" and Browning's by "every line indented 3" — the editions' typesetting, beating the rhyme scheme because it was perfect) | PARTIAL — done by hand for this study (`paradigm-gather.mjs`), one source per form; SURF still fetches descriptions | `surf.js` |
+| 11 | **Generation with the learned shape** | the nine stages read the paradigm: unit, cardinality, scheme; EVA in the pathos loop | PARTIAL — the unit (lines when the shape is lines) is wired; cardinality from the shape is not (the 54-line sonnet); EVA·Paradigm not yet in the loop | `pipeline-run.mjs` |
+| 12 | **The conversation holograph** | the fold stands in for the history; the mouth's input independent of the conversation's length | PARTIAL — the fold names real referents (marks blanked, df74138, shipped in 620ac6f); history is still re-sent verbatim up to the cap | `transcript-reading.js`, `proxy-runner.mjs` |
+
+The order to take them, by what unblocks what: memory of kinds (8) makes
+every learned shape reusable and is small; the parse layer (6) is what the
+prose forms are waiting on; referent slots (7) test the claim that the same
+hunt reads relations; generation (11) is where the learned shape finally
+changes what is written. Discovering the neighbourhoods (the open item in
+layer 2) is kind induction over paradigms — kinds of kinds — and closes the
+last declared input the study still has.

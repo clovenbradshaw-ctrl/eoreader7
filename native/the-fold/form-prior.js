@@ -123,6 +123,17 @@ export function emergentFacts(u, { limit = null } = {}) {
     f.set(`count:${cls}`, list.length);
     const at = (k) => (cls === "line" ? `@${k}` : `${cls}@${k}`);
     const attrs = list.map((e) => flatAttrs(e));
+    // COMPRESSION, LIFTED (2026-09-22): an attribute that takes ONE value at
+    // every element of a class is a property of the whole ("every bar is 0.75
+    // whole notes", "every line is unindented") — said once here, at the
+    // Pattern grain, instead of once per position. Measured: without it a
+    // sonnet's definition held hundreds of per-position facts repeating the
+    // same thing. "varies" is itself a fact about the whole.
+    if (list.length >= 2) for (const a of new Set(attrs.flatMap((m) => [...m.keys()]))) {
+      if (a === "cls" || a === "text") continue;
+      const vals = attrs.map((m) => m.get(a));
+      f.set(`${cls}*:${a}`, vals.every((v) => v === vals[0]) ? (vals[0] === "" ? "-" : vals[0]) : "varies");
+    }
     list.forEach((e, k) => {
       if (limit?.get(cls) != null && k >= limit.get(cls)) return; // past the instances' median count: absence, not form
       for (const [a, v] of attrs[k]) {
@@ -143,11 +154,16 @@ export function emergentFacts(u, { limit = null } = {}) {
 }
 
 /** Slots the order-destroyed null cannot touch: what a unit has, and its count. */
-const ORDER_FREE = (slot) => slot === "count" || slot.startsWith("has") || slot.startsWith("field:") || slot.startsWith("count:") || slot.startsWith("key:");
+const ORDER_FREE = (slot) => slot === "count" || slot.startsWith("has") || slot.startsWith("field:") || slot.startsWith("count:") || slot.startsWith("key:") || slot.includes("*:");
 
 let _seed = 1;
 const rnd = () => { _seed = (_seed * 1103515245 + 12345) % 2147483648; return _seed / 2147483648; };
 const shuffled = (a) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+
+/** Does a learned form hold this slot = value, under any of its merged names? */
+export function formHas(fp, slot, value) {
+  return (fp.form ?? []).some((x) => (x.slot === slot && String(x.value) === String(value)) || (x.same ?? []).some((s) => s.slot === slot && String(s.value) === String(value)));
+}
 
 /** Run a stream through a fresh holograph: the per-instance trajectory. */
 const factsFor = (slots, limit = null) => (slots === "emergent" ? (u) => emergentFacts(u, { limit }) : formFacts);
@@ -179,7 +195,27 @@ export function learnForm(units, { alpha = 1, draws = null, seed = 7, slots = "r
   const limit = slots === "emergent" ? positionLimit(units) : null;
   if (units.length < 5) return { schema: FORM_PRIOR_SCHEMA, refused: "under_powered", instances: units.length, form: [], basis: `${units.length} instance(s): below five nothing can become predictable` };
   const { holo, trajectory } = readStream(units, { alpha, slots, limit });
-  const cands = likely(holo).filter((c) => !ORDER_FREE(c.slot));
+  // COMPRESSION BY IMPLICATION, before the order null (sound): a positional
+  // fact about an attribute that is CONSTANT across its whole class in an
+  // instance is implied by the lifted whole-class fact (emergentFacts, "*:")
+  // — and shuffling positions cannot change it, so it could never beat the
+  // null anyway. Dropped from the candidates it would only inflate (the level
+  // and the null's draws). Measured first the unsound way: merging facts that
+  // hold on the same instances before the null collapsed a limerick's whole
+  // form into one untestable fact; facts identical on the instances can still
+  // behave differently under the null.
+  const factsList = units.map(factsFor(slots, limit));
+  const baseOf = (slot) => { const m = slot.match(/^(?:([a-z]+)@|@)\d+:(.+?)(=|\+1)?$/); return m ? { cls: m[1] ?? "line", attr: m[2] } : null; };
+  const implied = (c) => {
+    if (slots !== "emergent") return false;
+    const b = baseOf(c.slot); if (!b) return false;
+    const lifted = `${b.cls}*:${b.attr}`;
+    return factsList.every((fs) => String(fs.get(c.slot)) !== String(c.value) || (fs.has(lifted) && fs.get(lifted) !== "varies"));
+  };
+  const all = likely(holo).filter((c) => !ORDER_FREE(c.slot));
+  const cands = all.filter((c) => !implied(c));
+  const impliedCount = all.length - cands.length;
+
   const orderFree = likely(holo).filter((c) => ORDER_FREE(c.slot));
   const D = draws ?? Math.max(20, cands.length);
   _seed = seed;
@@ -198,7 +234,16 @@ export function learnForm(units, { alpha = 1, draws = null, seed = 7, slots = "r
   // only by being more likely than not, and are marked as such.
   const countMode = modeOf(holo, "count");
   const count = countMode && countMode.p > 0.5 ? { slot: "count", ...countMode, orderFree: true } : null;
-  const formSlots = new Set(form.map((f) => f.slot));
+  // For the report only: facts at one position that hold on exactly the same
+  // instances are one fact under several names (a line's rhyme tail, loose
+  // key, last letters, last word) — shown once, the rest as `same`.
+  {
+    const pat = (c) => factsList.map((fs) => (String(fs.get(c.slot)) === String(c.value) ? "1" : "0")).join("");
+    const seen = new Map(); const out = [];
+    for (const c of form) { const k = `${c.slot.split(":")[0]}|${pat(c)}`; if (seen.has(k)) { (seen.get(k).same ??= []).push({ slot: c.slot, value: c.value }); continue; } seen.set(k, c); out.push(c); }
+    form.length = 0; form.push(...out);
+  }
+  const formSlots = new Set(form.map((f) => f.slot).concat(form.flatMap((f) => (f.same ?? []).map((s) => s.slot))));
   // LEARNED AT: the shallowest prefix whose likely slots, restricted to the
   // form, are the form — one more instance stopped changing the definition.
   const defOf = (k) => { const h = readStream(units.slice(0, k), { alpha, slots, limit }).holo; return new Set(likely(h).filter((x) => formSlots.has(x.slot) && modeOf(holo, x.slot).value === x.value).map((x) => x.slot)); };
@@ -221,7 +266,7 @@ export function learnForm(units, { alpha = 1, draws = null, seed = 7, slots = "r
   const earlyF = trajectory.slice(0, tenth).map((t) => t.bayesForm), tailF = trajectory.slice(-tenth).map((t) => t.bayesForm);
   const earlyC = trajectory.slice(0, tenth).map((t) => t.bayesContent), tailC = trajectory.slice(-tenth).map((t) => t.bayesContent);
   return {
-    schema: FORM_PRIOR_SCHEMA, instances: units.length, alpha, draws: D, tested: cands.length, slots, limit: limit ? Object.fromEntries(limit) : null,
+    schema: FORM_PRIOR_SCHEMA, instances: units.length, alpha, draws: D, tested: cands.length, implied: impliedCount, slots, limit: limit ? Object.fromEntries(limit) : null,
     holo, trajectory, form, count, content, learnedAt,
     // What every instance HAS (and so what the rest of a population would
     // have to lack): not testable against the order null, which cannot touch

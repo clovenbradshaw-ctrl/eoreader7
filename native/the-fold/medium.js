@@ -205,15 +205,51 @@ export function skeletonOf(e) {
   return `${e.cls}${e.level ? `:h${e.level}` : ""}:${shape}`;
 }
 
+// A recurring label/heading skeleton is ambiguous by itself: a book of
+// sonnets numbered 1..150 and a single paper's numbered sections 1..9 BOTH
+// recur, both can even both be a strictly ascending integer run — no fixed
+// property of the marker text tells them apart. What DOES tell them apart,
+// measured (2026-09-22, the real failure: NeurIPS's "Attention Is All You
+// Need" split into 9 "instances" at its own section headings): true
+// recurring items (poems, dictionary entries) are cut into pieces MORE
+// UNIFORM in size than an arbitrary same-N-way split of the same document
+// would be by chance — a poem is a poem is a poem, but "Introduction" vs.
+// "Model Architecture" vs. "References" are wildly different lengths. This
+// is the SAME relative-ground discipline as everywhere else in this
+// engine: the candidate cut is only accepted if it is a genuine surprise
+// against random cuts of the identical material, never a hand-picked
+// coefficient-of-variation ceiling.
+function randomCutCv(totalLen, n, rnd) {
+  const cuts = new Set();
+  while (cuts.size < n - 1) cuts.add(1 + Math.floor(rnd() * (totalLen - 1)));
+  const pts = [0, ...[...cuts].sort((a, b) => a - b), totalLen];
+  const parts = []; for (let i = 0; i < n; i++) parts.push(pts[i + 1] - pts[i]);
+  const m = parts.reduce((a, b) => a + b, 0) / parts.length;
+  return m ? Math.sqrt(parts.reduce((a, b) => a + (b - m) ** 2, 0) / parts.length) / m : 0;
+}
+/** p = how often a random same-N-way split of `totalLen` elements is AT
+ *  LEAST as uniform as the candidate's real cv — small p means the real
+ *  cut is a genuine surprise, not an artifact of splitting anything into N
+ *  pieces. Exported for testing without a live document. */
+export function uniformityP(realCv, totalLen, n, { draws = 200, rnd = Math.random } = {}) {
+  if (n < 2 || totalLen < n) return 1;
+  let atLeastAsUniform = 0;
+  for (let d = 0; d < draws; d++) if (randomCutCv(totalLen, n, rnd) <= realCv) atLeastAsUniform++;
+  return atLeastAsUniform / draws;
+}
+
 /**
  * segmentCollection(text) → { units: [{ id, elements }], separator, basis }
  * A collection (a book of sonnets, an act of sections) cut at the separator
  * that recurs: of the label and heading skeletons that occur three times or
  * more, the one that occurs most (ties: the one whose units vary least in
- * size). What precedes the first separator is front matter, left out and
- * counted. A text with no recurring separator is one unit.
+ * size) AND whose unit-size uniformity is a genuine surprise against random
+ * same-N-way cuts of the same material (uniformityP above) — a candidate
+ * that fails this is refused and the next-best tried; failing all of them,
+ * the text is one unit. What precedes the accepted separator is front
+ * matter, left out and counted.
  */
-export function segmentCollection(text) {
+export function segmentCollection(text, { rnd = Math.random } = {}) {
   const { elements, markup } = elementsOf(text);
   const counts = new Map();
   for (const e of elements) if (e.cls === "label" || e.cls === "heading") counts.set(skeletonOf(e), (counts.get(skeletonOf(e)) ?? 0) + 1);
@@ -221,9 +257,13 @@ export function segmentCollection(text) {
   const cut = (sk) => { const units = []; let cur = null; for (const e of elements) { if (skeletonOf(e) === sk) { if (cur?.elements.length) units.push(cur); cur = { id: e.marker ?? e.text, elements: [] }; continue; } if (cur) cur.elements.push(e); } if (cur?.elements.length) units.push(cur); return units; };
   const cands = [...counts].filter(([, n]) => n >= 3).map(([sk, n]) => { const u = cut(sk); return { sk, n, units: u, cv: u.length ? cv(u.map((x) => x.elements.length)) : Infinity }; }).sort((a, b) => b.n - a.n || a.cv - b.cv);
   if (!cands.length) return { units: [{ id: "whole", elements }], separator: null, markup, basis: "no label or heading recurs three times: the text is one unit" };
-  const best = cands[0];
-  const front = elements.findIndex((e) => skeletonOf(e) === best.sk);
-  // Re-index each unit's elements from zero: positions are the unit's own.
-  const units = best.units.map((u) => ({ id: u.id, elements: u.elements.map((e, i) => ({ ...e, i })) }));
-  return { units, separator: best.sk, markup, basis: `cut at "${best.sk}" (${best.n} occurrences; unit sizes vary ${best.cv.toFixed(2)}); ${front} element(s) of front matter left out` };
+  const refusedNotes = [];
+  for (const cand of cands) {
+    const p = uniformityP(cand.cv, elements.length, cand.n, { rnd });
+    if (p > 0.05) { refusedNotes.push(`"${cand.sk}" refused (p=${p.toFixed(2)}, not more uniform than a random ${cand.n}-way cut)`); continue; }
+    const front = elements.findIndex((e) => skeletonOf(e) === cand.sk);
+    const units = cand.units.map((u) => ({ id: u.id, elements: u.elements.map((e, i) => ({ ...e, i })) }));
+    return { units, separator: cand.sk, markup, basis: `cut at "${cand.sk}" (${cand.n} occurrences; unit sizes vary ${cand.cv.toFixed(2)}, p=${p.toFixed(3)} vs. a random cut); ${front} element(s) of front matter left out${refusedNotes.length ? `; ${refusedNotes.join("; ")}` : ""}` };
+  }
+  return { units: [{ id: "whole", elements }], separator: null, markup, basis: `${cands.length} recurring skeleton(s) found but none cut more uniformly than a random same-N-way split would by chance (${refusedNotes.join("; ")}): the text is one unit, not a collection` };
 }

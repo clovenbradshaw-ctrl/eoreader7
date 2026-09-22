@@ -72,7 +72,7 @@ for (const [name, form] of Object.entries(FORMS)) {
     const byForm = Object.fromEntries(others.map(([k, f]) => [k, pct(half(f.units, 1).filter(ev).length, half(f.units, 1).length)]));
     const falseIn = others.reduce((a, [, f]) => a + half(f.units, 1).filter(ev).length, 0);
     const outN = others.reduce((a, [, f]) => a + half(f.units, 1).length, 0);
-    row[arm] = { features: p.features.length, count: p.count ?? null, scheme: p.scheme ?? null, cells: p.byCell ? Object.fromEntries(Object.entries(p.byCell).map(([c, fs]) => [c, fs.length])) : null, top: p.features.filter((f) => f.type !== "measure").slice(0, 10).map((f) => f.key), heldIn: pct(hin, half(form.units, 1).length), falseIn: pct(falseIn, outN), byForm };
+    row[arm] = { features: p.features.length, all: p.all?.length ?? null, count: p.count ?? null, scheme: p.scheme ?? null, cells: p.byCell ? Object.fromEntries(Object.entries(p.byCell).map(([c, fs]) => [c, fs.length])) : null, top: p.features.filter((f) => f.type !== "measure").slice(0, 10).map((f) => f.key), heldIn: pct(hin, half(form.units, 1).length), falseIn: pct(falseIn, outN), byForm };
   }
   for (const slots of ["ruler", "emergent"]) {
     const fp = learnForm(form.units, { slots });
@@ -82,7 +82,7 @@ for (const [name, form] of Object.entries(FORMS)) {
   console.log(`\n${name} [${form.family}, ${form.units.length}] (${Math.round((Date.now() - t0) / 1000)}s)`);
   for (const arm of ["ruler vs neighbours", "emergent vs all", "emergent vs neighbours"]) {
     const a = row[arm];
-    console.log(`  ${arm.padEnd(23)} ${a.refused ? a.refused : `${a.features} features${a.count ? `, ${a.count} parts` : ""}${a.scheme ? `, ${a.scheme}` : ""}${a.cells ? ` [${Object.entries(a.cells).map(([c, n]) => `${c} ${n}`).join(", ")}]` : ""} · held out ${a.heldIn} in, ${a.falseIn} false`}`);
+    console.log(`  ${arm.padEnd(23)} ${a.refused ? a.refused : `${a.features} features${a.all ? ` (of ${a.all})` : ""}${a.count ? `, ${a.count} parts` : ""}${a.scheme ? `, ${a.scheme}` : ""}${a.cells ? ` [${Object.entries(a.cells).map(([c, n]) => `${c} ${n}`).join(", ")}]` : ""} · held out ${a.heldIn} in, ${a.falseIn} false`}`);
   }
   console.log(`    emergent signs: ${(row["emergent vs neighbours"].top ?? []).join(" · ")}`);
   for (const slots of ["ruler", "emergent"]) {
