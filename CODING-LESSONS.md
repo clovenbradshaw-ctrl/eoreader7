@@ -1448,3 +1448,33 @@ length overrides it); each of the ask's questions gets its closest section
 first; the mouth may answer "neither", and a section both readings call
 neither leaves the piece only when the mechanics agree it names nothing the
 ask names.
+
+## 57. Best-of-k, controlled against temperature alone, is the strongest lever measured — selection, not sampling (2026-09-21)
+Built two arms to separate two things the literature conflates: `samp1` (one draw at temperature
+0.8, no selection) and `bok` (best-of-3 at temperature 0.8, picked by the VISIBLE cases only — the
+tests a real caller would already have). Both draw from the same prompt at the same temperature;
+the only difference is whether the extra draws are thrown away or used to select. Three independent
+replicates (fresh seeds each) on 68 (task × language) cells, gemma2:2b:
+- examples (1 draw, temp 0.2): 42% held-out pass.
+- samp1 (1 draw, temp 0.8): 52%.
+- **bok (best-of-3, temp 0.8): 68%.**
+Paired by (task, language) cell across the 3 reps: bok beat samp1 on 28/68, samp1 beat bok on 5/68,
+35 tied. Exact sign test on the cells that moved: p = 7e-5. **Falsifying control passed:** if bok's
+gain were only the higher temperature finding an occasional lucky draw, samp1 (drawn at the SAME
+temperature) would show the same lift — it did not. Selection over a model's own candidates, against
+tests the caller already holds, is doing real work.
+Repair (`rec`, `rec2` — feed back a runtime error or a wrong visible-case value, up to 3 rounds, keep
+the best) did NOT beat plain examples (39-40/68 vs 41/68) and never once triggered its own
+keep-the-best guard (0 regressions offered). Code extraction alone (`examplesx`) added nothing
+measurable either. Of the four cheap levers tried, only best-of-k with real selection moved the
+needle, and it moved it more than any other change in this whole project.
+**What this licenses, concretely:** wherever a build has its own tests (the caller's tests, not a
+benchmark), draw k candidates and keep the one that passes the most, BEFORE spending a repair round.
+Repair is not free (a mean of ~1.9 extra draws per task with these prompts) and bought nothing here;
+selection on 3 draws bought 26 points.
+**Not yet known:** whether the gain holds at k=5, on the tasks that were 0/12 in every earlier arm
+(the walls), or on a different model (repeat next against qwen2.5-coder:1.5b — the model
+`code-build.js`'s own default, per CODING-LESSONS' companion audit — and not just gemma2:2b).
+**Falsifying control for the next run:** if bok cannot lift ANY wall task's rate above its samp1
+control, the walls are genuine capability walls, not a sampling-budget problem, and the honest move
+per lesson 32 is a bigger mouth, not more draws.
