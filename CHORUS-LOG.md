@@ -467,3 +467,11 @@ fast: 12 files · root 5/5 · native 94/94 · law: ok (0 citations, after renami
 | Greenberg | SVO field | cli/reason.mjs:79 | noted | hyperlexicon.admit's API is subject/verb/object-named; claims enter the GFP core through claimFromTriple, the one bridge |
 | Pearl | independence | cli/reason.mjs corroboration | noted | reader and declarer read the same text; the reader is independent of the declarer's ENCODING, not of the text |
 clean: Holmes, Ostrom, Frankfurt, Alexander, Kondo, LeviStrauss
+
+## 2026-09-22 — steer: a cd it cannot follow leaves the base unknown; the hook family's steer/ledger/gate land (main, 9d2a915)
+fast: 4 files · 1 affected test file, 15/15 pass (also 15/15 on the exact staged tree, checked out outside the exempt roots) · law: ok (pre-existing dup WARNs only)
+| lens | citation | file:line | verdict | one line |
+| Feynman | constant in comparison | cli/claude-code-steer.mjs:142 | false-positive-on-review | `plain.length >= 2` is cp/mv's source+destination arity, not a tuned constant |
+| Dijkstra | allowlist | cli/claude-code-steer.mjs:86 | deferred-with-reason | KEYWORDS is bash's reserved-word table; `builtin cd`/`command cd` not stripped — never observed, and missing it only restores the pre-fix behaviour |
+| Kondo | unplugged writer | cli/claude-code-ledger.mjs:155 | noted | reason-claim lines are written; their reader cli/claude-code-context.mjs is another session's and stays uncommitted — nascent, not dead |
+clean: Simon/Chekhov (steer spawned by tests, registered in 3.0/.claude/settings.local.json)
