@@ -73,3 +73,102 @@ Should negation and absence verbs address to `NUL`, the Void terrain, in the
 universal grammar? Today negation is `DEF·Ground` (Atmosphere) and "lacks" is
 `CON·Figure` (Link). The "EOT enrichment" session owns the grammar. The
 stance face already carries absence as Clearing.
+
+## Results
+
+### Step 1 — statement profile (`native/the-fold/profile.js`)
+
+Built and falsifiable: `profile-falsify.test.mjs`. Every EOTRich address maps
+through `cellOf` to a terrain and a stance; each address is weighted by its
+surprisal in its own source, and a statement's lean is its weighted share
+minus the source's baseline. A statement with no parse has no profile
+(stated, never guessed).
+
+Baselines across the four sources (the grammar's common ground is the same
+everywhere — Binding ~36–40%, Tracing ~18–22%; the acts that separate the
+dossier are the rare ones):
+
+| source | statements | stance baseline (top) | terrain baseline (top) |
+|---|---|---|---|
+| cumberland | 23 | Binding 39.6, Tracing 22.2 | Entity 34.8, Network 22.2 |
+| ohs | 506 | Binding 39.8, Tracing 18.3, Making 8.6 | Entity 33.9, Network 17.4 |
+| transcript | 929 | Binding 36.9, Tracing 17.7, Tending 14.1 | Entity 31.0, Link 17.0 |
+| narrative | 59 | Binding 36.3, Tracing 22.1 | Entity 31.1, Network 22.8 |
+
+Making (a recommendation) is an OHS act; Tending (care work) an
+OHS-transcript act. Clearing (negation) and Composing (a decision) sit below
+the top four on every source — the rarity the surprisal weighting exists for.
+
+### Step 2 — six skeleton arms, offline, on all four sources
+
+Runner: `native/eval/the-fold/skeleton-arms.mjs`; full table and samples in
+`native/eval/the-fold/results/terrain-stance-2026-09-21/`. A5 (mouth-led)
+needs the model and runs with the flesh arms. Measures, per
+`measureArm`: sections; largest share (statements in the biggest section /
+all); split (author paragraphs whose statements land in 2+ sections);
+inversions (a section whose dates all precede the one before); kind fold
+(statements inside a kind section / all); coherence (within-section /
+across-section claim-word Jaccard, >1 means sections hold together more than
+chance pairs); vsForm (section count minus the declared 5-paragraph essay
+form; no ask stated a length). Every arm covers every question the ask names
+(no arm drops statements; the ask's questions are 1/1 or 2/2 everywhere).
+
+| source | arm | sections | largest | split | inversions | kindFold | coherence | vsForm |
+|---|---|---|---|---|---|---|---|---|
+| cumberland | A0 | 8 | .17 | 1 | 0 | 0 | 1.94 | 3 |
+| cumberland | A1 | 9 | .26 | 7 | 0 | .48 | 2.47 | 4 |
+| cumberland | A2 | 8 | .30 | 7 | 0 | 0 | 1.22 | 3 |
+| cumberland | A3 | 9 | .22 | 7 | 2 | 0 | 1.13 | 4 |
+| cumberland | A4 | 11 | .26 | 7 | 1 | .48 | 2.48 | 6 |
+| ohs | A0 | 35 | .07 | 1 | 0 | 0 | 2.28 | 30 |
+| ohs | A1 | 36 | .07 | 0 | 0 | 0 | 2.25 | 31 |
+| ohs | A2 | 9 | .20 | 33 | 0 | 0 | 1.59 | 4 |
+| ohs | A3 | 9 | .18 | 33 | 1 | 0 | 1.80 | 4 |
+| ohs | A4 | 65 | .08 | 33 | 1 | 0 | 2.55 | 60 |
+| transcript | A0 | 2 | 1.00 | 1 | 0 | 0 | 1.85 | −3 |
+| transcript | A1 | 1 | 1.00 | 0 | 0 | 0 | — | −4 |
+| transcript | A2 | 10 | .19 | 1 | 0 | 0 | 1.57 | 5 |
+| transcript | A3 | 10 | .14 | 1 | 1 | 0 | 1.72 | 5 |
+| transcript | A4 | 76 | .08 | 1 | 2 | 0 | 2.24 | 71 |
+| narrative | A0 | 16 | .14 | 1 | 0 | 0 | 1.68 | 11 |
+| narrative | A1 | 22 | .15 | 6 | 1 | .15 | 1.87 | 17 |
+| narrative | A2 | 10 | .15 | 14 | 1 | 0 | 1.24 | 5 |
+| narrative | A3 | 9 | .17 | 14 | 1 | 0 | 1.30 | 4 |
+| narrative | A4 | 24 | .15 | 14 | 1 | .15 | 1.56 | 19 |
+
+Reading, arm by arm:
+
+- **A0 (control)** keeps the author's paragraphs whole (split 1 on three
+  sources) and holds the best coherence on OHS and narrative. It fails on
+  the transcript — a single-line Whisper transcript has one block seam, so
+  the arrangement has nothing to split and puts the whole 929 statements in
+  one section (largest 1.00). It also overshoots the declared form on OHS
+  (35 sections against 5): the control's "no section larger than the
+  largest paragraph" has no paragraph to bound it.
+- **A1 (kinds first)** folds the induced kinds on cumberland (48% of the
+  statements, "5 alike" + "6 alike") and narrative (15%); on OHS both
+  induced kinds are ground — their members spread through more than half the
+  source, so the majority rule keeps them out, and A1 becomes the
+  paragraphs, 36 sections.
+- **A2 (stance moves)** fits the declared form on OHS (9 sections) and
+  rescues the transcript (10 sections, largest .19) — but it shatters
+  author paragraphs (OHS split 33): a stance pulls statements together
+  across the source, out of their paragraphs.
+- **A3 (terrain roles)** matches A2 on form-fit, beats it on OHS coherence
+  (1.80) at the cost of an inversion.
+- **A4 (terrain × stance, kinds folded) is the finding.** The joint face
+  holds statements together better than any single face — the highest
+  coherence on every source (2.55 OHS, 2.24 transcript, 2.48 cumberland) —
+  but it explodes the section count (65–76 on the large sources) because
+  every distinct (terrain, stance) pair becomes its own section. The pair
+  needs an adjacency/merge licensing step (the original design's "kept
+  adjacent"), not a global grouping. That is the arrangement build: group
+  by kind, otherwise by shared dominant terrain role and stance move **kept
+  adjacent**, with a null licensing a merge.
+
+**The two skeletons for the flesh phase: A0 and A2.** A0 is the only arm
+that keeps paragraphs whole on the sources that have paragraphs, and it is
+the committed pipeline. A2 is the only arm that survives the transcript and
+the only one that lands on the declared form for the messy dossier. A4's
+design — not its raw output — is what the flesh phase's arrangement should
+adopt.
