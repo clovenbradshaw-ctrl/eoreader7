@@ -1057,8 +1057,10 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
       const offset = session.webSources.get(r.url)?.length ?? 0;
       const full = (session.webSources.get(r.url) ?? "") + (offset ? "\n\n" : "") + text;
       session.webSources.set(r.url, full);
+      capWebSources(session);
       if (!session.shadow) session.shadow = [];
       session.shadow.push({ url: r.url, title: r.title || r.url, seenAt: new Date().toISOString(), chars: text.length, resolution: null, reading: null });
+      capShadow(session);
       // The web ledger is PERSISTED to disk (the shadow's source text lives as
       // a file, S101 recoverable) — so the citation byte-addresses resolve
       // against real bytes, not memory. An address into a vanished session is
@@ -2142,6 +2144,35 @@ const MAX_WORKSPACE_CHARS = 200_000;
 const SURF_MAX_SEGMENTS = Number(process.env.ER7_SURF_MAX_SEGMENTS ?? 12);
 const SURF_MAX_SEGMENT_CHARS = 3000;
 const SURF_MAX_TOTAL_CHARS = Number(process.env.ER7_SURF_MAX_TOTAL_CHARS ?? 24000);
+
+// SESSION-SCOPED CAPS (2026-09-22): `session.shadow` and `session.webSources`
+// are per-session state kept in the live `sessions` Map (getSession) with no
+// bound but the 30-minute idle TTL — every web fetch pushes/sets, nothing
+// ever shifts/deletes. Measured live: a 20-turn session (no idle gap) grew
+// promptTokens 1014→1755, relationEdges 24→64, and shadow sites 8→16 turn
+// over turn, then the box hit 96% swap and Heimdall's own thrashing guard
+// started rejecting turns with 503 memory_pressured — a real, triggerable
+// leak, not a theoretical one. Capping is the SANCTIONED move, not a new
+// risk: the shadow's own header (below, at its push site) already states
+// "Clearing the shadow loses nothing: it rebuilds from the retained
+// sources" — it is explicitly a derived, deletable projection. webSources
+// holds real fetched text (composition/citation read it directly), so it is
+// capped by RECENCY the same way stale pages already lose citability
+// elsewhere in this file ("Stale pages (fetched turns ago) are not in this
+// set, so they can never be cited by this turn") — evicting the oldest URL
+// only removes what was already treated as stale, never today's material.
+const MAX_SHADOW_SITES = 60;
+const MAX_WEB_SOURCES = 60;
+function capShadow(session) {
+  if (session.shadow && session.shadow.length > MAX_SHADOW_SITES) {
+    session.shadow.splice(0, session.shadow.length - MAX_SHADOW_SITES);
+  }
+}
+function capWebSources(session) {
+  while (session.webSources && session.webSources.size > MAX_WEB_SOURCES) {
+    session.webSources.delete(session.webSources.keys().next().value);
+  }
+}
 
 function isTextFile(fileName) {
   const ext = path.extname(fileName).toLowerCase();
@@ -4950,6 +4981,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
       // Keep the shadow + a note so the reader's movement is disclosed, and
       // fold the primary source INTO the digest so the mouth speaks from it.
       session.shadow.push({ url: `https://en.wikisource.org/wiki/${encodeURIComponent(p.title.replace(/ /g, "_"))}`, title: p.title, seenAt: new Date().toISOString(), chars: p.text.length, resolution: "fine", reading: surprise.salient });
+      capShadow(session);
       if (surprise.salient > 0) {
         admitChunked(session.corpus, { text: piiAdmit(session, p.text, srcId, onNote), sourceId: srcId });
         stampAdmission(session, srcId, { task, salience: surprise.salient, resolution: "fine", kind: "wikisource" });
