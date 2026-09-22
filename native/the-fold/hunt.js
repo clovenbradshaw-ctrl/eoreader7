@@ -58,6 +58,13 @@ export function huntGround({ operator = { id: "ground", text: "" }, surfed = nul
   // heading or a bare list item — no sentence ending in it — is not a
   // statement and earns nothing (the same seam eot-draft draws).
   const opParagraphs = paragraphsOf(opText).length;
+  // The operator's shortest paragraph is the least a paragraph of this ground
+  // can be (measured live 2026-09-22: a hatnote, "For other uses, see
+  // Cumberland River (disambiguation).", names the subject, ends in a period,
+  // and was admitted and selected into the skeleton). Below it, a fetched
+  // paragraph is a fragment, not a paragraph of this ground.
+  const wordsIn = (p) => p.split(/\s+/).filter(Boolean).length;
+  const least = opParagraphs ? Math.min(...paragraphsOf(opText).map(wordsIn)) : 0;
   const subjectCount = (par) => (hasSubject ? [...subject].filter((id) => R.resolveText(par).has(id)).length : 1);
   const candidates = [];
   const perSource = new Map();
@@ -65,7 +72,7 @@ export function huntGround({ operator = { id: "ground", text: "" }, surfed = nul
     if (s.status !== "fetched" || !s.text) continue;
     if (!(s.hunts ?? [s.hunt]).includes("material")) { exemplars++; continue; }
     const pars = paragraphsOf(s.text).map((p) => p.replace(/^[-•*]\s+/, ""));
-    const sentenced = pars.filter((p) => /[.!?]["')\]]?(\s|$)/.test(p));
+    const sentenced = pars.filter((p) => /[.!?]["')\]]?(\s|$)/.test(p) && wordsIn(p) >= least);
     const kept = sentenced.map((p) => ({ p, why: carries(p) })).filter((x) => x.why).map((x) => ({ ...x, source: s, score: subjectCount(x.p), order: candidates.length }));
     perSource.set(s.url, { s, pars: pars.length, sentenced: sentenced.length, kept });
     candidates.push(...kept);
@@ -75,7 +82,7 @@ export function huntGround({ operator = { id: "ground", text: "" }, surfed = nul
   const admittedSet = new Set(bound != null ? ranked.slice(0, bound) : ranked);
   for (const { s, pars, sentenced, kept } of perSource.values()) {
     const mine = kept.filter((k) => admittedSet.has(k));
-    if (!kept.length) { refused.push({ id: s.host, url: s.url, why: `${pars} paragraph(s), ${sentenced} with a sentence, none ${hasSubject ? "names a being of the subject" : topicWords.length ? "carries a word of the subject" : "can be tested"}` }); continue; }
+    if (!kept.length) { refused.push({ id: s.host, url: s.url, why: `${pars} paragraph(s), ${sentenced} with a sentence and at least the operator's shortest paragraph's ${least} word(s), none ${hasSubject ? "names a being of the subject" : topicWords.length ? "carries a word of the subject" : "can be tested"}` }); continue; }
     if (!mine.length) { refused.push({ id: s.host, url: s.url, why: `${kept.length} of ${pars} paragraph(s) carried the subject, but the operator's own extent (${bound} paragraph(s)) was filled by paragraphs naming more of it` }); continue; }
     sources.push({ id: s.host, tier: 1, url: s.url, text: mine.map((x) => x.p).join("\n\n"), why: `${mine.length} of ${pars} paragraph(s) earned admission (e.g. ${mine[0].why})${kept.length > mine.length ? `; ${kept.length - mine.length} more carried the subject but the operator's extent was filled` : ""}`, paragraphs: pars, admitted: mine.length });
   }

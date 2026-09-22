@@ -18,7 +18,11 @@ const OPERATOR = [
 ].join("\n\n");
 const withSubject = () => { const R = buildReferents(OPERATOR); const d = attachReferents(buildDraft({ task: "Write an essay on Nashville.", ground: OPERATOR }), R); return { R, subject: d.subjectRefs }; };
 
-const page = (host, hunt, text) => ({ host, url: `https://${host}/p`, hunt, status: "fetched", text, chars: text.length });
+// A fetched paragraph must be at least as long as the operator's shortest
+// (hunt.js: a hatnote is not a paragraph of this ground); the fixture pads
+// every real paragraph past that, and leaves the hatnote short on purpose.
+const PAD = " That was the year the river rose and the whole town remembered it for a long time.";
+const page = (host, hunt, text) => { const padded = hunt === "material" ? text.split("\n\n").map((p) => (/[.!?]$/.test(p.trim()) && !/^For other uses/.test(p) ? p + PAD : p)).join("\n\n") : text; return { host, url: `https://${host}/p`, hunt, status: "fetched", text: padded, chars: padded.length }; };
 
 test("the operator's material is tier 0 by being handed over; with nothing surfed the ground is exactly it", () => {
   const h = huntGround({ operator: { id: "op.md", text: OPERATOR }, surfed: null });
@@ -56,7 +60,8 @@ test("a fetched page earns admission paragraph by paragraph — a paragraph nami
 });
 
 test("with no operator material and a stated subject, admission is by the subject's own words; with neither, nothing fetched can earn it", () => {
-  const surfed = { sources: [page("a.example", "material", "The Cumberland River rises in Kentucky.\n\nUnrelated footer text.")] };
+  // No operator material: no shortest-paragraph bound, so the raw page (unpadded).
+  const surfed = { sources: [{ host: "a.example", url: "https://a.example/p", hunt: "material", status: "fetched", text: "The Cumberland River rises in Kentucky.\n\nUnrelated footer text.", chars: 60 }] };
   const some = huntGround({ operator: { id: "none", text: "" }, surfed, topic: "the Cumberland River" });
   assert.equal(some.admitted, 1);
   assert.equal(some.sources[0].tier, 1);
@@ -83,6 +88,11 @@ test("NOR OUTWEIGHS: at most as many fetched paragraphs as the operator handed o
   const wiki = h.sources.find((s) => s.id === "wiki.example");
   assert.ok(wiki.text.includes(rich), "the paragraph naming both Nashville and the Cumberland ranks first");
   assert.ok(!/Nashville & History|FAQ:/.test(wiki.text), "a heading with no sentence in it is not a statement");
+  // A hatnote ends in a period and names the subject, and is still a
+  // fragment: shorter than the operator's shortest paragraph (live, Wikipedia).
+  const hat = huntGround({ operator: { id: "op.md", text: OPERATOR }, surfed: { sources: [page("w.example", "material", "For other uses, see Nashville (disambiguation).\n\n" + rich + " It handled cotton, then grain, then the whole trade of the middle basin for a century.")] }, topic: "Nashville", R, subject });
+  assert.ok(!hat.sources.some((s) => /disambiguation/.test(s.text)), "the hatnote is not a paragraph of this ground");
+  assert.match(hat.refused.length ? hat.refused[0].why : hat.sources[1].why, /shortest paragraph|earned admission/);
   assert.ok(!wiki.text.startsWith("- "), "a list marker is stripped");
   assert.match(wiki.why, /more carried the subject but the operator's extent was filled/);
   assert.match(h.basis, /at most 2 paragraph\(s\) — the operator's own extent/);
@@ -120,7 +130,8 @@ test("FETCHED MATERIAL NEVER OUTRANKS THE OPERATOR'S: a richer fetched duplicate
   assert.ok(dup, "the duplicate is found");
   assert.match(dup.detail, /the operator's material, though the fetched statement was richer/);
   const kept = new Set(o.slots.flatMap((s) => s.statements));
-  const fetchedIds = parts[2].children.map((c) => c.id);
-  assert.ok(fetchedIds.every((id) => !kept.has(id)), "the fetched duplicate is not in the outline");
+  const fetchedDup = parts[2].children.filter((c) => /51\.86/.test(c.text)).map((c) => c.id);
+  assert.equal(fetchedDup.length, 1);
+  assert.ok(fetchedDup.every((id) => !kept.has(id)), "the fetched duplicate is not in the outline");
   assert.ok(parts[1].children.some((c) => kept.has(c.id) && /51\.86/.test(c.text)), "the operator's 51.86 statement is");
 });

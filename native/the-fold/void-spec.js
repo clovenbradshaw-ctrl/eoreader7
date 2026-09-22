@@ -150,7 +150,7 @@ export async function declareFormAsync(task, { documentsDir = null, excludeDocId
  * Requires the EOT draft (the material's own holarchy) and, if present, its
  * referent resolver (attachReferents) for the subject's beings.
  */
-export function declareVoidSpec({ task = "", ground = "", draft = null, form = null, documentsDir = null, excludeDocId = null } = {}) {
+export function declareVoidSpec({ task = "", ground = "", draft = null, form = null, documentsDir = null, excludeDocId = null, unit = "sentence", unitBasis = null } = {}) {
   form = form ?? declareForm(task, { documentsDir, excludeDocId });
   const register = form.register;
   const field = form.field;
@@ -205,7 +205,7 @@ export function declareVoidSpec({ task = "", ground = "", draft = null, form = n
       reopensOn: v("a dropped statement, a restatement, an unearned transition", "declared", "readPiece findings that license a revision"),
     },
     sentence: {
-      slot: v("one sentence of prose", "declared", "the admission unit (admission.js)"),
+      slot: v(unit === "line" ? "one line of verse" : "one sentence of prose", unitBasis?.startsWith("measured") ? "measured" : "declared", unitBasis ?? "the admission unit (admission.js)"),
       anchor: v("the numbers and beings of the statement it carries", "declared", "prosify.js anchorsFor"),
       admits: v("a sentence that brings new matter, or takes up the last one", "declared", "admission.js two roads"),
       extent: v({ words: { median: median(lengths), range: lengths.length ? [Math.min(...lengths), Math.max(...lengths)] : null }, meanWords: rhythm.meanLength, varianceRatio: rhythm.varianceRatio }, lengths.length ? "measured" : "unmeasured", "the material's own sentence lengths and rhythm (organs/pacing.js)"),

@@ -114,6 +114,14 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
     write("shape", "Shape: not learned", "no surf, so no sources to learn the form's shape from", "unmeasured: stage 4 reads stage 3's sources", "eoreader7:shape");
   }
 
+  // THE ADMISSION UNIT: a line when the sources agree the form is counted in
+  // lines (measured), else when the register is lyric (declared), else a
+  // sentence. Measured live 2026-09-22: the mouth wrote a fourteen-line sonnet
+  // and the pipeline read it as four sentences.
+  const unit = shape?.agreedUnits?.some((a) => a.unit === "line") ? "line" : field === "lyric" ? "line" : "sentence";
+  const unitBasis = unit === "line" ? (shape?.agreedUnits?.some((a) => a.unit === "line") ? "measured: the sources agree the form is counted in lines (shape.js)" : "declared: the register is lyric (kernel/register.js)") : "declared: prose is admitted a sentence at a time (admission.js)";
+  const joinUnits = (pcs) => pcs.map((x) => x.text).join(unit === "line" ? "\n" : " ");
+
   // 5. HUNT / GROUND (ethos, hunt.js) — the operator's material is the ground
   // by being handed over (tier 0). What SURF brought back earns admission
   // paragraph by paragraph, by carrying the void's subject (the referent
@@ -158,7 +166,7 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
 
   // THE VOID, DECLARED ON EVERY LEVEL — whole, part, sentence, verbiage,
   // grounding — each operator with its value and its basis, before any prose.
-  const spec = declareVoidSpec({ task, ground, draft, form });
+  const spec = declareVoidSpec({ task, ground, draft, form, unit, unitBasis });
   write("void", `Void: declared on every level`, voidSpecLines(spec).join("\n"), spec.basis, "eoreader7:void-spec");
   write("referents", `Referents: ${R.size}`, [...(draft.subjectRefs ?? [])].map((id) => `subject: ${R.represent(id)}`).join("\n") || "(no being named in most parts)", "the engine's referent organ over the material; a fact names beings, not strings", "eoreader7:referents");
   const draftText = new Map(drawnParts(draft).flatMap((p) => p.children.map((pt) => [pt.id, pt.text])));
@@ -282,7 +290,7 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
     // loop-checked against the one below (plans/generation-terrain-stance.md).
     result = flesh === "flesh2"
       ? await flesh2({ draft, draw: gatedDraw, voice, ground, task, onRecord: emitRecord })
-      : await prosify(draft, { draw: gatedDraw, voice, ground, task, onRecord: emitRecord, onPart: emitPart });
+      : await prosify(draft, { draw: gatedDraw, voice, ground, task, unit, onRecord: emitRecord, onPart: emitPart });
     // ── 8–12. THE ARCHONS READ, THEIR REVISIONS RUN, THEY READ AGAIN ────────
     // Every rule here was taught to the archon whose charge it serves
     // (archon-rules.js). The pipeline only carries out what a finding licenses,
@@ -291,7 +299,7 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
     piece = checkLoop("prose", result.parts.map((p) => ({ id: p.id, pieces: (p.pieces ?? []).map((x) => ({ ...x })) })), { addsFindings: true });
     const ctx = () => ({ piece, draft, ground, task, parse: parser.ok ? parser.parse : null });
     const archonLines = new Map();
-    const pieceText = () => piece.map((p) => p.pieces.map((x) => x.text).join(" ")).join("\n\n");
+    const pieceText = () => piece.map((p) => joinUnits(p.pieces)).join("\n\n");
 
     // ── 8. THE PATHOS PASS, LOOPED UNTIL GEBSER ARRIVES — BOUNDED BY BUDGET ──
     // The floor is ethos and logos settled (the skeleton's own sentences, true
@@ -460,12 +468,12 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
     write("check", `Loop · failed at ${stage} · the piece stands at the last stable loop`, `${String(e?.message ?? e).slice(0, 300)}`, "Hora's rule: the subassembly in hand is lost, the wholes below it stand", "eoreader7:loop-check");
   }
   // THE PIECE, AS IT NOW STANDS: each part's line supersedes its earlier one.
-  for (const p of piece ?? []) write("part", p.id, p.pieces.map((x) => x.text).join(" "), failedAt ? `the last stable loop's piece (the run failed at ${failedAt})` : "after the pathos passes", "eoreader7:finish", partLine.get(p.id) ?? null);
+  for (const p of piece ?? []) write("part", p.id, joinUnits(p.pieces), failedAt ? `the last stable loop's piece (the run failed at ${failedAt})` : "after the pathos passes", "eoreader7:finish", partLine.get(p.id) ?? null);
   // 9. THE PIECE — the folded output. Append-only: every loop's verdict is
   // still on the record beneath it (the "check" lines), and this line is the
   // one that stands.
   const verdicts = (ledger.lines ?? []).filter((l) => l.role === "check");
-  write("piece", `Piece: ${(piece ?? []).length} part(s)${failedAt ? ` · failed at ${failedAt}` : ""}`, (piece ?? []).map((p) => p.pieces.map((x) => x.text).join(" ")).join("\n\n"), `${verdicts.length} loop verdict(s) on the record beneath this line; ${failedAt ? "the last stable loop's piece" : "the piece as it stands after the pathos passes"}`, "eoreader7:piece");
+  write("piece", `Piece: ${(piece ?? []).length} part(s)${failedAt ? ` · failed at ${failedAt}` : ""}`, (piece ?? []).map((p) => joinUnits(p.pieces)).join("\n\n"), `${verdicts.length} loop verdict(s); unit: ${unit} (${unitBasis}) on the record beneath this line; ${failedAt ? "the last stable loop's piece" : "the piece as it stands after the pathos passes"}`, "eoreader7:piece");
 
   const report = path.join(DOCS, `${docId.replace(/:1$/, "")}.phases.html`);
   fs.writeFileSync(report, renderPhaseReport(docId.replace(/:1$/, "")));

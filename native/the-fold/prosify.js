@@ -190,7 +190,17 @@ function coverage(part, sentences, anchors) {
  * caller routes it through the engine's gated wire. `voice` is the register's
  * own { opening, body } for this kind of piece.
  */
-export async function prosify(draft, { draw, voice = null, ground = "", task = "", maxTokens = 450, onRecord = null, onPart = null } = {}) {
+/** The admission unit: a sentence of prose, or — when the void's shape is
+ *  in lines (shape.js, a form the sources agree is counted in lines) — a
+ *  LINE. Measured live 2026-09-22: asked for a sonnet, the mouth wrote
+ *  fourteen lines and the pipeline read them as four sentences, floored
+ *  source prose into the poem and joined it all with spaces. A line is
+ *  admitted by the same tests as a sentence and kept as a line. */
+const unitsOf = (text, unit) => (unit === "line"
+  ? String(text ?? "").split(/\n/).map((l) => l.replace(/^[-•*]\s+/, "").trim()).filter((l) => l.length > 3)
+  : segmentSentences(text).filter((x) => x.length > 20));
+
+export async function prosify(draft, { draw, voice = null, ground = "", task = "", maxTokens = 450, unit = "sentence", onRecord = null, onPart = null } = {}) {
   const variance = measureVariance(ground);
   const bondNull = measureBondNull(ground, undefined, variance);
   const registry = new Set();
@@ -214,7 +224,7 @@ export async function prosify(draft, { draw, voice = null, ground = "", task = "
       reg.delete(claimCore(without, variance));
       for (const w of matterWords(without, ground, variance)) reg.delete(`w:${w}`);
     }
-    for (const cand of segmentSentences(text).filter((x) => x.length > 20)) {
+    for (const cand of unitsOf(text, unit)) {
       if (isMetaSentence(cand)) { refusals.push({ kind: "meta", sentence: cand }); continue; }
       const v = admit(cand, {
         ground, priorLanding, instruction: task, registry: reg, variance, bondNull,
@@ -245,7 +255,7 @@ export async function prosify(draft, { draw, voice = null, ground = "", task = "
       landing ? `The piece so far ends: "${landing}"` : "",
       joinCue,
       `Here is what this part says, from the source:\n${facts}`,
-      `Write this part of the piece now, in your own words, carrying each of these facts.`,
+      unit === "line" ? `Write this part of the piece now, in lines, carrying each of these facts.` : `Write this part of the piece now, in your own words, carrying each of these facts.`,
     ].filter(Boolean).join("\n\n");
 
     // ── THE COARSE DRAW: the whole part.
@@ -282,8 +292,8 @@ export async function prosify(draft, { draw, voice = null, ground = "", task = "
       const prior = before.length ? before[before.length - 1] : landing;
       const u = partial
         // Material first, the claim after it, the ask last (Gary, P199/P55).
-        ? [`A fact from the source:\n"${pt.text}"`, `The piece says: "${partial.text}"`, `Rewrite that sentence so it also carries the fact.`].join("\n\n")
-        : [prior ? `The piece so far ends: "${prior}"` : "", `Here is the next fact, from the source:\n"${pt.text}"`, `Write one or two sentences of the piece that carry this fact, going on from where it ends.`].filter(Boolean).join("\n\n");
+        ? [`A fact from the source:\n"${pt.text}"`, `The piece says: "${partial.text}"`, `Rewrite that ${unit === "line" ? "line" : "sentence"} so it also carries the fact.`].join("\n\n")
+        : [prior ? `The piece so far ends: "${prior}"` : "", `Here is the next fact, from the source:\n"${pt.text}"`, `Write one or two ${unit === "line" ? "lines" : "sentences"} of the piece that carry this fact, going on from where it ends.`].filter(Boolean).join("\n\n");
       let r = ""; let err = null;
       try { r = String(await draw([...(voice?.body ? [{ role: "system", content: voice.body }] : []), { role: "user", content: u }], 200) ?? ""); }
       catch (e) { err = String(e?.message ?? e).slice(0, 200); }

@@ -38,7 +38,12 @@ export function surfQueries(spec) {
   const out = [];
   if (token) {
     // The form, as a thing with instances: what one is, and several of them.
-    out.push({ hunt: "exemplars", q: `what is ${/^[aeiou]/i.test(token) ? "an" : "a"} ${token}${topic ? ` about ${topic}` : ""}`, basis: "the form-word with the ask's own subject as context" });
+    // The context a form-word carries is its own question form ("what is a
+    // …"), NOT the ask's subject: measured live 2026-09-22 ("write a sonnet
+    // about the Cumberland River"), the subject in the exemplar query pulled
+    // six river pages into the ten, and "14 lines" fell to 4/10 — not
+    // learned. The subject belongs to the material hunt alone.
+    out.push({ hunt: "exemplars", q: `what is ${/^[aeiou]/i.test(token) ? "an" : "a"} ${token}`, basis: "the form-word in its own question form — the subject stays out of the exemplar hunt" });
     out.push({ hunt: "exemplars", q: `${token} examples full text`, basis: "the form-word, asking for instances rather than a definition" });
   }
   if (topic) out.push({ hunt: "material", q: topic, basis: "the ask's subject phrase, verbatim" });

@@ -114,7 +114,7 @@ test("STAGE 3, SURF: without a web the stage is recorded as not run; with one, i
     // material page); two.example is the material hunt's second host. The
     // material text carries Nashville (the operator's subject) in one
     // paragraph and furniture in another.
-    fetch: async (url) => ({ title: url, text: /material|two\.example|the%20river/.test(url) ? "Jump to content\n\nNashville's wharf on the river handled cotton for a century.\n\nAn essay runs five paragraphs." : "An essay runs five paragraphs. A page about the river. ".repeat(10), chars: 550, headings: ["Introduction", "Conclusion"] }),
+    fetch: async (url) => ({ title: url, text: /material|two\.example|the%20river/.test(url) ? "Jump to content\n\nNashville's wharf on the river handled cotton for a century, and then grain, and then everything the middle basin sent down to it.\n\nAn essay runs five paragraphs." : "An essay runs five paragraphs. A page about the river. ".repeat(10), chars: 550, headings: ["Introduction", "Conclusion"] }),
   };
   const wet = await runPipeline({ task: "Write an essay on the river.", groundFiles: [groundFile], id: "test-pipe-surf-wet", draw, web });
   try {
@@ -185,7 +185,7 @@ test("STAGES 8–9: the pathos pass loops until Gebser arrives, bounded by a cal
     const last = lines.at(-1);
     assert.equal(last.role, "piece");
     assert.match(last.title, /^Piece: 2 part\(s\)$/);
-    assert.match(last.basis, /^\d+ loop verdict\(s\) on the record beneath this line/);
+    assert.match(last.basis, /^\d+ loop verdict\(s\); unit: sentence \(declared: prose.*on the record beneath this line/);
     assert.equal(Number(last.basis.match(/^(\d+)/)[1]), lines.filter((l) => l.role === "check").length);
     assert.match(last.text, /Steamboats reached Nashville|steamboats reached Nashville/);
   } finally { cleanup(docId); }
@@ -199,6 +199,31 @@ test("STAGES 8–9: the pathos pass loops until Gebser arrives, bounded by a cal
     assert.match(arrivals[0].text, /stopped: the budget of 1 model call\(s\) is spent/);
     assert.match(arrivals[0].basis, /^diaphaneity [\d.]+ · [1-9]\d* of 1 model call\(s\) spent on pathos/);
   } finally { cleanup(tight.docId); }
+});
+
+test("THE UNIT IS A LINE when the shape says lines: the mouth's lines are admitted as lines, kept as lines, and the piece is joined with line breaks", async () => {
+  const poem = ["Steamboats reached Nashville in eighteen nineteen,", "and carried cotton down to New Orleans;", "by the eighteen fifties the warehouses stood", "along the waterfront, as warehouses should."].join("\n");
+  const draw = async (msgs) => (/flood/.test(msgs[msgs.length - 1].content) ? "The flood of 1927 covered the low city,\nthe flood of 2010 crested at 51.86 feet." : poem);
+  const web = {
+    search: async (q) => ({ results: [{ url: `https://a.example/${encodeURIComponent(q)}`, title: q }, { url: `https://b.example/${encodeURIComponent(q)}`, title: q }] }),
+    fetch: async () => ({ title: "x", text: "A sonnet has fourteen lines. Fourteen lines, always.", chars: 50, headings: [] }),
+  };
+  const { docId } = await runPipeline({ task: "Write a sonnet about the river.", groundFiles: [groundFile], id: "test-pipe-lines", draw, web });
+  try {
+    const lines = read(docId);
+    const v = lines.find((l) => l.role === "void");
+    assert.match(v.text, /one line of verse/);
+    assert.match(v.text, /\[measured\] one line of verse/, "the sources agreed on lines: measured, not the register's say-so");
+    const rec = lines.find((l) => l.role === "prosify");
+    assert.match(rec.text, /in lines, carrying each of these facts/);
+    assert.match(rec.text, /\[matter\] Steamboats reached Nashville in eighteen nineteen,$/m, "a line is admitted as a line, not folded into a sentence");
+    const piece = lines.at(-1);
+    assert.equal(piece.role, "piece");
+    assert.ok(piece.text.split("\n").length >= 4, `the piece keeps its line breaks:\n${piece.text}`);
+    assert.match(piece.basis, /unit: line \(measured/);
+    const arrive = lines.find((l) => l.role === "arrive");
+    assert.match(arrive.text, /shape: .*line \d+ [=≠] 14/, "the piece is measured in lines against the learned shape");
+  } finally { cleanup(docId); }
 });
 
 test("STAGE 8, ADDITIVE ONLY: a pass that changes nothing ends the loop, and the first arrival that arrives ends it too", async () => {

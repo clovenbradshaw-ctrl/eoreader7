@@ -16,8 +16,10 @@ test("queries come from the void and always carry context — never the bare for
   assert.ok(qs.some((q) => q.hunt === "exemplars" && /whiteppr/.test(q.q)), "the garbled form-word is still what is sought");
   assert.ok(!qs.some((q) => q.hunt === "material"), "no subject stated → no material hunt");
   const both = surfQueries(spec("write an essay on the Cumberland River"));
-  assert.ok(both.some((q) => q.hunt === "exemplars" && /essay/.test(q.q) && /Cumberland/.test(q.q)), "the exemplar query carries the subject as context");
-  assert.ok(both.some((q) => q.hunt === "material" && q.q === "the Cumberland River"));
+  // Measured live: the subject in the exemplar query pulled river pages into
+  // the form's exemplars and the sonnet's 14 lines fell below a majority.
+  assert.ok(both.filter((q) => q.hunt === "exemplars").every((q) => /essay/.test(q.q) && !/Cumberland/.test(q.q)), "the exemplar queries carry the form-word's own context, never the subject");
+  assert.ok(both.some((q) => q.hunt === "material" && q.q === "the Cumberland River"), "the subject is the material hunt's");
 });
 
 test("an anaphor with nothing to point at seeks nothing outside the conversation, and says so", () => {
