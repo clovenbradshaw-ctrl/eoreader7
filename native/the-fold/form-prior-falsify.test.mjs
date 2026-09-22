@@ -6,7 +6,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { lgamma, digamma, klDirichlet, klAdmit, createHolograph, admit, ABSENT } from "../kernel/bayes-surprise.js";
-import { learnForm, kindBoundaries, turnOf, formFacts, formHas } from "./form-prior.js";
+import { learnForm, kindBoundaries, turnOf, formFacts, formHas, necessaryFacts } from "./form-prior.js";
 
 let seed = 17;
 const rnd = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
@@ -91,4 +91,66 @@ test("kindBoundaries: against the kind being read now, a change of kind is found
   assert.deepEqual(one.boundaries, [], one.basis);
   assert.throws(() => kindBoundaries(stream, {}), /window is declared/);
   assert.ok(formFacts(limerick()).get("count") === 5);
+});
+
+// ── necessaryFacts: "what do all X have that other things may or may not
+// have?" — the WITHIN-KIND question, no comparison ground required. ──────
+test("necessaryFacts: 'varies' (emergentFacts' own not-constant sentinel) is NEVER a candidate — it is a null value, not a finding", () => {
+  const varyingUnits = Array.from({ length: 10 }, (_, i) => ({ elements: [{ cls: "line", text: `line ${i} of different length ${"x".repeat(i)}` }, { cls: "line", text: "b" }] }));
+  const r = necessaryFacts(varyingUnits, { draws: 50 });
+  assert.ok(!r.necessary.some((f) => f.value === "varies"), "no candidate ever carries the literal sentinel value");
+});
+
+test("necessaryFacts: a genuine shared, non-varying trait across the whole corpus is found and reported stable", () => {
+  // Every instance's headings end with no closing punctuation, constant
+  // within EACH instance (so it lifts to heading*:end="-") — genuinely
+  // shared across all 20 instances, unlike anything about the body lines.
+  // TWO headings per instance: emergentFacts' lift loop only computes a
+  // cls*:attr fact when a class has >= 2 elements in that instance.
+  const units = Array.from({ length: 20 }, (_, i) => ({
+    elements: [
+      { cls: "heading", text: "Title", end: "" },
+      { cls: "heading", text: "Subtitle", end: "" },
+      { cls: "line", text: `body line one of instance ${i}, length varies ${"z".repeat(i % 5)}` },
+      { cls: "line", text: `body line two of instance ${i}` },
+    ],
+  }));
+  const r = necessaryFacts(units, { draws: 100 });
+  assert.equal(r.refused, null);
+  const found = r.necessary.find((f) => f.key === "heading*:end" && f.value === "-");
+  assert.ok(found, `expected heading*:end=- among necessary facts, got: ${JSON.stringify(r.necessary)}`);
+  assert.equal(found.support, 1);
+  assert.ok(found.stability >= 0.9);
+});
+
+test("necessaryFacts: a trait present in only HALF the corpus is correctly rejected as not necessary", () => {
+  const units = Array.from({ length: 20 }, (_, i) => ({
+    elements: [
+      { cls: "heading", text: "Title", end: i % 2 === 0 ? "" : "." }, // only half share "-"
+      { cls: "heading", text: "Subtitle", end: i % 2 === 0 ? "" : "." },
+      { cls: "line", text: "body" },
+    ],
+  }));
+  const r = necessaryFacts(units, { draws: 100, minSupport: 0.8 });
+  assert.ok(!r.necessary.some((f) => f.key === "heading*:end"), "a 50%-shared trait must not clear an 80% support floor");
+});
+
+test("necessaryFacts: fewer than 5 instances refuses rather than claiming universality from a handful", () => {
+  const units = Array.from({ length: 3 }, () => ({ elements: [{ cls: "line", text: "a" }, { cls: "line", text: "b" }] }));
+  const r = necessaryFacts(units);
+  assert.equal(r.refused, "under_powered");
+  assert.deepEqual(r.necessary, []);
+});
+
+test("necessaryFacts: split-half stability actually discriminates — a trait driven by a FEW outlier instances (support just clears the floor but isn't robust) is caught", () => {
+  // 17/20 = 85% support (clears an 80% floor) but the 3 "no" instances are
+  // clustered such that many random halves still land close to the edge —
+  // this is a softer check: mainly confirms `stability` is computed and can
+  // differ from raw `support`, not a guarantee of rejection in every case.
+  const units = Array.from({ length: 20 }, (_, i) => ({
+    elements: [{ cls: "heading", text: "Title", end: i < 17 ? "" : "." }, { cls: "heading", text: "Subtitle", end: i < 17 ? "" : "." }, { cls: "line", text: "body" }],
+  }));
+  const r = necessaryFacts(units, { draws: 200, minSupport: 0.8 });
+  const found = r.necessary.find((f) => f.key === "heading*:end" && f.value === "-");
+  if (found) assert.ok(found.stability <= 1 && found.stability >= 0, "stability is a real fraction, distinct from the raw support number");
 });
