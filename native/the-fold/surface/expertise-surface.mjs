@@ -51,11 +51,10 @@ import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { streamOllamaChat } from "../../../proxy-runner.mjs";
 import { declareVoidSpec } from "../void-spec.js";
-import { surfQueries, liveWeb } from "../surf.js";
-import { segmentCollection, elementsOf } from "../medium.js";
-import { learnParadigmEmergent } from "../paradigm.js";
-import { learnForm } from "../form-prior.js";
-import { loadExpertise, saveExpertise, recordExpertise, projectExpertise, knownForms, expertiseLines } from "../expertise.js";
+import { loadExpertise, projectExpertise, knownForms, expertiseLines, beliefLog, currentBelief, competencyStatement, BELIEF_KIND, foldManual } from "../expertise.js";
+import { runLearnPass } from "../learn-pass.js";
+import { stepExpertiseAgent } from "../expertise-agent.js";
+import { CELLS, OPERATOR_GLYPHS, GRAIN_DECALS, OPERATOR_NAME, GRAIN_NAME } from "./grounding-glyphs.mjs";
 
 const execFileP = promisify(execFile);
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -64,6 +63,30 @@ const LIVE_PRIORS = path.join(ROOT, "..", "live_priors");
 const MODEL = process.env.EXPERTISE_MODEL ?? "gemma2:2b";
 const PORT = Number((process.argv.includes("--port") ? process.argv[process.argv.indexOf("--port") + 1] : null) ?? process.env.EXPERTISE_SURFACE_PORT ?? 8823);
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID ?? null;
+
+// ── the Holodeck grounding legend (2026-09-22) ──────────────────────────
+// The user: "use the holodeck framework for this html surface." The-fold's
+// Holodeck surface kit (surface/block-surface.mjs) is a bespoke six-stage
+// civic-document pipeline (extract/cast/metrics/derive/gate/render) built
+// for a different domain (city plans, districts, transit) — forcing
+// Polanyi's paradigm features through THAT pipeline's `def`/`ground`/
+// `links`/`metrics` shapes would misrepresent what they are. What IS
+// genuinely domain-general and honestly reusable is Holodeck's own
+// grounding-glyphs.mjs: the 27-cell EO cube legend, and the "a chip is a
+// door" interaction it defines (surface/block-surface.mjs's own `gchip`/
+// `gmodal` pattern, ported below verbatim in expertise-surface.html) —
+// because a paradigm feature ALREADY carries a real cube cell address
+// (paradigm.js's `cellOfFact`, riding on `f.cell` all the way into
+// expertise.js's stored `features`). This is the same table block-
+// surface.mjs computes as its own embedded GROUNDING_CELLS payload,
+// served here as JSON instead of inlined, since this page already fetches
+// its other state the same way.
+const GROUNDING_CELLS = Object.freeze(Object.fromEntries(
+  Object.entries(CELLS).map(([addr, c]) => {
+    const [op, grain] = addr.split("·");
+    return [addr, { terrain: c.terrain, stance: c.stance, name: c.name, nulls: c.nulls, description: c.description, operator: OPERATOR_NAME[op], grainName: GRAIN_NAME[grain], glyph: `${OPERATOR_GLYPHS[op]}${GRAIN_DECALS[grain]}` }];
+  }),
+));
 
 // ── broadcast (the SAME shape proxy.mjs's /heimdall/live already runs) ─────
 const clients = new Set();
@@ -80,7 +103,7 @@ function sessionOf(req) {
 }
 
 // ── the local-model chat (Polanyi's own voice, gated, never a frontier model) ──
-const SYSTEM = `You are Polanyi, this engine's archon of expertise: you learn a FORM (a poem, a document type, a musical tune, anything with a recurring shape) by reading real examples of it and measuring what recurs against a comparison group — never by being told the shape. A person is steering you at a topic. Speak plainly and briefly: confirm what topic you understood, ask for real example sources if none were given yet (links, or a name of a place to find them), and report what you found in the examples you were just given — the name and count of what recurred, never inventing a claim you did not measure. You never decide which links to fetch yourself; the person's own pasted links are what you read.`;
+const SYSTEM = `You are Polanyi, this engine's archon of expertise: you learn a FORM (a poem, a document type, a musical tune, anything with a recurring shape) by reading real examples of it and measuring what recurs against a comparison group — never by being told the shape. A person is steering you at a topic. Speak plainly and briefly: confirm what topic you understood, ask for real example sources if none were given yet (links, or a name of a place to find them), and report what you found in the examples you were just given — the name and count of what recurred, never inventing a claim you did not measure. You never decide which links to fetch yourself; the person's own pasted links are what you read. Your standing belief about your own work: competency without surprise is nothing — a shape asserted from a single reading is a guess, not competency; real competency is surprise falling as more real instances of the same kind corroborate each other, measured against more than one relative ground. You never learn a form from one example alone; you read a bunch of them and compare them to each other, and compare what you learn against other things too.`;
 
 async function* chatReply(history, message) {
   const messages = [{ role: "system", content: SYSTEM }, ...history, { role: "user", content: message }];
@@ -89,44 +112,20 @@ async function* chatReply(history, message) {
 
 const URL_RE = /\bhttps?:\/\/[^\s)>\]"']+/g;
 
-// ── the learning pass, broadcasting every step ──────────────────────────────
-async function runLearningPass({ topic, sourceUrls, populationUrls, source }) {
-  broadcast("status", { phase: "surf", topic });
-  const web = liveWeb();
-  const read = async (urls, hunt) => {
-    const out = [];
-    for (const url of urls) {
-      broadcast("absorb", { url, hunt, phase: "fetching" });
-      let page;
-      try { page = await web.fetch(url); } catch (e) { broadcast("absorb", { url, hunt, phase: "failed", error: String(e?.message ?? e).slice(0, 200) }); continue; }
-      broadcast("absorb", { url, hunt, phase: "read", chars: page.text.length, title: page.title, excerpt: page.text.slice(0, 1200) });
-      out.push({ url, text: page.text });
-    }
-    return out;
-  };
-  const corpusPages = await read(sourceUrls, "instances");
-  const popPages = await read(populationUrls, "population");
-  const toUnits = (pages) => pages.flatMap(({ url, text }) => {
-    const seg = segmentCollection(text);
-    return seg.units.length > 1 ? seg.units.map((u) => ({ ...u, id: `${url}#${u.id}` })) : [{ id: url, elements: elementsOf(text).elements }];
-  }).filter((u) => u.elements.length >= 2);
-  const instances = toUnits(corpusPages), population = toUnits(popPages);
-  broadcast("status", { phase: "learning", topic, instances: instances.length, population: population.length });
-  if (instances.length < 5 || population.length < 5) {
-    broadcast("status", { phase: "refused", reason: instances.length < 5 ? "under_powered" : "no_null", instances: instances.length, population: population.length });
-    return { refused: true };
-  }
-  const paradigm = learnParadigmEmergent({ name: topic, instances, population });
-  if (paradigm.refused) { broadcast("status", { phase: "refused", reason: paradigm.refused, basis: paradigm.basis }); return { refused: true }; }
-  const formPrior = learnForm(instances, { slots: "emergent" });
-  const ex = loadExpertise();
-  const before = projectExpertise(ex, topic);
-  const r = recordExpertise(ex, { name: topic, paradigm, formPrior, source: source || sourceUrls.join(","), note: `${instances.length} instance(s) via the surface` });
-  saveExpertise(ex);
-  broadcast("ledger", { topic, revision: (before?.revision ?? 0) + 1, status: r.status, corroboration: r.corroboration, confirmed: r.confirmed, lines: expertiseLines(ex, topic) });
-  broadcast("status", { phase: "done", topic, status: r.status, corroboration: r.corroboration, confirmed: r.confirmed });
-  return { ok: true, status: r.status, corroboration: r.corroboration, confirmed: r.confirmed, lines: expertiseLines(ex, topic) };
-}
+// A person's chat MESSAGE is never stored and never becomes a search query —
+// only the declared `topic` (a short form-name) drives what gets searched,
+// fetched, or pushed to the shared live_priors repo. Nothing from
+// `history`/`message` in the /chat or /agent routes below reaches
+// surfQueries, recordExpertise, or pushToLivePriors — see learn-pass.js and
+// expertise-agent.js: neither is ever handed the raw `message`/`history`,
+// only a mechanically-extracted topic and any URLs found by regex.
+async function runLearningPass(args) { return runLearnPass({ ...args, onEvent: broadcast }); }
+
+// ── the autonomous agent: "go learn expertise on X," asking follow-up
+// questions (through the local model, phrasing only — see
+// expertise-agent.js) only when a real mechanical gap blocks the hunt ──────
+const agentSessions = new Map();
+const drawOnce = async (messages, maxTokens) => { let out = ""; for await (const c of streamOllamaChat(MODEL, messages, { maxTokens })) if (typeof c === "string") out += c; return out; };
 
 // ── GitHub device flow (no secret; a session is only ever real) ────────────
 async function ghFetch(url, opts) { const r = await fetch(url, { ...opts, headers: { accept: "application/json", ...opts?.headers } }); return r.json(); }
@@ -185,9 +184,32 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "POST" && url.pathname === "/learn") {
       const body = JSON.parse((await readBody(req)) || "{}");
       const { topic, sourceUrls = [], populationUrls = [], source = "" } = body;
-      if (!topic || !sourceUrls.length || !populationUrls.length) { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ error: "topic, sourceUrls and populationUrls (its relative ground) are all required" })); return; }
+      // sourceUrls/populationUrls are now optional — omit either (or both)
+      // and Polanyi hunts for it himself (see runLearningPass's `swarm`),
+      // the way the main pipeline's surf.js already searches. Only `topic`
+      // is required; it alone drives the search, never chat text.
+      if (!topic) { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ error: "topic is required — a hunt needs to know what form it is looking for" })); return; }
       res.writeHead(202, { "content-type": "application/json" }); res.end(JSON.stringify({ started: true }));
       runLearningPass({ topic, sourceUrls, populationUrls, source }).catch((e) => broadcast("status", { phase: "error", error: String(e?.message ?? e) }));
+      return;
+    }
+
+    // ── the API entry point the user asked for: "go learn expertise on X,"
+    // and it asks follow-up questions (through the local model) as needed,
+    // no plan panel, no pasted links required. POST { sessionId?, message }.
+    // A missing/unknown sessionId starts a fresh agent; the response always
+    // carries the (possibly new) sessionId to send back on the next turn.
+    if (req.method === "POST" && url.pathname === "/agent") {
+      const body = JSON.parse((await readBody(req)) || "{}");
+      const message = String(body.message ?? "");
+      const sessionId = body.sessionId && agentSessions.has(body.sessionId) ? body.sessionId : crypto.randomBytes(8).toString("hex");
+      const prior = agentSessions.get(sessionId) ?? null;
+      let out;
+      try { out = await stepExpertiseAgent(prior, { message, draw: drawOnce, onEvent: broadcast }); }
+      catch (e) { res.writeHead(500, { "content-type": "application/json" }); res.end(JSON.stringify({ error: String(e?.message ?? e) })); return; }
+      if (out.status === "learned" || out.status === "gave-up") agentSessions.delete(sessionId); else agentSessions.set(sessionId, out.state);
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify({ sessionId, status: out.status, question: out.question ?? null, summary: out.summary ?? null, found: out.found ?? null, result: out.result ?? null, topic: out.state.topic }));
       return;
     }
 
@@ -230,8 +252,43 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && url.pathname === "/fold") {
       const ex = loadExpertise();
       const name = url.searchParams.get("form");
+      const withCompetency = (n) => { const cur = projectExpertise(ex, n); return { name: n, ...cur, competency: cur ? competencyStatement(cur) : null }; };
       res.writeHead(200, { "content-type": "application/json" });
-      res.end(JSON.stringify(name ? { name, lines: expertiseLines(ex, name), current: projectExpertise(ex, name) } : { forms: knownForms(ex).map((n) => ({ name: n, ...projectExpertise(ex, n) })) }));
+      res.end(JSON.stringify(name ? { name, lines: expertiseLines(ex, name), current: withCompetency(name) } : { forms: knownForms(ex).filter((n) => n !== BELIEF_KIND).map(withCompetency) }));
+      return;
+    }
+
+    // The running belief log the user asked for: "make sure the archon
+    // understands that [competency without surprise is nothing] and has a
+    // running log of what they believe competency is." Every entry stays —
+    // nothing here is ever superseded, only added to (expertise.js's
+    // beliefLog/recordBelief).
+    if (req.method === "GET" && url.pathname === "/beliefs") {
+      const ex = loadExpertise();
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify({ log: beliefLog(ex), current: currentBelief(ex) }));
+      return;
+    }
+
+    if (req.method === "GET" && url.pathname === "/grounding-cells") {
+      res.writeHead(200, { "content-type": "application/json" });
+      res.end(JSON.stringify(GROUNDING_CELLS));
+      return;
+    }
+
+    // The instruction manual: "the manual is MD but that is a FOLD of the
+    // ledger" — foldManual(cur, name) reads only stored fields, nothing
+    // model-written. ?download=1 sends it as a file; otherwise plain text
+    // so the hero panel can fetch and render it inline.
+    if (req.method === "GET" && url.pathname === "/manual") {
+      const name = url.searchParams.get("form");
+      if (!name) { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ error: "form is required" })); return; }
+      const ex = loadExpertise();
+      const md = foldManual(projectExpertise(ex, name), name);
+      const headers = { "content-type": "text/markdown; charset=utf-8" };
+      if (url.searchParams.get("download")) headers["content-disposition"] = `attachment; filename="${name.replace(/[^a-z0-9]+/gi, "-")}.md"`;
+      res.writeHead(200, headers);
+      res.end(md);
       return;
     }
 

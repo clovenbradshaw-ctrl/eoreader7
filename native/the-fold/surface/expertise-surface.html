@@ -4,7 +4,38 @@
 <meta charset="utf-8" />
 <title>Polanyi — the expertise archon</title>
 <style>
-  :root { --bg:#0c0d10; --bg2:#15171b; --ink:#e8e6e1; --muted:#9a9a94; --dim:#5c5c58; --line:#2a2c31; --accent:#c9a15a; --good:#7fae6b; --warn:#c97a5a; }
+  /* ── the fold's own surface palette (surface-template.html, ported
+     verbatim — "do you see the html template for the Holodeck?") ────────── */
+  :root {
+    --bg:#0d0b16; --bg2:#141126; --bg3:#1b1735; --line:#2b2450; --line2:#3a3170;
+    --ink:#ece9fb; --muted:#8f88b3; --dim:#6b6492;
+    --violet:#a78bfa; --violet2:#8b5cf6; --violet3:#7c3aed;
+    --good:#4ade80; --warn:#f87171; --amber:#fbbf24; --accent:#a78bfa;
+    --ground:#4ade80; --figure:#fbbf24; --pattern:#a78bfa;
+  }
+  /* ── Holodeck's grounding-chip legend (surface/block-surface.mjs, ported) ──
+     A chip wears the feature's own EO cube cell glyph; clicking it opens the
+     SAME modal Holodeck's other surfaces use, naming the act, the null it
+     owes, and this feature's own address. */
+  .gchip { display:inline-flex; align-items:center; justify-content:center; min-width:1.35em; font-family:"Apple Symbols","Noto Sans Symbols 2","Noto Sans Symbols",ui-monospace,Menlo,monospace; font-size:.8rem; line-height:1; padding:.1rem .16rem; border-radius:5px; border:1px solid var(--line2); color:var(--muted); background:var(--bg3); cursor:pointer; user-select:none; margin-right:.35rem; }
+  .gchip:hover { color:var(--ink); border-color:var(--violet2); }
+  .gchip-ground { color:var(--ground); border-color:color-mix(in srgb, var(--ground) 55%, transparent); }
+  .gchip-figure { color:var(--figure); border-color:color-mix(in srgb, var(--figure) 55%, transparent); }
+  .gchip-pattern { color:var(--pattern); border-color:color-mix(in srgb, var(--pattern) 55%, transparent); }
+  .gmodal { display:none; position:fixed; inset:0; z-index:60; background:rgba(6,5,12,.72); align-items:center; justify-content:center; padding:1.2rem; }
+  .gmodal.on { display:flex; }
+  .gmodal-card { max-width:32rem; width:100%; max-height:84vh; overflow:auto; background:var(--bg2); border:1px solid var(--line2); border-radius:12px; padding:1.1rem 1.2rem 1.2rem; }
+  .gmodal-head { display:flex; align-items:center; gap:.8rem; margin-bottom:.7rem; }
+  .gmodal-glyph { font-size:2rem; line-height:1.1; font-family:"Apple Symbols","Noto Sans Symbols 2","Noto Sans Symbols",Menlo,ui-monospace,monospace; }
+  .gmodal-title { font-size:.92rem; font-weight:600; color:var(--ink); }
+  .gmodal-addr { font-family:ui-monospace,monospace; font-size:.68rem; color:var(--dim); }
+  .gmodal-close { margin-left:auto; }
+  .gmodal p { margin:.45rem 0; font-size:.8rem; line-height:1.5; color:var(--muted); }
+  .gmodal .lbl { font-family:ui-monospace,monospace; font-size:.65rem; text-transform:uppercase; letter-spacing:.06em; color:var(--dim); }
+  .gmodal .nulls { font-family:ui-monospace,monospace; font-size:.68rem; color:var(--amber); }
+  .gmodal .ref-line { font-family:ui-monospace,monospace; font-size:.68rem; color:var(--violet); word-break:break-all; }
+  .gmodal .verbatim { font-style:italic; color:var(--muted); }
+  .gmodal .meta-line { font-family:ui-monospace,monospace; font-size:.68rem; color:var(--muted); border-left:2px solid var(--line2); padding-left:.6rem; margin:.3rem 0; }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--ink); font-family: ui-monospace, Menlo, monospace; font-size: 13px; }
   header { display:flex; align-items:center; justify-content:space-between; padding:.7rem 1rem; border-bottom:1px solid var(--line); }
@@ -20,6 +51,27 @@
   #hero .bar button { background:none; border:1px solid var(--line); color:var(--muted); padding:.25rem .6rem; border-radius:5px; cursor:pointer; font-family:inherit; font-size:.68rem; }
   #hero .bar button.on { color:var(--accent); border-color:var(--accent); }
   #hero .status { color:var(--dim); font-size:.72rem; margin-left:auto; }
+  /* ── real hero content (surface-template.html's .hero, filled with what
+     Polanyi actually learned — not ghost placeholders) ─────────────────── */
+  #headline { padding-bottom:1rem; margin-bottom:1rem; border-bottom:1px solid var(--line); }
+  #headline h2 { margin:0 0 .35rem; font-size:1.3rem; font-weight:600; color:var(--ink); }
+  #headline .tagline { margin:0; font-family:ui-monospace,Menlo,monospace; font-size:.78rem; color:var(--muted); line-height:1.6; }
+  #headline .verbs { display:flex; gap:.5rem 1.1rem; flex-wrap:wrap; margin-top:.7rem; font-family:ui-monospace,Menlo,monospace; font-size:.66rem; color:var(--dim); }
+  #headline .verbs b { color:var(--violet); font-weight:600; letter-spacing:.03em; text-transform:uppercase; }
+  #headline .proj { display:flex; gap:.35rem .7rem; flex-wrap:wrap; align-items:center; margin-top:.6rem; font-family:ui-monospace,Menlo,monospace; font-size:.64rem; }
+  #headline .proj-label { color:var(--dim); }
+  #headline .chip-state { color:var(--muted); border:1px solid var(--line2); border-radius:999px; padding:.1rem .5rem; }
+  #headline .chip-state.on { color:var(--violet); border-color:var(--violet2); }
+  #headline .chip-state.off { color:var(--dim); border-style:dashed; opacity:.6; }
+  #headline select { background:var(--bg2); border:1px solid var(--line2); color:var(--ink); border-radius:6px; padding:.15rem .5rem; font-family:inherit; font-size:.68rem; }
+  #headline #hlManual { background:var(--bg2); border:1px solid var(--line2); color:var(--muted); border-radius:6px; padding:.15rem .5rem; font-family:inherit; font-size:.68rem; cursor:pointer; }
+  #headline #hlManual:hover { color:var(--ink); border-color:var(--violet2); }
+  #manualModal { display:none; position:fixed; inset:0; z-index:60; background:rgba(6,5,12,.72); align-items:center; justify-content:center; padding:1.2rem; }
+  #manualModal.on { display:flex; }
+  #manualModal .card { max-width:44rem; width:100%; max-height:86vh; display:flex; flex-direction:column; background:var(--bg2); border:1px solid var(--line2); border-radius:12px; padding:1rem 1.1rem; }
+  #manualModal .head { display:flex; align-items:center; gap:.6rem; margin-bottom:.6rem; }
+  #manualModal .head b { color:var(--ink); font-size:.85rem; }
+  #manualModal pre { flex:1; overflow:auto; white-space:pre-wrap; font-family:ui-monospace,Menlo,monospace; font-size:.72rem; line-height:1.55; color:var(--muted); margin:0; }
   #absorb .item { margin-bottom:1rem; padding-bottom:1rem; border-bottom:1px dashed var(--line); }
   #absorb .url { color:var(--accent); font-size:.7rem; word-break:break-all; }
   #absorb .meta { color:var(--dim); font-size:.68rem; margin:.2rem 0 .4rem; }
@@ -60,24 +112,50 @@
 </header>
 <main>
   <section id="hero">
+    <div id="headline">
+      <h2 id="hlName">nothing learned yet</h2>
+      <p class="tagline" id="hlTagline">Steer Polanyi at a topic below — what it learns appears here, in one plain statement, not a raw feature dump.</p>
+      <div class="verbs">
+        <span><b>hunt</b> — find real instances of the form, and its grounds</span>
+        <span><b>read</b> — one at a time, corroborating rather than assuming</span>
+        <span><b>compare</b> — against plain prose, and against its own near-neighbours</span>
+        <span><b>corroborate</b> — surprise falling across readings is the only proof</span>
+      </div>
+      <div class="proj">
+        <span class="proj-label">this reading, as measured:</span>
+        <span class="chip-state" id="chipStance">stance: none</span>
+        <span class="chip-state" id="chipGrounds">grounds: —</span>
+        <span class="chip-state" id="chipActivation">surprise: —</span>
+        <span class="chip-state" id="chipModel">model: —</span>
+        <select id="hlPicker"><option value="">— pick a learned form —</option></select>
+        <button id="hlManual" type="button">view manual (.md)</button>
+        <a id="hlManualDl" href="#" style="color:var(--muted);font-size:.64rem">download</a>
+      </div>
+    </div>
     <div class="bar">
       <button id="viewAbsorb" class="on">absorbing</button>
       <button id="viewFold">fold (what it knows)</button>
+      <button id="viewBeliefs">beliefs (what competency means)</button>
       <span class="status" id="status">idle</span>
     </div>
     <div id="absorb"></div>
     <div id="fold" style="display:none"></div>
+    <div id="beliefs" style="display:none"></div>
   </section>
   <section id="log"><h2>append-only log</h2><div id="logList"></div></section>
   <section id="chat">
     <div id="plan">
       <div class="row"><label>topic</label><input id="planTopic" placeholder="e.g. limerick, obituary, jig"/></div>
-      <div class="row"><label>examples</label><input id="planSources" placeholder="links to real examples, comma-separated"/></div>
-      <div class="row"><label>ground</label><input id="planPop" placeholder="links to its NEIGHBOURS (what it must be told apart from)"/></div>
+      <div class="row"><label>examples</label><input id="planSources" placeholder="optional — leave blank and Polanyi hunts for real examples himself"/></div>
+      <div class="row"><label>ground</label><input id="planPop" placeholder="optional — leave blank and Polanyi hunts for its neighbours himself"/></div>
       <button id="planGo">go learn this</button>
+      <span class="sub" style="display:block;margin-top:.3rem;color:var(--dim)">only the topic name is searched for — nothing you type in chat below is used as a search query or saved.</span>
     </div>
     <div class="msgs" id="msgs"></div>
-    <form id="chatForm"><input type="text" id="chatInput" placeholder="steer Polanyi — name a topic, paste links, give feedback…" autocomplete="off"/><button type="submit">send</button></form>
+    <form id="chatForm">
+      <button type="button" id="planOpen" title="develop expertise on a topic">+ topic</button>
+      <input type="text" id="chatInput" placeholder="steer Polanyi — feedback, or paste links for the topic above…" autocomplete="off"/><button type="submit">send</button>
+    </form>
   </section>
 </main>
 <script>
@@ -109,8 +187,27 @@ $("#ghLogin").onclick = async () => {
 refreshMe();
 
 // ── hero: absorb vs fold ──────────────────────────────────────────────────
-$("#viewAbsorb").onclick = () => { $("#viewAbsorb").classList.add("on"); $("#viewFold").classList.remove("on"); $("#absorb").style.display = ""; $("#fold").style.display = "none"; };
-$("#viewFold").onclick = async () => { $("#viewFold").classList.add("on"); $("#viewAbsorb").classList.remove("on"); $("#absorb").style.display = "none"; $("#fold").style.display = ""; await renderFold(); };
+function showView(name) {
+  for (const [k, id] of [["absorb", "viewAbsorb"], ["fold", "viewFold"], ["beliefs", "viewBeliefs"]]) $(`#${id}`).classList.toggle("on", k === name);
+  $("#absorb").style.display = name === "absorb" ? "" : "none";
+  $("#fold").style.display = name === "fold" ? "" : "none";
+  $("#beliefs").style.display = name === "beliefs" ? "" : "none";
+}
+$("#viewAbsorb").onclick = () => showView("absorb");
+$("#viewFold").onclick = async () => { showView("fold"); await renderFold(); };
+$("#viewBeliefs").onclick = async () => { showView("beliefs"); await renderBeliefs(); };
+async function renderBeliefs() {
+  const j = await fetch("/beliefs").then((r) => r.json());
+  const box = $("#beliefs"); box.innerHTML = "";
+  if (!j.log.length) { box.appendChild(el("div", null, "<span style='color:var(--dim)'>nothing believed yet</span>")); return; }
+  for (const b of [...j.log].reverse()) {
+    const d = el("div", "form");
+    d.appendChild(el("h3", null, `#${b.seq} <span style="color:var(--dim);font-weight:normal">${esc(b.giver)} · ${esc((b.at || "").slice(0, 10))}</span>`));
+    d.appendChild(el("div", "line", esc(b.statement)));
+    if (b.basis) d.appendChild(el("div", "line", `<span style="color:var(--dim)">${esc(b.basis)}</span>`));
+    box.appendChild(d);
+  }
+}
 async function renderFold() {
   const j = await fetch("/fold").then((r) => r.json());
   const box = $("#fold"); box.innerHTML = "";
@@ -118,10 +215,57 @@ async function renderFold() {
   for (const f of j.forms) {
     const d = el("div", "form");
     d.appendChild(el("h3", `status-${f.status}`, `${esc(f.name)} — ${esc(f.status)} (revision ${f.revision}, corroborated by ${f.corroboration})`));
-    for (const feat of (f.features || []).slice(0, 14)) d.appendChild(el("div", "line", esc(feat.key) + (feat.same?.length ? ` <span style="color:var(--dim)">(+${feat.same.length})</span>` : "")));
+    if (f.features?.length && f.competency) d.appendChild(el("div", "line", `<span style="color:var(--dim)">${esc(f.competency)}</span>`));
+    for (const feat of (f.features || []).slice(0, 14)) {
+      const chip = groundingChip(feat.cell, { ref: feat.key, verbatim: feat.gloss || feat.key, source: feat.groundedAt ? `grounded at: ${feat.groundedAt.join(" + ")}` : null });
+      d.appendChild(el("div", "line", chip + esc(feat.gloss || feat.key) + (feat.same?.length ? ` <span style="color:var(--dim)">(+${feat.same.length})</span>` : "")));
+    }
+    if (!f.features?.length) d.appendChild(el("div", "line", "<span style='color:var(--dim)'>nothing measured recurs against this form's ground(s) yet</span>"));
     box.appendChild(d);
   }
 }
+
+// ── the headline (real hero content — surface-template.html's .hero,
+// filled with what Polanyi actually learned, never a ghost placeholder) ──
+async function refreshPicker(selectName) {
+  const j = await fetch("/fold").then((r) => r.json());
+  const sel = $("#hlPicker");
+  const had = sel.value;
+  sel.innerHTML = '<option value="">— pick a learned form —</option>' + j.forms.map((f) => `<option value="${escAttr(f.name)}">${esc(f.name)} (${esc(f.status)})</option>`).join("");
+  sel.value = selectName ?? (j.forms.some((f) => f.name === had) ? had : "");
+  return j.forms;
+}
+const escAttr = (s) => esc(s).replace(/"/g, "&quot;");
+async function renderHeadline(name) {
+  if (!name) { $("#hlName").textContent = "nothing learned yet"; $("#hlTagline").textContent = "Steer Polanyi at a topic below — what it learns appears here, in one plain statement, not a raw feature dump."; $("#chipStance").textContent = "stance: none"; $("#chipStance").className = "chip-state"; $("#chipGrounds").textContent = "grounds: —"; $("#chipGrounds").className = "chip-state"; $("#chipActivation").textContent = "surprise: —"; $("#chipActivation").className = "chip-state"; return; }
+  const j = await fetch(`/fold?form=${encodeURIComponent(name)}`).then((r) => r.json());
+  const cur = j.current;
+  const [bareName, stance] = name.split(" — ");
+  $("#hlName").textContent = name;
+  $("#hlTagline").textContent = cur?.competency && cur.features?.length ? cur.competency : (cur ? `${cur.status} (revision ${cur.revision}, corroborated by ${cur.corroboration}) — nothing measured yet recurs against this form's ground(s).` : "nothing learned yet");
+  const chipStance = $("#chipStance"); chipStance.textContent = stance ? `stance: ${stance}` : "stance: none"; chipStance.className = "chip-state" + (stance ? " on" : " off");
+  const groundsMatch = /([12]) ground/.exec(cur?.basis ?? "");
+  const chipGrounds = $("#chipGrounds"); chipGrounds.textContent = groundsMatch ? `grounds: ${groundsMatch[1]}` : "grounds: —"; chipGrounds.className = "chip-state" + (groundsMatch?.[1] === "2" ? " on" : "");
+  const act = cur?.activation;
+  const chipAct = $("#chipActivation");
+  chipAct.textContent = act ? `surprise: ${act.meanBayesEarlyHalf}→${act.meanBayesLateHalf} bits${act.stabilizing ? " ↓" : " (not falling)"}` : "surprise: —";
+  chipAct.className = "chip-state" + (act?.stabilizing ? " on" : "");
+}
+$("#hlPicker").addEventListener("change", (e) => { renderHeadline(e.target.value || null); syncManualLink(e.target.value || null); });
+function syncManualLink(name) {
+  $("#hlManualDl").href = name ? `/manual?form=${encodeURIComponent(name)}&download=1` : "#";
+}
+$("#hlManual").addEventListener("click", async () => {
+  const name = $("#hlPicker").value;
+  if (!name) { alert("pick a learned form first"); return; }
+  $("#manualTitle").textContent = `${name} — instruction manual (.md, folded from the ledger)`;
+  $("#manualBody").textContent = "loading…";
+  $("#manualModal").classList.add("on");
+  const md = await fetch(`/manual?form=${encodeURIComponent(name)}`).then((r) => r.text());
+  $("#manualBody").textContent = md;
+});
+$("#manualClose").addEventListener("click", () => $("#manualModal").classList.remove("on"));
+$("#manualModal").addEventListener("click", (ev) => { if (ev.target.id === "manualModal") $("#manualModal").classList.remove("on"); });
 
 // ── append-only log ─────────────────────────────────────────────────────
 function logEntry(e) {
@@ -133,7 +277,15 @@ function logEntry(e) {
 
 // ── live events ────────────────────────────────────────────────────────
 const es = new EventSource("/events");
-es.addEventListener("hello", (ev) => { const j = JSON.parse(ev.data); $("#status").textContent = `model: ${j.model}`; for (const f of j.forms) if (f.status) logEntry({ topic: f.name, revision: f.revision, status: f.status, corroboration: f.corroboration, confirmed: f.status === "confirmed" }); if (!j.github) $("#gh").title = "GITHUB_CLIENT_ID not set on the server"; });
+es.addEventListener("hello", (ev) => {
+  const j = JSON.parse(ev.data);
+  $("#status").textContent = `model: ${j.model}`;
+  $("#chipModel").textContent = `model: ${j.model}`;
+  for (const f of j.forms) if (f.status) logEntry({ topic: f.name, revision: f.revision, status: f.status, corroboration: f.corroboration, confirmed: f.status === "confirmed" });
+  if (!j.github) $("#gh").title = "GITHUB_CLIENT_ID not set on the server";
+  const latest = [...j.forms].filter((f) => f.status).at(-1);
+  refreshPicker(latest?.name).then(() => { renderHeadline(latest?.name ?? null); syncManualLink(latest?.name ?? null); });
+});
 es.addEventListener("status", (ev) => { const j = JSON.parse(ev.data); $("#status").textContent = j.phase + (j.reason ? `: ${j.reason}` : j.instances != null ? `: ${j.instances} instances / ${j.population} population` : ""); });
 es.addEventListener("absorb", (ev) => {
   const j = JSON.parse(ev.data);
@@ -144,7 +296,13 @@ es.addEventListener("absorb", (ev) => {
   item.querySelector(".meta").textContent = j.phase === "fetching" ? `fetching (${j.hunt})…` : j.phase === "failed" ? `failed: ${j.error}` : `${j.hunt} · ${j.chars} chars · ${j.title || ""}`;
   if (j.excerpt) item.querySelector(".excerpt").textContent = j.excerpt;
 });
-es.addEventListener("ledger", (ev) => { logEntry(JSON.parse(ev.data)); if ($("#viewFold").classList.contains("on")) renderFold(); });
+es.addEventListener("ledger", (ev) => {
+  const j = JSON.parse(ev.data);
+  logEntry(j);
+  if ($("#viewFold").classList.contains("on")) renderFold();
+  refreshPicker(j.name ?? j.topic).then(() => { renderHeadline(j.name ?? j.topic); syncManualLink(j.name ?? j.topic); });
+});
+es.addEventListener("hunt", (ev) => { const j = JSON.parse(ev.data); $("#status").textContent = `hunting ${j.hunt}: ${j.basis}`; });
 
 // ── chat ───────────────────────────────────────────────────────────────
 let history = [];
@@ -153,6 +311,7 @@ function showPlan(links) {
   $("#plan").classList.add("show");
   if (links.length) $("#planSources").value = links.join(", ");
 }
+$("#planOpen").onclick = () => showPlan([]);
 $("#chatForm").onsubmit = async (e) => {
   e.preventDefault();
   const input = $("#chatInput"); const text = input.value.trim(); if (!text) return;
@@ -178,12 +337,65 @@ $("#planGo").onclick = async () => {
   const topic = $("#planTopic").value.trim();
   const sourceUrls = $("#planSources").value.split(",").map((s) => s.trim()).filter(Boolean);
   const populationUrls = $("#planPop").value.split(",").map((s) => s.trim()).filter(Boolean);
-  if (!topic || !sourceUrls.length || !populationUrls.length) { alert("a topic, its example links, and its ground (neighbour) links are all required — a hunt needs a proper relative ground"); return; }
+  if (!topic) { alert("a topic name is required — that alone is what gets searched for"); return; }
   $("#viewAbsorb").click();
   $("#absorb").innerHTML = "";
   const r = await fetch("/learn", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ topic, sourceUrls, populationUrls, source: `surface:${topic}` }) }).then((x) => x.json());
   if (r.error) alert(r.error);
 };
+// ── the grounding modal (block-surface.mjs's "a chip is a door" pattern) ──
+let gCells = {};
+fetch("/grounding-cells").then((r) => r.json()).then((j) => { gCells = j; }).catch(() => {});
+function groundingChip(cellAddr, item = {}) {
+  if (!cellAddr) return "";
+  const grain = (cellAddr.split("·")[1] || "").toLowerCase();
+  const detail = { cell: cellAddr, ...item };
+  return `<span class="gchip gchip-${esc(grain)}" tabindex="0" role="button" data-cell="${esc(cellAddr)}" data-g='${esc(JSON.stringify(detail))}'>${esc((gCells[cellAddr] || {}).glyph || "?")}</span>`;
+}
+function openGrounding(chip) {
+  let item = {};
+  try { item = JSON.parse(chip.dataset.g || "{}"); } catch { item = { cell: chip.dataset.cell || "" }; }
+  const cell = gCells[item.cell] || { name: item.cell, glyph: chip.textContent.trim(), terrain: "", stance: "" };
+  $("#gmodal-glyph").textContent = cell.glyph || "";
+  $("#gmodal-title").textContent = cell.name || item.cell;
+  $("#gmodal-addr").textContent = (item.cell || "") + (cell.terrain ? ` · ${cell.terrain} · ${cell.stance}` : "");
+  const rows = [];
+  if (cell.operator) rows.push(`<p><span class="lbl">the act</span><br>${esc(cell.operator)}</p>`);
+  if (cell.description) rows.push(`<p>${esc(cell.description)}</p>`);
+  if (cell.nulls) rows.push(`<p><span class="lbl">the null it owes — same cell</span><br><span class="nulls">${esc(cell.nulls)}</span></p>`);
+  if (item.ref) rows.push(`<p><span class="lbl">address</span><br><span class="ref-line">${esc(item.ref)}</span></p>`);
+  if (item.verbatim) rows.push(`<p><span class="lbl">grounded on</span><br><span class="verbatim">"${esc(item.verbatim)}"</span></p>`);
+  if (item.source) rows.push(`<p class="meta-line">${esc(item.source)}</p>`);
+  $("#gmodal-body").innerHTML = rows.join("");
+  $("#gmodal").classList.add("on");
+}
+function closeGrounding() { $("#gmodal").classList.remove("on"); }
+document.addEventListener("click", (ev) => { const chip = ev.target.closest(".gchip"); if (chip) { ev.stopPropagation(); openGrounding(chip); } });
+document.addEventListener("keydown", (ev) => {
+  if ((ev.key === "Enter" || ev.key === " ") && ev.target.classList?.contains("gchip")) { ev.preventDefault(); openGrounding(ev.target); }
+  if (ev.key === "Escape") closeGrounding();
+});
+$("#gmodal").addEventListener("click", (ev) => { if (ev.target.id === "gmodal") closeGrounding(); });
+$("#gmodal-close").addEventListener("click", closeGrounding);
 </script>
+<div id="manualModal" role="dialog" aria-modal="true">
+  <div class="card">
+    <div class="head"><b id="manualTitle">manual</b><span style="flex:1"></span><button id="manualClose">✕</button></div>
+    <pre id="manualBody">loading…</pre>
+  </div>
+</div>
+<div class="gmodal" id="gmodal" role="dialog" aria-modal="true">
+  <div class="gmodal-card">
+    <div class="gmodal-head">
+      <span class="gmodal-glyph" id="gmodal-glyph"></span>
+      <div>
+        <div class="gmodal-title" id="gmodal-title"></div>
+        <div class="gmodal-addr" id="gmodal-addr"></div>
+      </div>
+      <button class="gmodal-close" id="gmodal-close">✕</button>
+    </div>
+    <div id="gmodal-body"></div>
+  </div>
+</div>
 </body>
 </html>
