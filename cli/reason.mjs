@@ -31,6 +31,8 @@ import path from "node:path";
 import { create, all } from "mathjs";
 import { gfpClaim, claimFromTriple, claimKey, caselessIdentity, exactIdentity } from "../native/kernel/gfp-claim.js";
 import { lintGfp, lintInferences, lintLedger } from "../native/organs/reasoning-lint.js";
+import { citeGround, terminalLink } from "../native/organs/ground-cite.js";
+import { writeReasoningRecord } from "../native/organs/reasoning-record.js";
 
 const math = create(all);
 const limitedEvaluate = math.evaluate;
@@ -47,6 +49,38 @@ const declared = (input.claims ?? []).map((c) => gfpClaim(c));
 const decl = input.declare ?? {};
 const text = input.text ?? (input.textFile ? fs.readFileSync(input.textFile, "utf8") : null);
 
+// GROUNDING: does each declared claim's own `ground` correspond to real
+// material? The GFP core below checks whether claims agree with EACH OTHER;
+// it never checks whether one holds against the bytes it names — this file's
+// own header disclosed that gap from the start. citeGround earns a real
+// citation the same way cite.js earns one for a model's prose (statistical
+// attribution against the file's own chunks, never a bare keyword match).
+// Only STRUCTURE (ground/file/line/url/ref/verdict/score) ever leaves this
+// process — no excerpt is printed or persisted anywhere below
+// (native/organs/reasoning-record.js's own header says why: the one honest
+// verbatim home for a citation is the real file at its own line, opened
+// live, never a copy that could drift and never a copy the model reads).
+const sources = declared.map((c, i) => citeGround(c, input.claims[i]?.said ?? input.claims[i]?.text));
+// Only "missing" (looks like a real path, nothing there) and "unattributed"
+// (the file is real, the claim's own words don't beat chance against it) are
+// worth a finding. "unaddressed" (a non-filesystem ground, e.g. text-mode's
+// own "/p3") is not a failure of anything and stays out of `findings`
+// entirely. Always `warn`, never `error`: an error flips `ok` to false, and
+// `ok:false` is exactly what coverageOf (claude-code-state.mjs) reads as
+// "not covered" — a claim grounded at a file THIS TURN IS CREATING would
+// then be unable to ever pass, permanently blocking the steer gate for new
+// files. Disclosed, not silent: the "missing" detail says so.
+const groundFindings = sources
+  .filter((s) => s.verdict === "missing" || s.verdict === "unattributed")
+  .map((s) => ({
+    kind: `ground_${s.verdict}`,
+    severity: "warn",
+    at: s.ground,
+    detail: s.verdict === "missing"
+      ? `no file exists at this ground — expected if this turn is CREATING ${s.ground}; otherwise the address may be wrong`
+      : `${s.file} is real, but this claim's own words do not beat chance against it (score ${s.score ?? 0} vs floor ${s.floor ?? 0}) — the address exists; nothing here confirms this claim's content is actually there`,
+  }));
+
 // ── THE FULL MACHINERY, when the reasoning is given as TEXT ─────────────────
 // read (the engine's own relation reader) → referents (the pipeline's own
 // buildReferents) → hyperlexicon (every claim admitted with its witness:
@@ -54,6 +88,17 @@ const text = input.text ?? (input.textFile ? fs.readFileSync(input.textFile, "ut
 // reasoner only declared) → the holograph's fold → the GFP core. A sentence
 // the reader could not read is an UNREAD STEP: the engine cannot vouch for it.
 let read = [], unread = [], ledgerFindings = [], resolveName = null, sentencesTotal = 0;
+// hl/hlLog: the hyperlexicon and its door, hoisted out of the `if (text)`
+// block below (2026-09-22, additive) so the durable-feed integration point
+// near the end of this file — after `out` is computed, changing nothing
+// about it — can fold the SAME ledger this block already builds, instead of
+// letting it be discarded when the block ends. See cli/reasoning-ledger.mjs's
+// own header for why: today this hyperlexicon is admitted (both
+// reader:engine and testimony:claude witnesses) only to compute this run's
+// own lint findings, then thrown away — nothing about it reaches eoreader7's
+// accumulated knowledge. Both stay null when `text` is absent, exactly as
+// every other name in the hoist above already does.
+let hl = null, hlLog = null;
 if (text) {
   const { engineRelationsFor } = await import("../native/the-fold/reader-bundle.js");
   const { buildReferents } = await import("../native/the-fold/referents.js");
@@ -84,11 +129,11 @@ if (text) {
 
   // The ledger: both voices, each with its witness and its spans.
   const taskLog = { ...TL, cellOf: cube.cellOf };
-  const hl = makeHyperlexicon(taskLog);
-  let log = hl.createHyperlexicon({ frame: { reader: "cli/reason", giver: "eoreader7" } });
-  log = hl.admit(log, edges.map((e) => ({ subject: e.end1, verb: e.label, object: e.end2, polarity: e.polarity, spans: (e.spans ?? []).map((sp) => ({ at: `reasoning#${sp.start}-${sp.end}`, ref: "reasoning", text: sp.text })) })), { witness: "reader:engine" }).log;
-  log = hl.admit(log, declared.map((c, i) => ({ subject: c.roles.ARG0 ?? "", verb: c.rel, object: c.roles.ARG1 ?? "", spans: [{ at: `declared#${i}`, ref: "declared", text: input.claims[i].said ?? `${c.roles.ARG0} ${c.rel} ${c.roles.ARG1}` }] })), { witness: "testimony:claude" }).log;
-  const lr = lintLedger(log, { door: hl, taskLog, strictness: "report", referentIndex: { referents: new Set(), resolve: R.resolveName, represent: R.represent } });
+  hl = makeHyperlexicon(taskLog);
+  hlLog = hl.createHyperlexicon({ frame: { reader: "cli/reason", giver: "eoreader7" } });
+  hlLog = hl.admit(hlLog, edges.map((e) => ({ subject: e.end1, verb: e.label, object: e.end2, polarity: e.polarity, spans: (e.spans ?? []).map((sp) => ({ at: `reasoning#${sp.start}-${sp.end}`, ref: "reasoning", text: sp.text })) })), { witness: "reader:engine" }).log;
+  hlLog = hl.admit(hlLog, declared.map((c, i) => ({ subject: c.roles.ARG0 ?? "", verb: c.rel, object: c.roles.ARG1 ?? "", spans: [{ at: `declared#${i}`, ref: "declared", text: input.claims[i].said ?? `${c.roles.ARG0} ${c.rel} ${c.roles.ARG1}` }] })), { witness: "testimony:claude" }).log;
+  const lr = lintLedger(hlLog, { door: hl, taskLog, strictness: "report", referentIndex: { referents: new Set(), resolve: R.resolveName, represent: R.represent } });
   ledgerFindings = lr.findings.filter((f) => f.kind === "testimony_only");
 }
 
@@ -213,7 +258,7 @@ if (doAnts) {
   }
 }
 
-const findings = [...gfp.findings, ...inf.findings, ...orderFindings, ...unread, ...ledgerFindings, ...antFindings];
+const findings = [...gfp.findings, ...inf.findings, ...orderFindings, ...unread, ...ledgerFindings, ...antFindings, ...groundFindings];
 const errors = findings.filter((f) => f.severity === "error");
 const vouched = text ? { sentences: sentencesTotal, read: sentencesTotal - unread.length, edges: read.length, declared: declared.length, corroborated } : null;
 // The grounds this run checked — the hooks read them to know which files the
@@ -224,7 +269,31 @@ const grounds = [...new Set(declared.map((c) => c.ground))];
 // back out of a Bash tool_response. Only ever emitted by the asJson branch
 // below (JSON.stringify(out, ...)); --compact and plain-text mode print their
 // own separate formatted output and never touch this field.
-const out = { ok: errors.length === 0, errors: errors.length, grounds, findings, vouched, gfp: { counts: gfp.counts, unjudged: gfp.unjudged, apart: gfp.apart, holons: gfp.holons, basis: gfp.basis }, inference: inf.counts, declaredClaims: input.claims ?? [] };
+// sources, stripped of `excerpt`: this is the --json payload a caller (this
+// process's own invoker, and claude-code-ledger.mjs reading the same Bash
+// tool_response) receives, so it is held to the same rule as the console
+// output below — structure only, never a copied verbatim byte.
+const sourcesOut = sources.map(({ excerpt, ...structural }) => structural);
+const out = { ok: errors.length === 0, errors: errors.length, grounds, findings, vouched, gfp: { counts: gfp.counts, unjudged: gfp.unjudged, apart: gfp.apart, holons: gfp.holons, basis: gfp.basis }, inference: inf.counts, declaredClaims: input.claims ?? [], sources: sourcesOut };
+
+// DURABLE FEED (2026-09-22, additive): when this run was given BOTH `text`
+// and at least one declared claim, fold the hyperlexicon built above (both
+// reader:engine and testimony:claude witnesses — neither dropped) and
+// append it to eoreader7's own document space, durably, so ongoing
+// reasoning feeds the engine's accumulated knowledge and not only this run's
+// own lint findings above. This runs regardless of `out.ok` — a failed run's
+// reasoning is still real reasoning worth keeping — and it never touches
+// `out` itself (computed above already) or throws past this file: a write
+// failure here must never change --json/--compact/plain output or the exit
+// code below. See cli/reasoning-ledger.mjs for what gets written and where,
+// and cli/claude-code-ledger.mjs for the OTHER, separate durable feed
+// (per-session declared claims only) this is deliberately additive beside.
+if (text && declared.length && hl && hlLog) {
+  try {
+    const { appendReasoningLedger } = await import("./reasoning-ledger.mjs");
+    appendReasoningLedger({ hl, log: hlLog, runAt: new Date().toISOString(), cwd: process.cwd(), grounds, ok: out.ok, errors: out.errors });
+  } catch { /* additive only; the verdict and every field of `out` above stand without it */ }
+}
 
 // The marker a hook reads: reasoning was handed to the engine this turn.
 try {
@@ -232,6 +301,15 @@ try {
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, "last.json"), JSON.stringify({ at: new Date().toISOString(), cwd: process.cwd(), ok: out.ok, errors: out.errors, findings: findings.length, claims: claims.length, inferences: infs.length, vouched }, null, 1));
 } catch { /* the marker is a convenience; the verdict above stands without it */ }
+
+// THE REASONING RECORD: claims in real GFP notation + findings + grounding
+// verdicts, written straight to a file — never printed, never held only in
+// this process's stdout — so it is reviewable directly (Claude Code's own
+// show_pane, a person's editor) rather than through whatever a caller might
+// paraphrase it as. See native/organs/reasoning-record.js's own header.
+const recordPath = writeReasoningRecord({ claims: declared, findings, sources: sourcesOut });
+const cited = sources.filter((s) => s.verdict === "cited");
+const citationLine = (s) => `    ${s.verdict === "cited" ? "✓ cited" : s.verdict === "unattributed" ? "? unattributed" : s.verdict === "missing" ? "✗ missing" : "· " + s.verdict}  ${s.ground}${s.file ? `  →  ${terminalLink(`${s.file}:${s.line ?? "?"}`, s.url)}` : ""}`;
 
 if (asJson) console.log(JSON.stringify(out, null, 1));
 else if (compact) {
@@ -241,7 +319,9 @@ else if (compact) {
     for (const f of errors) console.log(`  ✗ ${f.kind}${f.at ? ` @ ${f.at}` : ""}: ${f.detail.split("\n")[0]}`);
   }
   if (antFindings.length) console.log(`  ⚠ ${antFindings.length} falsification(s) from ants`);
+  if (sources.length) console.log(`  sources: ${cited.length}/${sources.length} cited — open a file:line above, or the record, to see the real bytes (never printed here)`);
   console.log(`  grounds: ${JSON.stringify(grounds)}`);
+  if (recordPath) console.log(`  reasoning record (real GFP notation, never prose): ${recordPath}`);
   console.log(`  (details hidden; pass --json for full report)`);
 } else {
   console.log(`eoreader7 reason · ${claims.length} claim(s) · ${infs.length} inference(s) · ${input.order?.claims?.length ?? 0} order claim(s) → ${out.ok ? "OK" : `${errors.length} ERROR(S)`}`);
@@ -250,5 +330,10 @@ else if (compact) {
   if (gfp.unjudged) console.log(`  (${gfp.unjudged} several-valued pair(s) of undeclared relations counted, not judged)`);
   if (gfp.apart) console.log(`  (${gfp.apart} pair(s) in sibling holons held apart)`);
   console.log(`  grounds: ${JSON.stringify(grounds)}`);
+  if (sources.length) {
+    console.log(`  sources (${cited.length}/${sources.length} cited — the real bytes live only at the address; never copied here):`);
+    for (const s of sources) console.log(citationLine(s));
+  }
+  if (recordPath) console.log(`  reasoning record (claims in real GFP case-marked notation, findings, source verdicts — never prose): ${recordPath}`);
 }
 process.exit(out.ok ? 0 : 1);

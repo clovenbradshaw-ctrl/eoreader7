@@ -27,10 +27,61 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
+import { spawn } from "node:child_process";
 import { sidOf, loadState, saveState, newTurn, engineRunOf, uncovered, exempt, steeringOff, logError } from "./claude-code-state.mjs";
+import { cwdSlug } from "../native/organs/reasoning-record.js";
 
-const DOCS = path.join(path.dirname(new URL(import.meta.url).pathname), "..", "documents");
+const HERE = path.dirname(new URL(import.meta.url).pathname);
+const DOCS = path.join(HERE, "..", "documents");
 const EXCERPT = 4000;
+const SURFACE_DIR = path.join(os.homedir(), ".claude", "eo-reason");
+
+// The spec file a `node .../reason.mjs <spec.json> ...` command names — a
+// best-effort read of the Bash command string, never a requirement: no
+// match simply means no surface is generated this call, the same typed-miss
+// discipline every other read in this file already holds (bashEditDiff's
+// own "partial witness" comment states the same principle for file
+// attribution). Quoted or bare, first .json-looking argument wins.
+const specFileOf = (cmd) => /reason\.mjs\s+(?:--\S+\s+)*['"]?([^\s'"]+\.json)['"]?/.exec(String(cmd ?? ""))?.[1] ?? null;
+
+// Fires reason-surface.mjs on the SAME spec a real reason.mjs run just
+// checked, DETACHED — this hook has a 10s timeout (settings.local.json) and
+// citeGround's real file reads/chunking can run long on a large claim set,
+// so generation must never be awaited here. Writes to a cwd-scoped path
+// (reasoning-record.js's own cwdSlug — the same fix for the same class of
+// collision that bit last-reasoning.json) so two repos' surfaces never
+// clobber each other; same-repo concurrent collisions are the same
+// disclosed, unsolved edge reasoning-record.js's own header already names.
+// The scoping key is THIS repo's own root (derived from HERE, this file's
+// own location — cli/reason-surface.mjs always lives one directory over,
+// wherever this checkout sits), never `ev.cwd`. MEASURED, not assumed:
+// running `cd eoreader7 && node cli/reason.mjs …` from a session whose last
+// tracked subdirectory was native/the-fold scoped the surface to
+// "...the-fold" — ev.cwd reflects whatever subdirectory a hook happened to
+// catch the session in, which drifts independently of which repo's
+// reason.mjs actually ran, and would have fragmented one project's surface
+// across filenames by incidental subdirectory noise — the exact class of
+// bug cwdSlug was introduced to fix, reintroduced by scoping on the wrong
+// value. `ev.cwd` is still used for resolving a RELATIVE spec path and as
+// the child process's own cwd (correct there — it is about interpreting
+// the command's own relative paths, not about naming the output file).
+const REPO_ROOT = path.resolve(HERE, "..");
+function spawnSurface(cmd, cwd) {
+  try {
+    const spec = specFileOf(cmd);
+    if (!spec) return;
+    const specAbs = path.isAbsolute(spec) ? spec : path.resolve(cwd || process.cwd(), spec);
+    if (!fs.existsSync(specAbs)) return;
+    fs.mkdirSync(SURFACE_DIR, { recursive: true });
+    const out = path.join(SURFACE_DIR, `last-surface-${cwdSlug(REPO_ROOT)}.html`);
+    const child = spawn(process.execPath, [path.join(HERE, "reason-surface.mjs"), specAbs, "--out", out], {
+      cwd: cwd || process.cwd(),
+      detached: true,
+      stdio: "ignore",
+    });
+    child.unref();
+  } catch (e) { logError("claude-code-ledger:spawnSurface", e); }
+}
 
 // The declared table of secret shapes. Anything matching is replaced before it
 // reaches disk. Extend the table; never bypass it.
@@ -92,6 +143,7 @@ function main() {
       // those, exactly as disclosed.
       declaredClaims = run.declaredClaims ?? [];
       runAt = run.at;
+      spawnSurface(cmd, ev.cwd);
     }
     // Files this call changed. Edit/Write name their file. A Bash result's
     // bashEditDiff is a PARTIAL witness — it misses files an interpreter wrote
@@ -144,8 +196,8 @@ function main() {
   // appended within the same millisecond never collide.
   for (let i = 0; i < declaredClaims.length; i++) {
     const claim = declaredClaims[i];
-    const claimText = claim?.said ?? claim?.text
-      ?? `${claim?.roles?.ARG0 ?? "?"} ${claim?.rel ?? "?"} ${claim?.roles?.ARG1 ?? "?"}`;
+    const claimText = excerpt(claim?.said ?? claim?.text
+      ?? `${claim?.roles?.ARG0 ?? "?"} ${claim?.rel ?? "?"} ${claim?.roles?.ARG1 ?? "?"}`);
     const claimClean = scrub(claimText);
     const claimBasis = scrub(`reason:${runAt}#${claim?.ground ?? "/"}`);
     let claimStart = 0; try { claimStart = fs.statSync(file).size; } catch {}
