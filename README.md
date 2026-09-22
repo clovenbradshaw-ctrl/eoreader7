@@ -29,6 +29,20 @@ every opencode config it can find to the `er7:` provider. Overrides: `ER7_DIR`
 `ER7_PROXY_PORT`, `ER7_UPSTREAM`. `./install.sh --no-link --no-config
 --no-models` skips the corresponding steps.
 
+### Claude Code
+
+eoreader7 also installs into Claude Code as a plugin, `eo-reason`. It adds
+three things: every Claude Code event goes onto an eoreader7 ledger, a turn
+can't end until `cli/reason.mjs` has checked its reasoning, and a `reason`
+skill. The installer above adds it when `claude` is on PATH. On its own:
+
+```bash
+claude plugin marketplace add clovenbradshaw-ctrl/eoreader7 --sparse .claude-plugin claude-code
+claude plugin install eo-reason@eoreader7
+```
+
+See `claude-code/README.md` for how the plugin is built from this tree.
+
 ## Connecting to eoreader7
 
 `proxy.mjs` (`./setup-proxy.sh` installs it) is the connection surface — one

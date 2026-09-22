@@ -28,7 +28,10 @@ import os from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
 
-const DOCS = path.join(path.dirname(new URL(import.meta.url).pathname), "..", "documents");
+// EO_LEDGER_DIR moves the ledger out of the repo: the Claude Code plugin
+// (claude-code/) sets it to its persistent data dir, because a plugin's own
+// install folder is replaced on every update.
+const DOCS = process.env.EO_LEDGER_DIR || path.join(path.dirname(new URL(import.meta.url).pathname), "..", "documents");
 const STATE_DIR = path.join(os.homedir(), ".claude", "eo-reason", "sessions");
 const EXCERPT = 4000;
 

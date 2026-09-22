@@ -99,6 +99,19 @@ fi
 curl -s -m 2 http://127.0.0.1:4096 > /dev/null 2>&1 && ok "opencode serve: reachable on :4096 (optional lane)" || true
 curl -s -m 2 http://127.0.0.1:11438/health > /dev/null 2>&1 && ok "heimdall fleet: already watching on :11438" || ok "heimdall fleet: will be started by setup-proxy.sh (:11438)"
 
+# --- 1b. Claude Code ------------------------------------------------------------
+# If Claude Code is installed, add the eo-reason plugin (claude-code/): the
+# ledger, the reasoning gate and cli/reason.mjs, wired as hooks. Skipped with
+# ER7_NO_CLAUDE_PLUGIN=1; a failure here never stops the install.
+if [ -z "$ER7_NO_CLAUDE_PLUGIN" ] && command -v claude >/dev/null 2>&1; then
+  say "Adding the eo-reason plugin to Claude Code..."
+  claude plugin marketplace add clovenbradshaw-ctrl/eoreader7 --sparse .claude-plugin claude-code >/dev/null 2>&1 \
+    || claude plugin marketplace update eoreader7 >/dev/null 2>&1 || true
+  claude plugin install eo-reason@eoreader7 >/dev/null 2>&1 \
+    && ok "eo-reason installed (restart Claude Code to load it)" \
+    || ok "(plugin install failed; run: claude plugin install eo-reason@eoreader7)"
+fi
+
 # --- 2. hand off to the real installer -----------------------------------------
 say "Running setup-proxy.sh (models + proxy + opencode wiring)..."
 "$ER7_DIR/setup-proxy.sh" "$@"
