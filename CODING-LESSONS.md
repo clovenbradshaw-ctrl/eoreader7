@@ -1449,32 +1449,199 @@ first; the mouth may answer "neither", and a section both readings call
 neither leaves the piece only when the mechanics agree it names nothing the
 ask names.
 
-## 57. Best-of-k, controlled against temperature alone, is the strongest lever measured — selection, not sampling (2026-09-21)
-Built two arms to separate two things the literature conflates: `samp1` (one draw at temperature
-0.8, no selection) and `bok` (best-of-3 at temperature 0.8, picked by the VISIBLE cases only — the
-tests a real caller would already have). Both draw from the same prompt at the same temperature;
-the only difference is whether the extra draws are thrown away or used to select. Three independent
-replicates (fresh seeds each) on 68 (task × language) cells, gemma2:2b:
-- examples (1 draw, temp 0.2): 42% held-out pass.
-- samp1 (1 draw, temp 0.8): 52%.
-- **bok (best-of-3, temp 0.8): 68%.**
-Paired by (task, language) cell across the 3 reps: bok beat samp1 on 28/68, samp1 beat bok on 5/68,
-35 tied. Exact sign test on the cells that moved: p = 7e-5. **Falsifying control passed:** if bok's
-gain were only the higher temperature finding an occasional lucky draw, samp1 (drawn at the SAME
-temperature) would show the same lift — it did not. Selection over a model's own candidates, against
-tests the caller already holds, is doing real work.
-Repair (`rec`, `rec2` — feed back a runtime error or a wrong visible-case value, up to 3 rounds, keep
-the best) did NOT beat plain examples (39-40/68 vs 41/68) and never once triggered its own
-keep-the-best guard (0 regressions offered). Code extraction alone (`examplesx`) added nothing
-measurable either. Of the four cheap levers tried, only best-of-k with real selection moved the
-needle, and it moved it more than any other change in this whole project.
-**What this licenses, concretely:** wherever a build has its own tests (the caller's tests, not a
-benchmark), draw k candidates and keep the one that passes the most, BEFORE spending a repair round.
-Repair is not free (a mean of ~1.9 extra draws per task with these prompts) and bought nothing here;
-selection on 3 draws bought 26 points.
-**Not yet known:** whether the gain holds at k=5, on the tasks that were 0/12 in every earlier arm
-(the walls), or on a different model (repeat next against qwen2.5-coder:1.5b — the model
-`code-build.js`'s own default, per CODING-LESSONS' companion audit — and not just gemma2:2b).
-**Falsifying control for the next run:** if bok cannot lift ANY wall task's rate above its samp1
-control, the walls are genuine capability walls, not a sampling-budget problem, and the honest move
-per lesson 32 is a bigger mouth, not more draws.
+## 49. The cube as a complete grammar, and the one test that looked like a result (2026-09-21)
+
+`cube.js` already claimed the cube is a universal grammar — three domains as
+the three grammatical departments, three grains as the three clause positions
+— and measured eight dimensions of it on Greek endings. Its only consumer was
+a test. `kernel/universal-grammar.js` makes the claim complete against the
+Universal Dependencies v2 inventory: every part of speech, relation and
+feature value has a cube address with its basis (`measured`, `declared` with a
+reason, or `form` for surface features that belong in provenance). The gap
+list is empty and 25 of 27 cells are reached; NUL·Figure and INS·Ground take
+no grammatical category at all, which is a question, not a defect.
+
+`kernel/eot-rich.js` gives each sentence two layers: the exact surface as
+provenance, and a meaning layer of content words only, with function words
+absorbed as cube-addressed markers and no word order anywhere. Over seven
+treebanks, 7,744 sentences in Arabic, Greek, Hebrew, Latin, Sanskrit and
+Naija: nothing unplaced on entry, the surface re-serializes byte for byte, the
+full annotation rebuilds from the meaning layer alone, and order regenerated
+from each language's measured parameters scores tau 0.39 to 0.78. The same
+parameters read out the textbook basic orders — Arabic VSO, Latin and Sanskrit
+SOV, Hebrew and Naija SVO — without any table of languages.
+
+Two honest limits. The meaning-layer rebuild is near-certain by construction,
+because absorbed markers keep their attachment; it proves nothing was dropped,
+not that two languages mean the same thing. And the test I wrote to show one
+relation in two projections — English "of" and the Latin genitive landing in
+one cell — passed by coincidence. Every English adposition takes its cell from
+its syntactic label `case`, so "in", "to" and "with" all land where "of" does
+while the locative, dative and comitative do not. It is now a `todo` test,
+named as a known gap. Typing a marker by what it MEANS needs the same sentence
+in a language that spends a preposition and one that spends an ending: a
+parallel treebank.
+
+## 51. A universal grammar from the UDHR: one principle transfers, two parameters do not — without literacy (2026-09-21)
+
+The test the user named: universal grammar as Chomsky frames it, principles
+invariant and parameters set from little input. The principle is the cube; the
+little input is the UDHR, ~11,000 characters in each of ~490 languages, the
+same meaning held constant across every typology.
+
+SEGMENTATION FROM WHITESPACE. 487 of 516 translations yield the preamble and
+thirty articles from blank-line structure alone — no numerals (68 files write
+them as words), no heading vocabulary, no script. Two measured corrections on
+the way: numbered list items are separated by the same long blank runs as
+articles, and sit deeper; and the article indent is the SHALLOWEST, not the
+most common, because list items outnumber articles.
+
+THE PRINCIPLE TRANSFERS. A word's cube cell is projected from pivot languages
+by co-occurrence across the aligned articles and checked, leave-one-out,
+against each language's OWN treebank prior. Every cut is the language's own
+shuffled null, stratified by word frequency — an unstratified null came out at
+exactly 1.0 in all thirteen languages and linked nothing, because a one-off
+word reaches Dice 1 with any one-off beside it, shuffled or not. Nine of
+eleven checkable languages clear their own 99th percentile (French 67.6%
+against 38.0%, Finnish 77.8% against 48.1%); multi-pivot roughly doubled the
+words checked. Korean fails and Hebrew sits at the null: both fuse particles
+or prepositions onto words, which a tokenizer cannot see.
+
+TWO PARAMETERS DO NOT, and both failures point the same way.
+- Adpositions by projection: function words appear in nearly every article,
+  so they never co-occur distinctively; the "adpositions" found are 0–3 a
+  language and partly wrong (Latin *nullo*, *se*). No setting was made.
+- Head direction by entropy asymmetry on raw text: validated FIRST against
+  the seven treebanks, it ranks them backwards (Spearman −0.68) and reads
+  every one head-initial, Latin and Sanskrit included; on the UDHR it would
+  call Navajo, Quechua, Turkish and Basque head-initial. Refuted by its own
+  validation, never read as evidence. The gold proxy was crude too — the share
+  of all dependents following their head is dragged below one half even in
+  SVO Naija by determiners and subjects.
+
+Parameters are grammar, and string statistics over an unread text do not see
+grammar. The route that made this project literate in Greek and Sanskrit — a
+treebank, the one-master ending prior, a reader that leaves gaps, competence
+out of sample against a shuffled null — is the route to setting parameters in
+the languages the UDHR adds. The principle can be projected; the parameters
+have to be read.
+
+## 52. The swarm on the UDHR: what it actually learned, and what it only appeared to (2026-09-21)
+
+The swarm (`native/eval/lavar/wilson.mjs`) was sent across the declaration in
+the eight languages the reader declares — English, French, Turkish, Korean,
+Modern Greek, Hebrew, Russian, Arabic — three generations each. Three things
+had to be corrected before its output meant anything.
+
+THE UNIT. The reader learned "Article <arabic>" as a chapter convention, so
+chapter 1 was Article 1: three propositions, every variant 0.550, nothing to
+select. A declared derived material (`eval/udhr/udhr-derive-whole.mjs`) gives
+it the whole declaration as one read unit. The first version wrote its
+provenance as a header, and the reader read "Removed: the title line and the
+30 article heading lines" as the first English proposition — the machine
+talking about itself, admitted as content. Provenance now lives in a sidecar
+the reader never opens. Rerunning under the same name then appended to the
+first run's ledgers (append-only by design) and three languages scored 0.000
+over a mixture of two texts; the clean materials take a new name so their
+ledgers start fresh, and the contaminated run stays on record as what it was.
+
+THE NAMES ARE INVERTED. A variant named `received-verbs` passes
+`--no-received-verbs`: it turns the received verb prior OFF. `earned-only` is
+the full default reader. Read with that in mind, the clean propositions say:
+
+    language   default   verb prior off
+    Korean        97        0
+    Hebrew        54        0
+    Arabic        63        0
+    Russian      108       25
+    Greek        302      114
+    Turkish       85       42
+    French       217      122
+    English      257      209
+
+The received verb prior is load-bearing everywhere and is the reader's ONLY
+way to find a verb in Korean, Hebrew and Arabic — the three languages whose
+surfaces fuse particles, prefixes or endings onto words, the same three that
+failed or sat at the null in the projection test (lesson 51). That is the
+lesson the swarm's run carries.
+
+THE HARDENED "THINGS" ARE TIES. The ladder hardened `nps` and `deep` across
+Korean and Arabic (and, with earlier materials, across ten). On the UDHR both
+score exactly what the default reader scores (97/97, 63/63). They were KEPT
+at "+0.300" because selection is per terrain and the terrain champion they
+beat was a variant with the verb prior switched off — a champion worse than
+the seed. A specialist that ties the generalist is not outreading it. This is
+a defect in the gate, not a lesson about reading: `kept` should require
+beating the seed, not a terrain champion below it. Not fixed here —
+`wilson.mjs` carries another session's uncommitted work. Not promoted to the
+shared store either, and it should not be until the gate is fixed.
+
+## 53. An English parser from the treebank we already held, and the gap it can measure but not close (2026-09-21)
+
+The rich EOT could round-trip a treebank but could not read a page of English
+it was handed. `adapters/text/english-parser.js` closes that: raw text in, a
+full Universal Dependencies analysis per sentence out, in the shape the rich
+record already takes. No language model and no download — the English Web
+Treebank was already on disk, left by eoreader6.1. Four small learned parts:
+a tokenizer on the treebank's own conventions, an averaged-perceptron tagger,
+an arc-eager parser learning from a static oracle, a relation labeller, and
+lemmas and features from the treebank's own tallies backing off to the word's
+ending (the Greek and Sanskrit ending-prior discipline). Deterministic: the
+same treebank gives the same model byte for byte. Trained in 76 seconds.
+
+Scored on the held-out tenth it never trained on (1,254 sentences): word class
+95.2, head 81.2, head and relation 77.0, lemma 97.4, features 91.3, tokenizer
+F1 96.2; attaching every word to its neighbour scores 9.0 and 29.0. Floors sit
+below those numbers in `english-parser.test.mjs`.
+
+PROVENANCE, the user's rule for every parser: the model states the treebank,
+the file's content hash, and its genre, period and region — the last three
+received from the treebank's documentation and marked as declared, never
+measured. Every reading carries the parser's provenance beside the book's,
+and names the mismatch. The book's own period and genre are received too: a
+Gutenberg header states a title, author and translators but not the period of
+its English, so the period stays a declared gap until someone declares it; a
+cleaned corpus file with no header takes its title and genre from the
+manifest that admitted it. A first draft wrote "literary prose" into every
+reading's mismatch line — a genre nobody declared — and was corrected.
+
+WHAT IT MEASURED ON THE NOVELS. War and Peace (Maude translation) — 72,022
+sentences, 673,229 words in 70 seconds; Tom Sawyer — 89,026 words in 9.5.
+Every sentence entered the rich record with nothing unplaced, and every
+sentence and token offset reproduces its bytes exactly. The period and
+register gap, as a number: 9.3–9.5% of the novels' word forms never occur in
+the parser's training, against 4.1% on its own held-out web English. That gap
+is measured, not closed. Closing it is the same move Greek needed for Koine
+against Classical: a model per period and register, taught on a treebank of
+that English and carrying its own provenance.
+
+## 54. Three fields no one language states, computed without a model (2026-09-21)
+
+`kernel/eot-enrich.js` adds three fields to the rich EOT record, none of them
+in the source sentence and none of them from a model call.
+
+REFERENT: which being a node names, via `the-fold/referents.js`'s
+`buildReferents` — the same organ the generation pipeline uses, called here
+rather than duplicated. Proven on "Napoleon's army retreated" and "the army
+of Napoleon was destroyed": the two "Napoleon" nodes resolve to one referent
+id though the arcs are opposite. The first draft of this test used "king",
+and every resolve came back empty — the referent organ finds beings by NAME,
+a capitalised run, and a bare common noun is never admitted as a referent on
+its own. Real material always has a proper name; the test does now.
+
+EVIDENCE: `organs/asserted.js`'s own `standingOf` — the structural floor
+already used for verb claims — read across ARCS and across DOCUMENTS. The
+same claim in two independent sources is corroborated; two sentences of one
+document restating it is one witness re-testifying, not two, proven by a
+direct test. This is grammaticalised in an evidential language and invisible
+in English, so a rich record can carry more than the English sentence itself
+states.
+
+GROUND: the extent a statement is true of, read off the arc's own cell, not
+the marker's. The first version checked whether a preposition marker's cell
+was CON·Ground and found nothing, ever — a preposition's cell is CON·Pattern
+in every case, per the relation table; what is Ground-grain is the `obl`
+relation between the clause and its oblique dependent, SEG·Ground. And
+"struck Nashville" (a direct object) is not ground, however place-like the
+word is, because it is a syntactic argument, not an oblique — the test
+rewrote the sentence to keep the two apart and checks both directions.
