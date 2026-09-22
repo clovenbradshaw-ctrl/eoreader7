@@ -64,7 +64,11 @@ export function huntGround({ operator = { id: "ground", text: "" }, surfed = nul
   // and was admitted and selected into the skeleton). Below it, a fetched
   // paragraph is a fragment, not a paragraph of this ground.
   const wordsIn = (p) => p.split(/\s+/).filter(Boolean).length;
-  const least = opParagraphs ? Math.min(...paragraphsOf(opText).map(wordsIn)) : 0;
+  // …measured over the operator's paragraphs that ARE paragraphs (a sentence
+  // in them): the Cumberland fixture opens on a six-word heading, and the
+  // eight-word hatnote walked in under it (nine-sonnet-2).
+  const opSentenced = paragraphsOf(opText).filter((p) => /[.!?]["')\]]?(\s|$)/.test(p));
+  const least = opSentenced.length ? Math.min(...opSentenced.map(wordsIn)) : 0;
   const subjectCount = (par) => (hasSubject ? [...subject].filter((id) => R.resolveText(par).has(id)).length : 1);
   const candidates = [];
   const perSource = new Map();

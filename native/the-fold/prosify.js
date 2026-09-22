@@ -227,7 +227,7 @@ export async function prosify(draft, { draw, voice = null, ground = "", task = "
     for (const cand of unitsOf(text, unit)) {
       if (isMetaSentence(cand)) { refusals.push({ kind: "meta", sentence: cand }); continue; }
       const v = admit(cand, {
-        ground, priorLanding, instruction: task, registry: reg, variance, bondNull,
+        ground, priorLanding, instruction: task, registry: reg, variance, bondNull, verse: unit === "line",
         isGrounded: (x) => matterWords(x, ground, variance).length > 0,
         invented: (x) => inventedNameRuns(x, ground, { isCommonWord }),
         continues: draft.referents

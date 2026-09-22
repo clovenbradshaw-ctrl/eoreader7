@@ -172,7 +172,12 @@ export function lishCut(sentence, { keeps = () => true, flagged = new Set(), kno
   return cut ? build(segs) : null;
 }
 
-export async function tightenPiece(parts, { draft, draw, ground = "", task = "", voice = null, targets = null, complete = null, core = null } = {}) {
+export async function tightenPiece(parts, { draft, draw, ground = "", task = "", voice = null, targets = null, complete = null, core = null, unit = "sentence" } = {}) {
+  // VERSE IS NOT TIGHTENED (2026-09-22, nine-sonnet-2): Lish's cut took "A
+  // ribbon of silver," off a line and left "Through the hills it flows,."
+  // — a line's decoration is its charge and its meter is the discipline.
+  // Declared, not measured: no organ yet reads a line for what it may lose.
+  if (unit === "line") return { parts, changes: [], tics: [], skipped: "declared: verse is not tightened — a line's decoration is its charge; no organ yet reads what a line may lose" };
   const anchors = anchorsFor(draft);
   // `targets` (sentence → words) is what the ARCHONS flagged; without it the
   // measured tics stand in. The rewrite must reduce exactly those words.
@@ -328,7 +333,9 @@ export function arrive(parts, { draft, ground = "", task = "" } = {}) {
  * contract's rule in miniature: a failing high gate licenses one bounded
  * revision, and a revision that does not pass stays out.
  */
-export async function turnPass(parts, { draft, draw, ground = "", voice = null } = {}) {
+export async function turnPass(parts, { draft, draw, ground = "", voice = null, unit = "sentence" } = {}) {
+  // A bridging sentence between stanzas is prose in a poem: not written.
+  if (unit === "line") return { parts, bridges: [], skipped: "declared: no bridging sentence is written into verse" };
   const subj = subjectWords(draft);
   const out = parts.map((p) => ({ ...p, pieces: [...(p.pieces ?? [])] }));
   const bridges = [];

@@ -216,7 +216,10 @@ test("THE UNIT IS A LINE when the shape says lines: the mouth's lines are admitt
     assert.match(v.text, /\[measured\] one line of verse/, "the sources agreed on lines: measured, not the register's say-so");
     const rec = lines.find((l) => l.role === "prosify");
     assert.match(rec.text, /in lines, carrying each of these facts/);
-    assert.match(rec.text, /\[matter\] Steamboats reached Nashville in eighteen nineteen,$/m, "a line is admitted as a line, not folded into a sentence");
+    assert.match(rec.text, /\[verse\] Steamboats reached Nashville in eighteen nineteen,$/m, "a line is admitted as a line, not folded into a sentence");
+    assert.match(rec.text, /\[verse\] along the waterfront, as warehouses should\.$/m, "a line that grounds to no fact is still a line of the poem (the facts are the part's charge)");
+    assert.ok(!lines.some((l) => l.role === "tighten" && /Rewritten/.test(l.title)), "tighten does not rewrite verse");
+    assert.ok(lines.some((l) => l.role === "tighten" && /verse/.test(l.basis)), "and says so");
     const piece = lines.at(-1);
     assert.equal(piece.role, "piece");
     assert.ok(piece.text.split("\n").length >= 4, `the piece keeps its line breaks:\n${piece.text}`);

@@ -396,7 +396,8 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
         targets.set(f.sentence, [...new Set([...(targets.get(f.sentence) ?? []), ...(f.words ?? [])])]);
       }
       stage = "tighten";
-      const tight = await tightenPiece(piece, { draft, draw: gatedDraw, ground, task, voice, targets, complete: parser.ok ? (t) => clauseComplete(parser, t) : null, core: parser.ok ? (t) => clauseCore(parser, t) : null });
+      const tight = await tightenPiece(piece, { draft, draw: gatedDraw, ground, task, voice, targets, unit, complete: parser.ok ? (t) => clauseComplete(parser, t) : null, core: parser.ok ? (t) => clauseCore(parser, t) : null });
+      if (tight.skipped) write("tighten", "Tighten: not run on verse", "(the lines stand as the mouth wrote them)", tight.skipped, "archon:micro.ethos");
       for (const c of tight.changes) {
         write("tighten", `${c.kept ? "Rewritten" : "Kept as it was"} · ${c.part} · ${c.tics.join(", ")}`, c.kept ? `${c.from}\n→ ${c.to}` : c.from, c.by === "lish-cut" ? "Lish's cut: decoration with no fact in it removed, no model call; every anchor kept" : c.kept ? "Zinsser's finding, rewritten plainly; every anchor kept" : `rewrite refused: ${c.reasons.join("; ")}`, c.by === "lish-cut" ? "archon:micro.pathos" : `model:${model}`);
         if (c.kept) {
@@ -412,7 +413,7 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
       let bridges = [];
       stage = "turns";
       if (read.findings.some((f) => f.kind === "missing_transition")) {
-        const tp = await turnPass(piece, { draft, draw: gatedDraw, ground, voice });
+        const tp = await turnPass(piece, { draft, draw: gatedDraw, ground, voice, unit });
         bridges = tp.bridges;
         for (const b of tp.bridges) {
           write("turn", `${b.kept ? "Bridge kept" : "Bridge refused"} · ${b.part}`, b.sentence ?? "(none)", b.kept ? "takes up the last part and hands on to this one" : b.reasons.join("; "), `model:${model}`);

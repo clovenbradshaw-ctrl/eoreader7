@@ -409,10 +409,23 @@ export function admit(candidate, {
   isGrounded = null,
   invented = null,
   continues = null,
+  verse = false,
 } = {}) {
   const s = String(candidate ?? "").trim();
   const refused = [];
   if (!s) return { admit: false, road: null, refused: [{ kind: "empty", given: "model" }] };
+  // VERSE (2026-09-22, nine-sonnet-2): a line of a poem carries an image, not
+  // an assertion — "A ribbon of silver, through the hills it flows" grounds
+  // to nothing and is not a repeat of anything, and the matter road refused
+  // nine of fourteen lines. A line is refused only for what a line can do
+  // wrong: leak the apparatus (meta) or name what the material does not
+  // (invented). The facts are the PART's charge, checked by coverage.
+  if (verse) {
+    if (looksMeta(s, { instruction, ground, variance: variance instanceof Set ? variance : measureVariance(ground, locale), locale })) return { admit: false, road: null, refused: [{ kind: "meta", given: "model" }] };
+    const runs = typeof invented === "function" ? (invented(s) ?? []) : [];
+    if (runs.length) return { admit: false, road: null, refused: [{ kind: "invented", given: "model", runs }] };
+    return { admit: true, road: "verse", core: null, matter: [], refused };
+  }
 
   const v = variance instanceof Set ? variance : measureVariance(ground, locale);
   const core = claimCore(s, v, locale);
