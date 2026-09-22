@@ -98,3 +98,88 @@ test("WHITE_PAPER_SECTIONS: 8 roles declared, title first, cta last, orders stri
   assert.equal(WHITE_PAPER_SECTIONS.at(-1).role, "cta");
   for (let i = 1; i < WHITE_PAPER_SECTIONS.length; i++) assert.ok(WHITE_PAPER_SECTIONS[i].order > WHITE_PAPER_SECTIONS[i - 1].order);
 });
+
+// ── huntDeclaredStructure: the vocabulary itself, hunted and corroborated,
+// no hand-typed pattern required — "this is about learning how to learn
+// more than white papers." Deterministic injected search/fetch, no
+// network, so this is fast and repeatable. ─────────────────────────────
+import { huntDeclaredStructure } from "./canonical-sections.js";
+
+function stubWeb(pages) {
+  // pages: { url: { title, headings: [text,...] } }
+  const urls = Object.keys(pages);
+  return {
+    search: async () => ({ results: urls.map((url) => ({ title: pages[url].title, url, snippet: "" })) }),
+    fetch: async (url) => {
+      const p = pages[url];
+      const text = p.headings.map((h) => `## ${h}\n\nSome body prose under this heading, more than a few words long.\n`).join("\n");
+      return { title: p.title, text, chars: text.length, headings: p.headings };
+    },
+  };
+}
+
+test("huntDeclaredStructure: a term on only ONE page is discarded — corroboration requires >= minCorroboration distinct pages", async () => {
+  const web = stubWeb({
+    "https://a.example/guide": { title: "Guide A", headings: ["Introduction", "Executive Summary", "Only On A"] },
+    "https://b.example/guide": { title: "Guide B", headings: ["Introduction", "Executive Summary", "Only On B"] },
+  });
+  const r = await huntDeclaredStructure("widget report", { web, minCorroboration: 2 });
+  const roles = r.vocabulary.map((v) => v.role);
+  assert.ok(roles.includes("executive-summary"), `expected 'executive-summary' among corroborated roles, got: ${roles.join(",")}`);
+  assert.ok(!roles.includes("only-on-a") && !roles.includes("only-on-b"), "single-page-only terms must never be promoted");
+});
+
+test("huntDeclaredStructure: 'title' is always role 0, and corroborated roles are ordered by their mean position across pages", async () => {
+  const web = stubWeb({
+    "https://a.example/guide": { title: "Guide A", headings: ["Introduction", "Executive Summary", "Conclusion"] },
+    "https://b.example/guide": { title: "Guide B", headings: ["Introduction", "Executive Summary", "Conclusion"] },
+  });
+  const r = await huntDeclaredStructure("widget report", { web, minCorroboration: 2 });
+  assert.equal(r.vocabulary[0].role, "title");
+  const nonTitle = r.vocabulary.slice(1).map((v) => v.role);
+  assert.deepEqual(nonTitle, ["introduction", "executive-summary", "conclusion"], `order should follow real heading position: ${nonTitle.join(",")}`);
+});
+
+test("huntDeclaredStructure: a page with fewer than 3 headings is skipped entirely — too little structure to trust as a real guide", async () => {
+  const web = stubWeb({
+    "https://a.example/guide": { title: "Guide A", headings: ["Executive Summary", "Introduction", "Conclusion"] },
+    "https://b.example/thin": { title: "Thin page", headings: ["Executive Summary"] },
+  });
+  const r = await huntDeclaredStructure("widget report", { web, minCorroboration: 2 });
+  assert.equal(r.pagesUsed, 1, "the thin (1-heading) page must not count toward pagesUsed");
+  assert.ok(!r.vocabulary.some((v) => v.role === "executive-summary"), "a term needs 2 DISTINCT usable pages, and only one page here was usable");
+});
+
+test("huntDeclaredStructure: the returned vocabulary is directly usable by matchCanonicalSections (no hand-adaptation needed)", async () => {
+  const web = stubWeb({
+    "https://a.example/guide": { title: "Guide A", headings: ["Introduction", "Body", "Conclusion"] },
+    "https://b.example/guide": { title: "Guide B", headings: ["Introduction", "Body", "Conclusion"] },
+  });
+  const r = await huntDeclaredStructure("widget report", { web, minCorroboration: 2 });
+  const doc = { elements: [{ cls: "heading", text: "My Report" }, { cls: "heading", text: "Introduction" }, { cls: "heading", text: "Conclusion" }] };
+  const m = matchCanonicalSections(doc, r.vocabulary);
+  assert.equal(m.matched.length, 2);
+  assert.equal(m.orderOk, true);
+});
+
+test("huntDeclaredStructure: common site-chrome terms (skip to content, categories) are excluded even when they corroborate across pages — the live bug found and fixed 2026-09-22", async () => {
+  const web = stubWeb({
+    "https://a.example/guide": { title: "Guide A", headings: ["Skip to content", "Introduction", "Conclusion", "Categories"] },
+    "https://b.example/guide": { title: "Guide B", headings: ["Skip to content", "Introduction", "Conclusion", "Categories"] },
+  });
+  const r = await huntDeclaredStructure("widget report", { web, minCorroboration: 2 });
+  const roles = r.vocabulary.map((v) => v.role);
+  assert.ok(!roles.includes("skip-to-content"), "site-chrome recurring only because of shared templates must never be promoted");
+  assert.ok(!roles.includes("categories"));
+  assert.ok(roles.includes("introduction") && roles.includes("conclusion"), "real structural terms alongside chrome are still found");
+});
+
+test("huntDeclaredStructure: two pages on the SAME HOST never corroborate each other — the live bug found 2026-09-22 (a blog homepage + its own article shared sidebar chrome and wrongly 'corroborated')", async () => {
+  const web = stubWeb({
+    "https://same-site.example/blog": { title: "Blog home", headings: ["Trusted by leading brands", "Introduction", "Conclusion"] },
+    "https://same-site.example/blog/article-1": { title: "Article", headings: ["Trusted by leading brands", "Introduction", "Conclusion"] },
+  });
+  const r = await huntDeclaredStructure("widget report", { web, minCorroboration: 2 });
+  assert.equal(r.hostsUsed, 1, "both fetched pages share one host");
+  assert.deepEqual(r.vocabulary.map((v) => v.role), ["title"], "with only 1 distinct host, nothing can reach the 2-host corroboration floor, however many pages agree");
+});
