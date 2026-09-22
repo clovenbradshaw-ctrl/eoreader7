@@ -1,0 +1,12 @@
+{
+  "name": "eoreader7",
+  "owner": { "name": "clovenbradshaw-ctrl" },
+  "description": "eoreader7 for Claude Code.",
+  "plugins": [
+    {
+      "name": "eo-reason",
+      "source": "./claude-code",
+      "description": "eoreader7 reasons and Claude is the mouth: every Claude Code event goes onto an eoreader7 ledger, and a turn can't end until eoreader7 has checked its reasoning."
+    }
+  ]
+}

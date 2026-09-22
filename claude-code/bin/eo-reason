@@ -1,0 +1,5 @@
+#!/bin/sh
+# eo-reason: eoreader7's cli/reason.mjs from your eoreader7 clone ($ER7_DIR,
+# default ~/eoreader7). Claude Code puts this bin/ on the Bash tool's PATH
+# while the plugin is enabled.
+exec node "${ER7_DIR:-$HOME/eoreader7}/cli/reason.mjs" "$@"

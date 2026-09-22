@@ -1,0 +1,22 @@
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [{ "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/run.sh\" --check", "timeout": 10 }] }
+    ],
+    "UserPromptSubmit": [
+      { "hooks": [{ "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/run.sh\" claude-code-ledger.mjs", "timeout": 10 }] }
+    ],
+    "PostToolUse": [
+      { "matcher": "*", "hooks": [{ "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/run.sh\" claude-code-ledger.mjs", "timeout": 10 }] }
+    ],
+    "PreToolUse": [
+      { "matcher": "Edit|Write|NotebookEdit|MultiEdit|Bash", "hooks": [{ "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/run.sh\" claude-code-steer.mjs", "timeout": 10 }] }
+    ],
+    "Stop": [
+      { "hooks": [
+        { "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/run.sh\" claude-code-ledger.mjs", "timeout": 10 },
+        { "type": "command", "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/run.sh\" claude-code-reason-gate.mjs", "timeout": 10 }
+      ] }
+    ]
+  }
+}
