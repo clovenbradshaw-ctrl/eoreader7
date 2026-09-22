@@ -51,6 +51,7 @@ const expandTabs = (s) => { let out = ""; for (const ch of s) out += ch === "\t"
 /** Which markup the text is written in — read off its own lines. */
 export function markupOf(text) {
   const lines = String(text ?? "").split("\n");
+  if (lines.filter((l) => /^X:\s*\d+/.test(l)).length >= 1 && lines.some((l) => /^K:/.test(l)) && lines.some((l) => /\|/.test(l) && !/^[A-Za-z]:/.test(l))) return "abc";
   const wiki = lines.filter((l) => /^=+[^=].*[^=]=+\s*$/.test(l) || /^(\*|#)+\s/.test(l) || /'''|\[\[|\{\{/.test(l)).length;
   const md = lines.filter((l) => /^#{1,6}\s/.test(l) || /\]\(https?:/.test(l)).length;
   return wiki > md && wiki >= 2 ? "wikitext" : md >= 2 ? "markdown" : "plain";
@@ -102,6 +103,50 @@ function rawLines(text) {
   return { lines: out, markup };
 }
 
+// ── ABC NOTATION (2026-09-22): a tune's header fields and its bars, in the
+// same elements as a text's headings and lines. What is read is the closed
+// grammar of the notation — field letters, note letters with accidentals and
+// octave marks, lengths, bar lines — never any musical form: which meter a
+// jig has, where a reel repeats, is measured by paradigm.js / form-prior.js
+// on the tunes. A bar's LENGTH is its duration in the tune's unit (the way a
+// line's is its syllables); its CLOSE is the bar line that ends it (the way a
+// line's is its punctuation); its CADENCE is its final pitch class, so bars
+// "rhyme" when they come home to the same note.
+const ABC_NOTE = /(\^{1,2}|_{1,2}|=)?([A-Ga-g])([,']*)(\d*)(\/*)(\d*)|z(\d*)(\/*)(\d*)/g;
+function abcElements(text) {
+  const out = []; let block = 0;
+  // The unit of length: the tune's L: field, else the notation's own default
+  // (1/8 when the meter is 3/4 or more, else 1/16 — the ABC standard's rule).
+  let unit = null, meter = null;
+  const frac = (v) => { const m = String(v ?? "").match(/(\d+)\s*\/\s*(\d+)/); return m ? Number(m[1]) / Number(m[2]) : /^C\|?$/.test(String(v ?? "").trim()) ? 1 : null; };
+  const lenOf = (num, slashes, den) => { const n = num ? Number(num) : 1; if (!slashes) return n; const d = den ? Number(den) : 2 ** slashes.length; return n / d; };
+  const pushField = (key, value) => out.push({ text: value, cls: key === "X" ? "label" : "field", marker: key, markerKind: key === "X" ? "arabic" : "field", label: key === "X" ? Number(value) || null : null, key, indent: 0, block, level: null, words: 0, syllables: 0, first: key.toLowerCase(), last: "", rhyme: null, cadence: null, end: "", strong: false, caps: false });
+  for (const raw of String(text ?? "").replace(/\r/g, "").split("\n")) {
+    const line = raw.replace(/%.*$/, "").trim();
+    if (!line) { block++; continue; }
+    const fm = line.match(/^([A-Za-z]):\s*(.*)$/);
+    if (fm) { pushField(fm[1], fm[2].trim()); if (fm[1] === "L") unit = frac(fm[2]); if (fm[1] === "M") meter = frac(fm[2]); if (fm[1] === "X") { unit = null; meter = null; } continue; }
+    const U = unit ?? (meter != null && meter < 0.75 ? 1 / 16 : 1 / 8);
+    // bars: split on bar lines, keeping each bar's closing line
+    const parts = line.replace(/"[^"]*"/g, (m) => m.replace(/\|/g, "")).split(/(\|\]|\|\||\[\|\]?|:\|+:?|\|+:|::|\|\d?|\[\d)/);
+    for (let i = 0; i < parts.length; i += 2) {
+      const body = (parts[i] ?? "").replace(/\\$/, "").trim();
+      const close = (parts[i + 1] ?? "").trim();
+      if (!body || !/[A-Ga-gz]/.test(body.replace(/"[^"]*"/g, ""))) continue;
+      const chord = (body.match(/"([^"]*)"/) ?? [])[1] ?? null;
+      const notesText = body.replace(/"[^"]*"/g, "").replace(/![^!]*!/g, "");
+      const notes = [];
+      for (const m of notesText.matchAll(ABC_NOTE)) notes.push(m[2] ? { pitch: `${m[1] ?? ""}${m[2]}${m[3] ?? ""}`, pc: m[2].toUpperCase(), len: lenOf(m[4], m[5], m[6]) } : { pitch: "z", pc: "z", len: lenOf(m[7], m[8], m[9]) });
+      const sounded = notes.filter((n) => n.pc !== "z");
+      out.push({ text: notesText.replace(/\s+/g, " ").trim(), cls: "bar", marker: null, markerKind: null, label: null, indent: 0, block, level: null,
+        words: notes.length, syllables: Math.round(notes.reduce((a, n) => a + n.len, 0) * U * 1000) / 1000, // in whole notes
+        first: sounded[0]?.pitch ?? "", last: sounded.at(-1)?.pitch ?? "", rhyme: null, cadence: sounded.at(-1)?.pc ?? null,
+        end: close.replace(/\d/g, "") || "", strong: /:|\|\||\]/.test(close), caps: false, chord });
+    }
+  }
+  return out.map((e, i) => ({ ...e, i }));
+}
+
 const CLOSE = /[.!?:;,)\]"”’'—–-]$/;
 const STRONG = /[.!?]["”’')\]]*$/;
 
@@ -111,6 +156,7 @@ const STRONG = /[.!?]["”’')\]]*$/;
  *   level, words, syllables, first, last, rhyme, end, strong, caps }
  */
 export function elementsOf(text) {
+  if (markupOf(text) === "abc") return { schema: MEDIUM_SCHEMA, markup: "abc", elements: abcElements(text) };
   const { lines, markup } = rawLines(text);
   // Hard wrap: a line that does not close and runs into a lowercase line in
   // the same block, at the same or deeper indent, is one authored line.

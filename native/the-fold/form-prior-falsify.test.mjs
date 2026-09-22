@@ -5,7 +5,7 @@
 // commit and plans/generation-terrain-stance.md; these pin the mechanism.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { lgamma, digamma, klDirichlet, createHolograph, admit, ABSENT } from "../kernel/bayes-surprise.js";
+import { lgamma, digamma, klDirichlet, klAdmit, createHolograph, admit, ABSENT } from "../kernel/bayes-surprise.js";
 import { learnForm, kindBoundaries, turnOf, formFacts } from "./form-prior.js";
 
 let seed = 17;
@@ -23,6 +23,12 @@ test("the special functions and the divergence are exact where they must be", ()
   assert.ok(Math.abs(digamma(1) + 0.5772156649) < 1e-8);
   assert.equal(klDirichlet([2, 3, 4], [2, 3, 4]), 0);
   assert.ok(klDirichlet([3, 3], [2, 3]) > 0);
+  // The one-admission closed form equals the general divergence exactly.
+  for (const [prior, v] of [[[1, 1], 0], [[5, 2, 1, 1], 1], [[40.5, 0.5, 3, 1], 0], [[1, 7, 2], 2]]) {
+    const post = prior.map((x, i) => x + (i === v ? 1 : 0));
+    const B = prior.reduce((a, b) => a + b, 0);
+    assert.ok(Math.abs(klAdmit(prior[v], B) - klDirichlet(post, prior)) < 1e-9, `closed form vs general at ${JSON.stringify(prior)}`);
+  }
 });
 
 test("Bayesian surprise is the delta to the holograph: the same value again moves it less and less; a new value moves it more than a repeat", () => {

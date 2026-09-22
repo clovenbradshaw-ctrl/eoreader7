@@ -78,6 +78,16 @@ export function klDirichlet(a, b) {
   return Math.max(0, kl);
 }
 
+/** KL(Dir(b + e_v) ‖ Dir(b)) in nats — the divergence ONE admission makes —
+ *  in closed form: ln B − ln b_v + ψ(b_v + 1) − ψ(B + 1), with b_v the prior
+ *  count of the value that arrived and B the prior's total. O(1) where the
+ *  general form is O(support); equal to klDirichlet(post, prior) exactly
+ *  (pinned in the falsifier). A slot whose support grows with every
+ *  instance (a text, a word) made the general form quadratic over a stream. */
+export function klAdmit(bv, B) {
+  return Math.max(0, Math.log(B) - Math.log(bv) + digamma(bv + 1) - digamma(B + 1));
+}
+
 /** A holograph's Pattern grain: slots of Dirichlet counts. */
 export function createHolograph({ alpha = 1, gamma = 1 } = {}) {
   if (!(alpha > 0)) throw new TypeError("createHolograph: alpha is declared and positive");
@@ -114,11 +124,12 @@ export function admit(holo, facts) {
   for (const slot of given.keys()) if (!holo.slots.has(slot) && holo.admitted > 0) holo.slots.set(slot, new Map([[ABSENT, holo.absentMass ?? holo.admitted]]));
   for (const [slot, value] of given) {
     const m = holo.slots.get(slot) ?? new Map();
-    const support = [...new Set([...m.keys(), value, NOVEL])];
-    const prior = support.map((v) => (m.get(v) ?? 0) + holo.alpha);
-    const post = support.map((v, i) => prior[i] + (v === value ? 1 : 0));
-    const { bits } = predict(holo, slot, value);
-    const b = klDirichlet(post, prior) / LN2;
+    // The support is the values seen, the one arriving, and the novel bucket.
+    let N = 0; for (const c of m.values()) N += c;
+    const K = m.size + (m.has(value) ? 0 : 1) + 1;
+    const bv = (m.get(value) ?? 0) + holo.alpha, B = N + holo.alpha * K;
+    const bits = -Math.log2(bv / B);
+    const b = klAdmit(bv, B) / LN2;
     perSlot[slot] = { value, surprisal: bits, bayes: b };
     surprisal += bits; bayes += b;
     m.set(value, (m.get(value) ?? 0) + 1);

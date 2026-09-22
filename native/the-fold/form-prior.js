@@ -45,20 +45,36 @@ export const FORM_PRIOR_SCHEMA = "EOFormPrior@1";
 const asElements = (u) => (Array.isArray(u?.elements) ? u.elements : elementsOf(typeof u === "string" ? u : u?.text ?? "").elements);
 
 /** The slot facts of one instance. */
+// Rhyme is the medium's (a cadence where it gives one), same as paradigm.js.
+const rhymeOf = (a, b) => (a.cadence != null || b.cadence != null ? !!a.cadence && a.cadence === b.cadence : rhymes(a.last, b.last));
 export function formFacts(u) {
   const E = asElements(u);
-  const f = new Map([["count", E.length]]);
-  E.forEach((e, i) => {
-    const earlier = (rel) => { for (let j = 0; j < i; j++) if (rel(E[j], e)) return `@${j}`; return "none"; };
-    f.set(`@${i}:class`, e.cls);
-    f.set(`@${i}:marker`, e.markerKind ?? "-");
-    f.set(`@${i}:syllables`, e.syllables);
-    f.set(`@${i}:closes`, e.end || "none");
-    f.set(`@${i}:rhymes-with`, earlier((a, b) => rhymes(a.last, b.last)));
-    f.set(`@${i}:ends-as`, earlier((a, b) => !!a.last && a.last === b.last));
-    f.set(`@${i}:first-word`, e.first || "-");
-    f.set(`@${i}:last-word`, e.last || "-");
-  });
+  // Positions are counted WITHIN a class: the k-th line, the k-th bar, the
+  // k-th item — a tune's header fields vary in number, and bar 5 must mean
+  // the fifth bar. Lines keep the bare "@k" (a poem is all lines, and every
+  // earlier result reads the same); other classes are prefixed.
+  const CONTENT = new Set(["line", "item", "bar"]);
+  const content = E.filter((e) => CONTENT.has(e.cls));
+  const f = new Map([["count", content.length]]);
+  const byClass = new Map();
+  for (const e of E) { if (!byClass.has(e.cls)) byClass.set(e.cls, []); byClass.get(e.cls).push(e); }
+  for (const [cls, list] of byClass) {
+    if (cls === "field") continue;
+    const at = (k) => (cls === "line" ? `@${k}` : `${cls}@${k}`);
+    list.forEach((e, k) => {
+      const earlier = (rel) => { for (let j = 0; j < k; j++) if (rel(list[j], e)) return at(j); return "none"; };
+      f.set(`${at(k)}:marker`, e.markerKind ?? "-");
+      f.set(`${at(k)}:syllables`, e.syllables);
+      f.set(`${at(k)}:closes`, e.end || "none");
+      f.set(`${at(k)}:rhymes-with`, earlier(rhymeOf));
+      f.set(`${at(k)}:ends-as`, earlier((a, b) => !!a.last && a.last === b.last));
+      f.set(`${at(k)}:same-as`, earlier((a, b) => !!a.text && a.text === b.text));
+      f.set(`${at(k)}:first-word`, e.first || "-");
+      f.set(`${at(k)}:last-word`, e.last || "-");
+    });
+  }
+  // A header field's value (a tune's meter and key) is a role fact.
+  for (const e of E.filter((x) => x.cls === "field" && x.key && !/^[TSXZN]$/.test(x.key))) f.set(`field:${e.key}`, String(e.text).toLowerCase().slice(0, 24));
   // ROLE, NOT POSITION, for forms whose length varies (a man page, a recipe):
   // what the unit HAS, set only when present — everything it lacks is the
   // holograph's ABSENT, the void as information (the user: "a void is one of
@@ -68,17 +84,83 @@ export function formFacts(u) {
   E.filter((e) => e.cls === "heading").forEach((e, k) => f.set(`heading#${k + 1}`, e.text.toLowerCase().replace(/[^a-z ]/g, "").trim() || "-"));
   return f;
 }
+// ── EMERGENT SLOTS (2026-09-22). The user: "and the slots are self emergent?"
+// Not yet, in the ruler above: its slot TYPES (marker, syllables, closes,
+// rhymes-with, ends-as, same-as, first-word, last-word) are a list someone
+// wrote. Here they are GENERATED from whatever attributes the Ground reader
+// (medium.js) actually puts on an element — its own keys, nested ones
+// flattened, found on the element and never listed — crossed with three
+// operators:
+//   SIG  this attribute takes this value at this position
+//   CON  this attribute EQUALS an earlier position's (rhyme, ends-as and
+//        same-as all fall out: equality on the rhyme keys, the last word, the
+//        whole text — and on anything else the medium carries)
+//   SYN  this attribute is the SUCCESSOR of an earlier position's (numeric
+//        attributes: labels counting up, a new block, dates in order)
+// The one thing excluded is the element's own index (the position itself —
+// tautological at a position). What is declared is the medium's grammar,
+// nothing else. An element that carries a `key` (a header field) is
+// addressed by its key rather than by its ordinal: a key is an address.
+const flatAttrs = (e, prefix = "", out = new Map()) => {
+  for (const [k, v] of Object.entries(e ?? {})) {
+    if (!prefix && k === "i") continue;
+    const name = prefix ? `${prefix}.${k}` : k;
+    if (v != null && typeof v === "object" && !Array.isArray(v)) flatAttrs(v, name, out);
+    else if (["string", "number", "boolean"].includes(typeof v)) out.set(name, v);
+  }
+  return out;
+};
+export function emergentFacts(u, { limit = null } = {}) {
+  const E = asElements(u);
+  const f = new Map();
+  const byClass = new Map();
+  for (const e of E) {
+    if (e.key) { for (const [a, v] of flatAttrs(e)) if (a !== "key" && a !== "cls" && a !== "block") f.set(`key:${e.key}.${a}`, typeof v === "string" ? v.toLowerCase().slice(0, 24) : v); continue; }
+    if (!byClass.has(e.cls)) byClass.set(e.cls, []);
+    byClass.get(e.cls).push(e);
+  }
+  for (const [cls, list] of byClass) {
+    f.set(`count:${cls}`, list.length);
+    const at = (k) => (cls === "line" ? `@${k}` : `${cls}@${k}`);
+    const attrs = list.map((e) => flatAttrs(e));
+    list.forEach((e, k) => {
+      if (limit?.get(cls) != null && k >= limit.get(cls)) return; // past the instances' median count: absence, not form
+      for (const [a, v] of attrs[k]) {
+        if (a === "cls") continue;
+        f.set(`${at(k)}:${a}`, v === "" ? "-" : v);
+        let eq = "none", sc = "none";
+        for (let j = 0; j < k; j++) {
+          const w = attrs[j].get(a);
+          if (eq === "none" && v !== "" && v != null && w === v) eq = at(j);
+          if (sc === "none" && typeof v === "number" && typeof w === "number" && v === w + 1) sc = at(j);
+        }
+        f.set(`${at(k)}:${a}=`, eq);
+        if (typeof v === "number") f.set(`${at(k)}:${a}+1`, sc);
+      }
+    });
+  }
+  return f;
+}
+
 /** Slots the order-destroyed null cannot touch: what a unit has, and its count. */
-const ORDER_FREE = (slot) => slot === "count" || slot.startsWith("has");
+const ORDER_FREE = (slot) => slot === "count" || slot.startsWith("has") || slot.startsWith("field:") || slot.startsWith("count:") || slot.startsWith("key:");
 
 let _seed = 1;
 const rnd = () => { _seed = (_seed * 1103515245 + 12345) % 2147483648; return _seed / 2147483648; };
 const shuffled = (a) => { const b = [...a]; for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
 
 /** Run a stream through a fresh holograph: the per-instance trajectory. */
-export function readStream(units, { alpha = 1, gamma = 1 } = {}) {
+const factsFor = (slots, limit = null) => (slots === "emergent" ? (u) => emergentFacts(u, { limit }) : formFacts);
+/** The median count of each class across the instances — the positions an
+ *  expectation can align on; beyond it, most instances have ended. */
+export function positionLimit(units) {
+  const per = new Map();
+  for (const u of units) { const c = new Map(); for (const e of asElements(u)) c.set(e.cls, (c.get(e.cls) ?? 0) + 1); for (const [k, n] of c) (per.get(k) ?? per.set(k, []).get(k)).push(n); }
+  return new Map([...per].map(([k, xs]) => [k, [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)]]));
+}
+export function readStream(units, { alpha = 1, gamma = 1, slots = "ruler", limit = null } = {}) {
   const holo = createHolograph({ alpha, gamma });
-  const trajectory = units.map((u) => { const r = admit(holo, formFacts(u)); return { surprisal: r.surprisal, bayes: r.bayes, perSlot: r.perSlot }; });
+  const trajectory = units.map((u) => { const r = admit(holo, factsFor(slots, limit)(u)); return { surprisal: r.surprisal, bayes: r.bayes, perSlot: r.perSlot }; });
   return { holo, trajectory };
 }
 
@@ -93,16 +175,17 @@ const likely = (holo) => [...holo.slots.keys()].map((s) => ({ slot: s, ...modeOf
  * of slots tested, so the level is at most one false slot expected across
  * them all.
  */
-export function learnForm(units, { alpha = 1, draws = null, seed = 7 } = {}) {
+export function learnForm(units, { alpha = 1, draws = null, seed = 7, slots = "ruler" } = {}) {
+  const limit = slots === "emergent" ? positionLimit(units) : null;
   if (units.length < 5) return { schema: FORM_PRIOR_SCHEMA, refused: "under_powered", instances: units.length, form: [], basis: `${units.length} instance(s): below five nothing can become predictable` };
-  const { holo, trajectory } = readStream(units, { alpha });
+  const { holo, trajectory } = readStream(units, { alpha, slots, limit });
   const cands = likely(holo).filter((c) => !ORDER_FREE(c.slot));
   const orderFree = likely(holo).filter((c) => ORDER_FREE(c.slot));
   const D = draws ?? Math.max(20, cands.length);
   _seed = seed;
   const nullBest = new Map(cands.map((c) => [c.slot, []]));
   for (let d = 0; d < D; d++) {
-    const nh = readStream(units.map((u) => ({ elements: shuffled(asElements(u)).map((e, i) => ({ ...e, i })) })), { alpha }).holo;
+    const nh = readStream(units.map((u) => { const E = asElements(u); const content = shuffled(E.filter((e) => e.cls !== "field")); let k = 0; return { elements: E.map((e) => (e.cls === "field" ? e : content[k++])).map((e, i) => ({ ...e, i })) }; }), { alpha, slots, limit }).holo;
     for (const c of cands) nullBest.get(c.slot).push(modeOf(nh, c.slot)?.p ?? 0);
   }
   const form = cands.map((c) => {
@@ -118,7 +201,7 @@ export function learnForm(units, { alpha = 1, draws = null, seed = 7 } = {}) {
   const formSlots = new Set(form.map((f) => f.slot));
   // LEARNED AT: the shallowest prefix whose likely slots, restricted to the
   // form, are the form — one more instance stopped changing the definition.
-  const defOf = (k) => { const h = readStream(units.slice(0, k), { alpha }).holo; return new Set(likely(h).filter((x) => formSlots.has(x.slot) && modeOf(holo, x.slot).value === x.value).map((x) => x.slot)); };
+  const defOf = (k) => { const h = readStream(units.slice(0, k), { alpha, slots, limit }).holo; return new Set(likely(h).filter((x) => formSlots.has(x.slot) && modeOf(holo, x.slot).value === x.value).map((x) => x.slot)); };
   let learnedAt = null;
   for (let k = 1; k <= units.length; k++) { const d = defOf(k); if (d.size === formSlots.size) { let stays = true; for (let k2 = k; k2 <= Math.min(units.length, k + 5); k2++) if (defOf(k2).size !== formSlots.size) { stays = false; break; } if (stays) { learnedAt = k; break; } } }
   // The content: slots that stay surprising — mean late surprisal highest.
@@ -138,7 +221,7 @@ export function learnForm(units, { alpha = 1, draws = null, seed = 7 } = {}) {
   const earlyF = trajectory.slice(0, tenth).map((t) => t.bayesForm), tailF = trajectory.slice(-tenth).map((t) => t.bayesForm);
   const earlyC = trajectory.slice(0, tenth).map((t) => t.bayesContent), tailC = trajectory.slice(-tenth).map((t) => t.bayesContent);
   return {
-    schema: FORM_PRIOR_SCHEMA, instances: units.length, alpha, draws: D, tested: cands.length,
+    schema: FORM_PRIOR_SCHEMA, instances: units.length, alpha, draws: D, tested: cands.length, slots, limit: limit ? Object.fromEntries(limit) : null,
     holo, trajectory, form, count, content, learnedAt,
     // What every instance HAS (and so what the rest of a population would
     // have to lack): not testable against the order null, which cannot touch
@@ -180,7 +263,7 @@ export function turnOf(fp, unit) {
 // `window` is declared (kernel/activation.js: how wide the present is is the
 // reader's to say) and stated in the result.
 
-import { klDirichlet, ABSENT } from "../kernel/bayes-surprise.js";
+import { klAdmit, ABSENT } from "../kernel/bayes-surprise.js";
 
 // A window's counts, absence included: a member lacking a slot another member
 // has holds ABSENT there (kernel/bayes-surprise.js).
@@ -200,11 +283,12 @@ function deltaPerFact(C, facts, alpha, without = null) {
     const m = C.get(s) ?? new Map([[ABSENT, C.members]]);
     const own = without ? (without.has(s) ? String(without.get(s)) : ABSENT) : null;
     const count = (k) => (m.get(k) ?? 0) - (k === own ? 1 : 0);
-    // + the novel bucket (kernel/bayes-surprise.js): the unseen stays possible, so a repeat still moves belief
-    const support = [...new Set([...m.keys(), v])].filter((k) => k === v || count(k) > 0).concat(["\u0000novel"]);
-    const prior = support.map((k) => Math.max(0, count(k)) + alpha);
-    const post = support.map((k, i) => prior[i] + (k === v ? 1 : 0));
-    bits += klDirichlet(post, prior) / Math.LN2;
+    // The support: the values held (less the member's own, when left out),
+    // the one arriving, and the novel bucket — closed form, O(1) per slot.
+    let N = 0, K = 1; // the novel bucket
+    for (const [k, c0] of m) { const c = c0 - (k === own ? 1 : 0); if (c > 0 || k === v) { N += Math.max(0, c); K++; } }
+    if (!m.has(v)) K++;
+    bits += klAdmit(Math.max(0, count(v)) + alpha, N + alpha * K) / Math.LN2;
   }
   return bits / Math.max(1, slots.size);
 }
@@ -226,10 +310,10 @@ function scan(F, window, alpha) {
  * every one of `draws` permuted streams, and sits at least `window` from the
  * last boundary.
  */
-export function kindBoundaries(stream, { window, draws = 20, alpha = 1, seed = 5 } = {}) {
+export function kindBoundaries(stream, { window, draws = 20, alpha = 1, seed = 5, slots = "ruler" } = {}) {
   if (!Number.isInteger(window) || window < 2) throw new TypeError("kindBoundaries: window is declared (an integer ≥ 2)");
   if (stream.length < 2 * window) return { boundaries: [], score: [], cut: null, window, draws, basis: `${stream.length} instance(s): fewer than two windows of ${window} — nothing to compare`, refused: "too_short" };
-  const F = stream.map(formFacts);
+  const F = stream.map(factsFor(slots));
   const score = scan(F, window, alpha);
   _seed = seed;
   const maxima = [];

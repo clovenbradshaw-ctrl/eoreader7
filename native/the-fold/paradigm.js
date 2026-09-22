@@ -46,6 +46,7 @@ import { rhymes } from "./sound.js";
 export const PARADIGM_SCHEMA = "EOParadigm@1";
 export const OPS = ["NUL", "SIG", "INS", "SEG", "CON", "SYN", "DEF", "EVA", "REC"];
 export const GRAINS = ["Ground", "Figure", "Pattern"];
+const x_key = (e) => e.key;
 const JUDGED = new Set(["DEF", "EVA", "REC"]);
 
 // ── the exact tests ─────────────────────────────────────────────────────────
@@ -85,10 +86,14 @@ function erf(x) { const t = 1 / (1 + 0.3275911 * Math.abs(x)); const y = 1 - (((
 const asUnit = (u) => (Array.isArray(u?.elements) ? u : { id: u?.id ?? null, elements: elementsOf(typeof u === "string" ? u : u?.text ?? "").elements });
 const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
 const cvOf = (xs) => { const m = mean(xs); return m ? Math.sqrt(mean(xs.map((x) => (x - m) ** 2))) / m : 0; };
-const content = (u) => u.elements.filter((e) => e.cls === "line" || e.cls === "item");
+const content = (u) => u.elements.filter((e) => e.cls === "line" || e.cls === "item" || e.cls === "bar");
 const succ = (a, b) => a.markerKind && a.markerKind === b.markerKind && a.label != null && b.label === a.label + 1;
+// Rhyme is the medium's: a cadence (the final pitch class, music) where the
+// medium gives one, else the spelled tail (sound.js). Same-as is the whole
+// element again — a refrain, a repeated bar.
 const RELATIONS = {
-  rhyme: (a, b) => rhymes(a.last, b.last),
+  rhyme: (a, b) => (a.cadence != null || b.cadence != null ? !!a.cadence && a.cadence === b.cadence : rhymes(a.last, b.last)),
+  sameAs: (a, b) => !!a.text && a.text === b.text,
   sameEnd: (a, b) => !!a.last && a.last === b.last,
   sameFirst: (a, b) => !!a.first && a.first === b.first,
 };
@@ -108,6 +113,9 @@ export function unitFacts(u0) {
   const roles = new Set();
   for (const e of C) if (e.first) roles.add(`starts:${e.first}`);
   for (const e of E.filter((x) => x.cls === "heading")) for (const w of e.text.toLowerCase().match(/[a-z]+/g) ?? []) roles.add(`heading:${w}`);
+  // A header field's value is a role word of its own (a tune's meter, a
+  // front matter's rank) — the field letter and its value, never interpreted.
+  for (const e of E.filter((x) => x.cls === "field" && x.key && !/^[TSXZN]$/.test(x.key))) roles.add(`field:${x_key(e)}=${String(e.text).toLowerCase().slice(0, 24)}`);
   const adj = (rel) => { let k = 0, n = 0; for (let i = 1; i < C.length; i++) { n++; if (rel(C[i - 1], C[i])) k++; } return n ? k / n : 0; };
   const itemsRun = () => { const I = E.filter((e) => e.cls === "item" && e.label != null); let k = 0; for (let i = 1; i < I.length; i++) if (succ(I[i - 1], I[i])) k++; return I.length > 1 ? k / (I.length - 1) : 0; };
   const syl = C.map((e) => e.syllables).filter((x) => x > 0);
@@ -116,7 +124,7 @@ export function unitFacts(u0) {
     marks, roles,
     firstClass: E[0]?.cls ?? null, lastClass: E.at(-1)?.cls ?? null,
     measures: {
-      "SEG:elements": E.length,
+      "SEG:elements": C.length,
       "SEG:blocks": new Set(E.map((e) => e.block)).size,
       "INS:share-items": C.length ? C.filter((e) => e.cls === "item").length / C.length : 0,
       "INS:share-headings": E.length ? E.filter((e) => e.cls === "heading").length / E.length : 0,
@@ -187,13 +195,16 @@ export function learnParadigm({ name = "form", instances = [], population = [], 
 
   // SEG·Pattern: whether the cuts recur — the modal element count, held by
   // more instances than not and more than the population holds it.
-  const counts = new Map(); for (const f of I) counts.set(f.elements.length, (counts.get(f.elements.length) ?? 0) + 1);
+  // Positions are the CONTENT sequence's own (lines, items, bars): a tune's
+  // header fields vary in number, and bar 5 must mean the fifth bar.
+  for (const f of [...I, ...P]) f.seq = f.content;
+  const counts = new Map(); for (const f of I) counts.set(f.seq.length, (counts.get(f.seq.length) ?? 0) + 1);
   const [mode, modeN] = [...counts].sort((a, b) => b[1] - a[1])[0];
   const segP = cell("SEG", "Pattern"); segP.tests = 1;
-  const modeP = P.filter((f) => f.elements.length === mode).length;
+  const modeP = P.filter((f) => f.seq.length === mode).length;
   segP.features.push({ key: `elements=${mode}`, type: "count", value: mode, support: modeN / nI, contrast: modeP / nP, p: hypergeom(modeN, nI, modeN + modeP, T, "upper"), pending: true });
   const fixed = majority(modeN, nI);
-  const atMode = I.filter((f) => f.elements.length === mode);
+  const atMode = I.filter((f) => f.seq.length === mode);
 
   // SEG·Figure: the seams of a fixed-count form — positions that end a
   // sentence more often than each unit's own rate of sentence ends predicts.
@@ -201,8 +212,8 @@ export function learnParadigm({ name = "form", instances = [], population = [], 
   if (fixed && mode > 1) {
     segF.tests = mode;
     for (let i = 0; i < mode; i++) {
-      const ps = atMode.map((f) => f.elements.filter((e) => e.strong).length / f.elements.length);
-      const k = atMode.filter((f) => f.elements[i].strong).length;
+      const ps = atMode.map((f) => f.seq.filter((e) => e.strong).length / f.seq.length);
+      const k = atMode.filter((f) => f.seq[i].strong).length;
       segF.features.push({ key: `seam-after-part-${i + 1}`, type: "seam", position: i, support: k / atMode.length, p: poissonBinomialUpper(ps, k), pending: true });
     }
   } else segF.basis = fixed ? "one element: no seams" : `no element count held by more instances than not (modal ${mode} in ${modeN} of ${nI}) — seams need fixed positions`;
@@ -215,9 +226,9 @@ export function learnParadigm({ name = "form", instances = [], population = [], 
     const rels = Object.entries(RELATIONS);
     conF.tests = (mode * (mode - 1) / 2) * rels.length;
     for (const [rel, fn] of rels) {
-      const base = atMode.map((f) => { let k = 0, n = 0; for (let i = 0; i < mode; i++) for (let j = i + 1; j < mode; j++) { n++; if (fn(f.elements[i], f.elements[j])) k++; } return n ? k / n : 0; });
+      const base = atMode.map((f) => { let k = 0, n = 0; for (let i = 0; i < mode; i++) for (let j = i + 1; j < mode; j++) { n++; if (fn(f.seq[i], f.seq[j])) k++; } return n ? k / n : 0; });
       for (let i = 0; i < mode; i++) for (let j = i + 1; j < mode; j++) {
-        const k = atMode.filter((f) => fn(f.elements[i], f.elements[j])).length;
+        const k = atMode.filter((f) => fn(f.seq[i], f.seq[j])).length;
         if (!majority(k, atMode.length)) continue; // the high bar first: only majority pairs are tested
         const p = poissonBinomialUpper(base, k);
         conF.features.push({ key: `${rel}(${i + 1},${j + 1})`, type: "pair", relation: rel, i, j, support: k / atMode.length, p, pending: true });
@@ -261,10 +272,10 @@ export function learnParadigm({ name = "form", instances = [], population = [], 
   if (fixed && kept.length) {
     const parent = [...Array(mode).keys()];
     const find = (x) => (parent[x] === x ? x : (parent[x] = find(parent[x])));
-    for (const f of kept.filter((x) => x.relation === "rhyme" || x.relation === "sameEnd")) parent[find(f.j)] = find(f.i);
+    for (const f of kept.filter((x) => x.relation === "rhyme" || x.relation === "sameEnd" || x.relation === "sameAs")) parent[find(f.j)] = find(f.i);
     const letter = new Map(); let next = 0;
-    scheme = [...Array(mode).keys()].map((i) => { const r = find(i); const joined = kept.some((f) => (f.relation === "rhyme" || f.relation === "sameEnd") && (f.i === i || f.j === i)); if (!joined) return "x"; if (!letter.has(r)) letter.set(r, "ABCDEFGHIJKLMNOP"[next++]); return letter.get(r); }).join("");
-    conP.features.push({ key: `scheme ${scheme}`, type: "scheme", scheme, cell: "CON·Pattern", support: mean(atMode.map((f) => kept.filter((p) => RELATIONS[p.relation](f.elements[p.i], f.elements[p.j])).length / kept.length)), p: Math.min(...kept.map((f) => f.p)) });
+    scheme = [...Array(mode).keys()].map((i) => { const r = find(i); const joined = kept.some((f) => (f.relation === "rhyme" || f.relation === "sameEnd" || f.relation === "sameAs") && (f.i === i || f.j === i)); if (!joined) return "x"; if (!letter.has(r)) letter.set(r, "ABCDEFGHIJKLMNOP"[next++]); return letter.get(r); }).join("");
+    conP.features.push({ key: `scheme ${scheme}`, type: "scheme", scheme, cell: "CON·Pattern", support: mean(atMode.map((f) => kept.filter((p) => RELATIONS[p.relation](f.seq[p.i], f.seq[p.j])).length / kept.length)), p: Math.min(...kept.map((f) => f.p)) });
   } else conP.basis = fixed ? "no pair of positions answers another beyond chance" : segF.basis;
 
   // INS·Pattern: how much the instances vary among themselves (reported).
@@ -302,9 +313,9 @@ function holds(f, u) {
     case "has": return f.cell.endsWith("Ground") ? u.marks.has(f.key) : f.cell === "INS·Figure" ? `first-part:${u.firstClass}` === f.key || `last-part:${u.lastClass}` === f.key : u.roles.has(f.key);
     case "lacks": return f.cell.endsWith("Ground") ? !u.marks.has(f.key) : !u.roles.has(f.key);
     case "measure": { const v = u.measures[f.key]; return f.direction > 0 ? v > f.populationMedian : v < f.populationMedian; }
-    case "count": return u.elements.length === f.value;
-    case "seam": return u.elements.length > f.position && !!u.elements[f.position].strong;
-    case "pair": return u.elements.length > f.j && RELATIONS[f.relation](u.elements[f.i], u.elements[f.j]);
+    case "count": return u.content.length === f.value;
+    case "seam": return u.content.length > f.position && !!u.content[f.position].strong;
+    case "pair": return u.content.length > f.j && RELATIONS[f.relation](u.content[f.i], u.content[f.j]);
     case "order": { const at = (k) => { const [kind, w] = k.split(":"); return u.elements.findIndex((e) => (kind === "starts" ? e.first === w : e.cls === "heading" && e.text.toLowerCase().includes(w))); }; const a = at(f.a), b = at(f.b); return a >= 0 && b >= 0 && a < b; }
     case "scheme": return true; // the scheme is its pairs; each pair is scored on its own
     default: return false;
@@ -347,4 +358,66 @@ export function paradigmLines(p) {
   }
   out.push(`  satisfies      ${p.satisfies.basis}`);
   return out;
+}
+
+// ── EMERGENT FEATURES (2026-09-22). The user: "make them emergent." The
+// families above (marks, role words, measures, pairs, orders) are a list.
+// Here every feature is generated: each unit's EMERGENT FACTS (form-prior.js
+// emergentFacts — the Ground reader's own attributes crossed with SIG, CON
+// equality and SYN succession, nothing listed) become binary features
+// "slot = value", a slot the unit lacks is ABSENT (the void is a feature),
+// and each is tested instances against population. Every (slot, value) LOOKED
+// AT counts toward the level — 1/T over all of them — and a feature is held by
+// more instances than not. The cube cell of a feature is read off how it was
+// generated, never assigned by hand to a named relation.
+import { emergentFacts } from "./form-prior.js";
+import { ABSENT } from "../kernel/bayes-surprise.js";
+
+export function cellOfFact(slot, value) {
+  if (value === ABSENT) return "NUL·Figure";
+  if (slot.startsWith("count:")) return "SEG·Ground";
+  if (slot.startsWith("key:")) return "SIG·Ground";
+  if (slot.endsWith("=")) return value === "none" ? "NUL·Figure" : "CON·Figure";
+  if (slot.endsWith("+1")) return value === "none" ? "NUL·Figure" : "SYN·Figure";
+  return "SIG·Figure";
+}
+
+export function learnParadigmEmergent({ name = "form", instances = [], population = [], revision = 1 } = {}) {
+  const facts = (u) => emergentFacts(Array.isArray(u?.elements) ? u : { elements: elementsOf(typeof u === "string" ? u : u?.text ?? "").elements });
+  const I = instances.map(facts), P = population.map(facts);
+  if (I.length < 5) return { schema: PARADIGM_SCHEMA, name, refused: "under_powered", instances: I.length, features: [], basis: `${I.length} instance(s): below five — refused` };
+  if (P.length < 5) return { schema: PARADIGM_SCHEMA, name, refused: "no_null", instances: I.length, features: [], basis: "no population to separate from — refused" };
+  const nI = I.length, nP = P.length, T = nI + nP;
+  const slots = new Set([...I, ...P].flatMap((f) => [...f.keys()]));
+  // Every (slot, value) held by anyone is LOOKED AT; each counts as a test.
+  const tally = new Map(); // JSON [slot, value] → [inInstances, inPopulation]
+  const add = (f, side) => { for (const s of slots) { const v = f.has(s) ? String(f.get(s)) : ABSENT; const k = JSON.stringify([s, v]); const t = tally.get(k) ?? [0, 0]; t[side]++; tally.set(k, t); } };
+  I.forEach((f) => add(f, 0)); P.forEach((f) => add(f, 1));
+  const tests = tally.size, level = 1 / tests;
+  const features = [];
+  for (const [k, [kI, kP]] of tally) {
+    if (kI * 2 <= nI) continue;
+    const [slot, value] = JSON.parse(k);
+    const p = hypergeom(kI, nI, kI + kP, T, "upper");
+    if (p <= level) features.push({ cell: cellOfFact(slot, value), key: slot.endsWith("=") ? `${slot.slice(0, -1)} equals ${value}` : slot.endsWith("+1") ? `${slot.slice(0, -2)} follows ${value}` : `${slot}=${value}`, slot, value, type: "fact", support: kI / nI, contrast: kP / nP, p });
+  }
+  features.sort((a, b) => a.p - b.p || b.support - a.support);
+  const holdsF = (f, u) => String(u.has(f.slot) ? u.get(f.slot) : ABSENT) === f.value;
+  const score = (u) => (features.length ? features.filter((f) => holdsF(f, u)).length / features.length : 0);
+  const sI = I.map(score), sP = P.map(score);
+  let best = { cut: 1, acc: 0 };
+  for (const c of [...new Set([...sI, ...sP])]) { const acc = (sI.filter((s) => s >= c).length / nI + sP.filter((s) => s < c).length / nP) / 2; if (acc > best.acc) best = { cut: c, acc }; }
+  const byCell = {}; for (const f of features) (byCell[f.cell] ??= []).push(f);
+  return {
+    schema: PARADIGM_SCHEMA, name, revision, emergent: true, instances: nI, population: nP, tests, level, features, byCell,
+    satisfies: { cut: best.cut, balancedAccuracy: best.acc }, facts,
+    basis: `${name}: ${features.length} emergent feature(s) of ${tests} (slot, value) pairs looked at (level 1/${tests}), in ${Object.keys(byCell).length} cell(s): ${Object.entries(byCell).map(([c, fs]) => `${c} ${fs.length}`).join(", ")}`,
+  };
+}
+export function evaluateParadigmEmergent(p, candidate) {
+  if (p?.refused) return { satisfies: null, score: null };
+  const u = p.facts(candidate);
+  const held = p.features.filter((f) => String(u.has(f.slot) ? u.get(f.slot) : ABSENT) === f.value).length;
+  const score = p.features.length ? held / p.features.length : 0;
+  return { satisfies: score >= p.satisfies.cut, score, held, of: p.features.length };
 }
