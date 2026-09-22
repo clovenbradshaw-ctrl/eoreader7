@@ -1524,7 +1524,14 @@ const job = await startDocumentJob({
             id, object: "chat.completion.chunk", created, model: parsed.model,
             choices: [{
               index: 0,
-              delta: { reasoning_content: `${text}\n` },
+              // `move` rides beside the humanized text (2026-09-22): the text
+              // is this engine's own diagnostic register — apparatus names,
+              // counts, milliseconds — right for the disclosure panel, wrong
+              // for a live line a person reads mid-turn. A client that wants
+              // to say "reading en.wikipedia.org" instead of "Gore's gather
+              // boundary: kept 2 of 10 result(s)" needs the MOVE, not the
+              // prose, to decide that; the prose stays for the panel.
+              delta: { reasoning_content: `${text}\n`, move: note?.move ?? null, ...(note?.url ? { url: note.url } : {}) },
               finish_reason: null,
             }],
           };
