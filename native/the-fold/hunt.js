@@ -51,7 +51,7 @@ export function huntGround({ operator = { id: "ground", text: "" }, surfed = nul
   let exemplars = 0;
   for (const s of surfed?.sources ?? []) {
     if (s.status !== "fetched" || !s.text) continue;
-    if (s.hunt !== "material") { exemplars++; continue; }
+    if (!(s.hunts ?? [s.hunt]).includes("material")) { exemplars++; continue; }
     const pars = paragraphsOf(s.text);
     const kept = pars.map((p) => ({ p, why: carries(p) })).filter((x) => x.why);
     if (!kept.length) { refused.push({ id: s.host, url: s.url, why: `${pars.length} paragraph(s), none ${hasSubject ? "names a being of the subject" : topicWords.length ? "carries a word of the subject" : "can be tested"}` }); continue; }

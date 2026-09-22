@@ -70,18 +70,28 @@ export async function surf({ spec, search, fetch, perQuery = 6, maxSources = 6, 
     const hosts = [...new Set(results.map((r) => hostOf(r.url)).filter(Boolean))];
     runs.push({ ...query, status: results.length ? "ok" : "empty", results: results.length, hosts });
     for (const r of results) {
-      if (!r.url || seen.has(r.url)) continue;
+      if (!r.url) continue;
+      // A URL both hunts find carries BOTH labels (measured live 2026-09-22:
+      // the Cumberland material pages were also the exemplar query's results,
+      // kept the first label only, and none reached the hunt as material).
+      if (seen.has(r.url)) { const c = candidates.find((x) => x.url === r.url); if (c && !c.hunts.includes(query.hunt)) c.hunts.push(query.hunt); continue; }
       seen.add(r.url);
-      candidates.push({ hunt: query.hunt, query: query.q, url: r.url, host: hostOf(r.url), title: r.title ?? "", snippet: r.snippet ?? "" });
+      candidates.push({ hunt: query.hunt, hunts: [query.hunt], query: query.q, url: r.url, host: hostOf(r.url), title: r.title ?? "", snippet: r.snippet ?? "" });
     }
   }
-  // Across hosts first: round-robin by host so the first N sources are the
-  // most distinct N available, not the first N of one site.
-  const byHost = new Map();
-  for (const c of candidates) (byHost.get(c.host) ?? byHost.set(c.host, []).get(c.host)).push(c);
-  const ordered = [];
-  for (let i = 0; ordered.length < candidates.length; i++) for (const list of byHost.values()) if (list[i]) ordered.push(list[i]);
-  const toFetch = ordered.slice(0, maxSources);
+  // Each hunt gets its own allocation of fetches (the exemplar pages must
+  // not spend the material hunt's), and within a hunt hosts come first:
+  // round-robin by host so the first N sources are the most distinct N
+  // available, not the first N of one site.
+  const toFetch = [];
+  for (const hunt of [...new Set(candidates.flatMap((c) => c.hunts))]) {
+    const mine = candidates.filter((c) => c.hunts.includes(hunt) && !toFetch.includes(c));
+    const byHost = new Map();
+    for (const c of mine) (byHost.get(c.host) ?? byHost.set(c.host, []).get(c.host)).push(c);
+    const ordered = [];
+    for (let i = 0; ordered.length < mine.length; i++) for (const list of byHost.values()) if (list[i]) ordered.push(list[i]);
+    toFetch.push(...ordered.slice(0, maxSources));
+  }
   const sources = [];
   for (const c of toFetch) {
     try {

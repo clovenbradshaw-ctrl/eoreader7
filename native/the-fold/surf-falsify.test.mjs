@@ -58,6 +58,22 @@ test("the product: distinct candidates, hosts first — the first sources are th
   assert.ok(surfLines(s).length >= s.queries.length + s.sources.length);
 });
 
+test("a URL both hunts find carries both labels, and each hunt gets its own fetches — the exemplar pages cannot spend the material hunt's (measured live: the Cumberland pages never reached the hunt)", async () => {
+  const exemplarUrls = Array.from({ length: 8 }, (_, i) => `https://ex${i}.example/p`);
+  const materialUrls = ["https://ex0.example/p", "https://river.example/a", "https://river.example/b", "https://wiki.example/c"];
+  const web = {
+    search: async (q) => ({ results: (/what is|examples full text/.test(q) ? exemplarUrls : materialUrls).map((url) => ({ url, title: q })) }),
+    fetch: async (url) => ({ text: `page ${url}`, chars: 20 }),
+  };
+  const s = await surf({ spec: spec("write an essay on the river"), search: web.search, fetch: web.fetch, maxSources: 3 });
+  const shared = s.sources.find((x) => x.url === "https://ex0.example/p");
+  assert.deepEqual(shared.hunts, ["exemplars", "material"], "found by both hunts, labeled by both");
+  const material = s.sources.filter((x) => x.hunts.includes("material"));
+  assert.ok(material.length >= 3, `the material hunt got its own allocation (got ${material.length})`);
+  assert.ok(material.some((x) => x.host === "river.example") && material.some((x) => x.host === "wiki.example"), "hosts first within the material hunt");
+  assert.ok(s.sources.filter((x) => x.hunts.includes("exemplars")).length >= 3, "and the exemplar hunt kept its own");
+});
+
 test("a blocked search is 'the web was not reached', typed — never an empty result", async () => {
   const s = await surf({ spec: spec("write a sonnet"), search: async () => ({ blocked: true, results: [] }), fetch: async () => { throw new Error("must not fetch"); } });
   assert.ok(s.queries.every((q) => q.status === "blocked"));
