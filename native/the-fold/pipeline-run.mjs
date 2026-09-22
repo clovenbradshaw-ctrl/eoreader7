@@ -33,7 +33,7 @@ import { writeVoiceFor, voiceIsDeclaredFor } from "../kernel/register.js";
 import { createDocumentLedger, appendLedgerLine } from "./document-ledger.js";
 import { buildDraft, draftLines, floorProjection, drawnParts } from "./eot-draft.js";
 import { buildReferents, attachReferents } from "./referents.js";
-import { declareVoidSpec, declareForm, voidSpecLines, topicOf } from "./void-spec.js";
+import { declareVoidSpec, declareFormAsync, voidSpecLines, topicOf } from "./void-spec.js";
 import { surfLines, liveWeb } from "./surf.js";
 import { surfForShape, shapeLines, matchShape } from "./shape.js";
 import { huntGround, huntLines } from "./hunt.js";
@@ -76,14 +76,22 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   // form is a gate (void-spec.js declareForm): an anaphor in the ask ("again")
   // points at this engine's own last piece; else a received sign; else the
   // form-word is carried unresolved for SURF. Never a silent default.
-  const form = declareForm(task, { documentsDir: DOCS, excludeDocId: docId });
+  // The mouth, gated (proxy-runner's streamOllamaChat sees every call); defined
+  // here because the form gate's ambiguity tier may need one narrow question.
+  const gatedDraw = draw ?? (async (messages, maxTokens) => {
+    const { streamOllamaChat } = await import("../../proxy-runner.mjs");
+    let out = "";
+    for await (const chunk of streamOllamaChat(model, messages, { maxTokens })) if (typeof chunk === "string") out += chunk;
+    return out;
+  });
+  const form = await declareFormAsync(task, { documentsDir: DOCS, excludeDocId: docId, draw: gatedDraw });
   const register = form.register;
   const field = form.field;
   const topic = topicOf(task);
   const spoken = topic ?? form.token ?? task;
   const voiceRaw = writeVoiceFor(register, spoken);
   let voice = { opening: typeof voiceRaw.opening === "function" ? voiceRaw.opening(spoken) : voiceRaw.opening, body: typeof voiceRaw.body === "function" ? voiceRaw.body(spoken) : voiceRaw.body };
-  write("register", `Register: ${field ?? "unresolved"}`, `field: ${field} [${form.basis}] — ${form.source}\nform-word: ${form.token ?? "(none)"}${form.cue ? `\nanaphor: "${form.cue}"${form.referent ? ` → ${form.referent.docId}: "${form.referent.prompt}"` : " (unresolved)"}` : ""}\nmode: ${register?.mode}\ntenor: ${register?.tenor?.tenor}\ntopic: ${topic ?? "(none stated)"}\nvoice declared for this field: ${voiceIsDeclaredFor(register)}\n\nopening voice:\n${voice.opening}\n\nbody voice:\n${voice.body}`, register?.basis ?? "derived from the ask");
+  write("register", `Register: ${field ?? "unresolved"}`, `field: ${field} [${form.basis}] — ${form.source}\nform-word: ${form.token ?? "(none)"}${form.cue ? `\nanaphor: "${form.cue}"${form.referent ? ` → ${form.referent.docId}: "${form.referent.prompt}" [${form.tier}]${form.votes ? `\nvotes: ${form.votes.map((v) => `${v.docId}: ${v.vote === true ? "yes" : v.vote === false ? "no" : "?"}`).join(" · ")}` : ""}` : " (unresolved)"}` : ""}\nmode: ${register?.mode}\ntenor: ${register?.tenor?.tenor}\ntopic: ${topic ?? "(none stated)"}\nvoice declared for this field: ${voiceIsDeclaredFor(register)}\n\nopening voice:\n${voice.opening}\n\nbody voice:\n${voice.body}`, register?.basis ?? "derived from the ask");
 
 
   // 3. SURF — seek across multiple sources for material shaped like the void
@@ -163,12 +171,6 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   // claim) are written as findings. No model call. Every later stage reads
   // the arranged draft; the source-ordered one stays on the ledger above.
   // `arrange` may be injected (a skeleton arm: plans/generation-terrain-stance.md).
-  const gatedDraw = draw ?? (async (messages, maxTokens) => {
-    const { streamOllamaChat } = await import("../../proxy-runner.mjs");
-    let out = "";
-    for await (const chunk of streamOllamaChat(model, messages, { maxTokens })) if (typeof chunk === "string") out += chunk;
-    return out;
-  });
   // 6 → 7. THE SKELETON, THEN THE SKELETON LOOP (skeleton-loop.js): the
   // outline composed and reason-linted, then recomposed — one licensed
   // finding per loop, judged against the last — until nothing is licensed.

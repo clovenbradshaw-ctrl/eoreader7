@@ -37,7 +37,7 @@ import { voidHolarchy } from "../organs/void-holarchy.js";
 import { deriveRegister, writeVoiceFor } from "../kernel/register.js";
 import { voidCellsFor } from "./document-ledger.js";
 import { drawnParts } from "./eot-draft.js";
-import { detectFormReferentCue, resolveFormReferent, FORM_REFERENT_CUES } from "./form-referent.js";
+import { detectFormReferentCue, resolveFormReferent, disambiguateFormReferent, FORM_REFERENT_CUES } from "./form-referent.js";
 
 export const VOID_SPEC_SCHEMA = "EOVoidSpec@1";
 
@@ -80,13 +80,13 @@ export function candidateFormToken(task) {
  *   3. else unmeasured, with the form-word carried so SURF can resolve it.
  * The register returned is the one the rest of the pipeline speaks in.
  */
-export function declareForm(task, { documentsDir = null, excludeDocId = null } = {}) {
+export function declareForm(task, { documentsDir = null, excludeDocId = null, ref = null } = {}) {
   const cue = detectFormReferentCue(task);
-  const ref = cue && documentsDir ? resolveFormReferent(task, { documentsDir, excludeDocId }) : null;
+  ref = ref ?? (cue && documentsDir ? resolveFormReferent(task, { documentsDir, excludeDocId }) : null);
   if (ref?.resolved?.field) {
     const register = deriveRegister(ref.resolved.prompt);
     return {
-      token: candidateFormToken(ref.resolved.prompt), cue, referent: ref.resolved, register,
+      token: candidateFormToken(ref.resolved.prompt), cue, referent: ref.resolved, register, tier: ref.tier ?? null, votes: ref.votes ?? null,
       field: ref.resolved.field, basis: "measured", source: `form-referent.js: ${ref.basis}`,
     };
   }
@@ -133,6 +133,17 @@ export function topicOf(task) {
 
 const median = (xs) => { const s = [...xs].sort((a, b) => a - b); return s.length ? s[Math.floor(s.length / 2)] : null; };
 const sentenceWords = (s) => String(s).split(/\s+/).filter(Boolean).length;
+
+/** declareForm with the ambiguity tier: when the mechanics narrow an anaphor
+ *  to several prior asks, the mouth is asked one yes/no per candidate and
+ *  licensed only when exactly one gets yes. No draw, or no ambiguity → no
+ *  call, same result as declareForm. */
+export async function declareFormAsync(task, { documentsDir = null, excludeDocId = null, draw = null } = {}) {
+  const cue = detectFormReferentCue(task);
+  let ref = cue && documentsDir ? resolveFormReferent(task, { documentsDir, excludeDocId }) : null;
+  if (ref?.tier === "ambiguous" && draw) ref = await disambiguateFormReferent(ref, { draw, task });
+  return declareForm(task, { documentsDir, excludeDocId, ref });
+}
 
 /**
  * declareVoidSpec({ task, ground, draft }) → EOVoidSpec@1

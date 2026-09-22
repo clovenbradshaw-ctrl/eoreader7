@@ -28,15 +28,18 @@
 //                                 never invents one, and states which run and
 //                                 why (basis) so a wrong pick is visible.
 //
-// NOT YET BUILT (named, not faked): when the cue is ambiguous (which prior
-// piece does "the same" mean, with several candidates), resolving it needs a
-// narrow, mechanically-licensed model question over the actual candidates
-// found here (steer.js's discipline — [[feedback_model_is_just_the_mouth]]),
-// never a free-form guess. This module only ever returns a candidate list;
-// it does not yet call the model to disambiguate one.
+// The ambiguity tier (built 2026-09-22, the user: "we may need a model call
+// to even parse what the referent is sometimes"): when the ask's own words
+// narrow the candidates to several prior asks, disambiguateFormReferent
+// asks the mouth one yes/no per candidate and licenses the answer only when
+// exactly one gets yes (steer.js's discipline — [[feedback_model_is_just_the_
+// mouth]]); when the mechanics already decided, no call is made.
 
 import fs from "node:fs";
 import path from "node:path";
+import { draftWords } from "./eot-draft.js";
+import { isFunctionWord } from "./pos-prior.js";
+import { yesNo } from "./steer.js";
 
 export const FORM_REFERENT_CUES = [
   /\bagain\b/i,
@@ -116,11 +119,53 @@ export function resolveFormReferent(task, { documentsDir = "documents", excludeD
   if (!shapes.length) {
     return { cue, resolved: null, basis: `a referent cue ("${cue}") was found, but no ledger in "${documentsDir}" declares a field to point at` };
   }
-  const top = shapes[0];
-  const docId = path.basename(top.path, ".jsonl");
+  // LOW BAR, THEN HIGH BAR. Every ledger with a field is a candidate. The
+  // ask's own content words ("another one about the river") narrow them to
+  // the prior asks that share a word; exactly one sharing candidate is
+  // resolved mechanically. Several sharing → the model may be asked, one
+  // yes/no per candidate (disambiguateFormReferent); none sharing → recency,
+  // disclosed as nothing better than recency.
+  // The ask's words less the cue, the pronouns it rides on and the leading
+  // verb — "write it again" shares nothing; "write another one about the
+  // river" shares "river". (Every prior ask says "write": the verb would make
+  // every candidate share, and the mechanics would never decide.)
+  let stripped = String(task ?? "");
+  for (const re of FORM_REFERENT_CUES) stripped = stripped.replace(new RegExp(re.source, "gi"), " ");
+  stripped = stripped.replace(/\b(it|that|this|one|them|these|those)\b/gi, " ").trim().split(/\s+/).slice(1).join(" ");
+  const askWords = new Set(draftWords(stripped).filter((w) => !isFunctionWord(w)));
+  const candidates = shapes.map((s) => ({ docId: path.basename(s.path, ".jsonl"), prompt: s.prompt, field: s.field, mtimeMs: s.mtimeMs, shares: s.prompt ? [...new Set(draftWords(s.prompt).filter((w) => !isFunctionWord(w) && askWords.has(w)))] : [] }));
+  const sharing = candidates.filter((c) => c.shares.length);
+  const top = sharing.length ? sharing[0] : candidates[0];
   return {
     cue,
-    resolved: { docId, prompt: top.prompt, field: top.field },
-    basis: `"${cue}" resolved to the most recently modified ledger this engine wrote (${docId}), whose declared field is "${top.field}"${shapes.length > 1 ? ` — ${shapes.length - 1} other candidate(s) existed and were not chosen by anything but recency` : ""}`,
+    resolved: { docId: top.docId, prompt: top.prompt, field: top.field },
+    candidates, sharing: sharing.map((c) => c.docId),
+    tier: sharing.length === 1 ? "mechanical" : sharing.length > 1 ? "ambiguous" : "recency",
+    basis: sharing.length === 1
+      ? `"${cue}" resolved to the one prior ask sharing "${top.shares.join(", ")}" with this one (${top.docId}), whose declared field is "${top.field}"`
+      : `"${cue}" resolved to the most recently modified ledger this engine wrote (${top.docId}), whose declared field is "${top.field}"${sharing.length > 1 ? ` — ${sharing.length} prior asks share a word with this one and recency alone chose; a licensed question can decide` : candidates.length > 1 ? ` — ${candidates.length - 1} other candidate(s) existed and were not chosen by anything but recency` : ""}`,
   };
+}
+
+/**
+ * disambiguateFormReferent(ref, { draw, task }) → ref, possibly re-resolved.
+ * THE MODEL IS ONLY EVER A NARROW ORACLE (steer.js's discipline): asked once
+ * per sharing candidate, yes or no, in recency order; licensed only when
+ * exactly one candidate gets yes. Anything else leaves recency's pick and
+ * says so. No call is made when the mechanics already decided.
+ */
+export async function disambiguateFormReferent(ref, { draw = null, task = "" } = {}) {
+  if (!ref?.resolved || ref.tier !== "ambiguous" || typeof draw !== "function") return ref;
+  const votes = [];
+  for (const c of ref.candidates.filter((x) => x.shares.length)) {
+    let reply = "";
+    try { reply = String(await draw([{ role: "user", content: `A request says: "${task}". An earlier request in this conversation was: "${c.prompt}". Is the new request asking for the same kind of thing as that earlier one? Answer yes or no.` }], 12) ?? ""); } catch {}
+    votes.push({ docId: c.docId, prompt: c.prompt, reply: reply.trim().slice(0, 80), vote: yesNo(reply) });
+  }
+  const yes = votes.filter((v) => v.vote === true);
+  if (yes.length === 1) {
+    const c = ref.candidates.find((x) => x.docId === yes[0].docId);
+    return { ...ref, resolved: { docId: c.docId, prompt: c.prompt, field: c.field }, votes, tier: "licensed", basis: `"${ref.cue}" resolved by a licensed question: of ${votes.length} prior asks sharing a word with this one, the mouth said yes to ${c.docId} alone ("${c.prompt}"), whose declared field is "${c.field}"` };
+  }
+  return { ...ref, votes, tier: "recency", basis: `${ref.basis}; the mouth was asked about ${votes.length} candidate(s) and said yes to ${yes.length} — not licensed, recency's pick stands` };
 }
