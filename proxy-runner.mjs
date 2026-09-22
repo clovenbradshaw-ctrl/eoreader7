@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
 import { isCodeHunk, codeEncounters } from "./native/adapters/code/encounters.js";
 import { diaNorm, namesCorefer } from "./native/adapters/text/surfaces.js";
-import { deriveRegister, detectLanguage, questionFor, writeVoiceFor } from "./native/kernel/register.js";
+import { deriveRegister, detectLanguage, questionFor, writeVoiceFor, voiceIsDeclaredFor } from "./native/kernel/register.js";
 import { createSeededRng, seedFrom } from "./native/kernel/rng.js";
 import { queryMeaningPotential, loadSidecar, SIDECAR_PATH } from "./native/kernel/prior-query.js";
 import { createWheelLedger } from "./native/kernel/wheel.js";
@@ -39,7 +39,7 @@ import { deposit as depositAdmitted, admit as admitCandidate, measureVariance, m
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom, holonicSatisfaction, holonTreeFromText, holonicTreeSatisfaction, holonAssertionTree, holonicAssertionSatisfaction, holonLeaves } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 import { inventedNameRuns as verifyInventedNameRuns, isMetaSentence as verifyIsMetaSentence } from "./native/the-fold/referent-verify.js";
-import { wideToAtoms, foldWideToShape } from "./native/the-fold/essay-fold.js";
+import { wideToAtoms, foldWideToShape, beatsFromGround } from "./native/the-fold/essay-fold.js";
 import { isConcrescent } from "./native/the-fold/concrescence.js";
 import { createSpiral, rotate, spiralPath, INFLATION_WORDS, findWordHits } from "./native/the-fold/revision-spiral.js";
 // The dispute lookup notesFromEdges reads (below): `noteId` is the same
@@ -5355,7 +5355,12 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         const fp = discoveredFramingFor(sidecar, { genre: field, medium: prelimShape.register.mode });
         if (fp) {
           const applied = applyDiscovered({ framing: fp.framing, sections, questionFor: (f, t) => questionFor(prelimShape.register, f, t), topic, keepSectionsWhenGrounded: groundBeforeDiscovery });
-          sections = applied.sections; discoveredVoice = applied.voice; framingApplied = true; discoveredFelt = fp.framing?.feltTarget ?? null; discoveredFraming = fp.framing;
+          // ADDITIVE ONLY: a discovered voice fills a field the register has
+          // no voice for; it never overrides one it does. Same for the felt
+          // target, which arrives from the same narrative-shaped question.
+          const declared_ = voiceIsDeclaredFor(prelimShape.register);
+          sections = applied.sections; discoveredVoice = declared_ ? null : applied.voice; framingApplied = true; discoveredFelt = declared_ ? null : (fp.framing?.feltTarget ?? null); discoveredFraming = fp.framing;
+          if (declared_ && onNote) onNote({ move: "framing_voice_declined", field, basis: "the register declares its own voice for this field — a discovered voice may add, never override" });
           wheel.turn("discovery", `reuse the footprints — a framing for ${field} was discovered before`, { from: "footprints", staging: fp.framing.staging.length, grounded: groundBeforeDiscovery }, { framing: fp.framing, basis: fp.basis }, { evaBasis: "the sidecar's latest footprint wins; no new model call — easier next time", operator: "INS", grain: "Pattern", face: "scout" });
         } else {
           // ANTIStrauss: the discovery's model call must go through the SAME
@@ -5375,7 +5380,9 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           });
           if (d?.framing) {
             const applied = applyDiscovered({ framing: d.framing, sections, questionFor: (f, t) => questionFor(prelimShape.register, f, t), topic, keepSectionsWhenGrounded: groundBeforeDiscovery });
-            sections = applied.sections; discoveredVoice = applied.voice; framingApplied = true; discoveredFelt = d.framing?.feltTarget ?? null; discoveredFraming = d.framing;
+            const declared_ = voiceIsDeclaredFor(prelimShape.register);
+            sections = applied.sections; discoveredVoice = declared_ ? null : applied.voice; framingApplied = true; discoveredFelt = declared_ ? null : (d.framing?.feltTarget ?? null); discoveredFraming = d.framing;
+            if (declared_ && onNote) onNote({ move: "framing_voice_declined", field, basis: "the register declares its own voice for this field — a discovered voice may add, never override" });
             wheel.turn("discovery", `the LLM is tasked to go find what makes a good ${field}`, { from: d.from, staging: d.framing.staging.length, voice: !!d.framing.writeVoice, grounded: groundBeforeDiscovery }, { framing: d.framing, footprints: !!d.appended, basis: d.basis }, { evaBasis: "the LLM PROPOSES the framing; the wheel's EVA and the satisfaction organs dispose", operator: "INS", grain: "Pattern", face: "scout" });
             if (d.appended) { try { fs.writeFileSync(SIDECAR_PATH, JSON.stringify(d.appended, null, 2)); } catch {} }
           }
@@ -5529,8 +5536,70 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
   const groundingText = () => {
     const parts = [];
     if (session.webSources?.size) for (const text of session.webSources.values()) if (text) parts.push(String(text));
-    for (const s of surfacedSegments ?? []) if (s?.text) parts.push(String(s.text));
+    // The surf's segments are TRUNCATED SLICES (SURF_MAX_SEGMENT_CHARS) — for a
+    // composition whose corpus is in hand they are fragments of it, and a
+    // fragment pins the bond null (measured 2026-09-21). They stand in only
+    // when there is no corpus to stand on.
+    const corpusInHand = runMode === "projection" && (session.corpus?.documents?.size ?? 0) > 0;
+    if (!corpusInHand) for (const s of surfacedSegments ?? []) if (s?.text) parts.push(String(s.text));
+    // A COMPOSITION'S GROUND IS THE WHOLE ADMITTED MATERIAL (2026-09-21,
+    // measured: a 25-sentence workspace file surfaced as 6 sentences — the
+    // chat surf's relevance cut — and twelve sections asked against six
+    // facts could only restate them; the selector refused the restatements
+    // and the sections came back empty). The surf's slice is for a chat
+    // turn. A piece is written from everything the session admitted.
+    if (runMode === "projection" && session.corpus?.documents?.size) {
+      // GIVEN MATERIAL OUTRANKS FETCHED MATERIAL, AND EXCLUDES IT (2026-09-21,
+      // measured): an essay on the Cumberland River was grounded on 38,569
+      // characters, of which 2,263 were the workspace file the operator gave
+      // and the rest were three pages of a UN convention the Wikisource organ
+      // fetched on the phrase "in all their forms". Every gate below then
+      // measured that text — the variance vocabulary, the bond null, what
+      // counts as an invented name — so the piece was judged against material
+      // about something else entirely.
+      //
+      // `session.corpusIndex` is exactly the set the operator supplied
+      // (workspace files and attachments; opportunistic fetches never enter
+      // it), so the discriminator needs no string parsing and no source-name
+      // vocabulary. When the operator gave material, that IS the ground; a
+      // fetch may still inform the reading, but it cannot become the field
+      // the piece is measured against.
+      const given = session.corpusIndex instanceof Map ? session.corpusIndex : null;
+      const hasGiven = !!given?.size;
+      for (const [sid, doc] of session.corpus.documents) {
+        if (String(sid).startsWith("chat:")) continue;
+        if (hasGiven && !given.has(String(sid))) continue;
+        if (doc?.text && String(doc.text).trim().length > 40) parts.push(String(doc.text));
+      }
+    }
     return parts.join("\n").slice(0, 200000);
+  };
+  // STATE THE GROUND'S CONFIGURATION (2026-09-21, the law from P88: prove the
+  // configuration before claiming anything about the material, else the
+  // harness was measured). The ground line carries where its bytes came from.
+  const groundingSources = () => {
+    const out = { web: 0, surf: 0, corpusDocs: 0, corpusChars: 0, docIds: [] };
+    if (session.webSources?.size) for (const text of session.webSources.values()) out.web += String(text ?? "").length;
+    const corpusInHand = runMode === "projection" && (session.corpus?.documents?.size ?? 0) > 0;
+    if (!corpusInHand) for (const s of surfacedSegments ?? []) out.surf += String(s?.text ?? "").length;
+    if (runMode === "projection" && session.corpus?.documents?.size) {
+      const given = session.corpusIndex instanceof Map ? session.corpusIndex : null;
+      const hasGiven = !!given?.size;
+      out.given = hasGiven ? given.size : 0;
+      for (const [sid, doc] of session.corpus.documents) {
+        if (String(sid).startsWith("chat:")) continue;
+        const t = String(doc?.text ?? "");
+        if (t.trim().length <= 40) continue;
+        if (hasGiven && !given.has(String(sid))) {
+          out.excludedDocs = (out.excludedDocs ?? 0) + 1;
+          out.excludedChars = (out.excludedChars ?? 0) + t.length;
+          if ((out.excludedIds ??= []).length < 4) out.excludedIds.push(String(sid).slice(0, 60));
+          continue;
+        }
+        out.corpusDocs++; out.corpusChars += t.length; if (out.docIds.length < 6) out.docIds.push(String(sid).slice(0, 60));
+      }
+    }
+    return out;
   };
   // THE MEASURED CUT (2026-09-13): the section's own grounded window. The
   // mouth must voice a reading, never re-read the page — but zero in-context
@@ -5873,7 +5942,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         try {
           appendLedgerLine(documentLedger, {
             role: "ground", title: groundLicensed ? "Ground licensed" : "Ground not licensed",
-            text: `low: ${groundLow.basis}\nhigh: ${groundHigh.basis}\nreferent gate: ${groundProduct.gate?.gate ?? "?"}\nbond ceiling (two arbitrary passages): ${groundProduct.bondNull?.max?.toFixed?.(3) ?? "n/a"}`,
+            text: `low: ${groundLow.basis}\nhigh: ${groundHigh.basis}\nreferent gate: ${groundProduct.gate?.gate ?? "?"}\nbond ceiling (two arbitrary passages): ${groundProduct.bondNull?.max?.toFixed?.(3) ?? "n/a"}\nsources: ${JSON.stringify(groundingSources())}`,
             giver: "eoreader7:contract", basis: groundLicensed ? "ground measured — revisions licensed" : "ground unlicensed — no revision will be spent",
           }, { dir: ESSAY_LEDGER_DIR });
         } catch {}
@@ -5892,7 +5961,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         for (const cand of segmentSentencesOmni(text).filter((x) => x.length > 20)) {
           if (priorCore && claimCoreOmni(cand, variance) === priorCore) { out.refusals.push({ kind: "relanding", given: "model" }); continue; }
           if (verifyIsMetaSentence(cand)) { out.refusals.push({ kind: "meta", given: "model" }); continue; }
-          const v = admitCandidate(cand, { ground, priorLanding, instruction: `${task}\n${section}`, registry: reg, variance, bondNull, isGrounded: grounded, invented: gate.applies ? ((x) => verifyInventedNameRuns(x, ground)) : null });
+          const v = admitCandidate(cand, { ground, priorLanding, instruction: `${task}\n${section}`, registry: reg, continues: (c, p) => { try { const A = propsIndex?.resolveIn?.(c); const B = propsIndex?.resolveIn?.(p); const a = A instanceof Set ? A : new Set(A ?? []); const b = B instanceof Set ? B : new Set(B ?? []); for (const id of a) if (b.has(id)) return true; } catch {} return false; }, variance, bondNull, isGrounded: grounded, invented: gate.applies ? ((x) => verifyInventedNameRuns(x, ground)) : null });
           if (!v.admit) { out.refusals.push(...(v.refused ?? [])); continue; }
           out.survivors.push(cand); out.roads.push(v.road); depositAdmitted(reg, v); depositAdmitted(matterRegistry, v);
           usedSentences.add(cand); if (v.core) usedSentences.add(v.core);
@@ -6169,6 +6238,22 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         // a sentence folds to a material referent when the reading's proposition
         // index resolves it to an id. Both the paragraph snip and the
         // opening/narrative snip admit only grounded candidates.
+        // THE PIECE'S OWN THREAD: which referents does this sentence resolve?
+        // A turn is a sentence that takes up one the prior landing put down —
+        // read off the reading's proposition index, never off shared strings.
+        const referentsOf = (cand) => {
+          try {
+            const resolved = propsIndex?.resolveIn?.(cand);
+            return resolved instanceof Set ? resolved : new Set(resolved ?? []);
+          } catch { return new Set(); }
+        };
+        const continuesFrom = (cand, prior) => {
+          if (!String(prior ?? "").trim()) return false;
+          const a = referentsOf(cand); if (!a.size) return false;
+          const b = referentsOf(prior); if (!b.size) return false;
+          for (const id of a) if (b.has(id)) return true;
+          return false;
+        };
         const groundedCand = (cand) => {
           try {
             const resolved = propsIndex?.resolveIn?.(cand);
@@ -6302,6 +6387,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
               variance: omniVar,
               bondNull: omniBondNull,
               isGrounded: groundedCand,
+              continues: continuesFrom,
               // The capitalization gate guards only scripts that HAVE case.
               // Where the script has none it is a silent no-op, and the
               // reading's own referent index carries the guard instead — said
@@ -6320,8 +6406,8 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             section,
             sentences: paragraphSentences.length,
             kept: survivors.length,
-            matter: roads.filter((r) => r === "matter").length,
-            motion: roads.filter((r) => r === "motion").length,
+            matter: roads.filter((r) => r === "matter" || r === "both").length,
+            motion: roads.filter((r) => r === "motion" || r === "both").length,
             gate: omniGate.gate,
             basis: survivors.length < paragraphSentences.length
               ? `snipped ${paragraphSentences.length - survivors.length}: ${[...new Set(refusals.map((r) => r.kind))].join(", ")}`
@@ -6339,28 +6425,65 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             let draftHigh = draftGate.high(draftProduct, { isOpening: false });
             let spent = 0;
             const attempts = [{ pass: draftHigh.pass, basis: draftHigh.basis }];
-            while (!draftHigh.pass && groundLicensed && spent < spiralBudget && priorLanding && draftHigh.missing === "motion") {
+            // EITHER MISSING ROAD LICENSES A REDRAW (2026-09-21, measured: a
+            // section whose every candidate was refused as a repeat got no
+            // redraw at all, because the loop only fired for missing MOTION —
+            // so the commonest failure, a mouth restating the thesis, left an
+            // empty part). The instruction decides what the redraw opens on:
+            // a missing turn opens on the prior landing alone, a missing
+            // assertion opens on the window alone.
+            while (!draftHigh.pass && groundLicensed && spent < spiralBudget) {
+              const instruction = draftGate.revise(draftProduct, draftHigh);
+              if (!instruction) break;
+              if (instruction.open === "prior-landing" && !priorLanding) break;
+              if (instruction.open === "window" && !String(secWindow ?? "").trim()) break;
               spent++;
-              const redrawTask = `Continue the piece from exactly where it left off. Write the next passage (${holonPhrase}) of the piece itself.\n\nThe piece just said:\n"${lastSentenceOmni(priorLanding)}"\n\nWrite the passage now.`;
-              if (onThinking) onThinking(`\n### ${section} (redraw for motion, ${spent}/${spiralBudget})\n\n`);
+              const redrawTask = instruction.open === "prior-landing"
+                ? `Continue the piece from exactly where it left off. Write the next passage (${holonPhrase}) of the piece itself.\n\nThe piece just said:\n"${lastSentenceOmni(priorLanding)}"\n\nWrite the passage now.`
+                : `Write the part: ${section}, ${holonPhrase} of the piece itself.\n\nGrounded source text:\n"""\n${secWindow ?? ""}\n"""\n\nWrite the passage now.`;
+              if (onThinking) onThinking(`\n### ${section} (redraw for ${draftHigh.missing}, ${spent}/${spiralBudget})\n\n`);
               const [redo] = await Promise.allSettled([draw([{ role: "system", content: systemContent }, ...keptChat.slice(-2), { role: "user", content: redrawTask }], PARAGRAPH_MAX, { kelsen: compositionKelsen })]);
               const redoText = redo.status === "fulfilled" ? String(redo.value?.buf ?? "").trim() : "";
               const more = admitWide(redoText, { priorLanding, registry: globalRegistry, section });
               // Keep the motion sentences the redraw found; matter it also
               // found is welcome. Order: the turn first, then the rest.
-              const turn = more.survivors.filter((_, k) => more.roads[k] === "motion");
-              const rest = more.survivors.filter((_, k) => more.roads[k] !== "motion");
-              if (turn.length) {
-                survivors.unshift(...turn); roads.unshift(...turn.map(() => "motion"));
-                survivors.push(...rest); roads.push(...rest.map(() => "matter"));
-              }
+              // The turn leads, the matter follows — whichever road the
+              // redraw was asked for, everything it found that survived is
+              // kept, in the order a piece reads.
+              const turn = more.survivors.filter((_, k) => more.roads[k] === "motion" || more.roads[k] === "both");
+              const rest = more.survivors.filter((_, k) => !(more.roads[k] === "motion" || more.roads[k] === "both"));
+              survivors.unshift(...turn); roads.unshift(...turn.map(() => "motion"));
+              survivors.push(...rest); roads.push(...rest.map(() => "matter"));
               refusals.push(...more.refusals);
               draftProduct = { survivors, roads, refusals };
               draftHigh = draftGate.high(draftProduct, { isOpening: false });
               attempts.push({ pass: draftHigh.pass, basis: draftHigh.basis, redrawSentences: more.survivors.length });
             }
             contractRecord.draft.push({ section, pass: draftHigh.pass, missing: draftHigh.missing ?? null, attempts, exhausted: !draftHigh.pass && spent >= spiralBudget });
-            snipSummary = `${survivors.length} kept (${roads.filter((r) => r === "matter").length} matter, ${roads.filter((r) => r === "motion").length} motion) of ${paragraphSentences.length}` + (refusals.length ? `; refused: ${[...new Set(refusals.map((r) => r.kind))].join(", ")}` : "");
+            // THE SENTENCE IS A LEVEL, AND IT DEPOSITS ITS OWN PRODUCT
+            // (2026-09-21). Until now the lowest holon left only a summary
+            // inside another line's basis, so a section that came back empty
+            // could not be read — you could see THAT nothing survived, never
+            // WHICH sentence died of what. Every candidate is now on the
+            // ledger with its verdict, which is what makes a killed run
+            // usable at this level instead of only at the whole.
+            if (documentLedger && paragraphSentences.length) {
+              const kept = new Set(survivors);
+              const roadOf = new Map(survivors.map((x, k) => [x, roads[k]]));
+              const lines = paragraphSentences.map((cand) => kept.has(cand)
+                ? `[${roadOf.get(cand) ?? "kept"}] ${cand}`
+                : `[refused] ${cand}`);
+              const why = [...new Set(refusals.map((r) => r.basis ? `${r.kind}: ${String(r.basis).slice(0, 70)}` : r.kind))];
+              try {
+                appendLedgerLine(documentLedger, {
+                  role: "admission", title: `Admission — ${String(section).slice(0, 70)}`,
+                  text: `${lines.join("\n")}${why.length ? `\n\nrefusals: ${why.join("; ")}` : ""}`,
+                  giver: "eoreader7:admission",
+                  basis: `${survivors.length} of ${paragraphSentences.length} admitted; the mouth drew, the machinery selected`,
+                }, { dir: ESSAY_LEDGER_DIR });
+              } catch {}
+            }
+            snipSummary = `${survivors.length} kept (${roads.filter((r) => r === "matter" || r === "both").length} matter, ${roads.filter((r) => r === "motion" || r === "both").length} motion) of ${paragraphSentences.length}` + (refusals.length ? `; refused: ${[...new Set(refusals.map((r) => r.basis ? `${r.kind} (${String(r.basis).slice(0, 60)})` : r.kind))].join("; ")}` : "");
             if (onNote) onNote({ move: "contract_draft", section, pass: draftHigh.pass, missing: draftHigh.missing ?? null, attempts: attempts.length, basis: draftHigh.basis });
           }
           buf = survivors.join(" ");
@@ -6645,7 +6768,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             { kelsen: Math.max(compositionKelsen, 0.9) }, // Ranke is literal, never impressionistic
           );
           if (rewrite.stopped) { truncated = true; break; }
-          const fixText = rewrite.buf.trim();
+          let fixText = rewrite.buf.trim();
           if (!fixText) continue;
           // THE NON-MOVING EDIT CUT (2026-09-21, Pathos/Murch — "a film is
           // cut where the audience blinks"). The degenerate loop the falsify
@@ -6663,6 +6786,24 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           if (identical || collapseRatio >= NON_MOVING_EDIT_RATIO) {
             if (onNote) onNote({ move: "ranke_nonmove", sectionIndex: i, identical, similarity: (1 - collapseRatio), detail: "the rewrite did not move the section — a non-moving edit is not a fix; budget consumed, loop terminates" });
             continue;
+          }
+          // A REWRITE IS A DRAFT, AND FACES THE SAME ADMISSION (2026-09-21,
+          // falsified live: Ranke's rewrites re-introduced "Thomas named
+          // Duke", "the 1812 flood" and "the Convention" — the very invented
+          // referents the section snip had refused — because this line
+          // replaced the section with the mouth's text unexamined). The
+          // rewrite is admitted sentence by sentence by the same two-road
+          // rule; nothing surviving means the rewrite failed and the section
+          // stands as it was, with the failure on the record.
+          {
+            const rankePrior = [...documentLines.slice(0, i)].reverse().map((l) => String(l ?? "").trim()).find(Boolean) ?? "";
+            const got = admitWide(fixText, { priorLanding: rankePrior, registry: new Set(), section: plannedSections[i] ?? "" });
+            if (!got.survivors.length) {
+              if (onNote) onNote({ move: "ranke_refused", sectionIndex: i, refused: [...new Set(got.refusals.map((r) => r.kind))], basis: "the rewrite survived no admission — the section stands as written" });
+              if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `ranke: rewrite refused @ ${i + 1}`, text: `refused: ${[...new Set(got.refusals.map((r) => r.basis ? `${r.kind} (${String(r.basis).slice(0, 60)})` : r.kind))].join("; ")}`, giver: "eoreader7:admission", basis: "a rewrite is a draft and faces the same admission" }, { dir: ESSAY_LEDGER_DIR });
+              continue;
+            }
+            fixText = got.survivors.join(" ");
           }
           documentLines[i] = fixText;
           if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `ranke: ungrounded @ ${i + 1}`, text: fixText, giver: model, supersedes: null, basis: `RANKE: ${f.detail}` }, { dir: ESSAY_LEDGER_DIR });
@@ -6817,7 +6958,11 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
               { kelsen: Math.max(compositionKelsen, 0.9) },
             );
             if (body.stopped) { truncated = true; break; }
-            const bodyText = body.buf.trim();
+            // A MURCH BODY IS A DRAFT, AND FACES THE SAME ADMISSION (2026-09-21).
+            const bodyPrior = [...documentLines].reverse().map((l) => String(l ?? "").trim()).find(Boolean) ?? "";
+            const bodyGot = admitWide(body.buf.trim(), { priorLanding: bodyPrior, registry: new Set(), section: "body" });
+            const bodyText = bodyGot.survivors.join(" ");
+            if (!bodyText && body.buf.trim() && onNote) onNote({ move: "murch_body_refused", refused: [...new Set(bodyGot.refusals.map((r) => r.kind))] });
             if (bodyText) {
               documentLines.push(bodyText);
               if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `murch: body`, text: bodyText, giver: model, supersedes: null, basis: `MURCH: ${f.detail}` }, { dir: ESSAY_LEDGER_DIR });
@@ -6892,6 +7037,21 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
             fixOp = "INS·rewrite";
           }
           if (!fixText) continue;
+          // A MODEL REWRITE IS A DRAFT, AND FACES THE SAME ADMISSION
+          // (2026-09-21). A mechanical edit (mech.to) is deterministic and
+          // passes as it is; the mouth's rewrite is admitted sentence by
+          // sentence, and a rewrite that survives nothing leaves the section
+          // as it was, with the refusal on the record.
+          if (fixOp === "INS·rewrite" && f.sectionIndex != null) {
+            const murchPrior = [...documentLines.slice(0, f.sectionIndex)].reverse().map((l) => String(l ?? "").trim()).find(Boolean) ?? "";
+            const got = admitWide(fixText, { priorLanding: murchPrior, registry: new Set(), section: plannedSections[f.sectionIndex] ?? "" });
+            if (!got.survivors.length) {
+              if (onNote) onNote({ move: "murch_refused", sectionIndex: f.sectionIndex, kind: f.kind, refused: [...new Set(got.refusals.map((r) => r.kind))] });
+              if (documentLedger) appendLedgerLine(documentLedger, { role: "revision", title: `murch: ${f.kind} refused @ ${f.sectionIndex + 1}`, text: `refused: ${[...new Set(got.refusals.map((r) => r.basis ? `${r.kind} (${String(r.basis).slice(0, 60)})` : r.kind))].join("; ")}`, giver: "eoreader7:admission", basis: "a rewrite is a draft and faces the same admission" }, { dir: ESSAY_LEDGER_DIR });
+              continue;
+            }
+            fixText = got.survivors.join(" ");
+          }
           if (f.sectionIndex != null && documentLines[f.sectionIndex]) {
             documentLines[f.sectionIndex] = fixText;
           } else {
@@ -7091,7 +7251,17 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
         try {
           const wideParts = [...documentLines];
           const atoms = wideToAtoms(wideParts, { ground: groundingText() });
-          const folded = foldWideToShape(atoms, { ground: groundingText() });
+          // THE SHAPE IS THE MATERIAL'S, NOT A TABLE'S (2026-09-21). The fold
+          // used to assemble into DEFAULT_ESSAY_BEATS, whose charge words were
+          // `waterway`, `steamboats`, `cotton`, `flood`, `levy`. That shape
+          // folded one river correctly and turned every other subject into
+          // gaps — which is where "The tension [gap] (empty)" came from in a
+          // finished piece. The beats are now derived: the ground's own seams
+          // set what parts are POSSIBLE, the ask's count sets how many are
+          // PROBABLE when the ground declares no seam of its own.
+          const derivedBeats = beatsFromGround(groundingText(), { want: plannedSections.length || 5 });
+          if (onNote) onNote({ move: "beats_derived", beats: derivedBeats.beats.length, from: derivedBeats.from, titles: derivedBeats.beats.map((b) => b.title).slice(0, 8) });
+          const folded = foldWideToShape(atoms, { ground: groundingText(), beats: derivedBeats.beats.length ? derivedBeats.beats : null });
           // ── THE SPIRAL CONTRACT, LAYER 4: FOLD. LOW: a beat filled. HIGH:
           // no gap. A gap is not "(empty)" in a finished piece — it is the
           // fold's own statement of the NEXT SECTION TO DRAW, opening on the
@@ -7181,7 +7351,7 @@ const encounters = textEncounters(materialText, { source: `proxy:session:${sessi
           appendLedgerLine(documentLedger, {
             role: "fold", title: `Fold (${folded.beats.length} beats)`,
             text: folded.beats.map((b, i) => `${b.title}${b.gap ? " [gap]" : ""}: ${b.text || "(empty)"}`).join("\n\n"),
-            giver: "eoreader7:fold", basis: folded.basis,
+            giver: "eoreader7:fold", basis: `${folded.basis} — shape: ${derivedBeats.basis}`,
           }, { dir: ESSAY_LEDGER_DIR });
           // THE SPIRAL over the folded beats — one rotation per beat, cutting
           // the inflationary diction and false-tension the probes can name.

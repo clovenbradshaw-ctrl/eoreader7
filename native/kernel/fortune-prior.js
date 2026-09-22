@@ -119,6 +119,38 @@ export function framingFor(prior, { genre = null, medium = null } = {}) {
     // leaves `latest` at the previous clean one; an empty read is the honest
     // "no discovered framing" the register's own staging stands for.
     if (stagingIsMachinery(e.framing?.staging ?? [])) continue;
+    // THE SECOND HISTORICAL PURGE (2026-09-21): the same defect, one field
+    // over. `stagingIsMachinery` caught the staging that echoed the prompt's
+    // basis footprints; nothing checked the WRITE VOICE, and the discovery
+    // prompt used to hand the model a concrete NARRATIVE command as an `e.g.`
+    // for every genre. Both stored exposition framings carry that sentence
+    // verbatim, so every essay inherited a voice that forbids a thesis and
+    // demands a concrete moment — which is why an essay on a river opened on
+    // a skyline "like a defiant fist". The live gate is now structural (the
+    // example is no longer handed over at all, so it cannot be copied in any
+    // language); this is the purge for what was recorded before it existed.
+    if (voiceIsEchoedExample(e.framing?.writeVoice ?? null)) continue;
+    // A WRITE VOICE GOVERNS WRITING; IT IS NEVER A LINE OF THE PIECE. The
+    // sidecar also holds framings whose "opening" is prose ("The salt spray
+    // stings Thomas's face…") — the mouth wrote a sample where a command was
+    // asked for. A sample names a particular being; a command does not.
+    if (voiceIsSample(e.framing?.writeVoice ?? null)) continue;
+    // PROVENANCE IS THE LOAD-BEARING RULE (2026-09-21), and the two purges
+    // above are its measured special cases. Every framing in the sidecar
+    // today was proposed under a prompt that HANDED THE MOUTH AN EXAMPLE, so
+    // none of them is evidence of what the mouth would say on its own; the
+    // purges catch the two echoes we can prove, and cannot catch a paraphrase
+    // in any language. The rule that needs no vocabulary: a framing is
+    // ADOPTED only when it was recorded under a gate that refuses echoes.
+    //
+    // This is the low/high law applied to the sidecar. An ungated entry stays
+    // POSSIBILITY — it is still counted in the impression, it still tells the
+    // discovery what phases this instrument has seen — but it may not become
+    // PROBABILITY by being adopted as the voice a piece is written in. An
+    // empty read is honest: the register's own table stands, and the next run
+    // discovers afresh and records a gated entry, so this heals itself after
+    // one run per genre.
+    if (e.framing?.gate !== FRAMING_GATE) continue;
     latest = e; // append-only: the last footprint wins, never a merge
   }
   return latest ? { framing: latest.framing, basis: latest.basis, giver: latest.giver, readAt: latest.readAt } : null;
@@ -153,6 +185,67 @@ export function stagingIsMachinery(staging) {
   return phases.some((p) => SELF_ACCOUNT.test(String(p ?? "")));
 }
 
+/**
+ * voiceIsEchoedExample(writeVoice) → was this voice copied verbatim from the
+ * discovery prompt's own `e.g.`? A RECORDED HISTORICAL ARTEFACT, not a
+ * vocabulary: these two sentences are the exact bytes discovery.js used to
+ * hand over, so matching them is matching our own past output, never a
+ * language. New proposals cannot reach this state — the example is no longer
+ * handed over, and an echo of the ask is refused live.
+ */
+/** The gate a framing must have been recorded under to be ADOPTED. Bumping
+ *  this string retires every earlier framing to possibility-only, which is
+ *  the correct move whenever the discovery prompt itself changes. */
+export const FRAMING_GATE = "EOFramingGate@1";
+
+const HANDED_OVER_EXAMPLES = [
+  "begin in the middle of a concrete moment, in a real place, showing the senses; never a thesis, never a summary, never name the genre or the structure.",
+  "write the scene: what happens, who acts, what changes, what is felt. never name the phase or the structure, never analyze, never comment on the writing.",
+];
+export function voiceIsEchoedExample(writeVoice) {
+  if (!writeVoice || typeof writeVoice !== "object") return false;
+  const norm = (x) => String(x ?? "").toLowerCase().replace(/\s+/g, " ").trim();
+  for (const field of [writeVoice.opening, writeVoice.body]) {
+    const n = norm(field);
+    if (!n) continue;
+    for (const ex of HANDED_OVER_EXAMPLES) if (n === ex || n.includes(ex) || ex.includes(n)) return true;
+  }
+  return false;
+}
+
+/**
+ * voiceIsSample(writeVoice) → is this a line of the piece instead of a
+ * command about writing it? A command is genre-general and names no
+ * particular being; a sample names one ("Thomas", "the Cumberland"). The
+ * signal is a proper name appearing where a sentence does not begin.
+ *
+ * THE CEILING, STATED: capitalisation is the signal, so this test does real
+ * work only in a script that HAS case. In Chinese, Japanese, Arabic, Hebrew,
+ * Hindi or Thai it returns false and guards nothing — there the register's
+ * own voice table is the floor. Naming the ceiling beats faking a floor.
+ */
+export function voiceIsSample(writeVoice) {
+  if (!writeVoice || typeof writeVoice !== "object") return false;
+  for (const field of [writeVoice.opening, writeVoice.body]) {
+    const text = String(field ?? "").trim();
+    if (!text) continue;
+    let hasCase = false;
+    for (const ch of text) { if (ch.toUpperCase() !== ch.toLowerCase()) { hasCase = true; break; } }
+    if (!hasCase) continue;
+    // Sentence-initial capitals are grammar, not names: drop the first token
+    // of the text and of every sentence that follows a terminator.
+    const words = text.split(/\s+/);
+    for (let i = 1; i < words.length; i++) {
+      const prev = words[i - 1] ?? "";
+      if (/[.!?:;]$/.test(prev)) continue;          // a new sentence begins
+      const w = words[i].replace(/[^\p{L}'']/gu, "");
+      if (w.length < 2) continue;
+      if (/^\p{Lu}/u.test(w) && !/^\p{Lu}+$/u.test(w)) return true;
+    }
+  }
+  return false;
+}
+
 export function appendFraming(prior, { genre, medium = "text", framing, basis = null, giver = null } = {}) {
   if (!framing || typeof framing !== "object") throw new TypeError("appendFraming: a framing object is required");
   const entry = {
@@ -162,7 +255,8 @@ export function appendFraming(prior, { genre, medium = "text", framing, basis = 
     genre, medium, subgenre: null,
     movements: [{ focus: "framing", from: 0, to: 1, freshClaims: 1, gain: 1 }],
     gains: [1], shape: "framing",
-    framing, basis, giver,
+    framing: { ...framing, gate: FRAMING_GATE },
+    basis, giver,
   };
   return appendFortune(prior, entry);
 }

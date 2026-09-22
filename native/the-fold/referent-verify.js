@@ -125,12 +125,33 @@ export function nameRuns(text) {
  * ground says "The Cumberland River is..." but a sentence can say "the river"
  * or "Cumberland River" without inventing anything).
  */
-export function buildNameInventory(ground) {
+// A LEADING CAPITAL THAT IS A COMMON WORD IS NOT PART OF THE NAME (2026-09-21,
+// measured on the generation pipeline's fourth run: "This" alone was called an
+// invented name, "While the Cumberland River" was one name the material never
+// holds, and the material's own "Today the Port of Nashville" hid "Port of
+// Nashville" from the inventory). A caller that can tell a common word from a
+// proper noun passes `isCommonWord`; leading common words are then peeled off,
+// on both sides, before the name is looked up. Without the predicate nothing
+// changes, so every existing caller reads exactly as before.
+const NAME_LEAD_PARTICLES = new Set(["the", "of", "a", "an"]);
+function peelLeading(tokens, isCommonWord) {
+  const out = [];
+  let t = [...tokens];
+  while (t.length > 0 && isCommonWord(t[0])) {
+    t = t.slice(1);
+    while (t.length && NAME_LEAD_PARTICLES.has(t[0])) t = t.slice(1);
+    out.push(t.join(" "));
+  }
+  return out; // each successively peeled form; "" means nothing name-like was left
+}
+
+export function buildNameInventory(ground, { isCommonWord = null } = {}) {
   const set = new Set();
   for (const r of nameRuns(ground)) {
     const seq = r.join(" ").toLowerCase();
     set.add(seq);
     if (seq.startsWith("the ")) set.add(seq.slice(4));
+    if (typeof isCommonWord === "function") for (const f of peelLeading(seq.split(" "), isCommonWord)) if (f) set.add(f);
   }
   return set;
 }
@@ -151,8 +172,8 @@ export function buildNameInventory(ground) {
  * vanishing. The losing reading is kept, exactly as the constitution §V
  * requires ("the swarm must keep the losing readings").
  */
-export function inventedNameRuns(sentence, ground) {
-  const inventory = buildNameInventory(ground);
+export function inventedNameRuns(sentence, ground, { isCommonWord = null } = {}) {
+  const inventory = buildNameInventory(ground, { isCommonWord });
   const words = String(sentence)
     .replace(/[’']/g, "")
     .replace(/[^A-Za-z0-9 ]+/g, " ")
@@ -181,6 +202,12 @@ export function inventedNameRuns(sentence, ground) {
       if (ellipse && (inventory.has(bare) || inventory.has(`${bare} river`))) return null;
       if (inventory.has(seq) || inventory.has(bare)) return null; // grounded — admitted
       if (r.length === 1 && atSentenceStart && GATE_SKIP.has(seq)) return null; // prose opener
+      if (typeof isCommonWord === "function") {
+        for (const f of peelLeading(seq.split(" "), isCommonWord)) {
+          if (!f) return null;                                              // only common words: no name here
+          if (inventory.has(f) || inventory.has(`${f} river`)) return null; // the name behind the capital is grounded
+        }
+      }
       return { runs: r, name: seq, given: "model" }; // invented — its given is the model
     })
     .filter(Boolean);

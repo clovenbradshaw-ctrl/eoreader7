@@ -156,3 +156,73 @@ test("F6 — the fold re-admits every sentence against the whole ground", () => 
   assert.ok(beatText.includes("Walker") || beatText.includes("Duke of Cumberland"), "the real naming sentence survives");
   assert.ok(beatText.includes("18,000 square miles"), "the real drainage sentence survives");
 });
+// ── the shape the material declares (2026-09-21) ────────────────────────────
+import { beatsFromGround } from "./essay-fold.js";
+
+const BONGO = `The bongo is a forest antelope of central Africa. It has a chestnut coat with white stripes.
+
+Bongos browse at night on leaves and bark. They avoid open ground and keep to dense cover.
+
+Logging has cleared much of the lowland forest. Poaching has cut the eastern population to a few hundred.
+
+Captive herds in zoos now supply animals for release. A reintroduction on Mount Kenya began in 2004.`;
+
+test("THE TABLE IS GONE: a subject that is not a river gets beats of its own", () => {
+  const r = beatsFromGround(BONGO);
+  assert.equal(r.beats.length, 4, "the material declared four seams");
+  const charges = r.beats.map((b) => b.charge).join(" ");
+  for (const river of ["waterway", "steamboats", "cotton", "flood", "levy", "riverfront"]) {
+    assert.ok(!charges.includes(river), `the old table's word "${river}" reached a bongo's shape`);
+  }
+  assert.match(r.beats[0].title, /bongo|antelope/);
+  assert.match(r.beats[2].title, /logging|poaching|cleared/);
+});
+
+test("a charge word belongs to its own seam and to no other", () => {
+  const r = beatsFromGround(BONGO);
+  const seen = new Map();
+  for (const b of r.beats) for (const w of b.charge.split(" ")) seen.set(w, (seen.get(w) ?? 0) + 1);
+  for (const [w, n] of seen) assert.equal(n, 1, `"${w}" charges more than one beat — it distinguishes nothing`);
+});
+
+test("THE LAW: an unseamed ground yields the ASK's count, and says so", () => {
+  const flat = BONGO.replace(/\n\s*\n/g, " ");
+  const r = beatsFromGround(flat, { want: 3 });
+  assert.equal(r.beats.length, 3, "the ask's count did not set the shape");
+  assert.match(r.from, /ask's count/);
+  const seamed = beatsFromGround(BONGO, { want: 3 });
+  assert.equal(seamed.beats.length, 4, "the ask's count overrode a ground that declared its own seams");
+  assert.match(seamed.from, /material's own seams/);
+});
+
+test("no ground, no shape — never a default one", () => {
+  const r = beatsFromGround("");
+  assert.equal(r.beats.length, 0);
+  assert.match(r.basis, /no ground/);
+});
+
+test("the derived shape still folds: atoms land in the beat their words belong to", () => {
+  const r = beatsFromGround(BONGO);
+  const atoms = wideToAtoms([
+    "Poaching has cut the eastern population to a few hundred animals.",
+    "The bongo is a forest antelope with a chestnut coat.",
+  ], { ground: BONGO });
+  const fold = foldWideToShape(atoms, { beats: r.beats, ground: BONGO });
+  const titleOf = (needle) => fold.beats.find((b) => b.text.includes(needle))?.title ?? null;
+  assert.match(String(titleOf("Poaching")), /logging|poaching|cleared/);
+  assert.match(String(titleOf("forest antelope")), /bongo|antelope/);
+});
+
+test("THE SAME CLAIM IN TWO BEATS: a paraphrase bringing no new grounded matter is refused", () => {
+  const ground = "Native American peoples including the Cherokee, Chickasaw, and Shawnee used the Cumberland for trade, travel, and settlement long before European contact. Steamboats reached Nashville in 1819 and carried cotton downriver.";
+  const atoms = wideToAtoms([
+    "Native American peoples including the Cherokee, Chickasaw, and Shawnee used the Cumberland for trade, travel, and settlement.",
+    "Native American tribes, including the Cherokee, Chickasaw, and Shawnee, utilized the Cumberland for centuries.",
+    "Steamboats reached Nashville in 1819 and carried cotton downriver.",
+  ], { ground });
+  const fold = foldWideToShape(atoms, { beats: beatsFromGround(ground, { want: 2 }).beats, ground });
+  const all = fold.beats.map((b) => b.text).join(" ");
+  assert.ok(!(all.includes("utilized") && all.includes("used the Cumberland")), "the same claim was placed twice");
+  assert.ok(fold.refused.some((r) => r.reason === "no_new_matter"), "the paraphrase was not refused with a reason");
+  assert.ok(all.includes("Steamboats"), "a genuinely new claim was lost");
+});

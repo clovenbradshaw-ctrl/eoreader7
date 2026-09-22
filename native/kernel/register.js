@@ -194,6 +194,25 @@ export function writeVoiceFor(register, topic = "the subject") {
   return VOICE_BY_FIELD[f] ?? VOICE_BY_FIELD.exposition;
 }
 
+/**
+ * voiceIsDeclaredFor(register) → does THIS field have its own voice here, or
+ * is it falling through to the exposition default?
+ *
+ * The caller needs the difference because a discovered framing may only be
+ * ADDITIVE (2026-09-21, measured). Asked "what makes a good exposition — its
+ * arc, its felt releases, its tension", a 2b mouth answers with story
+ * structure, because those are story questions; the framing it recorded for
+ * exposition says "Introduce the protagonist and their world" and, before
+ * that, "never a thesis" — while the declared exposition voice below says
+ * OPEN THE PIECE WITH A THESIS. A layer above the base may buy precision; it
+ * may never contradict the base. So a discovered voice fills a field that has
+ * none and stands aside for a field that has one.
+ */
+export function voiceIsDeclaredFor(register) {
+  const f = register?.field?.field;
+  return !!(f && Object.prototype.hasOwnProperty.call(VOICE_BY_FIELD, f));
+}
+
 // ── STAGING: the genre's phases-and-transitions. The sidecar's accumulated
 // knowledge wins when the genre has been seen; else the record's own seams;
 // the essay's classical form is ONE registered genre in the sidecar, never a

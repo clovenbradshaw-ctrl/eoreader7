@@ -199,7 +199,33 @@ export function foldWideToShape(atoms = [], { beats = null, ground = "" } = {}) 
       refused.push({ ...a, reason: "repeated_claim" });
     }
   }
-  const distinct = [...byCore.values()];
+  // THE SAME CLAIM, TWICE, IN TWO BEATS (2026-09-21, read off a finished
+  // fold): "Native American tribes, including the Cherokee, Chickasaw, and
+  // Shawnee, utilized the Cumberland River for centuries" landed in one beat
+  // and "Native American peoples including the Cherokee, Chickasaw, and
+  // Shawnee used the Cumberland for trade, travel, and settlement" landed in
+  // another. Their claim cores differ — the core reads a fixed number of
+  // words and these diverge inside that window — so the core dedupe above
+  // could not see it. What they share is their MATTER: the grounded words
+  // they assert. A claim that brings no grounded word the fold has not
+  // already placed is the same claim in other clothes, and it is refused with
+  // its giver kept, exactly as a core repeat is.
+  const ordered = [...byCore.values()].sort((x, y) => (x.partIndex ?? 0) - (y.partIndex ?? 0));
+  const groundWords = new Set(String(ground ?? "").toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 3 && !FOLD_STOP.has(w)));
+  const placedMatter = new Set();
+  const distinct = [];
+  for (const a of ordered) {
+    const matter = [...new Set(String(a.sentence).toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 3 && !FOLD_STOP.has(w) && groundWords.has(w)))];
+    // A claim with no grounded matter at all is judged by the core alone —
+    // there is nothing here to compare, and only the beat assignment can
+    // decide whether the shape has a place for it.
+    if (matter.length && matter.every((w) => placedMatter.has(w))) {
+      refused.push({ ...a, reason: "no_new_matter" });
+      continue;
+    }
+    for (const w of matter) placedMatter.add(w);
+    distinct.push(a);
+  }
   // A LIGHT STEM (2026-09-21, the fold's first residual failure): "floods"
   // must match a beat charging "flood", "flows" must match "flow". The stem is
   // a Set of suffix rules (plural-s, -ing, -ed, -ly) applied to both sides —
@@ -275,6 +301,73 @@ export function foldWideToShape(atoms = [], { beats = null, ground = "" } = {}) 
     register: new Set(distinct.map((a) => a.core)),
     basis: `${distinct.length} distinct claim(s) folded into ${shape.length} beat(s); ${refused.length} repeated/thin lost with giver kept; ${residual.length} placed in no beat (named, never hidden)`,
   };
+}
+
+// ── THE SHAPE THE MATERIAL DECLARES ─────────────────────────────────────────
+/**
+ * beatsFromGround(ground, { want }) → the beats THIS material can support,
+ * derived, never tabled.
+ *
+ * The law, applied to shape: THE GROUND SETS THE POSSIBILITY, THE ASK SETS THE
+ * PROBABILITY. A beat can only exist where the material holds a cluster of
+ * claims — that is what is possible. How many beats there are, and in what
+ * order, is the ask's business — that is what is probable. Neither half is a
+ * list of words about rivers.
+ *
+ * The possibility is read off the material's OWN seams: a writer's paragraph
+ * break is a declaration that a part ended, and it costs nothing to believe
+ * it. When the material declares none, the ask's count divides the sentences
+ * evenly, which is the honest fallback — the ground offered no seam, so the
+ * shape is the ask's alone and the record says so.
+ *
+ * A seam's CHARGE is the words that occur in it and nowhere else in the
+ * material. Distinctiveness is exact here, not thresholded: a word that
+ * appears in one seam distinguishes that seam, a word in every seam
+ * distinguishes nothing. The TITLE is the charge's own most frequent words,
+ * so a beat is labelled in the material's language rather than in ours.
+ *
+ * This replaces DEFAULT_ESSAY_BEATS, whose charge words were `waterway`,
+ * `steamboats`, `cotton`, `flood` and `levy`. That shape folded one river
+ * correctly and turned every other subject into gaps.
+ */
+export function beatsFromGround(ground, { want = 5 } = {}) {
+  const text = String(ground ?? "").trim();
+  if (!text) return { beats: [], from: "none", basis: "no ground — no shape can be derived from it" };
+  const tok = (x) => String(x).toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 3 && !FOLD_STOP.has(w));
+  const blocks = text.split(/\n\s*\n/).map((b) => b.replace(/^#+\s*/gm, "").trim()).filter((b) => b.length > 60);
+  let seams = blocks;
+  let from = "the material's own seams";
+  if (seams.length < 2) {
+    const sentences = text.replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z])/).map((x) => x.trim()).filter((x) => x.length > 20);
+    if (sentences.length < 2) return { beats: [], from: "none", basis: "the ground has no seam and no sentences to divide" };
+    const n = Math.max(1, Math.min(want, sentences.length));
+    const per = Math.ceil(sentences.length / n);
+    seams = Array.from({ length: n }, (_, i) => sentences.slice(i * per, (i + 1) * per).join(" ")).filter(Boolean);
+    from = "the ask's count over an unseamed ground";
+  }
+  // Seam-frequency: a word that occurs in exactly one seam is that seam's own.
+  const df = new Map();
+  const perSeam = seams.map((sm) => {
+    const counts = new Map();
+    const first = new Map();
+    let k = 0;
+    for (const w of tok(sm)) { counts.set(w, (counts.get(w) ?? 0) + 1); if (!first.has(w)) first.set(w, k); k += 1; }
+    for (const w of counts.keys()) df.set(w, (df.get(w) ?? 0) + 1);
+    counts.__first = first;
+    return counts;
+  });
+  const beats = perSeam.map((counts, i) => {
+    // Ties break on ORDER OF APPEARANCE, so a beat is titled by what its seam
+    // says first rather than by what sorts first — "port, barge, aggregates",
+    // not "aggregates, amphitheater, ascend".
+    const first = counts.__first ?? new Map();
+    const own = [...counts.entries()].filter(([w]) => df.get(w) === 1).sort((a, b) => b[1] - a[1] || (first.get(a[0]) ?? 0) - (first.get(b[0]) ?? 0));
+    // A seam with no word of its own still gets a charge: its least-shared
+    // words. A beat with no signature at all would swallow every claim.
+    const charge = (own.length ? own : [...counts.entries()].sort((a, b) => (df.get(a[0]) - df.get(b[0])) || b[1] - a[1] || (first.get(a[0]) ?? 0) - (first.get(b[0]) ?? 0))).slice(0, 24).map(([w]) => w);
+    return { title: charge.slice(0, 3).join(", ") || `part ${i + 1}`, charge: charge.join(" "), referents: [] };
+  });
+  return { beats, from, basis: `${beats.length} beat(s) from ${from}; each charged with the words that occur in its seam and nowhere else` };
 }
 
 // ── the default five-beat essay shape ───────────────────────────────────────

@@ -978,3 +978,473 @@ in the drafts. The ledger does not rank languages: 27 tasks and one draw cannot 
 **Falsifying control:** a per-language claim is real only if it survives (a) per-case isolation,
 (b) a spec whose parameters and edges are stated, and (c) a task-clustered interval — and a wall is real
 only after one draft has been read.
+
+## 57. The second loop undid the first: rewrites are drafts, and the ground is the whole corpus (2026-09-21)
+
+The part lines, now carrying their snip summaries, showed the selector
+refusing three or four candidates per section as "repeat" — and then the
+Ranke and Murch rewrite rounds ran over the sections and put back "Thomas
+named Duke", "the 1812 flood", "the Convention" and "Thomas Jefferson":
+the very invented referents the section snip had refused an hour earlier.
+The rewrite rounds replaced a section with the mouth's text unexamined
+(`documentLines[i] = fixText`). Any layer that writes prose is a draft
+layer and faces the same admission; the alternative is a selector that
+guards the front door while the back door stands open. Ranke's rewrite, the
+Murch body, and the Murch per-finding model rewrite are now admitted
+sentence by sentence by `admitWide`; a mechanical Murch edit (a computed
+`mech.to`) passes as it is. A rewrite that survives nothing leaves the
+section as it was and lands a refusal line with its given.
+
+Two registry faults on the way. The registry was deriving matter words
+from `usedSentences`, which also carries the WINDOW'S sentences (so the
+mouth cannot copy them) — the material pre-emptied the matter vocabulary
+before the piece said a word, and every grounded sentence read as a repeat.
+Only admitted sentences deposit matter now (`matterRegistry`). And the
+ground itself was six sentences of a twenty-five-sentence workspace file:
+the chat surf's relevance cut, which is right for a turn and wrong for a
+piece. A composition is written from everything the session admitted;
+`groundingText()` includes the non-chat corpus documents in projection
+mode. Twelve sections asked against six facts can only restate them, and a
+selector that refuses the restatements is not the defect.
+
+`ER7_PRESSURE_HOLD=0` is a harness knob for measured runs on a box whose
+swap sits at 94%: without it every first-byte timeout ended a run before
+its fold, and the run measured the harness. Production leaves it on. A
+re-forged proxy does not carry the knob — check the process's env, not the
+command that started its predecessor.
+
+## 58. The prompt handed the mouth a narrative example, and the essay obeyed it for weeks (2026-09-21)
+
+Every essay opened like a film — "Nashville's skyline… like a defiant fist
+against the sky" — and no amount of work on the selector could touch it,
+because the selector was faithfully guarding a piece that had been
+mis-declared before a word was drawn.
+
+`discovery.js` states its own law in a long comment: the machine's basis
+prose is never offered to the model, so "a sentence that was never handed
+over cannot be restated in any language." Eighty lines above that comment,
+its own prompt handed the mouth this, as an `e.g.` for EVERY genre:
+
+    "Begin in the middle of a concrete moment, in a real place, showing the
+     senses; never a thesis, never a summary, never name the genre or the
+     structure."
+
+A 2b mouth copies an example. BOTH stored exposition framings in the live
+sidecar carry that sentence verbatim. The declared exposition voice in
+`register.js` says the opposite in capitals: OPEN THE PIECE WITH A THESIS.
+The sidecar won, every run, because `framingFor` adopted the latest
+footprint and nothing checked the voice — `stagingIsMachinery` had already
+purged the identical defect one field over, in staging.
+
+Three repairs, in order of how much they carry.
+
+The example is no longer handed over: the slot is described by its structure
+("an imperative addressed to the writer… it is never itself a line of the
+piece") and carries no sentence to copy. A proposal that repeats one of the
+ask's own instruction lines is refused and fed back down, the same way a
+malformed one is. The possibility space is exempt from that check — the ask
+deliberately hands over the phases the machine has seen, and ranking within
+them is the mechanism working, not an echo. Getting that wrong broke the
+omnilingual test, correctly.
+
+PROVENANCE IS THE LOAD-BEARING RULE. Every framing recorded before today was
+proposed under a prompt that handed over an example, so none of them is
+evidence of what a mouth would say on its own. A framing is ADOPTED only
+when it was recorded under `FRAMING_GATE`; the rest stay POSSIBILITY — still
+counted in the impression, still telling discovery what this instrument has
+seen, never becoming the voice a piece is written in. That is the low/high
+law applied to the sidecar, it needs no vocabulary in any language, and it
+heals itself after one run per genre. The two purges that catch the echo and
+the prose-sample are its measured special cases, and the sample test says
+out loud that it guards nothing in a caseless script.
+
+THE RESIDUAL, AND THE DEEPER CAUSE. With the example gone, the fresh
+discovery still proposed "Introduce the protagonist and their world" for an
+exposition. The prompt asks every genre for "the arc its fortune takes", its
+"felt releases", its "tension and how it is released". Those are story
+questions; a small mouth answers them with story structure whatever genre
+you name. So a discovered voice is now ADDITIVE ONLY: it fills a field the
+register declares no voice for, and stands aside for one it does. A layer
+above the base may buy precision; it may never contradict the base.
+
+## 59. The ground was 94% a UN convention, and every gate measured it (2026-09-21)
+
+The ground line disclosed it the moment it started naming its sources:
+
+    corpusDocs 4, corpusChars 38569
+    cumberland.md, wikisource:…:prohibit, wikisource:…:slavery or servitude,
+    wikisource:…:in all their forms
+
+The operator gave a 2,263-character file about a river. The Wikisource organ
+fetched three pages of a human-rights convention on stray phrases, and they
+entered the same corpus. Everything downstream then measured that text: the
+variance vocabulary, the bond null, which names count as invented, what a
+repeat is. I spent six iterations tuning a bond ceiling that this material
+was pinning.
+
+`session.corpusIndex` is exactly the set the operator supplied — workspace
+files and attachments — and opportunistic fetches never enter it. So the
+discriminator needs no string parsing and no source-name vocabulary: when
+the operator gave material, that IS the ground. A fetch may still inform the
+reading; it cannot become the field the piece is measured against. The
+ground line now states both sides, and the excluded bytes are named.
+
+Live, after: ground 2,263 chars, one document, 25 sentences, bond ceiling
+0.333. Excluded: 36,306 chars in three documents, each named. That is what
+P88 means by stating the reader's configuration — the disclosure found the
+bug that six rounds of measurement could not.
+
+## 60. The fold's shape was one river, spelled out (2026-09-21)
+
+`DEFAULT_ESSAY_BEATS` charged its five slots with `waterway`, `headwaters`,
+`basin`, `steamboats`, `cotton`, `tobacco`, `flood`, `levy`, `riverfront`.
+The fold assigns each claim to the beat whose charge its words touch, so
+that shape folded exactly one subject and turned every other one into gaps.
+"The tension [gap]: (empty)" shipped inside a finished essay for that
+reason, and I spent an afternoon reading it as a selector failure.
+
+`beatsFromGround` derives the shape instead, and the law does the work.
+
+THE GROUND SETS THE POSSIBILITY. A writer's paragraph break is a declaration
+that a part ended, and it costs nothing to believe it — so the material's own
+seams are the parts that can exist. A seam's CHARGE is the words that occur
+in it and nowhere else in the material. Distinctiveness is exact here rather
+than thresholded: a word in one seam distinguishes that seam, a word in every
+seam distinguishes nothing. The TITLE is the charge's own first words, so a
+beat is labelled in the material's language and not in ours.
+
+THE ASK SETS THE PROBABILITY. When the material declares no seam, the ask's
+count divides the sentences, and the record says which of the two happened
+(`the material's own seams` or `the ask's count over an unseamed ground`).
+A ground that declares its own seams is not overridden by the ask's count —
+the possibility bounds the probability, never the reverse.
+
+Measured on two subjects with the same code and no table:
+
+    river  → 7 beats: kentucky/miles/waterway · shawnee/native/american ·
+             donelson/founding · cotton/tobacco/steamboats · flood/danger ·
+             completed/created/lake · today/handles
+    bongo  → 4 beats: bongo/antelope/central · browse/night ·
+             logging/cleared/lowland · captive/herds/zoos
+
+Pinned by a test that asserts no word of the old table can reach a bongo's
+shape, and by one that asserts every charge word belongs to exactly one beat
+— a word charging two beats distinguishes neither.
+
+## 61. Motion was never measured, it was counted — and counting cannot see a turn (2026-09-21)
+
+Two finished runs reported `0 motion` in every single section and spent a
+redraw on it each time. Two faults, one shallow and one at the root.
+
+The shallow one: `admit` returned on the grounded branch BEFORE the turn was
+ever tested, so a sentence that both asserted something grounded AND answered
+the prior landing was recorded as matter alone. Motion could only be reported
+for a sentence that grounded to nothing — the rarest and weakest kind of turn,
+and the best sentence in a piece does both. A sentence is now judged by what
+it does, not by which test fires first, and the `both` road counts on both
+sides of the gate.
+
+The root one. The motion test asked whether a candidate's words overlapped
+the prior landing harder than two arbitrary passages of the material overlap.
+I measured it against the source's OWN adjacent sentences, which are true
+continuations by construction:
+
+    the string rule fires on 0 of 24 true continuations
+
+Because `bond` strips the material's variance words, and cohesion lives in
+exactly those — the pronoun, the repeated topic noun, the connective. Strip
+them and adjacent sentences share nothing, which is precisely what makes them
+different sentences. Counting the variance back in barely separates anything:
+true pairs mean 0.178, arbitrary pairs 0.161, and a per-candidate rule fires
+on 67% of true pairs and 50% of false ones. Lexical overlap does not know
+what a turn is, in either direction.
+
+A turn is a sentence that takes up something the piece just put down — a
+REFERENT, not a string. The repo has had a referent model the whole time, and
+the standing rule says so: spans point INTO an entity model, and
+occurrence-counting over strings is not one. I had built motion as occurrence
+counting. `continues` is now supplied by the caller from the reading's own
+proposition index: the candidate is a turn when it resolves a referent the
+prior landing also resolves. The string test survives only as the stated
+fallback for a caller with no index, which is honest about being weak rather
+than silently deciding.
+
+The measurement that retired it is now a test, with the guard turned around:
+if the two populations ever separate, the test fails and says the referent
+rule may no longer be needed.
+
+## 62. The piece as assertions before prose: the EOT draft, and three ways it lost bytes (2026-09-21)
+
+The generation pipeline now runs in the order its own laws imply: prompt,
+register, void, ground, EOT DRAFT, floor, PROSIFIED PASS. Structure first,
+computed mechanically; the mouth is handed the computed answer and only has to
+say it. (`native/the-fold/eot-draft.js`, `prosify.js`, `pipeline-run.mjs`.)
+
+The draft's unit is the WITNESSED SPAN, not an extracted triple. Measured on
+the 25-sentence Cumberland ground, the relation readers yield 9 usable triples
+and 2 respectively, so a draft of triples silently drops most of the material.
+The round trip from a language into assertions and back is lossy by the
+user's own account, which is why provenance is kept: every point carries the
+exact bytes it came from, and a test asserts that `ground.slice(start, end)`
+reproduces each one.
+
+It still lost bytes three ways before the tests pinned it. A splitter that
+matched sentence BODIES (`/[^.!?]+[.!?]+/`) cannot cross a period, so "Dr.
+Thomas Walker" broke in two, "The U.S. Army Corps" lost "The U.S.", and
+"crested at 51.86 feet" failed to match at all — the whole 2010 flood sentence
+vanished. Splitting on BOUNDARIES instead puts every byte in exactly one
+sentence. And a 40-character floor on paragraphs silently dropped short ones.
+A draft that loses bytes defeats the reason for drafting from spans.
+
+The law runs at the draft level too: the material's seams set which parts are
+POSSIBLE, and the ask chooses among them only with words held by at most half
+the parts — "the floods and the dams" draws exactly the flood and dam parts;
+a word most parts hold is the subject and chooses nothing.
+
+## 63. "Carried" has to mean the anchors survived, and the recursion alters in place (2026-09-21)
+
+The prosified pass draws each part whole, finds what it failed to carry, and
+draws only that again, at the finer grain, with the source sentence as the
+floor. The first live run: 14 calls, 39 seconds, every part non-empty, 1 fact
+of 23 at the floor — against 15 minutes and mostly empty sections on the old
+path. It also passed three real errors, because "carried" meant "a surviving
+sentence shares a word only this fact has": the 1927 flood was given the 2010
+crest, "these groups" stood in for the Cherokee, Chickasaw and Shawnee, and a
+finer draw judged against its one fact alone counted "river" as carrying the
+French traders.
+
+A fact is carried only when its ANCHORS survive: every number it states — its
+extent, which makes it true of one span and false of another — and every
+distinctive name, where any non-subject word of the name keeps it
+("Robertson" keeps "James Robertson"). Three measured refinements: a capital
+the material also writes in lowercase is a sentence start, not a name
+("Cotton"); a capital right before a number is a date, which the number
+anchors ("May 2010"); and subject-ness is measured on name WORDS, since
+"Cumberland River" and "Cumberland" are one subject.
+
+The stricter check exposed the next failure on the second run: floors
+appended beside sentences that already carried most of their fact said "688
+miles" twice and the 2010 crest twice, and landed at the end of their part.
+The recursion now ALTERS: the finer draw rewrites the dropped fact's PARTIAL
+CARRIER, and the rewrite takes its place; a failed rewrite's floor takes it
+instead. On the ledger nothing is edited — the replacement supersedes — so the
+fold changes in place while every version is kept (user: "we don't edit, only
+append, but the fold seems to modify before our eyes").
+
+A test of that found a latent admission bug: below three distinct sentences
+no bond null can be measured and `measureBondNull` reports max 1, which the
+repeat rule read as a ceiling and so refused every sentence. Any short
+material would have come back as nothing but floors. An unmeasured null now
+falls back to the exact rule: a repeat brings no new matter at all.
+
+## 64. The archons were charges without mechanics; now seven of nine are taught (2026-09-21)
+
+The revision grid names nine editors across ethos/logos/pathos and
+macro/meso/micro. Six of the nine had `probe: null` — every one of the three
+pathos archons among them — so the grid could NAME what Clark or Kidder cares
+about but never catch it. Meanwhile I was growing checks beside the grid for
+the new pipeline: a tic counter, a restatement fold, a turn test. The user:
+"the mechanics itself, our pathos archons, are meant to catch this… if you
+have new rules for the archons, teach them."
+
+Teaching an archon here means giving its cell a probe, `(text, ctx)`, where
+the optional context lets it read a whole piece against the EOT draft; the old
+composition path, which passes text only, runs unchanged
+(`native/the-fold/archon-rules.js`, wired into `revision-spiral.js` GRID). What
+each was taught, all measured on the live Cumberland runs:
+
+- ZINSSER keeps his list and learns the TIC — a word neither the material nor
+  the ask uses, repeated by the prose ("bustling" three times in one part).
+  Over a whole piece his list now reports per sentence, so each hit licenses
+  the rewrite of the sentence it is in.
+- CLARK learns RESTATEMENT (no statement carried, nothing new said: fold) and
+  the UNEARNED TRANSITION (a part that takes nothing up from where the last
+  closed: one bridging sentence, kept only if it takes up the last and hands
+  on to the next).
+- CARO learns the UNVERIFIED sentence (no statement, no word of it in the
+  material). KIDDER & TODD learn OMISSION (a declared statement no longer
+  carried). McPHEE learns SHAPE (the parts are the material's seams, in order).
+- LISH/KLINKENBORG learn Murch's FLATLINE per passage — reported, never
+  revised, because asking the mouth to "vary its rhythm" is asking it to mimic
+  a property in language.
+- GORNICK and ORLEAN stay untaught and are named on every run: Gornick needs
+  the measured surprise-tension-release curve only a reading's fold supplies,
+  and Orlean has no measurement here that would not be a word list.
+
+`readPiece` runs every cell over the piece and attributes each finding to its
+editor with the revision it licenses. The pipeline carries out only what a
+finding licenses, in a writer's order — fold, tighten, turns — then the
+archons read again and each second reading supersedes the first, so the fold
+shows what every editor still finds. Arrival is named by who still objects.
+
+Found on the way: `namesOf` treated a sentence-initial "The" as a name, so any
+two sentences opening on "The" "shared a name" — Clark could never find an
+unearned transition, and the draft had listed "the" as a pervasive name all
+along. And the shared sentence splitter broke "The U.S. Army Corps" into "The
+U.S." plus a fragment, whose short half was then filtered away; and the
+variance count, unlike the bond null, did not treat one-token chunk variants
+as one passage, which a correct splitter exposed as a raised ceiling.
+
+## 65. The outline is composed, not copied — and a cause may not follow its effect (2026-09-21)
+
+THE CIRCULARITY. The generation pipeline's outline was the source's own
+paragraphs in the source's own order. It looked like essay structure only
+because the test ground (fixtures/cumberland-ground.md) was a tidy summary
+already written as an essay. The user named the fix: "on its first pass,
+mimic the best practice of structure of an essay using the holographic
+information we have, but using reasoning linking to make sure that we are
+not saying something illogical."
+
+WHAT arrange.js DOES, NO MODEL: a THESIS (the general, undated statement
+whose words recur across the most parts), BODY groups (an author's paragraph
+kept whole; paragraphs joined across the material only through a proper
+being BOTH are about), ordered by EXTENT (material order, repaired only
+where one group ends strictly before another begins), a TENSION slot taken
+from a contrastive opening or declared a gap, and a RETURN. Reasoning checks
+land as typed findings with owners: off-thesis (Clark), inversion (the
+extent), conflicting figures and circular claims (Kelsen). `arrangedDraft`
+turns the outline into the draft every later stage reads; the source-ordered
+draft stays on the ledger.
+
+WHAT WAS MEASURED WRONG ON THE WAY. (1) "Cumberland" reached four beings at
+once and chained unrelated paragraphs through Cumberland Park — fixed in
+referents.js: the referent whose surface IS the name wins. (2) Months and
+"Today" were beings. (3) Splitting a paragraph by the beings each sentence
+names broke the geography paragraph in two — the author's seam is kept. (4)
+One body spanned 1750–1954: "Lake Cumberland", said ONCE in the naming
+paragraph, joined it to the dams paragraph. A shared name is not a shared
+topic. A part is about a being when it opens on it or returns to it in a
+second statement — positions and counts the material gives, no threshold.
+On the tidy fixture the outline now equals the material's order, as it
+should; arrange-falsify.test.mjs uses grounds whose order is wrong.
+
+THE PROSE-SIDE LOGIC ERROR. Run 6 wrote "However, this flood [2010] spurred
+a long-term effort …" before "The Corps built locks and dams … beginning in
+the 1920s." Every anchor was carried; the claim was impossible. Williams
+(micro·logos) was taught `williamsCausalOrder`: a causal connective (closed
+class, both directions) whose effect's dates all precede its cause's. The
+cause's date is searched back to the nearest dated sentence (anaphora reaches
+back); the effect's only in its own sentence or the next (a first version
+dated "the 2010 flood caused damage" by the next part's 1920s and flagged
+it falsely). Bare text is split with the engine's segmenter — a naive split
+broke "U.S. Army" and lost the date. A sentence whose only job was the false
+link is folded; one carrying facts is rewritten and must drop the
+connective.
+
+STILL UNCAUGHT from run 6: "The May 2010 flood caused significant damage to
+the Cumberland River" — the material says the damage was to the city. The
+anchors survive; the RELATION is new. Catching it needs the relation of the
+prose sentence compared with the material's relation between the same
+beings, which the parse trees can supply and nothing yet compares.
+
+## 66. Runs 7–12, the falsifier, and the first messy ground (2026-09-21)
+
+LISH, TAUGHT: the mouth cannot "rewrite plainly" (run 7: 12 of 18 refused
+rewrites longer, 13 kept their tics; some did both), so `lishCut` removes
+comma-bounded decoration mechanically — no model call — and every guard it
+carries was a measured breakage: a cut never leaves a fragment (the parser's
+clause core must survive, and must exist; a remainder may not open on a verb
+or a coordinator), never splits an adjective series ("quiet, unassuming"),
+never cuts a clause ("but …", "while …") or half of a correlative pair ("not
+just …, but also …"), and keeps every word the sentence shares with the source
+statement it carries (run 10 cut a paraphrased fact as "invention"). Model
+calls fell from 36 to 20–33 per run.
+
+KIDDER & TODD, TAUGHT: `kidderToddRelations` flags a verb whose subject and
+object are material words no source sentence holds together (run 6: "the 2010
+flood caused damage to the Cumberland River"). Identity the material asserts
+counts — a copula ("the river is a major waterway"; EOTRich absorbs the copula
+as a MARKER, not an arc) and the SUBJECT's own head noun ("the river"); an
+unrestricted head-noun alias made every dam "the dam". Null: 0 of 26 on the
+source. Licenses RESTORE (the carried statements' source sentences) or fold.
+Blind spot, stated: a wrong verb between two nouns that co-occur elsewhere.
+
+TWO BUGS THAT LOST FACTS, BOTH MINE: prosify's in-place rewrite inherited its
+partial's `carries` without re-checking them (run 11 lost the 1927 flood); and
+Kidder & Todd's floor license was never acted on. Run 12 is the first piece
+verified to carry all 23 facts.
+
+THE MESSY GROUND (OHS audit records, four documents): arrangement failed in
+both directions. First one section took 69 of 78 sentences — beings spread
+through the whole material ("Office of Homeless Services") chained everything.
+The exact occupancy null now separates a CONCENTRATED being (joins sections)
+from a SPREAD one (the ground: joins nothing, may stand in the thesis), tested
+at P(D ≤ seen) ≤ 1/N — the bare expectation sat on a knife edge
+("Metropolitan": 8 parts seen, 8.2 expected). Then the outline had 17
+sections, the paragraphs again. Mutual-nearest-neighbour merging above the
+material's background similarity only reached 15. And assigning sections to
+the ask's clauses by shared words fails: the minutes score HIGHER than the
+audit on "what the audit found". What separates a finding from a committee's
+response is the ACT a statement reports (finding, recommendation, status,
+motion, vote), not its words. That is the unbuilt organ this arrangement needs.
+
+## 67. The mouth steers some physics; Gary reads the prompts; a dossier needs selection (2026-09-21)
+
+THE MOUTH'S VOTE (steer.js), at the user's direction: the mechanics cannot
+tell a finding from a response, a mouth can read it. The mouth votes in plain
+words — which of the ask's coordinated questions a section answers (its reply
+must ECHO one question), whether neighbours are one section (yes/no) — and
+the mechanics license: a question vote only when two readings with the
+questions in OPPOSITE ORDER agree (a single reading put 2 of 9 committee
+paragraphs under "what the audit found" — position bias), a merge only when
+the sections share a content word and time is not inverted. Every vote is on
+the ledger, licensed or refused. A hedge ("yes and no") is no answer; "not
+really" is no.
+
+GARY (the-fold's prompting archon, P233) was run over every generation
+prompt: all of them named the apparatus ("passage", "material") and the
+shared register voice carried prohibitions ("do not discuss the essay",
+"never a description") — the very meta and restatement the archons then fold.
+Fixed at the source, and the pipeline's voice is now INFORMATION ONLY: the
+topic and the thesis the arrangement computed, handed over as a fact. Gary:
+clean on all six prompts; prose prompts 172 → 83 tokens.
+
+DETECTORS from a subagent, integrated (restatement.js): a SPLICE (a sentence
+repeating a run of its own words longer than any source sentence does — the
+ceiling is measured per corpus) is Clark's, licensing a repair by the more
+verbatim half; a DUPLICATE across sources (figures AND names contained, bare
+numbers null-filtered) is Kidder & Todd's, and the poorer statement leaves
+the outline. The draft's splitter broke "4:00 p.m. in Committee Room" — a
+dotted lowercase abbreviation before a lowercase word is not a boundary.
+
+ARRANGEMENT, AGAIN ON OHS: relevance now goes through referents and hops
+(the ask's beings, then shared beings until nothing new joins — "Franck" was
+never "Dr. Louis Franck"). A once-per-paragraph being was always "spread"
+under the occupancy null (k = seen ⇒ P = 1), so a runs test on POSITION was
+added; each null licenses what it measured — clustered MENTIONS join
+anywhere, consecutive POSITION joins neighbours only (letting it join at a
+distance made a 105-statement section). No section may exceed the material's
+largest paragraph; a larger one splits at its weakest seam. Result: no blob,
+but 34 sections — because every drawn fact is carried. On a dossier an essay
+must SELECT the facts that answer the ask within a length. That is the next
+organ; carrying everything was right only for material already the size of
+the piece.
+
+## 68. Hora, not Tempus: every loop is a stable whole built on the floor below (2026-09-21)
+
+The user: "the point about the loops is we want to prove we are building upon
+the floors below recursively, and if we fail out at a level, we still have
+something fairly useful … it's a Koestler move." Koestler's holon, and his
+retelling (The Ghost in the Machine) of Simon's two watchmakers: Tempus builds
+each watch whole and loses it to every interruption; Hora builds from stable
+subassemblies and loses only the one in hand.
+
+So the pipeline is Hora. Loop zero is the FLOOR: the selected source
+sentences in outline order, true by construction and already a usable piece.
+Each loop above it (prose, archons, tighten, turns) is measured against the
+last (loop-check.js: facts carried, the ask's questions answered, findings
+still licensing a revision) and judged on its own charge — prose may add
+findings for the loops after it, never lose a fact; every later loop may not
+add findings either. A loop that loses ground is UNDONE. And every loop above
+the floor runs inside one guard: if a level throws, the piece is the last
+stable loop's, the run completes, and a check line names where it stopped.
+First version judged the prose loop against the floor's zero findings and
+undid every prose pass — the charge has to be the loop's own.
+
+SELECTION (same day): "don't write everything in the dossier." With no
+length asked, the essay's received form is the declared budget (a thesis
+paragraph, three body sections, a close — basis "declared", any stated
+length overrides it); each of the ask's questions gets its closest section
+first; the mouth may answer "neither", and a section both readings call
+neither leaves the piece only when the mechanics agree it names nothing the
+ask names.

@@ -70,14 +70,49 @@ export async function discoverFraming({ register, impression = null, prior = nul
     `CRITICAL — write INSTRUCTIONS, never examples. Do not write any story prose. Every field is an imperative command to a writer, not a sample of what to write.`,
     ``,
     `- "staging": the phases a ${genre} is made of, as concrete beats, not abstract labels. If the honest answer is an arc label ("rising action"), say what HAPPENS in that phase ("the moment of no return").`,
-    `- "writeVoice.opening": the command that starts a ${genre} — e.g. "Begin in the middle of a concrete moment, in a real place, showing the senses; never a thesis, never a summary, never name the genre or the structure."`,
-    `- "writeVoice.body": the command that continues each phase as a ${genre} — e.g. "Write the scene: what happens, who acts, what changes, what is felt. Never name the phase or the structure, never analyze, never comment on the writing."`,
+    // NO EXAMPLE IS HANDED OVER (2026-09-21, measured). This file's own law,
+    // stated a hundred lines below, is that "a sentence that was never handed
+    // over cannot be restated in any language" — and these two lines used to
+    // hand over a concrete NARRATIVE command ("Begin in the middle of a
+    // concrete moment... never a thesis") as an e.g. for EVERY genre. A small
+    // mouth copies an example; both stored exposition framings in the sidecar
+    // carry that exact sentence verbatim, so every essay run inherited a
+    // story voice that forbids a thesis. The slot is now described by its
+    // STRUCTURE (who it addresses, what it governs) and carries no sentence
+    // to copy. The law now holds for the voice fields too, not only staging.
+    `- "writeVoice.opening": an imperative addressed to the writer, telling them how to BEGIN a ${genre} — what to do first. It governs writing; it is never itself a line of the ${genre}.`,
+    `- "writeVoice.body": an imperative addressed to the writer, telling them how to CONTINUE each phase of a ${genre}. It governs writing; it is never itself a line of the ${genre}.`,
     `- "feltTarget": a JSON object {shape: "the arc's shape in one phrase", releases: N (how many felt releases a ${genre} delivers), tension: "what the tension is and how it is released"}.`,
     ``,
     refusal ? `YOUR LAST REPLY WAS REFUSED: ${refusal}. Respond again, correct this time.` : "",
     `Respond with JSON only, no commentary, no prose outside the JSON, no markdown fences:`,
     `{"staging": ["...", "..."], "writeVoice": {"opening": "...", "body": "..."}, "feltTarget": {"shape": "...", "releases": N, "tension": "..."}}`,
   ].filter(Boolean).join("\n");
+
+  // WHAT WE HANDED OVER, EXACTLY (2026-09-21). Everything the model was shown
+  // is refusable if it comes back: an echo is the prompt talking to itself,
+  // and comparing against the bytes we sent works in every language, because
+  // it compares against THIS text rather than against a vocabulary. The
+  // normalisation is script-neutral (letters and digits, case-folded).
+  const normLine = (x) => String(x ?? "").toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  // THE POSSIBILITY IS NOT AN ECHO. The ask deliberately hands over the phases
+  // and shapes the machine has seen, and the whole design is that the high
+  // level RANKS AND SELECTS within that space — so a staging that repeats a
+  // seen phase is the mechanism working, not a reflection. Only the ask's own
+  // INSTRUCTION lines are off limits. Every line carrying a seen phase or
+  // shape is therefore removed from what counts as handed-over instruction.
+  const possibility_ = [...possiblePhases, ...possibleShapes].map(normLine).filter((x) => x.length > 2);
+  const handedOver = new Set(
+    ask().split("\n").map(normLine)
+      .filter((l) => l.length > 12)
+      .filter((l) => !possibility_.some((seen) => l.includes(seen)))
+  );
+  const isEcho = (x) => {
+    const n = normLine(x);
+    if (n.length < 12) return false;
+    for (const line of handedOver) if (line.includes(n) || n.includes(line)) return true;
+    return false;
+  };
 
   const propose = async (refusal = null) => {
     let text = null;
@@ -118,6 +153,15 @@ export async function discoverFraming({ register, impression = null, prior = nul
       framing = null; from = "refused"; basis = `refused (attempt ${attempt}): ${refusal}`;
       continue;
     }
+    // THE ECHO REFUSAL: a field that repeats a line of our own ask is the
+    // prompt reflected, not a discovery. Refused and fed back down, exactly
+    // as a malformed proposal is — the loop re-proposes within the space.
+    const echoed = [parsed.writeVoice.opening, parsed.writeVoice.body, ...(parsed.staging ?? [])].find(isEcho);
+    if (echoed) {
+      refusal = `a field repeated our own instructions back ("${String(echoed).slice(0, 60)}…"). Write your own, about the genre.`;
+      framing = null; from = "refused"; basis = `refused (attempt ${attempt}): echoed the ask`;
+      continue;
+    }
     framing = parsed;
   }
   if (!framing) return { framing: null, appended: false, from, basis };
@@ -153,12 +197,31 @@ export async function discoverFraming({ register, impression = null, prior = nul
  * phases when the discovery is fresh; the write voice overrides the register
  * table when the discovery names one. The register tables are the fallback
  * for an empty meaning potential — never the first answer.
+ *
+ * THE GROUND COMES FIRST (2026-09-21): `keepSectionsWhenGrounded` is the
+ * caller's honest reading of whether the piece has material (workspace/web)
+ * to write from. When it does, the discovery's STAGING is a genre-arc the
+ * material doesn't discuss — replacing material-themed sections with arc
+ * phases ("the moment of no return" for an essay about a river) yields
+ * sections that share nothing with the ground, fail the grounding gate, and
+ * churn in revisions without growing (measured in the 3-agent paper
+ * benchmark). So the sections STAND (the material's own structure), and only
+ * the WRITE VOICE + felt target are taken from the discovery. When there is
+ * no ground, the arc staging is the honest fallback and replaces the empty
+ * or generic section list.
  */
-export function applyDiscovered({ framing = null, sections = [], questionFor = null, topic = "" } = {}) {
+export function applyDiscovered({ framing = null, sections = [], questionFor = null, topic = "", keepSectionsWhenGrounded = false } = {}) {
   if (!framing) return { sections, voice: null, basis: "no framing — the register's own staging stands" };
   const staged = [...new Set(framing.staging ?? [])].slice(0, 7);
-  const nextSections = staged.length >= 2
+  const groundedSections = keepSectionsWhenGrounded && sections.length >= 2;
+  const nextSections = !groundedSections && staged.length >= 2
     ? staged.map((f) => (questionFor ? questionFor(f, topic) : f))
     : sections;
-  return { sections: nextSections, voice: framing.writeVoice ?? null, basis: "the discovery's staging and voice applied" };
+  return {
+    sections: nextSections,
+    voice: framing.writeVoice ?? null,
+    basis: groundedSections
+      ? "the piece is grounded — the material's own sections stand; the discovery's staging is declined, its voice taken"
+      : "the discovery's staging and voice applied",
+  };
 }

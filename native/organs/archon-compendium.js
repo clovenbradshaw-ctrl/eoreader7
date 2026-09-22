@@ -454,6 +454,17 @@ export const ARCHONS = Object.freeze([
     topics: ["tense", "anaphora", "time", "now", "temporal", "reference", "pronoun"],
   },
   {
+    handle: "gebser",
+    name: "Jean Gebser",
+    organ: "the-fold/archon-rules.js",
+    role: "the arrival archon — the origin is ever-present; a piece has arrived when its origin is present in every part and no single perspective has the last word",
+    pdStatus: "fair-use",
+    work: "The cultural philosopher who read the history of consciousness as five structures — archaic, magic, mythical, mental and integral — each with an efficient (effizient) phase and a deficient (defizient) one, and who held that the origin (Ursprung) is not left behind in time but stays operative in the present (Gegenwart). The integral structure (das Integrale) does not replace the others: it is aperspectival (aperspektivisch), holding every perspective at once without granting one the last word, and its mark is diaphaneity (Diaphanie, Durchsichtigkeit) — the earlier structures showing through one another. Read as an archon, arrival is therefore a standing relation re-read after every change, never a final stage the piece passes once.",
+    source: "Ursprung und Gegenwart, vol. 1: Die Fundamente der aperspektivischen Welt (Deutsche Verlags-Anstalt, 1949); vol. 2: Die Manifestation der aperspektivischen Welt (1953). English: The Ever-Present Origin, trans. Noel Barstad with Algis Mickunas (Ohio University Press, 1985). Bibliography verified against the Jean Gebser Society, gebser.org/bibliography.",
+    credit: "Jean Gebser — the ever-present origin (Ursprung und Gegenwart, 1949–1953): the integral as aperspectival and diaphanous.",
+    topics: ["arrival", "origin", "integral", "whole", "present", "transparency", "diaphaneity", "aperspectival", "concrescence", "ursprung", "gegenwart", "aperspektivisch", "diaphanie", "integrale"],
+  },
+  {
     handle: "chomsky",
     name: "Noam Chomsky",
     organ: "adapters/text/relations-language.js",

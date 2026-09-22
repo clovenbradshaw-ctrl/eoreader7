@@ -19,7 +19,7 @@ const EVIDENCE = [
   { from: "FortunePrior@1 (sidecar)", phases: ["the moment of no return", "the quiet after"], shapes: ["rise-fall"] },
 ];
 
-async function run({ evidence = EVIDENCE, staging }) {
+async function run({ evidence = EVIDENCE, staging, writeVoice = { opening: "Begin in a moment", body: "Write the scene" } }) {
   let askText = null;
   const r = await discoverFraming({
     register: { field: { field: "essay" }, mode: "text", tenor: { tenor: "general" } },
@@ -27,7 +27,7 @@ async function run({ evidence = EVIDENCE, staging }) {
     prior: null, model: "stub", upstream: null,
     draw: async (msgs) => {
       askText = msgs[0].content;
-      return JSON.stringify({ staging, writeVoice: { opening: "Begin in a moment", body: "Write the scene" }, feltTarget: { shape: "rise", releases: 2, tension: "x" } });
+      return JSON.stringify({ staging, writeVoice, feltTarget: { shape: "rise", releases: 2, tension: "x" } });
     },
   });
   return { r, askText };
@@ -82,4 +82,41 @@ test("applyDiscovered: an absent framing leaves the register's own staging stand
   const a = applyDiscovered({ framing: null, sections: ["fallback"], questionFor: (f) => f });
   assert.deepEqual(a.sections, ["fallback"]);
   assert.match(a.basis, /register's own staging stands/);
+});
+
+test("GROUND COMES FIRST: a grounded piece keeps its material sections, not the arc staging", () => {
+  const framing = { staging: ["the moment of no return", "the unraveling", "the reckoning"] };
+  const materialSections = ["What did the Cumberland River do for Nashville as a port?", "How did steamboats change the river trade?", "What does the river carry today?"];
+  const a = applyDiscovered({ framing, sections: materialSections, questionFor: (f, t) => `Q: ${f} (${t})`, topic: "the river", keepSectionsWhenGrounded: true });
+  assert.deepEqual(a.sections, materialSections, "the material's own sections stand when grounded");
+  assert.match(a.basis, /material's own sections stand/);
+});
+
+test("GROUND COMES FIRST: an UNGROUNDED piece still gets the arc staging (the fallback)", () => {
+  const framing = { staging: ["the moment of no return", "the unraveling"] };
+  const a = applyDiscovered({ framing, sections: ["generic"], questionFor: (f, t) => `Q: ${f} (${t})`, topic: "the river", keepSectionsWhenGrounded: false });
+  assert.equal(a.sections.length, 2);
+  assert.match(a.sections[0], /the moment of no return/);
+  assert.match(a.basis, /staging and voice applied/);
+});
+// ── falsified 2026-09-21: the prompt's own example became the stored voice ──
+test("THE ECHO: a writeVoice that repeats one of our own instruction lines is refused", async () => {
+  const { askText } = await run({ staging: ["the moment of no return"] });
+  const ourLine = askText.split("\n").find((l) => /writeVoice\.opening/.test(l));
+  assert.ok(ourLine, "the ask must describe the opening slot");
+  const { r } = await run({
+    staging: ["the moment of no return"],
+    writeVoice: { opening: ourLine.replace(/^- "writeVoice\.opening":\s*/, ""), body: "Continue by stating the next claim and what supports it." },
+  });
+  assert.equal(r?.framing, null, "an echoed voice must be refused, not adopted");
+  assert.match(String(r?.basis ?? ""), /echoed the ask/);
+});
+
+test("THE ECHO REFUSAL DOES NOT CATCH A REAL PROPOSAL", async () => {
+  const { r } = await run({
+    staging: ["the moment of no return"],
+    writeVoice: { opening: "State the claim the piece will defend, in one sentence, before any evidence.", body: "Give the next piece of evidence and say what it establishes." },
+  });
+  assert.ok(r?.framing, `a genuine proposal was refused: ${r?.basis}`);
+  assert.match(String(r.framing.writeVoice.opening), /State the claim/);
 });

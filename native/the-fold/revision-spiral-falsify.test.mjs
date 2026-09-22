@@ -89,8 +89,15 @@ test("S5 — the grid names capacities honestly: cells without a mechanical prob
   const gornick = cellOf("macro.pathos");
   assert.equal(gornick.editor, "Vivian Gornick");
   assert.equal(gornick.probe == null, true, "the macro.pathos cell carries a charge, not a fake mechanical probe");
+  // TAUGHT 2026-09-21 (user: "if you have new rules for the archons, teach
+  // them"): Lish/Klinkenborg now read Murch's flatline per passage. The
+  // doctrine this test guards still holds — pathos does not CUT: every finding
+  // the cell makes licenses no revision, and nothing is word-stripped.
   const lish = cellOf("micro.pathos");
-  assert.equal(lish.probe == null, true, "Lish's cut-to-charge is a named capacity, not a mechanical word-strip");
+  const flat = "The river is long. The river is wide. The river is deep. The river is old.";
+  const found = lish.probe ? lish.probe(flat) : [];
+  assert.ok(found.length >= 1, "a flat passage should be named by its cadence archon");
+  assert.ok(found.every((f) => f.licenses == null), "Lish's cut-to-charge is a named capacity, not a mechanical word-strip");
   // The mechanical probes live where the logic is mechanical (Zinsser,
   // Williams); the felt/authority/shape cells carry the human charge.
   assert.ok(cellOf("micro.ethos").probe, "Zinsser has a mechanical probe");

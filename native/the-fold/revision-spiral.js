@@ -29,6 +29,8 @@
 // PURE. Each cell is a function (probe → findings), and the spiral is a value
 // that records its own path (append-only — the piece's lineage is the log).
 
+import { zinsserTics, klinkenborgCadence, clarkJobsAndTransitions, caroUnverified, kidderToddOmissions, mcpheeShape, williamsCausalOrder, kidderToddRelations, clarkSplice } from "./archon-rules.js";
+
 export const REVISION_SPIRAL_SCHEMA = "EORevisionSpiral@1";
 export const APPEALS = Object.freeze({ ETHOS: "ethos", LOGOS: "logos", PATHOS: "pathos" });
 export const GRAINS = Object.freeze({ MACRO: "macro", MESO: "meso", MICRO: "micro" });
@@ -107,19 +109,29 @@ function splitSentences(part) {
 
 export const GRID = Object.freeze([
   // ── MACRO ──
-  { cell: "macro.ethos",  editor: "Robert Caro",        appeal: APPEALS.ETHOS,  grain: GRAINS.MACRO, charge: "authority earned through exhaustive verification before a word is drafted — ethos as sensed labor", probe: null },
-  { cell: "macro.logos",  editor: "John McPhee",        appeal: APPEALS.LOGOS,  grain: GRAINS.MACRO, charge: "find the structure the material actually wants — what shape makes this argument inevitable", probe: null },
+  { cell: "macro.ethos",  editor: "Robert Caro",        appeal: APPEALS.ETHOS,  grain: GRAINS.MACRO, charge: "authority earned through exhaustive verification before a word is drafted — ethos as sensed labor", probe: caroUnverified },
+  { cell: "macro.logos",  editor: "John McPhee",        appeal: APPEALS.LOGOS,  grain: GRAINS.MACRO, charge: "find the structure the material actually wants — what shape makes this argument inevitable", probe: mcpheeShape },
   { cell: "macro.pathos", editor: "Vivian Gornick",     appeal: APPEALS.PATHOS, grain: GRAINS.MACRO, charge: "what the piece is emotionally about underneath its ostensible subject", probe: null },
   // ── MESO ──
-  { cell: "meso.ethos",   editor: "Tracy Kidder & Richard Todd", appeal: APPEALS.ETHOS, grain: GRAINS.MESO, charge: "fair representation of sources and complexity within a passage", probe: null },
-  { cell: "meso.logos",   editor: "Roy Peter Clark",    appeal: APPEALS.LOGOS,  grain: GRAINS.MESO, charge: "one job per paragraph, clean sequencing, transitions that earn their keep", probe: null },
+  { cell: "meso.ethos",   editor: "Tracy Kidder & Richard Todd", appeal: APPEALS.ETHOS, grain: GRAINS.MESO, charge: "fair representation of sources and complexity within a passage", probe: (text, ctx) => [...kidderToddOmissions(text, ctx), ...kidderToddRelations(text, ctx)] },
+  { cell: "meso.logos",   editor: "Roy Peter Clark",    appeal: APPEALS.LOGOS,  grain: GRAINS.MESO, charge: "one job per paragraph, clean sequencing, transitions that earn their keep", probe: (text, ctx) => [...clarkJobsAndTransitions(text, ctx), ...clarkSplice(text, ctx)] },
   { cell: "meso.pathos",  editor: "Susan Orlean",       appeal: APPEALS.PATHOS, grain: GRAINS.MESO, charge: "sensory grounding and human stakes embedded inside reported material", probe: null },
   // ── MICRO ──
-  { cell: "micro.ethos",  editor: "William Zinsser",    appeal: APPEALS.ETHOS,  grain: GRAINS.MICRO, charge: "strip the inflated diction that oversells", probe: (text) => {
-    return findWordHits(text, INFLATION_WORDS).map((h) => ({ kind: "inflation", cell: "micro.ethos", detail: `"${h.word}" asserts importance instead of showing it`, span: h.index, word: h.word }));
+  { cell: "micro.ethos",  editor: "William Zinsser",    appeal: APPEALS.ETHOS,  grain: GRAINS.MICRO, charge: "strip the inflated diction that oversells", probe: (text, ctx) => {
+    // His original list stays; what he was TAUGHT (2026-09-21) is the
+    // measured tic, which catches this mouth's own habits in this piece.
+    // Over a whole piece his list reports PER SENTENCE, so each hit licenses
+    // the rewrite of the sentence it is in; over bare text it reports as before.
+    const listed = ctx?.piece
+      ? ctx.piece.flatMap((p) => (p.pieces ?? []).flatMap((pc) => {
+          const hits = findWordHits(pc.text, INFLATION_WORDS).map((h) => h.word);
+          return hits.length ? [{ kind: "inflation", cell: "micro.ethos", part: p.id, sentence: pc.text, words: [...new Set(hits)], detail: `"${[...new Set(hits)].join('", "')}" asserts importance instead of showing it`, licenses: "rewrite" }] : [];
+        }))
+      : findWordHits(text, INFLATION_WORDS).map((h) => ({ kind: "inflation", cell: "micro.ethos", detail: `"${h.word}" asserts importance instead of showing it`, span: h.index, word: h.word }));
+    return [...listed, ...zinsserTics(text, ctx)];
   } },
-  { cell: "micro.logos",  editor: "Joseph M. Williams", appeal: APPEALS.LOGOS,  grain: GRAINS.MICRO, charge: "sentence cohesion — diagnoses the false-tension 'Despite X, Y' move", probe: (text) => findFalseTensions(text) },
-  { cell: "micro.pathos", editor: "Lish / Klinkenborg", appeal: APPEALS.PATHOS, grain: GRAINS.MICRO, charge: "cut to charge (Lish); cadence, the sentence that knows what it's doing (Klinkenborg)", probe: null },
+  { cell: "micro.logos",  editor: "Joseph M. Williams", appeal: APPEALS.LOGOS,  grain: GRAINS.MICRO, charge: "sentence cohesion — diagnoses the false-tension 'Despite X, Y' move", probe: (text, ctx) => [...findFalseTensions(text), ...williamsCausalOrder(text, ctx)] },
+  { cell: "micro.pathos", editor: "Lish / Klinkenborg", appeal: APPEALS.PATHOS, grain: GRAINS.MICRO, charge: "cut to charge (Lish); cadence, the sentence that knows what it's doing (Klinkenborg)", probe: klinkenborgCadence },
 ]);
 
 export function cellOf(cell) { return GRID.find((c) => c.cell === cell) ?? null; }
@@ -216,4 +228,22 @@ export function rotate(spiral, { cell, cut, basis = "", level = "whole", gathere
 // ── project the spiral's path ──────────────────────────────────────────────
 export function spiralPath(spiral) {
   return (spiral.log ?? []).map((e) => `[${e.grain}.${e.appeal}@${e.level}] ${e.editor} — ${e.basis}${e.gathered != null ? `  ·  +${e.gathered} world` : ""}${e.broke.length ? `  ·  BROKE: ${e.broke.map((b) => b.kind).join(", ")}` : ""}${e.parentReRead?.brokeParent ? "  ·  BROKE PARENT" : ""}`);
+}
+
+// ── READ THE WHOLE PIECE BY EVERY ARCHON (2026-09-21) ──────────────────────
+/**
+ * readPiece({ piece, draft, ground, task }) → { findings, untaught }
+ * Every cell's probe reads the piece; every finding carries its editor, its
+ * appeal and grain, and the revision it licenses. Cells still without a probe
+ * are returned by name, so the gap is on the record rather than silent.
+ */
+export function readPiece(ctx = {}) {
+  const text = (ctx.piece ?? []).flatMap((p) => (p.pieces ?? []).map((pc) => pc.text)).join(" ");
+  const findings = [];
+  const untaught = [];
+  for (const c of GRID) {
+    if (typeof c.probe !== "function") { untaught.push({ cell: c.cell, editor: c.editor, charge: c.charge }); continue; }
+    for (const f of c.probe(text, ctx) ?? []) findings.push({ ...f, cell: c.cell, editor: c.editor, appeal: c.appeal, grain: c.grain });
+  }
+  return { findings, untaught };
 }
