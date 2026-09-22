@@ -110,7 +110,36 @@ const flatAttrs = (e, prefix = "", out = new Map()) => {
   }
   return out;
 };
-export function emergentFacts(u, { limit = null } = {}) {
+// `positional` (2026-09-22, the OOM fix — see paradigm.js's
+// detectParadigmPlurality, its only caller): the per-position loop below
+// emits one fact per (position, attribute) — O(elements) facts — and, for
+// CON/SYN (`:attr=`, `:attr+1`), re-scans every earlier position for the
+// first equal/successor value, an O(elements^2) cost per class per
+// attribute. For a short, fixed-shape unit (a sonnet's 14 lines) this is
+// cheap and the position IS the signal — line 3 rhyming with line 1 is what
+// a sonnet's rhyme scheme means — which is what learnForm/readStream/
+// learnParadigmEmergent need, so their behavior is UNCHANGED (`positional`
+// defaults true). For a real multi-thousand-line document self-clustered
+// against OTHER documents (detectParadigmPlurality, entity-kind-induction.js's
+// affinity-basin induction) an absolute line index is not a comparable
+// address at all — two independently authored reports rarely say the same
+// thing at line 3421 — and the induction's own admissibility gate
+// (induceEntityParameters: memberCount >= 2) already discards essentially
+// every one of these facts, since they almost never recur verbatim at the
+// same position across differently-shaped documents. Measured directly on
+// synthetic 2-8k-line documents: the per-position loop was the whole cost —
+// the O(elements^2) scan (minutes at a few thousand elements) and the
+// O(elements) fact volume that then gets tripled and quadrupled by
+// downstream clustering structures (the flat evidence array, the
+// entity-feature index, the structural-entity clone, the per-entity
+// affinity profile) — OOMing a 6GB heap at ~100 real-sized instances.
+// `positional: false` skips that loop and keeps only the position-
+// independent facts (`count:cls`, `key:*`, and the lifted `cls*:attr`
+// "every element of this class agrees/varies" facts): the only facts
+// capable of recurring across multiple documents in the first place, so no
+// signal the clustering could actually use is cut, only the volume that was
+// never going to clear its own gate.
+export function emergentFacts(u, { limit = null, positional = true } = {}) {
   const E = asElements(u);
   const f = new Map();
   const byClass = new Map();
@@ -134,6 +163,7 @@ export function emergentFacts(u, { limit = null } = {}) {
       const vals = attrs.map((m) => m.get(a));
       f.set(`${cls}*:${a}`, vals.every((v) => v === vals[0]) ? (vals[0] === "" ? "-" : vals[0]) : "varies");
     }
+    if (!positional) continue;
     list.forEach((e, k) => {
       if (limit?.get(cls) != null && k >= limit.get(cls)) return; // past the instances' median count: absence, not form
       for (const [a, v] of attrs[k]) {
