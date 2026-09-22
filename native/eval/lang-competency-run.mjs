@@ -40,6 +40,7 @@ const arms = arg("arms", "raw,examples,rec").split(",").filter(Boolean);
 const rounds = Number(arg("rounds", "3"));
 const K = Number(arg("k", "3"));
 const onlyTasks = arg("tasks", "").split(",").filter(Boolean);
+const rep = arg("rep", "0"); // replicate id, mixed into every seed: temperature-0.8 arms give independent evidence per rep
 const bokTemp = Number(arg("boktemp", "0.8"));
 const timeoutMs = Number(arg("timeout", "240000"));
 
@@ -92,10 +93,14 @@ for (const lang of languages) nulls[lang] = await nullControl(lang);
 
 async function drawArm(model, lang, task, arm, i) {
   let step = 0;
-  const sd = () => seedFor(model, lang, arm, task.id, i, step++);
+  const sd = () => seedFor(model, lang, arm, task.id, i, step++, rep);
   const ask = askFor(task, lang, arm !== "raw");
   if (arm === "examplesx") {
     const source = await extractOrFallback(await draw(model, ask, 0.2, sd()), lang, task.snake);
+    return { sc: await scoreDraw(task, lang, source), rounds: 1, source };
+  }
+  if (arm === "samp1") { // CONTROL for bok: one draw at the same temperature, no selection
+    const source = await extractOrFallback(await draw(model, ask, bokTemp, sd()), lang, task.snake);
     return { sc: await scoreDraw(task, lang, source), rounds: 1, source };
   }
   if (arm === "bok") {
@@ -106,7 +111,15 @@ async function drawArm(model, lang, task, arm, i) {
       if (sc.unchecked) return { sc, rounds: 1 };
       cands.push({ source, sc });
     }
-    { const b = pickBest(cands, VISIBLE).best; return { sc: b.sc, rounds: K, source: b.source }; }
+    // bokDisagreement: did the K candidates land different visible-case
+    // scores? (LAVAR.md:148's "ask twice, trust on agreement" discipline —
+    // its own disclosed limit is that agreement is not correctness, but
+    // DISagreement among candidates is a real, cheap in-flight signal for
+    // metacognition's own standing ledger, native/kernel/code-draw-standing.js.)
+    const scores = cands.map((c) => (!c.sc.floorOk ? -0.5 : VISIBLE.filter((i) => c.sc.cases?.[i]).length));
+    const bokDisagreement = new Set(scores).size > 1;
+    const b = pickBest(cands, VISIBLE).best;
+    return { sc: b.sc, rounds: K, source: b.source, bokDisagreement };
   }
   if (arm === "rec2") {
     const L = new RepairLedger(VISIBLE);
@@ -148,7 +161,7 @@ for (const model of models) {
       if (err) { console.log(`${model} ${lang} ${arm} ${task.id}: draw failed (${err}) — not recorded`); continue; }
       if (r.sc.unchecked) continue;
       const heldOut = heldOutPass(task, r.sc);
-      appendRow(LEDGER, { config: `${arm}-v5`, arm, toolchain: await toolchainVersion(lang), taskSet: TASKS.length, spec: specHash(task), language: lang, model, task: task.id, floorOk: r.sc.floorOk, callOk: r.sc.callOk, heldOut, rounds: r.rounds, regressions: r.regressions, source: String(r.source ?? "").slice(0, 4000) });
+      appendRow(LEDGER, { config: `${arm}-v5`, arm, toolchain: await toolchainVersion(lang), taskSet: TASKS.length, spec: specHash(task), language: lang, model, task: task.id, floorOk: r.sc.floorOk, callOk: r.sc.callOk, heldOut, rounds: r.rounds, rep, regressions: r.regressions, bokDisagreement: r.bokDisagreement, source: String(r.source ?? "").slice(0, 4000) });
       console.log(`${model} ${lang} ${arm} ${task.id}: heldOut=${heldOut} rounds=${r.rounds}`);
     }
   }
