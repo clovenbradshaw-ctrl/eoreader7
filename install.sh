@@ -64,6 +64,10 @@ command -v node >/dev/null 2>&1 || {
   fi
 }
 ok "node $(node -v)"
+# The proxy imports the repo's npm dependencies (mathjs, for its computed
+# answers and the reasoning door), and nothing else installs them.
+npm ci --omit=dev --no-audit --no-fund >/dev/null 2>&1 && ok "npm dependencies installed" \
+  || ok "(npm ci failed; the proxy needs it: run npm ci in $ER7_DIR)"
 
 # --- 1. the model harness -------------------------------------------------------
 # Ollama is the one the proxy reads through. If it is already answering, that is
@@ -100,16 +104,14 @@ curl -s -m 2 http://127.0.0.1:4096 > /dev/null 2>&1 && ok "opencode serve: reach
 curl -s -m 2 http://127.0.0.1:11438/health > /dev/null 2>&1 && ok "heimdall fleet: already watching on :11438" || ok "heimdall fleet: will be started by setup-proxy.sh (:11438)"
 
 # --- 1b. Claude Code ------------------------------------------------------------
-# If Claude Code is installed, add the eo-reason plugin (claude-code/). Its
-# hooks run the ledger, the reasoning gate and cli/reason.mjs from this clone,
-# so the clone's npm dependencies (mathjs) go in first. Skipped with
-# ER7_NO_CLAUDE_PLUGIN=1; a failure here never stops the install.
+# If Claude Code is installed, add the eo-reason plugin (claude-code/). It
+# forwards Claude Code's hook events to this proxy, which decides what each
+# one does. Skipped with ER7_NO_CLAUDE_PLUGIN=1; a failure here never stops
+# the install.
 if [ -z "$ER7_NO_CLAUDE_PLUGIN" ] && command -v claude >/dev/null 2>&1; then
   say "Adding the eo-reason plugin to Claude Code..."
-  npm ci --omit=dev --no-audit --no-fund >/dev/null 2>&1 \
-    || ok "(npm ci failed; cli/reason.mjs needs it: run npm ci in $ER7_DIR)"
-  [ "$ER7_DIR" = "$DEFAULT_DIR" ] \
-    || ok "the plugin looks for eoreader7 at ~/eoreader7: set ER7_DIR=$ER7_DIR where Claude Code starts"
+  [ "${ER7_PROXY_PORT:-11436}" = "11436" ] \
+    || ok "the plugin looks for eoreader7 at port 11436: set ER7_URL=http://127.0.0.1:$ER7_PROXY_PORT where Claude Code starts"
   claude plugin marketplace add clovenbradshaw-ctrl/eoreader7 --sparse .claude-plugin claude-code >/dev/null 2>&1 \
     || claude plugin marketplace update eoreader7 >/dev/null 2>&1 || true
   claude plugin install eo-reason@eoreader7 >/dev/null 2>&1 \

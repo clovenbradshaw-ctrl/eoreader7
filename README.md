@@ -41,8 +41,9 @@ claude plugin marketplace add clovenbradshaw-ctrl/eoreader7 --sparse .claude-plu
 claude plugin install eo-reason@eoreader7
 ```
 
-The plugin carries no copy of the engine: its hooks run from this clone
-(`$ER7_DIR`, default `~/eoreader7`), so run `npm ci` here first. See
+The plugin carries no eoreader7 logic. It forwards every Claude Code hook
+event to the proxy (`POST /v1/hooks/claude-code`, below), and eoreader7
+decides what each one does, so the plugin evolves with the engine. See
 `claude-code/README.md`.
 
 ## Connecting to eoreader7
@@ -78,6 +79,13 @@ Heimdall admission gate, so a busy box refuses new work with a typed 429 +
   against one, works by pointing its base URL here.
 - **Ollama-compatible** — `GET /api/tags`, `POST /api/chat`, same `er7:`
   model id. Any Ollama-based app or UI works unmodified.
+- **Reason** — `POST /v1/reason` with a `cli/reason.mjs` spec (claims,
+  inferences, universals, equations, orderings) → the engine's verdict, its
+  exit code in `x-er7-exit`; flags in `x-er7-reason-flags` (`--ants`,
+  `--json`, `--compact`). `GET /v1/reason` prints the spec format.
+- **Claude Code hooks** — `POST /v1/hooks/claude-code` takes a Claude Code
+  hook event as-is and answers in Claude Code's hook format: the doorway
+  the `eo-reason` plugin forwards to (`claude-code-doorway.mjs`).
 - **Anthropic-compatible** — `POST /v1/messages`,
   `POST /v1/messages/count_tokens`. Any Anthropic-SDK client (Claude Code
   included) works by pointing its base URL here.

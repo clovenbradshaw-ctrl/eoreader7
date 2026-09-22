@@ -53,7 +53,10 @@ export const uncovered = (st, files) => [...new Set(files)].filter((f) => !exemp
  *  `undefined` for those — every caller must treat it as optional. `ok` and
  *  `grounds` are computed exactly as before, unchanged either way. */
 export function engineRunOf(command, toolResponse) {
-  if (!/cli\/reason\.mjs/.test(String(command ?? ""))) return null;
+  // cli/reason.mjs run directly, or through the eo-reason plugin's command
+  // (POST /v1/reason on the proxy, which runs the same file). Either way the
+  // banner below must be in the output, so naming it is never enough.
+  if (!/cli\/reason\.mjs|\beo-reason\b/.test(String(command ?? ""))) return null;
   const stdout = typeof toolResponse === "string" ? toolResponse : String(toolResponse?.stdout ?? "");
   let ok = null, grounds = null, declaredClaims;
   const t = stdout.trim();

@@ -1,0 +1,27 @@
+#!/bin/sh
+# eo-reason: eoreader7's reasoning door (POST /v1/reason on the proxy at
+# $ER7_URL, default http://127.0.0.1:11436). Same input and output as
+# cli/reason.mjs: a spec file (or stdin) plus --ants, --json or --compact.
+# `eo-reason --help` prints eoreader7's own description of the spec format.
+# Claude Code puts this bin/ on the Bash tool's PATH while the plugin is on.
+URL="${ER7_URL:-http://127.0.0.1:11436}"
+case "$1" in -h|--help) exec curl -sf -m 10 "$URL/v1/reason" ;; esac
+spec=-
+flags=""
+for a in "$@"; do
+  case "$a" in --*) flags="$flags $a" ;; *) spec="$a" ;; esac
+done
+headers="$(mktemp)"
+curl -sS -m 120 -D "$headers" -X POST -H 'content-type: application/json' \
+  -H "x-er7-reason-flags: $flags" -H "x-er7-cwd: $PWD" \
+  --data-binary @"$spec" "$URL/v1/reason"
+status=$?
+code="$(awk 'tolower($1) == "x-er7-exit:" { sub(/\r$/, "", $2); print $2 }' "$headers")"
+rm -f "$headers"
+if [ "$status" -ne 0 ]; then
+  echo "eo-reason: eoreader7 is not answering at $URL (start it with er7-proxy, or set ER7_URL)" >&2
+  exit 2
+fi
+# No x-er7-exit means eoreader7 refused the request (its reason is printed
+# above), so there is no verdict to pass on.
+exit "${code:-2}"

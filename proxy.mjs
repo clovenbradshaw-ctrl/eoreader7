@@ -4,6 +4,10 @@ import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import { MODEL_PREFIX, parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote, parseAnthropicRequest, flattenAnthropicContent, anthropicCountTokensResponse, anthropicMessageResponse, anthropicStreamStart, anthropicContentBlockStart, anthropicContentBlockDelta, anthropicContentBlockStop, anthropicMessageDelta, anthropicMessageStop } from "./proxy-api.mjs";
 import * as ProxyRunner from "./proxy-runner.mjs";
+// Claude Code's hook doorway and the reasoning door, POST /v1/hooks/claude-code
+// and /v1/reason (claude-code-doorway.mjs). Namespace-imported for the same
+// reason as ProxyRunner below.
+import * as ClaudeCodeDoorway from "./claude-code-doorway.mjs";
 // Namespace-imported and destructured so a sibling editing proxy-runner.mjs
 // can never take this process down by removing one export: a missing name is
 // undefined (and defaulted below), never a fatal static-import error.
@@ -376,6 +380,8 @@ async function handleRequest(req, res) {
     return;
   }
 
+  if (await ClaudeCodeDoorway.route?.(req, res, { log })) return;
+
   // GET / — the self-describing front door. Any app pointed at this base
   // URL with no other knowledge learns every way in, in one request: the
   // plain endpoint (send text, get text — no chat scaffolding required)
@@ -403,6 +409,15 @@ async function handleRequest(req, res) {
         openai: { models: "GET /v1/models", chat: "POST /v1/chat/completions", modelId: `${MODEL_PREFIX}<real-ollama-model>` },
         ollama: { tags: "GET /api/tags", chat: "POST /api/chat", modelId: `${MODEL_PREFIX}<real-ollama-model>` },
         anthropic: { messages: "POST /v1/messages", countTokens: "POST /v1/messages/count_tokens" },
+      },
+      reason: {
+        description: "eoreader7's reasoning check: claims, inferences, universals, equations and orderings in; the engine's verdict out. GET for the input format.",
+        request: "POST /v1/reason  <cli/reason.mjs spec JSON>  (x-er7-reason-flags: --ants --json --compact)",
+        response: "reason.mjs's report; its exit code in x-er7-exit",
+      },
+      claudeCode: {
+        description: "Claude Code's hooks, through this pipeline: the eo-reason plugin forwards each hook event verbatim and relays the answer (claude-code/).",
+        hooks: "POST /v1/hooks/claude-code  <Claude Code hook event JSON>",
       },
       documents: { start: "POST /v1/documents", poll: "GET /v1/documents/:id" },
       sessions: { list: "GET /v1/sessions", description: "Every live reader fold on this proxy, newest first. Reuse a sessionId (x-er7-session header or body field) to keep one accumulating fold; list them here." },
