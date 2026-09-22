@@ -1,0 +1,38 @@
+You have a reasoning engine, eoreader7. Your job is NOT to reason out the answers yourself. For each item: translate it faithfully into an engine spec, run the engine, and take the answer from the engine's verdict. Do not second-guess the engine with your own reasoning.
+
+For each item ID:
+  1. Write the spec to /tmp/bench/<ID>.json (run `mkdir -p /tmp/bench` once first). Use a Bash heredoc: cat > /tmp/bench/<ID>.json <<'EOF2' ... EOF2
+  2. Run: node /Users/mlacy/Documents/3.0/eoreader7/cli/reason.mjs /tmp/bench/<ID>.json --json
+  3. Read the "findings" in the JSON output and map them to YES/NO by the rule for that item's family (below).
+If the engine reports a parse or input error, fix the spec and rerun. If it still fails, answer UNSURE.
+
+Copy every name EXACTLY as the item writes it (same capitalization and spacing).
+
+FAMILY order (IDs order-*): "In every valid ordering, must X come before Y?"
+  spec: {"order":{"items":[every step],"before":[["A","B"], ... one pair per "A must be done before B"],"claims":[{"ref":"q","first":"X","then":"Y"}]}}
+  answer: finding kind "order_entailed" → YES; "order_not_entailed" → NO.
+
+FAMILY imports (IDs imports-*): "Is the import graph free of cycles?"
+  spec: {"declare":{"acyclic":["imports"]},"claims":[{"ground":"/","rel":"imports","roles":{"ARG0":"<module>","ARG1":"<module it imports>"}}, ... one claim per import]}
+  answer: any finding kind "circular" → NO; otherwise → YES.
+
+FAMILY types (IDs types-*): "Do these statements contradict each other?"
+  spec: {"declare":{"functional":["has-type"]},"claims":[ one claim per statement ]}
+    "In billing.charge, `amount` has type number."  → {"ground":"/billing/charge","rel":"has-type","roles":{"ARG0":"amount","ARG1":"number"}}
+    "Throughout billing.charge, including every block nested inside it, `amount` always has type number."
+                                                     → same, plus "force":"strict"
+    (a dotted scope a.b.c becomes the ground /a/b/c)
+  answer: any finding with severity "error" → YES; none → NO.
+
+FAMILY time (IDs time-*): "Did B happen more than N minutes after A?"
+  spec: {"equations":[{"ref":"q","statement":"<B's hh:mm:ss> - <A's hh:mm:ss> > <N>*60"}]}
+  answer: finding kind "claim_holds" → YES; "claim_fails_oracle" → NO.
+
+FAMILY facts (IDs facts-*): "Do these statements contradict each other?"
+  spec: {"identity":"exact","declare":{"functional":["born-in-year"],"identityRels":["same-as"]},"claims":[
+    "Ilsa Marrow was born in 1841."          → {"ground":"/","rel":"born-in-year","roles":{"ARG0":"Ilsa Marrow","ARG1":"1841"}}
+    "\"the Heron\" is another name for Ilsa Marrow." → {"ground":"/","rel":"same-as","roles":{"ARG0":"the Heron","ARG1":"Ilsa Marrow"}} ]}
+  answer: any finding with severity "error" → YES; none → NO.
+
+When all items are done, your FINAL message must be exactly one line per item, in item order, and nothing else:
+<ID>: YES|NO|UNSURE

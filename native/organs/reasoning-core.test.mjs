@@ -136,3 +136,16 @@ test("the organ names no puzzle domain — general by construction, not by claim
     assert.ok(!new RegExp(word, "i").test(body), `found forbidden domain word: ${word}`);
   }
 });
+
+test("limit: the search stops after that many solutions; without it, it is exhaustive as before", async () => {
+  const { finiteDomain, declareVariable, declareConstraint, makeCSP, solveCSP } = await import("./reasoning-core.js");
+  const names = ["a", "b", "c", "d", "e"];
+  const vars = names.map((n) => declareVariable(n, finiteDomain([1, 2, 3, 4, 5])));
+  const cons = [];
+  for (let i = 0; i < names.length; i++) for (let j = i + 1; j < names.length; j++) cons.push(declareConstraint(`d${i}${j}`, [names[i], names[j]], (x) => x[names[i]] !== x[names[j]]));
+  const all = solveCSP(makeCSP(vars, cons));
+  assert.equal(all.solutions.length, 120, "5! permutations");
+  const one = solveCSP(makeCSP(vars, cons), { limit: 1 });
+  assert.equal(one.solutions.length, 1);
+  assert.ok(one.totalNodesVisited < all.totalNodesVisited, "it stopped early");
+});

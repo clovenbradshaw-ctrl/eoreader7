@@ -1,0 +1,3179 @@
+[
+ {
+  "id": "order-S1",
+  "family": "order",
+  "size": "S",
+  "prose": "A project has 7 steps: RJ4, HQ6, XT4, CP8, VP8, KQ7, XF9. The only ordering requirements are: HQ6 must be done before KQ7; RJ4 must be done before VP8; HQ6 must be done before CP8; XT4 must be done before KQ7; XF9 must be done before RJ4. No other requirements exist.",
+  "question": "In every valid ordering of the steps, must XF9 come before VP8?",
+  "gold": "YES",
+  "data": {
+   "nodes": [
+    "VP8",
+    "KQ7",
+    "RJ4",
+    "HQ6",
+    "XT4",
+    "XF9",
+    "CP8"
+   ],
+   "edges": [
+    [
+     "HQ6",
+     "KQ7"
+    ],
+    [
+     "RJ4",
+     "VP8"
+    ],
+    [
+     "HQ6",
+     "CP8"
+    ],
+    [
+     "XT4",
+     "KQ7"
+    ],
+    [
+     "XF9",
+     "RJ4"
+    ]
+   ],
+   "x": "XF9",
+   "y": "VP8"
+  }
+ },
+ {
+  "id": "order-S2",
+  "family": "order",
+  "size": "S",
+  "prose": "A project has 7 steps: FJ1, CQ5, MT4, HG9, CH2, NX5, CT9. The only ordering requirements are: NX5 must be done before CT9; CQ5 must be done before FJ1; CH2 must be done before HG9; NX5 must be done before FJ1; HG9 must be done before CQ5. No other requirements exist.",
+  "question": "In every valid ordering of the steps, must NX5 come before CH2?",
+  "gold": "NO",
+  "data": {
+   "nodes": [
+    "FJ1",
+    "MT4",
+    "NX5",
+    "CT9",
+    "CH2",
+    "CQ5",
+    "HG9"
+   ],
+   "edges": [
+    [
+     "NX5",
+     "CT9"
+    ],
+    [
+     "CQ5",
+     "FJ1"
+    ],
+    [
+     "CH2",
+     "HG9"
+    ],
+    [
+     "NX5",
+     "FJ1"
+    ],
+    [
+     "HG9",
+     "CQ5"
+    ]
+   ],
+   "x": "NX5",
+   "y": "CH2"
+  }
+ },
+ {
+  "id": "order-S3",
+  "family": "order",
+  "size": "S",
+  "prose": "A project has 7 steps: FM5, TN9, FZ4, PB9, LK1, BZ5, PV7. The only ordering requirements are: FM5 must be done before LK1; PV7 must be done before FZ4; FZ4 must be done before TN9; PV7 must be done before LK1. No other requirements exist.",
+  "question": "In every valid ordering of the steps, must PV7 come before TN9?",
+  "gold": "YES",
+  "data": {
+   "nodes": [
+    "TN9",
+    "PV7",
+    "LK1",
+    "FM5",
+    "FZ4",
+    "BZ5",
+    "PB9"
+   ],
+   "edges": [
+    [
+     "FM5",
+     "LK1"
+    ],
+    [
+     "PV7",
+     "FZ4"
+    ],
+    [
+     "FZ4",
+     "TN9"
+    ],
+    [
+     "PV7",
+     "LK1"
+    ]
+   ],
+   "x": "PV7",
+   "y": "TN9"
+  }
+ },
+ {
+  "id": "order-M1",
+  "family": "order",
+  "size": "M",
+  "prose": "A project has 13 steps: QF5, TB3, QS1, HR7, LJ7, CH5, SQ3, BT3, PZ6, TV4, SH8, XK2, MG1. The only ordering requirements are: SQ3 must be done before QF5; SQ3 must be done before SH8; TV4 must be done before QS1; XK2 must be done before TB3; CH5 must be done before QS1; SQ3 must be done before HR7; QF5 must be done before CH5; XK2 must be done before CH5; QF5 must be done before HR7; QF5 must be done before TB3; SQ3 must be done before CH5; XK2 must be done before LJ7; LJ7 must be done before TV4; SH8 must be done before HR7; QS1 must be done before TB3; XK2 must be done before QS1. No other requirements exist.",
+  "question": "In every valid ordering of the steps, must QS1 come before HR7?",
+  "gold": "NO",
+  "data": {
+   "nodes": [
+    "HR7",
+    "XK2",
+    "BT3",
+    "MG1",
+    "CH5",
+    "QF5",
+    "TV4",
+    "LJ7",
+    "SQ3",
+    "SH8",
+    "TB3",
+    "QS1",
+    "PZ6"
+   ],
+   "edges": [
+    [
+     "SQ3",
+     "QF5"
+    ],
+    [
+     "SQ3",
+     "SH8"
+    ],
+    [
+     "TV4",
+     "QS1"
+    ],
+    [
+     "XK2",
+     "TB3"
+    ],
+    [
+     "CH5",
+     "QS1"
+    ],
+    [
+     "SQ3",
+     "HR7"
+    ],
+    [
+     "QF5",
+     "CH5"
+    ],
+    [
+     "XK2",
+     "CH5"
+    ],
+    [
+     "QF5",
+     "HR7"
+    ],
+    [
+     "QF5",
+     "TB3"
+    ],
+    [
+     "SQ3",
+     "CH5"
+    ],
+    [
+     "XK2",
+     "LJ7"
+    ],
+    [
+     "LJ7",
+     "TV4"
+    ],
+    [
+     "SH8",
+     "HR7"
+    ],
+    [
+     "QS1",
+     "TB3"
+    ],
+    [
+     "XK2",
+     "QS1"
+    ]
+   ],
+   "x": "QS1",
+   "y": "HR7"
+  }
+ },
+ {
+  "id": "order-M2",
+  "family": "order",
+  "size": "M",
+  "prose": "A project has 13 steps: TQ3, JD2, SQ6, TK5, NC8, RS1, VF1, WM9, HD5, DS9, TC7, LK8, NN2. The only ordering requirements are: LK8 must be done before JD2; HD5 must be done before NC8; DS9 must be done before TQ3; RS1 must be done before TK5; WM9 must be done before TC7; TC7 must be done before JD2; TK5 must be done before VF1; WM9 must be done before TK5; LK8 must be done before VF1; TC7 must be done before TK5; WM9 must be done before DS9; HD5 must be done before NN2; TK5 must be done before NC8; DS9 must be done before SQ6; TK5 must be done before SQ6; JD2 must be done before VF1; RS1 must be done before TQ3; TC7 must be done before SQ6. No other requirements exist.",
+  "question": "In every valid ordering of the steps, must RS1 come before NC8?",
+  "gold": "YES",
+  "data": {
+   "nodes": [
+    "TQ3",
+    "VF1",
+    "WM9",
+    "NN2",
+    "DS9",
+    "TK5",
+    "LK8",
+    "HD5",
+    "TC7",
+    "SQ6",
+    "JD2",
+    "NC8",
+    "RS1"
+   ],
+   "edges": [
+    [
+     "LK8",
+     "JD2"
+    ],
+    [
+     "HD5",
+     "NC8"
+    ],
+    [
+     "DS9",
+     "TQ3"
+    ],
+    [
+     "RS1",
+     "TK5"
+    ],
+    [
+     "WM9",
+     "TC7"
+    ],
+    [
+     "TC7",
+     "JD2"
+    ],
+    [
+     "TK5",
+     "VF1"
+    ],
+    [
+     "WM9",
+     "TK5"
+    ],
+    [
+     "LK8",
+     "VF1"
+    ],
+    [
+     "TC7",
+     "TK5"
+    ],
+    [
+     "WM9",
+     "DS9"
+    ],
+    [
+     "HD5",
+     "NN2"
+    ],
+    [
+     "TK5",
+     "NC8"
+    ],
+    [
+     "DS9",
+     "SQ6"
+    ],
+    [
+     "TK5",
+     "SQ6"
+    ],
+    [
+     "JD2",
+     "VF1"
+    ],
+    [
+     "RS1",
+     "TQ3"
+    ],
+    [
+     "TC7",
+     "SQ6"
+    ]
+   ],
+   "x": "RS1",
+   "y": "NC8"
+  }
+ },
+ {
+  "id": "order-M3",
+  "family": "order",
+  "size": "M",
+  "prose": "A project has 13 steps: XG8, NT5, DV4, DH9, VV9, FM3, ZG8, BR2, PB9, ZX8, NJ8, RR6, LJ1. The only ordering requirements are: RR6 must be done before XG8; XG8 must be done before BR2; RR6 must be done before DH9; LJ1 must be done before NJ8; NT5 must be done before DH9; LJ1 must be done before ZG8; VV9 must be done before DH9; PB9 must be done before NT5; NT5 must be done before BR2; ZX8 must be done before DV4; LJ1 must be done before FM3. No other requirements exist.",
+  "question": "In every valid ordering of the steps, must NT5 come before ZG8?",
+  "gold": "NO",
+  "data": {
+   "nodes": [
+    "NT5",
+    "LJ1",
+    "NJ8",
+    "PB9",
+    "VV9",
+    "XG8",
+    "ZX8",
+    "FM3",
+    "BR2",
+    "RR6",
+    "ZG8",
+    "DH9",
+    "DV4"
+   ],
+   "edges": [
+    [
+     "RR6",
+     "XG8"
+    ],
+    [
+     "XG8",
+     "BR2"
+    ],
+    [
+     "RR6",
+     "DH9"
+    ],
+    [
+     "LJ1",
+     "NJ8"
+    ],
+    [
+     "NT5",
+     "DH9"
+    ],
+    [
+     "LJ1",
+     "ZG8"
+    ],
+    [
+     "VV9",
+     "DH9"
+    ],
+    [
+     "PB9",
+     "NT5"
+    ],
+    [
+     "NT5",
+     "BR2"
+    ],
+    [
+     "ZX8",
+     "DV4"
+    ],
+    [
+     "LJ1",
+     "FM3"
+    ]
+   ],
+   "x": "NT5",
+   "y": "ZG8"
+  }
+ },
+ {
+  "id": "order-L1",
+  "family": "order",
+  "size": "L",
+  "prose": "A project has 20 steps: MH8, WW7, WP3, BF7, KG8, ZW2, QW3, TG1, QV9, VX4, LZ5, GD9, BG2, ZJ5, VZ7, PV9, ZX9, GZ9, JF7, VW5. The only ordering requirements are: TG1 must be done before VW5; WW7 must be done before VZ7; VW5 must be done before LZ5; GD9 must be done before QW3; KG8 must be done before WW7; KG8 must be done before LZ5; VX4 must be done before ZJ5; MH8 must be done before BF7; GZ9 must be done before QW3; WW7 must be done before VX4; ZW2 must be done before LZ5; VX4 must be done before ZX9; WW7 must be done before BG2; QV9 must be done before BF7; WP3 must be done before QV9; VW5 must be done before VZ7; VW5 must be done before BF7; JF7 must be done before ZW2; ZJ5 must be done before LZ5; WW7 must be done before TG1; GD9 must be done before ZX9; BG2 must be done before ZJ5; BF7 must be done before PV9; VW5 must be done before ZJ5; JF7 must be done before MH8; TG1 must be done before ZX9; GD9 must be done before JF7; VX4 must be done before VZ7. No other requirements exist.",
+  "question": "In every valid ordering of the steps, must KG8 come before BG2?",
+  "gold": "YES",
+  "data": {
+   "nodes": [
+    "BF7",
+    "ZJ5",
+    "GZ9",
+    "TG1",
+    "PV9",
+    "KG8",
+    "GD9",
+    "MH8",
+    "LZ5",
+    "QV9",
+    "ZW2",
+    "WP3",
+    "VZ7",
+    "VX4",
+    "VW5",
+    "ZX9",
+    "QW3",
+    "JF7",
+    "BG2",
+    "WW7"
+   ],
+   "edges": [
+    [
+     "TG1",
+     "VW5"
+    ],
+    [
+     "WW7",
+     "VZ7"
+    ],
+    [
+     "VW5",
+     "LZ5"
+    ],
+    [
+     "GD9",
+     "QW3"
+    ],
+    [
+     "KG8",
+     "WW7"
+    ],
+    [
+     "KG8",
+     "LZ5"
+    ],
+    [
+     "VX4",
+     "ZJ5"
+    ],
+    [
+     "MH8",
+     "BF7"
+    ],
+    [
+     "GZ9",
+     "QW3"
+    ],
+    [
+     "WW7",
+     "VX4"
+    ],
+    [
+     "ZW2",
+     "LZ5"
+    ],
+    [
+     "VX4",
+     "ZX9"
+    ],
+    [
+     "WW7",
+     "BG2"
+    ],
+    [
+     "QV9",
+     "BF7"
+    ],
+    [
+     "WP3",
+     "QV9"
+    ],
+    [
+     "VW5",
+     "VZ7"
+    ],
+    [
+     "VW5",
+     "BF7"
+    ],
+    [
+     "JF7",
+     "ZW2"
+    ],
+    [
+     "ZJ5",
+     "LZ5"
+    ],
+    [
+     "WW7",
+     "TG1"
+    ],
+    [
+     "GD9",
+     "ZX9"
+    ],
+    [
+     "BG2",
+     "ZJ5"
+    ],
+    [
+     "BF7",
+     "PV9"
+    ],
+    [
+     "VW5",
+     "ZJ5"
+    ],
+    [
+     "JF7",
+     "MH8"
+    ],
+    [
+     "TG1",
+     "ZX9"
+    ],
+    [
+     "GD9",
+     "JF7"
+    ],
+    [
+     "VX4",
+     "VZ7"
+    ]
+   ],
+   "x": "KG8",
+   "y": "BG2"
+  }
+ },
+ {
+  "id": "order-L2",
+  "family": "order",
+  "size": "L",
+  "prose": "A project has 20 steps: MK6, MC3, NJ8, HR8, JR3, BB6, VR1, KB4, NC4, TT3, QJ1, KF3, WW4, TP1, WM4, QF9, XB4, HF5, NR7, KD6. The only ordering requirements are: MK6 must be done before KD6; KD6 must be done before QJ1; HR8 must be done before QJ1; NC4 must be done before VR1; BB6 must be done before VR1; HR8 must be done before TP1; WW4 must be done before TP1; QF9 must be done before TT3; KD6 must be done before KB4; JR3 must be done before XB4; MC3 must be done before HF5; XB4 must be done before VR1; MK6 must be done before NJ8; KB4 must be done before WM4; NR7 must be done before KD6; MC3 must be done before KB4; NJ8 must be done before QJ1; KF3 must be done before NC4. No other requirements exist.",
+  "question": "In every valid ordering of the steps, must QF9 come before NC4?",
+  "gold": "NO",
+  "data": {
+   "nodes": [
+    "VR1",
+    "XB4",
+    "HR8",
+    "QJ1",
+    "KB4",
+    "QF9",
+    "BB6",
+    "KD6",
+    "WM4",
+    "TP1",
+    "JR3",
+    "WW4",
+    "NJ8",
+    "MK6",
+    "NC4",
+    "HF5",
+    "NR7",
+    "KF3",
+    "TT3",
+    "MC3"
+   ],
+   "edges": [
+    [
+     "MK6",
+     "KD6"
+    ],
+    [
+     "KD6",
+     "QJ1"
+    ],
+    [
+     "HR8",
+     "QJ1"
+    ],
+    [
+     "NC4",
+     "VR1"
+    ],
+    [
+     "BB6",
+     "VR1"
+    ],
+    [
+     "HR8",
+     "TP1"
+    ],
+    [
+     "WW4",
+     "TP1"
+    ],
+    [
+     "QF9",
+     "TT3"
+    ],
+    [
+     "KD6",
+     "KB4"
+    ],
+    [
+     "JR3",
+     "XB4"
+    ],
+    [
+     "MC3",
+     "HF5"
+    ],
+    [
+     "XB4",
+     "VR1"
+    ],
+    [
+     "MK6",
+     "NJ8"
+    ],
+    [
+     "KB4",
+     "WM4"
+    ],
+    [
+     "NR7",
+     "KD6"
+    ],
+    [
+     "MC3",
+     "KB4"
+    ],
+    [
+     "NJ8",
+     "QJ1"
+    ],
+    [
+     "KF3",
+     "NC4"
+    ]
+   ],
+   "x": "QF9",
+   "y": "NC4"
+  }
+ },
+ {
+  "id": "order-L3",
+  "family": "order",
+  "size": "L",
+  "prose": "A project has 20 steps: WH9, VQ1, NN7, HL7, JP6, VF5, JT8, MK3, LV2, CC2, VD2, XF4, FP7, KW1, HZ1, KP6, WZ4, PG5, KB9, XB5. The only ordering requirements are: WH9 must be done before VD2; HL7 must be done before HZ1; VF5 must be done before JP6; HL7 must be done before NN7; HZ1 must be done before FP7; HL7 must be done before XF4; XF4 must be done before JP6; HL7 must be done before FP7; LV2 must be done before MK3; XF4 must be done before VF5; WH9 must be done before VF5; KW1 must be done before HZ1; FP7 must be done before WH9; JP6 must be done before NN7; JT8 must be done before MK3; KW1 must be done before CC2; KB9 must be done before VF5; HL7 must be done before JT8. No other requirements exist.",
+  "question": "In every valid ordering of the steps, must FP7 come before VF5?",
+  "gold": "YES",
+  "data": {
+   "nodes": [
+    "KP6",
+    "XF4",
+    "WH9",
+    "NN7",
+    "JT8",
+    "WZ4",
+    "JP6",
+    "KW1",
+    "LV2",
+    "VF5",
+    "MK3",
+    "HL7",
+    "HZ1",
+    "PG5",
+    "CC2",
+    "VD2",
+    "VQ1",
+    "KB9",
+    "XB5",
+    "FP7"
+   ],
+   "edges": [
+    [
+     "WH9",
+     "VD2"
+    ],
+    [
+     "HL7",
+     "HZ1"
+    ],
+    [
+     "VF5",
+     "JP6"
+    ],
+    [
+     "HL7",
+     "NN7"
+    ],
+    [
+     "HZ1",
+     "FP7"
+    ],
+    [
+     "HL7",
+     "XF4"
+    ],
+    [
+     "XF4",
+     "JP6"
+    ],
+    [
+     "HL7",
+     "FP7"
+    ],
+    [
+     "LV2",
+     "MK3"
+    ],
+    [
+     "XF4",
+     "VF5"
+    ],
+    [
+     "WH9",
+     "VF5"
+    ],
+    [
+     "KW1",
+     "HZ1"
+    ],
+    [
+     "FP7",
+     "WH9"
+    ],
+    [
+     "JP6",
+     "NN7"
+    ],
+    [
+     "JT8",
+     "MK3"
+    ],
+    [
+     "KW1",
+     "CC2"
+    ],
+    [
+     "KB9",
+     "VF5"
+    ],
+    [
+     "HL7",
+     "JT8"
+    ]
+   ],
+   "x": "FP7",
+   "y": "VF5"
+  }
+ },
+ {
+  "id": "imports-S1",
+  "family": "imports",
+  "size": "S",
+  "prose": "A codebase has 8 modules. billing imports parser, schema. cache imports logger. report imports schema, billing. schema imports nothing. parser imports nothing. shipping imports nothing. export imports parser, shipping. logger imports schema.",
+  "question": "Is the import graph free of cycles?",
+  "gold": "YES",
+  "data": {
+   "mods": [
+    "billing",
+    "cache",
+    "report",
+    "schema",
+    "parser",
+    "shipping",
+    "export",
+    "logger"
+   ],
+   "edges": [
+    [
+     "export",
+     "parser"
+    ],
+    [
+     "cache",
+     "logger"
+    ],
+    [
+     "logger",
+     "schema"
+    ],
+    [
+     "billing",
+     "parser"
+    ],
+    [
+     "export",
+     "shipping"
+    ],
+    [
+     "report",
+     "schema"
+    ],
+    [
+     "billing",
+     "schema"
+    ],
+    [
+     "report",
+     "billing"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "imports-S2",
+  "family": "imports",
+  "size": "S",
+  "prose": "A codebase has 8 modules. logger imports ledger. session imports views, mailer, ledger. export imports nothing. mailer imports nothing. graph imports nothing. ledger imports nothing. views imports nothing. crypto imports graph, views, mailer.",
+  "question": "Is the import graph free of cycles?",
+  "gold": "YES",
+  "data": {
+   "mods": [
+    "logger",
+    "session",
+    "export",
+    "mailer",
+    "graph",
+    "ledger",
+    "views",
+    "crypto"
+   ],
+   "edges": [
+    [
+     "session",
+     "views"
+    ],
+    [
+     "session",
+     "mailer"
+    ],
+    [
+     "crypto",
+     "graph"
+    ],
+    [
+     "crypto",
+     "views"
+    ],
+    [
+     "logger",
+     "ledger"
+    ],
+    [
+     "session",
+     "ledger"
+    ],
+    [
+     "crypto",
+     "mailer"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "imports-S3",
+  "family": "imports",
+  "size": "S",
+  "prose": "A codebase has 8 modules. locale imports index. index imports upload. admin imports tax, invoice. tokens imports nothing. upload imports tokens, catalog. invoice imports catalog. tax imports catalog, upload. catalog imports nothing.",
+  "question": "Is the import graph free of cycles?",
+  "gold": "YES",
+  "data": {
+   "mods": [
+    "locale",
+    "index",
+    "admin",
+    "tokens",
+    "upload",
+    "invoice",
+    "tax",
+    "catalog"
+   ],
+   "edges": [
+    [
+     "index",
+     "upload"
+    ],
+    [
+     "admin",
+     "tax"
+    ],
+    [
+     "upload",
+     "tokens"
+    ],
+    [
+     "tax",
+     "catalog"
+    ],
+    [
+     "admin",
+     "invoice"
+    ],
+    [
+     "locale",
+     "index"
+    ],
+    [
+     "upload",
+     "catalog"
+    ],
+    [
+     "tax",
+     "upload"
+    ],
+    [
+     "invoice",
+     "catalog"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "imports-M1",
+  "family": "imports",
+  "size": "M",
+  "prose": "A codebase has 16 modules. shipping imports import. import imports cache. catalog imports nothing. crypto imports cache, tokens. theme imports metrics, export. upload imports nothing. tokens imports nothing. notify imports shipping. report imports import. config imports nothing. session imports nothing. export imports views, config. cache imports theme. views imports nothing. billing imports cache, report. metrics imports shipping, upload.",
+  "question": "Is the import graph free of cycles?",
+  "gold": "NO",
+  "data": {
+   "mods": [
+    "shipping",
+    "import",
+    "catalog",
+    "crypto",
+    "theme",
+    "upload",
+    "tokens",
+    "notify",
+    "report",
+    "config",
+    "session",
+    "export",
+    "cache",
+    "views",
+    "billing",
+    "metrics"
+   ],
+   "edges": [
+    [
+     "cache",
+     "theme"
+    ],
+    [
+     "report",
+     "import"
+    ],
+    [
+     "crypto",
+     "cache"
+    ],
+    [
+     "notify",
+     "shipping"
+    ],
+    [
+     "billing",
+     "cache"
+    ],
+    [
+     "theme",
+     "metrics"
+    ],
+    [
+     "export",
+     "views"
+    ],
+    [
+     "metrics",
+     "shipping"
+    ],
+    [
+     "theme",
+     "export"
+    ],
+    [
+     "metrics",
+     "upload"
+    ],
+    [
+     "import",
+     "cache"
+    ],
+    [
+     "billing",
+     "report"
+    ],
+    [
+     "crypto",
+     "tokens"
+    ],
+    [
+     "shipping",
+     "import"
+    ],
+    [
+     "export",
+     "config"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "imports-M2",
+  "family": "imports",
+  "size": "M",
+  "prose": "A codebase has 16 modules. session imports nothing. admin imports profile. crypto imports import, session. import imports nothing. search imports nothing. scheduler imports graph. export imports nothing. store imports scheduler. parser imports nothing. queue imports tax, scheduler. catalog imports queue. graph imports nothing. profile imports nothing. tax imports nothing. health imports queue, profile. locale imports search.",
+  "question": "Is the import graph free of cycles?",
+  "gold": "YES",
+  "data": {
+   "mods": [
+    "session",
+    "admin",
+    "crypto",
+    "import",
+    "search",
+    "scheduler",
+    "export",
+    "store",
+    "parser",
+    "queue",
+    "catalog",
+    "graph",
+    "profile",
+    "tax",
+    "health",
+    "locale"
+   ],
+   "edges": [
+    [
+     "scheduler",
+     "graph"
+    ],
+    [
+     "queue",
+     "tax"
+    ],
+    [
+     "crypto",
+     "import"
+    ],
+    [
+     "admin",
+     "profile"
+    ],
+    [
+     "crypto",
+     "session"
+    ],
+    [
+     "health",
+     "queue"
+    ],
+    [
+     "locale",
+     "search"
+    ],
+    [
+     "store",
+     "scheduler"
+    ],
+    [
+     "health",
+     "profile"
+    ],
+    [
+     "queue",
+     "scheduler"
+    ],
+    [
+     "catalog",
+     "queue"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "imports-M3",
+  "family": "imports",
+  "size": "M",
+  "prose": "A codebase has 16 modules. invoice imports nothing. notify imports nothing. auth imports payment. import imports payment. worker imports catalog, router. session imports scheduler, auth. admin imports nothing. scheduler imports metrics. ledger imports import. health imports nothing. queue imports scheduler, payment, invoice. payment imports catalog. router imports nothing. catalog imports store. store imports ledger, import, admin. metrics imports admin.",
+  "question": "Is the import graph free of cycles?",
+  "gold": "NO",
+  "data": {
+   "mods": [
+    "invoice",
+    "notify",
+    "auth",
+    "import",
+    "worker",
+    "session",
+    "admin",
+    "scheduler",
+    "ledger",
+    "health",
+    "queue",
+    "payment",
+    "router",
+    "catalog",
+    "store",
+    "metrics"
+   ],
+   "edges": [
+    [
+     "worker",
+     "catalog"
+    ],
+    [
+     "ledger",
+     "import"
+    ],
+    [
+     "scheduler",
+     "metrics"
+    ],
+    [
+     "import",
+     "payment"
+    ],
+    [
+     "session",
+     "scheduler"
+    ],
+    [
+     "catalog",
+     "store"
+    ],
+    [
+     "queue",
+     "scheduler"
+    ],
+    [
+     "payment",
+     "catalog"
+    ],
+    [
+     "auth",
+     "payment"
+    ],
+    [
+     "store",
+     "ledger"
+    ],
+    [
+     "worker",
+     "router"
+    ],
+    [
+     "queue",
+     "payment"
+    ],
+    [
+     "session",
+     "auth"
+    ],
+    [
+     "queue",
+     "invoice"
+    ],
+    [
+     "metrics",
+     "admin"
+    ],
+    [
+     "store",
+     "import"
+    ],
+    [
+     "store",
+     "admin"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "imports-L1",
+  "family": "imports",
+  "size": "L",
+  "prose": "A codebase has 28 modules. tokens imports nothing. crypto imports logger, notify. config imports auth, logger. session imports auth, config. health imports nothing. invoice imports worker. store imports mailer, catalog, graph. webhook imports nothing. upload imports nothing. graph imports nothing. worker imports nothing. catalog imports nothing. mailer imports nothing. ledger imports config. shipping imports catalog, index. tax imports webhook. profile imports health. locale imports webhook. import imports export. index imports nothing. export imports locale. logger imports nothing. queue imports nothing. cache imports tax. billing imports nothing. search imports auth, notify, health, mailer. auth imports nothing. notify imports nothing.",
+  "question": "Is the import graph free of cycles?",
+  "gold": "YES",
+  "data": {
+   "mods": [
+    "tokens",
+    "crypto",
+    "config",
+    "session",
+    "health",
+    "invoice",
+    "store",
+    "webhook",
+    "upload",
+    "graph",
+    "worker",
+    "catalog",
+    "mailer",
+    "ledger",
+    "shipping",
+    "tax",
+    "profile",
+    "locale",
+    "import",
+    "index",
+    "export",
+    "logger",
+    "queue",
+    "cache",
+    "billing",
+    "search",
+    "auth",
+    "notify"
+   ],
+   "edges": [
+    [
+     "crypto",
+     "logger"
+    ],
+    [
+     "shipping",
+     "catalog"
+    ],
+    [
+     "tax",
+     "webhook"
+    ],
+    [
+     "search",
+     "auth"
+    ],
+    [
+     "ledger",
+     "config"
+    ],
+    [
+     "profile",
+     "health"
+    ],
+    [
+     "search",
+     "notify"
+    ],
+    [
+     "locale",
+     "webhook"
+    ],
+    [
+     "crypto",
+     "notify"
+    ],
+    [
+     "invoice",
+     "worker"
+    ],
+    [
+     "session",
+     "auth"
+    ],
+    [
+     "cache",
+     "tax"
+    ],
+    [
+     "search",
+     "health"
+    ],
+    [
+     "config",
+     "auth"
+    ],
+    [
+     "store",
+     "mailer"
+    ],
+    [
+     "search",
+     "mailer"
+    ],
+    [
+     "store",
+     "catalog"
+    ],
+    [
+     "export",
+     "locale"
+    ],
+    [
+     "session",
+     "config"
+    ],
+    [
+     "config",
+     "logger"
+    ],
+    [
+     "import",
+     "export"
+    ],
+    [
+     "store",
+     "graph"
+    ],
+    [
+     "shipping",
+     "index"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "imports-L2",
+  "family": "imports",
+  "size": "L",
+  "prose": "A codebase has 28 modules. payment imports nothing. report imports cart, shipping. notify imports nothing. store imports nothing. catalog imports nothing. queue imports nothing. invoice imports health, store. cart imports schema. graph imports nothing. admin imports cart. index imports logger. mailer imports locale, billing. shipping imports cart. router imports import. health imports graph. billing imports locale. crypto imports store. schema imports queue, shipping, mailer. import imports nothing. parser imports store, health, index. webhook imports payment, import, graph. metrics imports import. tokens imports profile. profile imports nothing. export imports graph, notify. logger imports cart. locale imports nothing. theme imports nothing.",
+  "question": "Is the import graph free of cycles?",
+  "gold": "NO",
+  "data": {
+   "mods": [
+    "payment",
+    "report",
+    "notify",
+    "store",
+    "catalog",
+    "queue",
+    "invoice",
+    "cart",
+    "graph",
+    "admin",
+    "index",
+    "mailer",
+    "shipping",
+    "router",
+    "health",
+    "billing",
+    "crypto",
+    "schema",
+    "import",
+    "parser",
+    "webhook",
+    "metrics",
+    "tokens",
+    "profile",
+    "export",
+    "logger",
+    "locale",
+    "theme"
+   ],
+   "edges": [
+    [
+     "schema",
+     "queue"
+    ],
+    [
+     "router",
+     "import"
+    ],
+    [
+     "crypto",
+     "store"
+    ],
+    [
+     "billing",
+     "locale"
+    ],
+    [
+     "parser",
+     "store"
+    ],
+    [
+     "webhook",
+     "payment"
+    ],
+    [
+     "mailer",
+     "locale"
+    ],
+    [
+     "mailer",
+     "billing"
+    ],
+    [
+     "cart",
+     "schema"
+    ],
+    [
+     "shipping",
+     "cart"
+    ],
+    [
+     "export",
+     "graph"
+    ],
+    [
+     "export",
+     "notify"
+    ],
+    [
+     "admin",
+     "cart"
+    ],
+    [
+     "index",
+     "logger"
+    ],
+    [
+     "report",
+     "cart"
+    ],
+    [
+     "schema",
+     "shipping"
+    ],
+    [
+     "metrics",
+     "import"
+    ],
+    [
+     "parser",
+     "health"
+    ],
+    [
+     "report",
+     "shipping"
+    ],
+    [
+     "tokens",
+     "profile"
+    ],
+    [
+     "invoice",
+     "health"
+    ],
+    [
+     "webhook",
+     "import"
+    ],
+    [
+     "webhook",
+     "graph"
+    ],
+    [
+     "invoice",
+     "store"
+    ],
+    [
+     "parser",
+     "index"
+    ],
+    [
+     "logger",
+     "cart"
+    ],
+    [
+     "schema",
+     "mailer"
+    ],
+    [
+     "health",
+     "graph"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "imports-L3",
+  "family": "imports",
+  "size": "L",
+  "prose": "A codebase has 28 modules. cart imports nothing. auth imports nothing. search imports tokens. mailer imports graph. import imports mailer. scheduler imports nothing. index imports nothing. metrics imports index, cart, report. admin imports billing. health imports graph, cart. report imports nothing. export imports nothing. invoice imports nothing. graph imports nothing. tax imports scheduler. cache imports tokens, shipping. logger imports nothing. store imports nothing. webhook imports nothing. upload imports webhook. tokens imports nothing. ledger imports mailer. config imports worker. catalog imports invoice. worker imports report. audit imports report. billing imports search, export. shipping imports report, mailer, cart.",
+  "question": "Is the import graph free of cycles?",
+  "gold": "YES",
+  "data": {
+   "mods": [
+    "cart",
+    "auth",
+    "search",
+    "mailer",
+    "import",
+    "scheduler",
+    "index",
+    "metrics",
+    "admin",
+    "health",
+    "report",
+    "export",
+    "invoice",
+    "graph",
+    "tax",
+    "cache",
+    "logger",
+    "store",
+    "webhook",
+    "upload",
+    "tokens",
+    "ledger",
+    "config",
+    "catalog",
+    "worker",
+    "audit",
+    "billing",
+    "shipping"
+   ],
+   "edges": [
+    [
+     "health",
+     "graph"
+    ],
+    [
+     "metrics",
+     "index"
+    ],
+    [
+     "tax",
+     "scheduler"
+    ],
+    [
+     "mailer",
+     "graph"
+    ],
+    [
+     "shipping",
+     "report"
+    ],
+    [
+     "ledger",
+     "mailer"
+    ],
+    [
+     "cache",
+     "tokens"
+    ],
+    [
+     "import",
+     "mailer"
+    ],
+    [
+     "audit",
+     "report"
+    ],
+    [
+     "billing",
+     "search"
+    ],
+    [
+     "metrics",
+     "cart"
+    ],
+    [
+     "cache",
+     "shipping"
+    ],
+    [
+     "health",
+     "cart"
+    ],
+    [
+     "billing",
+     "export"
+    ],
+    [
+     "search",
+     "tokens"
+    ],
+    [
+     "metrics",
+     "report"
+    ],
+    [
+     "admin",
+     "billing"
+    ],
+    [
+     "shipping",
+     "mailer"
+    ],
+    [
+     "catalog",
+     "invoice"
+    ],
+    [
+     "worker",
+     "report"
+    ],
+    [
+     "config",
+     "worker"
+    ],
+    [
+     "upload",
+     "webhook"
+    ],
+    [
+     "shipping",
+     "cart"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "types-S1",
+  "family": "types",
+  "size": "S",
+  "prose": "Scopes are dotted paths: a.b.c is nested inside a.b, which is nested inside a. Throughout import, including every block nested inside it, `id` always has type null. Throughout import.parse, including every block nested inside it, `id` always has type null. In import.charge.loop, `limit` has type boolean. Throughout import.refund, including every block nested inside it, `id` always has type object. Throughout import.charge.loop, including every block nested inside it, `limit` always has type array.",
+  "question": "Treat a statement about an inner scope as shadowing one about an outer scope, unless the outer statement says it holds throughout its scope including nested blocks; statements in sibling scopes never conflict. Do these statements contradict each other?",
+  "gold": "YES",
+  "data": {
+   "stmts": [
+    {
+     "scope": "import",
+     "v": "id",
+     "t": "null",
+     "throughout": true
+    },
+    {
+     "scope": "import.parse",
+     "v": "id",
+     "t": "null",
+     "throughout": true
+    },
+    {
+     "scope": "import.charge.loop",
+     "v": "limit",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "import.refund",
+     "v": "id",
+     "t": "object",
+     "throughout": true
+    },
+    {
+     "scope": "import.charge.loop",
+     "v": "limit",
+     "t": "array",
+     "throughout": true
+    }
+   ]
+  }
+ },
+ {
+  "id": "types-S2",
+  "family": "types",
+  "size": "S",
+  "prose": "Scopes are dotted paths: a.b.c is nested inside a.b, which is nested inside a. In locale.render.catch, `items` has type object. In locale.charge, `total` has type null. Throughout locale.render.catch, including every block nested inside it, `total` always has type number. In locale.render, `items` has type object. Throughout locale.load.loop, including every block nested inside it, `id` always has type array.",
+  "question": "Treat a statement about an inner scope as shadowing one about an outer scope, unless the outer statement says it holds throughout its scope including nested blocks; statements in sibling scopes never conflict. Do these statements contradict each other?",
+  "gold": "NO",
+  "data": {
+   "stmts": [
+    {
+     "scope": "locale.render.catch",
+     "v": "items",
+     "t": "object",
+     "throughout": false
+    },
+    {
+     "scope": "locale.charge",
+     "v": "total",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "locale.render.catch",
+     "v": "total",
+     "t": "number",
+     "throughout": true
+    },
+    {
+     "scope": "locale.render",
+     "v": "items",
+     "t": "object",
+     "throughout": false
+    },
+    {
+     "scope": "locale.load.loop",
+     "v": "id",
+     "t": "array",
+     "throughout": true
+    }
+   ]
+  }
+ },
+ {
+  "id": "types-S3",
+  "family": "types",
+  "size": "S",
+  "prose": "Scopes are dotted paths: a.b.c is nested inside a.b, which is nested inside a. In import.render.catch, `rate` has type boolean. In import.refund.loop, `amount` has type array. In import.refund.branch1, `user` has type number. In import.render.branch1, `amount` has type boolean. In import.render.catch, `rate` has type number. In import.render.branch1, `amount` has type number.",
+  "question": "Treat a statement about an inner scope as shadowing one about an outer scope, unless the outer statement says it holds throughout its scope including nested blocks; statements in sibling scopes never conflict. Do these statements contradict each other?",
+  "gold": "YES",
+  "data": {
+   "stmts": [
+    {
+     "scope": "import.render.catch",
+     "v": "rate",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "import.refund.loop",
+     "v": "amount",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "import.refund.branch1",
+     "v": "user",
+     "t": "number",
+     "throughout": false
+    },
+    {
+     "scope": "import.render.branch1",
+     "v": "amount",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "import.render.catch",
+     "v": "rate",
+     "t": "number",
+     "throughout": false
+    },
+    {
+     "scope": "import.render.branch1",
+     "v": "amount",
+     "t": "number",
+     "throughout": false
+    }
+   ]
+  }
+ },
+ {
+  "id": "types-M1",
+  "family": "types",
+  "size": "M",
+  "prose": "Scopes are dotted paths: a.b.c is nested inside a.b, which is nested inside a. Throughout webhook.save, including every block nested inside it, `count` always has type string. Throughout webhook.render.branch1, including every block nested inside it, `id` always has type string. In webhook.parse.branch2, `items` has type boolean. In webhook.save.branch1, `limit` has type boolean. In webhook.parse.loop, `limit` has type array. In webhook.render.loop, `items` has type array. In webhook.parse, `count` has type array. In webhook.parse, `id` has type null. In webhook.parse.loop, `items` has type string. In webhook.save.branch1, `id` has type array. In webhook.save.loop, `limit` has type null.",
+  "question": "Treat a statement about an inner scope as shadowing one about an outer scope, unless the outer statement says it holds throughout its scope including nested blocks; statements in sibling scopes never conflict. Do these statements contradict each other?",
+  "gold": "NO",
+  "data": {
+   "stmts": [
+    {
+     "scope": "webhook.save",
+     "v": "count",
+     "t": "string",
+     "throughout": true
+    },
+    {
+     "scope": "webhook.render.branch1",
+     "v": "id",
+     "t": "string",
+     "throughout": true
+    },
+    {
+     "scope": "webhook.parse.branch2",
+     "v": "items",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "webhook.save.branch1",
+     "v": "limit",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "webhook.parse.loop",
+     "v": "limit",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "webhook.render.loop",
+     "v": "items",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "webhook.parse",
+     "v": "count",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "webhook.parse",
+     "v": "id",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "webhook.parse.loop",
+     "v": "items",
+     "t": "string",
+     "throughout": false
+    },
+    {
+     "scope": "webhook.save.branch1",
+     "v": "id",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "webhook.save.loop",
+     "v": "limit",
+     "t": "null",
+     "throughout": false
+    }
+   ]
+  }
+ },
+ {
+  "id": "types-M2",
+  "family": "types",
+  "size": "M",
+  "prose": "Scopes are dotted paths: a.b.c is nested inside a.b, which is nested inside a. In invoice.render, `items` has type array. In invoice.refund.branch1, `limit` has type string. Throughout invoice.refund, including every block nested inside it, `total` always has type string. In invoice.refund.loop, `limit` has type string. In invoice.save.branch1, `id` has type array. In invoice.refund.branch1, `limit` has type object. Throughout invoice.save.branch1, including every block nested inside it, `total` always has type number. In invoice.refund.loop, `id` has type null. In invoice.refund.branch1, `id` has type array. In invoice.save, `items` has type null. In invoice.render, `id` has type array. Throughout invoice.refund.branch1, including every block nested inside it, `limit` always has type array.",
+  "question": "Treat a statement about an inner scope as shadowing one about an outer scope, unless the outer statement says it holds throughout its scope including nested blocks; statements in sibling scopes never conflict. Do these statements contradict each other?",
+  "gold": "YES",
+  "data": {
+   "stmts": [
+    {
+     "scope": "invoice.render",
+     "v": "items",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "invoice.refund.branch1",
+     "v": "limit",
+     "t": "string",
+     "throughout": false
+    },
+    {
+     "scope": "invoice.refund",
+     "v": "total",
+     "t": "string",
+     "throughout": true
+    },
+    {
+     "scope": "invoice.refund.loop",
+     "v": "limit",
+     "t": "string",
+     "throughout": false
+    },
+    {
+     "scope": "invoice.save.branch1",
+     "v": "id",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "invoice.refund.branch1",
+     "v": "limit",
+     "t": "object",
+     "throughout": false
+    },
+    {
+     "scope": "invoice.save.branch1",
+     "v": "total",
+     "t": "number",
+     "throughout": true
+    },
+    {
+     "scope": "invoice.refund.loop",
+     "v": "id",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "invoice.refund.branch1",
+     "v": "id",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "invoice.save",
+     "v": "items",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "invoice.render",
+     "v": "id",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "invoice.refund.branch1",
+     "v": "limit",
+     "t": "array",
+     "throughout": true
+    }
+   ]
+  }
+ },
+ {
+  "id": "types-M3",
+  "family": "types",
+  "size": "M",
+  "prose": "Scopes are dotted paths: a.b.c is nested inside a.b, which is nested inside a. In upload.refund.branch2, `id` has type object. In upload.refund, `id` has type array. In upload.refund, `count` has type object. In upload.save.catch, `count` has type string. In upload.load.branch2, `count` has type string. In upload.load.loop, `id` has type boolean. In upload.load, `total` has type string. In upload.refund.catch, `rate` has type null. In upload.load.branch2, `rate` has type number. In upload.load, `count` has type null. Throughout upload.refund, including every block nested inside it, `total` always has type number.",
+  "question": "Treat a statement about an inner scope as shadowing one about an outer scope, unless the outer statement says it holds throughout its scope including nested blocks; statements in sibling scopes never conflict. Do these statements contradict each other?",
+  "gold": "NO",
+  "data": {
+   "stmts": [
+    {
+     "scope": "upload.refund.branch2",
+     "v": "id",
+     "t": "object",
+     "throughout": false
+    },
+    {
+     "scope": "upload.refund",
+     "v": "id",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "upload.refund",
+     "v": "count",
+     "t": "object",
+     "throughout": false
+    },
+    {
+     "scope": "upload.save.catch",
+     "v": "count",
+     "t": "string",
+     "throughout": false
+    },
+    {
+     "scope": "upload.load.branch2",
+     "v": "count",
+     "t": "string",
+     "throughout": false
+    },
+    {
+     "scope": "upload.load.loop",
+     "v": "id",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "upload.load",
+     "v": "total",
+     "t": "string",
+     "throughout": false
+    },
+    {
+     "scope": "upload.refund.catch",
+     "v": "rate",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "upload.load.branch2",
+     "v": "rate",
+     "t": "number",
+     "throughout": false
+    },
+    {
+     "scope": "upload.load",
+     "v": "count",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "upload.refund",
+     "v": "total",
+     "t": "number",
+     "throughout": true
+    }
+   ]
+  }
+ },
+ {
+  "id": "types-L1",
+  "family": "types",
+  "size": "L",
+  "prose": "Scopes are dotted paths: a.b.c is nested inside a.b, which is nested inside a. In cart.parse.branch2, `items` has type null. In cart.parse.branch2, `label` has type string. In cart.parse.branch2, `items` has type string. In cart, `total` has type object. In cart.render.branch1, `label` has type null. Throughout cart.parse, including every block nested inside it, `count` always has type array. In cart, `total` has type number. Throughout cart.save.branch1, including every block nested inside it, `items` always has type null. In cart.parse.branch1, `flag` has type null. In cart.save.catch, `count` has type boolean. In cart.save, `items` has type null. In cart.save, `label` has type null. In cart.render, `total` has type array. In cart.save.branch1, `total` has type array. In cart.render.loop, `items` has type string. Throughout cart.parse.branch1, including every block nested inside it, `count` always has type number. In cart, `items` has type boolean. In cart.parse.branch1, `total` has type object. In cart.parse.branch1, `total` has type null. In cart, `count` has type null.",
+  "question": "Treat a statement about an inner scope as shadowing one about an outer scope, unless the outer statement says it holds throughout its scope including nested blocks; statements in sibling scopes never conflict. Do these statements contradict each other?",
+  "gold": "YES",
+  "data": {
+   "stmts": [
+    {
+     "scope": "cart.parse.branch2",
+     "v": "items",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "cart.parse.branch2",
+     "v": "label",
+     "t": "string",
+     "throughout": false
+    },
+    {
+     "scope": "cart.parse.branch2",
+     "v": "items",
+     "t": "string",
+     "throughout": false
+    },
+    {
+     "scope": "cart",
+     "v": "total",
+     "t": "object",
+     "throughout": false
+    },
+    {
+     "scope": "cart.render.branch1",
+     "v": "label",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "cart.parse",
+     "v": "count",
+     "t": "array",
+     "throughout": true
+    },
+    {
+     "scope": "cart",
+     "v": "total",
+     "t": "number",
+     "throughout": false
+    },
+    {
+     "scope": "cart.save.branch1",
+     "v": "items",
+     "t": "null",
+     "throughout": true
+    },
+    {
+     "scope": "cart.parse.branch1",
+     "v": "flag",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "cart.save.catch",
+     "v": "count",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "cart.save",
+     "v": "items",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "cart.save",
+     "v": "label",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "cart.render",
+     "v": "total",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "cart.save.branch1",
+     "v": "total",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "cart.render.loop",
+     "v": "items",
+     "t": "string",
+     "throughout": false
+    },
+    {
+     "scope": "cart.parse.branch1",
+     "v": "count",
+     "t": "number",
+     "throughout": true
+    },
+    {
+     "scope": "cart",
+     "v": "items",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "cart.parse.branch1",
+     "v": "total",
+     "t": "object",
+     "throughout": false
+    },
+    {
+     "scope": "cart.parse.branch1",
+     "v": "total",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "cart",
+     "v": "count",
+     "t": "null",
+     "throughout": false
+    }
+   ]
+  }
+ },
+ {
+  "id": "types-L2",
+  "family": "types",
+  "size": "L",
+  "prose": "Scopes are dotted paths: a.b.c is nested inside a.b, which is nested inside a. In tokens.refund.branch2, `count` has type number. In tokens.load.branch2, `total` has type boolean. In tokens.charge.catch, `amount` has type null. In tokens.load.branch2, `user` has type null. In tokens.load.branch1, `flag` has type string. In tokens.load, `count` has type number. In tokens.load.branch2, `id` has type string. Throughout tokens.refund.branch1, including every block nested inside it, `count` always has type array. In tokens.charge.branch1, `count` has type number. In tokens.refund, `id` has type object. Throughout tokens, including every block nested inside it, `user` always has type null. Throughout tokens.refund.branch1, including every block nested inside it, `amount` always has type string. In tokens.charge, `amount` has type boolean. Throughout tokens.load.branch2, including every block nested inside it, `count` always has type object. In tokens.refund.branch1, `id` has type boolean. In tokens.charge, `user` has type null. In tokens.charge, `flag` has type object. Throughout tokens.refund, including every block nested inside it, `flag` always has type array. In tokens, `total` has type string. In tokens.refund.branch2, `amount` has type string.",
+  "question": "Treat a statement about an inner scope as shadowing one about an outer scope, unless the outer statement says it holds throughout its scope including nested blocks; statements in sibling scopes never conflict. Do these statements contradict each other?",
+  "gold": "NO",
+  "data": {
+   "stmts": [
+    {
+     "scope": "tokens.refund.branch2",
+     "v": "count",
+     "t": "number",
+     "throughout": false
+    },
+    {
+     "scope": "tokens.load.branch2",
+     "v": "total",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "tokens.charge.catch",
+     "v": "amount",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "tokens.load.branch2",
+     "v": "user",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "tokens.load.branch1",
+     "v": "flag",
+     "t": "string",
+     "throughout": false
+    },
+    {
+     "scope": "tokens.load",
+     "v": "count",
+     "t": "number",
+     "throughout": false
+    },
+    {
+     "scope": "tokens.load.branch2",
+     "v": "id",
+     "t": "string",
+     "throughout": false
+    },
+    {
+     "scope": "tokens.refund.branch1",
+     "v": "count",
+     "t": "array",
+     "throughout": true
+    },
+    {
+     "scope": "tokens.charge.branch1",
+     "v": "count",
+     "t": "number",
+     "throughout": false
+    },
+    {
+     "scope": "tokens.refund",
+     "v": "id",
+     "t": "object",
+     "throughout": false
+    },
+    {
+     "scope": "tokens",
+     "v": "user",
+     "t": "null",
+     "throughout": true
+    },
+    {
+     "scope": "tokens.refund.branch1",
+     "v": "amount",
+     "t": "string",
+     "throughout": true
+    },
+    {
+     "scope": "tokens.charge",
+     "v": "amount",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "tokens.load.branch2",
+     "v": "count",
+     "t": "object",
+     "throughout": true
+    },
+    {
+     "scope": "tokens.refund.branch1",
+     "v": "id",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "tokens.charge",
+     "v": "user",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "tokens.charge",
+     "v": "flag",
+     "t": "object",
+     "throughout": false
+    },
+    {
+     "scope": "tokens.refund",
+     "v": "flag",
+     "t": "array",
+     "throughout": true
+    },
+    {
+     "scope": "tokens",
+     "v": "total",
+     "t": "string",
+     "throughout": false
+    },
+    {
+     "scope": "tokens.refund.branch2",
+     "v": "amount",
+     "t": "string",
+     "throughout": false
+    }
+   ]
+  }
+ },
+ {
+  "id": "types-L3",
+  "family": "types",
+  "size": "L",
+  "prose": "Scopes are dotted paths: a.b.c is nested inside a.b, which is nested inside a. In parser.refund.catch, `limit` has type boolean. In parser.refund.catch, `items` has type null. In parser.save.branch1, `rate` has type array. In parser.load.branch1, `items` has type string. In parser.refund, `rate` has type array. In parser.load.catch, `items` has type array. Throughout parser.save.branch1, including every block nested inside it, `count` always has type array. In parser.refund.loop, `rate` has type object. In parser.save.catch, `amount` has type boolean. In parser, `rate` has type number. In parser.save.catch, `count` has type boolean. In parser.save.catch, `count` has type number. Throughout parser.load, including every block nested inside it, `count` always has type object. Throughout parser.refund.catch, including every block nested inside it, `items` always has type object. Throughout parser.save, including every block nested inside it, `limit` always has type boolean. Throughout parser.refund, including every block nested inside it, `user` always has type boolean. In parser.load, `items` has type object. Throughout parser.load.branch1, including every block nested inside it, `user` always has type string. In parser.load.catch, `user` has type number.",
+  "question": "Treat a statement about an inner scope as shadowing one about an outer scope, unless the outer statement says it holds throughout its scope including nested blocks; statements in sibling scopes never conflict. Do these statements contradict each other?",
+  "gold": "YES",
+  "data": {
+   "stmts": [
+    {
+     "scope": "parser.refund.catch",
+     "v": "limit",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "parser.refund.catch",
+     "v": "items",
+     "t": "null",
+     "throughout": false
+    },
+    {
+     "scope": "parser.save.branch1",
+     "v": "rate",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "parser.load.branch1",
+     "v": "items",
+     "t": "string",
+     "throughout": false
+    },
+    {
+     "scope": "parser.refund",
+     "v": "rate",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "parser.load.catch",
+     "v": "items",
+     "t": "array",
+     "throughout": false
+    },
+    {
+     "scope": "parser.save.branch1",
+     "v": "count",
+     "t": "array",
+     "throughout": true
+    },
+    {
+     "scope": "parser.refund.loop",
+     "v": "rate",
+     "t": "object",
+     "throughout": false
+    },
+    {
+     "scope": "parser.save.catch",
+     "v": "amount",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "parser",
+     "v": "rate",
+     "t": "number",
+     "throughout": false
+    },
+    {
+     "scope": "parser.save.catch",
+     "v": "count",
+     "t": "boolean",
+     "throughout": false
+    },
+    {
+     "scope": "parser.save.catch",
+     "v": "count",
+     "t": "number",
+     "throughout": false
+    },
+    {
+     "scope": "parser.load",
+     "v": "count",
+     "t": "object",
+     "throughout": true
+    },
+    {
+     "scope": "parser.refund.catch",
+     "v": "items",
+     "t": "object",
+     "throughout": true
+    },
+    {
+     "scope": "parser.save",
+     "v": "limit",
+     "t": "boolean",
+     "throughout": true
+    },
+    {
+     "scope": "parser.refund",
+     "v": "user",
+     "t": "boolean",
+     "throughout": true
+    },
+    {
+     "scope": "parser.load",
+     "v": "items",
+     "t": "object",
+     "throughout": false
+    },
+    {
+     "scope": "parser.load.branch1",
+     "v": "user",
+     "t": "string",
+     "throughout": true
+    },
+    {
+     "scope": "parser.load.catch",
+     "v": "user",
+     "t": "number",
+     "throughout": false
+    }
+   ]
+  }
+ },
+ {
+  "id": "time-S1",
+  "family": "time",
+  "size": "S",
+  "prose": "A log records these times (same day, hh:mm:ss): event MK4 at 11:39:51; event ZN8 at 20:01:16; event ZZ9 at 15:17:14; event TM4 at 09:34:12.",
+  "question": "Did event ZN8 happen more than 284 minutes after event ZZ9?",
+  "gold": "YES",
+  "data": {
+   "a": "event ZZ9",
+   "b": "event ZN8",
+   "ta": "15:17:14",
+   "tb": "20:01:16",
+   "N": 284
+  }
+ },
+ {
+  "id": "time-S2",
+  "family": "time",
+  "size": "S",
+  "prose": "A log records these times (same day, hh:mm:ss): event XN9 at 11:35:10; event TW5 at 05:55:20; event HD5 at 08:30:21; event CC7 at 19:43:54.",
+  "question": "Did event CC7 happen more than 489 minutes after event XN9?",
+  "gold": "NO",
+  "data": {
+   "a": "event XN9",
+   "b": "event CC7",
+   "ta": "11:35:10",
+   "tb": "19:43:54",
+   "N": 489
+  }
+ },
+ {
+  "id": "time-S3",
+  "family": "time",
+  "size": "S",
+  "prose": "A log records these times (same day, hh:mm:ss): event RJ5 at 15:41:49; event WP2 at 15:42:42; event RK9 at 17:58:37; event HF8 at 10:52:41.",
+  "question": "Did event RK9 happen more than 135 minutes after event WP2?",
+  "gold": "YES",
+  "data": {
+   "a": "event WP2",
+   "b": "event RK9",
+   "ta": "15:42:42",
+   "tb": "17:58:37",
+   "N": 135
+  }
+ },
+ {
+  "id": "time-M1",
+  "family": "time",
+  "size": "M",
+  "prose": "A log records these times (same day, hh:mm:ss): event BR2 at 12:51:46; event KH9 at 10:42:41; event RX8 at 18:51:08; event RK2 at 13:30:01; event KL9 at 17:08:00; event DH4 at 19:32:30; event QP5 at 18:14:10; event RD3 at 09:00:00.",
+  "question": "Did event QP5 happen more than 67 minutes after event KL9?",
+  "gold": "NO",
+  "data": {
+   "a": "event KL9",
+   "b": "event QP5",
+   "ta": "17:08:00",
+   "tb": "18:14:10",
+   "N": 67
+  }
+ },
+ {
+  "id": "time-M2",
+  "family": "time",
+  "size": "M",
+  "prose": "A log records these times (same day, hh:mm:ss): event RZ6 at 18:05:15; event QZ7 at 02:04:02; event DW5 at 19:28:27; event PB5 at 16:42:11; event DW4 at 07:14:57; event HW5 at 08:44:44; event KR3 at 04:44:56; event KV3 at 02:09:02.",
+  "question": "Did event RZ6 happen more than 650 minutes after event DW4?",
+  "gold": "YES",
+  "data": {
+   "a": "event DW4",
+   "b": "event RZ6",
+   "ta": "07:14:57",
+   "tb": "18:05:15",
+   "N": 650
+  }
+ },
+ {
+  "id": "time-M3",
+  "family": "time",
+  "size": "M",
+  "prose": "A log records these times (same day, hh:mm:ss): event HW2 at 10:50:54; event VP3 at 10:09:48; event SK1 at 08:12:51; event BF1 at 01:05:28; event TL5 at 09:14:44; event SD4 at 19:43:35; event GF6 at 08:36:09; event CB5 at 02:34:08.",
+  "question": "Did event CB5 happen more than 89 minutes after event BF1?",
+  "gold": "NO",
+  "data": {
+   "a": "event BF1",
+   "b": "event CB5",
+   "ta": "01:05:28",
+   "tb": "02:34:08",
+   "N": 89
+  }
+ },
+ {
+  "id": "time-L1",
+  "family": "time",
+  "size": "L",
+  "prose": "A log records these times (same day, hh:mm:ss): event RK7 at 01:54:30; event TB2 at 06:58:24; event WJ3 at 04:20:18; event MF2 at 15:41:27; event LW8 at 12:24:42; event WV7 at 01:49:03; event JN2 at 02:26:24; event VG5 at 01:19:08; event ML9 at 12:15:58; event DJ5 at 03:53:32; event RM9 at 04:40:28; event GS6 at 18:02:57.",
+  "question": "Did event ML9 happen more than 626 minutes after event WV7?",
+  "gold": "YES",
+  "data": {
+   "a": "event WV7",
+   "b": "event ML9",
+   "ta": "01:49:03",
+   "tb": "12:15:58",
+   "N": 626
+  }
+ },
+ {
+  "id": "time-L2",
+  "family": "time",
+  "size": "L",
+  "prose": "A log records these times (same day, hh:mm:ss): event GW4 at 15:45:54; event CC4 at 06:11:22; event MX5 at 06:17:41; event DP7 at 15:31:59; event ZH1 at 05:44:30; event KJ7 at 04:32:36; event JV2 at 11:57:23; event SB4 at 03:20:40; event HB4 at 18:00:52; event ZQ1 at 01:37:18; event BS7 at 19:19:23; event TJ2 at 01:03:54.",
+  "question": "Did event BS7 happen more than 789 minutes after event CC4?",
+  "gold": "NO",
+  "data": {
+   "a": "event CC4",
+   "b": "event BS7",
+   "ta": "06:11:22",
+   "tb": "19:19:23",
+   "N": 789
+  }
+ },
+ {
+  "id": "time-L3",
+  "family": "time",
+  "size": "L",
+  "prose": "A log records these times (same day, hh:mm:ss): event GZ5 at 06:42:40; event BT4 at 05:35:40; event NW3 at 20:05:30; event CT5 at 15:18:38; event NC9 at 10:12:34; event PZ5 at 09:18:18; event JS4 at 03:58:45; event CS6 at 19:38:35; event KQ8 at 06:13:21; event SV3 at 20:37:40; event KD2 at 05:54:58; event GD4 at 10:22:35.",
+  "question": "Did event PZ5 happen more than 222 minutes after event BT4?",
+  "gold": "YES",
+  "data": {
+   "a": "event BT4",
+   "b": "event PZ5",
+   "ta": "05:35:40",
+   "tb": "09:18:18",
+   "N": 222
+  }
+ },
+ {
+  "id": "facts-S1",
+  "family": "facts",
+  "size": "S",
+  "prose": "the Quiet One was born in 1826. the Bellwright was born in 1906. \"the Bellwright\" is another name for Idris Fenn. Ilsa Stade was born in 1831. Tomas Fenn was born in 1826. the Bellwright was born in 1909. \"the Quiet One\" is another name for Tomas Fenn. the Bellwright was born in 1906. (People who share a surname are different people unless a statement says otherwise.)",
+  "question": "A person is born in exactly one year. Do these statements contradict each other?",
+  "gold": "YES",
+  "data": {
+   "facts": [
+    {
+     "who": "Tomas Fenn",
+     "year": 1826
+    },
+    {
+     "who": "the Bellwright",
+     "year": 1906
+    },
+    {
+     "who": "the Bellwright",
+     "year": 1909
+    },
+    {
+     "who": "Ilsa Stade",
+     "year": 1831
+    },
+    {
+     "who": "the Quiet One",
+     "year": 1826
+    },
+    {
+     "who": "the Bellwright",
+     "year": 1906
+    }
+   ],
+   "alias": {
+    "the Quiet One": "Tomas Fenn",
+    "the Bellwright": "Idris Fenn"
+   }
+  }
+ },
+ {
+  "id": "facts-S2",
+  "family": "facts",
+  "size": "S",
+  "prose": "\"the Ferryman\" is another name for Ilsa Fenn. Mara Marrow was born in 1910. Tomas Voss was born in 1800. Tomas Voss was born in 1800. \"the Quiet One\" is another name for Ilsa Fenn. Tomas Voss was born in 1800. Ilsa Fenn was born in 1879. Ilsa Fenn was born in 1879. (People who share a surname are different people unless a statement says otherwise.)",
+  "question": "A person is born in exactly one year. Do these statements contradict each other?",
+  "gold": "NO",
+  "data": {
+   "facts": [
+    {
+     "who": "Tomas Voss",
+     "year": 1800
+    },
+    {
+     "who": "Mara Marrow",
+     "year": 1910
+    },
+    {
+     "who": "Ilsa Fenn",
+     "year": 1879
+    },
+    {
+     "who": "Ilsa Fenn",
+     "year": 1879
+    },
+    {
+     "who": "Tomas Voss",
+     "year": 1800
+    },
+    {
+     "who": "Tomas Voss",
+     "year": 1800
+    }
+   ],
+   "alias": {
+    "the Quiet One": "Ilsa Fenn",
+    "the Ferryman": "Ilsa Fenn"
+   }
+  }
+ },
+ {
+  "id": "facts-S3",
+  "family": "facts",
+  "size": "S",
+  "prose": "Nell Marrow was born in 1886. Wren Cairn was born in 1902. \"Old Salt\" is another name for Nell Cairn. Nell Marrow was born in 1886. Nell Cairn was born in 1885. \"the Heron\" is another name for Nell Cairn. Nell Marrow was born in 1886. Wren Cairn was born in 1903. (People who share a surname are different people unless a statement says otherwise.)",
+  "question": "A person is born in exactly one year. Do these statements contradict each other?",
+  "gold": "YES",
+  "data": {
+   "facts": [
+    {
+     "who": "Nell Marrow",
+     "year": 1886
+    },
+    {
+     "who": "Nell Cairn",
+     "year": 1885
+    },
+    {
+     "who": "Nell Marrow",
+     "year": 1886
+    },
+    {
+     "who": "Nell Marrow",
+     "year": 1886
+    },
+    {
+     "who": "Wren Cairn",
+     "year": 1902
+    },
+    {
+     "who": "Wren Cairn",
+     "year": 1903
+    }
+   ],
+   "alias": {
+    "the Heron": "Nell Cairn",
+    "Old Salt": "Nell Cairn"
+   }
+  }
+ },
+ {
+  "id": "facts-M1",
+  "family": "facts",
+  "size": "M",
+  "prose": "Idris Harrow was born in 1887. the Ferryman was born in 1904. Old Salt was born in 1808. Otto Harrow was born in 1908. Idris Harrow was born in 1887. Otto Harrow was born in 1908. Otto Harrow was born in 1908. Idris Keel was born in 1808. the Ferryman was born in 1904. \"the Ferryman\" is another name for Bram Lind. Otto Harrow was born in 1908. Idris Keel was born in 1808. Otto Harrow was born in 1908. Old Salt was born in 1808. \"Old Salt\" is another name for Idris Keel. Idris Keel was born in 1808. (People who share a surname are different people unless a statement says otherwise.)",
+  "question": "A person is born in exactly one year. Do these statements contradict each other?",
+  "gold": "NO",
+  "data": {
+   "facts": [
+    {
+     "who": "the Ferryman",
+     "year": 1904
+    },
+    {
+     "who": "Idris Harrow",
+     "year": 1887
+    },
+    {
+     "who": "Otto Harrow",
+     "year": 1908
+    },
+    {
+     "who": "Otto Harrow",
+     "year": 1908
+    },
+    {
+     "who": "Idris Keel",
+     "year": 1808
+    },
+    {
+     "who": "the Ferryman",
+     "year": 1904
+    },
+    {
+     "who": "Idris Keel",
+     "year": 1808
+    },
+    {
+     "who": "Idris Harrow",
+     "year": 1887
+    },
+    {
+     "who": "Old Salt",
+     "year": 1808
+    },
+    {
+     "who": "Idris Keel",
+     "year": 1808
+    },
+    {
+     "who": "Otto Harrow",
+     "year": 1908
+    },
+    {
+     "who": "Otto Harrow",
+     "year": 1908
+    },
+    {
+     "who": "Old Salt",
+     "year": 1808
+    },
+    {
+     "who": "Otto Harrow",
+     "year": 1908
+    }
+   ],
+   "alias": {
+    "the Ferryman": "Bram Lind",
+    "Old Salt": "Idris Keel"
+   }
+  }
+ },
+ {
+  "id": "facts-M2",
+  "family": "facts",
+  "size": "M",
+  "prose": "Petra Marrow was born in 1903. Ilsa Lind was born in 1908. Petra Marrow was born in 1903. Ilsa Lind was born in 1908. the Cartographer was born in 1814. the Heron was born in 1908. Petra Marrow was born in 1903. Oren Harrow was born in 1814. Petra Marrow was born in 1903. Selma Keel was born in 1906. Selma Keel was born in 1906. Ilsa Lind was born in 1908. Petra Marrow was born in 1903. \"the Heron\" is another name for Ilsa Lind. \"the Cartographer\" is another name for Oren Harrow. Petra Marrow was born in 1904. (People who share a surname are different people unless a statement says otherwise.)",
+  "question": "A person is born in exactly one year. Do these statements contradict each other?",
+  "gold": "YES",
+  "data": {
+   "facts": [
+    {
+     "who": "Selma Keel",
+     "year": 1906
+    },
+    {
+     "who": "Oren Harrow",
+     "year": 1814
+    },
+    {
+     "who": "Selma Keel",
+     "year": 1906
+    },
+    {
+     "who": "Petra Marrow",
+     "year": 1903
+    },
+    {
+     "who": "Petra Marrow",
+     "year": 1904
+    },
+    {
+     "who": "Petra Marrow",
+     "year": 1903
+    },
+    {
+     "who": "Ilsa Lind",
+     "year": 1908
+    },
+    {
+     "who": "the Cartographer",
+     "year": 1814
+    },
+    {
+     "who": "Petra Marrow",
+     "year": 1903
+    },
+    {
+     "who": "Petra Marrow",
+     "year": 1903
+    },
+    {
+     "who": "Ilsa Lind",
+     "year": 1908
+    },
+    {
+     "who": "the Heron",
+     "year": 1908
+    },
+    {
+     "who": "Ilsa Lind",
+     "year": 1908
+    },
+    {
+     "who": "Petra Marrow",
+     "year": 1903
+    }
+   ],
+   "alias": {
+    "the Heron": "Ilsa Lind",
+    "the Cartographer": "Oren Harrow"
+   }
+  }
+ },
+ {
+  "id": "facts-M3",
+  "family": "facts",
+  "size": "M",
+  "prose": "\"the Bellwright\" is another name for Petra Marrow. Oren Stade was born in 1864. Otto Voss was born in 1868. Oren Stade was born in 1864. Petra Marrow was born in 1837. Idris Marrow was born in 1877. Otto Voss was born in 1868. the Ferryman was born in 1837. the Ferryman was born in 1837. Oren Stade was born in 1864. Idris Marrow was born in 1877. Otto Voss was born in 1868. \"the Ferryman\" is another name for Petra Marrow. Otto Voss was born in 1868. the Ferryman was born in 1837. Oren Stade was born in 1864. (People who share a surname are different people unless a statement says otherwise.)",
+  "question": "A person is born in exactly one year. Do these statements contradict each other?",
+  "gold": "NO",
+  "data": {
+   "facts": [
+    {
+     "who": "Oren Stade",
+     "year": 1864
+    },
+    {
+     "who": "Oren Stade",
+     "year": 1864
+    },
+    {
+     "who": "the Ferryman",
+     "year": 1837
+    },
+    {
+     "who": "Otto Voss",
+     "year": 1868
+    },
+    {
+     "who": "Idris Marrow",
+     "year": 1877
+    },
+    {
+     "who": "Otto Voss",
+     "year": 1868
+    },
+    {
+     "who": "Otto Voss",
+     "year": 1868
+    },
+    {
+     "who": "Oren Stade",
+     "year": 1864
+    },
+    {
+     "who": "Otto Voss",
+     "year": 1868
+    },
+    {
+     "who": "Idris Marrow",
+     "year": 1877
+    },
+    {
+     "who": "the Ferryman",
+     "year": 1837
+    },
+    {
+     "who": "Oren Stade",
+     "year": 1864
+    },
+    {
+     "who": "Petra Marrow",
+     "year": 1837
+    },
+    {
+     "who": "the Ferryman",
+     "year": 1837
+    }
+   ],
+   "alias": {
+    "the Ferryman": "Petra Marrow",
+    "the Bellwright": "Petra Marrow"
+   }
+  }
+ },
+ {
+  "id": "facts-L1",
+  "family": "facts",
+  "size": "L",
+  "prose": "Wren Marrow was born in 1827. Nell Marrow was born in 1900. Tomas Keel was born in 1902. the Lantern was born in 1904. Nell Marrow was born in 1900. the Lantern was born in 1902. Ilsa Keel was born in 1843. Otto Stade was born in 1919. Ilsa Keel was born in 1843. Wren Cairn was born in 1849. \"the Quiet One\" is another name for Wren Cairn. Tomas Keel was born in 1902. Wren Marrow was born in 1827. \"the Lantern\" is another name for Tomas Keel. \"the Heron\" is another name for Petra Keel. Tomas Keel was born in 1902. the Lantern was born in 1902. Wren Marrow was born in 1827. Oren Keel was born in 1906. \"Old Salt\" is another name for Wren Cairn. the Quiet One was born in 1849. Ilsa Keel was born in 1843. Otto Stade was born in 1919. Oren Keel was born in 1906. Ilsa Keel was born in 1843. Petra Keel was born in 1825. Oren Keel was born in 1906. Ilsa Keel was born in 1843. (People who share a surname are different people unless a statement says otherwise.)",
+  "question": "A person is born in exactly one year. Do these statements contradict each other?",
+  "gold": "YES",
+  "data": {
+   "facts": [
+    {
+     "who": "Tomas Keel",
+     "year": 1902
+    },
+    {
+     "who": "Ilsa Keel",
+     "year": 1843
+    },
+    {
+     "who": "Tomas Keel",
+     "year": 1902
+    },
+    {
+     "who": "the Quiet One",
+     "year": 1849
+    },
+    {
+     "who": "Wren Marrow",
+     "year": 1827
+    },
+    {
+     "who": "Petra Keel",
+     "year": 1825
+    },
+    {
+     "who": "Nell Marrow",
+     "year": 1900
+    },
+    {
+     "who": "Nell Marrow",
+     "year": 1900
+    },
+    {
+     "who": "Ilsa Keel",
+     "year": 1843
+    },
+    {
+     "who": "Wren Cairn",
+     "year": 1849
+    },
+    {
+     "who": "Oren Keel",
+     "year": 1906
+    },
+    {
+     "who": "Wren Marrow",
+     "year": 1827
+    },
+    {
+     "who": "Ilsa Keel",
+     "year": 1843
+    },
+    {
+     "who": "Tomas Keel",
+     "year": 1902
+    },
+    {
+     "who": "Ilsa Keel",
+     "year": 1843
+    },
+    {
+     "who": "Ilsa Keel",
+     "year": 1843
+    },
+    {
+     "who": "Otto Stade",
+     "year": 1919
+    },
+    {
+     "who": "the Lantern",
+     "year": 1902
+    },
+    {
+     "who": "Wren Marrow",
+     "year": 1827
+    },
+    {
+     "who": "the Lantern",
+     "year": 1902
+    },
+    {
+     "who": "the Lantern",
+     "year": 1904
+    },
+    {
+     "who": "Oren Keel",
+     "year": 1906
+    },
+    {
+     "who": "Otto Stade",
+     "year": 1919
+    },
+    {
+     "who": "Oren Keel",
+     "year": 1906
+    }
+   ],
+   "alias": {
+    "the Lantern": "Tomas Keel",
+    "the Heron": "Petra Keel",
+    "the Quiet One": "Wren Cairn",
+    "Old Salt": "Wren Cairn"
+   }
+  }
+ },
+ {
+  "id": "facts-L2",
+  "family": "facts",
+  "size": "L",
+  "prose": "Caius Stade was born in 1909. Petra Fenn was born in 1804. Wren Voss was born in 1896. Selma Voss was born in 1818. Old Salt was born in 1804. \"the Bellwright\" is another name for Petra Fenn. Bram Voss was born in 1910. Petra Fenn was born in 1804. Selma Voss was born in 1818. Caius Stade was born in 1909. Selma Voss was born in 1818. Caius Stade was born in 1909. \"the Heron\" is another name for Ilsa Lind. Petra Fenn was born in 1804. the Heron was born in 1906. Caius Stade was born in 1909. Petra Fenn was born in 1804. Petra Fenn was born in 1804. Caius Lind was born in 1891. the Heron was born in 1906. Nell Stade was born in 1895. \"Old Salt\" is another name for Petra Fenn. the Heron was born in 1906. Nell Stade was born in 1895. Selma Voss was born in 1818. \"Red Fenn\" is another name for Nell Stade. Caius Stade was born in 1909. Caius Stade was born in 1909. (People who share a surname are different people unless a statement says otherwise.)",
+  "question": "A person is born in exactly one year. Do these statements contradict each other?",
+  "gold": "NO",
+  "data": {
+   "facts": [
+    {
+     "who": "Petra Fenn",
+     "year": 1804
+    },
+    {
+     "who": "Nell Stade",
+     "year": 1895
+    },
+    {
+     "who": "the Heron",
+     "year": 1906
+    },
+    {
+     "who": "Petra Fenn",
+     "year": 1804
+    },
+    {
+     "who": "the Heron",
+     "year": 1906
+    },
+    {
+     "who": "Caius Stade",
+     "year": 1909
+    },
+    {
+     "who": "Bram Voss",
+     "year": 1910
+    },
+    {
+     "who": "Caius Stade",
+     "year": 1909
+    },
+    {
+     "who": "Selma Voss",
+     "year": 1818
+    },
+    {
+     "who": "Caius Stade",
+     "year": 1909
+    },
+    {
+     "who": "Selma Voss",
+     "year": 1818
+    },
+    {
+     "who": "Selma Voss",
+     "year": 1818
+    },
+    {
+     "who": "Petra Fenn",
+     "year": 1804
+    },
+    {
+     "who": "Caius Lind",
+     "year": 1891
+    },
+    {
+     "who": "Selma Voss",
+     "year": 1818
+    },
+    {
+     "who": "Caius Stade",
+     "year": 1909
+    },
+    {
+     "who": "Caius Stade",
+     "year": 1909
+    },
+    {
+     "who": "Petra Fenn",
+     "year": 1804
+    },
+    {
+     "who": "Nell Stade",
+     "year": 1895
+    },
+    {
+     "who": "Wren Voss",
+     "year": 1896
+    },
+    {
+     "who": "the Heron",
+     "year": 1906
+    },
+    {
+     "who": "Petra Fenn",
+     "year": 1804
+    },
+    {
+     "who": "Old Salt",
+     "year": 1804
+    },
+    {
+     "who": "Caius Stade",
+     "year": 1909
+    }
+   ],
+   "alias": {
+    "Old Salt": "Petra Fenn",
+    "the Heron": "Ilsa Lind",
+    "Red Fenn": "Nell Stade",
+    "the Bellwright": "Petra Fenn"
+   }
+  }
+ },
+ {
+  "id": "facts-L3",
+  "family": "facts",
+  "size": "L",
+  "prose": "Petra Lind was born in 1850. Caius Voss was born in 1857. Oren Cairn was born in 1844. Petra Lind was born in 1850. Caius Voss was born in 1857. Ilsa Stade was born in 1839. Ilsa Stade was born in 1839. \"Red Fenn\" is another name for Idris Marrow. Oren Cairn was born in 1844. Oren Cairn was born in 1844. Ilsa Stade was born in 1839. Oren Cairn was born in 1844. Ilsa Stade was born in 1839. Ilsa Fenn was born in 1878. Caius Voss was born in 1857. Caius Voss was born in 1857. the Bellwright was born in 1839. Ilsa Fenn was born in 1881. the Bellwright was born in 1839. the Bellwright was born in 1839. Petra Lind was born in 1850. \"the Bellwright\" is another name for Ilsa Stade. Selma Harrow was born in 1892. Oren Cairn was born in 1844. \"Old Salt\" is another name for Idris Marrow. Petra Lind was born in 1850. the Quiet One was born in 1892. \"the Quiet One\" is another name for Selma Harrow. (People who share a surname are different people unless a statement says otherwise.)",
+  "question": "A person is born in exactly one year. Do these statements contradict each other?",
+  "gold": "YES",
+  "data": {
+   "facts": [
+    {
+     "who": "Caius Voss",
+     "year": 1857
+    },
+    {
+     "who": "Oren Cairn",
+     "year": 1844
+    },
+    {
+     "who": "Petra Lind",
+     "year": 1850
+    },
+    {
+     "who": "Oren Cairn",
+     "year": 1844
+    },
+    {
+     "who": "the Bellwright",
+     "year": 1839
+    },
+    {
+     "who": "Caius Voss",
+     "year": 1857
+    },
+    {
+     "who": "Ilsa Stade",
+     "year": 1839
+    },
+    {
+     "who": "Ilsa Fenn",
+     "year": 1878
+    },
+    {
+     "who": "Oren Cairn",
+     "year": 1844
+    },
+    {
+     "who": "Ilsa Stade",
+     "year": 1839
+    },
+    {
+     "who": "Selma Harrow",
+     "year": 1892
+    },
+    {
+     "who": "Caius Voss",
+     "year": 1857
+    },
+    {
+     "who": "Ilsa Stade",
+     "year": 1839
+    },
+    {
+     "who": "Petra Lind",
+     "year": 1850
+    },
+    {
+     "who": "the Quiet One",
+     "year": 1892
+    },
+    {
+     "who": "Ilsa Fenn",
+     "year": 1881
+    },
+    {
+     "who": "the Bellwright",
+     "year": 1839
+    },
+    {
+     "who": "the Bellwright",
+     "year": 1839
+    },
+    {
+     "who": "Oren Cairn",
+     "year": 1844
+    },
+    {
+     "who": "Oren Cairn",
+     "year": 1844
+    },
+    {
+     "who": "Caius Voss",
+     "year": 1857
+    },
+    {
+     "who": "Petra Lind",
+     "year": 1850
+    },
+    {
+     "who": "Ilsa Stade",
+     "year": 1839
+    },
+    {
+     "who": "Petra Lind",
+     "year": 1850
+    }
+   ],
+   "alias": {
+    "the Quiet One": "Selma Harrow",
+    "Old Salt": "Idris Marrow",
+    "Red Fenn": "Idris Marrow",
+    "the Bellwright": "Ilsa Stade"
+   }
+  }
+ }
+]

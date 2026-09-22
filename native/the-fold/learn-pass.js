@@ -7,7 +7,7 @@
 import { surfQueries, surf, liveWeb } from "./surf.js";
 import { segmentCollection, elementsOf } from "./medium.js";
 import { learnParadigmEmergent } from "./paradigm.js";
-import { learnForm, emergentFacts, necessaryFacts } from "./form-prior.js";
+import { learnForm, emergentFacts } from "./form-prior.js";
 import { loadExpertise, saveExpertise, recordExpertise, projectExpertise, expertiseLines, recordBelief } from "./expertise.js";
 import { readPdf, isPdfUrl } from "./pdf-read.js";
 import { createHolograph, admit } from "../kernel/bayes-surprise.js";
@@ -249,14 +249,6 @@ export async function runLearnPass({ topic, stance = null, sourceUrls = [], popu
   // has not yet stabilized on this few readings — computed, not asserted.
   const activation = surpriseActivation(instances);
   const formPrior = learnForm(instances, { slots: "emergent" });
-  // "what do all X have that other things may or may not have?" (2026-09-22)
-  // — the WITHIN-KIND question, no ground required. Computed alongside the
-  // contrastive paradigm above, never in place of it: a fact can be
-  // necessary to the kind and still fail to distinguish it from the ground
-  // (this is exactly what the contrastive pass alone was silently
-  // discarding). necessaryFacts refuses under 5 instances the same way
-  // learnParadigmEmergent does; a refusal here is disclosed, not hidden.
-  const necessity = necessaryFacts(instances);
   const before = projectExpertise(ex, name);
   const allUrls = [...sourceUrls, ...huntedUrls];
   const groundNote = nearParadigm
@@ -267,7 +259,7 @@ export async function runLearnPass({ topic, stance = null, sourceUrls = [], popu
     source: source || allUrls.join(","),
     note: `${instances.length} instance(s) via the surface (${sourceUrls.length ? "pasted" : "hunted"} examples, ${populationUrls.length ? "pasted" : "hunted"} ground)${stance ? `; stance: "${stance}"` : ""}; ${groundNote}${activation ? `; ${activation.basis}` : ""}`,
     sources: instancePages.map((p) => ({ url: p.url, text: p.text })),
-    activation, necessity,
+    activation,
   });
   saveExpertise(ex);
   onEvent("ledger", { topic, stance, name, revision: (before?.revision ?? 0) + 1, status: r.status, corroboration: r.corroboration, confirmed: r.confirmed, lines: expertiseLines(ex, name) });

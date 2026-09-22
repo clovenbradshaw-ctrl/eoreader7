@@ -1,0 +1,46 @@
+You have a reasoning engine, eoreader7. Your job is NOT to reason out the answers yourself. For each item: translate it faithfully into an engine spec, run the engine, and take the answer from the engine's verdict. Do not second-guess the engine.
+
+The ids are opaque (r01 … r45). Tell each item's family from its QUESTION and statements, as listed below.
+
+For each item ID:
+  1. Write the spec to /tmp/bench-v3/<ID>.json (run `mkdir -p /tmp/bench-v3` once first). Writing specs with a small script (python or node) that parses the item text is allowed and recommended for the large items — but check its output against the item.
+  2. Run: node /Users/mlacy/Documents/3.0/eoreader7/cli/reason.mjs /tmp/bench-v3/<ID>.json --json
+  3. Map the engine's findings to YES/NO by the family's rule.
+If the engine reports a parse or input error, fix the spec and rerun. If it still fails, answer UNSURE.
+Copy every name EXACTLY as written.
+
+FAMILY order — "In every valid ordering of the steps, must X come before Y?"
+  Every one of these means A must precede B → add ["A","B"] to "before":
+    "A must be done before B" · "B cannot start until A is finished" · "only after A is complete may B begin" · "A has to come earlier than B"
+  These impose NOTHING — leave them out: "A and B may happen in either order" · "there is no required order between A and B"
+  spec: {"order":{"items":[every step],"before":[...],"claims":[{"ref":"q","first":"X","then":"Y"}]}}
+  answer: finding "order_entailed" → YES; "order_not_entailed" → NO.
+
+FAMILY imports — "Counting only the imports that exist now, is the import graph free of cycles?"
+  Every one of these means A imports B → claim imports(A, B):
+    "A imports B" · "A depends on B" · "B is pulled in by A" (A imports B!) · "A requires B at load time"
+  These are NOT current imports — leave them out: "A used to import B, but that import was removed" · "A no longer depends on B"
+  spec: {"declare":{"acyclic":["imports"]},"claims":[{"ground":"/","rel":"imports","roles":{"ARG0":"A","ARG1":"B"}}, ...]}
+  answer: any finding "circular" → NO; otherwise → YES.
+
+FAMILY types — scopes and `variables` with types; "Do these statements contradict each other?"
+  plain (no "force"): "In S, `v` has type T." · "Inside S, `v` is a T." · "`v` holds a T within S."
+  strict ("force":"strict"): "Everywhere within S, nested blocks included, `v` is always a T." · "Throughout S and every block nested in it, `v` has type T."
+  a dotted scope a.b.c becomes the ground "/a/b/c"
+  spec: {"declare":{"functional":["has-type"]},"claims":[{"ground":"/a/b","rel":"has-type","roles":{"ARG0":"v","ARG1":"T"}}, ...]}
+  answer: any finding with severity "error" → YES; none → NO.
+
+FAMILY time — 12-hour clock; "Did B happen more than N minutes after A?"
+  Convert both times to 24-hour hh:mm:ss FIRST: 12:xx AM → 00:xx; 1–11 AM unchanged; 12:xx PM → 12:xx; 1–11 PM → add 12 hours.
+  spec: {"equations":[{"ref":"q","statement":"<B 24h> - <A 24h> > <N>*60"}]}
+  answer: "claim_holds" → YES; "claim_fails_oracle" → NO.
+
+FAMILY facts — people, aliases and years; "Do these statements contradict each other about anyone's birth year?"
+  births → born-in-year(X, Y): "X was born in Y." · "X's birth year was Y." · "The records give Y as the year X was born."
+  aliases → same-as(E, X): "\"E\" is another name for X." · "X also went by \"E\"." · "\"E\" was what people called X." · "\"E\" was yet another name for \"F\"." (same-as(E, F))
+  LEAVE OUT everything else — "X's sister was born in Y", "In Y, X moved to the coast", "X died in Y", "X's first ship was launched in Y" are NOT X's birth.
+  spec: {"identity":"exact","declare":{"functional":["born-in-year"],"identityRels":["same-as"]},"claims":[{"ground":"/","rel":"born-in-year","roles":{"ARG0":"X","ARG1":"Y"}}, {"ground":"/","rel":"same-as","roles":{"ARG0":"E","ARG1":"X"}}, ...]}
+  answer: any finding with severity "error" → YES; none → NO.
+
+When all items are done, your FINAL message must be exactly one line per item, in id order, and nothing else:
+<ID>: YES|NO|UNSURE

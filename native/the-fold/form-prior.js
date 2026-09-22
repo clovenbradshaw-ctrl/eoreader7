@@ -183,68 +183,6 @@ export function emergentFacts(u, { limit = null, positional = true } = {}) {
   return f;
 }
 
-// ── necessaryFacts (2026-09-22) ─────────────────────────────────────────
-// The user, having watched learnParadigmEmergent throw away a genuinely
-// universal fact just because the comparison ground happened to share it
-// sometimes: "what do all white papers have that other things may or may
-// not have?" That is a DIFFERENT question from learnParadigmEmergent's own
-// (support high AND contrast low — exclusive to the kind). This one asks
-// only: is this reliably true of every instance of the kind, full stop —
-// no ground required, because necessity is a property of the kind alone.
-//
-// "varies" (emergentFacts' own sentinel for "not constant across this
-// class") is excluded — it is a null value, not a finding: every
-// multi-line document's line lengths "vary," including a novel's.
-//
-// The null here needs no outside population either: it asks whether the
-// observed support is a genuine property of the WHOLE corpus or an
-// artifact of a handful of instances — split-half stability (does the
-// same fact stay common in independent random halves of the corpus,
-// draws times) rather than one hand-eyeballed support number on the full
-// set. This is the same "Born null" discipline as everywhere else in this
-// engine: measure a null, never assert from a raw threshold alone.
-const VARIES = "varies";
-
-export function necessaryFacts(instances, { minSupport = 0.8, draws = 200, stabilityFloor = 0.9, rnd = Math.random } = {}) {
-  const n = instances.length;
-  if (n < 5) return { refused: "under_powered", basis: `${n} instance(s) — too few to claim anything is necessary to the kind`, necessary: [] };
-  const perInstance = instances.map((u) => emergentFacts(u, { positional: false }));
-  const keys = new Set();
-  for (const f of perInstance) for (const k of f.keys()) keys.add(k);
-  const holds = (i, key, value) => { const f = perInstance[i]; return f.has(key) && String(f.get(key)) === value; };
-  const candidates = [];
-  for (const key of keys) {
-    const valueCounts = new Map();
-    for (const f of perInstance) {
-      if (!f.has(key)) continue;
-      const v = String(f.get(key));
-      if (v === VARIES) continue;
-      valueCounts.set(v, (valueCounts.get(v) ?? 0) + 1);
-    }
-    for (const [value, count] of valueCounts) {
-      const support = count / n;
-      if (support >= minSupport) candidates.push({ key, value, support, count });
-    }
-  }
-  const half = Math.floor(n / 2);
-  for (const cand of candidates) {
-    let survived = 0;
-    const idx = [...Array(n).keys()];
-    for (let d = 0; d < draws; d++) {
-      for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
-      let c = 0;
-      for (let i = 0; i < half; i++) if (holds(idx[i], cand.key, cand.value)) c++;
-      if (c / half >= minSupport) survived++;
-    }
-    cand.stability = survived / draws;
-  }
-  const necessary = candidates.filter((c) => c.stability >= stabilityFloor).sort((a, b) => b.support - a.support || b.stability - a.stability);
-  return {
-    refused: null, n, necessary,
-    basis: `${necessary.length} of ${candidates.length} candidate fact(s) (support >= ${Math.round(minSupport * 100)}%, "varies" excluded) held up in >= ${Math.round(stabilityFloor * 100)}% of ${draws} random half-splits of the ${n} real instance(s) — a within-kind necessity claim, no comparison ground involved`,
-  };
-}
-
 /** Slots the order-destroyed null cannot touch: what a unit has, and its count. */
 const ORDER_FREE = (slot) => slot === "count" || slot.startsWith("has") || slot.startsWith("field:") || slot.startsWith("count:") || slot.startsWith("key:") || slot.includes("*:");
 

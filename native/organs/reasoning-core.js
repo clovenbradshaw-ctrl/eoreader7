@@ -124,7 +124,11 @@ export const makeCSP = (variables, constraints) => Object.freeze({ variables: Ob
  *  - `totalNodesVisited`: trials.length + pruned.length — the real search
  *    cost, reported rather than left to be inferred.
  */
-export function solveCSP({ variables, constraints }) {
+// `limit` (optional): stop after that many solutions. A satisfiability
+// question ("is there ANY consistent assignment with b first?") needs one
+// witness, not every one — at 20 variables the full set is ~10^18. Omitted,
+// the search is exhaustive exactly as before.
+export function solveCSP({ variables, constraints }, { limit = Infinity } = {}) {
   const trials = [];
   const pruned = [];
   const solutions = [];
@@ -158,6 +162,7 @@ export function solveCSP({ variables, constraints }) {
     }
     const variable = variables[depth];
     for (const value of variable.domain.values) {
+      if (solutions.length >= limit) break;
       current[variable.name] = value;
       let failed = null;
       for (const c of checkableAt[depth]) {
