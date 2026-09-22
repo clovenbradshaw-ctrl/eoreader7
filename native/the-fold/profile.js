@@ -51,13 +51,26 @@ const shares = (m) => { const n = [...m.values()].reduce((a, b) => a + b, 0) || 
  */
 export function profileStatements(draft) {
   const points = drawnParts(draft).flatMap((p) => p.children ?? []);
+  const lp = leanProfiles(points.map((pt) => ({ id: pt.id, addresses: (pt.eot ?? []).flatMap(addressesOf) })));
+  return { schema: PROFILE_SCHEMA, baseline: lp.baseline, byId: lp.byId, unparsed: points.filter((pt) => !lp.byId.has(pt.id)).map((pt) => pt.id) };
+}
+
+/**
+ * leanProfiles(items) — the shared act: items are { id, addresses: [cell] };
+ * the baseline is THIS collection's own share of each terrain and stance, so
+ * a lean is always relative to the material it was read in, never to a
+ * standing table. Returns { baseline, byId: Map(id → { terrain, stance,
+ * addresses }) }. Used by profileStatements (a draft's statements) and by
+ * arc.js (a read unit's elements).
+ */
+export function leanProfiles(items) {
   const per = new Map();
   const all = { t: new Map(), s: new Map() };
-  for (const pt of points) {
-    const addrs = (pt.eot ?? []).flatMap(addressesOf);
+  for (const it of items) {
+    const addrs = it.addresses ?? [];
     if (!addrs.length) continue;
     const c = tally(addrs);
-    per.set(pt.id, { c, n: addrs.length });
+    per.set(it.id, { c, n: addrs.length });
     for (const [k, v] of c.t) all.t.set(k, (all.t.get(k) ?? 0) + v);
     for (const [k, v] of c.s) all.s.set(k, (all.s.get(k) ?? 0) + v);
   }
@@ -74,10 +87,5 @@ export function profileStatements(draft) {
   };
   const byId = new Map();
   for (const [id, { c, n }] of per) byId.set(id, { terrain: lean(c.t, "t"), stance: lean(c.s, "s"), addresses: n });
-  return {
-    schema: PROFILE_SCHEMA,
-    baseline: { terrain: Object.fromEntries(base.t), stance: Object.fromEntries(base.s) },
-    byId,
-    unparsed: points.filter((pt) => !per.has(pt.id)).map((pt) => pt.id),
-  };
+  return { baseline: { terrain: Object.fromEntries(base.t), stance: Object.fromEntries(base.s) }, byId };
 }
