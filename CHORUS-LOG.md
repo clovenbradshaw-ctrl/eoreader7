@@ -456,3 +456,14 @@ fast: 4 files · 8 affected tests 79/79 · law: ok (0 citations); WARN pre-exist
 | Kondo | unwired | heimdall.mjs markUnservable | noted | still live: proxy-runner.mjs:3260 drops a model on first_byte_timeout — a second punishment path, out of this diff's scope, now on the 60 s cooldown |
 | Simon/Chekhov | new module | held-turns.mjs | noted | imported by tests/held-turns.test.mjs and wired in proxy.mjs; the route-level hold (202 receipt, GET /v1/held/:id, resend reuse) proven live on a :11476 proxy, not by an automated route test |
 clean: LeviStrauss
+
+## 2026-09-22 — GFP reasoning core, cli/reason.mjs, Claude Code ledger + reasoning gate (eoreader7, staged 12 files)
+fast: 12 files · root 5/5 · native 94/94 · law: ok (0 citations, after renaming battery ids S1…X2 → slip1…probe2, which had resolved as real P/S citations); WARN pre-existing duplicates carried
+| Marshall | citation | reason-falsify/items.mjs | fixed | item ids P1–P6/S1–S5 resolved as citations of real law entries; renamed |
+| Feynman | swallowed error | cli/claude-code-*.mjs | fixed | hooks swallowed every error; now logged to ~/.claude/eo-reason/errors.log (a hook still never fails Claude Code) |
+| Dijkstra | allowlist by substring | cli/claude-code-ledger.mjs | fixed | "reasoned" was any command containing cli/reason.mjs (`cat` passed); now requires the engine's own output in the result |
+| Simon/Chekhov | untested module | cli/reason.mjs, hooks | fixed | tests/reason-cli.test.mjs runs all three as real processes under a temp HOME |
+| Diaconis | measurement | run-gemma.mjs | noted | the wire exposes no temperature: 3 runs per arm, split votes reported; the always-ERROR baseline (12/18) beats gemma alone (11/18) |
+| Greenberg | SVO field | cli/reason.mjs:79 | noted | hyperlexicon.admit's API is subject/verb/object-named; claims enter the GFP core through claimFromTriple, the one bridge |
+| Pearl | independence | cli/reason.mjs corroboration | noted | reader and declarer read the same text; the reader is independent of the declarer's ENCODING, not of the text |
+clean: Holmes, Ostrom, Frankfurt, Alexander, Kondo, LeviStrauss

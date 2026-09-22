@@ -79,6 +79,7 @@
 // the note ids and the plain-language line.
 
 import { projectTasks } from "../kernel/task-log.js";
+import { claimFromTriple, overlap, contains, depthOf, lca, ancestry, figureKey, claimKey, exactIdentity } from "../kernel/gfp-claim.js";
 import {
   persistenceOf, regimeOf, forceOfClause, inValidityWindow, isSettled, precedence, FORCES,
 } from "./regime.js";
@@ -654,3 +655,202 @@ export function lintReport(result) {
 }
 
 export { FORCES };
+
+// ── THE GFP CORE (2026-09-22) ──────────────────────────────────────────────
+//
+// User direction: "reasoning linting GFP at its core, and then SVO, SOV — all
+// others — at higher holonic levels. Reason works at every level, respecting
+// holons. It needs to work equally well for code." lintLedger above keys a
+// claim by `end1|label` — the first word and the verb, English's own lens —
+// and, with no declarations, convicts every same-address disagreement (its
+// own comment measured 459 false convictions on 3,539 notes). This core
+// reads claims as Ground · Figure · Pattern (kernel/gfp-claim.js):
+//
+//   IDENTITY  Pattern + Figure-by-role. Word order never enters: a claim read
+//             back from SVO, SOV, VSO, VOS, OVS, OSV, a case-marked free
+//             order, or code's infix / prefix / postfix is the same claim.
+//   SCOPE     two claims meet only where their grounds overlap (one contains
+//             the other). Sibling holons never meet — two sections, two
+//             blocks, two functions each keep their own facts.
+//   DEPTH     where grounds differ and overlap, the deeper claim is the more
+//             specific (lex specialis): a "default" outer claim is OVERRIDDEN
+//             inside the inner ground (a shadowed binding, a section's local
+//             fact) — reported, never an error; a "strict" outer claim is
+//             REFUTED by the inner counterexample (an invariant, a universal).
+//   DECLARED  a relation is one-valued, symmetric or acyclic only when a giver
+//             says so. An undeclared several-valued relation is counted as
+//             unjudged, never convicted. A claim and its denial need no
+//             declaration: P and not-P at one ground is always a contradiction.
+//   ROLL-UP   every finding sits at a holon; each holon also counts what its
+//             descendants found, so strain below is visible above.
+
+const declSet = (xs, idf) => new Set([...(xs ?? [])].map((x) => idf(typeof x === "string" ? x : x?.rel)).filter(Boolean));
+const functionalRoles = (xs, idf) => {
+  const m = new Map();
+  for (const x of xs ?? []) {
+    const rel = idf(typeof x === "string" ? x : x?.rel);
+    if (rel) m.set(rel, { role: (typeof x === "string" ? null : x?.role) ?? "ARG1", giver: typeof x === "string" ? null : x?.giver ?? null });
+  }
+  return m;
+};
+
+/**
+ * lintGfp(claims, { functional, symmetric, acyclic, identity, strictness })
+ *   claims      gfpClaim records (kernel/gfp-claim.js)
+ *   functional  [{ rel, role = "ARG1", giver }] or [rel] — one value in `role`
+ *   symmetric   [rel] — which role a participant holds does not matter
+ *   acyclic     [rel] — a cycle in this relation is begging the question
+ *   identity    referent identity (default exact — correct for code)
+ * → { ok, findings, counts, unjudged, apart, holons, basis }
+ */
+export function lintGfp(claims = [], { functional = [], symmetric = [], acyclic = [], identityRels = [], identity = exactIdentity, strictness = "standard" } = {}) {
+  // IDENTITY IS ITSELF A CLAIM. A relation declared an identity ("same-as")
+  // merges its two participants — but only where that claim's ground reaches
+  // (Parmenides' `same`, scoped): an alias stated in one section does not
+  // merge two names in a sibling. The base identity (exact, caseless, or a
+  // referent resolver) runs first; the declared identities join on top.
+  const baseIdf = identity;
+  const idRels = declSet(identityRels, baseIdf);
+  const idClaims = [...claims].filter((c) => c.polarity === "+" && idRels.has(baseIdf(c.rel)) && c.roles.ARG0 != null && c.roles.ARG1 != null);
+  const ufCache = new Map();
+  const identityAt = (h) => {
+    if (!idClaims.length) return baseIdf;
+    if (ufCache.has(h)) return ufCache.get(h);
+    const parent = new Map();
+    const find = (x) => { while (parent.has(x) && parent.get(x) !== x) x = parent.get(x); return x; };
+    for (const c of idClaims) if (contains(c.ground, h)) {
+      const a = find(baseIdf(c.roles.ARG0)), b = find(baseIdf(c.roles.ARG1));
+      if (a !== b) parent.set(a < b ? b : a, a < b ? a : b);
+    }
+    const f = (s) => find(baseIdf(s));
+    ufCache.set(h, f);
+    return f;
+  };
+  const idf = baseIdf;
+  const fn = functionalRoles(functional, idf);
+  const sym = declSet(symmetric, idf);
+  const acy = declSet(acyclic, idf);
+  const findings = [];
+  let unjudged = 0, apart = 0;
+  const cs = [...claims];
+  const byRel = new Map();
+  for (const c of cs) {
+    if (idRels.has(idf(c.rel))) continue;
+    const r = idf(c.rel);
+    if (!byRel.has(r)) byRel.set(r, []);
+    byRel.get(r).push(c);
+  }
+  const label = (c) => `${c.polarity === "-" ? "not " : ""}${c.rel}(${Object.entries(c.roles).map(([k, v]) => `${k}=${v}`).join(", ")}) @ ${c.ground}`;
+  const ids = (a, b) => [a.id, b.id].filter(Boolean);
+
+  for (const [rel, group] of byRel) {
+    const symmetricRel = sym.has(rel);
+    const one = fn.get(rel) ?? null;
+    for (let i = 0; i < group.length; i++) for (let j = i + 1; j < group.length; j++) {
+      const a = group[i], b = group[j];
+      if (!overlap(a.ground, b.ground)) { apart++; continue; }
+      const sameGround = a.ground === b.ground;
+      const [outer, inner] = depthOf(a.ground) <= depthOf(b.ground) ? [a, b] : [b, a];
+      const at = lca(a.ground, b.ground);
+      const idh = identityAt(at);
+      const scoped = (conflictKind, what) => {
+        if (sameGround) {
+          findings.push({ ...finding(conflictKind, "standard", SEVERITY.ERROR, `${what}: ${label(a)} vs ${label(b)} — same ground, and nothing separates them`, { at }), claims: ids(a, b) });
+        } else if (outer.force === "strict") {
+          findings.push({ ...finding("refuted_in_scope", "standard", SEVERITY.ERROR, `${label(outer)} is declared strict — it holds throughout ${outer.ground} — and ${label(inner)} inside it is a counterexample`, { at }), claims: ids(a, b) });
+        } else {
+          findings.push({ ...finding("overridden_in_scope", "report", SEVERITY.INFO, `${label(inner)} overrides ${label(outer)} inside ${inner.ground} — the deeper ground is the more specific (lex specialis), and the outer claim is a default`, { at }), claims: ids(a, b) });
+        }
+      };
+      // P and not-P: no declaration needed.
+      if (a.polarity !== b.polarity && claimKey(a, { symmetric: symmetricRel, identity: idh }) === claimKey(b, { symmetric: symmetricRel, identity: idh })) {
+        scoped("polarity_contradiction", "a claim and its denial");
+        continue;
+      }
+      // Two values in a role a giver declared one-valued.
+      if (a.polarity === "+" && b.polarity === "+") {
+        const role = one?.role ?? "ARG1";
+        const va = a.roles[role], vb = b.roles[role];
+        if (va == null || vb == null || idh(va) === idh(vb)) continue;
+        if (figureKey(a, { omit: role, symmetric: symmetricRel, identity: idh }) !== figureKey(b, { omit: role, symmetric: symmetricRel, identity: idh })) continue;
+        if (!one) { unjudged++; continue; }
+        scoped("standing_contradiction", `"${a.rel}" is one-valued in ${role}${one.giver ? ` (giver: ${one.giver})` : ""}, and two values stand`);
+      }
+    }
+  }
+
+  // Cycles, per declared-acyclic relation, per scope (a holon sees its own
+  // claims and its ancestors', never a sibling's).
+  const grounds = [...new Set(cs.map((c) => c.ground))];
+  const seenCycles = new Set();
+  for (const rel of acy) {
+    for (const h of grounds) {
+      const scope = (byRel.get(rel) ?? []).filter((c) => c.polarity === "+" && contains(c.ground, h));
+      const adj = new Map();
+      for (const c of scope) {
+        const from = c.roles.ARG0 != null ? idf(c.roles.ARG0) : null, to = c.roles.ARG1 != null ? idf(c.roles.ARG1) : null;
+        if (!from || !to) continue;
+        if (!adj.has(from)) adj.set(from, []);
+        adj.get(from).push({ to, c });
+      }
+      const color = new Map(), path = [], edges = [];
+      let found = null;
+      const dfs = (v) => {
+        color.set(v, 1); path.push(v);
+        for (const e of adj.get(v) ?? []) {
+          const k = color.get(e.to) ?? 0;
+          if (k === 1) { const s = path.indexOf(e.to); found = { nodes: path.slice(s).concat(e.to), edges: [...edges.slice(s), e.c] }; return true; }
+          if (k === 0) { edges.push(e.c); if (dfs(e.to)) return true; edges.pop(); }
+        }
+        path.pop(); color.set(v, 2); return false;
+      };
+      for (const v of adj.keys()) if (!color.get(v) && dfs(v)) break;
+      if (!found) continue;
+      const key = `${rel}|${[...new Set(found.nodes)].sort().join(",")}`;
+      if (seenCycles.has(key)) continue;
+      seenCycles.add(key);
+      const at = found.edges.map((c) => c.ground).reduce((x, y) => lca(x, y));
+      findings.push({ ...finding("circular", "strict", SEVERITY.ERROR, `"${rel}" is declared acyclic, and it returns to its start: ${found.nodes.join(" → ")} — the chain begs the question`, { at }), claims: found.edges.map((c) => c.id).filter(Boolean) });
+    }
+  }
+
+  const visible = findings.filter((f) => shownAt(f, strictness));
+  // Roll-up: every holon counts its own findings and its descendants'.
+  const holonSet = new Set();
+  for (const g of grounds) for (const h of ancestry(g)) holonSet.add(h);
+  const holons = [...holonSet].sort((x, y) => depthOf(x) - depthOf(y) || (x < y ? -1 : 1)).map((h) => ({
+    at: h,
+    own: visible.filter((f) => f.at === h).length,
+    below: visible.filter((f) => f.at !== h && contains(h, f.at)).length,
+    errors: visible.filter((f) => contains(h, f.at) && f.severity === SEVERITY.ERROR).length,
+  }));
+  return Object.freeze({
+    ok: !visible.some((f) => f.severity === SEVERITY.ERROR),
+    strictness,
+    findings: Object.freeze(visible),
+    counts: Object.freeze(countFindings(visible)),
+    unjudged, apart,
+    holons: Object.freeze(holons),
+    basis: Object.freeze({
+      core: "GFP — Ground (holon scope) · Figure (participants by role) · Pattern (relation, polarity, declarations); word order never read",
+      identity: identity === exactIdentity ? "exact after NFKC (code-safe; pass caselessIdentity or a referent resolver for prose)" : "caller-declared",
+      declared: { functional: fn.size, symmetric: sym.size, acyclic: acy.size, identity: idRels.size },
+    }),
+  });
+}
+
+/**
+ * lintLedgerGfp(log, { door, groundOf, ...lintGfp options }) — the same GFP
+ * core over a notes ledger: each live note becomes a claim (end1 → ARG0,
+ * end2 → ARG1, the reader's own role assignment), grounded where `groundOf`
+ * says (default: the note's own `ground`, else the whole).
+ */
+export function lintLedgerGfp(log, { door, groundOf = null, ...opts } = {}) {
+  const notes = foldOf(door, log);
+  const claims = notes.map((n) => claimFromTriple(n.end1, n.label, n.end2, {
+    ground: (groundOf ? groundOf(n) : null) ?? n.ground ?? "/",
+    polarity: n.polarity === "-" ? "-" : "+",
+    id: n.id,
+  }));
+  return lintGfp(claims, opts);
+}

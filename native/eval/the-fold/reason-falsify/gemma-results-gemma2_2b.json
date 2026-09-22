@@ -1,0 +1,380 @@
+[
+ {
+  "id": "slip1",
+  "source": "slip (this session)",
+  "truth": "error",
+  "engine": "error",
+  "A1": [
+   "sound",
+   "sound",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "sound",
+   "sound"
+  ],
+  "A3": [
+   "error",
+   "error",
+   "error"
+  ]
+ },
+ {
+  "id": "slip2",
+  "source": "slip (this session)",
+  "truth": "error",
+  "engine": "error",
+  "A1": [
+   "sound",
+   "error",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A3": [
+   "error",
+   "error",
+   "error"
+  ]
+ },
+ {
+  "id": "slip3",
+  "source": "slip (this session)",
+  "truth": "error",
+  "engine": "error",
+  "A1": [
+   "error",
+   "sound",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A3": [
+   "error",
+   "error",
+   "error"
+  ]
+ },
+ {
+  "id": "slip4",
+  "source": "slip (this session)",
+  "truth": "error",
+  "engine": "error",
+  "A1": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A2": [
+   "sound",
+   "error",
+   "sound"
+  ],
+  "A3": [
+   "error",
+   "error",
+   "error"
+  ]
+ },
+ {
+  "id": "slip5",
+  "source": "slip (this session)",
+  "truth": "error",
+  "engine": "error",
+  "A1": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A3": [
+   "error",
+   "error",
+   "error"
+  ]
+ },
+ {
+  "id": "code1",
+  "source": "code",
+  "truth": "error",
+  "engine": "error",
+  "A1": [
+   "sound",
+   "sound",
+   "sound"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A3": [
+   "error",
+   "error",
+   "error"
+  ]
+ },
+ {
+  "id": "code2",
+  "source": "code",
+  "truth": "error",
+  "engine": "error",
+  "A1": [
+   "sound",
+   "sound",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "sound",
+   "error"
+  ],
+  "A3": [
+   "error",
+   "error",
+   "error"
+  ]
+ },
+ {
+  "id": "code3",
+  "source": "code",
+  "truth": "sound",
+  "engine": "sound",
+  "A1": [
+   "sound",
+   "error",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A3": [
+   "sound",
+   "sound",
+   "sound"
+  ]
+ },
+ {
+  "id": "code4",
+  "source": "code",
+  "truth": "error",
+  "engine": "error",
+  "A1": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A3": [
+   "error",
+   "error",
+   "error"
+  ]
+ },
+ {
+  "id": "code5",
+  "source": "code",
+  "truth": "sound",
+  "engine": "sound",
+  "A1": [
+   "sound",
+   "sound",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A3": [
+   "sound",
+   "sound",
+   "sound"
+  ]
+ },
+ {
+  "id": "prose1",
+  "source": "prose control",
+  "truth": "sound",
+  "engine": "sound",
+  "A1": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "sound"
+  ],
+  "A3": [
+   "sound",
+   "sound",
+   "sound"
+  ]
+ },
+ {
+  "id": "prose2",
+  "source": "prose control",
+  "truth": "sound",
+  "engine": "sound",
+  "A1": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A3": [
+   "sound",
+   "sound",
+   "sound"
+  ]
+ },
+ {
+  "id": "prose3",
+  "source": "prose control",
+  "truth": "sound",
+  "engine": "sound",
+  "A1": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A3": [
+   "sound",
+   "sound",
+   "sound"
+  ]
+ },
+ {
+  "id": "prose4",
+  "source": "prose control",
+  "truth": "sound",
+  "engine": "sound",
+  "A1": [
+   "error",
+   "sound",
+   "sound"
+  ],
+  "A2": [
+   "sound",
+   "sound",
+   "error"
+  ],
+  "A3": [
+   "sound",
+   "sound",
+   "sound"
+  ]
+ },
+ {
+  "id": "prose5",
+  "source": "prose",
+  "truth": "error",
+  "engine": "error",
+  "A1": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A3": [
+   "error",
+   "error",
+   "error"
+  ]
+ },
+ {
+  "id": "prose6",
+  "source": "prose",
+  "truth": "error",
+  "engine": "error",
+  "A1": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A3": [
+   "error",
+   "error",
+   "error"
+  ]
+ },
+ {
+  "id": "probe1",
+  "source": "probe: alias",
+  "truth": "error",
+  "engine": "sound",
+  "A1": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A3": [
+   "sound",
+   "sound",
+   "sound"
+  ]
+ },
+ {
+  "id": "probe2",
+  "source": "probe: symmetry",
+  "truth": "error",
+  "engine": "sound",
+  "A1": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A2": [
+   "error",
+   "error",
+   "error"
+  ],
+  "A3": [
+   "sound",
+   "sound",
+   "sound"
+  ]
+ }
+]

@@ -1,0 +1,208 @@
+[
+ {
+  "id": "slip1",
+  "source": "slip (this session)",
+  "truth": "error",
+  "verdict": "error",
+  "expect": "claim_fails_oracle",
+  "kinds": [
+   "claim_fails_oracle"
+  ],
+  "pass": true,
+  "detail": "\"16:13:55 - 16:12:41 >= 600\" — the material asserts it, the declared oracle refutes it (mathjs: 58435 - 58361 >= 600 is false)"
+ },
+ {
+  "id": "slip2",
+  "source": "slip (this session)",
+  "truth": "error",
+  "verdict": "error",
+  "expect": "order_not_entailed",
+  "kinds": [
+   "order_not_entailed"
+  ],
+  "pass": true,
+  "detail": "\"ground_level must precede reopen\" does not follow from the declared prerequisites — a consistent order puts reopen first: addr → gates → void_level → reopen → ground_level → floor_level → ladder_honest → discourse_sep (784 consistent orders searched)"
+ },
+ {
+  "id": "slip3",
+  "source": "slip (this session)",
+  "truth": "error",
+  "verdict": "error",
+  "expect": "order_not_entailed",
+  "kinds": [
+   "order_not_entailed"
+  ],
+  "pass": true,
+  "detail": "\"ladder_honest must precede gates\" does not follow from the declared prerequisites — a consistent order puts gates first: addr → gates → void_level → ground_level → floor_level → reopen → ladder_honest → discourse_sep (784 consistent orders searched)"
+ },
+ {
+  "id": "slip4",
+  "source": "slip (this session)",
+  "truth": "error",
+  "verdict": "error",
+  "expect": "unlicensed_inference",
+  "kinds": [
+   "unlicensed_inference"
+  ],
+  "pass": true,
+  "detail": "\"greeting_miss caused conversation_dead\" composes causes into causes with no declared licence — structure never licenses composition; only a named giver can (R1)"
+ },
+ {
+  "id": "slip5",
+  "source": "slip (this session)",
+  "truth": "error",
+  "verdict": "error",
+  "expect": "universal_refuted",
+  "kinds": [
+   "universal_refuted"
+  ],
+  "pass": true,
+  "detail": "\"every social turn falls through to research\" claims to hold universally and a counterexample refutes it (2 counterexample(s) in 14 tested: hi) — refutation is a veto, never a licence, and here it vetoes"
+ },
+ {
+  "id": "code1",
+  "source": "code",
+  "truth": "error",
+  "verdict": "error",
+  "expect": "refuted_in_scope",
+  "kinds": [
+   "refuted_in_scope"
+  ],
+  "pass": true,
+  "detail": "has-type(ARG0=result, ARG1=string) @ /parse is declared strict — it holds throughout /parse — and has-type(ARG0=result, ARG1=null) @ /parse/catch inside it is a counterexample"
+ },
+ {
+  "id": "code2",
+  "source": "code",
+  "truth": "error",
+  "verdict": "error",
+  "expect": "circular",
+  "kinds": [
+   "circular"
+  ],
+  "pass": true,
+  "detail": "\"imports\" is declared acyclic, and it returns to its start: router → views → store → router — the chain begs the question"
+ },
+ {
+  "id": "code3",
+  "source": "code",
+  "truth": "sound",
+  "verdict": "sound",
+  "expect": "none",
+  "kinds": [
+   "overridden_in_scope"
+  ],
+  "pass": true,
+  "detail": null
+ },
+ {
+  "id": "code4",
+  "source": "code",
+  "truth": "error",
+  "verdict": "error",
+  "expect": "standing_contradiction",
+  "kinds": [
+   "standing_contradiction"
+  ],
+  "pass": true,
+  "detail": "\"has-type\" is one-valued in ARG1, and two values stand: has-type(ARG0=config.port, ARG1=number) @ /load vs has-type(ARG0=config.port, ARG1=string) @ /load — same ground, and nothing separates them"
+ },
+ {
+  "id": "code5",
+  "source": "code",
+  "truth": "sound",
+  "verdict": "sound",
+  "expect": "none",
+  "kinds": [],
+  "pass": true,
+  "detail": null
+ },
+ {
+  "id": "prose1",
+  "source": "prose control",
+  "truth": "sound",
+  "verdict": "sound",
+  "expect": "none",
+  "kinds": [],
+  "pass": true,
+  "detail": null
+ },
+ {
+  "id": "prose2",
+  "source": "prose control",
+  "truth": "sound",
+  "verdict": "sound",
+  "expect": "none",
+  "kinds": [],
+  "pass": true,
+  "detail": null
+ },
+ {
+  "id": "prose3",
+  "source": "prose control",
+  "truth": "sound",
+  "verdict": "sound",
+  "expect": "none",
+  "kinds": [
+   "order_entailed"
+  ],
+  "pass": true,
+  "detail": null
+ },
+ {
+  "id": "prose4",
+  "source": "prose control",
+  "truth": "sound",
+  "verdict": "sound",
+  "expect": "none",
+  "kinds": [
+   "claim_holds"
+  ],
+  "pass": true,
+  "detail": null
+ },
+ {
+  "id": "prose5",
+  "source": "prose",
+  "truth": "error",
+  "verdict": "error",
+  "expect": "standing_contradiction",
+  "kinds": [
+   "standing_contradiction"
+  ],
+  "pass": true,
+  "detail": "\"born-in-year\" is one-valued in ARG1 (giver: a person is born once), and two values stand: born-in-year(ARG0=Andrew Jackson, ARG1=1767) @ / vs born-in-year(ARG0=andrew jackson, ARG1=1779) @ / — same ground, and nothing separates them"
+ },
+ {
+  "id": "prose6",
+  "source": "prose",
+  "truth": "error",
+  "verdict": "error",
+  "expect": "polarity_contradiction",
+  "kinds": [
+   "polarity_contradiction"
+  ],
+  "pass": true,
+  "detail": "a claim and its denial: flows-through(ARG0=the Cumberland, ARG1=Nashville) @ / vs not flows-through(ARG0=The Cumberland, ARG1=Nashville) @ / — same ground, and nothing separates them"
+ },
+ {
+  "id": "probe1",
+  "source": "probe: alias",
+  "truth": "error",
+  "verdict": "sound",
+  "expect": "standing_contradiction",
+  "kinds": [],
+  "pass": false,
+  "detail": null
+ },
+ {
+  "id": "probe2",
+  "source": "probe: symmetry",
+  "truth": "error",
+  "verdict": "sound",
+  "expect": "polarity_contradiction",
+  "kinds": [],
+  "pass": false,
+  "detail": null
+ }
+]
