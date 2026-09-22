@@ -1763,3 +1763,20 @@ label and one fetch budget was spent on exemplar pages before any material
 page. A fixture web returns what you told it to; only the real one shares
 URLs across queries. Fixed, pinned with the live case's shape, and the next
 live run is owed before the fix is believed.
+
+## 73. On a one-model box, every warmer is an evictor — and a probe that loads is a warmer (2026-09-22)
+
+The daemon allowed three loaded models; the box had room for one. So the
+small-mouth warm (every minute), the residency holon's re-warm (every 45 s),
+and the watchdog's liveness probe (every 30 s) were three loaders fighting
+over one slot: sampled every 3 s, gemma2:2b held for 24 s, the small mouth
+for 18 s, then gemma2:2b again, 25 small-mouth loads in one hour, and a fold
+turn paid 28 s of its 75 s reloading the model the warm had just evicted.
+The probe was the worst, because its own comment promised the opposite: "a
+small resident model … never spawns load of its own", while its code named
+gemma2:2b unconditionally and sent no keep-alive. Found by sampling `/api/ps`
+and reading the expiry (the daemon's 10-minute default), not by reading the
+record, because none of the three loaders logged an eviction: the daemon did
+the evicting. The rules now: a probe asks only what `/api/ps` says is
+resident, a warm never pushes out a model in use, and what is kept warm is
+what actually served.

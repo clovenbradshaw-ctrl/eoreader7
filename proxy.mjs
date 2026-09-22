@@ -24,6 +24,15 @@ let _inflight = 0; // turns currently running — the model watchdog never fires
 // triggered by a REGULAR NL PROMPT, not a hand-built harness.
 import { detectBuildTask, buildCodeTask } from "./native/organs/code-build.js";
 
+// The caller's own tier ask for an ENGINE turn (x-er7-tier): "exact" pins
+// the asked model for every draw; anything else lets Heimdall's mouth pick
+// the fastest on-device mouth (heimdall.mjs mouthFor). Same header the
+// channel reads.
+function turnTierAsk(req) {
+  const t = String(req?.headers?.["x-er7-tier"] || "").trim().toLowerCase();
+  return t === "exact" ? "exact" : "any";
+}
+
 // The default model, chosen from what the box can ACTUALLY serve — hot first,
 // then resident — never a hard-coded name that may be seeded unservable (the
 // old `olmo2:7b` default 503'd every model-less ask; measured).
@@ -47,9 +56,11 @@ import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, contentLog, restartSurface, sampleVitalsNow, backgroundTasks, killTask, warmPressureTest, warmPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, contentLog, restartSurface, sampleVitalsNow, backgroundTasks, killTask, warmPressureTest, warmPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope, servedDisclosure } from "./heimdall.mjs";
 import { heldKey, findHeld, holdTurn, heldById, heldReceipt, awaitHeld } from "./held-turns.mjs";
-import { resolveServerKey, channelObserve, channelRefused, pickHost, hostBegin, hostEnd, reconcileModelServers, ledgerEva, setChannelBound, liveReapIfDue, holdWindow, hopOf, messagesOf, streamAccounting, hostOwnedByPid } from "./heimdall.mjs";
+import { resolveServerKey, channelObserve, channelRefused, pickHost, hostBegin, hostEnd, reconcileModelServers, ledgerEva, ledgerRec, setChannelBound, liveReapIfDue, holdWindow, hopOf, messagesOf, streamAccounting, hostOwnedByPid, slaWaitMs, waiterTtlMs, serveTiersFor, mouthFor, warmSmallMouth, hostByName, onlineMouths, onlineEnabled } from "./heimdall.mjs";
+import { toOpenAIBody, fromOpenAIResponse, sseChunkToOllama, splitSse } from "./native/kernel/online-mouths.js";
+import { recordProvisional, getRevision, revisionReceipt, pendingRevisions, markAttempted, markDrawn, markFailed } from "./native/kernel/revisions.mjs";
 import { MODEL_SERVER_URL, CHANNEL_PORT } from "./native/kernel/model-server.js";
 import { antistrauss } from "./native/the-fold/antistrauss.mjs";
 // "Computed, not generated" — the-fold's own house rule (arithmetic.js),
@@ -443,8 +454,13 @@ async function handleRequest(req, res) {
   // tail), served LOCALLY: the watcher runs inside this process. A person
   // asks ANY surface this path and gets the whole box.
   if (req.method === "GET" && req.url === "/heimdall") {
+    const status = heimdallStatus();
+    status.revisions = {
+      pending: pendingRevisions().length,
+      rule: "a provisional (small-mouth/device/online) answer's original ask is remembered; on the same cadence the small mouth re-warms, it is retried against the model actually requested — the upgrade is collected at GET /v1/revisions/:id, never pushed over what already went out",
+    };
     res.writeHead(200, { "content-type": "application/json" });
-    res.end(JSON.stringify(heimdallStatus()));
+    res.end(JSON.stringify(status));
     return;
   }
 
@@ -1164,100 +1180,132 @@ const job = await startDocumentJob({
         return;
       }
 
+      // HELD, NOT RE-RUN (2026-09-22, extended from /v1/chat/completions):
+      // the same request from the same requester, already running or
+      // finished, is answered from the hold — no second admission, no
+      // second turn. This is why my own 5-minute DeepSeek long-form timeout
+      // earlier today cost what it cost: a retry of the identical request
+      // would have re-paid the whole cold-load-times-N-calls cost again,
+      // because this door aborted the turn on client disconnect instead of
+      // letting it finish into a cache the way /v1/chat/completions already
+      // does. Checked BEFORE admission, so a retry never re-queues.
+      const holdKey = heldKey(sessionId, "/v1/ask", { task, model, mode, chatHistory: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [] });
+      const alreadyHeld = findHeld(holdKey);
+      if (alreadyHeld) {
+        try {
+          const w = await awaitHeld(alreadyHeld, TURN_DEADLINE_MS);
+          if (w.done) { res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId, "x-er7-held": alreadyHeld.id }); res.end(JSON.stringify(w.result)); }
+          else { res.writeHead(202, { "content-type": "application/json", "x-er7-session": sessionId, "retry-after": "15" }); res.end(JSON.stringify(heldReceipt(alreadyHeld))); }
+        } catch (err) {
+          res.writeHead(500, { "content-type": "application/json" });
+          res.end(JSON.stringify({ error: err.message }));
+        }
+        return;
+      }
+
       const admit = admitChatRequest({ model }, req.headers);
       if (!admit.allowed) {
         refuseAdmission(res, admit);
         return;
       }
-      releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
+      const lease = releaseOnResponse(res, String(req.headers["x-er7-claim"] || req.headers["x-er7-session"] || ""), admit);
 
       const userId = userIdFromHeaders(req);
       log(`ask → session=${sessionId} user=${userId} model=${model} taskLength=${task.length} mode=${mode} workspace=${workspace ? `"${workspace}"` : "none"}`);
 
-      const turnAbort = new AbortController();
-      const onDisconnect = () => {
-        if (res.writableEnded) return;
-        if (!turnAbort.signal.aborted) turnAbort.abort();
-      };
-      res.on("close", onDisconnect);
-      const turnDeadline = setTimeout(() => {
-        if (!turnAbort.signal.aborted) {
-          turnAbort.abort();
-        }
-      }, TURN_DEADLINE_MS);
       // THE MECHANICAL RACE, ON THIS DOOR TOO (falsification F3): the plain
       // doorway now runs the same observation-vs-prediction race
       // /v1/chat/completions already ran — a settled mechanism's computed
       // text is the answer, the model's draft rides as superseded, and a gap
       // is disclosed without suppressing anything.
       const observationP = runMechanical(task, MECHANISMS);
-      const turnT0 = Date.now(); // real prompt→response wall time, disclosed by Heimdall
-      const _tid = beginTurn({ sessionId, model }); // E1: phase instrumentation
-      _inflight++;
       const surface = surfaceFromRequest(req);
-      noteSurfaceActivity(surface, "begin");
-      emitLive({ act: "prompt", surface, model, sessionId, text: promptTextOf(task, parsed?.chatHistory) });
+
+      // HELD, NEVER PUNISHED: not tied to the client's socket, never
+      // aborted for being slow or for the client leaving — a slow turn says
+      // nothing about whether the model works, and dropping it just means
+      // paying the same cost again on the next try.
+      const entry = holdTurn(holdKey, async () => {
+        const turnT0 = Date.now(); // real prompt→response wall time, disclosed by Heimdall
+        const _tid = beginTurn({ sessionId, model }); // E1: phase instrumentation
+        _inflight++;
+        noteSurfaceActivity(surface, "begin");
+        emitLive({ act: "prompt", surface, model, sessionId, text: promptTextOf(task, parsed?.chatHistory) });
+        try {
+          // The turn's scope carries the caller's tier ask and collects which
+          // on-device mouths answered its draws (heimdall.mjs mouthFor) —
+          // returned below as `served`, never silent.
+          const scope = { sessionId, tier: turnTierAsk(req) };
+          const result = await turnScope.run(scope, () => runProxyTurn({
+            sessionId, userId, workspace, attachments, model, task, mode,
+            chatHistory: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [],
+            resumeAnswered: Array.isArray(parsed?.resumeAnswered) ? parsed.resumeAnswered : [],
+            openBefore: Array.isArray(parsed?.openBefore) ? parsed.openBefore : null,
+            caller: callerFromRequest(req, "ask", parsed),
+            webConsent: parsed?.webConsent === true || parsed?.webConsent === "true",
+            seed: parsed?.seed != null ? String(parsed.seed) : null,
+          }, (chunk) => {
+            // every generated chunk rides the live sink so the watch surface can
+            // show the actual text as it is written (monitor-only; never stored).
+            if (typeof chunk === "string" && chunk) { noteSurfaceActivity(surface, "chars", { chars: chunk.length }); emitLive({ act: "token", surface, model, sessionId, text: chunk }); }
+          }));
+          markServable(model); // it answered — Heimdall keeps it servable
+          recordTurnMs(Date.now() - turnT0);
+          endTurn(_tid); // E1: one row per turn — draws · load · prompt · gen
+          _inflight--;
+          noteSurfaceActivity(surface, "end");
+          if (result?.text) emitLive({ act: "token", surface, model: result.model ?? model, sessionId, text: result.text, final: true });
+          const observation = await observationP;
+          const race = precisionWinner({ observation, draft: result.text });
+          if (observation?.concluded && String(observation.kind) !== "BEYOND_REACH") {
+            noteMechanism({ mechanism: observation.mechanism, kind: String(observation.kind), winner: race.winner, task });
+          }
+          return {
+            answer: race.text,
+            sessionId,
+            model: result.model ?? model,
+            heimdall: bridgeMessage({ model: result.model ?? model }),
+            served: servedDisclosure(scope, result.model ?? model),
+            interlocutor: result.interlocutor ?? null,
+            usage: { promptTokens: result.usage?.promptTokens ?? 0, completionTokens: result.usage?.completionTokens ?? 0 },
+            relationEdges: result.relationEdges,
+            referentBindings: result.referentBindings,
+            thinking: result.thinking ?? null,
+            answerShape: result.answerShape ?? null,
+            truncated: result.truncated ?? false,
+            document: result.document ?? null,
+            race: raceReading(race),
+            // THE ASK-BACK ENVELOPE (build-clarify): the person sees the plain
+            // questions in `answer`; the record carries the structured shape —
+            // which cells are open, the round, the schema — so the fold, the
+            // TUI and a raw client render the SAME door and answer with the
+            // SAME {cell, value} shape (ONE-ENGINE-PLAN: one turn, every door).
+            mechanical: result.mechanical ?? null,
+          };
+        } catch (err) {
+          _inflight--;
+          endTurn(_tid);
+          noteSurfaceActivity(surface, "end"); // a failed turn is still a finished one
+          emitLive({ act: "token", surface, model, sessionId, text: `[error: ${err.message}]`, final: true, error: true });
+          log(`ask execution error: ${err.message}`);
+          throw err;
+        }
+      }, { requester: sessionIdFromHeaders(req) }); // the id GET /v1/held/:id checks; the key already carries the body sessionId
+      lease.until(entry.promise);
       try {
-        const result = await turnScope.run({ sessionId }, () => runProxyTurn({
-          sessionId, userId, workspace, attachments, model, task, mode,
-          chatHistory: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [],
-          resumeAnswered: Array.isArray(parsed?.resumeAnswered) ? parsed.resumeAnswered : [],
-          openBefore: Array.isArray(parsed?.openBefore) ? parsed.openBefore : null,
-          caller: callerFromRequest(req, "ask", parsed),
-          signal: turnAbort.signal,
-          webConsent: parsed?.webConsent === true || parsed?.webConsent === "true",
-          seed: parsed?.seed != null ? String(parsed.seed) : null,
-        }, (chunk) => {
-          // every generated chunk rides the live sink so the watch surface can
-          // show the actual text as it is written (monitor-only; never stored).
-          if (typeof chunk === "string" && chunk) { noteSurfaceActivity(surface, "chars", { chars: chunk.length }); emitLive({ act: "token", surface, model, sessionId, text: chunk }); }
-        }));
-        markServable(model); // it answered — Heimdall keeps it servable
-        recordTurnMs(Date.now() - turnT0);
-        endTurn(_tid); // E1: one row per turn — draws · load · prompt · gen
-        _inflight--;
-        noteSurfaceActivity(surface, "end");
-        // the finished text rides out as a final token event, so the watch
-        // surface shows the actual output even when per-chunk streaming is lost
-        if (result?.text) emitLive({ act: "token", surface, model: result.model ?? model, sessionId, text: result.text, final: true });
-        clearTimeout(turnDeadline);
-        res.removeListener("close", onDisconnect);
-        const observation = await observationP;
-        const race = precisionWinner({ observation, draft: result.text });
-        if (observation?.concluded && String(observation.kind) !== "BEYOND_REACH") {
-          noteMechanism({ mechanism: observation.mechanism, kind: String(observation.kind), winner: race.winner, task });
+        const w = await awaitHeld(entry, TURN_DEADLINE_MS);
+        if (res.writableEnded || res.destroyed) return; // client gone; the answer waits in the hold
+        if (w.done) {
+          res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
+          res.end(JSON.stringify(w.result));
+        } else {
+          log(`turn held → session=${sessionId} ${entry.id} (past ${Math.round(TURN_DEADLINE_MS / 1000)}s, still running)`);
+          res.writeHead(202, { "content-type": "application/json", "x-er7-session": sessionId, "retry-after": "15" });
+          res.end(JSON.stringify(heldReceipt(entry)));
         }
-        res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
-        res.end(JSON.stringify({
-          answer: race.text,
-          sessionId,
-          model: result.model ?? model,
-          heimdall: bridgeMessage({ model: result.model ?? model }),
-          interlocutor: result.interlocutor ?? null,
-          usage: { promptTokens: result.usage?.promptTokens ?? 0, completionTokens: result.usage?.completionTokens ?? 0 },
-          relationEdges: result.relationEdges,
-          referentBindings: result.referentBindings,
-          thinking: result.thinking ?? null,
-          answerShape: result.answerShape ?? null,
-          truncated: result.truncated ?? false,
-          document: result.document ?? null,
-          race: raceReading(race),
-          // THE ASK-BACK ENVELOPE (build-clarify): the person sees the plain
-          // questions in `answer`; the record carries the structured shape —
-          // which cells are open, the round, the schema — so the fold, the
-          // TUI and a raw client render the SAME door and answer with the
-          // SAME {cell, value} shape (ONE-ENGINE-PLAN: one turn, every door).
-          mechanical: result.mechanical ?? null,
-        }));
       } catch (err) {
-        clearTimeout(turnDeadline);
-        res.removeListener("close", onDisconnect);
-        noteSurfaceActivity(surface, "end"); // a failed turn is still a finished one
-        emitLive({ act: "token", surface, model, sessionId, text: `[${err?.message === "cancelled" ? "cancelled" : "error: " + err.message}]`, final: true, error: true });
-        log(`ask execution error: ${err.message}`);
-        if (!res.headersSent) {
-          res.writeHead(err?.message === "cancelled" ? 499 : 500, { "content-type": "application/json" });
-        }
+        if (res.writableEnded || res.destroyed) return;
+        if (!res.headersSent) res.writeHead(500, { "content-type": "application/json" });
         res.end(JSON.stringify({ error: err.message }));
       }
     });
@@ -1660,7 +1708,8 @@ const job = await startDocumentJob({
           _inflight++;
           noteSurfaceActivity(surface, "begin");
           emitLive({ act: "prompt", surface, model: reqData?.model ?? model, sessionId, text: promptTextOf(reqData?.task, reqData?.messages ?? parsed?.messages) });
-          const result = await turnScope.run({ sessionId }, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, emitBoth, onNote, onThinking));
+          const scope = { sessionId, tier: turnTierAsk(req) };
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, emitBoth, onNote, onThinking));
           endTurn(_ctid);
           _inflight--;
           noteSurfaceActivity(surface, "end");
@@ -1729,6 +1778,7 @@ const job = await startDocumentJob({
               mode: result.mode ?? null,
               usage: result.usage ?? null,
               race: raceReading(precisionWinner({ observation, draft: result.text })),
+              served: servedDisclosure(scope, parsed.model),
             },
           })}\n\n`);
           res.write("data: [DONE]\n\n");
@@ -1756,7 +1806,8 @@ const job = await startDocumentJob({
         // and the same request (or GET /v1/held/:id) collects it. The model is
         // not dropped — a slow turn says nothing about whether the model works.
         const entry = holdTurn(holdKey, async () => {
-          const result = await runProxyTurn({ sessionId, userId, workspace, ...reqData });
+          const scope = { sessionId, tier: turnTierAsk(req) };
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, ...reqData }));
           const answeredBy = result?.model ?? parsed.model; // plain-speech switch disclosed: the envelope names who answered
           const race = precisionWinner({ observation: await observationP, draft: result.text });
           const resp = openAIResponse({ id, model: answeredBy, text: race.text, created, usage: result.usage, reading: result });
@@ -1767,6 +1818,7 @@ const job = await startDocumentJob({
           resp.reading.truncated = result.truncated ?? false;
           resp.reading.document = result.document ?? null;
           resp.heimdall = bridgeMessage({ model: answeredBy });
+          resp.reading.served = servedDisclosure(scope, answeredBy);
           return resp;
         }, { requester: sessionId });
         lease.until(entry.promise);
@@ -1925,14 +1977,16 @@ const job = await startDocumentJob({
           };
           const emit = mechanicalWins ? () => {} : writeChunk;
           if (mechanicalWins) writeChunk(observation.text);
-          await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
+          const scope = { sessionId, tier: turnTierAsk(req) };
+          await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
             emit(token);
-          });
+          }));
           clearTurn();
           res.write(JSON.stringify({
             model: parsed.model, created_at: createdAt,
             message: { role: "assistant", content: "" },
             done: true, done_reason: "stop",
+            served: servedDisclosure(scope, parsed.model),
           }) + "\n");
           res.end();
         } catch (err) {
@@ -1963,7 +2017,8 @@ const job = await startDocumentJob({
           }
         }, TURN_DEADLINE_MS);
         try {
-          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
+          const scope = { sessionId, tier: turnTierAsk(req) };
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }));
           if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
@@ -1971,6 +2026,7 @@ const job = await startDocumentJob({
           const resp = ollamaChatResponse({ model: parsed.model, text: race.text, createdAt, usage: result.usage, reading: result });
           resp.reading = { ...(result.reading ?? result), sessionId, race: raceReading(race) };
           resp.heimdall = bridgeMessage({ model: parsed.model });
+          resp.served = servedDisclosure(scope, parsed.model);
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify(resp));
         } catch (err) {
@@ -2142,9 +2198,10 @@ const job = await startDocumentJob({
           res.write(anthropicStreamStart({ id, model: parsed.model }));
           res.write(anthropicContentBlockStart(0));
           if (mechanicalWins) emitDelta(observation.text);
-          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
+          const scope = { sessionId, tier: turnTierAsk(req) };
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
             emit(token);
-          });
+          }));
           clearTurn();
           res.write(anthropicContentBlockStop(0));
           res.write(anthropicMessageDelta({ outputTokens: outputTokens || (result?.usage?.completionTokens ?? 0) }));
@@ -2175,13 +2232,15 @@ const job = await startDocumentJob({
           }
         }, TURN_DEADLINE_MS);
         try {
-          const result = await runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData });
+          const scope = { sessionId, tier: turnTierAsk(req) };
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }));
           if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
           const race = precisionWinner({ observation: await observationP, draft: result.text });
           const resp = anthropicMessageResponse({ id, model: parsed.model, text: race.text, usage: result.usage });
           resp.heimdall = bridgeMessage({ model: parsed.model });
+          resp.served = servedDisclosure(scope, parsed.model);
           res.writeHead(200, { "content-type": "application/json" });
           res.end(JSON.stringify(resp));
         } catch (err) {
@@ -2322,11 +2381,165 @@ function channelReadBody(req) {
     req.on("error", reject);
   });
 }
+/** Serve one turn from the first ready hosted provider (free levels in
+ *  order). Returns true when an answer went out; false when every provider
+ *  was exhausted, down, or unknown — the caller falls back to the local
+ *  ladder. A 429 exhausts the provider (its Retry-After, else its window); a
+ *  5xx or a network failure stands it down; a model the provider does not
+ *  know is discovered once from /models. The response is translated back to
+ *  the wire the caller spoke (Ollama NDJSON / JSON, or OpenAI as-is). */
+async function tryOnline({ req, res, parsed, pathname, model, who, headers, t0, holds = 0 }) {
+  const reg = onlineMouths();
+  const route = /generate/.test(pathname) ? "generate" : "chat";
+  const openaiWire = pathname.startsWith("/v1/");
+  const stream = !!parsed.stream;
+  const tried = [];
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const pick = reg.pick({ exclude: tried });
+    if (!pick) return false;
+    const { provider: p, model: pm, key } = pick;
+    tried.push(p.name);
+    const body = openaiWire ? { ...parsed, model: pm } : toOpenAIBody(parsed, pm, { stream });
+    const ac = new AbortController();
+    let closedByClient = false;
+    const onClose = () => { if (!res.writableFinished) { closedByClient = true; ac.abort(); } };
+    res.on("close", onClose);
+    const started = Date.now();
+    let up;
+    try {
+      up = await fetch(`${p.baseUrl}/chat/completions`, { method: "POST", headers: { "content-type": "application/json", ...(key ? { authorization: `Bearer ${key}` } : {}) }, body: JSON.stringify(body), signal: AbortSignal.any([ac.signal, AbortSignal.timeout(60000)]) });
+    } catch (e) {
+      res.off("close", onClose);
+      if (closedByClient) return true; // the caller left; nothing to fall back for
+      reg.down(p.name, e?.cause?.code ?? e?.name ?? e.message); ledgerEva("online_down", { provider: p.name, reason: e?.cause?.code ?? e?.name ?? e.message, key: who.key }); continue;
+    }
+    if (up.status === 429) { res.off("close", onClose); const s = reg.exhausted(p.name, { retryAfterS: up.headers.get("retry-after") }); ledgerEva("online_exhausted", { provider: p.name, forS: s, key: who.key }); continue; }
+    if (up.status === 404 || up.status === 400 || up.status === 422) {
+      res.off("close", onClose);
+      const st = reg.standing(p.name);
+      if (st && !st.discovered) {
+        const found = await discoverOnlineModel(p, key).catch(() => null);
+        reg.setModel(p.name, found ?? pm);
+        if (found && found !== pm) { tried.pop(); attempt -= 1; ledgerEva("online_model_discovered", { provider: p.name, model: found, key: who.key }); continue; }
+      }
+      reg.down(p.name, `HTTP ${up.status}`); ledgerEva("online_down", { provider: p.name, reason: `HTTP ${up.status}`, key: who.key }); continue;
+    }
+    if (!up.ok) { res.off("close", onClose); reg.down(p.name, `HTTP ${up.status}`); ledgerEva("online_down", { provider: p.name, reason: `HTTP ${up.status}`, key: who.key }); continue; }
+    const stamps = { "x-heimdall-channel": CHANNEL_ID, "x-heimdall-tier": "online", "x-heimdall-provider": p.name, "x-heimdall-served-by": `${p.name}/${pm}`, "x-heimdall-revisable-by": model, "x-heimdall-provisional": "1", "x-heimdall-server": who.key, ...(holds ? { "x-heimdall-held": `${holds * 200}ms` } : {}) };
+    // THE REVISABLE PROMISE, ON THIS PATH TOO (2026-09-22): tryOnline writes
+    // its own response and never reaches the local-substitute recording
+    // site further down — measured live: the online tier stamped
+    // provisional/revisable-by with no x-heimdall-revision-id at all until
+    // this was added. The online answer is the LEAST grounded of every
+    // tier, so it is the one that most wants an upgrade offered.
+    const rev = recordProvisional({ requester: headers?.["x-er7-caller"] ?? who.key, requestedModel: model, servedBy: `${p.name}/${pm}`, tier: "online", pathname, body: { ...parsed, model } });
+    stamps["x-heimdall-revision-id"] = rev.id;
+    let promptTokens = 0, evalTokens = 0;
+    try {
+      if (openaiWire) {
+        res.writeHead(up.status, { "content-type": up.headers.get("content-type") || "application/json", ...stamps });
+        let tail = "";
+        if (up.body) for await (const chunk of up.body) { res.write(chunk); tail = (tail + Buffer.from(chunk).toString("utf8")).slice(-4096); }
+        res.end();
+        ({ promptTokens, evalTokens } = streamAccounting(tail));
+      } else if (!stream) {
+        const j = await up.json();
+        const out = fromOpenAIResponse(j, { model: pm, route, startedAt: t0 });
+        promptTokens = out.prompt_eval_count; evalTokens = out.eval_count;
+        res.writeHead(200, { "content-type": "application/json", ...stamps });
+        res.end(JSON.stringify(out));
+      } else {
+        res.writeHead(200, { "content-type": "application/x-ndjson", ...stamps });
+        let buf = "";
+        if (up.body) for await (const chunk of up.body) {
+          buf += Buffer.from(chunk).toString("utf8");
+          const [objs, rest] = splitSse(buf); buf = rest;
+          for (const o of objs) { const c = sseChunkToOllama(o, { model: pm, route }); if (c) { if (c.done) { promptTokens = c.prompt_eval_count ?? promptTokens; evalTokens = c.eval_count ?? evalTokens; } res.write(JSON.stringify(c) + "\n"); } }
+        }
+        res.end();
+      }
+    } catch (e) {
+      res.off("close", onClose);
+      if (!res.headersSent) { reg.down(p.name, e?.name ?? e.message); continue; }
+      res.end(); reg.observe(p.name, { ms: Date.now() - started, ok: false }); return true;
+    }
+    res.off("close", onClose);
+    reg.observe(p.name, { ms: Date.now() - started, ok: true });
+    channelObserve(who.key, { label: who.label, pid: who.pid, model: pm, requested: model, tier: "online", host: p.name, ms: Date.now() - t0, promptTokens, evalTokens, ok: true, status: 200 });
+    return true;
+  }
+  return false;
+}
+async function discoverOnlineModel(p, key) {
+  const r = await fetch(`${p.baseUrl}/models`, { headers: key ? { authorization: `Bearer ${key}` } : {}, signal: AbortSignal.timeout(8000) });
+  if (!r.ok) return null;
+  const j = await r.json().catch(() => null);
+  const ids = (j?.data ?? j?.models ?? []).map((m) => m?.id ?? m?.name).filter((x) => typeof x === "string");
+  return ids.find((id) => /llama|gemma|mistral|qwen|deepseek|gpt|flash|command|instruct/i.test(id)) ?? ids[0] ?? null;
+}
+/** The re-draw half of the revisable promise (2026-09-22): for each pending
+ *  revision, ask serveTiersFor the same question the channel itself asks —
+ *  can the ORIGINALLY-REQUESTED model answer inside the promise right now?
+ *  If yes, draw it for real and hold the upgrade; if not, leave it pending
+ *  for the next cadence. One bounded pass, never a queue of its own — a
+ *  revision that keeps missing just keeps being asked again, cheaply. */
+async function sweepRevisions() {
+  for (const entry of pendingRevisions()) {
+    let ready;
+    try { ready = serveTiersFor(entry.requestedModel).find((t) => t.tier === "full" && t.waitMs <= slaWaitMs()); }
+    catch { continue; }
+    if (!ready) continue;
+    markAttempted(entry.id);
+    const host = hostByName(ready.host);
+    if (!host) continue;
+    try {
+      const up = await fetch(`${host.url}${entry.pathname}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(entry.body), signal: AbortSignal.timeout(60000) });
+      if (!up.ok) { markFailed(entry.id, new Error(`HTTP ${up.status}`)); continue; }
+      const j = await up.json();
+      markDrawn(entry.id, j);
+      ledgerEva("revision_drawn", { requester: entry.requester, requestedModel: entry.requestedModel, servedBy: entry.servedBy, waitedMs: Date.now() - entry.createdAt });
+    } catch (e) {
+      markFailed(entry.id, e);
+    }
+  }
+}
+// A page on THIS box (any port) may use the channel from a browser — the same
+// scope a plain Ollama on this port served pages before Heimdall held it.
+// Any other origin gets no allow header: an arbitrary website must never be
+// able to drive the local model through the user's own browser.
+const LOOPBACK_PAGE_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/i;
+const CHANNEL_EXPOSED_HEADERS = "x-heimdall-channel, x-heimdall-host, x-heimdall-pick, x-heimdall-tier, x-heimdall-served-by, x-heimdall-revisable-by, x-heimdall-provisional, x-heimdall-revision-id, x-heimdall-server, x-heimdall-window, x-heimdall-held, x-heimdall-provider, x-heimdall-in-tab, retry-after, x-queue-position";
 async function handleChannel(req, res) {
   const t0 = Date.now();
   let pathname = req.url || "/";
   try { pathname = new URL(req.url, "http://localhost").pathname; } catch { /* raw url stands */ }
-  if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
+  // CORS, loopback pages only (2026-09-22): the channel shipped with none,
+  // so the-fold's page could no longer reach :11434 at all and silently fell
+  // through to :11436. setHeader here merges into every writeHead below.
+  const pageOrigin = typeof req.headers.origin === "string" && LOOPBACK_PAGE_ORIGIN.test(req.headers.origin) ? req.headers.origin : null;
+  if (pageOrigin) {
+    res.setHeader("access-control-allow-origin", pageOrigin);
+    res.setHeader("vary", "Origin");
+    res.setHeader("access-control-expose-headers", CHANNEL_EXPOSED_HEADERS);
+  }
+  if (req.method === "OPTIONS") {
+    if (pageOrigin) {
+      res.setHeader("access-control-allow-methods", "GET, POST, OPTIONS");
+      res.setHeader("access-control-allow-headers", String(req.headers["access-control-request-headers"] || "content-type"));
+    }
+    res.writeHead(204);
+    return res.end();
+  }
+  // THE REVISION'S RECEIPT (2026-09-22): a provisional answer's own promise,
+  // collected by its id — requester-scoped, exactly like /v1/held/:id. Never
+  // pushed to the caller; theirs to ask for.
+  if (req.method === "GET" && pathname.startsWith("/v1/revisions/")) {
+    const who = await resolveServerKey(req.socket);
+    const requester = String(req.headers["x-er7-user"] || req.headers["x-er7-caller"] || who.key || "");
+    const e = getRevision(decodeURIComponent(pathname.slice("/v1/revisions/".length)), { requester });
+    if (!e) return channelJson(res, 404, { error: "no such revision for this requester (drawn revisions are held for a while, then released)" });
+    return channelJson(res, 200, revisionReceipt(e));
+  }
   const isAnswer = req.method === "POST" && CHANNEL_ANSWER_ROUTES.has(pathname);
   const isRead = CHANNEL_READ_ROUTES.has(pathname) && (req.method === "GET" || req.method === "POST");
   if (!isAnswer && !isRead) return channelJson(res, 404, { error: `no such route on the channel: ${req.method} ${pathname}`, type: "unserved_path", path: pathname, method: req.method });
@@ -2350,26 +2563,120 @@ async function handleChannel(req, res) {
   const who = await resolveServerKey(req.socket);
   const headers = { ...req.headers };
   if (!headers["x-er7-user"] && !headers["x-er7-caller"] && !headers["x-er7-session"]) headers["x-er7-caller"] = who.key;
-  // a server is not a human: the batch ration, behind interactive work, unless it says otherwise
-  if (!headers["x-er7-priority"] && !headers["x-er7-user"]) headers["x-er7-priority"] = "batch";
+  // A server is not a human: the batch ration, behind interactive work,
+  // unless it says otherwise. A PAGE on this box is a person at a page
+  // (2026-09-22, the operator's rule: fastest for the person by default) —
+  // interactive, so it gets a person's place in line and the on-device
+  // substitute ladder. Anything that would leave the device stays opt-in.
+  if (!headers["x-er7-priority"] && !headers["x-er7-user"]) headers["x-er7-priority"] = pageOrigin ? "interactive" : "batch";
   const { hop, from } = hopOf(headers);
   if (hop >= 2) return channelJson(res, 508, { error: "the channel saw this turn twice — a loop, refused", type: "loop" });
+  const tierAsk = String(headers["x-er7-tier"] || "").trim().toLowerCase(); // "any" | "exact" | "" (a person hops, a batch waits)
+  let served = null; // a substitute mouth, when the ladder de-escalated the turn
+  // THE GATE — every answer-generating call, FIRST (moved 2026-09-22): it
+  // used to run after admission, and the hold loop's online rung returns from
+  // inside admission — so a prompt the gate would block could still leave
+  // the box to an online provider. Nothing is admitted, held, substituted,
+  // sent off-device, or recorded for revision until it has passed here.
+  if (!/embed/.test(pathname)) {
+    const gate = antistrauss.gate({ model, messages: messagesOf(parsed), route: "chat" }, { forceBlock: true });
+    if (!gate.allow) return channelJson(res, 403, { error: gate.reason, type: "antistrauss_blocked", verdict: gate.verdict ?? null });
+  }
   // ADMISSION — a re-entered turn (the bridge fell through) was admitted already
   let admit = null;
   if (hop === 0) {
-    admit = admitChatRequest(parsed, headers);
+    // THE MOUTH FIRST (2026-09-22, "use whatever model and system will be
+    // fastest for the user"): a person's turn — interactive, or a caller that
+    // said x-er7-tier: any — whose model is cold or busy past the promise is
+    // served NOW by a warm on-device mouth, the same decision the engine's
+    // own draws take (heimdall.mjs mouthFor), instead of paying a load
+    // (measured: 28s of a 75s fold turn was reloading gemma2:2b). Stamped
+    // provisional and revisable below, like every ladder answer. Never for
+    // embeddings, never for a caller that pinned its model, never off-device.
+    // (a request carrying images is a vision ask: never handed to a text mouth)
+    const carriesImages = Array.isArray(parsed?.images) && parsed.images.length > 0 || (parsed?.messages ?? []).some((m) => Array.isArray(m?.images) && m.images.length || Array.isArray(m?.content) && m.content.some((c) => /image/.test(String(c?.type ?? ""))));
+    const mouthOk = !/embed/.test(pathname) && !carriesImages && (tierAsk === "any" || (tierAsk !== "exact" && headers["x-er7-priority"] === "interactive"));
+    if (mouthOk) {
+      const m = mouthFor(model, { scope: null, exclude: from ?? hostOwnedByPid(who.pid) });
+      if (m.provisional && hostByName(m.host)) {
+        const altAdmit = admitChatRequest({ ...parsed, model: m.model }, { ...headers, "x-er7-quiet": "1" });
+        if (altAdmit.allowed) { admit = altAdmit; served = { host: m.host, model: m.model, tier: m.tier }; }
+      }
+    }
+    if (!admit) admit = admitChatRequest(parsed, headers);
+    // HOLD, DON'T BOUNCE (2026-09-22): a refusal that will clear in seconds —
+    // not your turn, the lane full, the box pegged, a wait inside the promise,
+    // memory that a finishing turn frees — is held HERE on the open socket
+    // and re-admitted the moment it clears (admission is 0.1 ms; the caller
+    // keeps its place in line on every retry), bounded by slaSeconds. Measured
+    // before this: a client told "retry in 30s" slept 30s for a slot that
+    // freed in 2s. Only past the promise is the caller bounced, with the
+    // measured wait.
+    const HOLDABLE = new Set(["not_your_turn", "lane_full", "saturated", "expected_wait", "zipper", "memory_pressured", "model_diversity_capped"]);
+    // IN-TAB FIRST, PAST THE PROMISE (2026-09-22, "fastest for the user"): a
+    // page that says its own in-tab model is WARM (x-er7-in-tab: warm) is not
+    // held on a refusal that MEASURES the box past the promise — the expected
+    // wait already beyond it, or a load the box cannot afford now — once no
+    // warm on-device mouth answered above. It is told at once and answers in
+    // its own tab, instead of waiting out the whole promise first (the fold
+    // hopped only after the 12s hold). Fairness refusals that clear inside
+    // the promise (your turn, the lane, the zipper) are still held.
+    const PAST_PROMISE = new Set(["expected_wait", "memory_pressured", "model_diversity_capped"]);
+    const inTabWarm = String(headers["x-er7-in-tab"] || "").trim().toLowerCase() === "warm";
+    const answerInTab = !!admit && !admit.allowed && inTabWarm && PAST_PROMISE.has(admit.type);
+    if (!admit.allowed && HOLDABLE.has(admit.type) && !answerInTab) {
+      // A person is told the truth at the promise (slaSeconds): past it, the
+      // measured wait, not a spinner. A batch caller is held until served —
+      // bouncing it after 12s cost it the 12s AND a retry (measured: three of
+      // six 429s at 12.1s that would have been answered at ~19s) — bounded by
+      // the line's own stale-waiter limit (waiterTtlSeconds), never forever.
+      const interactive = headers["x-er7-priority"] === "interactive";
+      const deadline = Date.now() + (interactive ? slaWaitMs() : waiterTtlMs());
+      // THE LADDER (2026-09-22, SERVING-POLICY tiers 3–4): a person is not
+      // left waiting on a mouth the box cannot afford right now. If a
+      // substitute is WARM — the small mouth on a daemon, a phone's model
+      // through the bridge — and can answer inside the promise, the turn is
+      // served there NOW, stamped provisional and revisable by the model
+      // asked for. Never a cold load. A caller asking `x-er7-tier: exact`
+      // (and batch work by default) waits for its model instead.
+      const substituteOk = !carriesImages && (tierAsk === "any" || (tierAsk !== "exact" && interactive));
+      let holds = 0;
+      while (!admit.allowed && HOLDABLE.has(admit.type) && Date.now() < deadline && !res.writableEnded && !req.socket.destroyed) {
+        // THE ONLINE RUNG (2026-09-22, `onlineMouths` on — SECURITY REDUCED):
+        // ahead of the small mouth because a hosted model answers better, and
+        // the operator chose the trade; never for embeddings, never for a
+        // caller that pinned its tier. The fast-pass lane admits it (ration
+        // and claim, no local slot). If every provider is spent, the local
+        // substitutes and the hold stand as before.
+        if (substituteOk && onlineEnabled() && !/embed/.test(pathname)) {
+          const onlineAdmit = admitChatRequest({ ...parsed, model: "online/any" }, { ...headers, "x-er7-quiet": "1" });
+          if (onlineAdmit.allowed) {
+            releaseOnResponse(res, onlineAdmit.claim?.id ?? null, onlineAdmit);
+            if (await tryOnline({ req, res, parsed, pathname, model, who, headers, t0, holds })) return;
+          }
+        }
+        if (substituteOk) {
+          const alt = serveTiersFor(model, { exclude: from ?? hostOwnedByPid(who.pid) }).find((c) => c.tier !== "full" && c.waitMs <= slaWaitMs());
+          if (alt) {
+            const altAdmit = admitChatRequest({ ...parsed, model: alt.model }, { ...headers, "x-er7-quiet": "1" });
+            if (altAdmit.allowed) { admit = altAdmit; served = alt; break; }
+          }
+        }
+        await new Promise((r) => setTimeout(r, 200));
+        holds += 1;
+        admit = admitChatRequest(parsed, { ...headers, "x-er7-quiet": "1" });
+      }
+      if (admit.allowed && holds) res.setHeader("x-heimdall-held", `${holds * 200}ms`);
+      if (req.socket.destroyed) return;
+    }
     if (!admit.allowed) {
-      const hold = channelRefused(who.key, admit.retryAfterS ?? 15, { label: who.label, pid: who.pid });
+      const hold = channelRefused(who.key, admit.retryAfterS ?? 15, { label: who.label, pid: who.pid, priority: headers["x-er7-priority"] });
       const h = { "retry-after": String(hold.retryAfterS), "x-heimdall-server": who.key };
+      if (answerInTab) { h["x-heimdall-in-tab"] = "answer-in-tab"; ledgerRec("answer_in_tab", { key: who.key, model, type: admit.type }); }
       if (admit.queue?.position != null) h["x-queue-position"] = String(admit.queue.position);
       return channelJson(res, admit.status, { error: admit.message, type: admit.type, retry_after: hold.retryAfterS, early_retry: hold.early || undefined, queue: admit.queue ?? null }, h);
     }
     releaseOnResponse(res, admit.claim?.id ?? null, admit);
-  }
-  // THE GATE — every answer-generating call, the channel's included
-  if (!/embed/.test(pathname)) {
-    const gate = antistrauss.gate({ model, messages: messagesOf(parsed), route: "chat" }, { forceBlock: true });
-    if (!gate.allow) return channelJson(res, 403, { error: gate.reason, type: "antistrauss_blocked", verdict: gate.verdict ?? null });
   }
   // ONE WINDOW
   const askedWindow = holdWindow(parsed);
@@ -2378,9 +2685,14 @@ async function handleChannel(req, res) {
   // host this turn came from: named by the hop mark, or measured — the caller
   // IS a host (the bridge falling through to its upstream, hop mark or not).
   const exclude = from ?? hostOwnedByPid(who.pid);
-  const picked = pickHost({ model, session: who.key, exclude });
+  const picked = served ? { host: hostByName(served.host), reason: `ladder:${served.tier}` } : pickHost({ model, session: who.key, exclude });
   const host = picked.host;
-  hostBegin(host.name);
+  const servedModel = served ? served.model : model;
+  // Captured BEFORE the mutation below, with the model actually asked for —
+  // this, never the substitute's body, is what a revision later re-sends.
+  const originalBody = served ? { ...parsed, model } : null;
+  if (served) parsed.model = served.model;
+  hostBegin(host.name, servedModel);
   const ac = new AbortController();
   let closedByClient = false;
   res.on("close", () => { if (!res.writableFinished) { closedByClient = true; ac.abort(); } });
@@ -2393,7 +2705,17 @@ async function handleChannel(req, res) {
       signal: ac.signal,
     });
     status = up.status;
-    const out = { "content-type": up.headers.get("content-type") || "application/json", "x-heimdall-channel": CHANNEL_ID, "x-heimdall-host": host.name, "x-heimdall-pick": picked.reason, "x-heimdall-server": who.key };
+    const out = { "content-type": up.headers.get("content-type") || "application/json", "x-heimdall-channel": CHANNEL_ID, "x-heimdall-host": host.name, "x-heimdall-pick": picked.reason, "x-heimdall-server": who.key, "x-heimdall-tier": served ? served.tier : "full" };
+    if (served) {
+      out["x-heimdall-served-by"] = served.model; out["x-heimdall-revisable-by"] = model; out["x-heimdall-provisional"] = "1";
+      // THE REVISABLE PROMISE, KEPT (2026-09-22): recorded only once the draw
+      // is known to have SUCCEEDED (up.ok) — a provisional answer that never
+      // actually came back is not something to promise an upgrade on.
+      if (up.ok) {
+        const rev = recordProvisional({ requester: headers["x-er7-caller"] ?? who.key, requestedModel: model, servedBy: served.model, tier: served.tier, pathname, body: originalBody });
+        out["x-heimdall-revision-id"] = rev.id;
+      }
+    }
     if (askedWindow != null) out["x-heimdall-window"] = `held (asked ${askedWindow})`;
     res.writeHead(up.status, out);
     // fetch's body yields Uint8Arrays, whose toString() is "104,101,…" — decode
@@ -2406,13 +2728,13 @@ async function handleChannel(req, res) {
     const code = e?.cause?.code ?? e?.code ?? e?.name ?? "";
     if (!res.headersSent) channelJson(res, closedByClient ? 499 : 502, { error: `${host.name} did not answer: ${code || e.message}`, type: closedByClient ? "client_closed" : "host_failed", host: host.name });
     else res.end();
-    hostEnd(host.name, { model, ms: Date.now() - t0, ok: false, refused: /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND/.test(String(code)) });
-    channelObserve(who.key, { label: who.label, pid: who.pid, model, host: host.name, ms: Date.now() - t0, ok: false, status: closedByClient ? 499 : 502 });
+    hostEnd(host.name, { model: servedModel, ms: Date.now() - t0, ok: false, refused: /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND/.test(String(code)) });
+    channelObserve(who.key, { label: who.label, pid: who.pid, model: servedModel, requested: model, tier: served ? served.tier : "full", host: host.name, ms: Date.now() - t0, ok: false, status: closedByClient ? 499 : 502 });
     return;
   }
   const acct = streamAccounting(tail);
-  hostEnd(host.name, { model, ms: Date.now() - t0, ok, loadMs: acct.loadMs });
-  channelObserve(who.key, { label: who.label, pid: who.pid, model, host: host.name, ms: Date.now() - t0, loadMs: acct.loadMs, promptTokens: acct.promptTokens, evalTokens: acct.evalTokens, ok, status });
+  hostEnd(host.name, { model: servedModel, ms: Date.now() - t0, ok, loadMs: acct.loadMs });
+  channelObserve(who.key, { label: who.label, pid: who.pid, model: servedModel, requested: model, tier: served ? served.tier : "full", host: host.name, ms: Date.now() - t0, loadMs: acct.loadMs, promptTokens: acct.promptTokens, evalTokens: acct.evalTokens, ok, status });
 }
 /** Hold the channel: reconcile the daemons to one (the operator's rule), make
  *  sure ours answers, then bind BOTH loopback families — `localhost` resolves
@@ -2422,6 +2744,8 @@ async function handleChannel(req, res) {
 async function bootChannel() {
   const r = await reconcileModelServers().catch((e) => ({ ok: false, error: e.message }));
   log(`channel: reconcile — kept ${r.kept ?? "none"}, quit ${(r.quit ?? []).length}${r.ensured?.note ? `; ${r.ensured.note}` : r.ensured?.error ? `; ${r.ensured.error}` : r.error ? `; ${r.error}` : ""}`);
+  // the roster, then the small mouth beside the working model (never into a pressured box)
+  refreshOllamaModels().then(() => warmSmallMouth()).then((w) => log(`channel: small mouth — ${w.model ?? "none"}${w.warmed ? " warmed" : `: ${w.reason}`}`)).catch((err) => log(`small mouth: ${err.message}`));
   const bind = (host) => new Promise((resolve) => {
     const s = http.createServer(handleChannel);
     s.on("error", (e) => resolve({ ok: false, error: e.code || e.message }));
@@ -2687,6 +3011,17 @@ server.listen(PORT, "127.0.0.1", () => {
       // tick, so on the operator's live box it never ran — `reaper.last` null
       // while one model sat loaded twice. Its own cadence, driven here.
       liveReapIfDue();
+      // THE SMALL MOUTH, KEPT WARM (2026-09-22): warmSmallMouth ran once at
+      // boot only — measured the same day: a declared small mouth (the
+      // MoE fast-tier default) was evicted within minutes by real concurrent
+      // traffic on the shared box (other callers' models filling
+      // OLLAMA_MAX_LOADED_MODELS), and nothing re-warmed it until asked by
+      // hand. Its own internal memory-pressure check (warmPressureTest)
+      // already refuses to warm into a pressured box, so driving it here on
+      // the same cadence is the residency holon's own rule, applied to the
+      // one model that is never a real turn's own hotModelSet entry.
+      warmSmallMouth().then((w) => { if (w.warmed) log(`small mouth re-warmed: ${w.model}`); }).catch((err) => log(`small mouth warm error: ${err.message}`));
+      sweepRevisions().catch((err) => log(`revision sweep error: ${err.message}`));
     }, holonDriverMs).unref();
     log(`holon driver: external heimdall — holon tree + window eye driven locally every ${holonDriverMs}ms`);
   }

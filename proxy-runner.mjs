@@ -3053,12 +3053,24 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
     // "INFERENCE HOSTS"). One local daemon is the default, so this is the
     // same call as before on a one-box setup.
     const H = await import("./heimdall.mjs");
-    const picked = H.pickHost({ model, session: H.currentTurnSession() });
+    // WHICH MOUTH (2026-09-22, "use whatever model and system will be
+    // fastest for the user"): before the host, Heimdall says which ON-DEVICE
+    // mouth answers this draw soonest — the asked model when it can inside
+    // the promise, else a warm substitute (the small mouth, the person's own
+    // phone), sticky for the rest of the turn and disclosed (heimdall.mjs
+    // mouthFor). A logit bias pins the asked model: it was computed for that
+    // model's tokenizer and would push the wrong tokens on any other.
+    const mouth = H.mouthFor(model, { pinned: !!(logitsBias && Object.keys(logitsBias).length) });
+    const drawModel = mouth.provisional ? mouth.model : model;
+    _hot.add(hotModelName(drawModel)); // the mouth that SERVES is the one the residency holon keeps warm
+    const mouthHost = mouth.provisional ? H.hostByName(mouth.host) : null;
+    const picked = mouthHost ? { host: mouthHost, reason: `mouth:${mouth.tier}` } : H.pickHost({ model: drawModel, session: H.currentTurnSession() });
     const host = picked.host;
-    H.hostBegin(host.name);
+    H.hostBegin(host.name, drawModel);
     const hostT0 = Date.now();
     let hostClosed = false;
-    const closeHost = (o) => { if (hostClosed) return; hostClosed = true; H.hostEnd(host.name, { model, ms: Date.now() - hostT0, ...o }); };
+    const closeHost = (o) => { if (hostClosed) return; hostClosed = true; H.hostEnd(host.name, { model: drawModel, ms: Date.now() - hostT0, ...o }); };
+    if (onNote && mouth.fresh) onNote({ move: "mouth", asked: mouth.revisableBy, servedBy: drawModel, tier: mouth.tier, host: host.name, reason: mouth.reason, waitMs: mouth.waitMs ?? null, askedEtaMs: mouth.askedEtaMs ?? null });
     if (onNote && hosts_note_once(host.name, picked.reason)) onNote({ move: "host_pick", host: host.name, reason: picked.reason });
     try {
 const res = await fetch(`${host.url}/api/chat`, {
@@ -3066,7 +3078,7 @@ const res = await fetch(`${host.url}/api/chat`, {
         headers: { "content-type": "application/json" },
         signal: ctrl.signal,
         body: JSON.stringify({
-          model,
+          model: drawModel,
           messages,
           stream: true,
           // Keep the model resident for the DURATION of the work. A long
@@ -3113,7 +3125,7 @@ const reader = res.body.getReader();
       const readBody = async () => {
         if (!firstRead) return reader.read();
         firstRead = false;
-        return raceFirstRead(() => reader.read(), FIRST_BYTE_TIMEOUT_MS, model);
+        return raceFirstRead(() => reader.read(), FIRST_BYTE_TIMEOUT_MS, drawModel);
       };
       const decoder = new TextDecoder();
       let buffer = "";
@@ -3202,7 +3214,7 @@ const reader = res.body.getReader();
               const _queueMs = Math.max(0, (obj.total_duration ?? 0) / 1e6 - _workMs);
               closeHost({ ok: true, loadMs: (obj.load_duration ?? 0) / 1e6, queueMs: _queueMs });
               import("./heimdall.mjs").then((h) => h.observeCall({
-                model,
+                model: drawModel,
                 host: host.name,
                 promptTokens: obj.prompt_eval_count ?? 0,
                 promptMs: (obj.prompt_eval_duration ?? 0) / 1e6,
@@ -3256,14 +3268,21 @@ const reader = res.body.getReader();
       // instead of rediscovering the same silence. Lazily imported, never
       // awaited — the mark must not slow the error's own path home.
       if (err?.code === "ollama_first_byte_timeout") {
-        const bare = String(model ?? "").replace(/^er7:/, "");
+        const bare = String(drawModel ?? "").replace(/^er7:/, "");
         import("./heimdall.mjs").then((h) => h.markUnservable(bare, "first_byte_timeout")).catch(() => {});
       }
       // the host that failed this attempt: a refusal stands it down (the
       // next attempt picks another); a timeout is not a conviction
       closeHost({ ok: false, refused: /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND/.test(String(err?.cause?.code ?? err?.code ?? "")) || /^ollama 5\d\d$/.test(String(err?.message ?? "")) });
       if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
-      await retryUnderLoad(attempt, model, { local: true }).catch((e) => { finishReview(false); throw e; });
+      // A substitute that failed is dropped from the turn, so the retry
+      // decides again. When the NEXT attempt would go to a warm mouth, the
+      // retry loads nothing — the pressured-throw below exists only to keep
+      // a retry from loading into a thrashing box, so it does not apply.
+      if (mouth.provisional) H.forgetMouth(model);
+      const nextMouth = H.mouthFor(model, { peek: true, pinned: !!(logitsBias && Object.keys(logitsBias).length) });
+      const nextWarm = nextMouth.provisional || nextMouth.reason === "resident_inside_promise";
+      await retryUnderLoad(attempt, model, { local: !nextWarm }).catch((e) => { finishReview(false); throw e; });
     } finally {
       clearTimeout(timer);
       closeHost({ ok: false }); // no-op if the done chunk or the catch already closed it
@@ -4011,7 +4030,27 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       }
     }
   }
-  _hot.add(model); // this turn is using it — hold the effective model resident after
+  // A model the person NAMED IN WORDS (a spoken switch, this turn or carried
+  // from an earlier one) is served exactly as named: Heimdall's mouth never
+  // substitutes the person's own choice (heimdall.mjs pinTurnModel/mouthFor).
+  // HOT = WHAT SERVES (2026-09-22): the residency holon re-warms every hot
+  // model it finds missing (45s cadence). Marking the ASKED model hot here
+  // loaded it mid-turn even while Heimdall's mouth had a warm model answering
+  // (measured: a cold OLMo ask was loaded ~44s into the turn, so its draw
+  // found it resident and the substitution never happened). Each draw now
+  // marks its own mouth hot (streamOllamaChat); only a model that will serve
+  // as asked — pinned by the person or the caller, or a turn with no
+  // Heimdall scope at all — is marked here, as before.
+  {
+    let pinnedHere = false;
+    try {
+      const H = await import("./heimdall.mjs");
+      const st = H.turnScope.getStore();
+      if (session.modelOverride && model === session.modelOverride) { H.pinTurnModel(model); pinnedHere = true; }
+      if (!st || st.tier === "exact") pinnedHere = true;
+    } catch { pinnedHere = true; /* no Heimdall: the old behavior */ }
+    if (pinnedHere) _hot.add(model);
+  }
 
   // Fold an early-return turn into the session corpus so the conversation's
   // own fold keeps continuity (transcriptFromSession reads these lines).

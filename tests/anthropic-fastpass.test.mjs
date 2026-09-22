@@ -70,3 +70,30 @@ test("FAST PASS: an unservable remote is still refused, honestly", () => {
   h.markServable("anthropic/claude-sonnet-4-6");
   assert.equal(call("A", "er7:anthropic/claude-sonnet-4-6").allowed, true);
 });
+
+// LEAVES THE DEVICE (2026-09-22): the fast pass keys on off-device PREFIXES,
+// and a model the daemon has installed is on-device whatever its name. The
+// old bare-substring list let the local DeepSeek MoE small mouth skip every
+// local gate while it loaded onto this very box.
+test("leavesDevice: the local DeepSeek small mouth is on-device; the DeepSeek API lane is not", () => {
+  h.__tiersTest.setInstalled([{ name: "deepseek-v2:16b-lite-chat-q4_0", size: 8.9e9, families: ["deepseek2"] }, { name: "gemma2:2b", size: 1.6e9, families: ["gemma2"] }]);
+  assert.equal(h.leavesDevice("er7:deepseek-v2:16b-lite-chat-q4_0"), false, "an installed model never leaves the device");
+  assert.equal(isUngatedModel("er7:deepseek-v2:16b-lite-chat-q4_0"), false, "so it never skips the local gates");
+  assert.equal(h.leavesDevice("deepseek/deepseek-chat"), true, "the provider/model API lane leaves the device");
+  assert.equal(h.leavesDevice("online/pollinations/openai"), true);
+  assert.equal(h.leavesDevice("er7:claude-haiku-4-5"), true);
+  assert.equal(h.leavesDevice("hf.co/someone/some-model:q4"), false, "a registry path is not a provider prefix");
+  // even a name that LOOKS remote is local once the daemon holds it
+  h.__tiersTest.setInstalled([{ name: "claude-mimic:latest", size: 1e9, families: ["llama"] }]);
+  assert.equal(h.leavesDevice("claude-mimic"), false, "local wins over any prefix");
+  h.__tiersTest.setInstalled(null);
+});
+
+test("FAST PASS: a saturated box QUEUES the local DeepSeek small mouth instead of waving it through", () => {
+  h.__tiersTest.setInstalled([{ name: "deepseek-v2:16b-lite-chat-q4_0", size: 8.9e9, families: ["deepseek2"] }]);
+  __queueTest.setSaturated(true);
+  const r = call("local-user", "er7:deepseek-v2:16b-lite-chat-q4_0");
+  assert.notEqual(r.fastPass, true, `the local MoE must not fast-pass: ${JSON.stringify(r)}`);
+  assert.equal(r.allowed, false, "a saturated box holds a local model in the line");
+  h.__tiersTest.setInstalled(null);
+});

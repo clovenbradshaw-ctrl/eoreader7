@@ -61,6 +61,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawn } from "node:child_process";
 import http from "node:http";
 import { MODEL_SERVER_URL, CHANNEL_PORT, modelServerHost, modelServerPort } from "./native/kernel/model-server.js";
+import { makeOnlineRegistry } from "./native/kernel/online-mouths.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const isMain = (() => {
@@ -126,6 +127,7 @@ function parseHosts() {
   return out.map((h) => ({
     ...h, inflight: 0, calls: 0, picks: 0, fails: 0, lastAt: null, downAt: null, downReason: null,
     kind: null,          // "daemon" | "bridge" — measured on the first /bridge/hello probe, never assumed
+    inflightBy: new Map(), // model -> turns in flight on this host for THAT model (each model is its own runner: its own slots)
     meanMs: new Map(),   // model -> EWMA turn ms on this host
     loadMs: null,        // EWMA of REAL loads (load_duration > 100ms) on this host
     resident: new Map(), // model -> expiresAt (from /api/ps) — what is hot here
@@ -171,7 +173,7 @@ export function pickHost({ model = null, session = null, exclude = null } = {}) 
   // 3. expected wait per host
   const measured = up.map((h) => (model ? h.meanMs.get(model) : null)).filter((v) => Number.isFinite(v) && v > 0);
   const typical = measured.length ? measured.reduce((a, b) => a + b, 0) / measured.length : 1;
-  const waitOf = (h) => h.inflight * ((model && h.meanMs.get(model)) || typical);
+  const waitOf = (h) => modelInflight(h, model) * ((model && h.meanMs.get(model)) || typical);
   const loadCostOf = (h) => (h.loadMs ?? 0);
   // 2. resident first, unless waiting for the resident host costs more than
   //    loading elsewhere (that host's own measured load cost). A bridge is a
@@ -213,14 +215,23 @@ function pendingCount() {
   while (admittedPending.length && admittedPending[0] < cut) admittedPending.shift();
   return admittedPending.length;
 }
-export function hostBegin(name) {
+export function hostBegin(name, model = null) {
   if (admittedPending.length) admittedPending.shift();
   const h = hostByName(name); if (!h) return;
   h.inflight += 1; h.lastAt = Date.now();
+  if (model) h.inflightBy.set(model, (h.inflightBy.get(model) ?? 0) + 1);
+}
+/** Turns in flight on a host FOR ONE MODEL — a daemon runs one runner per
+ *  loaded model, each with its own slots, so gemma's queue is not OLMo's.
+ *  Unknown model → the host total. */
+export function modelInflight(h, model = null) {
+  if (!model) return h.inflight;
+  return h.inflightBy?.get(model) ?? 0;
 }
 export function hostEnd(name, { model = null, ms = null, ok = true, loadMs = 0, refused = false, queueMs = null } = {}) {
   const h = hostByName(name); if (!h) return;
   h.inflight = Math.max(0, h.inflight - 1);
+  if (model && h.inflightBy) h.inflightBy.set(model, Math.max(0, (h.inflightBy.get(model) ?? 0) - 1));
   h.lastAt = Date.now();
   if (ok) {
     h.calls += 1;
@@ -251,7 +262,7 @@ export function expectedWaitMs(model) {
   for (const h of up) {
     const mean = h.meanMs.get(model);
     if (!Number.isFinite(mean) || mean <= 0) continue;
-    const ahead = h.inflight + pendingEach;
+    const ahead = modelInflight(h, model) + pendingEach;
     const ms = ahead * mean + (h.queueMs ?? 0);
     if (best == null || ms < best.ms) best = { ms, host: h.name, inflight: ahead, meanMs: mean, queueMs: h.queueMs ?? 0 };
   }
@@ -649,7 +660,9 @@ export function zipperDisclosure() {
     redeemed: passes.filter((p) => p.redeemedAt != null).length,
   };
 }
-const LOG_FILE = path.join(HERE, "heimdall-log.jsonl");
+// env-overridable so a TEST never writes fake acts onto the live record
+// (2026-09-22: a warm test's "only 200MB available" landed on the real log)
+const LOG_FILE = process.env.ER7_HEIMDALL_LOG_FILE || path.join(HERE, "heimdall-log.jsonl");
 
 const ts = () => new Date().toISOString();
 const log = (msg) => process.stderr.write(`[${ts()}] [heimdall] ${msg}\n`);
@@ -1519,7 +1532,8 @@ export function disclosure() {
     // the fast pass: remote mouths never wait for the local box
     fastPass: {
       rule: "a remote mouth (Anthropic's own API, the opencode server) never touches this box — no VRAM, no reload — so it skips saturation, the family cap, and the queue. Ration, servable, and exactly-once claim still apply.",
-      ungated: UNGATED_SUBSTRINGS,
+      leavesDevicePrefixes: OFF_DEVICE_PREFIXES,
+      localWins: "a model installed on this daemon is on-device whatever its name",
     },
     saturated: boxSaturated(cachedVitals()),
     surfacesUp: surfaces.filter((s) => s.up === true).length,
@@ -1807,7 +1821,224 @@ export function seedUnservableLarge(models = loadedModels()) {
   }
 }
 
+// ── THE INSTALLED ROSTER and THE SMALL MOUTH (2026-09-22) ─────────────────
+// What the daemon can serve at all (/api/tags, with sizes), and the one
+// SMALL mouth Heimdall keeps warm beside the working model so a person is
+// answered when the working model's slots are full: the smallest installed
+// generative model — never an embedder, never a vision model, never a coder
+// — chosen by measured file size, or named by ER7_SMALL_MOUTH. It is a
+// substitute of last resort, disclosed as `provisional` and `revisable by`
+// the model that was asked for; a cold load is never a substitute.
+let installedModels = null; // [{ name, size, families }] or null when unread
+export function installedModelList() { return installedModels; }
+/** A general-purpose talking model: never an embedder, a vision model, or a
+ *  coder — the same filter chooses the small mouth and the warm tier. */
+export function isGeneralMouth(m) {
+  return !!m?.name
+    && !/embed/i.test(m.name) && !(m.families ?? []).some((f) => /bert/i.test(f))
+    && !/vision|vl\b|moondream|llava/i.test(m.name) && !(m.families ?? []).some((f) => /clip|vision/i.test(f))
+    && !/coder|code\b/i.test(m.name);
+}
+export function pickSmallMouth(installed, { exclude = [] } = {}) {
+  const skip = new Set(exclude.filter(Boolean));
+  const cands = (installed ?? []).filter((m) => m?.name && !skip.has(m.name) && isGeneralMouth(m));
+  cands.sort((a, b) => (a.size ?? Infinity) - (b.size ?? Infinity));
+  return cands[0]?.name ?? null;
+}
+// The env var seeds the FIRST boot only; the setting (persisted, runtime-
+// adjustable like every other Heimdall knob) is the durable source from then
+// on, so a restart by any session — not just the one that set the env var —
+// carries the same choice (2026-09-22, the operator's own decision: wire the
+// measured-fastest MoE in as the declared small mouth rather than leave it
+// an unreferenced research artifact).
+let SMALL_MOUTH = String(process.env.ER7_SMALL_MOUTH ?? "auto").trim() || "auto";
+export function smallMouthName({ exclude = [] } = {}) {
+  if (SMALL_MOUTH && SMALL_MOUTH !== "auto") return SMALL_MOUTH;
+  return pickSmallMouth(installedModels, { exclude });
+}
+/** Every mouth that could answer `model` RIGHT NOW without a load, ranked:
+ *  the requested model wherever it is resident (tier full), then the
+ *  substitutes — the declared small mouth on a daemon (tier small), any
+ *  model a phone holds through the bridge (tier device) — each with its
+ *  expected wait (turns in flight for THAT model × its measured mean). */
+export function serveTiersFor(model, { exclude = null } = {}) {
+  const small = smallMouthName({ exclude: [model] });
+  const out = [];
+  for (const h of hosts) {
+    if (!hostUp(h) || h.shapeMismatch || hostStandby(h) || h.name === exclude) continue;
+    for (const m of h.resident.keys()) {
+      if (!hostResident(h, m)) continue;
+      let tier = null;
+      if (m === model) tier = "full";
+      else if (h.kind === "bridge") tier = "device";
+      else if (small && m === small) tier = "small";
+      // THE WARM TIER (2026-09-22, "fastest for the user"): any OTHER model
+      // already resident on a daemon that is a general-purpose talker — on a
+      // one-model box the small mouth is rarely warm beside the working model
+      // (measured: each evicted the other), so the model that IS warm is the
+      // fastest mouth there is. Ranked after the small mouth and the phone.
+      else if (isGeneralMouth((installedModels ?? []).find((x) => x.name === m) ?? { name: m })) tier = "warm";
+      if (!tier) continue;
+      const mean = h.meanMs.get(m);
+      const waitMs = modelInflight(h, m) * (Number.isFinite(mean) && mean > 0 ? mean : 0) + (h.queueMs ?? 0);
+      out.push({ host: h.name, model: m, tier, waitMs, measured: Number.isFinite(mean) && mean > 0, provisional: tier !== "full" });
+    }
+  }
+  const rank = { full: 0, small: 1, device: 1, warm: 2 };
+  out.sort((a, b) => rank[a.tier] - rank[b.tier] || a.waitMs - b.waitMs);
+  return out;
+}
+/** Keep the small mouth warm (boot, and after a reconcile) — never into a
+ *  pressured box, never a second copy. */
+let lastWarmStandDown = null; // log a would-evict stand-down once per change, not once a minute
+export async function warmSmallMouth() {
+  const name = smallMouthName();
+  if (!name) return { warmed: false, reason: "no small mouth: roster unread or nothing eligible" };
+  const local = hosts.find((h) => h.kind !== "bridge" && !h.auto) ?? hosts[0];
+  if (hostResident(local, name)) return { warmed: false, model: name, reason: "already resident" };
+  // IDLE DAEMON ONLY (2026-09-22, measured): on this box the daemon had room
+  // for ONE model. A small-mouth warm beside a resident gemma2:2b evicted it
+  // within 24s; the next gemma2:2b call evicted the small mouth 18s later —
+  // 25 small-mouth loads in one hour, each a reload somebody paid for (a fold
+  // turn: 28s of 75s was loading gemma2:2b). A warm must never push out a
+  // model someone is using, so it runs only onto a daemon holding no other
+  // generative model. A caller whose model is cold then finds the small mouth
+  // warm and is answered by it (mouthFor) instead of waiting on a load.
+  const others = [...local.resident.keys()].filter((m) => m !== name && hostResident(local, m) && !/embed/i.test(m));
+  if (others.length) {
+    const reason = `would evict ${others.join(", ")} — the small mouth is warmed only onto an idle daemon`;
+    if (lastWarmStandDown !== others.join(",")) { lastWarmStandDown = others.join(","); appendLog({ act: "rec", holon: "small-mouth", finding: "stand_down", probe: "would_evict", evidence: others.join(", "), giver: "heimdall", standing: "disclosed" }); }
+    return { warmed: false, model: name, reason };
+  }
+  lastWarmStandDown = null;
+  if (warmPressureTest(cachedVitals())) { appendLog({ act: "rec", holon: "small-mouth", finding: "stand_down", probe: "memory_pressured", evidence: warmPressureReason(cachedVitals()), giver: "heimdall", standing: "disclosed" }); return { warmed: false, model: name, reason: "memory pressured" }; }
+  try {
+    const r = await fetch(`${local.url}/api/generate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ model: name, keep_alive: "1h" }), signal: AbortSignal.timeout(120000) });
+    if (!r.ok) return { warmed: false, model: name, reason: `HTTP ${r.status}` };
+    local.resident.set(name, new Date(Date.now() + 3600000).toISOString());
+    appendLog({ act: "rec", finding: "small_mouth_warmed", model: name, host: local.name, giver: "heimdall", standing: "disclosed" });
+    return { warmed: true, model: name, host: local.name };
+  } catch (e) { return { warmed: false, model: name, reason: e?.cause?.code ?? e.message }; }
+}
+export const __tiersTest = { setInstalled(list) { installedModels = list; } };
+
+// ── THE ENGINE'S MOUTH (2026-09-22) ──────────────────────────────────────
+// User direction: "use whatever model and system will be fastest for the
+// user, give them less control on the surface of what they're using (except
+// for anything that leaves device)". The channel already served a person
+// from a warm substitute when their model could not answer inside the
+// promise; the engine's OWN draws (runProxyTurn → streamOllamaChat) did not —
+// they only changed hosts, so a cold model meant a load (measured: 43s of a
+// 47s answer under swap) and a busy one meant the queue. Every local draw
+// now asks this one question first. Rules, in order:
+//   1. a caller that pinned its tier (x-er7-tier: exact), a model the person
+//      named in words (a spoken switch), a draw carrying a logit bias
+//      (computed for ONE tokenizer), or a model that leaves the device is
+//      served exactly as asked — never substituted;
+//   2. a turn that already went to a substitute stays there while it is
+//      warm, so one voice finishes the turn;
+//   3. the asked model, resident somewhere inside the promise, answers;
+//   4. else a WARM on-device mouth (serveTiersFor: the small mouth on a
+//      daemon, the person's own phone through the bridge — never an online
+//      provider, never another person's machine) answers when it can inside
+//      the promise AND sooner than the asked model's own measured time: its
+//      queue if resident, its measured load cost if cold. A cold load that
+//      is unmeasured, into a memory-pressured box, or of a model the daemon
+//      does not even hold is never counted as sooner;
+//   5. else the asked model, exactly as before.
+// Every substitution is disclosed: recorded on the turn's scope (the proxy
+// returns it as `served`), logged, and named after the fact — never silent.
+const bareModel = (m) => String(m ?? "").replace(/^er7:/, "");
+function localDaemon() { return hosts.find((h) => h.kind !== "bridge" && !h.auto) ?? hosts[0]; }
+function countMouth(scope, asked, d) {
+  if (!scope) return;
+  const key = `${d.model}|${d.tier}`;
+  const mouths = (scope.mouths ??= new Map());
+  const prev = mouths.get(key);
+  if (prev) prev.draws += 1;
+  else mouths.set(key, { asked, servedBy: d.model, tier: d.tier, host: d.host ?? null, reason: d.reason, waitMs: d.waitMs ?? null, askedEtaMs: d.askedEtaMs ?? null, draws: 1 });
+}
+/** Which on-device mouth answers `model` fastest right now. Returns
+ *  { model, tier, host, provisional, reason, fresh? } — `provisional` only
+ *  when a substitute answers; `fresh` only on the draw that first chose it. */
+export function mouthFor(model, { scope = turnScope.getStore() ?? null, pinned = false, exclude = null, peek = false } = {}) {
+  // a PEEK decides against a copy of the turn (its pins, its sticky mouth)
+  // and records nothing — the retry path asks "would the next attempt load?"
+  if (peek && scope) scope = { sessionId: scope.sessionId, tier: scope.tier, pinned: scope.pinned, mouthByAsked: new Map(scope.mouthByAsked ?? []) };
+  const bare = bareModel(model);
+  const asked = { model: bare, tier: "full", provisional: false, host: null };
+  const keep = (reason, extra = {}) => { const d = { ...asked, ...extra, reason }; countMouth(scope, bare, d); return d; };
+  if (!bare) return { ...asked, reason: "no_model" };
+  if (leavesDevice(bare)) return { ...asked, reason: "leaves_device" }; // its own lane; never counted here
+  if (pinned || scope?.tier === "exact" || scope?.pinned?.has?.(bare)) return keep("caller_pinned");
+  const prior = scope?.mouthByAsked?.get(bare);
+  if (prior) {
+    const h = hostByName(prior.host);
+    if (h && hostUp(h) && hostResident(h, prior.model)) { const d = { ...prior, reason: "sticky_turn" }; countMouth(scope, bare, prior); return d; }
+    scope.mouthByAsked.delete(bare);
+  }
+  const tiers = serveTiersFor(bare, { exclude });
+  const full = tiers.find((t) => t.tier === "full");
+  if (full && full.waitMs <= SLA_MAX_WAIT_MS) return keep("resident_inside_promise", { host: full.host, waitMs: full.waitMs });
+  const alt = tiers.find((t) => t.tier !== "full" && t.waitMs <= SLA_MAX_WAIT_MS);
+  if (!alt) return keep(full ? "no_warm_mouth_sooner" : "cold_no_warm_mouth");
+  let askedEtaMs;
+  if (full) askedEtaMs = full.waitMs;
+  else {
+    const local = localDaemon();
+    const held = installedModels == null || installedLocally(bare.toLowerCase());
+    const pressured = memoryPressured(cachedVitals());
+    askedEtaMs = !held || pressured || !Number.isFinite(local?.loadMs) ? Infinity : local.loadMs + (expectedWaitMs(bare).ms ?? 0);
+  }
+  if (alt.waitMs >= askedEtaMs) return keep("asked_model_sooner");
+  const d = {
+    model: alt.model, tier: alt.tier, host: alt.host, waitMs: alt.waitMs, provisional: true, revisableBy: bare,
+    askedEtaMs: Number.isFinite(askedEtaMs) ? askedEtaMs : null,
+    reason: full ? "asked_model_past_promise" : "asked_model_cold",
+  };
+  if (scope) (scope.mouthByAsked ??= new Map()).set(bare, d);
+  countMouth(scope, bare, d);
+  if (!peek) appendLog({ act: "rec", finding: "mouth_substituted", asked: bare, servedBy: d.model, tier: d.tier, host: d.host, reason: d.reason, waitMs: d.waitMs, askedEtaMs: d.askedEtaMs, session: scope?.sessionId ?? null });
+  return { ...d, fresh: true };
+}
+/** A substitute that failed a draw is dropped from the turn, so the retry
+ *  decides again instead of returning to the mouth that just failed. */
+export function forgetMouth(model, { scope = turnScope.getStore() ?? null } = {}) {
+  scope?.mouthByAsked?.delete(bareModel(model));
+}
+/** The person named this model in words: it is served exactly as named for
+ *  the rest of the turn (a spoken switch is the person's own choice). */
+export function pinTurnModel(model, { scope = turnScope.getStore() ?? null } = {}) {
+  if (scope && model) (scope.pinned ??= new Set()).add(bareModel(model));
+}
+const MOUTH_REASON_WORDS = {
+  asked_model_cold: "wasn't loaded",
+  asked_model_past_promise: "was busy past the promised wait",
+};
+/** What the caller is told after the turn: which on-device mouths answered
+ *  its draws, and — when a substitute spoke — one plain line saying so. An
+ *  empty `by` means no local draw ran (a computed answer, or a remote lane
+ *  that discloses itself). */
+export function servedDisclosure(scope, askedModel = null) {
+  const mouths = [...(scope?.mouths?.values() ?? [])];
+  const subs = mouths.filter((m) => m.tier !== "full");
+  const asked = bareModel(askedModel) || mouths[0]?.asked || null;
+  const out = { asked, by: [...new Set(mouths.map((m) => m.servedBy))], provisional: subs.length > 0, mouths, line: null };
+  if (subs.length) {
+    const s = subs[0];
+    const where = s.tier === "device" ? "on your phone" : "on this device";
+    out.revisableBy = s.asked;
+    out.line = `Answered by ${s.servedBy} ${where}, because ${s.asked} ${MOUTH_REASON_WORDS[s.reason] ?? "couldn't answer as soon"}.`;
+  }
+  return out;
+}
+
 export async function refreshOllamaModels() {
+  // the roster: what is installed at all, with sizes (the small mouth is chosen from it)
+  try {
+    const t = await fetchWithTimeout(`${OLLAMA_URL}/api/tags`, 3000);
+    if (t.ok) { const b = await t.json(); installedModels = (b?.models ?? []).map((m) => ({ name: m.name ?? m.model, size: Number(m.size) || null, families: m.details?.families ?? (m.details?.family ? [m.details.family] : []) })).filter((m) => m.name); }
+  } catch { /* unread: the last roster stands */ }
   // every host's own /api/ps: what is resident WHERE, and which hosts answer
   await Promise.all(hosts.map(async (h) => {
     try {
@@ -1958,6 +2189,14 @@ const REAP_TEST_AGE_MS = Number(process.env.ER7_REAP_TEST_AGE ?? 2 * 60 * 60 * 1
 const REAP_MAX_KILLS = Number(process.env.ER7_REAP_MAX_KILLS ?? 5);
 let REAP_KILL_ON = (process.env.ER7_REAP_OFF ?? "0") !== "1"; // runtime-adjustable
 let RECONCILE_DAEMONS_ON = (process.env.ER7_RECONCILE_OFF ?? "0") !== "1"; // runtime-adjustable: multiple ollama → quit and reconcile to one
+// The same ceiling the daemon itself is started with (modelServerConfig) —
+// one number, so admission and the daemon can never disagree about it.
+let MODEL_DIVERSITY_CAP = Number(process.env.ER7_OLLAMA_MAX_LOADED ?? 3);
+// THE ONLINE TIER — off by default: with it on, the prompt LEAVES THE BOX to a hosted free-tier model when no local mouth can serve a hopping caller inside the promise (native/kernel/online-mouths.js).
+let ONLINE_MOUTHS_ON = (process.env.ER7_ONLINE_MOUTHS ?? "0") === "1"; // runtime-adjustable
+const onlineRegistry = makeOnlineRegistry();
+export const onlineMouths = () => onlineRegistry;
+export const onlineEnabled = () => ONLINE_MOUTHS_ON;
 
 /** Parse a `ps` etime ([dd-]hh:mm:ss) to seconds, or null when it is not a time. */
 export function parseEtime(s) {
@@ -2576,8 +2815,30 @@ async function tick() {
 // admission carries fastPass:true so the proxy skips its local inflight mark
 // too — otherwise the remote call would inflate workAhead/ETA and lane-full
 // decisions for the local calls behind it.
-const UNGATED_SUBSTRINGS = String(process.env.ER7_UNGATED_ALLOW ?? "anthropic,claude,deepseek,opencode")
+//
+// LEAVES THE DEVICE (2026-09-22): the list is a list of PREFIXES that name an
+// off-device lane — never bare substrings. A substring match let the local
+// DeepSeek MoE small mouth (`deepseek-v2:16b-lite-chat-q4_0`) skip every
+// local gate while it loaded onto this very box. Two rules, in order: a
+// model the daemon has installed is ON the device, whatever its name; else a
+// model leaves the device only when its id starts with a remote lane's
+// prefix (the opencode lane speaks `provider/model`, the Anthropic lane
+// takes bare `claude-` ids, `online/` is the channel's hosted free tier).
+// Leaving the device is also the one line the person holds themselves —
+// Heimdall never picks an off-device mouth on its own (see serveTiersFor).
+const OFF_DEVICE_PREFIXES = String(process.env.ER7_UNGATED_ALLOW ?? "online/,anthropic/,opencode/,deepseek/,openai/,openrouter/,claude-")
   .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
+const installedLocally = (bare) => (installedModels ?? []).some((m) => {
+  const n = String(m?.name ?? "").toLowerCase();
+  return n === bare || n === `${bare}:latest` || n.replace(/:latest$/, "") === bare;
+});
+/** Does a call to `model` leave this device? Pure of the fast-pass switch. */
+export function leavesDevice(model) {
+  const bare = String(model ?? "").replace(/^er7:/, "").trim().toLowerCase();
+  if (!bare || bare === "unknown") return false;
+  if (installedLocally(bare)) return false;
+  return OFF_DEVICE_PREFIXES.some((p) => p === "*" || bare.startsWith(p));
+}
 let FAST_PASS_ON = true; // runtime-adjustable: the remote (ungated) lane
 let QUIT_HOGS_ON = false; // SPECIAL setting (off): allow quitting memory-hog apps
 let QUIT_APPS_ON = false; // SPECIAL setting (off): allow quitting ANY app
@@ -2585,9 +2846,7 @@ let PARALLELISM = Number(process.env.ER7_OLLAMA_PARALLEL ?? 2); // concurrent mo
 export const currentParallelism = () => PARALLELISM; // the ceiling any concurrent draws respect
 export function isUngatedModel(model) {
   if (!FAST_PASS_ON) return false;
-  const bare = String(model ?? "").replace(/^er7:/, "").toLowerCase();
-  if (!bare || bare === "unknown") return false;
-  return UNGATED_SUBSTRINGS.some((sub) => sub === "*" || bare.includes(sub));
+  return leavesDevice(model);
 }
 // ── STEERING: the bridge. Admit by model family with a typed refusal. ─────
 const familyOfRequest = (model) => String(model ?? "").split(":")[0] || "any";
@@ -2638,7 +2897,7 @@ async function forwardTo(res, method, targetUrl, headers, body) {
 // the live environment default it can be reset to. A change is validated,
 // applied to the live value the decisions already read, appended to the
 // ledger, and persisted — so it survives a restart and is always disclosed.
-const SETTINGS_FILE = path.join(HERE, "state", "heimdall-settings.json");
+const SETTINGS_FILE = process.env.ER7_SETTINGS_FILE || path.join(HERE, "state", "heimdall-settings.json"); // tests point this at a scratch file — a test importing heimdall.mjs must never inherit the live proxy's persisted settings (measured 2026-09-22: a test process silently picked up the live smallMouth override)
 const SETTINGS = {
   // SPECIAL (off by default): permit Heimdall to QUIT the biggest memory-hog
   // apps. Quitting is the only way to release RAM *and its swapped pages* —
@@ -2665,6 +2924,9 @@ const SETTINGS = {
   swapCeilPct:  { def: SWAP_CEIL_PCT, type: "int", min: 50, max: 100, about: "swap level (%) that counts as pressure \u2014 refused only when also churning or starved", aliases: ["swap ceiling", "swap ceil", "swap limit"] },
   swapChurnPps: { def: SWAP_CHURN_PPS, type: "int", min: 0, max: 5000, about: "swap-out pages/second that count as active thrashing", aliases: ["swap churn", "churn"] },
   reconcileDaemons: { def: RECONCILE_DAEMONS_ON, type: "bool", about: "when more than one ollama daemon is found, quit the extras (and the Ollama.app respawner) and keep one on the private address", aliases: ["reconcile daemons", "reconcile", "reconcile ollama", "one daemon"] },
+  onlineMouths: { def: ONLINE_MOUTHS_ON, type: "bool", about: "SECURITY REDUCED: when no local mouth can serve a hopping caller inside the promise, answer from a hosted free-tier model (the Free-LLM roster, tried level by level) — the prompt leaves the box; stamped online/provisional; never for x-er7-tier: exact", aliases: ["online mouths", "online", "online models", "free llm", "hosted models", "online mode"] },
+  smallMouth: { def: SMALL_MOUTH, type: "string", about: "the declared fast-tier substitute a waiting caller is served by when their own model's wait exceeds the promise — \"auto\" picks the smallest installed generative model by file size; a named model (e.g. an MoE quant) overrides that heuristic outright", aliases: ["small mouth", "smallmouth", "fast tier", "fast model"] },
+  modelDiversityCap: { def: MODEL_DIVERSITY_CAP, type: "int", min: 0, max: 32, about: "the daemon's own loaded-model slot count (kept in sync with OLLAMA_MAX_LOADED_MODELS); a non-resident request is held, not admitted, once this many OTHER distinct models already have real inflight demand — 0 disables the check", aliases: ["model diversity cap", "diversity cap", "loaded model cap", "max loaded"] },
 };
 function applySetting(name, value, { persist = true } = {}) {
   const key = canonicalSetting(name);
@@ -2693,6 +2955,9 @@ function applySetting(name, value, { persist = true } = {}) {
     case "swapCeilPct": SWAP_CEIL_PCT = v; break;
     case "swapChurnPps": SWAP_CHURN_PPS = v; break;
     case "reconcileDaemons": RECONCILE_DAEMONS_ON = v; break;
+    case "onlineMouths": ONLINE_MOUTHS_ON = v; break;
+    case "smallMouth": SMALL_MOUTH = v; break;
+    case "modelDiversityCap": MODEL_DIVERSITY_CAP = v; break;
     default: return { ok: false, error: `no such setting: ${key}` };
   }
   if (persist) saveSettings();
@@ -2717,6 +2982,10 @@ function coerceSetting(value, spec) {
     if (["1", "true", "on", "yes", "enable", "enabled", "raise", "up"].includes(s)) return true;
     if (["0", "false", "off", "no", "disable", "disabled", "down"].includes(s)) return false;
     return null;
+  }
+  if (spec.type === "string") {
+    const s = String(value ?? "").trim();
+    return s || null; // an empty string is never a valid model name — reject, never silently clear
   }
   const n = Math.round(Number(String(value ?? "").match(/-?\d+/)?.[0]));
   if (!Number.isFinite(n)) return null;
@@ -2744,6 +3013,9 @@ function settingValue(name) {
     case "swapCeilPct": return SWAP_CEIL_PCT;
     case "swapChurnPps": return SWAP_CHURN_PPS;
     case "reconcileDaemons": return RECONCILE_DAEMONS_ON;
+    case "onlineMouths": return ONLINE_MOUTHS_ON;
+    case "smallMouth": return SMALL_MOUTH;
+    case "modelDiversityCap": return MODEL_DIVERSITY_CAP;
     default: return null;
   }
 }
@@ -3126,7 +3398,7 @@ export function modelServerConfig() {
     env: {
       OLLAMA_NUM_PARALLEL: String(PARALLELISM),
       OLLAMA_CONTEXT_LENGTH: process.env.ER7_OLLAMA_CTX ?? "8192",
-      OLLAMA_MAX_LOADED_MODELS: process.env.ER7_OLLAMA_MAX_LOADED ?? "3", // matches setup-proxy.sh's launchctl value; "1" evicted the chat model for any second model
+      OLLAMA_MAX_LOADED_MODELS: String(MODEL_DIVERSITY_CAP), // matches setup-proxy.sh's launchctl value; "1" evicted the chat model for any second model; kept in sync with the admission-side cap
       OLLAMA_KEEP_ALIVE: process.env.ER7_OLLAMA_KEEP_ALIVE ?? "10m",
       // The daemon binds the PRIVATE address derived from its own URL, never
       // a second literal (2026-09-21). OLLAMA_NUM_GPU was carried here until
@@ -3290,14 +3562,28 @@ export async function probeModelServer({ timeoutMs = 8000 } = {}) {
   try {
     const tags = await fetch(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(4000) });
     if (!tags.ok) return { ok: false, status: tags.status, surface: "tags" };
+    // RESIDENT ONLY, as documented above (fixed 2026-09-22): the probe used to
+    // ask PROBE_MODEL whether or not it was loaded, with no keep_alive — so
+    // the idle watchdog (every 30s) LOADED gemma2:2b on a one-model box,
+    // evicting whatever was warm, and cut a resident model's keep-alive to the
+    // daemon's 10-minute default. Now it asks only a model /api/ps says is
+    // resident (PROBE_MODEL when it is, else the smallest resident generative
+    // model), carrying that model's REMAINING keep-alive. With nothing
+    // resident there is no runner to wedge: /api/tags answering is the check.
+    const ps = await fetch(`${OLLAMA_URL}/api/ps`, { signal: AbortSignal.timeout(4000) }).then((x) => (x.ok ? x.json() : null)).catch(() => null);
+    const resident = (ps?.models ?? []).filter((m) => (m?.name ?? m?.model) && !/embed/i.test(m.name ?? m.model)).sort((a, b) => (a.size ?? 0) - (b.size ?? 0));
+    const probe = resident.find((m) => (m.name ?? m.model) === PROBE_MODEL) ?? resident[0];
+    if (!probe) return { ok: true, status: 200, surface: "tags", note: ps ? "nothing resident — no generate to wedge, and a probe never loads one" : "/api/ps unread — tags answered, and a probe never loads a model to find out more" };
+    const remainingS = Math.round((Date.parse(probe.expires_at) - Date.now()) / 1000);
     const r = await fetch(`${OLLAMA_URL}/api/chat`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        model: PROBE_MODEL,
+        model: probe.name ?? probe.model,
         stream: false,
         messages: [{ role: "user", content: "Say OK" }],
         options: { num_predict: 4, temperature: 0 },
+        ...(Number.isFinite(remainingS) && remainingS > 0 ? { keep_alive: `${remainingS}s` } : {}),
       }),
       signal: AbortSignal.timeout(timeoutMs),
     });
@@ -3365,13 +3651,18 @@ export function heimdallStatus() {
 export function admitChat(body = "{}", headers = {}) {
   mintPasses();
   pruneWaiters();
+  // A re-poll from a caller HELD on the channel (x-er7-quiet) is the same
+  // refusal the ledger already carries — logging it every 200ms turned one
+  // hold into 277 findings and would have minted a rule from an artifact.
+  const quiet = String(headers["x-er7-quiet"] || "") === "1";
+  const note = quiet ? () => {} : appendLog;
   const model = modelOf(body);
   const family = familyOfRequest(model);
   const key = personKeyOf(headers);
   const passCode = String(headers["x-er7-pass"] || "").trim() || null;
   const pass = validPassCode(passCode, headers);
   if (passCode && !pass) {
-    appendLog({ act: "eva", finding: "bad_pass", key, code: passCode });
+    note({ act: "eva", finding: "bad_pass", key, code: passCode });
     return { allowed: false, status: 400, type: "bad_pass", message: `no such jump-the-cue pass: ${passCode}` };
   }
 
@@ -3381,7 +3672,7 @@ export function admitChat(body = "{}", headers = {}) {
   const profile = profileOf(key, headers);
   if (rationed(profile)) {
     const resetInS = Math.max(0, Math.round((profile.windowStart + RATION_WINDOW_MS - Date.now()) / 1000));
-    appendLog({ act: "eva", finding: "rationed", key, priority: profile.priority, turns: profile.turns, cap: RATION_TURNS[profile.priority] });
+    note({ act: "eva", finding: "rationed", key, priority: profile.priority, turns: profile.turns, cap: RATION_TURNS[profile.priority] });
     return {
       allowed: false, status: 429, type: "rationed", family, model, retryAfterS: Math.min(60, Math.max(5, resetInS)),
       message: `${key} has used ${profile.turns}/${RATION_TURNS[profile.priority]} turns this window — the ration resets in ~${resetInS}s. Heimdall holds the line for everyone.`,
@@ -3393,7 +3684,7 @@ export function admitChat(body = "{}", headers = {}) {
   // to hang, or timed out with nothing returned) is refused, not silently
   // stalled — and the refusal names the models that DO answer.
   if (!isServable(model)) {
-    appendLog({ act: "eva", finding: "unservable_refused", key, model, family });
+    note({ act: "eva", finding: "unservable_refused", key, model, family });
     return {
       allowed: false, status: 503, type: "model_unavailable", family, model, retryAfterS: unservableRemainingS(model) || 15,
       message: `${model} is not answering on this box right now (Heimdall dropped it). Pick a model the box can serve — /v1/models lists them.`,
@@ -3410,7 +3701,7 @@ export function admitChat(body = "{}", headers = {}) {
   if (isUngatedModel(model)) {
     const claim = claimTurn(headers);
     if (!claim.ok) {
-      appendLog({ act: "eva", finding: "claimed", key, claim: claim.id, device: claim.device });
+      note({ act: "eva", finding: "claimed", key, claim: claim.id, device: claim.device });
       return {
         allowed: false, status: 429, type: "claimed", family, model, retryAfterS: Math.max(2, RETRY_AFTER_S),
         message: `this turn is already being inferred on ${claim.device} — Heimdall will not run it twice; it will be retried on another device if ${claim.device} stalls.`,
@@ -3437,22 +3728,11 @@ export function admitChat(body = "{}", headers = {}) {
   // headroom or unknown residency never convicts.
   if (MEM_GATE_ON) {
     const vitals = cachedVitals();
-    // BOX-LEVEL SWAP GUARD (2026-09-20; corrected to CHURN, 2026-09-21): swap
-    // LEVEL alone is history — macOS never moves pages back, so a box can sit
-    // at 92% swap with idle app pages and plenty of AVAILABLE RAM and still
-    // serve fine. What costs is CHURN (pages swapping out NOW) or true
-    // starvation (available below the floor). Refuse only then; a high-but-
-    // idle swap does not block a turn the box can actually serve.
-    const churning = vitals?.swapOutPerS != null && vitals.swapOutPerS >= SWAP_CHURN_PPS;
-    const starved = (vitals?.memAvailableMb ?? Infinity) < MEM_FLOOR_MB * 2;
-    if (vitals?.swapPct != null && vitals.swapPct >= SWAP_CEIL_PCT && (churning || starved)) {
-      appendLog({ act: "eva", finding: "memory_pressured", key, model, family, swapPct: vitals.swapPct, swapOutPerS: vitals.swapOutPerS ?? null, availableMb: vitals.memAvailableMb ?? null });
-      return {
-        allowed: false, status: 503, type: "memory_pressured", family, model, retryAfterS: 30,
-        message: `the box is ${churning ? "thrashing" : "starved"} \u2014 swap ${vitals.swapPct}% full, ${vitals.swapOutPerS ?? "?"} pg/s out, ${vitals.memAvailableMb ?? "?"}MB available. Heimdall holds the turn so the box can drain; retry shortly or route to the remote lane.`,
-        memory: { swapPct: vitals.swapPct, swapOutPerS: vitals.swapOutPerS ?? null, swapUsedMb: vitals.swapUsedMb, swapTotalMb: vitals.swapTotalMb, availableMb: vitals.memAvailableMb ?? null, floorMb: MEM_FLOOR_MB },
-      };
-    }
+    // RESIDENCY FIRST (2026-09-22): a resident model loads nothing, so no
+    // memory reading is a reason to refuse it — measured: the box-level swap
+    // guard below bounced four of five calls to a RESIDENT gemma2:2b with a
+    // 30s Retry-After while the raw daemon answered each in 1.4s. Both
+    // memory gates guard a LOAD; neither applies to a model already held.
     // Residency is tri-state: null (/api/ps unreadable) is UNKNOWN, never
     // evidence of absence — collapsing it to "not resident" would turn a
     // failed daemon read into refusals.
@@ -3463,13 +3743,59 @@ export function admitChat(body = "{}", headers = {}) {
     // resident too: the turn goes there and loads nothing on this box.
     const residentElsewhere = hosts.some((h) => h.name !== "local" && hostUp(h) && hostResident(h, bare));
     const resident = residentElsewhere || (residencyKnown && loaded.some((m) => (m.name ?? m.model) === bare));
-    if (!resident && residencyKnown && memoryPressured(vitals) && vitals?.memAvailableMb != null) {
-      appendLog({ act: "eva", finding: "memory_pressured", key, model, family, availableMb: vitals.memAvailableMb });
+    // BOX-LEVEL SWAP GUARD (2026-09-20; corrected to CHURN, 2026-09-21): swap
+    // LEVEL alone is history — macOS never moves pages back, so a box can sit
+    // at 92% swap with idle app pages and plenty of AVAILABLE RAM and still
+    // serve fine. What costs is CHURN (pages swapping out NOW) or true
+    // starvation (available below the floor). Refuse only then, and only a
+    // LOAD (a non-resident model); a high-but-idle swap does not block a turn
+    // the box can actually serve. The wait named is the declared promise
+    // (slaSeconds), never a second constant.
+    const churning = vitals?.swapOutPerS != null && vitals.swapOutPerS >= SWAP_CHURN_PPS;
+    const starved = (vitals?.memAvailableMb ?? Infinity) < MEM_FLOOR_MB * 2;
+    if (residencyKnown && !resident && vitals?.swapPct != null && vitals.swapPct >= SWAP_CEIL_PCT && (churning || starved)) {
+      note({ act: "eva", finding: "memory_pressured", key, model, family, swapPct: vitals.swapPct, swapOutPerS: vitals.swapOutPerS ?? null, availableMb: vitals.memAvailableMb ?? null });
       return {
-        allowed: false, status: 503, type: "memory_pressured", family, model, retryAfterS: 60,
+        allowed: false, status: 503, type: "memory_pressured", family, model, retryAfterS: Math.max(2, Math.round(SLA_MAX_WAIT_MS / 1000)),
+        message: `the box is ${churning ? "thrashing" : "starved"} \u2014 swap ${vitals.swapPct}% full, ${vitals.swapOutPerS ?? "?"} pg/s out, ${vitals.memAvailableMb ?? "?"}MB available, and ${model} is not resident. Heimdall holds the load so the box can drain; retry shortly, serve a resident model, or route to the remote lane.`,
+        memory: { swapPct: vitals.swapPct, swapOutPerS: vitals.swapOutPerS ?? null, swapUsedMb: vitals.swapUsedMb, swapTotalMb: vitals.swapTotalMb, availableMb: vitals.memAvailableMb ?? null, floorMb: MEM_FLOOR_MB },
+      };
+    }
+    if (!resident && residencyKnown && memoryPressured(vitals) && vitals?.memAvailableMb != null) {
+      note({ act: "eva", finding: "memory_pressured", key, model, family, availableMb: vitals.memAvailableMb });
+      return {
+        allowed: false, status: 503, type: "memory_pressured", family, model, retryAfterS: Math.max(2, Math.round(SLA_MAX_WAIT_MS / 1000)),
         message: `${model} is not resident and the box holds only ~${vitals.memAvailableMb}MB available (floor ${MEM_FLOOR_MB}MB) \u2014 a load attempted now would hang, so Heimdall refuses fast instead. Free memory or serve a resident model; /v1/models lists what answers without loading.`,
         memory: { availableMb: vitals.memAvailableMb, freeMb: vitals.memFreeMb ?? null, floorMb: MEM_FLOOR_MB },
       };
+    }
+
+    // MODEL-DIVERSITY ADMISSION (2026-09-22, measured): a stale idle resident
+    // roster at the cap is not a problem \u2014 evicting an UNUSED model to load
+    // this one is exactly what LRU is for. What thrashes the daemon is REAL
+    // CONCURRENT DEMAND for more distinct models than it has slots: measured
+    // live, gemma2:2b's own loadMs spiked to 82,000-85,000ms while several
+    // other distinct models were all in flight at once on this same daemon,
+    // each competing for one of MODEL_DIVERSITY_CAP's fixed slots and evicting
+    // one another in turn. So the check is on INFLIGHT distinctness (real,
+    // current demand \u2014 the same inflightBy every host already carries), never
+    // on the resident count alone. Held, not refused outright: the same typed
+    // 429 + Retry-After shape as saturated/expected_wait, so the channel's own
+    // hold loop keeps the caller's place and retries once a slot frees. Same
+    // scope as the checks above it: residencyKnown/resident/bare are theirs.
+    if (residencyKnown && !resident && MODEL_DIVERSITY_CAP > 0) {
+      const local = hostByName("local");
+      if (local?.inflightBy) {
+        const busy = [...local.inflightBy.entries()].filter(([m, n]) => m !== bare && n > 0).map(([m]) => m);
+        if (busy.length >= MODEL_DIVERSITY_CAP) {
+          note({ act: "eva", finding: "model_diversity_capped", key, model, family, busy });
+          return {
+            allowed: false, status: 429, type: "model_diversity_capped", family, model, retryAfterS: Math.max(2, Math.round(SLA_MAX_WAIT_MS / 1000)),
+            message: `${busy.length} other model(s) are already competing for this box's ${MODEL_DIVERSITY_CAP} loaded-model slots (${busy.join(", ")}) \u2014 admitting ${model} now would force a reload thrash, the exact pattern measured to cost 80s+ on this box. Heimdall holds the turn until a slot frees.`,
+            diversity: { cap: MODEL_DIVERSITY_CAP, busy },
+          };
+        }
+      }
     }
   }
 
@@ -3485,7 +3811,7 @@ export function admitChat(body = "{}", headers = {}) {
   // conviction.
   const ew = expectedWaitMs(String(model ?? "").replace(/^er7:/, ""));
   if (ew.ms != null && ew.ms > SLA_MAX_WAIT_MS) {
-    appendLog({ act: "eva", finding: "expected_wait", key, model, family, waitMs: ew.ms, host: ew.host, inflight: ew.inflight, meanMs: ew.meanMs });
+    note({ act: "eva", finding: "expected_wait", key, model, family, waitMs: ew.ms, host: ew.host, inflight: ew.inflight, meanMs: ew.meanMs });
     return {
       allowed: false, status: 429, type: "expected_wait", family, model, retryAfterS: Math.max(2, Math.ceil(ew.ms / 1000)),
       message: `every server is busy — the least wait is ~${Math.ceil(ew.ms / 1000)}s on ${ew.host} (${ew.inflight} ahead at ~${(ew.meanMs / 1000).toFixed(1)}s each), past the ${Math.round(SLA_MAX_WAIT_MS / 1000)}s promise. Heimdall holds the turn; retry in ${Math.ceil(ew.ms / 1000)}s.`,
@@ -3513,7 +3839,7 @@ export function admitChat(body = "{}", headers = {}) {
     // The merge is zippering: the pass is held (never redeemed) until the
     // alternation drains — a jump now would cut a pass-train through.
     const eff = effectivePositionOf(key);
-    appendLog({ act: "eva", finding: "zipper_held", key, code: pass.code, lock: zipperLock });
+    note({ act: "eva", finding: "zipper_held", key, code: pass.code, lock: zipperLock });
     return {
       allowed: false, status: 429, type: "zipper", family, model, retryAfterS: Math.max(2, RETRY_AFTER_S),
       message: `the merge is zippering — ${zipperLock} normal call(s) go first, then your pass jumps you up. Heimdall keeps the pass for you.`,
@@ -3536,7 +3862,7 @@ export function admitChat(body = "{}", headers = {}) {
       // reclaimed here, which is what another device is for.
       const claim = claimTurn(headers);
       if (!claim.ok) {
-        appendLog({ act: "eva", finding: "claimed", key, claim: claim.id, device: claim.device });
+        note({ act: "eva", finding: "claimed", key, claim: claim.id, device: claim.device });
         return {
           allowed: false, status: 429, type: "claimed", family, model, retryAfterS: Math.max(2, RETRY_AFTER_S),
           message: `this turn is already being inferred on ${claim.device} — Heimdall will not run it twice; it will be retried on another device if ${claim.device} stalls.`,
@@ -3566,7 +3892,7 @@ export function admitChat(body = "{}", headers = {}) {
     }
     // The box has room, but it is not your turn yet — hold your place.
     const eff = position;
-    appendLog({ act: "eva", finding: "not_your_turn", key, position: eff, family });
+    note({ act: "eva", finding: "not_your_turn", key, position: eff, family });
     return {
       allowed: false, status: 429, type: "not_your_turn", family, model, retryAfterS: Math.max(2, RETRY_AFTER_S),
       message: `a slot is free but it is not your turn — you are #${eff} in line. Heimdall keeps your place; retrying does not shuffle you.`,
@@ -3582,7 +3908,7 @@ export function admitChat(body = "{}", headers = {}) {
   // at idle >= 15% proves boxSaturated is twitchy; rows at idle <= 10% prove
   // the peg is real. Never a refusal without its evidence.
   const _v = cachedVitals() || {};
-  appendLog({ act: "eva", finding: reason, key, position: eff, family, model, retryAfterS: RETRY_AFTER_S,
+  note({ act: "eva", finding: reason, key, position: eff, family, model, retryAfterS: RETRY_AFTER_S,
     cpuIdle: _v.cpuIdle ?? null, load1: _v.load1 ?? null, swapPct: _v.swapPct ?? null, availableMb: _v.memAvailableMb ?? null });
   return {
     allowed: false, status: 429, type: reason, family, model, retryAfterS: RETRY_AFTER_S,
@@ -4016,7 +4342,7 @@ export function mintedRules() {
 //
 // The derived rules live beside the snack's in a persistent store, keyed by
 // (finding-class:probe) so a recurring pattern never re-derives every tick.
-const DERIVED_RULES_FILE = path.join(HERE, "heimdall-derived-rules.json");
+const DERIVED_RULES_FILE = process.env.ER7_DERIVED_RULES_FILE || path.join(HERE, "heimdall-derived-rules.json"); // tests point this at a scratch file — the live ledger is never a fixture
 const DERIVED_FLOOR = Number(process.env.ER7_DERIVED_RULE_FLOOR ?? 3);
 const DERIVED_WINDOW_MS = Number(process.env.ER7_DERIVED_RULE_WINDOW ?? 30 * 60 * 1000);
 
@@ -4135,7 +4461,7 @@ const RULE_LEVERS = Object.freeze({
   expected_wait: Object.freeze({ setting: "familyCap", step: -1, floor: 1 }),
   memory_pressured: Object.freeze({ act: "evict_lru" }),
 });
-const TRIALS_FILE = path.join(HERE, "state", "heimdall-trials.json");
+const TRIALS_FILE = process.env.ER7_TRIALS_FILE || path.join(HERE, "state", "heimdall-trials.json");
 const TRIAL_ALPHA = Number(process.env.ER7_TRIAL_ALPHA ?? 0.05); // the one calibration constant, disclosed
 const TRIAL_BUCKETS = Number(process.env.ER7_TRIAL_BUCKETS ?? 15);
 const TRIAL_PERMUTATIONS = Number(process.env.ER7_TRIAL_PERMUTATIONS ?? 2000);
@@ -4285,24 +4611,31 @@ function channelEntry(key, meta = {}) {
   if (meta.pid) s.pid = meta.pid;
   return s;
 }
-export function channelObserve(key, { label, pid, model = null, host = null, ms = null, loadMs = 0, promptTokens = 0, evalTokens = 0, ok = true, status = null } = {}) {
+const tierCounts = { full: 0, small: 0, device: 0, online: 0 };
+export function channelObserve(key, { label, pid, model = null, host = null, ms = null, loadMs = 0, promptTokens = 0, evalTokens = 0, ok = true, status = null, tier = "full", requested = null } = {}) {
   const s = channelEntry(key, { label, pid });
+  if (ok && tierCounts[tier] != null) tierCounts[tier] += 1;
   s.lastAt = Date.now();
   if (ok) s.calls += 1; else s.fails += 1;
   s.tokensIn += promptTokens || 0; s.tokensOut += evalTokens || 0;
   if (Number.isFinite(ms) && ms > 0) s.msEwma = s.msEwma == null ? Math.round(ms) : Math.round((1 - HOST_EWMA) * s.msEwma + HOST_EWMA * ms);
   if (Number.isFinite(loadMs) && loadMs > 100) s.loadMsEwma = s.loadMsEwma == null ? Math.round(loadMs) : Math.round((1 - HOST_EWMA) * s.loadMsEwma + HOST_EWMA * loadMs);
   if (model) { const m = s.models[model] ?? { calls: 0, host: null }; m.calls += 1; if (host) m.host = host; s.models[model] = m; }
-  appendLog({ act: "crossing", finding: "channel_call", key, model, host, ms, loadMs: loadMs || 0, promptTokens, evalTokens, ok, status });
+  appendLog({ act: "crossing", finding: "channel_call", key, model, host, ms, loadMs: loadMs || 0, promptTokens, evalTokens, ok, status, tier, requested: requested && requested !== model ? requested : undefined });
   return s;
 }
 /** A refusal to `key` with `retryAfterS`: the hold this server must actually
  *  keep. Early (inside its hold) → the hold doubles, bounded by the SLA, and
  *  past the floor it is the `retry_storm` finding, once per hold. */
-export function channelRefused(key, retryAfterS, { now = Date.now(), label, pid } = {}) {
+export const slaWaitMs = () => SLA_MAX_WAIT_MS;
+export const waiterTtlMs = () => WAITER_TTL_MS;
+export function channelRefused(key, retryAfterS, { now = Date.now(), label, pid, priority = "batch" } = {}) {
   const s = channelEntry(key, { label, pid });
   s.refused += 1;
   const base = Math.max(1, Number(retryAfterS) || RETRY_AFTER_S);
+  // A person's client is never held longer than asked (2026-09-22): the
+  // doubling disciplines a batch loop that ignores Retry-After, not a human.
+  if (priority === "interactive") { s.holdS = base; s.holdUntil = now + base * 1000; return { retryAfterS: base, early: false, storm: false }; }
   const capS = Math.max(base, Math.round(SLA_MAX_WAIT_MS / 1000));
   let storm = false;
   if (now < s.holdUntil) {
@@ -4323,10 +4656,15 @@ export function setChannelBound(state) { _channelBound = state; }
 /** One observation on the ledger from a caller outside this module (the
  *  proxy's channel door): act eva, the learner's own food. */
 export function ledgerEva(finding, fields = {}) { appendLog({ act: "eva", finding, ...fields }); }
+/** One of the channel's own ACTS on the ledger (a decision, never the
+ *  learner's food — the learner reads observations only). */
+export function ledgerRec(finding, fields = {}) { appendLog({ act: "rec", finding, giver: "heimdall", standing: "disclosed", ...fields }); }
 export function channelDisclosure() {
   const now = Date.now();
   return {
     port: CHANNEL_PORT, daemon: OLLAMA_URL, bound: _channelBound,
+    online: { enabled: ONLINE_MOUTHS_ON, providers: onlineRegistry.disclosure(), rule: "off by default; on, a hopping caller that no local mouth can serve inside the promise is answered by the first ready provider in free-level order — a 429 exhausts it for its Retry-After or its own window, a failure stands it down for a spell, an unknown model is discovered once from /models; the prompt leaves the box and the answer is stamped online, provisional, revisable by the model asked for" },
+    tiers: { smallMouth: smallMouthName(), served: { ...tierCounts }, rule: "the requested model wherever it is resident; when its wait passes the promise, a person (or any caller asking x-er7-tier: any) is answered NOW by the small mouth or a phone's model, stamped provisional and revisable by the model asked for — never a cold load, never for a caller asking x-er7-tier: exact" },
     servers: [...channelServers.values()]
       .map((s) => ({ ...s, firstAt: new Date(s.firstAt).toISOString(), lastAt: s.lastAt ? new Date(s.lastAt).toISOString() : null, holdUntil: s.holdUntil > now ? new Date(s.holdUntil).toISOString() : null }))
       .sort((a, b) => (b.calls + b.fails + b.refused) - (a.calls + a.fails + a.refused)),

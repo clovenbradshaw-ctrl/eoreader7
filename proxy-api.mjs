@@ -249,6 +249,13 @@ export function humanizeNote(note) {
       if (note.cost != null) parts.push(`cost ${note.cost}`);
       return `Opencode usage: ${parts.join(", ")}.`;
     }
+    case "mouth": {
+      // Heimdall's mouth (heimdall.mjs mouthFor): a warm on-device model
+      // answered because the asked one could not as soon — said once per turn.
+      const where = note.tier === "device" ? "on your phone" : "on this device";
+      const why = note.reason === "asked_model_cold" ? "wasn't loaded" : note.reason === "asked_model_past_promise" ? "was busy past the promised wait" : "couldn't answer as soon";
+      return `Answering with ${note.servedBy} ${where}, because ${note.asked} ${why}.`;
+    }
     case "model_missing":
       return `Model "${note.model}" isn't pulled — available: ${(note.available ?? []).join(", ") || "(none)"}.`;
     case "reader_note":

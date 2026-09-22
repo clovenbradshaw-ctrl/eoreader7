@@ -163,8 +163,86 @@ Falsifying controls, run:
 - Two daemons after a reconcile would concede the act. (None found on the
   next probe.)
 
+## The mouth — the fastest on-device model answers, and says so (2026-09-22)
+
+User direction: use whatever model and system will be fastest for the
+person, with little control on the surface, except anything that leaves the
+device, which stays theirs. Six rules, each measured before it landed.
+
+**Leaves the device is a prefix list, never a substring.** The fast pass
+(`isUngatedModel` → `leavesDevice`) keys on `online/`, `anthropic/`,
+`opencode/`, `deepseek/`, `openai/`, `openrouter/`, `claude-`. A model the
+daemon has installed is on the device whatever its name. The old substring
+list waved the local DeepSeek MoE (`deepseek-v2:16b-lite-chat-q4_0`) past
+every local gate while it loaded onto this box.
+
+**One decision, `mouthFor`, for the engine and the channel.** The engine's
+own draws (`streamOllamaChat`) used to change only the host, so a cold model
+meant a load and a busy one meant the queue. Now every local draw asks: the
+asked model answers when it is resident inside the promise; else a WARM
+on-device mouth answers when it is inside the promise AND sooner than the
+asked model's measured time (its queue if resident, its measured load cost if
+cold; an unmeasured load, a load into a pressured box, or a model the daemon
+does not hold never counts as sooner). Never substituted: `x-er7-tier:
+exact`, a model the person named in words, a draw with a logit bias, or a
+model that leaves the device. Sticky per turn, so one voice finishes it. The
+channel asks the same question before admission for a page (interactive) or
+`tier: any` caller, never for embeddings or a request carrying images.
+
+**The warm tier.** Beside the declared small mouth and the person's own
+phone, any resident general-purpose model on a daemon (never an embedder, a
+vision model, or a coder) is a substitute, ranked after the small mouth.
+
+**The small mouth warms only onto an idle daemon.** On this box the daemon
+had room for one model: a small-mouth warm beside a resident gemma2:2b
+evicted it within 24 s, and the next gemma2:2b call evicted the small mouth
+18 s later, 25 small-mouth loads in one hour. The warm now stands down
+(`would_evict`) while any other generative model is resident.
+
+**The liveness probe never loads a model.** Its own comment said "a small
+resident model"; its code asked gemma2:2b every 30 s whether or not it was
+loaded, with no keep-alive, so the idle watchdog loaded it (evicting
+whatever was warm) and cut a resident model's keep-alive to the daemon's
+10-minute default. It now asks only a model `/api/ps` says is resident,
+carrying that model's remaining keep-alive; with nothing resident, tags
+answering is the check.
+
+**What is marked hot is what served.** The residency holon re-warms every
+hot model it finds missing (45 s cadence). Marking the ASKED model hot at
+turn start loaded it mid-turn even while a warm model was answering; each
+draw now marks its own mouth, and only a model that will serve as asked is
+marked at turn start.
+
+**A page with a warm in-tab model is told at once.** A page that sends
+`x-er7-in-tab: warm` is not held when admission measures the box past the
+promise (`expected_wait`, `memory_pressured`, `model_diversity_capped`) and
+no warm mouth answered: it gets the refusal immediately with
+`x-heimdall-in-tab: answer-in-tab` and answers in its own tab. Fairness
+refusals that clear inside the promise are still held.
+
+**Disclosure.** Every substitution is logged (`mouth_substituted`), noted
+once per turn (`move: "mouth"`), and returned as `served` on `/v1/ask`,
+`/v1/chat/completions` (streamed and not), `/api/chat` and `/v1/messages`:
+who answered each draw and one plain line when a stand-in spoke. The fold
+names the mouth that actually spoke in its turn line.
+
+Measured live the same day, a cold OLMo-2 1B asked with gemma2:2b warm:
+
+| path | answered by | loads | note |
+|---|---|---|---|
+| channel, page origin | gemma2:2b (`ladder:warm`, provisional, revision id) | 0 | load 3 ms |
+| engine `/v1/ask` | gemma2:2b (`served.provisional: true`) | 0 | model time 7.4 s of 37.7 s wall |
+
+Controls, run: a busy small mouth loses to a measured faster cold load; a
+pressured box never counts a load as sooner; a pinned tier, a spoken switch,
+and a logit bias are never substituted; a remote model is never counted as a
+local draw; a vision or coder model is never offered; a peek records
+nothing; the probe sends no chat when nothing is resident (stub daemon).
+
 ## Not yet
 
+- The engine's own pre-model stages took 30 s of the 37.7 s turn above; the
+  mouth cannot touch that time.
 - A phone-served call end to end: the phone was mid-relink when the bridge
   restarted, so the bridge read as standby (correct) and the proof is owed.
 - Room mouths registered directly (`roomPathsFor`) are still unwired; today

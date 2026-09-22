@@ -5,7 +5,18 @@
 // null. Every control here is built to fail if the rule is wrong.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import * as h from "../heimdall.mjs";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+// The rule ledger and the trial state are LIVE files the proxy reads back;
+// a test that adopts a rule must never write them (2026-09-22: two
+// `saturated:trial-model-*` keys landed on the operator's real ledger).
+const _scratch = fs.mkdtempSync(path.join(os.tmpdir(), "er7-channel-test-"));
+process.env.ER7_DERIVED_RULES_FILE = path.join(_scratch, "derived-rules.json");
+process.env.ER7_TRIALS_FILE = path.join(_scratch, "trials.json");
+process.env.ER7_SETTINGS_FILE = path.join(_scratch, "settings.json"); // never the live proxy's persisted settings (smallMouth, reconcileDaemons, ...)
+process.env.ER7_HEIMDALL_LOG_FILE = path.join(_scratch, "heimdall-log.jsonl"); // never the live record
+const h = await import("../heimdall.mjs");
 
 // ── the one address ──────────────────────────────────────────────────────
 test("address: the daemon's host is derived from its URL, the channel port is a number, and heimdall reads the same module", async () => {
@@ -244,4 +255,178 @@ test("collision: a daemon on the CHANNEL's port is a collision even alone; two o
   const stray = h.modelServerCollisionOf(new Map([[1, new Set([dp])], [2, new Set([h.channelPort()])], [3, new Set([h.channelPort()])]]), rows);
   assert.deepEqual(stray.pids, [2], "the proxy on the channel port is not a daemon; the daemon there is the collision");
   assert.equal(stray.port, h.channelPort());
+});
+
+// ── the memory gate guards a LOAD, never a resident model (2026-09-22) ────
+test("memory gate: a RESIDENT model is admitted under swap pressure; the same box refuses a non-resident load; the wait named is the declared promise", () => {
+  const q = h.__queueTest;
+  q.reset();
+  q.setSaturated(false);
+  q.setVitals({ swapPct: 95, swapOutPerS: 900, memAvailableMb: 600, memFreeMb: 40, cpuIdle: 60 });
+  q.setOllamaModels([{ name: "gemma2:2b", contextLength: 8192 }]);
+  const hdr = (k) => ({ "x-er7-caller": k, "x-er7-priority": "interactive" });
+  const resident = h.admitChat(JSON.stringify({ model: "gemma2:2b", messages: [] }), hdr(`res-${process.pid}`));
+  assert.equal(resident.allowed, true, `resident under pressure must be admitted: ${resident.type ?? ""} ${resident.message ?? ""}`);
+  const cold = h.admitChat(JSON.stringify({ model: "qwen3:8b", messages: [] }), hdr(`cold-${process.pid}`));
+  assert.equal(cold.allowed, false);
+  assert.equal(cold.type, "memory_pressured");
+  const sla = h.heimdallSettings().find((s) => s.name === "slaSeconds").value;
+  assert.equal(cold.retryAfterS, Math.max(2, sla), "the Retry-After is the declared promise, not a second constant");
+  q.reset();
+});
+test("retry hold: an interactive caller is never hold-doubled; a batch caller still is", () => {
+  let now = 5_000_000;
+  const a = `person-${process.pid}`, b = `loop-${process.pid}`;
+  h.channelRefused(a, 10, { now, priority: "interactive" });
+  now += 1_000;
+  const early = h.channelRefused(a, 10, { now, priority: "interactive" });
+  assert.equal(early.retryAfterS, 10); assert.equal(early.early, false);
+  h.channelRefused(b, 10, { now, priority: "batch" });
+  now += 1_000;
+  const cap = Math.max(10, h.heimdallSettings().find((s) => s.name === "slaSeconds").value);
+  assert.equal(h.channelRefused(b, 10, { now, priority: "batch" }).retryAfterS, Math.min(cap, 20));
+});
+
+// ── unknown residency never convicts; a held caller's re-poll is quiet ────
+test("memory gate: unknown residency (no /api/ps read yet) never convicts a model under swap pressure", () => {
+  const q = h.__queueTest;
+  q.reset();
+  q.setSaturated(false);
+  q.setVitals({ swapPct: 95, swapOutPerS: 900, memAvailableMb: 600, memFreeMb: 40, cpuIdle: 60 });
+  q.setOllamaModels(null); // the daemon's table has not been read — UNKNOWN
+  const r = h.admitChat(JSON.stringify({ model: "gemma2:2b", messages: [] }), { "x-er7-caller": `unk-${process.pid}`, "x-er7-priority": "interactive" });
+  assert.equal(r.allowed, true, `unknown residency must not refuse: ${r.type ?? ""}`);
+  q.reset();
+});
+test("hold loop: a quiet re-poll (x-er7-quiet) is refused the same way but lands no second finding on the ledger", () => {
+  const q = h.__queueTest;
+  q.reset();
+  q.setSaturated(true);
+  const key = `quiet-${process.pid}`;
+  const seen = [];
+  const off = h.onLog((row) => { if (row.key === key && row.act === "eva") seen.push(row.finding); });
+  try {
+    const first = h.admitChat(JSON.stringify({ model: "gemma2:2b", messages: [] }), { "x-er7-caller": key });
+    assert.equal(first.allowed, false);
+    assert.equal(seen.length, 1, "the first refusal is on the ledger");
+    const again = h.admitChat(JSON.stringify({ model: "gemma2:2b", messages: [] }), { "x-er7-caller": key, "x-er7-quiet": "1" });
+    assert.equal(again.allowed, false);
+    assert.equal(again.type, first.type);
+    assert.equal(seen.length, 1, "a quiet poll writes nothing");
+    const loud = h.admitChat(JSON.stringify({ model: "gemma2:2b", messages: [] }), { "x-er7-caller": key });
+    assert.equal(loud.allowed, false);
+    assert.equal(seen.length, 2, "an ordinary retry still lands");
+  } finally { off(); q.reset(); }
+});
+
+// ── the ladder: the small mouth, per-model in-flight, the tiers (2026-09-22) ──
+const ROSTER = [
+  { name: "nomic-embed-text:latest", size: 0.27e9, families: ["nomic-bert"] },
+  { name: "hf.co/allenai/OLMo-2-0425-1B-Instruct-GGUF:latest", size: 0.94e9, families: ["olmo2"] },
+  { name: "qwen2.5-coder:1.5b", size: 0.99e9, families: ["qwen2"] },
+  { name: "gemma2:2b", size: 1.63e9, families: ["gemma2"] },
+  { name: "moondream:latest", size: 1.74e9, families: ["phi2", "clip"] },
+  { name: "smollm2:1.7b", size: 1.82e9, families: ["llama"] },
+  { name: "qwen2.5vl:7b", size: 5.97e9, families: ["qwen25vl"] },
+];
+test("small mouth: the smallest installed generative model, by measured size — never an embedder, a vision model, or a coder; exclusions honored", () => {
+  assert.equal(h.pickSmallMouth(ROSTER), "hf.co/allenai/OLMo-2-0425-1B-Instruct-GGUF:latest");
+  assert.equal(h.pickSmallMouth(ROSTER, { exclude: ["hf.co/allenai/OLMo-2-0425-1B-Instruct-GGUF:latest"] }), "gemma2:2b", "the coder is skipped, the next generative model is taken");
+  assert.equal(h.pickSmallMouth([{ name: "nomic-embed-text:latest", size: 1, families: ["nomic-bert"] }]), null);
+  assert.equal(h.pickSmallMouth(null), null, "an unread roster names nothing");
+});
+test("in-flight is per model: gemma's queue is not OLMo's", () => {
+  const local = h.inferenceHosts().find((x) => x.name === "local");
+  const before = local.inflight;
+  h.hostBegin("local", "m-a"); h.hostBegin("local", "m-a"); h.hostBegin("local", "m-b");
+  assert.equal(h.modelInflight(local, "m-a"), 2);
+  assert.equal(h.modelInflight(local, "m-b"), 1);
+  assert.equal(h.modelInflight(local, "m-c"), 0, "a model with nothing in flight waits on nothing");
+  assert.equal(local.inflight, before + 3, "the host total still counts every turn");
+  h.hostEnd("local", { model: "m-a", ms: 1000, ok: true }); h.hostEnd("local", { model: "m-a", ms: 1000, ok: true }); h.hostEnd("local", { model: "m-b", ms: 1000, ok: true });
+  assert.equal(h.modelInflight(local, "m-a"), 0);
+  assert.equal(local.inflight, before);
+  local.resident.delete("m-a"); local.resident.delete("m-b");
+});
+test("tiers: the requested model first wherever resident; then the small mouth on the daemon and a phone's model through the bridge, provisional; a cold model is never a tier; the excluded host is skipped", () => {
+  h.__tiersTest.setInstalled(ROSTER);
+  const hosts = h.inferenceHosts();
+  const local = hosts.find((x) => x.name === "local");
+  const fleet = hosts.find((x) => x.name === "fleet");
+  const savedDown = local.downAt; local.downAt = null;
+  const soon = new Date(Date.now() + 60_000).toISOString();
+  local.resident.set("gemma2:2b", soon);
+  local.resident.set("hf.co/allenai/OLMo-2-0425-1B-Instruct-GGUF:latest", soon);
+  local.resident.set("qwen2.5vl:7b", soon); // resident but never a substitute: not the small mouth
+  fleet.kind = "bridge"; fleet.resident.set("qwen2.5:0.5b", soon);
+  const t = h.serveTiersFor("gemma2:2b");
+  assert.deepEqual(t.map((c) => [c.tier, c.model, c.host]), [
+    ["full", "gemma2:2b", "local"],
+    ["small", "hf.co/allenai/OLMo-2-0425-1B-Instruct-GGUF:latest", "local"],
+    ["device", "qwen2.5:0.5b", "fleet"],
+  ].filter((row) => row[0] !== "device" || t.some((c) => c.tier === "device")), JSON.stringify(t));
+  assert.ok(t.every((c) => c.tier === "full" ? !c.provisional : c.provisional));
+  const cold = h.serveTiersFor("qwen3:8b");
+  assert.ok(!cold.some((c) => c.tier === "full"), "a model no one holds has no full tier — it is never loaded to serve now");
+  assert.ok(cold.some((c) => c.tier === "small"), "the small mouth stands in");
+  const noFleet = h.serveTiersFor("gemma2:2b", { exclude: "fleet" });
+  assert.ok(!noFleet.some((c) => c.host === "fleet"), "a turn that came from the bridge never goes back to it");
+  // the small mouth itself asked for: it is the full tier; its substitute is the NEXT smallest generative model, never itself
+  const smallAsked = h.serveTiersFor("hf.co/allenai/OLMo-2-0425-1B-Instruct-GGUF:latest");
+  assert.equal(smallAsked[0].tier, "full");
+  const sub = smallAsked.find((c) => c.tier === "small");
+  assert.equal(sub?.model, "gemma2:2b", "the substitute for the small mouth is the next smallest resident generative model");
+  local.resident.clear(); fleet.resident.clear(); local.downAt = savedDown;
+  h.__tiersTest.setInstalled(null);
+});
+
+// ── model-diversity admission (2026-09-22) ────────────────────────────────
+test("diversity cap: real concurrent demand for N distinct models at the cap holds an (N+1)th non-resident request; a resident model is always admitted; adding to an already-busy model is not new diversity", () => {
+  const q = h.__queueTest;
+  q.reset();
+  q.setSaturated(false);
+  q.setVitals({ swapPct: 10, swapOutPerS: 0, memAvailableMb: 8000, memFreeMb: 4000, cpuIdle: 60 });
+  q.setOllamaModels([{ name: "resident-model", contextLength: 8192 }]);
+  const cap = h.heimdallSettings().find((s) => s.name === "modelDiversityCap").value;
+  assert.ok(cap >= 1, "the default cap must be positive for this test to mean anything");
+  const busyModels = Array.from({ length: cap }, (_, i) => `busy-${i}-${process.pid}`);
+  for (const m of busyModels) h.hostBegin("local", m);
+  try {
+    const hdr = (k) => ({ "x-er7-caller": k, "x-er7-priority": "interactive" });
+    const fourth = h.admitChat(JSON.stringify({ model: `new-model-${process.pid}`, messages: [] }), hdr(`div-new-${process.pid}`));
+    assert.equal(fourth.allowed, false);
+    assert.equal(fourth.type, "model_diversity_capped");
+    const sla = h.heimdallSettings().find((s) => s.name === "slaSeconds").value;
+    assert.equal(fourth.retryAfterS, Math.max(2, sla), "the wait named is the declared promise, not a separate constant");
+    assert.equal(fourth.diversity.busy.length, cap);
+
+    const residentAdmit = h.admitChat(JSON.stringify({ model: "resident-model", messages: [] }), hdr(`div-res-${process.pid}`));
+    assert.equal(residentAdmit.allowed, true, "a resident model is never held by this check, however busy the box is");
+
+    const sameBusyAdmit = h.admitChat(JSON.stringify({ model: busyModels[0], messages: [] }), hdr(`div-same-${process.pid}`));
+    assert.equal(sameBusyAdmit.allowed, true, "more demand for an ALREADY-busy model is not new diversity — it doesn't need a new slot");
+  } finally {
+    for (const m of busyModels) h.hostEnd("local", { model: m, ok: true, ms: 1 });
+    q.reset();
+  }
+});
+test("diversity cap: unknown residency never convicts, and the cap is runtime-adjustable and persisted like every other setting", () => {
+  const q = h.__queueTest;
+  q.reset();
+  q.setSaturated(false);
+  q.setVitals({ swapPct: 10, swapOutPerS: 0, memAvailableMb: 8000, memFreeMb: 4000, cpuIdle: 60 });
+  q.setOllamaModels(null); // unread roster — UNKNOWN, never evidence of absence
+  const busy = [`u1-${process.pid}`, `u2-${process.pid}`, `u3-${process.pid}`];
+  for (const m of busy) h.hostBegin("local", m);
+  try {
+    const r = h.admitChat(JSON.stringify({ model: `unk-${process.pid}`, messages: [] }), { "x-er7-caller": `div-unk-${process.pid}`, "x-er7-priority": "interactive" });
+    assert.notEqual(r.type, "model_diversity_capped", "unknown residency must never be convicted by the diversity check either");
+  } finally {
+    for (const m of busy) h.hostEnd("local", { model: m, ok: true, ms: 1 });
+    q.reset();
+  }
+  const r1 = h.setHeimdallSetting("modelDiversityCap", 0, { key: "test" });
+  assert.equal(r1.ok, true);
+  assert.equal(h.heimdallSettings().find((s) => s.name === "modelDiversityCap").value, 0);
+  h.setHeimdallSetting("modelDiversityCap", r1.from, { key: "test" }); // restore
 });
