@@ -43,7 +43,7 @@ import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, restartSurface, sampleVitalsNow, backgroundTasks, killTask, warmPressureTest, warmPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, contentLog, restartSurface, sampleVitalsNow, backgroundTasks, killTask, warmPressureTest, warmPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope } from "./heimdall.mjs";
 import { heldKey, findHeld, holdTurn, heldById, heldReceipt, awaitHeld } from "./held-turns.mjs";
 import { resolveServerKey, channelObserve, channelRefused, pickHost, hostBegin, hostEnd, reconcileModelServers, ledgerEva, setChannelBound, liveReapIfDue, holdWindow, hopOf, messagesOf, streamAccounting, hostOwnedByPid } from "./heimdall.mjs";
 import { MODEL_SERVER_URL, CHANNEL_PORT } from "./native/kernel/model-server.js";
@@ -657,6 +657,24 @@ async function handleRequest(req, res) {
     } catch { /* default: the tail */ }
     res.writeHead(200, { "content-type": "application/json" });
     res.end(JSON.stringify({ lines: logLines(limit, filter) }));
+    return;
+  }
+
+  // /heimdall/content — the generated-content log: what actually went in
+  // (prompts) and what came out (completed answers), persisted so the watch
+  // surface can restore what it showed instead of forgetting it on reload.
+  // The same thread filters as the ledger: ?surface/&model/&sessionId.
+  if (req.method === "GET" && req.url.startsWith("/heimdall/content")) {
+    let limit = 200, filter = null;
+    try {
+      const u = new URL(req.url, "http://x");
+      limit = Number(u.searchParams.get("limit")) || 200;
+      const f = {};
+      for (const k of ["surface", "model", "sessionId"]) { const val = u.searchParams.get(k); if (val) f[k] = val; }
+      filter = Object.keys(f).length ? f : null;
+    } catch { /* default: the tail */ }
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ rows: contentLog(limit, filter) }));
     return;
   }
 

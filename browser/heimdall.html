@@ -687,6 +687,42 @@ function renderGen() {
   renderGenFilter();
 }
 
+/* ── HISTORY: the generated-content log, restored on load ──────────────── */
+// The live stream shows what is going through; this restores what HAS gone
+// through — the prompts and completed answers the proxy kept on disk — so a
+// reload of the page does not forget every turn. Replayed oldest→newest so
+// the newest panels land on top, exactly where live turns arrive.
+async function seedContentHistory() {
+  try {
+    const d = await (await fetch(`${BASE}/heimdall/content?limit=200`)).json();
+    const rows = d.rows || [];
+    if (!rows.length) return;
+    for (const r of rows) {
+      if (!r.text) continue;
+      const surface = r.surface || "er7";
+      const model = r.model || "?";
+      const sessionId = r.sessionId || "";
+      if (r.act === "prompt") {
+        const g = ensureGen(`${surface}::${sessionId}::${model}`, model, sessionId, surface);
+        if (g.done) { g.done = false; g.stream.classList.remove("done", "err"); g.body.textContent = ""; g.body.append(g.caret); g.text = ""; }
+        if (r.text) g.promptEl.textContent = r.text;
+        g.statusEl.textContent = "thinking\u2026";
+      } else if (r.act === "answer") {
+        const g = ensureGen(`${surface}::${sessionId}::${model}`, model, sessionId, surface);
+        g.done = true;
+        g.stream.classList.add("done");
+        if (r.error) g.stream.classList.add("err");
+        g.caret.remove();
+        g.body.textContent = r.text;
+        g.statusEl.textContent = r.error ? "failed" : "done";
+        g.text = r.text;
+      }
+    }
+    applyGenFilter();
+    renderGen();
+  } catch { /* history unavailable — the surface is live-only */ }
+}
+
 /* ── CHANNELS: exactly what's going through, per lane ─────────────────── */
 function renderChannels() {
   const st = state.status; if (!st) return;
@@ -1087,6 +1123,7 @@ async function askHeimdall(q) {
 $("asksend").onclick = () => { const i = $("askinput"); askHeimdall(i.value); i.value = ""; };
 $("askinput").addEventListener("keydown", (e) => { if (e.key === "Enter") { askHeimdall(e.target.value); e.target.value = ""; } });
 addChat("heimdall", "Ask me of the surfaces, the models, the line, the box, where the efficiency is, or my settings — nothing else.", { disclosure: { giver: "heimdall", standing: "disclosed", groundedIn: "GET /heimdall", tokens: 0 } });
+seedContentHistory();
 </script>
 </body>
 </html>

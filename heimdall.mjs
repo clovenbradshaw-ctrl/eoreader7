@@ -679,6 +679,52 @@ export function onLive(fn) {
 export function emitLive(ev) {
   const row = { at: ts(), ...ev };
   for (const fn of liveOnlySinks) { try { fn(row); } catch {} }
+  // THE CONTENT LOG (2026-09-22): the live sink shows the text while a turn
+  // runs, but nothing was persisted — a reload of the watch surface forgot
+  // every turn. The actual generated content (the prompt that went in, the
+  // words that came out) is kept here as an append-only, bounded record so a
+  // surface can show what HAS gone through, not just what is going through
+  // now. Persisted at the same funnel the live sink uses, so every door that
+  // speaks (ask, chat, messages, the channel) lands in the same log. The
+  // per-chunk token events are skipped — a stream's words are kept once, on
+  // the final row, never once per chunk.
+  if (ev.act === "prompt") logContent({ act: "prompt", surface: ev.surface, model: ev.model, sessionId: ev.sessionId, text: ev.text });
+  else if (ev.act === "token" && ev.final) logContent({ act: "answer", surface: ev.surface, model: ev.model, sessionId: ev.sessionId, text: ev.text, error: ev.error || undefined });
+}
+
+// ── CONTENT LOG: the generated content itself, kept ──────────────────────
+// Bounded to a recent window (default 2000 rows ≈ 1000 turns), trimmed on
+// write so it never grows without bound; a failed write never takes the
+// watcher down. Served so the watch surface can restore what it showed.
+const CONTENT_FILE = path.join(HERE, "state", "heimdall-content.jsonl");
+const CONTENT_ROWS_CAP = Number(process.env.ER7_HEIMDALL_CONTENT_ROWS ?? 2000);
+function logContent(row) {
+  const out = { at: ts(), ...row };
+  try {
+    fs.mkdirSync(path.dirname(CONTENT_FILE), { recursive: true });
+    fs.appendFileSync(CONTENT_FILE, JSON.stringify(out) + "\n", "utf8");
+    const all = fs.readFileSync(CONTENT_FILE, "utf8");
+    const lines = all.split("\n").filter(Boolean);
+    if (lines.length > CONTENT_ROWS_CAP) fs.writeFileSync(CONTENT_FILE, lines.slice(-CONTENT_ROWS_CAP).join("\n") + "\n", "utf8");
+  } catch { /* the content log must never crash the watcher */ }
+}
+/** The generated-content log, parsed, newest-last: the tail of prompts and
+ *  completed answers. A `filter` ({surface|model|sessionId}) pulls one thread. */
+export function contentLog(n = 200, filter = null) {
+  try {
+    if (!fs.existsSync(CONTENT_FILE)) return [];
+    const all = fs.readFileSync(CONTENT_FILE, "utf8").trim().split("\n").filter(Boolean);
+    const take = Math.max(1, Math.min(CONTENT_ROWS_CAP, Number(n) || 200));
+    let arr = all.slice(-take).map((l) => { try { return JSON.parse(l); } catch { return { at: null, act: "?", raw: l }; } });
+    if (filter && typeof filter === "object") {
+      const eq = (a, b) => String(a ?? "") === String(b ?? "");
+      arr = arr.filter((r) =>
+        (!filter.surface || eq(r.surface, filter.surface)) &&
+        (!filter.model || eq(r.model, filter.model)) &&
+        (!filter.sessionId || eq(r.sessionId, filter.sessionId)));
+    }
+    return arr;
+  } catch { return []; }
 }
 
 function appendLog(entry) {
