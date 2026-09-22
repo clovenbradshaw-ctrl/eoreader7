@@ -1,0 +1,33 @@
+{
+  "docId": "scotus-f1-a2:1",
+  "arm": "A2",
+  "flesh": "F1",
+  "model": "gemma2:2b",
+  "ground": "native/eval/the-fold/fixtures/scotus-oral-argument-excerpt.md",
+  "seconds": 632,
+  "summary": "model calls: 45 (steer 8, prose 34, tighten 1, turns 2)\nmouth votes licensed: 1 of 8\nseconds from prose to arrival: 498\nfacts in the draft: 34\nfacts at the floor: 27\nparts carried whole: 0 of 3\narchon findings, first read: 3\nsentences folded: 0\nLish cuts (no model): 1\nrewrites kept: 1 of 1\nbridges kept: 1 of 2\nfindings still licensing a revision: 2",
+  "parts": [
+    {
+      "id": "a0",
+      "status": "recursed",
+      "of": 9,
+      "floored": 5,
+      "pieces": 8
+    },
+    {
+      "id": "a1",
+      "status": "recursed",
+      "of": 20,
+      "floored": 17,
+      "pieces": 20
+    },
+    {
+      "id": "a2",
+      "status": "floor",
+      "of": 5,
+      "floored": 5,
+      "pieces": 5
+    }
+  ],
+  "levels": null
+}

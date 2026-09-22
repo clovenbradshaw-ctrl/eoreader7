@@ -1,0 +1,40 @@
+{
+  "docId": "narr-f1-a0:1",
+  "arm": "A0",
+  "flesh": "F1",
+  "model": "gemma2:2b",
+  "ground": "native/eval/the-fold/fixtures/call-wild-ch1-excerpt.md",
+  "seconds": 404,
+  "summary": "model calls: 20 (steer 6, prose 12, tighten 0, turns 2)\nmouth votes licensed: 0 of 6\nseconds from prose to arrival: 337\nfacts in the draft: 10\nfacts at the floor: 7\nparts carried whole: 1 of 4\narchon findings, first read: 6\nsentences folded: 0\nLish cuts (no model): 2\nrewrites kept: 0 of 0\nbridges kept: 0 of 2\nfindings still licensing a revision: 4",
+  "parts": [
+    {
+      "id": "a0",
+      "status": "carried whole",
+      "of": 1,
+      "floored": 0,
+      "pieces": 2
+    },
+    {
+      "id": "a1",
+      "status": "recursed",
+      "of": 3,
+      "floored": 3,
+      "pieces": 4
+    },
+    {
+      "id": "a2",
+      "status": "recursed",
+      "of": 4,
+      "floored": 2,
+      "pieces": 4
+    },
+    {
+      "id": "a3",
+      "status": "floor",
+      "of": 2,
+      "floored": 2,
+      "pieces": 2
+    }
+  ],
+  "levels": null
+}

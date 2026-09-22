@@ -7,7 +7,7 @@ The generation pipeline (native/the-fold: `eot-draft.js` → `arrange.js` →
 structure it can discover in any source.
 
 - **Referents**: who each statement names (`referents.js`).
-- **Kinds**: series such as rated observations and graded recommendations, found by the engine's own kind organ (`kinds.js` over kernel/kind-induction.js + entity-kind-induction.js) at p = 0.008 on the OHS dossier.
+- **Kinds**: series such as graded recommendation statuses, found by the engine's own kind organ (`kinds.js` over kernel/kind-induction.js + entity-kind-induction.js) at p ≈ 0.0088 on the OHS follow-up fixture. Correction, made honest by `kinds-falsify.test.mjs`: this specific series has no majority `labelOf` prefix ("Status: Implemented." repeats a VALUE, not an enumerator like "Observation B,"), so `kindSentence()` genuinely returns `null` for it — kind *detection* is measured and stable; kind *rendering* has a real, now-documented gap that silently drops a cleared kind rather than describing it. The "N alike" phrasing used earlier tonight was this session's own probe-script fallback for the null-label case, not real pipeline output — do not repeat it as if it were.
 - **Terrain and stance** for every EOTRich address, through `cellOf(op, grain)` (kernel/cube.js). Measured on OHS, stance leans separate the acts that words could not.
   - Making: a recommendation.
   - Composing: a motion carried.
@@ -146,10 +146,12 @@ Reading, arm by arm:
   (35 sections against 5): the control's "no section larger than the
   largest paragraph" has no paragraph to bound it.
 - **A1 (kinds first)** folds the induced kinds on cumberland (48% of the
-  statements, "5 alike" + "6 alike") and narrative (15%); on OHS both
-  induced kinds are ground — their members spread through more than half the
-  source, so the majority rule keeps them out, and A1 becomes the
-  paragraphs, 36 sections.
+  statements, two cleared candidates of 5 and 2 members, p ≈ 0.015 — both
+  correctly detected, both unlabeled: neither repeats an enumerator prefix,
+  so `kindSentence()` gives them nothing to say, same gap as the OHS
+  status series) and narrative (15%); on OHS both induced kinds are ground
+  — their members spread through more than half the source, so the
+  majority rule keeps them out, and A1 becomes the paragraphs, 36 sections.
 - **A2 (stance moves)** fits the declared form on OHS (9 sections) and
   rescues the transcript (10 sections, largest .19) — but it shatters
   author paragraphs (OHS split 33): a stance pulls statements together
@@ -303,3 +305,53 @@ is caught by the current archon set. The next two checks this experiment
 argues for, concretely: an editorializing/unsupported-affect check (Zinsser's
 family, or a new one) for F1's failure mode, and a referent-hygiene pass
 (exclude colon-labels from one-word referents) for F2's.
+
+### Step 3, chased off one document — four more calls, two new materials
+
+The gap named out loud: everything above ran on one document. Two new
+fixtures, same scale (~1300 words), same live setup: `fixtures/call-wild-ch1-excerpt.md`
+(narrative, public domain, ch. 1 of *The Call of the Wild*) and
+`fixtures/scotus-oral-argument-excerpt.md` (spoken, public record, the
+Wisconsin Central v. United States oral argument). The transcript has no
+blank-line seams — A0 degenerates to one 88-of-89-statement section on it,
+exactly as step 2 predicted for transcripts — so the transcript ran on A2,
+the arm step 2 found actually rescues that shape; the narrative ran on A0,
+which is viable there. `drive-flesh-arms.mjs` needed two real fixes first:
+`--task` was hardcoded to the OHS question, and the output filename was not
+source-scoped (`flesh-<flesh>-<arm>.json` regardless of source — running a
+new source under the OHS runs' arm/flesh combo would have silently
+overwritten the committed OHS results; caught before it happened).
+
+All four pieces, checked line by line against their own source:
+
+| | F1-narrative | F2-narrative | F1-scotus | F2-scotus |
+|---|---|---|---|---|
+| seconds | 404 | 313 | 632 | 700 |
+| model calls | 20 | 23 | 45 | 75 |
+| invented content, confirmed | "his face etched with a knowing glint"; "a battleground for Manuel's treachery" | "a chilling reminder of the wildness that lay within him" | "The heart of the debate hinges on…"; "a key point of reference" | "was at the heart of the case, now being argued before the court" |
+
+Every one of the four invented at least one framing or descriptive clause
+the source does not contain (checked by grep against the actual fixture
+text, not by eye). That overturns the OHS-only reading that F2 invents
+less because its prompts are narrower — on narrative and on the transcript,
+**both** arms invented, in different places. OHS turns out to be the
+outlier (F2 stayed clean there); everywhere else tried tonight, both did
+not. The pattern that survives across all three materials and both arms:
+whenever the mouth is asked to write connective or scene-setting prose
+around bare facts, it reaches for genre-appropriate framing language as
+the connective tissue, and that framing is uncontrolled because nothing in
+either flesh arm distinguishes "this sentence links two facts" (fine) from
+"this sentence asserts an interpretation, a judgment, or a felt quality the
+source never gives" (invention). That is a pathos act — texture, not fact —
+happening inside a pass that has no pathos/ethos-logos distinction at all.
+Named to the user directly and it reframed the next build: separate an
+ethos+logos skeleton phase (compose, reason-lint, recurse until settled)
+from a distinct, later, recursive pathos phase (texture only, additive,
+checked by its own archons, gated by Gebser rather than a level count) —
+see the flow diagram and discussion carried in this session's own record,
+not reproduced here since it is not code. The user's own priority call,
+stated directly: the surf/hunt stage (seek multiple sources shaped to the
+void, gated by a shape-match check before anything is admitted as ground)
+comes first — "if we don't hunt for the shape of what would satisfy,
+everything breaks." That stage does not exist in this pipeline yet; ground
+is still hand-fed files. Not started as code in this session.

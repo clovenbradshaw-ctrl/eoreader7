@@ -1,0 +1,61 @@
+{
+  "docId": "scotus-f2-a2:1",
+  "arm": "A2",
+  "flesh": "F2",
+  "model": "gemma2:2b",
+  "ground": "native/eval/the-fold/fixtures/scotus-oral-argument-excerpt.md",
+  "seconds": 700,
+  "summary": "model calls: 75 (steer 8, prose 65, tighten 0, turns 2)\nmouth votes licensed: 1 of 8\nseconds from prose to arrival: 568\nfacts in the draft: 34\nfacts at the floor: 32\nparts carried whole: 0 of 3\narchon findings, first read: 2\nsentences folded: 0\nLish cuts (no model): 0\nrewrites kept: 0 of 0\nbridges kept: 1 of 2\nfindings still licensing a revision: 1",
+  "parts": [
+    {
+      "id": "a0",
+      "status": "leveled",
+      "of": 9,
+      "floored": 7,
+      "pieces": 8
+    },
+    {
+      "id": "a1",
+      "status": "leveled",
+      "of": 20,
+      "floored": 20,
+      "pieces": 20
+    },
+    {
+      "id": "a2",
+      "status": "leveled",
+      "of": 5,
+      "floored": 5,
+      "pieces": 5
+    }
+  ],
+  "levels": {
+    "L1": {
+      "carried": 4,
+      "of": 34,
+      "answered": null,
+      "questions": 0,
+      "licensed": 32,
+      "sentences": 2,
+      "words": 41
+    },
+    "L2": {
+      "carried": 4,
+      "of": 34,
+      "answered": null,
+      "questions": 0,
+      "licensed": 32,
+      "sentences": 2,
+      "words": 41
+    },
+    "L3": {
+      "carried": 34,
+      "of": 34,
+      "answered": null,
+      "questions": 0,
+      "licensed": 2,
+      "sentences": 33,
+      "words": 393
+    }
+  }
+}

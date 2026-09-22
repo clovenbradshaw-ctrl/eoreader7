@@ -1,0 +1,68 @@
+{
+  "docId": "narr-f2-a0:1",
+  "arm": "A0",
+  "flesh": "F2",
+  "model": "gemma2:2b",
+  "ground": "native/eval/the-fold/fixtures/call-wild-ch1-excerpt.md",
+  "seconds": 313,
+  "summary": "model calls: 23 (steer 6, prose 14, tighten 0, turns 3)\nmouth votes licensed: 0 of 6\nseconds from prose to arrival: 220\nfacts in the draft: 10\nfacts at the floor: 8\nparts carried whole: 1 of 4\narchon findings, first read: 7\nsentences folded: 0\nLish cuts (no model): 0\nrewrites kept: 0 of 0\nbridges kept: 0 of 3\nfindings still licensing a revision: 5",
+  "parts": [
+    {
+      "id": "a0",
+      "status": "carried whole",
+      "of": 1,
+      "floored": 0,
+      "pieces": 1
+    },
+    {
+      "id": "a1",
+      "status": "leveled",
+      "of": 3,
+      "floored": 3,
+      "pieces": 3
+    },
+    {
+      "id": "a2",
+      "status": "leveled",
+      "of": 4,
+      "floored": 3,
+      "pieces": 3
+    },
+    {
+      "id": "a3",
+      "status": "leveled",
+      "of": 2,
+      "floored": 2,
+      "pieces": 2
+    }
+  ],
+  "levels": {
+    "L1": {
+      "carried": 6,
+      "of": 10,
+      "answered": null,
+      "questions": 0,
+      "licensed": 6,
+      "sentences": 4,
+      "words": 110
+    },
+    "L2": {
+      "carried": 10,
+      "of": 10,
+      "answered": null,
+      "questions": 0,
+      "licensed": 3,
+      "sentences": 9,
+      "words": 225
+    },
+    "L3": {
+      "carried": 10,
+      "of": 10,
+      "answered": null,
+      "questions": 0,
+      "licensed": 3,
+      "sentences": 9,
+      "words": 225
+    }
+  }
+}
