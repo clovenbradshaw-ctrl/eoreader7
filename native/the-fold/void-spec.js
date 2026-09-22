@@ -37,10 +37,66 @@ import { voidHolarchy } from "../organs/void-holarchy.js";
 import { deriveRegister, writeVoiceFor } from "../kernel/register.js";
 import { voidCellsFor } from "./document-ledger.js";
 import { drawnParts } from "./eot-draft.js";
+import { detectFormReferentCue, resolveFormReferent } from "./form-referent.js";
 
 export const VOID_SPEC_SCHEMA = "EOVoidSpec@1";
 
 const v = (value, basis, source) => ({ value, basis, source });
+
+/** The word of the ask that names the FORM asked for — read off the ask's
+ *  own grammar, never a table: the head noun of the phrase after the leading
+ *  verb (whatever that verb is — "write", "wright", "rite"; it is never
+ *  matched) and its article, up to the subject phrase (on/about/of/for).
+ *  English puts the head noun last ("five-paragraph essay" → essay, "short
+ *  story" → story). A token with no letters ("@") is skipped, so a garbled
+ *  ask still yields its form-word ("rite @ whiteppr" → whiteppr) for SURF to
+ *  go and resolve. null when the ask has no such phrase. */
+export function candidateFormToken(task) {
+  let words = String(task ?? "").trim().split(/\s+/).filter(Boolean);
+  if (words[0] && /^please$/i.test(words[0])) words = words.slice(1);
+  words = words.slice(1);
+  if (words[0] && /^(a|an|the|me|us)$/i.test(words[0])) words = words.slice(1);
+  if (words[0] && /^(a|an|the)$/i.test(words[0])) words = words.slice(1);
+  const stop = words.findIndex((w) => /^(on|about|of|for|from|regarding|concerning)$/i.test(w.replace(/[^a-z]/gi, "")));
+  const phrase = stop === -1 ? words : words.slice(0, stop);
+  const alpha = phrase.map((w) => w.replace(/[^a-z'-]/gi, "")).filter(Boolean);
+  return alpha.length ? alpha[alpha.length - 1].toLowerCase() : null;
+}
+
+/**
+ * declareForm(task, { documentsDir, excludeDocId }) → the form the ask points
+ * at, with its basis — THE GATE AHEAD OF ANY SEARCH (user, 2026-09-22):
+ *   1. an anaphor ("again", "the same", …) is a referent into this engine's
+ *      own record: the field is read off the last piece's ledger — measured;
+ *   2. else a received sign in kernel/register.js's table — declared (the
+ *      table is a prior, never complete: "we dont want a set of shapes
+ *      pre-set");
+ *   3. else unmeasured, with the form-word carried so SURF can resolve it.
+ * The register returned is the one the rest of the pipeline speaks in.
+ */
+export function declareForm(task, { documentsDir = null, excludeDocId = null } = {}) {
+  const cue = detectFormReferentCue(task);
+  const ref = cue && documentsDir ? resolveFormReferent(task, { documentsDir, excludeDocId }) : null;
+  if (ref?.resolved?.field) {
+    const register = deriveRegister(ref.resolved.prompt);
+    return {
+      token: candidateFormToken(ref.resolved.prompt), cue, referent: ref.resolved, register,
+      field: ref.resolved.field, basis: "measured", source: `form-referent.js: ${ref.basis}`,
+    };
+  }
+  const token = candidateFormToken(task);
+  const register = deriveRegister(task);
+  const field = register?.field?.field ?? null;
+  if (field) {
+    return { token, cue, referent: null, register, field, basis: register.field.provenance === "learned" ? "measured" : "declared", source: `kernel/register.js deriveRegister (${register.field.basis})` };
+  }
+  return {
+    token, cue, referent: null, register, field: null, basis: "unmeasured",
+    source: cue
+      ? `an anaphor ("${cue}") with nothing to point at${documentsDir ? ` in ${documentsDir}` : " (no ledger directory given)"}`
+      : `no anaphor, no received sign${token ? `: "${token}" is the form-word, unresolved — SURF must find what it names` : ": the ask names no form"}`,
+  };
+}
 const NUMBER_WORDS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 };
 
 /** The operator's own count, when the ask states one ("a five-paragraph
@@ -61,7 +117,12 @@ export function askedExtent(task) {
 export function topicOf(task) {
   const t = String(task ?? "").trim();
   const m = t.match(/^\s*(?:please\s+)?(?:write|draft|compose|make|give me|produce|create)\b.*?\b(?:on|about|of)\s+(.+?)[.?!]*$/i);
-  return (m ? m[1] : t.replace(/[.?!]+$/, "")).trim() || t;
+  if (m) return m[1].trim() || null;
+  // A bare form-ask ("write a sonnet") names a form and no subject. Measured
+  // 2026-09-21: this returned the whole ask, verb included, and the void's
+  // slot was declared [asked] "write a sonnet". No subject is null, stated.
+  if (candidateFormToken(t)) return null;
+  return t.replace(/[.?!]+$/, "").trim() || null;
 }
 
 const median = (xs) => { const s = [...xs].sort((a, b) => a - b); return s.length ? s[Math.floor(s.length / 2)] : null; };
@@ -72,9 +133,10 @@ const sentenceWords = (s) => String(s).split(/\s+/).filter(Boolean).length;
  * Requires the EOT draft (the material's own holarchy) and, if present, its
  * referent resolver (attachReferents) for the subject's beings.
  */
-export function declareVoidSpec({ task = "", ground = "", draft = null } = {}) {
-  const register = deriveRegister(task);
-  const field = register?.field?.field ?? null;
+export function declareVoidSpec({ task = "", ground = "", draft = null, form = null, documentsDir = null, excludeDocId = null } = {}) {
+  form = form ?? declareForm(task, { documentsDir, excludeDocId });
+  const register = form.register;
+  const field = form.field;
   const topic = topicOf(task);
   const parts = draft ? drawnParts(draft) : [];
   const points = parts.flatMap((p) => p.children ?? []);
@@ -84,9 +146,10 @@ export function declareVoidSpec({ task = "", ground = "", draft = null } = {}) {
   const lengths = points.map((p) => sentenceWords(p.text));
   const R = draft?.referents ?? null;
   const subject = R ? [...(draft.subjectRefs ?? [])].map((id) => R.represent(id)) : [];
-  const voice = writeVoiceFor(register, topic);
-  const opening = typeof voice.opening === "function" ? voice.opening(topic) : voice.opening;
-  const questions = voidCellsFor({ topic, question: task }).cells.filter((c) => c.relevant && c.question);
+  const spoken = topic ?? form.token ?? task;
+  const voice = writeVoiceFor(register, spoken);
+  const opening = typeof voice.opening === "function" ? voice.opening(spoken) : voice.opening;
+  const questions = voidCellsFor({ topic: spoken, question: task }).cells.filter((c) => c.relevant && c.question);
 
   // ARRANGEMENT BY KIND — the order information takes for this kind of piece,
   // from the organ that declares it. Where no organ declares one, unmeasured.
@@ -103,9 +166,9 @@ export function declareVoidSpec({ task = "", ground = "", draft = null } = {}) {
 
   const levels = {
     whole: {
-      slot: v(topic, "asked", "the ask, less its verb and form"),
+      slot: v(topic, topic ? "asked" : "unmeasured", topic ? "the ask, less its verb and form" : `the ask names ${form.token ? `a form ("${form.token}")` : "no form"} and no subject — nothing after on/about/of`),
       anchor: v(subject.length ? subject : null, subject.length ? "measured" : "unmeasured", subject.length ? "beings named in more parts than not (referents.js)" : "no being is named in most parts"),
-      admits: v(field, register?.field?.provenance === "learned" ? "measured" : "declared", `kernel/register.js deriveRegister (${register?.basis ?? "no basis"})`),
+      admits: v(field, form.basis, form.source),
       extent: v(asked ?? { parts: parts.length, statements: points.length }, asked ? "asked" : "measured", asked ? "the ask's explicit extent" : "the drawn parts and statements of the EOT draft"),
       relation: v(opening, "declared", "kernel/register.js writeVoiceFor — the voice the whole speaks in"),
       composition: arrangement,
@@ -164,6 +227,7 @@ export function declareVoidSpec({ task = "", ground = "", draft = null } = {}) {
   const tally = all.reduce((t, x) => ({ ...t, [x.basis]: (t[x.basis] ?? 0) + 1 }), {});
   return {
     schema: VOID_SPEC_SCHEMA, task, topic, field,
+    form: { token: form.token, cue: form.cue, referent: form.referent, field: form.field, basis: form.basis, source: form.source },
     levels, verbiage, grounding, holarchy,
     targets: {
       parts: cardinality.value,
@@ -180,6 +244,10 @@ export function declareVoidSpec({ task = "", ground = "", draft = null } = {}) {
 export function voidSpecLines(spec) {
   const out = [];
   const fmt = (x) => (x.value == null ? "—" : typeof x.value === "string" ? x.value : JSON.stringify(x.value));
+  if (spec.form) {
+    out.push("FORM");
+    out.push(`  form         [${spec.form.basis}] ${spec.form.field ?? "—"}${spec.form.token ? ` (the ask's form-word: "${spec.form.token}")` : ""}${spec.form.cue ? ` · anaphor "${spec.form.cue}"${spec.form.referent ? ` → ${spec.form.referent.docId}` : ""}` : ""}   ← ${spec.form.source}`);
+  }
   for (const [name, ops] of Object.entries(spec.levels)) {
     out.push(`${name.toUpperCase()}`);
     for (const [op, x] of Object.entries(ops)) out.push(`  ${op.padEnd(12)} [${x.basis}] ${fmt(x).slice(0, 160)}   ← ${x.source}`);

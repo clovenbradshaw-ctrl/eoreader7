@@ -21,17 +21,18 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { deriveRegister, writeVoiceFor, voiceIsDeclaredFor } from "../kernel/register.js";
+import { writeVoiceFor, voiceIsDeclaredFor } from "../kernel/register.js";
 import { createDocumentLedger, appendLedgerLine } from "./document-ledger.js";
 import { buildDraft, draftLines, floorProjection, drawnParts } from "./eot-draft.js";
 import { buildReferents, attachReferents } from "./referents.js";
-import { declareVoidSpec, voidSpecLines, topicOf } from "./void-spec.js";
+import { declareVoidSpec, declareForm, voidSpecLines, topicOf } from "./void-spec.js";
 import { loadEotParser, attachEot, notationOf, clauseComplete, clauseCore } from "./eot-notation.js";
 import { arrangeEssay, arrangedDraft, outlineLines, selectToBudget } from "./arrange.js";
 import { steerOutline } from "./steer.js";
 import { floorPiece, measurePiece, judgeLoop, loopLine } from "./loop-check.js";
 import { prosify, anchorsFor, carries } from "./prosify.js";
 import { tightenPiece, turnPass } from "./finish.js";
+import { flesh2 } from "./flesh2.js";
 import { readPiece } from "./revision-spiral.js";
 import { gebserArrival } from "./archon-rules.js";
 import { renderPhaseReport } from "./phase-report.mjs";
@@ -41,7 +42,7 @@ const DOCS = path.join(HERE, "..", "..", "documents");
 
 const arg = (name, dflt = null) => { const i = process.argv.indexOf(`--${name}`); return i > 0 ? process.argv[i + 1] : dflt; };
 
-export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b", id = null, draw = null, onStage = null } = {}) {
+export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b", id = null, draw = null, arrange = null, flesh = "prosify", onStage = null } = {}) {
   const docId = `${id ?? `pipe-${Date.now()}`}:1`;
   const ledger = createDocumentLedger({ docId, title: task.slice(0, 80) });
   const write = (role, title, text, basis, giver = "eoreader7:pipeline", supersedes = null) => {
@@ -59,13 +60,18 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   // 1. PROMPT — the ask exactly as given.
   write("prompt", "The ask", task, "the operator's words, unedited");
 
-  // 2. REGISTER — what kind of thing is asked for, and in whose voice.
-  const register = deriveRegister(task);
-  const field = register?.field?.field ?? null;
+  // 2. REGISTER — what kind of thing is asked for, and in whose voice. The
+  // form is a gate (void-spec.js declareForm): an anaphor in the ask ("again")
+  // points at this engine's own last piece; else a received sign; else the
+  // form-word is carried unresolved for SURF. Never a silent default.
+  const form = declareForm(task, { documentsDir: DOCS, excludeDocId: docId });
+  const register = form.register;
+  const field = form.field;
   const topic = topicOf(task);
-  const voiceRaw = writeVoiceFor(register, topic);
-  let voice = { opening: typeof voiceRaw.opening === "function" ? voiceRaw.opening(topic) : voiceRaw.opening, body: typeof voiceRaw.body === "function" ? voiceRaw.body(topic) : voiceRaw.body };
-  write("register", `Register: ${field ?? "unknown"}`, `field: ${field}\nmode: ${register?.mode}\ntenor: ${register?.tenor?.tenor}\ntopic: ${topic}\nvoice declared for this field: ${voiceIsDeclaredFor(register)}\n\nopening voice:\n${voice.opening}\n\nbody voice:\n${voice.body}`, register?.basis ?? "derived from the ask");
+  const spoken = topic ?? form.token ?? task;
+  const voiceRaw = writeVoiceFor(register, spoken);
+  let voice = { opening: typeof voiceRaw.opening === "function" ? voiceRaw.opening(spoken) : voiceRaw.opening, body: typeof voiceRaw.body === "function" ? voiceRaw.body(spoken) : voiceRaw.body };
+  write("register", `Register: ${field ?? "unresolved"}`, `field: ${field} [${form.basis}] — ${form.source}\nform-word: ${form.token ?? "(none)"}${form.cue ? `\nanaphor: "${form.cue}"${form.referent ? ` → ${form.referent.docId}: "${form.referent.prompt}"` : " (unresolved)"}` : ""}\nmode: ${register?.mode}\ntenor: ${register?.tenor?.tenor}\ntopic: ${topic ?? "(none stated)"}\nvoice declared for this field: ${voiceIsDeclaredFor(register)}\n\nopening voice:\n${voice.opening}\n\nbody voice:\n${voice.body}`, register?.basis ?? "derived from the ask");
 
 
   // 4. GROUND — exactly the material given, with its sources named.
@@ -103,7 +109,7 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
 
   // THE VOID, DECLARED ON EVERY LEVEL — whole, part, sentence, verbiage,
   // grounding — each operator with its value and its basis, before any prose.
-  const spec = declareVoidSpec({ task, ground, draft });
+  const spec = declareVoidSpec({ task, ground, draft, form });
   write("void", `Void: declared on every level`, voidSpecLines(spec).join("\n"), spec.basis, "eoreader7:void-spec");
   write("referents", `Referents: ${R.size}`, [...(draft.subjectRefs ?? [])].map((id) => `subject: ${R.represent(id)}`).join("\n") || "(no being named in most parts)", "the engine's referent organ over the material; a fact names beings, not strings", "eoreader7:referents");
   const draftText = new Map(drawnParts(draft).flatMap((p) => p.children.map((pt) => [pt.id, pt.text])));
@@ -115,13 +121,14 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   // reasoning checks (off-thesis, inversion, conflicting figures, circular
   // claim) are written as findings. No model call. Every later stage reads
   // the arranged draft; the source-ordered one stays on the ledger above.
+  // `arrange` may be injected (a skeleton arm: plans/generation-terrain-stance.md).
   const gatedDraw = draw ?? (async (messages, maxTokens) => {
     const { streamOllamaChat } = await import("../../proxy-runner.mjs");
     let out = "";
     for await (const chunk of streamOllamaChat(model, messages, { maxTokens })) if (typeof chunk === "string") out += chunk;
     return out;
   });
-  let outline = arrangeEssay({ draft, spec });
+  let outline = (arrange ?? arrangeEssay)({ draft, spec });
   write("arrange", `Arrangement: ${outline.slots.length} slot(s)`, outlineLines(outline, draft).join("\n"), outline.basis, "eoreader7:arrange");
   // THE MOUTH STEERS SOME PHYSICS (steer.js): it votes on which of the ask's
   // questions each section answers and whether neighbours are one section;
@@ -146,10 +153,11 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   // essay"; the arrangement has now COMPUTED the thesis, so the mouth is
   // handed it as a fact, and nothing tells it what not to say.
   const thesisText = outline.thesis?.text ?? null;
-  voice = {
-    opening: `This is an essay on ${topic}.${thesisText ? ` Its claim: "${thesisText}"` : ""}`,
-    body: `This is an essay on ${topic}.${thesisText ? ` Its claim: "${thesisText}"` : ""}`,
-  };
+  // The form-word is the ask's own ("sonnet", "essay", "piece"), never "essay"
+  // for everything; the subject only when one was stated.
+  const named = form.token ?? "piece";
+  const what = `This is ${/^[aeiou]/i.test(named) ? "an" : "a"} ${named}${topic ? ` on ${topic}` : ""}.${thesisText ? ` Its claim: "${thesisText}"` : ""}`;
+  voice = { opening: what, body: what };
   // EVERY LOOP LEAVES SOMETHING USEFUL (loop-check.js): each loop's piece is
   // measured against the last; a loop that lost ground is undone.
   let lastPiece = null, lastMeasure = null;
@@ -220,7 +228,14 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   let piece = lastPiece;
   let failedAt = null, stage = "prose", result = null;
   const spiral = async () => {
-    result = await prosify(draft, { draw: gatedDraw, voice, ground, task, onRecord: emitRecord, onPart: emitPart });
+    // F1 (prosify.js): each section drawn whole, finer draws and floors where
+    // the coarse draw fell short. F2 (flesh2.js): the same material at three
+    // measured levels — one sentence per section, then a paragraph with the
+    // section's kind and spans, then the remaining spans woven in — every level
+    // loop-checked against the one below (plans/generation-terrain-stance.md).
+    result = flesh === "flesh2"
+      ? await flesh2({ draft, draw: gatedDraw, voice, ground, task, onRecord: emitRecord })
+      : await prosify(draft, { draw: gatedDraw, voice, ground, task, onRecord: emitRecord, onPart: emitPart });
     // ── 8–12. THE ARCHONS READ, THEIR REVISIONS RUN, THEY READ AGAIN ────────
     // Every rule here was taught to the archon whose charge it serves
     // (archon-rules.js). The pipeline only carries out what a finding licenses,
@@ -346,7 +361,7 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
     stage = "summary";
 
     const secs = Math.round((Date.now() - t0) / 1000);
-    const calls = result.records.length;
+    const calls = result.calls ?? result.records.length;
     const floored = result.parts.reduce((s, p) => s + p.floored, 0);
     const facts = result.parts.reduce((s, p) => s + p.of, 0);
     const tightCalls = tight.changes.filter((c) => c.by !== "lish-cut").length; const lishCuts = tight.changes.filter((c) => c.by === "lish-cut").length; const bridgeCalls = bridges.length;

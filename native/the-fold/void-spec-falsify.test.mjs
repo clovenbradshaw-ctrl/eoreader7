@@ -18,13 +18,23 @@
 //     so a verb typo is harmless by construction, not by any fuzzy match.
 //   - topicOf only strips the verb-and-form scaffolding when an "on/about/of"
 //     phrase follows it. A bare form-ask with no stated subject ("write a
-//     sonnet") returns the WHOLE ask, verb included, as if the verb+form
+//     sonnet") RETURNED the whole ask, verb included, as if the verb+form
 //     text were itself the topic — a real, scoped gap in declareVoidSpec's
-//     whole.slot, which documents itself as "the ask, less its verb and
-//     form" but does not do that stripping in this shape of ask.
+//     whole.slot. CLOSED 2026-09-22: no subject is null, stated [unmeasured].
+//
+// 2026-09-22, the gate (user: "we dont want a set of shapes pre-set" … "the
+// prompt may say 'again' and that is a referent pointing to something that
+// defines the shape"): candidateFormToken reads the form-word off the ask's
+// grammar with no table; declareForm resolves it — an anaphor off this
+// engine's own ledger (measured), else the received table (declared), else
+// unmeasured with the form-word carried for SURF. Tested against real
+// output, never assumed.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { topicOf, askedExtent, declareVoidSpec } from "./void-spec.js";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { topicOf, askedExtent, declareVoidSpec, declareForm, candidateFormToken, voidSpecLines } from "./void-spec.js";
 import { deriveField } from "../kernel/register.js";
 
 test("deriveField already recognizes sonnet and poem as lyric, essay as exposition — no model, no fuzzy match, an exact noun in a fixed table", () => {
@@ -69,25 +79,75 @@ test("topicOf strips the verb and form only when an on/about/of phrase names the
   assert.equal(topicOf("write an essay on the role of the Cumberland River"), "the role of the Cumberland River");
 });
 
-test("REAL GAP, PROVEN NOT ASSUMED: topicOf returns the WHOLE ask, verb included, for a bare form-request with no stated subject", () => {
-  // declareVoidSpec's whole.slot documents itself (void-spec.js line ~106)
-  // as "the ask, less its verb and form" — that stripping does not happen
-  // here. topicOf's only strip path requires on/about/of; with none, it
-  // falls to the raw string minus trailing punctuation, which for these
-  // asks is the entire input.
-  assert.equal(topicOf("write a sonnet"), "write a sonnet");
-  assert.equal(topicOf("write a poem"), "write a poem");
-  assert.equal(topicOf("wright an essay"), "wright an essay");
-  assert.equal(topicOf("write a five-paragraph essay"), "write a five-paragraph essay");
+test("GAP CLOSED (was: topicOf returned the whole ask, verb included): a bare form-request with no stated subject has NO topic, stated as null", () => {
+  // Measured 2026-09-21: these four returned the entire ask and the void's
+  // slot was declared [asked] "write a sonnet". A form-word with no subject
+  // phrase is now null — never the verb and form pretending to be a subject.
+  assert.equal(topicOf("write a sonnet"), null);
+  assert.equal(topicOf("write a poem"), null);
+  assert.equal(topicOf("wright an essay"), null);
+  assert.equal(topicOf("write a five-paragraph essay"), null);
+  // The subject phrase still comes through when one is stated.
+  assert.equal(topicOf("write a five-paragraph essay on the river"), "the river");
 });
 
-test("declareVoidSpec: the field is admitted correctly for a bare form-ask even though the topic (whole.slot) is not stripped", () => {
+test("candidateFormToken reads the ask's form-word off its grammar — head noun after verb and article — with no table and no verb match", () => {
+  assert.equal(candidateFormToken("write a sonnet"), "sonnet");
+  assert.equal(candidateFormToken("write me a poem"), "poem");
+  assert.equal(candidateFormToken("wright an essay"), "essay", "the verb is never matched, so its typo cannot matter");
+  assert.equal(candidateFormToken("rite @ whiteppr"), "whiteppr", "a letterless token is skipped; the garbled form-word is carried for SURF");
+  assert.equal(candidateFormToken("write a five-paragraph essay on the river"), "essay", "the head noun is the LAST word of the form phrase");
+  assert.equal(candidateFormToken("please write a short story about a dog"), "story");
+  assert.equal(candidateFormToken("write a manifesto"), "manifesto", "an unregistered form-word is still a form-word");
+  assert.equal(candidateFormToken("hello"), null, "one word names no form");
+});
+
+test("declareForm, the gate: received sign → declared; no sign → unmeasured with the form-word carried; anaphor → measured off this engine's own ledger", () => {
+  const sonnet = declareForm("write a sonnet");
+  assert.equal(sonnet.field, "lyric");
+  assert.equal(sonnet.basis, "declared", "a table entry is a received prior, never a measurement");
+  assert.equal(sonnet.token, "sonnet");
+
+  const garbled = declareForm("rite @ whiteppr");
+  assert.equal(garbled.field, null);
+  assert.equal(garbled.basis, "unmeasured");
+  assert.equal(garbled.token, "whiteppr");
+  assert.match(garbled.source, /SURF must find what it names/);
+
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "form-gate-"));
+  try {
+    fs.writeFileSync(path.join(dir, "prior-run_1.jsonl"), [
+      JSON.stringify({ role: "prompt", text: "write a sonnet about the sea" }),
+      JSON.stringify({ role: "void", text: "  admits       [declared] lyric   ← x" }),
+    ].join("\n") + "\n");
+    const again = declareForm("write it again", { documentsDir: dir });
+    assert.equal(again.cue, "again");
+    assert.equal(again.field, "lyric", "read off the prior run's ledger");
+    assert.equal(again.basis, "measured");
+    assert.equal(again.token, "sonnet", "the form-word is the PRIOR ask's, since this ask names none");
+    assert.equal(again.register.field.field, "lyric", "the register the pipeline speaks in is the prior piece's");
+    // The same anaphor with no ledger to read is an honest gap, not lyric.
+    const nowhere = declareForm("write it again");
+    assert.equal(nowhere.field, null);
+    assert.equal(nowhere.basis, "unmeasured");
+    assert.match(nowhere.source, /no ledger directory given/);
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("declareVoidSpec carries the gate: admits takes the form's basis, and a bare form-ask's slot is an honest unmeasured, not the ask itself", () => {
   const spec = declareVoidSpec({ task: "write a sonnet" });
   assert.equal(spec.field, "lyric");
   assert.equal(spec.levels.whole.admits.value, "lyric");
-  // The gap lands specifically in whole.slot, not in field admission.
-  assert.equal(spec.levels.whole.slot.value, "write a sonnet");
-  assert.equal(spec.levels.whole.slot.basis, "asked");
+  assert.equal(spec.levels.whole.admits.basis, "declared");
+  assert.equal(spec.levels.whole.slot.value, null);
+  assert.equal(spec.levels.whole.slot.basis, "unmeasured");
+  assert.match(spec.levels.whole.slot.source, /"sonnet"/);
+  assert.equal(spec.form.token, "sonnet");
+  assert.match(voidSpecLines(spec)[0], /^FORM$/);
+  // With a subject stated, the slot is asked, as before.
+  const river = declareVoidSpec({ task: "write an essay on the river" });
+  assert.equal(river.levels.whole.slot.value, "the river");
+  assert.equal(river.levels.whole.slot.basis, "asked");
 });
 
 test("askedExtent reads a stated extent and only a stated one", () => {
