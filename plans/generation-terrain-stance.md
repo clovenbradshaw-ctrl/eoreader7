@@ -236,14 +236,70 @@ same 15 facts):
   true, both floored because the mouth never wove them into one sentence.
   This is the floor mechanism holding under a weak mouth, not a defect.
 
-**Read from two calls, not a sweep — provisional.** F2 finished faster,
-with fewer open findings, no meta-leak, and its own live proof that the
-loop-check machinery does what it is for (catching and reverting a bad
+**Read from two calls, not a sweep — provisional at the time.** F2 finished
+faster, with fewer open findings, no meta-leak, and its own live proof that
+the loop-check machinery does what it is for (catching and reverting a bad
 loop, not just measuring after the fact). F1's fold/tighten pass caught one
-invented placeholder that F2 never produced in the first place, because F2
-never gives the mouth an open-ended enough prompt to invent one — the L1
-abstract prompt is narrow, and each subsequent level is narrowly scoped to
-"grow this" or "weave this in." That may be F2's real advantage: not that
-it writes better prose, but that its narrower prompts leave the mouth less
-room to invent. Needs A2 (and more than two calls) to become a finding
-rather than a lean.
+invented placeholder that F2 never produced in the first place. That looked
+like F2's real advantage — narrower per-level prompts leaving the mouth less
+room to invent — but it needed A2 to become a finding rather than a lean.
+
+### Step 3, completed — the full 2×2 (F1/F2 × A0/A2), live
+
+Two more calls, same ground, same task, same model. All four JSONs and
+final pieces are in `results/terrain-stance-2026-09-21/` (`flesh-{f1,f2}-{a0,a2}.json`,
+`pieces/retest-{f1,f2}-{a0,a2}.txt`).
+
+| | F1-A0 | F2-A0 | F1-A2 | F2-A2 |
+|---|---|---|---|---|
+| seconds | 388 | 353 | 316 | 254 |
+| model calls | 35 | 38 | 31 | 28 |
+| facts at the floor | 10/15 | 12/15 | 7/16 | 9/16 |
+| archon findings, first read | 6 | 3 | 10 | 4 |
+| findings still licensing a revision | 4 | 3 | 3 | 2 |
+
+F2 is faster and lower on open findings on **both** arms, not just A0. That
+part of the lean holds up. What did not hold up is "F2 invents less because
+its prompts are narrower" — each flesh arm produced its own, different,
+equally uncaught defect on A2, and neither is the invented-placeholder kind
+F1 produced on A0:
+
+- **F1-A2 invents unsupported editorializing**, twice, at section ends —
+  exactly the "spin" class from earlier OHS runs, still uncaught by any
+  archon: *"This information highlights the audit's focus on improving the
+  effectiveness of the Office of Homeless Services and the commitment of
+  the committee to ensuring the best possible outcomes…"* and *"The audit's
+  findings have been valuable in driving positive change within the Office
+  of Homeless Services."* Neither clause is in the source (checked: zero
+  matches). Both a0 and a2 end on one of these; a1 does not — the pattern
+  looks like it is specific to how a section's *last* recursive fill is
+  drawn, not random.
+- **F2-A2 produces a literal duplicate**, and the mechanism is now known
+  precisely, not guessed: `carries(anchor, text)` was tested directly on
+  the two sentences involved. `"Note: the Homeless Impact Division was
+  formerly a part of Social Services."` carries the statement (`true`);
+  the bare repeat without "Note:" does not (`false`). The statement's
+  anchor requires referent `ref:auto:note` — the source's own paragraph
+  label "Note:" (a capitalized token) was admitted by the discovery organ
+  as a proper-noun-like referent, so the anchor for that statement
+  effectively demands the literal word "Note" to count as carried. When
+  L2's own text dropped that prefix, L3 read the statement as never carried
+  and floored it a second time, producing the duplicate. This is a live,
+  consequential instance of a gap `referents.js`'s own header already
+  documents ("sentence openers… became referents of their own") — not a
+  new defect, the first time it has been caught corrupting a real piece.
+  Smallest fix, not yet applied (per [[feedback_verify_gates_against_real_organs]],
+  wants its own falsification pass before changing referents.js): exclude
+  a one-word capitalized referent that is immediately followed by a colon
+  in the source from the one-word referent set — a structural label
+  ("Note:", "Purpose:", "Status:"), not a name.
+
+**Reading across all four:** F2 wins on speed and on the archons' own count
+of open findings, on both arms. Neither flesh arm is defect-free, and the
+two defects that survive are of different *kinds* — F1 fabricates framing
+language the source never states; F2 restates a true fact because a stray
+referent silently gates whether a paraphrase counts as carrying it. Neither
+is caught by the current archon set. The next two checks this experiment
+argues for, concretely: an editorializing/unsupported-affect check (Zinsser's
+family, or a new one) for F1's failure mode, and a referent-hygiene pass
+(exclude colon-labels from one-word referents) for F2's.

@@ -1,0 +1,33 @@
+{
+  "docId": "retest-f1-a2:1",
+  "arm": "A2",
+  "flesh": "F1",
+  "model": "gemma2:2b",
+  "ground": "/Users/mlacy/Documents/3.0/eoreader7/native/eval/the-fold/fixtures/ohs-followup-audit.md",
+  "seconds": 316,
+  "summary": "model calls: 31 (steer 12, prose 12, tighten 6, turns 1)\nmouth votes licensed: 5 of 12\nseconds from prose to arrival: 250\nfacts in the draft: 16\nfacts at the floor: 7\nparts carried whole: 0 of 3\narchon findings, first read: 10\nsentences folded: 0\nLish cuts (no model): 0\nrewrites kept: 3 of 6\nbridges kept: 0 of 1\nfindings still licensing a revision: 3",
+  "parts": [
+    {
+      "id": "a0",
+      "status": "recursed",
+      "of": 4,
+      "floored": 2,
+      "pieces": 6
+    },
+    {
+      "id": "a1",
+      "status": "recursed",
+      "of": 7,
+      "floored": 4,
+      "pieces": 6
+    },
+    {
+      "id": "a2",
+      "status": "recursed",
+      "of": 5,
+      "floored": 1,
+      "pieces": 5
+    }
+  ],
+  "levels": null
+}
