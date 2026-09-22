@@ -400,3 +400,24 @@ over the candidates form-referent.js gathers, steer.js's discipline); shape
 extraction from INSTANCES of a form (line counts of the poems themselves)
 beside the descriptions; the mouth writing lines, not sentences, when the
 shape is lines.
+
+Runs 2 and 3 (same ask, `--budget 24`; `results/nine-stages-2026-09-22/`):
+
+- nine-live-2 proved the surf fix (3 pages at tier 1) and stage 7 fired live
+  for the first time — Kelsen's prefer-operator sent a fetched "flood crest"
+  figure out of the skeleton, judged better, settled. It also showed fetched
+  material OUTWEIGHING the operator's: 68 paragraphs against 8, headings and
+  FAQ lines as statements, a fetched heading as the thesis, 71 mouth votes.
+- nine-live-3, after the bound (at most as many fetched paragraphs as the
+  operator handed over, most-subject-naming first; the thesis is the
+  operator's): 8 fetched paragraphs admitted, two pages refused with the
+  reason; the operator's thesis stands; pass 2 ran and tightened 10 → 7
+  licensed findings; then Hora fired live — pass 2's turns loop was worse
+  (9 licensed) and was undone, the piece standing at the last stable loop.
+  Diaphaneity 0.93 (27 of 29 sentences transparent) against run 1's 0.52:
+  admitted material gave the mouth more witnessed sentences to carry.
+- The form gate's ambiguity tier landed (7041b42): candidates narrowed by
+  the ask's own words; the mouth asked one yes/no per sharing candidate,
+  licensed by exactly one yes. Its first falsifier caught the fallback
+  picking the most recent ledger overall instead of the most recent
+  sharing one.
