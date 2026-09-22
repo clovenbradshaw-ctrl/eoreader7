@@ -244,7 +244,7 @@ test("foldManual: a real learned form folds every stored field — frontmatter, 
   const md = foldManual(cur, "limerick");
   assert.match(md, /^---\nname: limerick\ndescription: .+\n---/s);
   assert.match(md, /# limerick/);
-  assert.match(md, /## Measured signals/);
+  assert.match(md, /## What sets it apart/);
   assert.match(md, /_\((strong|broad|measured)/);
   assert.match(md, /## What tends to come next/);
   assert.match(md, /## Provenance/);

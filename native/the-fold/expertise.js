@@ -107,14 +107,26 @@ export function glossFeature(f) {
  * the broadest ground (plain, unrelated prose) is named as the weaker one.
  */
 export function competencyStatement(cur) {
-  if (!cur || !cur.features?.length) return "Nothing measured yet.";
-  const glosses = cur.features.map((f) => f.gloss ?? glossFeature(f));
-  const tiers = cur.features.some((f) => f.groundedAt?.length);
-  const strong = tiers ? cur.features.filter((f) => (f.groundedAt?.length ?? 0) >= 2) : [];
-  const weak = tiers ? cur.features.filter((f) => (f.groundedAt?.length ?? 0) < 2) : [];
-  const lines = [`To be competent at "${cur.title?.replace(/^Expertise: /, "").replace(/ \(revision.*/, "") ?? ""}" means reliably producing text where ${glosses.length === 1 ? glosses[0] : glosses.slice(0, -1).join("; ") + "; and " + glosses.at(-1)}.`];
-  if (tiers && strong.length) lines.push(`Of these, ${strong.length} hold even against OTHER material found while searching for this form — the stronger, more specific signal(s): ${strong.map((f) => f.gloss ?? glossFeature(f)).join("; ")}.`);
-  if (tiers && weak.length) lines.push(`${weak.length} hold only against ordinary, unrelated prose — a broader signal (marks this as shaped/formal writing at all, not this form specifically): ${weak.map((f) => f.gloss ?? glossFeature(f)).join("; ")}.`);
+  const necessary = cur?.necessity?.necessary ?? [];
+  if (!cur || (!cur.features?.length && !necessary.length)) return "Nothing measured yet.";
+  const name = cur.title?.replace(/^Expertise: /, "").replace(/ \(revision.*/, "") ?? "";
+  const lines = [];
+  if (cur.features?.length) {
+    const glosses = cur.features.map((f) => f.gloss ?? glossFeature(f));
+    const tiers = cur.features.some((f) => f.groundedAt?.length);
+    const strong = tiers ? cur.features.filter((f) => (f.groundedAt?.length ?? 0) >= 2) : [];
+    const weak = tiers ? cur.features.filter((f) => (f.groundedAt?.length ?? 0) < 2) : [];
+    lines.push(`To be competent at "${name}" means reliably producing text where ${glosses.length === 1 ? glosses[0] : glosses.slice(0, -1).join("; ") + "; and " + glosses.at(-1)}.`);
+    if (tiers && strong.length) lines.push(`Of these, ${strong.length} hold even against OTHER material found while searching for this form — the stronger, more specific signal(s): ${strong.map((f) => f.gloss ?? glossFeature(f)).join("; ")}.`);
+    if (tiers && weak.length) lines.push(`${weak.length} hold only against ordinary, unrelated prose — a broader signal (marks this as shaped/formal writing at all, not this form specifically): ${weak.map((f) => f.gloss ?? glossFeature(f)).join("; ")}.`);
+  }
+  // "what do all X have that other things may or may not have" (2026-09-22)
+  // — a DIFFERENT question from the contrastive one above: no ground
+  // required, only within-kind reliability (necessaryFacts, form-prior.js).
+  if (necessary.length) {
+    const glosses = necessary.map((f) => glossFeature({ slot: f.key, value: f.value }));
+    lines.push(`${cur.features?.length ? "Separately, regardless of any ground: " : `Every "${name}" reliably has: `}${glosses.length === 1 ? glosses[0] : glosses.slice(0, -1).join("; ") + "; and " + glosses.at(-1)} — true of (almost) every real instance measured, whether or not other kinds of writing ever share it too.`);
+  }
   return lines.join(" ");
 }
 
@@ -132,7 +144,7 @@ export function competencyStatement(cur) {
  *   note      free text, appended to the basis, for anything not carried by
  *             the paradigm itself
  */
-export function recordExpertise(ex, { name, paradigm, formPrior = null, source, note = "", sources = null, activation = null } = {}) {
+export function recordExpertise(ex, { name, paradigm, formPrior = null, source, note = "", sources = null, activation = null, necessity = null } = {}) {
   if (!name) throw new TypeError("recordExpertise: name is declared");
   if (paradigm?.refused) throw new TypeError(`recordExpertise: paradigm was refused (${paradigm.refused}) — nothing learned to record`);
   if (!source) throw new TypeError("recordExpertise: source is declared — provenance is not optional");
@@ -150,11 +162,12 @@ export function recordExpertise(ex, { name, paradigm, formPrior = null, source, 
     paradigm.emergent ? `${paradigm.features.length} of ${paradigm.all?.length ?? paradigm.features.length} feature(s) after dominance compression` : `${paradigm.features.length} feature(s)`,
     formPrior ? `expectation: ${formPrior.form?.length ?? 0} slot(s) predictable, learned at instance ${formPrior.learnedAt ?? "—"}` : null,
     provenance.length ? `${provenance.length} source(s) hashed (sha256)` : "NO SOURCE HASHES — sources named but not checksummed",
+    necessity && !necessity.refused ? `necessity: ${necessity.basis}` : null,
     note || null,
   ].filter(Boolean).join("; ");
   const line = appendLedgerLine(ex.ledger, {
     role: "paradigm", kind: name, title: `Expertise: ${name}${current ? ` (revision ${(current.revision ?? 1) + 1})` : ""}`,
-    text: JSON.stringify({ ...body, formPrior: formPrior ? { form: formPrior.form?.slice(0, 40), learnedAt: formPrior.learnedAt, deltaToForm: [formPrior.bayes?.form?.first, formPrior.bayes?.form?.last] } : null, activation, revision: (current?.revision ?? 0) + 1, source, sources: provenance, learnedAt: new Date().toISOString() }),
+    text: JSON.stringify({ ...body, formPrior: formPrior ? { form: formPrior.form?.slice(0, 40), learnedAt: formPrior.learnedAt, deltaToForm: [formPrior.bayes?.form?.first, formPrior.bayes?.form?.last] } : null, activation, necessity, revision: (current?.revision ?? 0) + 1, source, sources: provenance, learnedAt: new Date().toISOString() }),
     giver: "mechanical:learnParadigmEmergent+learnForm", basis, supersedes: current?.id ?? null,
   });
   const corro = corroboration(ex.store, name);
@@ -344,21 +357,29 @@ export function foldManual(cur, name) {
     return [`---`, `name: ${slug}`, `description: Nothing has been measured about "${name}" yet — no manual can be written.`, `---`, ``, `# ${name}`, ``, `Nothing recurs here yet. No instance of "${name}" has been read.`, ``].join("\n");
   }
   const heldCount = cur.features?.length ?? 0;
-  const description = heldCount
+  const necessary = cur.necessity?.necessary ?? [];
+  const description = heldCount || necessary.length
     ? `${competencyStatement(cur).split(". ")[0]}. (${cur.status}, corroborated by ${cur.corroboration}; revision ${cur.revision}.)`
     : `${cur.status} (revision ${cur.revision}) — no feature yet measurably distinguishes "${name}" from its ground(s).`;
   const lines = [
     `---`, `name: ${slug}`, `description: ${description.replace(/\n/g, " ")}`, `---`, ``,
     `# ${name}`, ``,
-    heldCount ? competencyStatement(cur) : `Nothing measured yet reliably distinguishes "${name}" from its comparison ground(s) — this is an honest null, not a missing measurement.`,
+    heldCount || necessary.length ? competencyStatement(cur) : `Nothing measured yet reliably distinguishes "${name}" from its comparison ground(s) — this is an honest null, not a missing measurement.`,
     ``,
   ];
   if (heldCount) {
-    lines.push(`## Measured signals`, ``);
+    lines.push(`## What sets it apart (measured against a ground)`, ``);
     for (const f of cur.features) {
       const tier = f.groundedAt?.length === 2 ? "strong — holds against both grounds" : f.groundedAt?.length === 1 ? "broad — holds only against plain prose" : "measured";
       lines.push(`- ${f.gloss ?? f.key} _(${tier}${f.same?.length ? `; +${f.same.length} equivalent fact(s)` : ""})_`);
     }
+    lines.push(``);
+  }
+  // "what do all X have that other things may or may not have" (2026-09-22)
+  // — no ground required, a property of the kind alone.
+  if (necessary.length) {
+    lines.push(`## What it always has (no ground required)`, ``);
+    for (const f of necessary) lines.push(`- ${glossFeature({ slot: f.key, value: f.value })} _(${Math.round(f.support * 100)}% of instances, ${Math.round(f.stability * 100)}% stable across random half-splits)_`);
     lines.push(``);
   }
   if (cur.formPrior?.form?.length) {
@@ -387,7 +408,7 @@ export function foldManual(cur, name) {
   }
   if (!heldCount || cur.status !== "confirmed") {
     lines.push(`## Open questions`, ``);
-    if (!heldCount) lines.push(`- Nothing measurable recurs yet against this ground — try a nearer, more specific comparison population, or read more real instances.`);
+    if (!heldCount) lines.push(`- Nothing measurable distinguishes it from its ground yet — try a nearer, more specific comparison population, or read more real instances.${necessary.length ? " (What it always HAS, independent of any ground, is above — a different, weaker kind of claim than what sets it apart.)" : ""}`);
     if (cur.status !== "confirmed") lines.push(`- Not yet confirmed: needs a second, DISTINCT source to corroborate before this counts as more than provisional.`);
     lines.push(`- This form may itself span more than one real paradigm (e.g. a stance/sector split) — a single flattened manual can hide that; check for a stance-scoped sibling before trusting this as the whole story.`, ``);
   }
