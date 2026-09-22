@@ -110,7 +110,11 @@ test("STAGE 3, SURF: without a web the stage is recorded as not run; with one, i
   } finally { cleanup(dry.docId); }
   const web = {
     search: async (q) => ({ results: [{ url: `https://one.example/${encodeURIComponent(q)}`, title: q }, { url: "https://two.example/p", title: "two" }] }),
-    fetch: async (url) => ({ title: url, text: "An essay runs five paragraphs. A page about the river. ".repeat(10), chars: 550, headings: ["Introduction", "Conclusion"] }),
+    // one.example answers every query (so it is an exemplar page AND a
+    // material page); two.example is the material hunt's second host. The
+    // material text carries Nashville (the operator's subject) in one
+    // paragraph and furniture in another.
+    fetch: async (url) => ({ title: url, text: /material|two\.example|the%20river/.test(url) ? "Jump to content\n\nNashville's wharf on the river handled cotton for a century.\n\nAn essay runs five paragraphs." : "An essay runs five paragraphs. A page about the river. ".repeat(10), chars: 550, headings: ["Introduction", "Conclusion"] }),
   };
   const wet = await runPipeline({ task: "Write an essay on the river.", groundFiles: [groundFile], id: "test-pipe-surf-wet", draw, web });
   try {
@@ -127,8 +131,21 @@ test("STAGE 3, SURF: without a web the stage is recorded as not run; with one, i
     assert.match(sh.text, /paragraph\s+5 \(2\/2 ✓\)/);
     assert.match(sh.text, /parts\s+.*conclusion \(2\/2\)/);
     assert.ok(lines.findIndex((l) => l.role === "shape") < lines.findIndex((l) => l.role === "ground"));
-    const dryShape = read(dry.docId === wet.docId ? wet.docId : wet.docId); // (dry's ledger was cleaned above)
-    assert.ok(dryShape);
+    // STAGE 5: the material pages earn tier 1 by carrying the subject; the
+    // ground names its tiers; the draft's parts carry them.
+    const h = lines.find((l) => l.role === "hunt");
+    assert.ok(h, "no hunt line");
+    assert.match(h.title, /^Hunt: \d+ fetched source\(s\) admitted/);
+    assert.match(h.text, /^tier 0  ground\.md/m);
+    assert.match(h.text, /^tier 1  /m, "a fetched page earned admission");
+    // The two-paragraph fixture has no being named in more parts than not
+    // (Nashville is in one), so admission falls to the ask's own subject word.
+    assert.match(h.basis, /carries a word of the ask's subject \("river"\)/);
+    const g = lines.find((l) => l.role === "ground");
+    assert.match(g.title, /ground\.md \(tier 0\)/);
+    assert.match(g.title, /\(tier 1\)/);
+    assert.ok(lines.findIndex((l) => l.role === "hunt") < lines.findIndex((l) => l.role === "ground"));
+    assert.ok(lines.findIndex((l) => l.role === "shape") < lines.findIndex((l) => l.role === "hunt"));
   } finally { cleanup(wet.docId); }
 });
 

@@ -124,15 +124,21 @@ export const namesOf = (text) => [...new Set(nameRuns(text).map((r) => r.join(" 
  * ground with no block seams goes straight from whole to points: the
  * recursion stops where the material stops making distinctions.
  */
-export function buildDraft({ task = "", ground = "", sourceId = "ground" } = {}) {
+export function buildDraft({ task = "", ground = "", sourceId = "ground", sources = null } = {}) {
   const text = String(ground ?? "");
   const whole = { id: "whole", path: "whole", depth: 0, kind: "whole", span: { sourceId, start: 0, end: text.length }, children: [], names: [] };
-  if (!text.trim()) return { schema: EOT_DRAFT_SCHEMA, task, sourceId, root: whole, subject: [], basis: "no ground — nothing to draft from" };
+  if (!text.trim()) return { schema: EOT_DRAFT_SCHEMA, task, sourceId, sources, root: whole, subject: [], basis: "no ground — nothing to draft from" };
 
+  // PROVENANCE BY TIER (hunt.js, 2026-09-22): the ground is one string, so
+  // every byte-offset consumer (the parser, the archons) sees it whole; the
+  // `sources` map says which source and which tier each part's bytes came
+  // from — the operator's material (tier 0) or what a fetched page earned.
+  const sourceOf = (start) => (sources ?? []).find((m) => start >= m.start && start < m.end) ?? null;
   const blocks = blocksWithOffsets(text, 0);
   const parts = blocks.length >= 2 ? blocks : [{ text: text.trim(), start: text.indexOf(text.trim()), end: text.indexOf(text.trim()) + text.trim().length }];
   parts.forEach((b, i) => {
-    const part = { id: `p${i + 1}`, path: `whole/p${i + 1}`, depth: 1, kind: "part", text: b.text, span: { sourceId, start: b.start, end: b.end }, children: [], names: namesOf(b.text), words: [...new Set(words(b.text))] };
+    const src = sourceOf(b.start);
+    const part = { id: `p${i + 1}`, path: `whole/p${i + 1}`, depth: 1, kind: "part", text: b.text, span: { sourceId, start: b.start, end: b.end }, children: [], names: namesOf(b.text), words: [...new Set(words(b.text))], ...(src ? { source: src.id, tier: src.tier } : {}) };
     sentencesWithOffsets(text.slice(b.start, b.end), b.start).forEach((s, j) => {
       part.children.push({
         id: `p${i + 1}.${j + 1}`, path: `whole/p${i + 1}/${j + 1}`, depth: 2, kind: "point",
@@ -195,7 +201,7 @@ export function buildDraft({ task = "", ground = "", sourceId = "ground" } = {})
   const points = drawn.reduce((s, p) => s + p.children.length, 0);
   const unbridged = drawn.filter((p) => p.bridge && !p.bridge.name).length;
   return {
-    schema: EOT_DRAFT_SCHEMA, task, sourceId, root: whole, subject, pervasive: [...pervasive], choosing,
+    schema: EOT_DRAFT_SCHEMA, task, sourceId, sources, root: whole, subject, pervasive: [...pervasive], choosing,
     basis: `${whole.children.length} part(s) from ${blocks.length >= 2 ? "the material's own block seams" : "an unseamed ground"}, ${drawn.length} drawn by the ask (${choosing.length ? `chosen by: ${choosing.join(", ")}` : "no topic word chooses among them — all drawn"}), ${points} point(s); ${unbridged} transition(s) have no shared name and must be written`,
   };
 }

@@ -93,6 +93,16 @@ export function arrangeEssay({ draft, spec = null } = {}) {
   // twice. The poorer statement leaves the outline (restatement.js,
   // containment of figures AND names, bare numbers null-filtered).
   const duplicates = findDuplicateStatements(points.map((pt) => ({ text: pt.text, id: pt.id })));
+  // FETCHED MATERIAL NEVER OUTRANKS THE OPERATOR'S (hunt.js, tier 0 vs 1):
+  // where the richer of two duplicate statements is the fetched one, the
+  // operator's stands and the fetched one leaves — however much richer.
+  const tierOf = new Map(parts.flatMap((p) => (p.children ?? []).map((pt) => [pt.id, p.tier ?? 0])));
+  for (const d of duplicates) {
+    if ((tierOf.get(d.keep) ?? 0) > (tierOf.get(d.drop) ?? 0)) {
+      [d.keep, d.drop, d.keepText, d.dropText] = [d.drop, d.keep, d.dropText, d.keepText];
+      d.tiered = true;
+    }
+  }
   const dropped = new Set(duplicates.map((d) => d.drop));
   const R = draft?.referents ?? null;
   const subject = draft?.subjectRefs ?? new Set();
@@ -375,7 +385,7 @@ export function arrangeEssay({ draft, spec = null } = {}) {
     ...groups.map((g, i) => ({ slot: g === tension ? "tension" : `body ${i + 1}`, statements: g.statements.map((f) => f.pt.id), extent: g.from != null ? [g.from, g.to] : null, beings: g.beings.filter((id) => !R || isProperReferent(R, id)).map((id) => R?.represent(id) ?? id), sources: g.sources, basis: g === tension ? "the material marks this group as a turn" : `grouped by shared beings${g.from != null ? `, ordered by extent ${g.from}–${g.to}` : ", undated, kept in the material's place"}` })),
     { slot: "return", statements: [], basis: thesis ? `the close comes back to the thesis (${thesis.pt.id})` : "no thesis to return to" },
   ];
-  for (const d of duplicates) findings.push({ kind: "duplicate_across_sources", owner: "Tracy Kidder & Richard Todd", detail: `${d.drop} states what ${d.keep} states (${[...d.sharedFigures, ...d.sharedNames].slice(0, 4).join(", ")}): said once, from ${d.keep}` });
+  for (const d of duplicates) findings.push({ kind: "duplicate_across_sources", owner: "Tracy Kidder & Richard Todd", detail: `${d.drop} states what ${d.keep} states (${[...d.sharedFigures, ...d.sharedNames].slice(0, 4).join(", ")}): said once, from ${d.keep}${d.tiered ? " — the operator's material, though the fetched statement was richer" : ""}` });
   if (!tension) findings.push({ kind: "no_tension", owner: "the void (arrangement)", detail: "the material marks no turn, so the tension slot is a declared gap rather than an invented counterpoint" });
 
   return {

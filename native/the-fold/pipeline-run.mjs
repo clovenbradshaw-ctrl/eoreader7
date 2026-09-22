@@ -28,6 +28,7 @@ import { buildReferents, attachReferents } from "./referents.js";
 import { declareVoidSpec, declareForm, voidSpecLines, topicOf } from "./void-spec.js";
 import { surfLines, liveWeb } from "./surf.js";
 import { surfForShape, shapeLines } from "./shape.js";
+import { huntGround, huntLines } from "./hunt.js";
 import { loadEotParser, attachEot, notationOf, clauseComplete, clauseCore } from "./eot-notation.js";
 import { arrangeEssay, arrangedDraft, outlineLines, selectToBudget } from "./arrange.js";
 import { steerOutline } from "./steer.js";
@@ -96,12 +97,21 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
     write("shape", "Shape: not learned", "no surf, so no sources to learn the form's shape from", "unmeasured: stage 4 reads stage 3's sources", "eoreader7:shape");
   }
 
-  // 4. GROUND — exactly the material given, with its sources named.
-  const ground = groundFiles.map((f) => fs.readFileSync(f, "utf8")).join("\n\n");
-  write("ground", `Ground: ${groundFiles.map((f) => path.basename(f)).join(", ")}`, `${groundFiles.map((f) => `${path.basename(f)} — ${fs.statSync(f).size} bytes`).join("\n")}\n\ntotal: ${ground.length} characters`, "the operator's material only; nothing fetched");
+  // 5. HUNT / GROUND (ethos, hunt.js) — the operator's material is the ground
+  // by being handed over (tier 0). What SURF brought back earns admission
+  // paragraph by paragraph, by carrying the void's subject (the referent
+  // organ over the operator's material) — tier 1, after it, never above it.
+  const operatorId = groundFiles.map((f) => path.basename(f)).join("+") || "none";
+  const operatorGround = groundFiles.map((f) => fs.readFileSync(f, "utf8")).join("\n\n");
+  const R0 = buildReferents(operatorGround);
+  const d0 = attachReferents(buildDraft({ task, ground: operatorGround, sourceId: operatorId }), R0);
+  const hunted = huntGround({ operator: { id: operatorId, text: operatorGround }, surfed, topic, R: R0, subject: d0.subjectRefs ?? new Set() });
+  write("hunt", `Hunt: ${hunted.admitted} fetched source(s) admitted, ${hunted.refused.length} refused`, huntLines(hunted).join("\n") || "(nothing to admit or refuse)", hunted.basis, "eoreader7:hunt");
+  const ground = hunted.ground;
+  write("ground", `Ground: ${hunted.sources.map((s) => `${s.id} (tier ${s.tier})`).join(", ") || "none"}`, `${groundFiles.map((f) => `${path.basename(f)} — ${fs.statSync(f).size} bytes (tier 0)`).join("\n")}${hunted.sources.filter((s) => s.tier === 1).map((s) => `\n${s.id} — ${s.text.length} chars admitted of ${s.url} (tier 1)`).join("")}\n\ntotal: ${ground.length} characters`, hunted.admitted ? "the operator's material first, then what fetched pages earned by carrying the subject" : "the operator's material only; nothing fetched earned admission");
 
-  // 5. EOT DRAFT — the piece as witnessed spans, before prose.
-  let draft = buildDraft({ task, ground, sourceId: groundFiles.map((f) => path.basename(f)).join("+") });
+  // EOT DRAFT — the piece as witnessed spans, before prose.
+  let draft = buildDraft({ task, ground, sourceId: operatorId, sources: hunted.map });
   // WHO, NOT WHICH STRING: one resolver over the material, carried by the
   // draft, asked by every later stage (referents.js).
   const R = buildReferents(ground);
@@ -115,7 +125,7 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   // span, and the ledger says why.
   const parser = await loadEotParser();
   if (parser.ok) {
-    const records = parser.parse(ground, groundFiles.map((f) => path.basename(f)).join("+"));
+    const records = parser.parse(ground, operatorId);
     const fit = attachEot(drawnParts(draft).flatMap((p) => p.children), records);
     write("eot-draft", "EOT notation attached", `${records.length} parsed record(s); ${fit.exact} statement(s) match one record exactly, ${fit.split} span several, ${fit.none} have none`, `parser: ${parser.provenance?.treebank ?? "UD_English-EWT"}, held-out LAS ${parser.provenance?.heldOut?.LAS ?? parser.provenance?.scores?.LAS ?? "see provenance"} — the parse is the engine's, errors included`, "eoreader7:eot-notation");
   } else {
