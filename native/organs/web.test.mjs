@@ -85,6 +85,11 @@ test("extractReadable: title, description, whole readable text; chrome and code 
   assert.ok(out.text.length > 100);
 });
 
+test("extractReadable: headings are captured (the close was `</hh2>` until 2026-09-22 — zero headings on every page, ever)", () => {
+  const out = extractReadable(`<html><body><h1 class="t">Title <em>here</em></h1><div class="mw-heading"><h2 id="x">White papers in business</h2></div><h3>Deep</h3><h5>too deep</h5><p>text</p></body></html>`);
+  assert.deepEqual(out.headings, [{ level: 1, text: "Title here" }, { level: 2, text: "White papers in business" }, { level: 3, text: "Deep" }]);
+});
+
 test("extractReadable: a truncated script takes its tail, a sloppy container does not", () => {
   const truncated = extractReadable(`<body><p>kept</p><script>var x = "lost`);
   assert.ok(truncated.text.includes("kept"));

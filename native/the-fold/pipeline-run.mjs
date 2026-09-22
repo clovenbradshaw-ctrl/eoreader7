@@ -26,7 +26,8 @@ import { createDocumentLedger, appendLedgerLine } from "./document-ledger.js";
 import { buildDraft, draftLines, floorProjection, drawnParts } from "./eot-draft.js";
 import { buildReferents, attachReferents } from "./referents.js";
 import { declareVoidSpec, declareForm, voidSpecLines, topicOf } from "./void-spec.js";
-import { surf, surfLines, liveWeb } from "./surf.js";
+import { surfLines, liveWeb } from "./surf.js";
+import { surfForShape, shapeLines } from "./shape.js";
 import { loadEotParser, attachEot, notationOf, clauseComplete, clauseCore } from "./eot-notation.js";
 import { arrangeEssay, arrangedDraft, outlineLines, selectToBudget } from "./arrange.js";
 import { steerOutline } from "./steer.js";
@@ -80,12 +81,19 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   // is injected; without one the stage is recorded as not run, never as "the
   // web had nothing". What comes back is CANDIDATE material with provenance —
   // stage 4 judges it, and it never outranks the operator's ground.
-  let surfed = null;
+  let surfed = null, shape = null;
   if (web) {
-    surfed = await surf({ spec: declareVoidSpec({ task, form }), search: web.search, fetch: web.fetch });
-    write("surf", `Surf: ${surfed.fetched} source(s) from ${surfed.hosts.length} host(s)${surfed.multiple ? "" : " — not multiple"}`, surfLines(surfed).join("\n"), surfed.basis, "eoreader7:surf");
+    // 3 → 4 → (NO) → 3: surfForShape runs the surf, learns the shape from what
+    // came back, and goes back to the web once with structure queries when
+    // nothing was agreed — bounded, then stops with the gap stated.
+    const r = await surfForShape({ spec: declareVoidSpec({ task, form }), web });
+    surfed = r.surfed; shape = r.shape;
+    write("surf", `Surf: ${surfed.fetched} source(s) from ${surfed.hosts.length} host(s)${surfed.multiple ? "" : " — not multiple"}${r.rounds > 1 ? ` · ${r.rounds} rounds` : ""}`, surfLines(surfed).join("\n"), surfed.basis, "eoreader7:surf");
+    // 4. SHAPE-MATCH — the form's shape, as more hosts than not state it.
+    write("shape", `Shape: ${shape.learned ? shape.agreedUnits.map((a) => `${a.n} ${a.unit}${a.n === 1 ? "" : "s"}`).join(", ") || `${shape.parts.length} named part(s)` : "not learned"}`, shapeLines(shape).join("\n") || "(no claim on any source)", shape.basis, "eoreader7:shape");
   } else {
     write("surf", "Surf: not run", "no web given — the ground is the operator's material only", "unmeasured: stage 3 needs a web (surf.js liveWeb); nothing was sought, so nothing was found", "eoreader7:surf");
+    write("shape", "Shape: not learned", "no surf, so no sources to learn the form's shape from", "unmeasured: stage 4 reads stage 3's sources", "eoreader7:shape");
   }
 
   // 4. GROUND — exactly the material given, with its sources named.

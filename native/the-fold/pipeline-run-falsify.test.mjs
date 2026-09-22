@@ -110,7 +110,7 @@ test("STAGE 3, SURF: without a web the stage is recorded as not run; with one, i
   } finally { cleanup(dry.docId); }
   const web = {
     search: async (q) => ({ results: [{ url: `https://one.example/${encodeURIComponent(q)}`, title: q }, { url: "https://two.example/p", title: "two" }] }),
-    fetch: async (url) => ({ title: url, text: "A page about the river. ".repeat(20), chars: 480 }),
+    fetch: async (url) => ({ title: url, text: "An essay runs five paragraphs. A page about the river. ".repeat(10), chars: 550, headings: ["Introduction", "Conclusion"] }),
   };
   const wet = await runPipeline({ task: "Write an essay on the river.", groundFiles: [groundFile], id: "test-pipe-surf-wet", draw, web });
   try {
@@ -121,6 +121,14 @@ test("STAGE 3, SURF: without a web the stage is recorded as not run; with one, i
     assert.match(s.text, /two\.example/);
     assert.ok(lines.findIndex((l) => l.role === "surf") < lines.findIndex((l) => l.role === "ground"), "surf must land before the ground");
     assert.ok(lines.findIndex((l) => l.role === "register") < lines.findIndex((l) => l.role === "surf"), "surf follows the void's form");
+    // STAGE 4 lands right after: the shape as more hosts than not state it.
+    const sh = lines.find((l) => l.role === "shape");
+    assert.equal(sh.title, "Shape: 5 paragraphs");
+    assert.match(sh.text, /paragraph\s+5 \(2\/2 ✓\)/);
+    assert.match(sh.text, /parts\s+.*conclusion \(2\/2\)/);
+    assert.ok(lines.findIndex((l) => l.role === "shape") < lines.findIndex((l) => l.role === "ground"));
+    const dryShape = read(dry.docId === wet.docId ? wet.docId : wet.docId); // (dry's ledger was cleaned above)
+    assert.ok(dryShape);
   } finally { cleanup(wet.docId); }
 });
 

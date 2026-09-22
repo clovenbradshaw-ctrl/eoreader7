@@ -38,7 +38,7 @@ export function surfQueries(spec) {
   const out = [];
   if (token) {
     // The form, as a thing with instances: what one is, and several of them.
-    out.push({ hunt: "exemplars", q: `what is a ${token}${topic ? ` about ${topic}` : ""}`, basis: "the form-word with the ask's own subject as context" });
+    out.push({ hunt: "exemplars", q: `what is ${/^[aeiou]/i.test(token) ? "an" : "a"} ${token}${topic ? ` about ${topic}` : ""}`, basis: "the form-word with the ask's own subject as context" });
     out.push({ hunt: "exemplars", q: `${token} examples full text`, basis: "the form-word, asking for instances rather than a definition" });
   }
   if (topic) out.push({ hunt: "material", q: topic, basis: "the ask's subject phrase, verbatim" });
@@ -54,8 +54,8 @@ export function surfQueries(spec) {
  * before a second from any), so "multiple sources" is a property of the
  * product, not a hope.
  */
-export async function surf({ spec, search, fetch, perQuery = 6, maxSources = 6 } = {}) {
-  const queries = surfQueries(spec);
+export async function surf({ spec, search, fetch, perQuery = 6, maxSources = 6, queries = null } = {}) {
+  queries = queries ?? surfQueries(spec);
   const runs = [];
   const candidates = [];
   const seen = new Set();
@@ -86,7 +86,7 @@ export async function surf({ spec, search, fetch, perQuery = 6, maxSources = 6 }
   for (const c of toFetch) {
     try {
       const page = await fetch(c.url);
-      sources.push({ ...c, status: "fetched", chars: page?.chars ?? String(page?.text ?? "").length, pageTitle: page?.title ?? "", text: String(page?.text ?? "") });
+      sources.push({ ...c, status: "fetched", chars: page?.chars ?? String(page?.text ?? "").length, pageTitle: page?.title ?? "", text: String(page?.text ?? ""), headings: page?.headings ?? [] });
     } catch (e) {
       sources.push({ ...c, status: "fetch failed", error: String(e?.message ?? e).slice(0, 200), chars: 0, text: "" });
     }
@@ -138,7 +138,7 @@ export function liveWeb({ fetchImpl = globalThis.fetch, timeoutMs = WEB_FETCH_TI
       const { status, body } = await get(url);
       if (status >= 400) throw new Error(`HTTP ${status}`);
       const r = extractReadable(body);
-      return { title: r.title ?? "", text: r.text ?? "", chars: (r.text ?? "").length };
+      return { title: r.title ?? "", text: r.text ?? "", chars: (r.text ?? "").length, headings: (r.headings ?? []).map((h) => h.text) };
     },
   };
 }

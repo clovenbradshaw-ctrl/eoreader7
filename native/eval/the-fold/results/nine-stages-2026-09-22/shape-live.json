@@ -1,0 +1,1228 @@
+{
+  "write a sonnet": {
+    "rounds": 1,
+    "surf": "2 queries (exemplars: ok, 6; exemplars: ok, 6); 12 distinct candidate(s); 4 fetched from 4 host(s)",
+    "sources": [
+      {
+        "host": "litcharts.com",
+        "url": "https://www.litcharts.com/literary-devices-and-terms/sonnet",
+        "status": "fetched",
+        "chars": 24887,
+        "headings": [
+          "Sonnet",
+          "Sonnet Definition",
+          "How to Pronounce Sonnet",
+          "Sonnets, Meter, and Rhyme Scheme",
+          "Types of Sonnet",
+          "The Italian Sonnet",
+          "The English Sonnet",
+          "Modern Sonnet",
+          "Other Types of Sonnets",
+          "Sonnet Cycles and Crowns",
+          "Subject Matter in Sonnets",
+          "A Note on Stanzas in Sonnets",
+          "Sonnet Examples",
+          "Sonnet in Shakespeare's \"Romeo and Juliet\"",
+          "Milton's \"When I Consider How My Light is Spent\"",
+          "Milton's \"On the New Forcers of Conscience under the Long Parliament\"",
+          "Wordsworth's \"The World Is Too Much with Us\"",
+          "Shelley's \"Ozymandias\"",
+          "Gerard Manley Hopkins' \"Pied Beauty\"",
+          "Examples of Modern Sonnets (and Sonnet Variations)",
+          "Why Do Writers Choose to Write Sonnets?",
+          "Other Helpful Sonnet Resources"
+        ]
+      },
+      {
+        "host": "britannica.com",
+        "url": "https://www.britannica.com/art/sonnet",
+        "status": "fetch failed",
+        "chars": 0,
+        "headings": []
+      },
+      {
+        "host": "literarydevices.net",
+        "url": "https://literarydevices.net/what-is-a-sonnet-structure-rules-classic-examples/",
+        "status": "fetched",
+        "chars": 8492,
+        "headings": [
+          "What Is a Sonnet? Structure, Rules & Classic Examples",
+          "Comprehensive Guide to Sonnets",
+          "I. Introduction",
+          "II. Core Structural Elements",
+          "III. Major Sonnet Forms",
+          "IV. Rhyme and Sound",
+          "V. Meter & Rhythm",
+          "VI. Volta (Turn)",
+          "VII. Themes & Content",
+          "VIII. Poetic Devices in Sonnets",
+          "IX. Classic Examples (Brief Analysis)",
+          "X. Writing a Sonnet",
+          "XI. Common Pitfalls",
+          "Conclusion",
+          "Related posts:",
+          "Post navigation"
+        ]
+      },
+      {
+        "host": "en.wikipedia.org",
+        "url": "https://en.wikipedia.org/wiki/Sonnet",
+        "status": "fetched",
+        "chars": 76347,
+        "headings": [
+          "Romance languages",
+          "Sicilian",
+          "Italian",
+          "Occitan",
+          "Catalan",
+          "Spanish",
+          "Portuguese",
+          "French",
+          "Germanic languages",
+          "English",
+          "Tudor and Stuart period",
+          "18th–19th centuries",
+          "20th century",
+          "In North America",
+          "USA",
+          "Canada",
+          "In German",
+          "In Dutch",
+          "Jewish languages",
+          "Hebrew",
+          "Yiddish",
+          "Slavic languages",
+          "Czech",
+          "Polish",
+          "Russian",
+          "Slovenian",
+          "Celtic languages",
+          "In Irish",
+          "In Welsh",
+          "Indian languages",
+          "In Urdu",
+          "See also",
+          "Sonnet forms",
+          "References",
+          "Further reading",
+          "External links"
+        ]
+      },
+      {
+        "host": "poetryfoundation.org",
+        "url": "https://www.poetryfoundation.org/education/glossary/sonnet",
+        "status": "fetch failed",
+        "chars": 0,
+        "headings": []
+      },
+      {
+        "host": "liberalarts.oregonstate.edu",
+        "url": "https://liberalarts.oregonstate.edu/wlf/what-sonnet",
+        "status": "fetched",
+        "chars": 4259,
+        "headings": [
+          "What is a Sonnet? || Definition & Examples",
+          "What is a Sonnet? Transcript (Spanish Subtitles Available, read the Spanish Transcript )",
+          "By Rebecca Olson , Oregon State University Associate Professor of British Literature",
+          "Want to cite this?",
+          "Further Resources for Teachers:",
+          "Interested in more video lessons? View the full series:",
+          "The Oregon State Guide to English Literary Terms"
+        ]
+      }
+    ],
+    "shape": {
+      "schema": "EOShape@1",
+      "formWord": "sonnet",
+      "hosts": 4,
+      "units": {
+        "line": {
+          "claims": [
+            {
+              "n": 14,
+              "hosts": [
+                "litcharts.com",
+                "literarydevices.net",
+                "en.wikipedia.org",
+                "liberalarts.oregonstate.edu"
+              ],
+              "support": 4
+            },
+            {
+              "n": 8,
+              "hosts": [
+                "litcharts.com",
+                "en.wikipedia.org"
+              ],
+              "support": 2
+            },
+            {
+              "n": 6,
+              "hosts": [
+                "litcharts.com",
+                "en.wikipedia.org"
+              ],
+              "support": 2
+            },
+            {
+              "n": 3,
+              "hosts": [
+                "litcharts.com",
+                "en.wikipedia.org"
+              ],
+              "support": 2
+            },
+            {
+              "n": 2,
+              "hosts": [
+                "litcharts.com",
+                "en.wikipedia.org"
+              ],
+              "support": 2
+            },
+            {
+              "n": 24,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            },
+            {
+              "n": 16,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            },
+            {
+              "n": 4,
+              "hosts": [
+                "litcharts.com"
+              ],
+              "support": 1
+            },
+            {
+              "n": 1,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [
+            {
+              "n": 14,
+              "hosts": [
+                "litcharts.com",
+                "literarydevices.net",
+                "en.wikipedia.org",
+                "liberalarts.oregonstate.edu"
+              ],
+              "support": 4
+            }
+          ],
+          "top": {
+            "n": 14,
+            "hosts": [
+              "litcharts.com",
+              "literarydevices.net",
+              "en.wikipedia.org",
+              "liberalarts.oregonstate.edu"
+            ],
+            "support": 4
+          }
+        },
+        "quatrain": {
+          "claims": [
+            {
+              "n": 4,
+              "hosts": [
+                "literarydevices.net",
+                "en.wikipedia.org"
+              ],
+              "support": 2
+            },
+            {
+              "n": 3,
+              "hosts": [
+                "litcharts.com",
+                "literarydevices.net"
+              ],
+              "support": 2
+            },
+            {
+              "n": 2,
+              "hosts": [
+                "litcharts.com",
+                "en.wikipedia.org"
+              ],
+              "support": 2
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "tercet": {
+          "claims": [
+            {
+              "n": 2,
+              "hosts": [
+                "litcharts.com",
+                "en.wikipedia.org"
+              ],
+              "support": 2
+            },
+            {
+              "n": 4,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "word": {
+          "claims": [
+            {
+              "n": 15,
+              "hosts": [
+                "litcharts.com"
+              ],
+              "support": 1
+            },
+            {
+              "n": 14,
+              "hosts": [
+                "litcharts.com"
+              ],
+              "support": 1
+            },
+            {
+              "n": 1,
+              "hosts": [
+                "litcharts.com"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "syllable": {
+          "claims": [
+            {
+              "n": 10,
+              "hosts": [
+                "literarydevices.net",
+                "liberalarts.oregonstate.edu"
+              ],
+              "support": 2
+            },
+            {
+              "n": 12,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            },
+            {
+              "n": 4,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "couplet": {
+          "claims": [
+            {
+              "n": 2,
+              "hosts": [
+                "literarydevices.net"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "octave": {
+          "claims": [
+            {
+              "n": 2,
+              "hosts": [
+                "literarydevices.net"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "sestet": {
+          "claims": [
+            {
+              "n": 2,
+              "hosts": [
+                "literarydevices.net",
+                "en.wikipedia.org"
+              ],
+              "support": 2
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "part": {
+          "claims": [
+            {
+              "n": 2,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "minute": {
+          "claims": [
+            {
+              "n": 45,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "page": {
+          "claims": [
+            {
+              "n": 2017,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        }
+      },
+      "parts": [
+        {
+          "word": "english",
+          "support": 3
+        },
+        {
+          "word": "example",
+          "support": 3
+        }
+      ],
+      "agreedUnits": [
+        {
+          "unit": "line",
+          "n": 14,
+          "support": 4
+        }
+      ],
+      "learned": true,
+      "basis": "4 host(s): 14 lines (4/4); named parts: english (3/4), example (3/4) — a claim counts only when more fetched hosts than not state it"
+    }
+  },
+  "rite @ whiteppr": {
+    "rounds": 1,
+    "surf": "2 queries (exemplars: ok, 6; exemplars: ok, 6); 12 distinct candidate(s); 5 fetched from 5 host(s)",
+    "sources": [
+      {
+        "host": "en.wikipedia.org",
+        "url": "https://en.wikipedia.org/wiki/White_paper",
+        "status": "fetched",
+        "chars": 14357,
+        "headings": [
+          "White papers in business-to business marketing",
+          "White papers in government",
+          "White papers in academia",
+          "Variants",
+          "See also",
+          "References",
+          "Further reading",
+          "External links"
+        ]
+      },
+      {
+        "host": "maglr.com",
+        "url": "https://www.maglr.com/blog/a-guide-to-white-papers-what-is-a-white-paper-and-how-to-write-one-step-by-step",
+        "status": "fetched",
+        "chars": 10945,
+        "headings": [
+          "Key takeaways:",
+          "What is a white paper?",
+          "What is the purpose of a white paper?",
+          "How to write and format a white paper",
+          "1. Determine your audience and goal",
+          "2. Choose your medium",
+          "3. Outlining and writing your white paper",
+          "Outline & length",
+          "Content & tone of voice",
+          "4. Design your white paper",
+          "5. Implement a content gate for lead generation",
+          "6. Ensure responsiveness and accessibility",
+          "7. Share on the right channels",
+          "Design and publish your white paper with Maglr",
+          "Start creating today",
+          "More blogs",
+          "Best scrollytelling tools for marketing, editorial & more (2026)",
+          "12 interactive infographic examples and what makes each one work",
+          "8 digital magazine examples worth studying"
+        ]
+      },
+      {
+        "host": "visme.co",
+        "url": "https://visme.co/blog/how-to-write-a-white-paper/",
+        "status": "fetched",
+        "chars": 49125,
+        "headings": [
+          "How to Write a White Paper (Examples, Structure & Best Practices)",
+          "Table of Contents",
+          "Quick Read",
+          "What is a White Paper?",
+          "How to Write a White Paper in 10 Steps",
+          "Step 1: Choose Your Topic",
+          "Create reports, proposals, ebooks and more",
+          "Step 2: Conduct Thorough Research",
+          "Find credible sources.",
+          "Read other journals, reports and white papers on the same topic.",
+          "Connect with experts in your industry.",
+          "Fact-check everything.",
+          "Step 3: Understand Your Audience",
+          "Step 4: Create Your White Paper Outline and Format",
+          "Step 5: Craft an Attention-Grabbing Title",
+          "Step 6: Write an Enticing Introduction",
+          "Step 7: Break Up the Content With Subheadings",
+          "Step 8: Back Up Your Content With Data",
+          "Step 9: Ensure Value in Every Paragraph",
+          "What Is the Purpose of a White Paper?",
+          "How is a White Paper Different From an eBook?",
+          "How to Format a White Paper",
+          "White Paper Format Overview",
+          "Main Types of White Papers with Real-Life Examples",
+          "1. The Backgrounder",
+          "Real-Life Example: Amazon's Choosing an AWS Compute Service Whitepaper",
+          "2. The Numbered List.",
+          "Real-Life Example: McKinsey & Company's Nine Key Consumer Trends in 2024",
+          "3. The Problem/Solution.",
+          "Real-Life Example: Visa's 2025 Digital Identity & Payments Whitepaper",
+          "White Paper Design Tips & Best Practices",
+          "1. Start With a Template",
+          "White Paper Templates",
+          "2. Create an Enticing Cover Page",
+          "3. Add a Table of Contents",
+          "4. Add Relevant Imagery",
+          "5. Choose Your Fonts Well",
+          "6. Use a Consistent Color Scheme",
+          "7. Make Your Data Beautiful",
+          "8. Keep it On Brand"
+        ]
+      },
+      {
+        "host": "investopedia.com",
+        "url": "https://www.investopedia.com/terms/w/whitepaper.asp",
+        "status": "fetch failed",
+        "chars": 0,
+        "headings": []
+      },
+      {
+        "host": "owl.purdue.edu",
+        "url": "https://owl.purdue.edu/owl/subject_specific_writing/professional_technical_writing/white_papers/index.html",
+        "status": "fetched",
+        "chars": 2262,
+        "headings": [
+          "White Paper: Purpose and Audience",
+          "Welcome to the Purdue OWL",
+          "What is a White Paper?",
+          "The Purpose of a White Paper",
+          "What Kind of Problems Do Readers Want to Solve?"
+        ]
+      },
+      {
+        "host": "grammarly.com",
+        "url": "https://www.grammarly.com/blog/business-writing/white-paper/",
+        "status": "fetched",
+        "chars": 5799,
+        "headings": [
+          "White Paper: Definition and Purpose",
+          "What is a white paper?",
+          "What is the purpose of a white paper?",
+          "What are the different types of white papers?",
+          "Backgrounder",
+          "Numbered list",
+          "Problem/solution",
+          "Case study",
+          "What are the key elements of a white paper?",
+          "How is a white paper formatted?",
+          "White paper FAQs",
+          "What is a white paper?",
+          "What is the purpose of a white paper?",
+          "What are the different types of white papers?",
+          "What are the key elements of a white paper?"
+        ]
+      }
+    ],
+    "shape": {
+      "schema": "EOShape@1",
+      "formWord": "whiteppr",
+      "hosts": 5,
+      "units": {
+        "page": {
+          "claims": [
+            {
+              "n": 12,
+              "hosts": [
+                "maglr.com",
+                "visme.co"
+              ],
+              "support": 2
+            },
+            {
+              "n": 50,
+              "hosts": [
+                "visme.co"
+              ],
+              "support": 1
+            },
+            {
+              "n": 9,
+              "hosts": [
+                "visme.co"
+              ],
+              "support": 1
+            },
+            {
+              "n": 5,
+              "hosts": [
+                "grammarly.com"
+              ],
+              "support": 1
+            },
+            {
+              "n": 1,
+              "hosts": [
+                "visme.co"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "minute": {
+          "claims": [
+            {
+              "n": 8,
+              "hosts": [
+                "maglr.com"
+              ],
+              "support": 1
+            },
+            {
+              "n": 2,
+              "hosts": [
+                "visme.co"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "step": {
+          "claims": [
+            {
+              "n": 10,
+              "hosts": [
+                "visme.co"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "sentence": {
+          "claims": [
+            {
+              "n": 4,
+              "hosts": [
+                "visme.co"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        }
+      },
+      "parts": [
+        {
+          "word": "paper",
+          "support": 5
+        },
+        {
+          "word": "white",
+          "support": 5
+        },
+        {
+          "word": "purpose",
+          "support": 4
+        },
+        {
+          "word": "audience",
+          "support": 3
+        },
+        {
+          "word": "key",
+          "support": 3
+        },
+        {
+          "word": "problem",
+          "support": 3
+        }
+      ],
+      "agreedUnits": [],
+      "learned": true,
+      "basis": "5 host(s): no agreed count; named parts: paper (5/5), white (5/5), purpose (4/5), audience (3/5), key (3/5), problem (3/5) — a claim counts only when more fetched hosts than not state it"
+    }
+  },
+  "write a haiku": {
+    "rounds": 1,
+    "surf": "2 queries (exemplars: ok, 6; exemplars: ok, 6); 12 distinct candidate(s); 4 fetched from 4 host(s)",
+    "sources": [
+      {
+        "host": "britannica.com",
+        "url": "https://www.britannica.com/art/haiku",
+        "status": "fetch failed",
+        "chars": 0,
+        "headings": []
+      },
+      {
+        "host": "haiku-poetry.org",
+        "url": "https://haiku-poetry.org/what-is-haiku.html",
+        "status": "fetched",
+        "chars": 3529,
+        "headings": [
+          "What is Haiku?",
+          "Haiku - Japanese and English-language Equivalents",
+          "Still, Haiku Poetry is Far More Complex",
+          "Some Characteristics of Haiku",
+          "Shifts in Modern Haiku",
+          "Haiku is Accessible... but Can Take a Lifetime to Master",
+          "Newsletter",
+          "Other Resources",
+          "Coming Soon!",
+          "Featured Haiku",
+          "Recent Tweets"
+        ]
+      },
+      {
+        "host": "en.wikipedia.org",
+        "url": "https://en.wikipedia.org/wiki/Haiku",
+        "status": "fetched",
+        "chars": 36892,
+        "headings": [
+          "Traditional elements",
+          "Kiru and kireji",
+          "On",
+          "Kigo",
+          "Examples",
+          "Origin and development",
+          "From hokku to haiku",
+          "Bashō",
+          "Buson",
+          "Issa",
+          "Shiki",
+          "Exposure to the West",
+          "Blyth",
+          "Shimoi",
+          "Yasuda",
+          "Henderson",
+          "Haiku in other languages",
+          "English-language haiku",
+          "Italian-language haiku",
+          "Spanish-language haiku",
+          "Haiku in southeast Asia",
+          "Other",
+          "Women haijin",
+          "Related forms",
+          "Haibun",
+          "Haiga",
+          "Kuhi",
+          "Famous writers",
+          "Pre-Shiki period",
+          "Shiki and later",
+          "See also",
+          "Notes",
+          "References",
+          "External links"
+        ]
+      },
+      {
+        "host": "studiobinder.com",
+        "url": "https://www.studiobinder.com/blog/what-is-a-haiku-definition/",
+        "status": "fetched",
+        "chars": 7558,
+        "headings": [
+          "What is a Haiku",
+          "Definition of a haiku poem",
+          "HAIKU DEFINITION",
+          "What is a haiku?",
+          "Haiku Structure:",
+          "Haiku Examples",
+          "The history of haiku in poetry",
+          "Renga, haiku, and waka explored  &bull;  Definition of a haiku poem",
+          "Related Posts",
+          "Guide to kigos in haikus  &bull;  What is haiku poetry",
+          "Guide to kirejis in haikus  &bull;  Haiku in poetry",
+          "Related Posts",
+          "What is a Haiku Example",
+          "Haiku examples",
+          "Popular Japanese poems read aloud  &bull;  Define haiku poem",
+          "A World of Dew by Kobayashi Issa",
+          "By Matsuo Basho",
+          "By Kobayashi Issa",
+          "Related Posts",
+          "UP NEXT",
+          "Writer’s Guide to Poem Structures",
+          "Share your vision with elegant shot lists and storyboards."
+        ]
+      },
+      {
+        "host": "literarydevices.net",
+        "url": "https://literarydevices.net/haiku/",
+        "status": "fetched",
+        "chars": 5715,
+        "headings": [
+          "What is a Haiku?",
+          "The 5-7-5 Rule",
+          "Beyond the Syllables: Key Elements of Haiku",
+          "Kigo: The Season Word",
+          "Kireji: The Cutting Word",
+          "Focus on Nature and Observation",
+          "Exploring Haiku Through Examples",
+          "Example 1: Autumn Scene",
+          "Example 2: Winter Solitude",
+          "Example 3: Summer Rain",
+          "Example 4: A Moment with a Bird",
+          "Breaking the Rules: Modern Haiku",
+          "Writing Your Own Haiku",
+          "The Enduring Appeal of Haiku",
+          "Related posts:",
+          "Post navigation"
+        ]
+      },
+      {
+        "host": "poetryfoundation.org",
+        "url": "https://www.poetryfoundation.org/education/glossary/haiku-or-hokku",
+        "status": "fetch failed",
+        "chars": 0,
+        "headings": []
+      }
+    ],
+    "shape": {
+      "schema": "EOShape@1",
+      "formWord": "haiku",
+      "hosts": 4,
+      "units": {
+        "syllable": {
+          "claims": [
+            {
+              "n": 5,
+              "hosts": [
+                "haiku-poetry.org",
+                "en.wikipedia.org",
+                "studiobinder.com",
+                "literarydevices.net"
+              ],
+              "support": 4
+            },
+            {
+              "n": 17,
+              "hosts": [
+                "haiku-poetry.org",
+                "en.wikipedia.org",
+                "studiobinder.com"
+              ],
+              "support": 3
+            },
+            {
+              "n": 7,
+              "hosts": [
+                "studiobinder.com",
+                "literarydevices.net"
+              ],
+              "support": 2
+            },
+            {
+              "n": 15,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            },
+            {
+              "n": 14,
+              "hosts": [
+                "studiobinder.com"
+              ],
+              "support": 1
+            },
+            {
+              "n": 12,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            },
+            {
+              "n": 2,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [
+            {
+              "n": 17,
+              "hosts": [
+                "haiku-poetry.org",
+                "en.wikipedia.org",
+                "studiobinder.com"
+              ],
+              "support": 3
+            },
+            {
+              "n": 5,
+              "hosts": [
+                "haiku-poetry.org",
+                "en.wikipedia.org",
+                "studiobinder.com",
+                "literarydevices.net"
+              ],
+              "support": 4
+            }
+          ],
+          "top": {
+            "n": 17,
+            "hosts": [
+              "haiku-poetry.org",
+              "en.wikipedia.org",
+              "studiobinder.com"
+            ],
+            "support": 3
+          }
+        },
+        "line": {
+          "claims": [
+            {
+              "n": 3,
+              "hosts": [
+                "haiku-poetry.org",
+                "en.wikipedia.org",
+                "studiobinder.com"
+              ],
+              "support": 3
+            }
+          ],
+          "agreed": [
+            {
+              "n": 3,
+              "hosts": [
+                "haiku-poetry.org",
+                "en.wikipedia.org",
+                "studiobinder.com"
+              ],
+              "support": 3
+            }
+          ],
+          "top": {
+            "n": 3,
+            "hosts": [
+              "haiku-poetry.org",
+              "en.wikipedia.org",
+              "studiobinder.com"
+            ],
+            "support": 3
+          }
+        },
+        "part": {
+          "claims": [
+            {
+              "n": 2,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "chapter": {
+          "claims": [
+            {
+              "n": 2013,
+              "hosts": [
+                "en.wikipedia.org"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        }
+      },
+      "parts": [
+        {
+          "word": "example",
+          "support": 3
+        },
+        {
+          "word": "kigo",
+          "support": 3
+        },
+        {
+          "word": "kireji",
+          "support": 3
+        },
+        {
+          "word": "related",
+          "support": 3
+        }
+      ],
+      "agreedUnits": [
+        {
+          "unit": "syllable",
+          "n": 17,
+          "support": 3
+        },
+        {
+          "unit": "line",
+          "n": 3,
+          "support": 3
+        }
+      ],
+      "learned": true,
+      "basis": "4 host(s): 17 syllables (3/4), 3 lines (3/4); named parts: example (3/4), kigo (3/4), kireji (3/4), related (3/4) — a claim counts only when more fetched hosts than not state it"
+    }
+  },
+  "write a five-paragraph essay on rivers": {
+    "rounds": 1,
+    "surf": "3 queries (exemplars: ok, 6; exemplars: blocked, 0; material: blocked, 0); 6 distinct candidate(s); 5 fetched from 5 host(s)",
+    "sources": [
+      {
+        "host": "parenting.firstcry.com",
+        "url": "https://parenting.firstcry.com/articles/gen-essay-on-river-10-lines-short-and-long-essay-for-children-students/",
+        "status": "fetched",
+        "chars": 17099,
+        "headings": [
+          "Essay On River – 10 Lines, Short and Long Essay for Children & Students",
+          "5 Lines on River",
+          "10 Lines on River",
+          "A Paragraph on River",
+          "Short Essay on River",
+          "Long Essay on River",
+          "Significance of the River",
+          "Cons of River",
+          "Challenges and Threats Rivers Face",
+          "How Can We Save/Conserve Our Rivers?",
+          "What Will Your Child Learn From the Essay on the River?",
+          "Key Points to Remember When Writing an Essay on the River",
+          "FAQs",
+          "1. Are there any famous rivers known for their biodiversity?",
+          "2. How do climate changes affect rivers?",
+          "3. How are humans damaging rivers?",
+          "4. How can we save rivers on an individual note?",
+          "Related Articles",
+          "Tools and Trackers",
+          "Stay Connected",
+          "Popular in this Category",
+          "Latest on Parenting",
+          "POPULAR ON PARENTING",
+          "150+ Nicknames for Boys & Girls (Cute, Funny & Unique)",
+          "30 Short Moral Stories in English for Kids",
+          "Muslim Girl Names – 300 Islamic Names for Girls with Meaning",
+          "100+ Love Messages, Quotes and Sayings for Wife",
+          "LATEST POSTS",
+          "Booster Seat vs High Chair: Which Is Right for Your Child?",
+          "100+ Western Baby Names for Boys and Girls",
+          "Nesting Party: Activities, Invitations, and Tips",
+          "Montessori vs Reggio Emilia: Understanding the Key Differences"
+        ]
+      },
+      {
+        "host": "coursesxpert.com",
+        "url": "https://www.coursesxpert.com/essay-on-river/",
+        "status": "fetched",
+        "chars": 3381,
+        "headings": [
+          "Essay on Rivers: Lifelines of the Earth",
+          "Related Posts",
+          "Autobiography of a School Bag",
+          "Autobiography of a Coin",
+          "Autobiography of an Umbrella"
+        ]
+      },
+      {
+        "host": "scribd.com",
+        "url": "https://www.scribd.com/document/631076872/Essay-for-River",
+        "status": "fetched",
+        "chars": 2078,
+        "headings": [
+          "Importance of Rivers for Ecosystems",
+          "Uploaded by",
+          "Importance of Rivers for Ecosystems",
+          "Importance of Rivers for Ecosystems",
+          "Uploaded by",
+          "Read this document in other languages",
+          "Share this document"
+        ]
+      },
+      {
+        "host": "britannica.com",
+        "url": "https://www.britannica.com/science/river",
+        "status": "fetch failed",
+        "chars": 0,
+        "headings": []
+      },
+      {
+        "host": "englishcompositions.com",
+        "url": "https://englishcompositions.com/short-essay-on-river/",
+        "status": "fetched",
+        "chars": 5621,
+        "headings": [
+          "Table of Contents",
+          "Short Essay on River in 100 Words",
+          "Short Essay on River in 200 Words",
+          "Short Essay on River in 400 Words"
+        ]
+      },
+      {
+        "host": "essaygenius.ai",
+        "url": "https://essaygenius.ai/essay/essay-on-river",
+        "status": "fetched",
+        "chars": 1629,
+        "headings": [
+          "Essay on River",
+          "The Vital Role of Rivers in Human History",
+          "Cradles of Civilization and Economic Growth"
+        ]
+      }
+    ],
+    "shape": {
+      "schema": "EOShape@1",
+      "formWord": "essay",
+      "hosts": 5,
+      "units": {
+        "line": {
+          "claims": [
+            {
+              "n": 10,
+              "hosts": [
+                "parenting.firstcry.com"
+              ],
+              "support": 1
+            },
+            {
+              "n": 5,
+              "hosts": [
+                "parenting.firstcry.com"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "minute": {
+          "claims": [
+            {
+              "n": 3,
+              "hosts": [
+                "coursesxpert.com"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "page": {
+          "claims": [
+            {
+              "n": 2,
+              "hosts": [
+                "scribd.com"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        },
+        "word": {
+          "claims": [
+            {
+              "n": 543,
+              "hosts": [
+                "essaygenius.ai"
+              ],
+              "support": 1
+            },
+            {
+              "n": 400,
+              "hosts": [
+                "englishcompositions.com"
+              ],
+              "support": 1
+            },
+            {
+              "n": 200,
+              "hosts": [
+                "englishcompositions.com"
+              ],
+              "support": 1
+            },
+            {
+              "n": 100,
+              "hosts": [
+                "englishcompositions.com"
+              ],
+              "support": 1
+            }
+          ],
+          "agreed": [],
+          "top": null
+        }
+      },
+      "parts": [
+        {
+          "word": "river",
+          "support": 5
+        }
+      ],
+      "agreedUnits": [],
+      "learned": true,
+      "basis": "5 host(s): no agreed count; named parts: river (5/5) — a claim counts only when more fetched hosts than not state it"
+    }
+  }
+}

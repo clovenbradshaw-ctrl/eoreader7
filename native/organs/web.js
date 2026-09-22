@@ -283,7 +283,11 @@ export function extractReadable(html) {
   // the material's own staging, the one thing a reader cannot invent.
   const headings = [];
   {
-    const hRe = new RegExp(`<(h[1-4])\\b${ATTRS}>([\\s\\S]*?)<\\/h\\1>`, "gi");
+    // The close is `</\1>`, not `</h\1>`: the group already holds the "h"
+    // ("h2"), so the old pattern closed on `</hh2>` and matched nothing —
+    // measured 2026-09-22 on a live Wikipedia page with nine <h2>s: zero
+    // headings, on every source the shape stage ever read.
+    const hRe = new RegExp(`<(h[1-4])\\b${ATTRS}>([\\s\\S]*?)<\\/\\1>`, "gi");
     let hm;
     while ((hm = hRe.exec(h))) {
       const txt = decodeEntities(hm[2].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
