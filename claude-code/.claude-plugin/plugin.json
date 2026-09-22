@@ -1,0 +1,9 @@
+{
+  "name": "eo-reason",
+  "description": "eoreader7 reasons and Claude is the mouth: every Claude Code event goes onto an eoreader7 ledger, and a turn can't end until eoreader7 has checked its reasoning.",
+  "author": { "name": "clovenbradshaw-ctrl" },
+  "homepage": "https://github.com/clovenbradshaw-ctrl/eoreader7/tree/main/claude-code",
+  "repository": "https://github.com/clovenbradshaw-ctrl/eoreader7",
+  "license": "ISC",
+  "keywords": ["eoreader7", "reasoning", "hooks", "ledger"]
+}
