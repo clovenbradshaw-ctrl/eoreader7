@@ -26,7 +26,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { elementsOf, segmentCollection } from "../../the-fold/medium.js";
-import { learnParadigmEmergent } from "../../the-fold/paradigm.js";
+import { learnParadigmEmergent, detectParadigmPlurality } from "../../the-fold/paradigm.js";
 import { learnForm } from "../../the-fold/form-prior.js";
 import { loadExpertise, saveExpertise, recordExpertise, projectExpertise, knownForms, expertiseHistory, expertiseLines } from "../../the-fold/expertise.js";
 
@@ -89,9 +89,18 @@ if (paradigm.refused) {
 }
 const formPrior = flag("expectation") ? learnForm(units, { slots }) : null;
 
+// Optional, additive: does the engine's OWN reading find that these
+// instances — all filed under one name, with no declared stance — cluster
+// into more than one real sub-paradigm (kernel/entity-kind-induction.js's
+// affinity-basin induction over the same emergentFacts, its own null)? This
+// DISCLOSES a real split; it never forks the recording on its own.
+const plurality = detectParadigmPlurality(units, { name, population: `expertise:${name}` });
+if (plurality.plural) console.error(`plurality: ${plurality.basis}`);
+const note = [corpusBasis, plurality.plural ? `plurality check: ${plurality.basis}` : null].filter(Boolean).join("; ");
+
 const ex = loadExpertise();
 const before = projectExpertise(ex, name);
-const r = recordExpertise(ex, { name, paradigm, formPrior, source, note: corpusBasis });
+const r = recordExpertise(ex, { name, paradigm, formPrior, source, note });
 saveExpertise(ex);
 
 const after = projectExpertise(ex, name);
