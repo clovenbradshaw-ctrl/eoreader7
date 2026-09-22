@@ -32,105 +32,24 @@
 
 import { stableHash } from "./rng.js";
 import { distanceOf, selfBoundOf, decodeDescriptor } from "./shadow-echo.js";
-
-// the corroboration floor is the house's own canonicalizationFloor (ENTITY
-// assembly): one arrival has no co-arrival to test.
-export const CANONICALIZATION_FLOOR = 2;
-
-export const occurrenceKey = (concept, source, region) =>
-  stableHash(`mnemonic|${concept}|${String(source ?? "")}|${JSON.stringify(region ?? null)}`);
+// SIG/CON/DEF/REC over bare occurrence rows moved to kernel/corroboration.js
+// (2026-09-22) — none of the four ever touched a descriptor or a distance,
+// and three independent lineages (organs/mnemonic.js, the-fold/expertise.js,
+// the-fold/kind-memory.js) were each reaching sideways into this
+// vision-named module to get them. Re-exported here so every existing
+// import of this module keeps working unchanged; SEG (splitProposals) below
+// stays put, because it is genuinely descriptor-geometry, not yet
+// generalized past vision.
+import { CANONICALIZATION_FLOOR, occurrenceKey, signProvisionalKind, corroboration, confirmKind, falsifyOccurrence, supersedeLesson } from "./corroboration.js";
+export { CANONICALIZATION_FLOOR, occurrenceKey, signProvisionalKind, corroboration, confirmKind, falsifyOccurrence, supersedeLesson } from "./corroboration.js";
 
 export const provisionalKindName = (descriptor) =>
   `kind:novel:${stableHash(`provisional|${descriptor.length}|${Array.from(descriptor.slice(0, 32)).join(",")}`)}`;
 
 const decodeDescriptorOf = (item) => decodeDescriptor(item.d);
 
-// ── SIG: sign a novel thing as a provisional kind ─────────────────────────
-// A thing nothing recognizes is HIGH POSSIBILITY: it might be a new kind.
-// It is signed provisionally under a name derived from its own descriptor
-// (never from a guess about what it is), and becomes a real kind only when
-// occurrences from distinct sources corroborate it (CON, below).
-export function signProvisionalKind(store, { name, source, region, at = Date.now() }) {
-  const entry = store.concepts[name] ?? {
-    revision: 0,
-    modality: "image",
-    status: "provisional",
-    signedAt: at,
-    occurrences: [],
-    items: [],
-  };
-  if (entry.status === "refuted") throw new TypeError(`signProvisionalKind: "${name}" is refuted — a refuted kind is not re-signed silently`);
-  entry.revision += 1;
-  const id = occurrenceKey(name, source, region);
-  if (!entry.occurrences.some((o) => o.id === id)) {
-    entry.occurrences.push({
-      id,
-      source: source ?? null,
-      region: region ?? null,
-      at,
-      falsified: false,
-      basis: "SIG:novel_occurrence",
-    });
-  }
-  store.concepts[name] = entry;
-  return { signed: name, status: entry.status };
-}
-
-// ── CON: corroboration — occurrences from DISTINCT sources ───────────────
-// A kind's probability is its corroboration: distinct sources that have
-// produced occurrences of it. One source repeating the same thing is one
-// witness, not many. This is HISTORY (how often the kind has been seen),
-// never a confidence SCORE — certainty is bounded geometry (the margin
-// against the within-kind bound), and corroboration is the record that the
-// geometry has been tested.
-export function corroboration(store, concept) {
-  const entry = store.concepts?.[concept];
-  if (!entry?.occurrences?.length) return 0;
-  return new Set(entry.occurrences.filter((o) => !o.falsified).map((o) => o.source ?? o.id)).size;
-}
-
-export function confirmKind(store, concept) {
-  const entry = store.concepts?.[concept];
-  if (!entry) return null;
-  const c = corroboration(store, concept);
-  if (c >= CANONICALIZATION_FLOOR && entry.status === "provisional") {
-    entry.status = "confirmed";
-    entry.confirmedAt = Date.now();
-    return { confirmed: concept, corroboration: c };
-  }
-  return { confirmed: null, corroboration: c };
-}
-
-// ── DEF: falsification — the memory admits it was wrong ───────────────────
-// The parent re-read the source and contradicted the lesson; the occurrence
-// is marked refuted AND the lesson item it taught is marked refuted (they
-// are the same lesson — one falsification, one memory line), and the
-// concept's revision bumps, so every framework built from it is rebuilt
-// without it. The refuted lines stay on file — a revision line, never an
-// edit (the fold's own discipline).
-export function falsifyOccurrence(store, concept, occurrenceId, { by = null, reason = null } = {}) {
-  const entry = store.concepts?.[concept];
-  if (!entry) return { falsified: 0 };
-  let hit = 0;
-  for (const o of entry.occurrences) {
-    if (o.id !== occurrenceId || o.falsified) continue;
-    o.falsified = true;
-    o.falsifiedAt = Date.now();
-    o.falsifiedBy = by;
-    o.falsifyReason = reason;
-    // the lesson that taught this occurrence is refuted with it
-    for (const item of entry.items) {
-      if (!item.refuted && String(item.source ?? "") === String(o.source ?? "") && JSON.stringify(item.region ?? null) === JSON.stringify(o.region ?? null)) {
-        item.refuted = true;
-        item.refutedBy = by;
-        item.refuteReason = reason;
-      }
-    }
-    hit += 1;
-  }
-  if (hit) entry.revision += 1;
-  return { falsified: hit, revision: entry.revision };
-}
+// SIG/CON/DEF moved to kernel/corroboration.js (imported/re-exported above);
+// what follows is the vision-specific geometry that stays here.
 
 // ── SEG: split — a kind whose members stop being mutually reachable ───────
 // The derived split criterion: build the graph over the concept's own
@@ -206,22 +125,7 @@ export function withinKindBound(store, concept) {
   return worst;
 }
 
-// REC: a lesson is superseded — mark the old occurrence superseded and add
-// the corrected lesson. The corrected lesson is the current memory; the
-// superseded one stays on file as its revision history.
-export function supersedeLesson(store, concept, occurrenceId, correctedLesson) {
-  const entry = store.concepts?.[concept];
-  if (!entry) return null;
-  for (const o of entry.occurrences) {
-    if (o.id === occurrenceId && !o.falsified && !o.superseded) {
-      o.superseded = true;
-      o.supersededAt = Date.now();
-    }
-  }
-  entry.revision += 1;
-  entry.items.push({ ...correctedLesson, refuted: false });
-  return { revised: concept, revision: entry.revision };
-}
+// REC (supersedeLesson) moved to kernel/corroboration.js.
 
 // ── the universe snapshot: the whole lattice, recomputed from the store ───
 // Kinds with their status/history (occurrences, corroboration), the DMD

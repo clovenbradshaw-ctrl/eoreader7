@@ -39,7 +39,7 @@
 
 import crypto from "node:crypto";
 import { createDocumentLedger, appendLedgerLine, ledgerFilePath } from "./document-ledger.js";
-import { signProvisionalKind, corroboration, confirmKind, falsifyOccurrence, CANONICALIZATION_FLOOR } from "../kernel/kind-universe.js";
+import { signProvisionalKind, corroboration, confirmKind, falsifyOccurrence, CANONICALIZATION_FLOOR } from "../kernel/corroboration.js";
 import { elementsOf } from "./medium.js";
 import { emergentFacts } from "./form-prior.js";
 import { ABSENT } from "../kernel/bayes-surprise.js";

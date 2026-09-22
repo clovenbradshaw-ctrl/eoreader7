@@ -41,7 +41,7 @@ import { fileURLToPath } from "node:url";
 import { elementsOf } from "./medium.js";
 import { emergentFacts } from "./form-prior.js";
 import { unitFacts, PARADIGM_SCHEMA } from "./paradigm.js";
-import { CANONICALIZATION_FLOOR } from "../kernel/kind-universe.js";
+import { CANONICALIZATION_FLOOR } from "../kernel/corroboration.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const KIND_MEMORY_PATH = path.join(HERE, "..", "memory", "kind-memory.json");
