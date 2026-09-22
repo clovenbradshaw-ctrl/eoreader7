@@ -70,6 +70,7 @@ export const GROUND_REF = __groundingGround ? __groundingGround.ref : null;
 
 import { foldDiacritics } from "./source.js";
 import { ATTRS } from "./web.js";
+import { AUXILIARY_VERBS } from "../adapters/text/priors.js";
 
 export const CLAIM_STOPWORDS = new Set([
   "the",
@@ -309,9 +310,129 @@ export const CLAIM_STOPWORDS = new Set([
   "response",
 ]);
 
-export const NUMBER_RE = /\b\d[\d,]*(?:\.\d+)?%?\b/g;
+// AMENDED 2026-09-22: the trailing \b required a transition to a NON-word
+// character right after the digits, but English attaches two closed,
+// grammatical suffix classes directly onto a digit run with no separator —
+// the ordinal suffixes (1st, 2nd, 3rd, 4th...) and the bare plural/decade
+// "s" (the 1990s, the 20s, the high 60s) — so a digit run immediately
+// followed by either read as no boundary at all and the whole number went
+// unmatched. Confirmed live: NUMBER_RE.test("3rd") and .test("1990s") were
+// both false, so a checkable atom ("the 3rd woman... in the 1990s") in a
+// fabricated S1 answer produced zero atoms and never escalated to System 2
+// (extractCheckableAtoms -> needsSystem2, app.js). This is the same class
+// of gap WH_DEFINITE_RE closed the same day (gary.js): the fix is not a
+// word-list patch for "3rd" and "1990s" specifically, it is admitting the
+// two real, closed suffix classes into the boundary itself, the same way
+// any other ordinal or decade phrase is written. Deliberately narrow —
+// only these two classes, not an open "digits followed by any letters"
+// rule, which would swallow unrelated concatenations like "20sqft" (and in
+// fact still does not: the trailing \b below still fails there, since "q"
+// keeps the run inside a single word either with or without the "s").
+export const NUMBER_RE = /\b\d[\d,]*(?:\.\d+)?%?(?:st|nd|rd|th|s)?\b/g;
+// The suffix above is grammar, not quantity — a checkable atom's token
+// (what gets compared against a material's own numberSet) is stripped back
+// to the bare figure, the same way `%` and `,` were already stripped below;
+// "3rd" is a claim about the figure 3, "1990s" a claim about the figure
+// 1990, and a source that writes the bare digits still supports either.
+const NUMBER_SUFFIX_RE = /(?:st|nd|rd|th|s)$/;
+
+// SPELLED-OUT NUMBERS (found live, 2026-09-22, via a mapping pass over the
+// checkable-claim ladder: "give me the year the treaty was signed" / S1
+// answers "The treaty was signed in eighteen forty eight." — a specific,
+// checkable year claim that SHOULD escalate to a grounded check). NUMBER_RE
+// requires an actual digit character (\d), so a spelled-out number has
+// nothing for it to match at all: not a boundary edge case, a total blind
+// spot for the whole number-atom path (extractAtoms -> extractCheckableAtoms
+// -> needsSystem2 in app.js, and corroborateAtoms/checkGrounding too, since
+// all three read atoms off this same function). Voice-to-text and casual
+// writing both commonly spell years and small numbers out rather than using
+// digits.
+//
+// This parses the closed grammar of English cardinal number words — never a
+// word list of years or a tuned threshold, the same standing this file
+// already gives PROPER_RE's own closed capitalization grammar. A standalone
+// "one"/"two"/"zero"/"oh" is ordinary English (a pronoun, a determiner, an
+// interjection) far more often than a claim, so only a MULTI-word run, or
+// one of the less ambiguous words (three and up, any tens/scale word),
+// stands alone as a checkable number — WORD_NUM_DISTINCTIVE below, checked
+// by extractAtoms before it ever calls parseWordNumber on a lone word.
+const WORD_NUM_UNITS = {
+  zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9,
+  ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16,
+  seventeen: 17, eighteen: 18, nineteen: 19,
+};
+const WORD_NUM_TENS = { twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90 };
+const WORD_NUM_SCALES = { hundred: 100, thousand: 1e3, million: 1e6, billion: 1e9 };
+const WORD_NUM_DISTINCTIVE = new Set([
+  "three", "four", "five", "six", "seven", "eight", "nine",
+  "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen",
+  "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety",
+  "hundred", "thousand", "million", "billion",
+]);
+const WORD_NUM_VOCAB = new Set([...Object.keys(WORD_NUM_UNITS), ...Object.keys(WORD_NUM_TENS), ...Object.keys(WORD_NUM_SCALES), "oh", "and"]);
+const WORD_NUM_ALTERNATION = [...WORD_NUM_VOCAB].sort((a, b) => b.length - a.length).join("|");
+export const WORD_NUM_RE = new RegExp(`\\b(?:${WORD_NUM_ALTERNATION})\\b(?:[\\s-]+\\b(?:${WORD_NUM_ALTERNATION})\\b)*`, "gi");
+
+/**
+ * English cardinal-number words -> the integer they name, or null when the
+ * run does not parse as one — never a guess. Two grammars, chosen by
+ * whether a scale word (hundred/thousand/...) is present:
+ * - WITH a scale word: the ordinary grouping algorithm ("nineteen hundred"
+ *   = 1900, "two thousand and five" = 2005).
+ * - WITHOUT one: at most two two-digit "registers" — the spoken-year idiom
+ *   ("eighteen forty-eight" = 1848, "nineteen oh five" = 1905, "twenty
+ *   twenty-four" = 2024) — because English never chains a teen/lone-tens
+ *   word directly into another teen/tens word to mean addition (only
+ *   TENS+UNIT does that: "forty eight" = 48, not 4008); a single register
+ *   is just that number ("forty eight" = 48, "eighteen" = 18). Three or
+ *   more loose registers with no scale word is not a shape this grammar
+ *   claims, and returns null rather than guessing.
+ */
+export function parseWordNumber(words) {
+  const toks = words.map((w) => w.toLowerCase()).filter((w) => w !== "and");
+  if (!toks.length) return null;
+  if (toks.some((w) => w in WORD_NUM_SCALES)) {
+    let total = 0;
+    let current = 0;
+    for (const w of toks) {
+      if (w in WORD_NUM_UNITS) current += WORD_NUM_UNITS[w];
+      else if (w in WORD_NUM_TENS) current += WORD_NUM_TENS[w];
+      else if (w === "hundred") current = (current || 1) * 100;
+      else if (w in WORD_NUM_SCALES) {
+        total += (current || 1) * WORD_NUM_SCALES[w];
+        current = 0;
+      } else if (w !== "oh") return null;
+    }
+    return total + current;
+  }
+  const registers = [];
+  for (let i = 0; i < toks.length; i++) {
+    const w = toks[i];
+    const next = toks[i + 1];
+    if (w in WORD_NUM_TENS && next in WORD_NUM_UNITS) {
+      registers.push(WORD_NUM_TENS[w] + WORD_NUM_UNITS[next]);
+      i++;
+    } else if (w === "oh" && next in WORD_NUM_UNITS) {
+      registers.push(WORD_NUM_UNITS[next]);
+      i++;
+    } else if (w in WORD_NUM_TENS) registers.push(WORD_NUM_TENS[w]);
+    else if (w in WORD_NUM_UNITS) registers.push(WORD_NUM_UNITS[w]);
+    else return null;
+  }
+  if (registers.length === 1) return registers[0];
+  if (registers.length === 2) return registers[0] * 100 + registers[1];
+  return null;
+}
+
 const PROPER_RE =
   /\p{Lu}[\p{L}]*(?:['\u2019][\p{L}]+)?(?:[ -](?:of|the|de|von|van|del|la|le)?[ ]?\p{Lu}[\p{L}]*(?:['\u2019][\p{L}]+)?)*/gu;
+
+// extractAtoms's fallback for a sentence PROPER_RE cannot read at all \u2014 see
+// the comment on that branch, below, for why. One word at a time (no
+// connector grammar): the point of this branch is only ever to recover the
+// atoms PROPER_RE's own capitalization requirement made invisible, never to
+// out-group what PROPER_RE itself does for ordinarily-cased text.
+const CASELESS_WORD_RE = /\p{L}+(?:['\u2019]\p{L}+)?/gu;
 
 export function wordSet(s) {
   const set = new Set();
@@ -558,7 +679,26 @@ export function extractAtoms(sentence, absoluteStart = 0) {
     atoms.push({
       kind: "number",
       text: m[0],
-      tokens: [m[0].replace(/[,%]/g, "")],
+      tokens: [m[0].replace(/[,%]/g, "").replace(NUMBER_SUFFIX_RE, "")],
+      start: absoluteStart + m.index,
+      end: absoluteStart + m.index + m[0].length,
+    });
+  }
+  WORD_NUM_RE.lastIndex = 0;
+  while ((m = WORD_NUM_RE.exec(sentence)) !== null) {
+    const words = m[0].split(/[\s-]+/).filter(Boolean);
+    // A lone ambiguous word ("one", "two", "zero", "oh", "and" — the last
+    // never matches alone, see WORD_NUM_RE's construction) is ordinary
+    // English far more often than a number claim; see this block's own
+    // header above WORD_NUM_UNITS for why only a multi-word run or a
+    // WORD_NUM_DISTINCTIVE word stands alone.
+    if (words.length === 1 && !WORD_NUM_DISTINCTIVE.has(words[0].toLowerCase())) continue;
+    const value = parseWordNumber(words);
+    if (value === null) continue;
+    atoms.push({
+      kind: "number",
+      text: m[0],
+      tokens: [String(value)],
       start: absoluteStart + m.index,
       end: absoluteStart + m.index + m[0].length,
     });
@@ -578,7 +718,74 @@ export function extractAtoms(sentence, absoluteStart = 0) {
     // referents. The trade is disclosed: a single-token invented name that
     // only ever opens sentences escapes; multi-token names and any
     // mid-sentence recurrence are still caught.
-    if (words.length === 1 && m.index === sentenceLead) continue;
+    //
+    // CARVED OUT, same day, live-verified: the lead-skip has no way to tell
+    // a true single-word name from a false one, it only looks at position —
+    // and that blindness lands squarely on the canonical shape this whole
+    // grounding ladder exists to check. "Harris is the winner." is S1's own
+    // register for a terse factual answer: PROPER_RE matches only "Harris"
+    // (one word, sentence-initial), the guard above discarded it
+    // unconditionally, extractCheckableAtoms came back empty, and
+    // needsSystem2 (app.js) — which reads this same atom list to decide
+    // whether to escalate to the checked pass — never fired. Confirmed live
+    // (grounding.js, node): extractAtoms("Harris is the winner.") was `[]`
+    // before this carve-out. checkGrounding's own consumer has the same
+    // gap for the identical reason (one shared branch, two callers).
+    //
+    // The fix is not a lowered bar, a name list, or dropping the guard — it
+    // is the SAME structural move gary.js's WH_DEFINITE_RE already made on
+    // the question side of this exact ladder: Strawson's definite
+    // description. A copula ALONE is not enough evidence — first tried and
+    // rejected live: "Fear is a powerful motivator.", "Shock was
+    // overwhelming.", "Anxiety is common." all match "capitalized word +
+    // copula" exactly as "Harris is the winner." does, and are exactly the
+    // generic, position-capitalized-abstract-noun statements the lead-skip
+    // exists to protect (this file's own measured false-positive class, one
+    // register up). What actually distinguishes "Harris is THE winner"
+    // from "Fear is A powerful motivator" is the article: a copula
+    // followed by a DEFINITE article ("the") names a single, specific,
+    // presupposed-to-exist value (a definite description) — a copula
+    // followed by an indefinite article ("a"/"an") or a bare predicate
+    // names a class or generic property, never a specific claim. So the
+    // carve-out fires only on "is/are/was/were the …" — never on a bare
+    // copula. (No contraction form here — PROPER_RE's own trailing
+    // ['’][\p{L}]+ group already swallows a name's "'s"/"'re" into the
+    // SAME match, e.g. "Harris's" is one token, so nothing would ever be
+    // left after it for a second, separate contraction check to see;
+    // tried and confirmed live before writing this comment.) Verified
+    // live: extractAtoms("Harris is the winner.") now returns "Harris";
+    // extractAtoms("Fear is a powerful motivator.") / ("Shock was
+    // overwhelming.") / ("Anxiety is common.") are unchanged, still `[]`.
+    // grounding.test.mjs's own measured cases ("Shock ran through the
+    // ranks", "Anxiety followed", "1. Social standing mattered") are
+    // SUBJECT + ordinary verb, not even copula-shaped, so they were never
+    // at risk from this carve-out either way — reconfirmed passing after
+    // this change.
+    const leadFollowsDefiniteCopula = /^\s*(?:is|are|was|were)\s+the\b/i.test(
+      sentence.slice(m.index + m[0].length),
+    );
+    // SECOND, INDEPENDENT carve-out, same day: the copula test above only
+    // ever explains a lead word that has a REST OF THE SENTENCE around it
+    // to be borrowing its capitalization-by-position from ("Harris IS THE
+    // winner"). That reasoning has nothing to explain when nothing follows
+    // at all — a System-1 answer that is nothing but a bare name
+    // ("Francis.") is a ONE-WORD SENTENCE, not a stray capital opening a
+    // longer one, and is the entire checkable content of the answer, not a
+    // position artifact. Confirmed live: extractAtoms("Francis.") was `[]`
+    // before this carve-out, starving needsSystem2's atom-based escalation
+    // of the one shape (a bare wrong or invented name) it exists to catch.
+    // Narrow on purpose: any real predicate, list sibling, or trailing
+    // prose at all still exempts the word exactly as before — this only
+    // fires when there is no letter anywhere after the matched word.
+    const restOfSentence = sentence.slice(m.index + m[0].length);
+    const sentenceIsJustThisWord = !/\p{L}/u.test(restOfSentence);
+    if (
+      words.length === 1 &&
+      m.index === sentenceLead &&
+      !leadFollowsDefiniteCopula &&
+      !sentenceIsJustThisWord
+    )
+      continue;
     const contentWords = words.filter(
       (w) =>
         !CLAIM_STOPWORDS.has(w.toLowerCase().replace(/['\u2019]s$/, "")) &&
@@ -594,6 +801,68 @@ export function extractAtoms(sentence, absoluteStart = 0) {
       start: absoluteStart + m.index,
       end: absoluteStart + m.index + m[0].length,
     });
+  }
+  // AMENDED 2026-09-22: PROPER_RE's whole name-atom detection rests on a
+  // Unicode uppercase codepoint (\p{Lu}) to even START a match \u2014 the right
+  // signal for ordinarily-cased text, where capitalization is how English
+  // marks a proper name. It goes BLIND, not selective, the moment that
+  // convention is simply absent from the text: a documented, live quirk of
+  // small/quantized local models in exactly this pipeline (this project's
+  // own north star is "local model only") is to answer entirely in
+  // lowercase \u2014 no capital anywhere, not even a sentence-initial one.
+  // Measured live (run directly, not reasoned about in the abstract):
+  // extractAtoms("the governor of texas is greg abbott") === [] \u2014 PROPER_RE
+  // never starts a single match, so a real, possibly-invented name ships
+  // with zero checkable atoms and, downstream, zero System 2 verification
+  // (needsSystem2 in app.js reads exactly this atom list to decide whether
+  // to check S1's reply at all).
+  //
+  // The structural fact worth reading here is not "is this particular word
+  // capitalized" \u2014 that breaks the instant the model's own casing does \u2014
+  // but "does this sentence carry a capitalization convention AT ALL",
+  // which is measurable with no word list and no tuned number, the same way
+  // PROPER_RE's own signal already is: a sentence with at least one letter
+  // and not one single uppercase codepoint anywhere has no convention left
+  // to read, so this fallback fires only in that exact, rare condition. A
+  // sentence with even one capital letter \u2014 the overwhelming majority of
+  // real text, including every ordinary reply this file has always
+  // handled \u2014 never reaches this branch (`atoms.some` below short-circuits
+  // whenever PROPER_RE already found a name, and the case test guards the
+  // rest), so PROPER_RE's existing, calibrated selectivity is completely
+  // untouched for anything but the specific failure this closes.
+  //
+  // What counts as "a word worth checking" in that fallback is not invented
+  // here either: CLAIM_STOPWORDS is this exact file's own established
+  // content-word filter. Each surviving word becomes its own atom \u2014 not
+  // grouped into phrases the way PROPER_RE groups "Greg Abbott" \u2014 because
+  // grouping needs the connector grammar PROPER_RE reads via
+  // capitalization, which is exactly the signal this branch has none of;
+  // an ungrouped atom per real word is the same granularity NUMBER_RE
+  // already uses for its own atoms, just applied to names once case can no
+  // longer tell them apart from prose.
+  //
+  // Same asymmetry as the rest of this checking ladder: a false positive
+  // here costs one grounded comparison \u2014 and, via wordSet's own case fold
+  // (this file's own hasWord/buildUnionIndex), a genuinely sourced
+  // lowercase word still matches its source and is never flagged, so this
+  // never turns a correct lowercase reply into a false "not in the
+  // material". A false negative is a small local model's confidently wrong
+  // name shipped with nothing behind it \u2014 the exact failure grounding.js
+  // exists to catch.
+  if (!atoms.some((a) => a.kind === "name") && /\p{L}/u.test(sentence) && !/\p{Lu}/u.test(sentence)) {
+    CASELESS_WORD_RE.lastIndex = 0;
+    while ((m = CASELESS_WORD_RE.exec(sentence)) !== null) {
+      const word = m[0];
+      const bare = word.replace(/['\u2019]\p{L}+$/u, "");
+      if (CLAIM_STOPWORDS.has(bare.toLowerCase())) continue;
+      atoms.push({
+        kind: "name",
+        text: word,
+        tokens: [bare],
+        start: absoluteStart + m.index,
+        end: absoluteStart + m.index + word.length,
+      });
+    }
   }
   atoms.sort((a, b) => a.start - b.start);
   return atoms;
@@ -638,13 +907,46 @@ const TAG = new RegExp(`<\\/?[a-zA-Z][a-zA-Z0-9:-]*${ATTRS}\\/?>`, "g");
  * every tag whether or not the model remembered to fence it, so compliance
  * with "wrap code in a fence" is never load-bearing for this rule to hold.
  */
+// A `#{1,6}` heading line, or a line that is bold start-to-end, is ORDINARILY
+// section furniture — a label over real content sitting elsewhere in the
+// answer, never itself a claim (the two tests above this function's own
+// header). But a small model answering ONE terse factual question routinely
+// writes its WHOLE reply as a single heading — "## The exchange rate today
+// is 150 yen to the dollar" — found live, 2026-09-22, on the volatile-fact
+// twin of this file's own "exchange rate" example: the digit is a checkable
+// claim, not a section title, and it is the ONLY thing in the answer.
+// Blanking that whole line unconditionally erases the answer's entire
+// content, silently turning "examined, clean" into "nothing to examine" —
+// the exact absence-vs-clean conflation checkGrounding's own header already
+// refuses one register over ("examined is not the same as clean"). So these
+// two rules are conditional on there being real content OUTSIDE the matched
+// line(s) — a heading beside prose stays furniture; a heading that IS the
+// whole answer is prose that happens to be formatted as a heading, and only
+// its marker syntax (`#`/`**`) is blanked, never the words. Both branches
+// stay length-preserving.
+const HEADING_LINE_RE = /^[ \t]*#{1,6}[^\n]*$/gm;
+const BOLD_WHOLE_LINE_RE = /^[ \t]*\*\*[^\n*]+\*\*[ \t]*:?[ \t]*$/gm;
+
 export function blankStructure(answer) {
   const blank = (m) => " ".repeat(m.length);
-  return String(answer)
+  const withFurniture = String(answer)
     .replace(/^[ \t]*```[^\n]*\n[\s\S]*?^[ \t]*```[ \t]*$/gm, blank)
-    .replace(TAG, blank)
-    .replace(/^[ \t]*#{1,6}[^\n]*$/gm, blank)
-    .replace(/^[ \t]*\*\*[^\n*]+\*\*[ \t]*:?[ \t]*$/gm, blank)
+    .replace(TAG, blank);
+
+  const asHeadings = withFurniture.replace(HEADING_LINE_RE, blank).replace(BOLD_WHOLE_LINE_RE, blank);
+  const wholeAnswerIsHeadings = withFurniture.trim() !== "" && asHeadings.trim() === "";
+
+  const structured = wholeAnswerIsHeadings
+    ? withFurniture
+        // Strip only the `#` marker chars, keeping the rest of the line —
+        // the sentence that follows reads as ordinary prose to extractAtoms.
+        .replace(/^([ \t]*)(#{1,6})/gm, (_, ws, hashes) => ws + " ".repeat(hashes.length))
+        // Strip only the `**` delimiters of a whole-line bold phrase,
+        // keeping the inner words and any trailing colon/whitespace.
+        .replace(/^([ \t]*)\*\*([^\n*]+)\*\*([ \t]*:?[ \t]*)$/gm, (_, a, mid, c) => `${a}  ${mid}  ${c}`)
+    : asHeadings;
+
+  return structured
     // A line-initial bold phrase with a colon is a heading even when prose
     // follows on the same line ("**Anatole's Effect:** she felt…") — and the
     // same heading wearing a list marker ("1. **HTML Structure:** - We
@@ -656,6 +958,9 @@ export function blankStructure(answer) {
     // "claiming things nothing given backs: 76". The optional prefix admits
     // digits-and-dot or a -/*/+ bullet, with leading whitespace, and the
     // whole match blanks so the marker's own digit never reads as a figure.
+    // This rule is unconditional — it only ever strips a LABEL prefix and
+    // always leaves the trailing content on the line untouched, so unlike
+    // the two whole-line rules above it can never erase an entire answer.
     .replace(
       /^[ \t]*(?:\d+\.[ \t]+|[-*+][ \t]+)?\*\*[^\n*]+:\*\*|^[ \t]*(?:\d+\.[ \t]+|[-*+][ \t]+)?\*\*[^\n*]+\*\*:/gm,
       blank,
@@ -843,12 +1148,92 @@ export function checkGrounding(answer, passages, { question = "", resolveName = 
  * existing consumer of `findings` (proofTargets, unsupportedClaims) needs
  * no changes to accept it.
  */
+/**
+ * A yes/no (polarity) question is identified by its SHAPE, never a fixed
+ * verb list: English marks it with subject-auxiliary inversion, so a
+ * polarity question's own first word is a member of the closed
+ * AUXILIARY_VERBS class (adapters/text/priors.js, giver lang/en) — "does
+ * decaf have caffeine", "is Paris the capital of France", "can it fly". A
+ * WH-question is aux-SECOND ("who IS the president"), never aux-first, so
+ * this test does not need to also exclude WH-words. Same discipline
+ * WH_DEFINITE_RE applies to the sibling gap in the-fold's gary.js (same
+ * day): read the grammar, never enumerate the specimens.
+ */
+function firstWord(text) {
+  const m = String(text ?? "").trim().match(/^[\p{L}\p{N}']+/u);
+  return m ? m[0].toLowerCase() : "";
+}
+
+function isPolarityQuestion(question) {
+  return AUXILIARY_VERBS.has(firstWord(question));
+}
+
+/**
+ * A polarity question's own content words (CLAIM_STOPWORDS stripped) — the
+ * claim being asked about, independent of which way it gets answered.
+ * "does decaf have caffeine" -> {decaf, caffeine}; "does"/"have" are both
+ * already members of CLAIM_STOPWORDS.
+ */
+function polarityClaimWords(question) {
+  const words = new Set();
+  if (!isPolarityQuestion(question)) return words;
+  for (const w of wordSet(question)) if (!CLAIM_STOPWORDS.has(w)) words.add(w);
+  return words;
+}
+
+// The floor a sentence's own "company" with the polarity claim must clear
+// before it counts as addressing that claim — reused whole, not re-derived,
+// from the same structural "2, or however many are available" minimum this
+// codebase already repeats for exactly this judgment (ORACLE_MIN_CONTENT_
+// WORDS in gary.js, WITNESS_FLOOR in asserted.js, EVIDENCE_FLOOR in
+// hl-acquire.js): a single shared word is a coincidence, two is a pattern.
+const POLARITY_COMPANY_FLOOR = 2;
+
+/**
+ * The checkable atom a bare yes/no answer never gave NUMBER_RE or
+ * PROPER_RE anything to catch. "No, decaf coffee does not have any
+ * caffeine in it" and "Decaf coffee is caffeine-free, so it does not have
+ * caffeine" both structurally contain no digit and no capitalized
+ * multi-word run — extractAtoms returns nothing for either sentence,
+ * regardless of which model wrote it or whether it is right or wrong.
+ * This is a second, independent atom kind beside number/name, gated on
+ * the QUESTION's own shape (a polarity question) and the SENTENCE's own
+ * company with that question's claim (P31's company rule, applied here to
+ * a whole claim rather than a bare number) — never on a marker word like
+ * "yes"/"no", because an affirmative answer routinely carries neither
+ * ("Decaf coffee contains a small amount of caffeine" affirms the claim
+ * with no marker at all). `tokens` carries the sentence's own content
+ * words (not only the ones shared with the question), so a proof-seeking
+ * search gets real search terms and `echoesQuestion` (computed the normal
+ * way below) is not trivially always true.
+ */
+function polarityAtomsIn(sentence, absoluteStart, polarityWords) {
+  if (!polarityWords.size) return [];
+  const sentenceContentWords = [];
+  for (const w of wordSet(sentence)) if (!CLAIM_STOPWORDS.has(w)) sentenceContentWords.push(w);
+  const shared = sentenceContentWords.filter((w) => polarityWords.has(w));
+  const needed = Math.min(POLARITY_COMPANY_FLOOR, polarityWords.size);
+  if (shared.length < needed) return [];
+  return [
+    {
+      kind: "polarity",
+      text: sentence.trim(),
+      tokens: sentenceContentWords,
+      start: absoluteStart,
+      end: absoluteStart + sentence.length,
+    },
+  ];
+}
+
 export function extractCheckableAtoms(answer, { question = "" } = {}) {
   const questionWords = wordSet(question);
+  const polarityWords = polarityClaimWords(question);
   const sentences = splitSentences(blankStructure(answer));
   const findings = [];
   for (const s of sentences) {
-    for (const atom of extractAtoms(s.text, s.start)) {
+    const sentAtoms = extractAtoms(s.text, s.start);
+    const atoms = sentAtoms.length ? sentAtoms : polarityAtomsIn(s.text, s.start, polarityWords);
+    for (const atom of atoms) {
       findings.push({
         kind: "unsupported_claim",
         atomKind: atom.kind,

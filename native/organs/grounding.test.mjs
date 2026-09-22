@@ -344,3 +344,140 @@ test("an address is not a claim about quantities", () => {
   const bare = checkGrounding("Per kess.txt#80-174, the figure was 12 percent.", passages);
   assert.ok(bare.clean, unsupportedClaims(bare).join("; "));
 });
+
+// SPELLED-OUT NUMBERS (found live, 2026-09-22, a mapping pass over the
+// checkable-claim escalation ladder): "give me the year the treaty was
+// signed" / S1 answers "The treaty was signed in eighteen forty eight." —
+// a specific, checkable year claim. NUMBER_RE requires an actual digit
+// character (\d), so a spelled-out year had nothing for it to match at
+// all — a total blind spot, not a boundary edge case, for the whole
+// number-atom path (extractAtoms -> extractCheckableAtoms -> needsSystem2
+// in app.js). Fixed by parsing the closed grammar of English cardinal
+// number words, never a word list of years.
+test("a spelled-out year is a checkable number atom, same as its digit twin", async () => {
+  const assert = (await import("node:assert/strict")).default;
+  const { extractAtoms, extractCheckableAtoms, parseWordNumber } = await import("./grounding.js");
+
+  const digitAtoms = extractAtoms("The treaty was signed in 1848.", 0).filter((a) => a.kind === "number");
+  const wordAtoms = extractAtoms("The treaty was signed in eighteen forty eight.", 0).filter(
+    (a) => a.kind === "number",
+  );
+  assert.equal(digitAtoms.length, 1);
+  assert.equal(wordAtoms.length, 1);
+  assert.equal(wordAtoms[0].tokens[0], digitAtoms[0].tokens[0], "the spelled year must parse to the same token as its digit twin");
+  assert.equal(wordAtoms[0].tokens[0], "1848");
+
+  // The actual live specimen: this is what let the wrong answer stand
+  // unchecked before the fix (needsSystem2 in app.js reads exactly this).
+  const s1Text = "The treaty was signed in eighteen forty eight.";
+  const checkable = extractCheckableAtoms(s1Text, { question: "give me the year the treaty was signed" });
+  assert.equal(checkable.length, 1, "a spelled-out year must be offered as a checkable atom");
+
+  // The spoken-year idiom (two two-digit "registers", no scale word):
+  // "nineteen sixty-three", "nineteen oh five", "twenty twenty-four".
+  assert.equal(parseWordNumber("nineteen sixty three".split(" ")), 1963);
+  assert.equal(parseWordNumber("nineteen oh five".split(" ")), 1905);
+  assert.equal(parseWordNumber("twenty twenty four".split(" ")), 2024);
+
+  // Ordinary cardinal grammar (a scale word present) still parses the usual way.
+  assert.equal(parseWordNumber("one hundred and five thousand".split(" ")), 105000);
+  // TENS+UNIT is addition, not a century splice: "forty eight" is 48, not 4008.
+  assert.equal(parseWordNumber("forty eight".split(" ")), 48);
+
+  // A lone ambiguous number word ("one", "two", "zero", "oh") never fires on
+  // its own — it is ordinary English far more often than a claim.
+  const ambiguous = extractAtoms("One of the reasons is cost. The two of us went. He said one thing.", 0).filter(
+    (a) => a.kind === "number",
+  );
+  assert.equal(ambiguous.length, 0, "a bare pronoun-like number word must not be read as a claim");
+});
+
+// Found live 2026-09-22: a System 1 answer that is nothing but a bare name
+// ("Francis.") is a ONE-WORD SENTENCE, not a stray capital opening a longer
+// one — the position-capitalization exemption above has no "rest of the
+// sentence" to explain here, so it must not fire, or extractCheckableAtoms
+// returns [] for an answer whose entire content is a single, checkable,
+// possibly-wrong claim (a stale or invented name answering a WH-definite
+// question). The prior two specimens (Shock/Anxiety, the numbered list)
+// both have real content after the matched word and must stay exempted —
+// pinned here alongside the new case so the fix cannot regress either way.
+test("a bare one-word answer is checkable — position has nothing to explain when nothing follows", async () => {
+  const { extractAtoms, extractCheckableAtoms } = await import("./grounding.js");
+  const atoms = extractAtoms("Francis.");
+  assert.equal(atoms.length, 1, JSON.stringify(atoms));
+  assert.equal(atoms[0].text, "Francis");
+
+  const findings = extractCheckableAtoms("Francis.", { question: "who is the current pope" });
+  assert.equal(findings.length, 1, JSON.stringify(findings));
+  assert.equal(findings[0].text, "Francis");
+
+  // The sibling specimens above (real content after the single word) must
+  // still be exempted — this fix narrows the exemption, it does not remove it.
+  const stillExempt = extractAtoms("Shock ran through the ranks.");
+  assert.ok(!stillExempt.some((a) => a.text === "Shock"), JSON.stringify(stillExempt));
+  const listStillExempt = extractAtoms("1. Social standing mattered.");
+  assert.ok(!listStillExempt.some((a) => a.text === "Social"), JSON.stringify(listStillExempt));
+});
+
+// Found live 2026-09-22: NUMBER_RE's trailing \b required a non-word
+// character immediately after the digit run, but English attaches ordinal
+// suffixes (1st, 2nd, 3rd, 4th...) and the bare plural/decade "s" (the
+// 1990s) directly onto the digits with no separator, so a checkable year or
+// ordinal in exactly this shape produced zero number atoms.
+test("an ordinal or decade suffix does not hide the digits from NUMBER_RE", () => {
+  const decade = extractAtoms("She was confirmed back in the 1990s.", 0).filter((a) => a.kind === "number");
+  assert.deepEqual(decade.map((a) => a.tokens[0]), ["1990"]);
+
+  const ordinal = extractAtoms("She was the 3rd woman confirmed to that seat.", 0).filter((a) => a.kind === "number");
+  assert.deepEqual(ordinal.map((a) => a.tokens[0]), ["3"]);
+
+  // An unrelated concatenation must not be swallowed just because it starts
+  // with digits followed by letters — only the closed ordinal/plural suffix
+  // classes are admitted, never an open "digits then any letters" rule.
+  const unrelated = extractAtoms("The room was 20sqft.", 0).filter((a) => a.kind === "number");
+  assert.equal(unrelated.length, 0, JSON.stringify(unrelated));
+});
+
+// Found live 2026-09-22: PROPER_RE's whole name-atom detection rests on
+// Unicode uppercase to even start a match, so a small local model answering
+// entirely in lowercase (a documented quirk of quantized models) produced
+// zero checkable atoms even when it named a real, possibly-invented person.
+test("an all-lowercase answer still yields checkable name atoms", () => {
+  const atoms = extractAtoms("the governor of texas is greg abbott");
+  const names = atoms.filter((a) => a.kind === "name").map((a) => a.text);
+  assert.ok(names.includes("greg"), JSON.stringify(atoms));
+  assert.ok(names.includes("abbott"), JSON.stringify(atoms));
+
+  // The fallback must never fire once PROPER_RE already found a real name —
+  // ordinary mixed-case text is completely untouched by this branch.
+  const ordinary = extractAtoms("The governor of Texas is Greg Abbott.");
+  const ordinaryNames = ordinary.filter((a) => a.kind === "name").map((a) => a.text);
+  assert.ok(!ordinaryNames.includes("of"), JSON.stringify(ordinary));
+  assert.ok(!ordinaryNames.includes("is"), JSON.stringify(ordinary));
+});
+
+// Found live 2026-09-22: a bare yes/no answer to a polarity question
+// ("does decaf have caffeine") carries no digit and no capitalized
+// multi-word run either way it is answered, so extractAtoms returns
+// nothing and needsSystem2 never escalates on a checkable factual claim.
+test("a polarity question's answer is checkable even with no number or name atom", () => {
+  const affirm = extractCheckableAtoms(
+    "Decaf coffee is caffeine-free, so it does not have caffeine.",
+    { question: "does decaf have caffeine" },
+  );
+  assert.equal(affirm.length, 1, JSON.stringify(affirm));
+  assert.equal(affirm[0].atomKind, "polarity");
+
+  // A WH-question must not trip the polarity fallback — it already has its
+  // own atom paths, and AUXILIARY_VERBS-first is specifically aux-inverted
+  // yes/no shape, never a WH-question ("who is the president").
+  const wh = extractCheckableAtoms("He has been president for a while now.", {
+    question: "who is the current president",
+  });
+  assert.equal(wh.filter((f) => f.atomKind === "polarity").length, 0, JSON.stringify(wh));
+
+  // An ordinary declarative sentence with no polarity question in play must
+  // never spuriously produce a polarity atom.
+  const noQuestion = extractCheckableAtoms("It has a mild flavor and a smooth finish.", { question: "" });
+  assert.equal(noQuestion.length, 0, JSON.stringify(noQuestion));
+});
