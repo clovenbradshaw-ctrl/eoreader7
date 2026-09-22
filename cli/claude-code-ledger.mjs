@@ -24,17 +24,15 @@
 // (cli/claude-code-reason-gate.mjs): a turn is "reasoned" once cli/reason.mjs
 // has run in it. It never fails the hook: any error exits 0 silently.
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
 import { spawn } from "node:child_process";
 import { sidOf, loadState, saveState, newTurn, engineRunOf, uncovered, exempt, steeringOff, logError } from "./claude-code-state.mjs";
-import { cwdSlug } from "../native/organs/reasoning-record.js";
+import { surfaceFileFor } from "../native/organs/reasoning-record.js";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 const DOCS = path.join(HERE, "..", "documents");
 const EXCERPT = 4000;
-const SURFACE_DIR = path.join(os.homedir(), ".claude", "eo-reason");
 
 // The spec file a `node .../reason.mjs <spec.json> ...` command names — a
 // best-effort read of the Bash command string, never a requirement: no
@@ -52,28 +50,32 @@ const specFileOf = (cmd) => /reason\.mjs\s+(?:--\S+\s+)*['"]?([^\s'"]+\.json)['"
 // collision that bit last-reasoning.json) so two repos' surfaces never
 // clobber each other; same-repo concurrent collisions are the same
 // disclosed, unsolved edge reasoning-record.js's own header already names.
-// The scoping key is THIS repo's own root (derived from HERE, this file's
-// own location — cli/reason-surface.mjs always lives one directory over,
-// wherever this checkout sits), never `ev.cwd`. MEASURED, not assumed:
-// running `cd eoreader7 && node cli/reason.mjs …` from a session whose last
+// The scoping key is the nearest PROJECT ROOT of the actual calling cwd
+// (projectRootOf — nearest `.git` ancestor), not raw `ev.cwd` and not a
+// value hardcoded to this checkout. MEASURED, not assumed: running
+// `cd eoreader7 && node cli/reason.mjs …` from a session whose last
 // tracked subdirectory was native/the-fold scoped the surface to
 // "...the-fold" — ev.cwd reflects whatever subdirectory a hook happened to
 // catch the session in, which drifts independently of which repo's
-// reason.mjs actually ran, and would have fragmented one project's surface
-// across filenames by incidental subdirectory noise — the exact class of
-// bug cwdSlug was introduced to fix, reintroduced by scoping on the wrong
-// value. `ev.cwd` is still used for resolving a RELATIVE spec path and as
-// the child process's own cwd (correct there — it is about interpreting
-// the command's own relative paths, not about naming the output file).
-const REPO_ROOT = path.resolve(HERE, "..");
+// reason.mjs actually ran. Hardcoding this repo's own root (the first fix)
+// closed that for calls made from inside eoreader7, but the eo-reason
+// PLUGIN's proxy server is ONE process serving requests from potentially
+// MANY calling projects once installed elsewhere (claude-code/bin/eo-reason
+// sends the caller's own cwd as `x-er7-cwd`) — a route scoping by a
+// hardcoded eoreader7 root would ignore which project a request was
+// actually about, the identical bug one level up. projectRootOf(cwd) is
+// the one key this hook and claude-code-doorway.mjs's /v1/surface route
+// now both compute, so a surface written here is the same file that route
+// looks up. For any cwd already inside eoreader7 this returns eoreader7's
+// own root — byte-identical to the hardcoded value it replaces.
 function spawnSurface(cmd, cwd) {
   try {
     const spec = specFileOf(cmd);
     if (!spec) return;
     const specAbs = path.isAbsolute(spec) ? spec : path.resolve(cwd || process.cwd(), spec);
     if (!fs.existsSync(specAbs)) return;
-    fs.mkdirSync(SURFACE_DIR, { recursive: true });
-    const out = path.join(SURFACE_DIR, `last-surface-${cwdSlug(REPO_ROOT)}.html`);
+    const out = surfaceFileFor(cwd || process.cwd());
+    fs.mkdirSync(path.dirname(out), { recursive: true });
     const child = spawn(process.execPath, [path.join(HERE, "reason-surface.mjs"), specAbs, "--out", out], {
       cwd: cwd || process.cwd(),
       detached: true,

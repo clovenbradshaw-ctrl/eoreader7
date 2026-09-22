@@ -23,6 +23,14 @@
 //                                code back in x-er7-exit.
 //   GET  /v1/reason              reason.mjs's own header: the input format,
 //                                stated once, where the engine keeps it.
+//   GET  /v1/surface              the citation/grounding report cli/reason-
+//                                surface.mjs already generated for the
+//                                caller's own project (x-er7-cwd) — never
+//                                regenerated here, only served, so the
+//                                claude-code/skills/citations skill works
+//                                the same way eo-reason does: through the
+//                                proxy, from any project, not by reading
+//                                this checkout's filesystem directly.
 //
 // HANDLERS are the engine's hook scripts (cli/claude-code-*.mjs), run with the
 // event on stdin: the contract Claude Code itself uses, so each script stays
@@ -41,6 +49,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { surfaceFileFor } from "./native/organs/reasoning-record.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REASON = path.join(HERE, "cli", "reason.mjs");
@@ -154,6 +163,28 @@ export async function route(req, res, { log = () => {} } = {}) {
     const r = await runReason(spec, flags, String(req.headers["x-er7-cwd"] ?? "") || null);
     res.writeHead(r.status, { "content-type": r.type, ...(r.exit != null ? { "x-er7-exit": String(r.exit) } : {}) });
     res.end(r.body);
+    return true;
+  }
+  if (url === "/v1/surface" && req.method === "GET") {
+    // The caller's own project, same header eo-reason already sends — a
+    // request with none is refused rather than guessed at (HERE, this
+    // checkout's own root, is a real directory and would silently answer
+    // for the wrong project if used as a fallback here).
+    const cwd = String(req.headers["x-er7-cwd"] ?? "");
+    if (!cwd) {
+      res.writeHead(400, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: { type: "missing_cwd", message: "x-er7-cwd is required — the surface is scoped per calling project, never guessed" } }));
+      return true;
+    }
+    const file = surfaceFileFor(cwd);
+    let html;
+    try { html = fs.readFileSync(file, "utf8"); } catch {
+      res.writeHead(404, { "content-type": "application/json" });
+      res.end(JSON.stringify({ error: { type: "no_surface_yet", message: `no reasoning has run yet for this project (looked for ${file}) — run eo-reason first` } }));
+      return true;
+    }
+    res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
+    res.end(html);
     return true;
   }
   return false;

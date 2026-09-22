@@ -58,9 +58,53 @@ export function cwdSlug(cwd = process.cwd()) {
   return String(cwd).replace(/[^A-Za-z0-9_-]+/g, "-").replace(/^-+|-+$/g, "").slice(-120) || "root";
 }
 
+/**
+ * The nearest enclosing PROJECT root of `cwd` — the first ancestor
+ * directory (inclusive) that has its own `.git`. Generalizes the earlier
+ * REPO_ROOT fix rather than replacing it: for any cwd already inside
+ * eoreader7, this returns eoreader7's own root (its nearest `.git` is
+ * always eoreader7's own), byte-identical to what the earlier fix hardcoded
+ * — so nothing already correct changes. What it adds is the case that fix
+ * couldn't cover: the eo-reason PLUGIN's proxy server is ONE process
+ * serving requests from potentially MANY calling projects (claude-code/
+ * bin/eo-reason sends the caller's own cwd as `x-er7-cwd`), and a route
+ * scoping by a hardcoded eoreader7 root would ignore which project a
+ * request was actually about — the same class of bug the REPO_ROOT fix
+ * closed, one level up. Falls back to the given cwd, resolved, when no
+ * `.git` is found anywhere above it (a plain directory, not a repo) —
+ * disclosed as a fallback, never silently wrong.
+ */
+export function projectRootOf(cwd = process.cwd()) {
+  let dir = path.resolve(String(cwd));
+  for (;;) {
+    try {
+      if (fs.existsSync(path.join(dir, ".git"))) return dir;
+    } catch { /* unreadable at this level — keep walking up */ }
+    const parent = path.dirname(dir);
+    if (parent === dir) return path.resolve(String(cwd));
+    dir = parent;
+  }
+}
+
 export function recordFileFor(cwd = process.cwd()) {
-  const slug = cwdSlug(cwd);
+  const slug = cwdSlug(projectRootOf(cwd));
   return path.join(RECORD_DIR, `last-reasoning-${slug}.json`);
+}
+
+/**
+ * The nine-terrain / citation-terminal surface's own path for a given cwd —
+ * the one naming convention `cli/claude-code-ledger.mjs`'s spawnSurface
+ * (the writer) and `claude-code-doorway.mjs`'s GET /v1/surface (the reader,
+ * for the portable plugin path) both need to agree on. Shares RECORD_DIR
+ * (the same `~/.claude/eo-reason/` convenience directory) and the same
+ * projectRootOf(cwd) scoping key recordFileFor uses, so a request made
+ * from a given project always resolves to the same file a run made from
+ * that project just wrote — never a separately-typed copy of this string
+ * drifting out of sync with the writer's own.
+ */
+export function surfaceFileFor(cwd = process.cwd()) {
+  const slug = cwdSlug(projectRootOf(cwd));
+  return path.join(RECORD_DIR, `last-surface-${slug}.html`);
 }
 
 /**
