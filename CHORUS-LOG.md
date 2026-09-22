@@ -493,3 +493,9 @@ fast: 13 files · 2 affected test files, 22/22 pass · law: ok (pre-existing dup
 | Simon/Chekhov | new source | claude-code-doorway.mjs | noted | imported by tests/claude-code-doorway.test.mjs and mounted in proxy.mjs; inert in a running proxy until it restarts |
 | Feynman | check that never fired | cli/claude-code-state.mjs:engineRunOf | fixed | runs through the plugin's eo-reason never counted (the detector matched only cli/reason.mjs), so the skill's own command could never satisfy the gate; now accepted, banner still required |
 clean: Pearl (SKILL.md's turn-scale corroboration note counts nothing as independent)
+
+## 2026-09-22 — hard-meaning: read only pointed-at material, never the conversation's history (main, 5 files)
+fast: 5 files · 4 affected test files, 36/36 + 23/23 pass · law: ok (pre-existing dup WARNs only)
+| lens | citation | file:line | verdict | one line |
+| Feynman | constant in a comparison | native/eval/lavar/swarm-server.test.mjs:32 | false-positive-on-review | `doors.length >= 4` is the count of chat doors, a floor against a vacuous pass (a renamed history variable empties the scan and trips it), not a tuned threshold; noted: the scan cuts each call at its first `});` |
+clean: —

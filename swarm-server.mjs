@@ -9,14 +9,17 @@
 // a measured nonzero floor would be honored).
 //
 // Entry points:
-//   runSwarmTurn({ task, texts, name, query, claim, force })
-//     task   — the raw NL chat string (the pointing)
-//     texts  — [{ name, text }] material the ants read (attachments and/or
-//              chat history; absent material yields 0 everywhere and the
-//              gate honestly refuses it all)
-//     force  — true from the explicit POST /v1/swarm endpoint (run the
-//              pointing even when the auto-route phrasing is absent);
-//              false from the chat auto-route (only swarm phrasing routes)
+//   runSwarmTurn({ task, texts, history, name, query, claim, force })
+//     task    — the raw NL chat string (the pointing)
+//     texts   — [{ name, text }] material the person pointed at
+//               (attachments; absent material yields 0 everywhere and the
+//               gate honestly refuses it all)
+//     history — [{ name, text }] the conversation's prior turns: read by
+//               a swarm the NL or `force` routed, NEVER by the hard-meaning
+//               trigger (prior answers' citation marks are not garble)
+//     force   — true from the explicit POST /v1/swarm endpoint (run the
+//               pointing even when the auto-route phrasing is absent);
+//               false from the chat auto-route (only swarm phrasing routes)
 // Returns a JSON-safe report (no functions, no Maps) + `answer` prose.
 import { makeCapacityRunner } from "./native/organs/capacity-runner.js";
 import { makeReferentIndex } from "./native/organs/cast.js";
@@ -135,7 +138,7 @@ export function swarmResidue(ants = [], { question = null } = {}) {
   };
 }
 
-export function runSwarmTurn({ task, texts = [], name = "chat-material", query, claim, force = false } = {}) {
+export function runSwarmTurn({ task, texts = [], history = [], name = "chat-material", query, claim, force = false } = {}) {
   const intent = detectSwarmIntent(task);
   // THE HARD-MEANING TRIGGER (the protocol's trigger half): a turn pointed at
   // material whose meaning a plain reading cannot hold (garble, truncation,
@@ -143,8 +146,10 @@ export function runSwarmTurn({ task, texts = [], name = "chat-material", query, 
   // names swarming. The detector is mechanical and conservative — ordinary
   // chat with clean material never fires (measured guard, 2026-09-19). The
   // ledger is consulted first: a content type with a standing rule is applied
-  // by naming it, not re-derived from scratch.
-  const meaning = detectHardMeaning({ task, texts });
+  // by naming it, not re-derived from scratch. It reads the pointed-at texts
+  // (else the task), never the history (falsified 2026-09-22: prior answers'
+  // citation marks swarmed plain follow-up questions with no model call).
+  const meaning = detectHardMeaning({ task, texts, history });
   const standing = meaning.hard ? contentRuleFor(meaning.type) : null;
   if (!intent.swarm && !force && !meaning.hard) return { routed: false, reason: intent.reason };
   const pointing = pointCapacities(task);
@@ -156,7 +161,14 @@ export function runSwarmTurn({ task, texts = [], name = "chat-material", query, 
       meaning, standing, residue,
     };
   }
-  const text = (texts ?? []).map((t) => (typeof t === "string" ? t : t?.text ?? "")).join("\n\n");
+  // The swarm reads what routed it. A trigger measured over the TASK (a blob
+  // pasted as the message, nothing attached) makes the task the material —
+  // else the swarm would answer about the history while its basis names the
+  // task. Otherwise: the pointed texts, then the conversation, as before.
+  const taskIsMaterial = meaning.hard && meaning.read === "task" && meaning.type !== "pointed_at_nothing";
+  const text = taskIsMaterial
+    ? String(task ?? "")
+    : [...(texts ?? []), ...(history ?? [])].map((t) => (typeof t === "string" ? t : t?.text ?? "")).join("\n\n");
   const runCapacity = swarmRunCapacity();
   const bar = measuredBar(runCapacity, pointing.ants, text, name);
   const out = swarmCapacities({ nl: task, runCapacity, material: { text, name }, bar, query, claim });

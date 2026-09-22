@@ -91,29 +91,41 @@ export function classifyTokens(text) {
   return counts;
 }
 
-/** detectHardMeaning({ task, texts, name }) — the trigger. Returns
- *  { hard, type, signals, basis } where `signals` is the ordered list of
- *  signals that fired (strongest first) and `type` is the first/most salient
- *  signal — the content-type key for the rules ledger. A material-only read:
- *  ordinary chat with no pointed material and clean task text never fires
- *  (measured guard, 2026-09-19). Pure. */
-export function detectHardMeaning({ task = "", texts = [], name = "material" } = {}) {
+/** detectHardMeaning({ task, texts, history, name }) — the trigger. Returns
+ *  { hard, type, signals, basis, read } where `signals` is the ordered list
+ *  of signals that fired (strongest first), `type` is the first/most salient
+ *  signal — the content-type key for the rules ledger — and `read` names the
+ *  material the signals were measured over ("texts", "task", or null). A
+ *  material-only read: ordinary chat with no pointed material and clean task
+ *  text never fires (measured guard, 2026-09-19). Pure.
+ *
+ *  `texts` is ONLY what the person pointed at (attachments). `history` — the
+ *  conversation's own prior turns — is accepted so a caller can hand over the
+ *  whole turn, and is never read: prior answers carry the engine's own
+ *  citation marks, tables and parenthetical figures ("[1][2]", "(~46%)",
+ *  "|---|"), which counted as symbol-heavy tokens and hijacked plain
+ *  follow-up questions (measured 2026-09-22: "what is a fjord?" swarmed on 46
+ *  such tokens, none of them in the question; the task alone reads plain). */
+export function detectHardMeaning({ task = "", texts = [], history = [], name = "material" } = {}) {
+  void history; // context, never material — see the docblock
   const taskText = String(task ?? "");
   const body = (texts ?? [])
     .map((t) => (typeof t === "string" ? t : t?.text ?? ""))
     .filter((t) => String(t).trim().length > 0);
-  // The material is what was pointed at. When attachments/history carry text,
-  // that IS the material. When they carry none, the TASK itself is the only
-  // content (a user pastes a garbled blob straight into the chat message and
-  // no attachment rides it) — so the task is read as material of last resort,
-  // and the full signal set runs over it. A pointed-but-empty attachment is a
-  // typed void, never silently read as clean.
+  // The material is what was pointed at. When attachments carry text, that IS
+  // the material. When they carry none, the TASK itself is the only content
+  // (a user pastes a garbled blob straight into the chat message and no
+  // attachment rides it) — so the task is read as material of last resort,
+  // and the full signal set runs over it. The conversation's history is never
+  // a fallback: the person did not point at it. A pointed-but-empty
+  // attachment is a typed void, never silently read as clean.
   const suppliedButEmpty = Array.isArray(texts) && texts.length > 0 && body.length === 0;
-  const material = body.join("\n\n") || (taskText.trim() ? taskText : "");
+  const read = body.length ? "texts" : taskText.trim() ? "task" : null;
+  const material = read === "texts" ? body.join("\n\n") : read === "task" ? taskText : "";
   const signals = [];
 
-  // Pointed at nothing: attachments/history explicitly supplied but empty, or
-  // no task at all — there is nothing for any read to bind.
+  // Pointed at nothing: attachments explicitly supplied but empty, or no task
+  // at all — there is nothing for any read to bind.
   if (suppliedButEmpty && taskText.trim()) {
     signals.push({ kind: "pointed_at_nothing", detail: "material was pointed at, but every supplied text is empty — a read has nothing to bind", floor: signalControl("pointed_at_nothing") });
   }
@@ -179,5 +191,6 @@ export function detectHardMeaning({ task = "", texts = [], name = "material" } =
       ? `hard meaning (${type}): ${signals[0].detail}`
       : "plain reading holds: no garble, no truncation, no density, material present",
     name: name ?? "material",
+    read,
   };
 }

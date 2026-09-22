@@ -1156,10 +1156,8 @@ const job = await startDocumentJob({
       // by itself (corrected 2026-09-20 — the old comment overstated it).
       const askSwarm = runSwarmTurn({
         task,
-        texts: [
-          ...attachments.map((a) => ({ name: a.name, text: a.text })),
-          ...(Array.isArray(parsed?.chatHistory) ? parsed.chatHistory.map((m, i) => ({ name: `history-${i}`, text: String(m?.content ?? "") })) : []),
-        ],
+        texts: attachments.map((a) => ({ name: a.name, text: a.text })),
+        history: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory.map((m, i) => ({ name: `history-${i}`, text: String(m?.content ?? "") })) : [],
         name: "ask-turn",
       });
       if (askSwarm.routed) {
@@ -1498,10 +1496,8 @@ const job = await startDocumentJob({
       // by itself (corrected 2026-09-20 — the old comment overstated it).
       const swarmTurn = runSwarmTurn({
         task: reqData.task,
-        texts: [
-          ...(reqData.attachments ?? []).map((a) => ({ name: a.name, text: a.text })),
-          ...(reqData.chatHistory ?? []).map((m, i) => ({ name: `history-${i}`, text: m.content })),
-        ],
+        texts: (reqData.attachments ?? []).map((a) => ({ name: a.name, text: a.text })),
+        history: (reqData.chatHistory ?? []).map((m, i) => ({ name: `history-${i}`, text: m.content })),
         name: "chat-turn",
       });
       if (swarmTurn.routed) {
@@ -1879,10 +1875,8 @@ const job = await startDocumentJob({
       // already renders.
       const swarmTurn = runSwarmTurn({
         task: reqData.task,
-        texts: [
-          ...(reqData.attachments ?? []).map((a) => ({ name: a.name, text: a.text })),
-          ...(reqData.chatHistory ?? []).map((m, i) => ({ name: `history-${i}`, text: m.content })),
-        ],
+        texts: (reqData.attachments ?? []).map((a) => ({ name: a.name, text: a.text })),
+        history: (reqData.chatHistory ?? []).map((m, i) => ({ name: `history-${i}`, text: m.content })),
         name: "chat-turn",
       });
       if (swarmTurn.routed) {
@@ -2109,10 +2103,8 @@ const job = await startDocumentJob({
       // detector firing — a standing content rule annotates but never routes.
       const swarmTurn = runSwarmTurn({
         task: reqData.task,
-        texts: [
-          ...(reqData.attachments ?? []).map((a) => ({ name: a.name, text: a.text })),
-          ...(reqData.chatHistory ?? []).map((m, i) => ({ name: `history-${i}`, text: m.content })),
-        ],
+        texts: (reqData.attachments ?? []).map((a) => ({ name: a.name, text: a.text })),
+        history: (reqData.chatHistory ?? []).map((m, i) => ({ name: `history-${i}`, text: m.content })),
         name: "messages-turn",
       });
       if (swarmTurn.routed) {

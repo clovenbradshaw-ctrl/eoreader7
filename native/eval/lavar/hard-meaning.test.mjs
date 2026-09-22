@@ -89,6 +89,45 @@ test("a garbled blob pasted as the chat message itself (no attachment) fires", (
   assert.equal(r.type, "garbled_token");
 });
 
+// The live specimen (2026-09-22): the-fold sends its last turns as history,
+// and prior answers carry citation marks, a table rule, parenthetical figures.
+const CITED_HISTORY = [
+  { role: "user", content: "What causes ocean tides?" },
+  { role: "assistant", content: "Ocean tides are caused by the gravitational pull of the Moon and the Sun on Earth. [1][2] The Moon's pull is stronger because it is closer. [1]\n\n1 · witnessed:noaa   2 · bound:material" },
+  { role: "user", content: "How strong is the Sun's share?" },
+  { role: "assistant", content: "| body | share |\n|---|---|\n| Moon | (~2/3) |\n| Sun | (~1/3) |\n\nThe Sun contributes roughly (~46%) of the Moon's tidal force. [1][3] {1·noaa} {3·wiki}\n\n1 · witnessed:noaa   3 · named:wiki" },
+].map((m, i) => ({ name: `history-${i}`, text: m.content }));
+
+test("a clean question in a citation-heavy conversation never fires (history is not material)", () => {
+  const task = "What makes the tides rise and fall twice a day?";
+  // Precondition: read AS material, this history is garble-shaped — so the
+  // pass below is the exclusion working, not a history too clean to matter.
+  assert.equal(detectHardMeaning({ task, texts: CITED_HISTORY }).hard, true);
+  const r = detectHardMeaning({ task, history: CITED_HISTORY });
+  assert.equal(r.hard, false);
+  assert.deepEqual(r.signals, []);
+  assert.equal(r.read, "task");
+});
+
+test("a garbled blob pasted mid-conversation still fires, measured over the task", () => {
+  const r = detectHardMeaning({ task: "what does this mean ###w@@q x$$y%%z !!!a###b&&&c", history: CITED_HISTORY });
+  assert.equal(r.hard, true);
+  assert.equal(r.type, "garbled_token");
+  assert.equal(r.read, "task");
+  assert.match(r.basis, /3 symbol-heavy tokens/);
+});
+
+test("a garbled attachment still fires beside a clean history", () => {
+  const r = detectHardMeaning({
+    task: "what is this?",
+    texts: [{ name: "g", text: "###w@@q x$$y%%z !!!a###b&&&c +++d%%%e" }],
+    history: [{ name: "history-0", text: "Hello! How can I help?" }],
+  });
+  assert.equal(r.hard, true);
+  assert.equal(r.type, "garbled_token");
+  assert.equal(r.read, "texts");
+});
+
 test("classifyTokens counts the mechanics", () => {
   const c = classifyTokens("a\uFFFDb \u00C3\u00A9 ###w@@q x y z");
   assert.equal(c.replacement, 1);
