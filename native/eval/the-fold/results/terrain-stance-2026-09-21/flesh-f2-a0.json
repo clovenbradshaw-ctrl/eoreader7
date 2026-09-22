@@ -1,0 +1,68 @@
+{
+  "docId": "retest-f2-a0:1",
+  "arm": "A0",
+  "flesh": "F2",
+  "model": "gemma2:2b",
+  "ground": "/Users/mlacy/Documents/3.0/eoreader7/native/eval/the-fold/fixtures/ohs-followup-audit.md",
+  "seconds": 353,
+  "summary": "model calls: 38 (steer 16, prose 19, tighten 0, turns 3)\nmouth votes licensed: 7 of 16\nseconds from prose to arrival: 134\nfacts in the draft: 15\nfacts at the floor: 12\nparts carried whole: 0 of 4\narchon findings, first read: 3\nsentences folded: 0\nLish cuts (no model): 0\nrewrites kept: 0 of 0\nbridges kept: 1 of 3\nfindings still licensing a revision: 3",
+  "parts": [
+    {
+      "id": "a0",
+      "status": "leveled",
+      "of": 1,
+      "floored": 1,
+      "pieces": 1
+    },
+    {
+      "id": "a1",
+      "status": "leveled",
+      "of": 3,
+      "floored": 2,
+      "pieces": 3
+    },
+    {
+      "id": "a2",
+      "status": "leveled",
+      "of": 9,
+      "floored": 7,
+      "pieces": 9
+    },
+    {
+      "id": "a3",
+      "status": "leveled",
+      "of": 2,
+      "floored": 2,
+      "pieces": 3
+    }
+  ],
+  "levels": {
+    "L1": {
+      "carried": 4,
+      "of": 15,
+      "answered": 1,
+      "questions": 2,
+      "licensed": 13,
+      "sentences": 4,
+      "words": 104
+    },
+    "L2": {
+      "carried": 15,
+      "of": 15,
+      "answered": 1,
+      "questions": 2,
+      "licensed": 3,
+      "sentences": 16,
+      "words": 349
+    },
+    "L3": {
+      "carried": 15,
+      "of": 15,
+      "answered": 1,
+      "questions": 2,
+      "licensed": 3,
+      "sentences": 16,
+      "words": 349
+    }
+  }
+}

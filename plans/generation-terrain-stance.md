@@ -172,3 +172,78 @@ the committed pipeline. A2 is the only arm that survives the transcript and
 the only one that lands on the declared form for the messy dossier. A4's
 design — not its raw output — is what the flesh phase's arrangement should
 adopt.
+
+### Step 3 — F1 vs F2, live, on A0 (two test calls; A2 not yet run)
+
+A real bug was caught reading `flesh2.js` before spending a call on it:
+`mL3` was declared `const` and reassigned on the level-3-undo branch —
+`TypeError` at runtime, but only when L3 is actually judged worse than L2,
+so it does not fire on every run. Fixed (now `let`); `flesh2-falsify.test.mjs`
+adds regression coverage for the undo path.
+
+A second, data-side bug: `drive-flesh-arms.mjs`'s default ground was the raw
+PDF-derived audit text, letterhead and page headers included
+(`plans/ohs/ground/AUD-HID-FOLLOWUP-2025.txt` — "METROPOLITAN NASHVILLE
+GOVERNMENT / OFFICE OF INTERNAL AUDIT", the committee members' names as a
+header line). It had already leaked straight into a floored piece in an
+earlier run. Fixed: the default is now `fixtures/ohs-followup-audit.md`, the
+same document with the letterhead and page furniture stripped, paragraphs
+only. All step-3 numbers below are against the clean ground.
+
+Runner: `native/eval/the-fold/drive-flesh-arms.mjs --arm A0 --flesh F1|F2`.
+Full JSON and final pieces in `native/eval/the-fold/results/terrain-stance-2026-09-21/`
+(`flesh-f1-a0.json`, `flesh-f2-a0.json`, `pieces/retest-f1-a0.txt`,
+`pieces/retest-f2-a0.txt`).
+
+| | F1 (draw whole, finer recurse) | F2 (level by level, Hora) |
+|---|---|---|
+| seconds | 388 | 353 |
+| model calls | 35 (prose 14, tighten 3, turns 2, steer 16) | 38 (prose 19, turns 3, steer 16) |
+| facts at the floor | 10 of 15 | 12 of 15 |
+| archon findings, first read | 6 | 3 |
+| findings still licensing a revision | 4 | 3 |
+| mouth votes licensed | 8 of 16 | 7 of 16 |
+
+F2's own level checkpoints (`levels` in its JSON): L1 (one sentence per
+section) carried 4 of 15 facts — a real abstract, already readable, at the
+cost of 13 findings still licensing a revision; L2 (grown to a paragraph)
+jumped to 15 of 15 facts, 3 findings; L3 (remaining spans woven in) made no
+change — L2 had already saturated the section, so L3's only job (floor
+whatever L2 missed) had nothing left to do. The turns pass was undone live:
+`check: Loop · turns · worse · undone` on the ledger — loop-check.js caught
+a transition that made the piece worse and reverted it, mid-run, exactly as
+designed.
+
+**Reading the two final pieces side by side** (both are real, both cite the
+same 15 facts):
+
+- F1's *first* prose draft of its opening section invented an unfilled
+  placeholder — "conducted by [Name of Audit Committee]" — naming an entity
+  the source never names. The archon/fold/tighten pass caught and removed it
+  before the final piece; it does not survive. A real save, and evidence the
+  bracket-placeholder case needs its own check (`inventedNameRuns` doesn't
+  fire on it, because it isn't a capitalized proper-noun run).
+- F1's *final* piece still carries a genuine meta-leak that nothing caught:
+  "**Note:** You can continue this section by adding more details about the
+  implementation of the remaining recommendations." — the mouth addressing
+  the reader about the essay, not part of the essay. `isMetaSentence` does
+  not fire on this phrasing. F2's final piece has no meta-leak.
+- A clause that reads like a restatement in both pieces — "Recommendation
+  B.1, on updating the policies…" followed later by "Outstanding action:
+  continue the update process for the Coordinated Entry policy…" — is
+  **not** a duplication bug: both are distinct verbatim sentences in the
+  source (checked against `fixtures/ohs-followup-audit.md`), both genuinely
+  true, both floored because the mouth never wove them into one sentence.
+  This is the floor mechanism holding under a weak mouth, not a defect.
+
+**Read from two calls, not a sweep — provisional.** F2 finished faster,
+with fewer open findings, no meta-leak, and its own live proof that the
+loop-check machinery does what it is for (catching and reverting a bad
+loop, not just measuring after the fact). F1's fold/tighten pass caught one
+invented placeholder that F2 never produced in the first place, because F2
+never gives the mouth an open-ended enough prompt to invent one — the L1
+abstract prompt is narrow, and each subsequent level is narrowly scoped to
+"grow this" or "weave this in." That may be F2's real advantage: not that
+it writes better prose, but that its narrower prompts leave the mouth less
+room to invent. Needs A2 (and more than two calls) to become a finding
+rather than a lean.
