@@ -69,3 +69,35 @@ export function cellLabelOf(grain) {
   if (op === "SEG" && grain.grain === "Figure") return "SEG·Figure (Distinction)";
   return "grain_gap";
 }
+
+/**
+ * ablationPressureFor(grain, connector, sentenceTokens, connectorIdx, opts)
+ *   -> Promise<grain | pressureResult>
+ *
+ * OPT-IN, ASYNC, PASS-THROUGH. Every other export in this file is pure and
+ * synchronous, on purpose — nothing above touches a model or the network.
+ * This is the one exception, called out explicitly rather than hidden —
+ * but it makes NO model call itself and imports nothing from
+ * ablation-grain-pressure.js: `ablationPressure` arrives INJECTED (the
+ * cast.js/morphology.js pattern this codebase already holds — a pure
+ * adapter never reaches into a frozen provider on its own), so a caller
+ * supplies whichever embedding-backed function it wants, already bound to
+ * its own model choice. This activates ONLY when `grain` is already a
+ * grain_gap. A settled grain (or a refused one) is returned completely
+ * UNCHANGED — this never second-guesses real evidence from the received
+ * prior. A caller that never passes `ablationPressure`/`centroidSets`, or
+ * never calls this function at all, sees byte-identical behavior to
+ * before it existed.
+ *
+ * The result on a real gap is ablation-grain-pressure.js's own typed,
+ * REVISABLE pressure object (`{grain_gap:true, basis:"ablation-delta",
+ * revisable:true, votes, combined}`) — never a settled classification, and
+ * never something this file merges back into `.operator`/`.grain`/`.terrain`
+ * itself. A caller decides whether and how to weigh it against everything
+ * else it knows, at whatever holonic level is appropriate to that caller.
+ */
+export async function ablationPressureFor(grain, connector, sentenceTokens, connectorIdx, { ablationPressure, embed, centroidSets } = {}) {
+  if (!grain || !grain.grain_gap) return grain; // settled or refused: untouched, always
+  if (typeof ablationPressure !== "function" || typeof embed !== "function" || !centroidSets?.length) return grain; // no injected mechanism: the gap stays a gap, exactly as before
+  return ablationPressure(connector, sentenceTokens, connectorIdx, { embed, centroidSets });
+}
