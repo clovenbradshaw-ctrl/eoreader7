@@ -743,7 +743,8 @@ function buildIndexFromEvents(events, { namesCorefer, diaNorm }) {
     const prev = best.get(e.referent_id);
     if (!prev || e.surface.length > prev.length) best.set(e.referent_id, e.surface);
   }
-  const MIN_STEM = 4;
+  // MIN_STEM: the module-scope constant declared above (line ~219) — this
+  // used to be redeclared here too, an identical-value dead local shadow.
   const covers = (s, p) => s === p || (Math.min(s.length, p.length) >= MIN_STEM && (s.startsWith(p) || p.startsWith(s)));
   function resolve(name) {
     const ids = new Set();
