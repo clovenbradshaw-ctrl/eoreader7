@@ -186,6 +186,18 @@ export const ARCHONS = Object.freeze([
     topics: ["catalog", "catalogue", "address", "location", "bibliography", "index", "shelf"],
   },
   {
+    handle: "kahanamoku",
+    aliases: ["duke"],
+    name: "Duke Kahanamoku",
+    organ: "activation-retrieval.js; field-of-record.js; proxy-runner.mjs::surfTask",
+    role: "the archon of the surf — read the water, then ride the wave that is actually there",
+    pdStatus: "nomination",
+    work: "The handle names a posture, not a claimed work. The namesake is Duke Kahanamoku (1890–1968), the Hawaiian Olympic swimmer credited with carrying surfing to the wider world. The discipline mechanized here: a question is ridden into the material, not matched against it — the beings it names activate the sentences they stand in, the shadow/echo field says which recalls rise above its own null, and the feed is cut where showing more changes nothing.",
+    source: "Duke Kahanamoku (1890–1968), Hawaiian swimmer and surfer (the namesake's own works are not asserted by this compendium)",
+    credit: "Kahanamoku (Duke) — the archon of the surf: read the water, then ride the wave that is actually there.",
+    topics: ["surf", "wave", "retrieval", "activation", "echo", "shadow", "recall", "passages"],
+  },
+  {
     handle: "dignaga",
     name: "Dignaga",
     organ: "organs/asserted.js",
@@ -942,7 +954,11 @@ export function compendium() {
  * are found by `kleeneUp` or `kleeneup` alike). */
 export function archonOf(handle) {
   const want = String(handle ?? "").toLowerCase();
-  return ARCHONS.find((a) => String(a.handle).toLowerCase() === want) ?? null;
+  // An alias is another name for the same archon (Frege: one object, two
+  // names). The handle is tried first, so an alias can never shadow one.
+  return ARCHONS.find((a) => String(a.handle).toLowerCase() === want)
+    ?? ARCHONS.find((a) => (a.aliases ?? []).some((x) => String(x).toLowerCase() === want))
+    ?? null;
 }
 
 /**
