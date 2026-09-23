@@ -64,13 +64,23 @@ export const VERB_CLASS = "verb";
 const toSVO = (n) => ({ ...n, subject: n.end1, verb: n.label, object: n.end2 });
 
 export function makeHyperlexicon(taskLog) {
-  const { cellOf = null, noteIdentity = null, ...bundle } = taskLog;
+  // (2026-09-22, additive) `identityGiver` joins `cellOf`/`noteIdentity` as a
+  // third optional key this face already destructures out of its one
+  // argument and forwards — never a new parameter. A caller that omits it
+  // (every caller before today) gets `identityGiver = null`, byte-identical
+  // to before this line existed: `makeNotes` already defaults it to `null`
+  // itself. Its purpose is disclosure, not behavior: `kernel/notes.js`'s own
+  // `hear()` stamps a cross-source join's `basis` with this string when
+  // given, or a generic `"identity-organ"`/`"string-identity"` fallback when
+  // not — see reason-claims design part D, "set identityGiver so the join
+  // record discloses what the id rested on."
+  const { cellOf = null, noteIdentity = null, identityGiver = null, ...bundle } = taskLog;
   // The identity organ speaks SVO to its callers (P73's seam); the kernel
   // hears ends. Adapt at the face, once.
   const identity = noteIdentity
     ? (end1, label, end2) => { const c = noteIdentity(end1, label, end2); return c ? { end1: c.subject, label: c.verb, end2: c.object } : null; }
     : null;
-  const notes = makeNotes({ taskLog: bundle, cellOf, identity });
+  const notes = makeNotes({ taskLog: bundle, cellOf, identity, identityGiver });
 
   /** A fresh, empty hyperlexicon — with, when given, the frame its reader stands on. */
   const createHyperlexicon = (opts) => notes.createNotes(opts);
@@ -133,6 +143,21 @@ export function makeHyperlexicon(taskLog) {
 
   return {
     createHyperlexicon, hear, attest: notes.attest, admit, concede: notes.concede, concededNotes, concededIds: notes.concededIds,
+    // ADDITIVE ALIASES (2026-09-22). notes-text.js's own face (built after
+    // this file's name collided with it — see git history, "Rename
+    // organs/hyperlexicon.js to notes-text.js") renames these two back to
+    // createNotes/foldNotes for ITS callers; this file kept the
+    // disambiguated createHyperlexicon/foldHyperlexicon names for its own.
+    // But dozens of live callers (organs/derivation.js among them — a
+    // production organ, not a test) duck-type an `hl` handle expecting
+    // createNotes/foldNotes regardless of which factory actually built it,
+    // because both objects carry the same underlying kernel/notes.js
+    // methods under the same shape otherwise. Found live: a caller passed
+    // an hl built here into derive(), which called hl.foldNotes and threw
+    // — the two faces were never made interchangeable. These two keys make
+    // them so, without renaming anything a caller of THIS face already
+    // reads by its existing names.
+    createNotes: createHyperlexicon, foldNotes: foldHyperlexicon,
     // The contest half of the record (kernel CON·Figure·CONTESTED). `attest`
     // lands agreement, `dispute` lands disagreement, `concede` lands
     // retraction — and only the third one withdraws anything.
