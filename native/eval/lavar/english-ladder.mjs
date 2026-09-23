@@ -146,18 +146,23 @@ export const RUNGS = Object.freeze([
     corpus: {
       status: "partial — real material already on disk, verified this session",
       onDisk: [
+        "01-literature-books/renaissance-poetry/wyatt-whoso-list-to-hunt.txt (fetched and saved this session, provenance in the file's own header)",
         "eval/lavar/results/lp-shakespeare.* (source: 01-literature-books/gutenberg/pg100_Complete_Works_of_Shakespeare.txt, a 55KB SAMPLE of the complete works, not the whole 5MB+ text)",
         "eval/lavar/results/lp-othello.* (source: 15-western-canon/folger-shakespeare/Othello.txt, the full Folger edition)",
         "eval/lavar/results/lp-kinglear.* (source: 15-western-canon/folger-shakespeare/King_Lear.txt, the full Folger edition)",
       ],
       missing: [
-        "Wyatt: fetched live this session (poetryfoundation.org/poems/45593, the browser pane bypassing a 403 a plain fetch hit) but not yet saved as a corpus file anywhere — the 14 lines are in this session's own transcript only.",
         "Marlowe: nothing on disk anywhere in this checkout. Gutenberg pg1094 (The Works of Christopher Marlowe) is the named next fetch — not yet done.",
         "The rest of Shakespeare beyond the 55KB sample and the two Folger plays (37 plays, 154 sonnets total) — a real, large, multi-session fetch-and-read job, not attempted here.",
       ],
     },
     note: "‘Sithens’, ‘list’ (= wishes), ‘hath’/‘doth’ endings, and an embedded French phrase (‘hélas’) and a Latin one (‘Noli me tangere’) inside one 14-line English sonnet — real material for testing whether nominal-beings.js's L2 admission survives archaic inflection and code-switched foreign phrases, or honestly drops them as unattested (the expected outcome for the Latin/French spans, since pos-prior-eng.json was built from a modern English treebank). L0 is CLOSER to honest here than for Old/Middle English — Early Modern English's own sounds are well-studied (“Original Pronunciation” reconstructions exist), but pronunciation-eng.json is still a MODERN synthesis; using it for L0 on this rung must be labelled as modern pronunciation of period spelling, never as OP itself.",
-    measured: null,
+    measured: {
+      date: "2026-09-22",
+      layers: ["L0-sound", "L2-heard-pattern", "L3-script-refinement"],
+      driver: "a direct run over the real Wyatt corpus file (see corpus.onDisk above)",
+      result: "L0: 55 of the sonnet's own words synthesized this session (list, hunt, hind, wearied, diamonds, tame, caesars, noli, tangere all now resolve — 0 refused of the sonnet's own vocabulary after the run, up from 100% refused before it). L2 (minOccurrences 2): exactly 2 beings, ‘list’ and ‘hunt’ — both real, both the poem's own central motif, ZERO false positives; sparse by construction, a 14-line poem rarely repeats a word twice. L3 (capitalisation): 7 candidates (And, Caesar, Draw, Fainting, Noli, Sithens, There) — 5 of 7 are pure Renaissance verse-line-initial capitalisation noise (every line opens capitalized regardless of grammar), only ‘Caesar’ is a genuine proper noun; L3 alone would be actively misleading on this specimen. A real, measured period sense-shift: nominalClass(‘hind’) reads ADJ in the modern treebank (surviving mainly in ‘hind legs’), though Wyatt uses it as the poem's own noun (the deer) — not a bug, a fact about how the word moved in 500 years.",
+    },
   },
   {
     id: "18th-19th-century-branching",
