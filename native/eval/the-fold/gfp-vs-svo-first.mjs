@@ -49,8 +49,8 @@ import { fileURLToPath } from "node:url";
 import { parseConllu } from "../../kernel/eot-rich.js";
 import { claimFromTriple, project } from "../../kernel/gfp-claim.js";
 import { extractGfpRelations } from "../../adapters/text/relations-gfp.js";
-import { loadModel, analyse, seeded } from "../../adapters/text/english-parser.js";
-import { stemsOf } from "../../adapters/text/morphology.js";
+import { loadModel, analyse } from "../../adapters/text/english-parser.js";
+import { rootTripleFrom, scoreClaims, scrambleTokens, fisherGreater } from "./claim-null-scoring.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(here, "../../..");
@@ -71,54 +71,10 @@ const model = loadModel(JSON.parse(fs.readFileSync(PARSER_MODEL, "utf8")));
 
 console.log(`held-out sentences: ${held.length} (of ${allSents.length} total, every-10th split)`);
 
-// ── shared: the mechanical deprel-based role rule, applied to gold AND to
-// each route's own predicted rows (never mixed) ────────────────────────────
-function rootTripleFrom(tokens) {
-  const byHead = new Map();
-  for (const t of tokens) {
-    if (t.head == null) continue;
-    if (!byHead.has(t.head)) byHead.set(t.head, []);
-    byHead.get(t.head).push(t);
-  }
-  const root = tokens.find((t) => t.upos === "VERB" && t.deprel === "root");
-  if (!root) return null;
-  const kids = byHead.get(root.id) ?? [];
-  const subj = kids.find((t) => /^nsubj/.test(t.deprel));
-  const obj = kids.find((t) => t.deprel === "obj") ?? kids.find((t) => t.deprel === "iobj");
-  if (!subj || !obj) return null; // intransitive/no-object roots excluded by declaration
-  return { arg0: subj.lemma, rel: root.lemma, arg1: obj.lemma };
-}
-
-// ── a generic surface->lemma equivalence for MATCHING ONLY (never used to
-// construct a prediction) — the house stemsOf suffix rule, both directions ──
-function sameAct(surface, lemma) {
-  const s = String(surface).toLowerCase();
-  const l = String(lemma).toLowerCase();
-  if (s === l) return true;
-  if (stemsOf(s).has(l)) return true;
-  if (stemsOf(l).has(s)) return true;
-  return false;
-}
-function claimsMatch(a, b) {
-  if (!a || !b) return false;
-  if (!sameAct(a.rel, b.rel)) return false;
-  if (!sameAct(a.roles.ARG0 ?? "", b.roles.ARG0 ?? "")) return false;
-  if (!sameAct(a.roles.ARG1 ?? "", b.roles.ARG1 ?? "")) return false;
-  return true;
-}
-
-// ── seeded per-sentence scramble (Fisher-Yates), reusing the house seeded() ─
-// Exported so other structural-vs-lexical nulls can reuse the identical rule
-// (e.g. a per-variety lens null) instead of re-deriving it.
-export function scrambleTokens(tokens, seedKey) {
-  const rand = seeded(seedKey);
-  const forms = tokens.map((t) => t.form);
-  for (let i = forms.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(rand() * (i + 1));
-    [forms[i], forms[j]] = [forms[j], forms[i]];
-  }
-  return forms;
-}
+// rootTripleFrom / claimsMatch / scoreClaims / scrambleTokens / fisherGreater
+// now live in ./claim-null-scoring.mjs — the shared scoring currency any
+// reading pipeline (any route, any language) can score claims against gold
+// and a structural null through, per the audit report's recommendation #1.
 
 // ── GOLD, per sentence ───────────────────────────────────────────────────
 const gold = held.map((s) => {
@@ -161,42 +117,7 @@ function runRouteB(sentForms) {
 }
 
 // ── score one condition (natural or scrambled) for one route ──────────────
-function score(bySentenceClaims) {
-  let coveredGold = 0;
-  let emitted = 0;
-  let emittedCorrect = 0;
-  for (let i = 0; i < held.length; i += 1) {
-    const g = gold[i];
-    const preds = bySentenceClaims[i] ?? [];
-    emitted += preds.length;
-    let hit = false;
-    for (const p of preds) if (claimsMatch(p, g)) { hit = true; emittedCorrect += 1; }
-    if (g && hit) coveredGold += 1;
-  }
-  return {
-    coverage: goldCount ? coveredGold / goldCount : 0,
-    coveredGold, goldCount,
-    precision: emitted ? emittedCorrect / emitted : 0,
-    emittedCorrect, emitted,
-  };
-}
-
-// ── one-sided Fisher exact test (natural precision > scrambled precision),
-// via log-factorial for numerical stability — no external dependency ──────
-function lfact(n) { let s = 0; for (let i = 2; i <= n; i += 1) s += Math.log(i); return s; }
-function lchoose(n, k) { if (k < 0 || k > n) return -Infinity; return lfact(n) - lfact(k) - lfact(n - k); }
-function fisherGreater(a, b, c, d) {
-  // 2x2: [[a,b],[c,d]] = [[natural correct, natural wrong],[scrambled correct, scrambled wrong]]
-  const n = a + b + c + d;
-  const row1 = a + b, col1 = a + c;
-  let p = 0;
-  const lo = Math.max(0, row1 - (n - col1));
-  const hi = Math.min(row1, col1);
-  for (let x = a; x <= hi; x += 1) {
-    p += Math.exp(lchoose(row1, x) + lchoose(n - row1, col1 - x) - lchoose(n, col1));
-  }
-  return Math.min(1, Math.max(0, p));
-}
+const score = (bySentenceClaims) => scoreClaims(bySentenceClaims, gold);
 
 // ── run both conditions, both routes ───────────────────────────────────────
 const naturalTexts = held.map((s) => s.text ?? s.tokens.map((t) => t.form).join(" "));
