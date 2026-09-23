@@ -54,7 +54,7 @@ export const NAMING_CLASSES = Object.freeze(new Set(["NOUN", "PROPN"]));
 // mis-tokenizing it.
 const TOKEN = /[\p{L}\p{M}\p{N}''’]+/gu;
 
-const tokenize = (text) => {
+export const tokenize = (text) => {
   const out = [];
   for (const m of String(text ?? "").matchAll(TOKEN)) {
     out.push({ w: m[0].toLowerCase(), raw: m[0], start: m.index, end: m.index + m[0].length });
@@ -91,6 +91,42 @@ export function nominalClass(form, prior, { minShare = GRAMMAR_MIN_SHARE } = {})
  * so a downstream consumer (a referent index's admission gate) can
  * accept whichever language's tier fired without knowing which one did.
  */
+/**
+ * groupByStem(items, {minStem, minShare}, keyOf) — the stem-prefix grouping
+ * sanskritBeings/discoverNominalBeings both use, extracted so a second
+ * caller (tacit-corroboration.js) can fold surface variants the same way
+ * without a second copy of the rule. `keyOf(item)` returns the lowercased
+ * form to group by; each returned group is `{stem, items}`.
+ *
+ * BUG FIX (2026-09-23, measured this session): an EXACT repeat of the same
+ * short form (`lcp === len(stem) === len(b)`, e.g. "man" against "man")
+ * used to still require `lcp >= minStem` — impossible for any form under
+ * `minStem` characters, so "man man man" produced three separate
+ * one-occurrence groups under the identical map key instead of one
+ * three-occurrence group (minimal repro: discoverNominalBeings("man man
+ * man", {forms:{man:{NOUN:10}}}, {minOccurrences:2}) returned [] while the
+ * 4-character control "hero hero hero" worked). `minStem` only ever existed
+ * to bound merging of DIFFERENT-but-related inflected forms ("loom" /
+ * "loom's"); an identical form must always merge with itself regardless of
+ * length, so that case is now checked first, unconditionally.
+ */
+export function groupByStem(items, { minStem = 4, minShare } = {}, keyOf = (x) => x.headLower) {
+  const stems = new Map();
+  const assign = (item) => {
+    const b = keyOf(item);
+    for (const [stem, grp] of stems) {
+      if (stem === b) { grp.push(item); return; }
+      const len = Math.min(stem.length, b.length);
+      let lcp = 0;
+      while (lcp < len && stem[lcp] === b[lcp]) lcp += 1;
+      if (lcp >= minStem && lcp / Math.max(stem.length, b.length) >= 0.5) { grp.push(item); return; }
+    }
+    stems.set(b, [item]);
+  };
+  for (const item of items) assign(item);
+  return [...stems.entries()].map(([stem, grp]) => ({ stem, items: grp }));
+}
+
 export function discoverNominalBeings(text, prior, { minOccurrences = 2, minStem = 4, minShare = GRAMMAR_MIN_SHARE } = {}) {
   if (!prior?.forms) return [];
   const toks = tokenize(text);
@@ -100,20 +136,9 @@ export function discoverNominalBeings(text, prior, { minOccurrences = 2, minStem
     if (!cls || !NAMING_CLASSES.has(cls)) continue;
     heads.push({ head: t.raw, headLower: t.w, at: [t.start, t.end] });
   }
-  const stems = new Map();
-  const assign = (ph) => {
-    const b = ph.headLower;
-    for (const [stem, grp] of stems) {
-      const len = Math.min(stem.length, b.length);
-      let lcp = 0;
-      while (lcp < len && stem[lcp] === b[lcp]) lcp += 1;
-      if (lcp >= minStem && lcp / Math.max(stem.length, b.length) >= 0.5) { grp.push(ph); return; }
-    }
-    stems.set(b, [ph]);
-  };
-  for (const h of heads) assign(h);
+  const groups = groupByStem(heads, { minStem, minShare });
   const out = [];
-  for (const [stem, grp] of stems) {
+  for (const { stem, items: grp } of groups) {
     if (grp.length < minOccurrences) continue;
     out.push({ stem, surfaces: [...new Set(grp.map((g) => g.head))], occurrences: grp.length, at: grp[0].at });
   }

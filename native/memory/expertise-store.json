@@ -51,6 +51,40 @@
       ],
       "items": [],
       "confirmedAt": 1790092460882
+    },
+    "white paper": {
+      "revision": 3,
+      "modality": "image",
+      "status": "confirmed",
+      "signedAt": 1790109292650,
+      "occurrences": [
+        {
+          "id": "m9v05u",
+          "source": "live_priors:ntrs-white-papers+gutenberg-excerpt-population",
+          "region": null,
+          "at": 1790109292650,
+          "falsified": false,
+          "basis": "SIG:novel_occurrence"
+        },
+        {
+          "id": "c24xen",
+          "source": "live_priors:ntrs-white-papers+gutenberg-excerpt-population+plurality-fix",
+          "region": null,
+          "at": 1790110740136,
+          "falsified": false,
+          "basis": "SIG:novel_occurrence"
+        },
+        {
+          "id": "2mo7jw",
+          "source": "live_priors:ntrs-white-papers+necessity",
+          "region": null,
+          "at": 1790112174979,
+          "falsified": false,
+          "basis": "SIG:novel_occurrence"
+        }
+      ],
+      "items": [],
+      "confirmedAt": 1790110740137
     }
   }
 }
