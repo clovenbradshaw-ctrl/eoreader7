@@ -1,5 +1,8 @@
 // Handle: Talmy — a claim is a Figure placed against a Ground; the relation is
 // the Pattern. The word order a language uses to say it is a lens, not the claim.
+// See also: the reading-competency audit that ran project()/readBack() against
+// real (non-synthetic) extractor output for the first time —
+// github.com/clovenbradshaw-ctrl/reading-training
 // kernel/gfp-claim.js — A CLAIM AS GROUND · FIGURE · PATTERN, AND ITS SURFACES.
 //
 // The user's direction (2026-09-22): "reasoning linting GFP at its core, and

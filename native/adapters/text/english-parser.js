@@ -1,4 +1,7 @@
 // Handle: Chomsky — a grammar is learned from what was heard, and then it reads what it never heard.
+// See also: the reading-competency audit this file's held-out numbers anchor
+// (74.0% recall / 73.7% precision, SVO-first, vs the live route's 0.9%/18.5%,
+// null-confirmed p=1.9e-43) — github.com/clovenbradshaw-ctrl/reading-training
 // adapters/text/english-parser.js — RAW ENGLISH → UNIVERSAL DEPENDENCIES, mechanically.
 //
 // The rich EOT (kernel/eot-rich.js) takes a Universal Dependencies analysis

@@ -1,4 +1,7 @@
 // english-ladder.mjs — the curriculum, declared. Handle: Sullivan.
+// See also: the reading-competency audit — a sibling grading effort, measured
+// mechanically (a scrambled-order null + Fisher exact test) rather than
+// graded by difficulty rung — github.com/clovenbradshaw-ctrl/reading-training
 //
 // A DIFFERENT axis from this file's own sibling. LAVAR.md's ladder (§4)
 // grades DIFFICULTY: McGuffey's Readers → Aesop/Grimm/Andersen/Potter/Alice

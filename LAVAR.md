@@ -6,6 +6,17 @@
 
 **Constitution:** eo-constitution **II.6** (the book test — LaVar reads the source itself, never a surrogate), **II.2** (every prior LaVar lands names its giver), **II.9** (revision — the autonomy spiral is a witnessed revision of the reader; arrival is never verdict), **II.23** (every null LaVar's canon relies on carries a control built to fail), **III.3** (a missing prior is a typed gap, never a silently wrong number), **IV.4** (every LaVar revision cites the addresses and the entries that produced it). This charter is **agent policy under the constitution**, not an amendment: it changes no constitution text and carries no changed conformance test (IV.1), and per IV.2 it stands proposed for human disposal.
 
+**Related (2026-09-23):** the reading-competency audit at
+[clovenbradshaw-ctrl/reading-training](https://github.com/clovenbradshaw-ctrl/reading-training)
+grades the small reader mechanically rather than as a frontier model —
+no book-length read, but a null (§2.23 discipline: a scrambled-word-order
+control built to fail) applied directly to the SVO/GFP extraction routes
+LaVar's own revisions ultimately depend on. Headline: the route live on
+every session.reader turn measures 0.9% recall on core subject-verb-object
+extraction; the already-built, unwired trained parser measures 74%,
+null-confirmed. Worth reading before LaVar's next pass attributes a
+mistake to the record when the extractor itself never had the words to work with.
+
 ---
 
 ## 1. The problem it exists to solve

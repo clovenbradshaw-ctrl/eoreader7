@@ -303,6 +303,8 @@ the-fold's flat top level under the same basename.
 | `kernel/terrain-activation.js` | Hubel | Reach of the present is local and bounded. |
 | `organs/frame.js` | Alhazen | Declare the frame before comparing results. |
 | `organs/grammar-lens.js` | Thrax | Parts of speech as a giver-named reading. |
+| `kernel/universal-grammar.js` / `kernel/eot-rich.js` / `adapters/text/english-parser.js` | Chomsky | Principles are universal, parameters are set from little input; a grammar learned from what was heard reads what it never heard. Also carries `eval/english/read-english.mjs` and the `eval/udhr/ug-*.mjs` family (declared, not yet in this table before now). |
+| `kernel/gfp-claim.js` | Talmy | A claim is a Figure placed against a Ground; the relation is the Pattern — the word order a language uses to say it is a lens, never the claim. |
 | `eval/lavar/english-ladder.mjs` | Sullivan | The curriculum archon — a language is learned layer by layer, sound before script before pattern before meaning, never by a hack; the connection between a sign and what it names is earned, not assumed. English graded not by difficulty (McGuffey's own ladder) but by when and where it was written — period and region declared on every rung. |
 | `live_priors/scripts/pronunciation.mjs` | Tadoma | An alternate channel onto speech: a real, sha256-pinned IPA+WAV per word, synthesized once and never re-guessed. Cannot yet tell "I read the book yesterday" from "I read books every day" — a word synthesized alone carries no tense, and a spelling standing for more than one sound is disclosed as exactly that, never silently guessed. |
 | `organs/signal.js` | Platanista | Probe, listen; a clean nothing is a result. |
