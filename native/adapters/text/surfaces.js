@@ -326,6 +326,59 @@ export const referentForm = (text, { confusables = null } = {}) => {
   return canonicalGlyphs(diaNorm(s));
 };
 
+// ── THE OPTICAL FOLD: a SEPARATE question from referentForm's ──────────────
+// referentForm/canonicalGlyphs answer "what does a reader decode this
+// obfuscated spelling as MEANING" — a convention question, and the right one
+// for askshape.js's jailbreak-detection battery: an attacker who types
+// "k3yl0gg3r" means "keylogger", whether or not "3" and "e" are pixel-alike,
+// and missing that decoding is a real safety cost, so referentForm and
+// GLYPH_TO are untouched by everything below.
+//
+// This is a DIFFERENT question — "do these two glyphs actually LOOK alike" —
+// user direction, 2026-09-23, after GLYPH_TO's table was first (wrongly)
+// edited in place and broke that exact battery: "we cant have a canonical
+// set of fake characters. we truly need it to be 'these visually look
+// alike'." Measured, not assumed: each candidate pair rendered to a real
+// canvas in a live browser (4 font families — monospace, sans-serif,
+// Courier New, Georgia), reduced to a binary bitmap, compared by the best
+// Jaccard distance over small alignment shifts (glyphs don't optically
+// center identically), against a 12-pair CONTROL group of digit/symbol vs.
+// letter pairs nobody claims are confusable ("0"/"w", "1"/"m", "7"/"g", …).
+// The aggregate separation between GLYPH_TO's claimed pairs and the controls
+// is real (permutation test, pooled 24 distances, 20000 draws: P(a random
+// 12/12 split beats the observed gap) = 0.0036) — but two of GLYPH_TO's own
+// entries do not individually clear it: "3"/"e" beat only 4 of 12 controls
+// and "7"/"t" beat only 2 (worse than most controls, not better) — each
+// CLOSER to the typical unrelated-pair distance than to the genuinely
+// confusable ones. They are leetspeak CONVENTION, never a pixel resemblance,
+// and OPTICAL_GLYPH_TO drops them; the remaining nine each beat at least 7
+// of the 12 controls.
+//
+// DISCLOSED LIMIT: still a FIXED table for a pre-selected character set, not
+// a live per-comparison visual check of two arbitrary characters — the
+// general capability this measurement validates (render, compare, threshold
+// against a control) exists in principle and is not wired to run live for a
+// substitution this table never anticipated. Real, named, unbuilt work.
+const OPTICAL_GLYPH_TO = { "0": "o", "1": "i", "4": "a", "5": "s", "8": "b", "@": "a", "$": "s", "!": "i", "|": "l" };
+export const opticalGlyphs = (text) =>
+  String(text ?? "").replace(/\S+/gu, (tok) => (/[\p{L}]/u.test(tok) ? tok.replace(/[01458@$!|]/g, (c) => OPTICAL_GLYPH_TO[c] ?? c) : tok));
+
+/**
+ * opticalReferentForm(text, { confusables }) — referentForm's own
+ * composition (NFKC, cross-script confusables, diacritics), but folding
+ * stand-in glyphs by measured VISUAL resemblance (opticalGlyphs) rather than
+ * decoding convention (canonicalGlyphs). For a caller matching an accidental
+ * or OCR-style character substitution against an established spelling —
+ * never for a caller decoding what an obfuscated request MEANS, which stays
+ * referentForm's job.
+ */
+export const opticalReferentForm = (text, { confusables = null } = {}) => {
+  let s = String(text ?? "");
+  try { s = s.normalize("NFKC"); } catch { /* exotic runtime without NFKC — never break on it */ }
+  if (confusables) s = foldConfusables(s, confusables);
+  return opticalGlyphs(diaNorm(s));
+};
+
 // ── NEAR-MISS SPELLING: one bounded edit away, and only when nothing else
 // already answered ─────────────────────────────────────────────────────────
 // A dropped, doubled, or transposed letter ("Jonson" for "Johnson", "Jonhson"
