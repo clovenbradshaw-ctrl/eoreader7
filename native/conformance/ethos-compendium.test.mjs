@@ -65,11 +65,20 @@ test("the compendium covers the archons the README's Handle table names", () => 
     "tarski", "kanada", "shizhen", "xunzi", "xushen", "koopman", "hubel",
     "alhazen", "thrax", "platanista", "brillat-savarin", "strunk-white",
     "vonnegut", "koestler", "brandeis", "martial", "saltzer", "popper",
-    "goffman", "ulysses", "levinas", "bourdieu", "yadayadayada",
+    "goffman", "ulysses", "levinas", "bourdieu", "yadayadayada", "kahanamoku",
   ];
   for (const handle of required) {
     const a = archonOf(handle);
     assert.ok(a, `missing compendium entry for archon: ${handle}`);
+  }
+});
+
+test("an alias names the same archon as its handle, and never shadows another handle", () => {
+  assert.strictEqual(archonOf("Duke"), archonOf("kahanamoku"), "Duke is Kahanamoku's alias");
+  assert.strictEqual(archonOf("duke").handle, "kahanamoku");
+  const handles = new Set(ARCHONS.map((a) => String(a.handle).toLowerCase()));
+  for (const a of ARCHONS) for (const x of a.aliases ?? []) {
+    assert.ok(!handles.has(String(x).toLowerCase()), `alias ${x} of ${a.handle} collides with a handle`);
   }
 });
 

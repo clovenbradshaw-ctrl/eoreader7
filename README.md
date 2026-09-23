@@ -227,6 +227,7 @@ the-fold's flat top level under the same basename.
 | `organs/grounding.js` | Mozi | It is in the bytes the eyes and ears can witness, or it isn't. |
 | `organs/quotes.js` | Dai | A quotation is verified to its source or not printed as one. |
 | `organs/source.js` | Nadim | Addressed catalogue; retrieval by where it sits, never by judgment. |
+| `activation-retrieval.js` | Kahanamoku (alias **Duke**) | The archon of the surf — read the water, then ride the wave that is actually there. Owns the whole surf: the frozen lexical surfer the doorway reads through, the doorway's `surfTask`/`contextForTask`, named activation (`activation-retrieval.js`), and the shadow/echo recall (`field-of-record.js`). |
 | `organs/asserted.js` | Dignaga | A word designates by exclusion; a verb is a hypothesis with counted support. |
 | `organs/derivation.js` | Liu Hui | Rests on established premises or doesn't count. |
 | `kernel/refutation.js` | Nagarjuna | Refutes by consequence, asserts nothing. |
