@@ -408,3 +408,33 @@ is the live package's suite.
 ## Frontier-25 and the perceivers' seat (2026-09-05)
 
 READING-SPEC **S76** / the-fold **P115**. `native/adapters/{audio,image,video}/` hold the crossed perceivers (parity: `native/conformance/media-perceiver-parity.test.mjs`); `native/organs/measure.js` reads decoded media as each medium's own series (`native/tests/measure-media.test.js`); `native/eval/the-fold/frontier-25.mjs` runs the twenty-five tasks' zero-call arm and, with `MODELS=`, the mouth arm (`native/tests/frontier-25.test.js` is the enforcement).
+
+## Reading competency audit (2026-09-23)
+
+The reading route actually live on every `session.reader` turn
+(`native/adapters/text/relations-positional.js` + a measured English
+`RoleConfig@1`) measures 0.9% recall / 18.5% precision on core
+subject–verb–object extraction, against 74.0% recall / 73.7% precision for
+the already-built, already-validated trained UD parser
+(`native/adapters/text/english-parser.js`, 95.2 UPOS / 81.2 UAS / 77.0 LAS
+held-out) that sits **unwired**. A scrambled-word-order null confirms the
+74% is real grammatical reading (p = 1.9×10⁻⁴³, `native/eval/the-fold/gfp-
+vs-svo-first.mjs`). At least six materially different relation extractors
+coexist with no shared scoring — the source of prior inconsistent
+"how good are we at reading" answers across sessions.
+
+Shared scoring currency: `native/eval/the-fold/claim-null-scoring.mjs`
+(gold-triple derivation off UD's own universal deprel labels, claim
+matching, the scrambled-order null, Fisher exact test — any reading
+pipeline, any language, scores through this rather than re-deriving its
+own). Cross-lingual extension across 7 treebanks:
+`native/eval/the-fold/gfp-vs-svo-crosslingual.mjs`. A standalone, tested
+(6/6), **unwired** perceiver adapter for a future production repoint:
+`native/adapters/text/english-parser-perceiver.mjs` — held back from
+actually being wired into `createSessionReader` pending sign-off, since
+that changes live behavior for every session's every turn. Commits
+`cc24193..2b399c6` on `main`.
+
+Full report, architecture diagram, and the complete pipeline inventory:
+[clovenbradshaw-ctrl/reading-training](https://github.com/clovenbradshaw-ctrl/reading-training)
+(private).
