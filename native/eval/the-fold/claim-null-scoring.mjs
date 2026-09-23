@@ -24,11 +24,22 @@ import { stemsOf } from "../../adapters/text/morphology.js";
 import { seeded } from "../../adapters/text/english-parser.js";
 
 /** Read a {arg0, rel, arg1} triple off any UD-shaped token array (any
- *  language: upos/deprel/head/id/lemma are UD's own universal labels).
+ *  language: upos/deprel/head/id/lemma/form are UD's own universal labels).
  *  Declared restriction: matrix-clause predicates only (deprel === "root"),
  *  and only when both an nsubj* and an obj/iobj dependent exist -- keeps
- *  the rule deterministic and simple, not tuned per language or per case. */
-export function rootTripleFrom(tokens) {
+ *  the rule deterministic and simple, not tuned per language or per case.
+ *
+ *  `by` picks which column the triple is built from. "lemma" (default) is
+ *  right where the reader's own output carries a lemma (english-parser.js
+ *  does). "form" is surface-to-surface -- the right choice when scoring a
+ *  reader that only ever returns surface tokens (relations-gfp.js,
+ *  relations-positional.js, relations-case-marked.js): it sidesteps a
+ *  language's lemma normalization entirely rather than requiring it first.
+ *  Measured directly (2026-09-23): for Arabic, gold LEMMA is fully
+ *  vocalized while surface text never is, so no surface string can ever
+ *  lemma-match; FORM avoids that by construction. lens-direction.mjs's own
+ *  triplesOf() already does this and gets non-zero cross-lingual matches. */
+export function rootTripleFrom(tokens, { by = "lemma" } = {}) {
   const byHead = new Map();
   for (const t of tokens) {
     if (t.head == null) continue;
@@ -41,7 +52,8 @@ export function rootTripleFrom(tokens) {
   const subj = kids.find((t) => /^nsubj/.test(t.deprel));
   const obj = kids.find((t) => t.deprel === "obj") ?? kids.find((t) => t.deprel === "iobj");
   if (!subj || !obj) return null;
-  return { arg0: subj.lemma, rel: root.lemma, arg1: obj.lemma };
+  const col = by === "form" ? "form" : "lemma";
+  return { arg0: subj[col], rel: root[col], arg1: obj[col] };
 }
 
 /** MATCHING-only surface/lemma equivalence via the house stemsOf suffix

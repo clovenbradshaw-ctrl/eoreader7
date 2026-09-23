@@ -111,9 +111,15 @@ function runCaseMarked(sentTexts) {
   });
 }
 
+// FORM, not lemma: every route here (GFP-first, positional, case-marked)
+// only ever returns surface tokens, and lemma-matching proved unmatchable
+// for languages whose gold lemma is vocalized/normalized differently from
+// surface text (measured directly for Arabic). Surface-to-surface sidesteps
+// per-language lemma normalization rather than requiring it first -- the
+// same choice lens-direction.mjs's own triplesOf() already makes.
 function goldFor(held) {
   return held.map((s) => {
-    const triple = rootTripleFrom(s.tokens);
+    const triple = rootTripleFrom(s.tokens, { by: "form" });
     return triple ? claimFromTriple(triple.arg0, triple.rel, triple.arg1) : null;
   });
 }
