@@ -30,7 +30,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { gfpClaim } from "../native/kernel/gfp-claim.js";
 import { lintGfp } from "../native/organs/reasoning-lint.js";
-import { citeGround, fileUrl } from "../native/organs/ground-cite.js";
+import { citeGround, polarityControl, fileUrl } from "../native/organs/ground-cite.js";
 
 const argv = process.argv.slice(2);
 const outIdx = argv.indexOf("--out");
@@ -43,8 +43,22 @@ const declared = (input.claims ?? []).map((c) => gfpClaim(c));
 const said = (i) => input.claims[i]?.said ?? input.claims[i]?.text ?? null;
 const sources = declared.map((c, i) => citeGround(c, said(i)));
 const gfp = lintGfp(declared, { ...(input.declare ?? {}), strictness: "strict" });
-const errors = gfp.findings.filter((f) => f.severity === "error");
-const warns = gfp.findings.filter((f) => f.severity === "warn");
+// Ground findings and the polarity control, computed here the same way
+// reason.mjs computes them — this is a SEPARATE driver (see this file's
+// own header on why), so it does not inherit them for free. Left out of
+// this Findings section for a real stretch of this file's own history,
+// caught while wiring the guard finding in: a finding nobody can see is
+// not a disclosure.
+const groundFindings = sources
+  .filter((s) => s.verdict === "missing" || s.verdict === "unattributed")
+  .map((s) => ({ kind: `ground_${s.verdict}`, severity: "warn", at: s.ground, detail: s.detail ?? (s.verdict === "missing" ? `no file exists at this ground — expected if this turn is CREATING ${s.ground}; otherwise the address may be wrong` : `${s.file} is real, but this claim's own words do not beat chance against it (score ${s.score ?? 0} vs floor ${s.floor ?? 0}) — the address exists; nothing here confirms this claim's content is actually there`) }));
+const polarityChecks = declared.map((c, i) => sources[i].verdict === "cited" ? polarityControl(c, said(i), sources[i]) : null);
+const guardFindings = polarityChecks
+  .map((pc, i) => (pc?.checked && !pc.reachable) ? { kind: "ground_unreachable_guard", severity: "warn", at: declared[i].ground, detail: `this citation does not distinguish the claim from its own denial — read "cited" as presence in the file, never as support for what the claim says` } : null)
+  .filter(Boolean);
+const allFindings = [...gfp.findings, ...groundFindings, ...guardFindings];
+const errors = allFindings.filter((f) => f.severity === "error");
+const warns = allFindings.filter((f) => f.severity === "warn");
 const cited = sources.filter((s) => s.verdict === "cited");
 const pass = errors.length === 0;
 
@@ -58,11 +72,11 @@ import { render } from "../native/kernel/gfp-claim.js";
 const notationOf = (c) => { try { return render(c, "case-marked"); } catch { return null; } };
 
 function renderCitationTerminal() {
-  const badgeClass = (v) => (v === "cited" ? "cited" : v === "missing" ? "missing" : "unaddressed");
-  const badgeGlyph = (v) => (v === "cited" ? "✓ cited" : v === "missing" ? "✗ missing" : v === "unattributed" ? "? unattributed" : "· " + v);
+  const badgeClass = (v) => (v === "cited" || v === "event" ? "cited" : v === "missing" ? "missing" : "unaddressed");
+  const badgeGlyph = (v) => (v === "cited" ? "✓ cited" : v === "event" ? "✓ event" : v === "missing" ? "✗ missing" : v === "unattributed" ? "? unattributed" : "· " + v);
 
-  const findingsHtml = gfp.findings.length
-    ? gfp.findings.map((f) => `
+  const findingsHtml = allFindings.length
+    ? allFindings.map((f) => `
       <div class="finding">
         <div class="ico">${f.severity === "error" ? "✗" : "⚠"}</div>
         <div>
@@ -88,18 +102,23 @@ function renderCitationTerminal() {
     `  ground: ${s.ground}`,
     s.file ? `  file: ${s.file}${s.line ? `:${s.line}` : ""}` : null,
     s.verdict === "cited" ? `  score: ${s.score} (null floor ${s.floor})` : null,
+    s.verdict === "event" ? `  commit: ${s.hash} in ${s.repo} — ${s.files?.length ?? 0} file(s)` : null,
   ].filter(Boolean).join("\n");
 
   const sourcesHtml = sources.map((s, i) => `
-    <div class="card" draggable="true" data-idx="${i}" data-filter="${esc((rel(s.ground) ?? s.ground) + " " + s.verdict + " " + (s.file ? path.basename(s.file) : "")).toLowerCase()}">
+    <div class="card" draggable="true" data-idx="${i}" data-filter="${esc((rel(s.ground) ?? s.ground) + " " + s.verdict + " " + (s.file ? path.basename(s.file) : s.hash ? s.hash : "")).toLowerCase()}">
       <span class="drag-handle" title="drag to reorder">⠿</span>
       <button class="chatbtn" title="copy a chat-ready reference" data-copy="${esc(chatRefOf(declared[i], s))}">⌘</button>
       <span class="badge ${badgeClass(s.verdict)}">${badgeGlyph(s.verdict)}</span>
       <div class="ground">ground: <b>${esc(rel(s.ground) ?? s.ground)}</b></div>
-      ${s.file
+      ${s.verdict === "event"
+        ? `<button class="locbtn" data-copy="${esc(s.hash)} (${esc(s.repo)})"><span>${esc(s.hash)}</span><span class="copy-ico">⧉ copy</span></button>
+           <div class="dim-line">${s.files?.length ?? 0} file(s) — verified against git directly, no relevance scoring: a commit either happened or it didn't</div>`
+        : s.file
         ? `<button class="locbtn" data-copy="${esc(s.file)}:${s.line ?? "?"}"><span>${esc(path.basename(s.file))}:${s.line ?? "?"}</span><span class="copy-ico">⧉ copy</span></button>
-           ${s.verdict === "cited" ? `<div class="score-row"><span><b>score</b> ${s.score}</span><span><b>floor</b> ${s.floor}</span></div>` : `<div class="dim-line">file exists, this claim's own words did not beat it</div>`}`
-        : `<div class="dim-line">${s.verdict === "missing" ? "no file at this address" : "not a filesystem ground — not a failure"}</div>`}
+           ${s.verdict === "cited" ? `<div class="score-row"><span><b>score</b> ${s.score}</span><span><b>floor</b> ${s.floor}</span></div>` : `<div class="dim-line">file exists, this claim's own words did not beat it</div>`}
+           ${polarityChecks[i]?.checked && !polarityChecks[i].reachable ? `<div class="guard-note">⚑ presence only — not tested against its own denial</div>` : ""}`
+        : `<div class="dim-line">${s.detail ?? (s.verdict === "missing" ? "no file at this address" : "not a filesystem ground — not a failure")}</div>`}
     </div>`).join("");
 
   const recordHtml = declared.length
@@ -173,6 +192,7 @@ function renderCitationTerminal() {
   .locbtn:hover{background:var(--accent-soft);border-color:var(--accent);} .locbtn.copied{border-color:var(--ok);} .locbtn.copied .copy-ico{color:var(--ok);}
   .locbtn .copy-ico{color:var(--text-faint);font-size:11px;flex:0 0 auto;}
   .score-row{display:flex;gap:10px;font-size:11px;color:var(--text-faint);font-family:'IBM Plex Sans',sans-serif;} .score-row b{color:var(--text-dim);font-family:inherit;}
+  .guard-note{font-size:10.5px;color:var(--warn);font-family:'IBM Plex Sans',sans-serif;}
   .dim-line{color:var(--text-faint);font-size:12px;}
   .record{background:var(--record-bg);border:1px solid var(--border-soft);border-radius:8px;padding:16px 18px;font-size:12.5px;overflow-x:auto;}
   .record .rline{white-space:pre;color:var(--text-dim);} .record .rline .g{color:var(--text-faint);} .record .rline .role{color:var(--code-role);} .record .rline .rel{color:var(--accent);}
@@ -189,7 +209,7 @@ function renderCitationTerminal() {
       <div class="stat"><div class="k">Cited</div><div class="v">${cited.length}/${sources.length}</div></div>
       <div class="stat ${pass ? "pass" : "fail"}"><div class="k">Verdict</div><div class="v">${pass ? "OK" : `${errors.length} ERROR(S)`}</div></div>
     </div>
-    <section><h2>Findings — ${gfp.findings.length}</h2>${findingsHtml}</section>
+    <section><h2>Findings — ${allFindings.length}</h2>${findingsHtml}</section>
     <section>
       <h2>Sources — ${cited.length}/${sources.length} cited</h2>
       ${sources.length ? `<div class="filter-row"><input class="filter" id="source-filter" type="text" placeholder="filter by ground, file, or verdict…" autocomplete="off"><span class="filter-count" id="filter-count">${sources.length} shown</span></div>` : ""}

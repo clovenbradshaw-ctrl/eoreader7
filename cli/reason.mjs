@@ -31,8 +31,26 @@ import path from "node:path";
 import { create, all } from "mathjs";
 import { gfpClaim, claimFromTriple, claimKey, caselessIdentity, exactIdentity } from "../native/kernel/gfp-claim.js";
 import { lintGfp, lintInferences, lintLedger } from "../native/organs/reasoning-lint.js";
-import { citeGround, terminalLink } from "../native/organs/ground-cite.js";
+import { citeGround, polarityControl, terminalLink } from "../native/organs/ground-cite.js";
 import { writeReasoningRecord } from "../native/organs/reasoning-record.js";
+
+// STRUCTURAL IDENTITY FOR THE HYPERLEXICON SEAM (reason-claims design part
+// D). `native/organs/hyperlexicon.js`'s own `noteIdentity` contract is
+// `(subject, verb, object) => {subject, verb, object} | null` (it reads
+// `c.subject`/`c.verb`/`c.object` off whatever this returns — a `{end1,
+// label, end2}` shape would silently read as all-undefined and behave as
+// `identity: null`, defeating the seam without ever erroring). NEVER a
+// tuned similarity threshold — this repo's POLICIES.md refuses hand-picked
+// thresholds throughout — just `gfp-claim.js`'s own `caselessIdentity`
+// (NFKC + whitespace collapse + lowercase) applied per component, the same
+// helper this file already imports for `input.identity === "caseless"`.
+// note: `kernel/notes.js`'s OWN default identity (no seam given at all)
+// already trims and lowercases every end — this seam is additive
+// robustness on top of that default (NFKC normalization, INTERNAL
+// whitespace collapse, not only leading/trailing), never what makes a
+// byte-identical or merely-differently-cased repeat fold in the first
+// place; that already holds with no identity function at all.
+const structuralIdentity = (subject, verb, object) => ({ subject: caselessIdentity(subject), verb: caselessIdentity(verb), object: caselessIdentity(object) });
 
 const math = create(all);
 const limitedEvaluate = math.evaluate;
@@ -48,6 +66,37 @@ const input = JSON.parse(file ? fs.readFileSync(file, "utf8") : fs.readFileSync(
 const declared = (input.claims ?? []).map((c) => gfpClaim(c));
 const decl = input.declare ?? {};
 const text = input.text ?? (input.textFile ? fs.readFileSync(input.textFile, "utf8") : null);
+
+// SESSION KEY (2026-09-22, reason-claims design part A/C). `input.session`
+// is an explicit override — a caller (a test, a manual run) names its own
+// session — checked before the environment so it always wins. Otherwise the
+// Claude Code session this process is a child of, when there is one:
+// CLAUDE_CODE_SESSION_ID is set in the Bash tool's own subprocess (verified
+// live: it equals the real session_id a PostToolUse hook event for the SAME
+// command carries, and matches the transcript filename Claude Code names
+// after it), so this file — run as a bare CLI process with no hook JSON in
+// scope — CAN know which session declared a claim without needing one
+// threaded in by hand. `null` when neither is present (a shell outside
+// Claude Code, or a test that wants an explicit "no session" claim).
+//
+// DISCLOSED LIMIT, MEASURED LIVE while building this: this session key is
+// NOT a guaranteed one-conversation silo. A workflow-spawned subagent
+// (CLAUDE_CODE_CHILD_SESSION=1 in this file's own env when it is one) can
+// share CLAUDE_CODE_SESSION_ID — and the SAME transcript file — with a
+// longer-running parent/sibling turn: this exact repo's own
+// documents/claude-code-<sid>:1.jsonl for the session this fix was built
+// under held claims from unrelated prior work under that same id. For an
+// ordinary single-conversation Claude Code session (verified against 29
+// real archived documents/claude-code-*.jsonl files: session_id and the
+// transcript path they were built from are 1:1, no cross-conversation
+// mixing found), the silo is real. The bound is specific to the
+// workflow/subagent deployment mode, not a general defeat of session
+// scoping, and is exactly why `--all-sessions`/`--session <id>` exist on
+// the read side (cli/claude-code-context.mjs) rather than leaving the
+// default the only way to read this ledger.
+const sessionKey = typeof input.session === "string" && input.session.trim()
+  ? input.session.trim()
+  : (process.env.CLAUDE_CODE_SESSION_ID || process.env.CLAUDE_SESSION_ID || null);
 
 // GROUNDING: does each declared claim's own `ground` correspond to real
 // material? The GFP core below checks whether claims agree with EACH OTHER;
@@ -76,9 +125,33 @@ const groundFindings = sources
     kind: `ground_${s.verdict}`,
     severity: "warn",
     at: s.ground,
-    detail: s.verdict === "missing"
+    // s.detail carries a real, specific reason for a commit-ref ground
+    // (citeCommit's own message: no such commit, or not a git repo) — a
+    // "missing" verdict is not always a file, and the generic file-shaped
+    // wording below would misdescribe it.
+    detail: s.detail ?? (s.verdict === "missing"
       ? `no file exists at this ground — expected if this turn is CREATING ${s.ground}; otherwise the address may be wrong`
-      : `${s.file} is real, but this claim's own words do not beat chance against it (score ${s.score ?? 0} vs floor ${s.floor ?? 0}) — the address exists; nothing here confirms this claim's content is actually there`,
+      : `${s.file} is real, but this claim's own words do not beat chance against it (score ${s.score ?? 0} vs floor ${s.floor ?? 0}) — the address exists; nothing here confirms this claim's content is actually there`),
+  }));
+
+// THE CONTROL (2026-09-23, user direction: "think how science does things
+// like this" → the meta-null THE-NULL-STATES.md names as the one to
+// fear — a guard that can never fire and so reads as rigor, found only by
+// asking whether it was ever reached). Every "cited" verdict is retested
+// against its own denial, paired against a same-shaped non-denying
+// control (polarityControl's own header explains why the pair, not just
+// the denial, is required — the naive single-wrapper version reported
+// false positives from dilution alone). `checked: false` for every other
+// verdict is skipped: there is no citation to interrogate.
+const polarityChecks = declared.map((c, i) => sources[i].verdict === "cited" ? polarityControl(c, input.claims[i]?.said ?? input.claims[i]?.text, sources[i]) : null);
+const guardFindings = polarityChecks
+  .map((pc, i) => (pc?.checked && !pc.reachable) ? { pc, ground: declared[i].ground } : null)
+  .filter(Boolean)
+  .map(({ pc, ground }) => ({
+    kind: "ground_unreachable_guard",
+    severity: "warn",
+    at: ground,
+    detail: `this citation does not distinguish the claim from its own denial (${pc.detail}) — read "cited" as presence in the file, never as support for what the claim says`,
   }));
 
 // ── THE FULL MACHINERY, when the reasoning is given as TEXT ─────────────────
@@ -127,8 +200,11 @@ if (text) {
   const R = buildReferents(text);
   resolveName = R.resolveName;
 
-  // The ledger: both voices, each with its witness and its spans.
-  const taskLog = { ...TL, cellOf: cube.cellOf };
+  // The ledger: both voices, each with its witness and its spans. Real
+  // identity through the real seam (design part D) — see structuralIdentity
+  // above — rather than the fabricated/omitted identity this ledger used to
+  // run with; identityGiver names it for the join record.
+  const taskLog = { ...TL, cellOf: cube.cellOf, noteIdentity: structuralIdentity, identityGiver: "gfp-claim:caselessIdentity(subject/verb/object)" };
   hl = makeHyperlexicon(taskLog);
   hlLog = hl.createHyperlexicon({ frame: { reader: "cli/reason", giver: "eoreader7" } });
   hlLog = hl.admit(hlLog, edges.map((e) => ({ subject: e.end1, verb: e.label, object: e.end2, polarity: e.polarity, spans: (e.spans ?? []).map((sp) => ({ at: `reasoning#${sp.start}-${sp.end}`, ref: "reasoning", text: sp.text })) })), { witness: "reader:engine" }).log;
@@ -258,7 +334,7 @@ if (doAnts) {
   }
 }
 
-const findings = [...gfp.findings, ...inf.findings, ...orderFindings, ...unread, ...ledgerFindings, ...antFindings, ...groundFindings];
+const findings = [...gfp.findings, ...inf.findings, ...orderFindings, ...unread, ...ledgerFindings, ...antFindings, ...groundFindings, ...guardFindings];
 const errors = findings.filter((f) => f.severity === "error");
 const vouched = text ? { sentences: sentencesTotal, read: sentencesTotal - unread.length, edges: read.length, declared: declared.length, corroborated } : null;
 // The grounds this run checked — the hooks read them to know which files the
@@ -273,25 +349,47 @@ const grounds = [...new Set(declared.map((c) => c.ground))];
 // process's own invoker, and claude-code-ledger.mjs reading the same Bash
 // tool_response) receives, so it is held to the same rule as the console
 // output below — structure only, never a copied verbatim byte.
-const sourcesOut = sources.map(({ excerpt, ...structural }) => structural);
+const sourcesOut = sources.map(({ excerpt, ...structural }, i) => {
+  const pc = polarityChecks[i];
+  return pc?.checked ? { ...structural, guard: { reachable: pc.reachable, negatedVerdict: pc.negatedVerdict, affirmedVerdict: pc.affirmedVerdict } } : structural;
+});
 const out = { ok: errors.length === 0, errors: errors.length, grounds, findings, vouched, gfp: { counts: gfp.counts, unjudged: gfp.unjudged, apart: gfp.apart, holons: gfp.holons, basis: gfp.basis }, inference: inf.counts, declaredClaims: input.claims ?? [], sources: sourcesOut };
 
-// DURABLE FEED (2026-09-22, additive): when this run was given BOTH `text`
-// and at least one declared claim, fold the hyperlexicon built above (both
-// reader:engine and testimony:claude witnesses — neither dropped) and
-// append it to eoreader7's own document space, durably, so ongoing
-// reasoning feeds the engine's accumulated knowledge and not only this run's
-// own lint findings above. This runs regardless of `out.ok` — a failed run's
-// reasoning is still real reasoning worth keeping — and it never touches
-// `out` itself (computed above already) or throws past this file: a write
-// failure here must never change --json/--compact/plain output or the exit
-// code below. See cli/reasoning-ledger.mjs for what gets written and where,
-// and cli/claude-code-ledger.mjs for the OTHER, separate durable feed
-// (per-session declared claims only) this is deliberately additive beside.
-if (text && declared.length && hl && hlLog) {
+// DURABLE FEED (2026-09-22; widened 2026-09-22 by the reason-claims design).
+// Two independent things get appended to eoreader7's own shared ledger
+// (documents/eoreader7-reasoning:1.jsonl, cli/reasoning-ledger.mjs), neither
+// gating the other:
+//
+//   THE STRUCTURED CLAIMS (design part A/C — THE ROOT-CAUSE FIX): every
+//   declared claim this run made, as-is (ground/rel/roles/said), whenever
+//   there is at least one — regardless of whether `text` was given. Before
+//   this widening the durable feed fired only `if (text && declared.length)`,
+//   so a bare `node cli/reason.mjs spec.json --json` run with claims but no
+//   prose to read — T1's own shape — never reached the ledger at all; the
+//   claims a caller most wants remembered (short, structured, GFP-checked)
+//   were exactly the ones this gate excluded. Read back later, AT READ TIME
+//   and SCOPED, by cli/claude-code-context.mjs (design part C/D) — this file
+//   only ever appends, never folds across runs.
+//
+//   THE FOLDED HYPERLEXICON NOTES (unchanged, additive as of the original
+//   2026-09-22 wiring): only when this run was given `text` to read, so
+//   `hl`/`hlLog` exist — both reader:engine and testimony:claude witnesses,
+//   neither dropped, folded WITHIN this one run and appended as a separate
+//   record of what this run's own reading and declaring agreed on.
+//
+// This runs regardless of `out.ok` — a failed run's reasoning is still real
+// reasoning worth keeping — and it never touches `out` itself (computed
+// above already) or throws past this file: a write failure here must never
+// change --json/--compact/plain output or the exit code below. See
+// cli/reasoning-ledger.mjs for what gets written and where, and
+// cli/claude-code-ledger.mjs for the OTHER, separate per-session audit trail
+// (never the claims store as of this widening — see its own header) this is
+// deliberately additive beside.
+if (declared.length || (text && hl && hlLog)) {
   try {
     const { appendReasoningLedger } = await import("./reasoning-ledger.mjs");
-    appendReasoningLedger({ hl, log: hlLog, runAt: new Date().toISOString(), cwd: process.cwd(), grounds, ok: out.ok, errors: out.errors });
+    const declaredClaimsOut = declared.map((c, i) => ({ ground: c.ground, rel: c.rel, roles: c.roles, said: input.claims[i]?.said ?? input.claims[i]?.text ?? null }));
+    appendReasoningLedger({ hl, log: hlLog, declaredClaims: declaredClaimsOut, session: sessionKey, runAt: new Date().toISOString(), cwd: process.cwd(), grounds, ok: out.ok, errors: out.errors });
   } catch { /* additive only; the verdict and every field of `out` above stand without it */ }
 }
 
@@ -309,7 +407,7 @@ try {
 // paraphrase it as. See native/organs/reasoning-record.js's own header.
 const recordPath = writeReasoningRecord({ claims: declared, findings, sources: sourcesOut });
 const cited = sources.filter((s) => s.verdict === "cited");
-const citationLine = (s) => `    ${s.verdict === "cited" ? "✓ cited" : s.verdict === "unattributed" ? "? unattributed" : s.verdict === "missing" ? "✗ missing" : "· " + s.verdict}  ${s.ground}${s.file ? `  →  ${terminalLink(`${s.file}:${s.line ?? "?"}`, s.url)}` : ""}`;
+const citationLine = (s) => `    ${s.verdict === "cited" ? "✓ cited" : s.verdict === "event" ? "✓ event" : s.verdict === "unattributed" ? "? unattributed" : s.verdict === "missing" ? "✗ missing" : "· " + s.verdict}  ${s.ground}${s.file ? `  →  ${terminalLink(`${s.file}:${s.line ?? "?"}`, s.url)}` : s.verdict === "event" ? `  →  ${s.hash} (${s.files?.length ?? 0} file(s) in ${s.repo})` : ""}`;
 
 if (asJson) console.log(JSON.stringify(out, null, 1));
 else if (compact) {

@@ -30,7 +30,11 @@
 // citation meant for a human to click needs both.
 //
 // Pure-ish: fs reads only (real files, real bytes), no model, no network.
+// The one exception is commit-ref grounds (below): those shell out to git,
+// the actual source of truth for "did this happen," with argv arrays only
+// — never a shell string a hash could inject into.
 import fs from "node:fs";
+import { execFileSync } from "node:child_process";
 import { holon, ancestry } from "../kernel/gfp-claim.js";
 import { chunkSource, tokenize } from "./source.js";
 import { attribute } from "./cite.js";
@@ -84,6 +88,72 @@ function lineAt(text, offset) {
   let line = 1;
   for (let i = 0; i < offset && i < text.length; i++) if (text[i] === "\n") line++;
   return line;
+}
+
+// ── EVENT CLAIMS: "committed as X" is not a file claim ─────────────────────
+// A claim like "commit bb97e4b contains exactly these six files" has its
+// own real, checkable ground — but the ground is git's history, not a byte
+// range in a file, and a claim like this used to come back `ground_missing`
+// (measured live, 2026-09-23: "no file exists at this ground — expected if
+// this turn is CREATING /git/archon-holocracy/8582fff"), which is a category
+// error: nothing was ever going to be a file there. `commit:<repo>#<hash>`
+// is an explicit, DECLARED convention (never sniffed from a bare-looking hex
+// string, which risks a false match) — the same `path#ref` shape every other
+// ground in this file already uses, one register over.
+//
+// Why git itself, not a relation-reader pass over the commit message: tried
+// that path first for a broader "event claims" check (hypergraph.js's
+// engineRelationsFor) and measured it dead for this material before writing
+// any of this — 0 relations on this very file's own header, 0 on a plain
+// claim sentence, and the one file that returned anything gave only shallow
+// copulas, never a verb relation that could tell "supports" from
+// "contradicts." Git needs none of that: a commit either exists or it
+// doesn't, and `--stat` gives real, structured file/line counts with zero
+// NLP. Structural only, same rule as everything else here: the commit
+// MESSAGE's free text is never read back, only file paths and counts.
+//
+// THE FORMAT IS "/commit/<repo-abs-path>#<hash>", not "commit:<repo>#<hash>".
+// Measured live, 2026-09-23: gfp-claim.js's own gfpClaim() unconditionally
+// runs every ground through holon(), which prepends "/" to anything not
+// already absolute — silently turning "commit:/Users/..." into
+// "/commit:/Users/...#hash" and breaking a "^commit:" anchor before this
+// function ever saw the string. "/commit" plus an already-absolute repo
+// path collapses through that SAME holon() cleanly (its own segment filter
+// drops the doubled slash), so this format survives the constructor every
+// claim already goes through instead of fighting it.
+const COMMIT_REF_RE = /^\/commit\/(.+)#([0-9a-f]{7,40})$/i;
+
+export function looksLikeCommitRef(ground) {
+  return COMMIT_REF_RE.test(String(ground ?? ""));
+}
+
+function git(repo, args) {
+  return execFileSync("git", ["-C", repo, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+}
+
+/**
+ * citeCommit(repo, hash) — does this commit exist in this repo, and what did
+ * it actually touch? `cat-file -e` is the existence check (git's own, not
+ * reimplemented); `--stat --name-only` gives the real file list and
+ * insertion/deletion counts. Never reads the commit MESSAGE body — only
+ * structural facts (files touched, lines changed), the same discipline the
+ * file-citation path holds for a file's own prose.
+ */
+export function citeCommit(repo, hash) {
+  if (!fs.existsSync(repo) || !fs.existsSync(`${repo}/.git`)) {
+    return { verdict: "missing", detail: `${repo} is not a real git repository` };
+  }
+  try {
+    git(repo, ["cat-file", "-e", hash]);
+  } catch {
+    return { verdict: "missing", detail: `no commit ${hash} in ${repo}` };
+  }
+  let files = [], stat = "";
+  try {
+    files = git(repo, ["show", "--name-only", "--format=", hash]).split("\n").filter(Boolean);
+    stat = git(repo, ["show", "--stat", "--format=", hash]).trim().split("\n").pop() ?? "";
+  } catch { /* existence already confirmed; a stat failure just leaves these empty, disclosed by their own emptiness */ }
+  return { verdict: "event", repo, hash, files, stat };
 }
 
 /** A file:// URL a terminal (OSC 8) or editor can open at the right line. */
@@ -160,6 +230,14 @@ function readAndChunk(file) {
 
 export function citeGround(claim, said) {
   const text = [claim.rel, ...Object.values(claim.roles ?? {}), said].filter(Boolean).join(" ");
+  const commitMatch = COMMIT_REF_RE.exec(String(claim.ground ?? ""));
+  if (commitMatch) {
+    // The matched repo segment lost its own leading "/" to holon()'s
+    // collapse (see this constant's own header) — restored here, the one
+    // place that reconstruction needs to happen.
+    const [, repoSegment, hash] = commitMatch;
+    return { ground: claim.ground, ...citeCommit(`/${repoSegment}`, hash) };
+  }
   const file = resolveGroundFile(claim.ground);
   if (!file) {
     return {
@@ -201,5 +279,73 @@ export function citeGround(claim, said) {
     excerpt: (hitAt >= 0 ? chunkLines[hitAt] : body.slice(start, end)).trim().slice(0, 240),
     score,
     floor,
+  };
+}
+
+/**
+ * A mechanical wrapper around a claim's text — no NLG, no model, no
+ * attempt at grammatical correctness (the scorer below is bag-of-words
+ * and does not need one). `negating: true` flips polarity and marks the
+ * words with a denial wrapper; `negating: false` applies a same-shaped
+ * wrapper that does NOT deny anything, as a paired control.
+ *
+ * BOTH VARIANTS EXIST BECAUSE ONE ALONE LIES. First version of this
+ * function had only the negating wrapper, and it "worked" — negating a
+ * real claim (native/organs/ground-cite.js's own self-citation) flipped
+ * `cited` to `unattributed`. Measured before trusting that: an
+ * AFFIRMING wrapper of the identical shape ("AFFIRM(rel)" / "THE CLAIM:
+ * said", no denial anywhere in it) flipped the SAME verdict the SAME
+ * way. The flip was dilution — any added, non-matching words can push a
+ * marginal citation below its null floor — not negation-detection. A
+ * control built from the negating wrapper alone would have reported
+ * "reachable: true" as false reassurance that this checker caught
+ * something it structurally cannot see: `citeGround`'s scored text is
+ * `[rel, ...roles, said].join(" ")`, `claim.polarity` never enters it,
+ * and source.js's own STOPWORDS list strips both "not" and "no" before
+ * overlap is even scored.
+ */
+function polarityVariant(claim, said, { negating }) {
+  return {
+    claim: { ...claim, rel: `${negating ? "NEG" : "AFFIRM"}(${claim.rel})`, polarity: negating ? (claim.polarity === "-" ? "+" : "-") : claim.polarity },
+    said: said ? `${negating ? "THE DENIAL" : "THE CLAIM"}: ${said}` : said,
+  };
+}
+
+/**
+ * polarityControl(claim, said, originalResult?) — the paired test: rerun
+ * citeGround on the claim's denial AND on a same-shaped non-denying
+ * control, and report the guard reachable only when they disagree.
+ * `originalResult` lets a caller that already ran citeGround once
+ * (reason.mjs always has) pass it in rather than repeating that call.
+ *
+ * THE-NULL-STATES.md names the failure this checks for: "The meta-null is
+ * the one to fear. EVA·Figure's unreachable guard is the null of the
+ * instrument rather than of the material — a wall that is a comment. It
+ * is found only by asking whether the wall was ever reached."
+ * `reachable: false` is that answer, and — per this function's own
+ * header — it is the expected, honest answer on nearly every claim: a
+ * "cited" verdict here means presence, never support, the exact
+ * distinction CON·Figure's relation-binding check (hypergraph.js) exists
+ * to make and this lexical one structurally cannot.
+ *
+ * Only meaningful for a "cited" verdict (`checked: false` otherwise — a
+ * missing/unaddressed/unattributed ground has no citation to interrogate).
+ */
+export function polarityControl(claim, said, originalResult = null) {
+  const original = originalResult ?? citeGround(claim, said);
+  if (original.verdict !== "cited") return { checked: false, reason: "control only applies to a cited verdict" };
+  const neg = polarityVariant(claim, said, { negating: true });
+  const aff = polarityVariant(claim, said, { negating: false });
+  const negated = citeGround(neg.claim, neg.said);
+  const affirmed = citeGround(aff.claim, aff.said);
+  const reachable = negated.verdict !== affirmed.verdict || negated.ref !== affirmed.ref;
+  return {
+    checked: true,
+    reachable,
+    negatedVerdict: negated.verdict,
+    affirmedVerdict: affirmed.verdict,
+    detail: reachable
+      ? "negating this claim changed the verdict differently than a same-shaped non-negating rewrite did — the closest evidence this lexical check can give that it saw the difference"
+      : "negating this claim changed the verdict exactly the way a same-shaped non-negating rewrite did (or neither changed) — this checker cannot distinguish this claim from its own denial; a cited verdict here means presence, never support",
   };
 }
