@@ -345,6 +345,15 @@ export const CAPACITIES = Object.freeze([
   }),
 
   Object.freeze({
+    id: "grain",
+    terrain: "Void",
+    op: "NUL",
+    module: "eoreader7/native/adapters/text/existence-grain.js",
+    fn: "existenceGrains",
+    what: "which recurring forms may leave the Void, and to which Existence grain: Kind only on an elimination cue that fired above its own word-shuffle null (or the received prior's settlement, or a declared orthographic rule), Entity only on positive naming evidence, a typed Contest on both, Void on neither. Different from `kindnull` (NUL·Kind), which challenges a declared membership among already-individuated entities; this decides whether a surface form is an individual at all. The default cue set is the one Sullivan's swarm learned (eval/lavar/sullivan-learn.mjs). Measured 2026-09-23: zero real names killed in Doctor Faustus, Henry IV Part 1 and Antigone.",
+  }),
+
+  Object.freeze({
     id: "regime",
     terrain: "Atmosphere",
     op: "REC",

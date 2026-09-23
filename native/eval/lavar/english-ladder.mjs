@@ -230,3 +230,97 @@ export function rungFor(id) {
 export function isMeasured(id) {
   return Boolean(rungFor(id)?.measured);
 }
+
+// ── THEORIES — how Sullivan learns, stated so each can be wrong ────────────
+// Developed 2026-09-22/23 over Doctor Faustus, Henry IV Part 1 (modern,
+// Folio, French, German) and Sophocles' Antigone, on one question: how does
+// a reader tell a proper noun (an Entity) from a common noun (a Kind)
+// without an answer key? Each theory names its status (measured /
+// declared-unbuilt), what would falsify it, and what was measured. The
+// organ is adapters/text/existence-grain.js; the learning run is
+// eval/lavar/sullivan-learn.mjs (results/sullivan-learn.json).
+export const THEORIES = Object.freeze([
+  Object.freeze({
+    id: "elimination-before-admission",
+    claim: "A name is found first by what it refuses: remove forms that take determiners, that the received prior has settled into an ordinary class, or that are written lowercase where capitals are not forced; what remains and carries naming evidence is Entity.",
+    cell: "NUL·Ground (Void) deciding toward NUL·Pattern (Kind) or INS·Figure (Entity)",
+    status: "measured",
+    falsifier: "any elimination cue killing a real name",
+    measured: "E1 kind-frame, E2 prior-settled and E3 lowercase-midline killed 0 of 44 witness names across both English plays and 0 of 15 in Antigone, while the learned cues removed 1,468 of 1,689 recurring forms in Faustus.",
+  }),
+  Object.freeze({
+    id: "licensing",
+    claim: "A resolution counts only when licensed: Kind on a cue that fired above its own null, Entity on positive naming evidence, both at once a typed Contest, neither the Void. Surviving is not evidence.",
+    cell: "NUL·Ground",
+    status: "measured",
+    falsifier: "a golden-free fitness that tracks the witness no better with licensing than without",
+    measured: "Unlicensed split-half fitness was degenerate — the no-organ config scored a perfect 1.000 and Spearman(fitness, witness F1) was 0.25. Licensed: 0.591 (Faustus), 0.568 (Henry IV); 0.065 in Antigone, where orthography does all the work and the landscape is flat.",
+  }),
+  Object.freeze({
+    id: "frame-marks-kind",
+    claim: "The toddler's cue ('this is Zav' vs 'this is a zav') marks the Kind grain: a form that takes determiners beyond chance is a kind. Absence of determiners is not evidence of a name — function words avoid them too.",
+    source: "developmental acquisition literature (Katz, Baker & Macnamara's extension paradigm) — recalled, not verified against a primary source this session; the measurement is this project's own",
+    status: "measured",
+    falsifier: "a real name on the determiner-taking side",
+    measured: "0 of 15 Faustus names and 0 of 14 Antigone names take determiners beyond the word-shuffle null's bar; 167 Faustus forms do (history, world, goblet, house), vs 7 in the shuffled copy. The avoiding side mixes names with and/to/of/thou.",
+  }),
+  Object.freeze({
+    id: "recurrence-is-frequency",
+    claim: "Raw recurrence is salience (SIG·Pattern), not evidence of an individual: a word-shuffle keeps every form's frequency, so recurrence survives the null. What shuffling destroys — burstiness — is structural.",
+    status: "measured",
+    falsifier: "recurrence counts that differ between a text and its word-shuffle",
+    measured: "Characters are the burstiest forms (Antigone: Haemon 0.59, Teiresias 0.62, Ismene 0.67 vs median 0.94; Faustus: Wagner 0.56, Robin 0.60). The protagonist is the exception in both languages — everywhere, so not bursty (Kreon 0.84, Faustus 0.91).",
+  }),
+  Object.freeze({
+    id: "no-null-acceptance-without-power",
+    claim: "Accepting a null ('no burstier than chance') without the power to reject it kills rare names; such a kill is reported as Kind* and never licensed.",
+    status: "measured",
+    falsifier: "the raw dispersion kill sparing every rare name",
+    measured: "It killed 9 witness names across the two English plays (Walter, Northumberland, Edmund, Scroop, Archibald, Richard, England, Alexander, Belzebub) and 9 in Antigone (Zeus, Oedipus, Eteocles, Polyneices, inflected Kreon forms). Wilson's swarm, under the licensed fitness, never kept it.",
+  }),
+  Object.freeze({
+    id: "universal-vs-particular",
+    claim: "With Chomsky: the Entity/Kind distinction is universal; its markers are not. The article frame is conditional on a word-level article system and register-particular in direction (Attic prose puts the article on names; verse and English do not). Capitalisation is particular to an orthography (this Greek edition capitalises only names; German every noun; caseless scripts none). The prior-settlement rule is universal, its reach coverage-dependent.",
+    status: "measured on two cased scripts; UNRUN on a caseless one",
+    falsifier: "a cue speaking on material that lacks the property it depends on",
+    measured: "The strongest cue in all three texts is orthographic (E3), so the learned default is strongest exactly where it is least universal. The frame cue speaks in English (171 vs 7 null exceedances in Henry IV) and Greek (29 vs 4). No caseless test yet — named, not assumed.",
+  }),
+  Object.freeze({
+    id: "swarm-learns-the-cues",
+    claim: "Which cues to trust is learned, not chosen: Wilson's swarm searches the organ configurations under a golden-free fitness and keeps a birth only on bornAcceptance over the colony's own improvements.",
+    status: "measured",
+    falsifier: "different English plays converging on different champions",
+    measured: "Both English plays converged independently on E2+E3 by the same lineage (seed E3, E2+E3 kept at generation 1); Antigone on E3 alone. Champion kills: 0 in all three.",
+  }),
+  Object.freeze({
+    id: "the-golden-is-a-witness",
+    claim: "A golden is one witness with a scope, never an oracle; proper-noun status belongs to an occurrence, not a form, so every form-level golden is wrong on homographs. Never tune against it.",
+    status: "measured",
+    falsifier: "a golden whose correction changes the learned conclusions",
+    measured: "Henry IV audit against Wikipedia's independent cast list: the Dramatis-Personae witness was correct but incomplete — it missed Hal, Harry, Ned, Kate, Francis and more. Correcting it moved the precision floor 0.265 -> 0.324 and left the champion, zero kills and Spearman (0.568 -> 0.566) unchanged. The config the corrected witness itself scores best kills 8 of 35 real names. Wikipedia's own capitalisation is wrong for this text (Coward, Power, Thief — surnames and titles there, lowercase nouns here).",
+  }),
+  Object.freeze({
+    id: "translation-as-teacher",
+    claim: "A personal name usually survives translation; a common word does not.",
+    status: "measured, not relied on",
+    falsifier: "names and common words surviving translation at the same rate",
+    measured: "Survival into both the French (Guizot) and German (Wieland) editions separates Henry IV's names at AUC 0.946 vs 0.802 for raw frequency; misses are exonyms (Henry/Henri/Heinrich). Recorded and set aside by direction: a translation will rarely exist.",
+  }),
+  Object.freeze({
+    id: "extension-test",
+    claim: "A label that keeps pointing at one persisting individual is a name; one that recurs across many individuals is a kind — the infant's object-tracking root of 'identity does not decay'.",
+    status: "declared-unbuilt",
+    falsifier: "a name whose occurrences resolve to several individuals",
+    measured: null,
+  }),
+  Object.freeze({
+    id: "measured-activation-window",
+    claim: "The dispersion floor (minSeparation 200) is a declared constant; kernel/activation.js's dmdWindow should measure it from the material instead.",
+    status: "declared-unbuilt",
+    falsifier: "the measured window agreeing with 200 on every text",
+    measured: null,
+  }),
+]);
+
+/** theoryFor(id) — one theory by id, or null. */
+export const theoryFor = (id) => THEORIES.find((t) => t.id === id) ?? null;

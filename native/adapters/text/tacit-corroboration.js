@@ -49,6 +49,15 @@
 // the caller pre-folds. Named here as real, disclosed scope, not silently
 // assumed solved by nominal-beings.js's stem-grouping machinery, which
 // this file could layer on top of later but does not yet.
+//
+// MEASURED AGAINST WILSON'S NULL (2026-09-23). A word-shuffle of the same
+// text (null-arm.mjs's null) keeps every form's frequency, so raw
+// recurrence fires almost as hard on structureless noise as on the play:
+// it is salience (SIG·Pattern), not evidence that a form names an
+// individual. Only what shuffling destroys — burstiness, determiner frame,
+// position — carries structure. Faustus ranks first here because it is
+// the most-said word, not because anything here knows it is a name; the
+// licensed Entity/Kind decision is adapters/text/existence-grain.js.
 
 import { tokenize, nominalClass } from "./nominal-beings.js";
 import { signProvisionalKind, corroboration, confirmKind, CANONICALIZATION_FLOOR } from "../../kernel/corroboration.js";

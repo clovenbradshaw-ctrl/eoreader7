@@ -1,0 +1,686 @@
+{
+  "schema": "SullivanLearn@1",
+  "at": "2026-09-23",
+  "fitness": "split-half consistent licensed resolution (golden-free)",
+  "results": [
+    {
+      "witnessBefore": null,
+      "text": "faustus",
+      "configs": 144,
+      "births": 14,
+      "generations": 3,
+      "elenchusBar": 2.220446049250313e-16,
+      "speaks": {
+        "E1all": true,
+        "E1run": true,
+        "E3": true,
+        "E6": true
+      },
+      "champion": {
+        "cues": "E2+E3",
+        "fitness": 0.8902,
+        "witness": {
+          "present": 15,
+          "hit": 14,
+          "killed": 0,
+          "contested": 0,
+          "voided": 1,
+          "entity": 101,
+          "precisionLowerBound": 0.139,
+          "recall": 0.933,
+          "F1": 0.241
+        }
+      },
+      "lineage": [
+        {
+          "gen": 0,
+          "kept": "E3",
+          "f": 0.8091
+        },
+        {
+          "gen": 1,
+          "kept": "E2+E3",
+          "f": 0.8902
+        }
+      ],
+      "terrainChampions": {
+        "Kind": {
+          "cues": "E2+E3",
+          "fitness": 0.8902
+        },
+        "Void": {
+          "cues": "E4:cal",
+          "fitness": 0.2053
+        }
+      },
+      "feelTracksWitness": {
+        "spearmanF1": 0.59133089048727,
+        "spearmanNotKilling": 0.3058769123749553
+      },
+      "witnessFavourite": {
+        "cues": "E1:all+E2+E3+E4:raw+E5+E6",
+        "fitness": 0.8711,
+        "witness": {
+          "present": 15,
+          "hit": 12,
+          "killed": 2,
+          "contested": 0,
+          "voided": 1,
+          "entity": 40,
+          "precisionLowerBound": 0.3,
+          "recall": 0.8,
+          "F1": 0.436
+        }
+      },
+      "grains": {
+        "Entity": {
+          "count": 101,
+          "top": [
+            "faustus",
+            "mephistophilis",
+            "i'll",
+            "wagner",
+            "god",
+            "lucifer",
+            "2to",
+            "robin",
+            "exeunt",
+            "ralph",
+            "courser",
+            "sig",
+            "duke",
+            "vile",
+            "devils",
+            "vintner",
+            "pope",
+            "dr",
+            "valdes",
+            "alexander",
+            "cornelius",
+            "helen",
+            "vild",
+            "qy",
+            "vanholt",
+            "scholars",
+            "belzebub",
+            "faustus'",
+            "christ",
+            "germany",
+            "friars",
+            "wertenberg",
+            "tamburlaine",
+            "duchess",
+            "rome",
+            "cardinal",
+            "rutters",
+            "lechery",
+            "friar",
+            "belcher"
+          ]
+        },
+        "Kind": {
+          "count": 1468,
+          "top": [
+            "the",
+            "and",
+            "of",
+            "to",
+            "in",
+            "a",
+            "that",
+            "is",
+            "his",
+            "my",
+            "with",
+            "me",
+            "not",
+            "for",
+            "you",
+            "he",
+            "thou",
+            "this",
+            "be",
+            "but",
+            "it",
+            "have",
+            "as",
+            "all",
+            "what",
+            "him",
+            "thee",
+            "will",
+            "4tos",
+            "shall",
+            "they",
+            "now",
+            "by",
+            "from",
+            "later",
+            "enter",
+            "which",
+            "or",
+            "c",
+            "was"
+          ]
+        },
+        "Kind*": {
+          "count": 0,
+          "top": []
+        },
+        "Contest": {
+          "count": 33,
+          "top": [
+            "i",
+            "so",
+            "doctor",
+            "how",
+            "o",
+            "man",
+            "horse",
+            "old",
+            "history",
+            "emperor",
+            "master",
+            "scholar",
+            "angel",
+            "clown",
+            "second",
+            "scene",
+            "evil",
+            "chorus",
+            "aside",
+            "part",
+            "seven",
+            "sins",
+            "deadly",
+            "german",
+            "angels",
+            "saviour",
+            "writes",
+            "blow",
+            "took",
+            "wild",
+            "dragon",
+            "french",
+            "paradise"
+          ]
+        },
+        "Void": {
+          "count": 87,
+          "top": [
+            "footnote",
+            "mephist",
+            "lord",
+            "knight",
+            "both",
+            "1648",
+            "paramour",
+            "majesty",
+            "prince",
+            "right",
+            "chamber",
+            "sera",
+            "court",
+            "maledicat",
+            "g",
+            "d",
+            "baliol",
+            "tush",
+            "tut",
+            "mistress",
+            "monarch",
+            "lente",
+            "b",
+            "ubi",
+            "jove",
+            "qui",
+            "fuge",
+            "east",
+            "l",
+            "snatches",
+            "ape",
+            "beholding",
+            "tu",
+            "bene",
+            "analytics",
+            "whereby",
+            "couldst",
+            "stipendium",
+            "che",
+            "stretcheth"
+          ]
+        }
+      }
+    },
+    {
+      "witnessBefore": {
+        "champion": {
+          "present": 29,
+          "hit": 27,
+          "killed": 0,
+          "contested": 0,
+          "voided": 2,
+          "entity": 102,
+          "precisionLowerBound": 0.265,
+          "recall": 0.931,
+          "F1": 0.412
+        },
+        "spearmanF1": 0.5684547915527995
+      },
+      "text": "henry-iv-modern",
+      "configs": 144,
+      "births": 14,
+      "generations": 3,
+      "elenchusBar": 2.220446049250313e-16,
+      "speaks": {
+        "E1all": true,
+        "E1run": true,
+        "E3": true,
+        "E6": true
+      },
+      "champion": {
+        "cues": "E2+E3",
+        "fitness": 0.9401,
+        "witness": {
+          "present": 35,
+          "hit": 33,
+          "killed": 0,
+          "contested": 0,
+          "voided": 2,
+          "entity": 102,
+          "precisionLowerBound": 0.324,
+          "recall": 0.943,
+          "F1": 0.482
+        }
+      },
+      "lineage": [
+        {
+          "gen": 0,
+          "kept": "E3",
+          "f": 0.9155
+        },
+        {
+          "gen": 1,
+          "kept": "E2+E3",
+          "f": 0.9401
+        }
+      ],
+      "terrainChampions": {
+        "Kind": {
+          "cues": "E2+E3",
+          "fitness": 0.9401
+        },
+        "Void": {
+          "cues": "E4:cal",
+          "fitness": 0.2535
+        }
+      },
+      "feelTracksWitness": {
+        "spearmanF1": 0.5659955775789238,
+        "spearmanNotKilling": 0.24566144297000234
+      },
+      "witnessFavourite": {
+        "cues": "E1:run+E2+E3+E4:raw+E5",
+        "fitness": 0.9014,
+        "witness": {
+          "present": 35,
+          "hit": 27,
+          "killed": 8,
+          "contested": 0,
+          "voided": 0,
+          "entity": 46,
+          "precisionLowerBound": 0.587,
+          "recall": 0.771,
+          "F1": 0.667
+        }
+      },
+      "grains": {
+        "Entity": {
+          "count": 102,
+          "top": [
+            "prince",
+            "falstaff",
+            "lord",
+            "hotspur",
+            "i’ll",
+            "sir",
+            "percy",
+            "worcester",
+            "poins",
+            "douglas",
+            "mortimer",
+            "glendower",
+            "john",
+            "god",
+            "francis",
+            "hal",
+            "bardolph",
+            "harry",
+            "jack",
+            "henry",
+            "westmoreland",
+            "blunt",
+            "gadshill",
+            "vernon",
+            "wales",
+            "lancaster",
+            "northumberland",
+            "peto",
+            "grace",
+            "earl",
+            "earth",
+            "welsh",
+            "march",
+            "york",
+            "walter",
+            "england",
+            "scot",
+            "majesty",
+            "shrewsbury",
+            "michael"
+          ]
+        },
+        "Kind": {
+          "count": 1557,
+          "top": [
+            "the",
+            "and",
+            "of",
+            "a",
+            "to",
+            "in",
+            "my",
+            "you",
+            "not",
+            "that",
+            "thou",
+            "as",
+            "me",
+            "is",
+            "for",
+            "it",
+            "he",
+            "with",
+            "be",
+            "this",
+            "but",
+            "his",
+            "so",
+            "have",
+            "him",
+            "what",
+            "will",
+            "shall",
+            "all",
+            "your",
+            "by",
+            "if",
+            "no",
+            "on",
+            "thy",
+            "we",
+            "thee",
+            "our",
+            "do",
+            "at"
+          ]
+        },
+        "Kind*": {
+          "count": 0,
+          "top": []
+        },
+        "Contest": {
+          "count": 28,
+          "top": [
+            "i",
+            "king",
+            "hostess",
+            "lady",
+            "part",
+            "room",
+            "carrier",
+            "ii",
+            "iii",
+            "tavern",
+            "field",
+            "servant",
+            "palace",
+            "iv",
+            "rebel",
+            "road",
+            "v",
+            "holy",
+            "irish",
+            "yard",
+            "carriers",
+            "travellers",
+            "queen",
+            "fourth",
+            "apartment",
+            "camps",
+            "scottish",
+            "christian"
+          ]
+        },
+        "Void": {
+          "count": 27,
+          "top": [
+            "anon",
+            "lay",
+            "hill",
+            "lords",
+            "court",
+            "’sblood",
+            "cross",
+            "north",
+            "castle",
+            "knight",
+            "rochester",
+            "edmund",
+            "fie",
+            "warkworth",
+            "bangor",
+            "archibald",
+            "mistress",
+            "gad’s",
+            "paunch",
+            "thursday",
+            "tallow",
+            "nether",
+            "titan",
+            "maid",
+            "they’ll",
+            "alarums",
+            "embowell’d"
+          ]
+        }
+      }
+    },
+    {
+      "witnessBefore": null,
+      "text": "antigone",
+      "configs": 144,
+      "births": 8,
+      "generations": 2,
+      "elenchusBar": 0.020000000000000018,
+      "speaks": {
+        "E1all": true,
+        "E1run": true,
+        "E3": true,
+        "E6": true
+      },
+      "champion": {
+        "cues": "E3",
+        "fitness": 0.96,
+        "witness": {
+          "present": 15,
+          "hit": 8,
+          "killed": 0,
+          "contested": 0,
+          "voided": 7,
+          "entity": 23,
+          "precisionLowerBound": 0.348,
+          "recall": 0.533,
+          "F1": 0.421
+        }
+      },
+      "lineage": [
+        {
+          "gen": 0,
+          "kept": "E3",
+          "f": 0.96
+        }
+      ],
+      "terrainChampions": {
+        "Kind": {
+          "cues": "E3",
+          "fitness": 0.96
+        },
+        "Void": {
+          "cues": "E4:cal",
+          "fitness": 0.01
+        }
+      },
+      "feelTracksWitness": {
+        "spearmanF1": 0.06510739527757038,
+        "spearmanNotKilling": 0
+      },
+      "witnessFavourite": {
+        "cues": "E2",
+        "fitness": 0.755,
+        "witness": {
+          "present": 15,
+          "hit": 8,
+          "killed": 0,
+          "contested": 0,
+          "voided": 7,
+          "entity": 21,
+          "precisionLowerBound": 0.381,
+          "recall": 0.533,
+          "F1": 0.444
+        }
+      },
+      "grains": {
+        "Entity": {
+          "count": 23,
+          "top": [
+            "ἅιδου",
+            "ζεὺς",
+            "κρέων",
+            "οἰδίπου",
+            "ἅιδης",
+            "θήβης",
+            "πολυνείκους",
+            "ἄρης",
+            "μενοικέως",
+            "ζηνὸς",
+            "ἅιδην",
+            "διὸς",
+            "σοφοκλής",
+            "κρέοντος",
+            "θήβᾳ",
+            "γᾶν",
+            "θήβας",
+            "ἀντιγόνην",
+            "δίκη",
+            "αἵμων",
+            "ἔρως",
+            "κρέοντι",
+            "τειρεσία"
+          ]
+        },
+        "Kind": {
+          "count": 810,
+          "top": [
+            "καὶ",
+            "δ",
+            "γὰρ",
+            "ἐν",
+            "δὲ",
+            "ἀλλ",
+            "τὸν",
+            "τὸ",
+            "οὐκ",
+            "ὡς",
+            "μὴ",
+            "μὲν",
+            "ἂν",
+            "ἐγὼ",
+            "τῶν",
+            "οὐ",
+            "εἰ",
+            "ὦ",
+            "τί",
+            "ἢ",
+            "πρὸς",
+            "τ",
+            "τε",
+            "ὁ",
+            "σὺ",
+            "ἐκ",
+            "τὴν",
+            "οὔτ",
+            "νῦν",
+            "τοῖς",
+            "τοῦτο",
+            "τοὺς",
+            "ἐξ",
+            "δὴ",
+            "γ",
+            "τὰ",
+            "τι",
+            "οὐδὲν",
+            "μοι",
+            "τις"
+          ]
+        },
+        "Kind*": {
+          "count": 0,
+          "top": []
+        },
+        "Contest": {
+          "count": 0,
+          "top": []
+        },
+        "Void": {
+          "count": 33,
+          "top": [
+            "κρεων",
+            "χορος",
+            "αντιγονη",
+            "ισμηνη",
+            "αιμων",
+            "φυλαξ",
+            "τειρεσιας",
+            "αγγελος",
+            "εξαγγελος",
+            "οὐχὶ",
+            "καίτοι",
+            "χωρεῖ",
+            "κεἰ",
+            "δηλοῖς",
+            "ἐτεοκλέα",
+            "ἐᾶν",
+            "τοιαῦτά",
+            "ἐκεῖ",
+            "κοινοῦ",
+            "ψυχήν",
+            "στείχουσαν",
+            "νόμῳ",
+            "τέλος",
+            "χρηστὰς",
+            "γένοιτο",
+            "εὐνῆς",
+            "πράξεις",
+            "ἥδιστον",
+            "ζῇ",
+            "μητρὸς",
+            "νοῦς",
+            "οὐκέτι",
+            "τίν"
+          ]
+        }
+      }
+    }
+  ]
+}
