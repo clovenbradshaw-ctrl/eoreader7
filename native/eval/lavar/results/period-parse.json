@@ -1,0 +1,84 @@
+{
+  "at": "2026-09-23",
+  "schema": "PeriodParse@1",
+  "pair": {
+    "modern": "henry-iv-part-1-modern.txt",
+    "folio": "henry-iv-part-1.txt"
+  },
+  "aligned": {
+    "pairs": 19893,
+    "ofModernWords": 26220,
+    "coverage": 0.7587
+  },
+  "agreement": {
+    "all": {
+      "words": 19893,
+      "wordClass": 0.8526,
+      "head": 0.7707,
+      "headAndLabel": 0.7073
+    },
+    "identicalSpelling": {
+      "words": 16584,
+      "wordClass": 0.9115,
+      "head": 0.799,
+      "headAndLabel": 0.7509
+    },
+    "variantSpelling": {
+      "words": 3309,
+      "wordClass": 0.5573,
+      "head": 0.6275,
+      "headAndLabel": 0.4869
+    }
+  },
+  "nullWordClass": 0.1062,
+  "topWordClassFlips": [
+    [
+      "NOUN->PROPN",
+      993
+    ],
+    [
+      "VERB->NOUN",
+      177
+    ],
+    [
+      "ADJ->NOUN",
+      158
+    ],
+    [
+      "PRON->NOUN",
+      107
+    ],
+    [
+      "NOUN->VERB",
+      96
+    ],
+    [
+      "ADJ->PROPN",
+      76
+    ],
+    [
+      "PROPN->NOUN",
+      71
+    ],
+    [
+      "ADV->NOUN",
+      68
+    ],
+    [
+      "VERB->PROPN",
+      61
+    ],
+    [
+      "NOUN->ADJ",
+      55
+    ],
+    [
+      "VERB->ADJ",
+      54
+    ],
+    [
+      "AUX->VERB",
+      43
+    ]
+  ]
+}

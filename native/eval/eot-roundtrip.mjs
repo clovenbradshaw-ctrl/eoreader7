@@ -33,10 +33,17 @@ export function findTreebanks() {
   if (fs.existsSync(fx)) for (const d of fs.readdirSync(fx)) if (d.startsWith("ud-")) dirs.push(path.join(fx, d));
   const pcm = path.join(LIVE, "11-multi-language", "dialects-pidgins-creoles", "creoleval", "pos_ud_naija_pcm");
   if (fs.existsSync(pcm)) dirs.push(pcm);
-  return dirs.map((d) => ({
+  const banks = dirs.map((d) => ({
     name: path.basename(d).replace(/^pos_ud_/, "ud-"),
     files: fs.readdirSync(d).filter((f) => f.endsWith(".conllu")).map((f) => path.join(d, f)).sort(),
   })).filter((t) => t.files.length);
+  // English (added 2026-09-23 — it had never been round-tripped): the same
+  // UD_English-EWT file english-parser.test.mjs trains and tests against.
+  // Its directory also holds non-treebank files, so it joins by file, not
+  // by directory.
+  const ewt = path.join(ROOT, "legacy-eoreader6.1", "scripts", "corpus", "en_ewt-ud-train.conllu");
+  if (fs.existsSync(ewt)) banks.push({ name: "ud-english-ewt", files: [ewt] });
+  return banks;
 }
 
 const same = (a, b) => a.lemma === b.lemma && a.upos === b.upos && a.feats === b.feats && a.head === b.head && a.deprel === b.deprel;
