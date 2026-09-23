@@ -62,6 +62,18 @@ export const ITEMS = [
   { id: "prose6", source: "prose", truth: "error", expect: "polarity_contradiction",
     prose: "The Cumberland flows through Nashville. [later, in the same section] Through Nashville the Cumberland does not flow.",
     spec: { identity: "caseless", claims: [C("/", "flows-through", "the Cumberland", "Nashville"), C("/", "flows-through", "The Cumberland", "Nashville", { polarity: "-" })] } },
+
+  // ── falsifyGfp: is "strict" actually enforced, not just uncontradicted ──
+  // Not a slip from this session's transcript (falsify1/falsify2 are
+  // constructed, unlike the slipN items above) — a realistic mistake this
+  // mechanism exists to catch: marking a claim "strict" without declaring
+  // anything that would let a violation of it be caught.
+  { id: "falsify1", source: "falsify-guard construction", truth: "sound", expect: "strict_guard_untested",
+    prose: "parse() always returns a Result object. (Declared strict; nothing here declares \"returns\" one-valued or acyclic, so the checker has nothing to enforce it with.)",
+    spec: { claims: [C("/parse", "returns", "parse", "Result", { force: "strict" })] } },
+  { id: "falsify2", source: "falsify-guard construction", truth: "sound", expect: "strict_guard_reachable",
+    prose: "In load(), config.port always has type number. (Declared strict, and \"has-type\" IS declared one-valued — a real counterexample at this ground would be caught.)",
+    spec: { declare: { functional: ["has-type"] }, claims: [C("/load", "has-type", "config.port", "number", { force: "strict" })] } },
 ];
 
 // ── probes built to BREAK the engine (its declared limits) ─────────────────

@@ -79,7 +79,7 @@
 // the note ids and the plain-language line.
 
 import { projectTasks } from "../kernel/task-log.js";
-import { claimFromTriple, overlap, contains, depthOf, lca, ancestry, figureKey, claimKey, exactIdentity } from "../kernel/gfp-claim.js";
+import { gfpClaim, claimFromTriple, overlap, contains, depthOf, lca, ancestry, figureKey, claimKey, exactIdentity } from "../kernel/gfp-claim.js";
 import {
   persistenceOf, regimeOf, forceOfClause, inValidityWindow, isSettled, precedence, FORCES,
 } from "./regime.js";
@@ -693,6 +693,11 @@ const functionalRoles = (xs, idf) => {
   }
   return m;
 };
+// Hoisted out of lintGfp (pure, no closure over its locals) so falsifyGfp
+// below can print a claim the same way and tag a finding with the same two
+// claim ids, without a second copy of either.
+const claimLabel = (c) => `${c.polarity === "-" ? "not " : ""}${c.rel}(${Object.entries(c.roles).map(([k, v]) => `${k}=${v}`).join(", ")}) @ ${c.ground}`;
+const claimIds = (a, b) => [a.id, b.id].filter(Boolean);
 
 /**
  * lintGfp(claims, { functional, symmetric, acyclic, identity, strictness })
@@ -740,8 +745,8 @@ export function lintGfp(claims = [], { functional = [], symmetric = [], acyclic 
     if (!byRel.has(r)) byRel.set(r, []);
     byRel.get(r).push(c);
   }
-  const label = (c) => `${c.polarity === "-" ? "not " : ""}${c.rel}(${Object.entries(c.roles).map(([k, v]) => `${k}=${v}`).join(", ")}) @ ${c.ground}`;
-  const ids = (a, b) => [a.id, b.id].filter(Boolean);
+  const label = claimLabel;
+  const ids = claimIds;
 
   for (const [rel, group] of byRel) {
     const symmetricRel = sym.has(rel);
@@ -836,6 +841,138 @@ export function lintGfp(claims = [], { functional = [], symmetric = [], acyclic 
       identity: identity === exactIdentity ? "exact after NFKC (code-safe; pass caselessIdentity or a referent resolver for prose)" : "caller-declared",
       declared: { functional: fn.size, symmetric: sym.size, acyclic: acy.size, identity: idRels.size },
     }),
+  });
+}
+
+// ── FALSIFICATION: was the "strict" force ever actually exercised? ─────────
+//
+// lintGfp above answers one question: do the claims it was HANDED agree with
+// each other. That is coherence over what's given — and THE-NULL-STATES.md
+// names exactly the failure shape a coherence-only check falls into: "the
+// meta-null is the one to fear... a wall that is a comment... found only by
+// asking whether the wall was ever reached." A force:"strict" claim that no
+// sibling happens to contradict reads as clean, but clean here can mean
+// "nothing was in the room to disagree" as easily as "this was tried and
+// held" — and lintGfp's own output cannot tell those two apart.
+//
+// This is the SAME move `organs/ground-cite.js::polarityControl` already
+// made today for a claim's GROUND (pair the claim's own denial against a
+// same-shaped non-denying control, and trust the guard only when they
+// disagree), carried from the citation layer into the reasoning core itself:
+// for every force:"strict" claim, build the NARROWEST synthetic counter-
+// example that claim's OWN declared property (functional or acyclic) would
+// license — a second value in a declared one-valued role, the reverse edge
+// of a declared acyclic relation — at the SAME ground, and rerun lintGfp
+// with it added to the real claim set. Caught: the declared property that
+// makes this claim "strict" is reachable HERE, for THIS claim, not just in
+// the abstract. Not caught: nothing declared would have caught a violation
+// of it — "strict" was asserted, never enforced, disclosed rather than
+// silently trusted. No probe can be built at all: disclosed as that too,
+// never folded into "unreachable" (a null names what was looked at, THE-
+// NULL-STATES.md's first law — "no property to test" and "tested and the
+// guard didn't fire" are different facts about the run).
+//
+// SCOPE, DISCLOSED. Only polarity:"+" strict claims are probed. A strict
+// DENIAL's most direct counterexample is its own affirmation at the same
+// ground — which the unconditional "P and not-P" rule (above) always
+// catches regardless of any declaration, so probing it would report
+// "reachable" on every single one, for free, telling a reader nothing.
+// Symmetric declarations are not probed either: symmetry changes which
+// claims COMPARE as equal, not which comparisons raise an error, so there
+// is no violation-shaped counterexample to build from it alone. Neither
+// omission is a defeat of this check; both are outside what a "reachable
+// guard" question can even mean for that declaration.
+//
+// The probe never mutates the caller's own claims or `opts` — it adds one
+// synthetic claim, force:"default" (it must never itself be strict enough
+// to recurse into this same check), id-tagged so it can never collide with
+// a real claim, and discarded after the one comparison it exists for.
+const FALSIFY_PROBE_TAG = "⁣eo-falsify-probe⁣"; // U+2063 INVISIBLE SEPARATOR on both sides: survives NFKC/trim/lowercase unchanged (verified), and is not a character a person or a model would plausibly type, so it can never collide with real material
+const probeValue = (v) => `${v}${FALSIFY_PROBE_TAG}`;
+
+/**
+ * falsifyGfp(claims, { functional, symmetric, acyclic, identityRels, identity, strictness })
+ * — same options as lintGfp. → { ok, findings, counts }. `ok` is always
+ * true: this reports what it found, it never convicts (THE-NULL-STATES.md's
+ * fourth law) — a claim whose guard turned out unreachable is a disclosure
+ * for the reasoner to act on, not itself a contradiction in the claim set.
+ */
+export function falsifyGfp(claims = [], { functional = [], symmetric = [], acyclic = [], identityRels = [], identity = exactIdentity, strictness = "standard" } = {}) {
+  const idf = identity;
+  const fn = functionalRoles(functional, idf);
+  const acy = declSet(acyclic, idf);
+  const opts = { functional, symmetric, acyclic, identityRels, identity, strictness: "strict" };
+  // Every finding kind below is a WARN or an INFO, never an ERROR: this
+  // pass reports on the checker's own reach, and must never be the thing
+  // that flips a caller's `ok` (cli/reason.mjs's coverage gate reads `ok`
+  // to decide whether a turn's files are covered) — exactly the severity
+  // `ground_unreachable_guard` already holds one register over, for the
+  // same reason.
+  const errorCountOf = (r) => r.findings.filter((f) => f.severity === SEVERITY.ERROR).length;
+  const baseErrors = errorCountOf(lintGfp(claims, opts));
+
+  const findings = [];
+  for (const c of claims) {
+    // Strict is the only force this check has anything to ask about (see
+    // header); an ordinary "default" claim was never asserted to hold
+    // against a counterexample, so there is no guard to ask whether it
+    // is reachable.
+    if (c.force !== "strict" || c.polarity !== "+") continue;
+    const rel = idf(c.rel);
+    const oneValue = fn.get(rel) ?? null;
+    const acyclicDeclared = acy.has(rel);
+    const probes = [];
+    if (oneValue) {
+      const role = oneValue.role ?? "ARG1";
+      const orig = c.roles[role];
+      // A claim that never populates the very role its relation is
+      // declared one-valued in has nothing for THIS check to mutate —
+      // disclosed below as "no probe", the same as an undeclared relation,
+      // never silently skipped without saying why.
+      if (orig != null) {
+        probes.push({ kind: "one-valued", via: `"${c.rel}" declared one-valued in ${role}`, claim: gfpClaim({
+          ground: c.ground, rel: c.rel, force: "default", polarity: "+",
+          roles: { ...c.roles, [role]: probeValue(orig) },
+          id: `${c.id ?? "claim"}~falsify-probe-fn`,
+        }) });
+      }
+    }
+    if (acyclicDeclared && c.roles.ARG0 != null && c.roles.ARG1 != null && idf(c.roles.ARG0) !== idf(c.roles.ARG1)) {
+      probes.push({ kind: "acyclic", via: `"${c.rel}" declared acyclic`, claim: gfpClaim({
+        ground: c.ground, rel: c.rel, force: "default", polarity: "+",
+        roles: { ARG0: c.roles.ARG1, ARG1: c.roles.ARG0 },
+        id: `${c.id ?? "claim"}~falsify-probe-cyc`,
+      }) });
+    }
+    if (!probes.length) {
+      findings.push({ ...finding("strict_guard_untested", "standard", SEVERITY.WARN,
+        `${claimLabel(c)} is declared "strict", but "${c.rel}" carries no declared one-valued role or acyclic property THIS claim actually populates — no counterexample could be built to test what makes it strict`,
+        { at: c.ground }), claims: [c.id].filter(Boolean) });
+      continue;
+    }
+    for (const probe of probes) {
+      // The comparison is a count DELTA against the real claim set (never
+      // the probe run alone, which is exactly falsifyGfp's fix for the old
+      // ants loop's isolation bug — a lone claim can never contradict
+      // itself). Adding one non-identity claim only ever ADDS pairwise/
+      // cycle comparisons already in `claims`, never removes one (they read
+      // the same `byRel` groups either way), so any rise in error count is
+      // attributable to the probe and nothing upstream of it.
+      const afterErrors = errorCountOf(lintGfp([...claims, probe.claim], opts));
+      const caught = afterErrors > baseErrors;
+      findings.push({ ...finding(caught ? "strict_guard_reachable" : "strict_guard_unreachable", "standard", caught ? SEVERITY.INFO : SEVERITY.WARN,
+        caught
+          ? `${claimLabel(c)}: a synthetic ${probe.kind} counterexample at the same ground is caught — ${probe.via}, and that declaration is reachable for this claim, not just declared in the abstract`
+          : `${claimLabel(c)} is declared "strict" — ${probe.via} — but a synthetic counterexample built from exactly that declaration was NOT caught here. Its "strict" force is asserted, not enforced by anything this run declared; read the earlier clean verdict as untested, never confirmed`,
+        { at: c.ground }), claims: [c.id, probe.claim.id].filter(Boolean) });
+    }
+  }
+  const visible = findings.filter((f) => shownAt(f, strictness));
+  return Object.freeze({
+    ok: true, // disclosure only, per THE-NULL-STATES.md's fourth law — see header
+    strictness,
+    findings: Object.freeze(visible),
+    counts: Object.freeze(countFindings(visible)),
   });
 }
 

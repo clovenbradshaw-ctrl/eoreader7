@@ -21,7 +21,7 @@
    "order_not_entailed"
   ],
   "pass": true,
-  "detail": "\"ground_level must precede reopen\" does not follow from the declared prerequisites — a consistent order puts reopen first: addr → gates → void_level → reopen → ground_level → floor_level → ladder_honest → discourse_sep (784 consistent orders searched)"
+  "detail": "\"ground_level must precede reopen\" does not follow from the declared prerequisites — a consistent order puts reopen first: addr → gates → ladder_honest → discourse_sep → void_level → reopen → ground_level → floor_level"
  },
  {
   "id": "slip3",
@@ -33,7 +33,7 @@
    "order_not_entailed"
   ],
   "pass": true,
-  "detail": "\"ladder_honest must precede gates\" does not follow from the declared prerequisites — a consistent order puts gates first: addr → gates → void_level → ground_level → floor_level → reopen → ladder_honest → discourse_sep (784 consistent orders searched)"
+  "detail": "\"ladder_honest must precede gates\" does not follow from the declared prerequisites — a consistent order puts gates first: addr → gates → discourse_sep → void_level → reopen → ladder_honest → ground_level → floor_level"
  },
  {
   "id": "slip4",
@@ -66,7 +66,8 @@
   "verdict": "error",
   "expect": "refuted_in_scope",
   "kinds": [
-   "refuted_in_scope"
+   "refuted_in_scope",
+   "strict_guard_reachable"
   ],
   "pass": true,
   "detail": "has-type(ARG0=result, ARG1=string) @ /parse is declared strict — it holds throughout /parse — and has-type(ARG0=result, ARG1=null) @ /parse/catch inside it is a counterexample"
@@ -184,6 +185,30 @@
   ],
   "pass": true,
   "detail": "a claim and its denial: flows-through(ARG0=the Cumberland, ARG1=Nashville) @ / vs not flows-through(ARG0=The Cumberland, ARG1=Nashville) @ / — same ground, and nothing separates them"
+ },
+ {
+  "id": "falsify1",
+  "source": "falsify-guard construction",
+  "truth": "sound",
+  "verdict": "sound",
+  "expect": "strict_guard_untested",
+  "kinds": [
+   "strict_guard_untested"
+  ],
+  "pass": true,
+  "detail": "returns(ARG0=parse, ARG1=Result) @ /parse is declared \"strict\", but \"returns\" carries no declared one-valued role or acyclic property THIS claim actually populates — no counterexample could be built to test what makes it strict"
+ },
+ {
+  "id": "falsify2",
+  "source": "falsify-guard construction",
+  "truth": "sound",
+  "verdict": "sound",
+  "expect": "strict_guard_reachable",
+  "kinds": [
+   "strict_guard_reachable"
+  ],
+  "pass": true,
+  "detail": "has-type(ARG0=config.port, ARG1=number) @ /load: a synthetic one-valued counterexample at the same ground is caught — \"has-type\" declared one-valued in ARG1, and that declaration is reachable for this claim, not just declared in the abstract"
  },
  {
   "id": "probe1",

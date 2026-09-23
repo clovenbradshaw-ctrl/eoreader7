@@ -21,16 +21,27 @@
 //   "order":       { "items": [..], "before": [[a, b], ..], "claims": [{ "ref", "first": a, "then": b }] }
 // }
 //
-// Organs: GFP core (organs/reasoning-lint.js lintGfp), R1 inference licences
-// (lintInferences), refutation by measured counterexample, equations by mathjs,
-// "a must precede b" by the GFP core's cycle check (a cycle when "b before a"
-// is added is the proof; otherwise a topological order is the counterexample).
+// Organs: GFP core (organs/reasoning-lint.js lintGfp) checks whether these
+// claims agree with EACH OTHER — coherence. FALSIFICATION runs beside it, by
+// default, on every "force":"strict" claim (falsifyGfp): the narrowest
+// synthetic counterexample that claim's OWN declared "functional" or
+// "acyclic" property licenses is built and re-checked, so a clean verdict
+// means the claim was actually TESTED, not just never contradicted because
+// nothing else was in the room (organs/reasoning-lint.js's own header, and
+// THE-NULL-STATES.md's meta-null, explain why coherence alone can't tell
+// those two apart). R1 inference licences (lintInferences), refutation by
+// measured counterexample, equations by mathjs, "a must precede b" by the
+// GFP core's cycle check (a cycle when "b before a" is added is the proof;
+// otherwise a topological order is the counterexample). --ants adds a
+// second, opt-in falsification axis on top: edge-case mutation of a strict
+// claim's own role values (empty, null, self-referential), tested against
+// the real claim set — a fuzz probe, not the declared-property check above.
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { create, all } from "mathjs";
 import { gfpClaim, claimFromTriple, claimKey, caselessIdentity, exactIdentity } from "../native/kernel/gfp-claim.js";
-import { lintGfp, lintInferences, lintLedger } from "../native/organs/reasoning-lint.js";
+import { lintGfp, lintInferences, lintLedger, falsifyGfp } from "../native/organs/reasoning-lint.js";
 import { citeGround, polarityControl, terminalLink } from "../native/organs/ground-cite.js";
 import { writeReasoningRecord } from "../native/organs/reasoning-record.js";
 
@@ -160,7 +171,7 @@ const guardFindings = polarityChecks
 // `reader:engine` for what the engine read, `testimony:claude` for what the
 // reasoner only declared) → the holograph's fold → the GFP core. A sentence
 // the reader could not read is an UNREAD STEP: the engine cannot vouch for it.
-let read = [], unread = [], ledgerFindings = [], resolveName = null, sentencesTotal = 0;
+let read = [], unread = [], ledgerFindings = [], resolveName = null, sentencesTotal = 0, receivedVocabCount = 0;
 // hl/hlLog: the hyperlexicon and its door, hoisted out of the `if (text)`
 // block below (2026-09-22, additive) so the durable-feed integration point
 // near the end of this file — after `out` is computed, changing nothing
@@ -186,14 +197,38 @@ if (text) {
   const groundAt = (off) => { const i = paras.findIndex((p) => off >= p.start && off < p.end); return i >= 0 ? `/p${i + 1}` : "/"; };
 
   const edges = engineRelationsFor([text]).edges ?? [];
-  read = edges.map((e, i) => claimFromTriple(e.end1, e.label, e.end2, { ground: groundAt(e.spans?.[0]?.start ?? 0), polarity: e.polarity === "-" ? "-" : "+", id: `read:${i}` }));
 
-  // Unread steps: a sentence no read edge touches.
+  // RECEIVED-VOCABULARY WIDENING (2026-09-23) — a second, disclosed way for
+  // a verb to enter the vocabulary, additive to the read above. See
+  // organs/received-vocabulary-relations.js's own header for the finding
+  // this answers: discoverRelationVocab (which the pass above runs through)
+  // requires a verb to sit next to a capitalised, non-sentence-initial
+  // surface before it is admitted at all — a register mismatch, not a
+  // comprehension gap, that leaves code-domain and short subject-first turn
+  // claims unread regardless of prose-comprehension quality. Only edges the
+  // primary pass did NOT already find are kept (never a competing second
+  // reading of the same fact), and every one is marked `received: true` so
+  // it can be told apart downstream — weaker-witnessed, disclosed, never
+  // silently folded into a fully surface-anchored read.
+  const { readWithReceivedVocabulary } = await import("../native/organs/received-vocabulary-relations.js");
+  const primaryKeys = new Set(edges.map((e) => `${e.end1}|${e.label}|${e.end2}`.toLowerCase()));
+  const receivedEdges = readWithReceivedVocabulary(text).edges
+    .filter((e) => !primaryKeys.has(`${e.subject}|${e.verb}|${e.object}`.toLowerCase()))
+    .map((e) => ({
+      end1: e.subject, label: e.verb, end2: e.object, polarity: e.polarity, received: true,
+      spans: [{ start: e.subjectOffset ?? e.offset ?? 0, end: (e.objectOffset ?? e.offset ?? 0) + String(e.object ?? "").length, text: `${e.subject} ${e.verb} ${e.object}` }],
+    }));
+  const allEdges = [...edges, ...receivedEdges];
+  receivedVocabCount = receivedEdges.length;
+
+  read = allEdges.map((e, i) => claimFromTriple(e.end1, e.label, e.end2, { ground: groundAt(e.spans?.[0]?.start ?? 0), polarity: e.polarity === "-" ? "-" : "+", id: `read:${i}` }));
+
+  // Unread steps: a sentence no read edge — from either pass — touches.
   const sents = splitSentences(text);
   sentencesTotal = sents.length;
   for (const { text: s, offset: start } of sents) {
     const end = start + s.length;
-    const touched = edges.some((e) => (e.spans ?? []).some((sp) => sp.start < end && sp.end > start));
+    const touched = allEdges.some((e) => (e.spans ?? []).some((sp) => sp.start < end && sp.end > start));
     if (!touched) unread.push({ kind: "unread_step", severity: "warn", at: groundAt(start), detail: `the engine read nothing in "${s.slice(0, 90)}${s.length > 90 ? "…" : ""}" — anything this step asserts rests on the reasoner alone` });
   }
 
@@ -208,6 +243,13 @@ if (text) {
   hl = makeHyperlexicon(taskLog);
   hlLog = hl.createHyperlexicon({ frame: { reader: "cli/reason", giver: "eoreader7" } });
   hlLog = hl.admit(hlLog, edges.map((e) => ({ subject: e.end1, verb: e.label, object: e.end2, polarity: e.polarity, spans: (e.spans ?? []).map((sp) => ({ at: `reasoning#${sp.start}-${sp.end}`, ref: "reasoning", text: sp.text })) })), { witness: "reader:engine" }).log;
+  // A separate, weaker witness for the received-vocabulary pass — disclosed
+  // as such, never merged into "reader:engine" (which means fully surface-
+  // anchored, measured discovery; this means a small declared vocabulary
+  // widened the read). See the comment where receivedEdges is built above.
+  if (receivedEdges.length) {
+    hlLog = hl.admit(hlLog, receivedEdges.map((e) => ({ subject: e.end1, verb: e.label, object: e.end2, polarity: e.polarity, spans: (e.spans ?? []).map((sp) => ({ at: `reasoning#${sp.start}-${sp.end}`, ref: "reasoning", text: sp.text })) })), { witness: "reader:engine+received-vocab" }).log;
+  }
   hlLog = hl.admit(hlLog, declared.map((c, i) => ({ subject: c.roles.ARG0 ?? "", verb: c.rel, object: c.roles.ARG1 ?? "", spans: [{ at: `declared#${i}`, ref: "declared", text: input.claims[i].said ?? `${c.roles.ARG0} ${c.rel} ${c.roles.ARG1}` }] })), { witness: "testimony:claude" }).log;
   const lr = lintLedger(hlLog, { door: hl, taskLog, strictness: "report", referentIndex: { referents: new Set(), resolve: R.resolveName, represent: R.represent } });
   ledgerFindings = lr.findings.filter((f) => f.kind === "testimony_only");
@@ -220,6 +262,15 @@ const identity = resolveName && input.identity !== "exact"
   : baseIdentity;
 const claims = [...read, ...declared];
 const gfp = lintGfp(claims, { ...decl, identity, strictness: "strict" });
+// FALSIFICATION, BY DEFAULT (2026-09-23) — not just coherence. gfp above
+// checks whether these claims agree with EACH OTHER; it says nothing about
+// whether a force:"strict" claim was ever actually TESTED, or just never
+// contradicted because nothing else was in the room (THE-NULL-STATES.md's
+// meta-null). falsifyGfp builds the narrowest synthetic counterexample each
+// strict claim's own declared property licenses and checks whether lintGfp
+// would catch it. See organs/reasoning-lint.js's own header for the design;
+// this runs unconditionally, the same as gfp above — no flag gates it.
+const falsify = falsifyGfp(claims, { ...decl, identity, strictness: "strict" });
 
 // Corroboration: a declared claim the engine also READ is no longer testimony.
 const readKeys = new Set(read.map((c) => claimKey(c, { identity })));
@@ -307,11 +358,30 @@ if (input.order?.items?.length && input.order.claims?.length) {
   }
 }
 
-// Wilson's ants: falsification by edge-case testing on high-force claims.
+// Wilson's ants: falsification by edge-case MUTATION testing on strict
+// claims — a different axis than falsifyGfp above. falsifyGfp asks "would a
+// violation of what this claim DECLARES be caught"; ants asks "what happens
+// if this claim's own role VALUES are edge cases" (empty, null, self-
+// referential, recursive) — exploratory and fuzz-shaped, so it stays
+// opt-in (--ants) rather than joining falsifyGfp as a default.
+//
+// FIXED (2026-09-23): the mutated claim used to be tested ALONE
+// (`lintGfp([testClaim], ...)`) — a single claim, with no sibling to
+// disagree with, can almost never produce an error under this checker
+// (contradiction and cycle findings are both inherently pairwise/relational,
+// the same reason falsifyGfp above compares against the real set rather
+// than in isolation), so this rarely fired regardless of what the mutation
+// actually broke. It is now tested against the real declared claim set, by
+// error-count DELTA (falsifyGfp's own comparison, for the same reason: a
+// pre-existing unrelated error in `claims` must not be misattributed to the
+// mutation). A mutation that throws while being built is now a finding
+// too, not silently swallowed — this comment used to say the exception was
+// "also a probe result" while the catch block beneath it did nothing;
+// it now does what the comment always claimed.
 let antFindings = [];
 if (doAnts) {
   const strict = declared.filter((c) => c.force === "strict");
-  const tough = gfp.findings.filter((f) => f.severity === "error" || (f.severity === "warn" && f.kind === "several-valued"));
+  const baseAntErrors = lintGfp(claims, { ...decl, identity, strictness: "strict" }).findings.filter((f) => f.severity === "error").length;
   for (const claim of strict) {
     const roles = Object.values(claim.roles ?? {}).filter(Boolean);
     if (roles.length >= 2) {
@@ -324,19 +394,21 @@ if (doAnts) {
       for (const test of antTests) {
         try {
           const testClaim = gfpClaim({ ...claim, roles: Object.fromEntries(Object.keys(claim.roles ?? {}).map((k, i) => [k, test.roles[i]])), id: `ant_${claim.id}_${test.variant}`, ground: claim.ground });
-          const testResult = lintGfp([testClaim], { ...decl, identity, strictness: "strict" });
-          if (testResult.findings.some((f) => f.severity === "error")) {
+          const testErrors = lintGfp([...claims, testClaim], { ...decl, identity, strictness: "strict" }).findings.filter((f) => f.severity === "error").length;
+          if (testErrors > baseAntErrors) {
             antFindings.push({ kind: "ant_falsified", severity: "info", at: claim.ground, detail: `ant test "${test.variant}" falsifies: ${claim.roles.ARG0} ${claim.rel} ${claim.roles.ARG1}`, variant: test.variant });
           }
-        } catch (e) { /* test variant produced exception: also a probe result */ }
+        } catch (e) {
+          antFindings.push({ kind: "ant_probe_error", severity: "info", at: claim.ground, detail: `ant test "${test.variant}" on "${claim.rel}" could not even be built: ${e.message} — a probe result too, disclosed rather than swallowed`, variant: test.variant });
+        }
       }
     }
   }
 }
 
-const findings = [...gfp.findings, ...inf.findings, ...orderFindings, ...unread, ...ledgerFindings, ...antFindings, ...groundFindings, ...guardFindings];
+const findings = [...gfp.findings, ...falsify.findings, ...inf.findings, ...orderFindings, ...unread, ...ledgerFindings, ...antFindings, ...groundFindings, ...guardFindings];
 const errors = findings.filter((f) => f.severity === "error");
-const vouched = text ? { sentences: sentencesTotal, read: sentencesTotal - unread.length, edges: read.length, declared: declared.length, corroborated } : null;
+const vouched = text ? { sentences: sentencesTotal, read: sentencesTotal - unread.length, edges: read.length, receivedVocabEdges: receivedVocabCount, declared: declared.length, corroborated } : null;
 // The grounds this run checked — the hooks read them to know which files the
 // reasoning covered (cli/claude-code-state.mjs coverageOf).
 const grounds = [...new Set(declared.map((c) => c.ground))];
@@ -353,7 +425,7 @@ const sourcesOut = sources.map(({ excerpt, ...structural }, i) => {
   const pc = polarityChecks[i];
   return pc?.checked ? { ...structural, guard: { reachable: pc.reachable, negatedVerdict: pc.negatedVerdict, affirmedVerdict: pc.affirmedVerdict } } : structural;
 });
-const out = { ok: errors.length === 0, errors: errors.length, grounds, findings, vouched, gfp: { counts: gfp.counts, unjudged: gfp.unjudged, apart: gfp.apart, holons: gfp.holons, basis: gfp.basis }, inference: inf.counts, declaredClaims: input.claims ?? [], sources: sourcesOut };
+const out = { ok: errors.length === 0, errors: errors.length, grounds, findings, vouched, gfp: { counts: gfp.counts, unjudged: gfp.unjudged, apart: gfp.apart, holons: gfp.holons, basis: gfp.basis }, falsify: falsify.counts, inference: inf.counts, declaredClaims: input.claims ?? [], sources: sourcesOut };
 
 // DURABLE FEED (2026-09-22; widened 2026-09-22 by the reason-claims design).
 // Two independent things get appended to eoreader7's own shared ledger
@@ -408,6 +480,15 @@ try {
 const recordPath = writeReasoningRecord({ claims: declared, findings, sources: sourcesOut });
 const cited = sources.filter((s) => s.verdict === "cited");
 const citationLine = (s) => `    ${s.verdict === "cited" ? "✓ cited" : s.verdict === "event" ? "✓ event" : s.verdict === "unattributed" ? "? unattributed" : s.verdict === "missing" ? "✗ missing" : "· " + s.verdict}  ${s.ground}${s.file ? `  →  ${terminalLink(`${s.file}:${s.line ?? "?"}`, s.url)}` : s.verdict === "event" ? `  →  ${s.hash} (${s.files?.length ?? 0} file(s) in ${s.repo})` : ""}`;
+// How many strict claims falsifyGfp had anything to say about, and what it
+// found — printed in both console modes so "OK" never reads as "untested".
+const strictCount = declared.filter((c) => c.force === "strict" && c.polarity === "+").length;
+const falsifyLine = strictCount
+  ? `  strict claims: ${falsify.counts.strict_guard_reachable ?? 0}/${strictCount} confirmed reachable by a falsification attempt` +
+    ((falsify.counts.strict_guard_unreachable ?? 0) + (falsify.counts.strict_guard_untested ?? 0) > 0
+      ? ` (${(falsify.counts.strict_guard_unreachable ?? 0)} unreachable, ${(falsify.counts.strict_guard_untested ?? 0)} untested — pass --json or see findings above)`
+      : "")
+  : null;
 
 if (asJson) console.log(JSON.stringify(out, null, 1));
 else if (compact) {
@@ -416,6 +497,7 @@ else if (compact) {
   if (!out.ok) {
     for (const f of errors) console.log(`  ✗ ${f.kind}${f.at ? ` @ ${f.at}` : ""}: ${f.detail.split("\n")[0]}`);
   }
+  if (falsifyLine) console.log(falsifyLine);
   if (antFindings.length) console.log(`  ⚠ ${antFindings.length} falsification(s) from ants`);
   if (sources.length) console.log(`  sources: ${cited.length}/${sources.length} cited — open a file:line above, or the record, to see the real bytes (never printed here)`);
   console.log(`  grounds: ${JSON.stringify(grounds)}`);
@@ -423,10 +505,11 @@ else if (compact) {
   console.log(`  (details hidden; pass --json for full report)`);
 } else {
   console.log(`eoreader7 reason · ${claims.length} claim(s) · ${infs.length} inference(s) · ${input.order?.claims?.length ?? 0} order claim(s) → ${out.ok ? "OK" : `${errors.length} ERROR(S)`}`);
-  if (vouched) console.log(`  engine vouches for ${vouched.read}/${vouched.sentences} sentence(s) it could read · ${vouched.edges} relation(s) read · ${vouched.corroborated}/${vouched.declared} declared claim(s) independently read`);
+  if (vouched) console.log(`  engine vouches for ${vouched.read}/${vouched.sentences} sentence(s) it could read · ${vouched.edges} relation(s) read${vouched.receivedVocabEdges ? ` (${vouched.receivedVocabEdges} via received-vocabulary, weaker witness)` : ""} · ${vouched.corroborated}/${vouched.declared} declared claim(s) independently read`);
   for (const f of findings) console.log(`  [${f.severity}] ${f.kind}${f.at ? ` @ ${f.at}` : ""}\n      ${f.detail}`);
   if (gfp.unjudged) console.log(`  (${gfp.unjudged} several-valued pair(s) of undeclared relations counted, not judged)`);
   if (gfp.apart) console.log(`  (${gfp.apart} pair(s) in sibling holons held apart)`);
+  if (falsifyLine) console.log(falsifyLine);
   console.log(`  grounds: ${JSON.stringify(grounds)}`);
   if (sources.length) {
     console.log(`  sources (${cited.length}/${sources.length} cited — the real bytes live only at the address; never copied here):`);

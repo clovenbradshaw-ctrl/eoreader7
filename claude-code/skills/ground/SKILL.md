@@ -55,7 +55,7 @@ Run it:
 ```bash
 eo-reason /tmp/ground-claim.json --ants
 ```
-`--ants` is cheap and always worth it — it falsification-tests every `force: "strict"` claim.
+A `force: "strict"` claim is falsification-tested by default — eoreader7 builds a synthetic counterexample from its own declared property and checks that it would actually be caught, not just that nothing else in the room happened to disagree with it. `--ants` adds a second, cheap, opt-in layer of edge-case mutation testing on top.
 
 Then show the result the same way Mode 1 does (steps 1–4 above; the hook
 regenerates the report from this exact run, so the "latest report" IS now
