@@ -34,6 +34,8 @@
 
 import { loadModel, analyse, tokenize, sentences } from "./english-parser.js";
 import { makeGrainTyper, cellLabelOf } from "./grain-typing.js";
+import { hyperedge } from "../../kernel/hypergraph.js";
+import { sha256hex } from "./sha256hex.js";
 
 /** Every {end1, rel, end2} triple in one sentence's parsed rows -- one per
  *  VERB token with both an nsubj* and an obj/iobj dependent, not just the
@@ -85,6 +87,9 @@ export function createEnglishParserPerceiver({ model, posPrior = null } = {}) {
       let rows;
       try { rows = analyse(model, sentTokens.map((t) => t.form)); } catch { continue; }
 
+      const sequencePosition = encounter.sequencePosition ?? 0;
+      const sourceScope = String(encounter.source ?? "text");
+
       for (const { verbRow, subjRow, objRow } of verbTriplesOf(rows, sentTokens)) {
         const end1 = sentTokens[subjRow.id - 1]?.form;
         const label = sentTokens[verbRow.id - 1]?.form;
@@ -93,12 +98,55 @@ export function createEnglishParserPerceiver({ model, posPrior = null } = {}) {
         if (!end1 || !label || !end2) continue;
         const grain = typer ? typer.grainOf(label) : null;
         const cell = typer ? cellLabelOf(grain) : "grain_gap";
+        const grainRecord = grain && !grain.grain_gap ? { operator: grain.op ?? grain.operator, grain: grain.grain, terrain: grain.terrain, stance: grain.stance, settledAs: grain.settledAs } : (grain?.grain_gap ? { grain_gap: grain.grain_gap, settledAs: null } : null);
+
+        // Build a REAL hyperedge, the same way recursive.js's own perceiver
+        // does (content-addressed id via sha256hex, matching its newId
+        // pattern), so this reaches fold.graphEntries once admitted --
+        // confirmed necessary by live testing: admission alone leaves a
+        // candidate as a bare witness.js "distinction" with no hyperedge,
+        // invisible to everything downstream (queries, reasoning, answer
+        // grounding). Participants use the SAME graceful "unresolved_surface"
+        // fallback recursive.js's own resolveParticipant degrades to when
+        // it can't cross-reference a referent -- this perceiver has no
+        // access to that perceiver's private matching cache and must not
+        // fake a cross-reference it doesn't have.
+        const content = `edge|src:${sourceScope}|rel:${label}|end1:${end1}|end2:${end2}|off:${offset}|perceiver:english-parser`;
+        const eid = sha256hex(content);
+        const ewit = sha256hex(`${content}|wit`);
+        const participant = (surface, role) => {
+          const occurrence = sha256hex(`occ|surface:${surface}|seq:${sequencePosition}|off:${offset}|role:${role}|perceiver:english-parser`);
+          return { ref: occurrence, occurrence, surfaceKey: `surface:${surface.toLowerCase()}`, role, standing: "unresolved_surface", surface };
+        };
+        const edge = hyperedge({
+          id: eid,
+          relation: label,
+          participants: [participant(end1, "end1"), participant(end2, "end2")],
+          witness: ewit,
+          scope: { sequencePosition, offset },
+          eo: { op: grainRecord?.operator ?? "CON", grain: grainRecord?.grain ?? "Figure" },
+          meta: { source: sourceScope, encounterRef: `encounter:${sequencePosition}`, perceiver: "english-parser" },
+        });
+
         out.push({
           end1, label, end2,
           cell,
-          grain: grain && !grain.grain_gap ? { operator: grain.op ?? grain.operator, grain: grain.grain, terrain: grain.terrain, stance: grain.stance, settledAs: grain.settledAs } : (grain?.grain_gap ? { grain_gap: grain.grain_gap, settledAs: null } : null),
+          grain: grainRecord,
           polarity: "+", // negation is a declared per-language lens, unmeasured here -- same disclosed choice relations-gfp.js makes
           offset,
+          // REQUIRED for admission: kernel/witness.js's default decision is
+          // Boolean(candidate.evidence) && sameAnchor(...) -- an unevidenced
+          // candidate is refused ("no evidence"), confirmed by testing this
+          // perceiver against the real admission path before this field
+          // existed. The sentence text is the evidence, matching the
+          // existing production perceiver's own convention (recursive.js
+          // sets evidence to the encounter's material).
+          evidence: sentText,
+          // REQUIRED to reach the hypergraph: witness.js only populates an
+          // admitted Observation's hyperedges/graphEntries from what the
+          // candidate itself declares.
+          hyperedges: [edge],
+          graphEntries: [edge],
         });
       }
     }

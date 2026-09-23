@@ -3,6 +3,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
+import { loadModel as loadEnglishParserModel } from "./native/adapters/text/english-parser.js";
+import { createEnglishParserPerceiver } from "./native/adapters/text/english-parser-perceiver.mjs";
 import { isCodeHunk, codeEncounters } from "./native/adapters/code/encounters.js";
 import { diaNorm, namesCorefer } from "./native/adapters/text/surfaces.js";
 import { deriveRegister, detectLanguage, questionFor, writeVoiceFor, voiceIsDeclaredFor } from "./native/kernel/register.js";
@@ -2087,9 +2089,23 @@ function getPosPrior() {
   return _posPrior;
 }
 
+// The trained UD parser (95.2 UPOS / 81.2 UAS / 77.0 LAS held-out), loaded
+// once and reused across every session — the model file is 16MB and never
+// changes at runtime. A typed absence (missing file) degrades to "the
+// perceiver below is not added," never a crash, matching getPosPrior's own
+// discipline.
+const DEFAULT_PARSER_MODEL = path.join(HERE, "native/priors/parser-eng-ewt.json");
+let _englishParserModel = null;
+function getEnglishParserModel() {
+  if (_englishParserModel) return _englishParserModel;
+  if (!fs.existsSync(DEFAULT_PARSER_MODEL)) return null;
+  _englishParserModel = loadEnglishParserModel(JSON.parse(fs.readFileSync(DEFAULT_PARSER_MODEL, "utf8")));
+  return _englishParserModel;
+}
+
 const MIN_RELATION_SURFACES = Number(process.env.ER7_MIN_RELATION_SURFACES ?? 2);
 
-function createSessionReader() {
+export function createSessionReader() {
   const POS_PRIOR = getPosPrior();
   const adapters = {
     revise: (a) => reviseTextFold({ ...a, canonicalizationFloor: CANONICALIZATION_FLOOR }),
@@ -2106,6 +2122,21 @@ function createSessionReader() {
     engRoleConfig = JSON.parse(fs.readFileSync(path.join(HERE, "native/priors/role-config-eng.json"), "utf8"));
   } catch {}
   const perceivers = [createCausalTextPerceiver({ minRelationSurfaces: MIN_RELATION_SURFACES, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING, reprojectEvery: Number(process.env.ER7_REPROJECT_EVERY ?? 10), language: "eng", roleConfig: engRoleConfig })];
+  // Measured 2026-09-23 (reading-training audit): this perceiver alone
+  // scores 0.9% recall / 18.5% precision on held-out core SVO extraction;
+  // the trained parser below scores 74.0%/73.7%, confirmed real by a
+  // scrambled-order null (p=1.9e-43) — github.com/clovenbradshaw-ctrl/
+  // reading-training. Added ALONGSIDE, never replacing, the perceiver
+  // above: both perceivers' candidates flow through the same existing
+  // witness/admission/challenge pipeline unchanged, so nothing downstream
+  // is bypassed. Trained on modern UD English-EWT — accuracy on older or
+  // non-standard English registers is unmeasured and may be much lower;
+  // this is a floor-raiser for the common case, not declared universal.
+  // ER7_ENGLISH_PARSER_PERCEIVER=0 disables it instantly, no code revert.
+  if (process.env.ER7_ENGLISH_PARSER_PERCEIVER !== "0") {
+    const parserModel = getEnglishParserModel();
+    if (parserModel) perceivers.push(createEnglishParserPerceiver({ model: parserModel, posPrior: POS_PRIOR }));
+  }
   return createRecursiveReader({ perceivers, adapters });
 }
 
