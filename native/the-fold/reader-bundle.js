@@ -112,7 +112,24 @@ export function makeEngineRelationReader(extra = {}) {
     posPriorFor: () => posPrior,
     verbForms,
     oovLexicon: verbForms,
+    // S50 (2026-09-02): a form the received POS prior already attests as
+    // verb-dominant joins the vocabulary on its FIRST arrival rather than
+    // waiting on the ordinary recurrence floor — closes a measured short-
+    // material starvation (a one-page face's own content verbs each arrive
+    // once and, gated, fold every edge to "subject were rest-of-sentence").
+    // eval/the-fold's own research scripts (ranke-backwards.mjs,
+    // model-swap-diff.mjs, mvp-acceptance.mjs) already set this; this
+    // bundle — the one production path cli/reason.mjs actually calls for
+    // arbitrary text — had not, until now. Needs nothing beyond verbForms/
+    // posPriorFor, already built above.
+    attestedVerbs: true,
     determiners: DETERMINERS,
+    // queryReferents' verb-label fold reads a narrower organ than the
+    // combined DETERMINERS above (2026-09-23, adversarial falsification):
+    // definite article only, never indefinite — folding "a" with "the"
+    // wrongly clustered a non-unique claim with a unique one. See
+    // hypergraph.js's own `foldLabel` comment for the specimen.
+    definiteDeterminers: new Set(P.DEFINITE_DETERMINERS),
     negationWords: NEGATION_WORDS,
     firstPerson: FIRST_PERSON,
     // Received morphology prior — "underwent" answers material that only
