@@ -18,7 +18,14 @@ import { reconstruct } from "./native/kernel/fold.js";
 import { createHyperlexicon, admitHyperlexiconCandidates, giveHyperlexiconAffordance } from "./native/kernel/hyperlexicon.js";
 import { createRelationCompositionLedger, acquireCompositionCandidates } from "./native/kernel/relation-composition.js";
 import { createSession as createCorpusSession, admitChunked } from "./legacy-eoreader6.1/packages/host/corpus.js";
-import { executePrompt } from "./legacy-eoreader6.1/packages/host/surfer.js";
+// surfTask's own absolute address ladder (2026-09-23, user direction: "rip
+// out all the surf thats not happening in eoreader7... the fold is just a
+// surface") — native/organs/source.js's chunkSource+retrieve replaces the
+// legacy executePrompt import that used to live here (surfTask's own header
+// comment has the full account: a live, minimally-reproduced bug where the
+// legacy ladder's windowed fallback cut a name mid-word, and the reasoning
+// this repo never patches a frozen legacy organ in place, Constitution I.2).
+import { chunkSource, retrieve as retrieveChunks } from "./native/organs/source.js";
 import { postprocessAnswer, postprocessCode, validatePython, validateHtml, warmPostprocess, getPyodide } from "./postprocess.mjs";
 import { validateLanguage } from "./native/organs/lang-validators.js";
 // The three resolutions — brought in from the-fold (vendored at
@@ -57,8 +64,9 @@ import { antistrauss } from "./native/the-fold/antistrauss.mjs";
 import { goreBoundary, gatherPlan, cueGoDeeperPlan } from "./native/the-fold/gore.js";
 // The keyless field (GFP Pass 35, the-fold c232779): recall by partial-cue
 // resemblance, resolution by state — no absolute address. Surf's SECOND
-// witness, beside the absolute-address ladder (executePrompt): when that
-// ladder returns a void or nothing, the field recalls what the cue resembles.
+// witness, beside the exact-term ladder (native/organs/source.js's
+// chunkSource+retrieve, surfTask's own header comment): when that ladder
+// returns a void or nothing, the field recalls what the cue resembles.
 import { Field } from "./native/the-fold/relative.js";
 import { dmdWindow, gammaFor } from "./native/kernel/activation.js";
 // The felt shape (2026-09-13, Abhinavagupta) — the third Greek leg, wired
@@ -2195,8 +2203,8 @@ export function resetSession(sessionId) {
 // EOReader7 does not ask a model to browse or bookmark files (small local
 // models cannot be trusted to tool-call). The proxy reads the files itself
 // and admits them into a REAL corpus session (legacy host/corpus.js), then
-// the REAL surf (host/surfer.js::executePrompt — the mechanical, model-free
-// SOURCE→HEADING→CONTENT→WINDOW address ladder) addresses, on every turn,
+// the REAL surf (surfTask, this file — native/organs/source.js's mechanical,
+// model-free chunk+retrieve ladder, 2026-09-23) addresses, on every turn,
 // the exact segment the question needs. The model receives the SURFED
 // CONTENT ONLY — never an address, never a browse: "the model is given the
 // content it needs when asked, as if from nowhere." The address belongs to
@@ -2468,8 +2476,8 @@ function readWorkspaceFile(entry, onNote) {
 }
 
 // ── the field: surf's SECOND witness (GFP Pass 35, relative.js) ────────────
-// The absolute-address ladder (executePrompt) is a key, a lookup, exact or
-// nothing. The field is the OTHER way: recall by partial-cue resemblance,
+// The exact-term ladder (surfTask's own chunkSource+retrieve) is a key, a
+// lookup, exact or nothing. The field is the OTHER way: recall by partial-cue resemblance,
 // resolution by state. When the ladder returns a void or nothing, the field
 // recalls what the question's words resemble — measured (the-fold c232779):
 // lexical 215/240, the field 240/240 on the GFP battery.
@@ -2523,6 +2531,29 @@ const isConversationSource = (sourceId) => String(sourceId ?? "").startsWith("ch
 // Returns the addressed segment(s) TEXT ONLY. The address (source, heading,
 // byte range, addressed_by) is reported to the ledger/notes — it is NEVER
 // placed in the model's context.
+//
+// NATIVE ONLY (2026-09-23, user direction: "rip out all the surf thats not
+// happening in eoreader7... the fold is just a surface" — eoreader7 IS the
+// engine, and a call into the frozen legacy submodule is not "happening in
+// eoreader7"). The exact-term ladder used to be legacy-eoreader6.1/packages/
+// host/surfer.js's executePrompt. Found live, minimally reproduced (a
+// standalone script, no mocks, the real executePrompt and the real
+// engineRelationsFor over a two-paragraph Hamlin/Johnson specimen): its
+// windowed fallback cut its own returned text MID-WORD (byte_start landing
+// one character into "Hamlin", producing "amlin"), and the relation reader
+// correctly refused to read the lowercase fragment as a name — a controlled
+// A/B (restoring only the single dropped letter) recovered exactly the one
+// lost fact and nothing else changed. Rather than patch a frozen legacy
+// organ in place (Constitution I.2; the ratchet, P69 — retire only via a
+// passing native replacement), the ladder is now native/organs/source.js's
+// own chunkSource (real paragraph/sentence-boundary chunking, so a returned
+// window cannot start or end mid-word by construction) + retrieve
+// (mechanical term-overlap ranking, no hand-picked relevance floor — the
+// SAME organ the-fold's own app.js already uses successfully for this exact
+// question shape). The FIELD resemblance-recall witness below (relative.js's
+// Field, already native, GFP Pass 35) and the composition-mode multi-
+// document branch (salientDocsForTask, already native) are unchanged — only
+// the exact-address ladder's own implementation moved off the legacy submodule.
 function surfTask(session, task, onNote, { composition = false } = {}) {
   if (!session.corpus || session.corpus.documents.size === 0) {
 return { segments: [], void: true, reason: "no corpus yet" };
@@ -2552,81 +2583,70 @@ return { segments: [], void: true, reason: "no corpus yet" };
       return { segments, void: false, addressedBy: true, composition: true };
     }
   }
-  const result = executePrompt(session.corpus, task);
-  if (onNote) onNote({ move: "surfaced", operator: result.operator ?? null, fan: Array.isArray(result.fan) ? result.fan.length : 0, docs: session.corpus.documents.size, resultGap: result.gap ?? null });
-  // DEBUG: dump the raw surf result
-  try { fs.writeFileSync("/tmp/er7-surf-debug.json", JSON.stringify({ docs: session.corpus.documents.size, operator: result.operator, gap: result.gap, fan: Array.isArray(result.fan) ? result.fan.map(f => ({ addressed_by: f.addressed_by, gap: f.gap, text: (f.text ?? "").slice(0, 60) })) : "not-array", keys: Object.keys(result) }, null, 2)); } catch {}
+  // THE NATIVE LADDER (2026-09-23, replacing the legacy executePrompt call
+  // — see this function's own header comment for the full account: the
+  // legacy ladder's windowed fallback was found, live, cutting a name
+  // mid-word ("Hamlin" -> "amlin"), silently losing the one edge a question
+  // needed, and this repo never patches a frozen legacy organ in place).
+  // native/organs/source.js's chunkSource splits on real paragraph/sentence
+  // boundaries, so a returned chunk can never start or end mid-word by
+  // construction; retrieve() ranks by the question's own term overlap, with
+  // no hand-picked relevance floor — the SAME organ the-fold's own app.js
+  // already uses successfully for this exact question shape.
+  const allChunks = [];
+  for (const [sourceId, doc] of session.corpus.documents.entries()) {
+    if (isConversationSource(sourceId)) continue;
+    const text = String(doc?.text ?? doc ?? "").trim();
+    if (!text) continue;
+    allChunks.push(...chunkSource(sourceId, text));
+  }
+  const hits = retrieveChunks(allChunks, task, SURF_MAX_SEGMENTS);
+  if (onNote) onNote({ move: "surfaced", operator: "CONTENT", fan: hits.length, docs: session.corpus.documents.size });
 
-  // A truthy `.gap` is not always a hard refusal (addressDoc's no-outline
-  // fallback still spreads real text beside a disclosed label) — only a
-  // result with no text at all is unusable. The conversation's own text
-  // (source_id `chat:...`) is never material either.
-  const candidates = (result.fan ?? [result]).filter((c) => c?.text && !isConversationSource(c.source_id ?? c.source ?? null));
-  if (!candidates.length) {
-    const first = result.fan?.[0] ?? result;
-    const gap = result.gap ?? first?.gap ?? "content_not_found";
-    // SECOND WITNESS: the absolute ladder found nothing — the field recalls
-    // what the question's words RESEMBLE. A real recall is kept (addressed_by
-    // "field"); a recall inside the null band is not a recall, and the void
-    // is disclosed as a void, never dressed up as a match.
+  if (!hits.length) {
+    // SECOND WITNESS: the exact-term ladder found nothing — the field
+    // recalls what the question's words RESEMBLE. A real recall is kept
+    // (addressed_by "field"); a recall inside the null band is not a
+    // recall, and the void is disclosed as a void, never dressed up as a
+    // match.
     const field = fieldRecall(session, task);
     const recalled = field.recalled.filter((r) => !isConversationSource(r._ledger?.source));
     if (recalled.length) {
       if (onNote) onNote({ move: "surfaced", operator: "FIELD", fan: recalled.length, docs: session.corpus.documents.size, kind: field.kind, band: field.band ? { hi: field.band.hi } : null });
       return { segments: recalled, void: false, addressedBy: true, addressedByWitness: "field", band: field.band ? { hi: field.band.hi } : null };
     }
-    if (onNote) onNote({ move: "void", gap, reason: result.reason ?? first?.reason ?? null });
-    return { segments: [], void: true, gap, reason: result.reason ?? first?.reason ?? null };
+    const gap = "content_not_found";
+    const reason = "no chunk shares a term with the question, and nothing resembled it above the field's own null";
+    if (onNote) onNote({ move: "void", gap, reason });
+    return { segments: [], void: true, gap, reason };
   }
 
-  // Rank by how firmly each candidate was addressed — real content activation
-  // first (a clean content-match), then heading-addressed segments, then the
-  // disclosed windowed/no-boundary fallbacks. Never by file-name luck.
-  const rank = (c) => {
-    const m = c.content_match;
-    if (m && m.ambiguous === false && c.content_line != null) return 4;
-    if (c.addressed_by === "heading") return 3;
-    if (m && m.ambiguous === true) return 2;
-    if (c.windowed || c.found === false || c.gap) return 1;
-    return 0;
-  };
-  candidates.sort((a, b) => rank(b) - rank(a));
-  const selected = candidates.slice(0, SURF_MAX_SEGMENTS);
-  // WEAK-MATCH BOOST: if the best the absolute ladder returned is only a
-  // disclosed windowed fallback (rank 1 — no clean content match, no heading),
-  // ask the field whether the cue RESEMBLES a stronger passage. The field
-  // joins the offered set, never replaces it; only a recall above the null
-  // band counts (measured, never chosen).
-  if (selected.length && rank(selected[0]) <= 1) {
-    const field = fieldRecall(session, task);
-    if (field.recalled.length) {
-      // The boost only adds sources the absolute ladder did NOT already select
-      // (selected, not segments — segments are built below, after the boost).
-      const existingSources = new Set(selected.map((s) => s._ledger?.source).filter(Boolean));
-      for (const r of field.recalled) {
-        if (isConversationSource(r._ledger?.source)) continue;
-        if (existingSources.has(r._ledger?.source)) continue;
-        selected.push(r);
-        existingSources.add(r._ledger?.source);
-      }
-      if (onNote) onNote({ move: "surfaced", operator: "FIELD+SEG", fan: selected.length, kind: field.kind, boost: field.recalled.length });
-    }
-  }
+  // WEAK-MATCH BOOST: exact term overlap can still be thin (few shared
+  // terms) — ask the field whether the cue RESEMBLES a stronger passage the
+  // exact ladder did not surface. The field joins the offered set, never
+  // replaces it; only a recall above the null band counts (measured, never
+  // chosen), and it never duplicates a source the ladder already selected.
+  const existingSources = new Set(hits.map((c) => String(c.ref).split("#")[0]));
+  const field = fieldRecall(session, task);
+  const boosted = field.recalled.filter((r) => !isConversationSource(r._ledger?.source) && !existingSources.has(r._ledger?.source));
+  if (boosted.length && onNote) onNote({ move: "surfaced", operator: "CONTENT+FIELD", fan: hits.length + boosted.length, kind: field.kind, boost: boosted.length });
+
   const segments = [];
   let total = 0;
-  for (const s of selected) {
-    const text = String(s.text ?? "").slice(0, SURF_MAX_SEGMENT_CHARS);
+  for (const c of hits) {
+    const text = String(c.text ?? "").slice(0, SURF_MAX_SEGMENT_CHARS);
     if (!text) continue;
     total += text.length;
     if (total > SURF_MAX_TOTAL_CHARS) break;
-    segments.push({
-      text,
-      // address ledger, never model context
-      _ledger: { source: s.source ?? null, heading: s.heading ?? null, addressed_by: s.addressed_by ?? null, bytes: [s.byte_start ?? null, s.byte_end ?? null] },
-    });
-    if (onNote) {
-      const l = segments[segments.length - 1]._ledger;
-}
+    // address ledger, never model context
+    segments.push({ text, _ledger: { source: String(c.ref).split("#")[0] ?? null, heading: null, addressed_by: "content", bytes: [c.start ?? null, c.end ?? null] } });
+  }
+  for (const r of boosted) {
+    const text = String(r.text ?? "").slice(0, SURF_MAX_SEGMENT_CHARS);
+    if (!text) continue;
+    total += text.length;
+    if (total > SURF_MAX_TOTAL_CHARS) break;
+    segments.push({ text, _ledger: { source: r._ledger?.source ?? null, heading: null, addressed_by: "field", bytes: [null, null] } });
   }
   return { segments, void: false, addressedBy: segments.length > 0 };
 }

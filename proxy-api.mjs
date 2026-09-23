@@ -285,7 +285,7 @@ export function humanizeNote(note) {
     case "surfaced":
       return note.operator === "FIELD"
         ? `Recalled ${note.fan} passage(s) by resemblance (the field; above its null band).`
-        : note.operator === "FIELD+SEG"
+        : note.operator === "CONTENT+FIELD"
           ? `Surfaced via the address ladder + the field's resemblance (${note.fan} total, ${note.boost} by resemblance).`
           : `Surfaced material via ${note.operator} (${note.fan} candidate window(s)).`;
     case "void":
