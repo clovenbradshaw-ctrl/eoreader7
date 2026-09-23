@@ -326,6 +326,59 @@ export const referentForm = (text, { confusables = null } = {}) => {
   return canonicalGlyphs(diaNorm(s));
 };
 
+// ── NEAR-MISS SPELLING: one bounded edit away, and only when nothing else
+// already answered ─────────────────────────────────────────────────────────
+// A dropped, doubled, or transposed letter ("Jonson" for "Johnson", "Jonhson"
+// for "Johnson") is not a different referent, the same way a leet glyph or a
+// case difference is not (referentForm, above) — it is noise in how the
+// spelling was typed, not in who is named.
+//
+// UNCONDITIONAL edit-distance-1 matching is NOT safe on its own, though, and
+// this is measured, not assumed: espeak-ng confirms "Reed"/"Reid" and
+// "Allen"/"Allan" are each edit-distance-1 AND exact homophones — real,
+// common, genuinely DIFFERENT surnames that a bare typo-tolerant fold would
+// silently merge. Neither spelling similarity nor pronunciation similarity
+// is a safe unconditional identity signal; record-linkage systems never use
+// name similarity alone for exactly this reason. So this organ is exported
+// as a comparator only — osaDistanceAtMost1/isNearMissSpelling never decide
+// identity by themselves. The caller (cast.js::resolve) is what makes this
+// safe: near-miss matching only ever runs as a FALLBACK once every other
+// resolution has found nothing, and is REFUSED outright the moment it would
+// merge a candidate with more than one distinct already-established
+// referent — the same "a tie is refused, never guessed" discipline this
+// codebase already applies everywhere else (void-brief.js's extentFor,
+// succession.js's buildDirectAnchors).
+//
+// osaDistanceAtMost1 is Optimal String Alignment distance (a standard,
+// simplified Damerau-Levenshtein that counts one adjacent transposition as a
+// single edit, since a swapped adjacent pair is the single most common
+// keyboard/OCR slip) — reported only as a boolean at the bound this organ
+// needs, never the exact larger distance. MIN_VARIANT_LEN reuses cast.js's
+// own MIN_STEM floor rather than inventing a second number: below it, one
+// edit covers too much of the space to mean anything ("she"/"the" is
+// distance 1 and shares no identity at all).
+const MIN_VARIANT_LEN = 4; // cast.js::MIN_STEM's own floor, reused
+export function osaDistanceAtMost1(a, b) {
+  if (a === b) return true;
+  const la = a.length, lb = b.length;
+  if (Math.abs(la - lb) > 1) return false;
+  const d = [];
+  for (let i = 0; i <= la; i++) d[i] = [i];
+  for (let j = 0; j <= lb; j++) d[0][j] = j;
+  for (let i = 1; i <= la; i++) {
+    for (let j = 1; j <= lb; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + cost);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+    }
+  }
+  return d[la][lb] <= 1;
+}
+export const isNearMissSpelling = (a, b) => {
+  const sa = String(a ?? ""), sb = String(b ?? "");
+  return sa.length >= MIN_VARIANT_LEN && sb.length >= MIN_VARIANT_LEN && osaDistanceAtMost1(sa, sb);
+};
+
 // ── THE IDENTITY IS BYTES ───────────────────────────────────────────────────
 // The reading's ground is a byte buffer, and the ledger addresses a claim by its
 // BYTE (dispute.js lands a decider "with its decider and byte address"; EOT is a

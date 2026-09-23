@@ -131,7 +131,7 @@ export function makeCastHandles({ splitSentences, extractSurfaces, discoverRefer
  * implementation of "the same name" — the resolver is a projection of this
  * index, so support and identity cannot drift apart.
  */
-export function makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, blankFurniture = null, leadingSurfaces = null }) {
+export function makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, blankFurniture = null, leadingSurfaces = null, nameFold = null, nameVariant = null }) {
   return function indexFor(passages) {
     const text = (passages ?? []).map((p) => (blankFurniture ? (p?.blanked ?? p?.text ?? "") : (p?.text ?? ""))).join("\n\n");
     const empty = { events: [], referents: new Set(), resolve: () => new Set(), represent: () => null };
@@ -202,6 +202,13 @@ export function makeReferentIndex({ splitSentences, extractSurfaces, discoverRef
     const covers = (s, p) =>
       s === p ||
       (Math.min(s.length, p.length) >= MIN_STEM && (s.startsWith(p) || p.startsWith(s)));
+    // The fold applied before any comparison in resolve(): case, NFKC,
+    // leetspeak/confusables (surfaces.js::referentForm) when the caller
+    // injects it, else diaNorm alone — byte-identical to before this
+    // parameter existed for a caller that never supplies it (P41/P42's own
+    // posture, applied here: widening what the reader recognises as one
+    // spelling, never removing a distinction it already drew).
+    const fold = nameFold ?? diaNorm;
 
     function resolve(name) {
       // Two tests, both required, because they answer different questions.
@@ -222,14 +229,33 @@ export function makeReferentIndex({ splitSentences, extractSurfaces, discoverRef
       // supplies it. This resolver is the seam where that prior will plug
       // in; it does not pretend to be the prior.
       const ids = new Set();
-      const parts = diaNorm(name).split(/\s+/).filter((t) => t.length > 2);
+      const parts = fold(name).split(/\s+/).filter((t) => t.length > 2);
       if (!parts.length) return ids;
       for (const e of events) {
-        if (!namesCorefer(name, e.surface)) continue;
-        const surfaceTokens = diaNorm(e.surface).split(/\s+/);
+        if (!namesCorefer(name, e.surface, { fold })) continue;
+        const surfaceTokens = fold(e.surface).split(/\s+/);
         if (parts.every((p) => surfaceTokens.some((s) => covers(s, p)))) ids.add(e.referent_id);
       }
-      return ids;
+      if (ids.size || !nameVariant) return ids;
+      // NEAR-MISS SPELLING, LAST RESORT ONLY (surfaces.js::isNearMissSpelling's
+      // own header has the full safety argument). Reached only when every
+      // exact/prefix-folded match above found nothing at all — never a
+      // widening of an already-successful resolution. A candidate qualifies
+      // only if EVERY one of its own tokens is a near-miss of some token the
+      // referent's surface establishes; and the whole fallback is REFUSED
+      // — not resolved to a guess — the instant it would merge the
+      // candidate with more than one DISTINCT referent, since that is
+      // exactly the shape of a document that has independently established
+      // two real, different people whose names happen to sit one edit
+      // apart (measured live: "Reed"/"Reid", "Allen"/"Allan" are each
+      // edit-distance-1 and exact homophones).
+      const variantIds = new Set();
+      for (const e of events) {
+        const surfaceTokens = fold(e.surface).split(/\s+/);
+        if (parts.every((p) => surfaceTokens.some((s) => nameVariant(s, p)))) variantIds.add(e.referent_id);
+        if (variantIds.size > 1) return ids; // ambiguous — refused, never guessed
+      }
+      return variantIds.size === 1 ? variantIds : ids;
     }
 
     return { events, referents: new Set(best.keys()), resolve, represent: (id) => best.get(id) ?? null };

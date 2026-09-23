@@ -11,10 +11,11 @@ import { makeCastHandles, makeReferentIndex } from "./cast.js";
 import { chunkSource, blankLabelRows } from "./source.js";
 import { extractReadable } from "./web.js";
 import { splitSentences } from "../adapters/text/spans.js";
-import { extractSurfaces, extractLeadingSurfaces, discoverReferents, namesCorefer, diaNorm } from "../adapters/text/surfaces.js";
+import { extractSurfaces, extractLeadingSurfaces, discoverReferents, namesCorefer, diaNorm, referentForm, isNearMissSpelling } from "../adapters/text/surfaces.js";
 
 const ORGANS = { splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm };
 const ORGANS_WITH_LEADING = { ...ORGANS, leadingSurfaces: extractLeadingSurfaces };
+const ORGANS_WITH_VARIANT = { ...ORGANS, nameFold: referentForm, nameVariant: isNearMissSpelling };
 const FIX = new URL("../eval/the-fold/fixtures/", import.meta.url);
 const blank = (t) => blankLabelRows(t, { minRun: 4, maxCell: 60 });
 
@@ -138,4 +139,52 @@ test("SENTENCE-INITIAL NAMES, BACKWARD COMPATIBLE: omitting leadingSurfaces is b
   const b = repsOf(passages);
   assert.deepEqual(a, b, "no leadingSurfaces passed -> identical to the pre-seam call, deterministic");
   assert.ok(a.some((r) => /Bezukhov/.test(r)), "mid-sentence referents are untouched");
+});
+
+// NAME-VARIANT FOLD (2026-09-23): capitalisation is a differentiator, never
+// the primary signal (this repo's own L2) — a name resolved once must
+// answer to a later mention that only differs in case, in a leetspeak-style
+// stand-in glyph, or (as a last resort, safety-gated) in a single dropped/
+// transposed/substituted letter. Real material, real organs throughout.
+test("NAME-VARIANT FOLD: case and leetspeak mentions of an established name resolve to the same referent", () => {
+  const passages = [{ ref: "p", text: "In March 1862, Andrew Johnson was appointed military governor of Tennessee. People said johnson governed firmly. Some accounts spell it j0hnson in old records." }];
+  const idx = makeReferentIndex(ORGANS_WITH_VARIANT)(passages);
+  const rep = (name) => [...idx.resolve(name)].map((id) => idx.represent(id));
+  assert.deepEqual(rep("Johnson"), ["Andrew Johnson"]);
+  assert.deepEqual(rep("johnson"), ["Andrew Johnson"], "a lowercase mention resolves to the same referent, not zero");
+  assert.deepEqual(rep("j0hnson"), ["Andrew Johnson"], "a leetspeak-glyph mention resolves to the same referent, not zero");
+});
+
+test("NAME-VARIANT FOLD, BACKWARD COMPATIBLE: omitting nameFold/nameVariant is byte-identical to before this seam existed", () => {
+  const passages = [{ ref: "p", text: "In March 1862, Andrew Johnson was appointed military governor of Tennessee." }];
+  const withVariant = makeReferentIndex(ORGANS_WITH_VARIANT)(passages);
+  const without = makeReferentIndex(ORGANS)(passages);
+  assert.deepEqual([...withVariant.resolve("Johnson")].sort(), [...without.resolve("Johnson")].sort());
+  assert.equal([...without.resolve("johnson")].length, 1, "diaNorm alone already lowercases, so plain case-folding was never the gap");
+  assert.equal([...without.resolve("j0hnson")].length, 0, "no nameFold injected -> the pre-existing behavior stands: diaNorm alone does not fold leetspeak glyphs");
+});
+
+test("NAME-VARIANT FOLD: a single-edit typo falls back to the one established referent it is a near-miss of", () => {
+  const passages = [{ ref: "p", text: "Andrew Johnson served two terms in the Senate before becoming president." }];
+  const idx = makeReferentIndex(ORGANS_WITH_VARIANT)(passages);
+  assert.ok([...idx.resolve("Jonson")].length === 1, "\"Jonson\" (a dropped letter) resolves to exactly the material's one near-miss candidate");
+  assert.deepEqual(idx.resolve("Jonson"), idx.resolve("Johnson"), "the near-miss and the real spelling resolve to the same referent");
+});
+
+test("NAME-VARIANT FOLD: refused, never guessed, when a near-miss query is equidistant between two real, independently-established names", () => {
+  // Verified live via espeak-ng before this fix landed: "Reed"/"Reid" are
+  // simultaneously edit-distance-1 AND exact homophones — a real hazard,
+  // not a contrived one — so an unconditional typo-tolerant fold would
+  // silently merge two different people. This is the safety property that
+  // makes the fallback safe: it activates only once every exact/folded
+  // match has already found nothing, and refuses outright on any tie.
+  const passages = [{ ref: "p", text: "The committee was chaired by Sarah Reed for two years. Michael Reid gave the closing remarks at the final session." }];
+  const idx = makeReferentIndex(ORGANS_WITH_VARIANT)(passages);
+  assert.deepEqual([...idx.resolve("Reed")].map((id) => idx.represent(id)), ["Sarah Reed"], "an exact spelling still resolves to itself, never rescued into the other");
+  assert.deepEqual([...idx.resolve("Reid")].map((id) => idx.represent(id)), ["Reid"]);
+  assert.notDeepEqual(idx.resolve("Reed"), idx.resolve("Reid"), "the two real referents stay distinct");
+  // "Rexd" is edit-distance-1 from BOTH "reed" and "reid" (substituting the
+  // third letter either way) — the genuinely ambiguous case the safety
+  // design exists for.
+  assert.deepEqual([...idx.resolve("Rexd")], [], "equidistant between two real, distinct referents — refused, not guessed");
 });
