@@ -144,18 +144,30 @@ export const RUNGS = Object.freeze([
       { author: "William Shakespeare", work: "the plays and sonnets", date: "1564–1616" },
     ],
     corpus: {
-      status: "partial — real material already on disk, verified this session",
+      status: "partial — real material on disk, corrected and expanded this session",
       onDisk: [
         "01-literature-books/renaissance-poetry/wyatt-whoso-list-to-hunt.txt (fetched and saved this session, provenance in the file's own header)",
-        "eval/lavar/results/lp-shakespeare.* (source: 01-literature-books/gutenberg/pg100_Complete_Works_of_Shakespeare.txt, a 55KB SAMPLE of the complete works, not the whole 5MB+ text)",
-        "eval/lavar/results/lp-othello.* (source: 15-western-canon/folger-shakespeare/Othello.txt, the full Folger edition)",
-        "eval/lavar/results/lp-kinglear.* (source: 15-western-canon/folger-shakespeare/King_Lear.txt, the full Folger edition)",
+        "15-western-canon/first-folio/henry-iv-part-1.txt — the real 1623 First Folio text of THE FIRST PART OF HENRY THE FOURTH (Gutenberg eBook #2270, genuine period orthography: Hot-Spvrre, Iohn, ciuill, Heauen).",
+        "15-western-canon/first-folio/henry-iv-part-1-modern.txt — the same play, modernized spelling (Gutenberg eBook #100), saved side by side for direct period-vs-modern comparison.",
+        "eval/the-fold/results/movies/henry-iv-part-1/ — a real recording (YouTube, 2h45m, downloaded in full as WAV) and a real mlx_whisper transcript of its opening 5 minutes, cross-checked this session word-for-word against both texts above: near-exact match (Mordake, the night-tripping fairy, called mine Percy his Plantagenet all present in all three sources), one real disclosed transcription slip (Whisper wrote ‘Mordech’ once where both texts read ‘Mordake’).",
       ],
       missing: [
         "Marlowe: nothing on disk anywhere in this checkout. Gutenberg pg1094 (The Works of Christopher Marlowe) is the named next fetch — not yet done.",
-        "The rest of Shakespeare beyond the 55KB sample and the two Folger plays (37 plays, 154 sonnets total) — a real, large, multi-session fetch-and-read job, not attempted here.",
+        "The rest of Shakespeare beyond Henry IV Part I — 36 more plays, 154 sonnets — a real, large, multi-session fetch-and-read job, not attempted here.",
+        "The remaining ~2h40m of the real downloaded Henry IV Part I audio: only its first 5 minutes has been transcribed.",
       ],
     },
+    // 2026-09-22 (second pass, same session): the ORIGINAL corpus.onDisk
+    // entries here (lp-shakespeare.*/lp-othello.*/lp-kinglear.*, sourced
+    // from 15-western-canon/folger-shakespeare/) were deleted along with
+    // their whole source directory. Direct audit found 14 of 15 named
+    // play files in that directory held a DIFFERENT play's own Gutenberg
+    // content than their filename claimed (Othello.txt was King Henry V;
+    // King_Lear.txt was King Richard II; only Macbeth.txt was correctly
+    // labeled) — a systemic mislabeling, not two isolated errors. Folger's
+    // own editorial texts are modernized-spelling by policy regardless,
+    // so even correctly labeled they would never have satisfied "OG
+    // spelling" — the real First Folio (Gutenberg #2270) replaces it.
     note: "‘Sithens’, ‘list’ (= wishes), ‘hath’/‘doth’ endings, and an embedded French phrase (‘hélas’) and a Latin one (‘Noli me tangere’) inside one 14-line English sonnet — real material for testing whether nominal-beings.js's L2 admission survives archaic inflection and code-switched foreign phrases, or honestly drops them as unattested (the expected outcome for the Latin/French spans, since pos-prior-eng.json was built from a modern English treebank). L0 is CLOSER to honest here than for Old/Middle English — Early Modern English's own sounds are well-studied (“Original Pronunciation” reconstructions exist), but pronunciation-eng.json is still a MODERN synthesis; using it for L0 on this rung must be labelled as modern pronunciation of period spelling, never as OP itself.",
     measured: {
       date: "2026-09-22",
