@@ -1424,6 +1424,51 @@ test("queryReferents discloses HOW each open end resolved — the noise gate a c
   assert.ok(named.some((n) => n.includes("johnson")), `Johnson should resolve as a referent, got ${JSON.stringify(subs)}`);
 });
 
+// A BARE DETERMINER IS NOT A DIFFERENT SLOT (2026-09-23). Found live: the
+// same office ("vice president under Abraham Lincoln") stated once without
+// an article and once with one — one sentence's writer happened to write
+// "the", the other didn't — read as two unrelated relations under a raw
+// `===` label compare, so a caller asking about one office-holder's own
+// edge could never find the other, even though the material states both.
+test("queryReferents folds a bare determiner out of the verb label — two sentences stating the same office differently still cluster together", async () => {
+  const { relationExtractorsFor } = await import("../adapters/text/relations-language.js");
+  const { classifyWord, dominantClass } = await import("../adapters/text/wordclass.js");
+  const { DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS } = await import("../adapters/text/priors.js");
+  const base = await organs();
+  let dispatchState = null;
+  const dispatchExtractors = () => dispatchState ?? (dispatchState = relationExtractorsFor({ language: "eng", roleConfig: null, posPrior: null, classifyWord, dominantClass }));
+  const dispatchOrgans = (withDeterminers) => ({
+    splitSentences: base.splitSentences,
+    extractSurfaces: base.extractSurfaces,
+    discoverReferents: base.discoverReferents,
+    namesCorefer: base.namesCorefer,
+    diaNorm: base.diaNorm,
+    discoverRelationVocab: (...a) => dispatchExtractors().discoverRelationVocab(...a),
+    extractRelations: (...a) => dispatchExtractors().extractRelations(...a),
+    extractorsMode: "dispatch",
+    tokenize: (t) => String(t).toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [],
+    ...(withDeterminers ? { determiners: new Set([...DEFINITE_DETERMINERS, ...INDEFINITE_DETERMINERS]) } : {}),
+  });
+  const text = "Hannibal Hamlin became vice president under Abraham Lincoln. Andrew Johnson became the vice president under Abraham Lincoln.";
+  const passages = [{ ref: "p", text }];
+
+  const withFix = makeRelationReader(dispatchOrgans(true))(passages, { pool: passages });
+  const edge = withFix.read("placeholder").edges.find((e) => e.end1 === "Hamlin" && e.label.includes("vice president under"));
+  assert.ok(edge, "Hamlin's own edge must exist");
+  const bothFound = withFix.queryReferents({ verb: edge.label, object: edge.end2 }) ?? [];
+  const subjects = bothFound.map((s) => String(s.subject).toLowerCase());
+  assert.ok(subjects.includes("hamlin"), `Hamlin should still be found on his own edge, got ${JSON.stringify(bothFound)}`);
+  assert.ok(subjects.includes("johnson"), `Johnson's differently-articled edge for the SAME slot should now cluster too, got ${JSON.stringify(bothFound)}`);
+
+  // BACKWARD COMPATIBLE: omitting determiners is byte-identical to before
+  // this fix — the query falls back to a raw compare and finds only Hamlin.
+  const withoutFix = makeRelationReader(dispatchOrgans(false))(passages, { pool: passages });
+  const edge2 = withoutFix.read("placeholder").edges.find((e) => e.end1 === "Hamlin" && e.label.includes("vice president under"));
+  const oneFound = withoutFix.queryReferents({ verb: edge2.label, object: edge2.end2 }) ?? [];
+  assert.equal(oneFound.length, 1, "no determiners injected -> the pre-fix behavior stands, only the exact-label edge matches");
+  assert.equal(String(oneFound[0].subject).toLowerCase(), "hamlin");
+});
+
 // ── the Station-3->4 wire: earned faces on public edges (2026-09-01) ────
 // "What Is Being Born" §VI named this the single highest-leverage unbuilt
 // wire; it went dark TWICE in its first hour (fragment-referent ambiguity

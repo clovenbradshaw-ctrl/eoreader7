@@ -2329,15 +2329,38 @@ export function makeRelationReader(organs) {
     // match by the SAME referent identity judge() itself trusts, not by
     // substring luck. Same open-field contract as queryFillers: exactly
     // one of subject/object left null, refused (null) otherwise.
+    // A bare determiner difference is not a different slot. Found live,
+    // 2026-09-23: the same "vice president under Lincoln" office, stated by
+    // two different sentences about two different real office-holders,
+    // read "became vice president under" for one and "became the vice
+    // president under" for the other — one sentence's writer happened to
+    // include the article, the other's did not, and the old raw `===`
+    // compare treated them as two unrelated relations, so a caller asking
+    // about one office-holder's own edge could never find the other even
+    // though the material states both. Folds through the SAME `determiners`
+    // organ this file already injects (endpoint()'s own object-token
+    // matching, above) — no new parameter, no hand-typed word list.
+    // Deliberately narrow: only determiners fold, not the broader
+    // `functionWords` class, since a differing PREPOSITION ("vice
+    // president under" vs "vice president of") is a real distinction this
+    // file's own existing determiners-use already treats as a different
+    // hazard class than a bare article.
+    const foldLabel = (s) =>
+      String(s ?? "")
+        .toLowerCase()
+        .split(/\s+/)
+        .filter((t) => t && !determiners?.has(t))
+        .join(" ");
     function queryReferents({ subject = null, verb = null, object = null } = {}) {
       const openSubject = subject == null;
       const openObject = object == null;
       if (openSubject === openObject) return null;
       const subjEnd = subject == null ? null : endpoint(subject);
       const objEnd = object == null ? null : endpoint(object);
+      const verbFolded = verb == null ? null : foldLabel(verb);
       const matches = edges.filter(
         (e) =>
-          (verb == null || e.label === verb) &&
+          (verb == null || foldLabel(e.label) === verbFolded) &&
           (subjEnd == null || endpointsMatch(e.subjectEnd, subjEnd)) &&
           (objEnd == null || endpointsMatch(e.objectEnd, objEnd)),
       );
