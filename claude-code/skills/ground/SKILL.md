@@ -18,9 +18,14 @@ current to show.
    ```bash
    curl -sS -m 10 -D /tmp/ground-headers "${ER7_URL:-http://127.0.0.1:11436}/v1/surface" \
      -H "x-er7-cwd: $PWD" -o /tmp/ground-surface.html
-   status="$(awk 'NR==1{print $2}' /tmp/ground-headers)"
+   http_status="$(awk 'NR==1{print $2}' /tmp/ground-headers)"
    ```
-2. `status` not 200: say so plainly, don't error confusingly.
+   <!-- Named http_status, not status: measured live, 2026-09-23 — zsh (this
+   environment's own shell) reserves `$status` as a read-only alias for
+   `$?`, so `status=...` fails at runtime with "read-only variable: status"
+   even though the curl itself succeeds. Caught by actually running this
+   skill, not by reading it. -->
+2. `http_status` not 200: say so plainly, don't error confusingly.
    - No connection at all → eoreader7 isn't running at `$ER7_URL`; point at `er7-proxy`.
    - 404 (`no_surface_yet`) → no reasoning has run yet for this project; nothing to show yet — offer to run one (Mode 2).
    - 400 (`missing_cwd`) → a bug in this skill, not the user's.

@@ -105,21 +105,45 @@ function renderCitationTerminal() {
     s.verdict === "event" ? `  commit: ${s.hash} in ${s.repo} — ${s.files?.length ?? 0} file(s)` : null,
   ].filter(Boolean).join("\n");
 
-  const sourcesHtml = sources.map((s, i) => `
-    <div class="card" draggable="true" data-idx="${i}" data-filter="${esc((rel(s.ground) ?? s.ground) + " " + s.verdict + " " + (s.file ? path.basename(s.file) : s.hash ? s.hash : "")).toLowerCase()}">
+  // The facing pairing: SAID (the claim's own words — paraphrase included,
+  // never diffed against source bytes) faces SOURCE (address + a mechanical,
+  // overlap-scored verdict). When a claim carries no free-text `said`, this
+  // falls back to the same ARG0·rel·ARG1 shape chatRefOf and the reasoning
+  // record already use, rather than leaving the SAID side blank.
+  const saidTextOf = (i) => {
+    const raw = said(i);
+    if (raw) return { text: raw, structural: false };
+    const c = declared[i];
+    return { text: `${c.roles.ARG0 ?? ""} · ${c.rel} · ${c.roles.ARG1 ?? ""}`, structural: true };
+  };
+
+  const sourcesHtml = sources.map((s, i) => {
+    const claimText = saidTextOf(i);
+    return `
+    <div class="card" draggable="true" data-idx="${i}" data-filter="${esc((rel(s.ground) ?? s.ground) + " " + s.verdict + " " + (s.file ? path.basename(s.file) : s.hash ? s.hash : "") + " " + (said(i) ?? "")).toLowerCase()}">
       <span class="drag-handle" title="drag to reorder">⠿</span>
       <button class="chatbtn" title="copy a chat-ready reference" data-copy="${esc(chatRefOf(declared[i], s))}">⌘</button>
-      <span class="badge ${badgeClass(s.verdict)}">${badgeGlyph(s.verdict)}</span>
-      <div class="ground">ground: <b>${esc(rel(s.ground) ?? s.ground)}</b></div>
-      ${s.verdict === "event"
-        ? `<button class="locbtn" data-copy="${esc(s.hash)} (${esc(s.repo)})"><span>${esc(s.hash)}</span><span class="copy-ico">⧉ copy</span></button>
-           <div class="dim-line">${s.files?.length ?? 0} file(s) — verified against git directly, no relevance scoring: a commit either happened or it didn't</div>`
-        : s.file
-        ? `<button class="locbtn" data-copy="${esc(s.file)}:${s.line ?? "?"}"><span>${esc(path.basename(s.file))}:${s.line ?? "?"}</span><span class="copy-ico">⧉ copy</span></button>
-           ${s.verdict === "cited" ? `<div class="score-row"><span><b>score</b> ${s.score}</span><span><b>floor</b> ${s.floor}</span></div>` : `<div class="dim-line">file exists, this claim's own words did not beat it</div>`}
-           ${polarityChecks[i]?.checked && !polarityChecks[i].reachable ? `<div class="guard-note">⚑ presence only — not tested against its own denial</div>` : ""}`
-        : `<div class="dim-line">${s.detail ?? (s.verdict === "missing" ? "no file at this address" : "not a filesystem ground — not a failure")}</div>`}
-    </div>`).join("");
+      <div class="card-head"><span class="badge ${badgeClass(s.verdict)}">${badgeGlyph(s.verdict)}</span></div>
+      <div class="card-body">
+        <div class="panel">
+          <div class="panel-label">Said</div>
+          <div class="said-text${claimText.structural ? " structural" : ""}">${esc(claimText.text)}</div>
+        </div>
+        <div class="panel">
+          <div class="panel-label">Source</div>
+          <div class="ground">ground: <b>${esc(rel(s.ground) ?? s.ground)}</b></div>
+          ${s.verdict === "event"
+            ? `<button class="locbtn" data-copy="${esc(s.hash)} (${esc(s.repo)})"><span>${esc(s.hash)}</span><span class="copy-ico">⧉ copy</span></button>
+               <div class="dim-line">${s.files?.length ?? 0} file(s) — verified against git directly, no relevance scoring: a commit either happened or it didn't</div>`
+            : s.file
+            ? `<button class="locbtn" data-copy="${esc(s.file)}:${s.line ?? "?"}"><span>${esc(path.basename(s.file))}:${s.line ?? "?"}</span><span class="copy-ico">⧉ copy</span></button>
+               ${s.verdict === "cited" ? `<div class="score-row"><span><b>score</b> ${s.score}</span><span><b>floor</b> ${s.floor}</span></div><div class="dim-line">overlap-scored against a null floor, not matched verbatim — a paraphrase of the source still cites</div>` : `<div class="dim-line">file exists, but "Said" does not beat chance against it — reworded far enough and this would still miss</div>`}
+               ${polarityChecks[i]?.checked && !polarityChecks[i].reachable ? `<div class="guard-note">⚑ presence only — not tested against its own denial</div>` : ""}`
+            : `<div class="dim-line">${s.detail ?? (s.verdict === "missing" ? "no file at this address" : "not a filesystem ground — not a failure")}</div>`}
+        </div>
+      </div>
+    </div>`;
+  }).join("");
 
   const recordHtml = declared.length
     ? declared.map((c) => `<div class="rline"><span class="role">${esc(c.roles.ARG0 ?? "")}</span>·ARG0 <span class="rel">${esc(c.rel)}</span>·REL <span class="role">${esc(c.roles.ARG1 ?? "")}</span>·ARG1  <span class="g">[${c.force}]</span></div>`).join("\n")
@@ -163,7 +187,7 @@ function renderCitationTerminal() {
   .toolbar{padding:14px 20px;border-bottom:1px solid var(--border-soft);font-size:13px;color:var(--text-dim);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .prompt{color:var(--accent);font-weight:600;} .toolbar code{color:var(--text);}
   .content{padding:24px 24px 8px;}
-  .status-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-soft);border:1px solid var(--border-soft);border-radius:8px;overflow:hidden;margin-bottom:24px;}
+  .status-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border-soft);border:1px solid var(--border-soft);border-radius:8px;overflow:hidden;margin-bottom:24px;} @media (max-width:640px){.status-strip{grid-template-columns:repeat(2,1fr);}}
   .stat{background:var(--surface-2);padding:14px 16px;} .stat .k{font-family:'IBM Plex Sans',sans-serif;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);margin-bottom:6px;}
   .stat .v{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;} .stat.pass .v{color:var(--ok);} .stat.pass .v::before{content:"✓ ";}
   .stat.fail .v{color:var(--bad);} .stat.fail .v::before{content:"✗ ";}
@@ -177,13 +201,20 @@ function renderCitationTerminal() {
   .filter:focus{outline:none;border-color:var(--accent);}
   .filter-count{font-family:'IBM Plex Sans',sans-serif;font-size:11px;color:var(--text-faint);white-space:nowrap;}
   .drag-hint{margin-top:8px;}
-  .sources{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;} @media (max-width:640px){.sources{grid-template-columns:1fr;}}
-  .card{background:var(--surface-2);border:1px solid var(--border-soft);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px;min-width:0;position:relative;cursor:grab;}
+  .sources{display:flex;flex-direction:column;gap:10px;}
+  .card{background:var(--surface-2);border:1px solid var(--border-soft);border-radius:8px;position:relative;cursor:grab;overflow:hidden;}
   .card.dragging{opacity:0.4;cursor:grabbing;}
   .card.drag-over{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft) inset;}
   .card.filtered-out{display:none;}
-  .drag-handle{position:absolute;top:10px;right:34px;color:var(--text-faint);font-size:13px;letter-spacing:-1px;}
-  .chatbtn{position:absolute;top:7px;right:8px;width:22px;height:22px;border:1px solid var(--border);background:var(--surface-3);color:var(--text-faint);border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit;line-height:1;}
+  .card-head{display:flex;align-items:center;gap:10px;padding:12px 46px 8px 14px;}
+  .card-body{display:grid;grid-template-columns:1fr 1fr;} @media (max-width:640px){.card-body{grid-template-columns:1fr;}}
+  .panel{padding:6px 14px 14px;min-width:0;display:flex;flex-direction:column;gap:8px;}
+  .panel + .panel{border-left:1px solid var(--border-soft);} @media (max-width:640px){.panel + .panel{border-left:none;border-top:1px solid var(--border-soft);padding-top:12px;}}
+  .panel-label{font-family:'IBM Plex Sans',sans-serif;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text-faint);font-weight:600;}
+  .said-text{font-family:'IBM Plex Sans',sans-serif;font-size:13px;color:var(--text);line-height:1.5;overflow-wrap:break-word;}
+  .said-text.structural{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);}
+  .drag-handle{position:absolute;top:12px;right:34px;color:var(--text-faint);font-size:13px;letter-spacing:-1px;}
+  .chatbtn{position:absolute;top:9px;right:8px;width:22px;height:22px;border:1px solid var(--border);background:var(--surface-3);color:var(--text-faint);border-radius:5px;font-size:12px;cursor:pointer;font-family:inherit;line-height:1;}
   .chatbtn:hover{color:var(--accent);border-color:var(--accent);} .chatbtn.copied{color:var(--ok);border-color:var(--ok);}
   .badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;width:fit-content;}
   .badge.cited{background:var(--ok-soft);color:var(--ok);} .badge.missing{background:var(--bad-soft);color:var(--bad);} .badge.unaddressed{background:var(--neutral-soft);color:var(--neutral);}
@@ -195,7 +226,7 @@ function renderCitationTerminal() {
   .guard-note{font-size:10.5px;color:var(--warn);font-family:'IBM Plex Sans',sans-serif;}
   .dim-line{color:var(--text-faint);font-size:12px;}
   .record{background:var(--record-bg);border:1px solid var(--border-soft);border-radius:8px;padding:16px 18px;font-size:12.5px;overflow-x:auto;}
-  .record .rline{white-space:pre;color:var(--text-dim);} .record .rline .g{color:var(--text-faint);} .record .rline .role{color:var(--code-role);} .record .rline .rel{color:var(--accent);}
+  .record .rline{white-space:pre-wrap;word-break:break-word;color:var(--text-dim);} .record .rline .g{color:var(--text-faint);} .record .rline .role{color:var(--code-role);} .record .rline .rel{color:var(--accent);}
   .record .schema{color:var(--text-faint);margin-bottom:10px;font-size:11px;}
   footer{padding:16px 24px 22px;font-family:'IBM Plex Sans',sans-serif;font-size:11.5px;color:var(--text-faint);border-top:1px solid var(--border-soft);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
 </style>
