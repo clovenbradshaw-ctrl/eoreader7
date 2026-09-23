@@ -29,7 +29,7 @@ export { heardSurfaces, isPositionallySigned, POSITIONAL_SIGNATURE, NAMING_CLASS
 export * as heardSurfacesOrgan from "./heard-surfaces.js";
 export { REFUSALS as FOLD_GATE_REFUSALS, reviewMerges, refuteIdentity, reviewIdentityMerges, reviewReferentAssignments } from "./fold-gate.js";
 export * as foldGate from "./fold-gate.js";
-export { DOCUMENT_KINDS, DOCUMENT_KINDS_META, readHeading, speakerAt, speakerSections } from "./speaker.js";
+export { DOCUMENT_KINDS, DOCUMENT_KINDS_META, MEETING_BOUNDARY_META, meetingBoundaries, meetingSections, readHeading, speakerAt, speakerSections, turnMarkerBoundaries } from "./speaker.js";
 export * as speaker from "./speaker.js";
 export { REFUSALS as OBLIGATION_REFUSALS, STANDINGS, admitObligations, coverage, mark, standings } from "./obligation.js";
 export * as obligation from "./obligation.js";
@@ -166,5 +166,3 @@ export * as thea from "./thea.js";
 // Server-side only, like the what/anchor organs: it composes kernel/rng-less
 // pure modules plus node:fs for the environment file, so it is NOT statically
 // re-exported for the same static-host reason as what.js/anchor.js above.
-export { createCurrentFactsStore, extractHolder, termFromRecord } from "./current-facts.js";
-export * as currentFacts from "./current-facts.js";
