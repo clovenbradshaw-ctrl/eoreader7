@@ -50,7 +50,7 @@ export * as capacities from "./capacities.js";
 export { assertionId, recipeId, REFUSALS as NOTES_TEXT_REFUSALS, VERB_CLASS, makeNotesText } from "./notes-text.js";
 export { standingOf as noteStanding, sourceOfWitness, recipeOfWitness, kindOfWitness, claimContestedByLedger } from "../kernel/notes.js";
 export { reviseAgainstLedger } from "./ledger-revision.js";
-export { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, leadsOf, footnoteLeads, footnoteLeadsForNote, markersIn, markersOfSpan, documentMatches, archiveAddressFor, chase, chaseLedger } from "./ranke.js";
+export { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, nestedStanding, leadsOf, footnoteLeads, footnoteLeadsForNote, markersIn, markersOfSpan, documentMatches, archiveAddressFor, chase, chaseLedger } from "./ranke.js";
 export * as ranke from "./ranke.js";
 export * as notesText from "./notes-text.js";
 export { makeGrammarLens, mismatchedConnectors } from "./grammar-lens.js";

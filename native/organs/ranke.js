@@ -105,7 +105,8 @@ import { extractCitations, rankPrimary, snipClaim, isWikiFamilyHost, unwrapArchi
 import { hostOf } from "./web.js";
 import { CLAIM_STOPWORDS, wordSet, hasWord } from "./grounding.js";
 import { sourceOfWitness, kindOfWitness } from "../kernel/notes.js";
-import { witnessNote } from "./corroboration.js";
+import { witnessNote, distinctSources as sourcesOf, distinctRecipes as recipesOf } from "./corroboration.js";
+import { claimRef, corroborationOf, leakCheck } from "./nesting.js";
 
 export const RANKE = Object.freeze({
   name: "Ranke",
@@ -170,6 +171,55 @@ export function standsOnAccountsOnly(note, { isAccount }) {
   const ws = note?.witnesses ?? [];
   if (!ws.length) return false;
   return ws.every((w) => kindOfWitness(w) !== PRIMARY_KIND && isAccount(sourceOfWitness(w)));
+}
+
+/**
+ * nestedStanding(note, { isAccount, distinctSources, distinctRecipes }) —
+ * THE WALL, applied to what this organ already classifies (2026-09-23).
+ *
+ * standingOf (kernel notes.js) keeps witness KINDS apart in its `kinds`
+ * breakdown, but its own `sources`/`standing` numbers SUM every kind
+ * together: measured live, three different account-only witnesses (no
+ * primary at all) fold to `standing: "corroborated"` — which directly
+ * contradicts this file's own header two screens up ("a note that only
+ * accounts state stays `single-witness` however many accounts repeat it,
+ * because accounts copy each other"). That promise was prose, not code.
+ *
+ * This closes it by PROJECTING the note nesting.js's own way, rather than
+ * inventing a second ad hoc kind-counter: witnesses the caller's
+ * `isAccount` (the same predicate `standsOnAccountsOnly` already uses)
+ * calls an account become an OUTER note per distinct account —
+ * `<account> --states--> claim:<note.id>` — and everything else (a
+ * `primary:` witness, or a non-account witness `isAccount` says no to)
+ * stays the claim's OWN witness set. `corroborationOf` then reports
+ * `direct` from the claim's own witnesses alone — 0 for an accounts-only
+ * note, exactly what the header promised — and `attributed` as the
+ * honest, separate count of how many places repeat it, never added in.
+ * `leakCheck` is run on the same projection so the wall is checked, not
+ * assumed, on live Ranke data. PURE: no engine import beyond nesting.js
+ * and corroboration.js's own existing (source, recipe) readers.
+ */
+export function nestedStanding(note, { isAccount, distinctSources = sourcesOf, distinctRecipes = recipesOf } = {}) {
+  if (typeof isAccount !== "function") throw new TypeError("nestedStanding: isAccount is the caller's declaration — the same predicate standsOnAccountsOnly takes, not nesting.js's vocabulary");
+  const claimId = note?.id;
+  const ownWs = [];
+  const bySource = new Map();
+  for (const w of note?.witnesses ?? []) {
+    if (kindOfWitness(w) !== PRIMARY_KIND && isAccount(sourceOfWitness(w))) {
+      const src = sourceOfWitness(w);
+      if (!bySource.has(src)) bySource.set(src, []);
+      bySource.get(src).push(w);
+    } else {
+      ownWs.push(w);
+    }
+  }
+  const attributions = [...bySource.entries()].map(([src, aws]) => ({
+    id: `attrib:${src}→${claimId}`, end1: src, label: "states", end2: claimRef(claimId), witnesses: aws,
+  }));
+  const ledger = ownWs.length ? [{ id: claimId, witnesses: ownWs }, ...attributions] : attributions;
+  const corrob = corroborationOf(claimId, ledger, { distinctSources, distinctRecipes });
+  const leak = leakCheck(claimId, ledger);
+  return { ...corrob, leaked: leak.leaked, leakWitnesses: leak.witnesses };
 }
 
 // ── leads ───────────────────────────────────────────────────────────────────
@@ -458,7 +508,16 @@ export async function chaseLedger(log, door, pages, { fetchFace, search = null, 
     for (const ref of refs) for (const [k, v] of footnotesOf(ref).byNumber) fn.byNumber.set(k, [...(fn.byNumber.get(k) ?? []), ...v]);
     const r = await chase(next, door, n, { leads: merged, fetchFace: cachedFetch, search: budgetedSearch, consult, recipe, witness, footnotes: fn, afterOf });
     next = r.log;
-    chased.push({ noteId: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, leads: { links: merged.links.length, quotes: merged.quotes.length }, searched: r.searched, consulted: r.consulted, attested: r.attested, ...(r.refused ? { refused: r.refused } : {}) });
+    // THE WALL, on this chase's own outcome: the note's witnesses as they
+    // stand after this chase (its own pre-chase witnesses plus whatever
+    // `chase` just attested), projected through nestedStanding so `direct`
+    // reports the primary-only corroboration nesting.js's wall licenses —
+    // never accounts summed in — beside `attributed`, the honest count of
+    // how many accounts repeat it. A caller that reads `direct` instead of
+    // `attested.length` alone sees the accounts-copy-each-other gap closed.
+    const finalWitnesses = [...new Set([...(n.witnesses ?? []), ...r.attested])];
+    const nested = nestedStanding({ id: n.id, witnesses: finalWitnesses }, { isAccount: account });
+    chased.push({ noteId: n.id, note: `${n.subject} —${n.verb}→ ${n.object}`, leads: { links: merged.links.length, quotes: merged.quotes.length }, searched: r.searched, consulted: r.consulted, attested: r.attested, nestedStanding: nested, ...(r.refused ? { refused: r.refused } : {}) });
     if (fetches >= maxFetches && r.consulted.length && r.consulted.every((c) => c.gap?.type === "budget")) break;
   }
   return {

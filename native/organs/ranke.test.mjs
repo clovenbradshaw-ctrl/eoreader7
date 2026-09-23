@@ -7,9 +7,10 @@ import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { makeNotesText } from "./notes-text.js";
-import { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, leadsOf, footnoteLeads as leadsOfFootnotes, footnoteLeadsForNote, markersIn, markersOfSpan, documentMatches, archiveAddressFor, chase, chaseLedger } from "./ranke.js";
+import { RANKE, PRIMARY_KIND, QUOTE_MIN_WORDS, claimOfNote, primaryWitness, standsOnAccountsOnly, nestedStanding, leadsOf, footnoteLeads as leadsOfFootnotes, footnoteLeadsForNote, markersIn, markersOfSpan, documentMatches, archiveAddressFor, chase, chaseLedger } from "./ranke.js";
 import { kindOfWitness, sourceOfWitness } from "../kernel/notes.js";
 import { distinctSources, independentReadings } from "./corroboration.js";
+import { claimRef, leakCheck } from "./nesting.js";
 import { witnessSlice, siblingSwap, foldTestimony, buildSelectMessages, foldSelect } from "./testimony.js";
 import { splitSentences } from "../adapters/text/spans.js";
 
@@ -322,3 +323,87 @@ import { redirectHubs, pathLost, normalizedPath, chromeLines, stripChrome } from
   assert.strictEqual(stripChrome(f2, [f2]).text, "", "a face identical to its sibling is all chrome — an empty face, which is the honest answer");
 }
 console.log("ranke: hubs, lost paths, chrome — ok");
+
+// ── nestedStanding: THE WALL, on what this organ already classifies (2026-09-23) ──
+// standingOf's `kinds` breakdown keeps sighting/primary counts SEPARATE in
+// its dict but its `sources`/`standing` numbers SUM every kind together —
+// so three different account-only witnesses (no primary at all) fold to
+// "corroborated", contradicting this file's own header two screens up ("a
+// note that only accounts state stays single-witness however many accounts
+// repeat it, because accounts copy each other"). nestedStanding closes that
+// gap by projecting the note through nesting.js's own claim:<id> shape
+// instead of inventing a second kind-counter.
+test("nestedStanding: an accounts-only note reports direct:0 (THE PROMISE, KEPT) where standingOf's flat sources count reports 'corroborated' on the identical witnesses", () => {
+  const isAccount = (ref) => ref.startsWith("mirror");
+  const note = { id: "napoleon|defeated|the coalition", witnesses: ["mirror1.example#1-2~r", "mirror2.example#1-2~r", "mirror3.example#1-2~r"] };
+  // the CURRENT flat reading (kernel standingOf, via the same distinctSources this file already uses) — what ranke.js's header claims should NOT happen
+  assert.equal(distinctSources(note.witnesses).size, 3, "three distinct account sources");
+  const ns = nestedStanding(note, { isAccount });
+  assert.equal(ns.onRecord, false, "nothing stands on the claim's OWN record — every witness was an account's");
+  assert.equal(ns.direct, 0, "THE PROMISE: accounts-only stays at zero direct corroboration however many accounts repeat it");
+  assert.equal(ns.attributed, 3, "the three accounts are not lost — they are reported apart, never summed into direct");
+  assert.equal(ns.voices, 3);
+  assert.equal(ns.note, "attributed but not corroborated: sources say who believes this, and nothing says it is so");
+  assert.equal(ns.leaked, false);
+  assert.throws(() => nestedStanding(note, {}), /isAccount is the caller's declaration/);
+});
+
+test("nestedStanding: one account plus one landed primary — direct:1 from the primary alone, attributed:1 from the account, never summed the way standingOf's 'corroborated-independently' does", () => {
+  const isAccount = (ref) => ref === PAGE;
+  const note = { id: "napoleon|defeated|the coalition", witnesses: [`${PAGE}#100-160~walls-v1`, "primary:archive.org#5-9~ranke-v1"] };
+  // this is the EXACT witness pair the 'chase by link' test above asserts standingOf reads as sources:2 / standing:'corroborated-independently'
+  assert.equal(distinctSources(note.witnesses).size, 2);
+  const ns = nestedStanding(note, { isAccount });
+  assert.equal(ns.onRecord, true, "the primary witness stands on the claim's own record");
+  assert.equal(ns.direct, 1, "the primary alone — the account is not counted toward the claim being true");
+  assert.equal(ns.attributed, 1);
+  assert.equal(ns.attributions[0].who, PAGE);
+  assert.equal(ns.leaked, false);
+});
+
+// THE ADVERSARIAL CONTROL (II.23): a control built to FAIL. This is what
+// nestedStanding's careful witness partition (kind !== primary AND
+// isAccount(source) → attribution; everything else → the claim's own) is
+// FOR — a naive projection that puts an account's witness into BOTH the
+// claim's own witness set and its attribution note manufactures exactly
+// the corroboration the wall exists to refuse, and leakCheck must catch
+// it. Without the partition this fix makes, that naive shape is what a
+// less careful projection would produce.
+test("leakCheck: THE WALL actually holds — a naive projection that (wrongly) counts an account's witness into the claim's own record leaks, and leakCheck says so; nestedStanding's real projection does not", () => {
+  const claimId = "napoleon|defeated|the coalition";
+  const accountWitness = "mirror1.example#1-2~r";
+  const broken = [
+    { id: claimId, witnesses: [accountWitness] }, // BUG: the account's own witness counted as direct too
+    { id: `attrib:mirror1.example→${claimId}`, end1: "mirror1.example", label: "states", end2: claimRef(claimId), witnesses: [accountWitness] },
+  ];
+  const brokenLeak = leakCheck(claimId, broken);
+  assert.equal(brokenLeak.leaked, true, "the control WOULD leak: the same witness stands as both the claim's own and an attribution's");
+  assert.equal(brokenLeak.witnesses[0].witness, accountWitness);
+
+  // the real, shipped projection on the identical input never puts an
+  // account's witness in both places — refused correctly, by construction
+  const isAccount = (ref) => ref === "mirror1.example";
+  const ns = nestedStanding({ id: claimId, witnesses: [accountWitness] }, { isAccount });
+  assert.equal(ns.leaked, false, "the shipped partition never double-counts — nothing to leak");
+  assert.equal(ns.direct, 0);
+  assert.equal(ns.attributed, 1);
+});
+
+test("chaseLedger wiring: THE WALL runs on real, live chase output, not just hand-built notes — every chased entry carries nestedStanding, and the Napoleon note (one account, one landed primary) reads direct:1/attributed:1 off the real Austerlitz fixture", async () => {
+  const log = ledger();
+  const face = "Napoleon defeated the armies of the Third Coalition at Austerlitz. Kutuzov commanded the Allied army that day.";
+  const links = leadsOf(pages[0]).links;
+  const fetchFace = async (url) => ({ text: titled(url, face, links), url, host: "archive.org", path: "/f" });
+  const r = await chaseLedger(log, hl, pages, { fetchFace, maxFetches: 2, consult: 1, witness: stubWitness(["Napoleon defeated the Third Coalition", "Kutuzov commanded the Allied army"]) });
+  assert.ok(r.chased.length >= 1, "the walk considered notes");
+  for (const c of r.chased) {
+    assert.ok(c.nestedStanding, `every chased entry carries a nestedStanding field (${c.note})`);
+    assert.equal(c.nestedStanding.leaked, false, "the live wiring never leaks either");
+  }
+  const napoleon = r.chased.find((c) => c.note.startsWith("Napoleon"));
+  assert.equal(napoleon.attested.length, 1, "the primary landed, same as the existing chaseLedger test");
+  assert.equal(napoleon.nestedStanding.direct, 1, "the landed primary alone — not summed with the account that was chased FROM");
+  assert.equal(napoleon.nestedStanding.attributed, 1, "the citing Wikipedia page, reported apart, never inflating direct");
+  assert.equal(napoleon.nestedStanding.attributions[0].who, PAGE);
+});
+console.log("ranke: nestedStanding — THE WALL, on live chase output — ok");
