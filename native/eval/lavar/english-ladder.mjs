@@ -310,6 +310,14 @@ export const THEORIES = Object.freeze([
     measured: "Survival into both the French (Guizot) and German (Wieland) editions separates Henry IV's names at AUC 0.946 vs 0.802 for raw frequency; misses are exonyms (Henry/Henri/Heinrich). Recorded and set aside by direction: a translation will rarely exist.",
   }),
   Object.freeze({
+    id: "english-is-a-family-of-lenses",
+    claim: "No text is simply 'English'. The reader holds one lens per variety, each learned from that variety's own text, and says 'we think this is X-like English because the X lens made it N bits/word less surprising than the next lens and raised comprehension from A to B' — or leaves the text in the Void when no lens explains it.",
+    cell: "EVA·Figure (Interpretation, Lens)",
+    status: "measured",
+    falsifier: "held-out text attributed to the wrong variety, or a non-English control passed off as a sort of English",
+    measured: "adapters/text/variety-lens.js + eval/lavar/variety-attribution.mjs, 2026-09-23: 96.8% of 1,931 held-out 100-word segments attributed to their source across 11 lenses (web 99.4, Naija 99.5, American literary 98.5, AAVE 98.0, British literary 97.0, US statute 94.9); the two Early Modern lenses confuse each other (58%, 68%) because both contain Henry IV, so shared content outweighs spelling. French-lexified controls (Haitian, Mauritian): 100% voided under English-only lenses; real English falsely voided 0-5.4%. Comprehension against gold tags: Naija 52.6% under the web lens -> 78.5% under its own (199 training sentences) -> 84.7% web + own; Singlish 71.5 -> 73.4 -> 79.5. Jamaican, Tok Pisin, Bislama and Scots: too little text for a lens, and every segment stays in the Void (nearest: Naija or Singlish for the creoles, web for Scots). Ablations: equal-size lenses (3,121 words each) fall to 64.9%, so volume carries much of the accuracy; word pairs add little to attribution (96.4% without) but gain 0.3-2.4 bits/word on real order and lose it scrambled; nomic-embed-text nearest-centroid 84.4% vs the lenses' 97.6%, and 99.1% right where the two agree — a corroborating witness, not a replacement. The Haitian control was first mislabelled (the MIT-Haiti .src files are the source language) and the English lenses correctly refused to void those English segments.",
+  }),
+  Object.freeze({
     id: "extension-test",
     claim: "A label that keeps pointing at one persisting individual is a name; one that recurs across many individuals is a kind — the infant's object-tracking root of 'identity does not decay'.",
     status: "declared-unbuilt",

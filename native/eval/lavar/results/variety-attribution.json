@@ -1,0 +1,627 @@
+{
+  "at": "2026-09-23",
+  "segmentWords": 100,
+  "sizes": {
+    "web": {
+      "trainWords": 158826,
+      "types": 15243,
+      "heldOutSegments": 172
+    },
+    "us-legal": {
+      "trainWords": 83069,
+      "types": 4012,
+      "heldOutSegments": 99
+    },
+    "british-19c": {
+      "trainWords": 659046,
+      "types": 18197,
+      "heldOutSegments": 738
+    },
+    "american-19c": {
+      "trainWords": 433790,
+      "types": 23208,
+      "heldOutSegments": 408
+    },
+    "early-modern-folio": {
+      "trainWords": 22012,
+      "types": 3846,
+      "heldOutSegments": 24
+    },
+    "early-modern-modernized": {
+      "trainWords": 32888,
+      "types": 4930,
+      "heldOutSegments": 37
+    },
+    "aave": {
+      "trainWords": 189037,
+      "types": 7476,
+      "heldOutSegments": 202
+    },
+    "naija": {
+      "trainWords": 165371,
+      "types": 13777,
+      "heldOutSegments": 184
+    },
+    "singlish": {
+      "trainWords": 3121,
+      "types": 1387,
+      "heldOutSegments": 3
+    },
+    "haitian": {
+      "trainWords": 33483,
+      "types": 3521,
+      "heldOutSegments": 36
+    },
+    "mauritian": {
+      "trainWords": 25036,
+      "types": 2789,
+      "heldOutSegments": 28
+    }
+  },
+  "attribution": {
+    "accuracy": 0.9684,
+    "segments": 1931,
+    "perVariety": {
+      "web": {
+        "segments": 172,
+        "accuracy": 0.9942,
+        "void": 0.0058,
+        "meanMarginWhenRight": 2.6855
+      },
+      "us-legal": {
+        "segments": 99,
+        "accuracy": 0.9495,
+        "void": 0.0303,
+        "meanMarginWhenRight": 6.2759
+      },
+      "british-19c": {
+        "segments": 738,
+        "accuracy": 0.9702,
+        "void": 0.0081,
+        "meanMarginWhenRight": 1.5229
+      },
+      "american-19c": {
+        "segments": 408,
+        "accuracy": 0.9853,
+        "void": 0.0123,
+        "meanMarginWhenRight": 1.5822
+      },
+      "early-modern-folio": {
+        "segments": 24,
+        "accuracy": 0.5833,
+        "void": 0,
+        "meanMarginWhenRight": 0.7593
+      },
+      "early-modern-modernized": {
+        "segments": 37,
+        "accuracy": 0.6757,
+        "void": 0.0541,
+        "meanMarginWhenRight": 1.5632
+      },
+      "aave": {
+        "segments": 202,
+        "accuracy": 0.9802,
+        "void": 0.0099,
+        "meanMarginWhenRight": 1.6102
+      },
+      "naija": {
+        "segments": 184,
+        "accuracy": 0.9946,
+        "void": 0.0054,
+        "meanMarginWhenRight": 4.7111
+      },
+      "singlish": {
+        "segments": 3,
+        "accuracy": 1,
+        "void": 0,
+        "meanMarginWhenRight": 0.6825
+      },
+      "haitian": {
+        "segments": 36,
+        "accuracy": 1,
+        "void": 0,
+        "meanMarginWhenRight": 12.0416
+      },
+      "mauritian": {
+        "segments": 28,
+        "accuracy": 1,
+        "void": 0,
+        "meanMarginWhenRight": 10.1678
+      }
+    },
+    "confusion": {
+      "web": {
+        "web": 171
+      },
+      "us-legal": {
+        "us-legal": 94,
+        "web": 2
+      },
+      "british-19c": {
+        "british-19c": 716,
+        "american-19c": 16
+      },
+      "american-19c": {
+        "american-19c": 402,
+        "british-19c": 1
+      },
+      "early-modern-folio": {
+        "early-modern-modernized": 10,
+        "early-modern-folio": 14
+      },
+      "early-modern-modernized": {
+        "early-modern-folio": 5,
+        "early-modern-modernized": 25,
+        "american-19c": 4,
+        "british-19c": 1
+      },
+      "aave": {
+        "aave": 198,
+        "american-19c": 1,
+        "web": 1
+      },
+      "naija": {
+        "naija": 183
+      },
+      "singlish": {
+        "singlish": 3
+      },
+      "haitian": {
+        "haitian": 36
+      },
+      "mauritian": {
+        "mauritian": 28
+      }
+    },
+    "bars": {
+      "web": 13.2297,
+      "us-legal": 14.856,
+      "british-19c": 10.1402,
+      "american-19c": 12.2553,
+      "early-modern-folio": 13.8404,
+      "early-modern-modernized": 14.3409,
+      "aave": 9.9165,
+      "naija": 14.2308,
+      "singlish": 14.6882,
+      "haitian": 10.4585,
+      "mauritian": 10.6494
+    }
+  },
+  "controlsUnderEnglishOnlyLenses": {
+    "web": {
+      "lexifier": "English",
+      "segments": 172,
+      "void": 0.0058
+    },
+    "us-legal": {
+      "lexifier": "English",
+      "segments": 99,
+      "void": 0.0303
+    },
+    "british-19c": {
+      "lexifier": "English",
+      "segments": 738,
+      "void": 0.0081
+    },
+    "american-19c": {
+      "lexifier": "English",
+      "segments": 408,
+      "void": 0.0123
+    },
+    "early-modern-folio": {
+      "lexifier": "English",
+      "segments": 24,
+      "void": 0
+    },
+    "early-modern-modernized": {
+      "lexifier": "English",
+      "segments": 37,
+      "void": 0.0541
+    },
+    "aave": {
+      "lexifier": "English",
+      "segments": 202,
+      "void": 0.0099
+    },
+    "naija": {
+      "lexifier": "English",
+      "segments": 184,
+      "void": 0.0054
+    },
+    "singlish": {
+      "lexifier": "English",
+      "segments": 3,
+      "void": 0
+    },
+    "haitian": {
+      "lexifier": "French",
+      "segments": 36,
+      "void": 1
+    },
+    "mauritian": {
+      "lexifier": "French",
+      "segments": 28,
+      "void": 1
+    }
+  },
+  "placement": {
+    "jamaican": {
+      "segments": 18,
+      "landedOn": {
+        "void (nearest naija)": 8,
+        "void (nearest web)": 10
+      },
+      "meanBestBits": 18.5548,
+      "example": "no lens we hold explains this well: even the closest, Nigerian Pidgin (Naija), leaves it at 16.76 bits/word, more surprising than 99% of that lens's own held-out text"
+    },
+    "tok-pisin": {
+      "segments": 14,
+      "landedOn": {
+        "void (nearest singlish)": 14
+      },
+      "meanBestBits": 24.2023,
+      "example": "no lens we hold explains this well: even the closest, Singlish, leaves it at 24.55 bits/word, more surprising than 99% of that lens's own held-out text"
+    },
+    "bislama": {
+      "segments": 16,
+      "landedOn": {
+        "void (nearest singlish)": 10,
+        "void (nearest naija)": 6
+      },
+      "meanBestBits": 22.7652,
+      "example": "no lens we hold explains this well: even the closest, Singlish, leaves it at 23.03 bits/word, more surprising than 99% of that lens's own held-out text"
+    },
+    "scots": {
+      "segments": 35,
+      "landedOn": {
+        "void (nearest web)": 23,
+        "void (nearest naija)": 7,
+        "void (nearest early-modern-modernized)": 2,
+        "void (nearest singlish)": 1,
+        "void (nearest american-19c)": 1,
+        "void (nearest us-legal)": 1
+      },
+      "meanBestBits": 17.5681,
+      "example": "no lens we hold explains this well: even the closest, web, leaves it at 17.81 bits/word, more surprising than 99% of that lens's own held-out text"
+    }
+  },
+  "comprehensionAgainstGold": {
+    "web": {
+      "heldOutSentences": 1254,
+      "webTagger": 0.8942
+    },
+    "naija": {
+      "heldOutSentences": 112,
+      "trainSentences": 199,
+      "webTagger": 0.5261,
+      "ownTagger": 0.7849,
+      "webPlusOwn": 0.847
+    },
+    "singlish": {
+      "heldOutSentences": 150,
+      "trainSentences": 298,
+      "webTagger": 0.7154,
+      "ownTagger": 0.7343,
+      "webPlusOwn": 0.7951
+    }
+  },
+  "ablations": {
+    "singleWordsOnly": {
+      "accuracy": 0.9643
+    },
+    "wordPairsOnScrambledSegments": {
+      "accuracy": 0.5003
+    },
+    "wordPairGainBitsPerWord": {
+      "web": {
+        "real": 1.0925,
+        "scrambled": -1.0127
+      },
+      "us-legal": {
+        "real": 2.3617,
+        "scrambled": -1.8913
+      },
+      "british-19c": {
+        "real": 1.3412,
+        "scrambled": -1.235
+      },
+      "american-19c": {
+        "real": 0.9739,
+        "scrambled": -1.0309
+      },
+      "early-modern-folio": {
+        "real": 0.2671,
+        "scrambled": -0.8212
+      },
+      "early-modern-modernized": {
+        "real": 0.2942,
+        "scrambled": -0.8416
+      },
+      "aave": {
+        "real": 1.1158,
+        "scrambled": -1.1413
+      },
+      "naija": {
+        "real": 0.9521,
+        "scrambled": -0.9532
+      },
+      "singlish": {
+        "real": -0.2547,
+        "scrambled": -0.5996
+      },
+      "haitian": {
+        "real": 0.9785,
+        "scrambled": -0.9265
+      },
+      "mauritian": {
+        "real": 0.9302,
+        "scrambled": -0.9025
+      }
+    },
+    "equalLensSize": {
+      "capTrainWords": 3121,
+      "accuracy": 0.6489,
+      "perVariety": {
+        "web": 0.6919,
+        "us-legal": 0.6162,
+        "british-19c": 0.6314,
+        "american-19c": 0.5417,
+        "early-modern-folio": 0.875,
+        "early-modern-modernized": 0.8378,
+        "aave": 0.9703,
+        "naija": 0.3859,
+        "singlish": 1,
+        "haitian": 1,
+        "mauritian": 1
+      }
+    },
+    "spellingModelOff": {
+      "accuracy": 0.0197,
+      "perVariety": {
+        "web": 0,
+        "us-legal": 0.3838,
+        "british-19c": 0,
+        "american-19c": 0,
+        "early-modern-folio": 0,
+        "early-modern-modernized": 0,
+        "aave": 0,
+        "naija": 0,
+        "singlish": 0,
+        "haitian": 0,
+        "mauritian": 0
+      }
+    }
+  },
+  "sampleVerdicts": {
+    "web": {
+      "verdict": "we think this is web-like English, because the web lens made it 3.69 bits/word less surprising than the 19th-c. American literary lens",
+      "claim": {
+        "schema": "EOGfpClaim@1",
+        "ground": "/",
+        "rel": "reads-best-through",
+        "roles": {
+          "ARG0": "web#0",
+          "ARG1": "web"
+        },
+        "polarity": "+",
+        "force": "default",
+        "id": null,
+        "basis": "margin 3.686 bits/word over american-19c"
+      }
+    },
+    "us-legal": {
+      "verdict": "we think this is US statute-like English, because the US statute lens made it 7.41 bits/word less surprising than the web lens, and known-word coverage rose from 85% under the web lens to 97%",
+      "claim": {
+        "schema": "EOGfpClaim@1",
+        "ground": "/",
+        "rel": "reads-best-through",
+        "roles": {
+          "ARG0": "us-legal#0",
+          "ARG1": "us-legal"
+        },
+        "polarity": "+",
+        "force": "default",
+        "id": null,
+        "basis": "margin 7.412 bits/word over web"
+      }
+    },
+    "british-19c": {
+      "verdict": "we think this is 19th-c. British literary-like English, because the 19th-c. British literary lens made it 1.78 bits/word less surprising than the 19th-c. American literary lens, and known-word coverage rose from 94% under the web lens to 100%",
+      "claim": {
+        "schema": "EOGfpClaim@1",
+        "ground": "/",
+        "rel": "reads-best-through",
+        "roles": {
+          "ARG0": "british-19c#0",
+          "ARG1": "british-19c"
+        },
+        "polarity": "+",
+        "force": "default",
+        "id": null,
+        "basis": "margin 1.785 bits/word over american-19c"
+      }
+    },
+    "american-19c": {
+      "verdict": "we think this is 19th-c. American literary-like English, because the 19th-c. American literary lens made it 1.97 bits/word less surprising than the 19th-c. British literary lens, and known-word coverage rose from 95% under the web lens to 100%",
+      "claim": {
+        "schema": "EOGfpClaim@1",
+        "ground": "/",
+        "rel": "reads-best-through",
+        "roles": {
+          "ARG0": "american-19c#0",
+          "ARG1": "american-19c"
+        },
+        "polarity": "+",
+        "force": "default",
+        "id": null,
+        "basis": "margin 1.975 bits/word over british-19c"
+      }
+    },
+    "early-modern-folio": {
+      "verdict": "we think this is Early Modern (modernized spelling)-like English, because the Early Modern (modernized spelling) lens made it 0.92 bits/word less surprising than the Early Modern (1623 Folio spelling) lens, and known-word coverage rose from 80% under the web lens to 81%",
+      "claim": {
+        "schema": "EOGfpClaim@1",
+        "ground": "/",
+        "rel": "reads-best-through",
+        "roles": {
+          "ARG0": "early-modern-folio#0",
+          "ARG1": "early-modern-modernized"
+        },
+        "polarity": "+",
+        "force": "default",
+        "id": null,
+        "basis": "margin 0.917 bits/word over early-modern-folio"
+      }
+    },
+    "early-modern-modernized": {
+      "verdict": "we think this is Early Modern (1623 Folio spelling)-like English, because the Early Modern (1623 Folio spelling) lens made it 0.80 bits/word less surprising than the Early Modern (modernized spelling) lens, and known-word coverage rose from 87% under the web lens to 91%",
+      "claim": {
+        "schema": "EOGfpClaim@1",
+        "ground": "/",
+        "rel": "reads-best-through",
+        "roles": {
+          "ARG0": "early-modern-modernized#0",
+          "ARG1": "early-modern-folio"
+        },
+        "polarity": "+",
+        "force": "default",
+        "id": null,
+        "basis": "margin 0.796 bits/word over early-modern-modernized"
+      }
+    },
+    "aave": {
+      "verdict": "we think this is African American English (CORAAL)-like English, because the African American English (CORAAL) lens made it 1.60 bits/word less surprising than the web lens, and known-word coverage rose from 97% under the web lens to 99%",
+      "claim": {
+        "schema": "EOGfpClaim@1",
+        "ground": "/",
+        "rel": "reads-best-through",
+        "roles": {
+          "ARG0": "aave#0",
+          "ARG1": "aave"
+        },
+        "polarity": "+",
+        "force": "default",
+        "id": null,
+        "basis": "margin 1.596 bits/word over web"
+      }
+    },
+    "naija": {
+      "verdict": "we think this is Nigerian Pidgin (Naija)-like English, because the Nigerian Pidgin (Naija) lens made it 5.95 bits/word less surprising than the web lens, and known-word coverage rose from 81% under the web lens to 94%",
+      "claim": {
+        "schema": "EOGfpClaim@1",
+        "ground": "/",
+        "rel": "reads-best-through",
+        "roles": {
+          "ARG0": "naija#0",
+          "ARG1": "naija"
+        },
+        "polarity": "+",
+        "force": "default",
+        "id": null,
+        "basis": "margin 5.955 bits/word over web"
+      }
+    },
+    "singlish": {
+      "verdict": "we think this is Singlish-like English, because the Singlish lens made it 0.68 bits/word less surprising than the Nigerian Pidgin (Naija) lens, and known-word coverage rose from 74% under the web lens to 72%",
+      "claim": {
+        "schema": "EOGfpClaim@1",
+        "ground": "/",
+        "rel": "reads-best-through",
+        "roles": {
+          "ARG0": "singlish#0",
+          "ARG1": "singlish"
+        },
+        "polarity": "+",
+        "force": "default",
+        "id": null,
+        "basis": "margin 0.675 bits/word over naija"
+      }
+    },
+    "haitian": {
+      "verdict": "we think this is not English but Haitian Creole, because the Haitian Creole lens made it 13.00 bits/word less surprising than the Mauritian Creole lens, and known-word coverage rose from 29% under the web lens to 91%",
+      "claim": {
+        "schema": "EOGfpClaim@1",
+        "ground": "/",
+        "rel": "reads-best-through",
+        "roles": {
+          "ARG0": "haitian#0",
+          "ARG1": "haitian"
+        },
+        "polarity": "+",
+        "force": "default",
+        "id": null,
+        "basis": "margin 12.996 bits/word over mauritian"
+      }
+    },
+    "mauritian": {
+      "verdict": "we think this is not English but Mauritian Creole, because the Mauritian Creole lens made it 11.20 bits/word less surprising than the Haitian Creole lens, and known-word coverage rose from 19% under the web lens to 95%",
+      "claim": {
+        "schema": "EOGfpClaim@1",
+        "ground": "/",
+        "rel": "reads-best-through",
+        "roles": {
+          "ARG0": "mauritian#0",
+          "ARG1": "mauritian"
+        },
+        "polarity": "+",
+        "force": "default",
+        "id": null,
+        "basis": "margin 11.200 bits/word over haitian"
+      }
+    }
+  },
+  "embeddingArm": {
+    "model": "nomic-embed-text (Ollama, local)",
+    "segments": 1931,
+    "embeddingAccuracy": 0.8441,
+    "lensAccuracyIgnoringVoid": 0.9757,
+    "agreement": 0.84,
+    "accuracyWhereTheyAgree": 0.9908,
+    "perVariety": {
+      "web": {
+        "segments": 172,
+        "embeddingAccuracy": 0.9128
+      },
+      "us-legal": {
+        "segments": 99,
+        "embeddingAccuracy": 0.9697
+      },
+      "british-19c": {
+        "segments": 738,
+        "embeddingAccuracy": 0.8306
+      },
+      "american-19c": {
+        "segments": 408,
+        "embeddingAccuracy": 0.6618
+      },
+      "early-modern-folio": {
+        "segments": 24,
+        "embeddingAccuracy": 0.8333
+      },
+      "early-modern-modernized": {
+        "segments": 37,
+        "embeddingAccuracy": 0.8649
+      },
+      "aave": {
+        "segments": 202,
+        "embeddingAccuracy": 0.9554
+      },
+      "naija": {
+        "segments": 184,
+        "embeddingAccuracy": 0.9891
+      },
+      "singlish": {
+        "segments": 3,
+        "embeddingAccuracy": 1
+      },
+      "haitian": {
+        "segments": 36,
+        "embeddingAccuracy": 1
+      },
+      "mauritian": {
+        "segments": 28,
+        "embeddingAccuracy": 1
+      }
+    }
+  }
+}
