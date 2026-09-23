@@ -3,8 +3,8 @@
 // embed(sentence-with-word) minus embed(sentence-with-word-replaced-by-a-
 // placeholder) carries real, measured signal about the word's grammatical
 // category (29% accuracy on a 13-way POS classification vs 7.7% chance,
-// p=6e-15 -- reading-training repo, 2026-09-23). Coarse, real, not a
-// replacement for a received prior.
+// p=6e-15 -- eval/the-fold/results/ablation-delta-catalog-RESULTS.md,
+// 2026-09-23). Coarse, real, not a replacement for a received prior.
 //
 // THE THREE STANDING CONSTRAINTS (user direction, 2026-09-23), each load-
 // bearing, none decorative:
