@@ -80,6 +80,30 @@ test("extractGfpRelations discovers figures by recurrence + company, never capit
   assert.ok(lower.length >= 1, "lowercase-only text reads identically — no English-shaped case gate");
 });
 
+// MULTI-WORD FIGURES (2026-09-23): an INJECTED figures set (dispatch mode —
+// hypergraph.js's own real call) routinely carries multi-word names, and
+// the old per-token mention scan could never match one — the exact live
+// specimen this pins is the one the session's own incident started from:
+// "Hannibal Hamlin was Lincoln's Vice President" read end1="Hannibal"
+// label="Hamlin was" end2="Lincoln", the two-word figure split with a real
+// word ("was") swallowed into the connector.
+test("extractGfpRelations reads a multi-word injected figure as ONE figure, never fragmented with a real word swallowed into the connector", () => {
+  const rows = extractGfpRelations("Hannibal Hamlin was Lincoln's Vice President.", {
+    figures: new Set(["hannibal hamlin", "lincoln"]),
+  });
+  assert.ok(rows.length >= 1, "at least one arrangement is found");
+  const withHamlin = rows.find((r) => /hamlin/i.test(r.end1) || /hamlin/i.test(r.end2));
+  assert.ok(withHamlin, "an arrangement naming Hamlin exists");
+  assert.equal(withHamlin.end1, "Hannibal Hamlin", "the whole two-word figure is one end, never split");
+  assert.ok(!/hamlin/i.test(withHamlin.label), "the second word of the figure is never swallowed into the connector label");
+
+  // BACKWARD COMPATIBLE: the self-discovery path (figures omitted) can only
+  // ever produce single-word candidates — untouched by this fix.
+  const selfDiscovered = extractGfpRelations("The fox jumps over the dog. The fox sleeps with the dog. The fox jumps again.", { posPrior });
+  assert.ok(selfDiscovered.length >= 1, "single-word self-discovery still reads");
+  for (const r of selfDiscovered) assert.ok(!/\s/.test(r.end1) && !/\s/.test(r.end2), "self-discovered figures stay single-word, exactly as before this fix");
+});
+
 test("grain-typing maps a settled connector to its cube cell — the same typing LaVar's EOT reader uses", () => {
   const typer = makeGrainTyper(posPrior);
   // "jumps" is a verb → CON · Figure (Link); "with" is a preposition → CON · Ground (Field).

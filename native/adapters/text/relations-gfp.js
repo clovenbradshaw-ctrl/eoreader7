@@ -89,8 +89,56 @@ export function extractGfpRelations(text, { posPrior = null, functionWords = nul
   );
   if (figureSet.size === 0) return [];
 
-  // Mentions in reading order.
-  const mentions = tokens.filter((t) => figureSet.has(t.tok.toLowerCase()));
+  // Mentions in reading order — GREEDY, LONGEST-MATCH-FIRST.
+  //
+  // figureSet's own self-discovery scan (above, figures=null) can only ever
+  // produce single-word entries — its candidates come off WORD-regex tokens,
+  // which never contain a space. But the INJECTED `figures` set (dispatch
+  // mode: hypergraph.js passes the referent index's own established
+  // surfaces) routinely carries multi-word names ("hannibal hamlin"), and
+  // the old scan — a bare per-token membership test — could never match one:
+  // no single token equals a multi-word string. Found live, 2026-09-23, on
+  // the exact malformed output this repo's own README/incident record was
+  // built from: "Hannibal Hamlin was Lincoln's Vice President" read as
+  // end1="Hannibal" label="Hamlin was" end2="Lincoln" — the two-word figure
+  // silently split into two one-word figures, with the real word between
+  // them ("was") swallowed into the connector.
+  //
+  // Split figureSet once into single-word membership and multi-word groups
+  // (keyed by their own first word, longest candidate first within a
+  // group), then scan left to right: at each position, try every multi-word
+  // candidate whose first word matches (longest first) and consume the
+  // whole span on a full match; only then fall back to single-word
+  // membership; a position matching neither advances by one token. A
+  // figureSet with no multi-word entries degrades to exactly the old
+  // per-token scan, byte-identical — the self-discovery path is untouched.
+  const singleWordFigures = new Set();
+  const multiWordFigures = new Map(); // first word -> [[w1,w2,...], ...] longest first
+  for (const f of figureSet) {
+    const words = String(f).split(/\s+/).filter(Boolean);
+    if (words.length <= 1) { if (words[0]) singleWordFigures.add(words[0]); continue; }
+    const first = words[0];
+    if (!multiWordFigures.has(first)) multiWordFigures.set(first, []);
+    multiWordFigures.get(first).push(words);
+  }
+  for (const arr of multiWordFigures.values()) arr.sort((a, b) => b.length - a.length);
+
+  const mentions = [];
+  for (let i = 0; i < tokens.length; ) {
+    const lower = tokens[i].tok.toLowerCase();
+    let matchLen = 0;
+    for (const words of multiWordFigures.get(lower) ?? []) {
+      if (i + words.length > tokens.length) continue;
+      if (words.every((w, k) => tokens[i + k].tok.toLowerCase() === w)) { matchLen = words.length; break; }
+    }
+    if (matchLen > 0) {
+      mentions.push({ tok: tokens.slice(i, i + matchLen).map((t) => t.tok).join(" "), start: tokens[i].start, end: tokens[i + matchLen - 1].end });
+      i += matchLen;
+    } else {
+      if (singleWordFigures.has(lower)) mentions.push(tokens[i]);
+      i += 1;
+    }
+  }
   if (mentions.length < 2) return [];
 
   // Arrangements: figure-connector-figure adjacency, bounded.
