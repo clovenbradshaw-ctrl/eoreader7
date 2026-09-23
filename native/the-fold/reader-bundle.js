@@ -20,7 +20,8 @@ import { chunkSource, tokenize, blankLabelRows } from "../organs/source.js";
 import { splitSentences } from "../adapters/text/spans.js";
 import { extractSurfaces, discoverReferents, namesCorefer, diaNorm } from "../adapters/text/surfaces.js";
 import { resolvePronouns } from "../adapters/text/pronouns.js";
-import { discoverRelationVocab, extractRelations } from "../adapters/text/relations.js";
+import { relationExtractorsFor } from "../adapters/text/relations-language.js";
+import { classifyWord, dominantClass } from "../adapters/text/wordclass.js";
 import { createLemmatizer, morphologyFromPrior } from "../adapters/text/morphology.js";
 import * as P from "../adapters/text/priors.js";
 
@@ -67,6 +68,25 @@ function loadPriors() {
   return _cache;
 }
 
+// THE LANGUAGE DISPATCH (2026-09-23): this bundle's own header says it
+// exists so there is "exactly one implementation of the material's own
+// edges" once the proxy turn reads from it — but it had been left on the
+// older adapters/text/relations.js import while the-fold's own app.js
+// (RELATION_READER_OPTIONS, app.js:988) had already migrated to this
+// dispatch. Confirmed drift, found and reproduced live by a peer session's
+// pipeline audit (native/eval/lens-direction.mjs) and independently
+// verified here against both repos' real committed source. GFP mode, not
+// SVO: mirrors app.js's own dispatchExtractors exactly, including its
+// `roleConfig: null` — app.js's own SVO_DECLARED constant is hardcoded
+// false there because a direct, disclosed measurement (2026-09-20) found
+// the English positional/SVO reader failing on real prose ("Ulysses S.
+// Grant was born in Point Pleasant, Ohio, in 1822" → zero edges); a role
+// grammar is earned, never implied, and it has not been earned yet.
+let _dispatch = null;
+function dispatchExtractors() {
+  return _dispatch ?? (_dispatch = relationExtractorsFor({ language: "eng", roleConfig: null, posPrior: null, classifyWord, dominantClass }));
+}
+
 /** The engine's own relation reader — `reader(list)` → the reader `read(answer)` returns per-sentence claims with verdicts and addresses. */
 export function makeEngineRelationReader(extra = {}) {
   const { posPrior, verbForms, lemmatizer } = loadPriors();
@@ -76,8 +96,16 @@ export function makeEngineRelationReader(extra = {}) {
     discoverReferents,
     namesCorefer,
     diaNorm,
-    discoverRelationVocab,
-    extractRelations,
+    // Read at CALL time, not bound at construction (app.js's own comment,
+    // reused verbatim): a reader built once picks up any later dispatch
+    // change with no re-construction. `extractorsMode: "dispatch"` tells
+    // hypergraph.js's own vocabulary gate that these extractors are
+    // self-gating BY DESIGN (GFP's own discoverRelationVocab, unlike the
+    // old relations.js, is not meant to pre-populate a verb set) — without
+    // it, an empty vocabulary would silence every edge.
+    discoverRelationVocab: (...a) => dispatchExtractors().discoverRelationVocab(...a),
+    extractRelations: (...a) => dispatchExtractors().extractRelations(...a),
+    extractorsMode: "dispatch",
     tokenize,
     // TYPE-level vocabulary gate (the fold's own measured decision: junk
     // connectors 18 → 0 with the prior in place).

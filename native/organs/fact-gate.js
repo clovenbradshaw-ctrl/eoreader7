@@ -153,6 +153,44 @@ export function fuseAnswer(ask, answer, lens) {
   return { fused: true, text: `${rest.join(" ")} ${q[ai]} ${a}`.trim() };
 }
 
+// A PAST-TENSE POSSESSIVE OFFICE ASK ("who was Lincoln's VP?", "who was
+// lincoln's vp?") names a definite role the same way "the ROLE of
+// JURISDICTION" does (English's other possessive) — but the past-tense
+// branch above (line 89) returns before the definite-noun-phrase walk
+// ever runs, and that walk only recognises the "the X of Y" form besides:
+// a possessive has no "the" to anchor on. Found live, 2026-09-23: this
+// exact question, checking on, no attached material, shipped two
+// DIFFERENT wrong answers from two different models with zero citation
+// either time — factGate.open stayed false throughout (basis: "past/modal
+// predicate"), so no search ever ran and nothing was ever checked.
+// Deliberately a SEPARATE, narrow, additive path rather than widening the
+// existing walk: that walk's own possessive-mangling step
+// (`s.replace(/(['’])s\b/...` two functions up, built for WH-
+// contractions like "who's"/"what's") would turn "Lincoln's" into
+// "Lincoln is" and destroy the very possessive this looks for — so this
+// reads the ORIGINAL words directly. Deliberately NOT gated on
+// capitalisation either (unlike the present-tense walk's own
+// `capsAnchor`): the reported specimen was typed lowercase, and this file
+// already has the same "who is chairman"-class lesson recorded above (no
+// domain vocabulary — this checks STRUCTURE, a possessive marker after a
+// past copula, never a hand-listed set of office nouns). A false positive
+// here costs one search — the identical asymmetry this file's own header
+// already argues for the open-now case.
+export function possessiveOfficeAsk(text, lens) {
+  const L = lensOf(lens);
+  const raw = words(String(text ?? "").trim());
+  if (raw.length < 4 || !L.wh.has(low(raw[0]))) return null;
+  const pi = raw.map(low).findIndex((w) => L.past.has(w));
+  if (pi < 1) return null;
+  for (let i = pi + 1; i < raw.length - 1; i++) {
+    if (!/['’]s$/.test(raw[i])) continue;
+    const roleToks = raw.slice(i + 1, i + 4).filter((w) => !L.anchor.has(low(w)) && !L.articles.has(low(w)));
+    if (!roleToks.length) continue;
+    return { possessor: raw[i].replace(/['’]s$/, ""), head: low(roleToks[roleToks.length - 1]) };
+  }
+  return null;
+}
+
 /**
  * THE INTENT PAIR (U, S), read off structure and written as two NOTES
  * (arrangements: end1 —label→ end2, kernel/notes.js shape) so a later
@@ -176,7 +214,7 @@ export function intentPair(ask, answer = "", lens) {
   else if (U === "ask-value" && shape.fact) { S = "assert-fact"; cell = "DEF"; }
   else if (U === "ask-verdict") { S = "judge"; cell = "EVA"; }
   else { S = "respond"; cell = "SYN"; }
-  const needsGround = S === "assert-fact" && shape.scope === "open-now";
+  const needsGround = S === "assert-fact" && (shape.scope === "open-now" || Boolean(shape.scope === "closed" && possessiveOfficeAsk(s, L)));
   const note = (label, end2, extra = {}) => ({ end1: "turn:ask", label, end2, witnesses: ["fact-gate@1"], spans: [{ source: "turn:ask", start: 0, end: s.length }], ...extra });
   return {
     U, S, cell, needsGround,
@@ -243,7 +281,11 @@ export function decideGate({ ask, answer, ground = [], context = "", now = new D
   const open = pair.needsGround || Boolean(claimSentence);
   if (!open) return { open: false, pair, grounded: null, searched, append: null, jurisdiction: null, basis: askShape.basis };
 
-  const head = askShape.scope === "open-now" ? askShape.jurisdiction.head : factShape(claimSentence, L).jurisdiction.head;
+  // The possessive-office read (askShape.scope==="closed"), when it is the
+  // reason `open` is true — checked once here rather than inside `pair`,
+  // since `pair` only carries the boolean, not the match itself.
+  const possessive = askShape.scope === "closed" ? possessiveOfficeAsk(ask, L) : null;
+  const head = askShape.scope === "open-now" ? askShape.jurisdiction.head : (possessive?.head ?? factShape(claimSentence, L).jurisdiction.head);
   // Ranke: does the ground hold the bytes of the value the answer commits to?
   const groundText = ground.map((g) => String(g?.text ?? "")).join("\n").toLowerCase();
   const committed = sentencesOf(answer).flatMap((s) => valuesOf(s, ask, L));
@@ -275,7 +317,7 @@ export function decideGate({ ask, answer, ground = [], context = "", now = new D
     const found = ground.map((g) => String(g?.text ?? "")).join(" ").replace(/^From a search for "[^"]*":\s*/i, "").split(/\s*\d\.\s+/).map((x) => x.trim()).filter((x) => x.length > 20)[0];
     if (found) out.push(`What the search returned: \u201c${found.slice(0, 220)}\u201d`);
   }
-  return { open: true, pair, grounded, searched, append: out.join(" "), jurisdiction, basis: askShape.scope === "open-now" ? askShape.basis : "the question+answer pair fuses into an open-now claim" };
+  return { open: true, pair, grounded, searched, append: out.join(" "), jurisdiction, basis: askShape.scope === "open-now" ? askShape.basis : possessive ? "a past-tense possessive names a definite role" : "the question+answer pair fuses into an open-now claim" };
 }
 
 // ── THE SURGICAL GATE (2026-09-19): strike-and-replace, never append-only ──

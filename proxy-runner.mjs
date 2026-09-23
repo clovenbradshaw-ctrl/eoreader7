@@ -144,7 +144,7 @@ import { snipShape, cutSnip, formatQuote, DEFAULT_PASSAGE, MAX_SNIP_CHARS } from
 // gate (Wilson: the environment is the medium) strikes a sentence that commits to
 // a value the environment's kind+link contradicts, and splices the mechanical
 // replacement assembled from the kind and the link.
-import { factShape, isUngroundedFact, decideGate, holderQueryFor, applyVerdictGate } from "./native/organs/fact-gate.js";
+import { factShape, isUngroundedFact, decideGate, holderQueryFor, applyVerdictGate, possessiveOfficeAsk } from "./native/organs/fact-gate.js";
 import { currentHolder } from "./native/organs/current-holder.js";
 import { createCurrentFactsStore } from "./native/organs/current-facts.js";
 import { lensForAsk } from "./native/adapters/text/fact-lenses.js";
@@ -5249,8 +5249,17 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // found no ground for this ask. If the ask is itself a checkable open-now
       // fact, the web check is declared here — before a word is drawn — under
       // the person's per-request consent (the fold's web switch) or the env door.
+      // Widened 2026-09-23: a past-tense possessive office ask ("who was
+      // Lincoln's VP") is the identical checkable shape, just tensed
+      // differently — factShape's own past-tense branch returns before its
+      // definite-noun-phrase walk runs, so `factAsk.scope` alone missed it;
+      // fact-gate.js's possessiveOfficeAsk names the shape directly. Found
+      // live: this exact ask, checking on, shipped two different wrong
+      // answers from two different models with declaredFactCheck false and
+      // no search ever run.
       const factAsk = factShape(task);
-      const declaredFactCheck = factAsk.fact && factAsk.scope === "open-now" && (webConsent || WEB_SEARCH_ON);
+      const possessiveAsk = factAsk.scope === "closed" ? possessiveOfficeAsk(task) : null;
+      const declaredFactCheck = factAsk.fact && (factAsk.scope === "open-now" || Boolean(possessiveAsk)) && (webConsent || WEB_SEARCH_ON);
       const webGround = await voidWebSearchFallback(task, { force: declaredFactCheck });
       factGate.searched = Boolean(webGround);
       if (onNote && factAsk.fact) onNote({ move: "fact_preflight", scope: factAsk.scope, declared: declaredFactCheck, found: webGround?.found ?? null, query: webGround?.query ?? null });
