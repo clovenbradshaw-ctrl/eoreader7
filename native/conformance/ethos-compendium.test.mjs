@@ -65,7 +65,7 @@ test("the compendium covers the archons the README's Handle table names", () => 
     "tarski", "kanada", "shizhen", "xunzi", "xushen", "koopman", "hubel",
     "alhazen", "thrax", "platanista", "brillat-savarin", "strunk-white",
     "vonnegut", "koestler", "brandeis", "martial", "saltzer", "popper",
-    "goffman", "ulysses", "levinas", "bourdieu", "yadayadayada",
+    "goffman", "ulysses", "levinas", "bourdieu", "yadayadayada", "sullivan", "tadoma",
   ];
   for (const handle of required) {
     const a = archonOf(handle);
