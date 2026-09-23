@@ -66,20 +66,62 @@ const cast = castTexts({ texts: docs.map((d) => ({ name: d.title, text: TEXTS[d.
 const links = docs.flatMap((d) => extractLinks({ text: TEXTS[d.id], doc: `sample/ground/${d.id}.txt`, mode: "layout" }));
 
 // ── block 4 · metrics (Field): sample snapshot, provenance-stamped ────────
+// the sample metrics still need a retained byte source — same rule as the
+// real instance — so the raw rows are written to a snapshot file first and
+// the adapters read back out of it.
+const dataDir = join(SAMPLE, "data");
+mkdirSync(dataDir, { recursive: true });
+const snapshotPath = join(dataDir, "snapshot.json");
+const snapshotData = {
+  districts: [
+    { district: 1, name: "Arcadia North", population: 48_000, median_household_income: 64_500, pct_renter: 72, pct_child_poverty: 14 },
+    { district: 2, name: "Arcadia South", population: 31_000, median_household_income: 52_000, pct_renter: 61, pct_child_poverty: 14 },
+    { district: 3, name: "East Arcadia", population: 22_000, median_household_income: 58_000, pct_renter: 66, pct_child_poverty: 14 },
+  ],
+  violationsByDistrict: [
+    { district: 1, open: 47, total: 120 }, { district: 2, open: 12, total: 58 }, { district: 3, open: 31, total: 96 },
+  ],
+  landlords: [{ landlord: "Sample Holdings LLC", properties: 240, evictions: 512 }],
+  housingStress: { totalEvictionFilings: 2048, propertyRows: 5000, distinctLandlords: 900 },
+};
+writeFileSync(snapshotPath, JSON.stringify(snapshotData));
+const snapshotText = readFileSync(snapshotPath, "utf8");
+const snapshotRef = "sample/data/snapshot.json";
+
 const metrics = foldFieldRows({
   snapshot: {},
   provenance: { dataset: "sample-fixture", source: "sample fixture — not a real city", asOf: "2026-01-01" },
   adapters: [
-    { registry: "districts", run: ({ push }) => [
-        [1, "Arcadia North", 48_000, 64_500, 72], [2, "Arcadia South", 31_000, 52_000, 61], [3, "East Arcadia", 22_000, 58_000, 66],
-      ].forEach(([d, name, pop, inc, ren]) => push("districts", { district: d, name, population: pop, median_household_income: inc, pct_renter: ren, pct_child_poverty: 14 }, { district: d })) },
-    { registry: "violations-by-district", run: ({ push }) => [
-        [1, 47, 120], [2, 12, 58], [3, 31, 96],
-      ].forEach(([d, open, total]) => push("violations-by-district", { open, total }, { district: d })) },
-    { registry: "landlords", run: ({ push }) => push("landlords", { landlord: "Sample Holdings LLC", properties: 240, evictions: 512 }) },
-    { registry: "housing-stress", run: ({ push }) => push("housing-stress", { totalEvictionFilings: 2048, propertyRows: 5000, distinctLandlords: 900 }) },
+    { registry: "districts", run: ({ push }) => snapshotData.districts.forEach((row) =>
+        push("districts", { ...row }, { district: row.district })) },
+    { registry: "violations-by-district", run: ({ push }) => snapshotData.violationsByDistrict.forEach((row) =>
+        push("violations-by-district", { open: row.open, total: row.total }, { district: row.district })) },
+    { registry: "landlords", run: ({ push }) => snapshotData.landlords.forEach((row) => push("landlords", { ...row })) },
+    { registry: "housing-stress", run: ({ push }) => push("housing-stress", { ...snapshotData.housingStress }) },
   ],
 });
+
+// every metric earns a byte ref into the retained snapshot, or a derivedFrom
+// address into it — the same requirement gateSurface enforces on the real
+// instance (see surface-blocks.test.mjs's syntheticMetrics()).
+for (const m of metrics) {
+  if (m.registry === "districts") {
+    const row = snapshotData.districts.find((r) => r.district === m.district);
+    const rowText = JSON.stringify(row);
+    const start = snapshotText.indexOf(rowText);
+    const end = start + rowText.length;
+    m.at = [start, end];
+    m.ref = `${snapshotRef}#${start}-${end}`;
+    m.verbatim = snapshotText.slice(start, end);
+  } else if (m.registry === "violations-by-district") {
+    m.derivedFrom = { address: `${snapshotRef}#/violationsByDistrict`, basis: "district violation totals folded from the sample snapshot" };
+  } else if (m.registry === "landlords") {
+    m.derivedFrom = { address: `${snapshotRef}#/landlords`, basis: "landlord roster folded from the sample snapshot" };
+  } else {
+    m.derivedFrom = { address: `${snapshotRef}#/housingStress`, basis: "citywide housing-stress aggregate folded from the sample snapshot" };
+  }
+}
+const snapshotSidecar = { path: snapshotPath, sha256: sha(snapshotPath) };
 
 // ── block 5 · derive (Network/Paradigm/Atmosphere) ────────────────────────
 const def = {
@@ -97,7 +139,7 @@ const def = {
 const projections = deriveProjections({ links, cast, def, metrics });
 
 // ── block 6 · gate (Paradigm): the sample must earn its render ────────────
-const gate = gateSurface({ ground, links, metrics, resolveSnippet, plansRoot: HERE });
+const gate = gateSurface({ ground, links, metrics, resolveSnippet, plansRoot: HERE, snapshotSidecar });
 console.log("sample gate:", gate.ok ? "PASS" : "REFUSE");
 for (const c of gate.checks) console.log(`  ${c.ok ? "●" : "✗"} ${c.name} · ${c.detail}`);
 if (!gate.ok) { console.error("\nrefusing to render the sample — ungrounded."); process.exit(1); }
