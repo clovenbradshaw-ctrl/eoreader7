@@ -34,6 +34,8 @@
 
 import { cellLabelOf, makeGrainTyper } from "./grain-typing.js";
 import { classifyWord, dominantClass } from "./wordclass.js";
+import { splitSentences } from "./spans.js";
+import { clauseSpans } from "./clause-spans.js";
 
 const FUNCTION_CLASSES = new Set(["ADP", "CCONJ", "SCONJ", "DET", "PRON", "AUX", "PART", "INTJ", "NUM", "PUNCT", "SYM", "X"]);
 const WORD = /[\p{L}\p{N}]+/gu;
@@ -69,7 +71,7 @@ const dominant = (tags) => {
  * figures are still found (recurrence + functionWords if given); connectors
  * settle to grain_gap (kept, never guessed).
  */
-export function extractGfpRelations(text, { posPrior = null, functionWords = null, minRec = 2, figures = null } = {}) {
+export function extractGfpRelations(text, { posPrior = null, functionWords = null, minRec = 2, figures = null, clauseAware = false } = {}) {
   const typer = posPrior ? makeGrainTyper(posPrior) : null;
   const isFunction = (tok) => {
     if (functionWords?.has(tok.toLowerCase())) return true;
@@ -78,6 +80,20 @@ export function extractGfpRelations(text, { posPrior = null, functionWords = nul
     return e ? FUNCTION_CLASSES.has(dominant(e)) : false;
   };
   const tokens = [...String(text ?? "").matchAll(WORD)].map((m) => ({ tok: m[0], start: m.index, end: m.index + m[0].length }));
+
+  // CLAUSE WINDOWS (opt-in, 2026-09-23): the same figure-recurrence
+  // discovery below stays whole-text (a corpus-level judgment, unchanged);
+  // only the ADJACENCY gate becomes clause-shaped. splitSentences +
+  // clauseSpans give one flat list of [start, end) windows over the whole
+  // input, each mapped back to global offsets — an arrangement is admitted
+  // only when both figure mentions fall in the SAME window. This is what
+  // replaces MAX_ADJACENCY's byte-count guess with a structural fact for
+  // callers that opt in; MAX_ADJACENCY itself is untouched below and still
+  // applies as a secondary bound when clauseAware is off (the default).
+  const clauseWindows = clauseAware
+    ? splitSentences(String(text ?? "")).flatMap((sent) => clauseSpans(sent.text).map((c) => ({ start: sent.offset + c.start, end: sent.offset + c.end })))
+    : null;
+  const sameClause = (a, b) => !clauseWindows || clauseWindows.some((w) => a >= w.start && a < w.end && b >= w.start && b < w.end);
 
   // FIGURES: recurring content tokens. No case, no position, no grammar.
   const counts = new Map();
@@ -147,6 +163,7 @@ export function extractGfpRelations(text, { posPrior = null, functionWords = nul
     const f1 = mentions[i];
     const f2 = mentions[i + 1];
     if (f2.start - f1.end > MAX_ADJACENCY) continue;
+    if (clauseAware && !sameClause(f1.start, f2.start)) continue;
     const label = String(text).slice(f1.end, f2.start).replace(/\s+/g, " ").trim();
     if (!label || label.length > MAX_LABEL) continue;
     if (label === f2.tok) continue; // no connector at all

@@ -499,3 +499,15 @@ fast: 5 files · 4 affected test files, 36/36 + 23/23 pass · law: ok (pre-exist
 | lens | citation | file:line | verdict | one line |
 | Feynman | constant in a comparison | native/eval/lavar/swarm-server.test.mjs:32 | false-positive-on-review | `doors.length >= 4` is the count of chat doors, a floor against a vacuous pass (a renamed history variable empties the scan and trips it), not a tuned threshold; noted: the scan cuts each call at its first `});` |
 clean: —
+
+## 2026-09-23 — proposition-level extraction: clause-spans.js + propositionSpans, wired into the production pipeline (main, 7 files)
+fast: 7 files · 20 affected test files · [.] 21/21 pass · [native] 256/258 pass, 2 pre-existing (verified via git stash: identical failures with this diff removed — tests/conformance/copula-supplement.test.mjs's own test name carries "# TODO"; tests/conformance/gfp-reading-shape.test.mjs fails on a missing fixture, native/tests/priors/pos-en.json, unrelated to this diff)
+| lens | citation | file:line | verdict | one line |
+| Feynman | numeric constant in a comment | reader-bundle.js:111 | false-positive-on-review | "195 -> 150" documents a measured result in a comment, not a tuned threshold in code |
+| Dijkstra | word-boundary regex | clause-spans.js:87 | false-positive-on-review | `/[\p{L}\p{N}']+/gu` is Unicode-general (matches relations-gfp.js's own WORD regex), not ASCII/Latin-only |
+| Pearl | "independent propositions" in prose | clause-spans.js:23 | false-positive-on-review | describes two grammatically separate propositions in the motivating example, not a statistical-independence claim |
+| Greenberg | English closed classes with no language param | clause-spans.js (whole file) | fixed | clauseSpans/propositionSpans defaulted to lang/en coordinator/subordinator/relativizer sets with no loud scope statement; added an explicit "SCOPED TO ENGLISH, DISCLOSED, NOT SILENT" header section naming the override path (opts.coordinators/subordinators/relativizers/subjectPronouns) for another language |
+| Kondo | routed near a comment, not actual dead code | priors.js:364 | false-positive-on-review | SUBORDINATING_CONJUNCTIONS is imported and used by clause-spans.js |
+| LeviStrauss | STASH.md checked for a matching open problem | received-vocabulary-relations.js:163 | noted | grepped STASH.md for fronted-clause/proposition-order entries — none exist; nothing to reclaim, this is original logic |
+| Simon/Chekhov | new source, test coverage | clause-spans.js, reader-bundle.js | noted | clause-spans.js has its own 16-test suite (clause-spans.test.mjs); reader-bundle.js has no dedicated unit test but is exercised end-to-end by native/eval/lavar/swarm-server.test.mjs (6/6 pass) |
+clean: Alexander, Diaconis, Holmes, Ostrom (no composition gate, RNG, alias-merge, or credit-scope surface touched by this diff)

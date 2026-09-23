@@ -104,7 +104,20 @@ export function makeEngineRelationReader(extra = {}) {
     // old relations.js, is not meant to pre-populate a verb set) — without
     // it, an empty vocabulary would silence every edge.
     discoverRelationVocab: (...a) => dispatchExtractors().discoverRelationVocab(...a),
-    extractRelations: (...a) => dispatchExtractors().extractRelations(...a),
+    // clauseAware (2026-09-23): GFP mode's extractGfpRelations gains a real
+    // clause-boundary gate (adapters/text/clause-spans.js) as of this
+    // wiring, replacing the flat MAX_ADJACENCY byte-window as the primary
+    // adjacency bound. On by default here — measured live against a real
+    // Wikipedia fixture (Marie Curie): 195 -> 150 arrangements, a strict
+    // subset (0 edges added), the 45 dropped all confirmed cross-clause/
+    // cross-sentence garbage a byte count alone could not see. Only
+    // meaningful in "gfp" mode; the disabled positional/SVO path ignores an
+    // unknown option key, so this is skipped there rather than passed
+    // uselessly.
+    extractRelations: (text, opts = {}) => {
+      const d = dispatchExtractors();
+      return d.extractRelations(text, d.mode === "gfp" ? { ...opts, clauseAware: true } : opts);
+    },
     extractorsMode: "dispatch",
     tokenize,
     // TYPE-level vocabulary gate (the fold's own measured decision: junk
@@ -143,6 +156,13 @@ export function makeEngineRelationReader(extra = {}) {
     phrasalPredicates: true,
     ...extra,
   });
+}
+
+/** The same cached posPrior loadPriors() builds -- exported so other modules
+ * (e.g. organs/received-vocabulary-relations.js's propositionSpans-based
+ * synthesis) can reuse the one real load instead of re-reading pos-eng.json. */
+export function getPosPrior() {
+  return loadPriors().posPrior;
 }
 
 /** A fresh reader over a list of passages (chunk-shaped or surfaced segments). */

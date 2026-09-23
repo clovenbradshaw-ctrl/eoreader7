@@ -350,3 +350,33 @@ export const COPULA_PARADIGM = Object.freeze({
   been: "be", being: "be", "'s": "be", "'re": "be", "'m": "be",
 });
 export const COPULA_PARADIGM_META = Object.freeze({ giver: "lang/en", scope: "the copula's paradigm alone; tense is not carried" });
+
+/**
+ * Subordinating conjunctions — the closed class that opens a SUBORDINATE
+ * clause ("because it rained", "although she knew"), as opposed to
+ * CLAUSE_COORDINATORS above, which joins two clauses of equal rank. A
+ * genuinely closed grammatical class in English (unlike an open-class verb
+ * vocabulary — this is not the RECEIVED_RELATION_VERBS mistake, see that
+ * file's own corrected header for why open-class hand lists don't hold up:
+ * a subordinator set does not grow the way a verb vocabulary does). Each
+ * member checked live against the received POS prior (pos-eng.json) and
+ * found SCONJ-dominant: because (167 SCONJ vs 42 ADP), although (43 vs 1
+ * ADV), while (91 vs 17 NOUN), since (87 SCONJ vs 34 ADP + 5 ADV), if (719
+ * vs 1 stray PROPN), after (89 vs 135 ADP — genuinely mixed, kept because
+ * the SCONJ mass is still real and this class only ever widens a search,
+ * never gates one shut), before (94 vs 58 ADP + 31 ADV), unless (31, no
+ * competing tag), until (37 vs 28 ADP), though (39 SCONJ vs 33 ADV + 1
+ * ADP). "That" is deliberately NOT here — pos-eng.json measures it almost
+ * evenly split SCONJ/PRON/DET (994/851/176), too ambiguous for a closed-
+ * class membership test alone; a caller needing "that" as a clause-opener
+ * reads it from INTERROGATIVE_PRONOUNS-adjacent context instead, not from
+ * this set. The WH-relative openers (who/which/whose/where/when) are NOT
+ * here either — they are already received as INTERROGATIVE_PRONOUNS above;
+ * a consumer wanting "any clause-opening function word" unions both sets
+ * rather than this file duplicating them.
+ */
+export const SUBORDINATING_CONJUNCTIONS = Object.freeze(new Set([
+  "because", "although", "while", "since", "if",
+  "after", "before", "unless", "until", "though",
+]));
+export const SUBORDINATING_CONJUNCTIONS_META = Object.freeze({ giver: "lang/en", scope: "opens a subordinate clause; says nothing about where it ends" });

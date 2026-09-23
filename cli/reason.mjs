@@ -184,7 +184,7 @@ let read = [], unread = [], ledgerFindings = [], resolveName = null, sentencesTo
 // every other name in the hoist above already does.
 let hl = null, hlLog = null;
 if (text) {
-  const { engineRelationsFor } = await import("../native/the-fold/reader-bundle.js");
+  const { engineRelationsFor, getPosPrior } = await import("../native/the-fold/reader-bundle.js");
   const { buildReferents } = await import("../native/the-fold/referents.js");
   const { splitSentences } = await import("../native/adapters/text/spans.js");
   const TL = await import("../native/kernel/task-log.js");
@@ -212,7 +212,7 @@ if (text) {
   // silently folded into a fully surface-anchored read.
   const { readWithReceivedVocabulary } = await import("../native/organs/received-vocabulary-relations.js");
   const primaryKeys = new Set(edges.map((e) => `${e.end1}|${e.label}|${e.end2}`.toLowerCase()));
-  const receivedEdges = readWithReceivedVocabulary(text).edges
+  const receivedEdges = readWithReceivedVocabulary(text, { clauseAware: true, posPrior: getPosPrior() }).edges
     .filter((e) => !primaryKeys.has(`${e.subject}|${e.verb}|${e.object}`.toLowerCase()))
     .map((e) => ({
       end1: e.subject, label: e.verb, end2: e.object, polarity: e.polarity, received: true,
