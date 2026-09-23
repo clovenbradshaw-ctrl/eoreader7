@@ -2034,7 +2034,13 @@ import fs from "node:fs";
 import path from "node:path";
 
 export function ledgerFilePath(dir, docId) {
-  return path.join(dir, `${String(docId).replace(/[^a-z0-9:_-]/gi, "_")}.jsonl`);
+  // One physical log per instance: a trailing turn number collapses to :1 so
+  // every turn of the same session/job appends to the SAME file instead of
+  // forking a new one per turn. docId itself is untouched — ids and any
+  // per-turn path a caller derives straight from docId (citations/html/wheel)
+  // keep their own identity; only the FILE this ledger writes to is shared.
+  const fileKey = String(docId).replace(/:\d+$/, ":1");
+  return path.join(dir, `${fileKey.replace(/[^a-z0-9:_-]/gi, "_")}.jsonl`);
 }
 
 // ── the-fold's local vault (added 2026-09-16): a sealed line on disk ───────
