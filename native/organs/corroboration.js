@@ -237,7 +237,12 @@ export const textFeatures = (t) => new Set(foldMarks(String(t ?? "").toLowerCase
  * the picker is asked to confuse the end with; the swap, the indiscriminate
  * check and the typed refusals still decide what a yes is worth.
  */
-export function competingFiller(end, candidates, { featuresOf = textFeatures, exclude = [], pool = null } = {}) {
+// Shared by competingFiller and competingFillerCount so the two never
+// drift: every capitalized surface in candidates (or, failing that, the
+// declared pool) that does not share a feature with `end` or `exclude`.
+// Factored out rather than duplicated — "search for the organ before
+// inventing one" applied to this file's own two competitor-facing exports.
+function gatherCompetitors(end, candidates, { featuresOf = textFeatures, exclude = [], pool = null } = {}) {
   // BOTH ends are excluded, not just the one being replaced: the other end
   // is by construction the most frequent capitalized surface in candidates
   // that all mention it, and swapping end2 for end1 builds a nonsense arm
@@ -266,9 +271,24 @@ export function competingFiller(end, candidates, { featuresOf = textFeatures, ex
       seen.set(String(surface), 1);
     }
   }
+  return seen;
+}
+
+export function competingFiller(end, candidates, opts = {}) {
+  const seen = gatherCompetitors(end, candidates, opts);
   if (!seen.size) return null;
   // the most frequent competitor: the one a picker is likeliest to confuse
   return [...seen].sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)[0][0];
+}
+
+/** DISCLOSED, NEVER HIDDEN (P66): how many DISTINCT competing surfaces
+ * `competingFiller` actually had to choose among for this end — the same
+ * gap `siblingSwap`'s own `competitors` field closes on the generate path.
+ * One is a real but degenerate arm (no second name to pick over); this
+ * never changes what `competingFiller` returns, only lets a caller mark
+ * the difference instead of seeing a byte-identical pick either way. */
+export function competingFillerCount(end, candidates, opts = {}) {
+  return gatherCompetitors(end, candidates, opts).size;
 }
 
 export function statingCandidates(sourceText, ends, { featuresOf = textFeatures, splitSentences, limit, minLen = 12, maxLen = 400, isGeneric: isGenericInjected = null } = {}) {
@@ -861,6 +881,12 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
         // to know what to replace.
         const armFiller = competingFiller(ends.end2, shownList, { exclude: [ends.end1], pool: fillerPool });
         if (!armFiller) return { refused: "unarmed-select", via: "select" };
+        // DISCLOSED, NEVER HIDDEN (P66): the distinct competitor count that
+        // produced `armFiller` — siblingSwap's own `competitors` field,
+        // mirrored here for the select protocol so a degenerate
+        // one-candidate arm is marked the same way on both paths, rather
+        // than shipping byte-identical to a genuinely competitive pick.
+        let armCompetitors = competingFillerCount(ends.end2, shownList, { exclude: [ends.end1], pool: fillerPool });
         const lit = (end) => new RegExp(String(end).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
         let armClaim = sentence.replace(lit(ends.end2), armFiller);
         // THE SECOND ARM WALL (S52), and its declared widening. The swap is a
@@ -878,7 +904,10 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
         // never shipped on by default here.
         if (armClaim === sentence && armEitherEnd) {
           const other = competingFiller(ends.end1, shownList, { exclude: [ends.end2], pool: fillerPool });
-          if (other) armClaim = sentence.replace(lit(ends.end1), other);
+          if (other) {
+            armClaim = sentence.replace(lit(ends.end1), other);
+            armCompetitors = competingFillerCount(ends.end1, shownList, { exclude: [ends.end2], pool: fillerPool });
+          }
         }
         if (armClaim === sentence) return { refused: "unarmed-select", via: "select" };
         const armPick = foldSelect(await selectAsk(buildSelectMessages(armClaim, shownList)), shownList);
@@ -911,6 +940,7 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
           because: chosen.raw,
           via: "select",
           span: chosen.start == null ? null : { ref: source.ref, at: `${source.ref}#${chosen.start}-${chosen.end}`, text: chosen.raw },
+          competitors: armCompetitors,
         };
       }
       // a select refusal is a real "no from the activated set" — return it,
@@ -921,7 +951,10 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
   const real = await ask(sentence, slice);
   const swapped = real ? siblingSwap(sentence, slice, { hint: real.because ?? "" }) : null;
   const arm = swapped ? await ask(swapped, slice) : null;
-  const t = foldTestimony({ real, arm, armed: Boolean(swapped), slice, claim: sentence, swapped: swapped ?? "" });
+  // `swapped.competitors` (siblingSwap's own disclosed count) rides through
+  // to foldTestimony so a degenerate one-candidate arm is marked, never
+  // shaped identically to a genuinely competitive one (P66).
+  const t = foldTestimony({ real, arm, armed: Boolean(swapped), slice, claim: sentence, swapped: swapped ?? "", competitors: swapped?.competitors ?? null });
   if (!t.verdict) return { refused: t.refused ?? "no-testimony" };
   // THE DECIDER MUST KEEP THE CLAIM'S COMPANY (P31's company law, aimed at
   // the decider instead of the number). foldTestimony's containment wall
@@ -986,6 +1019,12 @@ export async function witnessNote(sentence, source, { ask, selectAsk = null, tes
     verdict: t.verdict,
     because: t.because,
     span: at >= 0 ? { ref: source.ref, at: `${source.ref}#${at}-${at + t.because.length}`, text: t.because } : null,
+    // Disclosed, never hidden (P66): how many distinct sibling names the
+    // arm actually had to choose from. Omitted when foldTestimony was not
+    // given one (t.competitors undefined) so a caller checking for the
+    // field's presence, not merely its value, can still tell "not
+    // reported" apart from "one."
+    ...(t.competitors != null ? { competitors: t.competitors } : {}),
   };
 }
 

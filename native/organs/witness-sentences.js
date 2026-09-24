@@ -116,11 +116,50 @@ export function endsFor(sentence, claims, sourceText = null, splitSentences = nu
         const ca = sentFeatures.filter((f) => f.has(a)).length, cb = sentFeatures.filter((f) => f.has(b)).length;
         return ca - cb || b.length - a.length;
       });
-      for (let i = 0; i < bySpecificity.length; i++) {
-        for (let j = i + 1; j < bySpecificity.length; j++) {
-          if (sentFeatures.some((f) => f.has(bySpecificity[i]) && f.has(bySpecificity[j]))) return { end1: bySpecificity[i], end2: bySpecificity[j], from: "longest-words" };
+      // BUG (found live, 2026-09-22): returning the FIRST co-occurring pair
+      // by rarity/length order picks whichever SENTENCE happens to contain
+      // it, with no regard for whether that sentence actually supports the
+      // claim. Two individually-rare claim words can coincidentally
+      // co-occur in an off-topic decoy sentence while the true stating
+      // sentence's own words are comparatively more common elsewhere in the
+      // passage — measured live: claim "Grant was born in Point Pleasant,
+      // Ohio." against a passage where "point"+"ohio" co-occur only in an
+      // unrelated scenic-overlook sentence and the true sentence ("Grant
+      // was born at that very location... called Pleasant") states the fact
+      // in words that never got picked, so `statingCandidates`' own AND-gate
+      // (h1>0 && h2>0, same sentence) excluded the true sentence from the
+      // candidate list entirely.
+      //
+      // The fix reuses `locateDecider`'s own discipline, one file over
+      // (testimony.js) — "the MOST deciding sentence, not the first
+      // qualifying one — measured live": for each sentence carrying a
+      // co-occurring present-word pair, find its own most-specific pair (the
+      // same bySpecificity order as before, applied within that sentence),
+      // then score the SENTENCE by how many of the claim's full feature set
+      // it covers (not just the two chosen anchors). The sentence with the
+      // highest coverage wins; ties keep the old specificity order, then
+      // document order, for determinism. This is an argmax over a measured
+      // coverage count, never a hand-set threshold (P4).
+      const pairForSentence = (f) => {
+        for (let i = 0; i < bySpecificity.length; i++) {
+          if (!f.has(bySpecificity[i])) continue;
+          for (let j = i + 1; j < bySpecificity.length; j++) {
+            if (f.has(bySpecificity[j])) return { i, j, end1: bySpecificity[i], end2: bySpecificity[j] };
+          }
+        }
+        return null;
+      };
+      let best = null;
+      for (let s = 0; s < sentFeatures.length; s++) {
+        const f = sentFeatures[s];
+        const cand = pairForSentence(f);
+        if (!cand) continue;
+        const score = words.filter((w) => f.has(w)).length; // full claim coverage, not just the anchor pair
+        if (!best || score > best.score || (score === best.score && (cand.i < best.i || (cand.i === best.i && cand.j < best.j)))) {
+          best = { score, ...cand };
         }
       }
+      if (best) return { end1: best.end1, end2: best.end2, from: "longest-words" };
       // no pair co-occurs in any one source sentence — the single rarest
       // present word anchors both ends instead of a doomed pair.
       return { end1: bySpecificity[0], end2: bySpecificity[0], from: "longest-words" };
@@ -143,8 +182,18 @@ export function endsFor(sentence, claims, sourceText = null, splitSentences = nu
  * to prepare for battle" — a morphology gap in the wall, not silence from
  * the material) — and is a typed SKIP that draws no badge.
  */
+// P251 witness-tier, sub-finding (b)'s own disclosed residual: siblingSwap/
+// foldTestimony already compute and attach `competitors` (how many distinct
+// candidate names were available to arm the sibling-swap challenge against —
+// 1 means the degenerate case this repo's own "a gap is a refusal the organ
+// REACHED" rule (P66) says should be visible, never silently indistinguishable
+// from a genuinely-armed pass), but this function — witnessSentences' own
+// real public output — dropped it before it ever reached a caller. Threaded
+// through here, additively: omitted whenever `w.competitors` is nullish, so
+// every existing caller/shape is unaffected.
 export function rowFor(w) {
-  if (w?.verdict === "states") return { witness: "states", decider: w.because ?? null, span: w.span ?? null };
+  const competitors = w?.competitors != null ? { competitors: w.competitors } : {};
+  if (w?.verdict === "states") return { witness: "states", decider: w.because ?? null, span: w.span ?? null, ...competitors };
   if (w?.refused === "no-testimony") return { witness: "refused", why: "no-testimony", via: w?.via ?? null };
   return { witness: "skipped", why: `witness could not reach a verdict: ${w?.refused ?? "unknown"}`, via: w?.via ?? null };
 }

@@ -274,6 +274,22 @@ export function siblingSwap(sentence, slice, { hint = "" } = {}) {
     (n) => !/[.!?\n]\s?/.test(n) && !foldedSent.includes(foldDiacritics(n).toLowerCase()),
   );
   if (!candidates.length) return null;
+  // DISCLOSED, NEVER HIDDEN (P66): how many DISTINCT sibling names this
+  // slice actually offered to swap in, folded so the same name repeated
+  // (e.g. mentioned twice) counts once. Zero is already handled above
+  // (return null — "a page with no sibling to swap cannot be armed",
+  // this file's own header). One is a real but DEGENERATE arm: the swap
+  // still runs (an otherwise-grounded base reading should still ship, the
+  // same precedent the zero-candidate case already sets), but with no
+  // second name on the page, the swap's difficulty is an accident of what
+  // the page happens to mention rather than a chosen, plausible confusion
+  // — measured live: a lone incidental name can force a trivially-easy,
+  // grammatically-absurd substitution ("born in Jesse Root, Ohio", a
+  // person's name in a place slot) that any witness rejects regardless of
+  // real discrimination ability. `competitors` lets a caller tell that
+  // case apart from a genuinely competitive (2+) arm instead of seeing a
+  // byte-identical shape for both.
+  const competitors = new Set(candidates.map((c) => foldDiacritics(c).toLowerCase())).size;
   // The witness's own stated reason, when offered, is tried FIRST — not
   // trusted on its own word (the arm re-checks it exactly as it checks
   // everything else), but a name the witness already noticed is worth
@@ -305,7 +321,7 @@ export function siblingSwap(sentence, slice, { hint = "" } = {}) {
       const to = foldedCandidates.get(key);
       const at = sent.indexOf(from);
       if (at < 0) return null;
-      return { swapped: sent.slice(0, at) + to + sent.slice(at + from.length), from, to, hinted: true };
+      return { swapped: sent.slice(0, at) + to + sent.slice(at + from.length), from, to, hinted: true, competitors };
     }
   }
   // The claim's slot vocabulary: its words outside the swapped name, minus
@@ -340,7 +356,7 @@ export function siblingSwap(sentence, slice, { hint = "" } = {}) {
   const to = scored[0].n;
   const at = sent.indexOf(from);
   if (at < 0) return null;
-  return { swapped: sent.slice(0, at) + to + sent.slice(at + from.length), from, to };
+  return { swapped: sent.slice(0, at) + to + sent.slice(at + from.length), from, to, competitors };
 }
 
 /** The decider, located in the source's own bytes (quotes.js's posture: a
@@ -396,6 +412,14 @@ export function foldTestimony({
   slice = "",
   claim = "",
   swapped = "",
+  // DISCLOSED, NEVER SILENT (P66): the distinct sibling-candidate count
+  // that produced `swapped`/`arm`, when the caller has one (siblingSwap's
+  // own `competitors` field, or the select protocol's equivalent). Left
+  // `null` by every caller that does not pass it, so the field is omitted
+  // from the return and existing callers see byte-identical output — this
+  // never changes whether a verdict lands, only what it discloses about
+  // how competitive the arm actually was.
+  competitors = null,
 }) {
   if (!real) return { refused: "unreadable", host, url };
   // The decider shown to the reader is the SOURCE'S own sentence when one
@@ -416,14 +440,16 @@ export function foldTestimony({
     if (armed && arm?.answer === "yes") return { refused: "insensitive", host, url };
     const decider = deciderFor(claim, real.because);
     if (!decider) return { refused: "uncontained", host, url, because: real.because };
-    return { verdict: "states", because: decider, host, url, armed: Boolean(armed && arm) };
+    const states = { verdict: "states", because: decider, host, url, armed: Boolean(armed && arm) };
+    return competitors == null ? states : { ...states, competitors };
   }
   // real.answer === "no" — a contradiction is only ever derived from the
   // page AFFIRMING the sibling in the same slot; "no" alone is silence.
   if (armed && arm?.answer === "yes") {
     const decider = deciderFor(swapped, arm.because);
     if (!decider) return { refused: "uncontained", host, url, because: arm.because };
-    return { verdict: "contradicts", because: decider, host, url, armed: true };
+    const contradicts = { verdict: "contradicts", because: decider, host, url, armed: true };
+    return competitors == null ? contradicts : { ...contradicts, competitors };
   }
   return { refused: "no-testimony", host, url };
 }
