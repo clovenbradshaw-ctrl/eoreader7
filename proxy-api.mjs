@@ -437,6 +437,53 @@ export function humanizeNote(note) {
   }
 }
 
+// THE GROUNDING GATE (2026-09-23) — `void.satisfied`/`satisfaction.ok` are
+// finalized deep inside runProxyTurn (proxy-runner.mjs's chatVoidCheck): a
+// mechanical check of the PROSE ALONE (non-empty, right shape, not meta),
+// with zero knowledge of `race` (precisionWinner, computed AFTER runProxyTurn
+// returns) or of `reading.claims` (readAnswerClaims — which sentences of the
+// answer were actually bound as checked claims against a source). The two
+// are merged as unrelated sibling keys onto the outgoing reading object at
+// each response-assembly site, with nothing reconciling them: a model
+// free-answer that CONTRADICTS its own attached source reads `satisfied:
+// true` whenever race.winner==="model" (no mechanism settled it) and
+// claims.length===0 (nothing in the answer bound to a source), because the
+// prose itself is well-formed. This is additive only — a case where a
+// mechanism won the race, or a claim actually bound to a source, is
+// untouched.
+export function groundingGate(readingObj, race) {
+  if (!readingObj || !race) return readingObj;
+  const claimsCount = readingObj.reading?.claims?.length ?? readingObj.claims?.length ?? 0;
+  if (race.winner === "model" && claimsCount === 0) {
+    if (readingObj.void) readingObj.void = { ...readingObj.void, satisfied: false };
+    if (readingObj.satisfaction) readingObj.satisfaction = { ...readingObj.satisfaction, ok: false };
+    readingObj.disclosed = {
+      ...(readingObj.disclosed ?? null),
+      unchecked: true,
+      basis: "no mechanism settled this question and no claim bound to a source — an unchecked model guess, not a checked answer",
+    };
+  }
+  return readingObj;
+}
+
+// THE SHARED PICK (found via 256db92's follow-up, 2026-09-23): every
+// response-assembly site needs the SAME three fields off a runProxyTurn
+// `result` — void, satisfaction, and reading — reconciled through
+// groundingGate before they ride out on the wire. `result.reading` (when
+// present) is the narrow {schema, sentences, tally, claims, notes,
+// answerRecord, forms} object built in proxy-runner.mjs; void/satisfaction
+// are SEPARATE top-level siblings on `result`, not inside it. Picking them
+// explicitly here (rather than each call site spreading `result.reading ??
+// result`) is the fix itself: a narrow-but-present `result.reading` can never
+// again cause void/satisfaction to be silently dropped.
+export function gatedReading(result, race) {
+  return groundingGate({
+    void: result?.void ?? null,
+    satisfaction: result?.satisfaction ?? null,
+    reading: result?.reading ?? null,
+  }, race);
+}
+
 export function openAIResponse({ id, model, text, created, usage, reading }) {
   return {
     id,

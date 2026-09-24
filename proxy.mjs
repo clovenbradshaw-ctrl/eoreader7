@@ -2,7 +2,7 @@ import http from "node:http";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { MODEL_PREFIX, parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote, parseAnthropicRequest, flattenAnthropicContent, anthropicCountTokensResponse, anthropicMessageResponse, anthropicStreamStart, anthropicContentBlockStart, anthropicContentBlockDelta, anthropicContentBlockStop, anthropicMessageDelta, anthropicMessageStop } from "./proxy-api.mjs";
+import { MODEL_PREFIX, parseProxyRequest, toOpenAIModelList, reprefixOllamaTags, openAIResponse, openAIStreamLines, ollamaChatResponse, ollamaChatStreamLines, humanizeNote, parseAnthropicRequest, flattenAnthropicContent, anthropicCountTokensResponse, anthropicMessageResponse, anthropicStreamStart, anthropicContentBlockStart, anthropicContentBlockDelta, anthropicContentBlockStop, anthropicMessageDelta, anthropicMessageStop, gatedReading } from "./proxy-api.mjs";
 import * as ProxyRunner from "./proxy-runner.mjs";
 // Claude Code's hook doorway and the reasoning door, POST /v1/hooks/claude-code
 // and /v1/reason (claude-code-doorway.mjs). Namespace-imported for the same
@@ -153,35 +153,6 @@ function raceReading(race) {
     gaps: race.observation?.gaps ?? [],
     superseded: race.superseded,
   };
-}
-
-// THE GROUNDING GATE (2026-09-23) — `void.satisfied`/`satisfaction.ok` are
-// finalized deep inside runProxyTurn (proxy-runner.mjs's chatVoidCheck): a
-// mechanical check of the PROSE ALONE (non-empty, right shape, not meta),
-// with zero knowledge of `race` (precisionWinner, computed here, AFTER
-// runProxyTurn returns) or of `reading.claims` (readAnswerClaims — which
-// sentences of the answer were actually bound as checked claims against a
-// source). The two are merged as unrelated sibling keys onto the outgoing
-// reading object at each response-assembly site, with nothing reconciling
-// them: a model free-answer that CONTRADICTS its own attached source reads
-// `satisfied: true` whenever race.winner==="model" (no mechanism settled it)
-// and claims.length===0 (nothing in the answer bound to a source), because
-// the prose itself is well-formed. This is additive only — a case where a
-// mechanism won the race, or a claim actually bound to a source, is
-// untouched.
-function groundingGate(readingObj, race) {
-  if (!readingObj || !race) return readingObj;
-  const claimsCount = readingObj.reading?.claims?.length ?? readingObj.claims?.length ?? 0;
-  if (race.winner === "model" && claimsCount === 0) {
-    if (readingObj.void) readingObj.void = { ...readingObj.void, satisfied: false };
-    if (readingObj.satisfaction) readingObj.satisfaction = { ...readingObj.satisfaction, ok: false };
-    readingObj.disclosed = {
-      ...(readingObj.disclosed ?? null),
-      unchecked: true,
-      basis: "no mechanism settled this question and no claim bound to a source — an unchecked model guess, not a checked answer",
-    };
-  }
-  return readingObj;
 }
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -1292,7 +1263,7 @@ const job = await startDocumentJob({
           // structurally out of scope because it carried neither field at all
           // — not a smaller gate gap, a total absence. Closed here the same
           // way: reconciled against race/claims before going out.
-          const gated = groundingGate({ void: result.void ?? null, satisfaction: result.satisfaction ?? null, reading: result.reading ?? null }, race);
+          const gated = gatedReading(result, race);
           return {
             answer: race.text,
             sessionId,
@@ -1767,7 +1738,7 @@ const job = await startDocumentJob({
           // satisfaction/void below), so it is computed once here instead of
           // inline in the `race:` field.
           const streamRace = precisionWinner({ observation, draft: result.text });
-          const streamGated = groundingGate({ void: result.void ?? null, satisfaction: result.satisfaction ?? null, reading: result.reading ?? null }, streamRace);
+          const streamGated = gatedReading(result, streamRace);
           res.write(`data: ${JSON.stringify({
             id, object: "chat.completion.chunk", created, model: parsed.model,
             choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
@@ -1854,7 +1825,10 @@ const job = await startDocumentJob({
           const race = precisionWinner({ observation: await observationP, draft: result.text });
           const resp = openAIResponse({ id, model: answeredBy, text: race.text, created, usage: result.usage, reading: result });
           resp.reading.race = raceReading(race);
-          groundingGate(resp.reading, race);
+          const heldGated = gatedReading(result, race);
+          resp.reading.void = heldGated.void;
+          resp.reading.satisfaction = heldGated.satisfaction;
+          resp.reading.disclosed = heldGated.disclosed ?? null;
           resp.reading.sessionId = sessionId;
           resp.reading.thinking = result.thinking ?? null;
           resp.reading.answerShape = result.answerShape ?? null;
@@ -2027,11 +2001,11 @@ const job = await startDocumentJob({
           // CARRIES (ONE-ENGINE-PLAN, ~line 1307; SSE path ~line 1769): this
           // door streamed tokens but discarded `result` entirely, so its
           // final chunk had no `reading` at all — not void/satisfaction
-          // missing, the whole envelope. Gated through groundingGate the
+          // missing, the whole envelope. Gated through gatedReading the
           // same way the SSE path and the non-streaming ollama path below
           // (~line 2066) already are.
           const race = precisionWinner({ observation, draft: result.text });
-          const gated = groundingGate({ void: result.void ?? null, satisfaction: result.satisfaction ?? null, reading: result.reading ?? null }, race);
+          const gated = gatedReading(result, race);
           res.write(JSON.stringify({
             model: parsed.model, created_at: createdAt,
             message: { role: "assistant", content: "" },
@@ -2082,8 +2056,9 @@ const job = await startDocumentJob({
           // `result`, not inside `result.reading`, so they were silently
           // dropped here even though the OpenAI-shaped and SSE paths already
           // disclose (and gate) both. Explicit keys below restore them and run
-          // them through the same groundingGate reconciliation.
-          const gated = groundingGate({ void: result.void ?? null, satisfaction: result.satisfaction ?? null, reading: result.reading ?? null }, race);
+          // them through the same gatedReading reconciliation (proxy-api.mjs)
+          // every other response-assembly site now shares.
+          const gated = gatedReading(result, race);
           resp.reading = { ...(result.reading ?? result), sessionId, race: raceReading(race), void: gated.void, satisfaction: gated.satisfaction, disclosed: gated.disclosed ?? null };
           resp.heimdall = bridgeMessage({ model: parsed.model });
           resp.served = servedDisclosure(scope, parsed.model);
