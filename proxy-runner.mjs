@@ -2129,7 +2129,22 @@ export function createSessionReader() {
   try {
     engRoleConfig = JSON.parse(fs.readFileSync(path.join(HERE, "native/priors/role-config-eng.json"), "utf8"));
   } catch {}
-  const perceivers = [createCausalTextPerceiver({ minRelationSurfaces: MIN_RELATION_SURFACES, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING, reprojectEvery: Number(process.env.ER7_REPROJECT_EVERY ?? 10), language: "eng", roleConfig: engRoleConfig })];
+  // SVO-GATED NAME ADMISSION (2026-09-23, adapters/text/parse-gated-names.js's
+  // own measurement, wired in on the user's direction). recursive.js's
+  // capitalised-run scan never reads the material's own syntax; a name is now
+  // admitted only when the trained parser has ALSO tagged at least one of its
+  // occurrences PROPN in that occurrence's own sentence -- the parse licenses,
+  // capitalisation corroborates. Measured against a 365-item, 9-annotator
+  // blind gold (Henry IV Part 1, modern spelling): precision 69.4%, recall
+  // 87.7%, F1 77.5, the best of nine admission formulas tried. Reuses the
+  // SAME cached model the relation-extraction perceiver below already loads
+  // (getEnglishParserModel() memoizes) -- no second 16MB load. Typed absence:
+  // a missing model file degrades to parseModel:null, the old capitalisation-
+  // only behaviour, never a crash. ER7_PARSE_GATED_NAMES=0 disables it
+  // instantly, independent of ER7_ENGLISH_PARSER_PERCEIVER below (a
+  // different perceiver, a different concern).
+  const parseModel = process.env.ER7_PARSE_GATED_NAMES !== "0" ? getEnglishParserModel() : null;
+  const perceivers = [createCausalTextPerceiver({ minRelationSurfaces: MIN_RELATION_SURFACES, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING, reprojectEvery: Number(process.env.ER7_REPROJECT_EVERY ?? 10), language: "eng", roleConfig: engRoleConfig, parseModel })];
   // Measured 2026-09-23 (reading-training audit): this perceiver alone
   // scores 0.9% recall / 18.5% precision on held-out core SVO extraction;
   // the trained parser below scores 74.0%/73.7%, confirmed real by a
@@ -8530,7 +8545,6 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       fold: { relationEdges: stats.relationEdges, referentBindings: stats.referentBindings, unresolvedAlternatives: Array.isArray(fold?.unresolvedAlternatives) ? fold.unresolvedAlternatives.length : 0, exclusions: Array.isArray(fold?.exclusions) ? fold.exclusions.length : 0 },
       pathos: pathos ? { strain: pathos.strain, flatline: pathos.rhythm.flatline, blinks: pathos.rhythm.blinks, curve: pathos.curve.measured ? "measured" : "unmeasured" } : null,
     },
-    void: surfVoidInfo ? { gap: surfVoidInfo.gap, reason: surfVoidInfo.reason ?? null, whatWouldSettle: surfVoidInfo.whatWouldSettle ?? null } : null,
     post: post ? { blocks: post.blocks?.length ?? 0, linted: post.linted ?? false, reordered: post.reordered ?? false, notes: post.notes ?? [] } : null,
     resolutions: resolutions ? { level: resolutions.level, text: resolutions.text, active: resolutions.active ?? null, atmosphere: resolutions.atmosphere ? { basis: resolutions.atmosphere.basis, ground: resolutions.atmosphere.ground ?? null } : null, lens: resolutions.lens ? { basis: resolutions.lens.basis, windows: resolutions.lens.windows ?? null } : null, paradigm: resolutions.paradigm ? { basis: resolutions.paradigm.basis, window: resolutions.paradigm.window ?? null } : null } : null,
     document: documentLedger
@@ -8694,7 +8708,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // shape names what the answer must be; the questions are the void the
     // answer had to fill; satisfied is the verdict the mode earned (a
     // projection's from its ledger satisfaction, a single answer's from the
-    // void-fill check).
+    // void-fill check). gap/reason/whatWouldSettle (surfVoidInfo, null when
+    // the surf found material) carry WHY nothing answered the question —
+    // these used to sit on a second `void:` key earlier in this same object
+    // literal, which this object's later declaration silently overwrote.
     void: {
       shape: answerShape.shape,
       modality: answerShape.modality,
@@ -8704,6 +8721,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       satisfied: runMode === "projection"
         ? Boolean(documentLedger && (satisfaction?.ok ?? false))
         : Boolean(chatSatisfaction?.ok ?? false),
+      gap: surfVoidInfo?.gap ?? null,
+      reason: surfVoidInfo?.reason ?? null,
+      whatWouldSettle: surfVoidInfo?.whatWouldSettle ?? null,
     },
   };
 }
