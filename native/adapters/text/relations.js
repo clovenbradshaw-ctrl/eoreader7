@@ -81,7 +81,7 @@ import {
   PREDETERMINERS,
   SUBJECT_PRONOUNS,
   CLAUSE_COORDINATORS,
-  NEGATION_WORDS, THIRD_PERSON_SINGULAR,
+  NEGATION_WORDS, NEGATION_CORRELATIVES, THIRD_PERSON_SINGULAR,
   AUXILIARY_VERBS, DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS,
   POSSESSIVE_DETERMINERS, NP_COORDINATORS,
 } from "./priors.js";
@@ -212,11 +212,83 @@ const NEGATION_RE = new WeakMap();
 const negationBeforeVerbFor = (words) => {
   let re = NEGATION_RE.get(words);
   if (re) return re;
-  const alt = altOf(words).replace(/'/g, "['’]");
-  const extra = words === NEGATION_WORDS ? "|no longer" : "";
+  // NOT-ONLY / NOT-JUST (2026-09-23, found live proving extraction
+  // quality): a standalone "not" immediately followed by a
+  // NEGATION_CORRELATIVES member ("only", "just") heads an AFFIRMATIVE
+  // correlative conjunction — "not only X but also Y" / "not just X but
+  // also Y" assert BOTH X and Y, never negate either — so it must never
+  // trip polarity to "-". Built as its own guarded alternative, never
+  // patched into altOf's shared, memoized alternation (other callers reuse
+  // that same cache unfolded, for plain verb alternations too), and scoped
+  // to the ENGLISH default only — the same way the "no longer" extra two
+  // lines below already is — so a caller-injected different-language Set
+  // never gets an English-specific guard grafted onto it.
+  const isEnglishDefault = words === NEGATION_WORDS;
+  const guardNot = isEnglishDefault && words.has("not");
+  const alt = (guardNot
+    ? [`not(?!\\s+(?:${altOf(NEGATION_CORRELATIVES)})\\b)`, altOf(new Set([...words].filter((w) => w !== "not")))]
+    : [altOf(words)]
+  ).join("|").replace(/'/g, "['’]");
+  const extra = isEnglishDefault ? "|no longer" : "";
   re = new RegExp(bWord(`${alt}${extra}`), "iu");
   NEGATION_RE.set(words, re);
   return re;
+};
+// FRONTED SUBORDINATE CLAUSE (2026-09-23, found live proving extraction
+// quality, corrected the same day after the first cut failed to
+// generalize): "While they may not have had the resources to build grand
+// pyramids, ordinary Egyptians were still buried with items..." — the
+// polarity window's two proxies for "where does the enclosing clause
+// start" (a prior SVO match, or real sentence-terminating punctuation) both
+// miss a FRONTED opener clause whose own verb never matched the discovered
+// vocabulary (the ordinary case: an opener clause leans on modals/
+// auxiliaries a narrow discovered vocabulary usually excludes), so the
+// negation scan can reach back across the comma into an unrelated earlier
+// clause and credit ITS negation ("not") to a later, unrelated affirmative
+// main clause.
+//
+// The first cut floored the window at the LAST CLAUSE_OPENERS token found
+// anywhere before the subject (reusing the class expandSubjectNP's own WALK
+// already treats as a left wall, line ~630). It closed the sentence above
+// only by coincidence — a SECOND clause-opener ("to", in "resources to
+// build") happens to sit closer to the subject than "not" does — and it
+// failed a second, structurally simpler reproduction with no such second
+// opener: "After the ceremony was not delayed, the delegation departed
+// quickly." ("After" is the only opener, sitting at the very start; "not"
+// is inside the same fronted clause, after it). Caught before landing by
+// deliberately re-testing the report's own second specimen, not stopping at
+// the first one that passed.
+//
+// THE ACTUAL RULE, taken directly from the grammar: a fronted subordinate
+// clause is closed by its OWN FIRST comma, not by whichever clause-opener
+// token happens to sit nearest the subject. Applied narrowly, as a GATE:
+// only when the window's own leading text (skipping whitespace) begins
+// WITH a clause-opener match at all — never for an ordinary window with no
+// fronted-clause shape, where the floor stays exactly what it always was.
+// When it fires, the floor lands just past the FIRST comma after that
+// opener (never the last comma in the window, which could overshoot past
+// the fronted clause into an unrelated, later comma deeper in the main
+// clause — an appositive, a list). Never applied to `windowStart` itself,
+// which other consumers (expandSubjectNP's own `leftBound` parameter)
+// already receive unmodified and correctly.
+const CLAUSE_OPENER_RE = new WeakMap();
+const clauseOpenerWallFor = (words) => {
+  let re = CLAUSE_OPENER_RE.get(words);
+  if (re) return re;
+  re = new RegExp(bWord(altOf(words)), "iu"); // no "g": tested once, at a fixed offset, below
+  CLAUSE_OPENER_RE.set(words, re);
+  return re;
+};
+const LEADING_WS = /^[ \t\n\r]*/;
+const frontedClauseFloor = (s, windowStart, subjEnd, clauseOpeners) => {
+  const openerRe = clauseOpenerWallFor(clauseOpeners);
+  const lead = LEADING_WS.exec(s.slice(windowStart, subjEnd))[0].length;
+  openerRe.lastIndex = 0;
+  const openerMatch = openerRe.exec(s.slice(windowStart + lead, subjEnd));
+  if (!openerMatch || openerMatch.index !== 0) return windowStart; // not fronted-clause-shaped: unchanged
+  const afterOpener = windowStart + lead + openerMatch[0].length;
+  const comma = s.indexOf(",", afterOpener);
+  return comma !== -1 && comma < subjEnd ? comma + 1 : windowStart;
 };
 const MATCHERS = new Map(); // pattern source -> compiled matcher; a handful live at once
 const matcherFor = (source, flags) => {
@@ -698,9 +770,9 @@ function legacyWalk(s, toks, i, anchorEnd, { definiteDeterminers, indefiniteDete
 
 /**
  * objectBoundaryFrom(posPrior, { minShare }) — the RECEIVED object boundary:
- * every form the POS prior attests as dominantly ADP (adposition) or SCONJ
- * (subordinating conjunction) at the caller's declared share, plus the
- * received clause coordinators and clause openers (priors.js, giver
+ * every form the POS prior attests as dominantly ADP (adposition), SCONJ
+ * (subordinating conjunction) or VERB at the caller's declared share, plus
+ * the received clause coordinators and clause openers (priors.js, giver
  * lang/en). Memoized per prior object — a 16k-form table is walked once.
  *
  * WHY THIS EXISTS (measured live, the-fold 2026-09-02). The object group
@@ -717,12 +789,30 @@ function legacyWalk(s, toks, i, anchorEnd, { definiteDeterminers, indefiniteDete
  * coordinators; this is the same argument on the object side, with the
  * adposition class the UD treebank prior already closes (P56).
  *
+ * VERB, added for P251(c): a relative-clause/cleft construction with no
+ * relativizer, preposition or coordinator standing between the embedded
+ * clause's own object and the MAIN clause's own verb ("the general who
+ * Napoleon defeated at Waterloo retired to England") let the object capture
+ * run straight through a whole second, unrelated assertion — undetected by
+ * checkObjectSpecificity (P36), which only checks the claim's own tokens
+ * against the edge's object, never whether that object already crossed an
+ * illegitimate clause boundary. A form the SAME received POS prior attests
+ * as dominantly VERB, at the SAME caller-declared share, is exactly as
+ * structural a boundary as an adposition — reusing the identical mechanism
+ * (not a new one) rather than trusting the caller's own (possibly ungated,
+ * possibly noisy — see discoverRelationVocab's own header) candidate verb
+ * Set, which relations.test.js's own pinned "byte-identical when
+ * objectBoundary is omitted" specimen measures containing exactly this
+ * noise ("as"/"in" enter as VERB candidates there without a posPrior gate).
+ * Still opt-in, still only ever SHORTENS, same closes-a-false-binding
+ * posture as ADP/SCONJ above.
+ *
  * Structural, not lexical: no word is named here. The cut lands on a CLASS
  * a giver attested, at a share the caller declared, and it can only ever
  * SHORTEN an object — it admits nothing new, so it is a closes-a-false-
  * binding prior (the-fold P41/P43's own test), never a widening one.
  */
-const BOUNDARY_CLASSES = Object.freeze(new Set(["ADP", "SCONJ"]));
+const BOUNDARY_CLASSES = Object.freeze(new Set(["ADP", "SCONJ", "VERB"]));
 const boundaryMemo = new WeakMap();
 export const objectBoundaryFrom = (posPrior, { minShare } = {}) => {
   if (!Number.isFinite(minShare)) throw new TypeError("objectBoundaryFrom: minShare is declared — how dominant an adposition reading must be is the caller's to say");
@@ -971,7 +1061,12 @@ export const extractRelations = (text, { verbs, limit = Infinity, functionWords 
         lastSentenceEnd = sm.index;
       }
       const windowStart = Math.max(previousMatchEnd, lastSentenceEnd + 1, 0);
-      const before = s.slice(windowStart, subjEnd + 1).replace(NOISE_RUN, " ");
+      // The polarity window's own additional floor (see frontedClauseFloor's
+      // header, above): when this window itself opens on a fronted
+      // subordinate clause, its own first comma — never the raw windowStart
+      // above — is where that clause's negation stops reaching.
+      const polarityWindowStart = frontedClauseFloor(s, windowStart, subjEnd, clauseOpeners);
+      const before = s.slice(polarityWindowStart, subjEnd + 1).replace(NOISE_RUN, " ");
       // DR4 (live_priors/goldens/reading/DERIVED-RULES.md): OFF by default
       // — byte-identical subject/offset to before. ON, the survived subject
       // (post function-word-stripping, so `subjectStart` already reflects

@@ -34,6 +34,24 @@ export const NEGATION_WORDS = Object.freeze(new Set([
 export const NEGATION_WORDS_META = Object.freeze({ giver: "lang/en", scope: null });
 
 /**
+ * Negation correlatives — the closed set of adverbs that, immediately after
+ * a standalone "not", turn it from a negator into an affirmative correlative
+ * conjunction: "not only X but also Y", "not just X but also Y" both assert
+ * BOTH X and Y, never a negation of either. Found live (2026-09-23): the
+ * relation extractor's own negation scan read "not" in "This decentralization
+ * not only provides users with more control... but also enhances..." as
+ * negating the clause it introduces, when the construction is affirmative.
+ * "not just ..., but also ..." is independently named in this repo's own
+ * CODING-LESSONS.md:1348 as a pair that must never be split, confirming the
+ * class is a real, recurring English construction, not a specimen of one.
+ * Scoped to the standalone "not" alternative only (relations.js's
+ * negationBeforeVerbFor) — "never only"/"cannot only" etc. have no such
+ * correlative reading and are unaffected.
+ */
+export const NEGATION_CORRELATIVES = Object.freeze(new Set(["only", "just"]));
+export const NEGATION_CORRELATIVES_META = Object.freeze({ giver: "lang/en", scope: null });
+
+/**
  * First-person pronouns — forms whose capitalisation carries no naming
  * information in English. Same giver as FIRST_PERSON.
  */
