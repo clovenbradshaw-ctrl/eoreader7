@@ -511,3 +511,11 @@ fast: 7 files · 20 affected test files · [.] 21/21 pass · [native] 256/258 pa
 | LeviStrauss | STASH.md checked for a matching open problem | received-vocabulary-relations.js:163 | noted | grepped STASH.md for fronted-clause/proposition-order entries — none exist; nothing to reclaim, this is original logic |
 | Simon/Chekhov | new source, test coverage | clause-spans.js, reader-bundle.js | noted | clause-spans.js has its own 16-test suite (clause-spans.test.mjs); reader-bundle.js has no dedicated unit test but is exercised end-to-end by native/eval/lavar/swarm-server.test.mjs (6/6 pass) |
 clean: Alexander, Diaconis, Holmes, Ostrom (no composition gate, RNG, alias-merge, or credit-scope surface touched by this diff)
+
+## 2026-09-23 — proxy.mjs: grounding gate + held-turn cache-key fix (main, 1 file)
+fast: 1 file · 2 affected test files, 32/32 pass · law: ok
+| lens | citation | file:line | verdict | one line |
+| Alexander | composition seam | proxy.mjs:165 (groundingGate) | false-positive-on-review | no-ops safely on missing readingObj/race rather than fabricating a verdict; only ever adds a disclosure, never suppresses one -- not a silent don't-compose default |
+clean: (single lens routed)
+
+Context: found via a live 24-real-run workflow earlier this session — satisfied:true shipped in 24/24 runs regardless of grounding (race.winner='model' + claims.length=0 still read as checked), and a held-turn cache key collision (heldKey omitted attachments/workspace) served stale cross-topic answers on sequential reuse of one session. Both root-caused and fixed by a follow-up workflow, empirically verified on an isolated test instance (port 11499) without touching the shared live proxy (port 11436). See workflow run wf_3c06eb11-d44 for full investigation/verification detail.

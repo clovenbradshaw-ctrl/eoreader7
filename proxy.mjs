@@ -155,6 +155,35 @@ function raceReading(race) {
   };
 }
 
+// THE GROUNDING GATE (2026-09-23) — `void.satisfied`/`satisfaction.ok` are
+// finalized deep inside runProxyTurn (proxy-runner.mjs's chatVoidCheck): a
+// mechanical check of the PROSE ALONE (non-empty, right shape, not meta),
+// with zero knowledge of `race` (precisionWinner, computed here, AFTER
+// runProxyTurn returns) or of `reading.claims` (readAnswerClaims — which
+// sentences of the answer were actually bound as checked claims against a
+// source). The two are merged as unrelated sibling keys onto the outgoing
+// reading object at each response-assembly site, with nothing reconciling
+// them: a model free-answer that CONTRADICTS its own attached source reads
+// `satisfied: true` whenever race.winner==="model" (no mechanism settled it)
+// and claims.length===0 (nothing in the answer bound to a source), because
+// the prose itself is well-formed. This is additive only — a case where a
+// mechanism won the race, or a claim actually bound to a source, is
+// untouched.
+function groundingGate(readingObj, race) {
+  if (!readingObj || !race) return readingObj;
+  const claimsCount = readingObj.reading?.claims?.length ?? readingObj.claims?.length ?? 0;
+  if (race.winner === "model" && claimsCount === 0) {
+    if (readingObj.void) readingObj.void = { ...readingObj.void, satisfied: false };
+    if (readingObj.satisfaction) readingObj.satisfaction = { ...readingObj.satisfaction, ok: false };
+    readingObj.disclosed = {
+      ...(readingObj.disclosed ?? null),
+      unchecked: true,
+      basis: "no mechanism settled this question and no claim bound to a source — an unchecked model guess, not a checked answer",
+    };
+  }
+  return readingObj;
+}
+
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 const PORT = Number(process.env.ER7_PROXY_PORT) || 11436;
@@ -1187,7 +1216,7 @@ const job = await startDocumentJob({
       // because this door aborted the turn on client disconnect instead of
       // letting it finish into a cache the way /v1/chat/completions already
       // does. Checked BEFORE admission, so a retry never re-queues.
-      const holdKey = heldKey(sessionId, "/v1/ask", { task, model, mode, chatHistory: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [] });
+      const holdKey = heldKey(sessionId, "/v1/ask", { task, model, mode, workspace, attachments, chatHistory: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [] });
       const alreadyHeld = findHeld(holdKey);
       if (alreadyHeld) {
         try {
@@ -1272,6 +1301,8 @@ const job = await startDocumentJob({
             answerShape: result.answerShape ?? null,
             truncated: result.truncated ?? false,
             document: result.document ?? null,
+            workspace: result.workspace ?? null,
+            attachments: result.attachments ?? null,
             race: raceReading(race),
             // THE ASK-BACK ENVELOPE (build-clarify): the person sees the plain
             // questions in `answer`; the record carries the structured shape —
@@ -1534,7 +1565,7 @@ const job = await startDocumentJob({
       // HELD, NOT RE-RUN: the same request from the same requester, already
       // running or finished, is answered from the hold — no second admission,
       // no second turn.
-      const holdKey = reqData.stream ? null : heldKey(sessionId, "/v1/chat/completions", { model: parsed.model, messages: parsed.messages, mode: reqData.mode });
+      const holdKey = reqData.stream ? null : heldKey(sessionId, "/v1/chat/completions", { model: parsed.model, messages: parsed.messages, mode: reqData.mode, workspace, attachments: reqData.attachments });
       const alreadyHeld = holdKey ? findHeld(holdKey) : null;
       if (alreadyHeld) {
         try {
@@ -1723,6 +1754,11 @@ const job = await startDocumentJob({
               choices: [{ index: 0, delta: { reasoning_content: result.thinking }, finish_reason: null }],
             })}\n\n`);
           }
+          // The gate needs `race` before the chunk is built (it decides
+          // satisfaction/void below), so it is computed once here instead of
+          // inline in the `race:` field.
+          const streamRace = precisionWinner({ observation, draft: result.text });
+          const streamGated = groundingGate({ void: result.void ?? null, satisfaction: result.satisfaction ?? null, reading: result.reading ?? null }, streamRace);
           res.write(`data: ${JSON.stringify({
             id, object: "chat.completion.chunk", created, model: parsed.model,
             choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
@@ -1768,12 +1804,13 @@ const job = await startDocumentJob({
               interlocutor: result.interlocutor ?? null,
               surfed: result.surfed ?? null,
               resolutions: result.resolutions ?? null,
-              satisfaction: result.satisfaction ?? null,
+              satisfaction: streamGated.satisfaction,
               kelsen: result.kelsen ?? null,
-              void: result.void ?? null,
+              void: streamGated.void,
+              disclosed: streamGated.disclosed ?? null,
               mode: result.mode ?? null,
               usage: result.usage ?? null,
-              race: raceReading(precisionWinner({ observation, draft: result.text })),
+              race: raceReading(streamRace),
               served: servedDisclosure(scope, parsed.model),
             },
           })}\n\n`);
@@ -1808,6 +1845,7 @@ const job = await startDocumentJob({
           const race = precisionWinner({ observation: await observationP, draft: result.text });
           const resp = openAIResponse({ id, model: answeredBy, text: race.text, created, usage: result.usage, reading: result });
           resp.reading.race = raceReading(race);
+          groundingGate(resp.reading, race);
           resp.reading.sessionId = sessionId;
           resp.reading.thinking = result.thinking ?? null;
           resp.reading.answerShape = result.answerShape ?? null;
