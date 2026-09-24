@@ -2019,15 +2019,25 @@ const job = await startDocumentJob({
           const emit = mechanicalWins ? () => {} : writeChunk;
           if (mechanicalWins) writeChunk(observation.text);
           const scope = { sessionId, tier: turnTierAsk(req) };
-          await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
             emit(token);
           }));
           clearTurn();
+          // THE SAME READING ENVELOPE THE OTHER STREAMING DOOR ALREADY
+          // CARRIES (ONE-ENGINE-PLAN, ~line 1307; SSE path ~line 1769): this
+          // door streamed tokens but discarded `result` entirely, so its
+          // final chunk had no `reading` at all — not void/satisfaction
+          // missing, the whole envelope. Gated through groundingGate the
+          // same way the SSE path and the non-streaming ollama path below
+          // (~line 2066) already are.
+          const race = precisionWinner({ observation, draft: result.text });
+          const gated = groundingGate({ void: result.void ?? null, satisfaction: result.satisfaction ?? null, reading: result.reading ?? null }, race);
           res.write(JSON.stringify({
             model: parsed.model, created_at: createdAt,
             message: { role: "assistant", content: "" },
             done: true, done_reason: "stop",
             served: servedDisclosure(scope, parsed.model),
+            reading: { ...(result.reading ?? result), sessionId, race: raceReading(race), void: gated.void, satisfaction: gated.satisfaction, disclosed: gated.disclosed ?? null },
           }) + "\n");
           res.end();
         } catch (err) {
