@@ -21,7 +21,11 @@ export const steeringOff = () => fs.existsSync(path.join(EO_DIR, "steer.off"));
 export const sidOf = (ev) => String(ev?.session_id ?? "unknown").replace(/[^A-Za-z0-9_-]/g, "");
 const stateFile = (sid) => path.join(EO_DIR, "sessions", `${sid}.json`);
 
-const FRESH = () => ({ turn: 0, turnStart: null, reasoned: false, lastReason: null, runs: [], changed: {}, unattributed: [] });
+// straussian: set by claude-code-ledger.mjs's UserPromptSubmit branch when
+// native/organs/askshape.js reads the turn's own ask as harmful — {shape,
+// witnesses, turn, at}, or null. Read by cli/claude-code-shape-gate.mjs's
+// Stop check. Resets every new turn, same as reasoned/lastReason/runs.
+const FRESH = () => ({ turn: 0, turnStart: null, reasoned: false, lastReason: null, runs: [], changed: {}, unattributed: [], straussian: null });
 export function loadState(sid) {
   try { return { ...FRESH(), ...JSON.parse(fs.readFileSync(stateFile(sid), "utf8")) }; } catch { return FRESH(); }
 }
@@ -30,7 +34,7 @@ export function saveState(sid, st) {
   fs.writeFileSync(stateFile(sid), JSON.stringify(st));
 }
 export function newTurn(st) {
-  return { ...st, turn: st.turn + 1, turnStart: new Date().toISOString(), reasoned: false, lastReason: null, runs: [], changed: {}, unattributed: [] };
+  return { ...st, turn: st.turn + 1, turnStart: new Date().toISOString(), reasoned: false, lastReason: null, runs: [], changed: {}, unattributed: [], straussian: null };
 }
 
 // Places whose files are the harness's own, never code under reasoning.

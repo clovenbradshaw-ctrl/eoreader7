@@ -29,10 +29,17 @@ import crypto from "node:crypto";
 import { spawn } from "node:child_process";
 import { sidOf, loadState, saveState, newTurn, engineRunOf, uncovered, exempt, steeringOff, logError } from "./claude-code-state.mjs";
 import { surfaceFileFor } from "../native/organs/reasoning-record.js";
+import { askShapeBest } from "../native/organs/askshape.js";
+import { defaultCharter } from "../native/organs/charter.js";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname);
 const DOCS = path.join(HERE, "..", "documents");
 const EXCERPT = 4000;
+// The AntiStraussian check's charter ground — built once (pure: parses a
+// fixed in-memory UDHR excerpt, no I/O), same default askshape.js's own
+// callers use elsewhere. See cli/claude-code-shape-gate.mjs's own header for
+// what this feeds.
+const charter = defaultCharter();
 
 // The spec file a `node .../reason.mjs <spec.json> ...` command names — a
 // best-effort read of the Bash command string, never a requirement: no
@@ -124,6 +131,17 @@ function main() {
   } else if (event === "UserPromptSubmit") {
     st = newTurn(st);
     role = "prompt"; title = `/${sid}/t${st.turn}`; text = ev.prompt ?? ""; basis = "the operator's words, unedited";
+    // ANTISTRAUSSIAN FLAG (2026-09-24): native/organs/askshape.js read over
+    // the ask itself — its EXISTENCE face already refuses to let an
+    // UNDERSTAND-framed surface launder what the content resolves to (that
+    // file's own rule, not a new one here). Own try/catch, isolated from the
+    // rest of this branch and from the saveState/ledger-append below: a bug
+    // here must never cost the turn its logging or its coverage bookkeeping.
+    // cli/claude-code-shape-gate.mjs (a Stop hook) reads st.straussian back.
+    try {
+      const shape = askShapeBest(ev.prompt ?? "", { charter });
+      if (shape.harmful) st.straussian = { shape: shape.shape, witnesses: shape.witnesses, turn: st.turn, at: new Date().toISOString() };
+    } catch (e) { logError("claude-code-ledger:antistraussian", e); }
   } else if (event === "PostToolUse") {
     const tool = ev.tool_name ?? "tool";
     role = "tool"; title = `/${sid}/t${st.turn}/${tool}`;
@@ -185,6 +203,22 @@ function main() {
   const id = `${docId}:obs:${crypto.createHash("sha1").update(`${sid}\n${event}\n${ev.tool_use_id ?? ""}\n${Date.now()}\n${process.pid}`).digest("hex").slice(0, 16)}`;
   const line = { schema: "EOTObservation@1", id, at: [start, start + clean.length], role, kind: event, title, text: clean, supersedes: null, giver: "claude-code", basis: scrub(basis), appendedAt: new Date().toISOString() };
   fs.appendFileSync(file, JSON.stringify(line) + "\n");
+
+  // ANTISTRAUSSIAN FLAG, durable (2026-09-24): st.straussian can only be
+  // non-null here because the UserPromptSubmit branch above just set it this
+  // very call (newTurn() reset it to null at the top of that branch, and
+  // nothing else in this file writes it) — so this always means "freshly
+  // flagged this call," never a stale leftover. One more line, same
+  // schema/scrub/excerpt helpers as the line just above, so every flag is
+  // visible on eoreader7's own durable record, not only the ephemeral
+  // per-turn state file cli/claude-code-shape-gate.mjs reads.
+  if (st.straussian) {
+    const flagText = scrub(`${st.straussian.shape}: ${st.straussian.witnesses.join(" / ")}`);
+    let flagStart = 0; try { flagStart = fs.statSync(file).size; } catch {}
+    const flagId = `${docId}:obs:${crypto.createHash("sha1").update(`${sid}\n${event}\n${ev.tool_use_id ?? ""}\n${Date.now()}\n${process.pid}\nstraussian`).digest("hex").slice(0, 16)}`;
+    const flagLine = { schema: "EOTObservation@1", id: flagId, at: [flagStart, flagStart + flagText.length], role: "flag", kind: "antistraussian", title: `/${sid}/t${st.turn}/flag`, text: flagText, supersedes: null, giver: "claude-code", basis: "askShapeBest(ev.prompt) — native/organs/askshape.js", appendedAt: new Date().toISOString() };
+    fs.appendFileSync(file, JSON.stringify(flagLine) + "\n");
+  }
 
   // Additive (2026-09-22): one more EOTObservation@1 line per claim a passing
   // `node cli/reason.mjs <spec.json> --json` run just declared — reason.mjs's
