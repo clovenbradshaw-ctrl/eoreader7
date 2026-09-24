@@ -223,7 +223,42 @@ export function groundOf(sentence, ctx = {}) {
         if (idsSentence.size) return [...idsHere].some((id) => idsSentence.has(id));
       }
     }
-    return toks(text).every((w) => st.has(w));
+    // P251's own confirmed exploit: a bare pronoun/short subject or object
+    // (any text that folds to ZERO tokens ≥3 characters — "He", "it", "we")
+    // is invisible to namesIn (L2's own function-word exclusion, by design)
+    // and so never reaches the identity-comparison branch above. That left
+    // `toks(text).every(...)` running over an EMPTY array — vacuously true
+    // by JS's own semantics, for ANY candidate sentence, correct referent or
+    // not. A falsification workflow (2026-09-22) confirmed this promoted a
+    // derived fact about one real, indexed referent onto a control sentence
+    // about a wholly different real, indexed referent, unconditionally: no
+    // control specimen, however constructed, could make it refuse.
+    //
+    // The fix is the boundary itself, not a threshold: an empty requirement
+    // set is NOTHING TO CONFIRM, not something vacuously confirmed — the
+    // same "don't manufacture from an absence" discipline this comment
+    // already states above, applied to the opposite direction (a false
+    // MATCH, not a false mismatch). A structural corroboration floor
+    // (`d.premises.length >= 2`, this repo's own reused ≥2 convention —
+    // WITNESS_FLOOR, FORM_MIN_ARRIVALS, EVIDENCE_FLOOR) was tried here as a
+    // conditional bypass and MEASURED, against the real falsification
+    // specimen (identical byte-for-byte copy of this file's own the-fold
+    // sibling, over real prose and the real cast.js/surfaces.js/spans.js
+    // organs), to be insufficient: a genuinely composed "derived" fact
+    // structurally rests on ≥2 parent premises by construction (composition
+    // always chains a left AND a right edge), so the adversarial control in
+    // that specimen already clears premises.length >= 2 — the same as the
+    // true specimen, since both checks read the identical `d`. A predicate
+    // that only reads `d` (never the candidate `text`/`sentence` pair) can
+    // never discriminate which referent a bare pronoun actually names; only
+    // real coreference resolution could, and none is wired into this ctx
+    // (namesIn deliberately excludes bare pronouns from resolution, L2).
+    // Rather than invent a floor that measurably does not close the hole
+    // (P4's own rule: an undischargeable threshold is worse than none),
+    // this refuses outright whenever there is nothing to confirm — always,
+    // never conditionally reopened on corroboration count alone.
+    const t = toks(text);
+    return t.length > 0 && t.every((w) => st.has(w));
   };
   const dv = derived.filter((d) => sideMatches(d.subject ?? d.end1) && sideMatches(d.object ?? d.end2) && toks(d.verb ?? d.label).some((w) => st.has(w)));
   if (dv.length) return { tier: "derived", cell: CELL_OF.derived, addresses: dv.flatMap((d) => d.premises ?? []), phrase: "derived on the record", detail: `follows from ${dv[0].premises?.length ?? "?"} earlier claim(s), stated by no source`, reached };
