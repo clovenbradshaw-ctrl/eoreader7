@@ -1287,6 +1287,12 @@ const job = await startDocumentJob({
           if (observation?.concluded && String(observation.kind) !== "BEYOND_REACH") {
             noteMechanism({ mechanism: observation.mechanism, kind: String(observation.kind), winner: race.winner, task });
           }
+          // THE FOLLOW-UP FROM 256db92: that commit gated void/satisfaction on
+          // the two /v1/chat/completions response shapes and named /v1/ask as
+          // structurally out of scope because it carried neither field at all
+          // — not a smaller gate gap, a total absence. Closed here the same
+          // way: reconciled against race/claims before going out.
+          const gated = groundingGate({ void: result.void ?? null, satisfaction: result.satisfaction ?? null, reading: result.reading ?? null }, race);
           return {
             answer: race.text,
             sessionId,
@@ -1304,6 +1310,9 @@ const job = await startDocumentJob({
             workspace: result.workspace ?? null,
             attachments: result.attachments ?? null,
             race: raceReading(race),
+            void: gated.void,
+            satisfaction: gated.satisfaction,
+            disclosed: gated.disclosed ?? null,
             // THE ASK-BACK ENVELOPE (build-clarify): the person sees the plain
             // questions in `answer`; the record carries the structured shape —
             // which cells are open, the round, the schema — so the fold, the
@@ -2056,7 +2065,16 @@ const job = await startDocumentJob({
           res.removeListener("close", onDisconnect);
           const race = precisionWinner({ observation: await observationP, draft: result.text });
           const resp = ollamaChatResponse({ model: parsed.model, text: race.text, createdAt, usage: result.usage, reading: result });
-          resp.reading = { ...(result.reading ?? result), sessionId, race: raceReading(race) };
+          // FIXED (found while investigating 256db92's follow-up note): this
+          // spread reads result.reading when it is truthy — the ordinary
+          // prose-chat case — which is only {schema, sentences, tally, claims,
+          // notes, answerRecord, forms}. void/satisfaction are SIBLING keys on
+          // `result`, not inside `result.reading`, so they were silently
+          // dropped here even though the OpenAI-shaped and SSE paths already
+          // disclose (and gate) both. Explicit keys below restore them and run
+          // them through the same groundingGate reconciliation.
+          const gated = groundingGate({ void: result.void ?? null, satisfaction: result.satisfaction ?? null, reading: result.reading ?? null }, race);
+          resp.reading = { ...(result.reading ?? result), sessionId, race: raceReading(race), void: gated.void, satisfaction: gated.satisfaction, disclosed: gated.disclosed ?? null };
           resp.heimdall = bridgeMessage({ model: parsed.model });
           resp.served = servedDisclosure(scope, parsed.model);
           res.writeHead(200, { "content-type": "application/json" });
