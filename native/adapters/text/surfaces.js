@@ -72,6 +72,29 @@ const tokensOf = (id, fold) => rawTokensOf(id).map(fold ?? ((t) => t));
 const tokenEq = (x, y, sameStem) => x === y || (!!sameStem && (sameStem(x, y) || sameStem(y, x)));
 const tokenSetContains = (from, into, sameStem) => from.every((t) => into.some((u) => tokenEq(t, u, sameStem)));
 
+// JOHN-ADAMS/JOHN-QUINCY-ADAMS (P251): the shorter side's tokens, IN ORDER,
+// appear as one unbroken run at SOME position of the longer side's own
+// token sequence — a prefix and a suffix are both special cases of this
+// (start=0, or start=long.length-short.length). "Pierre" ⊆ "Pierre
+// Bezukhov" and "Dyer Observatory" ⊆ "the historic Dyer Observatory
+// campus" both hold (real abbreviations — the shorter form's own token
+// order survives, wherever that run happens to sit); "John Adams" ⊆ "John
+// Quincy Adams" does not (the shorter form's tokens surround an INSERTED
+// token — "John [Quincy] Adams" — the infix-insertion pattern
+// characteristic of a distinct middle/regnal name, i.e. a genuinely
+// different individual). Module-level (not nested in `namesCorefer`) so
+// `discoverReferents`, below, can apply the identical test to a group's
+// own MAXIMAL — the site where the collision actually happens, since a
+// short-form mention is compared against the established anchor, not
+// against `namesCorefer` in isolation.
+const isContiguousRun = (short, long, sameStem) => {
+  if (short.length > long.length) return false;
+  for (let start = 0; start <= long.length - short.length; start += 1) {
+    if (short.every((t, i) => tokenEq(t, long[start + i], sameStem))) return true;
+  }
+  return false;
+};
+
 /**
  * Two NAMES corefer: containment, or — WITH A WITNESS — a shared final
  * token (surname/patronymic). Two independent wideners arrived the same
@@ -107,7 +130,7 @@ const tokenSetContains = (from, into, sameStem) => from.every((t) => into.some((
  * the regression suite and record what stops merging.
  */
 export const namesCorefer = (a, b, opts) => {
-  const { sameStem = null, fold = null, witness = null, commonNoun = null } = typeof opts === "function" ? { fold: opts } : (opts ?? {});
+  const { sameStem = null, fold = null, witness = null, commonNoun = null, contiguitySensitive = true } = typeof opts === "function" ? { fold: opts } : (opts ?? {});
   const ta = tokensOf(a, fold);
   const tb = tokensOf(b, fold);
   if (!ta.length || !tb.length) return false;
@@ -129,8 +152,48 @@ export const namesCorefer = (a, b, opts) => {
   // falls fully open (unconditional containment, byte-identical to every
   // caller that omits it) when no `commonNoun` is supplied.
   const singleGeneric = (from) => from.length === 1 && typeof commonNoun === "function" && commonNoun(from[0]);
-  const subset = (tokenSetContains(ta, tb, sameStem) && !singleGeneric(ta)) || (tokenSetContains(tb, ta, sameStem) && !singleGeneric(tb));
-  if (subset) return true;
+  // JOHN-ADAMS/JOHN-QUINCY-ADAMS (P251, closed here): set-containment alone
+  // does not distinguish a genuine shortened reference from a DIFFERENT
+  // person's own complete name that happens to share every token of the
+  // shorter one — see `isContiguousRun`'s own header, above, for the shape
+  // this distinguishes and why. A subset whose tokens are scattered (no
+  // contiguous run holds them) is exactly as weak as the sibling
+  // `sharedFinal` branch below (a family name/patronymic worn by more than
+  // one person is the ordinary case) and now requires the SAME injected
+  // witness that branch already requires by DEFAULT, rather than firing
+  // unconditionally. Verified on the specimen: ta=["john","adams"] holds no
+  // contiguous run inside tb=["john","quincy","adams"] (start=0 fails at
+  // index 1: "adams"≠"quincy"; the only other possible start, 1, fails
+  // immediately: "john"≠"quincy") — so this rule correctly refuses the
+  // collision while leaving "Pierre"⊆"Pierre Bezukhov" (a run at start 0),
+  // "Bezukhov"⊆"Pierre Bezukhov" (a run at start 1) and "Dyer Observatory"⊆
+  // "the historic Dyer Observatory campus" (a run at start 2, neither a
+  // prefix nor a suffix of the five-token whole) all unconditional, exactly
+  // as before. `contiguitySensitive: false` restores the OLD, byte-
+  // identical unconditional-on-subset behavior — the escape hatch
+  // `discoverReferents`' own `corefersIndividuated` below opts into
+  // deliberately: that function's own two-stage design (S9/2026-09-05,
+  // "the anchor-first blind spot") needs stage 1 ("does this belong to the
+  // group AT ALL") to stay exactly as permissive as before, because stage 2
+  // (the sibling-overlap wall, extended just below to also cover the
+  // group's own maximal) is what actually decides admission — collapsing
+  // the two stages into one gate here would have made "Ilya Rostov"
+  // (against its own established "Ilya Andreyevich Rostov" anchor, with no
+  // sibling yet registered) an orphaned referent instead of the withheld
+  // ambiguous-surface gap rich-referents.test.js already pins. Generality:
+  // disclosed as scoped to First-[Middle]-Last Western name order — the
+  // same order-typology scoping this file's own precedent already accepts
+  // elsewhere (case-marked languages get a wholly separate reader, S40);
+  // not claimed universal across naming conventions where token order
+  // carries different information.
+  const taSubsetTb = tokenSetContains(ta, tb, sameStem) && !singleGeneric(ta);
+  const tbSubsetTa = tokenSetContains(tb, ta, sameStem) && !singleGeneric(tb);
+  if (taSubsetTb || tbSubsetTa) {
+    if (!contiguitySensitive) return true;
+    const [short, long] = taSubsetTb ? [ta, tb] : [tb, ta];
+    if (isContiguousRun(short, long, sameStem)) return true;
+    if (typeof witness === "function" && witness(a, b)) return true;
+  }
   const sharedFinal = tokenEq(ta[ta.length - 1], tb[tb.length - 1], sameStem);
   if (!sharedFinal) return false;
   return typeof witness === "function" ? !!witness(a, b) : false;
@@ -1154,7 +1217,7 @@ const deriveMinSentences = (surfaces) => {
  * the cluster's maximal surface as its witness. `addresses` is returned for
  * the next refresh. Without `prior`, nothing here changes.
  */
-export const discoverReferents = (surfaces, { minSentences, minPartners, groups, foldToken, sameStem = null, prior = null } = {}) => {
+export const discoverReferents = (surfaces, { minSentences, minPartners, groups, foldToken, sameStem = null, prior = null, commonNoun = null } = {}) => {
   const events = [];
   const assigned = new Map(); // surface -> referent_id
   const generic = groups
@@ -1219,7 +1282,26 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
   const corefersIndividuated = (a, b) => {
     const ia = individuating(a);
     const ib = individuating(b);
-    if (ia.length && ib.length) return namesCorefer(ia.join(" "), ib.join(" "), { fold: foldToken, sameStem });
+    // P251(b): namesCorefer's own commonNoun gate (above, singleGeneric)
+    // was never reaching THIS call — the clustering step that actually
+    // builds the referent index — only cast.js's later, resolve()-time
+    // lookup. A bare single-token surface worn by more than one named
+    // thing ("Judge" against an established "Judge Harmon" AND a wholly
+    // separate, unconnected "the Judge" mention) merged into the compound
+    // referent here regardless of what a caller's own commonNoun
+    // classifier would have refused at resolve() time — the index was
+    // already corrupted before resolve() ever ran. Forwarding the same
+    // organ here closes the gap at its source; omitted, this call is
+    // byte-identical to before (commonNoun defaults to null, same as
+    // namesCorefer's own default).
+    // contiguitySensitive: false — see namesCorefer's own header on the
+    // flag: this call is STAGE 1 of discoverReferents' two-stage design
+    // ("does this belong to the group at all"), deliberately as permissive
+    // as it was before P251's contiguity gate existed; STAGE 2, below (the
+    // sibling-overlap wall, now also checking the group's own maximal), is
+    // what actually decides whether a matched fragment like "John Adams" is
+    // admitted or withheld.
+    if (ia.length && ib.length) return namesCorefer(ia.join(" "), ib.join(" "), { fold: foldToken, sameStem, commonNoun, contiguitySensitive: false });
     // No individuating evidence on one side means no evidence FOR merging —
     // not licence to fall back on the generic tokens just judged unreliable.
     // That inverted fallback kept every Princess in one referent: both
@@ -1380,6 +1462,27 @@ export const discoverReferents = (surfaces, { minSentences, minPartners, groups,
       const sibling = g.children.find((c) => partiallyOverlaps(arriving, c.tokens));
       if (sibling) {
         ambiguities.push({ surface, candidates: [id], conflictsWith: sibling.surface });
+        continue;
+      }
+      // JOHN-ADAMS/JOHN-QUINCY-ADAMS (P251): the sibling wall above only
+      // ever sees a CONFLICT once a second, partially-overlapping fragment
+      // has already been registered as a child — "John Adams" arriving
+      // against a bare "John Quincy Adams" anchor, with no sibling
+      // registered yet, sails through it. This is the SAME anchor-first
+      // blind spot one level up: `arriving` matched the group's MAXIMAL
+      // only via `corefersIndividuated`'s deliberately permissive stage-1
+      // test (namesCorefer's `contiguitySensitive: false`, above) — a
+      // proper subset of the maximal's own tokens whose order was never
+      // checked. `isContiguousRun` (module-level, shared with
+      // namesCorefer's own default-on gate) checks it here, against the
+      // maximal itself rather than a sibling: a scattered subset — the
+      // shorter form's tokens surrounding an INSERTED token, "John
+      // [Quincy] Adams" — is real structural evidence of a distinct
+      // middle/regnal name, i.e. a genuinely different individual, and is
+      // withheld the identical way a sibling conflict already is, never
+      // silently admitted for lack of a sibling to blame it on.
+      if (arriving.length && g.maximalTokens.length && arriving.length < g.maximalTokens.length && !isContiguousRun(arriving, g.maximalTokens, sameStem)) {
+        ambiguities.push({ surface, candidates: [id], conflictsWith: g.maximal });
         continue;
       }
       referentId = id;
