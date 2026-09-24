@@ -201,10 +201,18 @@ const altOf = (forms) => {
   return alt;
 };
 const NEGATION_RE = new WeakMap();
+// P251(a), second defect: altOf's escaped alternation matches the straight
+// apostrophe literally ("didn't"), so an already-present entry silently
+// misses the curly apostrophe (U+2019) that ordinary Gutenberg/literary
+// prose uses ("didn’t"). WCHAR (above) already treats both glyphs as
+// equivalent word characters for boundary purposes; this extends that same
+// existing equivalence into the matched text itself, for this regex only —
+// not into altOf's shared cache, which other callers (verb alternations)
+// still build unfolded.
 const negationBeforeVerbFor = (words) => {
   let re = NEGATION_RE.get(words);
   if (re) return re;
-  const alt = altOf(words);
+  const alt = altOf(words).replace(/'/g, "['’]");
   const extra = words === NEGATION_WORDS ? "|no longer" : "";
   re = new RegExp(bWord(`${alt}${extra}`), "iu");
   NEGATION_RE.set(words, re);

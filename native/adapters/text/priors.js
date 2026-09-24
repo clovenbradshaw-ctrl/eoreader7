@@ -9,11 +9,27 @@
 
 // ── lang/en — English function words ────────────────────────────────────────
 
-/** Negation markers — a small closed grammatical class, not an open semantic list. */
+/**
+ * Negation markers — a small closed grammatical class, not an open semantic
+ * list. P251(a): the do-support and modal contractions were present but the
+ * *be* and *have* auxiliary contractions (isn't/aren't/wasn't/weren't,
+ * haven't/hasn't/hadn't) and the rarer modal contractions were missing —
+ * a negated claim using one of those forms was silently read as
+ * affirmative (NEGATION_WORDS membership gates `negationBeforeVerbFor`
+ * before the mis-parse/beyond-reach machinery in P43 ever engages, so a
+ * missing member skips that machinery entirely rather than degrading
+ * through it). Closing the class is the P43-sanctioned move ("a received
+ * class that closes a false binding is turned on, not left opt-in") —
+ * every added form is a standard, closed, enumerable English orthographic
+ * contraction, same giver, not a hand-picked or open-ended addition.
+ */
 export const NEGATION_WORDS = Object.freeze(new Set([
   "not", "never", "hardly", "scarcely", "neither", "nor",
   "didn't", "don't", "doesn't", "wouldn't", "couldn't", "shouldn't",
   "won't", "can't", "cannot",
+  "isn't", "aren't", "wasn't", "weren't",
+  "haven't", "hasn't", "hadn't",
+  "mustn't", "needn't", "shan't", "daren't", "mightn't", "oughtn't",
 ]));
 export const NEGATION_WORDS_META = Object.freeze({ giver: "lang/en", scope: null });
 

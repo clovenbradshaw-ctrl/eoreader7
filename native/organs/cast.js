@@ -131,7 +131,7 @@ export function makeCastHandles({ splitSentences, extractSurfaces, discoverRefer
  * implementation of "the same name" — the resolver is a projection of this
  * index, so support and identity cannot drift apart.
  */
-export function makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, blankFurniture = null, leadingSurfaces = null, nameFold = null, nameVariant = null }) {
+export function makeReferentIndex({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, blankFurniture = null, leadingSurfaces = null, nameFold = null, nameVariant = null, commonNoun = null }) {
   return function indexFor(passages) {
     const text = (passages ?? []).map((p) => (blankFurniture ? (p?.blanked ?? p?.text ?? "") : (p?.text ?? ""))).join("\n\n");
     const empty = { events: [], referents: new Set(), resolve: () => new Set(), represent: () => null };
@@ -176,7 +176,13 @@ export function makeReferentIndex({ splitSentences, extractSurfaces, discoverRef
         }
         surfaces = [...surfaces, ...admitted];
       }
-      events = discoverReferents(surfaces, { minSentences: 0 }).events;
+      // P251(b): forward the same commonNoun organ resolve() below already
+      // receives (via the caller's own namesCorefer wrapper) into discovery
+      // itself, so a generic single-token surface is refused from
+      // clustering into a compound referent at the source, not only when
+      // later queried. Omitted, byte-identical to before this parameter
+      // existed.
+      events = discoverReferents(surfaces, { minSentences: 0, commonNoun }).events;
     } catch {
       // An organ refusing (script it doesn't apply to, empty material) means
       // no cast — the index is empty and the byte check stands alone.
