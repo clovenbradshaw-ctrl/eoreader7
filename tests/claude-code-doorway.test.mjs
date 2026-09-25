@@ -13,6 +13,16 @@ import path from "node:path";
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
 const HOME = fs.mkdtempSync(path.join(os.tmpdir(), "cc-doorway-"));
 process.env.HOME = HOME; // the hook scripts the doorway runs inherit it
+// EO_LEDGER_DIR (2026-09-25, found live): this file's own PASSING/eo-reason
+// fixtures name no `session`, so cli/reason.mjs falls back to whatever real
+// CLAUDE_CODE_SESSION_ID this suite happens to run under — 39 fixture lines
+// were found landed under six real sessions in the shared claims ledger
+// before this. doorway.mjs's own spawn() (line ~73) sets no `env` key, so it
+// inherits process.env exactly as Node's child_process default does; setting
+// this once here, the same idiom as process.env.HOME above, reaches every
+// child hop (this test's run() -> doorway's spawn -> reason.mjs) with no
+// per-call plumbing.
+process.env.EO_LEDGER_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "cc-doorway-ledger-"));
 const { route, handlersFor } = await import("../claude-code-doorway.mjs");
 const { engineRunOf } = await import("../cli/claude-code-state.mjs");
 
@@ -33,6 +43,7 @@ gone.close();
 test.after(() => {
   server.close(); old.close();
   fs.rmSync(HOME, { recursive: true, force: true });
+  fs.rmSync(process.env.EO_LEDGER_DIR, { recursive: true, force: true });
   fs.rmSync(path.join(ROOT, "documents", `claude-code-${SID}:1.jsonl`), { force: true });
 });
 

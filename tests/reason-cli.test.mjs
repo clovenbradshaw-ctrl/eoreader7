@@ -1,5 +1,15 @@
 // tests/reason-cli.test.mjs — cli/reason.mjs and the two Claude Code hooks,
-// run as real processes (a temporary HOME, so real session state is untouched).
+// run as real processes (a temporary HOME, so real session state is untouched;
+// EO_LEDGER_DIR isolates cli/reason.mjs's own shared claims ledger the same
+// way tests/reasoning-claims-ledger.test.mjs does — found live 2026-09-25,
+// this file's own GFP fixtures, run with no `session` in their spec and thus
+// falling back to whatever real CLAUDE_CODE_SESSION_ID this suite happened
+// to run under, had been landing in documents/eoreader7-reasoning:1.jsonl,
+// the real shared ledger, under real session ids — claude-code-ledger.mjs's
+// OWN ledger (the one this file's own LEDGER tests read, at a hard-coded
+// ROOT/documents path) does not read EO_LEDGER_DIR at all, so this isolates
+// only cli/reason.mjs's calls, leaving every existing LEDGER/GATE assertion
+// in this file untouched).
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -13,7 +23,8 @@ const REASON = path.join(ROOT, "cli", "reason.mjs");
 const LEDGER = path.join(ROOT, "cli", "claude-code-ledger.mjs");
 const GATE = path.join(ROOT, "cli", "claude-code-reason-gate.mjs");
 const HOME = fs.mkdtempSync(path.join(os.tmpdir(), "reason-cli-"));
-const env = { ...process.env, HOME };
+const EO_LEDGER_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "reason-cli-ledger-"));
+const env = { ...process.env, HOME, EO_LEDGER_DIR };
 const run = (file, input, args = []) => spawnSync("node", [file, ...args], { input: typeof input === "string" ? input : JSON.stringify(input), env, encoding: "utf8" });
 const reason = (spec) => { const r = run(REASON, spec, ["--json"]); return { code: r.status, out: JSON.parse(r.stdout) }; };
 
