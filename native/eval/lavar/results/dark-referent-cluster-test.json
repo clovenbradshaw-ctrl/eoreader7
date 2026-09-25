@@ -7,8 +7,8 @@
    "siblingPairs": 2,
    "cueHits": 1,
    "cueSigHits": 0,
-   "controlRate": 0.167,
-   "controlExpected": 0.33
+   "controlRate": 0.067,
+   "controlExpected": 0.13
   },
   {
    "specimen": "hedgehog (ch8)",
@@ -17,8 +17,8 @@
    "siblingPairs": 6,
    "cueHits": 5,
    "cueSigHits": 3,
-   "controlRate": 0.156,
-   "controlExpected": 0.93
+   "controlRate": 0.111,
+   "controlExpected": 0.67
   },
   {
    "specimen": "jury (ch11)",
@@ -27,8 +27,8 @@
    "siblingPairs": 2,
    "cueHits": 2,
    "cueSigHits": 2,
-   "controlRate": 0.1,
-   "controlExpected": 0.2
+   "controlRate": 0.067,
+   "controlExpected": 0.13
   },
   {
    "specimen": "jury (ch12)",
@@ -37,14 +37,14 @@
    "siblingPairs": 2,
    "cueHits": 2,
    "cueSigHits": 2,
-   "controlRate": 0.133,
-   "controlExpected": 0.27
+   "controlRate": 0.1,
+   "controlExpected": 0.2
   }
  ],
  "totals": {
   "totalPairs": 12,
   "cueHits": 10,
   "cueSigHits": 7,
-  "controlHitsSum": 1.7333333333333332
+  "controlHitsSum": 1.1333333333333333
  }
 }

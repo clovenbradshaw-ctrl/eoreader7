@@ -81,6 +81,11 @@ const operators = {
   TERRAIN_BY_DOMAIN: cube.TERRAIN_BY_DOMAIN,
   OPERATOR_ORDER,
   operatorOf,
+  // moves.js (the-fold 00c4283, 2026-09-20) now destructures OPERATOR_CHAIN and
+  // cellOf directly; without them the driver threw "cellOf is not a function"
+  // at moves.js:59 and the live registry walk was dead (found 2026-09-25).
+  OPERATOR_CHAIN: cube.OPERATOR_CHAIN,
+  cellOf: cube.cellOf,
 };
 
 /**

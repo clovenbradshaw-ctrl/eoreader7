@@ -329,6 +329,7 @@ export function voidCellsFor({ topic, question = "", openQuestions = [], shadowR
 // revised). EVA then checks the written piece against this declaration, and
 // REC re-opens whatever the void still names as missing.
 import { cellOf } from "../kernel/cube.js";
+import { settling } from "../kernel/settling.js";
 import { declareVoid, zeroSpace, fill, voidsOf } from "./void-shape.js";
 
 // Declare the essay's void. `sections` is the DEF'd structure (the pieces the
@@ -1005,6 +1006,34 @@ export function detectTrajectoryBoredom(assistantTurns = [], { shuffles = 400, p
     n: turns.length,
     findings,
   };
+}
+
+// ── TRAJECTORY CHURN — the boredom detector's mirror (2026-09-25) ─────────
+// detectTrajectoryBoredom names a conversation that has stopped moving. Its
+// own healthy control — five turns on five unrelated topics — is the stream
+// THIS detector names: nothing recurs, nothing is ever confirmed, every turn
+// is novel. That passes the boredom test perfectly and settles on nothing,
+// which kernel/settling.js reads as never_settles (a structural zero: no slot
+// holds one value for corroboration.js's floor of consecutive turns). The same
+// organ tells the two ways of settling apart — in any order (the flat fixture:
+// boredom's territory) or in sequence beyond an order-shuffle null (a cast
+// held for a stretch, then another: the band between). Each turn's content
+// words — the same STOP_WORDS and > 4-letter floor detectRedundancy's fact key
+// uses, Unicode letters rather than [a-z] — are the slots; the value is
+// presence. THE WINDOW is the caller's, as for boredom: whatever turns it
+// already kept. `churning` is true only on never_settles; a typed refusal
+// (too_short, settled_order_untestable) is passed through as the verdict with
+// churning:false — a check that did not run never reports a positive (P41).
+export function detectTrajectoryChurn(assistantTurns = [], { pValue = 0.05, shuffles = 400, rng = Math.random } = {}) {
+  const turns = (assistantTurns ?? []).map((t) => String(t ?? "").trim()).filter((t) => t.length > 20);
+  const facts = turns.map((t) => {
+    const m = new Map();
+    for (const w of t.toLowerCase().replace(/[^\p{L}']+/gu, " ").split(/\s+/)) if (w.length > 4 && !STOP_WORDS.has(w)) m.set(w, "present");
+    return m;
+  });
+  const r = settling(facts, { pValue, shuffles, rng });
+  if (r.gap) return { churning: false, verdict: r.gap, basis: r.basis, n: turns.length, settled: r.settled ?? [], p: null };
+  return { churning: r.verdict === "never_settles", verdict: r.verdict, basis: r.basis, n: turns.length, settled: r.settled, p: r.p, early: r.early, late: r.late };
 }
 
 const STOP_WORDS = new Set("the and for with that this from under through after during was were are is had has have by to of in on at it its their there here which where when how what who into across over been being not but or as than then so such only also very just".split(" "));

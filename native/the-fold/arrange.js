@@ -83,16 +83,30 @@ function notesOf(pt) {
     const subj = arcs.find((a) => /^nsubj/.test(a.rel));
     const obj = arcs.find((a) => a.rel === "obj") ?? arcs.find((a) => a.rel === "obl");
     if (!(subj && obj)) continue;
-    // POLARITY (2026-09-25, the reading archons): the parser's own declared
-    // feature on an advmod child of the root — "not" carries Polarity=Neg,
-    // "never" PronType=Neg — never a word list. VIA: an object, or an oblique
-    // with its case marker ("obl:through"), so "flowed through" and "flowed
-    // past" are never one relation to a generalization. Both are additive;
-    // id/end1/label/end2 are unchanged for the cycle finder and figure check.
-    const neg = arcs.some((a) => a.rel === "advmod" && (byKey.get(a.to)?.feats ?? []).some((f) => f.value === "Neg" && (f.name === "Polarity" || f.name === "PronType")));
-    const objNode = byKey.get(obj.to);
-    const caseMark = obj.rel === "obl" ? (m.markers ?? []).find((x) => x.rel === "case" && (objNode?.markers ?? []).includes(x.key))?.lemma : null;
-    out.push({ id: `${pt.id}:${root.key}`, end1: byKey.get(subj.to)?.lemma, label: root.lemma, end2: objNode?.lemma, witness: pt.id, polarity: neg ? "-" : "+", via: obj.rel === "obl" ? `obl:${caseMark ?? ""}` : "obj" });
+    // POLARITY (2026-09-25, the reading archons, twice): the parser's own
+    // declared Neg feature — Polarity=Neg on "not", "neither", "nor";
+    // PronType=Neg on "never", "no", "nothing" — never a word list. Read where
+    // a negation denies THIS note: an advmod of the root, the subject node,
+    // the object node, a marker on either, a conjunct of the object or its
+    // markers. A Neg anywhere else in the sentence leaves the note
+    // UNRESOLVED ("?"): under-cited, never mis-cited. VIA: an object, or an
+    // oblique with its case marker ("obl:through"), so "flowed through" and
+    // "flowed past" are never one relation to a generalization. PRT: a
+    // phrasal particle (compound:prt), kept beside `label` — id, end1, label
+    // and end2 are unchanged for the cycle finder and the figure check.
+    const isNeg = (feats) => (feats ?? []).some((f) => f.value === "Neg" && (f.name === "Polarity" || f.name === "PronType"));
+    const markersOn = (node) => (m.markers ?? []).filter((x) => (node?.markers ?? []).includes(x.key));
+    const subjNode = byKey.get(subj.to), objNode = byKey.get(obj.to);
+    const conjuncts = (m.arcs ?? []).filter((a) => a.from === obj.to && a.rel === "conj").map((a) => byKey.get(a.to)).filter(Boolean);
+    const negHere = [...arcs.filter((a) => a.rel === "advmod").map((a) => byKey.get(a.to)), subjNode, objNode, ...conjuncts]
+      .filter(Boolean).some((n) => isNeg(n.feats) || markersOn(n).some((x) => isNeg(x.feats)));
+    const negAnywhere = m.nodes.some((n) => isNeg(n.feats)) || (m.markers ?? []).some((x) => isNeg(x.feats));
+    const caseMark = obj.rel === "obl" ? markersOn(objNode).find((x) => x.rel === "case")?.lemma : null;
+    const prt = arcs.find((a) => a.rel === "compound:prt");
+    out.push({
+      id: `${pt.id}:${root.key}`, end1: subjNode?.lemma, label: root.lemma, end2: objNode?.lemma, witness: pt.id,
+      polarity: negHere ? "-" : negAnywhere ? "?" : "+", via: obj.rel === "obl" ? `obl:${caseMark ?? ""}` : "obj", prt: prt ? (byKey.get(prt.to)?.lemma ?? null) : null,
+    });
   }
   return out;
 }
@@ -230,23 +244,48 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
   // BESIDE the winner — the roles they agree on, the rest disclosed as
   // varying. The winner's own sentence stays the thesis's text in every
   // case; the claim is an additive fact. Anything short of that is a
-  // disclosed refusal, never a silent fallback. (Measured 2026-09-25 on two
-  // real grounds, the surf white paper and the Cumberland essay: no basin
-  // fires — real general sentences do not share a predicate lemma at the
-  // kernel's prevalence floor; the path fires on refrains.)
-  const basin = thesis ? thesisBasin(pool, thesis.pt.id, { population: `thesis-pool:${draft?.sourceId ?? "draft"}` }) : null;
+  // disclosed refusal, never a silent fallback. (Measured 2026-09-25 across
+  // NINE real grounds — a house doc, two UD treebank READMEs, an OHS audit,
+  // a Call of the Wild excerpt, UK legislation, a SCOTUS oral-argument
+  // excerpt, the surf white paper, the Cumberland essay: zero basins
+  // validate, including on the two grounds with real negation in their
+  // noted clauses — Call of the Wild +21/−5/?4, the SCOTUS excerpt
+  // +27/−5/?2 — so the gap is not merely rarity, it was not observed at all
+  // on real prose. Real general sentences do not share a predicate lemma at
+  // the kernel's prevalence floor; the path fires on refrains.)
+  const hunt = thesis ? thesisBasin(pool, thesis.pt.id, { population: `thesis-pool:${draft?.sourceId ?? "draft"}` }) : null;
+  const basin = hunt?.candidate ?? null;
   const basinMembers = basin ? pool.filter((f) => basin.memberRefs.includes(f.pt.id)) : [];
   // ONE SUBJECT (Kelsen): a note's end1 is a head lemma, so "Cumberland
   // River" and "Harpeth River" both read "river". With a resolver, the
-  // members must name the same proper beings, or nothing is generalized.
+  // members must name the same proper beings in every role, or nothing is
+  // generalized — a conservative guard (it refuses one subject with differing
+  // proper objects too), and its reason says so. Without a resolver the
+  // guard does not run, and the basis says that.
   const properOf = (f) => (R ? [...new Set(f.all.filter((id) => isProperReferent(R, id)))].sort().join("\u0001") : "");
   const sameBeings = basinMembers.every((f) => properOf(f) === properOf(basinMembers[0]));
   const synth = !basin ? null
-    : !sameBeings ? { generalization: null, refused: "the basin's members name different proper beings — one head lemma would stand for more than one subject" }
+    : !sameBeings ? { generalization: null, refused: "the basin's members name different proper beings in some role — the one-subject guard refuses rather than let one head lemma stand for more than one being", excluded: [], unresolved: [] }
     : thesisGeneralization(basinMembers, { winnerId: thesis.pt.id });
   const gen = synth?.generalization ? synth : null;
-  // The winner stands first: a0's span is its bytes, and `id` is always it.
-  const thesisMemberIds = new Set(thesis ? [thesis.pt.id, ...(gen ? gen.statements : [])] : []);
+  // THE MATERIAL'S ORDER, KEPT (typesetting is signal): the members stand in
+  // the order the material gave them; the winner is `id` and the thesis
+  // part's span, never moved to the front.
+  const thesisMemberIds = new Set(feat.filter((f) => thesis && (f.pt.id === thesis.pt.id || (gen && gen.statements.includes(f.pt.id)))).map((f) => f.pt.id));
+  // THE EXCLUSION, AND ITS OPEN CONTEST (the reading archons, 2026-09-25):
+  // every thesis member is held out of the body groups below. McPhee, Gornick
+  // and Lish would RESTORE: a member followed by other sentences in its
+  // source paragraph is that paragraph's topic sentence and belongs to its
+  // group (still a witness, in thesis.ids); a member that is its paragraph's
+  // whole content is a refrain line and stays held out — the paragraph seam
+  // decides, no threshold. Clark and Kidder & Todd hold the fold is right.
+  // Gebser gave neither the last word: the restore lands after one mouth run
+  // on a refrain-bearing real ground. Measured 2026-09-25 across nine real
+  // grounds (above): zero basins fired, decided by the kernel's prevalence
+  // floor, not by this null — the exclusion has not been exercised on real
+  // material yet. Both bases count the paragraphs beheaded.
+  const childCount = new Map(parts.flatMap((p) => (p.children ?? []).map((c) => [c.id, (p.children ?? []).length])));
+  const beheaded = [...thesisMemberIds].filter((id) => id !== thesis?.pt.id && (childCount.get(id) ?? 1) > 1).length;
 
   // ── BODY: regroup by shared beings (union-find), across sources
   const parent = new Map(feat.map((f) => [f.pt.id, f.pt.id]));
@@ -387,8 +426,16 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
     groups.splice(best, 2, mergeTwo(groups[best], groups[best + 1]));
   }
 
-  // ── TENSION: a group the material marks as a turn, else a declared gap
-  const tension = groups.find((g) => g.contrast) ?? null;
+  // ── TENSION: a group the material marks as a turn — a contrastive
+  // connective; else (2026-09-25) a statement that DENIES the thesis's own
+  // relation on its subject, the parser's polarity read as the material's
+  // own turn (Gornick, Williams, Kelsen); else a declared gap.
+  const same = (a, b) => a != null && b != null && String(a).toLocaleLowerCase("und") === String(b).toLocaleLowerCase("und");
+  const thesisLabel = gen ? gen.label : (thesis?.notes[0]?.label ?? null);
+  const thesisSubject = gen ? (gen.generalization.agreed.ARG0 ?? null) : (thesis?.notes[0]?.end1 ?? null);
+  const denies = (f) => !thesisMemberIds.has(f.pt.id) && thesisLabel != null && f.notes.some((n) => n.polarity === "-" && same(n.label, thesisLabel) && (thesisSubject == null || same(n.end1, thesisSubject)));
+  const denials = feat.filter(denies);
+  const tension = groups.find((g) => g.contrast) ?? groups.find((g) => g.statements.some(denies)) ?? null;
 
   // ── REASONING CHECKS
   const findings = [];
@@ -403,11 +450,14 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
   // 2026-09-25: counting varying values as thesis words silenced a licensed
   // leave-out, 1 → 0). With no generalization the two tiers are one set.
   const thesisFeats = feat.filter((f) => thesisMemberIds.has(f.pt.id));
-  const thesisWords = new Set(thesisFeats.flatMap((f) => f.words));
-  const thesisBeings = new Set([...thesisFeats.flatMap((f) => f.all), ...subject]);
-  const agreedWords = gen ? [gen.relation, ...Object.values(gen.generalization.agreed)].flatMap((v) => draftWords(String(v))) : [];
-  const licenseWords = new Set([...(thesis?.words ?? []), ...agreedWords]);
+  const memberWords = new Set(thesisFeats.flatMap((f) => f.words));
+  const memberBeings = new Set([...thesisFeats.flatMap((f) => f.all), ...subject]);
+  // The license set is the winner's own — never the generalization's lemmas:
+  // the stemmer keeps "shaped" while the lemma is "shape", and Clark measured
+  // the lemma licensing a body noun no thesis member holds.
+  const licenseWords = new Set(thesis?.words ?? []);
   const licenseBeings = new Set([...(thesis?.all ?? []), ...subject]);
+  const varyingWords = new Set(gen ? Object.values(gen.generalization.varying).flat().flatMap((v) => draftWords(String(v))) : []);
   // WHAT A FINDING LICENSES (stage 7, skeleton-loop.js): an off-thesis group
   // that also answers none of the ask's questions may leave the skeleton
   // (Clark: every section earns its place); one that answers a question
@@ -415,20 +465,23 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
   const askWords = new Set(draftWords(String(draft?.task ?? "").match(/\b(?:on|about|of|regarding|concerning)\s+(.+?)[.?!]*$/i)?.[1] ?? "").filter((w) => !isFunctionWord(w)));
   groups.forEach((g, i) => {
     const bearsOn = (words, beings) => g.statements.some((f) => f.all.some((id) => beings.has(id)) || f.words.some((w) => words.has(w)));
-    const bears = bearsOn(thesisWords, thesisBeings);
     const licensed = bearsOn(licenseWords, licenseBeings);
     if (thesis && !licensed) {
       const answers = g.statements.some((f) => f.words.some((w) => askWords.has(w)));
-      const onlyVarying = bears && !licensed;
+      const viaVarying = bearsOn(varyingWords, new Set());
+      const viaMember = !viaVarying && bearsOn(memberWords, memberBeings);
       findings.push({
         kind: "off_thesis", owner: "Roy Peter Clark", group: i, statements: g.statements.map((f) => f.pt.id),
-        licenses: answers || onlyVarying ? null : "leave-out",
-        detail: onlyVarying
-          ? `group ${i + 1} shares nothing with the thesis's own sentence or its agreed roles — it bears only on a value the claim discloses as varying; reported, not licensed`
-          : `group ${i + 1} shares no being or word with the thesis — a part with no job in this argument${answers ? "; it answers the ask, so it stays" : ""}`,
+        licenses: answers || viaVarying || viaMember ? null : "leave-out",
+        detail: viaVarying
+          ? `group ${i + 1} shares nothing with the thesis's own sentence — it bears only on a value the claim discloses as varying; reported, not licensed`
+          : viaMember
+            ? `group ${i + 1} shares nothing with the thesis's own sentence — only a word of a thesis member the claim did not keep; reported, not licensed`
+            : `group ${i + 1} shares no being or word with the thesis — a part with no job in this argument${answers ? "; it answers the ask, so it stays" : ""}`,
       });
     }
   });
+  if (denials.length) findings.push({ kind: "denied_relation", owner: "Kelsen (reasoning-lint.js)", statements: denials.map((f) => f.pt.id), licenses: null, detail: `${denials.length} statement(s) deny the thesis's relation "${thesisLabel}"${thesisSubject ? ` on "${thesisSubject}"` : ""}: ${denials.map((f) => f.pt.id).join(", ")} — the material's own contest, reported${tension && !tension.contrast ? "; taken as the turn" : ""}; the typed polarity contest (a cut meeting its link, kernel/notes.js) is owed` });
   const links = [];
   for (let i = 1; i < groups.length; i++) {
     const a = groups[i - 1], b = groups[i];
@@ -478,7 +531,7 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
   let bodyIdx = 0;
   const bodySlots = groups.map((g) => {
     const base = { statements: g.statements.map((f) => f.pt.id), extent: g.from != null ? [g.from, g.to] : null, beings: g.beings.filter((id) => !R || isProperReferent(R, id)).map((id) => R?.represent(id) ?? id), sources: g.sources };
-    if (g === tension) return { slot: "tension", ...base, basis: "the material marks this group as a turn" };
+    if (g === tension) return { slot: "tension", ...base, basis: g.contrast ? "the material marks this group as a turn" : "the material marks this group as a turn: it denies the thesis's relation" };
     bodyIdx += 1;
     const role = bodyRoles[bodyIdx - 1];
     const extentBasis = g.from != null ? `, ordered by extent ${g.from}–${g.to}` : ", undated, kept in the material's place";
@@ -488,16 +541,32 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
       basis: role ? `role "${role.role}" (position ${bodyIdx} of ${bodyRoles.length} in the measured/learned form structure)${extentBasis}` : `grouped by shared beings${extentBasis}`,
     };
   });
-  // The null, said plainly (Caro): p has a resolution floor of 1/(draws+1),
-  // and the threshold is the null's binding-ENERGY quantile, not an alpha.
-  const nullLine = (b) => { const n = b.cohesionNull; return `p=${n.pValue.toFixed(3)}, floor 1/${n.protocol.iterations + 1} at ${n.protocol.iterations} permutations; binding energy ${n.observed.toFixed(3)} above the null's ${Math.round(n.quantile * 100)}th quantile ${n.threshold.toFixed(3)}`; };
+  // The null, said plainly (Caro, twice): p has a resolution floor of
+  // 1/(draws+1) and the line says when it sits there; the threshold is the
+  // null's binding-ENERGY quantile, not an alpha; the basin's count is what
+  // cleared, the winner's group's count is what was generalized; every
+  // member excluded is named with why; a tie is a tie; and when no basin
+  // fires the line says how many candidates carried a note and what the
+  // kernel found.
+  const nullLine = (b) => { const n = b.cohesionNull; const draws = n.protocol.iterations; const atFloor = n.pValue * (draws + 1) <= 1 + 1e-9; return `p=${n.pValue.toFixed(3)}${atFloor ? ` — at the floor 1/${draws + 1}: no draw of ${draws} reached the observed energy` : ` (floor 1/${draws + 1} at ${draws} permutations)`}; binding energy ${n.observed.toFixed(3)} above the null's ${Math.round(n.quantile * 100)}th quantile ${n.threshold.toFixed(3)}, over relation+polarity+via features`; };
+  const tied = candidates.filter((c) => c.score === candidates[0]?.score).length;
+  const tieLine = tied > 1 ? `, tied with ${tied - 1} other(s); first by position` : "";
+  const excludedLine = (s) => ((s?.excluded ?? []).length ? `; excluded from the winner's group: ${s.excluded.map((e) => `${e.statements.join(", ")} (${e.relation}, ${e.polarity}, ${e.via})`).join("; ")}` : "");
+  const unresolvedLine = (s) => ((s?.unresolved ?? []).length ? `; ${s.unresolved.length} note(s) left unresolved by a negation the read did not place: ${s.unresolved.join(", ")}` : "");
+  const absentLine = gen && Object.keys(gen.generalization.absent).length ? `; absent on some claims: ${Object.entries(gen.generalization.absent).map(([k, n]) => `${k} (${n})`).join(", ")}` : "";
+  const guardLine = basin && !R ? "; the one-subject guard did not run (no resolver on the draft)" : "";
+  const beheadedLine = beheaded ? `; ${beheaded} source paragraph(s) lost their opening sentence to the thesis part` : "";
+  const thesisBasis = !thesis ? "no general statement in the material — the thesis is a gap"
+    : `the general statement whose words recur across the most parts (recurrence ${candidates[0].score.toFixed(2)}${tieLine})${
+      gen ? `; a basin of ${basin.memberCount} cleared its null (${nullLine(basin)}); ${gen.statements.length} of them share the winner's relation "${gen.relation}" (${gen.polarity}, ${gen.via}) and were generalized: ${Object.keys(gen.generalization.agreed).join(", ") || "nothing"} agreed, ${Object.keys(gen.generalization.varying).join(", ") || "nothing"} varying${absentLine}${excludedLine(synth)}${unresolvedLine(synth)}${guardLine} — the generalized claim stands beside the winner's sentence; its members are held out of the body groups${beheadedLine}`
+        : basin ? `; a basin of ${basin.memberCount} cleared its null (${nullLine(basin)}) but nothing was generalized: ${synth.refused}${excludedLine(synth)}${unresolvedLine(synth)}${guardLine}`
+          : hunt?.elsewhere?.length ? `; a basin of ${hunt.elsewhere[0].memberCount} cleared its null (${nullLine(hunt.elsewhere[0])}) but does not hold the winner ${thesis.pt.id}${thesis.notes[0] ? ` (its note: ${thesis.notes[0].label}, ${thesis.notes[0].polarity}, ${thesis.notes[0].via})` : " (it carries no relation note)"}: ${hunt.elsewhere[0].memberRefs.join(", ")} — the thesis is the winner alone`
+            : hunt ? `; no basin: ${hunt.noted} of ${pool.length} candidates carry a relation note; the kernel found ${hunt.diagnostics.basins} basin(s), ${hunt.diagnostics.validated} validated, over ${hunt.diagnostics.entities} noted candidate(s) (prevalence floor 1/√n)`
+              : ""}`;
   const slots = [
     {
-      slot: "thesis", statements: [...thesisMemberIds], claim: gen?.generalization ?? null, rendered: gen ? renderGeneralization(gen.generalization, "SVO") : null,
-      basis: !thesis ? "no general statement in the material — the thesis is a gap"
-        : `the general statement whose words recur across the most parts (recurrence ${candidates[0].score.toFixed(2)})${gen
-          ? `; ${gen.statements.length} statements cleared a null-validated basin (${nullLine(basin)}) and agree on "${gen.relation}" (${gen.polarity}, ${gen.via}; ${gen.agreeingClaims} claims of ${basin.memberCount} members): ${Object.keys(gen.generalization.agreed).join(", ")} agreed, ${Object.keys(gen.generalization.varying).join(", ") || "nothing"} varying — the generalized claim stands beside the winner's sentence, and its members are held out of the body groups`
-          : synth?.refused ? `; a basin cleared its null (${nullLine(basin)}) but nothing was generalized: ${synth.refused}` : ""}`,
+      slot: "thesis", statements: [...thesisMemberIds], winner: thesis?.pt.id ?? null, claim: gen?.generalization ?? null, rendered: gen ? renderGeneralization(gen.generalization, "SVO") : null,
+      basis: thesisBasis,
     },
     ...bodySlots,
     { slot: "return", statements: [], basis: thesisMemberIds.size ? `the close comes back to the thesis (${[...thesisMemberIds].join(", ")})` : "no thesis to return to" },
@@ -537,11 +606,14 @@ export function outlineLines(outline, draft) {
  * arrangedDraft(draft, outline) → a draft whose parts ARE the outline: the
  * thesis opens the piece as its own part, then each body group (its
  * statements in the material's order, their ids and byte spans unchanged),
- * in the outline's order. Every later stage — floor, prose, fold, turns —
- * reads this draft, so the piece follows the composed shape, not the
- * source's paragraphing. The original draft is not touched (append-only:
- * the ledger keeps both). The return slot has no statement: the close is
- * written by the arrival stage and read against the thesis there.
+ * in the outline's order. A thesis part that carries a generalized claim
+ * holds every witness, in the material's order; its span is the WINNER's
+ * (the slot's `winner`), and the claim and its rendering ride beside its
+ * text, never as it. Every later stage — floor, prose, fold, turns — reads
+ * this draft, so the piece follows the composed shape, not the source's
+ * paragraphing. The original draft is not touched (append-only: the ledger
+ * keeps both). The return slot has no statement: the close is written by
+ * the arrival stage and read against the thesis there.
  */
 export function arrangedDraft(draft, outline) {
   if (!draft?.root || !outline?.slots) return draft;
@@ -558,7 +630,7 @@ export function arrangedDraft(draft, outline) {
       // A generalized claim travels beside the part, never as its text: the
       // text stays the statements' own sentences, byte-true to `spans`.
       ...(s.claim ? { claim: s.claim, rendered: s.rendered ?? null } : {}),
-      span: { ...pts[0].span }, spans: pts.map((pt) => ({ ...pt.span })),
+      span: { ...((s.winner && byId.get(s.winner)) ? byId.get(s.winner).span : pts[0].span) }, spans: pts.map((pt) => ({ ...pt.span })),
       children: pts, from: [...new Set(pts.map((pt) => pt.path.split("/")[1]))],
       names: [...new Set(pts.flatMap((pt) => pt.names ?? []))],
       words: [...new Set(pts.flatMap((pt) => pt.words ?? []))],
@@ -573,9 +645,12 @@ export function arrangedDraft(draft, outline) {
     prev = p;
   }
   const root = { ...draft.root, children: parts };
+  const claimed = outline.slots.find((s) => s.slot === "thesis" && s.claim) ?? null;
+  const sizeOf = new Map(drawnParts(draft).flatMap((p) => p.children.map((c) => [c.id, p.children.length])));
+  const beheaded = claimed ? claimed.statements.filter((id) => id !== claimed.winner && (sizeOf.get(id) ?? 1) > 1).length : 0;
   return {
     ...draft, root, arrangedFrom: outline.schema,
-    basis: `${parts.length} part(s) composed by the outline (${outline.basis}); ${parts.filter((p) => p.bridge && !p.bridge.name).length} transition(s) have no shared name and must be written${parts.some((p) => p.claim) ? `; 1 part carries a claim generalized from ${parts.find((p) => p.claim).children.length} statements (part.claim; part.rendered is its mechanical surface, handed to no mouth) — its text is those statements' own sentences` : ""}`,
+    basis: `${parts.length} part(s) composed by the outline (${outline.basis}); ${parts.filter((p) => p.bridge && !p.bridge.name).length} transition(s) have no shared name and must be written${claimed ? `; 1 part carries a claim generalized from ${claimed.statements.length} statements (part.claim; part.rendered is its mechanical surface, handed to no mouth) — its text is those statements' own sentences in the material's order, its span the winner's${beheaded ? `; ${beheaded} source paragraph(s) lost their opening sentence to it` : ""}` : ""}`,
   };
 }
 

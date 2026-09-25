@@ -224,13 +224,19 @@ export function generalizeClaims(claims, { identity = exactIdentity } = {}) {
  * renderGeneralization(gen, lens) → the surface string a lens would print
  * for a generalization: the agreed roles project as usual; EVERY varying
  * role has its distinct values joined by a plain list-formatter ("a, b, and
- * c") and substituted in — none is dropped. A pure token-join of lemmas,
- * same as `render`: no model call, no tense, no article. What it prints is a
- * claim's surface, not a sentence; callers must not hand it to a mouth as one.
+ * c") and substituted in — none is dropped. A '-' generalization is
+ * prefixed "denied: " — kernel/notes.js's own mark for a cut — so the
+ * surface never contradicts the record's polarity. A pure token-join of
+ * lemmas, same as `render`: no model call, no tense, no article. The list
+ * surface is honest only when ONE role varies: with two, "a and b V c and d"
+ * reads as pairings the sources never made (sourceIds keep the pairing).
+ * What it prints is a claim's surface, not a sentence; callers must not hand
+ * it to a mouth as one.
  */
 export function renderGeneralization(gen, lens = "SVO") {
   const list = (vals) => (vals.length <= 1 ? vals[0] : vals.length === 2 ? `${vals[0]} and ${vals[1]}` : `${vals.slice(0, -1).join(", ")}, and ${vals[vals.length - 1]}`);
   const roles = { ...gen.agreed };
   for (const [key, vals] of Object.entries(gen.varying)) if (vals.length) roles[key] = list(vals);
-  return render(gfpClaim({ ground: gen.ground, rel: gen.rel, roles, polarity: gen.polarity ?? "+" }), lens);
+  const surface = render(gfpClaim({ ground: gen.ground, rel: gen.rel, roles, polarity: gen.polarity ?? "+" }), lens);
+  return gen.polarity === "-" ? `denied: ${surface}` : surface;
 }

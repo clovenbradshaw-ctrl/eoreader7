@@ -659,3 +659,29 @@ Constitution: `../eo-constitution/CONSTITUTION.md` + READING-SPEC.md + README.md
 **Two real detector bugs, caught by testing against real material instead of only synthetic fixtures (this suite's own II.13 discipline) before this ever reached a commit:** the first cut of `capitalization_unguarded` matched only a `.toUpperCase() === …` identity test and missed the actual shape in `corroboration.js`/`hypergraph.js` (`w[0].toUpperCase() + w.slice(1)`, building a capitalised variant for a later comparison, not an inline identity test) — both real-material assertions failed until the pattern gained a `[0].toUpperCase()` alternative. Second: a keyword-proximity "confidence" score (was this capitalisation gate probably already disclosed nearby?) was built, then dropped after `puzzle-templates.js:69`'s undisclosed English-only `AGENT_LIST_RE` scored "probably disclosed" because an unrelated puzzle template's own `giver:` field sat three lines below it — recorded in READING-SPEC.md S116 and in the organ's own header so the same mistake isn't rebuilt later.
 
 fixed: 2 (both caught pre-commit, in this same pass — the capitalisation pattern gap and the confidence-score false positive). struck: the keyword-proximity confidence score (tried, measured against real material, removed).
+
+## 2026-09-25 — kernel/arrow.js (Eddington): the arrow of time as a learned regularity; transplant-arm.mjs gains reversed-words + Eddington rows (main, 4 files)
+fast: 4 files · arrow.test.js 9/9, surprise-segments + continuation 20/20 · law: ok (dup:P115 P116 P117 P19 P233, S17 S96 pre-existing — the-fold/READING-SPEC homonyms already reported by archon-holocracy/CRITIQUE.md)
+| lens | citation | file:line | verdict | one line |
+| Diaconis | II.23 | arrow.js:16 | fixed | the shuffle null was the WRONG null for direction — a reversible walk beat it 0.084 vs 0.044–0.064 because a shuffle destroys order, not just sign; replaced by a symmetrized-bootstrap null (same undirected k-grams, sign removed), measured in the test |
+| Feynman | — | arrow.js:116 | no-change | `k < 2` is a structural minimum (a 1-gram has no order to reverse), thrown as a typed error, not a tuned comparison |
+| Dijkstra | — | transplant-arm.mjs:86 | fixed | `toLowerCase` disclosed as deliberate case-folding for an ORDER measurement over Latin-script text; scope stated in a comment |
+| Greenberg | — | transplant-arm.mjs:72 | no-change | Latin-punctuation sentence split, same scope as null-arm.mjs, disclosed in the comment above it |
+| Marshall | II.23 | arrow.js | clean | no law edited; II.23 (the null is built in) cited and honoured — with the correction that the arrow needs its own null, not Rubin's |
+| Simon/Chekhov | — | arrow.js, transplant-arm.mjs | disclosed | arrow.js has a 9-case suite incl. the falsification (reversible walk, i.i.d., palindrome); transplant-arm.mjs is an eval driver like null-arm.mjs, exercised on two real chapters, no unit test; arrow.js is wired only into the eval, not the reading path — named future work |
+clean: (all routed lenses reviewed above)
+
+Context: user's question "would a mind transplanted into a universe with different causality struggle?" → run it, not argue it. Result: sentence reversal reads FORWARD at the word grain and reversed-words reads BACKWARD, both chapters — the medium's arrow lives in the words, the referred arrow in the order of what they say; the reader had no Pattern-grain time organ at all before this.
+
+## 2026-09-25 — Eddington and Partee wired into the reading path: eot-jsonl.mjs writes its own arrow and individuates times (main, 4 files)
+fast: 4 files · narrative-time.test.js 4/4, arrow.test.js 9/9 · law: ok (dup headers pre-existing, reported by archon-holocracy/CRITIQUE.md)
+| lens | citation | file:line | verdict | one line |
+| Diaconis | II.23 | eot-jsonl.mjs (arrow block) | clean | the ledger arrow ranks against arrow.js's symmetrized null; the Partee rows were measured against the transplant's 8-draw shuffled range and sit inside it — reported as "disorder"/"held", not claimed |
+| Feynman | — | eot-jsonl.mjs (habit.length >= 3) | no-change | k+1 events is the structural minimum arrow.js itself declares; a window that is the whole source gets direction null, disclosed on the line |
+| Dijkstra | — | eot-jsonl.mjs (wordsOf, sentenceOf) | disclosed | case-folded whitespace words for an ORDER measurement; sentence membership by address containment, never by string |
+| Greenberg | — | eot-jsonl.mjs (tenseOf) | disclosed | the tense typer is English-only and says so: UniMorph's regular past (stem+ed) is its giver, irregular pasts (went, said) are typed undeclared and counted on the coverage line — 13/182 arrangements typed past in Alice ch2, 22/134 in Tom Sawyer ch2; the received morphology prior carries lemmas, not tense |
+| Kondo | — | — | clean | nothing left dead; temporal-reference.js leaves the unwired list |
+| Simon/Chekhov | — | narrative-time.js, eot-jsonl.mjs, transplant-arm.mjs | disclosed | narrative-time.js has a 4-case suite incl. the honest case (reversed order gives the same counts); eot-jsonl.mjs exercised on two real chapters × 11 arms via transplant-arm.mjs |
+clean: (all routed lenses reviewed above)
+
+Context: the reader now writes EOArrow@1 into every ledger with the rest of the book as its habit — forward, sentence-reversed and shuffled read FORWARD, reversed-words reads BACKWARD, both chapters. Partee's walk binds every regular past tense (0 gaps) and, as its own test predicts, cannot see sentence reversal without a reach-back tense: typing the English pluperfect is the named next step.

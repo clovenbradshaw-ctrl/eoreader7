@@ -35,6 +35,21 @@ test("every stage lands on the ledger in pipeline order", async () => {
   } finally { cleanup(docId); }
 });
 
+test("THE VOICE quotes the draft's own bytes: 'Its claim:' is a sentence of the ground, read by statement id, never an arranger's rendering (the reading archons, 2026-09-25)", async () => {
+  const voiceGround = path.join(tmp, "voice.md");
+  fs.writeFileSync(voiceGround, "The river shaped the city.\n\nSteamboats reached the city in 1819 and carried cotton downriver.");
+  const draw = async () => "The river shaped the city, and steamboats reached it in 1819 carrying cotton downriver.";
+  const { docId } = await runPipeline({ task: "Write a piece on the river.", groundFiles: [voiceGround], id: "test-pipe-voice", draw });
+  try {
+    const v = read(docId).find((l) => l.role === "register" && l.title === "Voice, as information");
+    assert.ok(v, "the voice landed on the ledger");
+    const m = String(v.text).match(/Its claim: "([^"]+)"/);
+    assert.ok(m, `the voice names a claim: ${String(v.text).slice(0, 120)}`);
+    assert.ok(fs.readFileSync(voiceGround, "utf8").includes(m[1]), `the quoted claim is not a sentence of the ground: ${m[1]}`);
+    assert.ok(!read(docId).some((l) => /was not the draft's bytes/.test(String(l.title))), "the arranger's text and the draft's bytes agree");
+  } finally { cleanup(docId); }
+});
+
 test("THE FOLD: a sentence carrying two statements supersedes both with one joined statement", async () => {
   const draw = async () => "Steamboats reached Nashville in 1819 and carried cotton to New Orleans, and by the 1850s warehouses lined the waterfront.";
   const { docId } = await runPipeline({ task: "Write a piece from this material.", groundFiles: [groundFile], id: "test-pipe-join", draw });

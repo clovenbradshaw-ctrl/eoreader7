@@ -227,9 +227,13 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   // THE VOICE, AS INFORMATION ONLY (Gary: information, not prohibition; the
   // model is the mouth). The shared register voice told the mouth "open with
   // a surprising thesis … never a description" and "do not discuss the
-  // essay"; the arrangement has now COMPUTED the thesis, so the mouth is
-  // handed it as a fact, and nothing tells it what not to say.
-  const thesisText = outline.thesis?.text ?? null;
+  // essay"; the arrangement has now chosen the thesis sentence, so the mouth
+  // is handed it as a fact, and nothing tells it what not to say.
+  // THE CLAIM THE MOUTH IS TOLD IS THE DRAFT'S OWN BYTES, read by statement
+  // id — never a field an arranger might fill with a rendering (the reading
+  // archons, 2026-09-25); a mismatch is said on the ledger, and the bytes win.
+  const thesisText = outline.thesis ? (draftText.get(outline.thesis.id) ?? null) : null;
+  if (outline.thesis?.text && thesisText !== outline.thesis.text) write("register", "Voice: the arranger's thesis text was not the draft's bytes", `outline.thesis.text: ${outline.thesis.text}\ndraft ${outline.thesis.id}: ${thesisText ?? "(not a drawn statement)"}`, "the mouth is handed the draft's own sentence; the arranger's text is recorded, not spoken", "eoreader7:steer");
   // The form-word is the ask's own ("sonnet", "essay", "piece"), never "essay"
   // for everything; the subject only when one was stated.
   const named = form.token ?? "piece";
@@ -246,7 +250,7 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
     return lastPiece;
   };
   checkLoop("floor (the selected source sentences, in outline order)", floorPiece(draft));
-  write("register", "Voice, as information", `opening:\n${voice.opening}\n\nbody:\n${voice.body}`, "the thesis computed by the arrangement, handed to the mouth as a fact; no instruction about what not to say (Gary)", "eoreader7:steer");
+  write("register", "Voice, as information", `opening:\n${voice.opening}\n\nbody:\n${voice.body}`, "the thesis sentence the arrangement chose, quoted from the draft's own bytes and handed to the mouth as a fact; no instruction about what not to say (Gary)", "eoreader7:steer");
   for (const part of drawnParts(draft)) {
     write("arrange", `${part.id} (${part.slot})${part.bridge ? (part.bridge.name ? ` ← ${part.bridge.name}` : " ← (transition to write)") : ""}`, part.children.map((pt) => pt.id).join(" "), `from ${part.from.join(", ")}`, "eoreader7:arrange");
   }
