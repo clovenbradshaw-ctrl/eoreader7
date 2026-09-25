@@ -161,6 +161,11 @@ export * as thea from "./thea.js";
 // the er7 proxy's workspace pass, the eval drivers, their own test files —
 // import them directly by path, server-side only, the same split the look.js
 // exclusion below already states for itself.
+// kleene-up (2026-09-21, Kleene) is in the SAME split for the same reason:
+// its kernel ground (kernel/kleene-up.js) imports node:crypto for the needle
+// sha256 digest, so it is NOT statically re-exported here. Server-side
+// consumers (scripts/kleene-up.mjs, the verbatim-snip migration, the eval
+// drivers) import it by path; a static host never sees node:crypto.
 // The current-facts witness (2026-09-19, Wilson) — the hyperlexicon's kinds,
 // their dated links, and the stigmergic trails of the hops that found them.
 // Server-side only, like the what/anchor organs: it composes kernel/rng-less

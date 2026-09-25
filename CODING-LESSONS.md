@@ -1780,3 +1780,31 @@ record, because none of the three loaders logged an eviction: the daemon did
 the evicting. The rules now: a probe asks only what `/api/ps` says is
 resident, a warm never pushes out a model in use, and what is kept warm is
 what actually served.
+
+## kleeneUp lessons (2026-09-21) — regex eviction, paid in failed runs
+- **A classifier written as a regex will eat itself.** The first
+  `reduceRegex` used a regex to classify regexes; it failed to compile
+  ("Nothing to repeat") before it ever ran. The fix was a hand scanner — and
+  the archon's own rule: an archon that evicts regex with a fragile regex is
+  hoist by its own petard. Classify by walking the pattern, not by patterning
+  the pattern.
+- **A needle is a boundary you get for free; a tokenizer is grammar you
+  disclose.** Replacing `\bword\b` with a plain substring needle finds
+  "word" inside "sword". The honest fix is to measure single words against
+  the TOKENIZED field (word boundaries become real) and phrases against the
+  folded raw field — and say out loud that the tokenizer is structural
+  grammar, not finding.
+- **"Absence is a result" only works if the shape of the result is
+  consistent.** `findNeedle`'s `from` path sliced the field to an empty
+  string, and the empty-field refusal omitted the `found`/`absent` arrays a
+  caller needs — a `Cannot read properties of undefined (reading 'length')`
+  that only showed up under test. Every refusal must carry the same shape as
+  every finding, so an absence is never a crash.
+- **A word boundary is not the letter b.** `\b` unescaped to "b" turned
+  `llama-server\b` into the needle `llama-serverb` — a wrong span found
+  silently. A boundary marks the edge of a needle, never a character, and the
+  un-escapers must treat it as such.
+- **A survey scanner must skip the shebang.** The first sweep reported
+  `#!/usr/bin/env node` as the regex `/usr/` with flags `bin`, on every
+  entry file. The guard: a `/` begins a regex only after an expression-
+  starting character, and a `#!` line is never a regex.
