@@ -45,15 +45,15 @@ test("adapter: injected anchorOf wins over folded strings", { skip: SKIP }, () =
 });
 
 test("end to end against the REAL engine organs: reader edges → stage → R2", { skip: SKIP }, async () => {
-  const { splitSentences } = await import("../../legacy-eoreader6.1/packages/engine/perceiver/text/spans.js");
+  const { splitSentences } = await import("../adapters/text/spans.js");
   const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(
-    "../../legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js"
+    "../adapters/text/surfaces.js"
   );
   const { discoverRelationVocab, extractRelations } = await import(
-    "../../legacy-eoreader6.1/packages/engine/perceiver/text/relations.js"
+    "../adapters/text/relations.js"
   );
   const { tokenize, buildFrequencyTable, functionWordSet } = await import(
-    "../../legacy-eoreader6.1/packages/engine/perceiver/text/material.js"
+    "../adapters/text/material.js"
   );
   const organs = {
     splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm,

@@ -7,6 +7,7 @@
     "test": "node --test \"conformance/*.test.mjs\" \"tests/*.test.js\"",
     "test:organs": "node --test \"organs/*.test.mjs\"",
     "test:heimdall": "node --test \"heimdall/*.test.mjs\"",
-    "benchmark:heimdall": "node eval/heimdall/benchmark.mjs"
+    "benchmark:heimdall": "node eval/heimdall/benchmark.mjs",
+    "check:no-legacy-submodule": "node scripts/check-no-legacy-submodule.mjs"
   }
 }

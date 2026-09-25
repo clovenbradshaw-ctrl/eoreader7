@@ -14,9 +14,9 @@ import { reviseTextFold } from "../adapters/text/revision.js";
 import { createRecursiveReader } from "../../kernel.js";
 import { projectHypergraph, hyperlexiconAt } from "../kernel/hypergraph-projection.js";
 import { anchorAsDefiniteBinding } from "../adapters/text/anchoring.js";
-import { bindLinks, buildLink } from "../../legacy-eoreader6.1/packages/engine/emergence/binding.js";
+import { bindLinks, buildLink } from "../legacy-ported/packages/engine/emergence/binding.js";
 
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 // window 8: the dmd-measured reach of "who is this stretch about" on
 // pg84's own first quarter (terrain-activation-live, derive named there);
 // draws/alpha/seed: LINK_SPEC's convention (kernel/network-standing.js).

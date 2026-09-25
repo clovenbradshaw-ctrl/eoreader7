@@ -44,9 +44,9 @@
 
 import fs from "node:fs";
 import { stripContainer, splitSentences } from "../adapters/text/spans.js";
-import { resolveSpanRole } from "../../legacy-eoreader6.1/packages/engine/perceiver/text/roles.js";
+import { resolveSpanRole } from "../legacy-ported/packages/engine/perceiver/text/roles.js";
 
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 
 // Declared, and cited rather than invented: host/corpus.js's own operating
 // point for one-hop activation binding, disclosed there as unvalidated. The

@@ -60,20 +60,20 @@ import { chunkSource, delimitedTable } from "../../../../the-fold/source.js";
 import { makeRelationReader } from "../../../../the-fold/hypergraph.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const ENGINE = join(HERE, "..", "..", "..", "legacy-eoreader6.1", "packages", "engine");
-const PRIORS_DIR = join(HERE, "..", "..", "..", "legacy-eoreader6.1", "bin", "priors", "lang");
+const ENGINE = join(HERE, "..", "..", "adapters", "text");
+const PRIORS_DIR = join(HERE, "..", "..", "priors", "lang");
 
 const DRAWS = 200;
 const SEED = 0;
 const SAMPLE_MAX = 200;
 
 const organs = async () => {
-  const { splitSentences } = await import(join(ENGINE, "perceiver/text/spans.js"));
+  const { splitSentences } = await import(join(ENGINE, "spans.js"));
   const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(
-    join(ENGINE, "perceiver/text/surfaces.js")
+    join(ENGINE, "surfaces.js")
   );
-  const { discoverRelationVocab, extractRelations } = await import(join(ENGINE, "perceiver/text/relations.js"));
-  const { tokenize, buildFrequencyTable, functionWordSet } = await import(join(ENGINE, "perceiver/text/material.js"));
+  const { discoverRelationVocab, extractRelations } = await import(join(ENGINE, "relations.js"));
+  const { tokenize, buildFrequencyTable, functionWordSet } = await import(join(ENGINE, "material.js"));
   return {
     splitSentences,
     extractSurfaces,

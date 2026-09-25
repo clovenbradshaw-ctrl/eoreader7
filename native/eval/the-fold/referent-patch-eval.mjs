@@ -53,10 +53,10 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 
-import * as taskLog from "../../../legacy-eoreader6.1/packages/engine/holon/task-log.js";
-import * as enginePriors from "../../../legacy-eoreader6.1/packages/engine/perceiver/text/priors.js";
-import { createSession, admitChunked } from "../../../legacy-eoreader6.1/packages/host/corpus.js";
-import { snipRange } from "../../../legacy-eoreader6.1/packages/host/corpus.js";
+import * as taskLog from "../../legacy-ported/packages/engine/holon/task-log.js";
+import * as enginePriors from "../../adapters/text/priors.js";
+import { createSession, admitChunked } from "../../legacy-ported/packages/host/corpus.js";
+import { snipRange } from "../../legacy-ported/packages/host/corpus.js";
 import { makeBuildLog } from "../../../../the-fold/build-log.js";
 import { scoutSpan } from "../../../../the-fold/widget.js";
 import { scoutDefinition, deltaOps, extractDeclaration } from "../../../../the-fold/code-scout.js";
@@ -66,7 +66,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const buildLog = makeBuildLog(taskLog);
 const SUFFIXES = enginePriors.INFLECTIONAL_SUFFIXES;
 
-const SOURCE_PATH = join(HERE, "..", "..", "..", "legacy-eoreader6.1", "nul", "index.js");
+const SOURCE_PATH = join(HERE, "..", "..", "legacy-ported", "nul", "index.js");
 const SOURCE_ID = "nul/index.js";
 const FULL_CODE = readFileSync(SOURCE_PATH, "utf8");
 

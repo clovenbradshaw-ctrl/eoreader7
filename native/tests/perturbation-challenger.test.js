@@ -4,17 +4,17 @@
 // material, still nominates it. Structural, not a model call — see that
 // file's own header for the LR=1.0 finding this is built to avoid repeating.
 //
-// `nul/` is a symlink to the legacy-eoreader6.1 submodule (same guard as
-// native/tests/measure-media.test.js) — refused typed, not an uncaught
-// MODULE_NOT_FOUND, when that checkout is not initialized.
+// `nul/` is the verbatim port under native/legacy-ported/nul/ (READING-SPEC
+// S129; same guard as native/tests/measure-media.test.js) — refused typed,
+// not an uncaught MODULE_NOT_FOUND, if that port is ever missing.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { createPerturbationChallenger } from "../kernel/perturbation-challenger.js";
 
-const NUL_PATH = new URL("../../nul/index.js", import.meta.url);
-const SKIP = existsSync(NUL_PATH) ? undefined : `the sibling legacy-eoreader6.1 checkout is not available: nul/index.js (looked for ${NUL_PATH})`;
-const nul = SKIP ? null : await import("../../nul/index.js");
+const NUL_PATH = new URL("../legacy-ported/nul/index.js", import.meta.url);
+const SKIP = existsSync(NUL_PATH) ? undefined : `the vendored nul/index.js port is missing (looked for ${NUL_PATH})`;
+const nul = SKIP ? null : await import("../legacy-ported/nul/index.js");
 
 // Material with exactly ONE structural artifact ("alpha" immediately
 // followed by "beta" — true only of THIS arrangement) and one genuine

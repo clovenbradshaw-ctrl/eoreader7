@@ -87,7 +87,7 @@ import { reconstruct } from "../kernel/fold.js";
 import { declare as declareRetrieval, carry as carryFrame, say as sayFramed } from "../kernel/retrieval-frame.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const POS = JSON.parse(fs.readFileSync(path.join(here, "../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
+const POS = JSON.parse(fs.readFileSync(path.join(here, "../../cli/priors/pos-prior-en.json"), "utf8"));
 
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i > -1 ? process.argv[i + 1] : d; };
 const has = (k) => process.argv.includes(`--${k}`);
@@ -307,7 +307,7 @@ export async function scale(file, sizes) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const file = arg("file", path.join(here, "../../legacy-eoreader6.1/scripts/adversarial/fixtures/pg84-frankenstein.txt"));
+  const file = arg("file", path.join(here, "./fixtures/adversarial/pg84-frankenstein.txt"));
   const bytes = Number(arg("bytes", 60000));
   const save = (name, obj) => { const to = arg("out", null); if (to) { fs.writeFileSync(to, JSON.stringify(obj, null, 1)); console.log(`wrote ${to}`); } return obj; };
 

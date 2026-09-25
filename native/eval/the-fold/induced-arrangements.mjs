@@ -13,7 +13,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { signature, periodOf } from "../../../../the-fold/periodicity.js";
 import { makeNetworkBinder, extentShape, surfaceShape } from "../../../../the-fold/network.js";
 
-const { extractSurfaces } = await import("../../../legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js");
+const { extractSurfaces } = await import("../../adapters/text/surfaces.js");
 
 // DECLARED, with its giver named: the null's own 99th percentile. Not a number
 // picked to make a specimen pass — the same posture the kinds arm holds for

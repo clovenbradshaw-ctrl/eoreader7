@@ -46,15 +46,15 @@ const here = dirname(fileURLToPath(import.meta.url));
 const SPAN_ROLE_OPTS = { minActivation: 0.05, minMargin: 0.2 };
 
 async function organs() {
-  const { splitSentences } = await import("../../../legacy-eoreader6.1/packages/engine/perceiver/text/spans.js");
+  const { splitSentences } = await import("../../adapters/text/spans.js");
   const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(
-    "../../../legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js"
+    "../../adapters/text/surfaces.js"
   );
   const { discoverRelationVocab, extractRelations } = await import(
-    "../../../legacy-eoreader6.1/packages/engine/perceiver/text/relations.js"
+    "../../adapters/text/relations.js"
   );
-  const { tokenize } = await import("../../../legacy-eoreader6.1/packages/engine/perceiver/text/material.js");
-  const { resolveSpanRole } = await import("../../../legacy-eoreader6.1/packages/engine/perceiver/text/roles.js");
+  const { tokenize } = await import("../../adapters/text/material.js");
+  const { resolveSpanRole } = await import("../../legacy-ported/packages/engine/perceiver/text/roles.js");
   return { splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm, discoverRelationVocab, extractRelations, tokenize, resolveSpanRole };
 }
 

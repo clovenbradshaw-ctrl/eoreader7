@@ -26,24 +26,22 @@ import { phasepostObservations, phasepostModes, cellLabel } from "../adapters/te
 import { makePhasepost } from "../adapters/text/phasepost.js";
 import { cellOf } from "../kernel/cube.js";
 import { DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS } from "../adapters/text/priors.js";
-import { resolveLegacySibling } from "../eval/the-fold/lib/legacy-sibling.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ACT_PRIOR_PATH = path.join(HERE, "..", "..", "..", "live_priors", "derived-priors", "act-priors", "act-prior-en.json");
 const MORPH_PRIOR_PATH = path.join(HERE, "..", "eval", "the-fold", "fixtures", "unimorph-morphology-prior.json");
-const { path: LEGACY_PATH, available: LEGACY_OK } = resolveLegacySibling(import.meta.url, "../../legacy-eoreader6.1/");
 const ACT_PRIOR_OK = fs.existsSync(ACT_PRIOR_PATH);
 const MORPH_PRIOR_OK = fs.existsSync(MORPH_PRIOR_PATH);
 const SKIP = !ACT_PRIOR_OK
   ? `live_priors is not checked out as a sibling of this repo: act-prior-en.json (looked for ${ACT_PRIOR_PATH})`
-  : !LEGACY_OK || !MORPH_PRIOR_OK
-    ? `the legacy lemmatizer and/or its morphology prior are not available (looked for ${LEGACY_PATH} and ${MORPH_PRIOR_PATH})`
+  : !MORPH_PRIOR_OK
+    ? `the morphology prior is not available (looked for ${MORPH_PRIOR_PATH})`
     : undefined;
 
 async function loadRealPhasepost() {
   const actPrior = JSON.parse(fs.readFileSync(ACT_PRIOR_PATH, "utf8"));
   const morphPrior = JSON.parse(fs.readFileSync(MORPH_PRIOR_PATH, "utf8"));
-  const { createLemmatizer } = await import(`${LEGACY_PATH}packages/engine/perceiver/text/morphology.js`);
+  const { createLemmatizer } = await import("../legacy-ported/packages/engine/perceiver/text/morphology.js");
   const lemmasOf = createLemmatizer(morphPrior.forms, { language: morphPrior.language }).lemmasOf;
   return makePhasepost({ actPrior, cellOf, definiteDeterminers: DEFINITE_DETERMINERS, indefiniteDeterminers: INDEFINITE_DETERMINERS, lemmasOf });
 }

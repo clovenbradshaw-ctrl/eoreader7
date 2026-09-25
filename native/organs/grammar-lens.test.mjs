@@ -13,15 +13,11 @@ import assert from "node:assert/strict";
 
 import { makeGrammarLens, mismatchedConnectors } from "./grammar-lens.js";
 import { FoldUnavailableError, resolveFoldSibling } from "../eval/the-fold/lib/fold-sibling.mjs";
-import { resolveLegacySibling } from "../eval/the-fold/lib/legacy-sibling.mjs";
 
 const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../the-fold/");
-const { path: LEGACY_PATH, available: LEGACY_OK } = resolveLegacySibling(import.meta.url, "../../legacy-eoreader6.1/");
 const SKIP = !FOLD_OK
   ? `the sibling the-fold checkout is not available: hypergraph.js (looked for ${FOLD_PATH})`
-  : !LEGACY_OK
-    ? `the sibling legacy-eoreader6.1 checkout is not available (looked for ${LEGACY_PATH})`
-    : undefined;
+  : undefined;
 const { makeRelationReader } = FOLD_OK
   ? await import(`${FOLD_PATH}hypergraph.js`)
   : { makeRelationReader: () => { throw new FoldUnavailableError(SKIP); } };
@@ -48,15 +44,15 @@ const POS_PRIOR = {
 };
 
 const organs = async () => {
-  const { splitSentences } = await import("../../legacy-eoreader6.1/packages/engine/perceiver/text/spans.js");
+  const { splitSentences } = await import("../adapters/text/spans.js");
   const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(
-    "../../legacy-eoreader6.1/packages/engine/perceiver/text/surfaces.js"
+    "../adapters/text/surfaces.js"
   );
   const { discoverRelationVocab, extractRelations } = await import(
-    "../../legacy-eoreader6.1/packages/engine/perceiver/text/relations.js"
+    "../adapters/text/relations.js"
   );
-  const { tokenize } = await import("../../legacy-eoreader6.1/packages/engine/perceiver/text/material.js");
-  const { classifyWord, dominantClass } = await import("../../legacy-eoreader6.1/packages/engine/perceiver/text/wordclass.js");
+  const { tokenize } = await import("../adapters/text/material.js");
+  const { classifyWord, dominantClass } = await import("../adapters/text/wordclass.js");
   return {
     splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm,
     discoverRelationVocab, extractRelations, tokenize, classifyWord, dominantClass,
@@ -143,7 +139,7 @@ test("givers is null when posPriorMeta/thraxMeta are never injected — a disclo
 
 test("givers forwards wordclass.js's own named POS_PRIOR_META and THRAX_META when injected — the giver a reader of edge.connectorClass can now actually see", { skip: SKIP }, async () => {
   const { classifyWord, dominantClass } = await organs();
-  const { POS_PRIOR_META, THRAX_META } = await import("../../legacy-eoreader6.1/packages/engine/perceiver/text/wordclass.js");
+  const { POS_PRIOR_META, THRAX_META } = await import("../adapters/text/wordclass.js");
   const lens = makeGrammarLens({ classifyWord, dominantClass, posPrior: POS_PRIOR, posPriorMeta: POS_PRIOR_META, thraxMeta: THRAX_META });
   const classification = lens({ subject: "Pierre", verb: "spoke", object: "softly" }, { minShare: MIN_SHARE });
   assert.equal(classification.givers.measured, POS_PRIOR_META);

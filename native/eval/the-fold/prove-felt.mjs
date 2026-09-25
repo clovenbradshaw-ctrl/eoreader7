@@ -15,7 +15,7 @@ import { deriveTension, deriveRelease, deriveSurprise } from "../../kernel/dynam
 import { expectation, expectationTransition } from "../../kernel/expectations.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const pos = JSON.parse(fs.readFileSync(path.resolve(HERE, "../../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
+const pos = JSON.parse(fs.readFileSync(path.resolve(HERE, "../../../cli/priors/pos-prior-en.json"), "utf8"));
 const reader = createRecursiveReader({ perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior: pos, reprojectEvery: 10 })], adapters: { revise: (a) => reviseTextFold({ ...a, canonicalizationFloor: 2 }), retrieve: () => [] } });
 const text = fs.readFileSync(path.resolve(HERE, "../../../../live_priors/01-literature-books/gutenberg/pg11-alice-ch1.txt"), "utf8").slice(0, 20000);
 

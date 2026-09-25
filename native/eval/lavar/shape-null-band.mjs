@@ -17,8 +17,8 @@
 // before any null-band number was looked at — see the printed
 // "chapter suitability" table below, which this script recomputes live so
 // the choice is checked, not just asserted). eoreader7's real Atmosphere
-// organ (loops/atmosphere.js::readAtmosphere, imported unmodified from the
-// legacy-eoreader6.1 submodule) needs `GROUND_FLOOR_DIFFERENCE(window) =
+// organ (loops/atmosphere.js::readAtmosphere, imported from its verbatim
+// port under native/legacy-ported/, READING-SPEC S129) needs `GROUND_FLOOR_DIFFERENCE(window) =
 // 10 * window` chunks of causal-surprisal material before it can build a
 // ground AT ALL — a structural floor, not a hand-pick, calibrated and
 // recorded in ground-floor.js. At the SAME production regime
@@ -113,9 +113,9 @@ import { fileURLToPath } from "node:url";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const { Field } = await import(path.join(HERE, "..", "..", "..", "..", "the-fold", "relative.js"));
-const { causalSurprisalSeries } = await import(path.join(HERE, "..", "..", "..", "legacy-eoreader6.1", "packages", "engine", "perceiver", "text", "material.js"));
-const { readAtmosphere } = await import(path.join(HERE, "..", "..", "..", "legacy-eoreader6.1", "packages", "engine", "loops", "atmosphere.js"));
-const { GROUND_FLOOR_DIFFERENCE } = await import(path.join(HERE, "..", "..", "..", "legacy-eoreader6.1", "packages", "engine", "ground-floor.js"));
+const { causalSurprisalSeries } = await import(path.join(HERE, "..", "..", "legacy-ported", "packages", "engine", "perceiver", "text", "material.js"));
+const { readAtmosphere } = await import(path.join(HERE, "..", "..", "legacy-ported", "packages", "engine", "loops", "atmosphere.js"));
+const { GROUND_FLOOR_DIFFERENCE } = await import(path.join(HERE, "..", "..", "legacy-ported", "packages", "engine", "ground-floor.js"));
 const { tokenize } = await import(path.join(HERE, "..", "..", "organs", "source.js"));
 
 const BOOK = "/Users/mlacy/Documents/3.0/live_priors/01-literature-books/gutenberg/pg11_Alice_s_Adventures_in_Wonderland.txt";

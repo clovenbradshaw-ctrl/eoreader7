@@ -17,7 +17,7 @@ import * as P from "../adapters/text/priors.js";
 import { makeRelationReader } from "../organs/hypergraph.js";
 import { makePhasepost } from "../adapters/text/phasepost.js";
 import { cellOf } from "../kernel/cube.js";
-import { createLemmatizer } from "../../legacy-eoreader6.1/packages/engine/perceiver/text/morphology.js";
+import { createLemmatizer } from "../legacy-ported/packages/engine/perceiver/text/morphology.js";
 import { phasepostObservations } from "../adapters/text/phasepost-dmd.js";
 import { contextualModes } from "../adapters/text/contextual-dmd.js";
 

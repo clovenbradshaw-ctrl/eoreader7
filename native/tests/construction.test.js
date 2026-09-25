@@ -8,8 +8,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { collapseForm, dominantClass } from "../adapters/text/construction.js";
 
-const POS_PATH = new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url);
-const SKIP = fs.existsSync(POS_PATH) ? undefined : `the sibling legacy-eoreader6.1 checkout is not available: en-ud-ewt.json (looked for ${POS_PATH})`;
+const POS_PATH = new URL("../../cli/priors/pos-prior-en.json", import.meta.url);
+const SKIP = fs.existsSync(POS_PATH) ? undefined : `the vendored POS prior is missing (looked for ${POS_PATH})`;
 const formPrior = SKIP ? null : JSON.parse(fs.readFileSync(POS_PATH, "utf8"));
 const constructionPrior = JSON.parse(fs.readFileSync(new URL("../priors/construction-eng.json", import.meta.url), "utf8"));
 const opts = (minShare) => ({ constructionPrior, formPrior, minShare });

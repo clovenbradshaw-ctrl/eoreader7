@@ -20,8 +20,8 @@ import { createRecursiveReader } from "../../kernel.js";
 // are gated via `{ skip }` — the other two (synthetic `S(...)` fixtures)
 // are untouched either way.
 const here = path.dirname(fileURLToPath(import.meta.url));
-const POS_PATH = path.join(here, "../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json");
-const POS_SKIP = fs.existsSync(POS_PATH) ? undefined : `the sibling legacy-eoreader6.1 checkout is not available: en-ud-ewt.json (looked for ${POS_PATH})`;
+const POS_PATH = path.join(here, "../../cli/priors/pos-prior-en.json");
+const POS_SKIP = fs.existsSync(POS_PATH) ? undefined : `the vendored POS prior is missing (looked for ${POS_PATH})`;
 const POS = POS_SKIP ? null : JSON.parse(fs.readFileSync(POS_PATH, "utf8"));
 function resolveBook() {
   const candidates = [

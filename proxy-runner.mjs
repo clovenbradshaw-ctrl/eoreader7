@@ -17,7 +17,7 @@ import { createRecursiveReader } from "./native/kernel/reading.js";
 import { reconstruct } from "./native/kernel/fold.js";
 import { createHyperlexicon, admitHyperlexiconCandidates, giveHyperlexiconAffordance } from "./native/kernel/hyperlexicon.js";
 import { createRelationCompositionLedger, acquireCompositionCandidates } from "./native/kernel/relation-composition.js";
-import { createSession as createCorpusSession, admitChunked } from "./legacy-eoreader6.1/packages/host/corpus.js";
+import { createSession as createCorpusSession, admitChunked } from "./native/legacy-ported/packages/host/corpus.js";
 // surfTask's own absolute address ladder (2026-09-23, user direction: "rip
 // out all the surf thats not happening in eoreader7... the fold is just a
 // surface") — native/organs/source.js's chunkSource+retrieve replaces the
@@ -241,7 +241,7 @@ export const MODEL_GIVER = (model) => {
   if (m === "gemma2:2b" || m === "gemma2:latest" || m === "gemma2:2b-instruct") return MODEL_REGISTRY;
   return { id: model ?? "?", hfUrl: null, name: String(model ?? "?") };
 };
-const DEFAULT_POS_PRIOR = path.join(HERE, "legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json");
+const DEFAULT_POS_PRIOR = path.join(HERE, "cli/priors/pos-prior-en.json");
 
 // The daemon's PRIVATE address (native/kernel/model-server.js): the runner's
 // own draws go straight to it — the door already admitted them — never back

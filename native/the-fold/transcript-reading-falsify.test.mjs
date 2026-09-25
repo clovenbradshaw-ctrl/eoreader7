@@ -22,7 +22,7 @@ test("the marks are blanked to their own length: every byte after them keeps its
   assert.equal(readableTranscript("[1] a citation stays"), "[1] a citation stays");
 });
 
-const POS = path.join(ROOT, "legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json");
+const POS = path.join(ROOT, "cli/priors/pos-prior-en.json");
 test("THE PROXY'S OWN READER: with the marks, the transcript's scaffolding becomes beings; blanked, it does not", { skip: !fs.existsSync(POS) && "POS prior not present in this checkout" }, async () => {
   const { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } = await import("../adapters/text/recursive.js");
   const { diaNorm, namesCorefer } = await import("../adapters/text/surfaces.js");

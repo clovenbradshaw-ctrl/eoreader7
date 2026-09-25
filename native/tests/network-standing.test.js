@@ -4,13 +4,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { networkStanding } from "../kernel/network-standing.js";
-import { resolveLegacySibling } from "../eval/the-fold/lib/legacy-sibling.mjs";
-
-const { path: LEGACY_PATH, available: LEGACY_OK } = resolveLegacySibling(import.meta.url, "../../legacy-eoreader6.1/");
-const SKIP = LEGACY_OK ? undefined : `the sibling legacy-eoreader6.1 checkout is not available: binding.js (looked for ${LEGACY_PATH})`;
-const { bindLinks } = LEGACY_OK
-  ? await import(`${LEGACY_PATH}packages/engine/emergence/binding.js`)
-  : { bindLinks: undefined };
+import { bindLinks } from "../legacy-ported/packages/engine/emergence/binding.js";
+// Repointed at the 2026-09-25 consolidation (the legacy-provider retirement branch):
+// vendored under native/legacy-ported/, so this no longer skips.
+const SKIP = undefined;
 
 const DECLARED = { bindLinks, window: 2, draws: 199, seed: 20260812, alpha: 0.05 };
 
@@ -54,9 +51,7 @@ test("one arrival has no co-arrival to test — the floor is binding's own struc
 
 // ── the directed pass ───────────────────────────────────────────────────
 import { directedEdges } from "../kernel/network-standing.js";
-const { buildLink } = LEGACY_OK
-  ? await import(`${LEGACY_PATH}packages/engine/emergence/binding.js`)
-  : { buildLink: undefined };
+import { buildLink } from "../legacy-ported/packages/engine/emergence/binding.js";
 
 test("direction comes from the reversal null, or stays typed undetermined — never guessed from raw asymmetry", { skip: SKIP }, () => {
   // A leads, B follows one unit later, forty times over — a real

@@ -15,7 +15,7 @@
 //
 // Sources by default (large, of six kinds, none personal):
 //   prose    the-fold/pg2600.txt                                   (War and Peace, 3.3 MB)
-//   greek    eoreader7/legacy-eoreader6.1/odyssey-greek.txt        (Greek, 0.7 MB)
+//   greek    eoreader7/native/eval/fixtures/corpus/odyssey-greek.txt        (Greek, 0.7 MB)
 //   markdown the-fold/POLICIES.md                                   (0.8 MB)
 //   code     the-fold/holon.js                                      (0.18 MB)
 //   json     eoreader7/native/eval/the-fold/results/stress-eval-all.json
@@ -69,7 +69,7 @@ const sourceArgs = args.flatMap((a, i) => (a === "--source" && args[i + 1] ? [ar
 // something else. None of these files is written by this project's code.
 const DEFAULT_SOURCES = [
   { kind: "prose", path: `${FOLD}pg2600.txt` },                                             // War and Peace, English narrative
-  { kind: "greek", path: `${ROOT}eoreader7/legacy-eoreader6.1/odyssey-greek.txt` },         // the Odyssey, Greek verse
+  { kind: "greek", path: `${NATIVE}/eval/fixtures/corpus/odyssey-greek.txt` },         // the Odyssey, Greek verse
   { kind: "xml", path: `${ROOT}live_priors/14-holy-texts/sblgnt/Luke.xml` },                // marked-up text with apparatus notes
   { kind: "code", path: `${ROOT}eopm/public/vendor/react-dom.js` },                         // a real library, about rendering, not answering
   { kind: "json", path: `${NATIVE}/eval/the-fold/fixtures/unimorph-eng-verb-forms.json` },  // a linguistic dataset
@@ -98,7 +98,7 @@ catch { try { math = await import("mathjs"); } catch { math = null; } }
 // own coverage history, and the audit that decides whether the measured cut
 // is trusted at all. Absent, the declared floor decides and the run says so.
 let nul = null;
-try { nul = await import(`${ROOT}eoreader7/legacy-eoreader6.1/nul/index.js`); } catch { nul = null; }
+try { nul = await import(`${NATIVE}/legacy-ported/nul/index.js`); } catch { nul = null; }
 const { rememberCoverage, chooseCut, placeCoverage } = await import(`${FOLD}calibration.js`);
 const PQ = await import(`${FOLD}prequential.js`);
 /**
@@ -129,7 +129,7 @@ function expectFor({ passages, answeredBeforeTheModel, premiseUnverified }) {
 }
 const { discriminating } = await import(`${FOLD}layers.js`);
 const { extractSurfaces, discoverReferents, namesCorefer, diaNorm } = await import(`${NATIVE}/adapters/text/surfaces.js`);
-const { lineIndex, outlineOfIndex } = await import(`${ROOT}eoreader7/legacy-eoreader6.1/packages/engine/perceiver/text/segments.js`);
+const { lineIndex, outlineOfIndex } = await import(`${NATIVE}/adapters/text/segments.js`);
 const W = await import(`${NATIVE}/organs/index.js`);
 const castFor = makeCastResolver({ splitSentences, extractSurfaces, discoverReferents, namesCorefer, diaNorm });
 

@@ -42,9 +42,9 @@ import { extractSurfaces, discoverReferents, diaNorm } from "../adapters/text/su
 import { splitSentences } from "../adapters/text/spans.js";
 import { dmdWindow } from "../kernel/activation.js";
 import { networkStanding, directedEdges } from "../kernel/network-standing.js";
-import { bindLinks, buildLink } from "../../legacy-eoreader6.1/packages/engine/emergence/binding.js";
+import { bindLinks, buildLink } from "../legacy-ported/packages/engine/emergence/binding.js";
 
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 const WINDOW_CANDIDATES = [8, 16, 32, 64, 128, 256];
 const LINK = { draws: 199, alpha: 0.05, seed: 20260812 }; // LINK_SPEC's convention, giver in header
 
@@ -93,7 +93,7 @@ async function main() {
     return na && nb ? dot / Math.sqrt(na * nb) : 0;
   };
 
-  // Same LCG family as legacy-eoreader6.1/packages/engine/emergence/binding.js
+  // Same LCG family as native/legacy-ported/packages/engine/emergence/binding.js
   // ("PRNG — LCG, same family as the rest of this repo"), reused rather than
   // a second generator invented for this one null.
   const lcg = (seed) => { let state = seed | 0; return () => { state = (state * 1664525 + 1013904223) | 0; return (state >>> 0) / 4294967296; }; };

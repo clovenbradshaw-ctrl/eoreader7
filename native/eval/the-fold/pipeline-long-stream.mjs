@@ -53,7 +53,7 @@ const PER_SOURCE = Number(flag("bank", 60));
 const sourceArgs = args.flatMap((a, i) => (a === "--source" && args[i + 1] ? [args[i + 1]] : []));
 const DEFAULT_SOURCES = [
   { kind: "prose", path: `${FOLD}pg2600.txt` },
-  { kind: "greek", path: `${ROOT}eoreader7/legacy-eoreader6.1/odyssey-greek.txt` },
+  { kind: "greek", path: `${ROOT}eoreader7/native/eval/fixtures/corpus/odyssey-greek.txt` },
   { kind: "xml", path: `${ROOT}live_priors/14-holy-texts/sblgnt/Luke.xml` },
   { kind: "code", path: `${ROOT}eopm/public/vendor/react-dom.js` },
   { kind: "json", path: `${NATIVE}/eval/the-fold/fixtures/unimorph-eng-verb-forms.json` },

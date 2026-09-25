@@ -36,8 +36,8 @@
 // script reports as the real patched code, is always the untouched,
 // full-file projection with "export " intact.
 
-import * as taskLog from "../../../legacy-eoreader6.1/packages/engine/holon/task-log.js";
-import * as enginePriors from "../../../legacy-eoreader6.1/packages/engine/perceiver/text/priors.js";
+import * as taskLog from "../../legacy-ported/packages/engine/holon/task-log.js";
+import * as enginePriors from "../../adapters/text/priors.js";
 import { makeBuildLog } from "../../../../the-fold/build-log.js";
 import { scoutSpan } from "../../../../the-fold/widget.js";
 import { witnessCode } from "../../../../the-fold/witness.js";

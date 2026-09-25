@@ -14,10 +14,10 @@
 import fs from "node:fs";
 import { stripContainer, splitSentences } from "../adapters/text/spans.js";
 import { castSurfaceMap } from "../adapters/text/perspective-claims.js";
-import { createSession, admitChunked, sessionReferents } from "../../legacy-eoreader6.1/packages/host/corpus.js";
-import { decodeWav } from "../../legacy-eoreader6.1/packages/engine/perceiver/audio/wav.js";
-import { extractFrameFields } from "../../legacy-eoreader6.1/packages/engine/perceiver/audio/reading.js";
-import { monoSum, resampleLinear } from "../../legacy-eoreader6.1/packages/engine/perceiver/audio/resample.js";
+import { createSession, admitChunked, sessionReferents } from "../legacy-ported/packages/host/corpus.js";
+import { decodeWav } from "../adapters/audio/wav.js";
+import { extractFrameFields } from "../legacy-ported/packages/engine/perceiver/audio/reading.js";
+import { monoSum, resampleLinear } from "../adapters/audio/resample.js";
 
 const SEED = 20260825;
 const mulberry = (a) => () => {

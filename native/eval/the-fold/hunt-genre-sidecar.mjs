@@ -22,7 +22,7 @@ import { extractReadable } from "../../organs/web.js";
 import crypto from "node:crypto";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const POS = path.resolve(HERE, "../../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json");
+const POS = path.resolve(HERE, "../../../cli/priors/pos-prior-en.json");
 const PRIOR = path.resolve(HERE, "../../../../live_priors/derived-priors/arc-priors/fortune-prior-v1.json");
 
 const query = process.argv[2];

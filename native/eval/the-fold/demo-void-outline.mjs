@@ -15,7 +15,7 @@ import { notesFromEdges } from "../../../proxy-runner.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const wsDir = path.resolve(HERE, "fixtures/chicago");
-const pos = JSON.parse(fs.readFileSync(path.resolve(HERE, "../../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
+const pos = JSON.parse(fs.readFileSync(path.resolve(HERE, "../../../cli/priors/pos-prior-en.json"), "utf8"));
 const reader = createRecursiveReader({ perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior: pos, reprojectEvery: 10 })], adapters: { revise: (a) => reviseTextFold({ ...a, canonicalizationFloor: 2 }), retrieve: () => [] } });
 
 const JUNK = new Set(["coordinates","location","significance","managed","source","authored","published","related","topics","last","updated","visit","information","primary","resources","bureau","gallery","references","overview","notes","search","press","the model indian school","smithsonian institution press","fair that changed america","progress international exposition","the official","mbi publishing","wikipedia","library","archive","published in","authored by","related topics","for more information","last updated","a century","century of progress","sky ride"]);

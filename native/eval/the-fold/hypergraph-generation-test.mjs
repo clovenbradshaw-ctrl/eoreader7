@@ -12,16 +12,15 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 import { resolveFoldSibling } from "./lib/fold-sibling.mjs";
-import { resolveLegacySibling } from "./lib/legacy-sibling.mjs";
 
 const { path: FOLD_PATH, available: FOLD_OK } = resolveFoldSibling(import.meta.url, "../../../../the-fold/");
-const { path: LEGACY_PATH, available: LEGACY_OK } = resolveLegacySibling(import.meta.url, "../../../legacy-eoreader6.1/");
+// The perceiver organs moved to native/adapters/text/ (the legacy-provider retirement branch,
+// repointed at the 2026-09-25 consolidation).
+const NATIVE_TEXT = new URL("../../adapters/text/", import.meta.url).href;
 
-if (!FOLD_OK || !LEGACY_OK) {
+if (!FOLD_OK) {
   console.log(
-    !FOLD_OK
-      ? `SKIP: the sibling the-fold checkout is not available (looked for ${FOLD_PATH}) — this driver needs holon.js, cast.js, hypergraph.js, fold.js, source.js, grounding.js, cite.js, constitution.js.`
-      : `SKIP: the sibling legacy-eoreader6.1 checkout is not available (looked for ${LEGACY_PATH}) — this driver needs the engine perceiver organs.`
+    `SKIP: the sibling the-fold checkout is not available (looked for ${FOLD_PATH}) — this driver needs holon.js, cast.js, hypergraph.js, fold.js, source.js, grounding.js, cite.js, constitution.js.`
   );
   process.exitCode = 0;
 } else {
@@ -40,12 +39,12 @@ const { checkGrounding, unsupportedClaims } = await import(`${FOLD_PATH}groundin
 const { attribute, attributedRefs } = await import(`${FOLD_PATH}cite.js`);
 const { CONSTITUTION_PROMPT } = await import(`${FOLD_PATH}constitution.js`);
 
-const { lineIndex, outlineOfIndex } = await import(`${LEGACY_PATH}packages/engine/perceiver/text/segments.js`);
-const { splitSentences: engineSentences } = await import(`${LEGACY_PATH}packages/engine/perceiver/text/spans.js`);
+const { lineIndex, outlineOfIndex } = await import(`${NATIVE_TEXT}segments.js`);
+const { splitSentences: engineSentences } = await import(`${NATIVE_TEXT}spans.js`);
 const {
   extractSurfaces, discoverReferents, namesCorefer, diaNorm,
-} = await import(`${LEGACY_PATH}packages/engine/perceiver/text/surfaces.js`);
-const { discoverRelationVocab, extractRelations } = await import(`${LEGACY_PATH}packages/engine/perceiver/text/relations.js`);
+} = await import(`${NATIVE_TEXT}surfaces.js`);
+const { discoverRelationVocab, extractRelations } = await import(`${NATIVE_TEXT}relations.js`);
 const { tokenize } = await import(`${FOLD_PATH}source.js`);
 
   const HERE = dirname(fileURLToPath(import.meta.url));

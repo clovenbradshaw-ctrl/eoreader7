@@ -5,17 +5,21 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
+import fs from "node:fs";
 import { actClosure } from "../adapters/text/morphology.js";
-import { resolveLegacySibling } from "../eval/the-fold/lib/legacy-sibling.mjs";
+import { createLemmatizer, morphologyFromPrior } from "../adapters/text/morphology.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const { path: LEGACY_PATH, available: LEGACY_OK } = resolveLegacySibling(import.meta.url, "../../legacy-eoreader6.1/");
-const SKIP = LEGACY_OK ? undefined : `the sibling legacy-eoreader6.1 checkout is not available: morphology.js (looked for ${LEGACY_PATH})`;
-const { createLemmatizer, loadMorphology } = LEGACY_OK
-  ? await import(`${LEGACY_PATH}packages/engine/perceiver/text/morphology.js`)
-  : { createLemmatizer: undefined, loadMorphology: undefined };
-const prior = LEGACY_OK ? loadMorphology(path.resolve(here, "../priors/morphology-eng.json")) : null;
-const lem = LEGACY_OK ? createLemmatizer(prior.forms, { language: prior.language }) : null;
+// morphologyFromPrior takes the already-parsed prior (the native-boundary
+// wall keeps adapters/text/ from touching the filesystem itself) — loadMorphology
+// did its own fs.readFileSync; the read now happens here at the call site,
+// ported out of legacy-eoreader6.1/packages/engine/perceiver/text/morphology.js
+// 2026-09-10, same schema check, same behavior.
+const prior = morphologyFromPrior(JSON.parse(fs.readFileSync(path.resolve(here, "../priors/morphology-eng.json"), "utf8")));
+const lem = createLemmatizer(prior.forms, { language: prior.language });
+// Repointed at the 2026-09-25 consolidation (the legacy-provider retirement branch):
+// vendored under native/legacy-ported/, so this no longer skips.
+const SKIP = undefined;
 
 test("an attested inflection of a measured act joins; presence is the material's wall, the prior only decides sameness", { skip: SKIP }, () => {
   const { forms, added } = actClosure(new Set(["trudged"]), ["trudges", "trudging", "talked"], lem);

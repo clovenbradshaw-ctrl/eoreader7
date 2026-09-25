@@ -22,13 +22,12 @@ import * as img from "../adapters/image/material.js";
 import * as vid from "../adapters/video/material.js";
 import * as aud from "../adapters/audio/material.js";
 
-// `nul/` is a symlink to `legacy-eoreader6.1/nul` (the-fold's frozen 6.1
-// submodule), so this door — like every other reach into that sibling —
-// refuses typed when the submodule is uninitialised, rather than an
-// uncaught MODULE_NOT_FOUND (S65/P95).
-const NUL_PATH = new URL("../../nul/index.js", import.meta.url);
-const SKIP = existsSync(NUL_PATH) ? undefined : `the sibling legacy-eoreader6.1 checkout is not available: nul/index.js (looked for ${NUL_PATH})`;
-const nul = SKIP ? null : await import("../../nul/index.js");
+// `nul/` is the verbatim port under native/legacy-ported/nul/ (READING-SPEC
+// S129, retired frozen-6.1 provider); this door still refuses typed if that
+// port is ever missing, rather than an uncaught MODULE_NOT_FOUND (S65/P95).
+const NUL_PATH = new URL("../legacy-ported/nul/index.js", import.meta.url);
+const SKIP = existsSync(NUL_PATH) ? undefined : `the vendored nul/index.js port is missing (looked for ${NUL_PATH})`;
+const nul = SKIP ? null : await import("../legacy-ported/nul/index.js");
 
 const FIX = new URL("../eval/the-fold/fixtures/media/", import.meta.url).pathname;
 const reduce = { audio: aud.reduce, image: img.reduce, video: vid.reduce };

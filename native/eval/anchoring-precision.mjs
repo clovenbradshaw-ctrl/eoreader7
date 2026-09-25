@@ -45,10 +45,10 @@ const ANCHORING = { minActivation: 0.05, minMargin: 0.2 };
 const CANONICALIZATION_FLOOR = 2;
 
 const POS_PRIOR = JSON.parse(
-  fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"),
+  fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"),
 );
 const GOLDEN = JSON.parse(
-  fs.readFileSync(new URL("../../legacy-eoreader6.1/scripts/adversarial/fixtures/pg84-frankenstein.coref.json", import.meta.url), "utf8"),
+  fs.readFileSync(new URL("./fixtures/adversarial/pg84-frankenstein.coref.json", import.meta.url), "utf8"),
 );
 
 const norm = (x) => String(x ?? "").toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();

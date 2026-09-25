@@ -29,7 +29,7 @@ const docsDir = path.join(HERE, "../../../documents");
 const read = (p) => { try { return fs.readFileSync(p, "utf8"); } catch { return null; } };
 
 // ── 1. THE RECORD — re-read the workspace through the real reader ────────
-const pos = JSON.parse(fs.readFileSync(path.join(HERE, "../../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json"), "utf8"));
+const pos = JSON.parse(fs.readFileSync(path.join(HERE, "../../../cli/priors/pos-prior-en.json"), "utf8"));
 const reader = createRecursiveReader({ perceivers: [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior: pos, reprojectEvery: 10 })], adapters: { revise: (a) => reviseTextFold({ ...a, canonicalizationFloor: 2 }), retrieve: () => [] } });
 const recordTexts = [];
 for (const f of fs.readdirSync(wsDir).sort()) {

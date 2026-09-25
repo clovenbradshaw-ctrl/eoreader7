@@ -6,7 +6,7 @@
 // PROVIDER THIS SUITE EXERCISES: same declared switch hypergraph.test.mjs's
 // own header explains — LEGACY by default, `ENGINE=native` for the
 // production configuration, resolving to native automatically when the
-// legacy-eoreader6.1 submodule is uninitialised.
+// frozen provider's port (native/legacy-ported/, READING-SPEC S129) is absent.
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -15,10 +15,10 @@ import { existsSync } from "node:fs";
 import { makeRelationReader } from "./hypergraph.js";
 import { buildFactBlock, dedupeSourceText } from "./fact-block.js";
 
-const LEGACY_PRESENT = existsSync(new URL("../../legacy-eoreader6.1/packages/engine/perceiver/text/spans.js", import.meta.url));
+const LEGACY_PRESENT = existsSync(new URL("../legacy-ported/packages/engine/perceiver/text/spans.js", import.meta.url));
 const PROVIDER = process.env.ENGINE === "native" || (process.env.ENGINE !== "legacy" && !LEGACY_PRESENT)
   ? "../adapters/text/"
-  : "../../legacy-eoreader6.1/packages/engine/perceiver/text/";
+  : "../legacy-ported/packages/engine/perceiver/text/";
 
 async function freshRelations(passages) {
   const { splitSentences } = await import(PROVIDER + "spans.js");

@@ -20,22 +20,18 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { makePhasepost, headVerb, COPULA_FORMS } from "../adapters/text/phasepost.js";
-import { resolveLegacySibling } from "../eval/the-fold/lib/legacy-sibling.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const { cellOf } = await import(path.join(HERE, "..", "kernel", "cube.js"));
 const priors = await import(path.join(HERE, "..", "adapters", "text", "priors.js"));
+const morph = await import(path.join(HERE, "..", "legacy-ported", "packages", "engine", "perceiver", "text", "morphology.js"));
 
-const { path: LEGACY_PATH, available: LEGACY_OK } = resolveLegacySibling(import.meta.url, "../../legacy-eoreader6.1/");
 const ACT_PRIOR_PATH = path.join(HERE, "..", "..", "..", "live_priors", "derived-priors", "act-priors", "act-prior-en.json");
 const ACT_PRIOR_OK = fs.existsSync(ACT_PRIOR_PATH);
-const SKIP = !LEGACY_OK
-  ? `the sibling legacy-eoreader6.1 checkout is not available: morphology.js (looked for ${LEGACY_PATH})`
-  : !ACT_PRIOR_OK
+const SKIP = !ACT_PRIOR_OK
     ? `live_priors is not checked out as a sibling of this repo: act-prior-en.json (looked for ${ACT_PRIOR_PATH})`
     : undefined;
 
-const morph = LEGACY_OK ? await import(`${LEGACY_PATH}packages/engine/perceiver/text/morphology.js`) : null;
 const actPrior = ACT_PRIOR_OK ? JSON.parse(fs.readFileSync(ACT_PRIOR_PATH, "utf8")) : null;
 const morphPrior = JSON.parse(fs.readFileSync(path.join(HERE, "..", "eval", "the-fold", "fixtures", "unimorph-morphology-prior.json"), "utf8"));
 const lemmasOf = SKIP ? null : morph.createLemmatizer(morphPrior.forms, { language: morphPrior.language }).lemmasOf;

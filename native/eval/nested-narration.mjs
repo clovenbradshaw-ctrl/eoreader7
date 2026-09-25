@@ -29,11 +29,11 @@ import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recu
 import { narrationFrames, quotationFrames, holderAt } from "../adapters/text/attribution.js";
 import { deltaFold } from "../kernel/fold.js";
 import { READER, STANCE, projectPerspectives, commonGround, divergence, mentalModel, perspectiveOperation } from "../kernel/perspective.js";
-import { FIRST_PERSON, FIRST_PERSON_META } from "../../legacy-eoreader6.1/packages/engine/perceiver/text/priors.js";
+import { FIRST_PERSON, FIRST_PERSON_META } from "../adapters/text/priors.js";
 import { castSurfaceMap, bindNarrationFrames, pronounResolver, claimEndKey } from "../adapters/text/perspective-claims.js";
 import { resolvePronounsByActivation } from "../adapters/text/pronouns.js";
 import { createActivation } from "../kernel/activation.js";
-import { createSession, admitChunked, sessionReferents } from "../../legacy-eoreader6.1/packages/host/corpus.js";
+import { createSession, admitChunked, sessionReferents } from "../legacy-ported/packages/host/corpus.js";
 
 // Declared, not defaulted, and borrowed rather than invented: host/corpus.js's
 // own operating point for this organ. Its own header says no golden exists for

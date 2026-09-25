@@ -31,7 +31,7 @@ import fs from "node:fs";
 import { stripContainer } from "../adapters/text/spans.js";
 import { createCausalTextPerceiver, textEncounters } from "../adapters/text/recursive.js";
 
-const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../legacy-eoreader6.1/bin/priors/pos/en-ud-ewt.json", import.meta.url), "utf8"));
+const POS_PRIOR = JSON.parse(fs.readFileSync(new URL("../../cli/priors/pos-prior-en.json", import.meta.url), "utf8"));
 
 async function readAt(stripped, refreshEvery) {
   const perceiver = createCausalTextPerceiver({ minRelationSurfaces: 2, refreshEvery, posPrior: POS_PRIOR });
