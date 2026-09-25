@@ -410,6 +410,63 @@ export const CAPACITIES = Object.freeze([
     fn: "makePositionalSlots",
     what: "a language's clause-level role-assignment as a `slotsOf(text)` organ for the-fold's `grounding-gfp.js::makeGfpGround` ('role assignment is the language's own eigenvalue... a caller reading an inflectional, Semitic or CJK text injects that language's own slot organ') — a `RoleConfig@1` (position + a family-wise-corrected marker, S122) derived mechanically from a UD treebank's own gold dependency annotations, never hand-typed grammar. Composed end to end against the REAL, unmodified GFP/kernel modules on two real UD test-split specimens, Hebrew and Arabic (tests/relations-positional.test.js). Measured isolated role-assignment recall/precision (given the gold verb, S121's head-of-phrase filter shipped): Hebrew end1 31.2%/68.6%, end2 34.4%/84.6%; Arabic end1 16.5%/100%, end2 34.0%/85.0% — comparable to or better than `relations-case-marked.js`'s own shipped Latin numbers. Verb-finding coverage (not role-assignment) is the disclosed, unresolved bottleneck: full-pipeline recall runs 3-5x below isolated recall on both languages.",
   }),
+
+  // ── the surprise pass (2026-09-25) — from the essay "Weight, reach, and the
+  // arrow": the four organs the essay named unbuilt, built. Each is a kernel
+  // module (medium-blind, its cell stamped in its own CELL export, null
+  // injectable, pValue declared by the caller), each with its own falsifier
+  // file under native/tests/, each reference-only here like the other native
+  // rows. One premise of the essay was WRONG and is corrected in the first
+  // row: reach already had a null (cascade.js::cascadeNull/cascadeSurprise);
+  // what was unbuilt was only its composition with bayes-surprise's magnitude.
+  Object.freeze({
+    id: "consequence",
+    terrain: "Paradigm",
+    op: "EVA",
+    module: "eoreader7/native/kernel/consequential-surprise.js",
+    fn: "consequentialSurprise",
+    what: "an admission's Bayesian surprise (bayes-surprise.js) partitioned by how much rests on what moved: per slot, the caller-declared ids it attaches walk cascade.js's dependents index and rank against cascadeNull at the same seed count; bits on load-bearing ids (reach > 0, rank above the caller's declared pValue) versus local bits. No product of bits and reach — the partition is a sum. Reports the dangerous case, a seed under CANONICALIZATION_FLOOR that is nonetheless load-bearing (thinButLoadBearing), and a seed's own revision volatility, never multiplied in. Typing reasoned: a property of the SET of dependents no slot carries — Relate·Interpretation at Pattern grain, EVA·Paradigm, `standing`'s own cell.",
+  }),
+  Object.freeze({
+    id: "volatility",
+    terrain: "Lens",
+    op: "EVA",
+    module: "eoreader7/native/kernel/revision-volatility.js",
+    fn: "revisionVolatility",
+    what: "how many of a node's own sightings were later revised — corroboration.js's falsified (DEF) and superseded (REC) marks on its occurrences — against the chance its exposure alone would give: the store's total marks dealt onto occurrences without replacement, p per entry, rank among peers; an entry never seen has no p. No mapping into alpha or gamma: the prior stays the caller's declaration. Its own falsifier found 2026-09-25 that corroboration.js's `revision` counter is bumped by sightings too, so the marks, not the counter, are the statistic. Typing reasoned: one being's reliability over time — Relate·Interpretation at Figure grain, EVA·Lens, beside `witness` and `web`.",
+  }),
+  Object.freeze({
+    id: "hindsight",
+    terrain: "Network",
+    op: "SEG",
+    module: "eoreader7/native/kernel/hindsight.js",
+    fn: "hindsight",
+    what: "what the record said before a later identity event re-addressed the beings it said it about: every entry before the event referring to a touched id — directly, or transitively through a cascade.js dependents index where the dependent also sits before the event — with distance in the log's order and cascade depth, ranked against synthetic touched-sets drawn from the ids the prior entries refer to. Never rewrites an entry (the append-only law; pinned). the-fold/hindsight-log.js supplies the reader's schemas (EOReferentMerge@1 kept/folded, EOReferentReassignment@1 from/to, EOMention@1 referent). Typing reasoned: the record's past cut at the seam a later event opens — Differentiate·Structure at Pattern grain, SEG·Network, beside `unravel`.",
+  }),
+  Object.freeze({
+    id: "settling",
+    terrain: "Kind",
+    op: "NUL",
+    module: "eoreader7/native/kernel/settling.js",
+    fn: "settling",
+    what: "the mirror of the-fold's trajectory boredom on the same axis: does any slot of a stream hold one value for CANONICALIZATION_FLOOR consecutive steps at all (never_settles, a structural zero), and if so, in any order (settled_any_order) or in sequence beyond the same steps order-shuffled (settles_in_sequence, at the caller's declared pValue) — regimes that form and break, the band a meaningfully surprising stream lives in. ABSENT is never a held value; refusals too_short and settled_order_untestable are derived from the floor and from n! <= 1/pValue. the-fold/document-ledger.js::detectTrajectoryChurn is the text face, on the boredom test's own fixtures: its evolving control churns. Typing reasoned: whether any kind forms at all, against its own null — Differentiate·Existence at Pattern grain, NUL·Kind, beside `kindnull`.",
+  }),
+  Object.freeze({
+    id: "contextuality",
+    terrain: "Network",
+    op: "SYN",
+    module: "eoreader7/native/kernel/contextuality.js",
+    fn: "contextuality",
+    what: "the one quantum-style quantity READING-SPEC S13 named computable from exactly our data and left unbuilt: do the per-context readings glue into one global reading? An empirical model (contexts = sets of slots read jointly, each with its support of joint sections) is judged on the possibilistic hierarchy — signalling (overlaps disagree: a direct influence, not contextuality; Contextuality-by-Default owed), noncontextual (every local section extends to a global one), logically_contextual (some do not — Hardy), strongly_contextual (no global section — the PR box). Exact, no null (a structural fact of the data); the extension search is bounded by a declared node budget and refuses typed when spent; the contextual fraction (the LP) is owed, reported null. contextualityOfSteps groups bayes-surprise-shaped instances by slot set — the seam form-prior.js reports it at, because a one-reading-per-place ledger can only ever be signalling or gluable (the lemma pinned in its tests). Typing reasoned: gluing local sections into a whole over the whole cover — Generate·Structure at Pattern grain, SYN·Network.",
+  }),
+  Object.freeze({
+    id: "dmd",
+    terrain: "Paradigm",
+    op: "DEF",
+    module: "eoreader7/native/kernel/dmd.js",
+    fn: "dmd",
+    what: "Dynamic Mode Decomposition of a state trajectory into modes, each with its own growth rate and its own FREQUENCY (complex Koopman eigenvalues) — the one place on the record where PHASE is estimated from dynamics rather than asserted from counts (READING-SPEC S13: a density matrix over counts reduces to Bayes). Batch core; a causal consumer feeds prefixes or streams (Hemati, Williams & Rowley 2014). Registered 2026-09-25 — it had no row, and it is not on the holograph's hand-off path (resolutions.js / holon.js import only dmdWindow, Bateson's cut, a disclosed name collision). Typing reasoned: the rim's trajectory cut into a family of modes — Differentiate·Interpretation at Pattern grain, DEF·Paradigm, the family of solutions THE-THREE-MATHEMATICS.md names for that terrain.",
+  }),
 ]);
 
 const byId = new Map(CAPACITIES.map((c) => [c.id, c]));

@@ -110,13 +110,16 @@ test("SYNTHESIS: four candidates that are the same claim yield one generalized c
   assert.equal(o.thesis.id, "p1.1", "`id` is still the single winner, whether or not synthesis fires");
   assert.equal(o.thesis.text, "The river shaped the town.", "the thesis's TEXT is always the winner's own sentence — a lemma-join reaches no mouth (the reading archons)");
   assert.equal(o.thesis.rendered, "river shape town, port, valley, and harbor", "the claim's mechanical surface travels beside it");
-  assert.deepEqual(o.thesis.ids, ["p1.1", "p2.1", "p3.1", "p4.1"], "the winner first, then the members");
+  assert.deepEqual(o.thesis.ids, ["p1.1", "p2.1", "p3.1", "p4.1"], "the members, in the material's order");
   assert.equal(o.thesis.claim.rel, "shape");
   assert.equal(o.thesis.claim.polarity, "+");
   assert.equal(o.thesis.claim.agreed.ARG0, "river", "the role every claim agrees on is kept");
   assert.deepEqual(o.thesis.claim.varying.ARG1, ["town", "port", "valley", "harbor"], "the role they differ on keeps every value, disclosed");
   assert.equal(o.slots[0].claim, o.thesis.claim);
-  assert.match(o.slots[0].basis, /cleared a null-validated basin \(p=0\.\d+, floor 1\/\d+ at \d+ permutations; binding energy/);
+  assert.equal(o.slots[0].winner, "p1.1");
+  assert.match(o.slots[0].basis, /a basin of 4 cleared its null \(p=0\.\d+ — at the floor 1\/\d+: no draw of \d+ reached the observed energy; binding energy/, "the null is said plainly, floor included");
+  assert.match(o.slots[0].basis, /4 of them share the winner's relation "shape" \(\+, obj\) and were generalized: ARG0 agreed, ARG1 varying/);
+  assert.match(o.slots[0].basis, /tied with 3 other\(s\); first by position/, "a four-way tie at 0.47 is said");
   assert.match(o.slots[0].basis, /held out of the body groups/);
   const bodyIds = o.slots.slice(1, -1).flatMap((s) => s.statements);
   assert.deepEqual(o.thesis.ids.filter((id) => bodyIds.includes(id)), [], "no statement that fed the thesis is also its own body paragraph");
@@ -128,18 +131,64 @@ test("SYNTHESIS: four candidates that are the same claim yield one generalized c
   assert.equal(a0.synthesized, undefined, "no part's text is ever a rendering");
 });
 
-// FALSIFIERS pinned from the reading archons' own probes (2026-09-25), each
-// reproduced on the real parser and the real kernel null before it was fixed.
-test("FALSIFIER (Kelsen, Kidder & Todd, Gornick, Williams, Caro, Gebser): a member that DENIES the relation is never a witness of the affirmed thesis", async (t) => {
-  const r = await parsedOutline(SHAPED.replace("The river shaped the harbor.", "The river never shaped the harbor."));
+// FALSIFIERS pinned from the reading archons' own probes (2026-09-25, two
+// readings), each reproduced on the real parser and the real kernel null
+// before it was fixed. The negation is a 13th statement beside the four
+// affirmations: the null is measured over relation+polarity+via, so the
+// four clear on their own warrant and the denial can never supply it
+// (Gornick: with the relation alone, three affirmed did not clear and the
+// "never" sentence made the basin — load-bearing for the basin that
+// excluded it).
+// The selection is untouched and out of scope, and it shows: the 13th
+// sentence's words move recurrence, so the affirmation sharing its object
+// wins ("harbor" now in two parts → p4.1), and the three-word "Nothing
+// shaped the river." wins outright — a denial as the thesis sentence, which
+// the record then says plainly: its own group is one '-' claim, refused, and
+// the four affirmations are named as excluded (Gornick's inverted fixture).
+const AFFIRMED = ["p1.1", "p2.1", "p3.1", "p4.1"];
+for (const [shape, sentence] of [
+  ["never (advmod, PronType=Neg)", "The river never shaped the harbor."],
+  ["not (advmod, Polarity=Neg)", "The river did not shape the harbor."],
+  ["no (det marker on the object, PronType=Neg)", "The river shaped no harbor."],
+  ["nothing (the object node, PronType=Neg)", "The river shaped nothing."],
+  ["neither/nor (cc markers, Polarity=Neg)", "The river shaped neither the harbor nor the port."],
+]) {
+  test(`FALSIFIER: a negation the parser declares as ${shape} is never a witness of the affirmed thesis, and the material's own denial is the turn`, async (t) => {
+    const r = await parsedOutline(`${SHAPED}\n\n${sentence}`);
+    if (!r) return t.skip("no parser model");
+    const { o, d } = r;
+    const neg = pointWith(d, /never|did not|no harbor|nothing|neither/i);
+    assert.ok(AFFIRMED.includes(o.thesis.id), `an affirmation wins (${o.thesis.id})`);
+    assert.ok(o.thesis.claim, "the four affirmations generalize on their own warrant");
+    assert.equal(o.thesis.claim.polarity, "+");
+    assert.deepEqual(o.thesis.ids, AFFIRMED, "the denial is not among the witnesses; the material's order is kept");
+    assert.ok(!o.thesis.ids.includes(neg));
+    assert.deepEqual(o.thesis.claim.varying.ARG1, ["town", "port", "valley", "harbor"]);
+    assert.match(o.slots[0].basis, /a basin of 4 cleared its null/, "the count that cleared is the basin's, measured without the denial");
+    assert.ok(o.slots.slice(1, -1).some((s) => s.statements.includes(neg)), "it stays in the body");
+    const denied = o.findings.find((f) => f.kind === "denied_relation");
+    assert.ok(denied && denied.statements.includes(neg), "Kelsen names the statement that denies the thesis's relation on its subject");
+    assert.ok(!o.findings.some((f) => f.kind === "no_tension"), "the material marks a turn: its own denial");
+    const tension = o.slots.find((s) => s.slot === "tension");
+    assert.ok(tension && tension.statements.includes(neg), "the denial is the tension");
+    assert.match(tension.basis, /denies the thesis's relation/);
+  });
+}
+
+test("FALSIFIER: when a denial wins selection ('Nothing shaped the river.'), nothing is generalized over it, and the affirmations it excludes are named", async (t) => {
+  const r = await parsedOutline(`${SHAPED}\n\nNothing shaped the river.`);
   if (!r) return t.skip("no parser model");
   const { o, d } = r;
-  const denial = pointWith(d, /never/);
-  assert.ok(o.thesis.claim, "the three affirmations still generalize");
-  assert.equal(o.thesis.claim.polarity, "+");
-  assert.deepEqual(o.thesis.claim.varying.ARG1, ["town", "port", "valley"], "the denied object is not among the affirmed ones");
-  assert.ok(!o.thesis.ids.includes(denial), "the denial is not among the thesis's witnesses");
-  assert.ok(o.slots.slice(1, -1).some((s) => s.statements.includes(denial)), "it stays in the body, where it can be the tension");
+  const neg = pointWith(d, /nothing/i);
+  assert.equal(o.thesis.id, neg, "three words, all recurring: the denial wins the unchanged selection");
+  assert.equal(o.thesis.text, "Nothing shaped the river.");
+  assert.equal(o.thesis.claim, null, "the winner's note is a lone '-' claim: nothing is generalized over it");
+  assert.deepEqual(o.thesis.ids, [neg]);
+  // The third state: the kernel validated the affirmations' basin, and the
+  // winner stands outside it — said as such, never "no basin" beside a
+  // validated count.
+  assert.match(o.slots[0].basis, /a basin of 4 cleared its null .* but does not hold the winner p13\.1 \(its note: shape, -, obj\): p1\.1, p2\.1, p3\.1, p4\.1 — the thesis is the winner alone/);
+  assert.ok(!o.findings.some((f) => f.kind === "denied_relation"), "nothing denies the winner's own relation on its subject");
 });
 
 test("FALSIFIER (Williams; Caro, McPhee, Kidder & Todd, Kelsen concur): claims that agree on no role are a relation's frequency, not a thesis — refused, disclosed, the winner stands", async (t) => {
@@ -150,7 +199,53 @@ test("FALSIFIER (Williams; Caro, McPhee, Kidder & Todd, Kelsen concur): claims t
   assert.equal(o.thesis.rendered, null);
   assert.deepEqual(o.thesis.ids, [o.thesis.id]);
   assert.equal(o.thesis.text, "The river shaped the town.");
-  assert.match(o.slots[0].basis, /a basin cleared its null .* but nothing was generalized: 4 claims share the relation "shape" but agree on no role/);
+  assert.match(o.slots[0].basis, /a basin of 4 cleared its null .* but nothing was generalized: 4 claims share the relation "shape" but agree on no role/);
+});
+
+test("the basis speaks when no basin fires: how many candidates carried a note, and what the kernel found", async (t) => {
+  const r = await parsedOutline(SHAPED.replace("The river shaped the harbor.", "The river shaped the harbor slowly over a century."));
+  if (!r) return t.skip("no parser model");
+  const { o } = r;
+  assert.match(o.slots[0].basis, /(no basin: \d+ of \d+ candidates carry a relation note; the kernel found \d+ basin\(s\), \d+ validated)|(a basin of \d+ cleared its null)/, "either a basin is reported or its absence is explained");
+});
+
+test("TWO TIERS (Clark, re-read C): a body group sharing no word with ANY thesis member is licensed to leave while a basin fires — the relation lemma never licenses", async (t) => {
+  const r = await parsedOutline(`${SHAPED}\n\nThe shape of the hills changed. Farmers noticed it first.`);
+  if (!r) return t.skip("no parser model");
+  const { o, d } = r;
+  assert.ok(o.thesis.claim, "the basin fires");
+  const hills = pointWith(d, /hills/);
+  const f = o.findings.find((x) => x.kind === "off_thesis" && x.statements.includes(hills));
+  assert.ok(f, "the hills group is off-thesis: 'shape' the noun is not 'shaped' the winner's verb");
+  assert.equal(f.licenses, "leave-out");
+});
+
+test("TWO TIERS (Orlean, re-read S2): a group sharing only a possessor the note dropped is reported with the unkept-word wording, not as a varying value", async (t) => {
+  const r = await parsedOutline(`${SHAPED.replace("The river shaped the port.", "The river shaped the fishermen's lives.")}\n\nThe fishermen mended their nets at dawn.`);
+  if (!r) return t.skip("no parser model");
+  const { o, d } = r;
+  assert.ok(o.thesis.claim, "the basin fires");
+  assert.ok(o.thesis.claim.varying.ARG1.includes("life"), "the note kept the head lemma 'life' and dropped the possessor");
+  const nets = pointWith(d, /nets/);
+  const f = o.findings.find((x) => x.kind === "off_thesis" && x.statements.includes(nets));
+  assert.ok(f, "the fishermen group shares nothing with the winner's own sentence");
+  assert.equal(f.licenses, null);
+  assert.match(f.detail, /a word of a thesis member the claim did not keep/);
+  assert.doesNotMatch(f.detail, /varying/);
+});
+
+test("THE MATERIAL'S ORDER (Lish, Caro, Clark, Orlean): a winner that is not the earliest member keeps its place; the thesis part's span is the winner's", async (t) => {
+  const r = await parsedOutline(SHAPED.replace("The river shaped the town.", "The river shaped the old town.").replace("The river shaped the port.", "The river shaped the small port."));
+  if (!r) return t.skip("no parser model");
+  const { o, d } = r;
+  assert.equal(o.thesis.id, "p3.1", "the valley sentence wins: no rare word lowers its recurrence");
+  assert.deepEqual(o.thesis.ids, ["p1.1", "p2.1", "p3.1", "p4.1"], "the material's order, not winner-first");
+  assert.equal(o.thesis.text, "The river shaped the valley.");
+  const a0 = arrangedDraft(d, o).root.children[0];
+  const winner = drawnParts(d).flatMap((p) => p.children).find((pt) => pt.id === "p3.1");
+  assert.equal(a0.span.start, winner.span.start, "the part's span is the winner's bytes");
+  assert.equal(a0.spans[0].start, 0, "its spans keep the material's order");
+  assert.ok(a0.text.startsWith("The river shaped the old town."));
 });
 
 test("TWO TIERS (Clark): a body group bearing only on a VARYING value is reported, never licensed to leave", async (t) => {

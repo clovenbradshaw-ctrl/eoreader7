@@ -24,6 +24,12 @@ test("KELSEN / KIDDER & TODD: a denial never generalizes with the assertions it 
   assert.throws(() => generalizeClaims([C("river", "shape", "town")]), /at least 2/);
   const denied = generalizeClaims([C("river", "shape", "town", { polarity: "-" }), C("river", "shape", "port", { polarity: "-" })]);
   assert.equal(denied.polarity, "-", "two denials generalize as a denial");
+  // The re-read (Caro, Gornick, Williams, Kelsen): a '-' generalization once
+  // rendered byte-identically to a '+' one. The surface now carries the
+  // kernel's own mark for a cut (kernel/notes.js: "denied: ").
+  assert.equal(renderGeneralization(denied), "denied: river shape town and port");
+  const affirmed = generalizeClaims([C("river", "shape", "town"), C("river", "shape", "port")]);
+  assert.notEqual(renderGeneralization(denied), renderGeneralization(affirmed), "the record's surface never contradicts its polarity");
 });
 
 test("WILLIAMS / McPHEE: every varying role is rendered, none dropped after the first", () => {

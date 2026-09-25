@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What a reading learns — surprise, reach, hindsight</title>
+<style>
+  :root { --paper:#0f1214; --ink:#e8e4da; --dim:#8b877d; --line:#23282c; --bits:#5a6670; --load:#e0a458; --thin:#e35d6a; --seq:#5db8a0; --any:#8a7bd1; --never:#5f6b73; --panel:#151a1e; }
+  * { box-sizing: border-box; }
+  body { background:var(--paper); color:var(--ink); font: 14px/1.45 "Helvetica Neue", Arial, sans-serif; margin:0; padding:28px 16px 64px; }
+  header, main, footer { max-width:1200px; margin:0 auto; }
+  h1 { font-size:24px; letter-spacing:.03em; margin:0 0 6px; }
+  h2 { font-size:15px; font-weight:600; letter-spacing:.03em; margin:0 0 8px; }
+  .lede { color:var(--dim); max-width:80ch; margin:0 0 10px; }
+  .config { display:flex; flex-wrap:wrap; gap:10px 16px; align-items:end; margin:12px 0 6px; font-size:12.5px; }
+  .config label { display:flex; flex-direction:column; gap:3px; color:var(--dim); }
+  .config input, .config select { background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:6px; padding:5px 8px; font:inherit; width:9em; }
+  .config select { width:auto; }
+  button { background:#1f262b; color:var(--ink); border:1px solid #2f383e; border-radius:7px; padding:7px 14px; font:inherit; cursor:pointer; }
+  button:hover { background:#27303600; border-color:#4a565e; }
+  .stated { font-family: ui-monospace, Menlo, monospace; font-size:11.5px; color:var(--dim); margin:6px 0 0; max-width:100%; word-break:break-word; }
+  .progress { color:var(--dim); font-size:12.5px; min-height:1.4em; margin-top:4px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 14px 12px; margin:18px 0; }
+  .sub { color:var(--dim); font-size:12.5px; margin:0 0 8px; max-width:90ch; }
+  canvas { width:100%; height:180px; display:block; border-radius:8px; background:#0c0f11; }
+  #bands { height:26px; margin-top:6px; }
+  #runs { height:150px; margin-top:6px; }
+  .range { display:flex; gap:12px; align-items:center; margin:8px 0 0; font-size:12.5px; color:var(--dim); }
+  .range input[type=range] { flex:1; }
+  .key { display:flex; flex-wrap:wrap; gap:14px; margin:8px 0 0; font-size:12px; color:var(--dim); }
+  .sw { display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
+  .sentence { margin-top:10px; padding:10px 12px; border-left:3px solid var(--load); background:#0c0f11; border-radius:6px; }
+  .sentence .text { font-size:14.5px; line-height:1.5; }
+  .sentence .meta { color:var(--dim); font-size:12px; margin-top:6px; }
+  table { border-collapse:collapse; width:100%; font-size:13px; }
+  th, td { text-align:left; padding:5px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--dim); font-weight:500; font-size:12px; }
+  td.num { font-family: ui-monospace, Menlo, monospace; font-size:12px; white-space:nowrap; }
+  .tag { display:inline-block; padding:1px 7px; border-radius:10px; font-size:11.5px; margin-left:6px; }
+  .tag.load { background:color-mix(in srgb, var(--load) 22%, transparent); color:var(--load); }
+  .tag.thin { background:color-mix(in srgb, var(--thin) 22%, transparent); color:var(--thin); }
+  .tag.seq { background:color-mix(in srgb, var(--seq) 22%, transparent); color:var(--seq); }
+  .tag.any { background:color-mix(in srgb, var(--any) 22%, transparent); color:var(--any); }
+  .tag.never { background:color-mix(in srgb, var(--never) 30%, transparent); color:#b7c0c6; }
+  .basis { font-family: ui-monospace, Menlo, monospace; font-size:11.5px; color:var(--dim); margin:8px 0 0; white-space:pre-wrap; }
+  ol.hind { margin:8px 0 0; padding-left:1.4em; }
+  ol.hind li { margin:4px 0; }
+  ol.hind .seq { color:var(--dim); font-family: ui-monospace, Menlo, monospace; font-size:11.5px; margin-right:6px; }
+  footer { color:var(--dim); font-size:12.5px; margin-top:28px; border-top:1px solid var(--line); padding-top:14px; }
+  footer dl { display:grid; grid-template-columns:max-content 1fr; gap:4px 14px; }
+  footer dt { font-family: ui-monospace, Menlo, monospace; font-size:11.5px; }
+  @media (max-width: 700px) { canvas { height:140px; } footer dl { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>What a reading learns</h1>
+  <p class="lede">One book, read once by the constitutional reader and never re-read here. This page walks that record forward, sentence by sentence, and asks four questions of it as it goes: how much each sentence changed what the reader expected, and how much of that landed on beings the record leans on; who holds the stage, and for how long; what was said before the reader knew two names were one; and whose identity the reader kept changing its mind about. Every number is an organ's own return value. Identities are as they stood at each point — a merge counts only from the sentence where the reader recorded it.</p>
+  <div class="config">
+    <label>reading <select id="corpus"><option value="tesla">Nikola Tesla (Wikipedia, 359 sentences)</option><option value="crime-and-punishment">Crime and Punishment (15,874 sentences)</option><option value="ohs">OHS custody ground (Nashville Metro, 71 documents)</option></select></label>
+    <label>chance bar (pValue) <input id="pValue" type="number" step="0.01" min="0.001" max="0.5" value="0.05"></label>
+    <label>null trials (reach) <input id="trials" type="number" min="10" max="1000" value="60"></label>
+    <label>order shuffles <input id="shuffles" type="number" min="10" max="1000" value="100"></label>
+    <label>window (sentences) <input id="window" type="number" min="4" max="500" value="50"></label>
+    <label>belief decay γ <input id="gamma" type="number" step="0.01" min="0.5" max="1" value="1"></label>
+    <label>seed <input id="seed" type="number" value="7"></label>
+    <button id="run">Read</button>
+  </div>
+  <p class="stated" id="stated">—</p>
+  <p class="progress" id="progress"></p>
+</header>
+<main>
+  <section class="panel">
+    <h2>What each sentence changed</h2>
+    <p class="sub">Bars are bits: how far this sentence moved the reader's expectation of who appears. The bright part landed on beings the record already leans on — more sentences and claims rest on them than on a random node of the record, at the chance bar declared above. Red marks the dangerous case: the record leans on a being it has seen in only one sentence.</p>
+    <canvas id="bits"></canvas>
+    <div class="range"><span>from</span><input id="from" type="range" min="0" max="0" value="0"><span>to</span><input id="to" type="range" min="0" max="0" value="0"><span id="rangeLabel"></span></div>
+    <div class="key"><span><span class="sw" style="background:var(--bits)"></span>bits, local</span><span><span class="sw" style="background:var(--load)"></span>bits on load-bearing beings</span><span><span class="sw" style="background:var(--thin)"></span>load-bearing but thinly seen</span><span>· click a bar</span></div>
+    <div id="sentence" class="sentence" hidden></div>
+  </section>
+  <section class="panel">
+    <h2>Who holds the stage</h2>
+    <p class="sub">Each window of sentences is judged on its own: does anyone hold for at least two consecutive sentences at all (never, grey); if so, would they hold in any order of these sentences (violet — the same names on every page), or only in this order beyond what shuffling the window gives (green — scenes that form and break)? Below, each being's runs of consecutive sentences in the visible range.</p>
+    <canvas id="bands"></canvas>
+    <canvas id="runs"></canvas>
+    <div class="key"><span><span class="sw" style="background:var(--seq)"></span>holds in sequence</span><span><span class="sw" style="background:var(--any)"></span>holds in any order</span><span><span class="sw" style="background:var(--never)"></span>nobody holds</span><span>· click a band</span></div>
+    <div id="windowInfo" class="basis"></div>
+  </section>
+  <section class="panel">
+    <h2>Before the reader knew</h2>
+    <p class="sub">The reader's own identity events, as it recorded them. Choose one: these are the sentences it had already read under the old addresses, nearest the event first — never rewritten, only surfaced, with how far the event reaches into the record compared with re-addressing a random pair of beings.</p>
+    <div class="config"><label>identity event <select id="merge"></select></label></div>
+    <div id="hindsight"></div>
+  </section>
+  <section class="panel">
+    <h2>Whose identity kept changing</h2>
+    <p class="sub">Every mention the reader later re-addressed counts against the being it was first filed under, weighed against how often that being was seen at all. Low p: revised more than its exposure explains.</p>
+    <div id="volatility"></div>
+  </section>
+</main>
+<footer>
+  <dl>
+    <dt>record</dt><dd>a constitutional reading persisted by eval/the-fold/conversation.mjs; projected by eval/the-fold/surprise-projection.mjs (Encounter@1, EOReferent@1, EOMention@1, EOReferentMerge@1, EOHyperedge@1 — read off, never re-read)</dd>
+    <dt>bits</dt><dd>kernel/bayes-surprise.js — Bayesian surprise, KL(posterior ‖ prior), one Dirichlet slot per being, ABSENT as a value; kernel/consequential-surprise.js (EVA·Paradigm) partitions it by reach through the record's dependents index against cascade.js's shuffled-seed null — a sum, never a product</dd>
+    <dt>stage</dt><dd>kernel/settling.js (NUL·Kind) — run mass over slots reaching corroboration.js's floor, against the same sentences with their order destroyed; three verdicts, none hand-set</dd>
+    <dt>before</dt><dd>kernel/hindsight.js (SEG·Network) through the-fold/hindsight-log.js — entries before a recorded merge that refer to what it re-addressed; null: synthetic touched-sets from the ids the prior entries refer to</dd>
+    <dt>changing</dt><dd>kernel/revision-volatility.js (EVA·Lens) — a corroboration.js store built as the walk goes (one occurrence per mention, superseded when its being is folded), marks dealt without replacement</dd>
+    <dt>declared</dt><dd>pValue, trials, shuffles, window and γ are the person's declarations at the top, stated in every result; the only floor is corroboration.js's own (2)</dd>
+  </dl>
+</footer>
+<script type="module" src="./surprise-organs.js"></script>
+</body>
+</html>

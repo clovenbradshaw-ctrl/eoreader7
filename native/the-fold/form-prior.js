@@ -39,6 +39,7 @@
 import { elementsOf } from "./medium.js";
 import { rhymes } from "./sound.js";
 import { createHolograph, admit, modeOf, predict } from "../kernel/bayes-surprise.js";
+import { contextualityOfSteps } from "../kernel/contextuality.js";
 
 export const FORM_PRIOR_SCHEMA = "EOFormPrior@1";
 
@@ -357,9 +358,18 @@ export function learnForm(units, { alpha = 1, draws = null, seed = 7, slots = "r
   const early = trajectory.slice(0, tenth).map((t) => t.bayes), tail = trajectory.slice(-tenth).map((t) => t.bayes);
   const earlyF = trajectory.slice(0, tenth).map((t) => t.bayesForm), tailF = trajectory.slice(-tenth).map((t) => t.bayesForm);
   const earlyC = trajectory.slice(0, tenth).map((t) => t.bayesContent), tailC = trajectory.slice(-tenth).map((t) => t.bayesContent);
+  // CONTEXTUALITY (kernel/contextuality.js, 2026-09-25): bayes-surprise.js
+  // holds the slots as independent, and says so. This asks whether that
+  // simplification fails NON-classically on these instances — grouped by the
+  // slot set each carries (the forms as contexts, the instances as their joint
+  // sections): do the readings agree on every overlap and still admit no one
+  // reading? Additive: reported beside the delta, changes nothing above.
+  // The search budget is the organ's disclosed default; a spent budget lands
+  // as its typed gap, never as a verdict.
+  const contextuality = contextualityOfSteps(factsList);
   return {
     schema: FORM_PRIOR_SCHEMA, instances: units.length, alpha, draws: D, tested: cands.length, implied: impliedCount, slots, limit: limit ? Object.fromEntries(limit) : null,
-    holo, trajectory, form, count, content, learnedAt,
+    holo, trajectory, form, count, content, learnedAt, contextuality,
     // What every instance HAS (and so what the rest of a population would
     // have to lack): not testable against the order null, which cannot touch
     // it — its relative ground is the population (paradigm.js).

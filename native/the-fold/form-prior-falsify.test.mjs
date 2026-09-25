@@ -154,3 +154,13 @@ test("necessaryFacts: split-half stability actually discriminates — a trait dr
   const found = r.necessary.find((f) => f.key === "heading*:end" && f.value === "-");
   if (found) assert.ok(found.stability <= 1 && found.stability >= 0, "stability is a real fraction, distinct from the raw support number");
 });
+
+test("contextuality rides the learned form (kernel/contextuality.js, 2026-09-25): the instances grouped by slot set are judged on the possibilistic hierarchy, or refused typed — never a verdict from a spent budget", () => {
+  const fp = learnForm(Array.from({ length: 60 }, limerick));
+  const c = fp.contextuality;
+  assert.ok(c && c.schema === "EOContextuality@1", "the form prior carries the contextuality report");
+  assert.ok(c.gap === "search_budget_exceeded" || ["signalling", "noncontextual", "logically_contextual", "strongly_contextual"].includes(c.verdict), `typed: ${c.gap ?? c.verdict}`);
+  assert.equal(c.instances, 60);
+  assert.ok(c.forms >= 1);
+  assert.equal(c.contextualFraction, null, "the LP is owed, reported null");
+});
