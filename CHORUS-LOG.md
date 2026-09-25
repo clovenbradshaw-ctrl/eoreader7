@@ -613,3 +613,28 @@ fast: 2 files, 352/2 affected tests (both failures confirmed pre-existing and un
 | LeviStrauss | — | relations.js:221 | noted, not applicable | routed on the word "patched" in a comment describing what was NOT done (patching altOf's shared cache) -- no stash reclaim involved |
 | Marshall | P251 P36 | — | clean | no law file edited, only cited; both citations checked against the actual fix |
 clean: (all routed lenses reviewed above)
+
+## 2026-09-17 — Handle: Bayes on kernel/prior-query.js + priors survey (archon-bayes-priors, eoreader7)
+
+fast: 3 files (README.md, native/kernel/prior-query.js, native/docs/THE-PRIORS-SURVEY.md) · no test imports prior-query.js, none affected · law: ok (citations resolve 1/1; pre-existing dup headers in the-fold POLICIES.md P115/P116/P117/P19/P233 and READING-SPEC.md S17/S96, unrelated to this diff)
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Marshall | II.10 (THE-THREE-MATHEMATICS.md) | THE-PRIORS-SURVEY.md:110 | clean | the quoted clause ("an invented ratio is a change of units that fails invisibly") is verbatim from the source's own II.10 citation; no law edited, nothing self-enacted |
+| Pearl | (corroboration/independence language) | README.md:210 | false-positive-on-review | cites organs/corroboration.js's refusal to invent a likelihood ratio as PRECEDENT for a naming choice, not as an independence claim about two signals |
+| Holmes | (identity language) | THE-PRIORS-SURVEY.md:36 | clean | no entity merge — the live_priors path eoreader7's prior-query.js reads (`live_priors/derived-priors/`) and the corpus the-fold's priors.js describes were confirmed the SAME directory on disk (`ls /Users/mlacy/Documents/3.0/live_priors/`), not assumed from name overlap |
+| Simon/Chekhov | (untested source) | native/kernel/prior-query.js | noted, not fixed | queryMeaningPotential has zero test coverage — pre-existing (this diff only added a Handle comment, changed no logic); left in THE-PRIORS-SURVEY.md's follow-up list is the mis-shaped discovered "lyric" framing, not this — noting the gap here too since chorus surfaced it independently |
+
+clean: Feynman/Dijkstra/Alexander/Frankfurt/Ostrom/Greenberg/Diaconis/Kondo/Lévi-Strauss — no constant tuned, no base-unit coupling, no composition gate, nothing generated/placeholder, no credit misassigned, no language-universal claim, no null invented, no dead code touched or stash-reclaim performed by this diff.
+
+## 2026-09-17 — prior-query.js: test coverage + injectable paths; clear the bad lyric framing (archon-bayes-priors, eoreader7)
+
+fast: 3 files (native/kernel/prior-query.js, native/conformance/prior-query.test.mjs, native/docs/THE-PRIORS-SURVEY.md) · 8/8 new tests pass (working-tree scope, 1 file counted) · law: ok (same pre-existing dup headers as the prior entry, unrelated)
+| lens | citation | file:line | verdict | one line |
+|---|---|---|---|---|
+| Simon/Chekhov | (prior entry's own "noted, not fixed") | native/conformance/prior-query.test.mjs | fixed | the gap chorus-lint surfaced two runs ago is closed: 8 real cases, injected fixture, no reliance on the real corpus's current contents |
+| Feynman | (fabricated-content check) | live_priors/derived-priors/arc-priors/fortune-prior-v1.json | clean | the bad entry was DELETED, not replaced with another invented framing — `framingFor` verified live to return null afterward, never a fabricated substitute |
+| Dijkstra | (base-unit coupling) | native/kernel/prior-query.js:34-46 | clean | `livePriorsDir()`/`{ liveDir }` follow the exact `correctionRulesFile`/`ER7_CORRECTION_RULES` shape already established in organs/correction-rule.js — one injection pattern, not a second one invented |
+
+clean: Marshall/Pearl/Holmes/Alexander/Frankfurt/Ostrom/Greenberg/Diaconis/Kondo/Lévi-Strauss — no law cited or edited, no independence claim, no identity merge, no composition gate touched, no credit misassigned, no language-universal claim, no null invented, no dead code moved.
+
+Full conformance suite in this fresh worktree showed 9 failures beyond this diff's own tests; traced every one to a missing gitignored fetch (legacy-eoreader6.1, mirrored from the main checkout via a local, uncommitted symlink to verify) rather than to this change — the three files that actually import prior-query.js (correction-rule.test.mjs, lyric-shape.test.mjs, prior-query.test.mjs) are 22/22 once that gap is closed.
