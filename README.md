@@ -217,6 +217,7 @@ the-fold's flat top level under the same basename.
 | `kernel/kind-induction.js` | Kanada | A kind induced from what instances share. |
 | `organs/kind-standing.js` | Shizhen | One individual placed into a ranked kind. |
 | `kernel/kind-graph-structure.js` | Xunzi | Names graded by resemblance — a graph, not a tree. |
+| `kernel/kind-graph-structure.js` | Osgood | An injected embedding reports the distance between two predicates as a number, never their identity. |
 | `kernel/lexicon.js` / `hyperlexicon.js` | Xushen | Dictionary projected from attested usage. |
 | `kernel/dmd.js` | Koopman | Modes with growth and frequency. |
 | `kernel/surprise-segments.js` | Rubin | The boundary is where the ground was most wrong. |
