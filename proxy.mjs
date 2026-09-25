@@ -24,6 +24,17 @@ let _inflight = 0; // turns currently running — the model watchdog never fires
 // triggered by a REGULAR NL PROMPT, not a hand-built harness.
 import { detectBuildTask, buildCodeTask } from "./native/organs/code-build.js";
 
+// Structure Search: the plain-language search-term registry and the unified
+// target-resolution modalities (Exact, Pattern/regex, Near-Miss, and four
+// named Shape kinds), wired here — not client-side — so every surface this
+// process serves reaches the same capability through one route.
+import { listSearchTerms, TERM_SCHEMA } from "./native/organs/search-terms.js";
+import { resolveTarget } from "./native/organs/target-resolve.js";
+import { discoverCompanyKinds } from "./native/organs/kind-standing.js";
+import { arrowOf } from "./native/kernel/arrow.js";
+import { consequentialSurprise } from "./native/kernel/consequential-surprise.js";
+import { dmd } from "./native/kernel/dmd.js";
+
 // The caller's own tier ask for an ENGINE turn (x-er7-tier): "exact" pins
 // the asked model for every draw; anything else lets Heimdall's mouth pick
 // the fastest on-device mouth (heimdall.mjs mouthFor). Same header the
@@ -430,6 +441,11 @@ async function handleRequest(req, res) {
       claudeCode: {
         description: "Claude Code's hooks, through this pipeline: the eo-reason plugin forwards each hook event verbatim and relays the answer (claude-code/).",
         hooks: "POST /v1/hooks/claude-code  <Claude Code hook event JSON>",
+      },
+      search: {
+        description: "Structure Search: the named search-term registry and the unified target resolver (exact, regex, near-miss, and four named shape kinds — company, order, reach, rhythm), the same capability every surface reaches through this one route.",
+        terms: "GET /v1/search",
+        resolve: "POST /v1/search  { target, candidates: [...], pattern?: {source, flags?}, shape?: {kind, args}, allowNearMiss?: bool }",
       },
       documents: { start: "POST /v1/documents", poll: "GET /v1/documents/:id" },
       sessions: { list: "GET /v1/sessions", description: "Every live reader fold on this proxy, newest first. Reuse a sessionId (x-er7-session header or body field) to keep one accumulating fold; list them here." },
@@ -890,6 +906,46 @@ async function handleRequest(req, res) {
       res.writeHead(500, { "content-type": "application/json" });
       res.end(JSON.stringify({ error: { message: err.message } }));
     }
+    return;
+  }
+
+  // Structure Search: the unified target-resolution API (Exact, Pattern/
+  // regex, Near-Miss, and four named Shape kinds), plus the plain-language
+  // search-term registry — accessible to every surface through this one
+  // process, per this codebase's own rule that capability lives in the
+  // proxy, never client-side. GET lists the 12 named search terms
+  // (search-terms.js, reference-only — naming a term is not running it).
+  // POST { target, candidates, pattern?, shape?, allowNearMiss? } runs
+  // resolveTarget's ordering (exact -> pattern -> shape -> near-miss last,
+  // fallback-only, a tie refused rather than guessed at whichever modality
+  // produced it) — shape's doors are injected here, server-side, from the
+  // real organs, since a caller cannot serialize a function over HTTP; that
+  // makes this route the one place this wiring has to live.
+  if (req.method === "GET" && req.url === "/v1/search") {
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ schema: TERM_SCHEMA, terms: listSearchTerms() }));
+    return;
+  }
+  if (req.method === "POST" && req.url === "/v1/search") {
+    let body = "";
+    req.on("data", (c) => (body += c));
+    req.on("end", () => {
+      try {
+        const parsed = JSON.parse(body || "{}");
+        const doors = { discoverCompanyKinds, arrowOf, consequentialSurprise, dmd };
+        const opts = {
+          pattern: parsed.pattern ?? null,
+          allowNearMiss: parsed.allowNearMiss !== false,
+          shape: parsed.shape ? { kind: parsed.shape.kind, args: parsed.shape.args, doors } : null,
+        };
+        const result = resolveTarget(parsed.target, parsed.candidates, opts);
+        res.writeHead(200, { "content-type": "application/json" });
+        res.end(JSON.stringify(result));
+      } catch (err) {
+        res.writeHead(400, { "content-type": "application/json" });
+        res.end(JSON.stringify({ error: { message: err.message } }));
+      }
+    });
     return;
   }
 
