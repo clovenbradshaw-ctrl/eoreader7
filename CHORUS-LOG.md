@@ -685,3 +685,17 @@ fast: 4 files · narrative-time.test.js 4/4, arrow.test.js 9/9 · law: ok (dup h
 clean: (all routed lenses reviewed above)
 
 Context: the reader now writes EOArrow@1 into every ledger with the rest of the book as its habit — forward, sentence-reversed and shuffled read FORWARD, reversed-words reads BACKWARD, both chapters. Partee's walk binds every regular past tense (0 gaps) and, as its own test predicts, cannot see sentence reversal without a reach-back tense: typing the English pluperfect is the named next step.
+
+## 2026-09-25 — the universal tense typer (Chomsky → clause-tense.js) and the reach-back (Pqp) in Partee's walk (main, 8 files)
+fast: 8 files · clause-tense 8/8 (real model), narrative-time 6/6, temporal-reference +1, arrow 9/9 · law: ok (dup headers pre-existing)
+| lens | citation | file:line | verdict | one line |
+| Dijkstra | — | eot-jsonl.mjs (parseWindow … toRaw) | fixed | a REAL bug caught by order-dependence: the ledger's `at` is the origin's coordinate (toRaw) while the parser read the normalised copy — Tom Sawyer forward typed 15 past sentences and reversed 26 until every token offset was mapped through toRaw; now 37/37. Second measurement: a proposition's `at` is its END2 span (181/183), so the verb is located by the ledger's own label, never assumed inside the span |
+| Dijkstra | — | clause-tense.js:locateLabel | disclosed | lowercase form-run match for the label — case-folding a token run against the ledger's own label, not identity of anything else |
+| Pearl | — | temporal-reference.js:resolveReachBack | no-change | several independent threads each with a prior go to the real `adjudicate`, never "most recent" — same discipline as resolveAnaphoricTense |
+| Ostrom | — | temporal-reference.js:resolveReachBack | clean | `no_prior_ground` is scoped as "not on the record", never "did not happen" |
+| Greenberg | universal-grammar.js UD_FEATURES.Tense | clause-tense.js | disclosed | English adapter emitting the UNIVERSAL values (Past/Pres/Fut/Imp/Pqp); Pqp read off the had+participle construction, Fut off will/shall — English facts said as English facts; any other --lang typed undeclared on the coverage line |
+| Kondo | — | eot-jsonl.mjs | fixed | the stem+ed typer retired, its number (13/182) kept here; nothing left unplugged |
+| Simon/Chekhov | — | clause-tense.js, eot-jsonl.mjs | disclosed | clause-tense tested on the real trained model; eot-jsonl exercised on two chapters × 11 arms. THE CEILING, measured: of 7 had-labelled arrangements in Alice ch2, 1 reads Pqp — the perceptron tags "had" as a possessive VERB or the participle as Inf/Fin in the rest (its held-out recall is 74%). Typed coverage 77/183 in Alice ch2 (Past 50, Pres 20, Fut 6, Pqp 1) vs 13/182 before |
+clean: (all routed lenses reviewed above)
+
+Context: user — "check for our more universal tense typing, Chomsky." It was there (universal-grammar.js places Tense=Pqp, english-parser.js reads UD feats); this joins them. Partee's walk now has the reach-back, the first order-sensitive move, and its own test shows reversal changing where a Pqp lands. On real chapters every Partee row still sits inside the shuffled range under sentence reversal: too few Pqp survive the parser to move a count. The reader has a referred-time organ now; what it lacks is a tagger that sees the pluperfect.

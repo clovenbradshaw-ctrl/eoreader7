@@ -66,7 +66,8 @@ import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
 import { detectAndMatch } from "./structure-rec.mjs";
 import { arrowOf } from "../../kernel/arrow.js";
 import { narrativeTime } from "../../kernel/narrative-time.js";
-import { stemsOf as stemsOfForTense } from "../../adapters/text/morphology.js";
+import { loadModel as loadEnglishParser } from "../../adapters/text/english-parser.js";
+import { parseWindow, clauseTense, GIVER as TENSE_GIVER } from "../../adapters/text/clause-tense.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const LP_ROOT = path.resolve(HERE, "../../../../live_priors");
@@ -1624,19 +1625,35 @@ if (priorLines.length) {
   });
 
   // Partee (kernel/narrative-time.js) over this ledger's own arrangements,
-  // in address order. The tense typer names its giver and its hole: the
-  // received English morphology prior carries lemmas, not tense, so only
-  // UniMorph's REGULAR past (stem+ed, as stemsOf recovers it) is typed
-  // past; irregular pasts (went, said, came) are typed undeclared and
-  // counted as such on the coverage line, never guessed.
+  // in address order. The tense typer is the CHOMSKY parser (adapters/text/
+  // english-parser.js → clause-tense.js): UD Tense/VerbForm per token from
+  // the EWT treebank's own tallies, so irregular pasts (went, said, came)
+  // are typed, and the had+participle construction is read back as UD's
+  // universal Pqp — the reach-back tense the first wiring lacked. The
+  // first typer (UniMorph regular stem+ed, 13/182 arrangements typed in
+  // Alice ch2) is retired here; its number stays in CHORUS-LOG. Any other
+  // --lang has no typer declared and is typed undeclared, said on the line.
   const sents = lines.filter((l) => l.role === "sentence" && l.schema === "EOTObservation@1").map((l) => l.at);
   const sentenceOf = (at) => { const i = sents.findIndex((s) => s[0] <= at[0] && at[1] <= s[1]); return i < 0 ? `p${at[0]}` : i; };
   const props = lines
     .filter((l) => l.role === "proposition" && l.schema === "EOTObservation@1" && typeof l.label === "string" && Array.isArray(l.at))
     .sort((x, y) => x.at[0] - y.at[0])
     .map((l) => ({ id: l.id, at: l.at, label: l.label, sentence: sentenceOf(l.at) }));
-  const GIVER = "UniMorph English regular paradigm (V;PST / V.PTCP;PST = stem+ed) as adapters/text/morphology.js::stemsOf recovers it; irregular pasts carry no tense row in the received prior and are typed undeclared";
-  const tenseOf = (label) => { const w = label.trim().split(/\s+/).pop().toLowerCase(); return /[a-z]ed$/.test(w) && stemsOfForTense(w).size > 0 ? "past" : "undeclared"; };
+  let tenseOf, GIVER;
+  if (LANG === "eng") {
+    const model = loadEnglishParser(JSON.parse(fs.readFileSync(path.join(HERE, "..", "..", "priors", "parser-eng-ewt.json"), "utf8")));
+    // `raw` here is the NORMALISED text and WIN its coordinates; the ledger's
+    // `at` are the origin's own (toRaw) — every token offset is mapped
+    // through toRaw so the label search and the ledger speak one address.
+    // Measured before this mapping: a proposition's at sliced the origin
+    // one line's worth of \r off from where the reader had looked.
+    const rows = parseWindow(model, raw.slice(WIN[0], WIN[1]), (i) => toRaw(WIN[0] + i));
+    tenseOf = (a) => clauseTense(rows, a.at, a.label).tense;
+    GIVER = TENSE_GIVER;
+  } else {
+    tenseOf = () => "undeclared";
+    GIVER = `no tense typer declared for --lang=${LANG}; every arrangement typed undeclared`;
+  }
   const nt = narrativeTime(props, { tenseOf, giver: GIVER });
   for (const t of nt.times) emit({ ...t, role: "time", at: [t.at, t.at], clock: t.at });
   for (const g of nt.grounds) emit({ ...g, role: "reference-ground", at: [g.at, g.at], clock: g.at });

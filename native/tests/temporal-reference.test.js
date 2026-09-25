@@ -109,3 +109,23 @@ test("ADAPTER-SHAPED: 'I turned off the stove. I picked up my bag.' — same ker
   const currentAtSecondClause = resolveAnaphoricTense(1, [g1, g2]);
   assert.equal(currentAtSecondClause.timeId, "t-bag-up", "the reference ground has advanced to the second clause's own established time");
 });
+
+// ── resolveReachBack (2026-09-25): UD's Pqp, "a past before a past" ──────────
+import { test as testReach } from "node:test";
+import assertReach from "node:assert/strict";
+import { establishTime as estRB, advanceReferenceGround as advRB, resolveReachBack } from "../kernel/temporal-reference.js";
+
+testReach("resolveReachBack: binds to the ground the live one superseded; typed gaps before that exists", () => {
+  const t1 = estRB({ id: "t1", at: 0, key: 1 }), g1 = advRB({ id: "g1", at: 0, timeId: "t1", from: null });
+  const t2 = estRB({ id: "t2", at: 50, key: 2 }), g2 = advRB({ id: "g2", at: 50, timeId: "t2", from: g1 });
+  void t1; void t2;
+  assertReach.equal(resolveReachBack(-1, [g1, g2]).verdict, "no_candidate");
+  assertReach.equal(resolveReachBack(10, [g1, g2]).verdict, "no_prior_ground", "at 10 only g1 is live, and g1 superseded nothing");
+  const r = resolveReachBack(60, [g1, g2]);
+  assertReach.equal(r.verdict, "bound");
+  assertReach.equal(r.basis, "prior-ground");
+  assertReach.equal(r.groundId, "g1");
+  assertReach.equal(r.timeId, "t1");
+  assertReach.equal(r.reach, true);
+  assertReach.equal(r.cell.op, "CON");
+});

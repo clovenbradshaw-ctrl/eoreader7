@@ -125,8 +125,14 @@ for (const [arm, body] of Object.entries(arms)) {
     selfReferent: n((l) => l.selfReferent),
     // Partee, from the ledger's own new lines (kernel/narrative-time.js)
     times: n((l) => l.role === "time"),
-    tenseBound: n((l) => l.role === "tense" && l.verdict === "bound"),
-    tenseGaps: n((l) => l.role === "tense" && l.verdict === "no_candidate"),
+    tenseBound: n((l) => l.role === "tense" && !l.reach && l.verdict === "bound"),
+    tenseGaps: n((l) => l.role === "tense" && !l.reach && l.verdict === "no_candidate"),
+    // the reach-back (UD Pqp, "had gone"): the first move whose verdict
+    // depends on what came BEFORE — the row that should move under
+    // sentence reversal if the reader has a referred-time arrow at all
+    pqp: n((l) => l.role === "tense" && l.reach),
+    reachBound: n((l) => l.role === "tense" && l.reach && l.verdict === "bound"),
+    reachGaps: n((l) => l.role === "tense" && l.reach && l.verdict !== "bound"),
   };
   // Eddington as the READER wrote it into this arm's own ledger — habit =
   // the rest of the book, not the forward arm

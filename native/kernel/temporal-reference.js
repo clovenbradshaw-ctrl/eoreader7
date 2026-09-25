@@ -148,3 +148,38 @@ export function resolveAnaphoricTense(sigAt, grounds, opts = {}) {
   const won = verdict.id != null ? candidates.find((c) => c.id === verdict.id) : null;
   return Object.freeze({ ...verdict, cell: RESOLUTION_CELL, timeId: won ? won.timeId : null, groundId: verdict.id });
 }
+
+/**
+ * resolveReachBack(sigAt, grounds, opts) — a tense that points BEFORE the
+ * current reference ground (UD's Pqp: "a past before a past"; English
+ * "had gone"). Partee: the pluperfect refers to a time anterior to the
+ * reference time, and does not advance it.
+ *
+ * The anterior candidate is not invented: it is the ground the live one
+ * SUPERSEDED — `advanceReferenceGround` keeps that link for exactly this
+ * reach. Zero live grounds: `no_candidate` (nothing to reach back from).
+ * A live ground that superseded nothing (the narrative's first): a typed
+ * `no_prior_ground` — the past-before-this-past is not on the record, and
+ * that absence is the finding. One prior: bound, basis "prior-ground".
+ * Several (independent threads, each with its own prior): routed to the
+ * real `adjudicate`, as resolveAnaphoricTense does, never "most recent".
+ */
+export function resolveReachBack(sigAt, grounds = [], opts = {}) {
+  const live = candidateGrounds(sigAt, grounds);
+  if (live.length === 0) {
+    return Object.freeze({ verdict: "no_candidate", reach: true, cell: RESOLUTION_CELL, timeId: null, groundId: null,
+      detail: "no reference ground has been established at or before this point — nothing to reach back from" });
+  }
+  const prior = live.filter((g) => g.supersedes).map((g) => g.supersedes);
+  if (prior.length === 0) {
+    return Object.freeze({ verdict: "no_prior_ground", reach: true, cell: RESOLUTION_CELL, timeId: null, groundId: null,
+      detail: "the live reference ground is the narrative's first — a past before it is not on the record" });
+  }
+  if (prior.length === 1) {
+    return Object.freeze({ verdict: "bound", reach: true, cell: RESOLUTION_CELL, timeId: prior[0].timeId, groundId: prior[0].id,
+      basis: "prior-ground", detail: "the one ground the live reference ground superseded — not a default, the only anterior ground on record" });
+  }
+  const verdict = adjudicate(opts);
+  const won = verdict.id != null ? prior.find((p) => p.id === verdict.id) : null;
+  return Object.freeze({ ...verdict, reach: true, cell: RESOLUTION_CELL, timeId: won ? won.timeId : null, groundId: verdict.id });
+}
