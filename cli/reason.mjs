@@ -44,6 +44,7 @@ import { gfpClaim, claimFromTriple, claimKey, caselessIdentity, exactIdentity } 
 import { lintGfp, lintInferences, lintLedger, falsifyGfp } from "../native/organs/reasoning-lint.js";
 import { citeGround, polarityControl, terminalLink } from "../native/organs/ground-cite.js";
 import { writeReasoningRecord } from "../native/organs/reasoning-record.js";
+import { fingerprintOf } from "../native/organs/claim-deriver.js";
 
 // STRUCTURAL IDENTITY FOR THE HYPERLEXICON SEAM (reason-claims design part
 // D). `native/organs/hyperlexicon.js`'s own `noteIdentity` contract is
@@ -460,7 +461,28 @@ const out = { ok: errors.length === 0, errors: errors.length, grounds, findings,
 if (declared.length || (text && hl && hlLog)) {
   try {
     const { appendReasoningLedger } = await import("./reasoning-ledger.mjs");
-    const declaredClaimsOut = declared.map((c, i) => ({ ground: c.ground, rel: c.rel, roles: c.roles, said: input.claims[i]?.said ?? input.claims[i]?.text ?? null }));
+    // fingerprint/source (2026-09-25, mechanical-shortcuts first slice):
+    // fingerprint is a structural digest over the ALREADY-BUILT gfpClaim
+    // object (c) and this run's own `decl` table — see
+    // native/organs/claim-deriver.js's own header for exactly what it does
+    // and does not encode. source reads back the `derivedBy` tag
+    // native/organs/claim-deriver.js's deriveClaimSpec stamps onto a
+    // mechanically-constructed claim; an ordinary hand-authored input
+    // claim carries no such field, so it defaults to "hand-authored".
+    // Telemetry only in this slice — nothing downstream reads either field
+    // to change any gate's behavior yet.
+    const declaredClaimsOut = declared.map((c, i) => ({
+      ground: c.ground, rel: c.rel, roles: c.roles,
+      said: input.claims[i]?.said ?? input.claims[i]?.text ?? null,
+      fingerprint: fingerprintOf(c, decl),
+      source: input.claims[i]?.derivedBy ? String(input.claims[i].derivedBy) : "hand-authored",
+      // polarity + the citation verdict `sources` already earned above
+      // (2026-09-25): the read-time fold (cli/claude-code-context.mjs) needs
+      // both, to tell a retraction from a restatement and a grounded run
+      // from an ungrounded one.
+      polarity: c.polarity,
+      verdict: sources[i]?.verdict ?? null,
+    }));
     appendReasoningLedger({ hl, log: hlLog, declaredClaims: declaredClaimsOut, session: sessionKey, runAt: new Date().toISOString(), cwd: process.cwd(), grounds, ok: out.ok, errors: out.errors });
   } catch { /* additive only; the verdict and every field of `out` above stand without it */ }
 }
@@ -517,4 +539,13 @@ else if (compact) {
   }
   if (recordPath) console.log(`  reasoning record (claims in real GFP case-marked notation, findings, source verdicts — never prose): ${recordPath}`);
 }
-process.exit(out.ok ? 0 : 1);
+// exitCode, not exit() (2026-09-25, found by adversarial testing): a large
+// --json payload's console.log write to a piped stdout can still be
+// in-flight (Node's pipe writes are not guaranteed synchronous) when
+// process.exit() runs, which kills the process immediately and can
+// silently truncate the output — reproduced live, a 200-claim run cut off
+// mid-string at exactly 65532 bytes every time with exit(), never with
+// exitCode. Letting Node exit naturally once the event loop drains (after
+// every pending write flushes) preserves the same exit-code semantics
+// every caller already reads (0 on ok, 1 on failure) without the risk.
+process.exitCode = out.ok ? 0 : 1;

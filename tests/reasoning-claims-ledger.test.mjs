@@ -9,7 +9,10 @@
 // different prose across several runs fold to ONE entry with an accumulated
 // witness count (T1); claims with different role values stay separate
 // entries (T2); and session scoping defaults to siloing the current session,
-// widened only by --all-sessions or --session (T3). See cli/reason.mjs and
+// widened only by --all-sessions or --session (T3). T5–T9 pin polarity and
+// grounding: a retraction contests rather than corroborates, and only a run
+// whose citation verdict was cited|event counts toward standing, while
+// ungrounded restatements stay counted beside it. See cli/reason.mjs and
 // cli/claude-code-context.mjs's own headers for the full design and the
 // disclosed bounds this does NOT close (role-value-level paraphrase; roles
 // beyond ARG0/ARG1; a workflow-subagent's session id not always being a true
@@ -91,6 +94,83 @@ test("T4-adjacent: a claim missing ARG1 (unary) is honestly refused by the fold,
   const r = read(["--session", "t4-unary-session"]);
   assert.equal(r.foldedEntries, 0);
   assert.equal(r.foldRefused, 1, "an incomplete arrangement must be disclosed as refused, not silently absent");
+});
+
+// ── POLARITY AND GROUNDING (2026-09-25) ────────────────────────────────────
+// The cases measured when "standing" turned out not to measure grounding
+// (cli/claude-code-context.mjs's header): a retraction counted as support,
+// and unattributed or missing grounds read "corroborated" exactly like a
+// cited one. Grounds are real files in this repo (ground-cite.test.js's own
+// fixtures), and every run's citation verdict is asserted first, so a
+// fixture that drifts fails as a precondition instead of silently testing
+// something else.
+const GROUND_CITE = path.join(ROOT, "native", "organs", "ground-cite.js");
+const CITED = { ground: GROUND_CITE, rel: "walks", roles: { ARG0: "resolveGroundFile", ARG1: "a grounds holon ancestry deepest first" }, said: "resolveGroundFile walks a ground's holon ancestry deepest-first and returns the first segment that is a real file on disk" };
+const reasonAs = (session, claims, verdict) => {
+  const out = reason({ session, claims });
+  assert.equal(out.ok, true);
+  assert.deepEqual(out.sources.map((s) => s.verdict), claims.map(() => verdict), `precondition: every claim's citation verdict is "${verdict}"`);
+};
+
+test("T5 (case 1): a retraction contests its claim — the '-' restatement is never counted as a witness of the '+'", () => {
+  reasonAs("t5-session", [{ ...CITED, polarity: "+" }], "cited");
+  reasonAs("t5-session", [{ ...CITED, polarity: "-" }], "cited");
+  const r = read(["--session", "t5-session"]);
+  assert.equal(r.notes.length, 1, "asserted and denied are one proposition — one entry");
+  const [n] = r.notes;
+  assert.equal(n.polarity, "±");
+  assert.equal(n.standing, "contested");
+  assert.equal(n.witnessCount, 1, "the retraction must not have joined the assertion's witnesses");
+  assert.deepEqual(n.against, { witnessCount: 1, grounded: 1 });
+  assert.equal(n.latest, "-");
+});
+
+test("T5b: a claim only ever denied is a standing denial, polarity '-' — never read as an assertion of the same ends", () => {
+  reasonAs("t5b-session", [{ ...CITED, polarity: "-" }], "cited");
+  reasonAs("t5b-session", [{ ...CITED, polarity: "-" }], "cited");
+  const r = read(["--session", "t5b-session"]);
+  assert.equal(r.notes.length, 1);
+  assert.equal(r.notes[0].polarity, "-");
+  assert.equal(r.notes[0].standing, "corroborated");
+  assert.equal(r.notes[0].against, null);
+});
+
+test("T6 (case 2): an unattributed claim stated twice is 'ungrounded', not corroborated — and both restatements stay visible", () => {
+  const claim = { ground: GROUND_CITE, rel: "bakes", roles: { ARG0: "sourdough", ARG1: "on tuesdays in the antarctic circle" }, said: "sourdough bread baking rituals observed by penguins in the antarctic circle" };
+  reasonAs("t6-session", [claim], "unattributed");
+  reasonAs("t6-session", [claim], "unattributed");
+  const [n] = read(["--session", "t6-session"]).notes;
+  assert.equal(n.standing, "ungrounded");
+  assert.equal(n.witnessCount, 2, "restatements are kept and counted, never silently dropped");
+  assert.equal(n.grounded, 0);
+  assert.equal(n.ungrounded, 2);
+  assert.deepEqual(n.verdicts, { unattributed: 2 });
+});
+
+test("T7 (case 3): a claim grounded at a file that does not exist, stated twice, is 'ungrounded'", () => {
+  const claim = { ground: path.join(ROOT, "native", "organs", "NO-SUCH-FILE-reasoning-claims-ledger.js"), rel: "exports", roles: { ARG0: "nothing", ARG1: "anything" }, said: "this file exports nothing at all" };
+  reasonAs("t7-session", [claim], "missing");
+  reasonAs("t7-session", [claim], "missing");
+  const [n] = read(["--session", "t7-session"]).notes;
+  assert.equal(n.standing, "ungrounded");
+  assert.deepEqual(n.verdicts, { missing: 2 });
+});
+
+test("T8 (case 4, the positive control): a genuinely cited claim stated in two runs IS corroborated — standing is withheld only from what was never grounded", () => {
+  reasonAs("t8-session", [CITED], "cited");
+  reasonAs("t8-session", [CITED], "cited");
+  const [n] = read(["--session", "t8-session"]).notes;
+  assert.equal(n.standing, "corroborated");
+  assert.equal(n.grounded, 2);
+  assert.equal(n.sources, 2);
+});
+
+test("T9: one run stating a claim twice is ONE source — two witnesses, single-witness, never self-corroborated", () => {
+  reasonAs("t9-session", [CITED, CITED], "cited");
+  const [n] = read(["--session", "t9-session"]).notes;
+  assert.equal(n.witnessCount, 2);
+  assert.equal(n.sources, 1);
+  assert.equal(n.standing, "single-witness");
 });
 
 test("secrets are scrubbed from the persisted ledger even inside a role value", () => {

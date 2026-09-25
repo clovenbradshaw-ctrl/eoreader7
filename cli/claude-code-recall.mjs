@@ -14,7 +14,11 @@
 // that fold correct; this file adds no new folding logic of its own). Seed
 // "/" is that file's own documented no-special-case default — every claim
 // THIS SESSION declared matches, the same siloed scope its own T3 test
-// requires (a different session's claims never leak in). Never blocks,
+// requires (a different session's claims never leak in). The folded set is
+// then filtered by native/organs/claim-relevance.js's relevantClaims
+// before the CAP below ever applies — see that file's own header for the
+// measured, no-hand-set-threshold design (and its disclosed limits) that
+// decides which of them are worth this turn's tokens. Never blocks,
 // never writes session state (no saveState call — nothing here can race
 // claude-code-ledger.mjs's own writes to the same per-turn state file, the
 // lost-update class this repo's own memory documents against this file's
@@ -30,6 +34,7 @@
 import fs from "node:fs";
 import { sidOf, logError } from "./claude-code-state.mjs";
 import { findMatches, foldMatches } from "./claude-code-context.mjs";
+import { relevantClaims } from "../native/organs/claim-relevance.js";
 
 // A system notice is not the user's own ask — claude-code-ledger.mjs's own
 // UserPromptSubmit branch defines the identical table for the identical
@@ -56,12 +61,19 @@ export function recallContextFor(ev) {
   const result = findMatches("/", { allSessions: false, session: sid });
   const folded = foldMatches(result.matches);
   if (!folded.notes.length) return null;
-  const shown = folded.notes.slice(0, CAP);
+  // RELEVANCE (2026-09-25, native/organs/claim-relevance.js): the user,
+  // after this file's first cut surfaced every standing claim up to CAP
+  // unconditionally — "not get ALL the tokens, only the ones the SURF
+  // believes are relevant". Filters BEFORE the size cap, so CAP now bounds
+  // an already-relevant set rather than an arbitrary recency window.
+  const relevant = relevantClaims(String(ev?.prompt ?? ""), folded.notes);
+  if (!relevant.length) return null;
+  const shown = relevant.slice(0, CAP);
   const lines = [
-    `eoreader7 — ${folded.notes.length} claim(s) this session already ran through reasoning (cli/reason.mjs) and left standing:`,
+    `eoreader7 — ${relevant.length}/${folded.notes.length} claim(s) this session already ran through reasoning (cli/reason.mjs), surfaced because they bond to this prompt more than this session's claims typically do:`,
     ...shown.map((n) => `- [${n.standing}, ${n.witnessCount} witness(es)] ${n.subject} ${n.rel} ${n.object}`),
   ];
-  if (folded.notes.length > shown.length) lines.push(`… and ${folded.notes.length - shown.length} more — node cli/claude-code-context.mjs --json for the full set.`);
+  if (relevant.length > shown.length) lines.push(`… and ${relevant.length - shown.length} more relevant — node cli/claude-code-context.mjs --json for the full set.`);
   lines.push("Build on these rather than re-deriving or quietly contradicting them; if one no longer holds, say so and re-run reason.mjs.");
   return lines.join("\n");
 }

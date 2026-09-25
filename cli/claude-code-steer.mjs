@@ -24,7 +24,9 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { steeringOff, sidOf, loadState, coverageOf, exempt, logError } from "./claude-code-state.mjs";
+import { spawnSync } from "node:child_process";
+import { steeringOff, sidOf, loadState, saveState, coverageOf, exempt, logError } from "./claude-code-state.mjs";
+import { deriveClaimSpec } from "../native/organs/claim-deriver.js";
 
 const REASON = path.join(path.dirname(new URL(import.meta.url).pathname), "reason.mjs");
 
@@ -160,7 +162,7 @@ export function bashIntent(command, cwd) {
   return { targets: [...new Set(targets)], unknown, commits };
 }
 
-function denial(files, st, why) {
+function denial(files, st, why, extra = null) {
   const lines = files.map((f) => {
     const cov = coverageOf(st, f);
     return cov.run && !cov.run.ok
@@ -173,7 +175,76 @@ function denial(files, st, why) {
     "State what the change does and must preserve as claims grounded AT each file — ground = its absolute path, or a scope inside it (<path>/<function>) — and run:",
     `  node ${REASON} <spec.json>   (keep the spec in /tmp or pipe it on stdin)`,
     "A claim grounded at a directory or at \"/\" does not cover a file. Then retry.",
+    ...(extra ? [extra] : []),
   ].join("\n");
+}
+
+/**
+ * AUTO-DERIVE (2026-09-25, mechanical-shortcuts first slice — see
+ * native/organs/claim-deriver.js's own header for the full design). For an
+ * Edit whose target isn't covered yet, try to mechanically derive AND
+ * CHECK a claim from the edit's own old_string/new_string before falling
+ * back to today's hand-authoring flow. Only Edit calls this — not Write/
+ * NotebookEdit/MultiEdit — a deliberately narrow first slice.
+ *
+ * FAIL-SAFE IS THE ONLY PROPERTY THIS MUST NEVER BREAK: every branch below
+ * that cannot cleanly prove coverage returns {covered:false, ...} and
+ * changes nothing, falling straight through to the SAME denial() the Edit
+ * branch already called before this existed. Nothing here can turn a
+ * denial into an allow except a real, freshly-run, PASSING cli/reason.mjs
+ * check on a claim actually grounded at this file — the exact same bar
+ * coverageOf has always enforced.
+ *
+ * DISCLOSED, SHARED RISK (not solved here, out of scope for this slice):
+ * this is a new write to the per-turn session state file (st.runs.push +
+ * saveState) from INSIDE a PreToolUse hook — previously steer.mjs only
+ * ever read state. A background Agent-tool subagent sharing this session's
+ * id can already race claude-code-ledger.mjs's own writes to the same file
+ * (documented elsewhere in this repo's own memory); this adds one more
+ * write point to that same pre-existing, unresolved class of race, not a
+ * new kind of risk. Worst case on a lost update is the SAME as today's:
+ * a real passing run's coverage silently not being recorded, which denies
+ * an edit that should have been allowed — never the reverse.
+ */
+function tryAutoDerive(ev, f, st, sid) {
+  const oldStr = ev.tool_input?.old_string, newStr = ev.tool_input?.new_string;
+  if (typeof oldStr !== "string" || typeof newStr !== "string") return { covered: false, evidence: null };
+  let derived;
+  try { derived = deriveClaimSpec(path.resolve(f), oldStr, newStr); }
+  catch (e) { return { covered: false, evidence: `eoreader7 claim-deriver threw building a spec: ${e.message} — hand-author a claim instead.` }; }
+  if (derived.status !== "derived") {
+    return { covered: false, evidence: `eoreader7 claim-deriver: could not auto-derive a claim for this edit (${derived.reason}) — hand-author one grounded at this file.` };
+  }
+  const run = runDerivedSpec(derived.spec);
+  if (!run) {
+    return { covered: false, evidence: "eoreader7 claim-deriver: a claim was derived, but checking it through reason.mjs did not come back cleanly — hand-author one instead." };
+  }
+  st.runs.push(run);
+  saveState(sid, st);
+  return { covered: coverageOf(st, f).covered, evidence: null };
+}
+
+/** Spawns `node reason.mjs <tmp spec> --json` SYNCHRONOUSLY (this hook
+ *  must decide allow/deny before returning) with an 8s timeout, safely
+ *  under this hook's own 10s budget (settings.local.json). Returns a run
+ *  object in the exact shape claude-code-state.mjs's coverageOf already
+ *  expects ({ok, grounds, declaredClaims}), or null on ANY failure — a
+ *  timeout, a spawn error, output that doesn't parse — which the caller
+ *  above treats identically to "not covered". Whether reason.mjs itself
+ *  exits 0 (ok) or 1 (a real, reported failure) it still prints valid
+ *  --json on stdout, so both are parsed the same way; only a genuine
+ *  crash/timeout returns null. */
+function runDerivedSpec(spec) {
+  let tmp = null;
+  try {
+    tmp = path.join(os.tmpdir(), `eo-claim-deriver-${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}.json`);
+    fs.writeFileSync(tmp, JSON.stringify(spec));
+    const r = spawnSync(process.execPath, [REASON, tmp, "--json"], { encoding: "utf8", timeout: 8000 });
+    if (r.error) return null;
+    const out = JSON.parse(r.stdout);
+    return { at: new Date().toISOString(), ok: !!out.ok, grounds: out.grounds ?? [], declaredClaims: out.declaredClaims ?? [] };
+  } catch { return null; }
+  finally { if (tmp) { try { fs.unlinkSync(tmp); } catch {} } }
 }
 
 function main() {
@@ -184,7 +255,10 @@ function main() {
   let blocked = null;
   if (tool === "Edit" || tool === "Write" || tool === "NotebookEdit" || tool === "MultiEdit") {
     const f = ev.tool_input?.file_path ?? ev.tool_input?.notebook_path;
-    if (f && !exempt(f) && !coverageOf(st, f).covered) blocked = denial([path.resolve(f)], st, `${tool} would change a file the engine has not passed reasoning about.`);
+    if (f && !exempt(f) && !coverageOf(st, f).covered) {
+      const auto = tool === "Edit" ? tryAutoDerive(ev, f, st, sidOf(ev)) : { covered: false, evidence: null };
+      if (!auto.covered) blocked = denial([path.resolve(f)], st, `${tool} would change a file the engine has not passed reasoning about.`, auto.evidence);
+    }
   } else if (tool === "Bash") {
     const { targets, commits } = bashIntent(ev.tool_input?.command ?? "", ev.cwd);
     const open = targets.filter((f) => !exempt(f) && !coverageOf(st, f).covered);

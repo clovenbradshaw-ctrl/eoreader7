@@ -21,13 +21,18 @@ const RECALL = path.join(ROOT, "cli", "claude-code-recall.mjs");
 const LEDGER_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "claude-code-recall-"));
 const env = { ...process.env, EO_LEDGER_DIR: LEDGER_DIR };
 
-const reason = (spec) => {
-  const r = spawnSync("node", [REASON, "--json"], { input: JSON.stringify(spec), env, encoding: "utf8" });
+// maxBuffer explicit: a 200-claim spec's --json output runs ~70KB; harmless
+// headroom given cli/reason.mjs's own real stdout-truncation bug (found and
+// fixed building this test — process.exit() racing a large pending pipe
+// write, see that file's own header) is the fix that actually matters.
+const MAX_BUFFER = 16 * 1024 * 1024;
+const reason = (spec, customEnv = env) => {
+  const r = spawnSync("node", [REASON, "--json"], { input: JSON.stringify(spec), env: customEnv, encoding: "utf8", maxBuffer: MAX_BUFFER });
   assert.equal(r.status, 0, `reason.mjs exited ${r.status}: ${r.stderr}`);
   return JSON.parse(r.stdout);
 };
-const recall = (ev) => {
-  const r = spawnSync("node", [RECALL], { input: JSON.stringify(ev), env, encoding: "utf8" });
+const recall = (ev, customEnv = env) => {
+  const r = spawnSync("node", [RECALL], { input: JSON.stringify(ev), env: customEnv, encoding: "utf8", maxBuffer: MAX_BUFFER });
   assert.equal(r.status, 0, `claude-code-recall.mjs exited ${r.status}: ${r.stderr}`);
   return r.stdout.trim() ? JSON.parse(r.stdout) : null;
 };
@@ -66,12 +71,56 @@ test("secrets are never re-emitted through recall's own injected context", () =>
   assert.equal(/sk-ant-api03-zzzzz/.test(out.hookSpecificOutput.additionalContext), false, "a secret scrubbed at write time must not resurface at recall time");
 });
 
-test("the CAP still discloses the true total when more claims stand than are shown", () => {
-  for (let i = 0; i < 25; i++) {
-    reason({ session: "recall-cap-session", claims: [{ ground: `/pcap${i}`, rel: "numbered", roles: { ARG0: `item${i}`, ARG1: String(i) }, said: `item${i} is ${i}` }] });
+test("the CAP still discloses the true total when more RELEVANT claims stand than are shown", () => {
+  // 2026-09-25: recallContextFor now filters through claim-relevance.js's
+  // relevantClaims before CAP ever applies (see that file's own header),
+  // so this fixture must be genuinely relevant to its own prompt to
+  // exercise CAP/disclosure at all. Measured empirically building this
+  // fix: mean+1SD admission over a REAL, naturally-varying score
+  // distribution admits roughly its top ~15% by design (that is what "one
+  // SD above the mean" selects on close-to-normal data) — a smaller
+  // fixture (25 near-duplicate claims) never reliably clears CAP(20) no
+  // matter how closely it matches the prompt, and that is the filter
+  // working as intended (selective, not "show most of what's related"),
+  // not a bug to engineer around. 200 distinct, genuinely on-topic
+  // claims (one reason.mjs call, one claims array — not 200 separate
+  // subprocess spawns) reliably admits ~25-30, comfortably above CAP.
+  // Its OWN fresh, isolated ledger dir — not this file's shared LEDGER_DIR,
+  // which by this point in the file carries a handful of earlier tests'
+  // unrelated claims too. Background relevance weighting (claim-relevance
+  // .js) reads document frequency across the WHOLE ledger regardless of
+  // session, so sharing it here would let those earlier claims skew the
+  // measured statistic this test depends on.
+  //
+  // FIXTURE NOTE (measured empirically building this test): mean+1SD
+  // admission structurally selects a MINORITY of any realistic score
+  // distribution (Chebyshev's inequality bounds how much can sit above one
+  // SD above the mean) — several near-uniform fixtures (200 claims sharing
+  // one fixed set of topic words, differing only by an index number)
+  // reliably admitted 0, because near-identical scores can never exceed
+  // their own mean by construction. What works is DELIBERATE, WIDE,
+  // roughly-uniform score spread: each claim shares a DIFFERENT-SIZED
+  // subset (0 through the full pool, cycling deterministically — not
+  // random, so this is reproducible) of a shared vocabulary pool with the
+  // prompt. 300 such claims measured live to admit 54 through the real
+  // pipeline (findMatches -> foldMatches -> relevantClaims), comfortably
+  // above CAP(20).
+  const capLedgerDir = fs.mkdtempSync(path.join(os.tmpdir(), "claude-code-recall-cap-"));
+  const capEnv = { ...process.env, EO_LEDGER_DIR: capLedgerDir };
+  const pool = ["alpha", "beta", "gamma", "delta", "epsilon", "zeta", "eta", "theta", "iota", "kappa"];
+  const TOTAL = 300;
+  const claims = [];
+  for (let i = 0; i < TOTAL; i++) {
+    const n = i % (pool.length + 1);
+    const words = pool.slice(0, n).join(" ") || "nothing";
+    claims.push({ ground: `/pcap${i}`, rel: "covers", roles: { ARG0: `item${i}`, ARG1: `${words} unique${i}` }, said: `item${i} covers ${words} unique${i}` });
   }
-  const out = recall({ session_id: "recall-cap-session", prompt: "status?" });
-  assert.ok(out);
-  assert.match(out.hookSpecificOutput.additionalContext, /25 claim\(s\)/);
-  assert.match(out.hookSpecificOutput.additionalContext, /5 more/);
+  reason({ session: "recall-cap-session", claims }, capEnv);
+  const out = recall({ session_id: "recall-cap-session", prompt: `which items cover ${pool.join(" ")}` }, capEnv);
+  assert.ok(out, "at least some of these deliberately wide-spread claims must clear the relevance bar");
+  const m = out.hookSpecificOutput.additionalContext.match(new RegExp(`eoreader7 — (\\d+)/${TOTAL} claim`));
+  assert.ok(m, `header must disclose N/${TOTAL}, got: ${out.hookSpecificOutput.additionalContext.slice(0, 120)}`);
+  const relevantCount = Number(m[1]);
+  assert.ok(relevantCount > 20, `expected more than CAP(20) to be relevant for this wide-spread fixture, got ${relevantCount}/${TOTAL}`);
+  assert.match(out.hookSpecificOutput.additionalContext, new RegExp(`${relevantCount - 20} more relevant`));
 });

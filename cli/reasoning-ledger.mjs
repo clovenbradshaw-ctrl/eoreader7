@@ -102,7 +102,8 @@ function appendLine(file, line) {
  *   1. THE STRUCTURED CLAIMS LAYER (2026-09-22, reason-claims design part A
  *      — the root-cause fix for "structure is discarded at write time").
  *      `declaredClaims` is the run's OWN declared claims, verbatim
- *      (ground/rel/roles — EVERY role, not just ARG0/ARG1 — plus `said`),
+ *      (ground/rel/roles — EVERY role, not just ARG0/ARG1 — plus `said`,
+ *      and since 2026-09-25 each claim's `polarity` and citation `verdict`),
  *      exactly as `cli/reason.mjs` already built them for its own GFP core
  *      before this call. One `kind:"reasoning-claim"` line is appended PER
  *      CLAIM, with NO folding at write time: folding a paraphrase together
@@ -190,14 +191,36 @@ export function appendReasoningLedger({ hl = null, log = null, declaredClaims = 
       const roles = Object.fromEntries(Object.entries(c?.roles ?? {}).map(([k, v]) => [k, scrub(excerpt(v))]));
       const said = scrub(excerpt(c?.said ?? `${roles.ARG0 ?? "?"} ${rel} ${roles.ARG1 ?? "?"}`));
       const witness = `testimony:${session ?? "nosession"}@${at}#${i}`;
+      // POLARITY AND GROUNDING (2026-09-25). Without both, a read-time fold
+      // cannot tell a retraction from a restatement, or a cited claim from
+      // one whose ground is missing — measured in an isolated ledger: "+"
+      // then "-" of one claim, and a claim grounded at a nonexistent file
+      // stated twice, each folded to "corroborated". `verdict` is the
+      // citation verdict cli/reason.mjs's citeGround already earned for this
+      // claim. Persisted exactly as handed, null when a caller did not say —
+      // the same reading a line written before these fields existed gets
+      // (cli/claude-code-context.mjs reads null polarity as "+" and a null
+      // verdict as ungrounded).
+      const polarity = c?.polarity === "+" || c?.polarity === "-" ? c.polarity : null;
+      const verdict = typeof c?.verdict === "string" && c.verdict ? c.verdict : null;
       const claimId = `${DOC_ID}:obs:${crypto.createHash("sha1").update(`${at}\n${process.pid}\nclaim\n${i}\n${ground}\n${rel}`).digest("hex").slice(0, 16)}`;
       const start = nextStart(file);
+      // fingerprint/source (2026-09-25, mechanical-shortcuts first slice):
+      // pass-through only — cli/reason.mjs is the one place that computes
+      // fingerprintOf (it has the built gfpClaim + declare table this
+      // module never sees) and resolves source from a claim's own
+      // derivedBy tag; this module just persists whatever it's handed,
+      // defaulting to null/"hand-authored" so every existing caller and
+      // test that predates this addition (which never sets these fields)
+      // is unaffected.
+      const fingerprint = c?.fingerprint ?? null;
+      const source = c?.source ?? "hand-authored";
       appendLine(file, {
         schema: "EOTObservation@1", id: claimId, at: [start, start + said.length],
         role: "claim", kind: "reasoning-claim", title: `/reason/${at}/claim/${i}`,
         text: said, supersedes: null, giver: "eoreader7-reason",
         basis: scrub(`reason:${at}#${ground}`),
-        ground, rel, roles, said, session, witness,
+        ground, rel, roles, said, session, witness, polarity, verdict, fingerprint, source,
         appendedAt: new Date().toISOString(),
       });
       written++;
