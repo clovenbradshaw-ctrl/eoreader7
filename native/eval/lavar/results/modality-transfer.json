@@ -1,0 +1,258 @@
+{
+ "generatedAt": "2026-09-25T21:20:46.854Z",
+ "seeds": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8
+ ],
+ "midi": [
+  {
+   "file": "wtk1-prelude1.mid",
+   "notes": 549,
+   "habit": "bwv-988-aria.mid",
+   "arms": [
+    {
+     "arm": "forward",
+     "verdict": "irreversible",
+     "direction": "backward",
+     "irreversibility": 0.5564,
+     "nullMax": 0.18,
+     "n": 548
+    },
+    {
+     "arm": "reversed",
+     "verdict": "irreversible",
+     "direction": "forward",
+     "irreversibility": 0.5564,
+     "nullMax": 0.1864,
+     "n": 548
+    },
+    {
+     "arm": "shuffled@1",
+     "verdict": "irreversible",
+     "direction": "forward",
+     "irreversibility": 0.3511,
+     "nullMax": 0.2721,
+     "n": 548
+    }
+   ]
+  },
+  {
+   "file": "bwv-988-aria.mid",
+   "notes": 418,
+   "habit": "wtk1-prelude1.mid",
+   "arms": [
+    {
+     "arm": "forward",
+     "verdict": "irreversible",
+     "direction": null,
+     "irreversibility": 0.7321,
+     "nullMax": 0.4943,
+     "n": 417
+    },
+    {
+     "arm": "reversed",
+     "verdict": "irreversible",
+     "direction": null,
+     "irreversibility": 0.7321,
+     "nullMax": 0.5045,
+     "n": 417
+    },
+    {
+     "arm": "shuffled@1",
+     "verdict": "irreversible",
+     "direction": null,
+     "irreversibility": 0.713,
+     "nullMax": 0.5412,
+     "n": 417
+    }
+   ]
+  }
+ ],
+ "codeArrow": [
+  {
+   "file": "kernel/arrow.js",
+   "habit": "kernel/temporal-reference.js",
+   "arms": [
+    {
+     "arm": "forward",
+     "verdict": "irreversible",
+     "direction": "forward",
+     "irreversibility": 0.8069,
+     "nullMax": 0.3788,
+     "n": 2328
+    },
+    {
+     "arm": "reversed",
+     "verdict": "irreversible",
+     "direction": "backward",
+     "irreversibility": 0.8069,
+     "nullMax": 0.3972,
+     "n": 2328
+    },
+    {
+     "arm": "shuffled@1",
+     "verdict": "irreversible",
+     "direction": null,
+     "irreversibility": 0.6882,
+     "nullMax": 0.4984,
+     "n": 2328
+    }
+   ]
+  },
+  {
+   "file": "kernel/temporal-reference.js",
+   "habit": "adapters/text/morph-cues.js",
+   "arms": [
+    {
+     "arm": "forward",
+     "verdict": "irreversible",
+     "direction": "forward",
+     "irreversibility": 0.8377,
+     "nullMax": 0.3579,
+     "n": 2532
+    },
+    {
+     "arm": "reversed",
+     "verdict": "irreversible",
+     "direction": "backward",
+     "irreversibility": 0.8377,
+     "nullMax": 0.3622,
+     "n": 2532
+    },
+    {
+     "arm": "shuffled@1",
+     "verdict": "irreversible",
+     "direction": null,
+     "irreversibility": 0.7073,
+     "nullMax": 0.5007,
+     "n": 2532
+    }
+   ]
+  },
+  {
+   "file": "adapters/text/morph-cues.js",
+   "habit": "kernel/arrow.js",
+   "arms": [
+    {
+     "arm": "forward",
+     "verdict": "irreversible",
+     "direction": "forward",
+     "irreversibility": 0.7652,
+     "nullMax": 0.298,
+     "n": 7295
+    },
+    {
+     "arm": "reversed",
+     "verdict": "irreversible",
+     "direction": "backward",
+     "irreversibility": 0.7652,
+     "nullMax": 0.3023,
+     "n": 7295
+    },
+    {
+     "arm": "shuffled@1",
+     "verdict": "irreversible",
+     "direction": null,
+     "irreversibility": 0.5707,
+     "nullMax": 0.4134,
+     "n": 7295
+    }
+   ]
+  }
+ ],
+ "codeTime": [
+  {
+   "file": "kernel/arrow.js",
+   "statements": 100,
+   "declarations": 52,
+   "references": 171,
+   "superseded": 10,
+   "rows": {
+    "bound": {
+     "forward": 146,
+     "reversed": 53,
+     "shuffled": [
+      81,
+      105
+     ],
+     "rank": 0,
+     "reading": "ARROW — outside every shuffled draw"
+    },
+    "no_candidate": {
+     "forward": 25,
+     "reversed": 118,
+     "shuffled": [
+      66,
+      90
+     ],
+     "rank": 0,
+     "reading": "ARROW — outside every shuffled draw"
+    }
+   }
+  },
+  {
+   "file": "kernel/temporal-reference.js",
+   "statements": 123,
+   "declarations": 22,
+   "references": 85,
+   "superseded": 2,
+   "rows": {
+    "bound": {
+     "forward": 66,
+     "reversed": 28,
+     "shuffled": [
+      47,
+      58
+     ],
+     "rank": 0,
+     "reading": "ARROW — outside every shuffled draw"
+    },
+    "no_candidate": {
+     "forward": 19,
+     "reversed": 57,
+     "shuffled": [
+      27,
+      38
+     ],
+     "rank": 0,
+     "reading": "ARROW — outside every shuffled draw"
+    }
+   }
+  },
+  {
+   "file": "adapters/text/morph-cues.js",
+   "statements": 274,
+   "declarations": 137,
+   "references": 630,
+   "superseded": 38,
+   "rows": {
+    "bound": {
+     "forward": 522,
+     "reversed": 267,
+     "shuffled": [
+      368,
+      445
+     ],
+     "rank": 0,
+     "reading": "ARROW — outside every shuffled draw"
+    },
+    "no_candidate": {
+     "forward": 108,
+     "reversed": 363,
+     "shuffled": [
+      185,
+      262
+     ],
+     "rank": 0,
+     "reading": "ARROW — outside every shuffled draw"
+    }
+   }
+  }
+ ]
+}

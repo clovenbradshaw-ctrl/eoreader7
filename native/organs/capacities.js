@@ -500,6 +500,14 @@ export const CAPACITIES = Object.freeze([
     fn: "learnFeature",
     what: "Sullivan's second sense — morphology by elimination: for any UD feature, the cues (endings, prefixes, class, neighbours by form and class, attached auxiliaries) a language's own material admits, each above three nulls (split-half consistency, its own shuffled-label enrichment, the search's rerun floor in bits of binomial surprise), the negative evidence learned as UNMARKED, predictions bound / unmarked / contested / void. The conventions of a language, learned and stored (priors/morph-cues-<lang>.json, MorphCuesPrior@1) with giver, period, region, register, script and license — the frame a reader reads a language under: Relate·Interpretation at Pattern grain, EVA·Paradigm. Seven treebanks learned 2026-09-25 (eval/lavar/sullivan-morph.mjs); the gold is a witness, never the fitness.",
   }),
+  Object.freeze({
+    id: "code-time",
+    terrain: "Atmosphere",
+    op: "REC",
+    module: "eoreader7/native/adapters/code/code-time.js",
+    fn: "codeTime",
+    what: "Partee's organ (kernel/temporal-reference.js, UNCHANGED) reading a program: a declaration establishes a binding's time and advances that name's ground, a reference resolves against the name's live grounds, a use before its declaration is the organ's own typed no_candidate. The modality-transfer proof (eval/lavar/modality-transfer.mjs, 2026-09-25): three wirings into text never moved the referred-time organ under sentence reversal; in code, on every file, reversed statement order lands bound and no_candidate rows outside every shuffled draw (arrow.js: bound 146→53 against 81–105, gaps 25→118 against 66–90) — reversal is worse than disorder because every use is then before its definition. Same cell as narrative-time: the advance is the ambient ground every later reference reads against. Statements are lines, hoisting reads as source order, both said in the file.",
+  }),
 ]);
 
 const byId = new Map(CAPACITIES.map((c) => [c.id, c]));

@@ -315,7 +315,7 @@ the-fold's flat top level under the same basename.
 | `kernel/scoped-kind.js` | Frege | Bound within its quantifier's scope. |
 | `organs/cast.js` | Zhengming | A name answers to its referent, not its string. |
 | `organs/speaker.js` | Scheherazade | Nested tellers, each "I" bound to its declared frame. |
-| `kernel/temporal-reference.js` / `kernel/narrative-time.js` | Partee | Tense is anaphora; a narrative advances the ground it points at, and a pluperfect reaches back past it. |
+| `kernel/temporal-reference.js` / `kernel/narrative-time.js` / `adapters/code/code-time.js` | Partee | Tense is anaphora; a narrative advances the ground it points at, and a pluperfect reaches back past it. The same organ reads a program: a declaration advances a name's ground, a use resolves against it, a use before its declaration is a typed gap — and reversing the statements moves it, which reversing sentences never did (eval/lavar/modality-transfer.mjs). |
 | `kernel/arrow.js` | Eddington | A sequence has an arrow when it reads differently backwards; which way is forward is learned from a reference. |
 | `kernel/pending-sig.js` | Synapse | Docks, waits bounded, fires on match or clears. |
 

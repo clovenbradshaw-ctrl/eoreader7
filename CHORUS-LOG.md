@@ -784,3 +784,16 @@ fast: 12 files · clause-tense 13/13, morph-cues 10/10, pos-rows 4/4 · law: ok 
 clean: (all routed lenses reviewed above)
 
 Context: user — "keep going" (Latin first), then "be sure that our competency in ANYTHING can help us comprehend ANYTHING regardless of modality." The Latin result says the same thing the English one did: text keeps failing to show the reach-back moving. The next entry takes the organs, unmodified, to code and MIDI.
+
+## 2026-09-25 — modality transfer: Eddington and Partee, unmodified, on code and on music (main, 6 files)
+fast: 6 files · code-time 5/5 · law: ok (dup headers pre-existing)
+| lens | citation | file:line | verdict | one line |
+| Diaconis | II.23 | modality-transfer.mjs | disclosed | the nulls are the organs' own (arrow.js's symmetrized bootstrap; eight seeded shuffles for code-time, ranked as the transplant does); the music result is reported as it fell — both pieces irreversible beyond their nulls, the direction from one piece not carrying to the other (the Prelude reads "backward" against the Aria's habit, the Aria takes none) — a finding about the interval grain, not tuned away |
+| Feynman | — | modality-transfer.mjs, code-time.js | clean | k=2 and 32 draws are the same declared resolution as the text runs; no constants decide a verdict |
+| Dijkstra | — | code-time.js (statementsOf), modality-transfer.mjs (tokensOf, intervalsOf) | disclosed | statements are lines (no parser); code tokens lowercased for the arrow's identity; a musical event is the pitch interval between successive onsets (transposition-blind) — each a declared cut, said in the file |
+| Kondo | — | — | clean | nothing dead; code-time registered at REC·Atmosphere beside narrative-time |
+| Simon/Chekhov | — | code-time.js, modality-transfer.mjs | disclosed | code-time tested on a fixture with a redeclaration (forward binds all, reversed lands gaps, superseding kept); the eval exercised on two MIDI fixtures and three real source files |
+| Marshall | — | kernel/temporal-reference.js | clean | the kernel organ is called, never edited or specialised — the whole point |
+clean: (all routed lenses reviewed above)
+
+Context: user — "be sure that our competency in ANYTHING can help us comprehend ANYTHING regardless of modality." Text never moved the referred-time organ under reversal (English, Hebrew, Latin: three "held"). In code, on every file, both rows are outside every shuffled draw — arrow.js bound 146→53 (shuffled 81–105), gaps 25→118 (66–90); temporal-reference.js 66→28 / 19→57; morph-cues.js 522→267 / 108→363 — and reversal is worse than disorder, because every use is then before its definition. The arrow organ reads code as it reads text (forward/backward/null). Music: irreversible at the interval grain, but Hume's habit does not cross works there; a grain where it might (contour, duration, pitch-class) is the named next probe. Drill-into-policy debt named: today's proven fixes live in this log and in tests, not yet as S-entries.
