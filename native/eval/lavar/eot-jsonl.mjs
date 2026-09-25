@@ -64,6 +64,9 @@ import { receivedGround, applyDelta } from "../../kernel/fold.js";
 import { deriveIdentityRevision } from "../../kernel/identity.js";
 import { textIdentityEvidence } from "../../adapters/text/identity-evidence.js";
 import { detectAndMatch } from "./structure-rec.mjs";
+import { arrowOf } from "../../kernel/arrow.js";
+import { narrativeTime } from "../../kernel/narrative-time.js";
+import { stemsOf as stemsOfForTense } from "../../adapters/text/morphology.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const LP_ROOT = path.resolve(HERE, "../../../../live_priors");
@@ -1601,6 +1604,44 @@ if (priorLines.length) {
   lines.length = 0;
   lines.push(...priorLines, ...delta.map((d) => (d.seq === undefined ? { ...d, seq: nextSeq++ } : d)));
   console.log(`reread delta: ${unchanged.length} already recorded (not restated), ${newCount} newly found, ${contests} contested addresses, ${alreadySettled} already-settled contests (not restated), ${rebound.length} rebound (same clause, newly resolved referent)`);
+}
+
+// ── EDDINGTON + PARTEE (2026-09-25): the arrow this chapter was read under, and
+// its times individuated as referents. Both organs were unwired until the
+// transplant run (transplant-arm.mjs) found the reader arrow-blind. ─────────
+{
+  // Eddington (kernel/arrow.js). The habit is the source OUTSIDE the read
+  // window, taken as read forward — the rest of the book is what the reader
+  // already knows the "forward" way. Direction is null when there is no
+  // outside (the window is the whole source), disclosed on the line.
+  const wordsOf = (t) => t.toLowerCase().split(/\s+/).filter(Boolean);
+  const habit = wordsOf(raw.slice(0, WIN[0]) + " " + raw.slice(WIN[1]));
+  const a = arrowOf(wordsOf(raw.slice(WIN[0], WIN[1])), { k: 2, draws: 32, seed: 7, reference: habit.length >= 3 ? habit : null });
+  emit({
+    schema: a.schema, role: "arrow", at: [WIN[0], WIN[1]], cell: a.cell,
+    verdict: a.verdict, direction: a.direction, irreversibility: a.irreversibility, k: a.k, n: a.n, null: a.null, preference: a.preference,
+    habit: { words: habit.length, basis: "the source outside the read window, taken as read forward (Hume's habit); null direction = no outside to learn from" },
+  });
+
+  // Partee (kernel/narrative-time.js) over this ledger's own arrangements,
+  // in address order. The tense typer names its giver and its hole: the
+  // received English morphology prior carries lemmas, not tense, so only
+  // UniMorph's REGULAR past (stem+ed, as stemsOf recovers it) is typed
+  // past; irregular pasts (went, said, came) are typed undeclared and
+  // counted as such on the coverage line, never guessed.
+  const sents = lines.filter((l) => l.role === "sentence" && l.schema === "EOTObservation@1").map((l) => l.at);
+  const sentenceOf = (at) => { const i = sents.findIndex((s) => s[0] <= at[0] && at[1] <= s[1]); return i < 0 ? `p${at[0]}` : i; };
+  const props = lines
+    .filter((l) => l.role === "proposition" && l.schema === "EOTObservation@1" && typeof l.label === "string" && Array.isArray(l.at))
+    .sort((x, y) => x.at[0] - y.at[0])
+    .map((l) => ({ id: l.id, at: l.at, label: l.label, sentence: sentenceOf(l.at) }));
+  const GIVER = "UniMorph English regular paradigm (V;PST / V.PTCP;PST = stem+ed) as adapters/text/morphology.js::stemsOf recovers it; irregular pasts carry no tense row in the received prior and are typed undeclared";
+  const tenseOf = (label) => { const w = label.trim().split(/\s+/).pop().toLowerCase(); return /[a-z]ed$/.test(w) && stemsOfForTense(w).size > 0 ? "past" : "undeclared"; };
+  const nt = narrativeTime(props, { tenseOf, giver: GIVER });
+  for (const t of nt.times) emit({ ...t, role: "time", at: [t.at, t.at], clock: t.at });
+  for (const g of nt.grounds) emit({ ...g, role: "reference-ground", at: [g.at, g.at], clock: g.at });
+  for (const r of nt.resolutions) emit({ ...r, role: "tense", at: [r.at, r.at], clock: r.at });
+  emit({ schema: "EOTNarrativeTime@1", role: "tense-coverage", at: [WIN[0], WIN[1]], counts: nt.counts, arrangements: props.length, giver: GIVER });
 }
 
 const outDir = path.join(HERE, "results");

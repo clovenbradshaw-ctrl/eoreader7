@@ -102,6 +102,7 @@ for (const [arm, body] of Object.entries(arms)) {
 
 const slug = path.basename(bookPath, ".txt");
 const tally = {};
+const ledgerArrow = {};
 for (const [arm, body] of Object.entries(arms)) {
   const book = raw.slice(0, headEnd) + "\n" + body + "\n" + raw.slice(end);
   const tmp = path.join("/tmp", `transplant-${arm}-${slug}.txt`);
@@ -122,7 +123,15 @@ for (const [arm, body] of Object.entries(arms)) {
     surprises: n((l) => l.schema === "EOTSurprise@1"),
     expectations: n((l) => l.role === "expectation"),
     selfReferent: n((l) => l.selfReferent),
+    // Partee, from the ledger's own new lines (kernel/narrative-time.js)
+    times: n((l) => l.role === "time"),
+    tenseBound: n((l) => l.role === "tense" && l.verdict === "bound"),
+    tenseGaps: n((l) => l.role === "tense" && l.verdict === "no_candidate"),
   };
+  // Eddington as the READER wrote it into this arm's own ledger — habit =
+  // the rest of the book, not the forward arm
+  const la = lines.find((l) => l.role === "arrow");
+  ledgerArrow[arm] = la ? { verdict: la.verdict, direction: la.direction, irreversibility: la.irreversibility, habitWords: la.habit?.words } : null;
   fs.unlinkSync(tmp);
   if (!KEEP) for (const suffix of [".eot.jsonl", ".prior.json", ".projected.json"]) { try { fs.unlinkSync(ledgerPath.replace(".eot.jsonl", suffix)); } catch {} }
 }
@@ -158,3 +167,9 @@ for (const [arm, r] of Object.entries(arrowRows)) {
   console.log(`${arm.padEnd(14)} ${r.verdict.padStart(13)} ${String(r.direction ?? "—").padStart(10)} ${r.irreversibility.toFixed(4).padStart(8)} ${r.nullMax.toFixed(4).padStart(9)}`);
 }
 console.log(`reversed-words should read backward; reversed (sentences) should read forward — the medium's arrow lives in the words, the referred arrow in the order of what they say.`);
+
+console.log(`\nLEDGER ARROW — as the reader itself wrote it into each arm's ledger (eot-jsonl.mjs; habit = the rest of the book):`);
+for (const [arm, r] of Object.entries(ledgerArrow)) {
+  if (arm.startsWith("shuffled@") && arm !== `shuffled@${SEEDS[0]}`) continue;
+  console.log(`${arm.padEnd(14)} ${r ? `${r.verdict.padStart(13)} ${String(r.direction ?? "—").padStart(10)} ${r.irreversibility.toFixed(4).padStart(8)}   habit ${r.habitWords} words` : "no arrow line"}`);
+}
