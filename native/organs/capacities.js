@@ -467,6 +467,39 @@ export const CAPACITIES = Object.freeze([
     fn: "dmd",
     what: "Dynamic Mode Decomposition of a state trajectory into modes, each with its own growth rate and its own FREQUENCY (complex Koopman eigenvalues) — the one place on the record where PHASE is estimated from dynamics rather than asserted from counts (READING-SPEC S13: a density matrix over counts reduces to Bayes). Batch core; a causal consumer feeds prefixes or streams (Hemati, Williams & Rowley 2014). Registered 2026-09-25 — it had no row, and it is not on the holograph's hand-off path (resolutions.js / holon.js import only dmdWindow, Bateson's cut, a disclosed name collision). Typing reasoned: the rim's trajectory cut into a family of modes — Differentiate·Interpretation at Pattern grain, DEF·Paradigm, the family of solutions THE-THREE-MATHEMATICS.md names for that terrain.",
   }),
+  // ── 2026-09-25: the arrow of time and the learned conventions ────────────
+  Object.freeze({
+    id: "arrow",
+    terrain: "Network",
+    op: "CON",
+    module: "eoreader7/native/kernel/arrow.js",
+    fn: "arrowOf",
+    what: "Eddington — a sequence has an arrow when it reads differently backwards (Jensen–Shannon between its k-gram distribution and that distribution reversed), ranked against a symmetrized-bootstrap null (same undirected k-grams, sign removed — measured: a shuffle destroys order, not just sign, and let a reversible walk read as an arrow); which way is FORWARD is not intrinsic and is learned against a reference the reader already read forward (Hume's habit). Typing: a regularity of ORDER relations across the whole — Relate·Structure at Pattern grain, CON·Network, Tracing. Wired into eot-jsonl.mjs: every ledger carries its own EOArrow@1 with the rest of the book as habit.",
+  }),
+  Object.freeze({
+    id: "narrative-time",
+    terrain: "Atmosphere",
+    op: "REC",
+    module: "eoreader7/native/kernel/narrative-time.js",
+    fn: "narrativeTime",
+    what: "Partee's walk over a reading's own tensed arrangements: a time individuated (INS·Figure) and the reference ground advanced (REC·Ground) per past sentence, every past tense resolved through temporal-reference.js's own verdicts (CON·Ground), UD Pqp reaching BACK to the ground the live one superseded (resolveReachBack). Registered at the advance — the ambient ground every later tense reads against, temporal-reference.js's own Atmosphere reading. The tense typer is the caller's and names its giver.",
+  }),
+  Object.freeze({
+    id: "clause-tense",
+    terrain: "Lens",
+    op: "EVA",
+    module: "eoreader7/native/adapters/text/clause-tense.js",
+    fn: "clauseTense",
+    what: "an English clause's tense read off the Chomsky parser's own UD rows and emitted as universal-grammar.js's universal values — Past/Pres/Fut/Imp, and Pqp read off the had+participle construction; the clause located by the ledger's own label because a proposition's `at` is its END2 span (measured, 181/183). How one arrangement is viewed: Relate·Interpretation at Figure grain, EVA·Lens. Bounded by the parser (74% held-out recall): 1 of 7 had-labelled arrangements in Alice ch2 reads Pqp.",
+  }),
+  Object.freeze({
+    id: "morph-cues",
+    terrain: "Paradigm",
+    op: "EVA",
+    module: "eoreader7/native/adapters/text/morph-cues.js",
+    fn: "learnFeature",
+    what: "Sullivan's second sense — morphology by elimination: for any UD feature, the cues (endings, prefixes, class, neighbours by form and class, attached auxiliaries) a language's own material admits, each above three nulls (split-half consistency, its own shuffled-label enrichment, the search's rerun floor in bits of binomial surprise), the negative evidence learned as UNMARKED, predictions bound / unmarked / contested / void. The conventions of a language, learned and stored (priors/morph-cues-<lang>.json, MorphCuesPrior@1) with giver, period, region, register, script and license — the frame a reader reads a language under: Relate·Interpretation at Pattern grain, EVA·Paradigm. Seven treebanks learned 2026-09-25 (eval/lavar/sullivan-morph.mjs); the gold is a witness, never the fitness.",
+  }),
 ]);
 
 const byId = new Map(CAPACITIES.map((c) => [c.id, c]));

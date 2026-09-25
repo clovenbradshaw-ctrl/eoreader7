@@ -1,0 +1,7164 @@
+{
+ "schema": "SullivanMorph@1",
+ "generatedAt": "2026-09-25T19:35:41.561Z",
+ "null": {
+  "draws": 12,
+  "reruns": 11,
+  "seed": 7
+ },
+ "treebanks": [
+  {
+   "lang": "en",
+   "name": "English EWT",
+   "language": {
+    "iso": "eng",
+    "name": "English",
+    "stage": "Present-day English, web register"
+   },
+   "split": "parity: even sentences learn, odd audit",
+   "learnSentences": 6272,
+   "auditSentences": 6272,
+   "ms": 9192,
+   "provenance": {
+    "schema": "Provenance@1",
+    "source": {
+     "value": "en_ewt-ud-train.conllu sha256:d68e06122a702464c613076523d56740f047e5bbe89dd90ec32737e04d952143",
+     "basis": "measured from the file"
+    },
+    "giver": {
+     "value": "UD_English-EWT (Silveira, Dozat, de Marneffe, Schuster, Bauer, Manning et al.), converted from the English Web Treebank, LDC2012T13 — as priors/parser-eng-ewt.json already records",
+     "basis": "declared from the treebank's documentation"
+    },
+    "license": {
+     "value": "CC BY-SA 4.0 (UD_English-EWT)",
+     "basis": "declared by the builder — verify"
+    },
+    "period": {
+     "value": "2000s — the English Web Treebank's weblogs, newsgroups, emails, reviews and question-answer forums",
+     "basis": "declared from the treebank's documentation"
+    },
+    "region": {
+     "value": "predominantly American English, as parser-eng-ewt.json's ParserProvenance@1 declares",
+     "basis": "declared from the treebank's documentation"
+    },
+    "register": {
+     "value": "informal written web English: reviews, answers, email, newsgroup, weblog (document genres measured below)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Latin (99.9% of letters)",
+     "basis": "measured from the file"
+    },
+    "documents": {
+     "value": {
+      "documents": {
+       "count": 540,
+       "prefixes": {
+        "reviews": 347,
+        "answers": 110,
+        "email": 38,
+        "newsgroup": 28,
+        "weblog": 17
+       }
+      }
+     },
+     "basis": "measured from the file"
+    },
+    "readme": {
+     "value": "no README shipped beside the file",
+     "basis": "measured from the file"
+    },
+    "split": {
+     "value": "parity: even sentences learn, odd audit",
+     "basis": "measured from the file"
+    },
+    "tokens": {
+     "value": {
+      "learn": 103396,
+      "audit": 101182
+     },
+     "basis": "measured from the file"
+    },
+    "builtBy": {
+     "value": "native/eval/lavar/sullivan-morph.mjs (Sullivan's second sense, morph-cues.js)",
+     "basis": "measured from the file"
+    },
+    "builtAt": {
+     "value": "2026-09-25T19:35:29.648Z",
+     "basis": "measured from the file"
+    },
+    "null": {
+     "value": {
+      "draws": 12,
+      "reruns": 11,
+      "seed": 7
+     },
+     "basis": "measured from the file"
+    }
+   },
+   "rows": [
+    {
+     "feature": "Case",
+     "carriers": 7495,
+     "covered": 7480,
+     "correct": 7058,
+     "contested": 4731,
+     "contestedCorrect": 4309,
+     "missedUnmarked": 15,
+     "missedVoid": 0,
+     "nonCarriers": 1695,
+     "falseFires": 1614,
+     "silenced": 81,
+     "dominantKind": "end:2",
+     "admitted": 240,
+     "candidates": 886,
+     "floor": 13.28432006081345,
+     "values": 4,
+     "reach": {
+      "Gen": {
+       "form": 19,
+       "class": 0,
+       "construction": 20,
+       "best": {
+        "kind": "end:2",
+        "key": "ur",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 540
+       }
+      },
+      "Nom": {
+       "form": 21,
+       "class": 0,
+       "construction": 40,
+       "best": {
+        "kind": "end:1",
+        "key": "i",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 1690
+       }
+      },
+      "Acc": {
+       "form": 24,
+       "class": 0,
+       "construction": 39,
+       "best": {
+        "kind": "end:2",
+        "key": "em",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 183
+       }
+      }
+     },
+     "byValue": {
+      "Acc": {
+       "n": 1363,
+       "correct": 957
+      },
+      "Nom": {
+       "n": 4662,
+       "correct": 4636
+      },
+      "Gen": {
+       "n": 1470,
+       "correct": 1465
+      }
+     }
+    },
+    {
+     "feature": "Definite",
+     "carriers": 6603,
+     "covered": 6600,
+     "correct": 6599,
+     "contested": 1184,
+     "contestedCorrect": 1183,
+     "missedUnmarked": 3,
+     "missedVoid": 0,
+     "nonCarriers": 1509,
+     "falseFires": 1383,
+     "silenced": 126,
+     "dominantKind": "end:2",
+     "admitted": 128,
+     "candidates": 924,
+     "floor": 9.873712326457058,
+     "values": 3,
+     "reach": {
+      "Def": {
+       "form": 6,
+       "class": 0,
+       "construction": 18,
+       "best": {
+        "kind": "end:2",
+        "key": "he",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 4607
+       }
+      },
+      "Ind": {
+       "form": 5,
+       "class": 0,
+       "construction": 19,
+       "best": {
+        "kind": "end:1",
+        "key": "a",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 1868
+       }
+      }
+     },
+     "byValue": {
+      "Ind": {
+       "n": 2142,
+       "correct": 2142
+      },
+      "Def": {
+       "n": 4461,
+       "correct": 4457
+      }
+     }
+    },
+    {
+     "feature": "Degree",
+     "carriers": 7038,
+     "covered": 6876,
+     "correct": 6712,
+     "contested": 972,
+     "contestedCorrect": 856,
+     "missedUnmarked": 162,
+     "missedVoid": 0,
+     "nonCarriers": 4607,
+     "falseFires": 126,
+     "silenced": 4481,
+     "dominantKind": "end:1",
+     "admitted": 790,
+     "candidates": 3497,
+     "floor": 12.00417057863145,
+     "values": 4,
+     "reach": {
+      "Pos": {
+       "form": 301,
+       "class": 1,
+       "construction": 75,
+       "best": {
+        "kind": "end:1",
+        "key": "n",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 429
+       }
+      },
+      "Sup": {
+       "form": 19,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:4",
+        "key": "gest",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 10
+       }
+      },
+      "Cmp": {
+       "form": 36,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "end:4",
+        "key": "ater",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 29
+       }
+      }
+     },
+     "byValue": {
+      "Pos": {
+       "n": 6329,
+       "correct": 6239
+      },
+      "Cmp": {
+       "n": 416,
+       "correct": 295
+      },
+      "Sup": {
+       "n": 293,
+       "correct": 178
+      }
+     }
+    },
+    {
+     "feature": "Gender",
+     "carriers": 1980,
+     "covered": 1928,
+     "correct": 1928,
+     "contested": 624,
+     "contestedCorrect": 624,
+     "missedUnmarked": 52,
+     "missedVoid": 0,
+     "nonCarriers": 7210,
+     "falseFires": 704,
+     "silenced": 6506,
+     "dominantKind": "beg:2",
+     "admitted": 114,
+     "candidates": 894,
+     "floor": 8.989675012327432,
+     "values": 4,
+     "reach": {
+      "Masc": {
+       "form": 8,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:2",
+        "key": "hi",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 360
+       }
+      },
+      "Neut": {
+       "form": 6,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:2",
+        "key": "it",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 923
+       }
+      },
+      "Fem": {
+       "form": 7,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "she",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 146
+       }
+      }
+     },
+     "byValue": {
+      "Neut": {
+       "n": 1010,
+       "correct": 1008
+      },
+      "Masc": {
+       "n": 742,
+       "correct": 693
+      },
+      "Fem": {
+       "n": 228,
+       "correct": 227
+      }
+     }
+    },
+    {
+     "feature": "Mood",
+     "carriers": 8267,
+     "covered": 7004,
+     "correct": 6919,
+     "contested": 3518,
+     "contestedCorrect": 3484,
+     "missedUnmarked": 1263,
+     "missedVoid": 0,
+     "nonCarriers": 9172,
+     "falseFires": 3544,
+     "silenced": 5628,
+     "dominantKind": "end:1",
+     "admitted": 347,
+     "candidates": 2613,
+     "floor": 14.821116974295753,
+     "values": 4,
+     "reach": {
+      "Ind": {
+       "form": 104,
+       "class": 1,
+       "construction": 42,
+       "best": {
+        "kind": "end:1",
+        "key": "s",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 2128
+       }
+      },
+      "Imp": {
+       "form": 8,
+       "class": 0,
+       "construction": 6,
+       "best": {
+        "kind": "right",
+        "key": "attached",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 13
+       }
+      }
+     },
+     "byValue": {
+      "Ind": {
+       "n": 7602,
+       "correct": 6767
+      },
+      "Imp": {
+       "n": 636,
+       "correct": 152
+      },
+      "Sub": {
+       "n": 29,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "NumType",
+     "carriers": 2287,
+     "covered": 2231,
+     "correct": 2181,
+     "contested": 204,
+     "contestedCorrect": 186,
+     "missedUnmarked": 56,
+     "missedVoid": 0,
+     "nonCarriers": 36748,
+     "falseFires": 56,
+     "silenced": 36692,
+     "dominantKind": "lclass",
+     "admitted": 685,
+     "candidates": 10425,
+     "floor": 11.71710447601855,
+     "values": 5,
+     "reach": {
+      "Card": {
+       "form": 272,
+       "class": 1,
+       "construction": 143,
+       "best": {
+        "kind": "end:2",
+        "key": "0s",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 15
+       }
+      },
+      "Frac": {
+       "form": 18,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": ".5",
+        "class": "NUM",
+        "accuracy": 1,
+        "support": 10
+       }
+      },
+      "Ord": {
+       "form": 34,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "end:4",
+        "key": "irst",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 36
+       }
+      },
+      "Mult": {
+       "form": 8,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "once",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 23
+       }
+      }
+     },
+     "byValue": {
+      "Card": {
+       "n": 2021,
+       "correct": 2005
+      },
+      "Ord": {
+       "n": 163,
+       "correct": 134
+      },
+      "Mult": {
+       "n": 33,
+       "correct": 33
+      },
+      "Frac": {
+       "n": 70,
+       "correct": 9
+      }
+     }
+    },
+    {
+     "feature": "Number",
+     "carriers": 38298,
+     "covered": 36367,
+     "correct": 35608,
+     "contested": 13137,
+     "contestedCorrect": 12625,
+     "missedUnmarked": 1931,
+     "missedVoid": 0,
+     "nonCarriers": 20232,
+     "falseFires": 4413,
+     "silenced": 15819,
+     "dominantKind": "end:2",
+     "admitted": 1700,
+     "candidates": 11756,
+     "floor": 15.917599554409334,
+     "values": 4,
+     "reach": {
+      "Sing": {
+       "form": 611,
+       "class": 3,
+       "construction": 154,
+       "best": {
+        "kind": "beg:2",
+        "key": "al",
+        "class": "PROPN",
+        "accuracy": 1,
+        "support": 100
+       }
+      },
+      "Plur": {
+       "form": 261,
+       "class": 0,
+       "construction": 26,
+       "best": {
+        "kind": "end:3",
+        "key": "ces",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 153
+       }
+      },
+      "Ptan": {
+       "form": 11,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "0s",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 15
+       }
+      }
+     },
+     "byValue": {
+      "Sing": {
+       "n": 30128,
+       "correct": 28615
+      },
+      "Plur": {
+       "n": 8073,
+       "correct": 6971
+      },
+      "Ptan": {
+       "n": 97,
+       "correct": 22
+      }
+     }
+    },
+    {
+     "feature": "Person",
+     "carriers": 15151,
+     "covered": 13823,
+     "correct": 13343,
+     "contested": 10247,
+     "contestedCorrect": 9816,
+     "missedUnmarked": 1328,
+     "missedVoid": 0,
+     "nonCarriers": 11478,
+     "falseFires": 4908,
+     "silenced": 6570,
+     "dominantKind": "beg:1",
+     "admitted": 659,
+     "candidates": 3276,
+     "floor": 14.920765837006032,
+     "values": 4,
+     "reach": {
+      "1": {
+       "form": 35,
+       "class": 1,
+       "construction": 33,
+       "best": {
+        "kind": "end:1",
+        "key": "i",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 1690
+       }
+      },
+      "2": {
+       "form": 12,
+       "class": 0,
+       "construction": 13,
+       "best": {
+        "kind": "end:1",
+        "key": "u",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 1100
+       }
+      },
+      "3": {
+       "form": 117,
+       "class": 1,
+       "construction": 53,
+       "best": {
+        "kind": "end:2",
+        "key": "is",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 1083
+       }
+      }
+     },
+     "byValue": {
+      "1": {
+       "n": 5045,
+       "correct": 4422
+      },
+      "2": {
+       "n": 1974,
+       "correct": 1568
+      },
+      "3": {
+       "n": 8132,
+       "correct": 7353
+      }
+     }
+    },
+    {
+     "feature": "Polarity",
+     "carriers": 981,
+     "covered": 974,
+     "correct": 974,
+     "contested": 45,
+     "contestedCorrect": 45,
+     "missedUnmarked": 7,
+     "missedVoid": 0,
+     "nonCarriers": 5510,
+     "falseFires": 168,
+     "silenced": 5342,
+     "dominantKind": "end:1",
+     "admitted": 128,
+     "candidates": 1249,
+     "floor": 8.775848883199888,
+     "values": 3,
+     "reach": {
+      "Neg": {
+       "form": 19,
+       "class": 0,
+       "construction": 43,
+       "best": {
+        "kind": "end:1",
+        "key": "t",
+        "class": "PART",
+        "accuracy": 1,
+        "support": 871
+       }
+      },
+      "Pos": {
+       "form": 6,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "es",
+        "class": "INTJ",
+        "accuracy": 1,
+        "support": 30
+       }
+      }
+     },
+     "byValue": {
+      "Neg": {
+       "n": 943,
+       "correct": 936
+      },
+      "Pos": {
+       "n": 38,
+       "correct": 38
+      }
+     }
+    },
+    {
+     "feature": "Poss",
+     "carriers": 1494,
+     "covered": 1454,
+     "correct": 1454,
+     "contested": 542,
+     "contestedCorrect": 542,
+     "missedUnmarked": 40,
+     "missedVoid": 0,
+     "nonCarriers": 7696,
+     "falseFires": 1090,
+     "silenced": 6606,
+     "dominantKind": "end:2",
+     "admitted": 137,
+     "candidates": 1034,
+     "floor": 11.935554227174293,
+     "values": 2,
+     "reach": {
+      "Yes": {
+       "form": 22,
+       "class": 0,
+       "construction": 24,
+       "best": {
+        "kind": "beg:3",
+        "key": "his",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 195
+       }
+      }
+     },
+     "byValue": {
+      "Yes": {
+       "n": 1494,
+       "correct": 1454
+      }
+     }
+    },
+    {
+     "feature": "PronType",
+     "carriers": 18327,
+     "covered": 18156,
+     "correct": 17377,
+     "contested": 4368,
+     "contestedCorrect": 3612,
+     "missedUnmarked": 171,
+     "missedVoid": 0,
+     "nonCarriers": 3979,
+     "falseFires": 755,
+     "silenced": 3224,
+     "dominantKind": "end:2",
+     "admitted": 1026,
+     "candidates": 3318,
+     "floor": 11.992050468638533,
+     "values": 11,
+     "reach": {
+      "Art": {
+       "form": 11,
+       "class": 1,
+       "construction": 103,
+       "best": {
+        "kind": "end:2",
+        "key": "he",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 4607
+       }
+      },
+      "Prs": {
+       "form": 67,
+       "class": 1,
+       "construction": 140,
+       "best": {
+        "kind": "end:1",
+        "key": "i",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 1690
+       }
+      },
+      "Dem": {
+       "form": 42,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:4",
+        "key": "this",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 207
+       }
+      },
+      "Int": {
+       "form": 21,
+       "class": 0,
+       "construction": 6,
+       "best": {
+        "kind": "end:4",
+        "key": "when",
+        "class": "ADV",
+        "accuracy": 0.9642857142857143,
+        "support": 203
+       }
+      },
+      "Ind": {
+       "form": 49,
+       "class": 0,
+       "construction": 5,
+       "best": {
+        "kind": "end:2",
+        "key": "me",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 157
+       }
+      },
+      "Tot": {
+       "form": 30,
+       "class": 0,
+       "construction": 9,
+       "best": {
+        "kind": "end:1",
+        "key": "l",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 219
+       }
+      },
+      "Neg": {
+       "form": 14,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "end:2",
+        "key": "no",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 134
+       }
+      },
+      "Rel": {
+       "form": 16,
+       "class": 0,
+       "construction": 13,
+       "best": {
+        "kind": "left",
+        "key": "those",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 15
+       }
+      }
+     },
+     "byValue": {
+      "Dem": {
+       "n": 1544,
+       "correct": 1370
+      },
+      "Art": {
+       "n": 6603,
+       "correct": 6601
+      },
+      "Prs": {
+       "n": 7495,
+       "correct": 7494
+      },
+      "Rel": {
+       "n": 695,
+       "correct": 281
+      },
+      "Ind": {
+       "n": 717,
+       "correct": 634
+      },
+      "Neg": {
+       "n": 256,
+       "correct": 253
+      },
+      "Int": {
+       "n": 539,
+       "correct": 333
+      },
+      "Tot": {
+       "n": 446,
+       "correct": 411
+      },
+      "Rcp": {
+       "n": 7,
+       "correct": 0
+      },
+      "Emp": {
+       "n": 25,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Reflex",
+     "carriers": 70,
+     "covered": 69,
+     "correct": 69,
+     "contested": 13,
+     "contestedCorrect": 13,
+     "missedUnmarked": 0,
+     "missedVoid": 1,
+     "nonCarriers": 9120,
+     "falseFires": 1,
+     "silenced": 9119,
+     "dominantKind": "end:1",
+     "admitted": 16,
+     "candidates": 1128,
+     "floor": 5.158179981561837,
+     "values": 2,
+     "reach": {
+      "Yes": {
+       "form": 8,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:1",
+        "key": "f",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 50
+       }
+      }
+     },
+     "byValue": {
+      "Yes": {
+       "n": 70,
+       "correct": 69
+      }
+     }
+    },
+    {
+     "feature": "Tense",
+     "carriers": 10720,
+     "covered": 9655,
+     "correct": 9442,
+     "contested": 6174,
+     "contestedCorrect": 5975,
+     "missedUnmarked": 1062,
+     "missedVoid": 3,
+     "nonCarriers": 6719,
+     "falseFires": 5375,
+     "silenced": 1344,
+     "dominantKind": "end:3",
+     "admitted": 610,
+     "candidates": 2398,
+     "floor": 11.543983738453823,
+     "values": 3,
+     "reach": {
+      "Past": {
+       "form": 182,
+       "class": 0,
+       "construction": 35,
+       "best": {
+        "kind": "end:3",
+        "key": "led",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 163
+       }
+      },
+      "Pres": {
+       "form": 128,
+       "class": 1,
+       "construction": 39,
+       "best": {
+        "kind": "end:2",
+        "key": "is",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 1083
+       }
+      }
+     },
+     "byValue": {
+      "Pres": {
+       "n": 6089,
+       "correct": 4951
+      },
+      "Past": {
+       "n": 4631,
+       "correct": 4491
+      }
+     }
+    },
+    {
+     "feature": "VerbForm",
+     "carriers": 17439,
+     "covered": 17282,
+     "correct": 15194,
+     "contested": 6623,
+     "contestedCorrect": 5709,
+     "missedUnmarked": 0,
+     "missedVoid": 157,
+     "nonCarriers": 0,
+     "falseFires": 0,
+     "silenced": 0,
+     "dominantKind": "left",
+     "admitted": 482,
+     "candidates": 2452,
+     "floor": 14.251147413652612,
+     "values": 4,
+     "reach": {
+      "Part": {
+       "form": 86,
+       "class": 0,
+       "construction": 52,
+       "best": {
+        "kind": "left",
+        "key": "had",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 52
+       }
+      },
+      "Inf": {
+       "form": 112,
+       "class": 0,
+       "construction": 39,
+       "best": {
+        "kind": "left",
+        "key": "would",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 77
+       }
+      },
+      "Fin": {
+       "form": 126,
+       "class": 1,
+       "construction": 61,
+       "best": {
+        "kind": "end:1",
+        "key": "s",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 2128
+       }
+      },
+      "Ger": {
+       "form": 0,
+       "class": 0,
+       "construction": 5,
+       "best": {
+        "kind": "left",
+        "key": "start",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 10
+       }
+      }
+     },
+     "byValue": {
+      "Fin": {
+       "n": 9871,
+       "correct": 8491
+      },
+      "Inf": {
+       "n": 3987,
+       "correct": 3788
+      },
+      "Part": {
+       "n": 3089,
+       "correct": 2900
+      },
+      "Ger": {
+       "n": 492,
+       "correct": 15
+      }
+     }
+    },
+    {
+     "feature": "Voice",
+     "carriers": 1296,
+     "covered": 847,
+     "correct": 847,
+     "contested": 39,
+     "contestedCorrect": 39,
+     "missedUnmarked": 274,
+     "missedVoid": 175,
+     "nonCarriers": 9820,
+     "falseFires": 894,
+     "silenced": 8926,
+     "dominantKind": "left",
+     "admitted": 144,
+     "candidates": 2169,
+     "floor": 10.36462116684807,
+     "values": 2,
+     "reach": {
+      "Pass": {
+       "form": 41,
+       "class": 0,
+       "construction": 19,
+       "best": {
+        "kind": "aux",
+        "key": "be+should",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 15
+       }
+      }
+     },
+     "byValue": {
+      "Pass": {
+       "n": 1296,
+       "correct": 847
+      }
+     }
+    }
+   ]
+  },
+  {
+   "lang": "la",
+   "name": "Latin Perseus",
+   "language": {
+    "iso": "lat",
+    "name": "Latin",
+    "stage": "Classical and Augustan literary Latin, with Jerome's late-antique Vulgate"
+   },
+   "split": "train/test",
+   "learnSentences": 1334,
+   "auditSentences": 939,
+   "ms": 5093,
+   "provenance": {
+    "schema": "Provenance@1",
+    "source": {
+     "value": "la_perseus-ud-train.conllu sha256:49d2e3813fc34595fe8cf569f263df4396e4b21aba9429fcdb0eea3ae09e64fa + la_perseus-ud-test.conllu sha256:e0e53fdcc8040a2a6d3b6e7b5dfa69fa35d355ce11cae0682b61e6848745d386",
+     "basis": "measured from the file"
+    },
+    "giver": {
+     "value": "Ancient Greek and Latin Dependency Treebank 2.1 (Perseus, Tufts and Leipzig, Gregory Crane; UD conversion Giuseppe G. A. Celano; morphology via Morpheus, syntax manual — the README lists the annotators)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "license": {
+     "value": "This work is licensed under the Creative Commons Attribution-NonCommercial-",
+     "basis": "measured from the file"
+    },
+    "period": {
+     "value": "1st c. BCE – early 2nd c. CE (Cicero, Sallust, Propertius, Vergil, Ovid, Augustus, Phaedrus, Petronius, Tacitus, Suetonius) plus Jerome's Vulgate, c. 382–405 CE",
+     "basis": "declared from the treebank's documentation"
+    },
+    "region": {
+     "value": "Rome and Roman Italy — the literary standard, not a regional Latin",
+     "basis": "declared from the treebank's documentation"
+    },
+    "register": {
+     "value": "literary verse and prose: epic, elegy, oratory, history, fable, satire, scripture (works listed in the README)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Latin (100.0% of letters)",
+     "basis": "measured from the file"
+    },
+    "documents": {
+     "value": {
+      "documents": {
+       "count": 10,
+       "prefixes": {
+        "phi0975": 1,
+        "phi1221": 1,
+        "phi1348": 1,
+        "phi1351": 1,
+        "tlg0031": 1,
+        "phi0448": 1,
+        "phi0474": 1,
+        "phi0620": 1,
+        "phi0631": 1,
+        "phi0690": 1
+       }
+      }
+     },
+     "basis": "measured from the file"
+    },
+    "readme": {
+     "value": "eval/fixtures/ud-latin-perseus/README.md",
+     "basis": "measured from the file"
+    },
+    "split": {
+     "value": "train/test",
+     "basis": "measured from the file"
+    },
+    "tokens": {
+     "value": {
+      "learn": 18259,
+      "audit": 10964
+     },
+     "basis": "measured from the file"
+    },
+    "builtBy": {
+     "value": "native/eval/lavar/sullivan-morph.mjs (Sullivan's second sense, morph-cues.js)",
+     "basis": "measured from the file"
+    },
+    "builtAt": {
+     "value": "2026-09-25T19:35:34.838Z",
+     "basis": "measured from the file"
+    },
+    "null": {
+     "value": {
+      "draws": 12,
+      "reruns": 11,
+      "seed": 7
+     },
+     "basis": "measured from the file"
+    }
+   },
+   "rows": [
+    {
+     "feature": "AdpType",
+     "carriers": 4,
+     "covered": 2,
+     "correct": 2,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 2,
+     "nonCarriers": 417,
+     "falseFires": 4,
+     "silenced": 413,
+     "dominantKind": "left",
+     "admitted": 3,
+     "candidates": 266,
+     "floor": 5.0920806630103765,
+     "values": 2,
+     "reach": {
+      "Post": {
+       "form": 0,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "rclass",
+        "key": "PUNCT",
+        "class": "ADP",
+        "accuracy": 1,
+        "support": 3
+       }
+      }
+     },
+     "byValue": {
+      "Post": {
+       "n": 4,
+       "correct": 2
+      }
+     }
+    },
+    {
+     "feature": "AdvType",
+     "carriers": 90,
+     "covered": 76,
+     "correct": 73,
+     "contested": 4,
+     "contestedCorrect": 4,
+     "missedUnmarked": 1,
+     "missedVoid": 13,
+     "nonCarriers": 600,
+     "falseFires": 69,
+     "silenced": 531,
+     "dominantKind": "beg:2",
+     "admitted": 46,
+     "candidates": 558,
+     "floor": 8.183761363689596,
+     "values": 3,
+     "reach": {
+      "Tim": {
+       "form": 24,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:3",
+        "key": "unc",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 27
+       }
+      },
+      "Loc": {
+       "form": 11,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "inc",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 3
+       }
+      }
+     },
+     "byValue": {
+      "Tim": {
+       "n": 69,
+       "correct": 60
+      },
+      "Loc": {
+       "n": 21,
+       "correct": 13
+      }
+     }
+    },
+    {
+     "feature": "Aspect",
+     "carriers": 2448,
+     "covered": 1962,
+     "correct": 1649,
+     "contested": 119,
+     "contestedCorrect": 110,
+     "missedUnmarked": 0,
+     "missedVoid": 486,
+     "nonCarriers": 0,
+     "falseFires": 0,
+     "silenced": 0,
+     "dominantKind": "end:2",
+     "admitted": 89,
+     "candidates": 1302,
+     "floor": 11.773547070871743,
+     "values": 3,
+     "reach": {
+      "Imp": {
+       "form": 38,
+       "class": 1,
+       "construction": 0,
+       "best": {
+        "kind": "beg:1",
+        "key": "s",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 35
+       }
+      },
+      "Perf": {
+       "form": 39,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:3",
+        "key": "tus",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 52
+       }
+      },
+      "Prosp": {
+       "form": 7,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "end:3",
+        "key": "nda",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 9
+       }
+      }
+     },
+     "byValue": {
+      "Imp": {
+       "n": 1528,
+       "correct": 949
+      },
+      "Perf": {
+       "n": 896,
+       "correct": 688
+      },
+      "Prosp": {
+       "n": 24,
+       "correct": 12
+      }
+     }
+    },
+    {
+     "feature": "Case",
+     "carriers": 4885,
+     "covered": 4601,
+     "correct": 3326,
+     "contested": 3516,
+     "contestedCorrect": 2525,
+     "missedUnmarked": 244,
+     "missedVoid": 40,
+     "nonCarriers": 2070,
+     "falseFires": 194,
+     "silenced": 1876,
+     "dominantKind": "end:2",
+     "admitted": 789,
+     "candidates": 3843,
+     "floor": 12.249460001660397,
+     "values": 8,
+     "reach": {
+      "Gen": {
+       "form": 75,
+       "class": 0,
+       "construction": 7,
+       "best": {
+        "kind": "end:3",
+        "key": "ius",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 40
+       }
+      },
+      "Acc": {
+       "form": 111,
+       "class": 3,
+       "construction": 12,
+       "best": {
+        "kind": "end:2",
+        "key": "em",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 288
+       }
+      },
+      "Nom": {
+       "form": 91,
+       "class": 0,
+       "construction": 19,
+       "best": {
+        "kind": "end:3",
+        "key": "ans",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 20
+       }
+      },
+      "Abl": {
+       "form": 96,
+       "class": 0,
+       "construction": 22,
+       "best": {
+        "kind": "end:3",
+        "key": "ore",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 74
+       }
+      },
+      "Dat": {
+       "form": 27,
+       "class": 0,
+       "construction": 4,
+       "best": {
+        "kind": "end:2",
+        "key": "bi",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 56
+       }
+      },
+      "Loc": {
+       "form": 7,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "left",
+        "key": "domi",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 3
+       }
+      },
+      "Voc": {
+       "form": 3,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "lle",
+        "class": "PROPN",
+        "accuracy": 1,
+        "support": 6
+       }
+      }
+     },
+     "byValue": {
+      "Acc": {
+       "n": 1812,
+       "correct": 1449
+      },
+      "Nom": {
+       "n": 1439,
+       "correct": 802
+      },
+      "Abl": {
+       "n": 994,
+       "correct": 746
+      },
+      "Dat": {
+       "n": 276,
+       "correct": 118
+      },
+      "Gen": {
+       "n": 324,
+       "correct": 207
+      },
+      "Voc": {
+       "n": 37,
+       "correct": 1
+      },
+      "Loc": {
+       "n": 3,
+       "correct": 3
+      }
+     }
+    },
+    {
+     "feature": "Degree",
+     "carriers": 77,
+     "covered": 44,
+     "correct": 44,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 2,
+     "missedVoid": 31,
+     "nonCarriers": 1976,
+     "falseFires": 66,
+     "silenced": 1910,
+     "dominantKind": "end:3",
+     "admitted": 42,
+     "candidates": 1953,
+     "floor": 7.188736378070191,
+     "values": 3,
+     "reach": {
+      "Cmp": {
+       "form": 25,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "beg:2",
+        "key": "pl",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 9
+       }
+      },
+      "Abs": {
+       "form": 11,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "ime",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 12
+       }
+      }
+     },
+     "byValue": {
+      "Cmp": {
+       "n": 55,
+       "correct": 41
+      },
+      "Abs": {
+       "n": 22,
+       "correct": 3
+      }
+     }
+    },
+    {
+     "feature": "Gender",
+     "carriers": 4610,
+     "covered": 4309,
+     "correct": 2870,
+     "contested": 2901,
+     "contestedCorrect": 1871,
+     "missedUnmarked": 301,
+     "missedVoid": 0,
+     "nonCarriers": 2345,
+     "falseFires": 315,
+     "silenced": 2030,
+     "dominantKind": "end:2",
+     "admitted": 739,
+     "candidates": 4120,
+     "floor": 12.683840494480235,
+     "values": 4,
+     "reach": {
+      "Masc": {
+       "form": 127,
+       "class": 3,
+       "construction": 17,
+       "best": {
+        "kind": "beg:3",
+        "key": "hom",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 37
+       }
+      },
+      "Fem": {
+       "form": 150,
+       "class": 1,
+       "construction": 23,
+       "best": {
+        "kind": "end:2",
+        "key": "ae",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 68
+       }
+      },
+      "Neut": {
+       "form": 105,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:1",
+        "key": "d",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 87
+       }
+      }
+     },
+     "byValue": {
+      "Neut": {
+       "n": 1141,
+       "correct": 447
+      },
+      "Masc": {
+       "n": 1921,
+       "correct": 1289
+      },
+      "Fem": {
+       "n": 1548,
+       "correct": 1134
+      }
+     }
+    },
+    {
+     "feature": "Mood",
+     "carriers": 1755,
+     "covered": 1394,
+     "correct": 1293,
+     "contested": 464,
+     "contestedCorrect": 426,
+     "missedUnmarked": 329,
+     "missedVoid": 32,
+     "nonCarriers": 693,
+     "falseFires": 225,
+     "silenced": 468,
+     "dominantKind": "end:3",
+     "admitted": 84,
+     "candidates": 1174,
+     "floor": 16.028613828279813,
+     "values": 4,
+     "reach": {
+      "Ind": {
+       "form": 28,
+       "class": 1,
+       "construction": 3,
+       "best": {
+        "kind": "end:3",
+        "key": "cit",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 46
+       }
+      },
+      "Sub": {
+       "form": 13,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "sit",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 9
+       }
+      },
+      "Imp": {
+       "form": 3,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "ge",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 4
+       }
+      }
+     },
+     "byValue": {
+      "Ind": {
+       "n": 1432,
+       "correct": 1175
+      },
+      "Imp": {
+       "n": 51,
+       "correct": 5
+      },
+      "Sub": {
+       "n": 272,
+       "correct": 113
+      }
+     }
+    },
+    {
+     "feature": "NumType",
+     "carriers": 85,
+     "covered": 77,
+     "correct": 77,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 8,
+     "nonCarriers": 2013,
+     "falseFires": 17,
+     "silenced": 1996,
+     "dominantKind": "class",
+     "admitted": 136,
+     "candidates": 2129,
+     "floor": 7.231694040855416,
+     "values": 4,
+     "reach": {
+      "Card": {
+       "form": 92,
+       "class": 1,
+       "construction": 25,
+       "best": {
+        "kind": "beg:1",
+        "key": "p",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 22
+       }
+      },
+      "Dist": {
+       "form": 1,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:3",
+        "key": "sin",
+        "class": "ADJ",
+        "accuracy": 0.5,
+        "support": 11
+       }
+      },
+      "Ord": {
+       "form": 6,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "rima",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 7
+       }
+      }
+     },
+     "byValue": {
+      "Card": {
+       "n": 68,
+       "correct": 66
+      },
+      "Ord": {
+       "n": 13,
+       "correct": 8
+      },
+      "Dist": {
+       "n": 4,
+       "correct": 3
+      }
+     }
+    },
+    {
+     "feature": "Number",
+     "carriers": 6641,
+     "covered": 5127,
+     "correct": 4486,
+     "contested": 236,
+     "contestedCorrect": 177,
+     "missedUnmarked": 99,
+     "missedVoid": 1415,
+     "nonCarriers": 314,
+     "falseFires": 30,
+     "silenced": 284,
+     "dominantKind": "end:2",
+     "admitted": 279,
+     "candidates": 4499,
+     "floor": 12.764395244872079,
+     "values": 3,
+     "reach": {
+      "Plur": {
+       "form": 111,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:2",
+        "key": "nt",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 334
+       }
+      },
+      "Sing": {
+       "form": 87,
+       "class": 2,
+       "construction": 2,
+       "best": {
+        "kind": "end:1",
+        "key": "o",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 323
+       }
+      }
+     },
+     "byValue": {
+      "Sing": {
+       "n": 4883,
+       "correct": 3273
+      },
+      "Plur": {
+       "n": 1758,
+       "correct": 1213
+      }
+     }
+    },
+    {
+     "feature": "Number[psor]",
+     "carriers": 90,
+     "covered": 90,
+     "correct": 90,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 0,
+     "nonCarriers": 504,
+     "falseFires": 19,
+     "silenced": 485,
+     "dominantKind": "beg:2",
+     "admitted": 58,
+     "candidates": 517,
+     "floor": 7.484051494450648,
+     "values": 3,
+     "reach": {
+      "Plur": {
+       "form": 15,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "beg:3",
+        "key": "nos",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 42
+       }
+      },
+      "Sing": {
+       "form": 27,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "tuis",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 8
+       }
+      }
+     },
+     "byValue": {
+      "Plur": {
+       "n": 22,
+       "correct": 22
+      },
+      "Sing": {
+       "n": 68,
+       "correct": 68
+      }
+     }
+    },
+    {
+     "feature": "PartType",
+     "carriers": 0,
+     "covered": 0,
+     "correct": 0,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 0,
+     "nonCarriers": 174,
+     "falseFires": 2,
+     "silenced": 172,
+     "dominantKind": null,
+     "admitted": 4,
+     "candidates": 129,
+     "floor": 1.0665507012727307,
+     "values": 2,
+     "reach": {
+      "Int": {
+       "form": 2,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:2",
+        "key": "ne",
+        "class": "PART",
+        "accuracy": 1,
+        "support": 3
+       }
+      }
+     },
+     "byValue": {}
+    },
+    {
+     "feature": "Person",
+     "carriers": 2061,
+     "covered": 1823,
+     "correct": 1743,
+     "contested": 641,
+     "contestedCorrect": 597,
+     "missedUnmarked": 223,
+     "missedVoid": 15,
+     "nonCarriers": 915,
+     "falseFires": 402,
+     "silenced": 513,
+     "dominantKind": "end:1",
+     "admitted": 256,
+     "candidates": 1379,
+     "floor": 10.862194228921247,
+     "values": 4,
+     "reach": {
+      "1": {
+       "form": 50,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:2",
+        "key": "me",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 58
+       }
+      },
+      "2": {
+       "form": 33,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:3",
+        "key": "des",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 7
+       }
+      },
+      "3": {
+       "form": 76,
+       "class": 1,
+       "construction": 10,
+       "best": {
+        "kind": "end:1",
+        "key": "t",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 153
+       }
+      }
+     },
+     "byValue": {
+      "1": {
+       "n": 485,
+       "correct": 347
+      },
+      "2": {
+       "n": 262,
+       "correct": 109
+      },
+      "3": {
+       "n": 1314,
+       "correct": 1287
+      }
+     }
+    },
+    {
+     "feature": "Person[psor]",
+     "carriers": 139,
+     "covered": 135,
+     "correct": 135,
+     "contested": 4,
+     "contestedCorrect": 4,
+     "missedUnmarked": 1,
+     "missedVoid": 3,
+     "nonCarriers": 455,
+     "falseFires": 25,
+     "silenced": 430,
+     "dominantKind": "beg:2",
+     "admitted": 64,
+     "candidates": 503,
+     "floor": 8.985492354755946,
+     "values": 4,
+     "reach": {
+      "1": {
+       "form": 25,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "beg:3",
+        "key": "nos",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 42
+       }
+      },
+      "2": {
+       "form": 10,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "tuis",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 8
+       }
+      },
+      "3": {
+       "form": 12,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "suis",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 18
+       }
+      }
+     },
+     "byValue": {
+      "1": {
+       "n": 73,
+       "correct": 73
+      },
+      "2": {
+       "n": 17,
+       "correct": 14
+      },
+      "3": {
+       "n": 49,
+       "correct": 48
+      }
+     }
+    },
+    {
+     "feature": "Polarity",
+     "carriers": 8,
+     "covered": 8,
+     "correct": 8,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 0,
+     "nonCarriers": 694,
+     "falseFires": 0,
+     "silenced": 694,
+     "dominantKind": "end:1",
+     "admitted": 6,
+     "candidates": 436,
+     "floor": 6.510057691707264,
+     "values": 2,
+     "reach": {
+      "Neg": {
+       "form": 6,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:1",
+        "key": "l",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 17
+       }
+      }
+     },
+     "byValue": {
+      "Neg": {
+       "n": 8,
+       "correct": 8
+      }
+     }
+    },
+    {
+     "feature": "Poss",
+     "carriers": 139,
+     "covered": 137,
+     "correct": 137,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 1,
+     "missedVoid": 1,
+     "nonCarriers": 455,
+     "falseFires": 58,
+     "silenced": 397,
+     "dominantKind": "beg:2",
+     "admitted": 55,
+     "candidates": 509,
+     "floor": 8.985492354755946,
+     "values": 2,
+     "reach": {
+      "Yes": {
+       "form": 37,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "beg:3",
+        "key": "nos",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 42
+       }
+      }
+     },
+     "byValue": {
+      "Yes": {
+       "n": 139,
+       "correct": 137
+      }
+     }
+    },
+    {
+     "feature": "PronType",
+     "carriers": 1138,
+     "covered": 1122,
+     "correct": 1047,
+     "contested": 619,
+     "contestedCorrect": 546,
+     "missedUnmarked": 16,
+     "missedVoid": 0,
+     "nonCarriers": 971,
+     "falseFires": 1,
+     "silenced": 970,
+     "dominantKind": "beg:1",
+     "admitted": 551,
+     "candidates": 1445,
+     "floor": 10.63635248859129,
+     "values": 9,
+     "reach": {
+      "Prs": {
+       "form": 105,
+       "class": 1,
+       "construction": 33,
+       "best": {
+        "kind": "beg:3",
+        "key": "nos",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 42
+       }
+      },
+      "Rel": {
+       "form": 31,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "beg:1",
+        "key": "c",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 7
+       }
+      },
+      "Dem": {
+       "form": 72,
+       "class": 1,
+       "construction": 17,
+       "best": {
+        "kind": "end:3",
+        "key": "dem",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 21
+       }
+      },
+      "Ind": {
+       "form": 40,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:3",
+        "key": "dam",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 21
+       }
+      },
+      "Tot": {
+       "form": 25,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "es",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 9
+       }
+      },
+      "Int": {
+       "form": 7,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "nam",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 3
+       }
+      },
+      "Con": {
+       "form": 23,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "beg:2",
+        "key": "al",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 56
+       }
+      },
+      "Rcp": {
+       "form": 4,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "cem",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 4
+       }
+      }
+     },
+     "byValue": {
+      "Prs": {
+       "n": 445,
+       "correct": 444
+      },
+      "Dem": {
+       "n": 281,
+       "correct": 278
+      },
+      "Con": {
+       "n": 40,
+       "correct": 37
+      },
+      "Tot": {
+       "n": 63,
+       "correct": 62
+      },
+      "Ind": {
+       "n": 81,
+       "correct": 57
+      },
+      "Rel": {
+       "n": 205,
+       "correct": 169
+      },
+      "Int": {
+       "n": 23,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Reflex",
+     "carriers": 56,
+     "covered": 55,
+     "correct": 55,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 1,
+     "missedVoid": 0,
+     "nonCarriers": 472,
+     "falseFires": 0,
+     "silenced": 472,
+     "dominantKind": "beg:1",
+     "admitted": 21,
+     "candidates": 287,
+     "floor": 6.112853945807425,
+     "values": 2,
+     "reach": {
+      "Yes": {
+       "form": 12,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "se",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 53
+       }
+      }
+     },
+     "byValue": {
+      "Yes": {
+       "n": 56,
+       "correct": 55
+      }
+     }
+    },
+    {
+     "feature": "Tense",
+     "carriers": 1755,
+     "covered": 1332,
+     "correct": 945,
+     "contested": 698,
+     "contestedCorrect": 534,
+     "missedUnmarked": 407,
+     "missedVoid": 16,
+     "nonCarriers": 693,
+     "falseFires": 247,
+     "silenced": 446,
+     "dominantKind": "end:3",
+     "admitted": 183,
+     "candidates": 1064,
+     "floor": 9.408613812099972,
+     "values": 5,
+     "reach": {
+      "Pres": {
+       "form": 33,
+       "class": 1,
+       "construction": 2,
+       "best": {
+        "kind": "end:3",
+        "key": "sit",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 9
+       }
+      },
+      "Past": {
+       "form": 52,
+       "class": 0,
+       "construction": 4,
+       "best": {
+        "kind": "end:4",
+        "key": "ecit",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 13
+       }
+      },
+      "Pqp": {
+       "form": 6,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "set",
+        "class": "VERB",
+        "accuracy": 0.8888888888888888,
+        "support": 38
+       }
+      },
+      "Fut": {
+       "form": 16,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "iet",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 12
+       }
+      }
+     },
+     "byValue": {
+      "Pres": {
+       "n": 855,
+       "correct": 291
+      },
+      "Past": {
+       "n": 736,
+       "correct": 573
+      },
+      "Fut": {
+       "n": 80,
+       "correct": 24
+      },
+      "Pqp": {
+       "n": 84,
+       "correct": 57
+      }
+     }
+    },
+    {
+     "feature": "VerbForm",
+     "carriers": 2456,
+     "covered": 2448,
+     "correct": 2280,
+     "contested": 1021,
+     "contestedCorrect": 876,
+     "missedUnmarked": 7,
+     "missedVoid": 1,
+     "nonCarriers": 761,
+     "falseFires": 0,
+     "silenced": 761,
+     "dominantKind": "end:1",
+     "admitted": 396,
+     "candidates": 2209,
+     "floor": 11.10932884262616,
+     "values": 5,
+     "reach": {
+      "Fin": {
+       "form": 79,
+       "class": 2,
+       "construction": 22,
+       "best": {
+        "kind": "end:1",
+        "key": "t",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 153
+       }
+      },
+      "Inf": {
+       "form": 32,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "are",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 72
+       }
+      },
+      "Part": {
+       "form": 61,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "end:2",
+        "key": "ns",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 74
+       }
+      }
+     },
+     "byValue": {
+      "Fin": {
+       "n": 1755,
+       "correct": 1662
+      },
+      "Part": {
+       "n": 431,
+       "correct": 392
+      },
+      "Inf": {
+       "n": 270,
+       "correct": 226
+      }
+     }
+    },
+    {
+     "feature": "Voice",
+     "carriers": 2292,
+     "covered": 2171,
+     "correct": 2001,
+     "contested": 225,
+     "contestedCorrect": 164,
+     "missedUnmarked": 0,
+     "missedVoid": 121,
+     "nonCarriers": 0,
+     "falseFires": 0,
+     "silenced": 0,
+     "dominantKind": "end:1",
+     "admitted": 73,
+     "candidates": 1272,
+     "floor": 10.198083727733167,
+     "values": 2,
+     "reach": {
+      "Act": {
+       "form": 29,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:1",
+        "key": "t",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 1350
+       }
+      },
+      "Pass": {
+       "form": 40,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:4",
+        "key": "ctum",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 13
+       }
+      }
+     },
+     "byValue": {
+      "Act": {
+       "n": 1825,
+       "correct": 1631
+      },
+      "Pass": {
+       "n": 467,
+       "correct": 370
+      }
+     }
+    }
+   ]
+  },
+  {
+   "lang": "grc",
+   "name": "Greek PROIEL",
+   "language": {
+    "iso": "grc",
+    "name": "Ancient Greek",
+    "stage": "Ionic prose (Herodotus) and Koine (Greek New Testament)"
+   },
+   "split": "parity: even sentences learn, odd audit",
+   "learnSentences": 524,
+   "auditSentences": 523,
+   "ms": 1952,
+   "provenance": {
+    "schema": "Provenance@1",
+    "source": {
+     "value": "grc_proiel-ud-test.conllu sha256:ac5576c048c57e01a5a6d2e1b9067fb80b4da65cf8b66913e9a273d8b83ba3b8",
+     "basis": "measured from the file"
+    },
+    "giver": {
+     "value": "PROIEL treebank (Dag Haug and Marius Jøhndal, University of Oslo), UD conversion by the PROIEL project — no README shipped beside this file",
+     "basis": "declared by the builder — verify"
+    },
+    "license": {
+     "value": "CC BY-NC-SA 3.0 (UD_Ancient_Greek-PROIEL)",
+     "basis": "declared by the builder — verify"
+    },
+    "period": {
+     "value": "5th c. BCE (Herodotus, Histories) and 1st c. CE (Greek New Testament) — the two sources the file's own source lines name",
+     "basis": "declared by the builder — verify"
+    },
+    "region": {
+     "value": "Halicarnassus and Ionia (Herodotus); the eastern Mediterranean Koine (the Gospels and Acts)",
+     "basis": "declared by the builder — verify"
+    },
+    "register": {
+     "value": "historiographic prose and scripture narrative",
+     "basis": "declared by the builder — verify"
+    },
+    "script": {
+     "value": "Greek (100.0% of letters)",
+     "basis": "measured from the file"
+    },
+    "documents": {
+     "value": {
+      "sourceLines": {
+       "Histories": 392,
+       "The Greek New Testament, John 6": 122,
+       "The Greek New Testament, Mark 6": 85,
+       "The Greek New Testament, Acts 7": 83,
+       "The Greek New Testament, Luke 6": 81,
+       "The Greek New Testament, Luke 16": 64,
+       "The Greek New Testament, Acts 8": 63,
+       "The Greek New Testament, Matthew 6": 60,
+       "The Greek New Testament, Revelation 3": 34,
+       "The Greek New Testament, Romans 2": 30,
+       "The Greek New Testament, Revelation 5": 19,
+       "The Greek New Testament, Revelation 4": 14
+      }
+     },
+     "basis": "measured from the file"
+    },
+    "readme": {
+     "value": "no README shipped beside the file",
+     "basis": "measured from the file"
+    },
+    "split": {
+     "value": "parity: even sentences learn, odd audit",
+     "basis": "measured from the file"
+    },
+    "tokens": {
+     "value": {
+      "learn": 6670,
+      "audit": 6644
+     },
+     "basis": "measured from the file"
+    },
+    "builtBy": {
+     "value": "native/eval/lavar/sullivan-morph.mjs (Sullivan's second sense, morph-cues.js)",
+     "basis": "measured from the file"
+    },
+    "builtAt": {
+     "value": "2026-09-25T19:35:36.894Z",
+     "basis": "measured from the file"
+    },
+    "null": {
+     "value": {
+      "draws": 12,
+      "reruns": 11,
+      "seed": 7
+     },
+     "basis": "measured from the file"
+    }
+   },
+   "rows": [
+    {
+     "feature": "Aspect",
+     "carriers": 726,
+     "covered": 419,
+     "correct": 358,
+     "contested": 98,
+     "contestedCorrect": 85,
+     "missedUnmarked": 96,
+     "missedVoid": 211,
+     "nonCarriers": 643,
+     "falseFires": 176,
+     "silenced": 467,
+     "dominantKind": "end:1",
+     "admitted": 62,
+     "candidates": 718,
+     "floor": 9.213338345321414,
+     "values": 3,
+     "reach": {
+      "Imp": {
+       "form": 18,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "ἦν",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 15
+       }
+      },
+      "Perf": {
+       "form": 15,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "beg:3",
+        "key": "ἐγέ",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 15
+       }
+      }
+     },
+     "byValue": {
+      "Perf": {
+       "n": 567,
+       "correct": 276
+      },
+      "Imp": {
+       "n": 159,
+       "correct": 82
+      }
+     }
+    },
+    {
+     "feature": "Case",
+     "carriers": 3803,
+     "covered": 3289,
+     "correct": 2649,
+     "contested": 1624,
+     "contestedCorrect": 1459,
+     "missedUnmarked": 247,
+     "missedVoid": 267,
+     "nonCarriers": 1061,
+     "falseFires": 40,
+     "silenced": 1021,
+     "dominantKind": "end:1",
+     "admitted": 352,
+     "candidates": 2413,
+     "floor": 14.692173147409166,
+     "values": 6,
+     "reach": {
+      "Acc": {
+       "form": 49,
+       "class": 2,
+       "construction": 10,
+       "best": {
+        "kind": "end:2",
+        "key": "ὴν",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 73
+       }
+      },
+      "Gen": {
+       "form": 52,
+       "class": 0,
+       "construction": 9,
+       "best": {
+        "kind": "end:2",
+        "key": "ῶν",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 25
+       }
+      },
+      "Nom": {
+       "form": 30,
+       "class": 0,
+       "construction": 8,
+       "best": {
+        "kind": "end:2",
+        "key": "οι",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 49
+       }
+      },
+      "Dat": {
+       "form": 48,
+       "class": 0,
+       "construction": 7,
+       "best": {
+        "kind": "end:1",
+        "key": "ῷ",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 28
+       }
+      },
+      "Voc": {
+       "form": 1,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "left",
+        "key": "ὦ",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 8
+       }
+      }
+     },
+     "byValue": {
+      "Nom": {
+       "n": 1193,
+       "correct": 668
+      },
+      "Acc": {
+       "n": 1187,
+       "correct": 877
+      },
+      "Dat": {
+       "n": 563,
+       "correct": 437
+      },
+      "Gen": {
+       "n": 843,
+       "correct": 662
+      },
+      "Voc": {
+       "n": 17,
+       "correct": 5
+      }
+     }
+    },
+    {
+     "feature": "Definite",
+     "carriers": 922,
+     "covered": 914,
+     "correct": 914,
+     "contested": 27,
+     "contestedCorrect": 27,
+     "missedUnmarked": 0,
+     "missedVoid": 8,
+     "nonCarriers": 96,
+     "falseFires": 68,
+     "silenced": 28,
+     "dominantKind": "end:1",
+     "admitted": 75,
+     "candidates": 309,
+     "floor": 5.735803949415745,
+     "values": 2,
+     "reach": {
+      "Def": {
+       "form": 20,
+       "class": 0,
+       "construction": 4,
+       "best": {
+        "kind": "beg:2",
+        "key": "τὴ",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 71
+       }
+      }
+     },
+     "byValue": {
+      "Def": {
+       "n": 922,
+       "correct": 914
+      }
+     }
+    },
+    {
+     "feature": "Degree",
+     "carriers": 381,
+     "covered": 364,
+     "correct": 332,
+     "contested": 9,
+     "contestedCorrect": 4,
+     "missedUnmarked": 17,
+     "missedVoid": 0,
+     "nonCarriers": 693,
+     "falseFires": 11,
+     "silenced": 682,
+     "dominantKind": "lclass",
+     "admitted": 107,
+     "candidates": 645,
+     "floor": 9.288465553434486,
+     "values": 4,
+     "reach": {
+      "Pos": {
+       "form": 24,
+       "class": 1,
+       "construction": 27,
+       "best": {
+        "kind": "end:3",
+        "key": "ιοι",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 21
+       }
+      },
+      "Sup": {
+       "form": 6,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "τατα",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 3
+       }
+      },
+      "Cmp": {
+       "form": 2,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:3",
+        "key": "πρε",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 5
+       }
+      }
+     },
+     "byValue": {
+      "Pos": {
+       "n": 338,
+       "correct": 329
+      },
+      "Sup": {
+       "n": 27,
+       "correct": 3
+      },
+      "Cmp": {
+       "n": 16,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Gender",
+     "carriers": 3777,
+     "covered": 2868,
+     "correct": 2316,
+     "contested": 624,
+     "contestedCorrect": 460,
+     "missedUnmarked": 230,
+     "missedVoid": 679,
+     "nonCarriers": 1087,
+     "falseFires": 71,
+     "silenced": 1016,
+     "dominantKind": "end:1",
+     "admitted": 287,
+     "candidates": 2524,
+     "floor": 13.337647825576923,
+     "values": 6,
+     "reach": {
+      "Masc": {
+       "form": 50,
+       "class": 2,
+       "construction": 9,
+       "best": {
+        "kind": "end:1",
+        "key": "ῷ",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 28
+       }
+      },
+      "Fem": {
+       "form": 33,
+       "class": 0,
+       "construction": 8,
+       "best": {
+        "kind": "end:2",
+        "key": "ὴν",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 73
+       }
+      },
+      "Neut": {
+       "form": 29,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "end:3",
+        "key": "τον",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 14
+       }
+      },
+      "Fem,Masc": {
+       "form": 18,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "ὑμῖν",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 19
+       }
+      },
+      "Masc,Neut": {
+       "form": 1,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "σι",
+        "class": "DET",
+        "accuracy": 0.45454545454545453,
+        "support": 21
+       }
+      }
+     },
+     "byValue": {
+      "Masc": {
+       "n": 2138,
+       "correct": 1424
+      },
+      "Neut": {
+       "n": 672,
+       "correct": 360
+      },
+      "Masc,Neut": {
+       "n": 98,
+       "correct": 5
+      },
+      "Fem": {
+       "n": 765,
+       "correct": 468
+      },
+      "Fem,Masc": {
+       "n": 104,
+       "correct": 59
+      }
+     }
+    },
+    {
+     "feature": "Mood",
+     "carriers": 856,
+     "covered": 527,
+     "correct": 468,
+     "contested": 21,
+     "contestedCorrect": 20,
+     "missedUnmarked": 42,
+     "missedVoid": 287,
+     "nonCarriers": 513,
+     "falseFires": 37,
+     "silenced": 476,
+     "dominantKind": "end:2",
+     "admitted": 63,
+     "candidates": 730,
+     "floor": 10.11272930779459,
+     "values": 5,
+     "reach": {
+      "Ind": {
+       "form": 17,
+       "class": 1,
+       "construction": 1,
+       "best": {
+        "kind": "end:1",
+        "key": "ν",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 59
+       }
+      },
+      "Imp": {
+       "form": 7,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "ψον",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 5
+       }
+      },
+      "Sub": {
+       "form": 5,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:2",
+        "key": "ῃς",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 6
+       }
+      }
+     },
+     "byValue": {
+      "Ind": {
+       "n": 714,
+       "correct": 410
+      },
+      "Sub": {
+       "n": 81,
+       "correct": 42
+      },
+      "Opt": {
+       "n": 11,
+       "correct": 0
+      },
+      "Imp": {
+       "n": 50,
+       "correct": 16
+      }
+     }
+    },
+    {
+     "feature": "Number",
+     "carriers": 4659,
+     "covered": 2612,
+     "correct": 2364,
+     "contested": 77,
+     "contestedCorrect": 74,
+     "missedUnmarked": 109,
+     "missedVoid": 1938,
+     "nonCarriers": 205,
+     "falseFires": 30,
+     "silenced": 175,
+     "dominantKind": "end:1",
+     "admitted": 136,
+     "candidates": 2601,
+     "floor": 14.321504874532737,
+     "values": 3,
+     "reach": {
+      "Sing": {
+       "form": 38,
+       "class": 1,
+       "construction": 5,
+       "best": {
+        "kind": "end:2",
+        "key": "ος",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 58
+       }
+      },
+      "Plur": {
+       "form": 65,
+       "class": 0,
+       "construction": 4,
+       "best": {
+        "kind": "end:2",
+        "key": "σι",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 40
+       }
+      }
+     },
+     "byValue": {
+      "Plur": {
+       "n": 1630,
+       "correct": 1089
+      },
+      "Sing": {
+       "n": 3029,
+       "correct": 1275
+      }
+     }
+    },
+    {
+     "feature": "Person",
+     "carriers": 1300,
+     "covered": 1268,
+     "correct": 1158,
+     "contested": 398,
+     "contestedCorrect": 345,
+     "missedUnmarked": 32,
+     "missedVoid": 0,
+     "nonCarriers": 1811,
+     "falseFires": 798,
+     "silenced": 1013,
+     "dominantKind": "end:3",
+     "admitted": 222,
+     "candidates": 1377,
+     "floor": 11.567827997569642,
+     "values": 4,
+     "reach": {
+      "1": {
+       "form": 27,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "beg:1",
+        "key": "ἐ",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 27
+       }
+      },
+      "2": {
+       "form": 29,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:4",
+        "key": "ὑμῖν",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 19
+       }
+      },
+      "3": {
+       "form": 72,
+       "class": 3,
+       "construction": 7,
+       "best": {
+        "kind": "end:1",
+        "key": "ν",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 59
+       }
+      }
+     },
+     "byValue": {
+      "1": {
+       "n": 150,
+       "correct": 125
+      },
+      "2": {
+       "n": 240,
+       "correct": 187
+      },
+      "3": {
+       "n": 910,
+       "correct": 846
+      }
+     }
+    },
+    {
+     "feature": "Polarity",
+     "carriers": 105,
+     "covered": 99,
+     "correct": 99,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 3,
+     "missedVoid": 3,
+     "nonCarriers": 597,
+     "falseFires": 53,
+     "silenced": 544,
+     "dominantKind": "beg:2",
+     "admitted": 16,
+     "candidates": 306,
+     "floor": 9.553614907178948,
+     "values": 2,
+     "reach": {
+      "Neg": {
+       "form": 11,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:1",
+        "key": "κ",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 32
+       }
+      }
+     },
+     "byValue": {
+      "Neg": {
+       "n": 105,
+       "correct": 99
+      }
+     }
+    },
+    {
+     "feature": "Poss",
+     "carriers": 7,
+     "covered": 3,
+     "correct": 3,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 4,
+     "nonCarriers": 1735,
+     "falseFires": 0,
+     "silenced": 1735,
+     "dominantKind": "beg:1",
+     "admitted": 1,
+     "candidates": 744,
+     "floor": 2.5380475730714065,
+     "values": 2,
+     "reach": {
+      "Yes": {
+       "form": 1,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:1",
+        "key": "σ",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 2
+       }
+      }
+     },
+     "byValue": {
+      "Yes": {
+       "n": 7,
+       "correct": 3
+      }
+     }
+    },
+    {
+     "feature": "PronType",
+     "carriers": 1508,
+     "covered": 1477,
+     "correct": 1443,
+     "contested": 117,
+     "contestedCorrect": 97,
+     "missedUnmarked": 31,
+     "missedVoid": 0,
+     "nonCarriers": 936,
+     "falseFires": 287,
+     "silenced": 649,
+     "dominantKind": "end:1",
+     "admitted": 340,
+     "candidates": 998,
+     "floor": 8.282785918201638,
+     "values": 6,
+     "reach": {
+      "Prs": {
+       "form": 69,
+       "class": 1,
+       "construction": 27,
+       "best": {
+        "kind": "beg:1",
+        "key": "ἐ",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 27
+       }
+      },
+      "Dem": {
+       "form": 55,
+       "class": 1,
+       "construction": 28,
+       "best": {
+        "kind": "beg:2",
+        "key": "τὴ",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 71
+       }
+      },
+      "Rel": {
+       "form": 33,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "beg:2",
+        "key": "τὰ",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 6
+       }
+      },
+      "Int": {
+       "form": 11,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:2",
+        "key": "τί",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 10
+       }
+      },
+      "Rcp": {
+       "form": 5,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:1",
+        "key": "ἀ",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 8
+       }
+      }
+     },
+     "byValue": {
+      "Dem": {
+       "n": 922,
+       "correct": 922
+      },
+      "Prs": {
+       "n": 437,
+       "correct": 429
+      },
+      "Rel": {
+       "n": 109,
+       "correct": 60
+      },
+      "Rcp": {
+       "n": 6,
+       "correct": 4
+      },
+      "Int": {
+       "n": 34,
+       "correct": 28
+      }
+     }
+    },
+    {
+     "feature": "Reflex",
+     "carriers": 23,
+     "covered": 22,
+     "correct": 22,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 1,
+     "nonCarriers": 701,
+     "falseFires": 0,
+     "silenced": 701,
+     "dominantKind": "beg:2",
+     "admitted": 7,
+     "candidates": 423,
+     "floor": 5.196397212803502,
+     "values": 2,
+     "reach": {
+      "Yes": {
+       "form": 7,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "υτοῦ",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 9
+       }
+      }
+     },
+     "byValue": {
+      "Yes": {
+       "n": 23,
+       "correct": 22
+      }
+     }
+    },
+    {
+     "feature": "Tense",
+     "carriers": 1369,
+     "covered": 832,
+     "correct": 702,
+     "contested": 60,
+     "contestedCorrect": 51,
+     "missedUnmarked": 0,
+     "missedVoid": 537,
+     "nonCarriers": 0,
+     "falseFires": 0,
+     "silenced": 0,
+     "dominantKind": "beg:1",
+     "admitted": 42,
+     "candidates": 737,
+     "floor": 10.48611613660642,
+     "values": 5,
+     "reach": {
+      "Past": {
+       "form": 14,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "beg:1",
+        "key": "ἦ",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 21
+       }
+      },
+      "Pres": {
+       "form": 20,
+       "class": 1,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "υσι",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 31
+       }
+      },
+      "Pqp": {
+       "form": 1,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "ητο",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 3
+       }
+      },
+      "Fut": {
+       "form": 4,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "σει",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 7
+       }
+      }
+     },
+     "byValue": {
+      "Pres": {
+       "n": 557,
+       "correct": 253
+      },
+      "Past": {
+       "n": 726,
+       "correct": 427
+      },
+      "Fut": {
+       "n": 74,
+       "correct": 21
+      },
+      "Pqp": {
+       "n": 12,
+       "correct": 1
+      }
+     }
+    },
+    {
+     "feature": "VerbForm",
+     "carriers": 1369,
+     "covered": 1000,
+     "correct": 926,
+     "contested": 18,
+     "contestedCorrect": 15,
+     "missedUnmarked": 0,
+     "missedVoid": 369,
+     "nonCarriers": 0,
+     "falseFires": 0,
+     "silenced": 0,
+     "dominantKind": "end:2",
+     "admitted": 51,
+     "candidates": 778,
+     "floor": 10.16768921619103,
+     "values": 5,
+     "reach": {
+      "Part": {
+       "form": 23,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:3",
+        "key": "σας",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 22
+       }
+      },
+      "Inf": {
+       "form": 14,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "θαι",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 33
+       }
+      },
+      "Fin": {
+       "form": 12,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:1",
+        "key": "ν",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 59
+       }
+      }
+     },
+     "byValue": {
+      "Fin": {
+       "n": 856,
+       "correct": 487
+      },
+      "Part": {
+       "n": 367,
+       "correct": 299
+      },
+      "Inf": {
+       "n": 146,
+       "correct": 140
+      }
+     }
+    },
+    {
+     "feature": "Voice",
+     "carriers": 1369,
+     "covered": 955,
+     "correct": 793,
+     "contested": 22,
+     "contestedCorrect": 5,
+     "missedUnmarked": 0,
+     "missedVoid": 414,
+     "nonCarriers": 0,
+     "falseFires": 0,
+     "silenced": 0,
+     "dominantKind": "end:1",
+     "admitted": 38,
+     "candidates": 808,
+     "floor": 9.824916746395811,
+     "values": 4,
+     "reach": {
+      "Act": {
+       "form": 9,
+       "class": 1,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "ας",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 44
+       }
+      },
+      "Mid": {
+       "form": 25,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:3",
+        "key": "γεν",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 9
+       }
+      },
+      "Pass": {
+       "form": 3,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "θη",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 13
+       }
+      }
+     },
+     "byValue": {
+      "Act": {
+       "n": 981,
+       "correct": 591
+      },
+      "Mid": {
+       "n": 248,
+       "correct": 184
+      },
+      "Pass": {
+       "n": 137,
+       "correct": 18
+      },
+      "Mid,Pass": {
+       "n": 3,
+       "correct": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "lang": "sa-vedic",
+   "name": "Sanskrit Vedic",
+   "language": {
+    "iso": "san",
+    "name": "Sanskrit",
+    "stage": "Vedic Sanskrit — hymns, Brāhmaṇa and Sūtra prose, not Classical"
+   },
+   "split": "parity: even sentences learn, odd audit",
+   "learnSentences": 1355,
+   "auditSentences": 1354,
+   "ms": 1781,
+   "provenance": {
+    "schema": "Provenance@1",
+    "source": {
+     "value": "sa_vedic-ud-test.conllu sha256:242546c3d6709c7c30d9c443039eb1483bc6d8f45b4873f821b60c19756cce43",
+     "basis": "measured from the file"
+    },
+    "giver": {
+     "value": "Treebank of Vedic Sanskrit (Hellwig, Scarlata, Ackermann, Widmer, LREC 2020; annotation also Biagetti, Sellmer), University of Zurich",
+     "basis": "declared from the treebank's documentation"
+    },
+    "license": {
+     "value": "The treebank is licensed under the Creative Commons License Attribution-ShareAlike 4.0 International.",
+     "basis": "measured from the file"
+    },
+    "period": {
+     "value": "c. 1500–500 BCE for the Vedic layers (Ṛgveda, Atharvaveda, Saṃhitās, Brāhmaṇas, Upaniṣads, Sūtras); the README calls them the oldest transmitted Indo-European layers — the cited texts are measured below and a few sit later",
+     "basis": "declared from the treebank's documentation"
+    },
+    "region": {
+     "value": "northwestern South Asia (Punjab, upper Gangetic plain) — the Vedic homeland",
+     "basis": "declared by the builder — verify"
+    },
+    "register": {
+     "value": "metrical hymns and ritual/exegetical prose",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Latin (100.0% of letters)",
+     "basis": "measured from the file"
+    },
+    "documents": {
+     "value": {
+      "citedTexts": {
+       "ṚV": 447,
+       "AB": 263,
+       "ŚBM": 254,
+       "AVŚ": 243,
+       "KhādGS": 107,
+       "KS": 94,
+       "PB": 89,
+       "JB": 74,
+       "ĀpŚS": 74,
+       "MBh": 73,
+       "TS": 73,
+       "BĀU": 60,
+       "GobhGS": 52,
+       "AVP": 52,
+       "PārGS": 48,
+       "ŚvetU": 48,
+       "VaitS": 47,
+       "KauṣB": 44,
+       "VārGS": 43,
+       "KātyŚS": 43,
+       "AĀ": 41,
+       "AU": 40,
+       "TĀ": 40,
+       "MS": 39,
+       "ĀpDhS": 31,
+       "GautDhS": 30,
+       "ŚāṅkhGS": 28,
+       "ṚVKh": 28,
+       "ChU": 24,
+       "KāṭhGS": 23,
+       "BaudhDhS": 21,
+       "DrāhŚS": 20,
+       "BhārŚS": 18,
+       "GB": 17,
+       "ĀśvGS": 16,
+       "ArthaŚ": 15,
+       "HirGS": 12,
+       "ĀśvŚS": 11,
+       "KauśS": 10,
+       "JaimGS": 10,
+       "ŚāṅkhŚS": 5,
+       "TU": 2
+      }
+     },
+     "basis": "measured from the file"
+    },
+    "readme": {
+     "value": "eval/fixtures/ud-sanskrit-vedic/README.md",
+     "basis": "measured from the file"
+    },
+    "split": {
+     "value": "parity: even sentences learn, odd audit",
+     "basis": "measured from the file"
+    },
+    "tokens": {
+     "value": {
+      "learn": 10361,
+      "audit": 10258
+     },
+     "basis": "measured from the file"
+    },
+    "builtBy": {
+     "value": "native/eval/lavar/sullivan-morph.mjs (Sullivan's second sense, morph-cues.js)",
+     "basis": "measured from the file"
+    },
+    "builtAt": {
+     "value": "2026-09-25T19:35:38.766Z",
+     "basis": "measured from the file"
+    },
+    "null": {
+     "value": {
+      "draws": 12,
+      "reruns": 11,
+      "seed": 7
+     },
+     "basis": "measured from the file"
+    }
+   },
+   "rows": [
+    {
+     "feature": "Case",
+     "carriers": 5986,
+     "covered": 5434,
+     "correct": 3980,
+     "contested": 3823,
+     "contestedCorrect": 2783,
+     "missedUnmarked": 403,
+     "missedVoid": 149,
+     "nonCarriers": 2785,
+     "falseFires": 563,
+     "silenced": 2222,
+     "dominantKind": "end:2",
+     "admitted": 464,
+     "candidates": 3288,
+     "floor": 15.06906140569766,
+     "values": 9,
+     "reach": {
+      "Nom": {
+       "form": 54,
+       "class": 3,
+       "construction": 15,
+       "best": {
+        "kind": "end:4",
+        "key": "atiḥ",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 23
+       }
+      },
+      "Acc": {
+       "form": 44,
+       "class": 0,
+       "construction": 5,
+       "best": {
+        "kind": "end:2",
+        "key": "im",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 81
+       }
+      },
+      "Loc": {
+       "form": 25,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:3",
+        "key": "eṣu",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 23
+       }
+      },
+      "Ins": {
+       "form": 30,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "ena",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 43
+       }
+      },
+      "Gen": {
+       "form": 26,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "ānām",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 24
+       }
+      },
+      "Voc": {
+       "form": 18,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:3",
+        "key": "gne",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 19
+       }
+      },
+      "Dat": {
+       "form": 19,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "āya",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 52
+       }
+      },
+      "Abl": {
+       "form": 9,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:2",
+        "key": "āt",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 59
+       }
+      }
+     },
+     "byValue": {
+      "Acc": {
+       "n": 1728,
+       "correct": 1206
+      },
+      "Ins": {
+       "n": 412,
+       "correct": 307
+      },
+      "Gen": {
+       "n": 543,
+       "correct": 305
+      },
+      "Nom": {
+       "n": 2385,
+       "correct": 1685
+      },
+      "Loc": {
+       "n": 374,
+       "correct": 186
+      },
+      "Abl": {
+       "n": 133,
+       "correct": 70
+      },
+      "Dat": {
+       "n": 267,
+       "correct": 164
+      },
+      "Voc": {
+       "n": 144,
+       "correct": 57
+      }
+     }
+    },
+    {
+     "feature": "Gender",
+     "carriers": 5696,
+     "covered": 5213,
+     "correct": 3651,
+     "contested": 2147,
+     "contestedCorrect": 1468,
+     "missedUnmarked": 345,
+     "missedVoid": 138,
+     "nonCarriers": 3075,
+     "falseFires": 828,
+     "silenced": 2247,
+     "dominantKind": "end:2",
+     "admitted": 296,
+     "candidates": 3533,
+     "floor": 19.884256426960892,
+     "values": 4,
+     "reach": {
+      "Neut": {
+       "form": 44,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "at",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 183
+       }
+      },
+      "Masc": {
+       "form": 49,
+       "class": 3,
+       "construction": 6,
+       "best": {
+        "kind": "end:2",
+        "key": "ān",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 58
+       }
+      },
+      "Fem": {
+       "form": 45,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "āḥ",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 49
+       }
+      }
+     },
+     "byValue": {
+      "Masc": {
+       "n": 3121,
+       "correct": 2382
+      },
+      "Neut": {
+       "n": 1385,
+       "correct": 713
+      },
+      "Fem": {
+       "n": 1190,
+       "correct": 556
+      }
+     }
+    },
+    {
+     "feature": "Mood",
+     "carriers": 1491,
+     "covered": 1288,
+     "correct": 1148,
+     "contested": 574,
+     "contestedCorrect": 494,
+     "missedUnmarked": 154,
+     "missedVoid": 49,
+     "nonCarriers": 629,
+     "falseFires": 180,
+     "silenced": 449,
+     "dominantKind": "end:2",
+     "admitted": 92,
+     "candidates": 837,
+     "floor": 12.544932894694163,
+     "values": 6,
+     "reach": {
+      "Ind": {
+       "form": 24,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "end:3",
+        "key": "āti",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 30
+       }
+      },
+      "Opt": {
+       "form": 25,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "et",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 83
+       }
+      },
+      "Imp": {
+       "form": 14,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:2",
+        "key": "tu",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 39
+       }
+      },
+      "Jus": {
+       "form": 0,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "left",
+        "key": "mā",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 11
+       }
+      }
+     },
+     "byValue": {
+      "Ind": {
+       "n": 990,
+       "correct": 863
+      },
+      "Opt": {
+       "n": 218,
+       "correct": 185
+      },
+      "Imp": {
+       "n": 213,
+       "correct": 92
+      },
+      "Jus": {
+       "n": 37,
+       "correct": 8
+      },
+      "Sub": {
+       "n": 33,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Number",
+     "carriers": 7477,
+     "covered": 5879,
+     "correct": 5256,
+     "contested": 1192,
+     "contestedCorrect": 969,
+     "missedUnmarked": 172,
+     "missedVoid": 1426,
+     "nonCarriers": 1294,
+     "falseFires": 341,
+     "silenced": 953,
+     "dominantKind": "end:2",
+     "admitted": 317,
+     "candidates": 3766,
+     "floor": 13.944290561317946,
+     "values": 4,
+     "reach": {
+      "Sing": {
+       "form": 59,
+       "class": 2,
+       "construction": 5,
+       "best": {
+        "kind": "end:2",
+        "key": "am",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 569
+       }
+      },
+      "Dual": {
+       "form": 33,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "thaḥ",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 10
+       }
+      },
+      "Plur": {
+       "form": 70,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "eṣu",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 23
+       }
+      }
+     },
+     "byValue": {
+      "Sing": {
+       "n": 5622,
+       "correct": 4241
+      },
+      "Plur": {
+       "n": 1588,
+       "correct": 923
+      },
+      "Dual": {
+       "n": 267,
+       "correct": 92
+      }
+     }
+    },
+    {
+     "feature": "Person",
+     "carriers": 1491,
+     "covered": 1319,
+     "correct": 1225,
+     "contested": 548,
+     "contestedCorrect": 501,
+     "missedUnmarked": 115,
+     "missedVoid": 57,
+     "nonCarriers": 629,
+     "falseFires": 213,
+     "silenced": 416,
+     "dominantKind": "end:2",
+     "admitted": 112,
+     "candidates": 866,
+     "floor": 9.241400466669658,
+     "values": 4,
+     "reach": {
+      "1": {
+       "form": 17,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "end:3",
+        "key": "maḥ",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 9
+       }
+      },
+      "2": {
+       "form": 16,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:4",
+        "key": "thaḥ",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 10
+       }
+      },
+      "3": {
+       "form": 37,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "end:3",
+        "key": "āti",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 30
+       }
+      }
+     },
+     "byValue": {
+      "1": {
+       "n": 115,
+       "correct": 71
+      },
+      "2": {
+       "n": 231,
+       "correct": 96
+      },
+      "3": {
+       "n": 1145,
+       "correct": 1058
+      }
+     }
+    },
+    {
+     "feature": "Tense",
+     "carriers": 1922,
+     "covered": 1836,
+     "correct": 1542,
+     "contested": 544,
+     "contestedCorrect": 447,
+     "missedUnmarked": 27,
+     "missedVoid": 59,
+     "nonCarriers": 198,
+     "falseFires": 68,
+     "silenced": 130,
+     "dominantKind": "end:2",
+     "admitted": 102,
+     "candidates": 915,
+     "floor": 8.763507423118826,
+     "values": 5,
+     "reach": {
+      "Pres": {
+       "form": 37,
+       "class": 1,
+       "construction": 2,
+       "best": {
+        "kind": "end:3",
+        "key": "āti",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 30
+       }
+      },
+      "Past": {
+       "form": 40,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:3",
+        "key": "huḥ",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 35
+       }
+      },
+      "Fut": {
+       "form": 1,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "āmaḥ",
+        "class": "VERB",
+        "accuracy": 0.8333333333333334,
+        "support": 8
+       }
+      }
+     },
+     "byValue": {
+      "Pres": {
+       "n": 1241,
+       "correct": 1014
+      },
+      "Past": {
+       "n": 668,
+       "correct": 528
+      },
+      "Fut": {
+       "n": 12,
+       "correct": 0
+      },
+      "Pqp": {
+       "n": 1,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "VerbForm",
+     "carriers": 629,
+     "covered": 490,
+     "correct": 462,
+     "contested": 145,
+     "contestedCorrect": 133,
+     "missedUnmarked": 101,
+     "missedVoid": 38,
+     "nonCarriers": 1491,
+     "falseFires": 236,
+     "silenced": 1255,
+     "dominantKind": "end:3",
+     "admitted": 98,
+     "candidates": 948,
+     "floor": 7.874800983003954,
+     "values": 5,
+     "reach": {
+      "Part": {
+       "form": 38,
+       "class": 0,
+       "construction": 8,
+       "best": {
+        "kind": "left",
+        "key": "a",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 23
+       }
+      },
+      "Conv": {
+       "form": 19,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "vā",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 40
+       }
+      },
+      "Gdv": {
+       "form": 3,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "vyam",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 3
+       }
+      }
+     },
+     "byValue": {
+      "Conv": {
+       "n": 165,
+       "correct": 152
+      },
+      "Part": {
+       "n": 431,
+       "correct": 305
+      },
+      "Gdv": {
+       "n": 20,
+       "correct": 5
+      },
+      "Inf": {
+       "n": 13,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Voice",
+     "carriers": 46,
+     "covered": 1,
+     "correct": 1,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 45,
+     "nonCarriers": 2001,
+     "falseFires": 0,
+     "silenced": 2001,
+     "dominantKind": "end:4",
+     "admitted": 1,
+     "candidates": 1052,
+     "floor": 5.417485650283567,
+     "values": 2,
+     "reach": {
+      "Pass": {
+       "form": 1,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "ṇāya",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 2
+       }
+      }
+     },
+     "byValue": {
+      "Pass": {
+       "n": 46,
+       "correct": 1
+      }
+     }
+    }
+   ]
+  },
+  {
+   "lang": "sa-ufal",
+   "name": "Sanskrit UFAL",
+   "language": {
+    "iso": "san",
+    "name": "Sanskrit",
+    "stage": "Classical Sanskrit fable prose (Pañcatantra)"
+   },
+   "split": "parity: even sentences learn, odd audit",
+   "learnSentences": 115,
+   "auditSentences": 115,
+   "ms": 219,
+   "provenance": {
+    "schema": "Provenance@1",
+    "source": {
+     "value": "sa_ufal-ud-test.conllu sha256:8e956d19e67e96d8fce8807a37f6d5b995db35df12a8b7ba233dbbaf74a4aa6f",
+     "basis": "measured from the file"
+    },
+    "giver": {
+     "value": "UD_Sanskrit-UFAL (Dwivedi, Zeman, Biagetti; ÚFAL, Charles University, Prague; Gérard Huet's Sanskrit Reader for segmentation) — the README's machine-readable metadata",
+     "basis": "declared from the treebank's documentation"
+    },
+    "license": {
+     "value": "The treebank is licensed under the Creative Commons License Attribution-ShareAlike 4.0 International.",
+     "basis": "measured from the file"
+    },
+    "period": {
+     "value": "the Pañcatantra: composed c. 200 BCE–300 CE, transmitted in later recensions; the text here is Wikisource's",
+     "basis": "declared by the builder — verify"
+    },
+    "region": {
+     "value": "India — a pan-Indian literary text, no single region",
+     "basis": "declared by the builder — verify"
+    },
+    "register": {
+     "value": "fiction: fable (README genre)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "script": {
+     "value": "Devanagari (100.0% of letters)",
+     "basis": "measured from the file"
+    },
+    "documents": {
+     "value": {
+      "documents": {
+       "count": 1,
+       "prefixes": {
+        "pancatantra": 1
+       }
+      }
+     },
+     "basis": "measured from the file"
+    },
+    "readme": {
+     "value": "eval/fixtures/ud-sanskrit-ufal/README.md",
+     "basis": "measured from the file"
+    },
+    "split": {
+     "value": "parity: even sentences learn, odd audit",
+     "basis": "measured from the file"
+    },
+    "tokens": {
+     "value": {
+      "learn": 892,
+      "audit": 951
+     },
+     "basis": "measured from the file"
+    },
+    "builtBy": {
+     "value": "native/eval/lavar/sullivan-morph.mjs (Sullivan's second sense, morph-cues.js)",
+     "basis": "measured from the file"
+    },
+    "builtAt": {
+     "value": "2026-09-25T19:35:39.002Z",
+     "basis": "measured from the file"
+    },
+    "null": {
+     "value": {
+      "draws": 12,
+      "reruns": 11,
+      "seed": 7
+     },
+     "basis": "measured from the file"
+    }
+   },
+   "rows": [
+    {
+     "feature": "Aspect",
+     "carriers": 7,
+     "covered": 4,
+     "correct": 4,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 3,
+     "nonCarriers": 149,
+     "falseFires": 13,
+     "silenced": 136,
+     "dominantKind": "end:1",
+     "admitted": 9,
+     "candidates": 151,
+     "floor": 4.6531191111036945,
+     "values": 2,
+     "reach": {
+      "Perf": {
+       "form": 7,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:1",
+        "key": "च",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 4
+       }
+      }
+     },
+     "byValue": {
+      "Perf": {
+       "n": 7,
+       "correct": 4
+      }
+     }
+    },
+    {
+     "feature": "Case",
+     "carriers": 479,
+     "covered": 262,
+     "correct": 183,
+     "contested": 64,
+     "contestedCorrect": 55,
+     "missedUnmarked": 31,
+     "missedVoid": 186,
+     "nonCarriers": 315,
+     "falseFires": 25,
+     "silenced": 290,
+     "dominantKind": "end:1",
+     "admitted": 57,
+     "candidates": 425,
+     "floor": 8.106446643281272,
+     "values": 9,
+     "reach": {
+      "Acc": {
+       "form": 6,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "beg:1",
+        "key": "ए",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 6
+       }
+      },
+      "Nom": {
+       "form": 7,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "beg:1",
+        "key": "स",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 10
+       }
+      },
+      "Ins": {
+       "form": 6,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "ेण",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 7
+       }
+      },
+      "Gen": {
+       "form": 8,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:1",
+        "key": "म",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 3
+       }
+      },
+      "Loc": {
+       "form": 3,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:1",
+        "key": "े",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 5
+       }
+      },
+      "Voc": {
+       "form": 3,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:1",
+        "key": "व",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 3
+       }
+      }
+     },
+     "byValue": {
+      "Nom": {
+       "n": 254,
+       "correct": 95
+      },
+      "Dat": {
+       "n": 9,
+       "correct": 0
+      },
+      "Acc": {
+       "n": 89,
+       "correct": 46
+      },
+      "Loc": {
+       "n": 30,
+       "correct": 16
+      },
+      "Ins": {
+       "n": 40,
+       "correct": 9
+      },
+      "Gen": {
+       "n": 38,
+       "correct": 14
+      },
+      "Voc": {
+       "n": 8,
+       "correct": 3
+      },
+      "Abl": {
+       "n": 11,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Gender",
+     "carriers": 450,
+     "covered": 268,
+     "correct": 178,
+     "contested": 93,
+     "contestedCorrect": 58,
+     "missedUnmarked": 31,
+     "missedVoid": 151,
+     "nonCarriers": 344,
+     "falseFires": 71,
+     "silenced": 273,
+     "dominantKind": "class",
+     "admitted": 42,
+     "candidates": 450,
+     "floor": 7.427182980593327,
+     "values": 4,
+     "reach": {
+      "Neut": {
+       "form": 10,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "तत्",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 6
+       }
+      },
+      "Masc": {
+       "form": 5,
+       "class": 1,
+       "construction": 4,
+       "best": {
+        "kind": "end:2",
+        "key": "तः",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 13
+       }
+      }
+     },
+     "byValue": {
+      "Neut": {
+       "n": 138,
+       "correct": 18
+      },
+      "Masc": {
+       "n": 267,
+       "correct": 160
+      },
+      "Fem": {
+       "n": 45,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Mood",
+     "carriers": 91,
+     "covered": 67,
+     "correct": 61,
+     "contested": 1,
+     "contestedCorrect": 1,
+     "missedUnmarked": 0,
+     "missedVoid": 24,
+     "nonCarriers": 128,
+     "falseFires": 24,
+     "silenced": 104,
+     "dominantKind": "end:1",
+     "admitted": 11,
+     "candidates": 177,
+     "floor": 7.999999999999999,
+     "values": 4,
+     "reach": {
+      "Ind": {
+       "form": 3,
+       "class": 0,
+       "construction": 4,
+       "best": {
+        "kind": "end:1",
+        "key": "ि",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 27
+       }
+      },
+      "Imp": {
+       "form": 2,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "ाम्",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 4
+       }
+      }
+     },
+     "byValue": {
+      "Ind": {
+       "n": 79,
+       "correct": 57
+      },
+      "Imp": {
+       "n": 7,
+       "correct": 4
+      },
+      "Opt": {
+       "n": 4,
+       "correct": 0
+      },
+      "Jus": {
+       "n": 1,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "NumType",
+     "carriers": 10,
+     "covered": 8,
+     "correct": 8,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 2,
+     "missedVoid": 0,
+     "nonCarriers": 52,
+     "falseFires": 0,
+     "silenced": 52,
+     "dominantKind": "class",
+     "admitted": 4,
+     "candidates": 57,
+     "floor": 5.325930025444857,
+     "values": 3,
+     "reach": {
+      "Card": {
+       "form": 0,
+       "class": 1,
+       "construction": 2,
+       "best": {
+        "kind": "class",
+        "key": "",
+        "class": "NUM",
+        "accuracy": 1,
+        "support": 10
+       }
+      }
+     },
+     "byValue": {
+      "Card": {
+       "n": 8,
+       "correct": 8
+      },
+      "Ord": {
+       "n": 2,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Number",
+     "carriers": 570,
+     "covered": 171,
+     "correct": 154,
+     "contested": 19,
+     "contestedCorrect": 15,
+     "missedUnmarked": 38,
+     "missedVoid": 361,
+     "nonCarriers": 232,
+     "falseFires": 9,
+     "silenced": 223,
+     "dominantKind": "rclass",
+     "admitted": 33,
+     "candidates": 530,
+     "floor": 7.953424997365414,
+     "values": 4,
+     "reach": {
+      "Sing": {
+       "form": 2,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "rclass",
+        "key": "PUNCT",
+        "class": "VERB",
+        "accuracy": 0.9655172413793104,
+        "support": 56
+       }
+      },
+      "Plur": {
+       "form": 1,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "ाः",
+        "class": "NOUN",
+        "accuracy": 0.8571428571428571,
+        "support": 11
+       }
+      }
+     },
+     "byValue": {
+      "Sing": {
+       "n": 486,
+       "correct": 144
+      },
+      "Plur": {
+       "n": 76,
+       "correct": 10
+      },
+      "Dual": {
+       "n": 8,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Person",
+     "carriers": 135,
+     "covered": 92,
+     "correct": 71,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 43,
+     "nonCarriers": 215,
+     "falseFires": 40,
+     "silenced": 175,
+     "dominantKind": "end:2",
+     "admitted": 23,
+     "candidates": 257,
+     "floor": 7.8312156254192535,
+     "values": 4,
+     "reach": {
+      "1": {
+       "form": 7,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "rclass",
+        "key": "DET",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 4
+       }
+      },
+      "3": {
+       "form": 9,
+       "class": 0,
+       "construction": 4,
+       "best": {
+        "kind": "end:2",
+        "key": "त्",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 12
+       }
+      }
+     },
+     "byValue": {
+      "1": {
+       "n": 36,
+       "correct": 23
+      },
+      "2": {
+       "n": 16,
+       "correct": 0
+      },
+      "3": {
+       "n": 83,
+       "correct": 48
+      }
+     }
+    },
+    {
+     "feature": "Polarity",
+     "carriers": 19,
+     "covered": 15,
+     "correct": 15,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 2,
+     "missedVoid": 2,
+     "nonCarriers": 208,
+     "falseFires": 2,
+     "silenced": 206,
+     "dominantKind": "beg:1",
+     "admitted": 9,
+     "candidates": 209,
+     "floor": 6.388756090333701,
+     "values": 2,
+     "reach": {
+      "Neg": {
+       "form": 2,
+       "class": 1,
+       "construction": 5,
+       "best": {
+        "kind": "end:1",
+        "key": "न",
+        "class": "PART",
+        "accuracy": 1,
+        "support": 19
+       }
+      }
+     },
+     "byValue": {
+      "Neg": {
+       "n": 19,
+       "correct": 15
+      }
+     }
+    },
+    {
+     "feature": "Polite",
+     "carriers": 6,
+     "covered": 6,
+     "correct": 6,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 0,
+     "nonCarriers": 87,
+     "falseFires": 0,
+     "silenced": 87,
+     "dominantKind": "beg:1",
+     "admitted": 3,
+     "candidates": 73,
+     "floor": 1.7771836678696054,
+     "values": 2,
+     "reach": {
+      "Form": {
+       "form": 3,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:1",
+        "key": "भ",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 4
+       }
+      }
+     },
+     "byValue": {
+      "Form": {
+       "n": 6,
+       "correct": 6
+      }
+     }
+    },
+    {
+     "feature": "Poss",
+     "carriers": 2,
+     "covered": 0,
+     "correct": 0,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 2,
+     "nonCarriers": 129,
+     "falseFires": 0,
+     "silenced": 129,
+     "dominantKind": null,
+     "admitted": 0,
+     "candidates": 95,
+     "floor": 4.754887502163467,
+     "values": 2,
+     "reach": {},
+     "byValue": {
+      "Yes": {
+       "n": 2,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "PronType",
+     "carriers": 169,
+     "covered": 117,
+     "correct": 86,
+     "contested": 25,
+     "contestedCorrect": 21,
+     "missedUnmarked": 26,
+     "missedVoid": 26,
+     "nonCarriers": 72,
+     "falseFires": 3,
+     "silenced": 69,
+     "dominantKind": "beg:1",
+     "admitted": 37,
+     "candidates": 138,
+     "floor": 6.81057374533767,
+     "values": 7,
+     "reach": {
+      "Dem": {
+       "form": 5,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "end:1",
+        "key": "्",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 17
+       }
+      },
+      "Rel": {
+       "form": 7,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "यथा",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 5
+       }
+      },
+      "Prs": {
+       "form": 4,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:1",
+        "key": "म",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 6
+       }
+      },
+      "Ind": {
+       "form": 2,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "ित्",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 3
+       }
+      }
+     },
+     "byValue": {
+      "Dem": {
+       "n": 84,
+       "correct": 48
+      },
+      "Prs": {
+       "n": 39,
+       "correct": 19
+      },
+      "Int": {
+       "n": 16,
+       "correct": 0
+      },
+      "Rel": {
+       "n": 23,
+       "correct": 18
+      },
+      "Ind": {
+       "n": 4,
+       "correct": 1
+      },
+      "Tot": {
+       "n": 3,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Reflex",
+     "carriers": 2,
+     "covered": 0,
+     "correct": 0,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 2,
+     "nonCarriers": 38,
+     "falseFires": 0,
+     "silenced": 38,
+     "dominantKind": null,
+     "admitted": 0,
+     "candidates": 21,
+     "floor": 1.2702493916192936,
+     "values": 2,
+     "reach": {},
+     "byValue": {
+      "Yes": {
+       "n": 2,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Tense",
+     "carriers": 143,
+     "covered": 90,
+     "correct": 57,
+     "contested": 14,
+     "contestedCorrect": 8,
+     "missedUnmarked": 7,
+     "missedVoid": 46,
+     "nonCarriers": 356,
+     "falseFires": 9,
+     "silenced": 347,
+     "dominantKind": "end:1",
+     "admitted": 27,
+     "candidates": 377,
+     "floor": 7.458704820112661,
+     "values": 5,
+     "reach": {
+      "Imp": {
+       "form": 6,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:3",
+        "key": "ीत्",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 7
+       }
+      },
+      "Past": {
+       "form": 6,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "तः",
+        "class": "VERB",
+        "accuracy": 0.8888888888888888,
+        "support": 13
+       }
+      },
+      "Pres": {
+       "form": 5,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:1",
+        "key": "भ",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 7
+       }
+      },
+      "Fut": {
+       "form": 2,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "यति",
+        "class": "VERB",
+        "accuracy": 0.6666666666666666,
+        "support": 6
+       }
+      }
+     },
+     "byValue": {
+      "Pres": {
+       "n": 62,
+       "correct": 27
+      },
+      "Past": {
+       "n": 48,
+       "correct": 22
+      },
+      "Imp": {
+       "n": 10,
+       "correct": 8
+      },
+      "Fut": {
+       "n": 23,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "VerbForm",
+     "carriers": 172,
+     "covered": 156,
+     "correct": 116,
+     "contested": 64,
+     "contestedCorrect": 41,
+     "missedUnmarked": 7,
+     "missedVoid": 9,
+     "nonCarriers": 327,
+     "falseFires": 0,
+     "silenced": 327,
+     "dominantKind": "end:1",
+     "admitted": 44,
+     "candidates": 390,
+     "floor": 7.972763618586733,
+     "values": 5,
+     "reach": {
+      "Fin": {
+       "form": 10,
+       "class": 1,
+       "construction": 5,
+       "best": {
+        "kind": "end:2",
+        "key": "त्",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 12
+       }
+      },
+      "Conv": {
+       "form": 9,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:1",
+        "key": "य",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 17
+       }
+      },
+      "Part": {
+       "form": 3,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "तः",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 13
+       }
+      },
+      "Inf": {
+       "form": 2,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:3",
+        "key": "ुम्",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 2
+       }
+      }
+     },
+     "byValue": {
+      "Conv": {
+       "n": 9,
+       "correct": 9
+      },
+      "Fin": {
+       "n": 91,
+       "correct": 80
+      },
+      "Part": {
+       "n": 68,
+       "correct": 24
+      },
+      "Inf": {
+       "n": 4,
+       "correct": 3
+      }
+     }
+    },
+    {
+     "feature": "Voice",
+     "carriers": 160,
+     "covered": 140,
+     "correct": 111,
+     "contested": 49,
+     "contestedCorrect": 36,
+     "missedUnmarked": 7,
+     "missedVoid": 13,
+     "nonCarriers": 339,
+     "falseFires": 7,
+     "silenced": 332,
+     "dominantKind": "end:1",
+     "admitted": 38,
+     "candidates": 392,
+     "floor": 7.671702023700139,
+     "values": 6,
+     "reach": {
+      "Act": {
+       "form": 13,
+       "class": 1,
+       "construction": 5,
+       "best": {
+        "kind": "end:1",
+        "key": "च",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 4
+       }
+      },
+      "Pass": {
+       "form": 7,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:3",
+        "key": "ाम्",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 4
+       }
+      },
+      "Cau,Pass": {
+       "form": 1,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "शितः",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 2
+       }
+      }
+     },
+     "byValue": {
+      "Act": {
+       "n": 66,
+       "correct": 57
+      },
+      "Pass": {
+       "n": 76,
+       "correct": 54
+      },
+      "Mid": {
+       "n": 11,
+       "correct": 0
+      },
+      "Cau": {
+       "n": 2,
+       "correct": 0
+      },
+      "Cau,Pass": {
+       "n": 4,
+       "correct": 0
+      },
+      "Act,Cau": {
+       "n": 1,
+       "correct": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "lang": "ar",
+   "name": "Arabic PADT",
+   "language": {
+    "iso": "arb",
+    "name": "Arabic",
+    "stage": "Modern Standard Arabic (newswire) — no spoken dialect"
+   },
+   "split": "parity: even sentences learn, odd audit",
+   "learnSentences": 340,
+   "auditSentences": 340,
+   "ms": 1753,
+   "provenance": {
+    "schema": "Provenance@1",
+    "source": {
+     "value": "ar_padt-ud-test.conllu sha256:793c87bf173d491af2092ef7f87b04a2cf6c596490e7347a2065058a053a6389",
+     "basis": "measured from the file"
+    },
+    "giver": {
+     "value": "Prague Arabic Dependency Treebank (Hajič, Smrž, Zemánek, Šnaidauf, Beška; ÚFAL), UD conversion by ÚFAL — no README shipped beside this file",
+     "basis": "declared by the builder — verify"
+    },
+    "license": {
+     "value": "CC BY-NC-SA 3.0 (UD_Arabic-PADT)",
+     "basis": "declared by the builder — verify"
+    },
+    "period": {
+     "value": "2000s newswire (the file's document ids carry 2004 dates)",
+     "basis": "declared by the builder — verify"
+    },
+    "region": {
+     "value": "supra-regional written standard; the sources the file names are Tunisian (Assabah), Lebanese (An-Nahar), pan-Arab London-based (Al-Hayat), Xinhua's Arabic service and Ummah Press",
+     "basis": "declared by the builder — verify"
+    },
+    "register": {
+     "value": "newswire prose",
+     "basis": "declared by the builder — verify"
+    },
+    "script": {
+     "value": "Arabic (100.0% of letters)",
+     "basis": "measured from the file"
+    },
+    "documents": {
+     "value": {
+      "documents": {
+       "count": 69,
+       "prefixes": {
+        "ummah": 26,
+        "xinhua": 20,
+        "alhayat": 17,
+        "assabah": 4,
+        "annahar": 2
+       }
+      }
+     },
+     "basis": "measured from the file"
+    },
+    "readme": {
+     "value": "no README shipped beside the file",
+     "basis": "measured from the file"
+    },
+    "split": {
+     "value": "parity: even sentences learn, odd audit",
+     "basis": "measured from the file"
+    },
+    "tokens": {
+     "value": {
+      "learn": 13765,
+      "audit": 14499
+     },
+     "basis": "measured from the file"
+    },
+    "builtBy": {
+     "value": "native/eval/lavar/sullivan-morph.mjs (Sullivan's second sense, morph-cues.js)",
+     "basis": "measured from the file"
+    },
+    "builtAt": {
+     "value": "2026-09-25T19:35:40.875Z",
+     "basis": "measured from the file"
+    },
+    "null": {
+     "value": {
+      "draws": 12,
+      "reruns": 11,
+      "seed": 7
+     },
+     "basis": "measured from the file"
+    }
+   },
+   "rows": [
+    {
+     "feature": "AdpType",
+     "carriers": 2334,
+     "covered": 0,
+     "correct": 0,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 2334,
+     "nonCarriers": 0,
+     "falseFires": 0,
+     "silenced": 0,
+     "dominantKind": null,
+     "admitted": 0,
+     "candidates": 662,
+     "floor": 0,
+     "values": 1,
+     "reach": {},
+     "byValue": {
+      "Prep": {
+       "n": 2334,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Aspect",
+     "carriers": 1114,
+     "covered": 1027,
+     "correct": 968,
+     "contested": 226,
+     "contestedCorrect": 209,
+     "missedUnmarked": 23,
+     "missedVoid": 64,
+     "nonCarriers": 76,
+     "falseFires": 0,
+     "silenced": 76,
+     "dominantKind": "beg:1",
+     "admitted": 45,
+     "candidates": 787,
+     "floor": 11.3301089298343,
+     "values": 3,
+     "reach": {
+      "Imp": {
+       "form": 10,
+       "class": 0,
+       "construction": 6,
+       "best": {
+        "kind": "beg:1",
+        "key": "ي",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 281
+       }
+      },
+      "Perf": {
+       "form": 15,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:1",
+        "key": "ت",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 217
+       }
+      }
+     },
+     "byValue": {
+      "Perf": {
+       "n": 609,
+       "correct": 496
+      },
+      "Imp": {
+       "n": 505,
+       "correct": 472
+      }
+     }
+    },
+    {
+     "feature": "Case",
+     "carriers": 7708,
+     "covered": 7365,
+     "correct": 5964,
+     "contested": 1644,
+     "contestedCorrect": 988,
+     "missedUnmarked": 271,
+     "missedVoid": 72,
+     "nonCarriers": 2311,
+     "falseFires": 4,
+     "silenced": 2307,
+     "dominantKind": "lclass",
+     "admitted": 294,
+     "candidates": 3545,
+     "floor": 12.485937798270864,
+     "values": 4,
+     "reach": {
+      "Gen": {
+       "form": 57,
+       "class": 3,
+       "construction": 37,
+       "best": {
+        "kind": "left",
+        "key": "ل",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 265
+       }
+      },
+      "Acc": {
+       "form": 56,
+       "class": 0,
+       "construction": 14,
+       "best": {
+        "kind": "end:1",
+        "key": "م",
+        "class": "ADP",
+        "accuracy": 1,
+        "support": 16
+       }
+      },
+      "Nom": {
+       "form": 14,
+       "class": 0,
+       "construction": 13,
+       "best": {
+        "kind": "left",
+        "key": "^",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 48
+       }
+      }
+     },
+     "byValue": {
+      "Nom": {
+       "n": 905,
+       "correct": 164
+      },
+      "Gen": {
+       "n": 5287,
+       "correct": 5099
+      },
+      "Acc": {
+       "n": 1516,
+       "correct": 701
+      }
+     }
+    },
+    {
+     "feature": "ConjType",
+     "carriers": 0,
+     "covered": 0,
+     "correct": 0,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 0,
+     "nonCarriers": 25,
+     "falseFires": 0,
+     "silenced": 25,
+     "dominantKind": null,
+     "admitted": 3,
+     "candidates": 9,
+     "floor": 0.22239242133644674,
+     "values": 2,
+     "reach": {},
+     "byValue": {}
+    },
+    {
+     "feature": "Definite",
+     "carriers": 6600,
+     "covered": 6534,
+     "correct": 5532,
+     "contested": 3295,
+     "contestedCorrect": 2515,
+     "missedUnmarked": 65,
+     "missedVoid": 1,
+     "nonCarriers": 241,
+     "falseFires": 72,
+     "silenced": 169,
+     "dominantKind": "beg:3",
+     "admitted": 325,
+     "candidates": 2867,
+     "floor": 11.043129316681423,
+     "values": 5,
+     "reach": {
+      "Cons": {
+       "form": 68,
+       "class": 0,
+       "construction": 18,
+       "best": {
+        "kind": "beg:2",
+        "key": "حق",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 17
+       }
+      },
+      "Def": {
+       "form": 64,
+       "class": 1,
+       "construction": 24,
+       "best": {
+        "kind": "beg:3",
+        "key": "الا",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 189
+       }
+      },
+      "Ind": {
+       "form": 64,
+       "class": 0,
+       "construction": 9,
+       "best": {
+        "kind": "beg:1",
+        "key": "و",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 18
+       }
+      }
+     },
+     "byValue": {
+      "Cons": {
+       "n": 2050,
+       "correct": 1731
+      },
+      "Def": {
+       "n": 3153,
+       "correct": 3110
+      },
+      "Ind": {
+       "n": 1396,
+       "correct": 691
+      },
+      "Com": {
+       "n": 1,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Gender",
+     "carriers": 3482,
+     "covered": 3353,
+     "correct": 3182,
+     "contested": 1253,
+     "contestedCorrect": 1179,
+     "missedUnmarked": 74,
+     "missedVoid": 55,
+     "nonCarriers": 452,
+     "falseFires": 1,
+     "silenced": 451,
+     "dominantKind": "end:1",
+     "admitted": 225,
+     "candidates": 1822,
+     "floor": 10.012999718140675,
+     "values": 3,
+     "reach": {
+      "Masc": {
+       "form": 53,
+       "class": 1,
+       "construction": 7,
+       "best": {
+        "kind": "end:1",
+        "key": "ي",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 302
+       }
+      },
+      "Fem": {
+       "form": 57,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:1",
+        "key": "ة",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 650
+       }
+      }
+     },
+     "byValue": {
+      "Masc": {
+       "n": 1986,
+       "correct": 1751
+      },
+      "Fem": {
+       "n": 1496,
+       "correct": 1431
+      }
+     }
+    },
+    {
+     "feature": "Mood",
+     "carriers": 505,
+     "covered": 465,
+     "correct": 436,
+     "contested": 141,
+     "contestedCorrect": 126,
+     "missedUnmarked": 35,
+     "missedVoid": 5,
+     "nonCarriers": 685,
+     "falseFires": 221,
+     "silenced": 464,
+     "dominantKind": "beg:1",
+     "admitted": 41,
+     "candidates": 733,
+     "floor": 10.260056741668574,
+     "values": 4,
+     "reach": {
+      "Ind": {
+       "form": 9,
+       "class": 0,
+       "construction": 7,
+       "best": {
+        "kind": "beg:2",
+        "key": "يش",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 13
+       }
+      },
+      "Sub": {
+       "form": 1,
+       "class": 0,
+       "construction": 4,
+       "best": {
+        "kind": "left",
+        "key": "ل",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 15
+       }
+      },
+      "Jus": {
+       "form": 0,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "left",
+        "key": "لم",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 27
+       }
+      }
+     },
+     "byValue": {
+      "Ind": {
+       "n": 391,
+       "correct": 364
+      },
+      "Jus": {
+       "n": 46,
+       "correct": 30
+      },
+      "Sub": {
+       "n": 68,
+       "correct": 42
+      }
+     }
+    },
+    {
+     "feature": "NumValue",
+     "carriers": 44,
+     "covered": 42,
+     "correct": 42,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 2,
+     "nonCarriers": 326,
+     "falseFires": 16,
+     "silenced": 310,
+     "dominantKind": "beg:1",
+     "admitted": 30,
+     "candidates": 279,
+     "floor": 4.9320663073263695,
+     "values": 4,
+     "reach": {
+      "1": {
+       "form": 5,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:1",
+        "key": "و",
+        "class": "NUM",
+        "accuracy": 1,
+        "support": 5
+       }
+      },
+      "3": {
+       "form": 21,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:1",
+        "key": "ث",
+        "class": "NUM",
+        "accuracy": 1,
+        "support": 4
+       }
+      }
+     },
+     "byValue": {
+      "1": {
+       "n": 1,
+       "correct": 1
+      },
+      "3": {
+       "n": 43,
+       "correct": 41
+      }
+     }
+    },
+    {
+     "feature": "Number",
+     "carriers": 8445,
+     "covered": 6085,
+     "correct": 5688,
+     "contested": 377,
+     "contestedCorrect": 254,
+     "missedUnmarked": 105,
+     "missedVoid": 2255,
+     "nonCarriers": 429,
+     "falseFires": 9,
+     "silenced": 420,
+     "dominantKind": "end:1",
+     "admitted": 283,
+     "candidates": 4492,
+     "floor": 10.826068303069702,
+     "values": 4,
+     "reach": {
+      "Sing": {
+       "form": 38,
+       "class": 2,
+       "construction": 16,
+       "best": {
+        "kind": "end:2",
+        "key": "يل",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 58
+       }
+      },
+      "Plur": {
+       "form": 83,
+       "class": 0,
+       "construction": 6,
+       "best": {
+        "kind": "end:3",
+        "key": "بات",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 40
+       }
+      },
+      "Dual": {
+       "form": 9,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "تين",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 6
+       }
+      }
+     },
+     "byValue": {
+      "Plur": {
+       "n": 1364,
+       "correct": 842
+      },
+      "Sing": {
+       "n": 6984,
+       "correct": 4815
+      },
+      "Dual": {
+       "n": 97,
+       "correct": 31
+      }
+     }
+    },
+    {
+     "feature": "Person",
+     "carriers": 1678,
+     "covered": 1655,
+     "correct": 1627,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 23,
+     "missedVoid": 0,
+     "nonCarriers": 356,
+     "falseFires": 0,
+     "silenced": 356,
+     "dominantKind": "class",
+     "admitted": 126,
+     "candidates": 1141,
+     "floor": 7.091370352640892,
+     "values": 4,
+     "reach": {
+      "1": {
+       "form": 1,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:2",
+        "key": "نن",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 2
+       }
+      },
+      "3": {
+       "form": 25,
+       "class": 2,
+       "construction": 23,
+       "best": {
+        "kind": "end:1",
+        "key": "ل",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 126
+       }
+      }
+     },
+     "byValue": {
+      "1": {
+       "n": 27,
+       "correct": 0
+      },
+      "2": {
+       "n": 1,
+       "correct": 0
+      },
+      "3": {
+       "n": 1650,
+       "correct": 1627
+      }
+     }
+    },
+    {
+     "feature": "PronType",
+     "carriers": 844,
+     "covered": 844,
+     "correct": 841,
+     "contested": 166,
+     "contestedCorrect": 166,
+     "missedUnmarked": 0,
+     "missedVoid": 0,
+     "nonCarriers": 0,
+     "falseFires": 0,
+     "silenced": 0,
+     "dominantKind": "class",
+     "admitted": 78,
+     "candidates": 232,
+     "floor": 9.856206656586744,
+     "values": 4,
+     "reach": {
+      "Prs": {
+       "form": 8,
+       "class": 1,
+       "construction": 14,
+       "best": {
+        "kind": "end:1",
+        "key": "ه",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 192
+       }
+      },
+      "Int": {
+       "form": 6,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:2",
+        "key": "ما",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 69
+       }
+      },
+      "Rel": {
+       "form": 19,
+       "class": 1,
+       "construction": 4,
+       "best": {
+        "kind": "end:2",
+        "key": "تي",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 79
+       }
+      },
+      "Dem": {
+       "form": 20,
+       "class": 0,
+       "construction": 4,
+       "best": {
+        "kind": "end:2",
+        "key": "ذا",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 43
+       }
+      }
+     },
+     "byValue": {
+      "Prs": {
+       "n": 564,
+       "correct": 564
+      },
+      "Dem": {
+       "n": 107,
+       "correct": 107
+      },
+      "Rel": {
+       "n": 117,
+       "correct": 117
+      },
+      "Int": {
+       "n": 56,
+       "correct": 53
+      }
+     }
+    },
+    {
+     "feature": "VerbForm",
+     "carriers": 505,
+     "covered": 473,
+     "correct": 473,
+     "contested": 82,
+     "contestedCorrect": 82,
+     "missedUnmarked": 27,
+     "missedVoid": 5,
+     "nonCarriers": 685,
+     "falseFires": 169,
+     "silenced": 516,
+     "dominantKind": "beg:1",
+     "admitted": 38,
+     "candidates": 792,
+     "floor": 10.260056741668574,
+     "values": 2,
+     "reach": {
+      "Fin": {
+       "form": 11,
+       "class": 0,
+       "construction": 8,
+       "best": {
+        "kind": "beg:1",
+        "key": "ي",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 281
+       }
+      }
+     },
+     "byValue": {
+      "Fin": {
+       "n": 505,
+       "correct": 473
+      }
+     }
+    },
+    {
+     "feature": "Voice",
+     "carriers": 1114,
+     "covered": 1091,
+     "correct": 1029,
+     "contested": 24,
+     "contestedCorrect": 16,
+     "missedUnmarked": 23,
+     "missedVoid": 0,
+     "nonCarriers": 76,
+     "falseFires": 0,
+     "silenced": 76,
+     "dominantKind": "rclass",
+     "admitted": 31,
+     "candidates": 853,
+     "floor": 6.766136591894009,
+     "values": 3,
+     "reach": {
+      "Act": {
+       "form": 1,
+       "class": 1,
+       "construction": 3,
+       "best": {
+        "kind": "rclass",
+        "key": "PRON",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 81
+       }
+      },
+      "Pass": {
+       "form": 11,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "تل",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 7
+       }
+      }
+     },
+     "byValue": {
+      "Act": {
+       "n": 1044,
+       "correct": 1013
+      },
+      "Pass": {
+       "n": 70,
+       "correct": 16
+      }
+     }
+    }
+   ]
+  },
+  {
+   "lang": "he",
+   "name": "Hebrew HTB",
+   "language": {
+    "iso": "heb",
+    "name": "Hebrew",
+    "stage": "Modern Israeli Hebrew, newspaper register"
+   },
+   "split": "parity: even sentences learn, odd audit",
+   "learnSentences": 246,
+   "auditSentences": 245,
+   "ms": 648,
+   "provenance": {
+    "schema": "Provenance@1",
+    "source": {
+     "value": "he_htb-ud-test.conllu sha256:026fcebd2e953776fe9e954ae5506a2c9d1a7449266ce0cbe76b3297ed793ce7",
+     "basis": "measured from the file"
+    },
+    "giver": {
+     "value": "Hebrew Treebank (Sima'an, Itai, Winter, Altman, Nativ; Technion / MILA), UD conversion by Tsarfaty, Goldberg et al. — no README shipped beside this file",
+     "basis": "declared by the builder — verify"
+    },
+    "license": {
+     "value": "CC BY-NC-SA 4.0 (UD_Hebrew-HTB)",
+     "basis": "declared by the builder — verify"
+    },
+    "period": {
+     "value": "early 1990s Haaretz newspaper text",
+     "basis": "declared by the builder — verify"
+    },
+    "region": {
+     "value": "Israel",
+     "basis": "declared by the builder — verify"
+    },
+    "register": {
+     "value": "newspaper prose, unvocalised script",
+     "basis": "declared by the builder — verify"
+    },
+    "script": {
+     "value": "Hebrew (100.0% of letters)",
+     "basis": "measured from the file"
+    },
+    "documents": {
+     "value": {},
+     "basis": "measured from the file"
+    },
+    "readme": {
+     "value": "no README shipped beside the file",
+     "basis": "measured from the file"
+    },
+    "split": {
+     "value": "parity: even sentences learn, odd audit",
+     "basis": "measured from the file"
+    },
+    "tokens": {
+     "value": {
+      "learn": 6114,
+      "audit": 6168
+     },
+     "basis": "measured from the file"
+    },
+    "builtBy": {
+     "value": "native/eval/lavar/sullivan-morph.mjs (Sullivan's second sense, morph-cues.js)",
+     "basis": "measured from the file"
+    },
+    "builtAt": {
+     "value": "2026-09-25T19:35:41.557Z",
+     "basis": "measured from the file"
+    },
+    "null": {
+     "value": {
+      "draws": 12,
+      "reruns": 11,
+      "seed": 7
+     },
+     "basis": "measured from the file"
+    }
+   },
+   "rows": [
+    {
+     "feature": "Case",
+     "carriers": 228,
+     "covered": 225,
+     "correct": 225,
+     "contested": 1,
+     "contestedCorrect": 1,
+     "missedUnmarked": 3,
+     "missedVoid": 0,
+     "nonCarriers": 1171,
+     "falseFires": 130,
+     "silenced": 1041,
+     "dominantKind": "beg:1",
+     "admitted": 48,
+     "candidates": 406,
+     "floor": 6.1195904772045395,
+     "values": 4,
+     "reach": {
+      "Acc": {
+       "form": 7,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:2",
+        "key": "את",
+        "class": "ADP",
+        "accuracy": 1,
+        "support": 63
+       }
+      },
+      "Gen": {
+       "form": 14,
+       "class": 0,
+       "construction": 6,
+       "best": {
+        "kind": "left",
+        "key": "_של_",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 79
+       }
+      },
+      "Tem": {
+       "form": 2,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "כש",
+        "class": "SCONJ",
+        "accuracy": 1,
+        "support": 3
+       }
+      }
+     },
+     "byValue": {
+      "Gen": {
+       "n": 159,
+       "correct": 159
+      },
+      "Acc": {
+       "n": 66,
+       "correct": 66
+      },
+      "Tem": {
+       "n": 3,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Definite",
+     "carriers": 502,
+     "covered": 459,
+     "correct": 459,
+     "contested": 41,
+     "contestedCorrect": 41,
+     "missedUnmarked": 25,
+     "missedVoid": 18,
+     "nonCarriers": 3965,
+     "falseFires": 278,
+     "silenced": 3687,
+     "dominantKind": "rclass",
+     "admitted": 81,
+     "candidates": 2232,
+     "floor": 10.427814822219267,
+     "values": 3,
+     "reach": {
+      "Def": {
+       "form": 11,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:1",
+        "key": "_",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 79
+       }
+      },
+      "Cons": {
+       "form": 36,
+       "class": 0,
+       "construction": 10,
+       "best": {
+        "kind": "end:2",
+        "key": "תי",
+        "class": "NUM",
+        "accuracy": 1,
+        "support": 9
+       }
+      }
+     },
+     "byValue": {
+      "Cons": {
+       "n": 422,
+       "correct": 382
+      },
+      "Def": {
+       "n": 80,
+       "correct": 77
+      }
+     }
+    },
+    {
+     "feature": "Gender",
+     "carriers": 2631,
+     "covered": 2398,
+     "correct": 2221,
+     "contested": 754,
+     "contestedCorrect": 676,
+     "missedUnmarked": 28,
+     "missedVoid": 205,
+     "nonCarriers": 978,
+     "falseFires": 88,
+     "silenced": 890,
+     "dominantKind": "end:1",
+     "admitted": 205,
+     "candidates": 1861,
+     "floor": 10.087593816080702,
+     "values": 4,
+     "reach": {
+      "Masc": {
+       "form": 59,
+       "class": 1,
+       "construction": 12,
+       "best": {
+        "kind": "end:2",
+        "key": "וא",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 71
+       }
+      },
+      "Fem,Masc": {
+       "form": 16,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:1",
+        "key": "ו",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 15
+       }
+      },
+      "Fem": {
+       "form": 63,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:2",
+        "key": "דה",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 28
+       }
+      }
+     },
+     "byValue": {
+      "Fem": {
+       "n": 944,
+       "correct": 851
+      },
+      "Masc": {
+       "n": 1576,
+       "correct": 1274
+      },
+      "Fem,Masc": {
+       "n": 111,
+       "correct": 96
+      }
+     }
+    },
+    {
+     "feature": "HebBinyan",
+     "carriers": 472,
+     "covered": 170,
+     "correct": 128,
+     "contested": 12,
+     "contestedCorrect": 12,
+     "missedUnmarked": 40,
+     "missedVoid": 262,
+     "nonCarriers": 79,
+     "falseFires": 18,
+     "silenced": 61,
+     "dominantKind": "beg:1",
+     "admitted": 10,
+     "candidates": 233,
+     "floor": 10.306565908686157,
+     "values": 8,
+     "reach": {
+      "HIFIL": {
+       "form": 2,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "יע",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 7
+       }
+      },
+      "NIFAL": {
+       "form": 1,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:1",
+        "key": "נ",
+        "class": "VERB",
+        "accuracy": 0.6923076923076923,
+        "support": 60
+       }
+      },
+      "HITPAEL": {
+       "form": 2,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:2",
+        "key": "מת",
+        "class": "VERB",
+        "accuracy": 0.75,
+        "support": 14
+       }
+      },
+      "HUFAL": {
+       "form": 2,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:3",
+        "key": "מוס",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 4
+       }
+      },
+      "PUAL": {
+       "form": 2,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:2",
+        "key": "מב",
+        "class": "VERB",
+        "accuracy": 0.7142857142857143,
+        "support": 9
+       }
+      }
+     },
+     "byValue": {
+      "PIEL": {
+       "n": 74,
+       "correct": 0
+      },
+      "HIFIL": {
+       "n": 95,
+       "correct": 53
+      },
+      "PAAL": {
+       "n": 138,
+       "correct": 0
+      },
+      "NIFAL": {
+       "n": 60,
+       "correct": 47
+      },
+      "HUFAL": {
+       "n": 32,
+       "correct": 10
+      },
+      "HITPAEL": {
+       "n": 38,
+       "correct": 17
+      },
+      "PUAL": {
+       "n": 35,
+       "correct": 1
+      }
+     }
+    },
+    {
+     "feature": "HebExistential",
+     "carriers": 17,
+     "covered": 16,
+     "correct": 16,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 1,
+     "nonCarriers": 534,
+     "falseFires": 9,
+     "silenced": 525,
+     "dominantKind": "end:2",
+     "admitted": 7,
+     "candidates": 429,
+     "floor": 4.641115713329758,
+     "values": 2,
+     "reach": {
+      "Yes": {
+       "form": 7,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "יה",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 9
+       }
+      }
+     },
+     "byValue": {
+      "Yes": {
+       "n": 17,
+       "correct": 16
+      }
+     }
+    },
+    {
+     "feature": "Mood",
+     "carriers": 0,
+     "covered": 0,
+     "correct": 0,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 0,
+     "nonCarriers": 551,
+     "falseFires": 0,
+     "silenced": 551,
+     "dominantKind": null,
+     "admitted": 0,
+     "candidates": 433,
+     "floor": 1.9040285543534683,
+     "values": 2,
+     "reach": {},
+     "byValue": {}
+    },
+    {
+     "feature": "Number",
+     "carriers": 2632,
+     "covered": 1821,
+     "correct": 1678,
+     "contested": 200,
+     "contestedCorrect": 169,
+     "missedUnmarked": 61,
+     "missedVoid": 750,
+     "nonCarriers": 260,
+     "falseFires": 39,
+     "silenced": 221,
+     "dominantKind": "end:1",
+     "admitted": 88,
+     "candidates": 1766,
+     "floor": 11.275558680059843,
+     "values": 3,
+     "reach": {
+      "Sing": {
+       "form": 18,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:1",
+        "key": "א",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 109
+       }
+      },
+      "Plur": {
+       "form": 38,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:1",
+        "key": "ו",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 15
+       }
+      }
+     },
+     "byValue": {
+      "Sing": {
+       "n": 1971,
+       "correct": 1083
+      },
+      "Plur": {
+       "n": 660,
+       "correct": 595
+      },
+      "Plur,Sing": {
+       "n": 1,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Person",
+     "carriers": 767,
+     "covered": 568,
+     "correct": 519,
+     "contested": 19,
+     "contestedCorrect": 17,
+     "missedUnmarked": 10,
+     "missedVoid": 189,
+     "nonCarriers": 107,
+     "falseFires": 37,
+     "silenced": 70,
+     "dominantKind": "beg:1",
+     "admitted": 58,
+     "candidates": 489,
+     "floor": 7.9693211584850285,
+     "values": 5,
+     "reach": {
+      "1": {
+       "form": 5,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "לנו",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 4
+       }
+      },
+      "3": {
+       "form": 18,
+       "class": 2,
+       "construction": 6,
+       "best": {
+        "kind": "end:1",
+        "key": "א",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 109
+       }
+      },
+      "1,2,3": {
+       "form": 11,
+       "class": 0,
+       "construction": 4,
+       "best": {
+        "kind": "beg:2",
+        "key": "מת",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 14
+       }
+      }
+     },
+     "byValue": {
+      "1": {
+       "n": 20,
+       "correct": 1
+      },
+      "3": {
+       "n": 596,
+       "correct": 392
+      },
+      "1,2,3": {
+       "n": 151,
+       "correct": 126
+      }
+     }
+    },
+    {
+     "feature": "Polarity",
+     "carriers": 130,
+     "covered": 111,
+     "correct": 102,
+     "contested": 17,
+     "contestedCorrect": 8,
+     "missedUnmarked": 18,
+     "missedVoid": 1,
+     "nonCarriers": 962,
+     "falseFires": 22,
+     "silenced": 940,
+     "dominantKind": "beg:1",
+     "admitted": 56,
+     "candidates": 779,
+     "floor": 6.9246864281144,
+     "values": 3,
+     "reach": {
+      "Neg": {
+       "form": 7,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:1",
+        "key": "א",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 29
+       }
+      },
+      "Pos": {
+       "form": 22,
+       "class": 1,
+       "construction": 14,
+       "best": {
+        "kind": "end:1",
+        "key": "ו",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 15
+       }
+      }
+     },
+     "byValue": {
+      "Pos": {
+       "n": 89,
+       "correct": 71
+      },
+      "Neg": {
+       "n": 41,
+       "correct": 31
+      }
+     }
+    },
+    {
+     "feature": "PronType",
+     "carriers": 934,
+     "covered": 921,
+     "correct": 910,
+     "contested": 58,
+     "contestedCorrect": 48,
+     "missedUnmarked": 13,
+     "missedVoid": 0,
+     "nonCarriers": 248,
+     "falseFires": 44,
+     "silenced": 204,
+     "dominantKind": "beg:1",
+     "admitted": 125,
+     "candidates": 438,
+     "floor": 9.327965972104447,
+     "values": 7,
+     "reach": {
+      "Prs": {
+       "form": 18,
+       "class": 1,
+       "construction": 16,
+       "best": {
+        "kind": "end:4",
+        "key": "_הוא",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 56
+       }
+      },
+      "Art": {
+       "form": 5,
+       "class": 1,
+       "construction": 12,
+       "best": {
+        "kind": "left",
+        "key": "את",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 26
+       }
+      },
+      "Dem": {
+       "form": 14,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:2",
+        "key": "זו",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 11
+       }
+      },
+      "Int": {
+       "form": 2,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "מי",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 3
+       }
+      }
+     },
+     "byValue": {
+      "Art": {
+       "n": 693,
+       "correct": 693
+      },
+      "Prs": {
+       "n": 177,
+       "correct": 176
+      },
+      "Dem": {
+       "n": 47,
+       "correct": 40
+      },
+      "Int": {
+       "n": 14,
+       "correct": 1
+      },
+      "Ind": {
+       "n": 2,
+       "correct": 0
+      },
+      "Emp": {
+       "n": 1,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Reflex",
+     "carriers": 5,
+     "covered": 5,
+     "correct": 5,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 0,
+     "nonCarriers": 242,
+     "falseFires": 0,
+     "silenced": 242,
+     "dominantKind": "beg:1",
+     "admitted": 3,
+     "candidates": 115,
+     "floor": 0.9035367154450104,
+     "values": 2,
+     "reach": {
+      "Yes": {
+       "form": 3,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:1",
+        "key": "ע",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 2
+       }
+      }
+     },
+     "byValue": {
+      "Yes": {
+       "n": 5,
+       "correct": 5
+      }
+     }
+    },
+    {
+     "feature": "Tense",
+     "carriers": 357,
+     "covered": 308,
+     "correct": 276,
+     "contested": 54,
+     "contestedCorrect": 26,
+     "missedUnmarked": 8,
+     "missedVoid": 41,
+     "nonCarriers": 270,
+     "falseFires": 54,
+     "silenced": 216,
+     "dominantKind": "beg:1",
+     "admitted": 29,
+     "candidates": 381,
+     "floor": 8.87543133118667,
+     "values": 3,
+     "reach": {
+      "Past": {
+       "form": 9,
+       "class": 1,
+       "construction": 2,
+       "best": {
+        "kind": "beg:1",
+        "key": "ה",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 58
+       }
+      },
+      "Fut": {
+       "form": 6,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:4",
+        "key": "יהיה",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 6
+       }
+      }
+     },
+     "byValue": {
+      "Past": {
+       "n": 282,
+       "correct": 231
+      },
+      "Fut": {
+       "n": 75,
+       "correct": 45
+      }
+     }
+    },
+    {
+     "feature": "VerbForm",
+     "carriers": 262,
+     "covered": 219,
+     "correct": 213,
+     "contested": 55,
+     "contestedCorrect": 51,
+     "missedUnmarked": 29,
+     "missedVoid": 14,
+     "nonCarriers": 365,
+     "falseFires": 41,
+     "silenced": 324,
+     "dominantKind": "beg:1",
+     "admitted": 36,
+     "candidates": 386,
+     "floor": 7.154086425245033,
+     "values": 3,
+     "reach": {
+      "Inf": {
+       "form": 10,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:1",
+        "key": "ק",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 7
+       }
+      },
+      "Part": {
+       "form": 9,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "left",
+        "key": "ה",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 38
+       }
+      }
+     },
+     "byValue": {
+      "Inf": {
+       "n": 92,
+       "correct": 88
+      },
+      "Part": {
+       "n": 170,
+       "correct": 125
+      }
+     }
+    },
+    {
+     "feature": "VerbType",
+     "carriers": 76,
+     "covered": 0,
+     "correct": 0,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 76,
+     "nonCarriers": 0,
+     "falseFires": 0,
+     "silenced": 0,
+     "dominantKind": null,
+     "admitted": 0,
+     "candidates": 57,
+     "floor": 0,
+     "values": 1,
+     "reach": {},
+     "byValue": {
+      "Cop": {
+       "n": 76,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Voice",
+     "carriers": 434,
+     "covered": 71,
+     "correct": 58,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 40,
+     "missedVoid": 323,
+     "nonCarriers": 117,
+     "falseFires": 3,
+     "silenced": 114,
+     "dominantKind": "beg:1",
+     "admitted": 3,
+     "candidates": 317,
+     "floor": 11.549241777608522,
+     "values": 4,
+     "reach": {
+      "Mid": {
+       "form": 1,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:1",
+        "key": "נ",
+        "class": "VERB",
+        "accuracy": 0.6923076923076923,
+        "support": 60
+       }
+      },
+      "Pass": {
+       "form": 1,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:2",
+        "key": "מו",
+        "class": "VERB",
+        "accuracy": 0.7777777777777778,
+        "support": 27
+       }
+      }
+     },
+     "byValue": {
+      "Act": {
+       "n": 307,
+       "correct": 0
+      },
+      "Mid": {
+       "n": 60,
+       "correct": 47
+      },
+      "Pass": {
+       "n": 67,
+       "correct": 11
+      }
+     }
+    }
+   ]
+  }
+ ]
+}
