@@ -125,6 +125,17 @@ import { execFileSync } from "node:child_process";
 // receives ONLY the cued facts for this turn. The mouth is never told it is
 // playing a role: cueBundle's `mouth` is object-level facts alone.
 import { classifySpeech, cueBundle, bannedHits } from "./native/the-fold/earned-cast.js";
+// THE GROUND ATTENTION's real organs — router (matchArchons), the
+// null-tested criterion collapse (groundSelector), and Nagarjuna's veto
+// (refuteRelation). Composed in `groundFactFor` below into the one
+// firewall-clean sentence earned-cast.js's `state.groundFact` reads.
+import { groundAttention } from "./native/the-fold/ground-attention.js";
+import { resonantPrinciple } from "./native/the-fold/corpus-resonance.js";
+import { groundSelector } from "./native/the-fold/ground-selector.js";
+import { ARCHONS } from "./native/organs/archon-compendium.js";
+import { refuteRelation } from "./native/kernel/refutation.js";
+import { declareVoid } from "./native/the-fold/void-shape.js";
+import { cellOf } from "./native/kernel/cube.js";
 // The durable theory of mind — type-level continuity about the person
 // across sessions. SPECIFICS stay in the per-session chat history; this
 // store holds only what the person has asserted and its standing.
@@ -2015,7 +2026,116 @@ const buildVoidFields = (task) => {
   };
 };
 
-function earnedCue({ task, chatHistory = [], surfVoidInfo = null, pathos = null, felt = null, trajectoryBoredom = null }) {
+// THE GROUND ATTENTION's declared null parameters (II.23 — a threshold
+// nobody chose is not a threshold). Cites legacy-eoreader6.1's
+// population.js::LINK_SPEC as the convention's giver (a declared-
+// parameters SHAPE to follow: window/draws/seed/alpha, not literal numbers
+// copied from a different organ's own question).
+const GROUND_OPTS = Object.freeze({ draws: 199, seed: 20260812, alpha: 0.05 });
+
+// surfacedSegments -> ground-attention.js's `records` shape. Each segment
+// already carries its real source address in `_ledger.source` where the
+// address ladder found one — a pure reshape, never a second source of
+// truth, PLUS two real, disclosed corrections found live this session:
+//
+// 1. THE CONVERSATION FOLD IS NOT A SOURCE. The reading folds the turn's
+//    own text into itself, and the field's resemblance recall can then
+//    hand that folded text straight back as though it were a
+//    corroborating passage — found live: a segment carrying the task's
+//    own words verbatim (`_ledger.source: "turn-0"`, or no source at all
+//    for the field's own copy). Caught by comparing a segment's text
+//    against the task directly (the honest, convention-agnostic signal)
+//    rather than pattern-matching a fold-id naming scheme this file has
+//    no declared knowledge of.
+//
+// 2. AN UNNAMED SOURCE IS NOT THE SAME UNNAMED SOURCE — but a duplicate
+//    fragment of an ALREADY-NAMED source is not a new one either. Some
+//    field-recalled segments carry no `_ledger.source` at all (a real gap
+//    upstream, in whatever admits chunks into the field — not fixed
+//    here, disclosed); the field's own recall frequently just re-hands
+//    back a sentence that is ALREADY present, verbatim, inside a whole
+//    document this same surf already addressed by name (found live: two
+//    of three "unlabeled" fragments were each the exact final sentence of
+//    the wire-service and port-authority documents, which were ALSO
+//    present in full as their own named records — double-counting the
+//    same content as if it were two additional, distinct, unidentified
+//    sources on top of the two real ones). Every unnamed fragment is
+//    first checked against every already-named record's own text; a
+//    verbatim match is dropped (its content already counts, once, under
+//    the name it actually has) rather than either collapsing to a shared
+//    "unlabeled" (undercounting real distinctness) or getting its own
+//    synthetic ref regardless (overcounting it). Only a fragment that
+//    matches NO named record's text — a genuine glimpse of an otherwise-
+//    unidentified source, exactly the survivor's own single isolated
+//    sentence in the case this was found on — gets its own synthetic ref.
+function recordsFromSegments(surfacedSegments, task) {
+  const taskNorm = String(task ?? "").trim().toLowerCase();
+  const isEchoOfTask = (text) => {
+    if (!taskNorm) return false;
+    const t = String(text).trim().toLowerCase();
+    return t.includes(taskNorm) && text.length < taskNorm.length * 2 + 40;
+  };
+
+  const usable = (surfacedSegments ?? []).filter((s) => s?.text && !isEchoOfTask(s.text));
+  const named = usable.filter((s) => s._ledger?.source || s._ledger?.heading);
+  const namedTexts = named.map((s) => String(s.text).toLowerCase());
+  const unnamed = usable.filter((s) => !(s._ledger?.source || s._ledger?.heading));
+
+  const records = named.map((s) => ({
+    ref: s._ledger.source ?? s._ledger.heading,
+    text: String(s.text),
+    kind: s._ledger?.addressed_by ?? null,
+  }));
+  let anon = 0;
+  for (const s of unnamed) {
+    const t = String(s.text).toLowerCase().trim();
+    if (t && namedTexts.some((nt) => nt.includes(t))) continue; // already counted under its real name
+    records.push({ ref: `unlabeled-${anon++}`, text: String(s.text), kind: s._ledger?.addressed_by ?? null });
+  }
+  return records;
+}
+
+// One call site for the whole archon-activation loop: router -> ground-
+// selector collapse -> one covert sentence, or null. Nagarjuna does not
+// fail anything here (user correction, this session) — it only helps
+// WORD the admission test on the declared void groundAttention returns
+// alongside the fact (result.void); the fact fires on a clean collapse
+// regardless. No relation edges are offered at this seam today (this
+// turn's material is not run through the hypergraph reader here), so that
+// admission test honestly says it has not been checked, rather than a
+// silent upgrade to "verified". result.void is not consumed yet — a later
+// EVA step against it is disclosed future work, not built here.
+async function groundFactFor(task, surfacedSegments) {
+  try {
+    const records = recordsFromSegments(surfacedSegments, task);
+    if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] records:", JSON.stringify(records));
+    const result = groundAttention(
+      { task, records },
+      { matchArchons, groundSelector, refuteRelation, declareVoid, cellOf, groundOpts: GROUND_OPTS },
+    );
+    if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] result:", JSON.stringify({ fired: result.fired, reason: result.reason, winner: result.winner }));
+    if (result.fired) return result.text;
+  } catch (e) {
+    if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] THREW:", e.stack);
+  }
+  // THE SUBTLER FALLBACK (user direction, this session: a named, credited
+  // quote was tried and explicitly rejected — "something subtler"). Only
+  // reached when the ground-selector had nothing at all; still covert,
+  // still an unnamed principle (an archon's own `role` text, never its
+  // `credit`), just resonance-matched by real embedding similarity against
+  // a measured null instead of a ground criterion. Must never break a turn
+  // either — an embedding-service hiccup is silence, not a thrown turn.
+  try {
+    const resonance = await resonantPrinciple(task, { archons: ARCHONS });
+    if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] resonance:", JSON.stringify(resonance));
+    return resonance?.text ?? null;
+  } catch (e) {
+    if (process.env.ER7_GROUND_DEBUG) console.error("[ground-debug] resonance THREW:", e.stack);
+    return null;
+  }
+}
+
+async function earnedCue({ task, chatHistory = [], surfVoidInfo = null, pathos = null, felt = null, trajectoryBoredom = null, surfacedSegments = [] }) {
   try {
     const personClaims = (chatHistory ?? [])
       .filter((m) => m?.role === "user" && typeof m.content === "string" && m.content.trim())
@@ -2041,6 +2161,7 @@ function earnedCue({ task, chatHistory = [], surfVoidInfo = null, pathos = null,
     };
     const _gk = surfVoidInfo?.gap;
     const _gp = _gk ? (GAP_PROSE[_gk]?.[_what] ?? _gk.replace(/_/g, " ")) : "nothing here answers it";
+    const groundFact = await groundFactFor(task, surfacedSegments);
     const state = {
       personClaims,
       // THE FELT SHAPE (Abhinavagupta) — the conversation's own rhythm and
@@ -2053,6 +2174,7 @@ function earnedCue({ task, chatHistory = [], surfVoidInfo = null, pathos = null,
       ...(felt ? { felt: { strain: felt.strain, flatline: felt.flatline ?? false, blinks: felt.blinks ?? 0 } } : {}),
       ...(surfVoidInfo ? { gaps: [_gp] } : {}),
       ...(surfVoidInfo ? { notEstablished: [_gp] } : {}),
+      ...(groundFact ? { groundFact } : {}),
     };
     // TRAJECTORY BOREDOM, folded into the same `felt` object pacing.js's
     // flatline already lands in (2026-09-17) — a DIFFERENT measurement (the
@@ -5386,7 +5508,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // ── the earned cast, this turn only. The model is never told it is
   // playing a role — it receives exactly the facts this turn earned, at the
   // object level, and nothing else. A cue with nothing to say adds nothing.
-  const cue = earnedCue({ task, chatHistory: keptChat, surfVoidInfo, pathos, trajectoryBoredom });
+  const cue = await earnedCue({ task, chatHistory: keptChat, surfVoidInfo, pathos, trajectoryBoredom, surfacedSegments });
   if (cue?.mouth) {
     systemContent += `\n\nA few things to keep in mind as you answer:\n${cue.mouth}`;
     if (onNote) onNote({ move: "earned_cue", act: cue.act, strain: cue.strain, attentions: cue.eligible, chars: cue.mouth.length });

@@ -330,6 +330,12 @@ export function humanizeNote(note) {
       return `The void, DEF'd by asking: ${note.of} question(s) the piece must answer${note.open ? ` (${note.open} from the reading's own open questions)` : ""}. First: ${(note.questions ?? []).join(" | ")}`;
     case "kelsen":
       return `Kelsen ${note.value}° — bound to the material's ground by the shape (${note.grounded} grounded cells of ${note.cells}): ${note.value >= 0.7 ? "literal, bound" : note.value <= 0.4 ? "impressionistic, freer" : "balanced"}.`;
+    // Meta-disclosure only — never the cue's own text (that stays covert,
+    // in the mouth, per earned-cast.js's own design). Added to make the
+    // ground attention's firing visible for verification; previously fell
+    // through to the silently-dropped default.
+    case "earned_cue":
+      return `Earned cue: ${(note.attentions ?? []).length} attention(s) fired (${(note.attentions ?? []).join(", ") || "none"}) — ${note.chars ?? 0} char(s) added, act: ${note.act ?? "?"}.`;
     case "section_eva":
       return `Section check failed: ${(note.failures ?? []).join("; ")} (strain ${note.strain}).`;
     case "strain":

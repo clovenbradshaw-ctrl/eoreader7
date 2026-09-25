@@ -1,26 +1,43 @@
-// void-shape.js — zero the space, then see what is still empty.
+// void-shape.js — zero the space, then see what still depends on nothing.
 //
 // User direction, 2026-08-26: "we need to zero the space. define the VOID,
-// the shape that needs to be filled."
+// the shape that needs to be filled." Corrected later the same project,
+// 2026-09-16: "void" here is not absence in the nihilist sense — a bare
+// hole where content should be — it is void in Nagarjuna's sense
+// (sunyata): nothing admitted to this space gets to stand on its own,
+// independent, self-sufficient, closing the question by itself. A filler
+// stands only for what it is actually, dependently shown to cover. What
+// LOOKS like a leftover hole after a filler is admitted is not an absence
+// this file failed to fill — it is the honest record that the filler
+// admitted so far never claimed, and was never granted, more than its own
+// dependent extent.
 //
 // THE PROBLEM THIS EXISTS FOR, measured live and repeatedly this day.
 // "Who was Lincoln's vice president?" was answered "Hannibal Hamlin" on one
 // draw and "Andrew Johnson" on the next. Each is a true sentence. Neither is
-// the answer, because the slot holds TWO fillers and the reading had no way
-// to know it was still short. Every mechanism tried first read the answer's
-// completeness off the ANSWER — grammatical number (a singular noun read as
-// a one-filler world, closed in web-claim.js), or filler-counting over
-// extracted prose (which at page scale returns "Though he", "Congress",
-// "22nd Amendment" — real edges, useless subjects).
+// THE answer, because each is being read as if it stood on its own —
+// complete, unconditioned, the whole of what "Lincoln's VP" refers to —
+// when each in fact only holds for its own conditioned span of the term.
+// Every mechanism tried first read the answer's completeness off the
+// ANSWER — grammatical number (a singular noun read as license to treat
+// one filler as inherently sufficient, closed in web-claim.js), or
+// filler-counting over extracted prose (which at page scale returns
+// "Though he", "Congress", "22nd Amendment" — real edges, useless
+// subjects). Both mistakes are the same mistake: granting a filler a
+// standing (completeness) it never earned and was never shown to hold.
 //
 // The move here is to stop asking the answer whether it is complete and ask
-// the SPACE instead. A slot is not a bag of fillers; it is an extent with
-// dimensions, and a filler covers part of that extent. Lincoln's presidency
-// runs 1861-1865. Johnson covers 1865. What is left — 1861 to 1865 — is not
-// an absence of evidence, it is a VOID with a size and edges, and something
-// has to be in it. That hole is what makes Hamlin NECESSARY rather than
-// hoped-for, and finding it needs no prose extraction at all: only the
-// constraint, the fillers' own extents, and arithmetic.
+// the SPACE instead. A slot is not a bag of fillers each claiming the whole
+// of it; it is an extent with dimensions, and a filler covers only the part
+// of that extent it is actually, dependently shown to cover. Lincoln's
+// presidency runs 1861-1865. Johnson covers 1865. What is left — 1861 to
+// 1865 — is not a gap this file failed to notice; it is what remains
+// undependent-on-anything once Hamlin's own real, partial standing is
+// taken for exactly what it is and no more. THAT is what makes a second
+// filler NECESSARY rather than hoped-for, and finding it needs no prose
+// extraction at all: only the constraint, the fillers' own honestly-scoped
+// extents, and arithmetic — arithmetic being the one place a claim of
+// coverage can be checked without taking anyone's word for it.
 //
 // WHAT THIS FILE IS NOT. It does not read dates out of text, does not
 // resolve referents, and does not decide what a filler is. Those are the
@@ -79,11 +96,21 @@ const isSpan = (s) =>
 //   DEF  Differentiate/Lens      the declared cardinality
 //                                → unknown. Read off grammar it said
 //                                  "single", and one true filler closed a
-//                                  two-filler space.
-//   EVA  Relate/Paradigm-Figure  the admission test a candidate must pass
-//                                → its span lies within the extent
+//                                  two-filler space — grammar had granted
+//                                  Hamlin a completeness the material never
+//                                  gave him.
+//   EVA  Relate/Paradigm-Figure  what a candidate must be shown to depend
+//                                on before any of it counts as covered —
+//                                never granted on the strength of the
+//                                candidate's own say-so
+//                                → its span is shown, not assumed, to lie
+//                                  within the extent
 //   REC  Generate/Paradigm       what forces the declaration to be revised
-//                                → an uncovered stretch: something holds it.
+//                                — nothing declared here is exempt from
+//                                  this, including a space once read as
+//                                  fully covered
+//                                → an uncovered stretch: something else
+//                                  must be depended on to hold it.
 //
 // EVERY FIELD IS OPTIONAL AND EVERY OMISSION IS TYPED. A caller that cannot
 // state one gets a declared gap for that operator, never a default — and
@@ -105,7 +132,7 @@ const VOID_OPERATORS = Object.freeze([
   ["CON", "Figure", "relation", "what binds a filler to the anchor"],
   ["SYN", "Pattern", "composition", "how fillers compose across the extent"],
   ["DEF", "Figure", "cardinality", "how many fillers the space is declared to hold"],
-  ["EVA", "Figure", "admission", "the test a candidate must pass to fill any of it"],
+  ["EVA", "Figure", "admission", "what a candidate must be shown to depend on before it counts as covering any of this — never granted on its own say-so"],
   ["REC", "Pattern", "reopensOn", "what forces this declaration to be revised"],
 ]);
 
@@ -196,11 +223,13 @@ export function zeroSpace({ slot, constraint = null, dimension = null } = {}) {
 }
 
 /**
- * Admit a filler and the extent it covers. Append-only: a new space is
- * returned, the old one stays valid, and a filler is never overwritten by a
- * later one that happens to share its name — two witnesses to the same
- * being covering different extents is exactly the Lincoln case, and
- * collapsing them would erase the very structure this file exists to find.
+ * Admit a filler for exactly the extent it is shown to cover — never more.
+ * Append-only: a new space is returned, the old one stays valid, and a
+ * filler is never overwritten by a later one that happens to share its
+ * name — two witnesses to the same being covering different extents is
+ * exactly the Lincoln case, and collapsing them would grant one of them a
+ * completeness neither ever earned, erasing the very structure this file
+ * exists to find.
  */
 export function fill(space, { filler, span = null, source = null } = {}) {
   if (space?.schema !== "EOVoidShape@1") throw new TypeError("fill: not an EOVoidShape@1");
