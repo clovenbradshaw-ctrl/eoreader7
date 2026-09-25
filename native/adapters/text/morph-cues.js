@@ -377,3 +377,22 @@ export function morphCuesFromPrior(raw) {
   if (!raw.language?.iso || !raw.language?.stage) throw new TypeError("morphCuesFromPrior: a prior must name its language — ISO code and stage (Vedic is not Classical)");
   return { language: raw.language, provenance: p, features: raw.features ?? {} };
 }
+
+/**
+ * witnessOf(loaded, feature) — a stored convention as a WITNESS: a predict
+ * closure over one feature's admitted cues, usable on any token stream
+ * shaped like the parser's rows (form, upos, id, head, lemma, and the
+ * sentence's tokens). null when the prior holds no model for the feature,
+ * so a caller can say "no convention learned" rather than guess. The
+ * witness carries the prior's language and giver, so whatever it says can
+ * be attributed: a value from Vedic hymns is never mistaken for one from a
+ * 2004 newspaper.
+ */
+export function witnessOf(loaded, feature) {
+  const model = loaded?.features?.[feature];
+  if (!model || !model.cues) return null;
+  return freeze({
+    feature, language: loaded.language, giver: loaded.provenance?.giver?.value ?? null, admitted: model.admitted ?? Object.keys(model.cues).length,
+    predict: (token, sent) => predict(model, token, sent),
+  });
+}

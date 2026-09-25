@@ -9,7 +9,7 @@
 
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { learnFeature, predict, audit, reachOf, cuesOf, featsOf, featuresIn, cueKey, morphCuesFromPrior, CUE_KINDS, UNMARKED, PRIOR_SCHEMA } from "../adapters/text/morph-cues.js";
+import { learnFeature, predict, audit, reachOf, cuesOf, featsOf, featuresIn, cueKey, morphCuesFromPrior, witnessOf, CUE_KINDS, UNMARKED, PRIOR_SCHEMA } from "../adapters/text/morph-cues.js";
 import { lcg } from "../kernel/continuation.js";
 
 // A toy language. Nouns: stem + a (Nom) / am (Acc) / ae (Gen). Verbs: a
@@ -140,4 +140,16 @@ test("a stored convention is refused without its giver, period, region, register
   assert.throws(() => morphCuesFromPrior({ ...ok, provenance: prov({ giver: { value: "someone", basis: "I think" } }) }), /basis/);
   assert.throws(() => morphCuesFromPrior({ ...ok, language: { iso: "san", name: "Sanskrit" } }), /stage/);
   assert.throws(() => morphCuesFromPrior({ schema: "Other@1" }), /schema/);
+});
+
+test("witnessOf: null for a feature the prior lacks; otherwise predicts through the stored cues and carries the giver", () => {
+  const m = learnFeature(LEARN, "Case");
+  const loaded = { language: { iso: "toy", stage: "toy" }, provenance: { giver: { value: "the toy", basis: "measured from the file" } }, features: { Case: m } };
+  assert.equal(witnessOf(loaded, "Tense"), null);
+  const w = witnessOf(loaded, "Case");
+  assert.equal(w.giver, "the toy");
+  const s = AUDIT[0];
+  const p = w.predict(s.tokens[0], s);
+  assert.equal(p.verdict, "bound");
+  assert.equal(p.value, "Nom");
 });

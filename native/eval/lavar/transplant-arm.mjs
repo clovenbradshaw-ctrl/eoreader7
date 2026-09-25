@@ -133,6 +133,9 @@ for (const [arm, body] of Object.entries(arms)) {
     pqp: n((l) => l.role === "tense" && l.reach),
     reachBound: n((l) => l.role === "tense" && l.reach && l.verdict === "bound"),
     reachGaps: n((l) => l.role === "tense" && l.reach && l.verdict !== "bound"),
+    // Sullivan's stored convention as the second tense witness (coverage line)
+    tenseSullivan: lines.find((l) => l.role === "tense-coverage")?.witness?.spoke ?? 0,
+    tenseContested: lines.find((l) => l.role === "tense-coverage")?.witness?.contested ?? 0,
   };
   // Eddington as the READER wrote it into this arm's own ledger — habit =
   // the rest of the book, not the forward arm

@@ -43,6 +43,7 @@ import { sentences, tokenize, analyse } from "./english-parser.js";
 import { UD_FEATURES } from "../../kernel/universal-grammar.js";
 
 export const TENSE_VALUES = Object.freeze([...UD_FEATURES.Tense, "undeclared"]);
+export const PARSER_TREEBANK = "UD_English-EWT";
 export const GIVER = "UD_English-EWT through adapters/text/english-parser.js (Chomsky): Tense and VerbForm per token from the treebank's own tallies; Pqp is universal-grammar.js's value ('a past before a past') read off the had+participle construction; Fut off a modal will/shall; the clause located by the ledger's own label";
 
 /** parseWindow(model, text, base) — every token of `text` as a UD row with
@@ -88,25 +89,60 @@ function locateLabel(rows, at, label) {
   return best ? best.run : null;
 }
 
-function tenseOfClause(rows, verb, auxes) {
+function parserTense(verb, auxes) {
   const finiteHave = (tense) => auxes.find((r) => r.lemma === "have" && feat(r, "Tense") === tense && feat(r, "VerbForm") === "Fin");
   if (verb && feat(verb, "VerbForm") === "Part") {
     const pqp = finiteHave("Past");
-    if (pqp) return Object.freeze({ tense: "Pqp", basis: `AUX ${pqp.form} (Tense=Past) over ${verb.form} (VerbForm=Part)`, token: verb.off });
+    if (pqp) return { tense: "Pqp", basis: `AUX ${pqp.form} (Tense=Past) over ${verb.form} (VerbForm=Part)`, token: verb.off, spoke: pqp };
     const perf = finiteHave("Pres");
-    if (perf) return Object.freeze({ tense: "Pres", basis: `present perfect: AUX ${perf.form} over ${verb.form}`, token: verb.off });
+    if (perf) return { tense: "Pres", basis: `present perfect: AUX ${perf.form} over ${verb.form}`, token: verb.off, spoke: perf };
   }
   const fin = [...auxes, ...(verb ? [verb] : [])].find((r) => feat(r, "VerbForm") === "Fin" && feat(r, "Tense"));
-  if (fin) return Object.freeze({ tense: feat(fin, "Tense"), basis: `${fin.upos} ${fin.form} VerbForm=Fin`, token: fin.off });
+  if (fin) return { tense: feat(fin, "Tense"), basis: `${fin.upos} ${fin.form} VerbForm=Fin`, token: fin.off, spoke: fin };
   const modal = auxes.find((r) => r.lemma === "will" || r.lemma === "shall");
-  if (modal) return Object.freeze({ tense: "Fut", basis: `modal ${modal.form}`, token: modal.off });
+  if (modal) return { tense: "Fut", basis: `modal ${modal.form}`, token: modal.off, spoke: modal };
   const all = [...auxes, ...(verb ? [verb] : [])];
-  if (!all.length) return Object.freeze({ tense: "undeclared", basis: "no verb or auxiliary token in the clause", token: null });
-  return Object.freeze({ tense: "undeclared", basis: `non-finite only: ${all.map((v) => `${v.form}(${feat(v, "VerbForm") || "_"})`).join(" ")}`, token: null });
+  if (!all.length) return { tense: "undeclared", basis: "no verb or auxiliary token in the clause", token: null, spoke: null };
+  return { tense: "undeclared", basis: `non-finite only: ${all.map((v) => `${v.form}(${feat(v, "VerbForm") || "_"})`).join(" ")}`, token: null, spoke: null };
 }
 
-/** clauseTense(rows, [start, end], label) → { tense, basis, token, located } */
-export function clauseTense(rows, span, label = null) {
+// A SECOND WITNESS, NEVER A SECOND GIVER OVER THE FIRST. Sullivan's stored
+// convention (morph-cues.js::witnessOf over priors/morph-cues-en.json) is
+// asked about the same finite token the parser read. Where the parser
+// stated a tense: agreement is recorded as corroboration, disagreement as
+// a typed CONTEST — the parser's value stands, the rival is kept beside it.
+// Where the parser had no tense on a finite token: a bound value from the
+// witness fills it, and the basis names Sullivan and the cue that spoke.
+// Unmarked or void from the witness changes nothing. The witness carries
+// its giver, so a filled tense can always be traced to the treebank, period
+// and register it was learned from.
+function tenseOfClause(rows, verb, auxes, witness = null) {
+  const r = parserTense(verb, auxes);
+  const asked = r.spoke ?? (auxes.find((a) => feat(a, "VerbForm") === "Fin") ?? verb ?? auxes[0] ?? null);
+  const { spoke, ...base } = r;
+  if (!witness || !asked) return Object.freeze(base);
+  const sent = { tokens: rows.filter((x) => x.sentence === asked.sentence) };
+  const w = witness.predict(asked, sent);
+  const cueName = (c) => `${c.kind}=${JSON.stringify(c.key)}|${c.class} ${(100 * c.accuracy).toFixed(0)}%`;
+  // PEARL'S CAVEAT, ON THE RECORD (chorus, 2026-09-25): the parser's lexicon
+  // and Sullivan's cues were both learned from UD_English-EWT. Agreement
+  // between them is two READERS of one giver agreeing, not two givers — so
+  // `independent` is false whenever the witness names the parser's own
+  // treebank, and a corroboration that is not independent says so.
+  const independent = !String(witness.giver ?? "").includes(PARSER_TREEBANK);
+  if (base.tense !== "undeclared") {
+    if (w.verdict === "bound" && w.value === base.tense) return Object.freeze({ ...base, corroborated: { witness: witness.giver, cue: cueName(w.cue), independent } });
+    if (w.verdict === "bound" && w.value !== base.tense) return Object.freeze({ ...base, contested: { witness: witness.giver, value: w.value, cue: cueName(w.cue), independent } });
+    return Object.freeze(base);
+  }
+  if (w.verdict === "bound" && TENSE_VALUES.includes(w.value)) {
+    return Object.freeze({ tense: w.value, basis: `Sullivan (${witness.language?.stage ?? witness.language?.iso ?? "?"}): ${cueName(w.cue)} on ${asked.form}`, token: asked.off, filled: { witness: witness.giver, cue: cueName(w.cue) } });
+  }
+  return Object.freeze(base);
+}
+
+/** clauseTense(rows, [start, end], label, { witness }) → { tense, basis, token, located, corroborated?, contested?, filled? } */
+export function clauseTense(rows, span, label = null, { witness = null } = {}) {
   const [start, end] = span;
   const run = locateLabel(rows, start, label);
   if (run) {
@@ -115,7 +151,7 @@ export function clauseTense(rows, span, label = null) {
     if (verb.upos === "AUX" && rows[verb.headIndex] && rows[verb.headIndex].upos === "VERB") verb = rows[verb.headIndex];
     const auxes = rows.filter((r) => r.upos === "AUX" && r.headIndex === verb.i && r.i !== verb.i);
     if (verb.upos === "AUX" && !auxes.includes(verb)) auxes.push(verb);
-    return Object.freeze({ ...tenseOfClause(rows, verb.upos === "VERB" ? verb : null, auxes), located: "label" });
+    return Object.freeze({ ...tenseOfClause(rows, verb.upos === "VERB" ? verb : null, auxes, witness), located: "label" });
   }
   // fallback: the span's own tokens, plus any auxiliary attached to a verb inside it
   const inside = rows.filter((r) => r.off >= start && r.off < end);
@@ -124,5 +160,5 @@ export function clauseTense(rows, span, label = null) {
   const verbs = [...inside, ...attachedAux].filter(isVerbal).sort((a, b) => a.off - b.off);
   const verb = verbs.find((r) => r.upos === "VERB") ?? null;
   const auxes = verbs.filter((r) => r.upos === "AUX");
-  return Object.freeze({ ...tenseOfClause(rows, verb, auxes), located: "span" });
+  return Object.freeze({ ...tenseOfClause(rows, verb, auxes, witness), located: "span" });
 }

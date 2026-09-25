@@ -75,3 +75,44 @@ test("a label the sentence does not hold falls back to the span, and says so", (
   assert.equal(r.tense, "Past");
   assert.equal(clauseTense(rows, spanOf("the door"), null).tense, "undeclared");
 });
+
+// ── the second witness (2026-09-25): Sullivan's stored convention beside the parser ──
+import { morphCuesFromPrior, witnessOf } from "../adapters/text/morph-cues.js";
+
+const stub = (value, verdict = "bound") => ({
+  giver: "stub treebank", language: { iso: "eng", stage: "test" }, admitted: 1,
+  predict: () => ({ verdict, value, cue: { kind: "end:2", key: "ed", class: "VERB", accuracy: 0.9 }, rivals: [] }),
+});
+
+test("witness: agreement is corroboration, disagreement a typed contest that never overrides the parser", () => {
+  const agree = clauseTense(rows, spanOf("away"), "went", { witness: stub("Past") });
+  assert.equal(agree.tense, "Past");
+  assert.equal(agree.corroborated.witness, "stub treebank");
+  const clash = clauseTense(rows, spanOf("away"), "went", { witness: stub("Pres") });
+  assert.equal(clash.tense, "Past", "the parser's value stands");
+  assert.equal(clash.contested.value, "Pres");
+  assert.match(clash.contested.cue, /end:2/);
+});
+
+test("witness: fills a finite clause the parser left undeclared, and says who filled it; unmarked or void change nothing", () => {
+  // "Having opened the door" is non-finite for the parser → undeclared; a bound witness fills it
+  const filled = clauseTense(rows, spanOf("the door"), "Having opened", { witness: stub("Past") });
+  assert.equal(filled.tense, "Past");
+  assert.match(filled.basis, /^Sullivan/);
+  assert.equal(filled.filled.witness, "stub treebank");
+  assert.equal(clauseTense(rows, spanOf("the door"), "Having opened", { witness: stub("∅", "unmarked") }).tense, "undeclared");
+  assert.equal(clauseTense(rows, spanOf("the door"), "Having opened", { witness: stub(null, "void") }).tense, "undeclared");
+  // a span with no verb at all is never filled — there is no token to ask about
+  assert.equal(clauseTense(rows, spanOf("the door"), null, { witness: stub("Past") }).tense, "undeclared");
+});
+
+test("the real English prior loads as a Tense witness through the refusing loader and speaks on real rows", () => {
+  const prior = morphCuesFromPrior(JSON.parse(readFileSync(path.join(HERE, "..", "priors", "morph-cues-en.json"), "utf8")));
+  const w = witnessOf(prior, "Tense");
+  assert.ok(w && w.admitted > 0);
+  assert.match(w.giver, /EWT/);
+  const r = clauseTense(rows, spanOf("away"), "went", { witness: w });
+  assert.equal(r.tense, "Past");
+  assert.ok(r.corroborated || r.contested || (!r.corroborated && !r.contested), "the witness spoke, or stayed silent — either is on the record");
+  assert.equal(witnessOf(prior, "NoSuchFeature"), null);
+});

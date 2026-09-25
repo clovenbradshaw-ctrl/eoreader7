@@ -68,6 +68,7 @@ import { arrowOf } from "../../kernel/arrow.js";
 import { narrativeTime } from "../../kernel/narrative-time.js";
 import { loadModel as loadEnglishParser } from "../../adapters/text/english-parser.js";
 import { parseWindow, clauseTense, GIVER as TENSE_GIVER } from "../../adapters/text/clause-tense.js";
+import { morphCuesFromPrior, witnessOf } from "../../adapters/text/morph-cues.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const LP_ROOT = path.resolve(HERE, "../../../../live_priors");
@@ -1640,6 +1641,7 @@ if (priorLines.length) {
     .sort((x, y) => x.at[0] - y.at[0])
     .map((l) => ({ id: l.id, at: l.at, label: l.label, sentence: sentenceOf(l.at) }));
   let tenseOf, GIVER;
+  const witnessTally = { spoke: 0, corroborated: 0, contested: 0, giver: null };
   if (LANG === "eng") {
     const model = loadEnglishParser(JSON.parse(fs.readFileSync(path.join(HERE, "..", "..", "priors", "parser-eng-ewt.json"), "utf8")));
     // `raw` here is the NORMALISED text and WIN its coordinates; the ledger's
@@ -1648,8 +1650,29 @@ if (priorLines.length) {
     // Measured before this mapping: a proposition's at sliced the origin
     // one line's worth of \r off from where the reader had looked.
     const rows = parseWindow(model, raw.slice(WIN[0], WIN[1]), (i) => toRaw(WIN[0] + i));
-    tenseOf = (a) => clauseTense(rows, a.at, a.label).tense;
-    GIVER = TENSE_GIVER;
+    // SULLIVAN'S STORED CONVENTION AS A SECOND WITNESS (2026-09-25): the
+    // English Tense cues learned from UD_English-EWT (priors/morph-cues-
+    // en.json, loaded through the refusing loader so its giver, period and
+    // region are on record) fill a finite token the parser left without a
+    // tense, corroborate agreement, and land disagreement as a typed
+    // contest — the parser stays the primary giver. Counts on the coverage
+    // line below; a missing prior means no witness, said on that line.
+    let witness = null;
+    const priorPath = path.join(HERE, "..", "..", "priors", "morph-cues-en.json");
+    if (fs.existsSync(priorPath)) {
+      const loaded = morphCuesFromPrior(JSON.parse(fs.readFileSync(priorPath, "utf8")));
+      witness = witnessOf(loaded, "Tense");
+      witnessTally.giver = witness ? `${loaded.language.stage} — ${loaded.provenance.giver.value}` : null;
+    }
+    const typed = new Map(props.map((a) => {
+      const t = clauseTense(rows, a.at, a.label, { witness });
+      if (t.filled) witnessTally.spoke += 1;
+      if (t.corroborated) witnessTally.corroborated += 1;
+      if (t.contested) witnessTally.contested += 1;
+      return [a.id, t];
+    }));
+    tenseOf = (a) => typed.get(a.id)?.tense ?? "undeclared";
+    GIVER = `${TENSE_GIVER}${witness ? `; second witness: Sullivan's learned convention (${witnessTally.giver}), ${witness.admitted} admitted Tense cues` : "; no Sullivan witness (priors/morph-cues-en.json absent)"}`;
   } else {
     tenseOf = () => "undeclared";
     GIVER = `no tense typer declared for --lang=${LANG}; every arrangement typed undeclared`;
@@ -1658,7 +1681,7 @@ if (priorLines.length) {
   for (const t of nt.times) emit({ ...t, role: "time", at: [t.at, t.at], clock: t.at });
   for (const g of nt.grounds) emit({ ...g, role: "reference-ground", at: [g.at, g.at], clock: g.at });
   for (const r of nt.resolutions) emit({ ...r, role: "tense", at: [r.at, r.at], clock: r.at });
-  emit({ schema: "EOTNarrativeTime@1", role: "tense-coverage", at: [WIN[0], WIN[1]], counts: nt.counts, arrangements: props.length, giver: GIVER });
+  emit({ schema: "EOTNarrativeTime@1", role: "tense-coverage", at: [WIN[0], WIN[1]], counts: nt.counts, arrangements: props.length, giver: GIVER, witness: witnessTally });
 }
 
 const outDir = path.join(HERE, "results");

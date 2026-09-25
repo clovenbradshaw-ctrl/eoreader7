@@ -715,3 +715,14 @@ fast: 13 files · morph-cues 8/8 (toy language), clause-tense 8/8, narrative-tim
 clean: (all routed lenses reviewed above)
 
 Context: user — "we must learn all tenses, cases, etc. Bring Annie Sullivan in here" and "be sure our language conventions are stored with givens and the period and regional provenance". Seven treebanks (English EWT, Latin Perseus, Greek PROIEL, Vedic and UFAL Sanskrit, Arabic PADT, Hebrew HTB), every feature, learned on one half and audited on the other. English Tense 90.1% covered at 97.8%; Latin reaches Past/Pres/Fut/Pqp by form; Greek all four; Vedic no Pqp (measured, kept); Arabic carries no Tense feature (Aspect+Mood instead); Hebrew Past and Fut. Provenance per prior: source sha256, script and document sources measured from the file; giver, period, region, register from the README where one ships (Latin, both Sanskrits) else declared by the builder and marked verify (Greek, Arabic, Hebrew).
+
+## 2026-09-25 — Sullivan's stored convention wired as the second tense witness (main, 6 files)
+fast: 6 files · clause-tense 11/11, morph-cues 9/9, narrative-time 6/6, temporal-reference, arrow 9/9 · law: ok (dup headers pre-existing)
+| lens | citation | file:line | verdict | one line |
+| Pearl | — | clause-tense.js (tenseOfClause) | fixed | REAL: the parser's lexicon and Sullivan's cues were both learned from UD_English-EWT, so "corroborated" was two readers of one giver agreeing — now every corroboration and contest carries `independent`, false whenever the witness names PARSER_TREEBANK; an independent second giver (a non-EWT English treebank) is the named next step |
+| Frankfurt | — | eot-jsonl.mjs (witnessTally.giver) | disclosed | null when no prior is on disk, and the giver line says "no Sullivan witness" rather than leaving a blank that reads as a value |
+| Greenberg | — | eot-jsonl.mjs (LANG === "eng") | disclosed | the witness is English-only because only the English read has UPOS rows to feed cuesOf; Sullivan's Latin, Greek, Hebrew priors exist and wait on a class source for those reads |
+| Simon/Chekhov | — | eot-jsonl.mjs, transplant-arm.mjs | disclosed | clause-tense's witness path tested with a stub (fill / corroborate / contest / unmarked / void / no token) and with the real English prior through the refusing loader; eot-jsonl exercised on Alice ch2 × 7 arms |
+clean: (all routed lenses reviewed above)
+
+Context: user — "commit to gh main AFTER you wire". Measured on Alice ch2: Sullivan filled 6 finite arrangements the parser left undeclared (Past 50→54, Pres 20→22, undeclared 106→99), corroborated 10, contested 0, held across every arm. The parser stays the primary giver; the witness never overrides it.
