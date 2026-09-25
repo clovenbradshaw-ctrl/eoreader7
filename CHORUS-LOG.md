@@ -742,3 +742,13 @@ fast: 14 files · pos-rows 4/4 (real Hebrew prior), clause-tense 11/11, morph-cu
 clean: (all routed lenses reviewed above)
 
 Context: user — fix the two stated gaps. The READMEs were fetched from UniversalDependencies on GitHub (PROIEL 2.5 KB, PADT 7.4 KB, HTB 5.4 KB, with their LICENSE.txt) and now sit beside the fixtures as the Latin one does; PADT's years are measured from its own document ids (2001×16, 2002×3, 2003×20, 2004×30); HTB's test split (5726–6216) matches this file's first sent_id.
+
+## 2026-09-25 — grounding report cut to one row per claim, utf-8 charset line, its falsification tests (main, 2 files)
+fast: 2 files · reason-surface 9/9 (6/6 deliberate renderer breaks caught, checked separately) · law: WARN dup headers pre-existing (the-fold P115 P116 P117 P19 P233; READING-SPEC S17 S96), left for their own renumbering commit — the-fold POLICIES.md:770 names the risk
+| lens | citation | file:line | verdict | one line |
+| Feynman | the-fold POLICIES.md:382, :572 ("never silently") | cli/reason-surface.mjs copy handler (was `.catch(function(){})`) | fixed | a blocked clipboard write showed nothing, so an older clipboard could be pasted into chat as the reference; the source now says "✗ copy blocked" — works, rejects and no-clipboard paths each checked in a browser |
+| Ostrom | native/docs/THE-NULL-STATES.md:52, :64 | cli/reason-surface.mjs:69 `file exists; nothing in it matched` | deferred-with-reason | a lexical miss without its scope reads as a denial: a true reworded claim went from 3/3 trusted with no checker to 0/3 with this row (reader study, 2026-09-25); the relabel is proposed to the user, awaiting their answer |
+| Dijkstra | — | cli/reason-surface.mjs:78 `.toLowerCase()` | false-positive-on-review | a view filter, lowercased the same way on both sides; no identity rides on it |
+| Frankfurt | — | cli/reason-surface.mjs:121 `placeholder="filter"` | false-positive-on-review | the input's hint text, not a value standing in for a missing one |
+clean: none
+Context: user — "make it more just a series of rows, this is overdesigned", then "falsify that this works and improves reasoning". Works held (9/9, 6/6 breaks caught). Improves reasoning did not: no-checker readers 30/36 vs rows 25/36, and on minimal-edit false twins the verdicts are chance (4/6 checkmarks on each side).
