@@ -537,3 +537,16 @@ fast: 2 files, 352/2 affected tests (both failures confirmed pre-existing and un
 | LeviStrauss | — | relations.js:221 | noted, not applicable | routed on the word "patched" in a comment describing what was NOT done (patching altOf's shared cache) -- no stash reclaim involved |
 | Marshall | P251 P36 | — | clean | no law file edited, only cited; both citations checked against the actual fix |
 clean: (all routed lenses reviewed above)
+
+## 2026-09-25 — kernel/arrow.js (Eddington): the arrow of time as a learned regularity; transplant-arm.mjs gains reversed-words + Eddington rows (main, 4 files)
+fast: 4 files · arrow.test.js 9/9, surprise-segments + continuation 20/20 · law: ok (dup:P115 P116 P117 P19 P233, S17 S96 pre-existing — the-fold/READING-SPEC homonyms already reported by archon-holocracy/CRITIQUE.md)
+| lens | citation | file:line | verdict | one line |
+| Diaconis | II.23 | arrow.js:16 | fixed | the shuffle null was the WRONG null for direction — a reversible walk beat it 0.084 vs 0.044–0.064 because a shuffle destroys order, not just sign; replaced by a symmetrized-bootstrap null (same undirected k-grams, sign removed), measured in the test |
+| Feynman | — | arrow.js:116 | no-change | `k < 2` is a structural minimum (a 1-gram has no order to reverse), thrown as a typed error, not a tuned comparison |
+| Dijkstra | — | transplant-arm.mjs:86 | fixed | `toLowerCase` disclosed as deliberate case-folding for an ORDER measurement over Latin-script text; scope stated in a comment |
+| Greenberg | — | transplant-arm.mjs:72 | no-change | Latin-punctuation sentence split, same scope as null-arm.mjs, disclosed in the comment above it |
+| Marshall | II.23 | arrow.js | clean | no law edited; II.23 (the null is built in) cited and honoured — with the correction that the arrow needs its own null, not Rubin's |
+| Simon/Chekhov | — | arrow.js, transplant-arm.mjs | disclosed | arrow.js has a 9-case suite incl. the falsification (reversible walk, i.i.d., palindrome); transplant-arm.mjs is an eval driver like null-arm.mjs, exercised on two real chapters, no unit test; arrow.js is wired only into the eval, not the reading path — named future work |
+clean: (all routed lenses reviewed above)
+
+Context: user's question "would a mind transplanted into a universe with different causality struggle?" → run it, not argue it. Result: sentence reversal reads FORWARD at the word grain and reversed-words reads BACKWARD, both chapters — the medium's arrow lives in the words, the referred arrow in the order of what they say; the reader had no Pattern-grain time organ at all before this.

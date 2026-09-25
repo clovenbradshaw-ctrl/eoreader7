@@ -275,6 +275,7 @@ the-fold's flat top level under the same basename.
 | `organs/cast.js` | Zhengming | A name answers to its referent, not its string. |
 | `organs/speaker.js` | Scheherazade | Nested tellers, each "I" bound to its declared frame. |
 | `kernel/temporal-reference.js` | Partee | Tense is anaphora. |
+| `kernel/arrow.js` | Eddington | A sequence has an arrow when it reads differently backwards; which way is forward is learned from a reference. |
 | `kernel/pending-sig.js` | Synapse | Docks, waits bounded, fires on match or clears. |
 
 **Memory, time, identity**
