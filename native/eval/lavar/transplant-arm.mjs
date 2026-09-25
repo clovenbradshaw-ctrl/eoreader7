@@ -108,7 +108,10 @@ for (const [arm, body] of Object.entries(arms)) {
   const tmp = path.join("/tmp", `transplant-${arm}-${slug}.txt`);
   fs.writeFileSync(tmp, book);
   const ledgerName = `transplant-${arm}-${slug}`;
-  const run = spawnSync("node", [path.join(HERE, "eot-jsonl.mjs"), tmp, String(CH), `--ledger-name=${ledgerName}`], { encoding: "utf8", timeout: 300000 });
+  // --lang= and --period= pass through to every arm's read unchanged, so a
+  // Latin or Hebrew transplant reads with its own convention and period
+  const passthrough = process.argv.filter((a) => a.startsWith("--lang=") || a.startsWith("--period=") || a.startsWith("--morph-prior="));
+  const run = spawnSync("node", [path.join(HERE, "eot-jsonl.mjs"), tmp, String(CH), `--ledger-name=${ledgerName}`, ...passthrough], { encoding: "utf8", timeout: 600000 });
   const ledgerPath = path.join(HERE, "results", `${ledgerName}.eot.jsonl`);
   if (!fs.existsSync(ledgerPath)) { console.error(`${arm}: no ledger written (${ledgerPath})\n${run.stderr}`); process.exit(3); }
   const lines = fs.readFileSync(ledgerPath, "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));

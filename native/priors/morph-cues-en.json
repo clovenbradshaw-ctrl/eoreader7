@@ -22,8 +22,8 @@
    "basis": "declared from the treebank's documentation"
   },
   "license": {
-   "value": "CC BY-SA 4.0 (UD_English-EWT)",
-   "basis": "declared by the builder — verify"
+   "value": "Attribution-ShareAlike 4.0 International",
+   "basis": "measured from the file"
   },
   "period": {
    "value": "2000s — the English Web Treebank's weblogs, newsgroups, emails, reviews and question-answer forums",
@@ -38,7 +38,7 @@
    "basis": "declared from the treebank's documentation"
   },
   "features": {
-   "value": "no README shipped beside the file — whether the features are gold or automatic is not on record",
+   "value": "converted with corrections (README: Features)",
    "basis": "measured from the file"
   },
   "script": {
@@ -67,7 +67,7 @@
    "basis": "measured from the file"
   },
   "readme": {
-   "value": "no README shipped beside the file",
+   "value": "eval/fixtures/ud-english-ewt/README.md",
    "basis": "measured from the file"
   },
   "split": {
@@ -86,7 +86,7 @@
    "basis": "measured from the file"
   },
   "builtAt": {
-   "value": "2026-09-25T20:12:42.049Z",
+   "value": "2026-09-25T21:16:55.623Z",
    "basis": "measured from the file"
   },
   "null": {

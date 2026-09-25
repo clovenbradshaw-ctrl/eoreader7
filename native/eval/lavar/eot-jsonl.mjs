@@ -231,6 +231,12 @@ const LANG_PRONOUNS = {
   tur: wordBound("o|onu|ona|onlar|onları|onların"),
   kor: /(그녀|그것|그들|그는|그가|그를)/,
   ell: wordBound("αυτός|αυτή|αυτό|αυτοί|αυτές|αυτά|του|της|τους|τις"),
+  // LATIN (2026-09-25): the third-person pronouns a Latin grammar lists —
+  // is/ea/id (Allen & Greenough §146), the demonstratives hic/ille/iste
+  // (§146), the reflexive se/sui/sibi (§144) — as a narrow, giver-named
+  // closed class, the same discipline as the other rows. Latin is pro-drop,
+  // so the list is short by the language's own typology, not under-listed.
+  lat: wordBound("is|ea|id|eius|ei|eum|eam|eo|ii|ei|eae|eorum|earum|eis|iis|eos|eas|hic|haec|hoc|huius|huic|hunc|hanc|hi|hae|horum|harum|his|hos|has|ille|illa|illud|illius|illi|illum|illam|illo|illae|illorum|illarum|illis|illos|illas|iste|ista|istud|se|sese|sui|sibi"),
   heb: /(הוא|היא|הם|הן)/,
   // RUS — added 2026-09-12 (the omnilingual check: Russian is a
   // case-marked language where the POSITIONAL reader is expected to break —
@@ -1709,7 +1715,7 @@ if (priorLines.length) {
     // own, no heads — so the auxiliary cue never fires, said on the giver
     // line. clause-tense.js's own English rules cannot fire on rows with no
     // features; only the witness speaks, and every filled tense names it.
-    const MORPH_PRIOR_BY_LANG = { heb: "morph-cues-he.json", grc: "morph-cues-grc.json", arb: "morph-cues-ar.json" };
+    const MORPH_PRIOR_BY_LANG = { heb: "morph-cues-he.json", grc: "morph-cues-grc.json", arb: "morph-cues-ar.json", lat: "morph-cues-la.json" };
     const override = (process.argv.find((a) => a.startsWith("--morph-prior=")) ?? "").replace("--morph-prior=", "");
     const priorFile = override ? path.resolve(override) : MORPH_PRIOR_BY_LANG[LANG] ? MORPH_PRIOR_BY_LANG[LANG] : null;
     const witnesses = priorFile ? loadWitnesses([override ? path.relative(path.join(HERE, "..", "..", "priors"), priorFile) : priorFile]) : [];

@@ -1,6 +1,6 @@
 {
  "schema": "SullivanMorph@1",
- "generatedAt": "2026-09-25T20:12:58.225Z",
+ "generatedAt": "2026-09-25T21:17:06.294Z",
  "null": {
   "draws": 12,
   "reruns": 11,
@@ -24,7 +24,7 @@
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 6272,
    "auditSentences": 6272,
-   "ms": 26544,
+   "ms": 5294,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -36,8 +36,8 @@
      "basis": "declared from the treebank's documentation"
     },
     "license": {
-     "value": "CC BY-SA 4.0 (UD_English-EWT)",
-     "basis": "declared by the builder — verify"
+     "value": "Attribution-ShareAlike 4.0 International",
+     "basis": "measured from the file"
     },
     "period": {
      "value": "2000s — the English Web Treebank's weblogs, newsgroups, emails, reviews and question-answer forums",
@@ -52,7 +52,7 @@
      "basis": "declared from the treebank's documentation"
     },
     "features": {
-     "value": "no README shipped beside the file — whether the features are gold or automatic is not on record",
+     "value": "converted with corrections (README: Features)",
      "basis": "measured from the file"
     },
     "script": {
@@ -81,7 +81,7 @@
      "basis": "measured from the file"
     },
     "readme": {
-     "value": "no README shipped beside the file",
+     "value": "eval/fixtures/ud-english-ewt/README.md",
      "basis": "measured from the file"
     },
     "split": {
@@ -100,7 +100,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T20:12:42.049Z",
+     "value": "2026-09-25T21:17:01.222Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -1146,7 +1146,7 @@
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 500,
    "auditSentences": 500,
-   "ms": 1396,
+   "ms": 444,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -1608,7 +1608,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T20:12:43.556Z",
+     "value": "2026-09-25T21:17:01.694Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -2548,7 +2548,7 @@
    "split": "train/test",
    "learnSentences": 1334,
    "auditSentences": 939,
-   "ms": 5101,
+   "ms": 1558,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -2623,7 +2623,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T20:12:48.818Z",
+     "value": "2026-09-25T21:17:03.292Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -3966,7 +3966,7 @@
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 524,
    "auditSentences": 523,
-   "ms": 2648,
+   "ms": 714,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -4040,7 +4040,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T20:12:51.574Z",
+     "value": "2026-09-25T21:17:04.031Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -5082,7 +5082,7 @@
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 1355,
    "auditSentences": 1354,
-   "ms": 2370,
+   "ms": 785,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -5186,7 +5186,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T20:12:54.128Z",
+     "value": "2026-09-25T21:17:04.852Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -5854,7 +5854,7 @@
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 115,
    "auditSentences": 115,
-   "ms": 289,
+   "ms": 117,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -5920,7 +5920,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T20:12:54.439Z",
+     "value": "2026-09-25T21:17:04.977Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -6868,7 +6868,7 @@
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 340,
    "auditSentences": 340,
-   "ms": 2400,
+   "ms": 864,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -6944,7 +6944,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T20:12:56.992Z",
+     "value": "2026-09-25T21:17:05.907Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -7703,7 +7703,7 @@
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 246,
    "auditSentences": 245,
-   "ms": 1169,
+   "ms": 369,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -7762,7 +7762,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T20:12:58.218Z",
+     "value": "2026-09-25T21:17:06.293Z",
      "basis": "measured from the file"
     },
     "null": {

@@ -67,6 +67,9 @@ const TREEBANKS = [
   {
     lang: "en", name: "English EWT", language: { iso: "eng", name: "English", stage: "Present-day English, web register" },
     learn: path.resolve(HERE, "..", "..", "..", "legacy-eoreader6.1", "scripts", "corpus", "en_ewt-ud-train.conllu"),
+    // the conllu lives in the legacy corpus; its README and license are
+    // shipped in a fixture directory of their own (fetched 2026-09-25)
+    readme: path.join(FIX, "ud-english-ewt", "README.md"), licenseFile: path.join(FIX, "ud-english-ewt", "LICENSE.txt"),
     declared: {
       giver: d("UD_English-EWT (Silveira, Dozat, de Marneffe, Schuster, Bauer, Manning et al.), converted from the English Web Treebank, LDC2012T13 — as priors/parser-eng-ewt.json already records", DOC),
       period: d("2000s — the English Web Treebank's weblogs, newsgroups, emails, reviews and question-answer forums", DOC),

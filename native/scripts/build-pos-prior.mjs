@@ -30,11 +30,38 @@
 // Usage: node native/scripts/build-pos-prior.mjs <in.conllu> <out.json> <lang> <giver-url>
 
 import { readFileSync, writeFileSync } from "node:fs";
+import { resolve, dirname } from "node:path";
 
 const IN = process.argv[2];
 const OUT = process.argv[3];
 const LANGUAGE = process.argv[4];
 const GIVER_URL = process.argv[5];
+// the license: given, or read from a LICENSE.txt beside the input, or unknown
+// licenseOf(text) — the Creative Commons license a LICENSE.txt names, as
+// "CC BY-NC-SA 3.0 Generic", read off the text's own words (either the
+// long form "Attribution-NonCommercial-ShareAlike 3.0 Generic" or the
+// short "CC BY-NC-SA 3.0"); null when no CC license is named.
+export function licenseOf(text) {
+  // a license name wrapped at a hyphen ("Attribution-NonCommercial-\nShareAlike")
+  // is re-joined before matching — measured on PROIEL's and Perseus's files
+  const s = String(text ?? "").replace(/-\s+/g, "-").replace(/\s+/g, " ");
+  const long = /Attribution((?:-(?:NonCommercial|ShareAlike|NoDerivs|NoDerivatives))*)\s*([0-9]\.[0-9])\s*(Generic|International|Unported|US)?/i.exec(s);
+  if (long) {
+    const parts = ["BY", ...long[1].split("-").filter(Boolean).map((p) => ({ noncommercial: "NC", sharealike: "SA", noderivs: "ND", noderivatives: "ND" })[p.toLowerCase()] ?? p)];
+    return `CC ${parts.join("-")} ${long[2]}${long[3] ? ` ${long[3]}` : ""}`;
+  }
+  const short = /CC\s*BY(?:-(?:NC|SA|ND))*\s*[0-9]\.[0-9](?:\s*(?:Generic|International|Unported|US))?/i.exec(s);
+  return short ? short[0].replace(/\s+/g, " ").toUpperCase().replace(/GENERIC|INTERNATIONAL|UNPORTED/, (m) => m[0] + m.slice(1).toLowerCase()) : null;
+}
+const LICENSE = (() => {
+  if (process.argv[6]) return process.argv[6];
+  try {
+    const beside = resolve(dirname(resolve(IN)), "LICENSE.txt");
+    const named = licenseOf(readFileSync(beside, "utf8"));
+    if (named) return `${named} (LICENSE.txt beside the input)`;
+  } catch {}
+  return "unknown — no LICENSE.txt beside the input and none given";
+})();
 const TAB = String.fromCharCode(9);
 
 if (!IN || !OUT || !LANGUAGE || !GIVER_URL) {
@@ -79,7 +106,13 @@ writeFileSync(
     language: LANGUAGE,
     provenance: {
       giver: `Universal Dependencies — ${GIVER_URL} (train split), human-annotated gold treebank`,
-      license: "CC BY-SA 4.0",
+      // NEVER A DEFAULT (2026-09-25). This line had been the constant "CC
+      // BY-SA 4.0" for every prior built here; the LICENSE.txt files shipped
+      // beside the fixtures say otherwise for four of them (PROIEL BY-NC-SA
+      // 3.0, HTB BY-NC-SA 4.0, PADT BY-NC-SA 3.0 US, Perseus BY-NC-SA 2.5).
+      // The license is the sixth argument, or the first line of a
+      // LICENSE.txt beside the input, or an honest "unknown".
+      license: LICENSE,
       source: GIVER_URL,
       builder: "eoreader7 native/scripts/build-pos-prior.mjs",
       sentences_read: sentenceCount,
