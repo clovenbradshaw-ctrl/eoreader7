@@ -3,7 +3,13 @@
  "language": {
   "iso": "heb",
   "name": "Hebrew",
-  "stage": "Modern Israeli Hebrew, newspaper register"
+  "stage": "Modern Israeli Hebrew, newspaper register",
+  "span": {
+   "from": 1990,
+   "to": 1995,
+   "basis": "declared by the builder — verify",
+   "note": "Ha'aretz text; the README gives no dates"
+  }
  },
  "provenance": {
   "schema": "Provenance@1",
@@ -30,6 +36,10 @@
   "register": {
    "value": "news (README genre): Ha'aretz newspaper prose, unvocalised script",
    "basis": "declared from the treebank's documentation"
+  },
+  "features": {
+   "value": "converted from manual (README: Features)",
+   "basis": "measured from the file"
   },
   "script": {
    "value": "Hebrew (100.0% of letters)",
@@ -59,7 +69,7 @@
    "basis": "measured from the file"
   },
   "builtAt": {
-   "value": "2026-09-25T19:56:41.508Z",
+   "value": "2026-09-25T20:12:58.218Z",
    "basis": "measured from the file"
   },
   "null": {

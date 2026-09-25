@@ -47,6 +47,20 @@ const VERIFY = "declared by the builder — verify";
 const FILE = "measured from the file";
 const d = (value, basis = DOC) => ({ value, basis });
 
+// YEAR SPANS, for the mechanical period gate (morph-cues.js::periodOverlap).
+// Negative = BCE. Where a treebank's own document ids carry dates (EWT,
+// PADT) the span is MEASURED from them at write time and this table is not
+// consulted; otherwise the span is the builder's dating of the documented
+// works, marked so — the READMEs date nothing.
+const SPANS = {
+  la: { from: -63, to: 405, basis: VERIFY, note: "Cicero's In Catilinam (63 BCE) to Jerome's Vulgate (c. 405 CE): the works are the README's, the dates the builder's" },
+  grc: { from: -450, to: 100, basis: VERIFY, note: "Herodotus (mid-5th c. BCE) to the New Testament (1st c. CE): the works are the README's, the dates the builder's" },
+  "sa-vedic": { from: -1500, to: -500, basis: VERIFY, note: "the Vedic layers the README calls the oldest transmitted Indo-European; some cited texts sit later" },
+  "sa-ufal": { from: -200, to: 300, basis: VERIFY, note: "the Pañcatantra's conventional composition window; the transmitted text is later" },
+  he: { from: 1990, to: 1995, basis: VERIFY, note: "Ha'aretz text; the README gives no dates" },
+  "en-pud": { from: 2010, to: 2017, basis: VERIFY, note: "collected for the CoNLL 2017 shared task; the README gives no dates" },
+};
+
 // Each treebank: where its files are, and what only its documentation can
 // say. Everything measurable is measured below, never restated here.
 const TREEBANKS = [
@@ -59,6 +73,23 @@ const TREEBANKS = [
       region: d("predominantly American English, as parser-eng-ewt.json's ParserProvenance@1 declares", DOC),
       register: d("informal written web English: reviews, answers, email, newsgroup, weblog (document genres measured below)", DOC),
       license: d("CC BY-SA 4.0 (UD_English-EWT)", VERIFY),
+    },
+  },
+  {
+    // AN INDEPENDENT SECOND ENGLISH GIVER (2026-09-25). The parser's lexicon
+    // and the EWT convention are two readers of one treebank; PUD's 1000
+    // sentences are news and Wikipedia, different text, different
+    // annotators. Its README says Features: automatic — so a Tense learned
+    // here is learned from a tagger's features, not gold, and the prior says
+    // so (provenance.features). An independent witness, a weaker one.
+    lang: "en-pud", name: "English PUD", language: { iso: "eng", name: "English", stage: "Present-day English, news and Wikipedia (Parallel UD, CoNLL 2017)" },
+    learn: path.join(FIX, "ud-english-pud", "en_pud-ud-test.conllu"),
+    readme: path.join(FIX, "ud-english-pud", "README.md"), licenseFile: path.join(FIX, "ud-english-pud", "LICENSE.txt"),
+    declared: {
+      giver: d("UD_English-PUD — the English portion of the Parallel Universal Dependencies treebanks for the CoNLL 2017 shared task (README contributors: Uszkoreit, Macketanz, Burchardt, Harris, Marheinecke, Petrov, Kayadelen, Attia, Elkahky, Yu, Pitler, Lertpradit, Kirchner, Lambertino, Popel, Zeman, Manning, Schuster, Reddy)", DOC),
+      period: d("sentences collected for the 2017 shared task from news and Wikipedia; the README gives no dates for the texts — the builder's understanding is the 2010s", VERIFY),
+      region: d("the README states no region; news and Wikipedia English, source outlets not named", VERIFY),
+      register: d("news, wiki (README genre): sentence ids beginning n are news, w are Wikipedia — measured below", DOC),
     },
   },
   {
@@ -211,6 +242,18 @@ for (const tb of TREEBANKS) {
   }
   const ms = Date.now() - t0;
   const script = measuredScript(all);
+  const documents = measuredSources(all);
+  // the year span: measured from the file's own document dates when it has
+  // them, else the builder's dating of the documented works (SPANS)
+  const years = documents.years ? Object.keys(documents.years).map(Number) : [];
+  const span = years.length
+    ? { from: Math.min(...years), to: Math.max(...years), basis: FILE, note: "the years the file's own document ids carry" }
+    : SPANS[tb.lang] ?? null;
+  const language = { ...tb.language, ...(span ? { span } : {}) };
+  // whether the FEATURES this convention was learned from are gold: the
+  // README's own machine-readable line, when a README ships
+  const readmeText = tb.readme && fs.existsSync(tb.readme) ? fs.readFileSync(tb.readme, "utf8") : null;
+  const featuresLine = readmeText ? /^Features:\s*(.+)$/m.exec(readmeText)?.[1]?.trim() ?? null : null;
   const provenance = {
     schema: "Provenance@1",
     source: d(`${path.basename(tb.learn)} sha256:${sha256(learnText)}${auditText ? ` + ${path.basename(tb.audit)} sha256:${sha256(auditText)}` : ""}`, FILE),
@@ -219,8 +262,9 @@ for (const tb of TREEBANKS) {
     period: tb.declared.period,
     region: tb.declared.region,
     register: tb.declared.register,
+    features: featuresLine ? d(`${featuresLine} (README: Features)`, FILE) : d("no README shipped beside the file — whether the features are gold or automatic is not on record", FILE),
     script: d(`${script.script} (${(100 * script.share).toFixed(1)}% of letters)`, FILE),
-    documents: d(measuredSources(all), FILE),
+    documents: d(documents, FILE),
     readme: tb.readme && fs.existsSync(tb.readme) ? d(path.relative(path.resolve(HERE, "..", ".."), tb.readme), FILE) : d("no README shipped beside the file", FILE),
     split: d(split, FILE),
     tokens: d({ learn: learn.reduce((n, s) => n + s.tokens.length, 0), audit: auditSet.reduce((n, s) => n + s.tokens.length, 0) }, FILE),
@@ -228,7 +272,7 @@ for (const tb of TREEBANKS) {
     builtAt: d(new Date().toISOString(), FILE),
     null: d({ draws: DRAWS, reruns: RERUNS, seed: NULL.seed }, FILE),
   };
-  results.push({ lang: tb.lang, name: tb.name, language: tb.language, split, learnSentences: learn.length, auditSentences: auditSet.length, ms, provenance, rows });
+  results.push({ lang: tb.lang, name: tb.name, language, split, learnSentences: learn.length, auditSentences: auditSet.length, ms, provenance, rows });
 
   if (WRITE) {
     // The prior stores the CONVENTION — admitted cues and the numbers that
@@ -241,7 +285,7 @@ for (const tb of TREEBANKS) {
       for (const r of refused ?? []) refusedBy[r.why] = (refusedBy[r.why] ?? 0) + 1;
       return [f, { ...keep, refusedBy }];
     }));
-    const prior = { schema: PRIOR_SCHEMA, language: tb.language, provenance, features: stored };
+    const prior = { schema: PRIOR_SCHEMA, language, provenance, features: stored };
     morphCuesFromPrior(prior); // the loader's own refusal, before anything is written
     fs.mkdirSync(PRIORS, { recursive: true });
     fs.writeFileSync(path.join(PRIORS, `morph-cues-${tb.lang}.json`), JSON.stringify(prior, null, 1));

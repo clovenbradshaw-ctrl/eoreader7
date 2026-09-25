@@ -87,11 +87,44 @@ const stub = (value, verdict = "bound") => ({
 test("witness: agreement is corroboration, disagreement a typed contest that never overrides the parser", () => {
   const agree = clauseTense(rows, spanOf("away"), "went", { witness: stub("Past") });
   assert.equal(agree.tense, "Past");
-  assert.equal(agree.corroborated.witness, "stub treebank");
+  assert.equal(agree.corroborated[0].witness, "stub treebank");
+  assert.equal(agree.corroborated[0].independent, true, "a stub giver shares no treebank id with the parser");
   const clash = clauseTense(rows, spanOf("away"), "went", { witness: stub("Pres") });
   assert.equal(clash.tense, "Past", "the parser's value stands");
-  assert.equal(clash.contested.value, "Pres");
-  assert.match(clash.contested.cue, /end:2/);
+  assert.equal(clash.contested[0].value, "Pres");
+  assert.match(clash.contested[0].cue, /end:2/);
+});
+
+test("several witnesses: the first to bind fills; later ones corroborate or contest THAT, with independence judged against the filler", () => {
+  const ewt = { ...stub("Past"), giver: "UD_English-EWT via stub" };
+  const pud = { ...stub("Past"), giver: "UD_English-PUD via stub" };
+  const ewt2 = { ...stub("Past"), giver: "UD_English-EWT again" };
+  // the parser is silent on "Having opened": EWT fills, PUD corroborates independently, a second EWT reader does not
+  const r = clauseTense(rows, spanOf("the door"), "Having opened", { witnesses: [ewt, pud, ewt2] });
+  assert.equal(r.tense, "Past");
+  assert.equal(r.filled.witness, "UD_English-EWT via stub");
+  assert.deepEqual(r.corroborated.map((c) => [c.witness, c.independent]), [["UD_English-PUD via stub", true], ["UD_English-EWT again", false]]);
+  // the parser spoke on "went": an EWT witness agreeing is not independent of the parser, a PUD one is
+  const s = clauseTense(rows, spanOf("away"), "went", { witnesses: [ewt, pud] });
+  assert.deepEqual(s.corroborated.map((c) => c.independent), [false, true]);
+  // a dissenting second witness lands as a contest, the fill stands
+  const d = clauseTense(rows, spanOf("the door"), "Having opened", { witnesses: [ewt, { ...stub("Pres"), giver: "UD_English-PUD via stub" }] });
+  assert.equal(d.tense, "Past");
+  assert.equal(d.contested[0].value, "Pres");
+  assert.equal(d.contested[0].independent, true);
+});
+
+test("period: a read's declared period against the convention's span is disclosed, never a refusal; undeclared on either side is null, not a mismatch", () => {
+  const modern = { ...stub("Past"), language: { iso: "heb", stage: "modern newspaper Hebrew", span: { from: 1990, to: 1995 } } };
+  const biblical = clauseTense(rows, spanOf("the door"), "Having opened", { witnesses: [modern], period: { from: -900, to: -500 } });
+  assert.equal(biblical.tense, "Past", "still filled");
+  assert.equal(biblical.filled.periodMismatch, true, "and the mismatch is on the record");
+  const same = clauseTense(rows, spanOf("the door"), "Having opened", { witnesses: [modern], period: { from: 1992, to: 1992 } });
+  assert.equal(same.filled.periodMismatch, false);
+  const unknown = clauseTense(rows, spanOf("the door"), "Having opened", { witnesses: [modern] });
+  assert.equal(unknown.filled.periodMismatch, false, "no declared period on the read: no mismatch can be asserted");
+  const noSpan = clauseTense(rows, spanOf("the door"), "Having opened", { witnesses: [stub("Past")], period: { from: 1, to: 2 } });
+  assert.equal(noSpan.filled.periodMismatch, false, "no span on the convention: no mismatch can be asserted");
 });
 
 test("witness: fills a finite clause the parser left undeclared, and says who filled it; unmarked or void change nothing", () => {

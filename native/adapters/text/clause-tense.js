@@ -41,6 +41,7 @@
 //              gerund clause) — counted, never guessed.
 import { sentences, tokenize, analyse } from "./english-parser.js";
 import { UD_FEATURES } from "../../kernel/universal-grammar.js";
+import { periodOverlap } from "./morph-cues.js";
 
 export const TENSE_VALUES = Object.freeze([...UD_FEATURES.Tense, "undeclared"]);
 export const PARSER_TREEBANK = "UD_English-EWT";
@@ -116,33 +117,52 @@ function parserTense(verb, auxes) {
 // Unmarked or void from the witness changes nothing. The witness carries
 // its giver, so a filled tense can always be traced to the treebank, period
 // and register it was learned from.
-function tenseOfClause(rows, verb, auxes, witness = null) {
+// Two givers are the same source when their names share a treebank id —
+// mechanical, on the string both carry, never a judgment.
+const treebanksIn = (s) => new Set(String(s ?? "").match(/UD_[A-Za-z]+-[A-Za-z]+/g) ?? []);
+const sameSource = (a, b) => { const A = treebanksIn(a), B = treebanksIn(b); for (const x of A) if (B.has(x)) return true; return false; };
+
+// SEVERAL WITNESSES, IN DECLARED ORDER. Each is asked about the same finite
+// token the parser read. Where the parser stated a tense: an agreeing
+// witness is a corroboration, a disagreeing one a contest; the parser's
+// value stands. Where the parser had none: the FIRST witness to bind fills
+// it, and later witnesses corroborate or contest THAT. Every record says
+// whether the witness is independent of whoever it agrees or disagrees
+// with (PEARL'S CAVEAT, chorus 2026-09-25: the parser's lexicon and the EWT
+// convention are two readers of one giver — `independent` is false when
+// the two names share a treebank id), and whether the read's declared
+// period overlaps the convention's declared span (null when either is
+// undeclared; false is a disclosed mismatch, never a refusal).
+function tenseOfClause(rows, verb, auxes, witnesses = [], period = null) {
   const r = parserTense(verb, auxes);
   const asked = r.spoke ?? (auxes.find((a) => feat(a, "VerbForm") === "Fin") ?? verb ?? auxes[0] ?? null);
   const { spoke, ...base } = r;
-  if (!witness || !asked) return Object.freeze(base);
+  if (!witnesses.length || !asked) return Object.freeze(base);
   const sent = { tokens: rows.filter((x) => x.sentence === asked.sentence) };
-  const w = witness.predict(asked, sent);
   const cueName = (c) => `${c.kind}=${JSON.stringify(c.key)}|${c.class} ${(100 * c.accuracy).toFixed(0)}%`;
-  // PEARL'S CAVEAT, ON THE RECORD (chorus, 2026-09-25): the parser's lexicon
-  // and Sullivan's cues were both learned from UD_English-EWT. Agreement
-  // between them is two READERS of one giver agreeing, not two givers — so
-  // `independent` is false whenever the witness names the parser's own
-  // treebank, and a corroboration that is not independent says so.
-  const independent = !String(witness.giver ?? "").includes(PARSER_TREEBANK);
-  if (base.tense !== "undeclared") {
-    if (w.verdict === "bound" && w.value === base.tense) return Object.freeze({ ...base, corroborated: { witness: witness.giver, cue: cueName(w.cue), independent } });
-    if (w.verdict === "bound" && w.value !== base.tense) return Object.freeze({ ...base, contested: { witness: witness.giver, value: w.value, cue: cueName(w.cue), independent } });
-    return Object.freeze(base);
+  let out = { ...base };
+  const corroborated = [], contested = [];
+  for (const witness of witnesses) {
+    const w = witness.predict(asked, sent);
+    if (w.verdict !== "bound" || !TENSE_VALUES.includes(w.value)) continue;
+    const overlap = periodOverlap(period, witness.language?.span ?? null);
+    const rec = { witness: witness.giver, cue: cueName(w.cue), value: w.value, periodMismatch: overlap === false };
+    if (out.tense === "undeclared") {
+      out = { tense: w.value, basis: `Sullivan (${witness.language?.stage ?? witness.language?.iso ?? "unnamed stage"}): ${cueName(w.cue)} on ${asked.form}`, token: asked.off, filled: rec };
+      continue;
+    }
+    const against = out.filled ? out.filled.witness : PARSER_TREEBANK;
+    const record = { ...rec, independent: !sameSource(witness.giver, against) };
+    if (w.value === out.tense) corroborated.push(record); else contested.push(record);
   }
-  if (w.verdict === "bound" && TENSE_VALUES.includes(w.value)) {
-    return Object.freeze({ tense: w.value, basis: `Sullivan (${witness.language?.stage ?? witness.language?.iso ?? "?"}): ${cueName(w.cue)} on ${asked.form}`, token: asked.off, filled: { witness: witness.giver, cue: cueName(w.cue) } });
-  }
-  return Object.freeze(base);
+  if (corroborated.length) out.corroborated = Object.freeze(corroborated);
+  if (contested.length) out.contested = Object.freeze(contested);
+  return Object.freeze(out);
 }
 
-/** clauseTense(rows, [start, end], label, { witness }) → { tense, basis, token, located, corroborated?, contested?, filled? } */
-export function clauseTense(rows, span, label = null, { witness = null } = {}) {
+/** clauseTense(rows, [start, end], label, { witness | witnesses, period }) → { tense, basis, token, located, filled?, corroborated?: [], contested?: [] } */
+export function clauseTense(rows, span, label = null, { witness = null, witnesses = null, period = null } = {}) {
+  const list = witnesses ?? (witness ? [witness] : []);
   const [start, end] = span;
   const run = locateLabel(rows, start, label);
   if (run) {
@@ -151,7 +171,7 @@ export function clauseTense(rows, span, label = null, { witness = null } = {}) {
     if (verb.upos === "AUX" && rows[verb.headIndex] && rows[verb.headIndex].upos === "VERB") verb = rows[verb.headIndex];
     const auxes = rows.filter((r) => r.upos === "AUX" && r.headIndex === verb.i && r.i !== verb.i);
     if (verb.upos === "AUX" && !auxes.includes(verb)) auxes.push(verb);
-    return Object.freeze({ ...tenseOfClause(rows, verb.upos === "VERB" ? verb : null, auxes, witness), located: "label" });
+    return Object.freeze({ ...tenseOfClause(rows, verb.upos === "VERB" ? verb : null, auxes, list, period), located: "label" });
   }
   // fallback: the span's own tokens, plus any auxiliary attached to a verb inside it
   const inside = rows.filter((r) => r.off >= start && r.off < end);
@@ -160,5 +180,5 @@ export function clauseTense(rows, span, label = null, { witness = null } = {}) {
   const verbs = [...inside, ...attachedAux].filter(isVerbal).sort((a, b) => a.off - b.off);
   const verb = verbs.find((r) => r.upos === "VERB") ?? null;
   const auxes = verbs.filter((r) => r.upos === "AUX");
-  return Object.freeze({ ...tenseOfClause(rows, verb, auxes, witness), located: "span" });
+  return Object.freeze({ ...tenseOfClause(rows, verb, auxes, list, period), located: "span" });
 }

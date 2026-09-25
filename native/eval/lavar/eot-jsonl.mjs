@@ -68,7 +68,7 @@ import { arrowOf } from "../../kernel/arrow.js";
 import { narrativeTime } from "../../kernel/narrative-time.js";
 import { loadModel as loadEnglishParser } from "../../adapters/text/english-parser.js";
 import { parseWindow, clauseTense, GIVER as TENSE_GIVER } from "../../adapters/text/clause-tense.js";
-import { morphCuesFromPrior, witnessOf } from "../../adapters/text/morph-cues.js";
+import { morphCuesFromPrior, witnessOf, parsePeriod } from "../../adapters/text/morph-cues.js";
 import { rowsFromPosPrior } from "../../adapters/text/pos-rows.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -1642,7 +1642,32 @@ if (priorLines.length) {
     .sort((x, y) => x.at[0] - y.at[0])
     .map((l) => ({ id: l.id, at: l.at, label: l.label, sentence: sentenceOf(l.at) }));
   let tenseOf, GIVER;
-  const witnessTally = { spoke: 0, corroborated: 0, contested: 0, giver: null };
+  // THE READ'S OWN PERIOD, compared with each convention's declared span
+  // (morph-cues.js::periodOverlap): --period=<year|from..to> — the same
+  // flag the EOTSource header records. Prose there stays prose; only a
+  // parseable span can be compared, and a mismatch is disclosed on every
+  // filled tense and counted here, never a refusal.
+  const READ_PERIOD = parsePeriod((process.argv.find((a) => a.startsWith("--period=")) ?? "").replace("--period=", ""));
+  const witnessTally = { spoke: 0, corroborated: 0, corroboratedIndependent: 0, contested: 0, periodMismatch: 0, givers: [], period: READ_PERIOD };
+  const tallyOf = (t) => {
+    if (t.filled) { witnessTally.spoke += 1; if (t.filled.periodMismatch) witnessTally.periodMismatch += 1; }
+    for (const c of t.corroborated ?? []) { witnessTally.corroborated += 1; if (c.independent) witnessTally.corroboratedIndependent += 1; }
+    if (t.contested?.length) witnessTally.contested += 1;
+  };
+  const loadWitnesses = (files) => {
+    const out = [];
+    for (const f of files) {
+      const p = path.join(HERE, "..", "..", "priors", f);
+      if (!fs.existsSync(p)) continue;
+      const loaded = morphCuesFromPrior(JSON.parse(fs.readFileSync(p, "utf8")));
+      const w = witnessOf(loaded, "Tense");
+      if (!w) continue;
+      const span = loaded.language.span ? ` ${loaded.language.span.from}..${loaded.language.span.to} [${loaded.language.span.basis}]` : "";
+      witnessTally.givers.push(`${loaded.language.stage}${span} — ${loaded.provenance.giver.value}; features: ${loaded.provenance.features?.value ?? "not on record"}`);
+      out.push(w);
+    }
+    return out;
+  };
   if (LANG === "eng") {
     const model = loadEnglishParser(JSON.parse(fs.readFileSync(path.join(HERE, "..", "..", "priors", "parser-eng-ewt.json"), "utf8")));
     // `raw` here is the NORMALISED text and WIN its coordinates; the ledger's
@@ -1658,22 +1683,19 @@ if (priorLines.length) {
     // tense, corroborate agreement, and land disagreement as a typed
     // contest — the parser stays the primary giver. Counts on the coverage
     // line below; a missing prior means no witness, said on that line.
-    let witness = null;
-    const priorPath = path.join(HERE, "..", "..", "priors", "morph-cues-en.json");
-    if (fs.existsSync(priorPath)) {
-      const loaded = morphCuesFromPrior(JSON.parse(fs.readFileSync(priorPath, "utf8")));
-      witness = witnessOf(loaded, "Tense");
-      witnessTally.giver = witness ? `${loaded.language.stage} — ${loaded.provenance.giver.value}` : null;
-    }
+    // TWO CONVENTIONS, IN DECLARED ORDER: EWT first (the parser's own
+    // treebank — two readers of one giver, so never an independent
+    // corroboration), then PUD (news and Wikipedia, other annotators:
+    // independent, but its features are automatic, and its provenance says
+    // so). The first to bind fills; the other corroborates or contests.
+    const witnesses = loadWitnesses(["morph-cues-en.json", "morph-cues-en-pud.json"]);
     const typed = new Map(props.map((a) => {
-      const t = clauseTense(rows, a.at, a.label, { witness });
-      if (t.filled) witnessTally.spoke += 1;
-      if (t.corroborated) witnessTally.corroborated += 1;
-      if (t.contested) witnessTally.contested += 1;
+      const t = clauseTense(rows, a.at, a.label, { witnesses, period: READ_PERIOD });
+      tallyOf(t);
       return [a.id, t];
     }));
     tenseOf = (a) => typed.get(a.id)?.tense ?? "undeclared";
-    GIVER = `${TENSE_GIVER}${witness ? `; second witness: Sullivan's learned convention (${witnessTally.giver}), ${witness.admitted} admitted Tense cues` : "; no Sullivan witness (priors/morph-cues-en.json absent)"}`;
+    GIVER = `${TENSE_GIVER}${witnesses.length ? `; Sullivan witnesses in order: ${witnessTally.givers.map((g, i) => `(${i + 1}) ${g}`).join(" | ")}` : "; no Sullivan witness (no priors/morph-cues-en*.json on disk)"}${READ_PERIOD ? `; read period ${READ_PERIOD.from}..${READ_PERIOD.to} compared with each convention's span` : "; no --period declared for this read, so no period comparison"}`;
   } else {
     // A NON-ENGLISH READ HAS NO PARSER; IT HAS SULLIVAN (2026-09-25). Her
     // stored convention for this language AND STAGE — declared here per
@@ -1689,27 +1711,22 @@ if (priorLines.length) {
     // features; only the witness speaks, and every filled tense names it.
     const MORPH_PRIOR_BY_LANG = { heb: "morph-cues-he.json", grc: "morph-cues-grc.json", arb: "morph-cues-ar.json" };
     const override = (process.argv.find((a) => a.startsWith("--morph-prior=")) ?? "").replace("--morph-prior=", "");
-    const priorPath = override ? path.resolve(override) : MORPH_PRIOR_BY_LANG[LANG] ? path.join(HERE, "..", "..", "priors", MORPH_PRIOR_BY_LANG[LANG]) : null;
-    let witness = null, loaded = null;
-    if (priorPath && fs.existsSync(priorPath)) {
-      loaded = morphCuesFromPrior(JSON.parse(fs.readFileSync(priorPath, "utf8")));
-      witness = witnessOf(loaded, "Tense");
-    }
-    if (witness) {
+    const priorFile = override ? path.resolve(override) : MORPH_PRIOR_BY_LANG[LANG] ? MORPH_PRIOR_BY_LANG[LANG] : null;
+    const witnesses = priorFile ? loadWitnesses([override ? path.relative(path.join(HERE, "..", "..", "priors"), priorFile) : priorFile]) : [];
+    if (witnesses.length) {
       const rows = rowsFromPosPrior(raw.slice(WIN[0], WIN[1]), POS_PRIOR, { map: (i) => toRaw(WIN[0] + i), sentences: sents });
       const typed = new Map(props.map((a) => {
-        const t = clauseTense(rows, a.at, a.label, { witness });
-        if (t.filled) witnessTally.spoke += 1;
+        const t = clauseTense(rows, a.at, a.label, { witnesses, period: READ_PERIOD });
+        tallyOf(t);
         return [a.id, t];
       }));
       tenseOf = (a) => typed.get(a.id)?.tense ?? "undeclared";
-      witnessTally.giver = `${loaded.language.stage} — ${loaded.provenance.giver.value}`;
-      GIVER = `Sullivan's learned convention for --lang=${LANG} (${witnessTally.giver}; period: ${loaded.provenance.period.value}), ${witness.admitted} admitted Tense cues, over POS-prior rows (class = dominant UPOS per form from ${path.basename(POS_PRIOR_PATH)}, no parse: the auxiliary cue never fires)`;
+      GIVER = `Sullivan's learned convention for --lang=${LANG}: ${witnessTally.givers[0]}; ${witnesses[0].admitted} admitted Tense cues, over POS-prior rows (class = dominant UPOS per form from ${path.basename(POS_PRIOR_PATH)}, no parse: the auxiliary cue never fires)${READ_PERIOD ? `; read period ${READ_PERIOD.from}..${READ_PERIOD.to} compared with the convention's span` : "; no --period declared for this read, so no period comparison"}`;
     } else {
       tenseOf = () => "undeclared";
-      GIVER = priorPath && fs.existsSync(priorPath)
-        ? `the convention at ${path.basename(priorPath)} holds no Tense model; every arrangement typed undeclared`
-        : `no tense typer declared for --lang=${LANG}${override ? ` (--morph-prior ${override} not found)` : " — no learned convention is declared for this language and stage; pass --morph-prior=<MorphCuesPrior@1> to declare one"}; every arrangement typed undeclared`;
+      GIVER = priorFile
+        ? `no Tense convention could be loaded from ${path.basename(priorFile)} (absent, or it holds no Tense model); every arrangement typed undeclared`
+        : `no tense typer declared for --lang=${LANG} — no learned convention is declared for this language and stage; pass --morph-prior=<MorphCuesPrior@1> to declare one; every arrangement typed undeclared`;
     }
   }
   const nt = narrativeTime(props, { tenseOf, giver: GIVER });

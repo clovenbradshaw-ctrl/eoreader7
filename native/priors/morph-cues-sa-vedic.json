@@ -3,7 +3,13 @@
  "language": {
   "iso": "san",
   "name": "Sanskrit",
-  "stage": "Vedic Sanskrit — hymns, Brāhmaṇa and Sūtra prose, not Classical"
+  "stage": "Vedic Sanskrit — hymns, Brāhmaṇa and Sūtra prose, not Classical",
+  "span": {
+   "from": -1500,
+   "to": -500,
+   "basis": "declared by the builder — verify",
+   "note": "the Vedic layers the README calls the oldest transmitted Indo-European; some cited texts sit later"
+  }
  },
  "provenance": {
   "schema": "Provenance@1",
@@ -30,6 +36,10 @@
   "register": {
    "value": "metrical hymns and ritual/exegetical prose",
    "basis": "declared from the treebank's documentation"
+  },
+  "features": {
+   "value": "converted from manual (README: Features)",
+   "basis": "measured from the file"
   },
   "script": {
    "value": "Latin (100.0% of letters)",
@@ -104,7 +114,7 @@
    "basis": "measured from the file"
   },
   "builtAt": {
-   "value": "2026-09-25T19:35:38.766Z",
+   "value": "2026-09-25T20:12:54.128Z",
    "basis": "measured from the file"
   },
   "null": {

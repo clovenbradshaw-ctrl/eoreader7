@@ -3,7 +3,13 @@
  "language": {
   "iso": "san",
   "name": "Sanskrit",
-  "stage": "Classical Sanskrit fable prose (Pañcatantra)"
+  "stage": "Classical Sanskrit fable prose (Pañcatantra)",
+  "span": {
+   "from": -200,
+   "to": 300,
+   "basis": "declared by the builder — verify",
+   "note": "the Pañcatantra's conventional composition window; the transmitted text is later"
+  }
  },
  "provenance": {
   "schema": "Provenance@1",
@@ -30,6 +36,10 @@
   "register": {
    "value": "fiction: fable (README genre)",
    "basis": "declared from the treebank's documentation"
+  },
+  "features": {
+   "value": "manual native (README: Features)",
+   "basis": "measured from the file"
   },
   "script": {
    "value": "Devanagari (100.0% of letters)",
@@ -66,7 +76,7 @@
    "basis": "measured from the file"
   },
   "builtAt": {
-   "value": "2026-09-25T19:35:39.002Z",
+   "value": "2026-09-25T20:12:54.439Z",
    "basis": "measured from the file"
   },
   "null": {

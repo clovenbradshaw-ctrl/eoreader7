@@ -1,6 +1,6 @@
 {
  "schema": "SullivanMorph@1",
- "generatedAt": "2026-09-25T19:58:18.037Z",
+ "generatedAt": "2026-09-25T20:12:58.225Z",
  "null": {
   "draws": 12,
   "reruns": 11,
@@ -13,12 +13,18 @@
    "language": {
     "iso": "eng",
     "name": "English",
-    "stage": "Present-day English, web register"
+    "stage": "Present-day English, web register",
+    "span": {
+     "from": 2003,
+     "to": 2006,
+     "basis": "measured from the file",
+     "note": "the years the file's own document ids carry"
+    }
    },
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 6272,
    "auditSentences": 6272,
-   "ms": 5510,
+   "ms": 26544,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -44,6 +50,10 @@
     "register": {
      "value": "informal written web English: reviews, answers, email, newsgroup, weblog (document genres measured below)",
      "basis": "declared from the treebank's documentation"
+    },
+    "features": {
+     "value": "no README shipped beside the file — whether the features are gold or automatic is not on record",
+     "basis": "measured from the file"
     },
     "script": {
      "value": "Latin (99.9% of letters)",
@@ -90,7 +100,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:58:13.357Z",
+     "value": "2026-09-25T20:12:42.049Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -1120,17 +1130,1425 @@
    ]
   },
   {
+   "lang": "en-pud",
+   "name": "English PUD",
+   "language": {
+    "iso": "eng",
+    "name": "English",
+    "stage": "Present-day English, news and Wikipedia (Parallel UD, CoNLL 2017)",
+    "span": {
+     "from": 2010,
+     "to": 2017,
+     "basis": "declared by the builder — verify",
+     "note": "collected for the CoNLL 2017 shared task; the README gives no dates"
+    }
+   },
+   "split": "parity: even sentences learn, odd audit",
+   "learnSentences": 500,
+   "auditSentences": 500,
+   "ms": 1396,
+   "provenance": {
+    "schema": "Provenance@1",
+    "source": {
+     "value": "en_pud-ud-test.conllu sha256:c80584f2bc2b31d5bada78a1136f9feec7ac49e5e18898db02dea434b5b8f0aa",
+     "basis": "measured from the file"
+    },
+    "giver": {
+     "value": "UD_English-PUD — the English portion of the Parallel Universal Dependencies treebanks for the CoNLL 2017 shared task (README contributors: Uszkoreit, Macketanz, Burchardt, Harris, Marheinecke, Petrov, Kayadelen, Attia, Elkahky, Yu, Pitler, Lertpradit, Kirchner, Lambertino, Popel, Zeman, Manning, Schuster, Reddy)",
+     "basis": "declared from the treebank's documentation"
+    },
+    "license": {
+     "value": "https://creativecommons.org/licenses/by-sa/3.0/",
+     "basis": "measured from the file"
+    },
+    "period": {
+     "value": "sentences collected for the 2017 shared task from news and Wikipedia; the README gives no dates for the texts — the builder's understanding is the 2010s",
+     "basis": "declared by the builder — verify"
+    },
+    "region": {
+     "value": "the README states no region; news and Wikipedia English, source outlets not named",
+     "basis": "declared by the builder — verify"
+    },
+    "register": {
+     "value": "news, wiki (README genre): sentence ids beginning n are news, w are Wikipedia — measured below",
+     "basis": "declared from the treebank's documentation"
+    },
+    "features": {
+     "value": "automatic (README: Features)",
+     "basis": "measured from the file"
+    },
+    "script": {
+     "value": "Latin (100.0% of letters)",
+     "basis": "measured from the file"
+    },
+    "documents": {
+     "value": {
+      "documents": {
+       "count": 397,
+       "prefixes": {
+        "n01001": 1,
+        "n01002": 1,
+        "n01003": 1,
+        "n01004": 1,
+        "n01005": 1,
+        "n01006": 1,
+        "n01007": 1,
+        "n01008": 1,
+        "n01009": 1,
+        "n01010": 1,
+        "n01011": 1,
+        "n01012": 1,
+        "n01013": 1,
+        "n01014": 1,
+        "n01015": 1,
+        "n01016": 1,
+        "n01017": 1,
+        "n01018": 1,
+        "n01019": 1,
+        "n01020": 1,
+        "n01021": 1,
+        "n01022": 1,
+        "n01023": 1,
+        "n01024": 1,
+        "n01025": 1,
+        "n01026": 1,
+        "n01027": 1,
+        "n01028": 1,
+        "n01029": 1,
+        "n01030": 1,
+        "n01031": 1,
+        "n01032": 1,
+        "n01033": 1,
+        "n01034": 1,
+        "n01035": 1,
+        "n01036": 1,
+        "n01037": 1,
+        "n01038": 1,
+        "n01039": 1,
+        "n01040": 1,
+        "n01041": 1,
+        "n01042": 1,
+        "n01043": 1,
+        "n01044": 1,
+        "n01045": 1,
+        "n01046": 1,
+        "n01047": 1,
+        "n01048": 1,
+        "n01049": 1,
+        "n01050": 1,
+        "n01051": 1,
+        "n01052": 1,
+        "n01053": 1,
+        "n01054": 1,
+        "n01055": 1,
+        "n01057": 1,
+        "n01058": 1,
+        "n01059": 1,
+        "n01060": 1,
+        "n01061": 1,
+        "n01062": 1,
+        "n01063": 1,
+        "n01064": 1,
+        "n01065": 1,
+        "n01066": 1,
+        "n01067": 1,
+        "n01068": 1,
+        "n01069": 1,
+        "n01070": 1,
+        "n01071": 1,
+        "n01072": 1,
+        "n01073": 1,
+        "n01074": 1,
+        "n01075": 1,
+        "n01076": 1,
+        "n01077": 1,
+        "n01078": 1,
+        "n01079": 1,
+        "n01080": 1,
+        "n01081": 1,
+        "n01082": 1,
+        "n01083": 1,
+        "n01084": 1,
+        "n01085": 1,
+        "n01086": 1,
+        "n01087": 1,
+        "n01088": 1,
+        "n01089": 1,
+        "n01090": 1,
+        "n01091": 1,
+        "n01092": 1,
+        "n01093": 1,
+        "n01094": 1,
+        "n01095": 1,
+        "n01096": 1,
+        "n01097": 1,
+        "n01098": 1,
+        "n01099": 1,
+        "n01101": 1,
+        "n01102": 1,
+        "n01103": 1,
+        "n01104": 1,
+        "n01105": 1,
+        "n01106": 1,
+        "n01107": 1,
+        "n01108": 1,
+        "n01109": 1,
+        "n01110": 1,
+        "n01111": 1,
+        "n01112": 1,
+        "n01113": 1,
+        "n01114": 1,
+        "n01115": 1,
+        "n01116": 1,
+        "n01117": 1,
+        "n01118": 1,
+        "n01119": 1,
+        "n01120": 1,
+        "n01121": 1,
+        "n01122": 1,
+        "n01123": 1,
+        "n01125": 1,
+        "n01127": 1,
+        "n01128": 1,
+        "n01129": 1,
+        "n01130": 1,
+        "n01131": 1,
+        "n01132": 1,
+        "n01133": 1,
+        "n01134": 1,
+        "n01135": 1,
+        "n01136": 1,
+        "n01137": 1,
+        "n01138": 1,
+        "n01139": 1,
+        "n01140": 1,
+        "n01141": 1,
+        "n01142": 1,
+        "n01143": 1,
+        "n01144": 1,
+        "n01145": 1,
+        "n01146": 1,
+        "n01147": 1,
+        "n01148": 1,
+        "n01149": 1,
+        "n01150": 1,
+        "w01001": 1,
+        "w01002": 1,
+        "w01003": 1,
+        "w01004": 1,
+        "w01005": 1,
+        "w01006": 1,
+        "w01007": 1,
+        "w01008": 1,
+        "w01009": 1,
+        "w01010": 1,
+        "w01012": 1,
+        "w01013": 1,
+        "w01014": 1,
+        "w01016": 1,
+        "w01017": 1,
+        "w01018": 1,
+        "w01019": 1,
+        "w01020": 1,
+        "w01022": 1,
+        "w01023": 1,
+        "w01025": 1,
+        "w01026": 1,
+        "w01027": 1,
+        "w01028": 1,
+        "w01029": 1,
+        "w01030": 1,
+        "w01031": 1,
+        "w01032": 1,
+        "w01033": 1,
+        "w01034": 1,
+        "w01035": 1,
+        "w01036": 1,
+        "w01037": 1,
+        "w01038": 1,
+        "w01039": 1,
+        "w01040": 1,
+        "w01041": 1,
+        "w01042": 1,
+        "w01043": 1,
+        "w01044": 1,
+        "w01045": 1,
+        "w01046": 1,
+        "w01047": 1,
+        "w01048": 1,
+        "w01049": 1,
+        "w01050": 1,
+        "w01051": 1,
+        "w01052": 1,
+        "w01053": 1,
+        "w01054": 1,
+        "w01056": 1,
+        "w01057": 1,
+        "w01058": 1,
+        "w01060": 1,
+        "w01061": 1,
+        "w01062": 1,
+        "w01063": 1,
+        "w01064": 1,
+        "w01065": 1,
+        "w01066": 1,
+        "w01067": 1,
+        "w01068": 1,
+        "w01069": 1,
+        "w01070": 1,
+        "w01071": 1,
+        "w01072": 1,
+        "w01073": 1,
+        "w01074": 1,
+        "w01075": 1,
+        "w01076": 1,
+        "w01078": 1,
+        "w01079": 1,
+        "w01080": 1,
+        "w01081": 1,
+        "w01082": 1,
+        "w01083": 1,
+        "w01084": 1,
+        "w01085": 1,
+        "w01086": 1,
+        "w01087": 1,
+        "w01088": 1,
+        "w01089": 1,
+        "w01091": 1,
+        "w01092": 1,
+        "w01093": 1,
+        "w01094": 1,
+        "w01095": 1,
+        "w01096": 1,
+        "w01097": 1,
+        "w01098": 1,
+        "w01099": 1,
+        "w01100": 1,
+        "w01101": 1,
+        "w01102": 1,
+        "w01103": 1,
+        "w01105": 1,
+        "w01106": 1,
+        "w01107": 1,
+        "w01108": 1,
+        "w01109": 1,
+        "w01111": 1,
+        "w01112": 1,
+        "w01113": 1,
+        "w01114": 1,
+        "w01115": 1,
+        "w01116": 1,
+        "w01117": 1,
+        "w01119": 1,
+        "w01121": 1,
+        "w01122": 1,
+        "w01124": 1,
+        "w01125": 1,
+        "w01127": 1,
+        "w01128": 1,
+        "w01129": 1,
+        "w01130": 1,
+        "w01131": 1,
+        "w01132": 1,
+        "w01133": 1,
+        "w01134": 1,
+        "w01135": 1,
+        "w01136": 1,
+        "w01137": 1,
+        "w01138": 1,
+        "w01139": 1,
+        "w01140": 1,
+        "w01141": 1,
+        "w01142": 1,
+        "w01143": 1,
+        "w01144": 1,
+        "w01146": 1,
+        "w01147": 1,
+        "w01148": 1,
+        "w01149": 1,
+        "w01150": 1,
+        "n02002": 1,
+        "n02004": 1,
+        "n02006": 1,
+        "n02007": 1,
+        "n02011": 1,
+        "n02016": 1,
+        "n02017": 1,
+        "n02022": 1,
+        "n02024": 1,
+        "n02027": 1,
+        "n02030": 1,
+        "n02031": 1,
+        "n02032": 1,
+        "n02033": 1,
+        "n02034": 1,
+        "n02036": 1,
+        "n02038": 1,
+        "n02040": 1,
+        "n02041": 1,
+        "n02042": 1,
+        "n02043": 1,
+        "n02044": 1,
+        "n02046": 1,
+        "n02048": 1,
+        "n02050": 1,
+        "n02052": 1,
+        "n02056": 1,
+        "n02058": 1,
+        "n02066": 1,
+        "n02068": 1,
+        "n02069": 1,
+        "n02073": 1,
+        "n02074": 1,
+        "n02075": 1,
+        "n02076": 1,
+        "n02078": 1,
+        "n02079": 1,
+        "n02081": 1,
+        "n02082": 1,
+        "n02083": 1,
+        "n03001": 1,
+        "n03002": 1,
+        "n03003": 1,
+        "n03004": 1,
+        "n03005": 1,
+        "n03006": 1,
+        "n03007": 1,
+        "n03008": 1,
+        "n03009": 1,
+        "n03010": 1,
+        "n04001": 1,
+        "n04002": 1,
+        "n04003": 1,
+        "n04005": 1,
+        "n04006": 1,
+        "n04007": 1,
+        "n04008": 1,
+        "n04009": 1,
+        "n04010": 1,
+        "n05001": 1,
+        "n05002": 1,
+        "n05003": 1,
+        "n05004": 1,
+        "n05005": 1,
+        "n05006": 1,
+        "n05007": 1,
+        "n05008": 1,
+        "n05009": 1,
+        "n05010": 1,
+        "w02001": 1,
+        "w02002": 1,
+        "w02003": 1,
+        "w02004": 1,
+        "w02005": 1,
+        "w02006": 1,
+        "w02007": 1,
+        "w02008": 1,
+        "w02009": 1,
+        "w02011": 1,
+        "w02012": 1,
+        "w02013": 1,
+        "w02014": 1,
+        "w02015": 1,
+        "w02016": 1,
+        "w02017": 1,
+        "w02018": 1,
+        "w02019": 1,
+        "w03001": 1,
+        "w03002": 1,
+        "w03003": 1,
+        "w03004": 1,
+        "w03005": 1,
+        "w03006": 1,
+        "w03007": 1,
+        "w03008": 1,
+        "w03009": 1,
+        "w03010": 1,
+        "w04001": 1,
+        "w04002": 1,
+        "w04003": 1,
+        "w04004": 1,
+        "w04006": 1,
+        "w04007": 1,
+        "w04008": 1,
+        "w04009": 1,
+        "w04010": 1,
+        "w05001": 1,
+        "w05002": 1,
+        "w05003": 1,
+        "w05004": 1,
+        "w05005": 1,
+        "w05006": 1,
+        "w05007": 1,
+        "w05008": 1,
+        "w05009": 1,
+        "w05010": 1
+       }
+      }
+     },
+     "basis": "measured from the file"
+    },
+    "readme": {
+     "value": "eval/fixtures/ud-english-pud/README.md",
+     "basis": "measured from the file"
+    },
+    "split": {
+     "value": "parity: even sentences learn, odd audit",
+     "basis": "measured from the file"
+    },
+    "tokens": {
+     "value": {
+      "learn": 10578,
+      "audit": 10602
+     },
+     "basis": "measured from the file"
+    },
+    "builtBy": {
+     "value": "native/eval/lavar/sullivan-morph.mjs (Sullivan's second sense, morph-cues.js)",
+     "basis": "measured from the file"
+    },
+    "builtAt": {
+     "value": "2026-09-25T20:12:43.556Z",
+     "basis": "measured from the file"
+    },
+    "null": {
+     "value": {
+      "draws": 12,
+      "reruns": 11,
+      "seed": 7
+     },
+     "basis": "measured from the file"
+    }
+   },
+   "rows": [
+    {
+     "feature": "Case",
+     "carriers": 244,
+     "covered": 205,
+     "correct": 194,
+     "contested": 54,
+     "contestedCorrect": 49,
+     "missedUnmarked": 39,
+     "missedVoid": 0,
+     "nonCarriers": 258,
+     "falseFires": 176,
+     "silenced": 82,
+     "dominantKind": "end:2",
+     "admitted": 59,
+     "candidates": 173,
+     "floor": 7.840230110943803,
+     "values": 3,
+     "reach": {
+      "Nom": {
+       "form": 11,
+       "class": 0,
+       "construction": 6,
+       "best": {
+        "kind": "end:2",
+        "key": "he",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 57
+       }
+      },
+      "Acc": {
+       "form": 7,
+       "class": 0,
+       "construction": 3,
+       "best": {
+        "kind": "end:1",
+        "key": "m",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 13
+       }
+      }
+     },
+     "byValue": {
+      "Nom": {
+       "n": 192,
+       "correct": 171
+      },
+      "Acc": {
+       "n": 52,
+       "correct": 23
+      }
+     }
+    },
+    {
+     "feature": "Definite",
+     "carriers": 956,
+     "covered": 956,
+     "correct": 956,
+     "contested": 36,
+     "contestedCorrect": 36,
+     "missedUnmarked": 0,
+     "missedVoid": 0,
+     "nonCarriers": 112,
+     "falseFires": 81,
+     "silenced": 31,
+     "dominantKind": "end:2",
+     "admitted": 40,
+     "candidates": 187,
+     "floor": 7.462812137648609,
+     "values": 3,
+     "reach": {
+      "Def": {
+       "form": 6,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:2",
+        "key": "he",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 718
+       }
+      },
+      "Ind": {
+       "form": 5,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:1",
+        "key": "a",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 176
+       }
+      }
+     },
+     "byValue": {
+      "Ind": {
+       "n": 233,
+       "correct": 233
+      },
+      "Def": {
+       "n": 723,
+       "correct": 723
+      }
+     }
+    },
+    {
+     "feature": "Degree",
+     "carriers": 791,
+     "covered": 761,
+     "correct": 738,
+     "contested": 49,
+     "contestedCorrect": 40,
+     "missedUnmarked": 30,
+     "missedVoid": 0,
+     "nonCarriers": 376,
+     "falseFires": 2,
+     "silenced": 374,
+     "dominantKind": "end:1",
+     "admitted": 149,
+     "candidates": 917,
+     "floor": 7.543488373191668,
+     "values": 4,
+     "reach": {
+      "Pos": {
+       "form": 33,
+       "class": 1,
+       "construction": 13,
+       "best": {
+        "kind": "end:1",
+        "key": "h",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 60
+       }
+      },
+      "Cmp": {
+       "form": 6,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "right",
+        "key": "than",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 12
+       }
+      },
+      "Sup": {
+       "form": 4,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "est",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 13
+       }
+      }
+     },
+     "byValue": {
+      "Pos": {
+       "n": 736,
+       "correct": 714
+      },
+      "Cmp": {
+       "n": 32,
+       "correct": 17
+      },
+      "Sup": {
+       "n": 23,
+       "correct": 7
+      }
+     }
+    },
+    {
+     "feature": "Gender",
+     "carriers": 234,
+     "covered": 234,
+     "correct": 234,
+     "contested": 66,
+     "contestedCorrect": 66,
+     "missedUnmarked": 0,
+     "missedVoid": 0,
+     "nonCarriers": 268,
+     "falseFires": 95,
+     "silenced": 173,
+     "dominantKind": "beg:2",
+     "admitted": 53,
+     "candidates": 157,
+     "floor": 7.363957975613636,
+     "values": 4,
+     "reach": {
+      "Neut": {
+       "form": 7,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "it",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 78
+       }
+      },
+      "Masc": {
+       "form": 11,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:2",
+        "key": "hi",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 61
+       }
+      },
+      "Fem": {
+       "form": 7,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "er",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 25
+       }
+      }
+     },
+     "byValue": {
+      "Masc": {
+       "n": 106,
+       "correct": 106
+      },
+      "Fem": {
+       "n": 43,
+       "correct": 43
+      },
+      "Neut": {
+       "n": 85,
+       "correct": 85
+      }
+     }
+    },
+    {
+     "feature": "Mood",
+     "carriers": 776,
+     "covered": 694,
+     "correct": 694,
+     "contested": 338,
+     "contestedCorrect": 338,
+     "missedUnmarked": 82,
+     "missedVoid": 0,
+     "nonCarriers": 816,
+     "falseFires": 230,
+     "silenced": 586,
+     "dominantKind": "lclass",
+     "admitted": 52,
+     "candidates": 694,
+     "floor": 12.750399163702655,
+     "values": 2,
+     "reach": {
+      "Ind": {
+       "form": 18,
+       "class": 1,
+       "construction": 9,
+       "best": {
+        "kind": "end:1",
+        "key": "s",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 209
+       }
+      }
+     },
+     "byValue": {
+      "Ind": {
+       "n": 776,
+       "correct": 694
+      }
+     }
+    },
+    {
+     "feature": "NumType",
+     "carriers": 274,
+     "covered": 265,
+     "correct": 264,
+     "contested": 19,
+     "contestedCorrect": 19,
+     "missedUnmarked": 7,
+     "missedVoid": 2,
+     "nonCarriers": 3137,
+     "falseFires": 13,
+     "silenced": 3124,
+     "dominantKind": "class",
+     "admitted": 115,
+     "candidates": 2382,
+     "floor": 8.07292293711765,
+     "values": 5,
+     "reach": {
+      "Card": {
+       "form": 53,
+       "class": 1,
+       "construction": 27,
+       "best": {
+        "kind": "end:1",
+        "key": "7",
+        "class": "NUM",
+        "accuracy": 1,
+        "support": 7
+       }
+      },
+      "Mult": {
+       "form": 1,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "ce",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 4
+       }
+      },
+      "Ord": {
+       "form": 8,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:2",
+        "key": "rd",
+        "class": "ADJ",
+        "accuracy": 1,
+        "support": 7
+       }
+      }
+     },
+     "byValue": {
+      "Card": {
+       "n": 242,
+       "correct": 235
+      },
+      "Ord": {
+       "n": 29,
+       "correct": 28
+      },
+      "Frac": {
+       "n": 2,
+       "correct": 0
+      },
+      "Mult": {
+       "n": 1,
+       "correct": 1
+      }
+     }
+    },
+    {
+     "feature": "Number",
+     "carriers": 3602,
+     "covered": 3459,
+     "correct": 3357,
+     "contested": 910,
+     "contestedCorrect": 861,
+     "missedUnmarked": 127,
+     "missedVoid": 16,
+     "nonCarriers": 2435,
+     "falseFires": 65,
+     "silenced": 2370,
+     "dominantKind": "end:1",
+     "admitted": 341,
+     "candidates": 2908,
+     "floor": 13.981456493347613,
+     "values": 4,
+     "reach": {
+      "Sing": {
+       "form": 87,
+       "class": 2,
+       "construction": 41,
+       "best": {
+        "kind": "end:2",
+        "key": "on",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 137
+       }
+      },
+      "Plur": {
+       "form": 44,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:2",
+        "key": "ks",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 10
+       }
+      },
+      "Ptan": {
+       "form": 4,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "beg:3",
+        "key": "tro",
+        "class": "NOUN",
+        "accuracy": 1,
+        "support": 5
+       }
+      }
+     },
+     "byValue": {
+      "Plur": {
+       "n": 669,
+       "correct": 578
+      },
+      "Sing": {
+       "n": 2917,
+       "correct": 2772
+      },
+      "Ptan": {
+       "n": 16,
+       "correct": 7
+      }
+     }
+    },
+    {
+     "feature": "Person",
+     "carriers": 674,
+     "covered": 629,
+     "correct": 625,
+     "contested": 113,
+     "contestedCorrect": 112,
+     "missedUnmarked": 44,
+     "missedVoid": 1,
+     "nonCarriers": 1420,
+     "falseFires": 168,
+     "silenced": 1252,
+     "dominantKind": "end:1",
+     "admitted": 156,
+     "candidates": 994,
+     "floor": 8.531493349235982,
+     "values": 4,
+     "reach": {
+      "1": {
+       "form": 9,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "we",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 13
+       }
+      },
+      "2": {
+       "form": 7,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:1",
+        "key": "u",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 9
+       }
+      },
+      "3": {
+       "form": 47,
+       "class": 1,
+       "construction": 14,
+       "best": {
+        "kind": "end:1",
+        "key": "s",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 209
+       }
+      }
+     },
+     "byValue": {
+      "1": {
+       "n": 52,
+       "correct": 47
+      },
+      "2": {
+       "n": 7,
+       "correct": 7
+      },
+      "3": {
+       "n": 615,
+       "correct": 571
+      }
+     }
+    },
+    {
+     "feature": "Polarity",
+     "carriers": 39,
+     "covered": 36,
+     "correct": 36,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 3,
+     "missedVoid": 0,
+     "nonCarriers": 593,
+     "falseFires": 6,
+     "silenced": 587,
+     "dominantKind": "end:1",
+     "admitted": 31,
+     "candidates": 388,
+     "floor": 4.559784935301124,
+     "values": 2,
+     "reach": {
+      "Neg": {
+       "form": 14,
+       "class": 0,
+       "construction": 7,
+       "best": {
+        "kind": "end:1",
+        "key": "t",
+        "class": "PART",
+        "accuracy": 1,
+        "support": 46
+       }
+      }
+     },
+     "byValue": {
+      "Neg": {
+       "n": 39,
+       "correct": 36
+      }
+     }
+    },
+    {
+     "feature": "Poss",
+     "carriers": 108,
+     "covered": 108,
+     "correct": 108,
+     "contested": 2,
+     "contestedCorrect": 2,
+     "missedUnmarked": 0,
+     "missedVoid": 0,
+     "nonCarriers": 394,
+     "falseFires": 79,
+     "silenced": 315,
+     "dominantKind": "beg:3",
+     "admitted": 42,
+     "candidates": 195,
+     "floor": 7.764722993656267,
+     "values": 2,
+     "reach": {
+      "Yes": {
+       "form": 15,
+       "class": 0,
+       "construction": 5,
+       "best": {
+        "kind": "rclass",
+        "key": "ADJ",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 40
+       }
+      }
+     },
+     "byValue": {
+      "Yes": {
+       "n": 108,
+       "correct": 108
+      }
+     }
+    },
+    {
+     "feature": "PronType",
+     "carriers": 1629,
+     "covered": 1600,
+     "correct": 1526,
+     "contested": 294,
+     "contestedCorrect": 239,
+     "missedUnmarked": 29,
+     "missedVoid": 0,
+     "nonCarriers": 345,
+     "falseFires": 40,
+     "silenced": 305,
+     "dominantKind": "end:2",
+     "admitted": 306,
+     "candidates": 670,
+     "floor": 8.039364406157611,
+     "values": 10,
+     "reach": {
+      "Art": {
+       "form": 11,
+       "class": 1,
+       "construction": 22,
+       "best": {
+        "kind": "end:2",
+        "key": "he",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 718
+       }
+      },
+      "Prs": {
+       "form": 45,
+       "class": 1,
+       "construction": 26,
+       "best": {
+        "kind": "end:2",
+        "key": "it",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 78
+       }
+      },
+      "Rel": {
+       "form": 11,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "end:1",
+        "key": "o",
+        "class": "PRON",
+        "accuracy": 0.9375,
+        "support": 25
+       }
+      },
+      "Dem": {
+       "form": 21,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "re",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 18
+       }
+      },
+      "Int": {
+       "form": 15,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:3",
+        "key": "hen",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 26
+       }
+      },
+      "Ind": {
+       "form": 16,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:2",
+        "key": "me",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 9
+       }
+      },
+      "Tot": {
+       "form": 16,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:2",
+        "key": "ys",
+        "class": "ADV",
+        "accuracy": 1,
+        "support": 4
+       }
+      },
+      "Neg": {
+       "form": 4,
+       "class": 0,
+       "construction": 0,
+       "best": {
+        "kind": "end:1",
+        "key": "o",
+        "class": "DET",
+        "accuracy": 1,
+        "support": 5
+       }
+      }
+     },
+     "byValue": {
+      "Dem": {
+       "n": 124,
+       "correct": 83
+      },
+      "Rel": {
+       "n": 92,
+       "correct": 71
+      },
+      "Art": {
+       "n": 956,
+       "correct": 956
+      },
+      "Prs": {
+       "n": 354,
+       "correct": 353
+      },
+      "Int": {
+       "n": 29,
+       "correct": 20
+      },
+      "Ind": {
+       "n": 29,
+       "correct": 17
+      },
+      "Tot": {
+       "n": 33,
+       "correct": 19
+      },
+      "Neg": {
+       "n": 11,
+       "correct": 7
+      },
+      "Rcp": {
+       "n": 1,
+       "correct": 0
+      }
+     }
+    },
+    {
+     "feature": "Reflex",
+     "carriers": 3,
+     "covered": 2,
+     "correct": 2,
+     "contested": 0,
+     "contestedCorrect": 0,
+     "missedUnmarked": 0,
+     "missedVoid": 1,
+     "nonCarriers": 499,
+     "falseFires": 1,
+     "silenced": 498,
+     "dominantKind": "end:1",
+     "admitted": 5,
+     "candidates": 205,
+     "floor": 1.9440748862759107,
+     "values": 2,
+     "reach": {
+      "Yes": {
+       "form": 4,
+       "class": 0,
+       "construction": 1,
+       "best": {
+        "kind": "left",
+        "key": "found",
+        "class": "PRON",
+        "accuracy": 1,
+        "support": 2
+       }
+      }
+     },
+     "byValue": {
+      "Yes": {
+       "n": 3,
+       "correct": 2
+      }
+     }
+    },
+    {
+     "feature": "Tense",
+     "carriers": 1100,
+     "covered": 958,
+     "correct": 914,
+     "contested": 298,
+     "contestedCorrect": 292,
+     "missedUnmarked": 100,
+     "missedVoid": 42,
+     "nonCarriers": 492,
+     "falseFires": 219,
+     "silenced": 273,
+     "dominantKind": "end:2",
+     "admitted": 83,
+     "candidates": 681,
+     "floor": 12.347568158206084,
+     "values": 3,
+     "reach": {
+      "Pres": {
+       "form": 21,
+       "class": 0,
+       "construction": 2,
+       "best": {
+        "kind": "end:2",
+        "key": "is",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 75
+       }
+      },
+      "Past": {
+       "form": 20,
+       "class": 0,
+       "construction": 7,
+       "best": {
+        "kind": "end:2",
+        "key": "ed",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 389
+       }
+      }
+     },
+     "byValue": {
+      "Pres": {
+       "n": 374,
+       "correct": 290
+      },
+      "Past": {
+       "n": 726,
+       "correct": 624
+      }
+     }
+    },
+    {
+     "feature": "VerbForm",
+     "carriers": 1591,
+     "covered": 1535,
+     "correct": 1422,
+     "contested": 441,
+     "contestedCorrect": 393,
+     "missedUnmarked": 0,
+     "missedVoid": 56,
+     "nonCarriers": 1,
+     "falseFires": 1,
+     "silenced": 0,
+     "dominantKind": "lclass",
+     "admitted": 121,
+     "candidates": 662,
+     "floor": 10.059454587462913,
+     "values": 5,
+     "reach": {
+      "Fin": {
+       "form": 24,
+       "class": 1,
+       "construction": 16,
+       "best": {
+        "kind": "end:1",
+        "key": "s",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 209
+       }
+      },
+      "Inf": {
+       "form": 18,
+       "class": 0,
+       "construction": 12,
+       "best": {
+        "kind": "end:2",
+        "key": "te",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 17
+       }
+      },
+      "Part": {
+       "form": 13,
+       "class": 0,
+       "construction": 14,
+       "best": {
+        "kind": "left",
+        "key": "is",
+        "class": "VERB",
+        "accuracy": 1,
+        "support": 20
+       }
+      },
+      "Ger": {
+       "form": 17,
+       "class": 0,
+       "construction": 6,
+       "best": {
+        "kind": "end:1",
+        "key": "g",
+        "class": "AUX",
+        "accuracy": 1,
+        "support": 9
+       }
+      }
+     },
+     "byValue": {
+      "Fin": {
+       "n": 859,
+       "correct": 767
+      },
+      "Inf": {
+       "n": 259,
+       "correct": 236
+      },
+      "Part": {
+       "n": 324,
+       "correct": 281
+      },
+      "Ger": {
+       "n": 149,
+       "correct": 138
+      }
+     }
+    }
+   ]
+  },
+  {
    "lang": "la",
    "name": "Latin Perseus",
    "language": {
     "iso": "lat",
     "name": "Latin",
-    "stage": "Classical and Augustan literary Latin, with Jerome's late-antique Vulgate"
+    "stage": "Classical and Augustan literary Latin, with Jerome's late-antique Vulgate",
+    "span": {
+     "from": -63,
+     "to": 405,
+     "basis": "declared by the builder — verify",
+     "note": "Cicero's In Catilinam (63 BCE) to Jerome's Vulgate (c. 405 CE): the works are the README's, the dates the builder's"
+    }
    },
    "split": "train/test",
    "learnSentences": 1334,
    "auditSentences": 939,
-   "ms": 1547,
+   "ms": 5101,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -1156,6 +2574,10 @@
     "register": {
      "value": "literary verse and prose: epic, elegy, oratory, history, fable, satire, scripture (works listed in the README)",
      "basis": "declared from the treebank's documentation"
+    },
+    "features": {
+     "value": "converted from manual (README: Features)",
+     "basis": "measured from the file"
     },
     "script": {
      "value": "Latin (100.0% of letters)",
@@ -1201,7 +2623,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:58:14.943Z",
+     "value": "2026-09-25T20:12:48.818Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -2533,12 +3955,18 @@
    "language": {
     "iso": "grc",
     "name": "Ancient Greek",
-    "stage": "Ionic prose (Herodotus) and Koine (Greek New Testament)"
+    "stage": "Ionic prose (Herodotus) and Koine (Greek New Testament)",
+    "span": {
+     "from": -450,
+     "to": 100,
+     "basis": "declared by the builder — verify",
+     "note": "Herodotus (mid-5th c. BCE) to the New Testament (1st c. CE): the works are the README's, the dates the builder's"
+    }
    },
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 524,
    "auditSentences": 523,
-   "ms": 770,
+   "ms": 2648,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -2564,6 +3992,10 @@
     "register": {
      "value": "bible, nonfiction (README genre): scripture narrative and historiographic prose",
      "basis": "declared from the treebank's documentation"
+    },
+    "features": {
+     "value": "converted from manual (README: Features)",
+     "basis": "measured from the file"
     },
     "script": {
      "value": "Greek (100.0% of letters)",
@@ -2608,7 +4040,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:58:15.737Z",
+     "value": "2026-09-25T20:12:51.574Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -3639,12 +5071,18 @@
    "language": {
     "iso": "san",
     "name": "Sanskrit",
-    "stage": "Vedic Sanskrit — hymns, Brāhmaṇa and Sūtra prose, not Classical"
+    "stage": "Vedic Sanskrit — hymns, Brāhmaṇa and Sūtra prose, not Classical",
+    "span": {
+     "from": -1500,
+     "to": -500,
+     "basis": "declared by the builder — verify",
+     "note": "the Vedic layers the README calls the oldest transmitted Indo-European; some cited texts sit later"
+    }
    },
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 1355,
    "auditSentences": 1354,
-   "ms": 780,
+   "ms": 2370,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -3670,6 +5108,10 @@
     "register": {
      "value": "metrical hymns and ritual/exegetical prose",
      "basis": "declared from the treebank's documentation"
+    },
+    "features": {
+     "value": "converted from manual (README: Features)",
+     "basis": "measured from the file"
     },
     "script": {
      "value": "Latin (100.0% of letters)",
@@ -3744,7 +5186,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:58:16.554Z",
+     "value": "2026-09-25T20:12:54.128Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -4401,12 +5843,18 @@
    "language": {
     "iso": "san",
     "name": "Sanskrit",
-    "stage": "Classical Sanskrit fable prose (Pañcatantra)"
+    "stage": "Classical Sanskrit fable prose (Pañcatantra)",
+    "span": {
+     "from": -200,
+     "to": 300,
+     "basis": "declared by the builder — verify",
+     "note": "the Pañcatantra's conventional composition window; the transmitted text is later"
+    }
    },
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 115,
    "auditSentences": 115,
-   "ms": 110,
+   "ms": 289,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -4432,6 +5880,10 @@
     "register": {
      "value": "fiction: fable (README genre)",
      "basis": "declared from the treebank's documentation"
+    },
+    "features": {
+     "value": "manual native (README: Features)",
+     "basis": "measured from the file"
     },
     "script": {
      "value": "Devanagari (100.0% of letters)",
@@ -4468,7 +5920,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:58:16.670Z",
+     "value": "2026-09-25T20:12:54.439Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -5405,12 +6857,18 @@
    "language": {
     "iso": "arb",
     "name": "Arabic",
-    "stage": "Modern Standard Arabic (newswire) — no spoken dialect"
+    "stage": "Modern Standard Arabic (newswire) — no spoken dialect",
+    "span": {
+     "from": 2001,
+     "to": 2004,
+     "basis": "measured from the file",
+     "note": "the years the file's own document ids carry"
+    }
    },
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 340,
    "auditSentences": 340,
-   "ms": 898,
+   "ms": 2400,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -5436,6 +6894,10 @@
     "register": {
      "value": "news (README genre): newswire prose",
      "basis": "declared from the treebank's documentation"
+    },
+    "features": {
+     "value": "converted from manual (README: Features)",
+     "basis": "measured from the file"
     },
     "script": {
      "value": "Arabic (100.0% of letters)",
@@ -5482,7 +6944,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:58:17.625Z",
+     "value": "2026-09-25T20:12:56.992Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -6230,12 +7692,18 @@
    "language": {
     "iso": "heb",
     "name": "Hebrew",
-    "stage": "Modern Israeli Hebrew, newspaper register"
+    "stage": "Modern Israeli Hebrew, newspaper register",
+    "span": {
+     "from": 1990,
+     "to": 1995,
+     "basis": "declared by the builder — verify",
+     "note": "Ha'aretz text; the README gives no dates"
+    }
    },
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 246,
    "auditSentences": 245,
-   "ms": 395,
+   "ms": 1169,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -6261,6 +7729,10 @@
     "register": {
      "value": "news (README genre): Ha'aretz newspaper prose, unvocalised script",
      "basis": "declared from the treebank's documentation"
+    },
+    "features": {
+     "value": "converted from manual (README: Features)",
+     "basis": "measured from the file"
     },
     "script": {
      "value": "Hebrew (100.0% of letters)",
@@ -6290,7 +7762,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:58:18.036Z",
+     "value": "2026-09-25T20:12:58.218Z",
      "basis": "measured from the file"
     },
     "null": {

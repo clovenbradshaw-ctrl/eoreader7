@@ -136,6 +136,8 @@ for (const [arm, body] of Object.entries(arms)) {
     // Sullivan's stored convention as the second tense witness (coverage line)
     tenseSullivan: lines.find((l) => l.role === "tense-coverage")?.witness?.spoke ?? 0,
     tenseContested: lines.find((l) => l.role === "tense-coverage")?.witness?.contested ?? 0,
+    // corroborations by a witness that shares no treebank with whoever it agrees with (Pearl)
+    tenseCorrobIndep: lines.find((l) => l.role === "tense-coverage")?.witness?.corroboratedIndependent ?? 0,
   };
   // Eddington as the READER wrote it into this arm's own ledger — habit =
   // the rest of the book, not the forward arm

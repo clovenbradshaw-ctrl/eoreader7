@@ -3,7 +3,13 @@
  "language": {
   "iso": "grc",
   "name": "Ancient Greek",
-  "stage": "Ionic prose (Herodotus) and Koine (Greek New Testament)"
+  "stage": "Ionic prose (Herodotus) and Koine (Greek New Testament)",
+  "span": {
+   "from": -450,
+   "to": 100,
+   "basis": "declared by the builder — verify",
+   "note": "Herodotus (mid-5th c. BCE) to the New Testament (1st c. CE): the works are the README's, the dates the builder's"
+  }
  },
  "provenance": {
   "schema": "Provenance@1",
@@ -30,6 +36,10 @@
   "register": {
    "value": "bible, nonfiction (README genre): scripture narrative and historiographic prose",
    "basis": "declared from the treebank's documentation"
+  },
+  "features": {
+   "value": "converted from manual (README: Features)",
+   "basis": "measured from the file"
   },
   "script": {
    "value": "Greek (100.0% of letters)",
@@ -74,7 +84,7 @@
    "basis": "measured from the file"
   },
   "builtAt": {
-   "value": "2026-09-25T19:56:40.107Z",
+   "value": "2026-09-25T20:12:51.574Z",
    "basis": "measured from the file"
   },
   "null": {

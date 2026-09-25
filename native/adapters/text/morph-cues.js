@@ -378,6 +378,26 @@ export function morphCuesFromPrior(raw) {
   return { language: raw.language, provenance: p, features: raw.features ?? {} };
 }
 
+// ── PERIOD, COMPARED MECHANICALLY WHEN BOTH SIDES DECLARE ONE ─────────────
+// The prose period is the record; a prior MAY also declare
+// language.span = { from, to } in years (negative = BCE) with its basis, and
+// a read MAY declare --period=<year> or <from>..<to>. When both exist the
+// overlap is a fact; when either is missing the answer is null — unknown,
+// never assumed. A mismatch is DISCLOSED on every tense the convention
+// fills and on the coverage line; it never blocks a read (a reader may
+// choose the modern Hebrew convention for a Biblical text and must be told,
+// not stopped).
+export function parsePeriod(text) {
+  const m = /^\s*(-?\d{1,5})(?:\s*\.\.\s*(-?\d{1,5}))?\s*$/.exec(String(text ?? ""));
+  if (!m) return null;
+  const from = Number(m[1]), to = m[2] != null ? Number(m[2]) : from;
+  return from <= to ? { from, to } : { from: to, to: from };
+}
+export function periodOverlap(a, b) {
+  if (!a || !b || !Number.isFinite(a.from) || !Number.isFinite(a.to) || !Number.isFinite(b.from) || !Number.isFinite(b.to)) return null;
+  return a.from <= b.to && b.from <= a.to;
+}
+
 /**
  * witnessOf(loaded, feature) — a stored convention as a WITNESS: a predict
  * closure over one feature's admitted cues, usable on any token stream

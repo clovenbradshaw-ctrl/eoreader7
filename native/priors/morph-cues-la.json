@@ -3,7 +3,13 @@
  "language": {
   "iso": "lat",
   "name": "Latin",
-  "stage": "Classical and Augustan literary Latin, with Jerome's late-antique Vulgate"
+  "stage": "Classical and Augustan literary Latin, with Jerome's late-antique Vulgate",
+  "span": {
+   "from": -63,
+   "to": 405,
+   "basis": "declared by the builder — verify",
+   "note": "Cicero's In Catilinam (63 BCE) to Jerome's Vulgate (c. 405 CE): the works are the README's, the dates the builder's"
+  }
  },
  "provenance": {
   "schema": "Provenance@1",
@@ -30,6 +36,10 @@
   "register": {
    "value": "literary verse and prose: epic, elegy, oratory, history, fable, satire, scripture (works listed in the README)",
    "basis": "declared from the treebank's documentation"
+  },
+  "features": {
+   "value": "converted from manual (README: Features)",
+   "basis": "measured from the file"
   },
   "script": {
    "value": "Latin (100.0% of letters)",
@@ -75,7 +85,7 @@
    "basis": "measured from the file"
   },
   "builtAt": {
-   "value": "2026-09-25T19:35:34.838Z",
+   "value": "2026-09-25T20:12:48.818Z",
    "basis": "measured from the file"
   },
   "null": {

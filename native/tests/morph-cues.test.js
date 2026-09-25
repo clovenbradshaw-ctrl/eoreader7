@@ -153,3 +153,19 @@ test("witnessOf: null for a feature the prior lacks; otherwise predicts through 
   assert.equal(p.verdict, "bound");
   assert.equal(p.value, "Nom");
 });
+
+// ── period, compared mechanically when both sides declare one ──────────────
+import { parsePeriod, periodOverlap } from "../adapters/text/morph-cues.js";
+
+test("parsePeriod reads a year or a range (negative = BCE), orders it, and refuses prose; periodOverlap is null when either side is undeclared", () => {
+  assert.deepEqual(parsePeriod("1948"), { from: 1948, to: 1948 });
+  assert.deepEqual(parsePeriod("-100..150"), { from: -100, to: 150 });
+  assert.deepEqual(parsePeriod("150..-100"), { from: -100, to: 150 }, "a reversed range is ordered, never rejected");
+  assert.equal(parsePeriod("5th c. BCE"), null, "prose is the record, not a span");
+  assert.equal(periodOverlap({ from: -900, to: -500 }, { from: 1990, to: 1995 }), false);
+  assert.equal(periodOverlap({ from: 1992, to: 1992 }, { from: 1990, to: 1995 }), true);
+  assert.equal(periodOverlap({ from: -63, to: 405 }, { from: 400, to: 1500 }), true, "touching ranges overlap");
+  assert.equal(periodOverlap(null, { from: 1, to: 2 }), null);
+  assert.equal(periodOverlap({ from: 1, to: 2 }, undefined), null);
+  assert.equal(periodOverlap({ from: 1, to: 2 }, { from: "x", to: 3 }), null);
+});
