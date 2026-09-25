@@ -256,17 +256,19 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
   const hunt = thesis ? thesisBasin(pool, thesis.pt.id, { population: `thesis-pool:${draft?.sourceId ?? "draft"}` }) : null;
   const basin = hunt?.candidate ?? null;
   const basinMembers = basin ? pool.filter((f) => basin.memberRefs.includes(f.pt.id)) : [];
-  // ONE SUBJECT (Kelsen): a note's end1 is a head lemma, so "Cumberland
-  // River" and "Harpeth River" both read "river". With a resolver, the
-  // members must name the same proper beings in every role, or nothing is
-  // generalized — a conservative guard (it refuses one subject with differing
-  // proper objects too), and its reason says so. Without a resolver the
+  // ONE SUBJECT (Kelsen), NARROWED (third reading, Orlean: a single
+  // false-positive proper referent — an unseen sentence-initial common noun
+  // read as proper by referents.js's own default, out of this change's
+  // scope — collapsed four real witnesses to one when the guard refused the
+  // whole basin). With a resolver, only members naming the SAME proper
+  // beings as the WINNER are generalized; a member naming a different one is
+  // EXCLUDED and NAMED in the basis (id and its differing beings), never
+  // silently dropped and never fatal to the rest. Without a resolver the
   // guard does not run, and the basis says that.
   const properOf = (f) => (R ? [...new Set(f.all.filter((id) => isProperReferent(R, id)))].sort().join("\u0001") : "");
-  const sameBeings = basinMembers.every((f) => properOf(f) === properOf(basinMembers[0]));
-  const synth = !basin ? null
-    : !sameBeings ? { generalization: null, refused: "the basin's members name different proper beings in some role — the one-subject guard refuses rather than let one head lemma stand for more than one being", excluded: [], unresolved: [] }
-    : thesisGeneralization(basinMembers, { winnerId: thesis.pt.id });
+  const consistent = R ? basinMembers.filter((f) => properOf(f) === properOf(thesis)) : basinMembers;
+  const guardExcluded = R ? basinMembers.filter((f) => !consistent.includes(f)).map((f) => ({ id: f.pt.id, beings: properOf(f) || "(none)" })) : [];
+  const synth = !basin ? null : thesisGeneralization(consistent, { winnerId: thesis.pt.id });
   const gen = synth?.generalization ? synth : null;
   // THE MATERIAL'S ORDER, KEPT (typesetting is signal): the members stand in
   // the order the material gave them; the winner is `id` and the thesis
@@ -279,13 +281,24 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
   // group (still a witness, in thesis.ids); a member that is its paragraph's
   // whole content is a refrain line and stays held out — the paragraph seam
   // decides, no threshold. Clark and Kidder & Todd hold the fold is right.
-  // Gebser gave neither the last word: the restore lands after one mouth run
-  // on a refrain-bearing real ground. Measured 2026-09-25 across nine real
-  // grounds (above): zero basins fired, decided by the kernel's prevalence
-  // floor, not by this null — the exclusion has not been exercised on real
-  // material yet. Both bases count the paragraphs beheaded.
-  const childCount = new Map(parts.flatMap((p) => (p.children ?? []).map((c) => [c.id, (p.children ?? []).length])));
-  const beheaded = [...thesisMemberIds].filter((id) => id !== thesis?.pt.id && (childCount.get(id) ?? 1) > 1).length;
+  // Not decided (third reading: McPhee argues the gate — "after one mouth
+  // run on a refrain ground" — has no known trigger, since all nine measured
+  // grounds were floor-decided; Clark and Kidder & Todd hold the fold is
+  // right regardless; restoring a member also duplicates its sentence across
+  // two parts, an open question this reading did not resolve). Left as a
+  // disclosed, unbuilt contest rather than landed either way. Measured
+  // 2026-09-25 across nine real grounds (above): zero basins fired, so the
+  // exclusion is unexercised on real material either way.
+  //
+  // BOTH BASES COUNT THE DAMAGE (third reading, McPhee: the prior count
+  // excluded the winner's own paragraph and claimed an opening-sentence loss
+  // no matter where in the paragraph a member sat). Every thesis member,
+  // winner included, whose source paragraph has other children costs that
+  // paragraph a sentence; only when the member is the paragraph's FIRST
+  // child does the paragraph lose its OPENING sentence specifically.
+  const partOf = new Map(parts.flatMap((p) => (p.children ?? []).map((c) => [c.id, p])));
+  const beheadedParts = new Set([...thesisMemberIds].map((id) => partOf.get(id)).filter((p) => p && (p.children ?? []).length > 1).map((p) => p.id));
+  const openingLost = [...thesisMemberIds].filter((id) => { const p = partOf.get(id); return p && (p.children ?? []).length > 1 && p.children[0]?.id === id; }).length;
 
   // ── BODY: regroup by shared beings (union-find), across sources
   const parent = new Map(feat.map((f) => [f.pt.id, f.pt.id]));
@@ -427,13 +440,26 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
   }
 
   // ── TENSION: a group the material marks as a turn — a contrastive
-  // connective; else (2026-09-25) a statement that DENIES the thesis's own
-  // relation on its subject, the parser's polarity read as the material's
-  // own turn (Gornick, Williams, Kelsen); else a declared gap.
+  // connective; else (2026-09-25, twice repaired by the reading archons) a
+  // statement that CONTRADICTS the thesis's own relation, bidirectionally:
+  // the candidate's polarity must be the thesis's OPPOSITE (works whether
+  // the thesis itself is '+' or '-' — Caro's tension-asymmetry finding), the
+  // FULL relation must match (label+particle+case, the same string
+  // thesisGeneralization keys on, not the bare label — Caro, Clark, Kidder &
+  // Todd), and every role the thesis has an ANCHOR for must match (both
+  // roles for a single witness; only the agreed role(s) for a generalized
+  // claim, so an ARG0-varying claim anchors on ARG1 rather than matching the
+  // verb lemma alone — Clark). A claim with no agreed role anchors nothing.
   const same = (a, b) => a != null && b != null && String(a).toLocaleLowerCase("und") === String(b).toLocaleLowerCase("und");
-  const thesisLabel = gen ? gen.label : (thesis?.notes[0]?.label ?? null);
-  const thesisSubject = gen ? (gen.generalization.agreed.ARG0 ?? null) : (thesis?.notes[0]?.end1 ?? null);
-  const denies = (f) => !thesisMemberIds.has(f.pt.id) && thesisLabel != null && f.notes.some((n) => n.polarity === "-" && same(n.label, thesisLabel) && (thesisSubject == null || same(n.end1, thesisSubject)));
+  const relationOf = (n) => `${n.label}${n.prt ? ` ${n.prt}` : ""}${n.via?.startsWith("obl:") ? `:${n.via.slice(4)}` : ""}`;
+  const OPPOSITE = { "+": "-", "-": "+" };
+  const thesisRelation = gen ? gen.relation : (thesis?.notes[0] ? relationOf(thesis.notes[0]) : null);
+  const thesisPolarity = gen ? gen.polarity : (thesis?.notes[0]?.polarity ?? "+");
+  const ANCHOR_END = { ARG0: "end1", ARG1: "end2" };
+  const thesisAnchors = gen ? gen.generalization.agreed : (thesis?.notes[0] ? { ARG0: thesis.notes[0].end1, ARG1: thesis.notes[0].end2 } : {});
+  const contradicts = (n) => Object.entries(thesisAnchors).every(([role, val]) => same(n[ANCHOR_END[role]], val));
+  const denies = (f) => !thesisMemberIds.has(f.pt.id) && thesisRelation != null && Object.keys(thesisAnchors).length > 0
+    && f.notes.some((n) => n.polarity !== "?" && n.polarity === OPPOSITE[thesisPolarity] && relationOf(n) === thesisRelation && contradicts(n));
   const denials = feat.filter(denies);
   const tension = groups.find((g) => g.contrast) ?? groups.find((g) => g.statements.some(denies)) ?? null;
 
@@ -449,7 +475,15 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
   // VARYING value is one the claim discloses it does not agree on (Clark,
   // 2026-09-25: counting varying values as thesis words silenced a licensed
   // leave-out, 1 → 0). With no generalization the two tiers are one set.
-  const thesisFeats = feat.filter((f) => thesisMemberIds.has(f.pt.id));
+  // REPORT draws on the whole basin (third reading, Orlean: the one-subject
+  // guard's own excluded member — a false-positive proper referent — still
+  // supplied the only word connecting a real body paragraph to the thesis;
+  // excluding it from the report too silently removed that paragraph). A
+  // member the guard or the relation split left out of the generalization is
+  // still a real, null-validated relative of the thesis; the LICENSE tier
+  // below stays the winner's own words alone.
+  const basinIds = new Set(basinMembers.map((f) => f.pt.id));
+  const thesisFeats = feat.filter((f) => thesisMemberIds.has(f.pt.id) || basinIds.has(f.pt.id));
   const memberWords = new Set(thesisFeats.flatMap((f) => f.words));
   const memberBeings = new Set([...thesisFeats.flatMap((f) => f.all), ...subject]);
   // The license set is the winner's own — never the generalization's lemmas:
@@ -481,7 +515,8 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
       });
     }
   });
-  if (denials.length) findings.push({ kind: "denied_relation", owner: "Kelsen (reasoning-lint.js)", statements: denials.map((f) => f.pt.id), licenses: null, detail: `${denials.length} statement(s) deny the thesis's relation "${thesisLabel}"${thesisSubject ? ` on "${thesisSubject}"` : ""}: ${denials.map((f) => f.pt.id).join(", ")} — the material's own contest, reported${tension && !tension.contrast ? "; taken as the turn" : ""}; the typed polarity contest (a cut meeting its link, kernel/notes.js) is owed` });
+  const anchorLine = Object.entries(thesisAnchors).map(([r, v]) => `${r}="${v}"`).join(", ");
+  if (denials.length) findings.push({ kind: "denied_relation", owner: "Kelsen (reasoning-lint.js)", statements: denials.map((f) => f.pt.id), licenses: null, detail: `${denials.length} statement(s) contradict the thesis's relation "${thesisRelation}" (${thesisPolarity})${anchorLine ? ` on ${anchorLine}` : ""}: ${denials.map((f) => f.pt.id).join(", ")} — the material's own contest, reported${tension && !tension.contrast ? "; taken as the turn" : ""}; the typed polarity contest (a cut meeting its link, kernel/notes.js) is owed` });
   const links = [];
   for (let i = 1; i < groups.length; i++) {
     const a = groups[i - 1], b = groups[i];
@@ -531,14 +566,18 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
   let bodyIdx = 0;
   const bodySlots = groups.map((g) => {
     const base = { statements: g.statements.map((f) => f.pt.id), extent: g.from != null ? [g.from, g.to] : null, beings: g.beings.filter((id) => !R || isProperReferent(R, id)).map((id) => R?.represent(id) ?? id), sources: g.sources };
-    if (g === tension) return { slot: "tension", ...base, basis: g.contrast ? "the material marks this group as a turn" : "the material marks this group as a turn: it denies the thesis's relation" };
+    if (g === tension) return { slot: "tension", ...base, basis: g.contrast ? "the material marks this group as a turn" : "the material marks this group as a turn: it contradicts the thesis's relation" };
     bodyIdx += 1;
     const role = bodyRoles[bodyIdx - 1];
     const extentBasis = g.from != null ? `, ordered by extent ${g.from}–${g.to}` : ", undated, kept in the material's place";
+    // A later group that ALSO contradicts the thesis (Williams, third
+    // reading: only the first, chosen as tension, ever carried a local
+    // signal) gets its own note, not just the aggregate finding.
+    const alsoContradicts = g.statements.some(denies) ? `; contradicts the thesis's relation (see denied_relation)` : "";
     return {
       slot: role ? role.role : `body ${bodyIdx}`,
       ...base,
-      basis: role ? `role "${role.role}" (position ${bodyIdx} of ${bodyRoles.length} in the measured/learned form structure)${extentBasis}` : `grouped by shared beings${extentBasis}`,
+      basis: (role ? `role "${role.role}" (position ${bodyIdx} of ${bodyRoles.length} in the measured/learned form structure)${extentBasis}` : `grouped by shared beings${extentBasis}`) + alsoContradicts,
     };
   });
   // The null, said plainly (Caro, twice): p has a resolution floor of
@@ -554,8 +593,10 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
   const excludedLine = (s) => ((s?.excluded ?? []).length ? `; excluded from the winner's group: ${s.excluded.map((e) => `${e.statements.join(", ")} (${e.relation}, ${e.polarity}, ${e.via})`).join("; ")}` : "");
   const unresolvedLine = (s) => ((s?.unresolved ?? []).length ? `; ${s.unresolved.length} note(s) left unresolved by a negation the read did not place: ${s.unresolved.join(", ")}` : "");
   const absentLine = gen && Object.keys(gen.generalization.absent).length ? `; absent on some claims: ${Object.entries(gen.generalization.absent).map(([k, n]) => `${k} (${n})`).join(", ")}` : "";
-  const guardLine = basin && !R ? "; the one-subject guard did not run (no resolver on the draft)" : "";
-  const beheadedLine = beheaded ? `; ${beheaded} source paragraph(s) lost their opening sentence to the thesis part` : "";
+  const guardLine = guardExcluded.length
+    ? `; the one-subject guard excluded ${guardExcluded.length} member(s) naming a different being from the winner: ${guardExcluded.map((g) => `${g.id} (${g.beings})`).join(", ")}`
+    : basin && !R ? "; the one-subject guard did not run (no resolver on the draft)" : "";
+  const beheadedLine = beheadedParts.size ? `; ${beheadedParts.size} source paragraph(s) lost a sentence to the thesis part (${openingLost} of them their opening sentence)` : "";
   const thesisBasis = !thesis ? "no general statement in the material — the thesis is a gap"
     : `the general statement whose words recur across the most parts (recurrence ${candidates[0].score.toFixed(2)}${tieLine})${
       gen ? `; a basin of ${basin.memberCount} cleared its null (${nullLine(basin)}); ${gen.statements.length} of them share the winner's relation "${gen.relation}" (${gen.polarity}, ${gen.via}) and were generalized: ${Object.keys(gen.generalization.agreed).join(", ") || "nothing"} agreed, ${Object.keys(gen.generalization.varying).join(", ") || "nothing"} varying${absentLine}${excludedLine(synth)}${unresolvedLine(synth)}${guardLine} — the generalized claim stands beside the winner's sentence; its members are held out of the body groups${beheadedLine}`
@@ -646,11 +687,12 @@ export function arrangedDraft(draft, outline) {
   }
   const root = { ...draft.root, children: parts };
   const claimed = outline.slots.find((s) => s.slot === "thesis" && s.claim) ?? null;
-  const sizeOf = new Map(drawnParts(draft).flatMap((p) => p.children.map((c) => [c.id, p.children.length])));
-  const beheaded = claimed ? claimed.statements.filter((id) => id !== claimed.winner && (sizeOf.get(id) ?? 1) > 1).length : 0;
+  const partOf = new Map(drawnParts(draft).flatMap((p) => (p.children ?? []).map((c) => [c.id, p])));
+  const beheadedParts = claimed ? new Set(claimed.statements.map((id) => partOf.get(id)).filter((p) => p && (p.children ?? []).length > 1).map((p) => p.id)) : new Set();
+  const openingLost = claimed ? claimed.statements.filter((id) => { const p = partOf.get(id); return p && (p.children ?? []).length > 1 && p.children[0]?.id === id; }).length : 0;
   return {
     ...draft, root, arrangedFrom: outline.schema,
-    basis: `${parts.length} part(s) composed by the outline (${outline.basis}); ${parts.filter((p) => p.bridge && !p.bridge.name).length} transition(s) have no shared name and must be written${claimed ? `; 1 part carries a claim generalized from ${claimed.statements.length} statements (part.claim; part.rendered is its mechanical surface, handed to no mouth) — its text is those statements' own sentences in the material's order, its span the winner's${beheaded ? `; ${beheaded} source paragraph(s) lost their opening sentence to it` : ""}` : ""}`,
+    basis: `${parts.length} part(s) composed by the outline (${outline.basis}); ${parts.filter((p) => p.bridge && !p.bridge.name).length} transition(s) have no shared name and must be written${claimed ? `; 1 part carries a claim generalized from ${claimed.statements.length} statements (part.claim; part.rendered is its mechanical surface, handed to no mouth) — its text is those statements' own sentences in the material's order, its span the winner's${beheadedParts.size ? `; ${beheadedParts.size} source paragraph(s) lost a sentence to it (${openingLost} of them their opening sentence)` : ""}` : ""}`,
   };
 }
 

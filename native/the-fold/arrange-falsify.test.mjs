@@ -171,9 +171,65 @@ for (const [shape, sentence] of [
     assert.ok(!o.findings.some((f) => f.kind === "no_tension"), "the material marks a turn: its own denial");
     const tension = o.slots.find((s) => s.slot === "tension");
     assert.ok(tension && tension.statements.includes(neg), "the denial is the tension");
-    assert.match(tension.basis, /denies the thesis's relation/);
+    assert.match(tension.basis, /contradicts the thesis's relation/);
   });
 }
+
+// FALSIFIERS from the third reading (2026-09-25): denies() matched on the
+// bare relation label and a hard-coded '-' polarity, so a via/particle
+// mismatch or a thesis that is itself denied made the WRONG statement the
+// turn (Caro, Clark, Kidder & Todd, independently, reproduced by Gebser).
+test("FALSIFIER (Kidder & Todd): a via mismatch is never mistaken for a denial — 'flowed past' does not contradict a thesis generalized to 'flow:through'", async (t) => {
+  const ground = [
+    "The river flowed through the town.", "", "The river flowed through the port.", "", "The river flowed through the valley.", "", "The river flowed through the harbor.", "",
+    "The river never flowed past the mill.", "",
+    "The ferry carried grain across the river.", "", "The mill ground wheat beside the river.", "", "The road followed the river.", "",
+    "The market sold fish from the river.", "", "The bridge crossed the river.", "", "The barge hauled coal down the river.", "",
+    "The fog hid the river.", "", "The flood covered the river.",
+  ].join("\n");
+  const r = await parsedOutline(ground);
+  if (!r) return t.skip("no parser model");
+  const { o, d } = r;
+  assert.equal(o.thesis.claim.rel, "flow:through");
+  const past = pointWith(d, /past the mill/);
+  assert.ok(!o.findings.some((f) => f.kind === "denied_relation" && f.statements.includes(past)), "'flowed past' denies nothing the thesis (flow:through) claims");
+  assert.ok(!o.slots.find((s) => s.slot === "tension")?.statements.includes(past), "it is not taken as the turn");
+});
+
+test("FALSIFIER (Caro): the tension check is bidirectional — an affirmation contradicts a DENIED thesis just as a denial contradicts an affirmed one", async (t) => {
+  // A plain affirmation among the candidates would win selection outright
+  // (a denial's extra word dilutes its own recurrence — Gornick's earlier
+  // finding); giving it a year excludes it from the candidate pool
+  // (hasFigure) without excluding its relation note, so the four denials
+  // compete only among themselves and win as a group, as the archon's own
+  // probe measured.
+  const denied = SHAPED.split("\n").map((line) => (/^The river shaped/.test(line) ? line.replace("shaped", "never shaped") : line)).join("\n");
+  const ground = `${denied}\n\nThe river shaped the mill in 1907.`;
+  const r = await parsedOutline(ground);
+  if (!r) return t.skip("no parser model");
+  const { o, d } = r;
+  assert.equal(o.thesis.claim.polarity, "-", "the four denials generalize as a denial");
+  const affirmed = pointWith(d, /shaped the mill/);
+  const denial = o.findings.find((f) => f.kind === "denied_relation");
+  assert.ok(denial && denial.statements.includes(affirmed), "an affirmation is named as contradicting a denied thesis");
+  const tension = o.slots.find((s) => s.slot === "tension");
+  assert.ok(tension && tension.statements.includes(affirmed), "the contradicting affirmation is the turn");
+});
+
+test("FALSIFIER (Clark): when the agreed role is the OBJECT (subject varies), the anchor is the object, never the bare verb lemma alone", async (t) => {
+  const ground = [
+    "The river shaped the town.", "", "The sea shaped the town.", "", "The wind shaped the town.", "", "The tide shaped the town.", "",
+    "The potter never shaped the clay.", "", "The clay came from the river bank.", "",
+    "The ferry carried grain across the river.", "", "The mill ground wheat beside the river.", "", "The road followed the river.", "",
+    "The market sold fish from the river.", "", "The bridge crossed the river.", "", "The barge hauled coal down the river.", "",
+  ].join("\n");
+  const r = await parsedOutline(ground);
+  if (!r) return t.skip("no parser model");
+  const { o, d } = r;
+  assert.deepEqual(o.thesis.claim.agreed, { ARG1: "town" }, "ARG0 varies (river/sea/wind/tide); ARG1 is the anchor");
+  const potter = pointWith(d, /potter/);
+  assert.ok(!o.findings.some((f) => f.kind === "denied_relation" && f.statements.includes(potter)), "'the potter never shaped the clay' shares only the verb, not the agreed object — not a denial");
+});
 
 test("FALSIFIER: when a denial wins selection ('Nothing shaped the river.'), nothing is generalized over it, and the affirmations it excludes are named", async (t) => {
   const r = await parsedOutline(`${SHAPED}\n\nNothing shaped the river.`);
@@ -295,4 +351,33 @@ test("one fact stated by two sources is said once, from the richer (OHS agenda a
   const said = o.slots.flatMap((s) => s.statements);
   assert.ok(said.includes("p3.1") && !said.includes("p2.1"), "the richer minutes sentence stands");
   assert.ok(said.includes("p4.1") && said.includes("p4.2"), "two floods are two facts");
+});
+
+test("THE GUARD-EXCLUDED MEMBER STILL PROTECTS ITS OWN PARAGRAPH (Orlean, third reading, S2): a false-positive proper referent excludes one witness from the generalization but not from the report tier", async (t) => {
+  // referents.js reads a sentence-initial, unseen common noun as proper
+  // (isProperReferent's own default), so "Fishermen" (never introduced with
+  // an article) resolves as if it named someone in particular. The
+  // one-subject guard correctly excludes the one thesis member naming it
+  // (p4.1) from the generalization — but that member's words/beings must
+  // still count for the REPORT tier, or the separate "Fishermen mended
+  // nets..." paragraph loses its only connection to the thesis and is
+  // silently removed.
+  const ground = [
+    "The river shaped the town.", "", "The river shaped the port.", "", "The river shaped the valley.", "", "The river shaped the fishermen's lives.", "",
+    "The ferry carried grain across the river.", "", "The mill ground wheat beside the river.", "", "The road followed the river.", "",
+    "The market sold fish from the river.", "", "The bridge crossed the river.", "", "The barge hauled coal down the river.", "",
+    "The fog hid the river.", "", "The flood covered the river.", "",
+    "Fishermen mended nets at dawn. Fishermen sold their catch by noon.",
+  ].join("\n");
+  const r = await parsedOutline(ground);
+  if (!r) return t.skip("no parser model");
+  const { o, d } = r;
+  assert.deepEqual(o.thesis.ids, ["p1.1", "p2.1", "p3.1"], "the fishermen statement is excluded from the generalization");
+  assert.match(o.slots[0].basis, /the one-subject guard excluded 1 member\(s\) naming a different being from the winner: p4\.1 \(ref:auto:fishermen\)/);
+  assert.ok(o.thesis.claim, "the other three still generalize");
+  const nets = pointWith(d, /mended nets/);
+  const f = o.findings.find((x) => x.kind === "off_thesis" && x.statements.includes(nets));
+  assert.ok(f, "the fishermen paragraph is reported");
+  assert.equal(f.licenses, null, "not licensed to leave — the guard-excluded member's words still count for the report tier");
+  assert.match(f.detail, /a word of a thesis member the claim did not keep/);
 });

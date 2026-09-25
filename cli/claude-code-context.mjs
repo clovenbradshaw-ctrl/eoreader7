@@ -149,7 +149,7 @@ function ledgerFiles() {
   try { return fs.existsSync(f) ? [f] : []; } catch { return []; }
 }
 
-function findMatches(seedGround, { allSessions, session }) {
+export function findMatches(seedGround, { allSessions, session }) {
   const seed = holon(seedGround ?? "/");
   const scopeSession = allSessions ? null : (session ?? currentSession());
   let considered = 0;
@@ -198,7 +198,7 @@ function findMatches(seedGround, { allSessions, session }) {
  * one run — the accumulated data on disk is untouched; only its READING
  * differs per scope (design part C).
  */
-function foldMatches(matches) {
+export function foldMatches(matches) {
   const taskLog = { ...TL, cellOf: cube.cellOf, noteIdentity: structuralIdentity, identityGiver: "gfp-claim:caselessIdentity(role-values)" };
   const hl = makeHyperlexicon(taskLog);
   let log = hl.createHyperlexicon({ frame: { reader: "cli/claude-code-context", giver: "eoreader7" } });
@@ -286,4 +286,14 @@ function main() {
   else console.log(output);
 }
 
-main();
+// Guarded (2026-09-25, cli/claude-code-recall.mjs's own header explains
+// why): findMatches/foldMatches are now exported for that file to import as
+// a library, and an unconditional call here would re-run this CLI's own
+// main() — argv parsing, stdout/file output, process.exit — on every such
+// import. Same guard idiom cli/claude-code-shape-gate.mjs already uses for
+// the identical reason (its own shapeGateDecision is importable without
+// firing its main()). Transparent to running this file directly (node
+// cli/claude-code-context.mjs still matches and calls main() exactly as
+// before) and to tests/reasoning-claims-ledger.test.mjs, which only ever
+// spawns this file as its own subprocess.
+if (import.meta.url === `file://${process.argv[1]}`) main();

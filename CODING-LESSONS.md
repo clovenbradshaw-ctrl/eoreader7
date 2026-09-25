@@ -1808,3 +1808,35 @@ what actually served.
   `#!/usr/bin/env node` as the regex `/usr/` with flags `bin`, on every
   entry file. The guard: a `/` begins a regex only after an expression-
   starting character, and a `#!` line is never a regex.
+
+## 74. A file nothing has ever imported can still hide an import-time bug (2026-09-25)
+
+Wiring cli/claude-code-recall.mjs (a new UserPromptSubmit hook that folds
+this session's own standing claims back into the next turn's own context,
+so reasoning carries forward through a session and not only gates backward
+at write time and Stop) needed two functions cli/claude-code-context.mjs
+already had — findMatches, foldMatches — so the honest move was to export
+and import them rather than duplicate the ~140 lines of fold logic
+tests/reasoning-claims-ledger.test.mjs had already pinned correct.
+context.mjs called its own main() unconditionally at the bottom of the
+file — the one claude-code-*.mjs hook script that did; its siblings either
+guard main() behind `import.meta.url === \`file://${process.argv[1]}\``
+(claude-code-steer.mjs, claude-code-shape-gate.mjs) or have no separate
+main to guard at all. Nothing had ever imported context.mjs before, so
+nothing had ever exercised the difference: every real use ran it as
+`node cli/claude-code-context.mjs ...`, where a guarded and an unguarded
+main() behave identically. The first import would have re-run its CLI's
+own argv parsing and console.log against whatever stdin/argv the
+IMPORTING process happened to have — here, a hook's own JSON reply,
+corrupted by an unrelated CLI's stdout landing in the middle of it. Fixed
+with the same guard claude-code-shape-gate.mjs already carries for the
+identical reason (its own shapeGateDecision importable without firing
+main()); tests/reasoning-claims-ledger.test.mjs, which only ever spawns
+context.mjs as a subprocess, could not have caught this either way, and
+still passes unchanged after the fix.
+
+The rule: before importing a function from a CLI-shaped file for the first
+time, check what runs at that file's own module scope, not only what the
+function itself does. A bare `main()` call with no import.meta.url guard
+is only safe as long as nothing ever imports it — which is exactly the
+condition about to stop holding.
