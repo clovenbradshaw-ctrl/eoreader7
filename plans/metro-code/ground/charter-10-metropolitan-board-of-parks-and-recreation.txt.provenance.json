@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "10",
+  "title": "METROPOLITAN BOARD OF PARKS AND RECREATION",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-board-of-parks-and-recreation.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-10-metropolitan-board-of-parks-and-recreation.txt",
+    "sha256": "f61520c84bc42a873adb13b4494a03c940080fa16304b7b6ea6c376b66875323",
+    "chars": 4059
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.892Z"
+}

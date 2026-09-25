@@ -12,6 +12,7 @@ import { relationExtractorsFor } from "./relations-language.js";
 import { directDescriptorOccurrences, descriptorOccurrence } from "./individuation.js";
 import { createDescriptorAnchoring } from "./anchoring.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
+import { tokenize as engTokenize, analyse as engAnalyse } from "./english-parser.js";
 
 const slug = (value) => diaNorm(value).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -407,7 +408,7 @@ function witnessRelatedPairs(store, sentences, refs, matcher = null) {
   }
 }
 
-export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 1, reprojectEvery = null, posPrior = null, descriptorAnchoring = null, addresses = "birth", idFactory = null, recipe = null, language = null, roleConfig = null } = {}) {
+export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEvery = 1, reprojectEvery = null, posPrior = null, descriptorAnchoring = null, addresses = "birth", idFactory = null, recipe = null, language = null, roleConfig = null, parseModel = null } = {}) {
   // `refreshEvery` (2026-09-09): 1 is the default now — batching is an
   // engineering compromise, never a model of how reading works ("people
   // don't read in 25-sentence batches" — user direction, verbatim, the
@@ -497,6 +498,24 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
   // supplied, its floors are DECLARED by the caller (anchoring.js throws
   // otherwise — pronouns.js's own contract, applied unchanged).
   const anchoring = descriptorAnchoring ? createDescriptorAnchoring(descriptorAnchoring) : null;
+  // OPT-IN: SVO-GATED NAME ADMISSION (2026-09-23, adapters/text/parse-gated-
+  // names.js's own measurement carried here). `surfacesFromEvidence` below
+  // is orthography-only -- it imports no parser and never reads the
+  // material's own syntax, the same is true of existence-grain.js's naming
+  // signal, and the user's own read of the code named this gap directly:
+  // "we have to go through SVO for English to get there." Off by default
+  // (parseModel: null) so every existing caller is byte-identical; when a
+  // caller supplies a loaded english-parser.js model, a capitalised
+  // candidate is admitted only when the material's OWN per-sentence parse
+  // tagged at least one of its occurrences PROPN -- the parse licenses,
+  // capitalisation corroborates, never a coequal vote. Measured against a
+  // 365-item, 9-annotator blind gold (Henry IV Part 1, modern spelling):
+  // precision 69.4%, recall 87.7%, F1 77.5 -- the best of nine admission
+  // formulas tried, ahead of the best combination of capitalisation-only
+  // detectors (F1 76.3). Folded incrementally, one new sentence at a time,
+  // in the SAME loop that already folds surfaceEvidence below -- never a
+  // whole-prefix re-parse.
+  const synPropnSeen = parseModel ? new Set() : null;
   const priorSentences = [];
   let priorText = "";
   let relationRefreshFrom = 0;
@@ -526,6 +545,18 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     for (const sent of priorSentences.slice(foldedTo)) {
       accumulateSurfaceEvidence([sent], surfaceEvidence);
       for (const w of tokenize(sent.text)) { runningFreq.set(w, (runningFreq.get(w) || 0) + 1); runningTotal += 1; }
+      if (parseModel) {
+        // A sentence the parser can't tokenise or tag never blocks the
+        // read (same typed-degradation discipline heardSurfaces' own
+        // try/catch below already follows) -- it just contributes no
+        // synPropn evidence, and capitalisation-only admission still
+        // applies to whatever it would have nominated.
+        try {
+          const toks = engTokenize(sent.text);
+          const rows = engAnalyse(parseModel, toks.map((t) => t.form));
+          for (const r of rows) if (r.upos === "PROPN") synPropnSeen.add(r.form.toLowerCase());
+        } catch {}
+      }
     }
     foldedTo = priorSentences.length;
     const table = { freq: runningFreq, total: runningTotal };
@@ -571,6 +602,16 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
     let reassignments = cache.reassignments ?? [];
     if (runReproject) {
       surfaces = surfacesFromEvidence(surfaceEvidence, { functionWords: closed });
+      if (parseModel) {
+        // parse-gated-names.js's own rule, applied incrementally: keep a
+        // capitalised-run candidate only if AT LEAST ONE of its
+        // constituent words has been seen tagged PROPN by the material's
+        // own parse. A multi-word run survives on any one licensed
+        // constituent (the same "run.length <= 4" prefix-candidate shape
+        // surfaces.js already builds); an unlicensed single word is
+        // dropped, not silently downgraded.
+        surfaces = surfaces.filter((s) => (s.surface.toLowerCase().match(WORD_RE) ?? []).some((w) => synPropnSeen.has(w)));
+      }
       let heard = [];
       if (posPrior) {
         try { heard = heardSurfaces(priorSentences, { minMentions: 2, minShare: 0.3, minMembers: 2, posPrior, classifyWord, dominantClass }); }

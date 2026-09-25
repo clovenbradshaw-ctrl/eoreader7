@@ -1,0 +1,189 @@
+{
+  "schema": "long-project-questions@1",
+  "note": "26 fixed questions across six planted-fact types (T1-T6) for the held-out benchmark 'the Emberlink Project', identical at every rung. Ground truth and acceptance rules are declared here BEFORE any answer set is scored. Scoring is mechanical only — score.mjs, copied verbatim from long-project so the acceptance-rule schema and shared marker vocabulary stay identical — never a model judge. `accept.mode` selects which shared marker groups score.mjs adds automatically (silence/conflict/restatement/provenance); `requiredGroups` is an AND of OR-groups of normalized substrings that must each appear somewhere in the answer; `forbiddenAny` is a list of case-insensitive regex sources, any one match anywhere fails the answer outright. T5's session-number requirement is computed at score time from the rung's own manifest.json via `establishEvent`, never hand-typed here (the correct session NUMBER is rung-dependent; the correct EVENT is not).",
+  "questions": [
+    {
+      "id": "t1a", "type": "T1", "chain": "t1a",
+      "question": "What is wickham's retry window (the pause before a redelivery attempt) currently set to?",
+      "groundTruth": "3000 ms — set to 3000ms, cut to 1200ms, then rolled back (anaphorically, no number or key name given in the rollback session) to what it was before, i.e. 3000ms again.",
+      "accept": { "mode": "value", "requiredGroups": [["3000 ms", "3000ms", "3000 milliseconds"]], "forbiddenAny": [
+        "(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)[^.;,\\n—–:]{0,30}\\b1200\\s*(?:ms|milliseconds)\\b",
+        "\\b1200\\s*(?:ms|milliseconds)\\b[^.;,\\n—–:]{0,30}(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)"
+      ], "note": "the superseded value (1200ms) asserted with a present-tense cue in the SAME clause is forbidden; a clause boundary (.;,\\n) keeps this from misfiring on legitimate history narration like 'is currently 3000ms; it used to be 1200ms', where the cue and the old value sit in different clauses." }
+    },
+    {
+      "id": "t1b", "type": "T1", "chain": "t1b",
+      "question": "What is bastion's session TTL currently set to?",
+      "groundTruth": "45 minutes — raised once from 20 to 45 minutes, never revised again.",
+      "accept": { "mode": "value", "requiredGroups": [["45 minutes", "45 minute", "forty-five minutes", "45min"]], "forbiddenAny": [
+        "(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)[^.;,\\n—–:]{0,30}\\b20\\s*(?:minutes?|min)\\b",
+        "\\b20\\s*(?:minutes?|min)\\b[^.;,\\n—–:]{0,30}(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)"
+      ] }
+    },
+    {
+      "id": "t1c", "type": "T1", "chain": "t1c",
+      "question": "How many decimal places does coffer's ledger currently store currency at?",
+      "groundTruth": "4 — set to 2, bumped to 6 for sub-cent proration, then settled at 4 after a finance-review compromise.",
+      "accept": { "mode": "value", "requiredGroups": [["4 decimal", "four decimal", "precision of 4", "precision is 4", "precision: 4", "precision[^.;,\\n—–:]{0,20}\\b4\\b"]], "forbiddenAny": [
+        "(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)[^.;,\\n—–:]{0,30}\\b2\\s*decimal",
+        "\\b2\\s*decimal[a-z]*[^.;,\\n—–:]{0,30}(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)",
+        "(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)[^.;,\\n—–:]{0,30}\\b6\\s*decimal",
+        "\\b6\\s*decimal[a-z]*[^.;,\\n—–:]{0,30}(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)"
+      ] }
+    },
+    {
+      "id": "t1d", "type": "T1", "chain": "t1d",
+      "question": "What is kiln's worker pool concurrency currently set to?",
+      "groundTruth": "6 — set to 6, bumped to 20 for a backlog, then rolled back (anaphorically, no number given in the rollback session) to what it was before, i.e. 6 again.",
+      "accept": { "mode": "value", "requiredGroups": [["concurrency of 6", "concurrency is 6", "concurrency: 6", "concurrency set to 6", "back down to 6", "back to 6", "worker pool concurrency of 6", "6 workers", "concurrency[^.;,\\n—–:]{0,30}\\b6\\b", "\\b6\\b[^.;,\\n—–:]{0,30}concurrency", "^\\W*6\\b(?![^.]*\\b20\\b)"]], "forbiddenAny": [
+        "(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)[^.;,\\n—–:]{0,30}\\b20\\b",
+        "\\b20\\b[^.;,\\n—–:]{0,30}(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)"
+      ], "note": "requiredGroups' last two alts tolerate an inserted-words natural phrasing ('worker pool concurrency is currently set to 6') a rigid fixed-phrase substring would reject, and a bare-value answer ('6, bumped once for a backlog...') that never repeats the word 'concurrency' at all, so long as it does not also mention 20 up front." }
+    },
+    {
+      "id": "t1e", "type": "T1", "chain": "t1e",
+      "question": "What is beacon's batch flush interval currently set to?",
+      "groundTruth": "45 seconds — set to 240 seconds, dropped once to 45 seconds, never revised again.",
+      "accept": { "mode": "value", "requiredGroups": [["45 seconds", "45s", "flush interval of 45", "every 45 seconds", "interval is 45", "interval of 45", "interval[^.;,\\n—–:]{0,20}\\b45\\b"]], "forbiddenAny": [
+        "(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)[^.;,\\n—–:]{0,30}\\b240\\s*(?:seconds?|s)\\b",
+        "\\b240\\s*(?:seconds?|s)\\b[^.;,\\n—–:]{0,30}(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)",
+        "(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)[^.;,\\n—–:]{0,30}\\b(?:4|four)\\s*minutes?\\b",
+        "\\b(?:4|four)\\s*minutes?\\b[^.;,\\n—–:]{0,30}(?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)"
+      ] }
+    },
+
+    {
+      "id": "t2-1", "type": "T2", "chain": "t2-1",
+      "question": "Which city hosts the primary worker pool of the service Declan Osei-Praveen's security pass flagged?",
+      "groundTruth": "Dublin — Declan's review flags kiln (unencrypted queue connection) in one session; a separate session moves kiln's primary worker pool to region dub-1; a third, unrelated infra note maps dub-1 to Dublin. No single session states this directly.",
+      "accept": { "mode": "value", "requiredGroups": [["dublin"]], "forbiddenAny": [] }
+    },
+    {
+      "id": "t2-2", "type": "T2", "chain": "t2-2",
+      "question": "Which legacy datastore is used by the service that owns the proration step Ingrid Solberg filed a bug against?",
+      "groundTruth": "Thornquist-DB0 — Ingrid's bug is against checkout's proration step; a separate session confirms the proration step lives in coffer's adjustment module; a third session states coffer is the one service Odalys's pod owns that has not migrated off Thornquist-DB0.",
+      "accept": { "mode": "value", "requiredGroups": [["thornquist-db0", "thornquist db0", "thornquist-db 0"]], "forbiddenAny": [] }
+    },
+    {
+      "id": "t2-3", "type": "T2", "chain": "t2-3",
+      "question": "Which pod does the person whose complaint led to bastion's session lifetime being lengthened manage?",
+      "groundTruth": "the Expansion pod — Marisol Thackeray raises the logout complaint; a separate session says bastion's session lifetime was lengthened in response to her complaint; a third, unrelated session states Marisol manages the Expansion pod.",
+      "accept": { "mode": "value", "requiredGroups": [["expansion pod", "expansion team"]], "forbiddenAny": [] }
+    },
+    {
+      "id": "t2-4", "type": "T2", "chain": "t2-4",
+      "question": "Which service is deployed by hand rather than through CI, and was also the subject of Vela Kirchner's duplicate-row audit?",
+      "groundTruth": "beacon — Vela's audit finds duplicate rows in \"the ledger sync process\"; a separate, unrelated deploy audit states beacon is the one service still deployed by hand instead of through CI; a third session clarifies that \"the ledger sync process\" is an old name for beacon.",
+      "accept": { "mode": "value", "requiredGroups": [["beacon"]], "forbiddenAny": [] }
+    },
+
+    {
+      "id": "t3-1", "type": "T3", "chain": "t3-1",
+      "question": "How many Brindlemere Cloud regions does Emberlink Pulse run in, and which ones?",
+      "groundTruth": "The record conflicts and nothing resolves it: one session states four regions (ord-4, dub-1, nrt-2, gru-5); a later session states three regions (ord-4, dub-1, nrt-2). Picking one side is wrong; the correct answer names both and flags the conflict.",
+      "accept": { "mode": "conflict", "requiredGroups": [["four regions", "4 regions"], ["three regions", "3 regions", "down to three", "just three", "only three"]], "forbiddenAny": [] }
+    },
+    {
+      "id": "t3-2", "type": "T3", "chain": "t3-2",
+      "question": "How many people are on Ingrid Solberg's QA team?",
+      "groundTruth": "The record conflicts and nothing resolves it: one session states six people; another states a five-person team. Picking one side is wrong; the correct answer names both and flags the conflict.",
+      "accept": { "mode": "conflict", "requiredGroups": [["six people", "six engineers", "6 people", "6 engineers", "team of six"], ["five person", "five-person", "5 person", "5-person", "team of five", "just five", "only five", "down to five"]], "forbiddenAny": [] }
+    },
+    {
+      "id": "t3-3", "type": "T3", "chain": "t3-3",
+      "question": "Does Emberlink Pulse bill customers by usage or as a flat subscription?",
+      "groundTruth": "The record conflicts and nothing resolves it: one session reconfirms usage-based billing (metered per relay event) as the kickoff decision; another states it is a flat monthly subscription with no usage metering. Picking one side is wrong; the correct answer names both and flags the conflict.",
+      "accept": { "mode": "conflict", "requiredGroups": [["usage-based", "usage based", "metered per", "billed by usage"], ["flat monthly subscription", "flat subscription", "flat-rate", "flat rate"]], "forbiddenAny": [] }
+    },
+    {
+      "id": "t3-4", "type": "T3", "chain": "t3-4",
+      "question": "Which pod owns wickham?",
+      "groundTruth": "The record conflicts and nothing resolves it: one session states Odalys's Core pod owns wickham; a later session states it sits under Tomasz's Platform team. Picking one side is wrong; the correct answer names both and flags the conflict.",
+      "accept": { "mode": "conflict", "requiredGroups": [["odalys", "core pod", "core team"], ["tomasz", "platform team", "platform pod"]], "forbiddenAny": [] }
+    },
+
+    {
+      "id": "t4-1", "type": "T4", "chain": "t4-1",
+      "question": "What uptime percentage does Emberlink Pulse's SLA promise customers?",
+      "groundTruth": "Not stated anywhere in the record. One session notes sales wants a number for the contract and no number is agreed yet; no session ever states a figure.",
+      "accept": { "mode": "silence", "requiredGroups": [], "forbiddenAny": ["\\d{2}(\\.\\d+)?\\s*%", "\\bnines?\\b"] }
+    },
+    {
+      "id": "t4-2", "type": "T4", "chain": "t4-2",
+      "question": "Who is Emberlink Pulse's single largest customer by revenue?",
+      "groundTruth": "Not stated anywhere in the record. Enterprise accounts are discussed generically; no session names or ranks a specific customer.",
+      "accept": { "mode": "silence", "requiredGroups": [], "forbiddenAny": [
+        "(?:probably|likely|presumably|my guess|i guess|i.?d guess|i would guess|i assume|might be|could be|possibly|i suspect|my best guess|i.?d (?:say|bet)|my (?:money|bet) (?:is|would be) on)[^.\\n]{0,60}\\b(?:biggest|largest|top|single largest)\\b",
+        "\\b(?:biggest|largest|top|single largest)\\b[^.\\n]{0,60}(?:probably|likely|presumably|guess|assume|bet|might be|could be|possibly|i suspect)"
+      ], "note": "no reliable regex distinguishes a fabricated company name from a correct hedge that merely discusses the topic; scoring rests on the required silence-admission language, plus the two forbiddenAny patterns above, which catch a hedge-wrapped fabrication by its hedge+superlative shape rather than by trying to recognize a company name. A hedge stated WITHOUT naming any candidate still passes, which is correct." }
+    },
+    {
+      "id": "t4-3", "type": "T4", "chain": "t4-3",
+      "question": "What programming language is wickham written in?",
+      "groundTruth": "Not stated anywhere in the record. wickham is discussed extensively (config, incidents, ownership) but no session ever names an implementation language for it or for any other service.",
+      "accept": { "mode": "silence", "requiredGroups": [], "forbiddenAny": ["\\b(is|written|implemented|built|coded)\\b[^.]{0,20}\\b(go|golang|rust|python|java|javascript|typescript|ruby|kotlin|scala|elixir|erlang|php)\\b"] }
+    },
+    {
+      "id": "t4-4", "type": "T4", "chain": "t4-4",
+      "question": "What is Marisol Thackeray's job title?",
+      "groundTruth": "Not stated anywhere in the record. Marisol is referred to only by name and by what she does (raises complaints, runs roadmap reviews, manages the Expansion pod); no session ever gives her a formal title.",
+      "accept": { "mode": "silence", "requiredGroups": [], "forbiddenAny": ["product manager", "\\bpm\\b", "program manager", "project manager", "\\bdirector\\b", "\\bvp\\b", "vice president", "head of", "\\bchief\\b", "engineering manager"] }
+    },
+    {
+      "id": "t4-5", "type": "T4", "chain": "t4-5",
+      "question": "What was the root cause of incident IN-4417?",
+      "groundTruth": "Not stated anywhere in the record. One session establishes that IN-4417 was Femi being paged because kiln fell behind on its queue; a later session says the postmortem's root-cause section is still blocked. No session ever states a root cause.",
+      "accept": { "mode": "silence", "requiredGroups": [], "forbiddenAny": ["(?<!\\bno )root cause (was|is|:)(?![^.;]{0,40}\\b(?:unknown|not|never|still|unclear|undetermined|blocked|pending|open)\\b)", "\\bcaused by\\b"], "note": "the first forbidden pattern does not fire on a negated or still-open root cause ('No root cause is ever logged', 'the root cause is still unknown'), which are correct silence answers; it still fires on 'the root cause was X'." }
+    },
+
+    {
+      "id": "t5-1", "type": "T5", "chain": "t5-1",
+      "question": "In which session was the project first renamed to \"Emberlink\" (as opposed to its earlier working title)?",
+      "groundTruth": "The session that establishes the rename from \"payments-v3\" to Emberlink — the FIRST occurrence; a much later session references the rename casually without restating it.",
+      "accept": { "mode": "provenance", "establishEvent": "t5-1-establish", "requiredGroups": [], "forbiddenAny": [] }
+    },
+    {
+      "id": "t5-2", "type": "T5", "chain": "t5-2",
+      "question": "In which session was Brindlemere Cloud first chosen as the hosting vendor?",
+      "groundTruth": "The session that establishes the vendor pick after the bake-off — the FIRST occurrence; a later session mentions Brindlemere again (a renewal call) without restating the original decision.",
+      "accept": { "mode": "provenance", "establishEvent": "t5-2-establish", "requiredGroups": [], "forbiddenAny": [] }
+    },
+    {
+      "id": "t5-3", "type": "T5", "chain": "t5-3",
+      "question": "In which session did Declan Osei-Praveen first join the project?",
+      "groundTruth": "The session that introduces Declan as the incoming security reviewer — the FIRST occurrence; a later session refers to him casually as having \"been with us since basically the early days\" without restating when he joined.",
+      "accept": { "mode": "provenance", "establishEvent": "t5-3-establish", "requiredGroups": [], "forbiddenAny": [] }
+    },
+    {
+      "id": "t5-4", "type": "T5", "chain": "t5-4",
+      "question": "In which session was the decision made to build trellis as its own notification service rather than route notifications through wickham?",
+      "groundTruth": "The session that states the architecture decision directly — the FIRST occurrence; a later onboarding-question session refers back to \"the original call\" without restating it.",
+      "accept": { "mode": "provenance", "establishEvent": "t5-4-establish", "requiredGroups": [], "forbiddenAny": [] }
+    },
+
+    {
+      "id": "t6-1", "type": "T6", "chain": "t6-1",
+      "question": "What is the free-tier monthly event cap for Emberlink Pulse, and has it ever changed?",
+      "groundTruth": "15,000 events/month, restated three times in different words (a decision, a support-channel reminder, and a declined request to raise it); the value never changes across any of the three.",
+      "accept": { "mode": "restatement", "requiredGroups": [["15,000", "15000", "fifteen thousand", "15k"]], "forbiddenAny": [] }
+    },
+    {
+      "id": "t6-2", "type": "T6", "chain": "t6-2",
+      "question": "How often does the on-call rotation hand off, and on what day? Has the cadence ever changed?",
+      "groundTruth": "Every two weeks, Wednesday morning, restated three times (a decision, a reminder, and a declined proposal to switch to a weekly rotation); the cadence never changes across any of the three.",
+      "accept": { "mode": "restatement", "requiredGroups": [["wednesday"], ["every two weeks", "biweekly", "every other week", "two week rotation", "two-week rotation"]], "forbiddenAny": [] }
+    },
+    {
+      "id": "t6-3", "type": "T6", "chain": "t6-3",
+      "question": "When does the staging environment refresh from production, and has that schedule ever changed?",
+      "groundTruth": "Friday evenings, restated three times (a decision, a routine status note, and an answer to a new hire's question); the schedule never changes across any of the three.",
+      "accept": { "mode": "restatement", "requiredGroups": [["friday"]], "forbiddenAny": [] }
+    },
+    {
+      "id": "t6-4", "type": "T6", "chain": "t6-4",
+      "question": "What is the response-time commitment for P1 support tickets, and has it ever changed?",
+      "groundTruth": "6 business hours, restated three times (a decision, a reminder, and an answer to a customer asking for faster response); the commitment never changes across any of the three.",
+      "accept": { "mode": "restatement", "requiredGroups": [["6 business hour", "six business hour", "6-hour", "six hour", "6 hour"]], "forbiddenAny": [] }
+    }
+  ]
+}

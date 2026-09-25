@@ -1,0 +1,1394 @@
+{
+  "schema": "ChapterSwarmRead@1",
+  "declared": {
+    "source": "file:pg1661_The_Adventures_of_Tom_Sawyer.txt",
+    "lang": "eng",
+    "prior": "pos-eng.json",
+    "giver": "chapter-swarm.mjs — Wilson's swarm",
+    "recipe": "read-real recursive pipeline, per chapter, minWitnesses:1 nomination",
+    "convention": "CHAPTER <roman>",
+    "chapters": 35,
+    "cv": false,
+    "corroborationRule": "a pair nominated by >=2 chapters is promoted to GIVEN (Wilson giver); nomination is never licensing"
+  },
+  "chapters": [
+    {
+      "index": 1,
+      "numeral": "I",
+      "title": null,
+      "span": [
+        7147,
+        20385
+      ],
+      "chars": 13238,
+      "materialChars": 13238,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 221,
+      "relationEdges": 56,
+      "referentBindings": 63,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 21,
+      "candidates": []
+    },
+    {
+      "index": 2,
+      "numeral": "II",
+      "title": null,
+      "span": [
+        20385,
+        31091
+      ],
+      "chars": 10706,
+      "materialChars": 10706,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 154,
+      "relationEdges": 66,
+      "referentBindings": 29,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 13,
+      "candidates": []
+    },
+    {
+      "index": 3,
+      "numeral": "III",
+      "title": null,
+      "span": [
+        31091,
+        43581
+      ],
+      "chars": 12490,
+      "materialChars": 12490,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 104,
+      "relationEdges": 59,
+      "referentBindings": 73,
+      "chainSites": 1,
+      "pairTypes": 1,
+      "fullyReferentResolvedEdges": 7,
+      "candidates": [
+        {
+          "left": "she stepped into the kitchen, and",
+          "right": ", happy in his immunity, reached for the",
+          "support": 1
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "numeral": "IV",
+      "title": null,
+      "span": [
+        43581,
+        62982
+      ],
+      "chars": 19401,
+      "materialChars": 19401,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 175,
+      "relationEdges": 169,
+      "referentBindings": 97,
+      "chainSites": 5,
+      "pairTypes": 5,
+      "fullyReferentResolvedEdges": 28,
+      "candidates": [
+        {
+          "left": ", and demanded a",
+          "right": "—to keep and",
+          "support": 1
+        },
+        {
+          "left": "me a beautiful",
+          "right": "—to keep and",
+          "support": 1
+        },
+        {
+          "left": "long enough to get a",
+          "right": "—to keep and",
+          "support": 1
+        },
+        {
+          "left": "with the",
+          "right": "put his",
+          "support": 1
+        },
+        {
+          "left": "with the",
+          "right": "and the",
+          "support": 1
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "numeral": "V",
+      "title": null,
+      "span": [
+        62982,
+        73832
+      ],
+      "chars": 10850,
+      "materialChars": 10850,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 66,
+      "relationEdges": 38,
+      "referentBindings": 45,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 5,
+      "candidates": []
+    },
+    {
+      "index": 6,
+      "numeral": "VI",
+      "title": null,
+      "span": [
+        73832,
+        93524
+      ],
+      "chars": 19692,
+      "materialChars": 19692,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 361,
+      "relationEdges": 207,
+      "referentBindings": 210,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 72,
+      "candidates": []
+    },
+    {
+      "index": 7,
+      "numeral": "VII",
+      "title": null,
+      "span": [
+        93524,
+        103875
+      ],
+      "chars": 10351,
+      "materialChars": 10351,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 175,
+      "relationEdges": 83,
+      "referentBindings": 53,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 13,
+      "candidates": []
+    },
+    {
+      "index": 8,
+      "numeral": "VIII",
+      "title": null,
+      "span": [
+        103875,
+        113842
+      ],
+      "chars": 9967,
+      "materialChars": 9967,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 119,
+      "relationEdges": 36,
+      "referentBindings": 11,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 6,
+      "candidates": []
+    },
+    {
+      "index": 9,
+      "numeral": "IX",
+      "title": null,
+      "span": [
+        113842,
+        125873
+      ],
+      "chars": 12031,
+      "materialChars": 12031,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 212,
+      "relationEdges": 81,
+      "referentBindings": 81,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 25,
+      "candidates": []
+    },
+    {
+      "index": 10,
+      "numeral": "X",
+      "title": null,
+      "span": [
+        125873,
+        137449
+      ],
+      "chars": 11576,
+      "materialChars": 11576,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 193,
+      "relationEdges": 69,
+      "referentBindings": 69,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 13,
+      "candidates": []
+    },
+    {
+      "index": 11,
+      "numeral": "XI",
+      "title": null,
+      "span": [
+        137449,
+        145926
+      ],
+      "chars": 8477,
+      "materialChars": 8477,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 99,
+      "relationEdges": 20,
+      "referentBindings": 20,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 9,
+      "candidates": []
+    },
+    {
+      "index": 12,
+      "numeral": "XII",
+      "title": null,
+      "span": [
+        145926,
+        155366
+      ],
+      "chars": 9440,
+      "materialChars": 9440,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 110,
+      "relationEdges": 34,
+      "referentBindings": 30,
+      "chainSites": 3,
+      "pairTypes": 2,
+      "fullyReferentResolvedEdges": 14,
+      "candidates": [
+        {
+          "left": "’t know,",
+          "right": ",” gasped the",
+          "support": 1
+        },
+        {
+          "left": "’t know,",
+          "right": "Polly; cats always",
+          "support": 1
+        }
+      ]
+    },
+    {
+      "index": 13,
+      "numeral": "XIII",
+      "title": null,
+      "span": [
+        155366,
+        169260
+      ],
+      "chars": 13894,
+      "materialChars": 13894,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 163,
+      "relationEdges": 87,
+      "referentBindings": 85,
+      "chainSites": 5,
+      "pairTypes": 5,
+      "fullyReferentResolvedEdges": 22,
+      "candidates": [
+        {
+          "left": "of the",
+          "right": ",” said",
+          "support": 1
+        },
+        {
+          "left": "of an unexplored and uninhabited",
+          "right": ",” said",
+          "support": 1
+        },
+        {
+          "left": "of the",
+          "right": "and the",
+          "support": 1
+        },
+        {
+          "left": "and the",
+          "right": "of the",
+          "support": 1
+        },
+        {
+          "left": "of the",
+          "right": "had",
+          "support": 1
+        }
+      ]
+    },
+    {
+      "index": 14,
+      "numeral": "XIV",
+      "title": null,
+      "span": [
+        169260,
+        181079
+      ],
+      "chars": 11819,
+      "materialChars": 11819,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 105,
+      "relationEdges": 45,
+      "referentBindings": 67,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 16,
+      "candidates": []
+    },
+    {
+      "index": 15,
+      "numeral": "XV",
+      "title": null,
+      "span": [
+        181079,
+        190422
+      ],
+      "chars": 9343,
+      "materialChars": 9343,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 101,
+      "relationEdges": 33,
+      "referentBindings": 30,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 12,
+      "candidates": []
+    },
+    {
+      "index": 16,
+      "numeral": "XVI",
+      "title": null,
+      "span": [
+        190422,
+        208389
+      ],
+      "chars": 17967,
+      "materialChars": 17967,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 239,
+      "relationEdges": 111,
+      "referentBindings": 89,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 17,
+      "candidates": []
+    },
+    {
+      "index": 17,
+      "numeral": "XVII",
+      "title": null,
+      "span": [
+        208389,
+        214971
+      ],
+      "chars": 6582,
+      "materialChars": 6582,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 51,
+      "relationEdges": 25,
+      "referentBindings": 19,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 10,
+      "candidates": []
+    },
+    {
+      "index": 18,
+      "numeral": "XVIII",
+      "title": null,
+      "span": [
+        214971,
+        230857
+      ],
+      "chars": 15886,
+      "materialChars": 15886,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 239,
+      "relationEdges": 123,
+      "referentBindings": 105,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 39,
+      "candidates": []
+    },
+    {
+      "index": 19,
+      "numeral": "XIX",
+      "title": null,
+      "span": [
+        230857,
+        234942
+      ],
+      "chars": 4085,
+      "materialChars": 4085,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 58,
+      "relationEdges": 12,
+      "referentBindings": 9,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 4,
+      "candidates": []
+    },
+    {
+      "index": 20,
+      "numeral": "XX",
+      "title": null,
+      "span": [
+        234942,
+        244329
+      ],
+      "chars": 9387,
+      "materialChars": 9387,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 121,
+      "relationEdges": 41,
+      "referentBindings": 40,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 13,
+      "candidates": []
+    },
+    {
+      "index": 21,
+      "numeral": "XXI",
+      "title": null,
+      "span": [
+        244329,
+        257262
+      ],
+      "chars": 12933,
+      "materialChars": 12933,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 102,
+      "relationEdges": 39,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 22,
+      "numeral": "XXII",
+      "title": null,
+      "span": [
+        257262,
+        262991
+      ],
+      "chars": 5729,
+      "materialChars": 5729,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 55,
+      "relationEdges": 9,
+      "referentBindings": 1,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 1,
+      "candidates": []
+    },
+    {
+      "index": 23,
+      "numeral": "XXIII",
+      "title": null,
+      "span": [
+        262991,
+        274170
+      ],
+      "chars": 11179,
+      "materialChars": 11179,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 164,
+      "relationEdges": 62,
+      "referentBindings": 40,
+      "chainSites": 5,
+      "pairTypes": 5,
+      "fullyReferentResolvedEdges": 14,
+      "candidates": [
+        {
+          "left": "glanced at",
+          "right": "’s iron",
+          "support": 1
+        },
+        {
+          "left": "hands, and weak—but they’ve helped",
+          "right": "Potter fell,",
+          "support": 1
+        },
+        {
+          "left": "glanced at",
+          "right": "jumped with the",
+          "support": 1
+        },
+        {
+          "left": "Potter fell,",
+          "right": "jumped with the",
+          "support": 1
+        },
+        {
+          "left": "before—went to the cell grating and gave",
+          "right": "a power, and they’d help him",
+          "support": 1
+        }
+      ]
+    },
+    {
+      "index": 24,
+      "numeral": "XXIV",
+      "title": null,
+      "span": [
+        274170,
+        276486
+      ],
+      "chars": 2316,
+      "materialChars": 2316,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 21,
+      "relationEdges": 0,
+      "referentBindings": 1,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 25,
+      "numeral": "XXV",
+      "title": null,
+      "span": [
+        276486,
+        288072
+      ],
+      "chars": 11586,
+      "materialChars": 11586,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 227,
+      "relationEdges": 101,
+      "referentBindings": 48,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 6,
+      "candidates": []
+    },
+    {
+      "index": 26,
+      "numeral": "XXVI",
+      "title": null,
+      "span": [
+        288072,
+        302895
+      ],
+      "chars": 14823,
+      "materialChars": 14823,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 250,
+      "relationEdges": 113,
+      "referentBindings": 127,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 38,
+      "candidates": []
+    },
+    {
+      "index": 27,
+      "numeral": "XXVII",
+      "title": null,
+      "span": [
+        302895,
+        308115
+      ],
+      "chars": 5220,
+      "materialChars": 5220,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 89,
+      "relationEdges": 8,
+      "referentBindings": 5,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 2,
+      "candidates": []
+    },
+    {
+      "index": 28,
+      "numeral": "XXVIII",
+      "title": null,
+      "span": [
+        308115,
+        314051
+      ],
+      "chars": 5936,
+      "materialChars": 5936,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 95,
+      "relationEdges": 22,
+      "referentBindings": 17,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 7,
+      "candidates": []
+    },
+    {
+      "index": 29,
+      "numeral": "XXIX",
+      "title": null,
+      "span": [
+        314051,
+        328473
+      ],
+      "chars": 14422,
+      "materialChars": 14422,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 191,
+      "relationEdges": 117,
+      "referentBindings": 135,
+      "chainSites": 1,
+      "pairTypes": 1,
+      "fullyReferentResolvedEdges": 48,
+      "candidates": [
+        {
+          "left": "low voice—Injun",
+          "right": "’s remark and",
+          "support": 1
+        }
+      ]
+    },
+    {
+      "index": 30,
+      "numeral": "XXX",
+      "title": null,
+      "span": [
+        328473,
+        345440
+      ],
+      "chars": 16967,
+      "materialChars": 16967,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 226,
+      "relationEdges": 148,
+      "referentBindings": 90,
+      "chainSites": 5,
+      "pairTypes": 5,
+      "fullyReferentResolvedEdges": 41,
+      "candidates": [
+        {
+          "left": "on, and in the course of it the old",
+          "right": "said that the",
+          "support": 1
+        },
+        {
+          "left": "on, and in the course of it the old",
+          "right": "said Huck had",
+          "support": 1
+        },
+        {
+          "left": "said Huck had",
+          "right": "spots in him, and the",
+          "support": 1
+        },
+        {
+          "left": "you seen my",
+          "right": "” had been",
+          "support": 1
+        },
+        {
+          "left": "distressed to smile, but the old",
+          "right": "said Huck had",
+          "support": 1
+        }
+      ]
+    },
+    {
+      "index": 31,
+      "numeral": "XXXI",
+      "title": null,
+      "span": [
+        345440,
+        362165
+      ],
+      "chars": 16725,
+      "materialChars": 16725,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 217,
+      "relationEdges": 138,
+      "referentBindings": 155,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 68,
+      "candidates": []
+    },
+    {
+      "index": 32,
+      "numeral": "XXXII",
+      "title": null,
+      "span": [
+        362165,
+        367885
+      ],
+      "chars": 5720,
+      "materialChars": 5720,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 53,
+      "relationEdges": 11,
+      "referentBindings": 3,
+      "chainSites": 1,
+      "pairTypes": 1,
+      "fullyReferentResolvedEdges": 3,
+      "candidates": [
+        {
+          "left": "as ever Saturday; but",
+          "right": "did not leave her room until Sunday, and",
+          "support": 1
+        }
+      ]
+    },
+    {
+      "index": 33,
+      "numeral": "XXXIII",
+      "title": null,
+      "span": [
+        367885,
+        386424
+      ],
+      "chars": 18539,
+      "materialChars": 18539,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 273,
+      "relationEdges": 166,
+      "referentBindings": 152,
+      "chainSites": 7,
+      "pairTypes": 7,
+      "fullyReferentResolvedEdges": 54,
+      "candidates": [
+        {
+          "left": "his entire adventure in confidence to",
+          "right": ", who had",
+          "support": 1
+        },
+        {
+          "left": "I saw",
+          "right": "poke up his",
+          "support": 1
+        },
+        {
+          "left": "—let’s not fool around",
+          "right": "are two",
+          "support": 1
+        },
+        {
+          "left": "along, Huck, we’ve been in",
+          "right": "are two",
+          "support": 1
+        },
+        {
+          "left": "—let’s not fool around",
+          "right": "a long",
+          "support": 1
+        },
+        {
+          "left": "—let’s not fool around",
+          "right": "—hurry up, trot ahead—I’ll haul the",
+          "support": 1
+        },
+        {
+          "left": "along, Huck, we’ve been in",
+          "right": "—hurry up, trot ahead—I’ll haul the",
+          "support": 1
+        }
+      ]
+    },
+    {
+      "index": 34,
+      "numeral": "XXXIV",
+      "title": null,
+      "span": [
+        386424,
+        391321
+      ],
+      "chars": 4897,
+      "materialChars": 4897,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 76,
+      "relationEdges": 6,
+      "referentBindings": 9,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    },
+    {
+      "index": 35,
+      "numeral": "XXXV",
+      "title": null,
+      "span": [
+        391321,
+        401617
+      ],
+      "chars": 10296,
+      "materialChars": 10296,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 113,
+      "relationEdges": 51,
+      "referentBindings": 27,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 7,
+      "candidates": []
+    }
+  ],
+  "hyperlexicon": {
+    "schema": "EOHyperlexicon@1",
+    "entries": 32,
+    "given": [],
+    "candidates": [
+      {
+        "left": "she stepped into the kitchen, and",
+        "right": ", happy in his immunity, reached for the",
+        "independentSupport": 1,
+        "chapters": [
+          3
+        ]
+      },
+      {
+        "left": ", and demanded a",
+        "right": "—to keep and",
+        "independentSupport": 1,
+        "chapters": [
+          4
+        ]
+      },
+      {
+        "left": "me a beautiful",
+        "right": "—to keep and",
+        "independentSupport": 1,
+        "chapters": [
+          4
+        ]
+      },
+      {
+        "left": "long enough to get a",
+        "right": "—to keep and",
+        "independentSupport": 1,
+        "chapters": [
+          4
+        ]
+      },
+      {
+        "left": "with the",
+        "right": "put his",
+        "independentSupport": 1,
+        "chapters": [
+          4
+        ]
+      },
+      {
+        "left": "with the",
+        "right": "and the",
+        "independentSupport": 1,
+        "chapters": [
+          4
+        ]
+      },
+      {
+        "left": "’t know,",
+        "right": ",” gasped the",
+        "independentSupport": 1,
+        "chapters": [
+          12
+        ]
+      },
+      {
+        "left": "’t know,",
+        "right": "Polly; cats always",
+        "independentSupport": 1,
+        "chapters": [
+          12
+        ]
+      },
+      {
+        "left": "of the",
+        "right": ",” said",
+        "independentSupport": 1,
+        "chapters": [
+          13
+        ]
+      },
+      {
+        "left": "of an unexplored and uninhabited",
+        "right": ",” said",
+        "independentSupport": 1,
+        "chapters": [
+          13
+        ]
+      },
+      {
+        "left": "of the",
+        "right": "and the",
+        "independentSupport": 1,
+        "chapters": [
+          13
+        ]
+      },
+      {
+        "left": "and the",
+        "right": "of the",
+        "independentSupport": 1,
+        "chapters": [
+          13
+        ]
+      },
+      {
+        "left": "of the",
+        "right": "had",
+        "independentSupport": 1,
+        "chapters": [
+          13
+        ]
+      },
+      {
+        "left": "glanced at",
+        "right": "’s iron",
+        "independentSupport": 1,
+        "chapters": [
+          23
+        ]
+      },
+      {
+        "left": "hands, and weak—but they’ve helped",
+        "right": "Potter fell,",
+        "independentSupport": 1,
+        "chapters": [
+          23
+        ]
+      },
+      {
+        "left": "glanced at",
+        "right": "jumped with the",
+        "independentSupport": 1,
+        "chapters": [
+          23
+        ]
+      },
+      {
+        "left": "Potter fell,",
+        "right": "jumped with the",
+        "independentSupport": 1,
+        "chapters": [
+          23
+        ]
+      },
+      {
+        "left": "before—went to the cell grating and gave",
+        "right": "a power, and they’d help him",
+        "independentSupport": 1,
+        "chapters": [
+          23
+        ]
+      },
+      {
+        "left": "low voice—Injun",
+        "right": "’s remark and",
+        "independentSupport": 1,
+        "chapters": [
+          29
+        ]
+      },
+      {
+        "left": "on, and in the course of it the old",
+        "right": "said that the",
+        "independentSupport": 1,
+        "chapters": [
+          30
+        ]
+      },
+      {
+        "left": "on, and in the course of it the old",
+        "right": "said Huck had",
+        "independentSupport": 1,
+        "chapters": [
+          30
+        ]
+      },
+      {
+        "left": "said Huck had",
+        "right": "spots in him, and the",
+        "independentSupport": 1,
+        "chapters": [
+          30
+        ]
+      },
+      {
+        "left": "you seen my",
+        "right": "” had been",
+        "independentSupport": 1,
+        "chapters": [
+          30
+        ]
+      },
+      {
+        "left": "distressed to smile, but the old",
+        "right": "said Huck had",
+        "independentSupport": 1,
+        "chapters": [
+          30
+        ]
+      },
+      {
+        "left": "as ever Saturday; but",
+        "right": "did not leave her room until Sunday, and",
+        "independentSupport": 1,
+        "chapters": [
+          32
+        ]
+      },
+      {
+        "left": "his entire adventure in confidence to",
+        "right": ", who had",
+        "independentSupport": 1,
+        "chapters": [
+          33
+        ]
+      },
+      {
+        "left": "I saw",
+        "right": "poke up his",
+        "independentSupport": 1,
+        "chapters": [
+          33
+        ]
+      },
+      {
+        "left": "—let’s not fool around",
+        "right": "are two",
+        "independentSupport": 1,
+        "chapters": [
+          33
+        ]
+      },
+      {
+        "left": "along, Huck, we’ve been in",
+        "right": "are two",
+        "independentSupport": 1,
+        "chapters": [
+          33
+        ]
+      },
+      {
+        "left": "—let’s not fool around",
+        "right": "a long",
+        "independentSupport": 1,
+        "chapters": [
+          33
+        ]
+      },
+      {
+        "left": "—let’s not fool around",
+        "right": "—hurry up, trot ahead—I’ll haul the",
+        "independentSupport": 1,
+        "chapters": [
+          33
+        ]
+      },
+      {
+        "left": "along, Huck, we’ve been in",
+        "right": "—hurry up, trot ahead—I’ll haul the",
+        "independentSupport": 1,
+        "chapters": [
+          33
+        ]
+      }
+    ]
+  },
+  "corroborated": []
+}

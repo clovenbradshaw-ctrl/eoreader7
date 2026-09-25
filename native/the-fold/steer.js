@@ -164,7 +164,12 @@ export async function steerOutline({ outline, draft, task = "", draw = null, onV
       bodies.splice(i, 2, { ...a, statements, beings: [...new Set([...(a.beings ?? []), ...(b.beings ?? [])])], sources: [...new Set([...(a.sources ?? []), ...(b.sources ?? [])])], extent: span({ statements }), basis: `${a.basis}; joined with the next section on the mouth's vote` });
     } else i++;
   }
-  bodies = bodies.map((s, i) => ({ ...s, slot: s.slot === "tension" ? "tension" : `body ${i + 1}`, ...(questions.length > 1 ? { answers: questions[s.question ?? 0] } : {}) }));
+  // A real role name (arrangeEssay's roleVocabulary, e.g. "solution") is kept
+  // as-is — only a slot that is STILL the generic "body N" shape is
+  // renumbered here, so a merge or drop that shifted indices stays correct
+  // without silently discarding a real label (measured live 2026-09-24: this
+  // pass used to overwrite every non-tension slot unconditionally).
+  bodies = bodies.map((s, i) => ({ ...s, slot: s.slot === "tension" ? "tension" : /^body \d+$/.test(s.slot ?? "") ? `body ${i + 1}` : s.slot, ...(questions.length > 1 ? { answers: questions[s.question ?? 0] } : {}) }));
   return {
     schema: STEER_SCHEMA,
     outline: { ...outline, slots: [...head, ...bodies, ...tail], steered: true, basis: `${outline.basis}; steered by the mouth: ${votes.filter((v) => v.kept).length} of ${votes.length} vote(s) licensed` },

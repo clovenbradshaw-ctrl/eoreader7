@@ -182,7 +182,29 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   // 6 → 7. THE SKELETON, THEN THE SKELETON LOOP (skeleton-loop.js): the
   // outline composed and reason-linted, then recomposed — one licensed
   // finding per loop, judged against the last — until nothing is licensed.
-  const sk = skeletonLoop({ draft, spec, shape, task, arrange, onLoop: (l) => write("arrange", `Skeleton loop ${l.n} · ${l.judge.verdict}${l.judge.keep ? "" : " · undone"}`, skeletonLoopLine(l), l.judge.why, "eoreader7:skeleton-loop") });
+  // ROLE VOCABULARY (2026-09-24): a real section-role structure for this
+  // form-word, consulted before arrangement, never hand-typed here.
+  // canonical-sections.js's own declared WHITE_PAPER_SECTIONS is deliberately
+  // NOT used — only a real corroborated hunt or form-priors.js's fold of a
+  // prior one. Checked first: the learned prior (no cost, no web). Not found
+  // and --web was given: one fresh hunt, which logs itself for the next ask
+  // about the same form. Neither: no vocabulary, disclosed, body groups keep
+  // their existing positional labels — a stated gap, never a guess.
+  let roleVocabulary = null, roleVocabularyBasis = "no --web given and no prior observation for this form-word — body groups keep positional labels";
+  if (form.token) {
+    const { foldFormPrior } = await import("./form-priors.js");
+    const prior = foldFormPrior(form.token);
+    if (prior && prior.roles.length) { roleVocabulary = prior.vocabulary; roleVocabularyBasis = prior.basis; }
+    else if (web) {
+      const { huntDeclaredStructure } = await import("./canonical-sections.js");
+      const hunted = await huntDeclaredStructure(form.token, { web, learn: true });
+      if (hunted.vocabulary.filter((v) => v.role !== "title").length) { roleVocabulary = hunted.vocabulary; roleVocabularyBasis = hunted.fromPrior ? hunted.basis : `freshly hunted this run: ${hunted.basis}`; }
+    }
+  }
+  const roleNames = roleVocabulary ? roleVocabulary.filter((v) => v.role !== "title").map((v) => v.role) : [];
+  write("arrange", `Role vocabulary: ${roleNames.length} role(s)`, roleNames.join(", ") || "(none available)", roleVocabularyBasis, "eoreader7:form-priors");
+  const composedArrange = arrange ?? (roleVocabulary ? (args) => arrangeEssay({ ...args, roleVocabulary }) : null);
+  const sk = skeletonLoop({ draft, spec, shape, task, arrange: composedArrange, onLoop: (l) => write("arrange", `Skeleton loop ${l.n} · ${l.judge.verdict}${l.judge.keep ? "" : " · undone"}`, skeletonLoopLine(l), l.judge.why, "eoreader7:skeleton-loop") });
   let outline = sk.outline;
   write("arrange", `Arrangement: ${outline.slots.length} slot(s)${sk.settled ? " · settled" : ""}`, outlineLines(outline, draft).join("\n"), `${outline.basis}; ${sk.basis}`, "eoreader7:arrange");
   // THE MOUTH STEERS SOME PHYSICS (steer.js): it votes on which of the ask's

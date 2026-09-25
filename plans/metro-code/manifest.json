@@ -1,0 +1,978 @@
+{
+  "schema": "MetroCodeManifest@1",
+  "productId": "14214",
+  "code": "Code of Ordinances",
+  "chapterCount": 68,
+  "chapters": [
+    {
+      "slug": "ch2-04-metropolitan-council",
+      "chapter": "2.04",
+      "title": "METROPOLITAN COUNCIL",
+      "captures": [
+        "chapter-2-04-metropolitan-council.json"
+      ],
+      "txtSha": "537582b5f2d68a8c1acaac9edcd84b954d06d63cb152c5736542ad2e6df3de79",
+      "chars": 6817
+    },
+    {
+      "slug": "ch2-08-mayor",
+      "chapter": "2.08",
+      "title": "MAYOR",
+      "captures": [
+        "chapter-2-08-mayor.json"
+      ],
+      "txtSha": "efdcb17b455a32cb8f83d3c4a0a3dcbe488929b1b534ccb46bd457713829b09a",
+      "chars": 8596
+    },
+    {
+      "slug": "ch2-10-office-of-emergency-management",
+      "chapter": "2.10",
+      "title": "OFFICE OF EMERGENCY MANAGEMENT",
+      "captures": [
+        "chapter-2-10-office-of-emergency-management.json"
+      ],
+      "txtSha": "f9f22c5db4261227dd9052a6fc0817b4a73837b1651f0541f016e4d2de6d7dea",
+      "chars": 4847
+    },
+    {
+      "slug": "ch2-76-board-of-mechanical-plumbing-and-electrical-examiners-and-appeals",
+      "chapter": "2.76",
+      "title": "BOARD OF MECHANICAL, PLUMBING, AND ELECTRICAL EXAMINERS AND APPEALS",
+      "captures": [
+        "chapter-2-100-metropolitan-transportation-licensing-commissi.json",
+        "chapter-2-104-urban-forester.json",
+        "chapter-2-106-community-review-board.json",
+        "chapter-2-107-farmers-market-board.json",
+        "chapter-2-76-board-of-mechanical-plumbing-and-electrical-exa.json",
+        "chapter-2-78-board-of-fair-commissioners.json",
+        "chapter-2-80-board-of-fire-and-building-code-appeals.json",
+        "chapter-2-84-reserved.json",
+        "chapter-2-88-board-of-property-standards-and-appeals.json",
+        "chapter-2-92-reserved.json",
+        "chapter-2-96-metropolitan-safety-advisory-board.json"
+      ],
+      "txtSha": "e534148c81aa7c8cd575b6e6f9e7f47bcc4c37c6de6f5a08c04a4f3e73aa9a18",
+      "chars": 11999
+    },
+    {
+      "slug": "ch2-78-board-of-fair-commissioners",
+      "chapter": "2.78",
+      "title": "BOARD OF FAIR COMMISSIONERS",
+      "captures": [
+        "chapter-2-100-metropolitan-transportation-licensing-commissi.json",
+        "chapter-2-104-urban-forester.json",
+        "chapter-2-106-community-review-board.json",
+        "chapter-2-107-farmers-market-board.json",
+        "chapter-2-76-board-of-mechanical-plumbing-and-electrical-exa.json",
+        "chapter-2-78-board-of-fair-commissioners.json",
+        "chapter-2-80-board-of-fire-and-building-code-appeals.json",
+        "chapter-2-84-reserved.json",
+        "chapter-2-88-board-of-property-standards-and-appeals.json",
+        "chapter-2-92-reserved.json",
+        "chapter-2-96-metropolitan-safety-advisory-board.json"
+      ],
+      "txtSha": "ff97b83c3fc5cc114f51a480fd58adb45e33b7507b592b8ea41e281bc1b10726",
+      "chars": 2322
+    },
+    {
+      "slug": "ch2-80-board-of-fire-and-building-code-appeals",
+      "chapter": "2.80",
+      "title": "BOARD OF FIRE AND BUILDING CODE APPEALS",
+      "captures": [
+        "chapter-2-100-metropolitan-transportation-licensing-commissi.json",
+        "chapter-2-104-urban-forester.json",
+        "chapter-2-106-community-review-board.json",
+        "chapter-2-107-farmers-market-board.json",
+        "chapter-2-76-board-of-mechanical-plumbing-and-electrical-exa.json",
+        "chapter-2-78-board-of-fair-commissioners.json",
+        "chapter-2-80-board-of-fire-and-building-code-appeals.json",
+        "chapter-2-84-reserved.json",
+        "chapter-2-88-board-of-property-standards-and-appeals.json",
+        "chapter-2-92-reserved.json",
+        "chapter-2-96-metropolitan-safety-advisory-board.json"
+      ],
+      "txtSha": "db95d6e9ec76767a16b4788bde454bfa3ac636ec906cbefd9fadc252c5d5fcfa",
+      "chars": 8448
+    },
+    {
+      "slug": "ch2-88-board-of-property-standards-and-appeals",
+      "chapter": "2.88",
+      "title": "BOARD OF PROPERTY STANDARDS AND APPEALS",
+      "captures": [
+        "chapter-2-100-metropolitan-transportation-licensing-commissi.json",
+        "chapter-2-104-urban-forester.json",
+        "chapter-2-106-community-review-board.json",
+        "chapter-2-107-farmers-market-board.json",
+        "chapter-2-76-board-of-mechanical-plumbing-and-electrical-exa.json",
+        "chapter-2-78-board-of-fair-commissioners.json",
+        "chapter-2-80-board-of-fire-and-building-code-appeals.json",
+        "chapter-2-84-reserved.json",
+        "chapter-2-88-board-of-property-standards-and-appeals.json",
+        "chapter-2-92-reserved.json",
+        "chapter-2-96-metropolitan-safety-advisory-board.json"
+      ],
+      "txtSha": "626b8106854c9abe4ca7df7b9108c3d0cdb07bd48fc10761c93b82f9e2bcb3d4",
+      "chars": 6938
+    },
+    {
+      "slug": "ch2-96-metropolitan-safety-advisory-board",
+      "chapter": "2.96",
+      "title": "METROPOLITAN SAFETY ADVISORY BOARD",
+      "captures": [
+        "chapter-2-100-metropolitan-transportation-licensing-commissi.json",
+        "chapter-2-104-urban-forester.json",
+        "chapter-2-106-community-review-board.json",
+        "chapter-2-107-farmers-market-board.json",
+        "chapter-2-76-board-of-mechanical-plumbing-and-electrical-exa.json",
+        "chapter-2-78-board-of-fair-commissioners.json",
+        "chapter-2-80-board-of-fire-and-building-code-appeals.json",
+        "chapter-2-84-reserved.json",
+        "chapter-2-88-board-of-property-standards-and-appeals.json",
+        "chapter-2-92-reserved.json",
+        "chapter-2-96-metropolitan-safety-advisory-board.json"
+      ],
+      "txtSha": "b4f2a10cffb0965511bab3746dd1ec2ccea5a5b2775ece49a4080e21a2b93335",
+      "chars": 2414
+    },
+    {
+      "slug": "ch2-100-metropolitan-transportation-licensing-commission",
+      "chapter": "2.100",
+      "title": "METROPOLITAN TRANSPORTATION LICENSING COMMISSION",
+      "captures": [
+        "chapter-2-100-metropolitan-transportation-licensing-commissi.json",
+        "chapter-2-104-urban-forester.json",
+        "chapter-2-106-community-review-board.json",
+        "chapter-2-107-farmers-market-board.json",
+        "chapter-2-76-board-of-mechanical-plumbing-and-electrical-exa.json",
+        "chapter-2-78-board-of-fair-commissioners.json",
+        "chapter-2-80-board-of-fire-and-building-code-appeals.json",
+        "chapter-2-84-reserved.json",
+        "chapter-2-88-board-of-property-standards-and-appeals.json",
+        "chapter-2-92-reserved.json",
+        "chapter-2-96-metropolitan-safety-advisory-board.json"
+      ],
+      "txtSha": "edded1259c1b137468934bbfd194d42192e6be81b031bd2b9c2a7b7d1eebd628",
+      "chars": 8312
+    },
+    {
+      "slug": "ch2-104-urban-forester",
+      "chapter": "2.104",
+      "title": "URBAN FORESTER",
+      "captures": [
+        "chapter-2-100-metropolitan-transportation-licensing-commissi.json",
+        "chapter-2-104-urban-forester.json",
+        "chapter-2-106-community-review-board.json",
+        "chapter-2-107-farmers-market-board.json",
+        "chapter-2-76-board-of-mechanical-plumbing-and-electrical-exa.json",
+        "chapter-2-78-board-of-fair-commissioners.json",
+        "chapter-2-80-board-of-fire-and-building-code-appeals.json",
+        "chapter-2-84-reserved.json",
+        "chapter-2-88-board-of-property-standards-and-appeals.json",
+        "chapter-2-92-reserved.json",
+        "chapter-2-96-metropolitan-safety-advisory-board.json"
+      ],
+      "txtSha": "8fcd177e583f60c028807c46b1800ee8544c547fde83c76e25462c1836c06424",
+      "chars": 12101
+    },
+    {
+      "slug": "ch2-106-community-review-board",
+      "chapter": "2.106",
+      "title": "COMMUNITY REVIEW BOARD*",
+      "captures": [
+        "chapter-2-100-metropolitan-transportation-licensing-commissi.json",
+        "chapter-2-104-urban-forester.json",
+        "chapter-2-106-community-review-board.json",
+        "chapter-2-107-farmers-market-board.json",
+        "chapter-2-76-board-of-mechanical-plumbing-and-electrical-exa.json",
+        "chapter-2-78-board-of-fair-commissioners.json",
+        "chapter-2-80-board-of-fire-and-building-code-appeals.json",
+        "chapter-2-84-reserved.json",
+        "chapter-2-88-board-of-property-standards-and-appeals.json",
+        "chapter-2-92-reserved.json",
+        "chapter-2-96-metropolitan-safety-advisory-board.json"
+      ],
+      "txtSha": "f8228c56213867353ab6df48aae25af99b7c0e8f831758a9e82d12292f215ebf",
+      "chars": 18387
+    },
+    {
+      "slug": "ch2-107-farmers-market-board",
+      "chapter": "2.107",
+      "title": "FARMERS' MARKET BOARD",
+      "captures": [
+        "chapter-2-100-metropolitan-transportation-licensing-commissi.json",
+        "chapter-2-104-urban-forester.json",
+        "chapter-2-106-community-review-board.json",
+        "chapter-2-107-farmers-market-board.json",
+        "chapter-2-76-board-of-mechanical-plumbing-and-electrical-exa.json",
+        "chapter-2-78-board-of-fair-commissioners.json",
+        "chapter-2-80-board-of-fire-and-building-code-appeals.json",
+        "chapter-2-84-reserved.json",
+        "chapter-2-88-board-of-property-standards-and-appeals.json",
+        "chapter-2-92-reserved.json",
+        "chapter-2-96-metropolitan-safety-advisory-board.json"
+      ],
+      "txtSha": "2be4bc6611b9f18bf43684f5cd422beba453fec4b946a624218244117c846e30",
+      "chars": 1003
+    },
+    {
+      "slug": "ch2-108-metropolitan-action-commission",
+      "chapter": "2.108",
+      "title": "METROPOLITAN ACTION COMMISSION",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "eb94d070b75b648cdb045ae4f1e321f3a93b7141e37198a4e8ee1cb3b7f1589c",
+      "chars": 6141
+    },
+    {
+      "slug": "ch2-112-metropolitan-nashville-arts-commission",
+      "chapter": "2.112",
+      "title": "METROPOLITAN NASHVILLE ARTS COMMISSION",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "70b4ac667dd6b3f50885fa1d73394aed51734afbeebfd6e6e7a7d93b2ae1c09b",
+      "chars": 7543
+    },
+    {
+      "slug": "ch2-114-metropolitan-animal-care-and-control-commission",
+      "chapter": "2.114",
+      "title": "METROPOLITAN ANIMAL CARE AND CONTROL COMMISSION",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "0d981713756f0e35670e5634cab2218fd9af299c42d0e21fb9d917b786b73ad4",
+      "chars": 3249
+    },
+    {
+      "slug": "ch2-116-auditorium-commission",
+      "chapter": "2.116",
+      "title": "AUDITORIUM COMMISSION",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "e1d449cc52cc5e18e8e223a9823cb75e1e138c25a343936ae95330558538221e",
+      "chars": 1273
+    },
+    {
+      "slug": "ch2-120-charter-revision-commission",
+      "chapter": "2.120",
+      "title": "CHARTER REVISION COMMISSION",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "00578c7c1513fc75bc9ce3d61074db737a609cd138d41e773b4d4aa36957e453",
+      "chars": 4653
+    },
+    {
+      "slug": "ch2-128-historical-commission",
+      "chapter": "2.128",
+      "title": "HISTORICAL COMMISSION",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "c5eaed5879c8a10e7527cb474c10029df977860e979fb20f0541ede76be985a4",
+      "chars": 7048
+    },
+    {
+      "slug": "ch2-130-historic-zoning-commission-staff",
+      "chapter": "2.130",
+      "title": "HISTORIC ZONING COMMISSION STAFF",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "cfcba4b14173ca9d00304735f1af57d4427a10abc4c0c63bebb8324299aa2804",
+      "chars": 1956
+    },
+    {
+      "slug": "ch2-132-metropolitan-human-relations-commission",
+      "chapter": "2.132",
+      "title": "METROPOLITAN HUMAN RELATIONS COMMISSION",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "4efb6eae69ea715cef9b62da0ee569cc7e4ff147350697ea10f60ac196ce5922",
+      "chars": 10336
+    },
+    {
+      "slug": "ch2-136-planning-commission",
+      "chapter": "2.136",
+      "title": "PLANNING COMMISSION",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "66f430f052889604d32b5c11f57098cafd7edc0e810592689305c25c5b83e4e8",
+      "chars": 3947
+    },
+    {
+      "slug": "ch2-140-public-records-commission",
+      "chapter": "2.140",
+      "title": "PUBLIC RECORDS COMMISSION",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "963bd2cd4ae544d870d8f799ac26acfd1196f6c4786e1102e3612ad270916faf",
+      "chars": 5135
+    },
+    {
+      "slug": "ch2-144-metropolitan-social-services-commission",
+      "chapter": "2.144",
+      "title": "METROPOLITAN SOCIAL SERVICES COMMISSION",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "e665503b401e5d3f736086ac2535bcb147d6098c7e9004852c723f0cbc16a820",
+      "chars": 6124
+    },
+    {
+      "slug": "ch2-147-nashville-entertainment-commission",
+      "chapter": "2.147",
+      "title": "NASHVILLE ENTERTAINMENT COMMISSION*",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "1da5895ad88741baa8ae5d0f285b4e1e488cfd00e79e452d43e0848e4c78b909",
+      "chars": 8150
+    },
+    {
+      "slug": "ch2-148-tourism-and-convention-commission",
+      "chapter": "2.148",
+      "title": "TOURISM AND CONVENTION COMMISSION",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "c0dda4d3b2a714e20414eb2f8ae867f9555b162ace9c253afe50349ef539c68d",
+      "chars": 3484
+    },
+    {
+      "slug": "ch2-149-metropolitan-housing-fund-commission",
+      "chapter": "2.149",
+      "title": "METROPOLITAN HOUSING FUND COMMISSION",
+      "captures": [
+        "chapter-2-108-metropolitan-action-commission.json",
+        "chapter-2-112-metropolitan-nashville-arts-commission.json",
+        "chapter-2-114-metropolitan-animal-care-and-control-commissio.json",
+        "chapter-2-116-auditorium-commission.json",
+        "chapter-2-120-charter-revision-commission.json",
+        "chapter-2-124-reserved.json",
+        "chapter-2-128-historical-commission.json",
+        "chapter-2-130-historic-zoning-commission-staff.json",
+        "chapter-2-132-metropolitan-human-relations-commission.json",
+        "chapter-2-136-planning-commission.json",
+        "chapter-2-140-public-records-commission.json",
+        "chapter-2-144-metropolitan-social-services-commission.json",
+        "chapter-2-147-nashville-entertainment-commission.json",
+        "chapter-2-148-tourism-and-convention-commission.json",
+        "chapter-2-149-metropolitan-housing-fund-commission.json"
+      ],
+      "txtSha": "5e0277410bb9fe426836aaf9b538e1fee8369cc9b904e6b6ed9f24543360098d",
+      "chars": 5311
+    },
+    {
+      "slug": "ch2-12-metropolitan-trustee",
+      "chapter": "2.12",
+      "title": "METROPOLITAN TRUSTEE",
+      "captures": [
+        "chapter-2-12-metropolitan-trustee.json"
+      ],
+      "txtSha": "5d8284214827c6946e92be7545442b455c7b2c7a35cd74559786a380a99bb698",
+      "chars": 2455
+    },
+    {
+      "slug": "ch2-16-public-defender",
+      "chapter": "2.16",
+      "title": "PUBLIC DEFENDER",
+      "captures": [
+        "chapter-2-16-public-defender.json"
+      ],
+      "txtSha": "f985e5dde878b7b89eb78b934a08c9a7785a820f15acb42e57693ee1772ad59f",
+      "chars": 3191
+    },
+    {
+      "slug": "ch2-20-department-of-codes-administration",
+      "chapter": "2.20",
+      "title": "DEPARTMENT OF CODES ADMINISTRATION",
+      "captures": [
+        "chapter-2-20-department-of-codes-administration.json"
+      ],
+      "txtSha": "ad0cfbafffe5e3749c2df2b50af87f7bb11f08e9cc618b76eaa303942ab764c6",
+      "chars": 12723
+    },
+    {
+      "slug": "ch2-24-department-of-finance",
+      "chapter": "2.24",
+      "title": "DEPARTMENT OF FINANCE",
+      "captures": [
+        "chapter-2-24-department-of-finance.json"
+      ],
+      "txtSha": "8cdce8cf5baa9569bba4280e829ffd8a827ff9d00cc3aec8354be733f333fa29",
+      "chars": 49614
+    },
+    {
+      "slug": "ch2-28-fire-department",
+      "chapter": "2.28",
+      "title": "FIRE DEPARTMENT",
+      "captures": [
+        "chapter-2-28-fire-department.json"
+      ],
+      "txtSha": "99d358c78d2476076a49454cc9ddf38601c47005e8fba7b5b1e191a1ed962503",
+      "chars": 18407
+    },
+    {
+      "slug": "ch2-30-department-of-emergency-communications",
+      "chapter": "2.30",
+      "title": "DEPARTMENT OF EMERGENCY COMMUNICATIONS",
+      "captures": [
+        "chapter-2-30-department-of-emergency-communications.json"
+      ],
+      "txtSha": "181f64b5f58aef9803f68b04abaadde25028ccc916539499c32b1c9d521b9ae1",
+      "chars": 1607
+    },
+    {
+      "slug": "ch2-32-department-of-general-services",
+      "chapter": "2.32",
+      "title": "DEPARTMENT OF GENERAL SERVICES",
+      "captures": [
+        "chapter-2-32-department-of-general-services.json"
+      ],
+      "txtSha": "2e2740740d86a7f787f2b054f21f6fe5dbd9997d1a8990b1314d66fe8700e75c",
+      "chars": 16603
+    },
+    {
+      "slug": "ch2-36-health-department",
+      "chapter": "2.36",
+      "title": "HEALTH DEPARTMENT",
+      "captures": [
+        "chapter-2-36-health-department.json"
+      ],
+      "txtSha": "c405dc86022a39685b4e8acc76a5f52a797f438d864ce74e590673309cbaaa71",
+      "chars": 19688
+    },
+    {
+      "slug": "ch2-38-medical-examiner-s-office",
+      "chapter": "2.38",
+      "title": "MEDICAL EXAMINER'S OFFICE",
+      "captures": [
+        "chapter-2-38-medical-examiner-s-office.json"
+      ],
+      "txtSha": "1810a0ab0a7120e2793d02ab8d72e13b92bee9bda380d898a11307b66b539012",
+      "chars": 2783
+    },
+    {
+      "slug": "ch2-40-department-of-law",
+      "chapter": "2.40",
+      "title": "DEPARTMENT OF LAW",
+      "captures": [
+        "chapter-2-40-department-of-law.json"
+      ],
+      "txtSha": "af454323eda582121599691d3276814eec24c6b865939004e4eaa2fd5e3231ea",
+      "chars": 23355
+    },
+    {
+      "slug": "ch2-44-police-department",
+      "chapter": "2.44",
+      "title": "POLICE DEPARTMENT",
+      "captures": [
+        "chapter-2-44-police-department.json"
+      ],
+      "txtSha": "be061f3a066b2fdc3354145ad254ab98a9cbfb96ff7d33bbd0427b83b6127c1a",
+      "chars": 34229
+    },
+    {
+      "slug": "ch2-48-department-of-public-works",
+      "chapter": "2.48",
+      "title": "DEPARTMENT OF PUBLIC WORKS",
+      "captures": [
+        "chapter-2-48-department-of-public-works.json"
+      ],
+      "txtSha": "476fe76474d07448e8aaec0ef80b192299be93547eb736c1cbc2661812f89362",
+      "chars": 1828
+    },
+    {
+      "slug": "ch2-52-department-of-water-and-sewer-services",
+      "chapter": "2.52",
+      "title": "DEPARTMENT OF WATER AND SEWER SERVICES",
+      "captures": [
+        "chapter-2-52-department-of-water-and-sewer-services.json"
+      ],
+      "txtSha": "e17c7b59f0d66ee7bb83862019548795e71e4419fc77584091e11e50c1803365",
+      "chars": 3083
+    },
+    {
+      "slug": "ch2-56-metropolitan-courts",
+      "chapter": "2.56",
+      "title": "METROPOLITAN COURTS",
+      "captures": [
+        "chapter-2-56-metropolitan-courts.json"
+      ],
+      "txtSha": "650df651a7f8932c37747734eb5e6dbfb1ec0673ee459ecb273c34d25831c1f4",
+      "chars": 26640
+    },
+    {
+      "slug": "ch2-60-metropolitan-nashville-airport-authority",
+      "chapter": "2.60",
+      "title": "METROPOLITAN NASHVILLE AIRPORT AUTHORITY",
+      "captures": [
+        "chapter-2-60-metropolitan-nashville-airport-authority.json"
+      ],
+      "txtSha": "6b17a3b9f0daba19a26d5d0ee2ae2286475bb19a8f19a787efe8763740c5bf47",
+      "chars": 43698
+    },
+    {
+      "slug": "ch2-61-office-of-family-safety",
+      "chapter": "2.61",
+      "title": "OFFICE OF FAMILY SAFETY",
+      "captures": [
+        "chapter-2-61-office-of-family-safety.json"
+      ],
+      "txtSha": "9d43ad61fe83fac46e031d4557e29c6b52c14a73a763cc68b5884c823928cad5",
+      "chars": 4407
+    },
+    {
+      "slug": "ch2-62-mayor-s-office-of-film-and-special-events",
+      "chapter": "2.62",
+      "title": "MAYOR'S OFFICE OF FILM AND SPECIAL EVENTS",
+      "captures": [
+        "chapter-2-62-mayor-s-office-of-film-and-special-events.json"
+      ],
+      "txtSha": "c26cf9f2ba513c6c8ae2b875717b41f9cdcf5351bbc1c6f7add969520d63ebd8",
+      "chars": 28517
+    },
+    {
+      "slug": "ch2-63-office-of-homeless-services",
+      "chapter": "2.63",
+      "title": "OFFICE OF HOMELESS SERVICES",
+      "captures": [
+        "chapter-2-63-office-of-homeless-services.json"
+      ],
+      "txtSha": "c1f5af20c88ed5edf1bf86b29db3aad522c728582ebc9840c02ead637e7f575e",
+      "chars": 2298
+    },
+    {
+      "slug": "ch2-64-organization-and-operation-of-boards-and-commissions",
+      "chapter": "2.64",
+      "title": "ORGANIZATION AND OPERATION OF BOARDS AND COMMISSIONS",
+      "captures": [
+        "chapter-2-64-organization-and-operation-of-boards-and-commis.json",
+        "chapter-2-68-meetings-of-boards-and-commissions.json",
+        "chapter-2-72-reserved.json"
+      ],
+      "txtSha": "7504ff042bfca963853904d9ec87fd000ceb9c63a9ad5e15cef39651e7fcc930",
+      "chars": 8282
+    },
+    {
+      "slug": "ch2-68-meetings-of-boards-and-commissions",
+      "chapter": "2.68",
+      "title": "MEETINGS OF BOARDS AND COMMISSIONS",
+      "captures": [
+        "chapter-2-64-organization-and-operation-of-boards-and-commis.json",
+        "chapter-2-68-meetings-of-boards-and-commissions.json",
+        "chapter-2-72-reserved.json"
+      ],
+      "txtSha": "3200cffd8539c7d23efb58166510da6b0d3a1e0d048598f1716af0eadba38f08",
+      "chars": 4550
+    },
+    {
+      "slug": "charter-1-department-of-metropolitan-finance",
+      "chapter": "1",
+      "title": "DEPARTMENT OF METROPOLITAN FINANCE",
+      "captures": [
+        "charter-1-department-of-finance.json"
+      ],
+      "txtSha": "f806db409462f525088eee38fbda12579c1ceb5b228409afd61d6462cd88a6b9",
+      "chars": 19993
+    },
+    {
+      "slug": "charter-2-department-of-metropolitan-police",
+      "chapter": "2",
+      "title": "DEPARTMENT OF METROPOLITAN POLICE",
+      "captures": [
+        "charter-2-department-of-police.json"
+      ],
+      "txtSha": "d35ecd4517b54346ab6f6a7da2ce7c7f6aa3d67121fcdd655146d1c88f6d64b3",
+      "chars": 6848
+    },
+    {
+      "slug": "charter-3-department-of-fire",
+      "chapter": "3",
+      "title": "DEPARTMENT OF FIRE",
+      "captures": [
+        "charter-3-department-of-fire.json"
+      ],
+      "txtSha": "6c09b6eb2aa40646fbab0950c2ee8aead3001825388fbe742e01e34c91278ade",
+      "chars": 4576
+    },
+    {
+      "slug": "charter-4-department-of-transportation-and-multimodal-infrastructure",
+      "chapter": "4",
+      "title": "DEPARTMENT OF TRANSPORTATION AND MULTIMODAL INFRASTRUCTURE",
+      "captures": [
+        "charter-4-department-of-transportation.json"
+      ],
+      "txtSha": "47c57dca6d92e378c3c76d99f69ccbf9c4932bd954b8872c6585af59fdeed141",
+      "chars": 6543
+    },
+    {
+      "slug": "charter-5-department-of-water-and-sewerage-services",
+      "chapter": "5",
+      "title": "DEPARTMENT OF WATER AND SEWERAGE SERVICES",
+      "captures": [
+        "charter-5-department-of-water-and-sewerage.json"
+      ],
+      "txtSha": "bf610486352655ae6af20dd198233f7d7f294d79ac4d65e854e1bd79fbecc4d2",
+      "chars": 5486
+    },
+    {
+      "slug": "charter-6-department-of-law",
+      "chapter": "6",
+      "title": "DEPARTMENT OF LAW",
+      "captures": [
+        "charter-6-department-of-law.json"
+      ],
+      "txtSha": "f155bd4be8032fd5ece7a69c63f7084dc78426051144215854f6405f0680f3b4",
+      "chars": 7885
+    },
+    {
+      "slug": "charter-7-department-of-aviation",
+      "chapter": "7",
+      "title": "DEPARTMENT OF AVIATION",
+      "captures": [
+        "charter-7-department-of-aviation.json"
+      ],
+      "txtSha": "3769b5bc6ace9f15e4dc817d6f772327028c36bf4d479e6404e5769d0589a4ff",
+      "chars": 1900
+    },
+    {
+      "slug": "charter-8-agricultural-extension-board",
+      "chapter": "8",
+      "title": "AGRICULTURAL EXTENSION BOARD",
+      "captures": [
+        "charter-agricultural-extension-board.json"
+      ],
+      "txtSha": "142737d2a60b95ed66ae4c86e7ec9acbc3a0ff29b7fbf2d0b21a87782da07a9c",
+      "chars": 1718
+    },
+    {
+      "slug": "charter-2-board-of-equalization",
+      "chapter": "2",
+      "title": "BOARD OF EQUALIZATION",
+      "captures": [
+        "charter-board-of-equalization.json"
+      ],
+      "txtSha": "369dff12e8de5caf8c4d3094a9f662a9a24ef4006cd91d147232e8cc5fa7e0fc",
+      "chars": 3944
+    },
+    {
+      "slug": "charter-6-metropolitan-board-of-fair-commissioners",
+      "chapter": "6",
+      "title": "METROPOLITAN BOARD OF FAIR COMMISSIONERS",
+      "captures": [
+        "charter-board-of-fair-commissioners.json"
+      ],
+      "txtSha": "169be4247995e99ccacc79958e04ae755ae32a354271f65930a2c09040636922",
+      "chars": 1900
+    },
+    {
+      "slug": "charter-10-metropolitan-board-of-parks-and-recreation",
+      "chapter": "10",
+      "title": "METROPOLITAN BOARD OF PARKS AND RECREATION",
+      "captures": [
+        "charter-board-of-parks-and-recreation.json"
+      ],
+      "txtSha": "f61520c84bc42a873adb13b4494a03c940080fa16304b7b6ea6c376b66875323",
+      "chars": 4059
+    },
+    {
+      "slug": "charter-13-community-oversight-board",
+      "chapter": "13",
+      "title": "COMMUNITY OVERSIGHT BOARD",
+      "captures": [
+        "charter-community-oversight-board.json"
+      ],
+      "txtSha": "a94dbddb3d640056df1c3b8069d30a8100de8686d5dc5015277eb04e9a8c9b02",
+      "chars": 4815
+    },
+    {
+      "slug": "charter-3-electric-power-board",
+      "chapter": "3",
+      "title": "ELECTRIC POWER BOARD",
+      "captures": [
+        "charter-electric-power-board.json"
+      ],
+      "txtSha": "dacdbbb8a233d5072f023c7403e01ac079df43efaecf9cc6b0588586f14e17c3",
+      "chars": 917
+    },
+    {
+      "slug": "charter-7-farmers-market-board",
+      "chapter": "7",
+      "title": "FARMERS MARKET BOARD",
+      "captures": [
+        "charter-farmers-market-board.json"
+      ],
+      "txtSha": "0f8f9dd2fa271f94f33670fb09cef323279bd7008dc93a684ea32e25d2f1e55a",
+      "chars": 1360
+    },
+    {
+      "slug": "charter-1-general-provisions",
+      "chapter": "1",
+      "title": "GENERAL PROVISIONS",
+      "captures": [
+        "charter-general-provisions-boards.json"
+      ],
+      "txtSha": "f767dd98ad350ee648a35f1c50b83402f82e160a0a204b913cea1cf43bb17724",
+      "chars": 4430
+    },
+    {
+      "slug": "charter-5-metropolitan-planning-commission",
+      "chapter": "5",
+      "title": "METROPOLITAN PLANNING COMMISSION",
+      "captures": [
+        "charter-metropolitan-planning-commission.json"
+      ],
+      "txtSha": "fdd97164954efa3908b4638fdfe589b2cfc6d3b713ec2667ab0681479a687413",
+      "chars": 9939
+    },
+    {
+      "slug": "charter-4-nashville-transit-authority",
+      "chapter": "4",
+      "title": "NASHVILLE TRANSIT AUTHORITY",
+      "captures": [
+        "charter-nashville-transit-authority.json"
+      ],
+      "txtSha": "1affb070b5d3ddcbcc487e059cd63f0a67ceb338bacc7dc7920dbc476409757e",
+      "chars": 978
+    },
+    {
+      "slug": "charter-1-public-health",
+      "chapter": "1",
+      "title": "PUBLIC HEALTH",
+      "captures": [
+        "charter-public-health.json"
+      ],
+      "txtSha": "e947d299eb42a2c9d571f84b8db7e5efb397886a3dc0e6d435dd1df560724c14",
+      "chars": 13108
+    },
+    {
+      "slug": "charter-2-public-hospitals",
+      "chapter": "2",
+      "title": "PUBLIC HOSPITALS",
+      "captures": [
+        "charter-public-hospitals.json"
+      ],
+      "txtSha": "9df2628fda53009d1cd02365fb3e084852c53322f8a1ff209d0cb929f23191e1",
+      "chars": 5347
+    },
+    {
+      "slug": "charter-12-public-library",
+      "chapter": "12",
+      "title": "PUBLIC LIBRARY",
+      "captures": [
+        "charter-public-library.json"
+      ],
+      "txtSha": "8fb6d62a0ea0071639a0d76b9fad8bfe9a0b58c1b7aa30590051f0e5a3465a70",
+      "chars": 2350
+    },
+    {
+      "slug": "charter-11-metropolitan-social-services-commission",
+      "chapter": "11",
+      "title": "METROPOLITAN SOCIAL SERVICES COMMISSION",
+      "captures": [
+        "charter-social-services-commission.json"
+      ],
+      "txtSha": "b0f21af10e189d10c4dacfd905b15aeb910ff18a29d968f6af03ddcc395124b7",
+      "chars": 3204
+    },
+    {
+      "slug": "charter-9-metropolitan-traffic-and-parking-commission",
+      "chapter": "9",
+      "title": "METROPOLITAN TRAFFIC AND PARKING COMMISSION",
+      "captures": [
+        "charter-traffic-and-parking-commission.json"
+      ],
+      "txtSha": "18f07071ac625f4224fe42f014166f5d49a12c72a6abfb1f2fdc02fb590d0052",
+      "chars": 6474
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+ "chapter": 1,
+ "verbs": [
+  "casualties"
+ ],
+ "cast": [
+  [
+   "Any",
+   "ref:auto:any"
+  ],
+  [
+   "Article",
+   "ref:auto:article"
+  ],
+  [
+   "Haidich",
+   "ref:auto:haidich"
+  ],
+  [
+   "Haidich AB",
+   "ref:auto:haidich"
+  ],
+  [
+   "Lau",
+   "ref:auto:lau"
+  ],
+  [
+   "Lau J",
+   "ref:auto:lau"
+  ],
+  [
+   "Scholar",
+   "ref:auto:scholar"
+  ],
+  [
+   "JP",
+   "ref:auto:jp"
+  ]
+ ]
+}

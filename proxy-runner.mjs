@@ -2129,7 +2129,22 @@ export function createSessionReader() {
   try {
     engRoleConfig = JSON.parse(fs.readFileSync(path.join(HERE, "native/priors/role-config-eng.json"), "utf8"));
   } catch {}
-  const perceivers = [createCausalTextPerceiver({ minRelationSurfaces: MIN_RELATION_SURFACES, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING, reprojectEvery: Number(process.env.ER7_REPROJECT_EVERY ?? 10), language: "eng", roleConfig: engRoleConfig })];
+  // SVO-GATED NAME ADMISSION (2026-09-23, adapters/text/parse-gated-names.js's
+  // own measurement, wired in on the user's direction). recursive.js's
+  // capitalised-run scan never reads the material's own syntax; a name is now
+  // admitted only when the trained parser has ALSO tagged at least one of its
+  // occurrences PROPN in that occurrence's own sentence -- the parse licenses,
+  // capitalisation corroborates. Measured against a 365-item, 9-annotator
+  // blind gold (Henry IV Part 1, modern spelling): precision 69.4%, recall
+  // 87.7%, F1 77.5, the best of nine admission formulas tried. Reuses the
+  // SAME cached model the relation-extraction perceiver below already loads
+  // (getEnglishParserModel() memoizes) -- no second 16MB load. Typed absence:
+  // a missing model file degrades to parseModel:null, the old capitalisation-
+  // only behaviour, never a crash. ER7_PARSE_GATED_NAMES=0 disables it
+  // instantly, independent of ER7_ENGLISH_PARSER_PERCEIVER below (a
+  // different perceiver, a different concern).
+  const parseModel = process.env.ER7_PARSE_GATED_NAMES !== "0" ? getEnglishParserModel() : null;
+  const perceivers = [createCausalTextPerceiver({ minRelationSurfaces: MIN_RELATION_SURFACES, posPrior: POS_PRIOR, descriptorAnchoring: ANCHORING, reprojectEvery: Number(process.env.ER7_REPROJECT_EVERY ?? 10), language: "eng", roleConfig: engRoleConfig, parseModel })];
   // Measured 2026-09-23 (reading-training audit): this perceiver alone
   // scores 0.9% recall / 18.5% precision on held-out core SVO extraction;
   // the trained parser below scores 74.0%/73.7%, confirmed real by a

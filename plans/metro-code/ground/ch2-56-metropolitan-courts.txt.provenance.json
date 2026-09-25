@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.56",
+  "title": "METROPOLITAN COURTS",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-56-metropolitan-courts.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-56-metropolitan-courts.txt",
+    "sha256": "650df651a7f8932c37747734eb5e6dbfb1ec0673ee459ecb273c34d25831c1f4",
+    "chars": 26640
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.889Z"
+}

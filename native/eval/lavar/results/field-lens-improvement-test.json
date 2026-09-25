@@ -8,7 +8,7 @@
    "unresolved": 7,
    "hits": 7,
    "sigHits": 0,
-   "controlAvg": 1.07,
+   "controlAvg": 0.27,
    "topK": 12,
    "fieldSize": 124
   },
@@ -20,7 +20,7 @@
    "unresolved": 26,
    "hits": 13,
    "sigHits": 0,
-   "controlAvg": 4.4,
+   "controlAvg": 5,
    "topK": 13,
    "fieldSize": 134
   },
@@ -32,7 +32,7 @@
    "unresolved": 29,
    "hits": 13,
    "sigHits": 0,
-   "controlAvg": 5.07,
+   "controlAvg": 4.93,
    "topK": 13,
    "fieldSize": 134
   },
@@ -44,7 +44,7 @@
    "unresolved": 17,
    "hits": 13,
    "sigHits": 0,
-   "controlAvg": 1.13,
+   "controlAvg": 0.6,
    "topK": 13,
    "fieldSize": 134
   },
@@ -68,7 +68,7 @@
    "unresolved": 3,
    "hits": 3,
    "sigHits": 0,
-   "controlAvg": 0,
+   "controlAvg": 0.07,
    "topK": 13,
    "fieldSize": 134
   },
@@ -80,7 +80,7 @@
    "unresolved": 3,
    "hits": 3,
    "sigHits": 0,
-   "controlAvg": 0.13,
+   "controlAvg": 0.07,
    "topK": 13,
    "fieldSize": 134
   },
@@ -92,7 +92,7 @@
    "unresolved": 3,
    "hits": 3,
    "sigHits": 0,
-   "controlAvg": 0.4,
+   "controlAvg": 0.27,
    "topK": 13,
    "fieldSize": 134
   },
@@ -104,7 +104,7 @@
    "unresolved": 4,
    "hits": 4,
    "sigHits": 0,
-   "controlAvg": 0.2,
+   "controlAvg": 0.27,
    "topK": 13,
    "fieldSize": 134
   },
@@ -116,7 +116,7 @@
    "unresolved": 7,
    "hits": 3,
    "sigHits": 0,
-   "controlAvg": 1.4,
+   "controlAvg": 1.13,
    "topK": 13,
    "fieldSize": 134
   },
@@ -128,7 +128,7 @@
    "unresolved": 12,
    "hits": 11,
    "sigHits": 0,
-   "controlAvg": 0.53,
+   "controlAvg": 1.53,
    "topK": 15,
    "fieldSize": 150
   },
@@ -140,7 +140,7 @@
    "unresolved": 18,
    "hits": 16,
    "sigHits": 0,
-   "controlAvg": 3.93,
+   "controlAvg": 4.33,
    "topK": 15,
    "fieldSize": 150
   },
@@ -162,6 +162,6 @@
   "totalUnresolvedAnchors": 140,
   "cueHits": 100,
   "cueSignificantHits": 0,
-  "controlHitsSum": 20.4
+  "controlHitsSum": 20.599999999999998
  }
 }

@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.40",
+  "title": "DEPARTMENT OF LAW",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-40-department-of-law.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-40-department-of-law.txt",
+    "sha256": "af454323eda582121599691d3276814eec24c6b865939004e4eaa2fd5e3231ea",
+    "chars": 23355
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.888Z"
+}

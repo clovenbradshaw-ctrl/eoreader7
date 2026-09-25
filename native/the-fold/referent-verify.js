@@ -230,6 +230,19 @@ export function referentVerified(sentence, ground) {
 // pattern that lists words is a table, stated as a Set.
 const META_SENTENCE_RE =
   /the user|requested a|requested to|will explore|essay (?:will|is|should)|this essay|the essay(?:'s| is| will| should)|asked to write|subject is|called upon|to answer this|is to (?:be|write)|its significance is (?:undeniable|a subject)/i;
+// THE ASSISTANT-VOICE FILTER (2026-09-24): a second, distinct discourse
+// register from META_SENTENCE_RE above. That filter catches the mouth
+// talking ABOUT the writing task ("the user requested…"); this one catches
+// the mouth talking AS A CHAT ASSISTANT — turn-taking and offer-to-help
+// phrasing that belongs in a chat reply, never in a finished document.
+// Every pattern here is grounded in a verbatim sentence that actually leaked
+// into a real piece on code-shaped ground (surf-wp-fwd-b, surf-wp-fixed-web-1,
+// both 2026-09-24): "Here's a breakdown of the provided text…", "Let me know
+// if you'd like me to expand on any of these points…", "Here's why this
+// rewrite works:", "How to continue the piece:". A closed vocabulary, same
+// discipline as META_SENTENCE_RE and DISCOURSE_SUBJECT_WORDS below.
+const ASSISTANT_VOICE_RE =
+  /\blet me know\b|\bfeel free to\b|\bi hope this helps\b|\b(?:would you like|do you want) me to\b|\byou'?d like me to\b|\bany other questions\b|\bhere'?s (?:a |an )?(?:breakdown|summary|overview|explanation)\b|\bhere'?s why this\b|\bhow to continue\b/i;
 // The "is a subject of X" pattern — the mouth's discourse filler (a subject of
 // discussion/interest/study/ongoing study/debate). The discourse words are a
 // Set, matched by membership against the sentence's words.
@@ -237,7 +250,7 @@ const DISCOURSE_SUBJECT_WORDS = new Set(["discussion", "interest", "study", "deb
 
 export function isMetaSentence(sentence) {
   const s = String(sentence ?? "");
-  if (META_SENTENCE_RE.test(s)) return true;
+  if (META_SENTENCE_RE.test(s) || ASSISTANT_VOICE_RE.test(s)) return true;
   // "a subject of X" / "the subject of X" where X is a discourse word — the
   // mouth talking about the piece being written, not writing it.
   const lower = s.toLowerCase();

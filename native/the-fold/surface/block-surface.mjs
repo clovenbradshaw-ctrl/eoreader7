@@ -247,6 +247,12 @@ function detectStartles(raw, cap = 14) {
 
 const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const KIND_LABEL = { goal: "goal", number: "number", name: "agency", place: "place" };
+const KIND_DESC = {
+  goal: "a stated target or commitment, asserted by a row",
+  number: "a quantity asserted in the retained text",
+  name: "an agency or actor named in the retained text",
+  place: "a place or district named in the retained text",
+};
 const rowRef = (l) => `${l.doc}#${l.at[0]}-${l.at[1]}`;
 
 export function renderSurface({ def, ground, links, metrics, projections, gate, nativePages, geoPoints, bare = false }) {
@@ -425,16 +431,26 @@ export function renderSurface({ def, ground, links, metrics, projections, gate, 
     <p class="empty prov">aggregates are derived from the retained snapshot — derivedFrom on every row</p>`;
 
   // ── ATMOSPHERE — the whisper (a filter: disclosure) ────────────────────
-  const atmosphereInner = (projections.atmosphere ?? []).map((a) => `<div class="model-claim" data-hay="${esc(a.text.toLowerCase())}"><span class="model-tag">${esc(a.basis)}</span><br>${esc(a.text)}</div>`).join("") ||
-    `<p class="empty">no model commentary — nothing here is the mouth's prose.</p>`;
+  const atmosphereInner = (projections.atmosphere ?? []).length
+    ? `<p class="empty">the model's own words about this corpus — kept separate from the register below, never blended into it</p>${(projections.atmosphere ?? []).map((a) => `<div class="model-claim" data-hay="${esc(a.text.toLowerCase())}"><span class="model-tag">${esc(a.basis)}</span><p class="model-claim-text">${esc(a.text)}</p></div>`).join("")}`
+    : `<p class="empty">no model commentary — nothing here is the mouth's prose.</p>`;
 
   // ── PARADIGM — the agreements (a filter: worldview + the seal) ─────────
-  const worldviewsHtml = `<span class="wv on" data-wv="the fold · byte-honesty">the fold · byte-honesty</span><span class="wv" data-wv="equity">equity</span><span class="wv" data-wv="fiscal">fiscal</span><span class="wv" data-wv="resilience">resilience</span>`;
+  const worldviewsHtml = `<span class="wv on" data-wv="the fold · byte-honesty" title="the only worldview actually scored — every check below reads the same retained, byte-anchored record">the fold · byte-honesty</span><span class="wv" data-wv="equity" title="not yet computed — no independent worldview scoring exists yet">equity</span><span class="wv" data-wv="fiscal" title="not yet computed — no independent worldview scoring exists yet">fiscal</span><span class="wv" data-wv="resilience" title="not yet computed — no independent worldview scoring exists yet">resilience</span>`;
   const checksHtml = `<ul>${gate.checks.map((c) => `<li class="${c.ok ? "ok" : "bad"}" data-hay="${esc(`${c.name} ${c.detail}`.toLowerCase())}">${c.ok ? "●" : "✗"} ${esc(c.name)} · ${esc(c.detail)}</li>`).join("")}</ul>`;
+  const strataHtml = gate.checks.map((c, i) => `<div class="rev${i === gate.checks.length - 1 ? " current" : ""}"><span class="dot"></span><div class="rev-line">${c.ok ? "●" : "✗"} <b>${esc(c.name)}</b></div><div class="rev-basis">${esc(c.detail)}</div></div>`).join("");
+  const paradigmPopInner = `<p class="empty">the gate is paradigm-independent — every worldview reads the same retained, byte-anchored record; paradigms change what is lit, never what is true</p><div class="f-judgment"><div class="strata">${strataHtml}</div><div class="seal ${gate.ok ? "seal-pass" : "seal-refuse"}"><span class="seal-inner">${gate.ok ? "pass" : "refuse"}</span></div></div>${checksHtml}`;
 
   // ── LENS — the filter cluster (search · lenses · inspector) ────────────
-  const lensPills = LENSES.map((t) => `<span class="pill on" data-lens="${esc(t.id)}">${esc(t.label)}</span>`).join("");
+  const lensCounts = {};
+  for (const l of links) for (const id of lensFor(l).split(" ").filter(Boolean)) lensCounts[id] = (lensCounts[id] ?? 0) + 1;
+  const lensPills = LENSES.map((t) => `<span class="pill on" data-lens="${esc(t.id)}" title="${esc((t.queries ?? []).join(", "))}">${esc(t.label)} ${lensCounts[t.id] ?? 0}</span>`).join("");
   const kindPills = Object.entries(kinds).map(([k, n]) => `<span class="pill on" data-kind="${esc(k)}"><span class="kind kind-${esc(k)}">${esc(kindLabel(k))}</span> ${n}</span>`).join("");
+
+  // ── KIND — the taxonomy, its own rail section ────────────────────────────
+  const kindInner = `<h2><span class="terrain">T2 · Kind</span> what a being is</h2>
+    <p class="empty">the types this corpus's rows distinguish — every row is tagged with exactly one</p>
+    <div class="f-kinds">${Object.entries(kinds).sort((a, b) => b[1] - a[1]).map(([k, n]) => `<div class="kind-card" data-hay="${esc(`${kindLabel(k)} ${KIND_DESC[k] ?? ""}`.toLowerCase())}"><span class="kind kind-${esc(k)}">${esc(kindLabel(k))}</span><span class="kind-card-n">${n} row${n === 1 ? "" : "s"}</span><p class="kind-card-d">${esc(KIND_DESC[k] ?? "")}</p></div>`).join("")}</div>`;
 
   // ── BARE — the chrome-less single scroll. The five content terrains, all
   // visible, one under the other; the only verbs are open-a-document and
@@ -877,6 +893,10 @@ ${docPayloads}
   .card:hover { border-color: var(--violet2); }
   .card h3 { margin: 0 0 .15rem; font-size: .88rem; }
   .card p { margin: .1rem 0; font-family: ui-monospace, monospace; font-size: .66rem; color: var(--muted); }
+  .f-kinds { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .6rem; margin-top: .6rem; }
+  .kind-card { border: 1px solid var(--line); border-radius: 8px; padding: .6rem .7rem; background: var(--bg3); display: grid; gap: .3rem; }
+  .kind-card-n { font-family: ui-monospace, monospace; font-size: .68rem; color: var(--muted); }
+  .kind-card-d { margin: 0; font-family: ui-monospace, monospace; font-size: .66rem; color: var(--dim); }
   .basis { font-size: .64rem; color: var(--dim); font-family: ui-monospace, monospace; }
   .reader-head { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .6rem; padding-bottom: .5rem; border-bottom: 1px solid var(--line); }
   .reader-title { font-family: ui-monospace, monospace; font-size: .78rem; color: var(--ink); }
@@ -1009,9 +1029,21 @@ ${docPayloads}
   .gmodal .verbatim { font-style: italic; color: var(--muted); }
   .model-claim { font-style: italic; color: var(--muted); border-left: 2px solid var(--line2); padding: .3rem .8rem; margin: .4rem 0; }
   .model-tag { font-family: ui-monospace, monospace; font-size: .62rem; color: var(--dim); font-style: normal; letter-spacing: .04em; }
+  .model-claim-text { margin: .25rem 0 0; }
   #paradigm-pop { display: none; border: 1px solid var(--line); border-radius: 10px; background: var(--bg2); padding: .6rem .8rem; margin: .5rem 1rem; }
   #paradigm-pop.on { display: block; }
   #paradigm-pop ul { display: flex; gap: .4rem 1.4rem; flex-wrap: wrap; padding-left: 0; list-style: none; font-family: ui-monospace, monospace; font-size: .7rem; color: var(--muted); }
+  .f-judgment { display: grid; grid-template-columns: 1fr auto; gap: 1.4rem; align-items: center; margin: .6rem 0; }
+  .f-judgment .strata { border-left: 2px dashed var(--line2); padding-left: 1.1rem; display: grid; gap: .8rem; }
+  .f-judgment .rev { position: relative; }
+  .f-judgment .rev .dot { position: absolute; left: -1.32rem; top: .35rem; width: 9px; height: 9px; border-radius: 50%; border: 1.5px dashed var(--line2); background: var(--bg2); }
+  .f-judgment .rev.current .dot { border-color: var(--ok); border-style: solid; }
+  .f-judgment .rev-line { font-family: ui-monospace, monospace; font-size: .76rem; color: var(--muted); }
+  .f-judgment .rev-line b { color: var(--amber); }
+  .f-judgment .rev-basis { font-family: ui-monospace, monospace; font-size: .68rem; color: var(--dim); }
+  .f-judgment .seal { width: 118px; height: 118px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 3px dashed var(--line2); font-family: ui-monospace, monospace; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; }
+  .f-judgment .seal-pass { border-color: var(--ok); color: var(--ok); box-shadow: 0 0 18px rgba(74, 222, 128, .25); }
+  .f-judgment .seal-refuse { border-color: var(--bad); color: var(--bad); }
   .ok { color: var(--ok); }
   .bad { color: var(--bad); }
   footer { max-width: 96rem; margin: 0 auto; padding: 0 1rem 2rem; font-family: ui-monospace, monospace; font-size: .66rem; color: var(--dim); }
@@ -1054,7 +1086,7 @@ ${docPayloads}
   <div class="map-head"><span class="terrain">map lens · Interpretation·Figure</span><span class="empty">spatial arrangement of the retained snapshot — amber = open code violations · violet = eviction property density</span></div>
   <div id="map-body"></div>
 </div>
-<div id="paradigm-pop">${checksHtml}</div>
+<div id="paradigm-pop">${paradigmPopInner}</div>
 <main>
   <div class="crumb" id="crumb"></div>
   <div class="workspace">
@@ -1064,6 +1096,7 @@ ${docPayloads}
       <button class="rail-btn" data-section="connections"><span>Connections<span class="rail-t">T4 · asserted rows</span></span><span class="rail-n" id="rn-connections">0</span></button>
       <button class="rail-btn" data-section="network"><span>Network<span class="rail-t">T6 · the graph</span></span><span class="rail-n" id="rn-network">0</span></button>
       <button class="rail-btn" data-section="measures"><span>Measures<span class="rail-t">T5 · the metrics</span></span><span class="rail-n" id="rn-measures">0</span></button>
+      <button class="rail-btn" data-section="kind"><span>Kind<span class="rail-t">T2 · what a being is</span></span><span class="rail-n" id="rn-kind">${Object.keys(kinds).length}</span></button>
     </nav>
     <div class="workbody">
       <div class="panel on" id="panel-sources">
@@ -1112,6 +1145,7 @@ ${docPayloads}
         <div class="subgrid" id="subgraphs">${subgraphs}</div>
       </div>
       <div class="panel" id="panel-measures">${fieldInner}</div>
+      <div class="panel" id="panel-kind">${kindInner}</div>
     </div>
     <aside class="inspector" id="inspector">
       <div class="insp-empty">nothing focused — click a name anywhere.<br><br>every named thing — a being, a document, a kind, a lens — has a profile that opens here: where it appears, how many rows, what it co-occurs with. nothing is invented.</div>
@@ -1609,7 +1643,7 @@ ${geoPayload}
   for (var ci = 0; ci < cards.length; ci++) cards[ci].addEventListener('click', function () { openReader(this.dataset.doc); openInspector('doc', this.dataset.doc); });
 
   // ── one panel at a time — no view from nowhere ───────────────────────────
-  var sectionPanels = { sources: 'panel-sources', beings: 'panel-beings', connections: 'panel-connections', network: 'panel-network', measures: 'panel-measures' };
+  var sectionPanels = { sources: 'panel-sources', beings: 'panel-beings', connections: 'panel-connections', network: 'panel-network', measures: 'panel-measures', kind: 'panel-kind' };
   var railBtns = Array.prototype.slice.call(document.querySelectorAll('.rail-btn'));
   var state = { section: 'sources' };
   function showSection(sec) {
@@ -1620,7 +1654,7 @@ ${geoPayload}
   }
   for (var rb = 0; rb < railBtns.length; rb++) railBtns[rb].addEventListener('click', function () { showSection(this.dataset.section); });
 
-  var secLabel = { sources: 'Sources — the retained documents', beings: 'Beings — agencies & places named', connections: 'Connections — the asserted rows', network: 'Network — the graph', measures: 'Measures — the metrics' };
+  var secLabel = { sources: 'Sources — the retained documents', beings: 'Beings — agencies & places named', connections: 'Connections — the asserted rows', network: 'Network — the graph', measures: 'Measures — the metrics', kind: 'Kind — what a being is' };
   function describeLight(l) {
     if (l.lens) return 'lens ' + l.lens;
     if (l.a) return l.a + ' in ' + l.p;

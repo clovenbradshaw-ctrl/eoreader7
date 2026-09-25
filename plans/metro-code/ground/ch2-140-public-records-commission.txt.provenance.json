@@ -1,0 +1,62 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.140",
+  "title": "PUBLIC RECORDS COMMISSION",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-108-metropolitan-action-commission.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-112-metropolitan-nashville-arts-commission.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-114-metropolitan-animal-care-and-control-commissio.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-116-auditorium-commission.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-120-charter-revision-commission.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-124-reserved.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-128-historical-commission.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-130-historic-zoning-commission-staff.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-132-metropolitan-human-relations-commission.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-136-planning-commission.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-140-public-records-commission.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-144-metropolitan-social-services-commission.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-147-nashville-entertainment-commission.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-148-tourism-and-convention-commission.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-149-metropolitan-housing-fund-commission.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-140-public-records-commission.txt",
+    "sha256": "963bd2cd4ae544d870d8f799ac26acfd1196f6c4786e1102e3612ad270916faf",
+    "chars": 5135
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.886Z"
+}

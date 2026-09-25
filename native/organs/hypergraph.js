@@ -252,6 +252,19 @@ const sourceOf = (ref) => String(ref ?? "").split("#")[0] || null;
  * definite article alone is enough for `tokensShare` to bind an object the
  * material never states. Omitted: byte-identical to every prior caller.
  *
+ * `organs.definiteDeterminers` — OPTIONAL, a received closed class (priors.js's
+ * own DEFINITE_DETERMINERS alone, giver "lang/en" — NEVER unioned with
+ * INDEFINITE_DETERMINERS). Consumed only by `queryReferents`'s `foldLabel`,
+ * below, to fold a bare/no-article-vs-"the" phrasing gap out of a verb
+ * comparison. Kept separate from `organs.determiners` on purpose: folding
+ * "a" together with "the" was tried first, sharing the combined set, and
+ * adversarial falsification found it wrongly clusters "became A vice
+ * president" (one of several) with "became THE vice president" (the sole
+ * holder) as one slot — English's indefinite/definite distinction is often
+ * the only marker of uniqueness, so it is a real, separate hazard class
+ * from a bare/definite phrasing accident. Omitted: `foldLabel` degrades to
+ * a case/whitespace-only fold, byte-identical to every prior caller.
+ *
  * `organs.posPriorFor` — OPTIONAL, a zero-arg accessor (app.js's own lazy-
  * accessor pattern, the same shape as its `relationsFor`/`skillLibrary`/
  * `callModel` entries) returning a POSPrior@1 object or null. When it
@@ -868,6 +881,7 @@ export function makeRelationReader(organs) {
     extractLeadingSurfaces = null,
     thirdPersonSingular = null,
     determiners = null,
+    definiteDeterminers = null,
     negationWords: negationClass = null,
     // `organs.firstPerson` — OPTIONAL, a RECEIVED closed class (priors.js's
     // own FIRST_PERSON regex, giver "lang/en"), never a word list typed
@@ -2337,19 +2351,33 @@ export function makeRelationReader(organs) {
     // include the article, the other's did not, and the old raw `===`
     // compare treated them as two unrelated relations, so a caller asking
     // about one office-holder's own edge could never find the other even
-    // though the material states both. Folds through the SAME `determiners`
-    // organ this file already injects (endpoint()'s own object-token
-    // matching, above) — no new parameter, no hand-typed word list.
-    // Deliberately narrow: only determiners fold, not the broader
-    // `functionWords` class, since a differing PREPOSITION ("vice
-    // president under" vs "vice president of") is a real distinction this
-    // file's own existing determiners-use already treats as a different
-    // hazard class than a bare article.
+    // though the material states both.
+    //
+    // Narrowed the same day, by adversarial falsification: folding BOTH
+    // determiner classes together (the first cut, sharing `endpoint()`'s
+    // own combined `determiners` organ) was tested against a constructed
+    // hazard specimen — one office-holder stated as "became A vice
+    // president of Acme Corp" (one of several, non-unique) and another as
+    // "became THE vice president of Acme Corp" (the sole holder) — and it
+    // wrongly clustered them as the same slot. Unlike a bare/no-determiner
+    // vs "the" gap (a phrasing accident this fold exists to close), an
+    // indefinite vs definite article is often the ONLY marker English gives
+    // for uniqueness, so folding "a" away is a real, distinct hazard class,
+    // not a widening of the same one. `foldLabel` therefore reads a
+    // SEPARATE, narrower organ — `definiteDeterminers` — folding only
+    // DEFINITE_DETERMINERS (priors.js, giver "lang/en"), never
+    // INDEFINITE_DETERMINERS; `endpoint()`'s own object-token matching
+    // above is untouched and keeps reading the combined `determiners` set,
+    // since that fix (P41) is about excluding a bare shared article from
+    // fallback token overlap, not about equating "a" with "the". Also still
+    // deliberately narrower than the broader `functionWords` class: a
+    // differing PREPOSITION ("vice president under" vs "vice president of")
+    // stays a real distinction.
     const foldLabel = (s) =>
       String(s ?? "")
         .toLowerCase()
         .split(/\s+/)
-        .filter((t) => t && !determiners?.has(t))
+        .filter((t) => t && !definiteDeterminers?.has(t))
         .join(" ");
     function queryReferents({ subject = null, verb = null, object = null } = {}) {
       const openSubject = subject == null;

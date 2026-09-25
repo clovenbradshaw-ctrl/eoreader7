@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "7",
+  "title": "DEPARTMENT OF AVIATION",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-7-department-of-aviation.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-7-department-of-aviation.txt",
+    "sha256": "3769b5bc6ace9f15e4dc817d6f772327028c36bf4d479e6404e5769d0589a4ff",
+    "chars": 1900
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.891Z"
+}

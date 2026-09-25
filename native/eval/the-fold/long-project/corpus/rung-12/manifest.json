@@ -1,0 +1,118 @@
+{
+ "rung": 12,
+ "seed": 20260922,
+ "sessionCount": 12,
+ "plantCount": 59,
+ "corpusId": "82516288791ea8b5330299e82b2d4512007a58443cdd158a85d0f7be84ac2fc2",
+ "files": [
+  {
+   "path": "session-001.md",
+   "sha256": "60a155fccb3d7f92e77e643f4a059f50d780c6cf6b600b03675aa0633a8d6b7d"
+  },
+  {
+   "path": "session-002.md",
+   "sha256": "31cee7fada42825b4458c9ae17d7a696a2d5f62857bf4f5c93e4663fafc9fc00"
+  },
+  {
+   "path": "session-003.md",
+   "sha256": "b2939da7faf41afc85e4770cb504447b93bb49245fe763ef1be77346f8631dd3"
+  },
+  {
+   "path": "session-004.md",
+   "sha256": "648b49be31f1081c082c9315c19f7a20c4d365b253f881a17d0f95a662bab5a5"
+  },
+  {
+   "path": "session-005.md",
+   "sha256": "4d079ba00cf6d675c1fc24f2bd2cb901f935fe7d631f840d5db968f6be887df0"
+  },
+  {
+   "path": "session-006.md",
+   "sha256": "3d2894ed15b5fedc5e44863342be758d2039217456bd36c974ab4308b131ded7"
+  },
+  {
+   "path": "session-007.md",
+   "sha256": "44fe33615074ceb3e0a45f9823ba2ea7b603168581dc3de3441367bdd2f95067"
+  },
+  {
+   "path": "session-008.md",
+   "sha256": "341bd135dbf5ef4e25e90cb95bdffa4f26d50c00b312ec6cc0ddb5bfe2a0a680"
+  },
+  {
+   "path": "session-009.md",
+   "sha256": "e0f3ba9d89e9481695061109d1183fa3f452f00b75def7fbf07a4a0f335c9730"
+  },
+  {
+   "path": "session-010.md",
+   "sha256": "c0bd5961293f3995d8f23bf4b752a887f421959f79e5b02bd2e665ea749dc82d"
+  },
+  {
+   "path": "session-011.md",
+   "sha256": "399aeeea553f71ca743e74520d5b90dedc33aaa78283d93bc3f3ddd05a1e7791"
+  },
+  {
+   "path": "session-012.md",
+   "sha256": "8ce7c0c3e24f03ebc5e3b3f2c5346e20d134579000fee1d7e3f6a748544f3422"
+  }
+ ],
+ "events": {
+  "t5-1-establish": 1,
+  "t5-2-establish": 1,
+  "t1a-1": 1,
+  "t1b-1": 1,
+  "t1c-1": 1,
+  "t5-4-establish": 2,
+  "t1d-1": 2,
+  "t1e-1": 2,
+  "t6-1a": 2,
+  "t6-2a": 2,
+  "t6-3a": 3,
+  "t6-4a": 3,
+  "t3-1a": 3,
+  "t2-3a": 3,
+  "t1b-2": 3,
+  "t2-3b": 4,
+  "t5-3-establish": 4,
+  "t3-2a": 4,
+  "t3-4a": 4,
+  "t1c-2": 4,
+  "t2-2a": 5,
+  "t2-2b": 5,
+  "t4-1-decoy": 5,
+  "t1a-2": 5,
+  "t6-1b": 5,
+  "t3-3a": 6,
+  "t2-1a": 6,
+  "t1d-2": 6,
+  "t4-5-context": 6,
+  "t6-2b": 6,
+  "t2-4a": 7,
+  "t3-1b": 7,
+  "t1a-3": 7,
+  "t4-3-decoy": 7,
+  "t2-4b": 7,
+  "t1c-3": 8,
+  "t6-3b": 8,
+  "t3-2b": 8,
+  "t2-1b": 8,
+  "t4-5-decoy": 8,
+  "t5-2-ref": 9,
+  "t3-3b": 9,
+  "t1e-2": 9,
+  "t6-4b": 9,
+  "t2-2c": 9,
+  "t4-2-decoy": 10,
+  "t1d-3": 10,
+  "t3-4b": 10,
+  "t6-1c": 10,
+  "t5-3-ref": 10,
+  "t2-3c": 11,
+  "t2-1c": 11,
+  "t5-4-ref": 11,
+  "t6-2c": 11,
+  "t4-4-decoy": 11,
+  "t2-4c": 12,
+  "t5-1-ref": 12,
+  "t6-3c": 12,
+  "t6-4c": 12
+ }
+}

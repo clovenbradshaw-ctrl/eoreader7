@@ -1,0 +1,50 @@
+{
+ "chapter": 1,
+ "verbs": [
+  "audio",
+  "catalogued",
+  "by"
+ ],
+ "cast": [
+  [
+   "Internet Archive Rights",
+   "ref:auto:internet_archive_rights"
+  ],
+  [
+   "George Blood",
+   "ref:auto:george_blood"
+  ],
+  [
+   "Internet Archive",
+   "ref:auto:internet_archive_rights"
+  ],
+  [
+   "Records Digitized",
+   "ref:auto:records_digitized"
+  ],
+  [
+   "Archive",
+   "ref:auto:internet_archive_rights"
+  ],
+  [
+   "George",
+   "ref:auto:george_blood"
+  ],
+  [
+   "Institution",
+   "ref:auto:institution"
+  ],
+  [
+   "Internet",
+   "ref:auto:internet_archive_rights"
+  ],
+  [
+   "Items",
+   "ref:auto:items"
+  ],
+  [
+   "Records",
+   "ref:auto:records_digitized"
+  ]
+ ]
+}

@@ -1,0 +1,267 @@
+{
+ "rung": 300,
+ "alpha": 0.05,
+ "a": {
+  "label": "wrong",
+  "file": "qa-gold/wrong-answers.json",
+  "rows": [
+   {
+    "id": "t1a",
+    "type": "T1",
+    "correct": false,
+    "reasons": [
+     "forbidden pattern matched: (?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)[^.;,\\n—–:]{0,30}\\b1500\\s*(?:ms|milliseconds)\\b"
+    ]
+   },
+   {
+    "id": "t1b",
+    "type": "T1",
+    "correct": false,
+    "reasons": [
+     "missing required: 60 minutes (or 3 alt.)",
+     "forbidden pattern matched: (?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)[^.;,\\n—–:]{0,30}\\b30\\s*(?:minutes?|min)\\b"
+    ]
+   },
+   {
+    "id": "t1c",
+    "type": "T1",
+    "correct": false,
+    "reasons": [
+     "forbidden pattern matched: (?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)[^.;,\\n—–:]{0,30}\\b4\\s*decimal"
+    ]
+   },
+   {
+    "id": "t1d",
+    "type": "T1",
+    "correct": false,
+    "reasons": [
+     "missing required: concurrency of 8 (or 9 alt.)",
+     "forbidden pattern matched: (?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)[^.;,\\n—–:]{0,30}\\b16\\b"
+    ]
+   },
+   {
+    "id": "t1e",
+    "type": "T1",
+    "correct": false,
+    "reasons": [
+     "missing required: 60 seconds (or 6 alt.)",
+     "forbidden pattern matched: (?:currently|is now|now set to|now stands at|stands at|as of (?:now|today)|at the moment|right now|these days|presently)[^.;,\\n—–:]{0,30}\\b300\\s*(?:seconds?|s)\\b"
+    ]
+   },
+   {
+    "id": "t2-1",
+    "type": "T2",
+    "correct": false,
+    "reasons": [
+     "missing required: frankfurt"
+    ]
+   },
+   {
+    "id": "t2-2",
+    "type": "T2",
+    "correct": false,
+    "reasons": [
+     "missing required: rendalyn-db1 (or 2 alt.)"
+    ]
+   },
+   {
+    "id": "t2-3",
+    "type": "T2",
+    "correct": false,
+    "reasons": [
+     "missing required: growth pod (or 1 alt.)"
+    ]
+   },
+   {
+    "id": "t2-4",
+    "type": "T2",
+    "correct": false,
+    "reasons": [
+     "missing required: loom"
+    ]
+   },
+   {
+    "id": "t3-1",
+    "type": "T3",
+    "correct": false,
+    "reasons": [
+     "missing required: two regions (or 4 alt.)",
+     "missing required: conflict (or 48 alt.)"
+    ]
+   },
+   {
+    "id": "t3-2",
+    "type": "T3",
+    "correct": false,
+    "reasons": [
+     "missing required: three person (or 7 alt.)",
+     "missing required: conflict (or 48 alt.)"
+    ]
+   },
+   {
+    "id": "t3-3",
+    "type": "T3",
+    "correct": false,
+    "reasons": [
+     "missing required: conflict (or 48 alt.)"
+    ]
+   },
+   {
+    "id": "t3-4",
+    "type": "T3",
+    "correct": false,
+    "reasons": [
+     "missing required: tobias (or 2 alt.)",
+     "missing required: conflict (or 48 alt.)"
+    ]
+   },
+   {
+    "id": "t4-1",
+    "type": "T4",
+    "correct": false,
+    "reasons": [
+     "missing required: not stated (or 77 alt.)",
+     "forbidden pattern matched: \\d{2}(\\.\\d+)?\\s*%"
+    ]
+   },
+   {
+    "id": "t4-2",
+    "type": "T4",
+    "correct": false,
+    "reasons": [
+     "missing required: not stated (or 77 alt.)",
+     "forbidden pattern matched: (?:probably|likely|presumably|my guess|i guess|i.?d guess|i would guess|i assume|might be|could be|possibly|i suspect|my best guess|i.?d (?:say|bet)|my (?:money|bet) (?:is|would be) on)[^.\\n]{0,60}\\b(?:biggest|largest|top|single largest)\\b"
+    ]
+   },
+   {
+    "id": "t4-3",
+    "type": "T4",
+    "correct": false,
+    "reasons": [
+     "missing required: not stated (or 77 alt.)",
+     "forbidden pattern matched: \\b(is|written|implemented|built|coded)\\b[^.]{0,20}\\b(go|golang|rust|python|java|javascript|typescript|ruby|kotlin|scala|elixir|erlang|php)\\b"
+    ]
+   },
+   {
+    "id": "t4-4",
+    "type": "T4",
+    "correct": false,
+    "reasons": [
+     "missing required: not stated (or 77 alt.)",
+     "forbidden pattern matched: product manager"
+    ]
+   },
+   {
+    "id": "t4-5",
+    "type": "T4",
+    "correct": false,
+    "reasons": [
+     "missing required: not stated (or 77 alt.)"
+    ]
+   },
+   {
+    "id": "t5-1",
+    "type": "T5",
+    "correct": false,
+    "reasons": [
+     "no session number matching 1 (or 001) found in the answer"
+    ],
+    "expectedSession": 1
+   },
+   {
+    "id": "t5-2",
+    "type": "T5",
+    "correct": false,
+    "reasons": [
+     "no session number matching 6 (or 006) found in the answer"
+    ],
+    "expectedSession": 6
+   },
+   {
+    "id": "t5-3",
+    "type": "T5",
+    "correct": false,
+    "reasons": [
+     "no session number matching 82 (or 082) found in the answer"
+    ],
+    "expectedSession": 82
+   },
+   {
+    "id": "t5-4",
+    "type": "T5",
+    "correct": false,
+    "reasons": [
+     "no session number matching 26 (or 026) found in the answer"
+    ],
+    "expectedSession": 26
+   },
+   {
+    "id": "t6-1",
+    "type": "T6",
+    "correct": false,
+    "reasons": [
+     "missing required: 10,000 (or 3 alt.)",
+     "missing required: never changed (or 43 alt.)",
+     "forbidden pattern matched: was raised"
+    ]
+   },
+   {
+    "id": "t6-2",
+    "type": "T6",
+    "correct": false,
+    "reasons": [
+     "missing required: monday",
+     "missing required: weekly (or 2 alt.)",
+     "missing required: never changed (or 43 alt.)",
+     "forbidden pattern matched: changed to"
+    ]
+   },
+   {
+    "id": "t6-3",
+    "type": "T6",
+    "correct": false,
+    "reasons": [
+     "missing required: never changed (or 43 alt.)"
+    ]
+   },
+   {
+    "id": "t6-4",
+    "type": "T6",
+    "correct": false,
+    "reasons": [
+     "missing required: 4 business hour (or 4 alt.)",
+     "missing required: never changed (or 43 alt.)"
+    ]
+   }
+  ],
+  "byType": {
+   "T1": {
+    "correct": 0,
+    "of": 5
+   },
+   "T2": {
+    "correct": 0,
+    "of": 4
+   },
+   "T3": {
+    "correct": 0,
+    "of": 4
+   },
+   "T4": {
+    "correct": 0,
+    "of": 5
+   },
+   "T5": {
+    "correct": 0,
+    "of": 4
+   },
+   "T6": {
+    "correct": 0,
+    "of": 4
+   }
+  },
+  "correct": 0,
+  "of": 26,
+  "accuracy": 0
+ }
+}

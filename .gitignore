@@ -143,3 +143,36 @@ plans/proof/
 plans/nashville/data/
 plans/sample/
 state/online-keys.json
+
+# 2026-09-25 consolidation sweep: regenerable run output that had piled up
+# untracked on main (3.4 GB, mostly transcribed films). Same categories as
+# the rules above; nothing the test suite reads.
+native/eval/the-fold/results/movies/
+native/eval/the-fold/results/movie/
+native/eval/the-fold/results/two-agent-stress-*/
+native/eval/the-fold/results/long-stream/
+native/eval/the-fold/results/pipeline-long-stream/
+native/eval/the-fold/results/harness-samples-*.jsonl
+native/eval/the-fold/results/**/*.log
+native/eval/the-fold/results/**/*.wav
+native/eval/the-fold/results/**/*.mp4
+native/eval/the-fold/results/**/*.srt
+native/eval/the-fold/results/**/*.vtt
+native/eval/the-fold/reason-falsify/*.log
+native/eval/lavar/results/*.log
+native/eval/lavar/results/lp-*.projected.json
+native/eval/lavar/results/lp-*.eot.jsonl
+native/eval/lavar/results/*-real-log.json
+native/eval/lavar/results/*-real-fold.json
+native/eval/lavar/results/*-real-read.json
+# Full-book CoNLL-U + reading dumps (55 MB) produced by the English eval walk.
+native/eval/results/english/
+# Rendered holograph/surface pages (up to 56 MB each) built by plans/*.mjs
+# from the tracked sources; surface-template.html and the small demos stay.
+native/the-fold/*-surface-holograph.html
+native/the-fold/plans-surface.html
+# Runtime logs/pids of the second proxy + fleet bridge.
+proxy-*.log
+heimdall-fleet*.log
+.er7-fleet*.pid
+.er7-fleet.peers

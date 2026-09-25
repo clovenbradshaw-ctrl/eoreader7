@@ -36,6 +36,7 @@ import os from "node:os";
 import path from "node:path";
 import { topicOf, askedExtent, declareVoidSpec, declareForm, candidateFormToken, voidSpecLines } from "./void-spec.js";
 import { deriveField } from "../kernel/register.js";
+import { isFunctionWord } from "./pos-prior.js";
 
 test("deriveField already recognizes sonnet and poem as lyric, essay as exposition — no model, no fuzzy match, an exact noun in a fixed table", () => {
   assert.equal(deriveField("write a sonnet").field, "lyric");
@@ -75,6 +76,22 @@ test("this null can also be an honest coverage gap, not only a garbling failure:
   assert.equal(clean.field, null, "manifesto is not a registered genre-noun (kernel/register.js FIELD_BY_NOUN)");
 });
 
+// GAP CLOSED (2026-09-25) — the comment above once explained why "white
+// paper" was avoided as a test case: "paper" alone matched the table first,
+// silently truncating the real ask. isFunctionWord, injected the same way
+// void-spec.js's real pipeline now does, keeps the adjacent modifier
+// unless it is a determiner/quantifier — the same gate candidateFormToken
+// already uses, not a second, hand-typed fix.
+test("white paper keeps its 'white': deriveField reports the real phrase, not just the table's matched noun", () => {
+  const wp = deriveField("write a white paper on eoreader7's surf functionality", { isFunctionWord });
+  assert.equal(wp.field, "exposition", "still the received table entry — no more specific field exists without hand-typing one");
+  assert.equal(wp.noun, "white paper", "the reported noun is the real phrase asked for");
+  assert.match(wp.basis, /matched table entry "paper"/, "the basis discloses which table entry actually matched");
+  // Without the injection (today's default), behavior is unchanged.
+  const bare = deriveField("write a white paper on eoreader7's surf functionality");
+  assert.equal(bare.noun, "paper", "no isFunctionWord injected — falls back to the old, truncating behavior, disclosed as the default");
+});
+
 test("topicOf strips the verb and form only when an on/about/of phrase names the subject", () => {
   assert.equal(topicOf("write an essay on the role of the Cumberland River"), "the role of the Cumberland River");
 });
@@ -97,7 +114,15 @@ test("candidateFormToken reads the ask's form-word off its grammar — head noun
   assert.equal(candidateFormToken("wright an essay"), "essay", "the verb is never matched, so its typo cannot matter");
   assert.equal(candidateFormToken("rite @ whiteppr"), "whiteppr", "a letterless token is skipped; the garbled form-word is carried for SURF");
   assert.equal(candidateFormToken("write a five-paragraph essay on the river"), "essay", "the head noun is the LAST word of the form phrase");
-  assert.equal(candidateFormToken("please write a short story about a dog"), "story");
+  // Updated 2026-09-24: dropping to the bare head noun loses a lexicalized
+  // compound's own genre ("white paper" is not "a paper that is white",
+  // measured live as a real pipeline failure the same day) — this function
+  // has no general way to tell that apart from a truly free modifier
+  // without a hand-typed compound list, which this project refuses. Keeping
+  // the one modifier adjacent to the head noun is consistent with
+  // register.js's own FIELD_BY_NOUN, which already lists "short story" as
+  // its own compound noun distinct from "story".
+  assert.equal(candidateFormToken("please write a short story about a dog"), "short story");
   assert.equal(candidateFormToken("write a manifesto"), "manifesto", "an unregistered form-word is still a form-word");
   assert.equal(candidateFormToken("hello"), null, "one word names no form");
   // An anaphor is not a form-word (measured 2026-09-22: "write it again" gave

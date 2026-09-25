@@ -1,0 +1,247 @@
+{
+ "rung": 300,
+ "alpha": 0.05,
+ "a": {
+  "label": "check",
+  "file": "/tmp/t4-2-exploit.json",
+  "rows": [
+   {
+    "id": "t1a",
+    "type": "T1",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t1b",
+    "type": "T1",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t1c",
+    "type": "T1",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t1d",
+    "type": "T1",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t1e",
+    "type": "T1",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t2-1",
+    "type": "T2",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t2-2",
+    "type": "T2",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t2-3",
+    "type": "T2",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t2-4",
+    "type": "T2",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t3-1",
+    "type": "T3",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t3-2",
+    "type": "T3",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t3-3",
+    "type": "T3",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t3-4",
+    "type": "T3",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t4-1",
+    "type": "T4",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t4-2",
+    "type": "T4",
+    "correct": false,
+    "reasons": [
+     "forbidden pattern matched: (?:probably|likely|presumably|my guess|i guess|i.?d guess|i would guess|i assume|might be|could be|possibly|i suspect|my best guess|i.?d (?:say|bet)|my (?:money|bet) (?:is|would be) on)[^.\\n]{0,60}\\b(?:biggest|largest|top|single largest)\\b"
+    ]
+   },
+   {
+    "id": "t4-3",
+    "type": "T4",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t4-4",
+    "type": "T4",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t4-5",
+    "type": "T4",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t5-1",
+    "type": "T5",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t5-2",
+    "type": "T5",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t5-3",
+    "type": "T5",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t5-4",
+    "type": "T5",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t6-1",
+    "type": "T6",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t6-2",
+    "type": "T6",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t6-3",
+    "type": "T6",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   },
+   {
+    "id": "t6-4",
+    "type": "T6",
+    "correct": false,
+    "reasons": [
+     "no answer given"
+    ]
+   }
+  ],
+  "byType": {
+   "T1": {
+    "correct": 0,
+    "of": 5
+   },
+   "T2": {
+    "correct": 0,
+    "of": 4
+   },
+   "T3": {
+    "correct": 0,
+    "of": 4
+   },
+   "T4": {
+    "correct": 0,
+    "of": 5
+   },
+   "T5": {
+    "correct": 0,
+    "of": 4
+   },
+   "T6": {
+    "correct": 0,
+    "of": 4
+   }
+  },
+  "correct": 0,
+  "of": 26,
+  "accuracy": 0
+ }
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "1",
+  "title": "GENERAL PROVISIONS",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-general-provisions-boards.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-1-general-provisions.txt",
+    "sha256": "f767dd98ad350ee648a35f1c50b83402f82e160a0a204b913cea1cf43bb17724",
+    "chars": 4430
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.892Z"
+}

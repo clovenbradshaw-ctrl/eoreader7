@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "7",
+  "title": "FARMERS MARKET BOARD",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-farmers-market-board.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-7-farmers-market-board.txt",
+    "sha256": "0f8f9dd2fa271f94f33670fb09cef323279bd7008dc93a684ea32e25d2f1e55a",
+    "chars": 1360
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.892Z"
+}

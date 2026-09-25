@@ -34,6 +34,10 @@
 // sentences in the piece's order, and neither needs the mouth.
 
 import { nameRuns } from "./referent-verify.js";
+import { detectHardMeaning } from "../eval/lavar/hard-meaning.mjs";
+// prose-prior.js (kernel/continuation.js's sedimented-prior machinery) was
+// tried here and measured unreliable at real-block length -- see the note
+// on isCodeDense below. Not imported; the module itself is kept, disclosed.
 
 export const EOT_DRAFT_SCHEMA = "EOTDraft@1";
 
@@ -134,7 +138,46 @@ export function buildDraft({ task = "", ground = "", sourceId = "ground", source
   // `sources` map says which source and which tier each part's bytes came
   // from — the operator's material (tier 0) or what a fetched page earned.
   const sourceOf = (start) => (sources ?? []).find((m) => start >= m.start && start < m.end) ?? null;
-  const blocks = blocksWithOffsets(text, 0);
+  const rawBlocks = blocksWithOffsets(text, 0);
+  // CODE-DENSE BLOCKS NEVER BECOME DRAFT FACTS (2026-09-24). A draft node is
+  // meant to be prosified or floored as a sentence, and executable syntax is
+  // neither: measured live the same day, refusing more of the mouth's chat
+  // scaffolding on a code-only ground just pushed MORE statements to their
+  // floor, and the floor of a code statement is broken, truncated syntax —
+  // the deeper problem was never the mouth, it was code entering the draft
+  // as if it were prose in the first place. Reuses hard-meaning.mjs's own
+  // detector rather than a second, hand-typed code-detector — but measured
+  // live on this exact file first, not assumed: notation_dense (its
+  // letters-vs-punctuation ratio) never fires on well-commented JS, because
+  // real identifiers and comments keep the LETTER count high even in a pure
+  // function body (surf()'s own body measured ratio -0.72, threshold 3).
+  // garbled_token (per-token symbol-vs-alnum count, >=3 such tokens) is what
+  // actually discriminates here — measured silent on both real prose blocks
+  // in this file and firing on both real code blocks, so it is the signal
+  // used, not the one this comment first reached for. A ground that is
+  // ENTIRELY code-dense (no prose blocks at all) keeps its original,
+  // unfiltered blocks — a degraded draft is disclosed in this function's own
+  // basis string below, never silently emptied.
+  // A SECOND SIGNAL WAS TRIED AND MEASURED NEGATIVE (2026-09-25):
+  // prose-prior.js (kernel/continuation.js's sedimented-prior machinery,
+  // the same one proven on Bach) scores real prose against a real corpus's
+  // length-matched ceiling. It correctly separated a handful of hand-picked
+  // real prose/code examples, but on this project's own real
+  // cumberland-ground.md fixture — genuine, well-composed prose, 45-60
+  // words per block — 3 of 8 real prose blocks scored above the ceiling
+  // and were wrongly excluded. At that length the gap between typical real
+  // prose and the measured ceiling is thinner than the natural variance
+  // between one real passage and another (Dracula's Victorian register vs.
+  // modern expository prose), so the signal is not reliable enough to ship
+  // here. Kept as a disclosed negative result (prose-prior.js still exists,
+  // still correct on what it was tested against, just not trustworthy
+  // enough at this length range for this default path) rather than shipped
+  // and quietly degrading real runs — the same discipline
+  // midi-continuation.mjs's own honest negative used.
+  const isCodeDense = (blockText) => detectHardMeaning({ task: "ground block", texts: [{ text: blockText }] }).signals.some((s) => s.kind === "garbled_token");
+  const proseBlocks = rawBlocks.filter((b) => !isCodeDense(b.text));
+  const excludedCodeBlocks = rawBlocks.length - proseBlocks.length;
+  const blocks = proseBlocks.length ? proseBlocks : rawBlocks;
   const parts = blocks.length >= 2 ? blocks : [{ text: text.trim(), start: text.indexOf(text.trim()), end: text.indexOf(text.trim()) + text.trim().length }];
   parts.forEach((b, i) => {
     const src = sourceOf(b.start);
@@ -202,7 +245,7 @@ export function buildDraft({ task = "", ground = "", sourceId = "ground", source
   const unbridged = drawn.filter((p) => p.bridge && !p.bridge.name).length;
   return {
     schema: EOT_DRAFT_SCHEMA, task, sourceId, sources, root: whole, subject, pervasive: [...pervasive], choosing,
-    basis: `${whole.children.length} part(s) from ${blocks.length >= 2 ? "the material's own block seams" : "an unseamed ground"}, ${drawn.length} drawn by the ask (${choosing.length ? `chosen by: ${choosing.join(", ")}` : "no topic word chooses among them — all drawn"}), ${points} point(s); ${unbridged} transition(s) have no shared name and must be written`,
+    basis: `${whole.children.length} part(s) from ${blocks.length >= 2 ? "the material's own block seams" : "an unseamed ground"}${excludedCodeBlocks ? ` (${excludedCodeBlocks} code-dense block(s) excluded, garbled_token${proseBlocks.length === 0 ? " — ALL blocks were code-dense, so the exclusion was skipped and the raw blocks kept" : ""})` : ""}, ${drawn.length} drawn by the ask (${choosing.length ? `chosen by: ${choosing.join(", ")}` : "no topic word chooses among them — all drawn"}), ${points} point(s); ${unbridged} transition(s) have no shared name and must be written`,
   };
 }
 

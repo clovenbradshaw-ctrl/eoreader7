@@ -1,0 +1,205 @@
+{
+ "rung": 12,
+ "alpha": 0.05,
+ "a": {
+  "label": "arm-a",
+  "file": "qa-gold/natural-phrasing-answers.json",
+  "rows": [
+   {
+    "id": "t1a",
+    "type": "T1",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t1b",
+    "type": "T1",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t1c",
+    "type": "T1",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t1d",
+    "type": "T1",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t1e",
+    "type": "T1",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t2-1",
+    "type": "T2",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t2-2",
+    "type": "T2",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t2-3",
+    "type": "T2",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t2-4",
+    "type": "T2",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t3-1",
+    "type": "T3",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t3-2",
+    "type": "T3",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t3-3",
+    "type": "T3",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t3-4",
+    "type": "T3",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t4-1",
+    "type": "T4",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t4-2",
+    "type": "T4",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t4-3",
+    "type": "T4",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t4-4",
+    "type": "T4",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t4-5",
+    "type": "T4",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t5-1",
+    "type": "T5",
+    "correct": true,
+    "reasons": [],
+    "expectedSession": 1
+   },
+   {
+    "id": "t5-2",
+    "type": "T5",
+    "correct": false,
+    "reasons": [
+     "no session number matching 1 (or 001) found in the answer"
+    ],
+    "expectedSession": 1
+   },
+   {
+    "id": "t5-3",
+    "type": "T5",
+    "correct": false,
+    "reasons": [
+     "no session number matching 4 (or 004) found in the answer"
+    ],
+    "expectedSession": 4
+   },
+   {
+    "id": "t5-4",
+    "type": "T5",
+    "correct": false,
+    "reasons": [
+     "no session number matching 2 (or 002) found in the answer"
+    ],
+    "expectedSession": 2
+   },
+   {
+    "id": "t6-1",
+    "type": "T6",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t6-2",
+    "type": "T6",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t6-3",
+    "type": "T6",
+    "correct": true,
+    "reasons": []
+   },
+   {
+    "id": "t6-4",
+    "type": "T6",
+    "correct": true,
+    "reasons": []
+   }
+  ],
+  "byType": {
+   "T1": {
+    "correct": 5,
+    "of": 5
+   },
+   "T2": {
+    "correct": 4,
+    "of": 4
+   },
+   "T3": {
+    "correct": 4,
+    "of": 4
+   },
+   "T4": {
+    "correct": 5,
+    "of": 5
+   },
+   "T5": {
+    "correct": 1,
+    "of": 4
+   },
+   "T6": {
+    "correct": 4,
+    "of": 4
+   }
+  },
+  "correct": 23,
+  "of": 26,
+  "accuracy": 0.8846153846153846
+ }
+}

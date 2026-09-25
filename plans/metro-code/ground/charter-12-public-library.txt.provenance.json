@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "12",
+  "title": "PUBLIC LIBRARY",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-public-library.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-12-public-library.txt",
+    "sha256": "8fb6d62a0ea0071639a0d76b9fad8bfe9a0b58c1b7aa30590051f0e5a3465a70",
+    "chars": 2350
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.893Z"
+}

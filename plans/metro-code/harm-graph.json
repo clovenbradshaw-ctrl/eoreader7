@@ -1,0 +1,1773 @@
+{
+  "schema": "EOHypergraph@1",
+  "productId": "14214",
+  "builtAt": "2026-09-20T16:28:57.707Z",
+  "departments": 63,
+  "departmentNames": [
+    "METROPOLITAN COUNCIL",
+    "MAYOR",
+    "OFFICE OF EMERGENCY MANAGEMENT",
+    "BOARD OF MECHANICAL, PLUMBING, AND ELECTRICAL EXAMINERS AND APPEALS",
+    "BOARD OF FAIR COMMISSIONERS",
+    "BOARD OF FIRE AND BUILDING CODE APPEALS",
+    "BOARD OF PROPERTY STANDARDS AND APPEALS",
+    "METROPOLITAN SAFETY ADVISORY BOARD",
+    "METROPOLITAN TRANSPORTATION LICENSING COMMISSION",
+    "URBAN FORESTER",
+    "COMMUNITY REVIEW BOARD*",
+    "METROPOLITAN ACTION COMMISSION",
+    "METROPOLITAN NASHVILLE ARTS COMMISSION",
+    "METROPOLITAN ANIMAL CARE AND CONTROL COMMISSION",
+    "AUDITORIUM COMMISSION",
+    "CHARTER REVISION COMMISSION",
+    "HISTORICAL COMMISSION",
+    "HISTORIC ZONING COMMISSION STAFF",
+    "METROPOLITAN HUMAN RELATIONS COMMISSION",
+    "PLANNING COMMISSION",
+    "PUBLIC RECORDS COMMISSION",
+    "METROPOLITAN SOCIAL SERVICES COMMISSION",
+    "NASHVILLE ENTERTAINMENT COMMISSION*",
+    "TOURISM AND CONVENTION COMMISSION",
+    "METROPOLITAN HOUSING FUND COMMISSION",
+    "METROPOLITAN TRUSTEE",
+    "PUBLIC DEFENDER",
+    "DEPARTMENT OF CODES ADMINISTRATION",
+    "DEPARTMENT OF FINANCE",
+    "FIRE DEPARTMENT",
+    "DEPARTMENT OF EMERGENCY COMMUNICATIONS",
+    "DEPARTMENT OF GENERAL SERVICES",
+    "HEALTH DEPARTMENT",
+    "MEDICAL EXAMINER'S OFFICE",
+    "DEPARTMENT OF LAW",
+    "POLICE DEPARTMENT",
+    "DEPARTMENT OF PUBLIC WORKS",
+    "METROPOLITAN COURTS",
+    "METROPOLITAN NASHVILLE AIRPORT AUTHORITY",
+    "OFFICE OF FAMILY SAFETY",
+    "MAYOR'S OFFICE OF FILM AND SPECIAL EVENTS",
+    "OFFICE OF HOMELESS SERVICES",
+    "ORGANIZATION AND OPERATION OF BOARDS AND COMMISSIONS",
+    "MEETINGS OF BOARDS AND COMMISSIONS",
+    "DEPARTMENT OF METROPOLITAN FINANCE",
+    "DEPARTMENT OF METROPOLITAN POLICE",
+    "DEPARTMENT OF FIRE",
+    "DEPARTMENT OF TRANSPORTATION AND MULTIMODAL INFRASTRUCTURE",
+    "DEPARTMENT OF WATER AND SEWERAGE SERVICES",
+    "DEPARTMENT OF AVIATION",
+    "AGRICULTURAL EXTENSION BOARD",
+    "BOARD OF EQUALIZATION",
+    "METROPOLITAN BOARD OF FAIR COMMISSIONERS",
+    "METROPOLITAN BOARD OF PARKS AND RECREATION",
+    "COMMUNITY OVERSIGHT BOARD",
+    "ELECTRIC POWER BOARD",
+    "GENERAL PROVISIONS",
+    "METROPOLITAN PLANNING COMMISSION",
+    "NASHVILLE TRANSIT AUTHORITY",
+    "PUBLIC HEALTH",
+    "PUBLIC HOSPITALS",
+    "PUBLIC LIBRARY",
+    "METROPOLITAN TRAFFIC AND PARKING COMMISSION"
+  ],
+  "harmReferentIds": [
+    "harm:roadway-injury-fatality",
+    "harm:use-of-force-and-police-killing",
+    "harm:fire-injury-and-death",
+    "harm:emergency-response-delay",
+    "harm:structural-and-code-enforcement-harm",
+    "harm:water-contamination-illness",
+    "harm:environmental-pollution-exposure",
+    "harm:food-and-sanitation-illness",
+    "harm:infectious-disease-outbreak",
+    "harm:maternal-and-infant-mortality",
+    "harm:child-welfare-harm",
+    "harm:custodial-death",
+    "harm:homelessness-and-exposure-death",
+    "harm:drug-overdose-death",
+    "harm:workplace-injury",
+    "harm:animal-caused-harm",
+    "harm:financial-misappropriation",
+    "harm:surveillance-privacy-harm",
+    "harm:unsafe-housing-nuisance",
+    "harm:aviation-safety-harm",
+    "harm:justice-delay-denial",
+    "harm:mental-health-crisis-harm",
+    "harm:air-quality-harm"
+  ],
+  "harmReferentsById": {
+    "harm:roadway-injury-fatality": {
+      "label": "Roadway injury and fatality"
+    },
+    "harm:use-of-force-and-police-killing": {
+      "label": "Police use-of-force harm and police-involved death"
+    },
+    "harm:fire-injury-and-death": {
+      "label": "Fire injury and death"
+    },
+    "harm:emergency-response-delay": {
+      "label": "Emergency response delay harm"
+    },
+    "harm:structural-and-code-enforcement-harm": {
+      "label": "Structural / building-code enforcement harm"
+    },
+    "harm:water-contamination-illness": {
+      "label": "Water contamination and waterborne illness"
+    },
+    "harm:environmental-pollution-exposure": {
+      "label": "Environmental pollution and toxic exposure"
+    },
+    "harm:food-and-sanitation-illness": {
+      "label": "Food and sanitation illness"
+    },
+    "harm:infectious-disease-outbreak": {
+      "label": "Infectious disease outbreak"
+    },
+    "harm:maternal-and-infant-mortality": {
+      "label": "Maternal and infant mortality"
+    },
+    "harm:child-welfare-harm": {
+      "label": "Child welfare harm"
+    },
+    "harm:custodial-death": {
+      "label": "Custodial death and detention harm"
+    },
+    "harm:homelessness-and-exposure-death": {
+      "label": "Homelessness-related and exposure death"
+    },
+    "harm:drug-overdose-death": {
+      "label": "Drug overdose death"
+    },
+    "harm:workplace-injury": {
+      "label": "Workplace injury and occupational harm"
+    },
+    "harm:animal-caused-harm": {
+      "label": "Animal-caused harm and zoonotic risk"
+    },
+    "harm:financial-misappropriation": {
+      "label": "Financial misappropriation and procurement corruption"
+    },
+    "harm:surveillance-privacy-harm": {
+      "label": "Surveillance and privacy harm"
+    },
+    "harm:unsafe-housing-nuisance": {
+      "label": "Unsafe housing, nuisance and property-standards harm"
+    },
+    "harm:aviation-safety-harm": {
+      "label": "Aviation safety harm"
+    },
+    "harm:justice-delay-denial": {
+      "label": "Justice delay and denial-of-access harm"
+    },
+    "harm:mental-health-crisis-harm": {
+      "label": "Mental-health crisis harm"
+    },
+    "harm:air-quality-harm": {
+      "label": "Air quality harm"
+    }
+  },
+  "edges": 44,
+  "nodes": [
+    {
+      "id": "harm:roadway-injury-fatality",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Roadway injury and fatality",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:use-of-force-and-police-killing",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Police use-of-force harm and police-involved death",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:fire-injury-and-death",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Fire injury and death",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:emergency-response-delay",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Emergency response delay harm",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:structural-and-code-enforcement-harm",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Structural / building-code enforcement harm",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:water-contamination-illness",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Water contamination and waterborne illness",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:environmental-pollution-exposure",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Environmental pollution and toxic exposure",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:food-and-sanitation-illness",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Food and sanitation illness",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:infectious-disease-outbreak",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Infectious disease outbreak",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:maternal-and-infant-mortality",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Maternal and infant mortality",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:child-welfare-harm",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Child welfare harm",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:custodial-death",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Custodial death and detention harm",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:homelessness-and-exposure-death",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Homelessness-related and exposure death",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:drug-overdose-death",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Drug overdose death",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:workplace-injury",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Workplace injury and occupational harm",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:animal-caused-harm",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Animal-caused harm and zoonotic risk",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:financial-misappropriation",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Financial misappropriation and procurement corruption",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:surveillance-privacy-harm",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Surveillance and privacy harm",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:unsafe-housing-nuisance",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Unsafe housing, nuisance and property-standards harm",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:aviation-safety-harm",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Aviation safety harm",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:justice-delay-denial",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Justice delay and denial-of-access harm",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:mental-health-crisis-harm",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Mental-health crisis harm",
+      "source": "analysis"
+    },
+    {
+      "id": "harm:air-quality-harm",
+      "schema": "EOGraphNode@1",
+      "kind": "harm-referent",
+      "label": "Air quality harm",
+      "source": "analysis"
+    },
+    {
+      "id": "ref:dept:metropolitan-council",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN COUNCIL",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:mayor",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "MAYOR",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:office-of-emergency-management",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "OFFICE OF EMERGENCY MANAGEMENT",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:board-of-mechanical-plumbing-and-electrical-examiners-and-appeals",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "BOARD OF MECHANICAL, PLUMBING, AND ELECTRICAL EXAMINERS AND APPEALS",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:board-of-fair-commissioners",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "BOARD OF FAIR COMMISSIONERS",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:board-of-fire-and-building-code-appeals",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "BOARD OF FIRE AND BUILDING CODE APPEALS",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:board-of-property-standards-and-appeals",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "BOARD OF PROPERTY STANDARDS AND APPEALS",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-safety-advisory-board",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN SAFETY ADVISORY BOARD",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-transportation-licensing-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN TRANSPORTATION LICENSING COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:urban-forester",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "URBAN FORESTER",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:community-review-board",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "COMMUNITY REVIEW BOARD*",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-action-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN ACTION COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-nashville-arts-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN NASHVILLE ARTS COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-animal-care-and-control-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN ANIMAL CARE AND CONTROL COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:auditorium-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "AUDITORIUM COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:charter-revision-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "CHARTER REVISION COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:historical-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "HISTORICAL COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:historic-zoning-commission-staff",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "HISTORIC ZONING COMMISSION STAFF",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-human-relations-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN HUMAN RELATIONS COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:planning-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "PLANNING COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:public-records-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "PUBLIC RECORDS COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-social-services-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN SOCIAL SERVICES COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:nashville-entertainment-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "NASHVILLE ENTERTAINMENT COMMISSION*",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:tourism-and-convention-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "TOURISM AND CONVENTION COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-housing-fund-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN HOUSING FUND COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-trustee",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN TRUSTEE",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:public-defender",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "PUBLIC DEFENDER",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:department-of-codes-administration",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "DEPARTMENT OF CODES ADMINISTRATION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:department-of-finance",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "DEPARTMENT OF FINANCE",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:fire-department",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "FIRE DEPARTMENT",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:department-of-emergency-communications",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "DEPARTMENT OF EMERGENCY COMMUNICATIONS",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:department-of-general-services",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "DEPARTMENT OF GENERAL SERVICES",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:health-department",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "HEALTH DEPARTMENT",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:medical-examiner-s-office",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "MEDICAL EXAMINER'S OFFICE",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:department-of-law",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "DEPARTMENT OF LAW",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:police-department",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "POLICE DEPARTMENT",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:department-of-public-works",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "DEPARTMENT OF PUBLIC WORKS",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-courts",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN COURTS",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-nashville-airport-authority",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN NASHVILLE AIRPORT AUTHORITY",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:office-of-family-safety",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "OFFICE OF FAMILY SAFETY",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:mayor-s-office-of-film-and-special-events",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "MAYOR'S OFFICE OF FILM AND SPECIAL EVENTS",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:office-of-homeless-services",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "OFFICE OF HOMELESS SERVICES",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:organization-and-operation-of-boards-and-commissions",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "ORGANIZATION AND OPERATION OF BOARDS AND COMMISSIONS",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:meetings-of-boards-and-commissions",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "MEETINGS OF BOARDS AND COMMISSIONS",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:department-of-metropolitan-finance",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "DEPARTMENT OF METROPOLITAN FINANCE",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:department-of-metropolitan-police",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "DEPARTMENT OF METROPOLITAN POLICE",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:department-of-fire",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "DEPARTMENT OF FIRE",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:department-of-transportation-and-multimodal-infrastructure",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "DEPARTMENT OF TRANSPORTATION AND MULTIMODAL INFRASTRUCTURE",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:department-of-water-and-sewerage-services",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "DEPARTMENT OF WATER AND SEWERAGE SERVICES",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:department-of-aviation",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "DEPARTMENT OF AVIATION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:agricultural-extension-board",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "AGRICULTURAL EXTENSION BOARD",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:board-of-equalization",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "BOARD OF EQUALIZATION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-board-of-fair-commissioners",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN BOARD OF FAIR COMMISSIONERS",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-board-of-parks-and-recreation",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN BOARD OF PARKS AND RECREATION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:community-oversight-board",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "COMMUNITY OVERSIGHT BOARD",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:electric-power-board",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "ELECTRIC POWER BOARD",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:general-provisions",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "GENERAL PROVISIONS",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-planning-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN PLANNING COMMISSION",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:nashville-transit-authority",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "NASHVILLE TRANSIT AUTHORITY",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:public-health",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "PUBLIC HEALTH",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:public-hospitals",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "PUBLIC HOSPITALS",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:public-library",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "PUBLIC LIBRARY",
+      "source": "metro-code"
+    },
+    {
+      "id": "ref:dept:metropolitan-traffic-and-parking-commission",
+      "schema": "EOGraphNode@1",
+      "kind": "department",
+      "label": "METROPOLITAN TRAFFIC AND PARKING COMMISSION",
+      "source": "metro-code"
+    }
+  ],
+  "edgesList": [
+    {
+      "id": "edge:harm:0001",
+      "relation": "responds_to",
+      "participants": [
+        "ref:dept:office-of-emergency-management",
+        "harm:emergency-response-delay"
+      ],
+      "witness": [
+        "metro:dept:ch2-10-office-of-emergency-management:row:0029",
+        "metro:dept:ch2-10-office-of-emergency-management:row:0030",
+        "metro:dept:ch2-10-office-of-emergency-management:row:0031",
+        "metro:dept:ch2-10-office-of-emergency-management:row:0032",
+        "metro:dept:ch2-10-office-of-emergency-management:row:0033",
+        "metro:dept:ch2-10-office-of-emergency-management:row:0034",
+        "metro:dept:ch2-10-office-of-emergency-management:row:0035",
+        "metro:dept:ch2-10-office-of-emergency-management:row:0036"
+      ],
+      "scope": {
+        "sequencePosition": 1
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 9
+      }
+    },
+    {
+      "id": "edge:harm:0002",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:board-of-mechanical-plumbing-and-electrical-examiners-and-appeals",
+        "harm:structural-and-code-enforcement-harm"
+      ],
+      "witness": [
+        "metro:dept:ch2-76-board-of-mechanical-plumbing-and-electrical-examiners-and-appeals:row:0038"
+      ],
+      "scope": {
+        "sequencePosition": 2
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 1
+      }
+    },
+    {
+      "id": "edge:harm:0003",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:board-of-fire-and-building-code-appeals",
+        "harm:structural-and-code-enforcement-harm"
+      ],
+      "witness": [
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0041",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0042",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0043",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0044",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0045",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0046",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0047",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0048"
+      ],
+      "scope": {
+        "sequencePosition": 3
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 12
+      }
+    },
+    {
+      "id": "edge:harm:0004",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:board-of-fire-and-building-code-appeals",
+        "harm:fire-injury-and-death"
+      ],
+      "witness": [
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0041",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0042",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0043",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0044",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0045",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0046",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0047",
+        "metro:dept:ch2-80-board-of-fire-and-building-code-appeals:row:0048"
+      ],
+      "scope": {
+        "sequencePosition": 4
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 11
+      }
+    },
+    {
+      "id": "edge:harm:0005",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:board-of-property-standards-and-appeals",
+        "harm:unsafe-housing-nuisance"
+      ],
+      "witness": [
+        "metro:dept:ch2-88-board-of-property-standards-and-appeals:row:0053",
+        "metro:dept:ch2-88-board-of-property-standards-and-appeals:row:0054",
+        "metro:dept:ch2-88-board-of-property-standards-and-appeals:row:0055"
+      ],
+      "scope": {
+        "sequencePosition": 5
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 3
+      }
+    },
+    {
+      "id": "edge:harm:0006",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:metropolitan-transportation-licensing-commission",
+        "harm:roadway-injury-fatality"
+      ],
+      "witness": [
+        "metro:dept:ch2-100-metropolitan-transportation-licensing-commission:row:0060",
+        "metro:dept:ch2-100-metropolitan-transportation-licensing-commission:row:0061",
+        "metro:dept:ch2-100-metropolitan-transportation-licensing-commission:row:0062",
+        "metro:dept:ch2-100-metropolitan-transportation-licensing-commission:row:0064",
+        "metro:dept:ch2-100-metropolitan-transportation-licensing-commission:row:0065",
+        "metro:dept:ch2-100-metropolitan-transportation-licensing-commission:row:0066"
+      ],
+      "scope": {
+        "sequencePosition": 6
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 6
+      }
+    },
+    {
+      "id": "edge:harm:0007",
+      "relation": "mitigates",
+      "participants": [
+        "ref:dept:urban-forester",
+        "harm:environmental-pollution-exposure"
+      ],
+      "witness": [
+        "metro:dept:ch2-104-urban-forester:row:0078",
+        "metro:dept:ch2-104-urban-forester:row:0080",
+        "metro:dept:ch2-104-urban-forester:row:0083",
+        "metro:dept:ch2-104-urban-forester:row:0090",
+        "metro:dept:ch2-104-urban-forester:row:0091",
+        "metro:dept:ch2-104-urban-forester:row:0092"
+      ],
+      "scope": {
+        "sequencePosition": 7
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 6
+      }
+    },
+    {
+      "id": "edge:harm:0008",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:metropolitan-animal-care-and-control-commission",
+        "harm:animal-caused-harm"
+      ],
+      "witness": [
+        "metro:dept:ch2-114-metropolitan-animal-care-and-control-commission:row:0110",
+        "metro:dept:ch2-114-metropolitan-animal-care-and-control-commission:row:0111"
+      ],
+      "scope": {
+        "sequencePosition": 8
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 2
+      }
+    },
+    {
+      "id": "edge:harm:0009",
+      "relation": "mitigates",
+      "participants": [
+        "ref:dept:public-records-commission",
+        "harm:justice-delay-denial"
+      ],
+      "witness": [
+        "metro:dept:ch2-140-public-records-commission:row:0157",
+        "metro:dept:ch2-140-public-records-commission:row:0158",
+        "metro:dept:ch2-140-public-records-commission:row:0160",
+        "metro:dept:ch2-140-public-records-commission:row:0161",
+        "metro:dept:ch2-140-public-records-commission:row:0162",
+        "metro:dept:ch2-140-public-records-commission:row:0163",
+        "metro:dept:ch2-140-public-records-commission:row:0165",
+        "metro:dept:ch2-140-public-records-commission:row:0166"
+      ],
+      "scope": {
+        "sequencePosition": 9
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 8
+      }
+    },
+    {
+      "id": "edge:harm:0010",
+      "relation": "mitigates",
+      "participants": [
+        "ref:dept:metropolitan-social-services-commission",
+        "harm:homelessness-and-exposure-death"
+      ],
+      "witness": [
+        "metro:dept:ch2-144-metropolitan-social-services-commission:row:0168",
+        "metro:dept:ch2-144-metropolitan-social-services-commission:row:0169",
+        "metro:dept:ch2-144-metropolitan-social-services-commission:row:0170",
+        "metro:dept:ch2-144-metropolitan-social-services-commission:row:0171"
+      ],
+      "scope": {
+        "sequencePosition": 10
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 4
+      }
+    },
+    {
+      "id": "edge:harm:0011",
+      "relation": "mitigates",
+      "participants": [
+        "ref:dept:public-defender",
+        "harm:justice-delay-denial"
+      ],
+      "witness": [
+        "metro:dept:ch2-16-public-defender:row:0186",
+        "metro:dept:ch2-16-public-defender:row:0187",
+        "metro:dept:ch2-16-public-defender:row:0188",
+        "metro:dept:ch2-16-public-defender:row:0189",
+        "metro:dept:ch2-16-public-defender:row:0190",
+        "metro:dept:ch2-16-public-defender:row:0191",
+        "metro:dept:ch2-16-public-defender:row:0192",
+        "metro:dept:ch2-16-public-defender:row:0193"
+      ],
+      "scope": {
+        "sequencePosition": 11
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 12
+      }
+    },
+    {
+      "id": "edge:harm:0012",
+      "relation": "mitigates",
+      "participants": [
+        "ref:dept:public-defender",
+        "harm:custodial-death"
+      ],
+      "witness": [
+        "metro:dept:ch2-16-public-defender:row:0186",
+        "metro:dept:ch2-16-public-defender:row:0194",
+        "metro:dept:ch2-16-public-defender:row:0197"
+      ],
+      "scope": {
+        "sequencePosition": 12
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 3
+      }
+    },
+    {
+      "id": "edge:harm:0013",
+      "relation": "enforces_against",
+      "participants": [
+        "ref:dept:department-of-codes-administration",
+        "harm:structural-and-code-enforcement-harm"
+      ],
+      "witness": [
+        "metro:dept:ch2-20-department-of-codes-administration:row:0198",
+        "metro:dept:ch2-20-department-of-codes-administration:row:0199",
+        "metro:dept:ch2-20-department-of-codes-administration:row:0200",
+        "metro:dept:ch2-20-department-of-codes-administration:row:0201",
+        "metro:dept:ch2-20-department-of-codes-administration:row:0202",
+        "metro:dept:ch2-20-department-of-codes-administration:row:0203",
+        "metro:dept:ch2-20-department-of-codes-administration:row:0204",
+        "metro:dept:ch2-20-department-of-codes-administration:row:0205"
+      ],
+      "scope": {
+        "sequencePosition": 13
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 19
+      }
+    },
+    {
+      "id": "edge:harm:0014",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:department-of-finance",
+        "harm:financial-misappropriation"
+      ],
+      "witness": [
+        "metro:dept:ch2-24-department-of-finance:row:0217",
+        "metro:dept:ch2-24-department-of-finance:row:0218",
+        "metro:dept:ch2-24-department-of-finance:row:0219",
+        "metro:dept:ch2-24-department-of-finance:row:0220",
+        "metro:dept:ch2-24-department-of-finance:row:0221",
+        "metro:dept:ch2-24-department-of-finance:row:0225",
+        "metro:dept:ch2-24-department-of-finance:row:0228",
+        "metro:dept:ch2-24-department-of-finance:row:0233"
+      ],
+      "scope": {
+        "sequencePosition": 14
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 29
+      }
+    },
+    {
+      "id": "edge:harm:0015",
+      "relation": "monitors",
+      "participants": [
+        "ref:dept:department-of-finance",
+        "harm:surveillance-privacy-harm"
+      ],
+      "witness": [
+        "metro:dept:ch2-24-department-of-finance:row:0224",
+        "metro:dept:ch2-24-department-of-finance:row:0226",
+        "metro:dept:ch2-24-department-of-finance:row:0227",
+        "metro:dept:ch2-24-department-of-finance:row:0228"
+      ],
+      "scope": {
+        "sequencePosition": 15
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 4
+      }
+    },
+    {
+      "id": "edge:harm:0016",
+      "relation": "responds_to",
+      "participants": [
+        "ref:dept:fire-department",
+        "harm:fire-injury-and-death"
+      ],
+      "witness": [
+        "metro:dept:ch2-28-fire-department:row:0272",
+        "metro:dept:ch2-28-fire-department:row:0273",
+        "metro:dept:ch2-28-fire-department:row:0274",
+        "metro:dept:ch2-28-fire-department:row:0275",
+        "metro:dept:ch2-28-fire-department:row:0276",
+        "metro:dept:ch2-28-fire-department:row:0277",
+        "metro:dept:ch2-28-fire-department:row:0278",
+        "metro:dept:ch2-28-fire-department:row:0280"
+      ],
+      "scope": {
+        "sequencePosition": 16
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 22
+      }
+    },
+    {
+      "id": "edge:harm:0017",
+      "relation": "responds_to",
+      "participants": [
+        "ref:dept:fire-department",
+        "harm:emergency-response-delay"
+      ],
+      "witness": [
+        "metro:dept:ch2-28-fire-department:row:0273",
+        "metro:dept:ch2-28-fire-department:row:0274",
+        "metro:dept:ch2-28-fire-department:row:0275",
+        "metro:dept:ch2-28-fire-department:row:0276",
+        "metro:dept:ch2-28-fire-department:row:0277",
+        "metro:dept:ch2-28-fire-department:row:0278",
+        "metro:dept:ch2-28-fire-department:row:0279",
+        "metro:dept:ch2-28-fire-department:row:0280"
+      ],
+      "scope": {
+        "sequencePosition": 17
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 11
+      }
+    },
+    {
+      "id": "edge:harm:0018",
+      "relation": "responds_to",
+      "participants": [
+        "ref:dept:department-of-emergency-communications",
+        "harm:emergency-response-delay"
+      ],
+      "witness": [
+        "metro:dept:ch2-30-department-of-emergency-communications:row:0297",
+        "metro:dept:ch2-30-department-of-emergency-communications:row:0298",
+        "metro:dept:ch2-30-department-of-emergency-communications:row:0299",
+        "metro:dept:ch2-30-department-of-emergency-communications:row:0300"
+      ],
+      "scope": {
+        "sequencePosition": 18
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 4
+      }
+    },
+    {
+      "id": "edge:harm:0019",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:health-department",
+        "harm:infectious-disease-outbreak"
+      ],
+      "witness": [
+        "metro:dept:ch2-36-health-department:row:0336",
+        "metro:dept:ch2-36-health-department:row:0337",
+        "metro:dept:ch2-36-health-department:row:0338",
+        "metro:dept:ch2-36-health-department:row:0339",
+        "metro:dept:ch2-36-health-department:row:0340",
+        "metro:dept:ch2-36-health-department:row:0341",
+        "metro:dept:ch2-36-health-department:row:0342",
+        "metro:dept:ch2-36-health-department:row:0343"
+      ],
+      "scope": {
+        "sequencePosition": 19
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 20
+      }
+    },
+    {
+      "id": "edge:harm:0020",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:health-department",
+        "harm:food-and-sanitation-illness"
+      ],
+      "witness": [
+        "metro:dept:ch2-36-health-department:row:0350",
+        "metro:dept:ch2-36-health-department:row:0353",
+        "metro:dept:ch2-36-health-department:row:0358"
+      ],
+      "scope": {
+        "sequencePosition": 20
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 3
+      }
+    },
+    {
+      "id": "edge:harm:0021",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:health-department",
+        "harm:workplace-injury"
+      ],
+      "witness": [
+        "metro:dept:ch2-36-health-department:row:0339",
+        "metro:dept:ch2-36-health-department:row:0340",
+        "metro:dept:ch2-36-health-department:row:0341"
+      ],
+      "scope": {
+        "sequencePosition": 21
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 3
+      }
+    },
+    {
+      "id": "edge:harm:0022",
+      "relation": "investigates",
+      "participants": [
+        "ref:dept:medical-examiner-s-office",
+        "harm:custodial-death"
+      ],
+      "witness": [
+        "metro:dept:ch2-38-medical-examiner-s-office:row:0360"
+      ],
+      "scope": {
+        "sequencePosition": 22
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 1
+      }
+    },
+    {
+      "id": "edge:harm:0023",
+      "relation": "investigates",
+      "participants": [
+        "ref:dept:medical-examiner-s-office",
+        "harm:use-of-force-and-police-killing"
+      ],
+      "witness": [
+        "metro:dept:ch2-38-medical-examiner-s-office:row:0360"
+      ],
+      "scope": {
+        "sequencePosition": 23
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 1
+      }
+    },
+    {
+      "id": "edge:harm:0024",
+      "relation": "investigates",
+      "participants": [
+        "ref:dept:department-of-law",
+        "harm:financial-misappropriation"
+      ],
+      "witness": [
+        "metro:dept:ch2-40-department-of-law:row:0366",
+        "metro:dept:ch2-40-department-of-law:row:0367",
+        "metro:dept:ch2-40-department-of-law:row:0368",
+        "metro:dept:ch2-40-department-of-law:row:0370",
+        "metro:dept:ch2-40-department-of-law:row:0372",
+        "metro:dept:ch2-40-department-of-law:row:0377",
+        "metro:dept:ch2-40-department-of-law:row:0386",
+        "metro:dept:ch2-40-department-of-law:row:0394"
+      ],
+      "scope": {
+        "sequencePosition": 24
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 16
+      }
+    },
+    {
+      "id": "edge:harm:0025",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:department-of-law",
+        "harm:justice-delay-denial"
+      ],
+      "witness": [
+        "metro:dept:ch2-40-department-of-law:row:0362",
+        "metro:dept:ch2-40-department-of-law:row:0363",
+        "metro:dept:ch2-40-department-of-law:row:0365",
+        "metro:dept:ch2-40-department-of-law:row:0366",
+        "metro:dept:ch2-40-department-of-law:row:0367",
+        "metro:dept:ch2-40-department-of-law:row:0368",
+        "metro:dept:ch2-40-department-of-law:row:0370",
+        "metro:dept:ch2-40-department-of-law:row:0371"
+      ],
+      "scope": {
+        "sequencePosition": 25
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 24
+      }
+    },
+    {
+      "id": "edge:harm:0026",
+      "relation": "may_cause",
+      "participants": [
+        "ref:dept:police-department",
+        "harm:use-of-force-and-police-killing"
+      ],
+      "witness": [
+        "metro:dept:ch2-44-police-department:row:0409",
+        "metro:dept:ch2-44-police-department:row:0410",
+        "metro:dept:ch2-44-police-department:row:0411",
+        "metro:dept:ch2-44-police-department:row:0412",
+        "metro:dept:ch2-44-police-department:row:0413",
+        "metro:dept:ch2-44-police-department:row:0414",
+        "metro:dept:ch2-44-police-department:row:0415",
+        "metro:dept:ch2-44-police-department:row:0416"
+      ],
+      "scope": {
+        "sequencePosition": 26
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 36
+      }
+    },
+    {
+      "id": "edge:harm:0027",
+      "relation": "enforces_against",
+      "participants": [
+        "ref:dept:police-department",
+        "harm:roadway-injury-fatality"
+      ],
+      "witness": [
+        "metro:dept:ch2-44-police-department:row:0414",
+        "metro:dept:ch2-44-police-department:row:0415",
+        "metro:dept:ch2-44-police-department:row:0445",
+        "metro:dept:ch2-44-police-department:row:0447",
+        "metro:dept:ch2-44-police-department:row:0448",
+        "metro:dept:ch2-44-police-department:row:0449",
+        "metro:dept:ch2-44-police-department:row:0450",
+        "metro:dept:ch2-44-police-department:row:0452"
+      ],
+      "scope": {
+        "sequencePosition": 27
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 9
+      }
+    },
+    {
+      "id": "edge:harm:0028",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:metropolitan-courts",
+        "harm:custodial-death"
+      ],
+      "witness": [
+        "metro:dept:ch2-56-metropolitan-courts:row:0457",
+        "metro:dept:ch2-56-metropolitan-courts:row:0458",
+        "metro:dept:ch2-56-metropolitan-courts:row:0459",
+        "metro:dept:ch2-56-metropolitan-courts:row:0460",
+        "metro:dept:ch2-56-metropolitan-courts:row:0461",
+        "metro:dept:ch2-56-metropolitan-courts:row:0462",
+        "metro:dept:ch2-56-metropolitan-courts:row:0463",
+        "metro:dept:ch2-56-metropolitan-courts:row:0464"
+      ],
+      "scope": {
+        "sequencePosition": 28
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 12
+      }
+    },
+    {
+      "id": "edge:harm:0029",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:metropolitan-courts",
+        "harm:justice-delay-denial"
+      ],
+      "witness": [
+        "metro:dept:ch2-56-metropolitan-courts:row:0457",
+        "metro:dept:ch2-56-metropolitan-courts:row:0458",
+        "metro:dept:ch2-56-metropolitan-courts:row:0459",
+        "metro:dept:ch2-56-metropolitan-courts:row:0460",
+        "metro:dept:ch2-56-metropolitan-courts:row:0461",
+        "metro:dept:ch2-56-metropolitan-courts:row:0462",
+        "metro:dept:ch2-56-metropolitan-courts:row:0463",
+        "metro:dept:ch2-56-metropolitan-courts:row:0464"
+      ],
+      "scope": {
+        "sequencePosition": 29
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 14
+      }
+    },
+    {
+      "id": "edge:harm:0030",
+      "relation": "enforces_against",
+      "participants": [
+        "ref:dept:metropolitan-courts",
+        "harm:roadway-injury-fatality"
+      ],
+      "witness": [
+        "metro:dept:ch2-56-metropolitan-courts:row:0458",
+        "metro:dept:ch2-56-metropolitan-courts:row:0459",
+        "metro:dept:ch2-56-metropolitan-courts:row:0460",
+        "metro:dept:ch2-56-metropolitan-courts:row:0466",
+        "metro:dept:ch2-56-metropolitan-courts:row:0467"
+      ],
+      "scope": {
+        "sequencePosition": 30
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 5
+      }
+    },
+    {
+      "id": "edge:harm:0031",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:metropolitan-nashville-airport-authority",
+        "harm:aviation-safety-harm"
+      ],
+      "witness": [
+        "metro:dept:ch2-60-metropolitan-nashville-airport-authority:row:0474",
+        "metro:dept:ch2-60-metropolitan-nashville-airport-authority:row:0475",
+        "metro:dept:ch2-60-metropolitan-nashville-airport-authority:row:0476",
+        "metro:dept:ch2-60-metropolitan-nashville-airport-authority:row:0477",
+        "metro:dept:ch2-60-metropolitan-nashville-airport-authority:row:0478",
+        "metro:dept:ch2-60-metropolitan-nashville-airport-authority:row:0479",
+        "metro:dept:ch2-60-metropolitan-nashville-airport-authority:row:0480",
+        "metro:dept:ch2-60-metropolitan-nashville-airport-authority:row:0481"
+      ],
+      "scope": {
+        "sequencePosition": 31
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 9
+      }
+    },
+    {
+      "id": "edge:harm:0032",
+      "relation": "mitigates",
+      "participants": [
+        "ref:dept:office-of-family-safety",
+        "harm:child-welfare-harm"
+      ],
+      "witness": [
+        "metro:dept:ch2-61-office-of-family-safety:row:0483",
+        "metro:dept:ch2-61-office-of-family-safety:row:0484",
+        "metro:dept:ch2-61-office-of-family-safety:row:0485",
+        "metro:dept:ch2-61-office-of-family-safety:row:0488",
+        "metro:dept:ch2-61-office-of-family-safety:row:0491",
+        "metro:dept:ch2-61-office-of-family-safety:row:0493",
+        "metro:dept:ch2-61-office-of-family-safety:row:0494",
+        "metro:dept:ch2-61-office-of-family-safety:row:0495"
+      ],
+      "scope": {
+        "sequencePosition": 32
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 8
+      }
+    },
+    {
+      "id": "edge:harm:0033",
+      "relation": "mitigates",
+      "participants": [
+        "ref:dept:office-of-homeless-services",
+        "harm:homelessness-and-exposure-death"
+      ],
+      "witness": [
+        "metro:dept:ch2-63-office-of-homeless-services:row:0521",
+        "metro:dept:ch2-63-office-of-homeless-services:row:0522",
+        "metro:dept:ch2-63-office-of-homeless-services:row:0523",
+        "metro:dept:ch2-63-office-of-homeless-services:row:0524"
+      ],
+      "scope": {
+        "sequencePosition": 33
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 4
+      }
+    },
+    {
+      "id": "edge:harm:0034",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:department-of-metropolitan-finance",
+        "harm:financial-misappropriation"
+      ],
+      "witness": [
+        "metro:dept:charter-1-department-of-metropolitan-finance:row:0537",
+        "metro:dept:charter-1-department-of-metropolitan-finance:row:0538",
+        "metro:dept:charter-1-department-of-metropolitan-finance:row:0539",
+        "metro:dept:charter-1-department-of-metropolitan-finance:row:0540",
+        "metro:dept:charter-1-department-of-metropolitan-finance:row:0541",
+        "metro:dept:charter-1-department-of-metropolitan-finance:row:0542",
+        "metro:dept:charter-1-department-of-metropolitan-finance:row:0543",
+        "metro:dept:charter-1-department-of-metropolitan-finance:row:0544"
+      ],
+      "scope": {
+        "sequencePosition": 34
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 20
+      }
+    },
+    {
+      "id": "edge:harm:0035",
+      "relation": "may_cause",
+      "participants": [
+        "ref:dept:department-of-metropolitan-police",
+        "harm:use-of-force-and-police-killing"
+      ],
+      "witness": [
+        "metro:dept:charter-2-department-of-metropolitan-police:row:0560",
+        "metro:dept:charter-2-department-of-metropolitan-police:row:0561",
+        "metro:dept:charter-2-department-of-metropolitan-police:row:0562",
+        "metro:dept:charter-2-department-of-metropolitan-police:row:0563",
+        "metro:dept:charter-2-department-of-metropolitan-police:row:0564"
+      ],
+      "scope": {
+        "sequencePosition": 35
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 5
+      }
+    },
+    {
+      "id": "edge:harm:0036",
+      "relation": "responds_to",
+      "participants": [
+        "ref:dept:department-of-fire",
+        "harm:fire-injury-and-death"
+      ],
+      "witness": [
+        "metro:dept:charter-3-department-of-fire:row:0565",
+        "metro:dept:charter-3-department-of-fire:row:0566",
+        "metro:dept:charter-3-department-of-fire:row:0567",
+        "metro:dept:charter-3-department-of-fire:row:0568",
+        "metro:dept:charter-3-department-of-fire:row:0569",
+        "metro:dept:charter-3-department-of-fire:row:0570",
+        "metro:dept:charter-3-department-of-fire:row:0571",
+        "metro:dept:charter-3-department-of-fire:row:0573"
+      ],
+      "scope": {
+        "sequencePosition": 36
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 8
+      }
+    },
+    {
+      "id": "edge:harm:0037",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:department-of-transportation-and-multimodal-infrastructure",
+        "harm:roadway-injury-fatality"
+      ],
+      "witness": [
+        "metro:dept:charter-4-department-of-transportation-and-multimodal-infrastructure:row:0578",
+        "metro:dept:charter-4-department-of-transportation-and-multimodal-infrastructure:row:0583"
+      ],
+      "scope": {
+        "sequencePosition": 37
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 2
+      }
+    },
+    {
+      "id": "edge:harm:0038",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:department-of-water-and-sewerage-services",
+        "harm:water-contamination-illness"
+      ],
+      "witness": [
+        "metro:dept:charter-5-department-of-water-and-sewerage-services:row:0584",
+        "metro:dept:charter-5-department-of-water-and-sewerage-services:row:0585",
+        "metro:dept:charter-5-department-of-water-and-sewerage-services:row:0586",
+        "metro:dept:charter-5-department-of-water-and-sewerage-services:row:0587",
+        "metro:dept:charter-5-department-of-water-and-sewerage-services:row:0588",
+        "metro:dept:charter-5-department-of-water-and-sewerage-services:row:0590",
+        "metro:dept:charter-5-department-of-water-and-sewerage-services:row:0591"
+      ],
+      "scope": {
+        "sequencePosition": 38
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 7
+      }
+    },
+    {
+      "id": "edge:harm:0039",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:department-of-aviation",
+        "harm:aviation-safety-harm"
+      ],
+      "witness": [
+        "metro:dept:charter-7-department-of-aviation:row:0608",
+        "metro:dept:charter-7-department-of-aviation:row:0609",
+        "metro:dept:charter-7-department-of-aviation:row:0610",
+        "metro:dept:charter-7-department-of-aviation:row:0611",
+        "metro:dept:charter-7-department-of-aviation:row:0612"
+      ],
+      "scope": {
+        "sequencePosition": 39
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 5
+      }
+    },
+    {
+      "id": "edge:harm:0040",
+      "relation": "investigates",
+      "participants": [
+        "ref:dept:community-oversight-board",
+        "harm:use-of-force-and-police-killing"
+      ],
+      "witness": [
+        "metro:dept:charter-13-community-oversight-board:row:0626"
+      ],
+      "scope": {
+        "sequencePosition": 40
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 1
+      }
+    },
+    {
+      "id": "edge:harm:0041",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:public-health",
+        "harm:infectious-disease-outbreak"
+      ],
+      "witness": [
+        "metro:dept:charter-1-public-health:row:0649",
+        "metro:dept:charter-1-public-health:row:0650",
+        "metro:dept:charter-1-public-health:row:0651",
+        "metro:dept:charter-1-public-health:row:0652",
+        "metro:dept:charter-1-public-health:row:0653",
+        "metro:dept:charter-1-public-health:row:0655",
+        "metro:dept:charter-1-public-health:row:0656",
+        "metro:dept:charter-1-public-health:row:0657"
+      ],
+      "scope": {
+        "sequencePosition": 41
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 15
+      }
+    },
+    {
+      "id": "edge:harm:0042",
+      "relation": "mitigates",
+      "participants": [
+        "ref:dept:public-health",
+        "harm:mental-health-crisis-harm"
+      ],
+      "witness": [
+        "metro:dept:charter-1-public-health:row:0654"
+      ],
+      "scope": {
+        "sequencePosition": 42
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 1
+      }
+    },
+    {
+      "id": "edge:harm:0043",
+      "relation": "mitigates",
+      "participants": [
+        "ref:dept:public-hospitals",
+        "harm:mental-health-crisis-harm"
+      ],
+      "witness": [
+        "metro:dept:charter-2-public-hospitals:row:0666"
+      ],
+      "scope": {
+        "sequencePosition": 43
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 1
+      }
+    },
+    {
+      "id": "edge:harm:0044",
+      "relation": "regulates",
+      "participants": [
+        "ref:dept:metropolitan-traffic-and-parking-commission",
+        "harm:roadway-injury-fatality"
+      ],
+      "witness": [
+        "metro:dept:charter-9-metropolitan-traffic-and-parking-commission:row:0678",
+        "metro:dept:charter-9-metropolitan-traffic-and-parking-commission:row:0679",
+        "metro:dept:charter-9-metropolitan-traffic-and-parking-commission:row:0680",
+        "metro:dept:charter-9-metropolitan-traffic-and-parking-commission:row:0681"
+      ],
+      "scope": {
+        "sequencePosition": 44
+      },
+      "meta": {
+        "basis": "declared matrix + ledger keyword corroboration",
+        "witnessCount": 4
+      }
+    }
+  ],
+  "wiktionary": {
+    "schema": "WiktionaryWiringRef@1",
+    "wired": true,
+    "wiringFile": "wiktionary-wiring.json",
+    "mode": "on-the-fly",
+    "termCount": 177
+  }
+}

@@ -38,6 +38,7 @@ import { deriveRegister, writeVoiceFor } from "../kernel/register.js";
 import { voidCellsFor } from "./document-ledger.js";
 import { drawnParts } from "./eot-draft.js";
 import { detectFormReferentCue, resolveFormReferent, disambiguateFormReferent, FORM_REFERENT_CUES } from "./form-referent.js";
+import { isFunctionWord } from "./pos-prior.js";
 
 export const VOID_SPEC_SCHEMA = "EOVoidSpec@1";
 
@@ -51,6 +52,13 @@ const v = (value, basis, source) => ({ value, basis, source });
  *  story" → story). A token with no letters ("@") is skipped, so a garbled
  *  ask still yields its form-word ("rite @ whiteppr" → whiteppr) for SURF to
  *  go and resolve. null when the ask has no such phrase. */
+// A leading count+unit modifier askedExtent() already captures separately
+// ("five-paragraph", "3-section", "twelve-page") — stripped before the
+// form-word is read so it is never duplicated between the two extractors.
+// Declared once here and reused by askedExtent's own unit list, never a
+// second hand-typed copy.
+const COUNT_UNIT_RE = /^(?:\d+|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)[\s-](?:paragraphs?|sections?|parts?|pages?|words?|sentences?)$/i;
+
 export function candidateFormToken(task) {
   // An anaphor is not a form-word ("write it again" names no form; "write
   // another sonnet like before" names one): the cues and the pronouns they
@@ -65,8 +73,31 @@ export function candidateFormToken(task) {
   if (words[0] && /^(a|an|the)$/i.test(words[0])) words = words.slice(1);
   const stop = words.findIndex((w) => /^(on|about|of|for|from|regarding|concerning)$/i.test(w.replace(/[^a-z]/gi, "")));
   const phrase = stop === -1 ? words : words.slice(0, stop);
-  const alpha = phrase.map((w) => w.replace(/[^a-z'-]/gi, "")).filter(Boolean);
-  return alpha.length ? alpha[alpha.length - 1].toLowerCase() : null;
+  let alpha = phrase.map((w) => w.replace(/[^a-z'-]/gi, "")).filter(Boolean);
+  if (!alpha.length) return null;
+  if (alpha[0] && COUNT_UNIT_RE.test(alpha[0])) alpha = alpha.slice(1);
+  if (!alpha.length) return null;
+  // The head noun ALONE loses a lexicalized compound's own genre ("white
+  // paper" is not "a paper that is white"; this function has no general way
+  // to tell that apart from a truly free modifier like "short" in "short
+  // story" without a hand-typed compound list, which this project's own
+  // discipline refuses). Keeping the one modifier immediately adjacent to
+  // the head noun is never wrong for what a form-word is used for (an
+  // exemplar search query, SURF's own "what is a ${token}") — at worst it is
+  // slightly more specific than necessary; at best it is the difference
+  // between resolving the actual form asked for and resolving a different
+  // one. A modifier further back in a longer chain ("very long detailed
+  // report") is dropped, since distant modifiers are far more often free
+  // description than part of the form's own name.
+  const head = alpha[alpha.length - 1].toLowerCase();
+  const modCandidate = alpha.length >= 2 ? alpha[alpha.length - 2].toLowerCase() : null;
+  // A determiner/quantifier/other function word ("another", "some", "any")
+  // adjacent to the head noun is never part of the form's own name — the
+  // prior's real POS class decides, never a hand-typed word list. A word
+  // the prior has never seen is treated as a possible content word (kept),
+  // since an unknown word being function-class is the less likely case.
+  const mod = modCandidate && !isFunctionWord(modCandidate) ? modCandidate : null;
+  return mod ? `${mod} ${head}` : head;
 }
 
 /**
@@ -84,14 +115,14 @@ export function declareForm(task, { documentsDir = null, excludeDocId = null, re
   const cue = detectFormReferentCue(task);
   ref = ref ?? (cue && documentsDir ? resolveFormReferent(task, { documentsDir, excludeDocId }) : null);
   if (ref?.resolved?.field) {
-    const register = deriveRegister(ref.resolved.prompt);
+    const register = deriveRegister(ref.resolved.prompt, { isFunctionWord });
     return {
       token: candidateFormToken(ref.resolved.prompt), cue, referent: ref.resolved, register, tier: ref.tier ?? null, votes: ref.votes ?? null,
       field: ref.resolved.field, basis: "measured", source: `form-referent.js: ${ref.basis}`,
     };
   }
   const token = candidateFormToken(task);
-  const register = deriveRegister(task);
+  const register = deriveRegister(task, { isFunctionWord });
   const field = register?.field?.field ?? null;
   if (field) {
     return { token, cue, referent: null, register, field, basis: register.field.provenance === "learned" ? "measured" : "declared", source: `kernel/register.js deriveRegister (${register.field.basis})` };

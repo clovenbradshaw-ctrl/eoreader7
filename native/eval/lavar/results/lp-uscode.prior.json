@@ -1,0 +1,226 @@
+{
+ "chapter": 1,
+ "verbs": [
+  "of",
+  "and",
+  "for",
+  "as",
+  "or",
+  "shall",
+  "to",
+  "in",
+  "the",
+  "enacted",
+  "on"
+ ],
+ "cast": [
+  [
+   "National Defense Authorization",
+   "ref:auto:national_defense_authorization"
+  ],
+  [
+   "National Defense Authorization Act",
+   "ref:auto:national_defense_authorization"
+  ],
+  [
+   "Further Continuing",
+   "ref:auto:further_continuing"
+  ],
+  [
+   "Further Continuing Appropriations",
+   "ref:auto:further_continuing"
+  ],
+  [
+   "Further Continuing Appropriations Act",
+   "ref:auto:further_continuing"
+  ],
+  [
+   "United States",
+   "ref:auto:united_states"
+  ],
+  [
+   "Fiscal Year",
+   "ref:auto:fiscal_year"
+  ],
+  [
+   "Further Consolidated",
+   "ref:auto:further_consolidated"
+  ],
+  [
+   "Further Consolidated Appropriations",
+   "ref:auto:further_consolidated"
+  ],
+  [
+   "Further Consolidated Appropriations Act",
+   "ref:auto:further_consolidated"
+  ],
+  [
+   "Judicial Procedure",
+   "ref:auto:judicial_procedure"
+  ],
+  [
+   "Legislative Branch",
+   "ref:auto:legislative_branch"
+  ],
+  [
+   "Military Construction",
+   "ref:auto:military_construction"
+  ],
+  [
+   "National Defense",
+   "ref:auto:national_defense_authorization"
+  ],
+  [
+   "Veterans Affairs",
+   "ref:auto:veterans_affairs"
+  ],
+  [
+   "Pub",
+   "ref:auto:pub"
+  ],
+  [
+   "Tables",
+   "ref:auto:tables"
+  ],
+  [
+   "Except",
+   "ref:auto:except"
+  ],
+  [
+   "Dec",
+   "ref:auto:dec"
+  ],
+  [
+   "Consolidated",
+   "ref:auto:further_consolidated"
+  ],
+  [
+   "Consolidated Appropriations",
+   "ref:auto:further_consolidated"
+  ],
+  [
+   "Consolidated Appropriations Act",
+   "ref:auto:further_consolidated"
+  ],
+  [
+   "Mar",
+   "ref:auto:mar"
+  ],
+  [
+   "Sept",
+   "ref:auto:sept"
+  ],
+  [
+   "Stat",
+   "ref:auto:stat"
+  ],
+  [
+   "Continuing",
+   "ref:auto:further_continuing"
+  ],
+  [
+   "Continuing Appropriations",
+   "ref:auto:further_continuing"
+  ],
+  [
+   "Defense",
+   "ref:auto:national_defense_authorization"
+  ],
+  [
+   "June",
+   "ref:auto:june"
+  ],
+  [
+   "Nov",
+   "ref:auto:nov"
+  ],
+  [
+   "Amendment",
+   "ref:auto:amendment"
+  ],
+  [
+   "Continuing Appropriations Act",
+   "ref:auto:further_continuing"
+  ],
+  [
+   "Defense Appropriations",
+   "ref:auto:national_defense_authorization"
+  ],
+  [
+   "Defense Appropriations Act",
+   "ref:auto:national_defense_authorization"
+  ],
+  [
+   "Extensions",
+   "ref:auto:extensions"
+  ],
+  [
+   "Extensions Act",
+   "ref:auto:extensions"
+  ],
+  [
+   "Oct",
+   "ref:auto:oct"
+  ],
+  [
+   "This Act",
+   "ref:auto:this_act"
+  ],
+  [
+   "United",
+   "ref:auto:united_states"
+  ],
+  [
+   "Feb",
+   "ref:auto:feb"
+  ],
+  [
+   "Judiciary",
+   "ref:auto:judiciary"
+  ],
+  [
+   "Disaster",
+   "ref:auto:disaster"
+  ],
+  [
+   "Fiscal",
+   "ref:auto:fiscal_year"
+  ],
+  [
+   "Jan",
+   "ref:auto:jan"
+  ],
+  [
+   "Judicial",
+   "ref:auto:judicial_procedure"
+  ],
+  [
+   "Legislative",
+   "ref:auto:legislative_branch"
+  ],
+  [
+   "Marriage",
+   "ref:auto:marriage"
+  ],
+  [
+   "Marriage Act",
+   "ref:auto:marriage"
+  ],
+  [
+   "Military",
+   "ref:auto:military_construction"
+  ],
+  [
+   "National",
+   "ref:auto:national_defense_authorization"
+  ],
+  [
+   "Veterans",
+   "ref:auto:veterans_affairs"
+  ],
+  [
+   "Act",
+   "ref:auto:act"
+  ]
+ ]
+}

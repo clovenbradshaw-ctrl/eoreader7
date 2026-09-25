@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.08",
+  "title": "MAYOR",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-08-mayor.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-08-mayor.txt",
+    "sha256": "efdcb17b455a32cb8f83d3c4a0a3dcbe488929b1b534ccb46bd457713829b09a",
+    "chars": 8596
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.883Z"
+}

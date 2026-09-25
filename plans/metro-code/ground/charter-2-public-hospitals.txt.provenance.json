@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2",
+  "title": "PUBLIC HOSPITALS",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-public-hospitals.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-2-public-hospitals.txt",
+    "sha256": "9df2628fda53009d1cd02365fb3e084852c53322f8a1ff209d0cb929f23191e1",
+    "chars": 5347
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.893Z"
+}

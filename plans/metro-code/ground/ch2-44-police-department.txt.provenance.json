@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.44",
+  "title": "POLICE DEPARTMENT",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-44-police-department.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-44-police-department.txt",
+    "sha256": "be061f3a066b2fdc3354145ad254ab98a9cbfb96ff7d33bbd0427b83b6127c1a",
+    "chars": 34229
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.889Z"
+}

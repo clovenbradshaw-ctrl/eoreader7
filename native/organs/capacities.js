@@ -354,6 +354,15 @@ export const CAPACITIES = Object.freeze([
   }),
 
   Object.freeze({
+    id: "parseGatedNames",
+    terrain: "Entity",
+    op: "SIG+INS",
+    module: "eoreader7/native/adapters/text/parse-gated-names.js",
+    fn: "parseGatedNames",
+    what: "proper-name candidate admission with the material's own per-occurrence SVO parse as the GATE (english-parser.js's upostOccurrences, tagging each occurrence's own sentence) and orthographic capitalisation (surfaces.js's extractSurfaces) as corroboration, never a coequal vote. Answers the user's own check of the code ('we have to go through SVO for English to get there'): the two pre-existing name detectors — surfaces.js and existence-grain's own naming signal — never imported a parser at all, and the one detector that did already outperformed both. Measured 2026-09-23 against a 365-item, 9-annotator blind gold (Henry IV Part 1, modern spelling): precision 69.4%, recall 87.7%, F1 77.5 — the best of nine admission formulas tried, ahead of the best combination of the pre-existing orthography-only detectors (F1 76.3). Standalone and unwired, on the same standing as english-parser-perceiver.mjs: not imported into recursive.js's discoverReferents path pending the same explicit sign-off that perceiver's own wiring required.",
+  }),
+
+  Object.freeze({
     id: "regime",
     terrain: "Atmosphere",
     op: "REC",

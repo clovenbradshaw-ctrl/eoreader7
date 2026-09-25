@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "3",
+  "title": "ELECTRIC POWER BOARD",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-electric-power-board.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-3-electric-power-board.txt",
+    "sha256": "dacdbbb8a233d5072f023c7403e01ac079df43efaecf9cc6b0588586f14e17c3",
+    "chars": 917
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.892Z"
+}

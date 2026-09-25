@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2",
+  "title": "BOARD OF EQUALIZATION",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-board-of-equalization.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-2-board-of-equalization.txt",
+    "sha256": "369dff12e8de5caf8c4d3094a9f662a9a24ef4006cd91d147232e8cc5fa7e0fc",
+    "chars": 3944
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.891Z"
+}

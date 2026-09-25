@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "8",
+  "title": "AGRICULTURAL EXTENSION BOARD",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-agricultural-extension-board.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-8-agricultural-extension-board.txt",
+    "sha256": "142737d2a60b95ed66ae4c86e7ec9acbc3a0ff29b7fbf2d0b21a87782da07a9c",
+    "chars": 1718
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.891Z"
+}

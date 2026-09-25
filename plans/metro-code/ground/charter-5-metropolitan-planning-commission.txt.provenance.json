@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "5",
+  "title": "METROPOLITAN PLANNING COMMISSION",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-metropolitan-planning-commission.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-5-metropolitan-planning-commission.txt",
+    "sha256": "fdd97164954efa3908b4638fdfe589b2cfc6d3b713ec2667ab0681479a687413",
+    "chars": 9939
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.892Z"
+}

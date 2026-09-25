@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "3",
+  "title": "DEPARTMENT OF FIRE",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-3-department-of-fire.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-3-department-of-fire.txt",
+    "sha256": "6c09b6eb2aa40646fbab0950c2ee8aead3001825388fbe742e01e34c91278ade",
+    "chars": 4576
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.891Z"
+}

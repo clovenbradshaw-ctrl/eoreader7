@@ -1,0 +1,50 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.106",
+  "title": "COMMUNITY REVIEW BOARD*",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-100-metropolitan-transportation-licensing-commissi.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-104-urban-forester.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-106-community-review-board.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-107-farmers-market-board.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-76-board-of-mechanical-plumbing-and-electrical-exa.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-78-board-of-fair-commissioners.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-80-board-of-fire-and-building-code-appeals.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-84-reserved.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-88-board-of-property-standards-and-appeals.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-92-reserved.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-96-metropolitan-safety-advisory-board.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-106-community-review-board.txt",
+    "sha256": "f8228c56213867353ab6df48aae25af99b7c0e8f831758a9e82d12292f215ebf",
+    "chars": 18387
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.884Z"
+}

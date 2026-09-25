@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.60",
+  "title": "METROPOLITAN NASHVILLE AIRPORT AUTHORITY",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-60-metropolitan-nashville-airport-authority.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-60-metropolitan-nashville-airport-authority.txt",
+    "sha256": "6b17a3b9f0daba19a26d5d0ee2ae2286475bb19a8f19a787efe8763740c5bf47",
+    "chars": 43698
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.889Z"
+}

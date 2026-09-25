@@ -1,0 +1,104 @@
+{
+  "schema": "ChapterSwarmRead@1",
+  "declared": {
+    "source": "file:portland-or-facial-recognition-ordinance-no-190113-prohibit-the-acquisition-and-use-of-fac.txt",
+    "lang": "eng",
+    "prior": "pos-eng.json",
+    "giver": "chapter-swarm.mjs — Wilson's swarm",
+    "recipe": "read-real recursive pipeline, per chapter, minWitnesses:1 nomination",
+    "convention": null,
+    "chapters": 1,
+    "cv": false,
+    "corroborationRule": "a pair nominated by >=2 chapters is promoted to GIVEN (Wilson giver); nomination is never licensing"
+  },
+  "chapters": [
+    {
+      "index": 1,
+      "numeral": "1",
+      "title": null,
+      "span": [
+        0,
+        12544
+      ],
+      "chars": 12544,
+      "materialChars": 12544,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 99,
+      "relationEdges": 52,
+      "referentBindings": 31,
+      "chainSites": 4,
+      "pairTypes": 4,
+      "fullyReferentResolvedEdges": 21,
+      "candidates": [
+        {
+          "left": "Technologies by",
+          "right": "bureaus (",
+          "support": 1
+        },
+        {
+          "left": "; the",
+          "right": "Police Bureau; the Bureau of",
+          "support": 1
+        },
+        {
+          "left": "by City",
+          "right": "37437, the Bureau of",
+          "support": 1
+        },
+        {
+          "left": "and investing in",
+          "right": "or use would be otherwise allowed for",
+          "support": 1
+        }
+      ]
+    }
+  ],
+  "hyperlexicon": {
+    "schema": "EOHyperlexicon@1",
+    "entries": 4,
+    "given": [],
+    "candidates": [
+      {
+        "left": "Technologies by",
+        "right": "bureaus (",
+        "independentSupport": 1,
+        "chapters": [
+          1
+        ]
+      },
+      {
+        "left": "; the",
+        "right": "Police Bureau; the Bureau of",
+        "independentSupport": 1,
+        "chapters": [
+          1
+        ]
+      },
+      {
+        "left": "by City",
+        "right": "37437, the Bureau of",
+        "independentSupport": 1,
+        "chapters": [
+          1
+        ]
+      },
+      {
+        "left": "and investing in",
+        "right": "or use would be otherwise allowed for",
+        "independentSupport": 1,
+        "chapters": [
+          1
+        ]
+      }
+    ]
+  },
+  "corroborated": []
+}

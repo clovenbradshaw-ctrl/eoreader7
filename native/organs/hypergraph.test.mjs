@@ -1447,7 +1447,12 @@ test("queryReferents folds a bare determiner out of the verb label — two sente
     extractRelations: (...a) => dispatchExtractors().extractRelations(...a),
     extractorsMode: "dispatch",
     tokenize: (t) => String(t).toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [],
-    ...(withDeterminers ? { determiners: new Set([...DEFINITE_DETERMINERS, ...INDEFINITE_DETERMINERS]) } : {}),
+    ...(withDeterminers
+      ? {
+          determiners: new Set([...DEFINITE_DETERMINERS, ...INDEFINITE_DETERMINERS]),
+          definiteDeterminers: new Set(DEFINITE_DETERMINERS),
+        }
+      : {}),
   });
   const text = "Hannibal Hamlin became vice president under Abraham Lincoln. Andrew Johnson became the vice president under Abraham Lincoln.";
   const passages = [{ ref: "p", text }];
@@ -1467,6 +1472,67 @@ test("queryReferents folds a bare determiner out of the verb label — two sente
   const oneFound = withoutFix.queryReferents({ verb: edge2.label, object: edge2.end2 }) ?? [];
   assert.equal(oneFound.length, 1, "no determiners injected -> the pre-fix behavior stands, only the exact-label edge matches");
   assert.equal(String(oneFound[0].subject).toLowerCase(), "hamlin");
+});
+
+// ADVERSARIAL: FOLDING INDEFINITE DETERMINERS TOGETHER WITH DEFINITE ONES IS
+// A REAL HAZARD, NOT JUST A THEORETICAL ONE (2026-09-23). The user's own
+// instruction — "I feel like part of the problem here is that we are not
+// falsifying this information in the pipeline" — prompted testing the
+// determiner-fold fix above against a specimen where the determiner is
+// semantically load-bearing: "a vice president" (one of several, e.g. under
+// a holding company with multiple VPs) is NOT the same claim as "the vice
+// president" (the sole holder of the office). Live reproduction confirmed
+// the hazard against the FIRST cut of the fix (folding definite+indefinite
+// together via the combined `determiners` organ): it wrongly clustered
+// Chen's "a vice president" edge with Diaz's "the vice president" edge as
+// one slot. Narrowing `foldLabel` to a separate `definiteDeterminers`
+// organ (definite article only) closes it, while the ORIGINAL fix's own
+// specimen (a bare/no-article vs "the" phrasing gap, not an indefinite vs
+// definite one) keeps working — see the test above.
+test("queryReferents does NOT merge 'a vice president' (non-unique) with 'the vice president' (the sole holder) — the adversarial hazard the narrowed determiner fold closes", async () => {
+  const { relationExtractorsFor } = await import("../adapters/text/relations-language.js");
+  const { classifyWord, dominantClass } = await import("../adapters/text/wordclass.js");
+  const { DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS } = await import("../adapters/text/priors.js");
+  const base = await organs();
+  let dispatchState = null;
+  const dispatchExtractors = () => dispatchState ?? (dispatchState = relationExtractorsFor({ language: "eng", roleConfig: null, posPrior: null, classifyWord, dominantClass }));
+  const makeOrgans = (definiteDeterminersSet) => ({
+    splitSentences: base.splitSentences,
+    extractSurfaces: base.extractSurfaces,
+    discoverReferents: base.discoverReferents,
+    namesCorefer: base.namesCorefer,
+    diaNorm: base.diaNorm,
+    discoverRelationVocab: (...a) => dispatchExtractors().discoverRelationVocab(...a),
+    extractRelations: (...a) => dispatchExtractors().extractRelations(...a),
+    extractorsMode: "dispatch",
+    tokenize: (t) => String(t).toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [],
+    definiteDeterminers: definiteDeterminersSet,
+  });
+  const text = [
+    "Alice Chen worked at Acme Corp for many years.",
+    "Alice Chen became a vice president of Acme Corp in 2019.",
+    "Bob Diaz also worked at Acme Corp.",
+    "Bob Diaz became the vice president of Acme Corp in 2020.",
+    "Acme Corp grew rapidly under new leadership.",
+  ].join(" ");
+  const passages = [{ ref: "p", text }];
+
+  // The narrowed fix: only DEFINITE_DETERMINERS folded.
+  const narrow = makeRelationReader(makeOrgans(new Set(DEFINITE_DETERMINERS)))(passages, { pool: passages });
+  const chenEdge = narrow.read("placeholder").edges.find((e) => e.end1 === "Chen" && /vice president/.test(e.label));
+  assert.ok(chenEdge, "Chen's own edge must exist");
+  const narrowResult = narrow.queryReferents({ verb: chenEdge.label, object: chenEdge.end2 }) ?? [];
+  const narrowSubjects = narrowResult.map((s) => String(s.subject).toLowerCase());
+  assert.ok(narrowSubjects.includes("chen"), "Chen must still be found on her own edge");
+  assert.ok(!narrowSubjects.includes("diaz"), `narrowed (definite-only) fold must NOT merge Chen's 'a vice president' with Diaz's 'the vice president', got ${JSON.stringify(narrowResult)}`);
+
+  // The hazard the narrowing closes: folding BOTH classes together (simulating
+  // the un-narrowed first cut) wrongly merges the two distinct claims.
+  const wide = makeRelationReader(makeOrgans(new Set([...DEFINITE_DETERMINERS, ...INDEFINITE_DETERMINERS])))(passages, { pool: passages });
+  const chenEdge2 = wide.read("placeholder").edges.find((e) => e.end1 === "Chen" && /vice president/.test(e.label));
+  const wideResult = wide.queryReferents({ verb: chenEdge2.label, object: chenEdge2.end2 }) ?? [];
+  const wideSubjects = wideResult.map((s) => String(s.subject).toLowerCase());
+  assert.ok(wideSubjects.includes("chen") && wideSubjects.includes("diaz"), `sanity check: the un-narrowed (definite+indefinite) fold DOES wrongly merge them, confirming the hazard is real and the narrowing is what closes it, got ${JSON.stringify(wideResult)}`);
 });
 
 // ── the Station-3->4 wire: earned faces on public edges (2026-09-01) ────

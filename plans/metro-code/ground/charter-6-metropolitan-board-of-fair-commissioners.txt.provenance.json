@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "6",
+  "title": "METROPOLITAN BOARD OF FAIR COMMISSIONERS",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-board-of-fair-commissioners.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-6-metropolitan-board-of-fair-commissioners.txt",
+    "sha256": "169be4247995e99ccacc79958e04ae755ae32a354271f65930a2c09040636922",
+    "chars": 1900
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.891Z"
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "5",
+  "title": "DEPARTMENT OF WATER AND SEWERAGE SERVICES",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-5-department-of-water-and-sewerage.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-5-department-of-water-and-sewerage-services.txt",
+    "sha256": "bf610486352655ae6af20dd198233f7d7f294d79ac4d65e854e1bd79fbecc4d2",
+    "chars": 5486
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.891Z"
+}

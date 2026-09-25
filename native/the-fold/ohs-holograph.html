@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Fold — OHS — standby custody holograph</title>
+<style>
+  :root { --bg:#0d0b16; --bg2:#141126; --bg3:#1b1735; --line:#2b2450; --line2:#3a3170; --ink:#ece9fb; --muted:#8f88b3; --dim:#6b6492; --violet:#a78bfa; --violet2:#8b5cf6; --violet3:#7c3aed; --ok:#4ade80; --bad:#f87171; --amber:#fbbf24; --header-bg: rgba(13, 11, 22, .92); }
+  html[data-theme="light"] { --bg:#f8f6ff; --bg2:#ffffff; --bg3:#efeafb; --line:#e2ddf3; --line2:#c8bfe8; --ink:#241e3f; --muted:#5b5480; --dim:#8b84ab; --violet:#6d4bd8; --violet2:#7c3aed; --violet3:#6d28d9; --ok:#15803d; --bad:#b91c1c; --amber:#b45309; --header-bg: rgba(248, 246, 255, .92); }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: Georgia, serif; line-height: 1.65; transition: background .25s, color .25s; }
+  header { position: sticky; top: 0; z-index: 20; background: var(--header-bg); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); padding: .65rem 1.4rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .mark { display: flex; align-items: center; gap: .55rem; font-family: ui-monospace, Menlo, monospace; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .mark .dot { width: 12px; height: 12px; border-radius: 3px; background: linear-gradient(135deg, var(--violet), var(--violet3)); box-shadow: 0 0 12px rgba(139, 92, 246, .55); }
+  .mark b { color: var(--ink); }
+  .spacer { flex: 1; }
+  .status { font-family: ui-monospace, Menlo, monospace; font-size: .72rem; color: var(--dim); }
+  .status .ok { color: var(--ok); }
+  button { font-family: ui-monospace, Menlo, monospace; font-size: .74rem; color: var(--muted); background: var(--bg2); border: 1px solid var(--line2); border-radius: 6px; padding: .32rem .7rem; cursor: pointer; }
+  button:hover { color: var(--ink); border-color: var(--violet2); }
+  main { max-width: 64rem; margin: 0 auto; padding: 1.4rem 1.4rem 3rem; }
+  .hero { padding: 1.2rem 0 1.4rem; border-bottom: 1px solid var(--line); margin-bottom: 1.4rem; }
+  .hero h1 { margin: 0 0 .3rem; font-size: 1.9rem; font-weight: 600; }
+  .hero p { margin: 0; font-family: ui-monospace, Menlo, monospace; font-size: .78rem; color: var(--muted); }
+  .verbs { display: flex; gap: .5rem 1.2rem; flex-wrap: wrap; margin-top: .9rem; font-family: ui-monospace, Menlo, monospace; font-size: .68rem; color: var(--dim); }
+  .verbs .verb b { color: var(--violet); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; }
+  .proj { display: flex; gap: .4rem .9rem; flex-wrap: wrap; align-items: center; margin-top: .8rem; font-family: ui-monospace, Menlo, monospace; font-size: .66rem; }
+  .proj-label { color: var(--dim); }
+  .chip-state { color: var(--muted); border: 1px solid var(--line2); border-radius: 999px; padding: .12rem .55rem; cursor: pointer; }
+  .chip-state.on { color: var(--violet); border-color: var(--violet2); }
+  .chip-state.off { color: var(--dim); border-style: dashed; opacity: .6; }
+  .chip-state.lock { color: var(--ok); border-color: var(--ok); opacity: .85; cursor: default; }
+  details { border: 1px solid var(--line); border-radius: 10px; background: var(--bg2); margin: .7rem 0; }
+  details details { border-color: var(--line); background: var(--bg3); margin: .4rem 0 .4rem .4rem; }
+  details details details { background: rgba(27, 23, 53, .4); }
+  html[data-theme="light"] details details details { background: rgba(239, 234, 251, .6); }
+  details.hidden-surface { display: none; }
+  summary { cursor: pointer; list-style: none; padding: .55rem .9rem; font-family: ui-monospace, Menlo, monospace; font-size: .82rem; letter-spacing: .02em; color: var(--ink); user-select: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "▸ "; color: var(--violet2); }
+  details[open] > summary::before { content: "▾ "; }
+  summary:hover { color: var(--violet); }
+  summary .meta { color: var(--dim); font-size: .72rem; margin-left: .6rem; }
+  .terrain { color: var(--violet2); font-size: .7rem; }
+  .bucket { padding: .1rem .9rem .9rem; }
+  .empty { font-family: ui-monospace, Menlo, monospace; font-size: .72rem; color: var(--dim); padding: .2rem .8rem; }
+  .badge { font-size: .66rem; padding: .08rem .45rem; border-radius: 999px; margin-left: .6rem; }
+  .badge.v { background: rgba(139, 92, 246, .16); color: var(--violet); border: 1px solid rgba(139, 92, 246, .35); }
+  .badge.g { background: rgba(74, 222, 128, .1); color: var(--ok); border: 1px solid rgba(74, 222, 128, .3); }
+  .badge.r { background: rgba(248, 113, 113, .1); color: var(--bad); border: 1px solid rgba(248, 113, 113, .35); }
+  .badge.a { background: rgba(251, 191, 36, .1); color: var(--amber); border: 1px solid rgba(251, 191, 36, .3); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .6rem; }
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: .6rem .8rem; background: var(--bg3); }
+  .card h3 { margin: 0 0 .2rem; font-size: .95rem; }
+  .card p { margin: .15rem 0; font-family: ui-monospace, Menlo, monospace; font-size: .72rem; color: var(--muted); }
+  .pills { display: flex; gap: .4rem; flex-wrap: wrap; font-family: ui-monospace, Menlo, monospace; }
+  .pill { font-size: .76rem; padding: .2rem .7rem; border-radius: 999px; border: 1px solid var(--line2); color: var(--muted); display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; }
+  .pill.on { color: var(--violet); border-color: var(--violet2); }
+  .pill.off { color: var(--dim); border-style: dashed; opacity: .55; }
+  .beads { display: flex; gap: 1.3rem; flex-wrap: wrap; align-items: flex-start; padding: .3rem .8rem .6rem; }
+  .bead { display: flex; flex-direction: column; align-items: center; gap: .35rem; }
+  .bead .orb { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--violet2); box-shadow: 0 0 14px rgba(139, 92, 246, .35); background: rgba(139, 92, 246, .08); }
+  .bead.split .orb { border-color: var(--bad); box-shadow: none; background: transparent; }
+  .bead-name { font-family: ui-monospace, Menlo, monospace; font-size: .7rem; color: var(--muted); }
+  .bead-count { font-family: ui-monospace, Menlo, monospace; font-size: .68rem; color: var(--dim); }
+  .split-pair { display: flex; align-items: center; gap: 1rem; padding: .4rem .8rem 0; flex-wrap: wrap; }
+  .split-edge { font-family: ui-monospace, Menlo, monospace; font-size: .66rem; color: var(--bad); border-top: 2px dashed var(--bad); padding-top: .3rem; }
+  .row { border-left: 2px solid var(--line2); padding: .3rem .8rem; margin: .5rem 0 .5rem .4rem; border-radius: 0 6px 6px 0; }
+  .row-head { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; font-family: ui-monospace, Menlo, monospace; font-size: .72rem; color: var(--dim); }
+  .kind { font-size: .62rem; text-transform: uppercase; letter-spacing: .06em; padding: .1rem .45rem; border-radius: 3px; background: rgba(139, 92, 246, .14); color: var(--violet); }
+  .kind-number { background: rgba(251, 191, 36, .12); color: var(--amber); }
+  .kind-name { background: rgba(74, 222, 128, .12); color: var(--ok); }
+  .kind-place { background: rgba(251, 191, 36, .1); color: #f0abfc; }
+  .ref { color: var(--violet); cursor: help; }
+  .page { color: var(--dim); }
+  .verbatim { margin: .2rem 0 .05rem; font-size: .98rem; color: var(--ink); }
+  .chips { display: flex; gap: .4rem; flex-wrap: wrap; font-family: ui-monospace, Menlo, monospace; }
+  .chip { font-size: .66rem; background: rgba(143, 136, 179, .1); border: 1px solid var(--line); border-radius: 4px; padding: .04rem .45rem; color: var(--muted); }
+  .basis { font-size: .68rem; color: var(--dim); font-family: ui-monospace, Menlo, monospace; }
+  table { border-collapse: collapse; width: 100%; font-family: ui-monospace, Menlo, monospace; font-size: .76rem; margin: .4rem 0 .8rem; }
+  th, td { border: 1px solid var(--line); padding: .28rem .5rem; text-align: left; }
+  th { color: var(--violet); background: var(--bg3); font-weight: 600; }
+  td { color: var(--muted); }
+  .num { text-align: right; }
+  ul { margin: .2rem 0 .8rem; padding-left: 1.3rem; color: var(--muted); font-family: ui-monospace, Menlo, monospace; font-size: .76rem; }
+  .ok { color: var(--ok); }
+  .bad { color: var(--bad); }
+  .f-network svg { width: 100%; height: auto; background: var(--bg2); border: 1px solid var(--line); border-radius: 8px; margin: .4rem 0; }
+  .f-network .node { fill: none; stroke: var(--violet2); stroke-width: 1.5; }
+  .f-network .edge { stroke: var(--line2); stroke-width: 1.2; stroke-dasharray: 3 5; }
+  .f-network .node-label { font-family: ui-monospace, monospace; font-size: 9px; fill: var(--muted); }
+  .f-network .edge-label { font-family: ui-monospace, monospace; font-size: 8px; fill: var(--dim); }
+  .model-claim { font-style: italic; color: var(--muted); border-left: 2px solid var(--line2); padding: .3rem .8rem; margin: .5rem 0 .5rem .4rem; }
+  .model-tag { font-family: ui-monospace, Menlo, monospace; font-size: .66rem; color: var(--dim); font-style: normal; letter-spacing: .04em; }
+  .panel { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; padding: .3rem .8rem; }
+  .frame { border: 1px dashed var(--line2); border-radius: 8px; padding: .5rem; }
+  .worldviews { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .6rem; font-family: ui-monospace, Menlo, monospace; font-size: .68rem; }
+  .wv { color: var(--muted); border: 1px solid var(--line2); border-radius: 999px; padding: .14rem .6rem; }
+  .wv.on { color: var(--violet); border-color: var(--violet2); }
+  .wv.compare { color: var(--amber); border-style: dashed; }
+  .f-judgment { display: grid; grid-template-columns: 1fr auto; gap: 1.4rem; align-items: center; }
+  .f-judgment .strata { border-left: 2px dashed var(--line2); padding-left: 1.1rem; display: grid; gap: .8rem; }
+  .f-judgment .rev { position: relative; }
+  .f-judgment .rev .dot { position: absolute; left: -1.32rem; top: .35rem; width: 9px; height: 9px; border-radius: 50%; border: 1.5px dashed var(--line2); background: var(--bg2); }
+  .f-judgment .rev.current .dot { border-color: var(--ok); border-style: solid; }
+  .f-judgment .rev-line { font-family: ui-monospace, Menlo, monospace; font-size: .76rem; color: var(--muted); }
+  .f-judgment .rev-line b { color: var(--amber); }
+  .f-judgment .rev-basis { font-family: ui-monospace, Menlo, monospace; font-size: .68rem; color: var(--dim); }
+  .f-judgment .seal { width: 118px; height: 118px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; border: 3px dashed var(--line2); font-family: ui-monospace, Menlo, monospace; font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; }
+  .f-judgment .seal-pass { border-color: var(--ok); color: var(--ok); box-shadow: 0 0 18px rgba(74, 222, 128, .25); }
+  .f-judgment .seal-refuse { border-color: var(--bad); color: var(--bad); }
+  .sentence { display: flex; gap: .6rem; align-items: baseline; padding: .28rem .2rem; border-left: 2px solid transparent; cursor: pointer; }
+  .sentence:hover { border-left-color: var(--line2); }
+  .sentence .tag { font-family: ui-monospace, Menlo, monospace; font-size: .68rem; color: var(--violet); flex-shrink: 0; }
+  .sentence .tag.mouth { color: var(--muted); }
+  .sentence .sref { font-family: ui-monospace, Menlo, monospace; font-size: .66rem; color: var(--dim); margin-left: auto; }
+  .sentence .sref.mouth-tag { color: var(--amber); }
+  .row.flash { animation: flashrow 2.2s ease; }
+  @keyframes flashrow { 0%, 100% { background: transparent; } 15%, 45% { background: var(--bg3); border-left-color: var(--violet2); } }
+  .no-prov .prov { display: none; }
+  footer { max-width: 64rem; margin: 0 auto; padding: 1rem 1.4rem 2.5rem; border-top: 1px solid var(--line); font-family: ui-monospace, Menlo, monospace; font-size: .68rem; color: var(--dim); }
+  footer code { color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <span class="mark"><span class="dot"></span>the&nbsp;fold · <b>OHS</b></span>
+  <span class="spacer"></span>
+  <span class="status" id="status"></span>
+  <button id="tog-theme">light ⇄ dark</button>
+  <button id="tog-refs">bytes ⇄ page</button>
+  <button id="tog-prov">provenance</button>
+</header>
+<main>
+  <div class="hero">
+    <h1>OHS — standby custody holograph</h1>
+    <p>14 retained documents · 15 byte-anchored claims · 17 hyperlexicon assertions · the gate passes</p>
+    <div class="verbs">
+      <span class="verb"><b>scope</b> narrows the whole lattice (doc · lens · kind)</span><span class="verb"><b>light</b> selects a being — lit everywhere at once, one hop</span><span class="verb"><b>open</b> a byte ref opens its row — sentence, assertion, claim, all resolve to the byte</span><span class="verb"><b>propose</b> lands in Paradigm — only the gate changes the record</span>
+    </div>
+    <div class="proj">
+      <span class="proj-label">projection state — one constraint set, read by all nine surfaces:</span>
+      <span class="chip-state lock">gate — not a toggle</span>
+      <span class="chip-state on" data-surface="1">T1 Void</span><span class="chip-state on" data-surface="2">T2 Kind</span><span class="chip-state on" data-surface="3">T3 Entity</span><span class="chip-state on" data-surface="4">T4 Link</span><span class="chip-state on" data-surface="5">T5 Field</span><span class="chip-state on" data-surface="6">T6 Network</span><span class="chip-state on" data-surface="7">T7 Atmosphere</span><span class="chip-state on" data-surface="8">T8 Lens</span><span class="chip-state on" data-surface="9">T9 Paradigm</span>
+    </div>
+  </div>
+  <details class="surf" id="s1" open><summary><span class="terrain">T1</span> Void<span class="meta">the retained, hashed corpus</span></summary><div class="bucket"><div class="cards">
+    <div class="card"><h3>Audit Committee rules (bylaws)</h3><p>audit committee · committee · 3 pages · 5,742 chars</p>
+    <p>pdf 77034246… · custody captured</p>
+    <p class="basis prov">retained from ohs-custody · pdfminer · txt 23cea530…</p></div>
+    <div class="card"><h3>Audit Committee meeting, 9 Dec (packet)</h3><p>audit committee · committee · 3 pages · 7,558 chars</p>
+    <p>pdf b5c44ffd… · custody captured</p>
+    <p class="basis prov">retained from ohs-custody · pdfminer · txt 7043d9c4…</p></div>
+    <div class="card"><h3>Audit Committee agenda, 23 Sep 2025</h3><p>audit committee · committee · 2 pages · 4,266 chars</p>
+    <p>pdf a35fda52… · custody captured</p>
+    <p class="basis prov">retained from ohs-custody · pdfminer · txt 13c63f2d…</p></div>
+    <div class="card"><h3>Audit Committee minutes, 23 Sep 2025</h3><p>audit committee · committee · 4 pages · 11,027 chars</p>
+    <p>pdf 015a3537… · custody captured</p>
+    <p class="basis prov">retained from ohs-custody · pdfminer · txt 651854a1…</p></div>
+    <div class="card"><h3>Internal Audit, Homeless Impact Division, 30 Mar 2023</h3><p>internal audit · department · 21 pages · 48,733 chars</p>
+    <p>pdf 79a8223f… · custody captured</p>
+    <p class="basis prov">retained from ohs-custody · pdfminer · txt 501833a1…</p></div>
+    <div class="card"><h3>Homeless Impact Division audit follow-up, 2025</h3><p>internal audit · department · 9 pages · 12,192 chars</p>
+    <p>pdf 51990612… · custody captured</p>
+    <p class="basis prov">retained from ohs-custody · pdfminer · txt 69ace81a…</p></div>
+    <div class="card"><h3>Shanley Deignan email on CoC ranking, 6 Aug 2026 (fwd 19 Sep 2026)</h3><p>CoC governance · Continuum of Care · 4 pages · 11,694 chars</p>
+    <p>pdf c52da83e… · custody local-only</p>
+    <p class="basis prov">retained from ohs-custody · pdfminer · txt 8f6ef111…</p></div>
+    <div class="card"><h3>BL2021-971 Amendment No. 1</h3><p>ordinance · legislation · 1 pages · 583 chars</p>
+    <p>pdf 997e7142… · custody captured</p>
+    <p class="basis prov">retained from ohs-custody · pdfminer · txt f7d9ea14…</p></div>
+    <div class="card"><h3>BL2021-971 Amendment No. 2</h3><p>ordinance · legislation · 1 pages · 879 chars</p>
+    <p>pdf 857e0a1f… · custody captured</p>
+    <p class="basis prov">retained from ohs-custody · pdfminer · txt 889bdbc1…</p></div>
+    <div class="card"><h3>MHRC ED probable-cause determination, 30 Jun 2026</h3><p>civil rights · complaint · 5 pages · 10,784 chars</p>
+    <p>pdf 2f270d7b… · custody local-only</p>
+    <p class="basis prov">retained from ohs-custody · pdfminer · txt 8bcf4faf…</p></div>
+    <div class="card"><h3>MHRC staff investigative report, 26 Jun 2026</h3><p>civil rights · complaint · 9 pages · 21,628 chars</p>
+    <p>pdf 9525c5b2… · custody local-only</p>
+    <p class="basis prov">retained from ohs-custody · pdfminer · txt a21b9463…</p></div>
+    <div class="card"><h3>Councilmember Welsch audit-request letter</h3><p>audit committee · council · 4 pages · 10,387 chars</p>
+    <p>pdf 2047adbf… · custody local-only</p>
+    <p class="basis prov">retained from ohs-custody · pdfminer · txt b3e48b97…</p></div>
+    <div class="card"><h3>Metro Code 2.63.040, director appointment (rendered)</h3><p>municipal code · code · 1 pages · 2,605 chars</p>
+    <p>pdf 51f8a841… · custody captured</p>
+    <p class="basis prov">retained from ohs-custody · rendered-dom · txt 4d12915d…</p></div>
+    <div class="card"><h3>Sept 23, 2025 Audit Committee meeting, Whisper transcript</h3><p>meeting record · committee · 1 pages · 83,627 chars</p>
+    <p>pdf 059d575c… · custody local-only</p>
+    <p class="basis prov">retained from ohs-custody · whisper · txt 059d575c…</p></div></div></div></details>
+  <details class="surf" id="s2"><summary><span class="terrain">T2</span> Kind<span class="meta">what a being is</span></summary><div class="bucket"><p class="empty">row kinds — toggle a pill and every surface filters</p><div class="pills" id="kind-toggle"><span class="pill on" data-kind="primary-record"><span class="kind kind-primary-record">primary-record</span> 14</span><span class="pill on" data-kind="secondary"><span class="kind kind-secondary">secondary</span> 1</span></div><p class="empty">document categories</p><div class="pills"><span class="pill">CoC governance</span><span class="pill">audit committee</span><span class="pill">civil rights</span><span class="pill">internal audit</span><span class="pill">meeting record</span><span class="pill">municipal code</span><span class="pill">ordinance</span></div></div></details>
+  <details class="surf" id="s3" open><summary><span class="terrain">T3</span> Entity<span class="meta">identity typed, never guessed</span></summary><div class="bucket"><div class="beads"><div class="bead"><span class="orb"></span><span class="bead-name">Determination Under MHRC Rules</span><span class="bead-count">3</span></div><div class="bead"><span class="orb"></span><span class="bead-name">OHS</span><span class="bead-count">3</span></div><div class="bead"><span class="orb"></span><span class="bead-name">public comment</span><span class="bead-count">2</span></div><div class="bead"><span class="orb"></span><span class="bead-name">52 percent HUD non-compliance</span><span class="bead-count">1</span></div><div class="bead"><span class="orb"></span><span class="bead-name">a seat in the interview process</span><span class="bead-count">1</span></div><div class="bead"><span class="orb"></span><span class="bead-name">CE</span><span class="bead-count">1</span></div><div class="bead"><span class="orb"></span><span class="bead-name">HMIS and Coordinated Entry</span><span class="bead-count">1</span></div><div class="bead"><span class="orb"></span><span class="bead-name">HMIS Department</span><span class="bead-count">1</span></div><div class="bead"><span class="orb"></span><span class="bead-name">immediate forensic examination</span><span class="bead-count">1</span></div><div class="bead"><span class="orb"></span><span class="bead-name">named components</span><span class="bead-count">1</span></div><div class="bead"><span class="orb"></span><span class="bead-name">OHS director</span><span class="bead-count">1</span></div><div class="bead"><span class="orb"></span><span class="bead-name">probable cause on the Title VI complaint</span><span class="bead-count">1</span></div><div class="bead"><span class="orb"></span><span class="bead-name">removing the dollars</span><span class="bead-count">1</span></div><div class="bead"><span class="orb"></span><span class="bead-name">the 3.2 million dollar figure</span><span class="bead-count">1</span></div></div><div class="split-pair"><div class="bead split"><span class="orb"></span><span class="bead-name">the written minutes</span><span class="bead-count">1</span></div><span class="split-edge">✗ the recording shows what the minutes omit — public comment — not merged: no single byte reconciles the two records</span><div class="bead split"><span class="orb"></span><span class="bead-name">the recording</span><span class="bead-count">1</span></div></div><p class="empty">identity typed, never guessed — the split renders as a gap until a received prior closes it</p></div></details>
+  <details class="surf" id="s4"><summary><span class="terrain">T4</span> Link<span class="meta">the asserted connections, byte-addressed</span></summary><div class="bucket"><details class="surf" id=""><summary><span class="terrain">T4</span> Audit Committee rules (bylaws)<span class="meta">1 rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-BYLAWS.txt#144-159">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-BYLAWS.txt#144-159" data-page="p.1">ohs/ground/AUD-CTTE-BYLAWS.txt#144-159</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">Audit Committee</div>
+    <div class="chips"><span class="chip">AUD-CTTE-BYLAWS</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T4</span> Audit Committee meeting, 9 Dec (packet)<span class="meta">1 rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-DEC9.txt#180-195">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-DEC9.txt#180-195" data-page="p.1">ohs/ground/AUD-CTTE-DEC9.txt#180-195</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">Audit Committee</div>
+    <div class="chips"><span class="chip">AUD-CTTE-DEC9</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T4</span> Audit Committee agenda, 23 Sep 2025<span class="meta">1 rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-SEP23-AGENDA.txt#1354-1427">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-SEP23-AGENDA.txt#1354-1427" data-page="p.1">ohs/ground/AUD-CTTE-SEP23-AGENDA.txt#1354-1427</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">Discussion on the request for an audit of the Office of Homeless Services</div>
+    <div class="chips"><span class="chip">AUD-CTTE-SEP23-AGENDA</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T4</span> Audit Committee minutes, 23 Sep 2025<span class="meta">1 rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720" data-page="p.3">ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720</span>
+      <span class="page">p.3</span></div>
+    <div class="verbatim">Audit of Office of Homeless Services Financial Processes to the 2025 annual audit plan</div>
+    <div class="chips"><span class="chip">AUD-CTTE-SEP23-MINUTES</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T4</span> Internal Audit, Homeless Impact Division, 30 Mar 2023<span class="meta">1 rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-HID-2023.txt#20225-20256">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-HID-2023.txt#20225-20256" data-page="p.8">ohs/ground/AUD-HID-2023.txt#20225-20256</span>
+      <span class="page">p.8</span></div>
+    <div class="verbatim">Only 12 out of 23 (52 percent)</div>
+    <div class="chips"><span class="chip">AUD-HID-2023</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T4</span> Homeless Impact Division audit follow-up, 2025<span class="meta">1 rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-HID-FOLLOWUP-2025.txt#1351-1412">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-HID-FOLLOWUP-2025.txt#1351-1412" data-page="p.2">ohs/ground/AUD-HID-FOLLOWUP-2025.txt#1351-1412</span>
+      <span class="page">p.2</span></div>
+    <div class="verbatim">six were fully implemented and one was partially implemented</div>
+    <div class="chips"><span class="chip">AUD-HID-FOLLOWUP-2025</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T4</span> Shanley Deignan email on CoC ranking, 6 Aug 2026 (fwd 19 Sep 2026)<span class="meta">1 rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729" data-page="p.1">ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">decision that was made not to fund HMIS</div>
+    <div class="chips"><span class="chip">COC-DEIGNAN-RANKING-2026</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T4</span> BL2021-971 Amendment No. 1<span class="meta">1 rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/LEG-AMD1.txt#401-420">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/LEG-AMD1.txt#401-420" data-page="p.1">ohs/ground/LEG-AMD1.txt#401-420</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">list of three names</div>
+    <div class="chips"><span class="chip">LEG-AMD1</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T4</span> BL2021-971 Amendment No. 2<span class="meta">1 rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/LEG-AMD2.txt#807-819">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/LEG-AMD2.txt#807-819" data-page="p.1">ohs/ground/LEG-AMD2.txt#807-819</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">SPONSORED BY</div>
+    <div class="chips"><span class="chip">LEG-AMD2</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T4</span> MHRC ED probable-cause determination, 30 Jun 2026<span class="meta">1 rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747" data-page="p.4">ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747</span>
+      <span class="page">p.4</span></div>
+    <div class="verbatim">there is probable cause to believe that the administration of federally funded housing assistance</div>
+    <div class="chips"><span class="chip">MHRC-ED-DETERMINATION</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T4</span> MHRC staff investigative report, 26 Jun 2026<span class="meta">1 rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477-21620">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477-21620" data-page="p.9">ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477-21620</span>
+      <span class="page">p.9</span></div>
+    <div class="verbatim">there is a probable cause to believe that OHS’s administration of federally-funded housing programs did not comply with Title VI requirements</div>
+    <div class="chips"><span class="chip">MHRC-STAFF-INVESTIGATIVE-REPORT</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T4</span> Councilmember Welsch audit-request letter<span class="meta">1 rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549-1590">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549-1590" data-page="p.1">ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549-1590</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">requiring immediate forensic examination</div>
+    <div class="chips"><span class="chip">WELSCH-AUDIT-REQUEST-LETTER</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T4</span> Metro Code 2.63.040, director appointment (rendered)<span class="meta">2 rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/MUNI-263040.txt#2056-2087">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MUNI-263040.txt#2056-2087" data-page="">ohs/ground/MUNI-263040.txt#2056-2087</span>
+      </div>
+    <div class="verbatim">shall be appointed by the mayor</div>
+    <div class="chips"><span class="chip">MUNI-263040</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (anchor-not-found)</div></div><div class="row" data-kind="primary-record" data-ref="ohs/ground/MUNI-263040.txt#2214-2274">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MUNI-263040.txt#2214-2274" data-page="">ohs/ground/MUNI-263040.txt#2214-2274</span>
+      </div>
+    <div class="verbatim">at least one representative of the Nashville Davidson County</div>
+    <div class="chips"><span class="chip">MUNI-263040-HR</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (anchor-not-found)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T4</span> Sept 23, 2025 Audit Committee meeting, Whisper transcript<span class="meta">1 rows</span></summary><div class="bucket"><div class="row" data-kind="secondary" data-ref="ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013">
+    <div class="row-head"><span class="kind kind-secondary">secondary</span>
+      <span class="ref" data-byte="ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013" data-page="">ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013</span>
+      </div>
+    <div class="verbatim">Much of the documentary evidence cited in this audit request of OHS exists because I and other citizens fought to bring this information to light</div>
+    <div class="chips"><span class="chip">SEPT23-MEETING-TRANSCRIPT</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (exact-bytes)</div></div></div></details></div></details>
+  <details class="surf" id="s5"><summary><span class="terrain">T5</span> Field<span class="meta">the source setting, provenance-stamped</span></summary><div class="bucket"><details class="surf" id=""><summary><span class="terrain">T5</span> the register, by capture status<span class="meta">75 entries</span></summary><div class="bucket"><div class="pills"><span class="chip">captured: 61</span><span class="chip">local-only: ?</span><span class="chip">bytes-held: ?</span><span class="chip">anchor-missing: ?</span><span class="chip">not-located: ?</span></div><p class="empty prov">dataset ohs-custody/sources.enriched.json · source ohs-custody chain-of-custody register · asOf 2026-09-19T20:12:51+00:00</p><p class="basis prov">ohs/data/sources.enriched.json#/entries · deterministic fold over the retained register snapshot</p></div></details></div></details>
+  <details class="surf" id="s6" open><summary><span class="terrain">T6</span> Network<span class="meta">the web the links make</span></summary><div class="bucket"><details class="surf" id=""><summary><span class="terrain">T6</span> Governance &amp; the ordinance<span class="meta">6 claims · 5 documents</span></summary><div class="bucket"><details class="surf" id=""><summary><span class="terrain">T6</span> AUD-CTTE-SEP23-MINUTES<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720" data-page="p.3">ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720</span>
+      <span class="page">p.3</span></div>
+    <div class="verbatim">Audit of Office of Homeless Services Financial Processes to the 2025 annual audit plan</div>
+    <div class="chips"><span class="chip">AUD-CTTE-SEP23-MINUTES</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> COC-DEIGNAN-RANKING-2026<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729" data-page="p.1">ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">decision that was made not to fund HMIS</div>
+    <div class="chips"><span class="chip">COC-DEIGNAN-RANKING-2026</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> MHRC-ED-DETERMINATION<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747" data-page="p.4">ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747</span>
+      <span class="page">p.4</span></div>
+    <div class="verbatim">there is probable cause to believe that the administration of federally funded housing assistance</div>
+    <div class="chips"><span class="chip">MHRC-ED-DETERMINATION</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> MUNI-263040<span class="meta">[object Object],[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/MUNI-263040.txt#2056-2087">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MUNI-263040.txt#2056-2087" data-page="">ohs/ground/MUNI-263040.txt#2056-2087</span>
+      </div>
+    <div class="verbatim">shall be appointed by the mayor</div>
+    <div class="chips"><span class="chip">MUNI-263040</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (anchor-not-found)</div></div><div class="row" data-kind="primary-record" data-ref="ohs/ground/MUNI-263040.txt#2214-2274">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MUNI-263040.txt#2214-2274" data-page="">ohs/ground/MUNI-263040.txt#2214-2274</span>
+      </div>
+    <div class="verbatim">at least one representative of the Nashville Davidson County</div>
+    <div class="chips"><span class="chip">MUNI-263040-HR</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (anchor-not-found)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> WELSCH-AUDIT-REQUEST-LETTER<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549-1590">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549-1590" data-page="p.1">ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549-1590</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">requiring immediate forensic examination</div>
+    <div class="chips"><span class="chip">WELSCH-AUDIT-REQUEST-LETTER</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> Funding &amp; dollars<span class="meta">10 claims · 10 documents</span></summary><div class="bucket"><details class="surf" id=""><summary><span class="terrain">T6</span> AUD-CTTE-BYLAWS<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-BYLAWS.txt#144-159">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-BYLAWS.txt#144-159" data-page="p.1">ohs/ground/AUD-CTTE-BYLAWS.txt#144-159</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">Audit Committee</div>
+    <div class="chips"><span class="chip">AUD-CTTE-BYLAWS</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> AUD-CTTE-DEC9<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-DEC9.txt#180-195">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-DEC9.txt#180-195" data-page="p.1">ohs/ground/AUD-CTTE-DEC9.txt#180-195</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">Audit Committee</div>
+    <div class="chips"><span class="chip">AUD-CTTE-DEC9</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> AUD-CTTE-SEP23-AGENDA<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-SEP23-AGENDA.txt#1354-1427">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-SEP23-AGENDA.txt#1354-1427" data-page="p.1">ohs/ground/AUD-CTTE-SEP23-AGENDA.txt#1354-1427</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">Discussion on the request for an audit of the Office of Homeless Services</div>
+    <div class="chips"><span class="chip">AUD-CTTE-SEP23-AGENDA</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> AUD-CTTE-SEP23-MINUTES<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720" data-page="p.3">ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720</span>
+      <span class="page">p.3</span></div>
+    <div class="verbatim">Audit of Office of Homeless Services Financial Processes to the 2025 annual audit plan</div>
+    <div class="chips"><span class="chip">AUD-CTTE-SEP23-MINUTES</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> AUD-HID-FOLLOWUP-2025<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-HID-FOLLOWUP-2025.txt#1351-1412">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-HID-FOLLOWUP-2025.txt#1351-1412" data-page="p.2">ohs/ground/AUD-HID-FOLLOWUP-2025.txt#1351-1412</span>
+      <span class="page">p.2</span></div>
+    <div class="verbatim">six were fully implemented and one was partially implemented</div>
+    <div class="chips"><span class="chip">AUD-HID-FOLLOWUP-2025</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> COC-DEIGNAN-RANKING-2026<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729" data-page="p.1">ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">decision that was made not to fund HMIS</div>
+    <div class="chips"><span class="chip">COC-DEIGNAN-RANKING-2026</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> MHRC-ED-DETERMINATION<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747" data-page="p.4">ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747</span>
+      <span class="page">p.4</span></div>
+    <div class="verbatim">there is probable cause to believe that the administration of federally funded housing assistance</div>
+    <div class="chips"><span class="chip">MHRC-ED-DETERMINATION</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> MHRC-STAFF-INVESTIGATIVE-REPORT<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477-21620">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477-21620" data-page="p.9">ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477-21620</span>
+      <span class="page">p.9</span></div>
+    <div class="verbatim">there is a probable cause to believe that OHS’s administration of federally-funded housing programs did not comply with Title VI requirements</div>
+    <div class="chips"><span class="chip">MHRC-STAFF-INVESTIGATIVE-REPORT</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> SEPT23-MEETING-TRANSCRIPT<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="secondary" data-ref="ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013">
+    <div class="row-head"><span class="kind kind-secondary">secondary</span>
+      <span class="ref" data-byte="ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013" data-page="">ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013</span>
+      </div>
+    <div class="verbatim">Much of the documentary evidence cited in this audit request of OHS exists because I and other citizens fought to bring this information to light</div>
+    <div class="chips"><span class="chip">SEPT23-MEETING-TRANSCRIPT</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (exact-bytes)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> WELSCH-AUDIT-REQUEST-LETTER<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549-1590">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549-1590" data-page="p.1">ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549-1590</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">requiring immediate forensic examination</div>
+    <div class="chips"><span class="chip">WELSCH-AUDIT-REQUEST-LETTER</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> Accountability &amp; oversight<span class="meta">9 claims · 9 documents</span></summary><div class="bucket"><details class="surf" id=""><summary><span class="terrain">T6</span> AUD-CTTE-BYLAWS<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-BYLAWS.txt#144-159">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-BYLAWS.txt#144-159" data-page="p.1">ohs/ground/AUD-CTTE-BYLAWS.txt#144-159</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">Audit Committee</div>
+    <div class="chips"><span class="chip">AUD-CTTE-BYLAWS</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> AUD-CTTE-DEC9<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-DEC9.txt#180-195">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-DEC9.txt#180-195" data-page="p.1">ohs/ground/AUD-CTTE-DEC9.txt#180-195</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">Audit Committee</div>
+    <div class="chips"><span class="chip">AUD-CTTE-DEC9</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> AUD-CTTE-SEP23-AGENDA<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-SEP23-AGENDA.txt#1354-1427">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-SEP23-AGENDA.txt#1354-1427" data-page="p.1">ohs/ground/AUD-CTTE-SEP23-AGENDA.txt#1354-1427</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">Discussion on the request for an audit of the Office of Homeless Services</div>
+    <div class="chips"><span class="chip">AUD-CTTE-SEP23-AGENDA</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> AUD-CTTE-SEP23-MINUTES<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720" data-page="p.3">ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720</span>
+      <span class="page">p.3</span></div>
+    <div class="verbatim">Audit of Office of Homeless Services Financial Processes to the 2025 annual audit plan</div>
+    <div class="chips"><span class="chip">AUD-CTTE-SEP23-MINUTES</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> AUD-HID-FOLLOWUP-2025<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-HID-FOLLOWUP-2025.txt#1351-1412">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-HID-FOLLOWUP-2025.txt#1351-1412" data-page="p.2">ohs/ground/AUD-HID-FOLLOWUP-2025.txt#1351-1412</span>
+      <span class="page">p.2</span></div>
+    <div class="verbatim">six were fully implemented and one was partially implemented</div>
+    <div class="chips"><span class="chip">AUD-HID-FOLLOWUP-2025</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> MHRC-ED-DETERMINATION<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747" data-page="p.4">ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747</span>
+      <span class="page">p.4</span></div>
+    <div class="verbatim">there is probable cause to believe that the administration of federally funded housing assistance</div>
+    <div class="chips"><span class="chip">MHRC-ED-DETERMINATION</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> MHRC-STAFF-INVESTIGATIVE-REPORT<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477-21620">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477-21620" data-page="p.9">ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477-21620</span>
+      <span class="page">p.9</span></div>
+    <div class="verbatim">there is a probable cause to believe that OHS’s administration of federally-funded housing programs did not comply with Title VI requirements</div>
+    <div class="chips"><span class="chip">MHRC-STAFF-INVESTIGATIVE-REPORT</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> SEPT23-MEETING-TRANSCRIPT<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="secondary" data-ref="ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013">
+    <div class="row-head"><span class="kind kind-secondary">secondary</span>
+      <span class="ref" data-byte="ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013" data-page="">ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013</span>
+      </div>
+    <div class="verbatim">Much of the documentary evidence cited in this audit request of OHS exists because I and other citizens fought to bring this information to light</div>
+    <div class="chips"><span class="chip">SEPT23-MEETING-TRANSCRIPT</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (exact-bytes)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> WELSCH-AUDIT-REQUEST-LETTER<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549-1590">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549-1590" data-page="p.1">ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549-1590</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">requiring immediate forensic examination</div>
+    <div class="chips"><span class="chip">WELSCH-AUDIT-REQUEST-LETTER</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> Civil rights &amp; Title VI<span class="meta">2 claims · 2 documents</span></summary><div class="bucket"><details class="surf" id=""><summary><span class="terrain">T6</span> MHRC-ED-DETERMINATION<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747" data-page="p.4">ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747</span>
+      <span class="page">p.4</span></div>
+    <div class="verbatim">there is probable cause to believe that the administration of federally funded housing assistance</div>
+    <div class="chips"><span class="chip">MHRC-ED-DETERMINATION</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> MHRC-STAFF-INVESTIGATIVE-REPORT<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477-21620">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477-21620" data-page="p.9">ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477-21620</span>
+      <span class="page">p.9</span></div>
+    <div class="verbatim">there is a probable cause to believe that OHS’s administration of federally-funded housing programs did not comply with Title VI requirements</div>
+    <div class="chips"><span class="chip">MHRC-STAFF-INVESTIGATIVE-REPORT</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> Process &amp; public record<span class="meta">4 claims · 4 documents</span></summary><div class="bucket"><details class="surf" id=""><summary><span class="terrain">T6</span> AUD-CTTE-SEP23-MINUTES<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720" data-page="p.3">ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720</span>
+      <span class="page">p.3</span></div>
+    <div class="verbatim">Audit of Office of Homeless Services Financial Processes to the 2025 annual audit plan</div>
+    <div class="chips"><span class="chip">AUD-CTTE-SEP23-MINUTES</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> COC-DEIGNAN-RANKING-2026<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729" data-page="p.1">ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">decision that was made not to fund HMIS</div>
+    <div class="chips"><span class="chip">COC-DEIGNAN-RANKING-2026</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> MHRC-ED-DETERMINATION<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747" data-page="p.4">ohs/ground/MHRC-ED-DETERMINATION.txt#8649-8747</span>
+      <span class="page">p.4</span></div>
+    <div class="verbatim">there is probable cause to believe that the administration of federally funded housing assistance</div>
+    <div class="chips"><span class="chip">MHRC-ED-DETERMINATION</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T6</span> SEPT23-MEETING-TRANSCRIPT<span class="meta">[object Object] rows</span></summary><div class="bucket"><div class="row" data-kind="secondary" data-ref="ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013">
+    <div class="row-head"><span class="kind kind-secondary">secondary</span>
+      <span class="ref" data-byte="ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013" data-page="">ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013</span>
+      </div>
+    <div class="verbatim">Much of the documentary evidence cited in this audit request of OHS exists because I and other citizens fought to bring this information to light</div>
+    <div class="chips"><span class="chip">SEPT23-MEETING-TRANSCRIPT</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (exact-bytes)</div></div></div></details></div></details><div class="f-network"><p class="empty">nodes are the beings, edges are the hyperlexicon assertions — every edge carries its byte refs and witness count</p><svg viewBox="0 0 540 260" preserveAspectRatio="xMidYMid meet"><line class="edge" x1="90" y1="30" x2="450" y2="30"/><text x="270" y="22" text-anchor="middle" class="edge-label">is in · 1 witness</text><line class="edge" x1="90" y1="80" x2="450" y2="58.57142857142857"/><text x="270" y="61.28571428571428" text-anchor="middle" class="edge-label">is in · 1 witness</text><line class="edge" x1="90" y1="130" x2="450" y2="87.14285714285714"/><text x="270" y="100.57142857142857" text-anchor="middle" class="edge-label">found · 1 witness</text><line class="edge" x1="90" y1="130" x2="450" y2="115.71428571428572"/><text x="270" y="114.85714285714286" text-anchor="middle" class="edge-label">referred · 1 witness</text><line class="edge" x1="90" y1="130" x2="450" y2="144.28571428571428"/><text x="270" y="129.14285714285714" text-anchor="middle" class="edge-label">upheld · 1 witness</text><line class="edge" x1="90" y1="180" x2="450" y2="172.85714285714286"/><text x="270" y="168.42857142857144" text-anchor="middle" class="edge-label">shall be appointed by · 1 witness</text><line class="edge" x1="90" y1="230" x2="450" y2="201.42857142857144"/><text x="270" y="207.71428571428572" text-anchor="middle" class="edge-label">did not comply with · 1 witness</text><line class="edge" x1="90" y1="230" x2="450" y2="230"/><text x="270" y="222" text-anchor="middle" class="edge-label">is · 1 witness</text><g><circle class="node" cx="90" cy="30" r="14"/><text x="90" y="58" text-anchor="middle" class="node-label">CE</text></g><g><circle class="node" cx="90" cy="80" r="14"/><text x="90" y="108" text-anchor="middle" class="node-label">HMIS Department</text></g><g><circle class="node" cx="90" cy="130" r="14"/><text x="90" y="158" text-anchor="middle" class="node-label">Determination Under MHRC Rules</text></g><g><circle class="node" cx="90" cy="180" r="14"/><text x="90" y="208" text-anchor="middle" class="node-label">OHS director</text></g><g><circle class="node" cx="90" cy="230" r="14"/><text x="90" y="258" text-anchor="middle" class="node-label">OHS</text></g><g><circle class="node" cx="450" cy="30" r="14"/><text x="450" y="58" text-anchor="middle" class="node-label">year 8 of a 5-year term</text></g><g><circle class="node" cx="450" cy="58.57142857142857" r="14"/><text x="450" y="86.57142857142857" text-anchor="middle" class="node-label">year 3 of a 5-year term</text></g><g><circle class="node" cx="450" cy="87.14285714285714" r="14"/><text x="450" y="115.14285714285714" text-anchor="middle" class="node-label">probable cause on the Title VI complaint</text></g><g><circle class="node" cx="450" cy="115.71428571428572" r="14"/><text x="450" y="143.71428571428572" text-anchor="middle" class="node-label">the complaint to conciliation</text></g><g><circle class="node" cx="450" cy="144.28571428571428" r="14"/><text x="450" y="172.28571428571428" text-anchor="middle" class="node-label">the complaint</text></g><g><circle class="node" cx="450" cy="172.85714285714286" r="14"/><text x="450" y="200.85714285714286" text-anchor="middle" class="node-label">the mayor</text></g><g><circle class="node" cx="450" cy="201.42857142857144" r="14"/><text x="450" y="229.42857142857144" text-anchor="middle" class="node-label">Title VI</text></g><g><circle class="node" cx="450" cy="230" r="14"/><text x="450" y="258" text-anchor="middle" class="node-label">the Collaborative Applicant</text></g></svg></div></div></details>
+  <details class="surf" id="s7"><summary><span class="terrain">T7</span> Atmosphere<span class="meta">the typed prose — material carries its byte, the mouth is marked</span></summary><div class="bucket"><p class="empty">12 of 12 sentence(s) grounded in the record; 0 are the mouth's own prose, marked self:model. — material sentences carry file#byte; click one to open its row</p><div class="sentence material" data-open-ref="ohs/ground/MHRC-ED-DETERMINATION.txt#8649">
+      <span class="tag material">[S10]</span>
+      <span class="stext">The Metro Human Relations Commission found probable cause on a Title VI complaint against OHS.</span>
+      <span class="sref">ohs/ground/MHRC-ED-DETERMINATION.txt#8649</span></div><div class="sentence material" data-open-ref="ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477">
+      <span class="tag material">[S11]</span>
+      <span class="stext">The staff investigative report found that OHS's administration of federally-funded housing programs did not comply with Title VI requirements.</span>
+      <span class="sref">ohs/ground/MHRC-STAFF-INVESTIGATIVE-REPORT.txt#21477</span></div><div class="sentence material" data-open-ref="ohs/ground/MHRC-ED-DETERMINATION.txt#8649">
+      <span class="tag material">[S10]</span>
+      <span class="stext">The Executive Director upheld the complaint and referred it to conciliation.</span>
+      <span class="sref">ohs/ground/MHRC-ED-DETERMINATION.txt#8649</span></div><div class="sentence material" data-open-ref="ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549">
+      <span class="tag material">[S15]</span>
+      <span class="stext">Councilmember Welsch requested an OHS audit, itemizing the 3.2 million dollar figure into named components.</span>
+      <span class="sref">ohs/ground/WELSCH-AUDIT-REQUEST-LETTER.txt#1549</span></div><div class="sentence material" data-open-ref="ohs/ground/MUNI-263040.txt#2056">
+      <span class="tag material">[S12]</span>
+      <span class="stext">The enacted code says the OHS director shall be appointed by the mayor.</span>
+      <span class="sref">ohs/ground/MUNI-263040.txt#2056</span></div><div class="sentence material" data-open-ref="ohs/ground/MUNI-263040.txt#2214">
+      <span class="tag material">[S13]</span>
+      <span class="stext">The planning council retains only a seat in the interview process.</span>
+      <span class="sref">ohs/ground/MUNI-263040.txt#2214</span></div><div class="sentence material" data-open-ref="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690">
+      <span class="tag material">[S7]</span>
+      <span class="stext">The CoC decided not to fund HMIS and Coordinated Entry in this year's competition.</span>
+      <span class="sref">ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690</span></div><div class="sentence material" data-open-ref="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690">
+      <span class="tag material">[S7]</span>
+      <span class="stext">Removing the dollars bypasses the outlined charter process for the HMIS and CE Lead roles.</span>
+      <span class="sref">ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690</span></div><div class="sentence material" data-open-ref="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690">
+      <span class="tag material">[S7]</span>
+      <span class="stext">OHS is the Collaborative Applicant and the current designated lead agency.</span>
+      <span class="sref">ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690</span></div><div class="sentence material">
+      <span class="tag material">[S?]</span>
+      <span class="stext">A private correction puts HMIS in year 3 of a 5-year term and CE in year 8.</span>
+      <span class="sref mouth-tag">grounded but unaddressed</span></div><div class="sentence material" data-open-ref="ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633">
+      <span class="tag material">[S4]</span>
+      <span class="stext">The written minutes of the September 23 meeting never mention public comment; the recording captures a public comment period.</span>
+      <span class="sref">ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633</span></div><div class="sentence material" data-open-ref="ohs/ground/AUD-HID-2023.txt#20225">
+      <span class="tag material">[S5]</span>
+      <span class="stext">The predecessor audit scored 52 percent HUD non-compliance in the Homeless Impact Division.</span>
+      <span class="sref">ohs/ground/AUD-HID-2023.txt#20225</span></div></div></details>
+  <details class="surf" id="s8"><summary><span class="terrain">T8</span> Lens<span class="meta">the ways of seeing</span></summary><div class="bucket"><div class="panel"><div class="strip"><p class="empty">lenses — a paradigm bundles lenses</p><div class="pills"><span class="pill">Governance &amp; the ordinance</span><span class="pill">Funding &amp; dollars</span><span class="pill">Accountability &amp; oversight</span><span class="pill">Civil rights &amp; Title VI</span><span class="pill">Process &amp; public record</span></div></div><div class="frame"><p class="empty">byte inspector — every ref is <code>file#start-end</code> into the retained layer; hover a ref, or toggle bytes ⇄ page</p></div></div>
+  <details class="surf" id=""><summary><span class="terrain">T8</span> Determination Under MHRC Rules<span class="meta"><span class="badge v">lit · 3 links</span></span></summary><div class="bucket"></div></details><details class="surf" id=""><summary><span class="terrain">T8</span> OHS<span class="meta"><span class="badge v">lit · 3 links</span></span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-DEC9.txt#180-195">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-DEC9.txt#180-195" data-page="p.1">ohs/ground/AUD-CTTE-DEC9.txt#180-195</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">Audit Committee</div>
+    <div class="chips"><span class="chip">AUD-CTTE-DEC9</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-SEP23-AGENDA.txt#1354-1427">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-SEP23-AGENDA.txt#1354-1427" data-page="p.1">ohs/ground/AUD-CTTE-SEP23-AGENDA.txt#1354-1427</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">Discussion on the request for an audit of the Office of Homeless Services</div>
+    <div class="chips"><span class="chip">AUD-CTTE-SEP23-AGENDA</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-HID-2023.txt#20225-20256">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-HID-2023.txt#20225-20256" data-page="p.8">ohs/ground/AUD-HID-2023.txt#20225-20256</span>
+      <span class="page">p.8</span></div>
+    <div class="verbatim">Only 12 out of 23 (52 percent)</div>
+    <div class="chips"><span class="chip">AUD-HID-2023</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T8</span> public comment<span class="meta"><span class="badge a">dim · 2 links</span></span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720" data-page="p.3">ohs/ground/AUD-CTTE-SEP23-MINUTES.txt#6633-6720</span>
+      <span class="page">p.3</span></div>
+    <div class="verbatim">Audit of Office of Homeless Services Financial Processes to the 2025 annual audit plan</div>
+    <div class="chips"><span class="chip">AUD-CTTE-SEP23-MINUTES</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div><div class="row" data-kind="secondary" data-ref="ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013">
+    <div class="row-head"><span class="kind kind-secondary">secondary</span>
+      <span class="ref" data-byte="ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013" data-page="">ohs/ground/SEPT23-MEETING-TRANSCRIPT.txt#5868-6013</span>
+      </div>
+    <div class="verbatim">Much of the documentary evidence cited in this audit request of OHS exists because I and other citizens fought to bring this information to light</div>
+    <div class="chips"><span class="chip">SEPT23-MEETING-TRANSCRIPT</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (exact-bytes)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T8</span> 52 percent HUD non-compliance<span class="meta"><span class="badge a">dim · 1 link</span></span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/AUD-HID-2023.txt#20225-20256">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/AUD-HID-2023.txt#20225-20256" data-page="p.8">ohs/ground/AUD-HID-2023.txt#20225-20256</span>
+      <span class="page">p.8</span></div>
+    <div class="verbatim">Only 12 out of 23 (52 percent)</div>
+    <div class="chips"><span class="chip">AUD-HID-2023</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (normalised-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T8</span> a seat in the interview process<span class="meta"><span class="badge a">dim · 1 link</span></span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/MUNI-263040.txt#2056-2087">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/MUNI-263040.txt#2056-2087" data-page="">ohs/ground/MUNI-263040.txt#2056-2087</span>
+      </div>
+    <div class="verbatim">shall be appointed by the mayor</div>
+    <div class="chips"><span class="chip">MUNI-263040</span><span class="chip">captured</span></div>
+    <div class="basis prov">custody register verified span (anchor-not-found)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T8</span> CE<span class="meta"><span class="badge a">dim · 1 link</span></span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729" data-page="p.1">ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">decision that was made not to fund HMIS</div>
+    <div class="chips"><span class="chip">COC-DEIGNAN-RANKING-2026</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T8</span> HMIS and Coordinated Entry<span class="meta"><span class="badge a">dim · 1 link</span></span></summary><div class="bucket"><div class="row" data-kind="primary-record" data-ref="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729">
+    <div class="row-head"><span class="kind kind-primary-record">primary-record</span>
+      <span class="ref" data-byte="ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729" data-page="p.1">ohs/ground/COC-DEIGNAN-RANKING-2026.txt#1690-1729</span>
+      <span class="page">p.1</span></div>
+    <div class="verbatim">decision that was made not to fund HMIS</div>
+    <div class="chips"><span class="chip">COC-DEIGNAN-RANKING-2026</span><span class="chip">local-only</span></div>
+    <div class="basis prov">custody register verified span (exact-text)</div></div></div></details><details class="surf" id=""><summary><span class="terrain">T8</span> HMIS Department<span class="meta"><span class="badge a">dim · 1 link</span></span></summary><div class="bucket"></div></details></div></details>
+  <details class="surf" id="s9" open><summary><span class="terrain">T9</span> Paradigm<span class="meta"><span class="badge g">● pass</span></span></summary><div class="bucket"><div class="worldviews"><span class="wv on">the fold · byte-honesty</span><span class="wv">civil rights</span><span class="wv">governance</span><span class="wv">funding</span><span class="wv">process</span><span class="wv compare">compare ⇄</span></div>
+    <p class="empty">the gate is paradigm-independent — every worldview reads the same retained, byte-anchored record</p>
+    <div class="f-judgment"><div class="strata"><div class="rev current"><span class="dot"></span><div class="rev-line">the record, intact — 15 claims, 2 typed gaps, no revisions yet</div></div></div><div class="seal seal-pass"><span class="seal-inner">● pass</span></div></div>
+    <ul><li class="ok">● refs resolve verbatim · 15/15</li><li class="ok">● no unflagged proposals · 0</li><li class="ok">● metric provenance · 1/1</li><li class="ok">● metrics resolve to retained bytes · 1/1</li><li class="ok">● ground digest re-derives · 5b47b884fed1…</li></ul>
+    <div class="empty prov">source ohs-custody chain-of-custody register · last_run 2026-09-19T20:12:51+00:00</div></div></details>
+</main>
+<footer>
+  A lattice of the fold — one embedded artifact, folded into nine forms. Every ref is <code>file#start-end</code>
+  into a retained, hashed text layer; every assertion, claim, sentence and edge is sourceable to the byte, and what is
+  not (the mouth, the gap) is marked, never laundered. Nothing here is authored by a frontier model.
+</footer>
+<script>
+  const root = document.documentElement;
+  const saved = localStorage.getItem('fold-theme');
+  const prefers = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  root.dataset.theme = saved || prefers;
+  document.getElementById('tog-theme').addEventListener('click', () => {
+    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('fold-theme', root.dataset.theme);
+  });
+  let bytes = true;
+  const refs = document.querySelectorAll('.ref');
+  document.getElementById('tog-refs').addEventListener('click', () => {
+    bytes = !bytes;
+    for (const el of refs) el.textContent = bytes ? el.dataset.byte : el.dataset.page;
+  });
+  document.getElementById('tog-prov').addEventListener('click', () => {
+    document.body.classList.toggle('no-prov');
+  });
+  for (const chip of document.querySelectorAll('.chip-state[data-surface]')) {
+    chip.addEventListener('click', () => {
+      const s = document.getElementById('s' + chip.dataset.surface);
+      s.classList.toggle('hidden-surface');
+      chip.classList.toggle('on', !s.classList.contains('hidden-surface'));
+    });
+  }
+  for (const pill of document.querySelectorAll('#kind-toggle .pill')) {
+    pill.addEventListener('click', () => {
+      pill.classList.toggle('on');
+      const k = pill.dataset.kind;
+      const on = pill.classList.contains('on');
+      for (const r of document.querySelectorAll('.row[data-kind="' + k + '"]')) r.style.display = on ? '' : 'none';
+    });
+  }
+  // the open verb — a byte ref opens its row, anywhere on the lattice: click a
+  // typed prose sentence or an assertion edge and the register row it points
+  // at is revealed and flashed. Everything resolves to the byte.
+  document.addEventListener('click', (e) => {
+    const t = e.target.closest('[data-open-ref]');
+    if (!t) return;
+    e.preventDefault();
+    const ref = t.getAttribute('data-open-ref');
+    // a sentence/assertion points at the byte where its fact starts; the
+    // register row it opens carries the full range file#start-end
+    const row = document.querySelector('.row[data-ref="' + CSS.escape(ref) + '"]')
+      || document.querySelector('.row[data-ref^="' + CSS.escape(ref) + '-"]');
+    if (!row) return;
+    let details = row.closest('details');
+    while (details) { if (!details.open) details.open = true; details = details.parentElement.closest('details'); }
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash');
+  });
+  document.getElementById('status').innerHTML = 'live · <span class="ok">15 claims · 17 assertions · 29 beings · gate pass</span>';
+</script>
+</body>
+</html>

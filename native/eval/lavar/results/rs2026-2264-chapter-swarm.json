@@ -1,0 +1,60 @@
+{
+  "schema": "ChapterSwarmRead@1",
+  "declared": {
+    "source": "file:RS2026-2264.txt",
+    "lang": "eng",
+    "prior": "pos-eng.json",
+    "giver": "chapter-swarm.mjs — Wilson's swarm",
+    "recipe": "read-real recursive pipeline, per chapter, minWitnesses:1 nomination",
+    "convention": null,
+    "chapters": 1,
+    "cv": false,
+    "corroborationRule": "a pair nominated by >=2 chapters is promoted to GIVEN (Wilson giver); nomination is never licensing",
+    "provenance": {
+      "schema": "Provenance@1",
+      "source": "file:RS2026-2264.txt",
+      "giver": "chapter-swarm.mjs — Wilson's swarm",
+      "modality": "text",
+      "bytes": 4202,
+      "period": "2026",
+      "periodDisclosed": true,
+      "sha256": "b68f7a167ad7b17c4e9279f74fb9310d9a3bbeddafd871c7f1373c34c0f20ca6"
+    }
+  },
+  "chapters": [
+    {
+      "index": 1,
+      "numeral": "1",
+      "title": null,
+      "span": [
+        0,
+        4202
+      ],
+      "chars": 4202,
+      "materialChars": 4202,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 25,
+      "relationEdges": 11,
+      "referentBindings": 13,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 8,
+      "candidates": []
+    }
+  ],
+  "hyperlexicon": {
+    "schema": "EOHyperlexicon@1",
+    "entries": 0,
+    "given": [],
+    "candidates": []
+  },
+  "corroborated": []
+}

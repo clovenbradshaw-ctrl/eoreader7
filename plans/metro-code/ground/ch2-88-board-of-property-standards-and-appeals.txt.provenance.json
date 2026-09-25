@@ -1,0 +1,50 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.88",
+  "title": "BOARD OF PROPERTY STANDARDS AND APPEALS",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-100-metropolitan-transportation-licensing-commissi.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-104-urban-forester.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-106-community-review-board.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-107-farmers-market-board.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-76-board-of-mechanical-plumbing-and-electrical-exa.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-78-board-of-fair-commissioners.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-80-board-of-fire-and-building-code-appeals.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-84-reserved.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-88-board-of-property-standards-and-appeals.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-92-reserved.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-96-metropolitan-safety-advisory-board.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-88-board-of-property-standards-and-appeals.txt",
+    "sha256": "626b8106854c9abe4ca7df7b9108c3d0cdb07bd48fc10761c93b82f9e2bcb3d4",
+    "chars": 6938
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.884Z"
+}

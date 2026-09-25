@@ -414,6 +414,39 @@ export function parseText(model, text, { idPrefix = "s" } = {}) {
   return out.join("\n\n") + (out.length ? "\n" : "");
 }
 
+/**
+ * upostOccurrences(model, text) — every token's OWN per-occurrence parsed
+ * UPOS, keyed by its lowercased form: Map<form, [{off, upos}]>. The same
+ * evidence parseText serialises to CoNLL-U, kept as data instead of a
+ * string a caller would otherwise re-parse (measured live, 2026-09-23,
+ * fixing the proper-name pipeline's SVO gap: every earlier ad hoc caller
+ * was splitting parseText's own tab-separated output back apart to get
+ * exactly this).
+ *
+ * THE POINT OF THIS FUNCTION (parse-gated-names.js's own reason for
+ * existing): a token's UPOS here comes from tagging its OWN sentence, once
+ * per occurrence — unlike a received POS prior's dominant class (a single
+ * type-level lookup shared by every occurrence of a form) or a
+ * capitalisation count (an orthographic fact, not a syntactic one). Two
+ * occurrences of the same spelling can carry different tags here, which is
+ * the whole reason this is worth keeping separate from either.
+ */
+export function upostOccurrences(model, text) {
+  const out = new Map();
+  for (const s of sentences(text)) {
+    const toks = tokenize(text.slice(s.start, s.end)).map((t) => ({ form: t.form, start: s.start + t.start }));
+    if (!toks.length) continue;
+    let rows;
+    try { rows = analyse(model, toks.map((t) => t.form)); } catch { continue; }
+    rows.forEach((r, k) => {
+      const key = toks[k].form.toLowerCase();
+      if (!out.has(key)) out.set(key, []);
+      out.get(key).push({ off: toks[k].start, upos: r.upos });
+    });
+  }
+  return out;
+}
+
 // ── training ───────────────────────────────────────────────────────────────
 const projective = (heads) => {
   const arcs = [];

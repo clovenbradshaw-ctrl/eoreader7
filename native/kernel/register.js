@@ -62,10 +62,32 @@ export function detectLanguage(task = "") {
   return null;
 }
 
-export function deriveField(task = "", { genres = [] } = {}) {
+export function deriveField(task = "", { genres = [], isFunctionWord = null } = {}) {
   const t = String(task ?? "").toLowerCase();
-  for (const noun of KNOWN) if (new RegExp(`\\b${noun.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(t)) {
+  for (const noun of KNOWN) {
+    const m = new RegExp(`\\b${noun.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).exec(t);
+    if (!m) continue;
     const field = FIELD_BY_NOUN[noun];
+    // THE PHRASE, NOT JUST THE MATCHED NOUN (2026-09-25): a modifier
+    // immediately touching the matched noun can be a lexicalized compound
+    // this table was never told about — "white paper" is not "a paper
+    // that is white", the exact gap this file's own test suite once named
+    // and stepped around rather than fixed. The SAME gate
+    // candidateFormToken (void-spec.js) already uses: isFunctionWord
+    // decides free modifier from determiner, never a hand-typed compound
+    // list, so "an essay"/"a sonnet" are untouched (determiners) while
+    // "white paper"/"short story" keep their real modifier. The FIELD this
+    // table returns is unchanged — there is no more specific field to give
+    // it without inventing one, a real, separately-named open gap — but
+    // the NOUN reported is now the phrase actually asked for.
+    // isFunctionWord is INJECTED, never imported here: this kernel module
+    // stays pure and dependency-free (pos-prior.js is Node-only and lives
+    // in the-fold, which depends on kernel, never the other way — its own
+    // header already says callers that must stay pure take its answers as
+    // an optional predicate). Without it, this phrase step is skipped and
+    // behavior is byte-identical to before.
+    const before = t.slice(0, m.index).trim().split(/\s+/).pop();
+    const phrase = isFunctionWord && before && /^[a-z']+$/.test(before) && !isFunctionWord(before) ? `${before} ${noun}` : noun;
     // HOLMES (SIG): the sign is recognized — but is it LEARNED from the
     // meaning potential, or RECEIVED from the standing table? A genre the
     // sidecar has actually read is a learned sign; a noun with no reading
@@ -73,11 +95,11 @@ export function deriveField(task = "", { genres = [] } = {}) {
     const learned = genres.some((g) => String(g ?? "").toLowerCase().includes(field.toLowerCase()));
     const language = field === "instrument" ? detectLanguage(task) : null;
     return {
-      field, noun, language,
+      field, noun: phrase, language,
       provenance: learned ? "learned" : "received",
       basis: learned
-        ? `"${noun}" → ${field}: the sidecar has ${field} reading(s), so the sign is LEARNED from the meaning potential`
-        : `"${noun}" → ${field}: a received sign — the machine has not read this ${field} yet`,
+        ? `"${phrase}" → ${field}: the sidecar has ${field} reading(s), so the sign is LEARNED from the meaning potential`
+        : `"${phrase}" → ${field}: a received sign — the machine has not read this ${field} yet${phrase !== noun ? ` (matched table entry "${noun}"; "${phrase}" is the fuller phrase actually asked for, not yet its own registered sign)` : ""}`,
     };
   }
   // Code signal fallback — a request that names code by shape, not by noun.
@@ -117,8 +139,8 @@ export function deriveTenor(task = "") {
   return { tenor: "general", basis: "defaulted — no audience named" };
 }
 
-export function deriveRegister(task = "", { genres = [] } = {}) {
-  const field = deriveField(task, { genres });
+export function deriveRegister(task = "", { genres = [], isFunctionWord = null } = {}) {
+  const field = deriveField(task, { genres, isFunctionWord });
   const mode = deriveMode(task);
   const tenor = deriveTenor(task);
   return Object.freeze({

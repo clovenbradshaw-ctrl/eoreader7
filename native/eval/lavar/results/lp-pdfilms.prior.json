@@ -1,0 +1,64 @@
+{
+ "chapter": 1,
+ "verbs": [
+  "audio",
+  "catalogued",
+  "identifier",
+  "date",
+  "license",
+  "culture",
+  "and",
+  "medicine",
+  "health",
+  "issues",
+  "industry",
+  "a",
+  "for"
+ ],
+ "cast": [
+  [
+   "Encyclopaedia Britannica",
+   "ref:auto:encyclopaedia_britannica"
+  ],
+  [
+   "Encyclopaedia Britannica Films",
+   "ref:auto:encyclopaedia_britannica"
+  ],
+  [
+   "Motion Pictures",
+   "ref:auto:motion_pictures"
+  ],
+  [
+   "Health",
+   "ref:auto:health"
+  ],
+  [
+   "Part",
+   "ref:auto:part"
+  ],
+  [
+   "Agriculture",
+   "ref:auto:agriculture"
+  ],
+  [
+   "Encyclopaedia",
+   "ref:auto:encyclopaedia_britannica"
+  ],
+  [
+   "Inc",
+   "ref:auto:inc"
+  ],
+  [
+   "Food",
+   "ref:auto:food"
+  ],
+  [
+   "Motion",
+   "ref:auto:motion_pictures"
+  ],
+  [
+   "Nutrition",
+   "ref:auto:nutrition"
+  ]
+ ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.32",
+  "title": "DEPARTMENT OF GENERAL SERVICES",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-32-department-of-general-services.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-32-department-of-general-services.txt",
+    "sha256": "2e2740740d86a7f787f2b054f21f6fe5dbd9997d1a8990b1314d66fe8700e75c",
+    "chars": 16603
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.888Z"
+}

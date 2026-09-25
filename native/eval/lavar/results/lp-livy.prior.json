@@ -1,0 +1,58 @@
+{
+ "chapter": 1,
+ "verbs": [
+  "primum",
+  "capta",
+  "semper",
+  "abstinuisse",
+  "cum",
+  "pulsi",
+  "ad",
+  "amisso",
+  "sinum",
+  "incolebant",
+  "eas",
+  "vocatur",
+  "nomen",
+  "appellati",
+  "ab",
+  "venisse",
+  "quaerentem",
+  "classe",
+  "agrum",
+  "et",
+  "rex",
+  "pacem",
+  "inter",
+  "exissent",
+  "esse",
+  "apud",
+  "fuisse",
+  "in",
+  "spem",
+  "appellat",
+  "parentes"
+ ],
+ "cast": [
+  [
+   "Latinum",
+   "ref:auto:latinum"
+  ],
+  [
+   "Aeneae",
+   "ref:auto:aeneae"
+  ],
+  [
+   "Aeneam",
+   "ref:auto:aeneam"
+  ],
+  [
+   "Troia",
+   "ref:auto:troia"
+  ],
+  [
+   "Troianos",
+   "ref:auto:troianos"
+  ]
+ ]
+}

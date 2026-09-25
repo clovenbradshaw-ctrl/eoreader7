@@ -1,0 +1,50 @@
+{
+  "schema": "ChapterSwarmRead@1",
+  "declared": {
+    "source": "file:wiki-facial-recognition-system.txt",
+    "lang": "eng",
+    "prior": "pos-eng.json",
+    "giver": "chapter-swarm.mjs — Wilson's swarm",
+    "recipe": "read-real recursive pipeline, per chapter, minWitnesses:1 nomination",
+    "convention": null,
+    "chapters": 1,
+    "cv": false,
+    "corroborationRule": "a pair nominated by >=2 chapters is promoted to GIVEN (Wilson giver); nomination is never licensing"
+  },
+  "chapters": [
+    {
+      "index": 1,
+      "numeral": "1",
+      "title": null,
+      "span": [
+        0,
+        2250
+      ],
+      "chars": 2250,
+      "materialChars": 2250,
+      "cv": {
+        "triggered": false,
+        "score": 0,
+        "signals": [],
+        "used": false,
+        "ocrChars": 0,
+        "visionRead": null,
+        "error": null
+      },
+      "encounters": 16,
+      "relationEdges": 5,
+      "referentBindings": 0,
+      "chainSites": 0,
+      "pairTypes": 0,
+      "fullyReferentResolvedEdges": 0,
+      "candidates": []
+    }
+  ],
+  "hyperlexicon": {
+    "schema": "EOHyperlexicon@1",
+    "entries": 0,
+    "given": [],
+    "candidates": []
+  },
+  "corroborated": []
+}

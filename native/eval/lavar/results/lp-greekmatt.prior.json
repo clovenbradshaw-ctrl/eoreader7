@@ -1,0 +1,218 @@
+{
+ "chapter": 1,
+ "verbs": [
+  "ὁ",
+  "τοῦ",
+  "ἐν",
+  "δὲ",
+  "τοσαύτην",
+  "αὐτῷ",
+  "αὐτοῖς",
+  "εἶπεν",
+  "καὶ",
+  "μοι",
+  "γενομένης",
+  "ἀπελθεῖν",
+  "μίαν",
+  "ἥψατο",
+  "ἔνθεν",
+  "ἔντεῦθεν",
+  "ἀγαθός",
+  "ὡς",
+  "κύριε",
+  "κύριε",
+  "πρὸς",
+  "δέ",
+  "v",
+  "ὑμῖν",
+  "ὑποκριταί",
+  "τὸν",
+  "λεγόμενος"
+ ],
+ "cast": [
+  [
+   "Φαρισαῖοι",
+   "ref:auto:φαρισαῖοι"
+  ],
+  [
+   "WHmarg",
+   "ref:auto:whmarg"
+  ],
+  [
+   "Ἰησοῦ",
+   "ref:auto:ἰησοῦ"
+  ],
+  [
+   "Ἰωάννης",
+   "ref:auto:ἰωάννης"
+  ],
+  [
+   "Πέτρος",
+   "ref:auto:πέτρος"
+  ],
+  [
+   "Holmes",
+   "ref:auto:holmes"
+  ],
+  [
+   "Μαριὰμ",
+   "ref:auto:μαριὰμ"
+  ],
+  [
+   "WHmarg NA",
+   "ref:auto:whmarg"
+  ],
+  [
+   "Μαρία",
+   "ref:auto:μαρία"
+  ],
+  [
+   "Οὐαὶ",
+   "ref:auto:οὐαὶ"
+  ],
+  [
+   "Ἀμήν",
+   "ref:auto:ἀμήν"
+  ],
+  [
+   "Ἀμήν RP",
+   "ref:auto:ἀμήν"
+  ],
+  [
+   "Ἔγειρε",
+   "ref:auto:ἔγειρε"
+  ],
+  [
+   "Ἔγειρε WH",
+   "ref:auto:ἔγειρε"
+  ],
+  [
+   "Ἔγειρε WH Treg",
+   "ref:auto:ἔγειρε"
+  ],
+  [
+   "Ἰησοῦ RP",
+   "ref:auto:ἰησοῦ"
+  ],
+  [
+   "Ἰησοῦ WH",
+   "ref:auto:ἰησοῦ"
+  ],
+  [
+   "Ἰησοῦν",
+   "ref:auto:ἰησοῦν"
+  ],
+  [
+   "Ἰωάννης RP",
+   "ref:auto:ἰωάννης"
+  ],
+  [
+   "Ἰωάννης Treg",
+   "ref:auto:ἰωάννης"
+  ],
+  [
+   "Ἰωσὴφ",
+   "ref:auto:ἰωσὴφ"
+  ],
+  [
+   "Ἰωσὴφ WH",
+   "ref:auto:ἰωσὴφ"
+  ],
+  [
+   "WH",
+   "ref:auto:wh"
+  ],
+  [
+   "RP",
+   "ref:auto:rp"
+  ],
+  [
+   "WH Treg",
+   "ref:auto:wh_treg"
+  ],
+  [
+   "WH Treg NA",
+   "ref:auto:wh_treg_na"
+  ],
+  [
+   "Treg",
+   "ref:auto:treg"
+  ],
+  [
+   "Treg RP",
+   "ref:auto:treg_rp"
+  ],
+  [
+   "Treg NA",
+   "ref:auto:treg_na"
+  ],
+  [
+   "NA",
+   "ref:auto:na"
+  ],
+  [
+   "Ἰησοῦς",
+   "ref:auto:ἰησοῦς"
+  ],
+  [
+   "Ἰησοῦς RP",
+   "ref:auto:ἰησοῦς_rp"
+  ],
+  [
+   "WH Treg RP",
+   "ref:auto:wh_treg_rp"
+  ],
+  [
+   "Treg RP NA",
+   "ref:auto:treg_rp_na"
+  ],
+  [
+   "WH Treg NIV",
+   "ref:auto:wh_treg_niv"
+  ],
+  [
+   "NIV",
+   "ref:auto:niv"
+  ],
+  [
+   "WH Treg RP NA",
+   "ref:auto:wh_treg_rp_na"
+  ],
+  [
+   "WH Treg NIV RP",
+   "ref:auto:wh_treg_niv_rp"
+  ],
+  [
+   "Ἰησοῦς Treg",
+   "ref:auto:ἰησοῦς_treg"
+  ],
+  [
+   "Ἰησοῦς Treg RP",
+   "ref:auto:ἰησοῦς_treg_rp"
+  ],
+  [
+   "Treg NIV",
+   "ref:auto:treg_niv"
+  ],
+  [
+   "Ἰησοῦς WH",
+   "ref:auto:ἰησοῦς_wh"
+  ],
+  [
+   "Treg NIV RP",
+   "ref:auto:treg_niv_rp"
+  ],
+  [
+   "Ἰησοῦς NIV",
+   "ref:auto:ἰησοῦς_niv"
+  ],
+  [
+   "Ἰησοῦς WH Treg",
+   "ref:auto:ἰησοῦς_wh_treg"
+  ],
+  [
+   "Ἰησοῦς WH Treg NA",
+   "ref:auto:ἰησοῦς_wh_treg_na"
+  ]
+ ]
+}

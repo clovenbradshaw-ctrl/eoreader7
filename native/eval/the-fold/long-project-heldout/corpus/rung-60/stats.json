@@ -1,0 +1,8 @@
+{
+ "rung": 60,
+ "sessions": 60,
+ "words": 4621,
+ "chars": 28594,
+ "estimatedTokens": 6161,
+ "tokenEstimateMethod": "words / 0.75 (heuristic, not a real tokenizer)"
+}

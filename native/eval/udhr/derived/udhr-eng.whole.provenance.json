@@ -1,0 +1,12 @@
+{
+  "schema": "DerivedMaterial@1",
+  "derivedFrom": "live_priors/06-government-legal/un-udhr/udhr-eng.txt",
+  "language": "English (en)",
+  "kept": "the preamble paragraphs and every article's paragraphs, in order",
+  "removed": [
+    "the file header lines",
+    "the title line",
+    "the 30 article heading lines (e.g. \"Article 1\")"
+  ],
+  "why": "the reader scopes a reading to one chapter and learns the article heading as a chapter convention, so the whole declaration must be one unit for the swarm to have enough text to disagree about"
+}

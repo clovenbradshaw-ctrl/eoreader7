@@ -1,0 +1,57 @@
+{
+  "model": "qwen3:8b",
+  "seed": 1,
+  "source": "AUD-HID-FOLLOWUP-2025.txt",
+  "verdicts": [
+    {
+      "pair": "F1/A2 vs F1/A0",
+      "winner": null,
+      "why": "unparseable: ",
+      "errorsA": [],
+      "errorsB": []
+    },
+    {
+      "pair": "F2/A0 vs F1/A0",
+      "winner": null,
+      "why": "judge error: ollama 500",
+      "errorsA": [],
+      "errorsB": []
+    },
+    {
+      "pair": "F2/A2 vs F1/A0",
+      "winner": null,
+      "why": "judge error: This operation was aborted",
+      "errorsA": [],
+      "errorsB": []
+    },
+    {
+      "pair": "F2/A0 vs F1/A2",
+      "winner": null,
+      "why": "judge error: This operation was aborted",
+      "errorsA": [],
+      "errorsB": []
+    },
+    {
+      "pair": "F2/A2 vs F1/A2",
+      "winner": null,
+      "why": "judge error: This operation was aborted",
+      "errorsA": [],
+      "errorsB": []
+    },
+    {
+      "pair": "F2/A0 vs F2/A2",
+      "winner": null,
+      "why": "judge error: This operation was aborted",
+      "errorsA": [],
+      "errorsB": []
+    }
+  ],
+  "arms": {
+    "wins": {},
+    "pairs": 6
+  },
+  "flesh": {
+    "F1": 0,
+    "F2": 0
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.10",
+  "title": "OFFICE OF EMERGENCY MANAGEMENT",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-10-office-of-emergency-management.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-10-office-of-emergency-management.txt",
+    "sha256": "f9f22c5db4261227dd9052a6fc0817b4a73837b1651f0541f016e4d2de6d7dea",
+    "chars": 4847
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.883Z"
+}

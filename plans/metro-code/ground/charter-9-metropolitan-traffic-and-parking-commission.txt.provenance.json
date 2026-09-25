@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "9",
+  "title": "METROPOLITAN TRAFFIC AND PARKING COMMISSION",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-traffic-and-parking-commission.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-9-metropolitan-traffic-and-parking-commission.txt",
+    "sha256": "18f07071ac625f4224fe42f014166f5d49a12c72a6abfb1f2fdc02fb590d0052",
+    "chars": 6474
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.893Z"
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "4",
+  "title": "NASHVILLE TRANSIT AUTHORITY",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-nashville-transit-authority.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-4-nashville-transit-authority.txt",
+    "sha256": "1affb070b5d3ddcbcc487e059cd63f0a67ceb338bacc7dc7920dbc476409757e",
+    "chars": 978
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.892Z"
+}

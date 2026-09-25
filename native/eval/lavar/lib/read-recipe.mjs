@@ -35,18 +35,24 @@ const emptyRetrieve = (_fold, evidence) => Object.freeze({
 
 /**
  * readEncounters(encounters, { source, posPrior, giver, canonicalizationFloor,
- * anchoring, language, roleConfig }) — the core pipeline, from already-loaded
- * encounters. `language` names the material; `roleConfig` is the ONLY thing
- * that brings English-SVO online (the language dispatch, relations-language.js
- * — all cognition reads GFP-shaped until a measured RoleConfig@1 is declared
- * for the language).
+ * anchoring, language, roleConfig, parseModel }) — the core pipeline, from
+ * already-loaded encounters. `language` names the material; `roleConfig` is
+ * the ONLY thing that brings English-SVO online (the language dispatch,
+ * relations-language.js — all cognition reads GFP-shaped until a measured
+ * RoleConfig@1 is declared for the language). `parseModel` is a thin
+ * passthrough to createCausalTextPerceiver's own SVO-gated name admission
+ * (adapters/text/parse-gated-names.js's rule, 2026-09-23): omitted by
+ * default, so every existing caller is unchanged; a caller loading
+ * native/priors/parser-eng-ewt.json (english-parser.js's loadModel) and
+ * passing it here gets capitalisation-only admission replaced with
+ * parse-licensed, capitalisation-corroborated admission for this read.
  */
-export async function readEncounters(encounters = [], { source = "text", posPrior = null, giver = "reader:eoreader7", canonicalizationFloor = DEFAULT_CANONICALIZATION_FLOOR, anchoring = DEFAULT_ANCHORING, language = null, roleConfig = null } = {}) {
+export async function readEncounters(encounters = [], { source = "text", posPrior = null, giver = "reader:eoreader7", canonicalizationFloor = DEFAULT_CANONICALIZATION_FLOOR, anchoring = DEFAULT_ANCHORING, language = null, roleConfig = null, parseModel = null } = {}) {
   const adapters = {
     revise: (a) => reviseTextFold({ ...a, canonicalizationFloor }),
     retrieve: emptyRetrieve,
   };
-  const perceivers = () => [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior, descriptorAnchoring: anchoring, language, roleConfig })];
+  const perceivers = () => [createCausalTextPerceiver({ minRelationSurfaces: 2, posPrior, descriptorAnchoring: anchoring, language, roleConfig, parseModel })];
   const reader = createRecursiveReader({ perceivers: perceivers(), adapters });
   for (const enc of encounters) await reader.step(enc);
   const fold = reader.getFold();

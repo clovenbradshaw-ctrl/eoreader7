@@ -1,0 +1,26 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.64",
+  "title": "ORGANIZATION AND OPERATION OF BOARDS AND COMMISSIONS",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-64-organization-and-operation-of-boards-and-commis.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-68-meetings-of-boards-and-commissions.json"
+    },
+    {
+      "file": "metro-code/raw/chapter-2-72-reserved.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-64-organization-and-operation-of-boards-and-commissions.txt",
+    "sha256": "7504ff042bfca963853904d9ec87fd000ceb9c63a9ad5e15cef39651e7fcc930",
+    "chars": 8282
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.890Z"
+}

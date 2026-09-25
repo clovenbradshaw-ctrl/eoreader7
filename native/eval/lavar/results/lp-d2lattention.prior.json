@@ -1,0 +1,37 @@
+{
+ "chapter": 1,
+ "verbs": [
+  "or",
+  "to",
+  "can",
+  "are",
+  "with",
+  "and",
+  "a",
+  "is",
+  "pos",
+  "params"
+ ],
+ "cast": [
+  [
+   "CNNs",
+   "ref:auto:cnns"
+  ],
+  [
+   "RNNs",
+   "ref:auto:rnns"
+  ],
+  [
+   "Create",
+   "ref:auto:create"
+  ],
+  [
+   "CNN",
+   "ref:auto:cnn"
+  ],
+  [
+   "Positional Information",
+   "ref:auto:positional_information"
+  ]
+ ]
+}

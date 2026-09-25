@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.61",
+  "title": "OFFICE OF FAMILY SAFETY",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-61-office-of-family-safety.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-61-office-of-family-safety.txt",
+    "sha256": "9d43ad61fe83fac46e031d4557e29c6b52c14a73a763cc68b5884c823928cad5",
+    "chars": 4407
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.889Z"
+}

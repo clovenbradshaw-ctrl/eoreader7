@@ -1,0 +1,12 @@
+{
+ "chapter": 1,
+ "verbs": [
+  "and"
+ ],
+ "cast": [
+  [
+   "XIDs",
+   "ref:auto:xids"
+  ]
+ ]
+}

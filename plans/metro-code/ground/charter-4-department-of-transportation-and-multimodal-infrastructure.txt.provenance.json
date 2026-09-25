@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "4",
+  "title": "DEPARTMENT OF TRANSPORTATION AND MULTIMODAL INFRASTRUCTURE",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/charter-4-department-of-transportation.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/charter-4-department-of-transportation-and-multimodal-infrastructure.txt",
+    "sha256": "47c57dca6d92e378c3c76d99f69ccbf9c4932bd954b8872c6585af59fdeed141",
+    "chars": 6543
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.891Z"
+}

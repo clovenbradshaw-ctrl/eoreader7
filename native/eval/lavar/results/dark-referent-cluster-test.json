@@ -16,9 +16,9 @@
    "topK": 17,
    "siblingPairs": 6,
    "cueHits": 5,
-   "cueSigHits": 4,
-   "controlRate": 0.133,
-   "controlExpected": 0.8
+   "cueSigHits": 3,
+   "controlRate": 0.156,
+   "controlExpected": 0.93
   },
   {
    "specimen": "jury (ch11)",
@@ -27,8 +27,8 @@
    "siblingPairs": 2,
    "cueHits": 2,
    "cueSigHits": 2,
-   "controlRate": 0.2,
-   "controlExpected": 0.4
+   "controlRate": 0.1,
+   "controlExpected": 0.2
   },
   {
    "specimen": "jury (ch12)",
@@ -37,14 +37,14 @@
    "siblingPairs": 2,
    "cueHits": 2,
    "cueSigHits": 2,
-   "controlRate": 0.167,
-   "controlExpected": 0.33
+   "controlRate": 0.133,
+   "controlExpected": 0.27
   }
  ],
  "totals": {
   "totalPairs": 12,
   "cueHits": 10,
-  "cueSigHits": 8,
-  "controlHitsSum": 1.8666666666666665
+  "cueSigHits": 7,
+  "controlHitsSum": 1.7333333333333332
  }
 }

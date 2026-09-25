@@ -1,0 +1,1197 @@
+{
+  "schema": "WiktionaryWiring@1",
+  "note": "definitions pulled on the fly, never recorded",
+  "terms": {
+    "roadway": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/roadway",
+      "page": "https://en.wiktionary.org/wiki/roadway"
+    },
+    "fatality": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/fatality",
+      "page": "https://en.wiktionary.org/wiki/fatality"
+    },
+    "police": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/police",
+      "page": "https://en.wiktionary.org/wiki/police"
+    },
+    "force": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/force",
+      "page": "https://en.wiktionary.org/wiki/force"
+    },
+    "involved": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/involved",
+      "page": "https://en.wiktionary.org/wiki/involved"
+    },
+    "fire": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/fire",
+      "page": "https://en.wiktionary.org/wiki/fire"
+    },
+    "emergency": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/emergency",
+      "page": "https://en.wiktionary.org/wiki/emergency"
+    },
+    "response": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/response",
+      "page": "https://en.wiktionary.org/wiki/response"
+    },
+    "delay": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/delay",
+      "page": "https://en.wiktionary.org/wiki/delay"
+    },
+    "structural": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/structural",
+      "page": "https://en.wiktionary.org/wiki/structural"
+    },
+    "building": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/building",
+      "page": "https://en.wiktionary.org/wiki/building"
+    },
+    "code": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/code",
+      "page": "https://en.wiktionary.org/wiki/code"
+    },
+    "enforcement": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/enforcement",
+      "page": "https://en.wiktionary.org/wiki/enforcement"
+    },
+    "water": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/water",
+      "page": "https://en.wiktionary.org/wiki/water"
+    },
+    "contamination": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/contamination",
+      "page": "https://en.wiktionary.org/wiki/contamination"
+    },
+    "waterborne": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/waterborne",
+      "page": "https://en.wiktionary.org/wiki/waterborne"
+    },
+    "illness": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/illness",
+      "page": "https://en.wiktionary.org/wiki/illness"
+    },
+    "environmental": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/environmental",
+      "page": "https://en.wiktionary.org/wiki/environmental"
+    },
+    "pollution": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/pollution",
+      "page": "https://en.wiktionary.org/wiki/pollution"
+    },
+    "toxic": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/toxic",
+      "page": "https://en.wiktionary.org/wiki/toxic"
+    },
+    "exposure": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/exposure",
+      "page": "https://en.wiktionary.org/wiki/exposure"
+    },
+    "food": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/food",
+      "page": "https://en.wiktionary.org/wiki/food"
+    },
+    "sanitation": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/sanitation",
+      "page": "https://en.wiktionary.org/wiki/sanitation"
+    },
+    "infectious": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/infectious",
+      "page": "https://en.wiktionary.org/wiki/infectious"
+    },
+    "disease": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/disease",
+      "page": "https://en.wiktionary.org/wiki/disease"
+    },
+    "outbreak": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/outbreak",
+      "page": "https://en.wiktionary.org/wiki/outbreak"
+    },
+    "maternal": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/maternal",
+      "page": "https://en.wiktionary.org/wiki/maternal"
+    },
+    "infant": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/infant",
+      "page": "https://en.wiktionary.org/wiki/infant"
+    },
+    "mortality": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/mortality",
+      "page": "https://en.wiktionary.org/wiki/mortality"
+    },
+    "child": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/child",
+      "page": "https://en.wiktionary.org/wiki/child"
+    },
+    "welfare": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/welfare",
+      "page": "https://en.wiktionary.org/wiki/welfare"
+    },
+    "custodial": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/custodial",
+      "page": "https://en.wiktionary.org/wiki/custodial"
+    },
+    "detention": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/detention",
+      "page": "https://en.wiktionary.org/wiki/detention"
+    },
+    "homelessness": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/homelessness",
+      "page": "https://en.wiktionary.org/wiki/homelessness"
+    },
+    "drug": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/drug",
+      "page": "https://en.wiktionary.org/wiki/drug"
+    },
+    "overdose": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/overdose",
+      "page": "https://en.wiktionary.org/wiki/overdose"
+    },
+    "workplace": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/workplace",
+      "page": "https://en.wiktionary.org/wiki/workplace"
+    },
+    "occupational": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/occupational",
+      "page": "https://en.wiktionary.org/wiki/occupational"
+    },
+    "animal": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/animal",
+      "page": "https://en.wiktionary.org/wiki/animal"
+    },
+    "caused": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/caused",
+      "page": "https://en.wiktionary.org/wiki/caused"
+    },
+    "zoonotic": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/zoonotic",
+      "page": "https://en.wiktionary.org/wiki/zoonotic"
+    },
+    "financial": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/financial",
+      "page": "https://en.wiktionary.org/wiki/financial"
+    },
+    "misappropriation": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/misappropriation",
+      "page": "https://en.wiktionary.org/wiki/misappropriation"
+    },
+    "procurement": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/procurement",
+      "page": "https://en.wiktionary.org/wiki/procurement"
+    },
+    "corruption": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/corruption",
+      "page": "https://en.wiktionary.org/wiki/corruption"
+    },
+    "surveillance": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/surveillance",
+      "page": "https://en.wiktionary.org/wiki/surveillance"
+    },
+    "privacy": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/privacy",
+      "page": "https://en.wiktionary.org/wiki/privacy"
+    },
+    "unsafe": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/unsafe",
+      "page": "https://en.wiktionary.org/wiki/unsafe"
+    },
+    "housing": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/housing",
+      "page": "https://en.wiktionary.org/wiki/housing"
+    },
+    "nuisance": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/nuisance",
+      "page": "https://en.wiktionary.org/wiki/nuisance"
+    },
+    "property": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/property",
+      "page": "https://en.wiktionary.org/wiki/property"
+    },
+    "standards": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/standards",
+      "page": "https://en.wiktionary.org/wiki/standards"
+    },
+    "aviation": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/aviation",
+      "page": "https://en.wiktionary.org/wiki/aviation"
+    },
+    "safety": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/safety",
+      "page": "https://en.wiktionary.org/wiki/safety"
+    },
+    "justice": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/justice",
+      "page": "https://en.wiktionary.org/wiki/justice"
+    },
+    "denial": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/denial",
+      "page": "https://en.wiktionary.org/wiki/denial"
+    },
+    "access": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/access",
+      "page": "https://en.wiktionary.org/wiki/access"
+    },
+    "mental": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/mental",
+      "page": "https://en.wiktionary.org/wiki/mental"
+    },
+    "health": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/health",
+      "page": "https://en.wiktionary.org/wiki/health"
+    },
+    "crisis": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/crisis",
+      "page": "https://en.wiktionary.org/wiki/crisis"
+    },
+    "quality": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/quality",
+      "page": "https://en.wiktionary.org/wiki/quality"
+    },
+    "responds": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/responds",
+      "page": "https://en.wiktionary.org/wiki/responds"
+    },
+    "regulates": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/regulates",
+      "page": "https://en.wiktionary.org/wiki/regulates"
+    },
+    "mitigates": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/mitigates",
+      "page": "https://en.wiktionary.org/wiki/mitigates"
+    },
+    "enforces": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/enforces",
+      "page": "https://en.wiktionary.org/wiki/enforces"
+    },
+    "against": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/against",
+      "page": "https://en.wiktionary.org/wiki/against"
+    },
+    "monitors": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/monitors",
+      "page": "https://en.wiktionary.org/wiki/monitors"
+    },
+    "investigates": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/investigates",
+      "page": "https://en.wiktionary.org/wiki/investigates"
+    },
+    "cause": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/cause",
+      "page": "https://en.wiktionary.org/wiki/cause"
+    },
+    "administer": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/administer",
+      "page": "https://en.wiktionary.org/wiki/administer"
+    },
+    "appoint": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/appoint",
+      "page": "https://en.wiktionary.org/wiki/appoint"
+    },
+    "audit": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/audit",
+      "page": "https://en.wiktionary.org/wiki/audit"
+    },
+    "coordinate": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/coordinate",
+      "page": "https://en.wiktionary.org/wiki/coordinate"
+    },
+    "enforce": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/enforce",
+      "page": "https://en.wiktionary.org/wiki/enforce"
+    },
+    "inspect": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/inspect",
+      "page": "https://en.wiktionary.org/wiki/inspect"
+    },
+    "investigate": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/investigate",
+      "page": "https://en.wiktionary.org/wiki/investigate"
+    },
+    "license": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/license",
+      "page": "https://en.wiktionary.org/wiki/license"
+    },
+    "maintain": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/maintain",
+      "page": "https://en.wiktionary.org/wiki/maintain"
+    },
+    "manage": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/manage",
+      "page": "https://en.wiktionary.org/wiki/manage"
+    },
+    "oversee": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/oversee",
+      "page": "https://en.wiktionary.org/wiki/oversee"
+    },
+    "regulate": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/regulate",
+      "page": "https://en.wiktionary.org/wiki/regulate"
+    },
+    "supervise": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/supervise",
+      "page": "https://en.wiktionary.org/wiki/supervise"
+    },
+    "recommend": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/recommend",
+      "page": "https://en.wiktionary.org/wiki/recommend"
+    },
+    "report": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/report",
+      "page": "https://en.wiktionary.org/wiki/report"
+    },
+    "monitor": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/monitor",
+      "page": "https://en.wiktionary.org/wiki/monitor"
+    },
+    "mitigate": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/mitigate",
+      "page": "https://en.wiktionary.org/wiki/mitigate"
+    },
+    "respond": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/respond",
+      "page": "https://en.wiktionary.org/wiki/respond"
+    },
+    "preserve": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/preserve",
+      "page": "https://en.wiktionary.org/wiki/preserve"
+    },
+    "protect": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/protect",
+      "page": "https://en.wiktionary.org/wiki/protect"
+    },
+    "conduct": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/conduct",
+      "page": "https://en.wiktionary.org/wiki/conduct"
+    },
+    "evaluate": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/evaluate",
+      "page": "https://en.wiktionary.org/wiki/evaluate"
+    },
+    "certify": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/certify",
+      "page": "https://en.wiktionary.org/wiki/certify"
+    },
+    "metropolitan": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/metropolitan",
+      "page": "https://en.wiktionary.org/wiki/metropolitan"
+    },
+    "council": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/council",
+      "page": "https://en.wiktionary.org/wiki/council"
+    },
+    "mayor": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/mayor",
+      "page": "https://en.wiktionary.org/wiki/mayor"
+    },
+    "office": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/office",
+      "page": "https://en.wiktionary.org/wiki/office"
+    },
+    "management": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/management",
+      "page": "https://en.wiktionary.org/wiki/management"
+    },
+    "board": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/board",
+      "page": "https://en.wiktionary.org/wiki/board"
+    },
+    "mechanical": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/mechanical",
+      "page": "https://en.wiktionary.org/wiki/mechanical"
+    },
+    "plumbing": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/plumbing",
+      "page": "https://en.wiktionary.org/wiki/plumbing"
+    },
+    "electrical": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/electrical",
+      "page": "https://en.wiktionary.org/wiki/electrical"
+    },
+    "examiners": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/examiners",
+      "page": "https://en.wiktionary.org/wiki/examiners"
+    },
+    "appeals": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/appeals",
+      "page": "https://en.wiktionary.org/wiki/appeals"
+    },
+    "fair": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/fair",
+      "page": "https://en.wiktionary.org/wiki/fair"
+    },
+    "commissioners": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/commissioners",
+      "page": "https://en.wiktionary.org/wiki/commissioners"
+    },
+    "advisory": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/advisory",
+      "page": "https://en.wiktionary.org/wiki/advisory"
+    },
+    "transportation": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/transportation",
+      "page": "https://en.wiktionary.org/wiki/transportation"
+    },
+    "licensing": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/licensing",
+      "page": "https://en.wiktionary.org/wiki/licensing"
+    },
+    "commission": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/commission",
+      "page": "https://en.wiktionary.org/wiki/commission"
+    },
+    "urban": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/urban",
+      "page": "https://en.wiktionary.org/wiki/urban"
+    },
+    "forester": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/forester",
+      "page": "https://en.wiktionary.org/wiki/forester"
+    },
+    "community": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/community",
+      "page": "https://en.wiktionary.org/wiki/community"
+    },
+    "review": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/review",
+      "page": "https://en.wiktionary.org/wiki/review"
+    },
+    "action": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/action",
+      "page": "https://en.wiktionary.org/wiki/action"
+    },
+    "nashville": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/nashville",
+      "page": "https://en.wiktionary.org/wiki/nashville"
+    },
+    "arts": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/arts",
+      "page": "https://en.wiktionary.org/wiki/arts"
+    },
+    "care": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/care",
+      "page": "https://en.wiktionary.org/wiki/care"
+    },
+    "control": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/control",
+      "page": "https://en.wiktionary.org/wiki/control"
+    },
+    "auditorium": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/auditorium",
+      "page": "https://en.wiktionary.org/wiki/auditorium"
+    },
+    "charter": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/charter",
+      "page": "https://en.wiktionary.org/wiki/charter"
+    },
+    "revision": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/revision",
+      "page": "https://en.wiktionary.org/wiki/revision"
+    },
+    "historical": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/historical",
+      "page": "https://en.wiktionary.org/wiki/historical"
+    },
+    "historic": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/historic",
+      "page": "https://en.wiktionary.org/wiki/historic"
+    },
+    "zoning": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/zoning",
+      "page": "https://en.wiktionary.org/wiki/zoning"
+    },
+    "staff": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/staff",
+      "page": "https://en.wiktionary.org/wiki/staff"
+    },
+    "human": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/human",
+      "page": "https://en.wiktionary.org/wiki/human"
+    },
+    "relations": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/relations",
+      "page": "https://en.wiktionary.org/wiki/relations"
+    },
+    "planning": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/planning",
+      "page": "https://en.wiktionary.org/wiki/planning"
+    },
+    "public": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/public",
+      "page": "https://en.wiktionary.org/wiki/public"
+    },
+    "records": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/records",
+      "page": "https://en.wiktionary.org/wiki/records"
+    },
+    "social": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/social",
+      "page": "https://en.wiktionary.org/wiki/social"
+    },
+    "services": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/services",
+      "page": "https://en.wiktionary.org/wiki/services"
+    },
+    "entertainment": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/entertainment",
+      "page": "https://en.wiktionary.org/wiki/entertainment"
+    },
+    "tourism": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/tourism",
+      "page": "https://en.wiktionary.org/wiki/tourism"
+    },
+    "convention": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/convention",
+      "page": "https://en.wiktionary.org/wiki/convention"
+    },
+    "fund": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/fund",
+      "page": "https://en.wiktionary.org/wiki/fund"
+    },
+    "trustee": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/trustee",
+      "page": "https://en.wiktionary.org/wiki/trustee"
+    },
+    "defender": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/defender",
+      "page": "https://en.wiktionary.org/wiki/defender"
+    },
+    "department": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/department",
+      "page": "https://en.wiktionary.org/wiki/department"
+    },
+    "codes": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/codes",
+      "page": "https://en.wiktionary.org/wiki/codes"
+    },
+    "administration": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/administration",
+      "page": "https://en.wiktionary.org/wiki/administration"
+    },
+    "finance": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/finance",
+      "page": "https://en.wiktionary.org/wiki/finance"
+    },
+    "communications": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/communications",
+      "page": "https://en.wiktionary.org/wiki/communications"
+    },
+    "general": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/general",
+      "page": "https://en.wiktionary.org/wiki/general"
+    },
+    "medical": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/medical",
+      "page": "https://en.wiktionary.org/wiki/medical"
+    },
+    "examiner": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/examiner",
+      "page": "https://en.wiktionary.org/wiki/examiner"
+    },
+    "works": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/works",
+      "page": "https://en.wiktionary.org/wiki/works"
+    },
+    "courts": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/courts",
+      "page": "https://en.wiktionary.org/wiki/courts"
+    },
+    "airport": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/airport",
+      "page": "https://en.wiktionary.org/wiki/airport"
+    },
+    "authority": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/authority",
+      "page": "https://en.wiktionary.org/wiki/authority"
+    },
+    "family": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/family",
+      "page": "https://en.wiktionary.org/wiki/family"
+    },
+    "film": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/film",
+      "page": "https://en.wiktionary.org/wiki/film"
+    },
+    "special": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/special",
+      "page": "https://en.wiktionary.org/wiki/special"
+    },
+    "events": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/events",
+      "page": "https://en.wiktionary.org/wiki/events"
+    },
+    "homeless": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/homeless",
+      "page": "https://en.wiktionary.org/wiki/homeless"
+    },
+    "organization": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/organization",
+      "page": "https://en.wiktionary.org/wiki/organization"
+    },
+    "operation": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/operation",
+      "page": "https://en.wiktionary.org/wiki/operation"
+    },
+    "boards": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/boards",
+      "page": "https://en.wiktionary.org/wiki/boards"
+    },
+    "commissions": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/commissions",
+      "page": "https://en.wiktionary.org/wiki/commissions"
+    },
+    "meetings": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/meetings",
+      "page": "https://en.wiktionary.org/wiki/meetings"
+    },
+    "multimodal": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/multimodal",
+      "page": "https://en.wiktionary.org/wiki/multimodal"
+    },
+    "infrastructure": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/infrastructure",
+      "page": "https://en.wiktionary.org/wiki/infrastructure"
+    },
+    "sewerage": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/sewerage",
+      "page": "https://en.wiktionary.org/wiki/sewerage"
+    },
+    "agricultural": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/agricultural",
+      "page": "https://en.wiktionary.org/wiki/agricultural"
+    },
+    "extension": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/extension",
+      "page": "https://en.wiktionary.org/wiki/extension"
+    },
+    "equalization": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/equalization",
+      "page": "https://en.wiktionary.org/wiki/equalization"
+    },
+    "parks": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/parks",
+      "page": "https://en.wiktionary.org/wiki/parks"
+    },
+    "recreation": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/recreation",
+      "page": "https://en.wiktionary.org/wiki/recreation"
+    },
+    "oversight": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/oversight",
+      "page": "https://en.wiktionary.org/wiki/oversight"
+    },
+    "electric": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/electric",
+      "page": "https://en.wiktionary.org/wiki/electric"
+    },
+    "power": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/power",
+      "page": "https://en.wiktionary.org/wiki/power"
+    },
+    "provisions": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/provisions",
+      "page": "https://en.wiktionary.org/wiki/provisions"
+    },
+    "transit": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/transit",
+      "page": "https://en.wiktionary.org/wiki/transit"
+    },
+    "hospitals": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/hospitals",
+      "page": "https://en.wiktionary.org/wiki/hospitals"
+    },
+    "library": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/library",
+      "page": "https://en.wiktionary.org/wiki/library"
+    },
+    "traffic": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/traffic",
+      "page": "https://en.wiktionary.org/wiki/traffic"
+    },
+    "parking": {
+      "rest": "https://en.wiktionary.org/api/rest_v1/page/definition/parking",
+      "page": "https://en.wiktionary.org/wiki/parking"
+    }
+  },
+  "vocabulary": {
+    "harmReferents": {
+      "harm:roadway-injury-fatality": [
+        "roadway",
+        "fatality"
+      ],
+      "harm:use-of-force-and-police-killing": [
+        "police",
+        "force",
+        "police",
+        "involved"
+      ],
+      "harm:fire-injury-and-death": [
+        "fire"
+      ],
+      "harm:emergency-response-delay": [
+        "emergency",
+        "response",
+        "delay"
+      ],
+      "harm:structural-and-code-enforcement-harm": [
+        "structural",
+        "building",
+        "code",
+        "enforcement"
+      ],
+      "harm:water-contamination-illness": [
+        "water",
+        "contamination",
+        "waterborne",
+        "illness"
+      ],
+      "harm:environmental-pollution-exposure": [
+        "environmental",
+        "pollution",
+        "toxic",
+        "exposure"
+      ],
+      "harm:food-and-sanitation-illness": [
+        "food",
+        "sanitation",
+        "illness"
+      ],
+      "harm:infectious-disease-outbreak": [
+        "infectious",
+        "disease",
+        "outbreak"
+      ],
+      "harm:maternal-and-infant-mortality": [
+        "maternal",
+        "infant",
+        "mortality"
+      ],
+      "harm:child-welfare-harm": [
+        "child",
+        "welfare"
+      ],
+      "harm:custodial-death": [
+        "custodial",
+        "detention"
+      ],
+      "harm:homelessness-and-exposure-death": [
+        "homelessness",
+        "exposure"
+      ],
+      "harm:drug-overdose-death": [
+        "drug",
+        "overdose"
+      ],
+      "harm:workplace-injury": [
+        "workplace",
+        "occupational"
+      ],
+      "harm:animal-caused-harm": [
+        "animal",
+        "caused",
+        "zoonotic"
+      ],
+      "harm:financial-misappropriation": [
+        "financial",
+        "misappropriation",
+        "procurement",
+        "corruption"
+      ],
+      "harm:surveillance-privacy-harm": [
+        "surveillance",
+        "privacy"
+      ],
+      "harm:unsafe-housing-nuisance": [
+        "unsafe",
+        "housing",
+        "nuisance",
+        "property",
+        "standards"
+      ],
+      "harm:aviation-safety-harm": [
+        "aviation",
+        "safety"
+      ],
+      "harm:justice-delay-denial": [
+        "justice",
+        "delay",
+        "denial",
+        "access"
+      ],
+      "harm:mental-health-crisis-harm": [
+        "mental",
+        "health",
+        "crisis"
+      ],
+      "harm:air-quality-harm": [
+        "quality"
+      ]
+    },
+    "relations": {
+      "responds_to": [
+        "responds"
+      ],
+      "regulates": [
+        "regulates"
+      ],
+      "mitigates": [
+        "mitigates"
+      ],
+      "enforces_against": [
+        "enforces",
+        "against"
+      ],
+      "monitors": [
+        "monitors"
+      ],
+      "investigates": [
+        "investigates"
+      ],
+      "may_cause": [
+        "cause"
+      ]
+    },
+    "dutyVerbs": [
+      "administer",
+      "appoint",
+      "audit",
+      "coordinate",
+      "enforce",
+      "inspect",
+      "investigate",
+      "license",
+      "maintain",
+      "manage",
+      "oversee",
+      "regulate",
+      "supervise",
+      "recommend",
+      "report",
+      "monitor",
+      "mitigate",
+      "respond",
+      "preserve",
+      "protect",
+      "conduct",
+      "evaluate",
+      "certify"
+    ],
+    "departments": {
+      "METROPOLITAN COUNCIL": [
+        "metropolitan",
+        "council"
+      ],
+      "MAYOR": [
+        "mayor"
+      ],
+      "OFFICE OF EMERGENCY MANAGEMENT": [
+        "office",
+        "emergency",
+        "management"
+      ],
+      "BOARD OF MECHANICAL, PLUMBING, AND ELECTRICAL EXAMINERS AND APPEALS": [
+        "board",
+        "mechanical",
+        "plumbing",
+        "electrical",
+        "examiners",
+        "appeals"
+      ],
+      "BOARD OF FAIR COMMISSIONERS": [
+        "board",
+        "fair",
+        "commissioners"
+      ],
+      "BOARD OF FIRE AND BUILDING CODE APPEALS": [
+        "board",
+        "fire",
+        "building",
+        "code",
+        "appeals"
+      ],
+      "BOARD OF PROPERTY STANDARDS AND APPEALS": [
+        "board",
+        "property",
+        "standards",
+        "appeals"
+      ],
+      "METROPOLITAN SAFETY ADVISORY BOARD": [
+        "metropolitan",
+        "safety",
+        "advisory",
+        "board"
+      ],
+      "METROPOLITAN TRANSPORTATION LICENSING COMMISSION": [
+        "metropolitan",
+        "transportation",
+        "licensing",
+        "commission"
+      ],
+      "URBAN FORESTER": [
+        "urban",
+        "forester"
+      ],
+      "COMMUNITY REVIEW BOARD*": [
+        "community",
+        "review",
+        "board"
+      ],
+      "METROPOLITAN ACTION COMMISSION": [
+        "metropolitan",
+        "action",
+        "commission"
+      ],
+      "METROPOLITAN NASHVILLE ARTS COMMISSION": [
+        "metropolitan",
+        "nashville",
+        "arts",
+        "commission"
+      ],
+      "METROPOLITAN ANIMAL CARE AND CONTROL COMMISSION": [
+        "metropolitan",
+        "animal",
+        "care",
+        "control",
+        "commission"
+      ],
+      "AUDITORIUM COMMISSION": [
+        "auditorium",
+        "commission"
+      ],
+      "CHARTER REVISION COMMISSION": [
+        "charter",
+        "revision",
+        "commission"
+      ],
+      "HISTORICAL COMMISSION": [
+        "historical",
+        "commission"
+      ],
+      "HISTORIC ZONING COMMISSION STAFF": [
+        "historic",
+        "zoning",
+        "commission",
+        "staff"
+      ],
+      "METROPOLITAN HUMAN RELATIONS COMMISSION": [
+        "metropolitan",
+        "human",
+        "relations",
+        "commission"
+      ],
+      "PLANNING COMMISSION": [
+        "planning",
+        "commission"
+      ],
+      "PUBLIC RECORDS COMMISSION": [
+        "public",
+        "records",
+        "commission"
+      ],
+      "METROPOLITAN SOCIAL SERVICES COMMISSION": [
+        "metropolitan",
+        "social",
+        "services",
+        "commission"
+      ],
+      "NASHVILLE ENTERTAINMENT COMMISSION*": [
+        "nashville",
+        "entertainment",
+        "commission"
+      ],
+      "TOURISM AND CONVENTION COMMISSION": [
+        "tourism",
+        "convention",
+        "commission"
+      ],
+      "METROPOLITAN HOUSING FUND COMMISSION": [
+        "metropolitan",
+        "housing",
+        "fund",
+        "commission"
+      ],
+      "METROPOLITAN TRUSTEE": [
+        "metropolitan",
+        "trustee"
+      ],
+      "PUBLIC DEFENDER": [
+        "public",
+        "defender"
+      ],
+      "DEPARTMENT OF CODES ADMINISTRATION": [
+        "department",
+        "codes",
+        "administration"
+      ],
+      "DEPARTMENT OF FINANCE": [
+        "department",
+        "finance"
+      ],
+      "FIRE DEPARTMENT": [
+        "fire",
+        "department"
+      ],
+      "DEPARTMENT OF EMERGENCY COMMUNICATIONS": [
+        "department",
+        "emergency",
+        "communications"
+      ],
+      "DEPARTMENT OF GENERAL SERVICES": [
+        "department",
+        "general",
+        "services"
+      ],
+      "HEALTH DEPARTMENT": [
+        "health",
+        "department"
+      ],
+      "MEDICAL EXAMINER'S OFFICE": [
+        "medical",
+        "examiner",
+        "office"
+      ],
+      "DEPARTMENT OF LAW": [
+        "department"
+      ],
+      "POLICE DEPARTMENT": [
+        "police",
+        "department"
+      ],
+      "DEPARTMENT OF PUBLIC WORKS": [
+        "department",
+        "public",
+        "works"
+      ],
+      "METROPOLITAN COURTS": [
+        "metropolitan",
+        "courts"
+      ],
+      "METROPOLITAN NASHVILLE AIRPORT AUTHORITY": [
+        "metropolitan",
+        "nashville",
+        "airport",
+        "authority"
+      ],
+      "OFFICE OF FAMILY SAFETY": [
+        "office",
+        "family",
+        "safety"
+      ],
+      "MAYOR'S OFFICE OF FILM AND SPECIAL EVENTS": [
+        "mayor",
+        "office",
+        "film",
+        "special",
+        "events"
+      ],
+      "OFFICE OF HOMELESS SERVICES": [
+        "office",
+        "homeless",
+        "services"
+      ],
+      "ORGANIZATION AND OPERATION OF BOARDS AND COMMISSIONS": [
+        "organization",
+        "operation",
+        "boards",
+        "commissions"
+      ],
+      "MEETINGS OF BOARDS AND COMMISSIONS": [
+        "meetings",
+        "boards",
+        "commissions"
+      ],
+      "DEPARTMENT OF METROPOLITAN FINANCE": [
+        "department",
+        "metropolitan",
+        "finance"
+      ],
+      "DEPARTMENT OF METROPOLITAN POLICE": [
+        "department",
+        "metropolitan",
+        "police"
+      ],
+      "DEPARTMENT OF FIRE": [
+        "department",
+        "fire"
+      ],
+      "DEPARTMENT OF TRANSPORTATION AND MULTIMODAL INFRASTRUCTURE": [
+        "department",
+        "transportation",
+        "multimodal",
+        "infrastructure"
+      ],
+      "DEPARTMENT OF WATER AND SEWERAGE SERVICES": [
+        "department",
+        "water",
+        "sewerage",
+        "services"
+      ],
+      "DEPARTMENT OF AVIATION": [
+        "department",
+        "aviation"
+      ],
+      "AGRICULTURAL EXTENSION BOARD": [
+        "agricultural",
+        "extension",
+        "board"
+      ],
+      "BOARD OF EQUALIZATION": [
+        "board",
+        "equalization"
+      ],
+      "METROPOLITAN BOARD OF FAIR COMMISSIONERS": [
+        "metropolitan",
+        "board",
+        "fair",
+        "commissioners"
+      ],
+      "METROPOLITAN BOARD OF PARKS AND RECREATION": [
+        "metropolitan",
+        "board",
+        "parks",
+        "recreation"
+      ],
+      "COMMUNITY OVERSIGHT BOARD": [
+        "community",
+        "oversight",
+        "board"
+      ],
+      "ELECTRIC POWER BOARD": [
+        "electric",
+        "power",
+        "board"
+      ],
+      "GENERAL PROVISIONS": [
+        "general",
+        "provisions"
+      ],
+      "METROPOLITAN PLANNING COMMISSION": [
+        "metropolitan",
+        "planning",
+        "commission"
+      ],
+      "NASHVILLE TRANSIT AUTHORITY": [
+        "nashville",
+        "transit",
+        "authority"
+      ],
+      "PUBLIC HEALTH": [
+        "public",
+        "health"
+      ],
+      "PUBLIC HOSPITALS": [
+        "public",
+        "hospitals"
+      ],
+      "PUBLIC LIBRARY": [
+        "public",
+        "library"
+      ],
+      "METROPOLITAN TRAFFIC AND PARKING COMMISSION": [
+        "metropolitan",
+        "traffic",
+        "parking",
+        "commission"
+      ]
+    }
+  },
+  "termCount": 177
+}

@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.62",
+  "title": "MAYOR'S OFFICE OF FILM AND SPECIAL EVENTS",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-62-mayor-s-office-of-film-and-special-events.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-62-mayor-s-office-of-film-and-special-events.txt",
+    "sha256": "c26cf9f2ba513c6c8ae2b875717b41f9cdcf5351bbc1c6f7add969520d63ebd8",
+    "chars": 28517
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.890Z"
+}

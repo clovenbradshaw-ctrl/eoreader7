@@ -128,3 +128,22 @@ test("V9 — every refused run carries its given: the model; refusal is disclosu
   assert.equal(ref.given, "model", "the refusal's given is the model — its source is disclosed");
   assert.ok(Array.isArray(ref.names) && ref.names.length >= 1, "the names are kept in the refusal");
 });
+
+// ── V10  THE ASSISTANT-VOICE FILTER (2026-09-24) — a second, distinct
+// discourse register from V6's task-meta sentences: the mouth talking AS A
+// CHAT ASSISTANT (turn-taking, offering to help) rather than writing the
+// piece. Every sentence here is verbatim from a real piece on two real
+// pipeline runs this session (surf-wp-fwd-b, surf-wp-fixed-web-1), not
+// constructed from a guess at what scaffolding looks like.
+test("V10 — assistant-voice scaffolding is refused mechanically, real prose is not", () => {
+  assert.ok(isMetaSentence("Here's a breakdown of the provided text, formatted into lines, incorporating the facts you've given:"), "chat-assistant framing — refused");
+  assert.ok(isMetaSentence("Let me know if you'd like me to expand on any of these points or if you have any other text you'd like to work with!"), "offer to continue helping — refused");
+  assert.ok(isMetaSentence("Here's a breakdown of the white paper excerpt, presented in lines, incorporating the facts you provided:"), "chat-assistant framing (second real run) — refused");
+  assert.ok(isMetaSentence("Let me know if you'd like me to expand on any of these points or if you have any other questions!"), "offer to continue helping (second real run) — refused");
+  assert.ok(isMetaSentence("Here's why this rewrite works:"), "meta-commentary about the mouth's own rewrite — refused");
+  assert.ok(isMetaSentence("How to continue the piece:"), "meta-instruction about continuing the piece — refused");
+  // The control: ordinary technical prose that shares no vocabulary with
+  // either discourse register must be admitted, not swept up by an
+  // over-broad pattern.
+  assert.ok(!isMetaSentence("SURF derives its two hunts entirely from the void's own words, never from external configuration."), "ordinary technical prose — admitted");
+});

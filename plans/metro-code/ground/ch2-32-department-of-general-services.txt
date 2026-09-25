@@ -1,0 +1,173 @@
+2.32.010 - Created—Organization and membership.
+There is created a department of general services, which shall consist of a director and such other officers and positions of employment as may be provided by the provisions of this chapter and Chapters 6.16, 6.60, 10.04, 10.08, 10.12, 10.16, 10.20, 10.32 through 10.52 and 15.72, or as may be subsequently provided by ordinance.
+(Prior code § 2-1-36)
+
+2.32.020 - Director—Powers, duties and compensation.
+The director of the department of general services shall be responsible for and perform the executive functions of the department.
+*History: Ord. 90-1339 § 1 (2-8), 1990; prior code § 2-1-37
+
+2.32.030 - Department powers, functions and personnel.
+The department of general services shall have transferred to it the powers, functions and personnel as follows: A.
+The functions, duties, powers, personnel and positions, records, personal property and equipment formerly vested in the motor pool section of the division of public property administration;
+B.
+The functions, duties, powers, personnel and positions, records, personal property and equipment formerly vested in the maintenance section of the division of public property administration, which has heretofore been concerned with the care and maintenance of public buildings under its control and unless otherwise provided in this code, shall also be responsible for the erection, construction, equipping, maintenance and operation of all public buildings;
+C.
+The functions, duties, powers, personnel and positions, records, personal property and equipment formerly vested in the equipment division of the public works department for the operation of garages and service centers for the repair of automotive equipment other than heavy equipment;
+D.
+All control and supervision of mailing, central duplicating, printing and messenger services;
+E.
+All control and supervision of storerooms services shall be vested in the purchasing agent of the metropolitan government.
+*History: Ord. 96-376 § 1, 1996; prior code § 2-1-38
+
+2.32.040 - Director—Determination of section and unit functions.
+The director of the department of general services shall determine the functions of the various sections and units.
+(Prior code § 2-1-39)
+
+2.32.050 - Mayor's authority to resolve controversies.
+A.
+All questions and problems arising under this chapter concerning the status of employees transferred in accordance with this chapter and concerning the organization of the department of general services shall be determined by the mayor.
+B.
+In case of controversy between two or more departments or agencies as to all matters and things involved in the transfer of functions, personnel, records, equipment or unencumbered balance of appropriations to the general services department, the mayor shall resolve such controversies in the manner in which he may direct.
+(Prior code § 2-1-40)
+
+2.32.060 - Use of metropolitan government vehicles.
+A.
+For purposes of this section, the following definitions shall apply:
+"Metro" means the Metropolitan Government of Nashville and Davidson County.
+"OFM" means the Metropolitan Department of General Services, Office of Fleet Management.
+"Agency" means a Metro agency, department, institution, board, bureau, authority, or elected official issued vehicles through OFM.
+"Vehicle" means any self-propelled, rubber-tired unit capable of being licensed in the State of Tennessee for over the road travel.
+B.
+Metro government-owned vehicles shall be used only for official business.
+C.
+Unauthorized use. The following uses of Metro vehicles are prohibited:
+1.
+Travel outside the geographical jurisdiction of metropolitan government without the proper administrative approvals.
+2.
+Driving/operating a Metro vehicle while drinking an intoxicating beverage, or while under the influence of any drug, including alcohol, which impairs the employee's ability to safely operate said vehicle.
+3.
+Transporting alcoholic beverages or illegal drugs of any kind, except as the same may be required for law enforcement purposes.
+4.
+Any use for personal purposes, other than incidental.
+5.
+Transporting family members, friends, associates or other persons who are not employees of Metro or serving the interest of Metro.
+6.
+Attending sport events, including hunting and fishing, which are not in the service of Metro.
+7.
+Transporting any political campaign literature or matter, or to engage in soliciting votes, or to transport any person or persons soliciting votes in any election or primary.
+D.
+OFM shall have the authority to adopt additional rules and regulations consistent with this section pertaining to use and operation of Metro vehicles and equipment.
+*History: Ord. BL2011-938 § 1, 2011
+
+2.32.065 - Fleet electrification program.
+A.
+Within one hundred eighty days after the enacted date of this section, the metropolitan department of general services shall establish a fleet electrification program ("program") that shall require that all motor vehicles owned by the metropolitan government be zero-emission vehicles by the year 2050.
+B.
+The transition to a zero-emission fleet will be phased-in as follows:
+1.
+By 2025, 25% of the vehicles in the metropolitan government fleet shall be low-or-zero-emission vehicles.
+2.
+By 2030, 25% of the vehicles in the metropolitan government fleet shall be zero-emission vehicles with at least 50% of the vehicles in fleet low-or-zero-emission vehicles.
+3.
+By 2035, 50% of the vehicles in the metropolitan government fleet shall be zero-emission vehicles with at least 75% of the vehicles in fleet low-or-zero-emission vehicles.
+4.
+By 2040, 75% of the vehicles in the metropolitan government fleet shall be zero-emission vehicles with at least 90% of the vehicles in fleet low-or-zero-emission vehicles.
+5.
+By 2045, 90% of the vehicles in the metropolitan government fleet shall be zero-emission vehicles with at least 100% of the vehicles in fleet low-or-zero-emission vehicles.
+6.
+By 2050, 100% of the vehicles in the metropolitan government fleet shall be zero-emission vehicles.
+C.
+The department of general services shall have the authority to adopt additional rules and regulations consistent with this section. The department of general services shall further issue a report to the metropolitan council at least annually regarding the emission status of the vehicles in the metropolitan government fleet. This report shall be made available on the metropolitan government's website and the Metro Open Data Portal.
+D.
+By January 1, 2022, and every two years thereafter, the metropolitan department of general services shall develop a greenhouse gas emissions reduction plan for its fleet. The plan shall include proposals on how to meet the above targets and goals for reducing emissions as well as cost estimates associated with the meeting the above targets and goals. The greenhouse gas emissions reduction plan shall be submitted to the metropolitan council.
+E.
+Exemptions. This section shall not apply to any emergency response vehicles, such as ambulances, law enforcement vehicles, or fire trucks. The department of general services shall have the authority to exempt other types of vehicles for which low-or-zero-emission models are not feasible. The department shall reevaluate the feasibility of including emergency response vehicles or otherwise exempted vehicles in this program every five years after adoption of this ordinance and may include any or all previously exempted vehicles in the program.
+(Amdt. 1 to Ord. BL2019-1598 § 1, 2019; Ord. BL2019-1598 § 1, 2019)
+
+2.32.070 - Green building standards.
+By July 1, 2020, the Department of General Services shall develop a strategic energy management plan for reducing energy and water use across metro-owned buildings. This strategic plan shall include elements for complying with the Equal Business Opportunity Program, found in Chapter 4.46 of the Metropolitan Code of Laws, to the fullest extent possible. The plan shall include timelines and cost estimates for implementing: 1.
+An energy retrofit program across at least 9% of metro government-owned buildings by square footage between 2021 and 2024, prioritizing buildings that have core systems and equipment nearing the end of their useful lives, with a goal of achieving at least 20% reductions in average energy and greenhouse gas emissions, as measured in BTUs; and
+2.
+A LEEDTM Zero retrofit program across at least 12.5% of metro government-owned buildings by square footage between 2026 and 2032. Renewable energy certificates ("RECs") may be used as part of this retrofit program.
+(Amdt. 2 to Ord. BL2019-1599 § 1, 2019; Amdt. 1 to Ord. BL2019-1599 § 1, 2019; Ord. BL2019-1599 § 1, 2019)
+
+2.32.080 - Renewable energy portfolio standard program.
+A.
+Definitions. The following definitions shall be used in this section:
+1.
+"Solar energy" means radiant energy, direct, diffuse, or reflected, received from the sun at wavelengths suitable for conversion into thermal, chemical, or electrical energy, that is collected, generated, or stored for use at a later time.
+2.
+"Tier one renewable source" means one or more of the following types of energy sources:
+a.
+Solar energy;
+b.
+Wind;
+c.
+Methane from the anaerobic decomposition of organic materials in a landfill or wastewater treatment plant;
+d.
+Geothermal;
+e.
+Ocean, including energy from waves, tides, currents, and thermal differences;
+f.
+Fuel cells producing electricity from a tier one renewable source under this paragraph; and
+g.
+Raw or treated wastewater used as a heat source or sink for a heating or cooling system.
+3.
+"Tier two renewable source" means one or more of the following types of energy sources:
+a.
+Hydroelectric power other than pumped storage generation; or
+b.
+Waste-to-energy.
+B.
+The renewable energy portfolio standard for the metropolitan government shall be as follows:
+1.
+In 2020, that the percentage of total carbon-free energy usage shall be not less than 53%, with not less than 20% from tier one renewable sources, not less than 2.5% from tier two renewable sources, and not less than 1% from solar energy;
+2.
+In 2021, that the percentage of total carbon-free energy usage shall be not less than 55.7%, with not less than 22.5% from tier one renewable sources, not less than 3% from tier two renewable sources, and not less than 1.5% from solar energy;
+3.
+In 2022, that the percentage of total carbon-free energy usage shall be not less than 58.4%, with not less than 25% from tier one renewable sources, not less than 3.5% from tier two renewable sources, and not less than 1.6% from solar energy;
+4.
+In 2023, that the percentage of total carbon-free energy usage shall be not less than 61.1%, with not less than 27.5% from tier one renewable sources, not less than 4% from tier two renewable sources, and not less than 1.85% from solar energy;
+5.
+In 2024, that the percentage of total carbon-free energy usage shall be not less than 63.8%, with not less than 30% from tier one renewable sources, not less than 4.5% from tier two renewable sources, and not less than 2.15% from solar energy;
+6.
+In 2025, that the percentage of total carbon-free energy usage shall be not less than 66.5%, with not less than 35% from tier one renewable sources, not less than 5% from tier two renewable sources, and not less than 2.45% from solar energy;
+7.
+In 2026, that the percentage of total carbon-free energy usage shall be not less than 69.2%, with not less than 40% from tier one renewable sources, not less than 5.5% from tier two renewable sources, and not less than 2.75% from solar energy;
+8.
+In 2027, that the percentage of total carbon-free energy usage shall be not less than 71.9%, with not less than 45% from tier one renewable sources, not less than 6% from tier two renewable sources, and not less than 4% from solar energy;
+9.
+In 2028, that the percentage of total carbon-free energy usage shall be not less than 74.6%, with not less than 50% from tier one renewable sources, not less than 6.5% from tier two renewable sources, and not less than 4.5% from solar energy;
+10.
+In 2029, that the percentage of total carbon-free energy usage shall be not less than 77.3%, with not less than 55% from tier one renewable sources, not less than 7% from tier two renewable sources, and not less than 4.75% from solar energy;
+11.
+In 2030, that the percentage of total carbon-free energy usage shall be not less than 80%, with not less than 60% from tier one renewable sources, not less than 7.5% from tier two renewable sources, and not less than 5.0% from solar energy;
+12.
+In 2031, that the percentage of total carbon-free energy usage shall be not less than 82%, with not less than 65% from tier one renewable sources, not less than 8% from tier two renewable sources, and not less than 5.25% from solar energy;
+13.
+In 2032, that the percentage of total carbon-free energy usage shall be not less than 84%, with not less than 70% from tier one renewable sources, not less than 8.5% from tier two renewable sources, and not less than 5.5% from solar energy;"
+14.
+In 2033, that the percentage of total carbon-free energy usage shall be not less than 86%, with not less than 75% from tier one renewable sources, not less than 9% from tier two renewable sources, and not less than 6.0% from solar energy;
+15.
+In 2034, that the percentage of total carbon-free energy usage shall be not less than 88%, with not less than 80% from tier one renewable sources, not less than 8% from tier two renewable sources, and not less than 6.5% from solar energy;
+16.
+In 2035, that the percentage of total carbon-free energy usage shall be not less than 90%, with not less than 85% from tier one renewable sources, not less than 5% from tier two renewable sources, and not less than 7.0% from solar energy;
+17.
+In 2036, that the percentage of total carbon-free energy usage shall be not less than 92%, with not less than 90% from tier one renewable sources, not less than 2% from tier two renewable sources, and not less than 7.5% from solar energy;
+18.
+In 2037, that the percentage of total carbon-free energy usage shall be not less than 94%, with not less than 94% from tier one renewable sources, not less than 0% from tier two renewable sources, and not less than 8.0% from solar energy;
+19.
+In 2038, that the percentage of total carbon-free energy usage shall be not less than 96%, with not less than 96% from tier one renewable sources, not less than 0% from tier two renewable sources, and not less than 8.5% from solar energy;
+20.
+In 2039, that the percentage of total carbon-free energy usage shall be not less than 98%, with not less than 98% from tier one renewable sources, not less than 0% from tier two renewable sources, and not less than 9.0% from solar energy;
+21.
+In 2040, that the percentage of total carbon-free energy usage shall be not less than 100%, with not less than 100% from tier one renewable sources, not less than 0% from tier two renewable sources, and not less than 9.5% from solar energy; and
+22.
+In 2041 and thereafter, that the percentage of total carbon-free energy usage shall be not less than 100%, with not less than 100% from tier one renewable sources, not less than 0% from tier two renewable sources, and not less than 10% from solar energy.
+C.
+If local capacity is available, metro should attempt to increase their share of ownership in community-based solar energy programs within Davidson County. The metropolitan government should further attempt to engage in available initiatives offered by NES to increase renewable energy sources above the target standards listed in subsection A when available.
+D.
+The metropolitan government may use renewable energy certificates ("RECs") or other types of credits in order to meet the percentage required under the standards outlined in subsection B.
+E.
+The department of general services shall develop and submit to the metropolitan council a strategic plan for achieving the renewable energy portfolio standard by July 1, 2020. The plan shall include cost estimates for implementation of the standards. The department of general services shall further issue a report to the metropolitan council at least annually regarding the renewable energy portfolio standards of the Metropolitan Government of Nashville and Davidson County which shall include the percentage of renewable energy usage by category and the RECs or credits, if any, in use. This report shall be made available on the metropolitan government's website and the Metro Open Data Portal.
+(Amdt. 2 to Ord. BL2019-1600 § 1, 2019; Amdt. 1 to Ord. BL2019-1600 § 1, 2019; Ord. BL2019-1600 § 1, 2019)

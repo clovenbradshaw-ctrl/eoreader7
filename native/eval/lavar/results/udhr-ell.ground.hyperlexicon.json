@@ -1,0 +1,2062 @@
+{
+  "schema": "EOHyperlexicon@1",
+  "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+  "language": "ell",
+  "role": "target",
+  "entries": 91,
+  "given": 71,
+  "candidates": 20,
+  "hyperlexicon": {
+    "schema": "EOHyperlexicon@1",
+    "composition": {
+      "είναι ίσοι απέναντι στον νόμο και έχουν\u0000δικαίωμα": {
+        "left": "είναι ίσοι απέναντι στον νόμο και έχουν",
+        "right": "δικαίωμα",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 7\n\n      Όλοι είναι ίσοι απέναντι στον νόμο και έχουν δικαίωμα σε ίση προστασία του νόμου, χωρίς καμία απολύτως διάκριση."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 7,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "έχουν\u0000δικαίωμα": {
+        "left": "έχουν",
+        "right": "δικαίωμα",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Όλοι έχουν δικαίωμα σε ίση προστασία από κάθε διάκριση που θα παραβίαζε την παρούσα Διακήρυξη και από κάθε πρόκληση για μια τέτοια δυσμενή διάκριση."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 7,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "σε ίση προστασία από κάθε\u0000διάκριση": {
+        "left": "σε ίση προστασία από κάθε",
+        "right": "διάκριση",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Όλοι έχουν δικαίωμα σε ίση προστασία από κάθε διάκριση που θα παραβίαζε την παρούσα Διακήρυξη και από κάθε πρόκληση για μια τέτοια δυσμενή διάκριση."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 7,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "που θα παραβίαζε την\u0000παρούσα": {
+        "left": "που θα παραβίαζε την",
+        "right": "παρούσα",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Όλοι έχουν δικαίωμα σε ίση προστασία από κάθε διάκριση που θα παραβίαζε την παρούσα Διακήρυξη και από κάθε πρόκληση για μια τέτοια δυσμενή διάκριση."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 7,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "να στερηθεί\u0000αυθαίρετα": {
+        "left": "να στερηθεί",
+        "right": "αυθαίρετα",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Κανείς δεν μπορεί να στερηθεί αυθαίρετα την ιδιοκτησία του."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 17,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "έχει το δικαίωμα της\u0000ελευθερίας": {
+        "left": "έχει το δικαίωμα της",
+        "right": "ελευθερίας",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 18\n\n      Κάθε άτομο έχει το δικαίωμα της ελευθερίας της σκέψης, της συνείδησης και της θρησκείας."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 18,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "να διεξάγονται περιοδικά, με καθολική,\u0000ίση": {
+        "left": "να διεξάγονται περιοδικά, με καθολική,",
+        "right": "ίση",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η θέληση αυτή πρέπει να εκφράζεται με τίμιες εκλογές, οι οποίες πρέπει να διεξάγονται περιοδικά, με καθολική, ίση και μυστική ψηφοφορία, ή με αντίστοιχη διαδικασία που να εξασφαλίζει την ελευθερία της"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 21,
+          "sentence": 3,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "που είναι απαραίτητα για την\u0000αξιοπρέπεια": {
+        "left": "που είναι απαραίτητα για την",
+        "right": "αξιοπρέπεια",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η κοινωνία, με την εθνική πρωτοβουλία και τη διεθνή συνεργασία, ανάλογα πάντα με την οργάνωση και τις οικονομικές δυνατότητες κάθε κράτους, έχει χρέος να του εξασφαλίσει την ικανοποίηση των οικονομικώ"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 22,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      ", χωρίς καμία\u0000διάκριση": {
+        "left": ", χωρίς καμία",
+        "right": "διάκριση",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Όλοι, χωρίς καμία διάκριση, έχουν το δικαίωμα ίσης αμοιβής για ίση εργασία."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      ", έχουν το δικαίωμα ίσης αμοιβής για\u0000ίση": {
+        "left": ", έχουν το δικαίωμα ίσης αμοιβής για",
+        "right": "ίση",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Όλοι, χωρίς καμία διάκριση, έχουν το δικαίωμα ίσης αμοιβής για ίση εργασία."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "ζωής άξιες\u0000στην": {
+        "left": "ζωής άξιες",
+        "right": "στην",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Κάθε εργαζόμενος έχει δικαίωμα δίκαιης και ικανοποιητικής αμοιβής, που να εξασφαλίζει σε αυτόν και την οικογένειά του συνθήκες ζωής άξιες στην ανθρώπινη αξιοπρέπεια."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "ανθρώπινη\u0000αξιοπρέπεια": {
+        "left": "ανθρώπινη",
+        "right": "αξιοπρέπεια",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Κάθε εργαζόμενος έχει δικαίωμα δίκαιης και ικανοποιητικής αμοιβής, που να εξασφαλίζει σε αυτόν και την οικογένειά του συνθήκες ζωής άξιες στην ανθρώπινη αξιοπρέπεια."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "να συμπληρώνεται με άλλα\u0000μέσα": {
+        "left": "να συμπληρώνεται με άλλα",
+        "right": "μέσα",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η αμοιβή της εργασίας, αν υπάρχει, πρέπει να συμπληρώνεται με άλλα μέσα κοινωνικής προστασίας."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 3,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "κοινωνικής\u0000προστασίας": {
+        "left": "κοινωνικής",
+        "right": "προστασίας",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η αμοιβή της εργασίας, αν υπάρχει, πρέπει να συμπληρώνεται με άλλα μέσα κοινωνικής προστασίας."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 3,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "με άλλους συνδικάτα και να\u0000συμμετέχει": {
+        "left": "με άλλους συνδικάτα και να",
+        "right": "συμμετέχει",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Καθένας έχει το δικαίωμα να ιδρύει μαζί με άλλους συνδικάτα και να συμμετέχει σε συνδικάτα για την προάσπιση των συμφερόντων του."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 4,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "ανάπαυση, σε ελεύθερο\u0000χρόνο": {
+        "left": "ανάπαυση, σε ελεύθερο",
+        "right": "χρόνο",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 24\n\n      Καθένας έχει το δικαίωμα στην ανάπαυση, σε ελεύθερο χρόνο, και ιδιαίτερα, σε λογικό περιορισμό του χρόνου εργασίας και σε περιοδικές άδειες με πλήρεις αποδοχές."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 24,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      ", και ιδιαίτερα, σε λογικό\u0000περιορισμό": {
+        "left": ", και ιδιαίτερα, σε λογικό",
+        "right": "περιορισμό",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 24\n\n      Καθένας έχει το δικαίωμα στην ανάπαυση, σε ελεύθερο χρόνο, και ιδιαίτερα, σε λογικό περιορισμό του χρόνου εργασίας και σε περιοδικές άδειες με πλήρεις αποδοχές."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 24,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "ίδιο και στην\u0000οικογένεια": {
+        "left": "ίδιο και στην",
+        "right": "οικογένεια",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 25\n\n\n\n          Καθένας έχει δικαίωμα σε ένα βιοτικό επίπεδο ικανό να εξασφαλίσει στον ίδιο και στην οικογένεια του υγεία και ευημερία, και ειδικότερα τροφή, ρουχισμό, κατοικία, ιατρική περίθαλψ"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 25,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "και για\u0000όλες": {
+        "left": "και για",
+        "right": "όλες",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Ἐχει ακόμα δικαίωμα σε ασφάλιση για την ανεργία, την αρρώστια, την αναπηρία, τη χηρεία, τη γεροντική ηλικία, όπως και για όλες τις άλλες περιπτώσεις που στερείται τα μέσα της συντήρησής του, εξαιτίας "
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 25,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "τις άλλες περιπτώσεις που στερείται τα\u0000μέσα": {
+        "left": "τις άλλες περιπτώσεις που στερείται τα",
+        "right": "μέσα",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Ἐχει ακόμα δικαίωμα σε ασφάλιση για την ανεργία, την αρρώστια, την αναπηρία, τη χηρεία, τη γεροντική ηλικία, όπως και για όλες τις άλλες περιπτώσεις που στερείται τα μέσα της συντήρησής του, εξαιτίας "
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 25,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "να παρέχεται δωρεάν, τουλάχιστον\u0000στη": {
+        "left": "να παρέχεται δωρεάν, τουλάχιστον",
+        "right": "στη",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η εκπαίδευση πρέπει να παρέχεται δωρεάν, τουλάχιστον στη στοιχειώδη και βασική βαθμίδα της."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "να αποβλέπει στην\u0000πλήρη": {
+        "left": "να αποβλέπει στην",
+        "right": "πλήρη",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η εκπαίδευση πρέπει να αποβλέπει στην πλήρη ανάπτυξη της ανθρώπινης προσωπικότητας και στην ενίσχυση του σεβασμού των ανθρωπίνων δικαιωμάτων και των θεμελιακών ελευθεριών."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 5,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "της\u0000ανθρώπινης": {
+        "left": "της",
+        "right": "ανθρώπινης",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η εκπαίδευση πρέπει να αποβλέπει στην πλήρη ανάπτυξη της ανθρώπινης προσωπικότητας και στην ενίσχυση του σεβασμού των ανθρωπίνων δικαιωμάτων και των θεμελιακών ελευθεριών."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 5,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "και των θεμελιακών\u0000ελευθεριών": {
+        "left": "και των θεμελιακών",
+        "right": "ελευθεριών",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η εκπαίδευση πρέπει να αποβλέπει στην πλήρη ανάπτυξη της ανθρώπινης προσωπικότητας και στην ενίσχυση του σεβασμού των ανθρωπίνων δικαιωμάτων και των θεμελιακών ελευθεριών."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 5,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "σε\u0000όλα": {
+        "left": "σε",
+        "right": "όλα",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Πρέπει να προάγει την κατανόηση, την ανεκτικότητα και τη φιλία ανάμεσα σε όλα τα έθνη και σε όλες τις φυλές και τις θρησκευτικές ομάδες, και να ευνοεί την ανάπτυξη των δραστηριοτήτων των Ηνωμένων Εθνώ"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 6,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "τα\u0000έθνη": {
+        "left": "τα",
+        "right": "έθνη",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Πρέπει να προάγει την κατανόηση, την ανεκτικότητα και τη φιλία ανάμεσα σε όλα τα έθνη και σε όλες τις φυλές και τις θρησκευτικές ομάδες, και να ευνοεί την ανάπτυξη των δραστηριοτήτων των Ηνωμένων Εθνώ"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 6,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "και σε\u0000όλες": {
+        "left": "και σε",
+        "right": "όλες",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Πρέπει να προάγει την κατανόηση, την ανεκτικότητα και τη φιλία ανάμεσα σε όλα τα έθνη και σε όλες τις φυλές και τις θρησκευτικές ομάδες, και να ευνοεί την ανάπτυξη των δραστηριοτήτων των Ηνωμένων Εθνώ"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 6,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "των δραστηριοτήτων των\u0000Ηνωμένων": {
+        "left": "των δραστηριοτήτων των",
+        "right": "Ηνωμένων",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Πρέπει να προάγει την κατανόηση, την ανεκτικότητα και τη φιλία ανάμεσα σε όλα τα έθνη και σε όλες τις φυλές και τις θρησκευτικές ομάδες, και να ευνοεί την ανάπτυξη των δραστηριοτήτων των Ηνωμένων Εθνώ"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 6,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "στην πνευματική\u0000ζωή": {
+        "left": "στην πνευματική",
+        "right": "ζωή",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 27\n\n\n\n          Καθένας έχει το δικαίωμα να συμμετέχει ελεύθερα στην πνευματική ζωή της κοινότητας, να χαίρεται τις καλές τέχνες και να μετέχει στην επιστημονική πρόοδο και στα αγαθά της."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 27,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "και διεθνής τάξη,\u0000μέσα": {
+        "left": "και διεθνής τάξη,",
+        "right": "μέσα",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 28\n\n      Καθένας έχει το δικαίωμα να επικρατεί μια κοινωνική και διεθνής τάξη, μέσα στην οποία τα δικαιώματα και οι ελευθερίες που προκηρύσσει η παρούσα Διακήρυξη να μπορούν να πραγματώνονται σ"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 28,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "στην οποία τα\u0000δικαιώματα": {
+        "left": "στην οποία τα",
+        "right": "δικαιώματα",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 28\n\n      Καθένας έχει το δικαίωμα να επικρατεί μια κοινωνική και διεθνής τάξη, μέσα στην οποία τα δικαιώματα και οι ελευθερίες που προκηρύσσει η παρούσα Διακήρυξη να μπορούν να πραγματώνονται σ"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 28,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "και οι\u0000ελευθερίες": {
+        "left": "και οι",
+        "right": "ελευθερίες",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 28\n\n      Καθένας έχει το δικαίωμα να επικρατεί μια κοινωνική και διεθνής τάξη, μέσα στην οποία τα δικαιώματα και οι ελευθερίες που προκηρύσσει η παρούσα Διακήρυξη να μπορούν να πραγματώνονται σ"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 28,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "που προκηρύσσει η\u0000παρούσα": {
+        "left": "που προκηρύσσει η",
+        "right": "παρούσα",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 28\n\n      Καθένας έχει το δικαίωμα να επικρατεί μια κοινωνική και διεθνής τάξη, μέσα στην οποία τα δικαιώματα και οι ελευθερίες που προκηρύσσει η παρούσα Διακήρυξη να μπορούν να πραγματώνονται σ"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 28,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "έχει καθήκοντα απέναντι στην κοινότητα,\u0000μέσα": {
+        "left": "έχει καθήκοντα απέναντι στην κοινότητα,",
+        "right": "μέσα",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 29\n\n\n\n          Το άτομο έχει καθήκοντα απέναντι στην κοινότητα, μέσα στα πλαίσια της οποίας και μόνο είναι δυνατή η ελεύθερη και ολοκληρωμένη ανάπτυξη της προσωπικότητάς του."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "πλαίσια της οποίας και\u0000μόνο": {
+        "left": "πλαίσια της οποίας και",
+        "right": "μόνο",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 29\n\n\n\n          Το άτομο έχει καθήκοντα απέναντι στην κοινότητα, μέσα στα πλαίσια της οποίας και μόνο είναι δυνατή η ελεύθερη και ολοκληρωμένη ανάπτυξη της προσωπικότητάς του."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "είναι δυνατή η\u0000ελεύθερη": {
+        "left": "είναι δυνατή η",
+        "right": "ελεύθερη",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 29\n\n\n\n          Το άτομο έχει καθήκοντα απέναντι στην κοινότητα, μέσα στα πλαίσια της οποίας και μόνο είναι δυνατή η ελεύθερη και ολοκληρωμένη ανάπτυξη της προσωπικότητάς του."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "και ολοκληρωμένη\u0000ανάπτυξη": {
+        "left": "και ολοκληρωμένη",
+        "right": "ανάπτυξη",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 29\n\n\n\n          Το άτομο έχει καθήκοντα απέναντι στην κοινότητα, μέσα στα πλαίσια της οποίας και μόνο είναι δυνατή η ελεύθερη και ολοκληρωμένη ανάπτυξη της προσωπικότητάς του."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "του και στην απόλαυση των\u0000ελευθεριών": {
+        "left": "του και στην απόλαυση των",
+        "right": "ελευθεριών",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Στην άσκηση των δικαιωμάτων του και στην απόλαυση των ελευθεριών του κανείς δεν υπόκειται παρά μόνο στους περιορισμούς που ορίζονται από τους νόμους, με αποκλειστικό σκοπό να εξασφαλίζεται η αναγνώρισ"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "του κανείς δεν υπόκειται παρά\u0000μόνο": {
+        "left": "του κανείς δεν υπόκειται παρά",
+        "right": "μόνο",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Στην άσκηση των δικαιωμάτων του και στην απόλαυση των ελευθεριών του κανείς δεν υπόκειται παρά μόνο στους περιορισμούς που ορίζονται από τους νόμους, με αποκλειστικό σκοπό να εξασφαλίζεται η αναγνώρισ"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "και ο σεβασμός των\u0000δικαιωμάτων": {
+        "left": "και ο σεβασμός των",
+        "right": "δικαιωμάτων",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Στην άσκηση των δικαιωμάτων του και στην απόλαυση των ελευθεριών του κανείς δεν υπόκειται παρά μόνο στους περιορισμούς που ορίζονται από τους νόμους, με αποκλειστικό σκοπό να εξασφαλίζεται η αναγνώρισ"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 1,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "και των\u0000ελευθεριών": {
+        "left": "και των",
+        "right": "ελευθεριών",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 30\n\n      Καμιά διάταξη της παρούσας Διακήρυξης δεν μπορεί να ερμηνευθεί ότι παρέχει σε ένα κράτος, σε μια ομάδα ή σε ένα άτομο οποιοδήποτε δικαίωμα να επιδίδεται σε ενέργειες ή να εκτελεί πράξε"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 30,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "αυτά και οι\u0000ελευθερίες": {
+        "left": "αυτά και οι",
+        "right": "ελευθερίες",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Τα δικαιώματα αυτά και οι ελευθερίες δεν μπορούν, σε καμία περίπτωση, να ασκούνται αντίθετα προς τους σκοπούς και τις αρχές των Ηνωμένων Εθνών."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "δεν μπορούν, σε καμία\u0000περίπτωση": {
+        "left": "δεν μπορούν, σε καμία",
+        "right": "περίπτωση",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Τα δικαιώματα αυτά και οι ελευθερίες δεν μπορούν, σε καμία περίπτωση, να ασκούνται αντίθετα προς τους σκοπούς και τις αρχές των Ηνωμένων Εθνών."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      ", να ασκούνται αντίθετα προς τους\u0000σκοπούς": {
+        "left": ", να ασκούνται αντίθετα προς τους",
+        "right": "σκοπούς",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Τα δικαιώματα αυτά και οι ελευθερίες δεν μπορούν, σε καμία περίπτωση, να ασκούνται αντίθετα προς τους σκοπούς και τις αρχές των Ηνωμένων Εθνών."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "και τις αρχές των\u0000Ηνωμένων": {
+        "left": "και τις αρχές των",
+        "right": "Ηνωμένων",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Τα δικαιώματα αυτά και οι ελευθερίες δεν μπορούν, σε καμία περίπτωση, να ασκούνται αντίθετα προς τους σκοπούς και τις αρχές των Ηνωμένων Εθνών."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 29,
+          "sentence": 2,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "που αποβλέπουν στην άρνηση των\u0000δικαιωμάτων": {
+        "left": "που αποβλέπουν στην άρνηση των",
+        "right": "δικαιωμάτων",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 30\n\n      Καμιά διάταξη της παρούσας Διακήρυξης δεν μπορεί να ερμηνευθεί ότι παρέχει σε ένα κράτος, σε μια ομάδα ή σε ένα άτομο οποιοδήποτε δικαίωμα να επιδίδεται σε ενέργειες ή να εκτελεί πράξε"
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 30,
+          "sentence": 0,
+          "source": "own_read",
+          "projected": false
+        }
+      },
+      "everywhere as a\u0000person": {
+        "left": "everywhere as a",
+        "right": "person",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 6\n\n      Καθένας, όπου και αν βρίσκεται, έχει δικαίωμα στην αναγνώριση της νομικής του προσωπικότητας."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 6,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 6·0 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "à la\u0000reconnaissance": {
+        "left": "à la",
+        "right": "reconnaissance",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 6\n\n      Καθένας, όπου και αν βρίσκεται, έχει δικαίωμα στην αναγνώριση της νομικής του προσωπικότητας."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 6,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 6·0 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "to the\u0000protection": {
+        "left": "to the",
+        "right": "protection",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Καθένας έχει το δικαίωμα να τον προστατεύουν οι νόμοι από επεμβάσεις και προσβολές αυτού του είδους."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 12,
+          "sentence": 1,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 12·1 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "of the law against\u0000such": {
+        "left": "of the law against",
+        "right": "such",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Καθένας έχει το δικαίωμα να τον προστατεύουν οι νόμοι από επεμβάσεις και προσβολές αυτού του είδους."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 12,
+          "sentence": 1,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 12·1 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "de la\u0000loi": {
+        "left": "de la",
+        "right": "loi",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Καθένας έχει το δικαίωμα να τον προστατεύουν οι νόμοι από επεμβάσεις και προσβολές αυτού του είδους."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 12,
+          "sentence": 1,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 12·1 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "service in his\u0000country": {
+        "left": "service in his",
+        "right": "country",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Καθένας έχει το δικαίωμα να γίνεται δεκτός, υπό ίσους όρους, στις δημόσιες υπηρεσίες της χώρας του."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 21,
+          "sentence": 1,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 21·1 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      ",\u0000aux": {
+        "left": ",",
+        "right": "aux",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Καθένας έχει το δικαίωμα να γίνεται δεκτός, υπό ίσους όρους, στις δημόσιες υπηρεσίες της χώρας του."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 21,
+          "sentence": 1,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 21·1 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "fonctions publiques de son\u0000pays": {
+        "left": "fonctions publiques de son",
+        "right": "pays",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Καθένας έχει το δικαίωμα να γίνεται δεκτός, υπό ίσους όρους, στις δημόσιες υπηρεσίες της χώρας του."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 21,
+          "sentence": 1,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 21·1 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "of\u0000society": {
+        "left": "of",
+        "right": "society",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 22\n\n      Κάθε άτομο, ως μέλος του κοινωνικού συνόλου, έχει δικαίωμα κοινωνικής προστασίας."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 22,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 22·0 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      ", has the right to\u0000social": {
+        "left": ", has the right to",
+        "right": "social",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 22\n\n      Κάθε άτομο, ως μέλος του κοινωνικού συνόλου, έχει δικαίωμα κοινωνικής προστασίας."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 22,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 22·0 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "security and is\u0000entitled": {
+        "left": "security and is",
+        "right": "entitled",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 22\n\n      Κάθε άτομο, ως μέλος του κοινωνικού συνόλου, έχει δικαίωμα κοινωνικής προστασίας."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 22,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 22·0 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "to realization, through\u0000national": {
+        "left": "to realization, through",
+        "right": "national",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 22\n\n      Κάθε άτομο, ως μέλος του κοινωνικού συνόλου, έχει δικαίωμα κοινωνικής προστασίας."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 22,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 22·0 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "effort and\u0000international": {
+        "left": "effort and",
+        "right": "international",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 22\n\n      Κάθε άτομο, ως μέλος του κοινωνικού συνόλου, έχει δικαίωμα κοινωνικής προστασίας."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 22,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 22·0 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      ", of the economic,\u0000social": {
+        "left": ", of the economic,",
+        "right": "social",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 22\n\n      Κάθε άτομο, ως μέλος του κοινωνικού συνόλου, έχει δικαίωμα κοινωνικής προστασίας."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 22,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 22·0 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "and the\u0000free": {
+        "left": "and the",
+        "right": "free",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 22\n\n      Κάθε άτομο, ως μέλος του κοινωνικού συνόλου, έχει δικαίωμα κοινωνικής προστασίας."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 22,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 22·0 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "que membre de la\u0000société": {
+        "left": "que membre de la",
+        "right": "société",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 22\n\n      Κάθε άτομο, ως μέλος του κοινωνικού συνόλου, έχει δικαίωμα κοινωνικής προστασίας."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 22,
+          "sentence": 0,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 22·0 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "the same\u0000social": {
+        "left": "the same",
+        "right": "social",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η μητρότητα και η παιδική ηλικία έχουν δικαίωμα ειδικής μέριμνας και περίθαλψης."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 25,
+          "sentence": 2,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 25·2 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "ou hors\u0000mariage": {
+        "left": "ou hors",
+        "right": "mariage",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η μητρότητα και η παιδική ηλικία έχουν δικαίωμα ειδικής μέριμνας και περίθαλψης."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 25,
+          "sentence": 2,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 25·2 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      ", jouissent de la même\u0000protection": {
+        "left": ", jouissent de la même",
+        "right": "protection",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η μητρότητα και η παιδική ηλικία έχουν δικαίωμα ειδικής μέριμνας και περίθαλψης."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 25,
+          "sentence": 2,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 25·2 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "shall be directed to the\u0000full": {
+        "left": "shall be directed to the",
+        "right": "full",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η πρόσβαση στην ανώτατη παιδεία πρέπει να είναι ανοικτή σε όλους, υπό ίσους όρους, ανάλογα με τις ικανότητες τους."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 4,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 26·4 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "for human rights and\u0000fundamental": {
+        "left": "for human rights and",
+        "right": "fundamental",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η πρόσβαση στην ανώτατη παιδεία πρέπει να είναι ανοικτή σε όλους, υπό ίσους όρους, ανάλογα με τις ικανότητες τους."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 4,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 26·4 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "viser au plein épanouissement de la\u0000personnalité": {
+        "left": "viser au plein épanouissement de la",
+        "right": "personnalité",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η πρόσβαση στην ανώτατη παιδεία πρέπει να είναι ανοικτή σε όλους, υπό ίσους όρους, ανάλογα με τις ικανότητες τους."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 4,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 26·4 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "et au renforcement du\u0000respect": {
+        "left": "et au renforcement du",
+        "right": "respect",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η πρόσβαση στην ανώτατη παιδεία πρέπει να είναι ανοικτή σε όλους, υπό ίσους όρους, ανάλογα με τις ικανότητες τους."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 4,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 26·4 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "des droits de l’\u0000homme": {
+        "left": "des droits de l’",
+        "right": "homme",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η πρόσβαση στην ανώτατη παιδεία πρέπει να είναι ανοικτή σε όλους, υπό ίσους όρους, ανάλογα με τις ικανότητες τους."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 4,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 26·4 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "et des\u0000libertés": {
+        "left": "et des",
+        "right": "libertés",
+        "standing": "given",
+        "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+        "binding": null,
+        "witnesses": [
+          "Η πρόσβαση στην ανώτατη παιδεία πρέπει να είναι ανοικτή σε όλους, υπό ίσους όρους, ανάλογα με τις ικανότητες τους."
+        ],
+        "provenance": {
+          "giver": "Universal Declaration of Human Rights — UN GA Res 217 A (III), 10 December 1948 — the declaration's own voice, read via the Rosetta",
+          "basis": "explicitly given relation-composition affordance"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 4,
+          "corroborated": true,
+          "referenceLangs": [
+            "eng",
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 26·4 (eng+fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)"
+        }
+      },
+      "in\u0000dignity": {
+        "left": "in",
+        "right": "dignity",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 1\n\n      Όλοι οι άνθρωποι γεννιούνται ελεύθεροι και ίσοι στην αξιοπρέπεια και τα δικαιώματα."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 1,
+          "sentence": 0,
+          "corroborated": false,
+          "referenceLangs": [
+            "eng"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 1·0 (eng read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "to an effective remedy by the competent\u0000national": {
+        "left": "to an effective remedy by the competent",
+        "right": "national",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 8\n\n      Καθένας έχει δικαίωμα να ασκεί αποτελεσματικά ένδικα μέσα στα αρμόδια εθνικά δικαστήρια κατά των πράξεων που παραβιάζουν τα θεμελιακά δικαιώματα τα οποία του αναγνωρίζουν το Σύνταγμα κα"
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 8,
+          "sentence": 0,
+          "corroborated": false,
+          "referenceLangs": [
+            "eng"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 8·0 (eng read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "tribunals for acts violating the\u0000fundamental": {
+        "left": "tribunals for acts violating the",
+        "right": "fundamental",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 8\n\n      Καθένας έχει δικαίωμα να ασκεί αποτελεσματικά ένδικα μέσα στα αρμόδια εθνικά δικαστήρια κατά των πράξεων που παραβιάζουν τα θεμελιακά δικαιώματα τα οποία του αναγνωρίζουν το Σύνταγμα κα"
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 8,
+          "sentence": 0,
+          "corroborated": false,
+          "referenceLangs": [
+            "eng"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 8·0 (eng read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "or\u0000international": {
+        "left": "or",
+        "right": "international",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "Κανείς δεν θα καταδικάζεται για πράξεις ή παραλείψεις που, κατά τον χρόνο που τελέστηκαν, δεν συνιστούσαν αξιόποινο αδίκημα κατά το εσωτερικό ή το διεθνές δίκαιο."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 11,
+          "sentence": 1,
+          "corroborated": false,
+          "referenceLangs": [
+            "eng"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 11·1 (eng read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "crimes or from\u0000acts": {
+        "left": "crimes or from",
+        "right": "acts",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "Το δικαίωμα αυτό δεν μπορεί κανείς να το επικαλεστεί, σε περίπτωση δίωξης για πραγματικό αδίκημα του κοινού ποινικού δικαίου ή για ενέργειες αντίθετες προς τους σκοπούς και τις αρχές του ΟΗΕ."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 14,
+          "sentence": 1,
+          "corroborated": false,
+          "referenceLangs": [
+            "eng"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 14·1 (eng read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "age, without any limitation due to race,\u0000nationality": {
+        "left": "age, without any limitation due to race,",
+        "right": "nationality",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 16\n\n\n\n          Από τη στιγμή που θα φθάσουν σε ηλικία γάμου, ο άνδρας και η γυναίκα, χωρίς κανένα περιορισμό εξαιτίας της φυλής, της εθνικότητας ή της θρησκείας, έχουν το δικαίωμα να παντρεύοντ"
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 16,
+          "sentence": 0,
+          "corroborated": false,
+          "referenceLangs": [
+            "eng"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 16·0 (eng read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "is the natural and\u0000fundamental": {
+        "left": "is the natural and",
+        "right": "fundamental",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "Η οικογένεια είναι το φυσικό και το βασικό στοιχείο της κοινωνίας και έχει το δικαίωμα προστασίας από την κοινωνία και το κράτος."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 16,
+          "sentence": 3,
+          "corroborated": false,
+          "referenceLangs": [
+            "eng"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 16·3 (eng read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "group unit of society and is\u0000entitled": {
+        "left": "group unit of society and is",
+        "right": "entitled",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "Η οικογένεια είναι το φυσικό και το βασικό στοιχείο της κοινωνίας και έχει το δικαίωμα προστασίας από την κοινωνία και το κράτος."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 16,
+          "sentence": 3,
+          "corroborated": false,
+          "referenceLangs": [
+            "eng"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 16·3 (eng read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "to\u0000protection": {
+        "left": "to",
+        "right": "protection",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "Η οικογένεια είναι το φυσικό και το βασικό στοιχείο της κοινωνίας και έχει το δικαίωμα προστασίας από την κοινωνία και το κράτος."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 16,
+          "sentence": 3,
+          "corroborated": false,
+          "referenceLangs": [
+            "eng"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 16·3 (eng read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "and equal suffrage and shall be\u0000held": {
+        "left": "and equal suffrage and shall be",
+        "right": "held",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "Η λαϊκή θέληση είναι το θεμέλιο της κρατικής εξουσίας."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 21,
+          "sentence": 2,
+          "corroborated": false,
+          "referenceLangs": [
+            "eng"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 21·2 (eng read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "by secret vote or by equivalent\u0000free": {
+        "left": "by secret vote or by equivalent",
+        "right": "free",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "Η λαϊκή θέληση είναι το θεμέλιο της κρατικής εξουσίας."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 21,
+          "sentence": 2,
+          "corroborated": false,
+          "referenceLangs": [
+            "eng"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 21·2 (eng read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "et à la sûreté de sa\u0000personne": {
+        "left": "et à la sûreté de sa",
+        "right": "personne",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 3\n\n      Κάθε άτομο έχει δικαίωμα στη ζωή, την ελευθερία και την προσωπική του ασφάλεια."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 3,
+          "sentence": 0,
+          "corroborated": false,
+          "referenceLangs": [
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 3·0 (fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "ne\u0000peut": {
+        "left": "ne",
+        "right": "peut",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "Κανείς δεν μπορεί να υποχρεωθεί να συμμετέχει σε ορισμένο σωματείο.",
+          "Γάμος δεν μπορεί να συναφθεί παρά μόνο με ελεύθερη και πλήρη συναίνεση των μελλονύμφων."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 16,
+          "sentence": 2,
+          "corroborated": false,
+          "referenceLangs": [
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 16·2 (fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "a droit à la\u0000liberté": {
+        "left": "a droit à la",
+        "right": "liberté",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 19\n\n      Καθένας έχει το δικαίωμα της ελευθερίας της γνώμης και της έκφρασης, που σημαίνει το δικαίωμα να μην υφίσταται δυσμενείς συνέπειες για τις γνώμες του, και το δικαίωμα να αναζητεί, να π"
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 19,
+          "sentence": 0,
+          "corroborated": false,
+          "referenceLangs": [
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 19·0 (fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "d’\u0000opinion": {
+        "left": "d’",
+        "right": "opinion",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 19\n\n      Καθένας έχει το δικαίωμα της ελευθερίας της γνώμης και της έκφρασης, που σημαίνει το δικαίωμα να μην υφίσταται δυσμενείς συνέπειες για τις γνώμες του, και το δικαίωμα να αναζητεί, να π"
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 19,
+          "sentence": 0,
+          "corroborated": false,
+          "referenceLangs": [
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 19·0 (fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "choix de son travail, à des\u0000conditions": {
+        "left": "choix de son travail, à des",
+        "right": "conditions",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "ΑΡΘΡΟ 23\n\n\n\n          Καθένας έχει το δικαίωμα να εργάζεται και να επιλέγει ελεύθερα το επάγγελμά του, να έχει δίκαιες και ικανοποιητικές συνθήκες δουλειάς και να προστατεύεται από την ανεργία."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 23,
+          "sentence": 0,
+          "corroborated": false,
+          "referenceLangs": [
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 23·0 (fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "technique et professionnel\u0000doit": {
+        "left": "technique et professionnel",
+        "right": "doit",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "Η τεχνική και επαγγελματική εκπαίδευση πρέπει να εξασφαλίζεται για όλους."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 3,
+          "corroborated": false,
+          "referenceLangs": [
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 26·3 (fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "être généralisé ; l’accès\u0000aux": {
+        "left": "être généralisé ; l’accès",
+        "right": "aux",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "Η τεχνική και επαγγελματική εκπαίδευση πρέπει να εξασφαλίζεται για όλους."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 3,
+          "corroborated": false,
+          "referenceLangs": [
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 26·3 (fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "études supérieures\u0000doit": {
+        "left": "études supérieures",
+        "right": "doit",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "Η τεχνική και επαγγελματική εκπαίδευση πρέπει να εξασφαλίζεται για όλους."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 3,
+          "corroborated": false,
+          "referenceLangs": [
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 26·3 (fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      },
+      "être ouvert en pleine\u0000égalité": {
+        "left": "être ouvert en pleine",
+        "right": "égalité",
+        "standing": "candidate",
+        "giver": "udhr-rosetta.mjs — Wilson's swarm",
+        "binding": null,
+        "witnesses": [
+          "Η τεχνική και επαγγελματική εκπαίδευση πρέπει να εξασφαλίζεται για όλους."
+        ],
+        "provenance": {
+          "giver": "udhr-rosetta.mjs — Wilson's swarm",
+          "basis": "observed relation adjacency nominated for consideration; nomination is not reasoning permission"
+        },
+        "meta": {
+          "article": 26,
+          "sentence": 3,
+          "corroborated": false,
+          "referenceLangs": [
+            "fra"
+          ],
+          "projected": true,
+          "basis": "aligned proposition: 26·3 (fra read an edge here; ell extracted none) — the same norm in the same aligned sentence slot; identity across versions is an act of pointing, never a fact of the bytes (S113)",
+          "observed": true
+        }
+      }
+    },
+    "meta": {}
+  },
+  "disclosed": "47 own-read norms + 46 Rosetta-projected missing edges — corroborated projections GIVEN with the UDHR as giver, 1-of-2 candidates — each witnessed by ell's own aligned sentence"
+}

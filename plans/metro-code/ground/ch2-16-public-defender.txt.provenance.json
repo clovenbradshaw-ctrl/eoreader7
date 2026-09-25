@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.16",
+  "title": "PUBLIC DEFENDER",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-16-public-defender.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-16-public-defender.txt",
+    "sha256": "f985e5dde878b7b89eb78b934a08c9a7785a820f15acb42e57693ee1772ad59f",
+    "chars": 3191
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.887Z"
+}

@@ -179,3 +179,58 @@ export function readBack(texts, lens, { ground = "/", polarity = "+", force = "d
   order.forEach((slot, i) => { if (slot === "V") rel = texts[i]; else roles[SLOT_ROLE[slot]] = texts[i]; });
   return gfpClaim({ ground, rel, roles, polarity, force });
 }
+
+// ── LEAST-GENERAL-GENERALIZATION: N claims sharing a relation → one ─────────
+// (2026-09-25, the-fold/arrange.js's thesis-synthesis design; read by the
+// reading archons the same day.) Several claims that already share a
+// relation AND a polarity are not yet one claim — this is the one place that
+// combination happens, and it combines Figures, never words. A role survives
+// only where every claim carries it and agrees (under `identity`); where
+// they disagree nothing is dropped or voted out — every distinct value (one
+// per identity) is kept, disclosed as VARYING, and a role some claim lacks
+// is counted as ABSENT. A denial never generalizes with the assertions it
+// denies (kernel/notes.js, THE CUT). No hand-set threshold: unanimous or
+// disclosed, nothing between. PURE: no I/O, no model, no invented value.
+/**
+ * generalizeClaims(claims, { identity }) → EOGfpGeneralization@1. Throws if
+ * fewer than two claims are given, or if they do not all share one relation
+ * and one polarity — a generalization is only ever taken across claims
+ * already agreed to be the same kind of claim (the caller's job, e.g. a
+ * basin already grouped by relation and polarity).
+ */
+export function generalizeClaims(claims, { identity = exactIdentity } = {}) {
+  if (!Array.isArray(claims) || claims.length < 2) throw new TypeError("gfp-claim: generalizeClaims needs at least 2 claims");
+  const rel = claims[0].rel, polarity = claims[0].polarity;
+  if (!claims.every((c) => c.rel === rel)) throw new TypeError("gfp-claim: generalizeClaims requires every claim to share one relation");
+  if (!claims.every((c) => c.polarity === polarity)) throw new TypeError("gfp-claim: generalizeClaims requires every claim to share one polarity");
+  const ground = claims.map((c) => c.ground).reduce((a, b) => lca(a, b));
+  const keys = new Set(claims.flatMap((c) => Object.keys(c.roles)));
+  const distinct = (values) => { const seen = new Map(); for (const v of values) { const k = identity(v); if (!seen.has(k)) seen.set(k, v); } return [...seen.values()]; };
+  const agreed = {}, varying = {}, absent = {};
+  for (const key of keys) {
+    const values = claims.map((c) => c.roles[key]).filter((v) => v != null);
+    const missing = claims.length - values.length;
+    if (missing) absent[key] = missing;
+    const kept = distinct(values);
+    if (!missing && kept.length === 1) agreed[key] = kept[0]; else varying[key] = kept;
+  }
+  return Object.freeze({
+    schema: "EOGfpGeneralization@1", rel, polarity, ground,
+    agreed: Object.freeze(agreed), varying: Object.freeze(varying), absent: Object.freeze(absent),
+    sourceIds: Object.freeze(claims.map((c) => c.id).filter(Boolean)), n: claims.length,
+  });
+}
+/**
+ * renderGeneralization(gen, lens) → the surface string a lens would print
+ * for a generalization: the agreed roles project as usual; EVERY varying
+ * role has its distinct values joined by a plain list-formatter ("a, b, and
+ * c") and substituted in — none is dropped. A pure token-join of lemmas,
+ * same as `render`: no model call, no tense, no article. What it prints is a
+ * claim's surface, not a sentence; callers must not hand it to a mouth as one.
+ */
+export function renderGeneralization(gen, lens = "SVO") {
+  const list = (vals) => (vals.length <= 1 ? vals[0] : vals.length === 2 ? `${vals[0]} and ${vals[1]}` : `${vals.slice(0, -1).join(", ")}, and ${vals[vals.length - 1]}`);
+  const roles = { ...gen.agreed };
+  for (const [key, vals] of Object.entries(gen.varying)) if (vals.length) roles[key] = list(vals);
+  return render(gfpClaim({ ground: gen.ground, rel: gen.rel, roles, polarity: gen.polarity ?? "+" }), lens);
+}

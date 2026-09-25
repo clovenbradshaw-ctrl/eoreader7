@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.28",
+  "title": "FIRE DEPARTMENT",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-28-fire-department.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-28-fire-department.txt",
+    "sha256": "99d358c78d2476076a49454cc9ddf38601c47005e8fba7b5b1e191a1ed962503",
+    "chars": 18407
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.888Z"
+}

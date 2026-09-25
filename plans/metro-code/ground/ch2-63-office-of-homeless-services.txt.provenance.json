@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.63",
+  "title": "OFFICE OF HOMELESS SERVICES",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-63-office-of-homeless-services.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-63-office-of-homeless-services.txt",
+    "sha256": "c1f5af20c88ed5edf1bf86b29db3aad522c728582ebc9840c02ead637e7f575e",
+    "chars": 2298
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.890Z"
+}

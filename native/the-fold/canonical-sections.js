@@ -154,7 +154,14 @@ const CHROME_STOPLIST = new Set([
   // fix above working correctly) still "corroborated" on generic top-nav
   // vocabulary that an entire industry of SaaS/marketing sites happens to
   // share — not because it names part of a white paper.
-  "home", "blog", "pricing", "products", "product", "solutions", "solution",
+  // "solution" (singular) is deliberately NOT stoplisted: nav-chrome for a
+  // product category is near-universally plural ("Solutions"), while a real
+  // document's own proposed-answer section is singular ("Solution", "Our
+  // Solution") — verified 2026-09-24 on two independent, on-topic sources
+  // (Purdue OWL, InstructionalSolutions) that both use the singular for a
+  // real content heading. Stoplisting the plural alone keeps the original
+  // SaaS-nav fix without silently deleting real document structure.
+  "home", "blog", "pricing", "products", "product", "solutions",
   "resources", "about", "about us", "contact", "contact us", "login", "log in",
   "sign up", "get started", "templates", "features", "pricing plans", "faq",
 ]);
@@ -179,7 +186,22 @@ const CHROME_STOPLIST = new Set([
  * Pages with fewer than 3 headings are skipped (too little structure to
  * trust as a "how it's organized" guide rather than a stray page).
  */
-export async function huntDeclaredStructure(topic, { web = null, search = null, fetch = null, maxPages = 8, minCorroboration = 2 } = {}) {
+export async function huntDeclaredStructure(topic, { web = null, search = null, fetch = null, maxPages = 8, minCorroboration = 2, learn = false } = {}) {
+  // OPT-IN, default false: existing callers and every test in
+  // canonical-sections-falsify.test.mjs are byte-identical to before this
+  // was added, since none of them pass `learn`. When a caller DOES pass
+  // `learn: true` (the pipeline's own void-spec.js is meant to), a form
+  // already folded from a real prior observation (form-priors.js -- never
+  // hand-typed, see that file's own header) is returned without spending a
+  // fresh hunt; otherwise this hunts exactly as before and the real result
+  // is appended to the log, so the NEXT ask about the same form benefits.
+  if (learn) {
+    const { foldFormPrior } = await import("./form-priors.js");
+    const prior = foldFormPrior(topic);
+    if (prior && prior.roles.length) {
+      return { vocabulary: prior.vocabulary, pagesUsed: 0, hostsUsed: 0, sources: [], fromPrior: true, basis: `not hunted this call — ${prior.basis}` };
+    }
+  }
   const { elementsOf } = await import("./medium.js");
   const { surf, liveWeb } = await import("./surf.js");
   const { hostOf } = await import("../organs/web.js");
@@ -224,8 +246,20 @@ export async function huntDeclaredStructure(topic, { web = null, search = null, 
     ...corroborated.map((c, i) => ({ role: c.slug.replace(/\s+/g, "-"), order: i + 1, patterns: [c.pattern], corroboratedBy: c.corroboratedBy, exampleText: c.exampleText })),
   ];
   const hostsUsed = new Set(perPage.map((p) => p.host)).size;
-  return {
+  const result = {
     vocabulary, pagesUsed: perPage.length, hostsUsed, sources: perPage.map((p) => p.url),
     basis: `${perPage.length} real page(s) across ${hostsUsed} distinct host(s) (of ${s.sources.length} fetched) had >= 3 headings and were read; ${corroborated.length} section-name term(s) corroborated across >= ${minCorroboration} distinct HOSTS: ${corroborated.map((c) => c.exampleText).join(", ") || "none"}`,
   };
+  // Preserve half of the same protocol swarm-server.mjs/content-rules.mjs
+  // already use for hard-meaning content types, applied here to a form's
+  // structure: a REAL hunt's result is appended so the next `learn: true`
+  // caller for the same form does not have to hunt again. Only fires on a
+  // hunt this function itself just ran — never on a caller-supplied
+  // `vocabulary` and never on a test's injected fixtures (learn defaults
+  // false, see the guard above).
+  if (learn) {
+    const { appendFormObservation } = await import("./form-priors.js");
+    appendFormObservation({ form: topic, vocabulary: result.vocabulary, pagesUsed: result.pagesUsed, hostsUsed: result.hostsUsed, sources: result.sources, basis: result.basis, giver: "huntDeclaredStructure" });
+  }
+  return result;
 }

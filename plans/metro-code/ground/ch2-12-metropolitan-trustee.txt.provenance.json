@@ -1,0 +1,20 @@
+{
+  "schema": "MetroCodeGroundProvenance@1",
+  "chapter": "2.12",
+  "title": "METROPOLITAN TRUSTEE",
+  "code": "Code of Ordinances — Metropolitan Government of Nashville and Davidson County",
+  "productId": "14214",
+  "capture": [
+    {
+      "file": "metro-code/raw/chapter-2-12-metropolitan-trustee.json"
+    }
+  ],
+  "txt": {
+    "file": "metro-code/ground/ch2-12-metropolitan-trustee.txt",
+    "sha256": "5d8284214827c6946e92be7545442b455c7b2c7a35cd74559786a380a99bb698",
+    "chars": 2455
+  },
+  "license": "public — Metropolitan Government of Nashville and Davidson County code",
+  "note": "txt is a deterministic text layer over the raw API capture (tag-stripped, entity-decoded, whitespace-collapsed). Byte spans in the ledger address THIS layer only.",
+  "builtAt": "2026-09-20T15:44:48.887Z"
+}
