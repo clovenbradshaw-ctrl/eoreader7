@@ -31,6 +31,7 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const IN = process.argv[2];
 const OUT = process.argv[3];
@@ -53,6 +54,18 @@ export function licenseOf(text) {
   const short = /CC\s*BY(?:-(?:NC|SA|ND))*\s*[0-9]\.[0-9](?:\s*(?:Generic|International|Unported|US))?/i.exec(s);
   return short ? short[0].replace(/\s+/g, " ").toUpperCase().replace(/GENERIC|INTERNATIONAL|UNPORTED/, (m) => m[0] + m.slice(1).toLowerCase()) : null;
 }
+// S133 (2026-09-25): the CLI body is guarded behind isMain so licenseOf —
+// the fix that closes S133 — can be imported and tested on the real
+// LICENSE.txt fixtures without running the script (which used to
+// process.exit(1) or read an undefined path the moment this file loaded).
+const isMain = process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isMain) {
+if (!IN || !OUT || !LANGUAGE || !GIVER_URL) {
+  console.error("usage: node build-pos-prior.mjs <in.conllu> <out.json> <lang> <giver-url>");
+  process.exit(1);
+}
+
 const LICENSE = (() => {
   if (process.argv[6]) return process.argv[6];
   try {
@@ -63,11 +76,6 @@ const LICENSE = (() => {
   return "unknown — no LICENSE.txt beside the input and none given";
 })();
 const TAB = String.fromCharCode(9);
-
-if (!IN || !OUT || !LANGUAGE || !GIVER_URL) {
-  console.error("usage: node build-pos-prior.mjs <in.conllu> <out.json> <lang> <giver-url>");
-  process.exit(1);
-}
 
 const raw = readFileSync(IN, "utf8");
 
@@ -128,3 +136,4 @@ console.error(
   `${LANGUAGE}: ${sentenceCount} sentences, ${tokenCount} tokens, ${forms.size} distinct forms ` +
     `(${ambiguousForms} ambiguous) -> ${OUT}`,
 );
+}
