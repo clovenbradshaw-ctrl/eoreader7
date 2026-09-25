@@ -79,7 +79,7 @@
 // the note ids and the plain-language line.
 
 import { projectTasks } from "../kernel/task-log.js";
-import { gfpClaim, claimFromTriple, overlap, contains, depthOf, lca, ancestry, figureKey, claimKey, exactIdentity } from "../kernel/gfp-claim.js";
+import { gfpClaim, claimFromTriple, overlap, contains, depthOf, lca, ancestry, figureKey, claimKey, exactIdentity, GFP_CLAIM_SCHEMA } from "../kernel/gfp-claim.js";
 import {
   persistenceOf, regimeOf, forceOfClause, inValidityWindow, isSettled, precedence, FORCES,
 } from "./regime.js";
@@ -709,6 +709,21 @@ const claimIds = (a, b) => [a.id, b.id].filter(Boolean);
  * → { ok, findings, counts, unjudged, apart, holons, basis }
  */
 export function lintGfp(claims = [], { functional = [], symmetric = [], acyclic = [], identityRels = [], identity = exactIdentity, strictness = "standard" } = {}) {
+  // THE DOOR (2026-09-25, Kelsen's own finding on the thesis-synthesis
+  // review: a lone EOGfpGeneralization@1 — kernel/gfp-claim.js's own
+  // least-general-generalization record, built for arrange.js's thesis and
+  // not yet bridged into this hierarchy — cleared this pass silently, and
+  // one mixed among real claims threw an unhandled TypeError reading
+  // .roles off a record that has none). Read every input by SCHEMA NAME,
+  // not by duck-typing .rel/.roles, before anything below touches either.
+  // A refused entry is disclosed, never silently dropped and never fatal to
+  // the claims beside it — WARN, not ERROR: this door reports what is not
+  // yet a claim here, it does not convict the set that is.
+  const recognized = [], refused = [];
+  for (const c of claims ?? []) (c?.schema === GFP_CLAIM_SCHEMA ? recognized : refused).push(c);
+  const doorFindings = refused.map((c) => finding("not_a_claim", "report", SEVERITY.WARN,
+    `an input is not ${GFP_CLAIM_SCHEMA} (schema: ${c?.schema ?? typeof c}) — refused at the door, not linted, not counted toward ok`, {}));
+  claims = recognized;
   // IDENTITY IS ITSELF A CLAIM. A relation declared an identity ("same-as")
   // merges its two participants — but only where that claim's ground reaches
   // (Parmenides' `same`, scoped): an alias stated in one section does not
@@ -735,7 +750,7 @@ export function lintGfp(claims = [], { functional = [], symmetric = [], acyclic 
   const fn = functionalRoles(functional, idf);
   const sym = declSet(symmetric, idf);
   const acy = declSet(acyclic, idf);
-  const findings = [];
+  const findings = [...doorFindings];
   let unjudged = 0, apart = 0;
   const cs = [...claims];
   const byRel = new Map();

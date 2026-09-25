@@ -228,3 +228,40 @@ test("Clark: a sentence glued to its own source is found against the material's 
   const self = clarkSplice("", { piece: [{ id: "g", pieces: ground.split(/(?<=\.)\s+/).map((text) => ({ text, carries: [] })) }], ground });
   assert.equal(self.length, 0, "the null: the source's own sentences");
 });
+
+test("Clark: a connective sentence that echoes an already-carried fact's own name is folded, even when it also uses a grounded word from elsewhere the piece has not said yet (documents/layer-resolution-check-3, part a3)", async () => {
+  const { buildDraft } = await import("./eot-draft.js");
+  const { clarkJobsAndTransitions } = await import("./archon-rules.js");
+  const { readFileSync } = await import("node:fs");
+  const ground = readFileSync(new URL("./fixtures/cumberland-ground.md", import.meta.url), "utf8");
+  const draft = buildDraft({ task: "Write a piece from this material.", ground });
+  const piece = [{ id: "a3", pieces: [
+    { text: "Old Hickory Dam, completed in 1954, created Old Hickory Lake just upstream of Nashville, and Cheatham Dam below the city regulates the river's level through downtown.", carries: ["p6.3"] },
+    // Restates the same fact by its own rare name ("Cheatham Dam"), but also
+    // says "water" and "built" — grounded elsewhere in the material (the
+    // flood paragraph; "The U.S. Army Corps of Engineers built a system…"),
+    // never said in THIS piece before — which used to be enough to keep it.
+    { text: "The dam's strategic placement just upstream of Nashville ensured a steady flow of water to the city's heart, while Cheatham Dam, built below the city, further regulated the river's level through downtown, ensuring a consistent flow for the city's needs.", carries: [] },
+  ]}];
+  const f = clarkJobsAndTransitions(null, { piece, draft, ground });
+  assert.equal(f.length, 1);
+  assert.equal(f[0].kind, "restatement");
+  assert.equal(f[0].licenses, "fold");
+  assert.match(f[0].detail, /echoes/);
+});
+
+test("Clark: a name's lone generic word, left behind once its subject half is stripped (\"Cumberland River\" → \"river\"), never on its own calls a genuinely new sentence a restatement", async () => {
+  const { buildDraft } = await import("./eot-draft.js");
+  const { clarkJobsAndTransitions } = await import("./archon-rules.js");
+  const { readFileSync } = await import("node:fs");
+  const ground = readFileSync(new URL("./fixtures/cumberland-ground.md", import.meta.url), "utf8");
+  const draft = buildDraft({ task: "Write a piece from this material.", ground });
+  const piece = [{ id: "a1", pieces: [
+    { text: "The Cumberland River is a major waterway of the southeastern United States.", carries: ["p1.1"] },
+    // Says "river" too, but introduces real new ground (locks, dams) — not a
+    // restatement of p1.1, and must not be folded on "river" alone.
+    { text: "They began to build a system of locks and dams, transforming the Cumberland into a navigable waterway capable of supporting larger vessels.", carries: [] },
+  ]}];
+  const f = clarkJobsAndTransitions(null, { piece, draft, ground });
+  assert.equal(f.length, 0);
+});

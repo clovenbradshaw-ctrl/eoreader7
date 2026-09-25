@@ -32,7 +32,7 @@
 // model told what not to say tends to say it (standing rule). The guardrails
 // are the admission and the floor, never the prompt.
 
-import { admit, deposit, measureVariance, measureBondNull, matterWords, segmentSentences, claimCore } from "./admission.js";
+import { admit, deposit, measureVariance, measureBondNull, matterWords, segmentSentences, claimCore, stripMouthQuoting } from "./admission.js";
 import { inventedNameRuns, isMetaSentence } from "./referent-verify.js";
 import { draftWords, namesOf, drawnParts } from "./eot-draft.js";
 import { isCommonWord } from "./pos-prior.js";
@@ -197,8 +197,8 @@ function coverage(part, sentences, anchors) {
  *  source prose into the poem and joined it all with spaces. A line is
  *  admitted by the same tests as a sentence and kept as a line. */
 const unitsOf = (text, unit) => (unit === "line"
-  ? String(text ?? "").split(/\n/).map((l) => l.replace(/^[-•*]\s+/, "").trim()).filter((l) => l.length > 3)
-  : segmentSentences(text).filter((x) => x.length > 20));
+  ? String(text ?? "").split(/\n/).map((l) => stripMouthQuoting(l.replace(/^[-•*]\s+/, "").trim())).filter((l) => l.length > 3)
+  : segmentSentences(text).map(stripMouthQuoting).filter((x) => x.length > 20));
 
 export async function prosify(draft, { draw, voice = null, ground = "", task = "", maxTokens = 450, unit = "sentence", onRecord = null, onPart = null } = {}) {
   const variance = measureVariance(ground);

@@ -70,26 +70,65 @@ export function klinkenborgCadence(text, ctx = {}) {
   return out;
 }
 
+/** Does `text` name one of a statement's OWN distinguishing marks — one of
+ *  its numbers, or a being it names (by word, or, with a referent resolver,
+ *  by identity) — without being asked to carry ALL of them the way carries()
+ *  demands? The same test carries() runs on a statement's anchor, loosened
+ *  from EVERY mark to ANY ONE: a sentence sharing even one of a statement's
+ *  own numbers or names is echoing that statement, not introducing ground of
+ *  its own. anchorsFor() has already stripped the piece's subject beings out
+ *  of every anchor, so a shared subject ("Nashville", "Cumberland") can never
+ *  trigger this on its own — but a two-word name can still leave a lone
+ *  generic word behind once its subject half is stripped ("Cumberland River"
+ *  → "river"), and that word alone recurs in nearly every sentence of a river
+ *  essay. anchor.own is already the measured, not-hand-set answer to which
+ *  words are this ONE statement's alone (df===1 across every point of the
+ *  draft) — a name word only counts as an echo when it is also there. */
+function anchorEchoed(anchor, text) {
+  if (!anchor) return false;
+  if (anchor.numbers.some((n) => text.includes(n))) return true;
+  if (anchor.refs && anchor.R) {
+    const named = anchor.R.resolveText(text);
+    return anchor.refs.some((id) => named.has(id));
+  }
+  const words = new Set(draftWords(text));
+  const own = new Set(anchor.own);
+  return anchor.names.some((alts) => alts.some((w) => own.has(w) && words.has(w)));
+}
+
 /** CLARK (meso.logos, one job per paragraph; transitions that earn their
  *  keep) — TAUGHT two rules. RESTATEMENT: a sentence that carries no statement
  *  of the draft and brings no grounded word the piece has not already said has
- *  no job — licenses a fold. TRANSITION: a part whose opening takes nothing up
- *  from where the last part closed has an unearned transition — licenses one
- *  bridging sentence, kept only if it takes up the last part and hands on to
- *  this one. */
+ *  no job — licenses a fold. A sentence that instead echoes one of an
+ *  ALREADY-CARRIED statement's own numbers or names has no job either, even
+ *  when it also uses a grounded word from elsewhere in the material the piece
+ *  has not yet said — measured live (documents/layer-resolution-check-3, part
+ *  a3): a connective sentence naming "Cheatham Dam" sat beside the floor that
+ *  had just carried it, kept only because it also used "water" and "built",
+ *  words the piece had not literally said before but that named no fact of
+ *  their own. TRANSITION: a part whose opening takes nothing up from where the
+ *  last part closed has an unearned transition — licenses one bridging
+ *  sentence, kept only if it takes up the last part and hands on to this
+ *  one. */
 export function clarkJobsAndTransitions(text, ctx = {}) {
   const piece = partsOf(ctx);
   if (!piece || !ctx.draft) return [];
   const known = new Set(draftWords(ctx.ground ?? ""));
+  const anchors = anchorsFor(ctx.draft);
   const subject = subjectOf(ctx.draft);
   const said = new Set();
+  const carriedBefore = new Set();
   const out = [];
   for (const p of piece) for (const pc of p.pieces ?? []) {
     const matter = [...new Set(draftWords(pc.text))].filter((w) => known.has(w));
-    if (!pc.carries.length && matter.length && matter.every((w) => said.has(w))) {
-      out.push({ kind: "restatement", part: p.id, sentence: pc.text, detail: "carries no statement and says nothing the piece has not already said", licenses: "fold" });
+    const restatesSaid = !pc.carries.length && matter.length && matter.every((w) => said.has(w));
+    const echoesCarried = !pc.carries.length && [...carriedBefore].some((id) => anchorEchoed(anchors.get(id), pc.text));
+    if (restatesSaid || echoesCarried) {
+      const detail = restatesSaid ? "carries no statement and says nothing the piece has not already said" : "carries no statement and echoes, by its own name or number, a statement the piece has already carried in full";
+      out.push({ kind: "restatement", part: p.id, sentence: pc.text, detail, licenses: "fold" });
     }
     for (const w of matter) said.add(w);
+    for (const id of pc.carries) carriedBefore.add(id);
   }
   for (let i = 1; i < piece.length; i++) {
     const open = piece[i].pieces?.[0]?.text ?? "";

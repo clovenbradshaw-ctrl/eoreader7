@@ -153,6 +153,21 @@ test("A PARTIAL CARRIER IS REWRITTEN IN PLACE: the fact is said once, not twice"
   assert.ok(r.records.some((x) => x.replaces === "Steamboats reached Nashville and carried cotton to New Orleans."));
 });
 
+test("THE MOUTH MIMICS ITS OWN PROMPT'S PUNCTUATION: a rewrite reply wrapped in quotes (measured live, a real run) never reaches the prose wrapped", async () => {
+  const { draw } = stub([
+    ["Here is what this part says", "Steamboats reached Nashville and carried cotton to New Orleans. Warehouses lined the waterfront by the 1850s."],
+    // The exact shape the real mouth produced on a live Cumberland run: it
+    // echoed its own prompt's quote-wrapped "A fact from the source: \"…\""
+    // formatting back as if its whole answer were a quotation.
+    ["Rewrite that sentence", '"Steamboats reached Nashville in 1819 and carried cotton to New Orleans."'],
+  ]);
+  const r = await prosify(d2(), { draw, ground: G2, task: "x" });
+  const prose = r.parts[0].prose;
+  assert.match(prose, /in 1819/);
+  assert.ok(!prose.includes('"Steamboats'), `a wrapping quote leaked into the prose: ${prose}`);
+  assert.equal((prose.match(/"/g) ?? []).length, 0, `no stray quote marks anywhere in the part: ${prose}`);
+});
+
 test("A FAILED REWRITE: the floor replaces the partial rather than sitting beside it", async () => {
   const { draw } = stub([
     ["Here is what this part says", "Steamboats reached Nashville and carried cotton to New Orleans. Warehouses lined the waterfront by the 1850s."],

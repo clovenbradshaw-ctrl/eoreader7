@@ -19,7 +19,7 @@
 // pipeline's own (facts carried, the ask's questions answered, findings
 // licensing a revision, sentences, words, model calls).
 
-import { admit, deposit, measureVariance, measureBondNull, matterWords, segmentSentences, claimCore } from "./admission.js";
+import { admit, deposit, measureVariance, measureBondNull, matterWords, segmentSentences, claimCore, stripMouthQuoting } from "./admission.js";
 import { inventedNameRuns, isMetaSentence } from "./referent-verify.js";
 import { drawnParts } from "./eot-draft.js";
 import { isCommonWord } from "./pos-prior.js";
@@ -65,7 +65,7 @@ export async function flesh2({ draft, draw, ground = "", task = "", voice = null
       reg.delete(claimCore(without, variance));
       for (const w of matterWords(without, ground, variance)) reg.delete(`w:${w}`);
     }
-    for (const cand of segmentSentences(text).filter((x) => x.length > 20)) {
+    for (const cand of segmentSentences(text).map(stripMouthQuoting).filter((x) => x.length > 20)) {
       if (isMetaSentence(cand)) { refusals.push({ kind: "meta", sentence: cand }); continue; }
       const v = admit(cand, {
         ground, priorLanding, instruction: task, registry: reg, variance, bondNull,

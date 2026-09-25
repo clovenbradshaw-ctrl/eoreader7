@@ -98,6 +98,25 @@ export function segmentSentences(text, locale) {
   return out;
 }
 
+/** THE MOUTH MIMICS ITS OWN PROMPT'S PUNCTUATION (2026-09-25, measured live:
+ *  a point-level rewrite prompt shows its inputs in double quotes — 'A fact
+ *  from the source: "…"', 'The piece says: "…"' — and the mouth wrapped its
+ *  OWN answer in quotes too, which then read as the sentence's own text all
+ *  the way to the final assembled piece). A candidate unit that is ENTIRELY
+ *  wrapped in one matching pair of double quotes (straight or curly) has
+ *  that outer pair stripped — never an internal quotation ('The mayor said
+ *  "we will rebuild."' is untouched, since it does not itself begin with a
+ *  quote mark). Mechanical, not a model call: the mouth is never trusted to
+ *  know its own formatting. Single quotes are left alone, on purpose — a
+ *  possessive or a contraction's apostrophe should never be read as a wrap. */
+export function stripMouthQuoting(s) {
+  const t = String(s ?? "").trim();
+  for (const [open, close] of [['"', '"'], ["“", "”"]]) {
+    if (t.length > 1 && t[0] === open && t[t.length - 1] === close) return t.slice(1, -1).trim();
+  }
+  return t;
+}
+
 /** The ground's DISTINCT sentences. A corpus stores a file as overlapping
  * chunks, so the same sentence arrives two or three times; measured live
  * 2026-09-21, a 25-sentence file became 205 ground sentences and the bond

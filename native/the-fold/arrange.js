@@ -47,6 +47,7 @@ import { askedExtent as askedExtentOf } from "./void-spec.js";
 import { isFunctionWord } from "./pos-prior.js";
 import { thesisBasin, thesisGeneralization } from "./thesis-claim.js";
 import { renderGeneralization } from "../kernel/gfp-claim.js";
+import { makeNotes } from "../kernel/notes.js";
 
 export const OUTLINE_SCHEMA = "EOEssayOutline@2";
 
@@ -516,7 +517,45 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
     }
   });
   const anchorLine = Object.entries(thesisAnchors).map(([r, v]) => `${r}="${v}"`).join(", ");
-  if (denials.length) findings.push({ kind: "denied_relation", owner: "Kelsen (reasoning-lint.js)", statements: denials.map((f) => f.pt.id), licenses: null, detail: `${denials.length} statement(s) contradict the thesis's relation "${thesisRelation}" (${thesisPolarity})${anchorLine ? ` on ${anchorLine}` : ""}: ${denials.map((f) => f.pt.id).join(", ")} — the material's own contest, reported${tension && !tension.contrast ? "; taken as the turn" : ""}; the typed polarity contest (a cut meeting its link, kernel/notes.js) is owed` });
+  // THE TYPED CONTEST (2026-09-25, thesis-claim.js's owed item 4): a denial
+  // matching the thesis's relation is reported above regardless; where its
+  // own OBJECT was ALSO one a witnessed member actually asserted — an exact
+  // triple match, never the generalization's own varying role, which
+  // kernel/notes.js's noteId has no concept of — it becomes a real
+  // CON·Figure·CONTESTED dispute, not only a string: a cut meeting its link
+  // (kernel/notes.js, THE CUT). Each statement is its own witness/source
+  // (verified directly this turn: admit() refuses a dispute when the link's
+  // and the cut's witness share one source — "one perspective does not
+  // testify on both sides" — and a document's own sourceId is that one
+  // shared source for every statement in it; a statement's own id has no
+  // such collision, since a document is many sayings, never one voice
+  // testifying twice). A denial naming an object no member ever witnessed
+  // meets no link, lands nothing further, and stays exactly the disclosure
+  // above — that is the honest outcome, not a gap: nothing witnessed was
+  // actually contradicted.
+  const contested = [];
+  if (denials.length) {
+    const linkMembers = feat.filter((f) => thesisMemberIds.has(f.pt.id));
+    const door = makeNotes();
+    let ledger = door.createNotes();
+    const spanOf = (f) => [{ ref: f.pt.id, start: f.pt.span.start, end: f.pt.span.end }];
+    for (const f of linkMembers) {
+      const n = f.notes.find((note) => note.polarity === thesisPolarity && relationOf(note) === thesisRelation);
+      if (!n) continue;
+      ledger = door.admit(ledger, [{ end1: n.end1, label: n.label, end2: n.end2, spans: spanOf(f) }], { witness: f.pt.id }).log;
+    }
+    for (const f of denials) {
+      const n = f.notes.find((note) => note.polarity === OPPOSITE[thesisPolarity] && relationOf(note) === thesisRelation && contradicts(note));
+      if (!n) continue;
+      const r = door.admit(ledger, [{ end1: n.end1, label: n.label, end2: n.end2, polarity: "-", decider: f.pt.text, spans: spanOf(f) }], { witness: f.pt.id });
+      ledger = r.log;
+      for (const c of r.contests) contested.push({ statement: f.pt.id, source: c.source, id: c.id });
+    }
+  }
+  const contestLine = contested.length
+    ? `; ${contested.length} of them landed as a real CON·Figure·CONTESTED dispute (kernel/notes.js): ${contested.map((c) => c.statement).join(", ")}`
+    : denials.length ? "; none meet a witnessed member's own exact claim, so none landed further (kernel/notes.js's CUT requires the identical object, not the generalization's varying role)" : "";
+  if (denials.length) findings.push({ kind: "denied_relation", owner: "Kelsen (reasoning-lint.js)", statements: denials.map((f) => f.pt.id), licenses: null, contested: contested.length ? contested : undefined, detail: `${denials.length} statement(s) contradict the thesis's relation "${thesisRelation}" (${thesisPolarity})${anchorLine ? ` on ${anchorLine}` : ""}: ${denials.map((f) => f.pt.id).join(", ")} — the material's own contest, reported${tension && !tension.contrast ? "; taken as the turn" : ""}${contestLine}` });
   const links = [];
   for (let i = 1; i < groups.length; i++) {
     const a = groups[i - 1], b = groups[i];

@@ -13,7 +13,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   segmentSentences, wordTokens, measureVariance, claimCore, bond,
-  measureBondNull, scriptHasCase, nameGate, looksMeta, admit,
+  measureBondNull, scriptHasCase, nameGate, looksMeta, admit, stripMouthQuoting,
 } from "./admission.js";
 
 // The same material in six languages. Each is five sentences so the null has
@@ -387,4 +387,28 @@ test("FOUND BY A TEST: a ground too small to measure a null does not refuse ever
   assert.equal(nul.pairs, 0, "the premise: a two-sentence ground has no pairs to measure");
   const r = admit("Steamboats reached Nashville and carried cotton to New Orleans.", { ground: tiny, variance: v, bondNull: nul, registry: new Set(), isGrounded: () => true });
   assert.equal(r.admit, true, `refused on an unmeasured null: ${JSON.stringify(r.refused)}`);
+});
+
+// THE MOUTH MIMICS ITS OWN PROMPT'S PUNCTUATION (2026-09-25): measured live
+// on a real Cumberland run — a point-level rewrite prompt shows its inputs
+// in double quotes ('A fact from the source: "…"'), and the mouth wrapped
+// its own answer in quotes too, unstripped all the way to the final piece.
+test("stripMouthQuoting: a whole-unit wrapping pair is stripped; an internal quotation, curly quotes, a possessive, and a plain sentence are each handled correctly", () => {
+  assert.equal(
+    stripMouthQuoting('"The flood of May 2010, which crested at 51.86 feet, submerged the Opryland area."'),
+    "The flood of May 2010, which crested at 51.86 feet, submerged the Opryland area.",
+    "a whole sentence wrapped in straight double quotes loses the outer pair"
+  );
+  assert.equal(
+    stripMouthQuoting('The mayor said "we will rebuild."'),
+    'The mayor said "we will rebuild."',
+    "an internal quotation is untouched — the sentence itself does not begin with a quote mark"
+  );
+  assert.equal(
+    stripMouthQuoting("“A sentence wrapped in curly quotes.”"),
+    "A sentence wrapped in curly quotes.",
+    "curly smart quotes are handled the same as straight ones"
+  );
+  assert.equal(stripMouthQuoting("It's the river's bank."), "It's the river's bank.", "a possessive/contraction apostrophe is never read as a wrap");
+  assert.equal(stripMouthQuoting("A plain sentence."), "A plain sentence.");
 });

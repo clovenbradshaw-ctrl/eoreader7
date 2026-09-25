@@ -381,3 +381,27 @@ test("THE GUARD-EXCLUDED MEMBER STILL PROTECTS ITS OWN PARAGRAPH (Orlean, third 
   assert.equal(f.licenses, null, "not licensed to leave — the guard-excluded member's words still count for the report tier");
   assert.match(f.detail, /a word of a thesis member the claim did not keep/);
 });
+
+test("THE TYPED CONTEST (thesis-claim.js's owed item 4): a denial whose object exactly matches a witnessed member lands a real kernel/notes.js contest", async (t) => {
+  const r = await parsedOutline(`${SHAPED}\n\nThe river never shaped the harbor.`);
+  if (!r) return t.skip("no parser model");
+  const { o, d } = r;
+  const neg = pointWith(d, /never/);
+  const f = o.findings.find((x) => x.kind === "denied_relation");
+  assert.ok(f, "the denial is reported");
+  assert.equal(f.contested?.length, 1, "'harbor' is one of the four witnessed members — the cut meets its link");
+  assert.equal(f.contested[0].statement, neg);
+  assert.equal(f.contested[0].source, neg, "each statement is its own witness/source");
+  assert.match(f.contested[0].id, /^con:/);
+  assert.match(f.detail, /1 of them landed as a real CON·Figure·CONTESTED dispute \(kernel\/notes\.js\)/);
+});
+
+test("THE TYPED CONTEST: a denial naming an object no member ever witnessed meets no link and lands nothing further", async (t) => {
+  const r = await parsedOutline(`${SHAPED}\n\nThe river never shaped the desert.`);
+  if (!r) return t.skip("no parser model");
+  const { o } = r;
+  const f = o.findings.find((x) => x.kind === "denied_relation");
+  assert.ok(f, "the denial is still reported");
+  assert.equal(f.contested, undefined, "no member ever asserted 'desert' — nothing real was contradicted");
+  assert.match(f.detail, /none meet a witnessed member's own exact claim, so none landed further/);
+});

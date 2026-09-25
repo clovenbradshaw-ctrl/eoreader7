@@ -23,23 +23,40 @@
 // warranting the basin that then excluded it, when the feature was the
 // relation alone.)
 //
-// OWED, written here so it is built as constrained: (1) the bridge into the
-// reasoning core — claimsOf(gen) as EOGfpClaim@1s at force "default" at the
-// lca, or "strict" at each member's own part, NEVER strict at the lca (a
-// report is not a law; Zinsser, Kelsen); until it lands, lintGfp/falsifyGfp
-// must refuse any record that is not EOGfpClaim@1 by schema name (today a
-// lone EOGfpGeneralization@1 clears them). (2) The restore: a member that
+// BUILT (2026-09-25, same day): the bridge into the reasoning core —
+// claimsOf(thesisGen), below — turns a generalization into real
+// EOGfpClaim@1s: force "strict" at each member's own part, force "default"
+// at the lca, never strict at the lca (a report is not a law; Zinsser,
+// Kelsen). organs/reasoning-lint.js's lintGfp/falsifyGfp now refuse any
+// record that is not EOGfpClaim@1 by schema name, built first as this
+// bridge's own precondition (a lone EOGfpGeneralization@1 used to clear
+// them silently). Neither is wired into arrange.js's outline yet — the
+// bridge exists and is verified against the real reasoning core, but
+// whether and where a live caller should consume `claimsOf(gen)` is a
+// separate, not-yet-made decision.
+//
+// ALSO BUILT (2026-09-25): (4) the typed polarity contest — arrangeEssay
+// now builds a local, throwaway kernel/notes.js ledger and admits each
+// witnessed member's own exact triple as a link, each denial's own exact
+// triple as a cut, each statement its own witness/source (a document is
+// many sayings, never one voice testifying twice). Verified directly:
+// kernel/notes.js's noteId keys on the FULL triple, so a cut only meets a
+// link when its own object is byte-identical to a witnessed one — the
+// generalization's varying role is not enough, and correctly so: a denial
+// naming an object no member asserted contests nothing actually witnessed,
+// and stays a reported string, never a manufactured contest.
+//
+// STILL OWED: (2) The restore: a member that
 // opens a multi-sentence source paragraph returns to that paragraph's body
 // group (still a witness); a refrain line stays held out — after one mouth
 // run on a refrain-bearing real ground (McPhee, Gornick, Lish; contested by
 // Clark, Kidder & Todd). (3) The phrasing step: one computed claim in, one
 // sentence out, re-checked through arrange.js's eligibility gate before it
-// replaces anything. (4) The typed polarity contest: a cut meeting its link
-// (kernel/notes.js) landed as a dispute, not only named.
+// replaces anything.
 
 import { kindEvidence, createKindInductionIndex, indexKindEntries } from "../kernel/kind-induction.js";
 import { induceEntityKindCandidates } from "../kernel/entity-kind-induction.js";
-import { claimFromTriple, generalizeClaims, caselessIdentity, holon } from "../kernel/gfp-claim.js";
+import { gfpClaim, claimFromTriple, generalizeClaims, caselessIdentity, holon } from "../kernel/gfp-claim.js";
 
 /**
  * thesisBasin(pool, winnerId, { population }) →
@@ -138,6 +155,33 @@ export function thesisGeneralization(basinMembers, { identity = caselessIdentity
     generalization,
     statements: [...new Set(group.map((t) => t.ptId))],
     relation: generalization.rel, label: group[0].label, polarity: generalization.polarity, via: group[0].via,
+    // Kept, not discarded (owed item 1, header above): each member's own
+    // claim, already built here with its own ground, is what claimsOf turns
+    // into real EOGfpClaim@1s below.
+    claims: group.map((t) => t.claim),
     agreeingClaims: group.length, excluded: others(group), unresolved: [...new Set(unresolved)], refused: null,
   };
+}
+
+/**
+ * claimsOf(thesisGen) → EOGfpClaim@1[] — the reasoning-core bridge (owed
+ * item 1, header above). Two kinds, never merged into one: each basin
+ * member's OWN claim, force "strict" at ITS OWN part (what that one
+ * statement actually witnesses, definite there — reusing the exact claim
+ * thesisGeneralization already built, only its force changed); and one
+ * further claim at the generalization's OWN ground — the lca of every
+ * member — force "default", carrying only the AGREED roles (a varying role
+ * has no single value the wider ground could assert). A report is not a
+ * law: the induction beyond any one member's own ground stays defeasible,
+ * NEVER strict at the lca (Zinsser, Kelsen, third reading). Takes
+ * thesisGeneralization's own return value, not the bare EOGfpGeneralization@1
+ * — it needs each member's claims, which the bare record does not carry.
+ */
+export function claimsOf(thesisGen) {
+  const gen = thesisGen?.generalization;
+  if (!gen || !thesisGen.claims?.length) return [];
+  const witnessed = thesisGen.claims.map((c) => gfpClaim({ ground: c.ground, rel: c.rel, roles: c.roles, polarity: c.polarity, force: "strict", id: c.id }));
+  if (!Object.keys(gen.agreed).length) return witnessed;
+  const induced = gfpClaim({ ground: gen.ground, rel: gen.rel, roles: gen.agreed, polarity: gen.polarity, force: "default", id: `${gen.sourceIds.join("+")}~generalized` });
+  return [...witnessed, induced];
 }
