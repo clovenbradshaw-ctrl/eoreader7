@@ -75,12 +75,12 @@ const TREEBANKS = [
   {
     lang: "grc", name: "Greek PROIEL", language: { iso: "grc", name: "Ancient Greek", stage: "Ionic prose (Herodotus) and Koine (Greek New Testament)" },
     learn: path.join(FIX, "ud-greek-proiel", "grc_proiel-ud-test.conllu"),
+    readme: path.join(FIX, "ud-greek-proiel", "README.md"), licenseFile: path.join(FIX, "ud-greek-proiel", "LICENSE.txt"),
     declared: {
-      giver: d("PROIEL treebank (Dag Haug and Marius Jøhndal, University of Oslo), UD conversion by the PROIEL project — no README shipped beside this file", VERIFY),
-      period: d("5th c. BCE (Herodotus, Histories) and 1st c. CE (Greek New Testament) — the two sources the file's own source lines name", VERIFY),
-      region: d("Halicarnassus and Ionia (Herodotus); the eastern Mediterranean Koine (the Gospels and Acts)", VERIFY),
-      register: d("historiographic prose and scripture narrative", VERIFY),
-      license: d("CC BY-NC-SA 3.0 (UD_Ancient_Greek-PROIEL)", VERIFY),
+      giver: d("the PROIEL treebank's Ancient Greek data, Department of Philosophy, Classics, History of Arts and Ideas, University of Oslo; UD conversion contributed by Dag Haug (README, contributors line); original guidelines Haug's syntactic_guidelines.pdf", DOC),
+      period: d("most of the Greek New Testament plus selections from Herodotus' Histories — the works are the README's; their conventional dates (1st c. CE; 5th c. BCE) are not stated there", DOC),
+      region: d("the README states no region; the works it names are Herodotus of Halicarnassus (Ionic) and the Koine of the New Testament — a builder's inference from the documented works", VERIFY),
+      register: d("bible, nonfiction (README genre): scripture narrative and historiographic prose", DOC),
     },
   },
   {
@@ -108,23 +108,23 @@ const TREEBANKS = [
   {
     lang: "ar", name: "Arabic PADT", language: { iso: "arb", name: "Arabic", stage: "Modern Standard Arabic (newswire) — no spoken dialect" },
     learn: path.join(FIX, "ud-arabic-padt", "ar_padt-ud-test.conllu"),
+    readme: path.join(FIX, "ud-arabic-padt", "README.md"), licenseFile: path.join(FIX, "ud-arabic-padt", "LICENSE.txt"),
     declared: {
-      giver: d("Prague Arabic Dependency Treebank (Hajič, Smrž, Zemánek, Šnaidauf, Beška; ÚFAL), UD conversion by ÚFAL — no README shipped beside this file", VERIFY),
-      period: d("2000s newswire (the file's document ids carry 2004 dates)", VERIFY),
-      region: d("supra-regional written standard; the sources the file names are Tunisian (Assabah), Lebanese (An-Nahar), pan-Arab London-based (Al-Hayat), Xinhua's Arabic service and Ummah Press", VERIFY),
-      register: d("newswire prose", VERIFY),
-      license: d("CC BY-NC-SA 3.0 (UD_Arabic-PADT)", VERIFY),
+      giver: d("UD_Arabic-PADT (Zeman, Žabokrtský, Saleh — README contributors), converted by Dan Zeman from the Prague Arabic Dependency Treebank, Charles University; the original PADT project coordinated by Otakar Smrž", DOC),
+      period: { value: "newswire of 2001–2004 — the years measured from the file's own document ids (see documents.years)", basis: FILE },
+      region: d("supra-regional written standard (README: domain mainly newswire); the outlets are measured from the file's document ids — Ummah, Xinhua, Al-Hayat, Assabah, An-Nahar — and their home cities (Tunis, Beirut, London) are the builder's attribution, not the README's", VERIFY),
+      register: d("news (README genre): newswire prose", DOC),
     },
   },
   {
     lang: "he", name: "Hebrew HTB", language: { iso: "heb", name: "Hebrew", stage: "Modern Israeli Hebrew, newspaper register" },
     learn: path.join(FIX, "ud-hebrew-htb", "he_htb-ud-test.conllu"),
+    readme: path.join(FIX, "ud-hebrew-htb", "README.md"), licenseFile: path.join(FIX, "ud-hebrew-htb", "LICENSE.txt"),
     declared: {
-      giver: d("Hebrew Treebank (Sima'an, Itai, Winter, Altman, Nativ; Technion / MILA), UD conversion by Tsarfaty, Goldberg et al. — no README shipped beside this file", VERIFY),
-      period: d("early 1990s Haaretz newspaper text", VERIFY),
-      region: d("Israel", VERIFY),
-      register: d("newspaper prose, unvocalised script", VERIFY),
-      license: d("CC BY-NC-SA 4.0 (UD_Hebrew-HTB)", VERIFY),
+      giver: d("UD_Hebrew-HTB (Goldberg, Tsarfaty, More, Sadde, Basmov, Pinter — README contributors), converted semi-automatically from the Hebrew Constituency Treebank v2; the README's test split is sentences 5726–6216, and this file's first sent_id is 5726", DOC),
+      period: d("the README names the Ha'aretz newspaper and gives no dates; the builder's understanding is early-1990s text — a date the documentation does not state", VERIFY),
+      region: d("Ha'aretz is the README's source; that it is an Israeli daily, and so the region Israel, is the builder's addition", VERIFY),
+      register: d("news (README genre): Ha'aretz newspaper prose, unvocalised script", DOC),
     },
   },
 ];
@@ -154,6 +154,10 @@ function measuredSources(sentences) {
   const out = {};
   if (src.length) out.sourceLines = tally(src);
   if (docs.length) out.documents = { count: docs.length, prefixes: tally(docs.map((x) => x.split(/[-.]/)[0])) };
+  // a document id that carries a date (PADT: assabah.20041005.0017; EWT:
+  // ..._20051126063000_...) yields its year — measured, never assumed
+  const years = docs.map((x) => /(?:^|[._-])((?:19|20)\d{2})(?:\d{4}|\d{10})(?:[._-]|$)/.exec(x)?.[1]).filter(Boolean);
+  if (years.length) out.years = tally(years);
   if (cites.length) out.citedTexts = tally(cites);
   return out;
 }

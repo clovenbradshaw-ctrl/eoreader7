@@ -12,24 +12,24 @@
    "basis": "measured from the file"
   },
   "giver": {
-   "value": "Hebrew Treebank (Sima'an, Itai, Winter, Altman, Nativ; Technion / MILA), UD conversion by Tsarfaty, Goldberg et al. — no README shipped beside this file",
-   "basis": "declared by the builder — verify"
+   "value": "UD_Hebrew-HTB (Goldberg, Tsarfaty, More, Sadde, Basmov, Pinter — README contributors), converted semi-automatically from the Hebrew Constituency Treebank v2; the README's test split is sentences 5726–6216, and this file's first sent_id is 5726",
+   "basis": "declared from the treebank's documentation"
   },
   "license": {
-   "value": "CC BY-NC-SA 4.0 (UD_Hebrew-HTB)",
-   "basis": "declared by the builder — verify"
+   "value": "The Hebrew Universal Dependencies Treebank is licensed under the",
+   "basis": "measured from the file"
   },
   "period": {
-   "value": "early 1990s Haaretz newspaper text",
+   "value": "the README names the Ha'aretz newspaper and gives no dates; the builder's understanding is early-1990s text — a date the documentation does not state",
    "basis": "declared by the builder — verify"
   },
   "region": {
-   "value": "Israel",
+   "value": "Ha'aretz is the README's source; that it is an Israeli daily, and so the region Israel, is the builder's addition",
    "basis": "declared by the builder — verify"
   },
   "register": {
-   "value": "newspaper prose, unvocalised script",
-   "basis": "declared by the builder — verify"
+   "value": "news (README genre): Ha'aretz newspaper prose, unvocalised script",
+   "basis": "declared from the treebank's documentation"
   },
   "script": {
    "value": "Hebrew (100.0% of letters)",
@@ -40,7 +40,7 @@
    "basis": "measured from the file"
   },
   "readme": {
-   "value": "no README shipped beside the file",
+   "value": "eval/fixtures/ud-hebrew-htb/README.md",
    "basis": "measured from the file"
   },
   "split": {
@@ -59,7 +59,7 @@
    "basis": "measured from the file"
   },
   "builtAt": {
-   "value": "2026-09-25T19:35:41.557Z",
+   "value": "2026-09-25T19:56:41.508Z",
    "basis": "measured from the file"
   },
   "null": {

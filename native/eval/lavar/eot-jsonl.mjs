@@ -69,6 +69,7 @@ import { narrativeTime } from "../../kernel/narrative-time.js";
 import { loadModel as loadEnglishParser } from "../../adapters/text/english-parser.js";
 import { parseWindow, clauseTense, GIVER as TENSE_GIVER } from "../../adapters/text/clause-tense.js";
 import { morphCuesFromPrior, witnessOf } from "../../adapters/text/morph-cues.js";
+import { rowsFromPosPrior } from "../../adapters/text/pos-rows.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const LP_ROOT = path.resolve(HERE, "../../../../live_priors");
@@ -1674,8 +1675,42 @@ if (priorLines.length) {
     tenseOf = (a) => typed.get(a.id)?.tense ?? "undeclared";
     GIVER = `${TENSE_GIVER}${witness ? `; second witness: Sullivan's learned convention (${witnessTally.giver}), ${witness.admitted} admitted Tense cues` : "; no Sullivan witness (priors/morph-cues-en.json absent)"}`;
   } else {
-    tenseOf = () => "undeclared";
-    GIVER = `no tense typer declared for --lang=${LANG}; every arrangement typed undeclared`;
+    // A NON-ENGLISH READ HAS NO PARSER; IT HAS SULLIVAN (2026-09-25). Her
+    // stored convention for this language AND STAGE — declared here per
+    // --lang, never guessed from the ISO code alone: PROIEL is Herodotus
+    // and the New Testament, so modern Greek (ell) is deliberately absent
+    // rather than read with an ancient convention; a caller may declare a
+    // prior explicitly with --morph-prior=<MorphCuesPrior@1>, and the
+    // refusing loader still demands its giver, period and region. The rows
+    // come from pos-rows.js: class = the received POS prior's dominant
+    // UPOS per form (type-level, not a parse), sentences = the ledger's
+    // own, no heads — so the auxiliary cue never fires, said on the giver
+    // line. clause-tense.js's own English rules cannot fire on rows with no
+    // features; only the witness speaks, and every filled tense names it.
+    const MORPH_PRIOR_BY_LANG = { heb: "morph-cues-he.json", grc: "morph-cues-grc.json", arb: "morph-cues-ar.json" };
+    const override = (process.argv.find((a) => a.startsWith("--morph-prior=")) ?? "").replace("--morph-prior=", "");
+    const priorPath = override ? path.resolve(override) : MORPH_PRIOR_BY_LANG[LANG] ? path.join(HERE, "..", "..", "priors", MORPH_PRIOR_BY_LANG[LANG]) : null;
+    let witness = null, loaded = null;
+    if (priorPath && fs.existsSync(priorPath)) {
+      loaded = morphCuesFromPrior(JSON.parse(fs.readFileSync(priorPath, "utf8")));
+      witness = witnessOf(loaded, "Tense");
+    }
+    if (witness) {
+      const rows = rowsFromPosPrior(raw.slice(WIN[0], WIN[1]), POS_PRIOR, { map: (i) => toRaw(WIN[0] + i), sentences: sents });
+      const typed = new Map(props.map((a) => {
+        const t = clauseTense(rows, a.at, a.label, { witness });
+        if (t.filled) witnessTally.spoke += 1;
+        return [a.id, t];
+      }));
+      tenseOf = (a) => typed.get(a.id)?.tense ?? "undeclared";
+      witnessTally.giver = `${loaded.language.stage} — ${loaded.provenance.giver.value}`;
+      GIVER = `Sullivan's learned convention for --lang=${LANG} (${witnessTally.giver}; period: ${loaded.provenance.period.value}), ${witness.admitted} admitted Tense cues, over POS-prior rows (class = dominant UPOS per form from ${path.basename(POS_PRIOR_PATH)}, no parse: the auxiliary cue never fires)`;
+    } else {
+      tenseOf = () => "undeclared";
+      GIVER = priorPath && fs.existsSync(priorPath)
+        ? `the convention at ${path.basename(priorPath)} holds no Tense model; every arrangement typed undeclared`
+        : `no tense typer declared for --lang=${LANG}${override ? ` (--morph-prior ${override} not found)` : " — no learned convention is declared for this language and stage; pass --morph-prior=<MorphCuesPrior@1> to declare one"}; every arrangement typed undeclared`;
+    }
   }
   const nt = narrativeTime(props, { tenseOf, giver: GIVER });
   for (const t of nt.times) emit({ ...t, role: "time", at: [t.at, t.at], clock: t.at });

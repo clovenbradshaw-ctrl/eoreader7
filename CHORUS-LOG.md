@@ -726,3 +726,19 @@ fast: 6 files · clause-tense 11/11, morph-cues 9/9, narrative-time 6/6, tempora
 clean: (all routed lenses reviewed above)
 
 Context: user — "commit to gh main AFTER you wire". Measured on Alice ch2: Sullivan filled 6 finite arrangements the parser left undeclared (Past 50→54, Pres 20→22, undeclared 106→99), corroborated 10, contested 0, held across every arm. The parser stays the primary giver; the witness never overrides it.
+
+## 2026-09-25 — non-English reads get Sullivan's tense typer over POS-prior rows; PROIEL, PADT and HTB READMEs shipped beside their fixtures (main, 14 files)
+fast: 14 files · pos-rows 4/4 (real Hebrew prior), clause-tense 11/11, morph-cues 9/9, narrative-time 6/6 · law: ok (dup headers pre-existing)
+| lens | citation | file:line | verdict | one line |
+| Greenberg | — | eot-jsonl.mjs (MORPH_PRIOR_BY_LANG) | disclosed | ISO codes map to STAGE-specific conventions, never to a language: heb → modern newspaper Hebrew, grc → Herodotus + NT, arb → 2001–2004 MSA newswire; modern Greek (ell) is deliberately unmapped; a read of Biblical Hebrew with the modern convention is not blocked, only named on the giver line with its period — a --period= vs convention check is the next gate |
+| Holmes | — | pos-rows.js (dominantUpos) | disclosed | a form's class is its type-level majority UPOS in the received prior, so a homograph gets the majority class every time — the occurrence-level grain Sullivan's first sense already names as open; a form the prior never saw gets the empty class and no class-conditioned cue can fire (Void, not a guess) |
+| Pearl | — | eot-jsonl.mjs (non-English branch) | disclosed | one witness only — no parser to corroborate or contest — and the class source (pos-heb.json, HTB train) and the cues (morph-cues-he.json, HTB test half) share a treebank, so no independent corroboration is possible for these languages yet |
+| Dijkstra | — | pos-rows.js (TOKEN, dominantUpos) | disclosed | tokens are \p{L}\p{N} runs plus the apostrophe family and Hebrew geresh/gershayim; the prior is looked up lowercased then exact; offsets mapped through the caller's map (toRaw) — the same address lesson clause-tense learned |
+| Ostrom | — | eot-jsonl.mjs (GIVER strings) | clean | an absent convention says "no learned convention is declared for this language and stage", never "this language has no tense"; I Kings' 0 arrangements is the chapter detector's, and the ledger says so by its own counts |
+| Alexander | — | clause-tense.js × pos-rows.js | disclosed | clauseTense over feature-less rows: its English rules cannot fire (no VerbForm/Tense feats), so only the witness speaks — the seam is the one designed, not an accident, and every filled tense names Sullivan and the cue |
+| Feynman | — | pos-rows.js | clean | no constants: tie-break lexical, map default identity |
+| Kondo | — | sullivan-morph.mjs | fixed | every "declared by the builder — verify" that a README could answer is gone; the four that remain (Greek region, Arabic outlets' cities, Hebrew dates and country) each say the README is silent |
+| Simon/Chekhov | — | pos-rows.js, eot-jsonl.mjs, sullivan-morph.mjs | disclosed | pos-rows tested on the real Hebrew prior; eot-jsonl exercised on the modern-Hebrew UDHR (17/54 arrangements typed — Past 10, Fut 7 — 10 times, 10 bound) and on Biblical I Kings (0 arrangements: detector); grc/ar/he priors regenerated with README provenance, cues byte-identical, only provenance lines changed (20–28 lines each) |
+clean: (all routed lenses reviewed above)
+
+Context: user — fix the two stated gaps. The READMEs were fetched from UniversalDependencies on GitHub (PROIEL 2.5 KB, PADT 7.4 KB, HTB 5.4 KB, with their LICENSE.txt) and now sit beside the fixtures as the Latin one does; PADT's years are measured from its own document ids (2001×16, 2002×3, 2003×20, 2004×30); HTB's test split (5726–6216) matches this file's first sent_id.

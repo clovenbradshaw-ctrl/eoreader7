@@ -12,24 +12,24 @@
    "basis": "measured from the file"
   },
   "giver": {
-   "value": "PROIEL treebank (Dag Haug and Marius Jøhndal, University of Oslo), UD conversion by the PROIEL project — no README shipped beside this file",
-   "basis": "declared by the builder — verify"
+   "value": "the PROIEL treebank's Ancient Greek data, Department of Philosophy, Classics, History of Arts and Ideas, University of Oslo; UD conversion contributed by Dag Haug (README, contributors line); original guidelines Haug's syntactic_guidelines.pdf",
+   "basis": "declared from the treebank's documentation"
   },
   "license": {
-   "value": "CC BY-NC-SA 3.0 (UD_Ancient_Greek-PROIEL)",
-   "basis": "declared by the builder — verify"
+   "value": "This work is licensed under the Creative Commons Attribution-NonCommercial-",
+   "basis": "measured from the file"
   },
   "period": {
-   "value": "5th c. BCE (Herodotus, Histories) and 1st c. CE (Greek New Testament) — the two sources the file's own source lines name",
-   "basis": "declared by the builder — verify"
+   "value": "most of the Greek New Testament plus selections from Herodotus' Histories — the works are the README's; their conventional dates (1st c. CE; 5th c. BCE) are not stated there",
+   "basis": "declared from the treebank's documentation"
   },
   "region": {
-   "value": "Halicarnassus and Ionia (Herodotus); the eastern Mediterranean Koine (the Gospels and Acts)",
+   "value": "the README states no region; the works it names are Herodotus of Halicarnassus (Ionic) and the Koine of the New Testament — a builder's inference from the documented works",
    "basis": "declared by the builder — verify"
   },
   "register": {
-   "value": "historiographic prose and scripture narrative",
-   "basis": "declared by the builder — verify"
+   "value": "bible, nonfiction (README genre): scripture narrative and historiographic prose",
+   "basis": "declared from the treebank's documentation"
   },
   "script": {
    "value": "Greek (100.0% of letters)",
@@ -55,7 +55,7 @@
    "basis": "measured from the file"
   },
   "readme": {
-   "value": "no README shipped beside the file",
+   "value": "eval/fixtures/ud-greek-proiel/README.md",
    "basis": "measured from the file"
   },
   "split": {
@@ -74,7 +74,7 @@
    "basis": "measured from the file"
   },
   "builtAt": {
-   "value": "2026-09-25T19:35:36.894Z",
+   "value": "2026-09-25T19:56:40.107Z",
    "basis": "measured from the file"
   },
   "null": {

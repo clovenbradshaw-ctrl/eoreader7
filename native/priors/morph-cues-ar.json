@@ -12,24 +12,24 @@
    "basis": "measured from the file"
   },
   "giver": {
-   "value": "Prague Arabic Dependency Treebank (Hajič, Smrž, Zemánek, Šnaidauf, Beška; ÚFAL), UD conversion by ÚFAL — no README shipped beside this file",
-   "basis": "declared by the builder — verify"
+   "value": "UD_Arabic-PADT (Zeman, Žabokrtský, Saleh — README contributors), converted by Dan Zeman from the Prague Arabic Dependency Treebank, Charles University; the original PADT project coordinated by Otakar Smrž",
+   "basis": "declared from the treebank's documentation"
   },
   "license": {
-   "value": "CC BY-NC-SA 3.0 (UD_Arabic-PADT)",
-   "basis": "declared by the builder — verify"
+   "value": "The Arabic UD treebank is derived from the Prague Arabic Dependency Treebank (PADT) and is distributed under the same license terms as PADT 1.0, which is",
+   "basis": "measured from the file"
   },
   "period": {
-   "value": "2000s newswire (the file's document ids carry 2004 dates)",
-   "basis": "declared by the builder — verify"
+   "value": "newswire of 2001–2004 — the years measured from the file's own document ids (see documents.years)",
+   "basis": "measured from the file"
   },
   "region": {
-   "value": "supra-regional written standard; the sources the file names are Tunisian (Assabah), Lebanese (An-Nahar), pan-Arab London-based (Al-Hayat), Xinhua's Arabic service and Ummah Press",
+   "value": "supra-regional written standard (README: domain mainly newswire); the outlets are measured from the file's document ids — Ummah, Xinhua, Al-Hayat, Assabah, An-Nahar — and their home cities (Tunis, Beirut, London) are the builder's attribution, not the README's",
    "basis": "declared by the builder — verify"
   },
   "register": {
-   "value": "newswire prose",
-   "basis": "declared by the builder — verify"
+   "value": "news (README genre): newswire prose",
+   "basis": "declared from the treebank's documentation"
   },
   "script": {
    "value": "Arabic (100.0% of letters)",
@@ -46,12 +46,18 @@
       "assabah": 4,
       "annahar": 2
      }
+    },
+    "years": {
+     "2001": 16,
+     "2002": 3,
+     "2003": 20,
+     "2004": 30
     }
    },
    "basis": "measured from the file"
   },
   "readme": {
-   "value": "no README shipped beside the file",
+   "value": "eval/fixtures/ud-arabic-padt/README.md",
    "basis": "measured from the file"
   },
   "split": {
@@ -70,7 +76,7 @@
    "basis": "measured from the file"
   },
   "builtAt": {
-   "value": "2026-09-25T19:35:40.875Z",
+   "value": "2026-09-25T19:56:41.066Z",
    "basis": "measured from the file"
   },
   "null": {

@@ -1,6 +1,6 @@
 {
  "schema": "SullivanMorph@1",
- "generatedAt": "2026-09-25T19:35:41.561Z",
+ "generatedAt": "2026-09-25T19:58:18.037Z",
  "null": {
   "draws": 12,
   "reruns": 11,
@@ -18,7 +18,7 @@
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 6272,
    "auditSentences": 6272,
-   "ms": 9192,
+   "ms": 5510,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -60,6 +60,12 @@
         "newsgroup": 28,
         "weblog": 17
        }
+      },
+      "years": {
+       "2003": 5,
+       "2004": 18,
+       "2005": 18,
+       "2006": 4
       }
      },
      "basis": "measured from the file"
@@ -84,7 +90,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:35:29.648Z",
+     "value": "2026-09-25T19:58:13.357Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -1124,7 +1130,7 @@
    "split": "train/test",
    "learnSentences": 1334,
    "auditSentences": 939,
-   "ms": 5093,
+   "ms": 1547,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -1195,7 +1201,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:35:34.838Z",
+     "value": "2026-09-25T19:58:14.943Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -2532,7 +2538,7 @@
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 524,
    "auditSentences": 523,
-   "ms": 1952,
+   "ms": 770,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -2540,24 +2546,24 @@
      "basis": "measured from the file"
     },
     "giver": {
-     "value": "PROIEL treebank (Dag Haug and Marius Jøhndal, University of Oslo), UD conversion by the PROIEL project — no README shipped beside this file",
-     "basis": "declared by the builder — verify"
+     "value": "the PROIEL treebank's Ancient Greek data, Department of Philosophy, Classics, History of Arts and Ideas, University of Oslo; UD conversion contributed by Dag Haug (README, contributors line); original guidelines Haug's syntactic_guidelines.pdf",
+     "basis": "declared from the treebank's documentation"
     },
     "license": {
-     "value": "CC BY-NC-SA 3.0 (UD_Ancient_Greek-PROIEL)",
-     "basis": "declared by the builder — verify"
+     "value": "This work is licensed under the Creative Commons Attribution-NonCommercial-",
+     "basis": "measured from the file"
     },
     "period": {
-     "value": "5th c. BCE (Herodotus, Histories) and 1st c. CE (Greek New Testament) — the two sources the file's own source lines name",
-     "basis": "declared by the builder — verify"
+     "value": "most of the Greek New Testament plus selections from Herodotus' Histories — the works are the README's; their conventional dates (1st c. CE; 5th c. BCE) are not stated there",
+     "basis": "declared from the treebank's documentation"
     },
     "region": {
-     "value": "Halicarnassus and Ionia (Herodotus); the eastern Mediterranean Koine (the Gospels and Acts)",
+     "value": "the README states no region; the works it names are Herodotus of Halicarnassus (Ionic) and the Koine of the New Testament — a builder's inference from the documented works",
      "basis": "declared by the builder — verify"
     },
     "register": {
-     "value": "historiographic prose and scripture narrative",
-     "basis": "declared by the builder — verify"
+     "value": "bible, nonfiction (README genre): scripture narrative and historiographic prose",
+     "basis": "declared from the treebank's documentation"
     },
     "script": {
      "value": "Greek (100.0% of letters)",
@@ -2583,7 +2589,7 @@
      "basis": "measured from the file"
     },
     "readme": {
-     "value": "no README shipped beside the file",
+     "value": "eval/fixtures/ud-greek-proiel/README.md",
      "basis": "measured from the file"
     },
     "split": {
@@ -2602,7 +2608,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:35:36.894Z",
+     "value": "2026-09-25T19:58:15.737Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -3638,7 +3644,7 @@
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 1355,
    "auditSentences": 1354,
-   "ms": 1781,
+   "ms": 780,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -3738,7 +3744,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:35:38.766Z",
+     "value": "2026-09-25T19:58:16.554Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -4400,7 +4406,7 @@
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 115,
    "auditSentences": 115,
-   "ms": 219,
+   "ms": 110,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -4462,7 +4468,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:35:39.002Z",
+     "value": "2026-09-25T19:58:16.670Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -5404,7 +5410,7 @@
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 340,
    "auditSentences": 340,
-   "ms": 1753,
+   "ms": 898,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -5412,24 +5418,24 @@
      "basis": "measured from the file"
     },
     "giver": {
-     "value": "Prague Arabic Dependency Treebank (Hajič, Smrž, Zemánek, Šnaidauf, Beška; ÚFAL), UD conversion by ÚFAL — no README shipped beside this file",
-     "basis": "declared by the builder — verify"
+     "value": "UD_Arabic-PADT (Zeman, Žabokrtský, Saleh — README contributors), converted by Dan Zeman from the Prague Arabic Dependency Treebank, Charles University; the original PADT project coordinated by Otakar Smrž",
+     "basis": "declared from the treebank's documentation"
     },
     "license": {
-     "value": "CC BY-NC-SA 3.0 (UD_Arabic-PADT)",
-     "basis": "declared by the builder — verify"
+     "value": "The Arabic UD treebank is derived from the Prague Arabic Dependency Treebank (PADT) and is distributed under the same license terms as PADT 1.0, which is",
+     "basis": "measured from the file"
     },
     "period": {
-     "value": "2000s newswire (the file's document ids carry 2004 dates)",
-     "basis": "declared by the builder — verify"
+     "value": "newswire of 2001–2004 — the years measured from the file's own document ids (see documents.years)",
+     "basis": "measured from the file"
     },
     "region": {
-     "value": "supra-regional written standard; the sources the file names are Tunisian (Assabah), Lebanese (An-Nahar), pan-Arab London-based (Al-Hayat), Xinhua's Arabic service and Ummah Press",
+     "value": "supra-regional written standard (README: domain mainly newswire); the outlets are measured from the file's document ids — Ummah, Xinhua, Al-Hayat, Assabah, An-Nahar — and their home cities (Tunis, Beirut, London) are the builder's attribution, not the README's",
      "basis": "declared by the builder — verify"
     },
     "register": {
-     "value": "newswire prose",
-     "basis": "declared by the builder — verify"
+     "value": "news (README genre): newswire prose",
+     "basis": "declared from the treebank's documentation"
     },
     "script": {
      "value": "Arabic (100.0% of letters)",
@@ -5446,12 +5452,18 @@
         "assabah": 4,
         "annahar": 2
        }
+      },
+      "years": {
+       "2001": 16,
+       "2002": 3,
+       "2003": 20,
+       "2004": 30
       }
      },
      "basis": "measured from the file"
     },
     "readme": {
-     "value": "no README shipped beside the file",
+     "value": "eval/fixtures/ud-arabic-padt/README.md",
      "basis": "measured from the file"
     },
     "split": {
@@ -5470,7 +5482,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:35:40.875Z",
+     "value": "2026-09-25T19:58:17.625Z",
      "basis": "measured from the file"
     },
     "null": {
@@ -6223,7 +6235,7 @@
    "split": "parity: even sentences learn, odd audit",
    "learnSentences": 246,
    "auditSentences": 245,
-   "ms": 648,
+   "ms": 395,
    "provenance": {
     "schema": "Provenance@1",
     "source": {
@@ -6231,24 +6243,24 @@
      "basis": "measured from the file"
     },
     "giver": {
-     "value": "Hebrew Treebank (Sima'an, Itai, Winter, Altman, Nativ; Technion / MILA), UD conversion by Tsarfaty, Goldberg et al. — no README shipped beside this file",
-     "basis": "declared by the builder — verify"
+     "value": "UD_Hebrew-HTB (Goldberg, Tsarfaty, More, Sadde, Basmov, Pinter — README contributors), converted semi-automatically from the Hebrew Constituency Treebank v2; the README's test split is sentences 5726–6216, and this file's first sent_id is 5726",
+     "basis": "declared from the treebank's documentation"
     },
     "license": {
-     "value": "CC BY-NC-SA 4.0 (UD_Hebrew-HTB)",
-     "basis": "declared by the builder — verify"
+     "value": "The Hebrew Universal Dependencies Treebank is licensed under the",
+     "basis": "measured from the file"
     },
     "period": {
-     "value": "early 1990s Haaretz newspaper text",
+     "value": "the README names the Ha'aretz newspaper and gives no dates; the builder's understanding is early-1990s text — a date the documentation does not state",
      "basis": "declared by the builder — verify"
     },
     "region": {
-     "value": "Israel",
+     "value": "Ha'aretz is the README's source; that it is an Israeli daily, and so the region Israel, is the builder's addition",
      "basis": "declared by the builder — verify"
     },
     "register": {
-     "value": "newspaper prose, unvocalised script",
-     "basis": "declared by the builder — verify"
+     "value": "news (README genre): Ha'aretz newspaper prose, unvocalised script",
+     "basis": "declared from the treebank's documentation"
     },
     "script": {
      "value": "Hebrew (100.0% of letters)",
@@ -6259,7 +6271,7 @@
      "basis": "measured from the file"
     },
     "readme": {
-     "value": "no README shipped beside the file",
+     "value": "eval/fixtures/ud-hebrew-htb/README.md",
      "basis": "measured from the file"
     },
     "split": {
@@ -6278,7 +6290,7 @@
      "basis": "measured from the file"
     },
     "builtAt": {
-     "value": "2026-09-25T19:35:41.557Z",
+     "value": "2026-09-25T19:58:18.036Z",
      "basis": "measured from the file"
     },
     "null": {
