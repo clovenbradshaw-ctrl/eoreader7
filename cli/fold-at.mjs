@@ -24,12 +24,16 @@ import { arrangeEssay } from "../native/the-fold/arrange.js";
 import { foldAt, slotsFromClaims } from "../native/the-fold/fold-at.js";
 import { createHolograph, admit } from "../native/kernel/bayes-surprise.js";
 import { holon } from "../native/kernel/gfp-claim.js";
+import { claimDependencyIndex, seedsOfClaimFiller } from "../native/the-fold/claim-dependencies.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
 function usage() {
-  console.error("usage: node cli/fold-at.mjs FILE.md ADDRESS [--task \"...\"]");
+  console.error("usage: node cli/fold-at.mjs FILE.md ADDRESS [--task \"...\"] [--pvalue N]");
   console.error("  ADDRESS is a holon path (e.g. /whole/p4/2), or 'list' to print every real address this file produces.");
+  console.error("  --pvalue N (0 < N < 1) additionally wires the load-bearing consequential-surprise layer.");
+  console.error("    Never defaulted here -- consequential-surprise.js's own guard requires a caller-declared");
+  console.error("    pValue, and this project's standing rule forbids a hand-set default. You choose it.");
   process.exit(2);
 }
 
@@ -37,6 +41,12 @@ const [, , file, address, ...rest] = process.argv;
 if (!file || !address) usage();
 const taskFlagIdx = rest.indexOf("--task");
 const task = taskFlagIdx >= 0 ? rest[taskFlagIdx + 1] : "Write an essay on this material.";
+const pValueFlagIdx = rest.indexOf("--pvalue");
+const pValue = pValueFlagIdx >= 0 ? Number(rest[pValueFlagIdx + 1]) : null;
+if (pValueFlagIdx >= 0 && !(pValue > 0 && pValue < 1)) {
+  console.error(`--pvalue must be a number strictly between 0 and 1, got: ${rest[pValueFlagIdx + 1]}`);
+  process.exit(2);
+}
 
 const ground = fs.readFileSync(path.resolve(process.cwd(), file), "utf8");
 const parser = await loadEotParser();
@@ -64,7 +74,13 @@ for (const c of claims) {
   admit(holo, Object.fromEntries(slotsFromClaims([c])));
 }
 
-const fold = foldAt(address, claims, { holo });
+// The load-bearing consequential-surprise layer additionally needs a
+// dependents index over the WHOLE document's claims (not just the ones
+// admitted into the prior above) -- built via claim-dependencies.js's own
+// shared-role-filler relation, only when the caller explicitly declared a
+// pValue.
+const index = pValue !== null ? claimDependencyIndex(claims) : null;
+const fold = foldAt(address, claims, { holo, ...(index ? { index, seedsOf: seedsOfClaimFiller, pValue } : {}) });
 const line = (c) => `${c.roles.ARG0} ${c.polarity === "-" ? "NOT " : ""}${c.rel} ${c.roles.ARG1}  @${c.ground}`;
 console.log(`fold at ${fold.address}  (${claims.length} claim(s) total in this document)`);
 console.log(`\nhere (${fold.here.length}):`);
@@ -77,4 +93,13 @@ console.log(`\ndescendants (${fold.descendants.length}):`);
 for (const c of fold.descendants) console.log(`  ${line(c)}`);
 console.log(`\natmosphere: ${fold.atmosphere.wired ? (fold.atmosphere.field ? "real field computed" : "wired, no obligations supplied") : "gap: " + fold.atmosphere.reason}`);
 console.log(`significance: ${fold.significance.wired ? `${fold.significance.totalBits.toFixed(2)} bits` : "gap: " + fold.significance.reason}`);
+if (fold.significance.wired) {
+  const c = fold.significance.consequential;
+  if (c.wired) {
+    console.log(`  consequential: ${c.consequentialBits.toFixed(2)} load-bearing bit(s), ${c.localBits.toFixed(2)} local bit(s) (pValue=${pValue})`);
+    for (const row of c.rows) if (row.loadBearing) console.log(`    load-bearing: ${row.slot}=${row.value} (reaches ${row.reached}, rank ${row.rank.toFixed(2)})`);
+  } else {
+    console.log(`  consequential: gap: ${c.reason}`);
+  }
+}
 console.log(`paradigm: gap: ${fold.paradigm.reason}`);

@@ -67,3 +67,21 @@ test("significance is a real, document-derived number, not the old 'no holograph
     assert.match(r.stdout, /significance: \d+\.\d+ bits/);
   });
 });
+
+test("with --pvalue, the consequential layer prints real load-bearing/local bits, not the gap", () => {
+  withFixture((file) => {
+    const list = spawnSync(process.execPath, [CLI, file, "list"], { encoding: "utf8" });
+    const firstAddress = list.stdout.match(/\/whole\/p\d+\/\d+/)[0];
+    const r = spawnSync(process.execPath, [CLI, file, firstAddress, "--pvalue", "0.05"], { encoding: "utf8" });
+    assert.equal(r.status, 0);
+    assert.match(r.stdout, /consequential: \d+\.\d+ load-bearing bit\(s\), \d+\.\d+ local bit\(s\) \(pValue=0\.05\)/);
+  });
+});
+
+test("an out-of-range --pvalue is rejected with exit 2, never silently clamped or defaulted", () => {
+  withFixture((file) => {
+    const r = spawnSync(process.execPath, [CLI, file, "/whole/p1/2", "--pvalue", "5"], { encoding: "utf8" });
+    assert.equal(r.status, 2);
+    assert.match(r.stderr, /--pvalue must be a number strictly between 0 and 1/);
+  });
+});
