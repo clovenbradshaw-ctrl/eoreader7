@@ -46,7 +46,7 @@ import { prosify, anchorsFor, carries } from "./prosify.js";
 import { tightenPiece, turnPass } from "./finish.js";
 import { flesh2 } from "./flesh2.js";
 import { readPiece } from "./revision-spiral.js";
-import { gebserArrival } from "./archon-rules.js";
+import { gebserArrival, houdiniExclusivity } from "./archon-rules.js";
 import { renderPhaseReport } from "./phase-report.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -332,6 +332,14 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
     // then earn the transitions between what remains.
     piece = checkLoop("prose", result.parts.map((p) => ({ id: p.id, pieces: (p.pieces ?? []).map((x) => ({ ...x })) })), { addsFindings: true });
     const ctx = () => ({ piece, draft, ground, task, parse: parser.ok ? parser.parse : null });
+    // HOUDINI IS OUTSIDE THE GRID, LIKE GEBSER: his findings carry no `cell`,
+    // so they group under their own "Harry Houdini" line in the re-read loop
+    // below by the same generic per-cell grouping every other archon already
+    // uses -- no change needed there. They flow into the SAME licenses-driven
+    // fold action and the SAME gebserArrival(findings) gate every grid
+    // finding already does, so an apparatus leak is folded out exactly as
+    // Clark's or Caro's "has no job" findings already are.
+    const readAll = () => { const r = readPiece(ctx()); return { ...r, findings: [...r.findings, ...houdiniExclusivity("", ctx())] }; };
     const archonLines = new Map();
     const pieceText = () => piece.map((p) => joinUnits(p.pieces)).join("\n\n");
 
@@ -347,7 +355,7 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
     // something still licensed, and budget left → another pass. The budget is
     // model calls — the prose pass's own count unless the caller states one
     // — never a level count; a pass that changes nothing ends the loop too.
-    let read = readPiece(ctx());
+    let read = readAll();
     for (const f of read.findings) {
       const l = write("archon", `${f.editor} · ${f.kind}${f.part ? ` · ${f.part}` : ""}`, f.sentence ?? f.detail, `${f.cell} — ${f.licenses ? `licenses ${f.licenses}` : "reported"}: ${f.detail}`, `archon:${f.cell}`);
       (archonLines.get(f.cell) ?? archonLines.set(f.cell, []).get(f.cell)).push(l.id);
@@ -461,7 +469,7 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
       // RE-READ: each archon's reading supersedes its last, so the fold shows
       // what each editor still finds.
       stage = "arrival";
-      const again = readPiece(ctx());
+      const again = readAll();
       const cells = new Set([...read.findings.map((f) => f.cell), ...again.findings.map((f) => f.cell)]);
       for (const cell of cells) {
         const now = again.findings.filter((f) => f.cell === cell);

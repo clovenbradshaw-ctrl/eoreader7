@@ -31,6 +31,7 @@ import { anchorsFor, carries } from "./prosify.js";
 import { ticsOf, takesUp } from "./finish.js";
 import { segmentSentences } from "./admission.js";
 import { spliceCeiling, detectSplice } from "./restatement.js";
+import { isMetaSentence } from "./referent-verify.js";
 
 const partsOf = (ctx) => (Array.isArray(ctx?.piece) ? ctx.piece : null);
 const sentencesOf = (part) => (part.pieces ?? []).map((pc) => pc.text);
@@ -245,6 +246,49 @@ export function gebserArrival({ piece = [], draft = null, findings = [] } = {}) 
       ? `arrived: the origin is present in every part, none of it lost, and no editor's perspective has the last word — ${transparent} of ${sentences.length} sentences transparent to a witnessed statement`
       : `${missing.join("; ")} — ${transparent} of ${sentences.length} sentences transparent to a witnessed statement`,
   };
+}
+
+/** HOUDINI (the exclusivity archon, outside the grid like Gebser) — TAUGHT
+ *  2026-09-26, named by the user directly from the fold-and-cut theorem
+ *  (Demaine, Demaine & Lubiw 1998; Bern, Demaine, Eppstein & Hayes 1999):
+ *  any straight-lined shape can be produced by folding one sheet flat and
+ *  making a single straight cut, PROVIDED the fold satisfies two conditions
+ *  -- every wanted line lands on the cut (completeness) AND nothing else
+ *  does (exclusivity). Gebser already checks the first half: origin
+ *  present, nothing of the material lost. Nobody was checking the second
+ *  half of a folded piece as a WHOLE, after assembly -- only per sentence,
+ *  at admission time, where admission.js's own turn exemption is a real,
+ *  named gap (a sentence that bonds to its prior landing skips the meta
+ *  check entirely; a real leak observed live this session, "Embedded
+ *  Information" — the mouth's own note on its phrasing, bonding to an
+ *  ordinary preceding sentence — proved this exploitable and was closed
+ *  only at an earlier gate, referent-verify.js's isMetaSentence, not by
+ *  removing the exemption itself, since a real test depends on it for a
+ *  legitimate case).
+ *
+ *  Houdini is the escape artist who, offstage, exposed fake mediums by
+ *  performing their tricks himself and showing the seam. His check here is
+ *  exactly that: re-run isMetaSentence — already real, already tested,
+ *  unconditionally, with no turn exemption — over the WHOLE FINISHED piece,
+ *  after every admission decision has already been made. A sentence that
+ *  fooled the per-sentence gate at drafting time cannot fool this one,
+ *  because this one runs later, over the assembled whole, and asks only
+ *  "does this look like the mouth talking about itself" — the same
+ *  question, asked a second time, from a place the first exemption cannot
+ *  reach. Licenses a fold (the same mechanical action Clark and Caro's
+ *  "has no job" findings already trigger): an apparatus leak has no job in
+ *  the piece, whatever bonded it there. */
+export function houdiniExclusivity(text, ctx = {}) {
+  const piece = partsOf(ctx);
+  const out = [];
+  if (piece) {
+    for (const p of piece) for (const s of sentencesOf(p)) {
+      if (isMetaSentence(s)) out.push({ kind: "apparatus_leak", part: p.id, sentence: s, detail: "the mouth's own account of its phrasing choice or task, not the piece's content -- caught on the assembled whole, after admission, regardless of whether admission's own turn exemption let it through", licenses: "fold" });
+    }
+  } else {
+    for (const s of segmentSentences(text)) if (isMetaSentence(s)) out.push({ kind: "apparatus_leak", sentence: s, detail: "the mouth's own account of its phrasing choice or task, not the piece's content", licenses: "fold" });
+  }
+  return out;
 }
 
 /** WILLIAMS (micro.logos, sentence cohesion) — TAUGHT 2026-09-21: A CAUSE
