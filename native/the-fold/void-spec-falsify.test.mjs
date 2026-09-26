@@ -184,3 +184,4 @@ test("askedExtent reads a stated extent and only a stated one", () => {
   assert.deepEqual(askedExtent("write a five-paragraph essay"), { n: 5, unit: "paragraph" });
   assert.equal(askedExtent("write a poem"), null, "no extent is stated, so none is invented");
 });
+

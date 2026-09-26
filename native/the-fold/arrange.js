@@ -861,7 +861,7 @@ export function arrangedDraft(draft, outline) {
  * close, the form's own shape, and the rest on body sections.
  */
 export const DECLARED_FORM = Object.freeze({ paragraphs: 5, basis: "declared: the essay's received form — a thesis paragraph, three body sections, a close; any length the ask states overrides it" });
-export function selectToBudget({ outline, draft, task = "", shape = null } = {}) {
+export function selectToBudget({ outline, draft, task = "", shape = null, wordsPerPage = null } = {}) {
   // SELECT HARD (user, 2026-09-21: "don't write everything in the dossier").
   // The ask's stated length first; else the shape LEARNED from the sources
   // (shape.js, stage 4 — "we dont want a set of shapes pre-set"); only then
@@ -878,6 +878,16 @@ export function selectToBudget({ outline, draft, task = "", shape = null } = {})
   if (["paragraph", "section", "part"].includes(asked.unit)) budget = { sections: Math.max(1, asked.n - 2) };
   else if (asked.unit === "word") budget = { words: asked.n };
   else if (asked.unit === "sentence") budget = { statements: asked.n };
+  // PAGE IS NEVER A HAND-SET RATIO (2026-09-26, direct user correction, twice
+  // over: first that a hard-coded 275 words/page was exactly the kind of
+  // "table [that] says a sonnet has fourteen lines" shape.js's own header
+  // already refuses, then that a bespoke words-per-page-only learning
+  // function was itself too specialized). `wordsPerPage` is always the
+  // CALLER's own injected result of parameter-induction.js's general
+  // induceParameter("words-per-page", …) — memory-first, then real
+  // multi-host-corroborated search, never anything this function invents.
+  // No value supplied → no page budget applied, disclosed honestly (below).
+  else if (asked.unit === "page" && wordsPerPage?.value) budget = { words: asked.n * wordsPerPage.value };
   if (!budget) return { outline, dropped: [], budget: null };
   const R = draft?.referents ?? null;
   const askBeings = R ? R.resolveText(task) : new Set();
@@ -907,6 +917,6 @@ export function selectToBudget({ outline, draft, task = "", shape = null } = {})
   return {
     outline: { ...outline, slots, basis: `${outline.basis}; ${dropped.length} section(s) left out to fit ${whose} ${asked.n} ${asked.unit}(s)` },
     dropped: dropped.map((s) => ({ slot: s.slot, statements: s.statements, why: `over ${whose} length (${asked.n} ${asked.unit}s); closer sections kept` })),
-    budget: { ...budget, basis: asked.declared ? DECLARED_FORM.basis : asked.learned ? `measured: the shape learned from ${asked.learned} (shape.js)` : "asked" },
+    budget: { ...budget, basis: asked.declared ? DECLARED_FORM.basis : asked.learned ? `measured: the shape learned from ${asked.learned} (shape.js)` : asked.unit === "page" && wordsPerPage?.basis ? `asked (${asked.n} page(s)); ${wordsPerPage.basis}` : "asked" },
   };
 }

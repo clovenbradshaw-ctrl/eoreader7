@@ -1,0 +1,36 @@
+{
+  "schema": "EOParameterMemory@1",
+  "parameters": {
+    "words-per-page": {
+      "value": 300,
+      "sources": [
+        {
+          "host": "textwordcount.com",
+          "url": "https://www.textwordcount.com/blog/how-many-words-are-in-a-page",
+          "value": 100
+        },
+        {
+          "host": "izicalc.com",
+          "url": "https://izicalc.com/tools/words-per-page-calculator/",
+          "value": 250
+        },
+        {
+          "host": "wordcountertool.net",
+          "url": "https://www.wordcountertool.net/blog/how-many-words-per-page",
+          "value": 500
+        },
+        {
+          "host": "wordcountchecker.org",
+          "url": "https://wordcountchecker.org/blog/average-words-per-page/",
+          "value": 300
+        },
+        {
+          "host": "bookwritersguild.com",
+          "url": "https://bookwritersguild.com/how-many-words-per-page-in-a-book-a-complete-guide-for-authors/",
+          "value": 300
+        }
+      ],
+      "learnedAt": 1790462227528
+    }
+  }
+}

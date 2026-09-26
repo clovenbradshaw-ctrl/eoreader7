@@ -120,3 +120,20 @@ test("selectToBudget: the ask's length first, else the LEARNED shape, only then 
   const dflt = selectToBudget({ outline: o, draft: d, task: "Write an essay on the river." });
   assert.match(dflt.budget.basis, /^declared: the essay's received form/);
 });
+
+test("selectToBudget: a stated page count with NO injected words-per-page value applies no budget, honestly -- never a hand-set ratio (2026-09-26, direct user correction: no hardset word-to-page rules)", () => {
+  const ground = Array.from({ length: 8 }, (_, i) => `Part ${i + 1} of the river's story happened in ${1800 + i * 10}. The river carried grain that decade.`).join("\n\n");
+  const d = parsed(ground, { task: "Write an essay on the river." });
+  const o = arrangeEssay({ draft: d });
+  const noValue = selectToBudget({ outline: o, draft: d, task: "Write a ten-page essay on the river." });
+  assert.equal(noValue.budget, null, "with nothing learned or remembered about words-per-page, no page budget is guessed");
+});
+test("selectToBudget: a stated page count with a CALLER-INJECTED words-per-page value (learned or remembered, never hard-coded here) produces a real words budget, with its source disclosed in the basis", () => {
+  const ground = Array.from({ length: 8 }, (_, i) => `Part ${i + 1} of the river's story happened in ${1800 + i * 10}. The river carried grain that decade.`).join("\n\n");
+  const d = parsed(ground, { task: "Write an essay on the river." });
+  const o = arrangeEssay({ draft: d });
+  const page = selectToBudget({ outline: o, draft: d, task: "Write a ten-page essay on the river.", wordsPerPage: { value: 260, basis: "test fixture: as if corroborated by 2 sources" } });
+  assert.notEqual(page.budget, null, "an injected words-per-page value must be used, not ignored");
+  assert.deepEqual(page.budget.words, 2600, "10 pages at the CALLER's own injected 260 words/page -- never a number this function invents itself");
+  assert.match(page.budget.basis, /asked \(10 page\(s\)\); test fixture: as if corroborated by 2 sources/, "the words-per-page value's own provenance is disclosed, not silently absorbed into 'asked'");
+});

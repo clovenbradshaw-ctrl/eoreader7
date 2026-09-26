@@ -33,7 +33,8 @@ import { writeVoiceFor, voiceIsDeclaredFor } from "../kernel/register.js";
 import { createDocumentLedger, appendLedgerLine } from "./document-ledger.js";
 import { buildDraft, draftLines, floorProjection, drawnParts } from "./eot-draft.js";
 import { buildReferents, attachReferents } from "./referents.js";
-import { declareVoidSpec, declareFormAsync, voidSpecLines, topicOf } from "./void-spec.js";
+import { declareVoidSpec, declareFormAsync, voidSpecLines, topicOf, askedExtent } from "./void-spec.js";
+import { induceParameter, wordsPerPageClaim } from "./parameter-induction.js";
 import { surfLines, liveWeb } from "./surf.js";
 import { surfForShape, shapeLines, matchShape } from "./shape.js";
 import { huntGround, huntLines } from "./hunt.js";
@@ -259,7 +260,14 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   }
   // SELECTION: the sections closest to the ask fill the length the ask states,
   // or the essay form's declared shape; everything else stays in the sources.
-  const sel = selectToBudget({ outline, draft, task, shape });
+  // A stated PAGE count needs a words-per-page conversion this engine never
+  // hand-sets (2026-09-26, direct user correction) — induceParameter learns
+  // it, memory-first, then real multi-host-corroborated search, only when
+  // the ask actually states one and a web injection is available.
+  const wordsPerPage = askedExtent(task)?.unit === "page" && web
+    ? await induceParameter("words-per-page", { query: "how many words are on a typical page", extractClaim: wordsPerPageClaim, search: web.search, fetch: web.fetch })
+    : null;
+  const sel = selectToBudget({ outline, draft, task, shape, wordsPerPage });
   if (sel.dropped.length) {
     outline = sel.outline;
     write("arrange", `Selection: ${sel.dropped.length} section(s) left out`, sel.dropped.map((d) => `${d.slot}: ${d.statements.map((id) => draftText.get(id)).join(" ").slice(0, 160)}…`).join("\n"), `${sel.budget?.basis} — ${sel.dropped[0].why}`, "eoreader7:select");
