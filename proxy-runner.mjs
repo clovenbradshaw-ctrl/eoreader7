@@ -6934,7 +6934,19 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             if (openRegistry.has(core)) continue;
             if (!groundedCand(cand)) continue;
             if (inventedNameRuns(cand).length) continue;
-            if (/the user|requested a|requested to|will explore|essay (?:will|is|should)|this essay|the essay(?:'s| is| will| should)|asked to write|subject is|called upon|to answer this|is to (?:be|write)|its significance is (?:undeniable|a subject)/i.test(cand)) continue;
+            // A DIRECT CALL, NOT A THIRD COPY (2026-09-26): this used to be a
+            // hand-inlined regex holding only referent-verify.js's oldest
+            // pattern (task-talk) -- it had drifted behind that file's own
+            // ASSISTANT_VOICE_RE (2026-09-24) and TECHNIQUE_COMMENTARY_RE (a
+            // real leak found and fixed earlier this session), so a chat-
+            // voice or technique-commentary leak could pass THIS filter and
+            // ship as `buf` below untouched, since the real, complete check
+            // at line ~6945 only ever runs on DIFFERENT candidates, in the
+            // fallback branch reached when this filter admits nothing at all.
+            // Calling the real function directly (already used correctly by
+            // the sibling admission loop above, line ~6749) can never drift
+            // again, because there is nothing left here to drift.
+            if (isMetaSentence(cand)) continue;
             openSurvivors.push(cand);
             usedSentences.add(cand);
             usedSentences.add(core);
