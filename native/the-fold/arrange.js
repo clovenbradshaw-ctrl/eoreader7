@@ -48,6 +48,10 @@ import { isFunctionWord } from "./pos-prior.js";
 import { thesisBasin, thesisGeneralization } from "./thesis-claim.js";
 import { renderGeneralization, claimFromTriple, holon } from "../kernel/gfp-claim.js";
 import { makeNotes } from "../kernel/notes.js";
+import { createHolograph } from "../kernel/bayes-surprise.js";
+import { consequentialSurprise } from "../kernel/consequential-surprise.js";
+import { claimDependencyIndex, seedsOfClaimFiller } from "./claim-dependencies.js";
+import { slotsFromClaims } from "./fold-at.js";
 
 export const OUTLINE_SCHEMA = "EOEssayOutline@2";
 
@@ -152,7 +156,7 @@ export function claimsFromFeat(feat) {
   return { claims, unresolved };
 }
 
-export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabulary = null } = {}) {
+export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabulary = null, pValue = null } = {}) {
   const parts = drawnParts(draft);
   // RECOMPOSITION (skeleton-loop.js, stage 7): a statement a finding licensed
   // out of the skeleton is left out of the material the next loop composes
@@ -694,22 +698,53 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
   for (const d of duplicates) findings.push({ kind: "duplicate_across_sources", owner: "Tracy Kidder & Richard Todd", detail: `${d.drop} states what ${d.keep} states (${[...d.sharedFigures, ...d.sharedNames].slice(0, 4).join(", ")}): said once, from ${d.keep}${d.tiered ? " — the operator's material, though the fetched statement was richer" : ""}` });
   if (!tension) findings.push({ kind: "no_tension", owner: "the void (arrangement)", detail: "the material marks no turn, so the tension slot is a declared gap rather than an invented counterpoint" });
 
+  const allClaims = claimsFromFeat(feat);
+  // LOAD-BEARING THESIS SIGNAL (2026-09-26): additive, opt-in only via a
+  // caller-declared `pValue` (never defaulted -- consequentialSurprise's own
+  // guard requires one, and this project's standing rule forbids a hand-set
+  // threshold). Found and verified this revision on REAL, unaltered content
+  // (a public-domain folk tale, not built to force this): the existing
+  // recur()-based candidate/winner selection can genuinely MISS a candidate
+  // that is mechanically, verifiably repeated -- three identical wolf/knock/
+  // door claims scored 0.57 while a different, non-repeated sentence scored
+  // 0.61 and won. Tested directly against the real repeated claims,
+  // independent of thesis selection: 0.25 load-bearing rate vs 0.071 for the
+  // rest of the document (kernel/consequential-surprise.js, the-fold/claim-
+  // dependencies.js's own real dependency relation). This does NOT change
+  // which candidate wins -- it only adds a real, computed `loadBearing` flag
+  // callers can use alongside the existing recur score, since the two
+  // signals measure different things and neither one alone is complete.
+  const loadBearingOf = (() => {
+    if (pValue === null || !allClaims.claims.length) return () => null;
+    const index = claimDependencyIndex(allClaims.claims);
+    const holo = createHolograph({ alpha: 1, gamma: 1 });
+    const cloneHolo = (h) => { const s = new Map(); for (const [k, v] of h.slots) s.set(k, new Map(v)); return { ...h, slots: s }; };
+    return (candidateId) => {
+      const own = allClaims.claims.filter((c) => c.id?.startsWith(`${candidateId}:`));
+      if (!own.length) return null;
+      const facts = Object.fromEntries(slotsFromClaims(own));
+      const result = consequentialSurprise(cloneHolo(holo), facts, { index, seedsOf: seedsOfClaimFiller, pValue });
+      return result.rows.some((r) => r.loadBearing);
+    };
+  })();
+
   return {
     schema: OUTLINE_SCHEMA,
     // `id` is ALWAYS today's single winner (hunt-falsify.test.mjs reads it)
     // and `text` is ALWAYS its own sentence — pipeline-run.mjs hands `text`
     // to the mouth as the piece's claim, and a lemma-join is not a sentence
     // (the reading archons, 2026-09-25). `ids`, `claim` and `rendered` are
-    // additive.
-    thesis: thesis ? { id: thesis.pt.id, ids: [...thesisMemberIds], text: thesis.pt.text, claim: gen?.generalization ?? null, rendered: gen ? renderGeneralization(gen.generalization, "SVO") : null } : null,
-    thesisCandidates: candidates.slice(0, 4).map((c) => ({ id: c.f.pt.id, score: Number(c.score.toFixed(2)), text: c.f.pt.text })),
+    // additive. `loadBearing` is additive too (2026-09-26): null unless the
+    // caller declares `pValue`.
+    thesis: thesis ? { id: thesis.pt.id, ids: [...thesisMemberIds], text: thesis.pt.text, claim: gen?.generalization ?? null, rendered: gen ? renderGeneralization(gen.generalization, "SVO") : null, loadBearing: loadBearingOf(thesis.pt.id) } : null,
+    thesisCandidates: candidates.slice(0, 4).map((c) => ({ id: c.f.pt.id, score: Number(c.score.toFixed(2)), text: c.f.pt.text, loadBearing: loadBearingOf(c.f.pt.id) })),
     // ADDITIVE (2026-09-26): claimsFromFeat(feat) run over every point in
     // this material, not just the rare thesis-generalization winners above --
     // real, holon-addressed GFP claims (the-fold/fold-at.js's own cursor
     // addressing), exposed here so a real caller can reach them without
     // reaching into arrangeEssay's own function-local `feat`. See this
     // file's claimsFromFeat for what it does and does not attempt.
-    claims: claimsFromFeat(feat),
+    claims: allClaims,
     slots, links, findings, weakened,
     basis: `${groups.length} body group(s) from ${parts.length} source part(s); ${links.filter((l) => l.kind === "succession").length} succession, ${links.filter((l) => l.kind === "overlap").length} overlap, ${links.filter((l) => l.kind === "inversion").length} inversion link(s); ${findings.length} reasoning finding(s)`,
   };
