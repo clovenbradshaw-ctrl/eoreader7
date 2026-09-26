@@ -555,3 +555,81 @@ hunt reads relations; generation (11) is where the learned shape finally
 changes what is written. Discovering the neighbourhoods (the open item in
 layer 2) is kind induction over paradigms — kinds of kinds — and closes the
 last declared input the study still has.
+
+### Step 7 — why does Gebser never arrive? (2026-09-26)
+
+The vision ledger has disclosed, across several revisions, that `gebserArrival`
+(archon-rules.js:225) has never once reported an arrived piece on any real run
+this project has captured. That disclosure named the mechanism only vaguely
+("still objecting"). This step traced the real cause against the five actual
+logged pathos runs in `native/eval/the-fold/results/nine-stages-2026-09-22/`
+(`nine-live-1/2/3.jsonl`, `nine-sonnet-1/2.jsonl`) and a direct read of
+`pipeline-run.mjs`'s own pathos loop — no invented data, no new live model run.
+
+All five report `arrived: false`, but for three genuinely different reasons,
+not one:
+
+| run | stopped by | rewrites kept | bridges kept |
+|---|---|---|---|
+| nine-live-1 | budget exhausted (13 findings still open) | 4 of 9 | 1 of 3 |
+| nine-live-2 | a pass that changed nothing | 0 of 2 | 0 of 4 |
+| nine-live-3 | **Hora: loop undone** | 3 of 16 | 1 of 4 |
+| nine-sonnet-1 | **Hora: loop undone** | 0 of 0 | 0 of 3 |
+| nine-sonnet-2 | **Hora: loop undone** | 0 of 0 | 1 of 3 |
+
+Three of five — the majority — stop via Hora's loop-undo, not via the archons
+running out of things to object to. That redirects the question: not "why do
+Clark and Zinsser never stop objecting" (diaphaneity was already 1.0 — 5 of 5
+sentences transparent — in the very run, nine-live-2, that stalled on them) but
+"why does a pass that fixes real findings still get discarded."
+
+The answer is in `checkLoop` (`pipeline-run.mjs:253-259`), the closure behind
+every `keepOrUndo` call in the pathos loop. It measures the WHOLE candidate
+piece once (`measurePiece`), judges it once (`judgeLoop`) against the single
+last-kept whole-piece measurement, and has exactly two return statements:
+the entire candidate (line 257) or the entire prior piece (line 258) — no
+code path merges the two. `judgeLoop` (`loop-check.js:64`) itself is correct
+and already well-tested at the unit level (`loop-check-falsify.test.mjs`); the
+gap is in what pipeline-run.mjs feeds it: `piece = keepOrUndo("tighten",
+tight.parts)` (line 452) and `piece = keepOrUndo("turns", tp.parts)` (line 464)
+each apply the check to an ENTIRE pass's worth of rewrites/bridges as one
+candidate. If that pass tightened three sentences and only one of them has a
+side effect that trips `judgeLoop`'s `now.licensed > prev.licensed` (a single
+new finding anywhere), all three are discarded together — including the two
+that were genuinely good.
+
+This is worse than it looks from the run summaries alone: `totals.rewritesKept`
+and `totals.bridgesKept` are incremented from each candidate's own LOCAL
+`kept` flag (`tight.changes[].kept`, `tp.bridges[].kept`) strictly BEFORE the
+same pass's `keepOrUndo` call runs (pipeline-run.mjs:451-452, 460-464). So a
+run whose last pass ends in a Hora-undo — three of the five above — can still
+report a nonzero "rewrites kept" / "bridges kept" count for fixes that never
+actually survived into the piece carried forward. nine-live-3's "3 of 16
+rewrites kept" and "1 of 4 bridges kept" are exactly this: locally-approved,
+then silently discarded by the same pass's whole-batch revert.
+
+Houdini (this cycle's own named territory, checked directly rather than
+assumed unowned) is not a separate case: `readAll()` at line 342 merges
+`houdiniExclusivity`'s findings — which carry `licenses: "fold"` exactly like
+Clark's restatement findings and Caro's unverified findings — into the same
+`toFold` set (line 378), which passes through the identical
+`keepOrUndo("archons (fold, restore, repair, floor)", piece)` call at line 432.
+Any future fix to this mechanism's granularity has to preserve Houdini's own
+fold decisions with the same care as Clark's and Zinsser's.
+
+This is NOT a case for ripping out the guard. `loop-check.js`'s own header —
+"every loop of the spiral must leave something useful" — is a deliberate,
+documented response to a direct user instruction, and it is the same
+additive-layers rule this project holds everywhere else (the floor is already
+a fine piece; every layer above must beat or match it, never degrade it). The
+finding here is about GRANULARITY, not intent: the unit that must not degrade
+is currently a whole pass, when it could be each individual candidate fix
+checked against the pre-pass measurement on its own. That would let a pass
+keep two good rewrites and reject the one bad one, instead of losing all
+three — without weakening the rule that nothing gets worse.
+
+**Not attempted this cycle** (per the standing "never chain more than one step
+per firing" rule): isolating `keepOrUndo` to per-candidate granularity inside
+the tighten and turns stages, so each rewrite/bridge is measured against the
+pre-pass piece individually rather than only as part of the full batch. That
+is the concrete next actionable step this diagnosis licenses.
