@@ -54,6 +54,40 @@ const DOCS = path.join(HERE, "..", "..", "documents");
 
 const arg = (name, dflt = null) => { const i = process.argv.indexOf(`--${name}`); return i > 0 ? process.argv[i + 1] : dflt; };
 
+// Apply ONE bridge to a piece, for per-candidate checkLoop calls in the
+// pathos loop's turns stage — the same part-prepend turnPass already does
+// when building its own whole-parts result, done here one candidate at a
+// time so each can be measured and kept-or-reverted on its own. Matches by
+// PART ID only, never by text, so it has no collision risk.
+export const applyBridge = (basePiece, b) => basePiece.map((p) => (p.id !== b.part ? p : { ...p, pieces: [{ text: b.sentence, carries: [] }, ...p.pieces] }));
+
+// Every position where `before` (the piece going into tightenPiece) and
+// `after` (tightenPiece's own whole-parts result) differ IS a kept rewrite,
+// found POSITIONALLY (2026-09-26, fixed after review: matching by text
+// collided whenever a part held two identical-text sentences — a real,
+// recognized case elsewhere in this file; see the RESTORE step's own
+// duplicate guard a few lines above the pathos loop). tightenPiece
+// (finish.js:190-249) always does exactly one push per input piece, never
+// adding or removing one, so `before`/`after` are guaranteed the same shape
+// position for position — matching by (partIndex, pieceIndex) is therefore
+// exact and can never confuse two identically-worded sentences.
+export function diffTightenEdits(before, after) {
+  const edits = [];
+  for (let pi = 0; pi < before.length; pi++) {
+    const b = before[pi]?.pieces ?? [];
+    const a = after[pi]?.pieces ?? [];
+    for (let ci = 0; ci < b.length; ci++) {
+      if (a[ci] && b[ci].text !== a[ci].text) edits.push({ partIndex: pi, pieceIndex: ci, part: before[pi].id, from: b[ci].text, to: a[ci].text });
+    }
+  }
+  return edits;
+}
+
+// Apply ONE positional tighten edit to a piece — by (partIndex, pieceIndex),
+// never by a text search, so two identical-text sentences in the same part
+// are never confused with one another.
+export const applyTightenEdit = (basePiece, e) => basePiece.map((p, pi) => (pi !== e.partIndex ? p : { ...p, pieces: p.pieces.map((pc, ci) => (ci !== e.pieceIndex ? pc : { text: e.to, carries: [...pc.carries] })) }));
+
 export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b", id = null, draw = null, arrange = null, flesh = "prosify", web = null, pathosBudget = null, onStage = null } = {}) {
   const docId = `${id ?? `pipe-${Date.now()}`}:1`;
   const ledger = createDocumentLedger({ docId, title: task.slice(0, 80) });
@@ -448,8 +482,37 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
         }
       }
       const tightCalls = tight.changes.filter((c) => c.by !== "lish-cut").length;
-      totals.tightCalls += tightCalls; totals.lish += tight.changes.filter((c) => c.by === "lish-cut").length; totals.rewritesKept += tight.changes.filter((c) => c.kept && c.by !== "lish-cut").length;
-      piece = keepOrUndo("tighten", tight.parts);
+      totals.tightCalls += tightCalls;
+      // PER-CANDIDATE, NOT WHOLE-BATCH (2026-09-26, Step 7 of
+      // plans/generation-terrain-stance.md): checking the whole pass's
+      // rewrites as one candidate meant a single rewrite's own side effect
+      // (a new finding it happens to trip elsewhere) discarded every other
+      // rewrite bundled into the same pass, even genuinely good ones. Found
+      // POSITIONALLY (diffTightenEdits), never by text match — the earlier
+      // version of this fix matched by sentence text and silently collided
+      // whenever a part held two identical-text sentences (caught by
+      // review). NOTE: a per-candidate revert here does NOT set `undone` —
+      // that flag stays scoped to the archons (fold/restore/repair/floor)
+      // stage's own still-whole-batch check above, so a pass with real net
+      // progress elsewhere is not hard-stopped by one reverted candidate
+      // (also caught by review: the old version let any revert here trip
+      // the same pass-ending "Hora" stop a full-batch failure used to,
+      // undermining the very fix this comment describes).
+      const keptChanges = tight.changes.filter((x) => x.kept);
+      const tightEdits = diffTightenEdits(piece, tight.parts);
+      for (let k = 0; k < tightEdits.length; k++) {
+        const edit = tightEdits[k];
+        const change = keptChanges[k] ?? null;
+        const candidate = applyTightenEdit(piece, edit);
+        const result = checkLoop(tag(`tighten · ${edit.part}`), candidate);
+        if (result !== candidate) {
+          if (change) change.revertedByLoopCheck = true;
+          write("check", `Loop · ${tag(`tighten · ${edit.part}`)} · reverted on its own`, `"${edit.from}"\n→ "${edit.to}"`, "this rewrite's own side effect regressed the piece as a whole; reverted alone, the pass's other rewrites stand", "eoreader7:loop-check");
+        }
+        piece = result;
+      }
+      totals.lish += tight.changes.filter((c) => c.by === "lish-cut" && !c.revertedByLoopCheck).length;
+      totals.rewritesKept += tight.changes.filter((c) => c.kept && c.by !== "lish-cut" && !c.revertedByLoopCheck).length;
 
       // TURNS: Clark's unearned transitions, one bridging sentence each.
       let bridges = [];
@@ -461,9 +524,20 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
           write("turn", `${b.kept ? "Bridge kept" : "Bridge refused"} · ${b.part}`, b.sentence ?? "(none)", b.kept ? "takes up the last part and hands on to this one" : b.reasons.join("; "), `model:${model}`);
           if (b.kept) fleshLine.set(b.sentence, write("flesh", `${b.part} (bridge)`, b.sentence, "a transition Clark's finding licensed", `model:${model}`).id);
         }
-        piece = keepOrUndo("turns", tp.parts);
+        // PER-CANDIDATE, NOT WHOLE-BATCH: same reasoning as tighten, above.
+        // applyBridge matches by part id, never by text, so it has no
+        // collision risk analogous to tighten's (fixed above).
+        for (const b of tp.bridges.filter((x) => x.kept)) {
+          const candidate = applyBridge(piece, b);
+          const result = checkLoop(tag(`turns · ${b.part}`), candidate);
+          if (result !== candidate) {
+            b.revertedByLoopCheck = true;
+            write("check", `Loop · ${tag(`turns · ${b.part}`)} · reverted on its own`, b.sentence ?? "(none)", "this bridge's own side effect regressed the piece as a whole; reverted alone, the pass's other bridges stand", "eoreader7:loop-check");
+          }
+          piece = result;
+        }
       }
-      totals.bridgeCalls += bridges.length; totals.bridgesKept += bridges.filter((b) => b.kept).length;
+      totals.bridgeCalls += bridges.length; totals.bridgesKept += bridges.filter((b) => b.kept && !b.revertedByLoopCheck).length;
       totals.calls += tightCalls + bridges.length;
 
       // RE-READ: each archon's reading supersedes its last, so the fold shows

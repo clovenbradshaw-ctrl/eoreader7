@@ -633,3 +633,54 @@ per firing" rule): isolating `keepOrUndo` to per-candidate granularity inside
 the tighten and turns stages, so each rewrite/bridge is measured against the
 pre-pass piece individually rather than only as part of the full batch. That
 is the concrete next actionable step this diagnosis licenses.
+
+### Step 7b — built, reviewed, and the review's real findings fixed (2026-09-26)
+
+Step 7's named next step was built: `pipeline-run.mjs`'s tighten and turns
+stages now check each locally-approved rewrite/bridge individually against
+the piece as of the last accepted candidate, instead of checking a whole
+pass's worth as one combined candidate — reusing `checkLoop`/`judgeLoop`
+unmodified, at finer granularity.
+
+Before calling this done, the diff was put through a 3-lens adversarial
+multi-agent review (correctness, whether the additive-layers guarantee truly
+survives compounding, test-coverage adequacy), each finding independently
+re-verified by a skeptical second pass. The review found — and re-verified —
+5 real defects in the first cut, not zero:
+
+1. The sentence-matching helper matched by TEXT, not position — two
+   identical-text sentences in the same part could collide, silently
+   corrupting one rewrite or dropping another while still counting both as
+   kept.
+2. `totals.lish` didn't exclude per-candidate-reverted entries, the same
+   overcounting class already fixed for `rewritesKept`/`bridgesKept`.
+3. The most important finding: a per-candidate revert still set the same
+   `undone` flag that the unmodified `stopped` ternary uses to hard-stop the
+   ENTIRE multi-pass pathos loop — meaning the fix, as first written, did not
+   actually reduce how often the loop halts via "Hora: loop undone" (the
+   dominant real cause Step 7 diagnosed), only how much content survives
+   within whichever single pass runs. In an interacting-candidate case it
+   could even trigger that halt where the old whole-batch check would not
+   have.
+4. A companion low-severity variant of #1.
+5. A proven test-coverage gap: the reviewer fault-injected an inverted
+   `!revertedByLoopCheck` filter and confirmed it passed all 17 existing
+   tests silently — none of the new per-candidate code was exercised by
+   anything but a unit test of `judgeLoop` itself (pre-existing, unmodified).
+
+All 5 were fixed: sentence matching is now positional
+(`diffTightenEdits`/`applyTightenEdit`, matching by `(partIndex, pieceIndex)`,
+never by text); `totals.lish` now excludes reverted entries; `undone` is no
+longer set from inside the per-candidate loops at all — it stays scoped to
+only the still-whole-batch archons (fold/restore/repair/floor) check, so a
+pass with real net progress and one reverted candidate now correctly falls
+through to the pre-existing `!changed` check instead of a premature Hora
+halt. Direct unit tests were added for the new positional helpers
+(duplicate-text disambiguation, no-op cases, part-id-only bridge matching),
+and one real end-to-end test drives two genuinely simultaneous, independently
+anchor-preserving tighten candidates through the actual production pathos
+loop (not a synthetic stand-in), asserting both land in the final piece text
+and the exact `rewrites kept: 2 of 2` counter the review's fault-injection
+targeted. The full existing suite (43 tests across `pipeline-run.mjs`,
+`loop-check.js`, `finish.js`) passes; the fault-injection was independently
+reproduced against the fixed code and confirmed now caught before finalizing.

@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 import { fileURLToPath } from "node:url";
-import { runPipeline } from "./pipeline-run.mjs";
+import { runPipeline, diffTightenEdits, applyTightenEdit, applyBridge } from "./pipeline-run.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const DOCS = path.join(HERE, "..", "..", "documents");
@@ -20,6 +20,48 @@ fs.writeFileSync(groundFile, [
 
 const read = (docId) => fs.readFileSync(path.join(DOCS, `${docId}.jsonl`), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
 const cleanup = (docId) => { for (const f of fs.readdirSync(DOCS)) if (f.startsWith(docId.replace(/:1$/, ""))) fs.rmSync(path.join(DOCS, f)); };
+
+// diffTightenEdits / applyTightenEdit / applyBridge — the pure, exported
+// helpers the pathos loop's per-candidate keepOrUndo checking (Step 7,
+// 2026-09-26) depends on. Direct unit tests, no runPipeline/mouth/archons
+// needed, so a bug in the exact new control flow (not just judgeLoop, which
+// is pre-existing and unmodified) fails a test on its own.
+test("diffTightenEdits/applyTightenEdit: two identical-text sentences in the same part are never confused (positional, not text-matched — the bug caught by review)", () => {
+  const before = [{ id: "p1", pieces: [{ text: "Same.", carries: ["a"] }, { text: "Same.", carries: ["b"] }] }];
+  const after = [{ id: "p1", pieces: [{ text: "First rewrite.", carries: ["a"] }, { text: "Same.", carries: ["b"] }] }];
+  const edits = diffTightenEdits(before, after);
+  assert.equal(edits.length, 1, "only the position that actually changed produces an edit");
+  assert.deepEqual(edits[0], { partIndex: 0, pieceIndex: 0, part: "p1", from: "Same.", to: "First rewrite." });
+  const applied = applyTightenEdit(before, edits[0]);
+  assert.equal(applied[0].pieces[0].text, "First rewrite.");
+  assert.equal(applied[0].pieces[1].text, "Same.", "the OTHER identical-text sentence is untouched");
+  assert.deepEqual(applied[0].pieces[1].carries, ["b"], "its carries are untouched too");
+});
+test("diffTightenEdits: both duplicate-text sentences can be rewritten independently, in the same pass, without collision", () => {
+  const before = [{ id: "p1", pieces: [{ text: "Same.", carries: ["a"] }, { text: "Same.", carries: ["b"] }] }];
+  const after = [{ id: "p1", pieces: [{ text: "First rewrite.", carries: ["a"] }, { text: "Second rewrite.", carries: ["b"] }] }];
+  const edits = diffTightenEdits(before, after);
+  assert.equal(edits.length, 2);
+  let piece = before;
+  for (const e of edits) piece = applyTightenEdit(piece, e);
+  assert.equal(piece[0].pieces[0].text, "First rewrite.");
+  assert.equal(piece[0].pieces[1].text, "Second rewrite.");
+});
+test("diffTightenEdits is empty when nothing differs; applyBridge is a no-op when the part id is not found", () => {
+  const same = [{ id: "p1", pieces: [{ text: "X.", carries: [] }] }];
+  assert.deepEqual(diffTightenEdits(same, same), []);
+  const untouched = applyBridge(same, { part: "does-not-exist", sentence: "Y." });
+  assert.deepEqual(untouched, same);
+});
+test("applyBridge only touches the part it names, matching by id — never by text", () => {
+  const before = [{ id: "p1", pieces: [{ text: "Same.", carries: [] }] }, { id: "p2", pieces: [{ text: "Same.", carries: [] }] }];
+  const after = applyBridge(before, { part: "p2", sentence: "A bridge." });
+  assert.equal(after[0].pieces.length, 1, "p1 is untouched");
+  assert.equal(after[0].pieces[0].text, "Same.");
+  assert.equal(after[1].pieces.length, 2, "p2 gets the bridge prepended");
+  assert.equal(after[1].pieces[0].text, "A bridge.");
+  assert.equal(after[1].pieces[1].text, "Same.");
+});
 
 test("every stage lands on the ledger in pipeline order", async () => {
   const draw = async () => "Steamboats reached Nashville in 1819 and carried cotton to New Orleans, and by the 1850s warehouses lined the waterfront.";
@@ -214,6 +256,40 @@ test("STAGES 8–9: the pathos pass loops until Gebser arrives, bounded by a cal
     assert.match(arrivals[0].text, /stopped: the budget of 1 model call\(s\) is spent/);
     assert.match(arrivals[0].basis, /^diaphaneity [\d.]+ · [1-9]\d* of 1 model call\(s\) spent on pathos/);
   } finally { cleanup(tight.docId); }
+});
+
+test("PER-CANDIDATE TIGHTEN, END TO END: two sentences tic-flagged and rewritten in the SAME pass BOTH land in the final piece (Step 7, 2026-09-26 — the exact N>=2 case no other test in this file drives through pipeline-run.mjs's own per-candidate loop)", async () => {
+  const draw = async (msgs) => {
+    const u = msgs[msgs.length - 1].content;
+    if (u.includes("Rewrite this sentence plainly")) {
+      if (/warehouses/i.test(u)) return "Warehouses lined the waterfront by the 1850s.";
+      if (/steamboats/i.test(u)) return "Steamboats reached Nashville in 1819 and carried cotton to New Orleans.";
+      return "";
+    }
+    if (u.includes("carries the reader from")) return "Time passed.";
+    if (/flood/.test(u)) return "The flood of 1927 covered the low city. The flood of 2010 crested at 51.86 feet.";
+    return "The bustling steamboats reached Nashville in 1819 and carried cotton to New Orleans. The bustling warehouses lined the waterfront by the 1850s.";
+  };
+  const { docId } = await runPipeline({ task: "Write a piece from this material.", groundFiles: [groundFile], id: "test-pipe-two-tighten", draw, pathosBudget: 20 });
+  try {
+    const lines = read(docId);
+    const tightened = lines.filter((l) => l.role === "flesh" && /tightened/.test(l.title));
+    assert.ok(tightened.length >= 2, `both tic'd sentences should be rewritten in the same pass (got ${tightened.length})`);
+    assert.ok(!lines.some((l) => l.role === "check" && /tighten.*reverted on its own/.test(l.title)), "neither rewrite should trip a per-candidate revert in this fixture");
+    // The claim this diff makes: BOTH survive into the piece actually carried
+    // forward, not merely locally approved.
+    const piece = lines.at(-1);
+    assert.equal(piece.role, "piece");
+    assert.doesNotMatch(piece.text, /bustling/i, "neither tic survives into the final piece");
+    assert.match(piece.text, /Steamboats reached Nashville/);
+    assert.match(piece.text, /Warehouses lined the waterfront/);
+    // Pins the exact counter this diff fixed (totals.rewritesKept must reflect
+    // real per-candidate survival, not merely local approval) — a review
+    // fault-injection found inverting this filter passed every OTHER test in
+    // this file silently; this assertion closes that gap.
+    const summary = lines.find((l) => l.role === "summary");
+    assert.match(summary.text, /rewrites kept: 2 of 2/);
+  } finally { cleanup(docId); }
 });
 
 test("THE UNIT IS A LINE when the shape says lines: the mouth's lines are admitted as lines, kept as lines, and the piece is joined with line breaks", async () => {
