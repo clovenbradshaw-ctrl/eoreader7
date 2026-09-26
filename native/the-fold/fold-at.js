@@ -11,35 +11,53 @@
 // and below that point, using contains()/ancestry() exactly as gfp-claim.js
 // defines them -- no new addressing scheme invented.
 //
-// WHAT THIS DOES NOT YET DO, on purpose, not by oversight: atmosphere (real,
-// kernel/atmosphere-math.js's interpretiveAtmosphereFactorField) and paradigm
-// (real, the-fold/paradigm.js's evaluateParadigm) both exist and both work,
-// but each needs its own real input shape (an obligations sequence; a
-// learned paradigm object) that this step did not verify against a live
-// caller -- wiring them from an unverified guess at their contract would be
-// exactly the "compose without checking" mistake this project's own
-// CODING-LESSONS warns against. significance has no implementation ANYWHERE
-// in this repo (confirmed by grep before writing this file) -- there is no
-// number to fabricate here, so none is returned. Each is reported as a typed
-// gap {wired:false, reason} rather than a fake value, the same discipline
-// grain-typing.js's own grain_gap already uses: kept, never guessed.
+// ATMOSPHERE (2026-09-26 revision): wired for real. kernel/emergent-terrain.js
+// (atmosphereProjection) and kernel/theory-of-mind.js both call
+// interpretiveAtmosphereFactorField(obligations, {sequence}) the same way --
+// two real, independent production call sites agreeing on the same shape
+// (an array of obligation objects: {id, grounds, alternatives, consequences,
+// persistence, openedAt, constraint}), checked before writing this revision
+// rather than guessed. When the caller supplies `obligations`, foldAt calls
+// the real function directly (not the private atmosphereProjection wrapper,
+// which also stamps terrain-specific schema/id fields foldAt has no use for)
+// and returns its real field. When none are supplied, the gap says exactly
+// that -- no obligations for this cursor -- not "unwired."
+//
+// PARADIGM: still a typed gap, but the reason changed after checking. This
+// session first assumed evaluateParadigm just needed "a live caller to
+// verify against" the way atmosphere did. Checked this revision: grep across
+// native/the-fold/ for evaluateParadigm( found ZERO real call sites outside
+// its own test file -- only learnParadigm/learnParadigmEmergent (which BUILD
+// a paradigm) have real callers; nothing in this repo actually evaluates a
+// candidate against one yet. There is no live contract to verify against,
+// only the function's own definition and tests -- wiring foldAt to a
+// candidate-shape read from those alone, with no second real caller to cross-
+// check against, would still be a guess dressed as a verification. Left
+// unwired, honestly, with the corrected reason.
+//
+// significance has no implementation ANYWHERE in this repo (checked again
+// this revision) -- there is no number to fabricate, so none is returned.
 import { holon, contains, ancestry } from "../kernel/gfp-claim.js";
+import { interpretiveAtmosphereFactorField } from "../kernel/atmosphere-math.js";
 
 export const FOLD_AT_SCHEMA = "EOFoldAt@1";
 
 /**
- * foldAt(address, claims) -> {
+ * foldAt(address, claims, { obligations, sequence }) -> {
  *   schema, address,
  *   here: claims whose ground is exactly this address,
  *   ancestors: claims whose ground CONTAINS this address, ordered outermost-first,
  *   descendants: claims whose ground is CONTAINED BY this address,
- *   atmosphere, paradigm, significance: typed gaps, not fabricated values,
+ *   atmosphere: real interpretiveAtmosphereFactorField result when
+ *     `obligations` is supplied and non-empty, else a typed gap,
+ *   paradigm, significance: typed gaps, not fabricated values,
  * }
  *
- * PURE: no I/O, no model, no default corpus. The caller supplies `claims` --
- * this never reads a session's own state or a file on its own.
+ * PURE: no I/O, no model, no default corpus. The caller supplies `claims`
+ * and, optionally, `obligations` -- this never reads a session's own state
+ * or a file on its own.
  */
-export function foldAt(address, claims = []) {
+export function foldAt(address, claims = [], { obligations = [], sequence = null } = {}) {
   const here = holon(address);
   const atHere = [], ancestorsOf = [], descendantsOf = [];
 
@@ -57,14 +75,18 @@ export function foldAt(address, claims = []) {
   const ancestryChain = ancestry(here);
   ancestorsOf.sort((a, b) => ancestryChain.indexOf(holon(a.ground)) - ancestryChain.indexOf(holon(b.ground)));
 
+  const atmosphere = obligations.length
+    ? { wired: true, field: interpretiveAtmosphereFactorField(obligations, { sequence }), basis: "kernel/atmosphere-math.js's interpretiveAtmosphereFactorField, called with the caller's own supplied obligations -- the same call shape verified this revision against two real production callers (kernel/emergent-terrain.js, kernel/theory-of-mind.js)." }
+    : { wired: true, field: null, reason: "no obligations were supplied for this cursor -- the wiring is real, there is simply nothing to compute an atmosphere from here." };
+
   return {
     schema: FOLD_AT_SCHEMA,
     address: here,
     here: atHere,
     ancestors: ancestorsOf,
     descendants: descendantsOf,
-    atmosphere: { wired: false, reason: "kernel/atmosphere-math.js's interpretiveAtmosphereFactorField is real and unwired here -- it needs a real obligations sequence this step did not verify a live source for; wiring it from a guessed shape would be the exact composing-without-checking mistake this project's own lessons warn against." },
-    paradigm: { wired: false, reason: "the-fold/paradigm.js's evaluateParadigm is real and unwired here -- it needs a real learned paradigm object (learnParadigm's own output) this step did not verify a live source for." },
+    atmosphere,
+    paradigm: { wired: false, reason: "the-fold/paradigm.js's evaluateParadigm is real but has ZERO real production callers anywhere in this repo (only its own test file calls it; every real caller of paradigm.js instead calls learnParadigm/learnParadigmEmergent, which BUILD a paradigm, never evaluate one) -- there is no live contract to verify a candidate-shape against, so wiring this now would be a guess, not a verification. Left unwired until a real caller of evaluateParadigm exists to check against." },
     significance: { wired: false, reason: "no significance-measurement module exists anywhere in this repo (checked before writing this file) -- there is no real number to return, so none is fabricated here." },
   };
 }

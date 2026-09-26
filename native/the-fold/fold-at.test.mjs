@@ -39,12 +39,33 @@ test("an unrelated sibling ground (/p9) is excluded from a /p3/2 cursor's fold",
   assert.ok(!allReturned.some((c) => c.rel === "closes"));
 });
 
-test("atmosphere, paradigm, and significance are typed gaps, never fabricated values", () => {
+test("with no obligations supplied, atmosphere is honestly wired-but-empty, never a fabricated field", () => {
   const fold = foldAt("/p3/2", claims);
-  assert.equal(fold.atmosphere.wired, false);
+  assert.equal(fold.atmosphere.wired, true);
+  assert.equal(fold.atmosphere.field, null);
+  assert.equal(typeof fold.atmosphere.reason, "string");
+});
+
+test("with a real, correctly-shaped obligation, atmosphere returns interpretiveAtmosphereFactorField's real result", () => {
+  const obligation = {
+    id: "ob:1",
+    grounds: ["/p3/2"],
+    alternatives: [],
+    consequences: [{ kind: "commitment" }],
+    persistence: 1,
+    openedAt: 0,
+    constraint: null,
+  };
+  const fold = foldAt("/p3/2", claims, { obligations: [obligation], sequence: 1 });
+  assert.equal(fold.atmosphere.wired, true);
+  assert.equal(fold.atmosphere.field.obligationCount, 1);
+  assert.equal(fold.atmosphere.field.model, "interpretive_constraint_factor_graph");
+});
+
+test("paradigm and significance remain typed gaps, never fabricated values", () => {
+  const fold = foldAt("/p3/2", claims);
   assert.equal(fold.paradigm.wired, false);
   assert.equal(fold.significance.wired, false);
-  assert.equal(typeof fold.atmosphere.reason, "string");
   assert.equal(typeof fold.paradigm.reason, "string");
   assert.equal(typeof fold.significance.reason, "string");
 });
