@@ -60,6 +60,28 @@ export class Perceptron {
     }
     return bi;
   }
+  // ADDITIVE, NEVER CALLED BY best() ABOVE (2026-09-26): best() already
+  // computes this same score array and then throws away everything except
+  // the winning index, at every one of its 6 real call sites in this file --
+  // none of them expect a changed return shape, so best() itself stays
+  // untouched. This exposes the margin between the top class and the
+  // runner-up: a standard linear-classifier confidence measure, not an
+  // invented threshold -- no cutoff is applied here, the raw margin is
+  // handed to whichever future caller decides what to do with it (the
+  // real prerequisite for a register/confidence-aware backoff, found
+  // missing while diagnosing why "Photosynthesis converts..." mistagged
+  // "converts" as NOUN with no way for a caller to have known the decision
+  // was close or confident).
+  bestWithMargin(feats, valid = null) {
+    const s = this.scores(feats);
+    let bi = -1, bv = -Infinity, second = -Infinity;
+    for (let c = 0; c < this.n; c++) {
+      if (valid && !valid[c]) continue;
+      if (s[c] > bv || (s[c] === bv && bi >= 0 && this.classes[c] < this.classes[bi])) { second = bv; bv = s[c]; bi = c; }
+      else if (s[c] > second) second = s[c];
+    }
+    return { index: bi, margin: bi < 0 ? null : (second === -Infinity ? Infinity : bv - second) };
+  }
   update(truth, guess, feats) {
     this.i++;
     if (truth === guess) return;
