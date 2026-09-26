@@ -94,3 +94,35 @@ export function loadBearingChecker(allClaims, { pValue = null, idOf = (c) => c.i
     return result.rows.some((r) => r.loadBearing);
   };
 }
+
+/**
+ * loadBearingOfWhole(allClaims, memberIds, { pValue, idOf }) -> true|false|null
+ *
+ * A HOLONIC EXPERIMENT (2026-09-26, user: "these get nested holonically... a
+ * holon is both a whole and a part"): loadBearingChecker answers "is THIS ONE
+ * member load-bearing" and a caller combines many such answers into a PARTS
+ * aggregate (arrange.js's own bodySlots do exactly this: true if any member's
+ * own check is true, null if every member's is null, false otherwise). This
+ * function instead pools every claim belonging to ANY of `memberIds` into ONE
+ * combined candidate and runs consequentialSurprise ONCE on that union -- a
+ * genuine WHOLE-level question: do this group's claims, taken together, reach
+ * farther through the dependency index than a null of equivalent size, not
+ * "does any one of them alone." The two computations are structurally
+ * different (one call over a union vs. several calls combined by boolean
+ * logic) and are not guaranteed to agree -- that disagreement, if real and
+ * measured, is the holonic tension made concrete, not assumed.
+ *
+ * Same "opt-in, no default threshold" contract as loadBearingChecker: null
+ * when pValue is unset or the group has no claims of its own to check.
+ */
+export function loadBearingOfWhole(allClaims, memberIds, { pValue = null, idOf = (c) => c.id ?? c.ground } = {}) {
+  if (pValue === null || !allClaims.length || !memberIds?.length) return null;
+  const prefixes = memberIds.map((id) => `${id}:`);
+  const own = allClaims.filter((c) => prefixes.some((p) => c.id?.startsWith(p)));
+  if (!own.length) return null;
+  const index = claimDependencyIndex(allClaims, idOf);
+  const holo = createHolograph({ alpha: 1, gamma: 1 });
+  const facts = Object.fromEntries(slotsFromClaims(own));
+  const result = consequentialSurprise(holo, facts, { index, seedsOf: seedsOfClaimFiller, pValue, rng: seeded(memberIds.join("|")) });
+  return result.rows.some((r) => r.loadBearing);
+}
