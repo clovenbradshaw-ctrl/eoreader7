@@ -16,6 +16,9 @@
 // for this file: it is the same "do these two statements share a subject"
 // test used elsewhere, applied here to claims instead of raw text.
 import { dependentsIndex } from "../kernel/cascade.js";
+import { createHolograph } from "../kernel/bayes-surprise.js";
+import { consequentialSurprise } from "../kernel/consequential-surprise.js";
+import { slotsFromClaims, cloneHolograph } from "./fold-at.js";
 
 /** Every role filler a claim carries, as values (not keyed by role -- ARG0
  *  and ARG1 both count as "this claim mentions X"). */
@@ -46,4 +49,35 @@ export function claimDependencyIndex(claims, idOf = (c) => c.id ?? c.ground) {
  */
 export function seedsOfClaimFiller(slot, value) {
   return /:role:/.test(String(slot)) ? [value] : [];
+}
+
+/**
+ * loadBearingChecker(allClaims, { pValue, idOf }) -> (candidateId) => true|false|null
+ *
+ * Consolidates a pattern this session hand-rolled three separate times
+ * (cli/fold-at.mjs's own CLI query, arrange.js's inline loadBearingOf
+ * closure, and ad hoc test scripts): build one dependency index and one
+ * fresh holograph over `allClaims`, then, per candidate, run
+ * kernel/consequential-surprise.js's consequentialSurprise on a CLONE of
+ * that holograph (never mutating the shared one -- verified the same way
+ * fold-at.js's own significance layer is) restricted to just the claims
+ * whose id starts with `${candidateId}:` (this project's own claimsFromFeat
+ * id convention, checked against arrange.js before writing this).
+ *
+ * Returns null (never a guessed false) when the candidate has no claims of
+ * its own to check. When `pValue` is not supplied, returns a function that
+ * always answers null -- the same "opt-in, no default threshold" contract
+ * every consequentialSurprise caller in this project already follows.
+ */
+export function loadBearingChecker(allClaims, { pValue = null, idOf = (c) => c.id ?? c.ground } = {}) {
+  if (pValue === null || !allClaims.length) return () => null;
+  const index = claimDependencyIndex(allClaims, idOf);
+  const holo = createHolograph({ alpha: 1, gamma: 1 });
+  return (candidateId) => {
+    const own = allClaims.filter((c) => c.id?.startsWith(`${candidateId}:`));
+    if (!own.length) return null;
+    const facts = Object.fromEntries(slotsFromClaims(own));
+    const result = consequentialSurprise(cloneHolograph(holo), facts, { index, seedsOf: seedsOfClaimFiller, pValue });
+    return result.rows.some((r) => r.loadBearing);
+  };
 }

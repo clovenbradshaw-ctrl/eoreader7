@@ -48,10 +48,7 @@ import { isFunctionWord } from "./pos-prior.js";
 import { thesisBasin, thesisGeneralization } from "./thesis-claim.js";
 import { renderGeneralization, claimFromTriple, holon } from "../kernel/gfp-claim.js";
 import { makeNotes } from "../kernel/notes.js";
-import { createHolograph } from "../kernel/bayes-surprise.js";
-import { consequentialSurprise } from "../kernel/consequential-surprise.js";
-import { claimDependencyIndex, seedsOfClaimFiller } from "./claim-dependencies.js";
-import { slotsFromClaims } from "./fold-at.js";
+import { loadBearingChecker } from "./claim-dependencies.js";
 
 export const OUTLINE_SCHEMA = "EOEssayOutline@2";
 
@@ -714,19 +711,11 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
   // which candidate wins -- it only adds a real, computed `loadBearing` flag
   // callers can use alongside the existing recur score, since the two
   // signals measure different things and neither one alone is complete.
-  const loadBearingOf = (() => {
-    if (pValue === null || !allClaims.claims.length) return () => null;
-    const index = claimDependencyIndex(allClaims.claims);
-    const holo = createHolograph({ alpha: 1, gamma: 1 });
-    const cloneHolo = (h) => { const s = new Map(); for (const [k, v] of h.slots) s.set(k, new Map(v)); return { ...h, slots: s }; };
-    return (candidateId) => {
-      const own = allClaims.claims.filter((c) => c.id?.startsWith(`${candidateId}:`));
-      if (!own.length) return null;
-      const facts = Object.fromEntries(slotsFromClaims(own));
-      const result = consequentialSurprise(cloneHolo(holo), facts, { index, seedsOf: seedsOfClaimFiller, pValue });
-      return result.rows.some((r) => r.loadBearing);
-    };
-  })();
+  // Delegates to the-fold/claim-dependencies.js's loadBearingChecker, which
+  // consolidates this exact clone-holo/build-index/run-consequentialSurprise
+  // pattern (previously hand-rolled separately here, in cli/fold-at.mjs, and
+  // in this session's own test scripts) into one shared, tested utility.
+  const loadBearingOf = loadBearingChecker(allClaims.claims, { pValue });
 
   return {
     schema: OUTLINE_SCHEMA,

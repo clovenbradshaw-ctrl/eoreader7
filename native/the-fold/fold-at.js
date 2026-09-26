@@ -117,7 +117,7 @@ export function slotsFromClaims(claims) {
  *  schema, alpha, gamma, admitted, slots (a Map of Maps, each level cloned),
  *  absentMass. Used so consequentialSurprise's own internal admit() call
  *  never touches the caller's original holograph. */
-function cloneHolograph(holo) {
+export function cloneHolograph(holo) {
   const slots = new Map();
   for (const [slot, counts] of holo.slots) slots.set(slot, new Map(counts));
   return { schema: holo.schema, alpha: holo.alpha, gamma: holo.gamma, admitted: holo.admitted, absentMass: holo.absentMass, slots };
