@@ -58,13 +58,22 @@
 // fabricated, but never committed back into the holograph (foldAt only asks
 // "how surprising would this be", never "and now count it").
 //
-// NOT wired: consequential-surprise.js's load-bearing/local partition. It
-// additionally needs a dependents `index` and a caller-declared `seedsOf`
-// function (checked this revision via docs/surprise-organs.js's own real
-// usage) relating a slot/value to the ids reachable through cascade.js's
-// reach semantics -- no existing caller's seedsOf generalizes to holon-
-// addressed claims, and designing one is original work this revision does
-// not attempt. Named as the next sub-step, not guessed at.
+// CONSEQUENTIAL SURPRISE (2026-09-26, later revision): wired for real, using
+// the-fold/claim-dependencies.js's claimDependencyIndex/seedsOfClaimFiller
+// (built and tested standalone the prior cycle). One real conflict had to be
+// resolved first: consequentialSurprise(holo, facts, ...) calls admit(holo,
+// facts) INTERNALLY (checked by reading its source) -- unlike predict(),
+// this mutates the holograph, which would break foldAt's own tested purity
+// guarantee if called on the caller's own holo directly. Resolved by cloning
+// the holograph (cloneHolograph below, a real deep copy of every field
+// admit()/createHolograph() actually touch: schema, alpha, gamma, admitted,
+// slots, absentMass) and running consequentialSurprise only on the clone --
+// the caller's own holo is never admitted into, same guarantee as before.
+// pValue is never defaulted (consequentialSurprise itself throws without one
+// declared by the caller, and this project's own standing rule already
+// forbids hand-set thresholds) -- this layer only activates when the caller
+// supplies holo, index, AND pValue together; any one missing keeps it an
+// honest gap.
 //
 // SIBLINGS (2026-09-26, later revision): named after live-testing foldAt
 // against claimsFromFeat's own real output (arrange.js) found ancestors and
@@ -78,6 +87,7 @@
 import { holon, contains, ancestry, segmentsOf } from "../kernel/gfp-claim.js";
 import { interpretiveAtmosphereFactorField } from "../kernel/atmosphere-math.js";
 import { predict } from "../kernel/bayes-surprise.js";
+import { consequentialSurprise } from "../kernel/consequential-surprise.js";
 
 export const FOLD_AT_SCHEMA = "EOFoldAt@1";
 
@@ -96,6 +106,17 @@ export function slotsFromClaims(claims) {
   return slots;
 }
 
+/** A real deep copy of a bayes-surprise.js holograph -- every field admit()/
+ *  createHolograph() actually set (checked by reading both this revision):
+ *  schema, alpha, gamma, admitted, slots (a Map of Maps, each level cloned),
+ *  absentMass. Used so consequentialSurprise's own internal admit() call
+ *  never touches the caller's original holograph. */
+function cloneHolograph(holo) {
+  const slots = new Map();
+  for (const [slot, counts] of holo.slots) slots.set(slot, new Map(counts));
+  return { schema: holo.schema, alpha: holo.alpha, gamma: holo.gamma, admitted: holo.admitted, absentMass: holo.absentMass, slots };
+}
+
 /** The parent of a holon: itself with its last segment dropped. "/" (no
  *  segments) has no parent -- returns null, not "/" (the root is not its
  *  own parent). */
@@ -106,7 +127,7 @@ function parentOf(h) {
 }
 
 /**
- * foldAt(address, claims, { obligations, sequence, holo }) -> {
+ * foldAt(address, claims, { obligations, sequence, holo, index, seedsOf, pValue }) -> {
  *   schema, address,
  *   here: claims whose ground is exactly this address,
  *   ancestors: claims whose ground CONTAINS this address, ordered outermost-first,
@@ -116,17 +137,21 @@ function parentOf(h) {
  *   atmosphere: real interpretiveAtmosphereFactorField result when
  *     `obligations` is supplied and non-empty, else a typed gap,
  *   significance: real bayes-surprise.js predict() result over the `here`
- *     claims' slot/value facts when `holo` is supplied, else a typed gap,
+ *     claims' slot/value facts when `holo` is supplied, else a typed gap;
+ *     carries significance.consequential -- kernel/consequential-surprise.js's
+ *     load-bearing/local partition when `index`, `seedsOf` and `pValue` are
+ *     ALSO supplied, else its own typed gap,
  *   paradigm: a typed gap, not a fabricated value,
  * }
  *
  * PURE: no I/O, no model, no default corpus, and no mutation of anything
- * the caller passes in (predict() is read-only; a supplied holo is never
- * admitted into). The caller supplies `claims` and, optionally,
- * `obligations`/`holo` -- this never reads a session's own state or a file
- * on its own.
+ * the caller passes in (predict() is read-only; consequentialSurprise runs
+ * only on an internal clone of `holo`; the caller's own holo is never
+ * admitted into either way). The caller supplies `claims` and, optionally,
+ * `obligations`/`holo`/`index`/`seedsOf`/`pValue` -- this never reads a
+ * session's own state or a file on its own.
  */
-export function foldAt(address, claims = [], { obligations = [], sequence = null, holo = null } = {}) {
+export function foldAt(address, claims = [], { obligations = [], sequence = null, holo = null, index = null, seedsOf = null, pValue = null } = {}) {
   const here = holon(address);
   const hereParent = parentOf(here);
   const atHere = [], ancestorsOf = [], descendantsOf = [], siblingsOf = [];
@@ -155,14 +180,31 @@ export function foldAt(address, claims = [], { obligations = [], sequence = null
     const slots = slotsFromClaims(atHere);
     const perSlot = slots.map(([slot, value]) => ({ slot, value, ...predict(holo, slot, value) }));
     const totalBits = perSlot.reduce((s, x) => s + x.bits, 0);
+
+    let consequential;
+    if (index instanceof Map && typeof seedsOf === "function" && pValue !== null) {
+      const facts = Object.fromEntries(slots);
+      const result = consequentialSurprise(cloneHolograph(holo), facts, { index, seedsOf, pValue });
+      consequential = {
+        wired: true,
+        consequentialBits: result.consequentialBits,
+        localBits: result.localBits,
+        rows: result.rows,
+        basis: `kernel/consequential-surprise.js's consequentialSurprise(), run on a CLONE of the supplied holograph (the caller's own holo is never admitted into) -- partitions this cursor's surprisal into load-bearing (reaches farther through the index than a null of ${result.trials} synthetic seed sets) vs. local, at the caller's own declared pValue=${result.pValue}.`,
+      };
+    } else {
+      consequential = { wired: false, reason: "kernel/consequential-surprise.js's consequentialSurprise() needs a dependents index (e.g. the-fold/claim-dependencies.js's claimDependencyIndex), a seedsOf function (e.g. seedsOfClaimFiller), and a caller-declared pValue -- none defaulted, per consequentialSurprise's own guard and this project's standing rule against hand-set thresholds. Supply all three to wire this layer." };
+    }
+
     significance = {
       wired: true,
       totalBits,
       perSlot,
+      consequential,
       basis: `kernel/bayes-surprise.js's predict(), read-only, over ${slots.length} slot(s) derived from the ${atHere.length} claim(s) at this cursor -- the prior's surprisal if these facts were admitted, never actually admitted into the supplied holograph.`,
     };
   } else {
-    significance = { wired: false, reason: "kernel/bayes-surprise.js's predict() is real and usable (a holograph from createHolograph() was not supplied to this call) -- the heavier, load-bearing kernel/consequential-surprise.js layer additionally needs a dependents index and a seedsOf function this revision did not design for holon-addressed claims; see this file's own header." };
+    significance = { wired: false, reason: "kernel/bayes-surprise.js's predict() is real and usable (a holograph from createHolograph() was not supplied to this call). The heavier, load-bearing kernel/consequential-surprise.js layer additionally needs a dependents index, a seedsOf function, and a declared pValue -- see the-fold/claim-dependencies.js." };
   }
 
   return {

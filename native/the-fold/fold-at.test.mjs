@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { foldAt } from "./fold-at.js";
 import { gfpClaim } from "../kernel/gfp-claim.js";
 import { createHolograph } from "../kernel/bayes-surprise.js";
+import { claimDependencyIndex, seedsOfClaimFiller } from "./claim-dependencies.js";
 
 const claims = [
   gfpClaim({ ground: "/", rel: "opens", roles: { ARG0: "the-book" } }),
@@ -101,6 +102,32 @@ test("significance never mutates the caller's supplied holograph (predict, not a
   const holo = createHolograph({ alpha: 1, gamma: 1 });
   const admittedBefore = holo.admitted;
   foldAt("/p3/2", claims, { holo });
+  assert.equal(holo.admitted, admittedBefore);
+});
+
+test("with no index/seedsOf/pValue, significance.consequential is a typed gap", () => {
+  const holo = createHolograph({ alpha: 1, gamma: 1 });
+  const fold = foldAt("/p3/2", claims, { holo });
+  assert.equal(fold.significance.consequential.wired, false);
+  assert.equal(typeof fold.significance.consequential.reason, "string");
+});
+
+test("with a real index, seedsOf and pValue, significance.consequential returns real consequentialSurprise rows using the fixture's own repeated fillers", () => {
+  const holo = createHolograph({ alpha: 1, gamma: 1 });
+  const index = claimDependencyIndex(claims);
+  const fold = foldAt("/p3/2", claims, { holo, index, seedsOf: seedsOfClaimFiller, pValue: 0.05 });
+  const c = fold.significance.consequential;
+  assert.equal(c.wired, true);
+  assert.equal(typeof c.consequentialBits, "number");
+  assert.equal(typeof c.localBits, "number");
+  assert.ok(c.rows.length > 0);
+});
+
+test("the consequential path never mutates the caller's holograph either -- it runs on an internal clone", () => {
+  const holo = createHolograph({ alpha: 1, gamma: 1 });
+  const admittedBefore = holo.admitted;
+  const index = claimDependencyIndex(claims);
+  foldAt("/p3/2", claims, { holo, index, seedsOf: seedsOfClaimFiller, pValue: 0.05 });
   assert.equal(holo.admitted, admittedBefore);
 });
 
