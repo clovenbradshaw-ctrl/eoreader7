@@ -177,6 +177,43 @@ export function foldAt(address, claims = [], { obligations = [], sequence = null
   const ancestryChain = ancestry(here);
   ancestorsOf.sort((a, b) => ancestryChain.indexOf(holon(a.ground)) - ancestryChain.indexOf(holon(b.ground)));
 
+  // CONTACTS (2026-09-26): a relation orthogonal to the four above. Those
+  // four are all POSITION -- where a claim's ground sits in the holon tree
+  // relative to `here`. A contact is REFERENT: a claim anywhere in the
+  // document, at any position, that shares one of `here`'s own role-filler
+  // values -- the same shared-filler relation the-fold/claim-dependencies.js
+  // already uses to find what a claim's consequence reaches through. Wired
+  // whenever the caller supplies `index` alone (no seedsOf/pValue needed --
+  // this reads the index, it runs no null simulation), so it is available
+  // even when the heavier consequential layer below is not. Each contact is
+  // tagged crossCutting: true when it shares NO ancestor/descendant/sibling
+  // relation with `here` either -- a connection position alone would never
+  // have shown.
+  let contacts;
+  if (index instanceof Map) {
+    const idOf = (c) => c.id ?? c.ground;
+    const byId = new Map(claims.map((c) => [idOf(c), c]));
+    const hereIds = new Set(atHere.map(idOf));
+    const ancestorGrounds = new Set(ancestorsOf.map((c) => holon(c.ground)));
+    const descendantGrounds = new Set(descendantsOf.map((c) => holon(c.ground)));
+    const siblingGrounds = new Set(siblingsOf.map((c) => holon(c.ground)));
+    const foundIds = new Set();
+    for (const claim of atHere) for (const value of Object.values(claim.roles ?? {})) for (const id of index.get(value) ?? []) if (!hereIds.has(id)) foundIds.add(id);
+    const rows = [...foundIds].map((id) => byId.get(id)).filter(Boolean).map((c) => {
+      const g = holon(c.ground);
+      return { claim: c, crossCutting: !(ancestorGrounds.has(g) || descendantGrounds.has(g) || siblingGrounds.has(g)) };
+    });
+    const crossCutting = rows.filter((r) => r.crossCutting).length;
+    contacts = {
+      wired: true,
+      rows,
+      crossCutting,
+      basis: `the-fold/claim-dependencies.js's own dependency index, read to find every claim elsewhere in the document sharing a role-filler value with a claim at this cursor -- ${rows.length} found, ${crossCutting} sharing no ancestor/descendant/sibling relation with this cursor at all (visible only through this layer).`,
+    };
+  } else {
+    contacts = { wired: false, reason: "the-fold/claim-dependencies.js's claimDependencyIndex was not supplied -- pass `index` (built once over the document's own claims) to wire this layer. Unlike the consequential/load-bearing layer below, contacts needs only the index itself, never seedsOf or pValue." };
+  }
+
   const atmosphere = obligations.length
     ? { wired: true, field: interpretiveAtmosphereFactorField(obligations, { sequence }), basis: "kernel/atmosphere-math.js's interpretiveAtmosphereFactorField, called with the caller's own supplied obligations -- the same call shape verified this revision against two real production callers (kernel/emergent-terrain.js, kernel/theory-of-mind.js)." }
     : { wired: true, field: null, reason: "no obligations were supplied for this cursor -- the wiring is real, there is simply nothing to compute an atmosphere from here." };
@@ -220,6 +257,7 @@ export function foldAt(address, claims = [], { obligations = [], sequence = null
     ancestors: ancestorsOf,
     descendants: descendantsOf,
     siblings: siblingsOf,
+    contacts,
     atmosphere,
     paradigm: { wired: false, reason: "the-fold/paradigm.js's evaluateParadigm operates on a document-formatting 'unit' (indentation, heading level, block-breaks, sentence-final punctuation -- checked via its own unitFacts() and learn-pass.js's real learnParadigmEmergent caller), not claim content -- a genuine domain mismatch with foldAt's GFP claims, not a temporary gap awaiting a live caller. Wiring it would require inventing a claim-to-formatting-element mapping with no real basis. Left unwired." },
     significance,

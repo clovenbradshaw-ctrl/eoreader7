@@ -16,6 +16,7 @@ const claims = [
   gfpClaim({ ground: "/p3/2/1", rel: "names", roles: { ARG0: "the-order", ARG1: "the-target" } }),
   gfpClaim({ ground: "/p3/5", rel: "repeats", roles: { ARG0: "the-general", ARG1: "the-order" } }),
   gfpClaim({ ground: "/p9", rel: "closes", roles: { ARG0: "the-book" } }),
+  gfpClaim({ ground: "/p9/1", rel: "recalls", roles: { ARG0: "the-order" } }),
 ];
 
 test("here holds only claims whose ground is exactly this address", () => {
@@ -136,4 +137,31 @@ test("the root cursor (/) has no ancestors and every other claim as a descendant
   assert.equal(fold.ancestors.length, 0);
   assert.equal(fold.here.length, 1);
   assert.equal(fold.descendants.length, claims.length - 1);
+});
+
+test("with no index supplied, contacts is a typed gap, never a fabricated value", () => {
+  const fold = foldAt("/p3/2", claims);
+  assert.equal(fold.contacts.wired, false);
+  assert.match(fold.contacts.reason, /claimDependencyIndex/);
+});
+
+test("with a real index, contacts finds every claim sharing a referent, tagged by whether position already showed it", () => {
+  const index = claimDependencyIndex(claims);
+  const fold = foldAt("/p3/2", claims, { index });
+  assert.equal(fold.contacts.wired, true);
+  const rels = fold.contacts.rows.map((r) => r.claim.rel);
+  assert.ok(rels.includes("names"), "the descendant sharing 'the-order' must appear as a contact too");
+  assert.ok(rels.includes("repeats"), "the sibling sharing 'the-order' must appear as a contact too");
+  assert.ok(rels.includes("recalls"), "/p9/1, unrelated by position, must appear as a contact via the shared referent alone");
+  const recalls = fold.contacts.rows.find((r) => r.claim.rel === "recalls");
+  assert.equal(recalls.crossCutting, true, "a contact with no ancestor/descendant/sibling relation must be flagged cross-cutting");
+  const names = fold.contacts.rows.find((r) => r.claim.rel === "names");
+  assert.equal(names.crossCutting, false, "a contact that is ALSO a descendant is not cross-cutting -- position already showed it");
+  assert.equal(fold.contacts.crossCutting, 1, "exactly one contact (recalls) is cross-cutting in this fixture");
+});
+
+test("contacts never includes the here claim itself", () => {
+  const index = claimDependencyIndex(claims);
+  const fold = foldAt("/p3/2", claims, { index });
+  assert.ok(!fold.contacts.rows.some((r) => r.claim.rel === "says"), "the /p3/2 claim itself must never appear as its own contact");
 });

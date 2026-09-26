@@ -68,6 +68,16 @@ test("significance is a real, document-derived number, not the old 'no holograph
   });
 });
 
+test("contacts print without --pvalue -- the index is now built unconditionally", () => {
+  withFixture((file) => {
+    const list = spawnSync(process.execPath, [CLI, file, "list"], { encoding: "utf8" });
+    const firstAddress = list.stdout.match(/\/whole\/p\d+\/\d+/)[0];
+    const r = spawnSync(process.execPath, [CLI, file, firstAddress], { encoding: "utf8" });
+    assert.equal(r.status, 0);
+    assert.match(r.stdout, /contacts, shared referent \(\d+, \d+ cross-cutting\):/);
+  });
+});
+
 test("with --pvalue, the consequential layer prints real load-bearing/local bits, not the gap", () => {
   withFixture((file) => {
     const list = spawnSync(process.execPath, [CLI, file, "list"], { encoding: "utf8" });

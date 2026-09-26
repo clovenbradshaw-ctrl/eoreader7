@@ -74,13 +74,13 @@ for (const c of claims) {
   admit(holo, Object.fromEntries(slotsFromClaims([c])));
 }
 
-// The load-bearing consequential-surprise layer additionally needs a
-// dependents index over the WHOLE document's claims (not just the ones
-// admitted into the prior above) -- built via claim-dependencies.js's own
-// shared-role-filler relation, only when the caller explicitly declared a
-// pValue.
-const index = pValue !== null ? claimDependencyIndex(claims) : null;
-const fold = foldAt(address, claims, { holo, ...(index ? { index, seedsOf: seedsOfClaimFiller, pValue } : {}) });
+// The dependents index (claim-dependencies.js's own shared-role-filler
+// relation) is now built unconditionally -- one pass over the claims, no
+// model call, no null simulation -- so foldAt's contacts layer is always
+// available. Only the heavier consequential/load-bearing layer still
+// requires the caller to additionally, explicitly declare --pvalue.
+const index = claimDependencyIndex(claims);
+const fold = foldAt(address, claims, { holo, index, ...(pValue !== null ? { seedsOf: seedsOfClaimFiller, pValue } : {}) });
 const line = (c) => `${c.roles.ARG0} ${c.polarity === "-" ? "NOT " : ""}${c.rel} ${c.roles.ARG1}  @${c.ground}`;
 console.log(`fold at ${fold.address}  (${claims.length} claim(s) total in this document)`);
 console.log(`\nhere (${fold.here.length}):`);
@@ -91,6 +91,12 @@ console.log(`\nsiblings (${fold.siblings.length}):`);
 for (const c of fold.siblings) console.log(`  ${line(c)}`);
 console.log(`\ndescendants (${fold.descendants.length}):`);
 for (const c of fold.descendants) console.log(`  ${line(c)}`);
+if (fold.contacts.wired) {
+  console.log(`\ncontacts, shared referent (${fold.contacts.rows.length}, ${fold.contacts.crossCutting} cross-cutting):`);
+  for (const r of fold.contacts.rows) console.log(`  ${r.crossCutting ? "(cross-cutting) " : ""}${line(r.claim)}`);
+} else {
+  console.log(`\ncontacts: gap: ${fold.contacts.reason}`);
+}
 console.log(`\natmosphere: ${fold.atmosphere.wired ? (fold.atmosphere.field ? "real field computed" : "wired, no obligations supplied") : "gap: " + fold.atmosphere.reason}`);
 console.log(`significance: ${fold.significance.wired ? `${fold.significance.totalBits.toFixed(2)} bits` : "gap: " + fold.significance.reason}`);
 if (fold.significance.wired) {
