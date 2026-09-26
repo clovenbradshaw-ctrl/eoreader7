@@ -198,6 +198,17 @@ export const ARCHONS = Object.freeze([
     topics: ["surf", "wave", "retrieval", "activation", "echo", "shadow", "recall", "passages"],
   },
   {
+    handle: "houdini",
+    name: "Harry Houdini",
+    organ: "native/the-fold/archon-rules.js::houdiniExclusivity; proxy-runner.mjs::runProxyTurn (the shared post-generation tail)",
+    role: "the exclusivity archon — nothing unlicensed rides in as if it were channeled",
+    pdStatus: "nomination",
+    work: "The illusionist and escape artist (1874–1926) whose later career was spent exposing fraudulent spiritualist mediums — not by declaring a séance false, but by attending one, then performing the same effect himself through ordinary conjuring and showing the mechanism live, onstage. He backed a standing, public prize (via Scientific American) for any medium who could produce a genuinely unexplainable effect under fraud-controlled conditions; it went unclaimed. The posture mechanized here is the same one, turned on this project's own mouth: a sentence carrying the confidence of channeled or discovered knowledge — the mouth's own account of its phrasing or task, dressed as content — is checked for the mechanism that actually produced it, and folded out when none exists. The same exclusivity condition the fold-and-cut theorem needs (nothing unlicensed lands on the cut), run on a live turn instead of only an offline essay.",
+    source: "Harry Houdini (1874–1926); the historical record of his exposure campaigns, the Scientific American prize, and the 'Margery' committee investigation (the namesake's own specific claims and methods are not asserted verbatim by this compendium — recalled from general knowledge, not re-verified against a primary source).",
+    credit: "Houdini — nothing unlicensed rides in as if it were channeled: show the mechanism, or fold it out.",
+    topics: ["houdini", "medium", "seance", "oracle", "channel", "channeling", "bullshit", "confirmed", "verified", "proven", "apparatus", "leak", "exclusivity"],
+  },
+  {
     handle: "dignaga",
     name: "Dignaga",
     organ: "organs/asserted.js",

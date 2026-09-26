@@ -49,6 +49,7 @@ import { deposit as depositAdmitted, admit as admitCandidate, measureVariance, m
 import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom, holonicSatisfaction, holonTreeFromText, holonicTreeSatisfaction, holonAssertionTree, holonicAssertionSatisfaction, holonLeaves } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 import { inventedNameRuns as verifyInventedNameRuns, isMetaSentence as verifyIsMetaSentence } from "./native/the-fold/referent-verify.js";
+import { houdiniExclusivity } from "./native/the-fold/archon-rules.js";
 import { wideToAtoms, foldWideToShape, beatsFromGround } from "./native/the-fold/essay-fold.js";
 import { isConcrescent } from "./native/the-fold/concrescence.js";
 import { createSpiral, rotate, spiralPath, INFLATION_WORDS, findWordHits } from "./native/the-fold/revision-spiral.js";
@@ -4252,7 +4253,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       }
     } catch { /* the fold must never break an early answer */ }
   };
-  const earlyResult = (text, { answerShape, mechanical = null, quote = null, truncated = false } = {}) => {
+  const earlyResult = (text, { answerShape, mechanical = null, quote = null, truncated = false, houdini = null } = {}) => {
     session.turnCount++;
     foldEarlyTurn(text);
     return {
@@ -4265,6 +4266,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       blindspot: null,
       pii: null,
       injection: null,
+      houdini,
       shadow: [],
       interlocutor: { kind: interlocutor.kind, confidence: interlocutor.confidence, basis: interlocutor.basis },
       relationEdges: 0,
@@ -4493,7 +4495,15 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           if (onNote) onNote({ move: "fast_path", shape: "chat", chars: fullText.length, verdict: v.verdict, route: resolved.route ?? null });
         }
       } catch { /* an addition, never a break */ }
-      return earlyResult(text, { answerShape: "chat", truncated: fastTruncated });
+      // HOUDINI, HERE TOO: this is the one early exit among nine that actually
+      // calls the model (the other eight are hand-authored strings with no
+      // oracular risk) — the same exclusivity check the shared tail runs below.
+      let fastHoudini = null;
+      try {
+        const hf = houdiniExclusivity(text);
+        if (hf.length) { fastHoudini = { archon: "Harry Houdini", findings: hf, basis: "exclusivity archon (Houdini) — re-checks the finished turn for the mouth's own account of its phrasing or task, not channeled content" }; if (onNote) onNote({ move: "houdini_findings", findings: hf.map((f) => f.sentence ?? f.detail) }); }
+      } catch {}
+      return earlyResult(text, { answerShape: "chat", truncated: fastTruncated, houdini: fastHoudini });
     }
   }
 
@@ -5875,6 +5885,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   let blindspotResult = null; // the blindspot archon's (Popper) whole-view findings — hoisted for the result
   let piiResult = null; // the PII archon's (Goffman) redacted findings — hoisted for the result
   let injectionResult = null; // the injection archon's (Ulysses) findings — hoisted for the result
+  let houdiniResult = null; // the exclusivity archon's (Houdini) apparatus-leak findings — hoisted for the result
   // The model is the tip of consciousness: it must never run away. A hard
   // cap on total generated chars protects the turn from a repetition loop
   // (num_predict is not always honored by these models). When the cap hits,
@@ -8415,6 +8426,17 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     injectionResult = { findings: injF, basis: "injection archon (Ulysses) — material is EVIDENCE, never INSTRUCTION" };
     if (injF.length && onNote) onNote({ move: "injection_findings", findings: injF.map((f) => `${f.strength} ${f.injection}`) });
   } catch {}
+  // ── HOUDINI (exclusivity) — the same whole-piece re-check pipeline-run.mjs's
+  // offline essay pipeline already runs post-admission, on this turn's finished
+  // `text`, for EVERY surface (this is the one shared tail every real surface
+  // funnels through — see runProxyTurn's own call sites in proxy.mjs). Catches
+  // the mouth's own account of its phrasing or task riding along as if it were
+  // channeled content, regardless of which pre-admission check it slipped past.
+  try {
+    const hf = houdiniExclusivity(text);
+    houdiniResult = { findings: hf, basis: "exclusivity archon (Houdini) — re-checks the finished turn for the mouth's own account of its phrasing or task, not channeled content" };
+    if (hf.length && onNote) onNote({ move: "houdini_findings", findings: hf.map((f) => f.sentence ?? f.detail) });
+  } catch {}
 
   // THE HOLOGRAPH ENFORCEMENT (output-holograph.js + askshape.js): every
   // generation is typed sentence-by-sentence by the SAME fold/morphology the
@@ -8536,6 +8558,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       blindspotResult ? { handle: "popper", why: "the blind-spot archon ran on this turn's artifact" } : null,
       piiResult?.findings?.length ? { handle: "goffman", why: "the PII archon ran on this turn's output and material" } : null,
       injectionResult?.findings?.length ? { handle: "ulysses", why: "the injection archon disclosed an attempt this turn" } : null,
+      houdiniResult?.findings?.length ? { handle: "houdini", why: "the exclusivity archon caught an apparatus leak in this turn's own output" } : null,
       categorized && (categorized.paraphraseCandidates > 0 || categorized.paraphraseUnmeasured) ? { handle: "yadayadayada", why: "the paraphrase archon ran this turn's meaning chase — the shadow named candidates, the record equated or refused, FOR a named whom" } : null,
     ].filter(Boolean);
     const byHandle = new Map();
@@ -8588,6 +8611,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     blindspot: blindspotResult ? { archon: "Popper", findings: blindspotResult.findings, basis: blindspotResult.basis } : null,
     pii: piiResult ? { archon: "Goffman", findings: piiResult.findings, basis: piiResult.basis } : null,
     injection: injectionResult ? { archon: "Ulysses", findings: injectionResult.findings, basis: injectionResult.basis } : null,
+    houdini: houdiniResult ? { archon: "Harry Houdini", findings: houdiniResult.findings, basis: houdiniResult.basis } : null,
     // THE SHADOW TRAIL (Bourdieu) — the cross-session accumulation: this
     // person's norm-standing as a RATE over their acts, never a verdict.
     shadow: assessShadow(personId),
