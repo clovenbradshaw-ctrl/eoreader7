@@ -13,6 +13,7 @@ const claims = [
   gfpClaim({ ground: "/p3", rel: "introduces", roles: { ARG0: "the-general" } }),
   gfpClaim({ ground: "/p3/2", rel: "says", roles: { ARG0: "the-general", ARG1: "the-order" } }),
   gfpClaim({ ground: "/p3/2/1", rel: "names", roles: { ARG0: "the-order", ARG1: "the-target" } }),
+  gfpClaim({ ground: "/p3/5", rel: "repeats", roles: { ARG0: "the-general", ARG1: "the-order" } }),
   gfpClaim({ ground: "/p9", rel: "closes", roles: { ARG0: "the-book" } }),
 ];
 
@@ -34,10 +35,22 @@ test("descendants holds claims whose ground is CONTAINED BY this address", () =>
   assert.equal(fold.descendants[0].rel, "names");
 });
 
-test("an unrelated sibling ground (/p9) is excluded from a /p3/2 cursor's fold", () => {
+test("an unrelated ground under a different parent (/p9) is excluded from a /p3/2 cursor's fold entirely, including siblings", () => {
   const fold = foldAt("/p3/2", claims);
-  const allReturned = [...fold.here, ...fold.ancestors, ...fold.descendants];
+  const allReturned = [...fold.here, ...fold.ancestors, ...fold.descendants, ...fold.siblings];
   assert.ok(!allReturned.some((c) => c.rel === "closes"));
+});
+
+test("siblings holds claims sharing this cursor's own parent, never double-counting an ancestor", () => {
+  const fold = foldAt("/p3/2", claims);
+  assert.equal(fold.siblings.length, 1);
+  assert.equal(fold.siblings[0].rel, "repeats");
+  assert.ok(!fold.siblings.some((c) => c.rel === "introduces"), "the /p3 ancestor must never also appear as a sibling");
+});
+
+test("the root cursor (/) has zero siblings -- the root has no parent to share", () => {
+  const fold = foldAt("/", claims);
+  assert.equal(fold.siblings.length, 0);
 });
 
 test("with no obligations supplied, atmosphere is honestly wired-but-empty, never a fabricated field", () => {

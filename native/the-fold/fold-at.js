@@ -65,7 +65,17 @@
 // reach semantics -- no existing caller's seedsOf generalizes to holon-
 // addressed claims, and designing one is original work this revision does
 // not attempt. Named as the next sub-step, not guessed at.
-import { holon, contains, ancestry } from "../kernel/gfp-claim.js";
+//
+// SIBLINGS (2026-09-26, later revision): named after live-testing foldAt
+// against claimsFromFeat's own real output (arrange.js) found ancestors and
+// descendants BOTH empty for every real, point-level cursor tried -- real
+// claims from real material are true siblings of each other under a shared
+// part, not ancestor/descendant, and foldAt had no category for that until
+// now. `siblings` is purely structural (same parent holon, one level up,
+// via gfp-claim.js's own segmentsOf/holon -- no new addressing concept), so
+// it needed no external contract to verify against the way atmosphere or
+// significance did.
+import { holon, contains, ancestry, segmentsOf } from "../kernel/gfp-claim.js";
 import { interpretiveAtmosphereFactorField } from "../kernel/atmosphere-math.js";
 import { predict } from "../kernel/bayes-surprise.js";
 
@@ -86,12 +96,23 @@ function slotsFromClaims(claims) {
   return slots;
 }
 
+/** The parent of a holon: itself with its last segment dropped. "/" (no
+ *  segments) has no parent -- returns null, not "/" (the root is not its
+ *  own parent). */
+function parentOf(h) {
+  const segs = segmentsOf(h);
+  if (!segs.length) return null;
+  return holon(segs.slice(0, -1).join("/"));
+}
+
 /**
  * foldAt(address, claims, { obligations, sequence, holo }) -> {
  *   schema, address,
  *   here: claims whose ground is exactly this address,
  *   ancestors: claims whose ground CONTAINS this address, ordered outermost-first,
  *   descendants: claims whose ground is CONTAINED BY this address,
+ *   siblings: claims that share this address's own parent (one level up),
+ *     excluding anything already counted in here/ancestors/descendants,
  *   atmosphere: real interpretiveAtmosphereFactorField result when
  *     `obligations` is supplied and non-empty, else a typed gap,
  *   significance: real bayes-surprise.js predict() result over the `here`
@@ -107,7 +128,8 @@ function slotsFromClaims(claims) {
  */
 export function foldAt(address, claims = [], { obligations = [], sequence = null, holo = null } = {}) {
   const here = holon(address);
-  const atHere = [], ancestorsOf = [], descendantsOf = [];
+  const hereParent = parentOf(here);
+  const atHere = [], ancestorsOf = [], descendantsOf = [], siblingsOf = [];
 
   for (const claim of claims) {
     if (!claim || typeof claim.ground !== "string") continue;
@@ -115,7 +137,8 @@ export function foldAt(address, claims = [], { obligations = [], sequence = null
     if (g === here) { atHere.push(claim); continue; }
     if (contains(g, here)) { ancestorsOf.push(claim); continue; }
     if (contains(here, g)) { descendantsOf.push(claim); continue; }
-    // sibling or unrelated ground: not part of this cursor's fold
+    if (hereParent !== null && parentOf(g) === hereParent) { siblingsOf.push(claim); continue; }
+    // no relation to this cursor at all: not part of this cursor's fold
   }
 
   // outermost ("/") first, closest-to-here last -- the same order a reader
@@ -148,6 +171,7 @@ export function foldAt(address, claims = [], { obligations = [], sequence = null
     here: atHere,
     ancestors: ancestorsOf,
     descendants: descendantsOf,
+    siblings: siblingsOf,
     atmosphere,
     paradigm: { wired: false, reason: "the-fold/paradigm.js's evaluateParadigm is real but has ZERO real production callers anywhere in this repo (only its own test file calls it; every real caller of paradigm.js instead calls learnParadigm/learnParadigmEmergent, which BUILD a paradigm, never evaluate one) -- there is no live contract to verify a candidate-shape against, so wiring this now would be a guess, not a verification. Left unwired until a real caller of evaluateParadigm exists to check against." },
     significance,
