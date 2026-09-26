@@ -703,6 +703,13 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
     // additive.
     thesis: thesis ? { id: thesis.pt.id, ids: [...thesisMemberIds], text: thesis.pt.text, claim: gen?.generalization ?? null, rendered: gen ? renderGeneralization(gen.generalization, "SVO") : null } : null,
     thesisCandidates: candidates.slice(0, 4).map((c) => ({ id: c.f.pt.id, score: Number(c.score.toFixed(2)), text: c.f.pt.text })),
+    // ADDITIVE (2026-09-26): claimsFromFeat(feat) run over every point in
+    // this material, not just the rare thesis-generalization winners above --
+    // real, holon-addressed GFP claims (the-fold/fold-at.js's own cursor
+    // addressing), exposed here so a real caller can reach them without
+    // reaching into arrangeEssay's own function-local `feat`. See this
+    // file's claimsFromFeat for what it does and does not attempt.
+    claims: claimsFromFeat(feat),
     slots, links, findings, weakened,
     basis: `${groups.length} body group(s) from ${parts.length} source part(s); ${links.filter((l) => l.kind === "succession").length} succession, ${links.filter((l) => l.kind === "overlap").length} overlap, ${links.filter((l) => l.kind === "inversion").length} inversion link(s); ${findings.length} reasoning finding(s)`,
   };
