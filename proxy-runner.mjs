@@ -3589,9 +3589,16 @@ function conversationFoldSegments(session, task, materialText = "") {
   // DECAY: the window is a declared depth in turns; gamma = 1 - 1/window, so
   // a turn `age` turns old has activation gamma^age. Below the floor it is
   // gone from the surf — reinforcement is the only thing that keeps a trail.
-  const WINDOW = Number(process.env.ER7_CONVO_WINDOW ?? 12);
+  // gammaFor REFUSES a window <=1 ("never a default" — kernel/activation.js's
+  // own guard) and this call site used to work around that refusal with a
+  // bare 0.8, an invented gamma matching no declared window at all, exactly
+  // where the guard exists to forbid silent substitution. Fixed at the
+  // boundary instead: WINDOW is clamped to gammaFor's own documented minimum
+  // valid input (2) or the file's own pre-existing default (12) — never a
+  // third, new number — so gammaFor is always called, never bypassed.
+  const WINDOW = Math.max(2, Number(process.env.ER7_CONVO_WINDOW ?? 12) || 12);
   const FLOOR = Number(process.env.ER7_CONVO_FLOOR ?? 0.25);
-  const gamma = WINDOW > 1 ? gammaFor(WINDOW) : 0.8;
+  const gamma = gammaFor(WINDOW);
   for (let i = 0; i < docs.length; i++) {
     const d = docs[i];
     const text = d.text;
