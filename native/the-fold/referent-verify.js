@@ -241,8 +241,14 @@ const META_SENTENCE_RE =
 // if you'd like me to expand on any of these points…", "Here's why this
 // rewrite works:", "How to continue the piece:". A closed vocabulary, same
 // discipline as META_SENTENCE_RE and DISCOURSE_SUBJECT_WORDS below.
+// 2026-09-26: a third real leak, grounded in this session's own live
+// 10-page demo (demo-tenpage-full) — "Here are a few options, depending on
+// the tone you're aiming for:" and "Here are a few options, incorporating
+// the historical context…" opened and closed the piece verbatim. The
+// contracted "here's" form above never matches the plural "here are" the
+// mouth used offering several alternatives instead of committing to one.
 const ASSISTANT_VOICE_RE =
-  /\blet me know\b|\bfeel free to\b|\bi hope this helps\b|\b(?:would you like|do you want) me to\b|\byou'?d like me to\b|\bany other questions\b|\bhere'?s (?:a |an )?(?:breakdown|summary|overview|explanation)\b|\bhere'?s why this\b|\bhow to continue\b/i;
+  /\blet me know\b|\bfeel free to\b|\bi hope this helps\b|\b(?:would you like|do you want) me to\b|\byou'?d like me to\b|\bany other questions\b|\bhere'?s (?:a |an )?(?:breakdown|summary|overview|explanation)\b|\bhere'?s why this\b|\bhow to continue\b|\bhere are (?:a few|some|several) options\b/i;
 // THE TECHNIQUE-COMMENTARY FILTER (2026-09-26): a third, distinct discourse
 // register from both filters above — neither task-talk nor chat-assistant
 // voice, but the mouth annotating ITS OWN phrasing choice inline, in
@@ -255,7 +261,13 @@ const ASSISTANT_VOICE_RE =
 // sentence, making it more natural and informative." The structural tell —
 // a bullet immediately followed by a bolded label and a colon — never
 // belongs in this piece's own prose register, whatever words follow it.
-const TECHNIQUE_COMMENTARY_RE = /^\s*[*\-]\s*\*\*[^*]{2,60}?:?\*\*:?/;
+// The leading bullet is OPTIONAL (2026-09-26, generalized from the same
+// session's own live 10-page demo): "**Option 2 (More descriptive):**"
+// closed a real piece with the identical bolded-structural-label tell as
+// the original "* **Embedded Information:**" grounding, but with no bullet
+// character at all — confirming the bullet was never the load-bearing part
+// of the pattern; a bolded label opening a line is.
+const TECHNIQUE_COMMENTARY_RE = /^\s*(?:[*\-]\s*)?\*\*[^*]{2,60}?:?\*\*:?/;
 // The "is a subject of X" pattern — the mouth's discourse filler (a subject of
 // discussion/interest/study/ongoing study/debate). The discourse words are a
 // Set, matched by membership against the sentence's words.

@@ -147,3 +147,27 @@ test("V10 — assistant-voice scaffolding is refused mechanically, real prose is
   // over-broad pattern.
   assert.ok(!isMetaSentence("SURF derives its two hunts entirely from the void's own words, never from external configuration."), "ordinary technical prose — admitted");
 });
+
+// ── V11  THE ASSISTANT-VOICE FILTER, GENERALIZED (2026-09-26) — a third real
+// leak, verbatim from this session's own live 10-page demo (documents/
+// demo-tenpage-full:1.jsonl), grounded not assumed: "Here are a few
+// options…" opened and closed the finished piece, offering alternatives
+// instead of committing to one — the contracted "here's" form V10 already
+// catches never matches this plural phrasing.
+test("V11 — 'here are a few/some/several options' scaffolding is refused; ordinary use of the word 'options' is not", () => {
+  assert.ok(isMetaSentence("Here are a few options, depending on the tone you're aiming for:"), "verbatim leak, demo-tenpage-full opening — refused");
+  assert.ok(isMetaSentence("Here are a few options, incorporating the historical context and the fact about French explorers, and the fact about the river's length:"), "verbatim leak, demo-tenpage-full closing — refused");
+  assert.ok(isMetaSentence("Here are some options for how to phrase the opening line."), "same register, a different quantifier — refused");
+  assert.ok(!isMetaSentence("Farmers weighed their options carefully before the harvest season began."), "ordinary prose using the word 'options' — admitted");
+});
+
+// ── V12  THE TECHNIQUE-COMMENTARY FILTER, GENERALIZED (2026-09-26) — the
+// bullet in the original grounding ("* **Embedded Information:**") was never
+// the load-bearing part of the tell. A second real leak, verbatim from the
+// same live 10-page demo, opens with an identical bolded structural label
+// and no bullet at all, closing the piece.
+test("V12 — a bare bolded structural label with no leading bullet is refused the same way a bulleted one already was", () => {
+  assert.ok(isMetaSentence("**Option 2 (More descriptive):**"), "verbatim leak, demo-tenpage-full closing — refused, no bullet prefix");
+  assert.ok(isMetaSentence("* **Embedded Information:** The fact about the river's length is woven into the sentence, making it more natural and informative."), "the original, bulleted grounding still catches");
+  assert.ok(!isMetaSentence("The river's length is woven into the sentence, making it more natural and informative."), "the same sentence with the bolded label stripped — ordinary prose, admitted");
+});
