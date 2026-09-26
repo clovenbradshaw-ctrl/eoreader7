@@ -256,6 +256,15 @@ canonical index. Physical location follows the boundary above: an entry
 below not resolvable under `native/organs/` or `native/kernel/` lives in
 the-fold's flat top level under the same basename.
 
+**This table is a separate naming system from `archon-holocracy/archons.json`**
+(the worktree-scoped archon registry, a sibling repo alongside this one).
+A domain can be owned in one and absent from the other. Measured live,
+2026-09-25: a session grepped only `archons.json` for literal keywords,
+found nothing, and proposed spawning a new archon for a domain (the
+English parser) this table had already named — Chomsky, row below — for
+some time. Before concluding any domain has no owner, check both: this
+table, and `archon-holocracy/archons.json`. See CODING-LESSONS.md #75.
+
 **Evidentiary walk**
 
 | File | Handle | One line |

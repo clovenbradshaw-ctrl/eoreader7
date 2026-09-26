@@ -1,0 +1,18 @@
+{
+  "note": "follow-up to the pilot: does a stated coverage budget close the coverage gap? Re-ran pipeline-run.mjs with task 'Summarize this document in 20 paragraphs, covering every major point.' (digits — askedExtent in void-spec.js only recognizes digits or the number-words one..twelve; the first attempt used the word 'twenty' and silently fell back to the 5-paragraph default, confirmed by re-reading the run log). Scored the same way as the pilot's other arms.",
+  "gpgp": {
+    "selection": "no sections dropped; 18 of 19 arranged sections kept",
+    "modelCalls": 109, "modelCallsBefore": 23, "seconds": 478, "secondsBefore": 40, "arrived": false, "stoppedReason": "a loop was undone",
+    "chars": 8286, "ratio": 1.067, "sentenceCount": 54,
+    "fabricatedNames": [], "fabricatedFigures": [], "splices": 0, "duplicatePairs": 0,
+    "readByHand": "one relational misattribution invisible to the token-level scorer: the piece attributes the source's 40-animal-species/90%-of-debris finding to 'the North Atlantic garbage patch' (mentioned once, in the source's opening sentence, as an aside) rather than the Great Pacific Garbage Patch the finding is actually about. Both names and both figures are individually real, so extractNames/extractFigures pass it clean."
+  },
+  "magi": {
+    "selection": "no sections dropped; 11 of 11 steered sections kept, 10 parts in the final piece",
+    "modelCalls": 157, "modelCallsBefore": 48, "seconds": 559, "secondsBefore": 121, "arrived": false, "stoppedReason": "a loop was undone",
+    "chars": 9662, "ratio": 0.919, "sentenceCount": 129,
+    "fabricatedNames": [], "fabricatedFigures": [], "splices": 0, "duplicatePairs": 0,
+    "readByHand": "now covers the whole story (hair sold, watch sold, gift exchange, the magi close) with no fabrication. Two defects the scorer can't see: 'One dollar and eighty-seven cents.' is stated twice back to back at the very start (findDuplicateStatements requires a figure AND a name in each sentence; this sentence carries no name, so it isn't flagged), and 'The other was Della's hair' is placed before its referent ('One was Jim's gold watch') is introduced later in the same paragraph — a discourse-ordering defect from resequencing, not a fabrication."
+  },
+  "verdict": "the coverage gap in the original pilot was genuinely a stated-ask problem, not a hard ceiling: selectToBudget kept nearly everything once given a number it could parse. But closing it this way cost 3.3x-4.7x more model calls (23->109, 48->157) and 4.6x-12x more wall time (40s->478s, 121s->559s), pushed the output to 92-107% of the source's own length (no longer a compression in any meaningful sense), never reached the pipeline's own 'arrived' state, and introduced defects — one relational misattribution, one raw duplicate sentence, one discourse-ordering slip — that the mechanical fabrication/splice/duplicate scorer is not built to catch, because none of them are a fabricated name, figure, verbatim splice, or figure+name-duplicated statement. Reading the output remains necessary; the scorer narrows what needs reading, it doesn't replace it."
+}

@@ -1840,3 +1840,101 @@ time, check what runs at that file's own module scope, not only what the
 function itself does. A bare `main()` call with no import.meta.url guard
 is only safe as long as nothing ever imports it — which is exactly the
 condition about to stop holding.
+
+## 75. Two naming systems, one grep — "nobody owns this" checked only one (2026-09-25)
+
+A session measured the English parser's real accuracy (held-out LAS 77.0,
+confirmed live: locative-inversion and long participial-opening sentences
+genuinely mis-parsed, not just under-extracted) and asked whose job it was
+to improve it. It grepped `archon-holocracy/archons.json` — a sibling
+repo's worktree-scoped archon registry — for literal strings
+("english-parser", "dependency parser", "parsing accuracy"), found no
+match across 23 entries, and reported the domain unowned. It then drafted
+a proposal to spawn a brand-new archon for it.
+
+The domain was not unowned. `README.md`'s own "Handles (Amendment XVII)"
+table — a second, separate naming system, canonical for *this* repo's own
+organs — had already named Chomsky as the handle covering
+`kernel/universal-grammar.js`, `kernel/eot-rich.js`,
+`adapters/text/english-parser.js`, and `adapters/text/clause-tense.js`.
+A second handle, Sullivan, already carried a wired second-witness role
+beside it (`adapters/text/morph-cues.js`, corroborating or contesting
+Chomsky's own tense readings) and an already-built, already-run
+measurement of parser accuracy specifically on period-spelled English
+(`eval/lavar/period-parse.mjs`) — directly on point for the failure class
+just found, and never consulted before the "unowned" claim was made.
+
+Both registries are real, both are checked by grep in practice, and a
+clean miss on one says nothing about the other — they are not mirrors of
+each other and neither table cross-references the other's existence.
+Checking only `archon-holocracy/archons.json` (the newer, more visible
+registry with its own `registry.mjs` scoring tool) and treating a miss
+there as "no owner anywhere" is exactly the failure mode this lesson
+exists to name.
+
+The rule: before reporting that a domain has no owner, or proposing a new
+archon, check BOTH `archon-holocracy/archons.json` and this repo's own
+`README.md` Handle table (cross-checked against the file's own
+`// Handle: …` header line, which is the ground truth the table indexes).
+A miss in one registry is not a miss in both.
+
+
+## 78. Gold-based retraining teaches the shape of the gold, not the shape of the problem (2026-09-25)
+
+A session found the English parser genuinely mis-parsing locative inversion
+and long periodic sentences (LAS 77.0 on modern web text, far worse on
+19th-century periodic translated prose). It built gold the careful way —
+double-annotated, adversarially adjudicated, checked against a mechanical
+structural validator and live-fetched real UD documentation, never trusted
+on an agent's word alone — and it worked, twice, measurably: 0/10 real
+held-out failures fixed, then 5/10, then 6/10, no regression on general
+held-out accuracy either round.
+
+Round two tried to generalize on purpose: for each of the four remaining
+real failures, it diagnosed the general pattern (not just that one
+sentence) and constructed 3-5 NEW examples per pattern, varied vocabulary,
+same construction. Physics-checked, double-annotated, oversampled into
+retraining. Result, honestly measured on the real held-out sentences: 1 of
+those 4 patterns transferred. Three did not, despite dedicated, correctly-
+built, non-memorized gold aimed straight at them.
+
+That is not a call for more gold. It is the method's own ceiling, showing
+itself in the numbers: a fixed-weight classifier trained on N hand-built
+examples has learned the shape of those N examples, and generalization
+past them is not guaranteed by how carefully the N were built. Worse in
+one specific case, it's not a data problem at all: the reported-speech /
+interrupted-subject construction's only correct UD analysis is
+non-projective, and this parser's own `train()` filters non-projective
+trees out before training ever starts — no gold, however perfect, crosses
+that ceiling, because the architecture cannot represent the answer.
+
+The user's own framing, mid-session, is the sharper diagnosis than either
+of the above taken alone: "in my head I don't classify things as nouns or
+not... a true emanon, disappears the more I try to pin it down... that
+way is just training to a particular golden when we need to be able to
+absorb ANYTHING." A word like "shed" is not one referent with an
+uncertain label; it is two unrelated referents (a structure, an act of
+casting off) that happen to share a spelling, and asking "what POS is
+shed" already presupposes it sits still long enough to have one. Baking
+an answer into permanent retrained weights is exactly the move that
+can't be right for a referent like that — which is the same reason
+`native/adapters/text/ablation-grain-pressure.js` (built, tested, not yet
+wired live — see `grain-typing.js`'s own `grain_gap`, kept, never
+guessed) never asks "what is this word," only "how much does THIS
+sentence's meaning shift when THIS occurrence is masked, right now" —
+and returns a revisable pressure, never a verdict, never baked anywhere.
+
+The rule: when a parser (or any fixed classifier) fails on real material,
+separate what's durably true about the failure from the specific gold
+built to fix it. The durable part — an architectural ceiling
+(non-projectivity), an error taxonomy (tagging-ambiguity vs.
+attachment-error vs. architectural), a named recurring word-class (English
+zero-inflection noun/verb homographs: shed, cast, spread, cut, set, cost,
+hurt, burst) — stays true with or without the gold and is worth writing
+down. The gold itself, and the retraining built from it, is a bounded,
+measured intervention on the specific cases tested, not a general
+strategy for "absorb anything." Where the failure is a referent that
+genuinely doesn't hold still (context-dependent category, not
+under-trained category), prefer a live, context-relative, revisable
+mechanism over another round of hand-built examples — and if none is
+wired yet, that is the thing to unblock, not a reason to keep training.

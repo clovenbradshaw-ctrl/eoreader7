@@ -1,0 +1,5 @@
+{
+  "note": "the mechanical floor projection already computed by pipeline-run.mjs before any LLM prosify/pathos pass touches the arranged draft — the arranged sentences in outline order, zero LLM-authored words. Pulled from the existing ledgers (documents/sumexp-{gpgp,magi}:1.jsonl, role: floor), scored with the same restatement.js detectors as the other two arms. Note: the outline that decides WHICH sentences are selected did consult the mouth for a few binary cohesion votes (merge these two sections or not) during steering, so 'zero LLM' describes the floor's TEXT, not the full selection pipeline upstream of it.",
+  "gpgp": { "chars": 1146, "ratio": 0.148, "sentenceCount": 9, "fabricatedNames": [], "fabricatedFigures": [], "splices": 0, "duplicatePairs": 0 },
+  "magi": { "chars": 2058, "ratio": 0.196, "sentenceCount": 25, "fabricatedNames": [], "fabricatedFigures": [], "splices": 0, "duplicatePairs": 0 }
+}

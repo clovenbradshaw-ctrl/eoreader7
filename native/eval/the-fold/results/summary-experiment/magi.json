@@ -1,0 +1,53 @@
+{
+  "doc": "O. Henry: The Gift of the Magi (narrative)",
+  "key": "magi",
+  "pipelineSecs": 121,
+  "baselineSecs": 35,
+  "pipeline": {
+    "text": "\"I just had to do it.\" The words tumbled out.\n\nThe words tumbled out, offering a flicker of hope in the otherwise bleak landscape, and James Dillingham Young emerged as the sole beacon of light. James Dillingham Young was the only source of light in the otherwise dark situation. While the mistress of the home is gradually subsiding from the first stage to the second, take a look at the home. A furnished flat at $8 per week. It did not exactly beggar description, but it certainly had that word on the lookout for the mendicancy squad. In the vestibule below was a letter-box into which no letter would go, and an electric button from which no mortal finger could coax a ring. Also appertaining thereunto was a card bearing the name \"Mr. James Dillingham Young.\" The \"Dillingham\" had been flung to the breeze during a former period of prosperity when its possessor was being paid $30 per week. Now, when the income was shrunk to $20, though, they were thinking seriously of contracting to a modest and unassuming D. But whenever Mr. James Dillingham Young came home and reached his flat above he was called \"Jim\" and greatly hugged by Mrs. James Dillingham Young, already introduced to you as Della. Which is all very good. Della finished her cry and attended to her cheeks with the powder rag. She stood by the window and looked out dully at a gray cat walking a gray fence in a gray backyard. Tomorrow would be Christmas Day, and she had only $1.87 with which to buy Jim a present. Only $1.87 to buy a present for Jim. Her Jim. Many a happy hour she had spent planning for something nice for him. She had been saving every penny she could for months, with this result. Twenty dollars a week doesn't go far. Expenses had been greater than she had calculated. They always are.\n\nThere was a pier glass between the windows of the room. Perhaps you have seen a pier glass in an $8 flat. A very thin and very agile person may, by observing his reflection in a rapid sequence of longitudinal strips, obtain a fairly accurate conception of his looks. Della, being slender, had mastered the art.\n\nDella's sudden shift in action, fueled by a sense of urgency, led her to turn from the window and face the glass. Suddenly she whirled from the window and stood before the glass. Her eyes were shining brilliantly, but her face had lost its color within twenty seconds. Rapidly she pulled down her hair and let it fall to its full length.",
+    "label": "pipeline",
+    "chars": {
+      "source": 10514,
+      "output": 2430,
+      "ratio": 0.231
+    },
+    "sentenceCount": 29,
+    "names": {
+      "stated": 25,
+      "fabricated": []
+    },
+    "figures": {
+      "stated": 8,
+      "fabricated": []
+    },
+    "spliceCeiling": 5,
+    "splices": [],
+    "duplicateStatementPairs": 0,
+    "duplicates": []
+  },
+  "baseline": {
+    "text": "This passage tells the story of Della and Jim, a young couple struggling financially.  They are deeply in love and plan to celebrate Christmas together.  However, Della's limited income forces her to make a difficult choice: sell her beautiful hair to buy a gift for Jim.  \n\nThe story is a poignant exploration of love, sacrifice, and the true meaning of Christmas.  Della's decision to sell her hair is driven by her love for Jim, and she is willing to make sacrifices for his happiness.  The story highlights the power of love and its ability to overcome even the most challenging circumstances.  \n\nThe story also touches on themes of class and social mobility.  Della and Jim live in a modest flat, and their financial struggles are a constant reminder of their precarious situation.  Despite their limited resources, they find a way to celebrate Christmas and show their love for each other.  The story ends with a sense of hope and optimism, suggesting that even in the face of adversity, love and joy can prevail.",
+    "label": "baseline",
+    "chars": {
+      "source": 10514,
+      "output": 1019,
+      "ratio": 0.097
+    },
+    "sentenceCount": 9,
+    "names": {
+      "stated": 8,
+      "fabricated": [
+        "however",
+        "despite"
+      ]
+    },
+    "figures": {
+      "stated": 0,
+      "fabricated": []
+    },
+    "spliceCeiling": 5,
+    "splices": [],
+    "duplicateStatementPairs": 0,
+    "duplicates": []
+  }
+}

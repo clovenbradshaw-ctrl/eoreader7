@@ -1,0 +1,53 @@
+{
+  "doc": "Wikipedia: Great Pacific Garbage Patch (informational)",
+  "key": "gpgp",
+  "pipelineSecs": 40,
+  "baselineSecs": 14,
+  "pipeline": {
+    "text": "A similar patch of floating plastic debris is found in the Atlantic Ocean, called the North Atlantic garbage patch.\n\nThe Great Pacific Garbage Patch (also Pacific trash vortex and North Pacific Garbage Patch) is a garbage patch, a gyre of marine debris particles, in the central North Pacific Ocean. This patch spans roughly from 135°W to 155°W and 35°N to 42°N, with the majority of its debris originating from the Pacific Rim. This includes countries in Asia, North America, and South America, highlighting the global impact of plastic pollution.\n\nThis is because the patch's low density, only 4 particles per cubic meter, makes it difficult to detect, and the particles themselves are microscopic, often just \"fingernail-sized or smaller\" - a testament to the insidious nature of plastic pollution.\n\nResearch reveals that the patch is rapidly accumulating plastic, with estimates suggesting it has increased \"10-fold each decade\" since 1945. The gyre contains approximately six pounds of plastic for every pound of plankton.",
+    "label": "pipeline",
+    "chars": {
+      "source": 7767,
+      "output": 1027,
+      "ratio": 0.132
+    },
+    "sentenceCount": 6,
+    "names": {
+      "stated": 13,
+      "fabricated": []
+    },
+    "figures": {
+      "stated": 7,
+      "fabricated": []
+    },
+    "spliceCeiling": 4,
+    "splices": [],
+    "duplicateStatementPairs": 0,
+    "duplicates": []
+  },
+  "baseline": {
+    "text": "The Great Pacific Garbage Patch, a vast gyre of marine debris, is a significant environmental problem. Despite its name, it's not a giant island of floating garbage, but rather a dispersed area of microplastics and larger debris particles.  The patch, located in the North Pacific Ocean, is estimated to cover 1.6 million square kilometers and contain 45,000-129,000 metric tons of plastic.  \n\nThe patch's formation is attributed to ocean currents and the accumulation of plastic debris from various sources, primarily from Asia, North America, and South America.  While microplastics dominate the patch, larger debris items like plastic lighters, toothbrushes, and fishing nets also contribute significantly.  \n\nThe patch is rapidly accumulating, with its size increasing by a factor of 10 every decade since 1945.  Research indicates that the patch's plastic content is heavily influenced by fishing and agricultural activities, with synthetic fishing nets being a major contributor.  \n\nThe patch's impact on marine life is significant, with over 40 animal species identified on the debris.  The patch's ecosystem is complex, with coastal species surviving alongside open-ocean species on the plastic.  However, the presence of these species in the patch raises concerns about the potential for unnatural \"neopelagic communities\" and the disruption of natural ecosystems.  \n\nEfforts to address the issue are ongoing, with organizations like the Ocean Cleanup project working to remove debris from the patch.  However, the patch's size and complexity make it a challenging problem to solve.  The patch's existence serves as a stark reminder of the impact of human activity on the environment and the urgent need for sustainable practices to reduce plastic pollution.",
+    "label": "baseline",
+    "chars": {
+      "source": 7767,
+      "output": 1767,
+      "ratio": 0.228
+    },
+    "sentenceCount": 13,
+    "names": {
+      "stated": 12,
+      "fabricated": [
+        "however the",
+        "efforts"
+      ]
+    },
+    "figures": {
+      "stated": 6,
+      "fabricated": []
+    },
+    "spliceCeiling": 4,
+    "splices": [],
+    "duplicateStatementPairs": 0,
+    "duplicates": []
+  }
+}
