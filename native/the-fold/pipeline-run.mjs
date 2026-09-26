@@ -203,10 +203,18 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   }
   const roleNames = roleVocabulary ? roleVocabulary.filter((v) => v.role !== "title").map((v) => v.role) : [];
   write("arrange", `Role vocabulary: ${roleNames.length} role(s)`, roleNames.join(", ") || "(none available)", roleVocabularyBasis, "eoreader7:form-priors");
-  const composedArrange = arrange ?? (roleVocabulary ? (args) => arrangeEssay({ ...args, roleVocabulary }) : null);
+  // pValue: 0.05, the same significance level this codebase already uses
+  // in its own committed tests (arrange-loadbearing.test.mjs, ablation-
+  // pressure-calibration.mjs) -- not a newly hand-set threshold. Without
+  // this, arrangeEssay's own contract guarantees loadBearing stays null on
+  // every real pipeline run (checked this session: pipeline-run.mjs never
+  // supplied pValue before now, so the field, built and tested, was proven
+  // but inert here).
+  const composedArrange = arrange ?? ((args) => arrangeEssay({ ...args, ...(roleVocabulary ? { roleVocabulary } : {}), pValue: 0.05 }));
   const sk = skeletonLoop({ draft, spec, shape, task, arrange: composedArrange, onLoop: (l) => write("arrange", `Skeleton loop ${l.n} · ${l.judge.verdict}${l.judge.keep ? "" : " · undone"}`, skeletonLoopLine(l), l.judge.why, "eoreader7:skeleton-loop") });
   let outline = sk.outline;
-  write("arrange", `Arrangement: ${outline.slots.length} slot(s)${sk.settled ? " · settled" : ""}`, outlineLines(outline, draft).join("\n"), `${outline.basis}; ${sk.basis}`, "eoreader7:arrange");
+  const thesisLoadBearingNote = outline.thesis ? ` — thesis load-bearing: ${outline.thesis.loadBearing === null ? "no extractable claims" : outline.thesis.loadBearing}` : "";
+  write("arrange", `Arrangement: ${outline.slots.length} slot(s)${sk.settled ? " · settled" : ""}`, outlineLines(outline, draft).join("\n"), `${outline.basis}; ${sk.basis}${thesisLoadBearingNote}`, "eoreader7:arrange");
   // THE MOUTH STEERS SOME PHYSICS (steer.js): it votes on which of the ask's
   // questions each section answers and whether neighbours are one section;
   // the mechanics license or refuse each vote, and every vote is recorded.
