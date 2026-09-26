@@ -74,7 +74,12 @@ proxy.log
 heimdall-fleet.log
 .er7-fleet.pid
 test run/
-documents/
+# documents/ is per-session ledger scratch (~200MB, machine-local) — ignored
+# wholesale except the end-state vision ledger, which is shared, small, and
+# meant to travel with the repo (any clone, including a scheduled cloud
+# routine, resumes the SAME ledger rather than forking an empty one).
+documents/*
+!documents/vision-end-state:1.jsonl
 heimdall-log.jsonl
 heimdall-derived-rules.json
 heimdall-choice-cache.json
