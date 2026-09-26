@@ -125,7 +125,15 @@ const DROP_CONTAINER = ["nav", "header", "footer", "aside", "form", "dialog"];
 // below) as an OPT-IN `blankFurniture` organ — the identical seam
 // `blankLabelRows`/`chunk.blanked` already use — rather than the byte
 // stream never having contained them in the first place.
-const DROP_ROLES = ["navigation"];
+// 2026-09-26: "note" added, grounded in a real live fetch of a genuine
+// Wikipedia page (en.wikipedia.org/wiki/Cumberland_River) this same session
+// — its hatnote's own container is `<div role="note" class="hatnote
+// navigation-not-searchable">For other uses, see …</div>`, a distinct ARIA
+// landmark from "navigation" that this list did not yet cover. role="note"
+// is the standard WAI-ARIA landmark for content "parenthetic or ancillary to
+// the main content" — the same non-body-text furniture "navigation" already
+// exists here to catch, not a new invented category.
+const DROP_ROLES = ["navigation", "note"];
 
 // Attribute values may legally contain ">" (Wikipedia ships JSON inside
 // data-mw='{…}'), so every tag pattern here walks quoted values instead of

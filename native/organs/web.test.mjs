@@ -183,6 +183,25 @@ test("extractReadable: role=\"navigation\" on an unrelated element (case/whitesp
   assert.ok(blanked.includes("also keep this"));
 });
 
+// 2026-09-26: role="note" added to DROP_ROLES, grounded in a real live fetch
+// this same session of en.wikipedia.org/wiki/Cumberland_River, whose own
+// hatnote container is exactly the shape below — a real leak (this session's
+// own 10-page demo) let "For other uses, see Cumberland River
+// (disambiguation)." ride through hunt.js's admission as ordinary body text
+// because nothing in the live pipeline surveyed role="note" at all.
+test("extractReadable surveys a role=\"note\" region too (a real MediaWiki hatnote's own container), and blanking it drops it", () => {
+  const html = `<body><main><div role="note" class="hatnote navigation-not-searchable">For other uses, see <a href="/wiki/Cumberland_River_(disambiguation)">Cumberland River (disambiguation)</a>.</div><p>The Cumberland River is a major waterway of the southeastern United States.</p></main></body>`;
+  const out = extractReadable(html);
+  assert.ok(out.text.includes("For other uses, see"), "nothing is removed at extraction -- the hatnote's own words are still in text");
+  assert.ok(out.text.includes("The Cumberland River is a major waterway"));
+  assert.equal(out.navSpans.length, 1);
+  const blanked = blankSpans(out.text, out.navSpans);
+  assert.equal(blanked.length, out.text.length);
+  assert.ok(!blanked.includes("For other uses"), "the hatnote is blanked");
+  assert.ok(!blanked.includes("disambiguation"));
+  assert.ok(blanked.includes("The Cumberland River is a major waterway"), "real article prose is untouched");
+});
+
 test("blankSpans: length-preserving, newlines survive inside a blanked range, unsorted/overlapping ranges handled", () => {
   const text = "AAAA\nBBBB\nCCCC";
   const out = blankSpans(text, [{ start: 5, end: 9 }]);

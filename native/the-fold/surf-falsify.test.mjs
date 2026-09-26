@@ -138,3 +138,18 @@ test("liveWeb wraps organs/web.js: a DDG HTML page parses to results, an HTTP 40
   assert.match(page.text, /compare thee/);
   await assert.rejects(web.fetch("https://forbidden.example/"), /HTTP 403/);
 });
+
+// 2026-09-26: liveWeb's fetch now opts into organs/web.js's own
+// referent-admission wall (blankSpans on navSpans) — a real leak (this
+// session's own 10-page demo, before this fix) let a Wikipedia hatnote ride
+// through this exact function into hunt.js's admission as ordinary body
+// text, because navSpans was computed by extractReadable but never consumed
+// here.
+test("liveWeb's fetch blanks role=\"navigation\"/\"note\" furniture before returning text — real prose survives, the furniture does not", async () => {
+  const hatnotePage = `<body><main><div role="note" class="hatnote navigation-not-searchable">For other uses, see Cumberland River (disambiguation).</div><p>The Cumberland River is a major waterway of the southeastern United States.</p></main></body>`;
+  const fetchImpl = async () => ({ status: 200, text: async () => hatnotePage });
+  const web = liveWeb({ fetchImpl });
+  const page = await web.fetch("https://en.wikipedia.example/Cumberland_River");
+  assert.doesNotMatch(page.text, /For other uses|disambiguation/, "the hatnote is blanked, not returned as ordinary body text");
+  assert.match(page.text, /The Cumberland River is a major waterway/, "real article prose is untouched");
+});

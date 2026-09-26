@@ -25,7 +25,7 @@
 // tests and on DuckDuckGo's no-key HTML face live (liveWeb, via organs/web.js
 // — the engine's own reader of that face, blocked-page detection included).
 
-import { parseSearchResults, extractReadable, hostOf, WEB_UA, WEB_FETCH_TIMEOUT_MS, WEB_FETCH_MAX_BYTES } from "../organs/web.js";
+import { parseSearchResults, extractReadable, blankSpans, hostOf, WEB_UA, WEB_FETCH_TIMEOUT_MS, WEB_FETCH_MAX_BYTES } from "../organs/web.js";
 
 export const SURF_SCHEMA = "EOSurf@1";
 
@@ -200,7 +200,17 @@ export function liveWeb({ fetchImpl = globalThis.fetch, timeoutMs = WEB_FETCH_TI
       const { status, body } = await get(url);
       if (status >= 400) throw new Error(`HTTP ${status}`);
       const r = extractReadable(body);
-      return { title: r.title ?? "", text: r.text ?? "", chars: (r.text ?? "").length, headings: (r.headings ?? []).map((h) => h.text) };
+      // THE REFERENT-ADMISSION WALL, OPTED INTO (2026-09-26): extractReadable
+      // has always surveyed role="navigation"/"note" regions (organs/web.js's
+      // own navSpans, blankSpans) but nothing in this live pipeline ever
+      // called blankSpans on them — a real hunt.js admission (this session's
+      // own 10-page demo) let a Wikipedia hatnote and a page's navigation
+      // furniture ride through as ordinary body text because of exactly this
+      // gap. blankSpans is length-preserving (every other byte offset into
+      // this same text is unaffected); only role-tagged furniture becomes
+      // blank space instead of admissible prose.
+      const text = blankSpans(r.text ?? "", r.navSpans);
+      return { title: r.title ?? "", text, chars: text.length, headings: (r.headings ?? []).map((h) => h.text) };
     },
   };
 }
