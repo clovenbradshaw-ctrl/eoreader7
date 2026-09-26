@@ -6,6 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { foldAt } from "./fold-at.js";
 import { gfpClaim } from "../kernel/gfp-claim.js";
+import { createHolograph } from "../kernel/bayes-surprise.js";
 
 const claims = [
   gfpClaim({ ground: "/", rel: "opens", roles: { ARG0: "the-book" } }),
@@ -62,12 +63,32 @@ test("with a real, correctly-shaped obligation, atmosphere returns interpretiveA
   assert.equal(fold.atmosphere.field.model, "interpretive_constraint_factor_graph");
 });
 
-test("paradigm and significance remain typed gaps, never fabricated values", () => {
+test("paradigm remains a typed gap, never a fabricated value", () => {
   const fold = foldAt("/p3/2", claims);
   assert.equal(fold.paradigm.wired, false);
-  assert.equal(fold.significance.wired, false);
   assert.equal(typeof fold.paradigm.reason, "string");
+});
+
+test("with no holo supplied, significance is a typed gap, never a fabricated value", () => {
+  const fold = foldAt("/p3/2", claims);
+  assert.equal(fold.significance.wired, false);
   assert.equal(typeof fold.significance.reason, "string");
+});
+
+test("with a real holograph supplied, significance returns bayes-surprise.js's real predict() result", () => {
+  const holo = createHolograph({ alpha: 1, gamma: 1 });
+  const fold = foldAt("/p3/2", claims, { holo });
+  assert.equal(fold.significance.wired, true);
+  assert.equal(typeof fold.significance.totalBits, "number");
+  assert.ok(fold.significance.perSlot.length > 0);
+  assert.ok(fold.significance.perSlot.every((s) => typeof s.bits === "number" && typeof s.p === "number"));
+});
+
+test("significance never mutates the caller's supplied holograph (predict, not admit)", () => {
+  const holo = createHolograph({ alpha: 1, gamma: 1 });
+  const admittedBefore = holo.admitted;
+  foldAt("/p3/2", claims, { holo });
+  assert.equal(holo.admitted, admittedBefore);
 });
 
 test("the root cursor (/) has no ancestors and every other claim as a descendant or itself", () => {
