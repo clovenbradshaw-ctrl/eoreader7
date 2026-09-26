@@ -3560,8 +3560,38 @@ export async function restartModelServer({ force = false } = {}) {
 const PROBE_MODEL = process.env.ER7_PROBE_MODEL ?? "gemma2:2b";
 export async function probeModelServer({ timeoutMs = 8000 } = {}) {
   try {
-    const tags = await fetch(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(4000) });
-    if (!tags.ok) return { ok: false, status: tags.status, surface: "tags" };
+    const tagsRes = await fetch(`${OLLAMA_URL}/api/tags`, { signal: AbortSignal.timeout(4000) });
+    if (!tagsRes.ok) return { ok: false, status: tagsRes.status, surface: "tags" };
+    // EMBED IS A SEPARATE SURFACE FROM GENERATE (found 2026-09-26, the same
+    // class of gap LESSON 22 above already fixed for generate, never
+    // extended to embed): this daemon was observed live, twice, wedged
+    // specifically on /api/embed — zero bytes returned, no runner process
+    // ever spawned — while /api/tags AND /api/generate both answered
+    // normally throughout. The resident-model scan below has always
+    // excluded embed models from its own check, so this failure mode was
+    // structurally invisible to this probe until now. Read the embedding
+    // model straight off the real /api/tags response (capabilities
+    // includes "embedding") rather than a hardcoded model name — this
+    // never assumes nomic-embed-text specifically, only whatever the box
+    // actually reports as embedding-capable, and is skipped honestly (never
+    // reported as a failure) when the box has no such model at all.
+    const tagsJson = await tagsRes.json().catch(() => null);
+    const embedModel = (tagsJson?.models ?? []).find((m) => (m.capabilities ?? []).includes("embedding"));
+    if (embedModel) {
+      try {
+        const er = await fetch(`${OLLAMA_URL}/api/embed`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ model: embedModel.name ?? embedModel.model, input: "ok" }),
+          signal: AbortSignal.timeout(timeoutMs),
+        });
+        if (!er.ok) return { ok: false, status: er.status, surface: "embed" };
+        const ej = await er.json().catch(() => null);
+        if (!ej?.embeddings?.length) return { ok: false, surface: "embed", reason: "no embeddings on a finished embed call" };
+      } catch (e) {
+        return { ok: false, surface: "embed", error: e?.cause?.code ?? e.message };
+      }
+    }
     // RESIDENT ONLY, as documented above (fixed 2026-09-22): the probe used to
     // ask PROBE_MODEL whether or not it was loaded, with no keep_alive — so
     // the idle watchdog (every 30s) LOADED gemma2:2b on a one-model box,
