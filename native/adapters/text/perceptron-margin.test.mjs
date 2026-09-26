@@ -6,6 +6,17 @@
 // margin between the winning class and the runner-up, purely additively --
 // best() itself is untouched, verified below by cross-checking they always
 // agree on which class wins.
+//
+// CORRECTED (2026-09-26, same day): margin-calibration.test.mjs's own real,
+// population-scale measurement (20,034 held-out tokens) found margin IS a
+// strong, real calibration signal (high-margin accuracy 0.9987 vs low-margin
+// 0.9077, p=9.926e-264) -- and "converts" own margin (4.627) sits far below
+// the real median (26.886), squarely in the measured low-accuracy half. The
+// real-sentence test below still passes and its own assertion is still true
+// (converts is not the single lowest margin among that one sentence's 10
+// other tokens), but comparing within one sentence undersold a real, now-
+// confirmed signal; see margin-calibration.test.mjs for the finding that
+// actually licenses a backoff.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -45,7 +56,7 @@ test("no valid class at all returns a null index and a null margin, never a gues
   assert.equal(r.margin, null);
 });
 
-test("REAL MODEL, REAL SENTENCE: margins on the exact sentence this session found mistagged -- 'converts' is not the lowest-margin token, an honest, disclosed limit of margin alone", () => {
+test("REAL MODEL, REAL SENTENCE: margins on the exact sentence this session found mistagged -- 'converts' is not the single lowest margin among this one sentence's own tokens (see margin-calibration.test.mjs for the real, population-scale finding that it IS calibrated low-confidence)", () => {
   const model = loadModel(JSON.parse(fs.readFileSync(path.join(ROOT, "native/priors/parser-eng-ewt.json"), "utf8")));
   const sent = "Photosynthesis converts light energy into chemical energy stored in glucose.";
   const words = tokenize(sent).map((t) => t.form);
@@ -67,14 +78,17 @@ test("REAL MODEL, REAL SENTENCE: margins on the exact sentence this session foun
     margins[words[i]] = r.margin;
     prev2 = prev; prev = model.tagger.classes[r.index];
   }
-  // Measured live this turn, not assumed: "converts" (mistagged NOUN) has a
-  // MIDDLING margin, not the sentence's lowest -- "energy" and "glucose"
-  // (both correctly tagged) measure lower. This is the honest reason a
-  // naive "flag anything below margin X" rule is not attempted here: it
-  // would not cleanly separate this real error from correct-but-uncertain
-  // tags without first measuring margin-vs-error-rate over a real,
-  // held-out corpus, which this test does not attempt.
+  // Measured live: "converts" (mistagged NOUN) does not have the SINGLE
+  // lowest margin among this one sentence's own 10 other tokens ("energy"
+  // and "glucose" measure lower and are correctly tagged) -- true, but a
+  // later, real, population-scale measurement (margin-calibration.test.mjs,
+  // 20,034 held-out tokens) found this within-sentence comparison was the
+  // wrong standard: "converts" own margin (4.627) sits far below the real
+  // population median (26.886), squarely in the measured low-accuracy half.
+  // Kept here as a real, narrower, still-true observation about this one
+  // sentence, not as evidence against a backoff -- see margin-calibration
+  // .test.mjs for the finding that actually settles the question.
   assert.ok(margins["converts"] > 0 && Number.isFinite(margins["converts"]), "converts must have a real, finite margin");
   const lowerThanConverts = Object.entries(margins).filter(([w, m]) => w !== "converts" && m < margins["converts"]);
-  assert.ok(lowerThanConverts.length > 0, "at least one other real token in this sentence must measure a lower margin than the mistagged one, confirming margin alone does not cleanly flag this error");
+  assert.ok(lowerThanConverts.length > 0, "at least one other real token in this sentence measures a lower margin than the mistagged one -- true within this one sentence, not evidence against calibration at population scale");
 });

@@ -243,6 +243,25 @@ export function tagSentence(tagger, words) {
   return tags;
 }
 
+// ADDITIVE SIBLING (2026-09-26): an exact structural mirror of tagSentence
+// above, reusing the SAME unexported tagFeatures so the two can never
+// silently drift apart -- the only difference is bestWithMargin in place
+// of best(), returning each token's own decision margin alongside its tag.
+// Built to run the real measurement the ledger named as the next licensed
+// step: does margin actually predict tagging errors on real held-out gold
+// data, or not. tagSentence itself is untouched.
+export function tagSentenceWithMargins(tagger, words) {
+  const context = ["-START-", "-START2-", ...words.map(normalize), "-END-", "-END2-"];
+  let prev = "-START-", prev2 = "-START2-";
+  const tags = [], margins = [];
+  for (let i = 0; i < words.length; i++) {
+    const r = tagger.bestWithMargin(tagFeatures(i, words[i], context, prev, prev2));
+    const t = tagger.classes[r.index];
+    tags.push(t); margins.push(r.margin); prev2 = prev; prev = t;
+  }
+  return { tags, margins };
+}
+
 // ── parser: arc-eager ──────────────────────────────────────────────────────
 export const ACTIONS = ["SHIFT", "REDUCE", "LEFT", "RIGHT"];
 const distBucket = (d) => (d <= 4 ? String(d) : d <= 7 ? "5-7" : "8+");
