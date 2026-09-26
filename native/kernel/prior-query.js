@@ -105,3 +105,56 @@ export function queryMeaningPotential(register, { record = null, seams = [], liv
 
   return { register: { field, mode, tenor: register?.tenor?.tenor ?? "general" }, evidence };
 }
+
+/**
+ * queryMeaningPotentialWithResonance(register, { topic, ...opts }) — the
+ * SAME cascade queryMeaningPotential already returns, plus one more,
+ * genuinely different contributor: which live_priors CATEGORIES resonate
+ * with the void's own declared TOPIC (WHAT it is about), by real embedding
+ * similarity — orthogonal to items 1-3 above, which key on genre alone
+ * (HOW a genre stages) and would substring-match nothing for a topic.
+ * "the query is OPEN — a new prior family is registered, never a new
+ * branch" (this file's own header) — registered here as a NEW, separate,
+ * async function rather than a change to queryMeaningPotential itself,
+ * because that function is called SYNCHRONOUSLY by its one known live
+ * production site (proxy-runner.mjs's composition planning), and changing
+ * its own contract without verifying that call site live is a risk this
+ * pass does not take. Wiring THIS function into that live call site
+ * (which would mean making it await-aware there) is a disclosed, real,
+ * deliberately unattempted next step — not silently implied done.
+ *
+ * Omitting `topic` degrades to EXACTLY queryMeaningPotential's own output,
+ * evidence array untouched — pinned in prior-query.test.mjs. An
+ * unreachable embedding service degrades the SAME way (a caught, silent
+ * absence of this one contributor), matching every other contributor
+ * above's own posture: a missing corpus fails to empty evidence, never to
+ * a thrown turn.
+ *
+ * `livePriorsRoot` is DELIBERATELY a separate parameter from `liveDir`,
+ * caught before this shipped by checking the real corpus rather than
+ * assuming: `livePriorsDir(liveDir)` resolves to `live_priors/derived-
+ * priors` (this cascade's own directory — arc-priors/need-priors/reading-
+ * priors), which is NOT where live_priors' own content CATEGORIES live
+ * (01-literature-books, 06-government-legal, ... sit one level ABOVE
+ * derived-priors, in live_priors itself). Defaults to deriving that root
+ * from `liveDir`'s own convention (its parent directory) rather than a
+ * second hardcoded path, but is overridable when a caller's `liveDir`
+ * does not follow that convention (e.g. a test fixture).
+ */
+export async function queryMeaningPotentialWithResonance(register, { record = null, seams = [], liveDir = null, topic = null, livePriorsRoot = null, ollamaUrl, model } = {}) {
+  const base = queryMeaningPotential(register, { record, seams, liveDir });
+  if (!topic) return base;
+  try {
+    const { resonantLivePriorsCategories } = await import("../the-fold/prior-resonance.js");
+    const root = livePriorsRoot ?? path.resolve(livePriorsDir(liveDir), "..");
+    const resonance = await resonantLivePriorsCategories(topic, { liveDir: root, ollamaUrl, model });
+    if (resonance.matches.length) {
+      base.evidence.push({
+        from: "live_priors (embedding resonance)",
+        categories: resonance.matches.map((m) => m.category),
+        basis: `${resonance.matches.length} of ${resonance.categoriesSampled} categor${resonance.categoriesSampled === 1 ? "y" : "ies"} sampled resonate with the declared topic above a measured off-topic ceiling (${resonance.consulted} document(s) consulted)`,
+      });
+    }
+  } catch { /* an unreachable embedding service or absent corpus degrades to the base cascade alone — this file's own existing contributors already hold this posture for a missing file */ }
+  return base;
+}

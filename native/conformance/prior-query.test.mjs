@@ -50,7 +50,18 @@ fs.writeFileSync(
 // misses are read()'s and genrePriors()'s own contract).
 fs.writeFileSync(path.join(dir, "need-priors", "not-a-need-prior.json"), JSON.stringify({ schema: "SomethingElse@1" }));
 
-const { queryMeaningPotential, loadSidecar, livePriorsDir, sidecarPath } = await import("../kernel/prior-query.js");
+const { queryMeaningPotential, queryMeaningPotentialWithResonance, loadSidecar, livePriorsDir, sidecarPath } = await import("../kernel/prior-query.js");
+
+const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://localhost:11434";
+let embeddingAvailable = false;
+try {
+  const res = await fetch(`${OLLAMA}/api/embed`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ model: "nomic-embed-text", input: "ping" }),
+  });
+  embeddingAvailable = res.ok;
+} catch { /* no local Ollama reachable — skip below */ }
 
 const registerFor = (field, mode = "text") => ({ field: { field }, mode, tenor: { tenor: "general" } });
 
@@ -118,6 +129,52 @@ test("a missing corpus directory fails honestly to empty evidence, never a throw
   assert.equal(res.evidence.find((e) => e.from.startsWith("NeedPrior")), undefined);
   assert.ok(res.evidence.find((e) => e.from === "the web (hunt)"), "the one contributor with no corpus dependency still answers");
 });
+
+test("queryMeaningPotentialWithResonance: with no topic, degrades to exactly queryMeaningPotential's own output", async () => {
+  const base = queryMeaningPotential(registerFor("narrative"), { liveDir: dir });
+  const withResonance = await queryMeaningPotentialWithResonance(registerFor("narrative"), { liveDir: dir });
+  assert.deepEqual(withResonance, base);
+});
+
+test(
+  "queryMeaningPotentialWithResonance: with a real topic and a reachable embedding service, adds a live_priors resonance contributor without disturbing the existing cascade",
+  { skip: !embeddingAvailable && "no local Ollama + nomic-embed-text reachable" },
+  async () => {
+    const withResonance = await queryMeaningPotentialWithResonance(
+      registerFor("narrative"),
+      { liveDir: dir, topic: "the human right to a fair trial and due process under the law" },
+    );
+    // The existing cascade's own contributors are untouched.
+    assert.ok(withResonance.evidence.find((e) => e.from === "FortunePrior@1 (sidecar)"));
+    assert.ok(withResonance.evidence.find((e) => e.from === "the web (hunt)"));
+    // This fixture directory (arc-priors/need-priors/reading-priors only)
+    // carries no live_priors category directories, so the new contributor
+    // has nothing to sample and correctly adds no entry — proving it
+    // degrades honestly on an absent corpus rather than fabricating one.
+    assert.equal(withResonance.evidence.find((e) => e.from === "live_priors (embedding resonance)"), undefined);
+  },
+);
+
+test(
+  "queryMeaningPotentialWithResonance: against the REAL live_priors corpus (default root), a human-rights topic surfaces a real category — proves livePriorsRoot resolves to live_priors itself, never derived-priors",
+  { skip: !embeddingAvailable && "no local Ollama + nomic-embed-text reachable" },
+  async () => {
+    // Deliberately uses the DEFAULT liveDir/livePriorsRoot resolution (no
+    // override) against the real, present live_priors checkout — the one
+    // path this file's own header discloses was wrong until fixed
+    // (livePriorsDir() names live_priors/derived-priors, one level below
+    // where the content categories actually live; queryMeaningPotential-
+    // WithResonance derives the category root as that path's PARENT).
+    const withResonance = await queryMeaningPotentialWithResonance(
+      registerFor("narrative"),
+      { topic: "the human right to a fair trial and due process under the law" },
+    );
+    const resonance = withResonance.evidence.find((e) => e.from === "live_priors (embedding resonance)");
+    assert.ok(resonance, "the real corpus has real government-legal content — this must fire, not silently degrade");
+    assert.ok(resonance.categories.length >= 1);
+    assert.ok(resonance.categories.includes("06-government-legal"), `expected 06-government-legal among ${JSON.stringify(resonance.categories)}`);
+  },
+);
 
 test("cleanup", () => {
   fs.rmSync(dir, { recursive: true, force: true });

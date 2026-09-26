@@ -40,7 +40,11 @@ const EMBED_MODEL = process.env.ER7_EMBED_MODEL ?? "nomic-embed-text";
 // evidentiary/stylistic domain. Declared once, never tuned against a
 // specific archon's own score (that would be calibrating on the answer
 // key, the exact mistake this repo's own CLAUDE.md names and forbids).
-const NULL_QUERIES = Object.freeze([
+// Exported because the off-topic-ness of these queries is domain-agnostic
+// by construction — a second caller ranking a DIFFERENT candidate set
+// (prior-resonance.js's live_priors documents) reuses this same set rather
+// than restating an equivalent list that could quietly drift from it.
+export const NULL_QUERIES = Object.freeze([
   "what time is it",
   "how do I boil an egg",
   "what's the weather tomorrow",
@@ -51,7 +55,7 @@ const NULL_QUERIES = Object.freeze([
   "how do I tie my shoes",
 ]);
 
-async function embed(inputs, { ollamaUrl = OLLAMA, model = EMBED_MODEL } = {}) {
+export async function embed(inputs, { ollamaUrl = OLLAMA, model = EMBED_MODEL } = {}) {
   const res = await fetch(`${ollamaUrl}/api/embed`, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -63,7 +67,7 @@ async function embed(inputs, { ollamaUrl = OLLAMA, model = EMBED_MODEL } = {}) {
   return data.embeddings;
 }
 
-function cosine(a, b) {
+export function cosine(a, b) {
   let dot = 0, na = 0, nb = 0;
   for (let i = 0; i < a.length; i += 1) { dot += a[i] * b[i]; na += a[i] * a[i]; nb += b[i] * b[i]; }
   const denom = Math.sqrt(na) * Math.sqrt(nb);
@@ -72,26 +76,56 @@ function cosine(a, b) {
 
 const archonText = (a) => `${a.role}. ${a.work}`;
 
-let cache = null; // { archons: [{handle, vec}], ceiling: number }
-
-async function buildCache(archons, opts) {
-  const texts = archons.map(archonText);
+/**
+ * buildResonanceCache(items, textOf, { calibration, ollamaUrl, model }) —
+ * the general half of resonantPrinciple's own mechanism, extracted so a
+ * SECOND candidate domain (prior-resonance.js's corpus documents) can reuse
+ * it rather than re-implementing embed-once/cosine/measured-null-ceiling a
+ * second time (this repo's own repeated anti-drift lesson — P22/P24/P39's
+ * postmortems). `textOf(item)` extracts what gets embedded for each item;
+ * `calibration` defaults to NULL_QUERIES but is overridable for a domain
+ * whose own off-topic set would differ (not needed today — kept open).
+ */
+export async function buildResonanceCache(items, textOf, { calibration = NULL_QUERIES, ollamaUrl, model } = {}) {
+  const opts = { ollamaUrl, model };
+  const texts = items.map(textOf);
   const vecs = await embed(texts, opts);
-  const archonVecs = archons.map((a, i) => ({ handle: a.handle, role: a.role, vec: vecs[i] }));
+  const itemVecs = items.map((item, i) => ({ item, vec: vecs[i] }));
 
   // The null: each calibration query's own best-match similarity against
-  // this same archon set, and the ceiling is the maximum of those — a
-  // real task must beat what genuinely unrelated text already achieves
-  // by coincidence, not an arbitrary fraction picked by eye.
-  const nullVecs = await embed([...NULL_QUERIES], opts);
+  // this same item set, and the ceiling is the maximum of those — a real
+  // query must beat what genuinely unrelated text already achieves by
+  // coincidence, not an arbitrary fraction picked by eye.
+  const nullVecs = await embed([...calibration], opts);
   let ceiling = 0;
   for (const nv of nullVecs) {
     let best = 0;
-    for (const av of archonVecs) best = Math.max(best, cosine(nv, av.vec));
+    for (const iv of itemVecs) best = Math.max(best, cosine(nv, iv.vec));
     ceiling = Math.max(ceiling, best);
   }
-  return { archonVecs, ceiling };
+  return { itemVecs, ceiling };
 }
+
+/**
+ * resonantMatch(query, cache, { ollamaUrl, model }) — the single best item
+ * in `cache` for `query`, or null if nothing clears the cache's own
+ * measured ceiling. The other half of resonantPrinciple's mechanism,
+ * exported so a caller wanting only the best match (not a ranked list)
+ * reuses this rather than re-deriving the "beat the ceiling" rule.
+ */
+export async function resonantMatch(query, cache, { ollamaUrl, model } = {}) {
+  const opts = { ollamaUrl, model };
+  const [queryVec] = await embed([String(query ?? "")], opts);
+  let best = null, bestSim = -Infinity;
+  for (const iv of cache.itemVecs) {
+    const sim = cosine(queryVec, iv.vec);
+    if (sim > bestSim) { bestSim = sim; best = iv; }
+  }
+  if (!best || bestSim <= cache.ceiling) return null;
+  return { item: best.item, similarity: bestSim, ceiling: cache.ceiling };
+}
+
+let cache = null; // { itemVecs: [{item: archon, vec}], ceiling: number }
 
 /**
  * resonantPrinciple(task, { archons, ollamaUrl, model }) — the covert
@@ -99,20 +133,17 @@ async function buildCache(archons, opts) {
  * `archons` is injected (the real compendium's own ARCHONS array, never
  * reimplemented). Throws only on a genuine embedding-service failure —
  * callers should catch, the same discipline groundFactFor already holds.
+ * Unchanged behavior after the buildResonanceCache/resonantMatch
+ * extraction above — this function is now a thin composition of the two,
+ * verified byte-identical against its own pre-existing test file.
  */
 export async function resonantPrinciple(task, { archons, ollamaUrl, model } = {}) {
   if (!Array.isArray(archons) || !archons.length) throw new TypeError("resonantPrinciple: archons is injected — the real compendium's own ARCHONS array");
   const opts = { ollamaUrl, model };
-  if (!cache) cache = await buildCache(archons, opts);
-
-  const [taskVec] = await embed([String(task ?? "")], opts);
-  let best = null, bestSim = -Infinity;
-  for (const av of cache.archonVecs) {
-    const sim = cosine(taskVec, av.vec);
-    if (sim > bestSim) { bestSim = sim; best = av; }
-  }
-  if (!best || bestSim <= cache.ceiling) return null;
-  return Object.freeze({ text: best.role, handle: best.handle, similarity: bestSim, ceiling: cache.ceiling });
+  if (!cache) cache = await buildResonanceCache(archons, archonText, opts);
+  const m = await resonantMatch(task, cache, opts);
+  if (!m) return null;
+  return Object.freeze({ text: m.item.role, handle: m.item.handle, similarity: m.similarity, ceiling: m.ceiling });
 }
 
 /** Test-only: force a fresh cache (a real Ollama instance is required —
