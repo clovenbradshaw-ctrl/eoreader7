@@ -25,7 +25,7 @@ export function floorPiece(draft) {
   return drawnParts(draft).map((p) => ({ id: p.id, pieces: p.children.map((pt) => ({ text: pt.text, carries: [pt.id] })) }));
 }
 
-export function measurePiece(piece, { draft, ground = "", task = "", parse = null } = {}) {
+export function measurePiece(piece, { draft, ground = "", task = "", parse = null, loadBearing = null } = {}) {
   const A = anchorsFor(draft);
   const said = piece.flatMap((p) => (p.pieces ?? []).map((pc) => pc.text));
   const ids = drawnParts(draft).flatMap((p) => p.children.map((pt) => pt.id));
@@ -43,6 +43,12 @@ export function measurePiece(piece, { draft, ground = "", task = "", parse = nul
     answered: questions.length ? questions.filter((q) => present.has(q)).length : null, questions: questions.length,
     licensed,
     sentences: said.length, words: said.join(" ").split(/\s+/).filter(Boolean).length,
+    // PASSTHROUGH ONLY (2026-09-26): the caller's own already-computed
+    // arrangeEssay loadBearing value, carried through to this measurement
+    // and its ledger line so it is visible at the loop-quality stage --
+    // never computed here, never read by judgeLoop's decision below, and
+    // null (the existing default) on every caller that does not supply it.
+    loadBearing,
   };
 }
 
@@ -66,5 +72,6 @@ export function judgeLoop(prev, now, { addsFindings = false } = {}) {
 }
 
 export function loopLine(name, m, j) {
-  return `${name}: ${j.verdict}${j.keep ? "" : " — UNDONE"}\ncarries ${m.carried} of ${m.of} facts${m.questions ? ` · answers ${m.answered} of ${m.questions} questions` : ""} · ${m.licensed} finding(s) licensing a revision · ${m.sentences} sentences, ${m.words} words\n${j.why}`;
+  const loadBearingNote = m.loadBearing != null ? ` · thesis load-bearing: ${m.loadBearing}` : "";
+  return `${name}: ${j.verdict}${j.keep ? "" : " — UNDONE"}\ncarries ${m.carried} of ${m.of} facts${m.questions ? ` · answers ${m.answered} of ${m.questions} questions` : ""} · ${m.licensed} finding(s) licensing a revision · ${m.sentences} sentences, ${m.words} words${loadBearingNote}\n${j.why}`;
 }

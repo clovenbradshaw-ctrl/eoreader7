@@ -251,7 +251,7 @@ export async function runPipeline({ task, groundFiles = [], model = "gemma2:2b",
   // measured against the last; a loop that lost ground is undone.
   let lastPiece = null, lastMeasure = null;
   const checkLoop = (name, candidate, opts = {}) => {
-    const m = measurePiece(candidate, { draft, ground, task, parse: parser.ok ? parser.parse : null });
+    const m = measurePiece(candidate, { draft, ground, task, parse: parser.ok ? parser.parse : null, loadBearing: outline?.thesis?.loadBearing ?? null });
     const j = judgeLoop(lastMeasure, m, opts);
     write("check", `Loop · ${name} · ${j.verdict}${j.keep ? "" : " · undone"}`, loopLine(name, m, j), j.why, "eoreader7:loop-check");
     if (j.keep) { lastPiece = candidate; lastMeasure = m; return candidate; }

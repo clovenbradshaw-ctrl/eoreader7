@@ -716,6 +716,19 @@ export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabular
   // pattern (previously hand-rolled separately here, in cli/fold-at.mjs, and
   // in this session's own test scripts) into one shared, tested utility.
   const loadBearingOf = loadBearingChecker(allClaims.claims, { pValue });
+  // EXTENDS THE SAME SIGNAL TO EVERY BODY GROUP (2026-09-26), not just the
+  // four thesisCandidates: mutates bodySlots in place, safe because `slots`
+  // above already holds these exact object references (spread via
+  // `...bodySlots`), so this reaches the returned outline without
+  // restructuring the construction order. Combined honestly across each
+  // group's own statements: true if ANY is load-bearing, null only when
+  // EVERY one is null (nothing checkable, including an empty group, where
+  // Array.prototype.every on [] is true by definition), false otherwise --
+  // never a guessed false.
+  for (const s of bodySlots) {
+    const per = s.statements.map((id) => loadBearingOf(id));
+    s.loadBearing = per.some((x) => x === true) ? true : per.every((x) => x === null) ? null : false;
+  }
 
   return {
     schema: OUTLINE_SCHEMA,
