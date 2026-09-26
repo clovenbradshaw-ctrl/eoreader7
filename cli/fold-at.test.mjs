@@ -57,3 +57,13 @@ test("querying a real address returns real here/siblings content and honest gap 
     assert.match(r.stdout, /paradigm: gap: /, "an unwired layer must print its real, honest gap reason, never a fabricated value");
   });
 });
+
+test("significance is a real, document-derived number, not the old 'no holograph supplied' gap", () => {
+  withFixture((file) => {
+    const list = spawnSync(process.execPath, [CLI, file, "list"], { encoding: "utf8" });
+    const firstAddress = list.stdout.match(/\/whole\/p\d+\/\d+/)[0];
+    const r = spawnSync(process.execPath, [CLI, file, firstAddress], { encoding: "utf8" });
+    assert.equal(r.status, 0);
+    assert.match(r.stdout, /significance: \d+\.\d+ bits/);
+  });
+});

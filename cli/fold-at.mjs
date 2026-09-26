@@ -21,7 +21,9 @@ import { buildDraft, drawnParts } from "../native/the-fold/eot-draft.js";
 import { buildReferents, attachReferents } from "../native/the-fold/referents.js";
 import { loadEotParser, attachEot } from "../native/the-fold/eot-notation.js";
 import { arrangeEssay } from "../native/the-fold/arrange.js";
-import { foldAt } from "../native/the-fold/fold-at.js";
+import { foldAt, slotsFromClaims } from "../native/the-fold/fold-at.js";
+import { createHolograph, admit } from "../native/kernel/bayes-surprise.js";
+import { holon } from "../native/kernel/gfp-claim.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 
@@ -50,7 +52,19 @@ if (address === "list") {
   process.exit(0);
 }
 
-const fold = foldAt(address, claims);
+// A real, document-derived prior for significance -- admit (mutate) a fresh
+// holograph with every OTHER claim in this document (excluding this cursor's
+// own, so the score answers "how surprising is this given the rest of the
+// document," not a self-fulfilling "given itself"). foldAt itself only ever
+// reads this via predict(), never admits into it again.
+const here = holon(address === "list" ? "/" : address);
+const holo = createHolograph({ alpha: 1, gamma: 1 });
+for (const c of claims) {
+  if (holon(c.ground) === here) continue;
+  admit(holo, Object.fromEntries(slotsFromClaims([c])));
+}
+
+const fold = foldAt(address, claims, { holo });
 const line = (c) => `${c.roles.ARG0} ${c.polarity === "-" ? "NOT " : ""}${c.rel} ${c.roles.ARG1}  @${c.ground}`;
 console.log(`fold at ${fold.address}  (${claims.length} claim(s) total in this document)`);
 console.log(`\nhere (${fold.here.length}):`);

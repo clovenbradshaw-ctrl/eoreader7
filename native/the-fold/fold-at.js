@@ -85,7 +85,7 @@ export const FOLD_AT_SCHEMA = "EOFoldAt@1";
  *  its relation, polarity, and each of its role fillers as its own slot,
  *  keyed by the claim's own position so two claims at the same cursor never
  *  collide on the same slot name. */
-function slotsFromClaims(claims) {
+export function slotsFromClaims(claims) {
   const slots = [];
   claims.forEach((c, i) => {
     if (!c || typeof c.rel !== "string") return;
