@@ -506,9 +506,22 @@ export function admit(candidate, {
   }
   // A TURN IS EXEMPT FROM THE META CHECK: a sentence that bonds to where the
   // piece just landed, harder than chance, is the piece continuing — its
-  // connectives ("as", "or", "they") may well be scaffold words too, and the
-  // chain cannot start from a leak because the first leak has no prior to
-  // bond to. Measured, so the bond and the ceiling are computed once here.
+  // connectives ("as", "or", "they") may well be scaffold words too, and
+  // admission-falsify.test.mjs's own "a turn whose connectives are scaffold
+  // words is admitted on motion, not refused as meta" locks in a real case
+  // that would be wrongly refused without this exemption.
+  //
+  // CORRECTED (2026-09-26): this comment used to also claim "the chain
+  // cannot start from a leak because the first leak has no prior to bond
+  // to" — a real, verbatim leak observed live this session (a model
+  // commenting on its own phrasing technique) refutes that: it bonded as a
+  // turn to an ordinary PRECEDING sentence, not to a prior leak, so a leak
+  // needs no prior leak to exploit this exemption. That specific leak is
+  // now caught earlier — referent-verify.js's isMetaSentence runs
+  // unconditionally in prosify.js before admit() is ever called — so this
+  // exemption is not currently known to be exploited by any observed leak,
+  // but the exemption's own safety no longer rests on the disproven claim
+  // above. Measured, so the bond and the ceiling are computed once here.
   if (!isTurn && looksMeta(s, { instruction, ground, variance: v, locale })) {
     return { admit: false, road: null, core, refused: [{ kind: "meta", given: "model" }] };
   }
