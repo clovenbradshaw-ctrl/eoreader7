@@ -26,15 +26,25 @@
 //   non-negative by construction.
 //
 // ON THE BORN-RULE VOCABULARY, stated precisely because the physics is real
-// and the borrowing is not the physics. What does formal work here is the
-// COLLAPSE-AS-MEASUREMENT STRUCTURE: surprise is not a fluid dribbling out
-// across a read, it is concentrated at discrete measurement events, and the
-// windows of surprise are the intervals between them. What does NOT do formal
-// work anywhere in this repo is |amplitude|^2 weighting — every "Born null"
-// in this codebase is a conditional null distribution, generated and scored
-// classically. The architecture is an analogy on the weighting law and a
-// structural claim on the collapse. Both arguments hold without the quantum
-// formalism; the vocabulary is borrowed, and saying so costs nothing.
+// and the borrowing is not the physics, IN THIS MODULE. What does formal work
+// here is the COLLAPSE-AS-MEASUREMENT STRUCTURE: surprise is not a fluid
+// dribbling out across a read, it is concentrated at discrete measurement
+// events, and the windows of surprise are the intervals between them. What
+// does NOT do formal work in THIS module's own "Born null" is |amplitude|^2
+// weighting — it is a conditional null distribution, generated and scored
+// classically: an analogy on the weighting law and a structural claim on the
+// collapse, both of which hold here without the quantum formalism.
+//
+// CORRECTED (2026-09-26): this used to claim |amplitude|^2 weighting "does
+// NOT do formal work anywhere in this repo" — true when this file was ported
+// from eoreader6.1 (2026-09-10), false the very next day. adapters/text/
+// anchoring.js's born mode (`bornOf`) computes p_i = a_i^2 / Sum(a^2) to bind
+// a descriptor to a referent, and eval/lavar/elenchus-bar.mjs's
+// `bornAcceptance` gates an evolutionary candidate on its delta^2 against the
+// population's own delta^2 quantile — both real |amplitude|^2 weighting,
+// both tested and load-bearing (tests/anchoring.test.js asserts a real
+// binding's bornMass > 0.9). The vocabulary is borrowed HERE; elsewhere in
+// this repo the physics is actually run.
 
 const LOG2 = Math.LN2;
 
