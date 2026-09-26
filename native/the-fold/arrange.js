@@ -143,7 +143,7 @@ export function claimsFromFeat(feat) {
       if (note.polarity === "?") { unresolved++; continue; }
       if (!note.end1 || !note.label || !note.end2) continue;
       claims.push(claimFromTriple(note.end1, note.label, note.end2, {
-        ground: holon(`/${f.pt.part}`),
+        ground: holon(f.pt.path ?? `/${f.pt.part}`),
         id: note.id,
         polarity: note.polarity,
       }));

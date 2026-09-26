@@ -12,6 +12,21 @@ function feat(part, notes) {
   return { pt: { id: `pt:${part}`, part }, notes };
 }
 
+test("when a point carries a real hierarchical path, claimsFromFeat grounds by path, not the flatter part id", () => {
+  // real shape, verified against eot-draft.js's own point construction
+  // (whole/p{N}/{M}) -- not a guessed format.
+  const withPath = { pt: { id: "p4.3", part: "p4", path: "whole/p4/3" }, notes: [{ id: "n1", end1: "a", label: "b", end2: "c", polarity: "+" }] };
+  const { claims } = claimsFromFeat([withPath]);
+  assert.equal(claims[0].ground, holon("whole/p4/3"));
+  assert.notEqual(claims[0].ground, holon("/p4"));
+});
+
+test("a point with no path falls back to the flat part-only ground, unchanged", () => {
+  const noPath = feat("p4", [{ id: "n1", end1: "a", label: "b", end2: "c", polarity: "+" }]);
+  const { claims } = claimsFromFeat([noPath]);
+  assert.equal(claims[0].ground, holon("/p4"));
+});
+
 test("a resolved-polarity note becomes a real GFP claim, holon-grounded by its own point's part", () => {
   const f = [feat("p1", [{ id: "pt:p1:root", end1: "dam", label: "regulate", end2: "river", polarity: "+" }])];
   const { claims, unresolved } = claimsFromFeat(f);
