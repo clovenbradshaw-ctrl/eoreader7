@@ -46,7 +46,7 @@ import { findDuplicateStatements } from "./restatement.js";
 import { askedExtent as askedExtentOf } from "./void-spec.js";
 import { isFunctionWord } from "./pos-prior.js";
 import { thesisBasin, thesisGeneralization } from "./thesis-claim.js";
-import { renderGeneralization } from "../kernel/gfp-claim.js";
+import { renderGeneralization, claimFromTriple, holon } from "../kernel/gfp-claim.js";
 import { makeNotes } from "../kernel/notes.js";
 
 export const OUTLINE_SCHEMA = "EOEssayOutline@2";
@@ -110,6 +110,46 @@ function notesOf(pt) {
     });
   }
   return out;
+}
+
+/**
+ * claimsFromFeat(feat) -> { claims, unresolved }
+ *
+ * The general bridge from arrangeEssay's own always-run per-point extraction
+ * to real, holon-addressed GFP claims (the-fold/fold-at.js's own cursor
+ * addressing) -- built 2026-09-26 after finding thesis-claim.js's own claim-
+ * producing branch (the-fold/thesis-claim.js's thesisGeneralization) real but
+ * measured at zero activations across nine real documents (this file's own
+ * comments, above). feat and notesOf() run over EVERY point in EVERY
+ * arrangeEssay call, unconditionally -- not just thesis winners -- so this
+ * is the commonly-populated path, not the rare one.
+ *
+ * Each point's own notesOf() output (already computed as f.notes) already
+ * carries a real subject/relation/object triple and a declared polarity;
+ * this reuses it rather than re-deriving anything. gfp-claim.js's gfpClaim
+ * only accepts polarity "+" or "-" (checked against its own source before
+ * writing this); notesOf's own third state, "?" (POLARITY UNRESOLVED --
+ * a Neg feature found somewhere in the sentence but not on this note's own
+ * subject/object/root), cannot become either without inventing certainty
+ * the parser itself declined to assert. Those notes are excluded from
+ * `claims` and counted in `unresolved`, never silently dropped and never
+ * coerced to a guessed polarity.
+ */
+export function claimsFromFeat(feat) {
+  const claims = [];
+  let unresolved = 0;
+  for (const f of feat) {
+    for (const note of f.notes ?? []) {
+      if (note.polarity === "?") { unresolved++; continue; }
+      if (!note.end1 || !note.label || !note.end2) continue;
+      claims.push(claimFromTriple(note.end1, note.label, note.end2, {
+        ground: holon(`/${f.pt.part}`),
+        id: note.id,
+        polarity: note.polarity,
+      }));
+    }
+  }
+  return { claims, unresolved };
 }
 
 export function arrangeEssay({ draft, spec = null, exclude = null, roleVocabulary = null } = {}) {
