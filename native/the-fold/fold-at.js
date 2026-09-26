@@ -23,17 +23,23 @@
 // and returns its real field. When none are supplied, the gap says exactly
 // that -- no obligations for this cursor -- not "unwired."
 //
-// PARADIGM: still a typed gap, but the reason changed after checking. This
-// session first assumed evaluateParadigm just needed "a live caller to
-// verify against" the way atmosphere did. Checked this revision: grep across
-// native/the-fold/ for evaluateParadigm( found ZERO real call sites outside
-// its own test file -- only learnParadigm/learnParadigmEmergent (which BUILD
-// a paradigm) have real callers; nothing in this repo actually evaluates a
-// candidate against one yet. There is no live contract to verify against,
-// only the function's own definition and tests -- wiring foldAt to a
-// candidate-shape read from those alone, with no second real caller to cross-
-// check against, would still be a guess dressed as a verification. Left
-// unwired, honestly, with the corrected reason.
+// PARADIGM: still a typed gap, and the reason is now settled, not just
+// pending. This session first assumed evaluateParadigm just needed "a live
+// caller to verify against" the way atmosphere did, then found zero real
+// callers of evaluateParadigm itself (only learnParadigm/learnParadigmEmergent
+// have real callers). Checked further this revision: learnParadigmEmergent's
+// own real caller (the-fold/learn-pass.js) builds its "unit" candidates via
+// toInstanceUnits/segmentCollection/elementsOf, and paradigm.js's own
+// unitFacts() reads u.elements for indentation, heading level/capitalization,
+// block-breaks, sentence-final punctuation -- DOCUMENT FORMATTING structure,
+// not claim content. This is a genuinely different candidate model than a
+// GFP claim (rel/roles/polarity/ground); paradigm.js answers "is this
+// document's TYPESETTING consistent with a learned form," not "does this
+// claim hold." This is the same category of finding as hunt.js's "ground"
+// and an archon's "cascade" mission, both false friends found earlier this
+// session -- not a temporary gap awaiting a live caller, but a real domain
+// mismatch. Left unwired; wiring it would require inventing a claim-to-
+// formatting-element mapping this session has no real basis for.
 //
 // SIGNIFICANCE (2026-09-26, later revision): the prior claim here -- "no
 // significance-measurement module exists anywhere in this repo" -- was
@@ -215,7 +221,7 @@ export function foldAt(address, claims = [], { obligations = [], sequence = null
     descendants: descendantsOf,
     siblings: siblingsOf,
     atmosphere,
-    paradigm: { wired: false, reason: "the-fold/paradigm.js's evaluateParadigm is real but has ZERO real production callers anywhere in this repo (only its own test file calls it; every real caller of paradigm.js instead calls learnParadigm/learnParadigmEmergent, which BUILD a paradigm, never evaluate one) -- there is no live contract to verify a candidate-shape against, so wiring this now would be a guess, not a verification. Left unwired until a real caller of evaluateParadigm exists to check against." },
+    paradigm: { wired: false, reason: "the-fold/paradigm.js's evaluateParadigm operates on a document-formatting 'unit' (indentation, heading level, block-breaks, sentence-final punctuation -- checked via its own unitFacts() and learn-pass.js's real learnParadigmEmergent caller), not claim content -- a genuine domain mismatch with foldAt's GFP claims, not a temporary gap awaiting a live caller. Wiring it would require inventing a claim-to-formatting-element mapping with no real basis. Left unwired." },
     significance,
   };
 }
