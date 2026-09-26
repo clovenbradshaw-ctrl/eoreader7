@@ -38,33 +38,29 @@
 // never blended into one number) plus a `combined` field that simply
 // prefers the narrowest/most-specific set with a non-null vote.
 //
-// STATUS (2026-09-23, follow-up session): the offline prior-builder
-// (scripts/build-ablation-grain-prior.mjs) STILL has not completed a real
-// run, and the falsification test (eval/the-fold/ablation-pressure-
-// calibration.mjs) has therefore STILL never run — this is a DIFFERENT,
-// more upstream state than "calibration ran and the confidence field
-// failed the bar." Measured directly this session: the shared local
-// Ollama instance's own memory-pressure gate ("Heimdall") refused to load
-// nomic-embed-text across all 5 of the builder's own documented retries
-// (2 client-side timeouts, 3 explicit 503 memory_pressured responses
-// citing 3.7-5.4GB "available" against an undisclosed floor), and one
-// further direct manual probe outside the script got no response at all
-// within 12s. Ollama's control plane itself (`/api/tags`) answered
-// instantly throughout -- this is a real, external, shared-host resource
-// constraint, not a code defect, and not something this session forced
-// past (no other session's model was touched). A committed results doc
-// (eval/the-fold/results/ablation-pressure-calibration-RESULTS.md) was
-// attempted but could not be written this session -- cli/reason.mjs's own
-// PreToolUse gate was confirmed stuck in a lost-update race against a
-// concurrent sibling process's writes to this session's own record file
-// (~/.claude/eo-reason/sessions/*.json), across 5 separate clean retries;
-// see this session's own final report for the full account. The next
-// session should write that doc once a fresh reason.mjs run actually
-// sticks. Until a real calibration run completes, THIS MODULE'S
-// CONFIDENCE FIELDS (`cosine`, `margin`) ARE UNCALIBRATED BY CONSTRUCTION
-// -- known real in aggregate (29% vs 7.7% chance, p=6e-15) but not yet
-// shown to be meaningful per case. Do not wire this live until that
-// changes.
+// STATUS (2026-09-26, updated): the offline prior-builder
+// (scripts/build-ablation-grain-prior.mjs) HAS completed a real run --
+// the earlier blocker (a shared local Ollama instance) turned out, once
+// actually root-caused rather than re-checked, to be a stuck daemon
+// scheduler specific to embedding requests (no runner process ever
+// spawned; every /api/embed call hung indefinitely with zero bytes
+// returned, while /api/generate and /api/tags both answered normally),
+// not the memory-pressure refusal this comment previously described.
+// Restarting the daemon cleared it. native/priors/ablation-grain-eng.json
+// and ablation-grain-pooled.json are both real, written from a live run.
+//
+// The falsification test (eval/the-fold/ablation-pressure-calibration.mjs)
+// has since run for real too, to a definitive verdict: calibrated:false
+// (82 held-out single-occurrence predictions; high-margin accuracy 0.171
+// vs low-margin 0.220 -- the wrong direction, and not significant either
+// way, Fisher p=0.798; a shuffled-label null also showed no effect,
+// ruling out a broken null masking a real one). THIS MODULE'S CONFIDENCE
+// FIELDS (`cosine`, `margin`) REMAIN UNCALIBRATED -- known real in
+// aggregate (29% vs 7.7% chance, p=6e-15) but now actually TESTED, not
+// merely untested, and found not to license per-case trust. Do not wire
+// this live as a per-case confidence signal; that conclusion is unchanged,
+// only its basis has moved from "blocked, never tested" to "tested and
+// failed the bar."
 
 import { seeded } from "./english-parser.js";
 
