@@ -243,6 +243,19 @@ const META_SENTENCE_RE =
 // discipline as META_SENTENCE_RE and DISCOURSE_SUBJECT_WORDS below.
 const ASSISTANT_VOICE_RE =
   /\blet me know\b|\bfeel free to\b|\bi hope this helps\b|\b(?:would you like|do you want) me to\b|\byou'?d like me to\b|\bany other questions\b|\bhere'?s (?:a |an )?(?:breakdown|summary|overview|explanation)\b|\bhere'?s why this\b|\bhow to continue\b/i;
+// THE TECHNIQUE-COMMENTARY FILTER (2026-09-26): a third, distinct discourse
+// register from both filters above — neither task-talk nor chat-assistant
+// voice, but the mouth annotating ITS OWN phrasing choice inline, in
+// markdown sub-heading formatting, as if leaving itself a footnote. Grounded
+// in a verbatim leak observed live this session (fiction-test-1, part a1,
+// admitted as a "turn" so admission.js's own meta check never ran on it —
+// this filter runs earlier, in prosify.js, unconditionally, so it closes the
+// leak regardless of that separate turn-exemption question): "* **Embedded
+// Information:** The fact about the river's length is woven into the
+// sentence, making it more natural and informative." The structural tell —
+// a bullet immediately followed by a bolded label and a colon — never
+// belongs in this piece's own prose register, whatever words follow it.
+const TECHNIQUE_COMMENTARY_RE = /^\s*[*\-]\s*\*\*[^*]{2,60}?:?\*\*:?/;
 // The "is a subject of X" pattern — the mouth's discourse filler (a subject of
 // discussion/interest/study/ongoing study/debate). The discourse words are a
 // Set, matched by membership against the sentence's words.
@@ -250,7 +263,7 @@ const DISCOURSE_SUBJECT_WORDS = new Set(["discussion", "interest", "study", "deb
 
 export function isMetaSentence(sentence) {
   const s = String(sentence ?? "");
-  if (META_SENTENCE_RE.test(s) || ASSISTANT_VOICE_RE.test(s)) return true;
+  if (META_SENTENCE_RE.test(s) || ASSISTANT_VOICE_RE.test(s) || TECHNIQUE_COMMENTARY_RE.test(s)) return true;
   // "a subject of X" / "the subject of X" where X is a discourse word — the
   // mouth talking about the piece being written, not writing it.
   const lower = s.toLowerCase();
