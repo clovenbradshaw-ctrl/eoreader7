@@ -4,9 +4,19 @@
 // not a fixture built to force this result. This is the exact real content
 // that found the pipeline's own recur()-based thesis selection can miss
 // content that is mechanically, verifiably repeated (the winning candidate,
-// "The first little pig was very lazy.", has zero extractable claims and a
-// LOWER repetition count than the wolf/knock/door line it beat on raw
-// word-recurrence alone).
+// "The first little pig was very lazy.", has a LOWER repetition count than
+// the wolf/knock/door line it beat on raw word-recurrence alone).
+//
+// UPDATED 2026-09-26: "was very lazy" used to have zero extractable claims
+// (a copular/predicate-adjective sentence, which notesOf's original
+// SVO-only rule could not see) -- fixed live, real-content falsification
+// found this same gap on legal-register material, and closing it here
+// correctly gives this sentence a real claim (pig -be-> lazy) that is not
+// load-bearing, rather than nothing at all. A second, separate real bug
+// (loadBearingChecker's own null simulation was unseeded, so the SAME
+// candidate could flip true/false non-deterministically across runs) was
+// found and fixed the same turn; both fixes together are what make the
+// values below real and reproducible, not a coincidence of one lucky run.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { buildDraft, drawnParts } from "./eot-draft.js";
@@ -44,19 +54,23 @@ test("without pValue, loadBearing stays null on both thesis and thesisCandidates
   assert.ok(o.thesisCandidates.every((c) => c.loadBearing === null));
 });
 
-test("with pValue, all three real states are distinguished honestly: a genuinely repeated candidate is true, a claim-bearing but non-repeated one is false, a claimless one is null", async () => {
+test("with pValue, real states are distinguished honestly and reproducibly: a genuinely repeated candidate is true, claim-bearing but non-repeated candidates are false", async () => {
+  // Verified by direct, repeated (5x) inspection this session against this
+  // exact excerpt, after fixing loadBearingChecker's own determinism --
+  // not assumed, and no longer a coin flip. The wolf/knock/door line
+  // (mechanically, verifiably repeated across the document) is load-
+  // bearing; the winning thesis ("The third little pig built his house
+  // with bricks.") has a real claim that is NOT load-bearing; "was very
+  // lazy" now correctly produces a real copular claim (pig -be-> lazy,
+  // closing a gap this session found and fixed on separate, real
+  // legal-register content) that is also not load-bearing -- a claim, not
+  // a guessed truth, and not the old "nothing extractable" null either.
   const o = await outline({ pValue: 0.05 })();
-  // Verified by direct inspection this session against this exact excerpt --
-  // not assumed. The wolf/knock/door line (mechanically, verifiably
-  // repeated across the document) is load-bearing; the winning generalized
-  // thesis here ("build house", a real 3-member generalization on this
-  // excerpt) has real claims that are NOT load-bearing (false, not null);
-  // "was very lazy" produces no extractable claim at all (null, never a
-  // guessed false).
   const wolfCandidate = o.thesisCandidates.find((c) => c.text.includes("knocked on the door"));
   const lazyCandidate = o.thesisCandidates.find((c) => c.text.includes("was very lazy"));
   assert.ok(wolfCandidate, "the repeated wolf line must appear among the top candidates on this excerpt");
+  assert.ok(lazyCandidate, "the lazy-pig line must appear among the top candidates on this excerpt");
   assert.equal(wolfCandidate.loadBearing, true);
-  assert.equal(o.thesis.loadBearing, false, "the winning thesis has real claims here but they are not load-bearing on this excerpt");
-  if (lazyCandidate) assert.equal(lazyCandidate.loadBearing, null);
+  assert.equal(o.thesis.loadBearing, false, "the winning thesis has a real claim here but it is not load-bearing on this excerpt");
+  assert.equal(lazyCandidate.loadBearing, false, "a real copular claim exists here (pig is lazy) but it is not load-bearing on this excerpt");
 });

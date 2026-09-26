@@ -84,7 +84,22 @@ function notesOf(pt) {
     const arcs = (m.arcs ?? []).filter((a) => a.from === root.key);
     const subj = arcs.find((a) => /^nsubj/.test(a.rel));
     const obj = arcs.find((a) => a.rel === "obj") ?? arcs.find((a) => a.rel === "obl");
-    if (!(subj && obj)) continue;
+    const cop = arcs.find((a) => a.rel === "cop");
+    // ADJ ROOT ONLY, NEVER A BARE NOUN ROOT (corrected same-day: the first
+    // version of this gate required a literal `cop` arc, which this parser
+    // does not emit for predicate adjectives -- the real sentence that
+    // motivated this, "Freedom of speech ... is not absolute.", has root
+    // "absolute" with only nsubj/advmod children, no cop node at all.
+    // Loosening to "any non-verb root" was considered and rejected: this
+    // session's own science-domain falsification found a genuine parser
+    // root-selection ERROR also lands on a non-verb root -- a bare NOUN --
+    // so admitting any non-verb root here would manufacture a false claim
+    // from that exact error. A predicate ADJECTIVE cannot take an object by
+    // grammatical definition, whether or not this parser encodes an
+    // explicit copula for it; a bare NOUN root stays excluded.
+    const predicateAdj = root.upos === "ADJ";
+    if (!subj) continue;
+    if (!obj && !cop && !predicateAdj) continue;
     // POLARITY (2026-09-25, the reading archons, twice): the parser's own
     // declared Neg feature — Polarity=Neg on "not", "neither", "nor";
     // PronType=Neg on "never", "no", "nothing" — never a word list. Read where
@@ -98,16 +113,30 @@ function notesOf(pt) {
     // and end2 are unchanged for the cycle finder and the figure check.
     const isNeg = (feats) => (feats ?? []).some((f) => f.value === "Neg" && (f.name === "Polarity" || f.name === "PronType"));
     const markersOn = (node) => (m.markers ?? []).filter((x) => (node?.markers ?? []).includes(x.key));
-    const subjNode = byKey.get(subj.to), objNode = byKey.get(obj.to);
-    const conjuncts = (m.arcs ?? []).filter((a) => a.from === obj.to && a.rel === "conj").map((a) => byKey.get(a.to)).filter(Boolean);
+    const subjNode = byKey.get(subj.to);
+    const objNode = obj ? byKey.get(obj.to) : null;
+    const conjuncts = obj ? (m.arcs ?? []).filter((a) => a.from === obj.to && a.rel === "conj").map((a) => byKey.get(a.to)).filter(Boolean) : [];
     const negHere = [...arcs.filter((a) => a.rel === "advmod").map((a) => byKey.get(a.to)), subjNode, objNode, ...conjuncts]
       .filter(Boolean).some((n) => isNeg(n.feats) || markersOn(n).some((x) => isNeg(x.feats)));
     const negAnywhere = m.nodes.some((n) => isNeg(n.feats)) || (m.markers ?? []).some((x) => isNeg(x.feats));
-    const caseMark = obj.rel === "obl" ? markersOn(objNode).find((x) => x.rel === "case")?.lemma : null;
+    const caseMark = obj && obj.rel === "obl" ? markersOn(objNode).find((x) => x.rel === "case")?.lemma : null;
     const prt = arcs.find((a) => a.rel === "compound:prt");
+    // COPULAR CLAIMS (2026-09-26, falsified live on real legal-register
+    // content: a correctly-parsed predicate-adjective sentence, "Freedom of
+    // speech ... is not absolute.", produced ZERO notes under the SVO-only
+    // rule above -- a predicate adjective/nominal has no object arc by
+    // grammatical construction, not a parse failure). A copular claim's own
+    // "object" is the root itself (the predicate the subject is asserted to
+    // be); the relation label is the copula's own lemma, read from the
+    // parse, never invented -- distinguished from a transitive relation by
+    // `via: "pred"` so a generalization never conflates "X holds Y" with
+    // "X is Y" on a coincidentally-shared lemma.
+    const label = obj ? root.lemma : ((cop && byKey.get(cop.to)?.lemma) ?? "be");
+    const end2 = obj ? objNode?.lemma : root.lemma;
+    const via = obj ? (obj.rel === "obl" ? `obl:${caseMark ?? ""}` : "obj") : "pred";
     out.push({
-      id: `${pt.id}:${root.key}`, end1: subjNode?.lemma, label: root.lemma, end2: objNode?.lemma, witness: pt.id,
-      polarity: negHere ? "-" : negAnywhere ? "?" : "+", via: obj.rel === "obl" ? `obl:${caseMark ?? ""}` : "obj", prt: prt ? (byKey.get(prt.to)?.lemma ?? null) : null,
+      id: `${pt.id}:${root.key}`, end1: subjNode?.lemma, label, end2, witness: pt.id,
+      polarity: negHere ? "-" : negAnywhere ? "?" : "+", via, prt: prt ? (byKey.get(prt.to)?.lemma ?? null) : null,
     });
   }
   return out;

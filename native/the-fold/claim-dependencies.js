@@ -19,6 +19,7 @@ import { dependentsIndex } from "../kernel/cascade.js";
 import { createHolograph } from "../kernel/bayes-surprise.js";
 import { consequentialSurprise } from "../kernel/consequential-surprise.js";
 import { slotsFromClaims, cloneHolograph } from "./fold-at.js";
+import { seeded } from "../adapters/text/english-parser.js";
 
 /** Every role filler a claim carries, as values (not keyed by role -- ARG0
  *  and ARG1 both count as "this claim mentions X"). */
@@ -68,6 +69,18 @@ export function seedsOfClaimFiller(slot, value) {
  * its own to check. When `pValue` is not supplied, returns a function that
  * always answers null -- the same "opt-in, no default threshold" contract
  * every consequentialSurprise caller in this project already follows.
+ *
+ * DETERMINISTIC BY CANDIDATE ID (fixed 2026-09-26, found by mechanical
+ * reproduction: the same candidate, same claim universe, same pValue,
+ * checked five times in a row, flipped true/false non-deterministically,
+ * and disagreed with itself within one process run when checked twice for
+ * the same id). consequentialSurprise's own null simulation defaults its
+ * `rng` to Math.random when no caller supplies one; this had never been
+ * seeded here. Passing `seeded(candidateId)` (english-parser.js's own
+ * already-established PRNG, the same one pocket-discovery-gap.js already
+ * uses for its own null trials) makes the SAME candidate id always resolve
+ * to the SAME verdict against the SAME claim universe -- a real fix to a
+ * pre-existing defect, not a new invention.
  */
 export function loadBearingChecker(allClaims, { pValue = null, idOf = (c) => c.id ?? c.ground } = {}) {
   if (pValue === null || !allClaims.length) return () => null;
@@ -77,7 +90,7 @@ export function loadBearingChecker(allClaims, { pValue = null, idOf = (c) => c.i
     const own = allClaims.filter((c) => c.id?.startsWith(`${candidateId}:`));
     if (!own.length) return null;
     const facts = Object.fromEntries(slotsFromClaims(own));
-    const result = consequentialSurprise(cloneHolograph(holo), facts, { index, seedsOf: seedsOfClaimFiller, pValue });
+    const result = consequentialSurprise(cloneHolograph(holo), facts, { index, seedsOf: seedsOfClaimFiller, pValue, rng: seeded(String(candidateId)) });
     return result.rows.some((r) => r.loadBearing);
   };
 }
