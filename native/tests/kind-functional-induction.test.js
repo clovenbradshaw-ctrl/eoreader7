@@ -2,7 +2,7 @@
 // one-valuedness induced per kind, on synthetic, medium-blind referents.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { induceKindsAndFunctions } from "../kernel/kind-functional-induction.js";
+import { induceKindsAndFunctions, characteristicSetKinds } from "../kernel/kind-functional-induction.js";
 import { makeIdentityExclusion } from "../kernel/identity-exclusion.js";
 import { CONTRADICTED, UNBOUND, BEYOND_REACH } from "../interpretation/hl.js";
 
@@ -145,4 +145,68 @@ test("kinds and standings are learned only from what was read by the cursor", ()
   assert.ok(!early.register.get(kE)?.has("late"), "not yet read");
   assert.ok(all.register.get(kA).has("late"));
   assert.equal(early.builtAsOf, 100);
+});
+
+// IRM: two populations with IDENTICAL relation names, told apart only by the
+// kind of thing their relation points at (Kemp et al. 2006's co-clustering).
+function irmWorld() {
+  const recs = new Map();
+  for (let i = 0; i < 20; i += 1) recs.set(`A${i}`, [{ rel: "size", value: `a${i}`, refs: 1 }, { rel: "shape", value: `s${i}`, refs: 1 }]); // things of kind A
+  for (let i = 0; i < 20; i += 1) recs.set(`B${i}`, [{ rel: "colour", value: `c${i}`, refs: 1 }, { rel: "weight", value: `w${i}`, refs: 1 }]); // things of kind B
+  for (let i = 0; i < 20; i += 1) recs.set(`P${i}`, [{ rel: "at", value: `A${i}`, refs: 1 }, { rel: "near", value: `A${(i + 1) % 20}`, refs: 1 }, { rel: "with", value: `P${(i + 3) % 20}`, refs: 1 }]); // point at A
+  for (let i = 0; i < 20; i += 1) recs.set(`Q${i}`, [{ rel: "at", value: `B${i}`, refs: 1 }, { rel: "near", value: `B${(i + 1) % 20}`, refs: 1 }, { rel: "with", value: `Q${(i + 3) % 20}`, refs: 1 }]); // point at B
+  for (const [id, as] of recs) as.forEach((a, j) => { a.id = `${id}#${j}`; });
+  return recs;
+}
+
+test("IRM rounds: identical relation names, different object kinds — only object kinds separate them", () => {
+  const recs = irmWorld();
+  const base = { assertionsOf: (id) => recs.get(id), sameValue: (u, v) => u === v, exposureFloor: 2, kindMethod: "characteristic-sets", kindOptions: { draws: 60, alpha: 0.05, seed: 3, population: "irm" } };
+  const flat = induceKindsAndFunctions([...recs.keys()], base);
+  const sep = (res) => { const kp = res.kindsOf("P0"), kq = res.kindsOf("Q0"); return kp.size && kq.size && ![...kp].some((k) => kq.has(k)); };
+  assert.ok(!sep(flat), "presence alone cannot tell P from Q");
+  const irm = induceKindsAndFunctions([...recs.keys()], { ...base, objectKinds: { rounds: 3, referentOf: (v) => (recs.has(v) ? v : null) } });
+  assert.ok(sep(irm), JSON.stringify(irm.diagnostics.rounds));
+  assert.throws(() => induceKindsAndFunctions([...recs.keys()], { ...base, objectKinds: { referentOf: () => null } }), /rounds/);
+});
+
+// Characteristic sets (Neumann & Moerkotte 2011) with Pham & Boncz's subsumption
+// merge, gated by a SEARCH-AWARE null: the whole procedure rerun on redealt
+// profiles. A group selected for sharing relations must not pass merely
+// because it was selected.
+const featuresOf = (profiles) => new Map(Object.entries(profiles).map(([id, rels]) => [id, new Map(rels.map((r) => [`rel:${r}`, { featureKey: r, featureValue: true, evidenceIds: new Set([`${id}:${r}`]), firstAt: 0, lastAt: 0 }]))]));
+const CS = { draws: 99, alpha: 0.05, seed: 5 };
+
+test("characteristic sets: a subset record merges into its superset kind", () => {
+  const prof = {};
+  for (let i = 0; i < 12; i += 1) prof[`p${i}`] = ["born", "died", "parent", "spouse"];
+  for (let i = 0; i < 6; i += 1) prof[`q${i}`] = ["born", "parent"]; // half-records of the same kind
+  for (let i = 0; i < 12; i += 1) prof[`c${i}`] = ["area", "mayor", "country"];
+  const r = characteristicSetKinds(featuresOf(prof), CS);
+  const person = r.candidates.find((k) => k.memberRefs.includes("p0"));
+  assert.ok(person && person.memberRefs.includes("q0"), JSON.stringify(r.diagnostics));
+  assert.ok(!person.memberRefs.includes("c0"));
+});
+
+test("characteristic sets: two tied supersets refuse the merge rather than guess", () => {
+  const prof = {};
+  for (let i = 0; i < 10; i += 1) prof[`x${i}`] = ["a", "b"];
+  for (let i = 0; i < 10; i += 1) prof[`y${i}`] = ["a", "c"];
+  for (let i = 0; i < 4; i += 1) prof[`z${i}`] = ["a"];
+  const r = characteristicSetKinds(featuresOf(prof), CS);
+  assert.equal(r.diagnostics.refusedAmbiguous, 1);
+  assert.ok(!r.candidates.some((k) => k.memberRefs.includes("z0") && k.memberRefs.includes("x0")));
+});
+
+test("characteristic sets: structureless profiles license nothing (the null reruns the selection)", () => {
+  const rng = (() => { let s = 7; return () => ((s = (s * 1103515245 + 12345) % 2147483648) / 2147483648); })();
+  const rels = ["a", "b", "c", "d", "e", "f", "g", "h"];
+  const prof = {};
+  for (let i = 0; i < 60; i += 1) { const k = 2 + Math.floor(rng() * 3); const set = new Set(); while (set.size < k) set.add(rels[Math.floor(rng() * rels.length)]); prof[`r${i}`] = [...set]; }
+  const r = characteristicSetKinds(featuresOf(prof), CS);
+  assert.equal(r.candidates.length, 0, JSON.stringify(r.diagnostics));
+});
+
+test("characteristic sets: undeclared null refuses", () => {
+  assert.throws(() => characteristicSetKinds(new Map(), { draws: 10 }), /declared/);
 });
