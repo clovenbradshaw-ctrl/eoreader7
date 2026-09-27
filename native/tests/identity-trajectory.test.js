@@ -78,3 +78,23 @@ test("the organ names no medium and reads no spelling", () => {
   const src = readFileSync(new URL("../kernel/identity-trajectory.js", import.meta.url), "utf8").replace(/\/\/.*$/gm, "");
   for (const w of ["sentence", "word", "token", "text", "string", "name"]) assert.ok(!new RegExp(`\\b${w}`, "i").test(src), `kernel code names '${w}'`);
 });
+
+test("the displaced true stage stays as a rival: an impostor must beat the being's own next stage", () => {
+  // a1 is a close companion of a0: it shares a0's own features at every stage
+  const by = world();
+  const comp = new Map([...by.get("a0")].map(([s, st]) => [s, { n: st.n, vec: new Map([...st.vec, ["companion", 3]]) }]));
+  by.set("a1", comp);
+  const loose = continuity(splice(by, "a0", "a1", { every: 4 }).byAnchor, "a0", { minOthers: 5 });
+  const { byAnchor, spliced } = splice(by, "a0", "a1", { every: 4, keepDisplaced: true });
+  const fair = continuity(byAnchor, "a0", { minOthers: 5 });
+  const at = (c) => c.links.filter((l) => spliced.includes(l.to));
+  assert.ok(at(loose).some((l) => l.verdict === "holds"), "without the rival, a companion passes for the being");
+  assert.ok(at(fair).every((l) => l.verdict === "breaks"), JSON.stringify(at(fair)));
+});
+
+test("a feature every being shares at a moment weighs nothing", async () => {
+  const { weightByDistinction } = await import("../kernel/identity-trajectory.js");
+  const w = weightByDistinction(world());
+  assert.ok(!w.get("a0").get(0).vec.has("common"));
+  assert.ok(w.get("a0").get(0).vec.get("a0:0") > 0);
+});

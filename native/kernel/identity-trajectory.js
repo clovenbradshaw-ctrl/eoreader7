@@ -96,14 +96,49 @@ export function similarityAt(byAnchor, a, b, stageA, stageB = stageA, { minOther
   return { sim: +sim.toFixed(4), ...place(sim, others) };
 }
 
-/** splice(byAnchor, anchor, donor, { every }) -> a copy of byAnchor where every
- *  `every`-th stage of `anchor` is replaced by the donor's stage at that time. */
-export function splice(byAnchor, anchor, donor, { every } = {}) {
+/** splice(byAnchor, anchor, donor, { every, keepDisplaced }) -> a copy of
+ *  byAnchor where every `every`-th stage of `anchor` is replaced by the
+ *  donor's stage at that time.
+ *
+ *  keepDisplaced (amended 2026-09-27, found by trajectory-eval v2): the stages
+ *  the splice displaced stay in the comparison pool as a rival anchor. Without
+ *  it the being's own continuation is absent, so the control only asks whether
+ *  the donor is the being's nearest companion — which a close companion is.
+ *  With it, the impostor must beat the being's true next stage to pass. */
+export function splice(byAnchor, anchor, donor, { every, keepDisplaced = false } = {}) {
   const out = new Map(byAnchor); const mine = new Map(byAnchor.get(anchor)); const theirs = byAnchor.get(donor);
-  const order = [...mine.keys()].sort((a, b) => a - b); const spliced = [];
-  order.forEach((s, i) => { if (i > 0 && i % every === 0 && theirs?.has(s)) { mine.set(s, theirs.get(s)); spliced.push(s); } });
+  const order = [...mine.keys()].sort((a, b) => a - b); const spliced = []; const displaced = new Map();
+  order.forEach((s, i) => { if (i > 0 && i % every === 0 && theirs?.has(s)) { displaced.set(s, mine.get(s)); mine.set(s, theirs.get(s)); spliced.push(s); } });
   out.set(anchor, mine); out.delete(donor); // the donor is no longer a separate comparison: it IS the splice
+  if (keepDisplaced && displaced.size) out.set(`${anchor}#displaced`, displaced);
   return { byAnchor: out, spliced };
+}
+
+/** weightByDistinction(byAnchor) -> the same stages with each feature weighted
+ *  by how FEW anchors share it at that stage: ln(anchors present / anchors
+ *  holding it). A feature every being shares at a moment makes no difference
+ *  among them and weighs 0 — the DMD among beings, measured per stage, never a
+ *  list of generic features typed here. (Found by trajectory-eval v2: acts
+ *  every character performs dominated the similarity.) */
+export function weightByDistinction(byAnchor) {
+  const stages = new Set(); for (const st of byAnchor.values()) for (const s of st.keys()) stages.add(s);
+  const df = new Map(), present = new Map();
+  for (const s of stages) {
+    const holders = [...byAnchor.values()].filter((st) => st.has(s));
+    present.set(s, holders.length);
+    const d = new Map(); for (const st of holders) for (const f of st.get(s).vec.keys()) d.set(f, (d.get(f) ?? 0) + 1);
+    df.set(s, d);
+  }
+  const out = new Map();
+  for (const [k, st] of byAnchor) {
+    const w = new Map();
+    for (const [s, { n, vec }] of st) {
+      const v = new Map(); for (const [f, c] of vec) { const idf = Math.log(present.get(s) / df.get(s).get(f)); if (idf > 0) v.set(f, c * idf); }
+      w.set(s, { n, vec: v });
+    }
+    out.set(k, w);
+  }
+  return out;
 }
 
 /**
