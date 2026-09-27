@@ -29,6 +29,7 @@
 
 import { makeTalkReader, numberOf } from "./talk-reader.js";
 import { makeNotes } from "../kernel/notes.js";
+import { reason, isDerived } from "./talk-reason.js";
 
 export const TALK_BUILD_SCHEMA = "TalkBuild@1";
 /** The most asks one build may spend, set by hand 2026-09-27, not measured:
@@ -37,6 +38,10 @@ export const TALK_BUILD_SCHEMA = "TalkBuild@1";
  *  answers about one row per ask — and small enough that a stuck
  *  conversation still stops. */
 export const MAX_ASKS = 120;
+/** How many times a build reasons over its record and goes back to talk,
+ *  set by hand 2026-09-27, not measured: a retraction reopens a gap, the
+ *  refill may repeat again, and three rounds bound that without a loop. */
+export const REASON_CYCLES = 3;
 /** Nouns a request uses that name the build itself, never a part of it —
  *  set by hand 2026-09-27; a noun here is never asked about as a thing. */
 export const WHOLE_WORDS = Object.freeze(new Set(["site", "page", "website", "app", "application", "reddit", "fan", "fans", "people", "content", "thing", "things", "way", "one", "detail", "details", "count", "number", "title", "name"]));
@@ -183,7 +188,7 @@ export function beliefOf(notesFold, things) {
     if (!a || n.label === "exists") continue;
     if (n.label === "has" && byId.has(n.end2)) { const b = byId.get(n.end2); if (!b.parent && b !== a) { b.parent = a.id; a.children.push(b.id); } continue; }
     if (n.label === "named") { a.name = n.end2; continue; }
-    a.props.push({ label: n.label, value: n.end2 });
+    a.props.push({ label: n.label, value: n.end2, ...(isDerived(n) ? { derived: true } : {}) });
   }
   for (const t of byId.values()) {
     const owner = t.parent ? byId.get(t.parent) : null;
@@ -439,11 +444,17 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
 
     // The request is the first talk: what it names is on the record before
     // the mouth says anything (witness "request").
-    const seeded = [];
+    // the whole is on the record first: it holds the parts the request
+    // counts at its top ("three posts" are the site's posts), so there is
+    // something to reason over — a total, a top — at every level
+    const siteId = reader.mint("site").id;
+    spec.siteId = siteId;
+    const seeded = [{ end1: siteId, label: "exists", end2: "site", sentence: what, witness: "request" }];
     for (const c of spec.counted) for (const nm of c.names) {
       takeName(c.kind, null, nm);
       const t = reader.mint(c.kind, c.modifier, nm);
       seeded.push({ end1: t.id, label: "exists", end2: c.kind, sentence: what, witness: "request" }, { end1: t.id, label: "named", end2: nm, sentence: what, witness: "request" });
+      if (!c.per) seeded.push({ end1: siteId, label: "has", end2: t.id, sentence: what, witness: "request" });
     }
     const seedTalk = spec.named.flatMap((p) => {
       const be = p.plural ? "are" : "is";
@@ -490,8 +501,57 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         log({ kind: "turn", gap: `shows:${c.kind}`, prompt, reply, claims: shown.map((x) => `${c.kind} shows ${x}`), ops: [], ms: 0 });
       }
     }
-    await turn("opening", framed(`What is ${spec.whole ?? "the site"}${request.forWhom ? ` for ${request.forWhom}` : ""} called?`), "It is called", { subject: reader.mint("site").id, label: "named" });
+    await turn("opening", framed(`What is ${spec.whole ?? "the site"}${request.forWhom ? ` for ${request.forWhom}` : ""} called?`), "It is called", { subject: siteId, label: "named" });
 
+    // ── REASONING OVER THE RECORD (organs/talk-reason.js, Peirce) ──────────
+    // The talk is claims now, so the engine reasons over them with no model:
+    // it derives what nobody said (totals, how many, the top part), corrects
+    // a heard value the record contradicts, and retracts a part heard twice.
+    // Every act lands on the ledger — a derived claim carries the witness
+    // kind "derived:<rule>" and its premises; a correction or retraction is
+    // a REC with its reason — and a conclusion whose premises changed is
+    // withdrawn, so the record stays true to itself after every edit.
+    const settle = () => {
+      const fold = N.fold(notes);
+      const r = reason({ fold, belief: beliefOf(fold, reader.things()), spec });
+      const at = (end1, label, end2) => fold.find((n) => n.end1 === end1 && n.label === label && n.end2 === end2);
+      const want = new Map(r.derive.map((d) => [`${d.end1}|${d.label}|${d.end2}`, d]));
+      const acts = { derived: 0, withdrawn: 0, corrected: 0, retracted: 0 };
+      // a conclusion no longer supported by its premises is withdrawn
+      for (const n of fold.filter(isDerived)) {
+        if (want.has(`${n.end1}|${n.label}|${n.end2}`)) continue;
+        // a correction stands on the record's own parts, not on a premise
+        // this pass re-derives; it is withdrawn only when those parts go
+        if (n.witnesses.includes("derived:correct")) continue;
+        const done = N.concede(notes, n.id, { trigger: "its premises changed" });
+        if (!done.refused) { notes = done.log; acts.withdrawn++; }
+      }
+      const have = new Set(N.fold(notes).map((n) => `${n.end1}|${n.label}|${n.end2}`));
+      for (const [key, d] of want) {
+        if (have.has(key)) continue;
+        notes = N.hear(notes, { end1: d.end1, label: d.label, end2: d.end2, witness: `derived:${d.rule}`, because: d.because });
+        acts.derived++;
+      }
+      for (const c of r.correct) {
+        const heard = at(c.end1, c.label, c.from);
+        if (!heard || isDerived(heard)) continue;
+        const done = N.concede(notes, heard.id, { trigger: c.trigger });
+        if (done.refused) continue;
+        notes = N.hear(done.log, { end1: c.end1, label: c.label, end2: c.to, witness: "derived:correct", because: c.trigger });
+        acts.corrected++;
+      }
+      for (const x of r.retract) {
+        for (const n of N.fold(notes).filter((n) => n.end1 === x.thing || n.end2 === x.thing)) {
+          const done = N.concede(notes, n.id, { trigger: x.trigger });
+          if (!done.refused) notes = done.log;
+        }
+        acts.retracted++;
+      }
+      if (acts.derived || acts.withdrawn || acts.corrected || acts.retracted) log({ kind: "reason", ...acts, derive: r.derive.map((d) => `${d.end1} —${d.label}→ ${d.end2}`), correct: r.correct.map((c) => c.trigger), retract: r.retract.map((x) => x.trigger) });
+      return acts;
+    };
+
+    for (let cycle = 0; cycle < REASON_CYCLES; cycle++) {
     while (asks < maxAsks) {
       const belief = beliefOf(N.fold(notes), reader.things());
       const next = nextGap(belief, spec, tried);
@@ -503,6 +563,11 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       // again while each ask hears something for it
       tried.set(next.key, heard && !next.once ? 0 : (tried.get(next.key) ?? 0) + 1);
       if (next.once) spec.abandoned = [...(spec.abandoned ?? []), next.key];
+    }
+    // the talk has no gap left (or no asks): reason over what it said; a part
+    // retracted reopens its gap and the conversation goes on (recursively)
+    const acts = settle();
+    if (!acts.retracted || asks >= maxAsks) break;
     }
 
     const belief = beliefOf(N.fold(notes), reader.things());
@@ -560,7 +625,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
           if (missing <= 0 || abandoned.has(key)) continue;
           const where = p ? ` ${says(c) ? "on" : "in"} ${title(p)}` : c.within ? ` in the ${c.within}` : "";
           const others = have.length ? `, different from: ${have.map(title).join("; ")}` : "";
-          const slot = { kind: c.kind, modifier: c.modifier, parent: p?.id ?? null, label: says(c) ? "says" : "named", whole: says(c), list: missing };
+          const slot = { kind: c.kind, modifier: c.modifier, parent: p?.id ?? spec.siteId ?? null, label: says(c) ? "says" : "named", whole: says(c), list: missing };
           const verb = says(c) ? "Write" : "Name";
           if (missing === 1) return { key, slot: { ...slot, list: null }, question: `${verb} one more ${phraseOf(c)}${where}${others}.`, anchor: says(c) ? `One more ${phraseOf(c)}${where} says:` : `One more ${phraseOf(c)}${where} is called` };
           return { key, slot, question: `${verb} ${missing} ${have.length ? "more " : ""}${c.phrase}${where}${others}. One per line, ${says(c) ? "each a short sentence" : "just the name"}.`, anchor: "1." };

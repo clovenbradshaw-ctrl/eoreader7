@@ -21,6 +21,7 @@ const STYLE = ":root{--bg:#f5f6f8;--fg:#1b2129;--card:#fff;--muted:#5d6773;--rul
   + "article{background:var(--card);border:1px solid var(--rule);border-radius:10px;padding:12px 14px}article h3{margin:0 0 4px;font-size:1rem}.kind{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.06em}"
   + "dl{margin:6px 0 0;display:grid;grid-template-columns:auto 1fr;gap:2px 10px;font-size:.92rem}dt{color:var(--muted)}dd{margin:0}.parts{margin-top:8px;display:grid;gap:8px}"
   + ".parts article{border-radius:8px;padding:8px 10px}label{display:grid;gap:4px;font-size:.92rem;margin:4px 0}input{font:inherit;padding:8px;border:1px solid var(--rule);border-radius:6px;background:var(--bg);color:var(--fg)}"
+  + "dd.derived{font-style:italic;color:var(--muted)}"
   + "button{font:inherit;padding:8px 14px;border:0;border-radius:6px;background:var(--accent);color:#fff;cursor:pointer}nav a{margin-right:12px}";
 
 // "community" -> "communities", "post" -> "posts", "species" stays
@@ -44,9 +45,13 @@ function controlHtml(t, byId) {
   return el("form", el("h3", esc(label)) + inputs.join("") + el("button", "Send", 'type="submit"'), "onsubmit=\"event.preventDefault()\"");
 }
 
+// a value the engine computed from the parts is marked as computed, never
+// passed off as something said
+const propHtml = (p) => el("dt", esc(p.label)) + (p.derived ? el("dd", esc(p.value), 'class="derived" title="computed from the parts on this page"') : el("dd", esc(p.value)));
+
 function thingHtml(t, byId, depth) {
   if (CONTROL_KINDS[t.kind]) return controlHtml(t, byId);
-  const props = t.props.length ? el("dl", t.props.map((p) => el("dt", esc(p.label)) + el("dd", esc(p.value))).join("")) : "";
+  const props = t.props.length ? el("dl", t.props.map(propHtml).join("")) : "";
   const parts = t.children.map((c) => byId.get(c)).filter(Boolean);
   const partsHtml = parts.length && depth < 4 ? el("div", parts.map((p) => thingHtml(p, byId, depth + 1)).join(""), 'class="parts"') : "";
   return el("article", el("span", esc(t.kind), 'class="kind"') + el("h3", esc(nameOf(t))) + props + partsHtml);
@@ -65,7 +70,7 @@ export function renderBelief(belief, { what = "", forWhom = "" } = {}) {
   const groups = new Map();
   for (const t of top) { const k = CONTROL_KINDS[t.kind] ? "Tools" : t.kind; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(t); }
   const sections = [...groups.entries()].map(([k, list]) => el("section", el("h2", esc(k === "Tools" ? "Tools" : (list.length > 1 ? pluralOf(k) : k))) + el("div", list.map((t) => thingHtml(t, byId, 0)).join(""), 'class="grid"'))).join("\n");
-  const siteProps = site?.props.length ? el("dl", site.props.map((p) => el("dt", esc(p.label)) + el("dd", esc(p.value))).join("")) : "";
+  const siteProps = site?.props.length ? el("dl", site.props.filter((p) => p.label !== "is").map(propHtml).join("")) : "";
   const head = "<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + el("title", esc(title)) + "\n" + el("style", STYLE);
   const header = el("header", el("h1", esc(title)) + (forWhom ? el("p", "For " + esc(forWhom), 'class="for"') : "") + siteProps);
   return "<!DOCTYPE html>\n" + el("html", "\n" + el("head", "\n" + head + "\n") + "\n" + el("body", "\n" + header + "\n" + el("main", sections) + "\n") + "\n", 'lang="en"') + "\n";
