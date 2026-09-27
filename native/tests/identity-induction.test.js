@@ -92,3 +92,21 @@ test("the organ names no medium", () => {
   const src = readFileSync(new URL("../kernel/identity-induction.js", import.meta.url), "utf8").replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
   for (const w of ["sentence", "word", "token", "verb", "text", "pronoun"]) assert.ok(!new RegExp(`\\b${w}`, "i").test(src), `kernel body says '${w}'`);
 });
+
+test("shuffle control: random nodes whose features name their OWN node are idle, never same", () => {
+  // every occurrence carries a feature naming the node it belongs to (the
+  // hop-2 shape). Masking only the judged pair leaves the others' self-names
+  // in the null, and random nodes then "carry weight" — found live, 13/66.
+  const base = world({ nodes: NODES });
+  const pool = [...base.values()].flat();
+  const rng = createSeededRng({ seed: 11 });
+  const rec = new Map();
+  for (let i = 0; i < 12; i += 1) {
+    const id = `r${i}`;
+    rec.set(id, Array.from({ length: 60 }, () => [...pool[Math.floor(rng() * pool.length)], { f: `names:${id}`, hop: 1 }]));
+  }
+  const ii = makeIdentityInduction(rec, { ...OPTS, namesNode: (f) => (f.startsWith("names:") ? f.slice(6) : null) });
+  let same = 0;
+  for (let i = 0; i < 12; i += 1) for (let j = i + 1; j < 12; j += 1) if (ii.judge(`r${i}`, `r${j}`).verdict === "same") same += 1;
+  assert.equal(same, 0);
+});

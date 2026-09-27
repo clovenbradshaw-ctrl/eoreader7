@@ -161,16 +161,26 @@ export function makeIdentityInduction(record, opts = {}) {
   need(opts, ["draws", "alpha", "seed", "minOccurrences", "maxHop", "smooth", "resolution", "minFeatureCount"]);
   const { draws, alpha, seed, minOccurrences, maxHop, smooth, resolution, minFeatureCount, relevant = null, namesNode = null } = opts;
   if (2 * resolution > minOccurrences) throw new RangeError("identity-induction: resolution must be <= minOccurrences / 2");
-  const nodes = [...record.keys()].filter((n) => (record.get(n)?.length ?? 0) >= minOccurrences);
-  const allOcc = [];
-  for (const n of record.keys()) for (const o of record.get(n)) allOcc.push(o);
-
   // which features name which node — computed once
   const naming = new Map();
-  if (namesNode) for (const o of allOcc) for (const { f } of o) {
+  if (namesNode) for (const occs of record.values()) for (const o of occs) for (const { f } of o) {
     if (naming.has(f)) continue;
     const n = namesNode(f); if (n != null) naming.set(f, n);
   }
+  // SELF-NAMING IS DROPPED FOR EVERY NODE, not only the pair being judged.
+  // Masking only the candidates left every OTHER node's occurrences carrying
+  // their own names, so a candidate's profile lacked a kind of feature every
+  // null draw had — a small, systematic departure test 3 read as weight.
+  // Found live: a label-shuffle control (II.23, answer known: nothing is the
+  // same) came back 13/66 "same" at hop 2 and 0/66 at hop 1.
+  if (namesNode) {
+    const clean = new Map();
+    for (const [n, occs] of record) clean.set(n, occs.map((o) => o.filter(({ f }) => naming.get(f) !== n)));
+    record = clean;
+  }
+  const nodes = [...record.keys()].filter((n) => (record.get(n)?.length ?? 0) >= minOccurrences);
+  const allOcc = [];
+  for (const n of record.keys()) for (const o of record.get(n)) allOcc.push(o);
   const maskFor = (a, b) => {
     const m = new Set();
     for (const [f, n] of naming) if (n === a || n === b) m.add(f);
