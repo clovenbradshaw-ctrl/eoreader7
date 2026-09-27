@@ -182,7 +182,7 @@ test("a thin request: the person's answers are read with it, and what each part 
   const ask = async (p) => {
     prompts.push(p); i++;
     const lines = p.split("\n"), anchor = lines.at(-1);
-    if (p.toLowerCase().includes("what does each")) return " upvotes and its comments.";
+    if (p.toLowerCase().includes("what does each")) return "Each post shows its name, its upvotes and its comments.";
     if (anchor.startsWith("1. ") && anchor.endsWith(":")) {
       const first = anchor.slice(3, -1);
       const rows = lines.filter((l) => l[0] >= "0" && l[0] <= "9" && l.includes(". ")).map((l) => l.slice(l.indexOf(". ") + 2)).filter((x) => x !== first);

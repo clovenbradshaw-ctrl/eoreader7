@@ -448,7 +448,12 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         // name, its" -> "upvotes, its comments and its author."
         const anchor = `Each ${phraseOf(c)} shows its name, its`;
         const prompt = `${context}\nWhat does each ${phraseOf(c)} on ${spec.whole ?? "the site"} show?\n\n${anchor}`;
-        const reply = String(await ask(prompt, { stage: `shows:${c.kind}` }) ?? "");
+        let reply = String(await ask(prompt, { stage: `shows:${c.kind}` }) ?? "").trim();
+        // the mouth often says the sentence again from its start ("Each post
+        // shows its title, its …"): read what follows its own "shows"
+        const words = reply.split(" ");
+        const at = words.findIndex((w) => w.toLowerCase() === "shows" || w.toLowerCase() === "show");
+        if (at >= 0 && at < 4) reply = words.slice(at + 1).join(" ");
         const shown = itemsOf(reply).filter((x) => x.split(" ").length <= 3 && !["title", "name"].includes(x)).slice(0, 3);
         c.details.push(...shown);
         log({ kind: "turn", gap: `shows:${c.kind}`, prompt, reply, claims: shown.map((x) => `${c.kind} shows ${x}`), ops: [], ms: 0 });
