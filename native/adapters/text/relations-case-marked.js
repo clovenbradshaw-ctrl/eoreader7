@@ -269,19 +269,23 @@ const stripPunct = (w) => w.replace(/^[^\p{L}]+|[^\p{L}]+$/gu, "");
  *   (default LATIN_PREPOSITIONS). @param {Map} [options.exceptionCases]
  *   closed form -> { case, number } read before the ending vote (default
  *   null — Greek's enclitic datives are the standing instance).
+ * @param {Function} [options.classifyVerb] word -> finite-verb reading or
+ *   null (default: Latin's received personal endings). A second language
+ *   brings its own — adapters/text/case-marked-language.js derives one from
+ *   a UD-built prior, Russian first (2026-09-27).
  */
-export function extractCaseMarkedRelation(text, { casePrior = defaultLatinCasePrior(), verbHint = null, minVolume = MIN_ENDING_VOLUME, minShare = MIN_TOP_SHARE, excludeForms = LATIN_PREPOSITIONS, exceptionCases = null } = {}) {
+export function extractCaseMarkedRelation(text, { casePrior = defaultLatinCasePrior(), verbHint = null, minVolume = MIN_ENDING_VOLUME, minShare = MIN_TOP_SHARE, excludeForms = LATIN_PREPOSITIONS, exceptionCases = null, classifyVerb: verbOf = classifyVerb, isHead = null, adpositions = null, orderTieBreak = false } = {}) {
   const words = String(text ?? "").split(/\s+/).map(stripPunct).filter(Boolean);
 
   let verbCandidates = words
-    .map((w) => ({ w, v: classifyVerb(w) }))
+    .map((w) => ({ w, v: verbOf(w) }))
     .filter((x) => x.v)
     .filter((x) => !x.v.weak || !classifyNominal(casePrior, x.w, { excludeForms, exceptionCases, minVolume, minShare }));
 
   let chosenVerb = null;
   if (verbHint) {
     const w = words.find((x) => x.toLowerCase() === verbHint.toLowerCase());
-    chosenVerb = w ? { w, v: classifyVerb(w) } : null;
+    chosenVerb = w ? { w, v: verbOf(w) } : null;
   } else if (verbCandidates.length === 1) {
     chosenVerb = verbCandidates[0];
   } else if (verbCandidates.length > 1) {
@@ -292,7 +296,15 @@ export function extractCaseMarkedRelation(text, { casePrior = defaultLatinCasePr
   }
   if (!chosenVerb) return { end1: null, label: null, end2: null, gap: { reason: "no_verb_found" } };
 
-  const nominals = words.filter((w) => w !== chosenVerb.w).map((w) => classifyNominal(casePrior, w, { excludeForms, exceptionCases, minVolume, minShare })).filter(Boolean);
+  // isHead / adpositions / orderTieBreak are OPT-IN (a second language's
+  // grammar, derived by case-marked-language.js); absent, Latin reads exactly
+  // as it always did. A word governed by a preposition is oblique; an agreeing
+  // modifier is not an end; word order breaks a Nom/Acc tie ONLY after
+  // morphology has spoken and left more than one candidate.
+  const governed = new Set();
+  if (adpositions) words.forEach((w, i) => { if (i > 0 && adpositions.has(words[i - 1].toLowerCase())) governed.add(i); });
+  const verbIndex = words.indexOf(chosenVerb.w);
+  const nominals = words.map((w, i) => ({ w, i })).filter(({ w, i }) => w !== chosenVerb.w && !governed.has(i) && (!isHead || isHead(w))).map(({ w, i }) => { const n = classifyNominal(casePrior, w, { excludeForms, exceptionCases, minVolume, minShare }); return n && { ...n, index: i }; }).filter(Boolean);
   let nominatives = nominals.filter((n) => n.case === "Nom");
   const accusatives = nominals.filter((n) => n.case === "Acc");
   const obliques = nominals.filter((n) => n.case === "Dat" || n.case === "Abl" || n.case === "Gen");
@@ -305,21 +317,29 @@ export function extractCaseMarkedRelation(text, { casePrior = defaultLatinCasePr
     if (agreeing.length === 1) nominatives = agreeing;
   }
 
+  let accs = accusatives;
+  if (orderTieBreak && verbIndex >= 0) {
+    // Nom/Acc syncretism: the same word can read either case. Morphology first;
+    // only a still-ambiguous set is narrowed by position, and the choice is
+    // recorded on the end so a reader can see order decided it, not case.
+    if (nominatives.length > 1) { const pre = nominatives.filter((n) => n.index < verbIndex); if (pre.length === 1) nominatives = [{ ...pre[0], byOrder: true }]; }
+    if (accs.length > 1) { const post = accs.filter((n) => n.index > verbIndex); if (post.length === 1) accs = [{ ...post[0], byOrder: true }]; }
+  }
   const gaps = [];
   let end1 = null, end2 = null;
   if (nominatives.length === 0) gaps.push("no_nominative_found");
   else if (nominatives.length > 1) gaps.push("ambiguous_nominative");
   else end1 = nominatives[0];
 
-  if (accusatives.length === 1) end2 = accusatives[0];
-  else if (accusatives.length > 1) gaps.push("ambiguous_accusative");
+  if (accs.length === 1) end2 = accs[0];
+  else if (accs.length > 1) gaps.push("ambiguous_accusative");
   else if (obliques.length > 0) gaps.push("object_slot_is_oblique_not_accusative");
   else gaps.push("intransitive_or_no_object_found");
 
   return {
-    end1: end1 ? { word: end1.word, case: end1.case, number: end1.number } : null,
+    end1: end1 ? { word: end1.word, case: end1.case, number: end1.number, ...(end1.byOrder ? { byOrder: true } : {}) } : null,
     label: { word: chosenVerb.w, person: chosenVerb.v?.person ?? null, number: chosenVerb.v?.number ?? null },
-    end2: end2 ? { word: end2.word, case: end2.case, number: end2.number } : null,
+    end2: end2 ? { word: end2.word, case: end2.case, number: end2.number, ...(end2.byOrder ? { byOrder: true } : {}) } : null,
     gap: gaps.length ? gaps : null,
   };
 }
