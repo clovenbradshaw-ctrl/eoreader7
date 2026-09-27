@@ -26,14 +26,19 @@ const lf = makeLongForm({ ask, sentences, medium: PROSE_MEDIUM, mouth: model, ca
 const parser = await loadEotParser();
 const ed = makeBookEditor({ lf, ask, parser, medium: PROSE_MEDIUM, mouth: model, castDetails: outline.castDetails, log });
 const t0 = Date.now();
-let e = await ed.editBook({ notes: state.notes, store: makeTextStore(state.store), task: outline.request, budget });
-// the pathos pass: flat parts written again, the archons choosing
+// the grid's own order, macro to micro: the pathos pass (Gornick, the whole
+// book's curve) on the book as written, then the meso and micro editors —
+// a candidate is judged against the part as it was written, never against
+// one the editors already cut
+let start = { notes: state.notes, store: makeTextStore(state.store) }, pathosAsks = 0;
 if (arg("pathos", "1") === "1") {
-  const pp = await ed.pathosPass({ notes: e.notes, store: e.store, task: outline.request, budget: Number(arg("pathos-budget", "60")), topic: outline.topic });
+  const pp = await ed.pathosPass({ notes: start.notes, store: start.store, task: outline.request, budget: Number(arg("pathos-budget", "60")), topic: outline.topic });
   console.log(`pathos: ${pp.targets} flat parts, ${pp.tried} tried, ${pp.kept} rewritten, ${pp.asks} asks`);
   for (const r of pp.rows) console.log(`  ${r.part} ${r.kept ? "KEPT" : "kept old"} · ${r.why.join(", ")} · now ${r.now.licensed} licensed ${r.now.bits.toFixed(2)} bits${r.now.flatCadence ? " flat" : ""} → best ${r.best ? `${r.best.licensed} licensed ${r.best.bits} bits${r.best.flatCadence ? " flat" : ""}` : "none"} of ${r.candidates}`);
-  e = { ...e, notes: pp.notes, store: pp.store, asks: e.asks + pp.asks };
+  start = { notes: pp.notes, store: pp.store }; pathosAsks = pp.asks;
 }
+let e = await ed.editBook({ notes: start.notes, store: start.store, task: outline.request, budget });
+e = { ...e, asks: e.asks + pathosAsks };
 const s = lf.seal({ notes: e.notes, store: e.store, request: outline.request, regime: { arm: to, budget } });
 fs.writeFileSync(path.join(dir, `${to}.book.md`), s.artifact);
 fs.writeFileSync(path.join(dir, `${to}.state.json`), JSON.stringify({ notes: e.notes, store: e.store }));

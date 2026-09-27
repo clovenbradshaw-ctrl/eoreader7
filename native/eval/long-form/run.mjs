@@ -118,10 +118,11 @@ for (const name of arms.filter((a) => a !== "edit")) {
       const parser = await loadEotParser();
       const elog = logTo("ledger-edited.log.jsonl");
       const ed = makeBookEditor({ lf, ask, parser, medium: PROSE_MEDIUM, mouth: model, castDetails: outline.castDetails, log: elog });
-      const e = await ed.editBook({ notes: s.notes, store: w.store, task: request, budget: 2 * frozen.leaves.length });
-      const pp = await ed.pathosPass({ notes: e.notes, store: e.store, task: request, budget: 3 * frozen.leaves.length, topic: outline.topic });
+      // macro to micro: the pathos pass on the book as written, then the editors
+      const pp = await ed.pathosPass({ notes: s.notes, store: w.store, task: request, budget: 3 * frozen.leaves.length, topic: outline.topic });
       console.log(`pathos     ${pp.targets} flat parts, ${pp.tried} tried, ${pp.kept} rewritten, ${pp.asks} asks`);
-      e.notes = pp.notes; e.store = pp.store; e.asks += pp.asks;
+      const e = await ed.editBook({ notes: pp.notes, store: pp.store, task: request, budget: 2 * frozen.leaves.length });
+      e.asks += pp.asks;
       const s2 = lf.seal({ notes: e.notes, store: e.store, request, regime: { arm: "ledger-edited", seed, ctx } });
       fs.writeFileSync(path.join(OUT, "ledger-edited.book.md"), s2.artifact);
       fs.writeFileSync(path.join(OUT, "ledger-edited.state.json"), JSON.stringify({ notes: e.notes, store: e.store }));
