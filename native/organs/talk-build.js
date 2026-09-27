@@ -870,8 +870,12 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
           const slot = { kind: c.kind, modifier: c.modifier, parent: p?.id ?? spec.wholeId ?? null, label: says(c) ? "says" : "named", whole: says(c), list: missing };
           const verb = says(c) ? sayVerb : "Name";
           const part = { c, parentId: p?.id ?? spec.wholeId ?? null, have: have.length, missing };
-          if (missing === 1) return { key, part, slot: { ...slot, list: null }, question: scoped(`${verb} one more ${phraseOf(c)}${where}${others}.`), anchor: says(c) ? `One more ${phraseOf(c)}${where} says:` : `One more ${phraseOf(c)}${where} is called` };
-          return { key, part, slot, question: scoped(`${verb} ${missing} ${have.length ? "more " : ""}${c.phrase}${where}${others}. One per line, ${says(c) ? "each a short sentence" : "just the name"}.`), anchor: "1." };
+          // a told world's people are named for themselves, never for the topic
+          // (the topic line made eight people "Lighthouse Keeper's Daughter",
+          // "… Son", "… Sister" on the scale run)
+          const askFor = (q) => (!says(c) && !scopeDetails ? `${known ? `${known}\n` : ""}${q}` : scoped(q));
+          if (missing === 1) return { key, part, slot: { ...slot, list: null }, question: askFor(`${verb} one more ${phraseOf(c)}${where}${others}.`), anchor: says(c) ? `One more ${phraseOf(c)}${where} says:` : `One more ${phraseOf(c)}${where} is called` };
+          return { key, part, slot, question: askFor(`${verb} ${missing} ${have.length ? "more " : ""}${c.phrase}${where}${others}. One per line, ${says(c) ? "each a short sentence" : "just the name"}.`), anchor: "1." };
         }
       }
       // 2. things at this depth missing a detail the request asked each one to
