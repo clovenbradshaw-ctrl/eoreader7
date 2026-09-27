@@ -214,6 +214,22 @@ test("the frame: by default an ask carries the task at hand, not the big picture
   }
 });
 
+test("a reply is read, not only slotted; what the ear imagines is never on the page", async () => {
+  const replies = ["Pod Chat. It has a friendly forum. One more post is called Ghost Post."];
+  let k = 0;
+  const tb = makeTalkBuild({ ask: async () => replies[k++] ?? "", parse, sentences, render: renderBelief, maxAsks: 1 });
+  const out = await tb.build({ what: "make a site with three posts with a title", forWhom: "fans" });
+  const site = out.belief.find((t) => t.kind === "site");
+  assert.equal(site.name, "Pod Chat");
+  const parts = site.children.map((c) => out.belief.find((t) => t.id === c)?.kind);
+  assert.ok(parts.includes("forum"), `the rest of the reply is read into the site: ${JSON.stringify(parts)}`);
+  // "One more post is called Ghost Post" is not about the site: the ear hears
+  // a new post, but nothing asked for it and nothing holds it — it is not
+  // on the record, so it is not on the page
+  assert.ok(!out.belief.some((t) => t.name === "Ghost Post"), "a stray the ear imagined reached the page");
+  assert.ok(!out.artifact.includes("Ghost Post"));
+});
+
 test("the talk path contains no regular expression", () => {
   for (const f of ["organs/talk-reader.js", "organs/talk-build.js", "adapters/build/belief-page.js", "eval/build-battery/run-talk.mjs"]) {
     const found = scanRegexes(fs.readFileSync(path.join(NATIVE, f), "utf8"));

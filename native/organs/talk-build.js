@@ -173,7 +173,11 @@ export function specOf(request, { parse, sentences }) {
  *  but a value ("its username is orcafan99" heard as a username thing) folds
  *  into its owner as that value. */
 export function beliefOf(notesFold, things) {
-  const byId = new Map(things.map((t) => [t.id, { ...t, props: [], children: [], parent: null }]));
+  // the belief is the fold: a thing is on the page only when the ledger holds
+  // a claim about it, and its name is only the name the ledger heard (the
+  // ear's own working memory is never the record)
+  const onRecord = new Set(notesFold.flatMap((n) => [n.end1, n.end2]));
+  const byId = new Map(things.filter((t) => onRecord.has(t.id)).map((t) => [t.id, { ...t, name: null, props: [], children: [], parent: null }]));
   for (const n of notesFold) {
     const a = byId.get(n.end1);
     if (!a || n.label === "exists") continue;
@@ -321,6 +325,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       while (reply.toLowerCase().startsWith(anchor.toLowerCase())) reply = reply.slice(anchor.length).trim();
       const witness = `talk:${asks}`;
       let claims = [];
+      let focusId = null;
       if (slot?.list) {
         // one value per line: "1. Superpod sighting" / "- Superpod sighting"
         const values = linesOf(reply).map((l) => slotValue(l, slot.whole)).filter(Boolean).slice(0, slot.list);
@@ -388,12 +393,31 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
           }
           if (slot.label === "named") reader.rename(subject, value);
           claims.push({ end1: subject, label: slot.label, end2: value, sentence: because, witness });
-          reader.focus(subject);
-          const after = sentences(reply).slice(1).map((x) => x.text).join(" ");
-          if (after) claims.push(...reader.read(after, { witness }).claims);
+          focusId = subject;
         }
       } else {
         claims = reader.read(`${anchor} ${reply}`, { witness }).claims;
+      }
+      // THE REPLY IS READ, NOT ONLY SLOTTED. The mouth's words are not the
+      // page: what the slot did not take (the rest of the sentence, or a
+      // reply that missed the slot altogether — "Each post is a discussion
+      // about dolphins") is read by the ear into claims about the thing asked
+      // about. A claim lands only on a thing already on the record or on a
+      // new part of the thing asked about — a reading never invents a stray
+      // (a post filed under the search box) and never renames what has a name.
+      const about = focusId ?? slot?.subject ?? null;
+      if (about && !slot?.rows && !slot?.list) {
+        const known = new Set(reader.things().map((t) => t.id));
+        reader.focus(about);
+        const read = reader.read(`${anchor} ${reply}`, { witness }).claims;
+        const partsOfAbout = new Set(read.filter((c) => c.end1 === about && c.label === "has").map((c) => c.end2));
+        const taken = new Set(claims.map((c) => `${c.end1}|${c.label}|${c.end2}`));
+        for (const c of read) {
+          if (taken.has(`${c.end1}|${c.label}|${c.end2}`) || c.label === "exists") continue;
+          if (c.label === "named" && known.has(c.end1)) continue;
+          if (slot?.labels && c.end1 === about && slot.labels.includes(c.label)) continue;
+          if (known.has(c.end1) || partsOfAbout.has(c.end1) || c.end1 === about) claims.push(c);
+        }
       }
       const ops = hear(claims);
       log({ kind: "turn", gap, prompt, reply, claims: show(claims), ops, ms: Date.now() - t0 });
