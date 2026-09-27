@@ -31,16 +31,21 @@
 
 import { induceEntityKindCandidates } from "./entity-kind-induction.js";
 
-export function induceKindsAndFunctions(referents, { assertionsOf, sameValue, witnessed = null, exposureFloor, kindOptions, declaredKinds = null } = {}) {
+export function induceKindsAndFunctions(referents, { assertionsOf, sameValue, witnessed = null, exposureFloor, kindOptions, declaredKinds = null, asOf = null } = {}) {
   if (typeof assertionsOf !== "function" || typeof sameValue !== "function") throw new TypeError("kind-functional-induction: assertionsOf and sameValue must be supplied");
   if (!Number.isInteger(exposureFloor) || exposureFloor < 1) throw new TypeError("kind-functional-induction: exposureFloor must be declared");
   if (!kindOptions && !declaredKinds) throw new TypeError("kind-functional-induction: kindOptions must be declared (they are the kind inducer's own), or kinds declared");
   const ids = [...referents];
+  // THE READING CURSOR (archon review, muninn / clippy): kinds and standings
+  // are learned only from assertions read by `asOf` (an assertion's `seq`), so
+  // a register can say what it knew as of a point and never licenses a verdict
+  // earlier than that. An assertion without seq is believed at every cursor.
+  const read = (id) => (assertionsOf(id) ?? []).filter((a) => asOf == null || a.seq == null || a.seq <= asOf);
   // profile: presence of each relation — the kind is read from what a referent DOES
   const features = new Map();
   for (const id of ids) {
     const m = new Map();
-    for (const a of assertionsOf(id) ?? []) {
+    for (const a of read(id)) {
       const sig = `rel:${a.rel}`;
       if (!m.has(sig)) m.set(sig, { featureKey: a.rel, featureValue: true, evidenceIds: new Set(), firstAt: 0, lastAt: 0 });
       m.get(sig).evidenceIds.add(a.id ?? `${id}:${a.rel}:${m.get(sig).evidenceIds.size}`);
@@ -83,7 +88,7 @@ export function induceKindsAndFunctions(referents, { assertionsOf, sameValue, wi
     const rels = new Map();
     for (const m of k.memberRefs) {
       const byRel = new Map();
-      for (const a of assertionsOf(m) ?? []) { if (!byRel.has(a.rel)) byRel.set(a.rel, []); byRel.get(a.rel).push(a); }
+      for (const a of read(m)) { if (!byRel.has(a.rel)) byRel.set(a.rel, []); byRel.get(a.rel).push(a); }
       for (const [rel, vs] of byRel) {
         const r = rels.get(rel) ?? { members: 0, exposed: 0, agreed: 0, changed: 0, simultaneous: 0, untimed: 0, refutedBy: [] };
         r.members += 1;
@@ -120,7 +125,7 @@ export function induceKindsAndFunctions(referents, { assertionsOf, sameValue, wi
   return Object.freeze({
     kinds: kinds.map((k) => ({ kindKey: k.kindKey, members: k.memberRefs, signatures: k.structuralSignatures, bindingEnergy: k.field.bindingEnergy })),
     kindsOf: (id) => kindsOfRef.get(id) ?? new Set(),
-    register, relations,
+    register, relations, builtAsOf: asOf,
     diagnostics: { referents: ids.length, profiled: features.size, kinds: kinds.length, inducer: induced.diagnostics },
   });
 }

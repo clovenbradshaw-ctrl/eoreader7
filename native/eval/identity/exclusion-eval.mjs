@@ -22,6 +22,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const { makeIdentityExclusion } = await import(`${NATIVE}/kernel/identity-exclusion.js`);
 const { createSeededRng } = await import(`${NATIVE}/kernel/rng.js`);
+const { BOUND, CONTRADICTED, UNBOUND, BEYOND_REACH } = await import(`${NATIVE}/interpretation/hl.js`);
+
 const [FIX = new URL("./fixtures/wikidata-tolstoy-family.json", import.meta.url).pathname, OUT] = process.argv.slice(2);
 const data = JSON.parse(readFileSync(FIX, "utf8"));
 const SEED = 11;
@@ -32,6 +34,7 @@ const SINGLE = new Set(["Q19474404", "Q52060874"]); // single-value, single-best
 const HUMAN = "Q5";
 const functionalRels = new Map();
 for (const [p, c] of Object.entries(data.constraints)) {
+  if (!Array.isArray(c.types)) continue; // a failed constraint fetch registers nothing (heimdall)
   const t = c.types.find((x) => SINGLE.has(x));
   if (t && p !== "P31") functionalRels.set(p, { giver: `Wikidata property constraint P2302=${t} on ${p} (${c.label})` });
 }
@@ -96,14 +99,17 @@ const arms = {
   allFunctional: judgeWith(allRels, makeSameValue({ calendarAware: true })),
   calendarBlind: judgeWith(functionalRels, makeSameValue({ calendarAware: false })),
   // added after the shipped arm found Volkonsky's self-contradicting item —
-  // post-hoc, reported beside the arm it amends, never in place of it
-  witnessedProof: judgeWith(functionalRels, makeSameValue({ calendarAware: true }), byId, { witnessedOnly: true }),
+  // post-hoc, reported beside the arm it amends, never in place of it.
+  // NAMED FOR WHAT IT MEASURES (ranke, P182/P84): a Wikidata reference count
+  // is the index's own claim that a source exists — no source was chased or
+  // read. "Cited by the index, unchased", never "witnessed".
+  citedByIndex: judgeWith(functionalRels, makeSameValue({ calendarAware: true }), byId, { witnessedOnly: true }),
 };
 const qids = Object.keys(people);
 const positives = qids.map((q) => [`${q}/1`, `${q}/2`]);
 const negatives = []; for (let i = 0; i < qids.length; i += 1) for (let j = i + 1; j < qids.length; j += 1) negatives.push([`${qids[i]}/1`, `${qids[j]}/1`, qids[i], qids[j]]);
 const out = { fixture: FIX.split("/").pop(), seed: SEED, persons: qids.length, dualCalendar, functional: Object.fromEntries(functionalRels), arms: {} };
-const tallyOf = (judge, pairs) => { const t = { excluded: 0, contested: 0, not_excluded: 0, gap: 0 }; const ex = []; for (const [a, b] of pairs) { const r = judge(a, b); t[r.verdict] += 1; if (r.verdict === "excluded") ex.push({ a, b, by: r.by, rels: (r.proof ?? []).map((p) => p.rel ?? p.kinds?.join("/")) }); } return { ...t, examples: ex.slice(0, 5) }; };
+const tallyOf = (judge, pairs) => { const t = {}; const ex = []; for (const [a, b] of pairs) { const r = judge(a, b); t[r.verdict] = (t[r.verdict] ?? 0) + 1; if (r.verdict === CONTRADICTED) ex.push({ a, b, by: r.by, rels: (r.proof ?? []).map((p) => p.rel ?? p.kinds?.join("/")) }); } return { ...t, examples: ex.slice(0, 5) }; };
 for (const [name, judge] of Object.entries(arms)) {
   out.arms[name] = {
     samePerson: tallyOf(judge, positives),
@@ -124,7 +130,7 @@ for (const [name, judge] of Object.entries(arms)) {
     const recs = new Map(byId);
     recs.set(`${q}/1`, { ...r1, assertions: [...r1.assertions.filter((x) => x.rel !== "P569"), { rel: "P569", value: own }] });
     recs.set(`${q}/2`, { ...r2, assertions: [...r2.assertions.filter((x) => x.rel !== "P569"), { rel: "P569", value: bd }] });
-    tried += 1; if (judgeWith(functionalRels, makeSameValue({ calendarAware: true }), recs)(`${q}/1`, `${q}/2`).verdict === "excluded") caught += 1;
+    tried += 1; if (judgeWith(functionalRels, makeSameValue({ calendarAware: true }), recs)(`${q}/1`, `${q}/2`).verdict === CONTRADICTED) caught += 1;
   }
   out.plantedConflict = { tried, caught };
 }

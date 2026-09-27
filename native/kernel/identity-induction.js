@@ -57,6 +57,7 @@
 // further reading moves either universe.
 
 import { createSeededRng } from "./rng.js";
+import { BOUND, CONTRADICTED, UNBOUND, BEYOND_REACH, verdictOfSupport } from "../interpretation/hl.js";
 import { economySVD, matmul, transpose } from "./dmd.js";
 
 const need = (opts, keys) => {
@@ -159,6 +160,7 @@ const sample = (arr, k, rng) => {
  * returns { judge(a, b), frame }
  */
 export function makeIdentityInduction(record, opts = {}) {
+  const rawRecord = record;
   need(opts, ["draws", "alpha", "seed", "minOccurrences", "maxHop", "smooth", "resolution", "minFeatureCount"]);
   const { draws, alpha, seed, minOccurrences, maxHop, smooth, resolution, minFeatureCount, relevant = null, namesNode = null, trajectory = null } = opts;
   if (trajectory) need(trajectory, ["windows", "basis", "draws"]);
@@ -292,8 +294,16 @@ export function makeIdentityInduction(record, opts = {}) {
     if (Number.isFinite(lo)) span = { lo, hi: hi > lo ? hi : lo + 1 };
   }
   const windowOf = (at) => Math.min(trajectory.windows - 1, Math.floor(((at - span.lo) / (span.hi - span.lo)) * trajectory.windows));
-  const basisFor = (hop, drop) => [...background(hop, drop)].sort((x, y) => y[1] - x[1]).slice(0, trajectory.basis).map(([f]) => f);
-  const statesOf = (occs, hop, drop, basis, order = null) => {
+  // THE BASIS IS THE PAIR'S OWN UNIVERSE: the most frequent features across
+  // a's and b's occurrences, and every comparison node is projected onto that
+  // same basis. It used to be the BACKGROUND's most frequent features — which,
+  // wherever referents share common company, are exactly the features that
+  // do not move, so the pair's own drifting features never entered and every
+  // trajectory read "no dynamics" (found by the first conformance test of
+  // test 5: a strong monotone drift, 800 occurrences, rank 0).
+  const basisFor = (hop, drop, A, B) => [...profileOf([...A, ...B], { hop, relevant, drop })].sort((x, y) => y[1] - x[1]).slice(0, trajectory.basis).map(([f]) => f);
+  // one unit, mean-subtracted state per reading window (null where absent)
+  const windowStates = (occs, hop, drop, basis) => {
     const idx = new Map(basis.map((f, i) => [f, i]));
     const W = Array.from({ length: trajectory.windows }, () => new Array(basis.length).fill(0));
     for (const o of occs) {
@@ -308,7 +318,10 @@ export function makeIdentityInduction(record, opts = {}) {
     // beneath it (found live: every War and Peace name read rank 0).
     const present = dirs.filter(Boolean);
     const mean = present.length ? present[0].map((_, i) => present.reduce((m, v) => m + v[i], 0) / present.length) : [];
-    const unit = dirs.map((v) => (v ? v.map((x, i) => x - mean[i]) : null));
+    return dirs.map((v) => (v ? v.map((x, i) => x - mean[i]) : null));
+  };
+  const statesOf = (occs, hop, drop, basis, order = null) => {
+    const unit = windowStates(occs, hop, drop, basis);
     const seq = (order ?? unit.map((_, i) => i)).map((i) => unit[i]);
     const pairs = [];
     for (let t = 0; t + 1 < seq.length; t += 1) if (seq[t] && seq[t + 1]) pairs.push([seq[t], seq[t + 1]]);
@@ -319,6 +332,7 @@ export function makeIdentityInduction(record, opts = {}) {
   // modes dmd.js reports are its eigendecomposition); it is fitted here in the
   // full feature space so two nodes' operators act on the same states.
   const operatorOf = (pairs, r) => {
+    if (pairs.length < 1) return null;
     const [X, Xp] = asMatrices(pairs);
     const { U, s, V } = economySVD(X, { rank: r });
     if (!s.length) return null;
@@ -326,7 +340,8 @@ export function makeIdentityInduction(record, opts = {}) {
     return matmul(matmul(Xp, VS), transpose(U)); // k x k
   };
   const predError = (A, pairs) => {
-    if (!A || !pairs.length) return NaN;
+    if (!pairs.length) return NaN;
+    if (!A) return 1; // an operator fitted on nothing predicts nothing
     let e = 0, z = 0;
     for (const [x, y] of pairs) for (let i = 0; i < y.length; i += 1) { let p = 0; for (let j = 0; j < x.length; j += 1) p += A[i][j] * x[j]; e += (y[i] - p) ** 2; z += y[i] ** 2; }
     return z ? e / z : NaN;
@@ -357,64 +372,84 @@ export function makeIdentityInduction(record, opts = {}) {
     for (let r = 1; r <= maxR; r += 1) {
       const obs = twoFoldError(pairs, r);
       const nul = orders.map((p) => twoFoldError(p, r)).filter(Number.isFinite);
-      if (Number.isFinite(obs) && nul.length && obs < quantile(nul, alpha)) best = r; else if (best) break;
+      // stop at the FIRST rank that fails: searching past a failure tests each
+      // rank at alpha and so lowers the bar the more ranks it tries (kairos)
+      if (Number.isFinite(obs) && nul.length && obs < quantile(nul, alpha)) best = r; else break;
     }
     return best;
   };
   const dynamicsTest = (a, b, hop, drop, rng) => {
-    if (!span) return { verdict: "gap", reason: "no_positions" };
-    const basis = basisFor(hop, drop);
+    if (!span) return { verdict: BEYOND_REACH, reason: "no_positions" };
     const A = record.get(a), B = record.get(b);
+    const basis = basisFor(hop, drop, A, B);
     const ra = boundedRank(A, hop, drop, basis, rng), rb = boundedRank(B, hop, drop, basis, rng);
-    if (!ra || !rb) return { verdict: "gap", reason: "no_dynamics", ranks: { a: ra, b: rb } };
-    const pa = statesOf(A, hop, drop, basis), pb = statesOf(B, hop, drop, basis);
-    const Aa = operatorOf(pa, ra), Ab = operatorOf(pb, rb);
-    const ab = predError(Aa, pb), ba = predError(Ab, pa);
-    const others = nodes.filter((n) => n !== a && n !== b);
-    const nullB = [], nullA = [];
-    for (let i = 0; i < trajectory.draws && others.length; i += 1) {
-      const c = record.get(others[Math.floor(rng() * others.length)]);
-      nullB.push(predError(operatorOf(statesOf(subsample(c, A.length, rng), hop, drop, basis), ra), pb));
-      nullA.push(predError(operatorOf(statesOf(subsample(c, B.length, rng), hop, drop, basis), rb), pa));
-    }
-    const fa = nullB.filter(Number.isFinite), fb = nullA.filter(Number.isFinite);
-    const qB = quantile(fa, alpha), qA = quantile(fb, alpha);
-    return { verdict: ab < qB && ba < qA ? "same" : "different", ranks: { a: ra, b: rb }, error: { ab, ba }, floor: { ab: qB, ba: qA } };
+    if (!ra || !rb) return { verdict: UNBOUND, reason: "no_dynamics", ranks: { a: ra, b: rb } };
+    // THE PATTERN: the two trajectories COINCIDE — a's world at a moment of
+    // the reading agrees with b's world at the same moment. Measured, not
+    // assumed: the first version compared one-step DYNAMICS (a's operator
+    // predicting b's transitions), and a twin whose trajectory ran BACKWARDS
+    // through the reading was judged bound — a smooth drift persists window to
+    // window in either direction, so an operator describes how a trajectory
+    // moves, never where it is. The DMD bound above stays the gate (both must
+    // carry order-dependent dynamics); the comparison is synchronous, and its
+    // null CIRCULARLY SHIFTS b's trajectory, which keeps b's own smoothness
+    // intact so persistence alone can never pass (the swarm's strongest leg).
+    const Wa = windowStates(A, hop, drop, basis), Wb = windowStates(B, hop, drop, basis);
+    const sync = (x, y) => { let s = 0, n = 0; for (let t = 0; t < x.length; t += 1) if (x[t] && y[t]) { const nx = Math.hypot(...x[t]), ny = Math.hypot(...y[t]); if (nx && ny) { s += x[t].reduce((m, v, i) => m + v * y[t][i], 0) / (nx * ny); n += 1; } } return n ? { mean: s / n, n } : { mean: NaN, n: 0 }; };
+    const observed = sync(Wa, Wb);
+    if (observed.n < 3) return { verdict: UNBOUND, reason: "too_few_shared_windows", ranks: { a: ra, b: rb }, sharedWindows: observed.n };
+    const shifted = [];
+    for (let k = 1; k < trajectory.windows; k += 1) { const Ws = Wb.map((_, t) => Wb[(t + k) % Wb.length]); const v = sync(Wa, Ws).mean; if (Number.isFinite(v)) shifted.push(v); }
+    const hi = quantile(shifted, 1 - alpha), lo = quantile(shifted, alpha);
+    const forS = observed.mean > hi, againstS = observed.mean < lo;
+    return { verdict: verdictOfSupport(forS, againstS), ranks: { a: ra, b: rb }, sync: observed.mean, sharedWindows: observed.n, shiftBand: { lo, hi }, shifts: shifted.length };
   };
 
-  function judge(a, b) {
+  function judge(a, b, { asOf = null } = {}) {
+    if (asOf != null) {
+      const cut = new Map();
+      for (const [n, occs] of rawRecord) cut.set(n, occs.filter((o) => Array.isArray(o) || !Number.isFinite(o.at) || o.at <= asOf));
+      const r = makeIdentityInduction(cut, opts).judge(a, b);
+      return Object.freeze({ ...r, asOf });
+    }
+    const stamp = { standing: "nomination", read: { a: record.get(a)?.length ?? 0, b: record.get(b)?.length ?? 0, nodes: nodes.length } };
     for (const [x, name] of [[a, "a"], [b, "b"]]) {
       const n = record.get(x)?.length ?? 0;
-      if (n < minOccurrences) return Object.freeze({ a, b, verdict: "gap", reason: "not_enough_reading", detail: `${name} has ${n} occurrence(s), below the declared ${minOccurrences}` });
+      if (n < minOccurrences) return Object.freeze({ a, b, verdict: UNBOUND, reason: "not_enough_reading", detail: `${name} has ${n} occurrence(s), below the declared ${minOccurrences}`, ...stamp });
     }
-    if (a === b) return Object.freeze({ a, b, verdict: "same", reason: "identical_id" });
+    if (a === b) return Object.freeze({ a, b, verdict: BOUND, reason: "identical_id", ...stamp });
     const rng = createSeededRng({ seed, a, b });
     const drop = maskFor(a, b);
-    // test 2 — widen until widening stops moving the consequence beyond its own null's spread
-    let chosen = statsAt(a, b, 1, drop, rng); const path = [chosen];
+    // test 2 — widen until widening stops moving the consequence beyond the
+    // null's spread; a settled hop is NOT widened past, and an unsettled
+    // bound at maxHop is recorded and demotes a "bound" (kairos).
+    let chosen = statsAt(a, b, 1, drop, rng); const path = [chosen]; let settled = maxHop === 1;
     for (let hop = 2; hop <= maxHop; hop += 1) {
       const next = statsAt(a, b, hop, drop, rng); path.push(next);
       const moved = Math.abs(next.consequence.observed - chosen.consequence.observed);
+      if (moved <= next.consequence.spread) { settled = true; break; }
       chosen = next;
-      if (moved <= next.consequence.spread) break;
     }
     const hop = chosen.hop;
     const wa = weight(a, hop, drop, rng), wb = weight(b, hop, drop, rng);
-    const tests = { worlds: chosen.worlds, weight: { a: wa, b: wb }, consequence: chosen.consequence };
-    let verdict = "same", reason = null;
-    if (!wa.carries || !wb.carries) { verdict = "gap"; reason = "idle"; }
-    else if (!chosen.worlds.match) { verdict = "different"; reason = "worlds_differ"; }
-    else if (!chosen.consequence.aligned) { verdict = "different"; reason = "consequence_not_aligned"; }
-    // test 5 is computed whenever it is declared (so its reading is on the
-    // record even where an earlier test already decided), and it can only
-    // ever REMOVE a "same": a trajectory that differs, or none to read,
-    // overrides a match made from the bag alone.
+    const tests = { worlds: chosen.worlds, weight: { a: wa, b: wb }, consequence: chosen.consequence, bound: { settled, hop } };
+    let bag, reason = null;
+    if (!wa.carries || !wb.carries) { bag = UNBOUND; reason = "idle"; }
+    else if (!chosen.worlds.match) { bag = CONTRADICTED; reason = "worlds_differ"; }
+    else if (!chosen.consequence.aligned) { bag = UNBOUND; reason = "no_positive_evidence"; }
+    else if (!settled) { bag = UNBOUND; reason = "bound_unsettled"; }
+    else bag = BOUND;
+    let verdict = bag;
     if (trajectory && reason !== "idle") {
       tests.dynamics = dynamicsTest(a, b, hop, drop, rng);
-      if (verdict === "same" && tests.dynamics.verdict === "different") { verdict = "different"; reason = "dynamics_differ"; }
-      else if (verdict === "same" && tests.dynamics.verdict === "gap") { verdict = "gap"; reason = tests.dynamics.reason; }
+      const d = tests.dynamics.verdict;
+      if (d === BEYOND_REACH) { if (bag === BOUND) { verdict = BEYOND_REACH; reason = tests.dynamics.reason; } }
+      else {
+        verdict = verdictOfSupport(bag === BOUND && d === BOUND, bag === CONTRADICTED || d === CONTRADICTED);
+        if (verdict !== bag) reason = d === CONTRADICTED ? "dynamics_differ" : tests.dynamics.reason ?? "dynamics_unconfirmed";
+      }
     }
-    return Object.freeze({ a, b, verdict, reason, hop, masked: drop.size, tests, path: path.map((p) => ({ hop: p.hop, worlds: p.worlds.observed, consequence: p.consequence.observed })) });
+    return Object.freeze({ a, b, verdict, reason, hop, masked: drop.size, tests, ...stamp, path: path.map((p) => ({ hop: p.hop, worlds: p.worlds.observed, consequence: p.consequence.observed })) });
   }
 
   return Object.freeze({ judge, frame: Object.freeze({ draws, alpha, seed, minOccurrences, maxHop, smooth, resolution, minFeatureCount, trajectory, relevant: relevant ? "declared" : null, namesNode: namesNode ? "declared" : null, nodes: nodes.length }) });

@@ -19,7 +19,9 @@ const [FIX = new URL("./fixtures/wikidata-mixed-graph.json", import.meta.url).pa
 const g = JSON.parse(readFileSync(FIX, "utf8"));
 const HELD_OUT = new Set(["P31", "P279"]);
 const SINGLE = new Set(["Q19474404", "Q52060874"]);
+// a constraint fetch that failed is a gap in the oracle, never 'many-valued' (heimdall)
 const oracleSingle = (p) => (g.constraints[p]?.types ?? []).some((t) => SINGLE.has(t));
+const oracleKnows = (p) => Array.isArray(g.constraints[p]?.types);
 const EXPOSURE_FLOOR = 2, SEED = 11;
 const sameValue = makeSameValue({ calendarAware: true });
 const witnessed = (a) => (a.value?.refs ?? 0) > 0;
@@ -63,11 +65,11 @@ for (const [name, ind] of Object.entries(arms)) {
   // standings against the held-out constraint oracle
   const byStanding = {};
   for (const [, table] of ind.relations) for (const [rel, r] of Object.entries(table)) { (byStanding[r.standing] ??= new Set()).add(rel); }
-  const standings = Object.fromEntries(Object.entries(byStanding).map(([st, set]) => { const ps = [...set].filter((p) => g.constraints[p]); return [st, { relations: ps.length, oracleSingleValued: ps.filter(oracleSingle).length, sample: ps.slice(0, 14).map((p) => `${p} ${g.constraints[p].label}${oracleSingle(p) ? " ✓" : ""}`) }]; }));
+  const standings = Object.fromEntries(Object.entries(byStanding).map(([st, set]) => { const ps = [...set].filter((p) => oracleKnows(p)); return [st, { relations: ps.length, oracleSingleValued: ps.filter(oracleSingle).length, sample: ps.slice(0, 14).map((p) => `${p} ${g.constraints[p].label}${oracleSingle(p) ? " ✓" : ""}`) }]; }));
   // exclusion on the induced register
   const judge = makeIdentityExclusion({ kindsOf: ind.kindsOf, assertionsOf, functional: ind.register, sameValue, witnessed }).judge;
   const qs = Object.keys(g.entities);
-  const tally = (pairs) => { const t = { excluded: 0, contested: 0, not_excluded: 0, gap: 0 }; for (const [a, b] of pairs) t[judge(a, b).verdict] += 1; return t; };
+  const tally = (pairs) => { const t = {}; for (const [a, b] of pairs) { const r = judge(a, b); const k = r.reason ? `${r.verdict}:${r.reason}` : r.verdict; t[k] = (t[k] ?? 0) + 1; } return t; };
   const sameKind = (a, b) => [...ind.kindsOf(a)].some((k) => ind.kindsOf(b).has(k));
   const neg = []; for (let i = 0; i < qs.length; i += 1) for (let j = i + 1; j < qs.length; j += 1) if (sameKind(`${qs[i]}/1`, `${qs[j]}/1`)) neg.push([`${qs[i]}/1`, `${qs[j]}/1`]);
   out.arms[name] = {

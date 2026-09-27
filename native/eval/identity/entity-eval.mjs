@@ -56,7 +56,7 @@ for (const X of names.slice(0, 20)) {
   for (let a = 0; a < top.length; a += 1) for (let b = a + 1; b < top.length; b += 1) out.shuffle.push({ a: top[a], b: top[b], verdict: id.judge(top[a], top[b]).verdict });
 }
 const id = makeIdentityInduction(rec, OPTS);
-const PAIRS = [["rostov", "nicholas", "same"], ["princess mary", "countess mary", "same"], ["prince andrew", "bolkonski", "same"],
+const PAIRS = [["rostov", "nicholas", "impure"], ["princess mary", "countess mary", "same"], ["prince andrew", "bolkonski", "impure"],
   ["pierre", "natasha", "different"], ["kutuzov", "napoleon", "different"], ["sonya", "natasha", "different"], ["denisov", "dolokhov", "different"],
   ["boris", "anatole", "different"], ["prince andrew", "pierre", "different"], ["princess mary", "natasha", "different"], ["moscow", "russia", "different"], ["pierre", "moscow", "different"]];
 for (const [a, b, expect] of PAIRS) { const r = id.judge(a, b); out.declared.push({ a, b, expect, verdict: r.verdict, reason: r.reason }); console.log(`declared ${expect.padEnd(9)} ${a}/${b}: ${brief(r)}`); }

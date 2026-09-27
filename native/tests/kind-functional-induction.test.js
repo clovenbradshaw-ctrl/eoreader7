@@ -4,6 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { induceKindsAndFunctions } from "../kernel/kind-functional-induction.js";
 import { makeIdentityExclusion } from "../kernel/identity-exclusion.js";
+import { CONTRADICTED, UNBOUND, BEYOND_REACH } from "../interpretation/hl.js";
 
 // Two populations. Kind X takes relations b, c, x; kind Y takes b, k, y.
 // In X, b is single-valued (every repeat agrees); c is many-valued.
@@ -82,9 +83,12 @@ test("a one-at-a-time parameter excludes only at a cursor where both values hold
   recs.set("rival", [{ rel: "s", value: "zz", interval: { lo: 0, hi: 20 }, refs: 1, id: "r#0" }, { rel: "f", value: "f0", refs: 1, id: "r#1" }]);
   const k = [...res.kindsOf("P0")][0];
   const ex = makeIdentityExclusion({ kindsOf: (id) => res.kindsOf(id).size ? res.kindsOf(id) : new Set([k]), assertionsOf: (id) => recs.get(id), functional: res.register, sameValue: (u, v) => u === v, witnessed: (a) => a.refs > 0 });
-  assert.equal(ex.judge("early", "late").verdict, "not_excluded", "disjoint times are change");
-  assert.equal(ex.judge("early", "rival", { at: 5 }).verdict, "excluded", "both hold at t=5 and disagree");
-  assert.equal(ex.judge("late", "rival", { at: 25 }).verdict, "not_excluded", "neither value holds at t=25");
+  assert.equal(ex.judge("early", "late").verdict, UNBOUND, "disjoint times are change");
+  assert.deepEqual(ex.judge("early", "late").changed, ["s"]);
+  const clash = ex.judge("early", "rival", { at: 5 });
+  assert.equal(clash.verdict, UNBOUND, "an induced candidate never convicts");
+  assert.equal(clash.raised[0]?.rel, "s", "but both hold at t=5 and disagree: the conflict is raised");
+  assert.equal(ex.judge("late", "rival", { at: 25 }).raised.length, 0, "neither value holds at t=25");
 });
 
 test("the reading cursor: an assertion not yet read is not yet believed", () => {
@@ -93,19 +97,20 @@ test("the reading cursor: an assertion not yet read is not yet believed", () => 
   recs.set("X0late", [{ rel: "b", value: "other", refs: 1, seq: 50, id: "xl#0" }, { rel: "x", value: "x0", refs: 1, seq: 1, id: "xl#1" }]);
   const k = [...res.kindsOf("X0")][0];
   const ex = makeIdentityExclusion({ kindsOf: (id) => res.kindsOf(id).size ? res.kindsOf(id) : new Set([k]), assertionsOf: (id) => recs.get(id), functional: res.register, sameValue: (u, v) => u === v, witnessed: (a) => a.refs > 0 });
-  assert.equal(ex.judge("X0", "X0late", { asOf: 10 }).verdict, "not_excluded");
-  assert.equal(ex.judge("X0", "X0late", { asOf: 60 }).verdict, "excluded");
+  const exAt = (cursor) => makeIdentityExclusion({ kindsOf: (id) => res.kindsOf(id).size ? res.kindsOf(id) : new Set([k]), assertionsOf: (id) => recs.get(id), functional: res.register, sameValue: (u, v) => u === v, witnessed: (a) => a.refs > 0, registerAsOf: 0 }).judge("X0", "X0late", { asOf: cursor });
+  assert.equal(exAt(10).raised.length, 0, "the late assertion is not yet read");
+  assert.equal(exAt(60).raised[0]?.rel, "b");
 });
 
 test("the for-whom decides which relations are asked about", () => {
   const recs = world();
   const res = run(recs);
   const ex = makeIdentityExclusion({ kindsOf: res.kindsOf, assertionsOf: (id) => recs.get(id), functional: res.register, sameValue: (u, v) => u === v, witnessed: (a) => a.refs > 0 });
-  assert.equal(ex.judge("X0", "X1").verdict, "excluded");
+  assert.equal(ex.judge("X0", "X1").reason, "candidate_conflict");
   // X's only tested one-valued relation is b: a for-whom that does not ask
   // about b has nothing checkable — a gap, never "not excluded"
   const r = ex.judge("X0", "X1", { relevant: (rel) => rel !== "b" });
-  assert.equal(r.verdict, "gap"); assert.equal(r.reason, "no_functional_relation_declared");
+  assert.equal(r.verdict, BEYOND_REACH); assert.equal(r.reason, "no_functional_relation_declared");
 });
 
 test("a relation never asserted twice was never tested: unexposed, licenses nothing", () => {
@@ -122,12 +127,22 @@ test("an unwitnessed conflict does not refute", () => {
   assert.notEqual(standingOf(res, "X0", "x"), "refuted");
 });
 
-test("the induced register drives exclusion, typed as candidate", () => {
+test("the induced register RAISES conflicts, typed as candidates, and never convicts", () => {
   const recs = world();
   const res = run(recs);
   const ex = makeIdentityExclusion({ kindsOf: res.kindsOf, assertionsOf: (id) => recs.get(id), functional: res.register, sameValue: (u, v) => u === v, witnessed: (a) => a.refs > 0 });
   const r = ex.judge("X0", "X1");
-  assert.equal(r.verdict, "excluded"); assert.equal(r.standing, "candidate");
-  assert.ok(r.proof.every((p) => p.rel === "b"));
-  assert.equal(ex.judge("Y0", "Y1").verdict !== "excluded" || ex.judge("Y0", "Y1").proof.every((p) => p.rel === "k"), true);
+  assert.equal(r.verdict, UNBOUND); assert.equal(r.reason, "candidate_conflict");
+  assert.ok(r.raised.every((p) => p.rel === "b" && p.raisedAs === "candidate_conflict"));
+});
+
+test("kinds and standings are learned only from what was read by the cursor", () => {
+  const recs = world();
+  // relation 'late' is asserted (repeatedly, agreeing) only after seq 100
+  for (const [id, as] of recs) if (id.startsWith("X")) as.push({ rel: "late", value: `L${id}`, refs: 1, seq: 200, id: `${id}#l1` }, { rel: "late", value: `L${id}`, refs: 1, seq: 201, id: `${id}#l2` });
+  const early = run(recs, { asOf: 100 }), all = run(recs);
+  const kE = [...early.kindsOf("X0")][0], kA = [...all.kindsOf("X0")][0];
+  assert.ok(!early.register.get(kE)?.has("late"), "not yet read");
+  assert.ok(all.register.get(kA).has("late"));
+  assert.equal(early.builtAsOf, 100);
 });

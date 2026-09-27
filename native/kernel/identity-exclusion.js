@@ -16,27 +16,45 @@
 //   1 KIND        what each referent is. A shared kind is what makes step 2
 //                 askable at all: "one birth date" is a fact about PEOPLE.
 //                 Two kinds a giver declares disjoint exclude outright.
-//   2 FUNCTIONAL  which relations that kind allows one value of. NEVER earned
-//                 from the material — a corpus can refute a functional claim
-//                 and cannot establish one (the grain theorem) — so every
-//                 entry is RECEIVED with a named giver, and the register is
-//                 the caller's.
+//   2 FUNCTIONAL  which relations that kind allows one value of. A GIVEN entry
+//                 (a named giver) may convict. An INDUCED candidate
+//                 (kind-functional-induction.js) may only RAISE a conflict,
+//                 never convict: a corpus can refute a functional claim and
+//                 cannot establish one (the grain theorem), so what it learned
+//                 is a hypothesis, and a hypothesis does not sentence (kelsen).
 //   3 VALUES      both referents assert the relation and no pair of their
 //                 values agrees -> EXCLUDED, and the two assertions are the
 //                 proof. A value pair the comparison cannot decide (a year
 //                 against a day in another calendar) is INCOMPARABLE — never
 //                 read as a conflict.
 //
-// WHAT THIS DOES NOT SAY. "not_excluded" is not "same": two siblings share a
+// WHAT THIS DOES NOT SAY. "unbound" is not "same": two siblings share a
 // father and a mother and no conflict needs to appear until a birth date
 // does. Sameness needs positive evidence from elsewhere (the assertion
 // network, identity-induction.js); this organ is the other half of the
 // definition — the counterexample that no amount of co-presence can outvote.
 //
+// ONE LATTICE (archon review 2026-09-27, nagarjuna + kelsen). This organ is
+// the AGAINST support for the claim "a and b are one": its verdicts are
+// hl.js's own values, never private words —
+//   contradicted  a conflict on a relation a named GIVER declared one-valued,
+//                 standing on witnessed assertions: the claim is refuted
+//   unbound       no conviction: nothing conflicts, or the only conflicts rest
+//                 on an induced CANDIDATE (a candidate may raise a conflict,
+//                 never convict — kelsen) or on an unwitnessed assertion; the
+//                 conflicts ride on the result, typed, with their reason
+//   beyond-reach  the frame cannot ask: no shared kind, no one-valued relation
+//                 declared or induced, or a register built past the cursor
+// It never returns bound: failing to find a conflict is not evidence of
+// sameness. Identity itself — the positive pattern — is identity-induction's;
+// kernel/identity-verdict.js composes the two supports through hl.js.
+//
 // Nothing here compares strings. What a value is, and when two values are
 // the same, is injected (`sameValue`) — a date in a calendar, a referent id
 // (which may itself be an identity question one level down the holon), a
 // quantity with units.
+
+import { CONTRADICTED, UNBOUND, BEYOND_REACH } from "../interpretation/hl.js";
 
 const need = (o, keys) => { for (const k of keys) if (typeof o[k] !== "function" && !(o[k] instanceof Map)) throw new TypeError(`identity-exclusion: '${k}' must be supplied`); };
 
@@ -61,12 +79,11 @@ const need = (o, keys) => { for (const k of keys) if (typeof o[k] !== "function"
  */
 export function makeIdentityExclusion(organs = {}) {
   need(organs, ["kindsOf", "assertionsOf", "functional", "sameValue"]);
-  const { kindsOf, assertionsOf, functional, sameValue, disjointKinds = new Map(), witnessed = null } = organs;
+  const { kindsOf, assertionsOf, functional, sameValue, disjointKinds = new Map(), witnessed = null, registerAsOf = null } = organs;
   // An entry is either GIVEN (a named giver) or an induced CANDIDATE carrying
   // its evidence (kernel/kind-functional-induction.js). Nothing else: a
   // single-valued relation is never simply assumed.
   for (const [kind, rels] of functional) for (const [rel, d] of rels) if (!d?.giver && !(d?.standing === "candidate" && d?.evidence)) throw new TypeError(`identity-exclusion: functional(${kind}, ${rel}) has no giver and no candidate evidence — a single-valued relation is received or induced, never assumed`);
-  const standingOf = (proof) => (proof.every((p) => p.giver) ? "given" : "candidate");
 
   // judge(a, b, { at, asOf, relevant })
   //   asOf      the READING cursor: only assertions with seq <= asOf are
@@ -79,23 +96,28 @@ export function makeIdentityExclusion(organs = {}) {
   //   relevant  the for-whom's frame: which relations it asks about
   function judge(a, b, { at = null, asOf = null, relevant = null } = {}) {
     const order = [];
+    const frame = { at, asOf, relevant: relevant ? "declared" : null };
+    // the register that licenses step 2 must not be ahead of the reading
+    // cursor: standings earned at seq 50 cannot license a verdict as of seq 10
+    // (muninn / clippy). A register with no cursor was built from everything.
+    if (asOf != null && (registerAsOf == null || registerAsOf > asOf)) return Object.freeze({ a, b, verdict: BEYOND_REACH, reason: "register_ahead_of_cursor", frame, registerAsOf });
     const believed = (xs) => (asOf == null ? xs : xs.filter((x) => x.seq == null || x.seq <= asOf));
     const holdsAt = (x) => at == null || !x.interval || ((x.interval.lo ?? -Infinity) <= at && at <= (x.interval.hi ?? Infinity));
     const overlap = (x, y) => { if (!x.interval || !y.interval) return null; return Math.max(x.interval.lo ?? -Infinity, y.interval.lo ?? -Infinity) <= Math.min(x.interval.hi ?? Infinity, y.interval.hi ?? Infinity); };
     // 1 — kind
     const ka = kindsOf(a) ?? new Set(), kb = kindsOf(b) ?? new Set();
-    if (!ka.size || !kb.size) return Object.freeze({ a, b, verdict: "gap", reason: "kind_unknown", order: [{ step: "kind", a: [...ka], b: [...kb] }] });
+    if (!ka.size || !kb.size) return Object.freeze({ a, b, verdict: UNBOUND, reason: "kind_unknown", frame, order: [{ step: "kind", a: [...ka], b: [...kb] }] });
     for (const x of ka) for (const y of kb) {
       const d = disjointKinds.get(x)?.get(y) ?? disjointKinds.get(y)?.get(x);
-      if (d) return Object.freeze({ a, b, verdict: "excluded", by: "kind", proof: [{ kinds: [x, y], giver: d.giver }], order: [{ step: "kind", a: [...ka], b: [...kb], disjoint: [x, y] }] });
+      if (d) return Object.freeze({ a, b, verdict: CONTRADICTED, by: "kind", proof: [{ kinds: [x, y], giver: d.giver }], frame, order: [{ step: "kind", a: [...ka], b: [...kb], disjoint: [x, y] }] });
     }
     const shared = [...ka].filter((k) => kb.has(k));
     order.push({ step: "kind", a: [...ka], b: [...kb], shared });
-    if (!shared.length) return Object.freeze({ a, b, verdict: "gap", reason: "no_shared_kind", order });
+    if (!shared.length) return Object.freeze({ a, b, verdict: BEYOND_REACH, reason: "no_shared_kind", frame, order });
     // 2 — the functional relations the shared kinds license
     const rels = new Map();
     for (const k of shared) for (const [rel, d] of functional.get(k) ?? []) if (!rels.has(rel) && (!relevant || relevant(rel))) rels.set(rel, { ...d, kind: k });
-    if (!rels.size) { order.push({ step: "functional", licensed: [] }); return Object.freeze({ a, b, verdict: "gap", reason: "no_functional_relation_declared", order }); }
+    if (!rels.size) { order.push({ step: "functional", licensed: [] }); return Object.freeze({ a, b, verdict: BEYOND_REACH, reason: "no_functional_relation_declared", frame, order }); }
     // 3 — values
     const Aa = believed(assertionsOf(a) ?? []), Ab = believed(assertionsOf(b) ?? []);
     const agreed = [], conflicts = [], incomparable = [], unasserted = [], changed = [];
@@ -119,11 +141,12 @@ export function makeIdentityExclusion(organs = {}) {
       else conflicts.push({ rel, giver: d.giver ?? null, standing: d.giver ? "given" : "candidate", evidence: d.evidence ?? null, kind: d.kind, a: lastFalse[0], b: lastFalse[1] });
     }
     order.push({ step: "functional", licensed: [...rels.keys()] }, { step: "values", agreed: agreed.map((x) => x.rel), conflicts: conflicts.map((x) => x.rel), incomparable: incomparable.map((x) => x.rel), changed, unasserted });
-    const standing = witnessed ? conflicts.filter((c) => witnessed(c.a) && witnessed(c.b)) : conflicts;
-    const contested = conflicts.filter((c) => !standing.includes(c));
-    if (standing.length) return Object.freeze({ a, b, verdict: "excluded", by: "functional", standing: standingOf(standing), proof: standing, contested, agreed, incomparable, order });
-    if (contested.length) return Object.freeze({ a, b, verdict: "contested", contested, agreed, incomparable, order });
-    return Object.freeze({ a, b, verdict: "not_excluded", agreed, incomparable, order });
+    // a conviction needs a GIVEN relation and witnessed assertions on both sides
+    const convicting = conflicts.filter((c) => c.standing === "given" && (!witnessed || (witnessed(c.a) && witnessed(c.b))));
+    const raised = conflicts.filter((c) => !convicting.includes(c)).map((c) => ({ ...c, raisedAs: c.standing !== "given" ? "candidate_conflict" : "unwitnessed_conflict" }));
+    const believedCounts = { a: Aa.length, b: Ab.length };
+    if (convicting.length) return Object.freeze({ a, b, verdict: CONTRADICTED, by: "functional", proof: convicting, raised, agreed, incomparable, changed, frame, believed: believedCounts, order });
+    return Object.freeze({ a, b, verdict: UNBOUND, reason: raised.length ? raised[0].raisedAs : "no_conflict", raised, agreed, incomparable, changed, frame, believed: believedCounts, order });
   }
   return Object.freeze({ judge });
 }

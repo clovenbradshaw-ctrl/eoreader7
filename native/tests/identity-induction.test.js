@@ -7,6 +7,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { makeIdentityInduction } from "../kernel/identity-induction.js";
 import { createSeededRng } from "../kernel/rng.js";
+import { BOUND, CONTRADICTED, CONTESTED, UNBOUND, BEYOND_REACH } from "../interpretation/hl.js";
+import { identityVerdict } from "../kernel/identity-verdict.js";
+import { makeIdentityExclusion } from "../kernel/identity-exclusion.js";
 
 const OPTS = { draws: 150, alpha: 0.05, seed: 3, minOccurrences: 20, maxHop: 1, smooth: 0.5, resolution: 8, minFeatureCount: 2 };
 
@@ -46,19 +49,20 @@ test("every number is declared — nothing defaults", () => {
 test("a planted twin is judged the same", () => {
   const id = makeIdentityInduction(world({ nodes: NODES, perNode: 120, twin: "n3" }), OPTS);
   const r = id.judge("n3", "n3#twin");
-  assert.equal(r.verdict, "same", JSON.stringify(r.tests));
+  assert.equal(r.verdict, BOUND, JSON.stringify(r.tests));
 });
 
 test("two distinct nodes are judged different", () => {
   const id = makeIdentityInduction(world({ nodes: NODES }), OPTS);
   const r = id.judge("n3", "n4");
-  assert.equal(r.verdict, "different");
+  assert.notEqual(r.verdict, BOUND);
+  assert.ok([CONTRADICTED, UNBOUND].includes(r.verdict));
 });
 
 test("below the declared occurrence floor is a gap, never 'different'", () => {
   const rec = world({ nodes: NODES }); rec.set("thin", rec.get("n2").slice(0, 5));
   const r = makeIdentityInduction(rec, OPTS).judge("n2", "thin");
-  assert.equal(r.verdict, "gap"); assert.equal(r.reason, "not_enough_reading");
+  assert.equal(r.verdict, UNBOUND); assert.equal(r.reason, "not_enough_reading");
 });
 
 test("idle things never match: two nodes drawn at random from the whole record are a gap", () => {
@@ -71,7 +75,7 @@ test("idle things never match: two nodes drawn at random from the whole record a
   const pool = [...rec.values()].flat();
   for (const n of ["idleA", "idleB"]) rec.set(n, Array.from({ length: 60 }, () => pool[Math.floor(rng() * pool.length)]));
   const r = makeIdentityInduction(rec, OPTS).judge("idleA", "idleB");
-  assert.equal(r.verdict, "gap"); assert.equal(r.reason, "idle");
+  assert.equal(r.verdict, UNBOUND); assert.equal(r.reason, "idle");
 });
 
 test("a feature that names the candidate is masked — twins are not told apart by spelling", () => {
@@ -83,9 +87,9 @@ test("a feature that names the candidate is masked — twins are not told apart 
   const namesNode = (f) => (f.startsWith("names:") ? f.slice(6) : null);
   const masked = makeIdentityInduction(rec, { ...OPTS, namesNode }).judge("n5", "n5#twin");
   const leaked = makeIdentityInduction(rec, OPTS).judge("n5", "n5#twin");
-  assert.equal(masked.verdict, "same");
+  assert.equal(masked.verdict, BOUND);
   assert.ok(masked.masked >= 2);
-  assert.equal(leaked.verdict, "different", "without the mask the self-naming feature decides it");
+  assert.notEqual(leaked.verdict, BOUND, "without the mask the self-naming feature decides it");
 });
 
 test("the organ names no medium", () => {
@@ -107,6 +111,88 @@ test("shuffle control: random nodes whose features name their OWN node are idle,
   }
   const ii = makeIdentityInduction(rec, { ...OPTS, namesNode: (f) => (f.startsWith("names:") ? f.slice(6) : null) });
   let same = 0;
-  for (let i = 0; i < 12; i += 1) for (let j = i + 1; j < 12; j += 1) if (ii.judge(`r${i}`, `r${j}`).verdict === "same") same += 1;
+  for (let i = 0; i < 12; i += 1) for (let j = i + 1; j < 12; j += 1) if (ii.judge(`r${i}`, `r${j}`).verdict === BOUND) same += 1;
   assert.equal(same, 0);
+});
+
+// ── positioned worlds: every occurrence carries its place in the reading ──
+// A node's features drift with the reading (its world changes over time).
+// A twin that follows the SAME drift is the same being read in two names; an
+// impostor with the same overall bag but the drift REVERSED is not.
+function drifting({ nodes, per = 400, seed = 5, twin = null, reversedTwin = null }) {
+  const rng = createSeededRng({ seed });
+  const rec = new Map();
+  for (const n of nodes) {
+    const early = Array.from({ length: 6 }, (_, i) => `${n}-e${i}`), late = Array.from({ length: 6 }, (_, i) => `${n}-l${i}`);
+    const occ = [];
+    for (let i = 0; i < per; i += 1) {
+      const at = Math.floor((i / per) * 1000), p = i / per; // drift: early features give way to late ones
+      occ.push({ at, features: Array.from({ length: 4 }, () => ({ f: rng() < 0.7 ? (rng() > p ? early : late)[Math.floor(rng() * 6)] : `bg${Math.floor(rng() * 30)}`, hop: 1 })) });
+    }
+    rec.set(n, occ);
+  }
+  if (twin) { const keep = [], moved = []; for (const o of rec.get(twin)) (rng() < 0.5 ? moved : keep).push(o); rec.set(twin, keep); rec.set(`${twin}#twin`, moved); }
+  if (reversedTwin) { // the same features, the drift run backwards through the reading
+    const src = rec.get(reversedTwin);
+    rec.set(`${reversedTwin}#rev`, src.filter((_, i) => i % 2).map((o) => ({ at: 1000 - o.at, features: o.features })));
+    rec.set(reversedTwin, src.filter((_, i) => !(i % 2)));
+  }
+  return rec;
+}
+const TRAJ = { ...OPTS, minOccurrences: 20, resolution: 8, trajectory: { windows: 20, basis: 12, draws: 40 } };
+const DRIFT_NODES = Array.from({ length: 10 }, (_, i) => `d${i}`);
+
+test("test 5: a twin that follows the same trajectory stays bound", () => {
+  const r = makeIdentityInduction(drifting({ nodes: DRIFT_NODES, twin: "d2" }), TRAJ).judge("d2", "d2#twin");
+  assert.equal(r.verdict, BOUND, JSON.stringify(r.tests.dynamics));
+  assert.ok(r.tests.dynamics.ranks.a >= 1 && r.tests.dynamics.ranks.b >= 1);
+});
+
+test("test 5: the same bag with the trajectory reversed is never bound — identity is the pattern, not the bag", () => {
+  const rec = drifting({ nodes: DRIFT_NODES, reversedTwin: "d3" });
+  const bagOnly = makeIdentityInduction(rec, { ...TRAJ, trajectory: undefined }).judge("d3", "d3#rev");
+  const withPattern = makeIdentityInduction(rec, TRAJ).judge("d3", "d3#rev");
+  assert.equal(bagOnly.verdict, BOUND, "the bag alone cannot tell them apart");
+  assert.notEqual(withPattern.verdict, BOUND, JSON.stringify(withPattern.tests.dynamics));
+});
+
+test("test 5 declares its numbers, and cannot turn a non-bound into bound", () => {
+  assert.throws(() => makeIdentityInduction(new Map(), { ...TRAJ, trajectory: { windows: 10 } }), /basis|draws/);
+  const rec = drifting({ nodes: DRIFT_NODES });
+  const plain = makeIdentityInduction(rec, { ...TRAJ, trajectory: undefined }), withT = makeIdentityInduction(rec, TRAJ);
+  for (const [x, y] of [["d0", "d1"], ["d4", "d5"], ["d6", "d7"]]) if (plain.judge(x, y).verdict !== BOUND) assert.notEqual(withT.judge(x, y).verdict, BOUND);
+});
+
+test("positions without a declared trajectory, and a trajectory without positions, are typed", () => {
+  const r = makeIdentityInduction(world({ nodes: NODES, perNode: 120, twin: "n3" }), { ...OPTS, trajectory: { windows: 8, basis: 8, draws: 20 } }).judge("n3", "n3#twin");
+  assert.equal(r.verdict, BEYOND_REACH); assert.equal(r.reason, "no_positions");
+});
+
+test("the reading cursor: occurrences after asOf do not exist for the judgment", () => {
+  const rec = drifting({ nodes: DRIFT_NODES, twin: "d2" });
+  const id = makeIdentityInduction(rec, { ...TRAJ, trajectory: undefined });
+  const early = id.judge("d2", "d2#twin", { asOf: 50 });
+  assert.equal(early.asOf, 50);
+  assert.equal(early.verdict, UNBOUND); assert.equal(early.reason, "not_enough_reading", "only ~10 occurrences each by position 50");
+  assert.ok(early.read.a < id.judge("d2", "d2#twin").read.a);
+});
+
+test("the widening bound is recorded, and a bound that never settles is not bound", () => {
+  const r = makeIdentityInduction(world({ nodes: NODES, perNode: 120, twin: "n3" }), OPTS).judge("n3", "n3#twin");
+  assert.deepEqual(r.tests.bound, { settled: true, hop: 1 });
+});
+
+test("identity-verdict composes FOR and AGAINST through hl.js's one table", () => {
+  const ind = (verdict) => ({ a: "x", b: "y", verdict, reason: null });
+  const ex = (verdict, proof = []) => ({ a: "x", b: "y", verdict, proof });
+  const proof = [{ a: { id: "x#1" }, b: { id: "y#1" } }];
+  assert.equal(identityVerdict(ind(BOUND), ex(UNBOUND)).verdict, BOUND);
+  assert.equal(identityVerdict(ind(BOUND), ex(CONTRADICTED, proof)).verdict, CONTESTED);
+  assert.equal(identityVerdict(ind(UNBOUND), ex(CONTRADICTED, proof)).verdict, CONTRADICTED);
+  assert.equal(identityVerdict(ind(UNBOUND), ex(UNBOUND)).verdict, UNBOUND, "neither is not 'different'");
+  assert.equal(identityVerdict(ind(BEYOND_REACH), ex(BEYOND_REACH)).verdict, BEYOND_REACH);
+  const b = identityVerdict(ind(BOUND), ex(UNBOUND));
+  assert.equal(b.hypothesis.standing, "live_hypothesis", "bound lands as a revisable hypothesis, never a fact");
+  assert.deepEqual(identityVerdict(ind(BOUND), ex(CONTRADICTED, proof)).hypothesis.attackRefs, ["x#1", "y#1"]);
+  assert.equal(identityVerdict(ind(UNBOUND), ex(UNBOUND)).hypothesis, null);
 });

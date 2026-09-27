@@ -259,6 +259,12 @@ const SUPPORT_OF = {
 const VERDICT_OF_SUPPORT = new Map(
   Object.entries(SUPPORT_OF).map(([verdict, [forSup, againstSup]]) => [`${forSup}:${againstSup}`, verdict]),
 );
+/** The one table from two independent supports to a verdict — exported so an
+ * organ composing its own FOR and AGAINST evidence (identity-verdict.js) reads
+ * the same lattice instead of restating it (nagarjuna: one lattice). */
+export function verdictOfSupport(forSupport, againstSupport) {
+  return VERDICT_OF_SUPPORT.get(`${Boolean(forSupport)}:${Boolean(againstSupport)}`);
+}
 function fdeAnd(a, b) {
   const [fa, aa] = SUPPORT_OF[a];
   const [fb, ab] = SUPPORT_OF[b];

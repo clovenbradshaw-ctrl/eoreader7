@@ -1,6 +1,9 @@
 // mention-eval.mjs — identity induction over people and places, each name's
 // universe built from every sentence it is mentioned in (mention-record.mjs).
 // Expected answers DECLARED before the run, from the novel:
+//   impure     Nicholas/Rostov and Prince Andrew/Bolkonski — each surname names
+//              SEVERAL referents (the count, Petya; the old prince), so they are
+//              reported, never scored as same (panini, archon review 2026-09-27)
 //   same       Pierre/Bezukhov, Prince Andrew/Andrew, Napoleon/Bonaparte,
 //              Princess Mary/Countess Mary (one woman, before/after marriage),
 //              Nicholas/Rostov (impure: "Rostov" is also the count, Petya),
@@ -16,7 +19,7 @@ const [BOOK, OUT, SPEC] = process.argv.slice(2);
 const spec = SPEC ? JSON.parse((await import("node:fs")).readFileSync(SPEC, "utf8")) : null;
 const OPTS = { draws: 200, alpha: 0.05, seed: 7, minOccurrences: 20, maxHop: 2, smooth: 0.5, resolution: 10, minFeatureCount: 2, namesNode: (f) => (f.startsWith("n2:") ? f.slice(3) : null), trajectory: { windows: 40, basis: 24, draws: 60 }, ...JSON.parse(process.env.IDOPTS ?? "{}") };
 const NAMES = ["Pierre", "Bezukhov", "Natasha", "Prince Andrew", "Andrew", "Bolkonski", "Princess Mary", "Countess Mary", "Nicholas", "Rostov", "Napoleon", "Bonaparte", "Kutuzov", "Sonya", "Denisov", "Dolokhov", "Boris", "Anatole", "Petya", "Prince Vasili", "Helene", "Moscow", "Russia", "Petersburg", "Bagration", "Alpatych", "Tikhon", "Berg", "Julie", "Speranski"];
-const PAIRS = [["Pierre", "Bezukhov", "same"], ["Prince Andrew", "Andrew", "same"], ["Napoleon", "Bonaparte", "same"], ["Princess Mary", "Countess Mary", "same"], ["Nicholas", "Rostov", "same"], ["Prince Andrew", "Bolkonski", "same"],
+const PAIRS = [["Pierre", "Bezukhov", "same"], ["Prince Andrew", "Andrew", "same"], ["Napoleon", "Bonaparte", "same"], ["Princess Mary", "Countess Mary", "same"], ["Nicholas", "Rostov", "impure"], ["Prince Andrew", "Bolkonski", "impure"],
   ["Pierre", "Natasha", "different"], ["Kutuzov", "Napoleon", "different"], ["Sonya", "Natasha", "different"], ["Denisov", "Dolokhov", "different"], ["Boris", "Anatole", "different"], ["Prince Andrew", "Pierre", "different"],
   ["Princess Mary", "Natasha", "different"], ["Moscow", "Russia", "different"], ["Moscow", "Petersburg", "different"], ["Pierre", "Moscow", "different"], ["Bagration", "Kutuzov", "different"], ["Helene", "Natasha", "different"]];
 if (spec) { NAMES.length = 0; NAMES.push(...spec.names); PAIRS.length = 0; PAIRS.push(...spec.pairs); }

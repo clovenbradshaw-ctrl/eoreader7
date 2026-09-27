@@ -10,6 +10,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const { makeIdentityInduction } = await import(`${NATIVE}/kernel/identity-induction.js`);
+const { BOUND, CONTRADICTED, UNBOUND, BEYOND_REACH } = await import(`${NATIVE}/interpretation/hl.js`);
+
 const { createSeededRng, shuffled } = await import(`${NATIVE}/kernel/rng.js`);
 const P = await import(`${NATIVE}/adapters/text/priors.js`);
 const [IN, OUT] = process.argv.slice(2);
@@ -93,5 +95,5 @@ for (const [a, b, kind] of REAL) { const r = id.judge(a, b); results.real.push({
 const tally = (xs) => xs.reduce((m, r) => ((m[r.verdict] = (m[r.verdict] ?? 0) + 1), m), {});
 results.summary = { split: tally(results.split), decoy: tally(results.decoy), shuffle: tally(results.shuffle), random: tally(results.random) };
 console.log("SUMMARY", JSON.stringify(results.summary));
-console.log("random SAME:", results.random.filter((r) => r.verdict === "same").map((r) => `${r.a}/${r.b}`).join(" "));
+console.log("random SAME:", results.random.filter((r) => r.verdict === BOUND).map((r) => `${r.a}/${r.b}`).join(" "));
 if (OUT) writeFileSync(OUT, JSON.stringify(results, null, 2));
