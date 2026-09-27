@@ -13,6 +13,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+          # Full history: tests/ground-cite.test.js cites a real, pinned
+          # commit (bb97e4b, an ancestor of main) through `git cat-file` /
+          # `git show`; checkout's default depth-1 clone does not hold it.
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
