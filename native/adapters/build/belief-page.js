@@ -50,9 +50,9 @@ function makeMapper() {
   const T = (text, src) => { map.push({ text: String(text ?? ""), src: [...(src ?? [])].filter(Boolean) }); return esc(text); };
   return { map, T };
 }
-// a thing is accounted for by the claim that put it on the record: its
-// "exists", else the "has" that attached it to its whole
-const thingSrc = (t) => [t.existsNote ?? t.heldNote].filter(Boolean);
+// a thing is accounted for by its INS — the claim that instantiated it
+// (every thing on the record has one: organs/claim-acts.js helixCheck)
+const thingSrc = (t) => [t.existsNote].filter(Boolean);
 const nameSrc = (t) => (t.name ? [t.nameNote] : thingSrc(t)).filter(Boolean);
 
 // a control is labelled by what it is for when it has no name: "Sort posts by votes"

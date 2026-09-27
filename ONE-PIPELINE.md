@@ -22,10 +22,10 @@ falsifying control, record the result in the ledger below, commit, push.
 |---|---|---|---|
 | 1 | read the request | the request and the person's answers become a spec: counted parts per parent, details, named parts, topic | `native/organs/talk-build.js` `specOf` |
 | 2 | source each part | for each part, in order of trust: **snip** it from a licensed source found on the fly, **reason** it from a source, or **ask** the mouth one small question | snip: `organs/part-source.js` (stylesheets only); reason: `organs/kind-read.js` (details only); ask: `talk-build.js` `nextGap` |
-| 3 | hear | every claim goes into the notes ledger, typed by the ledger (INS/SYN), with its witness: `request`, `talk:n`, `source:<term>`, `derived:<rule>` | `kernel/notes.js` via `talk-build.js` |
+| 3 | hear | every claim goes into the notes ledger, typed by the ledger (INS/SYN), with its witness: `request`, `talk:n`, `source:<term>`, `derived:<rule>`. Every structural claim is one operator at one grain — one of the 27 phaseposts (`exists` INS·Figure, `has` CON·Figure, `position` SEG·Figure, `named`/`for` DEF·Figure, `for whom` DEF·Ground, `shows` DEF·Pattern; rules: total SYN·Pattern, top/correct EVA·Figure); a thing is instantiated (INS) before anything bonds or asserts of it; an ask the mouth left silent is a declared void (NUL) scoped to the asks | `kernel/notes.js` via `talk-build.js`; acts: `organs/claim-acts.js` |
 | 4 | reason | derive, correct, retract, drop — over the fold, no model; a retraction reopens a gap (recursion) | `organs/talk-reason.js` |
 | 5 | assemble | a medium adapter draws the artifact from the fold, with each element's provenance | pages: `adapters/build/belief-page.js`; code, prose, music: not yet on this path |
-| 6 | verify | the medium's validator, plus the provenance check | pages: `inspect.mjs` + checker; provenance check: not yet |
+| 6 | verify | the medium's validator, the provenance check, and the helix check (no act before its INS; no conclusion without its premises on the record); sealed only when all three hold | medium `verify`; `organs/provenance-cover.js`; `organs/claim-acts.js` `helixCheck`; seal `kernel/artifact.js` |
 
 ## Where each element's provenance stands (pages, today)
 
@@ -162,6 +162,7 @@ file resolution (two).
 | 2026-09-27 | a chat turn reaches the code API | live: workspace with a real bug + test command through runProxyTurn | code-edit answer, 1 round, test passes (1.5b) — one case, not a battery |
 | 2026-09-27 | every element on a page is accounted for | the artifact read in its own terms against the map; a leaky renderer, a smuggled engine word, a note not on the record | 5/5 rungs covered and sealed (scripted mouth); all three controls caught; an always-ok checker fails the tests |
 | 2026-09-27 | the stylesheet is snipped, not written | every CSS byte after the provenance comment equals the source's bytes at its ranges; a copyleft candidate that reaches more is refused | tests pass; license gate off fails the test |
+| 2026-09-27 | structural claims limited to operator cells find gaps a patch hid | typed every structural label to one of the 27 phaseposts and checked the helix over the fold; a parts reply heard as `has` with no `exists` | the check named the reported gap **and** form fields heard the same way (the heldNote fallback had hidden both); fixed at the root — the ear instantiates before it bonds — and the fallback removed; rungs 1–3 helix-ok and sealed; turning INS-first off fails 3 tests |
 
 ## Archon checkpoints
 

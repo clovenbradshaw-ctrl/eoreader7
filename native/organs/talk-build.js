@@ -32,6 +32,7 @@ import { makeNotes } from "../kernel/notes.js";
 import { reason, isDerived } from "./talk-reason.js";
 import { readKinds, detailsFor } from "./kind-read.js";
 import { uncovered } from "./provenance-cover.js";
+import { helixCheck } from "./claim-acts.js";
 import { sealArtifact } from "../kernel/artifact.js";
 import { createHash } from "node:crypto";
 
@@ -350,9 +351,28 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     // own — each part's position among its siblings, at the moment it is minted
     const positions = new Map();
     const positioned = (id, parentId) => { const k = parentId ?? "top"; const n = (positions.get(k) ?? 0) + 1; positions.set(k, n); return { end1: id, label: "position", end2: String(n) }; };
+    // INS FIRST (the helix, organs/claim-acts.js): nothing is bonded,
+    // placed, defined or judged before it is instantiated. A claim that acts
+    // on a thing not yet on the record (a part the ear heard in a reply, a
+    // field the request named) brings that thing's INS with it, from the
+    // same witness, ahead of it.
+    const isThing = (id) => typeof id === "string" && id.includes("#") && !id.startsWith("kind:") && !id.includes("|");
+    const kindOfThing = (id) => reader.things().find((t) => t.id === id)?.kind ?? String(id).split("#")[0];
+    const instantiateFirst = (claims) => {
+      const done = new Set(N.fold(notes).filter((n) => n.label === "exists").map((n) => n.end1));
+      const out = [];
+      for (const c of claims) {
+        if (c.label === "exists") { done.add(c.end1); out.push(c); continue; }
+        for (const end of [c.end1, c.label === "has" ? c.end2 : null]) {
+          if (isThing(end) && !done.has(end)) { out.push({ end1: end, label: "exists", end2: kindOfThing(end), sentence: c.sentence, witness: c.witness }); done.add(end); }
+        }
+        out.push(c);
+      }
+      return out;
+    };
     const hear = (claims) => {
       const before = notes.entries.length;
-      for (const c of claims) notes = N.hear(notes, { end1: c.end1, label: c.label, end2: c.end2, witness: c.witness, because: c.sentence });
+      for (const c of instantiateFirst(claims)) notes = N.hear(notes, { end1: c.end1, label: c.label, end2: c.end2, witness: c.witness, because: c.sentence });
       return notes.entries.slice(before).map((e) => ({ seq: e.seq, operator: e.operator, basis: e.operator_basis, description: e.description }));
     };
     const show = (claims) => claims.map((c) => `${c.end1} —${c.label}→ ${c.end2}`);
@@ -662,7 +682,20 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         if (sourced) continue;
       }
       // a gap is let go after two asks in a row that heard nothing for it
-      if ((tried.get(next.key) ?? 0) >= 2) { log({ kind: "gap_abandoned", gap: next.key, why: "asked twice, nothing heard" }); spec.abandoned = [...(spec.abandoned ?? []), next.key]; continue; }
+      if ((tried.get(next.key) ?? 0) >= 2) {
+        // NUL on the record, not only in the log: what was asked for and not
+        // heard is a declared void, scoped to the asks that found nothing
+        const voids = [];
+        const scope = { sources: [`talk:${mouth}`], read: tried.get(next.key) };
+        const declare = (end1, label, end2 = null) => { const r = N.declareVoid(notes, { end1, label, end2, scope, because: `asked ${tried.get(next.key)} times, nothing heard (${next.key})` }); if (!r.refused) { notes = r.log; voids.push(`${end1} ${label}${end2 ? ` ${end2}` : ""}`); } };
+        if (next.part || next.parts) for (const pt of next.parts ?? [next.part]) declare(pt.parentId ?? wholeId, "has", `a ${pt.c.kind}`);
+        else if (next.slot?.rows) for (const row of next.slot.rows) for (const lab of next.slot.labels ?? [next.slot.label]) declare(row.id, lab);
+        else if (next.slot?.subject) for (const lab of next.slot.labels ?? [next.slot.label]) declare(next.slot.subject, lab);
+        else declare(wholeId, "has", next.key);
+        log({ kind: "gap_abandoned", gap: next.key, why: "asked twice, nothing heard", voids });
+        spec.abandoned = [...(spec.abandoned ?? []), next.key];
+        continue;
+      }
       const heard = await turn(next.key, framed(next.question), next.anchor, next.slot ?? null);
       // a part asked to be described is asked once; any other gap is asked
       // again while each ask hears something for it
@@ -685,7 +718,11 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     const cover = map ? uncovered({ artifact, map, fold, engineWords: rendered.engineWords ?? {}, ...(medium.leaves ? { leaves: medium.leaves } : {}) }) : { ok: false, uncovered: [], unresolved: [{ text: "", why: ["the renderer returned no map"] }], covered: 0 };
     log({ kind: "provenance", ok: cover.ok, covered: cover.covered, uncovered: cover.uncovered.slice(0, 12).map((l) => `${l.where}: ${l.text}`), unresolved: cover.unresolved.slice(0, 12).map((u) => `${u.text}: ${u.why.join("; ")}`) });
     const verdict = await verify(medium.kind, artifact);
-    // sealed only when the medium's own check and the provenance check both hold
+    // the record's own order: every act after its thing's INS, every
+    // conclusion with its premises on the record (organs/claim-acts.js)
+    const helix = helixCheck({ fold, entries: notes.entries });
+    log({ kind: "helix", ok: helix.ok, acts: helix.acts, violations: helix.violations.slice(0, 12) });
+    // sealed only when the medium's own check, the provenance check and the helix all hold
     let sealed = null;
     try {
       sealed = sealArtifact({
@@ -696,11 +733,11 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         dropped: ["the mouth's raw replies (kept in the log and the ledger's because, not in the artifact)"],
         body: { artifact: typeof artifact === "string" ? artifact : Buffer.from(artifact).toString("base64"), encoding: typeof artifact === "string" ? "text" : "base64", map },
         sealedAtSequence: notes.entries.length,
-        conformance: { passed: verdict.ok === true && cover.ok, checks: [...(verdict.checks ?? []), `provenance: ${cover.covered} elements accounted for, ${cover.uncovered.length} uncovered, ${cover.unresolved.length} unresolved`] },
+        conformance: { passed: verdict.ok === true && cover.ok && helix.ok, checks: [...(verdict.checks ?? []), `provenance: ${cover.covered} elements accounted for, ${cover.uncovered.length} uncovered, ${cover.unresolved.length} unresolved`, `helix: ${helix.violations.length} act${helix.violations.length === 1 ? "" : "s"} out of order; acts ${Object.entries(helix.acts).map(([k, v]) => `${k} ${v}`).join(", ")}`] },
       });
     } catch (err) { log({ kind: "unsealed", why: String(err?.message ?? err).slice(0, 200) }); }
     log({ kind: "set_down", asks, things: belief.length, notes: N.fold(notes).length, ok: verdict.ok });
-    return { schema: TALK_BUILD_SCHEMA, kind: medium.kind, belief, artifact, map, provenance: cover, sealed, verdict, asks, notes, spec };
+    return { schema: TALK_BUILD_SCHEMA, kind: medium.kind, belief, artifact, map, provenance: cover, helix, sealed, verdict, asks, notes, spec };
   }
 
   /** The first thing the belief still lacks: a plain question, an anchor, and
