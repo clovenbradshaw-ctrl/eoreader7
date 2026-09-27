@@ -33,8 +33,14 @@ const askFor = (q) => `${q.prompt}\n\nWho it is for: ${q.answers?.anchor ?? "me"
 const rows = [];
 for (const q of battery.requests) {
   const t0 = Date.now();
-  const r = await fetch(`${OLLAMA}/api/generate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ model, prompt: askFor(q), stream: false, options: { temperature: 0.2, num_predict: numPredict } }) });
-  const body = await r.json();
+  // streamed, so a long generation is never cut off by the client's header
+  // timeout (a page that takes the model five minutes still comes back whole)
+  const r = await fetch(`${OLLAMA}/api/generate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ model, prompt: askFor(q), stream: true, options: { temperature: 0.2, num_predict: numPredict } }) });
+  const body = { response: "" };
+  let buf = "";
+  const take = (line) => { if (!line.trim()) return; const o = JSON.parse(line); body.response += o.response ?? ""; if (o.done) Object.assign(body, { done_reason: o.done_reason, prompt_eval_count: o.prompt_eval_count, eval_count: o.eval_count }); };
+  for await (const chunk of r.body) { buf += Buffer.from(chunk).toString("utf8"); let nl; while ((nl = buf.indexOf("\n")) >= 0) { take(buf.slice(0, nl)); buf = buf.slice(nl + 1); } }
+  take(buf);
   const reply = String(body.response ?? "");
   const code = unfence(reply);
   const seen = inspect(code);
