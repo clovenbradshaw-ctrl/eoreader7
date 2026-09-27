@@ -15,6 +15,9 @@ import { renderBelief } from "../../adapters/build/belief-page.js";
 import { loadModel, sentences, tokenize, analyse } from "../../adapters/text/english-parser.js";
 import { inspect } from "./inspect.mjs";
 import { makeWikiSummary } from "../../adapters/sources/wiki-summary.js";
+import { makeNpmParts } from "../../adapters/sources/npm-parts.js";
+import { sourcePart, provenanceComment } from "../../organs/part-source.js";
+import { RENDERED_ELEMENTS } from "../../adapters/build/belief-page.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, "..", "..", "..");
@@ -38,13 +41,18 @@ const verify = async (kind, text) => { const v = inspect(text); return { ok: v.k
 
 // what a named thing is, from a cached encyclopedia lead (organs/kind-read.js reads it)
 const lookup = makeWikiSummary({ dir: path.join(ROOT, "state", "sources", "wikipedia") });
+// the page's stylesheet, snipped from a licensed published package (organs/part-source.js), once
+const part = arg("parts", "on") === "off" ? null : await sourcePart({ need: "stylesheet", elements: RENDERED_ELEMENTS, npm: makeNpmParts({ dir: path.join(ROOT, "state", "sources", "npm") }) });
+const style = part ? { css: part.css, comment: provenanceComment(part.provenance) } : null;
+console.log(part ? `stylesheet: ${part.provenance.package}@${part.provenance.version}${part.provenance.path} (${part.provenance.license}), ${part.provenance.reached.length}/${RENDERED_ELEMENTS.length} elements` : "stylesheet: none found — the engine's fallback");
+const render = (belief, o) => renderBelief(belief, { ...o, style });
 const rows = [];
 for (const file of arg("battery", "ladder.json").split(",")) {
   const battery = JSON.parse(fs.readFileSync(path.join(HERE, file), "utf8"));
   for (const q of battery.requests.filter((r) => (r.kind === "page" || r.kind === "any") && (!only.size || only.has(r.id)))) {
     const t0 = Date.now();
     const events = [];
-    const tb = makeTalkBuild({ ask, parse, sentences, render: renderBelief, verify, frame: arg("frame", "task"), lookup: arg("sources", "on") === "off" ? null : lookup, log: (e) => events.push({ ms: Date.now() - t0, ...e }) });
+    const tb = makeTalkBuild({ ask, parse, sentences, render, verify, frame: arg("frame", "task"), lookup: arg("sources", "on") === "off" ? null : lookup, log: (e) => events.push({ ms: Date.now() - t0, ...e }) });
     let out, error = null;
     try { out = await tb.build({ what: q.prompt, forWhom: q.answers?.anchor ?? null }); } catch (err) { error = String(err?.stack ?? err).slice(0, 1500); out = { artifact: "", asks: 0, belief: [] }; }
     const seen = out.artifact ? inspect(out.artifact) : { kind: "none", why: error ?? "nothing built" };

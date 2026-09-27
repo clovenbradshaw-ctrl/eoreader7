@@ -47,7 +47,11 @@ function controlHtml(t, byId) {
 
 // a value the engine computed from the parts is marked as computed, never
 // passed off as something said
-const propHtml = (p) => el("dt", esc(p.label)) + (p.derived ? el("dd", esc(p.value), 'class="derived" title="computed from the parts on this page"') : el("dd", esc(p.value)));
+const propHtml = (p) => el("dt", esc(p.label)) + (p.derived ? el("dd", el("i", esc(p.value), 'title="computed from the parts on this page"'), 'class="derived"') : el("dd", esc(p.value)));
+
+/** The HTML elements this renderer emits — what a snipped stylesheet must
+ *  reach (organs/part-source.js measures coverage against this list). */
+export const RENDERED_ELEMENTS = Object.freeze(["header", "main", "section", "article", "h1", "h2", "h3", "p", "span", "dl", "dt", "dd", "i", "form", "label", "input", "button", "nav", "a"]);
 
 function thingHtml(t, byId, depth) {
   if (CONTROL_KINDS[t.kind]) return controlHtml(t, byId);
@@ -57,7 +61,11 @@ function thingHtml(t, byId, depth) {
   return el("article", el("span", esc(t.kind), 'class="kind"') + el("h3", esc(nameOf(t))) + props + partsHtml);
 }
 
-export function renderBelief(belief, { what = "", forWhom = "" } = {}) {
+// With `style` (a snipped stylesheet, organs/part-source.js) the page carries
+// no hand-written CSS at all: the snip with its provenance comment, and the
+// layout the stylesheet gives plain elements. Without one, STYLE — the
+// engine's own fallback — is used and the page says so.
+export function renderBelief(belief, { what = "", forWhom = "", style = null } = {}) {
   const byId = new Map(belief.map((t) => [t.id, t]));
   const site = belief.find((t) => t.kind === "site" && !t.parent) ?? null;
   // the page is titled by what was said, never by the request's own words
@@ -71,7 +79,8 @@ export function renderBelief(belief, { what = "", forWhom = "" } = {}) {
   for (const t of top) { const k = CONTROL_KINDS[t.kind] ? "Tools" : t.kind; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(t); }
   const sections = [...groups.entries()].map(([k, list]) => el("section", el("h2", esc(k === "Tools" ? "Tools" : (list.length > 1 ? pluralOf(k) : k))) + el("div", list.map((t) => thingHtml(t, byId, 0)).join(""), 'class="grid"'))).join("\n");
   const siteProps = site?.props.length ? el("dl", site.props.filter((p) => p.label !== "is").map(propHtml).join("")) : "";
-  const head = "<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + el("title", esc(title)) + "\n" + el("style", STYLE);
+  const css = style?.css ? `\n${style.comment ?? ""}\n${style.css}\n` : `\n/* no licensed stylesheet was found for this page: the engine's own fallback, written by hand */\n${STYLE}\n`;
+  const head = "<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + el("title", esc(title)) + "\n" + el("style", css);
   const header = el("header", el("h1", esc(title)) + (forWhom ? el("p", "For " + esc(forWhom), 'class="for"') : "") + siteProps);
   return "<!DOCTYPE html>\n" + el("html", "\n" + el("head", "\n" + head + "\n") + "\n" + el("body", "\n" + header + "\n" + el("main", sections) + "\n") + "\n", 'lang="en"') + "\n";
 }

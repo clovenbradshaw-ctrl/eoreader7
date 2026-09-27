@@ -7,6 +7,9 @@ import { loadModel as loadEnglishParserModel, sentences as englishSentences, tok
 import { makeTalkBuild } from "./native/organs/talk-build.js";
 import { renderBelief } from "./native/adapters/build/belief-page.js";
 import { makeWikiSummary } from "./native/adapters/sources/wiki-summary.js";
+import { makeNpmParts } from "./native/adapters/sources/npm-parts.js";
+import { sourcePart, provenanceComment } from "./native/organs/part-source.js";
+import { RENDERED_ELEMENTS } from "./native/adapters/build/belief-page.js";
 import { createEnglishParserPerceiver } from "./native/adapters/text/english-parser-perceiver.mjs";
 import { isCodeHunk, codeEncounters } from "./native/adapters/code/encounters.js";
 import { diaNorm, namesCorefer } from "./native/adapters/text/surfaces.js";
@@ -297,6 +300,18 @@ const TALK_ASK_TOKENS = Number(process.env.ER7_TALK_ASK_TOKENS ?? 160);
 // a cached encyclopedia lead, one small fetch per term, never fetched twice.
 // ER7_TALK_SOURCES=0 turns it off (the mouth is then asked, as before).
 const talkLookup = (process.env.ER7_TALK_SOURCES ?? "1") === "0" ? null : makeWikiSummary({ dir: path.join(HERE, "state", "sources", "wikipedia") });
+// The talk page's stylesheet, SNIPPED (organs/part-source.js): found on the fly
+// among published packages, kept only under a permissive license, cut to the
+// rules the page uses, carried with its provenance and license notice. Found
+// once per process; ER7_TALK_PARTS=0 keeps the engine's own fallback.
+let _talkStyle = null;
+const talkStyle = () => {
+  if ((process.env.ER7_TALK_PARTS ?? "1") === "0") return Promise.resolve(null);
+  _talkStyle ??= sourcePart({ need: "stylesheet", elements: RENDERED_ELEMENTS, npm: makeNpmParts({ dir: path.join(HERE, "state", "sources", "npm") }) })
+    .then((part) => (part ? { css: part.css, comment: provenanceComment(part.provenance), provenance: part.provenance } : null))
+    .catch(() => null);
+  return _talkStyle;
+};
 const WEB_MAX_PAGES = Number(process.env.ER7_WEB_MAX_PAGES ?? 3);
 
 // THE NON-MOVING EDIT CUT (2026-09-21): a rewrite whose content tokens are
@@ -6383,8 +6398,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         };
         const forWhom = session?.buildDeclared?.anchor ?? null;
         const what = typeof buildTask === "string" && buildTask ? buildTask : task;
+        const style = await talkStyle();
+        if (onNote) onNote({ move: "talk_style", snipped: !!style, from: style ? `${style.provenance.package}@${style.provenance.version}${style.provenance.path}` : null, license: style?.provenance.license ?? null });
         const tb = makeTalkBuild({
-          ask: talkAsk, parse, sentences: englishSentences, render: renderBelief, lookup: talkLookup,
+          ask: talkAsk, parse, sentences: englishSentences, render: (belief, o) => renderBelief(belief, { ...o, style }), lookup: talkLookup,
           log: (e) => {
             if (!onNote) return;
             if (e.kind === "turn") onNote({ move: "talk_turn", gap: e.gap, reply: String(e.reply ?? "").slice(0, 240), claims: e.claims, ops: (e.ops ?? []).map((o) => o.operator) });

@@ -1,0 +1,86 @@
+[
+ {
+  "path": "/css/normalize.css",
+  "size": 8053
+ },
+ {
+  "path": "/css/sakura.css",
+  "size": 4098
+ },
+ {
+  "path": "/css/sakura-dark.css",
+  "size": 4126
+ },
+ {
+  "path": "/css/sakura-dark-solarized.css",
+  "size": 4126
+ },
+ {
+  "path": "/css/sakura-earthly.css",
+  "size": 4098
+ },
+ {
+  "path": "/css/sakura-ink.css",
+  "size": 4146
+ },
+ {
+  "path": "/css/sakura-pink.css",
+  "size": 4098
+ },
+ {
+  "path": "/css/sakura-radical.css",
+  "size": 4048
+ },
+ {
+  "path": "/css/sakura-vader.css",
+  "size": 4126
+ },
+ {
+  "path": "/LICENSE.txt",
+  "size": 1068
+ },
+ {
+  "path": "/package.json",
+  "size": 1119
+ },
+ {
+  "path": "/README.md",
+  "size": 6147
+ },
+ {
+  "path": "/scss/_main.scss",
+  "size": 4167
+ },
+ {
+  "path": "/scss/sakura.scss",
+  "size": 323
+ },
+ {
+  "path": "/scss/sakura-dark.scss",
+  "size": 351
+ },
+ {
+  "path": "/scss/sakura-dark-solarized.scss",
+  "size": 351
+ },
+ {
+  "path": "/scss/sakura-earthly.scss",
+  "size": 323
+ },
+ {
+  "path": "/scss/sakura-ink.scss",
+  "size": 332
+ },
+ {
+  "path": "/scss/sakura-pink.scss",
+  "size": 323
+ },
+ {
+  "path": "/scss/sakura-radical.scss",
+  "size": 300
+ },
+ {
+  "path": "/scss/sakura-vader.scss",
+  "size": 398
+ }
+]
