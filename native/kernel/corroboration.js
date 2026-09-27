@@ -114,6 +114,9 @@ export function falsifyOccurrence(store, concept, occurrenceId, { by = null, rea
     o.falsifyReason = reason;
     // the lesson that taught this occurrence is refuted with it
     for (const item of entry.items) {
+      // veto-report: `!item.refuted` only skips a lesson ALREADY refuted so
+      // it is not refuted twice; the branch's one effect is to SET refuted.
+      // Nothing is admitted here — this is the refuting act itself.
       if (!item.refuted && String(item.source ?? "") === String(o.source ?? "") && JSON.stringify(item.region ?? null) === JSON.stringify(o.region ?? null)) {
         item.refuted = true;
         item.refutedBy = by;
