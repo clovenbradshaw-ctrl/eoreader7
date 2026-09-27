@@ -46,3 +46,29 @@ second end), its relationships, its experience — not what was near it.
 
 T6 works because co-presence in a frame is a fact about the two expressions
 themselves, not about their surroundings.
+
+## v2 and v3 — the gate failed three times; stopped here
+
+| run | what changed | T4 (splice gate) | T2 | T6 |
+|---|---|---|---|---|
+| v1 | extent = the whole sentence's words | 5 / 9 broke — failed | held | held |
+| v2 | extent = the being's own slots (after / before / rel / with) | 6 / 9 — failed | failed (0.60 early, 0.41 late) | held |
+| v3 | + the displaced true stage kept as a rival; features weighted by how few beings share them | 4 / 9 — failed | failed (0.53 early, 0.47 late) | held |
+
+T1, T3 and T5 were not read in v2 or v3: the gate closed. Both v3 changes are
+sound on their own (their unit tests show a companion no longer passes for
+the being), yet on this book, at 30 stages of ~1,100 sentences, a being's
+stage is still not reliably closer to its own next stage than to a close
+companion's. The stage-extent channel does not tell beings apart here.
+
+Stopped deliberately: three designs against one book, each changed after
+seeing the last, is a search for a configuration that passes. A further
+attempt must be one design, fixed in advance, on a book it was not developed
+on.
+
+What survives all three runs is T6: co-presence evidence, with likelihoods
+carried over from the Russian run, overturns a wrong surname prior on
+Pierre/Bezukhov (-4.6, prior's share 0.12) and on Sonya/Natasha (-45.3), and
+keeps Prince Andrew/Andrew one being (+13.7). The channel that works reads a
+fact about the two expressions (do they share a frame), not a summary of
+their surroundings.
