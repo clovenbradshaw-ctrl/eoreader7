@@ -136,3 +136,43 @@ test("Gornick, taught model-free: a part that says what came just before reads f
   assert.ok(!c.flat.includes(1) && !c.flat.includes(2), "a fresh part read flat");
   assert.ok(typeof c.shape === "string" && c.meanBits > 0);
 });
+
+test("the pathos pass: a flat part is written again, the mouth proposes and the archons choose; nothing worse is ever kept", async () => {
+  const fresh = [
+    "The storm broke over the island at dusk. The ferry turned back toward the mainland. Ana watched it go from the rocks.",
+    "Ana climbed the tower with a lamp and a coil of rope. The wind shook the glass. She lit the wick with cold hands.",
+    "At dawn the gulls came back to the ledge. The sea lay flat and grey below the cliffs. Nobody spoke at breakfast.",
+    "Tom rowed out past the reef at noon. The wreck had settled in the sand. He counted the ribs of the hull twice.",
+  ];
+  const restating = "Ana climbed the tower with a lamp and a coil of rope. The wind shook the glass. She lit the wick with cold hands. Ana climbed the tower with a lamp and a coil of rope. The wind shook the glass.";
+  const run = async (candidatesSay) => {
+    const bodies = [fresh[0], fresh[1], restating, fresh[3]];
+    let b = 0, c = 0;
+    const ask = async (p, { stage }) => (stage.startsWith("body:") ? bodies[b++] : stage.startsWith("pathos:") ? candidatesSay[c++ % candidatesSay.length] : "");
+    const N = makeNotes();
+    let notes = N.createNotes({ frame: { universe: "stipulated" } });
+    const h = (end1, label, end2, witness = "request") => { notes = N.hear(notes, { end1, label, end2, witness, because: "outline" }); };
+    h("story#1", "exists", "story"); h("character#2", "exists", "character"); h("story#1", "has", "character#2"); h("character#2", "position", "1"); h("character#2", "named", "Ana", "talk:m#1");
+    h("chapter#3", "exists", "chapter"); h("story#1", "has", "chapter#3"); h("chapter#3", "position", "2"); h("chapter#3", "says", "A storm comes to the island.", "talk:m#2");
+    ["The ferry turns back.", "Ana lights the lamp.", "The morning after the storm.", "Tom finds the wreck."].forEach((line, k) => { const id = `scene#${4 + k}`; h(id, "exists", "scene"); h("chapter#3", "has", id); h(id, "position", String(k + 1)); h(id, "says", line, "talk:m#3"); });
+    const lf = makeLongForm({ ask, sentences, medium: PROSE_MEDIUM, mouth: "m", castDetails: [] });
+    const w = await lf.writeBodies({ notes, store: makeTextStore() });
+    const ed = makeBookEditor({ lf, ask, medium: PROSE_MEDIUM, mouth: "m", castDetails: [] });
+    const out = await ed.pathosPass({ notes: w.notes, store: w.store, task: "a story" });
+    return { lf, out };
+  };
+  // one candidate restates again, one is fresh: the fresh one is chosen
+  const good = await run([restating, "The morning after the storm was bright and strange. A seal slept on the landing stage. Ana brought it a fish and it did not move."]);
+  assert.ok(good.out.targets >= 1, "the restating part was not read flat");
+  const row = good.out.rows.find((r) => r.part === "scene#6");
+  assert.ok(row?.kept, JSON.stringify(good.out.rows));
+  const book = good.lf.seal({ notes: good.out.notes, store: good.out.store, request: "t" });
+  assert.ok(book.artifact.includes("A seal slept on the landing stage."), "the chosen body is not in the book");
+  assert.ok(!book.artifact.includes("Ana climbed the tower with a lamp and a coil of rope. The wind shook the glass.\nAna climbed"), "the old flat body stayed");
+  assert.equal(book.provenance.ok, true); assert.equal(book.helix.ok, true, JSON.stringify(book.helix.violations.slice(0, 2)));
+  const body = good.lf.N.fold(book.notes).find((n) => n.end1 === "scene#6" && n.label === "body");
+  assert.ok(body.witnesses.some((x) => x.includes("#pathos")));
+  // control: every candidate restates — nothing is kept, the book is unchanged
+  const bad = await run([restating]);
+  assert.ok(bad.out.rows.every((r) => !r.kept), JSON.stringify(bad.out.rows));
+});
