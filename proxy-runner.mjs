@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
 import { loadModel as loadEnglishParserModel, sentences as englishSentences, tokenize as englishTokenize, analyse as englishAnalyse } from "./native/adapters/text/english-parser.js";
 import { makeTalkBuild } from "./native/organs/talk-build.js";
+import { PAGE_MEDIUM } from "./native/adapters/build/page-medium.js";
 import { renderBelief, renderBeliefMapped } from "./native/adapters/build/belief-page.js";
 import { makeWikiSummary } from "./native/adapters/sources/wiki-summary.js";
 import { makeNpmParts } from "./native/adapters/sources/npm-parts.js";
@@ -6401,7 +6402,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         const style = await talkStyle();
         if (onNote) onNote({ move: "talk_style", snipped: !!style, from: style ? `${style.provenance.package}@${style.provenance.version}${style.provenance.path}` : null, license: style?.provenance.license ?? null });
         const tb = makeTalkBuild({
-          ask: talkAsk, parse, sentences: englishSentences, render: (belief, o) => renderBeliefMapped(belief, { ...o, style }), lookup: talkLookup, mouth: model,
+          ask: talkAsk, parse, sentences: englishSentences, render: (belief, o) => renderBeliefMapped(belief, { ...o, style }), lookup: talkLookup, mouth: model, medium: PAGE_MEDIUM,
           log: (e) => {
             if (!onNote) return;
             if (e.kind === "turn") onNote({ move: "talk_turn", gap: e.gap, reply: String(e.reply ?? "").slice(0, 240), claims: e.claims, ops: (e.ops ?? []).map((o) => o.operator) });

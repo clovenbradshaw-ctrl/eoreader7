@@ -18,6 +18,7 @@ import { makeWikiSummary } from "../../adapters/sources/wiki-summary.js";
 import { makeNpmParts } from "../../adapters/sources/npm-parts.js";
 import { sourcePart, provenanceComment } from "../../organs/part-source.js";
 import { RENDERED_ELEMENTS, renderBeliefMapped } from "../../adapters/build/belief-page.js";
+import { PAGE_MEDIUM } from "../../adapters/build/page-medium.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, "..", "..", "..");
@@ -52,7 +53,7 @@ for (const file of arg("battery", "ladder.json").split(",")) {
   for (const q of battery.requests.filter((r) => (r.kind === "page" || r.kind === "any") && (!only.size || only.has(r.id)))) {
     const t0 = Date.now();
     const events = [];
-    const tb = makeTalkBuild({ ask, parse, sentences, render, verify, mouth: model, frame: arg("frame", "task"), lookup: arg("sources", "on") === "off" ? null : lookup, log: (e) => events.push({ ms: Date.now() - t0, ...e }) });
+    const tb = makeTalkBuild({ ask, parse, sentences, render, verify, mouth: model, medium: PAGE_MEDIUM, frame: arg("frame", "task"), lookup: arg("sources", "on") === "off" ? null : lookup, log: (e) => events.push({ ms: Date.now() - t0, ...e }) });
     let out, error = null;
     try { out = await tb.build({ what: q.prompt, forWhom: q.answers?.anchor ?? null }); } catch (err) { error = String(err?.stack ?? err).slice(0, 1500); out = { artifact: "", asks: 0, belief: [] }; }
     const seen = out.artifact ? inspect(out.artifact) : { kind: "none", why: error ?? "nothing built" };

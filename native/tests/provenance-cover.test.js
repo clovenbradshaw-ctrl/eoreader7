@@ -21,6 +21,7 @@ import { renderBeliefMapped, ENGINE_WORDS } from "../adapters/build/belief-page.
 import { uncovered, pageLeaves } from "../organs/provenance-cover.js";
 import { makeNotes } from "../kernel/notes.js";
 import { scanRegexes } from "../../scripts/kleene-up.mjs";
+import { PAGE_MEDIUM } from "../adapters/build/page-medium.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const NATIVE = path.join(HERE, "..");
@@ -42,7 +43,7 @@ function mouth() {
 
 test("every rung's page is fully accounted for, and sealed", async () => {
   for (const q of ladder.requests.filter((r) => r.kind === "page")) {
-    const out = await makeTalkBuild({ ask: mouth(), parse, sentences, render: renderBeliefMapped, mouth: "scripted" }).build({ what: q.prompt, forWhom: q.answers.anchor });
+    const out = await makeTalkBuild({ medium: PAGE_MEDIUM, ask: mouth(), parse, sentences, render: renderBeliefMapped, mouth: "scripted" }).build({ what: q.prompt, forWhom: q.answers.anchor });
     assert.equal(out.provenance.ok, true, `${q.id}: ${JSON.stringify(out.provenance.uncovered.slice(0, 3))} ${JSON.stringify(out.provenance.unresolved.slice(0, 3))}`);
     assert.ok(out.provenance.covered > 10);
     assert.ok(out.sealed, `${q.id} was not sealed`);
@@ -52,7 +53,7 @@ test("every rung's page is fully accounted for, and sealed", async () => {
 
 test("text emitted around the mapper is caught, and the page is not sealed", async () => {
   const leaky = (belief, o) => { const r = renderBeliefMapped(belief, o); return { ...r, artifact: r.artifact.replace("<main>", "<main><p>Send</p>") }; };
-  const out = await makeTalkBuild({ ask: mouth(), parse, sentences, render: leaky, mouth: "scripted" }).build({ what: ladder.requests[1].prompt, forWhom: "fans" });
+  const out = await makeTalkBuild({ medium: PAGE_MEDIUM, ask: mouth(), parse, sentences, render: leaky, mouth: "scripted" }).build({ what: ladder.requests[1].prompt, forWhom: "fans" });
   assert.equal(out.provenance.ok, false);
   assert.ok(out.provenance.uncovered.some((l) => l.text === "Send"), JSON.stringify(out.provenance.uncovered));
   assert.equal(out.sealed, null);
@@ -77,7 +78,7 @@ test("a visible attribute value is an element; style and script are not text", (
 });
 
 test("a silent mouth leaves no talk: account on the page", async () => {
-  const out = await makeTalkBuild({ ask: async () => "", parse, sentences, render: renderBeliefMapped, mouth: "m" }).build({ what: ladder.requests[2].prompt, forWhom: "fans" });
+  const out = await makeTalkBuild({ medium: PAGE_MEDIUM, ask: async () => "", parse, sentences, render: renderBeliefMapped, mouth: "m" }).build({ what: ladder.requests[2].prompt, forWhom: "fans" });
   const fold = makeNotes().fold(out.notes);
   const byId = new Map(fold.map((n) => [n.id, n]));
   const talk = out.map.filter((m) => m.src.some((s) => (byId.get(s)?.witnesses ?? []).some((w) => w.startsWith("talk:"))));
