@@ -40,43 +40,85 @@ falsifying control, record the result in the ledger below, commit, push.
 | the sort button's behaviour | **none — drawn, does nothing** |
 | vocabulary sets (platform nouns, UNMARKED, CONTROL_KINDS, …) | **hand-set, each says so** |
 
+## The doors today (door map, 2026-09-27, verified at file:line by a read-only panel)
+
+| door | what it runs |
+|---|---|
+| `/v1/ask`, `/v1/chat/completions`, `/api/chat`, `/v1/messages` | `runProxyTurn` — the full pipeline |
+| `/v1/documents` | `runProxyTurn` in projection mode |
+| `/v1/code` | `runCodeLoop` (the-fold/code-loop.js), which calls `runProxyTurn` in **chat mode every round**: Wikipedia enrichment every round, holograph typing on the patch text, an undisclosed substitute mouth, PII/archon results dropped |
+| `/v1/agent` | `runOpenCodingLoop`, same pattern as `/v1/code` |
+| `/v1/build` (and a `/v1/ask` shortcut) | `buildCodeTask` (organs/code-build.js): **calls the model directly**, past the pipeline, admission and the shared mouth |
+| `/v1/swarm`, hooks, `/v1/reason` | no generation |
+
+**Chat → code: there is no path today.** The only edge runs the other way
+(code-loop imports `runProxyTurn`). Duplicated jobs: validators (three for
+Python, three for JavaScript, two for TypeScript), repair loops (whole-file
+redraw, patch rounds, agent turns), model-call paths (the shared mouth vs
+code-build's own), build detection (two), provenance (three mechanisms),
+file resolution (two).
+
+## The layering this is heading to
+
+- **One core** — every door enters it: clear → intake → ask-back → ground →
+  source each part (snip / reason / ask) → hear → reason → assemble → verify
+  (+ repair) → type and archons → seal and ledger. One mouth
+  (`streamOllamaChat` with its turn scope always set), one witness grammar,
+  one license table.
+- **Medium adapters** (the minor differences): page, prose, code artifact,
+  music — each is its vocabulary (the whole's noun, engine words, control
+  kinds), its renderer returning `{ artifact, map }`, its validator (one
+  registry), its source registries (npm for page parts, a score archive for
+  music, licensed code for code).
+- **Specialist APIs** — only what is truly specific: `/v1/code` keeps the
+  patch physics, the test command, the forecast, the sandbox and the draw
+  monitor. It takes the core's clear, intake and archons once per loop, and
+  a draw-only mouth per round (no enrichment, no holograph on patches, the
+  substitute disclosed).
+- **Edges** — a chat turn with a workspace and an edit to make calls the
+  code API (the test command asked back through the existing
+  build-clarify), and its result comes back through the same answer and
+  ledger; `/v1/build` and `/v1/agent` become callers of the code API or are
+  retired into it.
+
 ## Open, in order
 
 (Revised after each archon checkpoint. Each item names its falsifying control.)
 
-1. **Correctness batch (Ostrom + Wilson findings, verified).** Each fix with
-   a control that fails without it:
-   - part-source: offsets and sha256 over the raw fetched BYTES (new.css has
-     a multi-byte "→"; string indices drift after it); a quoted "}" inside a
-     rule must not end the block; the notice in `/*!`; refuse a snip whose
-     license asks for its notice when no license text is found; license
-     strings normalised ("MIT OR Apache-2.0", `{type}`, case).
-   - witnesses: `talk:<model>#ask<n>` so one model repeating itself is ONE
-     source (today each ask reads as its own source — false corroboration).
-   - the mouth's answer to "what does each part show" heard into the ledger.
-   - derived `because` carries premise note ids; a correction is withdrawn
-     when its premises change (today `derived:correct` is exempt).
-   - kind-read: negation ("never voted on") derives nothing.
-   - talk-reason: near-duplicates ("Orca Watch." / "orca  watch") retract.
-2. **The element map and the uncovered check (Ostrom's rule, Wilson's
-   alarm signal).** The renderer returns `{ artifact, map }`: every leaf
-   (text node, attribute value, CSS rule; for other media a token, a note
-   event) maps to a note id in the fold or an `engine:<catalog-key>` entry;
-   `uncovered(artifact, map, fold) = []`. Wire a real `verify` so a failure
-   can demote a route. Control: a mutated renderer that emits "Send" with no
-   key must fail the check; a silent mouth leaves zero `talk:` witnesses.
-3. **One "find a part" layer on the environment (Wilson).** Queries,
-   sources and packages become routes on `kernel/stigmergy.js`
-   `routeOrderFor`: deposits on verified use, evaporating caches (a miss
-   re-probed after the half-life), scouts off the critical path, a license
-   veto that never decays. Control: seeded trails where the default query
-   is worse — the learned order must reach the same coverage with fewer
-   fetches; explore 0 never scouts.
-4. **The doors (pending the door map):** one pipeline behind every door;
-   code-specific capability (auto-fill, repair against a validator) behind
-   the code API; a chat turn able to call it.
-5. Record the falsification runs now in flight (wired vs old vs bare on the
-   27 unseen requests; the same-code framing A/B) — whatever they say.
+1. **Done 2026-09-27** (2ba5ecd, 55deb8d): byte-exact snips, quoted braces,
+   SPDX licenses, notice-or-refuse; one source per model; heard "shows";
+   corrections as conclusions with premises; negation; near-duplicates.
+   **Still open from that batch:** Wikipedia provenance at runtime — URL,
+   revision and CC BY-SA carried on each `source:` witness.
+2. **The element map, the uncovered check, verify and seal.** The renderer
+   returns `{ artifact, map }`: every leaf maps to a note id in the fold or
+   an `engine:<catalog-key>`; `uncovered(artifact, map, fold) = []`; a real
+   `verify` (so a failure can demote a route); `sealArtifact` as the last
+   stage; the proxy returns the notes. Control: a mutated renderer emitting
+   "Send" with no key fails; a silent mouth leaves zero `talk:` witnesses on
+   the page; `ER7_TALK_PARTS=0` is never reported as sourced.
+3. **Pull the page out of the core.** `makeBuild({ medium })`; the page's
+   words (site, reddit, karma, form, "What is … called?", `verify("page")`)
+   move to `adapters/build/page-medium.js`. Control: the core file contains
+   none of them, and the ladder still scores what it scored.
+4. **Music as the second medium, with no core edits.** Spec ("a lullaby in
+   two phrases of four bars each"), parts (phrases, bars), snip bars by tick
+   range from licensed MIDI (each fixture's own license checked),
+   `continuation.js` as the reasoner, `writeMidi` + a note-to-note sidecar
+   as the renderer, `parseMidi` read-back as the validator. Control: the
+   core diff is empty; the real prior beats the shuffled prior; a copyleft
+   fixture is refused; a note missing from the sidecar fails.
+5. **One mouth.** The code loop's per-round turn becomes a draw-only mouth;
+   `/v1/build` moves onto the shared mouth and admission. Control: a
+   substitute mouth is always disclosed; no enrichment call per round.
+6. **Chat → code.** A chat turn with a workspace and an edit to make calls
+   `runCodeLoop`; the answer and ledger carry its result. Control: the same
+   edit asked through `/v1/code` and through chat produces the same patch
+   and test verdict.
+7. **One validator registry**, `validate(medium, text)`. Control: every
+   existing validator test passes through it.
+8. **The part-finder on the environment (Wilson)** — see checkpoint.
+9. Record the falsification runs now in flight, whatever they say.
 
 ## Falsification ledger
 
