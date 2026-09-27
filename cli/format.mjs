@@ -34,6 +34,29 @@ export function wrapText(text, width) {
   return out;
 }
 
+// TUI TRIPWIRE (2026-09-17): the chat message is the prose and nothing
+// else. The artifact's citation apparatus (a Sources appendix, APA
+// footnotes) renders in the BROWSER, folded client-side from the ledger —
+// never in the transcript. The producer (proxy-runner.mjs) already keeps
+// it out of the message; this is the defense-in-depth cut so even a
+// regression cannot print it in the terminal. A `## Sources (verbatim)`
+// or `## Footnotes` section — and anything under it until the next
+// heading — is dropped mechanically, with the message re-joined.
+export const stripCitationAppendix = (text) => {
+  const lines = String(text ?? "").split("\n");
+  const kept = [];
+  let dropping = false;
+  for (const line of lines) {
+    if (/^\s*#{1,3}\s+(Sources\s*\(verbatim\)|Footnotes)/i.test(line)) { dropping = true; continue; }
+    if (dropping) {
+      if (/^\s*#{1,3}\s+\S/.test(line)) dropping = false;
+      else continue;
+    }
+    kept.push(line);
+  }
+  return kept.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+};
+
 // ── Snipped-verbatim provenance line ──
 // A mechanical quote (the snip hand's cut) is non-model prose: the TUI
 // renders it in its own kind + color, and this line — never a [model] tag —
