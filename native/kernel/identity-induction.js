@@ -301,7 +301,14 @@ export function makeIdentityInduction(record, opts = {}) {
       const w = windowOf(a);
       for (const { f, hop: h } of o) { if (h > hop || (drop && drop.has(f))) continue; const i = idx.get(f); if (i !== undefined) W[w][i] += 1; }
     }
-    const unit = W.map((v) => { const n = Math.hypot(...v); return n > 0 ? v.map((x) => x / n) : null; });
+    const dirs = W.map((v) => { const n = Math.hypot(...v); return n > 0 ? v.map((x) => x / n) : null; });
+    // MEAN-SUBTRACTED: a node's average direction persists under any window
+    // order, so left in it is a mode at |lambda| ~ 1 in the real trajectory
+    // AND every shuffle — it can never beat the null, and it hid every mode
+    // beneath it (found live: every War and Peace name read rank 0).
+    const present = dirs.filter(Boolean);
+    const mean = present.length ? present[0].map((_, i) => present.reduce((m, v) => m + v[i], 0) / present.length) : [];
+    const unit = dirs.map((v) => (v ? v.map((x, i) => x - mean[i]) : null));
     const seq = (order ?? unit.map((_, i) => i)).map((i) => unit[i]);
     const pairs = [];
     for (let t = 0; t + 1 < seq.length; t += 1) if (seq[t] && seq[t + 1]) pairs.push([seq[t], seq[t + 1]]);
@@ -322,18 +329,35 @@ export function makeIdentityInduction(record, opts = {}) {
     for (const [x, y] of pairs) for (let i = 0; i < y.length; i += 1) { let p = 0; for (let j = 0; j < x.length; j += 1) p += A[i][j] * x[j]; e += (y[i] - p) ** 2; z += y[i] ** 2; }
     return z ? e / z : NaN;
   };
+  // The bound is PREQUENTIAL, not a magnitude comparison. Measured: at a
+  // 24-feature state over ~33 transitions DMD is underdetermined and its
+  // eigenvalues overfit — a shuffled order produced LARGER magnitudes than
+  // the real one (Pierre: 1.27 real vs 2.33 at the shuffle's 95th), so a
+  // magnitude test could never pass. A mode survives when an operator of that
+  // rank, fitted on half the transitions, predicts the other half better than
+  // the same fit does on the trajectory with its window order destroyed.
+  const twoFoldError = (pairs, r) => {
+    const even = pairs.filter((_, i) => i % 2 === 0), odd = pairs.filter((_, i) => i % 2 === 1);
+    if (even.length < 2 || odd.length < 2) return NaN;
+    return (predError(operatorOf(even, r), odd) + predError(operatorOf(odd, r), even)) / 2;
+  };
   const boundedRank = (occs, hop, drop, basis, rng) => {
-    const obs = magnitudes(statesOf(occs, hop, drop, basis));
-    if (!obs.length) return 0;
-    const nulls = [];
+    const pairs = statesOf(occs, hop, drop, basis);
+    if (pairs.length < 4) return 0;
+    const maxR = Math.min(basis.length, Math.floor(pairs.length / 2) - 1);
+    const orders = [];
     for (let d = 0; d < trajectory.draws; d += 1) {
       const order = Array.from({ length: trajectory.windows }, (_, i) => i);
       for (let j = order.length - 1; j > 0; j -= 1) { const r = Math.floor(rng() * (j + 1)); [order[j], order[r]] = [order[r], order[j]]; }
-      nulls.push(magnitudes(statesOf(occs, hop, drop, basis, order)));
+      orders.push(statesOf(occs, hop, drop, basis, order));
     }
-    let r = 0;
-    for (let i = 0; i < obs.length; i += 1) { const q = quantile(nulls.map((m) => m[i] ?? 0), 1 - alpha); if (obs[i] > q) r += 1; else break; }
-    return r;
+    let best = 0;
+    for (let r = 1; r <= maxR; r += 1) {
+      const obs = twoFoldError(pairs, r);
+      const nul = orders.map((p) => twoFoldError(p, r)).filter(Number.isFinite);
+      if (Number.isFinite(obs) && nul.length && obs < quantile(nul, alpha)) best = r; else if (best) break;
+    }
+    return best;
   };
   const dynamicsTest = (a, b, hop, drop, rng) => {
     if (!span) return { verdict: "gap", reason: "no_positions" };
