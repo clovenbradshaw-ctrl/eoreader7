@@ -36,9 +36,12 @@ export function inspect(code) {
     return { kind: "program", run: { exit: r.status, stdout: (r.stdout ?? "").slice(0, 20000), stderr: (r.stderr ?? "").slice(0, 4000), timedOut: r.error?.code === "ETIMEDOUT" } };
   }
   const facts = py([path.join(HERE, "page-facts.py")], code);
-  if (facts.status !== 0) return { kind: "none", error: (facts.stderr ?? "").slice(0, 500) };
+  if (facts.status !== 0) return { kind: "none", why: (facts.stderr ?? "").slice(0, 500) };
   const page = JSON.parse(facts.stdout);
   const hasElements = (page.tree?.c ?? []).length > 0;
-  return hasElements ? { kind: "page", page } : { kind: "none", page };
+  if (hasElements) return { kind: "page", page };
+  // neither a page nor a program Python will parse: keep Python's own reason
+  const lines = (parses.stderr ?? "").trim().split("\n");
+  return { kind: "none", page, why: lines.slice(-1)[0] ? `python: ${lines.slice(-1)[0]}` : "no elements and no program" };
 }
 

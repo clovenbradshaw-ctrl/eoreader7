@@ -66,7 +66,7 @@ async function build(request) {
   const facts = factsOf(seen);
   const verdict = checkBuild(request, facts, { cafe: battery.cafe });
   ev({ kind: "done", totalMs: Date.now() - t0, artifact: seen.kind });
-  return { id: request.id, prompt: request.prompt, model, label, answerShape: r?.result?.answerShape ?? null, artifactKind: seen.kind, code, run: seen.run ?? null, pageText: seen.page?.text ?? null, verdict, events, ms: Date.now() - t0 };
+  return { id: request.id, prompt: request.prompt, model, label, answerShape: r?.result?.answerShape ?? null, artifactKind: seen.kind, why: seen.why ?? null, code, run: seen.run ?? null, pageText: seen.page?.text ?? null, verdict, events, ms: Date.now() - t0 };
 }
 
 const rows = [];
