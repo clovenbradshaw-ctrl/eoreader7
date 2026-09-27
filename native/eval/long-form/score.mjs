@@ -21,6 +21,7 @@ import { outlineOf, hasWord } from "../../organs/long-form.js";
 import { PROSE_MEDIUM } from "../../adapters/build/prose-medium.js";
 import { makeNotes } from "../../kernel/notes.js";
 import { surprises } from "../../kernel/surprise-segments.js";
+import { loadEotParser, clauseComplete } from "../../the-fold/eot-notation.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, "..", "..", "..");
@@ -32,6 +33,11 @@ const clean = (w) => { let x = String(w); while (x && !(x.at(-1).toLowerCase() !
 // words capitalised for reasons other than being a name — set by hand 2026-09-27
 const NOT_NAMES = new Set(["I", "I'm", "I'll", "I've", "I'd", "Mom", "Dad", "Mama", "Papa", "God", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December", "Chapter", "Mr", "Mrs", "Ms", "Dr", "OK", "Oh"]);
 
+// bits per word alone is gamed by word salad (falsify.mjs F2: 7.12 against
+// the edit's 5.31), so it is read beside coherence — the share of lines that
+// parse as a whole clause, which the salad fails (41%)
+let eot = null;
+export async function loadCoherence() { eot = await loadEotParser(); return eot; }
 export function scoreBook(book, cast, { castDetails = [], at = null } = {}) {
   const lines = String(book).split("\n").filter((l) => l.trim() && !l.startsWith("#") && l.trim() !== "* * *");
   const text = lines.join(" ");
@@ -90,7 +96,8 @@ export function scoreBook(book, cast, { castDetails = [], at = null } = {}) {
   // arms are compared at one length (the shortest arm's)
   const n = at ? Math.min(at, stream.length) : stream.length;
   const bitsAt = n ? Number(([...bits].slice(0, n).reduce((a, b) => a + b, 0) / n).toFixed(2)) : 0;
-  return { words, bitsPerWord, bitsAt, at: n, tokensApprox: Math.round(text.length / 4), sentences: said, repeated, repeatedShare: said ? Math.round((100 * repeated) / said) : 0, noteEchoes, topRepeat: [...echo.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([t, n]) => `${n}× "${t.slice(0, 50)}"`), callbacks, strays: { propn: sum(strays.propn), propnDistinct: strays.propn.size, capital: sum(strays.capital), capitalDistinct: strays.capital.size, perThousandWords: Math.round((1000 * sum(strays.propn)) / Math.max(1, words)), top: top(strays.propn) } };
+  const coherentPct = eot?.ok && lines.length ? Math.round((100 * lines.filter((l) => clauseComplete(eot, l) !== false).length) / lines.length) : null;
+  return { words, bitsPerWord, bitsAt, at: n, coherentPct, tokensApprox: Math.round(text.length / 4), sentences: said, repeated, repeatedShare: said ? Math.round((100 * repeated) / said) : 0, noteEchoes, topRepeat: [...echo.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([t, n]) => `${n}× "${t.slice(0, 50)}"`), callbacks, strays: { propn: sum(strays.propn), propnDistinct: strays.propn.size, capital: sum(strays.capital), capitalDistinct: strays.capital.size, perThousandWords: Math.round((1000 * sum(strays.propn)) / Math.max(1, words)), top: top(strays.propn) } };
 }
 
 if (process.argv[1] && process.argv[1].endsWith("score.mjs")) {
@@ -101,10 +108,11 @@ if (process.argv[1] && process.argv[1].endsWith("score.mjs")) {
   const o = outlineOf(N.fold(outline.notes), PROSE_MEDIUM);
   const cast = o.cast.map((c) => ({ name: c.name, details: Object.fromEntries(c.props.filter((p) => (outline.castDetails ?? []).includes(p.label)).map((p) => [p.label, p.value])) }));
   console.log("cast:", cast.map((c) => `${c.name} (${Object.values(c.details).join(", ")})`).join("; "));
+  await loadCoherence();
   const books = arms.map((arm) => [arm, path.join(dir, `${arm}.book.md`)]).filter(([, f]) => fs.existsSync(f)).map(([arm, f]) => [arm, fs.readFileSync(f, "utf8")]);
   const shortest = Math.min(...books.map(([, b]) => scoreBook(b, cast, { castDetails: outline.castDetails ?? [] }).words));
   for (const [arm, bookText] of books) {
     const r = scoreBook(bookText, cast, { castDetails: outline.castDetails ?? [], at: shortest });
-    console.log(`${arm.padEnd(13)} words ${r.words} (~${r.tokensApprox} tok) · ${r.bitsPerWord} bits/word (${r.bitsAt} over the first ${r.at}) · repeated ${r.repeated}/${r.sentences} sentences (${r.repeatedShare}%) · note read aloud ${r.noteEchoes} · callbacks right ${r.callbacks.right} wrong ${r.callbacks.wrong} · strays ${r.strays.propn} (${r.strays.propnDistinct} names, ${r.strays.perThousandWords}/1k words; capital-detector ${r.strays.capital}) · ${r.strays.top.join(" ")}`);
+    console.log(`${arm.padEnd(13)} words ${r.words} (~${r.tokensApprox} tok) · ${r.bitsPerWord} bits/word (${r.bitsAt} over the first ${r.at}) · whole clauses ${r.coherentPct}% · repeated ${r.repeated}/${r.sentences} sentences (${r.repeatedShare}%) · note read aloud ${r.noteEchoes} · callbacks right ${r.callbacks.right} wrong ${r.callbacks.wrong} · strays ${r.strays.propn} (${r.strays.propnDistinct} names, ${r.strays.perThousandWords}/1k words; capital-detector ${r.strays.capital}) · ${r.strays.top.join(" ")}`);
   }
 }

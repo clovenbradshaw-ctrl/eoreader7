@@ -456,7 +456,11 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
     return sum / words.length;
   }
 
-  async function pathosPass({ notes, store, task, budget = Infinity, candidates = PATHOS_CANDIDATES, topic = null }) {
+  // chooser: "archons" (the default: the best that fixes what licensed it,
+  // or the old words), or — falsification controls, never the default —
+  // "first" (the first candidate, always) and "random" (one at random, always)
+  async function pathosPass({ notes, store, task, budget = Infinity, candidates = PATHOS_CANDIDATES, topic = null, chooser = "archons", seed = 1 }) {
+    const pick = lcg(seed);
     const read = readBook({ notes, store, task });
     const gd = read.gd;
     const targets = [...new Set(read.findings.filter((f) => (f.kind === "flat_given_before" || f.kind === "flat_cadence") && f.part).map((f) => read.piece.findIndex((p) => p.id === f.part)).filter((i) => i > 0))].sort((a, b) => a - b);
@@ -517,8 +521,8 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
       const opens = read.piece.slice(Math.max(0, i - 3), i).map((p) => p.pieces[0]?.text ?? "").filter(Boolean);
       const fixes = (x) => x.licensed <= now.licensed && (!byGornick || x.bits > now.bits) && (!byCadence || !x.flatCadence) && !opens.some((o) => sameOpening(x.lines[0] ?? "", o));
       const rank = (a, b) => a.licensed - b.licensed || b.moved - a.moved || b.bits - a.bits;
-      const ok = pool.filter(fixes).sort(rank);
-      const best = ok[0] ?? pool.sort(rank)[0];
+      const ok = chooser === "archons" ? pool.filter(fixes).sort(rank) : chooser === "first" ? pool.slice(0, 1) : pool.length ? [pool[Math.floor(pick() * pool.length)]] : [];
+      const best = ok[0] ?? [...pool].sort(rank)[0];
       const better = !!ok[0];
       rows.push({ part: leaf.part.id, now, best: best ? { licensed: best.licensed, bits: Number(best.bits.toFixed(2)), flatCadence: best.flatCadence } : null, candidates: pool.length, kept: !!better, why: reasons.map((r) => `${r.editor}: ${r.kind}`) });
       log({ kind: better ? "pathos_kept" : "pathos_undone", part: leaf.part.id, now, best: best && { licensed: best.licensed, bits: best.bits, flatCadence: best.flatCadence, text: best.text }, candidates: pool.length, why: reasons.map((r) => r.detail) });

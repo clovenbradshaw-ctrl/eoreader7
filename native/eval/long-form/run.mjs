@@ -32,6 +32,9 @@ const arms = arg("arms", "ledger").split(",");
 const seed = Number(arg("seed", "1"));
 const ctx = Number(arg("ctx", "4096"));
 const label = arg("label", "long-smoke");
+// sampling the bare arms may be given (a falsification control: does a
+// window that loops stop looping under the usual anti-repetition sampling?)
+const repeatPenalty = arg("repeat-penalty", null), repeatLastN = arg("repeat-last-n", null);
 const outlineFrom = arg("outline", null);
 // the bare arms may stop early at scale: their prompt fills the window by then
 const bareParts = Number(arg("bare-parts", "0")) || Infinity;
@@ -45,7 +48,7 @@ const parse = (text) => analyse(parser, tokenize(text).map((t) => t.form));
 // the window is the server's: num_ctx sent with every ask, and the prompt's
 // real size read back (panel, Simon: Ollama drops the front of an over-long prompt)
 async function ask(prompt, { attempt = 0, numPredict = 160 } = {}) {
-  const r = await fetch(`${OLLAMA}/api/generate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ model, prompt, stream: false, options: { temperature: Math.min(1, 0.7 + 0.15 * attempt), seed: seed * 1000 + attempt, num_predict: numPredict, num_ctx: ctx } }), signal: AbortSignal.timeout(600000) });
+  const r = await fetch(`${OLLAMA}/api/generate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ model, prompt, stream: false, options: { temperature: Math.min(1, 0.7 + 0.15 * attempt), seed: seed * 1000 + attempt, num_predict: numPredict, num_ctx: ctx, ...(repeatPenalty ? { repeat_penalty: Number(repeatPenalty) } : {}), ...(repeatLastN ? { repeat_last_n: Number(repeatLastN) } : {}) } }), signal: AbortSignal.timeout(600000) });
   const j = await r.json();
   return { response: String(j.response ?? ""), prompt_eval_count: j.prompt_eval_count ?? null, eval_count: j.eval_count ?? null };
 }
