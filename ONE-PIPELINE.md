@@ -150,6 +150,20 @@ file resolution (two).
 8. **The part-finder on the environment (Wilson)** — see checkpoint.
 9. Record the falsification runs now in flight, whatever they say.
 
+## Long form beyond the mouth's memory (2026-09-27, in progress)
+
+Ask: iterate a long work far larger than the mouth's window. Built: the
+outline through the one pipeline (prose medium), then `organs/long-form.js`
+(Dickens) writes each scene from a bounded working note and revises by the
+record (rename: zero asks; detail: only the lines that say it). Panel
+(Ostrom, Wilson, Gary, Simon) before building: claim scope honest ("4×", not
+"many times"); body staleness is a new mechanism, stated; words stored by
+hash; premises as JSON (a line's id holds commas — found live); a stage per
+sub-assembly with a set-down and persistence; real prompt sizes logged;
+controls: bare window + cast header, bare + its own running summary, the
+ablation without facts, and a chunked rewrite for revisions. Ledger scaled
+first: `projectTasks` incremental, 10k entries heard in 19 s (was 230 s).
+
 ## Falsification ledger
 
 | date | claim | control | result |

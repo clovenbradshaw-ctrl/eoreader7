@@ -247,10 +247,17 @@ export function beliefOf(notesFold, things) {
 }
 
 const kindMatches = (thing, kind) => thing.kind === kind || thing.kind === `${kind}s` || `${thing.kind}s` === kind;
-const title = (t) => t.name ?? `the ${t.modifier ? `${t.modifier} ` : ""}${t.kind}`;
+// an unnamed part is called by what it says, when it says something (a
+// chapter's line: "Mara finds the boat"), else by its kind
+const title = (t) => t.name ?? t.props?.find((p) => p.label === "says")?.value ?? `the ${t.modifier ? `${t.modifier} ` : ""}${t.kind}`;
 const phraseOf = (c) => [c.modifier, c.kind].filter(Boolean).join(" ");
 // The slot's value is the reply up to its first break: "Superpod sighting, with
 // 301 upvotes" -> "Superpod sighting". A said-slot keeps its whole first sentence.
+// a name is at most this many words — set by hand 2026-09-27 (longer slot
+// values were sentences about the name, not the name)
+const NAME_WORDS = 4;
+const isCapitalised = (w) => !!w && w[0] !== w[0].toLowerCase() && w[0] === w[0].toUpperCase();
+const hasLetter = (v) => [...String(v)].some((ch) => ch.toLowerCase() !== ch.toUpperCase());
 const BREAKS = new Set([",", ";", ":", "—", "–", "(", "\n"]);
 function slotValue(reply, whole) {
   let v = String(reply ?? "").trim();
@@ -267,6 +274,16 @@ function slotValue(reply, whole) {
     if ((c === "." || c === "!" || c === "?") && (i + 1 === v.length || v[i + 1] === " ")) { cut = whole ? i + 1 : i; break; }
   }
   v = v.slice(0, cut).trim();
+  // a name said in a sentence is the words after "named"/"called": "The
+  // character you are referring to is named Anna" -> Anna
+  if (!whole) {
+    const w = v.split(" ");
+    const at = Math.max(w.lastIndexOf("named"), w.lastIndexOf("called"));
+    if (at >= 0 && at < w.length - 1) v = w.slice(at + 1).join(" ");
+    // a name is a few words: a long sentence ending in capitalised words
+    // ("The name of the additional character could be Alex") names the last of them
+    else if (w.length > NAME_WORDS) { let k = w.length; while (k > 0 && isCapitalised(w[k - 1])) k--; if (k < w.length) v = w.slice(k).join(" "); }
+  }
   const QUOTES = ["\"", "'", "“", "”", "‘", "’", "*", "`"];
   while (v && QUOTES.includes(v[0])) v = v.slice(1);
   while (v && QUOTES.includes(v[v.length - 1])) v = v.slice(0, -1);
@@ -406,7 +423,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       let focusId = null;
       if (slot?.list) {
         // one value per line: "1. Superpod sighting" / "- Superpod sighting"
-        const values = linesOf(reply).map((l) => slotValue(l, slot.whole)).filter(Boolean).slice(0, slot.list);
+        const values = linesOf(reply).map((l) => slotValue(l, slot.whole)).filter(hasLetter).slice(0, slot.list);
         for (const value of values) {
           if (slot.label === "named" && !takeName(slot.kind, slot.parent, value)) continue;
           const because = `${anchor} ${value}`;
@@ -765,7 +782,11 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     const depth = (c, seen = new Set()) => { if (!c.per || seen.has(c)) return 0; seen.add(c); const p = partOf(c.per); return p ? 1 + depth(p, seen) : 1; };
     const says = (c) => !c.details.length;   // a part with nothing to show but what it says (a comment)
     // a content ask carries the request's own constraint ("for dolphin content")
-    const scoped = (q) => (spec.topic ? `${q} All of it is ${spec.topic}.` : q);
+    // what the medium knows the mouth should hear first (a story's people, by
+    // name, before any line of it is asked): facts, never instructions
+    const known = medium.factsFor ? medium.factsFor(belief) : "";
+    const scoped = (q) => `${known ? `${known}\n` : ""}${spec.topic ? `${q} All of it is ${spec.topic}.` : q}`;
+    const sayVerb = medium.saysVerb ?? "Write", sayWhat = medium.saysWhat ?? "what it says";
     const deepest = Math.max(0, ...spec.counted.map((c) => depth(c)));
     for (let d = 0; d <= deepest; d++) {
       const level = spec.counted.filter((c) => depth(c) === d);
@@ -787,7 +808,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
             const group = belief.find((t) => t.id === g);
             const listed = ps.map((p, i) => `${i + 1}. ${title(p)}`).join("\n");
             const one = c.phrase.endsWith("s") ? phraseOf(c) : c.phrase;
-            return { key, parts: ps.map((p) => ({ c, parentId: p.id, have: all(c).filter((t) => t.parent === p.id).length, missing: c.n - all(c).filter((t) => t.parent === p.id).length })), slot: { rows: ps.map((p) => ({ id: p.id, title: title(p) })), mint: true, kind: c.kind, modifier: c.modifier, label: says(c) ? "says" : "named", whole: says(c) }, question: `Here are ${ps.length} ${partOf(c.per)?.phrase ?? c.per}${group ? ` in ${title(group)}` : ""}:\n${listed}\n${says(c) ? "Write" : "Name"} one ${one} for each, one per line as "name: ${says(c) ? "what it says" : "its name"}".${spec.topic ? ` All of it is ${spec.topic}.` : ""}`, anchor: `1. ${title(ps[0])}:` };
+            return { key, parts: ps.map((p) => ({ c, parentId: p.id, have: all(c).filter((t) => t.parent === p.id).length, missing: c.n - all(c).filter((t) => t.parent === p.id).length })), slot: { rows: ps.map((p) => ({ id: p.id, title: title(p) })), mint: true, kind: c.kind, modifier: c.modifier, label: says(c) ? "says" : "named", whole: says(c) }, question: `${says(c) && known ? `${known}\n` : ""}Here are ${ps.length} ${partOf(c.per)?.phrase ?? c.per}${group ? ` in ${title(group)}` : ""}:\n${listed}\n${says(c) ? sayVerb : "Name"} one ${one} for each, one per line as "name: ${says(c) ? sayWhat : "its name"}".${spec.topic ? ` All of it is ${spec.topic}.` : ""}`, anchor: `1. ${title(ps[0])}:` };
           }
         }
         for (const p of parents) {
@@ -798,7 +819,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
           const where = p ? ` ${says(c) ? "on" : "in"} ${title(p)}` : c.within ? ` in the ${c.within}` : "";
           const others = have.length ? `, different from: ${have.map(title).join("; ")}` : "";
           const slot = { kind: c.kind, modifier: c.modifier, parent: p?.id ?? spec.wholeId ?? null, label: says(c) ? "says" : "named", whole: says(c), list: missing };
-          const verb = says(c) ? "Write" : "Name";
+          const verb = says(c) ? sayVerb : "Name";
           const part = { c, parentId: p?.id ?? spec.wholeId ?? null, have: have.length, missing };
           if (missing === 1) return { key, part, slot: { ...slot, list: null }, question: scoped(`${verb} one more ${phraseOf(c)}${where}${others}.`), anchor: says(c) ? `One more ${phraseOf(c)}${where} says:` : `One more ${phraseOf(c)}${where} is called` };
           return { key, part, slot, question: scoped(`${verb} ${missing} ${have.length ? "more " : ""}${c.phrase}${where}${others}. One per line, ${says(c) ? "each a short sentence" : "just the name"}.`), anchor: "1." };

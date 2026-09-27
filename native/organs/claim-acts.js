@@ -57,13 +57,20 @@ export function actOf(note) {
   return pick({ op: "DEF", grain: "Figure" }, "default: a value asserted of a thing");
 }
 
-/** premises named in a derived claim's because: "… [premises: a, b]" */
-function premisesOf(because) {
+/** premises named in a claim's because: "… [premises: a, b]", or — when an
+ *  id may itself hold a comma (a line of a story is part of its note's id) —
+ *  a JSON list, "… [premises: ["a", "b"]]" */
+export function premisesOf(because) {
   const s = String(because ?? "");
   const at = s.lastIndexOf("[premises:");
   if (at < 0) return [];
-  const end = s.indexOf("]", at);
-  return s.slice(at + "[premises:".length, end < 0 ? s.length : end).split(",").map((x) => x.trim()).filter(Boolean);
+  const rest = s.slice(at + "[premises:".length).trim();
+  if (rest.startsWith("[")) {
+    const end = rest.lastIndexOf("]]");
+    try { return JSON.parse(rest.slice(0, end < 0 ? rest.length : end + 1)).map(String).filter(Boolean); } catch { return []; }
+  }
+  const end = rest.indexOf("]");
+  return rest.slice(0, end < 0 ? rest.length : end).split(",").map((x) => x.trim()).filter(Boolean);
 }
 
 /**
