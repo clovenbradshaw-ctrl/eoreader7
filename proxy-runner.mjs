@@ -1824,7 +1824,13 @@ export function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfaced
     return { shape: "command", maxTokens: 128, modality: "brief" };
   if (/^(count|list|enumerate)\s+(to\s+)?\d+/.test(t))
     return { shape: "trivial", maxTokens: 64, modality: "direct" };
-  if (surfVoid && !surfacedSegments.length)
+  // An empty search is a fact about the world, not about a request to MAKE a
+  // thing: a page, a forum, a tracker needs nothing from the web, so the void
+  // disclosure is for questions only (falsified 2026-09-27: every page
+  // request with an empty search shipped no artifact —
+  // conformance/making-not-void.test.mjs).
+  const makesThing = madePlatform(t) != null && deriveRegister(t, { genres: sidecarGenres() }).field.field === "instrument";
+  if (surfVoid && !surfacedSegments.length && !makesThing)
     return { shape: "void", maxTokens: 256, modality: "disclosed-fact" };
   // VERDICT ASKS (falsified 2026-09-19, Control B): a review/verdict-shaped
   // ask — "does this patch pass the test", "review this code", "is this
