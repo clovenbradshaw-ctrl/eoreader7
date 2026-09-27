@@ -171,7 +171,18 @@ export function specOf(request, { parse, sentences }) {
     if (w === "with" || w === "but" || w === "," || w === ";" || w === "—" || numberOf(t.form) != null || (t.upos === "VERB" && words.length)) break;
     words.push(t.form);
   }
-  return { counted, named, whole: words.join(" ") || null };
+  // the request's own "for …"/"about …" phrase ("only for dolphin content",
+  // "for dolphin fans"): a constraint on every piece of content, carried by
+  // the asks that produce names and words (never by a number's ask)
+  let topic = null;
+  for (let i = 0; i < toks.length; i++) {
+    const w = lowerOf(toks[i]);
+    if (w !== "for" && w !== "about") continue;
+    const run = [];
+    for (let j = i + 1; j < toks.length && (toks[j].upos === "NOUN" || toks[j].upos === "ADJ" || toks[j].upos === "PROPN"); j++) run.push(toks[j].form);
+    if (run.length) { topic = `${w} ${run.join(" ")}`; break; }
+  }
+  return { counted, named, whole: words.join(" ") || null, topic };
 }
 
 /** The folded belief as things: { id, kind, modifier, name, props, children, parent }.
@@ -300,8 +311,9 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     // four posts each") are the request too: read after it, in their words
     const more = (request.more ?? []).map((x) => String(x ?? "").trim()).filter(Boolean);
     const spec = specOf([what, ...more.map((m) => (m.endsWith(".") ? m : `${m}.`))].join(" "), { parse, sentences });
-    const firstWhole = specOf(what, { parse, sentences }).whole;
-    if (firstWhole) spec.whole = firstWhole;
+    const first = specOf(what, { parse, sentences });
+    if (first.whole) spec.whole = first.whole;
+    spec.topic = first.topic;
     log({ kind: "spec", spec });
     const reader = makeTalkReader({ parse, sentences });
     const N = makeNotes();
@@ -621,6 +633,8 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     const all = (c) => belief.filter((t) => isOf(t, c));
     const depth = (c, seen = new Set()) => { if (!c.per || seen.has(c)) return 0; seen.add(c); const p = partOf(c.per); return p ? 1 + depth(p, seen) : 1; };
     const says = (c) => !c.details.length;   // a part with nothing to show but what it says (a comment)
+    // a content ask carries the request's own constraint ("for dolphin content")
+    const scoped = (q) => (spec.topic ? `${q} All of it is ${spec.topic}.` : q);
     const deepest = Math.max(0, ...spec.counted.map((c) => depth(c)));
     for (let d = 0; d <= deepest; d++) {
       const level = spec.counted.filter((c) => depth(c) === d);
@@ -642,7 +656,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
             const group = belief.find((t) => t.id === g);
             const listed = ps.map((p, i) => `${i + 1}. ${title(p)}`).join("\n");
             const one = c.phrase.endsWith("s") ? phraseOf(c) : c.phrase;
-            return { key, slot: { rows: ps.map((p) => ({ id: p.id, title: title(p) })), mint: true, kind: c.kind, modifier: c.modifier, label: says(c) ? "says" : "named", whole: says(c) }, question: `Here are ${ps.length} ${partOf(c.per)?.phrase ?? c.per}${group ? ` in ${title(group)}` : ""}:\n${listed}\n${says(c) ? "Write" : "Name"} one ${one} for each, one per line as "name: ${says(c) ? "what it says" : "its name"}".`, anchor: `1. ${title(ps[0])}:` };
+            return { key, slot: { rows: ps.map((p) => ({ id: p.id, title: title(p) })), mint: true, kind: c.kind, modifier: c.modifier, label: says(c) ? "says" : "named", whole: says(c) }, question: `Here are ${ps.length} ${partOf(c.per)?.phrase ?? c.per}${group ? ` in ${title(group)}` : ""}:\n${listed}\n${says(c) ? "Write" : "Name"} one ${one} for each, one per line as "name: ${says(c) ? "what it says" : "its name"}".${spec.topic ? ` All of it is ${spec.topic}.` : ""}`, anchor: `1. ${title(ps[0])}:` };
           }
         }
         for (const p of parents) {
@@ -654,8 +668,8 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
           const others = have.length ? `, different from: ${have.map(title).join("; ")}` : "";
           const slot = { kind: c.kind, modifier: c.modifier, parent: p?.id ?? spec.siteId ?? null, label: says(c) ? "says" : "named", whole: says(c), list: missing };
           const verb = says(c) ? "Write" : "Name";
-          if (missing === 1) return { key, slot: { ...slot, list: null }, question: `${verb} one more ${phraseOf(c)}${where}${others}.`, anchor: says(c) ? `One more ${phraseOf(c)}${where} says:` : `One more ${phraseOf(c)}${where} is called` };
-          return { key, slot, question: `${verb} ${missing} ${have.length ? "more " : ""}${c.phrase}${where}${others}. One per line, ${says(c) ? "each a short sentence" : "just the name"}.`, anchor: "1." };
+          if (missing === 1) return { key, slot: { ...slot, list: null }, question: scoped(`${verb} one more ${phraseOf(c)}${where}${others}.`), anchor: says(c) ? `One more ${phraseOf(c)}${where} says:` : `One more ${phraseOf(c)}${where} is called` };
+          return { key, slot, question: scoped(`${verb} ${missing} ${have.length ? "more " : ""}${c.phrase}${where}${others}. One per line, ${says(c) ? "each a short sentence" : "just the name"}.`), anchor: "1." };
         }
       }
       // 2. things at this depth missing a detail the request asked each one to
@@ -682,7 +696,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
             // a state ("approved") is asked as yes or no, not as a value
             const state = labels.length === 1 && labels[0].endsWith("ed") && !labels[0].includes(" ");
             const give = state ? `Say whether ${lacking.length > 1 ? "each one" : "it"} is ${labels[0]}, one per line as "name: yes" or "name: no".` : `Give the ${said} of ${lacking.length > 1 ? "each one" : "it"}${numeric ? ` as ${labels.length > 1 ? "numbers" : "a number"}` : ""}, one per line as "name: ${labels.join(", ")}".`;
-            return { key, slot, question: `Here ${lacking.length > 1 ? `are ${lacking.length} ${c.phrase}` : `is a ${phraseOf(c)}`}${parent ? ` in ${title(parent)}` : ""}:\n${listed}\n${give}`, anchor: `1. ${title(lacking[0])}:` };
+            return { key, slot, question: `Here ${lacking.length > 1 ? `are ${lacking.length} ${c.phrase}` : `is a ${phraseOf(c)}`}${parent ? ` in ${title(parent)}` : ""}:\n${listed}\n${numeric || state ? give : scoped(give)}`, anchor: `1. ${title(lacking[0])}:` };
           }
         }
       }

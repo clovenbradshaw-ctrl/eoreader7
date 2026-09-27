@@ -209,7 +209,8 @@ test("the frame: by default an ask carries the task at hand, not the big picture
     if (frame === "task") {
       assert.equal(opened, 0, "a task-framed ask never opens with the whole");
       const post = prompts.find((p) => p.includes("posts in r/"));
-      assert.ok(post && !post.includes("dolphin fans"), `the post ask carries its own path only: ${post}`);
+      assert.ok(post && !post.includes("reddit-style") && !post.includes("We are describing"), `the post ask carries its own path, not the whole: ${post}`);
+      assert.ok(post.includes("for dolphin fans"), "and the request's own constraint on content");
     } else assert.equal(opened, prompts.length, "the whole-framed arm opens every ask with the whole");
   }
 });
@@ -228,6 +229,12 @@ test("a reply is read, not only slotted; what the ear imagines is never on the p
   // on the record, so it is not on the page
   assert.ok(!out.belief.some((t) => t.name === "Ghost Post"), "a stray the ear imagined reached the page");
   assert.ok(!out.artifact.includes("Ghost Post"));
+});
+
+test("the request's own constraint on content is read as its topic", () => {
+  assert.equal(specOf("make a reddit but only for dolphin content", { parse, sentences }).topic, "for dolphin content");
+  assert.equal(spec("page-rung-3").topic, "for dolphin fans");
+  assert.equal(specOf("make a site with three posts", { parse, sentences }).topic, null);
 });
 
 test("the talk path contains no regular expression", () => {
