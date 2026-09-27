@@ -52,6 +52,7 @@ const sha8 = (t) => createHash("sha256").update(String(t)).digest("hex").slice(0
 const sentence = (v) => { const s = String(v).trim(); return [".", "!", "?"].includes(s.at(-1)) ? s : `${s}.`; };
 const ORDER = ["fold", "repair", "floor", "bridge", "rewrite"];
 // a line set on its own starts as a sentence does ("her mother scolds…" cut from a splice)
+const wordIn = (text, word) => { const t = String(text), w = String(word); let i = t.indexOf(w); const isW = (ch) => !!ch && ch.toLowerCase() !== ch.toUpperCase(); while (i >= 0) { if (!isW(t[i - 1]) && !isW(t[i + w.length])) return true; i = t.indexOf(w, i + 1); } return false; };
 const capitalised = (t) => { const s = String(t).trim(); return s ? s[0].toUpperCase() + s.slice(1) : s; };
 
 /**
@@ -102,7 +103,34 @@ export function makeBookEditor({ lf, ask, parse = null, medium, mouth = "mouth",
   function readWith(piece, gd, task, draft = gd.draft) {
     const ctx = { piece, draft, ground: gd.ground, task, parse };
     const r = readPiece(ctx);
-    return [...r.findings, ...houdiniExclusivity("", ctx).map((f) => ({ ...f, editor: "Harry Houdini" }))];
+    return [...r.findings, ...houdiniExclusivity("", ctx).map((f) => ({ ...f, editor: "Harry Houdini" })), ...innerConsistency(piece, gd)];
+  }
+
+  // TOLKIEN (outside the grid, like Houdini and Gebser) — the inner
+  // consistency of a told world: a line that names exactly one person and
+  // states a number of years for them that the record contradicts ("Lily, a
+  // 25-year-old …" when the record says 19) is repaired from the record, the
+  // number replaced and every other byte kept. Only the numeric detail is
+  // taught: which words are a person's job is not something this can read.
+  function innerConsistency(piece, gd) {
+    const ageLabel = castDetails.find((d) => medium.numericDetails?.has(d));
+    if (!ageLabel) return [];
+    const people = gd.outline.cast.map((c) => ({ name: c.name, age: c.props.find((p) => p.label === ageLabel)?.value ?? null })).filter((c) => c.age != null);
+    const out = [];
+    for (const p of piece) for (const pc of p.pieces) {
+      const named = people.filter((c) => wordIn(pc.text, c.name));
+      if (named.length !== 1) continue;
+      const words = pc.text.split(" ");
+      for (let i = 0; i + 1 < words.length; i++) {
+        const w = words[i], digits = [...w.split("-")[0]].filter((ch) => ch >= "0" && ch <= "9").join("");
+        const yearish = w.toLowerCase().includes("-year") || words[i + 1].toLowerCase().startsWith("year");
+        if (!digits || !yearish || digits === String(named[0].age)) continue;
+        const repair = [...words.slice(0, i), w.split(digits).join(String(named[0].age)), ...words.slice(i + 1)].join(" ");
+        out.push({ kind: "contradicts_record", editor: "J. R. R. Tolkien", part: p.id, sentence: pc.text, repair, detail: `says ${named[0].name} is ${digits}; the record says ${named[0].age}`, licenses: "repair" });
+        break;
+      }
+    }
+    return out;
   }
 
   /** The window around part i: its piece and a draft of only those parts. */

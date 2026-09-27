@@ -92,3 +92,21 @@ test("the universe decides the ground: a story with no source is stipulated; a p
   assert.equal(universeOf({ medium: PROSE_MEDIUM, sources: [{ url: "x" }], stipulations: [{ truth: "open" }] }).kind, "hypothetical");
   assert.equal(universeOf({ medium: { kind: "music" } }).knowing, "snip");
 });
+
+test("Tolkien: a line that states a person's age against the record is repaired from the record, every other byte kept", async () => {
+  const N = makeNotes();
+  let notes = outlineNotes();
+  notes = N.hear(notes, { end1: "character#2", label: "age", end2: "17", witness: "talk:m#ask3", because: "outline" });
+  const replies = ["Ana finds a boat on the rocks. Ana drags the boat onto the sand. Ana, a 25-year-old sailor, knew the tide. The tide was out.", "Ana paints the boat red. The paint was cold. Gulls cried. Her hands were cold."];
+  let k = 0;
+  const ask = async (p, { stage }) => (stage.startsWith("body:") ? replies[k++] : "");
+  const lf = makeLongForm({ ask, sentences, medium: PROSE_MEDIUM, mouth: "m", castDetails: ["age", "job"] });
+  const w = await lf.writeBodies({ notes, store: makeTextStore() });
+  const ed = makeBookEditor({ lf, ask, medium: PROSE_MEDIUM, mouth: "m", castDetails: ["age", "job"] });
+  const read = ed.readBook({ notes: w.notes, store: w.store, task: "a story" });
+  assert.ok(read.findings.some((f) => f.kind === "contradicts_record"), JSON.stringify(read.findings.map((f) => f.kind)));
+  const out = await ed.editBook({ notes: w.notes, store: w.store, task: "a story", budget: 0 });
+  const book = lf.seal({ notes: out.notes, store: out.store, request: "t" }).artifact;
+  assert.ok(book.includes("Ana, a 17-year-old sailor, knew the tide."), book);
+  assert.ok(!book.includes("25-year-old"));
+});
