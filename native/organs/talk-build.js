@@ -386,7 +386,8 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     // on a thing not yet on the record (a part the ear heard in a reply, a
     // field the request named) brings that thing's INS with it, from the
     // same witness, ahead of it.
-    const isThing = (id) => typeof id === "string" && id.includes("#") && !id.startsWith("kind:") && !id.includes("|");
+    // a thing on the record is "kind#n" — a snip's address ("prelude.mid@ab12#ticks:0-1920") is not one
+const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") || id.includes("|")) return false; const at = id.lastIndexOf("#"); const n = id.slice(at + 1); return at > 0 && n.length > 0 && [...n].every((ch) => ch >= "0" && ch <= "9") && !id.slice(0, at).includes("@"); };
     const kindOfThing = (id) => reader.things().find((t) => t.id === id)?.kind ?? String(id).split("#")[0];
     const instantiateFirst = (claims) => {
       const done = new Set(N.fold(notes).filter((n) => n.label === "exists").map((n) => n.end1));

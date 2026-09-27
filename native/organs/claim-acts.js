@@ -55,7 +55,8 @@ export const DERIVED_ACTS = Object.freeze({
   revise: { op: "REC", grain: "Figure" },
 });
 
-const isThing = (id) => typeof id === "string" && id.includes("#") && !id.startsWith("kind:") && !id.includes("|");
+// a thing on the record is "kind#n" — a snip's address ("prelude.mid@ab12#ticks:0-1920") is not one
+const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") || id.includes("|")) return false; const at = id.lastIndexOf("#"); const n = id.slice(at + 1); return at > 0 && n.length > 0 && [...n].every((ch) => ch >= "0" && ch <= "9") && !id.slice(0, at).includes("@"); };
 const derivedRule = (note) => {
   const w = (note?.witnesses ?? []).find((x) => String(x).startsWith("derived:"));
   return w ? String(w).slice("derived:".length).split("#")[0] : null;
