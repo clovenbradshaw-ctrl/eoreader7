@@ -46,6 +46,13 @@ function scriptedMouth() {
     const lines = prompt.split("\n");
     const anchor = lines.at(-1);
     const q = lines.at(-3) ?? "";
+    if (anchor.startsWith("1. ") && anchor.endsWith(":")) {
+      // a row per thing: answer the first, then go on "2. Name: value"
+      const first = anchor.slice(3, -1);
+      const rows = lines.filter((l) => l[0] >= "0" && l[0] <= "9" && l.includes(". ")).map((l) => l.slice(l.indexOf(". ") + 2)).filter((x) => x !== first);
+      const value = (k) => (q.includes("number") ? `${i * 10 + k}` : `row ${i}-${k}`);
+      return ` ${value(0)}\n` + rows.map((r, k) => `${k + 2}. ${r}: ${value(k + 1)}`).join("\n");
+    }
     if (anchor === "1." && q.startsWith("Give the")) return Array.from({ length: 8 }, (_, k) => (k ? `${k + 1}. ` : "") + (q.includes("number") ? `${i * 10 + k}` : `note ${i}-${k}`)).join("\n");
     if (anchor === "1.") { const n = Number(q.split(" ")[1]) || 2; return Array.from({ length: n }, (_, k) => (k ? `${k + 1}. ` : "") + (q.startsWith("Write") ? `Lovely sighting ${i}-${k}!` : `Pod watch ${i}-${k}`)).join("\n"); }
     if (anchor.endsWith("says:")) return `What a day ${i}!`;
@@ -124,13 +131,15 @@ test("the reply's framing is not the answer", async () => {
   const replies = [
     "The site is called Pod Chat.",                                    // echoed anchor
     "Sure! Here are three posts:\n1. \"Orca Watch\"\n2. Fin Friday\n3. Pod News",   // preamble, quotes
+    "Orca Watch: 25\nPod News: 7",                                        // the row's name said again, rows out of order
   ];
   let k = 0;
   const ask = async () => replies[k++] ?? "";
-  const tb = makeTalkBuild({ ask, parse, sentences, render: renderBelief, maxAsks: 2 });
-  const out = await tb.build({ what: "make a site with three posts with a title", forWhom: "fans" });
-  const names = out.belief.filter((t) => t.kind === "post").map((t) => t.name);
-  assert.deepEqual(names, ["Orca Watch", "Fin Friday", "Pod News"]);
+  const tb = makeTalkBuild({ ask, parse, sentences, render: renderBelief, maxAsks: 3 });
+  const out = await tb.build({ what: "make a site with three posts with a title and a vote count", forWhom: "fans" });
+  const posts = out.belief.filter((t) => t.kind === "post");
+  assert.deepEqual(posts.map((t) => t.name), ["Orca Watch", "Fin Friday", "Pod News"]);
+  assert.deepEqual(posts.map((t) => t.props.find((p) => p.label === "vote count")?.value ?? null), ["25", null, "7"]);
   assert.equal(out.belief.find((t) => t.kind === "site").name, "Pod Chat");
 });
 

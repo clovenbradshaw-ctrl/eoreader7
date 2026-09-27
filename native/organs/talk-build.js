@@ -32,9 +32,11 @@ import { makeNotes } from "../kernel/notes.js";
 
 export const TALK_BUILD_SCHEMA = "TalkBuild@1";
 /** The most asks one build may spend, set by hand 2026-09-27, not measured:
- *  enough for the ladder's largest rung (six communities × six posts) with
- *  room for re-asks, small enough that a stuck conversation stops. */
-export const MAX_ASKS = 80;
+ *  raised from 80 after the ladder's largest rung (six communities, 36 posts,
+ *  72 comments) stopped at 80 with its comments half asked — the 1.5b mouth
+ *  answers about one row per ask — and small enough that a stuck
+ *  conversation still stops. */
+export const MAX_ASKS = 120;
 /** Nouns a request uses that name the build itself, never a part of it —
  *  set by hand 2026-09-27; a noun here is never asked about as a thing. */
 export const WHOLE_WORDS = Object.freeze(new Set(["site", "page", "website", "app", "application", "reddit", "fan", "fans", "people", "content", "thing", "things", "way", "one", "detail", "details", "count", "number", "title", "name"]));
@@ -202,6 +204,18 @@ function slotValue(reply, whole) {
   while (v && QUOTES.includes(v[v.length - 1])) v = v.slice(0, -1);
   return v.trim();
 }
+// the numbers a line states, in order ("1,234 votes and 12 comments" -> ["1234", "12"])
+function numbersIn(text) {
+  const out = [];
+  for (const w of String(text ?? "").split(" ")) {
+    let x = w.split(",").join("");
+    while (x && !(x.at(-1) >= "0" && x.at(-1) <= "9")) x = x.slice(0, -1);
+    while (x && !(x[0] >= "0" && x[0] <= "9")) x = x.slice(1);
+    const v = x ? numberOf(x) : null;
+    if (v != null && !Number.isNaN(v)) out.push(String(v));
+  }
+  return out;
+}
 // the reply's lines, list markers ("1.", "2)", "-", "*") taken off
 function linesOf(reply) {
   return String(reply ?? "").split("\n").map((l) => {
@@ -229,7 +243,9 @@ export function completeness(spec, belief) {
     const things = belief.filter((t) => isOf(t, c));
     const perParent = new Map();
     for (const t of things) perParent.set(t.parent ?? "top", [...(perParent.get(t.parent ?? "top") ?? []), t]);
-    const kept = [...perParent.values()].flatMap((list) => list.slice(0, c.n));
+    const perPart = c.per ? partOf(c.per) : null;
+    const parentIds = perPart ? new Set(belief.filter((t) => isOf(t, perPart)).map((t) => t.id)) : null;
+    const kept = [...perParent.entries()].filter(([g]) => !parentIds || parentIds.has(g)).flatMap(([, list]) => list.slice(0, c.n));
     const details = c.details.filter((x) => !["title", "name"].includes(x));
     byPart.push({ part: c.phrase, want: wantOf(c), have: Math.min(kept.length, wantOf(c)), detailsWant: wantOf(c) * details.length, detailsHave: kept.reduce((a, t) => a + details.filter((x) => t.props.some((p) => p.label === x)).length, 0) });
   }
@@ -284,13 +300,35 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
           if (slot.label === "named") reader.rename(subject, value);
           claims.push({ end1: subject, label: slot.label, end2: value, sentence: because, witness });
         }
-      } else if (slot?.each) {
-        // one value per line, in the order the things were listed
-        linesOf(reply).slice(0, slot.each.length).forEach((l, i) => {
-          let value = slotValue(l, false);
-          const colon = l.indexOf(":"); if (colon > 0 && colon < l.length - 1) value = slotValue(l.slice(colon + 1), false);
-          if (slot.numeric) value = value.split(" ").map((w) => numberOf(w.split(",").join(""))).filter((v) => v != null && !Number.isNaN(v)).map(String).at(-1) ?? null;
-          if (value) claims.push({ end1: slot.each[i], label: slot.label, end2: value, sentence: `${slot.label}: ${value}`, witness });
+      } else if (slot?.rows) {
+        // one row per thing: "2. Orca Watch: 25". The anchor opened the first
+        // row with its name, so the reply's first line is that row's value;
+        // a line that names its row before a colon (the first one too, when
+        // the mouth says the name again) goes to that row, else by order.
+        const norm = (x) => slotValue(x, false).toLowerCase();
+        linesOf(reply).forEach((l, i) => {
+          let row = i === 0 ? slot.rows[0] : slot.rows[i] ?? null, said = l;
+          const colon = l.indexOf(":");
+          if (colon > 0) { const who = norm(l.slice(0, colon)); const hit = slot.rows.find((r) => norm(r.title) === who); if (hit) { row = hit; said = l.slice(colon + 1); } else if (!row) return; }
+          if (!row || row.done) return;
+          if (slot.labels) {
+            // several numbers on one row, in the order they were asked: "25 votes, 12 comments"
+            const nums = numbersIn(said);
+            if (!nums.length) return;
+            row.done = true;
+            const open = row.lacks ?? slot.labels;
+            nums.slice(0, open.length).forEach((v, k) => claims.push({ end1: row.id, label: open[k], end2: v, sentence: `${row.title}: ${said.trim()}`, witness }));
+            return;
+          }
+          let value = slot.numeric ? numbersIn(said).at(-1) ?? null : slotValue(said, !!slot.whole);
+          if (!value) return;
+          row.done = true;
+          if (slot.mint) {
+            const subject = reader.mint(slot.kind, slot.modifier ?? null).id;
+            claims.push({ end1: subject, label: "exists", end2: slot.kind, sentence: `${row.title}: ${value}`, witness }, { end1: row.id, label: "has", end2: subject, sentence: `${row.title}: ${value}`, witness });
+            if (slot.label === "named") reader.rename(subject, value);
+            claims.push({ end1: subject, label: slot.label, end2: value, sentence: `${row.title}: ${value}`, witness });
+          } else claims.push({ end1: row.id, label: slot.label, end2: value, sentence: `${row.title}: ${slot.label} ${value}`, witness });
         });
       } else if (slot?.labels) {
         // "vote count: 301" per line; the first line answers the anchor's own label
@@ -324,7 +362,8 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       }
       const ops = hear(claims);
       log({ kind: "turn", gap, prompt, reply, claims: show(claims), ops, ms: Date.now() - t0 });
-      return claims.length;
+      // what this turn added: a claim heard again (SYN) is agreement, not progress
+      return ops.filter((o) => o.operator === "INS").length;
     };
 
     // The request is the first talk: what it names is on the record before
@@ -354,7 +393,10 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       // a gap is let go after two asks in a row that heard nothing for it
       if ((tried.get(next.key) ?? 0) >= 2) { log({ kind: "gap_abandoned", gap: next.key, why: "asked twice, nothing heard" }); spec.abandoned = [...(spec.abandoned ?? []), next.key]; continue; }
       const heard = await turn(next.key, `${context}\n${next.question}`, next.anchor, next.slot ?? null);
-      tried.set(next.key, heard ? 0 : (tried.get(next.key) ?? 0) + 1);
+      // a part asked to be described is asked once; any other gap is asked
+      // again while each ask hears something for it
+      tried.set(next.key, heard && !next.once ? 0 : (tried.get(next.key) ?? 0) + 1);
+      if (next.once) spec.abandoned = [...(spec.abandoned ?? []), next.key];
     }
 
     const belief = beliefOf(N.fold(notes), reader.things());
@@ -386,6 +428,22 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       for (const c of level) {
         const perPart = c.per ? partOf(c.per) : null;
         const parents = c.per ? (perPart ? all(perPart) : belief.filter((t) => kindMatches(t, c.per))) : [null];
+        // few missing under each of several parents ("two comments on each
+        // post"): one ask covers every parent in a group, a row each
+        if (c.per && c.n <= 2) {
+          const lacking = parents.filter((p) => all(c).filter((t) => t.parent === p.id).length < c.n && !abandoned.has(`count:${phraseOf(c)}:${p.id}`));
+          const byGroup = new Map();
+          for (const p of lacking) byGroup.set(p.parent ?? "top", [...(byGroup.get(p.parent ?? "top") ?? []), p]);
+          for (const [g, ps] of byGroup) {
+            if (ps.length < 2) continue;
+            const key = `rows:${phraseOf(c)}:${g}`;
+            if (abandoned.has(key)) continue;
+            const group = belief.find((t) => t.id === g);
+            const listed = ps.map((p, i) => `${i + 1}. ${title(p)}`).join("\n");
+            const one = c.phrase.endsWith("s") ? phraseOf(c) : c.phrase;
+            return { key, slot: { rows: ps.map((p) => ({ id: p.id, title: title(p) })), mint: true, kind: c.kind, modifier: c.modifier, label: says(c) ? "says" : "named", whole: says(c) }, question: `Here are ${ps.length} ${partOf(c.per)?.phrase ?? c.per}${group ? ` in ${title(group)}` : ""}:\n${listed}\n${says(c) ? "Write" : "Name"} one ${one} for each, one per line as "name: ${says(c) ? "what it says" : "its name"}".`, anchor: `1. ${title(ps[0])}:` };
+          }
+        }
         for (const p of parents) {
           const have = all(c).filter((t) => (p ? t.parent === p.id : true));
           const key = `count:${phraseOf(c)}:${p ? p.id : "top"}`;
@@ -400,24 +458,27 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         }
       }
       // 2. things at this depth missing a detail the request asked each one to
-      //    show: one ask per detail per group of siblings, answered one line each
+      //    show: one ask per group of siblings, a row each; the numbers a
+      //    thing shows ("a vote count and a comment count") on one row
       for (const c of level) {
         const wanted = c.details.filter((x) => !["title", "name"].includes(x));
+        const isNumeric = (x) => x.split(" ").includes("count") || x === "karma";
+        const perPart = c.per ? partOf(c.per) : null;
+        const parentIds = perPart ? new Set(all(perPart).map((t) => t.id)) : null;
         const groups = new Map();
-        for (const t of all(c)) { const g = t.parent ?? "top"; if (!groups.has(g)) groups.set(g, []); groups.get(g).push(t); }
-        for (const x of wanted) {
-          const numeric = x.split(" ").includes("count") || x === "karma";
+        for (const t of all(c)) { const g = t.parent ?? "top"; if (parentIds && !parentIds.has(g)) continue; if (!groups.has(g)) groups.set(g, []); groups.get(g).push(t); }
+        const asks = [...(wanted.filter(isNumeric).length ? [wanted.filter(isNumeric)] : []), ...wanted.filter((x) => !isNumeric(x)).map((x) => [x])];
+        for (const labels of asks) {
+          const numeric = isNumeric(labels[0]);
+          const said = labels.join(" and ");
           for (const [g, sibs] of groups) {
-            const key = `detail:${phraseOf(c)}:${g}:${x}`;
-            const lacking = sibs.filter((t) => !t.props.some((p) => p.label === x));
+            const key = `detail:${phraseOf(c)}:${g}:${said}`;
+            const lacking = sibs.filter((t) => labels.some((x) => !t.props.some((p) => p.label === x)));
             if (!lacking.length || abandoned.has(key)) continue;
             const parent = belief.find((t) => t.id === g);
-            if (lacking.length === 1) {
-              const t = lacking[0];
-              return { key, slot: { subject: t.id, labels: [x], numeric: numeric ? [x] : [] }, question: `${title(t)} is a ${phraseOf(c)}${parent ? ` in ${title(parent)}` : ""}. Give its ${x}${numeric ? " as a number" : ""}.`, anchor: `The ${x} of ${title(t)} is` };
-            }
             const listed = lacking.map((t, i) => `${i + 1}. ${title(t)}`).join("\n");
-            return { key, slot: { each: lacking.map((t) => t.id), label: x, numeric }, question: `Here are ${lacking.length} ${c.phrase}${parent ? ` in ${title(parent)}` : ""}:\n${listed}\nGive the ${x} of each one${numeric ? " as a number" : ""}, one per line, in the same order.`, anchor: "1." };
+            const slot = { rows: lacking.map((t) => ({ id: t.id, title: title(t), lacks: labels.filter((x) => !t.props.some((p) => p.label === x)) })), label: labels[0], numeric, ...(labels.length > 1 ? { labels } : {}) };
+            return { key, slot, question: `Here ${lacking.length > 1 ? `are ${lacking.length} ${c.phrase}` : `is a ${phraseOf(c)}`}${parent ? ` in ${title(parent)}` : ""}:\n${listed}\nGive the ${said} of ${lacking.length > 1 ? "each one" : "it"}${numeric ? ` as ${labels.length > 1 ? "numbers" : "a number"}` : ""}, one per line as "name: ${labels.join(", ")}".`, anchor: `1. ${title(lacking[0])}:` };
           }
         }
       }
@@ -427,7 +488,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         if (abandoned.has(key)) continue;
         const t = belief.find((x) => kindMatches(x, p.kind) && (!p.modifier || x.modifier === p.modifier));
         if (t && (t.children.length || t.props.some((q) => q.label !== "for"))) continue;
-        return { key, question: `Describe the ${p.phrase}${p.purpose ? ` (${p.purpose})` : ""}: what ${p.plural ? "they show" : "it shows"}, in one or two short sentences.`, anchor: `The ${p.phrase} ${p.plural ? "show" : "shows"}` };
+        return { key, once: true, question: `Describe the ${p.phrase}${p.purpose ? ` (${p.purpose})` : ""}: what ${p.plural ? "they show" : "it shows"}, in one or two short sentences.`, anchor: `The ${p.phrase} ${p.plural ? "show" : "shows"}` };
       }
     }
     return null;
