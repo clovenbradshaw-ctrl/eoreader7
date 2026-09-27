@@ -90,7 +90,14 @@ file resolution (two).
    corrections as conclusions with premises; negation; near-duplicates.
    **Still open from that batch:** Wikipedia provenance at runtime — URL,
    revision and CC BY-SA carried on each `source:` witness.
-2. **The element map, the uncovered check, verify and seal.** The renderer
+2. **Done 2026-09-27 (be71015)** — the element map, the uncovered check
+   (organs/provenance-cover.js, Ostrom), verify and seal: all five ladder
+   rungs fully accounted for (23–795 elements) and sealed on a scripted
+   mouth; leaked text, smuggled engine words and withdrawn notes caught.
+   Still open here: the proxy returning the notes and the map to the caller
+   (today it reports the seal and the counts); CSS elements are covered by
+   the snip's own byte check, not by this map. Was:
+   **The element map, the uncovered check, verify and seal.** The renderer
    returns `{ artifact, map }`: every leaf maps to a note id in the fold or
    an `engine:<catalog-key>`; `uncovered(artifact, map, fold) = []`; a real
    `verify` (so a failure can demote a route); `sealArtifact` as the last
@@ -127,6 +134,7 @@ file resolution (two).
 | 2026-09-27 | talk path holds as the ladder grows (1.5b) | bare model, same checker, rungs 1–5 | talk 37/37; bare 22/37 (1.5b), 30/37 (3b); posts shown at rung 5: talk 38, bare 4 / 3 |
 | 2026-09-27 | task-only asks beat whole-picture asks | same ladder, 1.5b | first run (without the topic sentence): rung 5 160/213 vs 207/213 — **task-only lost**; topic fix added; same-code rerun queued |
 | 2026-09-27 | correction (Ostrom): "15 of 17 elements" in commit 0f1290a is wrong — the renderer emits 19; new.css reaches 15/19 (misses main, span, i, label) | recount against RENDERED_ELEMENTS | 15/19 |
+| 2026-09-27 | every element on a page is accounted for | the artifact read in its own terms against the map; a leaky renderer, a smuggled engine word, a note not on the record | 5/5 rungs covered and sealed (scripted mouth); all three controls caught; an always-ok checker fails the tests |
 | 2026-09-27 | the stylesheet is snipped, not written | every CSS byte after the provenance comment equals the source's bytes at its ranges; a copyleft candidate that reaches more is refused | tests pass; license gate off fails the test |
 
 ## Archon checkpoints
