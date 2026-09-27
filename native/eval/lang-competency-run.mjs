@@ -27,6 +27,7 @@ import { TASKS, CALL_LANGUAGES, scoreDraw, nullControl, appendRow, readRows, com
 import { canonLanguage, toolchainAvailable, toolchainVersion } from "../organs/lang-validators.js";
 import { extractOrFallback, definesName, nameDiagnostic, pickBest, RepairLedger } from "../organs/lang-levers.js";
 import { VISIBLE } from "../organs/lang-competency.js";
+import { failureSignature, splitOf } from "../organs/coding-policy.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const LEDGER = join(here, "..", "..", "state", "lang-competency.jsonl");
@@ -43,6 +44,10 @@ const onlyTasks = arg("tasks", "").split(",").filter(Boolean);
 const rep = arg("rep", "0"); // replicate id, mixed into every seed: temperature-0.8 arms give independent evidence per rep
 const bokTemp = Number(arg("boktemp", "0.8"));
 const timeoutMs = Number(arg("timeout", "240000"));
+// Set by the coding-policy learner (eval/coding-policy-learn.mjs) so each row
+// can be attributed to the trial and the policy version that produced it.
+const trialId = arg("trial-id", null);
+const policyVer = arg("policy-version", null);
 
 const NAME = { javascript: "JavaScript", typescript: "TypeScript", python: "Python", ruby: "Ruby" };
 
@@ -161,7 +166,9 @@ for (const model of models) {
       if (err) { console.log(`${model} ${lang} ${arm} ${task.id}: draw failed (${err}) — not recorded`); continue; }
       if (r.sc.unchecked) continue;
       const heldOut = heldOutPass(task, r.sc);
-      appendRow(LEDGER, { config: `${arm}-v5`, arm, toolchain: await toolchainVersion(lang), taskSet: TASKS.length, spec: specHash(task), language: lang, model, task: task.id, floorOk: r.sc.floorOk, callOk: r.sc.callOk, heldOut, rounds: r.rounds, rep, regressions: r.regressions, bokDisagreement: r.bokDisagreement, source: String(r.source ?? "").slice(0, 4000) });
+      appendRow(LEDGER, { config: `${arm}-v5`, arm, toolchain: await toolchainVersion(lang), taskSet: TASKS.length, spec: specHash(task), language: lang, model, task: task.id, floorOk: r.sc.floorOk, callOk: r.sc.callOk, heldOut, rounds: r.rounds, rep, regressions: r.regressions, bokDisagreement: r.bokDisagreement,
+        k: arm === "bok" ? K : undefined, temperature: ["bok", "samp1"].includes(arm) ? bokTemp : 0.2, split: splitOf(specHash(task)), signature: failureSignature({ source: r.source, score: r.sc, visible: VISIBLE }),
+        trialId: trialId ?? undefined, policyVersion: policyVer ?? undefined, source: String(r.source ?? "").slice(0, 4000) });
       console.log(`${model} ${lang} ${arm} ${task.id}: heldOut=${heldOut} rounds=${r.rounds}`);
     }
   }

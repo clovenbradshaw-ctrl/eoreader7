@@ -16,6 +16,7 @@ process.env.ER7_DERIVED_RULES_FILE = path.join(_scratch, "derived-rules.json");
 process.env.ER7_TRIALS_FILE = path.join(_scratch, "trials.json");
 process.env.ER7_SETTINGS_FILE = path.join(_scratch, "settings.json"); // never the live proxy's persisted settings (smallMouth, reconcileDaemons, ...)
 process.env.ER7_HEIMDALL_LOG_FILE = path.join(_scratch, "heimdall-log.jsonl"); // never the live record
+process.env.ER7_CODING_TRIAL_ACTIVE = path.join(_scratch, "coding-trial-active.json"); // never the live learner's interlock
 const h = await import("../heimdall.mjs");
 
 // ── the one address ──────────────────────────────────────────────────────
@@ -235,6 +236,24 @@ test("trial: a saturated rule moves familyCap one step on trial; a window that d
   assert.equal(h.derivedRuleStore().find((r) => r.key === `saturated:${probe2}`).standing, "held");
   assert.ok(held.p <= 0.05);
   h.concedeDerivedRule(`saturated:${probe2}`, { reason: "test cleanup" });
+  h._resetTrialsForTest();
+});
+test("trial: heimdall starts no trial while a coding-policy trial is open, and starts again once it closes", () => {
+  h._resetTrialsForTest();
+  const now = Date.parse("2026-09-22T03:00:00Z");
+  const W = 30 * 60_000;
+  const apply = () => ({ ok: true });
+  const probe = `interlock-model-${process.pid}`;
+  const before = [];
+  for (let i = 0; i < 30; i++) before.push(JSON.stringify({ at: new Date(now - W + i * 60_000).toISOString(), act: "eva", finding: "saturated", model: probe }));
+  const rule = h.deriveRule({ class: "saturated", probe, count: 30, first: now - W, last: now, model: probe });
+  h.adoptDerivedRule(rule);
+  fs.writeFileSync(process.env.ER7_CODING_TRIAL_ACTIVE, JSON.stringify({ trialId: "coding-t1", lever: "k" }));
+  assert.equal(h.codingTrialOpen(), true);
+  assert.equal(h.startTrialFor(rule, { lines: before, now, apply }), null, "a coding trial holds the box");
+  fs.unlinkSync(process.env.ER7_CODING_TRIAL_ACTIVE);
+  assert.ok(h.startTrialFor(rule, { lines: before, now, apply }), "the box is free again");
+  h.concedeDerivedRule(`saturated:${probe}`, { reason: "test cleanup" });
   h._resetTrialsForTest();
 });
 test("trial: a rule without a lever is written, not tried", () => {
