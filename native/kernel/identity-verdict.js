@@ -10,10 +10,18 @@
 //           on the two referents match, their counterfactual consequences
 //           align, their trajectories cross-predict (bound; contested
 //           carries a for as well)
-//   AGAINST identity-induction.js when it MEASURES a difference, and
-//           identity-exclusion.js when a GIVEN one-valued relation conflicts
-//           on witnessed assertions (contradicted). A candidate conflict, an
-//           unwitnessed conflict or "no conflict found" is NOT against.
+//   AGAINST identity-exclusion.js alone, when a GIVEN one-valued relation
+//           conflicts on witnessed assertions (contradicted). A candidate
+//           conflict, an unwitnessed conflict or "no conflict found" is NOT
+//           against.
+//   RAISED  identity-induction.js when it measures a DIFFERENCE. Amended
+//           2026-09-27: on the Russian first version of War and Peace it
+//           called 5 of 13 case forms of ONE name "different" (Наташа/Наташу,
+//           Пьер/Пьеру, Кутузов/Кутузова, Андрей/Андрея...). A case form sits
+//           in the roles its case marks, so its surroundings differ by ROLE,
+//           not by referent: a difference of USE (Wittgenstein, PI §43), never
+//           a proof of a different thing. It is disclosed as a raised attack
+//           and convicts nothing; only a declared constraint does.
 //
 // The verdict is hl.js's own table (verdictOfSupport) — one lattice, never a
 // second one here. beyond-reach absorbs only when neither side could ask.
@@ -28,15 +36,15 @@ export function identityVerdict(induction, exclusion, { giver = null } = {}) {
   if (!induction || !exclusion) throw new TypeError("identity-verdict: both the induction and the exclusion readings are required");
   if (induction.a !== exclusion.a || induction.b !== exclusion.b) throw new TypeError("identity-verdict: the two readings are about different pairs");
   const forS = induction.verdict === BOUND || induction.verdict === CONTESTED;
-  const againstS = induction.verdict === CONTRADICTED || induction.verdict === CONTESTED || exclusion.verdict === CONTRADICTED;
+  const againstS = exclusion.verdict === CONTRADICTED;
+  const raised = induction.verdict === CONTRADICTED || induction.verdict === CONTESTED ? [`induction:${induction.reason}`] : [];
   const verdict = induction.verdict === BEYOND_REACH && exclusion.verdict === BEYOND_REACH ? BEYOND_REACH : verdictOfSupport(forS, againstS);
   const supportRefs = forS ? [`induction:${induction.a}~${induction.b}@${induction.reason ?? "pattern"}`] : [];
   const attackRefs = [
     ...(exclusion.verdict === CONTRADICTED ? (exclusion.proof ?? []).flatMap((p) => [p.a?.id, p.b?.id].filter(Boolean)) : []),
-    ...(induction.verdict === CONTRADICTED || induction.verdict === CONTESTED ? [`induction:${induction.reason}`] : []),
   ];
   const hypothesis = verdict === BOUND || verdict === CONTESTED
     ? identityAlternative({ left: String(induction.a), right: String(induction.b), standing: verdict === BOUND ? "live_hypothesis" : "contested_hypothesis", supportRefs, attackRefs, giver })
     : null;
-  return Object.freeze({ a: induction.a, b: induction.b, verdict, for: forS, against: againstS, induction: { verdict: induction.verdict, reason: induction.reason ?? null }, exclusion: { verdict: exclusion.verdict, reason: exclusion.reason ?? null, raised: (exclusion.raised ?? []).length }, hypothesis });
+  return Object.freeze({ a: induction.a, b: induction.b, verdict, for: forS, against: againstS, induction: { verdict: induction.verdict, reason: induction.reason ?? null }, exclusion: { verdict: exclusion.verdict, reason: exclusion.reason ?? null, raised: (exclusion.raised ?? []).length }, raised, hypothesis });
 }

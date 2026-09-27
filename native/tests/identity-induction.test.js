@@ -196,3 +196,15 @@ test("identity-verdict composes FOR and AGAINST through hl.js's one table", () =
   assert.deepEqual(identityVerdict(ind(BOUND), ex(CONTRADICTED, proof)).hypothesis.attackRefs, ["x#1", "y#1"]);
   assert.equal(identityVerdict(ind(UNBOUND), ex(UNBOUND)).hypothesis, null);
 });
+
+test("a measured difference of USE never convicts: induction's 'different' is raised, not against", () => {
+  // Наташа/Наташу: one woman, two case forms, surroundings that differ by role
+  const ind = { a: "Наташа", b: "Наташу", verdict: CONTRADICTED, reason: "consequence_not_aligned" };
+  const r = identityVerdict(ind, { a: "Наташа", b: "Наташу", verdict: UNBOUND, proof: [] });
+  assert.equal(r.verdict, UNBOUND, "a difference of use is not a different thing");
+  assert.deepEqual(r.raised, ["induction:consequence_not_aligned"]);
+  assert.equal(r.against, false);
+  // only a declared, witnessed conflict convicts
+  const proved = identityVerdict(ind, { a: "Наташа", b: "Наташу", verdict: CONTRADICTED, proof: [{ a: { id: "n#1" }, b: { id: "n#2" } }] });
+  assert.equal(proved.verdict, CONTRADICTED);
+});
