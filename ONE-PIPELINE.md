@@ -129,7 +129,11 @@ file resolution (two).
    as the renderer, `parseMidi` read-back as the validator. Control: the
    core diff is empty; the real prior beats the shuffled prior; a copyleft
    fixture is refused; a note missing from the sidecar fails.
-5. **One mouth.** The code loop's per-round turn becomes a draw-only mouth;
+5. **Mostly done 2026-09-27** — the code and agent loops' per-round turns
+   are draw-only (no enrichment, no prose typing of patches); /v1/code runs
+   in a turn scope and discloses the served mouth. Still open: `/v1/build`
+   (organs/code-build.js) still calls the model directly, past admission
+   and the shared mouth. Was: **One mouth.** The code loop's per-round turn becomes a draw-only mouth;
    `/v1/build` moves onto the shared mouth and admission. Control: a
    substitute mouth is always disclosed; no enrichment call per round.
 6. **Done 2026-09-27 (see git log: "Chat reaches the code API")** — a
