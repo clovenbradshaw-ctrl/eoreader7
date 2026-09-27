@@ -95,10 +95,73 @@ export function buildReferents(ground) {
     const cls = n && !n.includes(" ") ? dominantClass(n) : null;
     if (n && !n.includes(" ") && (cls === null || cls === "NOUN" || cls === "PROPN")) oneWord.set(sing(n), canon.get(id) ?? id);
   }
+  // "THE <HEAD NOUN>": a definite, generic reference to a MULTI-word name's
+  // own last word ("the river" for "Cumberland River") — the same insight
+  // arrange.js's anchorEchoed already uses for Clark's restatement check,
+  // extended here to this module's own, more fundamental resolution, which
+  // every carries()/coverage() check in the pipeline depends on (measured
+  // live 2026-09-26: a real, faithful mouth sentence — "...locks and dams
+  // along the river..." — failed to carry its own statement's Cumberland
+  // River anchor for exactly this reason). Measured, never hand-set: this
+  // file's own real fixture (cumberland-ground.md) names THREE referents
+  // ending in "river" (Cumberland River, Ohio River, Shawnee River), so
+  // "the river" resolves only to whichever one is a real, COUNTED MAJORITY
+  // of that tail word's own mentions in THIS ground — never picked by any
+  // rule beyond that count. A genuine tie, or no clear majority, resolves
+  // nothing: "conservative, never a wrong binding" (this file's own rule).
+  const tailGroups = new Map();
+  for (const id of idx.referents) {
+    const n = norm(idx.represent(id));
+    if (!n.includes(" ")) continue;
+    const words = n.split(" ");
+    const tail = sing(words[words.length - 1]);
+    // Only a real naming tail (river, museum…) — never a name's own second
+    // proper word. Matches oneWord's own adjacent convention exactly (a word
+    // like "river" is classed PROPN as often as NOUN, since it usually
+    // appears inside a capitalized multi-word name — measured directly this
+    // turn: dominantClass("river") === "PROPN").
+    const cls = dominantClass(tail);
+    if (cls !== null && cls !== "NOUN" && cls !== "PROPN") continue;
+    const canonId = canon.get(id) ?? id;
+    if (!tailGroups.has(tail)) tailGroups.set(tail, []);
+    tailGroups.get(tail).push(canonId);
+  }
+  // Count each canonical referent's real occurrences across the WHOLE
+  // ground, once — the identical name-run/resolveName matching resolveText
+  // already does per call below, tallied here instead of deduped into a set.
+  const counts = new Map();
+  for (const run of nameRuns(stripPossessive(String(ground ?? "")))) {
+    for (let i = 0; i < run.length; i++) {
+      if (!norm(run.slice(i).join(" "))) continue;
+      const ids = resolveName(run.slice(i).join(" "));
+      if (ids.size) { for (const id of ids) counts.set(id, (counts.get(id) ?? 0) + 1); break; }
+    }
+  }
+  const theHeadNoun = new Map();
+  for (const [tail, ids] of tailGroups) {
+    const unique = [...new Set(ids)];
+    if (unique.length === 1) { theHeadNoun.set(tail, unique[0]); continue; }
+    const scored = unique.map((id) => ({ id, n: counts.get(id) ?? 0 })).sort((a, b) => b.n - a.n);
+    const total = scored.reduce((s, x) => s + x.n, 0);
+    if (scored[0].n > 0 && scored[0].n * 2 > total) theHeadNoun.set(tail, scored[0].id);
+  }
   const resolveText = (text) => {
     const out = new Set();
-    for (const tok of stripPossessive(String(text ?? "")).toLowerCase().split(/[^\p{L}\p{N}]+/u)) {
+    const stripped = stripPossessive(String(text ?? ""));
+    const lower = stripped.toLowerCase();
+    for (const tok of lower.split(/[^\p{L}\p{N}]+/u)) {
       const id = tok ? oneWord.get(sing(tok)) : null;
+      if (id) out.add(id);
+    }
+    // Matched against the ORIGINAL casing, never the lowercased copy: a
+    // genuinely generic reference ("the river") is always naturally
+    // lowercase in real prose; a capitalized word here is a proper name's
+    // own first word ("the Cumberland" inside "the Cumberland River"), never
+    // this pattern's business — measured live this turn: lowercasing first
+    // made "the Cumberland River" spuriously match "the Cumberland" and
+    // resolve an unrelated single-candidate tail (Lake Cumberland).
+    for (const m of stripped.matchAll(/\bthe\s+([a-z]+)\b/g)) {
+      const id = theHeadNoun.get(sing(m[1]));
       if (id) out.add(id);
     }
     for (const run of nameRuns(stripPossessive(text))) {
