@@ -129,7 +129,8 @@ export function specOf(request, { parse, sentences, wholeWords = new Set() }) {
       const modifier = run.slice(0, headAt).map(lowerOf).filter((m) => !UNMARKED.has(m)).join(" ") || null;
       const phrase = run.slice(0, headAt + 1).map(lowerOf).join(" ");
       i = start + headAt;
-      if (lowerOf(toks[i + 1]) === "of") { i++; continue; }        // "a section of …" frames what follows
+      // "a section of …" frames what follows — unless a count opens it ("two phrases of four bars")
+      if (lowerOf(toks[i + 1]) === "of" && !(numeral && n > 1)) { i++; continue; }
       const many = numeral && n > 1;
       if (mode === "with" && !many && owner) {
         owner.details.push(phrase);
@@ -193,9 +194,10 @@ export function specOf(request, { parse, sentences, wholeWords = new Set() }) {
     const w = lowerOf(toks[i]);
     if (w !== "for" && w !== "about") continue;
     const run = [];
-    for (let j = i + 1; j < toks.length && (toks[j].upos === "NOUN" || toks[j].upos === "ADJ" || toks[j].upos === "PROPN"); j++) run.push(toks[j].form);
+    for (let j = i + 1; j < toks.length && (toks[j].upos === "NOUN" || toks[j].upos === "ADJ" || toks[j].upos === "PROPN" || ((toks[j].upos === "PRON" || toks[j].upos === "DET") && j === i + 1)); j++) run.push(toks[j].form);
     if (run.length) { topic = `${w} ${run.join(" ")}`; break; }
   }
+  while (words.length && toks.some((t) => t.form === words.at(-1) && t.upos === "ADP")) words.pop();   // "a lullaby in" -> "a lullaby"
   return { counted, named, whole: words.join(" ") || null, topic };
 }
 
@@ -516,7 +518,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     // is asked once per part, near the top — "what does each post show?" —
     // and the answer's lines become that part's details. A request that names
     // any detail itself is never second-guessed.
-    if (!spec.counted.some((c) => c.details.length)) {
+    if (medium.askWhatPartsShow !== false && !spec.counted.some((c) => c.details.length)) {
       const partOf = (kind) => spec.counted.find((c) => c.kind === kind);
       const depth = (c, seen = new Set()) => (!c.per || seen.has(c) ? 0 : (seen.add(c), 1 + depth(partOf(c.per) ?? {}, seen)));
       // REASONED FIRST, ASKED ONLY WHERE THE SOURCE IS SILENT. What a reddit
@@ -618,6 +620,29 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       const belief = beliefOf(N.fold(notes), reader.things());
       const next = nextGap(belief, spec, tried);
       if (!next) break;
+      // SOURCED BEFORE ASKED: a medium that can take a part from a licensed
+      // source itself (a bar snipped from a score, a rule from a document)
+      // does, and the mouth is not asked for it. What it takes is heard with
+      // the medium's source witness and the span it was cut from.
+      if (medium.sourcePart && (next.part || next.parts)) {
+        let sourced = 0;
+        for (const pt of next.parts ?? [next.part]) {
+          const parent = belief.find((t) => t.id === pt.parentId) ?? null;
+          const grand = parent?.parent ? belief.find((t) => t.id === parent.parent) : null;
+          const parentOrdinal = grand ? grand.children.indexOf(parent.id) : 0;
+          for (let k = 0; k < pt.missing; k++) {
+            const got = await medium.sourcePart({ kind: pt.c.kind, modifier: pt.c.modifier ?? null, parentId: pt.parentId, parentOrdinal, index: pt.have + k, perParent: pt.c.n, spec });
+            if (!got) break;
+            const id = reader.mint(pt.c.kind, pt.c.modifier ?? null).id;
+            const claims = [{ end1: id, label: "exists", end2: pt.c.kind }, ...(pt.parentId ? [{ end1: pt.parentId, label: "has", end2: id }] : []), ...(got.name ? [{ end1: id, label: "named", end2: got.name }] : []), ...(got.claims ?? []).map((c) => ({ end1: id, ...c }))];
+            for (const c of claims) notes = N.hear(notes, { end1: c.end1, label: c.label, end2: c.end2, witness: got.witness, because: got.because ?? "" });
+            if (got.name) reader.rename(id, got.name);
+            sourced++;
+          }
+        }
+        log({ kind: "sourced", gap: next.key, sourced });
+        if (sourced) continue;
+      }
       // a gap is let go after two asks in a row that heard nothing for it
       if ((tried.get(next.key) ?? 0) >= 2) { log({ kind: "gap_abandoned", gap: next.key, why: "asked twice, nothing heard" }); spec.abandoned = [...(spec.abandoned ?? []), next.key]; continue; }
       const heard = await turn(next.key, framed(next.question), next.anchor, next.slot ?? null);
@@ -639,7 +664,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     const artifact = typeof rendered === "string" ? rendered : rendered.artifact;
     const map = typeof rendered === "string" ? null : rendered.map;
     const fold = N.fold(notes);
-    const cover = map ? uncovered({ artifact, map, fold, engineWords: rendered.engineWords ?? {} }) : { ok: false, uncovered: [], unresolved: [{ text: "", why: ["the renderer returned no map"] }], covered: 0 };
+    const cover = map ? uncovered({ artifact, map, fold, engineWords: rendered.engineWords ?? {}, ...(medium.leaves ? { leaves: medium.leaves } : {}) }) : { ok: false, uncovered: [], unresolved: [{ text: "", why: ["the renderer returned no map"] }], covered: 0 };
     log({ kind: "provenance", ok: cover.ok, covered: cover.covered, uncovered: cover.uncovered.slice(0, 12).map((l) => `${l.where}: ${l.text}`), unresolved: cover.unresolved.slice(0, 12).map((u) => `${u.text}: ${u.why.join("; ")}`) });
     const verdict = await verify(medium.kind, artifact);
     // sealed only when the medium's own check and the provenance check both hold
@@ -651,7 +676,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         material: { source: `request:${what}`, hash: createHash("sha256").update(JSON.stringify({ what, more: request.more ?? [], forWhom: request.forWhom ?? null })).digest("hex"), extent: fold.length, unit: "notes" },
         regime: { frame, maxAsks, reasonCycles: REASON_CYCLES, mouth, medium: medium.kind, style: rendered?.style ?? null },
         dropped: ["the mouth's raw replies (kept in the log and the ledger's because, not in the artifact)"],
-        body: { html: artifact, map },
+        body: { artifact: typeof artifact === "string" ? artifact : Buffer.from(artifact).toString("base64"), encoding: typeof artifact === "string" ? "text" : "base64", map },
         sealedAtSequence: notes.entries.length,
         conformance: { passed: verdict.ok === true && cover.ok, checks: [...(verdict.checks ?? []), `provenance: ${cover.covered} elements accounted for, ${cover.uncovered.length} uncovered, ${cover.unresolved.length} unresolved`] },
       });
@@ -700,7 +725,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
             const group = belief.find((t) => t.id === g);
             const listed = ps.map((p, i) => `${i + 1}. ${title(p)}`).join("\n");
             const one = c.phrase.endsWith("s") ? phraseOf(c) : c.phrase;
-            return { key, slot: { rows: ps.map((p) => ({ id: p.id, title: title(p) })), mint: true, kind: c.kind, modifier: c.modifier, label: says(c) ? "says" : "named", whole: says(c) }, question: `Here are ${ps.length} ${partOf(c.per)?.phrase ?? c.per}${group ? ` in ${title(group)}` : ""}:\n${listed}\n${says(c) ? "Write" : "Name"} one ${one} for each, one per line as "name: ${says(c) ? "what it says" : "its name"}".${spec.topic ? ` All of it is ${spec.topic}.` : ""}`, anchor: `1. ${title(ps[0])}:` };
+            return { key, parts: ps.map((p) => ({ c, parentId: p.id, have: all(c).filter((t) => t.parent === p.id).length, missing: c.n - all(c).filter((t) => t.parent === p.id).length })), slot: { rows: ps.map((p) => ({ id: p.id, title: title(p) })), mint: true, kind: c.kind, modifier: c.modifier, label: says(c) ? "says" : "named", whole: says(c) }, question: `Here are ${ps.length} ${partOf(c.per)?.phrase ?? c.per}${group ? ` in ${title(group)}` : ""}:\n${listed}\n${says(c) ? "Write" : "Name"} one ${one} for each, one per line as "name: ${says(c) ? "what it says" : "its name"}".${spec.topic ? ` All of it is ${spec.topic}.` : ""}`, anchor: `1. ${title(ps[0])}:` };
           }
         }
         for (const p of parents) {
@@ -712,8 +737,9 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
           const others = have.length ? `, different from: ${have.map(title).join("; ")}` : "";
           const slot = { kind: c.kind, modifier: c.modifier, parent: p?.id ?? spec.wholeId ?? null, label: says(c) ? "says" : "named", whole: says(c), list: missing };
           const verb = says(c) ? "Write" : "Name";
-          if (missing === 1) return { key, slot: { ...slot, list: null }, question: scoped(`${verb} one more ${phraseOf(c)}${where}${others}.`), anchor: says(c) ? `One more ${phraseOf(c)}${where} says:` : `One more ${phraseOf(c)}${where} is called` };
-          return { key, slot, question: scoped(`${verb} ${missing} ${have.length ? "more " : ""}${c.phrase}${where}${others}. One per line, ${says(c) ? "each a short sentence" : "just the name"}.`), anchor: "1." };
+          const part = { c, parentId: p?.id ?? spec.wholeId ?? null, have: have.length, missing };
+          if (missing === 1) return { key, part, slot: { ...slot, list: null }, question: scoped(`${verb} one more ${phraseOf(c)}${where}${others}.`), anchor: says(c) ? `One more ${phraseOf(c)}${where} says:` : `One more ${phraseOf(c)}${where} is called` };
+          return { key, part, slot, question: scoped(`${verb} ${missing} ${have.length ? "more " : ""}${c.phrase}${where}${others}. One per line, ${says(c) ? "each a short sentence" : "just the name"}.`), anchor: "1." };
         }
       }
       // 2. things at this depth missing a detail the request asked each one to

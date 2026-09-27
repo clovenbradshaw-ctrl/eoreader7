@@ -30,34 +30,12 @@
 
 export const PART_SOURCE_SCHEMA = "PartSource@1";
 
-/** The permissive licenses a snip may be taken under, set by hand
- *  2026-09-27 from the OSI's permissive family (no copyleft: a snip must not
- *  bind the page it lands in). */
-export const PERMISSIVE = Object.freeze(new Set(["MIT", "ISC", "BSD-2-Clause", "BSD-3-Clause", "Apache-2.0", "0BSD", "CC0-1.0", "Unlicense"]));
+import { PERMISSIVE, NOTICE_REQUIRED, readLicense } from "./license-table.js";
+export { PERMISSIVE, NOTICE_REQUIRED, readLicense };
 /** What each need searches for, set by hand 2026-09-27: a stylesheet for a
  *  page of plain elements is what the registry calls "classless css". */
 export const NEED_QUERIES = Object.freeze({ stylesheet: ["classless css"] });
 const ALWAYS = new Set([":root", "html", "body", "*"]);
-/** Licenses under which the notice must travel with every copy (the rest of
- *  PERMISSIVE ask for nothing), set by hand 2026-09-27 from their texts. */
-export const NOTICE_REQUIRED = Object.freeze(new Set(["MIT", "ISC", "BSD-2-Clause", "BSD-3-Clause", "Apache-2.0"]));
-const canon = (id) => [...PERMISSIVE].find((p) => p.toLowerCase() === String(id ?? "").trim().toLowerCase()) ?? null;
-/** The license a registry states, read as SPDX: "MIT", { type: "MIT" },
- *  "(MIT OR Apache-2.0)" (one of them may be chosen), "MIT AND ISC" (all
- *  bind). -> { ok, chosen, all } — ok when a permissive reading exists. */
-export function readLicense(stated) {
-  let s = typeof stated === "object" && stated ? String(stated.type ?? "") : String(stated ?? "");
-  s = s.split("(").join(" ").split(")").join(" ").trim();
-  if (!s) return { ok: false, chosen: null, all: [] };
-  const ors = s.split(" OR ").flatMap((x) => x.split(" or "));
-  for (const alt of ors) {
-    const ands = alt.split(" AND ").flatMap((x) => x.split(" and ")).map((x) => x.trim()).filter(Boolean);
-    const ids = ands.map(canon);
-    if (ids.length && ids.every(Boolean)) return { ok: true, chosen: ids.join(" AND "), all: ids };
-  }
-  return { ok: false, chosen: null, all: [] };
-}
-
 /** Top-level CSS blocks with their byte ranges: [{ head, start, end, inner }]
  *  (inner: the nested blocks of an @-rule). Comments and strings are skipped. */
 export function cssBlocks(text, from = 0, to = text.length) {
