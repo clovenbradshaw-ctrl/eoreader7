@@ -129,7 +129,7 @@ test("a mouth that says nothing gets a page that fails: the engine invents no co
 
 test("the reply's framing is not the answer", async () => {
   const replies = [
-    "The site is called Pod Chat.",                                    // echoed anchor
+    "It is called Pod Chat.",                                          // echoed anchor
     "Sure! Here are three posts:\n1. \"Orca Watch\"\n2. Fin Friday\n3. Pod News",   // preamble, quotes
     "Orca Watch: 25\nPod News: 7",                                        // the row's name said again, rows out of order
   ];
@@ -199,6 +199,19 @@ test("a thin request: the person's answers are read with it, and what each part 
   const posts = out.belief.filter((t) => t.kind === "post");
   assert.equal(posts.length, 12);
   assert.ok(posts.every((t) => t.props.some((p) => p.label === "upvotes")), "every post carries what the mouth said a post shows");
+});
+
+test("the frame: by default an ask carries the task at hand, not the big picture", async () => {
+  for (const frame of ["task", "whole"]) {
+    const { ask, prompts } = scriptedMouth();
+    await makeTalkBuild({ ask, parse, sentences, render: renderBelief, frame }).build({ what: rung("page-rung-3").prompt, forWhom: "dolphin fans" });
+    const opened = prompts.filter((p) => p.startsWith("We are describing")).length;
+    if (frame === "task") {
+      assert.equal(opened, 0, "a task-framed ask never opens with the whole");
+      const post = prompts.find((p) => p.includes("posts in r/"));
+      assert.ok(post && !post.includes("dolphin fans"), `the post ask carries its own path only: ${post}`);
+    } else assert.equal(opened, prompts.length, "the whole-framed arm opens every ask with the whole");
+  }
 });
 
 test("the talk path contains no regular expression", () => {

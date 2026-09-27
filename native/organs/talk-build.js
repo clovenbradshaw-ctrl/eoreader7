@@ -283,7 +283,7 @@ export function completeness(spec, belief) {
 }
 
 /** makeTalkBuild({ ask, parse, sentences, render, verify, log }) */
-export function makeTalkBuild({ ask, parse, sentences, render, verify = async () => ({ ok: true, checks: [] }), log = () => {}, maxAsks = MAX_ASKS }) {
+export function makeTalkBuild({ ask, parse, sentences, render, verify = async () => ({ ok: true, checks: [] }), log = () => {}, maxAsks = MAX_ASKS, frame = "task" }) {
   async function build(request) {
     const what = request.what;
     // the person's answers to the build's questions ("three communities, with
@@ -431,7 +431,14 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     if (seedTalk) seeded.push(...reader.read(seedTalk, { witness: "request" }).claims);
     if (seeded.length) { hear(seeded); log({ kind: "seed", talk: seedTalk, claims: show(seeded) }); }
 
-    const context = `We are describing ${spec.whole ?? "a site"}, for ${request.forWhom ?? "the people who will use it"}. Talk about it in short plain sentences, one fact per sentence.`;
+    // THE FRAME an ask carries. "task" (the default): the task at hand and
+    // nothing else — "Name 6 posts in r/bottlenose." carries its own path, and
+    // the whole is named only where the task IS the whole (its name, what its
+    // parts show). "whole": every ask also opens with what the build is and
+    // who it is for — kept as the arm "task" is measured against.
+    const wholeLine = `We are describing ${spec.whole ?? "a site"}, for ${request.forWhom ?? "the people who will use it"}. Talk about it in short plain sentences, one fact per sentence.`;
+    const context = frame === "whole" ? wholeLine : "";
+    const framed = (q) => (context ? `${context}\n${q}` : q);
 
     // A THIN REQUEST ("make a reddit but only for dolphin content") names its
     // parts and no details for any of them. What each part shows is the
@@ -447,7 +454,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         // a sentence to finish, not a list to write: "Each post shows its
         // name, its" -> "upvotes, its comments and its author."
         const anchor = `Each ${phraseOf(c)} shows its name, its`;
-        const prompt = `${context}\nWhat does each ${phraseOf(c)} on ${spec.whole ?? "the site"} show?\n\n${anchor}`;
+        const prompt = `${framed(`What does each ${phraseOf(c)} on ${spec.whole ?? "the site"} show?`)}\n\n${anchor}`;
         let reply = String(await ask(prompt, { stage: `shows:${c.kind}` }) ?? "").trim();
         // the mouth often says the sentence again from its start ("Each post
         // shows its title, its …"): read what follows its own "shows"
@@ -459,7 +466,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         log({ kind: "turn", gap: `shows:${c.kind}`, prompt, reply, claims: shown.map((x) => `${c.kind} shows ${x}`), ops: [], ms: 0 });
       }
     }
-    await turn("opening", `${context}\nWhat is the site called?`, "The site is called", { subject: reader.mint("site").id, label: "named" });
+    await turn("opening", framed(`What is ${spec.whole ?? "the site"}${request.forWhom ? ` for ${request.forWhom}` : ""} called?`), "It is called", { subject: reader.mint("site").id, label: "named" });
 
     while (asks < maxAsks) {
       const belief = beliefOf(N.fold(notes), reader.things());
@@ -467,7 +474,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       if (!next) break;
       // a gap is let go after two asks in a row that heard nothing for it
       if ((tried.get(next.key) ?? 0) >= 2) { log({ kind: "gap_abandoned", gap: next.key, why: "asked twice, nothing heard" }); spec.abandoned = [...(spec.abandoned ?? []), next.key]; continue; }
-      const heard = await turn(next.key, `${context}\n${next.question}`, next.anchor, next.slot ?? null);
+      const heard = await turn(next.key, framed(next.question), next.anchor, next.slot ?? null);
       // a part asked to be described is asked once; any other gap is asked
       // again while each ask hears something for it
       tried.set(next.key, heard && !next.once ? 0 : (tried.get(next.key) ?? 0) + 1);
