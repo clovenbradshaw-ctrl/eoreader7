@@ -1,0 +1,108 @@
+// native/kernel/identity-exclusion.js — WHEN TWO REFERENTS CANNOT BE ONE:
+// a contradiction on a relation their kind allows only one value of
+// (2026-09-27). Medium-blind, kernel-level. Standing: nomination until
+// eval/identity/exclusion-eval.mjs says otherwise.
+//
+// THE USER'S RULE, verbatim: "Two referents with different birthdays cannot
+// be the same person." And the frame around it: identity is read from the
+// actual node network — the assertions about a referent — in a DEPENDENCY
+// ORDER, with kind induction on those assertions; recurrence (who is around)
+// is not identity, and SHOULD fail on companions (the swarm, 2026-09-27:
+// co-arrival over reading time reached AUC 0.97 on Russian case forms and
+// collapsed exactly on same-scene companions — Наташа/Соня, Бурьен/Марья).
+//
+// THE ORDER, each step licensing the next (arithmetic before geometry before
+// calculus — THE-THREE-MATHEMATICS):
+//   1 KIND        what each referent is. A shared kind is what makes step 2
+//                 askable at all: "one birth date" is a fact about PEOPLE.
+//                 Two kinds a giver declares disjoint exclude outright.
+//   2 FUNCTIONAL  which relations that kind allows one value of. NEVER earned
+//                 from the material — a corpus can refute a functional claim
+//                 and cannot establish one (the grain theorem) — so every
+//                 entry is RECEIVED with a named giver, and the register is
+//                 the caller's.
+//   3 VALUES      both referents assert the relation and no pair of their
+//                 values agrees -> EXCLUDED, and the two assertions are the
+//                 proof. A value pair the comparison cannot decide (a year
+//                 against a day in another calendar) is INCOMPARABLE — never
+//                 read as a conflict.
+//
+// WHAT THIS DOES NOT SAY. "not_excluded" is not "same": two siblings share a
+// father and a mother and no conflict needs to appear until a birth date
+// does. Sameness needs positive evidence from elsewhere (the assertion
+// network, identity-induction.js); this organ is the other half of the
+// definition — the counterexample that no amount of co-presence can outvote.
+//
+// Nothing here compares strings. What a value is, and when two values are
+// the same, is injected (`sameValue`) — a date in a calendar, a referent id
+// (which may itself be an identity question one level down the holon), a
+// quantity with units.
+
+const need = (o, keys) => { for (const k of keys) if (typeof o[k] !== "function" && !(o[k] instanceof Map)) throw new TypeError(`identity-exclusion: '${k}' must be supplied`); };
+
+/**
+ * makeIdentityExclusion({ kindsOf, assertionsOf, functional, disjointKinds?, sameValue })
+ *   kindsOf(x)        -> Set of kind ids the referent is asserted to be (with
+ *                        whatever standing the caller requires); empty = unknown
+ *   assertionsOf(x)   -> [{ rel, value, id }]
+ *   functional        Map<kind, Map<rel, { giver }>>   — the received register
+ *   disjointKinds     Map<kind, Map<kind, { giver }>>  — optional
+ *   sameValue(u, v, rel) -> true | false | null (cannot tell)
+ *   witnessed(assertion) -> boolean   — optional. A proof must STAND: when
+ *                        supplied, a conflict is a proof only if both of its
+ *                        assertions are witnessed; otherwise it is CONTESTED —
+ *                        a disagreement on the record, not two referents.
+ *                        Found live (2026-09-27): Sergey Volkonsky's own
+ *                        Wikidata item holds two death dates that no calendar
+ *                        reconciles (1784-03-08 Julian, unreferenced;
+ *                        1784-03-10 Gregorian, referenced) and two birth
+ *                        years (1715, 1703); split across two records they
+ *                        "proved" one man was two.
+ */
+export function makeIdentityExclusion(organs = {}) {
+  need(organs, ["kindsOf", "assertionsOf", "functional", "sameValue"]);
+  const { kindsOf, assertionsOf, functional, sameValue, disjointKinds = new Map(), witnessed = null } = organs;
+  for (const [kind, rels] of functional) for (const [rel, d] of rels) if (!d?.giver) throw new TypeError(`identity-exclusion: functional(${kind}, ${rel}) has no giver — a single-valued relation is received, never assumed`);
+
+  function judge(a, b) {
+    const order = [];
+    // 1 — kind
+    const ka = kindsOf(a) ?? new Set(), kb = kindsOf(b) ?? new Set();
+    if (!ka.size || !kb.size) return Object.freeze({ a, b, verdict: "gap", reason: "kind_unknown", order: [{ step: "kind", a: [...ka], b: [...kb] }] });
+    for (const x of ka) for (const y of kb) {
+      const d = disjointKinds.get(x)?.get(y) ?? disjointKinds.get(y)?.get(x);
+      if (d) return Object.freeze({ a, b, verdict: "excluded", by: "kind", proof: [{ kinds: [x, y], giver: d.giver }], order: [{ step: "kind", a: [...ka], b: [...kb], disjoint: [x, y] }] });
+    }
+    const shared = [...ka].filter((k) => kb.has(k));
+    order.push({ step: "kind", a: [...ka], b: [...kb], shared });
+    if (!shared.length) return Object.freeze({ a, b, verdict: "gap", reason: "no_shared_kind", order });
+    // 2 — the functional relations the shared kinds license
+    const rels = new Map();
+    for (const k of shared) for (const [rel, d] of functional.get(k) ?? []) if (!rels.has(rel)) rels.set(rel, { ...d, kind: k });
+    if (!rels.size) { order.push({ step: "functional", licensed: [] }); return Object.freeze({ a, b, verdict: "gap", reason: "no_functional_relation_declared", order }); }
+    // 3 — values
+    const Aa = assertionsOf(a) ?? [], Ab = assertionsOf(b) ?? [];
+    const agreed = [], conflicts = [], incomparable = [], unasserted = [];
+    for (const [rel, d] of rels) {
+      const va = Aa.filter((x) => x.rel === rel), vb = Ab.filter((x) => x.rel === rel);
+      if (!va.length || !vb.length) { unasserted.push(rel); continue; }
+      let agree = null, undecided = null, lastFalse = null;
+      for (const u of va) for (const v of vb) {
+        const s = sameValue(u.value, v.value, rel);
+        if (s === true) agree ??= [u, v];
+        else if (s === null) undecided ??= [u, v];
+        else lastFalse ??= [u, v];
+      }
+      if (agree) agreed.push({ rel, a: agree[0], b: agree[1] });
+      else if (undecided) incomparable.push({ rel, a: undecided[0], b: undecided[1] });
+      else conflicts.push({ rel, giver: d.giver, kind: d.kind, a: lastFalse[0], b: lastFalse[1] });
+    }
+    order.push({ step: "functional", licensed: [...rels.keys()] }, { step: "values", agreed: agreed.map((x) => x.rel), conflicts: conflicts.map((x) => x.rel), incomparable: incomparable.map((x) => x.rel), unasserted });
+    const standing = witnessed ? conflicts.filter((c) => witnessed(c.a) && witnessed(c.b)) : conflicts;
+    const contested = conflicts.filter((c) => !standing.includes(c));
+    if (standing.length) return Object.freeze({ a, b, verdict: "excluded", by: "functional", proof: standing, contested, agreed, incomparable, order });
+    if (contested.length) return Object.freeze({ a, b, verdict: "contested", contested, agreed, incomparable, order });
+    return Object.freeze({ a, b, verdict: "not_excluded", agreed, incomparable, order });
+  }
+  return Object.freeze({ judge });
+}

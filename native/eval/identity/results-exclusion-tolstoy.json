@@ -1,0 +1,809 @@
+{
+ "fixture": "wikidata-tolstoy-family.json",
+ "seed": 11,
+ "persons": 70,
+ "dualCalendar": 3,
+ "functional": {
+  "P569": {
+   "giver": "Wikidata property constraint P2302=Q52060874 on P569 (date of birth)"
+  },
+  "P570": {
+   "giver": "Wikidata property constraint P2302=Q52060874 on P570 (date of death)"
+  },
+  "P19": {
+   "giver": "Wikidata property constraint P2302=Q52060874 on P19 (place of birth)"
+  },
+  "P20": {
+   "giver": "Wikidata property constraint P2302=Q52060874 on P20 (place of death)"
+  },
+  "P22": {
+   "giver": "Wikidata property constraint P2302=Q52060874 on P22 (father)"
+  },
+  "P25": {
+   "giver": "Wikidata property constraint P2302=Q52060874 on P25 (mother)"
+  }
+ },
+ "arms": {
+  "shipped": {
+   "samePerson": {
+    "excluded": 1,
+    "contested": 0,
+    "not_excluded": 69,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q61764105/1",
+      "b": "Q61764105/2",
+      "by": "functional",
+      "rels": [
+       "P570"
+      ]
+     }
+    ]
+   },
+   "differentPeople": {
+    "excluded": 2158,
+    "contested": 0,
+    "not_excluded": 257,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q7243/1",
+      "b": "Q4459962/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q21092125/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q271934/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q3955946/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P25"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q3792538/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25"
+      ]
+     }
+    ]
+   },
+   "siblings": {
+    "excluded": 54,
+    "contested": 0,
+    "not_excluded": 16,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q7243/1",
+      "b": "Q30879897/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q139072586/1",
+      "by": "functional",
+      "rels": [
+       "P569"
+      ]
+     },
+     {
+      "a": "Q271934/1",
+      "b": "Q127412274/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570"
+      ]
+     },
+     {
+      "a": "Q271934/1",
+      "b": "Q4180706/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P19"
+      ]
+     },
+     {
+      "a": "Q271934/1",
+      "b": "Q4244849/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P19"
+      ]
+     }
+    ]
+   },
+   "namesakes": {
+    "excluded": 100,
+    "contested": 0,
+    "not_excluded": 11,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q7243/1",
+      "b": "Q1152362/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25"
+      ]
+     },
+     {
+      "a": "Q4459962/1",
+      "b": "Q30879897/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P20"
+      ]
+     },
+     {
+      "a": "Q4459962/1",
+      "b": "Q15649322/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25"
+      ]
+     },
+     {
+      "a": "Q4459962/1",
+      "b": "Q66057584/1",
+      "by": "functional",
+      "rels": [
+       "P569"
+      ]
+     },
+     {
+      "a": "Q21092125/1",
+      "b": "Q20645988/1",
+      "by": "functional",
+      "rels": [
+       "P25"
+      ]
+     }
+    ]
+   }
+  },
+  "allFunctional": {
+   "samePerson": {
+    "excluded": 17,
+    "contested": 0,
+    "not_excluded": 53,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q271934/1",
+      "b": "Q271934/2",
+      "by": "functional",
+      "rels": [
+       "P27"
+      ]
+     },
+     {
+      "a": "Q3981441/1",
+      "b": "Q3981441/2",
+      "by": "functional",
+      "rels": [
+       "P106"
+      ]
+     },
+     {
+      "a": "Q3792538/1",
+      "b": "Q3792538/2",
+      "by": "functional",
+      "rels": [
+       "P40",
+       "P3373",
+       "P106"
+      ]
+     },
+     {
+      "a": "Q1152362/1",
+      "b": "Q1152362/2",
+      "by": "functional",
+      "rels": [
+       "P3373"
+      ]
+     },
+     {
+      "a": "Q3847918/1",
+      "b": "Q3847918/2",
+      "by": "functional",
+      "rels": [
+       "P106"
+      ]
+     }
+    ]
+   },
+   "differentPeople": {
+    "excluded": 2355,
+    "contested": 0,
+    "not_excluded": 60,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q7243/1",
+      "b": "Q4459962/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25",
+       "P26",
+       "P40",
+       "P106"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q21092125/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25",
+       "P26",
+       "P40",
+       "P735"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q271934/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P26",
+       "P3373",
+       "P735"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q3955946/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P25",
+       "P40",
+       "P3373"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q3981441/1",
+      "by": "functional",
+      "rels": [
+       "P26",
+       "P40",
+       "P3373",
+       "P106",
+       "P735"
+      ]
+     }
+    ]
+   },
+   "siblings": {
+    "excluded": 66,
+    "contested": 0,
+    "not_excluded": 4,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q7243/1",
+      "b": "Q20645988/1",
+      "by": "functional",
+      "rels": [
+       "P40",
+       "P3373",
+       "P735"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q30879897/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P3373",
+       "P735"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q139072586/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P106",
+       "P735"
+      ]
+     },
+     {
+      "a": "Q4459962/1",
+      "b": "Q109488532/1",
+      "by": "functional",
+      "rels": [
+       "P21"
+      ]
+     },
+     {
+      "a": "Q271934/1",
+      "b": "Q127412274/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P3373"
+      ]
+     }
+    ]
+   },
+   "namesakes": {
+    "excluded": 106,
+    "contested": 0,
+    "not_excluded": 5,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q7243/1",
+      "b": "Q1152362/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25",
+       "P26",
+       "P40",
+       "P3373"
+      ]
+     },
+     {
+      "a": "Q4459962/1",
+      "b": "Q30879897/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P20"
+      ]
+     },
+     {
+      "a": "Q4459962/1",
+      "b": "Q15649322/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25",
+       "P40"
+      ]
+     },
+     {
+      "a": "Q4459962/1",
+      "b": "Q66057584/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P26"
+      ]
+     },
+     {
+      "a": "Q21092125/1",
+      "b": "Q20645988/1",
+      "by": "functional",
+      "rels": [
+       "P25",
+       "P40",
+       "P735"
+      ]
+     }
+    ]
+   }
+  },
+  "calendarBlind": {
+   "samePerson": {
+    "excluded": 2,
+    "contested": 0,
+    "not_excluded": 68,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q7243/1",
+      "b": "Q7243/2",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570"
+      ]
+     },
+     {
+      "a": "Q61764105/1",
+      "b": "Q61764105/2",
+      "by": "functional",
+      "rels": [
+       "P570"
+      ]
+     }
+    ]
+   },
+   "differentPeople": {
+    "excluded": 2158,
+    "contested": 0,
+    "not_excluded": 257,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q7243/1",
+      "b": "Q4459962/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q21092125/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q271934/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q3955946/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P25"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q3792538/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25"
+      ]
+     }
+    ]
+   },
+   "siblings": {
+    "excluded": 54,
+    "contested": 0,
+    "not_excluded": 16,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q7243/1",
+      "b": "Q30879897/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q139072586/1",
+      "by": "functional",
+      "rels": [
+       "P569"
+      ]
+     },
+     {
+      "a": "Q271934/1",
+      "b": "Q127412274/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570"
+      ]
+     },
+     {
+      "a": "Q271934/1",
+      "b": "Q4180706/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P19"
+      ]
+     },
+     {
+      "a": "Q271934/1",
+      "b": "Q4244849/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P19"
+      ]
+     }
+    ]
+   },
+   "namesakes": {
+    "excluded": 100,
+    "contested": 0,
+    "not_excluded": 11,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q7243/1",
+      "b": "Q1152362/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25"
+      ]
+     },
+     {
+      "a": "Q4459962/1",
+      "b": "Q30879897/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P20"
+      ]
+     },
+     {
+      "a": "Q4459962/1",
+      "b": "Q15649322/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570",
+       "P25"
+      ]
+     },
+     {
+      "a": "Q4459962/1",
+      "b": "Q66057584/1",
+      "by": "functional",
+      "rels": [
+       "P569"
+      ]
+     },
+     {
+      "a": "Q21092125/1",
+      "b": "Q20645988/1",
+      "by": "functional",
+      "rels": [
+       "P25"
+      ]
+     }
+    ]
+   }
+  },
+  "witnessedProof": {
+   "samePerson": {
+    "excluded": 0,
+    "contested": 1,
+    "not_excluded": 69,
+    "gap": 0,
+    "examples": []
+   },
+   "differentPeople": {
+    "excluded": 682,
+    "contested": 1476,
+    "not_excluded": 257,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q7243/1",
+      "b": "Q21092125/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q271934/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q3955946/1",
+      "by": "functional",
+      "rels": [
+       "P569"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q3792538/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570"
+      ]
+     },
+     {
+      "a": "Q7243/1",
+      "b": "Q1152362/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570"
+      ]
+     }
+    ]
+   },
+   "siblings": {
+    "excluded": 30,
+    "contested": 24,
+    "not_excluded": 16,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q7243/1",
+      "b": "Q30879897/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570"
+      ]
+     },
+     {
+      "a": "Q271934/1",
+      "b": "Q4180706/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P19"
+      ]
+     },
+     {
+      "a": "Q271934/1",
+      "b": "Q4244849/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P19"
+      ]
+     },
+     {
+      "a": "Q271934/1",
+      "b": "Q4085172/1",
+      "by": "functional",
+      "rels": [
+       "P569"
+      ]
+     },
+     {
+      "a": "Q3955946/1",
+      "b": "Q3792538/1",
+      "by": "functional",
+      "rels": [
+       "P569"
+      ]
+     }
+    ]
+   },
+   "namesakes": {
+    "excluded": 24,
+    "contested": 76,
+    "not_excluded": 11,
+    "gap": 0,
+    "examples": [
+     {
+      "a": "Q7243/1",
+      "b": "Q1152362/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P570"
+      ]
+     },
+     {
+      "a": "Q4459962/1",
+      "b": "Q30879897/1",
+      "by": "functional",
+      "rels": [
+       "P20"
+      ]
+     },
+     {
+      "a": "Q271934/1",
+      "b": "Q4177081/1",
+      "by": "functional",
+      "rels": [
+       "P570",
+       "P19"
+      ]
+     },
+     {
+      "a": "Q3955946/1",
+      "b": "Q4459970/1",
+      "by": "functional",
+      "rels": [
+       "P569"
+      ]
+     },
+     {
+      "a": "Q3955946/1",
+      "b": "Q24642107/1",
+      "by": "functional",
+      "rels": [
+       "P569",
+       "P19"
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "plantedConflict": {
+  "tried": 34,
+  "caught": 34
+ },
+ "baselineName": {
+  "samePersonMerged": 70,
+  "of": 70,
+  "differentPeopleMerged": 2,
+  "namesakePairs": 111
+ }
+}
