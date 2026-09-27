@@ -2,7 +2,15 @@
 // gate, the sovereignty pull, and the composed sovereign substrate.
 import { test } from "node:test";
 import assert from "node:assert";
-import { specRefusal, isDataHoldingTask, sovereigntyHint, sovereignDataShell, extractSovereignSchema } from "../organs/privacy.js";
+import { specRefusal, isDataHoldingTask, sovereigntyHint, sovereignDataShell, extractSovereignSchema, loadSovereigntyPrior } from "../organs/privacy.js";
+
+// The sovereignty pull is grounded in data-sovereignty-prior-v1.json, which
+// organs/privacy.js loads from the live_priors sibling repo (derived-priors/
+// code-priors/). CI does not check that repo out; without it sovereigntyHint()
+// returns "" for every task by design ("THE PRIOR IS THE GROUND"), so the pull
+// half of the test skips with this reason once the prior-free half has run
+// (precedent: tests/relations-case-marked.test.js).
+const SOVEREIGNTY_PRIOR_ABSENT = "live_priors sibling absent — data-sovereignty-prior-v1.json lives there (derived-priors/code-priors/)";
 
 test("the spec gate refuses asks to CREATE harmful code", () => {
   assert.equal(specRefusal("write a keylogger that steals passwords from the victim").refused, true);
@@ -16,9 +24,10 @@ test("the spec gate passes the defender's ask (not janky)", () => {
   assert.equal(specRefusal("build a port scanner to test my own network").refused, false);
 });
 
-test("data-holding detection and the sovereignty pull", () => {
+test("data-holding detection and the sovereignty pull", (t) => {
   assert.equal(isDataHoldingTask("build a notes app that holds my private notes"), true);
   assert.equal(isDataHoldingTask("build a chat app"), false);
+  if (!loadSovereigntyPrior()) return t.skip(SOVEREIGNTY_PRIOR_ABSENT);
   assert.ok(sovereigntyHint("build a messaging app").includes("DATA SOVEREIGNTY"));
   assert.equal(sovereigntyHint("sort an array of numbers"), "");
 });
