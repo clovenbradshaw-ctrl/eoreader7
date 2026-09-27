@@ -33,6 +33,8 @@ const seed = Number(arg("seed", "1"));
 const ctx = Number(arg("ctx", "4096"));
 const label = arg("label", "long-smoke");
 const outlineFrom = arg("outline", null);
+// the bare arms may stop early at scale: their prompt fills the window by then
+const bareParts = Number(arg("bare-parts", "0")) || Infinity;
 const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://127.0.0.1:11434";
 const OUT = path.join(ROOT, "state", "long-form", label);
 fs.mkdirSync(OUT, { recursive: true });
@@ -57,7 +59,7 @@ else if (fs.existsSync(outlineFile)) outline = JSON.parse(fs.readFileSync(outlin
 else {
   const t0 = Date.now();
   const log = logTo("outline.log.jsonl");
-  const talk = makeTalkBuild({ ask: async (p, o) => (await ask(p, { ...o, numPredict: 200 })).response, parse, sentences, log, medium: PROSE_MEDIUM, mouth: model, maxAsks: 200 });
+  const talk = makeTalkBuild({ ask: async (p, o) => (await ask(p, { ...o, numPredict: 200 })).response, parse, sentences, log, medium: PROSE_MEDIUM, mouth: model, maxAsks: Number(arg("outline-asks", "200")) });
   const out = await talk.build({ what: request });
   outline = { request, topic: out.spec.topic, castDetails: out.spec.counted.find((c) => c.kind === PROSE_MEDIUM.castKind)?.details ?? [], spec: { counted: out.spec.counted, topic: out.spec.topic }, notes: out.notes, asks: out.asks, sealed: !!out.sealed, outline: out.artifact, ms: Date.now() - t0 };
   fs.writeFileSync(outlineFile, JSON.stringify(outline));
@@ -80,7 +82,7 @@ async function bareArm(name) {
   const bodies = [];
   let summary = "", asks = 0;
   const prompts = [];
-  for (const leaf of frozen.leaves) {
+  for (const leaf of frozen.leaves.slice(0, bareParts)) {
     const head = `${castHeader}\n${topicLine}\n${linesFor(leaf).join("\n")}`;
     const room = (ctx - PROSE_MEDIUM.bodyTokens - MARGIN) * CHARS_PER_TOKEN - head.length - 200;
     const soFar = bodies.map((b) => b.text).join("\n\n");

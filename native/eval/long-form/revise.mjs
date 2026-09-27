@@ -41,7 +41,10 @@ fs.writeFileSync(logFile, "");
 const log = (x) => fs.appendFileSync(logFile, JSON.stringify(x) + "\n");
 
 const outline = JSON.parse(fs.readFileSync(path.join(dir, "outline.json"), "utf8"));
-const state = JSON.parse(fs.readFileSync(path.join(dir, "ledger.state.json"), "utf8"));
+// the book as it stands: edited by the archons when that stage ran, else as written
+const stateFile = fs.existsSync(path.join(dir, "ledger-edited.state.json")) ? "ledger-edited.state.json" : "ledger.state.json";
+console.log("revising", stateFile);
+const state = JSON.parse(fs.readFileSync(path.join(dir, stateFile), "utf8"));
 const lf = makeLongForm({ ask, sentences, medium: PROSE_MEDIUM, mouth: model, log, castDetails: outline.castDetails, spec: outline.spec ?? null });
 let notes = state.notes, store = makeTextStore(state.store);
 const N = makeNotes();
