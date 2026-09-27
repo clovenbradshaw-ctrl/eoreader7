@@ -90,7 +90,9 @@ export const MNEMONIC_STANDING =
   "recognized from the child's shadow/echo memory (a fast-path memory read, not a CV model at this moment) — the descriptor it matched and the taught example's region and source are disclosed; the memory carries its source's sha256 and pixel address, so the CV parent can de-lossy it and re-verify any time";
 
 // the child's own resolution: one quantized byte. A margin smaller than this
-// is not a decision the child can make from memory alone.
+// is not a decision the child can make from memory alone. By construction:
+// kernel/shadow-echo.js quantizes every descriptor bin in [0,1] to one byte
+// (its SIZE RULE, DESCRIPTOR_BYTES), so 1/255 is that byte's step.
 export const QUANT_STEP = 1 / 255;
 
 export function emptyStore() {
@@ -348,7 +350,7 @@ export function teachSeries(store, concept, series, { source = null, label = nul
 // text adapters' own per-unit motif-count Maps, exactly the observations
 // contextualModes consumes. A passage's regions are figureSegments over the
 // density profile — WHERE in the text the thing is said.
-export const TEXT_SHAPE = 48; // 24 density bins + 24 mode-magnitude bins
+export const TEXT_SHAPE = 48; // 24 density bins + 24 mode-magnitude bins — by construction two TEXT_WINDOWS-length halves (descriptorOfTextWindows sets density at 0, echo at TEXT_WINDOWS)
 export const TEXT_WINDOWS = 24;
 
 export function descriptorOfTextWindows(windowCounts) {

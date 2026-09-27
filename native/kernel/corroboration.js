@@ -27,7 +27,10 @@
 import { stableHash } from "./rng.js";
 
 // the corroboration floor is the house's own canonicalizationFloor (ENTITY
-// assembly): one arrival has no co-arrival to test.
+// assembly): one arrival has no co-arrival to test. Its giver is the ENTITY
+// assembly's declared regime in native/assemblies.js (canonicalizationFloor:
+// value 2, giver "emergence/binding.js structural minimum") — received, not
+// re-derived here.
 export const CANONICALIZATION_FLOOR = 2;
 
 // the hash salt stays "mnemonic|", unchanged from before this extraction —
