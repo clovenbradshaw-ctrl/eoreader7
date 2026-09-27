@@ -57,6 +57,7 @@
 // further reading moves either universe.
 
 import { createSeededRng } from "./rng.js";
+import { dmd, economySVD, matmul, transpose } from "./dmd.js";
 
 const need = (opts, keys) => {
   for (const k of keys) if (opts[k] === undefined || opts[k] === null) throw new TypeError(`identity-induction: '${k}' must be declared`);
@@ -159,8 +160,20 @@ const sample = (arr, k, rng) => {
  */
 export function makeIdentityInduction(record, opts = {}) {
   need(opts, ["draws", "alpha", "seed", "minOccurrences", "maxHop", "smooth", "resolution", "minFeatureCount"]);
-  const { draws, alpha, seed, minOccurrences, maxHop, smooth, resolution, minFeatureCount, relevant = null, namesNode = null } = opts;
+  const { draws, alpha, seed, minOccurrences, maxHop, smooth, resolution, minFeatureCount, relevant = null, namesNode = null, trajectory = null } = opts;
+  if (trajectory) need(trajectory, ["windows", "basis", "draws"]);
   if (2 * resolution > minOccurrences) throw new RangeError("identity-induction: resolution must be <= minOccurrences / 2");
+  // An occurrence is either a feature list, or { at, features } when the
+  // caller knows WHERE in the reading it happened (test 5 needs it).
+  const AT = new WeakMap();
+  {
+    const norm = new Map();
+    for (const [n, occs] of record) norm.set(n, occs.map((o) => {
+      if (Array.isArray(o)) return o;
+      const fs = [...o.features]; AT.set(fs, o.at); return fs;
+    }));
+    record = norm;
+  }
   // which features name which node — computed once
   const naming = new Map();
   if (namesNode) for (const occs of record.values()) for (const o of occs) for (const { f } of o) {
@@ -175,7 +188,7 @@ export function makeIdentityInduction(record, opts = {}) {
   // same) came back 13/66 "same" at hop 2 and 0/66 at hop 1.
   if (namesNode) {
     const clean = new Map();
-    for (const [n, occs] of record) clean.set(n, occs.map((o) => o.filter(({ f }) => naming.get(f) !== n)));
+    for (const [n, occs] of record) clean.set(n, occs.map((o) => { const c = o.filter(({ f }) => naming.get(f) !== n); if (AT.has(o)) AT.set(c, AT.get(o)); return c; }));
     record = clean;
   }
   const nodes = [...record.keys()].filter((n) => (record.get(n)?.length ?? 0) >= minOccurrences);
@@ -253,6 +266,96 @@ export function makeIdentityInduction(record, opts = {}) {
     };
   };
 
+
+  // ── test 5 — THE DMD BOUND: identity is the universe folded at a node OVER
+  // THE READING, bounded by the dynamic modes that survive their own
+  // order-shuffled null (the user's refinement, 2026-09-27: "a person's
+  // identity for a given for whom is the universe folded at them bounded
+  // DMDs"). Built after a bag-of-contexts reading merged Kutuzov with
+  // Napoleon and Sonya with Natasha: a bag says what KIND a node is; its
+  // trajectory says WHICH one.
+  //   state(x, t)  x's features in reading-window t, on a shared basis of the
+  //                background's most frequent features, as a unit direction
+  //   dynamics(x)  the least-squares transition operator over x's consecutive
+  //                present windows, at rank r_x = the number of DMD modes
+  //                whose magnitude beats the same trajectory with its window
+  //                ORDER shuffled (for-whom.js's trajectoryNull, per mode)
+  //   test         a's dynamics predict b's transitions (and b's a's) better
+  //                than the dynamics of random other nodes, fitted at the same
+  //                size and rank, predict them
+  // A node whose modes never beat the shuffle has no dynamics of its own: a
+  // typed gap, never evidence either way.
+  let span = null;
+  if (trajectory) {
+    let lo = Infinity, hi = -Infinity;
+    for (const occs of record.values()) for (const o of occs) { const a = AT.get(o); if (Number.isFinite(a)) { lo = Math.min(lo, a); hi = Math.max(hi, a); } }
+    if (Number.isFinite(lo)) span = { lo, hi: hi > lo ? hi : lo + 1 };
+  }
+  const windowOf = (at) => Math.min(trajectory.windows - 1, Math.floor(((at - span.lo) / (span.hi - span.lo)) * trajectory.windows));
+  const basisFor = (hop, drop) => [...background(hop, drop)].sort((x, y) => y[1] - x[1]).slice(0, trajectory.basis).map(([f]) => f);
+  const statesOf = (occs, hop, drop, basis, order = null) => {
+    const idx = new Map(basis.map((f, i) => [f, i]));
+    const W = Array.from({ length: trajectory.windows }, () => new Array(basis.length).fill(0));
+    for (const o of occs) {
+      const a = AT.get(o); if (!Number.isFinite(a)) continue;
+      const w = windowOf(a);
+      for (const { f, hop: h } of o) { if (h > hop || (drop && drop.has(f))) continue; const i = idx.get(f); if (i !== undefined) W[w][i] += 1; }
+    }
+    const unit = W.map((v) => { const n = Math.hypot(...v); return n > 0 ? v.map((x) => x / n) : null; });
+    const seq = (order ?? unit.map((_, i) => i)).map((i) => unit[i]);
+    const pairs = [];
+    for (let t = 0; t + 1 < seq.length; t += 1) if (seq[t] && seq[t + 1]) pairs.push([seq[t], seq[t + 1]]);
+    return pairs;
+  };
+  const asMatrices = (pairs) => [transpose(pairs.map((p) => p[0])), transpose(pairs.map((p) => p[1]))];
+  const magnitudes = (pairs) => { if (pairs.length < 2) return []; const [X, Xp] = asMatrices(pairs); return dmd(X, Xp, { rank: "numerical" }).eigenvalues.map((e) => e.magnitude); };
+  const operatorOf = (pairs, r) => {
+    const [X, Xp] = asMatrices(pairs);
+    const { U, s, V } = economySVD(X, { rank: r });
+    if (!s.length) return null;
+    const VS = V.map((row) => row.map((v, j) => v / s[j]));
+    return matmul(matmul(Xp, VS), transpose(U)); // k x k
+  };
+  const predError = (A, pairs) => {
+    if (!A || !pairs.length) return NaN;
+    let e = 0, z = 0;
+    for (const [x, y] of pairs) for (let i = 0; i < y.length; i += 1) { let p = 0; for (let j = 0; j < x.length; j += 1) p += A[i][j] * x[j]; e += (y[i] - p) ** 2; z += y[i] ** 2; }
+    return z ? e / z : NaN;
+  };
+  const boundedRank = (occs, hop, drop, basis, rng) => {
+    const obs = magnitudes(statesOf(occs, hop, drop, basis));
+    if (!obs.length) return 0;
+    const nulls = [];
+    for (let d = 0; d < trajectory.draws; d += 1) {
+      const order = Array.from({ length: trajectory.windows }, (_, i) => i);
+      for (let j = order.length - 1; j > 0; j -= 1) { const r = Math.floor(rng() * (j + 1)); [order[j], order[r]] = [order[r], order[j]]; }
+      nulls.push(magnitudes(statesOf(occs, hop, drop, basis, order)));
+    }
+    let r = 0;
+    for (let i = 0; i < obs.length; i += 1) { const q = quantile(nulls.map((m) => m[i] ?? 0), 1 - alpha); if (obs[i] > q) r += 1; else break; }
+    return r;
+  };
+  const dynamicsTest = (a, b, hop, drop, rng) => {
+    if (!span) return { verdict: "gap", reason: "no_positions" };
+    const basis = basisFor(hop, drop);
+    const A = record.get(a), B = record.get(b);
+    const ra = boundedRank(A, hop, drop, basis, rng), rb = boundedRank(B, hop, drop, basis, rng);
+    if (!ra || !rb) return { verdict: "gap", reason: "no_dynamics", ranks: { a: ra, b: rb } };
+    const pa = statesOf(A, hop, drop, basis), pb = statesOf(B, hop, drop, basis);
+    const Aa = operatorOf(pa, ra), Ab = operatorOf(pb, rb);
+    const ab = predError(Aa, pb), ba = predError(Ab, pa);
+    const others = nodes.filter((n) => n !== a && n !== b);
+    const nullB = [], nullA = [];
+    for (let i = 0; i < trajectory.draws && others.length; i += 1) {
+      const c = record.get(others[Math.floor(rng() * others.length)]);
+      nullB.push(predError(operatorOf(statesOf(subsample(c, A.length, rng), hop, drop, basis), ra), pb));
+      nullA.push(predError(operatorOf(statesOf(subsample(c, B.length, rng), hop, drop, basis), rb), pa));
+    }
+    const fa = nullB.filter(Number.isFinite), fb = nullA.filter(Number.isFinite);
+    const qB = quantile(fa, alpha), qA = quantile(fb, alpha);
+    return { verdict: ab < qB && ba < qA ? "same" : "different", ranks: { a: ra, b: rb }, error: { ab, ba }, floor: { ab: qB, ba: qA } };
+  };
+
   function judge(a, b) {
     for (const [x, name] of [[a, "a"], [b, "b"]]) {
       const n = record.get(x)?.length ?? 0;
@@ -276,8 +379,17 @@ export function makeIdentityInduction(record, opts = {}) {
     if (!wa.carries || !wb.carries) { verdict = "gap"; reason = "idle"; }
     else if (!chosen.worlds.match) { verdict = "different"; reason = "worlds_differ"; }
     else if (!chosen.consequence.aligned) { verdict = "different"; reason = "consequence_not_aligned"; }
+    // test 5 is computed whenever it is declared (so its reading is on the
+    // record even where an earlier test already decided), and it can only
+    // ever REMOVE a "same": a trajectory that differs, or none to read,
+    // overrides a match made from the bag alone.
+    if (trajectory && reason !== "idle") {
+      tests.dynamics = dynamicsTest(a, b, hop, drop, rng);
+      if (verdict === "same" && tests.dynamics.verdict === "different") { verdict = "different"; reason = "dynamics_differ"; }
+      else if (verdict === "same" && tests.dynamics.verdict === "gap") { verdict = "gap"; reason = tests.dynamics.reason; }
+    }
     return Object.freeze({ a, b, verdict, reason, hop, masked: drop.size, tests, path: path.map((p) => ({ hop: p.hop, worlds: p.worlds.observed, consequence: p.consequence.observed })) });
   }
 
-  return Object.freeze({ judge, frame: Object.freeze({ draws, alpha, seed, minOccurrences, maxHop, smooth, resolution, minFeatureCount, relevant: relevant ? "declared" : null, namesNode: namesNode ? "declared" : null, nodes: nodes.length }) });
+  return Object.freeze({ judge, frame: Object.freeze({ draws, alpha, seed, minOccurrences, maxHop, smooth, resolution, minFeatureCount, trajectory, relevant: relevant ? "declared" : null, namesNode: namesNode ? "declared" : null, nodes: nodes.length }) });
 }
