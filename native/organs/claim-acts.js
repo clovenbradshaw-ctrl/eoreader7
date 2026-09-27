@@ -66,8 +66,11 @@ const derivedRule = (note) => {
 export function actOf(note) {
   const rule = derivedRule(note);
   const pick = (a, typedBy) => ({ ...a, cell: cellOf(a.op, a.grain), typedBy });
-  if (rule && DERIVED_ACTS[rule]) return pick(DERIVED_ACTS[rule], `derived:${rule}`);
+  // a structural claim is its act whoever witnesses it: a bar the engine
+  // continued is still INSTANTIATED by its "exists", placed by its "position";
+  // the derivation types only what it derived
   if (STRUCTURAL_ACTS[note?.label]) return pick(STRUCTURAL_ACTS[note.label], "structural");
+  if (rule && DERIVED_ACTS[rule]) return pick(DERIVED_ACTS[rule], `derived:${rule}`);
   if (EDIT_ADDRESSES.some((a) => String(note?.label ?? "").startsWith(a))) return pick({ op: "REC", grain: "Figure" }, "an edit at a line's address");
   // a claim between two things on the record is a bond between them
   // ("Tommy —father of→ Lily"), never a value asserted of one

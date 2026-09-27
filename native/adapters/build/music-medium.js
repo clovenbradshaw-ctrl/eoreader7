@@ -19,11 +19,18 @@
 //               (`pitch@tick`), so the provenance check reads the artifact
 //               itself, not the renderer's account of it
 //   checking    the file parses and carries the notes of every bar asked for
+//   continuing  a bar past the end of every licensed source is not asked of
+//               anyone: it is CONTINUED (kernel/continuation.js, proven on
+//               this Prelude) by a mixture of priors sedimented from the bars
+//               already snipped — pitch, duration and gap as the file states
+//               them, no theory named — and heard as a derived claim whose
+//               premises are those bars (witness derived:continuation)
 //
 // No regular expressions.
 import { createHash } from "node:crypto";
 import { parseMidi, writeMidi } from "../midi/midi.js";
 import { readLicense } from "../../organs/license-table.js";
+import { sedimentPrior, expertOf, runMixture, continueMixture, lcg } from "../../kernel/continuation.js";
 
 /** Bars are cut at this many beats — set by hand 2026-09-27: the two Mutopia
  *  fixtures are in 4/4 and the reader does not yet read a time signature. */
@@ -37,7 +44,13 @@ export const BEATS_PER_BAR = 4;
  *   license      the license as the source states it ("Public Domain")
  *   licenseFrom  where that statement was read (the typesetting's header)
  */
-export function makeMusicMedium({ sources = [], beatsPerBar = BEATS_PER_BAR } = {}) {
+/** The continuation's grain and its seed — set by hand 2026-09-27 from the
+ *  MIDI eval (eval/the-fold/midi-continuation.mjs: order 3, a mixture of
+ *  orders 1–3). */
+export const CONTINUATION_ORDER = 3;
+const CONTINUATION_SEED = 11;
+
+export function makeMusicMedium({ sources = [], beatsPerBar = BEATS_PER_BAR, continues = true } = {}) {
   const judged = sources.map((src) => {
     const lic = readLicense(src.license);
     const midi = parseMidi(src.bytes);
@@ -49,16 +62,57 @@ export function makeMusicMedium({ sources = [], beatsPerBar = BEATS_PER_BAR } = 
   const byKey = new Map(usable.map((s) => [`${s.uri}@${s.sha.slice(0, 12)}`, s]));
   const notesIn = (s, a, b) => s.midi.notes.filter((n) => n.tick >= a && n.tick < b);
 
+  // the notes the engine continued, by address: continued:<sha12> -> [{ tick, dur, pitch, velocity }] relative to the bar
+  const continued = new Map();
+  const tokensOf = (notes, barTicks) => notes.map((n, i) => `${n.pitch}:${n.dur}:${(notes[i + 1]?.tick ?? barTicks) - n.tick}`);
+  // the bars on the record that were snipped: what the continuation may learn from
+  const heardBars = (fold = []) => fold.filter((n) => n.label === "notes" && String(n.end2).includes("#ticks:")).map((n) => {
+    const v = String(n.end2), at = v.indexOf("#ticks:"), src = byKey.get(v.slice(0, at));
+    const [a, b] = v.slice(at + "#ticks:".length).split("-").map(Number);
+    return src ? { note: n.id, notes: notesIn(src, a, b).map((x) => ({ ...x, tick: x.tick - a })), barTicks: b - a } : null;
+  }).filter(Boolean);
+
+  /** A bar past the end of the source: continued from the heard bars. */
+  function continuePart(k, fold) {
+    const bars = heardBars(fold);
+    if (!continues || bars.length < 2) return null;
+    const barTicks = bars[0].barTicks;
+    const heard = bars.flatMap((b) => tokensOf(b.notes, b.barTicks));
+    const experts = [1, 2, CONTINUATION_ORDER].map((o) => expertOf(`heard@${o}`, sedimentPrior(heard, { order: o, giver: `snipped bars@${o}` })));
+    const warm = runMixture(experts, heard, { order: CONTINUATION_ORDER, alphabetSize: new Set(heard).size });
+    const prevKey = [...continued.keys()].at(-1);
+    const prev = k > bars.length && prevKey ? tokensOf(continued.get(prevKey), barTicks) : heard;
+    const gen = continueMixture(experts, warm.weights, prev.slice(-CONTINUATION_ORDER), { length: 4 * Math.max(8, Math.round(heard.length / bars.length)), rng: lcg(CONTINUATION_SEED + k), seen: new Set(heard), order: CONTINUATION_ORDER });
+    const notes = [];
+    let t = 0;
+    for (const g of gen.generated) {
+      const [pitch, dur, gap] = String(g.event).split(":").map(Number);
+      if (t >= barTicks) break;
+      notes.push({ tick: t, dur: Math.min(dur, barTicks - t), pitch, velocity: 64 });
+      t += gap;
+    }
+    if (!notes.length) return null;
+    const key = `continued:${createHash("sha256").update(JSON.stringify(notes)).digest("hex").slice(0, 12)}`;
+    continued.set(key, notes);
+    const novel = gen.generated.filter((g) => g.shape === "new").length;
+    return {
+      claims: [{ label: "notes", end2: key }],
+      witness: "derived:continuation",
+      because: `bar ${k + 1} continued from ${heard.length} notes of ${bars.length} snipped bars by a mixture of priors sedimented from them (orders 1-${CONTINUATION_ORDER}); ${notes.length} notes, ${novel} of the draws new to the hearing [premises: ${JSON.stringify(bars.map((b) => b.note))}]`,
+    };
+  }
+
   /** a bar, cut from the first usable source, in order: bar k of the piece is
-   *  bar k of the source (the parts' order is the record's own) */
-  async function sourcePart({ kind, parentOrdinal = 0, index = 0, perParent = 1 }) {
+   *  bar k of the source (the parts' order is the record's own); past the
+   *  source's end, continued */
+  async function sourcePart({ kind, parentOrdinal = 0, index = 0, perParent = 1, fold = [] }) {
     if (kind !== "bar" && kind !== "measure") return null;
     const s = usable[0];
     if (!s) return null;
     const k = parentOrdinal * perParent + index;
     const a = k * s.barTicks, b = a + s.barTicks;
     const notes = notesIn(s, a, b);
-    if (!notes.length) return null;
+    if (!notes.length) return continuePart(k, fold);
     const span = `${s.uri}@${s.sha.slice(0, 12)}#ticks:${a}-${b}`;
     return {
       claims: [{ label: "notes", end2: span }],
@@ -80,12 +134,18 @@ export function makeMusicMedium({ sources = [], beatsPerBar = BEATS_PER_BAR } = 
       const hash = String(prop?.value ?? "").indexOf("#ticks:");
       const s = prop && hash > 0 ? byKey.get(String(prop.value).slice(0, hash)) : null;
       const [a, b] = s ? String(prop.value).slice(hash + "#ticks:".length).split("-").map(Number) : [0, 0];
+      const own = prop && continued.has(String(prop.value)) ? continued.get(String(prop.value)) : null;
+      if (own) for (const n of own) {
+        const note = { tick: at + n.tick, dur: n.dur, pitch: n.pitch, velocity: n.velocity, channel: 0 };
+        out.push(note);
+        map.push({ text: `${note.pitch}@${note.tick}`, src: [prop.note] });
+      }
       if (s) for (const n of notesIn(s, a, b)) {
         const note = { tick: at + (n.tick - a), dur: n.dur, pitch: n.pitch, velocity: n.velocity, channel: 0 };
         out.push(note);
         map.push({ text: `${note.pitch}@${note.tick}`, src: [prop.note] });
       }
-      at += s ? s.barTicks : tpb * beatsPerBar;
+      at += s ? s.barTicks : own ? (usable[0]?.barTicks ?? tpb * beatsPerBar) : tpb * beatsPerBar;
     }
     return { artifact: writeMidi(out, { ticksPerBeat: tpb }), map, engineWords: {}, style: null, bars: bars.length };
   }

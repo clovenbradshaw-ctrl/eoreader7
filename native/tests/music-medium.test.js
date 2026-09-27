@@ -88,3 +88,32 @@ test("music-medium contains no regular expression", () => {
   const found = scanRegexes(fs.readFileSync(path.join(NATIVE, "adapters", "build", "music-medium.js"), "utf8"));
   assert.equal(found.length, 0, JSON.stringify(found).slice(0, 200));
 });
+
+test("a piece longer than its source: the source's 35 bars snipped, the rest CONTINUED from them — derived, premised on the snipped bars, every note accounted for, sealed", async () => {
+  const medium = makeMusicMedium({ sources: [PRELUDE] });
+  const names = ["Harbor", "Tide", "Lamp", "Stair", "Gull", "Rope", "Salt", "Keel", "Fog", "Dawn"];
+  const ask = async (p) => { const a = p.split("\n").at(-1); if (a === "It is called") return "Night Harbor"; if (a === "1.") return names.map((n, i) => `${i + 1}. ${n}`).join("\n"); return ""; };
+  const out = await makeTalkBuild({ ask, parse, sentences, medium, verify: medium.verify, mouth: "scripted" }).build({ what: "a lullaby in 10 phrases of 4 bars each" });
+  const fold = makeNotes().fold(out.notes);
+  const bars = fold.filter((n) => n.label === "notes");
+  const continued = bars.filter((n) => n.witnesses.every((w) => w === "derived:continuation"));
+  assert.equal(bars.length, 40, `bars on the record: ${bars.length}`);
+  assert.equal(continued.length, 5, "bars 36-40 are continued, never asked and never snipped from nothing");
+  // the snipped part is the source's own 35 bars, exactly
+  const src = parseMidi(PRELUDE.bytes), barTicks = src.ticksPerBeat * 4;
+  const got = parseMidi(out.artifact).notes;
+  const early = got.filter((n) => n.tick < 35 * barTicks).map((n) => `${n.pitch}@${n.tick}`).sort();
+  assert.deepEqual(early, src.notes.map((n) => `${n.pitch}@${n.tick}`).sort());
+  // the continued bars sound, use only pitches the hearing held (no theory, no invention of an alphabet)
+  const late = got.filter((n) => n.tick >= 35 * barTicks);
+  assert.ok(late.length > 0, "the continuation is silent");
+  const heardPitches = new Set(src.notes.map((n) => n.pitch));
+  assert.ok(late.every((n) => heardPitches.has(n.pitch)));
+  // every note is accounted for; a continued note rests on a derived claim whose premises are snipped bars on the record
+  assert.equal(out.provenance.ok, true, JSON.stringify(out.provenance.uncovered.slice(0, 3)));
+  assert.equal(out.helix.ok, true, JSON.stringify(out.helix.violations.slice(0, 3)));
+  assert.ok(out.sealed);
+  const byId = new Map(fold.map((n) => [n.id, n]));
+  const lateSrc = new Set(out.map.filter((m) => byId.get(m.src[0])?.witnesses.includes("derived:continuation")).map((m) => m.src[0]));
+  assert.equal(lateSrc.size, 5);
+});

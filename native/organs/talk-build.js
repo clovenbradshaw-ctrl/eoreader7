@@ -30,6 +30,8 @@
 import { makeTalkReader, numberOf } from "./talk-reader.js";
 import { makeNotes } from "../kernel/notes.js";
 import { reason, isDerived } from "./talk-reason.js";
+// the rules organs/talk-reason.js derives by (its derive list is the whole of them)
+const REASON_RULES = new Set(["shown", "total", "top", "correct"]);
 import { readKinds, detailsFor } from "./kind-read.js";
 import { uncovered } from "./provenance-cover.js";
 import { helixCheck } from "./claim-acts.js";
@@ -681,7 +683,10 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
       const want = new Map(r.derive.map((d) => [`${d.end1}|${d.label}|${d.end2}`, d]));
       const acts = { derived: 0, withdrawn: 0, corrected: 0, retracted: 0 };
       // a conclusion no longer supported by its premises is withdrawn
-      for (const n of fold.filter(isDerived)) {
+      // only this reasoner's own conclusions are its to withdraw: a part a
+      // medium derived (a bar continued from the heard bars) answers to its
+      // own premises, not to reason()'s list
+      for (const n of fold.filter(isDerived).filter((x) => x.witnesses.every((w) => REASON_RULES.has(String(w).slice("derived:".length).split("#")[0])))) {
         if (want.has(`${n.end1}|${n.label}|${n.end2}`)) continue;
         const done = N.concede(notes, n.id, { trigger: "its premises changed" });
         if (!done.refused) { notes = done.log; acts.withdrawn++; }
@@ -726,7 +731,7 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
           const grand = parent?.parent ? belief.find((t) => t.id === parent.parent) : null;
           const parentOrdinal = grand ? grand.children.indexOf(parent.id) : 0;
           for (let k = 0; k < pt.missing; k++) {
-            const got = await medium.sourcePart({ kind: pt.c.kind, modifier: pt.c.modifier ?? null, parentId: pt.parentId, parentOrdinal, index: pt.have + k, perParent: pt.c.n, spec });
+            const got = await medium.sourcePart({ kind: pt.c.kind, modifier: pt.c.modifier ?? null, parentId: pt.parentId, parentOrdinal, index: pt.have + k, perParent: pt.c.n, spec, fold: N.fold(notes) });
             if (!got) break;
             const id = reader.mint(pt.c.kind, pt.c.modifier ?? null).id;
             const claims = [{ end1: id, label: "exists", end2: pt.c.kind }, positioned(id, pt.parentId), ...(pt.parentId ? [{ end1: pt.parentId, label: "has", end2: id }] : []), ...(got.name ? [{ end1: id, label: "named", end2: got.name }] : []), ...(got.claims ?? []).map((c) => ({ end1: id, ...c }))];
