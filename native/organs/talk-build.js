@@ -118,7 +118,9 @@ export function specOf(request, { parse, sentences, wholeWords = new Set() }) {
       if (t.upos === "VERB" && !isMod(t, toks[i + 1], toks[i - 1]) && !String(t.form).includes("/")) { if (owner) { mode = "for"; owner.purpose.push(w); } continue; }
       // a noun phrase opens at a numeral, a determiner, or a bare noun or adjective
       const n = numberOf(t.form);
-      const numeral = n != null && (t.upos === "NUM" || t.deprel === "nummod");
+      // a number word right before a noun is a count, however the tagger
+      // tagged it ("twelve posts" came back without NUM)
+      const numeral = n != null && (t.upos === "NUM" || t.deprel === "nummod" || isMod(toks[i + 1], toks[i + 2], t));
       const start = numeral || t.upos === "DET" ? i + 1 : i;
       const run = [];
       for (let j = start; j < toks.length && isMod(toks[j], toks[j + 1], toks[j - 1]); j++) run.push(toks[j]);
@@ -217,8 +219,12 @@ export function beliefOf(notesFold, things) {
     if (!a) continue;
     if (n.label === "has" && byId.has(n.end2)) { const b = byId.get(n.end2); b.heldNote ??= n.id; if (!b.parent && b !== a) { b.parent = a.id; a.children.push(b.id); } continue; }
     if (n.label === "named") { a.name = n.end2; a.nameNote = n.id; continue; }
+    if (n.label === "position") { a.position = Number(n.end2); continue; }
     a.props.push({ label: n.label, value: n.end2, note: n.id, witnesses: n.witnesses ?? [], ...(isDerived(n) ? { derived: true } : {}) });
   }
+  // a part's children in the order they were made (their heard positions);
+  // the fold's own order is by id, which puts "bar#10" before "bar#8"
+  for (const t of byId.values()) t.children.sort((x, y) => (byId.get(x)?.position ?? Infinity) - (byId.get(y)?.position ?? Infinity));
   // a heard value the record corrects stays on the page as what was said,
   // beside the value the record supports (never silently replaced)
   for (const t of byId.values()) for (const q of t.props) if (!q.derived && t.props.some((d) => d.derived && d.label === q.label && d.value !== q.value)) q.superseded = true;
@@ -339,6 +345,11 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     let notes = N.createNotes({ frame: { request: what, forWhom: request.forWhom ?? null, reader: "organs/talk-reader.js" } });
     let asks = 0;
     const tried = new Map();
+    // ORDER IS INFORMATION: the fold returns claims by id ("bar#10" before
+    // "bar#8"), so the order parts were made in is heard as a claim of its
+    // own — each part's position among its siblings, at the moment it is minted
+    const positions = new Map();
+    const positioned = (id, parentId) => { const k = parentId ?? "top"; const n = (positions.get(k) ?? 0) + 1; positions.set(k, n); return { end1: id, label: "position", end2: String(n) }; };
     const hear = (claims) => {
       const before = notes.entries.length;
       for (const c of claims) notes = N.hear(notes, { end1: c.end1, label: c.label, end2: c.end2, witness: c.witness, because: c.sentence });
@@ -373,7 +384,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
           if (slot.label === "named" && !takeName(slot.kind, slot.parent, value)) continue;
           const because = `${anchor} ${value}`;
           const subject = reader.mint(slot.kind, slot.modifier ?? null).id;
-          claims.push({ end1: subject, label: "exists", end2: slot.kind, sentence: because, witness });
+          claims.push({ end1: subject, label: "exists", end2: slot.kind, sentence: because, witness }, { ...positioned(subject, slot.parent), sentence: because, witness });
           if (slot.parent) claims.push({ end1: slot.parent, label: "has", end2: subject, sentence: because, witness });
           if (slot.label === "named") reader.rename(subject, value);
           claims.push({ end1: subject, label: slot.label, end2: value, sentence: because, witness });
@@ -404,7 +415,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
           if (slot.mint) {
             if (slot.label === "named" && !takeName(slot.kind, row.id, value)) { row.done = false; return; }
             const subject = reader.mint(slot.kind, slot.modifier ?? null).id;
-            claims.push({ end1: subject, label: "exists", end2: slot.kind, sentence: `${row.title}: ${value}`, witness }, { end1: row.id, label: "has", end2: subject, sentence: `${row.title}: ${value}`, witness });
+            claims.push({ end1: subject, label: "exists", end2: slot.kind, sentence: `${row.title}: ${value}`, witness }, { ...positioned(subject, row.id), sentence: `${row.title}: ${value}`, witness }, { end1: row.id, label: "has", end2: subject, sentence: `${row.title}: ${value}`, witness });
             if (slot.label === "named") reader.rename(subject, value);
             claims.push({ end1: subject, label: slot.label, end2: value, sentence: `${row.title}: ${value}`, witness });
           } else claims.push({ end1: row.id, label: slot.label, end2: value, sentence: `${row.title}: ${slot.label} ${value}`, witness });
@@ -428,7 +439,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
           if (!subject && slot.label === "named" && !takeName(slot.kind, slot.parent, value)) { log({ kind: "turn", gap, prompt, reply, claims: [], ops: [], refused: `name already used: ${value}`, ms: Date.now() - t0 }); return 0; }
           if (!subject) {
             subject = reader.mint(slot.kind, slot.modifier ?? null).id;
-            claims.push({ end1: subject, label: "exists", end2: slot.kind, sentence: because, witness });
+            claims.push({ end1: subject, label: "exists", end2: slot.kind, sentence: because, witness }, { ...positioned(subject, slot.parent), sentence: because, witness });
             if (slot.parent) claims.push({ end1: slot.parent, label: "has", end2: subject, sentence: because, witness });
           }
           if (slot.label === "named") reader.rename(subject, value);
@@ -491,7 +502,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       takeName(c.kind, null, nm);
       const t = reader.mint(c.kind, c.modifier, nm);
       seeded.push({ end1: t.id, label: "exists", end2: c.kind, sentence: what, witness: "request" }, { end1: t.id, label: "named", end2: nm, sentence: what, witness: "request" });
-      if (!c.per) seeded.push({ end1: wholeId, label: "has", end2: t.id, sentence: what, witness: "request" });
+      if (!c.per) seeded.push({ end1: wholeId, label: "has", end2: t.id, sentence: what, witness: "request" }, { ...positioned(t.id, wholeId), sentence: what, witness: "request" });
     }
     const seedTalk = spec.named.flatMap((p) => {
       const be = p.plural ? "are" : "is";
@@ -634,7 +645,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
             const got = await medium.sourcePart({ kind: pt.c.kind, modifier: pt.c.modifier ?? null, parentId: pt.parentId, parentOrdinal, index: pt.have + k, perParent: pt.c.n, spec });
             if (!got) break;
             const id = reader.mint(pt.c.kind, pt.c.modifier ?? null).id;
-            const claims = [{ end1: id, label: "exists", end2: pt.c.kind }, ...(pt.parentId ? [{ end1: pt.parentId, label: "has", end2: id }] : []), ...(got.name ? [{ end1: id, label: "named", end2: got.name }] : []), ...(got.claims ?? []).map((c) => ({ end1: id, ...c }))];
+            const claims = [{ end1: id, label: "exists", end2: pt.c.kind }, positioned(id, pt.parentId), ...(pt.parentId ? [{ end1: pt.parentId, label: "has", end2: id }] : []), ...(got.name ? [{ end1: id, label: "named", end2: got.name }] : []), ...(got.claims ?? []).map((c) => ({ end1: id, ...c }))];
             for (const c of claims) notes = N.hear(notes, { end1: c.end1, label: c.label, end2: c.end2, witness: got.witness, because: got.because ?? "" });
             if (got.name) reader.rename(id, got.name);
             sourced++;

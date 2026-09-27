@@ -276,6 +276,15 @@ test("the core names no medium: every page word lives in the page adapter", () =
   assert.equal(BARE_MEDIUM.root, "whole");
 });
 
+test("parts keep the order they were made in (the fold's own order is by id: part#10 before part#8)", async () => {
+  const names = Array.from({ length: 12 }, (_, i) => `Post ${String.fromCharCode(65 + i)}`);
+  const ask = async (p) => { const a = p.split("\n").at(-1); if (a === "1.") return names.map((n, i) => (i ? `${i + 1}. ` : "") + n).join("\n"); return ""; };
+  const out = await makeTalkBuild({ medium: PAGE_MEDIUM, ask, parse, sentences, render: renderBeliefMapped, maxAsks: 3 }).build({ what: "make a site with twelve posts with a title", forWhom: "fans" });
+  const site = out.belief.find((t) => t.kind === "site");
+  const byId = new Map(out.belief.map((t) => [t.id, t]));
+  assert.deepEqual(site.children.map((c) => byId.get(c).name), names);
+});
+
 test("the talk path contains no regular expression", () => {
   for (const f of ["organs/talk-reader.js", "organs/talk-build.js", "adapters/build/belief-page.js", "eval/build-battery/run-talk.mjs"]) {
     const found = scanRegexes(fs.readFileSync(path.join(NATIVE, f), "utf8"));
