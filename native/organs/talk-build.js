@@ -152,7 +152,19 @@ export function specOf(request, { parse, sentences }) {
     }
   }
   for (const x of [...counted, ...named]) x.purpose = x.purpose.length ? x.purpose.join(" ") : null;
-  return { counted, named };
+  // what the build is, in the request's own words: the phrase before its
+  // first part ("make a reddit-style site for dolphin fans with six …" ->
+  // "a reddit-style site for dolphin fans"). Every ask carries this and its
+  // own thing's path — never the whole request, which grows with the build.
+  const first = sentences(request)[0];
+  const toks = first ? parse(first.text) : [];
+  const words = [];
+  for (let i = toks[0]?.upos === "VERB" ? 1 : 0; i < toks.length; i++) {
+    const t = toks[i], w = lowerOf(t);
+    if (w === "with" || w === "," || w === ";" || w === "—" || numberOf(t.form) != null || (t.upos === "VERB" && words.length)) break;
+    words.push(t.form);
+  }
+  return { counted, named, whole: words.join(" ") || null };
 }
 
 /** The folded belief as things: { id, kind, modifier, name, props, children, parent }.
@@ -293,6 +305,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         // one value per line: "1. Superpod sighting" / "- Superpod sighting"
         const values = linesOf(reply).map((l) => slotValue(l, slot.whole)).filter(Boolean).slice(0, slot.list);
         for (const value of values) {
+          if (slot.label === "named" && !takeName(slot.kind, slot.parent, value)) continue;
           const because = `${anchor} ${value}`;
           const subject = reader.mint(slot.kind, slot.modifier ?? null).id;
           claims.push({ end1: subject, label: "exists", end2: slot.kind, sentence: because, witness });
@@ -324,6 +337,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
           if (!value) return;
           row.done = true;
           if (slot.mint) {
+            if (slot.label === "named" && !takeName(slot.kind, row.id, value)) { row.done = false; return; }
             const subject = reader.mint(slot.kind, slot.modifier ?? null).id;
             claims.push({ end1: subject, label: "exists", end2: slot.kind, sentence: `${row.title}: ${value}`, witness }, { end1: row.id, label: "has", end2: subject, sentence: `${row.title}: ${value}`, witness });
             if (slot.label === "named") reader.rename(subject, value);
@@ -346,6 +360,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         if (value) {
           const because = `${anchor} ${value}`;
           let subject = slot.subject;
+          if (!subject && slot.label === "named" && !takeName(slot.kind, slot.parent, value)) { log({ kind: "turn", gap, prompt, reply, claims: [], ops: [], refused: `name already used: ${value}`, ms: Date.now() - t0 }); return 0; }
           if (!subject) {
             subject = reader.mint(slot.kind, slot.modifier ?? null).id;
             claims.push({ end1: subject, label: "exists", end2: slot.kind, sentence: because, witness });
@@ -366,10 +381,23 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       return ops.filter((o) => o.operator === "INS").length;
     };
 
+    // Siblings are told apart by name: a name already used by a thing of the
+    // same kind under the same parent is not taken again (five profiles all
+    // called "DolphinDolphin" are one name heard five times, not five profiles)
+    const used = new Map();
+    const takeName = (kind, parent, name) => {
+      const k = `${kind}|${parent ?? "top"}`, n = String(name).trim().toLowerCase();
+      if (!used.has(k)) used.set(k, new Set());
+      if (used.get(k).has(n)) return false;
+      used.get(k).add(n);
+      return true;
+    };
+
     // The request is the first talk: what it names is on the record before
     // the mouth says anything (witness "request").
     const seeded = [];
     for (const c of spec.counted) for (const nm of c.names) {
+      takeName(c.kind, null, nm);
       const t = reader.mint(c.kind, c.modifier, nm);
       seeded.push({ end1: t.id, label: "exists", end2: c.kind, sentence: what, witness: "request" }, { end1: t.id, label: "named", end2: nm, sentence: what, witness: "request" });
     }
@@ -383,7 +411,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     if (seedTalk) seeded.push(...reader.read(seedTalk, { witness: "request" }).claims);
     if (seeded.length) { hear(seeded); log({ kind: "seed", talk: seedTalk, claims: show(seeded) }); }
 
-    const context = `We are describing ${what}, for ${request.forWhom ?? "the people who will use it"}. Talk about it in short plain sentences, one fact per sentence.`;
+    const context = `We are describing ${spec.whole ?? "a site"}, for ${request.forWhom ?? "the people who will use it"}. Talk about it in short plain sentences, one fact per sentence.`;
     await turn("opening", `${context}\nWhat is the site called?`, "The site is called", { subject: reader.mint("site").id, label: "named" });
 
     while (asks < maxAsks) {

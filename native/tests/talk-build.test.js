@@ -143,6 +143,39 @@ test("the reply's framing is not the answer", async () => {
   assert.equal(out.belief.find((t) => t.kind === "site").name, "Pod Chat");
 });
 
+// Gary's door (the-fold's archon for everything the mouth reads; pinned from
+// this side as in gary-doors.test.js): no apparatus words, no prohibitions,
+// no JSON asks — and as little as possible, so an ask carries what the build
+// is and its own thing's path, never the whole request.
+const APPARATUS = ["ledger", "claim", "slot", "belief", "spec", "witness", "operator", "fold", "gap", "anchor", "NUL", "SIG", "INS", "SEG", "CON", "SYN", "DEF", "EVA", "REC", "EOT"];
+const BANS = ["do not", "don't", "never", "must not", "should not", "refrain from", "avoid"];
+test("Gary's door: every ask is facts in plain words, and its size does not grow with the build", async () => {
+  const sizes = {};
+  for (const id of ["page-rung-2", "page-rung-5"]) {
+    const { ask, prompts } = scriptedMouth();
+    await makeTalkBuild({ ask, parse, sentences, render: renderBelief }).build({ what: rung(id).prompt, forWhom: rung(id).answers.anchor });
+    for (const p of prompts) {
+      const words = p.split("\n").join(" ").split(" ").map((w) => w.toLowerCase().split("").filter((c) => c.toLowerCase() !== c.toUpperCase() || c === "'").join(""));
+      for (const term of APPARATUS) assert.ok(!words.includes(term.toLowerCase()), `an ask names "${term}": ${p.slice(0, 120)}`);
+      for (const ban of BANS) assert.ok(!p.toLowerCase().includes(ban), `an ask carries a prohibition ("${ban}")`);
+      assert.ok(!words.includes("json"), "an ask asks for JSON");
+      assert.ok(!p.includes(rung(id).prompt), "an ask carries the whole request");
+    }
+    sizes[id] = Math.max(...prompts.map((p) => p.length));
+  }
+  // rung 5 asks for six times the posts of rung 2; its largest ask may be a
+  // little longer (six posts listed where three were), never the request's growth
+  assert.ok(sizes["page-rung-5"] <= 1.3 * sizes["page-rung-2"], JSON.stringify(sizes));
+});
+
+test("siblings are told apart by name: a name already used is not taken again", async () => {
+  const replies = ["Pod Chat", "Dolphin Fan\n2. Dolphin Fan\n3. Orca Watch", "Fin Friday"];
+  let k = 0;
+  const tb = makeTalkBuild({ ask: async () => replies[k++] ?? "", parse, sentences, render: renderBelief, maxAsks: 3 });
+  const out = await tb.build({ what: "make a site with three posts with a title", forWhom: "fans" });
+  assert.deepEqual(out.belief.filter((t) => t.kind === "post").map((t) => t.name), ["Dolphin Fan", "Orca Watch", "Fin Friday"]);
+});
+
 test("the talk path contains no regular expression", () => {
   for (const f of ["organs/talk-reader.js", "organs/talk-build.js", "adapters/build/belief-page.js", "eval/build-battery/run-talk.mjs"]) {
     const found = scanRegexes(fs.readFileSync(path.join(NATIVE, f), "utf8"));
