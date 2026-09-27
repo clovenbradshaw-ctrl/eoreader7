@@ -67,7 +67,7 @@ test("controls: the clause's noun, reversed kinds, no agent", () => {
 
 test("wired: a thin request's details are reasoned from the source; the mouth is not asked what a post shows", async () => {
   const looked = [];
-  const lookup = async (term) => { looked.push(term); return term === "reddit" ? fixture("reddit.txt") : null; };
+  const lookup = async (term) => { looked.push(term); return term === "reddit" ? { text: fixture("reddit.txt"), url: "https://en.wikipedia.org/wiki/Reddit", revision: 1375577792, license: "CC-BY-SA-4.0" } : null; };
   const prompts = [];
   const ask = async (p) => {
     prompts.push(p);
@@ -85,7 +85,8 @@ test("wired: a thin request's details are reasoned from the source; the mouth is
   assert.ok(!prompts.some((p) => p.toLowerCase().includes("what does each post")), "the mouth was not asked what a post shows");
   const fold = makeNotes().fold(out.notes);
   const shows = fold.find((n) => n.end1 === "kind:post" && n.label === "shows" && n.end2 === "vote count");
-  assert.ok(shows && shows.witnesses.includes("source:reddit"), "the reasoned detail is on the ledger with its source");
+  assert.ok(shows && shows.witnesses.includes("source:https://en.wikipedia.org/wiki/Reddit@1375577792"), `the reasoned detail names the page and revision it was read at: ${shows?.witnesses}`);
+  assert.ok(out.notes.entries.some((e) => e.end1 === "kind:post" && String(e.because ?? "").endsWith("[CC-BY-SA-4.0]")), "and the quoted sentence carries its license");
   const posts = out.belief.filter((t) => t.kind === "post");
   assert.ok(posts.length === 4 && posts.every((t) => t.props.some((p) => p.label === "vote count")), "every post carries the reasoned detail");
 });

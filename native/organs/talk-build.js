@@ -544,10 +544,17 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       const forAt = wholeWords.indexOf("for");
       const term = (forAt > 0 ? wholeWords.slice(0, forAt) : wholeWords).filter((w) => !["a", "an", "the"].includes(w.toLowerCase())).at(-1) ?? null;
       let facts = [];
+      let sourceWitness = `source:${term}`, sourceLicense = null;
       if (lookup && term) {
-        const text = await lookup(term).catch(() => null);
+        // a lookup answers text, or { text, url, revision, license }: the
+        // witness names the page and revision read, and the license rides
+        // with the quoted sentence
+        const got = await lookup(term).catch(() => null);
+        const text = typeof got === "string" ? got : got?.text ?? null;
+        if (got && typeof got === "object" && got.url) sourceWitness = `source:${got.url}${got.revision ? `@${got.revision}` : ""}`;
+        sourceLicense = got && typeof got === "object" ? got.license ?? null : null;
         if (text) facts = readKinds(text, { parse, sentences }).facts;
-        log({ kind: "source", term, found: !!text, facts: facts.map((f) => `${f.a} ${f.rel} ${f.b}${f.agent ? ` (by ${f.agent})` : ""}`) });
+        log({ kind: "source", term, found: !!text, witness: sourceWitness, license: sourceLicense, facts: facts.map((f) => `${f.a} ${f.rel} ${f.b}${f.agent ? ` (by ${f.agent})` : ""}`) });
       }
       let showsOps = [];
       for (const c of spec.counted.filter((x) => depth(x) <= 1)) {
@@ -555,9 +562,9 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         if (found.length) {
           for (const d of found) {
             c.details.push(d.detail);
-            notes = N.hear(notes, { end1: `kind:${c.kind}`, label: "shows", end2: d.detail, witness: `source:${term}`, because: d.because[0] });
+            notes = N.hear(notes, { end1: `kind:${c.kind}`, label: "shows", end2: d.detail, witness: sourceWitness, because: `${d.because[0]}${sourceLicense ? ` [${sourceLicense}]` : ""}` });
           }
-          log({ kind: "reasoned", gap: `shows:${c.kind}`, from: `source:${term}`, claims: found.map((d) => `${c.kind} shows ${d.detail}${d.inherited ? " (inherited)" : ""}`), because: found.flatMap((d) => d.because) });
+          log({ kind: "reasoned", gap: `shows:${c.kind}`, from: sourceWitness, claims: found.map((d) => `${c.kind} shows ${d.detail}${d.inherited ? " (inherited)" : ""}`), because: found.flatMap((d) => d.because) });
           continue;
         }
         asks++;
