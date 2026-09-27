@@ -20,8 +20,10 @@
 //   snip     only the rules whose selectors name an element the page emits
 //            (plus :root, html, body, *), and any @media block holding one,
 //            each with its exact byte range in the pinned file
-//   stamp    package@version/path, its URL, license, sha256 and the byte
-//            ranges, in a comment at the head of the snipped CSS
+//   stamp    package@version/path, its URL, license, sha256 of the file's
+//            bytes and the byte ranges, in a /*! comment (kept by minifiers)
+//            at the head of the snipped CSS; a license that asks for its
+//            notice and ships none is refused
 //
 // Pure except for what is injected (`npm`: adapters/sources/npm-parts.js).
 // No regular expressions.
@@ -36,6 +38,25 @@ export const PERMISSIVE = Object.freeze(new Set(["MIT", "ISC", "BSD-2-Clause", "
  *  page of plain elements is what the registry calls "classless css". */
 export const NEED_QUERIES = Object.freeze({ stylesheet: ["classless css"] });
 const ALWAYS = new Set([":root", "html", "body", "*"]);
+/** Licenses under which the notice must travel with every copy (the rest of
+ *  PERMISSIVE ask for nothing), set by hand 2026-09-27 from their texts. */
+export const NOTICE_REQUIRED = Object.freeze(new Set(["MIT", "ISC", "BSD-2-Clause", "BSD-3-Clause", "Apache-2.0"]));
+const canon = (id) => [...PERMISSIVE].find((p) => p.toLowerCase() === String(id ?? "").trim().toLowerCase()) ?? null;
+/** The license a registry states, read as SPDX: "MIT", { type: "MIT" },
+ *  "(MIT OR Apache-2.0)" (one of them may be chosen), "MIT AND ISC" (all
+ *  bind). -> { ok, chosen, all } — ok when a permissive reading exists. */
+export function readLicense(stated) {
+  let s = typeof stated === "object" && stated ? String(stated.type ?? "") : String(stated ?? "");
+  s = s.split("(").join(" ").split(")").join(" ").trim();
+  if (!s) return { ok: false, chosen: null, all: [] };
+  const ors = s.split(" OR ").flatMap((x) => x.split(" or "));
+  for (const alt of ors) {
+    const ands = alt.split(" AND ").flatMap((x) => x.split(" and ")).map((x) => x.trim()).filter(Boolean);
+    const ids = ands.map(canon);
+    if (ids.length && ids.every(Boolean)) return { ok: true, chosen: ids.join(" AND "), all: ids };
+  }
+  return { ok: false, chosen: null, all: [] };
+}
 
 /** Top-level CSS blocks with their byte ranges: [{ head, start, end, inner }]
  *  (inner: the nested blocks of an @-rule). Comments and strings are skipped. */
@@ -50,6 +71,8 @@ export function cssBlocks(text, from = 0, to = text.length) {
       let depth = 1, j = i + 1;
       while (j < to && depth) {
         if (text[j] === "/" && text[j + 1] === "*") { const e = text.indexOf("*/", j + 2); j = e < 0 ? to : e + 2; continue; }
+        // a quoted "}" (content: "}") is text, not the block's end
+        if (text[j] === "\"" || text[j] === "'") { const q = text[j]; let e = j + 1; while (e < to && text[e] !== q) e += text[e] === "\\" ? 2 : 1; j = e + 1; continue; }
         if (text[j] === "{") depth++; else if (text[j] === "}") depth--;
         j++;
       }
@@ -112,7 +135,8 @@ export async function sourcePart({ need = "stylesheet", elements, npm, maxCandid
   for (const q of NEED_QUERIES[need] ?? []) {
     const found = (await npm.search(q, maxCandidates)) ?? [];
     for (const p of found) {
-      const ok = PERMISSIVE.has(String(p.license ?? ""));
+      const lic = readLicense(p.license);
+      const ok = lic.ok;
       tried.push({ name: p.name, version: p.version, license: p.license, kept: ok });
       if (!ok) continue;
       const files = (await npm.files(p.name, p.version)) ?? [];
@@ -122,22 +146,29 @@ export async function sourcePart({ need = "stylesheet", elements, npm, maxCandid
         if (!got?.text) continue;
         const s = snipCss(got.text, elements);
         const score = s.reached.length;
-        if (!best || score > best.score || (score === best.score && s.css.length < best.snip.css.length)) best = { score, snip: s, p, f, got };
+        if (!best || score > best.score || (score === best.score && s.css.length < best.snip.css.length)) best = { score, snip: s, p, f, got, lic };
       }
     }
   }
   if (!best || !best.score) return null;
+  // the license text travels with the snip; a license that asks for its
+  // notice and has none to give is not taken (the snip would break its terms)
   const files = (await npm.files(best.p.name, best.p.version)) ?? [];
-  const lic = files.find((f) => { const n = f.path.toLowerCase(); return n === "/license" || n === "/license.md" || n === "/license.txt" || n === "/licence"; });
-  const licenseText = lic ? (await npm.file(best.p.name, best.p.version, lic.path))?.text ?? null : null;
+  const licFile = files.filter((f) => { const n = f.path.toLowerCase().split("/").at(-1); return n.startsWith("license") || n.startsWith("licence") || n.startsWith("copying"); }).sort((a, b) => a.path.length - b.path.length)[0];
+  const licenseText = licFile ? (await npm.file(best.p.name, best.p.version, licFile.path))?.text ?? null : null;
+  if (!licenseText && best.lic.all.some((id) => NOTICE_REQUIRED.has(id))) return { schema: PART_SOURCE_SCHEMA, need, css: null, refused: `${best.p.name}@${best.p.version} is ${best.lic.chosen}, which asks for its notice, and ships no license text`, provenance: { candidates: tried } };
+  // the ranges are BYTES of the file as served, and the hash is of those bytes
+  const raw = best.got.bytes ? Buffer.from(best.got.bytes, "base64") : Buffer.from(best.got.text, "utf8");
+  const toByte = (i) => Buffer.byteLength(best.got.text.slice(0, i), "utf8");
+  const ranges = best.snip.ranges.map(([a, z]) => [toByte(a), toByte(z)]);
   return {
     schema: PART_SOURCE_SCHEMA, need, css: best.snip.css,
-    provenance: { package: best.p.name, version: best.p.version, path: best.f.path, url: best.got.url, license: best.p.license, licenseText, sha256: best.got.sha256, ranges: best.snip.ranges, reached: best.snip.reached, of: [...elements], candidates: tried },
+    provenance: { package: best.p.name, version: best.p.version, path: best.f.path, url: best.got.url, license: best.lic.chosen, stated: best.p.license, licenseText, sha256: best.got.sha256, bytes: raw.length, ranges, reached: best.snip.reached, of: [...elements], candidates: tried },
   };
 }
 
 /** The comment that travels at the head of the snipped CSS. */
 export function provenanceComment(p) {
   const clean = (s) => String(s ?? "").split("*/").join("* /");
-  return `/* snipped, not written: ${clean(p.package)}@${clean(p.version)}${clean(p.path)}\n   ${clean(p.url)}\n   license ${clean(p.license)} · sha256 ${p.sha256}\n   bytes ${p.ranges.map(([a, z]) => `${a}-${z}`).join(", ")}\n   styles: ${p.reached.join(", ")}\n${p.licenseText ? `\n${clean(p.licenseText).trim()}\n` : `\n(no license file in the package; the registry states ${clean(p.license)})\n`}*/`;
+  return `/*! snipped, not written: ${clean(p.package)}@${clean(p.version)}${clean(p.path)}\n   ${clean(p.url)}\n   license ${clean(p.license)} · sha256 ${p.sha256}\n   bytes ${p.ranges.map(([a, z]) => `${a}-${z}`).join(", ")} of ${p.bytes ?? "?"}\n   styles: ${p.reached.join(", ")}\n${p.licenseText ? `\n${clean(p.licenseText).trim()}\n` : `\n(no license file in the package; the registry states ${clean(p.license)})\n`}*/`;
 }

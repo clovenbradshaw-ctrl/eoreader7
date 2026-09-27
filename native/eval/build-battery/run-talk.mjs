@@ -43,8 +43,8 @@ const verify = async (kind, text) => { const v = inspect(text); return { ok: v.k
 const lookup = makeWikiSummary({ dir: path.join(ROOT, "state", "sources", "wikipedia") });
 // the page's stylesheet, snipped from a licensed published package (organs/part-source.js), once
 const part = arg("parts", "on") === "off" ? null : await sourcePart({ need: "stylesheet", elements: RENDERED_ELEMENTS, npm: makeNpmParts({ dir: path.join(ROOT, "state", "sources", "npm") }) });
-const style = part ? { css: part.css, comment: provenanceComment(part.provenance) } : null;
-console.log(part ? `stylesheet: ${part.provenance.package}@${part.provenance.version}${part.provenance.path} (${part.provenance.license}), ${part.provenance.reached.length}/${RENDERED_ELEMENTS.length} elements` : "stylesheet: none found — the engine's fallback");
+const style = part?.css ? { css: part.css, comment: provenanceComment(part.provenance) } : null;
+console.log(part?.css ? `stylesheet: ${part.provenance.package}@${part.provenance.version}${part.provenance.path} (${part.provenance.license}), ${part.provenance.reached.length}/${RENDERED_ELEMENTS.length} elements` : `stylesheet: ${part?.refused ?? "none found"} — the engine's fallback`);
 const render = (belief, o) => renderBelief(belief, { ...o, style });
 const rows = [];
 for (const file of arg("battery", "ladder.json").split(",")) {

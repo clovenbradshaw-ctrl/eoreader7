@@ -22,18 +22,18 @@ export function makeNpmParts({ dir, fetch: doFetch = globalThis.fetch, timeoutMs
   const get = async (url, as = "json") => {
     const res = await doFetch(url, { headers: { "user-agent": "eoreader7" }, signal: AbortSignal.timeout(timeoutMs) });
     if (!res.ok) throw new Error(`${res.status}`);
-    return as === "json" ? res.json() : res.text();
+    return as === "json" ? res.json() : as === "bytes" ? res.arrayBuffer() : res.text();
   };
   return {
     /** packages matching `text`, each with the license the registry states */
     search: (text, size = 8) => cached(`search:${text}:${size}`, async () => (await get(`https://registry.npmjs.org/-/v1/search?text=${encodeURIComponent(text)}&size=${size}`)).objects.map((o) => ({ name: o.package.name, version: o.package.version, license: o.package.license ?? null, description: o.package.description ?? "" }))),
     /** every file in one pinned version: [{ path, size }] */
     files: (name, version) => cached(`files:${name}@${version}`, async () => (await get(`https://data.jsdelivr.com/v1/packages/npm/${name}@${version}?structure=flat`)).files.map((f) => ({ path: f.name, size: f.size }))),
-    /** one pinned file: { url, text, sha256 } */
+    /** one pinned file, exactly as served: { url, text, bytes (base64), sha256 of the bytes } */
     file: (name, version, p) => cached(`file:${name}@${version}${p}`, async () => {
       const url = `https://cdn.jsdelivr.net/npm/${name}@${version}${p}`;
-      const text = await get(url, "text");
-      return { url, text, sha256: crypto.createHash("sha256").update(text).digest("hex") };
+      const raw = Buffer.from(await get(url, "bytes"));
+      return { url, text: raw.toString("utf8"), bytes: raw.toString("base64"), sha256: crypto.createHash("sha256").update(raw).digest("hex") };
     }),
   };
 }

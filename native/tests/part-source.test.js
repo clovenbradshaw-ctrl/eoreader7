@@ -18,7 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
-import { cssBlocks, selectorElements, snipCss, sourcePart, provenanceComment, PERMISSIVE } from "../organs/part-source.js";
+import { cssBlocks, selectorElements, snipCss, sourcePart, provenanceComment, PERMISSIVE, readLicense } from "../organs/part-source.js";
 import { renderBelief, RENDERED_ELEMENTS } from "../adapters/build/belief-page.js";
 import { scanRegexes } from "../../scripts/kleene-up.mjs";
 
@@ -36,7 +36,7 @@ function fixtureNpm({ gpl = false } = {}) {
   return {
     search: async () => found,
     files: async (name) => name === "@exampledev/new.css" ? JSON.parse(fx("new.css@1.1.3.files.json")) : name === "sakura.css" ? JSON.parse(fx("sakura.css@1.5.1.files.json")) : [{ path: "/all.css", size: 500 }],
-    file: async (name, version, p) => { const text = texts[name]?.[p]; return text == null ? null : { url: `https://cdn.jsdelivr.net/npm/${name}@${version}${p}`, text, sha256: sha(text) }; },
+    file: async (name, version, p) => { const text = texts[name]?.[p]; if (text == null) return null; const raw = Buffer.from(text, "utf8"); return { url: `https://cdn.jsdelivr.net/npm/${name}@${version}${p}`, text, bytes: raw.toString("base64"), sha256: sha(raw) }; },
   };
 }
 
@@ -79,11 +79,46 @@ test("the page: every CSS byte is the source's, the notice travels, nothing is w
   const afterComment = style.slice(style.indexOf("*/") + 2).trim();
   assert.equal(afterComment, part.css.trim(), "the page's CSS is exactly the snip");
   const source = part.provenance.package === "sakura.css" ? SAKURA : NEW;
-  assert.equal(afterComment, part.provenance.ranges.map(([a, z]) => source.slice(a, z)).join("\n").trim(), "and the snip is exactly the source's bytes at its ranges");
+  const raw = Buffer.from(source, "utf8");
+  assert.equal(afterComment, part.provenance.ranges.map(([a, z]) => raw.subarray(a, z).toString("utf8")).join("\n").trim(), "and the snip is exactly the source's BYTES at its ranges");
   assert.equal(part.provenance.sha256, sha(source));
   assert.ok(comment.includes("Permission is hereby granted"), "the license notice travels with the snip");
+  assert.ok(comment.startsWith("/*!"), "in a comment minifiers keep");
   assert.ok(!page.includes("--accent") && !page.includes("fallback, written by hand"), "no hand-written rule is on the page");
   assert.ok(page.includes('title="computed from the parts on this page"'), "a computed value is still marked, in plain HTML");
+});
+
+test("byte ranges stay exact past a multi-byte character", async () => {
+  // new.css carries "→" (3 bytes) at character 5731: every range after it must
+  // still be the file's own bytes, not string indices that drift by two
+  assert.ok(NEW.indexOf("→") > 0);
+  const part = await sourcePart({ need: "stylesheet", elements: RENDERED_ELEMENTS, npm: fixtureNpm() });
+  const raw = Buffer.from(NEW, "utf8");
+  const after = part.provenance.ranges.filter(([a]) => a > Buffer.byteLength(NEW.slice(0, NEW.indexOf("→"))));
+  assert.ok(after.length > 0, "the fixture has ranges after the arrow");
+  for (const [a, z] of after) assert.ok(raw.subarray(a, z).toString("utf8").trimStart()[0] !== "\n" && raw.subarray(a, z).toString("utf8").endsWith("}"), `range ${a}-${z} is not a whole block in bytes`);
+  assert.equal(part.provenance.bytes, raw.length);
+});
+
+test("a quoted brace is text, not the end of a block", () => {
+  const css = 'a::after{content:"}"} p{color:red} h1{margin:0}';
+  const blocks = cssBlocks(css);
+  assert.deepEqual(blocks.map((b) => b.head), ["a::after", "p", "h1"]);
+  assert.deepEqual(snipCss(css, ["p", "h1"]).reached.sort(), ["h1", "p"]);
+});
+
+test("license strings are read as SPDX; a notice-bound license with no text is refused", async () => {
+  assert.equal(readLicense("MIT").ok, true);
+  assert.equal(readLicense("mit").chosen, "MIT");
+  assert.equal(readLicense({ type: "ISC" }).chosen, "ISC");
+  assert.equal(readLicense("(MIT OR GPL-3.0)").chosen, "MIT", "an OR lets the permissive one be chosen");
+  assert.equal(readLicense("MIT AND GPL-3.0").ok, false, "an AND binds both");
+  assert.equal(readLicense("GPL-3.0").ok, false);
+  const npm = fixtureNpm();
+  const noLicense = { ...npm, files: async (name, v) => (await npm.files(name, v)).filter((f) => !f.path.toLowerCase().includes("licen")) };
+  const part = await sourcePart({ need: "stylesheet", elements: RENDERED_ELEMENTS, npm: noLicense });
+  assert.equal(part.css, null);
+  assert.ok(part.refused.includes("asks for its notice"));
 });
 
 test("part-source and its adapter contain no regular expression", () => {

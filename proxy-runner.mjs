@@ -308,7 +308,7 @@ let _talkStyle = null;
 const talkStyle = () => {
   if ((process.env.ER7_TALK_PARTS ?? "1") === "0") return Promise.resolve(null);
   _talkStyle ??= sourcePart({ need: "stylesheet", elements: RENDERED_ELEMENTS, npm: makeNpmParts({ dir: path.join(HERE, "state", "sources", "npm") }) })
-    .then((part) => (part ? { css: part.css, comment: provenanceComment(part.provenance), provenance: part.provenance } : null))
+    .then((part) => (part?.css ? { css: part.css, comment: provenanceComment(part.provenance), provenance: part.provenance } : null))
     .catch(() => null);
   return _talkStyle;
 };
