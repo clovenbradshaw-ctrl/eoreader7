@@ -2009,3 +2009,59 @@ and with pyodide installed the HTML validator ran and passed it, because it
 checks structure, not whether the page does what was asked. The falsifying
 control that caught the wrong attribution was a second prompt without the
 suspected word; it should have been run before the first claim was written.
+
+## 80. The mouth only talks: on the size ladder the talk path holds where the bare model falls off (2026-09-27)
+
+**What was built.** `organs/talk-reader.js` (Boswell), `organs/talk-build.js`
+(Terkel) and `adapters/build/belief-page.js`. The request is read as a spec in
+word order: the counted parts per parent, their details, and the named parts.
+Each ask is one small question that ends on a sentence for the model to
+finish ("One more post in r/orca is called", "1. Orca Watch:"). The question
+decides what kind of answer comes back, so the engine types every reply
+itself, and the model never sees an operator. Every claim is heard into the
+notes ledger (INS on first hearing, SYN when heard again, `operator_basis:
+produced`), and the page is drawn from the fold. The ledger is the build.
+
+**Result** (dolphin-reddit ladder, page rungs 1–5, same checker for every arm,
+qwen2.5-coder on CPU):
+
+| arm | checks, rungs 1–5 | posts shown at rung 4 / 5 (asked 20 / 36) |
+|---|---|---|
+| talk, 1.5b | 37/37 | 21 / 38 |
+| talk, 3b | 37/37 | 23 / 37 |
+| bare, 1.5b (one ask, 8192 tokens) | 22/37 | 0 / 4 |
+| bare, 3b (one ask, 8192 tokens) | 30/37 | 0 / 3 |
+
+The bare model writes about the same amount at every rung (1,100–1,700
+tokens) and stops on its own. It covers the growth with placeholders ("Post
+content...", "Community rules go here.", "Username 1"), and once it ran to the
+token limit and produced a page with no text. The talk path's asks grow with
+the request (4, 9, 11, 66, 120), and each ask stays the same size. Rung 5 hit
+the 120-ask cap at 199/213 (1.5b) and 207/213 (3b) of the whole spec. The
+1.5b model answers about one row per ask, whatever the prompt says.
+
+**What mattered, in the order the traces showed it:**
+1. The small parser misreads short replies ("orcafan99" tagged as
+   punctuation, "says:" read as a relative clause). Typing a reply by the
+   question it answers is exact; the reader is kept for free talk.
+2. A bare "1." anchor gets one line. An anchor that opens the row with its
+   name ("1. Orca Watch:") gets the "name: value" pattern back, and a row that
+   names itself goes to that row.
+3. The same retry gets the same wrong answer. On a retry the rows are
+   rotated and the sampling is warmer.
+4. Progress means a new ledger entry (INS). Counting heard claims let
+   agreement (SYN) loop until the budget ran out.
+5. The renderer titled an untitled site with the request text, which carries
+   the checker's own words. The silent-mouth control caught it: with nothing
+   said, the page must fail the content checks, and now it does.
+
+**Falsifying controls, kept as tests** (`native/tests/talk-build.test.js`):
+- A silent mouth must fail posts and comments.
+- No prompt may name an operator.
+- Every heard entry is INS or SYN with `operator_basis: produced`.
+- No regular expression in the four files.
+
+**Open.** The rung checks are lenient (rung 5 asks for 18 of 36 posts), so
+the "posts shown" count and the whole-spec count are the sharper measures.
+The ask cap (120) is set by hand. Programs are not on this path yet; the bare
+model's program rungs fail from rung 2 or 3 onward (it builds a page instead).
