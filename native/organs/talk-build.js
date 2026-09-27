@@ -284,7 +284,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       asks++;
       const prompt = `${question}\n\n${anchor}`;
       const t0 = Date.now();
-      let reply = String(await ask(prompt, { stage: gap }) ?? "").trim();
+      let reply = String(await ask(prompt, { stage: gap, attempt: tried.get(gap) ?? 0 }) ?? "").trim();
       // a small model often says the anchor again before going on: drop the echo
       while (reply.toLowerCase().startsWith(anchor.toLowerCase())) reply = reply.slice(anchor.length).trim();
       const witness = `talk:${asks}`;
@@ -388,7 +388,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
 
     while (asks < maxAsks) {
       const belief = beliefOf(N.fold(notes), reader.things());
-      const next = nextGap(belief, spec);
+      const next = nextGap(belief, spec, tried);
       if (!next) break;
       // a gap is let go after two asks in a row that heard nothing for it
       if ((tried.get(next.key) ?? 0) >= 2) { log({ kind: "gap_abandoned", gap: next.key, why: "asked twice, nothing heard" }); spec.abandoned = [...(spec.abandoned ?? []), next.key]; continue; }
@@ -411,8 +411,10 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
    *  counted and described before the parts inside them are asked for, so a
    *  build cut short by its ask budget is shallow everywhere, not deep in one
    *  corner. */
-  function nextGap(belief, spec) {
+  function nextGap(belief, spec, tried = new Map()) {
     const abandoned = new Set(spec.abandoned ?? []);
+    // a retry is never the same ask: the rows turn, so a different one opens the anchor
+    const turned = (key, list) => { const k = (tried.get(key) ?? 0) % Math.max(1, list.length); return [...list.slice(k), ...list.slice(0, k)]; };
     // a thing is one of a counted part when its kind matches and its modifier
     // is that part's own (the moderation queue's reported posts are not a
     // community's posts)
@@ -431,13 +433,14 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         // few missing under each of several parents ("two comments on each
         // post"): one ask covers every parent in a group, a row each
         if (c.per && c.n <= 2) {
-          const lacking = parents.filter((p) => all(c).filter((t) => t.parent === p.id).length < c.n && !abandoned.has(`count:${phraseOf(c)}:${p.id}`));
+          const lacking = (parents.filter((p) => all(c).filter((t) => t.parent === p.id).length < c.n && !abandoned.has(`count:${phraseOf(c)}:${p.id}`)));
           const byGroup = new Map();
           for (const p of lacking) byGroup.set(p.parent ?? "top", [...(byGroup.get(p.parent ?? "top") ?? []), p]);
           for (const [g, ps] of byGroup) {
             if (ps.length < 2) continue;
             const key = `rows:${phraseOf(c)}:${g}`;
             if (abandoned.has(key)) continue;
+            ps.splice(0, ps.length, ...turned(key, ps));
             const group = belief.find((t) => t.id === g);
             const listed = ps.map((p, i) => `${i + 1}. ${title(p)}`).join("\n");
             const one = c.phrase.endsWith("s") ? phraseOf(c) : c.phrase;
@@ -473,7 +476,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
           const said = labels.join(" and ");
           for (const [g, sibs] of groups) {
             const key = `detail:${phraseOf(c)}:${g}:${said}`;
-            const lacking = sibs.filter((t) => labels.some((x) => !t.props.some((p) => p.label === x)));
+            const lacking = turned(key, sibs.filter((t) => labels.some((x) => !t.props.some((p) => p.label === x))));
             if (!lacking.length || abandoned.has(key)) continue;
             const parent = belief.find((t) => t.id === g);
             const listed = lacking.map((t, i) => `${i + 1}. ${title(t)}`).join("\n");

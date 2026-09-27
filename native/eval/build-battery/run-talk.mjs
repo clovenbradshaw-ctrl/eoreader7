@@ -28,8 +28,9 @@ fs.mkdirSync(OUT, { recursive: true });
 const parser = loadModel(JSON.parse(fs.readFileSync(path.join(ROOT, "native", "priors", "parser-eng-ewt.json"), "utf8")));
 const parse = (text) => analyse(parser, tokenize(text).map((t) => t.form));
 
-async function ask(prompt) {
-  const r = await fetch(`${OLLAMA}/api/generate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ model, prompt, stream: false, options: { temperature: 0.4, num_predict: 160 } }), signal: AbortSignal.timeout(180000) });
+// a retry of the same gap is sampled warmer, so it is not the same answer again
+async function ask(prompt, { attempt = 0 } = {}) {
+  const r = await fetch(`${OLLAMA}/api/generate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ model, prompt, stream: false, options: { temperature: Math.min(1, 0.4 + 0.3 * attempt), num_predict: 160 } }), signal: AbortSignal.timeout(180000) });
   return String((await r.json()).response ?? "");
 }
 const verify = async (kind, text) => { const v = inspect(text); return { ok: v.kind === "page", checks: [`the page parses (${v.kind})`] }; };
