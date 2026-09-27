@@ -40,6 +40,10 @@ import { clauseComplete, clauseCore } from "../the-fold/eot-notation.js";
 import { lishCut } from "../the-fold/finish.js";
 import { pacingGrade } from "./pacing.js";
 import { sentences } from "../adapters/text/english-parser.js";
+import { detectRedundancy } from "../the-fold/document-ledger.js";
+import { styleFindings } from "./strunk-white.js";
+import { sameOpening } from "./variation.js";
+import { createHolograph, admit as admitBelief } from "../kernel/bayes-surprise.js";
 import { quantile } from "../kernel/surprise-segments.js";
 import { lcg, predictNext } from "../kernel/continuation.js";
 import { classifyFortuneShape } from "../kernel/fortune-prior.js";
@@ -199,7 +203,68 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
   function readWith(piece, gd, task, draft = gd.draft) {
     const ctx = { piece, draft, ground: gd.ground, task, parse };
     const r = readPiece(ctx);
-    return [...r.findings, ...houdiniExclusivity("", ctx).map((f) => ({ ...f, editor: "Harry Houdini" })), ...innerConsistency(piece, gd)];
+    return [...r.findings, ...houdiniExclusivity("", ctx).map((f) => ({ ...f, editor: "Harry Houdini" })), ...innerConsistency(piece, gd), ...sacks(piece), ...strunkWhite(piece), ...staleOpenings(piece, gd)];
+  }
+
+  // SACKS (the-fold/document-ledger.js detectRedundancy) — a sentence
+  // construction that opens sentences in several parts ("She is able to use
+  // her strengths…"), and a fact stated again in a later part. The template
+  // licenses a rewrite (Lish cuts first); the restated fact, the fold of the
+  // later sentence. Openings shared beyond chance are the gate's, not here.
+  const bare = (w) => [...w.toLowerCase()].filter((ch) => (ch >= "a" && ch <= "z") || ch === "'").join("");
+  const quoted = (detail) => { const a = String(detail).indexOf("\""), b = String(detail).indexOf("\"", a + 1); return a >= 0 && b > a ? String(detail).slice(a + 1, b) : null; };
+  function sacks(piece) {
+    if (piece.length < 2) return [];
+    const out = [];
+    for (const f of detectRedundancy(piece.map((p) => p.pieces.map((pc) => pc.text).join(" ")), { shuffles: 50 })) {
+      const key = quoted(f.detail);
+      if (!key || f.kind === "repetition") continue;
+      for (const k of f.sections.slice(1)) {
+        const p = piece[k];
+        const hit = p?.pieces.find((pc) => (f.kind === "repeated-template" ? pc.text.split(" ").slice(0, 6).map(bare).join(" ") === key : key.split(" ").every((w) => pc.text.toLowerCase().includes(w))));
+        if (hit) out.push({ kind: f.kind === "repeated-template" ? "repeated_template" : "repeated_fact", editor: "Oliver Sacks", part: p.id, sentence: hit.text, words: f.kind === "repeated-template" ? key.split(" ") : [], detail: f.detail, licenses: f.kind === "repeated-template" ? "rewrite" : "fold" });
+      }
+    }
+    return out;
+  }
+
+  // STRUNK & WHITE (organs/strunk-white.js) — the sharp rules only: the
+  // weak adverb, the cliché, the needless word, the nominalization, the
+  // weasel word. Each licenses a rewrite of its sentence, Lish cutting first.
+  // (weak_verb and passive are left out: they match "this"/"his" and most
+  // narration — census 2026-09-27.)
+  const SHARP = new Set(["weak_adverb", "cliche", "needless_word", "nominalization", "weasel_word"]);
+  function strunkWhite(piece) {
+    const out = [];
+    for (const p of piece) for (const pc of p.pieces) for (const k of styleFindings(pc.text)) {
+      if (!SHARP.has(k.kind ?? k.id)) continue;
+      out.push({ kind: `style_${k.kind ?? k.id}`, editor: "William Strunk Jr. & E. B. White", part: p.id, sentence: pc.text, words: (k.matches ?? []).map((m) => m.word), detail: k.rule ?? k.kind ?? k.id, licenses: "rewrite" });
+    }
+    return out;
+  }
+
+  // SOCKEYE (how an identity comes home) — a part that opens on "She"/"He"
+  // when the part before names no one in its last lines: the reader has no
+  // one to bind it to. With exactly one person in the part's own lines, the
+  // pronoun is repaired to the name, every other byte kept, no ask.
+  const OPENING_PRONOUNS = new Map([["she", ""], ["he", ""], ["her", "'s"], ["his", "'s"]]);
+  function staleOpenings(piece, gd) {
+    const out = [];
+    const said = (t) => t.props.find((q) => q.label === "says")?.value ?? "";
+    for (let i = 1; i < piece.length; i++) {
+      const first = piece[i].pieces[0]?.text ?? "";
+      const w0 = first.split(" ")[0] ?? "";
+      const pro = OPENING_PRONOUNS.get(bare(w0));
+      if (pro == null) continue;
+      const before = piece[i - 1].pieces.slice(-2).map((pc) => pc.text).join(" ");
+      if (gd.outline.cast.some((c) => wordIn(before, c.name))) continue;
+      const leaf = gd.outline.leaves[piece[i].index ?? i];
+      const here = gd.outline.cast.filter((c) => leaf && [...leaf.within, leaf.part].some((t) => wordIn(said(t), c.name)));
+      if (here.length !== 1) continue;
+      const repair = `${here[0].name}${pro}${first.slice(w0.length)}`;
+      out.push({ kind: "stale_pronoun", editor: "Sockeye", part: piece[i].id, sentence: first, repair, detail: `opens on "${w0}" and the part before names no one in its last lines; ${here[0].name} is the one person this part is about`, licenses: "repair" });
+    }
+    return out;
   }
 
   // TOLKIEN (outside the grid, like Houdini and Gebser) — the inner
@@ -419,7 +484,17 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
         const f = toldRestatement(readWith(trialPiece.slice(lo, hi), { ...gd, draft }, task, draft).map((x) => licensed(x, universeOf(notes))), trialPiece.slice(lo, hi), universeOf(notes));
         return { licensed: f.filter((x) => x.licenses && x.part && ids.has(x.part)).length, bits: bitsAgainst(prefix, wordsOf(lines.join(" "))), flatCadence: !!pacingGrade(lines.join(" ")).flatline };
       };
-      const now = scoreOf(cur.lines.map((l) => l.text));
+      // ITTI & BALDI (kernel/bayes-surprise.js): how far a part moves the
+      // belief the book so far has built, over slots declared here — how it
+      // opens, whom it names, how long it is, whether anyone speaks. A
+      // candidate that moves belief further is the less formulaic one.
+      const slotsOf = (lines) => { const t = lines.join(" "), w = (lines[0] ?? "").split(" ").map(bare); const n = lines.length; return { open1: w[0] ?? "", open3: w.slice(0, 3).join(" "), cast: gd.outline.cast.filter((c) => wordIn(t, c.name)).map((c) => c.name).sort().join("+") || "no one", size: n <= 3 ? "short" : n <= 6 ? "middle" : "long", talk: t.includes("\"") || t.includes("“") ? "talk" : "no talk" }; };
+      const beliefBefore = (() => { const hb = createHolograph({ alpha: 1 }); for (const p of read.piece.slice(0, i)) admitBelief(hb, slotsOf(p.pieces.map((pc) => pc.text))); return hb; })();
+      const cloneBelief = (hb) => ({ ...hb, slots: new Map([...hb.slots].map(([k, m]) => [k, new Map(m)])) });
+      const movedBy = (lines) => admitBelief(cloneBelief(beliefBefore), slotsOf(lines)).bayes;
+      const baseScore = scoreOf;
+      const scoreWith = (lines) => ({ ...baseScore(lines), moved: movedBy(lines) });
+      const now = scoreWith(cur.lines.map((l) => l.text));
       const pool = [];
       for (let c = 0; c < candidates && asks < budget; c++) {
         asks++;
@@ -429,7 +504,7 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
         const text = bodyOfReply(reply, sentences);
         const lines = linesOfBody(text, sentences).map((l) => l.text);
         if (lines.length < MIN_BODY_SENTENCES) continue;
-        pool.push({ text, lines, ...scoreOf(lines) });
+        pool.push({ text, lines, ...scoreWith(lines) });
       }
       const reasons = read.findings.filter((f) => f.part === read.piece[i].id && (f.kind === "flat_given_before" || f.kind === "flat_cadence"));
       // a candidate must fix what licensed it and worsen nothing the judge
@@ -437,9 +512,13 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
       // per word when Gornick licensed it; a cadence that is not flat when
       // Klinkenborg did (cadence is a report elsewhere, so not a veto here)
       const byGornick = reasons.some((r) => r.kind === "flat_given_before"), byCadence = reasons.some((r) => r.kind === "flat_cadence");
-      const fixes = (x) => x.licensed <= now.licensed && (!byGornick || x.bits > now.bits) && (!byCadence || !x.flatCadence);
-      const ok = pool.filter(fixes).sort((a, b) => a.licensed - b.licensed || b.bits - a.bits);
-      const best = ok[0] ?? pool.sort((a, b) => a.licensed - b.licensed || b.bits - a.bits)[0];
+      // Brillat-Savarin's veto: a candidate opening as one of the three parts
+      // before it opens (variation.js sameOpening) is not a new draw
+      const opens = read.piece.slice(Math.max(0, i - 3), i).map((p) => p.pieces[0]?.text ?? "").filter(Boolean);
+      const fixes = (x) => x.licensed <= now.licensed && (!byGornick || x.bits > now.bits) && (!byCadence || !x.flatCadence) && !opens.some((o) => sameOpening(x.lines[0] ?? "", o));
+      const rank = (a, b) => a.licensed - b.licensed || b.moved - a.moved || b.bits - a.bits;
+      const ok = pool.filter(fixes).sort(rank);
+      const best = ok[0] ?? pool.sort(rank)[0];
       const better = !!ok[0];
       rows.push({ part: leaf.part.id, now, best: best ? { licensed: best.licensed, bits: Number(best.bits.toFixed(2)), flatCadence: best.flatCadence } : null, candidates: pool.length, kept: !!better, why: reasons.map((r) => `${r.editor}: ${r.kind}`) });
       log({ kind: better ? "pathos_kept" : "pathos_undone", part: leaf.part.id, now, best: best && { licensed: best.licensed, bits: best.bits, flatCadence: best.flatCadence, text: best.text }, candidates: pool.length, why: reasons.map((r) => r.detail) });

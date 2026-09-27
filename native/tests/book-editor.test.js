@@ -176,3 +176,31 @@ test("the pathos pass: a flat part is written again, the mouth proposes and the 
   const bad = await run([restating]);
   assert.ok(bad.out.rows.every((r) => !r.kept), JSON.stringify(bad.out.rows));
 });
+
+test("more archons: Sockeye repairs an unbound opening pronoun, Sacks and Strunk & White license their revisions", async () => {
+  const replies = [
+    "Ana finds a boat on the rocks. The gulls cried above the reef. The tide went out slowly all afternoon.",
+    "She is able to use her strengths and abilities to make the best of her life. The boat was heavy and old. At the end of the day the paint was still wet on the hull.",
+    "The wind came up at night over the island. She is able to use her strengths and abilities to make the best of her life. The lamp burned low.",
+  ];
+  let k = 0;
+  const ask = async (p, { stage }) => (stage.startsWith("body:") ? replies[k++] : "");
+  const N = makeNotes();
+  let notes = N.createNotes({ frame: { universe: "stipulated" } });
+  const h = (end1, label, end2, witness = "request") => { notes = N.hear(notes, { end1, label, end2, witness, because: "outline" }); };
+  h("story#1", "exists", "story"); h("character#2", "exists", "character"); h("story#1", "has", "character#2"); h("character#2", "position", "1"); h("character#2", "named", "Ana", "talk:m#1");
+  h("chapter#3", "exists", "chapter"); h("story#1", "has", "chapter#3"); h("chapter#3", "position", "2"); h("chapter#3", "says", "A boat on the rocks.", "talk:m#2");
+  ["Ana finds a boat.", "Ana paints the boat.", "Ana keeps the lamp."].forEach((line, i) => { const id = `scene#${4 + i}`; h(id, "exists", "scene"); h("chapter#3", "has", id); h(id, "position", String(i + 1)); h(id, "says", line, "talk:m#3"); });
+  const lf = makeLongForm({ ask, sentences, medium: PROSE_MEDIUM, mouth: "m", castDetails: [] });
+  const w = await lf.writeBodies({ notes, store: makeTextStore() });
+  const ed = makeBookEditor({ lf, ask, medium: PROSE_MEDIUM, mouth: "m", castDetails: [] });
+  const read = ed.readBook({ notes: w.notes, store: w.store, task: "a story" });
+  const kinds = new Set(read.findings.map((f) => `${f.editor}: ${f.kind}`));
+  assert.ok(kinds.has("Sockeye: stale_pronoun"), [...kinds].join(" | "));
+  assert.ok(kinds.has("Oliver Sacks: repeated_template"), [...kinds].join(" | "));
+  assert.ok(kinds.has("William Strunk Jr. & E. B. White: style_cliche"), [...kinds].join(" | "));
+  const out = await ed.editBook({ notes: w.notes, store: w.store, task: "a story", budget: 0 });
+  const book = lf.seal({ notes: out.notes, store: out.store, request: "t" });
+  assert.ok(book.artifact.includes("\nAna is able to use her strengths"), "the unbound pronoun was not repaired to the name");
+  assert.equal(book.helix.ok, true); assert.equal(book.provenance.ok, true);
+});
