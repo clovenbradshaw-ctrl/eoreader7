@@ -48,20 +48,25 @@ export const PROSE_MEDIUM = Object.freeze({
   numericDetails: new Set(["age"]),
   showsVerb: "has",
   askWhatPartsShow: false,
+  namedKinds: new Set(["character"]),
   // a line of a story is what happens in it, and the mouth hears who the
   // people are, by name, before it says any line (facts, not instructions)
   saysVerb: "Say what happens in",
   saysWhat: "what happens",
   // once the people are named (INS), how they are bound to each other (CON),
   // asked once, before any line of the story
+  // once every person is named (INS), how each is bound to the first of them
+  // (CON) — one bond per ask, ending on the anchor the mouth completes
+  // ("Tommy is Lily's"), before any line of the story
   frameGaps: (belief, spec, abandoned, known) => {
     const cast = spec.counted.find((c) => c.kind === "character");
-    const people = belief.filter((t) => t.kind === "character" && t.name);
-    if (!cast || people.length < Math.min(cast.n, 2) || abandoned.has("relations")) return null;
-    const ids = new Set(people.map((t) => t.id));
-    if (people.some((t) => t.props.some((p) => p.label.endsWith(" of")))) return null;
-    void ids;
-    return { key: "relations", once: true, question: `${known}\nSay how each of them is related to one of the others, one per line, as "Name is Name's relation".`, anchor: "1.", slot: { relations: true } };
+    const people = belief.filter((t) => t.kind === "character" && t.name).sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+    if (!cast || people.length < cast.n || people.length < 2) return null;
+    const first = people[0];
+    const bound = (t) => t.props.some((p) => p.label.endsWith(" of")) || people.some((o) => o.props.some((p) => p.label.endsWith(" of") && p.value === t.id));
+    const next = people.slice(1).find((t) => !bound(t) && !abandoned.has(`relation:${t.id}`));
+    if (!next) return null;
+    return { key: `relation:${next.id}`, once: true, question: `${known}\nHow is ${next.name} related to ${first.name}?`, anchor: `${next.name} is ${first.name}'s`, slot: { relation: { a: next.id, owner: first.id } } };
   },
   factsFor: (belief) => {
     const names = belief.filter((t) => t.kind === "character" && t.name).map((t) => t.name);

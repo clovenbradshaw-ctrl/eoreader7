@@ -303,3 +303,27 @@ test("a long work's request: a possessive topic stays one topic, and parts after
   assert.equal(by.chapter.per, null, "the chapters were read as each character's");
   assert.equal(by.scene.per, "chapter");
 });
+
+test("a story's universe in dependency order: the people, then how they are bound (CON), then the lines", async () => {
+  const { PROSE_MEDIUM } = await import("../adapters/build/prose-medium.js");
+  const { actOf, helixCheck } = await import("../organs/claim-acts.js");
+  const stages = [];
+  const ask = async (prompt, { stage }) => {
+    stages.push(stage);
+    if (stage.startsWith("count:character")) return "Lily\nTommy\nLola";
+    if (stage.startsWith("relation:")) return stages.filter((s) => s.startsWith("relation:")).length === 1 ? "father, and he keeps the light." : "best friend.";
+    if (stage.startsWith("count:chapter")) return "Lily finds a boat on the rocks.\nA storm takes the light.";
+    if (stage.startsWith("count:scene")) return "Lily drags the boat up the sand.\nTommy paints it red.\nLola rows it out.";
+    if (stage === "opening") return "The Keeper's Light.";
+    return "";
+  };
+  const talk = makeTalkBuild({ ask, parse, sentences, medium: PROSE_MEDIUM, mouth: "m" });
+  const out = await talk.build({ what: "a story with 3 characters in 2 chapters of 3 scenes each" });
+  const fold = out.notes ? (await import("../kernel/notes.js")).makeNotes().fold(out.notes) : [];
+  const bonds = fold.filter((n) => n.label.endsWith(" of"));
+  assert.deepEqual(bonds.map((n) => n.label).sort(), ["best friend of", "father of"], JSON.stringify(bonds));
+  assert.ok(bonds.every((n) => actOf(n).op === "CON"), "a bond between two people was not typed CON");
+  const firstBond = stages.findIndex((s) => s.startsWith("relation:")), firstLine = stages.findIndex((s) => s.startsWith("count:chapter"));
+  assert.ok(firstBond > stages.findIndex((s) => s.startsWith("count:character")) && firstBond < firstLine, stages.join(" "));
+  assert.equal(helixCheck({ fold, entries: out.notes.entries }).ok, true);
+});

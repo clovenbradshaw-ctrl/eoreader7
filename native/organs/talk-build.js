@@ -471,6 +471,12 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
             claims.push({ end1: subject, label: slot.label, end2: value, sentence: `${row.title}: ${value}`, witness });
           } else claims.push({ end1: row.id, label: slot.label, end2: value, sentence: `${row.title}: ${slot.label} ${value}`, witness });
         });
+      } else if (slot?.relation) {
+        // the anchor named both ends ("Tommy is Lily's"): the first words said are the bond
+        let rel = slotValue(reply, false).toLowerCase();
+        const w = rel.split(" ").filter((x) => !["a", "an", "the"].includes(x));
+        rel = w.slice(0, 3).join(" ");
+        if (rel && hasLetter(rel)) claims.push({ end1: slot.relation.a, label: `${rel} of`, end2: slot.relation.owner, sentence: `${anchor} ${rel}`, witness });
       } else if (slot?.relations) {
         // "Tommy is Lily's father": a bond between two things on the record,
         // read by name — never a thing the ear would mint
@@ -803,7 +809,9 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
     const partOf = (kind) => spec.counted.find((c) => c.kind === kind && !c.modifier) ?? spec.counted.find((c) => c.kind === kind);
     const all = (c) => belief.filter((t) => isOf(t, c));
     const depth = (c, seen = new Set()) => { if (!c.per || seen.has(c)) return 0; seen.add(c); const p = partOf(c.per); return p ? 1 + depth(p, seen) : 1; };
-    const says = (c) => !c.details.length;   // a part with nothing to show but what it says (a comment)
+    // a part with nothing to show but what it says (a comment) — unless the
+    // medium names that kind always (a story's people have names, not lines)
+    const says = (c) => !c.details.length && !medium.namedKinds?.has(c.kind);
     // a content ask carries the request's own constraint ("for dolphin content")
     // what the medium knows the mouth should hear first (a story's people, by
     // name, before any line of it is asked): facts, never instructions
