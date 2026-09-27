@@ -5,7 +5,6 @@
     "organs/cite.js:MIN_RUN",
     "organs/cite.js:NULL_SAMPLES",
     "organs/hypergraph.js:MIN_SURFACES_PER_VERB",
-    "organs/hypergraph.js:GRAMMAR_MIN_SHARE",
     "organs/hypergraph.js:NEAREST_EDGES_MAX",
     "organs/quotes.js:MIN_QUOTE_WORDS",
     "organs/web.js:WEB_FETCH_TIMEOUT_MS",
