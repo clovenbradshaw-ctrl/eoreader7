@@ -579,6 +579,12 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         notes = N.hear(done.log, { end1: c.end1, label: c.label, end2: c.to, witness: "derived:correct", because: c.trigger });
         acts.corrected++;
       }
+      for (const d of r.drop ?? []) {
+        const heard = at(d.end1, d.label, d.end2);
+        if (!heard || isDerived(heard)) continue;
+        const done = N.concede(notes, heard.id, { trigger: d.trigger });
+        if (!done.refused) { notes = done.log; acts.dropped = (acts.dropped ?? 0) + 1; }
+      }
       for (const x of r.retract) {
         for (const n of N.fold(notes).filter((n) => n.end1 === x.thing || n.end2 === x.thing)) {
           const done = N.concede(notes, n.id, { trigger: x.trigger });
@@ -586,7 +592,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         }
         acts.retracted++;
       }
-      if (acts.derived || acts.withdrawn || acts.corrected || acts.retracted) log({ kind: "reason", ...acts, derive: r.derive.map((d) => `${d.end1} —${d.label}→ ${d.end2}`), correct: r.correct.map((c) => c.trigger), retract: r.retract.map((x) => x.trigger) });
+      if (acts.derived || acts.withdrawn || acts.corrected || acts.retracted || acts.dropped) log({ kind: "reason", ...acts, derive: r.derive.map((d) => `${d.end1} —${d.label}→ ${d.end2}`), correct: r.correct.map((c) => c.trigger), retract: r.retract.map((x) => x.trigger), drop: (r.drop ?? []).map((d) => d.trigger) });
       return acts;
     };
 
@@ -606,7 +612,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     // the talk has no gap left (or no asks): reason over what it said; a part
     // retracted reopens its gap and the conversation goes on (recursively)
     const acts = settle();
-    if (!acts.retracted || asks >= maxAsks) break;
+    if ((!acts.retracted && !acts.dropped) || asks >= maxAsks) break;
     }
 
     const belief = beliefOf(N.fold(notes), reader.things());

@@ -77,6 +77,12 @@ const model = loadModel(JSON.parse(fs.readFileSync(path.join(NATIVE, "priors", "
 const parse = (text) => analyse(model, tokenize(text).map((t) => t.form));
 const foldOf = async (out) => (await import("../kernel/notes.js")).makeNotes().fold(out.notes);
 
+test("a value that only repeats a label is dropped, not kept", () => {
+  const belief = [thing("community#1", "community", "r/orca", { description: "name", moderators: "moderators", rules: "Be kind" })];
+  const r = reason({ fold: [], belief, spec });
+  assert.deepEqual(r.drop.map((d) => d.label), ["description", "moderators"]);
+});
+
 test("wired: conclusions are the engine's, follow the parts on the record, and are marked on the page", async () => {
   const replies = ["Pod Chat", "Orca Watch\n2. Fin Friday\n3. Pod News", " 30\n2. Fin Friday: 5\n3. Pod News: 12"];
   let k = 0;

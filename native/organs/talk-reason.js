@@ -20,6 +20,8 @@
 //   retract  a heard part that repeats a sibling word for word — it is one
 //            part heard twice, not two parts; retracting it reopens the gap,
 //            so the conversation asks for another (the recursive edit)
+//   drop     a heard value that only repeats a label ("moderators:
+//            moderators") — no value was said; dropping it reopens the detail
 //
 // Pure: fold + belief in, acts out. The caller (talk-build.js) applies them to
 // the ledger — derived claims carry the witness kind `derived:<rule>` and the
@@ -99,5 +101,17 @@ export function reason({ fold, belief, spec }) {
       if (v < shown) correct.push({ end1: p.id, label: q.label, from: String(q.value), to: String(shown), trigger: `${q.label} ${q.value} is fewer than the ${shown} ${plural(counted)} ${nameOf(p)} shows` });
     }
   }
-  return { schema: TALK_REASON_SCHEMA, derive, correct, retract };
+  // drop: a value that only repeats a label ("moderators: moderators",
+  // "description: name") says nothing — it is withdrawn, so the detail is
+  // open again and asked again
+  const drop = [];
+  for (const t of belief) {
+    if (gone.has(t.id)) continue;
+    const labels = new Set(t.props.map((q) => q.label.toLowerCase()));
+    for (const q of heardOnly(t)) {
+      const v = String(q.value ?? "").trim().toLowerCase();
+      if (v && (labels.has(v) || v === "name" || v === "title" || v === q.label.toLowerCase())) drop.push({ end1: t.id, label: q.label, end2: q.value, trigger: `"${q.value}" only repeats a label: no value was said` });
+    }
+  }
+  return { schema: TALK_REASON_SCHEMA, derive, correct, retract, drop };
 }
