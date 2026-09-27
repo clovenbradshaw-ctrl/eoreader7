@@ -27,60 +27,102 @@ const STYLE = ":root{--bg:#f5f6f8;--fg:#1b2129;--card:#fff;--muted:#5d6773;--rul
 // "community" -> "communities", "post" -> "posts", "species" stays
 const pluralOf = (k) => k.endsWith("s") ? k : k.endsWith("y") && !"aeiou".includes(k.at(-2)) ? k.slice(0, -1) + "ies" : k + "s";
 const nameOf = (t) => t.name ?? [t.modifier, t.kind].filter(Boolean).join(" ");
-// a control is labelled by what it is for when it has no name: "Sort posts by votes"
-const labelOf = (t) => { const aim = t.props.find((p) => p.label === "for"); if (t.name || !aim) return nameOf(t); const v = String(aim.value); return v.charAt(0).toUpperCase() + v.slice(1); };
 
-function controlHtml(t, byId) {
-  const what = CONTROL_KINDS[t.kind];
-  const label = labelOf(t);
-  if (what === "input") return el("label", esc(label) + one("input", 'name="' + esc(t.id) + '" placeholder="' + esc(label) + '"'));
-  if (what === "button") return el("button", esc(label), 'type="button"');
-  if (what === "links") {
-    const items = [...t.props.map((p) => p.value), ...t.children.map((c) => nameOf(byId.get(c)))];
-    return el("nav", (items.length ? items : [label]).map((x) => el("a", esc(x), 'href="#"')).join(""));
-  }
-  // a form: its parts and its details become fields, then a button that sends
-  const fields = [...t.children.map((c) => byId.get(c)).filter(Boolean).map((c) => nameOf(c)), ...t.props.filter((p) => p.label !== "for").map((p) => p.label)];
-  const inputs = (fields.length ? fields : ["Title"]).map((f, i) => el("label", esc(f) + one("input", 'name="f' + i + '"')));
-  return el("form", el("h3", esc(label)) + inputs.join("") + el("button", "Send", 'type="submit"'), "onsubmit=\"event.preventDefault()\"");
-}
-
-// a value the engine computed from the parts is marked as computed, never
-// passed off as something said
-const propHtml = (p) => el("dt", esc(p.label)) + (p.derived ? el("dd", el("i", esc(p.value), 'title="computed from the parts on this page"'), 'class="derived"') : p.superseded ? el("dd", el("s", esc(p.value), 'title="said, and corrected by the parts on this page"')) : el("dd", esc(p.value)));
+/** The words the engine itself puts on a page — the only text on it that no
+ *  one said and nothing derived. A closed catalog: the provenance check
+ *  (organs/provenance-cover.js) accepts an engine word only by its key, and
+ *  only with exactly this text. Set by hand 2026-09-27. */
+export const ENGINE_WORDS = Object.freeze({
+  untitled: "Untitled site", for: "For", tools: "Tools", send: "Send", "default-field": "Title",
+  "computed-mark": "computed from the parts on this page", "said-mark": "said, and corrected by the parts on this page",
+});
+const E = (key) => [`engine:${key}`];
 
 /** The HTML elements this renderer emits — what a snipped stylesheet must
  *  reach (organs/part-source.js measures coverage against this list). */
 export const RENDERED_ELEMENTS = Object.freeze(["header", "main", "section", "article", "h1", "h2", "h3", "p", "span", "dl", "dt", "dd", "i", "s", "form", "label", "input", "button", "nav", "a"]);
 
-function thingHtml(t, byId, depth) {
-  if (CONTROL_KINDS[t.kind]) return controlHtml(t, byId);
-  const props = t.props.length ? el("dl", t.props.map(propHtml).join("")) : "";
+// Every piece of text and every visible attribute value goes through T(),
+// which records where it came from: the ledger notes it rests on, or an
+// engine word by key. The map is returned beside the page.
+function makeMapper() {
+  const map = [];
+  const T = (text, src) => { map.push({ text: String(text ?? ""), src: [...(src ?? [])].filter(Boolean) }); return esc(text); };
+  return { map, T };
+}
+// a thing is accounted for by the claim that put it on the record: its
+// "exists", else the "has" that attached it to its whole
+const thingSrc = (t) => [t.existsNote ?? t.heldNote].filter(Boolean);
+const nameSrc = (t) => (t.name ? [t.nameNote] : thingSrc(t)).filter(Boolean);
+
+// a control is labelled by what it is for when it has no name: "Sort posts by votes"
+const labelOf = (t) => {
+  const aim = t.props.find((p) => p.label === "for");
+  if (t.name || !aim) return { text: nameOf(t), src: nameSrc(t) };
+  const v = String(aim.value);
+  return { text: v.charAt(0).toUpperCase() + v.slice(1), src: [aim.note] };
+};
+
+function controlHtml(t, byId, T) {
+  const what = CONTROL_KINDS[t.kind];
+  const label = labelOf(t);
+  if (what === "input") return el("label", T(label.text, label.src) + one("input", 'name="' + esc(t.id) + '" placeholder="' + T(label.text, label.src) + '"'));
+  if (what === "button") return el("button", T(label.text, label.src), 'type="button"');
+  if (what === "links") {
+    const items = [...t.props.map((p) => ({ text: p.value, src: [p.note] })), ...t.children.map((c) => byId.get(c)).filter(Boolean).map((c) => ({ text: nameOf(c), src: nameSrc(c) }))];
+    return el("nav", (items.length ? items : [label]).map((x) => el("a", T(x.text, x.src), 'href="#"')).join(""));
+  }
+  // a form: its parts and its details become fields, then a button that sends
+  const fields = [...t.children.map((c) => byId.get(c)).filter(Boolean).map((c) => ({ text: nameOf(c), src: nameSrc(c) })), ...t.props.filter((p) => p.label !== "for").map((p) => ({ text: p.label, src: [p.note] }))];
+  const inputs = (fields.length ? fields : [{ text: ENGINE_WORDS["default-field"], src: E("default-field") }]).map((f, i) => el("label", T(f.text, f.src) + one("input", 'name="f' + i + '"')));
+  return el("form", el("h3", T(label.text, label.src)) + inputs.join("") + el("button", T(ENGINE_WORDS.send, E("send")), 'type="submit"'), "onsubmit=\"event.preventDefault()\"");
+}
+
+// a value the engine computed from the parts is marked as computed, never
+// passed off as something said; a said value the parts correct is struck
+const propHtml = (p, T) => el("dt", T(p.label, [p.note])) + (p.derived
+  ? el("dd", el("i", T(p.value, [p.note]), 'title="' + T(ENGINE_WORDS["computed-mark"], E("computed-mark")) + '"'), 'class="derived"')
+  : p.superseded ? el("dd", el("s", T(p.value, [p.note]), 'title="' + T(ENGINE_WORDS["said-mark"], E("said-mark")) + '"')) : el("dd", T(p.value, [p.note])));
+
+function thingHtml(t, byId, depth, T) {
+  if (CONTROL_KINDS[t.kind]) return controlHtml(t, byId, T);
+  const props = t.props.length ? el("dl", t.props.map((p) => propHtml(p, T)).join("")) : "";
   const parts = t.children.map((c) => byId.get(c)).filter(Boolean);
-  const partsHtml = parts.length && depth < 4 ? el("div", parts.map((p) => thingHtml(p, byId, depth + 1)).join(""), 'class="parts"') : "";
-  return el("article", el("span", esc(t.kind), 'class="kind"') + el("h3", esc(nameOf(t))) + props + partsHtml);
+  const partsHtml = parts.length && depth < 4 ? el("div", parts.map((p) => thingHtml(p, byId, depth + 1, T)).join(""), 'class="parts"') : "";
+  return el("article", el("span", T(t.kind, thingSrc(t)), 'class="kind"') + el("h3", T(nameOf(t), nameSrc(t))) + props + partsHtml);
 }
 
 // With `style` (a snipped stylesheet, organs/part-source.js) the page carries
 // no hand-written CSS at all: the snip with its provenance comment, and the
 // layout the stylesheet gives plain elements. Without one, STYLE — the
 // engine's own fallback — is used and the page says so.
-export function renderBelief(belief, { what = "", forWhom = "", style = null } = {}) {
+export function renderBelief(belief, opts = {}) { return renderBeliefMapped(belief, opts).artifact; }
+
+/** renderBeliefMapped(belief, { forWhom, style }) -> { artifact, map, style }
+ *  map: [{ text, src: [note id | "engine:<key>"] }] for every text and every
+ *  visible attribute value on the page, in order. */
+export function renderBeliefMapped(belief, { forWhom = "", style = null } = {}) {
+  const { map, T } = makeMapper();
   const byId = new Map(belief.map((t) => [t.id, t]));
   const site = belief.find((t) => t.kind === "site" && !t.parent) ?? null;
   // the page is titled by what was said, never by the request's own words
   // (a request carries the checker's words, so drawing it would pass checks
   // no one talked into the page)
-  const title = site?.name ?? "Untitled site";
+  const title = site?.name ? { text: site.name, src: [site.nameNote] } : { text: ENGINE_WORDS.untitled, src: E("untitled") };
   const roots = belief.filter((t) => !t.parent && t !== site);
   // the site's own parts come first, then anything else heard at the top
   const top = [...(site ? site.children.map((c) => byId.get(c)).filter(Boolean) : []), ...roots];
   const groups = new Map();
   for (const t of top) { const k = CONTROL_KINDS[t.kind] ? "Tools" : t.kind; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(t); }
-  const sections = [...groups.entries()].map(([k, list]) => el("section", el("h2", esc(k === "Tools" ? "Tools" : (list.length > 1 ? pluralOf(k) : k))) + el("div", list.map((t) => thingHtml(t, byId, 0)).join(""), 'class="grid"'))).join("\n");
-  const siteProps = site?.props.length ? el("dl", site.props.filter((p) => p.label !== "is").map(propHtml).join("")) : "";
+  const sections = [...groups.entries()].map(([k, list]) => el("section", el("h2", k === "Tools" ? T(ENGINE_WORDS.tools, E("tools")) : T(list.length > 1 ? pluralOf(k) : k, list.flatMap(thingSrc))) + el("div", list.map((t) => thingHtml(t, byId, 0, T)).join(""), 'class="grid"'))).join("\n");
+  const who = site?.props.find((p) => p.label === "for whom");
+  const shown = (site?.props ?? []).filter((p) => p.label !== "is" && p.label !== "for whom");
+  const siteProps = shown.length ? el("dl", shown.map((p) => propHtml(p, T)).join("")) : "";
   const css = style?.css ? `\n${style.comment ?? ""}\n${style.css}\n` : `\n/* no licensed stylesheet was found for this page: the engine's own fallback, written by hand */\n${STYLE}\n`;
-  const head = "<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + el("title", esc(title)) + "\n" + el("style", css);
-  const header = el("header", el("h1", esc(title)) + (forWhom ? el("p", "For " + esc(forWhom), 'class="for"') : "") + siteProps);
-  return "<!DOCTYPE html>\n" + el("html", "\n" + el("head", "\n" + head + "\n") + "\n" + el("body", "\n" + header + "\n" + el("main", sections) + "\n") + "\n", 'lang="en"') + "\n";
+  const titleHtml = T(title.text, title.src);
+  const head = "<meta charset=\"utf-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n" + el("title", titleHtml) + "\n" + el("style", css);
+  const whoHtml = who ? el("p", el("span", T(ENGINE_WORDS.for, E("for"))) + " " + el("span", T(who.value, [who.note])), 'class="for"') : "";
+  const header = el("header", el("h1", T(title.text, title.src)) + whoHtml + siteProps);
+  const artifact = "<!DOCTYPE html>\n" + el("html", "\n" + el("head", "\n" + head + "\n") + "\n" + el("body", "\n" + header + "\n" + el("main", sections) + "\n") + "\n", 'lang="en"') + "\n";
+  return { artifact, map, engineWords: ENGINE_WORDS, style: style?.provenance ? { snipped: true, from: `${style.provenance.package}@${style.provenance.version}${style.provenance.path}`, license: style.provenance.license } : { snipped: false, from: "engine:fallback-style" } };
 }

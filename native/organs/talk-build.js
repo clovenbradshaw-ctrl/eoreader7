@@ -31,6 +31,9 @@ import { makeTalkReader, numberOf } from "./talk-reader.js";
 import { makeNotes } from "../kernel/notes.js";
 import { reason, isDerived } from "./talk-reason.js";
 import { readKinds, detailsFor } from "./kind-read.js";
+import { uncovered } from "./provenance-cover.js";
+import { sealArtifact } from "../kernel/artifact.js";
+import { createHash } from "node:crypto";
 
 export const TALK_BUILD_SCHEMA = "TalkBuild@1";
 /** The most asks one build may spend, set by hand 2026-09-27, not measured:
@@ -197,9 +200,10 @@ export function beliefOf(notesFold, things) {
   const byId = new Map(things.filter((t) => onRecord.has(t.id)).map((t) => [t.id, { ...t, name: null, props: [], children: [], parent: null }]));
   for (const n of notesFold) {
     const a = byId.get(n.end1);
-    if (!a || n.label === "exists") continue;
-    if (n.label === "has" && byId.has(n.end2)) { const b = byId.get(n.end2); if (!b.parent && b !== a) { b.parent = a.id; a.children.push(b.id); } continue; }
-    if (n.label === "named") { a.name = n.end2; continue; }
+    if (a && n.label === "exists") { a.existsNote ??= n.id; continue; }
+    if (!a) continue;
+    if (n.label === "has" && byId.has(n.end2)) { const b = byId.get(n.end2); b.heldNote ??= n.id; if (!b.parent && b !== a) { b.parent = a.id; a.children.push(b.id); } continue; }
+    if (n.label === "named") { a.name = n.end2; a.nameNote = n.id; continue; }
     a.props.push({ label: n.label, value: n.end2, note: n.id, witnesses: n.witnesses ?? [], ...(isDerived(n) ? { derived: true } : {}) });
   }
   // a heard value the record corrects stays on the page as what was said,
@@ -469,6 +473,8 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     const siteId = reader.mint("site").id;
     spec.siteId = siteId;
     const seeded = [{ end1: siteId, label: "exists", end2: "site", sentence: what, witness: "request" }];
+    // who it is for is the person's own answer: on the record, never passed around it
+    if (request.forWhom) seeded.push({ end1: siteId, label: "for whom", end2: String(request.forWhom), sentence: String(request.forWhom), witness: "request" });
     for (const c of spec.counted) for (const nm of c.names) {
       takeName(c.kind, null, nm);
       const t = reader.mint(c.kind, c.modifier, nm);
@@ -617,10 +623,31 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     }
 
     const belief = beliefOf(N.fold(notes), reader.things());
-    const artifact = render(belief, { what, forWhom: request.forWhom });
+    // the renderer returns the artifact and the account of every element on
+    // it; the account is checked against the artifact itself (Ostrom)
+    const rendered = render(belief, { what, forWhom: request.forWhom });
+    const artifact = typeof rendered === "string" ? rendered : rendered.artifact;
+    const map = typeof rendered === "string" ? null : rendered.map;
+    const fold = N.fold(notes);
+    const cover = map ? uncovered({ artifact, map, fold, engineWords: rendered.engineWords ?? {} }) : { ok: false, uncovered: [], unresolved: [{ text: "", why: ["the renderer returned no map"] }], covered: 0 };
+    log({ kind: "provenance", ok: cover.ok, covered: cover.covered, uncovered: cover.uncovered.slice(0, 12).map((l) => `${l.where}: ${l.text}`), unresolved: cover.unresolved.slice(0, 12).map((u) => `${u.text}: ${u.why.join("; ")}`) });
     const verdict = await verify("page", artifact);
+    // sealed only when the medium's own check and the provenance check both hold
+    let sealed = null;
+    try {
+      sealed = sealArtifact({
+        kind: "TalkBuild@1",
+        producer: { assembly: "assembly:terkel", version: 1 },
+        material: { source: `request:${what}`, hash: createHash("sha256").update(JSON.stringify({ what, more: request.more ?? [], forWhom: request.forWhom ?? null })).digest("hex"), extent: fold.length, unit: "notes" },
+        regime: { frame, maxAsks, reasonCycles: REASON_CYCLES, mouth, style: rendered?.style ?? null },
+        dropped: ["the mouth's raw replies (kept in the log and the ledger's because, not in the artifact)"],
+        body: { html: artifact, map },
+        sealedAtSequence: notes.entries.length,
+        conformance: { passed: verdict.ok === true && cover.ok, checks: [...(verdict.checks ?? []), `provenance: ${cover.covered} elements accounted for, ${cover.uncovered.length} uncovered, ${cover.unresolved.length} unresolved`] },
+      });
+    } catch (err) { log({ kind: "unsealed", why: String(err?.message ?? err).slice(0, 200) }); }
     log({ kind: "set_down", asks, things: belief.length, notes: N.fold(notes).length, ok: verdict.ok });
-    return { schema: TALK_BUILD_SCHEMA, kind: "page", belief, artifact, verdict, asks, notes, spec };
+    return { schema: TALK_BUILD_SCHEMA, kind: "page", belief, artifact, map, provenance: cover, sealed, verdict, asks, notes, spec };
   }
 
   /** The first thing the belief still lacks: a plain question, an anchor, and

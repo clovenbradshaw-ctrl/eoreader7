@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 import { reason, isDerived } from "../organs/talk-reason.js";
 import { loadModel, sentences, tokenize, analyse } from "../adapters/text/english-parser.js";
 import { makeTalkBuild } from "../organs/talk-build.js";
-import { renderBelief } from "../adapters/build/belief-page.js";
+import { renderBelief, renderBeliefMapped } from "../adapters/build/belief-page.js";
 import { scanRegexes } from "../../scripts/kleene-up.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -87,7 +87,7 @@ test("wired: conclusions are the engine's, follow the parts on the record, and a
   const replies = ["Pod Chat", "Orca Watch\n2. Fin Friday\n3. Pod News", " 30\n2. Fin Friday: 5\n3. Pod News: 12"];
   let k = 0;
   const prompts = [];
-  const tb = makeTalkBuild({ ask: async (p) => { prompts.push(p); return replies[k++] ?? ""; }, parse, sentences, render: renderBelief, maxAsks: 6 });
+  const tb = makeTalkBuild({ ask: async (p) => { prompts.push(p); return replies[k++] ?? ""; }, parse, sentences, render: renderBeliefMapped, maxAsks: 6 });
   const out = await tb.build({ what: "make a site with three posts with a vote count", forWhom: "fans" });
   const derived = (await foldOf(out)).filter(isDerived);
   assert.ok(derived.length > 0, "the build reasoned over its record");
@@ -110,7 +110,7 @@ test("wired, recursive: a repeat is retracted, its gap reopens, the mouth is ask
     if (anchor === "1.") return "Great sighting!\n2. Great sighting!\n3. Where was this?";
     return "Lovely photo.";
   };
-  const tb = makeTalkBuild({ ask, parse, sentences, render: renderBelief, maxAsks: 6, log: (e) => events.push(e) });
+  const tb = makeTalkBuild({ ask, parse, sentences, render: renderBeliefMapped, maxAsks: 6, log: (e) => events.push(e) });
   const out = await tb.build({ what: "make a site with three comments", forWhom: "fans" });
   const said = out.belief.filter((t) => t.kind === "comment").map((t) => t.props.find((p) => p.label === "says")?.value);
   assert.deepEqual(said, ["Great sighting!", "Where was this?", "Lovely photo."], "the repeat is gone and a new comment was asked for");

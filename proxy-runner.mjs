@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
 import { loadModel as loadEnglishParserModel, sentences as englishSentences, tokenize as englishTokenize, analyse as englishAnalyse } from "./native/adapters/text/english-parser.js";
 import { makeTalkBuild } from "./native/organs/talk-build.js";
-import { renderBelief } from "./native/adapters/build/belief-page.js";
+import { renderBelief, renderBeliefMapped } from "./native/adapters/build/belief-page.js";
 import { makeWikiSummary } from "./native/adapters/sources/wiki-summary.js";
 import { makeNpmParts } from "./native/adapters/sources/npm-parts.js";
 import { sourcePart, provenanceComment } from "./native/organs/part-source.js";
@@ -6401,10 +6401,11 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         const style = await talkStyle();
         if (onNote) onNote({ move: "talk_style", snipped: !!style, from: style ? `${style.provenance.package}@${style.provenance.version}${style.provenance.path}` : null, license: style?.provenance.license ?? null });
         const tb = makeTalkBuild({
-          ask: talkAsk, parse, sentences: englishSentences, render: (belief, o) => renderBelief(belief, { ...o, style }), lookup: talkLookup, mouth: model,
+          ask: talkAsk, parse, sentences: englishSentences, render: (belief, o) => renderBeliefMapped(belief, { ...o, style }), lookup: talkLookup, mouth: model,
           log: (e) => {
             if (!onNote) return;
             if (e.kind === "turn") onNote({ move: "talk_turn", gap: e.gap, reply: String(e.reply ?? "").slice(0, 240), claims: e.claims, ops: (e.ops ?? []).map((o) => o.operator) });
+            else if (e.kind === "provenance") onNote({ move: "talk_provenance", ok: e.ok, covered: e.covered, uncovered: e.uncovered, unresolved: e.unresolved });
             else if (e.kind === "source" || e.kind === "reasoned") onNote({ move: `talk_${e.kind}`, ...(e.term ? { term: e.term, found: e.found, facts: e.facts } : { gap: e.gap, from: e.from, claims: e.claims }) });
             else if (e.kind === "spec") onNote({ move: "talk_spec", counted: e.spec.counted.map((c) => `${c.n} ${c.phrase}${c.per ? ` per ${c.per}` : ""}`), named: e.spec.named.map((n) => n.phrase) });
             else onNote({ move: `talk_${e.kind}`, ...(e.gap ? { gap: e.gap } : {}), ...(e.asks != null ? { asks: e.asks, things: e.things } : {}) });
@@ -6418,6 +6419,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         const defaults = buildVoidFields(what);
         const more = Object.entries(declared).filter(([cell, v]) => !(cell in defaults) && cell !== "anchor" && typeof v === "string" && v.trim()).map(([, v]) => v);
         talkPage = await tb.build({ what, forWhom, more });
+        if (onNote) onNote({ move: "talk_sealed", sealed: !!talkPage.sealed, provenance: { ok: talkPage.provenance?.ok ?? false, covered: talkPage.provenance?.covered ?? 0, uncovered: talkPage.provenance?.uncovered?.length ?? 0 } });
         if (onThinking) onThinking(`\n[talk page: ${talkPage.asks} asks, ${talkPage.belief.length} things on the record]\n`);
         documentLines.push(talkPage.artifact);
       }

@@ -22,7 +22,7 @@ import { fileURLToPath } from "node:url";
 import { loadModel, sentences, tokenize, analyse } from "../adapters/text/english-parser.js";
 import { readKinds, detailsFor, holdersOf, kindsAbove } from "../organs/kind-read.js";
 import { makeTalkBuild } from "../organs/talk-build.js";
-import { renderBelief } from "../adapters/build/belief-page.js";
+import { renderBelief, renderBeliefMapped } from "../adapters/build/belief-page.js";
 import { makeNotes } from "../kernel/notes.js";
 import { scanRegexes } from "../../scripts/kleene-up.mjs";
 
@@ -77,7 +77,7 @@ test("wired: a thin request's details are reasoned from the source; the mouth is
     if (anchor.startsWith("1. ")) { const rows = p.split("\n").filter((l) => l[0] >= "0" && l[0] <= "9" && l.includes(". ")).map((l) => l.slice(l.indexOf(". ") + 2)); return rows.map((r, i) => `${i ? `${i + 1}. ${r}: ` : " "}${10 + i}`).join("\n"); }
     return "";
   };
-  const tb = makeTalkBuild({ ask, parse, sentences, render: renderBelief, lookup, maxAsks: 20 });
+  const tb = makeTalkBuild({ ask, parse, sentences, render: renderBeliefMapped, lookup, maxAsks: 20 });
   const out = await tb.build({ what: "make a reddit but only for dolphin content", forWhom: "dolphin fans", more: ["two communities, r/orca and r/pods, with two posts each"] });
   assert.deepEqual(looked, ["reddit"]);
   assert.deepEqual(out.spec.counted.find((c) => c.kind === "post").details, ["vote count"]);

@@ -21,7 +21,7 @@ import { fileURLToPath } from "node:url";
 import { loadModel, sentences, tokenize, analyse } from "../adapters/text/english-parser.js";
 import { makeTalkReader } from "../organs/talk-reader.js";
 import { specOf, makeTalkBuild, completeness, MAX_ASKS } from "../organs/talk-build.js";
-import { renderBelief } from "../adapters/build/belief-page.js";
+import { renderBelief, renderBeliefMapped } from "../adapters/build/belief-page.js";
 import { checkBuild, factsOf } from "../organs/build-check.js";
 import { inspect } from "../eval/build-battery/inspect.mjs";
 import { scanRegexes } from "../../scripts/kleene-up.mjs";
@@ -99,7 +99,7 @@ test("the reader hears plain sentences", () => {
 test("a mouth that only talks builds a page the checker passes; the ledger types every entry", async () => {
   for (const id of ["page-rung-1", "page-rung-3", "page-rung-5"]) {
     const { ask, prompts } = scriptedMouth();
-    const tb = makeTalkBuild({ ask, parse, sentences, render: renderBelief });
+    const tb = makeTalkBuild({ ask, parse, sentences, render: renderBeliefMapped });
     const out = await tb.build({ what: rung(id).prompt, forWhom: rung(id).answers.anchor });
     const verdict = checkBuild(rung(id), factsOf(inspect(out.artifact)), { cafe: ladder.cafe });
     assert.equal(verdict.pass, true, `${id}: ${verdict.results.filter((r) => !r.pass).map((r) => `${r.id}: ${r.detail}`).join(" | ")}`);
@@ -115,7 +115,7 @@ test("a mouth that only talks builds a page the checker passes; the ledger types
 });
 
 test("a mouth that says nothing gets a page that fails: the engine invents no content", async () => {
-  const tb = makeTalkBuild({ ask: async () => "", parse, sentences, render: renderBelief });
+  const tb = makeTalkBuild({ ask: async () => "", parse, sentences, render: renderBeliefMapped });
   const out = await tb.build({ what: rung("page-rung-3").prompt, forWhom: "dolphin fans" });
   const verdict = checkBuild(rung("page-rung-3"), factsOf(inspect(out.artifact)), { cafe: ladder.cafe });
   const failed = verdict.results.filter((r) => !r.pass).map((r) => r.id);
@@ -135,7 +135,7 @@ test("the reply's framing is not the answer", async () => {
   ];
   let k = 0;
   const ask = async () => replies[k++] ?? "";
-  const tb = makeTalkBuild({ ask, parse, sentences, render: renderBelief, maxAsks: 3 });
+  const tb = makeTalkBuild({ ask, parse, sentences, render: renderBeliefMapped, maxAsks: 3 });
   const out = await tb.build({ what: "make a site with three posts with a title and a vote count", forWhom: "fans" });
   const posts = out.belief.filter((t) => t.kind === "post");
   assert.deepEqual(posts.map((t) => t.name), ["Orca Watch", "Fin Friday", "Pod News"]);
@@ -153,7 +153,7 @@ test("Gary's door: every ask is facts in plain words, and its size does not grow
   const sizes = {};
   for (const id of ["page-rung-2", "page-rung-5"]) {
     const { ask, prompts } = scriptedMouth();
-    await makeTalkBuild({ ask, parse, sentences, render: renderBelief }).build({ what: rung(id).prompt, forWhom: rung(id).answers.anchor });
+    await makeTalkBuild({ ask, parse, sentences, render: renderBeliefMapped }).build({ what: rung(id).prompt, forWhom: rung(id).answers.anchor });
     for (const p of prompts) {
       const words = p.split("\n").join(" ").split(" ").map((w) => w.toLowerCase().split("").filter((c) => c.toLowerCase() !== c.toUpperCase() || c === "'").join(""));
       for (const term of APPARATUS) assert.ok(!words.includes(term.toLowerCase()), `an ask names "${term}": ${p.slice(0, 120)}`);
@@ -171,7 +171,7 @@ test("Gary's door: every ask is facts in plain words, and its size does not grow
 test("siblings are told apart by name: a name already used is not taken again", async () => {
   const replies = ["Pod Chat", "Dolphin Fan\n2. Dolphin Fan\n3. Orca Watch", "Fin Friday"];
   let k = 0;
-  const tb = makeTalkBuild({ ask: async () => replies[k++] ?? "", parse, sentences, render: renderBelief, maxAsks: 3 });
+  const tb = makeTalkBuild({ ask: async () => replies[k++] ?? "", parse, sentences, render: renderBeliefMapped, maxAsks: 3 });
   const out = await tb.build({ what: "make a site with three posts with a title", forWhom: "fans" });
   assert.deepEqual(out.belief.filter((t) => t.kind === "post").map((t) => t.name), ["Dolphin Fan", "Orca Watch", "Fin Friday"]);
 });
@@ -191,7 +191,7 @@ test("a thin request: the person's answers are read with it, and what each part 
     if (anchor === "1.") return Array.from({ length: 4 }, (_, k) => (k ? `${k + 1}. ` : "") + `Pod note ${i}-${k}`).join("\n");
     return "Pod Chat";
   };
-  const tb = makeTalkBuild({ ask, parse, sentences, render: renderBelief });
+  const tb = makeTalkBuild({ ask, parse, sentences, render: renderBeliefMapped });
   const out = await tb.build({ what: "make a reddit but only for dolphin content", forWhom: "dolphin fans", more: ["three communities — r/bottlenose, r/orca and r/riverdolphins — with four posts each"] });
   assert.deepEqual(out.spec.counted.map((c) => [c.kind, c.n, c.per]), [["community", 3, null], ["post", 4, "community"]]);
   assert.deepEqual(out.spec.counted[1].details, ["upvotes", "comments"]);
@@ -204,7 +204,7 @@ test("a thin request: the person's answers are read with it, and what each part 
 test("the frame: by default an ask carries the task at hand, not the big picture", async () => {
   for (const frame of ["task", "whole"]) {
     const { ask, prompts } = scriptedMouth();
-    await makeTalkBuild({ ask, parse, sentences, render: renderBelief, frame }).build({ what: rung("page-rung-3").prompt, forWhom: "dolphin fans" });
+    await makeTalkBuild({ ask, parse, sentences, render: renderBeliefMapped, frame }).build({ what: rung("page-rung-3").prompt, forWhom: "dolphin fans" });
     const opened = prompts.filter((p) => p.startsWith("We are describing")).length;
     if (frame === "task") {
       assert.equal(opened, 0, "a task-framed ask never opens with the whole");
@@ -218,7 +218,7 @@ test("the frame: by default an ask carries the task at hand, not the big picture
 test("a reply is read, not only slotted; what the ear imagines is never on the page", async () => {
   const replies = ["Pod Chat. It has a friendly forum. One more post is called Ghost Post."];
   let k = 0;
-  const tb = makeTalkBuild({ ask: async () => replies[k++] ?? "", parse, sentences, render: renderBelief, maxAsks: 1 });
+  const tb = makeTalkBuild({ ask: async () => replies[k++] ?? "", parse, sentences, render: renderBeliefMapped, maxAsks: 1 });
   const out = await tb.build({ what: "make a site with three posts with a title", forWhom: "fans" });
   const site = out.belief.find((t) => t.kind === "site");
   assert.equal(site.name, "Pod Chat");
@@ -248,12 +248,12 @@ test("the mouth is one source however often it is asked; what it says a part sho
   assert.equal(twice("talk:qwen2.5-coder:1.5b#ask1", "talk:qwen2.5-coder:1.5b#ask2"), "single-witness", "one model agreeing with itself is one source");
   // and the build uses that grammar
   let k = 0;
-  const out = await makeTalkBuild({ ask: async () => (k++ ? "" : "Pod Chat"), parse, sentences, render: renderBelief, maxAsks: 2, mouth: "qwen2.5-coder:1.5b" }).build({ what: "make a site with three posts with a title", forWhom: "fans" });
+  const out = await makeTalkBuild({ ask: async () => (k++ ? "" : "Pod Chat"), parse, sentences, render: renderBeliefMapped, maxAsks: 2, mouth: "qwen2.5-coder:1.5b" }).build({ what: "make a site with three posts with a title", forWhom: "fans" });
   const said = N.fold(out.notes).flatMap((x) => x.witnesses).filter((w) => w.startsWith("talk:"));
   assert.ok(said.length && said.every((w) => w.startsWith("talk:qwen2.5-coder:1.5b#ask")), said.join(","));
   // a thin request: the mouth's "shows" answer lands in the ledger
   const ask2 = async (p) => (p.toLowerCase().includes("what does each") ? "Each post shows its name, its upvotes." : "");
-  const out2 = await makeTalkBuild({ ask: ask2, parse, sentences, render: renderBelief, maxAsks: 3, mouth: "m" }).build({ what: "make a reddit but only for dolphin content", more: ["two communities, r/a and r/b, with two posts each"] });
+  const out2 = await makeTalkBuild({ ask: ask2, parse, sentences, render: renderBeliefMapped, maxAsks: 3, mouth: "m" }).build({ what: "make a reddit but only for dolphin content", more: ["two communities, r/a and r/b, with two posts each"] });
   const shows = N.fold(out2.notes).find((n) => n.end1 === "kind:post" && n.label === "shows" && n.end2 === "upvotes");
   assert.ok(shows && shows.witnesses[0].startsWith("talk:m#ask"), "the mouth's answer about what a post shows is heard");
 });

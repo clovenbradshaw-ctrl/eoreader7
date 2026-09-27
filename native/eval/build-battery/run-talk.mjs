@@ -17,7 +17,7 @@ import { inspect } from "./inspect.mjs";
 import { makeWikiSummary } from "../../adapters/sources/wiki-summary.js";
 import { makeNpmParts } from "../../adapters/sources/npm-parts.js";
 import { sourcePart, provenanceComment } from "../../organs/part-source.js";
-import { RENDERED_ELEMENTS } from "../../adapters/build/belief-page.js";
+import { RENDERED_ELEMENTS, renderBeliefMapped } from "../../adapters/build/belief-page.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, "..", "..", "..");
@@ -45,7 +45,7 @@ const lookup = makeWikiSummary({ dir: path.join(ROOT, "state", "sources", "wikip
 const part = arg("parts", "on") === "off" ? null : await sourcePart({ need: "stylesheet", elements: RENDERED_ELEMENTS, npm: makeNpmParts({ dir: path.join(ROOT, "state", "sources", "npm") }) });
 const style = part?.css ? { css: part.css, comment: provenanceComment(part.provenance) } : null;
 console.log(part?.css ? `stylesheet: ${part.provenance.package}@${part.provenance.version}${part.provenance.path} (${part.provenance.license}), ${part.provenance.reached.length}/${RENDERED_ELEMENTS.length} elements` : `stylesheet: ${part?.refused ?? "none found"} — the engine's fallback`);
-const render = (belief, o) => renderBelief(belief, { ...o, style });
+const render = (belief, o) => renderBeliefMapped(belief, { ...o, style });
 const rows = [];
 for (const file of arg("battery", "ladder.json").split(",")) {
   const battery = JSON.parse(fs.readFileSync(path.join(HERE, file), "utf8"));
