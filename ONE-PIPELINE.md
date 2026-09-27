@@ -104,11 +104,25 @@ file resolution (two).
    stage; the proxy returns the notes. Control: a mutated renderer emitting
    "Send" with no key fails; a silent mouth leaves zero `talk:` witnesses on
    the page; `ER7_TALK_PARTS=0` is never reported as sourced.
-3. **Pull the page out of the core.** `makeBuild({ medium })`; the page's
+3. **Done 2026-09-27 (47c9ce8)** — the page out of the core: the build
+   takes a medium (adapters/build/page-medium.js); a scanner over every
+   string literal in the core finds no page word. Was:
+   **Pull the page out of the core.** `makeBuild({ medium })`; the page's
    words (site, reddit, karma, form, "What is … called?", `verify("page")`)
    move to `adapters/build/page-medium.js`. Control: the core file contains
    none of them, and the ladder still scores what it scored.
-4. **Music as the second medium, with no core edits.** Spec ("a lullaby in
+4. **Done 2026-09-27 (e59d558)** — music as the second medium: the commit
+   touches no core file (3 files: the adapter, its test, the README row).
+   To be exact about what that proves: two medium-general core changes came
+   first — the hooks (ee351ed: source a part before asking, a medium's own
+   leaves, the one license table) and part order (c13e653: the fold sorts by
+   id, so bars and posts came back out of order — a latent page bug the
+   second medium exposed). The lullaby is the Prelude's bars 1–8 exactly;
+   every note accounted for; the CC BY-SA Aria refused. Next for music: the
+   reasoner (kernel/continuation.js) deriving new bars from the snipped ones,
+   witness derived:continuation with seed-note premises, and the
+   shuffled-prior control. Was:
+   **Music as the second medium, with no core edits.** Spec ("a lullaby in
    two phrases of four bars each"), parts (phrases, bars), snip bars by tick
    range from licensed MIDI (each fixture's own license checked),
    `continuation.js` as the reasoner, `writeMidi` + a note-to-note sidecar
@@ -134,6 +148,8 @@ file resolution (two).
 | 2026-09-27 | talk path holds as the ladder grows (1.5b) | bare model, same checker, rungs 1–5 | talk 37/37; bare 22/37 (1.5b), 30/37 (3b); posts shown at rung 5: talk 38, bare 4 / 3 |
 | 2026-09-27 | task-only asks beat whole-picture asks | same ladder, 1.5b | first run (without the topic sentence): rung 5 160/213 vs 207/213 — **task-only lost**; topic fix added; same-code rerun queued |
 | 2026-09-27 | correction (Ostrom): "15 of 17 elements" in commit 0f1290a is wrong — the renderer emits 19; new.css reaches 15/19 (misses main, span, i, label) | recount against RENDERED_ELEMENTS | 15/19 |
+| 2026-09-27 | one pipeline: music runs through the same core as pages | the music commit touches no core file; its output is the source's own bars; a refused license leaves nothing; a note added around the map is caught | held (after two medium-general core changes, recorded) |
+| 2026-09-27 | the talk page beats the old path through the product (runProxyTurn), 1.5b, 21-request battery | same code, ER7_TALK_PAGE=0 vs 1; bare model | wired 4/21, 54/110 checks; old (same code) running; bare 1.5b earlier today 4/21, 63/104 — **wired below bare on checks so far**; gate misses (bike-forum, route-12) hit every arm |
 | 2026-09-27 | every element on a page is accounted for | the artifact read in its own terms against the map; a leaky renderer, a smuggled engine word, a note not on the record | 5/5 rungs covered and sealed (scripted mouth); all three controls caught; an always-ok checker fails the tests |
 | 2026-09-27 | the stylesheet is snipped, not written | every CSS byte after the provenance comment equals the source's bytes at its ranges; a copyleft candidate that reaches more is refused | tests pass; license gate off fails the test |
 
