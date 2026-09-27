@@ -1,0 +1,258 @@
+{
+  "schema": "BuildBattery@1",
+  "about": "Varied build requests, each with checks written only from its own words and the answers supplied when the engine asks back. Never tuned against an engine run: the checks were written before any request in this file was built. `present` = the phrase appears in what the artifact shows (a page's visible text, a program's printed output); `distinct` = at least `min` of the listed phrases appear; `repeats` = at least `min` separate items (a page's innermost blocks, a program's lines) each contain one of the phrases; `absent` = none appears; `controls` = a page offers at least `min` inputs, buttons, text areas or selects. `marks` are matched as raw characters (a '$', a '?', a '37.7'); phrases are matched as whole words. `cafe` checks catch the fixed coffee-shop content leaking into a request that never asked for it.",
+  "cafe": ["drinks", "opening hours", "espresso", "cappuccino", "smoothie", "latte"],
+  "requests": [
+    {
+      "id": "dolphin-reddit",
+      "prompt": "make a reddit but only for dolphin content",
+      "kind": "page",
+      "answers": { "anchor": "dolphin enthusiasts, trainers and marine biologists", "cardinality": "three communities — r/bottlenose, r/orca and r/riverdolphins — with four posts each" },
+      "checks": [
+        { "id": "communities", "what": "it has communities", "present": { "any": ["community", "communities", "subreddit", "subreddits"], "marks": ["r/"] } },
+        { "id": "named", "what": "the three named communities appear", "distinct": { "any": ["bottlenose", "orca", "riverdolphins", "river dolphins"], "min": 3 } },
+        { "id": "posts", "what": "it shows posts", "present": { "any": ["post", "posts", "posted"] } },
+        { "id": "votes", "what": "posts carry votes", "present": { "any": ["vote", "votes", "upvote", "upvotes", "points", "score"] } },
+        { "id": "comments", "what": "posts carry comments", "present": { "any": ["comment", "comments"] } },
+        { "id": "many-posts", "what": "at least six separate posts (three communities, four each)", "repeats": { "any": ["vote", "votes", "upvote", "upvotes", "points", "comment", "comments"], "min": 6 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "coffee-shop-control",
+      "prompt": "make a website for a small coffee shop with a menu of five drinks with prices and opening hours",
+      "kind": "page",
+      "control": "positive: the one request the engine's web path was tuned for; a checker that fails this is failing everything",
+      "answers": { "anchor": "the shop's customers", "cardinality": "five drinks" },
+      "checks": [
+        { "id": "prices", "what": "drinks have prices", "present": { "marks": ["$"], "any": ["price", "prices"] } },
+        { "id": "five", "what": "five separate priced drinks", "repeats": { "marks": ["$"], "min": 5 } },
+        { "id": "hours", "what": "it shows opening hours", "present": { "any": ["hours", "open", "opening"] } }
+      ]
+    },
+    {
+      "id": "book-club",
+      "prompt": "I need a page where my book club can see what we're reading this month and vote on next month's book",
+      "kind": "page",
+      "answers": { "anchor": "my book club, eight people", "cardinality": "one current book and four candidate books" },
+      "checks": [
+        { "id": "current", "what": "it says what the club is reading now", "present": { "any": ["this month", "currently reading", "now reading", "current book", "reading now"] } },
+        { "id": "vote", "what": "members can vote", "present": { "any": ["vote", "votes", "voting"] } },
+        { "id": "candidates", "what": "at least four candidate books to vote on", "repeats": { "any": ["vote", "votes", "voting"], "min": 4 } },
+        { "id": "input", "what": "voting takes input", "controls": { "min": 1 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "maine-tides",
+      "prompt": "build a site that shows tide times for three beaches in Maine",
+      "kind": "page",
+      "answers": { "anchor": "surfers and beach walkers", "cardinality": "three beaches" },
+      "checks": [
+        { "id": "tides", "what": "it shows tides", "present": { "any": ["tide", "tides"] } },
+        { "id": "high-low", "what": "both high and low tide", "distinct": { "any": ["high", "low"], "min": 2 } },
+        { "id": "maine", "what": "it is about Maine", "present": { "any": ["maine"] } },
+        { "id": "beaches", "what": "three separate beaches with tide times", "repeats": { "any": ["tide", "tides", "high", "low"], "min": 3 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "vegan-recipes",
+      "prompt": "create a recipe box website for vegan desserts",
+      "kind": "page",
+      "answers": { "anchor": "home bakers", "cardinality": "six recipes" },
+      "checks": [
+        { "id": "recipes", "what": "it holds recipes", "present": { "any": ["recipe", "recipes"] } },
+        { "id": "vegan", "what": "the recipes are vegan", "present": { "any": ["vegan", "plant-based", "dairy-free"] } },
+        { "id": "ingredients", "what": "recipes list ingredients", "present": { "any": ["ingredient", "ingredients"] } },
+        { "id": "several", "what": "at least four separate desserts", "repeats": { "any": ["cake", "cookies", "cookie", "pie", "brownies", "brownie", "pudding", "mousse", "tart", "cheesecake", "ice cream", "cupcakes", "cupcake", "bars", "crumble", "truffles"], "min": 4 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "food-bank-signup",
+      "prompt": "make a sign-up page for volunteers at a food bank's Saturday shifts",
+      "kind": "page",
+      "answers": { "anchor": "local volunteers", "cardinality": "three shifts of four hours" },
+      "checks": [
+        { "id": "shifts", "what": "it lists shifts", "present": { "any": ["shift", "shifts"] } },
+        { "id": "saturday", "what": "the shifts are on Saturday", "present": { "any": ["saturday"] } },
+        { "id": "three", "what": "three separate shifts", "repeats": { "any": ["shift", "am", "pm", "morning", "afternoon", "evening"], "min": 3 } },
+        { "id": "form", "what": "people can sign up (at least a field and a button)", "controls": { "min": 2 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "lost-pets",
+      "prompt": "make a lost and found board for pets in our neighborhood",
+      "kind": "page",
+      "answers": { "anchor": "neighbors", "cardinality": "six listings" },
+      "checks": [
+        { "id": "lost-found", "what": "both lost and found pets", "distinct": { "any": ["lost", "found"], "min": 2 } },
+        { "id": "pets", "what": "the listings are pets", "present": { "any": ["pet", "pets", "dog", "cat", "dogs", "cats", "parrot", "rabbit"] } },
+        { "id": "listings", "what": "at least four separate listings", "repeats": { "any": ["lost", "found", "missing", "spotted"], "min": 4 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "planet-quiz",
+      "prompt": "build a quiz app about the planets of the solar system",
+      "kind": "any",
+      "answers": { "anchor": "middle school students", "cardinality": "five questions" },
+      "checks": [
+        { "id": "questions", "what": "it asks questions", "present": { "marks": ["?"] } },
+        { "id": "planets", "what": "at least three planets named", "distinct": { "any": ["mercury", "venus", "earth", "mars", "jupiter", "saturn", "uranus", "neptune"], "min": 3 } },
+        { "id": "five", "what": "at least four separate questions", "repeats": { "marks": ["?"], "min": 4 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "ceramics-portfolio",
+      "prompt": "make a portfolio site for a ceramics artist",
+      "kind": "page",
+      "answers": { "anchor": "galleries and collectors", "cardinality": "eight pieces" },
+      "checks": [
+        { "id": "ceramics", "what": "it is about ceramics", "present": { "any": ["ceramic", "ceramics", "pottery", "stoneware", "porcelain", "clay", "glaze"] } },
+        { "id": "pieces", "what": "at least four separate pieces", "repeats": { "any": ["vase", "bowl", "bowls", "cup", "cups", "mug", "mugs", "plate", "plates", "jar", "teapot", "vessel", "piece", "stoneware", "porcelain", "glaze", "glazed"], "min": 4 } },
+        { "id": "contact", "what": "galleries can get in touch", "present": { "any": ["contact", "email", "inquire", "inquiries", "commission", "commissions"] } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "route-12",
+      "prompt": "make a page with the weekday bus schedule for route 12",
+      "kind": "page",
+      "answers": { "anchor": "riders", "cardinality": "ten stops" },
+      "checks": [
+        { "id": "route", "what": "it is route 12", "present": { "any": ["route 12"] } },
+        { "id": "weekday", "what": "it is the weekday schedule", "present": { "any": ["weekday", "weekdays", "monday", "monday-friday", "mon-fri"] } },
+        { "id": "stops", "what": "it names stops", "present": { "any": ["stop", "stops", "station"] } },
+        { "id": "rows", "what": "at least five separate stops with times", "repeats": { "marks": [":"], "min": 5 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "bike-forum",
+      "prompt": "a forum for people who restore old bicycles",
+      "kind": "page",
+      "answers": { "anchor": "bicycle restorers", "cardinality": "four forum threads" },
+      "checks": [
+        { "id": "threads", "what": "it has threads", "present": { "any": ["thread", "threads", "topic", "topics", "discussion", "discussions"] } },
+        { "id": "bikes", "what": "it is about bicycles", "present": { "any": ["bicycle", "bicycles", "bike", "bikes", "frame", "restoration", "restore"] } },
+        { "id": "replies", "what": "threads have replies", "present": { "any": ["reply", "replies", "comment", "comments", "posts"] } },
+        { "id": "four", "what": "at least four separate threads", "repeats": { "any": ["reply", "replies", "comment", "comments", "posted", "by"], "min": 4 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "farmers-market",
+      "prompt": "make a landing page for a Saturday farmers market with a map of the stalls",
+      "kind": "page",
+      "answers": { "anchor": "shoppers", "cardinality": "twelve stalls" },
+      "checks": [
+        { "id": "market", "what": "it is a farmers market", "present": { "any": ["farmers market", "farmers' market", "market"] } },
+        { "id": "saturday", "what": "it is on Saturday", "present": { "any": ["saturday"] } },
+        { "id": "stalls", "what": "it shows stalls", "present": { "any": ["stall", "stalls", "vendor", "vendors", "booth", "booths"] } },
+        { "id": "map", "what": "the stalls are laid out on a map", "present": { "any": ["map"] } },
+        { "id": "six", "what": "at least six separate stalls", "repeats": { "any": ["stall", "vendor", "booth", "farm", "bakery", "honey", "eggs", "produce", "flowers", "cheese", "bread", "apples", "vegetables"], "min": 6 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "plant-watering",
+      "prompt": "write a command-line tool that tells me which of my houseplants need watering today",
+      "kind": "program",
+      "answers": { "anchor": "just me: one person with twelve houseplants", "cardinality": "twelve plants" },
+      "checks": [
+        { "id": "water", "what": "it talks about watering", "present": { "any": ["water", "watering", "watered"] } },
+        { "id": "today", "what": "it says which are due today", "present": { "any": ["today", "due", "needs", "need"] } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "bill-split",
+      "prompt": "write a script that splits a $120 dinner bill with an 18% tip between four friends and prints what each owes",
+      "kind": "program",
+      "answers": { "anchor": "four friends", "cardinality": "four people" },
+      "checks": [
+        { "id": "amount", "what": "each owes 35.40 (120 plus 18%, split four ways)", "present": { "marks": ["35.4"] } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "word-count",
+      "prompt": "write a python script that prints the most common words in the sentence 'the cat and the dog and the bird' with how many times each appears",
+      "kind": "program",
+      "answers": { "anchor": "me", "cardinality": "every word" },
+      "checks": [
+        { "id": "the-3", "what": "'the' appears 3 times", "repeats": { "all": ["the", "3"], "min": 1 } },
+        { "id": "and-2", "what": "'and' appears 2 times", "repeats": { "all": ["and", "2"], "min": 1 } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "fahrenheit",
+      "prompt": "write a program that converts 100 degrees Fahrenheit to Celsius and prints the result",
+      "kind": "program",
+      "answers": { "anchor": "me", "cardinality": "one temperature" },
+      "checks": [
+        { "id": "value", "what": "100°F is 37.8°C (37.77…)", "present": { "marks": ["37.7", "37.8"] } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "new-year-countdown",
+      "prompt": "write a script that prints how many days are left from September 27, 2026 until New Year's Day 2027",
+      "kind": "program",
+      "answers": { "anchor": "me", "cardinality": "one number" },
+      "checks": [
+        { "id": "days", "what": "96 days", "present": { "any": ["96"] } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "dolphin-orca-count",
+      "prompt": "write a program that prints the numbers 1 to 20, but prints Dolphin for multiples of 3 and Orca for multiples of 5",
+      "kind": "program",
+      "answers": { "anchor": "me", "cardinality": "twenty numbers" },
+      "checks": [
+        { "id": "dolphin", "what": "Dolphin for multiples of 3", "repeats": { "any": ["dolphin"], "min": 5 } },
+        { "id": "orca", "what": "Orca for multiples of 5", "repeats": { "any": ["orca"], "min": 3 } },
+        { "id": "plain", "what": "plain numbers stay (19 is printed)", "present": { "any": ["19"] } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "low-stock",
+      "prompt": "write a program that lists which items in a small shop's inventory are running low: 3 apples, 40 pears and 1 melon, where low means fewer than 5",
+      "kind": "program",
+      "answers": { "anchor": "the shop owner", "cardinality": "three items" },
+      "checks": [
+        { "id": "low", "what": "apples and melon are listed", "distinct": { "any": ["apples", "melon"], "min": 2 } },
+        { "id": "not-pears", "what": "pears are not listed as low", "absent": { "any": ["pears"] } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "roman-1994",
+      "prompt": "write a function that turns a number into roman numerals and print the result for 1994",
+      "kind": "program",
+      "answers": { "anchor": "me", "cardinality": "one number" },
+      "checks": [
+        { "id": "value", "what": "1994 is MCMXCIV", "present": { "any": ["mcmxciv"] } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    },
+    {
+      "id": "reading-log",
+      "prompt": "build a tracker where I log the minutes I read each day and see my weekly total",
+      "kind": "any",
+      "answers": { "anchor": "just me", "cardinality": "seven days" },
+      "checks": [
+        { "id": "minutes", "what": "it records minutes", "present": { "any": ["minute", "minutes", "min"] } },
+        { "id": "weekly", "what": "it shows a weekly total", "present": { "any": ["weekly", "week", "total"] } },
+        { "id": "cafe", "what": "no coffee-shop content", "cafe": true }
+      ]
+    }
+  ]
+}
