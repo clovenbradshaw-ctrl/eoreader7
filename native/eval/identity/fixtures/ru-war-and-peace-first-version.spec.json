@@ -1,0 +1,14 @@
+{
+  "source": "lib.ru — Толстой Лев Николаевич. Война и мир. Первый вариант романа (az.lib.ru/t/tolstoj_lew_nikolaewich/text_0073.shtml), cp1251 HTML, converted to UTF-8",
+  "note": "Every node is ONE case form of a name, so string identity calls each a different entity by construction. Expectations DECLARED before the run: case forms of one name are the same person; forms of different names, including in the same grammatical case, are different.",
+  "record": { "html": true, "foldMarks": false },
+  "names": ["Наташа", "Наташи", "Наташе", "Наташу", "Наташей", "Пьер", "Пьера", "Пьеру", "Пьером", "Кутузов", "Кутузова", "Кутузову", "Наполеон", "Наполеона", "Наполеону", "Наполеоном", "Соня", "Сони", "Соню", "Андрей", "Андрея", "Николай", "Николая"],
+  "pairs": [
+    ["Наташа", "Наташи", "same"], ["Наташа", "Наташу", "same"], ["Наташа", "Наташе", "same"], ["Наташа", "Наташей", "same"],
+    ["Пьер", "Пьера", "same"], ["Пьер", "Пьеру", "same"], ["Кутузов", "Кутузова", "same"], ["Кутузов", "Кутузову", "same"],
+    ["Наполеон", "Наполеона", "same"], ["Наполеон", "Наполеону", "same"], ["Андрей", "Андрея", "same"], ["Николай", "Николая", "same"], ["Соня", "Сони", "same"],
+    ["Наташа", "Соня", "different"], ["Наташи", "Сони", "different"], ["Наташу", "Соню", "different"], ["Кутузов", "Наполеон", "different"], ["Кутузова", "Наполеона", "different"],
+    ["Кутузову", "Наполеону", "different"], ["Пьер", "Андрей", "different"], ["Пьера", "Андрея", "different"], ["Пьер", "Николай", "different"], ["Андрей", "Николай", "different"],
+    ["Наташа", "Пьер", "different"], ["Наташу", "Пьера", "different"], ["Кутузов", "Пьер", "different"]
+  ]
+}

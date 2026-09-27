@@ -9,10 +9,13 @@ const NATIVE = new URL("../..", import.meta.url).pathname;
 const { tokenize } = await import(`${NATIVE}/organs/source.js`);
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
 const fold = (s) => String(s ?? "").normalize("NFD").replace(/\p{M}/gu, "");
-export function mentionRecord(bookPath, names, { bodyFrom = 0 } = {}) {
-  const text = fold(readFileSync(bookPath, "utf8").replace(/\r\n/g, "\n")).slice(bodyFrom);
+export function mentionRecord(bookPath, names, { bodyFrom = 0, html = false, foldMarks = true } = {}) {
+  let raw = readFileSync(bookPath, "utf8").replace(/\r\n/g, "\n");
+  if (html) raw = raw.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&[a-z]+;/g, " ");
+  // folding combining marks is right for Latin diacritics; it would strip Cyrillic й -> и, so it is declared per language
+  const text = (foldMarks ? fold(raw) : raw.normalize("NFC")).slice(bodyFrom);
   const sorted = [...names].sort((a, b) => b.length - a.length); // longest first: "Prince Andrew" before "Andrew"
-  const re = new RegExp(`\\b(${sorted.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})\\b`, "g");
+  const re = new RegExp(`(?<![\\p{L}\\p{N}])(${sorted.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?![\\p{L}\\p{N}])`, "gu"); // Unicode boundary: \b is ASCII-only and never fires inside Cyrillic
   const rec = new Map(names.map((n) => [n, []]));
   const sentences = splitSentences(text).map((s) => s.text);
   let at = -1;

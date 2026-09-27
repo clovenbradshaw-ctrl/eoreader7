@@ -12,14 +12,16 @@ const NATIVE = new URL("../..", import.meta.url).pathname;
 const { makeIdentityInduction } = await import(`${NATIVE}/kernel/identity-induction.js`);
 const { createSeededRng, shuffled } = await import(`${NATIVE}/kernel/rng.js`);
 const { mentionRecord } = await import("./mention-record.mjs");
-const [BOOK, OUT] = process.argv.slice(2);
+const [BOOK, OUT, SPEC] = process.argv.slice(2);
+const spec = SPEC ? JSON.parse((await import("node:fs")).readFileSync(SPEC, "utf8")) : null;
 const OPTS = { draws: 200, alpha: 0.05, seed: 7, minOccurrences: 20, maxHop: 2, smooth: 0.5, resolution: 10, minFeatureCount: 2, namesNode: (f) => (f.startsWith("n2:") ? f.slice(3) : null), trajectory: { windows: 40, basis: 24, draws: 60 }, ...JSON.parse(process.env.IDOPTS ?? "{}") };
 const NAMES = ["Pierre", "Bezukhov", "Natasha", "Prince Andrew", "Andrew", "Bolkonski", "Princess Mary", "Countess Mary", "Nicholas", "Rostov", "Napoleon", "Bonaparte", "Kutuzov", "Sonya", "Denisov", "Dolokhov", "Boris", "Anatole", "Petya", "Prince Vasili", "Helene", "Moscow", "Russia", "Petersburg", "Bagration", "Alpatych", "Tikhon", "Berg", "Julie", "Speranski"];
 const PAIRS = [["Pierre", "Bezukhov", "same"], ["Prince Andrew", "Andrew", "same"], ["Napoleon", "Bonaparte", "same"], ["Princess Mary", "Countess Mary", "same"], ["Nicholas", "Rostov", "same"], ["Prince Andrew", "Bolkonski", "same"],
   ["Pierre", "Natasha", "different"], ["Kutuzov", "Napoleon", "different"], ["Sonya", "Natasha", "different"], ["Denisov", "Dolokhov", "different"], ["Boris", "Anatole", "different"], ["Prince Andrew", "Pierre", "different"],
   ["Princess Mary", "Natasha", "different"], ["Moscow", "Russia", "different"], ["Moscow", "Petersburg", "different"], ["Pierre", "Moscow", "different"], ["Bagration", "Kutuzov", "different"], ["Helene", "Natasha", "different"]];
-console.log("frame", JSON.stringify(OPTS));
-const rec = mentionRecord(BOOK, NAMES);
+if (spec) { NAMES.length = 0; NAMES.push(...spec.names); PAIRS.length = 0; PAIRS.push(...spec.pairs); }
+console.log("frame", JSON.stringify(OPTS), spec ? `spec ${SPEC}` : "");
+const rec = mentionRecord(BOOK, NAMES, spec?.record ?? {});
 console.log("mentions:", NAMES.map((n) => `${n}:${rec.get(n).length}`).join(" "));
 const f3 = (x) => (Number.isFinite(x) ? x.toFixed(3) : String(x));
 const brief = (r) => { const d = r.tests?.dynamics; return `${r.verdict}${r.reason ? `(${r.reason})` : ""} c=${f3(r.tests?.consequence.observed)}/${f3(r.tests?.consequence.ceiling)} dmd=${d ? `${d.verdict}${d.reason ? `(${d.reason})` : ""} r=${d.ranks?.a}/${d.ranks?.b} err=${f3(d.error?.ab)}/${f3(d.floor?.ab)},${f3(d.error?.ba)}/${f3(d.floor?.ba)}` : "-"}`; };
