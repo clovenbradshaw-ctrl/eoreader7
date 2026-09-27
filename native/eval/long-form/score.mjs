@@ -20,6 +20,7 @@ import { loadModel, sentences, tokenize, analyse } from "../../adapters/text/eng
 import { outlineOf, hasWord } from "../../organs/long-form.js";
 import { PROSE_MEDIUM } from "../../adapters/build/prose-medium.js";
 import { makeNotes } from "../../kernel/notes.js";
+import { surprises } from "../../kernel/surprise-segments.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, "..", "..", "..");
@@ -31,7 +32,7 @@ const clean = (w) => { let x = String(w); while (x && !(x.at(-1).toLowerCase() !
 // words capitalised for reasons other than being a name — set by hand 2026-09-27
 const NOT_NAMES = new Set(["I", "I'm", "I'll", "I've", "I'd", "Mom", "Dad", "Mama", "Papa", "God", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December", "Chapter", "Mr", "Mrs", "Ms", "Dr", "OK", "Oh"]);
 
-export function scoreBook(book, cast, { castDetails = [] } = {}) {
+export function scoreBook(book, cast, { castDetails = [], at = null } = {}) {
   const lines = String(book).split("\n").filter((l) => l.trim() && !l.startsWith("#") && l.trim() !== "* * *");
   const text = lines.join(" ");
   const words = text.split(" ").filter(Boolean).length;
@@ -79,7 +80,17 @@ export function scoreBook(book, cast, { castDetails = [] } = {}) {
   }
   const top = (m) => [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([w, n]) => `${w}×${n}`);
   const sum = (m) => [...m.values()].reduce((a, b) => a + b, 0);
-  return { words, tokensApprox: Math.round(text.length / 4), sentences: said, repeated, repeatedShare: said ? Math.round((100 * repeated) / said) : 0, noteEchoes, topRepeat: [...echo.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([t, n]) => `${n}× "${t.slice(0, 50)}"`), callbacks, strays: { propn: sum(strays.propn), propnDistinct: strays.propn.size, capital: sum(strays.capital), capitalDistinct: strays.capital.size, perThousandWords: Math.round((1000 * sum(strays.propn)) / Math.max(1, words)), top: top(strays.propn) } };
+  // how much each word says that the book had not already said: mean bits
+  // per word, read prequentially (kernel/surprise-segments.js, order 2) —
+  // a book that loops on its own last page reads low
+  const stream = text.toLowerCase().split(" ").map((w) => [...w].filter((ch) => ch.toLowerCase() !== ch.toUpperCase()).join("")).filter(Boolean);
+  const bits = surprises(stream, { order: 2 });
+  const bitsPerWord = stream.length ? Number(([...bits].reduce((a, b) => a + b, 0) / stream.length).toFixed(2)) : 0;
+  // the same over the first `at` words only: a longer book has heard more, so
+  // arms are compared at one length (the shortest arm's)
+  const n = at ? Math.min(at, stream.length) : stream.length;
+  const bitsAt = n ? Number(([...bits].slice(0, n).reduce((a, b) => a + b, 0) / n).toFixed(2)) : 0;
+  return { words, bitsPerWord, bitsAt, at: n, tokensApprox: Math.round(text.length / 4), sentences: said, repeated, repeatedShare: said ? Math.round((100 * repeated) / said) : 0, noteEchoes, topRepeat: [...echo.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([t, n]) => `${n}× "${t.slice(0, 50)}"`), callbacks, strays: { propn: sum(strays.propn), propnDistinct: strays.propn.size, capital: sum(strays.capital), capitalDistinct: strays.capital.size, perThousandWords: Math.round((1000 * sum(strays.propn)) / Math.max(1, words)), top: top(strays.propn) } };
 }
 
 if (process.argv[1] && process.argv[1].endsWith("score.mjs")) {
@@ -90,10 +101,10 @@ if (process.argv[1] && process.argv[1].endsWith("score.mjs")) {
   const o = outlineOf(N.fold(outline.notes), PROSE_MEDIUM);
   const cast = o.cast.map((c) => ({ name: c.name, details: Object.fromEntries(c.props.filter((p) => (outline.castDetails ?? []).includes(p.label)).map((p) => [p.label, p.value])) }));
   console.log("cast:", cast.map((c) => `${c.name} (${Object.values(c.details).join(", ")})`).join("; "));
-  for (const arm of arms) {
-    const f = path.join(dir, `${arm}.book.md`);
-    if (!fs.existsSync(f)) continue;
-    const r = scoreBook(fs.readFileSync(f, "utf8"), cast, { castDetails: outline.castDetails ?? [] });
-    console.log(`${arm.padEnd(13)} words ${r.words} (~${r.tokensApprox} tok) · repeated ${r.repeated}/${r.sentences} sentences (${r.repeatedShare}%) · note read aloud ${r.noteEchoes} · callbacks right ${r.callbacks.right} wrong ${r.callbacks.wrong} · strays ${r.strays.propn} (${r.strays.propnDistinct} names, ${r.strays.perThousandWords}/1k words; capital-detector ${r.strays.capital}) · ${r.strays.top.join(" ")}`);
+  const books = arms.map((arm) => [arm, path.join(dir, `${arm}.book.md`)]).filter(([, f]) => fs.existsSync(f)).map(([arm, f]) => [arm, fs.readFileSync(f, "utf8")]);
+  const shortest = Math.min(...books.map(([, b]) => scoreBook(b, cast, { castDetails: outline.castDetails ?? [] }).words));
+  for (const [arm, bookText] of books) {
+    const r = scoreBook(bookText, cast, { castDetails: outline.castDetails ?? [], at: shortest });
+    console.log(`${arm.padEnd(13)} words ${r.words} (~${r.tokensApprox} tok) · ${r.bitsPerWord} bits/word (${r.bitsAt} over the first ${r.at}) · repeated ${r.repeated}/${r.sentences} sentences (${r.repeatedShare}%) · note read aloud ${r.noteEchoes} · callbacks right ${r.callbacks.right} wrong ${r.callbacks.wrong} · strays ${r.strays.propn} (${r.strays.propnDistinct} names, ${r.strays.perThousandWords}/1k words; capital-detector ${r.strays.capital}) · ${r.strays.top.join(" ")}`);
   }
 }

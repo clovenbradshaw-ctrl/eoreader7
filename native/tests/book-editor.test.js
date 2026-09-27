@@ -126,3 +126,13 @@ test("a line set in must be a whole sentence: fragments a splice leaves are refu
   assert.equal(wholeSentence("She will need to be passionate about her work"), false);
   assert.equal(wholeSentence("Ana pulls the boat onto the sand."), true);
 });
+
+test("Gornick, taught model-free: a part that says what came just before reads flat against shuffled orders", async () => {
+  const { gornickCurve } = await import("../organs/book-editor.js");
+  const fresh = ["The storm broke over the island at dusk and the ferry turned back.", "Ana climbed the tower with a lamp and a coil of rope over her shoulder.", "At dawn the gulls came back and the sea lay flat and grey below the cliffs.", "Tom rowed out past the reef where the wreck had settled in the sand.", "A letter came on the noon boat, sealed in green wax, addressed to no one."];
+  const parts = [...fresh.map((text) => ({ text })), { text: fresh[3] + " " + fresh[3] }];
+  const c = gornickCurve(parts, { draws: 30 });
+  assert.ok(c.flat.includes(5), `the restating part was not flat: ${JSON.stringify(c.means.map((m) => m.toFixed(2)))}`);
+  assert.ok(!c.flat.includes(1) && !c.flat.includes(2), "a fresh part read flat");
+  assert.ok(typeof c.shape === "string" && c.meanBits > 0);
+});

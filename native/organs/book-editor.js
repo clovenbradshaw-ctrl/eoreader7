@@ -37,12 +37,72 @@ import { makeNotes, noteId } from "../kernel/notes.js";
 import { buildDraft, drawnParts, draftWords } from "../the-fold/eot-draft.js";
 import { isFunctionWord } from "../the-fold/pos-prior.js";
 import { clauseComplete } from "../the-fold/eot-notation.js";
+import { quantile } from "../kernel/surprise-segments.js";
+import { lcg, predictNext } from "../kernel/continuation.js";
+import { classifyFortuneShape } from "../kernel/fortune-prior.js";
 import { anchorsFor, carries } from "../the-fold/prosify.js";
 import { readPiece } from "../the-fold/revision-spiral.js";
 import { houdiniExclusivity } from "../the-fold/archon-rules.js";
 import { outlineOf, MIN_BODY_SENTENCES } from "./long-form.js";
 
 export const BOOK_EDITOR_SCHEMA = "BookEditor@1";
+/** Gornick's null — set by hand 2026-09-27: the order-2 reader of
+ *  kernel/surprise-segments.js, 20 shuffled orders of the parts, the 5% tail. */
+export const GORNICK = Object.freeze({ order: 2, draws: 20, alpha: 0.05, seed: 7 });
+const wordsOf = (text) => String(text).toLowerCase().split(" ").map((w) => [...w].filter((ch) => ch.toLowerCase() !== ch.toUpperCase() || ch === "'").join("")).filter(Boolean);
+
+/**
+ * GORNICK (macro.pathos) — TAUGHT here, model-free: the surprise curve of a
+ * long work. Each part's words are read against the ground of everything
+ * before it (kernel/continuation.js's reader, order 2): its figure is its
+ * mean bits per word. Every part of real prose reads below its own words
+ * shuffled (grammar makes order predictable), so FLAT is relative: the parts
+ * whose margin below their own shuffles sits in the book's own upper alpha
+ * tail — the phrasing most already said. It names a few parts in any book;
+ * the absolute measure is the book's mean bits per word (the long-form
+ * checker reports it for every arm). The whole curve's shape is named by
+ * kernel/fortune-prior.js. Reported, never revised: no organ writes the fix.
+ */
+export function gornickCurve(parts, { order = GORNICK.order, draws = GORNICK.draws, alpha = GORNICK.alpha, seed = GORNICK.seed } = {}) {
+  const ws = parts.map((p) => wordsOf(p.text));
+  const alphabet = new Map(), tables = new Map();
+  for (let k = 1; k <= order; k++) tables.set(k, new Map());
+  const prior = { order, alphabet, tables };
+  const bitsOf = (words) => {
+    if (!words.length) return 0;
+    const floor = 1 / (alphabet.size + 1);
+    let sum = 0;
+    for (let i = 0; i < words.length; i++) {
+      const p = alphabet.size ? predictNext(prior, words.slice(Math.max(0, i - order), i)).dist.get(words[i]) ?? 0 : 0;
+      sum += -Math.log2(Math.max(p, floor));
+    }
+    return sum / words.length;
+  };
+  const sediment = (words) => {
+    for (let i = 0; i < words.length; i++) {
+      alphabet.set(words[i], (alphabet.get(words[i]) ?? 0) + 1);
+      for (let k = 1; k <= order && i - k >= 0; k++) { const ctx = words.slice(i - k, i).join(" "), t = tables.get(k); if (!t.has(ctx)) t.set(ctx, new Map()); const m = t.get(ctx); m.set(words[i], (m.get(words[i]) ?? 0) + 1); }
+    }
+  };
+  const rng = lcg(seed);
+  const means = [], gaps = [];
+  for (let i = 0; i < ws.length; i++) {
+    const actual = bitsOf(ws[i]);
+    const nul = [];
+    for (let d = 0; d < draws; d++) { const w = [...ws[i]]; for (let a = w.length - 1; a > 0; a--) { const b = Math.floor(rng() * (a + 1)); [w[a], w[b]] = [w[b], w[a]]; } nul.push(bitsOf(w)); }
+    nul.sort((a, b) => a - b);
+    means.push(actual);
+    gaps.push(i > 0 && ws[i].length ? quantile(nul, alpha) - actual : null);   // how far below its own shuffles the part reads
+    sediment(ws[i]);
+  }
+  // flat: a gap beyond the book's own spread of gaps (its upper alpha tail)
+  const g = gaps.filter((x) => x != null).sort((a, b) => a - b);
+  const cut = g.length >= 3 ? quantile(g, 1 - alpha) : Infinity;
+  const flat = gaps.map((x, i) => (x != null && x > 0 && x >= cut ? i : -1)).filter((i) => i >= 0);
+  const mean = means.reduce((a, b) => a + b, 0) / Math.max(1, means.length);
+  return { means, gaps, flat, shape: classifyFortuneShape(means.map((m) => m - Math.min(...means))), meanBits: mean };
+}
+
 /** Revision passes over the book — set by hand 2026-09-27 (the-fold's pathos
  *  loop stops in two or three passes on its live runs). */
 export const EDIT_PASSES = 2;
@@ -204,8 +264,11 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
       const line = p && f.sentence ? p.pieces.find((pc) => pc.text === f.sentence) ?? null : null;
       return { ...f, leaf: p?.leaf ?? null, index: p?.index ?? null, addr: line?.addr ?? null, lineNote: line?.note ?? null };
     });
+    // Gornick reads the whole book (the engine is not the mouth: it may)
+    const curve = gornickCurve(piece.map((p) => ({ text: p.pieces.map((pc) => pc.text).join(" ") })));
+    for (const i of curve.flat) findings.push({ kind: "flat_given_before", editor: "Vivian Gornick", part: piece[i].id, leaf: piece[i].leaf, index: i, addr: null, detail: `${curve.means[i].toFixed(2)} bits per word against what precedes it, ${curve.gaps[i].toFixed(2)} below its own words shuffled — beyond the book's own spread (alpha ${GORNICK.alpha}): its phrasing was already said`, licenses: null });
     const lines = piece.flatMap((p) => p.pieces);
-    return { gd, piece, findings, lines: lines.length, carrying: lines.filter((l) => l.carries.length).length };
+    return { gd, piece, findings, curve: { shape: curve.shape, meanBits: curve.meanBits, flat: curve.flat.length, of: piece.length }, lines: lines.length, carrying: lines.filter((l) => l.carries.length).length };
   }
 
   /** A finding on the record: EVA·Figure, the editor its witness. */
@@ -289,7 +352,7 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
       if (!Object.keys(row.kept).length) break;
     }
     const last = readBook({ notes, store, task });
-    return { notes, store, asks, passes: report, final: { findings: last.findings.length, licensed: last.findings.filter((f) => ORDER.includes(f.licenses)).length, lines: last.lines, carrying: last.carrying } };
+    return { notes, store, asks, passes: report, final: { findings: last.findings.length, licensed: last.findings.filter((f) => ORDER.includes(f.licenses)).length, lines: last.lines, carrying: last.carrying, curve: last.curve } };
   }
 
   return { readBook, editBook, groundAndDraft };
