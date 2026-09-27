@@ -26,7 +26,7 @@ const OLLAMA = process.env.ER7_OLLAMA_URL ?? "http://127.0.0.1:11434";
 const OUT = path.join(ROOT, "state", "build-battery", label);
 fs.mkdirSync(OUT, { recursive: true });
 
-const sets = ["requests.json", "requests-fresh.json"].map((f) => ({ file: f, battery: JSON.parse(fs.readFileSync(path.join(HERE, f), "utf8")) }));
+const sets = arg("battery", "requests.json,requests-fresh.json").split(",").map((f) => ({ file: f, battery: JSON.parse(fs.readFileSync(path.join(HERE, f), "utf8")) }));
 
 async function ask(prompt, { temperature = 0.3, maxTokens = 120 } = {}) {
   const r = await fetch(`${OLLAMA}/api/generate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ model, prompt, stream: false, options: { temperature, num_predict: maxTokens } }), signal: AbortSignal.timeout(180000) });
@@ -46,9 +46,9 @@ for (const { file, battery } of sets) {
     const code = out.artifact ?? "";
     const seen = code ? inspect(code) : { kind: "none", why: out.handedTo ? `handed to ${out.handedTo}` : error ?? "nothing built" };
     const verdict = checkBuild(q, factsOf(seen), { cafe: battery.cafe });
-    const rec = { id: q.id, set: file, prompt: q.prompt, model, label, arm: "hora", artifactKind: seen.kind, why: seen.why ?? null, code, run: null, pageText: seen.page?.text ?? null, verdict, asks: out.asks, sealed: !!out.sealed, handedTo: out.handedTo ?? null, error, events, ms: Date.now() - t0 };
+    const rec = { id: q.id, ladder: q.ladder ?? null, rung: q.rung ?? null, set: file, prompt: q.prompt, model, label, arm: "hora", artifactKind: seen.kind, why: seen.why ?? null, code, run: null, pageText: seen.page?.text ?? null, verdict, asks: out.asks, sealed: !!out.sealed, handedTo: out.handedTo ?? null, error, events, ms: Date.now() - t0 };
     fs.writeFileSync(path.join(OUT, `${q.id}.json`), JSON.stringify(rec, null, 1));
-    rows.push({ id: q.id, set: file, pass: verdict.pass, passed: verdict.passed, total: verdict.total, artifact: seen.kind, asks: out.asks, sealed: rec.sealed, ms: rec.ms, failed: verdict.results.filter((x) => !x.pass).map((x) => `${x.id}: ${x.detail}`) });
+    rows.push({ id: q.id, ladder: q.ladder ?? null, rung: q.rung ?? null, set: file, pass: verdict.pass, passed: verdict.passed, total: verdict.total, artifact: seen.kind, asks: out.asks, sealed: rec.sealed, ms: rec.ms, failed: verdict.results.filter((x) => !x.pass).map((x) => `${x.id}: ${x.detail}`) });
     console.log(`${verdict.pass ? "PASS" : "FAIL"} ${q.id.padEnd(22)} ${String(verdict.passed).padStart(2)}/${verdict.total} ${seen.kind.padEnd(7)} asks ${String(out.asks).padStart(3)} ${rec.sealed ? "sealed " : "       "}${Math.round(rec.ms / 1000)}s  ${rows.at(-1).failed.slice(0, 3).join(" | ")}`);
     fs.writeFileSync(path.join(OUT, "summary.json"), JSON.stringify({ label, model, arm: "hora", at: new Date().toISOString(), rows }, null, 1));
   }
