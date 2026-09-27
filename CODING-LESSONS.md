@@ -1938,3 +1938,60 @@ genuinely doesn't hold still (context-dependent category, not
 under-trained category), prefer a live, context-relative, revisable
 mechanism over another round of hand-built examples — and if none is
 wired yet, that is the thing to unblock, not a reason to keep training.
+
+## 79. The policy learner, polled then built — and its first live trial concedes on power, not on direction (2026-09-27)
+
+The coding pipeline never learned on its own: every gain from 75% to 100% on
+the basic battery was a person or a Claude session reading failed runs and
+changing code by hand. Six archon panels were polled before building the
+missing REC (chorus, measurement, memory/kind, loop control, coding circle,
+adversaries), and their walls became the design:
+
+- **One lever, paired, per task.** A trial compares the incumbent with a
+  candidate that differs in exactly one sampler lever, on the same validate
+  tasks, interleaved, with a seeded exact sign flip of per-task differences
+  (`organs/coding-policy-trial.js`, Hill). Not heimdall's trial engine: it is
+  unpaired, unseeded, and baselines on the window that earned the rule, so
+  regression to the mean would hold a useless lever.
+- **Deal by spec hash.** propose / validate / sealed is fixed by `splitOf`
+  (the monitor's row-parity split had put one task on both sides).
+- **The learner never reads what judges it.** Proposals read the propose
+  split only; the sealed split is reported and never decides; wording, specs,
+  cases, replay and the model are forbidden levers.
+- **Controls that can fail, shown to fail.** A broken or quartered p fails
+  the null-calibration test; adopt-on-concede fails the null-candidate test;
+  a proposer reading every split fails the split test; removing the interlock
+  fails heimdall's test. The first placebo test written was blind to a broken
+  statistic (the minimum-effect gate hid it) — caught by mutation, replaced
+  by a direct check that P(p ≤ x) ≤ x under the null.
+
+**First live trial** (qwen2.5-coder:1.5b, python, bok k 1→3, t=0.8, 3
+repeats, 9 validate tasks): **conceded**, as pre-registered. k=3 improved 3
+tasks (prime_factor_sum 0→0.33, boundary_walk 0→0.33, count_filled_fields
+0.33→1.00), worsened none: gain 1.33 tasks, p = 1/8 against an alpha of
+0.05/8 per look. The direction is what the ladder showed (bok 20/28 vs raw
+17/28) but three discordant tasks cannot reach significance; nine cannot
+unless nearly all of them move. The shuffled-label twin did not hold (p =
+0.375). The automatic proposer, run first, refused: 7 bok rows on the propose
+split, 2 failures, under the floor of 3 — which is why the cycle now surveys
+the incumbent on the propose split before proposing.
+
+**The lesson is the measurement panel's, confirmed live:** the learner is
+sound and currently blind. At 28 tasks the smallest detectable lever is
+most of the validate split; the battery has to grow toward hundreds of
+independent tasks before any lever short of total can be held. Until then
+the honest outcome of every trial is "conceded, direction noted".
+
+**Falsifying control:** if a larger battery still concedes k 1→3 while the
+ladder's per-arm counts keep showing bok ahead, the selection effect is not
+real and the ladder's gap is sampling temperature, not choosing — exactly
+the coding circle's registered alternative (bok ≈ samp1).
+
+**Same session, a site build end to end** (`runProxyTurn`, "make a reddit but
+only for dolphin content", same mouth), recorded step by step: the build gate
+does not know "reddit" (answered as chat); the HTML prompt is fixed to a café
+(`proxy-runner.mjs:1431`: five drinks with prices and opening hours — so the
+dolphin site listed "Bottlenose: $5"), and the declared answers never reach
+that prompt; "only" was read as a prohibition and pulled Wikisource texts on
+guns, slavery and CEDAW (5 of 55 s); and no validator ran ("pyodide
+unavailable") across three retries. Each is a named gap, not yet fixed.
