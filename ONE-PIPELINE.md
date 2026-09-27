@@ -132,7 +132,12 @@ file resolution (two).
 5. **One mouth.** The code loop's per-round turn becomes a draw-only mouth;
    `/v1/build` moves onto the shared mouth and admission. Control: a
    substitute mouth is always disclosed; no enrichment call per round.
-6. **Chat → code.** A chat turn with a workspace and an edit to make calls
+6. **Done 2026-09-27 (see git log: "Chat reaches the code API")** — a
+   chat turn with a workspace and a test command runs the code loop and
+   answers through chat; live on 1.5b, one round, test passing. Still open:
+   asking back for the test command when a chat edit request arrives with a
+   workspace but none (through build-clarify), and the same-patch control
+   against /v1/code. Was: **Chat → code.** A chat turn with a workspace and an edit to make calls
    `runCodeLoop`; the answer and ledger carry its result. Control: the same
    edit asked through `/v1/code` and through chat produces the same patch
    and test verdict.
@@ -150,6 +155,7 @@ file resolution (two).
 | 2026-09-27 | correction (Ostrom): "15 of 17 elements" in commit 0f1290a is wrong — the renderer emits 19; new.css reaches 15/19 (misses main, span, i, label) | recount against RENDERED_ELEMENTS | 15/19 |
 | 2026-09-27 | one pipeline: music runs through the same core as pages | the music commit touches no core file; its output is the source's own bars; a refused license leaves nothing; a note added around the map is caught | held (after two medium-general core changes, recorded) |
 | 2026-09-27 | the talk page beats the old path through the product (runProxyTurn), 1.5b, 21-request battery | same code, ER7_TALK_PAGE=0 vs 1; bare model | wired 4/21, 54/110 checks; old (same code) running; bare 1.5b earlier today 4/21, 63/104 — **wired below bare on checks so far**; gate misses (bike-forum, route-12) hit every arm |
+| 2026-09-27 | a chat turn reaches the code API | live: workspace with a real bug + test command through runProxyTurn | code-edit answer, 1 round, test passes (1.5b) — one case, not a battery |
 | 2026-09-27 | every element on a page is accounted for | the artifact read in its own terms against the map; a leaky renderer, a smuggled engine word, a note not on the record | 5/5 rungs covered and sealed (scripted mouth); all three controls caught; an always-ok checker fails the tests |
 | 2026-09-27 | the stylesheet is snipped, not written | every CSS byte after the provenance comment equals the source's bytes at its ranges; a copyleft candidate that reaches more is refused | tests pass; license gate off fails the test |
 
