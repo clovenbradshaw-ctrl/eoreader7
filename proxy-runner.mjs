@@ -50,7 +50,15 @@ import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, proj
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 import { inventedNameRuns as verifyInventedNameRuns, isMetaSentence as verifyIsMetaSentence } from "./native/the-fold/referent-verify.js";
 import { houdiniExclusivity } from "./native/the-fold/archon-rules.js";
-import { wideToAtoms, foldWideToShape, beatsFromGround } from "./native/the-fold/essay-fold.js";
+import { wideToAtoms, foldWideToShape, beatsFromGround, applyWordBudget } from "./native/the-fold/essay-fold.js";
+// Workstream A (2026-09-26, "integrate them formally and permanently"): three
+// capabilities ported from pipeline-run.mjs's nine-stage pipeline into this
+// live fold call site — learned words-per-page budgeting, head-noun referent
+// resolution, and (below, at searchAndAdmitWeb) the web-admission wall.
+import { askedExtent } from "./native/the-fold/void-spec.js";
+import { induceParameter, wordsPerPageClaim } from "./native/the-fold/parameter-induction.js";
+import { liveWeb } from "./native/the-fold/surf.js";
+import { buildReferents } from "./native/the-fold/referents.js";
 import { isConcrescent } from "./native/the-fold/concrescence.js";
 import { createSpiral, rotate, spiralPath, INFLATION_WORDS, findWordHits } from "./native/the-fold/revision-spiral.js";
 // The dispute lookup notesFromEdges reads (below): `noteId` is the same
@@ -80,7 +88,7 @@ import { findClaimCycle } from "./native/organs/reasoning-lint.js";
 // Web organ: the pure half of search and page ingestion (extractReadable,
 // parseSearchResults, extractUrls, normalizeUrl). The network egress lives
 // inline below — the proxy is the one sanctioned crossing (P13).
-import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEARCH_MAX_RESULTS, looksLikeShell } from "./native/organs/web.js";
+import { extractReadable, blankSpans, parseSearchResults, extractUrls, normalizeUrl, WEB_SEARCH_MAX_RESULTS, looksLikeShell } from "./native/organs/web.js";
 // The look organ (native/organs/look.js): the native "looking" capacity,
 // ported from the fold's browser-side /visual machinery. CV (OpenCV boxes +
 // per-region OCR) and OCR, a vision-model read, judge + escalation on
@@ -1039,7 +1047,14 @@ async function searchAndAdmitWeb(session, sessionId, query, onNote, { move = "ga
       // The real web organ's extraction: strips scripts/styles/nav/header/
       // footer and decodes entities — not the inline stripper that left
       // "Dolphin&#039;s" in the text face (search before building).
-      const { text } = extractReadable(html);
+      // THE WEB-ADMISSION WALL (2026-09-26): blankSpans is length-preserving
+      // (nav/note-region characters become spaces, every other byte offset is
+      // untouched), so the citation byte-addressing below stays valid while
+      // navigation/hatnote furniture (e.g. a Wikipedia hatnote) no longer
+      // leaks into the ground this path admits — the same fix surf.js's
+      // liveWeb().fetch() already carries for pipeline-run.mjs's path.
+      const { text: rawText, navSpans } = extractReadable(html);
+      const text = blankSpans(rawText, navSpans);
       if (!text || text.length < 50) continue;
       // A JS-shell / error page is not content (measured live: "A required
       // part of this site couldn't load… disable any ad blockers" came back as
@@ -4090,7 +4105,14 @@ export function openProblemOf(task) {
   return null;
 }
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null }, onToken, onNote = null, onThinking = null) {
+// documentJobId (2026-09-26): the ONLY signal distinguishing the explicit
+// async POST /v1/documents job from an ordinary chat/API turn that merely
+// auto-classifies as composition-shaped — both can reach mode:"projection",
+// so mode alone cannot discriminate them. Set by exactly one caller,
+// startDocumentJob, below. Never forward a caller-supplied options object
+// generically into this function without stripping documentJobId first, or
+// an ordinary chat turn could accidentally take the job-only branch.
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, documentJobId = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
   // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
@@ -7641,8 +7663,65 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // never zero.
       if (documentLedger && documentLines.length >= 2) {
         try {
+          if (documentJobId) {
+            // ── THE ASYNC JOB PATH (2026-09-26): pipeline-run.mjs's own
+            // nine-stage pipeline (fold + per-candidate tighten + archon
+            // re-reads + Gebser arrival, all handled internally) REPLACES
+            // essay-fold.js's fold+spiral+concrescence block below entirely
+            // for this one branch — only reachable from startDocumentJob,
+            // never from an ordinary chat/API turn (documentJobId is always
+            // null there). See the approved integration plan for the
+            // disclosed v1 scope limits (web:null; the wide draft above this
+            // branch still runs and is discarded — a known inefficiency, not
+            // a correctness issue, since it's off the latency-sensitive
+            // live-chat path).
+            const { runPipeline } = await import("./native/the-fold/pipeline-run.mjs");
+            const jobDraw = async (messages, maxTokens) => {
+              const r = await draw(messages, maxTokens, { capture: true, kelsen: compositionKelsen });
+              return r.buf;
+            };
+            const pipelineResult = await runPipeline({
+              task,
+              groundText: groundingText(),
+              model,
+              id: `${documentJobId}-pipeline`,
+              draw: jobDraw,
+              web: null,
+              onStage: (s) => {
+                if (onNote) onNote({ move: "pipeline_stage", role: s.role, title: s.title });
+                if (onThinking) onThinking(`\n### pipeline: ${s.role} — ${s.title}\n`);
+              },
+            });
+            const pieceText = String(pipelineResult.pieceText ?? "").trim();
+            if (!pieceText) throw new Error("pipeline-run.mjs produced no piece text");
+            const widePartIds = documentLedger.lines
+              .filter((l) => l.role === "part" && !documentLedger.superseded.has(l.id))
+              .map((l) => l.id);
+            appendLedgerLine(documentLedger, {
+              role: "part", title: task.slice(0, 60), text: pieceText, giver: "eoreader7:pipeline",
+              supersedes: widePartIds.length ? widePartIds : null,
+              basis: `pipeline-run.mjs's nine-stage pipeline (${pipelineResult.docId}, report ${pipelineResult.report}) — supersedes the wide draft`,
+            }, { dir: ESSAY_LEDGER_DIR });
+            documentLines = [pieceText];
+            if (onNote) onNote({ move: "pipeline_done", docId: pipelineResult.docId, chars: pieceText.length });
+          } else {
+          // ── THE LIVE CHAT PATH, UNCHANGED (essay-fold.js + the spiral
+          // contract + the concrescence detector) — deliberately left at its
+          // original indentation below (not re-indented for this `else`) so
+          // this diff touches only the branch boundaries, not every line of
+          // pre-existing, already-tested logic.
           const wideParts = [...documentLines];
-          const atoms = wideToAtoms(wideParts, { ground: groundingText() });
+          const groundNow = groundingText();
+          // HEAD-NOUN REFERENT RESOLUTION (2026-09-26): buildReferents(ground)
+          // is pure/synchronous and built once here (it does a real
+          // sentence-splitting/surface-extraction pass), then threaded into
+          // both wideToAtoms and beatsFromGround so a generic "the river"
+          // scores toward the beat naming "Cumberland River" the same way an
+          // explicit name-run already does — additive only; a parse failure
+          // degrades to R = null, i.e. today's exact unmodified behavior.
+          let R = null;
+          try { R = groundNow ? buildReferents(groundNow) : null; } catch { R = null; }
+          const atoms = wideToAtoms(wideParts, { ground: groundNow, referents: R });
           // THE SHAPE IS THE MATERIAL'S, NOT A TABLE'S (2026-09-21). The fold
           // used to assemble into DEFAULT_ESSAY_BEATS, whose charge words were
           // `waterway`, `steamboats`, `cotton`, `flood`, `levy`. That shape
@@ -7651,9 +7730,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           // finished piece. The beats are now derived: the ground's own seams
           // set what parts are POSSIBLE, the ask's count sets how many are
           // PROBABLE when the ground declares no seam of its own.
-          const derivedBeats = beatsFromGround(groundingText(), { want: plannedSections.length || 5 });
+          const derivedBeats = beatsFromGround(groundNow, { want: plannedSections.length || 5, referents: R });
           if (onNote) onNote({ move: "beats_derived", beats: derivedBeats.beats.length, from: derivedBeats.from, titles: derivedBeats.beats.map((b) => b.title).slice(0, 8) });
-          const folded = foldWideToShape(atoms, { ground: groundingText(), beats: derivedBeats.beats.length ? derivedBeats.beats : null });
+          const folded = foldWideToShape(atoms, { ground: groundNow, beats: derivedBeats.beats.length ? derivedBeats.beats : null });
           // ── THE SPIRAL CONTRACT, LAYER 4: FOLD. LOW: a beat filled. HIGH:
           // no gap. A gap is not "(empty)" in a finished piece — it is the
           // fold's own statement of the NEXT SECTION TO DRAW, opening on the
@@ -7691,6 +7770,31 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             }
             contractRecord.fold = { pass: foldHigh.pass, missing: foldHigh.missing ?? null, attempts, filledByRedraw };
             if (onNote) onNote({ move: "contract_fold", pass: foldHigh.pass, filledByRedraw, basis: foldHigh.basis });
+          }
+          // WORDS-PER-PAGE BUDGET (2026-09-26): gated exactly as
+          // pipeline-run.mjs gates it — only when the ask states a page
+          // count — and induceParameter itself refuses to guess when nothing
+          // corroborates (no fallback ratio is invented here). Applied AFTER
+          // gap-filling, so the trim sees the beats' final text. The rare
+          // corroboration-refresh network call reuses the SAME P13 consent
+          // flag searchAndAdmitWeb already gates on, never a new surface.
+          const askedPages = askedExtent(task);
+          if (askedPages?.unit === "page") {
+            const pageWeb = (WEB_SEARCH_ON || webConsent) ? liveWeb() : null;
+            const wpp = await induceParameter("words-per-page", {
+              query: "how many words are on a typical page",
+              extractClaim: wordsPerPageClaim,
+              search: pageWeb?.search ?? null,
+              fetch: pageWeb?.fetch ?? null,
+            });
+            if (onNote) onNote({ move: "words_per_page", induced: wpp.induced, value: wpp.value ?? null, basis: wpp.basis });
+            if (wpp.induced && wpp.value) {
+              const budget = applyWordBudget(folded.beats, askedPages.n * wpp.value);
+              if (budget.dropped.length) {
+                folded.beats = budget.beats;
+                if (onNote) onNote({ move: "page_budget_applied", targetWords: askedPages.n * wpp.value, kept: budget.beats.length, dropped: budget.dropped.length, basis: budget.basis });
+              }
+            }
           }
           const foldedBeats = folded.beats.filter((b) => !b.gap).map((b) => b.text).filter(Boolean);
           if (onNote) onNote({ move: "fold_done", beats: folded.beats.length, filled: foldedBeats.length, residual: folded.residual.length, refused: folded.refused.length, basis: folded.basis });
@@ -7840,6 +7944,17 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             text: `${conc.basis}\n\nsignals: ${Object.entries(conc.signals).map(([k, v]) => `${k}=${v}`).join(", ")}`,
             giver: "eoreader7:concrescence", basis: conc.basis,
           }, { dir: ESSAY_LEDGER_DIR });
+          }
+          // THE fullText FIX (2026-09-26, shared by both branches above):
+          // the folded/tightened/piloted text was written to documentLines
+          // but fullText was never reassigned, so a live chat reply returned
+          // the PRE-fold wide draft while only the on-disk ledger/HTML/JSON
+          // projection (GET /v1/documents/:id.*) showed the real content.
+          // Placed inside the same try as both branches: if either throws
+          // before reaching here, the catch below leaves fullText exactly as
+          // it is today (the pre-fold/pre-pipeline wide draft) — the
+          // fail-soft contract for this live per-turn path is unchanged.
+          if (documentLines.length) fullText = documentLines.join("\n\n");
         } catch (foldErr) {
           // A SWALLOWED ERROR IS AN UNATTRIBUTED REFUSAL (2026-09-21, found
           // live: the fold threw, the note went nowhere a reader could see,
@@ -8993,7 +9108,7 @@ export async function startDocumentJob({ task, model, workspace = "", sessionId 
         for (let attempt = 0; attempt < 3; attempt++) {
           try {
             return await runProxyTurn(
-              { sessionId: sid, model, task, workspace, holonLevel: job.holonLevel, resumeAnswered: answeredTitles, resumePlan: planQuestions, mode: "projection", webConsent, seed },
+              { sessionId: sid, model, task, workspace, holonLevel: job.holonLevel, resumeAnswered: answeredTitles, resumePlan: planQuestions, mode: "projection", webConsent, seed, documentJobId: jobId },
               (chunk) => { job.chars += chunk.length; job.updatedAt = Date.now(); },
               (note) => { if (note?.move === "composing_section") job.sections++; },
               (thinking) => job.updatedAt = Date.now(),

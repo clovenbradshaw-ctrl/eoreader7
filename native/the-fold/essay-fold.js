@@ -94,8 +94,21 @@ export function foldClaimCore(s) {
 // admission gate (invented referents + meta) is re-run at the fold — the last
 // mechanical door.
 import { nameRuns, inventedNameRuns, isMetaSentence } from "./referent-verify.js";
-function sentenceReferents(s) {
-  return nameRuns(s).map((r) => r.join(" ").toLowerCase());
+// R (2026-09-26): an optional referents.js buildReferents(ground) resolver,
+// duck-typed to {resolveText, represent}. Additive only — the existing
+// name-run signature is never removed, only unioned with what the resolver
+// can further resolve ("the river" -> "Cumberland River" when the ground
+// makes that a real, measured majority). No resolver -> unchanged behavior.
+function sentenceReferents(s, R = null) {
+  const runs = nameRuns(s).map((r) => r.join(" ").toLowerCase());
+  if (!R) return runs;
+  let resolved = [];
+  try {
+    resolved = [...R.resolveText(s)].map((id) => String(R.represent(id) ?? "").toLowerCase()).filter(Boolean);
+  } catch {
+    resolved = [];
+  }
+  return [...new Set([...runs, ...resolved])];
 }
 
 // ── wide → atoms ────────────────────────────────────────────────────────────
@@ -134,14 +147,14 @@ function splitSentences(part) {
   if (cur.trim()) sentences.push(cur.trim());
   return sentences.filter((s) => s.length > 20);
 }
-export function wideToAtoms(wideParts = [], { ground = "", claimCoreOf = null } = {}) {
+export function wideToAtoms(wideParts = [], { ground = "", claimCoreOf = null, referents = null } = {}) {
   const core = claimCoreOf ?? foldClaimCore;
   const atoms = [];
   for (let p = 0; p < wideParts.length; p++) {
     const part = String(wideParts[p] ?? "").replace(/\s+/g, " ").trim();
     if (!part) continue;
     for (const s of splitSentences(part)) {
-      atoms.push({ sentence: s, core: core(s), referents: sentenceReferents(s), partIndex: p, giver: "model" });
+      atoms.push({ sentence: s, core: core(s), referents: sentenceReferents(s, referents), partIndex: p, giver: "model" });
     }
   }
   return atoms;
@@ -330,7 +343,7 @@ export function foldWideToShape(atoms = [], { beats = null, ground = "" } = {}) 
  * `steamboats`, `cotton`, `flood` and `levy`. That shape folded one river
  * correctly and turned every other subject into gaps.
  */
-export function beatsFromGround(ground, { want = 5 } = {}) {
+export function beatsFromGround(ground, { want = 5, referents = null } = {}) {
   const text = String(ground ?? "").trim();
   if (!text) return { beats: [], from: "none", basis: "no ground — no shape can be derived from it" };
   const tok = (x) => String(x).toLowerCase().split(/[^a-z']+/).filter((w) => w.length > 3 && !FOLD_STOP.has(w));
@@ -356,6 +369,21 @@ export function beatsFromGround(ground, { want = 5 } = {}) {
     counts.__first = first;
     return counts;
   });
+  // SEAM REFERENTS (2026-09-26): the SAME exclusivity rule the charge words
+  // already use — a referent named in every seam distinguishes nothing, so
+  // only a referent resolved in exactly one seam is credited to that seam's
+  // beat. No resolver supplied -> every beat's referents stays [] exactly as
+  // before.
+  let seamReferents = seams.map(() => []);
+  if (referents) {
+    const perSeamIds = seams.map((sm) => { try { return [...referents.resolveText(sm)]; } catch { return []; } });
+    const seamCountOf = new Map();
+    for (const ids of perSeamIds) for (const id of new Set(ids)) seamCountOf.set(id, (seamCountOf.get(id) ?? 0) + 1);
+    seamReferents = perSeamIds.map((ids) => [...new Set(ids)]
+      .filter((id) => seamCountOf.get(id) === 1)
+      .map((id) => { try { return String(referents.represent(id) ?? "").toLowerCase(); } catch { return ""; } })
+      .filter(Boolean));
+  }
   const beats = perSeam.map((counts, i) => {
     // Ties break on ORDER OF APPEARANCE, so a beat is titled by what its seam
     // says first rather than by what sorts first — "port, barge, aggregates",
@@ -365,9 +393,45 @@ export function beatsFromGround(ground, { want = 5 } = {}) {
     // A seam with no word of its own still gets a charge: its least-shared
     // words. A beat with no signature at all would swallow every claim.
     const charge = (own.length ? own : [...counts.entries()].sort((a, b) => (df.get(a[0]) - df.get(b[0])) || b[1] - a[1] || (first.get(a[0]) ?? 0) - (first.get(b[0]) ?? 0))).slice(0, 24).map(([w]) => w);
-    return { title: charge.slice(0, 3).join(", ") || `part ${i + 1}`, charge: charge.join(" "), referents: [] };
+    return { title: charge.slice(0, 3).join(", ") || `part ${i + 1}`, charge: charge.join(" "), referents: seamReferents[i] };
   });
   return { beats, from, basis: `${beats.length} beat(s) from ${from}; each charged with the words that occur in its seam and nowhere else` };
+}
+
+// ── WORDS-PER-PAGE BUDGET (2026-09-26) ──────────────────────────────────────
+/**
+ * applyWordBudget(beats, targetWords) → { beats, dropped, basis }
+ *
+ * A WORD budget the CALLER already measured — never a hand-set page-to-word
+ * ratio invented here (native/the-fold/parameter-induction.js's
+ * induceParameter is what supplies targetWords, corroborated across real
+ * sources or refusing to guess). Beats are kept in fold order; the first beat
+ * is always kept (the watchmaker rule: a budget smaller than even one beat
+ * still yields a usable piece, never zero beats). Every dropped beat is
+ * named in the returned array and in `basis`, never silently lost.
+ */
+export function applyWordBudget(beats = [], targetWords = null) {
+  if (!Number.isFinite(targetWords) || targetWords <= 0) {
+    return { beats, dropped: [], basis: "no word budget supplied — every beat kept" };
+  }
+  const wordsOf = (t) => String(t ?? "").split(/\s+/).filter(Boolean).length;
+  const kept = [];
+  const dropped = [];
+  let used = 0;
+  for (const b of beats) {
+    const w = wordsOf(b.text);
+    if (used + w > targetWords && kept.length) { dropped.push(b); continue; }
+    kept.push(b);
+    used += w;
+  }
+  const total = beats.reduce((s, b) => s + wordsOf(b.text), 0);
+  return {
+    beats: kept,
+    dropped,
+    basis: dropped.length
+      ? `${dropped.length} beat(s) left out to fit a ${targetWords}-word budget (${used} of ${total} folded words kept)`
+      : `all ${kept.length} beat(s) fit within the ${targetWords}-word budget`,
+  };
 }
 
 // ── the default five-beat essay shape ───────────────────────────────────────

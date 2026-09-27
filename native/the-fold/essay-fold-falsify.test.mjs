@@ -10,7 +10,8 @@
 // Each falsification attacks a consequence of that law.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { wideToAtoms, foldWideToShape, foldClaimCore, DEFAULT_ESSAY_BEATS } from "./essay-fold.js";
+import { wideToAtoms, foldWideToShape, foldClaimCore, DEFAULT_ESSAY_BEATS, applyWordBudget } from "./essay-fold.js";
+import { buildReferents } from "./referents.js";
 
 // THE GROUND every fold test folds against — the wide drafts' sentences must
 // be GROUNDED for the fold's re-admission gate to admit them (2026-09-21: the
@@ -225,4 +226,67 @@ test("THE SAME CLAIM IN TWO BEATS: a paraphrase bringing no new grounded matter 
   assert.ok(!(all.includes("utilized") && all.includes("used the Cumberland")), "the same claim was placed twice");
   assert.ok(fold.refused.some((r) => r.reason === "no_new_matter"), "the paraphrase was not refused with a reason");
   assert.ok(all.includes("Steamboats"), "a genuinely new claim was lost");
+});
+
+// ── PAGE BUDGET (2026-09-26): a word budget the CALLER measured — never a
+// hand-set page-to-word ratio invented inside applyWordBudget itself.
+test("PAGE BUDGET: a 2-page ask (600 words) drops trailing beats and discloses it", () => {
+  const beats = [
+    { title: "A", text: "word ".repeat(250).trim(), gap: false },
+    { title: "B", text: "word ".repeat(250).trim(), gap: false },
+    { title: "C", text: "word ".repeat(250).trim(), gap: false },
+  ];
+  const budget = applyWordBudget(beats, 600);
+  assert.equal(budget.beats.length, 2, "the first two beats (500 words) fit inside 600; the third (750 total) does not");
+  assert.equal(budget.dropped.length, 1);
+  assert.match(budget.basis, /left out to fit/);
+});
+
+test("PAGE BUDGET: no target supplied — every beat kept (refusing to guess is induceParameter's contract, not this function's)", () => {
+  const beats = [{ title: "A", text: "one two three", gap: false }];
+  const budget = applyWordBudget(beats, null);
+  assert.equal(budget.dropped.length, 0);
+  assert.equal(budget.beats.length, 1);
+});
+
+test("PAGE BUDGET, THE WATCHMAKER RULE: a budget smaller than even the first beat still keeps one beat, never zero", () => {
+  const beats = [{ title: "A", text: "word ".repeat(50).trim(), gap: false }, { title: "B", text: "more", gap: false }];
+  const budget = applyWordBudget(beats, 5);
+  assert.equal(budget.beats.length, 1);
+});
+
+// ── HEAD-NOUN REFERENT RESOLUTION IN BEAT SCORING (2026-09-26): the fold's own
+// existing scoring already has a +2 referent-match bonus; before this it was
+// dead code because beatsFromGround/DEFAULT_ESSAY_BEATS always set referents:
+// [] and sentenceReferents only matched explicit capitalized name-runs. This
+// wires buildReferents(ground) in as an optional, additive resolver.
+test("THE HEAD NOUN CREDITS THE RIGHT BEAT: 'the river' scores toward the Cumberland River beat; without the resolver the same sentence is orphaned to residual", () => {
+  const ground = [
+    "The Cumberland River flows 688 miles through Nashville. The Cumberland River was named in 1750 by Thomas Walker. Nashville founders traveled the Cumberland River to reach the site in 1779.",
+    "The Ohio River carried barge traffic for decades before Nashville existed, joining Pittsburgh to the Mississippi.",
+  ].join("\n\n");
+  const atomText = "A modern walking trail now follows the river past the old downtown warehouses today.";
+
+  // WITHOUT the resolver: today's exact behavior — orphaned to residual.
+  const derivedBaseline = beatsFromGround(ground, { want: 2 });
+  const atomsBaseline = wideToAtoms([atomText], { ground });
+  const foldBaseline = foldWideToShape(atomsBaseline, { beats: derivedBaseline.beats, ground });
+  assert.equal(foldBaseline.residual.length, 1, "no word-overlap and no coreference: today, this sentence is lost to residual");
+
+  // WITH the resolver: correctly credited to the Cumberland River beat.
+  const R = buildReferents(ground);
+  const derived = beatsFromGround(ground, { want: 2, referents: R });
+  const atoms = wideToAtoms([atomText], { ground, referents: R });
+  const fold = foldWideToShape(atoms, { beats: derived.beats, ground });
+  assert.equal(fold.residual.length, 0, "the generic 'the river' now resolves and is credited");
+  const landedBeat = fold.beats.find((b) => b.text.includes("walking trail"));
+  assert.ok(landedBeat, "the sentence landed in a beat, not residual");
+  assert.match(landedBeat.title, /cumberland/i);
+});
+
+test("REFERENTS ARE ADDITIVE, NEVER SUBTRACTIVE: F1-F6 above are unaffected by the new optional referents param", () => {
+  const wide = ["The Cumberland River flows 688 miles from its headwaters in eastern Kentucky to the Ohio River at Smithland."];
+  const withDefault = wideToAtoms(wide, { ground: FOLD_GROUND });
+  const withExplicitNull = wideToAtoms(wide, { ground: FOLD_GROUND, referents: null });
+  assert.deepEqual(withDefault, withExplicitNull, "omitting referents and passing referents: null produce identical atoms");
 });

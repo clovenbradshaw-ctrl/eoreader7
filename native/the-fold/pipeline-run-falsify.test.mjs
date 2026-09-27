@@ -352,3 +352,21 @@ test("HORA, NOT TEMPUS: a level that fails leaves the last stable loop's piece, 
     assert.ok(lines.some((l) => l.role === "summary"), "the run completed");
   } finally { cleanup(docId); }
 });
+
+// ── groundText / piece / pieceText (2026-09-26): the two additive changes
+// bridging proxy-runner.mjs's in-memory ground and its need for the FINISHED
+// piece, not the raw pre-archon `result`.
+test("groundText produces the same piece as an equivalent groundFiles file, and pieceText matches the ledger's own role:'piece' line exactly", async () => {
+  const draw = async () => "Steamboats reached Nashville in 1819 and carried cotton to New Orleans, and by the 1850s warehouses lined the waterfront.";
+  const groundContent = fs.readFileSync(groundFile, "utf8");
+  const viaFile = await runPipeline({ task: "Write a piece from this material.", groundFiles: [groundFile], id: "test-pipe-groundtext-file", draw });
+  const viaText = await runPipeline({ task: "Write a piece from this material.", groundText: groundContent, id: "test-pipe-groundtext-mem", draw });
+  try {
+    assert.ok(viaFile.pieceText.length > 20, "the file-based run produced real piece text");
+    assert.equal(viaText.pieceText, viaFile.pieceText, "groundText and an equivalent groundFiles file fold to the identical piece");
+    const ledgerPieceLine = read(viaText.docId).find((l) => l.role === "piece");
+    assert.ok(ledgerPieceLine, "the ledger has its own piece line");
+    assert.equal(viaText.pieceText, ledgerPieceLine.text, "pieceText is exactly the ledger's own recorded piece text, never a second, divergent computation");
+    assert.notEqual(viaText.result, viaText.piece, "result (the raw pre-archon draft) and piece (the finished piece) remain distinct fields");
+  } finally { cleanup(viaFile.docId); cleanup(viaText.docId); }
+});
