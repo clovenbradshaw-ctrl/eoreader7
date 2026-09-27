@@ -20,6 +20,8 @@ import { makeTalkBuild } from "../../organs/talk-build.js";
 import { makeLongForm, makeTextStore, outlineOf, linesOfBody, bodyOfReply, TAIL_SENTENCES } from "../../organs/long-form.js";
 import { PROSE_MEDIUM } from "../../adapters/build/prose-medium.js";
 import { makeNotes } from "../../kernel/notes.js";
+import { makeBookEditor } from "../../organs/book-editor.js";
+import { loadEotParser } from "../../the-fold/eot-notation.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, "..", "..", "..");
@@ -98,7 +100,7 @@ async function bareArm(name) {
 const topicLine = outline.topic ? `The story is ${outline.topic}.` : "";
 
 const results = [];
-for (const name of arms) {
+for (const name of arms.filter((a) => a !== "edit")) {
   const t0 = Date.now();
   if (name === "ledger" || name === "lines-only") {
     const log = logTo(`${name}.log.jsonl`);
@@ -107,6 +109,20 @@ for (const name of arms) {
     const s = lf.seal({ notes: w.notes, store: w.store, request, regime: { arm: name, seed, ctx } });
     fs.writeFileSync(path.join(OUT, `${name}.book.md`), s.artifact);
     results.push({ name, asks: w.asks, voids: w.voids.length, prompts: w.prompts, sealed: !!s.sealed, provenance: { covered: s.provenance.covered, uncovered: s.provenance.uncovered.length, unresolved: s.provenance.unresolved.length }, helix: s.helix.ok, ms: Date.now() - t0 });
+    // EVA -> REC: the pathos archons read the book against its universe's
+    // record and each licensed revision is tried alone (organs/book-editor.js)
+    if (name === "ledger" && arms.includes("edit")) {
+      const t1 = Date.now();
+      const parser = await loadEotParser();
+      const elog = logTo("ledger-edited.log.jsonl");
+      const ed = makeBookEditor({ lf, ask, parse: parser.ok ? parser.parse : null, medium: PROSE_MEDIUM, mouth: model, castDetails: outline.castDetails, log: elog });
+      const e = await ed.editBook({ notes: s.notes, store: w.store, task: request, budget: 2 * frozen.leaves.length });
+      const s2 = lf.seal({ notes: e.notes, store: e.store, request, regime: { arm: "ledger-edited", seed, ctx } });
+      fs.writeFileSync(path.join(OUT, "ledger-edited.book.md"), s2.artifact);
+      fs.writeFileSync(path.join(OUT, "ledger-edited.state.json"), JSON.stringify({ notes: e.notes, store: e.store }));
+      results.push({ name: "ledger-edited", asks: e.asks, passes: e.passes.map((p) => ({ pass: p.pass, findings: p.findings, licensed: p.licensed, lines: p.lines, carrying: p.carrying, kept: p.kept, undone: p.undone, refused: p.refused })), final: e.final, prompts: [], sealed: !!s2.sealed, provenance: { covered: s2.provenance.covered, uncovered: s2.provenance.uncovered.length, unresolved: s2.provenance.unresolved.length }, helix: s2.helix.ok, ms: Date.now() - t1 });
+      console.log(`edited     asks ${e.asks} · ${e.passes.map((p) => `pass ${p.pass}: ${p.licensed} licensed, kept ${JSON.stringify(p.kept)}, undone ${JSON.stringify(p.undone)}`).join(" | ")} · final ${e.final.licensed} licensed, ${e.final.lines} lines · sealed ${!!s2.sealed} · helix ${s2.helix.ok} · ${Math.round((Date.now() - t1) / 1000)}s`);
+    }
   } else {
     const r = await bareArm(name);
     results.push({ name, asks: r.asks, prompts: r.prompts, ms: Date.now() - t0 });

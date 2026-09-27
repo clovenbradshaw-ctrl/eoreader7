@@ -29,7 +29,7 @@ function renderOutline(belief) {
       const said = c.props.find((p) => p.label === "says");
       if (c.name) put(c.name, [c.nameNote]);
       if (said) put(said.value, [said.note]);
-      for (const p of c.props.filter((q) => q.label !== "says")) put(`${p.label}: ${p.value}`, [p.note]);
+      for (const p of c.props.filter((q) => q.label !== "says")) put(`${p.label}: ${byId.get(p.value)?.name ?? p.value}`, [p.note, ...(byId.get(p.value)?.nameNote ? [byId.get(p.value).nameNote] : [])]);
       walk(c, depth + 1);
     }
   };
@@ -52,6 +52,17 @@ export const PROSE_MEDIUM = Object.freeze({
   // people are, by name, before it says any line (facts, not instructions)
   saysVerb: "Say what happens in",
   saysWhat: "what happens",
+  // once the people are named (INS), how they are bound to each other (CON),
+  // asked once, before any line of the story
+  frameGaps: (belief, spec, abandoned, known) => {
+    const cast = spec.counted.find((c) => c.kind === "character");
+    const people = belief.filter((t) => t.kind === "character" && t.name);
+    if (!cast || people.length < Math.min(cast.n, 2) || abandoned.has("relations")) return null;
+    const ids = new Set(people.map((t) => t.id));
+    if (people.some((t) => t.props.some((p) => p.label.endsWith(" of")))) return null;
+    void ids;
+    return { key: "relations", once: true, question: `${known}\nSay how each of them is related to one of the others, one per line, as "Name is Name's relation".`, anchor: "1.", slot: { relations: true } };
+  },
   factsFor: (belief) => {
     const names = belief.filter((t) => t.kind === "character" && t.name).map((t) => t.name);
     if (!names.length) return "";

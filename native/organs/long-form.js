@@ -181,15 +181,29 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
   };
 
   // the current words of a part: its body, with the latest edit of each line over it
+  // THE LINES OF A PART, BY ADDRESS. A body's own sentences are `line k`; a
+  // line set in between (a bridge, a floor) is `after k.j` — the j-th set
+  // after line k. Every edit is a claim at an address (the latest heard
+  // wins), a folded line is the empty text, and an address never moves, so
+  // an edit made later still lands where it was aimed.
   function currentLines(fold, entries, store, partId) {
     const body = fold.find((n) => n.end1 === partId && n.label === "body");
     if (!body) return null;
-    const lines = linesOfBody(store.get(body.end2), sentences).map((l) => ({ ...l, note: body.id }));
+    const base = linesOfBody(store.get(body.end2), sentences).map((l, i) => ({ ...l, note: body.id, addr: `line ${i + 1}` }));
     const seqOf = new Map();
     for (const e of entries) if (e.task_id && !seqOf.has(e.task_id)) seqOf.set(e.task_id, e.seq);
-    const edits = fold.filter((n) => n.end1 === partId && n.label.startsWith("line ")).sort((a, b) => (seqOf.get(a.id) ?? 0) - (seqOf.get(b.id) ?? 0));
-    for (const e of edits) { const k = Number(e.label.slice("line ".length)) - 1; if (lines[k]) lines[k] = { ...lines[k], text: store.get(e.end2), note: e.id }; }
-    return { body, lines };
+    const latest = new Map();
+    for (const e of fold.filter((n) => n.end1 === partId && (n.label.startsWith("line ") || n.label.startsWith("after "))).sort((a, b) => (seqOf.get(a.id) ?? 0) - (seqOf.get(b.id) ?? 0))) latest.set(e.label, e);
+    const lines = [];
+    const inserts = (k, para) => [...latest.values()].filter((e) => e.label.startsWith(`after ${k}.`)).sort((a, b) => Number(a.label.split(".")[1]) - Number(b.label.split(".")[1])).forEach((e) => { const text = store.get(e.end2) ?? ""; if (text) lines.push({ text, para, note: e.id, addr: e.label }); });
+    inserts(0, base[0]?.para ?? 0);
+    base.forEach((l, i) => {
+      const e = latest.get(l.addr);
+      const text = e ? store.get(e.end2) ?? "" : l.text;
+      if (text) lines.push({ ...l, text, note: e ? e.id : l.note });
+      inserts(i + 1, l.para);
+    });
+    return { body, lines, base: base.length, nextAfter: (k) => 1 + [...latest.keys()].filter((a) => a.startsWith(`after ${k}.`)).length };
   }
 
   // the people a line of the story names, in cast order, at most HERE_CAP
@@ -209,6 +223,9 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
         carried.push(c.nameNote);
         for (const p of c.props.filter((q) => (castDetails ? castDetails.includes(q.label) : q.label !== "says") && !q.superseded)) { lines.push(`${c.name}'s ${p.label} is ${p.value}.`); carried.push(p.note); }
       }
+      // how the people here are bound to the others (CON on the record), as sentences
+      const nameOf = new Map(outline.cast.map((c) => [c.id, c.name]));
+      for (const c of here) for (const p of c.props.filter((q) => q.label.endsWith(" of") && nameOf.has(q.value))) { lines.push(`${c.name} is ${nameOf.get(p.value)}'s ${p.label.slice(0, -3)}.`); carried.push(p.note); }
       if (here.length) lines.push(`${here.map((c) => c.name).join(here.length > 2 ? ", " : " and ")} ${here.length > 1 ? "are" : "is"} here.`);
     }
     const anchor = prevTail.join(" ");
@@ -403,7 +420,7 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
       cur.lines.forEach((l, k) => {
         if (!hasWord(l.text, who)) return;
         const address = store.put(replaceWord(l.text, who, to));
-        notes = N.hear(notes, { end1: leaf.part.id, label: `line ${k + 1}`, end2: address, witness: "derived:rename", because: `"${who}" -> "${to}" [premises: ${JSON.stringify([l.note, heard.rev.id])}]` });
+        notes = N.hear(notes, { end1: leaf.part.id, label: l.addr, end2: address, witness: "derived:rename", because: `"${who}" -> "${to}" [premises: ${JSON.stringify([l.note, heard.rev.id])}]` });
         edits++;
         touched.add(leaf.part.id);
       });
@@ -453,7 +470,7 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
           log({ kind: "revise_turn", part: leaf.part.id, line: k + 1, prompt, reply: got.text, took: said, promptTokens: got.promptTokens });
           if (!said || hasWord(said, was)) { left.push({ part: leaf.part.id, line: k + 1 }); continue; }
           const address = store.put(said);
-          notes = N.hear(notes, { end1: leaf.part.id, label: `line ${k + 1}`, end2: address, witness: `talk:${mouth}#rev${revs}.${asks}`, because: `said again with "${facts[0]}" [premises: ${JSON.stringify([l.note, heard.rev.id])}]` });
+          notes = N.hear(notes, { end1: leaf.part.id, label: l.addr, end2: address, witness: `talk:${mouth}#rev${revs}.${asks}`, because: `said again with "${facts[0]}" [premises: ${JSON.stringify([l.note, heard.rev.id])}]` });
           edits++;
           touched.add(leaf.part.id);
         }
@@ -485,7 +502,7 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
     return out;
   }
 
-  return { writeBodies, render, leavesOf, seal, rename, changeDetail, stale, workingNote, currentLines: (notes, store, id) => currentLines(N.fold(notes), notes.entries, store, id), N };
+  return { writeBodies, render, leavesOf, seal, rename, changeDetail, stale, workingNote, hearChange, settleDerived, currentLines: (notes, store, id) => currentLines(N.fold(notes), notes.entries, store, id), N };
 }
 
 // ── THE PERSON'S CHANGE, READ ──────────────────────────────────────────────

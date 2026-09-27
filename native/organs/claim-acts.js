@@ -30,7 +30,14 @@ export const STRUCTURAL_ACTS = Object.freeze({
   "for whom": { op: "DEF", grain: "Ground" },    // who the whole is for
   for: { op: "DEF", grain: "Figure" },           // what a part is for
   shows: { op: "DEF", grain: "Pattern" },        // what a KIND of part carries
+  body: { op: "DEF", grain: "Figure" },          // what a part says, in the mouth's words (organs/long-form.js)
+  finding: { op: "EVA", grain: "Figure" },       // an editor's judgment of a line (organs/book-editor.js)
+  revised: { op: "REC", grain: "Figure" },       // a part brought in line with a change
 });
+/** A line's edit is addressed by its place — "line 3", "after 3.1" — and is a
+ *  REC: the part's words restructured because a judgment or a change broke
+ *  them. Set by hand 2026-09-27. */
+const EDIT_ADDRESSES = ["line ", "after "];
 /** What each reasoning rule does (organs/talk-reason.js), set by hand
  *  2026-09-27: a total or a count composes a whole from its parts; a top or a
  *  correction judges the parts against each other. */
@@ -40,6 +47,12 @@ export const DERIVED_ACTS = Object.freeze({
   top: { op: "EVA", grain: "Figure" },
   correct: { op: "EVA", grain: "Figure" },
   continuation: { op: "SYN", grain: "Figure" },
+  ordinal: { op: "SEG", grain: "Figure" },       // a part's number among its own kind
+  rename: { op: "REC", grain: "Figure" },
+  fold: { op: "REC", grain: "Figure" },
+  floor: { op: "REC", grain: "Figure" },
+  repair: { op: "REC", grain: "Figure" },
+  revise: { op: "REC", grain: "Figure" },
 });
 
 const isThing = (id) => typeof id === "string" && id.includes("#") && !id.startsWith("kind:") && !id.includes("|");
@@ -54,6 +67,10 @@ export function actOf(note) {
   const pick = (a, typedBy) => ({ ...a, cell: cellOf(a.op, a.grain), typedBy });
   if (rule && DERIVED_ACTS[rule]) return pick(DERIVED_ACTS[rule], `derived:${rule}`);
   if (STRUCTURAL_ACTS[note?.label]) return pick(STRUCTURAL_ACTS[note.label], "structural");
+  if (EDIT_ADDRESSES.some((a) => String(note?.label ?? "").startsWith(a))) return pick({ op: "REC", grain: "Figure" }, "an edit at a line's address");
+  // a claim between two things on the record is a bond between them
+  // ("Tommy —father of→ Lily"), never a value asserted of one
+  if (isThing(note?.end1) && isThing(note?.end2)) return pick({ op: "CON", grain: "Figure" }, "a relation between two things on the record");
   return pick({ op: "DEF", grain: "Figure" }, "default: a value asserted of a thing");
 }
 

@@ -164,6 +164,26 @@ controls: bare window + cast header, bare + its own running summary, the
 ablation without facts, and a chunked rewrite for revisions. Ledger scaled
 first: `projectTasks` incremental, 10k entries heard in 19 s (was 230 s).
 
+**2026-09-27, the universe and the pathos archons (user: "use the dependency
+order and all our work on what type of universe we're in; the problems are
+why we have the pathos archons").** The universe is declared first
+(`organs/universe.js`, Lewis): a story with no source is *stipulated* — its
+ground is its own record, nothing about its people is looked up, and its
+people's details are not scoped by the topic (that scoping made four of five
+characters "lighthouse keepers"). The outline follows the helix: the people
+instantiated (INS), then how they are bound (CON, read "X is Y's R" by name),
+then the lines. After the bodies, the pathos archons read the whole book
+against that record (EVA, `organs/book-editor.js`, Perkins) and each licensed
+revision is tried alone and kept only when its window reads better (REC).
+Read-only over slice 1's first book (22 scenes, 230 lines): Caro 28
+unverified, Clark 37 restatements + 16 missing transitions, Kidder 29 dropped
+lines — exactly the filler, repetition and drift seen by eye. With no asks
+(folds, floors, repairs): 230 -> 82 lines, lines carrying the record 40 -> 46,
+sealed, helix clean. Open: the cut is deep (Caro reads a thin record);
+universe violations (a stray "Mrs. Johnson", "the lighthouse keeper's
+daughter is there to help her" said of someone else) are not an archon's
+yet.
+
 ## Falsification ledger
 
 | date | claim | control | result |

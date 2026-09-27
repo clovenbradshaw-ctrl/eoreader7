@@ -75,7 +75,7 @@ export function scoreBook(book, cast, { castDetails = [] } = {}) {
 
 if (process.argv[1] && process.argv[1].endsWith("score.mjs")) {
   const dir = process.argv[2];
-  const arms = (process.argv[3] ?? "ledger,lines-only,window,summary").split(",");
+  const arms = (process.argv[3] ?? "ledger,ledger-edited,lines-only,window,summary").split(",");
   const outline = JSON.parse(fs.readFileSync(path.join(dir, "outline.json"), "utf8"));
   const N = makeNotes();
   const o = outlineOf(N.fold(outline.notes), PROSE_MEDIUM);

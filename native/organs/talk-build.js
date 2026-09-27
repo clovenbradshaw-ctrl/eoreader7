@@ -33,6 +33,7 @@ import { reason, isDerived } from "./talk-reason.js";
 import { readKinds, detailsFor } from "./kind-read.js";
 import { uncovered } from "./provenance-cover.js";
 import { helixCheck } from "./claim-acts.js";
+import { universeOf } from "./universe.js";
 import { sealArtifact } from "../kernel/artifact.js";
 import { createHash } from "node:crypto";
 
@@ -367,7 +368,12 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     log({ kind: "spec", spec });
     const reader = makeTalkReader({ parse, sentences });
     const N = makeNotes();
-    let notes = N.createNotes({ frame: { request: what, forWhom: request.forWhom ?? null, reader: "organs/talk-reader.js" } });
+    // WHAT UNIVERSE THIS IS, declared before anything is said in it
+    // (organs/universe.js): it decides how every claim here is known — a page
+    // from its sources, a story by its own telling — and so whether the world
+    // is looked up at all
+    const universe = universeOf({ medium });
+    let notes = N.createNotes({ frame: { request: what, forWhom: request.forWhom ?? null, reader: "organs/talk-reader.js", universe: universe.kind, knowing: universe.knowing } });
     let asks = 0;
     const tried = new Map();
     // ORDER IS INFORMATION: the fold returns claims by id ("bar#10" before
@@ -464,6 +470,22 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
             claims.push({ end1: subject, label: slot.label, end2: value, sentence: `${row.title}: ${value}`, witness });
           } else claims.push({ end1: row.id, label: slot.label, end2: value, sentence: `${row.title}: ${slot.label} ${value}`, witness });
         });
+      } else if (slot?.relations) {
+        // "Tommy is Lily's father": a bond between two things on the record,
+        // read by name — never a thing the ear would mint
+        const byName = new Map(reader.things().filter((t) => t.name).map((t) => [t.name.toLowerCase(), t]));
+        for (const l of linesOf(reply)) {
+          const w = l.split(" ").map((x) => x.trim()).filter(Boolean);
+          const is = w.findIndex((x) => x.toLowerCase() === "is" || x.toLowerCase() === "was");
+          if (is < 1 || is + 2 > w.length) continue;
+          const a = byName.get(w.slice(0, is).join(" ").toLowerCase());
+          const poss = w[is + 1];
+          const owner = poss.endsWith("'s") || poss.endsWith("’s") ? byName.get(poss.slice(0, -2).toLowerCase()) : null;
+          let rel = w.slice(is + 2).join(" ");
+          while (rel && [".", ",", ";", "!"].includes(rel.at(-1))) rel = rel.slice(0, -1);
+          if (!a || !owner || a === owner || !rel || rel.split(" ").length > 3) continue;
+          claims.push({ end1: a.id, label: `${rel.toLowerCase()} of`, end2: owner.id, sentence: l, witness });
+        }
       } else if (slot?.labels) {
         // "vote count: 301" per line; the first line answers the anchor's own label
         linesOf(reply).forEach((l, i) => {
@@ -589,7 +611,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       const term = (forAt > 0 ? wholeWords.slice(0, forAt) : wholeWords).filter((w) => !["a", "an", "the"].includes(w.toLowerCase())).at(-1) ?? null;
       let facts = [];
       let sourceWitness = `source:${term}`, sourceLicense = null;
-      if (lookup && term) {
+      if (lookup && term && universe.lookups) {
         // a lookup answers text, or { text, url, revision, license }: the
         // witness names the page and revision read, and the license rides
         // with the quoted sentence
@@ -787,6 +809,15 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     const known = medium.factsFor ? medium.factsFor(belief) : "";
     const scoped = (q) => `${known ? `${known}\n` : ""}${spec.topic ? `${q} All of it is ${spec.topic}.` : q}`;
     const sayVerb = medium.saysVerb ?? "Write", sayWhat = medium.saysWhat ?? "what it says";
+    // in a told universe a person's details are theirs, not the topic's: the
+    // topic scoping every detail made four of five characters "lighthouse
+    // keepers" (slice 1, 2026-09-27)
+    const scopeDetails = universeOf({ medium }).kind !== "stipulated";
+    // THE UNIVERSE IN DEPENDENCY ORDER: once its referents are on the record
+    // (INS), the medium may ask how they are bound to each other (CON) before
+    // any line of the telling is asked
+    const framed0 = medium.frameGaps?.(belief, spec, abandoned, known);
+    if (framed0) return framed0;
     const deepest = Math.max(0, ...spec.counted.map((c) => depth(c)));
     for (let d = 0; d <= deepest; d++) {
       const level = spec.counted.filter((c) => depth(c) === d);
@@ -849,7 +880,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
             // a state ("approved") is asked as yes or no, not as a value
             const state = labels.length === 1 && labels[0].endsWith("ed") && !labels[0].includes(" ");
             const give = state ? `Say whether ${lacking.length > 1 ? "each one" : "it"} is ${labels[0]}, one per line as "name: yes" or "name: no".` : `Give the ${said} of ${lacking.length > 1 ? "each one" : "it"}${numeric ? ` as ${labels.length > 1 ? "numbers" : "a number"}` : ""}, one per line as "name: ${labels.join(", ")}".`;
-            return { key, slot, question: `Here ${lacking.length > 1 ? `are ${lacking.length} ${c.phrase}` : `is a ${phraseOf(c)}`}${parent ? ` in ${title(parent)}` : ""}:\n${listed}\n${numeric || state ? give : scoped(give)}`, anchor: `1. ${title(lacking[0])}:` };
+            return { key, slot, question: `Here ${lacking.length > 1 ? `are ${lacking.length} ${c.phrase}` : `is a ${phraseOf(c)}`}${parent ? ` in ${title(parent)}` : ""}:\n${listed}\n${numeric || state || !scopeDetails ? `${known && !numeric && !state ? `${known}\n` : ""}${give}` : scoped(give)}`, anchor: `1. ${title(lacking[0])}:` };
           }
         }
       }
