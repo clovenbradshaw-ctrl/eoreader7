@@ -34,7 +34,7 @@ import { reason, isDerived } from "./talk-reason.js";
 const REASON_RULES = new Set(["shown", "total", "top", "correct"]);
 import { readKinds, detailsFor } from "./kind-read.js";
 import { uncovered } from "./provenance-cover.js";
-import { helixCheck } from "./claim-acts.js";
+import { helixCheck, premisesOf } from "./claim-acts.js";
 import { universeOf } from "./universe.js";
 import { detectRepetition } from "../the-fold/document-ledger.js";
 import { sealArtifact } from "../kernel/artifact.js";
@@ -684,7 +684,14 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
       // so the gap reopens and is asked again with the openings on the record
       let gated = 0;
       if (medium.gateRepeatedLines) {
-        const lines = beliefOf(N.fold(notes), reader.things()).filter((t) => t.kind !== medium.root).map((t) => ({ t, v: t.props.find((q) => q.label === "says")?.value })).filter((x) => x.v && x.v.length > 20).sort((a, b) => (a.t.position ?? 0) - (b.t.position ?? 0));
+        // tested among SIBLINGS (one chapter's scenes, the story's chapters):
+        // across a whole long outline, lines about one person open alike by
+        // nature — tested book-wide the gate retracted 211 of ~300 lines a
+        // round on the scale run and the outline never completed
+        const all = beliefOf(N.fold(notes), reader.things()).filter((t) => t.kind !== medium.root).map((t) => ({ t, v: t.props.find((q) => q.label === "says")?.value })).filter((x) => x.v && x.v.length > 20).sort((a, b) => (a.t.position ?? 0) - (b.t.position ?? 0));
+        const groups = new Map();
+        for (const x of all) { const g = `${x.t.parent ?? "top"}|${x.t.kind}`; if (!groups.has(g)) groups.set(g, []); groups.get(g).push(x); }
+        for (const lines of groups.values()) {
         const r = lines.length >= 3 ? detectRepetition(lines.map((x) => x.v)) : { significant: false, repeated: [] };
         if (r.significant) {
           const head = (v) => v.toLowerCase().split(" ").slice(0, 3).join(" ");
@@ -697,6 +704,7 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
             gated++;
             spec.openings = [...new Set([...(spec.openings ?? []), h])];
           }
+        }
         }
       }
       const fold = N.fold(notes);
@@ -713,10 +721,19 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
         const done = N.concede(notes, n.id, { trigger: "its premises changed" });
         if (!done.refused) { notes = done.log; acts.withdrawn++; }
       }
-      const have = new Set(N.fold(notes).map((n) => `${n.end1}|${n.label}|${n.end2}`));
+      // a conclusion already on the record is re-heard when its premises
+      // changed though its value did not ("scenes shown: 5" after one scene
+      // was retracted and another heard): the ledger never resurrects a
+      // conceded note, so it is re-based under a witness fingerprinted by
+      // its premises, and its because names the premises it now rests on
+      const becauseNow = new Map(notes.entries.filter((e) => e.because != null).map((e) => [e.task_id, e.because]));
+      const liveByKey = new Map(N.fold(notes).map((n) => [`${n.end1}|${n.label}|${n.end2}`, n]));
       for (const [key, d] of want) {
-        if (have.has(key)) continue;
-        notes = N.hear(notes, { end1: d.end1, label: d.label, end2: d.end2, witness: `derived:${d.rule}`, because: `${d.because} [premises: ${(d.premises ?? []).join(", ")}]` });
+        const premises = (d.premises ?? []).map(String);
+        const onRecord = liveByKey.get(key);
+        if (onRecord && premisesOf(becauseNow.get(onRecord.id)).join("\u0000") === premises.join("\u0000")) continue;
+        const print = createHash("sha256").update(premises.join("\u0000")).digest("hex").slice(0, 8);
+        notes = N.hear(notes, { end1: d.end1, label: d.label, end2: d.end2, witness: `derived:${d.rule}#${print}`, because: `${d.because} [premises: ${premises.join(", ")}]` });
         acts.derived++;
       }
       acts.corrected = r.correct.length;

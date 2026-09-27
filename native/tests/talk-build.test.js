@@ -349,8 +349,32 @@ test("lines that open alike beyond chance are retracted and asked again, with th
   const out = await talk.build({ what: "a story with 2 characters in 2 chapters of 3 scenes each" });
   const fold = (await import("../kernel/notes.js")).makeNotes().fold(out.notes);
   const lines = fold.filter((n) => n.label === "says" && n.end1.startsWith("scene#")).map((n) => n.end2);
-  const wakes = lines.filter((l) => l.startsWith("lily wakes up"));
-  assert.ok(wakes.length <= 1, `repeated openings stayed: ${JSON.stringify(lines)}`);
+  assert.ok(lines.length >= 4, `too few scene lines: ${JSON.stringify(lines)}`);
+  // within each chapter at most one line opens "Lily wakes up" (the gate is
+  // local: the same opening in another chapter may stand)
+  const chapterOf = new Map(fold.filter((n) => n.label === "has" && n.end1.startsWith("chapter#")).map((n) => [n.end2, n.end1]));
+  const perChapter = new Map();
+  for (const n of fold.filter((n) => n.label === "says" && n.end1.startsWith("scene#") && n.end2.toLowerCase().startsWith("lily wakes up"))) perChapter.set(chapterOf.get(n.end1), (perChapter.get(chapterOf.get(n.end1)) ?? 0) + 1);
+  assert.ok([...perChapter.values()].every((k) => k <= 1), `repeated openings stayed within a chapter: ${JSON.stringify([...perChapter])}`);
   assert.ok(prompts.some((p) => p.stage.startsWith("count:scene") && p.prompt.includes('Lines already begin "Lily wakes up"')), "the re-ask did not carry the openings as a fact");
   assert.equal(out.helix.ok, true);
+});
+
+test("the openings gate is local: the same opening in different chapters stands; conclusions keep their premises on the record", async () => {
+  const { PROSE_MEDIUM } = await import("../adapters/build/prose-medium.js");
+  const { helixCheck } = await import("../organs/claim-acts.js");
+  let c = 0;
+  const ask = async (prompt, { stage }) => {
+    if (stage.startsWith("count:character")) return "Alice\nBob";
+    if (stage.startsWith("relation:")) return "friend.";
+    if (stage.startsWith("count:chapter")) return "The storm comes in over the island at dusk.\nA ship runs aground on the northern rocks.\nThe keeper's lamp goes dark at midnight.";
+    if (stage.startsWith("count:scene")) { c++; return [`Alice walks down to the harbour in chapter light ${c}.`, `Bob mends the long net by the fire ${c}.`, `A gull lands on the empty boat ${c}.`].join("\n"); }
+    if (stage === "opening") return "The Keeper's Light.";
+    return "";
+  };
+  const out = await makeTalkBuild({ ask, parse, sentences, medium: PROSE_MEDIUM, mouth: "m" }).build({ what: "a story with 2 characters in 3 chapters of 3 scenes each" });
+  const fold = (await import("../kernel/notes.js")).makeNotes().fold(out.notes);
+  const walks = fold.filter((n) => n.label === "says" && n.end2.toLowerCase().startsWith("alice walks down"));
+  assert.equal(walks.length, 3, "a line was retracted for repeating another chapter's opening");
+  assert.equal(helixCheck({ fold, entries: out.notes.entries }).ok, true);
 });
