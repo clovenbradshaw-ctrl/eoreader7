@@ -27,6 +27,13 @@
 // K2 standings violated less than random's median; K3 beats global; K4 the
 // oracle margin, reported. Everything the kinds were built from is half A;
 // everything scored is half B. Same fixture, same seed, same halves.
+// AMENDMENT before the registered run (the classes-absent arm ran first and
+// found it): K1 compared raw draws against the ROUNDED induced score, so a
+// slicing tied with random could "beat" it; and a slicing with fewer than two
+// kinds is identical to every redeal of itself, so K1 cannot test it. Now raw
+// against raw, and K1 and K2 are null ("degenerate") below two induced kinds
+// (K2 compared a raw rate to a median rounded UP past it — the same flaw). v1 used
+// the same comparator; its K1 is re-read in the results beside v2.
 //   node kinds-falsify-v2.mjs [fixture] [classes.json] [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
@@ -127,7 +134,8 @@ function k2(labels) {
 }
 
 const out = { fixture: FIX.split("/").pop(), referents: ids.length, vocab: vocab.length, draws: DRAWS, alpha: ALPHA, inducedKinds: induced.kinds.length, inducedDiagnostics: induced.diagnostics, bookkeeping, residual: ids.filter((q) => inducedLabel.get(q) === RESIDUAL).length, slicings: {} };
-const summarize = (name, labels) => ({ kinds: new Set(labels.values()).size, k1LogLoss: +k1(labels).toFixed(4), k2: k2(labels) });
+const RAW = new Map();
+const summarize = (name, labels) => { const raw = k1(labels); RAW.set(name, raw); return { kinds: new Set(labels.values()).size, k1LogLoss: +raw.toFixed(4), k2: k2(labels) }; };
 out.slicings.induced = summarize("induced", inducedLabel);
 out.slicings.inducerV1 = summarize("inducerV1", v1Label);
 out.slicings.global = summarize("global", globalLabel);
@@ -137,13 +145,15 @@ for (const [base, labels] of [["random", inducedLabel], ["oracleRandom", oracleL
   for (let d = 0; d < DRAWS; d += 1) { const r = redeal(labels, `${base}-${d}`); k1s.push(k1(r)); k2s.push(k2(r).violationRate); }
   k1s.sort((x, y) => x - y); const k2f = k2s.filter((x) => x != null).sort((x, y) => x - y);
   out.slicings[base] = { draws: DRAWS, k1LogLossMedian: +k1s[Math.floor(DRAWS / 2)].toFixed(4), k1LogLossBest: +k1s[0].toFixed(4), k2ViolationMedian: k2f.length ? +k2f[Math.floor(k2f.length / 2)].toFixed(4) : null };
-  out.slicings[base].k1DrawsAtLeastAsGood = k1s.filter((x) => x <= out.slicings[base === "random" ? "induced" : "oracle"].k1LogLoss).length;
+  RAW.set(`${base}:k2median`, k2f.length ? k2f[Math.floor(k2f.length / 2)] : null);
+  out.slicings[base].k1DrawsAtLeastAsGood = k1s.filter((x) => x <= RAW.get(base === "random" ? "induced" : "oracle")).length;
 }
 const ind = out.slicings.induced, rnd = out.slicings.random;
 out.verdict = {
-  K1_beatsRandom: rnd.k1DrawsAtLeastAsGood / DRAWS <= ALPHA,
-  K2_standingsTransferBetterThanRandom: ind.k2.violationRate != null && rnd.k2ViolationMedian != null ? ind.k2.violationRate < rnd.k2ViolationMedian : null,
-  K3_beatsGlobal: ind.k1LogLoss < out.slicings.global.k1LogLoss,
+  K1_beatsRandom: ind.kinds < 2 ? null : rnd.k1DrawsAtLeastAsGood / DRAWS <= ALPHA,
+  K1_degenerate: ind.kinds < 2,
+  K2_standingsTransferBetterThanRandom: ind.kinds < 2 ? null : ind.k2.violationRate != null && RAW.get("random:k2median") != null ? ind.k2.violationRate < RAW.get("random:k2median") : null,
+  K3_beatsGlobal: RAW.get("induced") < RAW.get("global"),
   K4_vsOracle: { induced: ind.k1LogLoss, oracle: out.slicings.oracle.k1LogLoss, oracleMinusInduced: +(out.slicings.oracle.k1LogLoss - ind.k1LogLoss).toFixed(4) },
 };
 console.log(JSON.stringify(out, null, 1));
