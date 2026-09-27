@@ -289,6 +289,14 @@ function requireCrc32(str) {
   return out;
 }
 
+// The command that proves a code change works — handing it (with a
+// workspace) is how a chat turn reaches the code loop (proxy-runner.mjs,
+// THE CODE EDGE). Header x-er7-test-command, or the body's testCommand.
+function testCommandFrom(req, parsed = null) {
+  const t = String(req.headers["x-er7-test-command"] ?? parsed?.testCommand ?? "").trim();
+  return t.length > 2048 ? "" : t;
+}
+
 function workspaceFromHeaders(req) {
   const ws = String(req.headers["x-er7-workspace"] ?? "").trim();
   if (!ws || ws.length > 2048) return "";
@@ -455,6 +463,7 @@ async function handleRequest(req, res) {
         "x-er7-session": "stick a conversation to one accumulating reader fold (optional; a stable session is derived from the connection otherwise)",
         "x-er7-user": "durable identity across sessions (optional)",
         "x-er7-workspace": "absolute path to admit real files into the session (optional)",
+        "x-er7-test-command": "the command that proves a code change works; with a workspace, a chat turn runs the code loop (optional)",
         "x-er7-mode": "auto | chat | long | origami (optional; auto decides from the task)",
       },
     }));
@@ -1292,7 +1301,7 @@ const job = await startDocumentJob({
           // returned below as `served`, never silent.
           const scope = { sessionId, tier: turnTierAsk(req) };
           const result = await turnScope.run(scope, () => runProxyTurn({
-            sessionId, userId, workspace, attachments, model, task, mode,
+            sessionId, userId, workspace, attachments, model, task, mode, testCommand: testCommandFrom(req, parsed),
             chatHistory: Array.isArray(parsed?.chatHistory) ? parsed.chatHistory : [],
             resumeAnswered: Array.isArray(parsed?.resumeAnswered) ? parsed.resumeAnswered : [],
             openBefore: Array.isArray(parsed?.openBefore) ? parsed.openBefore : null,
@@ -1789,7 +1798,7 @@ const job = await startDocumentJob({
           noteSurfaceActivity(surface, "begin");
           emitLive({ act: "prompt", surface, model: reqData?.model ?? model, sessionId, text: promptTextOf(reqData?.task, reqData?.messages ?? parsed?.messages) });
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, emitBoth, onNote, onThinking));
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), signal: turnAbort.signal, ...reqData }, emitBoth, onNote, onThinking));
           endTurn(_ctid);
           _inflight--;
           noteSurfaceActivity(surface, "end");
@@ -1893,7 +1902,7 @@ const job = await startDocumentJob({
         // not dropped — a slow turn says nothing about whether the model works.
         const entry = holdTurn(holdKey, async () => {
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, ...reqData }));
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), ...reqData }));
           const answeredBy = result?.model ?? parsed.model; // plain-speech switch disclosed: the envelope names who answered
           const race = precisionWinner({ observation: await observationP, draft: result.text });
           const resp = openAIResponse({ id, model: answeredBy, text: race.text, created, usage: result.usage, reading: result });
@@ -2066,7 +2075,7 @@ const job = await startDocumentJob({
           const emit = mechanicalWins ? () => {} : writeChunk;
           if (mechanicalWins) writeChunk(observation.text);
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), signal: turnAbort.signal, ...reqData }, (token) => {
             emit(token);
           }));
           clearTurn();
@@ -2116,7 +2125,7 @@ const job = await startDocumentJob({
         }, TURN_DEADLINE_MS);
         try {
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }));
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), signal: turnAbort.signal, ...reqData }));
           if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
@@ -2305,7 +2314,7 @@ const job = await startDocumentJob({
           res.write(anthropicContentBlockStart(0));
           if (mechanicalWins) emitDelta(observation.text);
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }, (token) => {
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), signal: turnAbort.signal, ...reqData }, (token) => {
             emit(token);
           }));
           clearTurn();
@@ -2339,7 +2348,7 @@ const job = await startDocumentJob({
         }, TURN_DEADLINE_MS);
         try {
           const scope = { sessionId, tier: turnTierAsk(req) };
-          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, signal: turnAbort.signal, ...reqData }));
+          const result = await turnScope.run(scope, () => runProxyTurn({ sessionId, userId, workspace, testCommand: testCommandFrom(req), signal: turnAbort.signal, ...reqData }));
           if (result?.model) parsed.model = result.model; // plain-speech switch disclosed: the envelope names who answered
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);

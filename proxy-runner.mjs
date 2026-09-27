@@ -294,6 +294,10 @@ const WEB_SEARCH_ON = (process.env.ER7_WEB_SEARCH ?? "0") === "1";
 // draws the page from the fold. On by default; ER7_TALK_PAGE=0 restores the
 // old one-draw page body (kept as the arm the talk page is measured against).
 const TALK_PAGE_ON = (process.env.ER7_TALK_PAGE ?? "1") !== "0";
+// The code edge (a chat turn reaching the code loop) and its round budget —
+// the budget set by hand 2026-09-27 to /v1/code's own default (3).
+const CHAT_CODE_EDGE_ON = (process.env.ER7_CHAT_CODE ?? "1") !== "0";
+const CHAT_CODE_ROUNDS = Number(process.env.ER7_CHAT_CODE_ROUNDS ?? 3);
 // One talk ask's reply budget: a name, a row list, a sentence — set by hand
 // 2026-09-27 to the value the ladder runs used (run-talk.mjs num_predict 160).
 const TALK_ASK_TOKENS = Number(process.env.ER7_TALK_ASK_TOKENS ?? 160);
@@ -4124,7 +4128,7 @@ export function openProblemOf(task) {
   return null;
 }
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, testCommand = "" }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
   // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
@@ -4777,6 +4781,26 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // (Kierkegaard) in the register interlocutor.js recognized them under —
   // the working vocabulary (SHAPE, FORECLOSE, STANDPOINT) never reaches them.
   const specRefusalText = !clearance.cleared ? speakDecline({ reason: clearance.reason, shape: clearance.shape }, interlocutor) : null;
+
+  // ── THE CODE EDGE: a chat turn reaching the code API ─────────────────
+  // What is truly code-specific (patch physics against a real test command,
+  // the forecast, the sandbox) lives behind the code API
+  // (native/the-fold/code-loop.js). A conversation reaches it the moment it
+  // hands a workspace AND the command that proves a change works: the same
+  // loop /v1/code runs, after this turn's own clearance, its result answered
+  // here. The loop's own per-round turns carry no test command, so this
+  // never recurses. ER7_CHAT_CODE=0 turns the edge off.
+  if (CHAT_CODE_EDGE_ON && clearance?.cleared === true && workspace && String(testCommand ?? "").trim() && !String(task ?? "").trim().endsWith("?")) {
+    const { runCodeLoop } = await import("./native/the-fold/code-loop.js");
+    if (onNote) onNote({ move: "code_edge", testCommand: String(testCommand).trim(), workspace });
+    const loop = await runCodeLoop({ sessionId, userId, model, task, workspace, testCommand: String(testCommand).trim(), maxRounds: CHAT_CODE_ROUNDS, caller, signal });
+    const tried = loop.rounds.filter((r) => r.action && r.path).map((r) => `${r.action} ${r.path}`);
+    const tail = String(loop.finalTestOutput ?? "").trim().split("\n").slice(-12).join("\n");
+    const text = loop.done
+      ? `Done — \`${String(testCommand).trim()}\` passes after ${loop.rounds.length} round${loop.rounds.length === 1 ? "" : "s"}.${tried.length ? `\n\nWhat changed: ${[...new Set(tried)].join("; ")}.` : ""}${tail ? `\n\n\`\`\`\n${tail}\n\`\`\`` : ""}`
+      : `Not done — \`${String(testCommand).trim()}\` still fails after ${loop.rounds.length} round${loop.rounds.length === 1 ? "" : "s"}.${tried.length ? `\n\nWhat was tried: ${[...new Set(tried)].join("; ")}.` : ""}${tail ? `\n\n\`\`\`\n${tail}\n\`\`\`` : ""}`;
+    return earlyResult(text, { answerShape: "code-edit", mechanical: { rung: "code-loop", via: "chat", done: loop.done, rounds: loop.rounds.length, testCommand: String(testCommand).trim(), finalTestOutput: tail } });
+  }
   if (specRefusalText && onNote) onNote({ move: "spec_refused", reason: clearance.reason });
 
   // ── THE ASK-BACK DOOR (build-clarify.js — the recursive void) ──────────
