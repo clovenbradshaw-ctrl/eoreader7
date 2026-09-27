@@ -6,6 +6,7 @@ import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } f
 import { loadModel as loadEnglishParserModel, sentences as englishSentences, tokenize as englishTokenize, analyse as englishAnalyse } from "./native/adapters/text/english-parser.js";
 import { makeTalkBuild } from "./native/organs/talk-build.js";
 import { renderBelief } from "./native/adapters/build/belief-page.js";
+import { makeWikiSummary } from "./native/adapters/sources/wiki-summary.js";
 import { createEnglishParserPerceiver } from "./native/adapters/text/english-parser-perceiver.mjs";
 import { isCodeHunk, codeEncounters } from "./native/adapters/code/encounters.js";
 import { diaNorm, namesCorefer } from "./native/adapters/text/surfaces.js";
@@ -292,6 +293,10 @@ const TALK_PAGE_ON = (process.env.ER7_TALK_PAGE ?? "1") !== "0";
 // One talk ask's reply budget: a name, a row list, a sentence — set by hand
 // 2026-09-27 to the value the ladder runs used (run-talk.mjs num_predict 160).
 const TALK_ASK_TOKENS = Number(process.env.ER7_TALK_ASK_TOKENS ?? 160);
+// What a named platform is, read before the mouth is asked (organs/kind-read.js):
+// a cached encyclopedia lead, one small fetch per term, never fetched twice.
+// ER7_TALK_SOURCES=0 turns it off (the mouth is then asked, as before).
+const talkLookup = (process.env.ER7_TALK_SOURCES ?? "1") === "0" ? null : makeWikiSummary({ dir: path.join(HERE, "state", "sources", "wikipedia") });
 const WEB_MAX_PAGES = Number(process.env.ER7_WEB_MAX_PAGES ?? 3);
 
 // THE NON-MOVING EDIT CUT (2026-09-21): a rewrite whose content tokens are
@@ -6379,10 +6384,11 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         const forWhom = session?.buildDeclared?.anchor ?? null;
         const what = typeof buildTask === "string" && buildTask ? buildTask : task;
         const tb = makeTalkBuild({
-          ask: talkAsk, parse, sentences: englishSentences, render: renderBelief,
+          ask: talkAsk, parse, sentences: englishSentences, render: renderBelief, lookup: talkLookup,
           log: (e) => {
             if (!onNote) return;
             if (e.kind === "turn") onNote({ move: "talk_turn", gap: e.gap, reply: String(e.reply ?? "").slice(0, 240), claims: e.claims, ops: (e.ops ?? []).map((o) => o.operator) });
+            else if (e.kind === "source" || e.kind === "reasoned") onNote({ move: `talk_${e.kind}`, ...(e.term ? { term: e.term, found: e.found, facts: e.facts } : { gap: e.gap, from: e.from, claims: e.claims }) });
             else if (e.kind === "spec") onNote({ move: "talk_spec", counted: e.spec.counted.map((c) => `${c.n} ${c.phrase}${c.per ? ` per ${c.per}` : ""}`), named: e.spec.named.map((n) => n.phrase) });
             else onNote({ move: `talk_${e.kind}`, ...(e.gap ? { gap: e.gap } : {}), ...(e.asks != null ? { asks: e.asks, things: e.things } : {}) });
           },

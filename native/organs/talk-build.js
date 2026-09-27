@@ -30,6 +30,7 @@
 import { makeTalkReader, numberOf } from "./talk-reader.js";
 import { makeNotes } from "../kernel/notes.js";
 import { reason, isDerived } from "./talk-reason.js";
+import { readKinds, detailsFor } from "./kind-read.js";
 
 export const TALK_BUILD_SCHEMA = "TalkBuild@1";
 /** The most asks one build may spend, set by hand 2026-09-27, not measured:
@@ -292,7 +293,7 @@ export function completeness(spec, belief) {
 }
 
 /** makeTalkBuild({ ask, parse, sentences, render, verify, log }) */
-export function makeTalkBuild({ ask, parse, sentences, render, verify = async () => ({ ok: true, checks: [] }), log = () => {}, maxAsks = MAX_ASKS, frame = "task" }) {
+export function makeTalkBuild({ ask, parse, sentences, render, verify = async () => ({ ok: true, checks: [] }), log = () => {}, maxAsks = MAX_ASKS, frame = "task", lookup = null }) {
   async function build(request) {
     const what = request.what;
     // the person's answers to the build's questions ("three communities, with
@@ -484,7 +485,33 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     if (!spec.counted.some((c) => c.details.length)) {
       const partOf = (kind) => spec.counted.find((c) => c.kind === kind);
       const depth = (c, seen = new Set()) => (!c.per || seen.has(c) ? 0 : (seen.add(c), 1 + depth(partOf(c.per) ?? {}, seen)));
+      // REASONED FIRST, ASKED ONLY WHERE THE SOURCE IS SILENT. What a reddit
+      // post carries is written down somewhere: the thing the request names
+      // is looked up (an injected `lookup`, a cached encyclopedia lead), read
+      // by organs/kind-read.js (Linnaeus) and reasoned over — a post is a
+      // kind of content, content is voted on by members, so a post carries a
+      // vote count. Each detail so found is on the ledger with its source and
+      // the sentence it rests on; only a part the source says nothing about
+      // is asked of the mouth.
+      const wholeWords = String(spec.whole ?? "").split(" ");
+      const forAt = wholeWords.indexOf("for");
+      const term = (forAt > 0 ? wholeWords.slice(0, forAt) : wholeWords).filter((w) => !["a", "an", "the"].includes(w.toLowerCase())).at(-1) ?? null;
+      let facts = [];
+      if (lookup && term) {
+        const text = await lookup(term).catch(() => null);
+        if (text) facts = readKinds(text, { parse, sentences }).facts;
+        log({ kind: "source", term, found: !!text, facts: facts.map((f) => `${f.a} ${f.rel} ${f.b}${f.agent ? ` (by ${f.agent})` : ""}`) });
+      }
       for (const c of spec.counted.filter((x) => depth(x) <= 1)) {
+        const found = facts.length ? detailsFor(facts, c.kind).filter((d) => !["title", "name"].includes(d.detail)).slice(0, 3) : [];
+        if (found.length) {
+          for (const d of found) {
+            c.details.push(d.detail);
+            notes = N.hear(notes, { end1: `kind:${c.kind}`, label: "shows", end2: d.detail, witness: `source:${term}`, because: d.because[0] });
+          }
+          log({ kind: "reasoned", gap: `shows:${c.kind}`, from: `source:${term}`, claims: found.map((d) => `${c.kind} shows ${d.detail}${d.inherited ? " (inherited)" : ""}`), because: found.flatMap((d) => d.because) });
+          continue;
+        }
         asks++;
         // a sentence to finish, not a list to write: "Each post shows its
         // name, its" -> "upvotes, its comments and its author."
@@ -652,7 +679,10 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
             const parent = belief.find((t) => t.id === g);
             const listed = lacking.map((t, i) => `${i + 1}. ${title(t)}`).join("\n");
             const slot = { rows: lacking.map((t) => ({ id: t.id, title: title(t), lacks: labels.filter((x) => !t.props.some((p) => p.label === x)) })), label: labels[0], numeric, ...(labels.length > 1 ? { labels } : {}) };
-            return { key, slot, question: `Here ${lacking.length > 1 ? `are ${lacking.length} ${c.phrase}` : `is a ${phraseOf(c)}`}${parent ? ` in ${title(parent)}` : ""}:\n${listed}\nGive the ${said} of ${lacking.length > 1 ? "each one" : "it"}${numeric ? ` as ${labels.length > 1 ? "numbers" : "a number"}` : ""}, one per line as "name: ${labels.join(", ")}".`, anchor: `1. ${title(lacking[0])}:` };
+            // a state ("approved") is asked as yes or no, not as a value
+            const state = labels.length === 1 && labels[0].endsWith("ed") && !labels[0].includes(" ");
+            const give = state ? `Say whether ${lacking.length > 1 ? "each one" : "it"} is ${labels[0]}, one per line as "name: yes" or "name: no".` : `Give the ${said} of ${lacking.length > 1 ? "each one" : "it"}${numeric ? ` as ${labels.length > 1 ? "numbers" : "a number"}` : ""}, one per line as "name: ${labels.join(", ")}".`;
+            return { key, slot, question: `Here ${lacking.length > 1 ? `are ${lacking.length} ${c.phrase}` : `is a ${phraseOf(c)}`}${parent ? ` in ${title(parent)}` : ""}:\n${listed}\n${give}`, anchor: `1. ${title(lacking[0])}:` };
           }
         }
       }

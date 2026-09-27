@@ -14,6 +14,7 @@ import { makeTalkBuild, completeness } from "../../organs/talk-build.js";
 import { renderBelief } from "../../adapters/build/belief-page.js";
 import { loadModel, sentences, tokenize, analyse } from "../../adapters/text/english-parser.js";
 import { inspect } from "./inspect.mjs";
+import { makeWikiSummary } from "../../adapters/sources/wiki-summary.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, "..", "..", "..");
@@ -35,13 +36,15 @@ async function ask(prompt, { attempt = 0 } = {}) {
 }
 const verify = async (kind, text) => { const v = inspect(text); return { ok: v.kind === "page", checks: [`the page parses (${v.kind})`] }; };
 
+// what a named thing is, from a cached encyclopedia lead (organs/kind-read.js reads it)
+const lookup = makeWikiSummary({ dir: path.join(ROOT, "state", "sources", "wikipedia") });
 const rows = [];
 for (const file of arg("battery", "ladder.json").split(",")) {
   const battery = JSON.parse(fs.readFileSync(path.join(HERE, file), "utf8"));
   for (const q of battery.requests.filter((r) => (r.kind === "page" || r.kind === "any") && (!only.size || only.has(r.id)))) {
     const t0 = Date.now();
     const events = [];
-    const tb = makeTalkBuild({ ask, parse, sentences, render: renderBelief, verify, frame: arg("frame", "task"), log: (e) => events.push({ ms: Date.now() - t0, ...e }) });
+    const tb = makeTalkBuild({ ask, parse, sentences, render: renderBelief, verify, frame: arg("frame", "task"), lookup: arg("sources", "on") === "off" ? null : lookup, log: (e) => events.push({ ms: Date.now() - t0, ...e }) });
     let out, error = null;
     try { out = await tb.build({ what: q.prompt, forWhom: q.answers?.anchor ?? null }); } catch (err) { error = String(err?.stack ?? err).slice(0, 1500); out = { artifact: "", asks: 0, belief: [] }; }
     const seen = out.artifact ? inspect(out.artifact) : { kind: "none", why: error ?? "nothing built" };
