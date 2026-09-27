@@ -28,7 +28,7 @@ const label = arg("label", `run-${new Date().toISOString().slice(0, 19).split(":
 const OUT = path.join(ROOT, "state", "build-battery", label);
 fs.mkdirSync(OUT, { recursive: true });
 
-const battery = JSON.parse(fs.readFileSync(path.join(HERE, "requests.json"), "utf8"));
+const battery = JSON.parse(fs.readFileSync(path.join(HERE, arg("battery", "requests.json")), "utf8"));
 const { runProxyTurn } = await import(path.join(ROOT, "proxy-runner.mjs"));
 
 async function build(request) {

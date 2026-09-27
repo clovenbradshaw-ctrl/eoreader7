@@ -3,11 +3,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
-import { loadModel as loadEnglishParserModel } from "./native/adapters/text/english-parser.js";
+import { loadModel as loadEnglishParserModel, sentences as englishSentences, tokenize as englishTokenize, analyse as englishAnalyse } from "./native/adapters/text/english-parser.js";
+import { makeTalkBuild } from "./native/organs/talk-build.js";
+import { renderBelief } from "./native/adapters/build/belief-page.js";
 import { createEnglishParserPerceiver } from "./native/adapters/text/english-parser-perceiver.mjs";
 import { isCodeHunk, codeEncounters } from "./native/adapters/code/encounters.js";
 import { diaNorm, namesCorefer } from "./native/adapters/text/surfaces.js";
-import { deriveRegister, detectLanguage, questionFor, writeVoiceFor, voiceIsDeclaredFor } from "./native/kernel/register.js";
+import { deriveRegister, detectLanguage, questionFor, writeVoiceFor, voiceIsDeclaredFor, madePlatform } from "./native/kernel/register.js";
 import { createSeededRng, seedFrom } from "./native/kernel/rng.js";
 import { queryMeaningPotential, loadSidecar, SIDECAR_PATH } from "./native/kernel/prior-query.js";
 import { createWheelLedger } from "./native/kernel/wheel.js";
@@ -281,6 +283,15 @@ const WIKISOURCE_ON = (process.env.ER7_WIKISOURCE ?? "1") === "1";
 const WIKI_MAX_CONCEPTS = Number(process.env.ER7_WIKI_MAX_CONCEPTS ?? 3);
 const WIKI_TIMEOUT_MS = Number(process.env.ER7_WIKI_TIMEOUT_MS ?? 3500);
 const WEB_SEARCH_ON = (process.env.ER7_WEB_SEARCH ?? "0") === "1";
+// THE TALK PAGE (organs/talk-build.js, Terkel): a page build is a conversation
+// — the unconscious reads the request into the parts it wants, asks the mouth
+// one small question at a time, keeps every answer in the notes ledger and
+// draws the page from the fold. On by default; ER7_TALK_PAGE=0 restores the
+// old one-draw page body (kept as the arm the talk page is measured against).
+const TALK_PAGE_ON = (process.env.ER7_TALK_PAGE ?? "1") !== "0";
+// One talk ask's reply budget: a name, a row list, a sentence — set by hand
+// 2026-09-27 to the value the ladder runs used (run-talk.mjs num_predict 160).
+const TALK_ASK_TOKENS = Number(process.env.ER7_TALK_ASK_TOKENS ?? 160);
 const WEB_MAX_PAGES = Number(process.env.ER7_WEB_MAX_PAGES ?? 3);
 
 // THE NON-MOVING EDIT CUT (2026-09-21): a rewrite whose content tokens are
@@ -4776,7 +4787,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // build target only when it is NOT a page-count and NOT beside a prose noun.
     if (runMode !== "projection") return null;
     const verb = /^(?:make|build|create|generate|write|let'?s make)\b/i.test(t);
-    const softwareTarget = /(?:site|app|dashboard|tool|game|web ?page|landing ?page|homepage)\b/i.test(t);
+    const softwareTarget = /(?:site|app|dashboard|tool|game|web ?page|landing ?page|homepage)\b/i.test(t) || madePlatform(t) != null;
     const pageCount = /\b(?:one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|\d+)[- ]\s*page\b/i.test(t);
     const barePage = /\bpage\b/i.test(t) && !pageCount;
     const proseNoun = /\b(?:paper|essay|report|article|document|thesis|dissertation|story|novel|book|poem|brief|memo|letter|post)\b/i.test(t);
@@ -6348,7 +6359,46 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         }
         return out;
       };
-      for (let i = 0; i < plannedSections.length && !truncated; i++) {
+      // ── THE TALK PAGE: the unconscious builds, the mouth only talks ──────
+      // A page build (not a record-holding app, whose substrate is the
+      // sovereign shell's) never asks the mouth for markup. The request is
+      // read into the parts it wants; each ask is one small question ending
+      // on a sentence to finish, carrying only its own thing's path; each
+      // answer is typed by the question it answers and heard into the notes
+      // ledger; the page is drawn from the fold. The section loop, the café
+      // body prompt and the whole-file redraw are not run for it.
+      let talkPage = null;
+      const parserModel = TALK_PAGE_ON && isCode && codeLanguage === "html" && !isSovereignData ? getEnglishParserModel() : null;
+      if (parserModel) {
+        const parse = (text) => englishAnalyse(parserModel, englishTokenize(text).map((t) => t.form));
+        const talkAsk = async (prompt, { attempt = 0 } = {}) => {
+          const r = await draw([{ role: "user", content: prompt }], TALK_ASK_TOKENS, { capture: true, kelsen: attempt ? 0.9 : null });
+          if (r.stopped) truncated = true;
+          return r.buf;
+        };
+        const forWhom = session?.buildDeclared?.anchor ?? null;
+        const what = typeof buildTask === "string" && buildTask ? buildTask : task;
+        const tb = makeTalkBuild({
+          ask: talkAsk, parse, sentences: englishSentences, render: renderBelief,
+          log: (e) => {
+            if (!onNote) return;
+            if (e.kind === "turn") onNote({ move: "talk_turn", gap: e.gap, reply: String(e.reply ?? "").slice(0, 240), claims: e.claims, ops: (e.ops ?? []).map((o) => o.operator) });
+            else if (e.kind === "spec") onNote({ move: "talk_spec", counted: e.spec.counted.map((c) => `${c.n} ${c.phrase}${c.per ? ` per ${c.per}` : ""}`), named: e.spec.named.map((n) => n.phrase) });
+            else onNote({ move: `talk_${e.kind}`, ...(e.gap ? { gap: e.gap } : {}), ...(e.asks != null ? { asks: e.asks, things: e.things } : {}) });
+          },
+        });
+        // the person's declared answers beyond who it is for (how many, what
+        // parts) are read with the request — their own words, never a guess
+        // (only cells the person filled: the void's own defaults — admits,
+        // relation, composition — are the engine's apparatus, never request)
+        const declared = session?.buildDeclared ?? {};
+        const defaults = buildVoidFields(what);
+        const more = Object.entries(declared).filter(([cell, v]) => !(cell in defaults) && cell !== "anchor" && typeof v === "string" && v.trim()).map(([, v]) => v);
+        talkPage = await tb.build({ what, forWhom, more });
+        if (onThinking) onThinking(`\n[talk page: ${talkPage.asks} asks, ${talkPage.belief.length} things on the record]\n`);
+        documentLines.push(talkPage.artifact);
+      }
+      for (let i = 0; !talkPage && i < plannedSections.length && !truncated; i++) {
         const section = plannedSections[i];
         if (onNote) onNote({ move: "composing_section", index: i + 1, of: plannedSections.length, section });
         // EVA admits the part: real text against a ground. A projection with
@@ -7904,6 +7954,8 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           } catch { /* annotation must never break the artifact */ }
         }
         const fallbackTitle = cleanTitle ?? "Data";
+        // the talk page is already a whole document drawn from the fold
+        if (talkPage) return talkPage.artifact.replace("<body>", `<body>\n${header.trim()}`);
         if (codeLanguage === "html") return htmlShell(fallbackTitle, body).replace("<body>", `<body>\n${header.trim()}`);
         return header + body;
       };
@@ -7946,7 +7998,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         codeValidation = await runValidator(fullText);
         if (onNote) onNote({ move: "code_validate", ok: codeValidation.ok, findings: (codeValidation.findings ?? []).map((f) => `${f.kind}: ${f.detail}`), smoke: codeValidation.smoke });
         let round = 0;
-        while (!codeValidation.ok && round < MAX_REWRITE_ROUNDS && !truncated) {
+        // a talk page is never redrawn whole by the mouth: its gaps were asked
+        // one at a time, and what the validator says stays on the record
+        while (!talkPage && !codeValidation.ok && round < MAX_REWRITE_ROUNDS && !truncated) {
           const findings = (codeValidation.findings ?? []).slice(0, 6).map((f) => `- [${f.kind}] ${f.detail}`).join("\n");
           if (onThinking) onThinking(`\n### Code check failed (round ${round + 1})\n${findings}\n\n`);
           const fixMsg = codeLanguage === "html"

@@ -176,6 +176,31 @@ test("siblings are told apart by name: a name already used is not taken again", 
   assert.deepEqual(out.belief.filter((t) => t.kind === "post").map((t) => t.name), ["Dolphin Fan", "Orca Watch", "Fin Friday"]);
 });
 
+test("a thin request: the person's answers are read with it, and what each part shows is asked once", async () => {
+  const prompts = [];
+  let i = 0;
+  const ask = async (p) => {
+    prompts.push(p); i++;
+    const lines = p.split("\n"), anchor = lines.at(-1);
+    if (p.toLowerCase().includes("what does each")) return " upvotes and its comments.";
+    if (anchor.startsWith("1. ") && anchor.endsWith(":")) {
+      const first = anchor.slice(3, -1);
+      const rows = lines.filter((l) => l[0] >= "0" && l[0] <= "9" && l.includes(". ")).map((l) => l.slice(l.indexOf(". ") + 2)).filter((x) => x !== first);
+      return ` ${i}\n` + rows.map((r, k) => `${k + 2}. ${r}: ${i + k + 1}`).join("\n");
+    }
+    if (anchor === "1.") return Array.from({ length: 4 }, (_, k) => (k ? `${k + 1}. ` : "") + `Pod note ${i}-${k}`).join("\n");
+    return "Pod Chat";
+  };
+  const tb = makeTalkBuild({ ask, parse, sentences, render: renderBelief });
+  const out = await tb.build({ what: "make a reddit but only for dolphin content", forWhom: "dolphin fans", more: ["three communities — r/bottlenose, r/orca and r/riverdolphins — with four posts each"] });
+  assert.deepEqual(out.spec.counted.map((c) => [c.kind, c.n, c.per]), [["community", 3, null], ["post", 4, "community"]]);
+  assert.deepEqual(out.spec.counted[1].details, ["upvotes", "comments"]);
+  assert.equal(prompts.filter((p) => p.toLowerCase().includes("what does each")).length, 2, "asked once per part, communities and posts");
+  const posts = out.belief.filter((t) => t.kind === "post");
+  assert.equal(posts.length, 12);
+  assert.ok(posts.every((t) => t.props.some((p) => p.label === "upvotes")), "every post carries what the mouth said a post shows");
+});
+
 test("the talk path contains no regular expression", () => {
   for (const f of ["organs/talk-reader.js", "organs/talk-build.js", "adapters/build/belief-page.js", "eval/build-battery/run-talk.mjs"]) {
     const found = scanRegexes(fs.readFileSync(path.join(NATIVE, f), "utf8"));

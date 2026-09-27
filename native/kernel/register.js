@@ -20,6 +20,12 @@ export const REGISTER_SCHEMA = "EORegister@1";
 // field; anything unknown falls to the generic staged pipeline (staging
 // derived from the record's own seams). Adding a genre is registering a
 // noun, never writing a new branch.
+// A web platform named by its kind ("make a reddit for dolphins", "build a
+// forum for gardeners") is a site to build — the build door, the instrument
+// register and the language reader all read this one list, set by hand
+// 2026-09-27 after "make a reddit but only for dolphin content" was answered
+// as chat. ("blog" is left out: "a blog post" is prose.)
+export const WEB_PLATFORM_NOUNS = Object.freeze(["reddit", "subreddit", "forum", "message board", "wiki"]);
 const FIELD_BY_NOUN = {
   story: "narrative", "short story": "narrative", tale: "narrative", fiction: "narrative", novel: "narrative",
   essay: "exposition", article: "exposition", paper: "exposition", report: "exposition", brief: "exposition", guide: "exposition", "write-up": "exposition",
@@ -56,9 +62,24 @@ const LANG_BY_SIGNAL = [
   // language is an HTML web app (the default for data-holding UI).
   [/\.html?\b|html|website|webpage|web\s*page|web\s*app|webapp|landing\s*page|dashboard|front-?end|\bapp\b|\bpage\b|\bui\b/i, "html"],
 ];
+// The platform noun the request asks to make: a making verb opens the ask
+// and the platform is its object ("make a reddit", "build me a forum"),
+// read in words, no pattern.
+const MAKING = new Set(["make", "build", "create", "generate", "code", "design"]);
+export function madePlatform(task = "") {
+  const words = String(task ?? "").toLowerCase().split(" ").map((w) => w.split("").filter((c) => c.toLowerCase() !== c.toUpperCase() || c === "-").join("")).filter(Boolean);
+  const start = words[0] === "please" ? 1 : words[0] === "lets" || words[0] === "let's" ? 1 : 0;
+  if (!MAKING.has(words[start])) return null;
+  // the object: the first few words after the verb ("a", "me a", "an", "a simple")
+  const object = words.slice(start + 1, start + 5).join(" ");
+  return WEB_PLATFORM_NOUNS.find((n) => (" " + object + " ").includes(" " + n + " ")) ?? null;
+}
 export function detectLanguage(task = "") {
   const t = String(task ?? "");
   for (const [re, lang] of LANG_BY_SIGNAL) if (re.test(t)) return lang;
+  // a web platform named by its kind is a web page (checked last: an explicit
+  // language still wins — "a forum in python" is python)
+  if (madePlatform(t)) return "html";
   return null;
 }
 
@@ -100,6 +121,17 @@ export function deriveField(task = "", { genres = [], isFunctionWord = null } = 
       basis: learned
         ? `"${phrase}" → ${field}: the sidecar has ${field} reading(s), so the sign is LEARNED from the meaning potential`
         : `"${phrase}" → ${field}: a received sign — the machine has not read this ${field} yet${phrase !== noun ? ` (matched table entry "${noun}"; "${phrase}" is the fuller phrase actually asked for, not yet its own registered sign)` : ""}`,
+    };
+  }
+  // A web platform is an instrument only when the ask is to MAKE one: "make
+  // a reddit for dolphins" is a build; "tell me about reddit" and "an essay
+  // about reddit" are not (the platform is then the topic, not the artifact).
+  const platform = madePlatform(t);
+  if (platform) {
+    return {
+      field: "instrument", noun: platform, language: detectLanguage(task) ?? "html",
+      provenance: "received",
+      basis: `"${platform}" → instrument: a web platform the request asks to make — a received sign`,
     };
   }
   // Code signal fallback — a request that names code by shape, not by noun.

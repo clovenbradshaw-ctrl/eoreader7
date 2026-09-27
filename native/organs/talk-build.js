@@ -136,6 +136,7 @@ export function specOf(request, { parse, sentences }) {
         // per: "under/in/on each <noun>" after it, or "each" since the owner
         let per = null;
         if (INSIDE_EACH.has(lowerOf(toks[k])) && lowerOf(toks[k + 1]) === "each" && isNoun(toks[k + 2])) { per = lemmaOf(toks[k + 2]); k += 3; }
+        else if (lowerOf(toks[k]) === "each" && owner?.n) { per = owner.kind; k += 1; }   // "with four posts each"
         else if (sawEach && owner?.n) per = owner.kind;
         if (per === kind) per = null;
         const within = !per && owner && mode === "for" ? owner.phrase : null;
@@ -161,7 +162,7 @@ export function specOf(request, { parse, sentences }) {
   const words = [];
   for (let i = toks[0]?.upos === "VERB" ? 1 : 0; i < toks.length; i++) {
     const t = toks[i], w = lowerOf(t);
-    if (w === "with" || w === "," || w === ";" || w === "—" || numberOf(t.form) != null || (t.upos === "VERB" && words.length)) break;
+    if (w === "with" || w === "but" || w === "," || w === ";" || w === "—" || numberOf(t.form) != null || (t.upos === "VERB" && words.length)) break;
     words.push(t.form);
   }
   return { counted, named, whole: words.join(" ") || null };
@@ -228,6 +229,20 @@ function numbersIn(text) {
   }
   return out;
 }
+// the items a finished sentence lists: "upvotes, its comments and its
+// author." -> ["upvotes", "comments", "author"] (to the sentence's end; the
+// possessive and article that open an item are not part of it)
+function itemsOf(reply) {
+  let v = String(reply ?? "").trim();
+  const nl = v.indexOf("\n"); if (nl >= 0) v = v.slice(0, nl);
+  for (let i = 0; i < v.length; i++) if ((v[i] === "." || v[i] === "!" || v[i] === "?") && (i + 1 === v.length || v[i + 1] === " ")) { v = v.slice(0, i); break; }
+  const OPENERS = new Set(["its", "their", "the", "a", "an", "and", "or", "also"]);
+  return v.split(",").flatMap((x) => x.split(" and ")).map((x) => {
+    const w = x.trim().toLowerCase().split(" ").filter(Boolean);
+    while (w.length && OPENERS.has(w[0])) w.shift();
+    return w.join(" ");
+  }).filter(Boolean);
+}
 // the reply's lines, list markers ("1.", "2)", "-", "*") taken off
 function linesOf(reply) {
   return String(reply ?? "").split("\n").map((l) => {
@@ -271,7 +286,12 @@ export function completeness(spec, belief) {
 export function makeTalkBuild({ ask, parse, sentences, render, verify = async () => ({ ok: true, checks: [] }), log = () => {}, maxAsks = MAX_ASKS }) {
   async function build(request) {
     const what = request.what;
-    const spec = specOf(what, { parse, sentences });
+    // the person's answers to the build's questions ("three communities, with
+    // four posts each") are the request too: read after it, in their words
+    const more = (request.more ?? []).map((x) => String(x ?? "").trim()).filter(Boolean);
+    const spec = specOf([what, ...more.map((m) => (m.endsWith(".") ? m : `${m}.`))].join(" "), { parse, sentences });
+    const firstWhole = specOf(what, { parse, sentences }).whole;
+    if (firstWhole) spec.whole = firstWhole;
     log({ kind: "spec", spec });
     const reader = makeTalkReader({ parse, sentences });
     const N = makeNotes();
@@ -412,6 +432,28 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
     if (seeded.length) { hear(seeded); log({ kind: "seed", talk: seedTalk, claims: show(seeded) }); }
 
     const context = `We are describing ${spec.whole ?? "a site"}, for ${request.forWhom ?? "the people who will use it"}. Talk about it in short plain sentences, one fact per sentence.`;
+
+    // A THIN REQUEST ("make a reddit but only for dolphin content") names its
+    // parts and no details for any of them. What each part shows is the
+    // mouth's to know (what a reddit post carries is common knowledge), so it
+    // is asked once per part, near the top — "what does each post show?" —
+    // and the answer's lines become that part's details. A request that names
+    // any detail itself is never second-guessed.
+    if (!spec.counted.some((c) => c.details.length)) {
+      const partOf = (kind) => spec.counted.find((c) => c.kind === kind);
+      const depth = (c, seen = new Set()) => (!c.per || seen.has(c) ? 0 : (seen.add(c), 1 + depth(partOf(c.per) ?? {}, seen)));
+      for (const c of spec.counted.filter((x) => depth(x) <= 1)) {
+        asks++;
+        // a sentence to finish, not a list to write: "Each post shows its
+        // name, its" -> "upvotes, its comments and its author."
+        const anchor = `Each ${phraseOf(c)} shows its name, its`;
+        const prompt = `${context}\nWhat does each ${phraseOf(c)} on ${spec.whole ?? "the site"} show?\n\n${anchor}`;
+        const reply = String(await ask(prompt, { stage: `shows:${c.kind}` }) ?? "");
+        const shown = itemsOf(reply).filter((x) => x.split(" ").length <= 3 && !["title", "name"].includes(x)).slice(0, 3);
+        c.details.push(...shown);
+        log({ kind: "turn", gap: `shows:${c.kind}`, prompt, reply, claims: shown.map((x) => `${c.kind} shows ${x}`), ops: [], ms: 0 });
+      }
+    }
     await turn("opening", `${context}\nWhat is the site called?`, "The site is called", { subject: reader.mint("site").id, label: "named" });
 
     while (asks < maxAsks) {
