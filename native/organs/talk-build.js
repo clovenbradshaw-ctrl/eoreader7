@@ -36,6 +36,7 @@ import { readKinds, detailsFor } from "./kind-read.js";
 import { uncovered } from "./provenance-cover.js";
 import { helixCheck } from "./claim-acts.js";
 import { universeOf } from "./universe.js";
+import { detectRepetition } from "../the-fold/document-ledger.js";
 import { sealArtifact } from "../kernel/artifact.js";
 import { createHash } from "node:crypto";
 
@@ -677,11 +678,32 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
     // a REC with its reason — and a conclusion whose premises changed is
     // withdrawn, so the record stays true to itself after every edit.
     const settle = () => {
+      // LINES THAT OPEN ALIKE BEYOND CHANCE (the-fold/document-ledger.js,
+      // Fisher's word-order null — the same test a chat's boredom is read
+      // by): a medium that gates it retracts every repeat after the first,
+      // so the gap reopens and is asked again with the openings on the record
+      let gated = 0;
+      if (medium.gateRepeatedLines) {
+        const lines = beliefOf(N.fold(notes), reader.things()).filter((t) => t.kind !== medium.root).map((t) => ({ t, v: t.props.find((q) => q.label === "says")?.value })).filter((x) => x.v && x.v.length > 20).sort((a, b) => (a.t.position ?? 0) - (b.t.position ?? 0));
+        const r = lines.length >= 3 ? detectRepetition(lines.map((x) => x.v)) : { significant: false, repeated: [] };
+        if (r.significant) {
+          const head = (v) => v.toLowerCase().split(" ").slice(0, 3).join(" ");
+          const kept = new Set();
+          for (const x of lines) {
+            if (!r.repeated.includes(x.v)) continue;
+            const h = head(x.v);
+            if (!kept.has(h)) { kept.add(h); continue; }
+            for (const n of N.fold(notes).filter((n) => n.end1 === x.t.id || n.end2 === x.t.id)) { const d = N.concede(notes, n.id, { trigger: `opens as other lines do ("${h}…"; ${r.basis})` }); if (!d.refused) notes = d.log; }
+            gated++;
+            spec.openings = [...new Set([...(spec.openings ?? []), h])];
+          }
+        }
+      }
       const fold = N.fold(notes);
       const r = reason({ fold, belief: beliefOf(fold, reader.things()), spec });
       const at = (end1, label, end2) => fold.find((n) => n.end1 === end1 && n.label === label && n.end2 === end2);
       const want = new Map(r.derive.map((d) => [`${d.end1}|${d.label}|${d.end2}`, d]));
-      const acts = { derived: 0, withdrawn: 0, corrected: 0, retracted: 0 };
+      const acts = { derived: 0, withdrawn: 0, corrected: 0, retracted: gated };
       // a conclusion no longer supported by its premises is withdrawn
       // only this reasoner's own conclusions are its to withdraw: a part a
       // medium derived (a bar continued from the heard bars) answers to its
@@ -829,7 +851,9 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
     // a content ask carries the request's own constraint ("for dolphin content")
     // what the medium knows the mouth should hear first (a story's people, by
     // name, before any line of it is asked): facts, never instructions
-    const known = medium.factsFor ? medium.factsFor(belief) : "";
+    // the openings the record already holds, said as a fact when lines repeated them
+    const opened = spec.openings?.length ? `Lines already begin ${spec.openings.map((o) => `"${o.charAt(0).toUpperCase()}${o.slice(1)}"`).join(", ")}.` : "";
+    const known = [medium.factsFor ? medium.factsFor(belief) : "", opened].filter(Boolean).join("\n");
     const scoped = (q) => `${known ? `${known}\n` : ""}${spec.topic ? `${q} All of it is ${spec.topic}.` : q}`;
     const sayVerb = medium.saysVerb ?? "Write", sayWhat = medium.saysWhat ?? "what it says";
     // in a told universe a person's details are theirs, not the topic's: the

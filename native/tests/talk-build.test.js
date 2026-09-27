@@ -327,3 +327,30 @@ test("a story's universe in dependency order: the people, then how they are boun
   assert.ok(firstBond > stages.findIndex((s) => s.startsWith("count:character")) && firstBond < firstLine, stages.join(" "));
   assert.equal(helixCheck({ fold, entries: out.notes.entries }).ok, true);
 });
+
+test("lines that open alike beyond chance are retracted and asked again, with the openings on the record as a fact", async () => {
+  const { PROSE_MEDIUM } = await import("../adapters/build/prose-medium.js");
+  const prompts = [];
+  let scenesAsked = 0;
+  const ask = async (prompt, { stage }) => {
+    prompts.push({ stage, prompt });
+    if (stage.startsWith("count:character")) return "Lily\nTommy";
+    if (stage.startsWith("relation:")) return "brother.";
+    if (stage.startsWith("count:chapter")) return "The storm comes in over the island at dusk.\nA ship runs aground on the northern rocks.";
+    if (stage.startsWith("count:scene")) {
+      scenesAsked++;
+      if (scenesAsked <= 2) return "Lily wakes up early and looks at the sea.\nLily wakes up to the sound of the storm.\nLily wakes up and climbs the tower.";
+      return "Tommy rows out toward the wreck in the dark.\nThe keeper lights the great lamp by hand.\nA sailor is pulled from the water alive.";
+    }
+    if (stage === "opening") return "The Keeper's Light.";
+    return "";
+  };
+  const talk = makeTalkBuild({ ask, parse, sentences, medium: PROSE_MEDIUM, mouth: "m" });
+  const out = await talk.build({ what: "a story with 2 characters in 2 chapters of 3 scenes each" });
+  const fold = (await import("../kernel/notes.js")).makeNotes().fold(out.notes);
+  const lines = fold.filter((n) => n.label === "says" && n.end1.startsWith("scene#")).map((n) => n.end2);
+  const wakes = lines.filter((l) => l.startsWith("lily wakes up"));
+  assert.ok(wakes.length <= 1, `repeated openings stayed: ${JSON.stringify(lines)}`);
+  assert.ok(prompts.some((p) => p.stage.startsWith("count:scene") && p.prompt.includes('Lines already begin "Lily wakes up"')), "the re-ask did not carry the openings as a fact");
+  assert.equal(out.helix.ok, true);
+});
