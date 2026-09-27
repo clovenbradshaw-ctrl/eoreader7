@@ -55,7 +55,14 @@ test("the archons read the book against the story's own record, and what they li
   const out = await ed.editBook({ notes, store, task: "a story", budget: 0 });
   assert.equal(out.asks, 0, "a budget of nothing asked something");
   const book = lf.seal({ notes: out.notes, store: out.store, request: "a story" });
-  assert.ok(!book.artifact.includes("strengths and abilities"), "the filler stayed");
+  // in a stipulated universe the telling is the source: a line the thin
+  // record does not mention is reported, never folded (LICENSES_BY_UNIVERSE)
+  assert.ok(book.artifact.includes("strengths and abilities"), "a told world's own line was folded as unverified");
+  assert.ok(ed.readBook({ notes: out.notes, store: out.store, task: "a story" }).findings.some((f) => f.kind === "unverified" && f.licenses === null && f.licenseBy === "universe:stipulated"));
+  // the same book read as a world (sources known) folds it
+  const world = makeBookEditor({ lf, ask, medium: PROSE_MEDIUM, mouth: "m", castDetails: ["job"], universe: "world" });
+  const w2 = await world.editBook({ notes, store, task: "a story", budget: 0 });
+  assert.ok(!lf.seal({ notes: w2.notes, store: w2.store, request: "a story" }).artifact.includes("strengths and abilities"), "a world's unverified line stayed");
   assert.ok(book.artifact.includes("Ana paints the boat red."), "the part's own line was not floored");
   assert.ok(book.artifact.includes("Ana drags the boat onto the sand.\n"), "a line the part stands on was cut");
   // every kept edit is a REC resting on the line it changed and the finding that licensed it
@@ -109,4 +116,13 @@ test("Tolkien: a line that states a person's age against the record is repaired 
   const book = lf.seal({ notes: out.notes, store: out.store, request: "t" }).artifact;
   assert.ok(book.includes("Ana, a 17-year-old sailor, knew the tide."), book);
   assert.ok(!book.includes("25-year-old"));
+});
+
+test("a line set in must be a whole sentence: fragments a splice leaves are refused", async () => {
+  const { wholeSentence } = await import("../organs/book-editor.js");
+  assert.equal(wholeSentence("Of her comfort zone."), false);
+  assert.equal(wholeSentence("She will need to be passionate about her work and."), false);
+  assert.equal(wholeSentence("That she will always be driven by her desire."), false);
+  assert.equal(wholeSentence("She will need to be passionate about her work"), false);
+  assert.equal(wholeSentence("Ana pulls the boat onto the sand."), true);
 });

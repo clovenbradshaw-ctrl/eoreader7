@@ -171,3 +171,15 @@ test("a change said in plain words is read against the cast, or refused", async 
   assert.ok(readChange("Make it sadder", opts).refused);
   assert.ok(readChange("Tommy is tired", opts).refused, "a state was read as a detail");
 });
+
+test("a changed detail reaches the value however it is capitalised in the prose", async () => {
+  const replies = ["Ana finds a boat. Ana drags the boat onto the sand. Tom came down to see it.", "Tom looked at it. Tom, the Fisherman, said nothing. The light was on."];
+  let k = 0;
+  const ask = async (p, { stage }) => (stage.startsWith("body:") ? replies[k++] ?? "" : stage.startsWith("revise:") ? "Tom, the ferryman, said nothing." : "");
+  const lf = makeLongForm({ ask, sentences, medium: PROSE_MEDIUM, mouth: "m", castDetails: ["age", "job"] });
+  const notes0 = outlineNotes();
+  const w = await lf.writeBodies({ notes: notes0, store: makeTextStore() });
+  const out = await lf.changeDetail({ notes: w.notes, store: w.store, who: "Tom", label: "job", to: "ferryman" });
+  assert.equal(out.edits, 1);
+  assert.ok(!lf.seal({ notes: out.notes, store: out.store, request: "t" }).artifact.toLowerCase().includes("fisherman"));
+});

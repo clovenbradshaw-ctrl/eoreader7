@@ -42,7 +42,7 @@ const log = (x) => fs.appendFileSync(logFile, JSON.stringify(x) + "\n");
 
 const outline = JSON.parse(fs.readFileSync(path.join(dir, "outline.json"), "utf8"));
 // the book as it stands: edited by the archons when that stage ran, else as written
-const stateFile = fs.existsSync(path.join(dir, "ledger-edited.state.json")) ? "ledger-edited.state.json" : "ledger.state.json";
+const stateFile = arg("state", null) ? `${arg("state", null)}.state.json` : fs.existsSync(path.join(dir, "ledger-edited.state.json")) ? "ledger-edited.state.json" : "ledger.state.json";
 console.log("revising", stateFile);
 const state = JSON.parse(fs.readFileSync(path.join(dir, stateFile), "utf8"));
 const lf = makeLongForm({ ask, sentences, medium: PROSE_MEDIUM, mouth: model, log, castDetails: outline.castDetails, spec: outline.spec ?? null });
@@ -59,11 +59,24 @@ const diff = (a, b) => { const A = bodyLines(a), B = bodyLines(b); let same = 0;
 const report = [];
 let book = lf.seal({ notes, store, request: outline.request }).artifact;
 const start = book;
-// the person's changes, said in plain words and read against the record (readChange)
+// the person's changes, said in plain words and read against the record
+// (readChange) — chosen where the book says the value, so a change has
+// something to reach: the detail whose value the most lines state beside the
+// person's name (a change to a value the book never states costs nothing and
+// shows nothing)
+const bookNow = lf.seal({ notes, store, request: outline.request }).artifact.split("\n");
+const stated = (c, label) => { const v = detail(c, label); return v ? bookNow.filter((l) => wordAt(l, c.name).length && wordAt(l.toLowerCase(), String(v).toLowerCase()).length).length : 0; };
+const byStated = (label, not = []) => cast.filter((c) => !not.includes(c) && detail(c, label)).sort((a, b) => stated(b, label) - stated(a, label))[0] ?? null;
+// the details on whoever the book states them of; the rename on the most-named other person
+const jobOf = byStated("job"), ageOf = byStated("age");
+const mentions = (c) => bookNow.filter((l) => wordAt(l, c.name).length).length;
+const renamed = [...cast].sort((a, b) => mentions(b) - mentions(a))[0] ?? cast[0];
+console.log("stated in the book:", cast.map((c) => `${c.name} job ${stated(c, "job")} age ${stated(c, "age")}`).join("; "));
+// the rename last, so it also reaches the lines the detail changes wrote
 const said = [
-  cast[0] && `Rename ${cast[0].name} to Wren.`,
-  cast[1] && detail(cast[1], "job") && `${cast[1].name} is a ferry pilot now.`,
-  cast[2] && detail(cast[2], "age") && `${cast[2].name} is ${Number(detail(cast[2], "age")) + 31}.`,
+  jobOf && `${jobOf.name} is a ferry pilot now.`,
+  ageOf && `${ageOf.name} is ${Number(detail(ageOf, "age")) + 31}.`,
+  renamed && `Rename ${renamed.name} to Wren.`,
 ].filter(Boolean);
 const plan = [];
 for (const words of said) {

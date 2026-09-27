@@ -49,6 +49,7 @@ export const PROSE_MEDIUM = Object.freeze({
   showsVerb: "has",
   askWhatPartsShow: false,
   namedKinds: new Set(["character"]),
+  nameWholeLast: true,
   // a line of a story is what happens in it, and the mouth hears who the
   // people are, by name, before it says any line (facts, not instructions)
   saysVerb: "Say what happens in",

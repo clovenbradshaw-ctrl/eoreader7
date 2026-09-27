@@ -458,7 +458,7 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
         if (!cur || !cur.lines.some((l) => hasWord(l.text, who))) continue;
         for (let k = 0; k < cur.lines.length; k++) {
           const l = cur.lines[k];
-          if (!hasWord(l.text, was)) continue;
+          if (!hasWord(l.text.toLowerCase(), String(was).toLowerCase())) continue;   // "Actress" on the record is "actress" in a sentence
           asks++;
           const before = cur.lines.slice(Math.max(0, k - TAIL_SENTENCES), k).map((x) => x.text).join(" ");
           const facts = [`${who}'s ${label} is ${to}.`];
@@ -468,7 +468,7 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
           while (before && reply.startsWith(before)) reply = reply.slice(before.length).trim();
           const said = sentences(reply.split("\n").join(" "))[0]?.text ?? "";
           log({ kind: "revise_turn", part: leaf.part.id, line: k + 1, prompt, reply: got.text, took: said, promptTokens: got.promptTokens });
-          if (!said || hasWord(said, was)) { left.push({ part: leaf.part.id, line: k + 1 }); continue; }
+          if (!said || hasWord(said.toLowerCase(), String(was).toLowerCase())) { left.push({ part: leaf.part.id, line: k + 1 }); continue; }
           const address = store.put(said);
           notes = N.hear(notes, { end1: leaf.part.id, label: l.addr, end2: address, witness: `talk:${mouth}#rev${revs}.${asks}`, because: `said again with "${facts[0]}" [premises: ${JSON.stringify([l.note, heard.rev.id])}]` });
           edits++;

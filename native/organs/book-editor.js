@@ -34,7 +34,9 @@
 // No regular expressions.
 import { createHash } from "node:crypto";
 import { makeNotes, noteId } from "../kernel/notes.js";
-import { buildDraft, drawnParts } from "../the-fold/eot-draft.js";
+import { buildDraft, drawnParts, draftWords } from "../the-fold/eot-draft.js";
+import { isFunctionWord } from "../the-fold/pos-prior.js";
+import { clauseComplete } from "../the-fold/eot-notation.js";
 import { anchorsFor, carries } from "../the-fold/prosify.js";
 import { readPiece } from "../the-fold/revision-spiral.js";
 import { houdiniExclusivity } from "../the-fold/archon-rules.js";
@@ -51,8 +53,33 @@ export const JUDGE_REACH = 1;
 const sha8 = (t) => createHash("sha256").update(String(t)).digest("hex").slice(0, 8);
 const sentence = (v) => { const s = String(v).trim(); return [".", "!", "?"].includes(s.at(-1)) ? s : `${s}.`; };
 const ORDER = ["fold", "repair", "floor", "bridge", "rewrite"];
+/** What a finding licenses, by the universe the book is in (organs/universe.js).
+ *  A finding kind not named keeps its archon's own license. Set by hand
+ *  2026-09-27 from slice 2: in a stipulated universe the telling is the
+ *  source, so a sentence the thin record does not mention is not unverified —
+ *  folding every such line cut the story from 3,561 words to 1,275. It is
+ *  reported; repetition, apparatus, a part's own missing line and a
+ *  contradiction of the record still license their revisions. */
+export const LICENSES_BY_UNIVERSE = Object.freeze({
+  stipulated: Object.freeze({ unverified: null }),
+});
 // a line set on its own starts as a sentence does ("her mother scolds…" cut from a splice)
 const wordIn = (text, word) => { const t = String(text), w = String(word); let i = t.indexOf(w); const isW = (ch) => !!ch && ch.toLowerCase() !== ch.toUpperCase(); while (i >= 0) { if (!isW(t[i - 1]) && !isW(t[i + w.length])) return true; i = t.indexOf(w, i + 1); } return false; };
+// A LINE SET IN IS A WHOLE SENTENCE (slice 2: splice repairs kept on the
+// finding count alone left "Of her comfort zone." and "…her work and."):
+// it ends as a sentence ends, not on a word that leads somewhere, does not
+// open on a word that hangs from another clause, and — with the parser — has
+// a subject for its root. Set by hand 2026-09-27.
+const DANGLING_END = new Set(["and", "or", "but", "the", "a", "an", "of", "to", "with", "that", "which", "as"]);
+const HANGING_START = new Set(["that", "of", "which", "and", "or", "but", "because", "while", "to"]);
+export function wholeSentence(text, parser = null) {
+  const t = String(text ?? "").trim();
+  if (!t || ![".", "!", "?", "\"", "”"].includes(t.at(-1))) return false;
+  const words = t.split(" ").filter(Boolean);
+  let last = words.at(-1).toLowerCase(); while (last && !(last.at(-1).toLowerCase() !== last.at(-1).toUpperCase())) last = last.slice(0, -1);
+  if (DANGLING_END.has(last) || HANGING_START.has(words[0].toLowerCase())) return false;
+  return parser ? clauseComplete(parser, t) !== false : true;
+}
 const capitalised = (t) => { const s = String(t).trim(); return s ? s[0].toUpperCase() + s.slice(1) : s; };
 
 /**
@@ -60,7 +87,8 @@ const capitalised = (t) => { const s = String(t).trim(); return s ? s[0].toUpper
  *   lf     the long-form instance (organs/long-form.js) that wrote the book
  *   parse  the EOT parser's parse (the-fold/eot-notation.js loadEotParser), or null
  */
-export function makeBookEditor({ lf, ask, parse = null, medium, mouth = "mouth", log = () => {}, castDetails = [] }) {
+export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, mouth = "mouth", log = () => {}, castDetails = [], universe = null }) {
+  parse ??= parser?.ok ? parser.parse : null;
   const N = makeNotes();
   const say = async (prompt, opts) => { const r = await ask(prompt, opts); return typeof r === "string" ? r : String(r?.response ?? ""); };
 
@@ -139,16 +167,39 @@ export function makeBookEditor({ lf, ask, parse = null, medium, mouth = "mouth",
     const ids = new Set([...keep].map((k) => gd.parts[k]?.id));
     const draft = { ...gd.draft, root: { ...gd.draft.root, children: gd.draft.root.children.filter((p) => ids.has(p.id)) } };
     const piece = pieceOf(notes, store, { ...gd, draft }, keep);
-    const f = readWith(piece, { ...gd, draft }, task, draft).filter((x) => x.part == null || ids.has(x.part));
+    const f = toldRestatement(readWith(piece, { ...gd, draft }, task, draft).map((x) => licensed(x, universeOf(notes))), piece, universeOf(notes)).filter((x) => x.part == null || ids.has(x.part));
     return { licensed: f.filter((x) => x.licenses && x.licenses !== "report").length, dropped: f.filter((x) => x.kind === "statement_dropped").length };
   }
 
   /** EVA: every finding over the whole book, located at its part and line. */
+  // the universe the book is in: the one given, else the one its ledger was born in
+  const universeOf = (notes) => universe ?? N.frameOf(notes)?.declared?.universe ?? null;
+  const licensed = (f, kind) => { const table = LICENSES_BY_UNIVERSE[kind] ?? {}; return f.kind in table ? { ...f, licenses: table[f.kind], licenseBy: `universe:${kind}` } : f; };
+
+  // IN A TOLD WORLD A RESTATEMENT SAYS NOTHING NEW AT ALL. Clark's rule reads
+  // a line against the ground's words, and a stipulated universe's ground is
+  // its thin record: a line whose only record words ("Lily", "lighthouse")
+  // were said before read as a restatement however much else it said — 96
+  // folds on slice 2. There, a restatement licenses its fold only when its
+  // own content words were all said earlier in the book; otherwise reported.
+  function toldRestatement(findings, piece, kind) {
+    if (kind !== "stipulated") return findings;
+    const saidBefore = new Map(); const said = new Set();
+    for (const p of piece) for (const pc of p.pieces) { saidBefore.set(`${p.id}|${pc.text}`, new Set(said)); for (const w of draftWords(pc.text)) said.add(w); }
+    return findings.map((f) => {
+      if (f.kind !== "restatement" || !f.licenses) return f;
+      const before = saidBefore.get(`${f.part}|${f.sentence}`) ?? new Set();
+      const fresh = [...new Set(draftWords(f.sentence))].filter((w) => !isFunctionWord(w) && !before.has(w));
+      return fresh.length ? { ...f, licenses: null, licenseBy: "universe:stipulated", detail: `${f.detail} — but it says ${fresh.slice(0, 4).join(", ")} for the first time` } : f;
+    });
+  }
+
   function readBook({ notes, store, task }) {
     const gd = groundAndDraft(notes, task);
     const piece = pieceOf(notes, store, gd);
     const byId = new Map(piece.map((p) => [p.id, p]));
-    const findings = readWith(piece, gd, task).map((f) => {
+    const kind = universeOf(notes);
+    const findings = toldRestatement(readWith(piece, gd, task).map((f) => licensed(f, kind)), piece, kind).map((f) => {
       const p = byId.get(f.part);
       const line = p && f.sentence ? p.pieces.find((pc) => pc.text === f.sentence) ?? null : null;
       return { ...f, leaf: p?.leaf ?? null, index: p?.index ?? null, addr: line?.addr ?? null, lineNote: line?.note ?? null };
@@ -219,6 +270,8 @@ export function makeBookEditor({ lf, ask, parse = null, medium, mouth = "mouth",
         if (!c) continue;
         asks += c.asks; row.asks += c.asks;
         if (!c.edits.length) { row.refused++; log({ kind: "edit_refused", finding: f.kind, part: f.leaf, why: c.refused ?? "nothing usable said", reply: c.reply }); continue; }
+        const broken = c.edits.find((e) => e.text && !wholeSentence(e.text, parser));
+        if (broken) { row.refused++; log({ kind: "edit_refused", finding: f.kind, part: f.leaf, why: "not a whole sentence", text: broken.text }); continue; }
         const heard = hearFinding(notes, f);
         let trial = heard.notes;
         for (const e of c.edits) {

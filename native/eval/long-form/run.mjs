@@ -117,7 +117,7 @@ for (const name of arms.filter((a) => a !== "edit")) {
       const t1 = Date.now();
       const parser = await loadEotParser();
       const elog = logTo("ledger-edited.log.jsonl");
-      const ed = makeBookEditor({ lf, ask, parse: parser.ok ? parser.parse : null, medium: PROSE_MEDIUM, mouth: model, castDetails: outline.castDetails, log: elog });
+      const ed = makeBookEditor({ lf, ask, parser, medium: PROSE_MEDIUM, mouth: model, castDetails: outline.castDetails, log: elog });
       const e = await ed.editBook({ notes: s.notes, store: w.store, task: request, budget: 2 * frozen.leaves.length });
       const s2 = lf.seal({ notes: e.notes, store: e.store, request, regime: { arm: "ledger-edited", seed, ctx } });
       fs.writeFileSync(path.join(OUT, "ledger-edited.book.md"), s2.artifact);
@@ -129,7 +129,7 @@ for (const name of arms.filter((a) => a !== "edit")) {
     const r = await bareArm(name);
     results.push({ name, asks: r.asks, prompts: r.prompts, ms: Date.now() - t0 });
   }
-  const last = results.at(-1);
+  const last = results.find((r) => r.name === name) ?? results.at(-1);
   const toks = last.prompts.map((p) => p.promptTokens ?? 0);
   console.log(`${name.padEnd(10)} asks ${last.asks} · prompt tokens max ${Math.max(...toks)} mean ${Math.round(toks.reduce((a, b) => a + b, 0) / Math.max(1, toks.length))}${last.sealed != null ? ` · sealed ${last.sealed} · lines covered ${last.provenance.covered}, uncovered ${last.provenance.uncovered}, unresolved ${last.provenance.unresolved} · helix ${last.helix}` : ""} · ${Math.round(last.ms / 1000)}s`);
 }

@@ -660,7 +660,11 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
         log({ kind: "turn", gap: `shows:${c.kind}`, prompt, reply, claims: shown.map((x) => `${c.kind} shows ${x}`), ops: showsOps.map((operator) => ({ operator })), ms: 0 });
       }
     }
-    await turn("opening", framed(`What is ${spec.whole ?? medium.wholeFallback}${request.forWhom ? ` for ${request.forWhom}` : ""} called?`), "It is called", { subject: wholeId, label: "named" });
+    // the whole is named first — unless the medium names it last, once its
+    // parts exist (a story's title is said of what happens in it: DEF of the
+    // whole after its parts, and never a title the parts are then asked "in")
+    const nameWhole = () => turn("opening", framed(`What is ${spec.whole ?? medium.wholeFallback}${request.forWhom ? ` for ${request.forWhom}` : ""} called?`), "It is called", { subject: wholeId, label: "named" });
+    if (!medium.nameWholeLast) await nameWhole();
 
     // ── REASONING OVER THE RECORD (organs/talk-reason.js, Peirce) ──────────
     // The talk is claims now, so the engine reasons over them with no model:
@@ -761,6 +765,11 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
     if ((!acts.retracted && !acts.dropped) || asks >= maxAsks) break;
     }
 
+    if (medium.nameWholeLast) {
+      // what the whole is called, said of what happens in it
+      const lines = beliefOf(N.fold(notes), reader.things()).filter((t) => t.parent === wholeId).map((t) => t.props.find((p) => p.label === "says")?.value).filter(Boolean).slice(0, 3);
+      await turn("opening", framed(`${lines.length ? `${lines.join(" ")}\n` : ""}What is ${spec.whole ?? medium.wholeFallback} called?`), "It is called", { subject: wholeId, label: "named" });
+    }
     const belief = beliefOf(N.fold(notes), reader.things());
     // the renderer returns the artifact and the account of every element on
     // it; the account is checked against the artifact itself (Ostrom)
