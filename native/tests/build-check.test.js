@@ -40,7 +40,7 @@ ${post("riverdolphins", "Boto sighting in the Amazon", 64, 5)}${post("riverdolph
 <form><input name="title"><button>Submit a post</button></form></body></html>`;
 
 test("no regex: the checker, the runner, the inspector and the page reader hold none", () => {
-  for (const f of ["../organs/build-check.js", "../eval/build-battery/run.mjs", "../eval/build-battery/inspect.mjs"]) {
+  for (const f of ["../organs/build-check.js", "../eval/build-battery/run.mjs", "../eval/build-battery/run-raw.mjs", "../eval/build-battery/inspect.mjs"]) {
     const found = scanRegexes(fs.readFileSync(path.join(HERE, f), "utf8"));
     assert.equal(found.length, 0, `${f}: ${JSON.stringify(found)}`);
   }
