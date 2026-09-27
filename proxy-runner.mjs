@@ -4128,7 +4128,7 @@ export function openProblemOf(task) {
   return null;
 }
 
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, testCommand = "" }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, testCommand = "", drawOnly = false }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
   // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
@@ -5317,7 +5317,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // 4. Build grounding digest
   const digestInfo = makeDigest(sessionId, session, fold, ledger, hyperlexicon);
   let readingDigest = digestInfo.digest;
-  if (WIKIPEDIA_ON) {
+  // a specialist loop's per-round draw (drawOnly: the code loop's patch
+  // turns) is not a composition: no encyclopedia enrichment every round
+  if (WIKIPEDIA_ON && !drawOnly) {
     const wikiNotes = await enrichFromWikipedia(digestInfo.composition);
     if (wikiNotes.length > 0) {
       readingDigest += `\n\nA reference on the terms at play:\n${wikiNotes.map((w) => `- ${w.term}: ${w.snippet}`).join("\n")}`;
@@ -8578,7 +8580,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   let holographOut = null;
   let holographWithheld = [];
   try {
-    if (text?.trim() && !isCode) {
+    // a patch from a specialist loop is code, not prose: never typed (or
+    // withheld) as prose sentences
+    if (text?.trim() && !isCode && !drawOnly) {
       const holographGroundNotes = readingSurface?.notes ?? notesFromEdges(rawEntries ?? []);
       const holographGround = groundFacts(holographGroundNotes, { source: segmentSourceOf(surfacedSegments?.[0]) ?? "material" });
       holographOut = holographType({ prose: text, ground: holographGround, splitSentences: engineSplitSentences, sameAct: holographSameAct });

@@ -1437,7 +1437,10 @@ const job = await startDocumentJob({
         if (!loopAbort.signal.aborted) loopAbort.abort();
       }, CODE_LOOP_DEADLINE_MS);
       try {
-        const result = await runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, caller: callerFromRequest(req, "code", parsed), signal: loopAbort.signal });
+        // one mouth, disclosed: the loop's draws run in a turn scope, so the
+        // mouth Heimdall serves them from is sticky and named on the result
+        const scope = { sessionId, tier: turnTierAsk(req) };
+        const result = await turnScope.run(scope, () => runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, caller: callerFromRequest(req, "code", parsed), signal: loopAbort.signal }));
         clearTimeout(loopDeadline);
         res.removeListener("close", onDisconnect);
         // metacognition standing check (native/kernel/code-draw-standing.js,
@@ -1455,7 +1458,7 @@ const job = await startDocumentJob({
         // code-draw-standing.js's own rule folded to false/unknown rather
         // than invented.
         const monitorCheck = getCodeDrawMonitor().check({ roundsExhausted: !result.done, bokUnknown: true });
-        const shipped = shipCodeDrawResult(result, monitorCheck);
+        const shipped = { ...shipCodeDrawResult(result, monitorCheck), served: servedDisclosure(scope, model) };
         res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId });
         res.end(JSON.stringify(shipped));
       } catch (err) {
