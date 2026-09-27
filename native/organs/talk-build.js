@@ -63,6 +63,7 @@ const DASHES = new Set(["—", "–", "-", "--"]);
 const INSIDE_EACH = new Set(["under", "in", "on", "for", "per", "about"]);
 // words that size or date a thing rather than say what kind it is ("two SHORT
 // comments", "a NEW post") — dropped from a modifier
+const POSSESSIVE = new Set(["'s", "’s"]);
 const UNMARKED = new Set(["new", "short", "long", "small", "big"]);
 
 /** Read the request as a spec, in word order (a long imperative request is
@@ -109,6 +110,9 @@ export function specOf(request, { parse, sentences, wholeWords = new Set() }) {
       const t = toks[i];
       const w = lowerOf(t);
       if (w === ";") { toTop(); owner = null; sawEach = false; continue; }
+      // ", in 12 chapters" after a list of what each part has: the list is
+      // over, and what follows is the whole's again, not each part's
+      if (w === "," && owner && toks[i + 1]?.upos === "ADP" && lowerOf(toks[i + 1]) !== "with") { toTop(); owner = null; sawEach = false; continue; }
       if (w === ",") { if (mode === "for" || (mode === "with" && lowerOf(toks[i + 1]) === "and")) toTop(); continue; }
       if (w === "with") { if (owner) mode = "with"; closeAfter = false; continue; }
       if (w === "each") { sawEach = true; continue; }
@@ -141,7 +145,10 @@ export function specOf(request, { parse, sentences, wholeWords = new Set() }) {
         continue;
       }
       if (mode === "for" && !many) { if (owner) owner.purpose.push(phrase); continue; }
-      if (isWhole(kind) || afterFor) { owner = null; toTop(); sawEach = false; afterFor = false; continue; }
+      // a possessive goes on to what is possessed: "about a lighthouse
+      // keeper's daughter" is one topic, never a part called "daughter"
+      const possessive = POSSESSIVE.has(lowerOf(toks[i + 1]));
+      if (isWhole(kind) || afterFor) { owner = null; toTop(); sawEach = false; afterFor = possessive && afterFor; if (possessive) i++; continue; }
       if (many) {
         // names right after: "r/bottlenose and r/orca", or "— a, b and c —"
         const names = [];
@@ -197,8 +204,8 @@ export function specOf(request, { parse, sentences, wholeWords = new Set() }) {
     const w = lowerOf(toks[i]);
     if (w !== "for" && w !== "about") continue;
     const run = [];
-    for (let j = i + 1; j < toks.length && (toks[j].upos === "NOUN" || toks[j].upos === "ADJ" || toks[j].upos === "PROPN" || ((toks[j].upos === "PRON" || toks[j].upos === "DET") && j === i + 1)); j++) run.push(toks[j].form);
-    if (run.length) { topic = `${w} ${run.join(" ")}`; break; }
+    for (let j = i + 1; j < toks.length && (toks[j].upos === "NOUN" || toks[j].upos === "ADJ" || toks[j].upos === "PROPN" || ((toks[j].upos === "PRON" || toks[j].upos === "DET") && j === i + 1) || (POSSESSIVE.has(lowerOf(toks[j])) && j > i + 1 && ["NOUN", "ADJ", "PROPN"].includes(toks[j + 1]?.upos))); j++) run.push(toks[j].form);
+    if (run.length) { topic = `${w} ${run.join(" ").split(" 's").join("'s").split(" ’s").join("’s")}`; break; }
   }
   while (words.length && toks.some((t) => t.form === words.at(-1) && t.upos === "ADP")) words.pop();   // "a lullaby in" -> "a lullaby"
   return { counted, named, whole: words.join(" ") || null, topic };

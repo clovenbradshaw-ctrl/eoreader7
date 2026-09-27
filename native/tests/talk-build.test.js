@@ -291,3 +291,15 @@ test("the talk path contains no regular expression", () => {
     assert.equal(found.length, 0, `${f}: ${JSON.stringify(found).slice(0, 200)}`);
   }
 });
+
+test("a long work's request: a possessive topic stays one topic, and parts after the cast list are the whole's", () => {
+  const ww = new Set(["story", "novella", "novel", "book"]);
+  const a = specOf("a novella in 12 chapters of 4 scenes each about a lighthouse keeper's daughter", { parse, sentences, wholeWords: ww });
+  assert.equal(a.topic, "about a lighthouse keeper's daughter");
+  assert.deepEqual(a.named, [], "the possessed noun is read as a part");
+  const b = specOf("a novella about a lighthouse keeper's daughter, with 5 characters, each with an age and a job, in 12 chapters of 4 scenes each", { parse, sentences, wholeWords: ww });
+  const by = Object.fromEntries(b.counted.map((c) => [c.kind, c]));
+  assert.deepEqual(by.character.details, ["age", "job"]);
+  assert.equal(by.chapter.per, null, "the chapters were read as each character's");
+  assert.equal(by.scene.per, "chapter");
+});
