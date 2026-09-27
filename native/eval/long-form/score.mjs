@@ -35,7 +35,16 @@ export function scoreBook(book, cast, { castDetails = [] } = {}) {
   const lines = String(book).split("\n").filter((l) => l.trim() && !l.startsWith("#") && l.trim() !== "* * *");
   const text = lines.join(" ");
   const words = text.split(" ").filter(Boolean).length;
-  const castWords = new Set(cast.flatMap((c) => String(c.name).split(" ").map(clean)));
+  // the cast's own words — names and the words of their details ("Lighthouse
+  // Keeper") — are the universe's, never strays
+  const castWords = new Set(cast.flatMap((c) => [c.name, ...Object.values(c.details)].flatMap((v) => String(v).split(" ").map(clean))));
+  // repetition, read from the text alone: sentences said word for word
+  // before, and the share of the book they make up
+  const seen = new Set(); let said = 0, repeated = 0; const echo = new Map();
+  for (const line of lines) for (const s of sentences(line)) { said++; const k = s.text.toLowerCase(); if (seen.has(k)) { repeated++; echo.set(k, (echo.get(k) ?? 1) + 1); } else seen.add(k); }
+  // the note said back: a sentence that states a person's detail in the
+  // note's own form ("Lily's job is …") — the mouth reading its note aloud
+  const noteEchoes = lines.filter((l) => cast.some((c) => Object.keys(c.details).some((d) => l.includes(`${c.name}'s ${d} is`)))).length;
   const jobs = cast.map((c) => ({ who: c.name, job: c.details.job ? String(c.details.job).toLowerCase() : null }));
   const callbacks = { right: 0, wrong: 0, examples: [] };
   const strays = { propn: new Map(), capital: new Map() };
@@ -70,7 +79,7 @@ export function scoreBook(book, cast, { castDetails = [] } = {}) {
   }
   const top = (m) => [...m.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([w, n]) => `${w}×${n}`);
   const sum = (m) => [...m.values()].reduce((a, b) => a + b, 0);
-  return { words, tokensApprox: Math.round(text.length / 4), callbacks, strays: { propn: sum(strays.propn), propnDistinct: strays.propn.size, capital: sum(strays.capital), capitalDistinct: strays.capital.size, perThousandWords: Math.round((1000 * sum(strays.propn)) / Math.max(1, words)), top: top(strays.propn) } };
+  return { words, tokensApprox: Math.round(text.length / 4), sentences: said, repeated, repeatedShare: said ? Math.round((100 * repeated) / said) : 0, noteEchoes, topRepeat: [...echo.entries()].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([t, n]) => `${n}× "${t.slice(0, 50)}"`), callbacks, strays: { propn: sum(strays.propn), propnDistinct: strays.propn.size, capital: sum(strays.capital), capitalDistinct: strays.capital.size, perThousandWords: Math.round((1000 * sum(strays.propn)) / Math.max(1, words)), top: top(strays.propn) } };
 }
 
 if (process.argv[1] && process.argv[1].endsWith("score.mjs")) {
@@ -85,6 +94,6 @@ if (process.argv[1] && process.argv[1].endsWith("score.mjs")) {
     const f = path.join(dir, `${arm}.book.md`);
     if (!fs.existsSync(f)) continue;
     const r = scoreBook(fs.readFileSync(f, "utf8"), cast, { castDetails: outline.castDetails ?? [] });
-    console.log(`${arm.padEnd(10)} words ${r.words} (~${r.tokensApprox} tok) · callbacks right ${r.callbacks.right} wrong ${r.callbacks.wrong} · strays ${r.strays.propn} (${r.strays.propnDistinct} names, ${r.strays.perThousandWords}/1k words; capital-detector ${r.strays.capital}) · ${r.strays.top.join(" ")}`);
+    console.log(`${arm.padEnd(13)} words ${r.words} (~${r.tokensApprox} tok) · repeated ${r.repeated}/${r.sentences} sentences (${r.repeatedShare}%) · note read aloud ${r.noteEchoes} · callbacks right ${r.callbacks.right} wrong ${r.callbacks.wrong} · strays ${r.strays.propn} (${r.strays.propnDistinct} names, ${r.strays.perThousandWords}/1k words; capital-detector ${r.strays.capital}) · ${r.strays.top.join(" ")}`);
   }
 }
