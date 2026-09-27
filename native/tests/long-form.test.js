@@ -183,3 +183,13 @@ test("a changed detail reaches the value however it is capitalised in the prose"
   assert.equal(out.edits, 1);
   assert.ok(!lf.seal({ notes: out.notes, store: out.store, request: "t" }).artifact.toLowerCase().includes("fisherman"));
 });
+
+test("a change names a person of any length: 'Lighthouse Keeper's Daughter is 44'", async () => {
+  const { readChange } = await import("../organs/long-form.js");
+  const cast = [{ name: "Lighthouse Keeper's Daughter" }, { name: "Lighthouse Keeper" }, { name: "Mary Ann" }];
+  const opts = { cast, details: ["age", "job"], numericDetails: new Set(["age"]) };
+  assert.deepEqual(readChange("Lighthouse Keeper's Daughter is 44.", opts), { kind: "detail", who: "Lighthouse Keeper's Daughter", label: "age", to: "44" });
+  assert.deepEqual(readChange("Lighthouse Keeper is a ferry pilot now", opts), { kind: "detail", who: "Lighthouse Keeper", label: "job", to: "ferry pilot" });
+  assert.deepEqual(readChange("Rename Mary Ann to Wren.", opts), { kind: "rename", who: "Mary Ann", to: "Wren" });
+  assert.deepEqual(readChange("Mary Ann's job is diver", opts), { kind: "detail", who: "Mary Ann", label: "job", to: "diver" });
+});

@@ -517,30 +517,46 @@ export function readChange(text, { cast, details = [], numericDetails = new Set(
   const words = String(text ?? "").trim().split(" ").filter(Boolean).map(trimEnd).filter(Boolean);
   while (words.length && TAIL_WORDS.has(words.at(-1).toLowerCase())) words.pop();
   const low = words.map((w) => w.toLowerCase());
-  const who = (w) => cast.find((c) => c.name.toLowerCase() === String(w).toLowerCase().split("'s").join("").split("’s").join(""));
+  // the person a sentence names at word k: the longest cast name standing
+  // there, however many words it has ("Lighthouse Keeper's Daughter")
+  const named = (k) => {
+    let best = null;
+    for (const c of cast) {
+      const n = String(c.name).toLowerCase().split(" ");
+      const here = low.slice(k, k + n.length);
+      const last = here.at(-1) ?? "";
+      const bare = last.endsWith("'s") || last.endsWith("’s") ? last.slice(0, -2) : last;
+      const same = here.length === n.length && here.slice(0, -1).every((w, i) => w === n[i]) && (last === n.at(-1) || bare === n.at(-1));
+      if (same && (!best || n.length > best.len)) best = { c, len: n.length, possessive: last !== n.at(-1) };
+    }
+    return best;
+  };
   // rename X to Y / call X Y
   if ((low[0] === "rename" || low[0] === "call") && words.length >= 3) {
-    const person = who(words[1]);
-    const rest = low[0] === "rename" ? (low[2] === "to" ? words.slice(3) : null) : words.slice(2);
-    if (person && rest?.length) return { kind: "rename", who: person.name, to: rest.join(" ") };
+    const who = named(1);
+    if (who) {
+      const rest = low[0] === "rename" ? (low[1 + who.len] === "to" ? words.slice(2 + who.len) : null) : words.slice(1 + who.len);
+      if (rest?.length) return { kind: "rename", who: who.c.name, to: rest.join(" ") };
+    }
   }
-  const person = who(words[0]);
-  if (!person) return { refused: `no one on the record is named in "${text}"` };
+  const who = named(0);
+  if (!who) return { refused: `no one on the record is named in "${text}"` };
+  const k = who.len;
   // X's <label> is V
-  if (low[0].endsWith("'s") || low[0].endsWith("’s")) {
-    const is = low.indexOf("is");
-    const label = low.slice(1, is).join(" ");
-    if (is > 1 && details.includes(label) && words.length > is + 1) return { kind: "detail", who: person.name, label, to: words.slice(is + 1).join(" ") };
+  if (who.possessive) {
+    const is = low.indexOf("is", k);
+    const label = low.slice(k, is).join(" ");
+    if (is > k && details.includes(label) && words.length > is + 1) return { kind: "detail", who: who.c.name, label, to: words.slice(is + 1).join(" ") };
     return { refused: `no detail "${label}" on the record` };
   }
   // X is N / X is a V
-  if (low[1] === "is" && words.length > 2) {
-    const v = words.slice(2);
+  if (low[k] === "is" && words.length > k + 1) {
+    const v = words.slice(k + 1);
     const numeric = details.filter((d) => numericDetails.has(d));
     const other = details.filter((d) => !numericDetails.has(d));
     const isNum = v.length === 1 && [...v[0]].every((ch) => ch >= "0" && ch <= "9");
-    if (isNum && numeric.length === 1) return { kind: "detail", who: person.name, label: numeric[0], to: v[0] };
-    if (!isNum && ["a", "an", "the"].includes(v[0].toLowerCase()) && other.length === 1) return { kind: "detail", who: person.name, label: other[0], to: v.slice(1).join(" ") };
+    if (isNum && numeric.length === 1) return { kind: "detail", who: who.c.name, label: numeric[0], to: v[0] };
+    if (!isNum && ["a", "an", "the"].includes(v[0].toLowerCase()) && other.length === 1) return { kind: "detail", who: who.c.name, label: other[0], to: v.slice(1).join(" ") };
   }
   return { refused: `could not place "${text}" as a change to the record` };
 }
