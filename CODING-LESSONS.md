@@ -1992,6 +1992,20 @@ only for dolphin content", same mouth), recorded step by step: the build gate
 does not know "reddit" (answered as chat); the HTML prompt is fixed to a café
 (`proxy-runner.mjs:1431`: five drinks with prices and opening hours — so the
 dolphin site listed "Bottlenose: $5"), and the declared answers never reach
-that prompt; "only" was read as a prohibition and pulled Wikisource texts on
-guns, slavery and CEDAW (5 of 55 s); and no validator ran ("pyodide
-unavailable") across three retries. Each is a named gap, not yet fixed.
+that prompt; Wikisource texts on guns, slavery and CEDAW were fetched (5 of
+55 s); and no validator ran ("pyodide unavailable") across three retries.
+Each is a named gap, not yet fixed.
+
+**Correction, same session.** The first reading blamed the word "only" for
+the prohibition lookup. A second, unrelated build ("build an app that tells
+me which of my houseplants need watering today" — no "only") fetched the
+same three documents in the same order. The terms are UDHR Article 4 in the
+charter (`organs/charter.js:509`: "slavery or servitude … prohibited in all
+their forms"), given into every turn's lexicon (`proxy-runner.mjs:5063`) and
+looked up by the Wikipedia enrichment whatever the ask. The same run showed
+two more gaps: `kernel/register.js:57` maps any bare "app" to html, so the
+houseplant app also came back as the café (five "drinks", opening hours);
+and with pyodide installed the HTML validator ran and passed it, because it
+checks structure, not whether the page does what was asked. The falsifying
+control that caught the wrong attribution was a second prompt without the
+suspected word; it should have been run before the first claim was written.
