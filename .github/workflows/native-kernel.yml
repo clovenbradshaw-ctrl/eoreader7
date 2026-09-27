@@ -16,6 +16,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # pyodide is a declared, lock-pinned dependency of native/eval/the-fold
+      # (package.json + package-lock.json). postprocess.mjs::getPyodide
+      # resolves it by file URL from native/eval/the-fold/node_modules, and
+      # the Saltzer/Popper archons (organs/salzter.js, organs/blindspot.js)
+      # and the reasoning-lint oracle (eval/the-fold/lib/pyodide-oracle.mjs)
+      # read Python through it. Without this install those scans report
+      # "pyodide unavailable" and their conformance tests fail.
+      - name: Install native/eval/the-fold's declared pyodide runtime
+        working-directory: native/eval/the-fold
+        run: npm ci
       - name: Run native Fold parity gate
         working-directory: native
         run: npm test
