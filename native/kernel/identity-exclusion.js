@@ -68,8 +68,20 @@ export function makeIdentityExclusion(organs = {}) {
   for (const [kind, rels] of functional) for (const [rel, d] of rels) if (!d?.giver && !(d?.standing === "candidate" && d?.evidence)) throw new TypeError(`identity-exclusion: functional(${kind}, ${rel}) has no giver and no candidate evidence — a single-valued relation is received or induced, never assumed`);
   const standingOf = (proof) => (proof.every((p) => p.giver) ? "given" : "candidate");
 
-  function judge(a, b) {
+  // judge(a, b, { at, asOf, relevant })
+  //   asOf      the READING cursor: only assertions with seq <= asOf are
+  //             believed yet (an assertion without seq is always believed)
+  //   at        the TIME being asked about: for a one-at-a-time parameter only
+  //             values whose interval contains `at` are compared; with no `at`,
+  //             a one-at-a-time parameter's values conflict only when their
+  //             intervals overlap — disjoint intervals are change, not two
+  //             referents
+  //   relevant  the for-whom's frame: which relations it asks about
+  function judge(a, b, { at = null, asOf = null, relevant = null } = {}) {
     const order = [];
+    const believed = (xs) => (asOf == null ? xs : xs.filter((x) => x.seq == null || x.seq <= asOf));
+    const holdsAt = (x) => at == null || !x.interval || ((x.interval.lo ?? -Infinity) <= at && at <= (x.interval.hi ?? Infinity));
+    const overlap = (x, y) => { if (!x.interval || !y.interval) return null; return Math.max(x.interval.lo ?? -Infinity, y.interval.lo ?? -Infinity) <= Math.min(x.interval.hi ?? Infinity, y.interval.hi ?? Infinity); };
     // 1 — kind
     const ka = kindsOf(a) ?? new Set(), kb = kindsOf(b) ?? new Set();
     if (!ka.size || !kb.size) return Object.freeze({ a, b, verdict: "gap", reason: "kind_unknown", order: [{ step: "kind", a: [...ka], b: [...kb] }] });
@@ -82,26 +94,31 @@ export function makeIdentityExclusion(organs = {}) {
     if (!shared.length) return Object.freeze({ a, b, verdict: "gap", reason: "no_shared_kind", order });
     // 2 — the functional relations the shared kinds license
     const rels = new Map();
-    for (const k of shared) for (const [rel, d] of functional.get(k) ?? []) if (!rels.has(rel)) rels.set(rel, { ...d, kind: k });
+    for (const k of shared) for (const [rel, d] of functional.get(k) ?? []) if (!rels.has(rel) && (!relevant || relevant(rel))) rels.set(rel, { ...d, kind: k });
     if (!rels.size) { order.push({ step: "functional", licensed: [] }); return Object.freeze({ a, b, verdict: "gap", reason: "no_functional_relation_declared", order }); }
     // 3 — values
-    const Aa = assertionsOf(a) ?? [], Ab = assertionsOf(b) ?? [];
-    const agreed = [], conflicts = [], incomparable = [], unasserted = [];
+    const Aa = believed(assertionsOf(a) ?? []), Ab = believed(assertionsOf(b) ?? []);
+    const agreed = [], conflicts = [], incomparable = [], unasserted = [], changed = [];
     for (const [rel, d] of rels) {
-      const va = Aa.filter((x) => x.rel === rel), vb = Ab.filter((x) => x.rel === rel);
+      const timed = d.temporal === "one-at-a-time";
+      const va = Aa.filter((x) => x.rel === rel && (!timed || holdsAt(x))), vb = Ab.filter((x) => x.rel === rel && (!timed || holdsAt(x)));
       if (!va.length || !vb.length) { unasserted.push(rel); continue; }
       let agree = null, undecided = null, lastFalse = null;
       for (const u of va) for (const v of vb) {
-        const s = sameValue(u.value, v.value, rel);
+        let s = sameValue(u.value, v.value, rel);
+        // a one-at-a-time parameter: different values at DISJOINT times are
+        // change, never a conflict; at unknown times, undecidable
+        if (s === false && timed && at == null) { const o = overlap(u, v); if (o === false) continue; if (o === null) s = null; }
         if (s === true) agree ??= [u, v];
         else if (s === null) undecided ??= [u, v];
         else lastFalse ??= [u, v];
       }
       if (agree) agreed.push({ rel, a: agree[0], b: agree[1] });
       else if (undecided) incomparable.push({ rel, a: undecided[0], b: undecided[1] });
+      else if (!lastFalse) changed.push(rel); // every disagreement was at disjoint times: change, one referent possible
       else conflicts.push({ rel, giver: d.giver ?? null, standing: d.giver ? "given" : "candidate", evidence: d.evidence ?? null, kind: d.kind, a: lastFalse[0], b: lastFalse[1] });
     }
-    order.push({ step: "functional", licensed: [...rels.keys()] }, { step: "values", agreed: agreed.map((x) => x.rel), conflicts: conflicts.map((x) => x.rel), incomparable: incomparable.map((x) => x.rel), unasserted });
+    order.push({ step: "functional", licensed: [...rels.keys()] }, { step: "values", agreed: agreed.map((x) => x.rel), conflicts: conflicts.map((x) => x.rel), incomparable: incomparable.map((x) => x.rel), changed, unasserted });
     const standing = witnessed ? conflicts.filter((c) => witnessed(c.a) && witnessed(c.b)) : conflicts;
     const contested = conflicts.filter((c) => !standing.includes(c));
     if (standing.length) return Object.freeze({ a, b, verdict: "excluded", by: "functional", standing: standingOf(standing), proof: standing, contested, agreed, incomparable, order });

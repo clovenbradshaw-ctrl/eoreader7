@@ -23,6 +23,9 @@ const oracleSingle = (p) => (g.constraints[p]?.types ?? []).some((t) => SINGLE.h
 const EXPOSURE_FLOOR = 2, SEED = 11;
 const sameValue = makeSameValue({ calendarAware: true });
 const witnessed = (a) => (a.value?.refs ?? 0) > 0;
+// when a value holds, as decimal years from Wikidata's start / end / point-in-time qualifiers
+const year = (t) => { const m = /^([+-]\d+)-(\d\d)-(\d\d)/.exec(t ?? ""); return m ? Number(m[1]) + (Number(m[2] || 1) - 1) / 12 + (Number(m[3] || 1) - 1) / 365 : null; };
+const intervalOf = (v) => { const w = v.when; if (!w) return undefined; const at = year(w.at); if (at != null) return { lo: at, hi: at }; const lo = year(w.from), hi = year(w.to); return lo == null && hi == null ? undefined : { lo: lo ?? -Infinity, hi: hi ?? Infinity }; };
 
 // records
 const rng = createSeededRng({ seed: SEED, purpose: "split-records" });
@@ -35,7 +38,8 @@ for (const [q, e] of Object.entries(g.entities)) {
     if (cals.size > 1) { for (const v of vs) (v.calendar === JULIAN ? r1 : r2).push({ rel, value: v }); continue; }
     for (const v of vs) { const x = rng(); if (x < 1 / 3) r1.push({ rel, value: v }); else if (x < 2 / 3) r2.push({ rel, value: v }); else { r1.push({ rel, value: v }); r2.push({ rel, value: v }); } }
   }
-  recs.set(`${q}/1`, r1.map((a, i) => ({ ...a, id: `${q}/1#${i}` }))); recs.set(`${q}/2`, r2.map((a, i) => ({ ...a, id: `${q}/2#${i}` })));
+  const withTime = (a, i, r) => { const iv = intervalOf(a.value); return { ...a, id: `${q}/${r}#${i}`, ...(iv ? { interval: iv } : {}) }; };
+  recs.set(`${q}/1`, r1.map((a, i) => withTime(a, i, 1))); recs.set(`${q}/2`, r2.map((a, i) => withTime(a, i, 2)));
 }
 const assertionsOf = (id) => recs.get(id) ?? [];
 const kindOracle = (q) => (g.entities[q].claims.P31 ?? []).map((v) => v.item);
@@ -44,18 +48,9 @@ function induce(kindOptions, pool = [...recs.keys()]) {
   return induceKindsAndFunctions(pool, { assertionsOf, sameValue, witnessed, exposureFloor: EXPOSURE_FLOOR, kindOptions });
 }
 const arms = { perKind: induce({ population: "records" }) };
-// CONTROL: no kind induction — every record one kind, so a relation one-valued
-// for people but many-valued for places is judged across both
-{
-  const one = new Map(); for (const id of recs.keys()) one.set(id, new Set(["kind:global"]));
-  const rels = new Map();
-  for (const id of recs.keys()) { const by = new Map(); for (const a of assertionsOf(id)) { if (!by.has(a.rel)) by.set(a.rel, []); by.get(a.rel).push(a); }
-    for (const [rel, vs] of by) { const r = rels.get(rel) ?? { members: 0, exposed: 0, agreed: 0, refuted: 0 }; r.members += 1;
-      if (vs.length > 1) { r.exposed += 1; let bad = false, ok = true; for (let i = 0; i < vs.length; i += 1) for (let j = i + 1; j < vs.length; j += 1) { const s = sameValue(vs[i].value, vs[j].value); if (s === false) { ok = false; if (witnessed(vs[i]) && witnessed(vs[j])) bad = true; } } if (bad) r.refuted += 1; else if (ok) r.agreed += 1; }
-      rels.set(rel, r); } }
-  const entries = new Map(); for (const [rel, r] of rels) if (!r.refuted && r.agreed >= EXPOSURE_FLOOR) entries.set(rel, { standing: "candidate", evidence: r });
-  arms.globalKind = { kinds: [{ kindKey: "kind:global", members: [...recs.keys()] }], kindsOf: (id) => one.get(id), register: new Map([["kind:global", entries]]), relations: new Map([["kind:global", Object.fromEntries([...rels].map(([k, r]) => [k, { standing: r.refuted ? "refuted" : r.agreed >= EXPOSURE_FLOOR ? "candidate" : "unexposed", ...r }]))]]), diagnostics: {} };
-}
+// CONTROL: no kind induction — every record one declared kind, so a relation
+// one-valued for people but many-valued for places is judged across both
+arms.globalKind = induceKindsAndFunctions([...recs.keys()], { assertionsOf, sameValue, witnessed, exposureFloor: EXPOSURE_FLOOR, declaredKinds: [{ kindKey: "kind:global", memberRefs: [...recs.keys()] }] });
 const out = { fixture: FIX.split("/").pop(), entities: Object.keys(g.entities).length, records: recs.size, exposureFloor: EXPOSURE_FLOOR, arms: {} };
 for (const [name, ind] of Object.entries(arms)) {
   // kinds against the held-out oracle
@@ -65,11 +60,10 @@ for (const [name, ind] of Object.entries(arms)) {
     const label = top ? (g.entities[top]?.label.en ?? top) : null;
     return { kind: k.kindKey, size: k.members.length, topOracleClass: label ?? top, purity: +(n / k.members.length).toFixed(2), signatures: (k.signatures ?? []).slice(0, 6) };
   });
-  // one-valued relations against the held-out constraint oracle
-  const cand = new Map(), refd = new Map();
-  for (const [kk, table] of ind.relations) for (const [rel, r] of Object.entries(table)) { if (r.standing === "candidate") cand.set(rel, (cand.get(rel) ?? 0) + 1); if (r.standing === "refuted") refd.set(rel, (refd.get(rel) ?? 0) + 1); }
-  const withOracle = (m) => [...m.keys()].filter((p) => g.constraints[p]);
-  const cp = withOracle(cand), rp = withOracle(refd);
+  // standings against the held-out constraint oracle
+  const byStanding = {};
+  for (const [, table] of ind.relations) for (const [rel, r] of Object.entries(table)) { (byStanding[r.standing] ??= new Set()).add(rel); }
+  const standings = Object.fromEntries(Object.entries(byStanding).map(([st, set]) => { const ps = [...set].filter((p) => g.constraints[p]); return [st, { relations: ps.length, oracleSingleValued: ps.filter(oracleSingle).length, sample: ps.slice(0, 14).map((p) => `${p} ${g.constraints[p].label}${oracleSingle(p) ? " ✓" : ""}`) }]; }));
   // exclusion on the induced register
   const judge = makeIdentityExclusion({ kindsOf: ind.kindsOf, assertionsOf, functional: ind.register, sameValue, witnessed }).judge;
   const qs = Object.keys(g.entities);
@@ -78,8 +72,7 @@ for (const [name, ind] of Object.entries(arms)) {
   const neg = []; for (let i = 0; i < qs.length; i += 1) for (let j = i + 1; j < qs.length; j += 1) if (sameKind(`${qs[i]}/1`, `${qs[j]}/1`)) neg.push([`${qs[i]}/1`, `${qs[j]}/1`]);
   out.arms[name] = {
     kinds, kindsFound: kinds.length, recordsWithKind: [...recs.keys()].filter((id) => ind.kindsOf(id).size).length,
-    functionalCandidates: { relations: cp.length, oracleSingleValued: cp.filter(oracleSingle).length, precision: cp.length ? +(cp.filter(oracleSingle).length / cp.length).toFixed(2) : null, list: cp.map((p) => `${p} ${g.constraints[p].label}${oracleSingle(p) ? " ✓" : " ✗"}`) },
-    refuted: { relations: rp.length, oracleSingleValued: rp.filter(oracleSingle).length, list: rp.filter(oracleSingle).map((p) => `${p} ${g.constraints[p].label}`) },
+    standings,
     samePerson: tally(qs.map((q) => [`${q}/1`, `${q}/2`])),
     differentSameKind: { pairs: neg.length, ...tally(neg) },
   };

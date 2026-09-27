@@ -8,6 +8,9 @@
 import { writeFileSync } from "node:fs";
 const [OUT, MAX = "220", ...SEEDS] = process.argv.slice(2);
 const PAUSE_MS = 1500, UA = "eoreader7-identity-eval/0.1 (research crawl, one request per 1.5s)";
+// kind links are held out; Wikimedia-internal links (focus lists, categories,
+// templates, maintenance) lead into the project's own bookkeeping, not the world
+const NO_FOLLOW = new Set(["P31", "P279", "P5008", "P910", "P1151", "P1424", "P7084", "P6104", "P8989", "P1343", "P361", "P5125"]);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 async function entity(id) {
   for (let i = 0; i < 4; i += 1) {
@@ -29,10 +32,15 @@ while (queue.length && Object.keys(entities).length < Number(MAX)) {
   const claims = {};
   for (const [p, cs] of Object.entries(e.claims ?? {})) for (const c of cs) {
     if (c.rank === "deprecated") continue; const v = value(c.mainsnak); if (!v) continue;
-    (claims[p] ??= []).push({ ...v, refs: (c.references ?? []).length }); props.add(p);
+    // the TIME a value holds — start / end / point-in-time qualifiers — so a
+    // parameter that changes (spouse, residence, office) can be told from one
+    // that contradicts itself
+    const q = (k) => value(c.qualifiers?.[k]?.[0]);
+    const when = { from: q("P580")?.time ?? null, to: q("P582")?.time ?? null, at: q("P585")?.time ?? null };
+    (claims[p] ??= []).push({ ...v, refs: (c.references ?? []).length, ...(when.from || when.to || when.at ? { when } : {}) }); props.add(p);
   }
   entities[id] = { label: { en: e.labels?.en?.value ?? null, ru: e.labels?.ru?.value ?? null }, claims };
-  if (depth < 2) for (const [p, vs] of Object.entries(claims)) if (p !== "P31" && p !== "P279") for (const v of vs) if (v.item && !seen.has(v.item)) queue.push([v.item, depth + 1]);
+  if (depth < 2) for (const [p, vs] of Object.entries(claims)) if (!NO_FOLLOW.has(p)) for (const v of vs) if (v.item && !seen.has(v.item)) queue.push([v.item, depth + 1]);
   console.error(`${Object.keys(entities).length} d${depth} ${id} ${entities[id].label.en ?? entities[id].label.ru}`);
 }
 const constraints = {}; let i = 0;

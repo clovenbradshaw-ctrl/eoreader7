@@ -41,12 +41,71 @@ test("kinds are induced from what referents do, and the two populations separate
   assert.ok(kx && ky && kx !== ky);
 });
 
-test("one-valuedness is per kind: b is a candidate for X and refuted for Y", () => {
+test("one-valuedness is per kind: b is fixed for X and not for Y", () => {
   const res = run(world());
-  assert.equal(standingOf(res, "X0", "b"), "candidate");
-  assert.equal(standingOf(res, "Y0", "b"), "refuted");
-  assert.equal(standingOf(res, "X0", "c"), "refuted");
-  assert.equal(standingOf(res, "Y0", "k"), "candidate");
+  assert.equal(standingOf(res, "X0", "b"), "fixed");
+  assert.equal(standingOf(res, "Y0", "k"), "fixed");
+  // disagreements with no time attached cannot tell change from contradiction
+  assert.equal(standingOf(res, "Y0", "b"), "time-unknown");
+  assert.equal(standingOf(res, "X0", "c"), "time-unknown");
+  const ky = [...res.kindsOf("Y0")][0];
+  assert.ok(!res.register.get(ky).has("b"), "an undecided relation licenses nothing");
+});
+
+// A kind whose members hold "s" one at a time (successive intervals) and "m"
+// several at once (overlapping intervals), and "f" fixed.
+function timedWorld() {
+  const recs = new Map();
+  for (let i = 0; i < 24; i += 1) recs.set(`P${i}`, [
+    { rel: "s", value: `s${i}a`, interval: { lo: 0, hi: 9 }, refs: 1 }, { rel: "s", value: `s${i}b`, interval: { lo: 10, hi: 20 }, refs: 1 },
+    { rel: "m", value: `m${i}a`, interval: { lo: 0, hi: 20 }, refs: 1 }, { rel: "m", value: `m${i}b`, interval: { lo: 5, hi: 15 }, refs: 1 },
+    { rel: "f", value: `f${i}`, refs: 1 }, { rel: "f", value: `f${i}`, refs: 1 },
+  ]);
+  for (let i = 0; i < 24; i += 1) recs.set(`Q${i}`, [{ rel: "q", value: `q${i}`, refs: 1 }, { rel: "q", value: `q${i}`, refs: 1 }, { rel: "z", value: `z${i}`, refs: 1 }]);
+  for (const [id, as] of recs) as.forEach((a, j) => { a.id = `${id}#${j}`; });
+  return recs;
+}
+
+test("time separates change from contradiction: one-at-a-time vs many-valued vs fixed", () => {
+  const res = run(timedWorld());
+  assert.equal(standingOf(res, "P0", "s"), "one-at-a-time");
+  assert.equal(standingOf(res, "P0", "m"), "many-valued");
+  assert.equal(standingOf(res, "P0", "f"), "fixed");
+});
+
+test("a one-at-a-time parameter excludes only at a cursor where both values hold", () => {
+  const recs = timedWorld();
+  const res = run(recs);
+  // two records of P0 split by time: early holds s0a, late holds s0b — change, not two people
+  recs.set("early", [{ rel: "s", value: "s0a", interval: { lo: 0, hi: 9 }, refs: 1, id: "e#0" }, { rel: "f", value: "f0", refs: 1, id: "e#1" }, { rel: "m", value: "m0a", refs: 1, id: "e#2" }]);
+  recs.set("late", [{ rel: "s", value: "s0b", interval: { lo: 10, hi: 20 }, refs: 1, id: "l#0" }, { rel: "f", value: "f0", refs: 1, id: "l#1" }, { rel: "m", value: "m0b", refs: 1, id: "l#2" }]);
+  recs.set("rival", [{ rel: "s", value: "zz", interval: { lo: 0, hi: 20 }, refs: 1, id: "r#0" }, { rel: "f", value: "f0", refs: 1, id: "r#1" }]);
+  const k = [...res.kindsOf("P0")][0];
+  const ex = makeIdentityExclusion({ kindsOf: (id) => res.kindsOf(id).size ? res.kindsOf(id) : new Set([k]), assertionsOf: (id) => recs.get(id), functional: res.register, sameValue: (u, v) => u === v, witnessed: (a) => a.refs > 0 });
+  assert.equal(ex.judge("early", "late").verdict, "not_excluded", "disjoint times are change");
+  assert.equal(ex.judge("early", "rival", { at: 5 }).verdict, "excluded", "both hold at t=5 and disagree");
+  assert.equal(ex.judge("late", "rival", { at: 25 }).verdict, "not_excluded", "neither value holds at t=25");
+});
+
+test("the reading cursor: an assertion not yet read is not yet believed", () => {
+  const recs = world();
+  const res = run(recs);
+  recs.set("X0late", [{ rel: "b", value: "other", refs: 1, seq: 50, id: "xl#0" }, { rel: "x", value: "x0", refs: 1, seq: 1, id: "xl#1" }]);
+  const k = [...res.kindsOf("X0")][0];
+  const ex = makeIdentityExclusion({ kindsOf: (id) => res.kindsOf(id).size ? res.kindsOf(id) : new Set([k]), assertionsOf: (id) => recs.get(id), functional: res.register, sameValue: (u, v) => u === v, witnessed: (a) => a.refs > 0 });
+  assert.equal(ex.judge("X0", "X0late", { asOf: 10 }).verdict, "not_excluded");
+  assert.equal(ex.judge("X0", "X0late", { asOf: 60 }).verdict, "excluded");
+});
+
+test("the for-whom decides which relations are asked about", () => {
+  const recs = world();
+  const res = run(recs);
+  const ex = makeIdentityExclusion({ kindsOf: res.kindsOf, assertionsOf: (id) => recs.get(id), functional: res.register, sameValue: (u, v) => u === v, witnessed: (a) => a.refs > 0 });
+  assert.equal(ex.judge("X0", "X1").verdict, "excluded");
+  // X's only tested one-valued relation is b: a for-whom that does not ask
+  // about b has nothing checkable — a gap, never "not excluded"
+  const r = ex.judge("X0", "X1", { relevant: (rel) => rel !== "b" });
+  assert.equal(r.verdict, "gap"); assert.equal(r.reason, "no_functional_relation_declared");
 });
 
 test("a relation never asserted twice was never tested: unexposed, licenses nothing", () => {
