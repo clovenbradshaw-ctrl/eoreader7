@@ -25,6 +25,12 @@
 //
 // The verdict is hl.js's own table (verdictOfSupport) — one lattice, never a
 // second one here. beyond-reach absorbs only when neither side could ask.
+// FOR WHOM (amended 2026-09-27): a verdict is always someone's. A caller may
+// hand the for-whom (kernel/for-whom.js createForWhom) it judged for; the
+// verdict then carries its id, giver, question and priors, so the same pair
+// can be re-read under another judge and a flip is attributable to the judge.
+// No for-whom is reported as exactly that — never as a view from nowhere.
+//
 // A bound (or contested) pair is handed back as an identity.js alternative
 // with its support and attack references: a revisable hypothesis, conceded
 // when further reading moves either side — never a settled fact.
@@ -32,7 +38,7 @@
 import { BOUND, CONTRADICTED, CONTESTED, BEYOND_REACH, verdictOfSupport } from "../interpretation/hl.js";
 import { identityAlternative } from "./identity.js";
 
-export function identityVerdict(induction, exclusion, { giver = null } = {}) {
+export function identityVerdict(induction, exclusion, { giver = null, forWhom = null } = {}) {
   if (!induction || !exclusion) throw new TypeError("identity-verdict: both the induction and the exclusion readings are required");
   if (induction.a !== exclusion.a || induction.b !== exclusion.b) throw new TypeError("identity-verdict: the two readings are about different pairs");
   const forS = induction.verdict === BOUND || induction.verdict === CONTESTED;
@@ -46,5 +52,5 @@ export function identityVerdict(induction, exclusion, { giver = null } = {}) {
   const hypothesis = verdict === BOUND || verdict === CONTESTED
     ? identityAlternative({ left: String(induction.a), right: String(induction.b), standing: verdict === BOUND ? "live_hypothesis" : "contested_hypothesis", supportRefs, attackRefs, giver })
     : null;
-  return Object.freeze({ a: induction.a, b: induction.b, verdict, for: forS, against: againstS, induction: { verdict: induction.verdict, reason: induction.reason ?? null }, exclusion: { verdict: exclusion.verdict, reason: exclusion.reason ?? null, raised: (exclusion.raised ?? []).length }, raised, hypothesis });
+  return Object.freeze({ a: induction.a, b: induction.b, verdict, for: forS, against: againstS, induction: { verdict: induction.verdict, reason: induction.reason ?? null }, exclusion: { verdict: exclusion.verdict, reason: exclusion.reason ?? null, raised: (exclusion.raised ?? []).length }, raised, hypothesis, judgedFor: forWhom ? Object.freeze({ id: forWhom.id, giver: forWhom.giver, question: forWhom.question, priors: forWhom.priors }) : Object.freeze({ id: null, detail: "no for-whom declared" }) });
 }
