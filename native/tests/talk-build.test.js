@@ -237,6 +237,27 @@ test("the request's own constraint on content is read as its topic", () => {
   assert.equal(specOf("make a site with three posts", { parse, sentences }).topic, null);
 });
 
+test("the mouth is one source however often it is asked; what it says a part shows is on the record", async () => {
+  const { makeNotes } = await import("../kernel/notes.js");
+  const N = makeNotes();
+  // the same claim heard from two asks of one model: under the old grammar
+  // (talk:<n>) each ask read as its own source — corroborated; under
+  // talk:<model>#ask<n> it is one source
+  const twice = (w1, w2) => { let n = N.createNotes({ frame: {} }); n = N.hear(n, { end1: "post#1", label: "vote count", end2: "12", witness: w1 }); n = N.hear(n, { end1: "post#1", label: "vote count", end2: "12", witness: w2 }); return N.foldWithStanding(n)[0].standing; };
+  assert.notEqual(twice("talk:1", "talk:2"), "single-witness", "the old grammar counted two asks as two sources");
+  assert.equal(twice("talk:qwen2.5-coder:1.5b#ask1", "talk:qwen2.5-coder:1.5b#ask2"), "single-witness", "one model agreeing with itself is one source");
+  // and the build uses that grammar
+  let k = 0;
+  const out = await makeTalkBuild({ ask: async () => (k++ ? "" : "Pod Chat"), parse, sentences, render: renderBelief, maxAsks: 2, mouth: "qwen2.5-coder:1.5b" }).build({ what: "make a site with three posts with a title", forWhom: "fans" });
+  const said = N.fold(out.notes).flatMap((x) => x.witnesses).filter((w) => w.startsWith("talk:"));
+  assert.ok(said.length && said.every((w) => w.startsWith("talk:qwen2.5-coder:1.5b#ask")), said.join(","));
+  // a thin request: the mouth's "shows" answer lands in the ledger
+  const ask2 = async (p) => (p.toLowerCase().includes("what does each") ? "Each post shows its name, its upvotes." : "");
+  const out2 = await makeTalkBuild({ ask: ask2, parse, sentences, render: renderBelief, maxAsks: 3, mouth: "m" }).build({ what: "make a reddit but only for dolphin content", more: ["two communities, r/a and r/b, with two posts each"] });
+  const shows = N.fold(out2.notes).find((n) => n.end1 === "kind:post" && n.label === "shows" && n.end2 === "upvotes");
+  assert.ok(shows && shows.witnesses[0].startsWith("talk:m#ask"), "the mouth's answer about what a post shows is heard");
+});
+
 test("the talk path contains no regular expression", () => {
   for (const f of ["organs/talk-reader.js", "organs/talk-build.js", "adapters/build/belief-page.js", "eval/build-battery/run-talk.mjs"]) {
     const found = scanRegexes(fs.readFileSync(path.join(NATIVE, f), "utf8"));

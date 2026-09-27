@@ -47,11 +47,11 @@ function controlHtml(t, byId) {
 
 // a value the engine computed from the parts is marked as computed, never
 // passed off as something said
-const propHtml = (p) => el("dt", esc(p.label)) + (p.derived ? el("dd", el("i", esc(p.value), 'title="computed from the parts on this page"'), 'class="derived"') : el("dd", esc(p.value)));
+const propHtml = (p) => el("dt", esc(p.label)) + (p.derived ? el("dd", el("i", esc(p.value), 'title="computed from the parts on this page"'), 'class="derived"') : p.superseded ? el("dd", el("s", esc(p.value), 'title="said, and corrected by the parts on this page"')) : el("dd", esc(p.value)));
 
 /** The HTML elements this renderer emits — what a snipped stylesheet must
  *  reach (organs/part-source.js measures coverage against this list). */
-export const RENDERED_ELEMENTS = Object.freeze(["header", "main", "section", "article", "h1", "h2", "h3", "p", "span", "dl", "dt", "dd", "i", "form", "label", "input", "button", "nav", "a"]);
+export const RENDERED_ELEMENTS = Object.freeze(["header", "main", "section", "article", "h1", "h2", "h3", "p", "span", "dl", "dt", "dd", "i", "s", "form", "label", "input", "button", "nav", "a"]);
 
 function thingHtml(t, byId, depth) {
   if (CONTROL_KINDS[t.kind]) return controlHtml(t, byId);

@@ -56,6 +56,10 @@ test("controls: the clause's noun, reversed kinds, no agent", () => {
   const f2 = read("Users share links such as posts and pictures, which are then rated by other members.");
   assert.deepEqual(kindsAbove(f2, "link"), ["link"], "reversed: a link is not a kind of post here");
   assert.deepEqual(kindsAbove(f2, "post"), ["post", "link"]);
+  const f4 = read("Users submit content such as links and text posts, which are never voted on by other members.");
+  assert.deepEqual(detailsFor(f4, "post"), [], "'never voted on' says it is not done");
+  const f5 = read("Posts are not rated by other members.");
+  assert.deepEqual(detailsFor(f5, "post"), [], "a denied passive derives nothing");
   const f3 = read("Posts are archived after a year.");
   assert.deepEqual(detailsFor(f3, "post"), [], "done to it by no one named: nothing is counted");
 });

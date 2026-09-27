@@ -34,6 +34,8 @@
 // detail. No regular expressions.
 
 export const KIND_READ_SCHEMA = "KindRead@1";
+// words that turn a clause into its denial
+const NEGATION = new Set(["not", "never", "no", "n't", "cannot"]);
 
 const lower = (t) => String(t?.form ?? "").toLowerCase();
 const lemma = (t) => String(t?.lemma ?? t?.form ?? "").toLowerCase();
@@ -92,8 +94,9 @@ export function readKinds(text, { parse, sentences }) {
         for (const it of items) if (it !== x) say({ rel: "kind-of", a: it, b: x });
         // ", which are then voted up or down by other members"
         if (lower(toks[j]) === "," && (lower(toks[j + 1]) === "which" || lower(toks[j + 1]) === "that")) {
-          let k = j + 2, verb = null;
-          while (k < toks.length && !isBoundary(toks[k])) { if (toks[k].upos === "VERB") { verb = toks[k]; break; } k++; }
+          let k = j + 2, verb = null, negated = false;
+          while (k < toks.length && !isBoundary(toks[k])) { if (NEGATION.has(lower(toks[k]))) negated = true; if (toks[k].upos === "VERB") { verb = toks[k]; break; } k++; }
+          if (negated) verb = null;   // "which are never voted on" says it is NOT done
           const byAt = verb ? toks.findIndex((t, m) => m > k && lower(t) === "by") : -1;
           const agentRun = byAt > 0 ? nounRunAt(toks, byAt + 1 + (toks[byAt + 1]?.upos === "DET" ? 1 : 0) + (toks[byAt + 1]?.upos === "ADJ" ? 1 : 0)) : null;
           // the clause is about the list's kind (the content); its items get
@@ -110,6 +113,8 @@ export function readKinds(text, { parse, sentences }) {
         const p = nounBefore(toks, w === "be" ? toks.findLastIndex((t, m) => m < i && (t.upos === "AUX" || lower(t) === "need" || lower(t) === "to") && !(toks[m - 1] && (toks[m - 1].upos === "AUX" || lower(toks[m - 1]) === "need" || lower(toks[m - 1]) === "to"))) : i);
         if (!p) continue;
         const verb = toks[i + 1];
+        // "posts are not voted on by members" says it is not done
+        if (toks.slice(Math.max(0, i - 3), i + 1).some((t) => NEGATION.has(lower(t)))) continue;
         let k = i + 2, agent = null, many = false;
         while (k < toks.length && !isBoundary(toks[k])) {
           const v = lower(toks[k]);

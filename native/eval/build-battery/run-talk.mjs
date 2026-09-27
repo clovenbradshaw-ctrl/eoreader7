@@ -52,7 +52,7 @@ for (const file of arg("battery", "ladder.json").split(",")) {
   for (const q of battery.requests.filter((r) => (r.kind === "page" || r.kind === "any") && (!only.size || only.has(r.id)))) {
     const t0 = Date.now();
     const events = [];
-    const tb = makeTalkBuild({ ask, parse, sentences, render, verify, frame: arg("frame", "task"), lookup: arg("sources", "on") === "off" ? null : lookup, log: (e) => events.push({ ms: Date.now() - t0, ...e }) });
+    const tb = makeTalkBuild({ ask, parse, sentences, render, verify, mouth: model, frame: arg("frame", "task"), lookup: arg("sources", "on") === "off" ? null : lookup, log: (e) => events.push({ ms: Date.now() - t0, ...e }) });
     let out, error = null;
     try { out = await tb.build({ what: q.prompt, forWhom: q.answers?.anchor ?? null }); } catch (err) { error = String(err?.stack ?? err).slice(0, 1500); out = { artifact: "", asks: 0, belief: [] }; }
     const seen = out.artifact ? inspect(out.artifact) : { kind: "none", why: error ?? "nothing built" };

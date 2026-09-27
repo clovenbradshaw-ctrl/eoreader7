@@ -120,6 +120,35 @@ test("wired, recursive: a repeat is retracted, its gap reopens, the mouth is ask
   assert.equal(out.artifact.split("Great sighting!").length, 2, "the repeat is not on the page");
 });
 
+test("near-duplicates are repeats: case, punctuation and spacing do not make two parts", () => {
+  const belief = [
+    thing("post#1", "post", "A", {}, ["comment#1", "comment#2", "comment#3"]),
+    thing("comment#1", "comment", null, { says: "Orca Watch." }, [], "post#1"),
+    thing("comment#2", "comment", null, { says: "orca  watch" }, [], "post#1"),
+    thing("comment#3", "comment", null, { says: "Orca-watch party!" }, [], "post#1"),
+  ];
+  assert.deepEqual(reason({ fold: [], belief, spec }).retract.map((x) => x.thing), ["comment#2"]);
+});
+
+test("a correction is a conclusion: derived beside what was said, with its premises, and withdrawn when they change", async () => {
+  const { makeNotes } = await import("../kernel/notes.js");
+  const N = makeNotes();
+  const belief = [
+    thing("post#1", "post", "A", { "comment count": 1 }, ["comment#1", "comment#2"]),
+    thing("comment#1", "comment", null, { says: "Lovely" }, [], "post#1"),
+    thing("comment#2", "comment", null, { says: "Wow" }, [], "post#1"),
+  ];
+  belief[0].props[0].note = "post#1|comment count|1";
+  const r = reason({ fold: [], belief, spec });
+  const c = r.derive.find((d) => d.rule === "correct");
+  assert.deepEqual([c.end1, c.label, c.end2], ["post#1", "comment count", "2"]);
+  assert.ok(c.premises.includes("post#1|comment count|1") && c.premises.includes("comment#1") && c.premises.includes("comment#2"), "the correction names what it rests on");
+  // one comment gone: the parts no longer contradict the heard count — no correction
+  const fewer = [thing("post#1", "post", "A", { "comment count": 1 }, ["comment#1"]), belief[1]];
+  assert.equal(reason({ fold: [], belief: fewer, spec }).derive.some((d) => d.rule === "correct"), false);
+  void N;
+});
+
 test("talk-reason contains no regular expression", () => {
   const found = scanRegexes(fs.readFileSync(path.join(NATIVE, "organs", "talk-reason.js"), "utf8"));
   assert.equal(found.length, 0, JSON.stringify(found).slice(0, 200));

@@ -6401,7 +6401,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         const style = await talkStyle();
         if (onNote) onNote({ move: "talk_style", snipped: !!style, from: style ? `${style.provenance.package}@${style.provenance.version}${style.provenance.path}` : null, license: style?.provenance.license ?? null });
         const tb = makeTalkBuild({
-          ask: talkAsk, parse, sentences: englishSentences, render: (belief, o) => renderBelief(belief, { ...o, style }), lookup: talkLookup,
+          ask: talkAsk, parse, sentences: englishSentences, render: (belief, o) => renderBelief(belief, { ...o, style }), lookup: talkLookup, mouth: model,
           log: (e) => {
             if (!onNote) return;
             if (e.kind === "turn") onNote({ move: "talk_turn", gap: e.gap, reply: String(e.reply ?? "").slice(0, 240), claims: e.claims, ops: (e.ops ?? []).map((o) => o.operator) });

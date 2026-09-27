@@ -200,8 +200,11 @@ export function beliefOf(notesFold, things) {
     if (!a || n.label === "exists") continue;
     if (n.label === "has" && byId.has(n.end2)) { const b = byId.get(n.end2); if (!b.parent && b !== a) { b.parent = a.id; a.children.push(b.id); } continue; }
     if (n.label === "named") { a.name = n.end2; continue; }
-    a.props.push({ label: n.label, value: n.end2, ...(isDerived(n) ? { derived: true } : {}) });
+    a.props.push({ label: n.label, value: n.end2, note: n.id, witnesses: n.witnesses ?? [], ...(isDerived(n) ? { derived: true } : {}) });
   }
+  // a heard value the record corrects stays on the page as what was said,
+  // beside the value the record supports (never silently replaced)
+  for (const t of byId.values()) for (const q of t.props) if (!q.derived && t.props.some((d) => d.derived && d.label === q.label && d.value !== q.value)) q.superseded = true;
   for (const t of byId.values()) {
     const owner = t.parent ? byId.get(t.parent) : null;
     if (!owner || t.name || t.children.length || t.props.length !== 1 || t.props[0].label !== "is") continue;
@@ -304,7 +307,7 @@ export function completeness(spec, belief) {
 }
 
 /** makeTalkBuild({ ask, parse, sentences, render, verify, log }) */
-export function makeTalkBuild({ ask, parse, sentences, render, verify = async () => ({ ok: true, checks: [] }), log = () => {}, maxAsks = MAX_ASKS, frame = "task", lookup = null }) {
+export function makeTalkBuild({ ask, parse, sentences, render, verify = async () => ({ ok: true, checks: [] }), log = () => {}, maxAsks = MAX_ASKS, frame = "task", lookup = null, mouth = "mouth" }) {
   async function build(request) {
     const what = request.what;
     // the person's answers to the build's questions ("three communities, with
@@ -341,7 +344,10 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       let reply = String(await ask(prompt, { stage: gap, attempt: tried.get(gap) ?? 0 }) ?? "").trim();
       // a small model often says the anchor again before going on: drop the echo
       while (reply.toLowerCase().startsWith(anchor.toLowerCase())) reply = reply.slice(anchor.length).trim();
-      const witness = `talk:${asks}`;
+      // the mouth is ONE source however many times it is asked: its asks are
+      // addresses within it (talk:<model>#ask<n>), so a model agreeing with
+      // itself is never read as corroboration
+      const witness = `talk:${mouth}#ask${asks}`;
       let claims = [];
       let focusId = null;
       if (slot?.list) {
@@ -514,6 +520,7 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         if (text) facts = readKinds(text, { parse, sentences }).facts;
         log({ kind: "source", term, found: !!text, facts: facts.map((f) => `${f.a} ${f.rel} ${f.b}${f.agent ? ` (by ${f.agent})` : ""}`) });
       }
+      let showsOps = [];
       for (const c of spec.counted.filter((x) => depth(x) <= 1)) {
         const found = facts.length ? detailsFor(facts, c.kind).filter((d) => !["title", "name"].includes(d.detail)).slice(0, 3) : [];
         if (found.length) {
@@ -537,7 +544,11 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
         if (at >= 0 && at < 4) reply = words.slice(at + 1).join(" ");
         const shown = itemsOf(reply).filter((x) => x.split(" ").length <= 3 && !["title", "name"].includes(x)).slice(0, 3);
         c.details.push(...shown);
-        log({ kind: "turn", gap: `shows:${c.kind}`, prompt, reply, claims: shown.map((x) => `${c.kind} shows ${x}`), ops: [], ms: 0 });
+        // what the mouth says a part shows is on the record like anything it says
+        const before = notes.entries.length;
+        for (const d of shown) notes = N.hear(notes, { end1: `kind:${c.kind}`, label: "shows", end2: d, witness: `talk:${mouth}#ask${asks}`, because: `${anchor} ${reply}`.slice(0, 240) });
+        showsOps = notes.entries.slice(before).map((e) => e.operator);
+        log({ kind: "turn", gap: `shows:${c.kind}`, prompt, reply, claims: shown.map((x) => `${c.kind} shows ${x}`), ops: showsOps.map((operator) => ({ operator })), ms: 0 });
       }
     }
     await turn("opening", framed(`What is ${spec.whole ?? "the site"}${request.forWhom ? ` for ${request.forWhom}` : ""} called?`), "It is called", { subject: siteId, label: "named" });
@@ -559,26 +570,16 @@ export function makeTalkBuild({ ask, parse, sentences, render, verify = async ()
       // a conclusion no longer supported by its premises is withdrawn
       for (const n of fold.filter(isDerived)) {
         if (want.has(`${n.end1}|${n.label}|${n.end2}`)) continue;
-        // a correction stands on the record's own parts, not on a premise
-        // this pass re-derives; it is withdrawn only when those parts go
-        if (n.witnesses.includes("derived:correct")) continue;
         const done = N.concede(notes, n.id, { trigger: "its premises changed" });
         if (!done.refused) { notes = done.log; acts.withdrawn++; }
       }
       const have = new Set(N.fold(notes).map((n) => `${n.end1}|${n.label}|${n.end2}`));
       for (const [key, d] of want) {
         if (have.has(key)) continue;
-        notes = N.hear(notes, { end1: d.end1, label: d.label, end2: d.end2, witness: `derived:${d.rule}`, because: d.because });
+        notes = N.hear(notes, { end1: d.end1, label: d.label, end2: d.end2, witness: `derived:${d.rule}`, because: `${d.because} [premises: ${(d.premises ?? []).join(", ")}]` });
         acts.derived++;
       }
-      for (const c of r.correct) {
-        const heard = at(c.end1, c.label, c.from);
-        if (!heard || isDerived(heard)) continue;
-        const done = N.concede(notes, heard.id, { trigger: c.trigger });
-        if (done.refused) continue;
-        notes = N.hear(done.log, { end1: c.end1, label: c.label, end2: c.to, witness: "derived:correct", because: c.trigger });
-        acts.corrected++;
-      }
+      acts.corrected = r.correct.length;
       for (const d of r.drop ?? []) {
         const heard = at(d.end1, d.label, d.end2);
         if (!heard || isDerived(heard)) continue;
