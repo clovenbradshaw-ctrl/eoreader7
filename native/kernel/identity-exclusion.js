@@ -62,7 +62,11 @@ const need = (o, keys) => { for (const k of keys) if (typeof o[k] !== "function"
 export function makeIdentityExclusion(organs = {}) {
   need(organs, ["kindsOf", "assertionsOf", "functional", "sameValue"]);
   const { kindsOf, assertionsOf, functional, sameValue, disjointKinds = new Map(), witnessed = null } = organs;
-  for (const [kind, rels] of functional) for (const [rel, d] of rels) if (!d?.giver) throw new TypeError(`identity-exclusion: functional(${kind}, ${rel}) has no giver — a single-valued relation is received, never assumed`);
+  // An entry is either GIVEN (a named giver) or an induced CANDIDATE carrying
+  // its evidence (kernel/kind-functional-induction.js). Nothing else: a
+  // single-valued relation is never simply assumed.
+  for (const [kind, rels] of functional) for (const [rel, d] of rels) if (!d?.giver && !(d?.standing === "candidate" && d?.evidence)) throw new TypeError(`identity-exclusion: functional(${kind}, ${rel}) has no giver and no candidate evidence — a single-valued relation is received or induced, never assumed`);
+  const standingOf = (proof) => (proof.every((p) => p.giver) ? "given" : "candidate");
 
   function judge(a, b) {
     const order = [];
@@ -95,12 +99,12 @@ export function makeIdentityExclusion(organs = {}) {
       }
       if (agree) agreed.push({ rel, a: agree[0], b: agree[1] });
       else if (undecided) incomparable.push({ rel, a: undecided[0], b: undecided[1] });
-      else conflicts.push({ rel, giver: d.giver, kind: d.kind, a: lastFalse[0], b: lastFalse[1] });
+      else conflicts.push({ rel, giver: d.giver ?? null, standing: d.giver ? "given" : "candidate", evidence: d.evidence ?? null, kind: d.kind, a: lastFalse[0], b: lastFalse[1] });
     }
     order.push({ step: "functional", licensed: [...rels.keys()] }, { step: "values", agreed: agreed.map((x) => x.rel), conflicts: conflicts.map((x) => x.rel), incomparable: incomparable.map((x) => x.rel), unasserted });
     const standing = witnessed ? conflicts.filter((c) => witnessed(c.a) && witnessed(c.b)) : conflicts;
     const contested = conflicts.filter((c) => !standing.includes(c));
-    if (standing.length) return Object.freeze({ a, b, verdict: "excluded", by: "functional", proof: standing, contested, agreed, incomparable, order });
+    if (standing.length) return Object.freeze({ a, b, verdict: "excluded", by: "functional", standing: standingOf(standing), proof: standing, contested, agreed, incomparable, order });
     if (contested.length) return Object.freeze({ a, b, verdict: "contested", contested, agreed, incomparable, order });
     return Object.freeze({ a, b, verdict: "not_excluded", agreed, incomparable, order });
   }
