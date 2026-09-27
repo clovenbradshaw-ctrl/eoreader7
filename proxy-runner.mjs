@@ -1864,7 +1864,9 @@ export function detectAnswerShape(task, hasWorkspace, hasWeb, surfVoid, surfaced
   // A code ask ("write a Python CLI tool…") is a composition even without an
   // "about/on" object — the instrument register names the artifact directly.
   const isCodeAsk = reg.field.field === "instrument";
-  if ((produce && namesGenre && (aimsAt || isCodeAsk)) || multiPart)
+  // "I need a page where …", "a forum for people who …": asking for a thing
+  // to be made, with no making verb — the register already read it as one
+  if ((produce && namesGenre && (aimsAt || isCodeAsk)) || multiPart || (isCodeAsk && madePlatform(t)))
     return { shape: "composition", maxTokens: CALL_MAX_TOKENS, modality: "grounded", register: reg };
   // LONG — a response that goes further than chat provides: the task asks
   // for elaboration or depth, still one answer (no artifact, no ledger).

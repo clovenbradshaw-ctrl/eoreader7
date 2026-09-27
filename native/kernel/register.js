@@ -66,13 +66,27 @@ const LANG_BY_SIGNAL = [
 // and the platform is its object ("make a reddit", "build me a forum"),
 // read in words, no pattern.
 const MAKING = new Set(["make", "build", "create", "generate", "code", "design"]);
+// "I need a page where …", "we want a board for …" — asking for a thing to be made
+const WANTING = new Set(["need", "want", "like"]);
+/** Things a person asks to have made that are pages to use, not prose to
+ *  read — set by hand 2026-09-27 from the build battery's own misses
+ *  ("a sign-up page", "a lost and found board", "a tracker where I log …"). */
+export const BUILD_TARGET_NOUNS = Object.freeze(["page", "board", "tracker", "dashboard", "portal"]);
 export function madePlatform(task = "") {
   const words = String(task ?? "").toLowerCase().split(" ").map((w) => w.split("").filter((c) => c.toLowerCase() !== c.toUpperCase() || c === "-").join("")).filter(Boolean);
-  const start = words[0] === "please" ? 1 : words[0] === "lets" || words[0] === "let's" ? 1 : 0;
-  if (!MAKING.has(words[start])) return null;
+  let start = words[0] === "please" ? 1 : words[0] === "lets" || words[0] === "let's" ? 1 : 0;
+  if ((words[start] === "i" || words[start] === "we") && WANTING.has(words[start + 1])) start += 1;
+  const bare = words[start] === "a" || words[start] === "an";   // "a forum for people who restore old bicycles"
+  if (!MAKING.has(words[start]) && !WANTING.has(words[start]) && !bare) return null;
   // the object: the first few words after the verb ("a", "me a", "an", "a simple")
-  const object = words.slice(start + 1, start + 5).join(" ");
-  return WEB_PLATFORM_NOUNS.find((n) => (" " + object + " ").includes(" " + n + " ")) ?? null;
+  const window = words.slice(bare ? start : start + 1, start + 7);
+  const at = window.findIndex((w) => WEB_PLATFORM_NOUNS.includes(w) || BUILD_TARGET_NOUNS.includes(w));
+  if (at < 0) return null;
+  // "a page about the Romans" / "a page on photosynthesis" / "a page of notes" is prose
+  if (["about", "on", "of", "explaining", "describing"].includes(window[at + 1])) return null;
+  // a bare noun phrase must name a web platform itself, not just "a page"
+  if (bare && !WEB_PLATFORM_NOUNS.includes(window[at])) return null;
+  return window[at];
 }
 export function detectLanguage(task = "") {
   const t = String(task ?? "");
