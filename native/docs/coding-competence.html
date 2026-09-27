@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The coding-competence chase</title>
+<style>
+  :root { --paper:#0f1214; --ink:#e8e4da; --dim:#8b877d; --line:#23282c; --panel:#151a1e; --pass:#5db8a0; --fail:#e35d6a; --untried:#5f6b73; --gold:#e0a458; }
+  * { box-sizing: border-box; }
+  body { background:var(--paper); color:var(--ink); font: 14px/1.45 "Helvetica Neue", Arial, sans-serif; margin:0; padding:28px 16px 64px; }
+  header, main, footer { max-width:1200px; margin:0 auto; }
+  h1 { font-size:24px; letter-spacing:.03em; margin:0 0 6px; }
+  h2 { font-size:16px; font-weight:600; margin:0 0 4px; }
+  .lede { color:var(--dim); max-width:80ch; margin:0 0 14px; }
+  .stats { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 18px; }
+  .stat { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:10px 14px; min-width:120px; }
+  .stat .n { font-size:20px; font-family: ui-monospace, Menlo, monospace; }
+  .stat .l { color:var(--dim); font-size:11.5px; margin-top:2px; }
+  .layout { display:grid; grid-template-columns:270px 1fr; gap:16px; align-items:start; }
+  @media (max-width: 800px) { .layout { grid-template-columns:1fr; } }
+  .sidebar { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:8px; max-height:80vh; overflow:auto; }
+  .task-row { display:flex; justify-content:space-between; gap:8px; padding:8px 10px; border-radius:8px; cursor:pointer; font-size:13px; }
+  .task-row:hover { background:#1c2226; }
+  .task-row.active { background:#1f262b; outline:1px solid var(--line); }
+  .task-row .id { font-family: ui-monospace, Menlo, monospace; }
+  .badge { display:inline-block; padding:1px 7px; border-radius:10px; font-size:10.5px; white-space:nowrap; }
+  .badge.pass { background:color-mix(in srgb, var(--pass) 22%, transparent); color:var(--pass); }
+  .badge.fail { background:color-mix(in srgb, var(--fail) 22%, transparent); color:var(--fail); }
+  .badge.untried { background:color-mix(in srgb, var(--untried) 30%, transparent); color:#b7c0c6; }
+  .sec-label { color:var(--dim); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; padding:10px 10px 4px; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:16px; }
+  .spec { color:var(--dim); font-size:13px; margin:6px 0 16px; max-width:85ch; }
+  .draw { border:1px solid var(--line); border-radius:10px; margin:0 0 12px; overflow:hidden; }
+  .draw summary { cursor:pointer; padding:9px 12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12.5px; background:#12161a; }
+  .draw summary .config { font-family: ui-monospace, Menlo, monospace; color:var(--dim); }
+  .draw pre { margin:0; padding:12px 14px; background:#0c0f11; font-family: ui-monospace, Menlo, monospace; font-size:12px; overflow:auto; white-space:pre-wrap; word-break:break-word; }
+  .draw .no-source { padding:10px 14px; color:var(--dim); font-size:12.5px; font-style:italic; }
+  .empty { color:var(--dim); padding:20px; text-align:center; }
+  footer { color:var(--dim); font-size:12px; margin-top:24px; border-top:1px solid var(--line); padding-top:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>The coding-competence chase</h1>
+  <p class="lede">gemma2:2b, live against real held-out cases, one task at a time. Every row below is fetched straight from <code>state/lang-competency.jsonl</code> — nothing here is hand-typed or a snapshot; reload the page to see whatever the recurring chase has added since. Tasks are sorted with the currently unsolved, hardest-attempted ones first, since those show the real ceiling.</p>
+  <div class="stats" id="stats"></div>
+</header>
+<main>
+  <div class="layout">
+    <nav class="sidebar" id="sidebar"><div class="empty">loading ledger…</div></nav>
+    <section class="panel" id="detail"><div class="empty">select a task</div></section>
+  </div>
+</main>
+<footer>Source: <code>state/lang-competency.jsonl</code>, served live by the eoreader7-root static server. Escalation ladder: raw draw → free mechanical fixes (definesName-based rename) → bok (best-of-3) → honest disclosure. No row here was fabricated for this page — every generated-code block is a real Ollama completion, scored by the same <code>scoreDraw</code>/<code>heldOutPass</code> used everywhere else in this chase.</footer>
+<script src="coding-competence.js"></script>
+</body>
+</html>

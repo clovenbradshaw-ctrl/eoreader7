@@ -418,7 +418,10 @@ const unservable = new Map(); // model -> { at, reason }
 const UNSERVABLE_COOLDOWN_MS = Number(process.env.ER7_UNSERVABLE_COOLDOWN ?? 60 * 1000);
 export function markUnservable(model, reason) {
   if (!model) return;
-  unservable.set(model, { at: Date.now(), reason });
+  // Same key as markServable/isServable below: strip er7: here too, so a
+  // caller that ever passes the prefixed form doesn't leave a stuck entry
+  // neither of those can find (they both strip before touching this Map).
+  unservable.set(String(model).replace(/^er7:/, ""), { at: Date.now(), reason });
   appendLog({ act: "eva", finding: "unservable", model, reason, giver: "heimdall", standing: "disclosed" });
 }
 export function markServable(model) {
