@@ -57,7 +57,7 @@
 // further reading moves either universe.
 
 import { createSeededRng } from "./rng.js";
-import { dmd, economySVD, matmul, transpose } from "./dmd.js";
+import { economySVD, matmul, transpose } from "./dmd.js";
 
 const need = (opts, keys) => {
   for (const k of keys) if (opts[k] === undefined || opts[k] === null) throw new TypeError(`identity-induction: '${k}' must be declared`);
@@ -315,7 +315,9 @@ export function makeIdentityInduction(record, opts = {}) {
     return pairs;
   };
   const asMatrices = (pairs) => [transpose(pairs.map((p) => p[0])), transpose(pairs.map((p) => p[1]))];
-  const magnitudes = (pairs) => { if (pairs.length < 2) return []; const [X, Xp] = asMatrices(pairs); return dmd(X, Xp, { rank: "numerical" }).eigenvalues.map((e) => e.magnitude); };
+  // The rank-r least-squares operator Xp·X⁺ — exact DMD's own operator (the
+  // modes dmd.js reports are its eigendecomposition); it is fitted here in the
+  // full feature space so two nodes' operators act on the same states.
   const operatorOf = (pairs, r) => {
     const [X, Xp] = asMatrices(pairs);
     const { U, s, V } = economySVD(X, { rank: r });

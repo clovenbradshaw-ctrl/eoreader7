@@ -14,7 +14,7 @@ const { createSeededRng, shuffled } = await import(`${NATIVE}/kernel/rng.js`);
 const P = await import(`${NATIVE}/adapters/text/priors.js`);
 const [IN, OUT] = process.argv.slice(2);
 const CFG = JSON.parse(process.env.IDCFG ?? "{}");
-const OPTS = { draws: 200, alpha: 0.05, seed: 7, minOccurrences: 16, maxHop: 2, smooth: 0.5, resolution: 8, namesNode: (f) => (f.includes("2:") ? f.slice(f.indexOf("2:") + 2) : null), ...CFG.opts };
+const OPTS = { draws: 200, alpha: 0.05, seed: 7, minOccurrences: 16, maxHop: 2, smooth: 0.5, resolution: 8, minFeatureCount: 2, namesNode: (f) => (f.includes("2:") ? f.slice(f.indexOf("2:") + 2) : null), ...CFG.opts };
 const WORDS_PER_END = CFG.wordsPerEnd ?? 3;
 const HOP2_MAX_SHARE = CFG.hop2MaxShare ?? 0.002; // an end word joins hop 2 only if it is not a hub (declared)
 console.log("frame", JSON.stringify({ OPTS, WORDS_PER_END, HOP2_MAX_SHARE }));

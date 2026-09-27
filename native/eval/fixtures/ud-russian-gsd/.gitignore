@@ -1,0 +1,4 @@
+# The GSD TRAIN split is not vendored (6.7MB): it is needed only to rebuild
+# live_priors case-marking-rus.json / pos-prior-ru.json. Fetch it with:
+#   curl -sSL -o ru_gsd-ud-train.conllu https://raw.githubusercontent.com/UniversalDependencies/UD_Russian-GSD/master/ru_gsd-ud-train.conllu
+ru_gsd-ud-train.conllu
