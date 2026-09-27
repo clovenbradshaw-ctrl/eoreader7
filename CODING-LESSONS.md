@@ -2063,5 +2063,6 @@ the 120-ask cap at 199/213 (1.5b) and 207/213 (3b) of the whole spec. The
 
 **Open.** The rung checks are lenient (rung 5 asks for 18 of 36 posts), so
 the "posts shown" count and the whole-spec count are the sharper measures.
-The ask cap (120) is set by hand. Programs are not on this path yet; the bare
-model's program rungs fail from rung 2 or 3 onward (it builds a page instead).
+The ask cap (120) is set by hand. Programs are not on this path yet. On the
+program rungs the bare model builds a page instead of a program on rungs 3–5
+(1.5b) and on rungs 2, 4 and 5 (3b).
