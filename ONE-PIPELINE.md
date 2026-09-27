@@ -184,6 +184,22 @@ universe violations (a stray "Mrs. Johnson", "the lighthouse keeper's
 daughter is there to help her" said of someone else) are not an archon's
 yet.
 
+**2026-09-27, the omnimodal organs for the mouth's jobs (user: "find the
+omnimodal organs that do the work you wanted the model to do").** A census
+(read-only panel) found that no organ writes prose or bridges; the omnimodal
+organs measure and gate — except `kernel/continuation.js`, which writes.
+Wired: **music past its source** — bars beyond every licensed source are
+continued by a mixture of priors sedimented from the snipped bars, heard as
+derived claims premised on them (cfaa617); **outline lines that open alike
+beyond chance** are retracted and re-asked by Fisher's test
+(`the-fold/document-ledger.js` detectRepetition), not trusted to the mouth
+(c063789); **Gornick taught** with a model-free surprise curve
+(`continuation.js`'s reader, a within-part shuffle null, `fortune-prior.js`
+for the arc) and the checker's **bits per word** (surprise-segments.js)
+(255047a). Not wired: relation composition (lists chains; the kinship table
+would be hand-set), return-curve (synthetic tests only), shadow-echo /
+mnemonic (no practical job here).
+
 ## Falsification ledger
 
 | date | claim | control | result |
@@ -194,6 +210,7 @@ yet.
 | 2026-09-27 | long form: a working note from the ledger beats the bare model's own context (slice 1, OLD design, seed 1 only) | one frozen outline (22 scenes, ~2x the 4096 window), 1.5b: ledger note / lines-only ablation / bare window + cast header / bare + its own running summary; checker reads the text only | sentences repeated word for word: **window 91%** (264/290 — it loops on its own last page), summary 56%, ledger 16%, lines-only 5%. Ages/jobs stated right/wrong: ledger 18/3, lines-only 1/3, window 0/0, summary 3/0 — the ledger's count is inflated by the mouth reading its note aloud (5 lines). Mean prompt: ledger 144 tokens, window 2309. One seed: direction only, not a result; strays were miscounted before the fix (job words) |
 | 2026-09-27 | long form, slice 2 (universe declared; people -> bonds -> lines; archons as EVA -> REC), seed 1 | same 21-scene outline for all arms, 1.5b; checker reads text only | outline: jobs varied (actress, writer…; one "Boyhood friend of Gatsby" from the title asked first — title now asked last), bonds heard (brother, sisters, friend). Sentences repeated word for word: ledger 21%, **ledger edited 6%** (2,411 of 3,561 words kept), lines-only 40%, **window 95%**, summary 54%. Ages/jobs right/wrong: ledger 23/0, edited 14/0, others 0/0. Editing found and fixed its own faults on the way: folding what a thin record never says cut the book to 1,275 words (so in a stipulated universe Caro reports, and a restatement folds only if it says no new content word), and splice repairs left fragments (now a line set in must be a whole sentence). Bridges: 29 tried, all undone by the judge. One seed |
 | 2026-09-27 | iterating a book no ask ever sees whole (slice 2, edited book) | the person's three changes in plain words vs the bare model rewriting every part with all three stated | job change: 23 asks, 15 lines, **2 old values left**, 3 parts stale on the record (control: 4 left); rename: **0 asks, 0 old names left** (control: **43 left**); 71 lines untouched and byte-identical through all three (control changed 46). Ask cost comparable at this size (23 vs 21) — the pipeline's cost follows the lines a change reaches, the control's the book's length |
+| 2026-09-27 | long form past the window at scale (scale1, code b4efaee, before this session's later fixes) | ledger arm + archon edit; bare window control capped at 100 parts | 215 scenes, **48,543 words (~65k tokens: ~16x the 4096 window, ~2x the model's 32k maximum)**, sealed, every line accounted for, helix clean; prompt mean 165 tokens, max 366 — **bounded, not flat** (first 20 mean 150, last 20 mean 196). Failures, all recorded: the outline named its eight people by role ("Lighthouse Keeper's Daughter", "… Son" — the topic line on the naming ask; fixed 6977c6e); the window control died at part 65 (one ask over 600 s); the in-run edit used the old licenses (cut to 24,538 words); every revision was refused (readChange read one-word names only; fixed 4ccd130). Rerun on current code queued (scale2) |
 | 2026-09-27 | correction (Ostrom): "15 of 17 elements" in commit 0f1290a is wrong — the renderer emits 19; new.css reaches 15/19 (misses main, span, i, label) | recount against RENDERED_ELEMENTS | 15/19 |
 | 2026-09-27 | one pipeline: music runs through the same core as pages | the music commit touches no core file; its output is the source's own bars; a refused license leaves nothing; a note added around the map is caught | held (after two medium-general core changes, recorded) |
 | 2026-09-27 | the talk page beats the old path through the product (runProxyTurn), 1.5b | same code, ER7_TALK_PAGE=1 vs 0; bare model (raw); main battery (21) and held-out fresh (6, not tuned on) | main: wired 4/21, 54/110 · old 2/21, 29/106 · bare 4/21, 63/104. fresh: wired 1/6, 22/33 · old 0/6, 15/33 · bare 1/6, 27/33. **Split by the gate:** where the gate routes the request to a build (14 main, 5 fresh) wired beats bare — 54/74 vs 35/68 main, 22/27 vs 21/27 fresh; where it misses (7 main, 1 fresh) the product ships nothing (0/42) and bare scores 34/42. The whole loss to bare is the gate answering with no artifact, not the build — and every miss was the **void** shape: an empty web search pre-empted the build check (the main wired run also predates the gate commit de42741). Fixed: a making request is never answered as void (conformance/making-not-void.test.mjs). **Rerun on 2599f2d:** main wired 4/21, **73/109** (bare 63/104) — above bare on checks now; held-out wired 1/6, 22/33 (bare 27/33) — unchanged: its one gate miss ("a directory of …", 6 checks) is left untuned on purpose |
