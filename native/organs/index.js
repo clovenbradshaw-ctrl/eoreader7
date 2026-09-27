@@ -187,3 +187,6 @@ export {
   summarize,
 } from "./greenberg.js";
 export * as greenbergOrgan from "./greenberg.js";
+// Popper's second face — what would prove an answer wrong, derived from the
+// ground tier each sentence earned (never authored by the model).
+export { POPPER, POPPER_MARK, POPPER_LEAD, falsifierFor, falsifiersFor, popperInline, stripPopperLine } from "./falsifiers.js";

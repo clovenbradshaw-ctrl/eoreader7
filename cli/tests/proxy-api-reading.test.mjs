@@ -178,6 +178,28 @@ test("proxy.mjs never calls groundingGate directly — always through the shared
 });
 
 test("gatedReading is wired into proxy.mjs's response-assembly sites", () => {
-  const calls = PROXY_SRC.match(/\bgatedReading\s*\(/g) ?? [];
-  assert.ok(calls.length >= 4, `expected gatedReading to be called at each response-assembly site (/v1/ask, /v1/chat/completions x2, /api/chat x2); found ${calls.length} call(s)`);
+  // Since 2026-09-27 every site reconciles through gatedPopper, which calls
+  // gatedReading exactly once and adds Popper's falsifiers — the shared pick
+  // is still the one reconciliation, now carrying one more field.
+  assert.match(PROXY_SRC, /function gatedPopper\([^)]*\)\s*\{\s*const gated = gatedReading\(result, race\);/, "gatedPopper must reconcile through gatedReading first");
+  const calls = PROXY_SRC.match(/\bgatedPopper\s*\(/g) ?? [];
+  assert.ok(calls.length - 1 >= 4, `expected gatedPopper to be called at each response-assembly site (/v1/ask, /v1/chat/completions x2, /api/chat x2); found ${calls.length - 1} call(s)`);
+});
+
+test("Popper: plain-text clients get the inline line by default; a drawing surface opts out", async () => {
+  const { parseProxyRequest, parseAnthropicRequest } = await import("../../proxy-api.mjs");
+  const base = { model: "er7:gemma2:2b", messages: [{ role: "user", content: "hi" }] };
+  assert.equal(parseProxyRequest(base).popperInline, true);
+  assert.equal(parseProxyRequest({ ...base, fold_popper_inline: false }).popperInline, false);
+  assert.equal(parseAnthropicRequest(base).popperInline, true);
+});
+
+test("Popper: a resent assistant turn never carries the disclosure line back to the model", async () => {
+  const { parseProxyRequest, parseAnthropicRequest } = await import("../../proxy-api.mjs");
+  const { POPPER_MARK, POPPER_LEAD } = await import("../../native/organs/falsifiers.js");
+  const answer = "Grant was born in 1822.";
+  const shipped = `${answer}\n\n${POPPER_MARK} ${POPPER_LEAD} Nothing in this answer was checked against a source.`;
+  const messages = [{ role: "user", content: "when?" }, { role: "assistant", content: shipped }, { role: "user", content: "where?" }];
+  assert.equal(parseProxyRequest({ model: "er7:x", messages }).chatHistory[1].content, answer);
+  assert.equal(parseAnthropicRequest({ model: "er7:x", messages }).chatHistory[1].content, answer);
 });

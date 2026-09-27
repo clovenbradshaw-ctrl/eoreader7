@@ -169,7 +169,7 @@ export async function chatCompletion({ model, history = [], task, sessionId, wor
   if (typeof onToken === "function") {
     return chatCompletionStream({ model, messages, headers, onRetry, onToken, onThinking });
   }
-  const payload = { model: withPrefix(model), messages, stream: false };
+  const payload = { model: withPrefix(model), messages, stream: false, fold_popper_inline: false };
 
   let attempt = 0;
   const t0 = Date.now();
@@ -198,7 +198,9 @@ export async function chatCompletion({ model, history = [], task, sessionId, wor
  * non-streaming resolve to the same shape.
  */
 export async function chatCompletionStream({ model, messages, headers = {}, onRetry, onToken, onThinking }) {
-  const payload = { model: withPrefix(model), messages, stream: true };
+  // fold_popper_inline: false — the TUI draws Popper's line itself from
+  // reading.falsifiers, so it must not also arrive inside the answer text.
+  const payload = { model: withPrefix(model), messages, stream: true, fold_popper_inline: false };
   const reqHeaders = { "content-type": "application/json", ...headers };
   let attempt = 0;
   const t0 = Date.now();

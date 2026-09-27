@@ -105,6 +105,7 @@ function roleColor(kind) {
     case "model": return "gray";
     case "error": return "red";
     case "note": return "yellow";
+    case "popper": return "magenta";
     default: return undefined;
   }
 }
@@ -411,6 +412,14 @@ function App() {
         isQuote ? { snip: snipUrl } : { model: answered });
       if (isQuote) {
         pushMessage(tabId, "snip", snipLine(snipUrl), "note");
+      }
+      // POPPER (2026-09-27): what would prove this answer wrong, derived by
+      // the engine from each sentence's ground (native/organs/falsifiers.js).
+      // Its own line, its own color, never folded into the answer or into
+      // chatHistory — the model must not read it back as prompt text.
+      const popper = res.reading?.falsifiers ?? null;
+      if (popper?.headline) {
+        pushMessage(tabId, "popper", `⟂ What would prove this wrong: ${popper.headline}${popper.whatWouldSettle ? ` What would settle it: ${popper.whatWouldSettle}` : ""}`, "note");
       }
       updateTab(tabId, (t) => ({
         ...t,
