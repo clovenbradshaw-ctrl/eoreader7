@@ -169,7 +169,33 @@ export function lishCut(sentence, { keeps = () => true, flagged = new Set(), kno
       segs = rest; cut = true; changed = true; break;
     }
   }
-  return cut ? build(segs) : null;
+  if (cut) return build(segs);
+  // A SINGLE FLAGGED ADJECTIVE SHARING A SEGMENT WITH A REAL FACT (2026-09-26,
+  // measured live: "transporting vital cotton to New Orleans" — "vital" is
+  // decoration, but the segment also carries the cotton/New Orleans fact, so
+  // the whole-segment cut above can never remove it without keeps() correctly
+  // refusing the loss of that fact too). Real run: every model rewrite of
+  // this exact sentence came back LONGER than the original and was refused,
+  // pass after pass, five times, never fixed. This tries the narrowest
+  // possible edit — ONE flagged word, never a whole segment — and reuses
+  // every guard above UNCHANGED: hasVerb/core, keeps(), complete(), the
+  // clause's own core, and no leading coordinator. Never a new or looser
+  // check, only a narrower unit of removal.
+  const built = build(segs);
+  for (const tok of new Set(draftWords(built))) {
+    if (!flagged.has(tok) || dominantClass(tok) !== "ADJ") continue;
+    const re = new RegExp(`\\s*\\b${tok.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b\\s*`, "i");
+    const t = built.replace(re, " ").replace(/\s{2,}/g, " ").trim();
+    if (!t || t === built) continue;
+    if ((!core && !hasVerb(t)) || !keeps(t)) continue;
+    if (["VERB", "AUX"].includes(dominantClass(t.split(/[^\p{L}'’]+/u)[0].toLowerCase()))) continue;
+    if (complete && wasComplete && !complete(t)) continue;
+    if (core && coreWas && core(t) !== coreWas) continue;
+    if (core && !core(t)) continue;
+    if (dominantClass(t.split(/[^\p{L}'’]+/u)[0].toLowerCase()) === "CCONJ") continue;
+    return t;
+  }
+  return null;
 }
 
 export async function tightenPiece(parts, { draft, draw, ground = "", task = "", voice = null, targets = null, complete = null, core = null, unit = "sentence" } = {}) {

@@ -205,6 +205,33 @@ test("Kidder & Todd: a relation no source sentence holds is found; identity the 
   assert.equal(self.length, 0, "the null: the source against itself");
 });
 
+// 2026-09-26: the word-level fallback, grounded in a real, verbatim leak from
+// this session's own live demo (demo-quality-afterfix) -- "As early as 1819,
+// steamboats began navigating the river, transporting vital cotton to New
+// Orleans." was refused a rewrite five times in a row, every attempt longer
+// than the original, because the decorative adjective "vital" shares its
+// comma segment with the cotton/New Orleans fact the whole-segment cut above
+// may not drop.
+test("Lish's word-level fallback (2026-09-26): a single flagged adjective sharing a segment with a real fact is cut alone, never the whole segment", async () => {
+  const { lishCut } = await import("./finish.js");
+  const known = new Set(["as", "early", "as", "1819", "steamboats", "began", "navigating", "the", "river", "transporting", "cotton", "to", "new", "orleans"]);
+  const keepsReal = (t) => /cotton/i.test(t) && /new orleans/i.test(t) && /1819/.test(t);
+  const sentence = "As early as 1819, steamboats began navigating the river, transporting vital cotton to New Orleans.";
+  assert.equal(
+    lishCut(sentence, { known, flagged: new Set(["vital"]), keeps: keepsReal }),
+    "As early as 1819, steamboats began navigating the river, transporting cotton to New Orleans.",
+    "the single decorative word is cut; the fact-bearing rest of its own segment survives",
+  );
+  // A flagged VERB ("began" was flagged alongside "vital" in the real run) is
+  // left alone by the word-level fallback -- cutting a verb out of its own
+  // clause would break the sentence's grammar, which no adjective-only edit
+  // can safely do.
+  assert.equal(lishCut(sentence, { known, flagged: new Set(["began"]), keeps: keepsReal }), null, "a flagged verb is never removed word-by-word");
+  // The SAME guards that already protect the whole-segment cut still refuse
+  // an unsafe word-level one: removing the only adjective here leaves no verb.
+  assert.equal(lishCut("The vital connection.", { known: new Set(["connection"]), flagged: new Set(["vital"]) }), null, "a cut that leaves no verb is refused, word-level exactly as segment-level already was");
+});
+
 test("Lish on run 9's breakages: an adjective series is not a seam, a clause is not decoration, the core stays", async () => {
   const { lishCut } = await import("./finish.js");
   const known = new Set(["river", "city", "influence", "cotton", "tobacco", "iron", "lumber", "moved", "downriver", "goods", "back", "gage", "flow"]);
