@@ -23,13 +23,21 @@
 // depends on. If the shipped surface changes, this test re-reads it.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SURFACE = join(HERE, "../the-fold/plans-surface.html");
-const html = readFileSync(SURFACE, "utf8");
+// The BUILT surface is a derived artifact: .gitignore excludes it (it is
+// rebuilt by plans/build-fold-surface.mjs / plans/discover-nashville.mjs
+// from the gitignored Nashville ledger + metrics, which need the downloaded
+// plan PDFs and the municipal-db sibling). A bare checkout — CI's — cannot
+// hold it, so every test here skips with a typed fixture_absent reason
+// rather than the file crashing at load (precedent: tests/object-boundary
+// .test.js, tests/reasoning-e2e.test.js). Present, nothing is skipped.
+const SURFACE_ABSENT = existsSync(SURFACE) ? undefined : `fixture_absent: the built surface ${SURFACE} is a gitignored derived artifact and is not in this checkout`;
+const html = SURFACE_ABSENT ? "" : readFileSync(SURFACE, "utf8");
 
 // ── extract the shipped functions verbatim ────────────────────────────────
 const scriptStart = html.indexOf("<script>");
@@ -40,8 +48,10 @@ const fnRe = (name) => new RegExp(`function ${name}\\([^)]*\\) \\{[\\s\\S]*?\\n 
 const wordifySrc = script.match(fnRe("wordify"))?.[0];
 const isWordCharSrc = script.match(fnRe("isWordChar"))?.[0];
 
-assert.ok(wordifySrc, "the BUILT html ships wordify");
-assert.ok(isWordCharSrc, "the BUILT html ships isWordChar");
+if (!SURFACE_ABSENT) {
+  assert.ok(wordifySrc, "the BUILT html ships wordify");
+  assert.ok(isWordCharSrc, "the BUILT html ships isWordChar");
+}
 
 // ── minimal DOM stub: only what wordify/buildEntityList touch ─────────────
 const fakeBeads = [
@@ -87,24 +97,24 @@ function build(wordifySrc, isWordCharSrc) {
   return wordify;
 }
 
-const wordify = build(wordifySrc, isWordCharSrc);
+const wordify = SURFACE_ABSENT ? null : build(wordifySrc, isWordCharSrc);
 
 // F1 · entity surfaces are wrapped
-test("F1: entity surfaces are wrapped in clickable spans", () => {
+test("F1: entity surfaces are wrapped in clickable spans", { skip: SURFACE_ABSENT }, () => {
   const out = wordify("MTA will expand the bus network.");
   assert.ok(out.includes('class="eword"'), "MTA became a span");
   assert.ok(out.includes(">MTA</span>"), "the span holds the surface");
 });
 
 // F2 · non-entity words are plain text
-test("F2: non-entity words stay plain text — no span", () => {
+test("F2: non-entity words stay plain text — no span", { skip: SURFACE_ABSENT }, () => {
   const out = wordify("The network expands across the county.");
   assert.ok(!out.includes("<span"), "no clickable span at all");
   assert.ok(out.includes("expands"), "the word is still there, as text");
 });
 
 // F3 · the FULL surface, never a fragment
-test("F3: multi-word entity wraps as ONE span — fragments never link", () => {
+test("F3: multi-word entity wraps as ONE span — fragments never link", { skip: SURFACE_ABSENT }, () => {
   const out = wordify("East Bank is a once-in-a-generation opportunity.");
   const spans = (out.match(/<span class="eword"[^>]*>([\s\S]*?)<\/span>/g) ?? []);
   assert.equal(spans.length, 1, "exactly one span");
@@ -113,7 +123,7 @@ test("F3: multi-word entity wraps as ONE span — fragments never link", () => {
 });
 
 // F4 · word boundaries
-test("F4: word boundaries hold — no match inside a longer word", () => {
+test("F4: word boundaries hold — no match inside a longer word", { skip: SURFACE_ABSENT }, () => {
   for (const bad of ["Eastbankrupt", "Eastbank", "theeastbank", "xEast Banky"]) {
     const out = wordify(bad);
     assert.ok(!out.includes("eword"), `"${bad}" must not produce a span`);
@@ -121,20 +131,20 @@ test("F4: word boundaries hold — no match inside a longer word", () => {
 });
 
 // F5 · a surface with an internal space matches as one unit
-test("F5: 'Housing Division' (space inside) wraps as one span", () => {
+test("F5: 'Housing Division' (space inside) wraps as one span", { skip: SURFACE_ABSENT }, () => {
   const out = wordify("The Housing Division will fund 1,500 units.");
   assert.equal((out.match(/class="eword"/g) ?? []).length, 1);
   assert.ok(out.includes(">Housing Division</span>"), "full surface, one span");
 });
 
 // F6 · case-insensitive match
-test("F6: lowercase 'east bank' in prose still matches the entity", () => {
+test("F6: lowercase 'east bank' in prose still matches the entity", { skip: SURFACE_ABSENT }, () => {
   const out = wordify("The vision for east bank is bold.");
   assert.ok(out.includes("east bank</span>"), "matched case-insensitively, preserves prose case");
 });
 
 // F7 · the click handler routes to the profile
-test("F7: the shipped click handler lights the being everywhere", () => {
+test("F7: the shipped click handler lights the being everywhere", { skip: SURFACE_ABSENT }, () => {
   assert.ok(script.includes("closest('.eword')"), "handler listens for entity spans");
   assert.ok(script.includes("toggleLight(ed)"), "click lights the FULL entity name everywhere");
   assert.ok(!script.includes("openInspector"), "the bare surface has no inspector — the click never opens a chrome panel");
@@ -142,13 +152,13 @@ test("F7: the shipped click handler lights the being everywhere", () => {
 
 // F8 · the bare surface ships no native overlay at all, so no non-entity word can
 // ever be clickable from one
-test("F8: the bare surface emits no native word overlay", () => {
+test("F8: the bare surface emits no native word overlay", { skip: SURFACE_ABSENT }, () => {
   assert.ok(!script.includes("nativepages"), "no native-page payload is embedded");
   assert.ok(!script.includes(".nword"), "no native word overlay span is ever created");
 });
 
 // F9 · clickable set == the beings panel
-test("F9: buildEntityList reads the beads (the entity set)", () => {
+test("F9: buildEntityList reads the beads (the entity set)", { skip: SURFACE_ABSENT }, () => {
   assert.ok(script.includes("function buildEntityList()"), "buildEntityList ships");
   assert.ok(script.includes("document.querySelectorAll('.bead')"), "reads the beings panel");
 });
