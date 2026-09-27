@@ -487,3 +487,43 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
 
   return { writeBodies, render, leavesOf, seal, rename, changeDetail, stale, workingNote, currentLines: (notes, store, id) => currentLines(N.fold(notes), notes.entries, store, id), N };
 }
+
+// ── THE PERSON'S CHANGE, READ ──────────────────────────────────────────────
+// A change is said in plain words, in the conversation, and read here against
+// the cast on the record — no model: "Rename Lily to Wren", "call Lily Wren",
+// "Tommy's job is ferry pilot", "Tommy is a ferry pilot now", "Lola is 49".
+// A value that is a number goes to the one numeric detail; "a/an …" to the
+// one other detail; anything this cannot place is refused, never guessed.
+const TAIL_WORDS = new Set(["now", "instead", "then", "please"]);
+const trimEnd = (w) => { let x = w; while (x && [".", "!", ",", ";"].includes(x.at(-1))) x = x.slice(0, -1); return x; };
+export function readChange(text, { cast, details = [], numericDetails = new Set() }) {
+  const words = String(text ?? "").trim().split(" ").filter(Boolean).map(trimEnd).filter(Boolean);
+  while (words.length && TAIL_WORDS.has(words.at(-1).toLowerCase())) words.pop();
+  const low = words.map((w) => w.toLowerCase());
+  const who = (w) => cast.find((c) => c.name.toLowerCase() === String(w).toLowerCase().split("'s").join("").split("’s").join(""));
+  // rename X to Y / call X Y
+  if ((low[0] === "rename" || low[0] === "call") && words.length >= 3) {
+    const person = who(words[1]);
+    const rest = low[0] === "rename" ? (low[2] === "to" ? words.slice(3) : null) : words.slice(2);
+    if (person && rest?.length) return { kind: "rename", who: person.name, to: rest.join(" ") };
+  }
+  const person = who(words[0]);
+  if (!person) return { refused: `no one on the record is named in "${text}"` };
+  // X's <label> is V
+  if (low[0].endsWith("'s") || low[0].endsWith("’s")) {
+    const is = low.indexOf("is");
+    const label = low.slice(1, is).join(" ");
+    if (is > 1 && details.includes(label) && words.length > is + 1) return { kind: "detail", who: person.name, label, to: words.slice(is + 1).join(" ") };
+    return { refused: `no detail "${label}" on the record` };
+  }
+  // X is N / X is a V
+  if (low[1] === "is" && words.length > 2) {
+    const v = words.slice(2);
+    const numeric = details.filter((d) => numericDetails.has(d));
+    const other = details.filter((d) => !numericDetails.has(d));
+    const isNum = v.length === 1 && [...v[0]].every((ch) => ch >= "0" && ch <= "9");
+    if (isNum && numeric.length === 1) return { kind: "detail", who: person.name, label: numeric[0], to: v[0] };
+    if (!isNum && ["a", "an", "the"].includes(v[0].toLowerCase()) && other.length === 1) return { kind: "detail", who: person.name, label: other[0], to: v.slice(1).join(" ") };
+  }
+  return { refused: `could not place "${text}" as a change to the record` };
+}

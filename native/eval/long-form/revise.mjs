@@ -17,7 +17,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadModel, sentences, tokenize, analyse } from "../../adapters/text/english-parser.js";
-import { makeLongForm, makeTextStore, outlineOf, wordAt, linesOfBody, bodyOfReply } from "../../organs/long-form.js";
+import { makeLongForm, makeTextStore, outlineOf, wordAt, linesOfBody, bodyOfReply, readChange } from "../../organs/long-form.js";
 import { PROSE_MEDIUM } from "../../adapters/build/prose-medium.js";
 import { makeNotes } from "../../kernel/notes.js";
 
@@ -56,11 +56,18 @@ const diff = (a, b) => { const A = bodyLines(a), B = bodyLines(b); let same = 0;
 const report = [];
 let book = lf.seal({ notes, store, request: outline.request }).artifact;
 const start = book;
-const plan = [
-  cast[0] && { kind: "rename", who: cast[0].name, to: "Wren" },
-  cast[1] && detail(cast[1], "job") && { kind: "detail", who: cast[1].name, label: "job", to: "ferry pilot" },
-  cast[2] && detail(cast[2], "age") && { kind: "detail", who: cast[2].name, label: "age", to: String(Number(detail(cast[2], "age")) + 31) },
+// the person's changes, said in plain words and read against the record (readChange)
+const said = [
+  cast[0] && `Rename ${cast[0].name} to Wren.`,
+  cast[1] && detail(cast[1], "job") && `${cast[1].name} is a ferry pilot now.`,
+  cast[2] && detail(cast[2], "age") && `${cast[2].name} is ${Number(detail(cast[2], "age")) + 31}.`,
 ].filter(Boolean);
+const plan = [];
+for (const words of said) {
+  const c = readChange(words, { cast: cast.map((x) => ({ name: x.name })), details: outline.castDetails ?? [], numericDetails: PROSE_MEDIUM.numericDetails });
+  console.log(`"${words}" ->`, JSON.stringify(c));
+  if (!c.refused) plan.push(c);
+}
 for (const change of plan) {
   const before = book;
   const t0 = Date.now();

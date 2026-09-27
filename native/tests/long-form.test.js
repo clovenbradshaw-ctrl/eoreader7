@@ -158,3 +158,16 @@ test("no regular expressions in the long-form organ, its medium or its checker",
     assert.ok(!src.includes("new RegExp") && !src.includes(".match(/") && !src.includes(".test(") && !src.includes(".replace(/"), f);
   }
 });
+
+test("a change said in plain words is read against the cast, or refused", async () => {
+  const { readChange } = await import("../organs/long-form.js");
+  const cast = [{ name: "Lily" }, { name: "Tommy" }, { name: "Lola" }];
+  const opts = { cast, details: ["age", "job"], numericDetails: new Set(["age"]) };
+  assert.deepEqual(readChange("Rename Lily to Wren.", opts), { kind: "rename", who: "Lily", to: "Wren" });
+  assert.deepEqual(readChange("call Lily Wren", opts), { kind: "rename", who: "Lily", to: "Wren" });
+  assert.deepEqual(readChange("Tommy's job is ferry pilot", opts), { kind: "detail", who: "Tommy", label: "job", to: "ferry pilot" });
+  assert.deepEqual(readChange("Tommy is a ferry pilot now.", opts), { kind: "detail", who: "Tommy", label: "job", to: "ferry pilot" });
+  assert.deepEqual(readChange("Lola is 49", opts), { kind: "detail", who: "Lola", label: "age", to: "49" });
+  assert.ok(readChange("Make it sadder", opts).refused);
+  assert.ok(readChange("Tommy is tired", opts).refused, "a state was read as a detail");
+});
