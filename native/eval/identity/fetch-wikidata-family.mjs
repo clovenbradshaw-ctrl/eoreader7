@@ -44,5 +44,5 @@ for (const p of KEEP) {
   const e = await entity(p); await sleep(PAUSE_MS);
   constraints[p] = { label: e.labels?.en?.value, types: (e.claims?.P2302 ?? []).map((c) => c.mainsnak?.datavalue?.value?.id).filter(Boolean) };
 }
-writeFileSync(OUT, JSON.stringify({ schema: "EOWikidataFamily@1", giver: `wikidata.org Special:EntityData, crawled from ${SEED} along ${FOLLOW.join("/")}`, keep: KEEP, constraints, people }, null, 1));
+writeFileSync(OUT, JSON.stringify({ schema: "EOWikidataFamily@1", giver: `wikidata.org Special:EntityData, crawled from ${SEED} along ${FOLLOW.join("/")}`, keep: KEEP, constraints, people }));
 console.error(`done: ${Object.keys(people).length} people`);

@@ -19,5 +19,5 @@ for a, b in itertools.combinations(labels, 2):
     if sa & sb: out[f"{a}|{b}"] = "synonym"; continue
     hyp = lambda s: set(h for x in s for h in x.hypernyms())
     out[f"{a}|{b}"] = "hypernym" if (hyp(sa) & sb or hyp(sb) & sa) else "different"
-json.dump({"giver": "Princeton WordNet 3.0 (nltk_data corpora/wordnet.zip), verb synsets after wn.morphy", "labels": labels, "pairs": out}, open(sys.argv[2], "w"), indent=0)
+json.dump({"giver": "Princeton WordNet 3.0 (nltk_data corpora/wordnet.zip), verb synsets after wn.morphy", "labels": labels, "pairs": out}, open(sys.argv[2], "w"), separators=(",", ":"))
 print(len(labels), Counter(out.values()))
