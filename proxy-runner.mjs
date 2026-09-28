@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { ingest } from "./native/organs/ingest.js";
+import { analysisDoor, isAnalysis } from "./native/the-fold/surface/notebook-door.mjs";
 import { fileURLToPath } from "node:url";
 
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
@@ -4407,6 +4408,19 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       quote,
     };
   };
+  // ── THE ANALYSIS DOOR (the-fold/surface/notebook-door.mjs) ──────────────────
+  // "/analyze <question>" or "/explore" with a table attached: learned methods, or an ant colony when none exists and no model is
+  // set. A mechanical door — no model drafts the reply; it is what the checks found, with the methods named so each can be switched
+  // off at the Skills surface. The notebook is kept per session; its ledgers are the ones the Skills surface reads.
+  if (isAnalysis(task)) {
+    if (onNote) onNote({ move: "analysis_door", note: "table analysis: learned methods, else an ant colony; every find goes through the gate" });
+    const out = await analysisDoor({ task, attachments, notebook: session.notebook ?? null, by: `human:${String(personId).replace(/\W+/g, "-").slice(0, 40) || "api"}`, ctx: { mouth: undefined } });
+    if (out) {
+      session.notebook = out.notebook;
+      if (onNote) for (const m of out.methods) onNote({ move: "skill_used", skill: `learned:analysis/${m.id}`, name: m.name });
+      return earlyResult(out.text, {});
+    }
+  }
 
   // ── THE SNIP HAND — verbatim asks answered pre-model ───────────────────
   // The reading already knows HOW to answer a quotation ask: snip the work's

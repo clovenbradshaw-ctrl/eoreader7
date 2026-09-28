@@ -102,12 +102,24 @@ code{font:12px ui-monospace,monospace}a{color:var(--acc)}button{font:inherit;fon
 
 const JS = `const who=()=>document.getElementById('who').value.trim();
 const post=async(u,b)=>{const r=await fetch(u,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});const j=await r.json();if(j.error){alert(j.error);return false}location.reload();return true};
-document.addEventListener('change',e=>{const t=e.target.closest('[data-toggle]');if(!t)return;const why=prompt('Why? (recorded with the switch)','')||null;post('/toggle',{skill:t.dataset.toggle,on:t.checked,by:who(),why}).then(ok=>{if(!ok)t.checked=!t.checked})});
-document.addEventListener('click',e=>{const b=e.target.closest('[data-flag]');if(!b)return;const why=prompt('What is the concern? (a flag needs a reason)','');if(why)post('/flag',{skill:b.dataset.flag,by:who(),why})});
+document.addEventListener('change',e=>{const t=e.target.closest('[data-toggle]');if(!t)return;const why=prompt('Why? (recorded with the switch)','')||null;post(BASE+'/toggle',{skill:t.dataset.toggle,on:t.checked,by:who(),why}).then(ok=>{if(!ok)t.checked=!t.checked})});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-flag]');if(!b)return;const why=prompt('What is the concern? (a flag needs a reason)','');if(why)post(BASE+'/flag',{skill:b.dataset.flag,by:who(),why})});
 const f=document.getElementById('filter');if(f)f.addEventListener('input',()=>{const q=f.value.toLowerCase();document.querySelectorAll('.skill').forEach(a=>{a.style.display=!q||a.textContent.toLowerCase().includes(q)?'':'none'});if(q)document.querySelectorAll('.grp details').forEach(d=>d.open=true)});
 if(location.hash){const el=document.getElementById(decodeURIComponent(location.hash.slice(1)));if(el){let p=el.parentElement;while(p){if(p.tagName==='DETAILS')p.open=true;p=p.parentElement}el.scrollIntoView()}}`;
 
-export const pageHtml = (collected, { live }) => `<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Skills</title><style>${CSS}</style>${renderSkills({ collected, live })}<script>${JS}</script>`;
+export const pageHtml = (collected, { live, base = "" }) => `<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Skills</title><style>${CSS}</style>${renderSkills({ collected, live })}<script>const BASE=${JSON.stringify(base)};${JS}</script>`;
+
+/** skillsHandler({ learnedDir, collect, base }) -> async (req, res, pathname) => handled? — the Skills surface as a mountable route set. */
+export function skillsHandler({ learnedDir, collect, base = "" }) {
+  const body = (req) => new Promise((ok) => { let b = ""; req.on("data", (d) => (b += d)); req.on("end", () => { try { ok(JSON.parse(b || "{}")); } catch { ok({}); } }); });
+  return async (req, res, p) => {
+    const send = (code, type, s) => { res.writeHead(code, { "content-type": type }); res.end(s); };
+    if (req.method === "POST" && p === "/toggle") { const b = await body(req); const r = setToggle(learnedDir, { skill: b.skill, on: b.on, by: b.by, why: b.why }); send(200, "application/json", JSON.stringify(r.error ? { error: r.error } : { ok: true, seq: r.entry.seq })); return true; }
+    if (req.method === "POST" && p === "/flag") { const b = await body(req); const r = flagSkill(learnedDir, { skill: b.skill, by: b.by, why: b.why }); send(200, "application/json", JSON.stringify(r.error ? { error: r.error } : { ok: true, seq: r.entry.seq })); return true; }
+    if (p === "/" || p.startsWith("/skills-surface.html")) { send(200, "text/html; charset=utf-8", pageHtml(collect(), { live: true, base })); return true; }
+    return false;
+  };
+}
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
   const a = process.argv.slice(2); const opt = (k, d = null) => { const i = a.indexOf(`--${k}`); return i >= 0 ? a[i + 1] : d; };

@@ -190,6 +190,24 @@ export async function act(st, by, b, ctx = {}) {
   return { error: "unknown op" };
 }
 
+
+/** notebookHandler({ dir, by, learned, base, skillsBase, swarm, mouth }) -> async (req, res, pathname) => handled? — the notebook as a mountable route set. */
+export function notebookHandler({ dir, by, learned = learnedDir(), base = "", skillsBase = null, swarm, mouth }) {
+  let st = load(dir);
+  const ctx = { dir: learned, ...(swarm !== undefined ? { swarm } : {}), ...(mouth !== undefined ? { mouth } : {}) };
+  return async (req, res, p, url) => {
+    if (req.method === "POST" && p === "/api") {
+      let body = ""; for await (const c of req) body += c;
+      let r; try { r = await act(st, by, JSON.parse(body), ctx); } catch (e) { r = { error: String(e.message) }; }
+      if (r.state) { st = r.state; save(dir, st); }
+      res.setHeader("content-type", "application/json"); res.end(JSON.stringify({ error: r.error ?? null, notice: r.notice ?? null, selected: r.selected ?? null })); return true;
+    }
+    if (p === "/ipynb") { res.setHeader("content-type", "application/json"); res.end(JSON.stringify(toIpynb(st), null, 1)); return true; }
+    if (p === "/") { const q = url.searchParams; res.setHeader("content-type", "text/html"); res.end(renderPage(st, { live: true, by, sel: q.get("sel") || null, style: q.get("style") || "notebook", dir: learned, drawer: q.get("drawer") === "1", tab: q.get("tab") || "skills", base, skillsBase })); return true; }
+    return false;
+  };
+}
+
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? process.argv[i + 1] : d; };
 if (import.meta.url === `file://${process.argv[1]}`) {
   const positional = []; for (let i = 2; i < process.argv.length; i++) { if (process.argv[i].startsWith("--")) i++; else positional.push(process.argv[i]); }
@@ -207,16 +225,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   else if (cmd === "export") { fs.writeFileSync(rest[0], JSON.stringify(toIpynb(st), null, 1)); console.log("wrote", rest[0]); }
   else if (cmd === "import") { const r = fromIpynb(JSON.parse(fs.readFileSync(rest[0], "utf8")), { author: by, state: st }); save(dir, r.state); console.log("imported", r.state.nb.entries.length, "entries;", r.notes.length, "note(s)"); }
   else if (cmd === "serve") {
-    const port = Number(arg("--port", 8960));
-    http.createServer(async (req, res) => {
-      if (req.method === "POST" && req.url === "/api") {
-        let body = ""; for await (const c of req) body += c;
-        let r; try { r = await act(st, by, JSON.parse(body), { dir: arg("--learned", learnedDir()) }); } catch (e) { r = { error: String(e.message) }; }
-        if (r.state) { st = r.state; save(dir, st); }
-        res.setHeader("content-type", "application/json"); return res.end(JSON.stringify({ error: r.error ?? null, notice: r.notice ?? null, selected: r.selected ?? null }));
-      }
-      if (req.url === "/ipynb") { res.setHeader("content-type", "application/json"); return res.end(JSON.stringify(toIpynb(st), null, 1)); }
-      res.setHeader("content-type", "text/html"); const q = new URL(req.url, "http://x").searchParams; res.end(renderPage(st, { live: true, by, sel: q.get("sel") || null, style: q.get("style") || "notebook", dir: arg("--learned", learnedDir()), drawer: q.get("drawer") === "1", tab: q.get("tab") || "skills" }));
-    }).listen(port, "127.0.0.1", () => console.log(`notebook on http://127.0.0.1:${port} as ${by}`));
+    const h = notebookHandler({ dir, by, learned: arg("--learned", learnedDir()) }), port = Number(arg("--port", 8960));
+    http.createServer(async (req, res) => { const url = new URL(req.url, "http://x"); if (!(await h(req, res, url.pathname, url))) { res.statusCode = 404; res.end("not found"); } }).listen(port, "127.0.0.1", () => console.log(`notebook on http://127.0.0.1:${port} as ${by}`));
   } else { console.error("usage: see header"); process.exit(1); }
 }

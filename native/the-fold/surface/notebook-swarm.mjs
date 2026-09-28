@@ -47,7 +47,8 @@ export function candidateFor(s, meta) {
 }
 
 /** exploreColumn({ files, file, col, dir, seed, rounds, ants }) -> { run, structures, ceiling, tried, log, trailsBefore, trailsAfter } */
-export async function exploreColumn({ files, file: F, col: C, dir, seed = null, rounds = ROUNDS, ants = ANTS, now = Date.now() }) {
+export async function exploreColumn({ files, file: F, col: C, dir, seed = null, rounds, ants, now = Date.now() }) {
+  rounds ??= Number(process.env.ER7_SWARM_ROUNDS) || ROUNDS; ants ??= Number(process.env.ER7_SWARM_ANTS) || ANTS; // declared dials; env lets a supervisor size a colony
   const trails = loadTrails(dir), before = pheromone(trails); seed ??= (before % 997) + 1;
   const ev = evaluator(files, F, C);
   const r = await colony({ ...ev, trails, rounds, ants, seed, now });
