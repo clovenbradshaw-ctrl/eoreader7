@@ -77,7 +77,7 @@ const CAP = "\\p{Lu}[\\p{L}’'.-]*";       // a capitalised word
  * resolveLocus(sentence, span, surface) -> { referent, via } | null
  * -> { candidates, refused, arm }
  */
-export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, pronouns = null, resolveLocus = null } = {}) {
+export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, pronouns = null, resolveLocus = null, complementTyping = "structural" } = {}) {
   for (const [k, v] of Object.entries({ source, determiners, modals, negation })) if (v == null) throw new TypeError(`occupancy-testimony: '${k}' must be declared`);
   const def = determiners.definite, indef = determiners.indefinite;
   const alt = (xs) => xs.map(esc).join("|");
@@ -143,7 +143,12 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         if (indef.has(fl)) type = "kind";
         else if (def.has(fl) || /^\p{Lu}/u.test(first)) type = "locus";
         else type = "state";
-        if (type !== "locus") { refused.push({ at, reason: type === "kind" ? "kind_membership" : "state_not_position", occupant: occupantSurface, complement: comp.slice(0, 80) }); break; }
+        // complementTyping "none" (an experiment's arm, 2026-09-28): every
+        // complement is a candidate locus and positionsByPattern decides —
+        // the structural typing reads capitalisation as the signal (L2) and
+        // refuses "became vice president" as a state; the pattern (a locus
+        // recurring across occupants) is the honest test of position-hood.
+        if (type !== "locus" && complementTyping === "structural") { refused.push({ at, reason: type === "kind" ? "kind_membership" : "state_not_position", occupant: occupantSurface, complement: comp.slice(0, 80) }); break; }
         const locus = comp.replace(new RegExp(`^(?:${[...def].map(esc).join("|")})\\s+`, "iu"), "").replace(/[.”"’']+$/u, "").trim();
         const year = /\b(1[0-9]{3}|20[0-9]{2})\b/u.exec(clause)?.[1] ?? null;
         const compStart = cStart + clause.indexOf(m.groups.comp);
