@@ -181,3 +181,15 @@ proxy-*.log
 heimdall-fleet*.log
 .er7-fleet*.pid
 .er7-fleet.peers
+
+# native/the-fold/form-priors.jsonl (2026-09-28): an append-only log written
+# by huntDeclaredStructure during live app/eval sessions -- every entry is
+# machine-generated runtime observation (giver: "huntDeclaredStructure"),
+# never hand-authored, and grows continuously under ordinary concurrent use.
+# Same category as heimdall-log.jsonl/antistrauss-log.jsonl above. Checked,
+# not assumed: no .github/workflows/ job and no test in the repo reads or
+# asserts against its committed content (form-priors.js, the source module
+# beside it, is unaffected and stays tracked). Untracked in the same commit
+# this rule lands in -- unlike the "already committed stays tracked" debt
+# above, this file's own churn was the reason to act now.
+native/the-fold/form-priors.jsonl
