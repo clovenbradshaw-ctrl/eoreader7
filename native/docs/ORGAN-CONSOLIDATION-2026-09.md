@@ -722,3 +722,28 @@ not bundled into this constant-only fix.
 Verified: grep for `SHAPE_SCHEMA` across both repos returns only the
 renamed definition; `node --test native/the-fold/shape-falsify.test.mjs`
 — 9/9 pass.
+
+## 13. `source.js` (native/the-fold/) vs `organs/source.js` — a drift guard, no code change (2026-09-28)
+
+The vendored copy (native/the-fold/source.js) exists deliberately, its
+own header says so: a second copy of `tokenize`/`foldDiacritics`/
+`isNumeral`/`STOPWORDS` out of the canonical organ, so this module stays
+independent of the organs import graph. That header names its own cost —
+"a second copy... that can drift" — and nothing in either repo guarded
+against it, the same unguarded-drift class ORGAN-CONSOLIDATION-2026-09.md
+already closed for `ground-ladder.js` (entry 1) and `void-shape.js`
+(entry 3).
+
+Added one new test, `native/the-fold/source-drift.test.mjs`: a pure
+equivalence check running one battery of inputs (plain ASCII/stopwords,
+accented Latin — Bezúkhov/Bezukhov, Hebrew with/without nikud, numerals/
+percent/hyphen/roman numerals, CJK at both the too-short and
+oversized-amalgam cases, diacritic-bearing Cyrillic) through both
+`tokenize` implementations and asserting `assert.deepEqual` on every
+pair. It does not choose a canonical implementation and changes neither
+file — a future re-link of the-fold's own `source.js` shim to import the
+vendored copy directly (a FUTURE note already in that file) removes this
+test's reason to exist; until then it is what stands between the two.
+
+Verified: `node --test native/the-fold/source-drift.test.mjs` — 1/1
+(zero mismatches across the full battery today).
