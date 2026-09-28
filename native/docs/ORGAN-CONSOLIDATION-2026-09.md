@@ -1166,3 +1166,57 @@ attempted here; it touches production code and the one real call site
 
 Verified: `shape-tables-cube-agreement.test.mjs` 4/4 (2/4 fail when a
 value is deliberately corrupted, confirmed).
+
+## 25. `variation.js`/`vary-referent.js` — two truly-shared helpers extracted, everything else kept branched (2026-09-28)
+
+Differential testing against the REAL current functions found real
+behavioral divergences beyond just "how the subject span is found," so
+only two small pieces were actually shared, not the whole organ:
+
+1. `buildHead(prefix, candidateClean)` (article-prepend + capitalize) —
+   byte-identical between `snipVariation`'s inline logic and
+   `varyReferent`'s `opener()`.
+2. `assemble(head, rest)` (space-join + whitespace collapse) — byte-
+   identical between both files' return lines.
+
+Kept SEPARATE, never shared: candidate selection. `varyReferent`'s
+case-sensitive match and full-string candidate exclusion are NOT
+interchangeable with `snipVariation`'s case-insensitive noun-run
+heuristic and first-word exclusion — confirmed by direct execution that
+a synonym sharing the referent's first word is accepted under one rule
+and rejected under the other, so folding selection together would
+silently change which synonym a real caller gets on one of the two
+paths. Widened `snipVariation`'s signature to `(text, {synonyms,
+referent})`: with `referent` supplied, branches to `varyReferent`'s own
+match/exclusion rules exactly; without it, keeps today's heuristic
+branch verbatim.
+
+Deleted `vary-referent.js` (confirmed zero importers anywhere in either
+repo beyond its own test). Repointed `two-surface.test.mjs`'s one real
+caller from `varyReferent` to `snipVariation(s, {referent, synonyms})`.
+`proxy-runner.mjs`'s only production caller of `mechanicalRevision`/
+`snipVariation` (whole-prose-section revision, never supplies
+`referent`) cannot regress — it keeps taking the unchanged heuristic
+branch byte-for-byte.
+
+Added a differential regression to `two-surface.test.mjs` pinning three
+real cases against the atom's own capitalized referent ("the Analytical
+Engine"), including the exact specimen `vary-referent.js`'s own header
+named as the reason the split existed ("the Analytical Engine can do" —
+the noun-run heuristic alone would swallow "can do"). Confirmed the new
+case (and two others depending on the consolidated path) fail against
+the pre-fix `variation.js` via `git stash`, pass after.
+
+**Explicitly out of scope, disclosed rather than silently bundled in:**
+`snipVariation`'s NO-REFERENT fallback heuristic has a real, separate,
+pre-existing content-loss bug — its greedy noun-run regex can swallow up
+to 3 words of a following verb phrase when there's no comma before it
+(e.g. "The Analytical Engine can follow analysis." → "The engine
+analysis.", silently dropping "can follow"), reproduced on 3 of 4
+differential specimens including plain lowercase-noun subjects. A real
+bug in shipped code exercised today by `proxy-runner.mjs`, but fixing it
+changes that one production caller's live output and needs its own
+test — named, not fixed here.
+
+Verified: `two-surface.test.mjs` 5/5 (3/5 fail against pre-fix
+`variation.js`, confirmed via `git stash`).
