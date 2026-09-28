@@ -11,13 +11,42 @@
 // `native/eval/lavar/eot-jsonl.mjs`'s own header names the gap directly
 // (2026-09-09/10, this session): "--lang= swaps the ONE thing that is
 // cheaply, honestly portable ... Everything else ... is left AS-IS on
-// purpose." Measured live the same session: Arabic — which has ordinary
-// whitespace — still extracted zero real propositions from its own UDHR
-// body text with the English-only classes in place, only from the
-// document's own incidental English UN-boilerplate header. This file closes
-// that gap for the three languages this project can currently verify a
-// reading against (real POS priors + real golden tuples already exist for
-// spa/arb/cmn_hans).
+// purpose."
+//
+// THE MEASURED TRUTH (2026-09-28, organ-consolidation audit, re-measured
+// against the real committed UDHR fixtures — `relation-priors-i18n.test.mjs`
+// pins the invariant, not the exact counts, since a real edit to
+// relations.js's own extraction could legitimately move them). An earlier
+// framing of this section claimed this file unconditionally "closes that
+// gap" for all three languages; that overclaimed. What is actually true,
+// measured live through `discoverRelationVocab`+`extractRelations` end to
+// end: injecting a language's own closed classes never adds, removes, or
+// changes the CONTENT of any extracted edge — the only field that ever
+// differs is `polarity`, and only where the material's own negation word
+// sits in the pre-verb window. On the real UDHR specimens: Spanish shows a
+// real, non-vacuous effect (multiple genuine polarity corrections — "no
+// podrá ser..." now reads negative, as it should); Arabic ALSO shows at
+// least one real correction on its own body text (not merely the document's
+// English UN-boilerplate header, contrary to an earlier, narrower framing);
+// Mandarin remains fully inert (byte-identical to the English-default
+// baseline), blocked upstream by `relations.js`'s own bare-whitespace
+// tokenizer — a real, disclosed, unclaimed gap this file's closed classes
+// cannot reach regardless of how they're wired.
+//
+// A REAL DEFECT FOUND WHILE VERIFYING THIS (disclosed, not fixed here —
+// out of scope, touches the shared mechanism every `extractRelations`
+// caller depends on): `relations.js::negationBeforeVerbFor` mishandles an
+// EMPTY `negationWords` Set — it does not mean "this language has no
+// negation markers," it builds a zero-width alternation regex that matches
+// almost everywhere, flipping EVERY extracted edge to negative polarity
+// (confirmed: 134/134 on the Spanish fixture). No language registered in
+// this file triggers it today (spa/arb/cmn all declare real, non-empty
+// negation sets — unlike, say, definite determiners, negation is close to
+// a linguistic universal, so an empty set is an unlikely typological
+// answer here), but it is a live landmine for any future language whose
+// negation set were ever declared empty, and for any OTHER caller of
+// `extractRelations` that might pass one. See
+// `ORGAN-CONSOLIDATION-2026-09.md` entry 29.
 //
 // SCOPE, DISCLOSED RATHER THAN IMPLIED COMPLETE. Every set below is a real,
 // giver-named closed grammatical class — never an open vocabulary list —
