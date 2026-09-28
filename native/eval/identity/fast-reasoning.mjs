@@ -82,6 +82,23 @@
 // V6, PRE-REGISTERED 2026-09-28 after v5: the wall reads the CLAIM's company
 // too (judge.js). P7 re-registered: no habit answers `holds` against its
 // negation; ≥ 1 conceded; P10 stands.
+// V7, PRE-REGISTERED 2026-09-28 after v6: the mechanical rung gains a second
+// organ, adapters/text/copula-claims.js — a copula claim (subject · copula ·
+// adjective/superlative/number complement) read sentence by sentence from
+// the retrieved passages, the relation reader's blind class (22 of 34
+// claims). Tried AFTER the relation reader, only where it read nothing.
+//   P11 the mechanical rung binds ≥ 8 true claims (v6: 4), refuses no true
+//       claim, and lands `holds` on no false claim
+//   P12 ON pass 1: correct ≥ 10 at ≤ 34 model calls (v6: 7 at 34); zero
+//       fabrications stands (P3)
+//   P13 CONTROL: the copula rung is sentence-local, so a shuffled book keeps
+//       it — the control's mechanical binds are predicted to RISE toward the
+//       real book's; disclosed as the organ's own grain, not a defect
+// V8, PRE-REGISTERED 2026-09-28 after v7: the copula reader reads the
+// ARRANGEMENT — subject adjacent before the copula, complement adjacent
+// after — never two bags (the shuffled control's one fabrication).
+//   P14 zero fabrications on the CONTROL arm too (v7: 1); P11/P12 stand
+//       (≥ 8 true bound, none refused, no false holds; ≥ 10 right ≤ 34 calls)
 //   node eval/identity/fast-reasoning.mjs [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
@@ -98,6 +115,7 @@ const { createHabits, habitCensus, recallHabit } = await import(`${NATIVE}/kerne
 const { readJudgment } = await import(`${NATIVE}/organs/judgment-reader.js`);
 const { judgmentRequest, ingestionStanding } = await import(`${NATIVE}/kernel/ingestion.js`);
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
+const { readCopulaClaim } = await import(`${NATIVE}/adapters/text/copula-claims.js`);
 
 // ── THE KEY, fixed before the run: every TRUE claim's bytes were read in the book first ──
 const WP = "War and Peace", DR = "Dracula";
@@ -180,8 +198,14 @@ function mechanical(m, claim) {
   const rel = O.relationsFor(passages, { pool: passages });
   const read = rel.read(claim);
   const claims = (read?.claims ?? []).map((c) => ({ key: habitKeyOf(c), end1: c.end1, label: c.label, end2: c.end2, verdict: c.verdict, polarity: c.polarity ?? "+", refs: [...(c.refs ?? [])], spans: (c.spans ?? []).map((s) => ({ ref: s.ref })) }));
-  const verdict = claims.some((c) => c.verdict === "contradicted") ? "refused" : claims.some((c) => c.verdict === "bound") ? "holds" : claims.length ? "open" : "no_claim";
-  return { passages, claims, verdict };
+  let verdict = claims.some((c) => c.verdict === "contradicted") ? "refused" : claims.some((c) => c.verdict === "bound") ? "holds" : claims.length ? "open" : "no_claim";
+  let organ = verdict === "holds" || verdict === "refused" ? "relations" : null, copula = null;
+  // V7: the copula reader, after the relation reader and only where it read nothing settled
+  if (!organ) {
+    copula = readCopulaClaim(claim, passages, { splitSentences });
+    if (copula.verdict === "holds" || copula.verdict === "refused") { verdict = copula.verdict; organ = "copula"; }
+  }
+  return { passages, claims, verdict, organ, copula };
 }
 const truthOf = (v) => (v === "holds" ? true : v === "refused" ? false : null);
 
@@ -190,7 +214,7 @@ async function ladder(m, item, { trails, habits, judgeOn = true, mechanicalOn = 
   const row = { i: item.i, book: item.book, truth: item.truth, claim: item.claim, passages: mech.passages.map((p) => p.ref), mechanical: mech.verdict, rung: null, verdict: null, calls: 0, anchored: null, landed: null };
   const before = calls;
   if (mechanicalOn && (mech.verdict === "holds" || mech.verdict === "refused")) {
-    row.rung = "mechanical"; row.verdict = mech.verdict; row.calls = 0;
+    row.rung = "mechanical"; row.verdict = mech.verdict; row.calls = 0; row.organ = mech.organ; row.decider = mech.copula?.decider ?? null;
     // the revision loop sees every claim, settled or not (as in production): a live habit the reader now contradicts is conceded here
     const settled = mech.claims.filter((c) => c.verdict === "bound" || c.verdict === "contradicted").map((c) => ({ ...c, key: `claim:${item.i}` }));
     row.habitKey = settled.length ? habitKeyOf(settled[0]) : null;
@@ -286,6 +310,12 @@ P.P7 = { holdingHabits: liveHabits.length, conceded: out.injection.conceded.leng
 const chosen = (l) => l.chosen ?? 0, contested = (l) => l.contested ?? 0;
 P.P8 = { shipped: out.e4.shipped, questionFirst: out.e4.questionFirst, prohibition: out.e4.prohibition, held: chosen(out.e4.shipped) >= Math.max(chosen(out.e4.questionFirst), chosen(out.e4.prohibition)) && contested(out.e4.shipped) <= Math.min(contested(out.e4.questionFirst), contested(out.e4.prohibition)) };
 P.P10 = { stoodDown: out.injection.stoodDown, held: out.injection.stoodDown.length + out.injection.conceded.length >= liveHabits.length && out.injection.stoodDown.every(([, , , c]) => c <= 2) };
+const mechRows = (rows) => rows.filter((r) => r.rung === "mechanical");
+P.P11 = { trueBound: mechRows(out.arms.on1.rows).filter((r) => r.truth && r.verdict === "holds").length, trueRefused: mechRows(out.arms.on1.rows).filter((r) => r.truth && r.verdict === "refused").length, falseHolds: mechRows(out.arms.on1.rows).filter((r) => !r.truth && r.verdict === "holds").length, byOrgan: mechRows(out.arms.on1.rows).reduce((t, r) => ({ ...t, [r.organ]: (t[r.organ] ?? 0) + 1 }), {}), held: null };
+P.P11.held = P.P11.trueBound >= 8 && P.P11.trueRefused === 0 && P.P11.falseHolds === 0;
+P.P12 = { correct: out.arms.on1.score.correct, calls: out.arms.on1.score.calls, held: out.arms.on1.score.correct >= 10 && out.arms.on1.score.calls <= 34 };
+P.P13 = { realMechanical: mechRows(out.arms.on1.rows).length, shuffledMechanical: mechRows(out.arms.shuffled.rows).length, note: "sentence-local organ: predicted to rise on the shuffled book" };
+P.P14 = { controlFabrications: out.arms.shuffled.score.fabrications, realFabrications: out.arms.on1.score.fabrications, held: out.arms.shuffled.score.fabrications === 0 && out.arms.on1.score.fabrications === 0 };
 P.P9 = { chosenOn: out.arms.on1.rows.filter((r) => r.rung === "judge" && r.landed === "chosen").length, held: out.arms.on1.rows.some((r) => r.rung === "judge" && r.landed === "chosen") };
 P.P4.controlPassages = out.arms.shuffled.rows.filter((r) => r.mechanical !== "no_passages").length;
 out.predictions = P;

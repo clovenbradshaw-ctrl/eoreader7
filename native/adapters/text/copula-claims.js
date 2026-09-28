@@ -19,6 +19,15 @@
 // complement says nothing about the claim — OPEN, never refused: the book
 // may state it elsewhere.
 //
+// ADJACENCY (v7 of fast-reasoning.mjs, found by the shuffled control, not
+// by the real book): "…said Van Helsing, 'and all I ask of you IS that…
+// you will FIRST consider…'" carried the subject somewhere before a copula
+// and a one-word complement somewhere after it, and read as `holds` for a
+// false claim. Containment on each side is two bags; the claim is an
+// ARRANGEMENT. So the subject's last content word must be the LAST content
+// word before the copula, and the complement's first content word the
+// FIRST after it — the sentence's own order, never two bags.
+//
 // WHAT IT NEVER DOES. It does not match a subject that is a pronoun or a
 // description (the claim's subject side must carry at least one content
 // token); it does not fold synonyms or numerals ("fifty-nine" is not "59" —
@@ -69,7 +78,13 @@ export function readCopulaClaim(claim, passages, { splitSentences, sameForm = nu
       for (const sp of splitsAtCopula(s)) {
         const left = tokenize(sp.subject);
         if (!carries(left, subj)) continue;
+        // adjacency, subject side: the claim subject's last word is the last content word before the copula — a negation word between them is the polarity, not a word of the subject ("Mina never was")
+        const leftAdj = left.filter((w) => !NEGATION_WORDS.has(w));
+        if (!leftAdj.length || !same(leftAdj[leftAdj.length - 1], subj[subj.length - 1])) continue;
         const right = tokenize(sp.complement);
+        // adjacency, complement side: the claim complement's first word is the first content word after the copula ("was not the only" — the negation is the polarity)
+        const rightAdj = right.filter((w) => !NEGATION_WORDS.has(w));
+        if (!rightAdj.length || !same(rightAdj[0], comp[0])) { open = open ?? { decider: s.trim(), ref: p.ref }; continue; }
         if (!carries(right, comp)) { open = open ?? { decider: s.trim(), ref: p.ref }; continue; }
         // the complement is stated; a negation BETWEEN the subject's last word and the complement's own words denies it
         // (a negation in an earlier clause — "Though he never slept, Renfield was the calmest" — is not this copula's)

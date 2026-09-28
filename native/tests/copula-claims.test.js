@@ -37,3 +37,10 @@ test("an injected sameForm widens equality; without it exact tokens only", () =>
   assert.equal(readCopulaClaim("Mina was the brighter of us.", P, opts).verdict, "open");
   assert.throws(() => readCopulaClaim("Mina was the brightest.", P, {}), /splitSentences/);
 });
+
+test("adjacency (v7's control): the subject ends at the copula and the complement begins at it — a subject somewhere before and a one-word complement somewhere after is not the claim", () => {
+  const V = [{ ref: "v", text: "“I accept your limitation,” said Van Helsing, “and all I ask of you is that if you feel it necessary to condemn any act of mine, you will first consider it well.” Arthur was the first." }];
+  assert.equal(readCopulaClaim("Van Helsing was the first.", V, opts).verdict, "open");
+  assert.equal(readCopulaClaim("Arthur was the first.", V, opts).verdict, "holds");
+  assert.equal(readCopulaClaim("Mina was the cheerful one.", P, opts).verdict, "open", "the complement's first word must be the first after the copula: 'brightest' is, 'cheerful' is not");
+});
