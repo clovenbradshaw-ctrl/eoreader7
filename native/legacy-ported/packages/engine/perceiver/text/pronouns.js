@@ -247,6 +247,19 @@ export const resolvePronouns = (
     // by a pronoun with NO name anywhere in it. A pronoun sharing its
     // sentence with a named surface is left to whatever the name already
     // establishes — this file does not adjudicate between co-mentioned names.
+    // A frame carrying BOTH a name and a pronoun is not adjudicated here
+    // (this file does not decide between co-mentioned names) — but a skip
+    // was silent, and a silent skip reads downstream as "no pronoun there"
+    // (measured 2026-09-28: 24 of 26 transition-clause pronouns on a
+    // biography never reached any gap). It is now a TYPED gap carrying the
+    // frame's own contested set — the named referents — so a consumer with
+    // its own for-whom (kernel/undecided.js) can collapse what this file
+    // will not.
+    if (named.size > 0 && pronounHits.length > 0) {
+      for (const hit of pronounHits) {
+        gaps.push({ reason: "pronoun_frame_named", tier: "engine", sentenceOrder: sentence.order, offset: (sentence.offset ?? 0) + hit.index, pronoun: hit.token, contested: [...named], detail: `${named.size} named referent(s) share this frame; this organ does not adjudicate between co-mentioned names` });
+      }
+    }
     if (named.size === 0 && pronounHits.length > 0) {
       const activation = recall(cue, state, { completion, topEdges, selfOrder: sentence.order });
       // BEST single hop, not a sum across every hop — the same discipline

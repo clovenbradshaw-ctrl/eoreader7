@@ -157,3 +157,13 @@ test("nounBetween: a settled noun between the candidate and the transition is th
   assert.equal(without.events[0].undecided.candidates[0].features.nounBetween, null);
   assert.equal(without.candidates.length, 1, "absent a prior the feature is unknown and the default rule does not refuse on it");
 });
+
+test("every standing carries its transition verb and, with a phasepost injected, its act on the cube — an overlay, never a gate", () => {
+  const seen = [];
+  const phasepost = (edge) => { seen.push(edge); return { op: edge.label === "became" ? "INS" : "SIG", grain: "Figure", via: "stub" }; };
+  const r = readOccupancyTestimony([{ text: "Pierre became Count Bezukhov.", at: 0 }, { text: "Roberts succeeded Rehnquist as Chief Justice of the United States.", at: 1 }].map((x) => x), { ...OPTS, phasepost });
+  assert.deepEqual(r.candidates.map((c) => [c.verb, c.act.op]), [["became", "INS"], ["succeeded", "SIG"]]);
+  assert.deepEqual(seen[0], { end1: "Pierre", label: "became", end2: "Count Bezukhov" });
+  const bare = read(["Pierre became Count Bezukhov."]);
+  assert.equal(bare.candidates[0].act, null); assert.equal(bare.candidates[0].verb, "became");
+});

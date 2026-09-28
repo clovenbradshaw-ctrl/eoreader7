@@ -126,17 +126,17 @@ const CAP = "\\p{Lu}[\\p{L}’'.-]*";       // a capitalised word
  * resolveLocus(sentence, span, surface) -> { referent, via } | null
  * -> { candidates, refused, arm }
  */
-export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, pronouns = null, posPrior = null, resolveLocus = null, complementTyping = "structural", forWhom = null, occupantRule = null } = {}) {
+export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, pronouns = null, posPrior = null, resolveLocus = null, complementTyping = "structural", forWhom = null, occupantRule = null, phasepost = null } = {}) {
   for (const [k, v] of Object.entries({ source, determiners, modals, negation })) if (v == null) throw new TypeError(`occupancy-testimony: '${k}' must be declared`);
   const def = determiners.definite, indef = determiners.indefinite;
   const alt = (xs) => xs.map(esc).join("|");
   const AUX = `(?:(?:${[...BE_AUX].map(esc).join("|")})\\s+)`;
   // the transition and its complement; what stands before it is decided by the mentions
   const patterns = [
-    { kind: "succeed", re: new RegExp(`(?<![\\p{L}’'])(?:${alt(transitions.succeed)})\\s+(?<pred>${W}(?:\\s+${W}){0,3}?)\\s+as\\s+(?<comp>.+)`, "u") },
-    { kind: "assume", re: new RegExp(`(?<![\\p{L}’'])(?:${alt(transitions.assume)})\\s+(?<comp>.+)`, "u") },
-    { kind: "passive", re: new RegExp(`(?<![\\p{L}’'])${AUX}(?:${alt(transitions.passive)})(?:\\s+as|\\s+to\\s+be)?\\s+(?<comp>.+)`, "u") },
-    { kind: "become", re: new RegExp(`(?<![\\p{L}’'])${AUX}?(?:${alt(transitions.become)})\\s+(?<comp>.+)`, "u") },
+    { kind: "succeed", re: new RegExp(`(?<![\\p{L}’'])(?<verb>${alt(transitions.succeed)})\\s+(?<pred>${W}(?:\\s+${W}){0,3}?)\\s+as\\s+(?<comp>.+)`, "u") },
+    { kind: "assume", re: new RegExp(`(?<![\\p{L}’'])(?<verb>${alt(transitions.assume)})\\s+(?<comp>.+)`, "u") },
+    { kind: "passive", re: new RegExp(`(?<![\\p{L}’'])${AUX}(?<verb>${alt(transitions.passive)})(?:\\s+as|\\s+to\\s+be)?\\s+(?<comp>.+)`, "u") },
+    { kind: "become", re: new RegExp(`(?<![\\p{L}’'])${AUX}?(?<verb>${alt(transitions.become)})\\s+(?<comp>.+)`, "u") },
   ];
   // the ablation arm: a capitalised run ending right before the transition
   const capRun = new RegExp(`(?<occ>${CAP}(?:\\s+(?:of\\s+|de\\s+|von\\s+)?${CAP})*)\\s*$`, "u");
@@ -232,7 +232,12 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         const where = resolveLocus ? resolveLocus(sentence, { start: compStart, end: compStart + comp.length }, locus) : null;
         let pred = predecessor;
         if (predecessor && ms) { const ps = cStart + clause.indexOf(predecessor); const hit = ms.find((x) => x.start >= ps && x.end <= ps + predecessor.length); if (hit) pred = hit.referent; }
-        candidates.push({ occupant, occupantVia, occupantSurface, locus: where?.referent ?? locus, locusVia: where?.via ?? "surface", locusSurface: locus, predecessor: pred, pattern: p.kind, at, address: `${source}#s${at}`, year, clause: clause.trim().slice(0, 200) });
+        // THE ACT, on the cube (phasepost.js injected, an overlay never a gate):
+        // which of the nine acts this transition performs, at which grain —
+        // "became Count Bezúkhov" is not the same act as "was appointed
+        // ambassador", and a consumer selects standings by ACT, never by verb.
+        const act = phasepost ? phasepost({ end1: occupantSurface, label: m.groups.verb, end2: locus }) : null;
+        candidates.push({ occupant, occupantVia, occupantSurface, locus: where?.referent ?? locus, locusVia: where?.via ?? "surface", locusSurface: locus, predecessor: pred, pattern: p.kind, verb: m.groups.verb, act, at, address: `${source}#s${at}`, year, clause: clause.trim().slice(0, 200) });
         break;
       }
     }
