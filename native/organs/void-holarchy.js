@@ -57,17 +57,25 @@ export const MODALITIES = Object.freeze({
   code: { whole: "artifact", part: "module", subpart: "function", subsubpart: "statement", terminal: "expression" },
 });
 
-/** The nine operators, in the canon's dependency order (domain-major). */
+/**
+ * The nine operators, in the canon's dependency order (domain-major), each
+ * with its own canonical GRAIN (void-shape.js's own VOID_OPERATORS table,
+ * copied verbatim — one declaration of "which grain each operator asks its
+ * question at", not two that can drift). Existence-domain operators
+ * (NUL/SIG/INS) ask at Ground/Figure/Pattern respectively; Structure
+ * (SEG/CON/SYN) the same three grains; Interpretation (DEF/EVA/REC) the
+ * same three again — nine operators, three domains, three grains each.
+ */
 export const VOID_OPERATORS = Object.freeze([
-  { op: "NUL", field: "slot", asks: "what space this is, marked off from all it is not" },
-  { op: "SIG", field: "anchor", asks: "what must resolve for this space to exist at all" },
-  { op: "INS", field: "admits", asks: "what kind of thing may stand here" },
-  { op: "SEG", field: "extent", asks: "the extent to be covered, and its units" },
-  { op: "CON", field: "relation", asks: "what binds a filler to the anchor" },
-  { op: "SYN", field: "composition", asks: "how fillers compose across the extent" },
-  { op: "DEF", field: "cardinality", asks: "how many fillers the space is declared to hold" },
-  { op: "EVA", field: "admission", asks: "the test a candidate must pass to fill any of it" },
-  { op: "REC", field: "reopensOn", asks: "what forces this declaration to be revised" },
+  { op: "NUL", field: "slot", grain: "Ground", asks: "what space this is, marked off from all it is not" },
+  { op: "SIG", field: "anchor", grain: "Figure", asks: "what must resolve for this space to exist at all" },
+  { op: "INS", field: "admits", grain: "Pattern", asks: "what kind of thing may stand here" },
+  { op: "SEG", field: "extent", grain: "Ground", asks: "the extent to be covered, and its units" },
+  { op: "CON", field: "relation", grain: "Figure", asks: "what binds a filler to the anchor" },
+  { op: "SYN", field: "composition", grain: "Pattern", asks: "how fillers compose across the extent" },
+  { op: "DEF", field: "cardinality", grain: "Figure", asks: "how many fillers the space is declared to hold" },
+  { op: "EVA", field: "admission", grain: "Figure", asks: "what a candidate must be shown to depend on before it counts as covering any of this — never granted on its own say-so" },
+  { op: "REC", field: "reopensOn", grain: "Pattern", asks: "what forces this declaration to be revised" },
 ]);
 
 /**
@@ -79,7 +87,7 @@ export function defineLevelVoid(fields = {}, { cellOf: injectCellOf = cellOf } =
   const declared = [];
   const undeclared = [];
   for (const o of VOID_OPERATORS) {
-    const cell = injectCellOf(o.op, "Figure");
+    const cell = injectCellOf(o.op, o.grain);
     const value = fields[o.field];
     const present = value !== undefined && value !== null && value !== "";
     if (present) declared.push({ op: o.op, field: o.field, asks: o.asks, terrain: cell.terrain });
