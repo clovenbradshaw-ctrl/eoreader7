@@ -40,6 +40,7 @@ import { inventedNameRuns, isMetaSentence } from "./referent-verify.js";
 import { draftWords, namesOf, drawnParts } from "./eot-draft.js";
 import { anchorsFor, carries } from "./prosify.js";
 import { isFunctionWord, isCommonWord, dominantClass } from "./pos-prior.js";
+import { carriedStatements } from "./loop-check.js";
 
 export const FINISH_SCHEMA = "EOFinish@1";
 
@@ -300,10 +301,11 @@ export function takesUp(open, prevClose, { ground = "", subject = new Set(), dra
 }
 
 export function arrive(parts, { draft, ground = "", task = "" } = {}) {
-  const anchors = anchorsFor(draft);
-  const all = drawnParts(draft).flatMap((p) => p.children.map((pt) => pt.id));
   const text = parts.flatMap((p) => (p.pieces ?? []).map((x) => x.text));
-  const uncarried = all.filter((id) => !carries(anchors.get(id), text).ok);
+  // loop-check.js::carriedStatements — the same anchors/carries walk
+  // measurePiece's own carried COUNT is built from, read here for its
+  // uncarried LIST instead of re-running the walk by hand a second time.
+  const { ids: all, uncarriedIds: uncarried } = carriedStatements(draft, text);
 
   // A planned turn is taken when the part's opening sentence takes up a name
   // the previous part's closing sentence put down, or the planned bridge name.

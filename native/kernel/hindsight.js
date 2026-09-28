@@ -25,7 +25,7 @@
 // grain — SEG·Network, Unraveling, beside `unravel` (a pattern cut apart at its
 // own seams).
 
-import { cascade } from "./cascade.js";
+import { cascade, sampleWithoutReplacement } from "./cascade.js";
 
 export const HINDSIGHT_SCHEMA = "EOHindsight@1";
 export const CELL = Object.freeze({ op: "SEG", grain: "Pattern" });
@@ -85,9 +85,8 @@ export function hindsight(entries, eventIndex, { touched, refsOf, idOf = default
   const k = Math.min(touchedSet.size, pool.length);
   let atOrBelow = 0;
   for (let t = 0; t < trials; t++) {
-    const draw = pool.slice();
-    for (let i = 0; i < k; i++) { const j = i + Math.floor(rng() * (draw.length - i)); [draw[i], draw[j]] = [draw[j], draw[i]]; }
-    if (walk(new Set(draw.slice(0, k))).length <= rows.length) atOrBelow++;
+    const draw = sampleWithoutReplacement(pool, k, rng);
+    if (walk(new Set(draw)).length <= rows.length) atOrBelow++;
   }
   const rank = atOrBelow / trials;
   const direct = rows.filter((r) => r.depth === 0).length;

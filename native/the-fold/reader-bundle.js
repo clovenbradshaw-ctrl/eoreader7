@@ -154,6 +154,19 @@ export function makeEngineRelationReader(extra = {}) {
     resolvePronouns,
     nounPhraseSubjects: true,
     phrasalPredicates: true,
+    // P36's object-specificity rule (2026-09-28): the-fold's app.js has
+    // carried this since P100 ("wall 6") — below hypergraph.js's own
+    // CORPUS_MINIMUM floor (every live turn's retrieved passages are
+    // always sub-floor), the object match without this degrades to
+    // `tokensShare`, one shared token: "the Royal Society in 1887" bound
+    // to "the Northgate Observatory in 1887" on `in 1887` alone. This
+    // bundle's own header says it exists so there is "exactly one
+    // implementation of the material's own edges" once the proxy turn
+    // reads from it — it had silently never carried this fix. Strictly
+    // narrowing (hypergraph.js's own `specific = agree.filter(...)`, never
+    // a superset of `agree`), so this can only downgrade a false `bound`
+    // to `unbound`, never introduce a new false positive.
+    objectSpecificity: true,
     ...extra,
   });
 }

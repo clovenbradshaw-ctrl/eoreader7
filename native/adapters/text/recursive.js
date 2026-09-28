@@ -13,7 +13,7 @@ import { relationExtractorsFor } from "./relations-language.js";
 import { directDescriptorOccurrences, descriptorOccurrence } from "./individuation.js";
 import { createDescriptorAnchoring } from "./anchoring.js";
 import { hyperedge } from "../../kernel/hypergraph.js";
-import { tokenize as engTokenize, analyse as engAnalyse } from "./english-parser.js";
+import { synPropnFormsForSentences } from "./parse-gated-names.js";
 
 const slug = (value) => diaNorm(value).replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_+|_+$/g, "");
 const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -527,7 +527,18 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
   // formulas tried, ahead of the best combination of capitalisation-only
   // detectors (F1 76.3). Folded incrementally, one new sentence at a time,
   // in the SAME loop that already folds surfaceEvidence below -- never a
-  // whole-prefix re-parse.
+  // whole-prefix re-parse -- through `synPropnFormsForSentences`, the SAME
+  // primitive parse-gated-names.js's own batch entry point now calls, so
+  // the two can no longer silently diverge on sentence boundaries. They
+  // did until 2026-09-28: parse-gated-names.js used to re-split via
+  // english-parser.js's ICU-based `sentences()` instead of reading the
+  // already-split sentences spans.js::splitSentences (below, via
+  // priorSentences) hands this loop, and the two splitters disagree on
+  // exactly the name-initial abbreviation cases spans.js was built to fix
+  // ("Ulysses S. Grant" -- ICU splits "Grant" into its own fragment, where
+  // it tagged differently, so parse-gated-names.js's batch call never
+  // admitted "Grant" while this inline gate, reading the same text through
+  // spans.js's split, correctly did).
   const synPropnSeen = parseModel ? new Set() : null;
   const priorSentences = [];
   let priorText = "";
@@ -559,16 +570,11 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       accumulateSurfaceEvidence([sent], surfaceEvidence);
       for (const w of tokenize(sent.text)) { runningFreq.set(w, (runningFreq.get(w) || 0) + 1); runningTotal += 1; }
       if (parseModel) {
-        // A sentence the parser can't tokenise or tag never blocks the
-        // read (same typed-degradation discipline heardSurfaces' own
-        // try/catch below already follows) -- it just contributes no
-        // synPropn evidence, and capitalisation-only admission still
-        // applies to whatever it would have nominated.
-        try {
-          const toks = engTokenize(sent.text);
-          const rows = engAnalyse(parseModel, toks.map((t) => t.form));
-          for (const r of rows) if (r.upos === "PROPN") synPropnSeen.add(r.form.toLowerCase());
-        } catch {}
+        // parse-gated-names.js's shared primitive -- its own try/catch
+        // already gives the identical typed-degradation discipline (a
+        // sentence the parser can't tokenise or tag never blocks the
+        // read, it just contributes no synPropn evidence).
+        for (const w of synPropnFormsForSentences(parseModel, [sent.text])) synPropnSeen.add(w);
       }
     }
     foldedTo = priorSentences.length;

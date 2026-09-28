@@ -32,7 +32,7 @@ import { surf, surfQueries } from "./surf.js";
 import { isFunctionWord } from "./pos-prior.js";
 import { draftWords } from "./eot-draft.js";
 
-export const SHAPE_SCHEMA = "EOShape@1";
+export const LEARNED_FORM_SCHEMA = "EOShape@1";
 
 const NUM = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12, thirteen: 13, fourteen: 14, fifteen: 15, sixteen: 16, seventeen: 17, eighteen: 18, nineteen: 19, twenty: 20, thirty: 30, forty: 40, fifty: 50, sixty: 60, seventy: 70, eighty: 80, ninety: 90, hundred: 100, thousand: 1000 };
 const UNITS = ["line", "stanza", "quatrain", "tercet", "couplet", "sestet", "octave", "syllable", "foot", "feet", "paragraph", "section", "part", "page", "word", "sentence", "chapter", "verse", "act", "scene", "beat", "movement", "slide", "step", "item", "point", "minute"];
@@ -125,7 +125,7 @@ export function learnShape(sources, { formWord = null } = {}) {
   if (instances.top && !agreedUnits.some((a) => a.unit === "line")) agreedUnits.push({ unit: "line", n: instances.top.n, support: instances.top.support, by: "instances" });
   const learned = agreedUnits.length > 0 || parts.length > 0;
   return {
-    schema: SHAPE_SCHEMA, formWord, hosts: H,
+    schema: LEARNED_FORM_SCHEMA, formWord, hosts: H,
     name, units, parts, instances, agreedUnits, learned,
     basis: H === 0
       ? "no fetched source: nothing to learn a shape from"

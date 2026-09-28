@@ -1,8 +1,22 @@
 // holograph.mjs — the "full response" loader for the TUI's facing-page view.
 //
+// CORRECTED (2026-09-28, organ-consolidation audit): this header used to cite
+// `native/eval/lavar/holograph.mjs` as the artifact's producer — that file
+// does not exist anywhere in the checkout or its git history. The real
+// producer of the EOHolographOutput@1 shape is `OUTPUT_HOLOGRAPH_SCHEMA` in
+// `native/organs/output-holograph.js::holographType()` ({prose, tiers,
+// verdict}, `schema` added by the caller) — confirmed by direct comparison
+// against the two committed samples (`native/eval/lavar/results/olmo-
+// holograph.json`, `olmo-part2-holograph.json`), which carry that exact
+// shape. `native/eval/lavar/lavar-read.mjs` — the file this citation most
+// likely meant — writes a DIFFERENT, incompatible shape today
+// ({results, holograph: {fold, cuts, voids, frame}}, no `schema`/`prose`/
+// `tiers`/`verdict` at all) and would throw if fed to `loadHolograph` below;
+// which specific run originally produced the two committed samples is not
+// recoverable from the current checkout.
+//
 // A full response is three connected layers, and this module knows how to
-// pull all three out of one EOHolographOutput@1 artifact (the shape
-// native/eval/lavar/holograph.mjs writes):
+// pull all three out of one EOHolographOutput@1 artifact:
 //
 //   1. THE SOURCES   — what inspired it: inspiredBy.material facts and the
 //                      direction, each resolved to its PERMANENT ADDRESS

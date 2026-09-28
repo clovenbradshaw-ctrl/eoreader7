@@ -13,6 +13,28 @@
 // over one record may phrase differently, but the set of record-backed
 // claims they make, and the count of claims nothing backs (which must be 0),
 // is the thing compared — `claimKey` is the identity the diff compares on.
+//
+// DISCLOSED (2026-09-28, organ-consolidation audit): this file is a frozen,
+// one-time vendored snapshot (added whole, in eoreader7 commit a63be3c
+// "Vision ledger: foldAt tested at scale", 2026-09-26 — a checkpoint-style
+// commit that swept in hundreds of untracked files, not a deliberate
+// answer-record.js edit) of the-fold's canonical, actively-evolving
+// answer-record.js. It now lacks: the satisfaction/logos/ledgerLint/
+// ungrounded disclosure fields and expectation/open/mechanical params on
+// answerRecord(), scope/ground per claim, answerRecordForReading(), the
+// LINT_PHRASES/lintKinds helpers, and bareLogic(). This is not a bug today:
+// proxy-runner.mjs — the only caller — calls answerRecord() with base
+// fields only (voids:[], witness:[], no satisfaction/logos/ledgerLint/
+// expectation) and embeds the whole return value opaquely as
+// reading.answerRecord, never calling answerRecordProse/answerRecordLine/
+// answerRecordForReading/bareLogic; native/the-fold/dialogue.js only
+// imports the byte-identical claimKey. Forcing byte-sync would need a
+// fresh one-time re-copy of the-fold's file over this one (never the
+// reverse — the-fold's copy is the one still receiving commits), followed
+// by re-running the tests that exercise proxy-runner.mjs's reading-surface
+// path (cli/tests/proxy-api-reading.test.mjs) — not attempted here; this
+// note exists only so a future reader does not mistake this file for the
+// current design of the live AnswerRecord shape.
 
 export const ANSWER_RECORD_SCHEMA = "EOAnswerRecord@1";
 

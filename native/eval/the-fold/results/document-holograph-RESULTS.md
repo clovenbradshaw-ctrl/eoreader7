@@ -1,5 +1,12 @@
 # Document holograph — a document summarized by its reading, no model, no conversation (2026-09-07)
 
+**Note added 2026-09-28 (organ-consolidation audit, holograph cluster):** the
+`--source <body> --gold <summary>` interface transcribed below was replaced
+the following day (S65) by `--run <conversation-dir> [--question]` — see
+`document-holograph-constitutional-RESULTS.md` for the current driver's own
+measurement. This doc is kept as a historical record of the earlier
+interface's own run, not a reproducible recipe against today's script.
+
 Transcribed from `node eval/the-fold/document-holograph.mjs --source <body> --gold <summary>` over two
 documents that come with a summary their own authors wrote, held out and read by the same reader:
 

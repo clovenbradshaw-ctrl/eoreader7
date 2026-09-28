@@ -7,6 +7,7 @@
 //                               resolves to the byte (ground text embedded).
 
 import fs from "node:fs";
+import { OUTPUT_HOLOGRAPH_SCHEMA } from "../../native/organs/output-holograph.js";
 
 const ROOT = new URL("./", import.meta.url);
 const rows = fs.readFileSync(new URL("./ledger/metro-code-departments.jsonl", import.meta.url), "utf8")
@@ -47,7 +48,7 @@ const assertions = graph.edgesList.map((e) => ({
 }));
 
 const holograph = {
-  schema: "EOHolographOutput@1",
+  schema: OUTPUT_HOLOGRAPH_SCHEMA,
   title: "Metropolitan Code — Department Responsibilities and Measurable Harm",
   prose,
   assertions,

@@ -547,3 +547,75 @@ export function admit(candidate, {
   refused.push({ kind: grounded === null ? "unbonded" : "ungrounded", given: "model", bond: toPrior, nullMax: nul.max });
   return { admit: false, road: null, core, bond: toPrior, nullMax: nul.max, refused };
 }
+
+/** Split text into candidate units — lines or sentences, unit's own
+ *  caller-declared choice. No essay/document vocabulary: this only knows
+ *  how to cut text into pieces short enough to admit one at a time. */
+function candidateUnitsOf(text, unit, locale) {
+  return unit === "line"
+    ? String(text ?? "").split(/\n/).map((l) => stripMouthQuoting(l.replace(/^[-•*]\s+/, "").trim())).filter((l) => l.length > 3)
+    : segmentSentences(text, locale).map(stripMouthQuoting).filter((x) => x.length > 20);
+}
+
+/**
+ * admitCandidates(text, {...}) — split `text` into candidate units and run
+ * each through `admit()`, depositing every survivor and recording every
+ * refusal. This is the whole "draw → split → admit each → deposit" pass
+ * TWO callers (prosify.js's F1, flesh2.js's F2) once each reimplemented by
+ * hand — the SHELL (splitting, the `without`-scoped registry copy, the
+ * deposit-twice bookkeeping, the refusal shape, the return shape) is
+ * identical mechanical work in both; what differs between an essay's F1
+ * and F2 stages is which `isGrounded`/`invented`/`continues`/`isMeta`
+ * predicates they inject — so those stay exactly what they already were,
+ * caller-supplied, matching `admit()`'s own dependency-injection
+ * discipline (law 1 above: this file must not know what a river is, an
+ * essay is, or a name is — it only knows how to run the test it is
+ * handed). `isGrounded` alone gets a real default, because it is built
+ * from nothing but this file's own `matterWords` and both callers already
+ * build it identically.
+ *
+ * `registry` is REQUIRED and mutated in place — it is the piece's one
+ * running deposit across every call, not a fresh Set per call.
+ */
+export function admitCandidates(text, {
+  ground = "",
+  priorLanding = "",
+  instruction = "",
+  registry,
+  variance = null,
+  bondNull = null,
+  unit = "sentence",
+  without = null,
+  locale,
+  node = null,
+  isGrounded = null,
+  invented = null,
+  continues = null,
+  isMeta = null,
+} = {}) {
+  const v = variance instanceof Set ? variance : measureVariance(ground, locale);
+  const nul = bondNull ?? measureBondNull(ground, locale, v);
+  const grounded = typeof isGrounded === "function" ? isGrounded : (x) => matterWords(x, ground, v, locale).length > 0;
+  const survivors = [];
+  const roads = [];
+  const refusals = [];
+  let reg = registry;
+  if (without) {
+    reg = new Set(registry);
+    reg.delete(claimCore(without, v, locale));
+    for (const w of matterWords(without, ground, v, locale)) reg.delete(`w:${w}`);
+  }
+  for (const cand of candidateUnitsOf(text, unit, locale)) {
+    if (typeof isMeta === "function" && isMeta(cand)) { refusals.push({ kind: "meta", sentence: cand }); continue; }
+    const verdict = admit(cand, {
+      ground, priorLanding, instruction, registry: reg, variance: v, bondNull: nul, locale, verse: unit === "line",
+      isGrounded: grounded, invented, continues,
+    });
+    if (!verdict.admit) { refusals.push({ kind: verdict.refused?.[0]?.kind ?? "refused", sentence: cand, basis: verdict.refused?.[0]?.basis ?? null }); continue; }
+    deposit(registry, verdict);
+    if (reg !== registry) deposit(reg, verdict);
+    survivors.push(cand);
+    roads.push(verdict.road);
+  }
+  return { survivors, roads, refusals, node };
+}

@@ -58,7 +58,16 @@ export const triggerGap = (language) => (language && language !== TRIGGER_LANGUA
 // fails the check that should confirm it). resolutions.js, activation-
 // retrieval.js and holon.js's act-key fold all import this rather than
 // redefining it; a fourth copy is exactly the shape P7.1 was written for.
-export const fold = (t) => String(t ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+// Diacritics are stripped for matching (Natásha/Natasha, Bezúkhov/Bezukhov,
+// Peñasco/Penasco), but NFD decomposes Cyrillic й/Й into и/И plus COMBINING
+// BREVE (U+0306) — а different letter of the alphabet, never a decorated и,
+// unlike a genuine accent mark on a Latin vowel — so stripping it the same
+// way collapsed мой/мои (two distinct real words) to one string. Found live,
+// 2026-09-15, cross-lingual testing of identitySwapped (P221): fold('мой')
+// === fold('мои'). U+0306 is excluded from the stripped range; every other
+// combining mark (acute, grave, tilde, diaeresis, cedilla, ring, …) folds
+// exactly as before — confirmed against Natásha/Bezúkhov/Peñasco/über/naïve.
+export const fold = (t) => String(t ?? "").normalize("NFD").replace(/[̀-̅̇-ͯ]/g, "").toLowerCase();
 const ids = (index, name) => { try { const r = index?.resolve?.(name); return r instanceof Set ? r : new Set(r ?? []); } catch { return new Set(); } };
 const represent = (index, id) => { try { return index?.represent?.(id) ?? id; } catch { return id; } };
 
@@ -130,10 +139,40 @@ const PASSAGE_ANAPHOR_RE = /\b(those|these|that|the)\s+(passages?|quotes?|lines?
 // purpose: a bare "them"/"he"/"it" with no quantifier still binds exactly as
 // before (the "why did he do it?" case this file's own test already pins).
 const QUANTIFIED_SOURCE_RE = /\b(?:either|any|both|neither|none|some|each|one)\s+of\s+(?:them|those|these|it)\b/gi;
+
+// A LOCAL ANTECEDENT — a determined noun phrase in the SAME SENTENCE as the
+// pronoun, appearing BEFORE it — is a VETO on the cross-turn fallback below,
+// never a binding of its own (P31's shape, reused: a string can refuse a
+// claim, it cannot make one). "The co-op keeps a shared beehive out back;
+// who tends it?" names its own antecedent in the same breath the pronoun is
+// asked in — the fallback exists for exactly the OPPOSITE case, a question
+// with nothing of its own to go on. Deliberately text-only, no referent
+// index lookup: an ordinary common noun ("beehive") the index has never
+// established as a referent (cast.js only knows people/places/things the
+// material's own text establishes, not every noun a question introduces) is
+// still real evidence that THIS SENTENCE, not the last answer — let alone
+// another conversation's last answer — is what the pronoun points at.
+// Measured live across many batches (2026-09-15): "who tends it" kept
+// falling back to a previous, unrelated answer's referent even with a plain
+// local antecedent sitting in the very same sentence, because `own` only
+// ever looks for names the referent index resolves.
+const LOCAL_ANTECEDENT_NP_RE = /\b(?:the|this|that|these|those|a|an|my|your|his|her|its|our|their)\s+\p{L}[\p{L}'’-]*(?:\s+\p{L}[\p{L}'’-]*){0,3}/iu;
+const SENTENCE_SPLIT_RE = /(?<=[.!?])\s+/;
+function hasLocalAntecedent(text) {
+  for (const sent of String(text ?? "").split(SENTENCE_SPLIT_RE)) {
+    for (const pm of sent.matchAll(PRONOUN_RE)) {
+      if (LOCAL_ANTECEDENT_NP_RE.test(sent.slice(0, pm.index))) return true;
+    }
+  }
+  return false;
+}
 /**
- * bindAnaphora(question, last, index) → { ids, refs, pronouns, own }. The
- * question's own referents (`own`) come first; an anaphor binds to the last
- * answer's referent ids in mention order only when the question names none.
+ * bindAnaphora(question, last, index) → { ids, refs, pronouns, own, local }.
+ * The question's own referents (`own`) come first; an anaphor binds to the
+ * last answer's referent ids in mention order only when the question names
+ * none of its own AND carries no local antecedent (`local`) — a same-
+ * sentence noun phrase the pronoun can already be read against, which the
+ * cross-turn fallback below must never override.
  */
 export function bindAnaphora(question, last, index) {
   const q = String(question ?? "");
@@ -141,9 +180,10 @@ export function bindAnaphora(question, last, index) {
   const qForPronouns = q.replace(QUANTIFIED_SOURCE_RE, " ");
   const pronouns = [...new Set((qForPronouns.match(PRONOUN_RE) ?? []).map((p) => p.toLowerCase()))];
   const passageAnaphor = PASSAGE_ANAPHOR_RE.test(q);
-  if (!last || (!pronouns.length && !passageAnaphor)) return { ids: [], refs: [], pronouns: [], own };
-  const bound = own.ids.size ? [] : [...referentsOf(last.answer ?? "", index).ids];
-  return { ids: bound, refs: passageAnaphor ? [...(last.refs ?? [])] : [], pronouns, own };
+  if (!last || (!pronouns.length && !passageAnaphor)) return { ids: [], refs: [], pronouns: [], own, local: false };
+  const local = pronouns.length > 0 && hasLocalAntecedent(qForPronouns);
+  const bound = (own.ids.size || local) ? [] : [...referentsOf(last.answer ?? "", index).ids];
+  return { ids: bound, refs: passageAnaphor ? [...(last.refs ?? [])] : [], pronouns, own, local };
 }
 
 /** addressedBy(answer, qRefs, index) → which of the question's referents the answer names — by identity. */
@@ -283,14 +323,17 @@ export function historyWindow(history = [], question = "", { dmdWindow, index = 
 }
 
 /**
- * expectationFrom(passages, question, read, index) — what the material states
- * about the question's REFERENTS before the mouth: the reader's own bound
+ * expectationFrom(passages, question, read, index, voids) — what the material
+ * states about the question's REFERENTS before the mouth: the reader's own bound
  * claims over the retrieved passages, kept when an end resolves to a referent
  * the question resolves to. Only when the question resolves to none does a
  * content-word overlap on the ends stand in, and the result says so.
+ * `voids` (the reader's declared absences, GFP Pass 40) contribute what is
+ * ABSENT and the scope it was absent in — the expectation is not only what the
+ * material says, but what it was searched for and does not yet say.
  */
-export function expectationFrom(passages = [], question = "", read, index = null) {
-  if (typeof read !== "function" || !passages.length) return { claims: [], basis: null, why: "no reader or no passages" };
+export function expectationFrom(passages = [], question = "", read, index = null, voids = []) {
+  if (typeof read !== "function" || !passages.length) return { claims: [], basis: null, voids: [], why: "no reader or no passages" };
   const qRefs = referentsOf(question, index);
   const qw = contentWords(question);
   const basis = qRefs.ids.size ? "referent" : "surface";
@@ -311,12 +354,44 @@ export function expectationFrom(passages = [], question = "", read, index = null
       claims.push({ key, end1: c.end1 ?? c.subject ?? null, label: c.label ?? c.verb ?? null, end2: c.end2 ?? c.object ?? null, polarity: c.polarity ?? "+", at: p.ref ?? null, refs: [...new Set([p.ref, ...(c.refs ?? [])].filter(Boolean))] });
     }
   }
+  // The voids, deidentified and scoped — what was searched for and not yet heard.
+  const voidRows = (voids ?? []).filter(Boolean).map((v) => ({ text: [v.end1 ?? v.subject, v.label ?? v.verb, v.end2 ?? v.object].filter(Boolean).join(" "), scope: v.scope ?? null }));
   // The diff (errorOf) filters the answer's claims by the SAME touch test, so both sides are claims about the asked-about.
-  return { claims, basis, ids: [...qRefs.ids], words: qw, touches, why: claims.length ? `${claims.length} claim(s) the material states about what was asked (by ${basis})` : `the retrieved passages state nothing about what was asked (by ${basis})` };
+  return { claims, basis, ids: [...qRefs.ids], words: qw, touches, voids: voidRows, why: claims.length ? `${claims.length} claim(s) the material states about what was asked (by ${basis})` : `the retrieved passages state nothing about what was asked (by ${basis})` };
 }
+/**
+ * A void's `scope` is the structured object every declarer on the record
+ * already builds it as — `{sources, read, total}` (notes.js::declareVoid,
+ * `scope: { ...scope }`) — a caller that already has its own plain-English
+ * phrase may still pass a string (this file's own tests do, and nothing
+ * says a future caller won't), so both are honored: a string rides verbatim,
+ * an object is phrased. Four other places already know the object shape and
+ * phrase it in words (app.js's `/void` rendering, its loop-note, and the
+ * ∅-mark detail: "looked for in N source(s), R of T parts read"). This is
+ * the fifth reader of the same shape, and it had been interpolating the raw
+ * object directly (`` `(searched ${v.scope})` ``) — which stringifies an
+ * object as the literal text "[object Object]", found live in a real turn's
+ * own system prompt (P190's own class of defect, one level in: not a wrong
+ * fact, a formatting bug that ships a token no giver ever wrote).
+ */
+function scopePhrase(scope) {
+  if (!scope) return null;
+  if (typeof scope === "string") return scope;
+  if (typeof scope !== "object") return null;
+  const sources = scope.sources?.length ?? scope.sources ?? null;
+  const read = scope.read ?? null;
+  const total = scope.total ?? null;
+  if (sources == null && read == null && total == null) return null;
+  return `looked for in ${sources ?? "?"} source(s), ${read ?? "?"} of ${total ?? "?"} parts read`;
+}
+
 /** The expectation as facts for the mouth — positive, addressed, never an instruction. */
 // No address reaches the mouth (the rule since 2026-08-18); the claims keep theirs on the record.
-export const expectationFacts = (exp) => exp?.claims?.length ? `What the sources state about this:\n${exp.claims.slice(0, 12).map((c) => `- ${[c.end1, c.label, c.end2].filter(Boolean).join(" ")}${c.polarity === "-" ? " (denied)" : ""}`).join("\n")}` : "";
+// The voids ride beside as the declared absence — "looked for and not found so far," with the scope.
+export const expectationFacts = (exp) => [
+  exp?.claims?.length ? `What the sources state about this:\n${exp.claims.slice(0, 12).map((c) => `- ${[c.end1, c.label, c.end2].filter(Boolean).join(" ")}${c.polarity === "-" ? " (denied)" : ""}`).join("\n")}` : "",
+  exp?.voids?.length ? `Looked for and not found so far:\n${exp.voids.slice(0, 6).map((v) => `- ${v.text}${scopePhrase(v.scope) ? ` (${scopePhrase(v.scope)})` : ""}`).join("\n")}` : "",
+].filter(Boolean).join("\n\n");
 /**
  * errorOf(expectation, answerClaims, index) → matched / novel / missing /
  * contradicted, and the authorship ratio; both sides keyed the same way, and

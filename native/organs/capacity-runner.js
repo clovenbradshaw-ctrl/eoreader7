@@ -931,6 +931,19 @@ export function readsNothing(reading) {
   return !(Array.isArray(reading?.read) && reading.read.length > 0);
 }
 
+/**
+ * NOT THE LLM-WITNESS PROTOCOL — a disambiguation, not a design note.
+ *
+ * This is NOT the LLM-witness protocol in organs/testimony.js
+ * (foldTestimony/foldSelect/WITNESS_SCHEMA, consumed by
+ * corroboration.js::witnessNote → witness-sentences.js/ranke.js/
+ * bridge-witness.js/connector-witness.js). `mergeTestimony` here operates
+ * on `perSourceReadings`, which are mechanical hypergraph.js::judge()
+ * verdicts landed via grid.js `evaluate` acts (the-fold's app.js's
+ * `crownTestimony` and its `/facts` composer) — zero model calls, zero
+ * shared call with the LLM-witness ladder. Two pipelines share the word
+ * "testimony" and nothing else; do not attempt to merge them.
+ */
 export function mergeTestimony(readings) {
   const holds = readings.filter((r) => r.verdict === "holds");
   const refused = readings.filter((r) => r.verdict === "refused");

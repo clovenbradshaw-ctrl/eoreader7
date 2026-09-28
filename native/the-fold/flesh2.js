@@ -19,9 +19,9 @@
 // pipeline's own (facts carried, the ask's questions answered, findings
 // licensing a revision, sentences, words, model calls).
 
-import { admit, deposit, measureVariance, measureBondNull, matterWords, segmentSentences, claimCore, stripMouthQuoting } from "./admission.js";
+import { admitCandidates, measureVariance, measureBondNull, segmentSentences } from "./admission.js";
 import { inventedNameRuns, isMetaSentence } from "./referent-verify.js";
-import { drawnParts } from "./eot-draft.js";
+import { drawnParts, namesOf } from "./eot-draft.js";
 import { isCommonWord } from "./pos-prior.js";
 import { anchorsFor, carries } from "./prosify.js";
 import { statementKinds, saturatingSpans, kindSentence } from "./kinds.js";
@@ -55,34 +55,20 @@ export async function flesh2({ draft, draw, ground = "", task = "", voice = null
     return out;
   };
 
-  const admitAll = (text, { priorLanding, node, without = null }) => {
-    const survivors = [];
-    const roads = [];
-    const refusals = [];
-    let reg = registry;
-    if (without) {
-      reg = new Set(registry);
-      reg.delete(claimCore(without, variance));
-      for (const w of matterWords(without, ground, variance)) reg.delete(`w:${w}`);
-    }
-    for (const cand of segmentSentences(text).map(stripMouthQuoting).filter((x) => x.length > 20)) {
-      if (isMetaSentence(cand)) { refusals.push({ kind: "meta", sentence: cand }); continue; }
-      const v = admit(cand, {
-        ground, priorLanding, instruction: task, registry: reg, variance, bondNull,
-        isGrounded: (x) => matterWords(x, ground, variance).length > 0,
-        invented: (x) => inventedNameRuns(x, ground, { isCommonWord }),
-        continues: draft.referents
-          ? (a, b) => { const sub = draft.subjectRefs ?? new Set(); const B = draft.referents.resolveText(b); for (const id of draft.referents.resolveText(a)) if (B.has(id) && !sub.has(id)) return true; return false; }
-          : (a, b) => { const A = a ? [a] : []; const B = b ? [b] : []; return A.some((n) => B.includes(n)); },
-      });
-      if (!v.admit) { refusals.push({ kind: v.refused?.[0]?.kind ?? "refused", sentence: cand, basis: v.refused?.[0]?.basis ?? null }); continue; }
-      deposit(registry, v);
-      if (reg !== registry) deposit(reg, v);
-      survivors.push(cand);
-      roads.push(v.road);
-    }
-    return { survivors, roads, refusals, node };
-  };
+  // The split/admit/deposit shell is admission.js::admitCandidates (lifted
+  // 2026-09-28 — this file's own hand copy diverged from prosify.js's F1
+  // sibling in one real way: the `continues` fallback compared whole
+  // strings rather than shared names, which is weaker than it needed to
+  // be — prosify.js already imported eot-draft.js's namesOf for exactly
+  // this and this file never did. Fixed here, not silently carried over.
+  const admitAll = (text, { priorLanding, node, without = null }) => admitCandidates(text, {
+    ground, priorLanding, instruction: task, registry, variance, bondNull, without, node,
+    invented: (x) => inventedNameRuns(x, ground, { isCommonWord }),
+    continues: draft.referents
+      ? (a, b) => { const sub = draft.subjectRefs ?? new Set(); const B = draft.referents.resolveText(b); for (const id of draft.referents.resolveText(a)) if (B.has(id) && !sub.has(id)) return true; return false; }
+      : (a, b) => { const A = namesOf(a); const B = new Set(namesOf(b)); return A.some((n) => B.has(n)); },
+    isMeta: isMetaSentence,
+  });
 
   const carried = (text) => {
     const out = new Set();

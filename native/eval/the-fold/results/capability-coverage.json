@@ -11,7 +11,7 @@
  ],
  "registry": {
   "source": "capacities.js",
-  "entries": 45,
+  "entries": 50,
   "selfDescribed": "a DATA TABLE, NOT A RUNTIME — 'starts, deliberately does not finish, the library seed' (its own header)"
  },
  "counts": {
@@ -212,7 +212,8 @@
      "organs": [
       "web",
       "witness",
-      "volatility"
+      "volatility",
+      "clause-tense"
      ]
     }
    ]
@@ -239,7 +240,8 @@
      "grain": "Pattern",
      "terrain": "Network",
      "organs": [
-      "network"
+      "network",
+      "arrow"
      ]
     },
     {
@@ -250,7 +252,8 @@
      "terrain": "Paradigm",
      "organs": [
       "standing",
-      "consequence"
+      "consequence",
+      "morph-cues"
      ]
     }
    ]
@@ -288,7 +291,9 @@
      "terrain": "Atmosphere",
      "organs": [
       "regime",
-      "dream"
+      "dream",
+      "narrative-time",
+      "code-time"
      ]
     }
    ]

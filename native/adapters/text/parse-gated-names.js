@@ -38,25 +38,74 @@
 // a parser mistake tagging a stray lowercase function word PROPN once
 // cannot admit it alone.
 //
-// STANDALONE AND UNWIRED, on the same standing as
-// english-parser-perceiver.mjs's own header: nothing imports this into
-// recursive.js's createCausalTextPerceiver or session.reader. Wiring it
-// into the live admission path (replacing or gating surfaces.js's role in
-// discoverReferents) changes behaviour for every session's every read and
-// needs the same explicit sign-off that perceiver's wiring required —
-// this file is proven and ready for that decision, not a silent default.
+// WIRED, not standalone. The rule this file measured is reimplemented
+// inline in recursive.js's createCausalTextPerceiver (its own `parseModel`
+// option, `synPropnSeen` accumulator, folded incrementally one sentence at
+// a time rather than calling this file's batch entry point) and is ON BY
+// DEFAULT in production: proxy-runner.mjs::createSessionReader sets
+// `parseModel = process.env.ER7_PARSE_GATED_NAMES !== "0" ?
+// getEnglishParserModel() : null`, and that reader is what runProxyTurn
+// (proxy.mjs's live POST /v1/chat/completions handler) actually
+// instantiates per session. `parseGatedNames` itself (the function this
+// file exports) stays a standalone entry point used only by its own test
+// and by callers who want the batch shape — recursive.js does not call it
+// directly, but both it and recursive.js's inline gate now share ONE
+// primitive, `synPropnFormsForSentences` below, so the two can no longer
+// silently diverge on sentence boundaries the way they did until
+// 2026-09-28 (see that function's own header for the bug this closed).
 //
 // PARTICULAR TO ENGLISH, named rather than assumed: `model` is
 // english-parser.js's trained UD parser for English (parser-eng-ewt.json).
 // A caseless script or a language without this repo's own trained parser
-// has no `upostOccurrences` to gate with — surfaces.js's capitalisation
-// scan (or its own script's Entity/Kind cues) remains what runs for it.
+// has no parse to gate with — surfaces.js's capitalisation scan (or its
+// own script's Entity/Kind cues) remains what runs for it.
 
 import { splitSentences } from "./spans.js";
 import { extractSurfaces } from "./surfaces.js";
-import { upostOccurrences } from "./english-parser.js";
+import { tokenize as engTokenize, analyse as engAnalyse } from "./english-parser.js";
 
 const WORD = /\p{L}[\p{L}'’]*/gu;
+
+/**
+ * synPropnFormsForSentences(model, sentences) — every lowercase form the
+ * material's own per-sentence parse tags PROPN at least once, across the
+ * given sentence TEXTS (plain strings, already split by the caller's own
+ * sentence boundaries).
+ *
+ * THE ONE SHARED PRIMITIVE behind both `parseGatedNames` below and
+ * recursive.js's incremental per-sentence fold — deliberately taking
+ * already-split sentence strings rather than re-splitting `text` itself,
+ * because re-splitting was the bug: until 2026-09-28 this file called
+ * english-parser.js's own `upostOccurrences(model, text)`, which re-splits
+ * sentences internally via that file's ICU-based `sentences()` — a DIFFERENT
+ * splitter than spans.js::splitSentences, which recursive.js's inline gate
+ * (and this file's own `extractSurfaces` call, two lines below) already
+ * used. The two splitters demonstrably disagree on exactly the name-initial
+ * abbreviation cases spans.js was built to fix: ICU's sentence segmenter
+ * treats "Ulysses S." as ending a sentence, splitting "The letter was
+ * signed by Ulysses S. Grant himself." into "...Ulysses S." + "Grant
+ * himself." — and the fragment "Grant himself." tags "Grant" differently
+ * than the material's own real sentence does, so the OLD `upostOccurrences`
+ * path never admitted "Grant" at all while recursive.js's inline gate,
+ * reading the SAME text through spans.js's abbreviation-aware split,
+ * correctly did. Reproduced live against the real trained model
+ * (parser-eng-ewt.json) and pinned in parse-gated-names.test.mjs.
+ *
+ * A sentence the parser can't tokenise or tag never blocks the read (the
+ * same typed-degradation discipline recursive.js's own try/catch already
+ * followed) — it just contributes no evidence for that sentence.
+ */
+export function synPropnFormsForSentences(model, sentences) {
+  const forms = new Set();
+  for (const text of sentences) {
+    try {
+      const toks = engTokenize(text);
+      const rows = engAnalyse(model, toks.map((t) => t.form));
+      for (const r of rows) if (r.upos === "PROPN") forms.add(r.form.toLowerCase());
+    } catch {}
+  }
+  return forms;
+}
 
 /**
  * parseGatedNames(text, {model, sentenceOpts, surfaceOpts}) —
@@ -65,9 +114,9 @@ const WORD = /\p{L}[\p{L}'’]*/gu;
  *
  * Returns:
  *   admitted  Set<lowercased word> licensed by parse-any AND capitalised.
- *   evidence  Map<word, {capitalized, synPropn, occurrences}> — the raw
- *             evidence behind every capitalised-run candidate, admitted
- *             or not, so a caller can see why one was refused.
+ *   evidence  Map<word, {capitalized, synPropn}> — the raw evidence behind
+ *             every capitalised-run candidate, admitted or not, so a
+ *             caller can see why one was refused.
  *   runs      surfaces.js's own capitalised-run candidates (multi-word
  *             surfaces like "Sir John Falstaff"), filtered to the runs
  *             where at least one constituent word is admitted — the
@@ -78,7 +127,7 @@ export function parseGatedNames(text, { model, sentenceOpts, surfaceOpts } = {})
   if (!model) throw new TypeError("parseGatedNames: a loaded english-parser.js model is required");
   const sents = splitSentences(text, sentenceOpts);
   const surfaceRuns = extractSurfaces(sents, surfaceOpts);
-  const occ = upostOccurrences(model, text);
+  const synPropnForms = synPropnFormsForSentences(model, sents.map((s) => s.text));
 
   const capitalizedWords = new Set();
   for (const r of surfaceRuns) for (const w of r.surface.toLowerCase().match(WORD) ?? []) capitalizedWords.add(w);
@@ -86,9 +135,8 @@ export function parseGatedNames(text, { model, sentenceOpts, surfaceOpts } = {})
   const admitted = new Set();
   const evidence = new Map();
   for (const w of capitalizedWords) {
-    const os = occ.get(w) ?? [];
-    const synPropn = os.some((o) => o.upos === "PROPN");
-    evidence.set(w, { capitalized: true, synPropn, occurrences: os.length });
+    const synPropn = synPropnForms.has(w);
+    evidence.set(w, { capitalized: true, synPropn });
     if (synPropn) admitted.add(w);
   }
 

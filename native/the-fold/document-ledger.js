@@ -204,7 +204,7 @@ export function checkEssayShape(text, { parts = 3, themes = [], subject = "" } =
 //   Terrain of each cell: Void/Entity/Kind · Field/Link/Network ·
 //   Atmosphere/Lens/Paradigm. Stance: Clearing/Dissecting/Unraveling ·
 //   Tending/Binding/Tracing · Cultivating/Making/Composing.
-const VOID_CELLS = [
+export const VOID_CELLS = [
   // ── Existence · what exists ──
   // HOLON (the law: low sets possibility for high, high probability for low).
   // LOW cells ask about the SUBJECT — X itself, its kinds, beings, relations,

@@ -4,9 +4,10 @@
 // the abstract still returns a usable piece.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildDraft } from "./eot-draft.js";
+import { buildDraft, namesOf } from "./eot-draft.js";
 import { buildReferents, attachReferents } from "./referents.js";
 import { flesh2 } from "./flesh2.js";
+import { admitCandidates, measureVariance, measureBondNull } from "./admission.js";
 
 const GROUND = [
   "The audit gave the office six ratings.",
@@ -41,4 +42,29 @@ test("a level that loses a fact the level below carried is undone", async () => 
   const r = await flesh2({ draft: draft(), draw, ground: GROUND, task: "Write a piece from this material." });
   const L1carried = r.levels.L1.carried, L2carried = r.levels.L2.carried;
   assert.ok(L2carried >= L1carried, "L2 never carries fewer facts than L1 once undone loops are accounted for");
+});
+
+// flesh2.js's own `continues` fallback (for a draft with no `.referents`) used
+// to compare whole strings — effectively "is the candidate byte-identical to
+// the prior landing", which a real continuing sentence never is. Fixed
+// 2026-09-28 to match prosify.js's own namesOf-based fallback (shared-name
+// continuity) when it was lifted into admission.js::admitCandidates as one
+// shared shell. This pins the fix directly against the two fallback shapes,
+// not just against flesh2()'s own end-to-end output.
+test("the referents-less `continues` fallback recognizes a shared name as motion — the old whole-string-equality version could not", () => {
+  const ground = "Observation A: the plan was not updated. Assessed risk rating: High.";
+  const priorLanding = "The audit turned first to Observation A.";
+  const turn = "Observation A had been open since spring.";
+  const variance = measureVariance(ground);
+  const bondNull = measureBondNull(ground, undefined, variance);
+  const namesBased = (a, b) => { const A = namesOf(a); const B = new Set(namesOf(b)); return A.some((n) => B.has(n)); };
+  const wholeString = (a, b) => { const A = a ? [a] : []; const B = b ? [b] : []; return A.some((n) => B.includes(n)); };
+  // isGrounded is forced false so ONLY the continues/motion road can admit
+  // the turn — isolating exactly what differs between the two fallbacks,
+  // rather than letting an incidentally-grounded fixture mask it.
+  const runWith = (continues) => admitCandidates(turn, { ground, priorLanding, registry: new Set(), variance, bondNull, continues, isMeta: () => false, isGrounded: () => false });
+  const fixed = runWith(namesBased);
+  const old = runWith(wholeString);
+  assert.ok(fixed.roads.includes("motion") || fixed.roads.includes("both"), `the namesOf fallback must recognize the turn: ${JSON.stringify(fixed)}`);
+  assert.ok(!old.roads.includes("motion") && !old.roads.includes("both"), `the OLD whole-string fallback should not have recognized this as motion (it required byte-identity): ${JSON.stringify(old)}`);
 });

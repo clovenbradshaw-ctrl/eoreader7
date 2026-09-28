@@ -3,7 +3,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { buildDraft, drawnParts } from "./eot-draft.js";
 import { loadEotParser, attachEot } from "./eot-notation.js";
-import { profileStatements, addressesOf } from "./profile.js";
+import { profileStatements, addressesOf } from "./statement-profile.js";
 
 const GROUND = [
   "The office serves the county.",

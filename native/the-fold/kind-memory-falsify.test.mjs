@@ -54,6 +54,20 @@ test("the lookup: a remembered kind recognizes a new instance, and refuses one o
   assert.match(recognizeKind(emptyKindMemory(), five("", 1)).basis, /costs a hunt/);
 });
 
+test("recognizeKind's own arithmetic is evaluateParadigmEmergent's, not a second copy of it — every scored field, not just the verdict", () => {
+  const s = emptyKindMemory();
+  rememberParadigm(s, "fivec", learn(A), { source: "edition-A" });
+  rememberParadigm(s, "fivec", learn(B), { source: "edition-B" });
+  for (const candidate of [five("", 999), four(999), five("   ", 5)]) {
+    const scored = recognizeKind(s, candidate).scored.find((x) => x.kind === "fivec");
+    const direct = evaluateParadigmEmergent(recallKind(s, "fivec"), candidate);
+    assert.equal(scored.score, direct.score, `score diverged for ${JSON.stringify(candidate)}`);
+    assert.equal(scored.held, direct.held, `held diverged for ${JSON.stringify(candidate)}`);
+    assert.equal(scored.of, direct.of, `of diverged for ${JSON.stringify(candidate)}`);
+    assert.equal(scored.satisfies, direct.satisfies, `satisfies diverged for ${JSON.stringify(candidate)}`);
+  }
+});
+
 test("DEF: a counter-instance refutes the features it lacks, and every later recall is rebuilt without them", () => {
   const s = emptyKindMemory();
   rememberParadigm(s, "fivec", learn(A), { source: "edition-A" });
