@@ -103,15 +103,38 @@ export function judgmentRequest({ standing, forWhom, sectionOf, claim = null } =
 }
 
 /**
- * landJudgment(request, { verdict, judge, cursor }) -> { record, collapse }
- *   verdict: one of JUDGMENT_CANDIDATES (a point, never prose)
- *   judge:   { recipe } — the judge's own address (model + prompt + version), the collapse's giver
+ * landJudgment(request, { answer, read, judge, cursor }) -> { record, collapse, reading }
+ *   answer: the judge's own words — prose, whatever it wrote (user direction, 2026-09-28: "We
+ *           can't stop it from writing a verdict in prose and shouldn't, but we can read that
+ *           mechanically for the answer")
+ *   read:   (answer, request) -> { verdict, anchored, decider?, because? } — the caller's medium
+ *           reader (organs/judgment-reader.js for text): which candidate the prose commits to,
+ *           and whether what it points at as deciding is IN the section it was handed
+ *   judge:  { recipe } — the judge's own address (model + prompt + version), the collapse's giver
+ * The reading is mechanical and the collapse is derived from it: a committed candidate whose
+ * decider is anchored in the section is CHOSEN; a committed candidate that points at nothing in
+ * the section is CONTESTED against `undetermined` (the judge asserted, the bytes did not back it);
+ * no single commitment is NONE. A verdict already a point (a candidate string) is read as itself.
  */
-export function landJudgment(request, { verdict, judge, cursor = null } = {}) {
+export function landJudgment(request, { answer, verdict = null, read = null, judge, cursor = null } = {}) {
   if (request?.schema !== JUDGMENT_REQUEST_SCHEMA) throw new TypeError("landJudgment: an EOJudgmentRequest@1");
   if (!judge?.recipe) throw new TypeError("landJudgment: the judge's recipe is declared — a verdict with no address is a rumour");
-  const idx = JUDGMENT_CANDIDATES.indexOf(verdict);
+  let reading;
+  if (verdict !== null && answer === undefined) reading = { verdict, anchored: true, decider: null, because: "a point, not prose" };
+  else {
+    if (typeof read !== "function") throw new TypeError("landJudgment: prose is read by an injected reader — the kernel reads no medium");
+    reading = read(answer, request) ?? { verdict: null, anchored: false };
+  }
+  const idx = JUDGMENT_CANDIDATES.indexOf(reading.verdict);
+  const und = JUDGMENT_CANDIDATES.indexOf("undetermined");
   const record = undecided({ question: request.forWhom.question, slot: `judgment:${request.holon}`, giver: `kernel/ingestion.js for ${request.forWhom.id}`, cursor, at: { holon: request.holon, section: request.section }, candidates: JUDGMENT_CANDIDATES.map((v) => ({ value: v, via: "judgment", features: { left: request.findings.left.length } })) });
-  const rule = { name: `judgment:${judge.recipe}`, giver: judge.recipe, decide: () => (idx >= 0 ? { chosen: idx, reason: `the judge pointed at "${verdict}" for ${request.forWhom.id}` } : { reason: `the judge answered outside the candidates ("${verdict}")` }) };
-  return { record, collapse: collapse(record, { forWhom: { id: request.forWhom.id }, rule, cursor }) };
+  const rule = {
+    name: `judgment:${judge.recipe}`, giver: judge.recipe,
+    decide: () => {
+      if (idx < 0) return { reason: `the judge's words commit to no single candidate (${reading.because ?? "none read"})` };
+      if (!reading.anchored) return { contested: [idx, und], reason: `the judge said "${reading.verdict}" but what it points at is not in the section it was handed (${reading.because ?? "no decider"})` };
+      return { chosen: idx, reason: `the judge's words commit to "${reading.verdict}" for ${request.forWhom.id}${reading.decider ? `, deciding on «${String(reading.decider).slice(0, 80)}»` : ""}` };
+    },
+  };
+  return { record, collapse: collapse(record, { forWhom: { id: request.forWhom.id }, rule, cursor }), reading };
 }
