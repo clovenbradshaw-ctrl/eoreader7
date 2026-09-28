@@ -113,7 +113,7 @@ def annotate(req):
     img = cv2.imread(req["png"]); s = stacked(req)
     h, w = img.shape[:2]
     canvas = cv2.copyMakeBorder(img, 0, 90, 0, 0, cv2.BORDER_CONSTANT, value=(255, 255, 255))
-    seen = set()
+    seen = set(); labeled = False
     for st in s["stacks"]:
         b = st["boxes"]
         if (b["top"][0], b["top"][1]) in seen: continue
@@ -122,7 +122,9 @@ def annotate(req):
         if b["base"]: cv2.rectangle(canvas, (b["base"][0], b["base"][1]), (b["base"][2], b["base"][3]), (200, 120, 0), 3)
         cv2.rectangle(canvas, (b["top"][0], b["top"][1]), (b["top"][2], b["top"][3]), (0, 0, 220), 3)
         cv2.rectangle(canvas, (b["bot"][0], b["bot"][1]), (b["bot"][2], b["bot"][3]), (0, 140, 255), 3)
-        cv2.putText(canvas, f"base {st['base']}  upper {st['upper']}  lower {st['lower']}   (gap {st.get('gap')})", (20, h + 55), cv2.FONT_HERSHEY_SIMPLEX, 1.1, (40, 40, 40), 2, cv2.LINE_AA)
+        if not labeled:  # one caption: the first pair that reads as +n over -n (later gap settings re-find the same pair)
+            cv2.putText(canvas, f"base {st['base']}  upper {st['upper']}  lower {st['lower']}   (gap {st.get('gap')})", (20, h + 55), cv2.FONT_HERSHEY_SIMPLEX, 1.1, (40, 40, 40), 2, cv2.LINE_AA)
+            labeled = True
     cv2.imwrite(req["out"], canvas)
     return {"png": req["out"], "stacks": len(s["stacks"])}
 

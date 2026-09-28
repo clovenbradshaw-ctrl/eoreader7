@@ -151,3 +151,13 @@ test("a variant that came back false is said in the claim's own sentence, not le
   assert.match(p, /did NOT hold over the whole of one finite object \(set B\)/);
   assert.equal(support(log, "k").checks.length, 1, "a false variant never counts as support");
 });
+
+test("a range or sample scope may carry a label, so variants of one check are distinguishable in the claim's own sentence", () => {
+  let log = addCard(emptyBench(), { id: "k", text: "claim", author: "human:ada" }).log;
+  const run = (id, role, label, res) => runOnBench(log, { id, card: "k", role, code: `console.log('#scope {"kind":"sample","n":200,"seed":1,"label":"${label}"}');console.log('#result ${res}')` }).log;
+  log = run("a", "check", "variant one", true); log = run("b", "check", "variant two", true); log = run("c", "control", "designed wrong", false);
+  log = promote(log, { card: "k", to: "computed_in_range", by: "human:ada" }).log;
+  const p = phrase(log, "k");
+  assert.match(p, /a sample of 200 \(seed 1\), not exhaustive — variant one; a sample of 200 \(seed 1\), not exhaustive — variant two/);
+  assert.equal(parseRun('#scope {"kind":"sample","n":5,"seed":1,"label":7}').scope.kind, "undeclared", "a non-string label is not a scope");
+});

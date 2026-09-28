@@ -93,6 +93,7 @@ export function parseRun(output) {
 }
 
 function validScope(o) {
+  if (o?.label !== undefined && typeof o.label !== "string") return false; // an optional label names WHICH range/sample this is
   if (o?.kind === "range") return Number.isFinite(o.lo) && Number.isFinite(o.hi) && o.lo <= o.hi;
   if (o?.kind === "instance") return typeof o.label === "string" && o.label.length > 0;
   if (o?.kind === "sample") return Number.isFinite(o.n) && o.n > 0 && Number.isFinite(o.seed);
@@ -148,9 +149,10 @@ export function promote(log, { card, to, by, evidence = null }) {
 }
 
 export function scopePhrase(s) {
-  if (s.kind === "range") return `every case from ${s.lo} to ${s.hi}`;
+  const tag = s.label && s.kind !== "instance" ? ` — ${s.label}` : "";
+  if (s.kind === "range") return `every case from ${s.lo} to ${s.hi}${tag}`;
   if (s.kind === "instance") return `the whole of one finite object (${s.label})`;
-  if (s.kind === "sample") return `a sample of ${s.n} (seed ${s.seed}), not exhaustive`;
+  if (s.kind === "sample") return `a sample of ${s.n} (seed ${s.seed}), not exhaustive${tag}`;
   return "an undeclared scope";
 }
 
