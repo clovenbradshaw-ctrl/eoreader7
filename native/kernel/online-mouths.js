@@ -31,6 +31,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { typicalLatency, ewmaUpdate } from "./latency-stats.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const KEYS_FILE = process.env.ER7_ONLINE_KEYS_FILE || path.join(HERE, "..", "..", "state", "online-keys.json");
@@ -118,7 +119,7 @@ export function makeOnlineRegistry({ providers = PROVIDERS, env = process.env, n
       // the level's own mean (tried, never starved, never preferred), then
       // the listed order.
       const measured = cands.map((p) => state.get(p.name).meanMs).filter((v) => Number.isFinite(v) && v > 0);
-      const typical = measured.length ? measured.reduce((a, b) => a + b, 0) / measured.length : 0;
+      const typical = typicalLatency(measured, 0);
       const lat = (p) => { const v = state.get(p.name).meanMs; return Number.isFinite(v) && v > 0 ? v : typical; };
       cands.sort((a, b) => a.level - b.level || (a.keyless ? 1 : 0) - (b.keyless ? 1 : 0) || lat(a) - lat(b) || providers.indexOf(a) - providers.indexOf(b));
       const p = cands[0];
@@ -127,7 +128,7 @@ export function makeOnlineRegistry({ providers = PROVIDERS, env = process.env, n
     /** An answer landed. */
     observe(name, { ms, ok }) {
       const s = state.get(name); if (!s) return;
-      if (ok) { s.calls += 1; if (Number.isFinite(ms) && ms > 0) s.meanMs = s.meanMs == null ? Math.round(ms) : Math.round((1 - EWMA) * s.meanMs + EWMA * ms); }
+      if (ok) { s.calls += 1; if (Number.isFinite(ms) && ms > 0) s.meanMs = ewmaUpdate(s.meanMs, ms, EWMA); }
       else s.fails += 1;
     },
     /** The free level ran out: exhausted for Retry-After, else the window. */
