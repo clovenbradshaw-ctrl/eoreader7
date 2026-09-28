@@ -234,10 +234,20 @@
 //        the removed ones listed
 //   Z22  War and Peace: the identity support opens an alternative on the fold
 //        (a live hypothesis naming sónya); the slot count stays 1, one_being
+// V13, PRE-REGISTERED 2026-09-28 after v12 (output -v13.json, same cap). ONE
+// change: the inversion rule reads both marks (no comma before the copula,
+// a name-shaped displaced subject); the preposition class widened.
+//   Z23  War and Peace: inverted_subject refusals < 30 (v12: 859), every
+//        carried subject name-shaped; Wolzogen, Pierre Bezúkhov, Bennigsen
+//        among them
+//   Z24  War and Peace: identity claims are exactly the two Circassian = Sónya
+//        rows — Kutúzov = Bennigsen is gone (it was an inversion)
+//   Z25  Material A: entry 33, state 24 (v12's six stolen rows return to
+//        state_not_position — none was ever a standing)
 //   node occupancy-host-eval.mjs [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
-const { readOccupancyTestimony, positionsByPattern, NEAREST_ESTABLISHED, nestedOccupants } = await import(`${NATIVE}/adapters/text/occupancy-testimony.js`);
+const { readOccupancyTestimony, positionsByPattern, NEAREST_ESTABLISHED, nestedOccupants, nameShaped } = await import(`${NATIVE}/adapters/text/occupancy-testimony.js`);
 const { collapse } = await import(`${NATIVE}/kernel/undecided.js`);
 const { mergeEvidence, occupantPairKey } = await import(`${NATIVE}/kernel/merge-standing.js`);
 const { deriveIdentityRevision } = await import(`${NATIVE}/kernel/identity.js`);
@@ -537,10 +547,13 @@ const wpInvertedNamed = (B["War and Peace"].invertedNamed ?? []);
 const Z20 = { castLociNotIdentity: wpRows.filter((r) => r.pattern === "state" && r.locusVia === "cast" && !r.identity).map((r) => `${r.occupant} -> ${r.locus}`), identityRows: wpIdentityRows.map((r) => `${r.occupant} = ${r.locus} :: ${(r.clause ?? "").slice(0, 80)}`), inverted: wpInverted, invertedNamed: wpInvertedNamed, held: wpRows.filter((r) => r.pattern === "state" && r.locusVia === "cast" && !r.identity).length === 0 && wpIdentityRows.length >= 2 && wpInverted >= 2 && ["Wolzogen", "Pierre Bezúkhov"].every((n) => wpInvertedNamed.some((s) => s.includes(n))) };
 const Z21 = { entry: entryA.length, state: stateA.length, removed: pages.flatMap((p) => p.real.refused.filter((x) => x.reason === "inverted_subject").map((x) => `${p.name} | ${x.subject} :: ${x.clause.slice(0, 80)}`)), held: entryA.length === 33 && stateA.length <= 24 };
 const Z22 = { slots: wpId?.slots ?? [], alternatives: wpId?.liveAlternatives ?? [], held: (wpId?.slots?.length ?? 0) === 1 && wpId.slots[0].chosen === "one_being" && (wpId?.liveAlternatives ?? []).some((x) => /s[oó]nya/i.test(x)) };
+const Z23 = { inverted: wpInverted, named: wpInvertedNamed.slice(0, 40), allNameShaped: wpInvertedNamed.every((s) => nameShaped(s)), held: wpInverted < 30 && wpInvertedNamed.every((s) => nameShaped(s)) && ["Wolzogen", "Pierre Bezúkhov", "Bennigsen"].every((n) => wpInvertedNamed.some((s) => s.includes(n))) };
+const Z24 = { identityClaims: wpId?.identityClaims ?? [], held: (wpId?.identityClaims ?? []).length === 2 && (wpId?.identityClaims ?? []).every((x) => /Circassian = S[oó]nya/.test(x)) };
+const Z25 = { entry: entryA.length, state: stateA.length, held: entryA.length === 33 && stateA.length === 24 };
 const Z8 = { perText: [...pages.map((p) => ({ text: p.name, slots: p.identity.slots })), ...Object.entries(B).map(([k, v]) => ({ text: k, slots: v.identity?.slots ?? [] }))].filter((x) => x.slots.length), held: null };
 
 const out = {
-  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8, Z9, Z10, Z11, Z12, Z13, Z14, Z15, Z16, Z17, Z18, Z19, Z20, Z21, Z22, Y1, Y2, Y3, X1, X2, X3,
+  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8, Z9, Z10, Z11, Z12, Z13, Z14, Z15, Z16, Z17, Z18, Z19, Z20, Z21, Z22, Z23, Z24, Z25, Y1, Y2, Y3, X1, X2, X3,
   ...W, V1, V2, V3, V4, V5, V6,
   nativeA: { standings: AN.length, perPage: pagesN.map((p) => ({ page: p.name, standings: p.rows.length, refused: tally(p.real.refused, (x) => x.reason), cast: p.cast, seconds: p.seconds })), via: tally(AN, (c) => c.via), rows: AN },
   nativeB: BN,
@@ -551,7 +564,7 @@ const out = {
   standingsA: A,
   live: Object.fromEntries(Object.entries(B).map(([k, v]) => [k, { ...v, rows: v.rows.slice(0, 60) }])),
 };
-for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8", "Z9", "Z10", "Z11", "Z12", "Z13", "Z14", "Z15", "Z16", "Z17", "Z18", "Z19", "Z20", "Z21", "Z22"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
+for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8", "Z9", "Z10", "Z11", "Z12", "Z13", "Z14", "Z15", "Z16", "Z17", "Z18", "Z19", "Z20", "Z21", "Z22", "Z23", "Z24", "Z25"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
 console.log("via", out.via, "locusVia", out.locusVia);
 for (const [k, v] of Object.entries(B)) console.log(k, v.standings, "standings", v.ablationStandings, "ablation", v.seconds, "s", JSON.stringify(v.refused));
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));
