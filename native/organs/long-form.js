@@ -44,6 +44,8 @@ import { beliefOf } from "./talk-build.js";
 import { uncovered } from "./provenance-cover.js";
 import { helixCheck, premisesOf } from "./claim-acts.js";
 import { reason, isDerived } from "./talk-reason.js";
+import { groundAt } from "./carried-ground.js";
+import { lcg } from "../kernel/continuation.js";
 
 export const LONG_FORM_SCHEMA = "LongForm@1";
 /** The anchor is this many sentences of the part before — set by hand
@@ -170,7 +172,10 @@ const lineOf = (t) => t?.props.find((p) => p.label === "says") ?? null;
  *   persist   ({ notes, store, done }) after every part set down (Hora: a stop
  *             loses one part, never the book)
  */
-export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = () => {}, persist = () => {}, recipe = "ledger", castDetails = null, spec = null }) {
+export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = () => {}, persist = () => {}, recipe = "ledger", castDetails = null, spec = null, carry = null, carrySeed = 1 }) {
+  // carry: null, "field" (organs/carried-ground.js: the ground row) or
+  // "stale" — its falsification control, the field as it stood at a random
+  // earlier part: carried facts, but not this part's ground
   // castDetails: the details the request asked each person to have ("an age
   // and a job"); only these are carried as facts — what the ear heard a
   // person do in the outline's talk is on the record, not in the note
@@ -218,8 +223,23 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
     return medium.partRole({ belief: outline.belief, parentId: t.parent ?? null, kind: t.kind, index: Math.max(0, sibs.indexOf(t)), n: sibs.length });
   }
 
+  // the bodies set down before part i, as the ground row reads them: each
+  // with its chapter (the group it sits in, counted in order)
+  const pick = lcg(carrySeed);
+  function partsSoFar(outline, notes, store, i) {
+    const fold = N.fold(notes);
+    const groups = [];
+    return outline.leaves.slice(0, i).map((leaf) => {
+      const g = leaf.within.at(-1)?.id ?? "whole";
+      if (groups.at(-1) !== g) groups.push(g);
+      const cur = currentLines(fold, notes.entries, store, leaf.part.id);
+      return { id: leaf.part.id, chapter: groups.length - 1, lines: (cur?.lines ?? []).map((l) => ({ text: l.text, addr: l.addr })) };
+    });
+  }
+  const castDetailValues = (outline) => outline.cast.flatMap((c) => c.props.filter((p) => (castDetails ?? []).includes(p.label) || ["home", "lacks", "becomes"].includes(p.label)).map((p) => p.value));
+
   /** The working note for one part — every line of it from the record. */
-  function workingNote({ outline, leaf, prevTail, topic }) {
+  function workingNote({ outline, leaf, prevTail, topic, ground = [] }) {
     const carried = [], lines = [];
     const story = medium.storyWord ?? "story";
     if (topic) lines.push(`The ${story} is ${topic}.`);
@@ -228,6 +248,8 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
     // engine's facts, standing on what the record says of the being
     const role = recipe === "ledger" ? roleOf(outline, leaf.part) : null;
     if (role) { lines.push(...role.facts); carried.push(...role.premises); }
+    // the ground row carried from the parts before (the engine's own facts)
+    lines.push(...ground);
     let here = [];
     if (recipe === "ledger") {
       here = namedIn([...lines, ...prevTail], outline.cast);
@@ -261,7 +283,14 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
       const have = currentLines(fold, notes.entries, store, leaf.part.id);
       if (have) { prevTail = have.lines.slice(-TAIL_SENTENCES).map((l) => l.text); continue; }
       if (N.foldVoids(notes).some((v) => v.end1 === leaf.part.id)) { prevTail = []; continue; }
-      const note = workingNote({ outline, leaf, prevTail, topic });
+      let ground = [];
+      if (carry && recipe === "ledger") {
+        const soFar = partsSoFar(outline, notes, store, i);
+        const k = carry === "stale" ? (i > 1 ? 1 + Math.floor(pick() * (i - 1)) : 0) : i;
+        ground = groundAt({ parts: soFar, k, cast: outline.cast, sentences, known: castDetailValues(outline) }).facts;
+        log({ kind: "carried", part: leaf.part.id, mode: carry, from: k, facts: ground });
+      }
+      const note = workingNote({ outline, leaf, prevTail, topic, ground });
       // the role on the record: the engine placed it (derived:arc), on the being's frame
       const role = recipe === "ledger" ? roleOf(outline, leaf.part) : null;
       if (role && !fold.some((n) => n.end1 === leaf.part.id && n.label === "role")) notes = N.hear(notes, { end1: leaf.part.id, label: "role", end2: role.roles.join(" / "), witness: "derived:arc", because: `placed by position in the nested arcs [premises: ${JSON.stringify(role.premises)}]` });

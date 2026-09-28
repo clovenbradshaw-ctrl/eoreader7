@@ -88,7 +88,7 @@ function storyMouth() {
     if (stage === "being:home") return "the lighthouse on Gull Rock.";
     if (stage === "being:lacks") return "her mother, who left when she was small.";
     if (stage === "being:becomes") return "the keeper of the light.";
-    if (stage.startsWith("count:chapter")) return `Ana does chapter thing ${prompts.filter((p) => p.stage.startsWith("count:chapter")).length}.`;
+    if (stage.startsWith("count:chapter")) { const k = prompts.filter((p) => p.stage.startsWith("count:chapter")).length; return k === 2 ? "In chapter 2, Ana does chapter thing 2." : `Ana does chapter thing ${k}.`; }
     if (stage.startsWith("count:scene")) return `Scene line ${prompts.filter((p) => p.stage.startsWith("count:scene")).length} with Ana.`;
     if (stage === "opening") return "The Keeper's Light.";
     return "";
@@ -113,6 +113,9 @@ test("the being is asked for after the bonds and before any line; every part is 
   assert.equal(chapterAsks.length, 3);
   assert.ok(chapterAsks[0].prompt.includes("In chapter 1, Ana is at the lighthouse on Gull Rock, missing her mother."), chapterAsks[0].prompt);
   assert.ok(chapterAsks[2].prompt.includes("In chapter 3, Ana comes home to the lighthouse on Gull Rock, no longer missing her mother, the keeper of the light now."), chapterAsks[2].prompt);
+  // the engine's placing clause copied into a line is dropped, like an echoed anchor
+  const lines = makeNotes().fold(out.notes).filter((n) => n.label === "says" && n.end1.startsWith("chapter#")).map((n) => n.end2);
+  assert.ok(lines.includes("Ana does chapter thing 2."), JSON.stringify(lines));
   // scenes carry their chapter's role and their own place in the chapter's arc
   const sceneAsk = m.prompts.find((p) => p.stage.startsWith("count:scene") && p.prompt.includes("In scene 2 of chapter 3"));
   assert.ok(sceneAsk && sceneAsk.prompt.includes("the chapter ends somewhere new for Ana") && sceneAsk.prompt.includes("In chapter 3, Ana comes home"), sceneAsk?.prompt);

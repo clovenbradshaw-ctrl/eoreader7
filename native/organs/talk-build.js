@@ -426,6 +426,7 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
       let reply = String(await ask(prompt, { stage: gap, attempt: tried.get(gap) ?? 0 }) ?? "").trim();
       // a small model often says the anchor again before going on: drop the echo
       while (reply.toLowerCase().startsWith(anchor.toLowerCase())) reply = reply.slice(anchor.length).trim();
+      for (const e of slot?.echoes ?? []) if (reply.toLowerCase().startsWith(e.toLowerCase())) { reply = reply.slice(e.length).trim(); reply = reply.charAt(0).toUpperCase() + reply.slice(1); }
       // the mouth is ONE source however many times it is asked: its asks are
       // addresses within it (talk:<model>#ask<n>), so a model agreeing with
       // itself is never read as corroboration
@@ -925,7 +926,11 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
           // (prose-medium partRole) has its parts asked for one at a time,
           // each with the engine's facts about what happens there
           const role = says(c) && medium.partRole ? medium.partRole({ belief, parentId: p?.id ?? spec.wholeId ?? null, kind: c.kind, index: have.length, n: c.n }) : null;
-          if (role) return { key, part: { ...part, missing: 1 }, slot: { ...slot, list: null }, role, question: askFor(`${role.facts.join(" ")}\n${verb} ${phraseOf(c)} ${have.length + 1}${where}${others}.`), anchor: `${phraseOf(c).charAt(0).toUpperCase()}${phraseOf(c).slice(1)} ${have.length + 1}${where} says:` };
+          // the mouth copies the engine's placing clause into the line ("In
+          // scene 3 of chapter 4, Alice …", arc1 2026-09-28): the clause is
+          // the engine's, dropped from the reply like an echoed anchor
+          const echoes = role ? role.facts.map((f) => f.slice(0, f.indexOf(",") + 1)).filter((e) => e.length > 1) : [];
+          if (role) return { key, part: { ...part, missing: 1 }, slot: { ...slot, list: null, echoes }, role, question: askFor(`${role.facts.join(" ")}\n${verb} ${phraseOf(c)} ${have.length + 1}${where}${others}.`), anchor: `${phraseOf(c).charAt(0).toUpperCase()}${phraseOf(c).slice(1)} ${have.length + 1}${where} says:` };
           if (missing === 1) return { key, part, slot: { ...slot, list: null }, question: askFor(`${verb} one more ${phraseOf(c)}${where}${others}.`), anchor: says(c) ? `One more ${phraseOf(c)}${where} says:` : `One more ${phraseOf(c)}${where} is called` };
           return { key, part, slot, question: askFor(`${verb} ${missing} ${have.length ? "more " : ""}${c.phrase}${where}${others}. One per line, ${says(c) ? "each a short sentence" : "just the name"}.`), anchor: "1." };
         }

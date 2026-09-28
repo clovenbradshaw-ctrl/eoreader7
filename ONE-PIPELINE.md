@@ -255,6 +255,19 @@ built, so the result can go against it.
   and undone (control: order shuffled); laws acquired from the prose
   (`organs/hl-acquire.js`) make contradictions of what the prose established
   a measured number instead of an unread zero.
+- **Live test, pre-registered 2026-09-28 before the run** (`carry1`: arc1's
+  frozen outline, 1.5b, seed 1, 22 scenes — one seed, direction only). Three
+  arms: `ledger` (as now), `field` (the carried ground,
+  `organs/carried-ground.js`), `stale` (control: the ground as it stood at a
+  random earlier part). Scored by `eval/long-form/carry-score.mjs` from the
+  text alone. Predicted, field against both ledger and stale: fewer seams
+  (CON·Ground); fewer distinct strangers per 1k words (NUL·Figure, SYN·Ground
+  — the model reuses the people carried instead of inventing new ones); more
+  recurring strangers seen in two or more chapters (SYN·Ground); a larger
+  share of "tomorrow" followed by a later day in the next part (REC·Ground);
+  prompt max within 100 tokens of the ledger's (EVA·Ground: the gate keeps
+  the note bounded). Any prediction where stale does as well as field is
+  falsified for that element, whatever the ledger shows.
 - **The root:** the bodies are never read back into the record. The ear
   (`talk-reader.js`) hears only the outline's talk. Every empty cell needs
   that one missing reader first (SIG·Figure), with pronouns bound
