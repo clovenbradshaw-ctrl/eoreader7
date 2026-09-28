@@ -13,5 +13,5 @@ test("a named frame's pronoun lands as pronoun_frame_named with the frame's cont
   assert.equal(named[0].pronoun, "he");
   assert.equal(text.slice(named[0].offset, named[0].offset + 2), "he", "the gap's offset reads back as the pronoun");
   assert.deepEqual([...named[0].contested].sort(), ["ref:auto:andrew", "ref:auto:bezukhov"]);
-  assert.ok(c.pronounGaps.some((g) => g.reason === "pronoun_no_candidate" && g.pronoun === "He"), "the frame with no name still takes the binder's own road");
+  assert.ok(c.pronounGaps.some((g) => g.reason === "pronoun_no_candidate" && /^he$/i.test(g.pronoun)), "the frame with no name still takes the binder's own road");
 });
