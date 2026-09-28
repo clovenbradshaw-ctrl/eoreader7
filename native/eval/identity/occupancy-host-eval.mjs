@@ -180,6 +180,22 @@
 //   Z7  Material A: the Guardiola `england` locus still collapses position
 //       (FA Cup / Champions League do not nest) — its split stands as in v6/v7
 //   Z8  every slot and collapse is reported per text: locus, verdict, rule
+// V9, PRE-REGISTERED 2026-09-28 after v8 (output -v9.json, same cap). The
+// state family (2e67c14): "all states are transitions, and NUL is the
+// transition of non-transition" — a copula clause holds a locus as a
+// NUL·Ground standing. ONE change: the register now carries `state` and the
+// reader is handed cellOf. A raw grep of the 13 pages finds 23 copula
+// clauses with a capitalised complement; the walls only remove, so:
+//   Z9   Material A default arm: state standings <= 23, > 0; listed, with
+//        the entry standings unchanged at 33 (no entry clause re-read)
+//   Z10  War and Peace: NO state standing puts a non-nesting second occupant
+//        on count_bezukhov — Cyril's holding is by NAMING, not predication —
+//        so the locus still collapses one_being (the law's limit on this
+//        material, predicted so it is on the record)
+//   Z11  under BEING_KIND, month/demonym state occupants = 0 (Y1's wall holds
+//        for the new family)
+//   Z12  every state standing carries act NUL·Ground with the phasepost's own
+//        copula reading as overlay (op SIG on the unique-role/property rules)
 //   node occupancy-host-eval.mjs [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
@@ -325,7 +341,7 @@ function readText({ name, text, links }) {
     return null;
   };
   const sentences = cast.sentences.map((s) => ({ text: s.text, at: s.order, offset: s.offset }));
-  const opts = { source: name, determiners: DET, modals: MODALS, negation: NEGATION_WORDS, posPrior: POS_PRIOR, phasepost };
+  const opts = { source: name, determiners: DET, modals: MODALS, negation: NEGATION_WORDS, posPrior: POS_PRIOR, phasepost, cellOf };
   const real = readOccupancyTestimony(sentences, { ...opts, mentions, pronouns: SUBJECT_PRONOUNS, resolveLocus });
   // THE MERGE AS A HYPOTHESIS (v6): every surface the cast admitted into a
   // referent is a merge into that referent; a locus (by referent id) with two
@@ -340,7 +356,7 @@ function readText({ name, text, links }) {
   const identity = { merges: merges.length, positions: evidence.positions.map((p) => ({ locus: p.locus, occupants: p.occupants })), attacks: evidence.attacks.length, splits, slots: evidence.collapses.map((c) => ({ locus: c.of, verdict: c.verdict, chosen: c.chosen?.value ?? null, rule: c.rule.name, reason: c.reason })), withheld: evidence.withheld, occupantHypotheses: evidence.supports.filter((x) => /one_being_under_names/.test(x.reason)).map((x) => `${x.left} <-> ${x.right}`), foldAlternatives: applyDelta(receivedGround(), revision).unresolvedAlternatives.filter((x) => x.schema === "EOIdentityAlternative@1" && x.standing === "distinct").map((x) => `${x.left} <-> ${x.right}`) };
   const loose = readOccupancyTestimony(sentences, { ...opts, mentions, pronouns: SUBJECT_PRONOUNS, resolveLocus, forWhom: { id: "reader:being-kind" }, occupantRule: BEING_KIND });
   const ablation = readOccupancyTestimony(sentences, opts);
-  const rowOf = (c) => ({ text: name, occupant: face(c.occupant), occupantId: c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: c.locus, locusId: c.locusId, locusVia: c.locusVia, verb: c.verb, act: c.act ? { op: c.act.op, grain: c.act.grain, standing: c.act.standing } : null, predecessor: c.predecessor ? face(c.predecessor) : null, pattern: c.pattern, year: c.year, address: c.address, clause: c.clause });
+  const rowOf = (c) => ({ text: name, occupant: face(c.occupant), occupantId: c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: c.locus, locusId: c.locusId, locusVia: c.locusVia, verb: c.verb, act: c.act ? { op: c.act.op, grain: c.act.grain, standing: c.act.standing, overlay: c.act.overlay ? { op: c.act.overlay.op, grain: c.act.overlay.grain, standing: c.act.overlay.standing } : undefined } : null, predecessor: c.predecessor ? face(c.predecessor) : null, pattern: c.pattern, year: c.year, address: c.address, clause: c.clause });
   const rows = real.candidates.map(rowOf);
   const surname = name ? name.replace(/\s*\(.*\)$/, "").split(/\s+/).at(-1) : null;
   const topic = surname ? cast.referents.find((r) => r.surfaces.includes(surname) || r.surfaces.includes(name)) : null;
@@ -458,10 +474,18 @@ const Z5 = { inTransitionClauses: framed.length, withTopic: framed.filter((x) =>
 const Z6 = { slots: wpId?.slots ?? [], splits: wpId?.splits?.length ?? null, occupantHypotheses: wpId?.occupantHypotheses ?? [], held: !!wpId && wpId.splits.length === 0 && (wpId.slots ?? []).some((s) => s.chosen === "one_being") && (wpId.occupantHypotheses ?? []).some((x) => /monsieur_pierre/.test(x) && /pierre/.test(x)) };
 const guard = pages.find((p) => /Guardiola/.test(p.name));
 const Z7 = { slots: guard?.identity.slots ?? [], splits: guard?.identity.splits.length ?? null, held: !!guard && guard.identity.splits.length >= 1 && guard.identity.slots.some((s) => s.chosen === "position") };
+const stateA = A.filter((r) => r.pattern === "state"), entryA = A.filter((r) => r.pattern !== "state");
+const Z9 = { state: stateA.length, entry: entryA.length, rows: stateA.map((r) => `${r.text} | ${r.occupant} -> ${r.locus} :: ${(r.clause ?? "").slice(0, 90)}`), held: stateA.length > 0 && stateA.length <= 23 && entryA.length === 33 };
+const wpRows = B["War and Peace"].rows ?? [];
+const wpStateOnBez = wpRows.filter((r) => r.pattern === "state" && /bezukhov/.test(fold(r.locus)));
+const Z10 = { stateOnBezukhov: wpStateOnBez.map((r) => `${r.occupant} :: ${(r.clause ?? "").slice(0, 90)}`), bezukhovSlot: (wpId?.slots ?? []).map((s) => s.chosen), held: (wpId?.slots ?? []).some((s) => s.chosen === "one_being") && (wpId?.splits?.length ?? 0) === 0 };
+const stateLoose = pages.flatMap((p) => p.looseRows.filter((r) => r.pattern === "state"));
+const Z11 = { beingKindState: stateLoose.length, monthOrDemonym: stateLoose.filter((c) => shapeBad(c.surface)).map((c) => `${c.surface} @${c.address}`), held: stateLoose.filter((c) => shapeBad(c.surface)).length === 0 };
+const Z12 = { acts: tally(stateA, (r) => `${r.act?.op}·${r.act?.grain}`), overlays: tally(stateA, (r) => `${r.act?.overlay?.op ?? "?"}·${r.act?.overlay?.grain ?? "?"}·${r.act?.overlay?.standing ?? "?"}`), held: stateA.length > 0 && stateA.every((r) => r.act?.op === "NUL" && r.act?.grain === "Ground" && r.act?.overlay) };
 const Z8 = { perText: [...pages.map((p) => ({ text: p.name, slots: p.identity.slots })), ...Object.entries(B).map(([k, v]) => ({ text: k, slots: v.identity?.slots ?? [] }))].filter((x) => x.slots.length), held: null };
 
 const out = {
-  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8, Y1, Y2, Y3, X1, X2, X3,
+  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8, Z9, Z10, Z11, Z12, Y1, Y2, Y3, X1, X2, X3,
   ...W, V1, V2, V3, V4, V5, V6,
   nativeA: { standings: AN.length, perPage: pagesN.map((p) => ({ page: p.name, standings: p.rows.length, refused: tally(p.real.refused, (x) => x.reason), cast: p.cast, seconds: p.seconds })), via: tally(AN, (c) => c.via), rows: AN },
   nativeB: BN,
@@ -472,7 +496,7 @@ const out = {
   standingsA: A,
   live: Object.fromEntries(Object.entries(B).map(([k, v]) => [k, { ...v, rows: v.rows.slice(0, 60) }])),
 };
-for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
+for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8", "Z9", "Z10", "Z11", "Z12"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
 console.log("via", out.via, "locusVia", out.locusVia);
 for (const [k, v] of Object.entries(B)) console.log(k, v.standings, "standings", v.ablationStandings, "ablation", v.seconds, "s", JSON.stringify(v.refused));
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));
