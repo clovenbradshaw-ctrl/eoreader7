@@ -1277,3 +1277,47 @@ Both corrections verified directly (grep for the vocabulary; the exact
 line numbers and field names in `proxy-runner.mjs`) before writing.
 `name_collision_different_job` — the plan's own overall verdict for this
 cluster — stands unmodified; no code changed.
+
+## 28. `scripts/kleene-up.mjs` — the standing sweep now also runs `patrol()` (2026-09-28)
+
+`holon.js`'s P30 echo/reproduction detector and `kernel/reproduction.js`
+were confirmed NOT the same mechanism (turn-scoped character-mass-
+majority classifier vs. typed exact/folded/absent + address-verified
+positional location across corpus bodies) — no code change needed there.
+
+The one real, safely-scoped, previously-unexecuted piece: `patrol`
+(`native/the-fold/kleeneup.js`) — a second table-regex scanner, found
+via grep to be called ONLY from its own `.test.mjs` (8 call sites, all
+inside `test(...)` blocks) — had zero standing invocation. The
+production sweep (`scripts/kleene-up.mjs`) never imported or called it,
+and neither README.md's "kleeneUp" section nor CHORUS-LOG.md's birth
+entries mention this file at all, despite documenting every sibling.
+
+Wired `patrol` into `survey()`: every scanned file's code is now also
+passed to `patrol(code, {file})`, results collected into a new
+`patrolRows` array, reported alongside the existing `rows` in both the
+JSON (`kleeneup-report.json`'s new `patrol` field + `counted.patrol`)
+and the console output. Both scanners can fire on the SAME regex literal
+and prescribe DIFFERENT fixes (findNeedles-for-locating vs.
+Set-for-membership) — the report shows both per-occurrence, never
+merges or picks one, since only the call site decides which remediation
+is right. Deliberately did NOT remove `"the-fold"` from `SKIP_DIRS` in
+the same pass — that directory has 147 actively-developed files and
+un-excluding it is a materially bigger, separately-scoped decision
+(volume of new findings to triage).
+
+Added `scripts/kleene-up.test.mjs`: spawns the real CLI process (the
+same posture `cli/fold-at.test.mjs` already uses) against a real,
+loadable fixture (a number-word alternation regex, the same shape
+`kleeneup-falsify.test.mjs` already proved `patrol()` finds), asserting
+the combined report carries both a `semantic`-classified row AND a
+`number-alternation` patrol finding on the identical line, that the
+JSON round-trips through the actual written file, and that the console
+output discloses the patrol count too. Confirmed all 4 cases fail
+against the pre-fix CLI (`git stash`), pass after.
+
+Verified: `kleene-up.test.mjs` 4/4 (0/4 against pre-fix, confirmed). Ran
+the real sweep end to end (`node scripts/kleene-up.mjs`) — completes
+cleanly, regenerates the tracked `kleeneup-report.json` (a normal,
+reviewable diff for a generated artifact, as the recommendation itself
+anticipated).
