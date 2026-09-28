@@ -1031,6 +1031,10 @@ function discoveredCast(session, doc) {
 
   let referents = [];
   let pronounBindings = [];
+  // The binder's refusals, kept with their evidence (top, runnerUp, margin):
+  // a reading that has not collapsed, for a consumer with its own for-whom
+  // (kernel/undecided.js, 2026-09-28) — never folded into `pronounBindings`.
+  let pronounGaps = [];
   // (subject, verb, object) triples, measured once per document — the
   // individuation classifier's `agency` signal below reads these, and
   // sessionReferents may call discoveredCast many times over one document's
@@ -1107,6 +1111,7 @@ function discoveredCast(session, doc) {
         nonPersonal,
       });
       pronounBindings = resolved.bindings;
+      pronounGaps = resolved.gaps ?? [];
 
       // Same collapsing discipline as discovery.gaps just above: one summary
       // fact, not one gap object per unresolved pronoun in a 690 KB novel.
@@ -1128,7 +1133,7 @@ function discoveredCast(session, doc) {
       }
   }
 
-  const value = { referents, gaps, abbreviationGiver, pronounBindings, relations };
+  const value = { referents, gaps, abbreviationGiver, pronounBindings, pronounGaps, relations };
   if (!session._cast) session._cast = new Map();
   session._cast.set(doc.id, { chunks: doc.chunks.length, value });
   return value;
@@ -1328,7 +1333,7 @@ export function sessionCast(session, { sourceId } = {}) {
   if (!doc) return { sentences: [], referents: [], pronounBindings: [], gaps: [`unknown document ${sourceId}`] };
   const { sentences, body } = extractDocSurfaces(session, doc);
   const cast = discoveredCast(session, doc);
-  return { sentences, body, referents: cast.referents, pronounBindings: cast.pronounBindings, relations: cast.relations, gaps: cast.gaps };
+  return { sentences, body, referents: cast.referents, pronounBindings: cast.pronounBindings, pronounGaps: cast.pronounGaps ?? [], relations: cast.relations, gaps: cast.gaps };
 }
 
 export function sessionRelations(session, { sourceId } = {}) {

@@ -98,10 +98,28 @@
 // V3, PRE-REGISTERED 2026-09-28 in results/occupancy-host-eval-v2-RESULTS.md
 // (W1-W5), after the surname fix (84182a6) and the refined comma wall; run
 // with NATIVE_MAX_CHARS=150000, output -v3.json.
+//
+// V4, PRE-REGISTERED 2026-09-28 before the run (output -v4.json, same cap).
+// The occupant slot is now an EOUndecided@1 record (kernel/undecided.js): every
+// candidate kept with its evidence; the host's pronoun GAPS (top, runnerUp,
+// margin — the evidence its floor discarded) ride in as unestablished
+// candidates; the default rule NEAREST_ESTABLISHED reproduces v3's walls.
+//   X1  host arm, Material A, default rule: the 37 v3 standings byte-identical
+//       (address for address) — the superposition changes no default verdict
+//   X2  of Material A's pronoun_unbound refusals whose unbound pronoun carries a
+//       `top`, the top IS the page's own topic referent (the bare-surname
+//       referent) in >= 50% — the evidence the floor discarded points at the
+//       right being. Chance: a page has ~40-170 referents, so one of them by
+//       luck is < 3%.
+//   X3  a second, declared for-whom BIND_ON_TOP (an unbound pronoun collapses
+//       to its top when margin > 0, else nearest-established) adds standings
+//       whose occupants are BEINGS, never dates: month/demonym occupants under
+//       it = 0; every added row listed
 //   node occupancy-host-eval.mjs [out.json]
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
-const { readOccupancyTestimony, positionsByPattern } = await import(`${NATIVE}/adapters/text/occupancy-testimony.js`);
+const { readOccupancyTestimony, positionsByPattern, NEAREST_ESTABLISHED } = await import(`${NATIVE}/adapters/text/occupancy-testimony.js`);
+const { collapse } = await import(`${NATIVE}/kernel/undecided.js`);
 const { NEGATION_WORDS, DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS, AUXILIARY_VERBS } = await import(`${NATIVE}/adapters/text/priors.js`);
 const { COPULA_FORMS } = await import(`${NATIVE}/adapters/text/phasepost.js`);
 const { createSession, admitChunked, sessionCast } = await import(`${NATIVE}/legacy-ported/packages/host/corpus.js`);
@@ -164,6 +182,18 @@ async function readNative({ name, text, links }) {
   return { name, rows, real, ablation: { candidates: [] }, cast: { referents: referents.length, anchoredDescriptors: anchors.length, sentences: sentences.length }, seconds: +((Date.now() - t0) / 1000).toFixed(1) };
 }
 
+/** A second, declared for-whom: an unbound pronoun collapses to its top when its margin is positive. */
+const BIND_ON_TOP = Object.freeze({ name: "bind-on-top", giver: "eval/identity/occupancy-host-eval.mjs v4, declared", params: { marginAbove: 0 },
+  decide(cands, record) {
+    const pron = cands.filter((c) => c.via === "pronoun-unbound" && c.value && (c.features.margin ?? 0) > 0);
+    const est = cands.filter((c) => c.features.established);
+    const last = est.length ? est.reduce((a, b) => (b.features.end > a.features.end ? b : a)) : null;
+    const nearest = [...pron, ...(last ? [last] : [])].reduce((a, b) => (!a || b.features.end > a.features.end ? b : a), null);
+    if (!nearest || nearest.features.distanceWords > 2) return { reason: "occupant_not_a_referent" };
+    if (nearest.features.subjectShapedAfterPunct) return { reason: "occupant_not_a_referent" };
+    return { chosen: nearest.index };
+  } });
+
 function readText({ name, text, links }) {
   const t0 = Date.now();
   const session = createSession();
@@ -183,6 +213,8 @@ function readText({ name, text, links }) {
     const out = [];
     if (owner.size) for (const m of sentence.text.matchAll(allRe)) out.push({ start: m.index, end: m.index + m[0].length, referent: owner.get(m[1]), via: "cast" });
     for (const b of cast.pronounBindings) if (b.sentenceOrder === sentence.at) { const st = b.offset - sentence.offset; if (st >= 0 && st < sentence.text.length) out.push({ start: st, end: st + b.pronoun.length, referent: `${name}/${b.referentId}`, via: "pronoun" }); }
+    // the binder's refusals, with the evidence its floor discarded
+    for (const g of cast.pronounGaps ?? []) if (g.sentenceOrder === sentence.at && Number.isFinite(g.offset) && g.pronoun) { const st = g.offset - sentence.offset; if (st >= 0 && st < sentence.text.length) out.push({ start: st, end: st + g.pronoun.length, referent: g.top ? `${name}/${g.top}` : null, via: "pronoun-unbound", established: false, features: { reason: g.reason, activation: g.activation ?? null, margin: g.margin ?? null, runnerUp: g.runnerUp ? `${name}/${g.runnerUp}` : null } }); }
     return out;
   };
   const resolveLocus = (sentence, span) => {
@@ -197,10 +229,14 @@ function readText({ name, text, links }) {
   const sentences = cast.sentences.map((s) => ({ text: s.text, at: s.order, offset: s.offset }));
   const opts = { source: name, determiners: DET, modals: MODALS, negation: NEGATION_WORDS };
   const real = readOccupancyTestimony(sentences, { ...opts, mentions, pronouns: SUBJECT_PRONOUNS, resolveLocus });
+  const loose = readOccupancyTestimony(sentences, { ...opts, mentions, pronouns: SUBJECT_PRONOUNS, resolveLocus, forWhom: { id: "reader:bind-on-top" }, occupantRule: BIND_ON_TOP });
   const ablation = readOccupancyTestimony(sentences, opts);
   const face = (id) => { const r = cast.referents.find((x) => `${name}/${x.id}` === id); return r ? display.get(r.id) : id; };
-  const rows = real.candidates.map((c) => ({ text: name, occupant: face(c.occupant), occupantId: c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: c.locus, locusVia: c.locusVia, predecessor: c.predecessor ? face(c.predecessor) : null, pattern: c.pattern, year: c.year, address: c.address, clause: c.clause }));
-  return { name, rows, real, ablation, cast: { referents: cast.referents.length, pronounBindings: cast.pronounBindings.length, sentences: cast.sentences.length, gaps: cast.gaps.map((g) => g.reason ?? g) }, seconds: +((Date.now() - t0) / 1000).toFixed(1) };
+  const rowOf = (c) => ({ text: name, occupant: face(c.occupant), occupantId: c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: c.locus, locusVia: c.locusVia, predecessor: c.predecessor ? face(c.predecessor) : null, pattern: c.pattern, year: c.year, address: c.address, clause: c.clause });
+  const rows = real.candidates.map(rowOf);
+  const surname = name ? name.replace(/\s*\(.*\)$/, "").split(/\s+/).at(-1) : null;
+  const topic = surname ? cast.referents.find((r) => r.surfaces.includes(surname) || r.surfaces.includes(name)) : null;
+  return { name, rows, looseRows: loose.candidates.map(rowOf), real, loose, ablation, topicRef: topic ? `${name}/${topic.id}` : null, cast: { referents: cast.referents.length, pronounBindings: cast.pronounBindings.length, pronounGaps: (cast.pronounGaps ?? []).length, sentences: cast.sentences.length, gaps: cast.gaps.map((g) => g.reason ?? g) }, seconds: +((Date.now() - t0) / 1000).toFixed(1) };
 }
 
 // ── Material A ────────────────────────────────────────────────────────────
@@ -282,7 +318,19 @@ const W = {
   W4: { theTerm: AN.filter((c) => /^the term$/i.test(c.surface)).length, held: AN.some((c) => /^the term$/i.test(c.surface)) },
   W5: { federalist: B.Federalist.standings, held: B.Federalist.standings === 0 },
 };
+// ── X1–X3 ─────────────────────────────────────────────────────────────────
+const v3 = existsSync(new URL("./results/occupancy-host-eval-v3.json", import.meta.url)) ? JSON.parse(readFileSync(new URL("./results/occupancy-host-eval-v3.json", import.meta.url), "utf8")) : null;
+const addrs = (rows) => rows.map((r) => `${r.address}|${r.occupantId}|${r.locus}`).sort();
+const X1 = { v3: v3 ? v3.standingsA.length : null, now: A.length, identical: v3 ? JSON.stringify(addrs(v3.standingsA)) === JSON.stringify(addrs(A)) : null, held: v3 ? JSON.stringify(addrs(v3.standingsA)) === JSON.stringify(addrs(A)) : null };
+const pronRefusals = pages.flatMap((p) => p.real.events.filter((e) => e.collapse.verdict !== "chosen" && e.collapse.reason === "pronoun_unbound").map((e) => ({ page: p.name, topic: p.topicRef, top: e.undecided.candidates.find((c) => c.via === "pronoun-unbound" && c.value)?.value ?? null, clause: e.undecided.at.clause.slice(0, 100) })));
+const withTop = pronRefusals.filter((x) => x.top);
+const X2 = { pronounRefusals: pronRefusals.length, withTop: withTop.length, topIsTopic: withTop.filter((x) => x.top === x.topic).length, rows: withTop.map((x) => `${x.page}: top=${x.top.split("/").pop()} topic=${x.topic?.split("/").pop()} :: ${x.clause}`), held: withTop.length ? withTop.filter((x) => x.top === x.topic).length / withTop.length >= 0.5 : null };
+const looseA = pages.flatMap((p) => p.looseRows);
+const added = looseA.filter((r) => !A.some((a) => a.address === r.address && a.locus === r.locus));
+const X3 = { looseStandings: looseA.length, added: added.map((r) => `${r.text} | ${r.occupant} (${r.via}) -> ${r.locus} :: ${r.clause.slice(0, 90)}`), monthOrDemonymUnderLoose: looseA.filter((c) => shapeBad(c.surface)).map((c) => c.surface), held: added.length >= 1 && looseA.filter((c) => shapeBad(c.surface)).length === 0 };
+
 const out = {
+  X1, X2, X3,
   ...W, V1, V2, V3, V4, V5, V6,
   nativeA: { standings: AN.length, perPage: pagesN.map((p) => ({ page: p.name, standings: p.rows.length, refused: tally(p.real.refused, (x) => x.reason), cast: p.cast, seconds: p.seconds })), via: tally(AN, (c) => c.via), rows: AN },
   nativeB: BN,
@@ -293,7 +341,7 @@ const out = {
   standingsA: A,
   live: Object.fromEntries(Object.entries(B).map(([k, v]) => [k, { ...v, rows: v.rows.slice(0, 60) }])),
 };
-for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
+for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
 console.log("via", out.via, "locusVia", out.locusVia);
 for (const [k, v] of Object.entries(B)) console.log(k, v.standings, "standings", v.ablationStandings, "ablation", v.seconds, "s", JSON.stringify(v.refused));
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));

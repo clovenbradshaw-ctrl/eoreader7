@@ -146,7 +146,13 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
           // differently, and both stand.
           const prior = ms.filter((x) => x.end <= tStart && x.start >= cStart);
           const covered = (i) => prior.some((x) => cStart + i >= x.start && cStart + i < x.end);
-          const cands = prior.map((x) => ({ value: x.referent, via: x.via, features: { start: x.start - cStart, end: x.end - cStart, established: true } }));
+          // A supplier may hand in an UNESTABLISHED mention with the evidence
+          // its own floor discarded (a pronoun the binder refused, carrying
+          // its top candidate and margin): kept as a candidate with that
+          // evidence, never promoted here.
+          const cands = prior.map((x) => (x.established === false
+            ? { value: x.referent ?? null, via: x.via ?? "pronoun-unbound", features: { start: x.start - cStart, end: x.end - cStart, established: false, ...(x.features ?? {}) } }
+            : { value: x.referent, via: x.via, features: { start: x.start - cStart, end: x.end - cStart, established: true } }));
           for (const w of before.matchAll(/\S+/gu)) {
             if (covered(w.index)) continue;
             const c = clean(w[0]);
