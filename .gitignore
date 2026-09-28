@@ -182,6 +182,33 @@ native/eval/the-fold/reason-falsify/*.log
 native/eval/lavar/results/*.log
 native/eval/lavar/results/lp-*.projected.json
 native/eval/lavar/results/lp-*.eot.jsonl
+# lp-*.prior.json (2026-09-28): the third file of the same generated triple
+# as the two rules above -- eot-jsonl.mjs:1748-1760 writes all three
+# atomically. One-file-per-book naming (lp-alice.prior.json, not the
+# per-chapter-variant -ch*-* pattern line 142 already covers), 30 files,
+# not referenced by any workflow or test. Confirmed NOT a hardened
+# SwarmThingPrior (that's a distinct schema written by swarm-priors.mjs;
+# zero tracked files anywhere carry that schema string) -- an oversight in
+# the existing rule, not a new category.
+native/eval/lavar/results/lp-*.prior.json
+# expertise-2026-09-22/ (2026-09-28): 2 files, zero references anywhere in
+# the repo (workflows, tests, or any .md). Its generator (expertise-run.mjs,
+# via expertise.js's loadExpertise/saveExpertise) doesn't even default to
+# this path -- swept in incidentally by an unrelated commit (a63be3c).
+native/eval/the-fold/results/expertise-2026-09-22/
+# midi-interval/ (2026-09-28): 10 .mid files from midi-continuation.mjs,
+# unreferenced by any test/workflow/md -- unlike its sibling results/midi/
+# (kept: midi-continuation-RESULTS.md and CLAUDE.md P256 both name
+# results/midi/*.mid as delivered evidence; midi-interval/ carries no such
+# citation anywhere, verified by repo-wide grep before this rule was added).
+native/eval/the-fold/results/midi-interval/
+# summary-experiment/ (2026-09-28): drive-summary-experiment.mjs's raw run
+# data (all.json, budget-followup.json, floor.json, gpgp.json, magi.json) --
+# zero external .md citations anywhere (verified by repo-wide grep). Its own
+# RESULTS.md write-up is the finding and stays tracked, per this project's
+# standing convention for eval *-RESULTS.md files everywhere else in this
+# list -- only the raw data siblings are ignored.
+native/eval/the-fold/results/summary-experiment/*.json
 native/eval/lavar/results/*-real-log.json
 native/eval/lavar/results/*-real-fold.json
 native/eval/lavar/results/*-real-read.json
