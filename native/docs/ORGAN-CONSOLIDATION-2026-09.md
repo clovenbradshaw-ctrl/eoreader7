@@ -154,6 +154,103 @@ every run either way.
 
 ---
 
+## 3. `void-shape.js` — the two copies' one real drift, reconciled (2026-09-28)
+
+**What it is.** The nine-operator void-space arithmetic (P105/`the-fold`'s
+"Pass 23 — the void, live"): `declareVoid`/`zeroSpace`/`fill`/`voidsOf`
+zero an extent (e.g. Lincoln's presidency, 1861-1865) across all nine
+cube operators, then report what a filler still leaves uncovered — the
+mechanism behind "who was Lincoln's vice president" correctly refusing
+"Hannibal Hamlin" alone once a second, later filler is also required.
+
+**Where it lives, and what the research pass actually found.** Two
+physical copies: `the-fold/void-shape.js` (12 local importers, including
+`app.js`, `void-brief.js`, `void-loop.js` — the-fold's own active `/void`
+pipeline) and `eoreader7/native/the-fold/void-shape.js` (imported by
+`proxy-runner.mjs` in production, `document-ledger.js`, and several eval
+drivers — one of which, `void-loop-e2e.mjs`, imports the-fold's REAL repo
+copy directly via a four-level-up cross-repo relative path rather than the
+local vendored one, an inconsistency of its own, disclosed below). The
+workflow's own `diff` claim (byte-identical bodies, drifted comments) was
+re-verified directly and held, with one correction: the finding described
+the difference as purely cosmetic prose plus "one cosmetic string." Reading
+both in full found that string is not cosmetic — it is the ONE genuine
+functional-text discrepancy between the two copies, and tracing it further
+found a third, independent copy of the same table
+(`native/organs/void-holarchy.js`) that helped establish which side was
+actually stale.
+
+**The actual defect.** The-fold's own file header carries a "NAGARJUNA'S
+NOTE (2026-09-16)" correcting the file's philosophical framing: a filler
+is never granted completeness on its own say-so, only shown to depend on
+what it actually covers ("void" as Nagarjuna's dependent origination, not
+a bare hole). But the-fold's own `VOID_OPERATORS` table — the actual data
+the file's `declareVoid`/`undeclaredOf` surface to a caller — still read
+the PRE-correction phrasing for the EVA row: `"the test a candidate must
+pass to fill any of it"` (a completeness-by-passing-a-test framing, the
+exact thing the header note says is wrong), in both the header's own
+worked-example table and the executable `VOID_OPERATORS` array.
+eoreader7's copy had already received the fuller correction in both
+places (`"what a candidate must be shown to depend on before it counts as
+covering any of this — never granted on its own say-so"`). Confirmed
+this was the actively-corrected side, not an unrelated fork, by checking
+the third copy: `void-holarchy.js` (cluster (c) of the same finding, a
+separate reimplementation with its own documented hardcoded-grain bug)
+still carries the OLD, pre-correction phrasing verbatim — consistent with
+the-fold's copy simply never having received the fix its own header
+already claimed, rather than eoreader7 having invented a divergent
+reading.
+
+**Verification before touching anything.** `grep`-confirmed the ONLY
+non-comment line difference between the two files (filtering the `diff`
+output to lines not starting with `//`/`*`/blank) was the single
+`VOID_OPERATORS` EVA-row string; confirmed no test in either repo asserts
+that literal string (`grep` across both trees found only the three source
+files, never a `.test.` file).
+
+**What shipped.** Ported eoreader7's corrected phrasing into the-fold's
+copy, in both places (the header's worked-example table and the
+executable `VOID_OPERATORS` EVA/REC rows) — the same direction as the
+`ground-ladder.js` entry's `forms` port, the-fold receiving a fix
+eoreader7's copy already had. Re-diffed and confirmed zero non-comment
+differences remain between the two files. Did NOT force the two files'
+header PROSE to full byte-identity (unlike `ground-ladder.js`, where the
+missing piece was real functionality) — the remaining comment differences
+are independent, non-contradictory elaborations of the same 2026-09-16
+correction, not a defect.
+
+Verified: the-fold's `void-shape.test.mjs` (21/21); `void-loop.test.mjs` +
+`void-brief.test.mjs` (69/70, the one failure is `seg.test.mjs`'s own
+pre-existing missing-`mathjs`-package environment gap, confirmed via
+`git stash` to reproduce identically without this change); eoreader7's
+`native/tests/ground-attention.test.js` (8/8) and
+`native/tests/document-ledger*.test.js` (14/14), both real importers of
+one of the two copies; `native/eval/the-fold/void-loop-e2e.mjs` run live
+end to end (the exact Lincoln/FDR specimens from the file's own header,
+producing correct `bound`/`contradicted`/`unbound` verdicts and a covered
+fold) — this driver exercises the-fold's REAL repo copy, cross-repo, and
+confirms the reconciled file works under both consumption paths.
+
+**Not done, disclosed rather than implied complete:** the two files remain
+two physical copies, for the same reason as `ground-ladder.js` — the-fold
+still has 12 active local importers building its own `/void` pipeline
+(`void-brief.js`/`void-loop.js`/`void-narration.js`), and collapsing to a
+shim is the same "does the-fold keep an offline/fallback mode" question
+`ONE-ENGINE-PLAN.md` leaves open, not a call this entry makes unilaterally.
+`void-loop-e2e.mjs`'s own cross-repo-direct import (bypassing eoreader7's
+local vendored copy entirely) is left as-is — now harmless since the two
+copies compute identically, but still worth flagging as the same
+"double-carriage drift" risk class this document's ground-ladder.js entry
+already names, should the two copies diverge again. The wider finding's
+clusters (b)/(c)/(d)/(e) — `void-holarchy.js`'s own hardcoded-grain bug,
+`void-satisfaction.js`, `void-outline.js`, `void-spec.js`/`skeleton.js`,
+and `kernel/notes.js`'s unrelated same-name `declareVoid` — are untouched;
+each was independently confirmed (not merely asserted) to be either a
+genuinely distinct mechanism or a separate, already-disclosed bug outside
+this entry's scope.
+
+---
+
 *Entries below this line are added as the wider research pass's findings
 clear verification. An unverified hypothesis is never listed here as a
 finding — it stays in the research transcript until read, tested, and
