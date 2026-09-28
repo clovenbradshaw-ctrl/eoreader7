@@ -74,3 +74,15 @@ test("the parts of a name are a reading prior: en + mul + ru composed from live_
   assert.throws(() => namePartsFrom({ language: "xx" }), /NamePartsPrior@1/);
   assert.equal(namePartsFrom(en).patronymic, null, "a composition with no patronymic prior types no patronymic");
 });
+
+test("E6 (fast-reasoning, 2026-09-28): a third language's names are ONE prior file — Spanish honorifics composed in, the organ untouched", () => {
+  const dir = "/home/user/live_priors/derived-priors/name-priors";
+  const load = (f) => JSON.parse(readFileSync(`${dir}/${f}`, "utf8"));
+  const es = existsSync(`${dir}/name-parts-es.json`) ? load("name-parts-es.json") : { schema: "NamePartsPrior@1", language: "es", provenance: { giver: "test" }, titles: ["don", "doña", "señora"] };
+  const mul = existsSync(`${dir}/name-parts-mul.json`) ? load("name-parts-mul.json") : { schema: "NamePartsPrior@1", language: "mul", provenance: { giver: "test" }, particles: ["de", "la"] };
+  const parts = namePartsFrom(mul, es);
+  assert.deepEqual(nameSpans("Don Quijote de la Mancha", parts).map((x) => [x.text, x.relation]), [["Don", "title"], ["Quijote", "given"], ["de", "particle"], ["la", "particle"], ["Mancha", "head"]]);
+  assert.deepEqual(nameSpans("Señora Inés Ortiz", parts).map((x) => x.relation), ["title", "given", "head"]);
+  assert.equal(nameNesting("Doña Inés", "Inés", parts).level, "full", "a title is decoration in Spanish exactly as in English");
+  assert.deepEqual(nameSpans("Don Quijote de la Mancha").map((x) => x.relation), ["given", "given", "particle", "particle", "head"], "without the file 'Don' is just a name token (the particles are the code-side mul default) — the prior, not the organ, knows a Spanish title");
+});
