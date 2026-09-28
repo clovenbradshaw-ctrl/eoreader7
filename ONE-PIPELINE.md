@@ -225,6 +225,40 @@ mnemonic (no practical job here).
 | 2026-09-27 | the stylesheet is snipped, not written | every CSS byte after the provenance comment equals the source's bytes at its ranges; a copyleft candidate that reaches more is refused | tests pass; license gate off fails the test |
 | 2026-09-27 | structural claims limited to operator cells find gaps a patch hid | typed every structural label to one of the 27 phaseposts and checked the helix over the fold; a parts reply heard as `has` with no `exists` | the check named the reported gap **and** form fields heard the same way (the heldNote fallback had hidden both); fixed at the root — the ear instantiates before it bonds — and the fallback removed; rungs 1–3 helix-ok and sealed; turning INS-first off fails 3 tests |
 
+## The missing elements (2026-09-28, Mendeleev over the 27 phaseposts)
+
+The long-form pipeline held against the repo's canonical phaseposts
+(`native/docs/THE-27-CELLS.md`, `native/organs/capacities.js`): 17 cells
+filled, 2 thin, 8 empty. Per THE-27-CELLS §3 an empty cell is a lead, not a
+verdict; each is stated here with a falsifiable prediction BEFORE anything is
+built, so the result can go against it.
+
+- **Family A, the carried ground** (CON·Ground, SYN·Ground, EVA·Ground,
+  REC·Ground): nothing carries the book between parts except the last two
+  sentences. Predictions: a carried field in each note cuts Clark's
+  "takes nothing up" findings (control: another part's field, shuffled);
+  a compiled book-so-far raises right callbacks to invented particulars
+  (control: another book's ground); story time carried
+  (`kernel/narrative-time.js`) cuts time words that contradict part order
+  (control: parts reversed); a refresh gate leaves no carried fact the next
+  part contradicts (control: refresh at random).
+- **Family B, clearance** (NUL·Figure, NUL·Pattern; SIG·Figure and
+  SIG·Pattern thin): invented names recur off the record (scale3: Jack ×56);
+  a being called only "she" is unseen by the trajectory; a book stuck in one
+  state passes every check (slice 2: all 21 parts hold Lily in one state).
+  Predictions: clearance cuts strays per 1k words; pronoun binding cuts
+  unseen counts on the same books; settling (`kernel/settling.js`, loaded,
+  never called) names slice 2 and not its order-shuffled controls beyond alpha.
+- **Family C, the book read back** (SEG·Pattern, DEF·Pattern): seams found by
+  cutting the parts' network at its bridges coincide with the bridges tried
+  and undone (control: order shuffled); laws acquired from the prose
+  (`organs/hl-acquire.js`) make contradictions of what the prose established
+  a measured number instead of an unread zero.
+- **The root:** the bodies are never read back into the record. The ear
+  (`talk-reader.js`) hears only the outline's talk. Every empty cell needs
+  that one missing reader first (SIG·Figure), with pronouns bound
+  (`adapters/text/pronouns.js`).
+
 ## Archon checkpoints
 
 Before a change of direction, poll read-only panels, with Ostrom (claim
