@@ -109,7 +109,7 @@ function universeOf(index) {
 // `universe`, each equally likely, no id repeated. If `count` exceeds the
 // universe's size the whole universe is returned (every id sampled once) —
 // there being no way to draw more distinct ids than exist.
-function sampleWithoutReplacement(universe, count, rng) {
+export function sampleWithoutReplacement(universe, count, rng) {
   const pool = universe.slice();
   const n = Math.min(count, pool.length);
   for (let i = 0; i < n; i++) {
