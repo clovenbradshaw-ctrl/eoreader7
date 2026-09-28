@@ -126,7 +126,12 @@ function parseHosts() {
     // native daemon (OLLAMA_URL) is no longer a default target — still
     // reachable by naming it explicitly, e.g.
     // ER7_OLLAMA_HOSTS="local=http://127.0.0.1:11435".
-    out.push({ name: "local", url: String(process.env.ER7_FLEET_URL ?? "http://127.0.0.1:8790").replace(/\/+$/, "") });
+    // ER7_FLEET_URL="" is the documented way to opt OUT of the bridge (see
+    // the sibling branch below) -- honor that here too by falling back to
+    // the native daemon instead of a blank URL the health-check can never
+    // mark down (a bare TypeError, not one of ECONNREFUSED/ENOTFOUND/EHOSTUNREACH).
+    const fleetOptOut = process.env.ER7_FLEET_URL === "";
+    out.push({ name: "local", url: (fleetOptOut ? OLLAMA_URL : String(process.env.ER7_FLEET_URL ?? "http://127.0.0.1:8790")).replace(/\/+$/, "") });
   } else if (process.env.ER7_FLEET_URL !== "" && !out.some((h) => h.name === "fleet")) {
     // THE FLEET, ALONGSIDE AN EXPLICIT CONFIG (2026-09-21): once
     // ER7_OLLAMA_HOSTS names hosts by hand, the bridge is still added beside
