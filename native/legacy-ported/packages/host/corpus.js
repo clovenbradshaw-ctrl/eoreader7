@@ -1316,6 +1316,21 @@ function sessionReferentsAcrossDocuments(session, { sourceIds, priors = [], limi
 // (perceiver/text/relations.js) at host tier: packages/host/graph.js reads
 // this, never re-derives it, so a document's relations are measured exactly
 // once regardless of how many callers (the cast, the graph) need them.
+// sessionCast (added 2026-09-27) — a READ-ONLY view of what the host already
+// computed for one document: its own sentence units, the discovered cast
+// with every surface, and the pronoun bindings (referentId, sentenceOrder,
+// offset). Added so an organ reading ON TOP of the host (occupancy testimony)
+// resolves a mention to a referent the host established, instead of
+// re-deriving names from capitalisation. Nothing is recomputed or changed:
+// both calls are the host's own memoised functions.
+export function sessionCast(session, { sourceId } = {}) {
+  const doc = session.documents.get(sourceId);
+  if (!doc) return { sentences: [], referents: [], pronounBindings: [], gaps: [`unknown document ${sourceId}`] };
+  const { sentences, body } = extractDocSurfaces(session, doc);
+  const cast = discoveredCast(session, doc);
+  return { sentences, body, referents: cast.referents, pronounBindings: cast.pronounBindings, relations: cast.relations, gaps: cast.gaps };
+}
+
 export function sessionRelations(session, { sourceId } = {}) {
   const doc = session.documents.get(sourceId);
   if (!doc) return { relations: [], gaps: [`unknown document ${sourceId}`] };

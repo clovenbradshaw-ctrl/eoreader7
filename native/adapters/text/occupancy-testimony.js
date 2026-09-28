@@ -56,7 +56,7 @@ const CAP = "\\p{Lu}[\\p{L}’'.-]*";       // a capitalised word
  * modals / negation: closed classes (declared by the caller with givers).
  * -> { candidates, refused }
  */
-export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, posPrior = null } = {}) {
+export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, posPrior = null, resolveOccupant = null, resolveLocus = null } = {}) {
   for (const [k, v] of Object.entries({ source, determiners, modals, negation })) if (v == null) throw new TypeError(`occupancy-testimony: '${k}' must be declared`);
   const def = determiners.definite, indef = determiners.indefinite;
   const passive = transitions.passive.map(esc).join("|");
@@ -79,8 +79,11 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
   ];
   const candidates = [], refused = [];
   const clean = (w) => w.toLowerCase().replace(/[^\p{L}’']/gu, "");
-  for (const { text, at } of sentences) {
+  for (const sentence of sentences) {
+    const { text, at } = sentence;
+    let clauseStart = 0;
     for (const clause of String(text).split(/[;:]|(?:,\s+(?=(?:and|but|while|when|after|before)\s))/u)) {
+      const here = text.indexOf(clause, clauseStart); if (here >= 0) clauseStart = here;
       for (const p of patterns) {
         const m = p.re.exec(clause); if (!m) continue;
         const occupant = m.groups.occ;
@@ -88,6 +91,14 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         const before = clause.slice(0, m.index).split(/\s+/).filter(Boolean).slice(-2).map(clean);
         const irrealis = [...mid, ...before].some((w) => modals.has(w) || negation.has(w)) || mid.includes("to") || before.at(-1) === "to";
         if (irrealis) { refused.push({ at, reason: "irrealis", clause: clause.trim().slice(0, 160) }); break; }
+        // THE OCCUPANT IS A REFERENT. With a resolver injected (the host's own
+        // cast, its pronoun bindings, a medium's pointers), the slot before the
+        // transition must reach a referent the reading ESTABLISHED; the
+        // capitalised run is then only where to look, never the answer.
+        const cStart = clauseStart;
+        const slot = { start: cStart + m.index, end: cStart + m.index + m.groups.occ.length + m.groups.mid.length };
+        const who = resolveOccupant ? resolveOccupant(sentence, slot) : null;
+        if (resolveOccupant && !who) { refused.push({ at, reason: "occupant_not_a_referent", occupant, clause: clause.trim().slice(0, 160) }); break; }
         const occFirst = occupant.split(/\s+/)[0].toLowerCase();
         if (def.has(occFirst) || indef.has(occFirst)) { refused.push({ at, reason: "occupant_is_description", occupant, clause: clause.trim().slice(0, 160) }); break; }
         const predecessor = m.groups.pred ?? null;
@@ -102,12 +113,33 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         if (type !== "locus") { refused.push({ at, reason: type === "kind" ? "kind_membership" : "state_not_position", occupant, complement: comp.slice(0, 80) }); break; }
         const locus = comp.replace(new RegExp(`^(?:${[...def].map(esc).join("|")})\\s+`, "iu"), "").replace(/[.”"’']+$/u, "").trim();
         const year = /\b(1[0-9]{3}|20[0-9]{2})\b/u.exec(clause)?.[1] ?? null;
-        candidates.push({ occupant, locus, predecessor, pattern: p.kind, at, address: `${source}#s${at}`, year, clause: clause.trim().slice(0, 200) });
+        const compStart = cStart + clause.indexOf(m.groups.comp);
+        const where = resolveLocus ? resolveLocus(sentence, { start: compStart, end: compStart + comp.length }, locus) : null;
+        const pred = predecessor && resolveOccupant ? resolveOccupant(sentence, { start: cStart + clause.indexOf(predecessor), end: cStart + clause.indexOf(predecessor) + predecessor.length }) : null;
+        candidates.push({ occupant: who?.referent ?? occupant, occupantVia: who?.via ?? "surface", occupantSurface: occupant, locus: where?.referent ?? locus, locusVia: where?.via ?? "surface", locusSurface: locus, predecessor: pred?.referent ?? predecessor, pattern: p.kind, at, address: `${source}#s${at}`, year, clause: clause.trim().slice(0, 200) });
         break;
       }
     }
   }
   return { candidates, refused, giver: OCCUPANCY_TRANSITIONS_EN_META.giver };
+}
+
+/**
+ * positionsByPattern(candidates) — a locus is a POSITION only with pattern
+ * evidence: it recurs across two distinct occupant referents, or a standing
+ * in it names a predecessor. A definite description held once ("the first
+ * human to walk") is a Figure, not a position, and stays a description.
+ */
+export function positionsByPattern(candidates) {
+  const by = new Map();
+  for (const c of candidates) { const k = String(c.locus).toLowerCase(); if (!by.has(k)) by.set(k, []); by.get(k).push(c); }
+  const positions = [], descriptions = [];
+  for (const [locus, cs] of by) {
+    const occupants = new Set(cs.map((c) => c.occupant));
+    const pointer = cs.some((c) => c.predecessor);
+    (occupants.size >= 2 || pointer ? positions : descriptions).push({ locus, occupants: [...occupants], standings: cs.length, evidence: occupants.size >= 2 ? "two_occupants" : pointer ? "succession_pointer" : "held_once" });
+  }
+  return { positions, descriptions };
 }
 
 /** A position key a caller may use for kernel/sequence.js: the material's own
