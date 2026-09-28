@@ -535,8 +535,9 @@ Overall: {"note":"exploratory replication — not counted in the decision","cons
   pipeline that THE-THREE-MATHEMATICS §VII already keeps apart from the operator chain. Five of
   the six upward grain edges are two host modules (declared Ground) importing the Figure organs
   they orchestrate. The first run of the driver looked CAPACITIES entries up by their full path
-  string instead of by basename as declared; the correction changed the population (49 → 61) and
-  neither verdict's label; both runs are kept.
+  string instead of by basename as declared; the correction grew the population (49 → 61 modules), left the
+  class axis UNDERPOWERED (8 → 9 cross-class edges) and moved the grain axis from UNDERPOWERED (9
+  cross-grain edges) to NOT-A-LAYERING-FACT (12); both runs are kept.
   *A limit of the population:* 15 CAPACITIES entries name modules that live in the-fold, outside
   this tree, and are listed rather than measured.
 - **F4** — the harness passed its power check, so a NO-SIGNAL would have been readable at that
@@ -567,7 +568,7 @@ Overall: {"note":"exploratory replication — not counted in the decision","cons
   in Dracula, 12 of 20 in Pride and Prejudice, none in Frankenstein.
 - **F5′** (registered after F5c, before it was run on held-out books) — repairing the extent
   removes the bare-honorific edges by 0.40 in Pride and Prejudice and by 0.00 to 0.05 in each
-  of the three held-out books, where an equal-sized placebo merge does about the same. Consequential
+  of the three held-out books, where an equal-sized placebo merge removes 0.00 to 0.05. Consequential
   on **0 of 3** held-out books: **not supported as general**. I had put 70% on it. The cause found
   by looking is real — `splitSentences` ends a sentence at an honorific abbreviation in every book
   (from 18% of the sentences that contain one in Sherlock Holmes to 99.7% in Pride and Prejudice)
