@@ -1,0 +1,1368 @@
+{
+ "declared": {
+  "pages": 13,
+  "fixture": {
+   "retrievedAt": "2026-09-28T00:37:16.939Z",
+   "giver": "en.wikipedia.org rest_v1/page/html, body prose with hyperlink spans (lib/wiki-body.mjs)"
+  },
+  "liveTexts": [
+   "War and Peace",
+   "Immanuel_Kant",
+   "Cold_War",
+   "Middlemarch",
+   "Federalist",
+   "Dracula",
+   "Great_Expectations",
+   "Crime_and_Punishment"
+  ]
+ },
+ "H1": {
+  "admitted": 26,
+  "pagesWithStanding": 8,
+  "perPage": [
+   {
+    "page": "Joachim Murat",
+    "standings": 0,
+    "ablation": 3,
+    "refused": {
+     "occupant_not_a_referent": 11,
+     "kind_membership": 2,
+     "state_not_position": 1
+    },
+    "cast": {
+     "referents": 40,
+     "pronounBindings": 11,
+     "sentences": 87,
+     "gaps": [
+      "no_abbreviation_prior_for_language",
+      "pronoun_and_descriptor_mentions_unresolved",
+      "pronoun_mentions_partially_resolved"
+     ]
+    },
+    "seconds": 0.2
+   },
+   {
+    "page": "Mikhail Kutuzov",
+    "standings": 0,
+    "ablation": 2,
+    "refused": {
+     "occupant_not_a_referent": 11,
+     "kind_membership": 2,
+     "state_not_position": 1
+    },
+    "cast": {
+     "referents": 50,
+     "pronounBindings": 6,
+     "sentences": 137,
+     "gaps": [
+      "no_abbreviation_prior_for_language",
+      "pronoun_and_descriptor_mentions_unresolved",
+      "pronoun_mentions_partially_resolved"
+     ]
+    },
+    "seconds": 0.2
+   },
+   {
+    "page": "Hannibal Hamlin",
+    "standings": 1,
+    "ablation": 1,
+    "refused": {
+     "state_not_position": 4,
+     "occupant_not_a_referent": 13,
+     "kind_membership": 3
+    },
+    "cast": {
+     "referents": 51,
+     "pronounBindings": 6,
+     "sentences": 119,
+     "gaps": [
+      "no_abbreviation_prior_for_language",
+      "pronoun_and_descriptor_mentions_unresolved",
+      "pronoun_mentions_partially_resolved"
+     ]
+    },
+    "seconds": 0.2
+   },
+   {
+    "page": "Andrew Johnson",
+    "standings": 0,
+    "ablation": 0,
+    "refused": {
+     "occupant_not_a_referent": 28,
+     "state_not_position": 3,
+     "kind_membership": 1,
+     "irrealis": 1
+    },
+    "cast": {
+     "referents": 138,
+     "pronounBindings": 22,
+     "sentences": 632,
+     "gaps": [
+      "no_abbreviation_prior_for_language",
+      "pronoun_and_descriptor_mentions_unresolved",
+      "pronoun_mentions_partially_resolved"
+     ]
+    },
+    "seconds": 0.7
+   },
+   {
+    "page": "Angela Merkel",
+    "standings": 4,
+    "ablation": 10,
+    "refused": {
+     "occupant_not_a_referent": 31,
+     "irrealis": 1,
+     "state_not_position": 6,
+     "kind_membership": 1
+    },
+    "cast": {
+     "referents": 130,
+     "pronounBindings": 19,
+     "sentences": 466,
+     "gaps": [
+      "no_abbreviation_prior_for_language",
+      "pronoun_and_descriptor_mentions_unresolved",
+      "pronoun_mentions_partially_resolved"
+     ]
+    },
+    "seconds": 0.8
+   },
+   {
+    "page": "John Roberts",
+    "standings": 1,
+    "ablation": 0,
+    "refused": {
+     "occupant_not_a_referent": 13,
+     "irrealis": 1,
+     "kind_membership": 1
+    },
+    "cast": {
+     "referents": 103,
+     "pronounBindings": 13,
+     "sentences": 289,
+     "gaps": [
+      "no_abbreviation_prior_for_language",
+      "pronoun_and_descriptor_mentions_unresolved",
+      "pronoun_mentions_partially_resolved"
+     ]
+    },
+    "seconds": 0.7
+   },
+   {
+    "page": "William Rehnquist",
+    "standings": 1,
+    "ablation": 1,
+    "refused": {
+     "occupant_not_a_referent": 9,
+     "state_not_position": 1
+    },
+    "cast": {
+     "referents": 115,
+     "pronounBindings": 13,
+     "sentences": 351,
+     "gaps": [
+      "no_abbreviation_prior_for_language",
+      "pronoun_and_descriptor_mentions_unresolved",
+      "pronoun_mentions_partially_resolved"
+     ]
+    },
+    "seconds": 0.7
+   },
+   {
+    "page": "Pope Benedict XVI",
+    "standings": 5,
+    "ablation": 5,
+    "refused": {
+     "occupant_not_a_referent": 23,
+     "kind_membership": 4,
+     "state_not_position": 4,
+     "irrealis": 2
+    },
+    "cast": {
+     "referents": 165,
+     "pronounBindings": 8,
+     "sentences": 608,
+     "gaps": [
+      "no_abbreviation_prior_for_language",
+      "pronoun_and_descriptor_mentions_unresolved",
+      "pronoun_mentions_partially_resolved"
+     ]
+    },
+    "seconds": 1.5
+   },
+   {
+    "page": "Tim Cook",
+    "standings": 0,
+    "ablation": 4,
+    "refused": {
+     "occupant_not_a_referent": 15,
+     "kind_membership": 1,
+     "state_not_position": 1
+    },
+    "cast": {
+     "referents": 33,
+     "pronounBindings": 8,
+     "sentences": 115,
+     "gaps": [
+      "no_abbreviation_prior_for_language",
+      "pronoun_and_descriptor_mentions_unresolved",
+      "pronoun_mentions_partially_resolved"
+     ]
+    },
+    "seconds": 0.1
+   },
+   {
+    "page": "Satya Nadella",
+    "standings": 0,
+    "ablation": 2,
+    "refused": {
+     "occupant_not_a_referent": 5
+    },
+    "cast": {
+     "referents": 17,
+     "pronounBindings": 8,
+     "sentences": 56,
+     "gaps": [
+      "no_abbreviation_prior_for_language",
+      "pronoun_and_descriptor_mentions_unresolved",
+      "pronoun_mentions_partially_resolved"
+     ]
+    },
+    "seconds": 0.1
+   },
+   {
+    "page": "Alex Ferguson",
+    "standings": 1,
+    "ablation": 1,
+    "refused": {
+     "occupant_not_a_referent": 20,
+     "kind_membership": 1,
+     "state_not_position": 4,
+     "irrealis": 2
+    },
+    "cast": {
+     "referents": 169,
+     "pronounBindings": 12,
+     "sentences": 523,
+     "gaps": [
+      "no_abbreviation_prior_for_language",
+      "pronoun_and_descriptor_mentions_unresolved",
+      "pronoun_mentions_partially_resolved"
+     ]
+    },
+    "seconds": 1.4
+   },
+   {
+    "page": "Pep Guardiola",
+    "standings": 12,
+    "ablation": 6,
+    "refused": {
+     "occupant_not_a_referent": 15,
+     "state_not_position": 1
+    },
+    "cast": {
+     "referents": 116,
+     "pronounBindings": 16,
+     "sentences": 320,
+     "gaps": [
+      "no_abbreviation_prior_for_language",
+      "pronoun_and_descriptor_mentions_unresolved",
+      "pronoun_mentions_partially_resolved"
+     ]
+    },
+    "seconds": 0.9
+   },
+   {
+    "page": "Lawrence Summers",
+    "standings": 1,
+    "ablation": 5,
+    "refused": {
+     "occupant_not_a_referent": 14,
+     "state_not_position": 1
+    },
+    "cast": {
+     "referents": 85,
+     "pronounBindings": 4,
+     "sentences": 199,
+     "gaps": [
+      "no_abbreviation_prior_for_language",
+      "pronoun_and_descriptor_mentions_unresolved",
+      "pronoun_mentions_partially_resolved"
+     ]
+    },
+    "seconds": 0.4
+   }
+  ],
+  "held": true
+ },
+ "H2": {
+  "realClosedOrDescription": [],
+  "ablationClosedOrDescription": 10,
+  "ablationSample": [
+   "He",
+   "After",
+   "She",
+   "Since",
+   "Before",
+   "Upon"
+  ],
+  "held": true
+ },
+ "H3": {
+  "positions": [
+   {
+    "locus": "archbishop of munich and freising",
+    "occupants": [
+     "German",
+     "Ratzinger"
+    ],
+    "standings": 2,
+    "evidence": "two_occupants"
+   },
+   {
+    "locus": "england",
+    "occupants": [
+     "FA Cup",
+     "Champions League"
+    ],
+    "standings": 2,
+    "evidence": "two_occupants"
+   }
+  ],
+  "descriptions": 22,
+  "held": true
+ },
+ "H4": {
+  "standings": 4,
+  "bezukhov": [],
+  "refusedNamed": [],
+  "held": false
+ },
+ "H5": {
+  "a": {
+   "held": false,
+   "rows": [],
+   "refusedNamed": [
+    {
+     "at": 89,
+     "reason": "occupant_not_a_referent",
+     "occupant": "In 1770, Kant",
+     "clause": "In 1770, Kant was appointed Full Professor of Logic and Metaphysics at the University of Königsberg."
+    }
+   ]
+  },
+  "b": {
+   "held": true,
+   "refusedNamed": [
+    {
+     "at": 3493,
+     "reason": "irrealis",
+     "occupant": "Tyke",
+     "clause": "Tyke should be appointed as salaried chaplain\nto the hospital was an exciting topic to the Middlemarchers"
+    },
+    {
+     "at": 4208,
+     "reason": "state_not_position",
+     "occupant": "Tyke",
+     "complement": "chaplain to the Infirmary"
+    }
+   ]
+  },
+  "c": {
+   "held": false,
+   "standings": 1,
+   "refused": {
+    "occupant_not_a_referent": 209,
+    "kind_membership": 1,
+    "irrealis": 17,
+    "state_not_position": 4
+   },
+   "rows": [
+    {
+     "text": "Federalist",
+     "occupant": "Congress",
+     "occupantId": "Federalist/ref:auto:congress",
+     "via": "cast",
+     "surface": "Congress",
+     "locus": "seat of the",
+     "locusVia": "surface",
+     "predecessor": null,
+     "pattern": "become",
+     "year": null,
+     "address": "Federalist#s3123",
+     "clause": "\"To exercise exclusive legislation, in all cases whatsoever, over\nsuch district (not exceeding ten miles square) as may, by cession of\nparticular States and the acceptance of Congress, become the seat"
+    }
+   ]
+  },
+  "d": {
+   "held": true,
+   "positions": {
+    "Dracula": [],
+    "Great_Expectations": [],
+    "Crime_and_Punishment": []
+   }
+  },
+  "e": {
+   "held": true,
+   "rows": [
+    {
+     "text": "Cold_War",
+     "occupant": "Gorbachev",
+     "occupantId": "Cold_War/ref:auto:gorbachev",
+     "via": "cast",
+     "surface": "Gorbachev",
+     "locus": "USSR",
+     "locusVia": "cast",
+     "predecessor": null,
+     "pattern": "become",
+     "year": "1985",
+     "address": "Cold_War#s21",
+     "clause": "In 1985, Mikhail Gorbachev became List of leaders of the Soviet Unionleader of the USSR and General secretaryship of Mikhail Gorbachevexpanded political freedoms, which contributed to the revolutions "
+    },
+    {
+     "text": "Cold_War",
+     "occupant": "Gorbachev",
+     "occupantId": "Cold_War/ref:auto:gorbachev",
+     "via": "cast",
+     "surface": "Gorbachev",
+     "locus": "Communist Party",
+     "locusVia": "cast",
+     "predecessor": null,
+     "pattern": "become",
+     "year": "1985",
+     "address": "Cold_War#s547",
+     "clause": "By the time the comparatively youthful Mikhail Gorbachev became General Secretary of the Communist Party of the Soviet UnionGeneral Secretary in 1985, the Soviet economy was stagnant and faced a sharp"
+    }
+   ],
+   "refusedNamed": []
+  },
+  "held": false
+ },
+ "byDomain": {
+  "military": {
+   "pages": [
+    "Joachim Murat",
+    "Mikhail Kutuzov"
+   ],
+   "standings": 0,
+   "refused": {
+    "occupant_not_a_referent": 22,
+    "kind_membership": 4,
+    "state_not_position": 2
+   },
+   "ablationStandings": 5
+  },
+  "politics": {
+   "pages": [
+    "Hannibal Hamlin",
+    "Andrew Johnson",
+    "Angela Merkel"
+   ],
+   "standings": 5,
+   "refused": {
+    "state_not_position": 13,
+    "occupant_not_a_referent": 72,
+    "kind_membership": 5,
+    "irrealis": 2
+   },
+   "ablationStandings": 11
+  },
+  "law": {
+   "pages": [
+    "John Roberts",
+    "William Rehnquist"
+   ],
+   "standings": 2,
+   "refused": {
+    "occupant_not_a_referent": 22,
+    "irrealis": 1,
+    "kind_membership": 1,
+    "state_not_position": 1
+   },
+   "ablationStandings": 1
+  },
+  "church": {
+   "pages": [
+    "Pope Benedict XVI"
+   ],
+   "standings": 5,
+   "refused": {
+    "occupant_not_a_referent": 23,
+    "kind_membership": 4,
+    "state_not_position": 4,
+    "irrealis": 2
+   },
+   "ablationStandings": 5
+  },
+  "business": {
+   "pages": [
+    "Tim Cook",
+    "Satya Nadella"
+   ],
+   "standings": 0,
+   "refused": {
+    "occupant_not_a_referent": 20,
+    "kind_membership": 1,
+    "state_not_position": 1
+   },
+   "ablationStandings": 6
+  },
+  "sport": {
+   "pages": [
+    "Alex Ferguson",
+    "Pep Guardiola"
+   ],
+   "standings": 13,
+   "refused": {
+    "occupant_not_a_referent": 35,
+    "kind_membership": 1,
+    "state_not_position": 5,
+    "irrealis": 2
+   },
+   "ablationStandings": 7
+  },
+  "academia": {
+   "pages": [
+    "Lawrence Summers"
+   ],
+   "standings": 1,
+   "refused": {
+    "occupant_not_a_referent": 14,
+    "state_not_position": 1
+   },
+   "ablationStandings": 5
+  }
+ },
+ "via": {
+  "cast": 25,
+  "pronoun": 1
+ },
+ "locusVia": {
+  "cast": 8,
+  "link": 11,
+  "surface": 7
+ },
+ "standingsA": [
+  {
+   "text": "Hannibal Hamlin",
+   "occupant": "Whig",
+   "occupantId": "Hannibal Hamlin/ref:auto:whig",
+   "via": "cast",
+   "surface": "Whig",
+   "locus": "Republicans",
+   "locusVia": "cast",
+   "predecessor": null,
+   "pattern": "become",
+   "year": null,
+   "address": "Hannibal Hamlin#s91",
+   "clause": "and Elijah a Whig) before both became Republicans in the late 1850s."
+  },
+  {
+   "text": "Angela Merkel",
+   "occupant": "Chancellor Helmut",
+   "occupantId": "Angela Merkel/ref:auto:chancellor_helmut",
+   "via": "cast",
+   "surface": "Chancellor Helmut",
+   "locus": "Federal Ministry of Family Affairs, Senior Citizens, Women and Youth",
+   "locusVia": "link",
+   "predecessor": null,
+   "pattern": "passive",
+   "year": "1991",
+   "address": "Angela Merkel#s8",
+   "clause": "As the protégée of Chancellor Helmut Kohl, Merkel was appointed as Minister for Women and Youth in 1991, later becoming Minister for the Environment, Nature Conservation and Nuclear Safety in 1994."
+  },
+  {
+   "text": "Angela Merkel",
+   "occupant": "CDU Leader",
+   "occupantId": "Angela Merkel/ref:auto:cdu_leader",
+   "via": "cast",
+   "surface": "CDU Leader",
+   "locus": "Leader of the Opposition",
+   "locusVia": "surface",
+   "predecessor": null,
+   "pattern": "become",
+   "year": "2002",
+   "address": "Angela Merkel#s108",
+   "clause": "After Stoiber's defeat in 2002, in addition to her role as CDU Leader, Merkel became Leader of the Opposition in the Bundestag, as had been agreed upon between her and Stoiber."
+  },
+  {
+   "text": "Angela Merkel",
+   "occupant": "March Merkel",
+   "occupantId": "Angela Merkel/ref:auto:march",
+   "via": "cast",
+   "surface": "March",
+   "locus": "Head of government",
+   "locusVia": "link",
+   "predecessor": null,
+   "pattern": "become",
+   "year": "2014",
+   "address": "Angela Merkel#s408",
+   "clause": "On 26 March 2014, Merkel became the longest-serving incumbent head of government in the European Union."
+  },
+  {
+   "text": "Angela Merkel",
+   "occupant": "December",
+   "occupantId": "Angela Merkel/ref:auto:december",
+   "via": "cast",
+   "surface": "December",
+   "locus": "Time Person of the Year",
+   "locusVia": "link",
+   "predecessor": null,
+   "pattern": "passive",
+   "year": "2015",
+   "address": "Angela Merkel#s409",
+   "clause": "In December 2015, Merkel was named as Time magazine's Person of the Year, with the magazine's cover declaring her to be the \"Chancellor of the Free World\"."
+  },
+  {
+   "text": "John Roberts",
+   "occupant": "Buffalo New York",
+   "occupantId": "John Roberts/ref:auto:buffalo",
+   "via": "pronoun",
+   "surface": "his",
+   "locus": "manager of a new steel plant",
+   "locusVia": "surface",
+   "predecessor": null,
+   "pattern": "become",
+   "year": "1965",
+   "address": "John Roberts#s18",
+   "clause": "In 1965, ten-year-old Roberts and his family moved to Long Beach, Indiana, where his father became the manager of a new steel plant in nearby Burns Harbor."
+  },
+  {
+   "text": "William Rehnquist",
+   "occupant": "September",
+   "occupantId": "William Rehnquist/ref:auto:september",
+   "via": "cast",
+   "surface": "September",
+   "locus": "Harlan F. Stone",
+   "locusVia": "link",
+   "predecessor": null,
+   "pattern": "become",
+   "year": null,
+   "address": "William Rehnquist#s176",
+   "clause": "He took office on September 26, becoming the first person since Harlan F. Stone to serve as both an associate justice and chief justice."
+  },
+  {
+   "text": "Pope Benedict XVI",
+   "occupant": "German",
+   "occupantId": "Pope Benedict XVI/ref:auto:german",
+   "via": "cast",
+   "surface": "German",
+   "locus": "Archbishop of Munich and Freising",
+   "locusVia": "link",
+   "predecessor": null,
+   "pattern": "passive",
+   "year": "1977",
+   "address": "Pope Benedict XVI#s4",
+   "clause": "After a long career as a professor of theology at several German universities, he was appointed Archbishop of Munich and Freising and created a cardinal by Pope Paul VI in 1977, an unusual promotion f"
+  },
+  {
+   "text": "Pope Benedict XVI",
+   "occupant": "Ratzinger",
+   "occupantId": "Pope Benedict XVI/ref:auto:ratzinger",
+   "via": "cast",
+   "surface": "Ratzinger",
+   "locus": "Archbishop of Munich and Freising",
+   "locusVia": "link",
+   "predecessor": null,
+   "pattern": "passive",
+   "year": "1977",
+   "address": "Pope Benedict XVI#s81",
+   "clause": "On 24 March 1977, Ratzinger was appointed Archbishop of Munich and Freising"
+  },
+  {
+   "text": "Pope Benedict XVI",
+   "occupant": "June Benedict",
+   "occupantId": "Pope Benedict XVI/ref:auto:june",
+   "via": "cast",
+   "surface": "June",
+   "locus": "Santa Maria Consolatrice al Tiburtino",
+   "locusVia": "link",
+   "predecessor": null,
+   "pattern": "passive",
+   "year": "1977",
+   "address": "Pope Benedict XVI#s83",
+   "clause": "In the consistory of 27 June 1977, he was named Cardinal Priest of Santa Maria Consolatrice al Tiburtino by Pope Paul VI."
+  },
+  {
+   "text": "Pope Benedict XVI",
+   "occupant": "December",
+   "occupantId": "Pope Benedict XVI/ref:auto:december",
+   "via": "cast",
+   "surface": "December",
+   "locus": "Pope Paul",
+   "locusVia": "cast",
+   "predecessor": null,
+   "pattern": "become",
+   "year": "2016",
+   "address": "Pope Benedict XVI#s461",
+   "clause": "Following the death of Cardinal Paulo Evaristo Arns in December 2016, Benedict became the last living person appointed cardinal by Pope Paul VI."
+  },
+  {
+   "text": "Pope Benedict XVI",
+   "occupant": "Munich",
+   "occupantId": "Pope Benedict XVI/ref:auto:munich",
+   "via": "cast",
+   "surface": "Munich",
+   "locus": "honorary club member",
+   "locusVia": "surface",
+   "predecessor": null,
+   "pattern": "passive",
+   "year": "2012",
+   "address": "Pope Benedict XVI#s600",
+   "clause": "Benedict XVI was a supporter of Bayern Munich F.C. He was made the honorary club member in 2012, shortly before the resignation had been effective."
+  },
+  {
+   "text": "Alex Ferguson",
+   "occupant": "January",
+   "occupantId": "Alex Ferguson/ref:auto:january",
+   "via": "cast",
+   "surface": "January",
+   "locus": "UEFA",
+   "locusVia": "cast",
+   "predecessor": null,
+   "pattern": "passive",
+   "year": "2014",
+   "address": "Alex Ferguson#s421",
+   "clause": "In January 2014, Ferguson was appointed as the UEFA Coaching Ambassador"
+  },
+  {
+   "text": "Pep Guardiola",
+   "occupant": "Champions League",
+   "occupantId": "Pep Guardiola/ref:auto:champions_league",
+   "via": "cast",
+   "surface": "Champions League",
+   "locus": "youngest manager to win the latter competition",
+   "locusVia": "surface",
+   "predecessor": null,
+   "pattern": "become",
+   "year": null,
+   "address": "Pep Guardiola#s9",
+   "clause": "In his first season, he led Barcelona to the continental treble of La Liga, the Copa del Rey and the UEFA Champions League, becoming the youngest manager to win the latter competition."
+  },
+  {
+   "text": "Pep Guardiola",
+   "occupant": "Manuel",
+   "occupantId": "Pep Guardiola/ref:auto:manuel",
+   "via": "cast",
+   "surface": "Manuel",
+   "locus": "Dorados de Sinaloa",
+   "locusVia": "link",
+   "predecessor": null,
+   "pattern": "passive",
+   "year": "2006",
+   "address": "Pep Guardiola#s55",
+   "clause": "In 2006, Juan Manuel Lillo was appointed the manager of Mexican club Dorados."
+  },
+  {
+   "text": "Pep Guardiola",
+   "occupant": "December Guardiola",
+   "occupantId": "Pep Guardiola/ref:auto:december",
+   "via": "cast",
+   "surface": "December",
+   "locus": "2009 FIFA Club World Cup",
+   "locusVia": "link",
+   "predecessor": null,
+   "pattern": "passive",
+   "year": "2009",
+   "address": "Pep Guardiola#s104",
+   "clause": "On 25 September 2009, Barcelona gave him his 50th professional victory, away against Málaga and on 19 December, they were crowned FIFA Club World Cup champions for the first time in their history."
+  },
+  {
+   "text": "Pep Guardiola",
+   "occupant": "World Cup",
+   "occupantId": "Pep Guardiola/ref:auto:world_cup",
+   "via": "cast",
+   "surface": "World Cup",
+   "locus": "List of FC Barcelona managers",
+   "locusVia": "link",
+   "predecessor": null,
+   "pattern": "become",
+   "year": null,
+   "address": "Pep Guardiola#s105",
+   "clause": "Guardiola finished the calendar year with a record six trophies, the Spanish League, Copa del Rey, Champions League, Spanish Super Cup, European Super Cup and Club World Cup, becoming the first manage"
+  },
+  {
+   "text": "Pep Guardiola",
+   "occupant": "January",
+   "occupantId": "Pep Guardiola/ref:auto:january",
+   "via": "cast",
+   "surface": "January",
+   "locus": "Spanish",
+   "locusVia": "cast",
+   "predecessor": null,
+   "pattern": "become",
+   "year": "2010",
+   "address": "Pep Guardiola#s106",
+   "clause": "In January 2010, he became Barcelona's longest serving Spanish manager, overtaking the record previously held by Josep Samitier."
+  },
+  {
+   "text": "Pep Guardiola",
+   "occupant": "April",
+   "occupantId": "Pep Guardiola/ref:auto:april",
+   "via": "cast",
+   "surface": "April",
+   "locus": "Atlético Madrid",
+   "locusVia": "cast",
+   "predecessor": null,
+   "pattern": "become",
+   "year": "2010",
+   "address": "Pep Guardiola#s110",
+   "clause": "On 10 April 2010, he became the first manager in Barcelona's history to beat Real Madrid four times in a row in El Clásico."
+  },
+  {
+   "text": "Pep Guardiola",
+   "occupant": "January",
+   "occupantId": "Pep Guardiola/ref:auto:january",
+   "via": "cast",
+   "surface": "January",
+   "locus": "FIFA World Coach of the Year",
+   "locusVia": "link",
+   "predecessor": null,
+   "pattern": "passive",
+   "year": "2012",
+   "address": "Pep Guardiola#s127",
+   "clause": "On 9 January 2012, he was named FIFA World Coach of the Year."
+  },
+  {
+   "text": "Pep Guardiola",
+   "occupant": "FA Cup",
+   "occupantId": "Pep Guardiola/ref:auto:fa_cup",
+   "via": "cast",
+   "surface": "FA Cup",
+   "locus": "England",
+   "locusVia": "cast",
+   "predecessor": null,
+   "pattern": "become",
+   "year": null,
+   "address": "Pep Guardiola#s206",
+   "clause": "On 18 May, City beat Watford 6–0 in the final of the FA Cup, becoming the first ever men's team in England to win a domestic treble."
+  },
+  {
+   "text": "Pep Guardiola",
+   "occupant": "January",
+   "occupantId": "Pep Guardiola/ref:auto:january",
+   "via": "cast",
+   "surface": "January",
+   "locus": "team",
+   "locusVia": "surface",
+   "predecessor": null,
+   "pattern": "become",
+   "year": "1888",
+   "address": "Pep Guardiola#s217",
+   "clause": "it was the ninth game City had won in January, becoming the team with the most wins in a single month in the top four tiers of English football since the Football League began in 1888."
+  },
+  {
+   "text": "Pep Guardiola",
+   "occupant": "UEFA Super Cup",
+   "occupantId": "Pep Guardiola/ref:auto:uefa_super",
+   "via": "cast",
+   "surface": "UEFA Super Cup",
+   "locus": "first-ever manager to win the trophy",
+   "locusVia": "surface",
+   "predecessor": null,
+   "pattern": "become",
+   "year": "2023",
+   "address": "Pep Guardiola#s231",
+   "clause": "On 16 August 2023, Guardiola won a record-equalling fourth UEFA Super Cup title, also becoming the first-ever manager to win the trophy with three clubs, as the Mancunian side defeated Sevilla 5–4 on "
+  },
+  {
+   "text": "Pep Guardiola",
+   "occupant": "Arsenal",
+   "occupantId": "Pep Guardiola/ref:auto:arsenal",
+   "via": "cast",
+   "surface": "Arsenal",
+   "locus": "English",
+   "locusVia": "cast",
+   "predecessor": null,
+   "pattern": "become",
+   "year": "2024",
+   "address": "Pep Guardiola#s237",
+   "clause": "On 19 May 2024, Man City beat West Ham United 3–1 on the final day of the season to win their fourth straight Premier League title with 91 points, two points ahead of Arsenal, becoming the first Engli"
+  },
+  {
+   "text": "Pep Guardiola",
+   "occupant": "Champions League",
+   "occupantId": "Pep Guardiola/ref:auto:champions_league",
+   "via": "cast",
+   "surface": "Champions League",
+   "locus": "England",
+   "locusVia": "cast",
+   "predecessor": null,
+   "pattern": "become",
+   "year": "2026",
+   "address": "Pep Guardiola#s252",
+   "clause": "On 28 January 2026, he recorded his 400th win with the club in 569 matches in a 2–0 win over Galatasaray in the Champions League, becoming the fastest manager in England to reach this milestone, break"
+  },
+  {
+   "text": "Lawrence Summers",
+   "occupant": "George",
+   "occupantId": "Lawrence Summers/ref:auto:george",
+   "via": "cast",
+   "surface": "George",
+   "locus": "President",
+   "locusVia": "surface",
+   "predecessor": null,
+   "pattern": "become",
+   "year": "2001",
+   "address": "Lawrence Summers#s66",
+   "clause": "when George W. Bush became President, Summers left the Treasury Department and returned to Harvard as its 27th president, serving from July 2001 until June 2006."
+  }
+ ],
+ "live": {
+  "War and Peace": {
+   "standings": 4,
+   "positions": [
+    {
+     "locus": "the",
+     "occupants": [
+      "Pierre",
+      "Borodinó"
+     ],
+     "evidence": "two_occupants"
+    }
+   ],
+   "refused": {
+    "occupant_not_a_referent": 347,
+    "irrealis": 8,
+    "state_not_position": 34,
+    "kind_membership": 8
+   },
+   "via": {
+    "cast": 4
+   },
+   "ablationStandings": 3,
+   "cast": {
+    "referents": 884,
+    "pronounBindings": 2866,
+    "sentences": 34229,
+    "gaps": [
+     "no_abbreviation_prior_for_language",
+     "pronoun_and_descriptor_mentions_unresolved",
+     "pronoun_mentions_partially_resolved"
+    ]
+   },
+   "seconds": 116.7,
+   "rows": [
+    {
+     "text": "War and Peace",
+     "occupant": "Pierre",
+     "occupantId": "War and Peace/ref:auto:pierre",
+     "via": "cast",
+     "surface": "Pierre",
+     "locus": "Count Cyril Vladímirovich Bezúkhov",
+     "locusVia": "cast",
+     "predecessor": null,
+     "pattern": "become",
+     "year": null,
+     "address": "War and Peace#s3036",
+     "clause": "but I do know that since this young man, whom we all used\nto know as plain Monsieur Pierre, has become Count Bezúkhov and the\nowner of one of the largest fortunes in Russia, I am much amused to\nwatch "
+    },
+    {
+     "text": "War and Peace",
+     "occupant": "Pierre",
+     "occupantId": "War and Peace/ref:auto:pierre",
+     "via": "cast",
+     "surface": "Pierre",
+     "locus": "Count Cyril Vladímirovich Bezúkhov",
+     "locusVia": "cast",
+     "predecessor": null,
+     "pattern": "become",
+     "year": null,
+     "address": "War and Peace#s6425",
+     "clause": "Pierre, on unexpectedly becoming Count Bezúkhov and a rich man, felt\nhimself after his recent loneliness and freedom from cares so beset and\npreoccupied that only in bed was he able to be by himself."
+    },
+    {
+     "text": "War and Peace",
+     "occupant": "Pierre",
+     "occupantId": "War and Peace/ref:auto:pierre",
+     "via": "cast",
+     "surface": "Pierre",
+     "locus": "the",
+     "locusVia": "surface",
+     "predecessor": null,
+     "pattern": "become",
+     "year": null,
+     "address": "War and Peace#s20148",
+     "clause": "Pierre became the\nlatter."
+    },
+    {
+     "text": "War and Peace",
+     "occupant": "Borodinó",
+     "occupantId": "War and Peace/ref:auto:borodino",
+     "via": "cast",
+     "surface": "Borodinó",
+     "locus": "the",
+     "locusVia": "surface",
+     "predecessor": null,
+     "pattern": "become",
+     "year": null,
+     "address": "War and Peace#s29457",
+     "clause": "and Borodinó became the\ngreatest glory of the Russian army."
+    }
+   ],
+   "refusedNamed": []
+  },
+  "Immanuel_Kant": {
+   "standings": 0,
+   "positions": [],
+   "refused": {
+    "occupant_not_a_referent": 13,
+    "state_not_position": 1
+   },
+   "via": {},
+   "ablationStandings": 1,
+   "cast": {
+    "referents": 144,
+    "pronounBindings": 17,
+    "sentences": 673,
+    "gaps": [
+     "no_abbreviation_prior_for_language",
+     "pronoun_and_descriptor_mentions_unresolved",
+     "pronoun_mentions_partially_resolved"
+    ]
+   },
+   "seconds": 1.4,
+   "rows": [],
+   "refusedNamed": [
+    {
+     "at": 89,
+     "reason": "occupant_not_a_referent",
+     "occupant": "In 1770, Kant",
+     "clause": "In 1770, Kant was appointed Full Professor of Logic and Metaphysics at the University of Königsberg."
+    }
+   ]
+  },
+  "Cold_War": {
+   "standings": 6,
+   "positions": [],
+   "refused": {
+    "occupant_not_a_referent": 14,
+    "irrealis": 1,
+    "state_not_position": 3
+   },
+   "via": {
+    "cast": 6
+   },
+   "ablationStandings": 5,
+   "cast": {
+    "referents": 230,
+    "pronounBindings": 1,
+    "sentences": 733,
+    "gaps": [
+     "no_abbreviation_prior_for_language",
+     "pronoun_and_descriptor_mentions_unresolved",
+     "pronoun_mentions_partially_resolved"
+    ]
+   },
+   "seconds": 2.8,
+   "rows": [
+    {
+     "text": "Cold_War",
+     "occupant": "Gorbachev",
+     "occupantId": "Cold_War/ref:auto:gorbachev",
+     "via": "cast",
+     "surface": "Gorbachev",
+     "locus": "USSR",
+     "locusVia": "cast",
+     "predecessor": null,
+     "pattern": "become",
+     "year": "1985",
+     "address": "Cold_War#s21",
+     "clause": "In 1985, Mikhail Gorbachev became List of leaders of the Soviet Unionleader of the USSR and General secretaryship of Mikhail Gorbachevexpanded political freedoms, which contributed to the revolutions "
+    },
+    {
+     "text": "Cold_War",
+     "occupant": "Russian Soviet Federative Socialist",
+     "occupantId": "Cold_War/ref:auto:russian",
+     "via": "cast",
+     "surface": "Russian Federation",
+     "locus": "Soviet Union",
+     "locusVia": "cast",
+     "predecessor": null,
+     "pattern": "become",
+     "year": "1991",
+     "address": "Cold_War#s36",
+     "clause": "In 1991, the Russian Federation became the Soviet Union's successor state"
+    },
+    {
+     "text": "Cold_War",
+     "occupant": "Gorbachev",
+     "occupantId": "Cold_War/ref:auto:gorbachev",
+     "via": "cast",
+     "surface": "Gorbachev",
+     "locus": "Communist Party",
+     "locusVia": "cast",
+     "predecessor": null,
+     "pattern": "become",
+     "year": "1985",
+     "address": "Cold_War#s547",
+     "clause": "By the time the comparatively youthful Mikhail Gorbachev became General Secretary of the Communist Party of the Soviet UnionGeneral Secretary in 1985, the Soviet economy was stagnant and faced a sharp"
+    },
+    {
+     "text": "Cold_War",
+     "occupant": "Hungary",
+     "occupantId": "Cold_War/ref:auto:hungary",
+     "via": "cast",
+     "surface": "Hungary",
+     "locus": "first to negotiate the organization of competitive elections",
+     "locusVia": "surface",
+     "predecessor": null,
+     "pattern": "become",
+     "year": "1989",
+     "address": "Cold_War#s600",
+     "clause": "In 1989, the communist governments in Poland and Hungary became the first to negotiate the organization of competitive elections."
+    },
+    {
+     "text": "Cold_War",
+     "occupant": "Yeltsin",
+     "occupantId": "Cold_War/ref:auto:yeltsin",
+     "via": "cast",
+     "surface": "Yeltsin",
+     "locus": "President",
+     "locusVia": "cast",
+     "predecessor": null,
+     "pattern": "passive",
+     "year": "1991",
+     "address": "Cold_War#s627",
+     "clause": "and he was being challenged even there by Yeltsin, who had been elected President of Russia in July 1991."
+    },
+    {
+     "text": "Cold_War",
+     "occupant": "United States",
+     "occupantId": "Cold_War/ref:auto:united_states",
+     "via": "cast",
+     "surface": "United States",
+     "locus": "sole remaining superpower",
+     "locusVia": "surface",
+     "predecessor": null,
+     "pattern": "become",
+     "year": null,
+     "address": "Cold_War#s680",
+     "clause": "The post-Cold War world is considered to be Polarity (international relations)Unipolarityunipolar, with the United States becoming the sole remaining superpower."
+    }
+   ],
+   "refusedNamed": []
+  },
+  "Middlemarch": {
+   "standings": 1,
+   "positions": [],
+   "refused": {
+    "occupant_not_a_referent": 187,
+    "state_not_position": 28,
+    "kind_membership": 2,
+    "irrealis": 7
+   },
+   "via": {
+    "cast": 1
+   },
+   "ablationStandings": 1,
+   "cast": {
+    "referents": 374,
+    "pronounBindings": 1629,
+    "sentences": 17793,
+    "gaps": [
+     "no_abbreviation_prior_for_language",
+     "pronoun_and_descriptor_mentions_unresolved",
+     "pronoun_mentions_partially_resolved"
+    ]
+   },
+   "seconds": 70,
+   "rows": [
+    {
+     "text": "Middlemarch",
+     "occupant": "Featherstone",
+     "occupantId": "Middlemarch/ref:auto:featherstone",
+     "via": "cast",
+     "surface": "Featherstone",
+     "locus": "Stone Court Mr",
+     "locusVia": "cast",
+     "predecessor": null,
+     "pattern": "become",
+     "year": null,
+     "address": "Middlemarch#s11253",
+     "clause": "Bulstrode,\nhardly fifteen months after the death of Peter Featherstone, had become\nthe proprietor of Stone Court"
+    }
+   ],
+   "refusedNamed": [
+    {
+     "at": 3493,
+     "reason": "irrealis",
+     "occupant": "Tyke",
+     "clause": "Tyke should be appointed as salaried chaplain\nto the hospital was an exciting topic to the Middlemarchers"
+    },
+    {
+     "at": 4208,
+     "reason": "state_not_position",
+     "occupant": "Tyke",
+     "complement": "chaplain to the Infirmary"
+    }
+   ]
+  },
+  "Federalist": {
+   "standings": 1,
+   "positions": [],
+   "refused": {
+    "occupant_not_a_referent": 209,
+    "kind_membership": 1,
+    "irrealis": 17,
+    "state_not_position": 4
+   },
+   "via": {
+    "cast": 1
+   },
+   "ablationStandings": 0,
+   "cast": {
+    "referents": 160,
+    "pronounBindings": 114,
+    "sentences": 6488,
+    "gaps": [
+     "no_abbreviation_prior_for_language",
+     "pronoun_and_descriptor_mentions_unresolved",
+     "pronoun_mentions_partially_resolved"
+    ]
+   },
+   "seconds": 4.8,
+   "rows": [
+    {
+     "text": "Federalist",
+     "occupant": "Congress",
+     "occupantId": "Federalist/ref:auto:congress",
+     "via": "cast",
+     "surface": "Congress",
+     "locus": "seat of the",
+     "locusVia": "surface",
+     "predecessor": null,
+     "pattern": "become",
+     "year": null,
+     "address": "Federalist#s3123",
+     "clause": "\"To exercise exclusive legislation, in all cases whatsoever, over\nsuch district (not exceeding ten miles square) as may, by cession of\nparticular States and the acceptance of Congress, become the seat"
+    }
+   ],
+   "refusedNamed": []
+  },
+  "Dracula": {
+   "standings": 1,
+   "positions": [],
+   "refused": {
+    "occupant_not_a_referent": 96,
+    "state_not_position": 8,
+    "kind_membership": 1
+   },
+   "via": {
+    "cast": 1
+   },
+   "ablationStandings": 0,
+   "cast": {
+    "referents": 188,
+    "pronounBindings": 1617,
+    "sentences": 9470,
+    "gaps": [
+     "no_abbreviation_prior_for_language",
+     "pronoun_and_descriptor_mentions_unresolved",
+     "pronoun_mentions_partially_resolved"
+    ]
+   },
+   "seconds": 19.8,
+   "rows": [
+    {
+     "text": "Dracula",
+     "occupant": "London",
+     "occupantId": "Dracula/ref:auto:london",
+     "via": "cast",
+     "surface": "London",
+     "locus": "first of delivery",
+     "locusVia": "surface",
+     "predecessor": null,
+     "pattern": "passive",
+     "year": null,
+     "address": "Dracula#s6386",
+     "clause": "If then the Count meant to\nscatter these ghastly refuges of his over London, these places were\nchosen as the first of delivery, so that later he might distribute more\nfully."
+    }
+   ],
+   "refusedNamed": []
+  },
+  "Great_Expectations": {
+   "standings": 1,
+   "positions": [],
+   "refused": {
+    "occupant_not_a_referent": 98,
+    "state_not_position": 12,
+    "kind_membership": 1,
+    "irrealis": 1
+   },
+   "via": {
+    "cast": 1
+   },
+   "ablationStandings": 2,
+   "cast": {
+    "referents": 194,
+    "pronounBindings": 1238,
+    "sentences": 10821,
+    "gaps": [
+     "no_abbreviation_prior_for_language",
+     "pronoun_and_descriptor_mentions_unresolved",
+     "pronoun_mentions_partially_resolved"
+    ]
+   },
+   "seconds": 10.2,
+   "rows": [
+    {
+     "text": "Great_Expectations",
+     "occupant": "Wopsle",
+     "occupantId": "Great_Expectations/ref:auto:wopsle",
+     "via": "cast",
+     "surface": "Wopsle",
+     "locus": "Timon of Athens",
+     "locusVia": "surface",
+     "predecessor": null,
+     "pattern": "become",
+     "year": null,
+     "address": "Great_Expectations#s2963",
+     "clause": "Wopsle's hands, became\nTimon of Athens"
+    }
+   ],
+   "refusedNamed": []
+  },
+  "Crime_and_Punishment": {
+   "standings": 1,
+   "positions": [],
+   "refused": {
+    "state_not_position": 18,
+    "irrealis": 1,
+    "occupant_not_a_referent": 75
+   },
+   "via": {
+    "cast": 1
+   },
+   "ablationStandings": 0,
+   "cast": {
+    "referents": 175,
+    "pronounBindings": 2828,
+    "sentences": 16076,
+    "gaps": [
+     "no_abbreviation_prior_for_language",
+     "pronoun_and_descriptor_mentions_unresolved",
+     "pronoun_mentions_partially_resolved"
+    ]
+   },
+   "seconds": 13.1,
+   "rows": [
+    {
+     "text": "Crime_and_Punishment",
+     "occupant": "Vater",
+     "occupantId": "Crime_and_Punishment/ref:auto:vater",
+     "via": "cast",
+     "surface": "Vater",
+     "locus": "Johann",
+     "locusVia": "surface",
+     "predecessor": null,
+     "pattern": "passive",
+     "year": null,
+     "address": "Crime_and_Punishment#s11218",
+     "clause": "and not Ludwigovna, \"that\nher _Vater_ was named Johann and that he was a burgomeister"
+    }
+   ],
+   "refusedNamed": []
+  }
+ }
+}
