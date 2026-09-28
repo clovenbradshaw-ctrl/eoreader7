@@ -191,3 +191,4 @@ export { HARDREAD_SCHEMA, RULE_FLOOR, MAX_ANTS, MAX_REGIONS, autoHardRead, conce
 export * as hardRead from "./hard-read.js";
 export { unreadMentions } from "./silence.js";
 export { ANCHOR_GENERIC, readQuantities } from "./quantities.js";
+export { ingest, readZip, parseDelimited, INGEST_SCHEMA } from "./ingest.js";

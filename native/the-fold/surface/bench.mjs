@@ -40,7 +40,7 @@ const RANK = Object.fromEntries(STATUSES.map((s, i) => [s, i]));
 const sha = (s) => createHash("sha256").update(s).digest("hex");
 // Recursive key-sorted JSON. (A replacer ARRAY would filter nested keys by the
 // top level's names, leaving `scope.lo` outside the seal — so it is not used.)
-const canon = (v) => Array.isArray(v) ? `[${v.map(canon).join(",")}]`
+export const canon = (v) => Array.isArray(v) ? `[${v.map(canon).join(",")}]`
   : v && typeof v === "object" ? `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${canon(v[k])}`).join(",")}}`
   : JSON.stringify(v ?? null);
 const isModel = (who) => /^model:/i.test(String(who ?? ""));
@@ -48,12 +48,12 @@ const isHuman = (who) => /^(human|checker):\S+/i.test(String(who ?? ""));
 
 export function emptyBench() { return Object.freeze({ schema: BENCH_SCHEMA, entries: Object.freeze([]) }); }
 
-function seal(log, body) {
+export function seal(log, body) {
   const prev = log.entries.length ? log.entries[log.entries.length - 1].hash : null;
   const seq = log.entries.length;
   const entry = { ...body, seq, prev };
   entry.hash = sha(canon(entry));
-  return Object.freeze({ schema: BENCH_SCHEMA, entries: Object.freeze([...log.entries, Object.freeze(entry)]) });
+  return Object.freeze({ schema: log.schema ?? BENCH_SCHEMA, entries: Object.freeze([...log.entries, Object.freeze(entry)]) });
 }
 
 /** verifyChain(log) -> { ok } | { ok:false, at, reason } — re-derives every seal. */

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { ingest } from "./native/organs/ingest.js";
 import { fileURLToPath } from "node:url";
 
 import { createCausalTextPerceiver, textEncounters, surfaceIndex, surfacesIn } from "./native/adapters/text/recursive.js";
@@ -4660,7 +4661,13 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     const index = session.corpusIndex ?? new Map();
     for (const a of attachments) {
       const name = String(a?.name ?? `attachment-${attachmentStats.files + 1}`).slice(0, 120);
-      const text = String(a?.text ?? "");
+      let text = String(a?.text ?? "");
+      if (!text && a?.base64) { // any file: docx/xlsx/pptx/pdf/image/csv/ipynb -> text face + typed gaps (organs/ingest.js)
+        const ing = ingest({ name, bytes: Buffer.from(String(a.base64), "base64") });
+        text = ing.text;
+        if (onNote) onNote({ move: "attachment_ingested", name, kind: ing.kind, chars: ing.text.length, gaps: ing.gaps.map((g) => g.kind) });
+        if (!text.trim() && onNote) onNote({ move: "attachment_unread", name, gaps: ing.gaps });
+      }
       if (!text.trim()) continue;
       attachmentStats.files += 1;
       attachmentStats.chars += text.length;
