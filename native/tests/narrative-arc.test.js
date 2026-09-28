@@ -89,7 +89,7 @@ function storyMouth() {
     if (stage === "being:lacks") return "Ana is missing her mother, who left when she was small.";
     if (stage === "being:becomes") return "Ana has become the keeper of the light.";
     if (stage.startsWith("count:chapter")) { const k = prompts.filter((p) => p.stage.startsWith("count:chapter")).length; return k === 2 ? "In chapter 2, Ana does chapter thing 2." : `Ana does chapter thing ${k}.`; }
-    if (stage.startsWith("count:scene")) return `Scene line ${prompts.filter((p) => p.stage.startsWith("count:scene")).length} with Ana.`;
+    if (stage.startsWith("count:scene")) { const k = prompts.filter((p) => p.stage.startsWith("count:scene")).length; return k === 3 ? "In scene 1 on Ana does chapter thing 2., Scene line 3 with Ana." : `Scene line ${k} with Ana.`; }
     if (stage === "opening") return "The Keeper's Light.";
     return "";
   };
@@ -116,6 +116,9 @@ test("the being is asked for after the bonds and before any line; every part is 
   // the engine's placing clause copied into a line is dropped, like an echoed anchor
   const lines = makeNotes().fold(out.notes).filter((n) => n.label === "says" && n.end1.startsWith("chapter#")).map((n) => n.end2);
   assert.ok(lines.includes("Ana does chapter thing 2."), JSON.stringify(lines));
+  const sceneLines = makeNotes().fold(out.notes).filter((n) => n.label === "says" && n.end1.startsWith("scene#")).map((n) => n.end2);
+  assert.ok(sceneLines.includes("Scene line 3 with Ana."), JSON.stringify(sceneLines));
+  assert.ok(!sceneLines.some((l) => l.startsWith("In scene")), JSON.stringify(sceneLines));
   // scenes carry their chapter's role and their own place in the chapter's arc
   const sceneAsk = m.prompts.find((p) => p.stage.startsWith("count:scene") && p.prompt.includes("In scene 2 of chapter 3"));
   // the arrival chapter's own landing is home, not "somewhere new"
@@ -192,7 +195,7 @@ test("Houdini hears a role fact read back nearly whole; a line in the part's own
   const m = storyMouth();
   const out = await makeTalkBuild({ ask: m.ask, parse, sentences, medium: PROSE_MEDIUM, mouth: "m" }).build({ what: "a story with 2 characters in 3 chapters of 2 scenes each" });
   let b = 0;
-  const bodies = Array.from({ length: 6 }, (_, k) => (k === 5 ? "As Ana comes home to the lighthouse on Gull Rock, no longer missing her mother, she is the keeper of the light now. The lamp turned. She slept." : `Ana walked out along the shingle ${k}. The gulls turned over the water ${k}. She counted the boats ${k}.`));
+  const bodies = Array.from({ length: 6 }, (_, k) => (k === 5 ? "As Ana comes home to the lighthouse on Gull Rock, no longer missing her mother, she is the keeper of the light now. In scene 2 of chapter 3, the lamp turned over the water. She slept." : `Ana walked out along the shingle ${k}. The gulls turned over the water ${k}. She counted the boats ${k}.`));
   const ask = async (prompt, { stage }) => (stage.startsWith("body:") ? bodies[b++] : "");
   const lf = makeLongForm({ ask, sentences, medium: PROSE_MEDIUM, mouth: "m", castDetails: [] });
   const w = await lf.writeBodies({ notes: out.notes, store: makeTextStore() });
@@ -202,6 +205,8 @@ test("Houdini hears a role fact read back nearly whole; a line in the part's own
   assert.equal(aloud.length, 1, JSON.stringify(read.findings.filter((f) => f.editor === "Harry Houdini").map((f) => f.sentence)));
   assert.equal(aloud[0].licenses, "rewrite");
   assert.ok(aloud[0].sentence.startsWith("As Ana comes home"));
+  const placed = read.findings.filter((f) => f.kind === "placing_said");
+  assert.equal(placed.length, 1); assert.equal(placed[0].licenses, "repair"); assert.equal(placed[0].repair, "the lamp turned over the water.");
 });
 
 test("no regular expressions in the arc organ", () => {

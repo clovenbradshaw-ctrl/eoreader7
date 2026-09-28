@@ -359,7 +359,13 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
     for (const p of piece) {
       const role = lf.roleOf?.(gd.outline, gd.outline.leaves[p.index]?.part);
       const clauses = (role?.facts ?? []).map((f) => f.slice(f.indexOf(",") + 1).trim()).filter(Boolean);
-      for (const pc of p.pieces) { const said = clauses.find((c) => saysPhrase(pc.text, c, ROLE_READ_ALOUD)); if (said) findings.push({ kind: "role_read_aloud", editor: "Harry Houdini", part: p.id, leaf: p.leaf, index: p.index, addr: pc.addr, lineNote: pc.note, sentence: pc.text, words: [], detail: `says the part's own placing back nearly whole: "${said}"`, licenses: "rewrite" }); }
+      for (const pc of p.pieces) {
+        const w = pc.text.split(" ");
+        const placed = w[0] === "In" && ["scene", "chapter", "part", "Scene", "Chapter", "Part"].includes(w[1] ?? "") && pc.text.includes(",");
+        if (placed) { const rest = pc.text.slice(pc.text.indexOf(",") + 1).trim(); if (rest.split(" ").length > 3) findings.push({ kind: "placing_said", editor: "Harry Houdini", part: p.id, leaf: p.leaf, index: p.index, addr: pc.addr, lineNote: pc.note, sentence: pc.text, repair: rest, detail: `opens on the part's own placing ("${pc.text.slice(0, pc.text.indexOf(","))}"): the engine's words, cut`, licenses: "repair" }); continue; }
+        const said = clauses.find((c) => saysPhrase(pc.text, c, ROLE_READ_ALOUD));
+        if (said) findings.push({ kind: "role_read_aloud", editor: "Harry Houdini", part: p.id, leaf: p.leaf, index: p.index, addr: pc.addr, lineNote: pc.note, sentence: pc.text, words: [], detail: `says the part's own placing back nearly whole: "${said}"`, licenses: "rewrite" });
+      }
     }
     for (const i of curve.flat) findings.push({ kind: "flat_given_before", editor: "Vivian Gornick", part: piece[i].id, leaf: piece[i].leaf, index: i, addr: null, detail: `${curve.means[i].toFixed(2)} bits per word against what precedes it, ${curve.gaps[i].toFixed(2)} below its own words shuffled — beyond the book's own spread (alpha ${GORNICK.alpha}): its phrasing was already said`, licenses: null });
     // THE BEING AND THE ARCS (narrative-arc.js): where the one the telling
@@ -600,8 +606,19 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
       const baseScore = scoreOf;
       const scoreWith = (lines) => ({ ...baseScore(lines), moved: movedBy(lines) });
       const now = scoreWith(cur.lines.map((l) => l.text));
+      const reasons = read.findings.filter((f) => f.part === read.piece[i].id && writesAgain(f));
+      // what the being's arc wants said here (the home come back to, what was
+      // missing, what they become), said of the being by name
+      const wants = reasons.filter((r) => r.wants).map((r) => r.wants);
+      const forArc = wants.length > 0;
+      // the part's own placing, which a fresh draw must not say back (arc2:
+      // the regenerated parts read the role aloud and Houdini's count rose)
+      const roleClauses = (lf.roleOf?.(gd.outline, leaf.part)?.facts ?? []).map((f) => f.slice(f.indexOf(",") + 1).trim()).filter(Boolean);
+      const readsAloud = (lines) => lines.some((l) => { const w = l.toLowerCase().split(" "); return (w[0] === "in" && ["scene", "chapter", "part"].includes(w[1] ?? "")) || roleClauses.some((c) => saysPhrase(l, c, ROLE_READ_ALOUD)); });
       const pool = [];
-      for (let c = 0; c < candidates && asks < budget; c++) {
+      // an arc part gets twice the draws: it must say what the arc wants there
+      // in its own words, and three draws found none at the arrival (arc2)
+      for (let c = 0; c < (forArc ? 2 * candidates : candidates) && asks < budget; c++) {
         asks++;
         const got = await say(prompt, { stage: `pathos:${leaf.part.id}`, attempt: c + 1, numPredict: medium.bodyTokens ?? 320 });
         let reply = got.trim();
@@ -611,10 +628,6 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
         if (lines.length < MIN_BODY_SENTENCES) continue;
         pool.push({ text, lines, ...scoreWith(lines) });
       }
-      const reasons = read.findings.filter((f) => f.part === read.piece[i].id && writesAgain(f));
-      // what the being's arc wants said here (the home come back to, what was
-      // missing, what they become), said of the being by name
-      const wants = reasons.filter((r) => r.wants).map((r) => r.wants);
       const walks = (x) => wants.every((w) => saysPhrase(x.lines.join(" "), w)) && (!wants.length || x.lines.some((l) => l.includes(read.frame?.p ?? "")));
       // a candidate must fix what licensed it and worsen nothing the judge
       // counts: never more licensed findings in its window; more that is new
@@ -630,8 +643,7 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
       // editors fold and repair what they license afterwards anyway, and the
       // veto refused every homecoming (arc1: 0 of 8 kept; F4: the veto is not
       // worth its asks)
-      const forArc = wants.length > 0;
-      const fixes = (x) => (forArc ? walks(x) && !opens.some((o) => sameOpening(x.lines[0] ?? "", o)) : x.licensed <= now.licensed && (!byGornick || x.bits > now.bits) && (!byCadence || !x.flatCadence) && !opens.some((o) => sameOpening(x.lines[0] ?? "", o)));
+      const fixes = (x) => !readsAloud(x.lines) && (forArc ? walks(x) && !opens.some((o) => sameOpening(x.lines[0] ?? "", o)) : x.licensed <= now.licensed && (!byGornick || x.bits > now.bits) && (!byCadence || !x.flatCadence) && !opens.some((o) => sameOpening(x.lines[0] ?? "", o)));
       const rank = (a, b) => a.licensed - b.licensed || b.moved - a.moved || b.bits - a.bits;
       const ok = chooser === "archons" ? pool.filter(fixes).sort(rank) : chooser === "first" ? pool.slice(0, 1) : pool.length ? [pool[Math.floor(pick() * pool.length)]] : [];
       const best = ok[0] ?? [...pool].sort(rank)[0];
