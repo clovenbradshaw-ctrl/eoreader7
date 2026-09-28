@@ -209,12 +209,25 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
   // the people a line of the story names, in cast order, at most HERE_CAP
   const namedIn = (texts, cast) => cast.filter((c) => texts.some((t) => hasWord(t, c.name))).slice(0, HERE_CAP);
 
+  /** Where a part sits among its own kind under its parent, and the role
+   *  the medium places it in (null when the medium has no arcs). */
+  function roleOf(outline, t) {
+    if (!medium.partRole || !t) return null;
+    const parent = outline.byId.get(t.parent);
+    const sibs = (parent?.children ?? []).map((id) => outline.byId.get(id)).filter((x) => x && x.kind === t.kind).sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+    return medium.partRole({ belief: outline.belief, parentId: t.parent ?? null, kind: t.kind, index: Math.max(0, sibs.indexOf(t)), n: sibs.length });
+  }
+
   /** The working note for one part — every line of it from the record. */
   function workingNote({ outline, leaf, prevTail, topic }) {
     const carried = [], lines = [];
     const story = medium.storyWord ?? "story";
     if (topic) lines.push(`The ${story} is ${topic}.`);
     for (const t of [...leaf.within, leaf.part]) { const l = lineOf(t); if (l) { lines.push(l.value.trim().endsWith(".") ? l.value.trim() : `${l.value.trim()}.`); carried.push(l.note); } }
+    // the part's place in the nested arcs (organs/narrative-arc.js), as the
+    // engine's facts, standing on what the record says of the being
+    const role = recipe === "ledger" ? roleOf(outline, leaf.part) : null;
+    if (role) { lines.push(...role.facts); carried.push(...role.premises); }
     let here = [];
     if (recipe === "ledger") {
       here = namedIn([...lines, ...prevTail], outline.cast);
@@ -249,6 +262,9 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
       if (have) { prevTail = have.lines.slice(-TAIL_SENTENCES).map((l) => l.text); continue; }
       if (N.foldVoids(notes).some((v) => v.end1 === leaf.part.id)) { prevTail = []; continue; }
       const note = workingNote({ outline, leaf, prevTail, topic });
+      // the role on the record: the engine placed it (derived:arc), on the being's frame
+      const role = recipe === "ledger" ? roleOf(outline, leaf.part) : null;
+      if (role && !fold.some((n) => n.end1 === leaf.part.id && n.label === "role")) notes = N.hear(notes, { end1: leaf.part.id, label: "role", end2: role.roles.join(" / "), witness: "derived:arc", because: `placed by position in the nested arcs [premises: ${JSON.stringify(role.premises)}]` });
       let body = null, tries = 0;
       while (!body && tries < BODY_TRIES && asks < maxAsks) {
         asks++; tries++;
@@ -502,7 +518,7 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
     return out;
   }
 
-  return { writeBodies, render, leavesOf, seal, rename, changeDetail, stale, workingNote, hearChange, settleDerived, currentLines: (notes, store, id) => currentLines(N.fold(notes), notes.entries, store, id), N };
+  return { writeBodies, render, leavesOf, seal, rename, changeDetail, stale, workingNote, roleOf, hearChange, settleDerived, currentLines: (notes, store, id) => currentLines(N.fold(notes), notes.entries, store, id), N };
 }
 
 // ── THE PERSON'S CHANGE, READ ──────────────────────────────────────────────

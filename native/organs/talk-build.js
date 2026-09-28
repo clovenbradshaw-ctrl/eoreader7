@@ -263,7 +263,7 @@ const NAME_WORDS = 4;
 const isCapitalised = (w) => !!w && w[0] !== w[0].toLowerCase() && w[0] === w[0].toUpperCase();
 const hasLetter = (v) => [...String(v)].some((ch) => ch.toLowerCase() !== ch.toUpperCase());
 const BREAKS = new Set([",", ";", ":", "—", "–", "(", "\n"]);
-function slotValue(reply, whole) {
+function slotValue(reply, whole, { name = true } = {}) {
   let v = String(reply ?? "").trim();
   // a quoted span inside a sentence is the answer: 'The first one is "Orca Watch".' -> Orca Watch
   for (const [open, close] of [["\"", "\""], ["“", "”"]]) {
@@ -280,7 +280,8 @@ function slotValue(reply, whole) {
   v = v.slice(0, cut).trim();
   // a name said in a sentence is the words after "named"/"called": "The
   // character you are referring to is named Anna" -> Anna
-  if (!whole) {
+  // a phrase asked for (a place, what is missing) is not a name: its words stand
+  if (!whole && name) {
     const w = v.split(" ");
     const at = Math.max(w.lastIndexOf("named"), w.lastIndexOf("called"));
     if (at >= 0 && at < w.length - 1) v = w.slice(at + 1).join(" ");
@@ -508,7 +509,7 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
           if (label && value && !claims.some((c) => c.label === label)) claims.push({ end1: slot.subject, label, end2: value, sentence: `${label}: ${value}`, witness });
         });
       } else if (slot) {
-        const value = slotValue(reply, slot.whole);
+        const value = slotValue(reply, slot.whole, { name: !slot.phrase });
         if (value) {
           const because = `${anchor} ${value}`;
           let subject = slot.subject;
@@ -920,6 +921,11 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
           // (the topic line made eight people "Lighthouse Keeper's Daughter",
           // "… Son", "… Sister" on the scale run)
           const askFor = (q) => (!says(c) && !scopeDetails ? `${known ? `${known}\n` : ""}${q}` : scoped(q));
+          // THE NESTED ARCS: a medium that places each part in an arc
+          // (prose-medium partRole) has its parts asked for one at a time,
+          // each with the engine's facts about what happens there
+          const role = says(c) && medium.partRole ? medium.partRole({ belief, parentId: p?.id ?? spec.wholeId ?? null, kind: c.kind, index: have.length, n: c.n }) : null;
+          if (role) return { key, part: { ...part, missing: 1 }, slot: { ...slot, list: null }, role, question: askFor(`${role.facts.join(" ")}\n${verb} ${phraseOf(c)} ${have.length + 1}${where}${others}.`), anchor: `${phraseOf(c).charAt(0).toUpperCase()}${phraseOf(c).slice(1)} ${have.length + 1}${where} says:` };
           if (missing === 1) return { key, part, slot: { ...slot, list: null }, question: askFor(`${verb} one more ${phraseOf(c)}${where}${others}.`), anchor: says(c) ? `One more ${phraseOf(c)}${where} says:` : `One more ${phraseOf(c)}${where} is called` };
           return { key, part, slot, question: askFor(`${verb} ${missing} ${have.length ? "more " : ""}${c.phrase}${where}${others}. One per line, ${says(c) ? "each a short sentence" : "just the name"}.`), anchor: "1." };
         }

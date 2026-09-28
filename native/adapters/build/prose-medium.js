@@ -14,6 +14,8 @@
 //                the claim it came from (the book itself: long-form's render)
 //
 // No regular expressions.
+import { arcRole } from "../../organs/narrative-arc.js";
+
 const esc = (s) => String(s ?? "").split("\n").join(" ").trim();
 
 /** The outline as text: the title, the cast with their details, then each
@@ -67,8 +69,27 @@ export const PROSE_MEDIUM = Object.freeze({
     const first = people[0];
     const bound = (t) => t.props.some((p) => p.label.endsWith(" of")) || people.some((o) => o.props.some((p) => p.label.endsWith(" of") && p.value === t.id));
     const next = people.slice(1).find((t) => !bound(t) && !abandoned.has(`relation:${t.id}`));
-    if (!next) return null;
-    return { key: `relation:${next.id}`, once: true, question: `${known}\nHow is ${next.name} related to ${first.name}?`, anchor: `${next.name} is ${first.name}'s`, slot: { relation: { a: next.id, owner: first.id } } };
+    if (next) return { key: `relation:${next.id}`, once: true, question: `${known}\nHow is ${next.name} related to ${first.name}?`, anchor: `${next.name} is ${first.name}'s`, slot: { relation: { a: next.id, owner: first.id } } };
+    // THE BEING (organs/narrative-arc.js): the first person named is the one
+    // the telling follows. Where they start, what is missing there, and what
+    // the journey makes of them anchor the arc — asked once each, after the
+    // bonds (CON) and before any line (the void, then the change)
+    const has = (label) => first.props.some((p) => p.label === label);
+    const being = [
+      { label: "home", question: `Where does ${first.name} live when the story begins?`, anchor: `${first.name}'s home is` },
+      { label: "lacks", question: `What is missing from ${first.name}'s life when the story begins?`, anchor: `What ${first.name} is missing is` },
+      { label: "becomes", question: `How is ${first.name} different when the story ends?`, anchor: `By the end, ${first.name} has become` },
+    ].find((b) => !has(b.label) && !abandoned.has(`being:${b.label}`));
+    if (!being) return null;
+    return { key: `being:${being.label}`, once: true, question: `${known}\n${being.question}`, anchor: being.anchor, slot: { subject: first.id, label: being.label, phrase: true } };
+  },
+  // the place of the next part in the nested arcs, as facts the engine says
+  // ("In chapter 3, Alice sets out, leaving the cottage behind."): asked for
+  // one at a time, each with its role in hand
+  partRole: ({ belief, parentId, kind, index, n }) => {
+    if (kind === "character") return null;
+    const cast = belief.filter((t) => t.kind === "character" && t.name).sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
+    return arcRole({ belief, parentId, kind, index, n, cast });
   },
   factsFor: (belief) => {
     const names = belief.filter((t) => t.kind === "character" && t.name).map((t) => t.name);

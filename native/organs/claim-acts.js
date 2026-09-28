@@ -33,6 +33,10 @@ export const STRUCTURAL_ACTS = Object.freeze({
   body: { op: "DEF", grain: "Figure" },          // what a part says, in the mouth's words (organs/long-form.js)
   finding: { op: "EVA", grain: "Figure" },       // an editor's judgment of a line (organs/book-editor.js)
   revised: { op: "REC", grain: "Figure" },       // a part brought in line with a change
+  // the being the telling follows (organs/narrative-arc.js), set by hand 2026-09-28
+  home: { op: "DEF", grain: "Ground" },          // where the being starts: the void's place
+  lacks: { op: "NUL", grain: "Ground" },         // what is missing there: the void itself
+  becomes: { op: "REC", grain: "Pattern" },      // what the journey makes of the being
 });
 /** A line's edit is addressed by its place — "line 3", "after 3.1" — and is a
  *  REC: the part's words restructured because a judgment or a change broke
@@ -53,6 +57,7 @@ export const DERIVED_ACTS = Object.freeze({
   floor: { op: "REC", grain: "Figure" },
   repair: { op: "REC", grain: "Figure" },
   revise: { op: "REC", grain: "Figure" },
+  arc: { op: "SEG", grain: "Pattern" },          // a part's place in the nested arcs, by position
 });
 
 // a thing on the record is "kind#n" — a snip's address ("prelude.mid@ab12#ticks:0-1920") is not one

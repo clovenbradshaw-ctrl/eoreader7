@@ -51,6 +51,7 @@ import { classifyFortuneShape } from "../kernel/fortune-prior.js";
 import { anchorsFor, carries } from "../the-fold/prosify.js";
 import { readPiece } from "../the-fold/revision-spiral.js";
 import { houdiniExclusivity } from "../the-fold/archon-rules.js";
+import { arcFrame, arcChecks, trajectory, whereIs, says as saysPhrase } from "./narrative-arc.js";
 import { outlineOf, MIN_BODY_SENTENCES, TAIL_SENTENCES, linesOfBody, bodyOfReply } from "./long-form.js";
 
 export const BOOK_EDITOR_SCHEMA = "BookEditor@1";
@@ -189,6 +190,9 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
     // words the telling stands on
     const nameOf = new Map(outline.cast.map((c) => [c.id, c.name]));
     const facts = outline.cast.flatMap((c) => [c.name, ...castDetails.map((d) => c.props.find((p) => p.label === d)).filter(Boolean).map((p) => `${c.name}'s ${p.label} is ${p.value}.`), ...c.props.filter((p) => p.label.endsWith(" of") && nameOf.has(p.value)).map((p) => `${c.name} is ${nameOf.get(p.value)}'s ${p.label.slice(0, -3)}.`)]);
+    // the being the telling follows: where they start, what is missing, what they become
+    const frame = arcFrame(outline.cast);
+    if (frame.p) facts.push(...[frame.home && `${frame.p}'s home is ${frame.home}.`, frame.lack && `${frame.p} is missing ${frame.lack}.`, frame.becomes && `${frame.p} becomes ${frame.becomes}.`].filter(Boolean));
     const ground = [blocks.join("\n\n"), facts.join(" ")].join("\n\n");
     return { outline, draft, ground, parts: drawnParts(draft) };
   }
@@ -346,8 +350,37 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
     // Gornick reads the whole book (the engine is not the mouth: it may)
     const curve = gornickCurve(piece.map((p) => ({ text: p.pieces.map((pc) => pc.text).join(" ") })));
     for (const i of curve.flat) findings.push({ kind: "flat_given_before", editor: "Vivian Gornick", part: piece[i].id, leaf: piece[i].leaf, index: i, addr: null, detail: `${curve.means[i].toFixed(2)} bits per word against what precedes it, ${curve.gaps[i].toFixed(2)} below its own words shuffled — beyond the book's own spread (alpha ${GORNICK.alpha}): its phrasing was already said`, licenses: null });
+    // THE BEING AND THE ARCS (narrative-arc.js): where the one the telling
+    // follows is in every part, out from the void and back to it, changed
+    const arc = arcOf(piece, gd);
+    for (const f of arc.findings) { const p = byId.get(f.part); findings.push({ ...f, leaf: p?.leaf ?? null, index: p?.index ?? null, addr: null }); }
     const lines = piece.flatMap((p) => p.pieces);
-    return { gd, piece, findings, curve: { shape: curve.shape, meanBits: curve.meanBits, flat: curve.flat.length, of: piece.length }, lines: lines.length, carrying: lines.filter((l) => l.carries.length).length };
+    return { gd, piece, findings, path: arc.path, frame: arc.frame, curve: { shape: curve.shape, meanBits: curve.meanBits, flat: curve.flat.length, of: piece.length }, lines: lines.length, carrying: lines.filter((l) => l.carries.length).length };
+  }
+
+  /** The parts as the being's trajectory reads them: each with its chapter
+   *  (the group it sits in, counted in order) and its current lines. */
+  function arcParts(piece, gd) {
+    const groups = [];
+    return piece.map((p) => {
+      const g = gd.outline.leaves[p.index]?.within.at(-1)?.id ?? "whole";
+      if (groups.at(-1) !== g) groups.push(g);
+      return { id: p.id, chapter: groups.length - 1, lines: p.pieces.map((pc) => ({ text: pc.text, addr: pc.addr ?? null })) };
+    });
+  }
+  function arcOf(piece, gd) {
+    const frame = arcFrame(gd.outline.cast);
+    const r = arcChecks({ parts: arcParts(piece, gd), frame });
+    return { ...r, frame };
+  }
+
+  /** "Where is the being at part k?" — read from the book as it stands now. */
+  function whereIsBeing({ notes, store, task, k }) {
+    const gd = groundAndDraft(notes, task);
+    const piece = pieceOf(notes, store, gd);
+    const frame = arcFrame(gd.outline.cast);
+    const parts = arcParts(piece, gd);
+    return whereIs({ path: trajectory({ parts, frame }), frame, k: Math.max(0, Math.min(parts.length - 1, k)), chapters: parts.length ? parts.at(-1).chapter + 1 : 0 });
   }
 
   /** A finding on the record: EVA·Figure, the editor its witness. */
@@ -495,7 +528,12 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
     const pick = lcg(seed);
     const read = readBook({ notes, store, task });
     const gd = read.gd;
-    const targets = [...new Set(read.findings.filter((f) => (f.kind === "flat_given_before" || f.kind === "flat_cadence") && f.part).map((f) => read.piece.findIndex((p) => p.id === f.part)).filter((i) => i > 0))].sort((a, b) => a - b);
+    // what licenses a part written again: a flat part (Gornick, Klinkenborg),
+    // or the being's arc left unwalked there (Gebser, the being) — the arc's
+    // parts first, since the book stands on them
+    const writesAgain = (f) => f.kind === "flat_given_before" || f.kind === "flat_cadence" || f.licenses === "regenerate";
+    const arcFirst = (f) => (f.licenses === "regenerate" ? 0 : 1);
+    const targets = [...new Set([...read.findings].filter((f) => writesAgain(f) && f.part).sort((a, b) => arcFirst(a) - arcFirst(b)).map((f) => read.piece.findIndex((p) => p.id === f.part)).filter((i) => i >= 0))].filter((i) => i > 0 || read.findings.some((f) => f.licenses === "regenerate" && f.part === read.piece[0].id));
     let asks = 0, kept = 0, tried = 0;
     const rows = [];
     for (const i of targets) {
@@ -504,7 +542,7 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
       const cur = lf.currentLines(notes, store, leaf.part.id);
       if (!cur) continue;
       tried++;
-      const prev = lf.currentLines(notes, store, gd.outline.leaves[i - 1].part.id);
+      const prev = i > 0 ? lf.currentLines(notes, store, gd.outline.leaves[i - 1].part.id) : null;
       const prevTail = (prev?.lines ?? []).slice(-TAIL_SENTENCES).map((l) => l.text);
       const note = lf.workingNote({ outline: gd.outline, leaf, prevTail, topic });
       // what the book has already told: the lines of the parts before this one
@@ -561,7 +599,11 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
         if (lines.length < MIN_BODY_SENTENCES) continue;
         pool.push({ text, lines, ...scoreWith(lines) });
       }
-      const reasons = read.findings.filter((f) => f.part === read.piece[i].id && (f.kind === "flat_given_before" || f.kind === "flat_cadence"));
+      const reasons = read.findings.filter((f) => f.part === read.piece[i].id && writesAgain(f));
+      // what the being's arc wants said here (the home come back to, what was
+      // missing, what they become), said of the being by name
+      const wants = reasons.filter((r) => r.wants).map((r) => r.wants);
+      const walks = (x) => wants.every((w) => saysPhrase(x.lines.join(" "), w)) && (!wants.length || x.lines.some((l) => l.includes(read.frame?.p ?? "")));
       // a candidate must fix what licensed it and worsen nothing the judge
       // counts: never more licensed findings in its window; more that is new
       // per word when Gornick licensed it; a cadence that is not flat when
@@ -570,7 +612,7 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
       // Brillat-Savarin's veto: a candidate opening as one of the three parts
       // before it opens (variation.js sameOpening) is not a new draw
       const opens = read.piece.slice(Math.max(0, i - 3), i).map((p) => p.pieces[0]?.text ?? "").filter(Boolean);
-      const fixes = (x) => x.licensed <= now.licensed && (!byGornick || x.bits > now.bits) && (!byCadence || !x.flatCadence) && !opens.some((o) => sameOpening(x.lines[0] ?? "", o));
+      const fixes = (x) => x.licensed <= now.licensed && (!byGornick || x.bits > now.bits) && (!byCadence || !x.flatCadence) && !opens.some((o) => sameOpening(x.lines[0] ?? "", o)) && walks(x);
       const rank = (a, b) => a.licensed - b.licensed || b.moved - a.moved || b.bits - a.bits;
       const ok = chooser === "archons" ? pool.filter(fixes).sort(rank) : chooser === "first" ? pool.slice(0, 1) : pool.length ? [pool[Math.floor(pick() * pool.length)]] : [];
       const best = ok[0] ?? [...pool].sort(rank)[0];
@@ -589,5 +631,5 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
     return { notes, store, asks, tried, kept, targets: targets.length, rows };
   }
 
-  return { readBook, editBook, pathosPass, groundAndDraft };
+  return { readBook, editBook, pathosPass, groundAndDraft, whereIsBeing };
 }
