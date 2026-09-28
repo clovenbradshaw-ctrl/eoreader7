@@ -113,6 +113,47 @@ itself is only removable once `ONE-ENGINE-PLAN.md`'s bigger question
 
 ---
 
+## 2. `firewall.js` — same-repo duplicate collapsed to a shim (2026-09-28)
+
+**What it is.** `apparatusMentions`/`assertModelFacing`/`strikeAddresses`
+(P55/P253) — the wall between what a model is handed and what it may see:
+a closed-class scan refusing apparatus vocabulary ("the prompt", "the
+passages") in any model-facing string, plus `strikeAddresses`/
+`mouthFacing`, which strip citation addresses from the mouth's own view.
+
+**The research pass's finding, re-verified and found already stale.** The
+workflow's own evidence (`diff` showing byte-identical bodies) was correct
+for the checkout it read, but a concurrent Phase-4 migration (dated
+2026-09-14 in the file's own header) had already turned the-fold's copy
+(`the-fold/firewall.js`) into a cross-repo shim onto
+`eoreader7/native/organs/firewall.js` by the time this was checked —
+confirmed with a fresh `diff`, not assumed from the finding's prose. The
+REAL remaining duplicate, found by re-running the same check against the
+current tree, was one level in: `eoreader7/native/the-fold/firewall.js`
+(consumed by `proxy-runner.mjs`'s pipeline) was byte-identical to
+`eoreader7/native/organs/firewall.js` (the canonical organ, already
+exported through the project's own `native/organs/index.js` seam,
+lines 133-134) — a same-repo duplicate, not a cross-repo one.
+
+**Verification before touching anything.** `grep`-confirmed exactly two
+real importers of the duplicate path: `tests/turn-standing.test.mjs` and
+`native/the-fold/resolutions.js` (`import { strikeAddresses } from
+"./firewall.js"`). Neither needed anything the duplicate had that the
+canonical organ lacked (there was nothing — the bodies were identical).
+
+**What shipped.** `native/the-fold/firewall.js` is now a shim (`export *
+from "../organs/firewall.js"`), the same one-line pattern the-fold's own
+copy already uses one register up. Verified: `tests/turn-standing.test.mjs`
++ `native/organs/firewall.test.mjs` (10/10); the full `native/the-fold/`
+suite (510 tests) shows the identical 5-6 pre-existing failures with and
+without this change (confirmed via `git stash`, none naming firewall,
+apparatus, or resolutions) — `produces a real, non-trivial dependency
+index...`, `resolveFormReferent on a real ledger directory...`, the PDF
+extraction trio, and one flaky SCALING case that did not reproduce on
+every run either way.
+
+---
+
 *Entries below this line are added as the wider research pass's findings
 clear verification. An unverified hypothesis is never listed here as a
 finding — it stays in the research transcript until read, tested, and
