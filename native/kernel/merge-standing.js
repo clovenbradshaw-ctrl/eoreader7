@@ -28,10 +28,12 @@
 //   one_being  — one holder under two names                  -> a SUPPORT for
 //                merging the occupants (CON·Figure), no attack
 // A for-whom collapses it under a named rule. `NESTED_NAMES` reads the
-// caller's declared nesting evidence (which occupant pairs nest — the
-// caller's own reading of its medium, never computed here): every pair
-// nested -> one_being; no pair nested -> position; mixed -> contested,
-// and a contested locus attacks nothing. With NO nesting evidence declared
+// caller's declared nesting evidence (which occupant pairs nest, and which
+// are AMBIGUOUS — a partial nesting the caller's medium cannot settle; both
+// the caller's own reading, never computed here): any ambiguous pair ->
+// contested; every pair nested -> one_being; no pair nested -> position;
+// mixed -> contested. A contested locus attacks nothing and proposes
+// nothing. With NO nesting evidence declared
 // the rule `CAST_DISTINCTNESS` collapses to position — the pre-amendment
 // behaviour, now a named trust with its giver rather than a silent one.
 // An uncollapsed slot never attacks (THE-UNDECIDED: an uncollapsed
@@ -49,8 +51,9 @@ export const NESTED_NAMES = Object.freeze({
   name: "nested_names", giver: "kernel/merge-standing.js (v6 amendment): a name contained in another name is one being's two faces, not two holders",
   decide: (cs, rec) => {
     const one = cs.findIndex((c) => c.value === "one_being"), pos = cs.findIndex((c) => c.value === "position");
-    const pairs = rec.candidates[one]?.features.pairs ?? 0, nested = rec.candidates[one]?.features.nestedPairs ?? 0;
+    const pairs = rec.candidates[one]?.features.pairs ?? 0, nested = rec.candidates[one]?.features.nestedPairs ?? 0, ambiguous = rec.candidates[one]?.features.ambiguousPairs ?? 0;
     if (!pairs) return { chosen: pos, reason: "no occupant pairs" };
+    if (ambiguous) return { contested: [one, pos], reason: `${ambiguous} of ${pairs} occupant pairs nest only partially (a bare head or given, a dropped middle name) — the names cannot settle it` };
     if (nested === pairs) return { chosen: one, reason: `every occupant pair nests (${nested}/${pairs})` };
     if (nested === 0) return { chosen: pos, reason: `no occupant pair nests (0/${pairs})` };
     return { contested: [one, pos], reason: `some occupant pairs nest (${nested}/${pairs}) — neither reading stands alone` };
@@ -67,14 +70,16 @@ export const CAST_DISTINCTNESS = Object.freeze({
  *   -> EOUndecided@1: the locus as position | one_being, with the caller's nesting evidence as features.
  *   nested: Set of pairKey(a, b) for occupant pairs the caller reads as one name inside another (optional).
  */
-export function positionSlot({ locus, occupants, witnesses = [], nested = null, giver, cursor = null }) {
+export function positionSlot({ locus, occupants, witnesses = [], nested = null, ambiguous = null, giver, cursor = null }) {
   const pairs = []; for (let i = 0; i < occupants.length; i++) for (let j = i + 1; j < occupants.length; j++) pairs.push([occupants[i], occupants[j]]);
   const nestedPairs = nested ? pairs.filter(([a, b]) => nested.has(pairKey(a, b))) : [];
+  const amb = ambiguous ?? nested?.ambiguous ?? null;
+  const ambiguousPairs = amb ? pairs.filter(([a, b]) => amb.has(pairKey(a, b))) : [];
   return undecided({
     question: "what this locus is", slot: `locus:${locus}`, giver, cursor,
     candidates: [
-      { value: "position", via: "occupancy", features: { occupants: occupants.length, witnesses: witnesses.length, pairs: pairs.length, nestedPairs: nestedPairs.length } },
-      { value: "one_being", via: "occupancy", features: { occupants: occupants.length, witnesses: witnesses.length, pairs: pairs.length, nestedPairs: nestedPairs.length, nested: nestedPairs.map(([a, b]) => `${a}<->${b}`) } },
+      { value: "position", via: "occupancy", features: { occupants: occupants.length, witnesses: witnesses.length, pairs: pairs.length, nestedPairs: nestedPairs.length, ambiguousPairs: ambiguousPairs.length } },
+      { value: "one_being", via: "occupancy", features: { occupants: occupants.length, witnesses: witnesses.length, pairs: pairs.length, nestedPairs: nestedPairs.length, ambiguousPairs: ambiguousPairs.length, nested: nestedPairs.map(([a, b]) => `${a}<->${b}`), ambiguous: ambiguousPairs.map(([a, b]) => `${a}<->${b}`) } },
     ],
   });
 }
@@ -89,7 +94,7 @@ export function positionSlot({ locus, occupants, witnesses = [], nested = null, 
  * -> { supports, attacks, positions, slots, collapses, withheld, schema }
  *   supports carries the merges AND, for every locus collapsed one_being, the occupant pairs as merge hypotheses.
  */
-export function mergeEvidence({ merges = [], standings = [], witness = null, minOccupants, nested = null, forWhom = DEFAULT_FOR_WHOM, rule = null, cursor = null } = {}) {
+export function mergeEvidence({ merges = [], standings = [], witness = null, minOccupants, nested = null, ambiguous = null, forWhom = DEFAULT_FOR_WHOM, rule = null, cursor = null } = {}) {
   if (!Number.isInteger(minOccupants) || minOccupants < 1) throw new TypeError("mergeEvidence: minOccupants is declared — how many holders make a position is never a default");
   const theRule = rule ?? (nested ? NESTED_NAMES : CAST_DISTINCTNESS);
   const supports = merges.filter((m) => m?.surface && m?.into && m.surface !== m.into).map((m) => ({ left: m.surface, right: m.into, witness: m.witness ?? witness, reason: m.basis ?? "name_variant_merge" }));
@@ -98,7 +103,7 @@ export function mergeEvidence({ merges = [], standings = [], witness = null, min
   const held = [...byLocus].filter(([, e]) => e.occupants.size >= minOccupants).map(([locus, e]) => ({ locus, occupants: [...e.occupants], witnesses: e.witnesses }));
   const slots = [], collapses = [], positions = [], withheld = [], attacks = [];
   for (const p of held) {
-    const slot = positionSlot({ ...p, nested, giver: theRule.giver, cursor });
+    const slot = positionSlot({ ...p, nested, ambiguous: ambiguous ?? nested?.ambiguous ?? null, giver: theRule.giver, cursor });
     const c = collapse(slot, { forWhom, rule: theRule, cursor });
     slots.push(slot); collapses.push(c);
     if (c.verdict === COLLAPSE_VERDICTS.CHOSEN && c.chosen.value === "position") {

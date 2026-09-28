@@ -64,7 +64,7 @@ test("with no nesting evidence the collapse is the named CAST_DISTINCTNESS rule 
 });
 
 test("the real v6 case: Monsieur Pierre and Pierre nest, the locus collapses to one_being, the attack is withheld and the occupants become a merge hypothesis", () => {
-  assert.ok(namesNest("Monsieur Pierre", "Pierre")); assert.ok(namesNest("Bezúkhov", "Pierre Bezukhov")); assert.ok(!namesNest("FA Cup", "Champions League")); assert.ok(!namesNest("Pierre", "Count Cyril Vladímirovich Bezúkhov"));
+  assert.ok(namesNest("Monsieur Pierre", "Pierre")); assert.ok(!namesNest("Bezúkhov", "Pierre Bezukhov"), "a bare head is a family reference, not a full nest (name-spans.js)"); assert.ok(!namesNest("FA Cup", "Champions League")); assert.ok(!namesNest("Pierre", "Count Cyril Vladímirovich Bezúkhov"));
   const nested = nestedOccupants(wpStandings, (id) => faces[id], occupantPairKey);
   const e = mergeEvidence({ merges: wpMerges, standings: wpStandings, minOccupants: 2, nested });
   assert.equal(e.collapses[0].rule.name, NESTED_NAMES.name); assert.equal(e.collapses[0].chosen.value, "one_being");
@@ -85,4 +85,23 @@ test("a true position still attacks under NESTED_NAMES; a mixed locus is contest
   const m = mergeEvidence({ merges: wpMerges, standings: three, minOccupants: 2, nested: nestedOccupants(three, (id) => faces[id], occupantPairKey) });
   assert.equal(m.collapses[0].verdict, "contested"); assert.equal(m.attacks.length, 0); assert.equal(m.withheld[0].verdict, "contested");
   assert.ok(!m.supports.some((s) => /one_being_under_names/.test(s.reason)), "a contested locus proposes no merge either");
+});
+
+test("a bare family name among the occupants is ambiguous from the names alone: the locus is contested, attacks nothing, proposes nothing", () => {
+  const three = [{ locus: "ref:count_bezukhov", occupant: "ref:pierre_b", witness: "wp#s6425" }, { locus: "ref:count_bezukhov", occupant: "ref:monsieur_pierre_b", witness: "wp#s3036" }, { locus: "ref:count_bezukhov", occupant: "ref:bezukhov", witness: "wp#s2" }];
+  const f = { "ref:pierre_b": "Pierre Bezúkhov", "ref:monsieur_pierre_b": "Monsieur Pierre Bezúkhov", "ref:bezukhov": "Bezúkhov" };
+  const nested = nestedOccupants(three, (id) => f[id], occupantPairKey);
+  assert.equal(nested.size, 1, "Monsieur Pierre Bezúkhov / Pierre Bezúkhov nests fully"); assert.equal(nested.ambiguous.size, 2, "bare Bezúkhov against each is a head-level nest");
+  assert.deepEqual([...nested.levels.values()].sort(), ["full", "head", "head"]);
+  const e = mergeEvidence({ merges: wpMerges, standings: three, minOccupants: 2, nested });
+  assert.equal(e.collapses[0].verdict, "contested"); assert.match(e.collapses[0].reason, /partially/);
+  assert.equal(e.attacks.length, 0); assert.ok(!e.supports.some((s) => /one_being_under_names/.test(s.reason)));
+});
+test("siblings under one family are two beings: Pierre Bezúkhov and Count Cyril Vladímirovich Bezúkhov do not nest, and the locus is a position", () => {
+  const two = [{ locus: "ref:count_bezukhov", occupant: "ref:pierre_b", witness: "w1" }, { locus: "ref:count_bezukhov", occupant: "ref:cyril", witness: "w2" }];
+  const f = { "ref:pierre_b": "Pierre Bezúkhov", "ref:cyril": "Count Cyril Vladímirovich Bezúkhov" };
+  const nested = nestedOccupants(two, (id) => f[id], occupantPairKey);
+  assert.equal(nested.size, 0); assert.equal(nested.ambiguous.size, 0);
+  const e = mergeEvidence({ merges: wpMerges, standings: two, minOccupants: 2, nested });
+  assert.equal(e.collapses[0].chosen.value, "position"); assert.equal(e.attacks.length, 3);
 });

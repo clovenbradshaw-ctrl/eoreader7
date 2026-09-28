@@ -329,24 +329,25 @@ export function locusStandings(candidates, { merges = [], giver = OCCUPANCY_TRAN
   return out;
 }
 
-// ── nesting names (v6 amendment, kernel/merge-standing.js's declared evidence) ──
-// "Monsieur Pierre" and "Pierre" are one name inside another: the shorter's
-// tokens are a subset of the longer's, diacritics folded, honorific and all
-// (the honorific is what the longer one ADDS, never what it lacks). This is the
-// TEXT reading of "these two occupants nest"; the kernel reads only the pairs.
-const nameTokens = (s) => new Set(String(s ?? "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().split(/[^\p{L}\p{N}']+/u).filter(Boolean));
-export const namesNest = (a, b) => {
-  const ta = nameTokens(a), tb = nameTokens(b);
-  if (!ta.size || !tb.size) return false;
-  const [small, large] = ta.size <= tb.size ? [ta, tb] : [tb, ta];
-  for (const t of small) if (!large.has(t)) return false;
-  return true;
-};
-/** The nested set kernel/merge-standing.js reads: every occupant pair (by id) whose faces nest. */
-export function nestedOccupants(standings, faceOf, pairKey) {
+// ── nesting names (v6 amendment; rebuilt on name-spans.js, "figure out nesting") ──
+// Two occupants nest only when their NAMES do, read as trees (name-spans.js):
+// "Monsieur Pierre"/"Pierre" is `full` (a title is decoration); "Pierre
+// Bezúkhov"/"Count Cyril Vladímirovich Bezúkhov" is `none` (siblings under
+// one head); a bare head or bare given ("Bezúkhov", "Pierre") is a PARTIAL
+// level the names cannot settle — handed to the kernel as `ambiguous`, so
+// the slot is contested rather than collapsed either way (S17's rule for the
+// cast, applied to the position's occupants). `namesNest` is kept as the
+// boolean face: full only.
+import { nameNesting } from "./name-spans.js";
+export const namesNest = (a, b, opts) => nameNesting(a, b, opts).level === "full";
+/** The pair sets kernel/merge-standing.js reads: `nested` (full) and `ambiguous` (prefix / head / given). */
+export function nestedOccupants(standings, faceOf, pairKey, opts) {
   const byLocus = new Map();
   for (const s of standings) { if (!byLocus.has(s.locus)) byLocus.set(s.locus, new Set()); byLocus.get(s.locus).add(s.occupant); }
-  const nested = new Set();
-  for (const occ of byLocus.values()) { const ids = [...occ]; for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) if (namesNest(faceOf(ids[i]), faceOf(ids[j]))) nested.add(pairKey(ids[i], ids[j])); }
-  return nested;
+  const nested = new Set(), ambiguous = new Set(), levels = new Map();
+  for (const occ of byLocus.values()) { const ids = [...occ]; for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) {
+    const n = nameNesting(faceOf(ids[i]), faceOf(ids[j]), opts); const k = pairKey(ids[i], ids[j]); levels.set(k, n.level);
+    if (n.level === "full") nested.add(k); else if (n.level !== "none") ambiguous.add(k);
+  } }
+  return Object.assign(nested, { ambiguous, levels });
 }
