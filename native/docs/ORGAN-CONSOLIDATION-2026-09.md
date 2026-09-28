@@ -747,3 +747,55 @@ test's reason to exist; until then it is what stands between the two.
 
 Verified: `node --test native/the-fold/source-drift.test.mjs` — 1/1
 (zero mismatches across the full battery today).
+
+## 14. `resolutions.js` (native/the-fold/) — three real, live fixes ported (2026-09-28)
+
+A ~35-line, single-file, mechanical diff from the-fold's canonical
+`resolutions.js`. `dmdCut` and its 3 other real consumers (`what.js`,
+`code-name-split.js`'s and `code-structure.js`'s own coverage) are
+untouched — proxy-runner.mjs imports this vendored copy for `lensCut`/
+`paradigmBlock`/`activeReferents`, fed `notesFromEdges` (no `.spans`
+field ever set on that path today).
+
+1. **`lensCut`: the asked act keeps every value.** A note's act
+   (`n.verb`/`n.label`) counted as one repeat at DEF cut grain, which is
+   right for an act the question does not ask about and wrong for the one
+   it does — measured live, "Grant — was born→ in Point Pleasant" and a
+   pamphlet's "— in Georgetown" shared the key, sort order kept only the
+   first, and the Lens listed Georgetown alone. Added `questionWords`/
+   `labelOf`/`asked()`; for an asked act the object now joins the reach
+   key, so both candidate objects survive the cut; unasked acts compress
+   exactly as before. `lensCut`'s return gained `asked: cut.rows.filter
+   ((r) => r.asked).length`.
+2. **`paradigmBlock`: recurrence counts places, not witness records.**
+   `Math.max((n.witnesses??[]).length, (n.spans??[]).length, 1)` double-
+   counted a single sentence read at two grains (a paragraph-level arrival
+   plus a sentence-level read of the same bytes) as two witnesses.
+   Added `placesOf()`/`RANGE`: a byte-range address counts only when no
+   OTHER range of the same source contains it, so nested reads of the
+   same bytes are one place. Zero-behavior-change today (this vendored
+   copy's own note construction never sets `.spans`), kept for when it
+   does. Also ported the act-first phrasing fix ("«was born» is most
+   often stated about Grant" rather than "Grant most often stands in «was
+   born»") — a bare surname that is also an attested base-form verb
+   collided with an imperative detector when it led the sentence.
+3. **`activeReferents`/`lensCut`: the last turn, not the array tail.**
+   Inlined a 4-line `lastOwnTurn()` (resolutions.js's only consumer —
+   vendoring a whole `transcript.js` for one function was rejected as
+   disproportionate) so a `chat`-tagged/foreign-conversation row in a
+   workspace-spanning transcript is never read as this conversation's own
+   last turn.
+
+Added `native/eval/the-fold/resolutions-parity.test.mjs`, porting the-fold's
+own two live-specimen regressions (2026-09-16) against the VENDORED file
+through eoreader7's real `kernel/activation.js::dmdWindow` and a real
+referent index built via a direct cross-repo import of the-fold's
+`cast.js` (the same pattern `admission-gate.mjs`/`mine-1-referent-
+anchored.mjs`/`mhc-battery.mjs` already use). Did NOT attempt a general
+parity/sync mechanism across the ~90 other files under `native/the-fold/`
+— named as real, separately-scoped future work.
+
+Verified: `resolutions-parity.test.mjs` 2/2. `native/organs/what.test.mjs
+native/tests/code-name-split.test.js native/tests/code-structure.test.js`
+(the three other real `dmdCut` consumers) — 27/28, the same 1
+pre-existing, unrelated failure as before this change.
