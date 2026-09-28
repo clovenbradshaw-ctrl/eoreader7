@@ -35,7 +35,7 @@
 // nothing and says so; no caller may treat a missing arc as a flat one.
 import { elementsOf } from "./medium.js";
 import { loadEotParser } from "./eot-notation.js";
-import { addressesOf, leanProfiles } from "./profile.js";
+import { addressesOf, leanProfiles } from "./statement-profile.js";
 
 export const ARC_SCHEMA = "EOArc@1";
 const unitOf = (u) => (Array.isArray(u?.elements) ? u : { elements: elementsOf(typeof u === "string" ? u : u?.text ?? "").elements });

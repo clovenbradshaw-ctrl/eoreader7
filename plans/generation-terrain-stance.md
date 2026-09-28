@@ -76,7 +76,7 @@ stance face already carries absence as Clearing.
 
 ## Results
 
-### Step 1 — statement profile (`native/the-fold/profile.js`)
+### Step 1 — statement profile (`native/the-fold/statement-profile.js`)
 
 Built and falsifiable: `profile-falsify.test.mjs`. Every EOTRich address maps
 through `cellOf` to a terrain and a stance; each address is weighted by its
@@ -481,7 +481,7 @@ the others, evaluated on the held-out half (`results/paradigm-2026-09-22/`):
 The three prose forms fail honestly: their difference ("died", "survived
 by", "shall") is mid-sentence, where the role-word family does not look,
 and in the order of what is said, which is SYN·Pattern — the parse's own
-cube addresses across a unit's positions (profile.js). That is the next
+cube addresses across a unit's positions (statement-profile.js). That is the next
 layer. Known confounds recorded, not hidden: macOS ships many Perl manuals
 ("starts:perl"); a definition is relative to its population (a sonnet
 "lacks 'there'" because limericks are in the population).

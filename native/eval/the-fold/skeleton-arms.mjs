@@ -32,7 +32,7 @@ import { buildReferents, attachReferents } from "../../the-fold/referents.js";
 import { loadEotParser, attachEot } from "../../the-fold/eot-notation.js";
 import { arrangeEssay, extentOf } from "../../the-fold/arrange.js";
 import { statementKinds, kindSentence } from "../../the-fold/kinds.js";
-import { profileStatements } from "../../the-fold/profile.js";
+import { profileStatements } from "../../the-fold/statement-profile.js";
 import { isFunctionWord } from "../../the-fold/pos-prior.js";
 import { declareVoidSpec } from "../../the-fold/void-spec.js";
 import { askQuestions } from "../../the-fold/steer.js";
