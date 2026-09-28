@@ -15,13 +15,25 @@ import { runSandboxedJs } from "../sandboxed-agent.js";
 import { sourceOf, cellOf, recordExec } from "./notebook.mjs";
 
 const csv = (t) => [t.header, ...t.rows].map((r) => r.map((c) => (/[",\n]/.test(c ?? "") ? `"${String(c).replace(/"/g, '""')}"` : c ?? "")).join(",")).join("\n");
-const PRE = `import resource,sys,os
+const ER7PY = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../../organs/er7py");
+// The runner: limits, the fold's tools already imported (`from er7 import *`, np, plt), and Jupyter's rule —
+// the LAST expression of a cell is displayed. The person's code lives in user.py so tracebacks name its own lines.
+const RUNNER = `import resource,sys,os,ast
 resource.setrlimit(resource.RLIMIT_AS,(8<<30,8<<30)); resource.setrlimit(resource.RLIMIT_CPU,(45,45))
 os.makedirs("out",exist_ok=True)
-def save(name="fig"):
+from er7 import *
+try:
+    import numpy as np
     import matplotlib.pyplot as plt
-    plt.savefig("out/%s.png"%name, dpi=110, bbox_inches="tight"); plt.close("all")
-DATA={f:open("data/"+f).read() for f in os.listdir("data")} if os.path.isdir("data") else {}
+except Exception: pass
+src=open("user.py").read()
+tree=ast.parse(src,"user.py")
+last=tree.body.pop() if tree.body and isinstance(tree.body[-1],ast.Expr) else None
+g=globals()
+exec(compile(tree,"user.py","exec"),g)
+if last is not None:
+    v=eval(compile(ast.Expression(last.value),"user.py","eval"),g)
+    if v is not None: print(repr(v))
 `;
 let isolation;
 const canIsolate = () => (isolation ??= spawnSync("unshare", ["-rn", "true"]).status === 0);
@@ -34,11 +46,11 @@ export function runPython(code, files = {}, { timeoutMs = 60000 } = {}) {
     fs.writeFileSync(path.join(dir, "data", `${safe}.txt`), f.text ?? "");
     (f.tables ?? []).forEach((t, i) => fs.writeFileSync(path.join(dir, "data", `${safe}${f.tables.length > 1 ? `.${t.name ?? i}` : ""}.csv`), csv(t)));
   }
-  fs.writeFileSync(path.join(dir, "cell.py"), PRE + code);
+  fs.writeFileSync(path.join(dir, "user.py"), code); fs.writeFileSync(path.join(dir, "cell.py"), RUNNER);
   const iso = canIsolate();
   const t0 = Date.now();
-  const r = iso ? spawnSync("unshare", ["-rn", "python3", "cell.py"], { cwd: dir, encoding: "utf8", timeout: timeoutMs, maxBuffer: 4e6, env: { ...process.env, MPLBACKEND: "Agg", OPENBLAS_NUM_THREADS: "1", MPLCONFIGDIR: dir } })
-    : spawnSync("python3", ["cell.py"], { cwd: dir, encoding: "utf8", timeout: timeoutMs, maxBuffer: 4e6, env: { ...process.env, MPLBACKEND: "Agg", OPENBLAS_NUM_THREADS: "1", MPLCONFIGDIR: dir } });
+  const r = iso ? spawnSync("unshare", ["-rn", "python3", "cell.py"], { cwd: dir, encoding: "utf8", timeout: timeoutMs, maxBuffer: 4e6, env: { ...process.env, MPLBACKEND: "Agg", PYTHONPATH: ER7PY, ER7_ISOLATED: iso ? "1" : "", OPENBLAS_NUM_THREADS: "1", MPLCONFIGDIR: dir } })
+    : spawnSync("python3", ["cell.py"], { cwd: dir, encoding: "utf8", timeout: timeoutMs, maxBuffer: 4e6, env: { ...process.env, MPLBACKEND: "Agg", PYTHONPATH: ER7PY, ER7_ISOLATED: iso ? "1" : "", OPENBLAS_NUM_THREADS: "1", MPLCONFIGDIR: dir } });
   const figures = [];
   const od = path.join(dir, "out");
   for (const f of fs.existsSync(od) ? fs.readdirSync(od).filter((x) => x.endsWith(".png")).slice(0, 3) : []) {

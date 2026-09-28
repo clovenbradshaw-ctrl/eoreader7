@@ -110,13 +110,37 @@ test("ipynb round-trips cells; imported outputs are recorded as produced elsewhe
   assert.ok(back.notes.some((n) => /produced elsewhere/.test(n.recorded ?? "")));
 });
 
-test("the page persists, reloads verified, and refuses to load a tampered file", () => {
+test("the page persists, reloads verified, and refuses to load a tampered file", async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "nbp-"));
   let s = emptyNotebook();
-  s = act(s, H, { op: "add", id: "c", type: "code", lang: "js", source: "console.log(5)" }).state;
-  s = act(s, H, { op: "run", cell: "c" }).state; save(dir, s);
+  s = (await act(s, H, { op: "add", id: "c", type: "code", lang: "js", source: "console.log(5)" })).state;
+  s = (await act(s, H, { op: "run", cell: "c" })).state; save(dir, s);
   const back = load(dir); assert.match(renderPage(back), /chain verifies/); assert.match(renderPage(back), /console\.log\(5\)/);
   const j = JSON.parse(fs.readFileSync(path.join(dir, "notebook.json"), "utf8")); j.nb[0].source = "console.log(9)"; fs.writeFileSync(path.join(dir, "notebook.json"), JSON.stringify(j));
   assert.throws(() => load(dir), /does not verify/);
-  assert.ok(act(emptyNotebook(), "model:x", { op: "add", id: "z", type: "claim", source: "a" }).state, "a model may PROPOSE a claim");
+  assert.ok((await act(emptyNotebook(), "model:x", { op: "add", id: "z", type: "claim", source: "a" })).state, "a model may PROPOSE a claim");
+});
+
+test("the / bar: python by default, typed refusals, no delete, checks bind to claims", async () => {
+  const { parseCommand } = await import("../the-fold/surface/notebook-commands.mjs");
+  assert.equal(parseCommand("1+1").lang, "python");
+  assert.equal(parseCommand("/js 2").lang, "js");
+  assert.match(parseCommand("/rm k1").error, /append-only/);
+  assert.match(parseCommand("/nonsense").error, /\/help/);
+  assert.equal(parseCommand("/check k1 print(1)").for, "k1");
+  assert.equal(parseCommand("/promote k1 proved by-hand").evidence, "by-hand");
+  let s = emptyNotebook();
+  s = (await act(s, H, { op: "line", line: "/claim x is small" })).state;
+  const chk = await act(s, H, { op: "line", line: "/check k1 scope_range(1,3); result(True)" });
+  assert.ok(!chk.error, chk.error); s = chk.state;
+  assert.equal(execsOf(s.nb, "c1")[0].result, true); assert.equal(execsOf(s.nb, "c1")[0].scope.kind, "range");
+  assert.ok((await act(s, H, { op: "line", line: "/check nope 1" })).error);
+  const v = await act(s, H, { op: "line", line: "np.arange(3).sum()" }); assert.match(execsOf(v.state.nb, "c2")[0].output, /3/, "the last expression is displayed, as Jupyter does");
+});
+
+test("er7 is preloaded in python cells: data(), table(), scope_*, wmean, tools()", async () => {
+  let s = emptyNotebook();
+  s = addData(s, ingest({ name: "t.csv", bytes: Buffer.from("v,e\n70,1\n72,1\n") }), H).state;
+  const r = runPython("rows=table('t.csv'); print(len(rows), round(wmean([70,72],[1,1]),1)); tools()", s.files);
+  assert.match(r.output, /2 71\.0/); assert.match(r.output, /numpy/); assert.match(r.output, /er7:/);
 });
