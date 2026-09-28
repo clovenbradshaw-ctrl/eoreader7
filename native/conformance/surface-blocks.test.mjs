@@ -167,3 +167,22 @@ test("the real Nashville instance gates green against its retained ground", (t) 
   const gate = gateSurface({ ground, links: ledger, metrics, resolveSnippet, plansRoot: join(HERE, "../../plans"), snapshotSidecar: { path: join(HERE, "../../plans/nashville/data/nashville-geo.json"), sha256: dataSidecar.sha256 } });
   assert.ok(gate.ok, `Nashville gate: ${gate.checks.map((c) => c.detail).join("; ")}`);
 });
+test("renamed handles change the words drawn and nothing recorded; no overrides is byte-identical", () => {
+  const dir = mkdtempSync(join(tmpdir(), "fold-surface-h-"));
+  const ground = syntheticGround(dir);
+  const cast = castTexts({ texts: ground.docs.map((d) => ({ name: d.title, text: readFileSync(d.txtPath, "utf8") })) });
+  const links = ground.docs.flatMap((d) => extractLinks({ text: readFileSync(d.txtPath, "utf8"), doc: `inst/${d.id}.txt`, mode: d.extraction }));
+  const { metrics, snapshotSidecar } = syntheticMetrics(dir);
+  const projections = deriveProjections({ links, cast, def, metrics });
+  const gate = gateSurface({ ground, links, metrics, resolveSnippet, plansRoot: dir, snapshotSidecar });
+  const base = renderSurface({ def, ground, links, metrics, projections, gate });
+  assert.equal(renderSurface({ def, ground, links, metrics, projections, gate, handleOverrides: {} }), base, "empty overrides: byte-identical");
+  assert.equal(renderSurface({ def, ground, links, metrics, projections, gate, handleOverrides: { terrain: { void: "Void" } } }), base, "an override equal to the default: byte-identical");
+  const renamed = renderSurface({ def, ground, links, metrics, projections, gate, handleOverrides: { terrain: { void: "Corpus", network: "Web of claims" }, slot: { measures: "Numbers" } } });
+  assert.ok(renamed.includes("T1 · Corpus") && !renamed.includes("T1 · Void"), "the terrain label is the person's");
+  assert.ok(renamed.includes("T6 · Web of claims"), "a second terrain renamed");
+  assert.ok(renamed.includes("<span>Numbers<span"), "a rail slot renamed");
+  const refs = (h) => [...h.matchAll(/data-byte="([^"]+)"/g)].map((m) => m[1]);
+  assert.deepEqual(refs(renamed), refs(base), "every byte address is unchanged by renaming");
+  assert.ok(renamed.includes("● pass"), "the gate's verdict is unchanged by renaming");
+});
