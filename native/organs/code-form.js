@@ -173,8 +173,17 @@ export function makeCodeForm({ ask, mouth = "mouth", log = () => {}, spec, testF
   }
   const bodyOf = (notes, store, f) => { const n = N.fold(notes).find((x) => x.end1 === f.id && x.label === "body"); return n ? { note: n, text: store.get(n.end2) } : null; };
 
-  /** One body drawn, checked for syntax, heard. Returns notes, or null. */
-  async function drawBody({ notes, store, f, failures = [], round = 0 }) {
+  /** One body's TEXT drawn and checked for syntax — notes untouched. Kept
+   *  apart from committing it (below) because kernel/notes.js's concede()
+   *  is one-way: "a conceded note stays conceded — a later re-hearing lands
+   *  on the same task and does not resurrect it" (its own doc comment). A
+   *  revision that concedes the old body before knowing whether the new one
+   *  is kept can therefore never put the old one back by re-hearing the
+   *  same text — found live (code2, 2026-09-28): every undone revision left
+   *  its function with no body at all, which is why round 1 fell to the
+   *  stub baseline on both mouths. So a body is never conceded until it is
+   *  decided; see commitBody. */
+  async function drawBodyText({ notes, f, failures = [], round = 0 }) {
     const note = workingNote(notes, f, failures);
     for (let t = 0; t < BODY_TRIES; t++) {
       const got = await say(note.prompt, { stage: `body:${f.name}`, attempt: t, numPredict: BODY_TOKENS });
@@ -188,20 +197,28 @@ export function makeCodeForm({ ask, mouth = "mouth", log = () => {}, spec, testF
       const syntax = body ? jsCheckSyntax(`${body}\n`, "check.mjs") : null;
       log({ kind: "body_turn", fn: f.name, round, attempt: t, prompt: note.prompt, reply: got.text, extracted: !!body, syntaxOk: syntax?.ok ?? null, promptTokens: got.promptTokens });
       if (!body || (syntax && !syntax.ok)) continue;
-      const prev = bodyOf(notes, store, f);
-      if (prev) { const d = N.concede(notes, prev.note.id, { trigger: `written again in round ${round}: ${failures[0] ?? "a failing test"}` }); if (!d.refused) notes = d.log; }
-      notes = N.hear(notes, { end1: f.id, label: "body", end2: store.put(body), witness: `talk:${mouth}#body${asks}`, because: `${failures.length ? `after ${failures.length} failure(s) ` : ""}[premises: ${JSON.stringify(note.premises)}]` });
-      return { notes, promptTokens: got.promptTokens };
+      return { text: body, promptTokens: got.promptTokens, premises: note.premises };
     }
     return null;
+  }
+
+  /** A drawn body heard onto the record: the prior body (if any) conceded,
+   *  the new one heard. Pure — returns new notes, never mutates the
+   *  caller's — so a trial can be built, tested, and thrown away with the
+   *  live notes never having conceded anything. */
+  function commitBody(notes, store, f, draw, { failures = [] } = {}) {
+    const prev = bodyOf(notes, store, f);
+    let next = notes;
+    if (prev) { const d = N.concede(next, prev.note.id, { trigger: `written again: ${failures[0] ?? "a failing test"}` }); if (!d.refused) next = d.log; }
+    return N.hear(next, { end1: f.id, label: "body", end2: store.put(draw.text), witness: `talk:${mouth}#body${asks}`, because: `${failures.length ? `after ${failures.length} failure(s) ` : ""}[premises: ${JSON.stringify(draw.premises)}]` });
   }
 
   async function writeBodies({ notes, store = makeTextStore() }) {
     const voids = [], prompts = [];
     for (const f of fns) {
       if (bodyOf(notes, store, f)) continue;
-      const r = await drawBody({ notes, store, f });
-      if (r) { notes = r.notes; prompts.push(r.promptTokens); }
+      const draw = await drawBodyText({ notes, f });
+      if (draw) { notes = commitBody(notes, store, f, draw); prompts.push(draw.promptTokens); }
       else { const v = N.declareVoid(notes, { end1: f.id, label: "body", scope: { sources: [`talk:${mouth}`], read: BODY_TRIES }, because: `asked ${BODY_TRIES} times, no function ${f.name} heard` }); if (!v.refused) notes = v.log; voids.push(f.name); }
     }
     return { notes, store, voids, prompts, asks };
@@ -276,28 +293,27 @@ export function makeCodeForm({ ask, mouth = "mouth", log = () => {}, spec, testF
       for (const f of order) {
         const failures = now.blame.get(f.name) ?? [];
         if (!failures.length) continue;
-        const before = bodyOf(notes, store, f);
-        const r = await drawBody({ notes, store, f, failures, round });
-        if (!r) { undone.push(f.name); continue; }
-        const trialMap = assemble({ notes: r.notes, store, dir }).map;
+        const draw = await drawBodyText({ notes, f, failures, round });
+        if (!draw) { undone.push(f.name); continue; }
+        // THE TRIAL: committed to a SCRATCH copy of the notes, tested there.
+        // The live `notes` is touched only if kept — an undone draw never
+        // conceded the body it would have replaced, so there is nothing to
+        // restore (commitBody's own comment; see drawBodyText's).
+        const trial = commitBody(notes, store, f, draw, { failures });
+        const trialMap = assemble({ notes: trial, store, dir }).map;
         const after = test({ dir, map: trialMap });
         const mine = (t) => (t.blame.get(f.name) ?? []).length;
         const keep = after.loaded && (after.passed > now.passed || (after.passed === now.passed && mine(after) < mine(now)));
         log({ kind: keep ? "revision_kept" : "revision_undone", fn: f.name, round, before: { passed: now.passed, mine: mine(now) }, after: { passed: after.passed, mine: mine(after), loaded: after.loaded } });
-        if (keep) { notes = r.notes; map = trialMap; now = after; kept.push(f.name); }
-        else {
-          // the new body conceded, the old one heard again (never resurrected: a fresh claim with the same text)
-          const fresh = N.fold(r.notes).find((x) => x.end1 === f.id && x.label === "body");
-          let back = r.notes;
-          if (fresh) { const d = N.concede(back, fresh.id, { trigger: `undone: the tests naming ${f.name} did not fail less` }); if (!d.refused) back = d.log; }
-          if (before) back = N.hear(back, { end1: f.id, label: "body", end2: before.note.end2, witness: before.note.witnesses?.[0] ?? `talk:${mouth}`, because: `kept after round ${round}: the revision was undone` });
-          notes = back; map = assemble({ notes, store, dir }).map; now = test({ dir, map }); undone.push(f.name);
-        }
+        if (keep) { notes = trial; map = trialMap; now = after; kept.push(f.name); }
+        else undone.push(f.name);
       }
       history.push({ round, passed: now.passed, total: now.total, loaded: now.loaded, failing: [...now.blame.keys()], kept, undone });
       log({ kind: "test", round, ...history.at(-1), titles: now.titles });
       if (!kept.length) break;
     }
+    // the workspace on disk matches the DECIDED notes, not a discarded trial
+    assemble({ notes, store, dir });
     return { notes, store, history, asks };
   }
 

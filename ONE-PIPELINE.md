@@ -339,6 +339,45 @@ built, so the result can go against it.
   code; round 3 ≤ round 0 means EVA→REC does nothing here; whole ≥ units
   means decomposition costs more than it gives at this size. Recorded either
   way.
+- **code2's collapse was a harness bug, found by reading the ledger it left
+  (2026-09-28), not a finding about EVA→REC.** `organs/code-form.js`'s
+  `drawBody` conceded a function's OLD body before it knew whether the NEW
+  draw would be kept — and `kernel/notes.js`'s `concede()` is one-way by
+  design ("a conceded note stays conceded — a later re-hearing lands on the
+  same task and does not resurrect it"), so `revise()`'s undo path, which
+  tried to restore the old body by re-hearing the identical triple, silently
+  failed every time: the fold's own rule filters a once-conceded id forever,
+  whoever re-hears it. Traced from code2-3b's `record.state.json`: `tokenize`
+  shows exactly two `body` proposes and both get conceded (`rec:90`,
+  `rec:92`), with no third hear ever landing — so after round 1 undid its
+  revision, `tokenize` had no body at all, and every function that named it
+  a callee threw `"tokenize: no body on the record"` at runtime. This is why
+  round 1 fell to the stub baseline on both mouths: revising ANY blamed
+  function and then undoing it destroyed that function, not just that draw.
+  **Fixed**: `drawBodyText` now only draws and syntax-checks (no notes
+  touched); `commitBody` (concede-if-prior, then hear) runs on a SCRATCH
+  copy of the notes and is tested there; the live `notes` is reassigned only
+  when the trial is kept — so an undone trial never concedes anything, and
+  the sibling's original body is simply never touched (`organs/code-form.js`
+  commit message has the full account). A regression test
+  (`tests/code-form.test.js`) reproduces the exact shape (a shared test
+  blames a genuinely broken function alongside a genuinely fine sibling; the
+  sibling's bad redraw is undone; its ORIGINAL body must still be on the
+  record and in the assembled program) and is confirmed to fail against the
+  pre-fix code (mutation-checked) and pass against the fix.
+  **code3, pre-registered before running**: rerun the `record` arm only
+  (`whole` and `units` never call `revise()`, so code2's numbers for them
+  stand) on the same task, same two mouths, same rounds (3), fresh seed.
+  Round 0 is drawn fresh so it may differ slightly from code2's (stochastic
+  draws) but is not expected to move the story (round 0 was never touched by
+  this bug). The prediction from code1/code2's own pre-registration now
+  applies for the first time under code the pipeline can actually revise:
+  record round 3 > round 0, and the FINAL assembled program contains no
+  `"no body on the record"` stub for any function that was ever drawn
+  successfully at any point. Falsifier: if round 3 still does not exceed
+  round 0 with the bug fixed, EVA→REC genuinely does nothing for these
+  mouths on this task, and code2's stub-baseline number was the honest
+  answer after all, just for the wrong reason.
 - **The root:** the bodies are never read back into the record. The ear
   (`talk-reader.js`) hears only the outline's talk. Every empty cell needs
   that one missing reader first (SIG·Figure), with pronouns bound
