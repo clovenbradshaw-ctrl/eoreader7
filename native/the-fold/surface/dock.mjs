@@ -43,27 +43,56 @@ export function checkItems(items = []) {
 function itemHtml(it, handles) {
   const status = it.status ? `<span class="st st-${esc(it.status)}">${H(handles, "status", it.status)}</span>` : "";
   const addr = it.address ? `<code class="addr">${esc(it.address)}</code>` : `<em class="ungrounded">ungrounded</em>`;
-  const chips = (it.chips ?? []).map((c) => `<span class="chip">${esc(c)}</span>`).join("");
+  const chips = (it.chips ?? []).map((c) => `<span class="chip">${esc(c)}</span>`).join("")
+    + (it.count > 1 ? `<span class="chip">×${it.count}</span>` : "")
+    + (it.kind ? `<span class="chip kind">${esc(it.kind)}</span>` : "")
+    + (it.origin ? `<span class="chip origin" title="${esc(`produced by: ${it.origin.label} · config ${it.origin.config}`)}">from ${esc(it.origin.label)}</span>` : "");
   return `<article class="item" data-id="${esc(it.id)}"><h3>${esc(it.title ?? it.id)} ${status}</h3>${it.body ? `<p>${esc(it.body)}</p>` : ""}<p class="prov">${addr}${chips}</p></article>`;
 }
 
-/** renderDock({ content, overrides }) -> { html, refused, rejectedHandles }
- *  `content` = { [slotId]: { items:[…], note? } }. A slot with refused items
- *  draws the refusal in place of the item — never silently omits it. */
+/** renderSlot(slot, content, handles) -> { html, refused }
+ *  The one place a slot is drawn — the server render and the page's live
+ *  re-render both call it, so they cannot drift. The slot always says where its
+ *  items came from: the chosen adapter with what it finds and does NOT find, or
+ *  a fixed origin the caller names (the ledger), or that none was chosen. */
+export function renderSlot(slot, c = { items: [] }, handles) {
+  const chk = checkItems(c.items);
+  const bad = new Set(chk.refused.map((r) => r.id));
+  const shown = (c.items ?? []).filter((i) => !bad.has(i.id)).map((i) => itemHtml(i, handles)).join("");
+  const refusals = chk.refused.map((r) => `<p class="refused">refused: ${esc(r.id ?? "(no id)")} — ${esc(r.reason)}</p>`).join("")
+    + (c.refused?.length ? `<p class="refused">${c.refused.length} match(es) dropped: their address did not read back as their own text</p>` : "")
+    + (c.truncated ? `<p class="refused">stopped at the match ceiling — more exist than are drawn</p>` : "");
+  const origin = c.origin
+    ? `<details class="origin"><summary>from: <b>${esc(c.origin.label)}</b> <span class="n">${(c.items ?? []).length} found</span></summary><p><b>finds</b> ${esc(c.origin.finds)}</p><p><b>does not find</b> ${esc(c.origin.misses)}</p></details>`
+    : c.fixedOrigin ? `<p class="origin-fixed">from: ${esc(c.fixedOrigin)}</p>`
+    : `<p class="origin-fixed">from: nothing chosen — pick an origin in settings</p>`;
+  const html = `<section class="slot zone-${slot.zone}" data-slot="${slot.id}"><h2><span class="terrain">${H(handles, "terrain", slot.terrain)}</span> ${H(handles, "slot", slot.id)}</h2><p class="role">${esc(slot.role)}</p>${origin}${c.note ? `<p class="note">${esc(c.note)}</p>` : ""}<div class="items">${shown || '<p class="empty">nothing here yet</p>'}</div>${refusals}</section>`;
+  return { html, refused: chk.refused };
+}
+
+/** renderDock({ content, overrides }) -> { html, refused, rejectedHandles } */
 export function renderDock({ content = {}, overrides = {}, title = "" } = {}) {
   const { handles, rejected } = resolveHandles(overrides);
   const refusedAll = [];
-  const section = (slot) => {
-    const c = content[slot.id] ?? { items: [] };
-    const chk = checkItems(c.items);
-    refusedAll.push(...chk.refused.map((r) => ({ slot: slot.id, ...r })));
-    const bad = new Set(chk.refused.map((r) => r.id));
-    const shown = (c.items ?? []).filter((i) => !bad.has(i.id)).map((i) => itemHtml(i, handles)).join("");
-    const refusals = chk.refused.map((r) => `<p class="refused">refused: ${esc(r.id ?? "(no id)")} — ${esc(r.reason)}</p>`).join("");
-    return `<section class="slot zone-${slot.zone}" data-slot="${slot.id}"><h2><span class="terrain">${H(handles, "terrain", slot.terrain)}</span> ${H(handles, "slot", slot.id)}</h2><p class="role">${esc(slot.role)}</p>${c.note ? `<p class="note">${esc(c.note)}</p>` : ""}${shown || '<p class="empty">nothing here yet</p>'}${refusals}</section>`;
+  const sections = DOCK_SLOTS.map((slot) => { const r = renderSlot(slot, content[slot.id], handles); refusedAll.push(...r.refused.map((x) => ({ slot: slot.id, ...x }))); return r.html; });
+  return { html: `<div class="dock" data-schema="${DOCK_SCHEMA}">${title ? `<h1>${esc(title)}</h1>` : ""}${sections.join("")}</div>`, refused: refusedAll, rejectedHandles: rejected };
+}
+
+/** renderOriginSettings(config, registry) -> html: for every slot some adapter
+ *  serves, a chooser and a configuration box that says how to write it. */
+export function renderOriginSettings(config = {}, registry = {}) {
+  const adapters = Object.values(registry);
+  const slots = DOCK_SLOTS.filter((sl) => adapters.some((a) => a.slots.includes(sl.id)));
+  const one = (sl) => {
+    const cur = config?.[sl.id] ?? {};
+    const opts = adapters.filter((a) => a.slots.includes(sl.id));
+    const cfg = registry[cur.adapter];
+    return `<fieldset data-origin-slot="${sl.id}"><legend>${H(resolveHandles({}).handles, "slot", sl.id)} comes from</legend>
+      <select data-origin-adapter><option value="">— nothing chosen —</option>${opts.map((a) => `<option value="${esc(a.id)}"${a.id === cur.adapter ? " selected" : ""}>${esc(a.label)}${a.runsIn === "node" ? " (computed on the server)" : ""}</option>`).join("")}</select>
+      <textarea data-origin-text rows="4" spellcheck="false" placeholder="${esc(cfg?.configHelp ?? "choose an origin to see how to configure it")}">${esc(cur.text ?? "")}</textarea>
+      <p class="err" role="alert"></p></fieldset>`;
   };
-  const html = `<div class="dock" data-schema="${DOCK_SCHEMA}">${title ? `<h1>${esc(title)}</h1>` : ""}${DOCK_SLOTS.map(section).join("")}</div>`;
-  return { html, refused: refusedAll, rejectedHandles: rejected };
+  return `<form class="origins-settings" onsubmit="return false"><p>Choose where each slot's things come from, and how. Every item is stamped with its origin; nothing is filled by an unnamed method.</p>${slots.map(one).join("")}</form>`;
 }
 
 /** renderSettings(overrides) -> html for the rename panel. Each input is keyed
@@ -83,6 +112,8 @@ export function renderSettings(overrides = {}) {
  *  rules (handles.mjs is served beside it and imported by the page). */
 export const SETTINGS_SCRIPT = `
 import { resolveHandles, setHandle } from "./handles.mjs";
+import { DOCK_SLOTS, renderSlot } from "./dock.mjs";
+import { makeRegistry, fillSlots } from "./origins.mjs";
 const KEY = "fold-handles";
 let overrides = {}; try { overrides = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch {}
 const apply = () => { const { handles } = resolveHandles(overrides);
@@ -94,4 +125,31 @@ document.querySelectorAll(".handles-settings input").forEach((inp) => inp.addEve
   if (r.error) { err.textContent = inp.dataset.ns + ":" + inp.dataset.id + " — " + r.error; return; }
   err.textContent = ""; overrides = r.overrides; try { localStorage.setItem(KEY, JSON.stringify(overrides)); } catch {} apply();
 }));
+
+// ── where things come from ──
+const OKEY = "fold-origins";
+const texts = JSON.parse(document.getElementById("fold-texts")?.textContent || "[]");
+const nodeContent = JSON.parse(document.getElementById("fold-node-content")?.textContent || "{}");
+const registry = makeRegistry();
+let origins = {}; try { origins = JSON.parse(localStorage.getItem(OKEY) || "null") || JSON.parse(document.getElementById("fold-origin-default")?.textContent || "{}"); } catch {}
+const redraw = () => {
+  const { handles } = resolveHandles(overrides);
+  const live = fillSlots({ config: Object.fromEntries(Object.entries(origins).filter(([, v]) => registry[v.adapter])), registry, texts });
+  for (const slot of DOCK_SLOTS) {
+    if (!document.querySelector('.origins-settings fieldset[data-origin-slot="' + slot.id + '"]')) continue; // ledger-fed slots are not re-filled here
+    const sel = origins[slot.id];
+    const c = !sel?.adapter ? { items: [] } : registry[sel.adapter] ? live.content[slot.id] : (nodeContent[slot.id] ?? { items: [] });
+    const el = document.querySelector('.slot[data-slot="' + slot.id + '"]'); if (el) el.outerHTML = renderSlot(slot, c ?? { items: [] }, handles).html;
+  }
+  apply();
+};
+document.querySelectorAll(".origins-settings fieldset").forEach((fs) => {
+  const slot = fs.dataset.originSlot, err = fs.querySelector(".err");
+  const read = () => { const adapter = fs.querySelector("[data-origin-adapter]").value, text = fs.querySelector("[data-origin-text]").value;
+    if (!adapter) delete origins[slot]; else origins[slot] = { adapter, text };
+    const a = registry[adapter]; const parsed = a ? a.parseConfig(text) : {}; err.textContent = parsed.error || (adapter && !a ? "computed on the server; not re-run here" : "");
+    try { localStorage.setItem(OKEY, JSON.stringify(origins)); } catch {} redraw(); };
+  fs.querySelector("[data-origin-adapter]").addEventListener("change", read); fs.querySelector("[data-origin-text]").addEventListener("input", read);
+});
+redraw();
 `;

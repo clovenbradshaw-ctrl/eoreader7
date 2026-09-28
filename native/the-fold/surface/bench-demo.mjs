@@ -8,10 +8,16 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { emptyBench, addCard, promote, statusOf, phrase, verifyChain } from "./bench.mjs";
 import { runOnBench } from "./bench-run.mjs";
-import { renderDock, renderSettings, SETTINGS_SCRIPT } from "./dock.mjs";
+import { createHash } from "node:crypto";
+import { renderDock, renderSettings, renderOriginSettings, SETTINGS_SCRIPT } from "./dock.mjs";
+import { makeRegistry, fillSlots } from "./origins.mjs";
+import { castTexts } from "./block-cast.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const out = process.argv[2] ?? "bench-out";
+// optional: a directory of .txt sources to read (node bench-demo.mjs OUT SRCDIR)
+const srcDir = process.argv[3];
+const texts = srcDir ? fs.readdirSync(srcDir).filter((f) => f.endsWith(".txt")).map((f) => ({ name: f, text: fs.readFileSync(path.join(srcDir, f), "utf8") })) : [];
 fs.mkdirSync(out, { recursive: true });
 
 let log = emptyBench();
@@ -41,17 +47,30 @@ for (const c of ["moser", "es", "tension"]) { const r = promote(log, { card: c, 
 
 const claims = ["moser", "es", "tension"].map((id) => ({ id, title: id, body: phrase(log, id), status: statusOf(log, id), address: `bench#${log.entries.find((e) => e.kind === "card" && e.id === id).seq}` }));
 const rows = log.entries.filter((e) => e.kind === "run").map((r) => ({ id: r.id, title: `${r.role} · ${r.card}`, body: `result ${r.result} · ${r.ms}ms · scope ${r.scope.kind}`, address: `code sha256 ${r.codeSha.slice(0, 12)}`, chips: r.inputs.map((i) => `${i.ref} “${i.quote}”`) }));
+const registry = makeRegistry({ castTexts });
+const originConfig = { objects: { adapter: "named-beings", text: "" }, measures: { adapter: "quantities", text: "" } };
+const filled = fillSlots({ config: originConfig, registry, texts });
+// what the page cannot re-run itself (the cast organ is engine code): computed here, shipped as data
+const nodeContent = { objects: fillSlots({ config: { objects: originConfig.objects }, registry, texts }).content.objects };
+const sha = (t) => createHash("sha256").update(t).digest("hex").slice(0, 12);
 const { html } = renderDock({
   title: "Bench",
   content: {
-    subject: { items: claims, note: `chain ${verifyChain(log).ok ? "verified" : "BROKEN"} · ${log.entries.length} entries` },
-    measures: { items: [{ id: "h0-a", title: "H0 (SH0ES)", body: "73.04 ± 1.04 km/s/Mpc", address: "2112.04510v3#1447-1452" }, { id: "h0-b", title: "H0 (Planck)", body: "67.4 ± 0.5 km/s/Mpc", address: "1807.06209v4#1104-1108" }] },
-    rows: { items: rows },
+    subject: { items: claims, fixedOrigin: "the bench ledger — claims you wrote", note: `chain ${verifyChain(log).ok ? "verified" : "BROKEN"} · ${log.entries.length} entries` },
+    sources: { fixedOrigin: "the files you loaded", items: texts.map((t) => ({ id: t.name, title: t.name, body: `${t.text.length.toLocaleString()} chars`, address: `sha256 ${sha(t.text)}` })) },
+    objects: filled.content.objects ?? { items: [] },
+    measures: filled.content.measures ?? { items: [] },
+    rows: { items: rows, fixedOrigin: "the bench ledger — runs, with their code" },
   },
 });
-const page = `<!doctype html><meta charset=utf-8><title>Bench</title><style>body{font:15px system-ui;margin:2rem auto;max-width:60rem;padding:0 1rem}.slot{border-top:1px solid #8884;margin-top:1rem}.item{margin:.5rem 0}.addr,.chip{font:12px ui-monospace,monospace;margin-right:.5rem}.refused{color:#b00}.st{font-size:12px;padding:0 .4rem;border:1px solid #8886;border-radius:4px}details{margin:1rem 0}label{display:flex;gap:.5rem;margin:.2rem 0}input{flex:1}</style>
-<details><summary>Settings — rename handles</summary>${renderSettings({})}</details>${html}<script type=module>${SETTINGS_SCRIPT}</script>`;
+const page = `<!doctype html><meta charset=utf-8><title>Bench</title><style>body{font:15px system-ui;margin:2rem auto;max-width:60rem;padding:0 1rem}.slot{border-top:1px solid #8884;margin-top:1rem}.item{margin:.5rem 0}.addr,.chip{font:12px ui-monospace,monospace;margin-right:.5rem}.chip.origin{opacity:.7}.refused{color:#b00}.st{font-size:12px;padding:0 .4rem;border:1px solid #8886;border-radius:4px}details{margin:1rem 0}label{display:flex;gap:.5rem;margin:.2rem 0}input,textarea,select{flex:1;font:inherit}fieldset{margin:.5rem 0}.origin-fixed,.role{opacity:.65;margin:.2rem 0}.origin summary{cursor:pointer}</style>
+<details><summary>Settings — rename handles</summary>${renderSettings({})}</details>
+<details open><summary>Settings — where things come from</summary>${renderOriginSettings(originConfig, registry)}</details>${html}
+<script type=application/json id=fold-texts>${JSON.stringify(texts).replace(/</g, "\\u003c")}</script>
+<script type=application/json id=fold-node-content>${JSON.stringify(nodeContent).replace(/</g, "\\u003c")}</script>
+<script type=application/json id=fold-origin-default>${JSON.stringify(originConfig)}</script>
+<script type=module>${SETTINGS_SCRIPT}</script>`;
 fs.writeFileSync(path.join(out, "index.html"), page);
-fs.copyFileSync(path.join(HERE, "handles.mjs"), path.join(out, "handles.mjs"));
+for (const f of ["handles.mjs", "dock.mjs", "origins.mjs"]) fs.copyFileSync(path.join(HERE, f), path.join(out, f));
 fs.writeFileSync(path.join(out, "bench-log.json"), JSON.stringify(log, null, 1));
 console.log(`wrote ${out}/index.html  entries=${log.entries.length}  chain=${verifyChain(log).ok}`);
