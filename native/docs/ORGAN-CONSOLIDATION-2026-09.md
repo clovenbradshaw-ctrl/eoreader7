@@ -343,6 +343,82 @@ this duplication, and left untouched.
 
 ---
 
+## 5. `prosify.js` / `flesh2.js` — the shared admission shell lifted, one real bug fixed along the way (2026-09-28)
+
+**What it is.** F1 (`prosify.js`) and F2 (`flesh2.js`) are the two prose-
+generation stages of the essay pipeline: each draws text from the model,
+splits it into candidate units, and runs every candidate through
+`admission.js::admit()` to decide what actually joins the piece (P4's "two
+roads" — new matter, or motion that continues the prior landing).
+
+**The verified duplicate.** Both files hand-rolled an identical `admitAll`
+closure — the split-into-units loop, the `without`-scoped registry copy
+(a temporary Set with one candidate's own claim/matter words removed, for
+a redraw that must not see its own prior attempt as already-deposited),
+the deposit-twice bookkeeping, and the refusal/survivor/road accounting —
+around a call to `admit()`. Reading both side by side found the shells
+were mechanically the same and only the injected predicates differed —
+except one place where flesh2.js's copy had quietly gotten WEAKER than
+prosify.js's, not just differently-shaped: flesh2.js's `continues`
+fallback (used when a draft carries no `.referents` index) compared whole
+strings — `A.some((n) => B.includes(n))` over single-element arrays,
+which is really `candidate === priorLanding` — while prosify.js's fallback
+used `eot-draft.js`'s `namesOf` to check for a shared proper name. A
+candidate is essentially never byte-identical to the sentence before it,
+so flesh2.js's fallback path could not recognize a genuine continuing
+turn as motion at all; it could only ever admit via the "matter" road.
+
+**What shipped.** `admission.js` gained `admitCandidates(text, {...})` —
+the shared shell, with every essay-domain predicate (`isMeta`, `invented`,
+`continues`) kept as caller-injected parameters rather than hard-imported
+into `admission.js` itself, preserving this file's own stated law ("this
+file must not know what a river is, an essay is, or a name is"); only
+`isGrounded` gets a real default (built from `admission.js`'s own local
+`matterWords`, since both callers already built it identically). Both
+`prosify.js` and `flesh2.js`'s `admitAll` are now thin closures that
+forward to it, supplying their own `invented`/`continues`/`isMeta`
+exactly as before — `flesh2.js`'s `continues` fallback now uses the SAME
+`namesOf`-based check `prosify.js` already had, closing the weakness
+rather than merely relocating it. `prosify.js`'s own local `unitsOf`
+(the line/sentence splitter `admitCandidates` now performs) was deleted;
+unused imports (`admit`, `deposit`, `matterWords`, `claimCore`,
+`stripMouthQuoting`) were dropped from both files where the refactor left
+them unreferenced.
+
+**Falsification, not just a passing suite.** Added a direct unit test in
+`flesh2-falsify.test.mjs` constructing a candidate that shares a proper
+name with its prior landing but is forced ungrounded
+(`isGrounded: () => false`, isolating the `continues` path alone):
+confirmed the namesOf-based fallback admits it as motion, and — in the
+same test — confirmed the OLD whole-string-equality fallback, run side by
+side against the identical fixture, correctly does NOT. The first draft
+of this test used a shared common noun ("plan") and passed for the wrong
+reason (masked by an incidentally-grounded fixture and by `namesOf` only
+matching capitalized proper-name runs, not common nouns) — caught by
+reading the actual failure output rather than trusting the first green
+run, and rebuilt with a real capitalized shared name plus a forced
+`isGrounded: () => false` to isolate exactly what the fix changes.
+
+Verified: `admission-falsify.test.mjs` + `fiction-admission-falsify.test.mjs`
+53/53 (the new export is additive, `admit()` itself untouched);
+`prosify-falsify.test.mjs` 18/18; `flesh2-falsify.test.mjs` 4/4 (3
+pre-existing + the 1 new fallback-comparison case); `pipeline-run.mjs`'s
+module graph confirmed to still resolve and load cleanly (its own
+integration path, the actual production wiring point); the full
+`native/the-fold/` suite (512 tests) shows the identical 5 pre-existing
+failure names before and after, none naming admission, prosify, or
+flesh2.
+
+**Not done, disclosed rather than implied complete:** `finish.js`'s
+`arrive()` (a related, separately-named duplicate against
+`loop-check.js::measurePiece()` in the same batch-B finding) is a
+different function pair, not touched by this entry — left for its own
+pass. `wiki-base.js`, `archon-rules.js`, and `pipeline-run.mjs` consume
+`anchorsFor`/`carries` from `prosify.js`, which this entry did not touch
+at all (only the `unitsOf`/`admitAll` section changed).
+
+---
+
 *Entries below this line are added as the wider research pass's findings
 clear verification. An unverified hypothesis is never listed here as a
 finding — it stays in the research transcript until read, tested, and

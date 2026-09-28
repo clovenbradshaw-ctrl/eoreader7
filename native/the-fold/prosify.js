@@ -32,7 +32,7 @@
 // model told what not to say tends to say it (standing rule). The guardrails
 // are the admission and the floor, never the prompt.
 
-import { admit, deposit, measureVariance, measureBondNull, matterWords, segmentSentences, claimCore, stripMouthQuoting } from "./admission.js";
+import { admitCandidates, measureVariance, measureBondNull, segmentSentences } from "./admission.js";
 import { inventedNameRuns, isMetaSentence } from "./referent-verify.js";
 import { draftWords, namesOf, drawnParts } from "./eot-draft.js";
 import { isCommonWord } from "./pos-prior.js";
@@ -196,9 +196,6 @@ function coverage(part, sentences, anchors) {
  *  fourteen lines and the pipeline read them as four sentences, floored
  *  source prose into the poem and joined it all with spaces. A line is
  *  admitted by the same tests as a sentence and kept as a line. */
-const unitsOf = (text, unit) => (unit === "line"
-  ? String(text ?? "").split(/\n/).map((l) => stripMouthQuoting(l.replace(/^[-•*]\s+/, "").trim())).filter((l) => l.length > 3)
-  : segmentSentences(text).map(stripMouthQuoting).filter((x) => x.length > 20));
 
 export async function prosify(draft, { draw, voice = null, ground = "", task = "", maxTokens = 450, unit = "sentence", onRecord = null, onPart = null } = {}) {
   const variance = measureVariance(ground);
@@ -214,34 +211,19 @@ export async function prosify(draft, { draw, voice = null, ground = "", task = "
   const parts = [];
   let landing = "";
 
-  const admitAll = (text, { priorLanding, node, without = null }) => {
-    const survivors = [];
-    const roads = [];
-    const refusals = [];
-    let reg = registry;
-    if (without) {
-      reg = new Set(registry);
-      reg.delete(claimCore(without, variance));
-      for (const w of matterWords(without, ground, variance)) reg.delete(`w:${w}`);
-    }
-    for (const cand of unitsOf(text, unit)) {
-      if (isMetaSentence(cand)) { refusals.push({ kind: "meta", sentence: cand }); continue; }
-      const v = admit(cand, {
-        ground, priorLanding, instruction: task, registry: reg, variance, bondNull, verse: unit === "line",
-        isGrounded: (x) => matterWords(x, ground, variance).length > 0,
-        invented: (x) => inventedNameRuns(x, ground, { isCommonWord }),
-        continues: draft.referents
-          ? (a, b) => { const sub = draft.subjectRefs ?? new Set(); const B = draft.referents.resolveText(b); for (const id of draft.referents.resolveText(a)) if (B.has(id) && !sub.has(id)) return true; return false; }
-          : (a, b) => { const A = namesOf(a); const B = new Set(namesOf(b)); return A.some((n) => B.has(n)); },
-      });
-      if (!v.admit) { refusals.push({ kind: v.refused?.[0]?.kind ?? "refused", sentence: cand, basis: v.refused?.[0]?.basis ?? null }); continue; }
-      deposit(registry, v);
-      if (reg !== registry) deposit(reg, v);
-      survivors.push(cand);
-      roads.push(v.road);
-    }
-    return { survivors, roads, refusals, node };
-  };
+  // The split/admit/deposit shell is admission.js::admitCandidates (lifted
+  // 2026-09-28 from what was a hand-copied loop here and in flesh2.js) —
+  // this closure only supplies what is genuinely THIS pass's own: the
+  // essay-domain predicates (invented referents, referent-continuity
+  // "motion"), never re-derived bookkeeping.
+  const admitAll = (text, { priorLanding, node, without = null }) => admitCandidates(text, {
+    ground, priorLanding, instruction: task, registry, variance, bondNull, unit, without, node,
+    invented: (x) => inventedNameRuns(x, ground, { isCommonWord }),
+    continues: draft.referents
+      ? (a, b) => { const sub = draft.subjectRefs ?? new Set(); const B = draft.referents.resolveText(b); for (const id of draft.referents.resolveText(a)) if (B.has(id) && !sub.has(id)) return true; return false; }
+      : (a, b) => { const A = namesOf(a); const B = new Set(namesOf(b)); return A.some((n) => B.has(n)); },
+    isMeta: isMetaSentence,
+  });
 
   for (let pi = 0; pi < drawnParts(draft).length; pi++) {
     const part = drawnParts(draft)[pi];
