@@ -799,3 +799,98 @@ Verified: `resolutions-parity.test.mjs` 2/2. `native/organs/what.test.mjs
 native/tests/code-name-split.test.js native/tests/code-structure.test.js`
 (the three other real `dmdCut` consumers) — 27/28, the same 1
 pre-existing, unrelated failure as before this change.
+
+## 15. `capacity-runner.js::mergeTestimony` — the two "testimony" pipelines, disambiguated (2026-09-28)
+
+Not a merge — a comment, because the finding's own investigation confirmed
+they should never be one. The-fold's witness/testimony/citation family
+(`witness.js`, `testimony.js`, `crown.js`, `misquote.js`, `quotes.js`,
+`quoting.js`, `links.js`, `primary.js`, `wikidata.js`) and this file's
+`mergeTestimony` share the English word "testimony" and nothing else:
+`mergeTestimony` operates on `perSourceReadings` — mechanical
+`hypergraph.js::judge()` verdicts landed via `grid.js` `evaluate` acts
+(the-fold's `app.js::crownTestimony`, the `/facts` composer) — zero model
+calls anywhere in that path. The REAL LLM-witness protocol lives entirely
+in `organs/testimony.js` (`foldTestimony`/`foldSelect`/`WITNESS_SCHEMA`,
+consumed by `corroboration.js::witnessNote` → `witness-sentences.js`/
+`ranke.js`/`bridge-witness.js`/`connector-witness.js`) and is never called
+from `mergeTestimony`'s own call chain, confirmed by tracing every real
+call site in `app.js`/`holon.js` — the two never appear in the same
+function body anywhere in either repo.
+
+Added a disclosure comment directly above `mergeTestimony`'s definition
+stating this plainly, so a future pass does not attempt to fold the two
+pipelines together on the strength of a shared name alone.
+
+Verified: comment-only addition, `node --check` passes, zero behavior
+change.
+
+## 16. The holograph-named files — a fresh, current-state audit, 10 real modules, no code duplication (2026-09-28)
+
+A separate, targeted audit (five parallel investigations + direct
+re-verification of the two most disputable claims) covered every file with
+"holograph" in the name across both repos: `the-fold/holograph.js`
+(per-conversation UI render, unwired), `organs/output-holograph.js`
+(per-turn binary safety gate — LIVE, "THE HOLOGRAPH ENFORCEMENT" in
+`proxy-runner.mjs`), `native/the-fold/proposition-holograph.js` (stateful
+essay-composition memory — dead code, only its own test imports it), the
+`document-holograph.mjs`/`lib/document-holograph.mjs` driver/lib split,
+`holograph-compression.mjs`/`holograph-reading.mjs` (two different eval
+measurements), `cli/holograph.mjs` (TUI loader, built+tested, not wired
+into the real CLI dispatcher), and the `plans/`-directory demo scripts.
+
+**Verdict: no logic duplication.** Ten distinct code modules doing ten
+genuinely different jobs; no falsification attempt (a constructed
+swap-input case per pair) succeeded for any live pair. The one place two
+files' logic genuinely overlaps (verbatim/inflected triple-matching,
+shared between `output-holograph.js` and the dead
+`proposition-holograph.js`) sits in code with no live caller, so there is
+no active collision.
+
+**What WAS real, and fixed here** (all documentation/wiring drift, not
+logic):
+1. `native/eval/the-fold/results/document-holograph-RESULTS.md` transcribed
+   a `--source <body> --gold <summary>` CLI interface the driver no longer
+   supports (replaced by `--run <conversation-dir> [--question]`, S65) —
+   added a note pointing at the successor
+   `document-holograph-constitutional-RESULTS.md`, which already uses the
+   current interface.
+2. `native/docs/THE-HOLOGRAPH.md` §9's "Pending numbers" line was stale
+   against its own §6, which already reports the level-1/level-3
+   compression-ladder measurement landed and corrected — split into
+   landed (that one comparison) vs. genuinely still-pending (the full
+   five-point A0–A1 ladder; both `holograph-reading.mjs` runs, which have
+   no results file anywhere in the checkout).
+3. `LAVAR.md` cited a specific measured statistic ("ADDRESS 5/23, redealt
+   band [0,2] over 199 draws, p=0.0050") attributed to a script,
+   `holograph-redeal.mjs`, confirmed absent from the checkout and its
+   entire git history — worse than stale, an unreproducible claim of a
+   completed run. The redealt-address control it describes is real, but
+   lives inside `holograph-reading.mjs` itself (`controlRows`/`CONTROL`
+   arm), never a separate file. Annotated the claim as disclosed-but-
+   unreproduced rather than silently deleted.
+4. `cli/holograph.mjs`'s header cited a nonexistent producer path
+   (`native/eval/lavar/holograph.mjs`) for the `EOHolographOutput@1`
+   shape it loads. Corrected to name the real producer
+   (`OUTPUT_HOLOGRAPH_SCHEMA` in `organs/output-holograph.js`, confirmed
+   by direct shape comparison against the two committed sample files) and
+   disclose that `lavar-read.mjs` — the file most likely originally meant
+   — now writes an incompatible shape that would throw if fed to this
+   loader; which run produced the committed samples is not recoverable
+   from the current checkout.
+5. `plans/metro-code/build-holograph-surface.mjs` hand-duplicated the
+   `EOHolographOutput@1` schema string instead of importing
+   `OUTPUT_HOLOGRAPH_SCHEMA`. Fixed to import the real constant; confirmed
+   the regenerated `holograph.json`/`metro-code-holograph.html` outputs
+   are byte-identical to before (a true no-op refactor).
+
+**Named, not fixed:** `app.js::holographIndex()` (the-fold) still builds a
+presence index (`discoverReferents(extractSurfaces(...))`) rather than
+reading the constitutional reader's log via `READING_CONSTITUTIONAL` —
+exactly the violation THE-HOLOGRAPH.md §7 already names, which the general
+P176 fix landed elsewhere in `app.js` but never reached this specific
+caller. Left unfixed here deliberately: `holographModel()` (its only
+caller) has zero callers of its OWN anywhere in the repo, so this is inert
+today, and `app.js` is a large, actively multi-session-edited file this
+consolidation effort does not otherwise reach into — a real, scoped,
+disclosed follow-up rather than a speculative fix to unowned code.
