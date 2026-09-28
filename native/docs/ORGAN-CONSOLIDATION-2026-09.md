@@ -1321,3 +1321,65 @@ the real sweep end to end (`node scripts/kleene-up.mjs`) — completes
 cleanly, regenerates the tracked `kleeneup-report.json` (a normal,
 reviewable diff for a generated artifact, as the recommendation itself
 anticipated).
+
+## 29. `relation-priors-i18n.js` — re-measured against real UDHR text, a real bug found in the shared negation mechanism (2026-09-28)
+
+`relations-language.js`/`relations-gfp.js`/`relations-positional.js`/
+`relations-case-marked.js` confirmed still three genuinely distinct
+mechanisms behind a genuinely harmless 2-way dispatcher — left untouched.
+
+Re-measured `relation-priors-i18n.js`'s own header claim ("this file
+closes that gap for the three languages...") directly against
+`discoverRelationVocab`/`extractRelations`, end to end, on real UDHR
+fixtures (`spa`/`arb`/`cmn_hans`, copied from `live_priors/
+06-government-legal/un-udhr/` — public-domain UN text, the same
+copy-not-reach-across-repos convention this project's fixtures already
+follow) — NOT trusting an earlier investigation's own cited counts,
+which this fresh measurement found do not reproduce on the current
+checkout (an actively multi-session-edited codebase; the discrepancy is
+plausibly real code drift in the hours between the two measurements,
+not a methodology error in either). The real, current, VERIFIED
+invariant: injecting a language's closed classes never adds, removes,
+or changes an edge's CONTENT — only `polarity` may differ, and only
+where a real negation word sits in the pre-verb window. On the real
+fixtures today: Spanish shows several real, non-vacuous polarity
+corrections; Arabic ALSO shows at least one real correction on its own
+body text (contradicting an earlier, narrower "Arabic is fully inert"
+claim); Mandarin remains fully inert, blocked upstream by `relations.js`'s
+own bare-whitespace tokenizer.
+
+**A real, unrelated defect found while building the falsification
+control**, disclosed rather than fixed: `relations.js::negationBeforeVerbFor`
+mishandles an EMPTY `negationWords` Set — rather than meaning "this
+language has no negation markers" (correctly matching nothing), the
+empty alternation it builds is a zero-width pattern that matches almost
+everywhere, flipping EVERY extracted edge to negative (confirmed:
+134/134 on the Spanish fixture). No currently-registered language
+triggers it (all three declare real, non-empty negation sets — negation
+is close to a linguistic universal, unlike, say, determiners, so an
+empty set is an unlikely typological answer here), but it is a live
+landmine for any future language or any other `extractRelations` caller
+that might legitimately pass one. Out of scope to fix here — it touches
+the shared mechanism every caller of `extractRelations` depends on and
+needs its own dedicated verification pass, not a drive-by patch inside
+an i18n-priors entry.
+
+Added `relation-priors-i18n.test.mjs`: pins the content-preserving
+invariant for all three languages (never a brittle exact count), plus a
+Spanish non-vacuousness check using a NON-EMPTY, non-matching control
+Set (never an empty one — that was the falsification method that
+surfaced the bug above). Rewrote the file's own header to state the
+measured truth rather than the earlier overclaim, and to disclose the
+`negationBeforeVerbFor` finding in place.
+
+Did NOT attempt to "wire `relation-priors-i18n.js` into a real
+production caller" — for the language whose effect is genuinely
+inert (Mandarin) that would dress up a no-op as a live integration; a
+real production wiring decision belongs with entry 21's own dispatch
+question (`relations-language.js` + `reader-bundle.js`), not duplicated
+here.
+
+Verified: `relation-priors-i18n.test.mjs` 4/4. Full
+`native/adapters/text/*.test.mjs`: 75/95, 1 pre-existing unrelated
+failure (confirmed identical to the one already surfaced in entry 18),
+19 skipped (missing per-checkout fixtures).
