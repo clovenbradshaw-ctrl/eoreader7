@@ -88,6 +88,10 @@ the plant had no seeds, and called it the male southernwood.”’”
  *  counts are identical (every start position where the surface's words
  *  match, overlaps included, in sentence order). */
 export function contextVectors(sentences, surfaces, { clean } = {}) {
+  // An EOCompanyIndex@1 (organs/company-index.js) answers from what it has
+  // already read; its own cleaner was fixed at creation, so `clean` here is
+  // the index's, never re-applied.
+  if (sentences?.schema === "EOCompanyIndex@1" && typeof sentences.vectors === "function") return sentences.vectors(surfaces);
   const toks = clean ?? ((t) => t.replace(/^[^\p{L}]+|[^\p{L}'’]+$/gu, ""));
   const vecs = new Map(surfaces.map((s) => [s, new Map()]));
   const parts = surfaces.map((s) => s.split(" "));
@@ -224,6 +228,7 @@ export function discoverCompanyKinds(sentences, vocabulary, { minMentions, minSh
   // stream's "d5" cleaned to "d", so no vocabulary word ever matched and
   // the kinds were silently empty). A non-text caller declares its own
   // cleaner (identity, usually); the default stays for text callers.
+  if (nullArm && sentences?.schema === "EOCompanyIndex@1") throw new TypeError("discoverCompanyKinds: the null arm shuffles sentences it is handed — hand it sentences, never an index");
   const vecs = contextVectors(sentences, vocabulary, { clean });
   const bySignature = new Map();
   for (const [word, v] of vecs) {

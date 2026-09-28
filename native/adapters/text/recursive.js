@@ -6,6 +6,7 @@ import { tokenize, buildFrequencyTable, functionWordSet } from "./material.js";
 import { splitSentences } from "./spans.js";
 import { createSurfaceEvidence, accumulateSurfaceEvidence, surfacesFromEvidence, discoverReferents, diaNorm } from "./surfaces.js";
 import { heardSurfaces } from "../../organs/heard-surfaces.js";
+import { createCompanyIndex } from "../../organs/company-index.js";
 import { classifyWord, dominantClass } from "./wordclass.js";
 import { GRAMMAR_MIN_SHARE } from "./grain-typing.js";
 import { relationExtractorsFor } from "./relations-language.js";
@@ -614,7 +615,10 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       }
       let heard = [];
       if (posPrior) {
-        try { heard = heardSurfaces(priorSentences, { minMentions: 2, minShare: 0.3, minMembers: 2, posPrior, classifyWord, dominantClass }); }
+        // The past is read once (organs/company-index.js): the index lives in
+        // the cache and heardSurfaces adds only the sentences it has not seen.
+        if (!cache.companyIndex) cache = { ...cache, companyIndex: createCompanyIndex() };
+        try { heard = heardSurfaces(priorSentences, { minMentions: 2, minShare: 0.3, minMembers: 2, posPrior, classifyWord, dominantClass, index: cache.companyIndex }); }
         catch { heard = []; }
       }
       if (heard.length && process.env.ER7_DEBUG_READER === "1") console.error(`[recursive] heardSurfaces added ${heard.length}: ${heard.map((h)=>h.surface).join(',')}`);
@@ -671,6 +675,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       born: discovered?.addresses?.born ?? cache.born,
       bornNext: discovered?.addresses?.next ?? cache.bornNext,
       verbs: admittedRelationVerbs(relationEvidence, minRelationSurfaces, posPrior, language),
+      companyIndex: cache.companyIndex,
     };
   };
 
