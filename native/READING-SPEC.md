@@ -201,6 +201,16 @@ order statistics, never by arithmetic mean of ratios (the rhythm prior's
 median and the surprise meter's max comply); a floor declared on a
 decayed quantity is a cross-class number and says so.
 
+*Amended 2026-09-28 (native/docs/THE-CAPACITY-MAP.md §7).* The ladder's order was put to a
+pre-registered test on real material. Standing raised the split-half reliability of pair
+direction — a graded dependence, small, positive in three of four materials — and was not a
+precondition for it (the plays' non-standing pairs were reproducible too; one novel inverted, on
+a single effective stratum of very sparse events). The order between classes is therefore read
+here as a discipline about what a claim may be *called* (S10's rule stands), not as a measured
+precondition of one rung's reliability on another's. The same tests showed the class of a
+*quantity* (S10's tiers) is not the class of the *act* that computes it (the cube's domains): the
+pair direction is a transcendental quantity computed inside a Structure-domain act.
+
 ## S11 — A type-level tally never answers an occurrence-level question
 
 > **giver:** earned-here — daccec2

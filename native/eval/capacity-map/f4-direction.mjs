@@ -43,13 +43,15 @@ const standingPairs = (beings, W) => {
 const keyOf = (p) => `${p.a}\u0000${p.b}`;
 
 /** One variant's verdict from pooled records (one or many readings). */
-function verdictOf(recs, R) {
-  const tc = terciles(recs.map((r) => r.L));
+function verdictOf(recs, R, { exactL = false } = {}) {
+  // strata: terciles of lag events (the pre-registered stratifier), or — as a robustness row added after
+  // the first results — every distinct L its own stratum (capped at 12, declared) for exact volume matching
+  const tc = exactL ? (L) => Math.min(L, 12) : terciles(recs.map((r) => r.L));
   recs.forEach((r) => { r.stratum = tc(r.L); });
   const S = groupStat(recs.filter((r) => r.group === "S").map((r) => r.ind), R);
   const N = groupStat(recs.filter((r) => r.group === "N").map((r) => r.ind), R);
   const contrast = stratifiedContrast(recs, R, CFG.PERMS, CFG.PERM_SEED);
-  const byStratum = [0, 1, 2].map((k) => ({
+  const byStratum = [...new Set(recs.map((r) => r.stratum))].sort((a, b) => a - b).map((k) => ({
     stratum: k,
     S: groupStat(recs.filter((r) => r.group === "S" && r.stratum === k).map((r) => r.ind), R),
     N: groupStat(recs.filter((r) => r.group === "N" && r.stratum === k).map((r) => r.ind), R),
@@ -189,6 +191,8 @@ function plays(path) {
   const primaryName = `primary W=${c.W} B=${B}`;
   results.variants[primaryName] = verdictOf(pooled.get(c.W), CFG.R);
   line(primaryName, results.variants[primaryName]);
+  results.variants[`robust exact-L strata W=${c.W} B=${B}`] = verdictOf(pooled.get(c.W), CFG.R, { exactL: true });
+  line(`robust exact-L strata W=${c.W}`, results.variants[`robust exact-L strata W=${c.W} B=${B}`]);
   for (const W of c.W_ROBUST) {
     const name = `robust W=${W} B=${B}`;
     results.variants[name] = verdictOf(pooled.get(W), CFG.R);

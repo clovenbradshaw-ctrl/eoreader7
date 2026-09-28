@@ -6,10 +6,13 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { DOMAINS, GRAINS, MODES, STANCE_BY_MODE, TERRAIN_BY_DOMAIN, cellOf } from "../kernel/cube.js";
 import {
-  CLASS_DOMAIN, CLASS_IDS, CROSSINGS, NO_CROSSINGS, PLACES, POSITIONS, UNSUPPORTED_CROSSINGS,
+  CLASS_DOMAIN, CLASS_IDS, CROSSINGS, DECLARED_CROSSINGS, NO_CROSSINGS, PLACES, POSITIONS, UNSUPPORTED_CROSSINGS,
   admissible, admissibleSpace, balancedRoutes, countRoutes, describe, dressed, label, nextSteps,
   orderOf, placeOf, placeReached, positionOfOrder, prerequisites, profile, ringOfOrder, routes, space, spread, terrainAt,
 } from "../kernel/capacity-map.js";
+
+// The strict order is a HYPOTHESIS the pre-registered tests did not support; its arithmetic is still checked, explicitly.
+const STRICT = { crossings: DECLARED_CROSSINGS };
 
 const SRC = readFileSync(new URL("../kernel/capacity-map.js", import.meta.url), "utf8");
 // executable source: comments removed, so a header may quote the sources without tripping a scan
@@ -91,15 +94,15 @@ const choose = (n, k) => (k === 0 ? 1 : (n * choose(n - 1, k - 1)) / k);
 
 test("F2: 27 profiles in the first ring; 10 admissible under the strict rule (= C(5,3))", () => {
   assert.equal(space({ rings: 1 }).length, 27);
-  assert.equal(admissibleSpace({ rings: 1 }).length, 10);
-  assert.equal(admissibleSpace({ rings: 1 }).length, choose(5, 3), "weakly decreasing triples over 3 orders: multichoose(3,3)");
+  assert.equal(admissibleSpace({ rings: 1, ...STRICT }).length, 10);
+  assert.equal(admissibleSpace({ rings: 1, ...STRICT }).length, choose(5, 3), "weakly decreasing triples over 3 orders: multichoose(3,3)");
   assert.equal(admissibleSpace({ rings: 1, crossings: NO_CROSSINGS }).length, 27);
 });
 
 test("F2: 5 admissible routes (= standard Young tableaux of the 3x2 shape), by DP, by enumeration, and by an independent brute force", () => {
-  assert.equal(countRoutes(), 5);
-  assert.equal(countRoutes(), hook([3, 2]));
-  const mine = routes();
+  assert.equal(countRoutes(STRICT), 5);
+  assert.equal(countRoutes(STRICT), hook([3, 2]));
+  const mine = routes(STRICT);
   assert.equal(mine.length, 5);
   const brute = multiset(["A", "A", "G", "G", "T", "T"]).filter(isLatticeWord).sort();
   const short = { arithmetic: "A", geometric: "G", transcendental: "T" };
@@ -108,22 +111,30 @@ test("F2: 5 admissible routes (= standard Young tableaux of the 3x2 shape), by D
 });
 
 test("F2: exactly one balanced route — arithmetic, geometric, transcendental in turn — and its spread never exceeds 1", () => {
-  const balanced = balancedRoutes();
+  const balanced = balancedRoutes(STRICT);
   assert.equal(balanced.length, 1);
   assert.deepEqual([...balanced[0]], ["arithmetic", "geometric", "transcendental", "arithmetic", "geometric", "transcendental"]);
 });
 
 test("F2: 42 routes carry the spiral to the next ring's ground; 90 with no rule (= 6!/(2!)^3)", () => {
   const ring2 = profile({ arithmetic: 3, geometric: 3, transcendental: 3 });
-  assert.equal(countRoutes({ to: ring2 }), 42);
-  assert.equal(countRoutes({ to: ring2 }), hook([3, 3]));
+  assert.equal(countRoutes({ to: ring2, ...STRICT }), 42);
+  assert.equal(countRoutes({ to: ring2, ...STRICT }), hook([3, 3]));
   assert.equal(countRoutes({ crossings: NO_CROSSINGS }), 90);
   const fact = (n) => (n <= 1 ? 1 : n * fact(n - 1));
   assert.equal(countRoutes({ crossings: NO_CROSSINGS }), fact(6) / (fact(2) ** 3));
 });
 
+test("the default lattice, with nothing enforced: 27 profiles, 90 routes, 36 balanced (each triple of steps advances every class once: 3! x 3!)", () => {
+  assert.equal(CROSSINGS.length, 0);
+  assert.equal(admissibleSpace().length, 27);
+  assert.equal(countRoutes(), 90);
+  assert.equal(balancedRoutes().length, 36);
+  assert.equal(balancedRoutes().length, 6 * 6);
+});
+
 test("F2: weakening the rule to one crossing gives the brute-force count (reported, not predicted)", () => {
-  const onlyAG = CROSSINGS.filter((c) => c.higher === "geometric");
+  const onlyAG = DECLARED_CROSSINGS.filter((c) => c.higher === "geometric");
   assert.equal(onlyAG.length, 1);
   const brute = multiset(["A", "A", "G", "G", "T", "T"]).filter((w) => {
     let a = 0, g = 0;
@@ -135,19 +146,19 @@ test("F2: weakening the rule to one crossing gives the brute-force count (report
 
 test("F2: a span too long to read is a typed gap, not a silent truncation — and DP still counts it", () => {
   const far = profile({ arithmetic: 8, geometric: 8, transcendental: 8 });
-  assert.ok(countRoutes({ to: far }) > 1000);
-  assert.equal(routes({ to: far }).gap, "too_many_routes");
+  assert.ok(countRoutes({ to: far, ...STRICT }) > 1000);
+  assert.equal(routes({ to: far, ...STRICT }).gap, "too_many_routes");
 });
 
 // ── the walls the header claims ─────────────────────────────────────────────
 
 test("admissibility: the rule bites (control built to fail), and a violation names which crossing", () => {
   const ahead = profile({ arithmetic: 0, geometric: 0, transcendental: 1 });
-  const ok = admissible(ahead);
+  const ok = admissible(ahead, STRICT);
   assert.equal(ok.ok, false);
   assert.deepEqual(ok.violations.map((v) => [v.higher, v.lower]), [["transcendental", "geometric"]]);
   assert.equal(admissible(ahead, { crossings: NO_CROSSINGS }).ok, true, "with no crossing declared the same profile is admissible — the rule, not the arithmetic, refuses it");
-  assert.equal(admissible(profile({ arithmetic: 2, geometric: 1, transcendental: 1 })).ok, true);
+  assert.equal(admissible(profile({ arithmetic: 2, geometric: 1, transcendental: 1 }), STRICT).ok, true);
 });
 
 test("no view from nowhere: a class with no ground is a typed gap, never order zero", () => {
@@ -170,7 +181,7 @@ test("the spiral is the same lattice continued: order 3 is the next ring's groun
 });
 
 test("prerequisites: what a place needs under the crossing rule, and nothing it does not", () => {
-  const need = prerequisites("transcendental", 1).map((p) => p.terrain).sort();
+  const need = prerequisites("transcendental", 1, STRICT).map((p) => p.terrain).sort();
   const expected = [
     terrainAt("arithmetic", GRAINS[0]), terrainAt("arithmetic", GRAINS[1]),
     terrainAt("geometric", GRAINS[0]), terrainAt("geometric", GRAINS[1]),
@@ -182,7 +193,7 @@ test("prerequisites: what a place needs under the crossing rule, and nothing it 
 });
 
 test("nextSteps: a refusal says what must advance first", () => {
-  const steps = nextSteps(profile({ arithmetic: 0, geometric: 0, transcendental: 0 }));
+  const steps = nextSteps(profile({ arithmetic: 0, geometric: 0, transcendental: 0 }), STRICT);
   const by = Object.fromEntries(steps.map((s) => [s.klass, s]));
   assert.equal(by.arithmetic.ok, true);
   assert.equal(by.geometric.ok, false);
@@ -213,7 +224,7 @@ test("placeReached: a run from the ground; a reached place with an unreached one
 test("dressed: over-claims are S10's only where S10 names them; an out-of-order claim names the over-claimed class", () => {
   const claimed = profile({ arithmetic: 2, geometric: 2, transcendental: 2 });
   const earned = profile({ arithmetic: 1, geometric: 1, transcendental: 0 });
-  const d = dressed({ claimed, earned });
+  const d = dressed({ claimed, earned }, STRICT);
   assert.deepEqual([...d.dressedClasses], ["arithmetic", "geometric", "transcendental"]);
   const by = Object.fromEntries(d.rows.map((r) => [r.klass, r]));
   assert.equal(by.arithmetic.mode, null, "S10 names no failure mode for the arithmetic class — the map does not invent one");
@@ -221,16 +232,29 @@ test("dressed: over-claims are S10's only where S10 names them; an out-of-order 
   assert.match(by.transcendental.mode, /failure mode 3/);
   assert.equal(d.earnedOrder.ok, true);
 
-  const outOfOrder = dressed({ claimed: profile({ arithmetic: 1, geometric: 2, transcendental: 2 }), earned });
+  const outOfOrder = dressed({ claimed: profile({ arithmetic: 1, geometric: 2, transcendental: 2 }), earned }, STRICT);
   assert.deepEqual(outOfOrder.claimedOrder.violations.map((v) => [v.higher, v.lower]), [["geometric", "arithmetic"]]);
 });
 
-test("the map carries its own falsification history: every declared crossing is either in force or kept as unsupported", () => {
-  const declared = new Set(["geometric<=arithmetic", "transcendental<=geometric"]);
-  const held = [...CROSSINGS, ...UNSUPPORTED_CROSSINGS].map((c) => `${c.higher}<=${c.lower}`);
+test("the map carries its own falsification history: every declared crossing is either in force or kept as unsupported, never both, never lost", () => {
+  const key = (c) => `${c.higher}<=${c.lower}`;
+  const declared = new Set(DECLARED_CROSSINGS.map(key));
+  assert.equal(declared.size, 2);
+  const held = [...CROSSINGS, ...UNSUPPORTED_CROSSINGS].map(key);
   assert.deepEqual(new Set(held), declared);
   assert.equal(held.length, declared.size, "a crossing may move between the lists but never appear in both or vanish");
-  for (const c of UNSUPPORTED_CROSSINGS) assert.ok(c.result, "an unsupported crossing must carry the result that removed it");
+  for (const c of UNSUPPORTED_CROSSINGS) {
+    assert.ok(c.result?.rule && c.result?.reading, "an unsupported crossing carries the rule that judged it and the reading of the outcome");
+    assert.ok(c.evidence.length > 0, "and the files that hold the runs");
+  }
+});
+
+test("the default is what the evidence left: with both crossings unsupported nothing is enforced, and the strict pair is still there to be asked for", () => {
+  assert.equal(CROSSINGS.length, DECLARED_CROSSINGS.length - UNSUPPORTED_CROSSINGS.length);
+  assert.equal(admissibleSpace({ rings: 1 }).length, CROSSINGS.length === 0 ? 27 : admissibleSpace({ rings: 1 }).length);
+  assert.equal(admissibleSpace({ rings: 1, ...STRICT }).length, 10);
+  // within a class the ground-before-figure-before-pattern chain is not a crossing and is still a prerequisite
+  assert.deepEqual(prerequisites("transcendental", 1).filter((p) => p.klass === "transcendental").map((p) => p.order), [0]);
 });
 
 test("label and spread are plain", () => {

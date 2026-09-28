@@ -229,3 +229,5 @@ export * as solon from "./solon.js";
 // ---- which fold, for whom (2026-09-28)
 export { planFold, INTERPRETIVE } from "./fold-plan.js";
 export * as foldPlan from "./fold-plan.js";
+export { MEASUREMENT_GAP, hasMeasurementGap, placeFromRegistries, profileOfTerrains } from "./capacity-place.js";
+export * as capacityPlace from "./capacity-place.js";

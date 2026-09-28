@@ -141,26 +141,78 @@ export const label = (p) => (p?.gap ? `(${p.gap})` : CLASS_IDS.map((k) => `${k[0
 // ── the crossing rule, as data ──────────────────────────────────────────────
 // A crossing says: order(higher) <= order(lower). Both are READING-SPEC S10 and
 // THE-THREE-MATHEMATICS section VII read per claim ("a claim's unit before its
-// edge before its integral"); as an ORDER over profiles it is this map's own
-// extension, and the pre-registered tests decide which crossings stay.
+// edge before its integral"); as an ORDER over profiles it was this map's own
+// extension, and it was PUT TO THE TEST (native/docs/THE-CAPACITY-MAP.md, F3-F5,
+// native/eval/capacity-map/). Three lists keep the history in one place:
+//   DECLARED_CROSSINGS     the hypothesis as registered, before any run
+//   UNSUPPORTED_CROSSINGS  the ones the pre-registered rules did NOT support, each with the
+//                          rule, the outcomes and the evidence files
+//   CROSSINGS              what is in force by default = declared minus unsupported
+// A crossing moves between lists; it never vanishes and never appears in two
+// (capacity-map.test.js pins that, and pins each recorded outcome against the committed
+// raw results, so this history cannot drift from the runs it summarises).
 
-export const CROSSINGS = freeze([
+const declared = (higher, lower, reads, giver) => freeze({ higher, lower, reads, giver });
+
+export const DECLARED_CROSSINGS = freeze([
+  declared(
+    "geometric",
+    "arithmetic",
+    "a standing rests on units whose identity was earned — you cannot cut what has no units",
+    "THE-THREE-MATHEMATICS section VII; READING-SPEC S10 (count sets what is possible)",
+  ),
+  declared(
+    "transcendental",
+    "geometric",
+    "a direction rests on the standing that earns its probability semantics — you cannot bound what has no shape",
+    "THE-THREE-MATHEMATICS section VII; READING-SPEC S10 (failure mode 3)",
+  ),
+]);
+
+const crossingOf = (higher, lower) => DECLARED_CROSSINGS.find((c) => c.higher === higher && c.lower === lower);
+
+/** Crossings the evidence did not support: removed from CROSSINGS, kept here with the result. */
+export const UNSUPPORTED_CROSSINGS = freeze([
   freeze({
-    higher: "geometric",
-    lower: "arithmetic",
-    reads: "a standing rests on units whose identity was earned — you cannot cut what has no units",
-    giver: "THE-THREE-MATHEMATICS section VII; READING-SPEC S10 (count sets what is possible)",
+    ...crossingOf("transcendental", "geometric"),
+    result: freeze({
+      rule: "supported iff SUPPORTED on the plays and on at least 2 of the 3 novels, with no FALSIFIED-* anywhere at the primary setting (F4)",
+      outcomes: freeze({ dracula: "SUPPORTED", "pride-and-prejudice": "SUPPORTED", frankenstein: "FALSIFIED-INVERSE", "shakespeare-plays": "MIXED" }),
+      reading:
+        "not supported as a precondition. Standing raised the split-half reliability of direction within volume strata in three of four materials (a graded dependence), but direction was also reproducible without standing in one of them, and the one inversion rests on a single effective stratum of very sparse events that does not survive exact volume matching.",
+    }),
+    evidence: freeze([
+      "eval/capacity-map/results/f4-dracula.json",
+      "eval/capacity-map/results/f4-pride.json",
+      "eval/capacity-map/results/f4-frankenstein.json",
+      "eval/capacity-map/results/f4-plays.json",
+      "eval/capacity-map/results/f4-diagnose-frankenstein.json",
+    ]),
   }),
   freeze({
-    higher: "transcendental",
-    lower: "geometric",
-    reads: "a direction rests on the standing that earns its probability semantics — you cannot bound what has no shape",
-    giver: "THE-THREE-MATHEMATICS section VII; READING-SPEC S10 (failure mode 3)",
+    ...crossingOf("geometric", "arithmetic"),
+    result: freeze({
+      rule: "consequential iff self-edge share >= 0.20 and Fisher p < 0.01 and above the permuted-label 95th percentile, on at least 2 of the 3 books (F5)",
+      outcomes: freeze({ overall: "MIXED", consequentialOn: "0 of 3" }),
+      followUp: freeze({
+        registered: "F5' (THE-CAPACITY-MAP.md section 8), before it was run on any held-out book",
+        rule: "consequential iff repairing the extent removes at least 0.20 of the top standing edges' bare-honorific endpoints, beyond an equal-sized placebo merge, on at least 2 of 3 held-out books",
+        outcomes: freeze({ heldOut: "0 of 3", development: "1 of 3 (one book, effect 0.40)" }),
+      }),
+      reading:
+        "not supported. The first measure took the engine's own clusters as 'the same being' and was blind to a unit that is not a being standing beside the names it accompanies. The follow-up built on what that blindness hid was registered and tested on books it had not touched: the defect is real, and specific to how a book uses honorifics (one development book 0.40; held-out books 0.00 to 0.05), so it is recorded as a measured limit of two places (LIMITS in organs/capacity-place.js), not as a law of the order.",
+    }),
+    evidence: freeze([
+      "eval/capacity-map/results/f5-units.json",
+      "eval/capacity-map/results/f5c-bare-titles.json",
+      "eval/capacity-map/results/f5p-heldout.json",
+      "eval/capacity-map/results/f5p-development.json",
+    ]),
   }),
 ]);
 
-/** Crossings the evidence did not support: removed from CROSSINGS, kept here with the result. */
-export const UNSUPPORTED_CROSSINGS = freeze([]);
+/** What is in force by default: the declared crossings the evidence did not remove. */
+export const CROSSINGS = freeze(DECLARED_CROSSINGS.filter((c) => !UNSUPPORTED_CROSSINGS.some((u) => u.higher === c.higher && u.lower === c.lower)));
 
 /** No crossing declared: every profile admissible. The control that shows the rule bites. */
 export const NO_CROSSINGS = freeze([]);

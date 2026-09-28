@@ -1,0 +1,217 @@
+{
+ "config": {
+  "K": 80,
+  "W": 8,
+  "DRAWS": 199,
+  "ALPHA": 0.05,
+  "SEED": 20260812,
+  "TOP": 20,
+  "BAR": 0.2,
+  "PLACEBO_SEED": 7
+ },
+ "role": "development",
+ "overall": {
+  "note": "exploratory replication — not counted in the decision",
+  "consequentialOn": "1 of 3"
+ },
+ "books": [
+  {
+   "book": "pg345_Dracula.txt",
+   "merges": 127,
+   "asSplit": {
+    "N": 9456,
+    "share": 0.15,
+    "bareTitleBeings": [
+     "mrs:89",
+     "miss:21",
+     "mr:11",
+     "herr:7",
+     "king:6"
+    ],
+    "allEdgesWithBare": 24,
+    "standingEdges": 301,
+    "examples": [
+     "harker — mrs (140)",
+     "lucy — mrs (69)",
+     "van_helsing — mrs (65)"
+    ],
+    "audit": {
+     "sentencesWithHonorificDot": 403,
+     "endingInIt": 127
+    }
+   },
+   "repaired": {
+    "N": 9329,
+    "share": 0,
+    "bareTitleBeings": [
+     "miss:20",
+     "mr:11",
+     "herr:7",
+     "king:6"
+    ],
+    "allEdgesWithBare": 20,
+    "standingEdges": 310,
+    "examples": [],
+    "audit": {
+     "sentencesWithHonorificDot": 401,
+     "endingInIt": 0
+    }
+   },
+   "placebo": {
+    "N": 9329,
+    "share": 0.15,
+    "bareTitleBeings": [
+     "mrs:89",
+     "miss:21",
+     "mr:11",
+     "herr:7",
+     "king:6"
+    ],
+    "allEdgesWithBare": 28,
+    "standingEdges": 311,
+    "examples": [
+     "harker — mrs (141)",
+     "lucy — mrs (69)",
+     "van_helsing — mrs (65)"
+    ],
+    "audit": {
+     "sentencesWithHonorificDot": 403,
+     "endingInIt": 124
+    }
+   },
+   "delta": 0.15,
+   "deltaPlacebo": 0,
+   "consequential": false
+  },
+  {
+   "book": "pg1342_Pride_and_Prejudice.txt",
+   "merges": 1166,
+   "asSplit": {
+    "N": 7768,
+    "share": 0.6,
+    "bareTitleBeings": [
+     "mr:806",
+     "mrs:354",
+     "lady:56",
+     "lord:12",
+     "miss:9"
+    ],
+    "allEdgesWithBare": 64,
+    "standingEdges": 358,
+    "examples": [
+     "mr — bingley (694)",
+     "mr — mrs (688)",
+     "mr — bennet (636)",
+     "elizabeth — mrs (552)",
+     "mr — george_wickham (481)",
+     "mrs — bennet (416)"
+    ],
+    "audit": {
+     "sentencesWithHonorificDot": 1170,
+     "endingInIt": 1166
+    }
+   },
+   "repaired": {
+    "N": 6602,
+    "share": 0.2,
+    "bareTitleBeings": [
+     "mr:298",
+     "lady:56",
+     "lord:12",
+     "miss:9"
+    ],
+    "allEdgesWithBare": 40,
+    "standingEdges": 420,
+    "examples": [
+     "elizabeth — mr (583)",
+     "bingley — mr (334)",
+     "jane_austen — mr (263)",
+     "mr — george_wickham (219)"
+    ],
+    "audit": {
+     "sentencesWithHonorificDot": 1001,
+     "endingInIt": 0
+    }
+   },
+   "placebo": {
+    "N": 6602,
+    "share": 0.55,
+    "bareTitleBeings": [
+     "mr:712",
+     "mrs:305",
+     "lady:56",
+     "lord:12",
+     "miss:9"
+    ],
+    "allEdgesWithBare": 74,
+    "standingEdges": 430,
+    "examples": [
+     "mr — mrs (594)",
+     "mr — mr_collins (590)",
+     "mr — george_allen (545)",
+     "mr — bennet (544)",
+     "elizabeth — mrs (521)",
+     "mrs — bennet (378)"
+    ],
+    "audit": {
+     "sentencesWithHonorificDot": 1133,
+     "endingInIt": 976
+    }
+   },
+   "delta": 0.39999999999999997,
+   "deltaPlacebo": 0.04999999999999993,
+   "consequential": true
+  },
+  {
+   "book": "pg84_Frankenstein.txt",
+   "merges": 5,
+   "asSplit": {
+    "N": 3392,
+    "share": 0,
+    "bareTitleBeings": [
+     "madame:4",
+     "mrs:4"
+    ],
+    "allEdgesWithBare": 6,
+    "standingEdges": 193,
+    "examples": [],
+    "audit": {
+     "sentencesWithHonorificDot": 18,
+     "endingInIt": 5
+    }
+   },
+   "repaired": {
+    "N": 3387,
+    "share": 0,
+    "bareTitleBeings": [
+     "madame:4"
+    ],
+    "allEdgesWithBare": 3,
+    "standingEdges": 196,
+    "examples": [],
+    "audit": {
+     "sentencesWithHonorificDot": 18,
+     "endingInIt": 0
+    }
+   },
+   "placebo": {
+    "N": 3387,
+    "share": 0,
+    "bareTitleBeings": [
+     "madame:4",
+     "mrs:4"
+    ],
+    "allEdgesWithBare": 6,
+    "standingEdges": 205,
+    "examples": [],
+    "audit": {
+     "sentencesWithHonorificDot": 18,
+     "endingInIt": 5
+    }
+   },
+   "delta": 0,
+   "deltaPlacebo": 0,
+   "consequential": false
+  }
+ ]
+}

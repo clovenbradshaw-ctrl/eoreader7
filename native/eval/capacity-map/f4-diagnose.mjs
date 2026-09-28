@@ -72,6 +72,16 @@ out.rows.push(show("excluding rare-token-sharing pairs", recs.filter((r) => !sha
   console.log(`${"quintiles of L instead of terciles".padEnd(46)} S n=${String(S.n).padStart(4)} E=${fmt(S.E)} | N n=${String(N.n).padStart(4)} E=${fmt(N.E)} | Δ=${fmt(c.delta)} pΔ+=${fmt(c.pGreater)} pΔ-=${fmt(c.pLess)} strata=${c.strataUsed}`);
   out.rows.push({ tag: "quintiles", S, N, c });
 }
+// (3b) exact volume matching: every distinct L (capped at 12, declared) its own stratum
+{
+  const CAP = 12;
+  const withStrata = recs.map((r) => ({ ind: r.ind, group: r.group, stratum: Math.min(r.L, CAP) }));
+  const S = groupStat(withStrata.filter((r) => r.group === "S").map((r) => r.ind), CFG.R);
+  const N = groupStat(withStrata.filter((r) => r.group === "N").map((r) => r.ind), CFG.R);
+  const c = stratifiedContrast(withStrata, CFG.R, CFG.PERMS, CFG.PERM_SEED);
+  console.log(`${"exact L strata (L capped at 12)".padEnd(46)} S n=${String(S.n).padStart(4)} E=${fmt(S.E)} | N n=${String(N.n).padStart(4)} E=${fmt(N.E)} | Δ=${fmt(c.delta)} pΔ+=${fmt(c.pGreater)} pΔ-=${fmt(c.pLess)} strata=${c.strataUsed}`);
+  out.rows.push({ tag: "exact L strata (capped at 12)", S, N, c });
+}
 // (4) which pairs carry it: the standing pairs with the most lag events
 console.log("  top standing pairs by lag events (agreement real | order-destroyed rate):");
 for (const r of recs.filter((x) => x.group === "S").sort((a, b) => b.L - a.L).slice(0, 14)) {
