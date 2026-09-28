@@ -74,16 +74,43 @@ export function signProvisionalKind(store, { name, source, region, at = Date.now
 // never a confidence SCORE — certainty is bounded geometry (the margin
 // against the within-kind bound, which stays in kind-universe.js), and
 // corroboration is the record that the geometry has been tested.
-export function corroboration(store, concept) {
-  const entry = store.concepts?.[concept];
-  if (!entry?.occurrences?.length) return 0;
-  return new Set(entry.occurrences.filter((o) => !o.falsified).map((o) => o.source ?? o.id)).size;
+//
+// The default accessors read the shape SIG/CON/DEF/REC above actually
+// write: store.concepts[concept] = { occurrences: [{source, falsified}] }.
+// A caller whose store is shaped differently (the-fold/kind-memory.js's
+// store.kinds[name].learnings, keyed by `.superseded` rather than
+// `.falsified`) injects its own { entryOf, occurrencesOf, aliveOf,
+// sourceOf } rather than reimplementing this counting test a second time
+// under a different name — the exact drift this repo's own history keeps
+// naming (task-log.js's OPERATOR_ORDER, P22's duplicated runtime-type
+// ternary) already happened once here, confirmed live: kind-memory.js's
+// own `kindSources` re-derived this identical Set-of-distinct-sources
+// test, field for field, under a name that gave no hint it was the same
+// act. Every accessor is optional and defaults to today's exact behavior,
+// so every 2-argument call below is byte-identical to before.
+const DEFAULT_ENTRY_OF = (store, concept) => store.concepts?.[concept];
+const DEFAULT_OCCURRENCES_OF = (entry) => entry.occurrences ?? [];
+const DEFAULT_ALIVE_OF = (o) => !o.falsified;
+const DEFAULT_SOURCE_OF = (o) => o.source ?? o.id;
+
+/** The distinct, still-alive sources behind a concept — the array
+ *  `corroboration()` below only ever reports the size of. Exported so a
+ *  caller that needs the actual sources (not merely their count) reads
+ *  this instead of re-deriving the Set. */
+export function aliveSources(store, concept, { entryOf = DEFAULT_ENTRY_OF, occurrencesOf = DEFAULT_OCCURRENCES_OF, aliveOf = DEFAULT_ALIVE_OF, sourceOf = DEFAULT_SOURCE_OF } = {}) {
+  const entry = entryOf(store, concept);
+  if (!entry) return [];
+  return [...new Set(occurrencesOf(entry).filter(aliveOf).map(sourceOf))];
 }
 
-export function confirmKind(store, concept) {
-  const entry = store.concepts?.[concept];
+export function corroboration(store, concept, opts) {
+  return aliveSources(store, concept, opts).length;
+}
+
+export function confirmKind(store, concept, opts = {}) {
+  const entry = (opts.entryOf ?? DEFAULT_ENTRY_OF)(store, concept);
   if (!entry) return null;
-  const c = corroboration(store, concept);
+  const c = corroboration(store, concept, opts);
   if (c >= CANONICALIZATION_FLOOR && entry.status === "provisional") {
     entry.status = "confirmed";
     entry.confirmedAt = Date.now();

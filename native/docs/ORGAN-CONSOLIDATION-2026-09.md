@@ -251,6 +251,98 @@ this entry's scope.
 
 ---
 
+## 4. `kind-memory.js` — two real duplicates, closed within eoreader7 (2026-09-28)
+
+**What it is.** `kind-memory.js` (`native/the-fold/`) is the "second
+sonnet costs a lookup" organ: SIG signs a learned paradigm provisional on
+its first source, CON confirms it once a second distinct source
+corroborates it, DEF/REC refute and supersede. Its own header states it
+directly: "Recall returns a paradigm shaped exactly like paradigm.js's,
+so evaluateParadigmEmergent scores against it with nothing rehydrated by
+hand" — the finding checked whether the code actually kept that promise.
+
+**The two real duplicates, verified by reading both sides.**
+
+1. `kind-memory.js`'s `kindSources`/`confirmIfCorroborated` re-derived,
+   field for field, the identical distinct-alive-sources counting test
+   `kernel/corroboration.js`'s `corroboration`/`confirmKind` already
+   perform — even though `kind-memory.js` already imports
+   `CANONICALIZATION_FLOOR` from that exact file. `corroboration.js`'s own
+   header already names this: it was extracted in the first place because
+   three independent callers (mnemonic.js, expertise.js, kind-memory.js)
+   had reached for the same test separately — the extraction moved the
+   shared constant but left kind-memory.js's own Set-of-distinct-sources
+   loop duplicated under a different field vocabulary (`learnings`/
+   `superseded` vs `occurrences`/`falsified`).
+2. `kind-memory.js`'s `recognizeKind` recomputed, statement for statement,
+   the exact arithmetic `paradigm.js`'s `evaluateParadigmEmergent` already
+   performs (same `held/scored.length` score, same `ABSENT === "(absent)"`
+   sentinel, same `satisfies: score >= cut` verdict) — without ever calling
+   it, despite the file's own header claiming this exact equivalence.
+
+**What shipped.** `corroboration.js` gained one new exported primitive,
+`aliveSources(store, concept, { entryOf, occurrencesOf, aliveOf, sourceOf
+})` — the actual Set of distinct alive sources `corroboration()` was
+already computing internally and only ever reporting the size of, now
+reusable by a caller that needs the sources themselves (not just their
+count). All four accessors are optional and default to exactly
+`corroboration.js`'s own pre-existing shape
+(`store.concepts[concept].occurrences`, `.falsified`), so every existing
+2-argument call (`kind-universe.js`, `expertise.js`,
+`tacit-corroboration.js`) is byte-identical to before — verified, not
+assumed, by running each of their own test suites unmodified.
+`kind-memory.js`'s `kindSources` now calls `aliveSources` with its own
+accessors (`store.kinds[name].learnings`, `!l.superseded`) instead of
+reimplementing the Set logic; `confirmIfCorroborated` is otherwise
+untouched (it still returns its own richer `{kind, status, corroboration,
+revision}` shape, which nothing in `corroboration.js`'s own `confirmKind`
+return shape — `{confirmed, corroboration}` — would have satisfied without
+breaking `kind-memory-falsify.test.mjs`'s `r.status` assertion, checked
+directly before assuming a straight swap was safe). `recognizeKind` now
+calls `evaluateParadigmEmergent(recallKind(store, n), unit)` directly
+instead of its own hand-rolled loop.
+
+**Falsification, not just a passing suite.** Added a new regression case
+in `kind-memory-falsify.test.mjs` that cross-checks every field of
+`recognizeKind`'s per-kind scored entries (`score`/`held`/`of`/
+`satisfies`) against an independent direct call to
+`evaluateParadigmEmergent(recallKind(...), candidate)` across three
+different candidates. Verified this test is a real guard, not a
+tautology: reverted `recognizeKind` to a deliberately-wrong hand-rolled
+denominator (`r.all.length + 1`), confirmed the new test (and one
+pre-existing test) both failed with a diagnostic pointing at the exact
+diverged field, then restored the fix and confirmed both pass again.
+
+Verified: `kind-memory-falsify.test.mjs` 8/8 (7 pre-existing + 1 new);
+`paradigm-falsify.test.mjs` + `paradigm-plurality-falsify.test.mjs` 18/18
+(untouched, confirming paradigm.js itself needed no change);
+`surface-findings.test.js` + `revision-volatility.test.js` +
+`settling.test.js` + `consequential-surprise.test.js` 30/30 (kernel-level
+consumers of `corroboration.js`); `expertise-falsify.test.mjs` +
+`expertise-agent-falsify.test.mjs` + `tacit-corroboration.test.mjs` 35/38
+(3 skipped, 0 failed — the two other real live callers of
+`corroboration()`/`confirmKind()`); `mnemonic-shapes.test.mjs` +
+`mnemonic-falsify.test.mjs` 14/15 (1 skipped); the full `native/the-fold/`
+suite (511 tests) shows the identical 5 pre-existing failure names with
+and without this change (confirmed via re-run), none naming kind-memory,
+corroboration, or paradigm.
+
+**Not done, disclosed rather than implied complete:** the workflow's own
+finding also named `kind-universe.js` as a plausible second consumer of
+the new `{occurrencesOf, aliveOf}` accessor pair ("so both kind-memory.js
+and kind-universe.js share one CON implementation instead of two
+independently-typed copies of the same test") — checked, and found not to
+apply: `kind-universe.js` already calls `corroboration.js`'s
+`corroboration`/`confirmKind` directly with the default shape (it re-
+exports them unchanged, per the grep in this entry), so there was no
+second copy on that side to close. `paradigm.js`'s own `evaluateParadigm`
+(the non-emergent sibling of `evaluateParadigmEmergent`) was read and
+confirmed to be a genuinely different function (a different feature
+family, `scoreFacts` rather than a bare filter) — not a third instance of
+this duplication, and left untouched.
+
+---
+
 *Entries below this line are added as the wider research pass's findings
 clear verification. An unverified hypothesis is never listed here as a
 finding — it stays in the research transcript until read, tested, and

@@ -40,8 +40,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { elementsOf } from "./medium.js";
 import { emergentFacts } from "./form-prior.js";
-import { unitFacts, PARADIGM_SCHEMA } from "./paradigm.js";
-import { CANONICALIZATION_FLOOR } from "../kernel/corroboration.js";
+import { unitFacts, PARADIGM_SCHEMA, evaluateParadigmEmergent } from "./paradigm.js";
+import { CANONICALIZATION_FLOOR, aliveSources } from "../kernel/corroboration.js";
 import { permutationCount } from "../kernel/nullcheck.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -80,7 +80,13 @@ export function rememberParadigm(store, name, paradigm, { source, at = Date.now(
 }
 
 // ── CON: corroboration is distinct sources, never a count of instances ───
-export const kindSources = (store, name) => [...new Set((store.kinds?.[name]?.learnings ?? []).filter((l) => !l.superseded).map((l) => l.source))];
+// This is kernel/corroboration.js's own distinct-alive-sources test
+// (extracted 2026-09-22 precisely because this file's own predecessor had
+// reached for it independently) — read through its accessor injection
+// rather than re-derived by hand a second time under this file's own
+// vocabulary (learnings/superseded in place of occurrences/falsified).
+const KIND_ACCESSORS = { entryOf: (s, n) => s.kinds?.[n], occurrencesOf: (e) => e.learnings ?? [], aliveOf: (l) => !l.superseded };
+export const kindSources = (store, name) => aliveSources(store, name, KIND_ACCESSORS);
 export function confirmIfCorroborated(store, name) {
   const k = store.kinds?.[name]; if (!k) return null;
   const c = kindSources(store, name).length;
@@ -188,16 +194,21 @@ export function splitProposal(store, name, { draws = 400, rnd = Math.random } = 
 }
 
 // ── the lookup: which remembered kind does this satisfy? ─────────────────
+// `recallKind` already returns something PARADIGM_SCHEMA-shaped (`.facts`,
+// `.all`, `.satisfies.cut`) — this file's own header says so ("Recall
+// returns a paradigm shaped exactly like paradigm.js's, so
+// evaluateParadigmEmergent scores against it with nothing rehydrated by
+// hand"), and paradigm.js's own evaluateParadigmEmergent is exactly the
+// held/score/satisfies arithmetic this loop used to re-derive by hand —
+// scoring against ABSENT === "(absent)", the same literal this loop used.
 export function recognizeKind(store, unit, { among = null } = {}) {
   const names = among ?? Object.keys(store.kinds ?? {});
   const scored = [];
   for (const n of names) {
     const r = recallKind(store, n);
     if (!r.known || !r.all.length) continue;
-    const u = r.facts(unit);
-    const held = r.all.filter((f) => String(u.has(f.slot) ? u.get(f.slot) : "(absent)") === f.value).length;
-    const score = held / r.all.length;
-    scored.push({ kind: n, score, held, of: r.all.length, satisfies: score >= r.satisfies.cut, status: r.status, sources: r.sources.length });
+    const e = evaluateParadigmEmergent(r, unit);
+    scored.push({ kind: n, score: e.score, held: e.held, of: e.of, satisfies: e.satisfies, status: r.status, sources: r.sources.length });
   }
   scored.sort((a, b) => b.score - a.score);
   return { best: scored.find((s) => s.satisfies) ?? null, scored, basis: scored.length ? `${scored.length} remembered kind(s) looked up; ${scored.filter((s) => s.satisfies).length} satisfied` : "nothing remembered yet — this costs a hunt" };
