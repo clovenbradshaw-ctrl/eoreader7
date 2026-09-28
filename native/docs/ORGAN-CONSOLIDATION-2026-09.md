@@ -916,3 +916,55 @@ different). Zero production code changed in either repo.
 
 Verified: `patch-parity.test.mjs` 23/23. `build-log.test.mjs` (the
 existing suite): 58/58, unchanged.
+
+## 18. `parse-gated-names.js`/`recursive.js` — a real, live divergence, closed with one shared primitive (2026-09-28)
+
+Two-part finding. (1) DOC FIX: `parse-gated-names.js`'s header (and
+`capacities.js`'s registry entry) claimed the module was "STANDALONE AND
+UNWIRED" — false. The rule is reimplemented inline in `recursive.js`'s
+`createCausalTextPerceiver` and is ON BY DEFAULT in production:
+`proxy-runner.mjs::createSessionReader` sets `parseModel` from a loaded
+`english-parser.js` model unless `ER7_PARSE_GATED_NAMES=0`, and that
+reader is what `runProxyTurn` (`proxy.mjs`'s live chat handler) actually
+instantiates per session. This stale text also propagates into
+`THE-27-CELLS.md`, which generates from `capacities.js`.
+
+(2) THE REAL BUG, found live against the real trained model
+(`parser-eng-ewt.json`): `parseGatedNames()`'s `upostOccurrences(model,
+text)` internally re-split sentences via `english-parser.js`'s own
+ICU-based `sentences()`, while `recursive.js`'s inline gate tagged each
+already-correctly-split sentence from `spans.js::splitSentences` directly.
+The two splitters disagree on exactly the name-initial abbreviation cases
+`spans.js` was built to fix — "Ulysses S. Grant" splits under ICU into
+"...Ulysses S." + "Grant himself.", and the fragment "Grant himself." tags
+"Grant" differently than the real, whole sentence does. Reproduced live:
+on "The letter was signed by Ulysses S. Grant himself.",
+`parseGatedNames()`'s batch output NEVER admitted "Grant" while
+`recursive.js`'s inline gate on the identical text correctly did — a real,
+present, occurrence-pattern-dependent false negative, not hypothetical.
+
+Fixed by extracting `synPropnFormsForSentences(model, sentences)` — one
+shared primitive, taking already-split sentence strings rather than
+re-splitting — and having BOTH `parseGatedNames()` and `recursive.js`'s
+incremental per-sentence fold call it, so the two can no longer silently
+diverge on sentence boundaries.
+
+Added two regression cases to `parse-gated-names.test.mjs`: the real
+Ulysses S. Grant specimen (pins "grant" is now admitted), and a harness
+feeding sentences one-at-a-time through the shared primitive (mimicking
+`recursive.js`'s own incremental accumulation) asserting it produces an
+identical admitted set to the batch call — closing "nothing cross-checks
+them." Confirmed both new cases fail (the whole file fails to load,
+`synPropnFormsForSentences` not yet exported) against the pre-fix files
+via `git stash`, pass after.
+
+Deliberately NOT touched, per the finding's own scoping: `existence-grain.js`
+(confirmed unused outside its own test and `eval/lavar/`) and whether
+`cast.js` should also receive this SVO-gate upgrade — a separate, larger
+product decision reserved for explicit sign-off.
+
+Verified: `parse-gated-names.test.mjs` 5/6 (1 skipped — a pre-existing,
+per-checkout missing-fixture gap, unrelated). Full `native/adapters/text/
+*.test.mjs`: 71/91 pass, 1 pre-existing unrelated failure (confirmed via
+`git stash` A/B — identical failure name with and without this change),
+19 skipped (missing per-checkout fixtures).
