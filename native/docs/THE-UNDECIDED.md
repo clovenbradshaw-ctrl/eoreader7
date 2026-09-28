@@ -44,11 +44,12 @@ candidate is never asserted.
 | identity organ (`kernel/identity.js`, `contest.js`) | — | — | **already superposed**: live_hypothesis / distinct / refused; the contested set returned, never a winner |
 | occupancy: the occupant slot | "last mention, else refuse" | every other mention, the unbound pronoun, the capitalised run never admitted | **converted** (48b5b22): `NEAREST_ESTABLISHED` is the default collapse; a looser for-whom collapses the same record otherwise |
 | occupancy: what a locus IS | merged being vs position, decided by whoever got there first | the cast's merge vs the testimony's occupants | **converted** (5223c86): `LOCUS_BY_PATTERN`; the Bezúkhov record holds both, two for-whoms, both stand |
-| pronoun binder floor (`pronouns.js`) | bound or `pronoun_no_margin` gap | top, runnerUp, margin — the gap carries them and nothing reads them | **measured, and not the lever** (v4, X2 gap): the gaps place, but 24 of 26 transition-clause pronouns were never attempted (P66's skip of co-present frames) and the two tops that exist are margin-0 ties over a cast of months and countries. The bucket under it is surface admission |
+| pronoun binder floor (`pronouns.js`) | bound or `pronoun_no_margin` gap | top, runnerUp, margin — the gap carries them and nothing reads them | **measured, and not the lever** (v4, X2 gap): the gaps place, but 24 of 26 transition-clause pronouns were never attempted (P66's skip of co-present frames). **The skip is a typed gap now** (0c560de, `pronoun_frame_named`, the co-present names as its contested set): v6 Z5 counts 107 such candidates reaching a transition clause on 13 pages, 30 carrying the page's topic — a candidate set on the record where there was silence |
 | surface extraction (`surfaces.js`) | in / out: closed-class veto, `capitalisationIsSignificant` | the binomial's own numbers, the lowercase count; the KIND of the candidate | **converted at the collapse, not the extractor** (v5, Y1/Y2 held): the cast still admits months and countries by a name's evidence; every candidate carries COMPANY (`verbShare`, `prepShare`, read with the POS prior) and `BEING_KIND` refuses a preposition's companion by name — seven misreads out, every career kept; topic `verbShare` .40–.72 vs months ≈ 0 on 12 pages |
-| referent merge (`discoverReferents`) | a hard merge in the host's cast | the merge's basis, the surfaces it absorbed | **not yet in the host**; the native reader lands `EOReferentMerge@1`, which `hindsight.js` can re-address — the identity organ's alternative is the shape to reuse |
+| referent merge (`discoverReferents`) | a hard merge in the host's cast | the merge's basis, the surfaces it absorbed | **converted** (e1f9a31, `kernel/merge-standing.js`): a merge is a CON·Figure support of an `EOIdentityAlternative@1`, a locus with ≥ `minOccupants` distinct occupants a SEG·Figure attack, judged by the real `deriveIdentityRevision`, replayable. v6 Z1: the Bezúkhov merge split on the fold from the material's own testimony |
+| occupant distinctness (`merge-standing.js`'s floor) | "two occupant ids = two occupants" | the occupants' own identity alternatives | **found by Z1, not yet converted**: the two occupants that attacked the Bezúkhov merge are `monsieur_pierre` and `pierre` — one person under two cast ids; Cyril, the real second holder, never *became* the title and is absent. The attack inherited distinctness from the cast it was reviewing. The recursion (count only occupants whose own alternative is not `live_hypothesis`) is the next conversion |
 | complement typing (locus / kind / state) | capitalisation and determiners | the complement itself; recurrence across occupants (needs breadth) | **partly**: `complementTyping: "none"` keeps every complement and lets the pattern decide; measured on 13 pages the pattern needs a corpus |
-| sentence splitting | a hard cut | the abbreviation ambiguity ("Harry S.") | not yet |
+| sentence splitting | a hard cut | the abbreviation ambiguity ("Harry S."); a Gutenberg soft line break inside a clause (`became the\nlatter` → locus `the`, v6) | not yet |
 | admission door (the-fold) | admit / refuse per source per question | the overlap counts, the company | not a candidate: the question IS the collapse; keep |
 
 ## What the collapse must never do
@@ -71,3 +72,13 @@ cast-trusting for-whom collapses it to `being`; both are on the fold, and a
 question at a cursor picks the one its asker declared. That is identity
 shifting on the fly with the past whole — what `hindsight.js` then answers is
 which earlier entries were about the being the re-addressing touched.
+
+Run for real (v6, 2026-09-28): the identity organ did split it — four
+alternatives, SEG·Figure, witness `War and Peace#s3036`, replayed. And the
+run's own honesty is the next row of the census: the two occupants that
+carried the attack were *Monsieur Pierre* and *Pierre* — one being, two
+cast ids — while Cyril, who held the title before Pierre, never appears in
+a *becoming* clause at all. Right verdict, wrong evidence. The distinctness
+the floor counted was the cast's, and the cast was the thing on trial;
+occupant distinctness has to be its own uncollapsed standing before it
+can attack anything. `results/occupancy-host-eval-v6-RESULTS.md`.

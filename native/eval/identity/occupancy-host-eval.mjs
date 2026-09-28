@@ -155,6 +155,19 @@
 //   Z5  named-frame pronouns: the count of pronoun_frame_named candidates that
 //       reach a transition clause on Material A, and how many carry the page's
 //       topic in their contested set — reported
+// V7, PRE-REGISTERED 2026-09-28 after reading v6 (output -v7.json, same cap).
+// v6: Z1, Z2, Z4 held; Z3 FAILED at 0 of 33 typed — every act "gap",
+// "unattested in ActPrior@1 (and through the lemmatizer)". Diagnosed, not
+// tuned: the prior holds become/appoint/elect/name/promote as BASE forms and
+// the driver injected NO lemmatizer, so "became"/"appointed" never reached
+// them. phasepost.js's own disclosed path is `lemmasOf` (its via reads
+// "became->become"); the-fold's reader-bundle.js already builds it from the
+// UniMorph MorphologyPrior@1 — the same construction is injected here. ONE
+// change; every other prediction is expected byte-identical to v6.
+//   Z3' >= 80% of Material A's default-arm standings carry a typed act;
+//       predicted by lexicon: became/becoming -> INS·Figure (become-109.1),
+//       appointed/elected/named -> DEF·Figure (appoint-29.1), promoted ->
+//       SYN·Figure (promote-102) — the acts of the LEXICON, not chosen here
 //   node occupancy-host-eval.mjs [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
@@ -168,7 +181,10 @@ const { makePhasepost } = await import(`${NATIVE}/adapters/text/phasepost.js`);
 const ACT_PRIOR = JSON.parse(readFileSync("/home/user/live_priors/derived-priors/act-priors/act-prior-en.json", "utf8"));
 const { NEGATION_WORDS, DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS, AUXILIARY_VERBS } = await import(`${NATIVE}/adapters/text/priors.js`);
 const { COPULA_FORMS } = await import(`${NATIVE}/adapters/text/phasepost.js`);
-const phasepostOrgan = makePhasepost({ actPrior: ACT_PRIOR, cellOf, definiteDeterminers: DEFINITE_DETERMINERS, indefiniteDeterminers: INDEFINITE_DETERMINERS });
+const { morphologyFromPrior, createLemmatizer } = await import(`${NATIVE}/adapters/text/morphology.js`);
+const MORPH = morphologyFromPrior(JSON.parse(readFileSync(`${NATIVE}/eval/the-fold/fixtures/unimorph-morphology-prior.json`, "utf8")));
+const LEMMATIZER = createLemmatizer(MORPH.forms, { language: MORPH.language }); // the-fold/reader-bundle.js's own construction
+const phasepostOrgan = makePhasepost({ actPrior: ACT_PRIOR, cellOf, definiteDeterminers: DEFINITE_DETERMINERS, indefiniteDeterminers: INDEFINITE_DETERMINERS, lemmasOf: (f) => [...LEMMATIZER.lemmasOf(f)] });
 const phasepost = (edge) => phasepostOrgan.classify(edge);
 const { createSession, admitChunked, sessionCast } = await import(`${NATIVE}/legacy-ported/packages/host/corpus.js`);
 const { createRecursiveReader } = await import(new URL("../../../kernel.js", import.meta.url).pathname);
