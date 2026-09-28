@@ -468,6 +468,102 @@ naming finish, loop-check, or carriedStatements.
 
 ---
 
+## 7. `reader-bundle.js` — a silent production correctness gap closed (2026-09-28)
+
+**What it is.** `reader-bundle.js`'s own header states its purpose
+directly: it is "the same `RELATION_READER_OPTIONS` the-fold's `app.js`
+builds... sourced entirely from this repo's `native/` tree... so there is
+exactly one implementation of 'the material's own edges' once this is
+what the proxy turn feeds its reading surface from." It is the live
+relation reader behind `proxy-runner.mjs` (production), `cli/reason.mjs`,
+and `swarm-server.mjs`.
+
+**The verified gap.** `organs/hypergraph.js::makeRelationReader` declares
+`objectSpecificity = false` by default (read directly, line 930) — a
+narrowing gate that, when enabled, requires an agreeing edge to state
+EVERY content token of a claim's object (stem-tolerant) before binding,
+rather than the below-`CORPUS_MINIMUM` fallback of one shared token. The
+organ's own comment names the exact historical defect this closes: "the
+Royal Society in 1887" binding to "the Northgate Observatory in 1887" on
+the shared token "in 1887" alone (P36/P100's "wall 6") — and states
+plainly that "a live turn's retrieved passages are always sub-floor," so
+this fallback is not a rare edge case, it is the ordinary case for every
+real turn. The-fold's `app.js` (line 1083) has carried `objectSpecificity:
+true` since P100 closed this. `reader-bundle.js` never set it — confirmed
+by reading the whole file and by `grep` (zero occurrences of the string
+anywhere in it before this fix) — so the engine's own production relation
+reader, despite the file's own stated purpose, was missing a documented,
+already-fixed-once correctness gate the browser path has carried for
+weeks.
+
+**What shipped.** One option added to the options object
+`makeEngineRelationReader` passes to `makeRelationReader`:
+`objectSpecificity: true`, matching app.js's own setting and comment
+verbatim in spirit. Because the mechanism only ever NARROWS an agreeing
+edge set down (`specific = agree.filter(...)`, confirmed by reading
+hypergraph.js's own code, never a superset of `agree`), this can only
+ever downgrade a false `bound` to `unbound` — it cannot introduce a new
+false positive, which is why this was safe to enable without a wider
+behavioral audit of every existing caller.
+
+**Falsification, and a disclosed limit reached honestly.** `reader-
+bundle.js` had NO dedicated test file before this entry — created
+`native/the-fold/reader-bundle.test.mjs`. A full, from-scratch, real-
+prose end-to-end reproduction of the "wall 6" specimen through this
+bundle's own `extractorsMode: "dispatch"` (GFP) path was attempted
+directly — a real two-sentence fixture, then product-assay.mjs's own
+real four-sentence northgate corpus (both files of its `CORPUS` fixture,
+matching its exact `chunkSource`/`pool` calling convention) — and did not
+succeed inside this pass's time budget: GFP dispatch's own candidate-
+vocabulary discovery came back empty for the fabricated sentence in every
+variant tried, for reasons investigated and found to be UNRELATED to
+`objectSpecificity` (confirmed live by removing hypergraph.js's own
+`try {} catch { heard = []; }` around the extraction call and finding no
+exception was ever thrown — the vocabulary itself was genuinely empty,
+a GFP-dispatch-mode behavior this pass did not have time to fully trace).
+One false lead was chased and ruled out along the way: `reader-bundle.js`
+reads an older, unreconciled POS-prior file
+(`native/priors/pos-eng.json`, 16,654 train-split-only forms) rather than
+the P74-reconciled canonical one
+(`native/eval/the-fold/fixtures/pos-prior-eng.json`, 19,341 forms) — a
+real, separate staleness note (already flagged in the unexecuted
+"generation-pipeline batch D" finding's `pos-prior.js` recommendation,
+not this file) — but direct testing of `classifyWord`/`dominantClass`
+against BOTH files confirmed they classify identically for the specimen
+verb tested; this was not the cause of the empty vocabulary and is left
+unfixed here as out of this entry's scope.
+
+Given the mock-the-organ approach was also tried and is blocked by ESM's
+read-only named-export bindings (`Cannot assign to read only property
+'makeRelationReader'`), what shipped instead is a source-level regression
+test (confirmed, by running it against the pre-fix file, to genuinely
+fail there) plus a live smoke test that the bundle's real production
+entry points build and run without throwing against real material — a
+lighter guard than a full behavioral reproduction, disclosed as exactly
+that rather than overstated.
+
+Verified: `reader-bundle.test.mjs` 3/3 (all 3 confirmed to fail
+appropriately against the pre-fix file before the fix was applied, not
+only to pass after); `proxy-runner.mjs` and `swarm-server.mjs` module
+graphs still resolve and load (`cli/reason.mjs` fails on a pre-existing,
+unrelated missing `mathjs` package, confirmed via `git stash`); the full
+`native/the-fold/` suite (515 tests) shows the identical 5 pre-existing
+failure names before and after.
+
+**Not done, disclosed rather than implied complete:** the full live
+behavioral reproduction of the wall-6 specimen through this exact bundle
+remains unbuilt — a real, scoped follow-up, not silently abandoned. The
+stale-POS-prior-file staleness note is real but unfixed here (out of
+scope; tracked separately in the unexecuted batch-D finding). Whether
+GFP dispatch's own vocabulary-discovery floor genuinely needs a richer
+corpus than was tried, or has a real defect of its own unrelated to this
+entry, is unresolved and worth its own investigation before anyone
+trusts this bundle's dispatch-mode extraction on short, synthetic
+fixtures specifically (it may work correctly at realistic prose scale,
+which every existing production and eval caller uses it at).
+
+---
+
 *Entries below this line are added as the wider research pass's findings
 clear verification. An unverified hypothesis is never listed here as a
 finding — it stays in the research transcript until read, tested, and
