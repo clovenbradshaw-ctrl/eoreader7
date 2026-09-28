@@ -32,12 +32,24 @@ export function createCompanyIndex({ clean = DEFAULT_CLEAN, countSplit = DEFAULT
   const byWord = new Map();      // cleaned word -> [[sentence, position], ...]
   const counts = new Map();      // heardSurfaces' vocabulary tally
   const sentenceCounts = new Map();
+  const single = new Map();      // cleaned word -> its running company map (single-word surfaces answered in O(1))
   const add = (sentence) => {
     const text = String(sentence?.text ?? sentence ?? "");
     const idx = words.length;
     const ws = text.split(/\s+/).map(clean);
     words.push(ws);
-    ws.forEach((w, i) => { if (!w) return; if (!byWord.has(w)) byWord.set(w, []); byWord.get(w).push([idx, i]); });
+    ws.forEach((w, i) => {
+      if (!w) return;
+      if (!byWord.has(w)) byWord.set(w, []); byWord.get(w).push([idx, i]);
+      // running company for the single-word case — the vocabulary heardSurfaces
+      // asks about is single words, and asking is O(vocabulary), not O(prefix)
+      if (!single.has(w)) single.set(w, new Map());
+      const v = single.get(w);
+      const before = i > 0 ? ws[i - 1].toLowerCase() : "^";
+      const after = i + 1 < ws.length ? ws[i + 1].toLowerCase() : "$";
+      v.set(`before=${before}`, (v.get(`before=${before}`) ?? 0) + 1);
+      v.set(`after=${after}`, (v.get(`after=${after}`) ?? 0) + 1);
+    });
     const seen = new Set();
     for (const w of text.split(countSplit)) {
       if (w.length < minCountLength) continue;
@@ -51,6 +63,7 @@ export function createCompanyIndex({ clean = DEFAULT_CLEAN, countSplit = DEFAULT
     const vecs = new Map(surfaces.map((s) => [s, new Map()]));
     for (const s of surfaces) {
       const pw = s.split(" ");
+      if (pw.length === 1) { const v = single.get(s); if (v) vecs.set(s, new Map(v)); else vecs.delete(s); continue; }
       const hits = byWord.get(pw[0]); if (!hits) continue;
       const v = vecs.get(s);
       for (const [si, i] of hits) {
