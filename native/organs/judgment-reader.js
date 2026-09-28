@@ -28,6 +28,7 @@
 // correlatives a verdict sentence uses ("neither … nor"), declared here.
 
 import { becauseContained } from "./testimony.js";
+import { tokenize } from "./source.js";
 import { NEGATION_WORDS } from "../adapters/text/priors.js";
 
 export const JUDGMENT_NEGATORS = Object.freeze(new Set([...NEGATION_WORDS, "neither", "nor", "not"]));
@@ -63,10 +64,35 @@ export function anchoredDecider(prose, section) {
 }
 
 /**
- * readJudgment(prose, request) -> { verdict, anchored, decider, because, committed }
- *   request: EOJudgmentRequest@1 (its `candidates` and `text` — the section — are read; nothing else)
+ * A POINTED decider (v1 of eval/identity/fast-reasoning.mjs, 2026-09-28: a 0.5B
+ * judge answered "holds" on 34 of 34 asks and quoted nothing — a model that
+ * will not quote can still point). When the caller numbered the section's
+ * sentences in the ask, a number in the prose ("[3]", "sentence 3", a bare
+ * 3 no larger than the count) names sentence 3 as the decider. It is in the
+ * section by construction; it ANCHORS only when it carries the claim's own
+ * words — the claim's first content token and at least one more (P31's
+ * company rule) — so a lazy point at any sentence is still contested.
  */
-export function readJudgment(prose, request) {
+export function pointedDecider(prose, sentences, claimText = "") {
+  if (!Array.isArray(sentences) || !sentences.length) return null;
+  const text = String(prose ?? "");
+  const nums = [...text.matchAll(/\[(\d{1,3})\]|\bsentence\s+(\d{1,3})\b|(?<![\d.])(\d{1,3})(?![\d.])/gu)].map((m) => Number(m[1] ?? m[2] ?? m[3])).filter((n) => n >= 1 && n <= sentences.length);
+  if (!nums.length) return null;
+  const n = nums[0];
+  const pointed = String(sentences[n - 1] ?? "");
+  const claimToks = tokenize(claimText);
+  const inPointed = new Set(tokenize(pointed));
+  const company = claimToks.length ? inPointed.has(claimToks[0]) && claimToks.slice(1).some((t) => inPointed.has(t)) : false;
+  return { index: n, decider: pointed, anchored: company, because: company ? `pointed at sentence ${n}, which carries the claim's own words` : `pointed at sentence ${n}, which does not carry the claim's first content word and another` };
+}
+
+/**
+ * readJudgment(prose, request, { sentences, claim }) -> { verdict, anchored, decider, because, committed }
+ *   request:   EOJudgmentRequest@1 (its `candidates` and `text` — the section — are read; nothing else)
+ *   sentences: the section's sentences as numbered in the ask, when the caller numbered them
+ *   claim:     the claim's own text, for the pointed decider's company wall
+ */
+export function readJudgment(prose, request, { sentences = null, claim = "" } = {}) {
   const candidates = [...(request?.candidates ?? [])];
   const committed = commitments(prose, candidates);
   let verdict = null, because;
@@ -78,7 +104,9 @@ export function readJudgment(prose, request) {
     if (last.size === 1) { verdict = [...last.keys()][0]; because = `several candidates named (${[...committed.keys()].join(", ")}); the last sentence commits to ${verdict}`; }
     else because = `several candidates named (${[...committed.keys()].join(", ")}) and no conclusion commits to one`;
   }
-  const decider = anchoredDecider(prose, request?.text);
+  let decider = anchoredDecider(prose, request?.text), pointed = null;
+  if (!decider && sentences) { pointed = pointedDecider(prose, sentences, claim); if (pointed?.anchored) decider = pointed.decider; }
   const anchored = verdict === "undetermined" ? true : !!decider;
-  return { verdict, anchored, decider, because: anchored || !verdict ? because : `${because}; nothing it points at is in the section`, committed: Object.fromEntries(committed) };
+  const tail = anchored || !verdict ? "" : pointed ? `; ${pointed.because}` : "; nothing it points at is in the section";
+  return { verdict, anchored, decider, pointed: pointed ? { index: pointed.index, anchored: pointed.anchored } : null, because: `${because}${tail}`, committed: Object.fromEntries(committed) };
 }

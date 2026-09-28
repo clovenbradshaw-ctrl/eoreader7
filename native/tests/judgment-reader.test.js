@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readJudgment, commitments, anchoredDecider } from "../organs/judgment-reader.js";
+import { readJudgment, commitments, anchoredDecider, pointedDecider } from "../organs/judgment-reader.js";
 import { ingestionStanding, judgmentRequest, landJudgment } from "../kernel/ingestion.js";
 import { createForWhom } from "../kernel/for-whom.js";
 
@@ -48,4 +48,21 @@ test("a decider is found without quotes when a whole prose sentence is in the se
   assert.equal(anchoredDecider("Because Anatole took the estate after a duel. So it holds.", SECTION), null, "a sentence the section does not contain anchors nothing");
   assert.equal(landJudgment(request, { verdict: "holds", judge }).collapse.chosen.value, "holds");
   assert.throws(() => landJudgment(request, { answer: "it holds", judge }), /injected reader/);
+});
+
+test("a pointed decider: a number in the prose names a numbered sentence; anchored only when that sentence carries the claim's own words", () => {
+  const sentences = ["Pierre, on unexpectedly becoming Count Bezúkhov, received the whole estate.", "The old count had died the week before, and the will named Pierre alone.", "Anatole left for Moscow the same night."];
+  const claim = "Pierre received the whole estate";
+  assert.deepEqual(pointedDecider("[1] holds", sentences, claim).index, 1);
+  assert.equal(pointedDecider("[1] holds", sentences, claim).anchored, true);
+  assert.equal(pointedDecider("Sentence 3 decides it: holds", sentences, claim).anchored, false, "a lazy point at a sentence without the claim's words is not anchored");
+  assert.equal(pointedDecider("holds", sentences, claim), null);
+  assert.equal(pointedDecider("[9] holds", sentences, claim), null, "a number past the count points at nothing");
+  const r = readJudgment("[1] holds", request, { sentences, claim });
+  assert.equal(r.verdict, "holds"); assert.equal(r.anchored, true); assert.equal(r.decider, sentences[0]); assert.deepEqual(r.pointed, { index: 1, anchored: true });
+  const lazy = readJudgment("[3] holds", request, { sentences, claim });
+  assert.equal(lazy.anchored, false); assert.match(lazy.because, /does not carry the claim's first content word/);
+  assert.equal(landJudgment(request, { answer: "[3] holds", read: (p, q) => readJudgment(p, q, { sentences, claim }), judge }).collapse.verdict, "contested");
+  assert.equal(landJudgment(request, { answer: "[1] holds", read: (p, q) => readJudgment(p, q, { sentences, claim }), judge }).collapse.verdict, "chosen");
+  assert.equal(readJudgment("holds", request).pointed, null, "without numbered sentences nothing changes");
 });
