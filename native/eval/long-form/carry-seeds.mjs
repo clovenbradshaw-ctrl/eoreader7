@@ -33,6 +33,8 @@ for (const spec of process.argv.slice(2)) {
     const sc = scoreBook(text, cast, { castDetails: outline.castDetails });
     const c = cs.find((x) => x.arm === arm) ?? {};
     const days = text.toLowerCase().split(" ").filter((w) => { let x = w; while (x && !(x.at(-1) >= "a" && x.at(-1) <= "z")) x = x.slice(0, -1); return x === "day"; }).length;
+    // one book per (arm, seed): carry2 carries carry1's ledger book as a copy
+    if ((rows[arm] ?? []).some((r) => r.seed === Number(seed))) continue;
     (rows[arm] ??= []).push({ seed: Number(seed), repeated: sc.repeatedShare, wrongCallbacks: sc.callbacks.wrong, seams: c.seams ?? null, across: c.particularsAcrossChapters ?? null, strangersPer1k: c.strangersDistinctPer1k ?? null, promptMax: c.promptMax ?? null, days });
   }
 }
