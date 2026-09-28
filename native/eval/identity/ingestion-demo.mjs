@@ -73,6 +73,23 @@ const fwA = createForWhom({ id: "reader:succession", giver: "the succession ques
 const fwB = createForWhom({ id: "reader:novelist", giver: "a reader of the novel", question: "who is Pierre" });
 const requests = cited.flatMap((x) => [fwA, fwB].map((fw) => { const req = judgmentRequest({ standing: x.standing, forWhom: fw, sectionOf, claim: x.claim }); return req && { claim: x.claim.id, forWhom: fw.id, holon: req.holon, section: req.section, sectionChars: req.text?.length ?? 0, left: req.findings.left, readers: req.findings.readers, ask: req.ask }; }).filter(Boolean));
 
-const out = { seconds: +((Date.now() - t0) / 1000).toFixed(1), sentences: sentences.length, paragraphs: paras.length, nativeCap: NATIVE_CAP, capParagraph: capPara, refused: r.refused.length, slotsOpen: slots.filter((s) => s.verdict !== "chosen").length, bySentence, byPara, nativeOnlyByPara: nativeOnly, claims: claims.map((c) => c.id), unreadCited: cited.map((x) => [x.claim.id, x.standing.standing, x.standing.gaps.length, x.standing.openSlots.length]), requests };
+// THE LADDER, learned in the environment (kernel/escalation.js over kernel/stigmergy.js):
+// from an empty environment the order is structural — mechanical first. The
+// mechanical rung here IS everything above (the readers ran, the gaps stayed):
+// its trip is recorded as a failure for each cited shape, which deposits
+// nothing (failures evaporate). The judge rung is what the requests above
+// would be handed; it is never run here, so no judge trail forms — the
+// environment learns only from trips actually made.
+const { shouldEscalate, recordOutcome, shapeOf } = await import(`${NATIVE}/kernel/escalation.js`);
+const { levelOfHolon } = await import(`${NATIVE}/adapters/text/grammar.js`);
+let trails = {};
+const ladders = cited.map((x) => {
+  const prefix = `${levelOfHolon(x.standing.holon) ?? "holon"}:`;
+  const before = shouldEscalate({ standing: x.standing, trails, prefix, rng: () => 1 });
+  trails = recordOutcome(trails, { shape: before.shape, rung: "mechanical", ok: false, ms: 0 });
+  const after = shouldEscalate({ standing: x.standing, trails, prefix, rng: () => 1 });
+  return { claim: x.claim.id, shape: before.shape, first: before.first, order: before.ladder.order, learned: after.ladder.learned, afterMechanicalFailure: after.first, judgeTrips: 0 };
+});
+const out = { ladders, seconds: +((Date.now() - t0) / 1000).toFixed(1), sentences: sentences.length, paragraphs: paras.length, nativeCap: NATIVE_CAP, capParagraph: capPara, refused: r.refused.length, slotsOpen: slots.filter((s) => s.verdict !== "chosen").length, bySentence, byPara, nativeOnlyByPara: nativeOnly, claims: claims.map((c) => c.id), unreadCited: cited.map((x) => [x.claim.id, x.standing.standing, x.standing.gaps.length, x.standing.openSlots.length]), requests };
 console.log(JSON.stringify({ ...out, requests: requests.map((q) => ({ ...q, ask: q.ask.slice(0, 160) })) }, null, 1));
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));
