@@ -3,6 +3,7 @@
 // this module never scans a document to discover identity.
 import { dmdWindow } from "../../../kernel/activation.js";
 import { resolveFoldSibling, requireFoldAvailable } from "./fold-sibling.mjs";
+import { verifySpan, verifyPassage } from "../../../organs/verify-span.js";
 
 // reading-log.js, activation-retrieval.js and resolutions.js are the sibling
 // the-fold checkout's own modules, which this repo's CI never checks out
@@ -24,35 +25,13 @@ export function requireDocumentHolographFold() {
 }
 
 const addressOf = (w) => String(typeof w === "string" ? w : (w?.at ?? w?.ref ?? "")).split("~")[0];
-const layout = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
-const spanRange = (at) => {
-  const m = /^(.*?)#(\d+)-(\d+)(?:#(\d+)-(\d+))?$/.exec(String(at ?? ""));
-  if (!m) return null;
-  const base = Number(m[2]);
-  return { source: m[1], start: m[4] == null ? base : base + Number(m[4]), end: m[4] == null ? Number(m[3]) : base + Number(m[5]) };
-};
 
-function verifySpan(span, sources) {
-  const range = spanRange(span?.at ?? span?.ref);
-  if (!range) return { ok: false, reason: "span_address_unreadable", at: span?.at ?? span?.ref ?? null };
-  const text = sources[range.source];
-  if (typeof text !== "string") return { ok: false, reason: "source_absent", source: range.source };
-  const raw = text.slice(range.start, range.end);
-  if (raw === String(span.text ?? "")) return { ok: true, mode: "exact", source: range.source, start: range.start, end: range.end };
-  // Relation spans are display text, not quotations. P17's declared layout
-  // transform permits hard-wrap whitespace to become one display space while
-  // the address still names the original bytes.
-  if (layout(raw) === layout(span.text)) return { ok: true, mode: "layout_normalized", source: range.source, start: range.start, end: range.end };
-  return { ok: false, reason: "span_does_not_read_back", at: span.at ?? span.ref };
-}
-
-function verifyPassage(passage, sources) {
-  const text = sources[passage.source];
-  if (typeof text !== "string") return { ok: false, reason: "source_absent", source: passage.source };
-  return text.slice(passage.start, passage.end) === passage.text
-    ? { ok: true }
-    : { ok: false, reason: "passage_does_not_read_back", ref: passage.ref };
-}
+// verifySpan/verifyPassage moved to organs/verify-span.js (2026-09-28) —
+// this file's own copy and product-assay.mjs's were two independent
+// codings of the same check that had drifted apart (this one understood
+// P17's layout tolerance; product-assay's understood a passage-relative
+// coordinate frame). Both callers now share one implementation that does
+// both, so a span either module hands it verifies the same way.
 
 export function computeDocumentHolograph({ question, readingEntries, notes, sources, organs = {} }) {
   requireDocumentHolographFold();

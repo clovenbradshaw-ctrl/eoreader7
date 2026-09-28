@@ -143,3 +143,82 @@ test("H6 — the identity is frame-bearing: the same claim in two frames is two 
   captureProposition(h, "The river carried the city's trade.", { frame: FRAME_RU, activation: "river" });
   assert.equal(h.byCore.size, 2, "two frames, two proposition identities — never collapsed onto one");
 });
+
+// ── H7  ENTAILMENT REQUIRES BOTH ENDS, AS PHRASES — NOT NAME-DROPPING ONE.
+// Found running the holograph against a real, uncurated document (Wikipedia's
+// "The X-Files" article — eval/the-fold/proposition-holograph-real-data.mjs,
+// results/proposition-holograph-real-data-RESULTS.md, Finding 2): a sentence
+// that only NAMES one participant of a noisy, mis-parsed ground fact (a
+// parenthetical the mechanical extractor misread as a relation) typed as
+// verbatim-grounded with nothing actually reproduced. Mutation-checked:
+// reverting the phrase+both-ends check to "2+ tokens shared with the fact's
+// COMBINED ends" (the pre-fix logic) makes the first assertion below fail.
+// Also covers the same fix's other half: an entailed fact's address is now
+// checked against real bytes (organs/verify-span.js) when `sources` is
+// handed in — integrating the proposition side with the discipline the
+// reading side (document-holograph.mjs, product-assay.mjs) already applies
+// to its own ledger spans, never assumed true with no source to check.
+test("H7 — entailment requires both ends as phrases; a verified span is required to trust the address", () => {
+  const h = createPropositionHolograph();
+  // The real case: "Cigarette Smoking Man" (end1) is named; "William B"
+  // (end2) never appears anywhere in the sentence. Pure commentary, nothing
+  // from the fact actually reproduced.
+  const commentary = captureProposition(h, "The Cigarette Smoking Man functions less as a person than as the series' recurring proof that institutions outlast any single villain.", {
+    groundFacts: [{ end1: "Cigarette Smoking Man", label: "(", end2: "William B", fact: "Cigarette Smoking Man ( William B", ref: "xfiles.txt#6172-8726" }],
+  });
+  assert.equal(commentary.typing, "invent", "naming one end of a fact is not verbatim carry of it");
+  assert.equal(commentary.closestGroundFact, "Cigarette Smoking Man ( William B", "the near-miss is disclosed, not silently dropped");
+
+  // Both ends present, as phrases -> genuinely entails, with no sources to
+  // check the address stays disclosed as untried, never assumed true.
+  const reproduced = captureProposition(h, "David Duchovny plays Fox Mulder on the show.", {
+    groundFacts: [{ end1: "Fox Mulder", label: "(", end2: "David Duchovny", fact: "Fox Mulder ( David Duchovny", ref: "xfiles.txt#0-3636" }],
+  });
+  assert.equal(reproduced.typing, "entail");
+  assert.equal(reproduced.entailVerified, null, "no sources handed in -> verification not attempted, never assumed");
+
+  // SPAN VERIFICATION: with real sources supplied, a genuine address reads
+  // back; a fabricated one is caught and disclosed, without changing the
+  // (separate) verbatim-ends typing decision.
+  const sourceText = "Fox Mulder (David Duchovny) and Dana Scully.";
+  const sources = { "xfiles.txt": sourceText };
+  const realSpanText = "Fox Mulder (David Duchovny)";
+  const realStart = sourceText.indexOf(realSpanText);
+  const verified = captureProposition(h, "David Duchovny plays Fox Mulder on the show.", {
+    groundFacts: [{ end1: "Fox Mulder", label: "(", end2: "David Duchovny", fact: "Fox Mulder ( David Duchovny", ref: "xfiles.txt#0-3636",
+      spans: [{ ref: "xfiles.txt", start: realStart, end: realStart + realSpanText.length, text: realSpanText }] }],
+    sources,
+  });
+  assert.equal(verified.entailVerified, true, "the span reads back from the real source");
+
+  const fabricated = captureProposition(h, "David Duchovny plays Fox Mulder on the show.", {
+    groundFacts: [{ end1: "Fox Mulder", label: "(", end2: "David Duchovny", fact: "Fox Mulder ( David Duchovny", ref: "xfiles.txt#0-3636",
+      spans: [{ ref: "xfiles.txt", start: realStart, end: realStart + realSpanText.length, text: "a sentence nowhere in the source" }] }],
+    sources,
+  });
+  assert.equal(fabricated.typing, "entail", "typing is about the ends carried verbatim in the PROPOSITION, a separate question from the fact's own address");
+  assert.equal(fabricated.entailVerified, false, "but a fabricated address is disclosed, never trusted silently");
+});
+
+// ── H8  A FACT WHOSE TWO ENDS ARE THE SAME TEXT CANNOT ENTAIL ANYTHING.
+// Found re-testing H7's own fix against the same real document: a mis-parsed
+// reflexive sentence ("she is partnered with Mulder... so that she can
+// debunk Mulder's...") produced a ground fact with end1 === end2 ===
+// "Mulder". H7's both-ends check is trivially satisfied by ANY sentence
+// naming Mulder once, since "both ends" collapse to one — the same class
+// of bug as H7, one level more subtle. Mutation-checked: removing the
+// identical-ends guard makes this test's first assertion fail.
+test("H8 — a fact whose ends fold to the same text is never entail's witness", () => {
+  const h = createPropositionHolograph();
+  const degenerate = captureProposition(h, "Mulder is depicted as a Bureau profiler who was educated at Oxford.", {
+    groundFacts: [{ end1: "Mulder", label: "initially so that she can debunk", end2: "Mulder", fact: "Mulder initially so that she can debunk Mulder", ref: "xfiles.txt#3655-6150" }],
+  });
+  assert.equal(degenerate.typing, "invent", "naming Mulder once cannot entail a fact whose 'two ends' are both just Mulder");
+  assert.equal(degenerate.closestGroundFact, null, "an identical-ends fact is excluded before it can even count as the closest near-miss");
+
+  // A genuine two-different-ends fact is unaffected by the guard.
+  const genuine = captureProposition(h, "David Duchovny plays Fox Mulder on the show.", {
+    groundFacts: [{ end1: "Fox Mulder", label: "(", end2: "David Duchovny", fact: "Fox Mulder ( David Duchovny", ref: "xfiles.txt#0-3636" }],
+  });
+  assert.equal(genuine.typing, "entail", "the guard targets identical ends only, not real two-party facts");
+});
