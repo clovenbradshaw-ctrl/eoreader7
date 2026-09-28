@@ -169,7 +169,12 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
   const clean = (w) => w.toLowerCase().replace(/[^\p{L}’']/gu, "");
   const irrealisIn = (words) => words.some((w) => modals.has(w) || negation.has(w)) || words.includes("to");
   for (const sentence of sentences) {
-    const { text, at } = sentence;
+    // A SOFT LINE BREAK IS A SPACE (Gutenberg hard-wraps prose; v11's "the
+    // Austrian\ngeneral" read as "the Austrian" because `.` stops at a newline,
+    // and v6's "became the\nlatter" made a locus of "the"). Length-preserving,
+    // so every offset still names the sentence's own bytes.
+    const { at } = sentence;
+    const text = String(sentence.text).replace(/[\r\n]/g, " ");
     const ms = mentions ? [...(mentions(sentence) ?? [])].sort((a, b) => a.start - b.start) : null;
     let clauseStart = 0;
     for (const clause of String(text).split(/[;:]|(?:,\s+(?=(?:and|but|while|when|after|before)\s))/u)) {

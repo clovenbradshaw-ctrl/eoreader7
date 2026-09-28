@@ -213,3 +213,11 @@ test("the cast is asked only about a head phrase that reads as a name: a name in
     ["Balashev", null, "surface"], ["Borodino", null, "surface"], ["Weyrother", null, "surface"], ["Pierre", "ref:count bezukhov", "cast"],
   ]);
 });
+
+test("a soft line break inside a clause is a space: the complement reads across it and offsets still name the bytes", () => {
+  const resolveLocus = (sentence, span) => (/austrian/i.test(sentence.text.slice(span.start, span.end)) ? { referent: "Austrian", id: "ref:austrian", via: "cast" } : null);
+  const r = readOccupancyTestimony([{ text: "Weyrother was the Austrian\ngeneral who had succeeded Schmidt.", at: 0, offset: 0 }, { text: "Pierre became the\nlatter.", at: 1, offset: 0 }, { text: "Pierre became Count\nBezukhov.", at: 2, offset: 0 }], { ...OPTS, resolveLocus });
+  // "the latter" types as a definite complement under the standing rule (a locus surface, for positionsByPattern to weigh) — what the fix closes is a locus named "the"
+  assert.deepEqual(r.candidates.map((c) => [c.occupant, c.locus, c.locusVia]), [["Weyrother", "Austrian general", "surface"], ["Pierre", "latter", "surface"], ["Pierre", "Count Bezukhov", "surface"]]);
+  assert.equal(r.refused.length, 0);
+});
