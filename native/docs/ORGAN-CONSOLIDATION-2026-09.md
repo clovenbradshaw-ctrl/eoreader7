@@ -1254,3 +1254,26 @@ per-event table-update loop is independently re-implemented (online
 variant) inside `surprise-segments.js::surprises()` — a real, genuine
 duplication, but extracting a shared incremental-step primitive is its
 own design decision, not attempted here.
+
+## 27. `ONE-ENGINE-PLAN.md` — two stale claims corrected (2026-09-28)
+
+Two independent, verified corrections to the plan's own text. (1) The
+"already shared, not duplicated" list carried "moral shadow" since
+2026-09-16, never reverified — confirmed the-fold has zero imports of
+`kernel/moral-shadow.js` and zero occurrences of its vocabulary
+(`norm_compliant`/`norm_conflict`/`conflictWeight`/`corroborationFloor`)
+anywhere in its tree (nor an indirect re-export via `organs/index.js`).
+Removed from the list; the same "verify `constitution.js` isn't
+independently enforcing an overlapping table" caveat is left standing
+for the remaining three items. (2) The "`shadow` double-return bug —
+reverify" line was already fixed: `proxy-runner.mjs:8636`/`:8773` return
+`shadow: assessShadow(personId)` (the Bourdieu norm-standing rate) and
+`shadowSites: session.shadow ?? []` (the Mneme visited-URL cache) as two
+separately-named fields of the same return object, each with an inline
+comment naming the fix. Replaced the stale "reverify" note with the
+confirmed-fixed state.
+
+Both corrections verified directly (grep for the vocabulary; the exact
+line numbers and field names in `proxy-runner.mjs`) before writing.
+`name_collision_different_job` — the plan's own overall verdict for this
+cluster — stands unmodified; no code changed.
