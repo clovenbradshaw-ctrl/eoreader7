@@ -279,6 +279,12 @@
 //        /Count Bez[uú]khov/ and surface /Cyril Vlad.*Bez[uú]khov/; the
 //        Count->Prince control yields zero; and the rows' cast face for the
 //        title referent is Cyril's own full name (v14's finding, now the test)
+// V16, PRE-REGISTERED 2026-09-28 after v15 (output -v16.json, same cap). ONE
+// change: HEAD_NOUN_CUT is anchored at the phrase's start as well (a
+// clause-shaped complement whose determiner was stripped begins with its
+// pronoun — v15's one residual, "that you have deserved it").
+//   Z32  vetoes < 23 (v15); the relative-clause / pronoun-initial shape count
+//        is 0; "the same as ever" still vetoed; Material A entry 33, state 24
 //   node occupancy-host-eval.mjs [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
@@ -608,11 +614,12 @@ const relShape = vetoed.filter((x) => { const c = String(x.complement ?? "").toL
 const Z30 = { count: vetoed.length, v14: 26, relativeClauseShape: relShape.map((x) => `${x.text} | ${x.word} :: ${x.complement}`), sameAsEver: vetoedLoci.filter((l) => l === "same as ever").length, held: vetoed.length < 26 && relShape.length === 0 && vetoedLoci.some((l) => l === "same as ever") };
 const cyrilRows = wpNaming.rows.filter((r) => /Cyril Vlad.*Bez[uú]khov/i.test(r.surface) && /Count Bez[uú]khov/i.test(r.locusSurface ?? ""));
 const Z31 = { rows: cyrilRows.map((r) => `${r.surface} -> ${r.locusSurface} [face: ${r.locus}] (${r.via}) @s${r.at}`), controlRows: wpNaming.controlRows, held: cyrilRows.length >= 1 && wpNaming.controlRows === 0 && cyrilRows.every((r) => /Cyril Vlad.*Bez[uú]khov/i.test(r.locus)) };
+const Z32 = { count: vetoed.length, v15: 23, relativeClauseShape: relShape.map((x) => `${x.text} | ${x.word} :: ${x.complement}`), sameAsEver: vetoedLoci.filter((l) => l === "same as ever").length, entry: entryA.length, state: stateA.length, held: vetoed.length < 23 && relShape.length === 0 && vetoedLoci.some((l) => l === "same as ever") && entryA.length === 33 && stateA.length === 24 };
 const Z28 = { namedSlots: wpNaming.slots, predicatedSlots: wpId?.slots ?? [], held: wpNaming.slots.some((s) => s.verdict === "contested") && !wpNaming.slots.some((s) => s.chosen === "position") && (wpId?.slots ?? []).some((s) => s.chosen === "one_being") };
 const Z8 = { perText: [...pages.map((p) => ({ text: p.name, slots: p.identity.slots })), ...Object.entries(B).map(([k, v]) => ({ text: k, slots: v.identity?.slots ?? [] }))].filter((x) => x.slots.length), held: null };
 
 const out = {
-  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8, Z9, Z10, Z11, Z12, Z13, Z14, Z15, Z16, Z17, Z18, Z19, Z20, Z21, Z22, Z23, Z24, Z25, Z26, Z27, Z28, Z29, Z30, Z31, Y1, Y2, Y3, X1, X2, X3,
+  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8, Z9, Z10, Z11, Z12, Z13, Z14, Z15, Z16, Z17, Z18, Z19, Z20, Z21, Z22, Z23, Z24, Z25, Z26, Z27, Z28, Z29, Z30, Z31, Z32, Y1, Y2, Y3, X1, X2, X3,
   ...W, V1, V2, V3, V4, V5, V6,
   nativeA: { standings: AN.length, perPage: pagesN.map((p) => ({ page: p.name, standings: p.rows.length, refused: tally(p.real.refused, (x) => x.reason), cast: p.cast, seconds: p.seconds })), via: tally(AN, (c) => c.via), rows: AN },
   nativeB: BN,
@@ -623,7 +630,7 @@ const out = {
   standingsA: A,
   live: Object.fromEntries(Object.entries(B).map(([k, v]) => [k, { ...v, rows: v.rows.slice(0, 60) }])),
 };
-for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8", "Z9", "Z10", "Z11", "Z12", "Z13", "Z14", "Z15", "Z16", "Z17", "Z18", "Z19", "Z20", "Z21", "Z22", "Z23", "Z24", "Z25", "Z26", "Z27", "Z28", "Z29", "Z30", "Z31"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
+for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8", "Z9", "Z10", "Z11", "Z12", "Z13", "Z14", "Z15", "Z16", "Z17", "Z18", "Z19", "Z20", "Z21", "Z22", "Z23", "Z24", "Z25", "Z26", "Z27", "Z28", "Z29", "Z30", "Z31", "Z32"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
 console.log("via", out.via, "locusVia", out.locusVia);
 for (const [k, v] of Object.entries(B)) console.log(k, v.standings, "standings", v.ablationStandings, "ablation", v.seconds, "s", JSON.stringify(v.refused));
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));

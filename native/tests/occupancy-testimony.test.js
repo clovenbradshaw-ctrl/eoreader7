@@ -262,6 +262,9 @@ test("locus-side being-kind (2026-09-28): a complement whose head the prior sett
   const texts = ["Pierre became the latter.", "Kutúzov became the general.", "Pierre became Count Bezúkhov.", "Nicholas became the Chairman.", "Benedict became the longest-lived pope whose age can be verified.", "Andrew became the man he would himself have wished to be."];
   const r = readOccupancyTestimony(texts.map((text, at) => ({ text, at })), { ...OPTS, posPrior });
   assert.deepEqual(r.refused.filter((x) => x.reason === "locus_not_nominal").map((x) => [x.at, x.word, x.classes]), [[0, "latter", ["ADJ"]]]);
+  // v15's residual: a complement that is a clause ("that you have deserved it") — with its demonstrative stripped the pronoun stands first; the veto reads nothing past it, the clause's verb never convicts
+  const clause = readOccupancyTestimony([{ text: "The reward became that you have deserved it.", at: 0 }], { ...OPTS, posPrior: { forms: { deserved: { VERB: 3 }, it: { PRON: 9 } } } });
+  assert.equal(clause.refused.filter((x) => x.reason === "locus_not_nominal").length, 0, "the veto reads the head noun or nothing — never a trailing clause's verb");
   assert.deepEqual(r.candidates.map((c) => c.locus), ["general", "Count Bezúkhov", "Chairman", "longest-lived pope whose age can be verified", "man he would himself have wished to be"]);
   const without = readOccupancyTestimony(texts.map((text, at) => ({ text, at })), OPTS);
   assert.equal(without.candidates.length, 6, "absent a prior nothing is refused on it");

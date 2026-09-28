@@ -95,3 +95,20 @@ And it is (v8): the locus is a slot, the nesting names collapse it to
 cast's merge and the occupants' — neither asserted. The true split waits
 on Cyril, whom no *becoming* clause names: a state, not a transition.
 `results/occupancy-host-eval-v8-RESULTS.md`.
+
+The title itself was the next row (v14): the cast's referent for *Count
+Bezúkhov* wears Cyril's full name as its face — the cast folded *"Count
+Cyril Vladímirovich Bezúkhov"* into the title, so at the cast Pierre's
+*becoming Count Bezúkhov* is becoming Cyril. Cyril never enters a
+*becoming* clause because the material NAMES him with the title rather
+than predicating him into it; `namedOccupants` reads that naming as a
+signed occupant (SIG·Ground), and with him among the occupants the slot
+collapses `contested` — Pierre's faces nest, Cyril's nests with none —
+where the predicated standings alone read `one_being`. Both readings are
+on the record; neither is a split yet. In the same run the locus-side veto
+(a complement whose head the POS prior settles with no nominal share names
+no position) took *"the same as ever"* out of the position list, where
+recurrence across two occupants had put an idiom — and, reading a trailing
+relative clause's last verb instead of the head noun, took Benedict's
+*longest-lived pope* with it; the cut is at the clause opener now (V15).
+`results/occupancy-host-eval-v14-RESULTS.md`.

@@ -69,7 +69,8 @@ import { DEFINITE_DETERMINERS as _DEF, INDEFINITE_DETERMINERS as _INDEF, CLAUSE_
 // reduced relative ("pope whose age can be verified", "the man he would have
 // wished to be") trails the head; the veto below reads the word BEFORE the
 // first clause opener or subject pronoun, never the clause's own last word
-const HEAD_NOUN_CUT = new RegExp(`\\s+(?:${[...CLAUSE_OPENERS, ...SUBJECT_PRONOUNS].map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?:\\s+|$)`, "iu");
+// (v15: anchored at the phrase's start too — "that you have deserved it" is a clause, and with its determiner stripped the pronoun stands first)
+const HEAD_NOUN_CUT = new RegExp(`(?:^|\\s+)(?:${[...CLAUSE_OPENERS, ...SUBJECT_PRONOUNS].map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?:\\s+|$)`, "iu");
 const DET_ALL = new Set([..._DEF, ..._INDEF]);
 
 /** The reader's own for-whom when a caller declares none: it collapses by nearness under the earned walls. */
