@@ -52,3 +52,28 @@ test("the kernel names no medium", () => {
   const src = readFileSync(new URL("../kernel/undecided.js", import.meta.url), "utf8").replace(/\/\/.*$/gm, "");
   for (const w of ["sentence", "pronoun", "surface", "token", "word", "text"]) assert.ok(!new RegExp(`\\b${w}\\b`, "i").test(src), `names ${w}`);
 });
+
+test("persistence: an undecided record and two collapses land on the fold, survive reconstruct, and read back per for-whom", async () => {
+  const { undecidedOperation, collapseOperation, openSlots } = await import("../kernel/undecided.js");
+  const { eoOperation, deltaFold, applyDelta, receivedGround, reconstruct } = await import("../kernel/fold.js");
+  const r = rec();
+  const nearest = { name: "nearest", giver: "test", decide: (cs) => ({ chosen: cs.reduce((b, c) => (c.features.distance < b.features.distance ? c : b)).index }) };
+  const strict = { name: "cast-only", giver: "test", decide: (cs) => { const ok = cs.filter((c) => c.via === "cast" && !c.features.commaBetween); return ok.length ? { chosen: ok[0].index } : { reason: "none admissible" }; } };
+  const c1 = collapse(r, { forWhom: fw, rule: nearest, cursor: 9 });
+  const c2 = collapse(r, { forWhom: fw2, rule: strict, cursor: 9 });
+  const open = undecidedOperation(r, { eoOperation, witness: "w:1" });
+  assert.equal(open.operator, "SIG"); assert.equal(open.terrain, "Void");
+  const d1 = deltaFold([open], { id: "d1" });
+  const d2 = deltaFold([collapseOperation(c1, { eoOperation, witness: "w:2" }), collapseOperation(c2, { eoOperation, witness: "w:3" })], { id: "d2" });
+  assert.equal(d2.operations[0].operator, "EVA");
+  let fold = applyDelta(receivedGround(), d1);
+  const afterOpen = openSlots(fold, fw);
+  assert.equal(afterOpen.length, 1); assert.equal(afterOpen[0].standing, "open");
+  fold = applyDelta(fold, d2);
+  assert.equal(openSlots(fold, fw)[0].standing, "chosen"); assert.equal(openSlots(fold, fw)[0].collapse.chosen.value, "y");
+  assert.equal(openSlots(fold, fw2)[0].standing, "none");
+  // replay from the log alone
+  const replayed = reconstruct([d1, d2]);
+  assert.equal(openSlots(replayed, fw)[0].standing, "chosen"); assert.equal(openSlots(replayed, fw2)[0].standing, "none");
+  assert.equal(openSlots(replayed, fw)[0].record.standing, "open", "the undecided record itself is never rewritten by a collapse");
+});

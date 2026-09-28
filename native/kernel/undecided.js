@@ -104,3 +104,35 @@ export function contestRule({ score, minActivation, minMargin, contestedMargin, 
     },
   };
 }
+
+// ── landing on the fold ─────────────────────────────────────────────────────
+// An undecided reading and its collapses PERSIST in the fold's own
+// `unresolvedAlternatives` slot (the same slot EOIdentityAlternative@1 already
+// rides in), as ordinary DeltaFold operations: opening a slot is a mark on the
+// ground that something is there and not yet decided — SIG·Ground, the Void
+// terrain (NUL cannot carry a payload, and rightly: nothing is recorded by an
+// absence); a collapse is EVA·Figure, a judgment at a cursor for a for-whom.
+// Replayed by reconstruct() like everything else; `openSlots` and
+// `standingOf` read the standing back per for-whom, so a later for-whom, or
+// a later rule, re-collapses on the fly with the past whole.
+
+/** The operation that lands an undecided record; `eoOperation` is injected so this file imports no fold. */
+export function undecidedOperation(record, { eoOperation, witness = null } = {}) {
+  if (record?.schema !== UNDECIDED_SCHEMA) throw new TypeError("undecidedOperation: an EOUndecided@1 record");
+  if (typeof eoOperation !== "function") throw new TypeError("undecidedOperation: eoOperation is injected");
+  return eoOperation({ op: "SIG", grain: "Ground", witness, inputs: [], outputs: [record.id], consequence: { kind: "slot_opened", slot: record.slot, question: record.question, candidates: record.candidates.length }, payload: { action: "alternative", value: record } });
+}
+
+/** The operation that lands a collapse; the undecided record is its input, never rewritten. */
+export function collapseOperation(c, { eoOperation, witness = null } = {}) {
+  if (c?.schema !== COLLAPSE_SCHEMA) throw new TypeError("collapseOperation: an EOCollapse@1 record");
+  if (typeof eoOperation !== "function") throw new TypeError("collapseOperation: eoOperation is injected");
+  return eoOperation({ op: "EVA", grain: "Figure", witness, inputs: [c.of], outputs: [c.id], consequence: { kind: "slot_collapsed", of: c.of, forWhom: c.forWhom, verdict: c.verdict, rule: c.rule.name }, payload: { action: "alternative", value: c } });
+}
+
+/** Every undecided record on a fold, each with its standing for `forWhom` (or "open"). */
+export function openSlots(fold, forWhom = null) {
+  const all = fold?.unresolvedAlternatives ?? [];
+  const collapses = all.filter((x) => x?.schema === COLLAPSE_SCHEMA);
+  return all.filter((x) => x?.schema === UNDECIDED_SCHEMA).map((r) => ({ record: r, ...standingOf(r, collapses, forWhom) }));
+}
