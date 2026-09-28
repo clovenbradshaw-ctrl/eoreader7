@@ -317,6 +317,25 @@ built, so the result can go against it.
   If (3') fails with six draws, the arrival's change is not within a 1.5b
   mouth's reach on this ask, and the next move is the ask's wording, not the
   record's — recorded either way, then merged to main.
+- **Code through the one pipeline, pre-registered 2026-09-28 before the run**
+  (`code1`: a tiny spreadsheet engine — 9 functions in 3 modules with real
+  cross-module dependencies; 16 hidden tests, satisfiable: the hand-written
+  reference passes 16/16; the design — modules, functions, signatures, one
+  line each — is the person's stipulation on the record; the mouth's own work
+  is the calls, the bodies and the revisions). Three arms, same mouth
+  (1.5b, then 3b), same suite: `whole` (the whole design in one prompt, the
+  program in one draw), `units` (one function per draw from its own line,
+  nothing carried, no revision — code-build's posture, which its own header
+  says must defer when units depend on each other), `record`
+  (`organs/code-form.js`: calls asked as bonds, bodies from bounded notes
+  carrying the callees' signatures, the suite as EVA, failing functions
+  written again with the failure in hand, kept only if the tests naming them
+  fail less; 3 rounds). Predicted, tests passed of 16: whole < units <
+  record round 0 ≤ record round 3, with record round 3 > round 0. Falsifiers:
+  units ≥ record round 0 means the carried callee signatures do nothing for
+  code; round 3 ≤ round 0 means EVA→REC does nothing here; whole ≥ units
+  means decomposition costs more than it gives at this size. Recorded either
+  way.
 - **The root:** the bodies are never read back into the record. The ear
   (`talk-reader.js`) hears only the outline's talk. Every empty cell needs
   that one missing reader first (SIG·Figure), with pronouns bound
