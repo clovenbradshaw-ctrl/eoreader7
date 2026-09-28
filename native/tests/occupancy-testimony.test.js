@@ -238,3 +238,19 @@ test("a title-less name as a copula complement is an identity claim, not a locus
   const { positions, descriptions } = positionsByPattern(r.candidates);
   assert.ok(!descriptions.some((d) => d.locus === "sonya") && !positions.some((p) => p.locus === "sonya"), "an identity row is no locus at all");
 });
+
+// ── the grammar comes online for a declared language (adapters/text/grammar.js, injected) ──
+import { grammarFor } from "../adapters/text/grammar.js";
+
+test("a declared language with no grammar stands the English organs down and says so; English declared is byte-identical to no language", () => {
+  const texts = ["Merkel was Leader of the Opposition.", "With Pfuel was Wolzogen.", "Murat was appointed Grand Duke of Berg."].map((text, at) => ({ text, at }));
+  const ru = readOccupancyTestimony(texts, { ...OPTS, language: "ru", grammarFor });
+  assert.equal(ru.grammar.gap.reason, "no_grammar_for_language");
+  assert.deepEqual(ru.candidates.map((c) => [c.occupant, c.pattern]), [["Murat", "passive"]], "the copula family is an English organ; the entry family the caller handed in still runs");
+  assert.ok(!ru.refused.some((x) => x.reason === "inverted_subject"), "the fronted-phrase reading is English too");
+  const en = readOccupancyTestimony(texts, { ...OPTS, language: "en", grammarFor }), bare = readOccupancyTestimony(texts, OPTS);
+  assert.deepEqual(en.grammar, { language: "en", giver: "lang/en" });
+  assert.deepEqual(en.candidates.map((c) => [c.occupant, c.locus, c.pattern, c.act?.op ?? null]), bare.candidates.map((c) => [c.occupant, c.locus, c.pattern, c.act?.op ?? null]));
+  assert.deepEqual(en.refused.map((x) => x.reason), bare.refused.map((x) => x.reason));
+  assert.equal(readOccupancyTestimony(texts, { ...OPTS, language: "en" }).grammar.gap.reason, "no_grammar_lookup", "a language declared with nothing to look it up in is a gap, not a guess");
+});

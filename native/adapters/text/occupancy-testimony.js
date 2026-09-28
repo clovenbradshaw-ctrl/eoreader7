@@ -150,8 +150,22 @@ const CAP = "\\p{Lu}[\\p{L}’'.-]*";       // a capitalised word
  * resolveLocus(sentence, span, surface) -> { referent, via } | null
  * -> { candidates, refused, arm }
  */
-export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, pronouns = null, posPrior = null, resolveLocus = null, complementTyping = "structural", forWhom = null, occupantRule = null, phasepost = null, cellOf = null } = {}) {
+export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, pronouns = null, posPrior = null, resolveLocus = null, complementTyping = "structural", forWhom = null, occupantRule = null, phasepost = null, cellOf = null, language = null, grammarFor: grammarLookup = null } = {}) {
   for (const [k, v] of Object.entries({ source, determiners, modals, negation })) if (v == null) throw new TypeError(`occupancy-testimony: '${k}' must be declared`);
+  // THE GRAMMAR COMES ONLINE FOR A DECLARED LANGUAGE (adapters/text/grammar.js,
+  // injected — never imported here, since the register imports this file's
+  // own transition table). A declared language with no grammar is a typed
+  // gap: the copula family and the fronted-phrase reading stand DOWN (they
+  // are English organs), the entry families the caller handed in still run,
+  // and the result says so. No language declared: the caller's own classes,
+  // byte-identical to before.
+  const grammar = language ? (grammarLookup ? grammarLookup(language) : { gap: { reason: "no_grammar_lookup", language, detail: "a language was declared but no grammarFor was injected" } }) : null;
+  const clauseGrammar = grammar && !grammar.gap ? grammar.levels?.clause : null;
+  const phraseGrammar = grammar && !grammar.gap ? grammar.levels?.phrase : null;
+  if (grammar?.gap) transitions = { ...transitions, state: [] };
+  else if (clauseGrammar?.transitions) transitions = clauseGrammar.transitions;
+  const prepositions = phraseGrammar?.prepositions ?? PREPOSITIONS;
+  const headCut = phraseGrammar?.prepositions ? new RegExp(`\\s+(?:${[...phraseGrammar.prepositions].join("|")})\\s+`, "iu") : HEAD_CUT;
   const def = determiners.definite, indef = determiners.indefinite;
   const alt = (xs) => xs.map(esc).join("|");
   const AUX = `(?:(?:${[...BE_AUX].map(esc).join("|")})\\s+)`;
@@ -192,7 +206,7 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         // post-verbal subject carried, never read as a standing.
         if (p.kind === "state") {
           const firstWord = (before.trim().split(/\s+/)[0] ?? "").toLowerCase().replace(/[^\p{L}]/gu, "");
-          if (PREPOSITIONS.has(firstWord)) { refused.push({ at, reason: "inverted_subject", subject: m.groups.comp.trim().split(/,|\(|—|\s+(?:who|which|whom|and|but|while)\s+/u)[0].split(HEAD_CUT)[0].replace(/[.,;”"’']+$/u, "").trim().slice(0, 80), clause: clause.trim().slice(0, 160) }); break; }
+          if (prepositions.has(firstWord)) { refused.push({ at, reason: "inverted_subject", subject: m.groups.comp.trim().split(/,|\(|—|\s+(?:who|which|whom|and|but|while)\s+/u)[0].split(headCut)[0].replace(/[.,;”"’']+$/u, "").trim().slice(0, 80), clause: clause.trim().slice(0, 160) }); break; }
         }
         // the occupant: the pipeline's last mention before the transition, or the ablation's run
         let occupant, occupantSurface, occupantVia, gapWords;
@@ -281,7 +295,7 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         // place name in an ADJUNCT, and asking the cast about the whole span
         // made Moscow a locus. Only the head phrase — the complement up to its
         // first preposition — is asked; the whole complement stays the surface.
-        const headLen = (() => { const m2 = HEAD_CUT.exec(comp); return m2 ? m2.index : comp.length; })();
+        const headLen = (() => { const m2 = headCut.exec(comp); return m2 ? m2.index : comp.length; })();
         const headText = comp.slice(0, headLen).trim();
         // ...and a head phrase is asked only when it READS AS A NAME (v10's
         // finding: "the last Napoleon sent", "Napoleon's senseless flight" hold a
@@ -314,7 +328,7 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
       }
     }
   }
-  return { candidates, refused, events, arm: mentions ? "mentions" : "capitalised-run (ablation)", giver: OCCUPANCY_TRANSITIONS_EN_META.giver };
+  return { candidates, refused, events, arm: mentions ? "mentions" : "capitalised-run (ablation)", giver: OCCUPANCY_TRANSITIONS_EN_META.giver, grammar: grammar ? (grammar.gap ? { gap: grammar.gap } : { language: grammar.language, giver: grammar.giver }) : null };
 }
 
 /**
