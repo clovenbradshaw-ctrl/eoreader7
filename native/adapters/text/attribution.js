@@ -27,6 +27,12 @@
 //     patched by loosening a gate. With no prior this returns a typed gap
 //     naming what it lacks. It does NOT guess a narrator.
 //
+// A THIRD MECHANISM, added later (below, near rayaFrames/raySpans): the
+// two above are English's own quote-mark grammar, and Spanish (and much
+// French/Catalan) literary prose marks dialogue with the raya — an
+// em-dash — instead, a positionally different convention rather than a
+// fourth quote character to add to OPEN/CLOSE/STRAIGHT.
+//
 // THE SPEECH VERB IS NOT A HAND-TYPED LIST. That was the first cut and it
 // is the exact mistake both repos' CLAUDE.md files record ("a 90-word
 // hand-listed verb string was not a simplification of English, it was a
@@ -137,6 +143,97 @@ export function quotedSpans(text, { offset = 0 } = {}) {
     }
   }
   return freeze({ schema: "EOQuotedSpans@1", spans: freeze(spans), unclosed: open >= 0 ? 1 : 0 });
+}
+
+// ── THE RAYA: a second, structurally different dialogue convention ─────────
+//
+// Confirmed live against real fetched Spanish prose (es.wikisource.org's
+// transcription of Galdós's "Marianela", ch. I — public domain, genuinely
+// downloaded, not fabricated): "—No puedo equivocarme—murmuró.—Me dijeron
+// que atravesara el rio..." carries ZERO of OPEN/CLOSE/STRAIGHT anywhere,
+// so quotationFrames/quotedSpans (above) find no dialogue in it at all —
+// every line of Spanish (and much French and Catalan) literary dialogue
+// was invisible to this module.
+//
+// This is not "one more quote mark to add to the set": the raya's own
+// grammar is positional, not a balanced open/close pair. A paragraph that
+// OPENS with an em-dash is a speech turn for its whole paragraph; a second
+// em-dash inside that SAME paragraph does not mean "still open" (quote-
+// mark logic) — it closes the utterance into a narration/attribution
+// clause ("—murmuró."), and a THIRD dash (if the writer resumes the
+// speech, as this exact specimen does) reopens it. So the alternation is
+// speech/narration/speech/narration…, never "open until closed". Gating
+// on PARAGRAPH-INITIAL position, never a bare dash count, is what keeps
+// this from misreading an ordinary sentence's own parenthetical em-dash
+// ("the weather — cold and gray — matched his mood") as dialogue: that
+// dash sits mid-paragraph, never at its head, so it is never touched here.
+const RAYA = "—"; // U+2014, the RAE-standard raya
+
+/**
+ * One entry per paragraph that opens with the raya — the SAME "per
+ * paragraph, byte-addressed" shape quotationFrames returns, so a caller
+ * already walking one convention's frames can walk this one identically.
+ * `dashes` is the paragraph's own em-dash count; an EVEN total means some
+ * opened clause (speech or attribution) never closed — a convention this
+ * reader does not recognize, disclosed as `wellFormed: false` rather than
+ * guessed past.
+ */
+export function rayaFrames(text, { offset = 0 } = {}) {
+  const paras = paragraphs(text, offset);
+  const marked = [];
+  for (const para of paras) {
+    const lead = para.text.length - para.text.replace(/^\s+/, "").length;
+    if (para.text.slice(lead, lead + RAYA.length) !== RAYA) continue;
+    let dashes = 0;
+    for (const ch of para.text) if (ch === RAYA) dashes += 1;
+    marked.push(freeze({ byteStart: para.start + lead, byteEnd: para.end, dashes, wellFormed: dashes % 2 === 1 }));
+  }
+  return freeze({
+    schema: "EORayaFrames@1",
+    basis: "the received bytes' own raya convention (RAE): a paragraph opening with an em-dash is a speech turn for its whole paragraph",
+    paragraphs: paras.length,
+    marked: freeze(marked),
+    counted: freeze({ turns: marked.length, malformed: marked.filter((m) => !m.wellFormed).length }),
+  });
+}
+
+/**
+ * The individual SPOKEN spans inside a raya paragraph — quotedSpans' own
+ * reason for existing, one register over: a speaker tag sits beside the
+ * spoken words, not beside the paragraph that contains them, and a raya
+ * paragraph can hold more than one spoken segment ("—speech—tag.—more
+ * speech" is one paragraph, two speech spans either side of one
+ * attribution clause). Dashes alternate speech-opening/speech-closing;
+ * the odd-indexed boundary (the 1st, 3rd, 5th… dash) always OPENS a
+ * spoken span, exactly the way `positions[i]`/`i += 2` below reads them.
+ * An unpaired final dash's speech runs to the paragraph's own end — no
+ * closing mark is ever expected for the LAST segment, the same "no
+ * closing" fact rayaFrames' own header already states for a whole
+ * one-dash paragraph.
+ */
+export function raySpans(text, { offset = 0 } = {}) {
+  const paras = paragraphs(text, offset);
+  const spans = [];
+  for (const para of paras) {
+    const local = para.text;
+    const lead = local.length - local.replace(/^\s+/, "").length;
+    if (local.slice(lead, lead + RAYA.length) !== RAYA) continue;
+    const positions = [];
+    for (let i = lead; i < local.length; i += 1) if (local[i] === RAYA) positions.push(i);
+    for (let i = 0; i < positions.length; i += 2) {
+      const segEndLocal = i + 1 < positions.length ? positions[i + 1] : local.length;
+      const byteStart = para.start + positions[i];
+      const byteEnd = para.start + segEndLocal;
+      spans.push(freeze({
+        byteStart,
+        byteEnd,
+        before: text.slice(Math.max(0, byteStart - offset - 90), byteStart - offset),
+        after: text.slice(byteEnd - offset, byteEnd - offset + 91),
+        text: local.slice(positions[i], segEndLocal),
+      }));
+    }
+  }
+  return freeze({ schema: "EORaySpans@1", spans: freeze(spans) });
 }
 
 /**

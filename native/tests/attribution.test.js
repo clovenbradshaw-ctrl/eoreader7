@@ -3,7 +3,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { quotationFrames, quotedSpans, attributeQuotation, narrationFrames, holderAt } from "../adapters/text/attribution.js";
+import { quotationFrames, quotedSpans, attributeQuotation, narrationFrames, holderAt, rayaFrames, raySpans } from "../adapters/text/attribution.js";
 
 test("the continued-quotation convention is read off the bytes: a run of opened-but-unclosed paragraphs is one embedded telling", () => {
   const text = [
@@ -71,6 +71,74 @@ test("narratorSpans resolve by anchor, and an anchor that does not resolve is re
   assert.equal(holderAt(0, { narration: nf }).holder, "walton");
   assert.equal(holderAt(text.indexOf("Victor speaks"), { narration: nf }).holder, "victor");
   assert.equal(holderAt(text.length - 1, { narration: nf }).gap, "outside_every_known_frame", "past the last frame is a gap, not the last narrator carried forward");
+});
+
+// ── THE RAYA (real, fetched Spanish prose) ──────────────────────────────────
+// Genuinely downloaded, not fabricated: es.wikisource.org's transcription of
+// Galdós's "Marianela", chapter I (public domain), 2026-09-28. This exact
+// paragraph carries none of OPEN/CLOSE/STRAIGHT, so quotationFrames alone
+// finds zero dialogue in it — confirmed by running quotationFrames on it
+// directly below before rayaFrames/raySpans existed to fix that.
+const MARIANELA_REAL = "—No puedo equivocarme—murmuró.—Me dijeron que atravesara el rio por la pasadera.";
+const MARIANELA_TAIL = "—Me he perdido, no hay duda de que me he perdido... Aquí tienes, Teodoro Golfin.";
+const MARIANELA_TEXT = [MARIANELA_REAL, "Despues de andar largo trecho, añadió:", MARIANELA_TAIL].join("\n\n");
+
+test("quotationFrames alone (the pre-existing English quote-mark mechanism) finds NOTHING in real raya prose — the confirmed bug", () => {
+  const q = quotationFrames(MARIANELA_TEXT);
+  assert.equal(q.marked.length, 0, "zero of OPEN/CLOSE/STRAIGHT anywhere in genuine Spanish literary dialogue");
+});
+
+test("rayaFrames reads the real specimen: a paragraph-initial em-dash is a speech turn, odd dash count is well-formed", () => {
+  const r = rayaFrames(MARIANELA_TEXT);
+  assert.equal(r.marked.length, 2, "two raya paragraphs; the plain narration paragraph in between is not one");
+  assert.equal(r.marked[0].dashes, 3, "opens, closes into the attribution clause, reopens");
+  assert.ok(r.marked[0].wellFormed);
+  assert.equal(MARIANELA_TEXT.slice(r.marked[0].byteStart, r.marked[0].byteEnd), MARIANELA_REAL, "the span re-slices to the received bytes (P5.2)");
+  assert.equal(r.marked[1].dashes, 1, "opens, and simply runs to the paragraph's own end — no closing mark expected");
+  assert.equal(r.counted.turns, 2);
+  assert.equal(r.counted.malformed, 0);
+});
+
+test("a paragraph's own parenthetical em-dash, mid-sentence, is never mistaken for the raya — position is the tell, never a bare dash count", () => {
+  const ordinary = "El tiempo, frío y gris, encajaba con su ánimo — o eso pensaba él — mientras caminaba.";
+  const r = rayaFrames(ordinary);
+  assert.equal(r.marked.length, 0, "the paragraph's FIRST character is not an em-dash, so this is never read as dialogue");
+});
+
+test("raySpans splits the three-dash specimen into its two SPOKEN segments, excluding the embedded attribution clause", () => {
+  const spans = raySpans(MARIANELA_TEXT).spans;
+  assert.equal(spans.length, 3, "two segments from the 3-dash paragraph, one from the 1-dash paragraph");
+  assert.equal(spans[0].text, "—No puedo equivocarme");
+  assert.ok(spans[0].after.startsWith("—murmuró."), "the embedded attribution clause sits in `after`, not inside the speech span itself");
+  assert.equal(spans[1].text, "—Me dijeron que atravesara el rio por la pasadera.", "the reopened speech, running to the paragraph's own end");
+  assert.equal(spans[2].text, MARIANELA_TAIL, "a single-dash paragraph is one span, start to end");
+});
+
+test("raySpans feeds the SAME, unmodified attributeQuotation this file already tests for English — no second attribution mechanism was written for Spanish", () => {
+  const spans = raySpans(MARIANELA_TEXT).spans;
+  // A minimal Spanish verb/referent prior, injected exactly the way an
+  // English one already is above — this repo already carries a real
+  // Spanish POS-prior treebank (native/priors/pos-spa.json) for a live
+  // caller to inject; a hand-picked stand-in is enough to prove the WIRING.
+  const isVerb = (w) => ["murmuró", "dijo", "exclamó"].includes(w.toLowerCase());
+  const referentFor = (s) => null; // Marianela's opening line names no referent yet — an honest gap, not a guess
+  const attributed = attributeQuotation(spans[0].before, spans[0].after, { isVerb, referentFor });
+  assert.equal(attributed.speaker, null, "no admitted referent stands beside the verb — a real, honest gap, never invented");
+  assert.equal(attributed.gap.type, "attribution_unwitnessed");
+  // Prove the verb IS found (so the gap is genuinely about the missing
+  // referent, not a silent failure to read the span at all).
+  const withReferent = attributeQuotation(spans[0].before, spans[0].after, { isVerb, referentFor: () => "ref:auto:narrator" });
+  assert.equal(withReferent.speaker, "ref:auto:narrator");
+  assert.equal(withReferent.form, "verb-then-name");
+});
+
+test("rayaFrames discloses a malformed (even dash-count) paragraph rather than silently guessing where speech ends", () => {
+  const malformed = "—Uno—dos—tres—cuatro"; // 4 dashes: the last clause never closed
+  const r = rayaFrames(malformed);
+  assert.equal(r.marked.length, 1);
+  assert.equal(r.marked[0].dashes, 4);
+  assert.equal(r.marked[0].wellFormed, false);
+  assert.equal(r.counted.malformed, 1);
 });
 
 test("an embedded frame outranks the outer narration — that is what embedding means", () => {
