@@ -568,3 +568,96 @@ which every existing production and eval caller uses it at).
 clear verification. An unverified hypothesis is never listed here as a
 finding — it stays in the research transcript until read, tested, and
 either confirmed or refuted.*
+
+## 8. `answer-record.js` (native/the-fold/) — disclosed, not merged (2026-09-28)
+
+Same shape as `earned-cast-practice.js` (above): eoreader7's copy is a
+frozen, one-time vendored snapshot (222 lines, landed whole in checkpoint
+commit `a63be3c`, 2026-09-26) of the-fold's canonical, still-evolving
+`answer-record.js` (400 lines). It now lacks the satisfaction/logos/
+ledgerLint/ungrounded disclosure fields, the expectation/open/mechanical
+params on `answerRecord()`, per-claim scope/ground, `answerRecordForReading()`,
+the `LINT_PHRASES`/`lintKinds` helpers, and `bareLogic()`.
+
+Confirmed this is not a live bug: `proxy-runner.mjs` (the only caller in
+eoreader7) calls `answerRecord()` with base fields only and embeds the
+whole return value opaquely (`reading.answerRecord`), never calling any of
+the newer helpers; `dialogue.js` only imports the byte-identical `claimKey`.
+Added a comment-only disclosure header stating this plainly (22 insertions,
+0 executable lines changed) — mirroring the sibling precedent's format —
+and naming the safe path forward if eoreader7 ever needs the newer fields
+(a fresh one-time re-copy of the-fold's file, never the reverse, followed
+by re-running `cli/tests/proxy-api-reading.test.mjs`).
+
+Verified: `cli/tests/proxy-api-reading.test.mjs` 15/15 before and after,
+identical. Full `native/the-fold/*.test.mjs` suite: same pre-existing
+failure names, unchanged.
+
+## 9. `dialogue.js` (native/the-fold/) — the-fold's three additive fixes ported (2026-09-28)
+
+The-fold's copy was confirmed a strict superset of eoreader7's vendored
+one (no capability the eoreader7 copy had that the-fold lacked), so this
+port is one-directional and additive. Ported verbatim:
+
+1. `fold()`'s regex widened from `/[̀-ͯ]/g` to `/[̀-̅̇-ͯ]/g` — NFD
+   decomposes Cyrillic й/Й into и/И plus U+0306 COMBINING BREVE, a
+   different letter of the alphabet, not a decorated и; stripping it the
+   same way as an accent mark collapsed мой/мои (two distinct real words)
+   to one string. Reproduced live before the fix: `fold("мой") ===
+   fold("мои")` is `true`; after, `false`. Latin accent folding
+   (Natásha/Bezúkhov) is byte-identical before and after.
+2. `LOCAL_ANTECEDENT_NP_RE`/`SENTENCE_SPLIT_RE`/`hasLocalAntecedent()`,
+   threaded through `bindAnaphora()` as a fifth `local` field — a same-
+   sentence determined noun phrase before a pronoun vetoes the cross-turn
+   fallback (P31's shape: a string can refuse a claim, never make one).
+3. A fifth `voids` parameter on `expectationFrom()`, a new `scopePhrase()`
+   helper, and voids-aware `expectationFacts()` rendering — the declared
+   absences ride beside what the material states, phrased in words rather
+   than interpolated as a raw object (which had been stringifying to the
+   literal text `"[object Object]"`, a real formatting bug caught live).
+
+Ported the one self-contained regression from the-fold's `dialogue.test.mjs`
+("fold() does not corrupt Cyrillic й") as a new
+`native/the-fold/dialogue.test.mjs` (importing only `fold`) — confirmed it
+fails against the pre-fix file with the real collision
+(`мой`/`мои` both folding to `мои`) and passes after. The-fold's full
+`dialogue.test.mjs` was deliberately NOT mechanically copied — it imports
+four other the-fold files (`correction.js`, `answerable.js`,
+`transcript.js`, `cast.js`) not vendored here, which would drag in a much
+larger scope; that remains named, unexecuted future work (`resolutions.js`
+needing `transcript.js::lastOwnTurn`, tracked separately).
+
+Verified: full `native/the-fold/*.test.mjs` (516 tests): 510 pass / 6 fail,
+same 6 pre-existing failure names as before this change (unrelated —
+dependency indexing, form-referent resolution, paradigm-plurality
+scaling, PDF reading), plus the new regression passing. `native/organs/
+what.test.mjs` (resolutions.js's real, direct consumer via `referentsOf`/
+`fold`): 10/11 pass both before and after, the one pre-existing failure
+unrelated (a `capacities.js` registration check) and unchanged by name.
+
+## 10. `profile.js` (native/the-fold/) → `statement-profile.js` — name collision resolved (2026-09-28)
+
+Pure rename, eoreader7 side only — nothing in the-fold changes. The two
+`profile.js` files (the-fold's turn-record propose/keep/dismiss log vs.
+eoreader7's `EOStatementProfile@1` cube-address terrain/stance ledger)
+share zero exports, zero data shape, and zero cross-repo coupling
+(confirmed by exhaustive grep for every plausible cross-reference in both
+trees) — this was a pure discoverability hazard, not a functional risk,
+made concrete by `earned-cast.js`'s own same-day header showing files in
+this exact directory (`native/the-fold/`) do graduate to live cross-repo
+use without warning.
+
+`git mv native/the-fold/profile.js native/the-fold/statement-profile.js`
+(matching its own `PROFILE_SCHEMA = "EOStatementProfile@1"` and
+`profileStatements` entry point), plus the three real importers'
+specifier strings (`arc.js`, `profile-falsify.test.mjs`,
+`native/eval/the-fold/skeleton-arms.mjs`) and the two doc references in
+`plans/generation-terrain-stance.md`. The full-file rename to a more
+descriptive name (matching e.g. `arc.js`/`arc-falsify.test.mjs` sibling
+naming) was deliberately left as a smaller, separate follow-on rather than
+bundled in.
+
+Verified: `node --test native/the-fold/profile-falsify.test.mjs
+native/the-fold/arc-falsify.test.mjs` — 9/9 pass, unchanged. Grep
+for the old path/specifier string (`"./profile.js"`, `"the-fold/
+profile.js"`) across both repos: zero remaining hits.
