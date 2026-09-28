@@ -11,6 +11,9 @@ export const COMMANDS = Object.freeze([
   ["/control <claim> [code]", "add a CONTROL: a check that should fail — a check nobody has seen fail proves only that it runs"],
   ["/run <cell|all|stale>", "run one cell, every cell, or the cells whose code or data changed"],
   ["/ingest <path>", "read any file (pdf docx xlsx pptx csv ipynb image …) into the notebook; gaps are shown, never hidden"],
+  ["/learn <check> <control> as <what it answers>", "teach it: turn your own check and control cells into a method it can apply to other columns and files"],
+  ["/skills", "the analyses this instance has learned — none are built in"],
+  ["/forget <id> because <why>", "concede a learned method (kept on the record, no longer chosen)"],
   ["/data", "list what has been ingested, with each reader's gaps"],
   ["/tools", "list the python packages and er7 helpers a cell can use"],
   ["/promote <claim> <status> [evidence]", "move a claim up (conjectured, computed_in_range, proved) — by you, never a model"],
@@ -34,6 +37,9 @@ export function parseCommand(line) {
     case "check": case "control": { const [card, ...c] = rest.split(/\s+/); const body = rest.slice(rest.indexOf(card) + card.length).trim(); return card ? { op: "add", type: "code", lang: "python", source: body, for: card, role: w, run: true } : { error: `/${w} <claim id> [code]` }; }
     case "run": return rest ? { op: "runmany", which: rest.trim() } : { error: "/run <cell id | all | stale>" };
     case "ingest": return rest ? { op: "ingest", path: rest.trim() } : { error: "/ingest <path to a file>" };
+    case "learn": { const m = rest.match(/^(\S+)\s+(\S+)\s+as\s+(.+)$/s); return m ? { op: "learn", check: m[1], control: m[2], desc: m[3].trim() } : { error: "/learn <check cell id> <control cell id> as <what it answers>" }; }
+    case "skills": return { op: "skills" };
+    case "forget": { const m = rest.match(/^(\S+)\s+because\s+(.+)$/s); return m ? { op: "forget", id: m[1], because: m[2] } : { error: "/forget <method id> because <why>" }; }
     case "data": return { op: "data" };
     case "tools": case "pip": return { op: "tools" };
     case "promote": { const [card, to, ...ev] = rest.split(/\s+/); return card && to ? { op: "promote", card, to, evidence: ev.join(" ") || null } : { error: "/promote <claim id> <conjectured|computed_in_range|proved> [evidence]" }; }

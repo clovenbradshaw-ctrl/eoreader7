@@ -53,6 +53,8 @@ def series(file, col, timecol=None):
         segs.append((lo, len(x))); lo, hi = max(segs, key=lambda a: a[1] - a[0])
         rep["kept"] = [int(lo), int(hi)]; x = x[lo:hi]; t = t[lo:hi]
     dts = np.diff(t); rep["dt"] = float(np.median(dts)); rep["dt_jitter"] = float(np.std(dts) / np.median(dts)) if len(dts) else 0.0
+    # The cleaning is DISCLOSED on every call — an analysis that calls series() cannot forget to say what was done to the data.
+    print("#quality %s: %d samples, dt=%.4g s (jitter %.2f%%); %d missing, %d spikes interpolated%s" % (col, rep["n"], rep["dt"], 100 * rep["dt_jitter"], rep["nan"], rep["spikes"], ("; %d long gap(s): kept samples %d-%d only" % (rep["long_gaps"], rep["kept"][0], rep["kept"][1])) if rep["long_gaps"] else ""))
     return t, x - np.mean(x), rep
 
 def psd(x, dt, nseg=16):

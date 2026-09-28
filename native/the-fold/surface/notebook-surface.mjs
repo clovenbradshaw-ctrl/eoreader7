@@ -14,8 +14,9 @@ import { ingest } from "../../organs/ingest.js";
 import { emptyNotebook, addData, addCell, editCell, cellOf, sourceOf, execsOf, editsOf, dataOf, stale, verify, NOTEBOOK_SCHEMA } from "./notebook.mjs";
 import { runCell, runPython } from "./notebook-run.mjs";
 import { parseCommand, COMMANDS } from "./notebook-commands.mjs";
-import { plan } from "./notebook-plan.mjs";
-import { RECIPES } from "./notebook-recipes.mjs";
+import { plan, numericColumns } from "./notebook-plan.mjs";
+import * as L from "./notebook-learn.mjs";
+import { learnedDir } from "../../organs/hard-read.js";
 import { toIpynb, fromIpynb } from "./notebook-ipynb.mjs";
 import { phrase, statusOf, promote, support, STATUSES } from "./bench.mjs";
 import { resolveHandles, labelOf } from "./handles.mjs";
@@ -119,47 +120,71 @@ let toolsCache;
 async function toolsText(st) { if (toolsCache) return toolsCache; const r = runPython("tools()", {}, { timeoutMs: 20000 }); return (toolsCache = r.output); }
 
 
-// A model, if one is reachable, may only POINT (choose recipe ids and column names from the lists shown). Not required.
-async function askModel({ question, recipes, columns }) {
+// A model may only POINT here (choose among methods already learned). WRITING a new method is `mouth`, and goes through the gate.
+async function askModel({ question, skills, columns }) {
   const url = process.env.ER7_OLLAMA_URL, model = process.env.ER7_NB_MODEL;
   if (!url || !model) throw new Error("no model configured (ER7_OLLAMA_URL / ER7_NB_MODEL)");
-  const schema = { type: "object", properties: { recipes: { type: "array", items: { enum: recipes.map((r) => r.id) } }, columns: { type: "array", items: { enum: columns } } }, required: ["recipes", "columns"] };
-  const r = await fetch(`${url}/api/chat`, { method: "POST", body: JSON.stringify({ model, stream: false, format: schema, options: { temperature: 0 }, messages: [{ role: "user", content: `Choose which analyses answer the question, and which columns they apply to. Question: ${question}\nAnalyses:\n${recipes.map((x) => `${x.id}: ${x.desc}`).join("\n")}\nColumns: ${columns.join(", ")}` }] }) });
+  const schema = { type: "object", properties: { skills: { type: "array", items: { enum: skills.map((r) => r.id) } }, columns: { type: "array", items: { enum: columns } } }, required: ["skills", "columns"] };
+  const r = await fetch(`${url}/api/chat`, { method: "POST", body: JSON.stringify({ model, stream: false, format: schema, options: { temperature: 0 }, messages: [{ role: "user", content: `Choose which learned methods answer the question, and which columns. Question: ${question}\nMethods:\n${skills.map((x) => `${x.id}: ${x.desc}`).join("\n")}\nColumns: ${columns.join(", ")}` }] }) });
   return JSON.parse((await r.json()).message.content);
 }
 const MAX_RUNS = 80; // declared: one question may spend at most this many cell runs
 
-async function askTurn(st, by, text) {
-  const P = "model:planner";
+async function askTurn(st, by, text, ctx = {}) {
+  const P = "model:planner", dir = ctx.dir ?? learnedDir();
   const files = Object.entries(st.files).map(([name, f]) => ({ name, tables: f.tables }));
-  const p = await plan(text, files, { ask: process.env.ER7_OLLAMA_URL ? askModel : null });
+  const p = await plan(text, files, { library: L.library(dir), ask: process.env.ER7_OLLAMA_URL ? askModel : null });
   if (p.refusal) return { error: p.refusal };
-  const runs = p.columns.length * p.recipes.reduce((n, id) => n + (RECIPES.find((r) => r.id === id).kind === "claim" ? 2 : 1), 0);
-  if (runs > MAX_RUNS) return { error: `that would be ${runs} runs (the limit is ${MAX_RUNS}); name fewer columns or analyses` };
-  let s = st; const seq = (t) => s.nb.entries.filter((e) => e.kind === "cell" && e.type === t).length + 1;
-  const put = (o) => { let id = o.id; while (cellOf(s.nb, id)) id += "x"; const r = addCell(s, { ...o, id, author: P }); if (r.error) throw new Error(r.error); s = r.state; return id; };
-  const run = (id) => { const r = runCell(s, id); if (r.error) throw new Error(r.error); s = r.state; return r.exec; };
-  const n0 = seq("markdown");
-  put({ id: `ask${n0}`, type: "markdown", source: `**Asked:** ${text}\n\n**Understood:** ${p.recipes.join(", ")} on ${p.columns.join(", ")} of ${p.file}. Chosen by: ${p.via}.${p.matched.length ? ` Matched on: ${p.matched.join(", ")}.` : ""}${p.unmatched.length ? `\n\n**Not understood (matched no analysis):** ${p.unmatched.join(", ")}` : ""}\n\nEvery claim below is proposed by the planner and is only as wide as its check; each has a control that must fail.` });
-  const findings = [], claims = [];
-  for (const col of p.columns) for (const rid of p.recipes) {
-    const R = RECIPES.find((r) => r.id === rid), tag = `${col}-${rid}`;
-    if (R.kind === "describe") { const e = run(put({ id: tag, type: "code", lang: "python", source: R.code(p.file, col) })); findings.push(e); continue; }
-    const k = put({ id: `k-${tag}`, type: "claim", source: R.claim(col) });
-    const e = run(put({ id: `chk-${tag}`, type: "code", lang: "python", source: R.code(p.file, col), for: k, role: "check" }));
-    run(put({ id: `ctl-${tag}`, type: "code", lang: "python", source: R.control(p.file, col), for: k, role: "control" }));
-    findings.push(e); claims.push(k);
+  let taught = null, skills = p.skills, via = p.via;
+  if (!skills.length) {
+    const mouth = ctx.mouth ?? L.ollamaMouth();
+    if (!mouth) return { error: `I have no learned method for that question, and no model to write one.\nTeach me: write a check and a control cell for a claim (/claim, /check, /control), then  /learn <check cell> <control cell> as <what it answers>.\nOr point me at a model: set ER7_OLLAMA_URL and ER7_NB_MODEL.\nWhat I have learned so far: ${L.library(dir).filter((s) => !s.conceded).map((s) => s.name).join("; ") || "nothing yet"}.` };
+    const g = await L.generate({ question: text, cols: p.columns.length ? [...p.columns, ...p.numeric.filter((c) => !p.columns.includes(c))] : p.numeric, file: p.file, files: st.files, mouth, dir, tools: L.toolDocs(), examples: L.library(dir).filter((s) => !s.conceded).slice(-2) });
+    if (!g.ok) return { error: `a method was proposed and refused ${g.attempts.length} time(s); the last reason: ${g.reason}\n${g.attempts.map((a, i) => `  try ${i + 1}: ${a.ok ? "admitted" : a.reason}`).join("\n")}` };
+    skills = [L.library(dir).find((s) => s.id === g.id)]; taught = g; via = `a method learned just now from a model (${g.attempts.length} attempt(s)) — it passed the gate: it ran, was deterministic, and its control failed`;
   }
-  const lines = findings.map((e) => (e.output.match(/^#finding (.*)$/m) ?? [])[1]).filter(Boolean);
-  const verdicts = claims.map((k) => { const sp = support(s.bench, k); return `- ${k.replace(/^k-/, "")}: ${sp.checks.length ? "the check held" : sp.failed.length ? "the check did NOT hold" : "not run"}${sp.controls.length ? ", and its control failed as it should" : ", but no control has failed yet, so it cannot be promoted"}`; });
-  put({ id: `ans${n0}`, type: "markdown", source: `**What was found**\n\n${lines.map((l) => `- ${l}`).join("\n")}\n\n**Claims (proposed; you decide)**\n\n${verdicts.join("\n")}\n\nNothing above is promoted. \`/promote <claim> computed_in_range\` moves a claim only if a check and a failed control are on the ledger — and only you can.` });
-  return { state: s, selected: `ans${n0}`, notice: null };
+  const runs = p.columns.length * skills.length * 2;
+  if (runs > MAX_RUNS) return { error: `that would be ${runs} runs (the limit is ${MAX_RUNS}); name fewer columns or say which analysis` };
+  let s = st; const put = (o) => { let id = o.id; while (cellOf(s.nb, id)) id += "x"; const r = addCell(s, { ...o, id, author: P }); if (r.error) throw new Error(r.error); s = r.state; return id; };
+  const run = (id) => { const r = runCell(s, id); if (r.error) throw new Error(r.error); s = r.state; return r.exec; };
+  const n0 = s.nb.entries.filter((e) => e.kind === "cell" && e.type === "markdown").length + 1;
+  put({ id: `ask${n0}`, type: "markdown", source: `**Asked:** ${text}\n\n**Method${skills.length > 1 ? "s" : ""}:** ${skills.map((k) => `${k.name} (${k.id}${k.conceded ? ", conceded" : ""}; learned from ${k.lineage?.mouth ?? "?"}, used ${k.uses}×)`).join("; ")} on ${p.columns.join(", ")} of ${p.file}. Chosen by: ${via}.${p.matched.length ? ` Matched on: ${p.matched.join(", ")}.` : ""}${p.unmatched.length ? `\n\n**Not understood (matched nothing):** ${p.unmatched.join(", ")}` : ""}\n\nEvery claim below is proposed by the planner and only as wide as its check; each has a control that fails. None of the methods is built in — see /skills.` });
+  const findings = [], claims = [], quality = new Map();
+  for (const col of p.columns) for (const k of skills) {
+    const tag = `${col}-${k.id.slice(0, 6)}`, cid = put({ id: `k-${tag}`, type: "claim", source: L.fill(k.claim, p.file, col) });
+    const e = run(put({ id: `chk-${tag}`, type: "code", lang: "python", source: L.fill(k.check, p.file, col), for: cid, role: "check" }));
+    run(put({ id: `ctl-${tag}`, type: "code", lang: "python", source: L.fill(k.control, p.file, col), for: cid, role: "control" }));
+    findings.push({ k, col, e }); claims.push(cid); L.recordUse(dir, k.id, { question: text, col, file: p.file });
+    const q = (e.output.match(/^#quality (.*)$/m) ?? [])[1]; if (q && !quality.has(col)) quality.set(col, q);
+  }
+  const lines = findings.map(({ k, e }) => (e.output.match(/^#finding (.*)$/m) ?? [])[1]).filter(Boolean);
+  const verdicts = claims.map((c) => { const sp = support(s.bench, c); return `- ${c.replace(/^k-/, "")}: ${sp.checks.length ? "the check held" : sp.failed.length ? "the check did NOT hold" : "not run"}${sp.controls.length ? ", and its control failed as it should" : ", but no control has failed yet, so it cannot be promoted"}`; });
+  put({ id: `ans${n0}`, type: "markdown", source: `**Data as read**\n\n${[...quality.values()].map((q) => `- ${q}`).join("\n")}\n\n**What was found**\n\n${lines.map((l) => `- ${l}`).join("\n")}\n\n**Claims (proposed; you decide)**\n\n${verdicts.join("\n")}\n\nNothing above is promoted. \`/promote <claim> computed_in_range\` moves a claim only if a check and a failed control are on the ledger — and only you can.` });
+  return { state: s, selected: `ans${n0}`, notice: taught ? `learned: ${skills[0].name} (${skills[0].id}) — stored in ${dir}` : null };
+}
+
+function learnOp(st, by, b, ctx) {
+  const dir = ctx.dir ?? learnedDir();
+  const chk = cellOf(st.nb, b.check), ctl = cellOf(st.nb, b.control);
+  if (!chk || !ctl || chk.type !== "code" || ctl.type !== "code") return { error: "/learn <check cell> <control cell> as <what it answers> — both must be code cells" };
+  if (!chk.for || chk.for !== ctl.for || chk.role !== "check" || ctl.role !== "control") return { error: `the check and control must be bound to the same claim (/check <claim> …, /control <claim> …)` };
+  const A = sourceOf(st.nb, b.check), B = sourceOf(st.nb, b.control);
+  const names = Object.keys(st.files).filter((n) => A.includes(n)); if (names.length !== 1) return { error: `the check must name exactly one ingested file (found ${names.length})` };
+  const tbl = st.files[names[0]].tables[0]; const numeric = tbl ? numericColumns(tbl) : [];
+  const col = numeric.find((c) => A.includes(`"${c}"`) || A.includes(`'${c}'`)); if (!col) return { error: "the check must name one numeric column of that file in quotes" };
+  const claim = sourceOf(st.nb, chk.for);
+  const r = L.learnFrom({ name: b.desc.split(/\s+/).slice(0, 8).join(" "), desc: b.desc, claim, checkCode: A, controlCode: B, usedFile: names[0], usedCol: col, cols: numeric, files: st.files, dir, by });
+  if (!r.ok) return { error: `refused: ${r.reason}` };
+  return { state: st, notice: `${r.existing ? "already known" : "learned"} (${r.id}): "${b.desc}"\nadmitted because: it ran twice with the same answer, its control failed, and ${r.evidence.generalisation}.\nAsk a question in plain words and it will be used.` };
 }
 
 /** act(st, by, body) -> { state?, error?, notice?, selected? } — one door for the buttons AND the / bar. */
-export async function act(st, by, b) {
-  if (b.op === "line") { const p = parseCommand(b.line); if (p.error) return { error: p.error }; return act(st, by, p); }
-  if (b.op === "ask") return askTurn(st, by, b.text);
+export async function act(st, by, b, ctx = {}) {
+  if (b.op === "line") { const p = parseCommand(b.line); if (p.error) return { error: p.error }; return act(st, by, p, ctx); }
+  if (b.op === "ask") return askTurn(st, by, b.text, ctx);
+  if (b.op === "learn") return learnOp(st, by, b, ctx);
+  if (b.op === "skills") { const lib = L.library(ctx.dir ?? learnedDir()); return { notice: lib.length ? lib.map((k) => `${k.id}  ${k.conceded ? "[conceded] " : ""}${k.name}\n   ${k.claim}\n   learned from ${k.lineage?.mouth ?? "?"} on "${k.lineage?.question ?? ""}" · used ${k.uses}× · ${k.evidence?.generalisation ?? ""}`).join("\n") : "nothing learned yet — ask a question (a model writes and the gate admits), or /learn from your own cells" }; }
+  if (b.op === "forget") return L.concede(ctx.dir ?? learnedDir(), b.id, b.because) ? { notice: `conceded ${b.id} — kept on the record, no longer chosen` } : { error: `no learned method ${b.id}` };
   if (b.op === "run") return runCell(st, b.cell);
   if (b.op === "runmany") {
     const ids = st.nb.entries.filter((e) => e.kind === "cell" && e.type === "code").map((c) => c.id).filter((id) => b.which === "all" || (b.which === "stale" ? stale(st, id) : id === b.which));

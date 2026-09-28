@@ -146,34 +146,79 @@ test("er7 is preloaded in python cells: data(), table(), scope_*, wmean, tools()
 });
 
 import { plan } from "../the-fold/surface/notebook-plan.mjs";
-const csv = (n) => { let t = "t_s,u,rpm\n"; const r = (() => { let a = 7; return () => ((a = (a * 1664525 + 1013904223) >>> 0) / 4294967296); })(); for (let i = 0; i < n; i++) t += `${(i * 0.001).toFixed(3)},${(r() - 0.5).toFixed(4)},${(1500 + Math.sin(i * 0.31)).toFixed(3)}\n`; return t; };
+import * as L from "../the-fold/surface/notebook-learn.mjs";
+const csv = (n) => { let t = "t_s,u,rpm\n"; const r = (() => { let a = 7; return () => ((a = (a * 1664525 + 1013904223) >>> 0) / 4294967296); })(); for (let i = 0; i < n; i++) t += `${(i * 0.001).toFixed(3)},${(r() - 0.5).toFixed(4)},${(1500 + Math.sin(i * 0.031)).toFixed(3)}\n`; return t; };
+const world = () => { const ing = ingest({ name: "probe.csv", bytes: Buffer.from(csv(800)) }); return { ing, files: { "probe.csv": { text: ing.text, tables: ing.tables } }, tmp: fs.mkdtempSync(path.join(os.tmpdir(), "learn-")) }; };
+const GOOD = {
+  name: "smoothness", desc: "how smooth is the signal: adjacent samples against a shuffled copy", claim: "{{COL}} is smooth: adjacent samples differ less than in a shuffled copy of the same values.",
+  check: 'from turb import *\nt,x,rep=series("{{FILE}}","{{COL}}")\na=float(np.std(np.diff(x))); b=float(np.std(np.diff(np.random.default_rng(0).permutation(x))))\nprint(f"#finding {{COL}}: step std {a:.4f} against {b:.4f} for a shuffle")\nscope_sample(1,0,"one shuffle of {{COL}}")\nresult(a<0.5*b)',
+  control: 'from turb import *\nt,x,rep=series("{{FILE}}","{{COL}}"); x=np.random.default_rng(1).permutation(x)\na=float(np.std(np.diff(x))); b=float(np.std(np.diff(np.random.default_rng(0).permutation(x))))\nprint(f"control: shuffled {{COL}} step std {a:.4f} vs {b:.4f}")\nscope_sample(1,0,"a shuffled {{COL}} against another shuffle")\nresult(a<0.5*b)',
+};
 
-test("plain language: gibberish is refused with the menu; 'everything' means every analysis; named columns narrow it", async () => {
-  const ing = ingest({ name: "probe.csv", bytes: Buffer.from(csv(300)) }); const files = [{ name: ing.name, tables: ing.tables }];
-  const g = await plan("asdf qwerty", files); assert.match(g.refusal, /I can do: quality/);
-  const e = await plan("give me everything about this", files); assert.equal(e.recipes.length, 5); assert.deepEqual(e.columns, ["u", "rpm"]);
-  const c = await plan("is u intermittent?", files); assert.deepEqual(c.columns, ["u"]); assert.ok(c.recipes.includes("intermittency") && c.recipes[0] === "quality");
-  assert.ok((await plan("anything periodic like a hum?", files)).recipes.includes("tones"));
+test("the gate: a method is admitted only if it runs, is deterministic, generalises, and its CONTROL fails", () => {
+  const { files } = world(); const ctx = { file: "probe.csv", cols: ["rpm", "u"], files };
+  assert.ok(L.admit(GOOD, ctx).ok, L.admit(GOOD, ctx).reason);
+  assert.match(L.admit({ ...GOOD, control: GOOD.check }, ctx).reason, /control did NOT fail/);
+  assert.match(L.admit({ ...GOOD, check: GOOD.check.replace('"{{COL}}"', '"rpm"') }, ctx).reason, /hard-codes|placeholders/);
+  assert.match(L.admit({ ...GOOD, check: GOOD.check.replace("result(a<0.5*b)", "") }, ctx).reason, /#result/);
+  assert.match(L.admit({ ...GOOD, check: GOOD.check.replace(/scope_sample.*\n/, "") }, ctx).reason, /#scope/);
+  assert.match(L.admit({ ...GOOD, check: GOOD.check.replace("default_rng(0)", "default_rng()") }, ctx).reason, /different answer/);
+  const says = GOOD.check.replace('print(f"#finding {{COL}}:', 'print(f"#finding rpm:');
+  assert.match(L.admit({ ...GOOD, check: says }, ctx).reason, /still names rpm/, "a finding that names the column it was learned on lies on every other column");
+  assert.match(L.admit({ ...GOOD, check: "import subprocess\n" + GOOD.check }, ctx).reason, /does not need/);
+  assert.match(L.admit({ ...GOOD, check: GOOD.check.replace('series("{{FILE}}","{{COL}}")', 'series("{{FILE}}","nope")') }, ctx).reason, /did not run/);
+});
+
+test("a mouth's refusal is handed back to be repaired; what is admitted is stored with its lineage, and re-storing is a no-op", async () => {
+  const { files, tmp } = world(); const seen = [];
+  const mouth = async ({ feedback }) => { seen.push(feedback); return feedback ? { ...GOOD, by: "model:fake" } : { ...GOOD, control: GOOD.check, by: "model:fake" }; };
+  const g = await L.generate({ question: "is it smooth?", cols: ["rpm", "u"], file: "probe.csv", files, mouth, dir: tmp });
+  assert.ok(g.ok); assert.equal(g.attempts.length, 2); assert.match(seen[1], /control did NOT fail/);
+  const lib = L.library(tmp); assert.equal(lib.length, 1); assert.equal(lib[0].lineage.mouth, "model:fake"); assert.ok(lib[0].evidence.runs.some((r) => r.role === "control" && r.result === false));
+  assert.equal((await L.generate({ question: "again", cols: ["rpm", "u"], file: "probe.csv", files, mouth: async () => GOOD, dir: tmp })).existing, true);
+  const never = async () => ({ ...GOOD, control: GOOD.check });
+  const bad = await L.generate({ question: "q", cols: ["rpm", "u"], file: "probe.csv", files, mouth: never, dir: fs.mkdtempSync(path.join(os.tmpdir(), "l2-")) });
+  assert.equal(bad.ok, false); assert.equal(bad.attempts.length, L.MAX_REPAIRS + 1);
+});
+
+test("nothing is preset: with no method and no model it refuses and says how to teach; a learned method is then reused with NO model", async () => {
+  const { ing, files, tmp } = world(); let s = addData(emptyNotebook(), ing, H).state;
+  const none = await act(s, H, { op: "line", line: "is the rpm column smooth?" }, { dir: tmp });
+  assert.match(none.error, /no learned method/); assert.match(none.error, /\/learn/); assert.match(none.error, /nothing yet/);
+  const first = await act(s, H, { op: "line", line: "is the rpm column smooth?" }, { dir: tmp, mouth: async () => ({ ...GOOD, by: "model:fake" }) });
+  assert.ok(!first.error, first.error); assert.match(first.notice, /learned: smoothness/);
+  const again = await act(first.state, H, { op: "line", line: "how smooth is the u column?" }, { dir: tmp, mouth: async () => { throw new Error("the mouth must not be asked"); } });
+  assert.ok(!again.error, again.error);
+  assert.equal(L.library(tmp)[0].uses, 2);
+  const claims = again.state.nb.entries.filter((e) => e.kind === "cell" && e.type === "claim"); assert.equal(claims.length, 2);
+  assert.ok(claims.every((c) => c.proposed && statusOf(again.state.bench, c.id) === "stated"), "nothing is promoted for the person");
+  assert.match(promote(again.state.bench, { card: claims[0].id, to: "computed_in_range", by: "model:planner" }).error, /never a model/);
+  const sk = await act(again.state, H, { op: "line", line: "/skills" }, { dir: tmp }); assert.match(sk.notice, /smoothness|smooth/);
+  assert.ok((await act(again.state, H, { op: "line", line: "/forget " + L.library(tmp)[0].id + " because tested" }, { dir: tmp })).notice);
+  const gone = await act(again.state, H, { op: "line", line: "is the rpm column smooth?" }, { dir: tmp });
+  assert.match(gone.error, /no learned method/, "a conceded method is not chosen");
+});
+
+test("/learn: the person's own check and control cells become a method that works on another column", async () => {
+  const { ing, tmp } = world(); let s = addData(emptyNotebook(), ing, H).state;
+  s = (await act(s, H, { op: "line", line: "/claim rpm is smooth" })).state;
+  const A = GOOD.check.replaceAll("{{FILE}}", "probe.csv").replaceAll("{{COL}}", "rpm"), B = GOOD.control.replaceAll("{{FILE}}", "probe.csv").replaceAll("{{COL}}", "rpm");
+  s = (await act(s, H, { op: "add", id: "chk", type: "code", lang: "python", source: A, for: "k1", role: "check", run: true })).state;
+  s = (await act(s, H, { op: "add", id: "ctl", type: "code", lang: "python", source: B, for: "k1", role: "control", run: true })).state;
+  const r = await act(s, H, { op: "line", line: "/learn chk ctl as how smooth the signal is" }, { dir: tmp });
+  assert.ok(!r.error, r.error); assert.match(r.notice, /learned/);
+  const lib = L.library(tmp)[0]; assert.match(lib.check, /\{\{COL\}\}/); assert.ok(!/\brpm\b/.test(lib.check), "the column name is swapped even inside printed text"); assert.ok(!lib.check.includes('"rpm"')); assert.equal(lib.lineage.mouth, H);
+  const use = await act(s, H, { op: "line", line: "how smooth is u?" }, { dir: tmp }); assert.ok(!use.error, use.error);
+  assert.match((await act(s, H, { op: "line", line: "/learn chk nope as x" }, { dir: tmp })).error, /both must be code cells/);
+});
+
+test("planning only points: a model can choose among LEARNED methods and columns; a dead model falls back with the reason said", async () => {
+  const { ing, tmp } = world(); const files = [{ name: ing.name, tables: ing.tables }];
+  L.store(tmp, GOOD, { question: "q", mouth: "human:t", file: "probe.csv" }, { generalisation: "x" }); const lib = L.library(tmp);
+  const p = await plan("hmm", files, { library: lib, ask: async () => ({ skills: [lib[0].id, "rm -rf /"], columns: ["u", "ghost"] }) });
+  assert.deepEqual(p.skills.map((k) => k.id), [lib[0].id]); assert.deepEqual(p.columns, ["u"]); assert.match(p.via, /could only choose/);
+  const d = await plan("how smooth is it", files, { library: lib, ask: async () => { throw new Error("connection refused"); } });
+  assert.equal(d.skills.length, 1); assert.match(d.via, /unreachable/);
+  assert.equal((await plan("something unrelated entirely", files, { library: lib })).skills.length, 0);
   assert.match((await plan("spectrum", [{ name: "x.pdf", tables: [] }])).refusal, /no table/);
-});
-
-test("a model may only POINT: ids and columns outside the lists shown are dropped, and a dead model falls back with the reason said", async () => {
-  const ing = ingest({ name: "probe.csv", bytes: Buffer.from(csv(300)) }); const files = [{ name: ing.name, tables: ing.tables }];
-  const p = await plan("hmm", files, { ask: async () => ({ recipes: ["spectrum", "rm -rf /", "made_up"], columns: ["u", "ghost"] }) });
-  assert.deepEqual(p.recipes, ["quality", "spectrum"]); assert.deepEqual(p.columns, ["u"]); assert.match(p.via, /could only choose/);
-  const d = await plan("is u intermittent?", files, { ask: async () => { throw new Error("connection refused"); } });
-  assert.ok(d.recipes.includes("intermittency")); assert.match(d.via, /unreachable/);
-});
-
-test("asking end to end: cells, claims with controls, a summary — and NOTHING is promoted for you", async () => {
-  let s = emptyNotebook(); const ing = ingest({ name: "probe.csv", bytes: Buffer.from(csv(6000)) });
-  s = addData(s, ing, H).state;
-  const r = await act(s, H, { op: "line", line: "is the rpm column periodic?" });
-  assert.ok(!r.error, r.error); s = r.state;
-  const claims = s.nb.entries.filter((e) => e.kind === "cell" && e.type === "claim"); assert.equal(claims.length, 1);
-  assert.equal(statusOf(s.bench, claims[0].id), "stated"); assert.ok(claims[0].proposed);
-  assert.match(phrase(s.bench, claims[0].id), /proposed by model:planner/);
-  assert.ok(s.nb.entries.some((e) => e.kind === "cell" && /ans/.test(e.id)));
-  assert.match(promote(s.bench, { card: claims[0].id, to: "computed_in_range", by: "model:planner" }).error, /never a model/);
-  const fold = s.nb.entries.filter((e) => e.kind === "exec" && e.cell.startsWith("ctl-")); assert.equal(fold[0].result, false, "the control must fail");
 });
