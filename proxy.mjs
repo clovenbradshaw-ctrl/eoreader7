@@ -102,6 +102,40 @@ import { checkLogicPuzzle } from "../the-fold/logic-puzzle.js";
 // there. Proves the search itself is general, not tuned to one puzzle.
 import { checkPreferencePuzzle } from "../the-fold/preference-puzzle.js";
 import { runMechanical, precisionWinner, CONCLUSION } from "./native/organs/precision-race.js";
+import { extractAtoms } from "./native/organs/grounding.js";
+import { falsifiersFor, popperInline } from "./native/organs/falsifiers.js";
+
+// POPPER ON EVERY SURFACE (2026-09-27, user direction: "wire this in so it
+// shows up on all surfaces"). Every response-assembly site already reconciles
+// its reading through gatedReading; this wraps it ONCE so the same sites also
+// carry `falsifiers` — what would prove this answer wrong, derived from the
+// ground tier each sentence earned (native/organs/falsifiers.js), never
+// authored by the model. `popperLineFor` is the plain-text form for a client
+// with no reading channel; a surface that draws Popper itself opts out with
+// fold_popper_inline: false (proxy-api.mjs::parseProxyRequest).
+function gatedPopper(result, race) {
+  const gated = gatedReading(result, race);
+  try {
+    const verbatim = result?.answerShape === "quote";
+    gated.falsifiers = falsifiersFor({
+      rows: result?.reading?.sentences ?? [],
+      isCheckable: (s) => extractAtoms(s).length > 0,
+      unchecked: Boolean(gated.disclosed?.unchecked),
+      verbatim,
+      computed: !verbatim && race?.winner === "mechanical",
+      whatWouldSettle: gated.void?.whatWouldSettle ?? null,
+    });
+  } catch (err) {
+    log(`popper: falsifiers failed (disclosed, answer unaffected): ${err?.message ?? err}`);
+    gated.falsifiers = null;
+  }
+  return gated;
+}
+function popperLineFor(gated, wanted) {
+  if (!wanted || !gated?.falsifiers) return "";
+  const line = popperInline(gated.falsifiers);
+  return line ? `\n\n${line}` : "";
+}
 // Archons on a Matrix homeserver (the-fold/archon-hyphae.mjs): one account +
 // one EOT room per worktree-archon, the operator always an admin of every
 // room, and the same record/print/list verbs reachable from THIS surface —
@@ -1329,7 +1363,7 @@ const job = await startDocumentJob({
           // structurally out of scope because it carried neither field at all
           // — not a smaller gate gap, a total absence. Closed here the same
           // way: reconciled against race/claims before going out.
-          const gated = gatedReading(result, race);
+          const gated = gatedPopper(result, race);
           return {
             answer: race.text,
             sessionId,
@@ -1350,6 +1384,7 @@ const job = await startDocumentJob({
             void: gated.void,
             satisfaction: gated.satisfaction,
             disclosed: gated.disclosed ?? null,
+            falsifiers: gated.falsifiers ?? null,
             // THE ASK-BACK ENVELOPE (build-clarify): the person sees the plain
             // questions in `answer`; the record carries the structured shape —
             // which cells are open, the round, the schema — so the fold, the
@@ -1823,7 +1858,14 @@ const job = await startDocumentJob({
           // satisfaction/void below), so it is computed once here instead of
           // inline in the `race:` field.
           const streamRace = precisionWinner({ observation, draft: result.text });
-          const streamGated = gatedReading(result, streamRace);
+          const streamGated = gatedPopper(result, streamRace);
+          const streamPopper = popperLineFor(streamGated, parsed.popperInline);
+          if (streamPopper) {
+            res.write(`data: ${JSON.stringify({
+              id, object: "chat.completion.chunk", created, model: parsed.model,
+              choices: [{ index: 0, delta: { content: streamPopper }, finish_reason: null }],
+            })}\n\n`);
+          }
           res.write(`data: ${JSON.stringify({
             id, object: "chat.completion.chunk", created, model: parsed.model,
             choices: [{ index: 0, delta: {}, finish_reason: "stop" }],
@@ -1873,6 +1915,7 @@ const job = await startDocumentJob({
               kelsen: result.kelsen ?? null,
               void: streamGated.void,
               disclosed: streamGated.disclosed ?? null,
+              falsifiers: streamGated.falsifiers ?? null,
               mode: result.mode ?? null,
               usage: result.usage ?? null,
               race: raceReading(streamRace),
@@ -1910,10 +1953,12 @@ const job = await startDocumentJob({
           const race = precisionWinner({ observation: await observationP, draft: result.text });
           const resp = openAIResponse({ id, model: answeredBy, text: race.text, created, usage: result.usage, reading: result });
           resp.reading.race = raceReading(race);
-          const heldGated = gatedReading(result, race);
+          const heldGated = gatedPopper(result, race);
           resp.reading.void = heldGated.void;
           resp.reading.satisfaction = heldGated.satisfaction;
           resp.reading.disclosed = heldGated.disclosed ?? null;
+          resp.reading.falsifiers = heldGated.falsifiers ?? null;
+          resp.choices[0].message.content += popperLineFor(heldGated, parsed.popperInline);
           resp.reading.sessionId = sessionId;
           resp.reading.thinking = result.thinking ?? null;
           resp.reading.answerShape = result.answerShape ?? null;
@@ -2090,13 +2135,15 @@ const job = await startDocumentJob({
           // same way the SSE path and the non-streaming ollama path below
           // (~line 2066) already are.
           const race = precisionWinner({ observation, draft: result.text });
-          const gated = gatedReading(result, race);
+          const gated = gatedPopper(result, race);
+          const ollamaPopper = popperLineFor(gated, parsed.popperInline);
+          if (ollamaPopper) res.write(JSON.stringify({ model: parsed.model, created_at: createdAt, message: { role: "assistant", content: ollamaPopper }, done: false }) + "\n");
           res.write(JSON.stringify({
             model: parsed.model, created_at: createdAt,
             message: { role: "assistant", content: "" },
             done: true, done_reason: "stop",
             served: servedDisclosure(scope, parsed.model),
-            reading: { ...(result.reading ?? result), sessionId, race: raceReading(race), void: gated.void, satisfaction: gated.satisfaction, disclosed: gated.disclosed ?? null },
+            reading: { ...(result.reading ?? result), sessionId, race: raceReading(race), void: gated.void, satisfaction: gated.satisfaction, disclosed: gated.disclosed ?? null, falsifiers: gated.falsifiers ?? null },
           }) + "\n");
           res.end();
         } catch (err) {
@@ -2143,8 +2190,9 @@ const job = await startDocumentJob({
           // disclose (and gate) both. Explicit keys below restore them and run
           // them through the same gatedReading reconciliation (proxy-api.mjs)
           // every other response-assembly site now shares.
-          const gated = gatedReading(result, race);
-          resp.reading = { ...(result.reading ?? result), sessionId, race: raceReading(race), void: gated.void, satisfaction: gated.satisfaction, disclosed: gated.disclosed ?? null };
+          const gated = gatedPopper(result, race);
+          resp.reading = { ...(result.reading ?? result), sessionId, race: raceReading(race), void: gated.void, satisfaction: gated.satisfaction, disclosed: gated.disclosed ?? null, falsifiers: gated.falsifiers ?? null };
+          resp.message.content += popperLineFor(gated, parsed.popperInline);
           resp.heimdall = bridgeMessage({ model: parsed.model });
           resp.served = servedDisclosure(scope, parsed.model);
           res.writeHead(200, { "content-type": "application/json" });
@@ -2321,6 +2369,8 @@ const job = await startDocumentJob({
             emit(token);
           }));
           clearTurn();
+          // Anthropic's wire has no reading channel, so Popper rides as text.
+          emitDelta(popperLineFor(gatedPopper(result, precisionWinner({ observation, draft: result.text })), parsed.popperInline));
           res.write(anthropicContentBlockStop(0));
           res.write(anthropicMessageDelta({ outputTokens: outputTokens || (result?.usage?.completionTokens ?? 0) }));
           res.write(anthropicMessageStop());
@@ -2356,7 +2406,7 @@ const job = await startDocumentJob({
           clearTimeout(turnDeadline);
           res.removeListener("close", onDisconnect);
           const race = precisionWinner({ observation: await observationP, draft: result.text });
-          const resp = anthropicMessageResponse({ id, model: parsed.model, text: race.text, usage: result.usage });
+          const resp = anthropicMessageResponse({ id, model: parsed.model, text: race.text + popperLineFor(gatedPopper(result, race), parsed.popperInline), usage: result.usage });
           resp.heimdall = bridgeMessage({ model: parsed.model });
           resp.served = servedDisclosure(scope, parsed.model);
           res.writeHead(200, { "content-type": "application/json" });

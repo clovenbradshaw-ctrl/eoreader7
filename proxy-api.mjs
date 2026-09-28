@@ -1,5 +1,8 @@
 // proxy-api.mjs — pure wire-shape module for the EOReader7 proxy.
-// No fetch, no node:*, no engine imports.
+// No fetch, no node:*, no engine imports. One exception, itself import-free:
+// falsifiers.js's line-stripper, so a resent history never carries Popper's
+// disclosure line back to the model as prompt text.
+import { stripPopperLine } from "./native/organs/falsifiers.js";
 
 export const MODEL_PREFIX = "er7:";
 export const DISCOURSE_MAX_CHARS = 300;
@@ -25,7 +28,7 @@ export function turnFromMessages(messages) {
   const rest = list.slice(0, -1);
   const chatHistory = rest
     .filter((m) => m?.role === "user" || m?.role === "assistant")
-    .map((m) => ({ role: m.role, content: String(m.content ?? "") }));
+    .map((m) => ({ role: m.role, content: m.role === "assistant" ? stripPopperLine(String(m.content ?? "")) : String(m.content ?? "") }));
   const discourse = rest
     .filter((m) => m?.role === "system")
     .map((m) => String(m.content ?? ""))
@@ -79,7 +82,13 @@ export function parseProxyRequest(body) {
   const attachments = Array.isArray(body?.attachments)
     ? body.attachments.map((a, i) => ({ name: String(a?.name ?? `attachment-${i + 1}`).slice(0, 120), text: String(a?.text ?? "") })).filter((a) => a.text.trim())
     : [];
-  return { model, ...turn, stream, discloseThinking, kelsen, mode, attachments };
+  // POPPER INLINE (2026-09-27): a plain-text client (OpenCode, the Ollama
+  // app, curl) reads `content` and ignores `reading`, so the line saying what
+  // would prove the answer wrong rides INSIDE content by default. A surface
+  // that draws Popper from `reading.falsifiers` itself (the-fold's chat, the
+  // TUI) opts out with `fold_popper_inline: false` so it is never shown twice.
+  const popperInline = body?.fold_popper_inline !== false;
+  return { model, ...turn, stream, discloseThinking, kelsen, mode, attachments, popperInline };
 }
 
 // ── ANTHROPIC MESSAGES API (Claude Code speaks this; the proxy is openai/
@@ -128,7 +137,7 @@ export function parseAnthropicRequest(body) {
   const rest = messages.slice(0, -1);
   const chatHistory = rest
     .filter((m) => m?.role === "user" || m?.role === "assistant")
-    .map((m) => ({ role: m.role, content: flattenAnthropicContent(m.content) }));
+    .map((m) => ({ role: m.role, content: m.role === "assistant" ? stripPopperLine(flattenAnthropicContent(m.content)) : flattenAnthropicContent(m.content) }));
   const system = (Array.isArray(body?.system) ? body.system.map((b) => (typeof b === "string" ? b : b?.text ?? "")).join(" ") : String(body?.system ?? ""))
     .trim()
     .slice(0, DISCOURSE_MAX_CHARS);
@@ -136,7 +145,8 @@ export function parseAnthropicRequest(body) {
   const discloseThinking = body?.discloseThinking === true;
   const kelsen = Number.isFinite(Number(body?.kelsen)) ? Number(body?.kelsen) : null;
   const maxTokens = Number.isFinite(Number(body?.max_tokens)) ? Number(body?.max_tokens) : null;
-  return { model, task, chatHistory, discourse: system, stream, discloseThinking, kelsen, maxTokens,
+  const popperInline = body?.fold_popper_inline !== false;
+  return { model, task, chatHistory, discourse: system, stream, discloseThinking, kelsen, maxTokens, popperInline,
     attachments: Array.isArray(body?.attachments)
       ? body.attachments.map((a, i) => ({ name: String(a?.name ?? `attachment-${i + 1}`).slice(0, 120), text: String(a?.text ?? "") })).filter((a) => a.text.trim())
       : [] };
