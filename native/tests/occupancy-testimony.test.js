@@ -144,3 +144,16 @@ test("BEING_KIND: a candidate that keeps a preposition's company is refused by n
   assert.deepEqual(r.refused.map((x) => x.reason), ["not_being_kind", "company_unmeasured"]);
   assert.equal(r.events[0].collapse.forWhom, "reader:being-kind");
 });
+
+test("nounBetween: a settled noun between the candidate and the transition is the subject; the candidate is its modifier — refused by name, only when a prior is injected", async () => {
+  const { SUBJECT_PRONOUNS } = await import("../adapters/text/priors.js");
+  const posPrior = { forms: { towns: { NOUN: 12 }, ten: { NUM: 9 }, have: { AUX: 30 }, been: { AUX: 20 } } };
+  const text = "No less than ten Russian towns have been named Kutuzovo since then.";
+  const mentions = () => [{ start: text.indexOf("Russian"), end: text.indexOf("Russian") + 7, referent: "ref:russian", via: "cast" }];
+  const withPrior = readOccupancyTestimony([{ text, at: 0 }], { ...OPTS, mentions, pronouns: SUBJECT_PRONOUNS, posPrior });
+  assert.equal(withPrior.candidates.length, 0); assert.equal(withPrior.refused[0].reason, "subject_unestablished");
+  assert.equal(withPrior.events[0].undecided.candidates[0].features.nounBetween, true);
+  const without = readOccupancyTestimony([{ text, at: 0 }], { ...OPTS, mentions, pronouns: SUBJECT_PRONOUNS });
+  assert.equal(without.events[0].undecided.candidates[0].features.nounBetween, null);
+  assert.equal(without.candidates.length, 1, "absent a prior the feature is unknown and the default rule does not refuse on it");
+});

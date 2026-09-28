@@ -81,6 +81,7 @@ export const NEAREST_ESTABLISHED = Object.freeze({
     const between = cands.filter((c) => !c.features.established && c.features.start >= last.features.end);
     if (between.some((c) => c.via === "pronoun-unbound")) return { contested: [last.index, ...between.map((c) => c.index)], reason: "pronoun_unbound" };
     if (last.features.subjectShapedAfterPunct) return { contested: [last.index, ...between.map((c) => c.index)], reason: "occupant_not_a_referent" };
+    if (last.features.nounBetween === true) return { contested: [last.index, ...between.map((c) => c.index)], reason: "subject_unestablished" };
     const opener = cands.find((c) => c.via === "pronoun-unbound" && c.features.clauseInitial);
     if (opener) return { contested: [last.index, opener.index], reason: "pronoun_unbound" };
     return { chosen: last.index };
@@ -107,6 +108,8 @@ const BE_AUX = new Set(["was", "were", "is", "are", "been", "being", "be", "had 
 /** Between an occupant mention and its transition: at most this many words, each read. */
 export const OCCUPANT_GAP_MAX = 2;
 
+/** The class the POS prior settles a form into (its dominant tag), or null when the prior never saw it. */
+export const settledClass = (posPrior, w) => { const t = posPrior?.forms?.[String(w ?? "").toLowerCase()]; if (!t) return null; let top = null, n = -1; for (const [k, c] of Object.entries(t)) if (c > n) { top = k; n = c; } return top; };
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const W = "\\p{L}[\\p{L}’'.-]*";          // any word
 const CAP = "\\p{Lu}[\\p{L}’'.-]*";       // a capitalised word
@@ -123,7 +126,7 @@ const CAP = "\\p{Lu}[\\p{L}’'.-]*";       // a capitalised word
  * resolveLocus(sentence, span, surface) -> { referent, via } | null
  * -> { candidates, refused, arm }
  */
-export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, pronouns = null, resolveLocus = null, complementTyping = "structural", forWhom = null, occupantRule = null } = {}) {
+export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, pronouns = null, posPrior = null, resolveLocus = null, complementTyping = "structural", forWhom = null, occupantRule = null } = {}) {
   for (const [k, v] of Object.entries({ source, determiners, modals, negation })) if (v == null) throw new TypeError(`occupancy-testimony: '${k}' must be declared`);
   const def = determiners.definite, indef = determiners.indefinite;
   const alt = (xs) => xs.map(esc).join("|");
@@ -178,7 +181,14 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
           }
           for (const c of cands) {
             const between = before.slice(c.features.end, m.index);
-            c.features.distanceWords = between.split(/\s+/).map(clean).filter(Boolean).length;
+            const betweenWords = between.split(/\s+/).map(clean).filter(Boolean);
+            c.features.distanceWords = betweenWords.length;
+            // nounBetween (v6): a word the received POS prior SETTLES as a noun
+            // standing between the candidate and the transition is the clause's
+            // own subject ("ten Russian TOWNS have been named") — the candidate
+            // before it is its modifier, not the occupant. Read only when a
+            // prior is injected; absent, the feature is null, never false.
+            c.features.nounBetween = posPrior ? betweenWords.some((w) => settledClass(posPrior, w) === "NOUN") : null;
             c.features.punctBetween = /[,;:—()]/.test(between);
             c.features.clauseInitial = before.slice(0, c.features.start).trim() === "";
             c.features.subjectShapedAfterPunct = c.features.punctBetween && between.slice(between.search(/[,;:—()]/) + 1).trim().split(/\s+/).filter(Boolean).some((w) => def.has(clean(w)) || indef.has(clean(w)) || /^\p{Lu}/u.test(w));
