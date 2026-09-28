@@ -196,6 +196,23 @@
 //        for the new family)
 //   Z12  every state standing carries act NUL·Ground with the phasepost's own
 //        copula reading as overlay (op SIG on the unique-role/property rules)
+// V10, PRE-REGISTERED 2026-09-28 after v9 (output -v10.json, same cap). Two
+// organ changes since v9, both read off structure: the complement's HEAD is
+// what the cast is asked about (an adjunct place name is never the locus);
+// nesting is read off name trees (name-spans.js — full / prefix / head /
+// given / none; partial levels reach the kernel as ambiguous). No driver
+// logic changes beyond the predictions below.
+//   Z13  War and Peace: exactly ONE slot, collapsed one_being, zero splits —
+//        the Moscow position of v9 is gone with the head fix
+//   Z14  Material A: entry standings still 33, state standings still 24 (the
+//        head fix moves locusVia, never admission); locusVia `cast` on
+//        Material A falls below v9's count (Murat -> Berg becomes surface);
+//        reported
+//   Z15  Guardiola's england locus still a position (FA Cup / Champions
+//        League read `none` under name-spans); ambiguous pairs on Material A
+//        reported with their levels
+//   Z16  War and Peace state rows whose locus resolved in the cast: fewer
+//        than v9's 17; each remaining one listed
 //   node occupancy-host-eval.mjs [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
@@ -482,10 +499,16 @@ const Z10 = { stateOnBezukhov: wpStateOnBez.map((r) => `${r.occupant} :: ${(r.cl
 const stateLoose = pages.flatMap((p) => p.looseRows.filter((r) => r.pattern === "state"));
 const Z11 = { beingKindState: stateLoose.length, monthOrDemonym: stateLoose.filter((c) => shapeBad(c.surface)).map((c) => `${c.surface} @${c.address}`), held: stateLoose.filter((c) => shapeBad(c.surface)).length === 0 };
 const Z12 = { acts: tally(stateA, (r) => `${r.act?.op}·${r.act?.grain}`), overlays: tally(stateA, (r) => `${r.act?.overlay?.op ?? "?"}·${r.act?.overlay?.grain ?? "?"}·${r.act?.overlay?.standing ?? "?"}`), held: stateA.length > 0 && stateA.every((r) => r.act?.op === "NUL" && r.act?.grain === "Ground" && r.act?.overlay) };
+const Z13 = { slots: wpId?.slots ?? [], splits: wpId?.splits?.length ?? null, held: (wpId?.slots?.length ?? 0) === 1 && wpId.slots[0].chosen === "one_being" && wpId.splits.length === 0 };
+const castViaA = A.filter((r) => r.locusVia === "cast").length;
+const Z14 = { entry: entryA.length, state: stateA.length, locusVia: tally(A, (r) => r.locusVia), held: entryA.length === 33 && stateA.length === 24 && castViaA < 13 };
+const Z15 = { guardiola: guard?.identity.slots ?? [], ambiguousPairs: pages.flatMap((p) => (p.identity.slots ?? []).filter((s) => /partially/.test(s.reason ?? "")).map((s) => ({ page: p.name, ...s }))), held: !!guard && guard.identity.slots.some((s) => s.chosen === "position") };
+const wpStateCast = wpRows.filter((r) => r.pattern === "state" && r.locusVia === "cast");
+const Z16 = { count: wpStateCast.length, rows: wpStateCast.map((r) => `${r.occupant} -> ${r.locus} :: ${(r.clause ?? "").replace(/\n/g, " ").slice(0, 90)}`), held: wpStateCast.length < 17 };
 const Z8 = { perText: [...pages.map((p) => ({ text: p.name, slots: p.identity.slots })), ...Object.entries(B).map(([k, v]) => ({ text: k, slots: v.identity?.slots ?? [] }))].filter((x) => x.slots.length), held: null };
 
 const out = {
-  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8, Z9, Z10, Z11, Z12, Y1, Y2, Y3, X1, X2, X3,
+  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8, Z9, Z10, Z11, Z12, Z13, Z14, Z15, Z16, Y1, Y2, Y3, X1, X2, X3,
   ...W, V1, V2, V3, V4, V5, V6,
   nativeA: { standings: AN.length, perPage: pagesN.map((p) => ({ page: p.name, standings: p.rows.length, refused: tally(p.real.refused, (x) => x.reason), cast: p.cast, seconds: p.seconds })), via: tally(AN, (c) => c.via), rows: AN },
   nativeB: BN,
@@ -496,7 +519,7 @@ const out = {
   standingsA: A,
   live: Object.fromEntries(Object.entries(B).map(([k, v]) => [k, { ...v, rows: v.rows.slice(0, 60) }])),
 };
-for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8", "Z9", "Z10", "Z11", "Z12"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
+for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8", "Z9", "Z10", "Z11", "Z12", "Z13", "Z14", "Z15", "Z16"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
 console.log("via", out.via, "locusVia", out.locusVia);
 for (const [k, v] of Object.entries(B)) console.log(k, v.standings, "standings", v.ablationStandings, "ablation", v.seconds, "s", JSON.stringify(v.refused));
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));
