@@ -231,11 +231,18 @@ const B_PATHS = {
   "Crime_and_Punishment": `${LP}/01-literature-books/gitenberg/pg2554_Crime-and-Punishment.txt`,
 };
 const B = {}, BN = {};
+const cap = Number(process.env.NATIVE_MAX_CHARS) || Infinity;
 const withTimeout = (p, ms) => Promise.race([p, new Promise((res) => setTimeout(() => res({ timedOut: true }), ms).unref?.())]);
 for (const [name, path] of Object.entries(B_PATHS)) {
   const text = readFileSync(path, "utf8").replace(/\r\n/g, "\n");
-  { const t0 = Date.now(); const rn = await withTimeout(readNative({ name, text, links: [] }), 600000);
-    BN[name] = rn.timedOut ? { timedOut: true, seconds: +((Date.now() - t0) / 1000).toFixed(1) } : { standings: rn.rows.length, refused: tally(rn.real.refused, (x) => x.reason), via: tally(rn.rows, (x) => x.via), cast: rn.cast, seconds: rn.seconds, rows: rn.rows.slice(0, 60), refusedNamed: rn.real.refused.filter((x) => /chaplain|Professor|Gorbachev|Bez[uú]khov/i.test(`${x.clause ?? ""} ${x.complement ?? ""}`)).slice(0, 8) }; }
+  // NATIVE_MAX_CHARS (amendment, 2026-09-28, after the first v2 attempt ran
+  // 75 minutes without finishing): the native reader's per-reprojection
+  // rescan is superlinear, and a Promise.race wall cannot pre-empt
+  // synchronous work — so a text over the declared size is SKIPPED on the
+  // native arm and reported as over budget with its size, never silently
+  // absent. Unset = no cap (the registered v2 shape).
+  { const t0 = Date.now(); const rn = text.length > cap ? { overBudget: true, chars: text.length, cap } : await withTimeout(readNative({ name, text, links: [] }), 600000);
+    BN[name] = rn.overBudget ? { overBudget: true, chars: rn.chars, cap: rn.cap } : rn.timedOut ? { timedOut: true, seconds: +((Date.now() - t0) / 1000).toFixed(1) } : { standings: rn.rows.length, refused: tally(rn.real.refused, (x) => x.reason), via: tally(rn.rows, (x) => x.via), cast: rn.cast, seconds: rn.seconds, rows: rn.rows.slice(0, 60), refusedNamed: rn.real.refused.filter((x) => /chaplain|Professor|Gorbachev|Bez[uú]khov/i.test(`${x.clause ?? ""} ${x.complement ?? ""}`)).slice(0, 8) }; }
   const r = readText({ name, text, links: [] });
   const pat = positionsByPattern(r.real.candidates);
   const faces = new Map(r.rows.map((x) => [x.occupantId, x.occupant]));
@@ -262,7 +269,7 @@ const kantN = BN.Immanuel_Kant?.rows?.filter((r) => /kant/i.test(r.surface) && /
 const V4 = { nativeKantMentioned: !BN.Immanuel_Kant?.timedOut && ((BN.Immanuel_Kant?.rows ?? []).some((r) => /kant/i.test(r.surface)) || (BN.Immanuel_Kant?.refusedNamed ?? []).some((x) => /kant/i.test(x.occupant ?? ""))), landed: kantN.map((r) => `${r.surface} -> ${r.locus}`), refusedNamed: BN.Immanuel_Kant?.refusedNamed, held: kantN.length >= 1 };
 const realBadN = AN.filter((c) => c.via !== "pronoun" && badOccupant(c.surface));
 const V5 = { hostBad: realBad.length, nativeBad: realBadN.map((c) => `${c.surface} @${c.address}`), held: realBad.length === 0 && realBadN.length === 0 };
-const V6 = { hostSeconds: B["War and Peace"].seconds, nativeSeconds: BN["War and Peace"].seconds, nativeTimedOut: !!BN["War and Peace"].timedOut, held: !BN["War and Peace"].timedOut && B["War and Peace"].seconds < 600 };
+const V6 = { hostSeconds: B["War and Peace"].seconds, nativeSeconds: BN["War and Peace"].seconds ?? null, nativeTimedOut: !!BN["War and Peace"].timedOut, nativeOverBudget: !!BN["War and Peace"].overBudget, nativeCap: cap, firstAttempt: "2026-09-28: the uncapped v2 run was killed at 75 minutes without finishing — the native arm on the whole book did not fit any wall", held: !BN["War and Peace"].timedOut && !BN["War and Peace"].overBudget && B["War and Peace"].seconds < 600 };
 
 const out = {
   V1, V2, V3, V4, V5, V6,
