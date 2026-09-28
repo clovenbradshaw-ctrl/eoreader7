@@ -64,7 +64,12 @@ export const OCCUPANCY_TRANSITIONS_EN_META = Object.freeze({
   scope: "entry into a position, and holding one (the copula family, NUL); exits (resigned, deposed, died) are named future work",
 });
 import { undecided, collapse } from "../../kernel/undecided.js";
-import { DEFINITE_DETERMINERS as _DEF, INDEFINITE_DETERMINERS as _INDEF } from "./priors.js";
+import { DEFINITE_DETERMINERS as _DEF, INDEFINITE_DETERMINERS as _INDEF, CLAUSE_OPENERS, SUBJECT_PRONOUNS } from "./priors.js";
+// where a complement's head NOUN ends (v14's finding): a relative clause or a
+// reduced relative ("pope whose age can be verified", "the man he would have
+// wished to be") trails the head; the veto below reads the word BEFORE the
+// first clause opener or subject pronoun, never the clause's own last word
+const HEAD_NOUN_CUT = new RegExp(`\\s+(?:${[...CLAUSE_OPENERS, ...SUBJECT_PRONOUNS].map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?:\\s+|$)`, "iu");
 const DET_ALL = new Set([..._DEF, ..._INDEF]);
 
 /** The reader's own for-whom when a caller declares none: it collapses by nearness under the earned walls. */
@@ -318,7 +323,7 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         // test, because the prior's dominant class of "count" is VERB. Read only
         // with a prior injected; a word the prior never saw is not refused.
         if (!where && posPrior) {
-          const lastWord = (locus.split(headCut)[0].trim().split(/\s+/).pop() ?? "").replace(/[^\p{L}’'-]/gu, "");
+          const lastWord = (locus.split(headCut)[0].split(HEAD_NOUN_CUT)[0].trim().split(/\s+/).pop() ?? "").replace(/[^\p{L}’'-]/gu, "");
           const tags = posPrior.forms?.[lastWord.toLowerCase()] ?? null;
           if (tags && !((tags.NOUN ?? 0) + (tags.PROPN ?? 0) > 0)) { refused.push({ at, reason: "locus_not_nominal", occupant: occupantSurface, complement: comp.slice(0, 80), word: lastWord, classes: Object.keys(tags) }); break; }
         }

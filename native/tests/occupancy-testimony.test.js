@@ -257,13 +257,14 @@ test("a declared language with no grammar stands the English organs down and say
 });
 
 test("locus-side being-kind (2026-09-28): a complement whose head the prior settles with no nominal share names no position; an ambiguous word and an unseen word pass; only with a prior", () => {
-  const posPrior = { forms: { latter: { ADJ: 7 }, general: { ADJ: 32, NOUN: 6, PROPN: 10 }, count: { NOUN: 4, VERB: 7 } } };
-  const texts = ["Pierre became the latter.", "Kutúzov became the general.", "Pierre became Count Bezúkhov.", "Nicholas became the Chairman."];
+  const posPrior = { forms: { latter: { ADJ: 7 }, general: { ADJ: 32, NOUN: 6, PROPN: 10 }, count: { NOUN: 4, VERB: 7 }, verified: { VERB: 9 }, pope: { NOUN: 5 }, wished: { VERB: 4 }, man: { NOUN: 40 } } };
+  // v14's own loss: the head noun ends where a relative clause (or a reduced one) begins — "pope", "man", never the clause's last verb
+  const texts = ["Pierre became the latter.", "Kutúzov became the general.", "Pierre became Count Bezúkhov.", "Nicholas became the Chairman.", "Benedict became the longest-lived pope whose age can be verified.", "Andrew became the man he would himself have wished to be."];
   const r = readOccupancyTestimony(texts.map((text, at) => ({ text, at })), { ...OPTS, posPrior });
   assert.deepEqual(r.refused.filter((x) => x.reason === "locus_not_nominal").map((x) => [x.at, x.word, x.classes]), [[0, "latter", ["ADJ"]]]);
-  assert.deepEqual(r.candidates.map((c) => c.locus), ["general", "Count Bezúkhov", "Chairman"]);
+  assert.deepEqual(r.candidates.map((c) => c.locus), ["general", "Count Bezúkhov", "Chairman", "longest-lived pope whose age can be verified", "man he would himself have wished to be"]);
   const without = readOccupancyTestimony(texts.map((text, at) => ({ text, at })), OPTS);
-  assert.equal(without.candidates.length, 4, "absent a prior nothing is refused on it");
+  assert.equal(without.candidates.length, 6, "absent a prior nothing is refused on it");
 });
 
 test("naming as testimony (Cyril): a name carrying a locus's title and head with givens no known occupant wears is a SIGNED occupant — never a predicated one, never handed to positionsByPattern", () => {
