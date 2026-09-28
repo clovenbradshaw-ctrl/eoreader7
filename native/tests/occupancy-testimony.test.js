@@ -132,3 +132,15 @@ test("what a locus IS is undecided: the cast's merge says being, the testimony s
   assert.equal(standingOf(bez.undecided, [bez.collapse, c2], { id: "occupancy-reader:nearest-established" }).collapse.chosen.value, "position");
   assert.equal(LOCUS_BY_PATTERN.params.minOccupants, 2);
 });
+
+test("BEING_KIND: a candidate that keeps a preposition's company is refused by name; a subject is kept; unmeasured company is contested", async () => {
+  const { BEING_KIND } = await import("../adapters/text/occupancy-testimony.js");
+  const { SUBJECT_PRONOUNS } = await import("../adapters/text/priors.js");
+  const texts = ["In 1806 March was appointed Grand Duke of Berg.", "In 1806 Murat was appointed Grand Duke of Berg.", "In 1806 Nadella was appointed Grand Duke of Berg."];
+  const F = { March: { prepShare: 0.8, verbShare: 0 }, Murat: { prepShare: 0.08, verbShare: 0.55 }, Nadella: {} };
+  const mentions = (s) => Object.keys(F).flatMap((surf) => { const i = s.text.indexOf(surf); return i >= 0 ? [{ start: i, end: i + surf.length, referent: `ref:${surf.toLowerCase()}`, via: "cast", features: F[surf] }] : []; });
+  const r = readOccupancyTestimony(texts.map((text, at) => ({ text, at })), { ...OPTS, mentions, pronouns: SUBJECT_PRONOUNS, forWhom: { id: "reader:being-kind" }, occupantRule: BEING_KIND });
+  assert.deepEqual(r.candidates.map((c) => c.occupant), ["ref:murat"]);
+  assert.deepEqual(r.refused.map((x) => x.reason), ["not_being_kind", "company_unmeasured"]);
+  assert.equal(r.events[0].collapse.forWhom, "reader:being-kind");
+});

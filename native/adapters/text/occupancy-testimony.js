@@ -86,6 +86,23 @@ export const NEAREST_ESTABLISHED = Object.freeze({
     return { chosen: last.index };
   },
 });
+/**
+ * BEING_KIND — a second declared rule (v5, registered 2026-09-28: Y1 and Y2
+ * held): NEAREST_ESTABLISHED, and the chosen candidate must be more often a
+ * subject than a preposition's object — `verbShare > prepShare`, both read
+ * off the material by the supplier with a received POS prior (company, P79;
+ * never a month list). Unmeasured company is contested, never refused.
+ */
+export const BEING_KIND = Object.freeze({
+  name: "being-kind", giver: "adapters/text/occupancy-testimony.js; company read with the UD_English-EWT POS prior by the supplier", params: { requires: "verbShare > prepShare" },
+  decide(cands, record) {
+    const base = NEAREST_ESTABLISHED.decide(cands, record);
+    if (!Number.isInteger(base.chosen)) return base;
+    const c = cands[base.chosen];
+    if (c.features.verbShare == null || c.features.prepShare == null) return { contested: [c.index], reason: "company_unmeasured" };
+    return c.features.verbShare > c.features.prepShare ? base : { contested: [c.index], reason: "not_being_kind" };
+  },
+});
 const BE_AUX = new Set(["was", "were", "is", "are", "been", "being", "be", "had been", "has been", "have been"]);
 /** Between an occupant mention and its transition: at most this many words, each read. */
 export const OCCUPANT_GAP_MAX = 2;
