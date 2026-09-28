@@ -50,6 +50,27 @@
 // sentence shares its subject and one word (Harker / "brightest") anchors.
 // Re-registered: P4 on the rebuilt control; P9 the judge lands ≥ 1 chosen
 // on the ON arm (v1: 0 of 30).
+// V3, PRE-REGISTERED 2026-09-28 after v2 (results/fast-reasoning-v2-RESULTS.md).
+// ONE change: the judge's protocol is point-then-word (the-fold judge.js):
+// ask 1 the number of the deciding sentence (no example number), ask 2 one
+// word over that sentence alone. P1–P9 stand as registered (a "call" is now
+// a model call, so a judged claim costs up to two). Re-registered:
+//   P9  ≥ 1 chosen on the ON arm (v2: 0)
+//   P3  zero fabrications SHIPPED stays the prediction — and is the one at
+//       risk: a false claim whose pointed sentence carries its subject and
+//       one more word anchors, and the word is the model's
+//   P5  pass 2 fewer judge calls than pass 1 — reachable now only if P9 holds
+// V4, PRE-REGISTERED 2026-09-28 after v3 (results/fast-reasoning-v3-RESULTS.md).
+// Driver fixes only, no organ change: (a) the injection looks habits up
+// under judge.js's own key (the claim's folded arrangement) — v3 looked
+// under the driver's `claim:<i>` and found none; (b) the negated
+// restatement is "<subject> never <verb> ..." so the relation reader's own
+// negation rule (negation BEFORE the verb, P43) reads it `contradicted`;
+// (c) every claim reaches judgeTurn's revision loop, settled or not, as in
+// production. SKIP_E4=1 skips the prompt-variant arms (measured in v3).
+//   P7  every holding habit is conceded on the injected book (REC, trigger
+//       quoted) and none answers `holds` against the negation; P1–P6, P9
+//       stand as registered.
 //   node eval/identity/fast-reasoning.mjs [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
@@ -157,15 +178,24 @@ async function ladder(m, item, { trails, habits, judgeOn = true, mechanicalOn = 
   const mech = mechanical(m, item.claim);
   const row = { i: item.i, book: item.book, truth: item.truth, claim: item.claim, passages: mech.passages.map((p) => p.ref), mechanical: mech.verdict, rung: null, verdict: null, calls: 0, anchored: null, landed: null };
   const before = calls;
-  if (mechanicalOn && (mech.verdict === "holds" || mech.verdict === "refused")) { row.rung = "mechanical"; row.verdict = mech.verdict; row.calls = 0; return { row, trails, habits }; }
+  if (mechanicalOn && (mech.verdict === "holds" || mech.verdict === "refused")) {
+    row.rung = "mechanical"; row.verdict = mech.verdict; row.calls = 0;
+    // the revision loop sees every claim, settled or not (as in production): a live habit the reader now contradicts is conceded here
+    const settled = mech.claims.filter((c) => c.verdict === "bound" || c.verdict === "contradicted").map((c) => ({ ...c, key: `claim:${item.i}` }));
+    row.habitKey = settled.length ? habitKeyOf(settled[0]) : null;
+    const ing = ingestionOf({ claims: settled, unread: [], witness: [], sources: [{ name: m.name }], trails });
+    const rev = await judgeTurn({ ingestion: ing, claims: settled, question: "", forWhomId: `key:${item.i}`, chunks: m.chunks, recipe: "revision", habits, model: MODEL, ask: async () => { throw new Error("no ask on a settled claim"); } });
+    return { row, trails: rev.trails, habits: rev.habits, conceded: rev.conceded };
+  }
   if (!judgeOn) { row.rung = "none"; row.verdict = null; return { row, trails, habits }; }
   // a claim the reader could not settle: hand ingestion the claim's own gap so the ladder escalates it
   const refs = mech.passages.map((p) => p.ref);
   const claimRow = mech.claims.find((c) => c.verdict !== "bound" && c.verdict !== "contradicted") ?? { key: habitKeyOf({ end1: item.claim, label: "", end2: "" }), end1: item.claim, label: "", end2: "", verdict: "unheard", refs: refs.slice(0, 1), spans: [] };
   if (!claimRow.refs?.length) claimRow.refs = refs.slice(0, 1);
   const claims = [{ ...claimRow, key: `claim:${item.i}` }];
+  row.habitKey = habitKeyOf(claims[0]);
   const ing = ingestionOf({ claims, unread: [], witness: [], sources: [{ name: m.name }], trails });
-  const judged = await judgeTurn({ ingestion: ing, claims, question: question ?? `Is it true that ${item.claim.replace(/\.$/, "")}?`, forWhomId: `key:${item.i}`, chunks: m.chunks, recipe: `${MODEL}@judge-${variant}`, habits, model: MODEL,
+  const judged = await judgeTurn({ ingestion: ing, claims, question: question ?? `Is it true that ${item.claim.replace(/\.$/, "")}?`, forWhomId: `key:${item.i}`, chunks: m.chunks, recipe: `${MODEL}@judge-point-then-word-${variant}`, habits, model: MODEL,
     ask: (messages) => ask(variant === "shipped" ? messages : rewire(messages, variant)) });
   const j = judged.ingestion.byClaim[0]?.judgment ?? null;
   row.rung = j?.rung ?? "none"; row.verdict = j?.landed === "chosen" ? j.verdict : null; row.anchored = j?.anchored ?? null; row.landed = j?.landed ?? (j?.refused ?? "not_asked"); row.calls = calls - before; row.gary = j?.gary?.findings?.length ?? null; row.judgeVerdictRaw = j?.verdict ?? null;
@@ -205,12 +235,13 @@ out.arms.shuffled = await runArm("E1 CONTROL shuffled, ON", SHUFFLED, { judgeOn:
 out.arms.on2 = await runArm("E2 ON pass 2 (habits carried)", REAL, { judgeOn: true, mechanicalOn: true, trails: out.arms.on1.trails, habits: out.arms.on1.habits });
 out.arms.on3 = await runArm("E2 ON pass 3", REAL, { judgeOn: true, mechanicalOn: true, trails: out.arms.on2.trails, habits: out.arms.on2.habits });
 // the injection: for every live habit that holds, a negated restatement of its decider sentence is inserted right before the passage it lives in
-const liveHabits = KEY.map((item) => ({ item, habit: recallHabit(out.arms.on3.habits, `claim:${item.i}`) })).filter((x) => x.habit && x.habit.verdict === "holds");
+const keyOf = (i) => out.arms.on3.rows.find((r) => r.i === i)?.habitKey ?? null;
+const liveHabits = KEY.map((item) => ({ item, habit: keyOf(item.i) ? recallHabit(out.arms.on3.habits, keyOf(item.i)) : null })).filter((x) => x.habit && x.habit.verdict === "holds");
 const INJECTED = Object.fromEntries(Object.entries(REAL).map(([n, m]) => {
   let text = m.text;
   for (const { item, habit } of liveHabits.filter((x) => x.item.book === n)) {
     const at = text.indexOf(habit.decider);
-    const neg = item.claim.replace(/\b(was|is|were|became|succeeded)\b/, (v) => ({ was: "was never", is: "is not", were: "were never", became: "never became", succeeded: "never succeeded" })[v]);
+    const neg = item.claim.replace(/\b(was|is|were|became|succeeded)\b/, (v) => `never ${v}`);
     if (at >= 0) text = text.slice(0, at) + neg + " " + text.slice(at);
   }
   return [n, material(n, text)];
@@ -220,8 +251,11 @@ out.arms.injected = await runArm("E2 INJECTION (negations inserted, habits carri
 out.injection.conceded = out.arms.injected.conceded;
 out.injection.heldAgainstNegation = out.arms.injected.rows.filter((r) => liveHabits.some((x) => x.item.i === r.i) && r.rung === "habit" && r.verdict === "holds").map((r) => r.i);
 // E4
+if (process.env.SKIP_E4) { out.arms.v_first = { rows: [], score: null }; out.arms.v_prohib = { rows: [], score: null }; }
+else {
 out.arms.v_first = await runArm("E4 question-first (judge every claim)", REAL, { judgeOn: true, mechanicalOn: false, variant: "question-first" });
 out.arms.v_prohib = await runArm("E4 prohibition (judge every claim)", REAL, { judgeOn: true, mechanicalOn: false, variant: "prohibition" });
+}
 const landings = (rows) => rows.reduce((t, r) => ({ ...t, [r.landed]: (t[r.landed] ?? 0) + 1 }), {});
 out.e4 = { shipped: landings(out.arms.off.rows), questionFirst: landings(out.arms.v_first.rows), prohibition: landings(out.arms.v_prohib.rows) };
 
