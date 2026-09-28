@@ -99,7 +99,7 @@ for (const c of chunks) {
   const claims = rel.read(String(c.text ?? ""))?.claims ?? [];
   for (const cl of claims) {
     if (cl.verdict !== "bound") continue;
-    groundFacts.push({ end1: cl.end1, label: cl.label, end2: cl.end2, fact: `${cl.end1} ${cl.label} ${cl.end2}`, ref: c.ref });
+    groundFacts.push({ end1: cl.end1, label: cl.label, end2: cl.end2, fact: `${cl.end1} ${cl.label} ${cl.end2}`, ref: c.ref, spans: cl.spans ?? [] });
   }
 }
 console.log(`  ground facts extracted (mechanical, bound claims only): ${groundFacts.length}`);
@@ -137,13 +137,23 @@ for (const { text, meant } of PROPOSITIONS) {
     giver: "claude-sonnet-5 (this session, substituting for a live model backend — disclosed in this file's header)",
     frame: { giver: "claude-sonnet-5", question: "what does the article establish about The X-Files?" },
     placement: "whole.turn",
+    // Integrated with the reading side (2026-09-28): real source bytes, so
+    // an entailed fact's address is actually verified (organs/verify-span.js)
+    // rather than trusted on the strength of the phrase match alone.
+    // `passages: chunks` matters — hypergraph.js's own claim spans are
+    // offsets INTO the chunk they came from, not the source file; omitting
+    // this silently fails every real span (verify-span.js's passage-relative
+    // fallback never gets a passage list to resolve against).
+    sources: { [SOURCE_NAME]: rawText },
+    passages: chunks,
   });
   console.log(`\n  "${text}"`);
   console.log(`    meant to test: ${meant}`);
   console.log(`    typing: ${atom.typing}  derivation: ${atom.derivation}  cell: ${JSON.stringify(atom.cell)}`);
-  console.log(`    closest ground fact: ${atom.entailFact ?? "(none within 2 shared tokens)"} [${atom.entailRef ?? "n/a"}]`);
+  if (atom.typing === "entail") console.log(`    entailed fact: ${atom.entailFact} [${atom.entailRef}]  verified: ${atom.entailVerified}`);
+  else console.log(`    closest ground fact (did not qualify — needs BOTH ends): ${atom.closestGroundFact ?? "(no overlap at all)"}`);
   console.log(`    chase.basis: ${chase.chase?.basis ?? "(n/a)"}`);
-  atomRows.push({ text, meant, typing: atom.typing, derivation: atom.derivation, cell: atom.cell, entailFact: atom.entailFact, entailRef: atom.entailRef, chaseBasis: chase.chase?.basis ?? null });
+  atomRows.push({ text, meant, typing: atom.typing, derivation: atom.derivation, cell: atom.cell, entailFact: atom.entailFact, entailRef: atom.entailRef, entailVerified: atom.entailVerified, closestGroundFact: atom.closestGroundFact, chaseBasis: chase.chase?.basis ?? null });
 }
 
 console.log("\n=== recombination: what the holograph offers back for a fresh void on {mulder, carter, duchovny} ===");

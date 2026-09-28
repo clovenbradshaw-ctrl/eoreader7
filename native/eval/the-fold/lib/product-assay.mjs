@@ -26,6 +26,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { requireFoldAvailable } from "./fold-sibling.mjs";
+import { verifySpan } from "../../../organs/verify-span.js";
 
 const NATIVE = new URL("../../..", import.meta.url).pathname;
 const FOLD = new URL("../../../../../the-fold/", import.meta.url).pathname;
@@ -225,19 +226,11 @@ export function readCorpus(O, corpus) {
   return { passages, rel, log, admitted };
 }
 
-// A span's bytes are checked against the SOURCE, never trusted. `ref` is
-// `name#start-end` of the passage; spans carry start/end in the passage's
-// or the source's coordinates — both are tried and the one that verifies is
-// named, so a caller knows which coordinate system the organ used.
-function verifySpan(sp, corpus, passages) {
-  const name = String(sp.ref ?? "").split("#")[0];
-  const src = corpus[name];
-  if (src == null || !Number.isFinite(sp.start) || !Number.isFinite(sp.end)) return { ok: false, frame: null };
-  if (src.slice(sp.start, sp.end) === sp.text) return { ok: true, frame: "source" };
-  const p = passages.find((x) => x.ref === sp.ref);
-  if (p && src.slice(p.start + sp.start, p.start + sp.end) === sp.text) return { ok: true, frame: "passage" };
-  return { ok: false, frame: null };
-}
+// verifySpan moved to organs/verify-span.js (2026-09-28) — this file's own
+// copy and document-holograph.mjs's were two independent codings of the
+// same check (this one tried a passage-relative coordinate frame document-
+// holograph.mjs's never needed; that one tolerated P17's layout-normalized
+// whitespace this one never did). Both now share one implementation.
 
 // ── THE ANSWER RECORD ────────────────────────────────────────────────────
 async function answerRecord(O, reading, corpus, q, { declarations }) {
@@ -248,7 +241,7 @@ async function answerRecord(O, reading, corpus, q, { declarations }) {
     for (const c of rel.read(String(p.text ?? ""))?.claims ?? []) {
       if (c.verdict !== "bound") continue;
       const claim_id = await O.grid.mintClaimId({ subject: c.end1, verb: c.label, object: c.end2 });
-      const spans = (c.spans ?? []).map((sp) => ({ ref: sp.ref, start: sp.start, end: sp.end, text: sp.text, verified: verifySpan(sp, corpus, reading.passages) }));
+      const spans = (c.spans ?? []).map((sp) => ({ ref: sp.ref, start: sp.start, end: sp.end, text: sp.text, verified: verifySpan(sp, corpus, { passages: reading.passages }) }));
       // ONE claim per identity: a fact two passages state is one claim with
       // two addresses, never two claims (the same identity mintClaimId hashes).
       const have = claims.find((k) => k.claim_id === claim_id);
@@ -391,7 +384,7 @@ export async function runProductAssay({ corpus = CORPUS } = {}) {
   }
   const allSpans = records.flatMap((r) => r.claims.flatMap((c) => c.spans));
   wall("1", "addressed", allSpans.length > 0 && allSpans.every((s) => s.verified.ok),
-    `${allSpans.filter((s) => s.verified.ok).length}/${allSpans.length} claim spans resolve to the source's exact bytes (${[...new Set(allSpans.map((s) => s.verified.frame))].join("/")} coordinates)`);
+    `${allSpans.filter((s) => s.verified.ok).length}/${allSpans.length} claim spans resolve to the source's exact bytes (${[...new Set(allSpans.map((s) => s.verified.mode))].join("/")} coordinates)`);
   const stated = records.find((r) => r.question === QUESTIONS[0].question);
   const founded = stated?.standing.find((s) => /amelia hartley/i.test(s.end1) && s.label === "founded");
   const repaired = notes.find((n) => /owen blythe/i.test(n.subject) && n.verb === "repaired");

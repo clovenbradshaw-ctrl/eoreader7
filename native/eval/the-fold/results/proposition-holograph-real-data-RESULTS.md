@@ -99,11 +99,63 @@ correctly here — in every row above `chase.basis` reports 0-of-1 candidate
 spans equated, so this run exercised the verbatim `entailHits` path almost
 exclusively, not the paraphrase chase the "derive" tier depends on.
 
+## Follow-up (2026-09-28) — fixed, and integrated with the reading side
+
+Finding 2 is fixed in `proposition-holograph.js`'s `captureProposition`:
+entailment now requires the ground fact's **two ends to appear as phrases**,
+both of them — not a bag-of-words count against their combined tokens. It is
+also now integrated with the reading side's own discipline: when a caller
+hands `sources` (and `passages`, for hypergraph.js's passage-relative claim
+spans), an entailed fact's address is checked against real bytes through the
+same organ the reading side uses on its own ledger spans
+(`organs/verify-span.js` — new, replacing two copies of the same check that
+had drifted apart in `eval/the-fold/lib/{document-holograph,
+product-assay}.mjs`), disclosed as `entailVerified`, never assumed.
+
+Re-running the fix against this same document surfaced two more real, more
+subtle false positives before it was done:
+
+- **The address was never actually checked.** The first pass of this
+  integration left `entailVerified: false` on a *genuine* entailment
+  (`David Duchovny plays Fox Mulder`) because hypergraph.js's claim spans are
+  offsets *into the passage they came from*, not the source file — and this
+  driver never passed `passages` through. Fixed by passing `chunks` as
+  `passages`; `verifySpan`'s passage-relative fallback (already correct —
+  the bug was in this driver's wiring, not the shared organ) then resolves
+  it.
+- **A fact whose two ends are the same text trivially "entails" anything
+  naming it once.** `Mulder is depicted as a Bureau profiler who was
+  educated at Oxford` — a real fact from the excerpt, but not one the 51
+  extracted facts state cleanly — typed **Entail** anyway, against a
+  mis-parsed reflexive sentence ("she is partnered with Mulder... so that
+  she can debunk Mulder's...") that produced a ground fact with
+  `end1 === end2 === "Mulder"`. "Both ends present" degenerates to "one
+  entity present" when the two ends are identical. Fixed with a guard:
+  a fact whose ends fold to the same text is excluded before it can
+  witness an entailment.
+
+Both fixes are pinned by new falsify tests (`H7`, `H8` in
+`native/the-fold/proposition-holograph-falsify.test.mjs`), each
+mutation-checked — reverting its fix makes the test fail on this exact
+real-world case, not a synthetic stand-in.
+
+Final state, same five propositions, same document, nothing hand-tuned to
+make this table clean:
+
+| proposition | typing | why |
+|---|---|---|
+| "The X-Files was created by Chris Carter." | Invent | Finding 1 stands — the extractor never caught the passive-participle construction; no fix claimed for this one |
+| "David Duchovny plays Fox Mulder on the show." | **Entail**, verified `true` | both ends present as phrases; address reads back from the real source |
+| "Mulder is depicted as a Bureau profiler who was educated at Oxford." | Invent | the only near-match was the degenerate identical-ends fact, now excluded |
+| "The show's endurance across three broadcast decades..." | Invent | genuine commentary, unaffected |
+| "The Cigarette Smoking Man functions less as a person than as..." | Invent | Finding 2, fixed |
+
 ## Reproduce
 
 ```
 node eval/the-fold/proposition-holograph-real-data.mjs
 node eval/the-fold/proposition-holograph-real-data.mjs --source <path> [--limit <bytes>]
+node --test native/the-fold/proposition-holograph-falsify.test.mjs
 ```
 
 Dated JSON (ground facts, per-proposition typing, the recombined and

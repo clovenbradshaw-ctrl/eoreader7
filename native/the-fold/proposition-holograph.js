@@ -69,6 +69,15 @@
 //
 // PURE: no fetch, no DOM, no model call. The holograph is a value; atoms are
 // appended, never edited (the EOT discipline — a revision supersedes).
+//
+// INTEGRATED WITH THE READING SIDE (2026-09-28): entailment's byte address
+// is checked with the same organ the reading side uses on its own ledger
+// spans (organs/verify-span.js — shared with eval/the-fold/lib/document-
+// holograph.mjs and product-assay.mjs, not reimplemented here). Optional:
+// a caller with no `sources` to check against (most callers, including
+// this file's own falsify tests) gets `entailVerified: null` — verification
+// simply not attempted, never assumed.
+import { verifySpan } from "../organs/verify-span.js";
 const HOLOGRAPH_SCHEMA = "EOPropositionHolograph@1";
 export const STANDINGS = Object.freeze({ CANDIDATE: "CANDIDATE", ACCEPTED: "ACCEPTED", REFUSED: "REFUSED", REVISED: "REVISED" });
 
@@ -129,6 +138,7 @@ export function propositionIdentity(text, { frame = null } = {}) {
 // provenance, never by the model.
 export function captureProposition(holograph, sentence, {
   activation = "", groundFacts = [], chase = null, cell = null, parsing = null, register = null, giver = "the mouth", frame = null, placement = "whole",
+  sources = null, passages = [],
 } = {}) {
   if (!holograph || !sentence) return null;
   const id = `${holograph.sequence++}`;
@@ -149,18 +159,49 @@ export function captureProposition(holograph, sentence, {
   // entail; else the chase's verdict (derive when it equated/moved FOR WHOM,
   // invent when named un-equatable).
   const fold = (t) => String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f\u0591-\u05c7\u064b-\u0652]/g, "").toLowerCase();
-  const toks = (t) => [...new Set(fold(t).split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 2))];
-  const content = toks(sentence);
-  // VERBATIM ENTAIL: the ground fact's ends appear AS a phrase (2+ end words
-  // together), not any shared content word. A paraphrase that only touches a
-  // word is NOT entail — it is the chase's to classify.
-  let entailRef = null, entailFact = null, entailHits = 0;
+  // VERBATIM ENTAIL: the ground fact's ends appear AS PHRASES — BOTH of
+  // them, not scattered content words from just one end. Fixed 2026-09-28:
+  // the prior check (bag-of-words — any 2+ tokens shared with a fact's
+  // COMBINED ends) let a sentence that only NAMES one participant of a
+  // noisy fact (a mis-parsed relation whose "ends" are really a
+  // parenthetical, not a claim) type as verbatim-grounded with nothing
+  // actually reproduced — found running this against a real, uncurated
+  // document (eval/the-fold/proposition-holograph-real-data.mjs,
+  // results/proposition-holograph-real-data-RESULTS.md, Finding 2: "The
+  // Cigarette Smoking Man functions less as a person than as..." typed
+  // Entail purely because it names "Cigarette Smoking Man", one end of a
+  // mis-parsed `Cigarette Smoking Man —(→ William B` ground fact).
+  const foldedSentence = fold(sentence);
+  const phraseIn = (end) => { const p = fold(end).trim(); return p.length > 2 && foldedSentence.includes(p); };
+  let entailRef = null, entailFact = null, entailSpan = null;
+  let closestFact = null, closestHits = 0; // best partial match, disclosed only — never types an atom
   for (const g of groundFacts ?? []) {
-    const endWords = toks(`${g?.end1 ?? ""} ${g?.end2 ?? ""}`);
-    const hits = endWords.filter((w) => content.includes(w)).length;
-    if (hits > entailHits) { entailHits = hits; entailFact = g?.fact ?? null; entailRef = g?.ref ?? null; }
+    // A fact whose two ends fold to the same text cannot assert a relation
+    // BETWEEN two things (found re-testing the fix above against the same
+    // real document: a mis-parsed reflexive sentence produced a ground fact
+    // with end1 === end2 === "Mulder", so any sentence naming Mulder once
+    // trivially satisfied "both ends present" — the same class of bug,
+    // one level more subtle). Such a fact can still feed the DERIVE/INVENT
+    // chase; it is simply never entail's witness.
+    if (fold(g?.end1).trim() && fold(g?.end1).trim() === fold(g?.end2).trim()) continue;
+    const e1 = phraseIn(g?.end1), e2 = phraseIn(g?.end2);
+    if (e1 && e2 && !entailFact) {
+      entailFact = g?.fact ?? null; entailRef = g?.ref ?? null;
+      entailSpan = Array.isArray(g?.spans) && g.spans.length ? g.spans[0] : null;
+    }
+    const hits = (e1 ? 1 : 0) + (e2 ? 1 : 0);
+    if (hits > closestHits) { closestHits = hits; closestFact = g?.fact ?? null; }
   }
-  const entails = entailHits >= 2;
+  const entails = Boolean(entailFact);
+  // SPAN VERIFICATION, integrated with the reading side's own discipline
+  // (organs/verify-span.js): an entailed ground fact's address is checked
+  // against real source bytes when the caller hands `sources`, exactly as
+  // the reading side already checks every ledger span before trusting it
+  // (P5.2: a claim needs an address, never merely a claimed one). No
+  // `sources` means verification is simply not attempted — disclosed as
+  // `entailVerified: null`, never assumed true.
+  let entailVerified = null;
+  if (entails && sources) entailVerified = entailSpan ? verifySpan(entailSpan, sources, { passages }).ok : false;
   // THE CHASE BINDING: the record's verdict on this proposition FOR WHOM —
   // owns the paraphrase tier. A chase-moved or equated span is derive.
   const chaseDerivation = chase?.derivation ?? null;
@@ -192,7 +233,12 @@ export function captureProposition(holograph, sentence, {
     // GROUNDS ON = the byte addresses: the entailed ground fact's ref, or the
     // chase's equated row, or nothing (invent — disclosed).
     groundsOn: entails ? (entailRef ? [entailRef] : []) : (chase?.row ? [chase.row] : []),
-    entailRef, entailFact,
+    entailRef, entailFact, entailVerified,
+    // Disclosed only — the best partial (one-end) match when nothing fully
+    // entailed, so a caller can see what the mouth was closest to without
+    // that closeness ever typing the atom (that is exactly the bug fixed
+    // above: closeness on ONE end is not verbatim carry of the fact).
+    closestGroundFact: entails ? null : closestFact,
     placement: String(placement ?? "whole"),
     parsing: parsing ?? null,
     register: register ?? null,
