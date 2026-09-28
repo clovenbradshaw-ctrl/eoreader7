@@ -378,6 +378,35 @@ built, so the result can go against it.
   round 0 with the bug fixed, EVA→REC genuinely does nothing for these
   mouths on this task, and code2's stub-baseline number was the honest
   answer after all, just for the wrong reason.
+- **Gary's law applied to code-form's prompts, and one worked-example fact
+  added (2026-09-28, user: "use Gary to understand how to best prompt
+  models").** Audited `workingNote()` and `askCalls()` against
+  `native/tests/gary-doors.test.js`'s own rules (P55: information, never
+  prohibition; no apparatus vocabulary; a worked-example shape holds when
+  its names are marked fake, per the-fold/code-loop.js's own
+  `PROPOSAL_FORMAT` and CODING-LESSONS.md #67) — clean already, pinned with
+  a new test in `tests/code-form.test.js` (mutation-checked: an injected
+  "Do not invent a premise." trips it). Read code3-1.5b's own failing
+  `tokenize`: `const c = s[i]` was captured OUTSIDE an inner loop meant to
+  consume a run of matching characters, so the loop's own guard never
+  changed and it read that one character forever — a well-known small-model
+  pattern bug, not specific to this task. Added `SCAN_SHAPE`
+  (`organs/code-form.js`), one fake-named worked shape for walking a
+  sequence and consuming a run inside it, appended to every function's
+  working note (Gary's own worked-example lesson: state it as information,
+  not as a ban on the bug — "never capture a stale index" was considered and
+  rejected as exactly the prohibition Gary refuses).
+  **code4, pre-registered before running**: the same task, same two mouths,
+  fresh seed, record arm only, with `SCAN_SHAPE` now in every working note.
+  Predicted: the specific stale-index bug is gone from at least one of
+  `tokenize`, `parseRef`, `dependencies`, `formatGrid` (functions with a
+  scan-and-consume-a-run shape) on at least one mouth, read from the
+  assembled source, not just from a higher pass count (a fixed loop can
+  still fail a DIFFERENT way and a higher count could come from an unrelated
+  function). Falsifier: the same stale-index shape recurs in a fresh draw of
+  the same function after the fact is in its note — the fact does not reach
+  a pattern this general, and the next lever is decomposition (lesson #29:
+  split the scan into its own leaf unit), not more prompting.
 - **The root:** the bodies are never read back into the record. The ear
   (`talk-reader.js`) hears only the outline's talk. Every empty cell needs
   that one missing reader first (SIG·Figure), with pronouns bound

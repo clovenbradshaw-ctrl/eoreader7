@@ -49,6 +49,18 @@ export const BODY_TOKENS = 700;
 /** How much of a callee's line the note carries — set by hand 2026-09-28:
  *  its first sentence, so the note stays bounded whatever the design says. */
 const firstSentence = (s) => { const t = String(s); const i = t.indexOf(". "); return i > 0 ? t.slice(0, i + 1) : t; };
+
+/** Gary's law (native/tests/gary-doors.test.js, P55): a fact the mouth can
+ *  reason from, never a prohibition, and no apparatus vocabulary — a
+ *  worked shape holds its OWN form without echoing its (fake) names, the
+ *  same lesson the-fold/code-loop.js's PROPOSAL_FORMAT already banks on.
+ *  Added 2026-09-28 after code3's own draws named the bug: a 1.5b tokenize
+ *  read one character outside a loop that was meant to consume a RUN of
+ *  them, so the loop's own guard never changed and it read that one
+ *  character forever. General, not tied to this task's own vocabulary
+ *  (cells, tokens) — the shape recurs in any code that walks a sequence,
+ *  which is most of what this pipeline is asked to write. */
+export const SCAN_SHAPE = "Shape for reading through a sequence one item at a time (the names below are fake — copy your own): while (i < seq.length) { const item = seq[i]; if (keepsGoing(item)) { i++; continue; } that item starts a RUN, so an inner loop consumes it: while (i < seq.length && partOfRun(seq[i])) { i++; } } Each pass reads seq[i] again, inside the inner loop too — the position moves every time, and what is read at it moves with it.";
 const sha8 = (t) => createHash("sha256").update(String(t)).digest("hex").slice(0, 8);
 
 export function makeTextStore(init = {}) {
@@ -168,6 +180,7 @@ export function makeCodeForm({ ask, mouth = "mouth", log = () => {}, spec, testF
     const callees = calleesOf(notes, f);
     for (const c of callees) lines.push(`It may call ${c.signature} — ${firstSentence(c.says)}${c.module !== f.module ? " (already imported)" : ""}`);
     for (const x of failures) lines.push(`A test failed: ${x}`);
+    lines.push(SCAN_SHAPE);
     const anchor = `function ${f.name}(`;
     return { prompt: `${lines.join("\n")}\n\nWrite the function ${f.name} in JavaScript, as a plain function declaration. Write only the code.\n\n${anchor}`, anchor, premises: [noteId(notes, f.id, "signature"), noteId(notes, f.id, "says"), ...N.fold(notes).filter((n) => n.end1 === f.id && n.label === "calls").map((n) => n.id)].filter(Boolean) };
   }
