@@ -98,7 +98,8 @@ export function parseDelimited(text, sep) {
   row.push(cell); if (row.some((x) => x !== "")) rows.push(row);
   return { header: rows[0] ?? [], rows: rows.slice(1) };
 }
-const tableText = (t) => `[table ${t.name ?? ""}] ${t.header.join(" | ")}\n${t.rows.map((r) => t.header.map((h, i) => `${h}=${r[i] ?? ""}`).join("; ")).join("\n")}`;
+export const TABLE_TEXT_ROWS = 2000; // declared: beyond this the TEXT face shows a head and the count; the table itself is kept whole
+const tableText = (t) => { const rows = t.rows.slice(0, TABLE_TEXT_ROWS); return `[table ${t.name ?? ""}] ${t.header.join(" | ")}\n${rows.map((r) => t.header.map((h, i) => `${h}=${r[i] ?? ""}`).join("; ")).join("\n")}${t.rows.length > rows.length ? `\n[… ${t.rows.length - rows.length} more rows in the table, not in this text]` : ""}`; };
 
 // ── pdf ──────────────────────────────────────────────────────────────────
 const pdfString = (s) => (/\0/.test(s) && (s.match(/\0/g).length >= s.length / 3) ? s.replace(/\0/g, "") : s).replace(/\\([nrtbf()\\])/g, (_, c) => ({ n: "\n", r: "\r", t: "\t", b: "\b", f: "\f" }[c] ?? c)).replace(/\\(\d{1,3})/g, (_, o) => String.fromCharCode(parseInt(o, 8)));
@@ -175,7 +176,7 @@ export function ingest({ name, bytes }) {
     const t = utf8(buf);
     if (/[\x00-\x08]/.test(t.slice(0, 4000))) r = { kind: "binary", text: "", gaps: [gap("unsupported_binary", `${ext || "unknown"}: no reader for these bytes`)] };
     else if (ext === "ipynb") r = fromIpynb(t);
-    else if (ext === "csv" || ext === "tsv") { const tb = { name, ...parseDelimited(t, ext === "tsv" ? "\t" : ",") }; r = { kind: ext, text: tableText(tb), tables: [tb], gaps: [] }; }
+    else if (ext === "csv" || ext === "tsv") { const tb = { name, ...parseDelimited(t, ext === "tsv" ? "\t" : ",") }; r = { kind: ext, text: tableText(tb), tables: [tb], gaps: tb.rows.length > TABLE_TEXT_ROWS ? [gap("table_text_truncated", `${tb.rows.length} rows: the text face shows the first ${TABLE_TEXT_ROWS}; table(name) has all of them`)] : [] }; }
     else if (ext === "json") { let p = null; try { p = JSON.stringify(JSON.parse(t), null, 1); } catch { /* keep raw */ } r = { kind: "json", text: p ?? t, gaps: p ? [] : [gap("bad_json", "kept as raw text")] }; }
     else if (ext === "html" || ext === "htm") { const x = extractReadable(t); r = { kind: "html", text: [x.title, x.text].filter(Boolean).join("\n\n"), gaps: [] }; }
     else r = { kind: ext || "text", text: t, gaps: [] };

@@ -123,7 +123,7 @@ test("the page persists, reloads verified, and refuses to load a tampered file",
 
 test("the / bar: python by default, typed refusals, no delete, checks bind to claims", async () => {
   const { parseCommand } = await import("../the-fold/surface/notebook-commands.mjs");
-  assert.equal(parseCommand("1+1").lang, "python");
+  assert.equal(parseCommand("is it intermittent?").op, "ask"); assert.equal(parseCommand("/py 1+1").lang, "python");
   assert.equal(parseCommand("/js 2").lang, "js");
   assert.match(parseCommand("/rm k1").error, /append-only/);
   assert.match(parseCommand("/nonsense").error, /\/help/);
@@ -135,7 +135,7 @@ test("the / bar: python by default, typed refusals, no delete, checks bind to cl
   assert.ok(!chk.error, chk.error); s = chk.state;
   assert.equal(execsOf(s.nb, "c1")[0].result, true); assert.equal(execsOf(s.nb, "c1")[0].scope.kind, "range");
   assert.ok((await act(s, H, { op: "line", line: "/check nope 1" })).error);
-  const v = await act(s, H, { op: "line", line: "np.arange(3).sum()" }); assert.match(execsOf(v.state.nb, "c2")[0].output, /3/, "the last expression is displayed, as Jupyter does");
+  const v = await act(s, H, { op: "line", line: "/py np.arange(3).sum()" }); assert.match(execsOf(v.state.nb, "c2")[0].output, /3/, "the last expression is displayed, as Jupyter does");
 });
 
 test("er7 is preloaded in python cells: data(), table(), scope_*, wmean, tools()", async () => {
@@ -143,4 +143,37 @@ test("er7 is preloaded in python cells: data(), table(), scope_*, wmean, tools()
   s = addData(s, ingest({ name: "t.csv", bytes: Buffer.from("v,e\n70,1\n72,1\n") }), H).state;
   const r = runPython("rows=table('t.csv'); print(len(rows), round(wmean([70,72],[1,1]),1)); tools()", s.files);
   assert.match(r.output, /2 71\.0/); assert.match(r.output, /numpy/); assert.match(r.output, /er7:/);
+});
+
+import { plan } from "../the-fold/surface/notebook-plan.mjs";
+const csv = (n) => { let t = "t_s,u,rpm\n"; const r = (() => { let a = 7; return () => ((a = (a * 1664525 + 1013904223) >>> 0) / 4294967296); })(); for (let i = 0; i < n; i++) t += `${(i * 0.001).toFixed(3)},${(r() - 0.5).toFixed(4)},${(1500 + Math.sin(i * 0.31)).toFixed(3)}\n`; return t; };
+
+test("plain language: gibberish is refused with the menu; 'everything' means every analysis; named columns narrow it", async () => {
+  const ing = ingest({ name: "probe.csv", bytes: Buffer.from(csv(300)) }); const files = [{ name: ing.name, tables: ing.tables }];
+  const g = await plan("asdf qwerty", files); assert.match(g.refusal, /I can do: quality/);
+  const e = await plan("give me everything about this", files); assert.equal(e.recipes.length, 5); assert.deepEqual(e.columns, ["u", "rpm"]);
+  const c = await plan("is u intermittent?", files); assert.deepEqual(c.columns, ["u"]); assert.ok(c.recipes.includes("intermittency") && c.recipes[0] === "quality");
+  assert.ok((await plan("anything periodic like a hum?", files)).recipes.includes("tones"));
+  assert.match((await plan("spectrum", [{ name: "x.pdf", tables: [] }])).refusal, /no table/);
+});
+
+test("a model may only POINT: ids and columns outside the lists shown are dropped, and a dead model falls back with the reason said", async () => {
+  const ing = ingest({ name: "probe.csv", bytes: Buffer.from(csv(300)) }); const files = [{ name: ing.name, tables: ing.tables }];
+  const p = await plan("hmm", files, { ask: async () => ({ recipes: ["spectrum", "rm -rf /", "made_up"], columns: ["u", "ghost"] }) });
+  assert.deepEqual(p.recipes, ["quality", "spectrum"]); assert.deepEqual(p.columns, ["u"]); assert.match(p.via, /could only choose/);
+  const d = await plan("is u intermittent?", files, { ask: async () => { throw new Error("connection refused"); } });
+  assert.ok(d.recipes.includes("intermittency")); assert.match(d.via, /unreachable/);
+});
+
+test("asking end to end: cells, claims with controls, a summary — and NOTHING is promoted for you", async () => {
+  let s = emptyNotebook(); const ing = ingest({ name: "probe.csv", bytes: Buffer.from(csv(6000)) });
+  s = addData(s, ing, H).state;
+  const r = await act(s, H, { op: "line", line: "is the rpm column periodic?" });
+  assert.ok(!r.error, r.error); s = r.state;
+  const claims = s.nb.entries.filter((e) => e.kind === "cell" && e.type === "claim"); assert.equal(claims.length, 1);
+  assert.equal(statusOf(s.bench, claims[0].id), "stated"); assert.ok(claims[0].proposed);
+  assert.match(phrase(s.bench, claims[0].id), /proposed by model:planner/);
+  assert.ok(s.nb.entries.some((e) => e.kind === "cell" && /ans/.test(e.id)));
+  assert.match(promote(s.bench, { card: claims[0].id, to: "computed_in_range", by: "model:planner" }).error, /never a model/);
+  const fold = s.nb.entries.filter((e) => e.kind === "exec" && e.cell.startsWith("ctl-")); assert.equal(fold[0].result, false, "the control must fail");
 });

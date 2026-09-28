@@ -14,6 +14,8 @@ import { ingest } from "../../organs/ingest.js";
 import { emptyNotebook, addData, addCell, editCell, cellOf, sourceOf, execsOf, editsOf, dataOf, stale, verify, NOTEBOOK_SCHEMA } from "./notebook.mjs";
 import { runCell, runPython } from "./notebook-run.mjs";
 import { parseCommand, COMMANDS } from "./notebook-commands.mjs";
+import { plan } from "./notebook-plan.mjs";
+import { RECIPES } from "./notebook-recipes.mjs";
 import { toIpynb, fromIpynb } from "./notebook-ipynb.mjs";
 import { phrase, statusOf, promote, support, STATUSES } from "./bench.mjs";
 import { resolveHandles, labelOf } from "./handles.mjs";
@@ -116,9 +118,48 @@ addEventListener("drop",async e=>{e.preventDefault();dc=0;$("#drop").classList.r
 let toolsCache;
 async function toolsText(st) { if (toolsCache) return toolsCache; const r = runPython("tools()", {}, { timeoutMs: 20000 }); return (toolsCache = r.output); }
 
+
+// A model, if one is reachable, may only POINT (choose recipe ids and column names from the lists shown). Not required.
+async function askModel({ question, recipes, columns }) {
+  const url = process.env.ER7_OLLAMA_URL, model = process.env.ER7_NB_MODEL;
+  if (!url || !model) throw new Error("no model configured (ER7_OLLAMA_URL / ER7_NB_MODEL)");
+  const schema = { type: "object", properties: { recipes: { type: "array", items: { enum: recipes.map((r) => r.id) } }, columns: { type: "array", items: { enum: columns } } }, required: ["recipes", "columns"] };
+  const r = await fetch(`${url}/api/chat`, { method: "POST", body: JSON.stringify({ model, stream: false, format: schema, options: { temperature: 0 }, messages: [{ role: "user", content: `Choose which analyses answer the question, and which columns they apply to. Question: ${question}\nAnalyses:\n${recipes.map((x) => `${x.id}: ${x.desc}`).join("\n")}\nColumns: ${columns.join(", ")}` }] }) });
+  return JSON.parse((await r.json()).message.content);
+}
+const MAX_RUNS = 80; // declared: one question may spend at most this many cell runs
+
+async function askTurn(st, by, text) {
+  const P = "model:planner";
+  const files = Object.entries(st.files).map(([name, f]) => ({ name, tables: f.tables }));
+  const p = await plan(text, files, { ask: process.env.ER7_OLLAMA_URL ? askModel : null });
+  if (p.refusal) return { error: p.refusal };
+  const runs = p.columns.length * p.recipes.reduce((n, id) => n + (RECIPES.find((r) => r.id === id).kind === "claim" ? 2 : 1), 0);
+  if (runs > MAX_RUNS) return { error: `that would be ${runs} runs (the limit is ${MAX_RUNS}); name fewer columns or analyses` };
+  let s = st; const seq = (t) => s.nb.entries.filter((e) => e.kind === "cell" && e.type === t).length + 1;
+  const put = (o) => { let id = o.id; while (cellOf(s.nb, id)) id += "x"; const r = addCell(s, { ...o, id, author: P }); if (r.error) throw new Error(r.error); s = r.state; return id; };
+  const run = (id) => { const r = runCell(s, id); if (r.error) throw new Error(r.error); s = r.state; return r.exec; };
+  const n0 = seq("markdown");
+  put({ id: `ask${n0}`, type: "markdown", source: `**Asked:** ${text}\n\n**Understood:** ${p.recipes.join(", ")} on ${p.columns.join(", ")} of ${p.file}. Chosen by: ${p.via}.${p.matched.length ? ` Matched on: ${p.matched.join(", ")}.` : ""}${p.unmatched.length ? `\n\n**Not understood (matched no analysis):** ${p.unmatched.join(", ")}` : ""}\n\nEvery claim below is proposed by the planner and is only as wide as its check; each has a control that must fail.` });
+  const findings = [], claims = [];
+  for (const col of p.columns) for (const rid of p.recipes) {
+    const R = RECIPES.find((r) => r.id === rid), tag = `${col}-${rid}`;
+    if (R.kind === "describe") { const e = run(put({ id: tag, type: "code", lang: "python", source: R.code(p.file, col) })); findings.push(e); continue; }
+    const k = put({ id: `k-${tag}`, type: "claim", source: R.claim(col) });
+    const e = run(put({ id: `chk-${tag}`, type: "code", lang: "python", source: R.code(p.file, col), for: k, role: "check" }));
+    run(put({ id: `ctl-${tag}`, type: "code", lang: "python", source: R.control(p.file, col), for: k, role: "control" }));
+    findings.push(e); claims.push(k);
+  }
+  const lines = findings.map((e) => (e.output.match(/^#finding (.*)$/m) ?? [])[1]).filter(Boolean);
+  const verdicts = claims.map((k) => { const sp = support(s.bench, k); return `- ${k.replace(/^k-/, "")}: ${sp.checks.length ? "the check held" : sp.failed.length ? "the check did NOT hold" : "not run"}${sp.controls.length ? ", and its control failed as it should" : ", but no control has failed yet, so it cannot be promoted"}`; });
+  put({ id: `ans${n0}`, type: "markdown", source: `**What was found**\n\n${lines.map((l) => `- ${l}`).join("\n")}\n\n**Claims (proposed; you decide)**\n\n${verdicts.join("\n")}\n\nNothing above is promoted. \`/promote <claim> computed_in_range\` moves a claim only if a check and a failed control are on the ledger — and only you can.` });
+  return { state: s, selected: `ans${n0}`, notice: null };
+}
+
 /** act(st, by, body) -> { state?, error?, notice?, selected? } — one door for the buttons AND the / bar. */
 export async function act(st, by, b) {
   if (b.op === "line") { const p = parseCommand(b.line); if (p.error) return { error: p.error }; return act(st, by, p); }
+  if (b.op === "ask") return askTurn(st, by, b.text);
   if (b.op === "run") return runCell(st, b.cell);
   if (b.op === "runmany") {
     const ids = st.nb.entries.filter((e) => e.kind === "cell" && e.type === "code").map((c) => c.id).filter((id) => b.which === "all" || (b.which === "stale" ? stale(st, id) : id === b.which));

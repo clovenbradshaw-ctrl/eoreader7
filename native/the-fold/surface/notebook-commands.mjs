@@ -1,6 +1,8 @@
 // notebook-commands.mjs — the / commands of the notebook bar. PURE: a line in, an op (or a typed refusal) out.
-// Anything without a leading slash is python — type code, press Enter, it becomes a cell and runs.
+// Anything without a leading slash is a QUESTION in plain language (/py is for code).
 export const COMMANDS = Object.freeze([
+  ["<plain language>", "just say what you want to know — it picks analyses and columns, runs them with controls, and reports (see what it understood)"],
+  ["/ask <question>", "the same, explicitly"],
   ["/py [code]", "add a python cell (and run it)"],
   ["/js [code]", "add a javascript cell (and run it)"],
   ["/md [text]", "add a markdown note"],
@@ -19,11 +21,12 @@ const WORD = /^\/(\w+)\s*(.*)$/s;
 export function parseCommand(line) {
   const t = String(line ?? "").trim();
   if (!t) return { error: "empty" };
-  if (!t.startsWith("/")) return { op: "add", type: "code", lang: "python", source: t, run: true };
+  if (!t.startsWith("/")) return { op: "ask", text: t };
   const m = t.match(WORD); if (!m) return { error: "a command is /word — try /help" };
   const [, w, rest] = m;
   const code = (lang) => ({ op: "add", type: "code", lang, source: rest, run: true, needs: rest ? null : "code" });
   switch (w) {
+    case "ask": return rest ? { op: "ask", text: rest } : { error: "/ask <what you want to know>" };
     case "py": return code("python");
     case "js": return code("js");
     case "md": return { op: "add", type: "markdown", source: rest };
