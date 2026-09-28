@@ -661,3 +661,40 @@ Verified: `node --test native/the-fold/profile-falsify.test.mjs
 native/the-fold/arc-falsify.test.mjs` — 9/9 pass, unchanged. Grep
 for the old path/specifier string (`"./profile.js"`, `"the-fold/
 profile.js"`) across both repos: zero remaining hits.
+
+## 11. `reading-log.js` (the-fold, canonical side) — a real crash fixed (2026-09-28)
+
+Not a hypothetical drift: reproduced the crash directly. The-fold's
+`foldReading` (line 84) iterated `e.provenance ?? []` unconditionally with
+`for...of` — fine for an array-shaped provenance, but eoreader7's own
+`discourse-referents.js::projectState` (called from `revision.js`'s
+`reviseTextFold`, which the-fold's `reading-worker.mjs` imports directly,
+not vendored) emits a real `EOReferent@1` with `provenance:
+Object.freeze({giver, basis})` — a single OBJECT, not an array. Feeding
+that shape into the-fold's live `foldReading` threw
+`TypeError: object is not iterable`; the same input against eoreader7's
+own vendored copy (which already branches on `Array.isArray`) returned
+cleanly. Reproduced end-to-end with real prose from the project's own
+Frankenstein corpus (`appositionalDescriptorBindings("I beheld the
+wretch—the miserable monster whom I had created.")`) producing exactly
+this shape.
+
+Back-ported eoreader7's `Array.isArray(prov)` branch verbatim (with its
+comment) into the-fold/reading-log.js. Added one regression test building
+an `EOReferent@1` entry with object-shaped `provenance` and asserting
+`foldReading`/`readingIndexFromLog` complete without throwing and the
+object survives. Left as explicitly deferred future work (not done here):
+the source.js-style re-export-shim flip (the-fold's file becoming a thin
+re-export of eoreader7's canonical copy) — a real architectural move tied
+to a broader, not-yet-executed dependency-direction decision; and fixing
+4 outlier eval scripts under `native/eval/the-fold/` that cross the repo
+boundary to import the-fold's original file directly rather than the
+local vendored copy — lower-stakes now that step 1 has landed (they'd be
+importing a fixed copy instead of a buggy one), scoped as its own
+follow-up.
+
+Verified: `node --test reading-log.test.mjs` (the-fold) — 10/10, the
+existing 9 plus the new case. Full the-fold suite (`*.test.mjs
+goldens/*/*.test.mjs`, 2635 tests): identical 54 failure names with and
+without this change (confirmed via `git stash`/`git stash pop` A-B
+comparison) — zero regressions.
