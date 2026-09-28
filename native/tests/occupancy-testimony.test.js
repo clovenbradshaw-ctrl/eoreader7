@@ -204,3 +204,12 @@ test("only the complement's head is asked against the cast: an adjunct place nam
     ["Murat", "Grand Duke of Berg", null, "surface"],
   ]);
 });
+
+test("the cast is asked only about a head phrase that reads as a name: a name inside a phrase is not the locus", () => {
+  const known = new Map([["napoleon", "Napoleon"], ["count bezukhov", "Count Bezukhov"], ["austrian", "Austrian"]]);
+  const resolveLocus = (sentence, span) => { const surf = sentence.text.slice(span.start, span.end).toLowerCase(); for (const [k, v] of known) if (surf.includes(k)) return { referent: v, id: `ref:${k}`, via: "cast" }; return null; };
+  const r = readOccupancyTestimony(["The letter taken by Balashev was the last Napoleon sent to Alexander.", "The consequence of Borodino was Napoleon's senseless flight from Moscow.", "Weyrother was the Austrian general who had succeeded Schmidt.", "Pierre became Count Bezukhov."].map((text, at) => ({ text, at, offset: 0 })), { ...OPTS, resolveLocus });
+  assert.deepEqual(r.candidates.map((c) => [c.occupant, c.locusId, c.locusVia]), [
+    ["Balashev", null, "surface"], ["Borodino", null, "surface"], ["Weyrother", null, "surface"], ["Pierre", "ref:count bezukhov", "cast"],
+  ]);
+});

@@ -64,6 +64,8 @@ export const OCCUPANCY_TRANSITIONS_EN_META = Object.freeze({
   scope: "entry into a position, and holding one (the copula family, NUL); exits (resigned, deposed, died) are named future work",
 });
 import { undecided, collapse } from "../../kernel/undecided.js";
+import { DEFINITE_DETERMINERS as _DEF, INDEFINITE_DETERMINERS as _INDEF } from "./priors.js";
+const DET_ALL = new Set([..._DEF, ..._INDEF]);
 
 /** The reader's own for-whom when a caller declares none: it collapses by nearness under the earned walls. */
 export const DEFAULT_FOR_WHOM = Object.freeze({ id: "occupancy-reader:nearest-established", giver: "adapters/text/occupancy-testimony.js" });
@@ -112,6 +114,19 @@ export const BEING_KIND = Object.freeze({
 });
 // the prepositions that close a complement's head phrase: what follows is subordinate to it (lang/en, declared here)
 const HEAD_CUT = /\s+(?:of|in|on|at|from|to|for|by|with|under|over|during|after|before|until|since|among|between|within|near)\s+/iu;
+/** A phrase reads as a name when name-spans.js accounts for every token (title / particle / given / head) and its head is capitalised. */
+export const nameShaped = (phrase) => {
+  const spans = nameSpans(phrase);
+  if (!spans.length) return false;
+  const head = spans.find((x) => x.relation === "head");
+  if (!/^\p{Lu}/u.test(head.text)) return false;
+  // a title AFTER the head is a description's noun ("the Austrian general"), never a name's decoration
+  if (spans.some((x) => x.relation === "title" && x.start > head.start)) return false;
+  const covered = spans.reduce((n, x) => n + 1, 0);
+  const toks = String(phrase).match(/[\p{L}\p{N}][\p{L}\p{N}’'.-]*/gu) ?? [];
+  const dets = toks.filter((t) => DET_ALL.has(t.toLowerCase())).length;
+  return covered === toks.length - dets && spans.filter((x) => x.relation === "given").every((x) => /^\p{Lu}/u.test(x.text));
+};
 const BE_AUX = new Set(["was", "were", "is", "are", "been", "being", "be", "had been", "has been", "have been"]);
 /** Between an occupant mention and its transition: at most this many words, each read. */
 export const OCCUPANT_GAP_MAX = 2;
@@ -252,7 +267,11 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         // first preposition — is asked; the whole complement stays the surface.
         const headLen = (() => { const m2 = HEAD_CUT.exec(comp); return m2 ? m2.index : comp.length; })();
         const headText = comp.slice(0, headLen).trim();
-        const where = resolveLocus && headText ? resolveLocus(sentence, { start: compStart, end: compStart + headText.length }, headText) : null;
+        // ...and a head phrase is asked only when it READS AS A NAME (v10's
+        // finding: "the last Napoleon sent", "Napoleon's senseless flight" hold a
+        // name and are not named by it) — name-spans.js decides: every token a
+        // title, a particle or a capitalised name token, determiners aside.
+        const where = resolveLocus && headText && nameShaped(headText) ? resolveLocus(sentence, { start: compStart, end: compStart + headText.length }, headText) : null;
         let pred = predecessor;
         if (predecessor && ms) { const ps = cStart + clause.indexOf(predecessor); const hit = ms.find((x) => x.start >= ps && x.end <= ps + predecessor.length); if (hit) pred = hit.referent; }
         // THE ACT, on the cube (phasepost.js injected, an overlay never a gate):
@@ -347,7 +366,7 @@ export function locusStandings(candidates, { merges = [], giver = OCCUPANCY_TRAN
 // the slot is contested rather than collapsed either way (S17's rule for the
 // cast, applied to the position's occupants). `namesNest` is kept as the
 // boolean face: full only.
-import { nameNesting } from "./name-spans.js";
+import { nameNesting, nameSpans } from "./name-spans.js";
 export const namesNest = (a, b, opts) => nameNesting(a, b, opts).level === "full";
 /** The pair sets kernel/merge-standing.js reads: `nested` (full) and `ambiguous` (prefix / head / given). */
 export function nestedOccupants(standings, faceOf, pairKey, opts) {
