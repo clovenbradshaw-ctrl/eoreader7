@@ -42,7 +42,7 @@ export function addData(state, ing, by = "human:unknown") {
 }
 
 /** addCell(state, { id, type, source, lang, author, for, role }) */
-export function addCell(state, { id, type, source, lang = "python", author, for: card = null, role = null }) {
+export function addCell(state, { id, type, source, lang = "python", author, for: card = null, role = null, method = null }) {
   if (!id || cellOf(state.nb, id)) return { error: "cell id missing or already used" };
   if (!["markdown", "code", "claim"].includes(type)) return { error: "type must be markdown, code or claim" };
   if (!isHuman(author) && !isModel(author)) return { error: 'author must be named: "human:<name>" or "model:<name>"' };
@@ -50,7 +50,7 @@ export function addCell(state, { id, type, source, lang = "python", author, for:
   if (type === "code" && card && role !== "check" && role !== "control") return { error: 'a code cell bound to a claim needs role "check" or "control"' };
   let bench = state.bench;
   if (type === "claim") { const r = addCard(bench, { id, text: source, author }); if (r.error) return r; bench = r.log; }
-  return { state: { ...state, bench, nb: seal(state.nb, { kind: "cell", id, type, lang: type === "code" ? lang : null, source: String(source ?? ""), author, proposed: isModel(author), for: card, role }) } };
+  return { state: { ...state, bench, nb: seal(state.nb, { kind: "cell", id, type, lang: type === "code" ? lang : null, source: String(source ?? ""), author, proposed: isModel(author), for: card, role, method }) } };
 }
 
 export function editCell(state, { cell, source, by }) {

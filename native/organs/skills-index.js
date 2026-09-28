@@ -12,6 +12,7 @@
 // tiny route table in organs/skill-routes.js, which is code and says so. Every item carries the sha256 of the
 // file it was read from. Pure of the network.
 
+import { library as analysisLibrary, skillId, ANALYSIS_ROUTE } from "./analysis-store.js";
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -96,6 +97,11 @@ export function learnedSkills({ learnedDir, foldSkillsDir, formPriors } = {}) {
     standing: r.conceded ? `CONCEDED — ${r.conceded.because}` : "earned — two senses agreed on a recurring shape", conceded: Boolean(r.conceded), honored: true, parent: "route:hard-read",
     facts: { foundAt: r.at ?? null, foundVia: r.foundVia, regions: r.evidence?.regions ?? null, textRoute: r.textRoute, imageRoute: r.imageRoute, head: r.head } });
   else notes.push(learnedDir ? "no hard-read rules learned yet" : "no learned directory given");
+  if (learnedDir) for (const a of analysisLibrary(learnedDir)) out.push({ id: skillId(a.id), title: a.name, kind: "analysis", origin: "learned",
+    route: `answer: ${a.claim.replaceAll("{{COL}}", "<column>")} — by running its check and its control`, appliesWhen: `a question whose words overlap: ${a.name} — ${a.desc}`, appliesShort: a.name, needs: ["an ingested table with numeric columns"],
+    address: `analyses.jsonl#${a.id} · code sha256 ${a.codeSha}`, evidence: `${(a.evidence?.runs ?? []).length} admission runs (${(a.evidence?.runs ?? []).map((r) => `${r.role}:${r.col}=${r.result}`).join(", ")}); ${a.evidence?.generalisation ?? ""}`,
+    standing: a.conceded ? `CONCEDED — ${a.conceded.because}` : `admitted — ran twice alike, its control failed; learned from ${a.lineage?.mouth ?? "?"}`, conceded: Boolean(a.conceded), honored: true, parent: ANALYSIS_ROUTE,
+    facts: { learnedAt: a.learnedAt, mouth: a.lineage?.mouth ?? null, question: a.lineage?.question ?? null, uses: a.uses, codeSha: a.codeSha } });
   if (foldSkillsDir && fs.existsSync(foldSkillsDir)) for (const f of fs.readdirSync(foldSkillsDir).filter((x) => x.endsWith(".json")).sort()) {
     const r = readJson(path.join(foldSkillsDir, f)); if (!r) continue;
     out.push({ id: `learned:fold-skill/${f.replace(/\.json$/, "")}`, title: r.j.name ?? f, kind: "procedure", origin: "learned", route: r.j.description ?? "a saved procedure (code with declared slots)",

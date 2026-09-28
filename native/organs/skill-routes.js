@@ -25,4 +25,14 @@ export const ROUTES = Object.freeze([
     route: "render the text to an image and read it with CV/OCR and a vision model", needs: ["opencv + tesseract", "a vision model"], owns: "the `<file>::look` source it admits",
     policies: null, resolution: null, evidence: null,
   },
+  {
+    id: "route:analysis", title: "learned analyses", kind: "route", organ: "native/organs/analysis-store.js", honored: true, circle: "analysis (a plain-language question about ingested data)",
+    purpose: "Answer a question about a table with a method this instance has LEARNED — none is built in — and state, in its own scope and result, exactly what was checked.",
+    appliesWhen: "a plain-language question whose words overlap a learned method's name, description or claim, asked of an ingested table with numeric columns",
+    route: "retrieve the learned methods that match; for each named column run the method's check and its control; write a claim that reads only as wide as the check; a person promotes it",
+    needs: ["python3 + numpy", "an ingested table"], owns: "analyses.jsonl (the hash-chained library of methods, their lineage and the runs that admitted them); the notebook cells it writes",
+    policies: "a method is admitted only if it runs, states its own scope and result, gives the same answer twice, its CONTROL fails on data where the claim is false by construction, and it generalises to a second column; a model may never promote a claim; a method that is off is never retrieved; switching one off needs a reason; nothing is deleted, only conceded",
+    resolution: "when two methods disagree about one column both findings are shown; neither overrides the other and nothing is promoted for the person",
+    evidence: { answer: "native/conformance/notebook.test.mjs (the gate, the repair loop, reuse with no model, /learn, switches, audit)" },
+  },
 ]);

@@ -14,42 +14,22 @@
 // The store is one JSONL file (ER7_LEARNED_DIR, default ~/.er7/learned/analyses.jsonl), shared by every notebook.
 import fs from "node:fs"; import path from "node:path";
 import { createHash } from "node:crypto";
-import { learnedDir } from "../../organs/hard-read.js";
 import { tokenize } from "../../organs/source.js";
 import { runPython } from "./notebook-run.mjs";
 import { parseRun } from "./bench.mjs";
 
-export const ANALYSIS_SCHEMA = "EOAnalysis@1";
+export { ANALYSIS_SCHEMA, library, store, concede, recordUse, verify as verifyStore, switchAnalysis, switchAll, history, skillId } from "../../organs/analysis-store.js";
+import { library, store } from "../../organs/analysis-store.js";
 export const MAX_REPAIRS = 2; // declared: a mouth gets its refusal back this many times
 const sha = (s) => createHash("sha256").update(s).digest("hex");
-const file = (dir) => path.join(dir, "analyses.jsonl");
-
 export const fill = (tpl, F, C) => String(tpl).replaceAll("{{FILE}}", F).replaceAll("{{COL}}", C);
-
-// ── the store: an append-only log; the library is its fold ─────────────────
-export function readLog(dir = learnedDir()) {
-  if (!fs.existsSync(file(dir))) return [];
-  return fs.readFileSync(file(dir), "utf8").split("\n").filter(Boolean).flatMap((l) => { try { return [JSON.parse(l)]; } catch { return []; } });
-}
-export function append(dir, entry) { fs.mkdirSync(dir, { recursive: true }); fs.appendFileSync(file(dir), JSON.stringify({ ...entry, at: Date.now() }) + "\n"); }
-export function library(dir = learnedDir()) {
-  const m = new Map();
-  for (const e of readLog(dir)) {
-    if (e.kind === "learn") m.set(e.id, { ...e, uses: 0, conceded: null });
-    else if (e.kind === "use" && m.has(e.id)) m.get(e.id).uses++;
-    else if (e.kind === "concede" && m.has(e.id)) m.get(e.id).conceded = { because: e.because, at: e.at };
-  }
-  return [...m.values()];
-}
-export const concede = (dir, id, because) => (library(dir).some((s) => s.id === id) ? (append(dir, { kind: "concede", id, because }), true) : false);
-export const recordUse = (dir, id, context) => append(dir, { kind: "use", id, context });
 
 // ── retrieval: which learned methods might answer this question ────────────
 const stem = (w) => w.replace(/(ies|es|s)$/, "");
 const toks = (s) => new Set(tokenize(String(s).replace(/[-\/_]/g, " ")).map(stem));
 export function retrieve(lib, question) {
   const q = toks(question);
-  return lib.filter((s) => !s.conceded).map((s) => ({ skill: s, hit: [...toks(`${s.name} ${s.desc} ${s.claim}`)].filter((t) => q.has(t)) })).filter((x) => x.hit.length).sort((a, b) => b.hit.length - a.hit.length);
+  return lib.map((s) => ({ skill: s, hit: [...toks(`${s.name} ${s.desc} ${s.claim}`)].filter((t) => q.has(t)) })).filter((x) => x.hit.length).sort((a, b) => b.hit.length - a.hit.length);
 }
 
 // ── the gate ───────────────────────────────────────────────────────────────
@@ -82,14 +62,6 @@ export function admit(cand, { file: F, cols, files }) {
   let general = "untested: only one numeric column was available";
   if (rest.length) { const d = go("other-column", cand.check, rest[0]); if (!d.ok) return { ok: false, reason: `the check ran on ${c0} but failed on ${rest[0]}: ${d.output.split("\n").filter(Boolean).slice(-1)[0]?.slice(0, 200)}` }; if (d.scope.kind === "undeclared" || d.result === null) return { ok: false, reason: `on ${rest[0]} the check did not state its scope and result` }; const fnd = (d.output.match(/^#finding .*$/m) ?? [""])[0]; if (!/^#finding /.test(fnd)) return { ok: false, reason: `on ${rest[0]} the check printed no #finding` }; if (new RegExp(`\\b${c0.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(fnd)) return { ok: false, reason: `on ${rest[0]} the finding still names ${c0} — a method that reports the column it was learned on says something false about every other; use {{COL}} in the text it prints too` }; general = `ran on ${rest[0]} too`; }
   return { ok: true, evidence: { runs, generalisation: general, finding: (a.output.match(/^#finding (.*)$/m) ?? [])[1] } };
-}
-
-const idOf = (c) => sha(c.check + "\u0000" + c.control).slice(0, 12);
-export function store(dir, cand, lineage, evidence) {
-  const id = idOf(cand);
-  if (library(dir).some((s) => s.id === id)) return { id, existing: true };
-  append(dir, { kind: "learn", schema: ANALYSIS_SCHEMA, id, name: cand.name.trim(), desc: cand.desc.trim(), claim: cand.claim.trim(), check: cand.check, control: cand.control, lineage, evidence });
-  return { id, existing: false };
 }
 
 /** generate — ask the mouth for a method, run it through the gate, hand the refusal back to be repaired. */

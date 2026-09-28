@@ -30,7 +30,7 @@ export async function plan(question, files, { library = [], ask = null } = {}) {
   const UNITS = new Set(["mps", "s", "hz", "k", "m", "ms", "pa"]);
   const said = numeric.filter((c) => words(c).some((w) => !UNITS.has(w) && qw.has(stem(w))));
   let columns = said.length ? said : numeric, via = "word overlap between the question and each learned method's name, description and claim (no model)";
-  const live = library.filter((s) => !s.conceded);
+  const live = library.filter((s) => s.effectiveOn !== false && !s.conceded), off = library.filter((s) => s.effectiveOn === false && !s.conceded);
   let hits = retrieve(live, question);
   if ([...qw].some((w) => ALL_WORDS.has(w))) { hits = live.map((skill) => ({ skill, hit: [] })); via = "your words asked for everything, so every learned method"; }
   if (ask && live.length) {
@@ -43,5 +43,6 @@ export async function plan(question, files, { library = [], ask = null } = {}) {
   const qtok = [...new Set(tokenize(String(question).replace(/[-\/]/g, " ")).map(stem))];
   const matched = [...new Set(hits.flatMap((h) => h.hit))];
   const unmatched = qtok.filter((t) => !matched.includes(t) && !numeric.some((c) => words(c).map(stem).includes(t)));
-  return { file: file.name, table, columns, numeric, skills: hits.map((h) => h.skill), matched, unmatched, via };
+  const offMatches = retrieve(off, question).map((h) => h.skill);
+  return { file: file.name, table, columns, numeric, offMatches, skills: hits.map((h) => h.skill), matched, unmatched, via };
 }

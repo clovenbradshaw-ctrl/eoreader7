@@ -13,6 +13,8 @@ export const COMMANDS = Object.freeze([
   ["/ingest <path>", "read any file (pdf docx xlsx pptx csv ipynb image …) into the notebook; gaps are shown, never hidden"],
   ["/learn <check> <control> as <what it answers>", "teach it: turn your own check and control cells into a method it can apply to other columns and files"],
   ["/skills", "the analyses this instance has learned — none are built in"],
+  ["/skill <method|all> on|off [because <why>]", "turn a learned method on or off — recorded as your decision; off needs a reason; a method that is off is never used"],
+  ["/audit", "how every claim here was produced: which method, who wrote it, what admitted it, who switched it, and whether every chain still verifies"],
   ["/forget <id> because <why>", "concede a learned method (kept on the record, no longer chosen)"],
   ["/data", "list what has been ingested, with each reader's gaps"],
   ["/tools", "list the python packages and er7 helpers a cell can use"],
@@ -39,6 +41,8 @@ export function parseCommand(line) {
     case "ingest": return rest ? { op: "ingest", path: rest.trim() } : { error: "/ingest <path to a file>" };
     case "learn": { const m = rest.match(/^(\S+)\s+(\S+)\s+as\s+(.+)$/s); return m ? { op: "learn", check: m[1], control: m[2], desc: m[3].trim() } : { error: "/learn <check cell id> <control cell id> as <what it answers>" }; }
     case "skills": return { op: "skills" };
+    case "audit": return { op: "audit" };
+    case "skill": { const m = rest.match(/^(.+?)\s+(on|off)(?:\s+because\s+(.+))?$/is); return m ? { op: "skill", which: m[1].trim(), on: m[2].toLowerCase() === "on", why: m[3]?.trim() ?? null } : { error: "/skill <method name or id, or all> on|off [because <why>]" }; }
     case "forget": { const m = rest.match(/^(\S+)\s+because\s+(.+)$/s); return m ? { op: "forget", id: m[1], because: m[2] } : { error: "/forget <method id> because <why>" }; }
     case "data": return { op: "data" };
     case "tools": case "pip": return { op: "tools" };

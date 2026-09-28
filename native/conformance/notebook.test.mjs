@@ -115,7 +115,7 @@ test("the page persists, reloads verified, and refuses to load a tampered file",
   let s = emptyNotebook();
   s = (await act(s, H, { op: "add", id: "c", type: "code", lang: "js", source: "console.log(5)" })).state;
   s = (await act(s, H, { op: "run", cell: "c" })).state; save(dir, s);
-  const back = load(dir); assert.match(renderPage(back), /chain verifies/); assert.match(renderPage(back), /console\.log\(5\)/);
+  const back = load(dir); assert.match(renderPage(back), /chains? verif/); assert.match(renderPage(back), /console\.log\(5\)/);
   const j = JSON.parse(fs.readFileSync(path.join(dir, "notebook.json"), "utf8")); j.nb[0].source = "console.log(9)"; fs.writeFileSync(path.join(dir, "notebook.json"), JSON.stringify(j));
   assert.throws(() => load(dir), /does not verify/);
   assert.ok((await act(emptyNotebook(), "model:x", { op: "add", id: "z", type: "claim", source: "a" })).state, "a model may PROPOSE a claim");
@@ -221,4 +221,51 @@ test("planning only points: a model can choose among LEARNED methods and columns
   assert.equal(d.skills.length, 1); assert.match(d.via, /unreachable/);
   assert.equal((await plan("something unrelated entirely", files, { library: lib })).skills.length, 0);
   assert.match((await plan("spectrum", [{ name: "x.pdf", tables: [] }])).refusal, /no table/);
+});
+
+import { verifyStore } from "../the-fold/surface/notebook-learn.mjs";
+import { audit, auditText } from "../the-fold/surface/notebook-audit.mjs";
+import { collectSkills } from "../organs/skills-index.js";
+const learnedWorld = async () => { const w = world(); let s = addData(emptyNotebook(), w.ing, H).state; const r = await act(s, H, { op: "line", line: "is the rpm column smooth?" }, { dir: w.tmp, mouth: async () => ({ ...GOOD, by: "model:fake" }) }); return { ...w, s: r.state, id: L.library(w.tmp)[0].id }; };
+
+test("a learned method is a SKILL: switched off it is never used and no new one is written around the switch; every switch is a named person's recorded decision", async () => {
+  const { s, tmp, id } = await learnedWorld(); const mouth = async () => { throw new Error("the mouth must not be asked around a switch"); };
+  assert.match((await act(s, "model:x", { op: "line", line: `/skill ${id} off because I said so` }, { dir: tmp })).error, /named person/);
+  assert.match((await act(s, H, { op: "line", line: `/skill ${id} off` }, { dir: tmp })).error, /needs a reason/);
+  const off = await act(s, H, { op: "line", line: `/skill ${id} off because it leaks the test set` }, { dir: tmp }); assert.match(off.notice, /now OFF/);
+  assert.equal(L.library(tmp)[0].effectiveOn, false); assert.equal(L.library(tmp)[0].switch.by, H);
+  const blocked = await act(s, H, { op: "line", line: "how smooth is the u column?" }, { dir: tmp, mouth });
+  assert.match(blocked.error, /switched off/); assert.match(blocked.error, /leaks the test set/); assert.match(blocked.error, /will not write a new one around a switch/);
+  const sk = collectSkills({ learnedDir: tmp }).learned.find((x) => x.id === `learned:analysis/${id}`); assert.ok(sk, "it is listed among the skills"); assert.equal(sk.effectiveOn, false); assert.equal(sk.parent, "route:analysis");
+  await act(s, H, { op: "line", line: `/skill ${id} on because reviewed` }, { dir: tmp });
+  assert.ok(!(await act(s, H, { op: "line", line: "how smooth is the u column?" }, { dir: tmp, mouth })).error);
+  await act(s, H, { op: "line", line: "/skill all off because the whole group is under review" }, { dir: tmp });
+  assert.equal(L.library(tmp)[0].effectiveOn, false, "the parent route silences everything under it");
+});
+
+test("the learned library is hash-chained: an altered entry is found, and the page says so", async () => {
+  const { s, tmp } = await learnedWorld(); assert.ok(verifyStore(tmp).ok);
+  const f = path.join(tmp, "analyses.jsonl"); const lines = fs.readFileSync(f, "utf8").split("\n").filter(Boolean); const e = JSON.parse(lines[0]); e.name = "rewritten"; lines[0] = JSON.stringify(e); fs.writeFileSync(f, lines.join("\n") + "\n");
+  assert.equal(verifyStore(tmp).ok, false); assert.equal(audit(s, tmp).chains.analyses.ok, false);
+  assert.match(renderPage(s, { dir: tmp }), /CHAIN BROKEN/);
+});
+
+test("audit: a claim traces to its method, the method to its author and gate runs, and to every switch", async () => {
+  const { s, tmp, id } = await learnedWorld(); await act(s, H, { op: "line", line: `/skill ${id} off because testing` }, { dir: tmp }); await act(s, H, { op: "line", line: `/skill ${id} on because tested` }, { dir: tmp });
+  const a = audit(s, tmp); const c = a.claims[0];
+  assert.equal(c.method.id, id); assert.ok(c.check && c.control && c.control.result === false); assert.equal(a.methods[0].learnedBy, "model:fake");
+  assert.ok(a.methods[0].gate.runs.some((r) => r.role === "control" && r.result === false)); assert.equal(a.methods[0].switchHistory.length, 2);
+  const t = auditText(a); assert.match(t, /produced by smoothness/); assert.match(t, /written by model:fake/); assert.match(t, /off by human:me \(testing\) → on by human:me \(tested\)/); assert.match(t, /not adopted|nobody has adopted/);
+  assert.match((await act(s, H, { op: "line", line: "/audit" }, { dir: tmp })).notice, /chains: notebook ok/);
+});
+
+test("three stylings of ONE ledger: chat, generate and notebook show the same claims, methods and audit — and drawing changes nothing recorded", async () => {
+  const { s, tmp, id } = await learnedWorld(); const before = JSON.stringify(s.nb.entries.map((e) => e.hash));
+  const pages = Object.fromEntries(["chat", "generate", "notebook"].map((k) => [k, renderPage(s, { style: k, dir: tmp, live: true, by: H })]));
+  assert.match(pages.chat, /class="chat"/); assert.match(pages.chat, /class="bub me"/); assert.match(pages.generate, /id="genbox"/); assert.match(pages.generate, /class="gen"/); assert.match(pages.notebook, /In&nbsp;\[/);
+  for (const [k, h] of Object.entries(pages)) { assert.match(h, /smooth/i, k); assert.match(h, new RegExp(id), `${k} carries the method id`); assert.match(h, /id="drawer"/, k); assert.match(h, /Skills · 1\/1 on/, k); assert.match(h, /data-tab="audit"/, k); assert.match(h, /data-op="switch"/, k); }
+  assert.ok(pages.chat.indexOf("In&nbsp;[") > pages.chat.indexOf("<details><summary>how this was produced"), "chat keeps the cells behind 'how this was produced'");
+  assert.equal(JSON.stringify(s.nb.entries.map((e) => e.hash)), before);
+  assert.doesNotMatch(renderPage(s, { style: "notebook", dir: tmp }), /data-op="switch"/, "a static page cannot flip a switch");
+  assert.match(renderPage(s, { style: "audit-nonsense", dir: tmp }), /In&nbsp;\[/, "an unknown style falls back to notebook");
 });
