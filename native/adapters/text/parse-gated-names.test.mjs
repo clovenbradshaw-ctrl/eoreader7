@@ -9,7 +9,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadModel } from "./english-parser.js";
-import { parseGatedNames } from "./parse-gated-names.js";
+import { parseGatedNames, synPropnFormsForSentences } from "./parse-gated-names.js";
+import { splitSentences } from "./spans.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const MODEL_PATH = path.join(here, "../../priors/parser-eng-ewt.json");
@@ -47,6 +48,34 @@ test("a capitalised word the parser never reads as PROPN is refused, even repeat
   const { admitted, evidence } = parseGatedNames(text, { model });
   assert.equal(admitted.has("which"), false, "capitalisation alone (line-initial) must not admit a non-PROPN word");
   assert.equal(evidence.get("which")?.synPropn, false);
+});
+
+test("Ulysses S. Grant: the shared sentence-boundary primitive admits the name a re-splitting parse used to drop", { skip: !ready }, () => {
+  // Found live, 2026-09-28: english-parser.js's own upostOccurrences()
+  // re-split sentences internally via a DIFFERENT (ICU-based) splitter
+  // than spans.js::splitSentences, and the two disagree on exactly this
+  // abbreviation shape -- ICU splits "...Ulysses S." | "Grant himself."
+  // while spans.js keeps the sentence whole. Reading the fragment
+  // "Grant himself." tags "Grant" differently than the real, whole
+  // sentence does, so the old path never admitted "Grant" -- a real,
+  // occurrence-pattern-dependent false negative, not hypothetical.
+  const text = "The letter was signed by Ulysses S. Grant himself.";
+  const { admitted } = parseGatedNames(text, { model });
+  assert.ok(admitted.has("grant"), "grant must be admitted now that the gate reads the material's own real sentence, not a re-split fragment");
+});
+
+test("the shared primitive agrees whether fed the whole document at once or one sentence at a time", { skip: !ready }, () => {
+  // Mimics recursive.js's own incremental fold (one sentence added per
+  // read tick) against parse-gated-names.js's batch call -- the two must
+  // land on the identical admitted set now that both route through
+  // synPropnFormsForSentences, closing "nothing cross-checks them."
+  const text = "Prince Hal admired Hotspur greatly. He watched Falstaff drink his sack and laugh. The letter was signed by Ulysses S. Grant himself.";
+  const sents = splitSentences(text, {}).map((s) => s.text);
+  const batch = synPropnFormsForSentences(model, sents);
+  const incremental = new Set();
+  for (const s of sents) for (const w of synPropnFormsForSentences(model, [s])) incremental.add(w);
+  assert.deepEqual([...incremental].sort(), [...batch].sort(), "one-sentence-at-a-time accumulation must match the batch call exactly");
+  assert.ok(batch.has("grant"), "sanity: the batch call itself admits grant");
 });
 
 test("real Henry IV Part 1 (modern spelling): reproduces the measured 2026-09-23 numbers exactly", {
