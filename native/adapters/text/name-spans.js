@@ -23,14 +23,24 @@
 //   "particle" — a received nobiliary/linking particle (de, von, van, ...)
 //   "given"    — a token before the head that is neither: a given name or
 //                middle name
-//   "patronymic" — (2026-09-28) a name token a declared PATRONYMIC class
-//                recognises: derived from the father's given name, worn by
-//                every child of one father, individuating nobody by itself
-//                (T5's own lesson). Injected per language — `patronymic:
-//                PATRONYMIC_RU` — never on by default: English family names
-//                end in -ich too ("Aldrich"), and a class the caller did not
-//                declare must not read them. A patronymic is never the head:
-//                "Katerina Ivanovna" is headed by Katerina.
+//   "patronymic" — (2026-09-28) a name part derived from the FATHER's given
+//                name. HOW A PERSON KNOWS (user direction, same day): not by
+//                the ending — Aldrich, Ivanov, Richardson all BEGAN as
+//                patronymics and froze into family names — but by where the
+//                part sits and whom it points at. Two readings, either
+//                suffices: POSITION — in a name of three or more name tokens
+//                the middle token carrying a patronymic ending is the
+//                patronymic (given · patronymic · family); STEM — the ending
+//                stripped leaves a given name the reader has ESTABLISHED
+//                (the cast's own given names, `givenNames`): Ivanovna points
+//                at an Ivan the material knows. The endings themselves are a
+//                CANDIDATE class from a declared prior (name-parts-ru.json,
+//                composed per language), never a verdict: a two-token name
+//                whose second token merely ends in -ich and points at no
+//                known given name stays given + head, and "John Aldrich" is
+//                read exactly as a person reads it. A patronymic is never
+//                the head: "Katerina Ivanovna", with Ivan established, is
+//                headed by Katerina.
 // A one-token name is a bare head with no givens — it may be a family name
 // OR a given name ("Pierre"), and the tree does not pretend to know.
 //
@@ -86,12 +96,26 @@ export function namePartsFrom(...priors) {
     for (const t of p.particles ?? []) particles.add(foldPart(t));
     if (p.patronymic?.suffixes?.length) { suffixes.push(...p.patronymic.suffixes.map((x) => foldPart(x))); minLength = Math.min(minLength, Number(p.patronymic.minLength) || 0); }
   }
-  const patronymic = suffixes.length ? Object.freeze((key) => { const k = String(key ?? ""); return k.length >= minLength && suffixes.some((suf) => k.endsWith(suf) && k.length > suf.length); }) : null;
-  return Object.freeze({ titles: Object.freeze(titles), particles: Object.freeze(particles), patronymic, languages: priors.map((p) => p.language), givers: Object.freeze(givers) });
+  // longest suffix first, so -ovich is stripped before -ich would be
+  const ordered = [...new Set(suffixes)].sort((a, b) => b.length - a.length);
+  const patronymic = ordered.length ? Object.freeze((key, ctx = {}) => {
+    const k = String(key ?? "");
+    const sufs = k.length >= minLength ? ordered.filter((x) => k.endsWith(x) && k.length > x.length) : [];
+    if (!sufs.length) return false;                                                // not even a candidate
+    const { nameIndex = null, nameCount = null, givenNames = null } = ctx;
+    if (Number.isInteger(nameIndex) && Number.isInteger(nameCount) && nameCount >= 3 && nameIndex > 0 && nameIndex < nameCount - 1) return true; // position: the middle of given · patronymic · family
+    if (givenNames && givenNames.size) {                                             // stem: the father's given name, established by the reader — every candidate ending tried (Ilyich is Ilya + -ich, not Il + -yich)
+      for (const suf of sufs) {
+        const stem = k.slice(0, k.length - suf.length);
+        for (const g0 of givenNames) { const g = foldPart(g0); if (g === stem || (g.startsWith(stem) && g.length - stem.length <= 1) || (stem.startsWith(g) && stem.length - g.length <= 1)) return true; }
+      }
+    }
+    return false;
+  }) : null;
+  return Object.freeze({ titles: Object.freeze(titles), particles: Object.freeze(particles), patronymic, suffixes: Object.freeze(ordered), minLength: ordered.length ? minLength : null, languages: priors.map((p) => p.language), givers: Object.freeze(givers) });
 }
-/** The Russian patronymic class as a code-side default — the SAME suffixes and floor name-parts-ru.json carries (the prior is authoritative; this is what loads with no file on disk). */
-// (the bare -ich is deliberately absent: it collides with English family names — Aldrich, Goodrich — at any floor; Kuzmich is the disclosed loss, Ilyich is kept by -yich)
-export const PATRONYMIC_RU = namePartsFrom({ schema: "NamePartsPrior@1", language: "ru", provenance: { giver: "lang/ru (code-side default of live_priors name-parts-ru.json)" }, patronymic: { suffixes: ["ovich", "evich", "yich", "ovna", "evna", "ichna", "inichna"], minLength: 6 } }).patronymic;
+/** The Russian patronymic class as a code-side default — the SAME endings and floor name-parts-ru.json carries (the prior is authoritative; this is what loads with no file on disk). A predicate over (key, { nameIndex, nameCount, givenNames }). */
+export const PATRONYMIC_RU = namePartsFrom({ schema: "NamePartsPrior@1", language: "ru", provenance: { giver: "lang/ru (code-side default of live_priors name-parts-ru.json)" }, patronymic: { suffixes: ["ovich", "evich", "yich", "ich", "ovna", "evna", "ichna", "inichna"], minLength: 6 } }).patronymic;
 export const PATRONYMIC_RU_META = Object.freeze({ giver: "lang/ru — patronymic formation from the father's given name (-ович/-евич/-ич, -овна/-евна/-ична), transliterated; the received copy is live_priors/derived-priors/name-priors/name-parts-ru.json" });
 
 const WORD = /[\p{L}\p{N}][\p{L}\p{N}’'.-]*/gu;
@@ -102,12 +126,16 @@ export const foldToken = (t) => String(t ?? "").normalize("NFD").replace(/\p{M}/
  * relation: "head" (root) | "title" | "particle" | "given". Determiners are
  * dropped. Empty for a surface with no name token ("the Count" is a description).
  */
-export function nameSpans(surface, { titles = HONORIFIC_TITLES, particles = NAME_PARTICLES, determiners = null, fold = foldToken, patronymic = null } = {}) {
+export function nameSpans(surface, { titles = HONORIFIC_TITLES, particles = NAME_PARTICLES, determiners = null, fold = foldToken, patronymic = null, givenNames = null } = {}) {
   const det = determiners ?? new Set([...DEFINITE_DETERMINERS, ...INDEFINITE_DETERMINERS]);
   const s = String(surface ?? "");
   const toks = [...s.matchAll(WORD)].map((m) => ({ start: m.index, end: m.index + m[0].length, text: m[0], key: fold(m[0]) }));
   // a determiner is not part of a name at all ("the Count" is a description): dropped, never a head
-  const parts = toks.filter((t) => !det.has(t.key)).map((t) => ({ ...t, relation: titles.has(t.key) ? "title" : particles.has(t.key) ? "particle" : patronymic && patronymic(t.key) ? "patronymic" : "name" }));
+  const parts0 = toks.filter((t) => !det.has(t.key)).map((t) => ({ ...t, relation: titles.has(t.key) ? "title" : particles.has(t.key) ? "particle" : "name" }));
+  // the patronymic is read with its POSITION among the name tokens and the reader's own given names (see the header)
+  const nameCount = parts0.filter((p) => p.relation === "name").length;
+  let nameIndex = -1;
+  const parts = parts0.map((p) => { if (p.relation !== "name") return p; nameIndex += 1; return patronymic && patronymic(p.key, { nameIndex, nameCount, givenNames }) ? { ...p, relation: "patronymic" } : p; });
   const names = parts.filter((p) => p.relation === "name");
   // a patronymic is never the head; a surface of patronymics alone ("Ivanovna") is headed by its last one, disclosed as such
   const head = names.length ? names[names.length - 1] : parts.filter((p) => p.relation === "patronymic").pop();
