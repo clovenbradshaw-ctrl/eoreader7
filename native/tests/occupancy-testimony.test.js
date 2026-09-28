@@ -221,3 +221,20 @@ test("a soft line break inside a clause is a space: the complement reads across 
   assert.deepEqual(r.candidates.map((c) => [c.occupant, c.locus, c.locusVia]), [["Weyrother", "Austrian general", "surface"], ["Pierre", "latter", "surface"], ["Pierre", "Count Bezukhov", "surface"]]);
   assert.equal(r.refused.length, 0);
 });
+
+test("a copula clause whose pre-verbal material opens with a preposition is inverted: refused by name, the post-verbal subject carried", () => {
+  const r = read(["With Pfuel was Wolzogen, who expressed his thoughts.", "Among the Russian prisoners rescued by Denisov and Dolokhov was Pierre Bezukhov.", "Weyrother was the Austrian general."]);
+  assert.deepEqual(r.refused.filter((x) => x.reason === "inverted_subject").map((x) => x.subject), ["Wolzogen", "Pierre Bezukhov"]);
+  assert.deepEqual(r.candidates.map((c) => c.occupant), ["Weyrother"]);
+});
+
+test("a title-less name as a copula complement is an identity claim, not a locus: carried as merge evidence, never a position", () => {
+  const known = new Map([["sonya", "Sonya"], ["count bezukhov", "Count Bezukhov"]]);
+  const resolveLocus = (sentence, span) => { const surf = sentence.text.slice(span.start, span.end).toLowerCase(); for (const [k, v] of known) if (surf.includes(k)) return { referent: v, id: `ref:${k}`, via: "cast" }; return null; };
+  // the pipeline's own mentions (the mentions arm): "Circassian" is an established referent, as it is in the War and Peace cast
+  const mentionsBy = { 0: [{ start: 5, end: 15, referent: "ref:circassian", via: "cast", established: true }], 1: [{ start: 0, end: 6, referent: "ref:pierre", via: "cast", established: true }], 2: [{ start: 0, end: 7, referent: "ref:natasha", via: "cast", established: true }] };
+  const r = readOccupancyTestimony(["That Circassian was Sonya.", "Pierre was Count Bezukhov.", "Natasha was Sonya's cousin."].map((text, at) => ({ text, at, offset: 0 })), { ...OPTS, resolveLocus, mentions: (s) => mentionsBy[s.at] });
+  assert.deepEqual(r.candidates.map((c) => [c.occupant, c.locus, c.identity?.into ?? null]), [["ref:circassian", "Sonya", "ref:sonya"], ["ref:pierre", "Count Bezukhov", null], ["ref:natasha", "Sonya's cousin", null]]);
+  const { positions, descriptions } = positionsByPattern(r.candidates);
+  assert.ok(!descriptions.some((d) => d.locus === "sonya") && !positions.some((p) => p.locus === "sonya"), "an identity row is no locus at all");
+});

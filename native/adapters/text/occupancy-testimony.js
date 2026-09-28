@@ -113,7 +113,8 @@ export const BEING_KIND = Object.freeze({
   },
 });
 // the prepositions that close a complement's head phrase: what follows is subordinate to it (lang/en, declared here)
-const HEAD_CUT = /\s+(?:of|in|on|at|from|to|for|by|with|under|over|during|after|before|until|since|among|between|within|near)\s+/iu;
+const PREPOSITIONS = new Set(["of", "in", "on", "at", "from", "to", "for", "by", "with", "under", "over", "during", "after", "before", "until", "since", "among", "between", "within", "near"]);
+const HEAD_CUT = new RegExp(`\\s+(?:${[...PREPOSITIONS].join("|")})\\s+`, "iu");
 /** A phrase reads as a name when name-spans.js accounts for every token (title / particle / given / head) and its head is capitalised. */
 export const nameShaped = (phrase) => {
   const spans = nameSpans(phrase);
@@ -183,6 +184,16 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
       for (const p of patterns) {
         const m = p.re.exec(clause); if (!m) continue;
         const before = clause.slice(0, m.index);
+        // SUBJECT INVERSION after a fronted phrase (v11's finding): "With Pfuel was
+        // Wolzogen", "Among the prisoners rescued by Denísov was Pierre" — the
+        // subject FOLLOWS the copula, and reading the last mention before the
+        // verb as the occupant lands it backwards. A copula clause whose
+        // pre-verbal material opens with a preposition is refused by name, the
+        // post-verbal subject carried, never read as a standing.
+        if (p.kind === "state") {
+          const firstWord = (before.trim().split(/\s+/)[0] ?? "").toLowerCase().replace(/[^\p{L}]/gu, "");
+          if (PREPOSITIONS.has(firstWord)) { refused.push({ at, reason: "inverted_subject", subject: m.groups.comp.trim().split(/,|\(|—|\s+(?:who|which|whom|and|but|while)\s+/u)[0].split(HEAD_CUT)[0].replace(/[.,;”"’']+$/u, "").trim().slice(0, 80), clause: clause.trim().slice(0, 160) }); break; }
+        }
         // the occupant: the pipeline's last mention before the transition, or the ablation's run
         let occupant, occupantSurface, occupantVia, gapWords;
         if (ms) {
@@ -290,7 +301,15 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         const act = p.kind === "state"
           ? { op: "NUL", grain: "Ground", cell: cellOf ? cellOf("NUL", "Ground") : null, standing: "declared", because: "a state is the transition of non-transition — the act that changes nothing (direction 2026-09-28)", overlay }
           : overlay;
-        candidates.push({ occupant, occupantVia, occupantSurface, locus: where?.referent ?? locus, locusId: where?.id ?? null, locusVia: where?.via ?? "surface", locusSurface: locus, predecessor: pred, pattern: p.kind, verb: m.groups.verb, act, at, address: `${source}#s${at}`, year, clause: clause.trim().slice(0, 200) });
+        // COPULA IDENTITY (v11's finding: "that Circassian was Sónya"): a state
+        // clause whose complement is a TITLE-LESS name that the cast resolves
+        // equates the occupant with a being, not a position. The row still
+        // lands as a NUL standing (the law), and carries `identity` — the
+        // material's own merge evidence (a description -> a name), for the
+        // identity organ's supports; positionsByPattern never counts it as a locus.
+        const identity = p.kind === "state" && where?.via === "cast" && !nameSpans(headText).some((x) => x.relation === "title")
+          ? { surface: occupantSurface, into: where.id ?? where.referent, basis: "copula identity" } : null;
+        candidates.push({ occupant, occupantVia, occupantSurface, locus: where?.referent ?? locus, locusId: where?.id ?? null, locusVia: where?.via ?? "surface", locusSurface: locus, predecessor: pred, pattern: p.kind, verb: m.groups.verb, act, identity, at, address: `${source}#s${at}`, year, clause: clause.trim().slice(0, 200) });
         break;
       }
     }
@@ -306,7 +325,7 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
  */
 export function positionsByPattern(candidates) {
   const by = new Map();
-  for (const c of candidates) { const k = String(c.locus).toLowerCase(); if (!by.has(k)) by.set(k, []); by.get(k).push(c); }
+  for (const c of candidates) { if (c.identity) continue; const k = String(c.locus).toLowerCase(); if (!by.has(k)) by.set(k, []); by.get(k).push(c); }
   const positions = [], descriptions = [];
   for (const [locus, cs] of by) {
     const occupants = new Set(cs.map((c) => c.occupant));
