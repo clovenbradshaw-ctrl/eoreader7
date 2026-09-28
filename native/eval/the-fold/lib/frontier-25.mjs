@@ -48,15 +48,16 @@ export function foldOrgans() {
       // Refuse typed (P95/S65) before requireFold's own bare-specifier
       // resolution walks up the directory tree and throws an uncaught
       // MODULE_NOT_FOUND when the-fold isn't a sibling checkout at all.
-      requireFoldAvailable(import.meta.url, "../../../../../the-fold/", "frontier-25.mjs::foldOrgans needs mathjs/arithmetic.js/shape.js/skills.js/term.js/sql.js from it");
+      requireFoldAvailable(import.meta.url, "../../../../../the-fold/", "frontier-25.mjs::foldOrgans needs mathjs/arithmetic.js/counting.js/shape.js/skills.js/term.js/sql.js from it");
       const math = requireFold("mathjs");
       const arithmetic = await import(`${FOLD}arithmetic.js`);
+      const counting = await import(`${FOLD}counting.js`);
       const shape = await import(`${FOLD}shape.js`);
       const skills = await import(`${FOLD}skills.js`);
       const runner = await import(`${FOLD}skill-runner.mjs`);
       const term = await import(`${FOLD}term.js`);
       const SQL = await requireFold("sql.js")();
-      return { math, arithmetic, shape, skills, runner, term, SQL };
+      return { math, arithmetic, counting, shape, skills, runner, term, SQL };
     })();
   }
   return organsPromise;
@@ -87,6 +88,16 @@ export const TASKS = Object.freeze([
   { id: "m9", category: "math", claim: "arithmetic", prompt: "What day of the week was July 4, 1776?", expected: "Thursday" },
   // a number the mouth must state, witnessed by claimedValue against the engine's own computation
   { id: "n1", category: "math", claim: "numeric", prompt: "1000 dollars is invested at 5% annual interest, compounded annually, for 3 years. What is it worth at the end? Give the amount to the cent.", expression: "1000 * 1.05^3", cents: true },
+  // counting — a tally is computed, never generated (counting.js, the same
+  // law as arithmetic.js's "17 times 24" one register over, for a definite
+  // fact a small model characteristically miscounts inside its own token
+  // stream). Zero-call claim via `mechanical`; the reference/wrong pair
+  // lets `control` prove `witness`'s reading of a mouth's stated count
+  // (arithmetic.js::claimedValue, reused) actually discriminates right
+  // from wrong, the same way the coding/sql/form tasks already do.
+  { id: "k1", category: "math", claim: "counting", prompt: "How many times does the letter r appear in strawberry?", expected: 3, reference: "The letter r appears 3 times in the word strawberry.", wrong: "The letter r appears 2 times in the word strawberry." },
+  { id: "k2", category: "math", claim: "counting", prompt: "How many vowels does antidisestablishmentarianism have?", expected: 11, reference: "The word antidisestablishmentarianism has 11 vowels.", wrong: "The word antidisestablishmentarianism has 9 vowels." },
+  { id: "k3", category: "math", claim: "counting", prompt: "How many words are in the quick brown fox jumps over the lazy dog?", expected: 9, reference: "That sentence has 9 words.", wrong: "That sentence has 8 words." },
   // coding — a candidate skill, admitted only if the task's own check passes in the sandbox
   {
     id: "c1", category: "coding", claim: "skill", fn: "isPalindrome",
@@ -215,6 +226,17 @@ export async function witness(task, answer, { runPython = null } = {}) {
       const ok = got === expected;
       return { ok, verdict: ok ? "passed" : "failed", detail: `mouth claimed ${got}, engine computes ${task.expression} = ${expected}`, organ: "arithmetic.js::claimedValue vs mathjs" };
     }
+    case "counting": {
+      // The mouth's own stated count, read the identical way a claimed
+      // arithmetic answer already is (arithmetic.js::claimedValue — "the
+      // LAST bare number in the text", tuned for a worked answer that
+      // restates the operands before the result) — never a second reader
+      // invented for this task, and never counting.js's own mechanical
+      // computation re-asked of the mouth's prose.
+      const claimed = O.arithmetic.claimedValue(text);
+      const ok = claimed === task.expected;
+      return { ok, verdict: ok ? "passed" : "failed", detail: `mouth claimed ${claimed}, expected ${task.expected}`, organ: "arithmetic.js::claimedValue (reading the mouth's stated count)" };
+    }
     case "skill": {
       const code = extractCode(text, "js");
       if (!code) return { ok: false, verdict: "did_not_run", detail: "no code in the draft", organ: "skill-runner.mjs::admitSkill" };
@@ -285,6 +307,13 @@ export async function mechanical(task) {
     if (r.gap) return { ok: false, detail: `${r.expression} — ${r.gap}`, organ: "arithmetic.js::checkQuantity" };
     const ok = typeof task.expected === "string" ? r.value === task.expected : near(r.value, task.expected);
     return { ok, detail: `${r.expression} = ${r.display} — computed, not generated${r.kind ? ` (${r.kind})` : ""}`, organ: "arithmetic.js::checkQuantity", value: r.value };
+  }
+  if (task.claim === "counting") {
+    const r = await O.counting.checkCounting(task.prompt);
+    if (!r) return { ok: false, detail: "counting.js did not claim the question", organ: "counting.js::checkCounting" };
+    if (r.gap) return { ok: false, detail: `${r.expression} — ${r.gap}`, organ: "counting.js::checkCounting" };
+    const ok = near(r.value, task.expected);
+    return { ok, detail: `${r.expression} = ${r.display} — computed, not generated`, organ: "counting.js::checkCounting", value: r.value };
   }
   if (task.claim === "assay") {
     const { run } = await assay();
