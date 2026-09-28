@@ -698,3 +698,27 @@ existing 9 plus the new case. Full the-fold suite (`*.test.mjs
 goldens/*/*.test.mjs`, 2635 tests): identical 54 failure names with and
 without this change (confirmed via `git stash`/`git stash pop` A-B
 comparison) — zero regressions.
+
+## 12. `shape.js` (native/the-fold/) — `SHAPE_SCHEMA` name collision resolved (2026-09-28)
+
+Two files named `shape.js` (the-fold's grammar-decoded answer-cardinality/
+form-verification module vs. eoreader7's Stage-4 web-corroborated
+document-shape-learning module) each export a constant named
+`SHAPE_SCHEMA` with an incompatible value — the-fold's is an object
+grammar schema, eoreader7's is the string `"EOShape@1"`. Confirmed the two
+files share zero code, zero data shape, and zero cross-imports; the live
+engine surface (`proxy-runner.mjs`) imports neither directly, so this was
+a pure discoverability hazard, not a functional risk.
+
+Renamed the exported constant in eoreader7's copy only —
+`SHAPE_SCHEMA` → `LEARNED_FORM_SCHEMA` — keeping the string value
+`"EOShape@1"` unchanged as the schema id. Confirmed the identifier has
+zero other references anywhere in either repo before renaming (its two
+importers, `shape-falsify.test.mjs` and `pipeline-run.mjs`, never
+reference it by name). The larger, separate step (renaming the file
+itself, e.g. to `genre-shape.js`) was deliberately left as a follow-on,
+not bundled into this constant-only fix.
+
+Verified: grep for `SHAPE_SCHEMA` across both repos returns only the
+renamed definition; `node --test native/the-fold/shape-falsify.test.mjs`
+— 9/9 pass.
