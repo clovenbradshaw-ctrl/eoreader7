@@ -25,11 +25,25 @@ export function floorPiece(draft) {
   return drawnParts(draft).map((p) => ({ id: p.id, pieces: p.children.map((pt) => ({ text: pt.text, carries: [pt.id] })) }));
 }
 
-export function measurePiece(piece, { draft, ground = "", task = "", parse = null, loadBearing = null } = {}) {
+/** For every statement id the draft outlines, is it carried by `texts`?
+ *  The one anchors/carries walk both `measurePiece`'s aggregate count and
+ *  finish.js's `arrive()` detail list are built from — lifted 2026-09-28
+ *  after both had reimplemented it independently (the same `anchorsFor`/
+ *  `drawnParts`/`carries` sequence, one counting the hits, the other
+ *  listing the misses). */
+export function carriedStatements(draft, texts) {
   const A = anchorsFor(draft);
-  const said = piece.flatMap((p) => (p.pieces ?? []).map((pc) => pc.text));
   const ids = drawnParts(draft).flatMap((p) => p.children.map((pt) => pt.id));
-  const carried = ids.filter((id) => carries(A.get(id), said).ok).length;
+  const carriedIds = [];
+  const uncarriedIds = [];
+  for (const id of ids) (carries(A.get(id), texts).ok ? carriedIds : uncarriedIds).push(id);
+  return { ids, carriedIds, uncarriedIds };
+}
+
+export function measurePiece(piece, { draft, ground = "", task = "", parse = null, loadBearing = null } = {}) {
+  const said = piece.flatMap((p) => (p.pieces ?? []).map((pc) => pc.text));
+  const { ids, carriedIds } = carriedStatements(draft, said);
+  const carried = carriedIds.length;
   // The ASK's questions, not the ones some section happened to be placed
   // under (measured: OHS read "answers 2 of 2" with no section placed under
   // "what the audit found").

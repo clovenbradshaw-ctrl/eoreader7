@@ -419,6 +419,55 @@ at all (only the `unitsOf`/`admitAll` section changed).
 
 ---
 
+## 6. `finish.js`'s `arrive()` vs `loop-check.js`'s `measurePiece()` — closed (2026-09-28)
+
+**What it is.** `arrive()` is the FINISH stage's own completeness check
+(one of the four `signals` a piece must clear to be reported "arrived":
+every statement carried, every planned turn taken, nothing said twice, no
+decorative tics left). `measurePiece()` is the loop-judging measurement
+every spiral loop is scored against (`judgeLoop`'s truth-first ordering:
+carried facts, then answered questions, then findings still licensing a
+revision).
+
+**The verified duplicate.** Both functions ran the identical
+`anchorsFor(draft)` → `drawnParts(draft).flatMap(...)` → per-id
+`carries(anchor, texts).ok` walk over the SAME draft and SAME assembled
+text — `arrive()` to list which ids were NOT carried (`uncarried`, for its
+detail report), `measurePiece()` to count which WERE (`carried`, for
+`judgeLoop`'s comparison). Same computation, opposite halves of the same
+partition, written independently in two files.
+
+**What shipped.** `loop-check.js` gained `carriedStatements(draft, texts)`
+— the one anchors/carries walk, returning `{ids, carriedIds,
+uncarriedIds}` so a caller needing the count and a caller needing the list
+both read the same pass rather than either re-running it. `measurePiece()`
+now derives `carried`/`of` from it; `finish.js`'s `arrive()` now imports
+`carriedStatements` from `loop-check.js` and reads `uncarriedIds` directly
+instead of re-running its own local `anchorsFor`/`carries` loop.
+
+**A real bug caught by running the tests, not shipped.** The first cut of
+this edit removed `arrive()`'s local `const all = drawnParts(draft)...`
+declaration along with `anchors`, having grepped only for `anchorsFor(`/
+`carries(` calls — a SECOND, later use of the bare `all` identifier
+(`for (const id of all)`, building the `twice` — "said in two parts" —
+signal) was missed by that grep and was still there. `finish-falsify.
+test.mjs`'s own "ARRIVE names every missing signal" case failed immediately
+with `ReferenceError: all is not defined`, caught before this was ever
+committed. Fixed by also destructuring `ids` (renamed `all` at the call
+site) from `carriedStatements`'s return, and confirmed with a full,
+line-by-line re-scan of the function body (not just another grep) that no
+further stray reference remained.
+
+Verified: `loop-check-falsify.test.mjs` 6/6 (the new export is additive,
+`measurePiece`'s own return shape unchanged); `finish-falsify.test.mjs`
+22/22 (21 pre-existing + confirming the one real regression above is
+fully fixed, not merely silenced); `pipeline-run.mjs`'s module graph
+still resolves and loads; the full `native/the-fold/` suite (512 tests)
+shows the identical 5 pre-existing failure names before and after, none
+naming finish, loop-check, or carriedStatements.
+
+---
+
 *Entries below this line are added as the wider research pass's findings
 clear verification. An unverified hypothesis is never listed here as a
 finding — it stays in the research transcript until read, tested, and
