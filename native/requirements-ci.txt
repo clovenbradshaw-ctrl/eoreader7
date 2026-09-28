@@ -1,0 +1,9 @@
+# Python packages the native suite's tests import; installed by
+# .github/workflows/native-kernel.yml. Pinned to the versions the suite was
+# measured with (CPython 3.11, 2026-09-28, main@24621b3): with them 14 tests that
+# otherwise fail with ModuleNotFoundError pass, and none newly fails.
+#   numpy       organs/er7py/swarm.py, organs/er7py/turb.py; the notebook cells
+#   matplotlib  organs/er7py/er7.py (figure capture); the notebook cells
+# Add a package here when a test needs it; do not skip the test.
+numpy==2.4.6
+matplotlib==3.11.2
