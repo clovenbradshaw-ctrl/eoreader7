@@ -113,7 +113,7 @@ export const BEING_KIND = Object.freeze({
   },
 });
 // the prepositions that close a complement's head phrase: what follows is subordinate to it (lang/en, declared here)
-const PREPOSITIONS = new Set(["of", "in", "on", "at", "from", "to", "for", "by", "with", "under", "over", "during", "after", "before", "until", "since", "among", "between", "within", "near"]);
+const PREPOSITIONS = new Set(["of", "in", "on", "at", "from", "to", "for", "by", "with", "under", "over", "during", "after", "before", "until", "since", "among", "between", "within", "near", "behind", "beside", "beyond", "above", "below", "across", "through", "toward", "towards", "against", "along", "around", "into", "onto", "upon"]);
 const HEAD_CUT = new RegExp(`\\s+(?:${[...PREPOSITIONS].join("|")})\\s+`, "iu");
 /** A phrase reads as a name when name-spans.js accounts for every token (title / particle / given / head) and its head is capitalised. */
 export const nameShaped = (phrase) => {
@@ -204,9 +204,16 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         // verb as the occupant lands it backwards. A copula clause whose
         // pre-verbal material opens with a preposition is refused by name, the
         // post-verbal subject carried, never read as a standing.
+        // v12 measured the first cut of this rule firing 859 times on War and
+        // Peace — "In 1815, Murat was 25 years old" is a fronted ADJUNCT with an
+        // ordinary subject after the comma, not an inversion. An inversion has
+        // two marks, both read: no comma between the fronted phrase and the
+        // copula, and a NAME-SHAPED complement (the displaced subject: "was
+        // Wolzogen", "was Pierre Bezúkhov", "was Bennigsen and the suite").
         if (p.kind === "state") {
           const firstWord = (before.trim().split(/\s+/)[0] ?? "").toLowerCase().replace(/[^\p{L}]/gu, "");
-          if (prepositions.has(firstWord)) { refused.push({ at, reason: "inverted_subject", subject: m.groups.comp.trim().split(/,|\(|—|\s+(?:who|which|whom|and|but|while)\s+/u)[0].split(headCut)[0].replace(/[.,;”"’']+$/u, "").trim().slice(0, 80), clause: clause.trim().slice(0, 160) }); break; }
+          const displaced = m.groups.comp.trim().split(/,|\(|—|\s+(?:who|which|whom|and|but|while)\s+/u)[0].split(headCut)[0].replace(/[.,;”"’']+$/u, "").trim();
+          if (prepositions.has(firstWord) && !/[,;:—]/.test(before) && nameShaped(displaced)) { refused.push({ at, reason: "inverted_subject", subject: displaced.slice(0, 80), clause: clause.trim().slice(0, 160) }); break; }
         }
         // the occupant: the pipeline's last mention before the transition, or the ablation's run
         let occupant, occupantSurface, occupantVia, gapWords;

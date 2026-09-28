@@ -223,8 +223,8 @@ test("a soft line break inside a clause is a space: the complement reads across 
 });
 
 test("a copula clause whose pre-verbal material opens with a preposition is inverted: refused by name, the post-verbal subject carried", () => {
-  const r = read(["With Pfuel was Wolzogen, who expressed his thoughts.", "Among the Russian prisoners rescued by Denisov and Dolokhov was Pierre Bezukhov.", "Weyrother was the Austrian general."]);
-  assert.deepEqual(r.refused.filter((x) => x.reason === "inverted_subject").map((x) => x.subject), ["Wolzogen", "Pierre Bezukhov"]);
+  const r = read(["With Pfuel was Wolzogen, who expressed his thoughts.", "Among the Russian prisoners rescued by Denisov and Dolokhov was Pierre Bezukhov.", "Behind Kutuzov was Bennigsen and the suite.", "Weyrother was the Austrian general.", "In 1815, Murat was 25 years old.", "In 1774 Kutuzov was ordered to storm Alushta.", "In the village there were Russian troops."]);
+  assert.deepEqual(r.refused.filter((x) => x.reason === "inverted_subject").map((x) => x.subject), ["Wolzogen", "Pierre Bezukhov", "Bennigsen"], "a fronted ADJUNCT with a comma, or a non-name complement, is not an inversion (v12: 859 false firings)");
   assert.deepEqual(r.candidates.map((c) => c.occupant), ["Weyrother"]);
 });
 

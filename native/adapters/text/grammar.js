@@ -42,7 +42,7 @@ import { OCCUPANCY_TRANSITIONS_EN, OCCUPANCY_TRANSITIONS_EN_META } from "./occup
 export const HOLON_LEVELS = Object.freeze(["name", "phrase", "clause", "sentence", "paragraph", "section", "document"]);
 
 /** The prepositions that close a head phrase and open a fronted phrase (lang/en). */
-export const PREPOSITIONS_EN = Object.freeze(new Set(["of", "in", "on", "at", "from", "to", "for", "by", "with", "under", "over", "during", "after", "before", "until", "since", "among", "between", "within", "near"]));
+export const PREPOSITIONS_EN = Object.freeze(new Set(["of", "in", "on", "at", "from", "to", "for", "by", "with", "under", "over", "during", "after", "before", "until", "since", "among", "between", "within", "near", "behind", "beside", "beyond", "above", "below", "across", "through", "toward", "towards", "against", "along", "around", "into", "onto", "upon"]));
 export const PREPOSITIONS_EN_META = Object.freeze({ giver: "lang/en — the prepositions occupancy-testimony.js cuts a head phrase at and reads a fronted phrase by" });
 
 const GRAMMARS = Object.freeze({
