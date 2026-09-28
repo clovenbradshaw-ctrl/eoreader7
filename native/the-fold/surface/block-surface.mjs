@@ -14,6 +14,7 @@
 // The light verb toggles everything at once: click a being anywhere and
 // beads, graph, subgraphs, tiles, and rows all beam together.
 import { readFileSync } from "node:fs";
+import { resolveHandles, DEFAULT_HANDLES } from "./handles.mjs";
 import { cellOf, surfaceCellOf, CELLS, OPERATOR_GLYPHS, GRAIN_DECALS, OPERATOR_NAME, GRAIN_NAME } from "./grounding-glyphs.mjs";
 
 export const SURFACE_SCHEMA = "EOSurface@1";
@@ -255,8 +256,13 @@ const KIND_DESC = {
 };
 const rowRef = (l) => `${l.doc}#${l.at[0]}-${l.at[1]}`;
 
-export function renderSurface({ def, ground, links, metrics, projections, gate, nativePages, geoPoints, bare = false }) {
+export function renderSurface({ def, ground, links, metrics, projections, gate, nativePages, geoPoints, bare = false, handleOverrides = null }) {
   BARE_CHIPS = bare;
+  // A person's renamed handles (handles.mjs). A label is drawn as renamed ONLY
+  // where the person changed it; otherwise the surface's own wording stands,
+  // so output with no overrides is byte-identical to before.
+  const HND = resolveHandles(handleOverrides ?? {}).handles;
+  const hl = (ns, id, fallback) => (HND[ns][id] !== DEFAULT_HANDLES[ns][id] ? esc(HND[ns][id]) : fallback);
   const kindLabel = (k) => KIND_LABEL[k] ?? k;
   const docIdOf = (p) => p.split("/").pop().replace(".txt", "");
   const LENSES = def.topics ?? [];
@@ -283,7 +289,7 @@ export function renderSurface({ def, ground, links, metrics, projections, gate, 
   for (const l of links) kinds[l.kind] = (kinds[l.kind] ?? 0) + 1;
 
   // ── VOID — the sources, left rail ──────────────────────────────────────
-  const voidInner = `<h2><span class="terrain">T1 · Void</span> the sources</h2>
+  const voidInner = `<h2><span class="terrain">T1 · ${hl("terrain","void","Void")}</span> the sources</h2>
     <div class="cards">${ground.docs.map((d) => { const y = String(d.adopted ?? "").match(/\d{4}/)?.[0] ?? null; return `<div class="card" data-doc="${esc(d.id)}"${y ? ` data-adopted="${y}"` : ""} data-hay="${esc(`${d.title} ${d.category} ${d.scale} ${d.adopted}`.toLowerCase())}"><h3>${esc(d.title)}</h3><p>${esc(d.category)} · ${esc(d.scale)} · ${esc(d.adopted)}</p><p>${d.pages} pages · ${d.chars.toLocaleString()} chars</p><p class="basis prov">${groundingChip("source", d, { ref: `txt ${d.txt_sha256.slice(0, 12)}… · pdf ${d.pdf_sha256.slice(0, 12)}…`, verbatim: d.title, source: `${d.category} · ${d.scale} · ${d.adopted}`, license: d.license })} pdf ${esc(d.pdf_sha256.slice(0, 8))}… · ${esc(d.license)}</p></div>`; }).join("")}</div>
     <p class="empty">click a document to read it — reader shows the retained text, source shows the exact bytes</p>`;
 
@@ -424,7 +430,7 @@ export function renderSurface({ def, ground, links, metrics, projections, gate, 
   const stress = (byReg["housing-stress"] ?? [])[0];
   const pv = (m) => m?.provenance ? `<p class="empty prov">dataset ${esc(m.provenance.dataset)} · asOf ${esc(m.provenance.asOf)}</p>` : "";
   const firstDist = districts.find((d) => d.ref);
-  const fieldInner = `<h2><span class="terrain">T5 · Field</span> the measures</h2>
+  const fieldInner = `<h2><span class="terrain">T5 · ${hl("terrain","field","Field")}</span> the measures</h2>
     ${stress ? `<h3 class="reg-h">housing stress <span class="doc-meta">${esc(stress.fields.totalEvictionFilings ?? "")} filings</span></h3>${pv(stress)}` : ""}
     <h3 class="reg-h">districts <span class="doc-meta">35 · byte-sourced</span></h3>${fieldRows}
     <p class="empty prov">${firstDist ? `each district is an address — <span class="ref">${esc(firstDist.ref)}</span>` : "refs computed at build"}</p>
@@ -1091,12 +1097,12 @@ ${docPayloads}
   <div class="crumb" id="crumb"></div>
   <div class="workspace">
     <nav class="rail" id="rail">
-      <button class="rail-btn on" data-section="sources"><span>Sources<span class="rail-t">T1 · the documents</span></span><span class="rail-n" id="rn-sources">0</span></button>
-      <button class="rail-btn" data-section="beings"><span>Beings<span class="rail-t">T3 · agencies &amp; places</span></span><span class="rail-n" id="rn-beings">0</span></button>
-      <button class="rail-btn" data-section="connections"><span>Connections<span class="rail-t">T4 · asserted rows</span></span><span class="rail-n" id="rn-connections">0</span></button>
-      <button class="rail-btn" data-section="network"><span>Network<span class="rail-t">T6 · the graph</span></span><span class="rail-n" id="rn-network">0</span></button>
-      <button class="rail-btn" data-section="measures"><span>Measures<span class="rail-t">T5 · the metrics</span></span><span class="rail-n" id="rn-measures">0</span></button>
-      <button class="rail-btn" data-section="kind"><span>Kind<span class="rail-t">T2 · what a being is</span></span><span class="rail-n" id="rn-kind">${Object.keys(kinds).length}</span></button>
+      <button class="rail-btn on" data-section="sources"><span>${hl("slot","sources","Sources")}<span class="rail-t">T1 · the documents</span></span><span class="rail-n" id="rn-sources">0</span></button>
+      <button class="rail-btn" data-section="beings"><span>${hl("slot","objects","Beings")}<span class="rail-t">T3 · agencies &amp; places</span></span><span class="rail-n" id="rn-beings">0</span></button>
+      <button class="rail-btn" data-section="connections"><span>${hl("slot","rows","Connections")}<span class="rail-t">T4 · asserted rows</span></span><span class="rail-n" id="rn-connections">0</span></button>
+      <button class="rail-btn" data-section="network"><span>${hl("terrain","network","Network")}<span class="rail-t">T6 · the graph</span></span><span class="rail-n" id="rn-network">0</span></button>
+      <button class="rail-btn" data-section="measures"><span>${hl("slot","measures","Measures")}<span class="rail-t">T5 · the metrics</span></span><span class="rail-n" id="rn-measures">0</span></button>
+      <button class="rail-btn" data-section="kind"><span>${hl("terrain","kind","Kind")}<span class="rail-t">T2 · what a being is</span></span><span class="rail-n" id="rn-kind">${Object.keys(kinds).length}</span></button>
     </nav>
     <div class="workbody">
       <div class="panel on" id="panel-sources">
@@ -1120,7 +1126,7 @@ ${docPayloads}
         </div>
       </div>
       <div class="panel" id="panel-beings">
-        <h2><span class="terrain">T3 · Entity</span> the beings <span class="doc-meta">click one — it lights everywhere</span></h2>
+        <h2><span class="terrain">T3 · ${hl("terrain","entity","Entity")}</span> the beings <span class="doc-meta">click one — it lights everywhere</span></h2>
         <p class="empty">agencies — who acts</p>
         <div class="beads" id="beads">${Object.entries(agencyCount).sort((a, b) => b[1] - a[1]).map(([a, n]) => beingCard(a, n, "agency")).join("")}</div>
         <p class="empty">places — the districts each maps to, with 311 open counts</p>
@@ -1139,7 +1145,7 @@ ${docPayloads}
         <div class="drawer-body" id="rows">${rowsHtml}</div>
       </div>
       <div class="panel" id="panel-network">
-        <h2><span class="terrain">T6 · Network</span> the web <span class="doc-meta">edges are beings named in documents — hover an edge for its byte ref</span></h2>
+        <h2><span class="terrain">T6 · ${hl("terrain","network","Network")}</span> the web <span class="doc-meta">edges are beings named in documents — hover an edge for its byte ref</span></h2>
         <div class="f-network" id="graph">${graph(topBeings, docIds, mainEdgeCounts, 620, 24)}</div>
         <p class="legend">violet = agencies · amber = places · green = documents · stroke width = rows</p>
         <div class="subgrid" id="subgraphs">${subgraphs}</div>

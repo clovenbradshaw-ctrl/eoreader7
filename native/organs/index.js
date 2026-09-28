@@ -231,3 +231,10 @@ export { planFold, INTERPRETIVE } from "./fold-plan.js";
 export * as foldPlan from "./fold-plan.js";
 export { MEASUREMENT_GAP, hasMeasurementGap, placeFromRegistries, profileOfTerrains } from "./capacity-place.js";
 export * as capacityPlace from "./capacity-place.js";
+
+// ---- from main: hard-read, silence, quantities, ingest
+export { HARDREAD_SCHEMA, RULE_FLOOR, MAX_ANTS, MAX_REGIONS, autoHardRead, concedeRule, emptyRules, expressionOf, hardReadSource, hardSignals, learnRules, learnedDir, loadLearned, readingFromText, saveLearned, senses, skeleton, swarmRegion } from "./hard-read.js";
+export * as hardRead from "./hard-read.js";
+export { unreadMentions } from "./silence.js";
+export { ANCHOR_GENERIC, readQuantities } from "./quantities.js";
+export { ingest, readZip, parseDelimited, INGEST_SCHEMA } from "./ingest.js";
