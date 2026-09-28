@@ -106,14 +106,20 @@ about what counts as "reasoning" versus "deterministic utility" or
 "architecturally local" — flagged for the user to correct, not asserted as
 final.
 
-## What's already shared, not duplicated (unchanged from 2026-09-16, reverify)
+## What's already shared, not duplicated (reverified 2026-09-28)
 
 Both sides already import from `native/`: the charter/ethos gate, PII
-(Goffman), injection (Ulysses), interlocutor detection, moral shadow. The
-2026-09-16 draft claimed this without checking that the-fold's own
-`constitution.js` isn't ALSO independently enforcing an overlapping table —
-see the companion document's finding on `antistrauss.mjs`/`canon-ground.mjs`
-vs. `constitution.js`.
+(Goffman), injection (Ulysses), interlocutor detection. The 2026-09-16 draft
+also listed "moral shadow" here — reverified and removed: the-fold has zero
+imports of `native/kernel/moral-shadow.js` and zero occurrences of its
+vocabulary (`norm_compliant`/`norm_conflict`/`conflictWeight`/
+`corroborationFloor`) anywhere in its tree, and `native/organs/index.js`
+does not re-export moral-shadow.js either, so there is no indirect path.
+Moral shadow is proxy-runner.mjs/mayeroff.js territory only; the-fold never
+touches it. The 2026-09-16 draft's remaining claim also still needs
+checking — that the-fold's own `constitution.js` isn't ALSO independently
+enforcing an overlapping table — see the companion document's finding on
+`antistrauss.mjs`/`canon-ground.mjs` vs. `constitution.js`.
 
 ## Known, accepted costs of switching (unchanged, still true)
 
@@ -125,8 +131,17 @@ vs. `constitution.js`.
   both be true. Decide with the user which one wins, or whether the-fold
   keeps a SECOND, explicitly-labeled "standalone mode" that is understood
   to be feature-poorer than the engine-backed mode.
-- `shadow` double-return bug — reverify against current `proxy-runner.mjs`
-  before anything depends on reading it.
+- `shadow` double-return bug — already fixed, reverified 2026-09-28:
+  `proxy-runner.mjs` now returns `shadow: assessShadow(personId)` (line
+  8636, the Bourdieu norm-standing rate, moral-shadow.js) and
+  `shadowSites: session.shadow ?? []` (line 8773, the Mneme visited-URL
+  cache) as two separately-named fields of the same `return {` object
+  (opens line 8600, closes line 8893), each with an inline comment naming
+  the fix — the shadowSites comment says outright: "Named apart from
+  `shadow` above (the Bourdieu norm-standing RATE): the two are different
+  objects and `shadow: session.shadow` used to OVERWRITE the rate —
+  ONE-ENGINE-PLAN's named bug, fixed here by giving each its own name."
+  The old overwrite can't recur.
 
 ## Decided this pass
 
