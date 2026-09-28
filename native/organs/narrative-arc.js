@@ -170,7 +170,7 @@ export function trajectory({ parts, frame }) {
     const seen = naming.length > 0;
     const home = seen && !!frame.home && says(text, frame.home);
     const line = !seen ? null : (home ? lines.find((l) => says(l.text, frame.home)) : null) ?? naming.at(-1);
-    return { id: pt.id, chapter: pt.chapter, seen, at: !seen ? null : home ? "home" : "away", changed: !!frame.becomes && seen && says(text, frame.becomes), lacking: !!frame.lack && says(text, frame.lack), line: line ? { addr: line.addr ?? null, text: line.text } : null };
+    return { id: pt.id, chapter: pt.chapter, seen, at: !seen ? null : home ? "home" : frame.home ? "away" : "there", changed: !!frame.becomes && seen && says(text, frame.becomes), lacking: !!frame.lack && says(text, frame.lack), line: line ? { addr: line.addr ?? null, text: line.text } : null };
   });
 }
 
@@ -188,8 +188,8 @@ export function whereIs({ path, frame, k, chapters = null }) {
   const changed = upTo.findIndex((x) => x.changed);
   const nCh = chapters ?? (path.length ? Math.max(...path.map((x) => x.chapter ?? 0)) + 1 : 0);
   const role = path[k] ? roleAt(BOOK_ARC, path[k].chapter ?? 0, nCh).role : null;
-  const where = !last ? "not yet in the telling" : last.at === "home" ? `at ${frame.home}` : `away from ${frame.home ?? "home"}`;
-  const answer = !frame.p ? "the telling follows no one yet" : `At part ${k + 1} (${role}), ${frame.p} is ${where}${last && last.id !== path[k]?.id ? `, last seen in part ${path.indexOf(last) + 1}` : ""}${last?.line ? ` — "${last.line.text}"` : ""}. ${left < 0 ? `${frame.p} has not left home yet.` : back >= 0 ? `${frame.p} left in part ${left + 1} and came back in part ${back + 1}.` : `${frame.p} left in part ${left + 1} and has not come back.`} ${changed >= 0 ? `${frame.p} is ${frame.becomes} by part ${changed + 1}.` : frame.becomes ? `${frame.p} is not yet ${frame.becomes}.` : ""}`.trim();
+  const where = !last ? "not yet in the telling" : last.at === "home" ? `at ${frame.home}` : last.at === "away" ? `away from ${frame.home}` : "in the telling, with no home on the record to be away from";
+  const answer = !frame.p ? "the telling follows no one yet" : `At part ${k + 1} (${role}), ${frame.p} is ${where}${last && last.id !== path[k]?.id ? `, last seen in part ${path.indexOf(last) + 1}` : ""}${last?.line ? ` — "${last.line.text}"` : ""}. ${!frame.home ? "" : left < 0 ? `${frame.p} has not left home yet.` : back >= 0 ? `${frame.p} left in part ${left + 1} and came back in part ${back + 1}.` : `${frame.p} left in part ${left + 1} and has not come back.`} ${changed >= 0 ? `${frame.p} is ${frame.becomes} by part ${changed + 1}.` : frame.becomes ? `${frame.p} is not yet ${frame.becomes}.` : ""}`.trim();
   return { being: frame.p, part: path[k]?.id ?? null, at: last?.at ?? null, line: last?.line ?? null, role, left: left >= 0 ? left : null, back: back >= 0 ? back : null, changed: changed >= 0 ? changed : null, answer };
 }
 

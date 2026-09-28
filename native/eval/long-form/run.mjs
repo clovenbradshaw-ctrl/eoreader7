@@ -124,14 +124,18 @@ for (const name of arms.filter((a) => a !== "edit")) {
       const elog = logTo("ledger-edited.log.jsonl");
       const ed = makeBookEditor({ lf, ask, parser, medium: PROSE_MEDIUM, mouth: model, castDetails: outline.castDetails, log: elog });
       // macro to micro: the pathos pass on the book as written, then the editors
+      // where the being is, before the archons: Gebser's and the being's findings
+      const arcRow = (label, r) => { const a = r.findings.filter((x) => ["Jean Gebser", "Odysseus (the being)"].includes(x.editor)); console.log(`arc ${label.padEnd(7)} ${r.frame?.p ? `${r.frame.p}: home ${r.path.filter((x) => x.at === "home").length}, away ${r.path.filter((x) => x.at === "away").length}, unseen ${r.path.filter((x) => !x.seen).length}, changed ${r.path.filter((x) => x.changed).length} of ${r.path.length} parts · ${a.map((x) => x.kind).join(", ") || "no findings"}` : "no being"}`); return a.map((x) => x.kind); };
+      const arcBefore = arcRow("written", ed.readBook({ notes: s.notes, store: w.store, task: request }));
       const pp = await ed.pathosPass({ notes: s.notes, store: w.store, task: request, budget: 3 * frozen.leaves.length, topic: outline.topic });
       console.log(`pathos     ${pp.targets} flat parts, ${pp.tried} tried, ${pp.kept} rewritten, ${pp.asks} asks`);
       const e = await ed.editBook({ notes: pp.notes, store: pp.store, task: request, budget: 2 * frozen.leaves.length });
       e.asks += pp.asks;
+      const arcAfter = arcRow("edited", ed.readBook({ notes: e.notes, store: e.store, task: request }));
       const s2 = lf.seal({ notes: e.notes, store: e.store, request, regime: { arm: "ledger-edited", seed, ctx } });
       fs.writeFileSync(path.join(OUT, "ledger-edited.book.md"), s2.artifact);
       fs.writeFileSync(path.join(OUT, "ledger-edited.state.json"), JSON.stringify({ notes: e.notes, store: e.store }));
-      results.push({ name: "ledger-edited", asks: e.asks, passes: e.passes.map((p) => ({ pass: p.pass, findings: p.findings, licensed: p.licensed, lines: p.lines, carrying: p.carrying, kept: p.kept, undone: p.undone, refused: p.refused })), final: e.final, prompts: [], sealed: !!s2.sealed, provenance: { covered: s2.provenance.covered, uncovered: s2.provenance.uncovered.length, unresolved: s2.provenance.unresolved.length }, helix: s2.helix.ok, ms: Date.now() - t1 });
+      results.push({ name: "ledger-edited", arc: { written: arcBefore, edited: arcAfter }, asks: e.asks, passes: e.passes.map((p) => ({ pass: p.pass, findings: p.findings, licensed: p.licensed, lines: p.lines, carrying: p.carrying, kept: p.kept, undone: p.undone, refused: p.refused })), final: e.final, prompts: [], sealed: !!s2.sealed, provenance: { covered: s2.provenance.covered, uncovered: s2.provenance.uncovered.length, unresolved: s2.provenance.unresolved.length }, helix: s2.helix.ok, ms: Date.now() - t1 });
       console.log(`edited     asks ${e.asks} · ${e.passes.map((p) => `pass ${p.pass}: ${p.licensed} licensed, kept ${JSON.stringify(p.kept)}, undone ${JSON.stringify(p.undone)}`).join(" | ")} · final ${e.final.licensed} licensed, ${e.final.lines} lines · sealed ${!!s2.sealed} · helix ${s2.helix.ok} · ${Math.round((Date.now() - t1) / 1000)}s`);
     }
   } else {
