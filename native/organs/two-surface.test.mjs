@@ -19,7 +19,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { snipVariation } from "./variation.js";
-import { varyReferent } from "./vary-referent.js";
 import { voiceOf } from "./output-voice.js";
 
 // ── the atom set for one claim row, as EOT holds it ───────────────────────
@@ -47,7 +46,7 @@ function vary(sentences, atom) {
     // Referent-aware variation: swap the atom's OWN end1 surface (which may
     // be a capitalized proper noun — beyond snipVariation's lowercase
     // opening heuristic) for a synonym/pronoun, preserving the label.
-    const varied = varyReferent(s, { referent: atom.prettyName, synonyms: SYNONYMS });
+    const varied = snipVariation(s, { referent: atom.prettyName, synonyms: SYNONYMS });
     out.push(varied ?? s);
   }
   return out;
@@ -98,6 +97,26 @@ test("the two surfaces are two renderings of ONE claim row — the EOT version i
   // And the atom set is fully recoverable in principle — the prose is a
   // rendering, never a different claim.
   assert.equal(atoms.length, ATOM.relations.length);
+});
+
+test("CONSOLIDATION (2026-09-28): snipVariation's referent option reproduces vary-referent.js exactly — the whole reason the split existed", () => {
+  // vary-referent.js's own header named the failure this must not regress
+  // to: the noun-run heuristic mis-segments a capitalized referent and
+  // swallows the words after it ("the Analytical Engine can do" → the
+  // heuristic drops "can do" entirely). This pins the referent-aware path,
+  // on the atom's own real relations, against exactly that.
+  const referent = ATOM.prettyName; // "the Analytical Engine"
+  const cases = [
+    { s: "the Analytical Engine has no pretensions to originate anything.", expect: "The engine has no pretensions to originate anything." },
+    { s: "the Analytical Engine can do whatever we know how to order it to perform.", expect: "The engine can do whatever we know how to order it to perform." },
+    { s: "the Analytical Engine can follow analysis.", expect: "The engine can follow analysis." },
+  ];
+  for (const { s, expect } of cases) {
+    const out = snipVariation(s, { referent, synonyms: SYNONYMS });
+    // Nothing after the swapped head is dropped — the label's own words
+    // ("can do", "can follow", "has no ... to originate") all survive.
+    assert.equal(out, expect, `referent-aware swap on "${s}"`);
+  }
 });
 
 test("voice registers compose with the two-surface render — the NL surface wears the register, the EOT surface does not", () => {

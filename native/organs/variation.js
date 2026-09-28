@@ -29,6 +29,21 @@ kind of man you are.”
 // construction?), `snipVariation` (the mechanical rewrite), `variedDraw`
 // (the model-based search). All inject their dependencies (no network here;
 // `draw` is handed in, the way every mouth is injected).
+//
+// CONSOLIDATED (2026-09-28): vary-referent.js's `varyReferent` — the
+// two-surface law's referent-aware swap for a sentence whose leading surface
+// is the atom's OWN referent name, which may be a capitalized proper noun
+// beyond the noun-run heuristic below (it would mis-segment "the Analytical
+// Engine can do" and swallow "can do") — is now `snipVariation`'s own
+// `referent` option. Only the head-building and whitespace-assembly were
+// truly byte-identical between the two organs (`buildHead`/`assemble`
+// below); the referent's own match pattern (case-sensitive, against the
+// declared surface) and candidate-exclusion rule (full-string only) stay
+// separate from the noun-run heuristic's match and its first-word exclusion
+// — confirmed by direct execution that a synonym sharing the referent's
+// first word is accepted under one rule and refused under the other, so
+// folding candidate-selection together would silently change which synonym
+// a caller gets on one of the two paths.
 
 /** The opening of a text: first 8 words, lowercased, punctuation stripped. */
 export const openingOf = (text) =>
@@ -53,6 +68,37 @@ export const sameOpening = (a, b) => {
 /** Alias of sameOpening — a redundant opening is a repetition by any name. */
 export const isRedundantOpening = sameOpening;
 
+/** Escape a string for literal use inside a RegExp. */
+function esc(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+// buildHead/assemble are the two genuinely shared pieces between the two
+// swap paths below (the noun-run heuristic and the referent-aware match) —
+// verified byte-identical against both prior implementations by direct
+// execution before this consolidation, never assumed from reading alone.
+
+/**
+ * Build the capitalized replacement head for a subject swap: prepend an
+ * article only when the candidate doesn't already carry one, then
+ * capitalize the whole head's first letter (which is also what makes the
+ * "the "-vs-"The "-default distinction between the two original callers
+ * wash out — both end up capitalized either way).
+ */
+function buildHead(prefix, candidateClean) {
+  const clean = String(candidateClean ?? "").trim();
+  const hasArticle = /^(the|a|an)\s+/i.test(clean);
+  const head = hasArticle ? clean : `${prefix?.trim() ? prefix.trim() + " " : "the "}${clean}`;
+  return head.charAt(0).toUpperCase() + head.slice(1);
+}
+
+/** Join a new head onto the sentence's remainder with a single space, then
+ * collapse any run of 2+ whitespace characters to one — the shared
+ * whitespace-assembly step both swap paths end on. */
+function assemble(head, rest) {
+  return `${head}${rest ? ` ${rest}` : ""}`.replace(/\s{2,}/g, " ");
+}
+
 /**
  * THE SNIP — mechanical variation, no model call. Given a text whose opening
  * is redundant, rewrite it WITHOUT the model:
@@ -63,10 +109,37 @@ export const isRedundantOpening = sameOpening;
  * Returns the varied text, or null when no honest snip is possible (the
  * caller then falls to the model draw). `synonyms` are the reading's own
  * surfaces for the subject — injected, never invented.
+ *
+ * `referent`, when supplied, is the atom's OWN declared surface (absorbed
+ * from vary-referent.js's `varyReferent`, 2026-09-21's two-surface law): a
+ * capitalized proper noun the noun-run heuristic below cannot segment
+ * safely ("the Analytical Engine can do" would swallow "can do" into the
+ * noun run). It is matched case-sensitively against exactly that surface,
+ * never guessed by shape, and its candidate exclusion is full-string only
+ * (never the first-word exclusion the heuristic path uses below) — this
+ * branch does not fall through to (a)/(b) on a miss, matching what
+ * varyReferent always did.
  */
-export function snipVariation(text, { synonyms = [] } = {}) {
+export function snipVariation(text, { synonyms = [], referent = null } = {}) {
   const t = String(text ?? "").trim();
   if (!t) return null;
+  if (referent) {
+    const pattern = new RegExp(`^((?:The|A|An|This|That)\\s+)?(${esc(referent)})([,;:]?\\s+)`);
+    const m = pattern.exec(t);
+    if (!m) return null;
+    const prefix = m[1] ?? "";
+    const rest = t.slice(m[0].length);
+    const candidates = [...(synonyms?.length ? synonyms : []), referent]
+      .map((s) => String(s).trim()).filter(Boolean);
+    let alt = null;
+    for (const c of candidates) {
+      if (c.toLowerCase() === referent.toLowerCase()) continue; // the swap must change the surface
+      alt = c;
+      break;
+    }
+    if (!alt) return null;
+    return assemble(buildHead(prefix, alt), rest);
+  }
   // (a) SUBJECT-SURFACE SWAP: find the leading subject phrase (the first
   //     1-4 words after a leading article/connective), replace it with a
   //     DIFFERENT synonym surface from the reading. The subject phrase is
@@ -88,13 +161,7 @@ export function snipVariation(text, { synonyms = [] } = {}) {
       const rest = t.slice(leading[0].length).replace(/^,\s*/, "");
       // The synonym may carry its own article ("the forest antelope") or not
       // ("Tragelaphus eurycerus"). Never double the article.
-      const altClean = String(alt).trim();
-      const altHasArticle = /^(the|a|an)\s+/i.test(altClean);
-      const needsArticle = altHasArticle ? "" : (prefix.trim() ? prefix.trim() + " " : "the ");
-      const newHead = `${altHasArticle ? "" : needsArticle}${altClean}`;
-      // Capitalize the head if the original was sentence-initial.
-      const head = newHead.charAt(0).toUpperCase() + newHead.slice(1);
-      return `${head}${rest ? ` ${rest}` : ""}`.replace(/\s{2,}/g, " ");
+      return assemble(buildHead(prefix, alt), rest);
     }
   }
   // (b) ROTATE: if the sentence has a subordinate opening clause, move the
