@@ -1077,3 +1077,49 @@ Verified: `latency-stats.test.mjs` 5/5 (empty array/fallback, single-value
 seeding, weighted update math). `huginn.test.mjs` (the-fold): 18/18,
 byte-identical behavior. `tests/heimdall-online.test.mjs` (eoreader7,
 asserts `pick()`'s latency-based ordering): 6/6, unchanged.
+
+## 23. `void-holarchy.js` — a real 5-of-9-operators-wrong-terrain bug fixed (2026-09-28)
+
+`defineLevelVoid` looked up every one of the nine operators' terrain at a
+SINGLE hardcoded grain (`injectCellOf(o.op, "Figure")`), so a level's
+declared/undeclared cells all reported the same terrain regardless of
+which operator actually asked the question. Reproduced by direct
+execution against the real `cube.js::cellOf`: comparing each operator's
+CANONICAL grain (the-fold's `void-shape.js`'s own `VOID_OPERATORS` table)
+against the hardcoded-Figure call showed a `.terrain` mismatch for
+exactly 5 of 9 operators — NUL (Void vs wrongly-reported Entity), INS
+(Kind vs Entity), SEG (Field vs Link), SYN (Network vs Link), REC
+(Paradigm vs Lens); SIG/CON/DEF/EVA happened to be unaffected because
+their canonical grain already IS Figure. Independently re-confirmed by
+`ORGAN-CONSOLIDATION-2026-09.md` entry 3's own, separately-methodology'd
+reconciliation of `void-shape.js`, which named this exact bug as
+disclosed-but-unfixed.
+
+Added a per-operator `grain` field to `VOID_OPERATORS` (copied verbatim
+from `void-shape.js`'s canonical table), and changed `defineLevelVoid` to
+compute each operator's cell at ITS OWN grain instead of uniformly at
+Figure. Also ported the corrected EVA asks-text from `void-shape.js`'s
+just-landed Nagarjuna fix ("what a candidate must be shown to depend on
+before it counts as covering any of this — never granted on its own
+say-so"), closing the exact gap entry 3 named by hand.
+
+Explicitly did NOT do the larger "extract into eoreader7 kernel, have
+both files import it" move the original finding proposed — real future
+work, unnecessarily large/risky for this pass. Did NOT touch
+`void-shape.js` in either repo — it was reconciled in a separate commit
+the same day; re-touching it here would cross a still-open architectural
+question (`the-fold`'s own offline/fallback mode) neither entry 1 nor
+entry 3 answers unilaterally.
+
+Created `void-holarchy.test.mjs` (this file had zero test coverage
+before). Confirmed the test FAILS on 5 of 9 cases against the pre-fix
+file (via `git stash`), passes on all 9 after. Confirmed
+`build-clarify.test.mjs`/`composed-fixer.test.mjs` (the only place
+`.terrain` is read downstream, via `questionsFor()`) unaffected: 19/19 —
+`proxy-runner.mjs`'s own consumer strips `.terrain` before returning, so
+this fix is provably a no-op for every currently-wired production path,
+safe by construction, not just by luck.
+
+Verified: `void-holarchy.test.mjs` 13/13 (9/13 fail against pre-fix,
+confirmed). `build-clarify.test.mjs`/`composed-fixer.test.mjs`: 19/19,
+unchanged.
