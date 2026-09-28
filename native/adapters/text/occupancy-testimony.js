@@ -235,3 +235,44 @@ export function positionsByPattern(candidates) {
  *  address of the testimony, distinct per standing (a thing may hold one
  *  locus twice). */
 export const testimonyRecord = (c) => ({ locus: c.locus.toLowerCase(), occupant: c.occupant, key: c.address, predecessor: c.predecessor, year: c.year });
+
+/**
+ * locusStandings(candidates, { merges, giver }) — WHAT KIND OF THING A LOCUS IS
+ * is itself undecided (2026-09-28, the Bezúkhov specimen): the host's cast
+ * folded "Pierre Bezúkhov" and "Count Cyril Vladímirovich Bezúkhov" into one
+ * being under the title, while the material's own testimony says Pierre
+ * BECAME Count Bezúkhov — a position with two occupants. Neither reading is
+ * deleted: each locus gets an EOUndecided@1 record with two candidates,
+ * `being` (evidence: the merges the cast made under this surface) and
+ * `position` (evidence: distinct occupant referents, succession pointers,
+ * standings), and LOCUS_BY_PATTERN collapses it for the reader's own for-whom
+ * — two distinct occupants or a pointer → position; else contested. A
+ * cast-trusting for-whom collapses the same record to `being`; both stand.
+ *   merges: [{ surface, into, basis }] — the cast's own merge events for the
+ *   loci in question (optional; absent, `being` carries no evidence).
+ */
+export const LOCUS_BY_PATTERN = Object.freeze({
+  name: "locus-by-pattern", giver: "adapters/text/occupancy-testimony.js (positionsByPattern's own floor: two occupants or a succession pointer)", params: { minOccupants: 2 },
+  decide(cands) {
+    const pos = cands.find((c) => c.value === "position"), being = cands.find((c) => c.value === "being");
+    if (pos && (pos.features.occupants >= 2 || pos.features.pointers >= 1)) return { chosen: pos.index, reason: pos.features.occupants >= 2 ? "two_occupants" : "succession_pointer" };
+    return { contested: [pos?.index, being?.index].filter((i) => Number.isInteger(i)), reason: "held_once" };
+  },
+});
+export function locusStandings(candidates, { merges = [], giver = OCCUPANCY_TRANSITIONS_EN_META.giver, forWhom = null, rule = LOCUS_BY_PATTERN } = {}) {
+  const by = new Map();
+  for (const c of candidates) { const k = String(c.locus); if (!by.has(k)) by.set(k, []); by.get(k).push(c); }
+  const out = [];
+  for (const [locus, cs] of by) {
+    const occupants = new Set(cs.map((c) => c.occupant));
+    const pointers = cs.filter((c) => c.predecessor).length;
+    const mine = merges.filter((m) => m.surface === locus || m.into === locus);
+    const record = undecided({ question: "kind-of-locus", slot: locus, giver, cursor: Math.max(...cs.map((c) => c.at)), at: { standings: cs.map((c) => c.address) },
+      candidates: [
+        { value: "position", via: "occupancy-testimony", features: { occupants: occupants.size, pointers, standings: cs.length, occupantIds: [...occupants] } },
+        { value: "being", via: "cast-merge", features: { merges: mine.length, mergedSurfaces: mine.map((m) => m.surface) } },
+      ] });
+    out.push({ locus, undecided: record, collapse: collapse(record, { forWhom: forWhom ?? DEFAULT_FOR_WHOM, rule, cursor: record.cursor }) });
+  }
+  return out;
+}

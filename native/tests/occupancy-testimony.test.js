@@ -110,3 +110,25 @@ test("the slot is undecided until a for-whom collapses it: every candidate kept,
   assert.equal(standingOf(u, [c, c2], { id: "occupancy-reader:nearest-established" }).standing, "contested");
   assert.equal(u.standing, "open");
 });
+
+test("what a locus IS is undecided: the cast's merge says being, the testimony says position; two for-whoms, two collapses, both on record", async () => {
+  const { locusStandings, LOCUS_BY_PATTERN } = await import("../adapters/text/occupancy-testimony.js");
+  const { collapse, standingOf } = await import("../kernel/undecided.js");
+  const rows = [
+    { locus: "Count Bezukhov", occupant: "ref:cyril", predecessor: null, at: 3, address: "wp#s3" },
+    { locus: "Count Bezukhov", occupant: "ref:pierre", predecessor: null, at: 6425, address: "wp#s6425" },
+    { locus: "the first human to walk", occupant: "ref:armstrong", predecessor: null, at: 9, address: "a#s9" },
+  ];
+  const merges = [{ surface: "Pierre Bezukhov", into: "Count Bezukhov", basis: "name-variant coreference" }];
+  const [bez, walk] = locusStandings(rows, { merges });
+  assert.equal(bez.collapse.verdict, "chosen"); assert.equal(bez.collapse.chosen.value, "position"); assert.equal(bez.collapse.reason, "two_occupants");
+  assert.equal(bez.undecided.candidates.find((c) => c.value === "being").features.merges, 1);
+  assert.equal(walk.collapse.verdict, "contested"); assert.equal(walk.collapse.reason, "held_once");
+  // a cast-trusting for-whom collapses the same Bezukhov record to `being`; the reader's collapse stands beside it
+  const trustCast = { name: "trust-the-cast", giver: "test", decide: (cs) => { const b = cs.find((c) => c.value === "being"); return b.features.merges ? { chosen: b.index } : {}; } };
+  const c2 = collapse(bez.undecided, { forWhom: { id: "reader:trust-cast" }, rule: trustCast, cursor: 6425 });
+  assert.equal(c2.chosen.value, "being");
+  assert.equal(standingOf(bez.undecided, [bez.collapse, c2], { id: "reader:trust-cast" }).collapse.chosen.value, "being");
+  assert.equal(standingOf(bez.undecided, [bez.collapse, c2], { id: "occupancy-reader:nearest-established" }).collapse.chosen.value, "position");
+  assert.equal(LOCUS_BY_PATTERN.params.minOccupants, 2);
+});
