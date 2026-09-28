@@ -381,3 +381,83 @@ falsification history.
 
 *(none yet — appended in a later commit, with the drivers' outputs in
 `native/eval/capacity-map/results/`.)*
+
+## 8. Amendment 1 — a follow-up hypothesis, registered after F3–F5 ran and before it is tested
+
+*Committed 2026-09-28, after the F3, F4 and F5 drivers had run on the development
+materials (Dracula, Pride and Prejudice, Frankenstein, the Shakespeare plays) and
+before anything below was run on a single held-out book. What was seen, honestly:*
+
+- **F5 as pre-registered found the a → g crossing inconsequential** (self-edge share
+  0, 0 and 0.05 of the top 20; consequential on 0 of 3 books). But F5 defined "the same
+  being" as the engine's own cluster, and its printed top-edge lists contain pairs the
+  clustering cannot flag: `Mr — Bennet`, `Mrs — Gardiner`, `Harker — Mrs`. A bare honorific
+  is standing as a *being*.
+- **Exploratory, post-hoc, labelled so in the drivers.** `f5b-mention-splits.mjs` tested the
+  obvious mechanism (the title and its name being neighbours in one mention) and it was
+  **refuted**: 0 of the top 20 edges are token-adjacent in every arm of every book.
+  `f5c-bare-titles.mjs` then counted bare-title beings directly, using the engine's own
+  received closed class `HONORIFIC_TITLES` (`adapters/text/priors.js`, giver `lang/en`): in the
+  referent arm 3/20 (Dracula), **12/20 (Pride and Prejudice)** and 0/20 (Frankenstein) of the
+  top standing edges have a bare-title endpoint (24/301, 64/358, 6/193 over all standing edges).
+- **A cause was then found by looking, not by a test:** `splitSentences` (`spans.js`, the
+  extent — the geometric Ground) ends the sentence at `Mr.`: 806 of the 807 sentences of Pride
+  and Prejudice that contain `Mr` end with it, and `deriveAbbreviations` lists
+  `CO IV V VI X XV XX XL St F W` and no honorific. So the surface extractor meets `Mr` at the
+  end of a sentence and `Darcy` at the start of the next, and admits a bare title as a being
+  with 806 arrivals. That is the *extent → identity → standing* chain, and it is also the
+  upward edge F3 named (`surfaces.js → spans.js`: an arithmetic mark reading a geometric extent —
+  "extents before cast", the reading pipeline's schedule, which THE-THREE-MATHEMATICS §VII
+  already keeps apart from the operator chain).
+
+None of that overturns F5's pre-registered verdict, because the measure that found it was
+chosen after seeing the lists. It generates a hypothesis, which is registered here and is
+to be tested on books the analysis has not touched.
+
+### F5′ — does repairing the extent remove edges that rest on a title that is not a being?
+
+*A design change made before registration, disclosed:* a plumbing smoke test of the first
+draft of this section, run on a fourth book (Alice) whose output was discarded, showed that
+the received `HONORIFIC_TITLES` class holds two different things — courtesy prefixes that
+never refer alone (`Mr`, `Mrs`, `Dr`) and titles that name a character by role (`Queen`,
+`King`, `Duchess`, `Count`, `Professor`). A share of "bare-title endpoints" therefore cannot by
+itself mean "not a being". The statistic below is the *interventional* effect of repairing the
+extent, which a role-title character survives and a cut-off courtesy prefix does not.
+
+**Materials (held out — none was used to develop F5b or F5c):** *The Adventures of Sherlock
+Holmes* (pg768), *Moby-Dick* (pg2701), *The Adventures of Tom Sawyer* (pg1661), all in the
+`live_priors` corpus. The three development books are re-run as an exploratory replication
+and do not count toward the decision.
+
+**Procedure.** As F5, referent arm only: the same `discoverReferents` clusters, longest-match
+mentions, K = 80, W = 8, `networkStanding` with draws 199, alpha 0.05, seed 20260812. Three
+extents per book:
+- **as-split** — `splitSentences`, as F4 and F5 used it;
+- **repaired** — consecutive sentences merged wherever the first ends in a token of
+  `HONORIFIC_TITLES` followed by a period (the received class; no list is typed here);
+- **placebo** — the same NUMBER of consecutive-sentence merges as the repair made, at random
+  positions (declared; seed 7), so a merge that is not aimed at the cut is the control.
+
+**Statistic.** A *bare-title being* is a cluster all of whose admitted surfaces are a single
+`HONORIFIC_TITLES` token. share(extent) = the fraction of the 20 standing edges with the most
+co-arrivals that have a bare-title endpoint. **Effect Δ = share(as-split) − share(repaired)**,
+and Δ_placebo = share(as-split) − share(placebo).
+
+**Decision (declared).**
+- *Consequential on a book* iff Δ ≥ 0.20 (declared: one edge in five of what a reader sees
+  first rested on a token the extent had cut off a name from) AND Δ_placebo ≤ Δ / 2 (the
+  control built to fail: an untargeted merge of equal size must not do the same). *Consequential
+  overall* iff on ≥ 2 of the 3 held-out books.
+- Mechanism audit, reported and not decided on: per book, the sentences containing an honorific
+  followed by a period and how many of them end in it, as-split and repaired.
+
+**What it changes.** Consequential overall: (geometric ≤ arithmetic) is reinstated — not as the
+strict order over profiles but in the specific, measured form *standing over a unit the extent
+cut off a name from is dressed*, with the extent → identity edge recorded as a measured upward
+class edge with a mechanism. Not consequential: the a → g crossing stays unsupported and the Pride
+finding is recorded as a specimen-scoped defect (one book's honorific use).
+**Expectation, honestly:** ≈ 70% consequential overall (Sherlock Holmes almost surely; Moby-Dick
+and Tom Sawyer use `Mr.` less).
+
+**Generality:** specimen-scoped until the held-out books say otherwise (P71). The honorific
+class is English (`lang/en`); no claim is made for other languages.

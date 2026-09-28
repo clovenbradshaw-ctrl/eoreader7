@@ -72,7 +72,7 @@ for (const [f, cells] of declared) {
   });
 }
 for (const cap of CAPACITIES) {
-  const hits = byBase.get(cap.module) ?? [];
+  const hits = byBase.get(path.basename(cap.module)) ?? []; // "resolved BY BASENAME" (the document) — run 1 looked up the entry's full path string, which only matches a bare filename
   if (hits.length === 0) { listed.unresolved.push(`${cap.id} -> ${cap.module}`); continue; }
   if (hits.length > 1) { listed.ambiguous.push(`${cap.id} -> ${cap.module} (${hits.map(rel).join(" | ")})`); continue; }
   const f = hits[0];

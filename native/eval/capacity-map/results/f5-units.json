@@ -1,0 +1,192 @@
+{
+ "config": {
+  "K": 80,
+  "W": 8,
+  "DRAWS": 199,
+  "ALPHA": 0.05,
+  "SEED": 20260812,
+  "TOP": 20,
+  "BAR": 0.2,
+  "HAZARD": 0.05,
+  "FISHER_P": 0.01,
+  "PERMS": 1000,
+  "PERM_SEED": 7
+ },
+ "overall": "MIXED",
+ "books": [
+  {
+   "path": "/tmp/mig/lp-wt/01-literature-books/gutenberg/pg345_Dracula.txt",
+   "N": 9456,
+   "surfaceArm": {
+    "beings": 80,
+    "standing": 302,
+    "notStanding": 1097,
+    "topEdges": [
+     "Lucy — Van Helsing (188)",
+     "Van Helsing — Arthur (174)",
+     "Harker — Mrs (140)",
+     "Lucy — Arthur (119)",
+     "Lucy — Jonathan (116)",
+     "Van Helsing — Professor (115)",
+     "Van Helsing — Harker (82)",
+     "Professor — Arthur (75)",
+     "God — Jonathan (69)",
+     "God — Mina (68)",
+     "Van Helsing — Mrs (65)",
+     "Van Helsing — Quincey (65)",
+     "Lucy — Mrs (59)",
+     "Count — Harker (58)",
+     "Van Helsing — September (56)",
+     "Count — London (53)",
+     "Lucy — September (50)",
+     "God — Dr Seward (50)",
+     "Jonathan — Madam Mina (48)",
+     "Jonathan — Dr Seward (47)"
+    ]
+   },
+   "referentArm": {
+    "beings": 80,
+    "standing": 301,
+    "notStanding": 916,
+    "selfEdges": 0,
+    "note": "none by construction"
+   },
+   "share_self": 0,
+   "selfInTop": 0,
+   "topN": 20,
+   "enrichment": {
+    "table": {
+     "a": 5,
+     "b": 9,
+     "c": 297,
+     "d": 1088
+    },
+    "fisherP": 0.16521131893408864
+   },
+   "permutedLabels": {
+    "perms": 1000,
+    "p95share": 0.05,
+    "meanShare": 0.0056499999999999875,
+    "fractionEnriched": 0.003
+   },
+   "residualReferentPairsSharingARareToken": [],
+   "consequential": false
+  },
+  {
+   "path": "/tmp/mig/lp-wt/01-literature-books/gutenberg/pg1342_Pride_and_Prejudice.txt",
+   "N": 7768,
+   "surfaceArm": {
+    "beings": 80,
+    "standing": 377,
+    "notStanding": 1312,
+    "topEdges": [
+     "Mr — Mrs (688)",
+     "Mr — Bennet (636)",
+     "Elizabeth — Mrs (544)",
+     "Mr — Bingley (534)",
+     "Elizabeth — Jane (479)",
+     "Mr — Wickham (463)",
+     "Mrs — Bennet (416)",
+     "Mrs — Jane (252)",
+     "Mr — Lady Catherine (249)",
+     "Jane — Bingley (233)",
+     "Elizabeth — Lady Catherine (221)",
+     "Mrs — Bingley (212)",
+     "Jane — Bennet (205)",
+     "Elizabeth — Miss Bingley (195)",
+     "Bennet — Bingley (195)",
+     "Elizabeth — Gardiner (181)",
+     "Mr — Charlotte (179)",
+     "Mrs — Gardiner (171)",
+     "Mr — Miss Bingley (165)",
+     "Mr — Netherfield (163)"
+    ]
+   },
+   "referentArm": {
+    "beings": 80,
+    "standing": 358,
+    "notStanding": 1256,
+    "selfEdges": 0,
+    "note": "none by construction"
+   },
+   "share_self": 0,
+   "selfInTop": 0,
+   "topN": 20,
+   "enrichment": {
+    "table": {
+     "a": 5,
+     "b": 7,
+     "c": 372,
+     "d": 1305
+    },
+    "fisherP": 0.10667199165018999
+   },
+   "permutedLabels": {
+    "perms": 1000,
+    "p95share": 0.05,
+    "meanShare": 0.00489999999999999,
+    "fractionEnriched": 0.005
+   },
+   "residualReferentPairsSharingARareToken": [],
+   "consequential": false
+  },
+  {
+   "path": "/tmp/mig/lp-wt/01-literature-books/gutenberg/pg84_Frankenstein.txt",
+   "N": 3392,
+   "surfaceArm": {
+    "beings": 80,
+    "standing": 188,
+    "notStanding": 413,
+    "topEdges": [
+     "Felix — Safie (77)",
+     "Felix — Agatha (65)",
+     "Felix — Turk (51)",
+     "Elizabeth — Justine (45)",
+     "Felix — Arabian (38)",
+     "Elizabeth — Clerval (37)",
+     "Clerval — Henry (35)  [SELF]",
+     "Elizabeth — Victor (31)",
+     "Felix — Paris (31)",
+     "Safie — Agatha (30)",
+     "Safie — Turk (29)",
+     "Elizabeth — Geneva (26)",
+     "Felix — Leghorn (23)",
+     "Justine — William (23)",
+     "Safie — Arabian (23)",
+     "Agatha — Arabian (23)",
+     "Elizabeth — William (22)",
+     "Safie — Leghorn (22)",
+     "Felix — Christian (20)",
+     "Victor — William (20)"
+    ]
+   },
+   "referentArm": {
+    "beings": 80,
+    "standing": 193,
+    "notStanding": 376,
+    "selfEdges": 0,
+    "note": "none by construction"
+   },
+   "share_self": 0.05,
+   "selfInTop": 1,
+   "topN": 20,
+   "enrichment": {
+    "table": {
+     "a": 5,
+     "b": 2,
+     "c": 183,
+     "d": 411
+    },
+    "fisherP": 0.03366300396059429
+   },
+   "permutedLabels": {
+    "perms": 1000,
+    "p95share": 0,
+    "meanShare": 0.002300000000000001,
+    "fractionEnriched": 0
+   },
+   "residualReferentPairsSharingARareToken": [],
+   "consequential": false
+  }
+ ]
+}
