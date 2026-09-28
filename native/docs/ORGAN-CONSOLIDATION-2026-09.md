@@ -1123,3 +1123,46 @@ safe by construction, not just by luck.
 Verified: `void-holarchy.test.mjs` 13/13 (9/13 fail against pre-fix,
 confirmed). `build-clarify.test.mjs`/`composed-fixer.test.mjs`: 19/19,
 unchanged.
+
+## 24. `essay-shape-register.js`/`document-ledger.js` — a silent-drift hazard closed, not (yet) a bug (2026-09-28)
+
+No merge for either originally-asked-about pair — confirmed by reading
+every file in full: `shape.js`/`shape-fallback.js` (the-fold) share zero
+code or purpose with `essay-shape-register.js`/`story-shapes.js`
+(eoreader7); `puzzle-templates.js`'s `BOOLOS_TEMPLATE` (surface-signature
+match) is structurally distinct from `logic-puzzle.js`/
+`preference-puzzle.js` (closed-grammar CSP declaration); `greenberg.js`
+is a self-scanning eoreader7 source linter, unrelated to
+`strunk-white.js`/`readability.js`; `void-narration.js`/`void-hl.js`
+(confirmed to exist) stay strictly inside the single-answer-slot
+`void-loop.js` family, complementary to, not duplicating,
+`essay-shape-register.js`'s whole-document 27-cell register.
+
+**What the finding actually surfaced:** `story-shapes.js` derives its
+terrain per cell from an injected `cellOf(op, grain)`, but
+`essay-shape-register.js`'s `SHAPE_ASSERTIONS` (27 entries) and
+`document-ledger.js`'s `VOID_CELLS` (27 entries) both HAND-TYPE their
+`terrain` field instead — checked all 54 hardcoded values by hand against
+`cube.js`'s real `TERRAIN_BY_DOMAIN`, and every one agrees TODAY — a
+real but not-yet-manifested drift risk, exactly the class `cube.js`'s
+own `OPERATOR_CHAIN` comment already warns about.
+
+Added `native/organs/shape-tables-cube-agreement.test.mjs`: imports
+`cellOf` from the real `cube.js`, `SHAPE_ASSERTIONS` from
+`essay-shape-register.js`, and `VOID_CELLS` from `document-ledger.js`
+(exported — it was a module-local const), and asserts every entry's
+`terrain` matches `cellOf(entry.op, entry.grain).terrain`, plus full
+27-cell coverage for both tables and cross-table agreement. Falsified by
+planting a deliberately wrong terrain value and confirming the test
+catches it (2 of 4 cases fail), then restoring — the guard is real, not
+vacuous. No production behavior change: `document-ledger.js` gained
+exactly one `export` keyword.
+
+A larger follow-up (both tables deriving terrain from an injected
+`cellOf` instead of hardcoding it, mirroring `story-shapes.js`'s own
+pattern) is real and would close the gap architecturally — named, not
+attempted here; it touches production code and the one real call site
+(`proxy-runner.mjs:4690`'s `createShapeRegister()`).
+
+Verified: `shape-tables-cube-agreement.test.mjs` 4/4 (2/4 fail when a
+value is deliberately corrupted, confirmed).
