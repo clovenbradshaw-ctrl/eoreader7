@@ -22,6 +22,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { reduceRegex, wordSet } from "../native/kernel/kleene-up.js";
+import { patrol } from "../native/the-fold/kleeneup.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..");
@@ -118,6 +119,7 @@ function rel(p) {
 
 function survey(files) {
   const rows = [];
+  const patrolRows = [];
   for (const file of files) {
     let code = "";
     try { code = fs.readFileSync(file, "utf8"); } catch { continue; }
@@ -125,13 +127,14 @@ function survey(files) {
       const cls = reduceRegex(hit.source, { flags: hit.flags });
       rows.push({ file: rel(file), ...hit, kind: cls.kind, gap: cls.gap ?? null, detail: cls.detail, ws: wordSet(hit.source, { flags: hit.flags }) });
     }
+    patrolRows.push(...patrol(code, { file: rel(file) }));
   }
-  return rows;
+  return { rows, patrolRows };
 }
 
 const kindOrder = ["literal", "semantic", "structural", "typed_gap"];
 
-function report(rows) {
+function report(rows, patrolRows = []) {
   const byKind = (k) => rows.filter((r) => r.kind === k);
   const count = (k) => byKind(k).length;
   const lines = [];
@@ -148,6 +151,11 @@ function report(rows) {
   lines.push("");
   lines.push(`**migratable: ${count("literal") + count("semantic")} of ${rows.length}**`);
   lines.push("");
+  if (patrolRows.length) {
+    const byPatrolKind = (k) => patrolRows.filter((f) => f.kind === k).length;
+    lines.push(`**patrol: ${patrolRows.length} table-regex finding(s)** — kleeneUp's separate scan for a closed list wearing a pattern (alternation-list ${byPatrolKind("alternation-list")}, abbreviation-guard ${byPatrolKind("abbreviation-guard")}, number-alternation ${byPatrolKind("number-alternation")}, char-class-token ${byPatrolKind("char-class-token")}, lookaround ${byPatrolKind("lookaround")}). A finding here can name the SAME regex literal as a row above under a different, reduceRegex-computed kind — the two are shown apart, never merged, because only the call site decides which remediation is right. Full detail: kleeneup-report.json's \`patrol\` field.`);
+    lines.push("");
+  }
   const TASTE = 12;
   for (const k of kindOrder) {
     const list = byKind(k);
@@ -195,7 +203,9 @@ function main() {
   const files = collectFiles(ROOT, scanRoots);
   for (const f of rootCode) files.push(path.join(ROOT, f));
   const unique = [...new Set(files)];
-  const rows = survey(unique).sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line);
+  const surveyed = survey(unique);
+  const rows = surveyed.rows.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line);
+  const patrolRows = surveyed.patrolRows;
 
   const out = {
     schema: "KleeneUpReport@1",
@@ -203,6 +213,7 @@ function main() {
     scannedFiles: unique.length,
     scanned: scanRoots,
     rows: rows.map(({ ws, ...rest }) => rest),
+    patrol: patrolRows,
     counted: {
       total: rows.length,
       literal: rows.filter((r) => r.kind === "literal").length,
@@ -210,13 +221,14 @@ function main() {
       structural: rows.filter((r) => r.kind === "structural").length,
       typedGaps: rows.filter((r) => r.kind === "typed_gap").length,
       migratable: rows.filter((r) => r.kind === "literal" || r.kind === "semantic").length,
+      patrol: patrolRows.length,
     },
   };
 
   const reportPath = path.join(ROOT, "kleeneup-report.json");
   fs.writeFileSync(reportPath, JSON.stringify(out, null, 2) + "\n");
 
-  console.log(report(rows));
+  console.log(report(rows, patrolRows));
   console.log(`\nwrote ${rel(reportPath)}`);
 
   if (wantPlan) {
