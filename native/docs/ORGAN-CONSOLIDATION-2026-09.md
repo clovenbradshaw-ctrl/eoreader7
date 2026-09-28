@@ -1220,3 +1220,37 @@ test — named, not fixed here.
 
 Verified: `two-surface.test.mjs` 5/5 (3/5 fail against pre-fix
 `variation.js`, confirmed via `git stash`).
+
+## 26. `hindsight.js` — its inline shuffle replaced by `cascade.js`'s own exported primitive (2026-09-28)
+
+The kernel surprise/consequence cluster (`hindsight.js`, `cascade.js`,
+`revision-volatility.js`, `consequential-surprise.js`, `bayes-surprise.js`,
+`surprise-segments.js`) is confirmed five genuinely distinct
+computations sharing a topic word — no consolidation at the capacity
+level is correct. The one real, narrower duplicate: `hindsight.js`'s
+inline resampling loop (lines 88-90, a partial Fisher–Yates
+sample-without-replacement) was a line-for-line structural copy of
+`cascade.js`'s own `sampleWithoutReplacement`, which `hindsight.js`
+already imports `cascade` from but the helper itself was private.
+
+Exported `sampleWithoutReplacement` from `cascade.js`; `hindsight.js`
+now calls it instead of its inline loop. Proven zero-behavior-change by
+direct extraction and side-by-side execution (6 seeds × 5 sample sizes)
+before this landed: both loops consume `rng()` identically and produce
+byte-identical output for the same seed.
+
+Verified: `tests/hindsight.test.js` 7/7, including its own fixed-rng
+determinism case (test 6) and rank-threshold case (test 5) — the real
+proof this refactor is safe. Full `native/kernel/*.test.mjs
+native/tests/*.test.js` (1407 tests): identical 29 failure names with
+and without this change (confirmed via `git stash` A/B).
+
+Left named, not touched: `nullcheck.js`'s own 4-file migration list
+(`for-whom.js`, `notes.js`, `surprise-segments.js`,
+`the-fold/relative.js` — confirmed still accurate, none of the 57
+commits since it was written touch those files) is separately-scoped,
+already-correct future work; `continuation.js::sedimentPrior`'s
+per-event table-update loop is independently re-implemented (online
+variant) inside `surprise-segments.js::surprises()` — a real, genuine
+duplication, but extracting a shared incremental-step primitive is its
+own design decision, not attempted here.
