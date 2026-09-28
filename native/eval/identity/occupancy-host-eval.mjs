@@ -135,11 +135,12 @@ async function readNative({ name, text, links }) {
   const anchors = ge.filter((e) => e.schema === "EOAnchorEvidence@1" && e.referent);
   const display = new Map(referents.map((r) => [r.id, [...r.surfaces].sort((a, b) => b.length - a.length)[0]]));
   const key = (id) => `${name}/${id}`;
-  const surfRe = new Map(referents.map((r) => [r.id, new RegExp(`(?<![\\p{L}\\p{N}])(?:${[...r.surfaces].sort((x, y) => y.length - x.length).map(esc).join("|")})(?![\\p{L}\\p{N}])`, "giu")]));
+  const owner = new Map(); for (const r of referents) for (const x of r.surfaces) if (!owner.has(x.toLowerCase())) owner.set(x.toLowerCase(), key(r.id));
+  const allRe = new RegExp(`(?<![\\p{L}\\p{N}])(${[...owner.keys()].sort((x, y) => y.length - x.length).map(esc).join("|")})(?![\\p{L}\\p{N}])`, "giu");
   const sentences = encs.map((e, at) => ({ text: e.material, at, offset: e.anchor?.start ?? 0 }));
   const mentions = (sentence) => {
     const out = [];
-    for (const r of referents) for (const m of sentence.text.matchAll(surfRe.get(r.id))) out.push({ start: m.index, end: m.index + m[0].length, referent: key(r.id), via: "cast" });
+    if (owner.size) for (const m of sentence.text.matchAll(allRe)) out.push({ start: m.index, end: m.index + m[0].length, referent: owner.get(m[1].toLowerCase()), via: "cast" });
     for (const a of anchors) if (a.sentenceOrder === sentence.at && a.descriptor) { const i = sentence.text.toLowerCase().indexOf(a.descriptor.toLowerCase()); if (i >= 0) out.push({ start: i, end: i + a.descriptor.length, referent: key(a.referent), via: "descriptor" }); }
     return out;
   };
@@ -169,10 +170,14 @@ function readText({ name, text, links }) {
   const key = (r) => `${name}/${r.id}`;
   // THE PIPELINE'S OWN MENTIONS, in the sentence's coordinates. Nothing here
   // reads capitalisation; the ablation arm does.
-  const surfRe = new Map(cast.referents.map((r) => [r.id, new RegExp(`(?<![\\p{L}\\p{N}])(?:${[...r.surfaces].sort((x, y) => y.length - x.length).map(esc).join("|")})(?![\\p{L}\\p{N}])`, "gu")]));
+  // ONE combined alternation, longest surface first, so a position yields one
+  // mention (the longest surface there) — measured on War and Peace: 884
+  // per-referent regexes over 34k sentences cost 18.8s, one regex 0.6s.
+  const owner = new Map(); for (const r of cast.referents) for (const x of r.surfaces) if (!owner.has(x)) owner.set(x, key(r));
+  const allRe = new RegExp(`(?<![\\p{L}\\p{N}])(${[...owner.keys()].sort((x, y) => y.length - x.length).map(esc).join("|")})(?![\\p{L}\\p{N}])`, "gu");
   const mentions = (sentence) => {
     const out = [];
-    for (const r of cast.referents) for (const m of sentence.text.matchAll(surfRe.get(r.id))) out.push({ start: m.index, end: m.index + m[0].length, referent: key(r), via: "cast" });
+    if (owner.size) for (const m of sentence.text.matchAll(allRe)) out.push({ start: m.index, end: m.index + m[0].length, referent: owner.get(m[1]), via: "cast" });
     for (const b of cast.pronounBindings) if (b.sentenceOrder === sentence.at) { const st = b.offset - sentence.offset; if (st >= 0 && st < sentence.text.length) out.push({ start: st, end: st + b.pronoun.length, referent: `${name}/${b.referentId}`, via: "pronoun" }); }
     return out;
   };
