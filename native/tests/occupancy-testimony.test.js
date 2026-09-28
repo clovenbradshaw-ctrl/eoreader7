@@ -193,3 +193,14 @@ test("a held locus and an entered locus are one position: the state standing sup
   const { positions } = positionsByPattern(r.candidates);
   assert.equal(positions.length, 1); assert.deepEqual(positions[0].occupants.sort(), ["Count Cyril", "Pierre"]); assert.equal(positions[0].evidence, "two_occupants");
 });
+
+test("only the complement's head is asked against the cast: an adjunct place name never becomes the locus", () => {
+  const known = new Map([["moscow", "Moscow"], ["count bezukhov", "Count Bezukhov"], ["berg", "Berg"]]);
+  const resolveLocus = (sentence, span) => { const surf = sentence.text.slice(span.start, span.end).toLowerCase(); for (const [k, v] of known) if (surf.includes(k)) return { referent: v, id: `ref:${k}`, via: "cast" }; return null; };
+  const r = readOccupancyTestimony(["Iogel's were the most enjoyable balls in Moscow.", "Pierre became Count Bezukhov.", "Murat was appointed Grand Duke of Berg."].map((text, at) => ({ text, at, offset: 0 })), { ...OPTS, resolveLocus });
+  assert.deepEqual(r.candidates.map((c) => [c.occupant, c.locus, c.locusId, c.locusVia]), [
+    ["Iogel's", "most enjoyable balls in Moscow", null, "surface"],
+    ["Pierre", "Count Bezukhov", "ref:count bezukhov", "cast"],
+    ["Murat", "Grand Duke of Berg", null, "surface"],
+  ]);
+});

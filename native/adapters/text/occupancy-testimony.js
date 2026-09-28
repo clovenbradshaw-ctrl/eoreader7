@@ -110,6 +110,8 @@ export const BEING_KIND = Object.freeze({
     return c.features.verbShare > c.features.prepShare ? base : { contested: [c.index], reason: "not_being_kind" };
   },
 });
+// the prepositions that close a complement's head phrase: what follows is subordinate to it (lang/en, declared here)
+const HEAD_CUT = /\s+(?:of|in|on|at|from|to|for|by|with|under|over|during|after|before|until|since|among|between|within|near)\s+/iu;
 const BE_AUX = new Set(["was", "were", "is", "are", "been", "being", "be", "had been", "has been", "have been"]);
 /** Between an occupant mention and its transition: at most this many words, each read. */
 export const OCCUPANT_GAP_MAX = 2;
@@ -243,7 +245,14 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         const locus = comp.replace(new RegExp(`^(?:${[...def].map(esc).join("|")})\\s+`, "iu"), "").replace(/[.”"’']+$/u, "").trim();
         const year = /\b(1[0-9]{3}|20[0-9]{2})\b/u.exec(clause)?.[1] ?? null;
         const compStart = cStart + clause.indexOf(m.groups.comp);
-        const where = resolveLocus ? resolveLocus(sentence, { start: compStart, end: compStart + comp.length }, locus) : null;
+        // THE COMPLEMENT HAS A HEAD (v9's finding, results/occupancy-host-eval-v9-
+        // RESULTS.md): "the most enjoyable balls in Moscow" holds an established
+        // place name in an ADJUNCT, and asking the cast about the whole span
+        // made Moscow a locus. Only the head phrase — the complement up to its
+        // first preposition — is asked; the whole complement stays the surface.
+        const headLen = (() => { const m2 = HEAD_CUT.exec(comp); return m2 ? m2.index : comp.length; })();
+        const headText = comp.slice(0, headLen).trim();
+        const where = resolveLocus && headText ? resolveLocus(sentence, { start: compStart, end: compStart + headText.length }, headText) : null;
         let pred = predecessor;
         if (predecessor && ms) { const ps = cStart + clause.indexOf(predecessor); const hit = ms.find((x) => x.start >= ps && x.end <= ps + predecessor.length); if (hit) pred = hit.referent; }
         // THE ACT, on the cube (phasepost.js injected, an overlay never a gate):
