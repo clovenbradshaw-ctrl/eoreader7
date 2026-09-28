@@ -308,3 +308,25 @@ export function locusStandings(candidates, { merges = [], giver = OCCUPANCY_TRAN
   }
   return out;
 }
+
+// ── nesting names (v6 amendment, kernel/merge-standing.js's declared evidence) ──
+// "Monsieur Pierre" and "Pierre" are one name inside another: the shorter's
+// tokens are a subset of the longer's, diacritics folded, honorific and all
+// (the honorific is what the longer one ADDS, never what it lacks). This is the
+// TEXT reading of "these two occupants nest"; the kernel reads only the pairs.
+const nameTokens = (s) => new Set(String(s ?? "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().split(/[^\p{L}\p{N}']+/u).filter(Boolean));
+export const namesNest = (a, b) => {
+  const ta = nameTokens(a), tb = nameTokens(b);
+  if (!ta.size || !tb.size) return false;
+  const [small, large] = ta.size <= tb.size ? [ta, tb] : [tb, ta];
+  for (const t of small) if (!large.has(t)) return false;
+  return true;
+};
+/** The nested set kernel/merge-standing.js reads: every occupant pair (by id) whose faces nest. */
+export function nestedOccupants(standings, faceOf, pairKey) {
+  const byLocus = new Map();
+  for (const s of standings) { if (!byLocus.has(s.locus)) byLocus.set(s.locus, new Set()); byLocus.get(s.locus).add(s.occupant); }
+  const nested = new Set();
+  for (const occ of byLocus.values()) { const ids = [...occ]; for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) if (namesNest(faceOf(ids[i]), faceOf(ids[j]))) nested.add(pairKey(ids[i], ids[j])); }
+  return nested;
+}
