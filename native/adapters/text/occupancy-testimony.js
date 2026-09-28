@@ -52,10 +52,16 @@ export const OCCUPANCY_TRANSITIONS_EN = Object.freeze({
   passive: ["appointed", "elected", "named", "made", "chosen", "promoted", "sworn in", "installed", "crowned", "proclaimed", "nominated", "designated"],
   succeed: ["succeeded"],
   assume: ["took office as", "assumed the office of", "assumed the post of", "assumed the title of", "assumed office as"],
+  // ALL STATES ARE TRANSITIONS, AND NUL IS THE TRANSITION OF NON-TRANSITION
+  // (user direction, 2026-09-28). "Cyril was Count Bezúkhov" holds the locus
+  // exactly as "Pierre became Count Bezúkhov" enters it; the act performed
+  // is the one that changes nothing — NUL. The copula family is read LAST,
+  // so a passive ("was appointed") or a becoming is never re-read as a state.
+  state: ["was", "is", "were", "remained", "remains", "had been"],
 });
 export const OCCUPANCY_TRANSITIONS_EN_META = Object.freeze({
   giver: "declared closed class, lang/en; reference: VerbNet classes become-109.1, appoint-29.1, succeed-? (Levin 1993 §29.1 'appoint verbs')",
-  scope: "entry into a position only; exits (resigned, deposed, died) are named future work",
+  scope: "entry into a position, and holding one (the copula family, NUL); exits (resigned, deposed, died) are named future work",
 });
 import { undecided, collapse } from "../../kernel/undecided.js";
 
@@ -126,7 +132,7 @@ const CAP = "\\p{Lu}[\\p{L}’'.-]*";       // a capitalised word
  * resolveLocus(sentence, span, surface) -> { referent, via } | null
  * -> { candidates, refused, arm }
  */
-export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, pronouns = null, posPrior = null, resolveLocus = null, complementTyping = "structural", forWhom = null, occupantRule = null, phasepost = null } = {}) {
+export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, pronouns = null, posPrior = null, resolveLocus = null, complementTyping = "structural", forWhom = null, occupantRule = null, phasepost = null, cellOf = null } = {}) {
   for (const [k, v] of Object.entries({ source, determiners, modals, negation })) if (v == null) throw new TypeError(`occupancy-testimony: '${k}' must be declared`);
   const def = determiners.definite, indef = determiners.indefinite;
   const alt = (xs) => xs.map(esc).join("|");
@@ -137,6 +143,8 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
     { kind: "assume", re: new RegExp(`(?<![\\p{L}’'])(?<verb>${alt(transitions.assume)})\\s+(?<comp>.+)`, "u") },
     { kind: "passive", re: new RegExp(`(?<![\\p{L}’'])${AUX}(?<verb>${alt(transitions.passive)})(?:\\s+as|\\s+to\\s+be)?\\s+(?<comp>.+)`, "u") },
     { kind: "become", re: new RegExp(`(?<![\\p{L}’'])${AUX}?(?<verb>${alt(transitions.become)})\\s+(?<comp>.+)`, "u") },
+    // the state family: read last, so every entry pattern has had its turn
+    ...(transitions.state?.length ? [{ kind: "state", re: new RegExp(`(?<![\\p{L}’'])(?<verb>${alt(transitions.state)})\\s+(?<comp>.+)`, "u") }] : []),
   ];
   // the ablation arm: a capitalised run ending right before the transition
   const capRun = new RegExp(`(?<occ>${CAP}(?:\\s+(?:of\\s+|de\\s+|von\\s+)?${CAP})*)\\s*$`, "u");
@@ -204,6 +212,8 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
           const run = capRun.exec(before.replace(/\s+(?:\p{Ll}[\p{L}’']*)(?:\s+\p{Ll}[\p{L}’']*)?\s*$/u, ""));
           if (!run) { refused.push({ at, reason: "occupant_not_a_referent", occupant: before.trim().split(/\s+/).slice(-3).join(" "), clause: clause.trim().slice(0, 160) }); break; }
           occupant = occupantSurface = run.groups.occ; occupantVia = "surface";
+          // a capitalised pronoun at a clause's head is not a referent on this arm either
+          if (pronouns && pronouns.has(occupant.toLowerCase())) { refused.push({ at, reason: "pronoun_unbound", occupant, clause: clause.trim().slice(0, 160) }); break; }
           gapWords = before.slice(run.index + run.groups.occ.length).split(/\s+/).map(clean).filter(Boolean);
           const first = occupant.split(/\s+/)[0].toLowerCase();
           if (def.has(first) || indef.has(first)) { refused.push({ at, reason: "occupant_is_description", occupant, clause: clause.trim().slice(0, 160) }); break; }
@@ -213,6 +223,10 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         if (irrealisIn(gapWords) || irrealisIn(lead)) { refused.push({ at, reason: "irrealis", occupant: occupantSurface, clause: clause.trim().slice(0, 160) }); break; }
         const predecessor = m.groups.pred ?? null;
         let comp = m.groups.comp.trim().replace(/^[“"‘']+/u, "");
+        // the copula's mood sits AFTER the verb ("was never the Chair", "is not yet King"):
+        // the state family reads its complement's lead for irrealis the way the
+        // entry families read the gap before the verb
+        if (p.kind === "state" && irrealisIn(comp.split(/\s+/).slice(0, 3).map(clean))) { refused.push({ at, reason: "irrealis", occupant: occupantSurface, clause: clause.trim().slice(0, 160) }); break; }
         comp = comp.split(/\s+(?:and|but|while|which|who|in|on|at|from|after|until|when|during|for|by|with)\s+(?=\p{Ll}|\d)|,|\(|\[|—|\.\s/u)[0].trim();
         const first = comp.split(/\s+/)[0] ?? "";
         const fl = first.toLowerCase();
@@ -236,7 +250,13 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         // which of the nine acts this transition performs, at which grain —
         // "became Count Bezúkhov" is not the same act as "was appointed
         // ambassador", and a consumer selects standings by ACT, never by verb.
-        const act = phasepost ? phasepost({ end1: occupantSurface, label: m.groups.verb, end2: locus }) : null;
+        // A STATE is the transition of non-transition: its act is NUL·Ground,
+        // declared by the family itself; the phasepost's own reading of the
+        // copula (SIG, presence) rides beside it as `overlay`, never replaced.
+        const overlay = phasepost ? phasepost({ end1: occupantSurface, label: m.groups.verb, end2: locus }) : null;
+        const act = p.kind === "state"
+          ? { op: "NUL", grain: "Ground", cell: cellOf ? cellOf("NUL", "Ground") : null, standing: "declared", because: "a state is the transition of non-transition — the act that changes nothing (direction 2026-09-28)", overlay }
+          : overlay;
         candidates.push({ occupant, occupantVia, occupantSurface, locus: where?.referent ?? locus, locusId: where?.id ?? null, locusVia: where?.via ?? "surface", locusSurface: locus, predecessor: pred, pattern: p.kind, verb: m.groups.verb, act, at, address: `${source}#s${at}`, year, clause: clause.trim().slice(0, 200) });
         break;
       }

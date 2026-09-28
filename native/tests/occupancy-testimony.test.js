@@ -167,3 +167,29 @@ test("every standing carries its transition verb and, with a phasepost injected,
   const bare = read(["Pierre became Count Bezukhov."]);
   assert.equal(bare.candidates[0].act, null); assert.equal(bare.candidates[0].verb, "became");
 });
+
+// ── all states are transitions; NUL is the transition of non-transition (2026-09-28) ──
+import { positionsByPattern } from "../adapters/text/occupancy-testimony.js";
+import { cellOf } from "../kernel/cube.js";
+
+test("a copula clause holds a locus as a NUL·Ground standing; an entry clause is never re-read as a state", () => {
+  const r = readOccupancyTestimony([{ text: "Merkel was Leader of the Opposition from 2002 to 2005.", at: 0 }, { text: "Murat was appointed Grand Duke of Berg.", at: 1 }, { text: "Pierre became Count Bezukhov.", at: 2 }], { ...OPTS, cellOf });
+  assert.deepEqual(r.candidates.map((c) => [c.occupant, c.locus, c.pattern, c.act?.op ?? null, c.act?.grain ?? null, c.predecessor]), [
+    ["Merkel", "Leader of the Opposition", "state", "NUL", "Ground", null],
+    ["Murat", "Grand Duke of Berg", "passive", null, null, null],
+    ["Pierre", "Count Bezukhov", "become", null, null, null],
+  ]);
+  assert.deepEqual(r.candidates[0].act.cell, cellOf("NUL", "Ground")); assert.equal(r.candidates[0].act.standing, "declared"); assert.equal(r.candidates[0].year, "2002");
+});
+
+test("the state family keeps every wall: a kind is refused, an unbound pronoun is refused, irrealis holds nothing", () => {
+  const r = readOccupancyTestimony(["Johnson was a War Democrat.", "It was Natasha.", "Anna was never the Chair.", "Kutuzov is very ill."].map((text, at) => ({ text, at })), { ...OPTS, pronouns: new Set(["it", "he", "she", "they"]) });
+  assert.equal(r.candidates.length, 0, JSON.stringify(r.candidates));
+  assert.deepEqual(r.refused.map((x) => x.reason).sort(), ["irrealis", "kind_membership", "pronoun_unbound", "state_not_position"]);
+});
+
+test("a held locus and an entered locus are one position: the state standing supplies the occupant no becoming names", () => {
+  const r = read(["Count Cyril was Count Bezukhov until his death.", "Pierre became Count Bezukhov."]);
+  const { positions } = positionsByPattern(r.candidates);
+  assert.equal(positions.length, 1); assert.deepEqual(positions[0].occupants.sort(), ["Count Cyril", "Pierre"]); assert.equal(positions[0].evidence, "two_occupants");
+});
