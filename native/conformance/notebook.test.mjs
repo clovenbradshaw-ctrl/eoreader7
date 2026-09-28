@@ -183,7 +183,7 @@ test("a mouth's refusal is handed back to be repaired; what is admitted is store
 
 test("nothing is preset: with no method and no model it refuses and says how to teach; a learned method is then reused with NO model", async () => {
   const { ing, files, tmp } = world(); let s = addData(emptyNotebook(), ing, H).state;
-  const none = await act(s, H, { op: "line", line: "is the rpm column smooth?" }, { dir: tmp });
+  const none = await act(s, H, { op: "line", line: "is the rpm column smooth?" }, { dir: tmp, swarm: false });
   assert.match(none.error, /no learned method/); assert.match(none.error, /\/learn/); assert.match(none.error, /nothing yet/);
   const first = await act(s, H, { op: "line", line: "is the rpm column smooth?" }, { dir: tmp, mouth: async () => ({ ...GOOD, by: "model:fake" }) });
   assert.ok(!first.error, first.error); assert.match(first.notice, /learned: smoothness/);
@@ -195,7 +195,7 @@ test("nothing is preset: with no method and no model it refuses and says how to 
   assert.match(promote(again.state.bench, { card: claims[0].id, to: "computed_in_range", by: "model:planner" }).error, /never a model/);
   const sk = await act(again.state, H, { op: "line", line: "/skills" }, { dir: tmp }); assert.match(sk.notice, /smoothness|smooth/);
   assert.ok((await act(again.state, H, { op: "line", line: "/forget " + L.library(tmp)[0].id + " because tested" }, { dir: tmp })).notice);
-  const gone = await act(again.state, H, { op: "line", line: "is the rpm column smooth?" }, { dir: tmp });
+  const gone = await act(again.state, H, { op: "line", line: "is the rpm column smooth?" }, { dir: tmp, swarm: false });
   assert.match(gone.error, /no learned method/, "a conceded method is not chosen");
 });
 
@@ -268,4 +268,26 @@ test("three stylings of ONE ledger: chat, generate and notebook show the same cl
   assert.equal(JSON.stringify(s.nb.entries.map((e) => e.hash)), before);
   assert.doesNotMatch(renderPage(s, { style: "notebook", dir: tmp }), /data-op="switch"/, "a static page cannot flip a switch");
   assert.match(renderPage(s, { style: "audit-nonsense", dir: tmp }), /In&nbsp;\[/, "an unknown style falls back to notebook");
+});
+
+import { pheromone, loadTrails } from "../the-fold/surface/notebook-swarm.mjs";
+test("no method and no model: the ant colony searches the data itself, its finds go through the SAME gate, and they become switchable skills", async () => {
+  let a = 12345; const r = () => ((a = (a * 1664525 + 1013904223) >>> 0) / 4294967296), gauss = () => { let u = 0; for (let i = 0; i < 6; i++) u += r(); return (u - 3) * 1.41; };
+  const n = 20000; let env = 0, rows = ["t_s,bursty,white,tone"];
+  for (let i = 0; i < n; i++) { env = 0.999 * env + 0.045 * gauss(); rows.push(`${(i * 0.001).toFixed(3)},${(gauss() * Math.exp(env * 3)).toFixed(4)},${gauss().toFixed(4)},${(Math.sin(i * 2 * Math.PI / 97) + 0.6 * gauss()).toFixed(4)}`); }
+  const ing = ingest({ name: "mixed.csv", bytes: Buffer.from(rows.join("\n")) }); const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "swarm-"));
+  let s = addData(emptyNotebook(), ing, H).state;
+  const out = await act(s, H, { op: "line", line: "what is going on in this file?" }, { dir: tmp, mouth: null, swarm: { rounds: 3, ants: 16 } });
+  assert.ok(!out.error, out.error); s = out.state;
+  const lib = L.library(tmp).filter((k) => String(k.lineage?.mouth).startsWith("swarm:"));
+  assert.ok(lib.length >= 1, "the colony found structure and the gate admitted at least one method");
+  assert.ok(lib.every((k) => k.evidence.runs.some((x) => x.role === "control" && x.result === false)), "every find passed a control that failed");
+  assert.ok(pheromone(loadTrails(tmp)) > 0, "successful ants laid trails, kept on disk");
+  assert.ok(verifyStore(tmp).ok, "the colony's runs are on the hash-chained record");
+  const ask = s.nb.entries.find((e) => e.kind === "cell" && /^ask/.test(e.id)); assert.match(sourceOf(s.nb, ask.id), /colony searched/); assert.match(sourceOf(s.nb, ask.id), /chance ceiling/);
+  const claims = s.nb.entries.filter((e) => e.kind === "cell" && e.type === "claim"); assert.ok(claims.length >= 3, "each admitted method ran on every column"); assert.ok(claims.every((c) => c.proposed && c.method?.id));
+  const strongest = lib[0]; const off = await act(s, H, { op: "line", line: `/skill ${strongest.id} off because a swarm find must be reviewed first` }, { dir: tmp }); assert.match(off.notice, /now OFF/);
+  const t = auditText(audit(s, tmp)); assert.match(t, /written by swarm:/);
+  const before = pheromone(loadTrails(tmp)); const again = await act(s, H, { op: "line", line: "/explore" }, { dir: tmp, swarm: { rounds: 2, ants: 10 } }); assert.ok(!again.error, again.error);
+  assert.ok(pheromone(loadTrails(tmp)) >= before, "a second colony inherits and adds to the first one's trails");
 });

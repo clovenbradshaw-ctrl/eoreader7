@@ -3,6 +3,7 @@
 export const COMMANDS = Object.freeze([
   ["<plain language>", "just say what you want to know — it picks analyses and columns, runs them with controls, and reports (see what it understood)"],
   ["/ask <question>", "the same, explicitly"],
+  ["/explore [what to look for]", "no method needed: a colony of ants searches the data for structure (pheromone trails persist between files), and whatever survives its own search-aware bar goes through the gate and becomes a skill"],
   ["/py [code]", "add a python cell (and run it)"],
   ["/js [code]", "add a javascript cell (and run it)"],
   ["/md [text]", "add a markdown note"],
@@ -32,6 +33,7 @@ export function parseCommand(line) {
   const code = (lang) => ({ op: "add", type: "code", lang, source: rest, run: true, needs: rest ? null : "code" });
   switch (w) {
     case "ask": return rest ? { op: "ask", text: rest } : { error: "/ask <what you want to know>" };
+    case "explore": return { op: "explore", text: rest };
     case "py": return code("python");
     case "js": return code("js");
     case "md": return { op: "add", type: "markdown", source: rest };

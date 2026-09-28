@@ -16,6 +16,7 @@ import { runCell, runPython } from "./notebook-run.mjs";
 import { parseCommand, COMMANDS } from "./notebook-commands.mjs";
 import { plan, numericColumns } from "./notebook-plan.mjs";
 import { audit, auditText } from "./notebook-audit.mjs";
+import { exploreColumn, candidateFor, pheromone, loadTrails } from "./notebook-swarm.mjs";
 import { renderPage, mdToHtml } from "./notebook-views.mjs";
 export { renderPage, mdToHtml };
 import * as L from "./notebook-learn.mjs";
@@ -51,7 +52,33 @@ async function askModel({ question, skills, columns }) {
 }
 const MAX_RUNS = 80; // declared: one question may spend at most this many cell runs
 
-async function askTurn(st, by, text, ctx = {}) {
+
+const SWARM_KEEP = 6; // declared: at most this many of the colony's finds per question are put to the gate
+async function swarmFor(st, p, text, dir, ctx) {
+  const cols = p.columns, reports = [], cands = [];
+  for (const col of cols) {
+    let r; try { r = await exploreColumn({ files: st.files, file: p.file, col, dir, rounds: ctx.swarm?.rounds, ants: ctx.swarm?.ants }); } catch (e) { return { error: String(e.message) }; }
+    const meta = { run: r.run, tried: r.tried, ceiling: r.ceiling };
+    reports.push(`- ${col}: ${r.tried} pipelines tried by ${r.log.length} generations of ants (trails ${r.trailsBefore} → ${r.trailsAfter}); chance ceiling z = ${r.ceiling.shuffle.toFixed(1)} (shuffle) / ${r.ceiling.phase.toFixed(1)} (phase); ${r.structures.length ? `${r.structures.length} cleared it — strongest: ${r.structures[0].gloss} beats the ${r.structures[0].null} null, z = ${r.structures[0].z.toFixed(1)}` : "NOTHING cleared it"}`);
+    for (const s of r.structures) cands.push({ s, meta, col });
+  }
+  cands.sort((a, b) => b.s.z - a.s.z);
+  const admitted = [], refused = [], seen = new Set();
+  for (const { s, meta, col } of cands) {
+    if (admitted.length >= SWARM_KEEP) break;
+    const c = candidateFor(s, meta), order = [col, ...p.numeric.filter((x) => x !== col)];
+    const g = L.admit(c, { file: p.file, cols: order, files: st.files });
+    if (!g.ok) { refused.push(`${s.gloss} vs ${s.null} (${col}): ${g.reason.slice(0, 120)}`); continue; }
+    const rep = g.evidence.runs.find((x) => x.role === "check"); // the colony chose it on the FIRST half; the check re-tests on the SECOND
+    if (!rep?.result) { refused.push(`${s.gloss} vs ${s.null} (${col}): did NOT replicate on the held-out second half (z was ${s.z.toFixed(1)} in the search)`); continue; }
+    const stored = L.store(dir, c, { question: text, mouth: c.by, file: p.file }, g.evidence);
+    if (seen.has(stored.id)) continue; seen.add(stored.id); admitted.push(L.library(dir).find((k) => k.id === stored.id));
+  }
+  const note = `**The colony searched** (${cols.join(", ")}; first half of each series only, the check re-tests on the second half)\n\n${reports.join("\n")}${admitted.length ? `\n\n**Admitted through the gate** (${admitted.length}): ${admitted.map((k) => k.name).join("; ")}` : ""}${refused.length ? `\n\n**Refused by the gate** (${refused.length}): ${refused.join("; ")}` : ""}`;
+  return { skills: admitted, note };
+}
+
+async function askTurn(st, by, text, ctx = {}, b_force = false) {
   const P = "model:planner", dir = ctx.dir ?? learnedDir();
   const files = Object.entries(st.files).map(([name, f]) => ({ name, tables: f.tables }));
   const p = await plan(text, files, { library: L.library(dir), ask: process.env.ER7_OLLAMA_URL ? askModel : null });
@@ -59,19 +86,32 @@ async function askTurn(st, by, text, ctx = {}) {
   let taught = null, skills = p.skills, via = p.via;
   const offNote = p.offMatches?.length ? `\n\n**Switched off, so NOT used:** ${p.offMatches.map((k) => `${k.name} (${k.id}; ${k.switch?.by ?? "conceded"}${k.switch?.why ? `: ${k.switch.why}` : ""})`).join("; ")}` : "";
   if (!skills.length && p.offMatches?.length) return { error: `the method that answers this is switched off: ${p.offMatches.map((k) => `${k.name} (${k.id}) — ${k.switch?.by ?? "conceded"}${k.switch?.why ? `: ${k.switch.why}` : ""}`).join("; ")}.\nI will not write a new one around a switch. /skill ${p.offMatches[0].id} on because <why>  turns it back on.` };
-  if (!skills.length) {
-    const mouth = ctx.mouth ?? L.ollamaMouth();
-    if (!mouth) return { error: `I have no learned method for that question, and no model to write one.\nTeach me: write a check and a control cell for a claim (/claim, /check, /control), then  /learn <check cell> <control cell> as <what it answers>.\nOr point me at a model: set ER7_OLLAMA_URL and ER7_NB_MODEL.\nWhat I have learned so far: ${L.library(dir).filter((s) => !s.conceded).map((s) => s.name).join("; ") || "nothing yet"}.` };
-    const g = await L.generate({ question: text, cols: p.columns.length ? [...p.columns, ...p.numeric.filter((c) => !p.columns.includes(c))] : p.numeric, file: p.file, files: st.files, mouth, dir, tools: L.toolDocs(), examples: L.library(dir).filter((s) => !s.conceded).slice(-2) });
-    if (!g.ok) return { error: `a method was proposed and refused ${g.attempts.length} time(s); the last reason: ${g.reason}\n${g.attempts.map((a, i) => `  try ${i + 1}: ${a.ok ? "admitted" : a.reason}`).join("\n")}` };
-    skills = [L.library(dir).find((s) => s.id === g.id)]; taught = g; via = `a method learned just now from a model (${g.attempts.length} attempt(s)) — it passed the gate: it ran, was deterministic, and its control failed`;
+  let swarmNote = "";
+  if (!skills.length || b_force) {
+    const mouth = b_force ? null : (ctx.mouth ?? L.ollamaMouth());
+    if (mouth) {
+      const g = await L.generate({ question: text, cols: p.columns.length ? [...p.columns, ...p.numeric.filter((c) => !p.columns.includes(c))] : p.numeric, file: p.file, files: st.files, mouth, dir, tools: L.toolDocs(), examples: L.library(dir).filter((s) => s.effectiveOn).slice(-2) });
+      if (!g.ok) return { error: `a method was proposed and refused ${g.attempts.length} time(s); the last reason: ${g.reason}\n${g.attempts.map((a, i) => `  try ${i + 1}: ${a.ok ? "admitted" : a.reason}`).join("\n")}` };
+      skills = [L.library(dir).find((s) => s.id === g.id)]; taught = g; via = `a method learned just now from a model (${g.attempts.length} attempt(s)) — it passed the gate: it ran, was deterministic, and its control failed`;
+    } else {
+      if (ctx.swarm === false) return { error: `I have no learned method for that question, and no model to write one.\nTeach me: write a check and a control cell for a claim (/claim, /check, /control), then  /learn <check cell> <control cell> as <what it answers>.\nOr point me at a model: set ER7_OLLAMA_URL and ER7_NB_MODEL.\nWhat I have learned so far: ${L.library(dir).filter((s) => s.effectiveOn).map((s) => s.name).join("; ") || "nothing yet"}.` };
+      // No method and no model: the colony searches the data itself — and what it finds must pass the same gate before it is believed.
+      const sw = await swarmFor(st, p, text, dir, ctx); if (sw.error) return sw;
+      skills = sw.skills; swarmNote = sw.note; taught = sw.skills.length ? { swarm: true } : null;
+      via = b_force ? "you asked me to explore: an ant colony searched the data for structure, its finds went through the gate" : "no learned method matched and no model was available, so an ant colony searched the data for structure; its finds went through the gate";
+      if (!skills.length) {
+        let s0 = st; const id = `ask${st.nb.entries.filter((e) => e.kind === "cell" && e.type === "markdown").length + 1}`;
+        const r0 = addCell(s0, { id, type: "markdown", source: `**Asked:** ${text}\n\n${swarmNote}\n\nNothing cleared the bar, so there is nothing to claim. That is a result about this file, not a failure to look.`, author: P }); if (r0.error) return r0;
+        return { state: r0.state, selected: id, notice: null };
+      }
+    }
   }
   const runs = p.columns.length * skills.length * 2;
   if (runs > MAX_RUNS) return { error: `that would be ${runs} runs (the limit is ${MAX_RUNS}); name fewer columns or say which analysis` };
   let s = st; const put = (o) => { let id = o.id; while (cellOf(s.nb, id)) id += "x"; const r = addCell(s, { ...o, id, author: P }); if (r.error) throw new Error(r.error); s = r.state; return id; };
   const run = (id) => { const r = runCell(s, id); if (r.error) throw new Error(r.error); s = r.state; return r.exec; };
   const n0 = s.nb.entries.filter((e) => e.kind === "cell" && e.type === "markdown").length + 1;
-  put({ id: `ask${n0}`, type: "markdown", source: `**Asked:** ${text}\n\n**Method${skills.length > 1 ? "s" : ""}:** ${skills.map((k) => `${k.name} (${k.id}${k.conceded ? ", conceded" : ""}; learned from ${k.lineage?.mouth ?? "?"}, used ${k.uses}×)`).join("; ")} on ${p.columns.join(", ")} of ${p.file}. Chosen by: ${via}.${p.matched.length ? ` Matched on: ${p.matched.join(", ")}.` : ""}${offNote}${p.unmatched.length ? `\n\n**Not understood (matched nothing):** ${p.unmatched.join(", ")}` : ""}\n\nEvery claim below is proposed by the planner and only as wide as its check; each has a control that fails. None of the methods is built in — see /skills.` });
+  put({ id: `ask${n0}`, type: "markdown", source: `**Asked:** ${text}\n\n**Method${skills.length > 1 ? "s" : ""}:** ${skills.map((k) => `${k.name} (${k.id}${k.conceded ? ", conceded" : ""}; learned from ${k.lineage?.mouth ?? "?"}, used ${k.uses}×)`).join("; ")} on ${p.columns.join(", ")} of ${p.file}. Chosen by: ${via}.${p.matched.length ? ` Matched on: ${p.matched.join(", ")}.` : ""}${offNote}${swarmNote ? `\n\n${swarmNote}` : ""}${p.unmatched.length ? `\n\n**Not understood (matched nothing):** ${p.unmatched.join(", ")}` : ""}\n\nEvery claim below is proposed by the planner and only as wide as its check; each has a control that fails. None of the methods is built in — see /skills.` });
   const findings = [], claims = [], quality = new Map();
   for (const col of p.columns) for (const k of skills) {
     const tag = `${col}-${k.id.slice(0, 6)}`, m = { id: k.id, name: k.name, codeSha: k.codeSha }, cid = put({ id: `k-${tag}`, type: "claim", source: L.fill(k.claim, p.file, col), method: m });
@@ -105,6 +145,7 @@ function learnOp(st, by, b, ctx) {
 export async function act(st, by, b, ctx = {}) {
   if (b.op === "line") { const p = parseCommand(b.line); if (p.error) return { error: p.error }; return act(st, by, p, ctx); }
   if (b.op === "ask") return askTurn(st, by, b.text, ctx);
+  if (b.op === "explore") return askTurn(st, by, b.text || "explore this file for structure", ctx, true);
   if (b.op === "learn") return learnOp(st, by, b, ctx);
   if (b.op === "skills") { const lib = L.library(ctx.dir ?? learnedDir()); return { notice: lib.length ? lib.map((k) => `${k.id}  ${k.conceded ? "[CONCEDED] " : k.effectiveOn ? "[on] " : "[OFF] "}${k.name}\n   ${k.claim}\n   learned from ${k.lineage?.mouth ?? "?"} on "${k.lineage?.question ?? ""}" · used ${k.uses}× · ${k.evidence?.generalisation ?? ""}${k.switch?.decided ? ` · switch: ${k.switch.on ? "on" : "off"} by ${k.switch.by}${k.switch.why ? ` (${k.switch.why})` : ""}` : ""}`).join("\n") : "nothing learned yet — ask a question (a model writes and the gate admits), or /learn from your own cells" }; }
   if (b.op === "skill") {
