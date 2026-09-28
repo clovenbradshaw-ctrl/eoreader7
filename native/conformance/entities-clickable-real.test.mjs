@@ -19,14 +19,19 @@
 // fails.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, "../..");
 const SURFACE = join(ROOT, "native/the-fold/plans-surface.html");
-const html = readFileSync(SURFACE, "utf8");
+// The BUILT surface is a gitignored derived artifact (see
+// entities-clickable.test.mjs): a bare checkout — CI's — cannot hold it, so
+// R1/R2 skip with a typed fixture_absent reason instead of the file
+// crashing at load. Present, nothing is skipped.
+const SURFACE_ABSENT = existsSync(SURFACE) ? undefined : `fixture_absent: the built surface ${SURFACE} is a gitignored derived artifact and is not in this checkout`;
+const html = SURFACE_ABSENT ? "" : readFileSync(SURFACE, "utf8");
 
 const scriptStart = html.indexOf("<script>");
 const scriptEnd = html.lastIndexOf("</script>");
@@ -35,14 +40,14 @@ const script = html.slice(scriptStart + "<script>".length, scriptEnd);
 const fnRe = (name) => new RegExp(`function ${name}\\([^)]*\\) \\{[\\s\\S]*?\\n  \\}`, "m");
 const wordifySrc = script.match(fnRe("wordify"))?.[0];
 const isWordCharSrc = script.match(fnRe("isWordChar"))?.[0];
-assert.ok(wordifySrc && isWordCharSrc, "shipped functions present");
+if (!SURFACE_ABSENT) assert.ok(wordifySrc && isWordCharSrc, "shipped functions present");
 
 // ── the REAL entity list, from the built surface's beads ──────────────────
 const beadRe = /class="bead[^"]*" data-light="([^"]+)"/g;
 const entityList = [];
 { const seen = new Set(); let m; while ((m = beadRe.exec(html))) { const lower = m[1].toLowerCase(); if (seen.has(lower)) continue; seen.add(lower); entityList.push({ name: m[1], lower, len: lower.length }); } }
 entityList.sort((a, b) => b.len - a.len);
-assert.ok(entityList.length > 5, `real entity list is populated (${entityList.length})`);
+if (!SURFACE_ABSENT) assert.ok(entityList.length > 5, `real entity list is populated (${entityList.length})`);
 
 const sandbox = {
   entityList,
@@ -51,7 +56,7 @@ const sandbox = {
   console,
 };
 // eslint-disable-next-line no-new-func
-const wordify = new Function(...Object.keys(sandbox), `${isWordCharSrc}\n${wordifySrc}\nreturn wordify;`)(...Object.values(sandbox));
+const wordify = SURFACE_ABSENT ? null : new Function(...Object.keys(sandbox), `${isWordCharSrc}\n${wordifySrc}\nreturn wordify;`)(...Object.values(sandbox));
 
 const DOCS = ["nashvillenext-access-v5", "nmotion-final", "east-bank-exec", "uhs-full-report", "carp-final"];
 const corpus = DOCS.map((id) => ({ id, text: readFileSync(join(ROOT, `plans/nashville/ground/${id}.txt`), "utf8") }));
@@ -66,7 +71,7 @@ function emittedSpans(text) {
 }
 
 // R1 · every emitted span text IS a full entity surface
-test("R1: every span emitted by wordify is a real entity surface (full, not a fragment)", () => {
+test("R1: every span emitted by wordify is a real entity surface (full, not a fragment)", { skip: SURFACE_ABSENT }, () => {
   for (const doc of corpus) {
     const spans = emittedSpans(doc.text);
     for (const s of spans) {
@@ -80,7 +85,7 @@ test("R1: every span emitted by wordify is a real entity surface (full, not a fr
 
 // R2 · exact accounting on the real corpus: every entity occurrence in the
 // text yields exactly one span; non-entity words yield none.
-test("R2: exact span accounting over the real corpus — no phantom spans, no missed entities", () => {
+test("R2: exact span accounting over the real corpus — no phantom spans, no missed entities", { skip: SURFACE_ABSENT }, () => {
   for (const doc of corpus) {
     const text = doc.text;
     const spans = emittedSpans(text);

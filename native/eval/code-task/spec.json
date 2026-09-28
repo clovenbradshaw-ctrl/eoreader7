@@ -1,0 +1,65 @@
+{
+  "program": "a tiny spreadsheet engine in JavaScript (ES modules, no dependencies)",
+  "modules": [
+    {
+      "name": "lexer",
+      "functions": [
+        {
+          "name": "tokenize",
+          "signature": "tokenize(src)",
+          "says": "Splits a formula string into an array of tokens. Token types: number (value is the Number), ref (a cell reference such as B12, value is the uppercase text), name (an identifier such as SUM), op (one of + - * / ^ : , ( ) with the character as its value). Whitespace is skipped. An unknown character throws an Error naming it. tokenize('SUM(A1:B2)*2') gives name SUM, op (, ref A1, op :, ref B2, op ), op *, number 2."
+        }
+      ]
+    },
+    {
+      "name": "formula",
+      "functions": [
+        {
+          "name": "parse",
+          "signature": "parse(tokens)",
+          "says": "A recursive-descent parser over the token array, returning a tree of nodes as plain objects. Precedence from lowest: + and -, then * and /, then ^ (right-associative), then unary minus, then atoms. Node shapes: {type:'num', value}, {type:'ref', ref}, {type:'range', from, to} for A1:B2, {type:'call', name, args} for NAME(arg, arg), {type:'bin', op, left, right}, {type:'neg', expr}. Parentheses group. A token that fits nowhere throws an Error."
+        },
+        {
+          "name": "expandRange",
+          "signature": "expandRange(from, to)",
+          "says": "Lists every cell reference in the rectangle from one corner reference to the other, row by row: expandRange('A1', 'B2') gives ['A1', 'B1', 'A2', 'B2']. Columns are letters (A..Z, then AA..), rows are numbers from 1. Works whichever corner comes first."
+        },
+        {
+          "name": "evaluate",
+          "signature": "evaluate(node, lookup, fns)",
+          "says": "Evaluates a parsed node to a number. A num node is its value; a ref node is lookup(ref); a range node is the array of lookup(ref) for each cell of expandRange; a bin node applies its operator (^ is exponent); a neg node negates; a call node applies fns[name] to its evaluated arguments, with any array argument spread flat into the call. Division by zero throws an Error; an unknown function name throws an Error."
+        }
+      ]
+    },
+    {
+      "name": "grid",
+      "functions": [
+        {
+          "name": "parseRef",
+          "signature": "parseRef(ref)",
+          "says": "Reads a cell reference into zero-based column and row: parseRef('A1') gives {col: 0, row: 0}; parseRef('AA10') gives {col: 26, row: 9}. Letters are the column in base 26 with A as 1; digits are the row. Anything else throws an Error."
+        },
+        {
+          "name": "dependencies",
+          "signature": "dependencies(formula)",
+          "says": "The cell references a cell's text depends on: for text starting with '=', tokenize and parse the rest, then collect every ref, expanding each range with expandRange, without duplicates, in order of first appearance. Text not starting with '=' has no dependencies: returns []."
+        },
+        {
+          "name": "evaluationOrder",
+          "signature": "evaluationOrder(cells)",
+          "says": "Given an object mapping cell references to their text, returns the references in an order where every cell comes after all cells it depends on (dependencies), a topological sort. References that appear only inside formulas but are not keys are ignored. When cells depend on each other in a loop, throws an Error whose message starts with 'cycle:' and names the cells in the loop joined by ' -> '."
+        },
+        {
+          "name": "computeGrid",
+          "signature": "computeGrid(cells, fns)",
+          "says": "Computes every cell of an object mapping references to text, in evaluationOrder, returning an object of the same keys. A cell whose text does not start with '=' is Number(text) when that is a finite number, otherwise the text itself. A formula cell is evaluate(parse(tokenize(text after '=')), lookup, fns) where lookup returns the computed value of a cell, or 0 for an empty or missing one. fns defaults to {SUM, MIN, MAX, AVG, IF}: SUM adds its arguments, MIN and MAX pick, AVG is the mean, IF(c, a, b) is a when c is not 0 else b."
+        },
+        {
+          "name": "formatGrid",
+          "signature": "formatGrid(values)",
+          "says": "Renders computed values as a text table. The first row is a blank corner then the column letters used; each later row is its row number then the cells, left to right, in order of columns; empty cells are blank. Every column is padded with spaces to the width of its widest entry, cells separated by a single space, no trailing spaces, rows joined by newline. Numbers print with up to 2 decimals and no trailing zeros (2, 2.5, 0.33)."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "schema": "BuildBattery@1",
+  "about": "Size ladders: the same subject at growing size, each rung adding checkable requirements. The claim under test: a bare model's coverage falls as a coding task grows, and a decomposing engine's does not. Falsified if the bare model's per-rung coverage stays flat. Every rung's checks come from that rung's own words (named communities, stated counts, stated numbers). Written before any ladder run.",
+  "cafe": ["drinks", "opening hours", "espresso", "cappuccino", "smoothie", "latte"],
+  "requests": [
+    {
+      "id": "page-rung-1", "ladder": "page", "rung": 1, "kind": "page",
+      "prompt": "make a page showing three dolphin species — bottlenose, orca and spinner — with one fact about each",
+      "answers": { "anchor": "people curious about dolphins", "cardinality": "three species" },
+      "checks": [
+        { "id": "species", "what": "all three species named", "distinct": { "any": ["bottlenose", "orca", "spinner"], "min": 3 } },
+        { "id": "cards", "what": "three separate species entries", "repeats": { "any": ["bottlenose", "orca", "spinner"], "min": 3 } }
+      ]
+    },
+    {
+      "id": "page-rung-2", "ladder": "page", "rung": 2, "kind": "page",
+      "prompt": "make a reddit-style site for dolphin fans with two communities, r/bottlenose and r/orca, each showing three posts with a title, a vote count and a comment count",
+      "answers": { "anchor": "dolphin fans", "cardinality": "two communities with three posts each" },
+      "checks": [
+        { "id": "communities", "what": "both communities named", "distinct": { "any": ["bottlenose", "orca"], "min": 2 } },
+        { "id": "votes", "what": "posts show votes", "present": { "any": ["vote", "votes", "points", "score", "upvotes"] } },
+        { "id": "comments", "what": "posts show comments", "present": { "any": ["comment", "comments"] } },
+        { "id": "posts", "what": "six separate posts", "repeats": { "any": ["vote", "votes", "points", "score", "upvotes", "comment", "comments"], "min": 6 } }
+      ]
+    },
+    {
+      "id": "page-rung-3", "ladder": "page", "rung": 3, "kind": "page",
+      "prompt": "make a reddit-style site for dolphin fans with two communities, r/bottlenose and r/orca, each showing three posts with a title, a vote count and a comment count; add a form to submit a new post with a title and a community, and a button to sort posts by votes",
+      "answers": { "anchor": "dolphin fans", "cardinality": "two communities with three posts each" },
+      "checks": [
+        { "id": "communities", "what": "both communities named", "distinct": { "any": ["bottlenose", "orca"], "min": 2 } },
+        { "id": "votes", "what": "posts show votes", "present": { "any": ["vote", "votes", "points", "score", "upvotes"] } },
+        { "id": "comments", "what": "posts show comments", "present": { "any": ["comment", "comments"] } },
+        { "id": "posts", "what": "six separate posts", "repeats": { "any": ["vote", "votes", "points", "score", "upvotes", "comment", "comments"], "min": 6 } },
+        { "id": "submit", "what": "a submit form (a title field, a community field, a button)", "controls": { "min": 3 } },
+        { "id": "sort", "what": "a way to sort by votes", "present": { "any": ["sort", "sorted", "top"] } }
+      ]
+    },
+    {
+      "id": "page-rung-4", "ladder": "page", "rung": 4, "kind": "page",
+      "prompt": "make a reddit-style site for dolphin fans with four communities, r/bottlenose, r/orca, r/spinner and r/riverdolphins, each showing five posts with a title, a vote count, a comment count and two short comments under each post; add a sidebar listing each community's rules, a search box, a form to submit a new post with a title and a community, and a button to sort posts by votes",
+      "answers": { "anchor": "dolphin fans", "cardinality": "four communities with five posts each" },
+      "checks": [
+        { "id": "communities", "what": "all four communities named", "distinct": { "any": ["bottlenose", "orca", "spinner", "riverdolphins", "river dolphins"], "min": 4 } },
+        { "id": "votes", "what": "posts show votes", "present": { "any": ["vote", "votes", "points", "score", "upvotes"] } },
+        { "id": "comments", "what": "posts show comments", "present": { "any": ["comment", "comments"] } },
+        { "id": "posts", "what": "at least twelve separate posts (of twenty)", "repeats": { "any": ["vote", "votes", "points", "score", "upvotes"], "min": 12 } },
+        { "id": "rules", "what": "a sidebar with community rules", "present": { "any": ["rules", "rule"] } },
+        { "id": "search", "what": "a search box", "present": { "any": ["search"] } },
+        { "id": "submit", "what": "a submit form and search (at least four controls)", "controls": { "min": 4 } },
+        { "id": "sort", "what": "a way to sort by votes", "present": { "any": ["sort", "sorted", "top"] } }
+      ]
+    },
+    {
+      "id": "page-rung-5", "ladder": "page", "rung": 5, "kind": "page",
+      "prompt": "make a reddit-style site for dolphin fans with six communities, r/bottlenose, r/orca, r/spinner, r/riverdolphins, r/dusky and r/humpback, each showing six posts with a title, a vote count, a comment count and two short comments under each post; add a sidebar listing each community's rules, a search box, a form to submit a new post with a title and a community, a button to sort posts by votes, a section of five user profiles each with a username and karma, a moderation queue listing three reported posts with a reason, and page links to see page 2 and page 3",
+      "answers": { "anchor": "dolphin fans", "cardinality": "six communities with six posts each" },
+      "checks": [
+        { "id": "communities", "what": "at least five of the six communities named", "distinct": { "any": ["bottlenose", "orca", "spinner", "riverdolphins", "river dolphins", "dusky", "humpback"], "min": 5 } },
+        { "id": "votes", "what": "posts show votes", "present": { "any": ["vote", "votes", "points", "score", "upvotes"] } },
+        { "id": "comments", "what": "posts show comments", "present": { "any": ["comment", "comments"] } },
+        { "id": "posts", "what": "at least eighteen separate posts (of thirty-six)", "repeats": { "any": ["vote", "votes", "points", "score", "upvotes"], "min": 18 } },
+        { "id": "rules", "what": "a sidebar with community rules", "present": { "any": ["rules", "rule"] } },
+        { "id": "search", "what": "a search box", "present": { "any": ["search"] } },
+        { "id": "submit", "what": "a submit form and search (at least four controls)", "controls": { "min": 4 } },
+        { "id": "sort", "what": "a way to sort by votes", "present": { "any": ["sort", "sorted", "top"] } },
+        { "id": "karma", "what": "user profiles with karma", "present": { "any": ["karma"] } },
+        { "id": "profiles", "what": "at least four separate user profiles", "repeats": { "any": ["karma"], "min": 4 } },
+        { "id": "moderation", "what": "a moderation queue with reasons", "present": { "any": ["moderation", "reported", "report", "reports"] } },
+        { "id": "pages", "what": "links to page 2 and page 3", "distinct": { "any": ["page 2", "page 3"], "min": 2 } }
+      ]
+    },
+    {
+      "id": "prog-rung-1", "ladder": "program", "rung": 1, "kind": "program",
+      "prompt": "write a python program with this shop inventory: apples 3 at 0.50 each, pears 40 at 0.75, melon 1 at 2.00, grapes 12 at 1.25, bread 6 at 2.50. Print the total value of the inventory.",
+      "answers": { "anchor": "the shop owner", "cardinality": "five items" },
+      "checks": [
+        { "id": "total", "what": "total value 63.50", "present": { "marks": ["63.5"] } }
+      ]
+    },
+    {
+      "id": "prog-rung-2", "ladder": "program", "rung": 2, "kind": "program",
+      "prompt": "write a python program with this shop inventory: apples 3 at 0.50 each, pears 40 at 0.75, melon 1 at 2.00, grapes 12 at 1.25, bread 6 at 2.50. Print the total value of the inventory, then print each item that is low on stock, where low means fewer than 5.",
+      "answers": { "anchor": "the shop owner", "cardinality": "five items" },
+      "checks": [
+        { "id": "total", "what": "total value 63.50", "present": { "marks": ["63.5"] } },
+        { "id": "low", "what": "apples and melon are low", "distinct": { "any": ["apples", "melon"], "min": 2 } }
+      ]
+    },
+    {
+      "id": "prog-rung-3", "ladder": "program", "rung": 3, "kind": "program",
+      "prompt": "write a python program with this shop inventory: apples 3 at 0.50 each, pears 40 at 0.75, melon 1 at 2.00, grapes 12 at 1.25, bread 6 at 2.50. Print the total value of the inventory, then print each item that is low on stock, where low means fewer than 5, and for each low item print how many to order to bring it up to 20.",
+      "answers": { "anchor": "the shop owner", "cardinality": "five items" },
+      "checks": [
+        { "id": "total", "what": "total value 63.50", "present": { "marks": ["63.5"] } },
+        { "id": "low", "what": "apples and melon are low", "distinct": { "any": ["apples", "melon"], "min": 2 } },
+        { "id": "order-apples", "what": "order 17 apples", "repeats": { "all": ["apples", "17"], "min": 1 } },
+        { "id": "order-melon", "what": "order 19 melons", "repeats": { "all": ["melon", "19"], "min": 1 } }
+      ]
+    },
+    {
+      "id": "prog-rung-4", "ladder": "program", "rung": 4, "kind": "program",
+      "prompt": "write a python program with this shop inventory, where each item has a category: apples 3 at 0.50 each (fruit), pears 40 at 0.75 (fruit), melon 1 at 2.00 (fruit), grapes 12 at 1.25 (fruit), bread 6 at 2.50 (bakery). Print the total value of the inventory, then print each item that is low on stock, where low means fewer than 5, and for each low item print how many to order to bring it up to 20. Then raise every bakery price by 10 percent and print the new total value of each category.",
+      "answers": { "anchor": "the shop owner", "cardinality": "five items" },
+      "checks": [
+        { "id": "total", "what": "total value 63.50", "present": { "marks": ["63.5"] } },
+        { "id": "low", "what": "apples and melon are low", "distinct": { "any": ["apples", "melon"], "min": 2 } },
+        { "id": "order-apples", "what": "order 17 apples", "repeats": { "all": ["apples", "17"], "min": 1 } },
+        { "id": "order-melon", "what": "order 19 melons", "repeats": { "all": ["melon", "19"], "min": 1 } },
+        { "id": "fruit", "what": "fruit total 48.50", "present": { "marks": ["48.5"] } },
+        { "id": "bakery", "what": "bakery total after the rise 16.50", "present": { "marks": ["16.5"] } }
+      ]
+    },
+    {
+      "id": "prog-rung-5", "ladder": "program", "rung": 5, "kind": "program",
+      "prompt": "write a python program with this shop inventory, where each item has a category and sits in one of two warehouses: apples 3 at 0.50 each (fruit, north), pears 40 at 0.75 (fruit, south), melon 1 at 2.00 (fruit, north), grapes 12 at 1.25 (fruit, south), bread 6 at 2.50 (bakery, north). Print the total value of the inventory, then print each item that is low on stock, where low means fewer than 5, and for each low item print how many to order to bring it up to 20. Then raise every bakery price by 10 percent and print the new total value of each category. Then move half of the pears from south to north and print how many units each warehouse holds.",
+      "answers": { "anchor": "the shop owner", "cardinality": "five items" },
+      "checks": [
+        { "id": "total", "what": "total value 63.50", "present": { "marks": ["63.5"] } },
+        { "id": "low", "what": "apples and melon are low", "distinct": { "any": ["apples", "melon"], "min": 2 } },
+        { "id": "order-apples", "what": "order 17 apples", "repeats": { "all": ["apples", "17"], "min": 1 } },
+        { "id": "order-melon", "what": "order 19 melons", "repeats": { "all": ["melon", "19"], "min": 1 } },
+        { "id": "fruit", "what": "fruit total 48.50", "present": { "marks": ["48.5"] } },
+        { "id": "bakery", "what": "bakery total after the rise 16.50", "present": { "marks": ["16.5"] } },
+        { "id": "north", "what": "north holds 30 units (3 + 1 + 6 + 20 pears)", "repeats": { "all": ["north", "30"], "min": 1 } },
+        { "id": "south", "what": "south holds 32 units (20 pears + 12 grapes)", "repeats": { "all": ["south", "32"], "min": 1 } }
+      ]
+    }
+  ]
+}

@@ -46,18 +46,38 @@ export function append(log, entry) {
   return Object.freeze({ entries: Object.freeze([...log.entries, sealed]), nextSeq: log.nextSeq + 1, admits });
 }
 
+const RESERVED = new Set(["kind","task_id","seq","supersedes","operator","operator_basis","grain","description","depends_on","evidence","result"]);
+
+// One entry folded into the projection state — the step projectTasks takes
+// for every entry, in seq order.
+function projectEntry(byId, superseded, retracted, e) {
+  if (e.kind === ENTRY_KINDS.RETRACT) { retracted.add(e.task_id); return; }
+  if (e.supersedes) superseded.add(e.supersedes);
+  const prior = byId.get(e.task_id) ?? { task_id: e.task_id, operator: null, operator_basis: OPERATOR_BASIS.ABSENT, operator_gap: "no structural act has been earned for this task yet", grain: null, grain_gap: "no grain has been earned for this task's operator yet", cell: null, description: null, depends_on: [], evidence: [], result: null, first_seq: e.seq };
+  const payload = {}; for (const [key, value] of Object.entries(e)) if (!RESERVED.has(key)) payload[key] = value;
+  const nextOperator = e.operator ?? prior.operator;
+  const nextGrain = e.grain ?? (e.operator != null ? null : prior.grain);
+  byId.set(e.task_id, Object.freeze({ ...prior, ...payload, evidence: e.evidence?.length ? [...new Set([...prior.evidence, ...e.evidence])] : prior.evidence, result: e.kind === ENTRY_KINDS.RESULT ? e.result : prior.result, description: e.description ?? prior.description, depends_on: e.depends_on.length ? [...e.depends_on] : prior.depends_on, operator: nextOperator, operator_basis: e.operator != null ? e.operator_basis : prior.operator_basis, operator_gap: e.operator != null ? null : prior.operator_gap, grain: nextGrain, grain_gap: e.grain != null ? null : e.operator != null ? "no grain has been earned for this task's operator yet" : prior.grain_gap, cell: nextOperator != null && nextGrain != null ? cellOf(nextOperator, nextGrain) : null, last_seq: e.seq }));
+}
+
+// THE PROJECTION IS INCREMENTAL (2026-09-27: re-projecting every entry on
+// every call made a ledger of 10,000 entries take 230 s to hear — quadratic
+// in its length, the wall a long work hits first). A log is immutable and
+// append() carries its earlier entries over as the same objects, so the
+// projection after an entry is remembered against that entry and a longer
+// log folds only what came after the last entry already projected. Each
+// projected task is frozen: a caller can read it, never edit the memory.
+// The result is the same as projecting from scratch
+// (tests/task-log-incremental.test.js checks it against the plain fold).
+const projected = new WeakMap();   // last entry -> { byId, superseded, retracted }
+
 export function projectTasks(log) {
-  const byId = new Map(); const superseded = new Set(); const retracted = new Set();
-  for (const e of log.entries) {
-    if (e.kind === ENTRY_KINDS.RETRACT) { retracted.add(e.task_id); continue; }
-    if (e.supersedes) superseded.add(e.supersedes);
-    const prior = byId.get(e.task_id) ?? { task_id: e.task_id, operator: null, operator_basis: OPERATOR_BASIS.ABSENT, operator_gap: "no structural act has been earned for this task yet", grain: null, grain_gap: "no grain has been earned for this task's operator yet", cell: null, description: null, depends_on: [], evidence: [], result: null, first_seq: e.seq };
-    const RESERVED = new Set(["kind","task_id","seq","supersedes","operator","operator_basis","grain","description","depends_on","evidence","result"]);
-    const payload = {}; for (const [key, value] of Object.entries(e)) if (!RESERVED.has(key)) payload[key] = value;
-    const nextOperator = e.operator ?? prior.operator;
-    const nextGrain = e.grain ?? (e.operator != null ? null : prior.grain);
-    byId.set(e.task_id, { ...prior, ...payload, evidence: e.evidence?.length ? [...new Set([...prior.evidence, ...e.evidence])] : prior.evidence, result: e.kind === ENTRY_KINDS.RESULT ? e.result : prior.result, description: e.description ?? prior.description, depends_on: e.depends_on.length ? [...e.depends_on] : prior.depends_on, operator: nextOperator, operator_basis: e.operator != null ? e.operator_basis : prior.operator_basis, operator_gap: e.operator != null ? null : prior.operator_gap, grain: nextGrain, grain_gap: e.grain != null ? null : e.operator != null ? "no grain has been earned for this task's operator yet" : prior.grain_gap, cell: nextOperator != null && nextGrain != null ? cellOf(nextOperator, nextGrain) : null, last_seq: e.seq });
-  }
+  const entries = log.entries;
+  let from = entries.length, state = null;
+  while (from > 0) { state = projected.get(entries[from - 1]); if (state) break; from--; }
+  const byId = new Map(state?.byId ?? []), superseded = new Set(state?.superseded ?? []), retracted = new Set(state?.retracted ?? []);
+  for (let i = from; i < entries.length; i++) projectEntry(byId, superseded, retracted, entries[i]);
+  if (entries.length && typeof entries[entries.length - 1] === "object") projected.set(entries[entries.length - 1], { byId, superseded, retracted });
   return [...byId.values()].filter((t) => !retracted.has(t.task_id) && !superseded.has(t.task_id)).sort((a,b) => a.first_seq - b.first_seq);
 }
 

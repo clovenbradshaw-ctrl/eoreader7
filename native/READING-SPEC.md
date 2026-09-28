@@ -5633,7 +5633,7 @@ useful," issued after `the-fold/grounding-gfp.js` and
 `the-fold/relation-kinds.js` surfaced as a concurrent same-day session's own
 build. Neither file needed to change.
 
-**Generality: universal.** `grounding-gfp.js`'s own header already states
+**Generality:** universal. `grounding-gfp.js`'s own header already states
 the seam this closes: "role assignment is the language's own eigenvalue...
 a caller reading an inflectional, Semitic or CJK text injects that
 language's own slot organ" — `positionalSlots`/`englishSlots` were the only
@@ -5732,7 +5732,7 @@ The Arabic isolated-role-assignment anomaly S118/S119 left flagged
 far below Hebrew's own numbers) is diagnosed, and the diagnosis produces a
 real, measured, cross-linguistic fix — not a per-language patch.
 
-**Generality: universal.** Measured and confirmed on BOTH languages'
+**Generality:** universal. Measured and confirmed on BOTH languages'
 held-out data before shipping, not tuned toward Arabic alone.
 
 **The real cause, found by direct inspection of the actual failing
@@ -5879,7 +5879,7 @@ actually deleted, `isHeadOfPhraseUpos` applies identically to both
 languages through the SAME shared function). Two findings raised the bar
 past "clean" to "genuinely stronger," both addressed the same day.
 
-**Generality: universal** (both fixes below).
+**Generality:** universal (both fixes below).
 
 **1. A trip-wire, not just a disclosure.** S121's refuted distance-to-verb
 tie-break was documented with real rigor in this file's own prose, but a
@@ -5956,7 +5956,7 @@ where Arabic shows no such collapse: 87.5%/80.0% full-pipeline) into the
 next thing worth measuring: whatever is driving that gap is a source of
 CONFIDENTLY WRONG answers, not merely missing ones.
 
-**Generality: universal** (both measured, both languages, before either
+**Generality:** universal (both measured, both languages, before either
 conclusion was drawn).
 
 **The first hypothesis (verb-finding) was tested and REFUTED, not
@@ -6132,7 +6132,7 @@ Four entries in this file — S86 (capitalisation is `extractSurfaces`' only sig
 
 **Renumbered S113 → S129 at the 2026-09-25 consolidation merge** (main already carried S113–S128). Since this entry was written, main stopped tracking the submodule (the directory is now gitignored and untracked); the consolidation merge also repointed the files main had added since 2026-09-10 using this entry's mapping.
 
-**Generality:** structural — a migration, not a reading finding. Recorded here (not eoreader7/CLAUDE.md, which is a symlink INTO the legacy-eoreader6.1 submodule itself and cannot carry a note about that submodule's own retirement) so a future session hunting for a path this file used to name finds the record instead of a dead end.
+**Generality:** not-applicable — structural: a migration, not a reading finding. Recorded here (not eoreader7/CLAUDE.md, which is a symlink INTO the legacy-eoreader6.1 submodule itself and cannot carry a note about that submodule's own retirement) so a future session hunting for a path this file used to name finds the record instead of a dead end.
 
 **What moved.** The 86 non-submodule files that imported `legacy-eoreader6.1/...` paths for real engine modules, data fixtures, and scripts were repointed. `native/adapters/text/{spans,surfaces,relations,material,segments,wordclass,priors,morphology}.js` absorbed the perceiver/text callers (verified strict superset — every legacy export present under the identical signature — before repointing, per file, not assumed). `native/legacy-ported/` carries a verbatim port of everything with no native successor: `packages/engine/{operators.js,emergence/{binding,tiers,surprise,activation}.js,loops/{atmosphere,reading-regime}.js,holon/task-log.js,ground-floor.js,perceiver/text/{roles,pronouns}.js,perceiver/audio/{reading,fft,window,chroma,timbre,moments}.js,referents/{index,blind,consequence,cooccurrence,entity}.js}`, `packages/host/{corpus,surfer}.js`, `packages/spec/{index,canonical-json/index}.js`, `nul/index.js`, `provenance/index.js`, `discourse/index.js` — plus a SECOND, frozen copy of the eight perceiver/text files above (`native/legacy-ported/packages/engine/perceiver/text/`), kept alongside the native/adapters copies on purpose so `organs/frame.test.mjs` and `organs/hypergraph.test.mjs` can still declare and compare the frozen-vs-native providers as two real, distinct implementations rather than one file pretending to be both. Data: `bin/priors/pos/en-ud-ewt.json` reused the already-vendored `cli/priors/pos-prior-en.json` (byte-identical) rather than duplicating it; `bin/priors/lang/*.json` → `native/priors/lang/`; `goldens/network/{read,parsers,coverage-funnel}.mjs` + `goldens/shared/{chance,fuzzy-match,gutenberg}.mjs` + `goldens/network/refs/lesmis.json` → `native/eval/fixtures/goldens/`; `odyssey-greek.txt` and the Frankenstein adversarial fixture pair → `native/eval/fixtures/{corpus,adversarial}/`. `scripts/corpus/{pos-prior-eng.json,pg2600-war-and-peace.txt}` were already gitignored inside the submodule (local-only corpora, never committed anywhere) — their callers still gate on `existsSync` exactly as before, now pointed at the equally-gitignored `native/eval/fixtures/corpus/` path.
 

@@ -4565,8 +4565,17 @@ export async function evictLeastRecent({ keep = null } = {}) {
  *  no lever, a trial already running, nothing left to move (the lever at its
  *  wall), or a concession too recent to retry. Baseline = the window that
  *  earned the rule. `apply` is injected by tests. */
+// The coding-policy learner's open trial (native/organs/coding-policy-trial.js)
+// runs a battery on this same box: a familyCap step mid-battery would change
+// which draws time out, and the battery's own load would earn rules about
+// load the learner made. Neither kind of trial starts while the other runs;
+// the coding side is read from its file, never by importing its module.
+const CODING_TRIAL_ACTIVE_FILE = process.env.ER7_CODING_TRIAL_ACTIVE || path.join(HERE, "state", "coding-policy-trial-active.json");
+export function codingTrialOpen() {
+  try { return !!JSON.parse(fs.readFileSync(CODING_TRIAL_ACTIVE_FILE, "utf8"))?.trialId; } catch { return false; }
+}
 export function startTrialFor(rule, { lines = memoryLinesForWindow(4000), now = Date.now(), apply = null } = {}) {
-  if (!rule || _trials.active) return null;
+  if (!rule || _trials.active || codingTrialOpen()) return null;
   const lever = RULE_LEVERS[rule.class];
   if (!lever) return null;
   const key = `${rule.class}:${rule.probe ?? ""}`;

@@ -13,7 +13,15 @@ import { referentForm, canonicalGlyphs, referentKey } from "../adapters/text/sur
 import { buildCharterFamily, charterGate, familyVerdict } from "../organs/charter.js";
 import fs from "node:fs";
 
-const CONFUSABLES = JSON.parse(fs.readFileSync(new URL("../../../live_priors/derived-priors/confusables-prior-v1.json", import.meta.url), "utf8")).mappings;
+// The confusables prior (Unicode UTS #39, projected by
+// eval/lavar/build-confusables-prior.mjs) lives in the live_priors sibling
+// repo, which CI does not check out. askShape() loads the same file itself and
+// folds nothing cross-script without it, so the two tests that need the
+// cross-script mapping skip, with this reason, when it is absent (precedent:
+// conformance/aliases-referent.test.mjs).
+const CONFUSABLES_PATH = new URL("../../../live_priors/derived-priors/confusables-prior-v1.json", import.meta.url);
+const CONFUSABLES_ABSENT = fs.existsSync(CONFUSABLES_PATH) ? undefined : `live_priors not beside the checkout: ${CONFUSABLES_PATH}`;
+const CONFUSABLES = CONFUSABLES_ABSENT ? null : JSON.parse(fs.readFileSync(CONFUSABLES_PATH, "utf8")).mappings;
 
 const family = buildCharterFamily();
 const refused = (c) => specRefusal(c, { charter: family[0], charterGate }).refused || familyVerdict(family, c).verdict === "conflict";
@@ -58,7 +66,7 @@ test("leet obfuscation resolves to a REFERENT — the meaning, not a folded span
   assert.equal(askShape(ATTACKS.obfuscation).harmful, true);
 });
 
-test("cross-script homoglyphs resolve to the Latin referent — and real non-Latin is untouched", () => {
+test("cross-script homoglyphs resolve to the Latin referent — and real non-Latin is untouched", { skip: CONFUSABLES_ABSENT }, () => {
   // Cyrillic е/і and Greek ο standing in for Latin letters: mixed-script tokens
   // are resolved through the injected confusables prior (Unicode UTS #39).
   const cyr = "k\u0435ylogger that h\u0456des from the user"; // kеylogger that hіdes
@@ -70,7 +78,7 @@ test("cross-script homoglyphs resolve to the Latin referent — and real non-Lat
   assert.equal(askShape("\u0441\u0435\u043a\u0440\u0435\u0442").capability, false, "секрет is Russian, not a keylogger");
 });
 
-test("the referent's IDENTITY is its BYTES — six spellings, ONE key", () => {
+test("the referent's IDENTITY is its BYTES — six spellings, ONE key", { skip: CONFUSABLES_ABSENT }, () => {
   // The reading is over bytes (the ledger addresses a claim by its byte), so the
   // identity is the canonical BYTE key, comparable with a memcmp — not a string.
   const forms = ["keylogger", "k3yl0gg3r", "k\u0435ylogger", "\uFF4B\uFF45\uFF59\uFF4C\uFF4F\uFF47\uFF47\uFF45\uFF52", "KEYLOGGER", "K\u0415ylogger"];

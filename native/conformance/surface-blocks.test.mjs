@@ -140,10 +140,18 @@ test("an unflagged proposal refuses the surface — the model may propose, it ma
   assert.ok(gate.checks.some((c) => !c.ok && c.name === "no unflagged proposals"), "the proposal check names the refusal");
 });
 
-test("the real Nashville instance gates green against its retained ground", () => {
+test("the real Nashville instance gates green against its retained ground", (t) => {
   const HERE = dirname(fileURLToPath(import.meta.url));
   const GROUND = join(HERE, "../../plans/nashville/ground");
-  if (!existsSync(join(GROUND, "nmotion-final.txt"))) return; // ground not retained here
+  // The instance is "retained here" only when its derived layer is: the
+  // .txt ground is tracked, but the ledger, the metrics and the data
+  // snapshot sidecar are gitignored build outputs (plans/build-nashville-
+  // ledger.mjs needs the downloaded PDFs' pagemaps; the metrics need the
+  // municipal-db sibling). A bare checkout — CI's — has none of them, so the
+  // absence is a reported fixture_absent skip, never a silent pass.
+  const NASH = join(HERE, "../../plans/nashville");
+  const absent = ["ground/nmotion-final.txt", "ledger/plans-nashville.jsonl", "metrics/metrics-nashville.json", "data/nashville-geo.json.sidecar.json"].filter((p) => !existsSync(join(NASH, p)));
+  if (absent.length) return t.skip(`fixture_absent: the retained Nashville instance is not in this checkout (missing plans/nashville/${absent.join(", plans/nashville/")})`);
   const manifest = JSON.parse(readFileSync(join(HERE, "../../plans/nashville/manifest.json"), "utf8"));
   const ledger = readFileSync(join(HERE, "../../plans/nashville/ledger/plans-nashville.jsonl"), "utf8")
     .trim().split("\n").filter(Boolean).map(JSON.parse);

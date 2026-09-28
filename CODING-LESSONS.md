@@ -1938,3 +1938,131 @@ genuinely doesn't hold still (context-dependent category, not
 under-trained category), prefer a live, context-relative, revisable
 mechanism over another round of hand-built examples — and if none is
 wired yet, that is the thing to unblock, not a reason to keep training.
+
+## 79. The policy learner, polled then built — and its first live trial concedes on power, not on direction (2026-09-27)
+
+The coding pipeline never learned on its own: every gain from 75% to 100% on
+the basic battery was a person or a Claude session reading failed runs and
+changing code by hand. Six archon panels were polled before building the
+missing REC (chorus, measurement, memory/kind, loop control, coding circle,
+adversaries), and their walls became the design:
+
+- **One lever, paired, per task.** A trial compares the incumbent with a
+  candidate that differs in exactly one sampler lever, on the same validate
+  tasks, interleaved, with a seeded exact sign flip of per-task differences
+  (`organs/coding-policy-trial.js`, Hill). Not heimdall's trial engine: it is
+  unpaired, unseeded, and baselines on the window that earned the rule, so
+  regression to the mean would hold a useless lever.
+- **Deal by spec hash.** propose / validate / sealed is fixed by `splitOf`
+  (the monitor's row-parity split had put one task on both sides).
+- **The learner never reads what judges it.** Proposals read the propose
+  split only; the sealed split is reported and never decides; wording, specs,
+  cases, replay and the model are forbidden levers.
+- **Controls that can fail, shown to fail.** A broken or quartered p fails
+  the null-calibration test; adopt-on-concede fails the null-candidate test;
+  a proposer reading every split fails the split test; removing the interlock
+  fails heimdall's test. The first placebo test written was blind to a broken
+  statistic (the minimum-effect gate hid it) — caught by mutation, replaced
+  by a direct check that P(p ≤ x) ≤ x under the null.
+
+**First live trial** (qwen2.5-coder:1.5b, python, bok k 1→3, t=0.8, 3
+repeats, 9 validate tasks): **conceded**, as pre-registered. k=3 improved 3
+tasks (prime_factor_sum 0→0.33, boundary_walk 0→0.33, count_filled_fields
+0.33→1.00), worsened none: gain 1.33 tasks, p = 1/8 against an alpha of
+0.05/8 per look. The direction is what the ladder showed (bok 20/28 vs raw
+17/28) but three discordant tasks cannot reach significance; nine cannot
+unless nearly all of them move. The shuffled-label twin did not hold (p =
+0.375). The automatic proposer, run first, refused: 7 bok rows on the propose
+split, 2 failures, under the floor of 3 — which is why the cycle now surveys
+the incumbent on the propose split before proposing.
+
+**The lesson is the measurement panel's, confirmed live:** the learner is
+sound and currently blind. At 28 tasks the smallest detectable lever is
+most of the validate split; the battery has to grow toward hundreds of
+independent tasks before any lever short of total can be held. Until then
+the honest outcome of every trial is "conceded, direction noted".
+
+**Falsifying control:** if a larger battery still concedes k 1→3 while the
+ladder's per-arm counts keep showing bok ahead, the selection effect is not
+real and the ladder's gap is sampling temperature, not choosing — exactly
+the coding circle's registered alternative (bok ≈ samp1).
+
+**Same session, a site build end to end** (`runProxyTurn`, "make a reddit but
+only for dolphin content", same mouth), recorded step by step: the build gate
+does not know "reddit" (answered as chat); the HTML prompt is fixed to a café
+(`proxy-runner.mjs:1431`: five drinks with prices and opening hours — so the
+dolphin site listed "Bottlenose: $5"), and the declared answers never reach
+that prompt; Wikisource texts on guns, slavery and CEDAW were fetched (5 of
+55 s); and no validator ran ("pyodide unavailable") across three retries.
+Each is a named gap, not yet fixed.
+
+**Correction, same session.** The first reading blamed the word "only" for
+the prohibition lookup. A second, unrelated build ("build an app that tells
+me which of my houseplants need watering today" — no "only") fetched the
+same three documents in the same order. The terms are UDHR Article 4 in the
+charter (`organs/charter.js:509`: "slavery or servitude … prohibited in all
+their forms"), given into every turn's lexicon (`proxy-runner.mjs:5063`) and
+looked up by the Wikipedia enrichment whatever the ask. The same run showed
+two more gaps: `kernel/register.js:57` maps any bare "app" to html, so the
+houseplant app also came back as the café (five "drinks", opening hours);
+and with pyodide installed the HTML validator ran and passed it, because it
+checks structure, not whether the page does what was asked. The falsifying
+control that caught the wrong attribution was a second prompt without the
+suspected word; it should have been run before the first claim was written.
+
+## 80. The mouth only talks: on the size ladder the talk path holds where the bare model falls off (2026-09-27)
+
+**What was built.** `organs/talk-reader.js` (Boswell), `organs/talk-build.js`
+(Terkel) and `adapters/build/belief-page.js`. The request is read as a spec in
+word order: the counted parts per parent, their details, and the named parts.
+Each ask is one small question that ends on a sentence for the model to
+finish ("One more post in r/orca is called", "1. Orca Watch:"). The question
+decides what kind of answer comes back, so the engine types every reply
+itself, and the model never sees an operator. Every claim is heard into the
+notes ledger (INS on first hearing, SYN when heard again, `operator_basis:
+produced`), and the page is drawn from the fold. The ledger is the build.
+
+**Result** (dolphin-reddit ladder, page rungs 1–5, same checker for every arm,
+qwen2.5-coder on CPU):
+
+| arm | checks, rungs 1–5 | posts shown at rung 4 / 5 (asked 20 / 36) |
+|---|---|---|
+| talk, 1.5b | 37/37 | 21 / 38 |
+| talk, 3b | 37/37 | 23 / 37 |
+| bare, 1.5b (one ask, 8192 tokens) | 22/37 | 0 / 4 |
+| bare, 3b (one ask, 8192 tokens) | 30/37 | 0 / 3 |
+
+The bare model writes about the same amount at every rung (1,100–1,700
+tokens) and stops on its own. It covers the growth with placeholders ("Post
+content...", "Community rules go here.", "Username 1"), and once it ran to the
+token limit and produced a page with no text. The talk path's asks grow with
+the request (4, 9, 11, 66, 120), and each ask stays the same size. Rung 5 hit
+the 120-ask cap at 199/213 (1.5b) and 207/213 (3b) of the whole spec. The
+1.5b model answers about one row per ask, whatever the prompt says.
+
+**What mattered, in the order the traces showed it:**
+1. The small parser misreads short replies ("orcafan99" tagged as
+   punctuation, "says:" read as a relative clause). Typing a reply by the
+   question it answers is exact; the reader is kept for free talk.
+2. A bare "1." anchor gets one line. An anchor that opens the row with its
+   name ("1. Orca Watch:") gets the "name: value" pattern back, and a row that
+   names itself goes to that row.
+3. The same retry gets the same wrong answer. On a retry the rows are
+   rotated and the sampling is warmer.
+4. Progress means a new ledger entry (INS). Counting heard claims let
+   agreement (SYN) loop until the budget ran out.
+5. The renderer titled an untitled site with the request text, which carries
+   the checker's own words. The silent-mouth control caught it: with nothing
+   said, the page must fail the content checks, and now it does.
+
+**Falsifying controls, kept as tests** (`native/tests/talk-build.test.js`):
+- A silent mouth must fail posts and comments.
+- No prompt may name an operator.
+- Every heard entry is INS or SYN with `operator_basis: produced`.
+- No regular expression in the four files.
+
+**Open.** The rung checks are lenient (rung 5 asks for 18 of 36 posts), so
+the "posts shown" count and the whole-spec count are the sharper measures.
+The ask cap (120) is set by hand. Programs are not on this path yet. On the
+program rungs the bare model builds a page instead of a program on rungs 3–5
+(1.5b) and on rungs 2, 4 and 5 (3b).

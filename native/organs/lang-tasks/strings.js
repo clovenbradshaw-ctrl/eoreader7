@@ -44,4 +44,17 @@ export const NEW_TASKS = [
       ruby: "def __F__(s)\n  s.length.downto(0) do |k|\n    p = s[0, k]\n    return s[k..].reverse + s if p == p.reverse\n  end\n  s\nend",
     },
   },
+  {
+    // Added after the fact: solved via bok in a session but, until now, backed only by a ledger
+    // row with no durable definition. References checked against a brute-force implementation.
+    id: "longest_unique_substring", snake: "longest_unique_substring",
+    spec: "Write a function longest_unique_substring that takes a string s and returns the length of the longest stretch of consecutive characters in s in which no character appears more than once. Upper and lower case letters count as different characters, and an empty string gives 0.",
+    cases: [{ args: ["abcabcbb"], expect: 3 }, { args: ["bbbbb"], expect: 1 }, { args: [""], expect: 0 }, { args: ["pwwkew"], expect: 3 }, { args: ["abcdef"], expect: 6 }, { args: ["abba"], expect: 2 }, { args: ["aA"], expect: 2 }, { args: ["dvdf"], expect: 3 }, { args: ["tmmzuxt"], expect: 5 }],
+    ref: {
+      javascript: "const __F__ = (s) => {\n  const last = new Map();\n  let best = 0, start = 0;\n  for (let i = 0; i < s.length; i++) {\n    if (last.has(s[i]) && last.get(s[i]) >= start) start = last.get(s[i]) + 1;\n    last.set(s[i], i);\n    best = Math.max(best, i - start + 1);\n  }\n  return best;\n};",
+      typescript: "const __F__ = (s: string): number => {\n  const last = new Map<string, number>();\n  let best: number = 0, start: number = 0;\n  for (let i = 0; i < s.length; i++) {\n    const p = last.get(s[i]);\n    if (p !== undefined && p >= start) start = p + 1;\n    last.set(s[i], i);\n    best = Math.max(best, i - start + 1);\n  }\n  return best;\n};",
+      python: "def __F__(s):\n    last = {}\n    best = 0\n    start = 0\n    for i, c in enumerate(s):\n        if c in last and last[c] >= start:\n            start = last[c] + 1\n        last[c] = i\n        best = max(best, i - start + 1)\n    return best",
+      ruby: "def __F__(s)\n  last = {}\n  best = 0\n  start = 0\n  s.each_char.with_index do |c, i|\n    start = last[c] + 1 if last.key?(c) && last[c] >= start\n    last[c] = i\n    best = [best, i - start + 1].max\n  end\n  best\nend",
+    },
+  },
 ];

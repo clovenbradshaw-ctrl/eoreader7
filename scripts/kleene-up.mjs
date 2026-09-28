@@ -20,7 +20,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { reduceRegex, wordSet } from "../native/kernel/kleene-up.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -63,7 +63,7 @@ const isCode = (p) => /\.(mjs|js|cjs)$/.test(p) && !SKIP_FILES.has(path.basename
 // shebang line (`#!`) is never a regex.
 const REGEX_PRECEDERS = new Set(["(", ",", "=", ":", "[", "!", "&", "|", "?", "{", "}", ";", "+", "-", "*", "%", "~", "^", "<", ">", "\n"]);
 const REGEX_START = /^\/((?:[^/\\\n]|\\.)*)\/([a-z]*)/;
-function scanRegexes(code) {
+export function scanRegexes(code) {
   const out = [];
   const lines = code.split("\n");
   const ctorRe = /new\s+RegExp\(\s*["']((?:\\.|[^"'])*)["']\s*(?:,\s*["']([a-z]*)["'])?\s*\)/g;
@@ -226,4 +226,6 @@ function main() {
   }
 }
 
-main();
+// Run as a script only; importing it (native/tests/build-check.test.js reads
+// scanRegexes to hold the build battery's own code to zero regex) must not sweep.
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) main();

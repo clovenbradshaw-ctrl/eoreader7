@@ -2,7 +2,16 @@
 // copies are findings, boilerplate is replication, and provenance is recorded.
 import { test } from "node:test";
 import assert from "node:assert";
-import { copyFindings, replicationNotes, provenanceFor, annotateWithSources } from "../organs/martial.js";
+import { copyFindings, replicationNotes, provenanceFor, annotateWithSources, loadCodeNamePrior } from "../organs/martial.js";
+
+// Genericity is read from the CodeNamePrior@1 baseline, which organs/martial.js
+// loads from the live_priors sibling repo (derived-priors/code-priors/
+// code-name-prior-v1.json). CI does not check that repo out; without it the
+// organ discloses prior: "no-code-name-prior" and can call no name generic, so
+// the two tests about generic names skip by name with this reason rather than
+// asserting on a prior that is not there (precedent: tests/rich-referents.test.js,
+// conformance/aliases-referent.test.mjs).
+const CODE_NAME_PRIOR_ABSENT = loadCodeNamePrior() ? undefined : "live_priors sibling absent — CodeNamePrior@1 (code-name-prior-v1.json) lives there";
 
 const DISTINCTIVE = "def quicksort_engine(a):\n    if len(a) <= 1: return a\n    p = a[len(a)//2]\n    return quicksort_engine([x for x in a if x < p]) + [x for x in a if x == p] + quicksort_engine([x for x in a if x > p])\n";
 
@@ -12,13 +21,13 @@ test("a distinctive copied holon is a finding", () => {
   assert.ok(r.findings.some((f) => f.similarity >= 0.9));
 });
 
-test("boilerplate composed of generic names is replication, not copying (low sets possibility for high)", () => {
+test("boilerplate composed of generic names is replication, not copying (low sets possibility for high)", { skip: CODE_NAME_PRIOR_ABSENT }, () => {
   const boiler = "def main():\n    return run()\n\ndef run():\n    return 0\n";
   const r = copyFindings(boiler, { sources: [boiler] });
   assert.equal(r.findings.length, 0);
 });
 
-test("generic shapes are noted as replicable", () => {
+test("generic shapes are noted as replicable", { skip: CODE_NAME_PRIOR_ABSENT }, () => {
   const n = replicationNotes("def main():\n    pass\n");
   assert.ok(n.notes.some((x) => x.name === "main"));
 });
