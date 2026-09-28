@@ -4,7 +4,7 @@ learn all things, both the abiding essence of per-
 suasive truth, and men’s opinions in which rests 
 no true belief.”
  *
- * `the-fold/aletheia.js` serves as the foundation for the concept of "unconcealment" in the context of this project.  While I acknowledge the importance of uncovering truth, I believe that the pursuit of "unconcealment" should be grounded in a careful, reasoned approach, not merely a blind, uncritical acceptance of any given assertion.
+ * `eoreader7/native/organs/aletheia.js` serves as the foundation for the concept of "unconcealment" in the context of this project.  While I acknowledge the importance of uncovering truth, I believe that the pursuit of "unconcealment" should be grounded in a careful, reasoned approach, not merely a blind, uncritical acceptance of any given assertion.
  *
  * — the engineering record below, kept whole —
  */

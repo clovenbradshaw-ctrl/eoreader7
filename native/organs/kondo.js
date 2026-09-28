@@ -58,8 +58,9 @@ export const KINDS = Object.freeze({
   WINDOW_SPLIT: "window-split",
 });
 
-/** A unit of one word has no company to repeat — binding's own structural
- *  minimum (arrivals >= 2), reused rather than chosen. */
+/** A unit of one word has no company to repeat — the giver is binding's own
+ *  structural minimum (arrivals >= 2), derived there and reused here rather
+ *  than chosen. */
 export const UNIT_FLOOR = 2;
 
 /**

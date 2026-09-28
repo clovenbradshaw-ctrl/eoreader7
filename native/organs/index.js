@@ -213,3 +213,15 @@ export { ELENCHUS, ELENCHUS_BANK, elenchusRow, questionFor, gateCrown } from "./
 export * as elenchus from "./elenchus.js";
 export { resolveDate, surfacesOfDate, makeParmenidesForms } from "./parmenides-forms.js";
 export * as parmenidesForms from "./parmenides-forms.js";
+
+// ---- the coupled archon organs, moved down from the-fold (2026-09-28). Each imports no surface: what it needs from one is injected (passage-comparison, activation-retrieval, solon) or mirrored under a pinned test (huginn).
+export { logos, LEDGER_LINT_STRICTNESS, LEDGER_LINT_MAX_FINDINGS, ledgerLint, functionalConflicts, questionCycle } from "./logos.js";
+export * as logosOrgan from "./logos.js";
+export { JOB_KINDS, CANDIDATE_KINDS, HOP_FAILURE_KINDS, hopEligible, EWMA_ALPHA, candidateOf, roomCandidateOf, roomCandidatesFrom, emptyEvidence, huginnObserve, isSelfServed, huginnPrioritize, huginnHopAfter, huginnDecision } from "./huginn.js";
+export * as huginn from "./huginn.js";
+export { makePassageComparison } from "./passage-comparison.js";
+export * as passageComparison from "./passage-comparison.js";
+export { bindActivationRetrieval } from "./activation-retrieval.js";
+export * as activationRetrieval from "./activation-retrieval.js";
+export { solonLogPath, KEEPER_MARKER, auditEnforcementMap, classifyResultsDoc, referencedBy, auditResults, diffFailures, readTail, scanResultsDir, runSuite, rootFiles, foldTestBodies, auditRecordDir, runLiveSweep, createKeeper, startServer } from "./solon.js";
+export * as solon from "./solon.js";

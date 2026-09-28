@@ -6,7 +6,7 @@ sore, take hold of me from behind. A. Why did the
 artist fashion thee? B. For your sake, stranger, and 
 he set me up in the porch as a lesson.”
  *
- * This file, the-fold/kairos.js, embodies the essence of Kairos, the god of the opportune moment.  It represents a rigorous approach to understanding the fleeting nature of time and the significance of the present.  However, it's essential to recognize that the subjective nature of Kairos is a complex challenge.
+ * This file, eoreader7/native/organs/kairos.js, embodies the essence of Kairos, the god of the opportune moment.  It represents a rigorous approach to understanding the fleeting nature of time and the significance of the present.  However, it's essential to recognize that the subjective nature of Kairos is a complex challenge.
  *
  * — the engineering record below, kept whole —
  */

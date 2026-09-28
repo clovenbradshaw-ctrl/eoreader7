@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solon — the Integrity archon</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #0e1113; color: #d7dde0; font: 13px/1.5 ui-monospace, Menlo, monospace; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 20px 80px; }
+  header { display: flex; align-items: baseline; gap: 12px; border-bottom: 1px solid #2a3237; padding-bottom: 12px; margin-bottom: 16px; }
+  h1 { font-size: 16px; margin: 0; letter-spacing: .12em; }
+  h1 span { color: #8b949e; font-weight: normal; }
+  .pulse { display: inline-flex; align-items: center; gap: 8px; margin-left: auto; font-size: 12px; color: #8b949e; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #3b454c; }
+  .dot.live { background: #3fb950; box-shadow: 0 0 8px #3fb95088; }
+  .dot.stale { background: #f85149; box-shadow: 0 0 8px #f8514988; }
+  .dot.unknown { background: #d29922; }
+  h2 { font-size: 12px; letter-spacing: .1em; color: #8b949e; margin: 22px 0 8px; text-transform: uppercase; }
+  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+  .card { border: 1px solid #232a30; border-radius: 8px; padding: 12px 14px; background: #14181b; }
+  .card .name { font-size: 12px; color: #8b949e; letter-spacing: .06em; }
+  .card .verdict { font-size: 14px; font-weight: 600; margin: 4px 0; }
+  .ok { color: #3fb950; } .bad { color: #f85149; } .warn { color: #d29922; }
+  .card .evidence { color: #a3aab1; font-size: 12px; white-space: pre-wrap; word-break: break-word; max-height: 96px; overflow: auto; }
+  .meta { color: #8b949e; font-size: 11px; margin-top: 18px; }
+  .tail { font-size: 11px; color: #a3aab1; border-top: 1px dashed #232a30; padding-top: 10px; }
+  .tail div { white-space: pre-wrap; word-break: break-word; }
+  .tail .t { color: #8b949e; }
+  .ashby { border: 1px solid #2a3237; border-radius: 8px; padding: 12px 14px; background: #101417; }
+  .ashby b { color: #d7dde0; }
+  .offline { color: #d29922; padding: 20px; border: 1px dashed #2a3237; border-radius: 8px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>SOLON <span>— the Integrity archon</span></h1>
+    <span class="pulse"><span class="dot unknown" id="dot"></span><span id="beat">connecting…</span></span>
+  </header>
+
+  <p style="color:#8b949e;font-size:12px;margin:0 0 4px;">
+    DEF → EVA → REC over the record: the constitution's enforcement map read by tests,
+    every eval result enforced, the failure set the same by name, the record replaying.
+    The keeper heartbeats; <b style="color:#a3aab1">Ashby</b> reads the log file and watches the watcher.
+  </p>
+
+  <h2>Vital signs</h2>
+  <div class="cards" id="cards">
+    <div class="card"><div class="name">suite</div><div class="verdict warn">…</div><div class="evidence"></div></div>
+    <div class="card"><div class="name">enforcement map</div><div class="verdict warn">…</div><div class="evidence"></div></div>
+    <div class="card"><div class="name">results enforcement</div><div class="verdict warn">…</div><div class="evidence"></div></div>
+    <div class="card"><div class="name">record replay</div><div class="verdict warn">…</div><div class="evidence"></div></div>
+  </div>
+
+  <h2>The primus — Ashby, watching the watcher</h2>
+  <div class="ashby" id="ashby">…</div>
+
+  <h2>Log tail (the record, as appended)</h2>
+  <div class="tail" id="tail">…</div>
+
+  <div class="meta" id="meta">…</div>
+</main>
+<script>
+const card = (name, verdict, evidence, cls) => {
+  const el = document.createElement("div");
+  el.className = "card";
+  el.innerHTML = `<div class="name">${name}</div><div class="verdict ${cls}">${verdict}</div><div class="evidence"></div>`;
+  el.querySelector(".evidence").textContent = evidence;
+  return el;
+};
+const clsFor = (v) => (/clean|honest|alive|holds|enforced|up/.test(v) ? "ok" : /stale|failed|none/.test(v) ? "bad" : "warn");
+
+async function refresh() {
+  const box = document.getElementById("cards");
+  let st;
+  try {
+    const r = await fetch("./solon", { cache: "no-store" });
+    if (!r.ok) throw new Error("http " + r.status);
+    st = await r.json();
+  } catch (e) {
+    document.getElementById("dot").className = "dot stale";
+    document.getElementById("beat").textContent = "keeper down";
+    box.replaceChildren();
+    const d = document.createElement("div");
+    d.className = "offline";
+    d.textContent = "The Solon keeper is not running — a dead watcher is a finding, not a page. Start it with:  scripts/solon-keeper.sh start";
+    box.appendChild(d);
+    return;
+  }
+
+  const hb = st.heartbeat || {};
+  const age = hb.ageMs == null ? "never" : (hb.ageMs / 1000).toFixed(0) + "s ago";
+  const dot = document.getElementById("dot");
+  dot.className = "dot " + (st.ashby?.watcher === "watcher_alive" ? "live" : "stale");
+  document.getElementById("beat").textContent =
+    "beat " + (hb.lastBeatAt == null ? "none" : age) + " · seq " + (st.seq ?? 0) +
+    (st.ashby?.watcher === "watcher_alive" ? "" : " · WATCHER " + (st.ashby?.watcher ?? "?") + " — Ashby");
+
+  box.replaceChildren();
+  const sw = st.sweep;
+  if (!sw) {
+    const d = document.createElement("div");
+    d.className = "offline";
+    d.textContent = "No sweep yet — the first sweep runs at keeper start.";
+    box.appendChild(d);
+  } else {
+    const vs = sw.verdicts;
+    const suite = vs.suite;
+    let suiteVerdict, suiteEvidence, suiteCls;
+    if (suite.deferred) {
+      suiteVerdict = "deferred";
+      suiteEvidence = "the watcher will not create the load it measures — load " +
+        (suite.loadavg ? suite.loadavg.toFixed(1) : "?") + " > " + suite.parallelism + " parallel";
+      suiteCls = "warn";
+    } else {
+      suiteVerdict = suite.ok ? "clean" : suite.failures.length + " failing";
+      suiteEvidence = suite.ok
+        ? "0 failing" +
+          (suite.diff && !suite.diff.clean ? " · diff: " + ["added:" + suite.diff.added.join(","), "fixed:" + suite.diff.fixed.join(",")].filter(s => !s.endsWith(":")).join(" ") : "")
+        : (suite.failures.slice(0, 12).join("\n") || "suite failed");
+      suiteCls = clsFor(suite.ok ? "clean" : "fail");
+    }
+    box.appendChild(card("suite", suiteVerdict, suiteEvidence, suiteCls));
+
+    const mp = vs.map;
+    box.appendChild(card("enforcement map", mp.verdict, mp.failures.length ? mp.failures.map(f => f.article + " — " + f.why).join("\n") : mp.enforcedRows + " enforced rows read by tests · " + mp.unwiredCount + " unwired visible", clsFor(mp.verdict)));
+
+    const rs = vs.results;
+    box.appendChild(card("results enforcement", rs.verdict + " · " + rs.unenforcedCount + " unenforced", (rs.unenforced.slice(0, 24).join("\n") || "") + "\ndelta vs standing: " + rs.delta + " · " + rs.enforcedCount + "/" + rs.transcriptionCount + " enforced", clsFor(rs.verdict)));
+
+    const rc = vs.record;
+    const rcEvidence = rc.verdict === "append_only_holds" ? rc.files + " jsonl files replay" : rc.verdicts.filter(v => v.verdict !== "append_only_holds").map(v => v.file + " — " + (v.firstBad?.why ?? "?")).join("\n");
+    box.appendChild(card("record replay", rc.verdict, rcEvidence, clsFor(rc.verdict)));
+  }
+
+  const ab = st.ashby || {};
+  document.getElementById("ashby").innerHTML =
+    "<div><b>watcher</b>: " + (ab.watcher ?? "?") +
+    " · heartbeats " + (ab.beats ?? 0) + ", sweeps " + (ab.sweeps ?? 0) +
+    " · last beat " + (ab.heartbeat?.ageMs == null ? "never" : (ab.heartbeat.ageMs / 1000).toFixed(0) + "s ago") +
+    " (stale after " + Math.round((ab.heartbeat?.staleAfterMs ?? 0) / 1000) + "s)</div>" +
+    "<div><b>log</b>: " + (ab.log?.verdict ?? "?") + "</div>" +
+    "<div><b>evidence</b>: " + (ab.evidencePresent ? "every sweep carries verdicts" : ab.evidenceMissing + " sweep(s) without verdicts") + "</div>" +
+    "<div><b>controls</b>: " + (ab.controlsPresent ? "the planted controls are in the suite" : "MISSING: " + (ab.controlsMissing ?? []).join(", ")) + "</div>";
+
+  const tail = document.getElementById("tail");
+  tail.replaceChildren();
+  for (const e of (st.tail || [])) {
+    const d = document.createElement("div");
+    d.innerHTML = "<span class='t'>" + new Date(e.at).toISOString().slice(11, 19) + "</span> " + e.event + (e.seq != null ? " #" + e.seq : "") +
+      (e.probe ? " · " + (e.probe.result ?? e.probe.surface) : "") +
+      (e.verdicts ? " · suite " + (e.verdicts.suite?.deferred ? "deferred" : e.verdicts.suite?.ok ? "clean" : (e.verdicts.suite?.failures?.length ?? "?") + " fail") + " · map " + e.verdicts.map?.verdict + " · results " + e.verdicts.results?.unenforcedCount + " unenforced" : "") +
+      (e.error ? " · ERROR " + e.error : "");
+    tail.appendChild(d);
+  }
+
+  document.getElementById("meta").textContent =
+    "at " + new Date(st.at).toISOString() + " · sweep age " +
+    (st.heartbeat?.sweepAgeMs == null ? "none yet" : (st.heartbeat.sweepAgeMs / 1000).toFixed(0) + "s") +
+    " · sweep skipped " + (st.heartbeat?.sweepSkipped ?? 0) + " · served by the keeper on the loopback only";
+}
+
+refresh();
+setInterval(refresh, 4000);
+</script>
+</body>
+</html>
