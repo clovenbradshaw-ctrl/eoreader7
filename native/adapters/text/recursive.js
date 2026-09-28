@@ -372,16 +372,28 @@ function admittedRelationVerbs(store, minSurfaces, posPrior, language = null) {
   // is undeclared, falls open exactly as before (P41's posture: silence
   // convicts nothing).
   if (posPrior && (!posPrior.language || !language || posPrior.language === language)) {
-    const forms = posPrior.forms ?? posPrior;
-    for (const [form, tags] of Object.entries(forms)) {
-      const counts = Object.values(tags);
-      const total = counts.reduce((a, b) => a + b, 0);
-      if (!total) continue;
-      const verbish = (tags.VERB ?? 0) + (tags.AUX ?? 0);
-      if (verbish / total >= GRAMMAR_MIN_SHARE) verbs.add(form);
-    }
+    for (const form of receivedVerbTier(posPrior)) verbs.add(form);
   }
   return verbs;
+}
+// The received tier is a fact about the PRIOR, not the material: the same
+// ~16k-form table answered the same way on every reprojection (profiled at
+// 7.8% of a 400KB read, 2026-09-28). Derived once per prior object, kept
+// weakly, in the prior's own iteration order — byte-identical to the loop.
+const RECEIVED_VERB_TIERS = new WeakMap();
+function receivedVerbTier(posPrior) {
+  const hit = RECEIVED_VERB_TIERS.get(posPrior); if (hit) return hit;
+  const forms = posPrior.forms ?? posPrior;
+  const tier = [];
+  for (const [form, tags] of Object.entries(forms)) {
+    const counts = Object.values(tags);
+    const total = counts.reduce((a, b) => a + b, 0);
+    if (!total) continue;
+    const verbish = (tags.VERB ?? 0) + (tags.AUX ?? 0);
+    if (verbish / total >= GRAMMAR_MIN_SHARE) tier.push(form);
+  }
+  RECEIVED_VERB_TIERS.set(posPrior, tier);
+  return tier;
 }
 
 /**
