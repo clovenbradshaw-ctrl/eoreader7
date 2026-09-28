@@ -309,6 +309,19 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         // name and are not named by it) — name-spans.js decides: every token a
         // title, a particle or a capitalised name token, determiners aside.
         const where = resolveLocus && headText && nameShaped(headText) ? resolveLocus(sentence, { start: compStart, end: compStart + headText.length }, headText) : null;
+        // LOCUS-SIDE BEING-KIND (2026-09-28, the counterpart of BEING_KIND on the
+        // occupant): a locus the cast did not resolve must at least be NOMINAL
+        // — its head phrase's last word, where the received POS prior settles
+        // it, carries some NOUN/PROPN share. A word the prior settles with none
+        // ("the latter": ADJ alone) names no position; "general" (ADJ 32, NOUN
+        // 6, PROPN 10) is allowed — an asymmetric veto, never a NOUN-dominance
+        // test, because the prior's dominant class of "count" is VERB. Read only
+        // with a prior injected; a word the prior never saw is not refused.
+        if (!where && posPrior) {
+          const lastWord = (locus.split(headCut)[0].trim().split(/\s+/).pop() ?? "").replace(/[^\p{L}’'-]/gu, "");
+          const tags = posPrior.forms?.[lastWord.toLowerCase()] ?? null;
+          if (tags && !((tags.NOUN ?? 0) + (tags.PROPN ?? 0) > 0)) { refused.push({ at, reason: "locus_not_nominal", occupant: occupantSurface, complement: comp.slice(0, 80), word: lastWord, classes: Object.keys(tags) }); break; }
+        }
         let pred = predecessor;
         if (predecessor && ms) { const ps = cStart + clause.indexOf(predecessor); const hit = ms.find((x) => x.start >= ps && x.end <= ps + predecessor.length); if (hit) pred = hit.referent; }
         // THE ACT, on the cube (phasepost.js injected, an overlay never a gate):
@@ -423,4 +436,47 @@ export function nestedOccupants(standings, faceOf, pairKey, opts) {
     if (n.level === "full") nested.add(k); else if (n.level !== "none") ambiguous.add(k);
   } }
   return Object.assign(nested, { ambiguous, levels });
+}
+
+// ── naming as testimony (2026-09-28, "Cyril: still unheard — named by his title, never predicated into it") ──
+// v11's own finding: the old count is never the subject of a transition into
+// his title; the material NAMES him with it — "Count Cyril Vladímirovich
+// Bezúkhov". A name that carries a locus's own title and head, with givens
+// the locus's known occupants do not wear, is testimony that a DISTINCT
+// being held the locus: signed, never predicated (SIG·Ground — presence,
+// declared by the family), and positionsByPattern is not handed it —
+// `namedOccupants` returns its own rows for kernel/merge-standing.js's
+// occupant slot to weigh beside the predicated standings. A naming that
+// nests (full / prefix / given) with a known occupant's own face is that
+// occupant named again, never a second being; only `none` against every
+// known face is a new one — S17's rule, the names' own levels.
+export function namedOccupants(sentences, candidates, { source, mentions = null, nameOpts = {}, cellOf = null } = {}) {
+  if (source == null) throw new TypeError("occupancy-testimony: 'source' must be declared");
+  const loci = new Map();
+  for (const c of candidates) {
+    const spans = nameSpans(c.locusSurface ?? String(c.locus), nameOpts);
+    const title = spans.find((x) => x.relation === "title" && x.start === 0), head = spans.find((x) => x.relation === "head");
+    if (!title || !head || spans.some((x) => x.relation === "given")) continue; // only a title + head locus ("Count Bezúkhov") names by title
+    const k = `${title.key}|${head.key}`;
+    if (!loci.has(k)) loci.set(k, { title, head, locus: c.locus, locusId: c.locusId ?? null, locusSurface: c.locusSurface ?? String(c.locus), faces: new Set() });
+    loci.get(k).faces.add(c.occupantSurface ?? String(c.occupant));
+  }
+  const named = [];
+  for (const sentence of sentences) {
+    const { at } = sentence; const text = String(sentence.text).replace(/[\r\n]/g, " ");
+    for (const L of loci.values()) {
+      const re = new RegExp(`(?<![\\p{L}’'])${esc(L.title.text)}\\s+(?<run>(?:${CAP}\\s+){1,3})${esc(L.head.text)}(?![\\p{L}])`, "gu");
+      for (const m of text.matchAll(re)) {
+        const surface = m[0].trim();
+        const levels = [...L.faces].map((f) => nameNesting(surface, f, nameOpts).level);
+        if (levels.some((l) => l !== "none")) continue; // a known occupant, named again
+        const ms = mentions ? [...(mentions(sentence) ?? [])] : [];
+        const hit = ms.find((x) => x.start <= m.index && x.end >= m.index + m[0].length);
+        named.push({ occupant: hit?.referent ?? surface, occupantVia: hit ? "naming+cast" : "naming", occupantSurface: surface, locus: L.locus, locusId: L.locusId, locusVia: "naming", locusSurface: L.locusSurface, predecessor: null, pattern: "naming", verb: null,
+          act: { op: "SIG", grain: "Ground", cell: cellOf ? cellOf("SIG", "Ground") : null, standing: "declared", because: "a naming signs a being into a locus's title — presence, never a transition (direction 2026-09-28: named by his title, never predicated into it)" },
+          identity: null, at, address: `${source}#s${at}`, year: /\b(1[0-9]{3}|20[0-9]{2})\b/u.exec(text)?.[1] ?? null, clause: text.trim().slice(0, 200), evidence: "named_by_title" });
+      }
+    }
+  }
+  return named;
 }

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { nameSpans, nameNesting } from "../adapters/text/name-spans.js";
+import { nameSpans, nameNesting, PATRONYMIC_RU } from "../adapters/text/name-spans.js";
 
 test("a name is a tree: the head is the root, titles / particles / givens subordinate to it", () => {
   const s = nameSpans("Count Cyril Vladímirovich Bezúkhov");
@@ -27,4 +27,20 @@ test("the walls surfaces.js learned the hard way, read off structure instead of 
   assert.equal(nameNesting("Bezúkhov", "Pierre Bezúkhov").level, "head");
   assert.equal(nameNesting("Pierre", "Pierre Bezúkhov").level, "given");
   assert.equal(nameNesting("Natasha", "Pierre Bezúkhov").level, "none");
+});
+
+test("the patronymic class (2026-09-28): declared per language, never on by default; never a head; compared in its place", () => {
+  const ru = { patronymic: PATRONYMIC_RU };
+  assert.deepEqual(nameSpans("Count Cyril Vladímirovich Bezúkhov", ru).map((x) => x.relation), ["title", "given", "patronymic", "head"]);
+  assert.deepEqual(nameSpans("Katerina Ivanovna", ru).map((x) => [x.text, x.relation]), [["Katerina", "head"], ["Ivanovna", "patronymic"]], "with no family name the given is the head, the patronymic subordinate");
+  assert.deepEqual(nameSpans("Katerina Ivanovna").map((x) => x.relation), ["given", "head"], "undeclared, byte-identical to before");
+  assert.equal(nameSpans("Aldrich", ru)[0].relation, "head", "an English family name in -ich is not long enough for the class");
+  // T5 again, now read as two heads under one father: still none
+  assert.equal(nameNesting("Katerina Ivanovna", "Alyona Ivanovna", ru).level, "none");
+  // given + patronymic is a first-name reference narrowed to one father
+  const n = nameNesting("Cyril Vladímirovich", "Count Cyril Vladímirovich Bezúkhov", ru);
+  assert.equal(n.level, "given"); assert.equal(n.patronymicAgrees, true);
+  assert.equal(nameNesting("Cyril Ivanovich", "Count Cyril Vladímirovich Bezúkhov", ru).level, "none", "the same given under two fathers is two beings");
+  assert.equal(nameNesting("Cyril Bezúkhov", "Count Cyril Vladímirovich Bezúkhov", ru).level, "prefix", "a dropped patronymic is a dropped middle part — not decidable from the names");
+  assert.equal(nameNesting("Pierre Bezúkhov", "Count Cyril Vladímirovich Bezúkhov", ru).level, "none");
 });

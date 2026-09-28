@@ -244,10 +244,32 @@
 //        rows — Kutúzov = Bennigsen is gone (it was an inversion)
 //   Z25  Material A: entry 33, state 24 (v12's six stolen rows return to
 //        state_not_position — none was ever a standing)
+// V14, PRE-REGISTERED 2026-09-28 after v13 (output -v14.json, same cap). TWO
+// organs, both opt-in by injection and both live here: (a) locus-side
+// being-kind — a complement head the POS prior settles with NO noun/propn
+// share names no position (`locus_not_nominal`, asymmetric veto); (b)
+// naming as testimony — `namedOccupants`: a name carrying a locus's own
+// title and head with givens no known occupant wears is a SIGNED occupant
+// (SIG·Ground), patronymics typed by PATRONYMIC_RU. Predictions:
+//   Z26  locus_not_nominal fires somewhere on Material A or the live texts;
+//        every vetoed word has zero NOUN+PROPN share in POS_PRIOR (by
+//        construction — reported, not the test); THE TEST: no vetoed
+//        complement was a POSITION in v13 (a locus with two occupants or a
+//        pointer in v13's standings) — the veto removes no real position
+//   Z27  War and Peace: namedOccupants yields a row whose surface matches
+//        /Cyril Vlad.*Bez[uú]khov/ at the locus matching /Count Bez[uú]khov/;
+//        CONTROL BUILT TO FAIL: the same sentences with every "Count" written
+//        "Prince" yield zero rows at that locus (the title is the lead)
+//   Z28  War and Peace: the Bezúkhov slot, with Cyril's naming row added to
+//        its occupants, collapses to `contested` under NESTED_NAMES (Pierre's
+//        faces nest; Cyril's nests with none) — no longer `one_being`, and
+//        never `position` from the names alone; the predicated-only slot
+//        (v13's) still reads `one_being`
 //   node occupancy-host-eval.mjs [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
-const { readOccupancyTestimony, positionsByPattern, NEAREST_ESTABLISHED, nestedOccupants, nameShaped } = await import(`${NATIVE}/adapters/text/occupancy-testimony.js`);
+const { readOccupancyTestimony, positionsByPattern, NEAREST_ESTABLISHED, nestedOccupants, nameShaped, namedOccupants } = await import(`${NATIVE}/adapters/text/occupancy-testimony.js`);
+const { PATRONYMIC_RU } = await import(`${NATIVE}/adapters/text/name-spans.js`);
 const { collapse } = await import(`${NATIVE}/kernel/undecided.js`);
 const { mergeEvidence, occupantPairKey } = await import(`${NATIVE}/kernel/merge-standing.js`);
 const { deriveIdentityRevision } = await import(`${NATIVE}/kernel/identity.js`);
@@ -401,6 +423,14 @@ function readText({ name, text, links }) {
   const identityClaims = real.candidates.filter((c) => c.identity).map((c) => ({ surface: c.occupant, into: c.identity.into, witness: c.address, basis: c.identity.basis }));
   const nested = nestedOccupants(identityStandings, (id) => face(id), occupantPairKey);
   const evidence = mergeEvidence({ merges: [...merges, ...identityClaims], standings: identityStandings, witness: `${name}#cast`, minOccupants: 2, nested });
+  // NAMING AS TESTIMONY (v14): the signed occupants, and the slot re-collapsed with them among the occupants
+  const nameOpts = { patronymic: PATRONYMIC_RU };
+  const named = namedOccupants(sentences, real.candidates, { source: name, mentions, nameOpts, cellOf });
+  const namedStandings = [...identityStandings, ...named.filter((n) => n.locusId).map((n) => ({ locus: n.locusId, occupant: n.occupant, witness: n.address }))];
+  const nestedNamed = nestedOccupants(namedStandings, (id) => face(id), occupantPairKey, nameOpts);
+  const evidenceNamed = mergeEvidence({ merges: [...merges, ...identityClaims], standings: namedStandings, witness: `${name}#cast`, minOccupants: 2, nested: nestedNamed, ambiguous: nestedNamed.ambiguous });
+  const namedControl = namedOccupants(sentences.map((x) => ({ ...x, text: x.text.replace(/\bCount\b/g, "Prince") })), real.candidates, { source: name, mentions, nameOpts, cellOf });
+  const naming = { rows: named.map((n) => ({ occupant: face(n.occupant), via: n.occupantVia, surface: n.occupantSurface, locus: n.locus, locusId: n.locusId, at: n.at, clause: n.clause.slice(0, 120) })), controlRows: namedControl.length, slots: evidenceNamed.collapses.map((c) => ({ locus: c.of, verdict: c.verdict, chosen: c.chosen?.value ?? null, rule: c.rule.name, reason: c.reason })) };
   const revision = deriveIdentityRevision({ fold: receivedGround(), supports: evidence.supports, attacks: evidence.attacks, giver: "occupancy testimony via kernel/merge-standing.js" });
   const splits = revision.operations.filter((o) => o.operator === "SEG").map((o) => ({ identity: o.consequence?.identity, reason: o.consequence?.reason, witness: o.witness }));
   const identity = { merges: merges.length, positions: evidence.positions.map((p) => ({ locus: p.locus, occupants: p.occupants })), attacks: evidence.attacks.length, splits, slots: evidence.collapses.map((c) => ({ locus: c.of, verdict: c.verdict, chosen: c.chosen?.value ?? null, rule: c.rule.name, reason: c.reason })), withheld: evidence.withheld, occupantHypotheses: evidence.supports.filter((x) => /one_being_under_names/.test(x.reason)).map((x) => `${x.left} <-> ${x.right}`), foldAlternatives: applyDelta(receivedGround(), revision).unresolvedAlternatives.filter((x) => x.schema === "EOIdentityAlternative@1" && x.standing === "distinct").map((x) => `${x.left} <-> ${x.right}`), liveAlternatives: applyDelta(receivedGround(), revision).unresolvedAlternatives.filter((x) => x.schema === "EOIdentityAlternative@1" && x.standing === "live_hypothesis" && x.supportRefs?.some?.((w) => !/#cast$/.test(String(w)))).map((x) => `${x.left} <-> ${x.right}`), identityClaims: identityClaims.map((x) => `${face(x.surface)} = ${face(x.into)} @${x.witness}`) };
@@ -411,7 +441,7 @@ function readText({ name, text, links }) {
   const surname = name ? name.replace(/\s*\(.*\)$/, "").split(/\s+/).at(-1) : null;
   const topic = surname ? cast.referents.find((r) => r.surfaces.includes(surname) || r.surfaces.includes(name)) : null;
   const months = cast.referents.filter((r) => r.surfaces.some((x) => /^(January|February|March|April|May|June|July|August|September|October|November|December)$/.test(x)));
-  return { name, identity, rows, looseRows: loose.candidates.map(rowOf), real, loose, ablation, topicRef: topic ? `${name}/${topic.id}` : null, companyTopic: topic ? company.get(topic.id) : null, companyMonths: months.map((r) => ({ surface: r.surfaces[0], ...company.get(r.id) })), cast: { referents: cast.referents.length, pronounBindings: cast.pronounBindings.length, pronounGaps: (cast.pronounGaps ?? []).length, sentences: cast.sentences.length, gaps: cast.gaps.map((g) => g.reason ?? g) }, seconds: +((Date.now() - t0) / 1000).toFixed(1) };
+  return { name, identity, naming, rows, looseRows: loose.candidates.map(rowOf), real, loose, ablation, topicRef: topic ? `${name}/${topic.id}` : null, companyTopic: topic ? company.get(topic.id) : null, companyMonths: months.map((r) => ({ surface: r.surfaces[0], ...company.get(r.id) })), cast: { referents: cast.referents.length, pronounBindings: cast.pronounBindings.length, pronounGaps: (cast.pronounGaps ?? []).length, sentences: cast.sentences.length, gaps: cast.gaps.map((g) => g.reason ?? g) }, seconds: +((Date.now() - t0) / 1000).toFixed(1) };
 }
 
 // ── Material A ────────────────────────────────────────────────────────────
@@ -461,7 +491,7 @@ for (const [name, path] of Object.entries(B_PATHS)) {
   const r = readText({ name, text, links: [] });
   const pat = positionsByPattern(r.real.candidates);
   const faces = new Map(r.rows.map((x) => [x.occupantId, x.occupant]));
-  B[name] = { identity: r.identity, invertedNamed: r.real.refused.filter((x) => x.reason === "inverted_subject").map((x) => x.subject), standings: r.rows.length, positions: pat.positions.map((p) => ({ locus: p.locus, occupants: p.occupants.map((o) => faces.get(o) ?? o), evidence: p.evidence })), refused: tally(r.real.refused, (x) => x.reason), via: tally(r.rows, (x) => x.via), ablationStandings: r.ablation.candidates.length, cast: r.cast, seconds: r.seconds, rows: r.rows, refusedNamed: r.real.refused.filter((x) => /chaplain|Professor|Gorbachev|Bez[uú]khov/i.test(`${x.clause ?? ""} ${x.complement ?? ""}`)).slice(0, 8) };
+  B[name] = { identity: r.identity, naming: r.naming, notNominal: r.real.refused.filter((x) => x.reason === "locus_not_nominal").map((x) => ({ word: x.word, complement: x.complement, classes: x.classes })), invertedNamed: r.real.refused.filter((x) => x.reason === "inverted_subject").map((x) => x.subject), standings: r.rows.length, positions: pat.positions.map((p) => ({ locus: p.locus, occupants: p.occupants.map((o) => faces.get(o) ?? o), evidence: p.evidence })), refused: tally(r.real.refused, (x) => x.reason), via: tally(r.rows, (x) => x.via), ablationStandings: r.ablation.candidates.length, cast: r.cast, seconds: r.seconds, rows: r.rows, refusedNamed: r.real.refused.filter((x) => /chaplain|Professor|Gorbachev|Bez[uú]khov/i.test(`${x.clause ?? ""} ${x.complement ?? ""}`)).slice(0, 8) };
 }
 const H4 = { standings: B["War and Peace"].standings, bezukhov: B["War and Peace"].rows.filter((r) => /bezukhov/.test(fold(r.locus))), refusedNamed: B["War and Peace"].refusedNamed, held: B["War and Peace"].rows.some((r) => /bezukhov/.test(fold(r.locus)) && /pierre/.test(fold(r.occupant))) };
 const H5 = {
@@ -550,10 +580,20 @@ const Z22 = { slots: wpId?.slots ?? [], alternatives: wpId?.liveAlternatives ?? 
 const Z23 = { inverted: wpInverted, named: wpInvertedNamed.slice(0, 40), allNameShaped: wpInvertedNamed.every((s) => nameShaped(s)), held: wpInverted < 30 && wpInvertedNamed.every((s) => nameShaped(s)) && ["Wolzogen", "Pierre Bezúkhov", "Bennigsen"].every((n) => wpInvertedNamed.some((s) => s.includes(n))) };
 const Z24 = { identityClaims: wpId?.identityClaims ?? [], held: (wpId?.identityClaims ?? []).length === 2 && (wpId?.identityClaims ?? []).every((x) => /Circassian = S[oó]nya/.test(x)) };
 const Z25 = { entry: entryA.length, state: stateA.length, held: entryA.length === 33 && stateA.length === 24 };
+// V14
+const V13 = existsSync(`${NATIVE}/eval/identity/results/occupancy-host-eval-v13.json`) ? JSON.parse(readFileSync(`${NATIVE}/eval/identity/results/occupancy-host-eval-v13.json`, "utf8")) : null;
+const v13Positions = new Set([...(V13 ? Object.values(V13.live).flatMap((v) => v.positions ?? []) : []), ...(V13 ? (() => { const by = new Map(); for (const r of V13.standingsA) { const k = String(r.locus).toLowerCase(); if (!by.has(k)) by.set(k, new Set()); by.get(k).add(r.occupantId ?? r.occupant); } return [...by].filter(([, o]) => o.size >= 2).map(([locus]) => ({ locus })); })() : [])].map((p) => String(p.locus).toLowerCase()));
+const vetoed = [...pages.flatMap((p) => p.real.refused.filter((x) => x.reason === "locus_not_nominal").map((x) => ({ text: p.name, ...x }))), ...Object.entries(B).flatMap(([k, v]) => (v.notNominal ?? []).map((x) => ({ text: k, ...x })))];
+const vetoedLoci = vetoed.map((x) => String(x.complement ?? "").toLowerCase().replace(/^(?:the|a|an)\s+/, "").replace(/[.,;”"’']+$/u, ""));
+const Z26 = { count: vetoed.length, byWord: tally(vetoed, (x) => x.word), sample: vetoed.slice(0, 20).map((x) => `${x.text} | ${x.word} [${(x.classes ?? []).join(",")}] :: ${x.complement}`), allZeroNominal: vetoed.every((x) => { const t = POS_PRIOR.forms?.[String(x.word).toLowerCase()]; return t && !((t.NOUN ?? 0) + (t.PROPN ?? 0) > 0); }), wasPosition: vetoedLoci.filter((l) => v13Positions.has(l)), held: vetoed.length > 0 && !vetoedLoci.some((l) => v13Positions.has(l)) };
+const wpNaming = B["War and Peace"]?.naming ?? { rows: [], controlRows: null, slots: [] };
+const cyril = wpNaming.rows.filter((r) => /Cyril Vlad.*Bez[uú]khov/i.test(r.surface) && /Count Bez[uú]khov/i.test(r.locus));
+const Z27 = { rows: wpNaming.rows.slice(0, 20), cyril: cyril.map((r) => `${r.surface} -> ${r.locus} (${r.via}) @s${r.at}`), controlRows: wpNaming.controlRows, held: cyril.length >= 1 && wpNaming.controlRows === 0 };
+const Z28 = { namedSlots: wpNaming.slots, predicatedSlots: wpId?.slots ?? [], held: wpNaming.slots.some((s) => s.verdict === "contested") && !wpNaming.slots.some((s) => s.chosen === "position") && (wpId?.slots ?? []).some((s) => s.chosen === "one_being") };
 const Z8 = { perText: [...pages.map((p) => ({ text: p.name, slots: p.identity.slots })), ...Object.entries(B).map(([k, v]) => ({ text: k, slots: v.identity?.slots ?? [] }))].filter((x) => x.slots.length), held: null };
 
 const out = {
-  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8, Z9, Z10, Z11, Z12, Z13, Z14, Z15, Z16, Z17, Z18, Z19, Z20, Z21, Z22, Z23, Z24, Z25, Y1, Y2, Y3, X1, X2, X3,
+  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8, Z9, Z10, Z11, Z12, Z13, Z14, Z15, Z16, Z17, Z18, Z19, Z20, Z21, Z22, Z23, Z24, Z25, Z26, Z27, Z28, Y1, Y2, Y3, X1, X2, X3,
   ...W, V1, V2, V3, V4, V5, V6,
   nativeA: { standings: AN.length, perPage: pagesN.map((p) => ({ page: p.name, standings: p.rows.length, refused: tally(p.real.refused, (x) => x.reason), cast: p.cast, seconds: p.seconds })), via: tally(AN, (c) => c.via), rows: AN },
   nativeB: BN,
@@ -564,7 +604,7 @@ const out = {
   standingsA: A,
   live: Object.fromEntries(Object.entries(B).map(([k, v]) => [k, { ...v, rows: v.rows.slice(0, 60) }])),
 };
-for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8", "Z9", "Z10", "Z11", "Z12", "Z13", "Z14", "Z15", "Z16", "Z17", "Z18", "Z19", "Z20", "Z21", "Z22", "Z23", "Z24", "Z25"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
+for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8", "Z9", "Z10", "Z11", "Z12", "Z13", "Z14", "Z15", "Z16", "Z17", "Z18", "Z19", "Z20", "Z21", "Z22", "Z23", "Z24", "Z25", "Z26", "Z27", "Z28"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
 console.log("via", out.via, "locusVia", out.locusVia);
 for (const [k, v] of Object.entries(B)) console.log(k, v.standings, "standings", v.ablationStandings, "ablation", v.seconds, "s", JSON.stringify(v.refused));
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));

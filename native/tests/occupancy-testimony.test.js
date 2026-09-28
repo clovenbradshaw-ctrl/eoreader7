@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readOccupancyTestimony, testimonyRecord } from "../adapters/text/occupancy-testimony.js";
+import { readOccupancyTestimony, testimonyRecord, namedOccupants } from "../adapters/text/occupancy-testimony.js";
+import { PATRONYMIC_RU } from "../adapters/text/name-spans.js";
 import { NEGATION_WORDS, DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS, AUXILIARY_VERBS } from "../adapters/text/priors.js";
 import { COPULA_FORMS } from "../adapters/text/phasepost.js";
 import { declareSequence, readSequence } from "../kernel/sequence.js";
@@ -253,4 +254,30 @@ test("a declared language with no grammar stands the English organs down and say
   assert.deepEqual(en.candidates.map((c) => [c.occupant, c.locus, c.pattern, c.act?.op ?? null]), bare.candidates.map((c) => [c.occupant, c.locus, c.pattern, c.act?.op ?? null]));
   assert.deepEqual(en.refused.map((x) => x.reason), bare.refused.map((x) => x.reason));
   assert.equal(readOccupancyTestimony(texts, { ...OPTS, language: "en" }).grammar.gap.reason, "no_grammar_lookup", "a language declared with nothing to look it up in is a gap, not a guess");
+});
+
+test("locus-side being-kind (2026-09-28): a complement whose head the prior settles with no nominal share names no position; an ambiguous word and an unseen word pass; only with a prior", () => {
+  const posPrior = { forms: { latter: { ADJ: 7 }, general: { ADJ: 32, NOUN: 6, PROPN: 10 }, count: { NOUN: 4, VERB: 7 } } };
+  const texts = ["Pierre became the latter.", "Kutúzov became the general.", "Pierre became Count Bezúkhov.", "Nicholas became the Chairman."];
+  const r = readOccupancyTestimony(texts.map((text, at) => ({ text, at })), { ...OPTS, posPrior });
+  assert.deepEqual(r.refused.filter((x) => x.reason === "locus_not_nominal").map((x) => [x.at, x.word, x.classes]), [[0, "latter", ["ADJ"]]]);
+  assert.deepEqual(r.candidates.map((c) => c.locus), ["general", "Count Bezúkhov", "Chairman"]);
+  const without = readOccupancyTestimony(texts.map((text, at) => ({ text, at })), OPTS);
+  assert.equal(without.candidates.length, 4, "absent a prior nothing is refused on it");
+});
+
+test("naming as testimony (Cyril): a name carrying a locus's title and head with givens no known occupant wears is a SIGNED occupant — never a predicated one, never handed to positionsByPattern", () => {
+  const texts = ["Pierre became Count Bezúkhov.", "Count Cyril Vladímirovich Bezúkhov lay dying in Moscow.", "Count Pierre Bezúkhov received the whole estate.", "Prince Andrew was in Moscow."];
+  const r = readOccupancyTestimony(texts.map((text, at) => ({ text, at })), OPTS);
+  assert.deepEqual(r.candidates.map((c) => [c.occupant, c.locus]), [["Pierre", "Count Bezúkhov"]]);
+  const named = namedOccupants(texts.map((text, at) => ({ text, at })), r.candidates, { source: "t", nameOpts: { patronymic: PATRONYMIC_RU } });
+  assert.deepEqual(named.map((n) => [n.occupantSurface, n.locus, n.pattern, n.act.op, n.act.grain, n.at]), [["Count Cyril Vladímirovich Bezúkhov", "Count Bezúkhov", "naming", "SIG", "Ground", 1]]);
+  assert.equal(named[0].evidence, "named_by_title");
+  // "Count Pierre Bezúkhov" is Pierre named again (given-level nesting with the known face "Pierre"), never a second being
+  assert.ok(!named.some((n) => n.at === 2));
+  // with the cast: the naming resolves to the mention's referent
+  const mentions = (s) => (s.at === 1 ? [{ start: 0, end: "Count Cyril Vladímirovich Bezúkhov".length, referent: "ref:cyril", via: "cast" }] : []);
+  const withCast = namedOccupants(texts.map((text, at) => ({ text, at })), r.candidates, { source: "t", mentions, nameOpts: { patronymic: PATRONYMIC_RU } });
+  assert.equal(withCast[0].occupant, "ref:cyril"); assert.equal(withCast[0].occupantVia, "naming+cast");
+  assert.throws(() => namedOccupants([], [], {}), /declared/);
 });
