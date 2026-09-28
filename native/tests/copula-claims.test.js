@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readCopulaClaim, splitAtCopula } from "../adapters/text/copula-claims.js";
 import { splitSentences } from "../adapters/text/spans.js";
+import { sameNumeral } from "../adapters/text/numeral-words.js";
 
 const P = [
   { ref: "d#1", text: "We tried to be cheerful and encourage each other, and Mina was the brightest and most cheerful of us. Harker was the only one who had any result." },
@@ -43,4 +44,29 @@ test("adjacency (v7's control): the subject ends at the copula and the complemen
   assert.equal(readCopulaClaim("Van Helsing was the first.", V, opts).verdict, "open");
   assert.equal(readCopulaClaim("Arthur was the first.", V, opts).verdict, "holds");
   assert.equal(readCopulaClaim("Mina was the cheerful one.", P, opts).verdict, "open", "the complement's first word must be the first after the copula: 'brightest' is, 'cheerful' is not");
+});
+
+// V9: numeral folding, via an injected sameForm built on adapters/text/numeral-words.js's
+// sameNumeral — the gap this organ's own header names by name ("it does not fold
+// synonyms or numerals... a morphology or numeral prior is the caller's to inject as
+// sameForm"). A real before/after against the raw organ, not the whole slow eval driver.
+test("an injected numeral-folding sameForm confirms a claim phrased with digits against a passage phrased in words, and vice versa — without it, neither reads", () => {
+  const sameForm = (a, b) => sameNumeral(a, b);
+  const words = [{ ref: "r#1", text: "R. M. Renfield is fifty-nine. Sanguine temperament." }];
+  const digits = [{ ref: "r#2", text: "R. M. Renfield is 59. Sanguine temperament." }];
+
+  // digit claim against a words passage
+  assert.equal(readCopulaClaim("Renfield is 59.", words, opts).verdict, "open", "without sameForm, '59' does not read 'fifty-nine'");
+  const withWords = readCopulaClaim("Renfield is 59.", words, { ...opts, sameForm });
+  assert.equal(withWords.verdict, "holds");
+  assert.equal(withWords.ref, "r#1");
+
+  // words claim against a digit passage — the same fold, the other direction
+  assert.equal(readCopulaClaim("Renfield is fifty-nine.", digits, opts).verdict, "open", "without sameForm, 'fifty-nine' does not read '59'");
+  const withDigits = readCopulaClaim("Renfield is fifty-nine.", digits, { ...opts, sameForm });
+  assert.equal(withDigits.verdict, "holds");
+  assert.equal(withDigits.ref, "r#2");
+
+  // a false numeral is still refused open, never folded into holding
+  assert.equal(readCopulaClaim("Renfield is 60.", words, { ...opts, sameForm }).verdict, "open", "sameNumeral never folds two DIFFERENT numerals");
 });

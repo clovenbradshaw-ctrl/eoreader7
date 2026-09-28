@@ -116,6 +116,7 @@ const { readJudgment } = await import(`${NATIVE}/organs/judgment-reader.js`);
 const { judgmentRequest, ingestionStanding } = await import(`${NATIVE}/kernel/ingestion.js`);
 const { splitSentences } = await import(`${NATIVE}/adapters/text/spans.js`);
 const { readCopulaClaim } = await import(`${NATIVE}/adapters/text/copula-claims.js`);
+const { sameNumeral } = await import(`${NATIVE}/adapters/text/numeral-words.js`);
 
 // ── THE KEY, fixed before the run: every TRUE claim's bytes were read in the book first ──
 const WP = "War and Peace", DR = "Dracula";
@@ -180,6 +181,19 @@ async function ask(messages, { maxTokens = JUDGE_MAX_TOKENS } = {}) {
 
 // ── material ──
 const O = await organs({ language: "eng" });
+// The copula reader's own `sameForm` (V9): two independent equivalence
+// classes composed with OR, each with its own giver/reason, never a third,
+// re-derived one here.
+//   - lemma equivalence: the SAME UniMorph-backed sameAct organs() already
+//     built for the relation reader (RELATION_READER_OPTIONS.createLemmatizer,
+//     the fixture at eval/the-fold/fixtures/unimorph-morphology-prior.json)
+//     — reused, not re-fetched, so this ladder never carries a second lemma
+//     source that could drift from the one product-assay.mjs already wired.
+//   - numeral equivalence: adapters/text/numeral-words.js's sameNumeral,
+//     the gap copula-claims.js's own header names by name ("fifty-nine" is
+//     not "59").
+const lemmaSameAct = O.RELATION_READER_OPTIONS.createLemmatizer ? O.RELATION_READER_OPTIONS.createLemmatizer().sameAct : null;
+const sameForm = (a, b) => (lemmaSameAct ? lemmaSameAct(a, b) : false) || sameNumeral(a, b);
 const seedShuffle = (arr, seed) => { let s = seed >>> 0; const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { s = (s * 1664525 + 1013904223) >>> 0; const j = s % (i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 function material(name, text) {
   const chunks = O.chunkSource(name, text);
@@ -202,7 +216,7 @@ function mechanical(m, claim) {
   let organ = verdict === "holds" || verdict === "refused" ? "relations" : null, copula = null;
   // V7: the copula reader, after the relation reader and only where it read nothing settled
   if (!organ) {
-    copula = readCopulaClaim(claim, passages, { splitSentences });
+    copula = readCopulaClaim(claim, passages, { splitSentences, sameForm });
     if (copula.verdict === "holds" || copula.verdict === "refused") { verdict = copula.verdict; organ = "copula"; }
   }
   return { passages, claims, verdict, organ, copula };
