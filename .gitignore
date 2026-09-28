@@ -7,6 +7,21 @@
 node_modules/
 .DS_Store
 
+# kleeneup-report.json (repo root, 2026-09-28): a 1.1MB, 31,100-line survey
+# manifest written by every run of scripts/kleene-up.mjs (there is no
+# output-path override -- it always lands here). Pure regenerable output:
+# `node scripts/kleene-up.mjs` reproduces it from a scan of the tree, and
+# checked directly, no .github/workflows/ job reads it (neither
+# native-kernel.yml nor frankenstein-native.yml touch scripts/ at all --
+# native-kernel.yml's own `npm test` runs from working-directory: native,
+# a sibling tree). The one local-only consumer, scripts/kleene-up.test.mjs,
+# treats it as a scratch write-target it captures and restores, never
+# asserts against its committed content, and was patched the same day to
+# tolerate the file not existing yet on a fresh checkout. A single organ
+# audit commit had turned this into a ~32,000-line diff of a file nobody
+# reviews -- untracked in the same commit this rule lands in.
+kleeneup-report.json
+
 # Regenerable eval output. Neither of these is read by the test suite —
 # checked, not assumed: `npm test` and `npm run test:organs` reference only
 # ddg-*.html, midi/, pos-prior-eng.json, unimorph-morphology-prior.json,

@@ -12,11 +12,16 @@
 // (findNeedles-for-locating vs. a Set-for-membership); the report must carry
 // both, per-occurrence, never merging or picking one.
 //
-// The tracked kleeneup-report.json at repo root is written by every real run
-// of this CLI (there is no output-path override), so this test captures its
-// bytes before spawning and restores them in a `finally` -- the same
-// with-fixture-then-clean-up shape cli/fold-at.test.mjs already uses, applied
-// to a file the CLI writes rather than one the test hands it.
+// kleeneup-report.json at repo root (gitignored as of 2026-09-28 -- pure
+// regenerable survey output, no CI job or other test reads its committed
+// content) is written by every real run of this CLI (there is no
+// output-path override), so this test captures its bytes before spawning
+// and restores them in a `finally` -- the same with-fixture-then-clean-up
+// shape cli/fold-at.test.mjs already uses, applied to a file the CLI writes
+// rather than one the test hands it. On a fresh checkout the file may not
+// exist at all yet; withFixtureRun handles that by deleting rather than
+// restoring in that case, so this test is the only thing that needs the
+// file to exist, and it creates one if it doesn't.
 import test from "node:test";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
@@ -47,14 +52,23 @@ function withFixtureRun(fn) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kleeneup-fixture-"));
   const file = path.join(dir, "number-words.mjs");
   fs.writeFileSync(file, FIXTURE_SOURCE);
-  const before = fs.readFileSync(REPORT_PATH, "utf8");
+  // kleeneup-report.json is gitignored (2026-09-28) -- pure regenerable
+  // survey output, no CI job or other test reads its committed content, so
+  // it stops being committed at all. That means a fresh checkout has no
+  // file here until someone runs the CLI once; `before` is null in that
+  // case rather than assuming the read succeeds, and the finally block
+  // deletes what this run created instead of trying to restore bytes that
+  // never existed.
+  const existed = fs.existsSync(REPORT_PATH);
+  const before = existed ? fs.readFileSync(REPORT_PATH, "utf8") : null;
   try {
     const r = spawnSync(process.execPath, [CLI, "--roots", dir], { encoding: "utf8", cwd: ROOT });
     assert.equal(r.status, 0, `the sweep exits clean: ${r.stderr}`);
     const out = JSON.parse(fs.readFileSync(REPORT_PATH, "utf8"));
     return fn({ out, stdout: r.stdout, file });
   } finally {
-    fs.writeFileSync(REPORT_PATH, before);
+    if (existed) fs.writeFileSync(REPORT_PATH, before);
+    else fs.rmSync(REPORT_PATH, { force: true });
     fs.rmSync(dir, { recursive: true, force: true });
   }
 }
