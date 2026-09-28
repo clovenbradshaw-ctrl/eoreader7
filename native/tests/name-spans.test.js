@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { nameSpans, nameNesting, PATRONYMIC_RU } from "../adapters/text/name-spans.js";
+import { nameSpans, nameNesting, PATRONYMIC_RU, namePartsFrom } from "../adapters/text/name-spans.js";
+import { readFileSync, existsSync } from "node:fs";
 
 test("a name is a tree: the head is the root, titles / particles / givens subordinate to it", () => {
   const s = nameSpans("Count Cyril Vladímirovich Bezúkhov");
@@ -43,4 +44,22 @@ test("the patronymic class (2026-09-28): declared per language, never on by defa
   assert.equal(nameNesting("Cyril Ivanovich", "Count Cyril Vladímirovich Bezúkhov", ru).level, "none", "the same given under two fathers is two beings");
   assert.equal(nameNesting("Cyril Bezúkhov", "Count Cyril Vladímirovich Bezúkhov", ru).level, "prefix", "a dropped patronymic is a dropped middle part — not decidable from the names");
   assert.equal(nameNesting("Pierre Bezúkhov", "Count Cyril Vladímirovich Bezúkhov", ru).level, "none");
+});
+
+test("the parts of a name are a reading prior: en + mul + ru composed from live_priors reads exactly what the code-side defaults read, and an undeclared prior is refused", () => {
+  const dir = "/home/user/live_priors/derived-priors/name-priors";
+  const load = (f) => JSON.parse(readFileSync(`${dir}/${f}`, "utf8"));
+  if (!existsSync(`${dir}/name-parts-ru.json`)) { console.log("live_priors not beside this checkout — the composition is checked against an in-test prior only"); }
+  const ru = existsSync(`${dir}/name-parts-ru.json`) ? load("name-parts-ru.json") : { schema: "NamePartsPrior@1", language: "ru", provenance: { giver: "test" }, patronymic: { suffixes: ["ovich", "evich", "ovna", "evna"], minLength: 6 } };
+  const en = existsSync(`${dir}/name-parts-en.json`) ? load("name-parts-en.json") : { schema: "NamePartsPrior@1", language: "en", provenance: { giver: "test" }, titles: ["count", "prince"] };
+  const mul = existsSync(`${dir}/name-parts-mul.json`) ? load("name-parts-mul.json") : { schema: "NamePartsPrior@1", language: "mul", provenance: { giver: "test" }, particles: ["van"] };
+  const parts = namePartsFrom(en, mul, ru);
+  assert.deepEqual(parts.languages, ["en", "mul", "ru"]); assert.equal(parts.givers.length, 3);
+  assert.deepEqual(nameSpans("Count Cyril Vladímirovich Bezúkhov", parts).map((x) => x.relation), ["title", "given", "patronymic", "head"]);
+  assert.deepEqual(nameSpans("Ludwig van Beethoven", parts).map((x) => x.relation), ["given", "particle", "head"]);
+  assert.equal(nameSpans("Aldrich", parts)[0].relation, "head", "the prior's own floor keeps an English -ich family name a head");
+  for (const n of ["Vladímirovich", "Ivanovna", "Aldrich", "Bezúkhov", "Petrovich"]) assert.equal(parts.patronymic(n.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()), PATRONYMIC_RU(n.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()), n);
+  assert.equal(nameNesting("Cyril Vladímirovich", "Count Cyril Vladímirovich Bezúkhov", parts).patronymicAgrees, true);
+  assert.throws(() => namePartsFrom({ language: "xx" }), /NamePartsPrior@1/);
+  assert.equal(namePartsFrom(en).patronymic, null, "a composition with no patronymic prior types no patronymic");
 });

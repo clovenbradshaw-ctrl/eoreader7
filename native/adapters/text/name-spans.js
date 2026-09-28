@@ -63,9 +63,35 @@ import { HONORIFIC_TITLES, DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS } from "
 export const NAME_PARTICLES = Object.freeze(new Set(["de", "da", "di", "del", "della", "du", "des", "la", "le", "von", "van", "der", "den", "ter", "of", "y", "e", "bin", "ibn", "al"]));
 export const NAME_PARTICLES_META = Object.freeze({ giver: "lang/mul — nobiliary and linking particles inside personal names (Western/Arabic conventions), a closed class declared here" });
 export const NEST_LEVELS = Object.freeze(["full", "prefix", "head", "given", "none"]);
-/** Russian patronymic suffixes (masculine -ovich/-evich/-ich, feminine -ovna/-evna/-ichna), on a name token of five letters or more; transliterated forms. A predicate over a folded token. */
-export const PATRONYMIC_RU = Object.freeze((key) => /^[a-z’'-]{2,}(?:ovich|evich|yich|ich|ovna|evna|ichna|inichna)$/u.test(String(key ?? "")) && String(key).length >= 6);
-export const PATRONYMIC_RU_META = Object.freeze({ giver: "lang/ru — patronymic formation from the father's given name (-ович/-евич/-ич, -овна/-евна/-ична), transliterated; a closed suffix class declared here" });
+/**
+ * THE PARTS OF A NAME ARE A READING PRIOR (2026-09-28, user direction: "those
+ * sound like too specialty-fit organs that should be more reading priors").
+ * live_priors/derived-priors/name-priors/ carries NamePartsPrior@1 per
+ * language — titles, particles, patronymic suffixes with their own length
+ * floor — and a reader COMPOSES the languages it reads: an English
+ * translation of a Russian novel is en + mul + ru. This organ knows the shape
+ * of a name and no language's own classes; `namePartsFrom(...priors)` builds
+ * the opts every function here takes. The code-side defaults below are the
+ * same lists (so the organ loads with no file on disk) and the prior is the
+ * authoritative copy.
+ */
+export function namePartsFrom(...priors) {
+  const foldPart = (t) => String(t ?? "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/[.’']+$/u, ""); // foldToken's own rule, stated here because PATRONYMIC_RU below is built at module load, before the const
+  const titles = new Set(), particles = new Set(), suffixes = [], givers = [];
+  let minLength = Infinity;
+  for (const p of priors) {
+    if (!p || p.schema !== "NamePartsPrior@1") throw new TypeError("namePartsFrom: a NamePartsPrior@1 with its language and giver");
+    givers.push(`${p.language}: ${p.provenance?.giver ?? "giver undeclared"}`);
+    for (const t of p.titles ?? []) titles.add(foldPart(t));
+    for (const t of p.particles ?? []) particles.add(foldPart(t));
+    if (p.patronymic?.suffixes?.length) { suffixes.push(...p.patronymic.suffixes.map((x) => foldPart(x))); minLength = Math.min(minLength, Number(p.patronymic.minLength) || 0); }
+  }
+  const patronymic = suffixes.length ? Object.freeze((key) => { const k = String(key ?? ""); return k.length >= minLength && suffixes.some((suf) => k.endsWith(suf) && k.length > suf.length); }) : null;
+  return Object.freeze({ titles: Object.freeze(titles), particles: Object.freeze(particles), patronymic, languages: priors.map((p) => p.language), givers: Object.freeze(givers) });
+}
+/** The Russian patronymic class as a code-side default — the SAME suffixes and floor name-parts-ru.json carries (the prior is authoritative; this is what loads with no file on disk). */
+export const PATRONYMIC_RU = namePartsFrom({ schema: "NamePartsPrior@1", language: "ru", provenance: { giver: "lang/ru (code-side default of live_priors name-parts-ru.json)" }, patronymic: { suffixes: ["ovich", "evich", "yich", "ich", "ovna", "evna", "ichna", "inichna"], minLength: 6 } }).patronymic;
+export const PATRONYMIC_RU_META = Object.freeze({ giver: "lang/ru — patronymic formation from the father's given name (-ович/-евич/-ич, -овна/-евна/-ична), transliterated; the received copy is live_priors/derived-priors/name-priors/name-parts-ru.json" });
 
 const WORD = /[\p{L}\p{N}][\p{L}\p{N}’'.-]*/gu;
 export const foldToken = (t) => String(t ?? "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/[.’']+$/u, "");

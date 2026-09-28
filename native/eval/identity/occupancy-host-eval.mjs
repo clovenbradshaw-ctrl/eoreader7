@@ -289,7 +289,9 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const { readOccupancyTestimony, positionsByPattern, NEAREST_ESTABLISHED, nestedOccupants, nameShaped, namedOccupants } = await import(`${NATIVE}/adapters/text/occupancy-testimony.js`);
-const { PATRONYMIC_RU } = await import(`${NATIVE}/adapters/text/name-spans.js`);
+const { namePartsFrom } = await import(`${NATIVE}/adapters/text/name-spans.js`);
+// THE PARTS OF A NAME ARE A READING PRIOR: an English translation of a Russian novel composes en + mul + ru (live_priors/derived-priors/name-priors/)
+const NAME_PARTS = namePartsFrom(...["en", "mul", "ru"].map((l) => JSON.parse(readFileSync(`/home/user/live_priors/derived-priors/name-priors/name-parts-${l}.json`, "utf8"))));
 const { collapse } = await import(`${NATIVE}/kernel/undecided.js`);
 const { mergeEvidence, occupantPairKey } = await import(`${NATIVE}/kernel/merge-standing.js`);
 const { deriveIdentityRevision } = await import(`${NATIVE}/kernel/identity.js`);
@@ -444,7 +446,7 @@ function readText({ name, text, links }) {
   const nested = nestedOccupants(identityStandings, (id) => face(id), occupantPairKey);
   const evidence = mergeEvidence({ merges: [...merges, ...identityClaims], standings: identityStandings, witness: `${name}#cast`, minOccupants: 2, nested });
   // NAMING AS TESTIMONY (v14): the signed occupants, and the slot re-collapsed with them among the occupants
-  const nameOpts = { patronymic: PATRONYMIC_RU };
+  const nameOpts = NAME_PARTS;
   const named = namedOccupants(sentences, real.candidates, { source: name, mentions, nameOpts, cellOf });
   const namedStandings = [...identityStandings, ...named.filter((n) => n.locusId).map((n) => ({ locus: n.locusId, occupant: n.occupant, witness: n.address }))];
   const nestedNamed = nestedOccupants(namedStandings, (id) => face(id), occupantPairKey, nameOpts);
