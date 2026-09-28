@@ -968,3 +968,83 @@ per-checkout missing-fixture gap, unrelated). Full `native/adapters/text/
 *.test.mjs`: 71/91 pass, 1 pre-existing unrelated failure (confirmed via
 `git stash` A/B — identical failure name with and without this change),
 19 skipped (missing per-checkout fixtures).
+
+## 19. `fold-log.js` (the-fold) — deleted; `build-log.js` is the sole surviving log (2026-09-28)
+
+`fold-log.js` (435 lines) and `build-log.js` (931 lines) were the same
+EOT-log family, `build-log.js` a strict function superset (all 11 of
+`fold-log.js`'s exports have build-log.js counterparts, plus
+`patchBuild`/`applyOps`/`readOps`/`deriveOp`, `askEntry`/`scoutBuild`/
+`refuseBuild`/`attachWitness`, `retractAllGrounds`, `conform`, and
+provenance carriage via `received`/`commentHeader`). Confirmed zero
+production callers of `fold-log.js` anywhere (only its own test imported
+it) versus `makeBuildLog` live at `app.js:462`. Also confirmed
+`fold-log.js`'s own code (line 149) still typed PROPOSE as
+`STRUCTURE_OPERATORS.SEG` — it never received the "INS is birth"
+correction `build-log.js` carries (2026-08-17) — so one of
+`ground-ledger.js`'s four citations was a GENUINE misattribution, not
+just soon-to-be-dangling: it credited `fold-log.js` for a correction that
+file's own code contradicts.
+
+Deleted `fold-log.js` and `fold-log.test.mjs`. Fixed all four
+`ground-ledger.js` citations to name `build-log.js` (the misattributed
+INS-is-birth one substantively, the other three cosmetically). Dropped
+the stale "fold-log" listing from `NEXT-PASSES.md`'s file inventory.
+
+Verified: `ground-ledger.test.mjs` 10/10. Full suite: test count dropped
+by exactly 16 (`fold-log.test.mjs`'s own 16/16 green suite), identical
+failure names before and after (confirmed via full-suite diff).
+
+## 20. `wikidata.js` — the confirmed-real duplicate resolved, a corrected delete list applied (2026-09-28)
+
+Two independent edits. (1) `wikidata.js::chainAgreesByIdentity` and
+`seek.js::chainCloses` were confirmed the SAME algorithm (identical
+byId-map / forward-pointer-agreement / mutual-check shape), both dead in
+production (called only from their own `.test.mjs` files). Deleted
+`chainAgreesByIdentity`; repointed `wikidata.test.mjs`'s two call sites
+to `chainCloses`.
+
+(2) For the genuinely-dead-with-no-hidden-dependency subset of
+`wikidata.js`'s "Generation 1" functions — verified via INTERNAL grep to
+have no caller anywhere in `wikidata.js` itself, not just no external
+caller (`nominateRelating`, `nominationVerdict`, `enoughExamples`/
+`refusedResult`, `datedTerms`, `bindByTerm`, `coverageOf`,
+`holdersOfPosition`, `qidBridge`) — added the file's own established
+"SUPERSEDED, kept with its finding rather than deleted" disclosure
+comment, rather than deleting them (they carry substantial direct test
+coverage in `wikidata.test.mjs` that would all need rewriting).
+
+**Explicitly excluded from deletion or disclosure**, correcting an
+earlier research pass's own delete-list, which had wrongly included all
+seven of these as dead: `KIND_QIDS`/`kindQidFor`/`clearsFloor`/
+`RELATING_WITNESS_FLOOR` (a live production dependency of
+`explore-server.mjs`'s `/api/entity/seek` route, itself called from
+`app.js`), `backPointersIn`/`instanceOfIn` (load-bearing for the
+intentionally-kept `relatingNull`), and `exampleIdsFrom` (load-bearing
+for the intentionally-kept, Generation-2 `makeWikidataSource.neighbours`).
+Deleting any of the seven, as the original finding's own list proposed,
+would have thrown a `ReferenceError` the next time `/api/entity/seek`
+runs — a real, live, chat-reachable feature.
+
+Verified: `wikidata.test.mjs seek.test.mjs` — 60/60 (48+12), unchanged.
+Confirmed all 7 excluded items present and untouched.
+
+## 21. `language-typology.js`/`language-relation-reader.js` (the-fold) — marked superseded, doc-only (2026-09-28)
+
+Both files are real, tested, and unwired — the per-language dispatch
+they were built to seed was implemented directly in `app.js` (2026-09-20,
+`relationExtractorsFor`, imported from eoreader7's `relations-language.js`)
+without ever calling either file, and is currently gated OFF for English
+specifically (`SVO_DECLARED = false`) because the measured `RoleConfig@1`
+failed a live-prose BECOMING test. Added a short header note to both
+files pointing future readers at the real live dispatch
+(`relations-language.js` + `native/the-fold/reader-bundle.js`), and
+amended POLICIES.md's P229 in place (append, not rewrite) stating plainly
+that its own "next pass's plug-in point" framing was never taken —
+wiring these files in now would revive the refuted WALS root-pattern
+theory for Hebrew/Arabic that `build-role-config.mjs` has since measured
+and refused on the merits.
+
+No code changed; nothing imports these files outside their own tests and
+demo. `needsSegmentation`'s disclosed CJK-segmentation gap is untouched
+and still real.
