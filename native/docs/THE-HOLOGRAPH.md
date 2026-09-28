@@ -493,9 +493,12 @@ summary, not a holograph; the property lives in the pair, not in the text.
   compared by record-backed claims and additions (S68).
 - `eval/the-fold/holograph-reading.mjs` — reading by address against reading
   by string, with a redealt-address control.
-- Pending numbers: the compression ladder (A0, A3, A3p, A2, A1) and the two
-  holograph-reading runs; their results directories are named in the-fold
-  POLICIES P171 when it lands.
+- **Landed (2026-09-28 note):** one point of the ladder — level 1 (raw
+  sentences) against level 3 (Lens) — ran and was corrected (§6, above;
+  `results/holograph-compression-RESULTS.md`; the-fold POLICIES P171).
+  **Still pending:** the full five-point ladder (A0, A3, A3p, A2, A1) beyond
+  that one comparison, and both `holograph-reading.mjs` runs (no results
+  file exists for that driver anywhere in the checkout as of this note).
 
 ## The two objects, named apart (2026-09-12)
 

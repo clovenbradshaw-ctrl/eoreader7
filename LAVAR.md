@@ -67,7 +67,7 @@ The ladder's ordering is received, with a named giver, exactly as Phase 1 of the
 
 One file, `native/eval/lavar/dashboard.md`, rewritten each run. Two measured columns, because they diagnose different failures.
 
-**Retrieval.** Already wired. `buildFactBank` in `native/eval/the-fold/lib/long-stream.mjs` produces facts, and `holograph-reading.mjs` scores whether a question reaches the right passage, with a redealt-address control now available in `holograph-redeal.mjs` (measured on Borodino: ADDRESS 5/23, redealt band [0,2] over 199 draws, p=0.0050).
+**Retrieval.** Already wired. `buildFactBank` in `native/eval/the-fold/lib/long-stream.mjs` produces facts, and `holograph-reading.mjs` scores whether a question reaches the right passage, with a redealt-address control built into that same driver (its own `controlRows`/`CONTROL` arm — there is no separate `holograph-redeal.mjs` file; confirmed absent from the checkout and its full git history as of 2026-09-28). **The measured line this paragraph used to carry** ("ADDRESS 5/23, redealt band [0,2] over 199 draws, p=0.0050") **is unreproduced**: `holograph-reading.mjs` has no results file anywhere in the repo, so that specific run is not currently verifiable — kept here as a disclosed, not-yet-reproduced claim rather than deleted outright, pending an actual run of the driver.
 
 **Comprehension.** Protagonist-centered narrative cloze, holdout-evaluated, per the event-chain work. Needs building. Tests whether the reader can predict what a character does next, which is a different thing from finding the passage.
 
