@@ -187,3 +187,7 @@ export {
   summarize,
 } from "./greenberg.js";
 export * as greenbergOrgan from "./greenberg.js";
+export { HARDREAD_SCHEMA, RULE_FLOOR, MAX_ANTS, MAX_REGIONS, autoHardRead, concedeRule, emptyRules, expressionOf, hardReadSource, hardSignals, learnRules, learnedDir, loadLearned, readingFromText, saveLearned, senses, skeleton, swarmRegion } from "./hard-read.js";
+export * as hardRead from "./hard-read.js";
+export { unreadMentions } from "./silence.js";
+export { ANCHOR_GENERIC, readQuantities } from "./quantities.js";

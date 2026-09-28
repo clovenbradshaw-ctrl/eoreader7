@@ -44,10 +44,11 @@ function itemHtml(it, handles) {
   const status = it.status ? `<span class="st st-${esc(it.status)}">${H(handles, "status", it.status)}</span>` : "";
   const addr = it.address ? `<code class="addr">${esc(it.address)}</code>` : `<em class="ungrounded">ungrounded</em>`;
   const chips = (it.chips ?? []).map((c) => `<span class="chip">${esc(c)}</span>`).join("")
+    + (it.via ? `<span class="chip via" title="how it was read">${esc(it.via)}</span>` : "")
     + (it.count > 1 ? `<span class="chip">×${it.count}</span>` : "")
     + (it.kind ? `<span class="chip kind">${esc(it.kind)}</span>` : "")
     + (it.origin ? `<span class="chip origin" title="${esc(`produced by: ${it.origin.label} · config ${it.origin.config}`)}">from ${esc(it.origin.label)}</span>` : "");
-  return `<article class="item" data-id="${esc(it.id)}"><h3>${esc(it.title ?? it.id)} ${status}</h3>${it.body ? `<p>${esc(it.body)}</p>` : ""}<p class="prov">${addr}${chips}</p></article>`;
+  return `<article class="item" data-id="${esc(it.id)}"><h3>${esc(it.title ?? it.id)} ${status}</h3>${it.body ? (String(it.body).length > 240 ? `<p>${esc(String(it.body).slice(0, 240))}… <details class="more"><summary>the rest</summary>${esc(it.body)}</details></p>` : `<p>${esc(it.body)}</p>`) : ""}<p class="prov">${addr}${chips}</p></article>`;
 }
 
 /** renderSlot(slot, content, handles) -> { html, refused }
@@ -61,6 +62,7 @@ export function renderSlot(slot, c = { items: [] }, handles) {
   const shown = (c.items ?? []).filter((i) => !bad.has(i.id)).map((i) => itemHtml(i, handles)).join("");
   const refusals = chk.refused.map((r) => `<p class="refused">refused: ${esc(r.id ?? "(no id)")} — ${esc(r.reason)}</p>`).join("")
     + (c.refused?.length ? `<p class="refused">${c.refused.length} match(es) dropped: their address did not read back as their own text</p>` : "")
+    + (c.unread?.length ? `<details class="unread" open><summary class="refused">${c.unread.length} mention(s) seen, still not read</summary>${c.unread.map((u) => `<p><code>${esc(u.doc)}#${u.at[0]}-${u.at[1]}</code> ${esc(u.why ?? "")} — <q>${esc(u.quote ?? "")}</q></p>`).join("")}</details>` : c.unread ? `<p class="origin-fixed">every mention the reader saw was read</p>` : "")
     + (c.truncated ? `<p class="refused">stopped at the match ceiling — more exist than are drawn</p>` : "");
   const origin = c.origin
     ? `<details class="origin"><summary>from: <b>${esc(c.origin.label)}</b> <span class="n">${(c.items ?? []).length} found</span></summary><p><b>finds</b> ${esc(c.origin.finds)}</p><p><b>does not find</b> ${esc(c.origin.misses)}</p></details>`
@@ -99,12 +101,12 @@ export function renderOriginSettings(config = {}, registry = {}) {
  *  data-ns/data-id and shows the default as its placeholder; empty = default. */
 export function renderSettings(overrides = {}) {
   const { handles } = resolveHandles(overrides);
-  const NAMES = { terrain: "Terrains", status: "Claim statuses", slot: "Dock slots" };
+  const NAMES = { terrain: "Terrains", status: "Claim statuses", slot: "Dock slots", surface: "Surfaces" };
   const group = (ns) => `<fieldset><legend>${NAMES[ns]}</legend>${Object.keys(handles[ns]).map((id) => {
     const given = overrides?.[ns]?.[id] ?? "";
     return `<label><code>${esc(ns)}:${esc(id)}</code><input data-ns="${ns}" data-id="${esc(id)}" maxlength="32" value="${esc(given)}" placeholder="${esc(handles[ns][id])}"></label>`;
   }).join("")}</fieldset>`;
-  return `<form class="handles-settings" onsubmit="return false"><p>Rename what you see. Ids, addresses and hashes never change — only the words drawn.</p>${["terrain", "status", "slot"].map(group).join("")}<p class="err" role="alert"></p></form>`;
+  return `<form class="handles-settings" onsubmit="return false"><p>Rename what you see. Ids, addresses and hashes never change — only the words drawn.</p>${Object.keys(NAMES).map(group).join("")}<p class="err" role="alert"></p></form>`;
 }
 
 /** The client half, as a string to inline: loads overrides from localStorage,

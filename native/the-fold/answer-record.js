@@ -78,7 +78,7 @@ export const claimKey = (c) => `${String(c.end1 ?? c.subject ?? "").toLowerCase(
  * @param {object} turn — { question, answer, model, frame, recipe, sections, unsupported, unbacked, unread, sources, constitution, cursor }
  * @returns {object} the record
  */
-export function answerRecord({ question, answer = "", model = null, frame = null, recipe = null, sections = [], unsupported = [], unbacked = [], unread = [], sources = [], constitution = null, cursor = null, voids = [], witness = [], sameForm = null } = {}) {
+export function answerRecord({ question, answer = "", model = null, frame = null, recipe = null, sections = [], unsupported = [], unbacked = [], unread = [], sources = [], constitution = null, cursor = null, voids = [], witness = [], sameForm = null, skills = [] } = {}) {
   const claims = [];
   const retrieved = [];
   for (const s of sections ?? []) {
@@ -125,6 +125,10 @@ export function answerRecord({ question, answer = "", model = null, frame = null
     absences: absences.slice(0, 50),
     absenceTally: { citingVoid: absences.filter((a) => a.void).length, citingNone: absences.filter((a) => !a.void).length },
     voidsOpen: (voids ?? []).length,
+    // THE SKILLS THIS RECORD RESTS ON: each a link to the skills surface (id, ref, href) with what it did this turn.
+    // Present only when something reported; absence means none of the INSTRUMENTED skills fired, not that no
+    // path was taken (see organs/skill-usage.js::INSTRUMENTED).
+    ...((skills ?? []).length ? { skills } : {}),
     constitution,
     answer: { chars: String(answer ?? "").length },
   };

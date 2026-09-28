@@ -16,9 +16,12 @@
 // read back as its own verbatim is dropped and counted in `refused` — never
 // drawn (P5.2). Offsets are JS-string chars; the coordinate space is declared.
 //
-// Pure and browser-safe. The named-beings adapter needs the engine's cast
+// Pure and browser-safe.
+// The named-beings adapter needs the engine's cast
 // organ, so it is INJECTED (the cast.js pattern) by a Node caller and reports
 // runsIn: "node"; the rest run in the page.
+
+import { quantityRegex, describeQuantity } from "../../organs/quantities.js";
 
 export const ORIGINS_SCHEMA = "EOOrigins@1";
 export const COORDINATE_SPACE = "chars";
@@ -46,6 +49,7 @@ function collect(texts, regexFor, describeItem, adapter, config) {
         const key = `${d.kind}|${d.norm}`;
         const g = groups.get(key) ?? { ...d, addresses: [], count: 0 };
         g.count++; if (g.addresses.length < 5) g.addresses.push(`${t.name}#${b0}-${b1}`);
+        (g.spans ??= []).push([t.name, b0, b1]);
         groups.set(key, g);
       }
       if (truncated) break;
@@ -55,7 +59,7 @@ function collect(texts, regexFor, describeItem, adapter, config) {
   const origin = { adapter: adapter.id, label: adapter.label, config: configId(config) };
   const items = [...groups.values()].map((g) => ({
     id: `${adapter.id}:${g.kind}:${g.norm}`, title: g.title, kind: g.kind, address: g.addresses[0], addresses: g.addresses,
-    verbatim: g.verbatim, count: g.count, ...(g.extra ?? {}), origin,
+    verbatim: g.verbatim, count: g.count, spans: g.spans, ...(g.extra ?? {}), origin,
   }));
   return { items, refused, truncated };
 }
@@ -86,14 +90,9 @@ export const QUANTITIES = {
   configHelp: "No configuration.",
   parseConfig() { return {}; },
   run({ texts, config }) {
-    // The unit is taken only where it is structurally a unit: a token holding
-    // a "/" or "^" (km/s/Mpc, m^2), or one glued on by "$" (LaTeX). A bare word
-    // after a space ("with", "and") is prose, not a unit, and is left out of the span.
-    const re = /(-?\d+(?:\.\d+)?)\s*(?:±|\+-|\+\/-|\\pm)\s*(\d+(?:\.\d+)?)(?:\s*\)?\$?\s*([A-Za-z][A-Za-z0-9^*.\-]*[\/^][A-Za-z0-9^*.\/\-]*)|\)?\$([A-Za-z][A-Za-z0-9^*.\-]*))?/g;
-    return collect(texts, [{ re, kind: "quantity" }], (m) => {
-      const value = Number(m[1]), uncertainty = Number(m[2]), unit = m[3] ?? m[4] ?? "";
-      const title = `${m[1]} ± ${m[2]}${unit ? " " + unit : ""}`;
-      return { kind: "quantity", norm: title, title, verbatim: m[0], extra: { value, uncertainty, unit } };
+    return collect(texts, [{ re: quantityRegex(), kind: "quantity" }], (m) => {
+      const q = describeQuantity(m);
+      return { kind: "quantity", norm: q.title, title: q.title, verbatim: m[0], extra: { value: q.value, uncertainty: q.uncertainty, unit: q.unit } };
     }, this, config);
   },
 };
@@ -141,8 +140,38 @@ export function namedBeings(castTexts) {
   };
 }
 
-export function makeRegistry({ castTexts = null } = {}) {
-  const list = [DECLARED_TERMS, QUANTITIES, USER_PATTERN, ...(castTexts ? [namedBeings(castTexts)] : [])];
+/** The hard-read door, injected (it needs Python, OpenCV and Tesseract, so it is node-only).
+ *  It runs the ordinary quantities adapter FIRST, then escalates by itself: every mention of
+ *  the anchor that the ordinary adapter saw and did not read goes to the swarm + CV + OCR. */
+export function hardReadAdapter({ autoHardRead, state }) {
+  return {
+    id: "hard-read", label: "Quantities, read the hard way (ants + CV + OCR)", slots: ["measures"], runsIn: "node",
+    finds: "everything the ordinary quantity reader finds, PLUS the values it saw and could not read (TeX stacked errors like 73.3^{+1.7}_{-1.8}, split stat/sys errors): each is typeset, looked at with OpenCV, read with Tesseract, and accepted only when the text reading and the image reading agree.",
+    misses: "a value the two senses do not agree on stays unread and is listed — never guessed. It reads only near the anchor you give; OCR confuses ± with +, so a bare ± form can stay unresolved.",
+    configHelp: "One line:  /anchor regex/flags\n  e.g.  /H_?\\{?[0o]\\}?\\s*=\\s*/   — the symbol whose value you are after",
+    parseConfig(text) {
+      const m = String(text ?? "").trim().match(/^\/(.*)\/([a-z]*)$/s);
+      if (!m) return { error: "give the anchor as /regex/flags" };
+      try { return { anchor: new RegExp(m[1], m[2]), source: m[1], flags: m[2] }; } catch (e) { return { error: `bad pattern: ${e.message}` }; }
+    },
+    run({ texts, config }) {
+      const base = QUANTITIES.run({ texts, config: {} });
+      const r = autoHardRead({ texts, anchor: config.anchor, items: base.items, trails: state.trails, rules: state.rules, seed: state.seed ?? 1 });
+      state.trails = r.trails; state.rules = r.rules; state.last = r;
+      const origin = { adapter: "hard-read", label: "Quantities, read the hard way (ants + CV + OCR)", config: configId({ s: config.source, f: config.flags }) };
+      const items = r.readings.map((h) => {
+        const title = `${h.value} ${h.sym ? `± ${h.up}` : `+${h.up} −${h.down}`}`;
+        return { id: `hard-read:quantity:${h.doc}:${h.at[0]}`, title, kind: "quantity", address: `${h.doc}#${h.at[0]}-${h.at[1]}`, addresses: [`${h.doc}#${h.at[0]}-${h.at[1]}`],
+          verbatim: h.verbatim, count: 1, value: h.value, up: h.up, down: h.down, unit: "", origin,
+          via: h.byRule ? `by learned rule ${h.byRule} (text only, address re-checked)` : `${h.routes.text} + ${h.routes.image} agreed after ${h.ants} ant(s)` };
+      });
+      return { items: [...base.items, ...items], refused: base.refused, truncated: base.truncated, unread: r.still };
+    },
+  };
+}
+
+export function makeRegistry({ castTexts = null, hardRead = null } = {}) {
+  const list = [DECLARED_TERMS, QUANTITIES, USER_PATTERN, ...(castTexts ? [namedBeings(castTexts)] : []), ...(hardRead ? [hardReadAdapter(hardRead)] : [])];
   return Object.freeze(Object.fromEntries(list.map((a) => [a.id, a])));
 }
 
@@ -171,7 +200,9 @@ export function fillSlots({ config, registry, texts }) {
   const content = {};
   for (const [slot, c] of Object.entries(chosen)) {
     const r = c.adapter.run({ texts, config: c.config });
-    content[slot] = { items: r.items, origin: { id: c.adapter.id, label: c.adapter.label, finds: c.adapter.finds, misses: c.adapter.misses, runsIn: c.adapter.runsIn }, refused: r.refused, truncated: r.truncated };
+    content[slot] = { items: r.items, unread: r.unread ?? null, origin: { id: c.adapter.id, label: c.adapter.label, finds: c.adapter.finds, misses: c.adapter.misses, runsIn: c.adapter.runsIn }, refused: r.refused, truncated: r.truncated };
   }
   return { content, disclosed };
 }
+
+export { unreadMentions } from "../../organs/silence.js";

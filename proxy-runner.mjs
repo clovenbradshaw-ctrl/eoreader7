@@ -94,6 +94,9 @@ import { extractReadable, parseSearchResults, extractUrls, normalizeUrl, WEB_SEA
 // disagreement, and a text→image render for text whose formatting the
 // plain-text reader is reading wrong.
 import { isImageFileName, lookAtImage, lookAtText, shouldLook, weirdFormattingScore } from "./native/organs/look.js";
+import { hardReadSource, judgeStill, linesFor, loadLearned, saveLearned, learnedDir } from "./native/organs/hard-read.js";
+import { recordUse, linkSkills, skillRef, INSTRUMENTED } from "./native/organs/skill-usage.js";
+import { disabledSet } from "./native/organs/skill-toggles.js";
 import { MODEL_SERVER_URL } from "./native/kernel/model-server.js";
 import { mechanicalRevision, variedDraw } from "./native/organs/variation.js";
 import { styleGrade as strunkWhiteGrade } from "./native/organs/strunk-white.js";
@@ -2500,6 +2503,59 @@ continue;
   return entries;
 }
 
+
+// HARD READ — learned on the fly (native/organs/hard-read.js). The ordinary reader saw a measurement and
+// could not read it (a stacked TeX error, a split stat/sys error); the colony reads it two ways — the
+// characters and a typeset picture looked at with OpenCV + Tesseract — accepts only when they AGREE, and
+// learns a rule that reads the next such shape mechanically. The colony's memory (trails + rules) is
+// persisted (ER7_LEARNED_DIR, default ~/.er7/learned), so it outlives the session. The readings are
+// admitted as a source of their own, each line carrying the byte address of the text it was read from.
+
+// A skill's use, disclosed twice: on the per-turn list the generation record links to, and on the session's
+// ingestion log (how each source was read) — plus the append-only usage record the skills surface reads.
+const skillParentOf = (id) => (String(id).startsWith("learned:hard-read/") ? "route:hard-read" : null);
+function noteSkillUse(session, ev) {
+  (session.skillEvents ??= []).push(ev);
+  if (ev.source) (session.ingestionLog ??= []).push({ ...skillRef(ev.skill), source: ev.source, accepted: ev.accepted ?? 0, refused: ev.refused ?? 0, judged: ev.judged ?? 0, turn: session.turnCount });
+  recordUse(learnedDir(), { skill: ev.skill, fired: ev.fired ?? 1, accepted: ev.accepted ?? 0, refused: ev.refused ?? 0, judged: ev.judged ?? 0, source: ev.source ?? null });
+}
+let HARD_LEARNED = null;
+const HARD_READ_MAX_CHARS = 2_000_000; // declared ceiling per file; a larger text is not swarmed
+async function hardReadEntry(session, e, text, onNote) {
+  if (e.giant || text.length > HARD_READ_MAX_CHARS) return 0;
+  const key = `${e.size}:${e.mtimeMs}`;
+  if (session.hardIndex?.get(e.rel) === key) return 0;
+  try {
+    // THE SWITCH: a person may turn this path (or one learned rule under it) off; the pipeline reads that here.
+    const off = disabledSet(learnedDir(), { parentOf: skillParentOf });
+    if (off.has("route:hard-read")) { if (onNote) onNote({ move: "skill_off", skill: "route:hard-read", ...skillRef("route:hard-read"), rel: e.rel }); return 0; }
+    HARD_LEARNED ??= loadLearned();
+    const active = { ...HARD_LEARNED, rules: { ...HARD_LEARNED.rules, rules: HARD_LEARNED.rules.rules.filter((r) => !off.has(`learned:hard-read/${r.name}`)) } };
+    const hr = hardReadSource({ name: e.rel, text, learned: active });
+    (session.hardIndex ??= new Map()).set(e.rel, key);
+    // THE SMALL MODEL, AS NEEDED: only where the senses disagreed, and only to POINT at a candidate.
+    let judged = 0;
+    if (session.hardModel && hr.still.some((u) => (u.readings ?? []).filter((c) => c.reading).length > 1)) {
+      const ask = async (prompt) => { let out = ""; for await (const c of streamOllamaChat(session.hardModel, [{ role: "user", content: prompt }], { maxTokens: 6 })) if (typeof c === "string") out += c; return out; };
+      const j = await judgeStill({ text, still: hr.still, ask });
+      hr.readings.push(...j.readings); hr.lines.push(...j.lines); hr.still = j.still; judged = j.readings.length;
+    }
+    if (!hr.readings.length && !hr.still.length) return 0;
+    HARD_LEARNED = { ...hr.learned, rules: { ...hr.learned.rules, rules: [...hr.learned.rules.rules, ...HARD_LEARNED.rules.rules.filter((r) => off.has(`learned:hard-read/${r.name}`))] } };
+    if (hr.rulesAdded || hr.readings.some((r) => !r.byRule && !r.judged)) saveLearned(learnedDir(), HARD_LEARNED);
+    if (hr.lines.length) admitChunked(session.corpus, { text: piiAdmit(session, hr.lines.join("\n"), `${e.rel}::hardread`, onNote), sourceId: `${e.rel}::hardread` });
+    // every skill that acted on this source is reported, linked: the route, and each learned rule that read for it
+    const usedRules = [...new Set(hr.readings.filter((r) => r.byRule).map((r) => `learned:hard-read/${r.byRule}`))];
+    noteSkillUse(session, { skill: "route:hard-read", source: e.rel, accepted: hr.readings.length, refused: hr.still.length, judged });
+    for (const id of usedRules) noteSkillUse(session, { skill: id, source: e.rel, accepted: hr.readings.filter((r) => `learned:hard-read/${r.byRule}` === id).length });
+    if (onNote) onNote({ move: "hard_read", rel: e.rel, read: hr.readings.length, by_rule: hr.readings.filter((r) => r.byRule).length, judged, unread: hr.still.length, rules_added: hr.rulesAdded, image_sense: hr.senses.image, signals: hr.signals, skills: [skillRef("route:hard-read"), ...usedRules.map(skillRef)] });
+    return hr.readings.length;
+  } catch (err) {
+    if (onNote) onNote({ move: "hard_read_error", rel: e.rel, error: err.message });
+    return 0;
+  }
+}
+
 // Admit (or re-admit changed) workspace files into the session's REAL corpus.
 // File content is stepped through the fold reader once per admission so the
 // holograph/hyperlexicon are built from disk text, not from a model's retell.
@@ -2538,6 +2594,7 @@ async function admitWorkspaceEntries(session, entries, onNote) {
       }
       await yieldToEventLoop();
     }
+    await hardReadEntry(session, e, text, onNote);
     // LOOK AT IT — the native "looking" capacity, ported from the fold's
     // /visual machinery. Text whose formatting the plain-text reader is
     // reading WRONG (a table, a column, box-drawing, sub-sentence lines)
@@ -2566,7 +2623,8 @@ async function admitWorkspaceEntries(session, entries, onNote) {
             }
             if (!session.lookIndex) session.lookIndex = new Map();
             session.lookIndex.set(e.rel, `${e.size}:${e.mtimeMs}`);
-            onNote({ move: "look", rel: e.rel, reason: gate.reason, signals: gate.signals ?? [], boxes: lookedText.boxCount ?? 0, vision: Boolean(lookedText.visionRead) });
+            noteSkillUse(session, { skill: "route:look", source: e.rel, accepted: 1 });
+            onNote({ move: "look", rel: e.rel, reason: gate.reason, signals: gate.signals ?? [], boxes: lookedText.boxCount ?? 0, vision: Boolean(lookedText.visionRead), skills: [skillRef("route:look")] });
           }
         } catch (err) {
           if (onNote) onNote({ move: "look_error", rel: e.rel, error: err.message });
@@ -4148,6 +4206,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const shadowBefore = assessShadow(personId);
   const clearance = ethosClear(task, { disposition: dispositionFrom(shadowBefore) });
   const session = getSession(sessionId, clearance, task);
+  session.skillEvents = []; // this turn's skill uses; the ingestion log persists for the session
   // WHO is at the door (organs/interlocutor.js, Buber): recognized mechanically
   // from the request's shape, accumulated across the session (one interlocutor
   // per conversation), held so the reader can meet an agent or a person in the
@@ -4569,6 +4628,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     if (onNote) onNote({ move: "scanning", root: workspace });
     const entries = workspaceEntries(workspace, onNote);
     if (onNote) onNote({ move: "files_found", count: entries.length, chars: entries.reduce((a, e) => a + e.size, 0) });
+    session.hardModel = model;
     const admit = await admitWorkspaceEntries(session, entries, onNote);
     workspaceStats.files += entries.length;
     workspaceStats.chars += admit.chars;
@@ -8343,6 +8403,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         constitution: { prompt: "native/organs/ethos.js::constitution", sha256: charter?.sha256 ?? null },
         voids: [],
         witness: [],
+        skills: linkSkills(session.skillEvents ?? []),
       });
       return { surface, record, claims, notes, forms: claimForms };
     } catch (err) {
@@ -8758,6 +8819,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     referentBindings: stats.referentBindings,
     hyperlexiconCandidates: Object.keys(hyperlexicon.composition ?? {}).length,
     turn: session.turnCount,
+    // THE SKILLS BEHIND THIS TURN, LINKED to the skills surface: what fired while answering (`used`), how each source
+    // was read (`ingestion`), and the set of skills that can report at all (`instrumented`) — a skill outside that set
+    // may have run without saying so.
+    skills: { used: linkSkills(session.skillEvents ?? []), ingestion: session.ingestionLog ?? [], instrumented: INSTRUMENTED.map(skillRef) },
     workspace: workspaceStats,
     attachments: attachmentStats,
     // THE PER-SENTENCE READING SURFACE (ONE-ENGINE-PLAN): every sentence of

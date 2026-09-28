@@ -140,3 +140,14 @@ test("the settings form lists every handle keyed by ns and id, default as placeh
   assert.match(h, /value="Corpus"/);
   assert.match(h, /placeholder="Field"/);
 });
+
+test("a variant that came back false is said in the claim's own sentence, not left in the rows", () => {
+  let log = addCard(emptyBench(), { id: "k", text: "claim", author: "human:ada" }).log;
+  const run = (id, role, label, res) => runOnBench(log, { id, card: "k", role, code: `console.log('#scope {"kind":"instance","label":"${label}"}');console.log('#result ${res}')` }).log;
+  log = run("a", "check", "set A", true); log = run("b", "check", "set B", false); log = run("c", "control", "shuffled", false);
+  log = promote(log, { card: "k", to: "computed_in_range", by: "human:ada" }).log;
+  const p = phrase(log, "k");
+  assert.match(p, /Checked over the whole of one finite object \(set A\)/);
+  assert.match(p, /did NOT hold over the whole of one finite object \(set B\)/);
+  assert.equal(support(log, "k").checks.length, 1, "a false variant never counts as support");
+});

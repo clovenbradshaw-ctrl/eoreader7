@@ -84,3 +84,14 @@ test("the origin settings offer only adapters that serve each slot, and say how 
   assert.doesNotMatch(measures.slice(0, measures.indexOf("</fieldset>")), /Terms you declare/, "an adapter that does not serve the slot is not offered");
   assert.match(h, /selected/);
 });
+
+import { unreadMentions } from "../the-fold/surface/origins.mjs";
+test("the silence report names what an adapter saw and did not read", () => {
+  const texts = [{ name: "a.txt", text: "We find H0 = 73.3^{+1.7}_{-1.8} and later H0 = 67.4 ± 0.5 km/s." }, { name: "b.txt", text: "Nothing about it here." }];
+  const { content } = fillSlots({ registry: reg, texts, config: { measures: { adapter: "quantities" } } });
+  const un = unreadMentions({ texts, anchor: /H0\s*=/, items: content.measures.items });
+  assert.equal(un.length, 1, "the asymmetric form was seen and not read; the ± form was read");
+  assert.match(un[0].quote, /73\.3/);
+  assert.equal(unreadMentions({ texts: [texts[1]], anchor: /H0/, items: [] }).length, 0, "a source that never mentions it is silent, not unread");
+  assert.equal(un[0].doc, "a.txt");
+});

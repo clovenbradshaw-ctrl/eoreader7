@@ -25,7 +25,9 @@ export const DEFAULT_HANDLES = Object.freeze({
   }),
   slot: Object.freeze({
     subject: "Subject", sources: "Sources", measures: "Measures", objects: "Objects", relations: "Relations", rows: "Rows",
+    received: "Received", learned: "Learned here",
   }),
+  surface: Object.freeze({ skills: "Skills" }),
 });
 
 export const LABEL_MAX = 32;

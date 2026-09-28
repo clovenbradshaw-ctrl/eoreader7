@@ -117,7 +117,10 @@ export function support(log, cardId) {
   const rs = runs(log, cardId).filter((r) => r.ok);
   const checks = rs.filter((r) => r.role === "check" && r.result === true && r.scope.kind !== "undeclared");
   const controls = rs.filter((r) => r.role === "control" && r.result === false);
-  return { checks, controls, scopes: checks.map((r) => r.scope) };
+  // Check runs that RAN and came back false are part of what the ledger backs
+  // too: a claim that holds under one declared variant and not another must say so.
+  const failed = rs.filter((r) => r.role === "check" && r.result === false);
+  return { checks, controls, failed, scopes: checks.map((r) => r.scope) };
 }
 
 export function statusOf(log, cardId) {
@@ -162,8 +165,10 @@ export function phrase(log, cardId) {
   if (st === "stated") return `Stated by ${c.author}, nothing checked${who}: ${q}`;
   if (st === "conjectured") return `Conjectured, no proof${who}: ${q}`;
   if (st === "computed_in_range") {
-    const scopes = support(log, cardId).scopes.map(scopePhrase);
-    return `Checked over ${scopes.join("; ")}. Nothing is claimed beyond that — this is not a proof. The claim as written: ${q}`;
+    const sup = support(log, cardId);
+    const scopes = sup.scopes.map(scopePhrase);
+    const against = sup.failed.length ? ` It did NOT hold over ${sup.failed.map((r) => scopePhrase(r.scope)).join("; ")}.` : "";
+    return `Checked over ${scopes.join("; ")}.${against} Nothing is claimed beyond that — this is not a proof. The claim as written: ${q}`;
   }
   const p = [...log.entries].reverse().find((e) => e.kind === "promote" && e.card === cardId && e.to === "proved");
   return `Proved — ${p.by}, evidence ${p.evidence}: ${q}`;
