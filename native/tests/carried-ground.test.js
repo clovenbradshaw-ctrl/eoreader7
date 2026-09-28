@@ -40,6 +40,13 @@ test("the ground at an earlier part is that part's, not the latest (the stale co
   assert.deepEqual(groundAt({ parts, k: 0, cast, sentences }).facts, [], "nothing before the first part");
 });
 
+test("one element alone: the ablation carries only what it names", () => {
+  const syn = groundAt({ parts, k: 3, cast, sentences, only: new Set(["syn"]) }).facts;
+  assert.deepEqual(syn, ["Rex is also in the story."]);
+  const rec = groundAt({ parts, k: 3, cast, sentences, only: new Set(["rec"]) }).facts;
+  assert.deepEqual(rec, ["It is the third day of the story."]);
+});
+
 test("the carried facts use no apparatus words and no regular expressions", () => {
   for (const f of groundAt({ parts, k: 3, cast, sentences }).facts) for (const w of ["ledger", "claim", "JSON", "premise", "note", "field"]) assert.ok(!f.split(" ").includes(w), f);
   assert.deepEqual(scanRegexes(fs.readFileSync(path.join(HERE, "..", "organs", "carried-ground.js"), "utf8")), []);

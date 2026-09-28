@@ -111,9 +111,9 @@ for (const name of arms.filter((a) => a !== "edit")) {
   const t0 = Date.now();
   // "field" writes with the carried ground (organs/carried-ground.js);
   // "stale" is its control — the ground as it stood at a random earlier part
-  if (name === "ledger" || name === "lines-only" || name === "field" || name === "stale") {
+  if (name === "ledger" || name === "lines-only" || name === "field" || name === "stale" || name.startsWith("field-")) {
     const log = logTo(`${name}.log.jsonl`);
-    const lf = makeLongForm({ ask, sentences, medium: PROSE_MEDIUM, mouth: model, log, recipe: name === "lines-only" ? "lines-only" : "ledger", carry: name === "field" ? "field" : name === "stale" ? "stale" : null, carrySeed: seed, castDetails: outline.castDetails, persist: ({ notes, store }) => fs.writeFileSync(path.join(OUT, `${name}.state.json`), JSON.stringify({ notes, store })) });
+    const lf = makeLongForm({ ask, sentences, medium: PROSE_MEDIUM, mouth: model, log, recipe: name === "lines-only" ? "lines-only" : "ledger", carry: name === "field" ? "field" : name === "stale" ? "stale" : name.startsWith("field-") ? `field:${name.slice(6)}` : null, carrySeed: seed, castDetails: outline.castDetails, persist: ({ notes, store }) => fs.writeFileSync(path.join(OUT, `${name}.state.json`), JSON.stringify({ notes, store })) });
     const w = await lf.writeBodies({ notes: outline.notes, store: makeTextStore(), topic: outline.topic });
     const s = lf.seal({ notes: w.notes, store: w.store, request, regime: { arm: name, seed, ctx } });
     fs.writeFileSync(path.join(OUT, `${name}.book.md`), s.artifact);

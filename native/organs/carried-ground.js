@@ -60,20 +60,23 @@ const ordinal = (n) => ["first", "second", "third", "fourth", "fifth", "sixth", 
  *   k      the index of the part about to be written (parts.slice(0, k) are read)
  *   cast   the outline's cast things (with props), in order
  */
-export function groundAt({ parts, k, cast, sentences, known = [] }) {
+export function groundAt({ parts, k, cast, sentences, known = [], only = null }) {
+  // only: a set of the elements to carry ("con", "rec", "syn") — the
+  // ablation carries one at a time; null carries all
   const before = parts.slice(0, k).filter((p) => p.lines.length);
   if (!before.length) return { facts: [], day: 1, present: [], strangers: [] };
   const people = cast.map((c) => ({ id: c.id, name: c.name }));
   const read = readBack({ parts: before, cast: people, sentences, known });
   const facts = [];
+  const on = (e) => !only || only.has(e);
   // CON·Ground — who was there at the close of the last part
   const last = before.at(-1);
   const closing = last.lines.flatMap((l) => sentences(l.text).map((s) => s.text)).slice(-CLOSE_SENTENCES);
   const present = people.filter((c) => closing.some((t) => hasName(t, c.name))).map((c) => c.name);
-  if (present.length) facts.push(`When the part before ended, ${list(present)} ${present.length > 1 ? "were" : "was"} there.`);
+  if (on("con") && present.length) facts.push(`When the part before ended, ${list(present)} ${present.length > 1 ? "were" : "was"} there.`);
   // CON·Ground — where the being is (the Odysseus question, carried)
   const frame = arcFrame(cast);
-  if (frame.p && frame.home) {
+  if (on("con") && frame.p && frame.home) {
     const path = trajectory({ parts: before, frame });
     const seen = [...path].reverse().find((x) => x.seen);
     if (seen?.at === "home") facts.push(`${frame.p} is at ${frame.home}.`);
@@ -81,11 +84,11 @@ export function groundAt({ parts, k, cast, sentences, known = [] }) {
   }
   // REC·Ground — story time, advanced by the prose's own next-day phrases
   const day = 1 + before.reduce((a, p) => a + nextDays(p.lines.map((l) => l.text).join(" ")), 0);
-  facts.push(`It is the ${ordinal(day)} day of the story.`);
+  if (on("rec")) facts.push(`It is the ${ordinal(day)} day of the story.`);
   // SYN·Ground, gated by EVA·Ground — strangers the prose made recur,
   // compiled into the ground while the recent parts still hold them
   const cleared = clearance(read).established;
   const recent = cleared.filter((e) => read.parts.slice(-LOOKBACK).some((p) => p.strangers[e.name])).map((e) => e.name);
-  if (recent.length) facts.push(`${list(recent.slice(0, 3))} ${recent.length > 1 ? "are" : "is"} also in the story.`);
+  if (on("syn") && recent.length) facts.push(`${list(recent.slice(0, 3))} ${recent.length > 1 ? "are" : "is"} also in the story.`);
   return { facts: facts.slice(0, FIELD_FACTS), day, present, strangers: recent };
 }

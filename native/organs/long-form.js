@@ -287,7 +287,9 @@ export function makeLongForm({ ask, sentences, medium, mouth = "mouth", log = ()
       if (carry && recipe === "ledger") {
         const soFar = partsSoFar(outline, notes, store, i);
         const k = carry === "stale" ? (i > 1 ? 1 + Math.floor(pick() * (i - 1)) : 0) : i;
-        ground = groundAt({ parts: soFar, k, cast: outline.cast, sentences, known: castDetailValues(outline) }).facts;
+        // "field:con", "field:rec", "field:syn" carry one element alone (the ablation)
+        const only = carry.startsWith("field:") ? new Set([carry.slice(6)]) : null;
+        ground = groundAt({ parts: soFar, k, cast: outline.cast, sentences, known: castDetailValues(outline), only }).facts;
         log({ kind: "carried", part: leaf.part.id, mode: carry, from: k, facts: ground });
       }
       const note = workingNote({ outline, leaf, prevTail, topic, ground });
