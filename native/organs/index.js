@@ -225,3 +225,7 @@ export { bindActivationRetrieval } from "./activation-retrieval.js";
 export * as activationRetrieval from "./activation-retrieval.js";
 export { solonLogPath, KEEPER_MARKER, auditEnforcementMap, classifyResultsDoc, referencedBy, auditResults, diffFailures, readTail, scanResultsDir, runSuite, rootFiles, foldTestBodies, auditRecordDir, runLiveSweep, createKeeper, startServer } from "./solon.js";
 export * as solon from "./solon.js";
+
+// ---- which fold, for whom (2026-09-28)
+export { planFold, INTERPRETIVE } from "./fold-plan.js";
+export * as foldPlan from "./fold-plan.js";
