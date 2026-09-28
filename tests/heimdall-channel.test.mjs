@@ -133,28 +133,34 @@ test("retry hold: a server that honors Retry-After keeps the base hold; one that
   assert.equal(disclosed.earlyRetries, 4);
 });
 
-// ── the bridge as a host ─────────────────────────────────────────────────
-test("hosts: the fleet bridge is a standby until a phone holds a model; then it is picked for that model only, and never bounced back to", () => {
+// ── the on-device host, by default (2026-09-28: the bridge replaced the
+// native daemon as the default target — the old required-local +
+// optional-auto-fleet pair collapsed into one required host) ──────────────
+test("hosts: by default there is exactly one on-device host, named local, pointed at the bridge — required, not a standby", () => {
   const hosts = h.inferenceHosts();
-  const fleet = hosts.find((x) => x.name === "fleet");
-  assert.ok(fleet, "the bridge is a host by default");
-  assert.equal(fleet.auto, true);
-  assert.equal(h.hostStandby(fleet), true, "unverified auto host: standby");
-  fleet.kind = "bridge";
-  assert.equal(h.hostStandby(fleet), true, "a bridge with no phone-held model: standby");
-  const local = hosts.find((x) => x.name === "local");
-  const savedLocalDown = local.downAt;
-  local.downAt = null;
+  assert.equal(hosts.length, 1, "no ER7_OLLAMA_HOSTS override: one on-device host by default");
+  const local = hosts[0];
+  assert.equal(local.name, "local");
+  assert.ok(/:8790$/.test(local.url), "the default target is the bridge (127.0.0.1:8790), not the native daemon");
+  assert.notEqual(local.auto, true, "the sole default host is required, never an auto standby just for being unprobed");
+  const savedDown = local.downAt, savedKind = local.kind;
+  local.downAt = null; local.kind = null;
+  assert.equal(h.hostStandby(local), false, "kind unmeasured and not auto: never a standby");
   const p0 = h.pickHost({ model: "gemma2:2b", session: `t-${Date.now()}` });
-  assert.equal(p0.host.name, "local", "with no phone the local daemon serves");
-  fleet.resident.set("gemma2:2b", new Date(Date.now() + 60_000).toISOString());
-  assert.equal(h.hostStandby(fleet), false, "a phone holds gemma: the bridge is a host");
-  const p1 = h.pickHost({ model: "qwen3:8b", session: `t2-${Date.now()}` });
-  assert.equal(p1.host.name, "local", "a model no phone holds never goes to the bridge (it cannot load it)");
-  const p2 = h.pickHost({ model: "gemma2:2b", session: `t3-${Date.now()}`, exclude: "fleet" });
-  assert.equal(p2.host.name, "local", "a turn that came FROM the bridge is never bounced back");
-  fleet.resident.clear();
-  local.downAt = savedLocalDown;
+  assert.equal(p0.host.name, "local", "the sole default host serves every model");
+  // Once measured as a bridge (the live /bridge/hello probe), the same
+  // generic rule that used to govern only the optional fleet host now
+  // governs this one too: nothing resident is a standby, holding the asked
+  // model is a pick.
+  local.kind = "bridge";
+  assert.equal(h.hostStandby(local), true, "a bridge with nothing resident: standby");
+  local.resident.set("gemma2:2b", new Date(Date.now() + 60_000).toISOString());
+  assert.equal(h.hostStandby(local), false, "a bridge holding the asked model: not a standby");
+  const p1 = h.pickHost({ model: "gemma2:2b", session: `t2-${Date.now()}` });
+  assert.equal(p1.host.name, "local");
+  local.resident.clear();
+  local.kind = savedKind;
+  local.downAt = savedDown;
 });
 
 // ── the learner's diet ───────────────────────────────────────────────────
@@ -352,7 +358,12 @@ test("tiers: the requested model first wherever resident; then the small mouth o
   h.__tiersTest.setInstalled(ROSTER);
   const hosts = h.inferenceHosts();
   const local = hosts.find((x) => x.name === "local");
-  const fleet = hosts.find((x) => x.name === "fleet");
+  // A second host is synthesized here (2026-09-28: the default host set is
+  // just the one bridge-pointed "local" now) to exercise the generic
+  // multi-host tier ranking exactly as an operator gets it by naming a
+  // second host in ER7_OLLAMA_HOSTS.
+  const fleet = { name: "fleet", url: "http://127.0.0.1:8790", auto: true, inflight: 0, calls: 0, picks: 0, fails: 0, lastAt: null, downAt: null, downReason: null, kind: null, inflightBy: new Map(), meanMs: new Map(), loadMs: null, resident: new Map() };
+  hosts.push(fleet);
   const savedDown = local.downAt; local.downAt = null;
   const soon = new Date(Date.now() + 60_000).toISOString();
   local.resident.set("gemma2:2b", soon);
@@ -377,6 +388,7 @@ test("tiers: the requested model first wherever resident; then the small mouth o
   const sub = smallAsked.find((c) => c.tier === "small");
   assert.equal(sub?.model, "gemma2:2b", "the substitute for the small mouth is the next smallest resident generative model");
   local.resident.clear(); fleet.resident.clear(); local.downAt = savedDown;
+  hosts.splice(hosts.indexOf(fleet), 1);
   h.__tiersTest.setInstalled(null);
 });
 
@@ -389,8 +401,14 @@ test("diversity cap: real concurrent demand for N distinct models at the cap hol
   q.setOllamaModels([{ name: "resident-model", contextLength: 8192 }]);
   const cap = h.heimdallSettings().find((s) => s.name === "modelDiversityCap").value;
   assert.ok(cap >= 1, "the default cap must be positive for this test to mean anything");
+  // The cap mirrors the native daemon's own OLLAMA_MAX_LOADED_MODELS, so it
+  // is checked on the host at OLLAMA_URL specifically (2026-09-28) — no
+  // longer whichever host happens to be named "local", now that the bridge
+  // holds that name by default. Synthesize that host for this test.
+  const daemon = { name: `daemon-test-${process.pid}`, url: h.modelServerUrl(), auto: false, inflight: 0, calls: 0, picks: 0, fails: 0, lastAt: null, downAt: null, downReason: null, kind: null, inflightBy: new Map(), meanMs: new Map(), loadMs: null, resident: new Map() };
+  h.inferenceHosts().push(daemon);
   const busyModels = Array.from({ length: cap }, (_, i) => `busy-${i}-${process.pid}`);
-  for (const m of busyModels) h.hostBegin("local", m);
+  for (const m of busyModels) h.hostBegin(daemon.name, m);
   try {
     const hdr = (k) => ({ "x-er7-caller": k, "x-er7-priority": "interactive" });
     const fourth = h.admitChat(JSON.stringify({ model: `new-model-${process.pid}`, messages: [] }), hdr(`div-new-${process.pid}`));
@@ -406,7 +424,8 @@ test("diversity cap: real concurrent demand for N distinct models at the cap hol
     const sameBusyAdmit = h.admitChat(JSON.stringify({ model: busyModels[0], messages: [] }), hdr(`div-same-${process.pid}`));
     assert.equal(sameBusyAdmit.allowed, true, "more demand for an ALREADY-busy model is not new diversity — it doesn't need a new slot");
   } finally {
-    for (const m of busyModels) h.hostEnd("local", { model: m, ok: true, ms: 1 });
+    for (const m of busyModels) h.hostEnd(daemon.name, { model: m, ok: true, ms: 1 });
+    h.inferenceHosts().splice(h.inferenceHosts().indexOf(daemon), 1);
     q.reset();
   }
 });

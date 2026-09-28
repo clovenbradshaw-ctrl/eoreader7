@@ -101,8 +101,10 @@ export const channelPort = () => CHANNEL_PORT;
 //   4. ROTATE TIES — an idle fleet spreads instead of pinning the first host.
 // A host that refuses (ECONNREFUSED) is stood down until the next cadence
 // probes it back; a single timeout never convicts (the last state stands).
-// Configure with ER7_OLLAMA_HOSTS="name=http://host:port,name=url"; the
-// default is the one local daemon, so nothing changes for a one-box setup.
+// Configure with ER7_OLLAMA_HOSTS="name=http://host:port,name=url"; with no
+// override the one on-device host is the bridge (2026-09-28: it replaced the
+// native daemon as the default target — see below), so nothing changes for
+// a one-box setup that just runs `heimdall up`.
 const HOST_EWMA = 0.3;
 function parseHosts() {
   const raw = String(process.env.ER7_OLLAMA_HOSTS ?? "").trim();
@@ -114,14 +116,25 @@ function parseHosts() {
     if (!/^https?:\/\//.test(url)) continue;
     out.push({ name, url });
   }
-  if (!out.length) out.push({ name: "local", url: OLLAMA_URL });
-  // THE FLEET, BY DEFAULT (2026-09-21): the phone bridge (`heimdall up`,
-  // 3.0/heimdall) is a host whenever it is up — that is how "across Matrix"
-  // reaches this picker: a phone that accepted duty holds a model, the bridge
-  // lists it in /api/ps, and it ranks beside the local daemon on the same
-  // measured scale. ER7_FLEET_URL="" opts out. Marked `auto` so an absent
-  // bridge is a standby, never a host_down alarm.
-  if (process.env.ER7_FLEET_URL !== "" && !out.some((h) => h.name === "fleet")) {
+  if (!out.length) {
+    // THE BRIDGE IS THE DEFAULT ON-DEVICE HOST (2026-09-28): the old
+    // two-tier default — a required native daemon plus an optional/auto
+    // fleet bridge — is gone. The bridge (`heimdall up`, 3.0/heimdall)
+    // speaks the identical Ollama wire API (/api/chat, /api/generate,
+    // /api/tags, /api/ps), so pickHost/mouthFor/serveTiersFor need nothing
+    // new to route through it; it is simply the one required host now. The
+    // native daemon (OLLAMA_URL) is no longer a default target — still
+    // reachable by naming it explicitly, e.g.
+    // ER7_OLLAMA_HOSTS="local=http://127.0.0.1:11435".
+    out.push({ name: "local", url: String(process.env.ER7_FLEET_URL ?? "http://127.0.0.1:8790").replace(/\/+$/, "") });
+  } else if (process.env.ER7_FLEET_URL !== "" && !out.some((h) => h.name === "fleet")) {
+    // THE FLEET, ALONGSIDE AN EXPLICIT CONFIG (2026-09-21): once
+    // ER7_OLLAMA_HOSTS names hosts by hand, the bridge is still added beside
+    // them as an optional extra — that is how "across Matrix" reaches this
+    // picker: a phone that accepted duty holds a model, the bridge lists it
+    // in /api/ps, and it ranks beside the named hosts on the same measured
+    // scale. ER7_FLEET_URL="" opts out. Marked `auto` so an absent bridge is
+    // a standby, never a host_down alarm.
     out.push({ name: "fleet", url: String(process.env.ER7_FLEET_URL ?? "http://127.0.0.1:8790").replace(/\/+$/, ""), auto: true });
   }
   return out.map((h) => ({
@@ -3774,7 +3787,12 @@ export function admitChat(body = "{}", headers = {}) {
     const bare = String(model).replace(/^er7:/, "");
     // Resident on ANOTHER inference host (a paired phone, a second box) is
     // resident too: the turn goes there and loads nothing on this box.
-    const residentElsewhere = hosts.some((h) => h.name !== "local" && hostUp(h) && hostResident(h, bare));
+    // Excluded by URL, not by name (2026-09-28): `loaded` above already
+    // covers whichever host sits at OLLAMA_URL — the native daemon — so a
+    // host pointed there is skipped here to avoid asking it twice; since the
+    // bridge is now the default on-device host, this is no longer always
+    // the host named "local".
+    const residentElsewhere = hosts.some((h) => h.url !== OLLAMA_URL && hostUp(h) && hostResident(h, bare));
     const resident = residentElsewhere || (residencyKnown && loaded.some((m) => (m.name ?? m.model) === bare));
     // BOX-LEVEL SWAP GUARD (2026-09-20; corrected to CHURN, 2026-09-21): swap
     // LEVEL alone is history — macOS never moves pages back, so a box can sit
@@ -3817,7 +3835,13 @@ export function admitChat(body = "{}", headers = {}) {
     // hold loop keeps the caller's place and retries once a slot frees. Same
     // scope as the checks above it: residencyKnown/resident/bare are theirs.
     if (residencyKnown && !resident && MODEL_DIVERSITY_CAP > 0) {
-      const local = hostByName("local");
+      // By URL, not by name (2026-09-28): MODEL_DIVERSITY_CAP mirrors the
+      // native daemon's own OLLAMA_MAX_LOADED_MODELS (modelServerConfig,
+      // above) — it applies to whichever host sits at OLLAMA_URL, which is
+      // no longer always the host named "local" now that the bridge is the
+      // default. Naturally inert when no configured host targets the native
+      // daemon at all.
+      const local = hosts.find((h) => h.url === OLLAMA_URL);
       if (local?.inflightBy) {
         const busy = [...local.inflightBy.entries()].filter(([m, n]) => m !== bare && n > 0).map(([m]) => m);
         if (busy.length >= MODEL_DIVERSITY_CAP) {
