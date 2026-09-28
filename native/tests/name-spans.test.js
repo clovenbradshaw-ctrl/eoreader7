@@ -35,7 +35,7 @@ test("the patronymic class (2026-09-28): declared per language, never on by defa
   assert.deepEqual(nameSpans("Count Cyril Vladímirovich Bezúkhov", ru).map((x) => x.relation), ["title", "given", "patronymic", "head"]);
   assert.deepEqual(nameSpans("Katerina Ivanovna", ru).map((x) => [x.text, x.relation]), [["Katerina", "head"], ["Ivanovna", "patronymic"]], "with no family name the given is the head, the patronymic subordinate");
   assert.deepEqual(nameSpans("Katerina Ivanovna").map((x) => x.relation), ["given", "head"], "undeclared, byte-identical to before");
-  assert.equal(nameSpans("Aldrich", ru)[0].relation, "head", "an English family name in -ich is not long enough for the class");
+  assert.equal(nameSpans("John Aldrich", ru).map((x) => x.relation).join(","), "given,head", "an English family name in -ich is never read as a patronymic");
   // T5 again, now read as two heads under one father: still none
   assert.equal(nameNesting("Katerina Ivanovna", "Alyona Ivanovna", ru).level, "none");
   // given + patronymic is a first-name reference narrowed to one father
@@ -50,15 +50,18 @@ test("the parts of a name are a reading prior: en + mul + ru composed from live_
   const dir = "/home/user/live_priors/derived-priors/name-priors";
   const load = (f) => JSON.parse(readFileSync(`${dir}/${f}`, "utf8"));
   if (!existsSync(`${dir}/name-parts-ru.json`)) { console.log("live_priors not beside this checkout — the composition is checked against an in-test prior only"); }
-  const ru = existsSync(`${dir}/name-parts-ru.json`) ? load("name-parts-ru.json") : { schema: "NamePartsPrior@1", language: "ru", provenance: { giver: "test" }, patronymic: { suffixes: ["ovich", "evich", "ovna", "evna"], minLength: 6 } };
+  // the fallback carries the file's own suffix list, so CI without the sibling repo checks the same composition
+  const ru = existsSync(`${dir}/name-parts-ru.json`) ? load("name-parts-ru.json") : { schema: "NamePartsPrior@1", language: "ru", provenance: { giver: "test" }, patronymic: { suffixes: ["ovich", "evich", "yich", "ovna", "evna", "ichna", "inichna"], minLength: 6 } };
   const en = existsSync(`${dir}/name-parts-en.json`) ? load("name-parts-en.json") : { schema: "NamePartsPrior@1", language: "en", provenance: { giver: "test" }, titles: ["count", "prince"] };
   const mul = existsSync(`${dir}/name-parts-mul.json`) ? load("name-parts-mul.json") : { schema: "NamePartsPrior@1", language: "mul", provenance: { giver: "test" }, particles: ["van"] };
   const parts = namePartsFrom(en, mul, ru);
   assert.deepEqual(parts.languages, ["en", "mul", "ru"]); assert.equal(parts.givers.length, 3);
   assert.deepEqual(nameSpans("Count Cyril Vladímirovich Bezúkhov", parts).map((x) => x.relation), ["title", "given", "patronymic", "head"]);
   assert.deepEqual(nameSpans("Ludwig van Beethoven", parts).map((x) => x.relation), ["given", "particle", "head"]);
-  assert.equal(nameSpans("Aldrich", parts)[0].relation, "head", "the prior's own floor keeps an English -ich family name a head");
-  for (const n of ["Vladímirovich", "Ivanovna", "Aldrich", "Bezúkhov", "Petrovich"]) assert.equal(parts.patronymic(n.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()), PATRONYMIC_RU(n.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()), n);
+  assert.equal(parts.patronymic("aldrich"), false, "the bare -ich is not in the class: an English family name is never a patronymic");
+  assert.deepEqual(nameSpans("John Aldrich", parts).map((x) => x.relation), ["given", "head"]);
+  assert.equal(parts.patronymic("ilyich"), true, "-yich is kept"); assert.equal(parts.patronymic("kuzmich"), false, "the disclosed loss");
+  for (const n of ["Vladímirovich", "Ivanovna", "Aldrich", "Bezúkhov", "Petrovich", "Ilyich", "Kuzmich"]) assert.equal(parts.patronymic(n.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()), PATRONYMIC_RU(n.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase()), n);
   assert.equal(nameNesting("Cyril Vladímirovich", "Count Cyril Vladímirovich Bezúkhov", parts).patronymicAgrees, true);
   assert.throws(() => namePartsFrom({ language: "xx" }), /NamePartsPrior@1/);
   assert.equal(namePartsFrom(en).patronymic, null, "a composition with no patronymic prior types no patronymic");

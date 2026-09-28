@@ -90,7 +90,8 @@ export function namePartsFrom(...priors) {
   return Object.freeze({ titles: Object.freeze(titles), particles: Object.freeze(particles), patronymic, languages: priors.map((p) => p.language), givers: Object.freeze(givers) });
 }
 /** The Russian patronymic class as a code-side default — the SAME suffixes and floor name-parts-ru.json carries (the prior is authoritative; this is what loads with no file on disk). */
-export const PATRONYMIC_RU = namePartsFrom({ schema: "NamePartsPrior@1", language: "ru", provenance: { giver: "lang/ru (code-side default of live_priors name-parts-ru.json)" }, patronymic: { suffixes: ["ovich", "evich", "yich", "ich", "ovna", "evna", "ichna", "inichna"], minLength: 6 } }).patronymic;
+// (the bare -ich is deliberately absent: it collides with English family names — Aldrich, Goodrich — at any floor; Kuzmich is the disclosed loss, Ilyich is kept by -yich)
+export const PATRONYMIC_RU = namePartsFrom({ schema: "NamePartsPrior@1", language: "ru", provenance: { giver: "lang/ru (code-side default of live_priors name-parts-ru.json)" }, patronymic: { suffixes: ["ovich", "evich", "yich", "ovna", "evna", "ichna", "inichna"], minLength: 6 } }).patronymic;
 export const PATRONYMIC_RU_META = Object.freeze({ giver: "lang/ru — patronymic formation from the father's given name (-ович/-евич/-ич, -овна/-евна/-ична), transliterated; the received copy is live_priors/derived-priors/name-priors/name-parts-ru.json" });
 
 const WORD = /[\p{L}\p{N}][\p{L}\p{N}’'.-]*/gu;
