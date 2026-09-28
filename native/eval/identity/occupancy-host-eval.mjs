@@ -168,12 +168,24 @@
 //       predicted by lexicon: became/becoming -> INS·Figure (become-109.1),
 //       appointed/elected/named -> DEF·Figure (appoint-29.1), promoted ->
 //       SYN·Figure (promote-102) — the acts of the LEXICON, not chosen here
+// V8, PRE-REGISTERED 2026-09-28 after v7 (output -v8.json, same cap). The
+// v6 amendment to kernel/merge-standing.js (81e910b): a locus at the floor is
+// an EOUndecided@1 (position | one_being), collapsed for the for-whom under
+// NESTED_NAMES from the adapter's own nesting reading (namesNest: one name's
+// tokens inside another's, diacritics folded). ONE change: `nested` declared
+// to mergeEvidence; everything else expected byte-identical to v7.
+//   Z6  War and Peace: the count_bezukhov locus collapses one_being (Monsieur
+//       Pierre / Pierre nest); ZERO SEG splits on the fold; the occupants'
+//       own alternative (monsieur_pierre <-> pierre) is opened live_hypothesis
+//   Z7  Material A: the Guardiola `england` locus still collapses position
+//       (FA Cup / Champions League do not nest) — its split stands as in v6/v7
+//   Z8  every slot and collapse is reported per text: locus, verdict, rule
 //   node occupancy-host-eval.mjs [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
-const { readOccupancyTestimony, positionsByPattern, NEAREST_ESTABLISHED } = await import(`${NATIVE}/adapters/text/occupancy-testimony.js`);
+const { readOccupancyTestimony, positionsByPattern, NEAREST_ESTABLISHED, nestedOccupants } = await import(`${NATIVE}/adapters/text/occupancy-testimony.js`);
 const { collapse } = await import(`${NATIVE}/kernel/undecided.js`);
-const { mergeEvidence } = await import(`${NATIVE}/kernel/merge-standing.js`);
+const { mergeEvidence, occupantPairKey } = await import(`${NATIVE}/kernel/merge-standing.js`);
 const { deriveIdentityRevision } = await import(`${NATIVE}/kernel/identity.js`);
 const { applyDelta, receivedGround } = await import(`${NATIVE}/kernel/fold.js`);
 const { cellOf } = await import(`${NATIVE}/kernel/cube.js`);
@@ -319,14 +331,15 @@ function readText({ name, text, links }) {
   // referent is a merge into that referent; a locus (by referent id) with two
   // occupant referents attacks it; the identity organ judges on a fresh fold.
   const merges = cast.referents.flatMap((r) => r.surfaces.map((surface) => ({ surface, into: key(r), witness: `${name}#cast`, basis: "name-variant coreference" })));
+  const face = (id) => { const r = cast.referents.find((x) => `${name}/${x.id}` === id); return r ? display.get(r.id) : id; };
   const identityStandings = real.candidates.filter((c) => c.locusId).map((c) => ({ locus: c.locusId, occupant: c.occupant, witness: c.address }));
-  const evidence = mergeEvidence({ merges, standings: identityStandings, witness: `${name}#cast`, minOccupants: 2 });
+  const nested = nestedOccupants(identityStandings, (id) => face(id), occupantPairKey);
+  const evidence = mergeEvidence({ merges, standings: identityStandings, witness: `${name}#cast`, minOccupants: 2, nested });
   const revision = deriveIdentityRevision({ fold: receivedGround(), supports: evidence.supports, attacks: evidence.attacks, giver: "occupancy testimony via kernel/merge-standing.js" });
   const splits = revision.operations.filter((o) => o.operator === "SEG").map((o) => ({ identity: o.consequence?.identity, reason: o.consequence?.reason, witness: o.witness }));
-  const identity = { merges: merges.length, positions: evidence.positions.map((p) => ({ locus: p.locus, occupants: p.occupants })), attacks: evidence.attacks.length, splits, foldAlternatives: applyDelta(receivedGround(), revision).unresolvedAlternatives.filter((x) => x.schema === "EOIdentityAlternative@1" && x.standing === "distinct").map((x) => `${x.left} <-> ${x.right}`) };
+  const identity = { merges: merges.length, positions: evidence.positions.map((p) => ({ locus: p.locus, occupants: p.occupants })), attacks: evidence.attacks.length, splits, slots: evidence.collapses.map((c) => ({ locus: c.of, verdict: c.verdict, chosen: c.chosen?.value ?? null, rule: c.rule.name, reason: c.reason })), withheld: evidence.withheld, occupantHypotheses: evidence.supports.filter((x) => /one_being_under_names/.test(x.reason)).map((x) => `${x.left} <-> ${x.right}`), foldAlternatives: applyDelta(receivedGround(), revision).unresolvedAlternatives.filter((x) => x.schema === "EOIdentityAlternative@1" && x.standing === "distinct").map((x) => `${x.left} <-> ${x.right}`) };
   const loose = readOccupancyTestimony(sentences, { ...opts, mentions, pronouns: SUBJECT_PRONOUNS, resolveLocus, forWhom: { id: "reader:being-kind" }, occupantRule: BEING_KIND });
   const ablation = readOccupancyTestimony(sentences, opts);
-  const face = (id) => { const r = cast.referents.find((x) => `${name}/${x.id}` === id); return r ? display.get(r.id) : id; };
   const rowOf = (c) => ({ text: name, occupant: face(c.occupant), occupantId: c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: c.locus, locusId: c.locusId, locusVia: c.locusVia, verb: c.verb, act: c.act ? { op: c.act.op, grain: c.act.grain, standing: c.act.standing } : null, predecessor: c.predecessor ? face(c.predecessor) : null, pattern: c.pattern, year: c.year, address: c.address, clause: c.clause });
   const rows = real.candidates.map(rowOf);
   const surname = name ? name.replace(/\s*\(.*\)$/, "").split(/\s+/).at(-1) : null;
@@ -442,9 +455,13 @@ const kutuzovo = pages.find((p) => p.name === "Mikhail Kutuzov")?.real.refused.f
 const Z4 = { refused: kutuzovo ? { reason: kutuzovo.reason, clause: kutuzovo.clause.slice(0, 80) } : null, stillAdmitted: A.some((r) => /Kutuzovo/.test(r.locus)), held: kutuzovo?.reason === "subject_unestablished" && !A.some((r) => /Kutuzovo/.test(r.locus)) };
 const framed = pages.flatMap((p) => p.real.events.flatMap((e) => e.undecided.candidates.filter((c) => c.via === "pronoun-unbound" && c.features.reason === "pronoun_frame_named").map((c) => ({ page: p.name, topicInContested: (c.features.contested ?? []).includes(p.topicRef) }))));
 const Z5 = { inTransitionClauses: framed.length, withTopic: framed.filter((x) => x.topicInContested).length, held: null };
+const Z6 = { slots: wpId?.slots ?? [], splits: wpId?.splits?.length ?? null, occupantHypotheses: wpId?.occupantHypotheses ?? [], held: !!wpId && wpId.splits.length === 0 && (wpId.slots ?? []).some((s) => s.chosen === "one_being") && (wpId.occupantHypotheses ?? []).some((x) => /monsieur_pierre/.test(x) && /pierre/.test(x)) };
+const guard = pages.find((p) => /Guardiola/.test(p.name));
+const Z7 = { slots: guard?.identity.slots ?? [], splits: guard?.identity.splits.length ?? null, held: !!guard && guard.identity.splits.length >= 1 && guard.identity.slots.some((s) => s.chosen === "position") };
+const Z8 = { perText: [...pages.map((p) => ({ text: p.name, slots: p.identity.slots })), ...Object.entries(B).map(([k, v]) => ({ text: k, slots: v.identity?.slots ?? [] }))].filter((x) => x.slots.length), held: null };
 
 const out = {
-  Z1, Z2, Z3, Z4, Z5, Y1, Y2, Y3, X1, X2, X3,
+  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8, Y1, Y2, Y3, X1, X2, X3,
   ...W, V1, V2, V3, V4, V5, V6,
   nativeA: { standings: AN.length, perPage: pagesN.map((p) => ({ page: p.name, standings: p.rows.length, refused: tally(p.real.refused, (x) => x.reason), cast: p.cast, seconds: p.seconds })), via: tally(AN, (c) => c.via), rows: AN },
   nativeB: BN,
@@ -455,7 +472,7 @@ const out = {
   standingsA: A,
   live: Object.fromEntries(Object.entries(B).map(([k, v]) => [k, { ...v, rows: v.rows.slice(0, 60) }])),
 };
-for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
+for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
 console.log("via", out.via, "locusVia", out.locusVia);
 for (const [k, v] of Object.entries(B)) console.log(k, v.standings, "standings", v.ablationStandings, "ablation", v.seconds, "s", JSON.stringify(v.refused));
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));
