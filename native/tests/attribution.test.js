@@ -73,6 +73,181 @@ test("narratorSpans resolve by anchor, and an anchor that does not resolve is re
   assert.equal(holderAt(text.length - 1, { narration: nf }).gap, "outside_every_known_frame", "past the last frame is a gap, not the last narrator carried forward");
 });
 
+// ── STRAIGHT QUOTES (real, fetched Turkish prose) ───────────────────────────
+// Genuinely downloaded, not fabricated: bbc.com/turkce/articles/c3rr448q5xdvo
+// (BBC News Türkçe), fetched 2026-09-28, five consecutive real paragraphs of
+// the article's own body text — a straight-ASCII-quote publication with
+// ZERO curly quotes anywhere. Confirmed by direct character count of the
+// site's own embedded JSON payload before this fixture was built: 60
+// straight double quotes, 0 curly, across the whole article.
+const BBC_STRAIGHT = [
+  "AKP Genel Başkan Yardımcısı Fatma Betül Sayan Kaya, hakkında çıkan fon iddiaları nedeniyle görevinden istifa ettiğini duyurdu.",
+  "X hesabında bir paylaşım yapan Sayan Kaya, \"ortaya atılan iddiaların hiçbir tereddüde mahal bırakmayacak şekilde açıklığa kavuşturulmasını son derece önemsediğini\" söyledi.",
+  "Konuyla ilgili açıklamasında AKP Sözcüsü Ömer Çelik, Sayan Kaya'nın MYK ve MKYK üyeliklerinden \"affını istediğini\" ve bunun Cumhurbaşkanı Erdoğan tarafından kabul edildiğini söyledi. ",
+  "Çelik, konuyla ilgili değerlendirmelerinde temel ilkelerinin,  \"Cumhurbaşkanımız ve Genel Başkanımızın 'sorumluluğu olan kim varsa hesap sorulacaktır' ifadesi\" olduğunu ekledi. ",
+  "İstifanın ardından konuşan Yeni Parti Genel Başkanı Özgür Özel, Cumhurbaşkanı Erdoğan'a \"bataklığı kurutmak için birlikte çalışma\" çağrısı yaptı. ",
+].join("\n\n");
+
+test("quotationFrames alone (curly-only, pre-fix) finds NOTHING in real straight-quote prose — the confirmed bug", () => {
+  // Reproduces the report exactly: n.straight is counted but never
+  // consulted by the type-detection branches, so a paragraph with only
+  // straight quotes gets `type: null` and is silently dropped.
+  const before = { open: 0, close: 0 };
+  for (const para of BBC_STRAIGHT.split("\n\n")) {
+    let o = 0, c = 0;
+    for (const ch of para) { if (ch === "“") o++; else if (ch === "”") c++; }
+    before.open += o; before.close += c;
+  }
+  assert.equal(before.open, 0);
+  assert.equal(before.close, 0, "zero curly marks anywhere in real straight-quote prose — the un-fixed branches had nothing to fire on");
+});
+
+test("quotationFrames reads all four straight-quote paragraphs as closed dialogue — every quote closes within its own paragraph, none crosses one", () => {
+  const q = quotationFrames(BBC_STRAIGHT);
+  assert.equal(q.paragraphs, 5);
+  assert.equal(q.marked.length, 4, "the four paragraphs actually carrying a quotation; the bare intro sentence is not one");
+  assert.ok(q.marked.every((m) => m.type === "closed"), "every real quote in this article closes within its own paragraph — an even straight-quote count, never a hanging one");
+  assert.equal(q.counted.closed, 4);
+  assert.equal(q.embeddedFrames.length, 0, "closed dialogue is not an embedded telling");
+});
+
+test("quotedSpans finds all four real quotations, byte-exact, including one with a nested straight single-quote left untouched", () => {
+  const { spans, unclosed } = quotedSpans(BBC_STRAIGHT);
+  assert.equal(spans.length, 4);
+  assert.equal(unclosed, 0);
+  assert.equal(spans[0].text, '"ortaya atılan iddiaların hiçbir tereddüde mahal bırakmayacak şekilde açıklığa kavuşturulmasını son derece önemsediğini"');
+  assert.ok(spans[0].after.trimStart().startsWith("söyledi"), "the attribution verb sits in `after`, immediately following the closing mark");
+  assert.equal(spans[1].text, '"affını istediğini"');
+  // The nested case: a straight DOUBLE quote spanning a straight SINGLE
+  // quote (Turkish's own apostrophe/quote convention, ' not " ) — the
+  // single quote is not this module's STRAIGHT constant at all, so it
+  // passes through untouched and the whole double-quoted span is found
+  // as ONE span, not fractured at the inner mark.
+  assert.equal(spans[2].text, "\"Cumhurbaşkanımız ve Genel Başkanımızın 'sorumluluğu olan kim varsa hesap sorulacaktır' ifadesi\"");
+  assert.ok(spans[2].text.includes("'sorumluluğu"), "the nested single-quoted phrase rides inside the span, untouched");
+  assert.equal(spans[3].text, '"bataklığı kurutmak için birlikte çalışma"');
+  for (const s of spans) assert.equal(BBC_STRAIGHT.slice(s.byteStart, s.byteEnd), s.text, "every span re-slices to the received bytes (P5.2)");
+});
+
+test("disclosed, not silently claimed: attributeQuotation's verb-adjacent-to-name heuristic does not yet attribute this real specimen — Turkish's SOV order separates the name and the verb ACROSS the quote itself", () => {
+  // \"Sayan Kaya, «quote» söyledi\" names the speaker BEFORE the quote and
+  // states the verb AFTER it, with nothing adjacent to anything — neither
+  // attributeQuotation's trailing form (verb immediately followed by a
+  // name) nor its leading form (a name immediately followed by a verb)
+  // matches a structure where the name and verb are separated by the
+  // whole quotation. This is the same class of scoped-out limitation the
+  // raya section above already discloses for Spanish attribution
+  // (a real POS prior would need injecting, and even then the ADJACENCY
+  // heuristic itself is English/Spanish-shaped) — named here rather than
+  // silently implied solved, because this fix's own scope is DETECTION,
+  // not cross-lingual attribution grammar.
+  const { spans } = quotedSpans(BBC_STRAIGHT);
+  const isVerb = (w) => ["söyledi", "yazdı", "ekledi", "yaptı"].includes(String(w).toLowerCase());
+  const referentFor = (s) => ({ Sayan: "ref:sayan-kaya", Kaya: "ref:sayan-kaya", Çelik: "ref:celik", Özel: "ref:ozel" }[s] ?? null);
+  for (const s of spans) {
+    assert.equal(attributeQuotation(s.before, s.after, { isVerb, referentFor }).gap?.type, "attribution_unwitnessed");
+  }
+});
+
+test("a mixed curly+straight text: curly wins where both appear in one paragraph, straight still claims a paragraph curly says nothing about", () => {
+  const text = [
+    "“Good evening,” said Clerval.",
+    "The clerk read the note aloud: \"the shipment arrives Tuesday.\"",
+  ].join("\n\n");
+  const q = quotationFrames(text);
+  assert.equal(q.marked.length, 2);
+  assert.equal(q.marked[0].type, "closed");
+  assert.equal(q.marked[1].type, "closed", "the second paragraph has no curly marks at all — straight claims it");
+  const { spans } = quotedSpans(text);
+  assert.equal(spans.length, 2);
+  assert.equal(spans[0].text, "“Good evening,”");
+  assert.equal(spans[1].text, '"the shipment arrives Tuesday."');
+});
+
+test("a genuinely unclosed straight quote is disclosed via `unclosed`, never silently dropped", () => {
+  const q = quotedSpans('She began, "I never meant for any of this to happen');
+  assert.equal(q.spans.length, 0);
+  assert.equal(q.unclosed, 1);
+});
+
+test("quotationFrames tracks the straight convention ACROSS paragraphs too, the same way curly's own continued/resumed/closing already work", () => {
+  const text = [
+    '"I remember the first days of my being.',
+    'By degrees I learned to distinguish the operations of my senses."',
+  ].join("\n\n");
+  const q = quotationFrames(text);
+  assert.equal(q.marked[0].type, "continued");
+  assert.equal(q.marked[1].type, "closing");
+  assert.equal(q.embeddedFrames.length, 1);
+});
+
+// ── THE RUN-LEAK (found adversarially, real content) ────────────────────────
+// A genuinely UNCLOSED quote — an ordinary truncation/typo artifact, not
+// deliberate multi-paragraph authorship — left `open`/`straightOpen` stuck
+// true, and every mark-free paragraph after it, however unrelated, was
+// silently absorbed into that one run. Confirmed live against real,
+// independently fetched en.wikinews.org prose by an adversarial pass built
+// specifically to break this fix, then confirmed the identical shape was
+// already latent in the pre-existing curly branch. Both closed together
+// (quotationFrames's own header carries the fix and the reasoning); these
+// pin the shape without needing the exact live fetch to reproduce it.
+test("an unclosed straight quote does not swallow the unrelated paragraphs that follow it", () => {
+  const text = [
+    'The chief said, "the situation continues to worsen and',
+    "the community remains on edge as officials investigate further reports.",
+    "==Related news==",
+    "==Sources==",
+  ].join("\n\n");
+  const q = quotationFrames(text);
+  // Paragraph 1 opens a straight quote and never closes it (odd count = 1):
+  // a real, honest "continued" — the run starts here, exactly as before.
+  assert.equal(q.marked[0].type, "continued");
+  // Paragraphs 2-4 carry NO quote mark of any kind. Before this fix they
+  // were absorbed as "resumed" into the same run forever; now they are not
+  // marked at all — narration and section headers are not dialogue just
+  // because an earlier quote never closed.
+  assert.equal(q.marked.length, 1, "only the genuinely marked paragraph is reported — the three mark-free ones that follow are not swept in");
+  assert.equal(q.embeddedFrames.length, 0, "a run of ONE marked paragraph is not an embedded telling — quotationFrames's own >= 2 rule, now actually reachable instead of masked by the leak");
+});
+
+test("the SAME leak, in the pre-existing curly branch, is closed too — not left known-bad beside the fix that exposed it", () => {
+  const text = [
+    "“The situation continues to worsen, said the chief,",
+    "as officials investigate further reports of unrest in the region.",
+    "See also: related coverage.",
+  ].join("\n\n");
+  const q = quotationFrames(text);
+  assert.equal(q.marked[0].type, "continued");
+  assert.equal(q.marked.length, 1, "the two mark-free paragraphs after the unclosed curly quote are not absorbed either");
+});
+
+test("propagation still survives a mark-free paragraph — a LATER genuinely-marked paragraph still reads correctly against the carried-forward state", () => {
+  const text = [
+    '"He looked up and said,',
+    "There was a long pause before anyone spoke.",
+    'that everything would be fine."',
+  ].join("\n\n");
+  const q = quotationFrames(text);
+  assert.equal(q.marked.length, 2, "the middle, mark-free paragraph is not reported, but the state it sits inside is not reset by it either");
+  assert.equal(q.marked[0].type, "continued");
+  assert.equal(q.marked[1].type, "closing", "the third paragraph still correctly closes the run the first opened, skipping over the unmarked middle one");
+  assert.equal(q.embeddedFrames.length, 1);
+  assert.equal(q.embeddedFrames[0].paragraphs, 2, "the run counts only the two paragraphs that actually carried a mark");
+});
+
+test("the founding Frankenstein convention is read identically after the leak fix — every 'resumed' paragraph there already carries its own mark", () => {
+  const text = [
+    "He began his tale.",
+    "“I remember the first days of my being.",
+    "“By degrees I learned to distinguish the operations of my senses.",
+    "“Such was the history of my cottagers.”",
+    "The being finished speaking.",
+  ].join("\n\n");
+  const q = quotationFrames(text);
+  assert.equal(q.embeddedFrames.length, 1);
+  assert.equal(q.embeddedFrames[0].paragraphs, 3, "unchanged: this convention's own paragraphs all carry marks, so the leak fix never touches this case");
+});
+
 // ── THE RAYA (real, fetched Spanish prose) ──────────────────────────────────
 // Genuinely downloaded, not fabricated: es.wikisource.org's transcription of
 // Galdós's "Marianela", chapter I (public domain), 2026-09-28. This exact
