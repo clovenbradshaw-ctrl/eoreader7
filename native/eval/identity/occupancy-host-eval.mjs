@@ -115,6 +115,23 @@
 //       to its top when margin > 0, else nearest-established) adds standings
 //       whose occupants are BEINGS, never dates: month/demonym occupants under
 //       it = 0; every added row listed
+//
+// V5, PRE-REGISTERED 2026-09-28 before the run (output -v5.json, same cap).
+// v4 found the cast admits months, countries and demonyms as beings by a
+// name's own evidence. The cut is COMPANY (P79, Firth), never a list: for every
+// host referent, over its surface occurrences on the page, prepShare = the
+// share whose previous token the received POS prior settles as ADP, verbShare
+// = the share whose next token it settles as VERB or AUX. Both ride on every
+// established candidate; BEING_KIND (a second declared for-whom) admits a
+// candidate only when verbShare > prepShare — more often a subject than a
+// preposition's object — else refuses `not_being_kind`.
+//   Y1  under BEING_KIND, Material A's month/demonym occupants = 0 (v4 default: 1;
+//       v4's loose arm: 9) and the rows lost against the default arm are LISTED
+//   Y2  under BEING_KIND at least 25 of the default arm's 35 rows survive (the
+//       cut removes dates, not careers): Murat, Kutuzov, Merkel x8, Ratzinger,
+//       Summers all retained
+//   Y3  reported: for each page, prepShare/verbShare of the topic referent and
+//       of every month referent — the two populations should not overlap
 //   node occupancy-host-eval.mjs [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
@@ -194,6 +211,16 @@ const BIND_ON_TOP = Object.freeze({ name: "bind-on-top", giver: "eval/identity/o
     return { chosen: nearest.index };
   } });
 
+/** v5's second declared for-whom: nearest-established, and the chosen candidate must be more often a subject than a preposition's object. */
+const BEING_KIND = Object.freeze({ name: "being-kind", giver: "eval/identity/occupancy-host-eval.mjs v5, declared: company read with the UD_English-EWT POS prior", params: { requires: "verbShare > prepShare" },
+  decide(cands, record) {
+    const base = NEAREST_ESTABLISHED.decide(cands, record);
+    if (!Number.isInteger(base.chosen)) return base;
+    const c = cands[base.chosen];
+    if (c.features.verbShare == null || c.features.prepShare == null) return { contested: [c.index], reason: "company_unmeasured" };
+    return c.features.verbShare > c.features.prepShare ? base : { contested: [c.index], reason: "not_being_kind" };
+  } });
+
 function readText({ name, text, links }) {
   const t0 = Date.now();
   const session = createSession();
@@ -202,6 +229,18 @@ function readText({ name, text, links }) {
   const shift = cast.body === text ? 0 : text.indexOf(cast.body);
   const display = new Map(cast.referents.map((r) => [r.id, [...r.surfaces].sort((a, b) => b.length - a.length)[0]]));
   const key = (r) => `${name}/${r.id}`;
+  // COMPANY (v5): for every referent, over its occurrences in the text, the
+  // share preceded by a settled ADP and the share followed by a settled
+  // VERB/AUX — read with the received POS prior, never a word list.
+  const settled = (w) => { const t = POS[String(w ?? "").toLowerCase()]; if (!t) return null; let top = null, n = -1; for (const [k, c] of Object.entries(t)) if (c > n) { top = k; n = c; } return top; };
+  const company = new Map();
+  const words = [...text.matchAll(/[\p{L}\p{N}'’.-]+/gu)];
+  for (const r of cast.referents) {
+    const rx = new RegExp(`(?<![\\p{L}\\p{N}])(?:${[...r.surfaces].sort((x, y) => y.length - x.length).map(esc).join("|")})(?![\\p{L}\\p{N}])`, "gu");
+    let n = 0, prep = 0, verb = 0;
+    for (const m of text.matchAll(rx)) { n += 1; let i = words.findIndex((w) => w.index >= m.index); const before = words[i - 1]?.[0], after = words.find((w) => w.index >= m.index + m[0].length)?.[0]; if (settled(before) === "ADP") prep += 1; const a = settled(after); if (a === "VERB" || a === "AUX") verb += 1; }
+    company.set(r.id, { occurrences: n, prepShare: n ? +(prep / n).toFixed(3) : null, verbShare: n ? +(verb / n).toFixed(3) : null });
+  }
   // THE PIPELINE'S OWN MENTIONS, in the sentence's coordinates. Nothing here
   // reads capitalisation; the ablation arm does.
   // ONE combined alternation, longest surface first, so a position yields one
@@ -211,7 +250,7 @@ function readText({ name, text, links }) {
   const allRe = new RegExp(`(?<![\\p{L}\\p{N}])(${[...owner.keys()].sort((x, y) => y.length - x.length).map(esc).join("|")})(?![\\p{L}\\p{N}])`, "gu");
   const mentions = (sentence) => {
     const out = [];
-    if (owner.size) for (const m of sentence.text.matchAll(allRe)) out.push({ start: m.index, end: m.index + m[0].length, referent: owner.get(m[1]), via: "cast" });
+    if (owner.size) for (const m of sentence.text.matchAll(allRe)) { const rid = owner.get(m[1]); out.push({ start: m.index, end: m.index + m[0].length, referent: rid, via: "cast", features: company.get(rid.replace(`${name}/`, "")) ?? {} }); }
     for (const b of cast.pronounBindings) if (b.sentenceOrder === sentence.at) { const st = b.offset - sentence.offset; if (st >= 0 && st < sentence.text.length) out.push({ start: st, end: st + b.pronoun.length, referent: `${name}/${b.referentId}`, via: "pronoun" }); }
     // the binder's refusals, with the evidence its floor discarded
     for (const g of cast.pronounGaps ?? []) if (g.sentenceOrder === sentence.at && Number.isFinite(g.offset) && g.pronoun) { const st = g.offset - sentence.offset; if (st >= 0 && st < sentence.text.length) out.push({ start: st, end: st + g.pronoun.length, referent: g.top ? `${name}/${g.top}` : null, via: "pronoun-unbound", established: false, features: { reason: g.reason, activation: g.activation ?? null, margin: g.margin ?? null, runnerUp: g.runnerUp ? `${name}/${g.runnerUp}` : null } }); }
@@ -229,14 +268,15 @@ function readText({ name, text, links }) {
   const sentences = cast.sentences.map((s) => ({ text: s.text, at: s.order, offset: s.offset }));
   const opts = { source: name, determiners: DET, modals: MODALS, negation: NEGATION_WORDS };
   const real = readOccupancyTestimony(sentences, { ...opts, mentions, pronouns: SUBJECT_PRONOUNS, resolveLocus });
-  const loose = readOccupancyTestimony(sentences, { ...opts, mentions, pronouns: SUBJECT_PRONOUNS, resolveLocus, forWhom: { id: "reader:bind-on-top" }, occupantRule: BIND_ON_TOP });
+  const loose = readOccupancyTestimony(sentences, { ...opts, mentions, pronouns: SUBJECT_PRONOUNS, resolveLocus, forWhom: { id: "reader:being-kind" }, occupantRule: BEING_KIND });
   const ablation = readOccupancyTestimony(sentences, opts);
   const face = (id) => { const r = cast.referents.find((x) => `${name}/${x.id}` === id); return r ? display.get(r.id) : id; };
   const rowOf = (c) => ({ text: name, occupant: face(c.occupant), occupantId: c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: c.locus, locusVia: c.locusVia, predecessor: c.predecessor ? face(c.predecessor) : null, pattern: c.pattern, year: c.year, address: c.address, clause: c.clause });
   const rows = real.candidates.map(rowOf);
   const surname = name ? name.replace(/\s*\(.*\)$/, "").split(/\s+/).at(-1) : null;
   const topic = surname ? cast.referents.find((r) => r.surfaces.includes(surname) || r.surfaces.includes(name)) : null;
-  return { name, rows, looseRows: loose.candidates.map(rowOf), real, loose, ablation, topicRef: topic ? `${name}/${topic.id}` : null, cast: { referents: cast.referents.length, pronounBindings: cast.pronounBindings.length, pronounGaps: (cast.pronounGaps ?? []).length, sentences: cast.sentences.length, gaps: cast.gaps.map((g) => g.reason ?? g) }, seconds: +((Date.now() - t0) / 1000).toFixed(1) };
+  const months = cast.referents.filter((r) => r.surfaces.some((x) => /^(January|February|March|April|May|June|July|August|September|October|November|December)$/.test(x)));
+  return { name, rows, looseRows: loose.candidates.map(rowOf), real, loose, ablation, topicRef: topic ? `${name}/${topic.id}` : null, companyTopic: topic ? company.get(topic.id) : null, companyMonths: months.map((r) => ({ surface: r.surfaces[0], ...company.get(r.id) })), cast: { referents: cast.referents.length, pronounBindings: cast.pronounBindings.length, pronounGaps: (cast.pronounGaps ?? []).length, sentences: cast.sentences.length, gaps: cast.gaps.map((g) => g.reason ?? g) }, seconds: +((Date.now() - t0) / 1000).toFixed(1) };
 }
 
 // ── Material A ────────────────────────────────────────────────────────────
@@ -329,8 +369,15 @@ const looseA = pages.flatMap((p) => p.looseRows);
 const added = looseA.filter((r) => !A.some((a) => a.address === r.address && a.locus === r.locus));
 const X3 = { looseStandings: looseA.length, added: added.map((r) => `${r.text} | ${r.occupant} (${r.via}) -> ${r.locus} :: ${r.clause.slice(0, 90)}`), monthOrDemonymUnderLoose: looseA.filter((c) => shapeBad(c.surface)).map((c) => c.surface), held: added.length >= 1 && looseA.filter((c) => shapeBad(c.surface)).length === 0 };
 
+// ── Y1–Y3 ─────────────────────────────────────────────────────────────────
+const lost = A.filter((a) => !looseA.some((r) => r.address === a.address && r.locus === a.locus));
+const Y1 = { beingKindStandings: looseA.length, monthOrDemonym: looseA.filter((c) => shapeBad(c.surface)).map((c) => `${c.surface} @${c.address}`), lost: lost.map((r) => `${r.text} | ${r.occupant} -> ${r.locus} :: ${r.clause.slice(0, 80)}`), held: looseA.filter((c) => shapeBad(c.surface)).length === 0 };
+const keep = (re) => looseA.some((r) => re.test(r.occupant));
+const Y2 = { survived: looseA.filter((r) => A.some((a) => a.address === r.address && a.locus === r.locus)).length, of: A.length, retained: { Murat: keep(/Murat/), Kutuzov: keep(/Kutuzov/), Merkel: looseA.filter((r) => /Merkel/.test(r.occupant)).length, Ratzinger: keep(/Ratzinger/), Summers: keep(/Summers/) }, held: looseA.filter((r) => A.some((a) => a.address === r.address && a.locus === r.locus)).length >= 25 && keep(/Murat/) && keep(/Kutuzov/) && looseA.filter((r) => /Merkel/.test(r.occupant)).length >= 8 && keep(/Ratzinger/) && keep(/Summers/) };
+const Y3 = { pages: pages.map((p) => ({ page: p.name, topic: p.companyTopic, months: p.companyMonths })), held: null };
+
 const out = {
-  X1, X2, X3,
+  Y1, Y2, Y3, X1, X2, X3,
   ...W, V1, V2, V3, V4, V5, V6,
   nativeA: { standings: AN.length, perPage: pagesN.map((p) => ({ page: p.name, standings: p.rows.length, refused: tally(p.real.refused, (x) => x.reason), cast: p.cast, seconds: p.seconds })), via: tally(AN, (c) => c.via), rows: AN },
   nativeB: BN,
@@ -341,7 +388,7 @@ const out = {
   standingsA: A,
   live: Object.fromEntries(Object.entries(B).map(([k, v]) => [k, { ...v, rows: v.rows.slice(0, 60) }])),
 };
-for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
+for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
 console.log("via", out.via, "locusVia", out.locusVia);
 for (const [k, v] of Object.entries(B)) console.log(k, v.standings, "standings", v.ablationStandings, "ablation", v.seconds, "s", JSON.stringify(v.refused));
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));

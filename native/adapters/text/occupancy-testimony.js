@@ -152,7 +152,7 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
           // evidence, never promoted here.
           const cands = prior.map((x) => (x.established === false
             ? { value: x.referent ?? null, via: x.via ?? "pronoun-unbound", features: { start: x.start - cStart, end: x.end - cStart, established: false, ...(x.features ?? {}) } }
-            : { value: x.referent, via: x.via, features: { start: x.start - cStart, end: x.end - cStart, established: true } }));
+            : { value: x.referent, via: x.via, features: { start: x.start - cStart, end: x.end - cStart, established: true, ...(x.features ?? {}) } }));
           for (const w of before.matchAll(/\S+/gu)) {
             if (covered(w.index)) continue;
             const c = clean(w[0]);
