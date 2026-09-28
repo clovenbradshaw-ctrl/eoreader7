@@ -187,3 +187,29 @@ export {
   summarize,
 } from "./greenberg.js";
 export * as greenbergOrgan from "./greenberg.js";
+
+// ---- archon organs, moved down from the-fold (2026-09-28). Names that collide with an existing seam name (or another organ) are prefixed by the organ.
+export { LAYERS, makeAletheia } from "./aletheia.js";
+export * as aletheia from "./aletheia.js";
+export { checkAppendOnly, heartbeatVerdict, verifyWatcher } from "./ashby.js";
+export * as ashby from "./ashby.js";
+export { VERDICTS, makeClippy } from "./clippy.js";
+export * as clippy from "./clippy.js";
+export { SEVERITY as GARY_SEVERITY, RULES, ORACLE_MIN_CONTENT_WORDS, oracleContentWords, hasCheckableClaim, checkOracleMode, oracleRefusalText, makeGary, assertPromptsBuildable, garyDecision } from "./gary.js";
+export * as gary from "./gary.js";
+export { SIGN, arrivalPattern, kairosSign, kairosCorrespond, kairosDecision } from "./kairos.js";
+export * as kairos from "./kairos.js";
+export { KINDS, UNIT_FLOOR, OWNERS, wordsOf, unitsOf, blocksOf, makeKondo, kondoDecision, kondoLine, TIDY_PAIRS, TIDY_NOTES_PAIR, tidyMaterial } from "./kondo.js";
+export * as kondo from "./kondo.js";
+export { declareBudget, muninnRecall, muninnPromote, muninnDecision } from "./muninn.js";
+export * as muninn from "./muninn.js";
+export { SEVERITY as NAGARJUNA_SEVERITY, RULES as NAGARJUNA_RULES, makeNagarjuna } from "./nagarjuna.js";
+export * as nagarjuna from "./nagarjuna.js";
+export { SEVERITY as PANINI_SEVERITY, RULES as PANINI_RULES, CONFUSABLE_DISTANCE, HETERONYM_DISTANCE, phonemesOf, makePanini, READ_READ_RED } from "./panini.js";
+export * as panini from "./panini.js";
+export { FORMS, VERDICTS as PARMENIDES_VERDICTS, makeParmenides } from "./parmenides.js";
+export * as parmenides from "./parmenides.js";
+export { ELENCHUS, ELENCHUS_BANK, elenchusRow, questionFor, gateCrown } from "./elenchus.js";
+export * as elenchus from "./elenchus.js";
+export { resolveDate, surfacesOfDate, makeParmenidesForms } from "./parmenides-forms.js";
+export * as parmenidesForms from "./parmenides-forms.js";
