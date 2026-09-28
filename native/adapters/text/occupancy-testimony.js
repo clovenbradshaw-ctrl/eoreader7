@@ -72,10 +72,12 @@ const CAP = "\\p{Lu}[\\p{L}’'.-]*";       // a capitalised word
  * modals / negation: closed classes (declared by the caller with givers);
  * mentions(sentence) -> [{ start, end, referent, via }] in the sentence's own
  *   coordinates — the reading pipeline's mentions; omitted = the ablation arm
+ * pronouns: a received closed class (priors.js SUBJECT_PRONOUNS, lang/en); a
+ *   pronoun in the gap the pipeline did not bind refuses the standing
  * resolveLocus(sentence, span, surface) -> { referent, via } | null
  * -> { candidates, refused, arm }
  */
-export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, resolveLocus = null } = {}) {
+export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, pronouns = null, resolveLocus = null } = {}) {
   for (const [k, v] of Object.entries({ source, determiners, modals, negation })) if (v == null) throw new TypeError(`occupancy-testimony: '${k}' must be declared`);
   const def = determiners.definite, indef = determiners.indefinite;
   const alt = (xs) => xs.map(esc).join("|");
@@ -111,6 +113,15 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
           const gap = last ? text.slice(last.end, tStart) : before;
           gapWords = gap.split(/\s+/).map(clean).filter(Boolean);
           if (!last || gapWords.length > OCCUPANT_GAP_MAX) { refused.push({ at, reason: "occupant_not_a_referent", occupant: before.trim().split(/\s+/).slice(-3).join(" "), clause: clause.trim().slice(0, 160) }); break; }
+          // Two structural walls between the mention and the transition
+          // (amended 2026-09-28 from the registered run's own rows, never a
+          // word list): a PRONOUN the pipeline did not bind is the subject,
+          // not the mention before it ("...German universities, he was
+          // appointed" is not testimony about "German"); and a COMMA closes
+          // the mention's phrase ("In December 2015, Merkel was named" is not
+          // testimony about "December").
+          if (pronouns && gapWords.some((w) => pronouns.has(w))) { refused.push({ at, reason: "pronoun_unbound", occupant: gapWords.find((w) => pronouns.has(w)), clause: clause.trim().slice(0, 160) }); break; }
+          if (/[,;:—()]/.test(gap)) { refused.push({ at, reason: "occupant_not_a_referent", occupant: before.trim().split(/\s+/).slice(-3).join(" "), clause: clause.trim().slice(0, 160) }); break; }
           occupant = last.referent; occupantVia = last.via; occupantSurface = text.slice(last.start, last.end);
         } else {
           const run = capRun.exec(before.replace(/\s+(?:\p{Ll}[\p{L}’']*)(?:\s+\p{Ll}[\p{L}’']*)?\s*$/u, ""));

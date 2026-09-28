@@ -70,3 +70,13 @@ test("the occupant is a mention the pipeline made: a surface, a bound pronoun; n
   const abl = read(texts);
   assert.ok(abl.candidates.some((c) => c.occupant === "Several"));
 });
+
+test("between mention and transition: an unbound pronoun or a comma refuses — the mention before is not the subject", async () => {
+  const { SUBJECT_PRONOUNS } = await import("../adapters/text/priors.js");
+  const texts = ["After a long career at German universities, he was appointed Archbishop of Munich.", "In December 2015, Merkel was named Person of the Year.", "Ratzinger was appointed Archbishop of Munich."];
+  const M = { German: "ref:german", December: "ref:december", Ratzinger: "ref:ratzinger" };
+  const mentions = (s) => Object.entries(M).flatMap(([surf, referent]) => { const i = s.text.indexOf(surf); return i >= 0 ? [{ start: i, end: i + surf.length, referent, via: "cast" }] : []; });
+  const r = readOccupancyTestimony(texts.map((text, at) => ({ text, at })), { ...OPTS, mentions, pronouns: SUBJECT_PRONOUNS });
+  assert.deepEqual(r.candidates.map((c) => [c.occupant, c.locus]), [["ref:ratzinger", "Archbishop of Munich"]]);
+  assert.deepEqual(r.refused.map((x) => x.reason), ["pronoun_unbound", "occupant_not_a_referent"]);
+});
