@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { makeCodeForm, makeTextStore, extractFunction, namesIn, readTap } from "../organs/code-form.js";
+import { makeCodeForm, makeTextStore, extractFunction, namesIn, readTap, unfenced } from "../organs/code-form.js";
 import { actOf, helixCheck } from "../organs/claim-acts.js";
 import { scanRegexes } from "../../scripts/kleene-up.mjs";
 
@@ -26,6 +26,10 @@ test("extractFunction takes the balanced declaration and nothing after it; names
   assert.equal(extractFunction(two, "a"), "function a(x) { if (x) { return \"}\"; } return 1; }");
   assert.equal(extractFunction(two, "b"), "function b() { return 2; }");
   assert.equal(extractFunction("nothing here", "a"), null);
+  // the mouth's fenced reply, head and all, yields the one declaration (code1: two heads glued together failed every draw)
+  const fenced = "```javascript\nexport function tokenize(src) {\n  return [];\n}\n```\nThis tokenizes.";
+  assert.equal(extractFunction(unfenced(fenced), "tokenize"), "function tokenize(src) {\n  return [];\n}");
+  assert.equal(extractFunction(unfenced("src) { return 1; }"), "tokenize"), null, "a reply without the head has the anchor put in front by the caller");
   assert.deepEqual(namesIn("tokenize, parse and expandRange.", ["tokenize", "parse", "expandRange", "evaluate"]), ["tokenize", "parse", "expandRange"]);
   assert.deepEqual(namesIn("none", ["tokenize"]), []);
   const tap = readTap("TAP version 13\nok 1 - [tokenize] numbers\nnot ok 2 - [parse, evaluate] precedence\n  ---\n  error: |-\n    Expected values to be strictly equal\n  expected: 7\n  actual: 9\n  ...\n# tests 2");
@@ -39,7 +43,7 @@ test("the design is on the record in dependency order, calls are CON bonds, bodi
   const ask = async (prompt, { stage }) => {
     prompts.push({ stage, prompt });
     if (stage.startsWith("calls:")) { const f = stage.slice(6); return { computeGrid: "evaluationOrder, evaluate, parse, tokenize", dependencies: "tokenize, parse, expandRange", evaluationOrder: "dependencies", evaluate: "expandRange", expandRange: "parseRef" }[f] ?? "none"; }
-    if (stage.startsWith("body:")) { const name = stage.slice(5); return refBody(name).slice(`function ${name}(`.length); }
+    if (stage.startsWith("body:")) { const name = stage.slice(5); return "```javascript\n" + refBody(name) + "\n```"; }
     return "";
   };
   const cf = makeCodeForm({ ask, mouth: "m", spec, testFile: path.join(TASK, "engine.test.js") });

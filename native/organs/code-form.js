@@ -43,8 +43,9 @@ export const BODY_TRIES = 3;
  *  code loop's own DEFAULT_MAX_ROUNDS. */
 export const ROUNDS = 3;
 /** Tokens a body may run to — set by hand 2026-09-28: the longest reference
- *  function (parse) is ~330 tokens. */
-export const BODY_TOKENS = 450;
+ *  function (parse) is ~330 tokens, and code1 showed the mouth writes about
+ *  twice as long (six of 54 draws were cut off at 450). */
+export const BODY_TOKENS = 700;
 /** How much of a callee's line the note carries — set by hand 2026-09-28:
  *  its first sentence, so the note stays bounded whatever the design says. */
 const firstSentence = (s) => { const t = String(s); const i = t.indexOf(". "); return i > 0 ? t.slice(0, i + 1) : t; };
@@ -53,6 +54,14 @@ const sha8 = (t) => createHash("sha256").update(String(t)).digest("hex").slice(0
 export function makeTextStore(init = {}) {
   const m = new Map(Object.entries(init));
   return { put: (t) => { const a = `sha:${sha8(t)}`; m.set(a, t); return a; }, get: (a) => m.get(a) ?? null, toJSON: () => Object.fromEntries(m) };
+}
+
+/** A reply without its markdown fences: the language word after an opening
+ *  fence goes with it; "export " before a declaration is dropped. */
+export function unfenced(reply) {
+  const parts = String(reply).split("```");
+  const out = parts.map((p, i) => { if (i % 2 === 0) return p; const nl = p.indexOf("\n"); return nl >= 0 && nl < 20 ? p.slice(nl + 1) : p; });
+  return out.join("\n").split("export function").join("function").split("export async function").join("async function").trim();
 }
 
 /** The balanced function declaration named `name` in `text`, or null. */
@@ -169,8 +178,12 @@ export function makeCodeForm({ ask, mouth = "mouth", log = () => {}, spec, testF
     const note = workingNote(notes, f, failures);
     for (let t = 0; t < BODY_TRIES; t++) {
       const got = await say(note.prompt, { stage: `body:${f.name}`, attempt: t, numPredict: BODY_TOKENS });
-      let reply = got.text.trim();
-      const text = reply.startsWith("function") || reply.startsWith("async function") || reply.startsWith("export") ? reply.split("export function").join("function") : `${note.anchor}${reply}`;
+      // the mouth fences its code and says the head again ("```javascript\n
+      // function tokenize(src) {"): the fences go, and the anchor is put in
+      // front only when the reply does not already carry the head (code1:
+      // every draw failed the syntax gate with two heads glued together)
+      const reply = unfenced(got.text);
+      const text = reply.includes(`function ${f.name}(`) ? reply : `${note.anchor}${reply}`;
       const body = extractFunction(text, f.name);
       const syntax = body ? jsCheckSyntax(`${body}\n`, "check.mjs") : null;
       log({ kind: "body_turn", fn: f.name, round, attempt: t, prompt: note.prompt, reply: got.text, extracted: !!body, syntaxOk: syntax?.ok ?? null, promptTokens: got.promptTokens });
