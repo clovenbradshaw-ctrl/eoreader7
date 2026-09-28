@@ -512,13 +512,32 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
       const told = gd.outline.leaves.slice(Math.max(0, i - 3), i).map((l) => said(l.part)).filter(Boolean).map((v) => (v.trim().endsWith(".") ? v.trim() : `${v.trim()}.`));
       const prompt = told.length ? note.prompt.replace(`Continue the ${medium.storyWord ?? "story"}.`, `Already told: ${told.join(" ")}\n\nContinue the ${medium.storyWord ?? "story"}.`) : note.prompt;
       const prefix = read.piece.slice(0, i).flatMap((p) => wordsOf(p.pieces.map((pc) => pc.text).join(" ")));
-      const scoreOf = (lines) => {
+      // A CANDIDATE IS JUDGED AS THE EDITORS WOULD LEAVE IT, and so is the
+      // part it would replace: the mechanical revisions its window licenses
+      // (folds, repairs — no ask) are applied to both, then both are read
+      // again. Judged raw, a fresh draw lost on restatements and splices the
+      // editors fold anyway (slice 2: 9 of 12 kept the old words).
+      const lo = Math.max(0, i - JUDGE_REACH), hi = Math.min(read.piece.length, i + JUDGE_REACH + 1);
+      const ids = new Set(gd.parts.slice(lo, hi).map((x) => x.id));
+      const draft = { ...gd.draft, root: { ...gd.draft.root, children: gd.draft.root.children.filter((p) => ids.has(p.id)) } };
+      const readWindow = (lines) => {
         const trialPiece = read.piece.map((p, j) => (j !== i ? p : { ...p, pieces: lines.map((text) => ({ text, carries: [] })) }));
-        const lo = Math.max(0, i - JUDGE_REACH), hi = Math.min(read.piece.length, i + JUDGE_REACH + 1);
-        const ids = new Set(gd.parts.slice(lo, hi).map((x) => x.id));
-        const draft = { ...gd.draft, root: { ...gd.draft.root, children: gd.draft.root.children.filter((p) => ids.has(p.id)) } };
-        const f = toldRestatement(readWith(trialPiece.slice(lo, hi), { ...gd, draft }, task, draft).map((x) => licensed(x, universeOf(notes))), trialPiece.slice(lo, hi), universeOf(notes));
-        return { licensed: f.filter((x) => x.licenses && x.part && ids.has(x.part)).length, bits: bitsAgainst(prefix, wordsOf(lines.join(" "))), flatCadence: !!pacingGrade(lines.join(" ")).flatline };
+        return toldRestatement(readWith(trialPiece.slice(lo, hi), { ...gd, draft }, task, draft).map((x) => licensed(x, universeOf(notes))), trialPiece.slice(lo, hi), universeOf(notes)).filter((x) => x.licenses && x.part === read.piece[i].id);
+      };
+      const asEdited = (lines) => {
+        let out = [...lines];
+        for (const f of readWindow(out)) {
+          const k = out.indexOf(f.sentence);
+          if (k < 0) continue;
+          if (f.licenses === "fold" && out.length > MIN_BODY_SENTENCES) out.splice(k, 1);
+          else if (f.licenses === "repair" && f.repair && wholeSentence(capitalised(f.repair), parser)) out[k] = capitalised(f.repair);
+        }
+        return out;
+      };
+      const scoreOf = (lines) => {
+        const edited = asEdited(lines);
+        const f = readWindow(edited);
+        return { licensed: f.length, bits: bitsAgainst(prefix, wordsOf(edited.join(" "))), flatCadence: !!pacingGrade(edited.join(" ")).flatline, keptLines: edited.length };
       };
       // ITTI & BALDI (kernel/bayes-surprise.js): how far a part moves the
       // belief the book so far has built, over slots declared here — how it
@@ -560,11 +579,11 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
       log({ kind: better ? "pathos_kept" : "pathos_undone", part: leaf.part.id, now, best: best && { licensed: best.licensed, bits: best.bits, flatCadence: best.flatCadence, text: best.text }, candidates: pool.length, why: reasons.map((r) => r.detail) });
       if (!better) continue;
       // the findings on the record, the old words conceded, the chosen words heard
-      const ids = [];
-      for (const r of reasons) { const h = hearFinding(notes, r); notes = h.notes; ids.push(h.id); }
+      const findingIds = [];
+      for (const r of reasons) { const h = hearFinding(notes, r); notes = h.notes; findingIds.push(h.id); }
       const fold = N.fold(notes);
       for (const n of fold.filter((x) => x.end1 === leaf.part.id && (x.label === "body" || x.label.startsWith("line ") || x.label.startsWith("after ")))) { const d = N.concede(notes, n.id, { trigger: `written again: the archons chose a body that reads better (${reasons.map((r) => r.kind).join(", ")})` }); if (!d.refused) notes = d.log; }
-      notes = N.hear(notes, { end1: leaf.part.id, label: "body", end2: store.put(best.text), witness: `talk:${mouth}#pathos${tried}`, because: `chosen of ${pool.length} by the archons: ${best.licensed} licensed findings (was ${now.licensed}), ${best.bits.toFixed(2)} bits per word against what precedes it (was ${now.bits.toFixed(2)}) [premises: ${JSON.stringify([...ids, ...note.carried])}]` });
+      notes = N.hear(notes, { end1: leaf.part.id, label: "body", end2: store.put(best.text), witness: `talk:${mouth}#pathos${tried}`, because: `chosen of ${pool.length} by the archons: ${best.licensed} licensed findings (was ${now.licensed}), ${best.bits.toFixed(2)} bits per word against what precedes it (was ${now.bits.toFixed(2)}) [premises: ${JSON.stringify([...findingIds, ...note.carried])}]` });
       kept++;
     }
     return { notes, store, asks, tried, kept, targets: targets.length, rows };
