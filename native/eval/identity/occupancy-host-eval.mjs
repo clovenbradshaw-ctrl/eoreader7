@@ -132,11 +132,41 @@
 //       Summers all retained
 //   Y3  reported: for each page, prepShare/verbShare of the topic referent and
 //       of every month referent — the two populations should not overlap
+//
+// V6, PRE-REGISTERED 2026-09-28 before the run (output -v6.json, same cap).
+// Three organs on the operators (e1f9a31): kernel/merge-standing.js turns the
+// cast's merges into CON·Figure supports and a two-occupant locus into a
+// SEG·Figure attack, judged by the real deriveIdentityRevision; every
+// standing carries its phasepost act (adapters/text/phasepost.js, the real
+// ActPrior@1 and cellOf injected); the binder's named-frame skip is a typed
+// gap (pronoun_frame_named) riding in as an unestablished candidate with its
+// contested set. nounBetween (b85f1db) reads the gap with the POS prior.
+//   Z1  War and Peace, host arm: the identity revision emits >= 1 SEG·Figure
+//       split whose alternative names "pierre bezúkhov" (the surface the cast
+//       folded under the title) — the Bezúkhov merge conceded BY THE IDENTITY
+//       ORGAN from the material's own testimony, on the fold
+//   Z2  Material A: every SEG split emitted is listed with its locus and its
+//       occupants; predicted <= 3 (positions with two occupants are rare on 13
+//       pages — H3 found one)
+//   Z3  phasepost: >= 80% of Material A's default-arm standings carry a typed
+//       act (standing != "gap"); the acts of "became" and "appointed" reported
+//   Z4  nounBetween: "Russian -> Kutuzovo" is refused as subject_unestablished
+//       on the default arm (v5's one remaining month/demonym under the default)
+//   Z5  named-frame pronouns: the count of pronoun_frame_named candidates that
+//       reach a transition clause on Material A, and how many carry the page's
+//       topic in their contested set — reported
 //   node occupancy-host-eval.mjs [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
 const { readOccupancyTestimony, positionsByPattern, NEAREST_ESTABLISHED } = await import(`${NATIVE}/adapters/text/occupancy-testimony.js`);
 const { collapse } = await import(`${NATIVE}/kernel/undecided.js`);
+const { mergeEvidence } = await import(`${NATIVE}/kernel/merge-standing.js`);
+const { deriveIdentityRevision } = await import(`${NATIVE}/kernel/identity.js`);
+const { applyDelta, receivedGround } = await import(`${NATIVE}/kernel/fold.js`);
+const { cellOf } = await import(`${NATIVE}/kernel/cube.js`);
+const { makePhasepost } = await import(`${NATIVE}/adapters/text/phasepost.js`);
+const ACT_PRIOR = JSON.parse(readFileSync("/home/user/live_priors/derived-priors/act-priors/act-prior-en.json", "utf8"));
+const phasepost = makePhasepost({ actPrior: ACT_PRIOR, cellOf, definiteDeterminers: DEFINITE_DETERMINERS, indefiniteDeterminers: INDEFINITE_DETERMINERS });
 const { NEGATION_WORDS, DEFINITE_DETERMINERS, INDEFINITE_DETERMINERS, AUXILIARY_VERBS } = await import(`${NATIVE}/adapters/text/priors.js`);
 const { COPULA_FORMS } = await import(`${NATIVE}/adapters/text/phasepost.js`);
 const { createSession, admitChunked, sessionCast } = await import(`${NATIVE}/legacy-ported/packages/host/corpus.js`);
@@ -253,7 +283,7 @@ function readText({ name, text, links }) {
     if (owner.size) for (const m of sentence.text.matchAll(allRe)) { const rid = owner.get(m[1]); out.push({ start: m.index, end: m.index + m[0].length, referent: rid, via: "cast", features: company.get(rid.replace(`${name}/`, "")) ?? {} }); }
     for (const b of cast.pronounBindings) if (b.sentenceOrder === sentence.at) { const st = b.offset - sentence.offset; if (st >= 0 && st < sentence.text.length) out.push({ start: st, end: st + b.pronoun.length, referent: `${name}/${b.referentId}`, via: "pronoun" }); }
     // the binder's refusals, with the evidence its floor discarded
-    for (const g of cast.pronounGaps ?? []) if (g.sentenceOrder === sentence.at && Number.isFinite(g.offset) && g.pronoun) { const st = g.offset - sentence.offset; if (st >= 0 && st < sentence.text.length) out.push({ start: st, end: st + g.pronoun.length, referent: g.top ? `${name}/${g.top}` : null, via: "pronoun-unbound", established: false, features: { reason: g.reason, activation: g.activation ?? null, margin: g.margin ?? null, runnerUp: g.runnerUp ? `${name}/${g.runnerUp}` : null } }); }
+    for (const g of cast.pronounGaps ?? []) if (g.sentenceOrder === sentence.at && Number.isFinite(g.offset) && g.pronoun) { const st = g.offset - sentence.offset; if (st >= 0 && st < sentence.text.length) out.push({ start: st, end: st + g.pronoun.length, referent: g.top ? `${name}/${g.top}` : null, via: "pronoun-unbound", established: false, features: { reason: g.reason, activation: g.activation ?? null, margin: g.margin ?? null, runnerUp: g.runnerUp ? `${name}/${g.runnerUp}` : null, contested: (g.contested ?? []).map((id) => `${name}/${id}`) } }); }
     return out;
   };
   const resolveLocus = (sentence, span) => {
@@ -262,21 +292,30 @@ function readText({ name, text, links }) {
     if (l) return { referent: l.title, via: "link" };
     const surf = sentence.text.slice(span.start, span.end);
     const hit = cast.referents.find((r) => r.surfaces.some((s) => has(surf, s)));
-    if (hit) return { referent: display.get(hit.id), via: "cast" };
+    if (hit) return { referent: display.get(hit.id), via: "cast", id: key(hit) };
     return null;
   };
   const sentences = cast.sentences.map((s) => ({ text: s.text, at: s.order, offset: s.offset }));
-  const opts = { source: name, determiners: DET, modals: MODALS, negation: NEGATION_WORDS };
+  const opts = { source: name, determiners: DET, modals: MODALS, negation: NEGATION_WORDS, posPrior: POS_PRIOR, phasepost };
   const real = readOccupancyTestimony(sentences, { ...opts, mentions, pronouns: SUBJECT_PRONOUNS, resolveLocus });
+  // THE MERGE AS A HYPOTHESIS (v6): every surface the cast admitted into a
+  // referent is a merge into that referent; a locus (by referent id) with two
+  // occupant referents attacks it; the identity organ judges on a fresh fold.
+  const merges = cast.referents.flatMap((r) => r.surfaces.map((surface) => ({ surface, into: key(r), witness: `${name}#cast`, basis: "name-variant coreference" })));
+  const identityStandings = real.candidates.filter((c) => c.locusId).map((c) => ({ locus: c.locusId, occupant: c.occupant, witness: c.address }));
+  const evidence = mergeEvidence({ merges, standings: identityStandings, witness: `${name}#cast`, minOccupants: 2 });
+  const revision = deriveIdentityRevision({ fold: receivedGround(), supports: evidence.supports, attacks: evidence.attacks, giver: "occupancy testimony via kernel/merge-standing.js" });
+  const splits = revision.operations.filter((o) => o.operator === "SEG").map((o) => ({ identity: o.consequence?.identity, reason: o.consequence?.reason, witness: o.witness }));
+  const identity = { merges: merges.length, positions: evidence.positions.map((p) => ({ locus: p.locus, occupants: p.occupants })), attacks: evidence.attacks.length, splits, foldAlternatives: applyDelta(receivedGround(), revision).unresolvedAlternatives.filter((x) => x.schema === "EOIdentityAlternative@1" && x.standing === "distinct").map((x) => `${x.left} <-> ${x.right}`) };
   const loose = readOccupancyTestimony(sentences, { ...opts, mentions, pronouns: SUBJECT_PRONOUNS, resolveLocus, forWhom: { id: "reader:being-kind" }, occupantRule: BEING_KIND });
   const ablation = readOccupancyTestimony(sentences, opts);
   const face = (id) => { const r = cast.referents.find((x) => `${name}/${x.id}` === id); return r ? display.get(r.id) : id; };
-  const rowOf = (c) => ({ text: name, occupant: face(c.occupant), occupantId: c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: c.locus, locusVia: c.locusVia, predecessor: c.predecessor ? face(c.predecessor) : null, pattern: c.pattern, year: c.year, address: c.address, clause: c.clause });
+  const rowOf = (c) => ({ text: name, occupant: face(c.occupant), occupantId: c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: c.locus, locusId: c.locusId, locusVia: c.locusVia, verb: c.verb, act: c.act ? { op: c.act.op, grain: c.act.grain, standing: c.act.standing } : null, predecessor: c.predecessor ? face(c.predecessor) : null, pattern: c.pattern, year: c.year, address: c.address, clause: c.clause });
   const rows = real.candidates.map(rowOf);
   const surname = name ? name.replace(/\s*\(.*\)$/, "").split(/\s+/).at(-1) : null;
   const topic = surname ? cast.referents.find((r) => r.surfaces.includes(surname) || r.surfaces.includes(name)) : null;
   const months = cast.referents.filter((r) => r.surfaces.some((x) => /^(January|February|March|April|May|June|July|August|September|October|November|December)$/.test(x)));
-  return { name, rows, looseRows: loose.candidates.map(rowOf), real, loose, ablation, topicRef: topic ? `${name}/${topic.id}` : null, companyTopic: topic ? company.get(topic.id) : null, companyMonths: months.map((r) => ({ surface: r.surfaces[0], ...company.get(r.id) })), cast: { referents: cast.referents.length, pronounBindings: cast.pronounBindings.length, pronounGaps: (cast.pronounGaps ?? []).length, sentences: cast.sentences.length, gaps: cast.gaps.map((g) => g.reason ?? g) }, seconds: +((Date.now() - t0) / 1000).toFixed(1) };
+  return { name, identity, rows, looseRows: loose.candidates.map(rowOf), real, loose, ablation, topicRef: topic ? `${name}/${topic.id}` : null, companyTopic: topic ? company.get(topic.id) : null, companyMonths: months.map((r) => ({ surface: r.surfaces[0], ...company.get(r.id) })), cast: { referents: cast.referents.length, pronounBindings: cast.pronounBindings.length, pronounGaps: (cast.pronounGaps ?? []).length, sentences: cast.sentences.length, gaps: cast.gaps.map((g) => g.reason ?? g) }, seconds: +((Date.now() - t0) / 1000).toFixed(1) };
 }
 
 // ── Material A ────────────────────────────────────────────────────────────
@@ -326,7 +365,7 @@ for (const [name, path] of Object.entries(B_PATHS)) {
   const r = readText({ name, text, links: [] });
   const pat = positionsByPattern(r.real.candidates);
   const faces = new Map(r.rows.map((x) => [x.occupantId, x.occupant]));
-  B[name] = { standings: r.rows.length, positions: pat.positions.map((p) => ({ locus: p.locus, occupants: p.occupants.map((o) => faces.get(o) ?? o), evidence: p.evidence })), refused: tally(r.real.refused, (x) => x.reason), via: tally(r.rows, (x) => x.via), ablationStandings: r.ablation.candidates.length, cast: r.cast, seconds: r.seconds, rows: r.rows, refusedNamed: r.real.refused.filter((x) => /chaplain|Professor|Gorbachev|Bez[uú]khov/i.test(`${x.clause ?? ""} ${x.complement ?? ""}`)).slice(0, 8) };
+  B[name] = { identity: r.identity, standings: r.rows.length, positions: pat.positions.map((p) => ({ locus: p.locus, occupants: p.occupants.map((o) => faces.get(o) ?? o), evidence: p.evidence })), refused: tally(r.real.refused, (x) => x.reason), via: tally(r.rows, (x) => x.via), ablationStandings: r.ablation.candidates.length, cast: r.cast, seconds: r.seconds, rows: r.rows, refusedNamed: r.real.refused.filter((x) => /chaplain|Professor|Gorbachev|Bez[uú]khov/i.test(`${x.clause ?? ""} ${x.complement ?? ""}`)).slice(0, 8) };
 }
 const H4 = { standings: B["War and Peace"].standings, bezukhov: B["War and Peace"].rows.filter((r) => /bezukhov/.test(fold(r.locus))), refusedNamed: B["War and Peace"].refusedNamed, held: B["War and Peace"].rows.some((r) => /bezukhov/.test(fold(r.locus)) && /pierre/.test(fold(r.occupant))) };
 const H5 = {
@@ -376,8 +415,19 @@ const keep = (re) => looseA.some((r) => re.test(r.occupant));
 const Y2 = { survived: looseA.filter((r) => A.some((a) => a.address === r.address && a.locus === r.locus)).length, of: A.length, retained: { Murat: keep(/Murat/), Kutuzov: keep(/Kutuzov/), Merkel: looseA.filter((r) => /Merkel/.test(r.occupant)).length, Ratzinger: keep(/Ratzinger/), Summers: keep(/Summers/) }, held: looseA.filter((r) => A.some((a) => a.address === r.address && a.locus === r.locus)).length >= 25 && keep(/Murat/) && keep(/Kutuzov/) && looseA.filter((r) => /Merkel/.test(r.occupant)).length >= 8 && keep(/Ratzinger/) && keep(/Summers/) };
 const Y3 = { pages: pages.map((p) => ({ page: p.name, topic: p.companyTopic, months: p.companyMonths })), held: null };
 
+// ── Z1–Z5 ─────────────────────────────────────────────────────────────────
+const wpId = B["War and Peace"].identity ?? null;
+const Z1 = { splits: wpId?.splits ?? [], distinct: wpId?.foldAlternatives ?? [], positions: wpId?.positions ?? [], held: (wpId?.foldAlternatives ?? []).some((x) => /pierre bez[uú]khov/i.test(x)) };
+const Z2 = { perPage: pages.filter((p) => p.identity.splits.length).map((p) => ({ page: p.name, positions: p.identity.positions, distinct: p.identity.foldAlternatives })), total: pages.reduce((n, p) => n + p.identity.splits.length, 0), held: pages.reduce((n, p) => n + p.identity.splits.length, 0) <= 3 };
+const acts = A.map((r) => r.act).filter(Boolean);
+const Z3 = { standings: A.length, typed: acts.filter((a) => a.standing !== "gap").length, byVerb: Object.fromEntries([...new Set(A.map((r) => r.verb))].map((v) => [v, tally(A.filter((r) => r.verb === v && r.act), (r) => `${r.act.op ?? "?"}·${r.act.grain ?? "?"}`)])), held: A.length ? acts.filter((a) => a.standing !== "gap").length / A.length >= 0.8 : null };
+const kutuzovo = pages.find((p) => p.name === "Mikhail Kutuzov")?.real.refused.find((x) => /Kutuzovo/.test(x.clause ?? ""));
+const Z4 = { refused: kutuzovo ? { reason: kutuzovo.reason, clause: kutuzovo.clause.slice(0, 80) } : null, stillAdmitted: A.some((r) => /Kutuzovo/.test(r.locus)), held: kutuzovo?.reason === "subject_unestablished" && !A.some((r) => /Kutuzovo/.test(r.locus)) };
+const framed = pages.flatMap((p) => p.real.events.flatMap((e) => e.undecided.candidates.filter((c) => c.via === "pronoun-unbound" && c.features.reason === "pronoun_frame_named").map((c) => ({ page: p.name, topicInContested: (c.features.contested ?? []).includes(p.topicRef) }))));
+const Z5 = { inTransitionClauses: framed.length, withTopic: framed.filter((x) => x.topicInContested).length, held: null };
+
 const out = {
-  Y1, Y2, Y3, X1, X2, X3,
+  Z1, Z2, Z3, Z4, Z5, Y1, Y2, Y3, X1, X2, X3,
   ...W, V1, V2, V3, V4, V5, V6,
   nativeA: { standings: AN.length, perPage: pagesN.map((p) => ({ page: p.name, standings: p.rows.length, refused: tally(p.real.refused, (x) => x.reason), cast: p.cast, seconds: p.seconds })), via: tally(AN, (c) => c.via), rows: AN },
   nativeB: BN,
@@ -388,7 +438,7 @@ const out = {
   standingsA: A,
   live: Object.fromEntries(Object.entries(B).map(([k, v]) => [k, { ...v, rows: v.rows.slice(0, 60) }])),
 };
-for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
+for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
 console.log("via", out.via, "locusVia", out.locusVia);
 for (const [k, v] of Object.entries(B)) console.log(k, v.standings, "standings", v.ablationStandings, "ablation", v.seconds, "s", JSON.stringify(v.refused));
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));

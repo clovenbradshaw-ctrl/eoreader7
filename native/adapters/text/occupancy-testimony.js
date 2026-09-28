@@ -237,7 +237,7 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         // "became Count Bezúkhov" is not the same act as "was appointed
         // ambassador", and a consumer selects standings by ACT, never by verb.
         const act = phasepost ? phasepost({ end1: occupantSurface, label: m.groups.verb, end2: locus }) : null;
-        candidates.push({ occupant, occupantVia, occupantSurface, locus: where?.referent ?? locus, locusVia: where?.via ?? "surface", locusSurface: locus, predecessor: pred, pattern: p.kind, verb: m.groups.verb, act, at, address: `${source}#s${at}`, year, clause: clause.trim().slice(0, 200) });
+        candidates.push({ occupant, occupantVia, occupantSurface, locus: where?.referent ?? locus, locusId: where?.id ?? null, locusVia: where?.via ?? "surface", locusSurface: locus, predecessor: pred, pattern: p.kind, verb: m.groups.verb, act, at, address: `${source}#s${at}`, year, clause: clause.trim().slice(0, 200) });
         break;
       }
     }
