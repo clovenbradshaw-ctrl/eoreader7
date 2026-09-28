@@ -894,3 +894,25 @@ caller) has zero callers of its OWN anywhere in the repo, so this is inert
 today, and `app.js` is a large, actively multi-session-edited file this
 consolidation effort does not otherwise reach into — a real, scoped,
 disclosed follow-up rather than a speculative fix to unowned code.
+
+## 17. `build-log.js`'s patch physics vs `patch.js` — a parity guard, no code change (2026-09-28)
+
+`native/the-fold/patch.js`'s own header says it is `build-log.js`'s
+`PATCH_OPS`/`deriveOp`/`readOps`/`applyOps` ported verbatim — the same
+physics twice-typed, the exact class of drift this repo's own postmortems
+(P22, P24, P39) keep finding, and nothing mechanically held the two
+together.
+
+Added `the-fold/patch-parity.test.mjs`: runs BOTH modules against one
+shared battery covering every branch each file's own JSDoc names (every
+`deriveOp` outcome — SEG on empty/self-equal add, INS on an after-only
+insertion, SYN on a before+after recompilation or a non-containing add;
+every `applyOps` outcome — a clean SEG/INS/SYN, an unlocated gap, an
+ambiguous gap both refused and rescued via `every: true`, a malformed op,
+and the `within`-slice path both in- and out-of-range) and asserts
+`assert.deepStrictEqual` on every output pair — behavioral parity, not a
+source-text diff (the two files' surrounding comments are deliberately
+different). Zero production code changed in either repo.
+
+Verified: `patch-parity.test.mjs` 23/23. `build-log.test.mjs` (the
+existing suite): 58/58, unchanged.
