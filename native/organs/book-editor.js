@@ -37,7 +37,8 @@ import { makeNotes, noteId } from "../kernel/notes.js";
 import { buildDraft, drawnParts, draftWords } from "../the-fold/eot-draft.js";
 import { isFunctionWord } from "../the-fold/pos-prior.js";
 import { clauseComplete, clauseCore } from "../the-fold/eot-notation.js";
-import { lishCut } from "../the-fold/finish.js";
+import { lishCut, takesUp } from "../the-fold/finish.js";
+import { isMetaSentence } from "../the-fold/referent-verify.js";
 import { pacingGrade } from "./pacing.js";
 import { sentences } from "../adapters/text/english-parser.js";
 import { detectRedundancy } from "../the-fold/document-ledger.js";
@@ -114,6 +115,11 @@ export function gornickCurve(parts, { order = GORNICK.order, draws = GORNICK.dra
  *  2026-09-27 (three: enough for the archons to choose among, at three asks
  *  a part). */
 export const PATHOS_CANDIDATES = 3;
+
+/** Bridge sentences asked for one missing transition — set by hand
+ *  2026-09-28 (the-fold's own turnPass asks once; three samples, each held to
+ *  its refusal reasons, before the judge). */
+export const BRIDGE_TRIES = 3;
 
 /** Revision passes over the book — set by hand 2026-09-27 (the-fold's pathos
  *  loop stops in two or three passes on its live runs). */
@@ -368,10 +374,36 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
       const prev = lf.currentLines(notes, store, gd.outline.leaves[f.index - 1].part.id);
       const close = prev?.lines.at(-1)?.text, open = cur.lines[0]?.text;
       if (!close || !open) return null;
-      const reply = await say(`The last part ends: "${close}"\n\nThe next part begins: "${open}"\n\nWrite one sentence that carries the reader from the first into the second.`, { stage: `bridge:${f.leaf}`, numPredict: 90 });
-      const s = reply.split("\n").map((x) => x.trim()).find((x) => x.length > 12) ?? "";
-      const first = s.split(". ")[0];
-      return first ? { edits: [{ label: `after 0.${cur.nextAfter(0)}`, text: sentence(first.split("\"").join("")), witness: `talk:${mouth}#bridge`, premise: prev.lines.at(-1).note }], asks: 1, reply } : { edits: [], asks: 1 };
+      // THE TURN, AS THE-FOLD'S turnPass HOLDS IT (the-fold/finish.js): up to
+      // BRIDGE_TRIES sentences asked, the first kept that takes up where the
+      // last part closed AND hands on to where this one opens, does not talk
+      // about the writing, does not say the opening first, and names no one
+      // the book does not already hold. One sample judged on the finding
+      // count alone was undone 58 times in 59 at scale.
+      const known = new Set([...gd.outline.cast.map((c) => c.name.toLowerCase()), ...draftWords(gd.ground)]);
+      const content = (t) => [...new Set(draftWords(t))].filter((w) => !isFunctionWord(w));
+      const reasons = [];
+      let asked = 0;
+      for (let k = 0; k < BRIDGE_TRIES && asked < asksLeft; k++) {
+        asked++;
+        const reply = await say(`The last part ends: "${close}"\n\nThe next part begins: "${open}"\n\nWrite one sentence that carries the reader from the first into the second.`, { stage: `bridge:${f.leaf}`, attempt: k, numPredict: 90 });
+        const line = reply.split("\n").map((x) => x.trim().split("\"").join("")).find((x) => x.length > 12) ?? "";
+        const cand = sentence((sentences(line)[0]?.text ?? line).trim());
+        const why = [];
+        if (!line) why.push("nothing said");
+        else {
+          if (!takesUp(cand, close, { ground: gd.ground, draft: gd.draft })) why.push("takes nothing up from the close");
+          if (!takesUp(open, cand, { ground: gd.ground, draft: gd.draft })) why.push("hands nothing on to the opening");
+          if (isMetaSentence(cand)) why.push("talks about the writing");
+          const cw = content(cand), ow = new Set(content(open));
+          if (cw.length && cw.filter((w) => ow.has(w)).length * 2 > cw.length) why.push("says the opening first");
+          const names = cand.split(" ").slice(1).map((w) => bare(w)).filter((w, i, a) => w && cand.split(" ")[i + 1]?.[0] && cand.split(" ")[i + 1][0] !== cand.split(" ")[i + 1][0].toLowerCase());
+          if (names.some((n) => !known.has(n))) why.push("names someone the book does not hold");
+        }
+        if (!why.length) return { edits: [{ label: `after 0.${cur.nextAfter(0)}`, text: cand, witness: `talk:${mouth}#bridge`, premise: prev.lines.at(-1).note }], asks: asked, reply };
+        reasons.push(`${cand.slice(0, 60)}: ${why.join(", ")}`);
+      }
+      return { edits: [], asks: asked, refused: reasons.join(" | ") };
     }
     // LISH CUTS FIRST, with no ask: the decoration the tic or the inflation
     // sits in is cut out of the sentence (the-fold/finish.js lishCut), and a

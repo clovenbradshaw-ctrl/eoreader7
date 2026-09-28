@@ -84,9 +84,10 @@ test("an asked revision is kept only when its window reads better: a bridge that
   const logs = [];
   const ed = makeBookEditor({ lf: bad.lf, ask: bad.ask, medium: PROSE_MEDIUM, mouth: "m", castDetails: ["job"], log: (x) => logs.push(x) });
   const out = await ed.editBook({ notes: bad.notes, store: bad.store, task: "a story", budget: 5 });
-  const bridges = logs.filter((l) => l.license === "bridge");
-  assert.ok(bridges.length > 0, "no bridge was tried");
-  assert.ok(bridges.every((b) => b.kind === "edit_undone"), JSON.stringify(bridges));
+  // held to the turn's own checks before any trial: refused, with its reasons, never kept
+  const refused = logs.filter((l) => l.kind === "edit_refused" && l.finding === "missing_transition");
+  assert.ok(refused.length > 0 && refused.every((r) => String(r.why).includes("takes nothing up")), JSON.stringify(refused.slice(0, 2)));
+  assert.ok(!logs.some((l) => l.kind === "edit_kept" && l.license === "bridge"));
   assert.ok(!bad.lf.seal({ notes: out.notes, store: out.store, request: "t" }).artifact.includes("a train left the city"));
 });
 
@@ -203,4 +204,13 @@ test("more archons: Sockeye repairs an unbound opening pronoun, Sacks and Strunk
   const book = lf.seal({ notes: out.notes, store: out.store, request: "t" });
   assert.ok(book.artifact.includes("\nAna is able to use her strengths"), "the unbound pronoun was not repaired to the name");
   assert.equal(book.helix.ok, true); assert.equal(book.provenance.ok, true);
+});
+
+test("a bridge that takes up the close and hands on to the opening reaches the judge", async () => {
+  const good = await written({ bridge: "Ana left the boat on the sand and walked up to look at the hull in the grey morning." });
+  const logs = [];
+  const ed = makeBookEditor({ lf: good.lf, ask: good.ask, medium: PROSE_MEDIUM, mouth: "m", castDetails: ["job"], log: (x) => logs.push(x) });
+  await ed.editBook({ notes: good.notes, store: good.store, task: "a story", budget: 5 });
+  const tried = logs.filter((l) => l.license === "bridge" && (l.kind === "edit_kept" || l.kind === "edit_undone"));
+  assert.ok(tried.length > 0, JSON.stringify(logs.filter((l) => l.finding === "missing_transition").slice(0, 2)));
 });

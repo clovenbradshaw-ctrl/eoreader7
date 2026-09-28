@@ -50,6 +50,8 @@ const parse = (text) => analyse(parser, tokenize(text).map((t) => t.form));
 async function ask(prompt, { attempt = 0, numPredict = 160 } = {}) {
   const r = await fetch(`${OLLAMA}/api/generate`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ model, prompt, stream: false, options: { temperature: Math.min(1, 0.7 + 0.15 * attempt), seed: seed * 1000 + attempt, num_predict: numPredict, num_ctx: ctx, ...(repeatPenalty ? { repeat_penalty: Number(repeatPenalty) } : {}), ...(repeatLastN ? { repeat_last_n: Number(repeatLastN) } : {}) } }), signal: AbortSignal.timeout(600000) });
   const j = await r.json();
+  // a server error is an error, never an empty reply read as silence (F1 lost 63 asks that way)
+  if (j.error) throw new Error(`ollama: ${String(j.error).slice(0, 200)}`);
   return { response: String(j.response ?? ""), prompt_eval_count: j.prompt_eval_count ?? null, eval_count: j.eval_count ?? null };
 }
 const logTo = (file) => { const f = path.join(OUT, file); fs.writeFileSync(f, ""); return (x) => fs.appendFileSync(f, JSON.stringify(x) + "\n"); };
