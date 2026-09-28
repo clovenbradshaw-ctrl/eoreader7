@@ -15,16 +15,17 @@ const OPTS = { draws: 150, alpha: 0.05, seed: 3, minOccurrences: 20, maxHop: 1, 
 
 // A population of "kinds": each node draws its features from its own
 // characteristic pool plus a shared background pool.
-function world({ nodes, perNode = 60, seed = 1, twin = null }) {
+function world({ nodes, perNode = 60, seed = 1, twin = null, perNodeOverride = {}, ownProb = 0.6 }) {
   const rng = createSeededRng({ seed });
   const shared = Array.from({ length: 40 }, (_, i) => `bg${i}`);
   const rec = new Map();
   for (const n of nodes) {
     const own = Array.from({ length: 12 }, (_, i) => `${n}-f${i}`);
     const occ = [];
-    for (let i = 0; i < perNode; i += 1) {
+    const count = perNodeOverride[n] ?? perNode;
+    for (let i = 0; i < count; i += 1) {
       const o = [];
-      for (let k = 0; k < 4; k += 1) o.push({ f: rng() < 0.6 ? own[Math.floor(rng() * own.length)] : shared[Math.floor(rng() * shared.length)], hop: 1 });
+      for (let k = 0; k < 4; k += 1) o.push({ f: rng() < ownProb ? own[Math.floor(rng() * own.length)] : shared[Math.floor(rng() * shared.length)], hop: 1 });
       occ.push(o);
     }
     rec.set(n, occ);
@@ -50,6 +51,14 @@ test("a planted twin is judged the same", () => {
   const id = makeIdentityInduction(world({ nodes: NODES, perNode: 120, twin: "n3" }), OPTS);
   const r = id.judge("n3", "n3#twin");
   assert.equal(r.verdict, BOUND, JSON.stringify(r.tests));
+});
+
+test("a large-share node's twin is still judged the same (found live, 2026-09-28: mention-eval.mjs's Pierre — 16.6% of War and Peace's pooled mentions, subtly distinctive against a background he himself is a big part of — read idle every time under the old null; the plain 16-near-equal-node, sharply-distinctive world above, ~6.25% share each, never had the power to catch it — real words overlap the background far more than a synthetic node's own exclusive 12-token vocabulary does, so `ownProb` is turned down here to make this node SUBTLY distinctive too, the condition the bug actually needs)", () => {
+  // a dominant node at ~24% of the pool, only weakly distinctive (ownProb 0.1): CONFIRMED to fail on the pre-fix null (carries: [false, true]) before this fix landed
+  const overrideRec = world({ nodes: NODES, perNode: 60, perNodeOverride: { n7: 800 }, twin: "n7", ownProb: 0.1 });
+  const r = makeIdentityInduction(overrideRec, OPTS).judge("n7", "n7#twin");
+  assert.equal(r.verdict, BOUND, JSON.stringify(r.tests));
+  assert.ok(r.tests.weight.a.carries && r.tests.weight.b.carries, "a dominant, weakly-distinctive node's own weight test must still carry");
 });
 
 test("two distinct nodes are judged different", () => {

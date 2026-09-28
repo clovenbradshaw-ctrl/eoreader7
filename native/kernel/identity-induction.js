@@ -211,13 +211,31 @@ export function makeIdentityInduction(record, opts = {}) {
   };
   const P = (occ, hop, drop) => profileOf(occ, { hop, relevant, drop });
 
-  // test 3 — the counterfactual weight of x, ranked against same-size background draws
+  // test 3 — the counterfactual weight of x, ranked against same-size draws
+  // of THE REST of the corpus (found live, 2026-09-28, mention-eval.mjs on
+  // War and Peace: a planted twin of Pierre — 16.6% of the pooled mention
+  // count — read idle 16/16 times; Natasha at 10.3% and Bonaparte at 0.8%
+  // read bound once x's own material left the comparison; the synthetic
+  // test's 16 near-equal nodes, ~6.25% share each, never had the power to
+  // surface this). `allOcc` (and the shared `background()`) pool EVERY
+  // node's occurrences, x's own included; a same-size null draw FROM THAT
+  // POOL, and a background COMPUTED FROM IT, are each partly x, so for a
+  // node with a large share the null resembles x by construction and
+  // "carries weight" grows harder to earn exactly for the best-attested
+  // nodes — backwards. The fix is test 4's own convention (`others =
+  // nodes.filter(n => n !== a && n !== b)`) applied one register over: both
+  // the background x is compared against and the pool the null is drawn
+  // from exclude x's own occurrences, so "does x depart from the rest of
+  // the corpus more than a same-size slice of the rest of the corpus
+  // departs from itself" is asked of the same population on both sides.
   const weight = (x, hop, drop, rng) => {
     const occ = record.get(x);
-    const bg = background(hop, drop);
-    const observed = departure(P(occ, hop, drop), bg);
+    const own = new Set(occ);
+    const pool = allOcc.filter((o) => !own.has(o));
+    const bgRest = profileOf(pool, { hop, relevant, drop });
+    const observed = departure(P(occ, hop, drop), bgRest);
     const nul = [];
-    for (let i = 0; i < draws; i += 1) nul.push(departure(P(sample(allOcc, occ.length, rng), hop, drop), bg));
+    for (let i = 0; i < draws; i += 1) nul.push(departure(P(sample(pool, occ.length, rng), hop, drop), bgRest));
     const ceiling = quantile(nul, 1 - alpha);
     return { observed, ceiling, carries: observed > ceiling };
   };
