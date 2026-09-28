@@ -121,7 +121,21 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
           // the mention's phrase ("In December 2015, Merkel was named" is not
           // testimony about "December").
           if (pronouns && gapWords.some((w) => pronouns.has(w))) { refused.push({ at, reason: "pronoun_unbound", occupant: gapWords.find((w) => pronouns.has(w)), clause: clause.trim().slice(0, 160) }); break; }
-          if (/[,;:—()]/.test(gap)) { refused.push({ at, reason: "occupant_not_a_referent", occupant: before.trim().split(/\s+/).slice(-3).join(" "), clause: clause.trim().slice(0, 160) }); break; }
+          // A comma between mention and transition (refined 2026-09-28 after
+          // the v2 run refused "Pierre, on unexpectedly becoming Count
+          // Bezúkhov"): the mention before the comma is the subject UNLESS the
+          // stretch after the comma holds a subject-shaped phrase the pipeline
+          // did not establish — a determiner-led phrase ("In 2015, the
+          // chancellor was named") or a capitalised run ("In 2015, Merkel was
+          // named" when Merkel is no mention). Then the true subject is
+          // something the reading never reached, and the standing is refused
+          // rather than credited to the mention before the comma.
+          const commaAt = gap.search(/[,;:—()]/);
+          if (commaAt >= 0) {
+            const after = gap.slice(commaAt + 1).trim().split(/\s+/).filter(Boolean);
+            const unestablished = after.some((w) => def.has(clean(w)) || indef.has(clean(w)) || /^\p{Lu}/u.test(w));
+            if (unestablished) { refused.push({ at, reason: "occupant_not_a_referent", occupant: after.slice(0, 3).join(" "), clause: clause.trim().slice(0, 160) }); break; }
+          }
           occupant = last.referent; occupantVia = last.via; occupantSurface = text.slice(last.start, last.end);
         } else {
           const run = capRun.exec(before.replace(/\s+(?:\p{Ll}[\p{L}’']*)(?:\s+\p{Ll}[\p{L}’']*)?\s*$/u, ""));

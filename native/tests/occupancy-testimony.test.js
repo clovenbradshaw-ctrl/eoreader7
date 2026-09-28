@@ -73,10 +73,17 @@ test("the occupant is a mention the pipeline made: a surface, a bound pronoun; n
 
 test("between mention and transition: an unbound pronoun or a comma refuses — the mention before is not the subject", async () => {
   const { SUBJECT_PRONOUNS } = await import("../adapters/text/priors.js");
-  const texts = ["After a long career at German universities, he was appointed Archbishop of Munich.", "In December 2015, Merkel was named Person of the Year.", "Ratzinger was appointed Archbishop of Munich."];
-  const M = { German: "ref:german", December: "ref:december", Ratzinger: "ref:ratzinger" };
+  const texts = ["After a long career at German universities, he was appointed Archbishop of Munich.", "In December 2015, Merkel was named Person of the Year.", "Ratzinger was appointed Archbishop of Munich.", "Pierre, on unexpectedly becoming Count Bezukhov, felt beset.", "In 2015, the chancellor was named Person of the Year.", "In December 2016, Merkel was named Person of the Decade."];
+  const M = { German: "ref:german", December: "ref:december", Ratzinger: "ref:ratzinger", Pierre: "ref:pierre" };
   const mentions = (s) => Object.entries(M).flatMap(([surf, referent]) => { const i = s.text.indexOf(surf); return i >= 0 ? [{ start: i, end: i + surf.length, referent, via: "cast" }] : []; });
   const r = readOccupancyTestimony(texts.map((text, at) => ({ text, at })), { ...OPTS, mentions, pronouns: SUBJECT_PRONOUNS });
-  assert.deepEqual(r.candidates.map((c) => [c.occupant, c.locus]), [["ref:ratzinger", "Archbishop of Munich"]]);
-  assert.deepEqual(r.refused.map((x) => x.reason), ["pronoun_unbound", "occupant_not_a_referent"]);
+  // the comma before "Merkel" refuses (Merkel is no mention in this fixture: a capitalised run the
+  // reading never reached); the comma after "Pierre" does not (nothing subject-shaped follows it);
+  // a determiner-led phrase after the comma refuses; and once Merkel IS a mention it wins outright
+  assert.deepEqual(r.candidates.map((c) => [c.occupant, c.locus]), [["ref:ratzinger", "Archbishop of Munich"], ["ref:pierre", "Count Bezukhov"]]);
+  assert.deepEqual(r.refused.map((x) => x.reason), ["pronoun_unbound", "occupant_not_a_referent", "occupant_not_a_referent", "occupant_not_a_referent"]);
+  const M2 = { ...M, Merkel: "ref:merkel" };
+  const mentions2 = (s) => Object.entries(M2).flatMap(([surf, referent]) => { const i = s.text.indexOf(surf); return i >= 0 ? [{ start: i, end: i + surf.length, referent, via: "cast" }] : []; });
+  const r2 = readOccupancyTestimony([{ text: texts[5], at: 0 }], { ...OPTS, mentions: mentions2, pronouns: SUBJECT_PRONOUNS });
+  assert.deepEqual(r2.candidates.map((c) => [c.occupant, c.locus]), [["ref:merkel", "Person of the Decade"]]);
 });

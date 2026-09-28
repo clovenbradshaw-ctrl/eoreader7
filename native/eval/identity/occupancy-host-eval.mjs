@@ -94,6 +94,10 @@
 //   V5  H2 holds on both arms (the wall is the reader's, not the pipeline's)
 //   V6  no arm's War and Peace run exceeds 10 minutes (the native's cost on a
 //       3.3MB book is unmeasured; a timeout is a result)
+//
+// V3, PRE-REGISTERED 2026-09-28 in results/occupancy-host-eval-v2-RESULTS.md
+// (W1-W5), after the surname fix (84182a6) and the refined comma wall; run
+// with NATIVE_MAX_CHARS=150000, output -v3.json.
 //   node occupancy-host-eval.mjs [out.json]
 import { readFileSync, writeFileSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
@@ -271,8 +275,15 @@ const realBadN = AN.filter((c) => c.via !== "pronoun" && badOccupant(c.surface))
 const V5 = { hostBad: realBad.length, nativeBad: realBadN.map((c) => `${c.surface} @${c.address}`), held: realBad.length === 0 && realBadN.length === 0 };
 const V6 = { hostSeconds: B["War and Peace"].seconds, nativeSeconds: BN["War and Peace"].seconds ?? null, nativeTimedOut: !!BN["War and Peace"].timedOut, nativeOverBudget: !!BN["War and Peace"].overBudget, nativeCap: cap, firstAttempt: "2026-09-28: the uncapped v2 run was killed at 75 minutes without finishing — the native arm on the whole book did not fit any wall", held: !BN["War and Peace"].timedOut && !BN["War and Peace"].overBudget && B["War and Peace"].seconds < 600 };
 
+const W = {
+  W1: { rows: H4.bezukhov.map((r) => `${r.occupant} -> ${r.locus} :: ${r.clause.slice(0, 80)}`), held: H4.held },
+  W2: { merkelHost: A.filter((c) => c.text === "Angela Merkel" && /^merkel$/i.test(c.surface)).map((c) => `${c.surface} -> ${c.locus}`), kantHost: H5.a.held, held: A.filter((c) => c.text === "Angela Merkel" && /^merkel$/i.test(c.surface)).length >= 3 && H5.a.held },
+  W3: { standings: A.length, monthOrDemonym: A.filter((c) => shapeBad(c.surface)).length, held: A.length >= 12 && A.filter((c) => shapeBad(c.surface)).length === 0 },
+  W4: { theTerm: AN.filter((c) => /^the term$/i.test(c.surface)).length, held: AN.some((c) => /^the term$/i.test(c.surface)) },
+  W5: { federalist: B.Federalist.standings, held: B.Federalist.standings === 0 },
+};
 const out = {
-  V1, V2, V3, V4, V5, V6,
+  ...W, V1, V2, V3, V4, V5, V6,
   nativeA: { standings: AN.length, perPage: pagesN.map((p) => ({ page: p.name, standings: p.rows.length, refused: tally(p.real.refused, (x) => x.reason), cast: p.cast, seconds: p.seconds })), via: tally(AN, (c) => c.via), rows: AN },
   nativeB: BN,
   declared: { pages: pages.length, fixture: { retrievedAt: FIX.retrievedAt, giver: FIX.giver }, liveTexts: Object.keys(B_PATHS) },
@@ -282,7 +293,7 @@ const out = {
   standingsA: A,
   live: Object.fromEntries(Object.entries(B).map(([k, v]) => [k, { ...v, rows: v.rows.slice(0, 60) }])),
 };
-for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
+for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
 console.log("via", out.via, "locusVia", out.locusVia);
 for (const [k, v] of Object.entries(B)) console.log(k, v.standings, "standings", v.ablationStandings, "ablation", v.seconds, "s", JSON.stringify(v.refused));
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));
