@@ -1048,3 +1048,32 @@ and refused on the merits.
 No code changed; nothing imports these files outside their own tests and
 demo. `needsSegmentation`'s disclosed CJK-segmentation gap is untouched
 and still real.
+
+## 22. `huginn.js` (the-fold) / `online-mouths.js` (eoreader7) — two arithmetic idioms shared, ranking left alone (2026-09-28)
+
+The two files each compute a candidate ranking, and were confirmed NOT
+the same algorithm — `huginn.js::huginnPrioritize` is a queue-aware
+EXPECTED-WAIT PRODUCT (`waitOf(c) = inflight[c] * (meanMs[c] || typical)`,
+no "tier" concept anywhere); `online-mouths.js::pick()` is a static-tier
+LEXICOGRAPHIC sort (`level, keyless, meanMs||typical, index`, no
+in-flight concept anywhere). A concrete divergence: candidate A
+(meanMs=50, 5 in-flight) vs B (meanMs=100, 0 in-flight) — huginn correctly
+picks B (avoiding A's queue); a bare latency sort picks A, the opposite
+answer. The comparators stay unshared, unmerged.
+
+What genuinely IS identical, byte for byte apart from each caller's own
+constant: the "typical latency" fallback (mean of measured values, or a
+caller-supplied fallback) and the EWMA update step. Extracted both into a
+new, pure, zero-import file, `eoreader7/native/kernel/latency-stats.js`
+(`typicalLatency`, `ewmaUpdate`) — placement checked, not assumed:
+`huginn.test.mjs` runs under plain Node (no loader), so `huginn.js`
+imports the shared file via the SAME relative cross-repo pattern `app.js`
+already establishes (`../eoreader7/native/kernel/latency-stats.js`);
+`online-mouths.js` imports it locally (`./latency-stats.js`). Each caller
+keeps its own constant (huginn's fallback=1, EWMA_ALPHA=0.4; online-
+mouths' fallback=0, EWMA=0.3) unchanged.
+
+Verified: `latency-stats.test.mjs` 5/5 (empty array/fallback, single-value
+seeding, weighted update math). `huginn.test.mjs` (the-fold): 18/18,
+byte-identical behavior. `tests/heimdall-online.test.mjs` (eoreader7,
+asserts `pick()`'s latency-based ordering): 6/6, unchanged.
