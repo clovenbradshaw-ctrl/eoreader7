@@ -60,6 +60,26 @@
 //       two distinct occupant ITEMS
 //   H4  War and Peace: a standing whose occupant is a host referent with a
 //       surface containing "Pierre" and whose locus contains "Bezukhov"
+//   H5  live_priors, through the same host, no key (added 2026-09-28 before
+//       the run, on the direction "various things in live priors AND
+//       wikidata and wikipedia, but only wikidata makes it too specific" —
+//       Wikidata is the KEY, never material). Each prediction was written
+//       from ONE grep of the raw text, nothing computed by the reader:
+//       a  Immanuel_Kant (live_priors wikipedia digest): a standing whose
+//          occupant is a host referent with surface "Kant" and whose locus
+//          surface begins "Full Professor"
+//       b  Middlemarch: "Tyke became chaplain to the Infirmary" is REFUSED
+//          as state_not_position — a bare-noun complement the structural
+//          typing cannot see as a position; registered as the reader's own
+//          predicted limit, not a hypothesis it should pass
+//       c  The Federalist Papers: zero standings (rules and hypotheticals,
+//          not testimony)
+//       d  Dracula, Great Expectations, Crime and Punishment: zero positions
+//          by pattern — a novel's becomings are states, not offices
+//       e  Cold_War (digest): a standing with occupant a host referent with
+//          surface "Gorbachev"; its locus surface will carry the digest's
+//          glued link label — reported as the material's defect, not the
+//          reader's
 //   Reported, not predicted: standings and refusals by reason per domain,
 //   resolution tiers by `via`, and — where a pronoun-tier occupant is keyed —
 //   whether its item is the page topic.
@@ -171,9 +191,39 @@ const wpRefs = new Map(wp.cast0.referents.map((r) => [`host:${r.id}`, r]));
 const wpRows = wp.real.candidates.map((c) => ({ occupant: wpRefs.get(c.occupant)?.surfaces.slice(0, 4).join("|") ?? c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: c.locus, clause: c.clause }));
 const H4 = { standings: wpRows.length, seconds: Math.round((Date.now() - t0) / 1000), bezukhov: wpRows.filter((r) => /bezukhov/i.test(r.locus)), refused: tally(wp.real.refused, (r) => r.reason), held: wp.real.candidates.some((c) => /bezukhov/i.test(c.locus) && (wpRefs.get(c.occupant)?.surfaces ?? []).some((s) => /Pierre/.test(s))) };
 
+// ── H5: live_priors through the host, unkeyed ─────────────────────────────
+const LP = "/home/user/live_priors";
+const LIVE = {
+  "Immanuel_Kant": `${LP}/02-encyclopedic/wikipedia/Immanuel_Kant.txt`,
+  "Cold_War": `${LP}/02-encyclopedic/wikipedia/Cold_War.txt`,
+  "Middlemarch": `${LP}/01-literature-books/gutenberg/pg145_Middlemarch-George-Eliot.txt`,
+  "Federalist": `${LP}/01-literature-books/gitenberg/pg1404_The-Federalist-Papers.txt`,
+  "Dracula": `${LP}/01-literature-books/gutenberg/pg345_Dracula.txt`,
+  "Great_Expectations": `${LP}/01-literature-books/gitenberg/pg1400_Great-Expectations.txt`,
+  "Crime_and_Punishment": `${LP}/01-literature-books/gitenberg/pg2554_Crime-and-Punishment.txt`,
+};
+const live = {};
+for (const [name, path] of Object.entries(LIVE)) {
+  const t1 = Date.now();
+  const r = readPage({ title: null, text: readFileSync(path, "utf8").replace(/\r\n/g, "\n"), links: [], pageItem: null, itemOf: () => null });
+  const refs = new Map(r.cast0.referents.map((x) => [`host:${x.id}`, x]));
+  const rows = r.real.candidates.map((c) => ({ occupant: refs.get(c.occupant)?.surfaces.slice(0, 4).join("|") ?? c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: c.locus, clause: c.clause }));
+  const pat = positionsByPattern(r.real.candidates);
+  live[name] = { standings: rows.length, positions: pat.positions.map((p) => ({ locus: p.locus, occupants: p.occupants.map((o) => refs.get(o)?.surfaces[0] ?? o), evidence: p.evidence })), refused: tally(r.real.refused, (x) => x.reason), via: tally(r.real.candidates, (c) => c.occupantVia), cast: r.cast, seconds: Math.round((Date.now() - t1) / 1000), rows, refusedSample: r.real.refused.filter((x) => /chaplain|Professor|Gorbachev/.test(x.clause ?? "") || /chaplain|Professor|Gorbachev/.test(x.complement ?? "")).slice(0, 6) };
+}
+const H5 = {
+  a: { held: live.Immanuel_Kant.rows.some((r) => /Kant/.test(r.occupant) && /^Full Professor/.test(r.locus)), rows: live.Immanuel_Kant.rows.filter((r) => /Professor/.test(r.locus) || /Professor/.test(r.clause)) },
+  b: { held: live.Middlemarch.rows.every((r) => !/chaplain/.test(r.locus)) && (live.Middlemarch.refusedSample.some((x) => x.reason === "state_not_position" && /chaplain/.test(x.complement ?? x.clause ?? ""))), evidence: live.Middlemarch.refusedSample },
+  c: { held: live.Federalist.standings === 0, standings: live.Federalist.standings, refused: live.Federalist.refused, rows: live.Federalist.rows.slice(0, 10) },
+  d: { held: ["Dracula", "Great_Expectations", "Crime_and_Punishment"].every((n) => live[n].positions.length === 0), positions: Object.fromEntries(["Dracula", "Great_Expectations", "Crime_and_Punishment"].map((n) => [n, live[n].positions])) },
+  e: { held: live.Cold_War.rows.some((r) => /Gorbachev/.test(r.occupant)), rows: live.Cold_War.rows.filter((r) => /Gorbachev/.test(r.occupant) || /Gorbachev/.test(r.clause)) },
+};
+H5.held = ["a", "b", "c", "d", "e"].every((k) => H5[k].held);
+
 const out = {
   declared: { pages: pages.length, fixture: { retrievedAt: FIX.retrievedAt, giver: FIX.giver } },
-  H1, H2, H3, H4,
+  H1, H2, H3, H4, H5,
+  live: Object.fromEntries(Object.entries(live).map(([k, v]) => [k, { ...v, rows: v.rows.slice(0, 40) }])),
   byDomain: Object.fromEntries([...new Set(pages.map((p) => p.domain))].map((d) => { const ps = pages.filter((p) => p.domain === d); return [d, { pages: ps.map((p) => p.title), standings: ps.reduce((n, p) => n + p.real.candidates.length, 0), refused: tally(ps.flatMap((p) => p.real.refused), (r) => r.reason), ablationStandings: ps.reduce((n, p) => n + p.ablation.candidates.length, 0) }]; })),
   via: tally(all, (c) => c.occupantVia), locusVia: tally(all, (c) => c.locusVia),
   pronounTier: all.filter((c) => c.occupantVia === "pronoun").map((c) => ({ page: c.page, occupant: lab(c.occupant), isTopic: c.occupant === FIX.titleItem[c.page], clause: c.clause })),
@@ -181,6 +231,6 @@ const out = {
   standings: all.map((c) => ({ page: c.page, occupant: isItem(c.occupant) ? `${lab(c.occupant)} (${c.occupant})` : c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: isItem(c.locus) ? `${lab(c.locus)} (${c.locus})` : c.locus, locusVia: c.locusVia, keyed: keyed.includes(c), confirmed: keyed.includes(c) ? confirmed(c.occupant, c.locus) : null, pattern: c.pattern, clause: c.clause })),
   warAndPeace: { ...H4, sample: wpRows.slice(0, 40) },
 };
-for (const k of ["H1", "H2", "H3", "H4"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 400));
+for (const k of ["H1", "H2", "H3", "H4", "H5"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 400));
 console.log("via", out.via, "locusVia", out.locusVia);
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));
