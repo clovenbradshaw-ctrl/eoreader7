@@ -57,6 +57,35 @@ export const OCCUPANCY_TRANSITIONS_EN_META = Object.freeze({
   giver: "declared closed class, lang/en; reference: VerbNet classes become-109.1, appoint-29.1, succeed-? (Levin 1993 §29.1 'appoint verbs')",
   scope: "entry into a position only; exits (resigned, deposed, died) are named future work",
 });
+import { undecided, collapse } from "../../kernel/undecided.js";
+
+/** The reader's own for-whom when a caller declares none: it collapses by nearness under the earned walls. */
+export const DEFAULT_FOR_WHOM = Object.freeze({ id: "occupancy-reader:nearest-established", giver: "adapters/text/occupancy-testimony.js" });
+/**
+ * NEAREST_ESTABLISHED — the default collapse rule, every clause of it earned
+ * by a registered run (results/occupancy-host-eval*-RESULTS.md): the last
+ * established mention within OCCUPANT_GAP_MAX words is the occupant, unless
+ * an unbound pronoun stands between it and the transition (v1's "German
+ * universities, he was appointed"), or a subject-shaped phrase the reading
+ * never established follows a comma in that gap (v1's "In December 2015,
+ * Merkel"), or the clause OPENS with an unbound pronoun (v3's "He took office
+ * on September 26, becoming") — then the true subject is something the
+ * reading never reached, and the collapse is NONE with that reason.
+ */
+export const NEAREST_ESTABLISHED = Object.freeze({
+  name: "nearest-established", giver: "adapters/text/occupancy-testimony.js, rules earned by the 2026-09-28 registered runs", params: { gapMax: 2 },
+  decide(cands) {
+    const est = cands.filter((c) => c.features.established);
+    const last = est.length ? est.reduce((a, b) => (b.features.end > a.features.end ? b : a)) : null;
+    if (!last || last.features.distanceWords > 2) return { reason: "occupant_not_a_referent" };
+    const between = cands.filter((c) => !c.features.established && c.features.start >= last.features.end);
+    if (between.some((c) => c.via === "pronoun-unbound")) return { contested: [last.index, ...between.map((c) => c.index)], reason: "pronoun_unbound" };
+    if (last.features.subjectShapedAfterPunct) return { contested: [last.index, ...between.map((c) => c.index)], reason: "occupant_not_a_referent" };
+    const opener = cands.find((c) => c.via === "pronoun-unbound" && c.features.clauseInitial);
+    if (opener) return { contested: [last.index, opener.index], reason: "pronoun_unbound" };
+    return { chosen: last.index };
+  },
+});
 const BE_AUX = new Set(["was", "were", "is", "are", "been", "being", "be", "had been", "has been", "have been"]);
 /** Between an occupant mention and its transition: at most this many words, each read. */
 export const OCCUPANT_GAP_MAX = 2;
@@ -77,7 +106,7 @@ const CAP = "\\p{Lu}[\\p{L}’'.-]*";       // a capitalised word
  * resolveLocus(sentence, span, surface) -> { referent, via } | null
  * -> { candidates, refused, arm }
  */
-export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, pronouns = null, resolveLocus = null, complementTyping = "structural" } = {}) {
+export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, pronouns = null, resolveLocus = null, complementTyping = "structural", forWhom = null, occupantRule = null } = {}) {
   for (const [k, v] of Object.entries({ source, determiners, modals, negation })) if (v == null) throw new TypeError(`occupancy-testimony: '${k}' must be declared`);
   const def = determiners.definite, indef = determiners.indefinite;
   const alt = (xs) => xs.map(esc).join("|");
@@ -91,7 +120,7 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
   ];
   // the ablation arm: a capitalised run ending right before the transition
   const capRun = new RegExp(`(?<occ>${CAP}(?:\\s+(?:of\\s+|de\\s+|von\\s+)?${CAP})*)\\s*$`, "u");
-  const candidates = [], refused = [];
+  const candidates = [], refused = [], events = [];
   const clean = (w) => w.toLowerCase().replace(/[^\p{L}’']/gu, "");
   const irrealisIn = (words) => words.some((w) => modals.has(w) || negation.has(w)) || words.includes("to");
   for (const sentence of sentences) {
@@ -108,35 +137,36 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         let occupant, occupantSurface, occupantVia, gapWords;
         if (ms) {
           const tStart = cStart + m.index;
+          // THE SLOT IS UNDECIDED UNTIL A FOR-WHOM COLLAPSES IT (kernel/undecided.js,
+          // 2026-09-28). Every candidate the clause offers is kept with its
+          // evidence: the pipeline's established mentions, the pronouns it did
+          // NOT bind, the capitalised runs it never admitted. The default rule
+          // (below, named) reproduces the walls the registered runs earned; a
+          // for-whom with a stricter or looser rule collapses the same record
+          // differently, and both stand.
           const prior = ms.filter((x) => x.end <= tStart && x.start >= cStart);
-          const last = prior.at(-1);
-          const gap = last ? text.slice(last.end, tStart) : before;
-          gapWords = gap.split(/\s+/).map(clean).filter(Boolean);
-          if (!last || gapWords.length > OCCUPANT_GAP_MAX) { refused.push({ at, reason: "occupant_not_a_referent", occupant: before.trim().split(/\s+/).slice(-3).join(" "), clause: clause.trim().slice(0, 160) }); break; }
-          // Two structural walls between the mention and the transition
-          // (amended 2026-09-28 from the registered run's own rows, never a
-          // word list): a PRONOUN the pipeline did not bind is the subject,
-          // not the mention before it ("...German universities, he was
-          // appointed" is not testimony about "German"); and a COMMA closes
-          // the mention's phrase ("In December 2015, Merkel was named" is not
-          // testimony about "December").
-          if (pronouns && gapWords.some((w) => pronouns.has(w))) { refused.push({ at, reason: "pronoun_unbound", occupant: gapWords.find((w) => pronouns.has(w)), clause: clause.trim().slice(0, 160) }); break; }
-          // A comma between mention and transition (refined 2026-09-28 after
-          // the v2 run refused "Pierre, on unexpectedly becoming Count
-          // Bezúkhov"): the mention before the comma is the subject UNLESS the
-          // stretch after the comma holds a subject-shaped phrase the pipeline
-          // did not establish — a determiner-led phrase ("In 2015, the
-          // chancellor was named") or a capitalised run ("In 2015, Merkel was
-          // named" when Merkel is no mention). Then the true subject is
-          // something the reading never reached, and the standing is refused
-          // rather than credited to the mention before the comma.
-          const commaAt = gap.search(/[,;:—()]/);
-          if (commaAt >= 0) {
-            const after = gap.slice(commaAt + 1).trim().split(/\s+/).filter(Boolean);
-            const unestablished = after.some((w) => def.has(clean(w)) || indef.has(clean(w)) || /^\p{Lu}/u.test(w));
-            if (unestablished) { refused.push({ at, reason: "occupant_not_a_referent", occupant: after.slice(0, 3).join(" "), clause: clause.trim().slice(0, 160) }); break; }
+          const covered = (i) => prior.some((x) => cStart + i >= x.start && cStart + i < x.end);
+          const cands = prior.map((x) => ({ value: x.referent, via: x.via, features: { start: x.start - cStart, end: x.end - cStart, established: true } }));
+          for (const w of before.matchAll(/\S+/gu)) {
+            if (covered(w.index)) continue;
+            const c = clean(w[0]);
+            if (pronouns && pronouns.has(c)) cands.push({ value: null, via: "pronoun-unbound", features: { start: w.index, end: w.index + w[0].length, established: false, word: c } });
+            else if (w.index > 0 && /^\p{Lu}/u.test(w[0]) && !def.has(c) && !indef.has(c)) cands.push({ value: null, via: "unestablished-run", features: { start: w.index, end: w.index + w[0].length, established: false, word: w[0] } });
           }
-          occupant = last.referent; occupantVia = last.via; occupantSurface = text.slice(last.start, last.end);
+          for (const c of cands) {
+            const between = before.slice(c.features.end, m.index);
+            c.features.distanceWords = between.split(/\s+/).map(clean).filter(Boolean).length;
+            c.features.punctBetween = /[,;:—()]/.test(between);
+            c.features.clauseInitial = before.slice(0, c.features.start).trim() === "";
+            c.features.subjectShapedAfterPunct = c.features.punctBetween && between.slice(between.search(/[,;:—()]/) + 1).trim().split(/\s+/).filter(Boolean).some((w) => def.has(clean(w)) || indef.has(clean(w)) || /^\p{Lu}/u.test(w));
+          }
+          const record = undecided({ question: "occupant", slot: `${source}#s${at}@${tStart}`, giver: OCCUPANCY_TRANSITIONS_EN_META.giver, cursor: at, at: { sentence: at, clause: clause.trim().slice(0, 200) }, candidates: cands });
+          const verdict = collapse(record, { forWhom: forWhom ?? DEFAULT_FOR_WHOM, rule: occupantRule ?? NEAREST_ESTABLISHED, cursor: at });
+          events.push({ undecided: record, collapse: verdict });
+          if (verdict.verdict !== "chosen") { refused.push({ at, reason: verdict.reason ?? "occupant_not_a_referent", occupant: verdict.contested?.[0]?.features?.word ?? before.trim().split(/\s+/).slice(-3).join(" "), clause: clause.trim().slice(0, 160), undecided: record.id }); break; }
+          const last = verdict.chosen;
+          gapWords = before.slice(last.features.end, m.index).split(/\s+/).map(clean).filter(Boolean);
+          occupant = last.value; occupantVia = last.via; occupantSurface = before.slice(last.features.start, last.features.end);
         } else {
           const run = capRun.exec(before.replace(/\s+(?:\p{Ll}[\p{L}’']*)(?:\s+\p{Ll}[\p{L}’']*)?\s*$/u, ""));
           if (!run) { refused.push({ at, reason: "occupant_not_a_referent", occupant: before.trim().split(/\s+/).slice(-3).join(" "), clause: clause.trim().slice(0, 160) }); break; }
@@ -174,7 +204,7 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
       }
     }
   }
-  return { candidates, refused, arm: mentions ? "mentions" : "capitalised-run (ablation)", giver: OCCUPANCY_TRANSITIONS_EN_META.giver };
+  return { candidates, refused, events, arm: mentions ? "mentions" : "capitalised-run (ablation)", giver: OCCUPANCY_TRANSITIONS_EN_META.giver };
 }
 
 /**

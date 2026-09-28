@@ -87,3 +87,26 @@ test("between mention and transition: an unbound pronoun or a comma refuses — 
   const r2 = readOccupancyTestimony([{ text: texts[5], at: 0 }], { ...OPTS, mentions: mentions2, pronouns: SUBJECT_PRONOUNS });
   assert.deepEqual(r2.candidates.map((c) => [c.occupant, c.locus]), [["ref:merkel", "Person of the Decade"]]);
 });
+
+test("the slot is undecided until a for-whom collapses it: every candidate kept, two rules, two verdicts, both on record", async () => {
+  const { SUBJECT_PRONOUNS } = await import("../adapters/text/priors.js");
+  const { collapse, standingOf } = await import("../kernel/undecided.js");
+  const text = "He took office on September 26, becoming the first person since Stone to serve twice.";
+  const mentions = () => [{ start: text.indexOf("September"), end: text.indexOf("September") + 9, referent: "ref:september", via: "cast" }];
+  const r = readOccupancyTestimony([{ text, at: 0 }], { ...OPTS, mentions, pronouns: SUBJECT_PRONOUNS });
+  assert.equal(r.events.length, 1);
+  const { undecided: u, collapse: c } = r.events[0];
+  // the record holds the established mention AND the clause-initial unbound pronoun
+  assert.deepEqual(u.candidates.map((x) => x.via).sort(), ["cast", "pronoun-unbound"]);
+  assert.equal(u.candidates.find((x) => x.via === "pronoun-unbound").features.clauseInitial, true);
+  // the default for-whom refuses to credit September: contested, reason named
+  assert.equal(c.verdict, "contested"); assert.equal(c.reason, "pronoun_unbound"); assert.equal(r.candidates.length, 0);
+  assert.equal(r.refused[0].undecided, u.id);
+  // a looser for-whom collapses the SAME record to September, and both collapses stand
+  const loose = { name: "nearest-any", giver: "test", decide: (cs) => ({ chosen: cs.filter((x) => x.features.established).at(-1).index }) };
+  const c2 = collapse(u, { forWhom: { id: "reader:loose" }, rule: loose, cursor: 0 });
+  assert.equal(c2.verdict, "chosen"); assert.equal(c2.chosen.value, "ref:september");
+  assert.equal(standingOf(u, [c, c2], { id: "reader:loose" }).standing, "chosen");
+  assert.equal(standingOf(u, [c, c2], { id: "occupancy-reader:nearest-established" }).standing, "contested");
+  assert.equal(u.standing, "open");
+});
