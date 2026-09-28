@@ -75,13 +75,14 @@ export const PROSE_MEDIUM = Object.freeze({
     // the journey makes of them anchor the arc — asked once each, after the
     // bonds (CON) and before any line (the void, then the change)
     const has = (label) => first.props.some((p) => p.label === label);
+    const n = first.name;
     const being = [
-      { label: "home", question: `Where does ${first.name} live when the story begins?`, anchor: `${first.name}'s home is` },
-      { label: "lacks", question: `What is missing from ${first.name}'s life when the story begins?`, anchor: `What ${first.name} is missing is` },
-      { label: "becomes", question: `How is ${first.name} different when the story ends?`, anchor: `By the end, ${first.name} has become` },
+      { label: "home", question: `Where does ${n} live when the story begins?`, anchor: `${n}'s home is`, strip: [`${n} lives in`, `${n} lives at`, `${n} lives`, "in", "at"] },
+      { label: "lacks", question: `What is missing from ${n}'s life when the story begins?`, anchor: `What ${n} is missing is`, strip: [`${n} is missing`, `${n} is lacking`, `${n} lacks`, `${n} misses`, `${n} has no`, "missing", "that"] },
+      { label: "becomes", question: `How is ${n} different when the story ends?`, anchor: `By the end, ${n} has become`, strip: [`${n} has become`, `${n} becomes`, `${n} is now`, `${n} is`, "a person who is", "someone who is"] },
     ].find((b) => !has(b.label) && !abandoned.has(`being:${b.label}`));
     if (!being) return null;
-    return { key: `being:${being.label}`, once: true, question: `${known}\n${being.question}`, anchor: being.anchor, slot: { subject: first.id, label: being.label, phrase: true } };
+    return { key: `being:${being.label}`, once: true, question: `${known}\n${being.question}`, anchor: being.anchor, slot: { subject: first.id, label: being.label, phrase: true, strip: being.strip } };
   },
   // the place of the next part in the nested arcs, as facts the engine says
   // ("In chapter 3, Alice sets out, leaving the cottage behind."): asked for

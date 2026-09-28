@@ -85,9 +85,9 @@ function storyMouth() {
     prompts.push({ stage, prompt });
     if (stage.startsWith("count:character")) return "Ana\nTom";
     if (stage.startsWith("relation:")) return "father.";
-    if (stage === "being:home") return "the lighthouse on Gull Rock.";
-    if (stage === "being:lacks") return "her mother, who left when she was small.";
-    if (stage === "being:becomes") return "the keeper of the light.";
+    if (stage === "being:home") return "Ana lives in the lighthouse on Gull Rock.";
+    if (stage === "being:lacks") return "Ana is missing her mother, who left when she was small.";
+    if (stage === "being:becomes") return "Ana has become the keeper of the light.";
     if (stage.startsWith("count:chapter")) { const k = prompts.filter((p) => p.stage.startsWith("count:chapter")).length; return k === 2 ? "In chapter 2, Ana does chapter thing 2." : `Ana does chapter thing ${k}.`; }
     if (stage.startsWith("count:scene")) return `Scene line ${prompts.filter((p) => p.stage.startsWith("count:scene")).length} with Ana.`;
     if (stage === "opening") return "The Keeper's Light.";
@@ -118,7 +118,10 @@ test("the being is asked for after the bonds and before any line; every part is 
   assert.ok(lines.includes("Ana does chapter thing 2."), JSON.stringify(lines));
   // scenes carry their chapter's role and their own place in the chapter's arc
   const sceneAsk = m.prompts.find((p) => p.stage.startsWith("count:scene") && p.prompt.includes("In scene 2 of chapter 3"));
-  assert.ok(sceneAsk && sceneAsk.prompt.includes("the chapter ends somewhere new for Ana") && sceneAsk.prompt.includes("In chapter 3, Ana comes home"), sceneAsk?.prompt);
+  // the arrival chapter's own landing is home, not "somewhere new"
+  assert.ok(sceneAsk && sceneAsk.prompt.includes("the chapter ends with Ana at the lighthouse on Gull Rock") && sceneAsk.prompt.includes("In chapter 3, Ana comes home"), sceneAsk?.prompt);
+  const midLanding = m.prompts.find((p) => p.stage.startsWith("count:scene") && p.prompt.includes("In scene 2 of chapter 2"));
+  assert.ok(midLanding && midLanding.prompt.includes("the chapter ends somewhere new for Ana"), midLanding?.prompt);
   for (const p of m.prompts) for (const word of ["ledger", "claim", "JSON", "premise", "note", "role", "arc"]) assert.ok(!p.prompt.split(" ").includes(word), `${word} in a prompt: ${p.prompt}`);
   assert.equal(helixCheck({ fold, entries: out.notes.entries }).ok, true);
   return { out };
@@ -183,6 +186,22 @@ test("a part left off the arc is written again with its role in hand, and kept o
   const after = ed.whereIsBeing({ notes: r.notes, store: r.store, task: "a story", k: 5 });
   assert.equal(after.at, "home", after.answer);
   assert.ok(after.answer.includes("came back in part 6") && after.answer.includes("the keeper of the light by part 6"), after.answer);
+});
+
+test("Houdini hears a role fact read back nearly whole; a line in the part's own words is not", async () => {
+  const m = storyMouth();
+  const out = await makeTalkBuild({ ask: m.ask, parse, sentences, medium: PROSE_MEDIUM, mouth: "m" }).build({ what: "a story with 2 characters in 3 chapters of 2 scenes each" });
+  let b = 0;
+  const bodies = Array.from({ length: 6 }, (_, k) => (k === 5 ? "As Ana comes home to the lighthouse on Gull Rock, no longer missing her mother, she is the keeper of the light now. The lamp turned. She slept." : `Ana walked out along the shingle ${k}. The gulls turned over the water ${k}. She counted the boats ${k}.`));
+  const ask = async (prompt, { stage }) => (stage.startsWith("body:") ? bodies[b++] : "");
+  const lf = makeLongForm({ ask, sentences, medium: PROSE_MEDIUM, mouth: "m", castDetails: [] });
+  const w = await lf.writeBodies({ notes: out.notes, store: makeTextStore() });
+  const ed = makeBookEditor({ lf, ask, parse, medium: PROSE_MEDIUM, mouth: "m", castDetails: [] });
+  const read = ed.readBook({ notes: w.notes, store: w.store, task: "a story" });
+  const aloud = read.findings.filter((f) => f.kind === "role_read_aloud");
+  assert.equal(aloud.length, 1, JSON.stringify(read.findings.filter((f) => f.editor === "Harry Houdini").map((f) => f.sentence)));
+  assert.equal(aloud[0].licenses, "rewrite");
+  assert.ok(aloud[0].sentence.startsWith("As Ana comes home"));
 });
 
 test("no regular expressions in the arc organ", () => {

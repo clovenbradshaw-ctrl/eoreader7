@@ -289,6 +289,21 @@ built, so the result can go against it.
   (con: seams; syn: strangers across chapters; rec: "day" said; EVA: prompt
   max within 100 tokens) AND its mean repetition is no more than 3 points
   above the ledger's. Anything else is not supported, whatever one seed said.
+- **The arc's ending, pre-registered 2026-09-28 before the run** (`arc2`:
+  slice 2's request, a fresh outline, 1.5b, seed 1). Four causes were read
+  off arc1 and fixed: the being's frame heard as a sentence ("no longer
+  missing Alice is missing her dog"); the arrival chapter's own landing fact
+  saying "somewhere new"; the engine's placing clause copied into outline
+  lines; the regeneration vetoed by the licensed-findings count (0 of 8 kept).
+  Predicted, in order of what each fix is for: (1) none of home / lacks /
+  becomes on the record begins with the being's name; (2) no outline line
+  begins "In scene" or "In chapter"; (3) after the edit, Gebser's `no_arrival`
+  and the being's `unchanged_return` are absent and the trajectory's last
+  part reads HOME (as written it may not — the regeneration is what should
+  bring it home); (4) Houdini's `role_read_aloud` lines are fewer after the
+  edit than as written. (3) is the claim; if the last part is still away
+  after the edit, the arc's ending is not solved by these four and the next
+  cause is the mouth's, not the record's.
 - **The root:** the bodies are never read back into the record. The ear
   (`talk-reader.js`) hears only the outline's talk. Every empty cell needs
   that one missing reader first (SIG·Figure), with pronouns bound

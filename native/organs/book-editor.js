@@ -129,6 +129,9 @@ export const EDIT_PASSES = 2;
  *  hand 2026-09-27: a transition needs the part before; a restatement is
  *  local enough to be seen next door. */
 export const JUDGE_REACH = 1;
+/** The share of a role fact's content words a line must carry to be the fact
+ *  read aloud — set by hand 2026-09-28 (arc1's homecoming line carried all). */
+export const ROLE_READ_ALOUD = 0.8;
 const sha8 = (t) => createHash("sha256").update(String(t)).digest("hex").slice(0, 8);
 const sentence = (v) => { const s = String(v).trim(); return [".", "!", "?"].includes(s.at(-1)) ? s : `${s}.`; };
 const ORDER = ["fold", "repair", "floor", "bridge", "rewrite"];
@@ -349,6 +352,15 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
     });
     // Gornick reads the whole book (the engine is not the mouth: it may)
     const curve = gornickCurve(piece.map((p) => ({ text: p.pieces.map((pc) => pc.text).join(" ") })));
+    // HOUDINI (the apparatus leaking): a line that says a role fact back
+    // nearly whole ("Alice comes home to the house where she lives, no longer
+    // missing her dog, a skilled and experienced person") is the engine's
+    // sentence in the mouth's voice — asked again plainly
+    for (const p of piece) {
+      const role = lf.roleOf?.(gd.outline, gd.outline.leaves[p.index]?.part);
+      const clauses = (role?.facts ?? []).map((f) => f.slice(f.indexOf(",") + 1).trim()).filter(Boolean);
+      for (const pc of p.pieces) { const said = clauses.find((c) => saysPhrase(pc.text, c, ROLE_READ_ALOUD)); if (said) findings.push({ kind: "role_read_aloud", editor: "Harry Houdini", part: p.id, leaf: p.leaf, index: p.index, addr: pc.addr, lineNote: pc.note, sentence: pc.text, words: [], detail: `says the part's own placing back nearly whole: "${said}"`, licenses: "rewrite" }); }
+    }
     for (const i of curve.flat) findings.push({ kind: "flat_given_before", editor: "Vivian Gornick", part: piece[i].id, leaf: piece[i].leaf, index: i, addr: null, detail: `${curve.means[i].toFixed(2)} bits per word against what precedes it, ${curve.gaps[i].toFixed(2)} below its own words shuffled — beyond the book's own spread (alpha ${GORNICK.alpha}): its phrasing was already said`, licenses: null });
     // THE BEING AND THE ARCS (narrative-arc.js): where the one the telling
     // follows is in every part, out from the void and back to it, changed
@@ -612,7 +624,14 @@ export function makeBookEditor({ lf, ask, parse = null, parser = null, medium, m
       // Brillat-Savarin's veto: a candidate opening as one of the three parts
       // before it opens (variation.js sameOpening) is not a new draw
       const opens = read.piece.slice(Math.max(0, i - 3), i).map((p) => p.pieces[0]?.text ?? "").filter(Boolean);
-      const fixes = (x) => x.licensed <= now.licensed && (!byGornick || x.bits > now.bits) && (!byCadence || !x.flatCadence) && !opens.some((o) => sameOpening(x.lines[0] ?? "", o)) && walks(x);
+      // a part written again for the ARC is judged by the walk alone: it says
+      // what the arc wants there, of the being, and does not open as the last
+      // parts did. The licensed-findings veto stays for flat parts only — the
+      // editors fold and repair what they license afterwards anyway, and the
+      // veto refused every homecoming (arc1: 0 of 8 kept; F4: the veto is not
+      // worth its asks)
+      const forArc = wants.length > 0;
+      const fixes = (x) => (forArc ? walks(x) && !opens.some((o) => sameOpening(x.lines[0] ?? "", o)) : x.licensed <= now.licensed && (!byGornick || x.bits > now.bits) && (!byCadence || !x.flatCadence) && !opens.some((o) => sameOpening(x.lines[0] ?? "", o)));
       const rank = (a, b) => a.licensed - b.licensed || b.moved - a.moved || b.bits - a.bits;
       const ok = chooser === "archons" ? pool.filter(fixes).sort(rank) : chooser === "first" ? pool.slice(0, 1) : pool.length ? [pool[Math.floor(pick() * pool.length)]] : [];
       const best = ok[0] ?? [...pool].sort(rank)[0];

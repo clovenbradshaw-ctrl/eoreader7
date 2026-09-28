@@ -510,7 +510,12 @@ const isThing = (id) => { if (typeof id !== "string" || id.startsWith("kind:") |
           if (label && value && !claims.some((c) => c.label === label)) claims.push({ end1: slot.subject, label, end2: value, sentence: `${label}: ${value}`, witness });
         });
       } else if (slot) {
-        const value = slotValue(reply, slot.whole, { name: !slot.phrase });
+        let value = slotValue(reply, slot.whole, { name: !slot.phrase });
+        // a phrase asked for is a clause, not a sentence: the mouth's restatement
+        // of the ask ("Alice is missing her dog" for "What Alice is missing is")
+        // is dropped from its front, so the record holds "her dog" (arc1: the
+        // role fact read "no longer missing Alice is missing her dog")
+        for (const pre of slot?.strip ?? []) if (value && value.toLowerCase().startsWith(pre.toLowerCase() + " ")) { value = value.slice(pre.length).trim(); break; }
         if (value) {
           const because = `${anchor} ${value}`;
           let subject = slot.subject;

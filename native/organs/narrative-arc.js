@@ -130,7 +130,10 @@ export function arcRole({ belief, parentId, kind, index, n, cast }) {
   const sibs = (grand?.children ?? []).map((id) => byId.get(id)).filter((t) => t && t.kind === parent.kind).sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
   const k = Math.max(0, sibs.indexOf(parent));
   const book = roleAt(BOOK_ARC, k, sibs.length), own = roleAt(CHAPTER_ARC, index, n);
-  return { roles: [book.role, own.role], facts: [`In ${parent.kind} ${k + 1}, ${roleFact(book, frame)}.`, upper(`in ${kind} ${index + 1} of ${parent.kind} ${k + 1}, ${roleFact(own, frame)}.`)], premises: frame.premises };
+  // the arrival chapter's own landing is home, not "somewhere new" (arc1: the
+  // last scene's landing fact pulled the being away again after the homecoming)
+  const ownFact = book.role === "the arrival" && own.role === "the landing" ? `the chapter ends with ${frame.p} at ${frame.home}` : roleFact(own, frame);
+  return { roles: [book.role, own.role], facts: [`In ${parent.kind} ${k + 1}, ${roleFact(book, frame)}.`, upper(`in ${kind} ${index + 1} of ${parent.kind} ${k + 1}, ${ownFact}.`)], premises: frame.premises };
 }
 
 // the content words of a phrase: what a text must say to have said it
@@ -141,13 +144,14 @@ const wordsOf = (t) => String(t ?? "").toLowerCase().split(" ").map((w) => [...w
  *  "light" / "lighthouse". */
 const INFLECTION = 3;
 const sameWord = (a, b) => a === b || (Math.min(a.length, b.length) >= 4 && Math.abs(a.length - b.length) <= INFLECTION && (a.startsWith(b) || b.startsWith(a)));
-/** Does `text` say `phrase`: more than half of the phrase's content words. */
-export function says(text, phrase) {
+/** Does `text` say `phrase`: more than `share` of the phrase's content words
+ *  (half by default; 0.8 reads a phrase said back nearly whole). */
+export function says(text, phrase, share = 0.5) {
   const want = [...new Set(wordsOf(phrase))];
   if (!want.length) return false;
   const have = [...new Set(wordsOf(text))];
   const hits = want.filter((w) => have.some((h) => sameWord(h, w)));
-  return hits.length * 2 > want.length;
+  return hits.length > want.length * share;
 }
 
 const hasName = (text, name) => { const w = (ch) => !!ch && ch.toLowerCase() !== ch.toUpperCase(); let i = text.indexOf(name); while (i >= 0) { if (!w(text[i - 1]) && !w(text[i + name.length])) return true; i = text.indexOf(name, i + 1); } return false; };
