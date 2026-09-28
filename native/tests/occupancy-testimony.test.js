@@ -48,3 +48,25 @@ test("testimony feeds kernel/sequence.js: one locus, two standings, a succession
   assert.equal(new Set(out.positions.map((p) => p.locus)).size, 1);
   assert.ok(out.edges.length >= 1, JSON.stringify(out.disclosures ?? out));
 });
+
+test("the occupant is a mention the pipeline made: a surface, a bound pronoun; no mention before the transition refuses", () => {
+  const texts = ["In 1805 Pierre became Count Bezukhov.", "He was appointed the steward of the Estate.", "Several became Count Bezukhov.", "Roberts succeeded Rehnquist as Chief Justice of the United States."];
+  const M = { Pierre: "ref:pierre", Roberts: "ref:roberts", Rehnquist: "ref:rehnquist" };
+  const mentions = (s) => {
+    const out = [];
+    for (const [surf, referent] of Object.entries(M)) { const i = s.text.indexOf(surf); if (i >= 0) out.push({ start: i, end: i + surf.length, referent, via: "cast" }); }
+    if (s.at === 1) out.push({ start: 0, end: 2, referent: "ref:pierre", via: "pronoun" });
+    return out;
+  };
+  const r = readOccupancyTestimony(texts.map((text, at) => ({ text, at })), { ...OPTS, mentions });
+  assert.equal(r.arm, "mentions");
+  assert.deepEqual(r.candidates.map((c) => [c.occupant, c.occupantVia, c.locus, c.predecessor]), [
+    ["ref:pierre", "cast", "Count Bezukhov", null],
+    ["ref:pierre", "pronoun", "steward of the Estate", null],
+    ["ref:roberts", "cast", "Chief Justice of the United States", "ref:rehnquist"],
+  ]);
+  assert.deepEqual(r.refused.map((x) => x.reason), ["occupant_not_a_referent"]);
+  // the ablation arm takes "Several" for a name — the difference the arm exists to measure
+  const abl = read(texts);
+  assert.ok(abl.candidates.some((c) => c.occupant === "Several"));
+});

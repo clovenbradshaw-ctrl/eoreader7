@@ -1,6 +1,7 @@
 // native/adapters/text/occupancy-testimony.js — the material's own testimony
-// that a participant came to HOLD a position (2026-09-27). Text adapter; the
-// kernel it feeds (kernel/sequence.js) is medium-blind.
+// that a participant came to HOLD a position (2026-09-27; rebuilt on the
+// reading pipeline's own mentions 2026-09-28). Text adapter; the kernel it
+// feeds (kernel/sequence.js) is medium-blind.
 //
 // WHY. kernel/sequence.js (READING-SPEC S21) already holds the law — "positions
 // are temporal; occupants are not" — and refutes a pooled locus, but nothing
@@ -12,6 +13,21 @@
 // needs a giver; the material's own statement of becoming, appointment or
 // succession is that giver, addressed to the sentence that says it.
 //
+// THE OCCUPANT IS A MENTION THE PIPELINE MADE. The first cut found the
+// occupant as the capitalised run before the transition and the registered
+// run (eval/identity/results/occupancy-eval-RESULTS.md) read the cost off its
+// own rows: "He", "Several", "Claims", "Loping" taken as names — L2 broken by
+// rebuilding a name finder beside the engine's referent organs, which already
+// refuse a sentence-initial capital. So the reader now takes `mentions`: for
+// each sentence, the spans the reading pipeline established — a referent's
+// surface occurrence, a pronoun the pipeline bound — each carrying the
+// referent it names and how (`via`). The occupant is the LAST such mention
+// before the transition in the clause, with at most two words between them,
+// READ rather than skipped (an adverb passes; a modal, a negation or an
+// infinitive "to" is irrealis). No mention there -> a typed refusal. The
+// capitalised-run finder survives only as the declared ablation arm
+// (`mentions` omitted), so the difference can be measured, never assumed.
+//
 // WHAT COUNTS. A declared closed class of English occupancy transitions
 // (giver below), each followed by a complement typed STRUCTURALLY, never by a
 // list of role words:
@@ -20,13 +36,11 @@
 //             candidate position
 //   kind      indefinite-led ("a lawyer") — membership of a kind, an INS
 //             Pattern act, not occupancy: refused, typed
-//   state     anything else ("close", "engaged", "clear") — refused, typed
-// and REALIS only: a modal, a negation or an infinitive "to" before the
-// transition ("would become", "never became", "hoped to become") is refused as
-// irrealis — a rule, a wish or a denial is not testimony that anyone held
-// anything (rules belong to kernel/obligations.js, the Paradigm cell).
-// The occupant is the capitalised run just before the transition, or a
-// typed gap (a pronoun is never guessed here).
+//   state     anything else ("close", "engaged", "chaplain to the Infirmary")
+//             — refused, typed. A bare-noun office is a known cost of this
+//             typing, registered in occupancy-host-eval.mjs H5b.
+// and REALIS only: a rule, a wish or a denial is not testimony that anyone
+// held anything (rules belong to kernel/obligations.js, the Paradigm cell).
 //
 // Every candidate carries its address (source#sentence) and, only if the
 // sentence states a year, an order key. Undated standings are real
@@ -44,6 +58,8 @@ export const OCCUPANCY_TRANSITIONS_EN_META = Object.freeze({
   scope: "entry into a position only; exits (resigned, deposed, died) are named future work",
 });
 const BE_AUX = new Set(["was", "were", "is", "are", "been", "being", "be", "had been", "has been", "have been"]);
+/** Between an occupant mention and its transition: at most this many words, each read. */
+export const OCCUPANT_GAP_MAX = 2;
 
 const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const W = "\\p{L}[\\p{L}’'.-]*";          // any word
@@ -51,56 +67,62 @@ const CAP = "\\p{Lu}[\\p{L}’'.-]*";       // a capitalised word
 
 /**
  * readOccupancyTestimony(sentences, { source, determiners, modals, negation,
- *   transitions, posPrior })
+ *   transitions, mentions, resolveLocus })
  * sentences: [{ text, at }]; determiners: { definite, indefinite } (priors.js);
- * modals / negation: closed classes (declared by the caller with givers).
- * -> { candidates, refused }
+ * modals / negation: closed classes (declared by the caller with givers);
+ * mentions(sentence) -> [{ start, end, referent, via }] in the sentence's own
+ *   coordinates — the reading pipeline's mentions; omitted = the ablation arm
+ * resolveLocus(sentence, span, surface) -> { referent, via } | null
+ * -> { candidates, refused, arm }
  */
-export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, posPrior = null, resolveOccupant = null, resolveLocus = null } = {}) {
+export function readOccupancyTestimony(sentences, { source, determiners, modals, negation, transitions = OCCUPANCY_TRANSITIONS_EN, mentions = null, resolveLocus = null } = {}) {
   for (const [k, v] of Object.entries({ source, determiners, modals, negation })) if (v == null) throw new TypeError(`occupancy-testimony: '${k}' must be declared`);
   const def = determiners.definite, indef = determiners.indefinite;
-  const passive = transitions.passive.map(esc).join("|");
-  const become = transitions.become.map(esc).join("|");
-  const assume = transitions.assume.map(esc).join("|");
-  const succeed = transitions.succeed.map(esc).join("|");
-  // occupant: a capitalised run ending right before the transition
-  const NAME = `(?<occ>${CAP}(?:\\s+(?:of\\s+|de\\s+|von\\s+)?${CAP})*)`;
-  // up to two lowercase words between the occupant and the transition, READ
-  // rather than skipped: an adverb ("soon") passes, a modal / negation /
-  // infinitive "to" is a refusal the organ reached ("would become", "never
-  // became", "hoped to become")
-  const MID = `(?<mid>(?:\\s+\\p{Ll}[\\p{L}’']*){0,2}?)`;
+  const alt = (xs) => xs.map(esc).join("|");
   const AUX = `(?:(?:${[...BE_AUX].map(esc).join("|")})\\s+)`;
+  // the transition and its complement; what stands before it is decided by the mentions
   const patterns = [
-    { kind: "succeed", re: new RegExp(`${NAME}${MID}\\s+(?:${succeed})\\s+(?<pred>${W}(?:\\s+${W}){0,3}?)\\s+as\\s+(?<comp>.+)`, "u") },
-    { kind: "assume", re: new RegExp(`${NAME}${MID}\\s+(?:${assume})\\s+(?<comp>.+)`, "u") },
-    { kind: "passive", re: new RegExp(`${NAME}${MID}\\s+${AUX}(?:${passive})(?:\\s+as|\\s+to\\s+be)?\\s+(?<comp>.+)`, "u") },
-    { kind: "become", re: new RegExp(`${NAME}${MID}\\s+${AUX}?(?:${become})\\s+(?<comp>.+)`, "u") },
+    { kind: "succeed", re: new RegExp(`(?<![\\p{L}’'])(?:${alt(transitions.succeed)})\\s+(?<pred>${W}(?:\\s+${W}){0,3}?)\\s+as\\s+(?<comp>.+)`, "u") },
+    { kind: "assume", re: new RegExp(`(?<![\\p{L}’'])(?:${alt(transitions.assume)})\\s+(?<comp>.+)`, "u") },
+    { kind: "passive", re: new RegExp(`(?<![\\p{L}’'])${AUX}(?:${alt(transitions.passive)})(?:\\s+as|\\s+to\\s+be)?\\s+(?<comp>.+)`, "u") },
+    { kind: "become", re: new RegExp(`(?<![\\p{L}’'])${AUX}?(?:${alt(transitions.become)})\\s+(?<comp>.+)`, "u") },
   ];
+  // the ablation arm: a capitalised run ending right before the transition
+  const capRun = new RegExp(`(?<occ>${CAP}(?:\\s+(?:of\\s+|de\\s+|von\\s+)?${CAP})*)\\s*$`, "u");
   const candidates = [], refused = [];
   const clean = (w) => w.toLowerCase().replace(/[^\p{L}’']/gu, "");
+  const irrealisIn = (words) => words.some((w) => modals.has(w) || negation.has(w)) || words.includes("to");
   for (const sentence of sentences) {
     const { text, at } = sentence;
+    const ms = mentions ? [...(mentions(sentence) ?? [])].sort((a, b) => a.start - b.start) : null;
     let clauseStart = 0;
     for (const clause of String(text).split(/[;:]|(?:,\s+(?=(?:and|but|while|when|after|before)\s))/u)) {
       const here = text.indexOf(clause, clauseStart); if (here >= 0) clauseStart = here;
+      const cStart = clauseStart;
       for (const p of patterns) {
         const m = p.re.exec(clause); if (!m) continue;
-        const occupant = m.groups.occ;
-        const mid = m.groups.mid.trim().split(/\s+/).filter(Boolean).map(clean);
-        const before = clause.slice(0, m.index).split(/\s+/).filter(Boolean).slice(-2).map(clean);
-        const irrealis = [...mid, ...before].some((w) => modals.has(w) || negation.has(w)) || mid.includes("to") || before.at(-1) === "to";
-        if (irrealis) { refused.push({ at, reason: "irrealis", clause: clause.trim().slice(0, 160) }); break; }
-        // THE OCCUPANT IS A REFERENT. With a resolver injected (the host's own
-        // cast, its pronoun bindings, a medium's pointers), the slot before the
-        // transition must reach a referent the reading ESTABLISHED; the
-        // capitalised run is then only where to look, never the answer.
-        const cStart = clauseStart;
-        const slot = { start: cStart + m.index, end: cStart + m.index + m.groups.occ.length + m.groups.mid.length };
-        const who = resolveOccupant ? resolveOccupant(sentence, slot) : null;
-        if (resolveOccupant && !who) { refused.push({ at, reason: "occupant_not_a_referent", occupant, clause: clause.trim().slice(0, 160) }); break; }
-        const occFirst = occupant.split(/\s+/)[0].toLowerCase();
-        if (def.has(occFirst) || indef.has(occFirst)) { refused.push({ at, reason: "occupant_is_description", occupant, clause: clause.trim().slice(0, 160) }); break; }
+        const before = clause.slice(0, m.index);
+        // the occupant: the pipeline's last mention before the transition, or the ablation's run
+        let occupant, occupantSurface, occupantVia, gapWords;
+        if (ms) {
+          const tStart = cStart + m.index;
+          const prior = ms.filter((x) => x.end <= tStart && x.start >= cStart);
+          const last = prior.at(-1);
+          const gap = last ? text.slice(last.end, tStart) : before;
+          gapWords = gap.split(/\s+/).map(clean).filter(Boolean);
+          if (!last || gapWords.length > OCCUPANT_GAP_MAX) { refused.push({ at, reason: "occupant_not_a_referent", occupant: before.trim().split(/\s+/).slice(-3).join(" "), clause: clause.trim().slice(0, 160) }); break; }
+          occupant = last.referent; occupantVia = last.via; occupantSurface = text.slice(last.start, last.end);
+        } else {
+          const run = capRun.exec(before.replace(/\s+(?:\p{Ll}[\p{L}’']*)(?:\s+\p{Ll}[\p{L}’']*)?\s*$/u, ""));
+          if (!run) { refused.push({ at, reason: "occupant_not_a_referent", occupant: before.trim().split(/\s+/).slice(-3).join(" "), clause: clause.trim().slice(0, 160) }); break; }
+          occupant = occupantSurface = run.groups.occ; occupantVia = "surface";
+          gapWords = before.slice(run.index + run.groups.occ.length).split(/\s+/).map(clean).filter(Boolean);
+          const first = occupant.split(/\s+/)[0].toLowerCase();
+          if (def.has(first) || indef.has(first)) { refused.push({ at, reason: "occupant_is_description", occupant, clause: clause.trim().slice(0, 160) }); break; }
+        }
+        // the words between, and the two before the occupant, READ for mood
+        const lead = before.slice(0, Math.max(0, before.length - occupantSurface.length - gapWords.join(" ").length - 2)).split(/\s+/).filter(Boolean).slice(-2).map(clean);
+        if (irrealisIn(gapWords) || irrealisIn(lead)) { refused.push({ at, reason: "irrealis", occupant: occupantSurface, clause: clause.trim().slice(0, 160) }); break; }
         const predecessor = m.groups.pred ?? null;
         let comp = m.groups.comp.trim().replace(/^[“"‘']+/u, "");
         comp = comp.split(/\s+(?:and|but|while|which|who|in|on|at|from|after|until|when|during|for|by|with)\s+(?=\p{Ll}|\d)|,|\(|\[|—|\.\s/u)[0].trim();
@@ -110,18 +132,19 @@ export function readOccupancyTestimony(sentences, { source, determiners, modals,
         if (indef.has(fl)) type = "kind";
         else if (def.has(fl) || /^\p{Lu}/u.test(first)) type = "locus";
         else type = "state";
-        if (type !== "locus") { refused.push({ at, reason: type === "kind" ? "kind_membership" : "state_not_position", occupant, complement: comp.slice(0, 80) }); break; }
+        if (type !== "locus") { refused.push({ at, reason: type === "kind" ? "kind_membership" : "state_not_position", occupant: occupantSurface, complement: comp.slice(0, 80) }); break; }
         const locus = comp.replace(new RegExp(`^(?:${[...def].map(esc).join("|")})\\s+`, "iu"), "").replace(/[.”"’']+$/u, "").trim();
         const year = /\b(1[0-9]{3}|20[0-9]{2})\b/u.exec(clause)?.[1] ?? null;
         const compStart = cStart + clause.indexOf(m.groups.comp);
         const where = resolveLocus ? resolveLocus(sentence, { start: compStart, end: compStart + comp.length }, locus) : null;
-        const pred = predecessor && resolveOccupant ? resolveOccupant(sentence, { start: cStart + clause.indexOf(predecessor), end: cStart + clause.indexOf(predecessor) + predecessor.length }) : null;
-        candidates.push({ occupant: who?.referent ?? occupant, occupantVia: who?.via ?? "surface", occupantSurface: occupant, locus: where?.referent ?? locus, locusVia: where?.via ?? "surface", locusSurface: locus, predecessor: pred?.referent ?? predecessor, pattern: p.kind, at, address: `${source}#s${at}`, year, clause: clause.trim().slice(0, 200) });
+        let pred = predecessor;
+        if (predecessor && ms) { const ps = cStart + clause.indexOf(predecessor); const hit = ms.find((x) => x.start >= ps && x.end <= ps + predecessor.length); if (hit) pred = hit.referent; }
+        candidates.push({ occupant, occupantVia, occupantSurface, locus: where?.referent ?? locus, locusVia: where?.via ?? "surface", locusSurface: locus, predecessor: pred, pattern: p.kind, at, address: `${source}#s${at}`, year, clause: clause.trim().slice(0, 200) });
         break;
       }
     }
   }
-  return { candidates, refused, giver: OCCUPANCY_TRANSITIONS_EN_META.giver };
+  return { candidates, refused, arm: mentions ? "mentions" : "capitalised-run (ablation)", giver: OCCUPANCY_TRANSITIONS_EN_META.giver };
 }
 
 /**

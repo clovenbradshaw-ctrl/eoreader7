@@ -24,7 +24,15 @@
 //     and Peace (Maude, live_priors) through the same host, unkeyed.
 //   Body: rest_v1 Parsoid HTML, top-level <p> prose only, hyperlinks kept as
 //     spans (lib/wiki-body.mjs). The host reads exactly that text.
-//   Occupant resolver, tiers in order, each named on the standing as `via`:
+//   AMENDED 2026-09-28, still before the run, on direction: "for the
+//   capitalisation, use our trusted reading pipeline; stop focusing on
+//   Wikidata." The occupant is now a MENTION THE HOST MADE — a referent
+//   surface occurrence or a bound pronoun — handed to the reader as
+//   `mentions`; the topic and link tiers below are WITHDRAWN (a page title
+//   is a convention of one medium, not the pipeline). The item-level key
+//   stays as a REPORT (K1 below), no longer a hypothesis: what the material
+//   testifies is the ground; Wikidata's P39 is one more witness, incomplete.
+//   Occupant resolver AS FIRST WRITTEN (superseded above, kept for the record):
 //     cast     a host-admitted referent's surface occurs, word-bounded, in the
 //              occupant slot (the host's own identity; L2 is the host's)
 //     pronoun  a host pronoun binding whose offset lies in the slot
@@ -48,9 +56,11 @@
 //     AND locus has an item. An unconfirmed keyed standing is "not in the
 //     key", never "wrong" — P39 is incomplete by construction.
 //
-//   H1  >= 50% of keyed standings are confirmed, AND the control built to
-//       fail — locus items permuted among the keyed standings (seed 7, 40
-//       draws) — confirms at median <= half the real rate
+//   K1  REPORTED: of standings whose occupant grounds to a human item with a
+//       P39 and whose locus grounds to an item, the share Wikidata confirms,
+//       beside a locus-permuted control (seed 7, 40 draws)
+//   H1  the mentions arm admits >= 1 standing on at least 7 of the 13 pages
+//       (the pipeline's referents reach the transitions at all)
 //   H2  the wall: no admitted occupant's first token is one the POS prior
 //       (UD_English-EWT, fixtures pos-prior-eng.json) settles as closed-class,
 //       and none is determiner-led; the ABLATION arm (no resolver: the
@@ -123,18 +133,15 @@ function readPage({ title, text, links, pageItem, itemOf }) {
   const keyOfRef = (r) => itemOfRef.get(r.id) ?? `host:${r.id}`;
   const sentences = cast.sentences.map((s) => ({ text: s.text, at: s.order, offset: s.offset }));
   const abs = (sentence, span) => ({ start: shift + sentence.offset + span.start, end: shift + sentence.offset + span.end });
-  const resolveOccupant = (sentence, slot) => {
-    const surf = sentence.text.slice(slot.start, slot.end).trim();
-    const hit = cast.referents.find((r) => r.surfaces.some((s) => has(surf, s)));
-    if (hit) return { referent: keyOfRef(hit), via: "cast" };
-    const a = abs(sentence, slot);
-    const pb = cast.pronounBindings.find((b) => shift + b.offset >= a.start && shift + b.offset < a.end);
-    if (pb) { const r = cast.referents.find((x) => x.id === pb.referentId); return { referent: r ? keyOfRef(r) : `host:${pb.referentId}`, via: "pronoun" }; }
-    const name = surf.replace(/[’']s$/u, "");
-    if (titleName && pageItem && (name === titleName || name === surname)) return { referent: pageItem, via: "topic" };
-    const l = absLinks.find((x) => x.start >= a.start && x.end <= a.end);
-    if (l) return { referent: l.item, via: "link" };
-    return null;
+  // THE PIPELINE'S OWN MENTIONS, in the sentence's coordinates: every
+  // occurrence of an admitted referent's surface, and every pronoun the host
+  // bound. Nothing here reads capitalisation; the ablation arm does.
+  const surfRe = new Map(cast.referents.map((r) => [r.id, new RegExp(`(?<![\\p{L}\\p{N}])(?:${[...r.surfaces].sort((x, y) => y.length - x.length).map(esc).join("|")})(?![\\p{L}\\p{N}])`, "gu")]));
+  const mentions = (sentence) => {
+    const out = [];
+    for (const r of cast.referents) for (const m of sentence.text.matchAll(surfRe.get(r.id))) out.push({ start: m.index, end: m.index + m[0].length, referent: keyOfRef(r), via: "cast" });
+    for (const b of cast.pronounBindings) if (b.sentenceOrder === sentence.at) { const r = cast.referents.find((x) => x.id === b.referentId); const st = b.offset - sentence.offset; if (st >= 0 && st < sentence.text.length) out.push({ start: st, end: st + b.pronoun.length, referent: r ? keyOfRef(r) : `host:${b.referentId}`, via: "pronoun" }); }
+    return out;
   };
   const resolveLocus = (sentence, span) => {
     const a = abs(sentence, span);
@@ -146,7 +153,7 @@ function readPage({ title, text, links, pageItem, itemOf }) {
     return null;
   };
   const opts = { source: title ?? "war-and-peace", determiners: DET, modals: MODALS, negation: NEGATION_WORDS };
-  const real = readOccupancyTestimony(sentences, { ...opts, resolveOccupant, resolveLocus });
+  const real = readOccupancyTestimony(sentences, { ...opts, mentions, resolveLocus });
   const ablation = readOccupancyTestimony(sentences, opts);
   return { real, ablation, cast: { referents: cast.referents.length, pronounBindings: cast.pronounBindings.length, grounded: itemOfRef.size }, shift, cast0: cast };
 }
@@ -168,7 +175,9 @@ const realRate = rate(keyed);
 const draws = []; for (let d = 0; d < 40; d += 1) draws.push(rate(keyed, shuffled(keyed.map((c) => c.locus), createSeededRng({ seed: 7, purpose: `occupancy-host-control-${d}` }))));
 draws.sort((a, b) => a - b);
 const controlMedian = keyed.length ? (draws[19] + draws[20]) / 2 : null;
-const H1 = { admitted: all.length, keyed: keyed.length, confirmed: keyed.filter((c) => confirmed(c.occupant, c.locus)).length, confirmedRate: realRate, controlMedian, held: realRate != null && realRate >= 0.5 && controlMedian <= realRate / 2 };
+const K1 = { keyed: keyed.length, confirmed: keyed.filter((c) => confirmed(c.occupant, c.locus)).length, confirmedRate: realRate, controlMedian, held: null, note: "reported, not predicted: Wikidata is a witness, not the ground" };
+const perPage = pages.map((p) => ({ page: p.title, standings: p.real.candidates.length, ablation: p.ablation.candidates.length }));
+const H1 = { admitted: all.length, perPage, pagesWithStanding: perPage.filter((x) => x.standings >= 1).length, held: perPage.filter((x) => x.standings >= 1).length >= 7 };
 
 // ── H2: the referent wall and its ablation control ───────────────────────
 const badOccupant = (surface) => { const first = surface.split(/\s+/)[0]; return closedClass(first) || DEFINITE_DETERMINERS.has(first.toLowerCase()) || INDEFINITE_DETERMINERS.has(first.toLowerCase()); };
@@ -222,7 +231,7 @@ H5.held = ["a", "b", "c", "d", "e"].every((k) => H5[k].held);
 
 const out = {
   declared: { pages: pages.length, fixture: { retrievedAt: FIX.retrievedAt, giver: FIX.giver } },
-  H1, H2, H3, H4, H5,
+  H1, K1, H2, H3, H4, H5,
   live: Object.fromEntries(Object.entries(live).map(([k, v]) => [k, { ...v, rows: v.rows.slice(0, 40) }])),
   byDomain: Object.fromEntries([...new Set(pages.map((p) => p.domain))].map((d) => { const ps = pages.filter((p) => p.domain === d); return [d, { pages: ps.map((p) => p.title), standings: ps.reduce((n, p) => n + p.real.candidates.length, 0), refused: tally(ps.flatMap((p) => p.real.refused), (r) => r.reason), ablationStandings: ps.reduce((n, p) => n + p.ablation.candidates.length, 0) }]; })),
   via: tally(all, (c) => c.occupantVia), locusVia: tally(all, (c) => c.locusVia),
@@ -231,6 +240,6 @@ const out = {
   standings: all.map((c) => ({ page: c.page, occupant: isItem(c.occupant) ? `${lab(c.occupant)} (${c.occupant})` : c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: isItem(c.locus) ? `${lab(c.locus)} (${c.locus})` : c.locus, locusVia: c.locusVia, keyed: keyed.includes(c), confirmed: keyed.includes(c) ? confirmed(c.occupant, c.locus) : null, pattern: c.pattern, clause: c.clause })),
   warAndPeace: { ...H4, sample: wpRows.slice(0, 40) },
 };
-for (const k of ["H1", "H2", "H3", "H4", "H5"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 400));
+for (const k of ["H1", "K1", "H2", "H3", "H4", "H5"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 400));
 console.log("via", out.via, "locusVia", out.locusVia);
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));
