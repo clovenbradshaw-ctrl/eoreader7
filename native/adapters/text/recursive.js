@@ -6,6 +6,7 @@ import { tokenize, buildFrequencyTable, functionWordSet } from "./material.js";
 import { splitSentences } from "./spans.js";
 import { createSurfaceEvidence, accumulateSurfaceEvidence, surfacesFromEvidence, discoverReferents, diaNorm } from "./surfaces.js";
 import { heardSurfaces } from "../../organs/heard-surfaces.js";
+import { createCompanyIndex } from "../../organs/company-index.js";
 import { classifyWord, dominantClass } from "./wordclass.js";
 import { GRAMMAR_MIN_SHARE } from "./grain-typing.js";
 import { relationExtractorsFor } from "./relations-language.js";
@@ -371,16 +372,28 @@ function admittedRelationVerbs(store, minSurfaces, posPrior, language = null) {
   // is undeclared, falls open exactly as before (P41's posture: silence
   // convicts nothing).
   if (posPrior && (!posPrior.language || !language || posPrior.language === language)) {
-    const forms = posPrior.forms ?? posPrior;
-    for (const [form, tags] of Object.entries(forms)) {
-      const counts = Object.values(tags);
-      const total = counts.reduce((a, b) => a + b, 0);
-      if (!total) continue;
-      const verbish = (tags.VERB ?? 0) + (tags.AUX ?? 0);
-      if (verbish / total >= GRAMMAR_MIN_SHARE) verbs.add(form);
-    }
+    for (const form of receivedVerbTier(posPrior)) verbs.add(form);
   }
   return verbs;
+}
+// The received tier is a fact about the PRIOR, not the material: the same
+// ~16k-form table answered the same way on every reprojection (profiled at
+// 7.8% of a 400KB read, 2026-09-28). Derived once per prior object, kept
+// weakly, in the prior's own iteration order — byte-identical to the loop.
+const RECEIVED_VERB_TIERS = new WeakMap();
+function receivedVerbTier(posPrior) {
+  const hit = RECEIVED_VERB_TIERS.get(posPrior); if (hit) return hit;
+  const forms = posPrior.forms ?? posPrior;
+  const tier = [];
+  for (const [form, tags] of Object.entries(forms)) {
+    const counts = Object.values(tags);
+    const total = counts.reduce((a, b) => a + b, 0);
+    if (!total) continue;
+    const verbish = (tags.VERB ?? 0) + (tags.AUX ?? 0);
+    if (verbish / total >= GRAMMAR_MIN_SHARE) tier.push(form);
+  }
+  RECEIVED_VERB_TIERS.set(posPrior, tier);
+  return tier;
 }
 
 /**
@@ -614,7 +627,10 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       }
       let heard = [];
       if (posPrior) {
-        try { heard = heardSurfaces(priorSentences, { minMentions: 2, minShare: 0.3, minMembers: 2, posPrior, classifyWord, dominantClass }); }
+        // The past is read once (organs/company-index.js): the index lives in
+        // the cache and heardSurfaces adds only the sentences it has not seen.
+        if (!cache.companyIndex) cache = { ...cache, companyIndex: createCompanyIndex() };
+        try { heard = heardSurfaces(priorSentences, { minMentions: 2, minShare: 0.3, minMembers: 2, posPrior, classifyWord, dominantClass, index: cache.companyIndex }); }
         catch { heard = []; }
       }
       if (heard.length && process.env.ER7_DEBUG_READER === "1") console.error(`[recursive] heardSurfaces added ${heard.length}: ${heard.map((h)=>h.surface).join(',')}`);
@@ -671,6 +687,7 @@ export function createCausalTextPerceiver({ minRelationSurfaces = 2, refreshEver
       born: discovered?.addresses?.born ?? cache.born,
       bornNext: discovered?.addresses?.next ?? cache.bornNext,
       verbs: admittedRelationVerbs(relationEvidence, minRelationSurfaces, posPrior, language),
+      companyIndex: cache.companyIndex,
     };
   };
 

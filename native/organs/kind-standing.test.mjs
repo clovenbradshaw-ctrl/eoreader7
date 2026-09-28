@@ -251,3 +251,21 @@ test("P79's DECLARED place-kind is RECOVERED from nothing: discovered locative k
   // is the named next step, not built here.
   assert.ok(!found.has("Castle Dracula"), "pinned as a limit: the flagship is not yet discoverable at one-signature grain");
 });
+
+test("contextVectors, indexed: identical counts to a plain scan — overlaps, multi-word surfaces, sentence edges", () => {
+  const sentences = ["the count met the count of the castle", "count dracula met count dracula again", "castle dracula stands"].map((text) => ({ text }));
+  const surfaces = ["count", "count dracula", "castle", "castle dracula", "dracula", "absent"];
+  const scan = (ss, sf) => {
+    const vecs = new Map(sf.map((s) => [s, new Map()]));
+    for (const sent of ss) {
+      const words = sent.text.split(/\s+/);
+      for (const s of sf) { const pw = s.split(" "); for (let i = 0; i + pw.length <= words.length; i++) { if (!pw.every((w, k) => words[i + k] === w)) continue; const v = vecs.get(s); const b = i > 0 ? words[i - 1] : "^", a = i + pw.length < words.length ? words[i + pw.length] : "$"; v.set(`before=${b}`, (v.get(`before=${b}`) ?? 0) + 1); v.set(`after=${a}`, (v.get(`after=${a}`) ?? 0) + 1); } }
+    }
+    for (const [k, v] of [...vecs]) if (!v.size) vecs.delete(k);
+    return vecs;
+  };
+  const ser = (m) => JSON.stringify([...m].map(([k, v]) => [k, [...v]]));
+  assert.equal(ser(contextVectors(sentences, surfaces)), ser(scan(sentences, surfaces)));
+  assert.equal(contextVectors(sentences, surfaces).get("count").get("before=the"), 2);
+  assert.ok(!contextVectors(sentences, surfaces).has("absent"));
+});

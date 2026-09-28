@@ -1031,6 +1031,10 @@ function discoveredCast(session, doc) {
 
   let referents = [];
   let pronounBindings = [];
+  // The binder's refusals, kept with their evidence (top, runnerUp, margin):
+  // a reading that has not collapsed, for a consumer with its own for-whom
+  // (kernel/undecided.js, 2026-09-28) — never folded into `pronounBindings`.
+  let pronounGaps = [];
   // (subject, verb, object) triples, measured once per document — the
   // individuation classifier's `agency` signal below reads these, and
   // sessionReferents may call discoveredCast many times over one document's
@@ -1107,6 +1111,7 @@ function discoveredCast(session, doc) {
         nonPersonal,
       });
       pronounBindings = resolved.bindings;
+      pronounGaps = resolved.gaps ?? [];
 
       // Same collapsing discipline as discovery.gaps just above: one summary
       // fact, not one gap object per unresolved pronoun in a 690 KB novel.
@@ -1128,7 +1133,7 @@ function discoveredCast(session, doc) {
       }
   }
 
-  const value = { referents, gaps, abbreviationGiver, pronounBindings, relations };
+  const value = { referents, gaps, abbreviationGiver, pronounBindings, pronounGaps, relations };
   if (!session._cast) session._cast = new Map();
   session._cast.set(doc.id, { chunks: doc.chunks.length, value });
   return value;
@@ -1316,6 +1321,21 @@ function sessionReferentsAcrossDocuments(session, { sourceIds, priors = [], limi
 // (perceiver/text/relations.js) at host tier: packages/host/graph.js reads
 // this, never re-derives it, so a document's relations are measured exactly
 // once regardless of how many callers (the cast, the graph) need them.
+// sessionCast (added 2026-09-27) — a READ-ONLY view of what the host already
+// computed for one document: its own sentence units, the discovered cast
+// with every surface, and the pronoun bindings (referentId, sentenceOrder,
+// offset). Added so an organ reading ON TOP of the host (occupancy testimony)
+// resolves a mention to a referent the host established, instead of
+// re-deriving names from capitalisation. Nothing is recomputed or changed:
+// both calls are the host's own memoised functions.
+export function sessionCast(session, { sourceId } = {}) {
+  const doc = session.documents.get(sourceId);
+  if (!doc) return { sentences: [], referents: [], pronounBindings: [], gaps: [`unknown document ${sourceId}`] };
+  const { sentences, body } = extractDocSurfaces(session, doc);
+  const cast = discoveredCast(session, doc);
+  return { sentences, body, referents: cast.referents, pronounBindings: cast.pronounBindings, pronounGaps: cast.pronounGaps ?? [], relations: cast.relations, gaps: cast.gaps };
+}
+
 export function sessionRelations(session, { sourceId } = {}) {
   const doc = session.documents.get(sourceId);
   if (!doc) return { relations: [], gaps: [`unknown document ${sourceId}`] };

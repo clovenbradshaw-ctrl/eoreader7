@@ -181,3 +181,10 @@ proxy-*.log
 heimdall-fleet*.log
 .er7-fleet*.pid
 .er7-fleet.peers
+# The identity evals' run outputs (2026-09-28): the same rule as above —
+# the *-RESULTS.md write-ups are the findings and stay tracked; the raw
+# per-run JSON regenerates from the driver and is not read by any test.
+# occupancy-host-eval.mjs reads the previous run's JSON for one control
+# through an existsSync guard, so a fresh clone runs without it.
+native/eval/identity/results/*.json
+native/eval/identity/results-*.json
