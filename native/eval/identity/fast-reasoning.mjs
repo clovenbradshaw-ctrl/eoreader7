@@ -71,6 +71,17 @@
 //   P7  every holding habit is conceded on the injected book (REC, trigger
 //       quoted) and none answers `holds` against the negation; P1–P6, P9
 //       stand as registered.
+// V5, PRE-REGISTERED 2026-09-28 after v4 (results/fast-reasoning-v4-RESULTS.md).
+// ONE organ change (the-fold judge.js): the habit rung's counter-decider
+// wall — a section sentence sharing the decider's company and carrying a
+// received negation word stands the habit down; the judge is asked.
+//   P7  on the injected book no habit answers `holds` against its negation
+//       (v4: 2 of 3 did); the readable one is still conceded (≥ 1 REC)
+//   P10 the stood-down habits are asked to the judge (habitStoodDown set,
+//       rung judge or none — never habit) and the extra cost is ≤ 2 calls each
+// V6, PRE-REGISTERED 2026-09-28 after v5: the wall reads the CLAIM's company
+// too (judge.js). P7 re-registered: no habit answers `holds` against its
+// negation; ≥ 1 conceded; P10 stands.
 //   node eval/identity/fast-reasoning.mjs [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
@@ -249,6 +260,7 @@ const INJECTED = Object.fromEntries(Object.entries(REAL).map(([n, m]) => {
 out.injection = { habitsHolding: liveHabits.map((x) => ({ i: x.item.i, decider: x.habit.decider })) };
 out.arms.injected = await runArm("E2 INJECTION (negations inserted, habits carried)", INJECTED, { judgeOn: true, mechanicalOn: true, trails: out.arms.on3.trails, habits: out.arms.on3.habits });
 out.injection.conceded = out.arms.injected.conceded;
+out.injection.stoodDown = out.arms.injected.rows.filter((r) => liveHabits.some((x) => x.item.i === r.i) && r.rung !== "habit").map((r) => [r.i, r.rung, r.verdict, r.calls]);
 out.injection.heldAgainstNegation = out.arms.injected.rows.filter((r) => liveHabits.some((x) => x.item.i === r.i) && r.rung === "habit" && r.verdict === "holds").map((r) => r.i);
 // E4
 if (process.env.SKIP_E4) { out.arms.v_first = { rows: [], score: null }; out.arms.v_prohib = { rows: [], score: null }; }
@@ -273,6 +285,7 @@ P.P6 = { habitRows: out.arms.on2.rows.filter((r) => r.rung === "habit").map((r) 
 P.P7 = { holdingHabits: liveHabits.length, conceded: out.injection.conceded.length, heldAgainstNegation: out.injection.heldAgainstNegation, held: liveHabits.length > 0 && out.injection.heldAgainstNegation.length === 0 && out.injection.conceded.length > 0 };
 const chosen = (l) => l.chosen ?? 0, contested = (l) => l.contested ?? 0;
 P.P8 = { shipped: out.e4.shipped, questionFirst: out.e4.questionFirst, prohibition: out.e4.prohibition, held: chosen(out.e4.shipped) >= Math.max(chosen(out.e4.questionFirst), chosen(out.e4.prohibition)) && contested(out.e4.shipped) <= Math.min(contested(out.e4.questionFirst), contested(out.e4.prohibition)) };
+P.P10 = { stoodDown: out.injection.stoodDown, held: out.injection.stoodDown.length + out.injection.conceded.length >= liveHabits.length && out.injection.stoodDown.every(([, , , c]) => c <= 2) };
 P.P9 = { chosenOn: out.arms.on1.rows.filter((r) => r.rung === "judge" && r.landed === "chosen").length, held: out.arms.on1.rows.some((r) => r.rung === "judge" && r.landed === "chosen") };
 P.P4.controlPassages = out.arms.shuffled.rows.filter((r) => r.mechanical !== "no_passages").length;
 out.predictions = P;
