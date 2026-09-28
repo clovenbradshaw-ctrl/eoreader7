@@ -220,6 +220,20 @@
 //   Z18  Material A: entry 33, state 24; locusVia cast < 13 (v10's count)
 //   Z19  WP state rows with a cast-resolved locus: < 13, each listed, each
 //        head phrase name-shaped
+// V12, PRE-REGISTERED 2026-09-28 after v11 (output -v12.json, same cap). Two
+// organ changes, both from v11's five remaining rows: a copula clause whose
+// pre-verbal material opens with a preposition is INVERTED (refused by name,
+// the post-verbal subject carried); a title-less name as a copula complement
+// that the cast resolves is an IDENTITY claim (the row carries `identity`,
+// fed to the identity organ as a support, never a locus). Soft line breaks
+// read as spaces (3697cc6). Admission of entry standings untouched.
+//   Z20  War and Peace: state rows with a cast-resolved locus that are NOT
+//        identity rows = 0; identity rows >= 2 (Circassian -> Sónya, twice);
+//        inverted_subject refusals >= 2, naming Wolzogen and Pierre Bezúkhov
+//   Z21  Material A: entry 33; state rows <= 24 (inversions only remove);
+//        the removed ones listed
+//   Z22  War and Peace: the identity support opens an alternative on the fold
+//        (a live hypothesis naming sónya); the slot count stays 1, one_being
 //   node occupancy-host-eval.mjs [out.json]
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 const NATIVE = new URL("../..", import.meta.url).pathname;
@@ -372,15 +386,17 @@ function readText({ name, text, links }) {
   // occupant referents attacks it; the identity organ judges on a fresh fold.
   const merges = cast.referents.flatMap((r) => r.surfaces.map((surface) => ({ surface, into: key(r), witness: `${name}#cast`, basis: "name-variant coreference" })));
   const face = (id) => { const r = cast.referents.find((x) => `${name}/${x.id}` === id); return r ? display.get(r.id) : id; };
-  const identityStandings = real.candidates.filter((c) => c.locusId).map((c) => ({ locus: c.locusId, occupant: c.occupant, witness: c.address }));
+  const identityStandings = real.candidates.filter((c) => c.locusId && !c.identity).map((c) => ({ locus: c.locusId, occupant: c.occupant, witness: c.address }));
+  // COPULA IDENTITY (v12): "that Circassian was Sónya" is the material's own merge evidence — a support, never a locus
+  const identityClaims = real.candidates.filter((c) => c.identity).map((c) => ({ surface: c.occupant, into: c.identity.into, witness: c.address, basis: c.identity.basis }));
   const nested = nestedOccupants(identityStandings, (id) => face(id), occupantPairKey);
-  const evidence = mergeEvidence({ merges, standings: identityStandings, witness: `${name}#cast`, minOccupants: 2, nested });
+  const evidence = mergeEvidence({ merges: [...merges, ...identityClaims], standings: identityStandings, witness: `${name}#cast`, minOccupants: 2, nested });
   const revision = deriveIdentityRevision({ fold: receivedGround(), supports: evidence.supports, attacks: evidence.attacks, giver: "occupancy testimony via kernel/merge-standing.js" });
   const splits = revision.operations.filter((o) => o.operator === "SEG").map((o) => ({ identity: o.consequence?.identity, reason: o.consequence?.reason, witness: o.witness }));
-  const identity = { merges: merges.length, positions: evidence.positions.map((p) => ({ locus: p.locus, occupants: p.occupants })), attacks: evidence.attacks.length, splits, slots: evidence.collapses.map((c) => ({ locus: c.of, verdict: c.verdict, chosen: c.chosen?.value ?? null, rule: c.rule.name, reason: c.reason })), withheld: evidence.withheld, occupantHypotheses: evidence.supports.filter((x) => /one_being_under_names/.test(x.reason)).map((x) => `${x.left} <-> ${x.right}`), foldAlternatives: applyDelta(receivedGround(), revision).unresolvedAlternatives.filter((x) => x.schema === "EOIdentityAlternative@1" && x.standing === "distinct").map((x) => `${x.left} <-> ${x.right}`) };
+  const identity = { merges: merges.length, positions: evidence.positions.map((p) => ({ locus: p.locus, occupants: p.occupants })), attacks: evidence.attacks.length, splits, slots: evidence.collapses.map((c) => ({ locus: c.of, verdict: c.verdict, chosen: c.chosen?.value ?? null, rule: c.rule.name, reason: c.reason })), withheld: evidence.withheld, occupantHypotheses: evidence.supports.filter((x) => /one_being_under_names/.test(x.reason)).map((x) => `${x.left} <-> ${x.right}`), foldAlternatives: applyDelta(receivedGround(), revision).unresolvedAlternatives.filter((x) => x.schema === "EOIdentityAlternative@1" && x.standing === "distinct").map((x) => `${x.left} <-> ${x.right}`), liveAlternatives: applyDelta(receivedGround(), revision).unresolvedAlternatives.filter((x) => x.schema === "EOIdentityAlternative@1" && x.standing === "live_hypothesis" && x.supportRefs?.some?.((w) => !/#cast$/.test(String(w)))).map((x) => `${x.left} <-> ${x.right}`), identityClaims: identityClaims.map((x) => `${face(x.surface)} = ${face(x.into)} @${x.witness}`) };
   const loose = readOccupancyTestimony(sentences, { ...opts, mentions, pronouns: SUBJECT_PRONOUNS, resolveLocus, forWhom: { id: "reader:being-kind" }, occupantRule: BEING_KIND });
   const ablation = readOccupancyTestimony(sentences, opts);
-  const rowOf = (c) => ({ text: name, occupant: face(c.occupant), occupantId: c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: c.locus, locusId: c.locusId, locusVia: c.locusVia, verb: c.verb, act: c.act ? { op: c.act.op, grain: c.act.grain, standing: c.act.standing, overlay: c.act.overlay ? { op: c.act.overlay.op, grain: c.act.overlay.grain, standing: c.act.overlay.standing } : undefined } : null, predecessor: c.predecessor ? face(c.predecessor) : null, pattern: c.pattern, year: c.year, address: c.address, clause: c.clause });
+  const rowOf = (c) => ({ text: name, occupant: face(c.occupant), occupantId: c.occupant, via: c.occupantVia, surface: c.occupantSurface, locus: c.locus, locusId: c.locusId, locusVia: c.locusVia, verb: c.verb, act: c.act ? { op: c.act.op, grain: c.act.grain, standing: c.act.standing, overlay: c.act.overlay ? { op: c.act.overlay.op, grain: c.act.overlay.grain, standing: c.act.overlay.standing } : undefined } : null, predecessor: c.predecessor ? face(c.predecessor) : null, pattern: c.pattern, identity: c.identity ? { into: c.identity.into, basis: c.identity.basis } : null, year: c.year, address: c.address, clause: c.clause });
   const rows = real.candidates.map(rowOf);
   const surname = name ? name.replace(/\s*\(.*\)$/, "").split(/\s+/).at(-1) : null;
   const topic = surname ? cast.referents.find((r) => r.surfaces.includes(surname) || r.surfaces.includes(name)) : null;
@@ -435,7 +451,7 @@ for (const [name, path] of Object.entries(B_PATHS)) {
   const r = readText({ name, text, links: [] });
   const pat = positionsByPattern(r.real.candidates);
   const faces = new Map(r.rows.map((x) => [x.occupantId, x.occupant]));
-  B[name] = { identity: r.identity, standings: r.rows.length, positions: pat.positions.map((p) => ({ locus: p.locus, occupants: p.occupants.map((o) => faces.get(o) ?? o), evidence: p.evidence })), refused: tally(r.real.refused, (x) => x.reason), via: tally(r.rows, (x) => x.via), ablationStandings: r.ablation.candidates.length, cast: r.cast, seconds: r.seconds, rows: r.rows, refusedNamed: r.real.refused.filter((x) => /chaplain|Professor|Gorbachev|Bez[uú]khov/i.test(`${x.clause ?? ""} ${x.complement ?? ""}`)).slice(0, 8) };
+  B[name] = { identity: r.identity, invertedNamed: r.real.refused.filter((x) => x.reason === "inverted_subject").map((x) => x.subject), standings: r.rows.length, positions: pat.positions.map((p) => ({ locus: p.locus, occupants: p.occupants.map((o) => faces.get(o) ?? o), evidence: p.evidence })), refused: tally(r.real.refused, (x) => x.reason), via: tally(r.rows, (x) => x.via), ablationStandings: r.ablation.candidates.length, cast: r.cast, seconds: r.seconds, rows: r.rows, refusedNamed: r.real.refused.filter((x) => /chaplain|Professor|Gorbachev|Bez[uú]khov/i.test(`${x.clause ?? ""} ${x.complement ?? ""}`)).slice(0, 8) };
 }
 const H4 = { standings: B["War and Peace"].standings, bezukhov: B["War and Peace"].rows.filter((r) => /bezukhov/.test(fold(r.locus))), refusedNamed: B["War and Peace"].refusedNamed, held: B["War and Peace"].rows.some((r) => /bezukhov/.test(fold(r.locus)) && /pierre/.test(fold(r.occupant))) };
 const H5 = {
@@ -515,10 +531,16 @@ const Z16 = { count: wpStateCast.length, rows: wpStateCast.map((r) => `${r.occup
 const Z17 = { slots: wpId?.slots ?? [], splits: wpId?.splits?.length ?? null, held: (wpId?.slots?.length ?? 0) === 1 && wpId.slots[0].chosen === "one_being" && wpId.splits.length === 0 };
 const Z18 = { entry: entryA.length, state: stateA.length, locusVia: tally(A, (r) => r.locusVia), held: entryA.length === 33 && stateA.length === 24 && A.filter((r) => r.locusVia === "cast").length < 13 };
 const Z19 = { count: wpStateCast.length, rows: wpStateCast.map((r) => `${r.occupant} -> ${r.locus} :: ${(r.clause ?? "").replace(/\n/g, " ").slice(0, 90)}`), held: wpStateCast.length < 13 };
+const wpIdentityRows = wpRows.filter((r) => r.identity);
+const wpInverted = (B["War and Peace"].refused ?? {}).inverted_subject ?? 0;
+const wpInvertedNamed = (B["War and Peace"].invertedNamed ?? []);
+const Z20 = { castLociNotIdentity: wpRows.filter((r) => r.pattern === "state" && r.locusVia === "cast" && !r.identity).map((r) => `${r.occupant} -> ${r.locus}`), identityRows: wpIdentityRows.map((r) => `${r.occupant} = ${r.locus} :: ${(r.clause ?? "").slice(0, 80)}`), inverted: wpInverted, invertedNamed: wpInvertedNamed, held: wpRows.filter((r) => r.pattern === "state" && r.locusVia === "cast" && !r.identity).length === 0 && wpIdentityRows.length >= 2 && wpInverted >= 2 && ["Wolzogen", "Pierre Bezúkhov"].every((n) => wpInvertedNamed.some((s) => s.includes(n))) };
+const Z21 = { entry: entryA.length, state: stateA.length, removed: pages.flatMap((p) => p.real.refused.filter((x) => x.reason === "inverted_subject").map((x) => `${p.name} | ${x.subject} :: ${x.clause.slice(0, 80)}`)), held: entryA.length === 33 && stateA.length <= 24 };
+const Z22 = { slots: wpId?.slots ?? [], alternatives: wpId?.liveAlternatives ?? [], held: (wpId?.slots?.length ?? 0) === 1 && wpId.slots[0].chosen === "one_being" && (wpId?.liveAlternatives ?? []).some((x) => /s[oó]nya/i.test(x)) };
 const Z8 = { perText: [...pages.map((p) => ({ text: p.name, slots: p.identity.slots })), ...Object.entries(B).map(([k, v]) => ({ text: k, slots: v.identity?.slots ?? [] }))].filter((x) => x.slots.length), held: null };
 
 const out = {
-  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8, Z9, Z10, Z11, Z12, Z13, Z14, Z15, Z16, Z17, Z18, Z19, Y1, Y2, Y3, X1, X2, X3,
+  Z1, Z2, Z3, Z4, Z5, Z6, Z7, Z8, Z9, Z10, Z11, Z12, Z13, Z14, Z15, Z16, Z17, Z18, Z19, Z20, Z21, Z22, Y1, Y2, Y3, X1, X2, X3,
   ...W, V1, V2, V3, V4, V5, V6,
   nativeA: { standings: AN.length, perPage: pagesN.map((p) => ({ page: p.name, standings: p.rows.length, refused: tally(p.real.refused, (x) => x.reason), cast: p.cast, seconds: p.seconds })), via: tally(AN, (c) => c.via), rows: AN },
   nativeB: BN,
@@ -529,7 +551,7 @@ const out = {
   standingsA: A,
   live: Object.fromEntries(Object.entries(B).map(([k, v]) => [k, { ...v, rows: v.rows.slice(0, 60) }])),
 };
-for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8", "Z9", "Z10", "Z11", "Z12", "Z13", "Z14", "Z15", "Z16", "Z17", "Z18", "Z19"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
+for (const k of ["H1", "H2", "H3", "H4", "H5", "V1", "V2", "V3", "V4", "V5", "V6", "W1", "W2", "W3", "W4", "W5", "X1", "X2", "X3", "Y1", "Y2", "Y3", "Z1", "Z2", "Z3", "Z4", "Z5", "Z6", "Z7", "Z8", "Z9", "Z10", "Z11", "Z12", "Z13", "Z14", "Z15", "Z16", "Z17", "Z18", "Z19", "Z20", "Z21", "Z22"]) console.log(k, out[k].held === true ? "HELD" : out[k].held === false ? "FAILED" : "GAP", JSON.stringify(out[k]).slice(0, 300));
 console.log("via", out.via, "locusVia", out.locusVia);
 for (const [k, v] of Object.entries(B)) console.log(k, v.standings, "standings", v.ablationStandings, "ablation", v.seconds, "s", JSON.stringify(v.refused));
 if (OUT) writeFileSync(OUT, JSON.stringify(out, null, 1));
