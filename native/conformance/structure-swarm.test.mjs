@@ -10,7 +10,7 @@ const noise = (specs) => specs.map((sp) => ({ spec: sp, stat: 1, z_shuffle: 1.2,
 const CEIL = (v) => async (specs) => ({ shuffle: v + 0.05 * specs.length, phase: v + 0.05 * specs.length });
 
 test("ants follow trails: a colony that inherits a successful trail finds the structure sooner than a fresh one", async () => {
-  const run = (trails, seed) => colony({ evalBatch: async (s) => fake(s), ceilingOf: CEIL(3), trails, seed, rounds: 3, ants: 24, now: 1e12 });
+  const run = (trails, seed) => colony({ evalBatch: async (s) => fake(s), ceilingOf: CEIL(3), trails, seed, rounds: 6, ants: 40, now: 1e12 });
   const first = await run({}, 11); assert.ok(first.structures.some((s) => has(s.spec)), "the colony finds the planted pipeline");
   assert.ok(Object.keys(first.trails).length > 0, "successful ants laid trails");
   const fresh = await run({}, 5), taught = await run(first.trails, 5);

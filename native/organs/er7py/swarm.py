@@ -40,9 +40,13 @@ def _slope(x):
     if len(x) < 64: return np.nan
     P = _psd(x); n = len(P); lo, hi = max(2, int(n * 0.01)), max(8, int(n * 0.25)); i = np.arange(lo, hi)
     return float(np.polyfit(np.log(i), np.log(P[lo:hi] + 1e-300), 1)[0])
-def _peak(x):
-    if len(x) < 64: return np.nan
-    P = _psd(x); return float(P.max() / (np.median(P) + 1e-300))
+def _peak(x, half=20):
+    """the sharpest spectral LINE: a bin over the median of its own neighbours (±half bins, minus 2 either side). A red spectrum is not a line —
+    against a global median every steep power law would read as one."""
+    if len(x) < 256: return np.nan
+    from numpy.lib.stride_tricks import sliding_window_view as sw
+    P = _psd(x); W = sw(P, 2 * half + 1); keep = [j for j in range(2 * half + 1) if abs(j - half) > 2]
+    return float(np.max(P[half:len(P) - half] / (np.median(W[:, keep], axis=1) + 1e-300)))
 def _kurt(x):
     s = x.std(); return float(np.mean(((x - x.mean()) / s) ** 4) - 3) if s > 0 and len(x) > 8 else np.nan
 def _skew(x):
@@ -52,11 +56,14 @@ STATS = {
     "slope": _slope, "peak": _peak,
     "trend": lambda x: float(abs(np.corrcoef(x, np.arange(len(x)))[0, 1])) if len(x) > 8 and x.std() > 0 else np.nan,
 }
-GLOSS = {"diff1": "sample-to-sample changes", "diff8": "changes over 8 samples", "diff64": "changes over 64 samples", "fast4": "the fastest quarter of the band", "fast16": "the fastest sixteenth of the band",
-         "slow16": "the slowest sixteenth of the band", "abs": "magnitude", "sq": "energy", "blk64": "energy averaged in 64-sample blocks", "blk512": "a slow envelope (512-sample blocks)", "detrend": "with the linear trend removed"}
-SGLOSS = {"std": "spread", "skew": "asymmetry", "kurt": "heavy tails", "acf1": "memory at one sample", "acf8": "persistence over 8 samples", "acf64": "persistence over 64 samples",
-          "slope": "power-law spectral slope", "peak": "a narrow spectral line", "trend": "a drift"}
-def gloss(spec): return f"{SGLOSS[spec[-1]]} of " + (" then ".join(GLOSS[t] for t in spec[:-1]) if len(spec) > 1 else "the raw series")
+STEP = {"diff1": "differencing (1 sample)", "diff8": "differencing (8 samples)", "diff64": "differencing (64 samples)", "fast4": "keeping the fastest quarter of the band", "fast16": "keeping the fastest sixteenth of the band",
+        "slow16": "keeping the slowest sixteenth of the band", "abs": "taking magnitude", "sq": "squaring (energy)", "blk64": "averaging in 64-sample blocks", "blk512": "averaging in 512-sample blocks", "detrend": "removing the linear trend"}
+SGLOSS = {"std": "the spread", "skew": "the asymmetry", "kurt": "the heavy-tailedness", "acf1": "the memory at one sample", "acf8": "the persistence over 8 samples", "acf64": "the persistence over 64 samples",
+          "slope": "the power-law spectral slope", "peak": "the sharpest narrow spectral line", "trend": "the drift"}
+GLOSS = STEP
+def gloss(spec):
+    """plain words: 'the heavy-tailedness of the series after differencing (1 sample), then keeping the fastest quarter of the band'"""
+    return SGLOSS[spec[-1]] + " of " + ("the raw series" if len(spec) == 1 else "the series after " + ", then ".join(STEP[t] for t in spec[:-1]))
 
 def apply(spec, x):
     for t in spec[:-1]:
@@ -75,7 +82,8 @@ def _z(spec, x, kind, n_sur, rng):
     s = apply(spec, x)
     if not np.isfinite(s): return 0.0, s
     v = np.array([apply(spec, _null(x, kind, rng)) for _ in range(n_sur)]); v = v[np.isfinite(v)]
-    if len(v) < 4 or v.std() == 0: return 0.0, s
+    # a statistic the null leaves (almost) exactly unchanged — variance under phase randomisation, say — cannot discriminate: z is undefined, not huge
+    if len(v) < 4 or v.std() <= 1e-6 * max(abs(v.mean()), abs(s), 1e-12): return 0.0, s
     return float(abs(s - v.mean()) / v.std()), s
 
 def evaluate(x, specs, n_sur=12, seed=0):
@@ -97,7 +105,7 @@ def ceiling(x, specs, n_sur=12, seed=0, draws=3):
 def structure_test(x, spec, null="phase", n=40, seed=0):
     rng = np.random.default_rng(seed); s = apply(spec, x)
     v = np.array([apply(spec, _null(x, null, rng)) for _ in range(n)]); v = v[np.isfinite(v)]
-    z = float(abs(s - v.mean()) / v.std()) if len(v) > 3 and v.std() > 0 else 0.0
+    z = float(abs(s - v.mean()) / v.std()) if len(v) > 3 and v.std() > 1e-6 * max(abs(v.mean()), abs(s), 1e-12) else 0.0
     return float(s), float(v.min()), float(v.max()), z
 
 TRANSFORM_NAMES = list(TRANSFORMS); STAT_NAMES = list(STATS)
