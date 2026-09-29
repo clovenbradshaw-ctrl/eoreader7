@@ -62,7 +62,7 @@ async function swarmFor(st, p, text, dir, ctx) {
     reports.push(`- ${col}: ${r.tried} pipelines tried by ${r.log.length} generations of ants (trails ${r.trailsBefore} → ${r.trailsAfter}); chance ceiling z = ${r.ceiling.shuffle.toFixed(1)} (shuffle) / ${r.ceiling.phase.toFixed(1)} (phase); ${r.structures.length ? `${r.structures.length} cleared it — strongest: ${r.structures[0].gloss} beats the ${r.structures[0].null} null, z = ${r.structures[0].z.toFixed(1)}` : "NOTHING cleared it"}`);
     for (const s of r.structures) cands.push({ s, meta, col });
   }
-  cands.sort((a, b) => b.s.z - a.s.z);
+  cands.sort((a, b) => (b.s.null === "phase") - (a.s.null === "phase") || b.s.z - a.s.z);
   const admitted = [], refused = [], seen = new Set();
   for (const { s, meta, col } of cands) {
     if (admitted.length >= SWARM_KEEP) break;

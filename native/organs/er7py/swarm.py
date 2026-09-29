@@ -78,12 +78,16 @@ def _phase(x, rng):
     if len(x) % 2 == 0: ph[-1] = 0
     return np.fft.irfft(np.abs(F) * np.exp(1j * ph), n=len(x))
 
+MIN_EFFECT = 0.05  # declared: a difference under 5% of the statistic's own size is not structure however small the null's spread (phase surrogates of a non-periodic series carry edge artefacts of about that order)
+def _effect(s, m): return abs(s - m) / max(abs(s), abs(m), 1e-12)
+
 def _z(spec, x, kind, n_sur, rng):
     s = apply(spec, x)
     if not np.isfinite(s): return 0.0, s
     v = np.array([apply(spec, _null(x, kind, rng)) for _ in range(n_sur)]); v = v[np.isfinite(v)]
     # a statistic the null leaves (almost) exactly unchanged — variance under phase randomisation, say — cannot discriminate: z is undefined, not huge
     if len(v) < 4 or v.std() <= 1e-6 * max(abs(v.mean()), abs(s), 1e-12): return 0.0, s
+    if _effect(s, v.mean()) < MIN_EFFECT: return 0.0, s
     return float(abs(s - v.mean()) / v.std()), s
 
 def evaluate(x, specs, n_sur=12, seed=0):
@@ -105,7 +109,7 @@ def ceiling(x, specs, n_sur=12, seed=0, draws=3):
 def structure_test(x, spec, null="phase", n=40, seed=0):
     rng = np.random.default_rng(seed); s = apply(spec, x)
     v = np.array([apply(spec, _null(x, null, rng)) for _ in range(n)]); v = v[np.isfinite(v)]
-    z = float(abs(s - v.mean()) / v.std()) if len(v) > 3 and v.std() > 1e-6 * max(abs(v.mean()), abs(s), 1e-12) else 0.0
+    z = float(abs(s - v.mean()) / v.std()) if len(v) > 3 and v.std() > 1e-6 * max(abs(v.mean()), abs(s), 1e-12) and _effect(s, v.mean()) >= MIN_EFFECT else 0.0
     return float(s), float(v.min()), float(v.max()), z
 
 TRANSFORM_NAMES = list(TRANSFORMS); STAT_NAMES = list(STATS)

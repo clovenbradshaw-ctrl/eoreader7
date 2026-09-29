@@ -55,10 +55,12 @@ export async function colony({ evalBatch, ceilingOf, trails = {}, rounds = ROUND
   const ceiling = await ceilingOf(all.map((x) => x.spec), seed);
   const found = [];
   for (const x of all) for (const nul of ["shuffle", "phase"]) { const z = x[`z_${nul}`] ?? 0; if (z > ceiling[nul] && x.stat != null) found.push({ spec: x.spec, null: nul, z, stat: x.stat, gloss: x.gloss, over: z / Math.max(ceiling[nul], 1e-9) }); }
-  // Redundancy: many pipelines see one thing. Keep the strongest two per (final statistic, null), then the ten strongest overall.
-  const seen = new Map(); const structures = [];
-  // Parsimony: among pipelines that see the same thing, the shorter one is the better statement of it (rank only; every z is still reported).
-  const rank = (f) => f.z / (1 + 0.25 * (f.spec.length - 1));
-  for (const f of found.sort((a, b) => rank(b) - rank(a))) { const k = `${f.spec.at(-1)}|${f.null}`; const n = seen.get(k) ?? 0; if (n < 2) { seen.set(k, n + 1); structures.push(f); } }
-  return { trails: t, tried: all.length, results: all, ceiling, structures: structures.slice(0, 10), foundBeforeDedupe: found.length, log };
+  // Redundancy: many pipelines see one thing. Per null, keep the strongest two per final statistic (parsimony-ranked), then cap the null's list.
+  // A find that beats only the SHUFFLE null says "order matters" — true of any correlated series — so it is capped lower than one that beats the
+  // PHASE null (nonlinear structure the spectrum cannot explain), which is the informative kind.
+  const rank = (f) => f.z / (1 + 0.25 * (f.spec.length - 1)), CAP = { phase: 5, shuffle: 3 };
+  const seen = new Map(), per = { phase: 0, shuffle: 0 }, structures = [];
+  for (const f of found.sort((a, b) => rank(b) - rank(a))) { const k = `${f.spec.at(-1)}|${f.null}`; const n = seen.get(k) ?? 0; if (n < 2 && per[f.null] < CAP[f.null]) { seen.set(k, n + 1); per[f.null]++; structures.push(f); } }
+  structures.sort((a, b) => (b.null === "phase") - (a.null === "phase") || rank(b) - rank(a));
+  return { trails: t, tried: all.length, results: all, ceiling, structures, foundBeforeDedupe: found.length, log };
 }
