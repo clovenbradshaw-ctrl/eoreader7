@@ -256,8 +256,19 @@ fiber slots; assert I-unitarity on assembly. *Control: a fuzzed turn
 that produces a fiber with a silent empty slot fails the envelope check —
 the check is a test, not a hope.*
 
-**Phase 4 — the proteasome.** Add the rule half-life, the retire route,
-and the re-examine pass. *Control: adopt a rule, advance the clock past
+**Phase 4 — the proteasome.** BUILT 2026-09-29. Every derived rule
+carries its own clock (`adoptedAt` / `lastEarnedAt` / `halfLifeMs`,
+default 7 days, env `ER7_DERIVED_RULE_HALF_LIFE_MS`); the re-examine
+pass (`reexamineDerivedRules`, run in the rule-author's sense loop over
+the window's own tally) concedes an expired rule unless the pattern
+re-earned it past the floor, and refreshes the earn of a standing rule
+that recurs (at most once per window); the retire route is live (`POST
+/heimdall/rules/:key/concede`, mirroring `/heimdall/models/evict`).
+Concession is disclosed and re-derivable — the next recurrence adopts
+again with a fresh clock. Pinned by 7 falsification tests in
+`tests/proteasome-half-life.test.mjs`.
+*Control (RUN — the test that advances the clock past the half-life with
+no recurrences concedes the rule): adopt a rule, advance the clock past
 its half-life with no new recurrences — the rule must concede itself. A
 rule that outlives its evidence concedes the spec.*
 
@@ -270,15 +281,15 @@ rule that outlives its evidence concedes the spec.*
 | I-append | nothing deleted in place; release is a typed act | artifact module (new) |
 | I-orthogonal | no two enzymes bind the same feature at the same grain | enzyme registry (new) |
 | I-atp | model calls ≤ familyCap; mechanical unbounded | heimdall (exists) |
-| I-single-grain | no model call sees more than one grain | `streamOllamaChat` audit (new) |
+| I-single-grain | no model call sees more than one grain | `streamOllamaChat` audit (exists 2026-09-29: declarations only, MEASURE mode notes / `ER7_GRAIN_AUDIT=enforce` throws; enzyme draws declare section/whole; enforcement awaits Phase 2) |
 | I-channel | handoffs are shaped molecules with addresses | queues (new) |
 | I-backpressure | queues bounded; a full queue blocks only upstream | queues (new) |
 | I-dag | stage dependencies are a DAG | enzyme registry (new) |
 | I-lockfree | no mutex, no shared mutable buffer between levels | code review + instrument |
 | I-unitarity | every fiber slot recorded or explicitly void | envelope check (new) |
 | I-schema-append | new dimensions never rewrite existing cells | fold module (new) |
-| I-half-life | rules retire unless re-earned | rule-author (new) |
-| I-retire | a concede route exists | proxy.mjs (new) |
+| I-half-life | rules retire unless re-earned | rule-author (exists 2026-09-29: `reexamineDerivedRules` in the sense loop) |
+| I-retire | a concede route exists | proxy.mjs (exists 2026-09-29: `POST /heimdall/rules/:key/concede`) |
 | I-specificity | no rule for an unknown probe | heimdall.mjs (exists, 2026-09-29) |
 
 ## 11. What this spec does not claim
@@ -290,6 +301,16 @@ rule that outlives its evidence concedes the spec.*
   Those are regulators — equilibrium-changing, responsibility-bearing —
   and stay sequential and rare. Catalysis language must never launder
   them into mechanism.
+- *Control for the anti-laundering claim (added 2026-09-29 — the paragraph
+  carried none, and by the house's own epistemology an unmeasured claim is
+  never passed): the normative gates must appear in the turn's own record
+  wherever their triggers fired. A turn whose material holds a normative
+  conflict, a ranking by agreement, or a mouth-issued imperative, with no
+  ethos / AntiStrauss / Mayeroff note on the envelope's mechanical section,
+  concedes that the boundary leaked on that turn. Conversely, an enzyme
+  table or registry that names ethos, AntiStrauss, or Mayeroff as a
+  bindable (operator, dimension) feature concedes the whole spec —
+  regulators are never enzymes.*
 - It does not promise the fold is infinite storage. The fold is
   dimensionally infinite and finitely stored: it holds structure.
 

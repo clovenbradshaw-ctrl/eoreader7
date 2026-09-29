@@ -69,7 +69,7 @@ import { runOpenCodingLoop, AGENT_MAX_TURNS } from "./native/the-fold/sandboxed-
 // and surface-watching run inside this process — one process, no separate
 // steer port, no second checkout to drift. When imported, heimdall.mjs
 // exports its machinery and does not listen or loop on its own.
-import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, derivedRuleStore, releaseClaim, isServable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, contentLog, restartSurface, sampleVitalsNow, backgroundTasks, killTask, warmPressureTest, warmPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope, servedDisclosure } from "./heimdall.mjs";
+import { heimdallStatus, admitChat, startWatcher, markInflight, disclosure, observeCall, bridgeMessage, holonTree, declareLoop, mintRule, loadedModels, isBoxSaturated, readVitals, makeRuleAuthorHolon, concedeDerivedRule, derivedRuleStore, releaseClaim, isServable, markServable, seedUnservableLarge, liveReap, onLog, consolidateMemory, heimdallAsk, heimdallSettings, setHeimdallSetting, onLive, recordTurnMs, runHolonTree, logLines, contentLog, restartSurface, sampleVitalsNow, backgroundTasks, killTask, warmPressureTest, warmPressureReason, isUngatedModel, emitLive, evictModel, handleReport, beginTurn, endTurn, noteMechanism, quitMemoryHogs, quitApps, restartModelServer, probeModelServer, currentParallelism, getSurfaces, refreshOllamaModels, surfaceByPort, noteSurfaceActivity, turnScope, servedDisclosure } from "./heimdall.mjs";
 import { heldKey, findHeld, holdTurn, heldById, heldReceipt, awaitHeld } from "./held-turns.mjs";
 import { resolveServerKey, channelObserve, channelRefused, pickHost, hostBegin, hostEnd, reconcileModelServers, ledgerEva, ledgerRec, setChannelBound, liveReapIfDue, holdWindow, hopOf, messagesOf, streamAccounting, hostOwnedByPid, slaWaitMs, waiterTtlMs, serveTiersFor, mouthFor, warmSmallMouth, hostByName, onlineMouths, onlineEnabled } from "./heimdall.mjs";
 import { toOpenAIBody, fromOpenAIResponse, sseChunkToOllama, splitSse } from "./native/kernel/online-mouths.js";
@@ -607,6 +607,27 @@ async function handleRequest(req, res) {
     const r = await evictModel(name).catch((err) => ({ ok: false, error: err.message }));
     res.writeHead(r.ok ? 200 : 400, { "content-type": "application/json" });
     res.end(JSON.stringify(r));
+    return;
+  }
+
+  // POST /heimdall/rules/:key/concede — I-retire: concede one derived rule
+  // NOW, with a stated reason. The proteasome's hand-operated lever; mirrors
+  // /heimdall/models/evict above. The rule stays on the record (append-only);
+  // its standing becomes "conceded", and the next recurrence re-derives it
+  // with a fresh clock. The key is "class:probe" (a probe holds a colon).
+  if (req.method === "POST" && req.url.startsWith("/heimdall/rules/") && req.url.endsWith("/concede")) {
+    const inner = req.url.slice("/heimdall/rules/".length, -"/concede".length);
+    let key = "";
+    try { key = decodeURIComponent(inner); } catch { key = inner; }
+    if (!key) { res.writeHead(400, { "content-type": "application/json" }); res.end(JSON.stringify({ ok: false, error: "rule key required" })); return; }
+    let raw = "";
+    for await (const chunk of req) raw += chunk;
+    let parsed = {};
+    try { parsed = JSON.parse(raw || "{}"); } catch { /* malformed */ }
+    const r = concedeDerivedRule(key, { reason: String(parsed.reason || "retired by operator") });
+    if (!r) { res.writeHead(404, { "content-type": "application/json" }); res.end(JSON.stringify({ ok: false, error: `no such derived rule: ${key}` })); return; }
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ ok: true, key, standing: r.standing, concededAt: r.concededAt, reason: r.concededReason }));
     return;
   }
 

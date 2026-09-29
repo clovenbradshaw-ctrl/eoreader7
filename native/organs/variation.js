@@ -129,7 +129,7 @@ export const manualSnip = snipVariation;
  * (injected); `blockedOpenings` are the constructions the piece already
  * uses; `synonyms` are the reading's surfaces to open with.
  */
-export async function variedDraw({ draw, msgs, maxTokens, blockedOpenings = [], synonyms = [], kelsen = null, onReject = null } = {}) {
+export async function variedDraw({ draw, msgs, maxTokens, blockedOpenings = [], synonyms = [], kelsen = null, onReject = null, grain = null } = {}) {
   if (typeof draw !== "function") throw new TypeError("variedDraw: the mouth (draw) is injected");
   const withSynonyms = synonyms?.length
     ? msgs.map((m, i) => i === msgs.length - 1 ? { ...m, content: `${m.content}\n\nYou may open this section with any of these names for the subject: ${synonyms.join("; ")}.` } : m)
@@ -138,7 +138,7 @@ export async function variedDraw({ draw, msgs, maxTokens, blockedOpenings = [], 
   let last = { buf: "", stopped: false };
   for (let t = 0; t < temps.length; t++) {
     const kels = kelsen != null ? kelsen : 0.7 - t * 0.15;
-    last = await draw(withSynonyms, maxTokens, { kelsen: kels });
+    last = await draw(withSynonyms, maxTokens, { kelsen: kels, grain });
     if (last.stopped) break;
     const txt = String(last.buf ?? "").trim();
     if (!txt) continue;

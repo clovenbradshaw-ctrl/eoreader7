@@ -236,11 +236,26 @@ budget is byte-identical, and the false-decay windows ([3,1,3], pure
 alternation) stay silent. Verified live after the wiring: the proxy boots
 with the gate loaded, `ollama run` and the channel serve end-to-end.*
 
-**Phase B — the Murch and code-validation stops.** Same wiring at
-`:7418` and `:8160`. *Control: the three loops, run on their own
-specimens, must stop on decay eigenvalues, never on the cap — a loop
-that still hits the cap is a mode that never decayed, and that is a
-finding about the material, not a broken gate.*
+**Phase B — the Murch and code-validation stops.** BUILT 2026-09-29,
+same wiring as Phase A. Murch (`proxy-runner.mjs`, `murchGate`,
+`MURCH_ROUND_HORIZON` default `MAX_REWRITE_ROUNDS + 2`, env
+`ER7_MURCH_ROUND_HORIZON`): the observables are [fixable findings,
+edits landed]; rounds past the budget run the mechanical checks only
+(no draws — the fix loop and the thinking line are budget-gated);
+disclosure rides `murch_dmd_stop` with magnitude/period. The code loop
+(`codeGate`, `CODE_VALIDATE_HORIZON`, env `ER7_CODE_VALIDATE_HORIZON`):
+the observables are [validation findings, non-moving rewrites] — the
+Ranke non-move cut applied to the whole file (a byte-identical rewrite
+is counted, never landed twice, budget consumed); gap rounds re-run the
+validator on the unchanged text so the trajectory is measured, never
+assumed; disclosure rides `code_dmd_stop`. Budget stays the floor in
+both; the Ranke truncated-round push is now guarded (a truncated round
+is not a round — the comment finally tells the truth).
+*Control (STILL TO RUN): the three loops, run on their own specimens,
+must stop on decay eigenvalues, never on the cap — a loop that still
+hits the cap is a mode that never decayed, and that is a finding about
+the material, not a broken gate. The gate is unit-falsified; the wiring
+awaits its live specimens.*
 
 **Phase C — wide emission.** The draws emit cell sets; the fold holds
 them; the envelope's fiber gains the release records. *Control: a fuzzed

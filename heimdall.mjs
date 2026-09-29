@@ -4407,6 +4407,12 @@ export function mintedRules() {
 const DERIVED_RULES_FILE = process.env.ER7_DERIVED_RULES_FILE || path.join(HERE, "heimdall-derived-rules.json"); // tests point this at a scratch file — the live ledger is never a fixture
 const DERIVED_FLOOR = Number(process.env.ER7_DERIVED_RULE_FLOOR ?? 3);
 const DERIVED_WINDOW_MS = Number(process.env.ER7_DERIVED_RULE_WINDOW ?? 30 * 60 * 1000);
+// I-half-life (2026-09-29): every derived rule carries its own clock. Past
+// its half-life, a rule is re-examined against its own evidence and conceded
+// unless it has re-earned — new recurrences past the floor. A rule that
+// outlives its evidence concedes the spec; an enzyme factory with no
+// proteasome fills with permanent law.
+const DERIVED_HALF_LIFE_MS = Number(process.env.ER7_DERIVED_RULE_HALF_LIFE_MS ?? 7 * 24 * 60 * 60 * 1000);
 
 // The rule templates: how a recorded finding becomes a standing rule. Each
 // carries its falsifying control — the counterfactual that concedes it.
@@ -4481,11 +4487,21 @@ function saveDerivedRules() {
 }
 
 /** Record a derived rule. Keyed by (class:probe) so a recurring pattern
- *  never re-derives every tick; the rule carries its evidence and control. */
+ *  never re-derives every tick; the rule carries its evidence, its control,
+ *  and its own clock (adoptedAt / lastEarnedAt / halfLifeMs — I-half-life).
+ *  A caller-supplied timestamp or half-life is honored when finite (tests
+ *  construct history); otherwise the rule is earned now and dies on the
+ *  default clock. */
 export function adoptDerivedRule(r) {
   if (!r) return null;
   const key = `${r.class}:${r.probe ?? ""}`;
-  derivedRules.set(key, { ...r, adoptedAt: Date.now() });
+  const now = Date.now();
+  derivedRules.set(key, {
+    ...r,
+    adoptedAt: Number.isFinite(r?.adoptedAt) ? r.adoptedAt : now,
+    lastEarnedAt: Number.isFinite(r?.lastEarnedAt) ? r.lastEarnedAt : now,
+    halfLifeMs: Number.isFinite(r?.halfLifeMs) ? r.halfLifeMs : DERIVED_HALF_LIFE_MS,
+  });
   saveDerivedRules();
   lintedNote({ kind: "infra", level: "warn", severity: "medium", note: `heimdall derived rule (${key}): ${r.rule}`, giver: r.giver, standing: r.standing, probe: key });
   return r;
@@ -4505,6 +4521,36 @@ export function concedeDerivedRule(key, { reason } = {}) {
   saveDerivedRules();
   lintedNote({ kind: "infra", level: "warn", severity: "medium", note: `heimdall derived rule CONCEDED (${key}): ${reason ?? "control fired"}`, giver: "heimdall", standing: "disclosed", probe: key });
   return derivedRules.get(key);
+}
+
+/** I-half-life: re-examine standing derived rules against their own
+ *  evidence (2026-09-29). `counts` is the sense loop's class:probe tally
+ *  for the window — the window is the memory; evidence folded away that
+ *  has not recurred is unmeasured, never assumed. A rule past its own
+ *  half-life is conceded unless the pattern has re-earned it (recurrences
+ *  past the floor in this window). Concession is disclosed and
+ *  re-derivable: the next recurrence past the floor adopts the rule again
+ *  with a fresh clock. A rule with no earn timestamp is earned at its
+ *  adoption. Returns the pass's verdicts, one per rule touched. */
+export function reexamineDerivedRules({ counts, now = Date.now() } = {}) {
+  const out = [];
+  for (const [key, r] of derivedRules) {
+    if (!r || r.standing === "conceded") continue;
+    const halfLifeMs = Number.isFinite(r.halfLifeMs) ? r.halfLifeMs : DERIVED_HALF_LIFE_MS;
+    const earnedAt = Number.isFinite(r.lastEarnedAt) ? r.lastEarnedAt : Number.isFinite(r.adoptedAt) ? r.adoptedAt : 0;
+    if (!(now - earnedAt > halfLifeMs)) continue; // the clock still runs
+    const c = counts?.get(key);
+    if (c && c.count >= DERIVED_FLOOR) {
+      derivedRules.set(key, { ...r, lastEarnedAt: now, reEarnedAt: now });
+      saveDerivedRules();
+      out.push({ key, outcome: "re-earned", count: c.count });
+    } else {
+      const reason = `proteasome: rule outlived its evidence — ${c?.count ?? 0} recurrences of ${r.class}:${r.probe ?? ""} in the window against floor ${DERIVED_FLOOR} since ${earnedAt ? new Date(earnedAt).toISOString() : "never-earned"} (half-life ${halfLifeMs}ms)`;
+      concedeDerivedRule(key, { reason });
+      out.push({ key, outcome: "conceded", reason });
+    }
+  }
+  return out;
 }
 
 // ── RULES AS LEVERS — a derived rule is TRIED, never merely written (2026-09-21) ──
@@ -4912,13 +4958,29 @@ export function makeRuleAuthorHolon({ logLines = memoryLinesForWindow, now = Dat
         if (Number.isFinite(last) && last > c.last) c.last = last;
         counts.set(key, c);
       }
+      // I-half-life: the proteasome pass — an expired rule concedes unless
+      // this same window re-earned it. Expiry is per rule (its own
+      // halfLifeMs), measured against its own earn, never a hand-set bar.
+      try {
+        for (const v of reexamineDerivedRules({ counts, now: now() })) {
+          log(`proteasome: ${v.key} ${v.outcome}${v.count != null ? ` (${v.count} recurrences)` : ""}`);
+        }
+      } catch (err) { log(`proteasome error: ${err.message}`); }
       // A class that recurred past the floor and has no LIVE derived rule yet.
       const candidates = [...counts.values()].filter((c) => c.count >= DERIVED_FLOOR);
       const ready = [];
       for (const c of candidates) {
         const key = `${c.class}:${c.probe ?? ""}`;
         const existing = derivedRules.get(key);
-        if (existing && existing.standing !== "conceded") continue; // already stands
+        if (existing && existing.standing !== "conceded") {
+          // Already stands, and recurring: refresh the earn so the clock
+          // stays alive — at most once per window, never a write per tick.
+          if (now() - (Number(existing.lastEarnedAt) || 0) > DERIVED_WINDOW_MS) {
+            derivedRules.set(key, { ...existing, lastEarnedAt: now() });
+            saveDerivedRules();
+          }
+          continue;
+        }
         ready.push(c);
       }
       return ready.length ? { class: "pattern_earned", candidates: ready } : null;

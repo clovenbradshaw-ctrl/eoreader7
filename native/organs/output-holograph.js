@@ -84,7 +84,12 @@ export function holographType({ prose = "", ground = [], splitSentences = null, 
   // ONCE, so a caller can hand either and the ref is never guessed.
   const rows = ground.map((g) => {
     if (g && g.fact && (g.ref || g.gap)) return g;
-    return { fact: [g?.end1, g?.label, g?.end2].filter(Boolean).join(" "), end1: g?.end1, label: g?.label, end2: g?.end2 ?? "", ...(g?.span?.start != null ? { ref: `${source}#${g.span.start}` } : { gap: { type: "no_byte_address", detail: `no span for "${[g?.end1, g?.label, g?.end2].filter(Boolean).join(" ")}"` } }) };
+    // THE PER-NOTE SOURCE, SAME LAW AS groundFacts ABOVE (2026-09-29): the
+    // raw conversion bound the caller's one `source` onto every note whose
+    // own witness the record carried — the same flattening groundFacts
+    // refuses. A note that names its own source binds under THAT name.
+    const gsrc = String(g?.source ?? "").trim() || source;
+    return { fact: [g?.end1, g?.label, g?.end2].filter(Boolean).join(" "), end1: g?.end1, label: g?.label, end2: g?.end2 ?? "", ...(g?.span?.start != null ? { ref: `${gsrc}#${g.span.start}`, source: gsrc } : { gap: { type: "no_byte_address", detail: `no span for "${[g?.end1, g?.label, g?.end2].filter(Boolean).join(" ")}"` } }) };
   });
   const sentences = (() => { try { return splitSentences(prose); } catch { return [prose]; } })()
     .map((s) => (typeof s === "string" ? s : s?.text ?? ""))
