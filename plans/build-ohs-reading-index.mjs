@@ -66,10 +66,8 @@ if (!zstPath) {
 console.error('Reading', zstPath);
 const buf = new Uint8Array(readFileSync(zstPath));
 
-// Decompress with @bokuweb/zstd-wasm (same library the browser worker uses).
-const { default: zstdInit } = await import('https://esm.sh/@bokuweb/zstd-wasm@0.0.27');
-await zstdInit();
-const { decompress } = await import('https://esm.sh/@bokuweb/zstd-wasm@0.0.27');
+// Decompress with fzstd (pure-JS, works in Node without native bindings).
+const { decompress } = await import('fzstd');
 const raw = decompress(buf);
 const want = frameSize(buf);
 if (want !== null && raw.length !== want) { console.error('Size mismatch:', raw.length, 'vs declared', want); process.exit(1); }
@@ -77,7 +75,16 @@ if (raw.length < 1000 || raw[0] !== 123) { console.error('Decompressed bytes are
 
 console.error('Decompressed', (raw.length / 1e6).toFixed(1), 'MB — indexing...');
 const fromUrl = 'https://raw.githubusercontent.com/clovenbradshaw-ctrl/ohs-custody/main/ground-readings/' + basename(zstPath);
-const lines = new TextDecoder().decode(raw).split('\n');
+// Scan for newlines in the raw bytes to avoid decoding 1.6 GB as one string.
+const dec = new TextDecoder();
+const lines = [];
+let lineStart = 0;
+for (let i = 0; i <= raw.length; i++) {
+  if (i === raw.length || raw[i] === 0x0a) {
+    if (i > lineStart) lines.push(dec.decode(raw.subarray(lineStart, i)));
+    lineStart = i + 1;
+  }
+}
 const index = buildIndex(lines, fromUrl);
 
 const outPath = zstPath.replace(/\.zst$/, '.index.json');

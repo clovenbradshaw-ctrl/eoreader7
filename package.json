@@ -20,5 +20,8 @@
   "homepage": "https://github.com/clovenbradshaw-ctrl/eoreader7#readme",
   "dependencies": {
     "mathjs": "^15.2.0"
+  },
+  "devDependencies": {
+    "fzstd": "^0.1.1"
   }
 }
