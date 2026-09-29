@@ -3334,7 +3334,13 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
     // mouthFor). A logit bias pins the asked model: it was computed for that
     // model's tokenizer and would push the wrong tokens on any other.
     const mouth = H.mouthFor(model, { pinned: !!(logitsBias && Object.keys(logitsBias).length) });
-    const drawModel = mouth.provisional ? mouth.model : model;
+    // The wire needs the BARE tag: Ollama rejects an "er7:"-prefixed model
+    // name outright (measured live: model:"er7:gemma2:2b" — the exact id
+    // GET /v1/models itself advertises — reached here unstripped when
+    // non-provisional and Ollama answered 400 "invalid model name"). Every
+    // other er7: consumer in heimdall.mjs already strips this same prefix;
+    // this is the one hot-path spot that did not.
+    const drawModel = String(mouth.provisional ? mouth.model : model).replace(/^er7:/, "");
     _hot.add(hotModelName(drawModel)); // the mouth that SERVES is the one the residency holon keeps warm
     const mouthHost = mouth.provisional ? H.hostByName(mouth.host) : null;
     const picked = mouthHost ? { host: mouthHost, reason: `mouth:${mouth.tier}` } : H.pickHost({ model: drawModel, session: H.currentTurnSession() });
@@ -3390,7 +3396,10 @@ const res = await fetch(`${host.url}/api/chat`, {
           },
         }),
       });
-      if (!res.ok) throw new Error(`ollama ${res.status}`);
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "");
+        throw new Error(`ollama ${res.status}${errText ? `: ${errText.slice(0, 300)}` : ""}`);
+      }
 const reader = res.body.getReader();
       // First-byte race: headers already arrived; body may stall for minutes
       // on a load. First read only — steady streaming is never timed here.
@@ -3546,8 +3555,26 @@ const reader = res.body.getReader();
       }
       // the host that failed this attempt: a refusal stands it down (the
       // next attempt picks another); a timeout is not a conviction
-      closeHost({ ok: false, refused: /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND/.test(String(err?.cause?.code ?? err?.code ?? "")) || /^ollama 5\d\d$/.test(String(err?.message ?? "")) });
-      if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
+      const localCauseCode = String(err?.cause?.code ?? err?.code ?? "");
+      const localHostRefused = /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND/.test(localCauseCode) || /^ollama 5\d\d(:|$)/.test(String(err?.message ?? ""));
+      closeHost({ ok: false, refused: localHostRefused });
+      if (attempt === CALL_RETRIES - 1) {
+        finishReview(false);
+        // Self-diagnosing, not just self-retrying: the cause above is already
+        // computed for closeHost's own bookkeeping — surface it on the error
+        // that actually reaches the caller instead of undici's bare "fetch
+        // failed" (measured live: that opaque message is what /v1/code
+        // returned on a real local-lane connection failure, with no hint of
+        // which host or why). The original error rides along as .cause;
+        // anything NOT diagnosed as a connection failure throws unchanged.
+        if (localHostRefused) {
+          throw Object.assign(
+            new Error(`local model server unreachable at ${host?.name ?? OLLAMA} (${localCauseCode || err.message}) after ${CALL_RETRIES} attempts — it may be down, restarting, or overloaded; retrying the same request again will not help until it answers`),
+            { code: "ERR_LOCAL_HOST_UNREACHABLE", cause: err },
+          );
+        }
+        throw err;
+      }
       // A substitute that failed is dropped from the turn, so the retry
       // decides again. When the NEXT attempt would go to a warm mouth, the
       // retry loads nothing — the pressured-throw below exists only to keep
