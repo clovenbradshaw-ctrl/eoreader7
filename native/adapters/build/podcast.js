@@ -367,8 +367,23 @@ export function makePodcast({ taskLog = nativeTaskLog, cellOf = nativeCellOf, no
     while (v.continue) {
       round += 1;
       const correction = { claimReports: evalResult.claimReports, ethos: evalResult.ethos, logos: evalResult.logos, ethosStyle: evalResult.ethosStyle };
-      const revised = await mouth.revise({ n, beat, topic, priorScript: draft.script, correction });
-      const land = landSegment(log, { n, speaker: revised.speaker ?? draft.speaker ?? null, title: revised.title, script: revised.script, isRevision: true, trigger: describeCorrection(correction) });
+      // FOUND LIVE, FIXED HERE (not a design tradeoff — a plain bug): the
+      // human-readable summary this ledger trigger already computes was
+      // never the thing handed to the mouth. podcast-mouth.mjs's revise()
+      // used to build its OWN description by calling a {end1,label,end2}
+      // formatter directly on this whole `correction` bundle — a shape
+      // that only ever matches a single claim, never the
+      // {claimReports, ethos, logos, ethosStyle} object actually passed
+      // here. Every real call therefore asked the model to fix
+      // "undefined undefined undefined", for every correction kind
+      // (factual, ethos, or logos alike) — invisible because every test
+      // double for revise() reads `correction.ethos`/`.logos`/
+      // `.claimReports` directly and never touches the mouth's own prompt
+      // string. `correctionSummary` is the one true description, computed
+      // once and shared between the ledger's trigger and the mouth's ask.
+      const correctionSummary = describeCorrection(correction);
+      const revised = await mouth.revise({ n, beat, topic, priorScript: draft.script, correction, correctionSummary });
+      const land = landSegment(log, { n, speaker: revised.speaker ?? draft.speaker ?? null, title: revised.title, script: revised.script, isRevision: true, trigger: correctionSummary });
       log = land.log;
       log = landMouthAudit(log, { segId, kind: "revise", audit: revised.audit, round });
       draft = revised;

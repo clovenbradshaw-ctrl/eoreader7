@@ -135,12 +135,24 @@ export function ollamaPodcastMouth({ url = process.env.ER7_OLLAMA_URL, model = p
       });
       return { ...parsed, audit };
     },
-    async revise({ n, beat, topic, priorScript, correction }) {
+    // FOUND LIVE, FIXED HERE: this used to call `describe(correction)` —
+    // a {end1,label,end2} formatter — directly on the whole `correction`
+    // bundle podcast.js actually passes ({claimReports, ethos, logos,
+    // ethosStyle}), which has none of those fields. Every real revision
+    // ask therefore told the model to fix "undefined undefined
+    // undefined", for every correction kind, factual or otherwise — a
+    // plain bug, not a design tradeoff, invisible because every test
+    // double for revise() reads the structured correction fields
+    // directly and never exercises this prompt string. podcast.js now
+    // computes the one true human-readable summary once
+    // (`correctionSummary`, the SAME text that lands on the ledger's own
+    // trigger) and hands it straight through.
+    async revise({ n, beat, topic, priorScript, correctionSummary }) {
       const { parsed, audit } = await chat({
         url, model, schema: SEGMENT_SCHEMA,
         messages: [{
           role: "user",
-          content: `Rewrite segment ${n + 1} of the podcast episode on "${topic}" (beat: ${beat.beat ?? beat}). The prior draft wrongly stated something the episode has since established is: ${describe(correction)}. Prior draft:\n${priorScript}\nWrite a corrected version, in full, in the same voice. List its claims the same way as before (only ones the corrected script actually makes — it may make none).`,
+          content: `Rewrite segment ${n + 1} of the podcast episode on "${topic}" (beat: ${beat.beat ?? beat}). The prior draft has a real problem: ${correctionSummary}. Prior draft:\n${priorScript}\nWrite a corrected version, in full, in the same voice, fixing exactly that. List its claims the same way as before (only ones the corrected script actually makes — it may make none).`,
         }],
       });
       return { ...parsed, audit };
