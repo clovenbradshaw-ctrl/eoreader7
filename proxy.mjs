@@ -55,6 +55,7 @@ function pickDefaultModel() {
 import { warmPostprocess } from "./postprocess.mjs";
 import { ledgerFilePath, projectLedgerFile } from "./native/the-fold/document-ledger.js";
 import { runCodeLoop } from "./native/the-fold/code-loop.js";
+import { runHealingCodeLoop } from "./native/the-fold/healing-loop.js";
 import { getCodeDrawMonitor, shipCodeDrawResult } from "./native/kernel/code-draw-monitor.js";
 import { runSwarmTurn } from "./swarm-server.mjs";
 import { contentRulesStore, contentRulesCount, CONTENT_RULES_FILE } from "./content-rules.mjs";
@@ -1407,6 +1408,9 @@ const job = await startDocumentJob({
       const model = String(parsed?.model ?? "").trim() || pickDefaultModel();
       const maxRounds = Number.isFinite(Number(parsed?.maxRounds)) ? Math.max(1, Math.min(10, Number(parsed.maxRounds))) : 3;
       const contextMode = String(parsed?.contextMode ?? "").trim() === "fold" ? "fold" : "raw";
+      const requireReasoning = parsed?.requireReasoning === true;
+      const selfHeal = parsed?.selfHeal === true;
+      const maxHealingDepth = Number.isFinite(Number(parsed?.maxHealingDepth)) ? Number(parsed.maxHealingDepth) : undefined;
 
       const admit = admitChatRequest({ model }, req.headers);
       if (!admit.allowed) {
@@ -1429,7 +1433,10 @@ const job = await startDocumentJob({
         if (!loopAbort.signal.aborted) loopAbort.abort();
       }, CODE_LOOP_DEADLINE_MS);
       try {
-        const result = await runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, contextMode, caller: callerFromRequest(req, "code", parsed), signal: loopAbort.signal });
+        const loopArgs = { sessionId, userId, model, task, workspace, testCommand, maxRounds, contextMode, requireReasoning, caller: callerFromRequest(req, "code", parsed), signal: loopAbort.signal };
+        const result = selfHeal
+          ? await runHealingCodeLoop(loopArgs, { ...(maxHealingDepth === undefined ? {} : { maxHealingDepth }) })
+          : await runCodeLoop(loopArgs);
         clearTimeout(loopDeadline);
         res.removeListener("close", onDisconnect);
         // metacognition standing check (native/kernel/code-draw-standing.js,
