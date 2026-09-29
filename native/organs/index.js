@@ -187,6 +187,52 @@ export {
   summarize,
 } from "./greenberg.js";
 export * as greenbergOrgan from "./greenberg.js";
+
+// ---- archon organs, moved down from the-fold (2026-09-28). Names that collide with an existing seam name (or another organ) are prefixed by the organ.
+export { LAYERS, makeAletheia } from "./aletheia.js";
+export * as aletheia from "./aletheia.js";
+export { checkAppendOnly, heartbeatVerdict, verifyWatcher } from "./ashby.js";
+export * as ashby from "./ashby.js";
+export { VERDICTS, makeClippy } from "./clippy.js";
+export * as clippy from "./clippy.js";
+export { SEVERITY as GARY_SEVERITY, RULES, ORACLE_MIN_CONTENT_WORDS, oracleContentWords, hasCheckableClaim, checkOracleMode, oracleRefusalText, makeGary, assertPromptsBuildable, garyDecision } from "./gary.js";
+export * as gary from "./gary.js";
+export { SIGN, arrivalPattern, kairosSign, kairosCorrespond, kairosDecision } from "./kairos.js";
+export * as kairos from "./kairos.js";
+export { KINDS, UNIT_FLOOR, OWNERS, wordsOf, unitsOf, blocksOf, makeKondo, kondoDecision, kondoLine, TIDY_PAIRS, TIDY_NOTES_PAIR, tidyMaterial } from "./kondo.js";
+export * as kondo from "./kondo.js";
+export { declareBudget, muninnRecall, muninnPromote, muninnDecision } from "./muninn.js";
+export * as muninn from "./muninn.js";
+export { SEVERITY as NAGARJUNA_SEVERITY, RULES as NAGARJUNA_RULES, makeNagarjuna } from "./nagarjuna.js";
+export * as nagarjuna from "./nagarjuna.js";
+export { SEVERITY as PANINI_SEVERITY, RULES as PANINI_RULES, CONFUSABLE_DISTANCE, HETERONYM_DISTANCE, phonemesOf, makePanini, READ_READ_RED } from "./panini.js";
+export * as panini from "./panini.js";
+export { FORMS, VERDICTS as PARMENIDES_VERDICTS, makeParmenides } from "./parmenides.js";
+export * as parmenides from "./parmenides.js";
+export { ELENCHUS, ELENCHUS_BANK, elenchusRow, questionFor, gateCrown } from "./elenchus.js";
+export * as elenchus from "./elenchus.js";
+export { resolveDate, surfacesOfDate, makeParmenidesForms } from "./parmenides-forms.js";
+export * as parmenidesForms from "./parmenides-forms.js";
+
+// ---- the coupled archon organs, moved down from the-fold (2026-09-28). Each imports no surface: what it needs from one is injected (passage-comparison, activation-retrieval, solon) or mirrored under a pinned test (huginn).
+export { logos, LEDGER_LINT_STRICTNESS, LEDGER_LINT_MAX_FINDINGS, ledgerLint, functionalConflicts, questionCycle } from "./logos.js";
+export * as logosOrgan from "./logos.js";
+export { JOB_KINDS, CANDIDATE_KINDS, HOP_FAILURE_KINDS, hopEligible, EWMA_ALPHA, candidateOf, roomCandidateOf, roomCandidatesFrom, emptyEvidence, huginnObserve, isSelfServed, huginnPrioritize, huginnHopAfter, huginnDecision } from "./huginn.js";
+export * as huginn from "./huginn.js";
+export { makePassageComparison } from "./passage-comparison.js";
+export * as passageComparison from "./passage-comparison.js";
+export { bindActivationRetrieval } from "./activation-retrieval.js";
+export * as activationRetrieval from "./activation-retrieval.js";
+export { solonLogPath, KEEPER_MARKER, auditEnforcementMap, classifyResultsDoc, referencedBy, auditResults, diffFailures, readTail, scanResultsDir, runSuite, rootFiles, foldTestBodies, auditRecordDir, runLiveSweep, createKeeper, startServer } from "./solon.js";
+export * as solon from "./solon.js";
+
+// ---- which fold, for whom (2026-09-28)
+export { planFold, INTERPRETIVE } from "./fold-plan.js";
+export * as foldPlan from "./fold-plan.js";
+export { MEASUREMENT_GAP, hasMeasurementGap, placeFromRegistries, profileOfTerrains } from "./capacity-place.js";
+export * as capacityPlace from "./capacity-place.js";
+
+// ---- from main: hard-read, silence, quantities, ingest
 export { HARDREAD_SCHEMA, RULE_FLOOR, MAX_ANTS, MAX_REGIONS, autoHardRead, concedeRule, emptyRules, expressionOf, hardReadSource, hardSignals, learnRules, learnedDir, loadLearned, readingFromText, saveLearned, senses, skeleton, swarmRegion } from "./hard-read.js";
 export * as hardRead from "./hard-read.js";
 export { unreadMentions } from "./silence.js";
