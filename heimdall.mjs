@@ -7,7 +7,7 @@
 // every proxy process that fronts Ollama. Heimdall watches each one, re-forges
 // the dead ones, and steers each request across the healthy ones.
 //
-// Huginn, Muninn and Kairos (the-fold/huginn.js, muninn.js, kairos.js) are
+// Huginn, Muninn and Kairos (eoreader7/native/organs/huginn.js, muninn.js, kairos.js) are
 // his three — the triad under the bridge. Huginn is the watcher of model
 // PRIORITIZATION — which model answers which job, ranked by measured
 // evidence and hopped on typed failure, room mouths included. Muninn is
@@ -1599,7 +1599,7 @@ const VITALS_LOG_MS = Number(process.env.ER7_HEIMDALL_VITALS_LOG ?? 15000);
 // a typed null — unknown, never convicting, the same rule the surface probes
 // hold. A model seen at a DIFFERENT window than last tick lands a
 // `window_changed` finding, and a storm of them escalates exactly as a
-// restart storm does. Kondo (the-fold/kondo.js) reads `loadedWindowOf` to say
+// restart storm does. Kondo (eoreader7/native/organs/kondo.js) reads `loadedWindowOf` to say
 // whether a prompt fits the window it will really run in.
 let ollamaModels = null;
 const windowSeen = new Map(); // model -> { contextLength, switches: [ms] }

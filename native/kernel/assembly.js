@@ -126,6 +126,10 @@ export function assembly({
     id,
     version,
     layer,
+    // the terrains this assembly DECLARES as its subject, apart from those its cells
+    // happen to emit (contract.terrains is the measured union) — a planner answers
+    // "which fold reads X" from what an assembly is FOR, not from what it touches.
+    declaredTerrains: stable([...(terrains ?? [])]),
     contract: freeze({
       ops: stable(resolvedCells.map((c) => c.op)),
       terrains: stable([...(terrains ?? []), ...resolvedCells.map((c) => c.terrain)]),
