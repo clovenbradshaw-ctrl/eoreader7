@@ -4,8 +4,9 @@
 // population is not a form, and the organ must find nothing in it.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { elementsOf, segmentCollection, readMarker, markupOf, uniformityP } from "./medium.js";
+import { elementsOf, segmentCollection, readMarker, markupOf, uniformityP, SEGMENT_LEVEL } from "./medium.js";
 import { rhymes } from "./sound.js";
+import { createSeededRng } from "../kernel/rng.js";
 import { learnParadigm, evaluateParadigm, paradigmLines, hypergeom, poissonBinomialUpper } from "./paradigm.js";
 
 let seed = 11;
@@ -144,6 +145,42 @@ test("medium: segmentCollection refuses a recurring skeleton that isn't more uni
   const rnd = () => { i = (i * 9301 + 49297) % 233280; return i / 233280; };
   const seg = segmentCollection("one paragraph, no separator.", { rnd });
   assert.equal(seg.units.length, 1, "no recurring separator at all — unaffected by the null test");
+});
+
+// Numbered items ("1." alone on its line, then its lines), built without the
+// shared rnd above so no other test's draws can move them. BORDER sits at the
+// 0.05 level against random same-11-way cuts (p ≈ 0.054 at 40,000 draws,
+// measured 2026-09-29): under Math.random it was cut on 35 of 60 runs and
+// left whole on the other 25.
+const numbered = (sizes) => sizes.map((k, i) => [`${i + 1}.`, "", ...Array.from({ length: k }, (_, j) => `The ${NOUNS[(i + j) % NOUNS.length]} ${VERBS[j % VERBS.length]} the ${NOUNS[(i * 3 + j) % NOUNS.length]}.`), ""].join("\n")).join("\n");
+const BORDER = numbered([6, 2, 2, 3, 6, 4, 7, 3, 2, 2, 2]);
+
+test("medium: segmentCollection reads the same text the same way on every run — its null is seeded from its own shape, not Math.random (READING-SPEC S136)", () => {
+  const readings = new Set(Array.from({ length: 12 }, (_, s) => segmentCollection(BORDER, { rnd: createSeededRng({ fixture: "border", s }) }).separator));
+  assert.equal(readings.size, 2, "the fixture must stay borderline — different draws cut it differently — or this test proves nothing");
+  const first = segmentCollection(BORDER);
+  for (let r = 0; r < 5; r++) {
+    const again = segmentCollection(BORDER);
+    assert.equal(again.separator, first.separator);
+    assert.equal(again.basis, first.basis, "the same text, the same draws, the same p");
+  }
+});
+
+test("medium: uniformityP counts the real cut as one more draw — (ge + 1) / (draws + 1), never 0 (READING-SPEC S136)", () => {
+  assert.equal(uniformityP(-1, 100, 5, { draws: 199 }), 1 / 200, "no random cut is as uniform as an impossible cv: p = 1/(draws + 1), not 0");
+  assert.equal(uniformityP(Infinity, 100, 5, { draws: 199 }), 1, "every random cut is at least as uniform: p = 1");
+  assert.equal(uniformityP(0.3, 100, 5), uniformityP(0.3, 100, 5), "the default null is seeded: the same shape draws the same cuts");
+});
+
+test("medium: segmentCollection's level is declared (SEGMENT_LEVEL) and a caller's own is honoured — the draws grow so p can reach it (READING-SPEC S136)", () => {
+  assert.equal(SEGMENT_LEVEL, 0.05);
+  assert.equal(segmentCollection(BORDER, { level: 0.2 }).separator, "label:arabic", "a lax level cuts the borderline book");
+  assert.equal(segmentCollection(BORDER, { level: 0.01 }).separator, null, "a strict level leaves it whole");
+  // 1/201 > 0.001, so at 200 draws nothing could ever reach this level; max(200, ceil(2/level)) draws can.
+  const even = segmentCollection(numbered(Array(8).fill(4)), { level: 0.001 });
+  assert.equal(even.separator, "label:arabic");
+  assert.match(even.basis, /p=0\.0005 <= 0\.001/, "a real p is never printed as 0");
+  assert.throws(() => segmentCollection(BORDER, { level: 0 }), RangeError);
 });
 
 test("medium: markupOf — a markdown document mixing '##' headings with bare '*' bullets is still read as markdown, its headings still real headings (the live bug: bullets alone outnumbering headings flipped the whole doc to wikitext, reading every '##' as a nested list marker)", () => {
