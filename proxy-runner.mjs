@@ -161,6 +161,7 @@ import { upstreamModelFor, refreshOpencodeModels, opencodeReachable, OPENCODE_UR
 // (ungated: no local VRAM, no keep-alive). Re-exported so proxy.mjs (roster)
 // reads the same discovery cache the turns use.
 import { upstreamAnthropicModelFor, refreshAnthropicModels, anthropicReachable, anthropicConfigured, ANTHROPIC_URL, streamAnthropicText, knownAnthropicModels } from "./anthropic-upstream.mjs";
+import { streamByokText } from "./byok-upstream.mjs";
 // The snip hand (native/organs/verbatim-snip.js): a verbatim ask is SNIPPED
 // from a public-domain primary source (Wikisource), never generated from
 // weights. A settled snip is an observation and the observation wins; an
@@ -3038,7 +3039,7 @@ const RESOLUTIONS_LEVEL = (() => { const raw = process.env.ER7_RESOLUTIONS; if (
 // creativity may hold tension, never a silent pick. ER7_KELSEN_MODALITY.
 const KELSEN_MODALITY = (() => { const v = Number(process.env.ER7_KELSEN_MODALITY ?? ""); return [0, 0.5, 1].includes(v) ? v : 1; })();
 
-export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal, stop } = {}) {
+export async function* streamOllamaChat(model, messages, { maxTokens, json, onNote, kelsen, logitsBias, signal, stop, byok = null } = {}) {
   // ANTIStrauss — the safety-and-ethics gate (native/the-fold/antistrauss.mjs).
   // THIS is the choke point every real model call in the proxy passes
   // through (draw() → runProxyTurn → here). The gate settles a physics
@@ -3110,6 +3111,74 @@ export async function* streamOllamaChat(model, messages, { maxTokens, json, onNo
   const finishReview = (done) => {
     antistrauss.review({ model, messages, output: emitted.join(""), route: "chat", verdict: gate.verdict, ok: done, outputBlocked: !!outBlocked });
   };
+  // ── BYOK LANE (caller-supplied key, any provider) ───────────────────────
+  // Checked FIRST: an explicit caller-supplied key is deliberate intent, not
+  // a fallback heuristic like the model-id-sniffing lanes below — it wins
+  // even over a Claude-shaped id that could otherwise ride the direct
+  // ANTHROPIC_API_KEY lane. Same gate above (antistrauss covers every mouth
+  // regardless of key ownership), same yield contract, same heimdall
+  // account, tagged apart by provider so a BYOK call is never confused with
+  // this server's own configured keys.
+  if (byok?.provider && byok?.apiKey) {
+    if (onNote) onNote({ move: "byok_lane", provider: byok.provider });
+    for (let attempt = 0; attempt < CALL_RETRIES; attempt++) {
+      try {
+        for await (const chunk of streamByokText({ provider: byok.provider, apiKey: byok.apiKey, model: byok.model || model }, messages, { maxTokens: maxTokens ?? CALL_MAX_TOKENS, kelsen: kelsen ?? null, signal, onNote })) {
+          if (typeof chunk === "string") {
+            emitted.push(chunk);
+            const g = guardAccept(chunk);
+            if (g.emit) yield g.emit;
+            if (g.blocked) {
+              yield refusalFor(outBlocked);
+              yield { done: true, outputBlocked: true, prompt_eval_count: 0, eval_count: emitted.join("").length };
+              finishReview(true);
+              return;
+            }
+          } else if (chunk?.done) {
+            import("./heimdall.mjs").then((h) => h.observeCall({
+              model,
+              promptTokens: chunk.prompt_eval_count ?? 0,
+              promptMs: 0,
+              genTokens: chunk.eval_count ?? 0,
+              genMs: 0,
+              loadMs: 0,
+              // UNGATED: a caller's own key never touches this server's local
+              // box (no VRAM, no keep-alive, no reload) — Heimdall counts it
+              // apart, tagged by provider so it's never mistaken for a call
+              // this server itself is paying for.
+              ungated: true,
+              upstream: `byok:${byok.provider}`,
+              reasoningTokens: 0,
+              cacheReadTokens: chunk.cacheRead ?? 0,
+              cacheWriteTokens: chunk.cacheCreation ?? 0,
+              cost: chunk.cost ?? null,
+            })).catch(() => {});
+            {
+              const fin = guardFinish();
+              if (fin.blocked) yield fin.refusal;
+              else if (fin.emit) yield fin.emit;
+              yield fin.blocked ? { ...chunk, outputBlocked: true } : chunk;
+            }
+            finishReview(true);
+            return;
+          }
+        }
+        {
+          const fin = guardFinish();
+          if (fin.blocked) {
+            yield fin.refusal;
+            yield { done: true, outputBlocked: true, prompt_eval_count: 0, eval_count: emitted.join("").length };
+          } else if (fin.emit) yield fin.emit;
+        }
+        finishReview(true);
+        return;
+      } catch (err) {
+        if (attempt === CALL_RETRIES - 1) { finishReview(false); throw err; }
+        await retryUnderLoad(attempt, model).catch((e) => { finishReview(false); throw e; });
+      }
+    }
+    return;
+  }
   // ── ANTHROPIC LANE (direct, ANTHROPIC_API_KEY) ─────────────────────────
   // Checked BEFORE the opencode lane: when both could serve the same Claude
   // id, the direct key wins — a token-usage comparison must measure the
@@ -4112,7 +4181,7 @@ export function openProblemOf(task) {
 // startDocumentJob, below. Never forward a caller-supplied options object
 // generically into this function without stripping documentJobId first, or
 // an ordinary chat turn could accidentally take the job-only branch.
-export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, documentJobId = null }, onToken, onNote = null, onThinking = null) {
+export async function runProxyTurn({ sessionId, userId = null, model, task, chatHistory = [], discourse = "", workspace = "", attachments = [], holonLevel = "section", resumeAnswered = [], resumePlan = null, openBefore = null, kelsen = null, mode = "auto", caller = null, signal = null, webConsent = false, seed = null, documentJobId = null, byok = null }, onToken, onNote = null, onThinking = null) {
   const usage = { promptTokens: 0, completionTokens: 0 };
   // ── ETHOS FIRST (the ground) ──────────────────────────────────────────────
   // The constitution (Charter/Grotius + the spec gate/Brandeis) produces a
@@ -4472,7 +4541,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       let fullText = "";
       let fastTruncated = false;
       await withSlot(model, async () => {
-        for await (const chunk of streamOllamaChat(model, msgs, { maxTokens: CALL_MAX_TOKENS, onNote, signal })) {
+        for await (const chunk of streamOllamaChat(model, msgs, { maxTokens: CALL_MAX_TOKENS, onNote, signal, byok })) {
           if (typeof chunk === "string") {
             fullText += chunk;
             if (onToken) onToken(chunk);
@@ -5773,7 +5842,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             register: prelimShape.register, impression: staged, prior: sidecar, upstream: OLLAMA, model,
             draw: async (msgs, maxTokens) => {
               let out = "";
-              for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, signal })) {
+              for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, signal, byok })) {
                 if (typeof chunk === "string") out += chunk;
               }
               return out;
@@ -6206,7 +6275,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       let leftoverChars = null;
       let leftoverTail = null;
       let tailParsedAs = null;
-      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen, signal, stop })) {
+      for await (const chunk of streamOllamaChat(model, msgs, { maxTokens, onNote, kelsen, signal, stop, byok })) {
         if (typeof chunk === "string") {
           if (fullText.length >= MAX_OUTPUT_CHARS) { truncated = true; stopped = true; break; }
           if (!capture) {

@@ -1956,6 +1956,17 @@ const job = await startDocumentJob({
       }
       reqData.mode = modeFromHeaders(req, reqData.mode);
       reqData.caller = callerFromRequest(req, "ollama", parsed);
+      // BYOK: a caller-supplied key for a provider of their own choosing
+      // (byok-upstream.mjs). Two headers, never logged, used for exactly
+      // this one call — x-er7-byok-provider names the provider ("anthropic",
+      // "openai", "google", any name byokSupportedProviders() lists),
+      // x-er7-byok-key is the key itself. Absent headers leave this
+      // undefined, preserving today's exact behavior.
+      const byokProvider = req.headers["x-er7-byok-provider"];
+      const byokKey = req.headers["x-er7-byok-key"];
+      if (byokProvider && byokKey) {
+        reqData.byok = { provider: String(byokProvider), apiKey: String(byokKey), model: reqData.model };
+      }
 
       // SWARM AUTO-ROUTE, RUN BEFORE HEIMDALL ADMISSION — mirror of the
       // /v1/chat/completions path: the swarm needs no model and no admission
