@@ -35,7 +35,8 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { execSync } from "node:child_process";
+import { execSync, execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { readOps, applyOps } from "./patch.js";
 import { detectCodeLanguage, generationBriefFor, mismatchNoteFor } from "../adapters/code/language.js";
 import { loadCodeKeywordPrior, keywordSetOf, buildCodeIndex, codeGist, loadCodeNamePriorSplits } from "../adapters/text/code-structure.js";
@@ -325,6 +326,55 @@ export function precheckSyntax(fileName, code) {
   return { syntax: "checked", gap: null };
 }
 
+// cli/reason.mjs lives two directories up from this file (native/the-fold/
+// -> the repo root -> cli/reason.mjs), resolved once, never re-derived.
+const REASON_MJS_PATH = fileURLToPath(new URL("../../cli/reason.mjs", import.meta.url));
+
+/** A MECHANICAL claim describing a patch's own byte-level change — never
+ * the coding model's own words, never JSON asked of it (S1/S2: the model
+ * proposes find/add bytes; this function, not the model, states the claim
+ * reason.mjs checks). force:"default" testimony only: this gate exists to
+ * make requireReasoning callable at all, not to declare functional/acyclic
+ * properties about arbitrary proposed code. */
+function reasoningClaimFor(absPath, find, add) {
+  const truncate = (s) => (String(s ?? "").length > 200 ? `${String(s).slice(0, 200)}…` : String(s ?? ""));
+  return {
+    claims: [{
+      id: "patch1",
+      ground: absPath,
+      rel: "replaces",
+      roles: { ARG0: truncate(find), ARG1: truncate(add) },
+      polarity: "+",
+      force: "default",
+      said: `Mechanical patch proposed by the coding loop: replaces the FIND bytes with the ADD bytes at ${absPath}.`,
+    }],
+    declare: {},
+    inferences: [], universals: [], equations: [], order: {},
+    text: "Mechanically-generated claim for requireReasoning — describes the patch's own byte-level change; not authored by the coding model.",
+  };
+}
+
+/** verifyPatchReasoning(absPath, find, add) -> { ok, output }. Runs the
+ * REAL cli/reason.mjs (never re-implemented, never mocked) against a
+ * mechanical claim, via stdin, exactly as a human operator would from the
+ * command line. FAILS CLOSED: any nonzero exit OR a crash of reason.mjs
+ * itself is "not verified" — an autonomous caller (requireReasoning:true)
+ * gets no benefit of the doubt a human wouldn't get either. */
+function verifyPatchReasoning(absPath, find, add) {
+  try {
+    execFileSync(process.execPath, [REASON_MJS_PATH, "--compact"], {
+      input: JSON.stringify(reasoningClaimFor(absPath, find, add)),
+      encoding: "utf8",
+      timeout: 20000,
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+    return { ok: true, output: "" };
+  } catch (err) {
+    const output = `${err.stdout ?? ""}${err.stderr ?? ""}`.trim() || String(err.message ?? err);
+    return { ok: false, output: output.slice(0, 500) };
+  }
+}
+
 /** True when the immediately preceding round/draw entry already recorded
  * this exact gap kind (and, when path is given, the same path) — the
  * mechanical signal that a repeat is happening, never a guess at intent.
@@ -356,7 +406,7 @@ function renderReadFiles(reads) {
  * an ordinary failed attempt — only for a malformed call (no workspace, no
  * testCommand).
  */
-export async function runCodeLoop({ sessionId, userId = null, model, task, workspace, testCommand, maxRounds = DEFAULT_MAX_ROUNDS, testTimeoutMs = DEFAULT_TEST_TIMEOUT_MS, caller = null, signal = null, candidates = 1, turn = defaultTurn, contextMode = "raw" }) {
+export async function runCodeLoop({ sessionId, userId = null, model, task, workspace, testCommand, maxRounds = DEFAULT_MAX_ROUNDS, testTimeoutMs = DEFAULT_TEST_TIMEOUT_MS, caller = null, signal = null, candidates = 1, turn = defaultTurn, contextMode = "raw", requireReasoning = false }) {
   if (!workspace || !fs.existsSync(workspace)) throw new Error("workspace must be an existing directory");
   if (!testCommand || typeof testCommand !== "string") throw new Error("testCommand must be a declared, real command string");
 
@@ -530,6 +580,14 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
       continue;
     }
 
+    if (requireReasoning) {
+      const verify = verifyPatchReasoning(located.resolved, proposal.find, proposal.add);
+      if (!verify.ok) {
+        rounds.push({ round, draw, kelsen, action: "patch", path: proposal.path, find: proposal.find, add: proposal.add, applied: false, reverted: false, gap: { kind: "reasoning_refused", reason: `the eoreader7 reasoning gate did not pass this patch: ${verify.output}` } });
+        lastNote = `Your proposed patch on "${proposal.path}" did not pass the reasoning gate (requireReasoning is on for this run): ${verify.output}\n\nNothing was changed on disk. Reconsider the change.`;
+        continue;
+      }
+    }
     fs.writeFileSync(located.resolved, applied.code);
     const op = ops[0].op;
     // Syntax pre-check (the file's own engine on the patched bytes,

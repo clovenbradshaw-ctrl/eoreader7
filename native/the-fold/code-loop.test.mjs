@@ -114,3 +114,22 @@ test("runCodeLoop: a repeated already-refused READ stops the loop early with a s
   assert.equal(result.stuck?.kind, "already_read");
   assert.equal(calls, 3, "expected exactly 3 draws (first read, first refusal, second refusal triggers the stuck return) — not the full maxRounds=5 budget");
 });
+
+test("runCodeLoop: requireReasoning:true lets a normal patch through, via the REAL cli/reason.mjs (2026-09-29)", async () => {
+  // No mock, no stub: this really shells out to the real reason.mjs, the
+  // same one every edit in this session went through by hand. The claim
+  // requireReasoning builds is mechanical (force:"default" testimony), so
+  // this proves the wiring is genuine — the gate is actually consulted,
+  // not merely present in the source.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "loopreason-"));
+  fs.writeFileSync(path.join(dir, "solution.py"), "def f():\n    return 1\n");
+  fs.writeFileSync(path.join(dir, "check.py"), "exec(open('solution.py').read())\nassert f() == 2\nprint('TASK GREEN')\n");
+  const mouth = async () => ({ text: "PATH: solution.py\n<<<FIND>>>\ndef f():\n    return 1\n<<<ADD>>>\ndef f():\n    return 2\n<<<END>>>" });
+  const result = await runCodeLoop({
+    sessionId: "test-reasoning", userId: null, model: "fake", task: "fix f to return 2",
+    workspace: dir, testCommand: "python3 check.py", maxRounds: 2, testTimeoutMs: 15000,
+    candidates: 1, turn: mouth, requireReasoning: true,
+  });
+  assert.equal(result.done, true, `expected the reasoning-gated patch to apply and pass; rounds: ${JSON.stringify(result.rounds)}`);
+  assert.equal(result.rounds[0].gap, undefined, "a mechanical, force:default claim about a normal patch should never be refused by the real reasoning gate");
+});
