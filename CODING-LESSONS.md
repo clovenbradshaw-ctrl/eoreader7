@@ -1938,3 +1938,70 @@ genuinely doesn't hold still (context-dependent category, not
 under-trained category), prefer a live, context-relative, revisable
 mechanism over another round of hand-built examples — and if none is
 wired yet, that is the thing to unblock, not a reason to keep training.
+
+## 79. A copy is a fork nobody maintains — and edits land in it (2026-09-29)
+
+Five tests failed on a pristine main (73639c5). One was a registry row
+that never landed: `organs/what.test.mjs` pins a `what` row in
+`organs/capacities.js`, and `git log -S'id: "what"' --all` is empty — no
+commit on any ref ever carried one. The row was in `stash@{0}`, a
+45-file WIP stashed on the shared checkout on 2026-09-23 and never
+popped, beside the `anchors`, `thea-figure` and `thea-pattern` rows and
+the organ's own drafted Reading-Spec entries. The organ's publishing
+commit (b07545d) reported "17/17", which only holds on a tree carrying
+the row uncommitted. The row was restored from the stash's own text; the
+drafted entries' numbers had meanwhile gone to other entries, so its
+citations of them were replaced with a note rather than carried in
+pointing at the wrong law.
+
+The other four were one artifact, not four bugs. Copies of `kernel/`,
+`adapters/text/` and `conformance/` were made under `native/tests/` —
+`tests/kernel/`, `tests/text/`, `tests/conformance/`, the source
+directories' own basenames — around 2026-09-19/20 (the stale ones date
+it: `tests/kernel/self.js` is `kernel/self.js` as of 0b0c94d, one commit
+before 3421baa made its canon-ground import Node-only). They sat
+untracked until the 2026-09-25 checkpoint (14dc2c5) swept in "everything
+that had been sitting on the shared main checkout uncommitted": 146
+files, 118 byte-identical to their originals and 21 identical to older
+committed versions of them. From `tests/conformance/`, `../organs/`
+resolved to nothing and `../kernel/` to the stale copies: 33 of the 35
+copied tests failed, 30 of them unable even to load. `npm test` never
+saw it — its globs are `conformance/*.test.mjs` and `tests/*.test.js`,
+and neither reaches a subdirectory of `tests/` — but anything that finds
+tests by pattern did: chorus-fast's importer grep ran two of the copies
+on 2026-09-23, while they were still untracked, and logged their
+failures as pre-existing.
+
+The red was the cheap part. The expensive part was that the copies were
+edited as if live. The Chomsky commit (000cc7f) created
+`tests/conformance/ethos-compendium.test.mjs` as the canonical file plus
+one line — its archon's pin — and never touched the canonical file,
+which went on to gain Sullivan, Tadoma, Kahanamoku and an alias test
+without it. A conventional-explosive paraphrase refusal test (the
+Existence face's foreclosing-kind arm) was written only into the copy of
+`shape-battery.test.mjs`. And a zero-length-connector fix that
+`existence-reading.js` — a falsified probe, itself present only among
+the copies — says is "kept in relations-gfp.js" exists only in the copy
+`tests/text/relations-gfp.js`; no committed version of
+`adapters/text/relations-gfp.js` has ever carried it. The two tests were
+ported into the canonical files and pass against live code (8/8,
+16/16). The connector fix changes what the reader extracts and was
+written against a `relations-gfp.js` that has since gained clause
+windows and multi-word figures, so it was stashed (chorus-lint
+STASH.md, addressed at 14dc2c5), not ported inside a test repair.
+
+The rule: when `git log --follow` shows a file arriving as `C` (copy)
+where you expected `R` (rename), both files still exist — find the one
+the suite and the importers load before editing either. A copy under
+`tests/` is a fork: fold what is unique in it back into the original,
+then remove it; fixing its imports only makes a second copy to maintain.
+And when a test pins something no commit ever carried, look in `git
+stash list` before writing it fresh — the author's own text, typing and
+citations are there, and so is whatever else was stranded with it.
+`conformance/tests-boundary.test.mjs` now fails the moment a non-test
+module lands under `native/tests/` or a test there cannot resolve its
+own imports. Both checks were seen failing on the 146-file tree (111
+modules, 30 test files) before it was removed, and the first version
+was seen misreading the minified-bundle fixture strings in
+`code-hunk.test.js` and `code-scan.test.js` as imports until its static
+reads were anchored to statement position.

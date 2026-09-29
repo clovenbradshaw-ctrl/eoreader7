@@ -508,6 +508,37 @@ export const CAPACITIES = Object.freeze([
     fn: "codeTime",
     what: "Partee's organ (kernel/temporal-reference.js, UNCHANGED) reading a program: a declaration establishes a binding's time and advances that name's ground, a reference resolves against the name's live grounds, a use before its declaration is the organ's own typed no_candidate. The modality-transfer proof (eval/lavar/modality-transfer.mjs, 2026-09-25): three wirings into text never moved the referred-time organ under sentence reversal; in code, on every file, reversed statement order lands bound and no_candidate rows outside every shuffled draw (arrow.js: bound 146→53 against 81–105, gaps 25→118 against 66–90) — reversal is worse than disorder because every use is then before its definition. Same cell as narrative-time: the advance is the ambient ground every later reference reads against. Statements are lines, hoisting reads as source order, both said in the file.",
   }),
+
+  // ── the what organ (2026-09-16) ────────────────────────────────────────
+  // Reconstructing what a GIANT code hunk IS — a minified bundle, a build
+  // artifact — from its own structural bytes: the module map (Vite deps /
+  // hashed asset names / imports), the vendor stack (library and bundler
+  // fingerprints in the bytes), the feature modules, endpoint/route literals,
+  // declaration banners, and the source syntax's own declared names (codeGist,
+  // dmdCut injected). Answer is an account of the bytes, never a verdict; a
+  // giant hunk is scanned within a declared window with every skipped byte
+  // disclosed. Typing reasoned per this table's own hand-check discipline:
+  // declaring the artifact's identity from structural evidence is
+  // Differentiate·Interpretation at Figure grain — DEF·Lens, the same cell
+  // `interlocutor` and `priors` occupy for who-is-speaking, here for
+  // what-is-this. Reference-only (module: what.js; runs through a caller
+  // composing it, not through capacity-runner.js).
+  //
+  // Restored 2026-09-29 from the 2026-09-23 WIP stash ("WIP on main:
+  // a97497a") that stranded it: organs/what.test.mjs has pinned this row
+  // since the organ was published (b07545d), whose "17/17" only holds on a
+  // tree carrying the row uncommitted. The same stash holds the organ's
+  // drafted Reading-Spec entries, never committed; their numbers have since
+  // gone to other entries, so the "S129" in what.js and what.test.mjs does
+  // not name this organ's own, and this row cites none.
+  Object.freeze({
+    id: "what",
+    terrain: "Lens",
+    op: "DEF",
+    module: "eoreader7/native/organs/what.js",
+    fn: "whatIsThis",
+    what: "what IS this giant hunk — the archon of artifact identity (Cuvier: 'show me a bone and I will reconstruct the beast'): a giant minified bundle's own structural bytes (module map, vendor stack, feature modules, endpoint literals, banners, declared names) reconstructed into an account of what the artifact IS, with every byte skipped disclosed and every claim byte-anchored. The same reconstruction also reads a GraphQL schema artifact (introspection JSON): type inventory, root operations, Connection pagination, mutation Payloads, enums, unions, domain vocabulary, mutation verbs. The admission fix that makes a 3.2 MB bundle step-able is adapters/code/encounters.js (codeEncounters, never a 1.8 MB 'sentence').",
+  }),
 ]);
 
 const byId = new Map(CAPACITIES.map((c) => [c.id, c]));
