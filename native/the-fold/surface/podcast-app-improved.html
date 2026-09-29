@@ -5,24 +5,37 @@
   <style>
     body {
       font-family: sans-serif;
-      margin: 2rem;
-    }
-    .container {
+      background-color: #181818;
+      color: #eee;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: #222;
+      padding: 2rem;
+      border-radius: 5px;
+      max-width: 400px;
+      text-align: center;
+    }
+    h1 {
+      color: #007bff;
+      margin-bottom: 1rem;
     }
     input[type="text"] {
-      width: 300px;
-      padding: 10px;
+      width: 100%;
+      padding: 0.5rem;
       margin-bottom: 1rem;
       border: 1px solid #ccc;
       border-radius: 5px;
+      background-color: #333;
     }
     button {
-      padding: 10px 20px;
-      background-color: #4CAF50;
-      color: white;
+      background-color: #007bff;
+      color: #fff;
+      padding: 0.5rem 1rem;
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -34,30 +47,44 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      width: 100%;
-      text-align: center;
+      background-color: #444;
+      color: #eee;
+      border-radius: 5px;
     }
     .ethos-badge {
       margin-left: 0.5rem;
+      color: green;
     }
     audio {
       width: 100%;
       max-width: 300px;
       margin-bottom: 1rem;
     }
+    .now-playing {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #007bff;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      font-size: 1.2rem;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Podcast List</h1>
-    <input type="text" id="urlInput" placeholder="Enter a podcast URL">
-    <button id="subscribeButton">Subscribe</button>
-    <div id="episodes"></div>
-  </div>
+  <h1>Podcast List</h1>
+  <input type="text" id="urlInput" placeholder="Enter a podcast URL">
+  <button id="subscribeButton">Subscribe</button>
+  <div id="episodes"></div>
+  <div id="now-playing"></div>
   <script>
     const urlInput = document.getElementById('urlInput');
     const subscribeButton = document.getElementById('subscribeButton');
     const episodesContainer = document.getElementById('episodes');
+    const nowPlaying = document.getElementById('now-playing');
 
     subscribeButton.addEventListener('click', async () => {
       const url = urlInput.value;
