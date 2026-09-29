@@ -1406,6 +1406,7 @@ const job = await startDocumentJob({
       }
       const model = String(parsed?.model ?? "").trim() || pickDefaultModel();
       const maxRounds = Number.isFinite(Number(parsed?.maxRounds)) ? Math.max(1, Math.min(10, Number(parsed.maxRounds))) : 3;
+      const contextMode = String(parsed?.contextMode ?? "").trim() === "fold" ? "fold" : "raw";
 
       const admit = admitChatRequest({ model }, req.headers);
       if (!admit.allowed) {
@@ -1428,7 +1429,7 @@ const job = await startDocumentJob({
         if (!loopAbort.signal.aborted) loopAbort.abort();
       }, CODE_LOOP_DEADLINE_MS);
       try {
-        const result = await runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, caller: callerFromRequest(req, "code", parsed), signal: loopAbort.signal });
+        const result = await runCodeLoop({ sessionId, userId, model, task, workspace, testCommand, maxRounds, contextMode, caller: callerFromRequest(req, "code", parsed), signal: loopAbort.signal });
         clearTimeout(loopDeadline);
         res.removeListener("close", onDisconnect);
         // metacognition standing check (native/kernel/code-draw-standing.js,

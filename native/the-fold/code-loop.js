@@ -38,7 +38,8 @@ import path from "node:path";
 import { execSync } from "node:child_process";
 import { readOps, applyOps } from "./patch.js";
 import { detectCodeLanguage, generationBriefFor, mismatchNoteFor } from "../adapters/code/language.js";
-import { loadCodeKeywordPrior, keywordSetOf } from "../adapters/text/code-structure.js";
+import { loadCodeKeywordPrior, keywordSetOf, buildCodeIndex, codeGist, loadCodeNamePriorSplits } from "../adapters/text/code-structure.js";
+import { dmdCut } from "./resolutions.js";
 import { declaresKeyword, suggestWiderFind, suggestWholeFile, arityCoverage } from "../adapters/code/mechanical.js";
 import { pyCheckSyntax, jsCheckSyntax, tsCheckSyntax, hasTsc, suggestImportFix, pyDiagnose } from "../adapters/code/py-engine.js";
 import { emptyForecast, forecastKey, forecast, observe, forecastError } from "./forecast.js";
@@ -106,6 +107,90 @@ function renderFiles(root, relPaths) {
     blocks.push(`--- ${rel} ---\n${shown}${truncated || shown.length < content.length ? "\n[...truncated...]" : ""}`);
   }
   return blocks.join("\n\n");
+}
+
+const MAX_FOLD_SNIPPET_TOTAL_CHARS = 4000;
+
+/** The one real declaration codeGist's cut kept for `name` (its exact
+ * {start,end} byte range from parseDeclarations, via buildCodeIndex) —
+ * or null when the name isn't in this index. Prefers the entry whose
+ * file matches `fileHint` (gist's own row.file) since a name can be
+ * declared more than once across files. */
+function declarationBytes(files, index, name, fileHint) {
+  const decls = index.entities.get(name) ?? [];
+  const decl = decls.find((d) => d.file === fileHint) ?? decls[0];
+  if (!decl) return null;
+  const file = files.find((f) => f.fileName === decl.file);
+  if (!file) return null;
+  return { file: decl.file, text: file.text.slice(decl.start, decl.end) };
+}
+
+/** Fold, not dump: a codeGist-based structural summary of the workspace,
+ * folded around the task's own words (question=task) — the distinctive,
+ * call-graph-ranked declarations the task actually resolves to, never
+ * every file's full bytes. codeGist's own DMD cut already carries each
+ * surviving declaration's EXACT byte range (parseDeclarations never
+ * guesses spans), so this shows those real bytes directly — a model
+ * does not need a whole extra ACTION: read round to fetch what the cut
+ * already resolved to; it can copy FIND straight from what's below.
+ * The existing READ action (renderReadFiles) still covers everything
+ * else the cut didn't surface. */
+function renderFoldedContext(root, relPaths, task) {
+  const files = [];
+  for (const rel of relPaths) {
+    let text;
+    try {
+      text = fs.readFileSync(path.join(root, rel), "utf8");
+    } catch {
+      continue;
+    }
+    const keywords = keywordSetOf(loadCodeKeywordPrior(detectCodeLanguage(rel)));
+    files.push({ fileName: rel, text, keywords });
+  }
+  const index = buildCodeIndex(files);
+  if (!index.entities.size) {
+    return "Code structure (folded): no function/class declarations were mechanically recognized in this workspace — see the file listing above and ACTION: read whichever file the task points to.";
+  }
+  const gist = codeGist({ index, question: task, dmdCut, languagePriors: loadCodeNamePriorSplits(), genericFloor: 2 });
+  const declaredLines = gist.declared.rows.length
+    ? gist.declared.rows.map((r) => `  ${r.name} — ${index.describe(r.name).kind ?? "?"}, ${r.file}, call-degree ${r.degree}`).join("\n")
+    : "  (none survive this cut)";
+  const callLines = gist.calls.rows.length
+    ? gist.calls.rows.map((r) => `  ${r.caller} → ${r.callee} (${r.count}×)`).join("\n")
+    : "  (none survive this cut)";
+
+  let snippetBudget = MAX_FOLD_SNIPPET_TOTAL_CHARS;
+  const snippetBlocks = [];
+  for (const r of gist.declared.rows) {
+    if (snippetBudget <= 0) break;
+    const bytes = declarationBytes(files, index, r.name, r.file);
+    if (!bytes) continue;
+    const truncated = bytes.text.length > snippetBudget;
+    const shown = bytes.text.slice(0, snippetBudget);
+    snippetBudget -= shown.length;
+    snippetBlocks.push(`--- ${bytes.file} :: ${r.name} (real bytes — copy FIND from here) ---\n${shown}${truncated ? "\n[...truncated...]" : ""}`);
+  }
+  const snippetSection = snippetBlocks.length
+    ? snippetBlocks.join("\n\n")
+    : "  (the cut kept no rows to show real bytes for)";
+
+  return [
+    "Code structure (folded — distinctive declarations the task's own words resolve to, ranked by real call-graph degree; NOT a full file dump):",
+    "",
+    "Declared:",
+    declaredLines,
+    "",
+    "Calls:",
+    callLines,
+    "",
+    `Basis: ${gist.declared.basis}; ${gist.disclosure.basis}`,
+    "",
+    "Real bytes of the declarations above (exact, from the real file — copy FIND from here without a READ round; a truncated entry or a name not listed above still needs ACTION: read):",
+    "",
+    snippetSection,
+    "",
+    "Every other file in the workspace exists on disk but is not shown above — ACTION: read <path> for any file whose bytes you still need.",
+  ].join("\n");
 }
 
 // Exported for the worked-example pin (the format is half the anchoring
@@ -254,7 +339,7 @@ function renderReadFiles(reads) {
  * an ordinary failed attempt — only for a malformed call (no workspace, no
  * testCommand).
  */
-export async function runCodeLoop({ sessionId, userId = null, model, task, workspace, testCommand, maxRounds = DEFAULT_MAX_ROUNDS, testTimeoutMs = DEFAULT_TEST_TIMEOUT_MS, caller = null, signal = null, candidates = 1, turn = defaultTurn }) {
+export async function runCodeLoop({ sessionId, userId = null, model, task, workspace, testCommand, maxRounds = DEFAULT_MAX_ROUNDS, testTimeoutMs = DEFAULT_TEST_TIMEOUT_MS, caller = null, signal = null, candidates = 1, turn = defaultTurn, contextMode = "raw" }) {
   if (!workspace || !fs.existsSync(workspace)) throw new Error("workspace must be an existing directory");
   if (!testCommand || typeof testCommand !== "string") throw new Error("testCommand must be a declared, real command string");
 
@@ -319,10 +404,11 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
     const kelsen = draws === 1 && round === 1 ? null
       : Math.min(0.95, Math.max(0.1, 0.9 - (draw - 1) * (draws > 1 ? 0.7 / (draws - 1) : 0) - 0.05 * (round - 1)));
     const firstSight = round === 1 && draw === 1;
+    const baseContent = contextMode === "fold" ? renderFoldedContext(root, files, task) : renderFiles(root, files);
     const roundContent =
       firstSight
-        ? renderFiles(root, files)
-        : `${renderFiles(root, files)}${renderReadFiles(reads)}`;
+        ? baseContent
+        : `${baseContent}${renderReadFiles(reads)}`;
     const roundTask =
       firstSight
         ? `${task}\n\nFiles in the workspace (${root}):\n${listedFiles.join("\n")}${languageBlock}\n\n${PROPOSAL_FORMAT}`
