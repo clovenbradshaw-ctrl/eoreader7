@@ -23,6 +23,8 @@
 // CLI demonstration of the organs, not a daemon with a database) — each
 // invocation re-fetches and re-syncs the feed into a fresh ledger. That is
 // disclosed, not silently implied otherwise.
+import fs from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import { makeNotes } from "../../kernel/notes.js";
 import { makeLibrary, parseFeed } from "../../adapters/build/podcast-feed.js";
 import { makePodcast, segmentTaskId } from "../../adapters/build/podcast.js";
@@ -128,6 +130,14 @@ async function cmdExtract(url, indexArg) {
     }
   }
   if (!conflicts) console.log("\n  no disagreement with any other episode of this show heard so far");
+
+  const evidencePath = new URL("./podcast-extract-evidence.json", import.meta.url);
+  await fs.writeFile(evidencePath, JSON.stringify({
+    generatedAt: new Date().toISOString(), feedUrl: url, episodeTitle: item.title, episodeDescription: item.description,
+    model: process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL, mouthUrl: process.env.ER7_OLLAMA_URL,
+    claims, conflictsFound: conflicts, finalNotes: notes.fold(log),
+  }, null, 2));
+  console.log(`\n(claims + cross-check evidence written to ${fileURLToPath(evidencePath)})`);
 }
 
 async function cmdGenerate(topicArg, cursorArg) {
@@ -153,6 +163,14 @@ async function cmdGenerate(topicArg, cursorArg) {
   console.log(`\n## the episode as a fold at cursor=${cursor} (mid-episode)\n`);
   const mid = api.renderEpisodeAt(log, cursor);
   console.log(`segments landed so far: ${mid.segments.length}; facts standing: ${mid.standing.map((n) => `${n.end1} ${n.label} ${n.end2}`).join("; ") || "(none yet)"}`);
+
+  // EVIDENCE, not assertion: the whole append-only ledger this run produced
+  // plus the run's own report, dumped verbatim so what the mouth actually
+  // said (and what the ledger actually did with it) can be checked
+  // directly rather than taken on this script's own printed word.
+  const evidencePath = new URL("./podcast-generate-evidence.json", import.meta.url);
+  await fs.writeFile(evidencePath, JSON.stringify({ generatedAt: new Date().toISOString(), topic, model: process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL, mouthUrl: process.env.ER7_OLLAMA_URL, log, report, finalRender: mid }, null, 2));
+  console.log(`\n(full ledger + report written to ${fileURLToPath(evidencePath)})`);
 }
 
 async function main() {
