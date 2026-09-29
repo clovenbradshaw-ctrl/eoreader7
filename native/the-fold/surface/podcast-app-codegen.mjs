@@ -97,15 +97,40 @@ function checkCode(html) {
  * different from any other steering prompt this file, or podcast.js's own
  * `landMouthAudit`, records verbatim.
  */
-async function loadCurrentHtml(outDir) {
+// FOUND LIVE, FIXED HERE: this always re-read podcast-app-generated.html
+// (the model's very first, unedited output), so every --improve round
+// re-reviewed the SAME original code and threw away whatever the
+// previous round had built — a real code reviewer reviews the CURRENT
+// state, not the original PR diff, on every pass. Discovered because a
+// second consecutive --improve round (targeting a specific bug in the
+// FIRST round's own now-playing wiring) silently reverted the whole
+// app's styling back to its pre-styled original — losing real, wanted
+// work rather than building on it. `--fresh` is the escape hatch for
+// the rare case a reviewer genuinely wants to start over from scratch.
+async function loadCurrentHtml(outDir, { fresh } = {}) {
   const fs2 = await import("node:fs/promises");
+  if (!fresh) {
+    try { return await fs2.readFile(`${outDir}podcast-app-improved.html`, "utf8"); }
+    catch { /* no prior improved round yet — fall through to the original */ }
+  }
   return fs2.readFile(`${outDir}podcast-app-generated.html`, "utf8");
 }
 
 async function main() {
+  // No "--improve" flag: a review instruction is just an ordinary
+  // argument. `--improve` presupposed every steering ask is an
+  // "improvement" (a bug report, a correction, or a redesign ask all
+  // qualify equally) and forced a caller to spell a flag name to say
+  // what a bare instruction string already says on its own. Bare
+  // `node podcast-app-codegen.mjs` (no args) still means "build it
+  // fresh"; any other argument text means "steer the current app with
+  // this instruction" — `--fresh` is the one real flag left, since
+  // "start over from scratch" is a genuinely distinct request from the
+  // instruction itself.
   const args = process.argv.slice(2);
-  const improveIdx = args.indexOf("--improve");
-  const improveInstruction = improveIdx >= 0 ? (args[improveIdx + 1] ?? "vastly improve the UX") : null;
+  const fresh = args.includes("--fresh");
+  const instructionWords = args.filter((a) => a !== "--fresh");
+  const improveInstruction = instructionWords.length > 0 ? instructionWords.join(" ") : null;
 
   const outDir = fileURLToPath(new URL(".", import.meta.url));
   const evidence = { generatedAt: new Date().toISOString(), model: MODEL, mouthUrl: OLLAMA_URL, mode: improveInstruction ? "improve" : "generate", steeringInstruction: improveInstruction, apiContract: API_CONTRACT, rounds: [] };
@@ -113,7 +138,7 @@ async function main() {
 
   let messages;
   if (improveInstruction) {
-    const currentHtml = await loadCurrentHtml(outDir);
+    const currentHtml = await loadCurrentHtml(outDir, { fresh });
     evidence.startingHtml = currentHtml;
     messages = [{
       role: "user",
