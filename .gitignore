@@ -188,3 +188,5 @@ heimdall-fleet*.log
 # through an existsSync guard, so a fresh clone runs without it.
 native/eval/identity/results/*.json
 native/eval/identity/results-*.json
+
+__pycache__/
