@@ -1,6 +1,6 @@
 // eval/capacity-map/summarize.mjs — turns the drivers' JSON into the tables of
-// results/RESULTS.md, so no number in THE-CAPACITY-MAP.md section 7 is typed by hand.
-// Usage: node summarize.mjs   (reads results/*.json, writes results/RESULTS.md)
+// THE-CAPACITY-MAP.md section 7, so no number in that block is typed by hand.
+// Usage: node summarize.mjs   (reads results/*.json, rewrites the block between the markers)
 import fs from "node:fs";
 
 export function render(dirUrl = new URL("./results/", import.meta.url)) {
@@ -94,14 +94,7 @@ const dir = dirUrl;
     p(`Overall (declared rule): **${r5.overall}**.`);
     p();
   }
-  // ── F5b / F5c / F5′ ──
-  if (exists("f5b-mention-splits.json")) {
-    const r = read("f5b-mention-splits.json");
-    p("## F5b (exploratory, post-hoc) — are the top edges pieces of one mention?");
-    p();
-    p("Token-adjacency of the two beings' matches among the sentences that hold both; bar 0.5 declared in the driver. **Refuted:** " + r.results.map((b) => `${b.book.replace(/^pg\d+_/, "").replace(".txt", "")} — surface ${b.arms.surface.splitLike}/${b.arms.surface.topN}, referent ${b.arms.referent.splitLike}/${b.arms.referent.topN}`).join("; ") + " of the top standing edges are adjacent-mention pairs.");
-    p();
-  }
+  // ── F5c / F5′ ──
   if (exists("f5c-bare-titles.json")) {
     const r = read("f5c-bare-titles.json");
     p("## F5c (exploratory, post-hoc) — bare honorific beings among the top standing edges");
@@ -147,7 +140,6 @@ export const DOC_END = "<!-- RESULTS:END -->";
 
 if (import.meta.url === `file://${process.argv[1]}`) {
   const text = render();
-  fs.writeFileSync(new URL("./results/RESULTS.md", import.meta.url), text);
   const docUrl = new URL("../../docs/THE-CAPACITY-MAP.md", import.meta.url);
   const doc = fs.readFileSync(docUrl, "utf8");
   const a = doc.indexOf("<!-- RESULTS:BEGIN");
@@ -156,5 +148,4 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     fs.writeFileSync(docUrl, doc.slice(0, a) + DOC_BEGIN + "\n\n" + forDoc(text).trimEnd() + "\n\n" + doc.slice(b));
     console.log("updated the results block in docs/THE-CAPACITY-MAP.md");
   }
-  console.log(`wrote results/RESULTS.md (${text.split("\n").length - 1} lines)`);
 }

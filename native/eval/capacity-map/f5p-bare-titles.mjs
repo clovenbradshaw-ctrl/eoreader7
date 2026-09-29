@@ -65,4 +65,4 @@ const hits = books.filter((b) => b.consequential).length;
 const overall = role === "heldout" ? { consequentialOverall: hits >= 2, on: `${hits} of 3` } : { note: "exploratory replication — not counted in the decision", consequentialOn: `${hits} of 3` };
 console.log(`\nOVERALL (${role}):`, JSON.stringify(overall));
 fs.mkdirSync(new URL("./results/", import.meta.url), { recursive: true });
-fs.writeFileSync(new URL(`./results/f5p-${role}.json`, import.meta.url), JSON.stringify({ config: CFG, role, overall, books }, null, 1));
+fs.writeFileSync(new URL(`./results/f5p-${role}.json`, import.meta.url), JSON.stringify({ config: CFG, role, overall, books }) + "\n");

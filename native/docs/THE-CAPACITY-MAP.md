@@ -483,10 +483,6 @@ Harness power check (200 syntheses; planted pair: B follows A at lag 1 with prob
 
 Overall (declared rule): **MIXED**.
 
-### F5b (exploratory, post-hoc) — are the top edges pieces of one mention?
-
-Token-adjacency of the two beings' matches among the sentences that hold both; bar 0.5 declared in the driver. **Refuted:** Dracula — surface 0/20, referent 0/20; Pride_and_Prejudice — surface 0/20, referent 0/20; Frankenstein — surface 0/20, referent 0/20 of the top standing edges are adjacent-mention pairs.
-
 ### F5c (exploratory, post-hoc) — bare honorific beings among the top standing edges
 
 Engine's received `HONORIFIC_TITLES` (giver lang/en); a bare-title being has every surface a single such token. Role titles (Queen, Count, Professor) are counted too — which is why F5′ uses an interventional statistic instead.
@@ -563,7 +559,8 @@ Overall: {"note":"exploratory replication — not counted in the decision","cons
   answer is that it is small: same-cluster pairs are a handful (14, 12, 7) of the co-arriving
   surface pairs.
 - **F5b** (exploratory) refuted the obvious mechanism for the visible `Mr — Bennet`: 0 of 20
-  top edges are token-adjacent pieces of one mention in any arm of any book.
+  top edges are token-adjacent pieces of one mention in any arm of any book. (Its driver and
+  output are not kept in the tree; they are in git at 774fef1.)
 - **F5c** (exploratory) counted bare honorific beings directly: 3 of the top 20 referent-arm edges
   in Dracula, 12 of 20 in Pride and Prejudice, none in Frankenstein.
 - **F5′** (registered after F5c, before it was run on held-out books) — repairing the extent
@@ -632,8 +629,8 @@ before anything below was run on a single held-out book. What was seen, honestly
   being" as the engine's own cluster, and its printed top-edge lists contain pairs the
   clustering cannot flag: `Mr — Bennet`, `Mrs — Gardiner`, `Harker — Mrs`. A bare honorific
   is standing as a *being*.
-- **Exploratory, post-hoc, labelled so in the drivers.** `f5b-mention-splits.mjs` tested the
-  obvious mechanism (the title and its name being neighbours in one mention) and it was
+- **Exploratory, post-hoc, labelled so in the drivers.** `f5b-mention-splits.mjs` (not kept in
+  the tree; git 774fef1) tested the obvious mechanism (the title and its name being neighbours in one mention) and it was
   **refuted**: 0 of the top 20 edges are token-adjacent in every arm of every book.
   `f5c-bare-titles.mjs` then counted bare-title beings directly, using the engine's own
   received closed class `HONORIFIC_TITLES` (`adapters/text/priors.js`, giver `lang/en`): in the

@@ -146,6 +146,6 @@ const result = {
   grain: analyse("grain", GRAIN_RANK),
   config: { PERMS, SEED, ALPHA, MIN_CROSS },
 };
-console.log(JSON.stringify(result, null, 1));
+console.log(JSON.stringify(result));
 fs.mkdirSync(new URL("./results/", import.meta.url), { recursive: true });
-fs.writeFileSync(new URL("./results/f3-layering.json", import.meta.url), JSON.stringify(result, null, 1));
+fs.writeFileSync(new URL("./results/f3-layering.json", import.meta.url), JSON.stringify(result) + "\n");

@@ -88,4 +88,4 @@ for (const r of recs.filter((x) => x.group === "S").sort((a, b) => b.L - a.L).sl
   const shuf = Array.from(r.ind.slice(1)).filter((v) => v >= 0);
   console.log(`    ${nameOf(r.a).slice(0, 26).padEnd(26)} — ${nameOf(r.b).slice(0, 26).padEnd(26)} L=${String(r.L).padStart(4)} coArr=${String(r.coArrivals).padStart(4)}  real=${r.ind[0]} shuf=${shuf.length ? (shuf.reduce((s, v) => s + v, 0) / shuf.length).toFixed(2) : "n/a"}${sharesRare(r.a, r.b) ? "  [shares rare token]" : ""}`);
 }
-fs.writeFileSync(new URL(`./results/f4-diagnose-${label}.json`, import.meta.url), JSON.stringify(out, null, 1));
+fs.writeFileSync(new URL(`./results/f4-diagnose-${label}.json`, import.meta.url), JSON.stringify(out) + "\n");

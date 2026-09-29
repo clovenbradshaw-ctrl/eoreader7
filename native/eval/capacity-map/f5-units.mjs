@@ -101,4 +101,4 @@ const books = paths.map((p) => { const r = oneBook(p); console.log(JSON.stringif
 const overall = books.filter((b) => b.consequential).length >= 2 ? "CONSEQUENTIAL" : books.every((b) => b.share_self < CFG.HAZARD) ? "HAZARD-ONLY" : "MIXED";
 console.log(`OVERALL: ${overall}  (share_self ${books.map((b) => b.share_self.toFixed(2)).join(" / ")}; consequential on ${books.filter((b) => b.consequential).length} of 3)`);
 fs.mkdirSync(new URL("./results/", import.meta.url), { recursive: true });
-fs.writeFileSync(new URL("./results/f5-units.json", import.meta.url), JSON.stringify({ config: CFG, overall, books }, null, 1));
+fs.writeFileSync(new URL("./results/f5-units.json", import.meta.url), JSON.stringify({ config: CFG, overall, books }) + "\n");

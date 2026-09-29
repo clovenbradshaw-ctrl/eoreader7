@@ -46,4 +46,4 @@ for (const r of results) {
   for (const [name, a] of Object.entries(r.arms)) console.log(`  ${name} arm: ${a.withBareTitleEndpoint}/${a.topN} of the top edges have a bare-title endpoint (${(a.share * 100).toFixed(0)}%); over ALL standing edges ${a.standingEdgesWithBareTitle}/${a.standingEdges}; bare-title beings in the top 80: ${a.bareTitleBeingsAmongTop80.join(", ") || "none"}\n     e.g. ${a.examples.join(" | ")}`);
 }
 fs.mkdirSync(new URL("./results/", import.meta.url), { recursive: true });
-fs.writeFileSync(new URL("./results/f5c-bare-titles.json", import.meta.url), JSON.stringify({ config: CFG, results }, null, 1));
+fs.writeFileSync(new URL("./results/f5c-bare-titles.json", import.meta.url), JSON.stringify({ config: CFG, results }) + "\n");

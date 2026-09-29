@@ -1,8 +1,8 @@
 // capacity-map-results.test.js — a number in a results document is a report of one run; it is
 // enforced only when a test reads it (the stale-stage lesson, READING-SPEC S64/S65). This file
 // binds everything the capacity map RECORDS about its own falsification — the kernel's
-// UNSUPPORTED_CROSSINGS, the placement organ's LIMITS, the generated RESULTS.md — to the raw
-// results the drivers wrote, so none of it can drift from the runs it summarises.
+// UNSUPPORTED_CROSSINGS, the placement organ's LIMITS, the results block of the document — to the
+// raw results the drivers wrote, so none of it can drift from the runs it summarises.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -14,10 +14,6 @@ const dir = new URL("../eval/capacity-map/", import.meta.url);
 const read = (rel) => JSON.parse(fs.readFileSync(new URL(rel, dir), "utf8"));
 const primary = (r) => r.variants[Object.keys(r.variants).find((k) => k.startsWith("primary"))];
 const entry = (higher, lower) => UNSUPPORTED_CROSSINGS.find((c) => c.higher === higher && c.lower === lower);
-
-test("results/RESULTS.md is exactly what the committed raw results render to (no hand-typed number in it, and none stale)", () => {
-  assert.equal(fs.readFileSync(new URL("results/RESULTS.md", dir), "utf8"), render(new URL("results/", dir)));
-});
 
 test("THE-CAPACITY-MAP.md's results block is exactly the generated tables — no number in it was typed by hand", () => {
   const doc = fs.readFileSync(new URL("../docs/THE-CAPACITY-MAP.md", import.meta.url), "utf8");

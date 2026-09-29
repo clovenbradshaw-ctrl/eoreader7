@@ -31,7 +31,7 @@ const CFG = Object.freeze({
 });
 const OUT = new URL("./results/", import.meta.url);
 const stamp = (o) => ({ ...o, config: CFG, node: process.version });
-const write = (name, obj) => { fs.mkdirSync(OUT, { recursive: true }); fs.writeFileSync(new URL(name, OUT), JSON.stringify(obj, null, 1)); };
+const write = (name, obj) => { fs.mkdirSync(OUT, { recursive: true }); fs.writeFileSync(new URL(name, OUT), JSON.stringify(obj) + "\n"); };
 
 const standingPairs = (beings, W) => {
   const r = networkStanding(beings, { bindLinks, window: W, draws: CFG.DRAWS, seed: CFG.STANDING_SEED, alpha: CFG.ALPHA });
@@ -108,7 +108,7 @@ function power() {
     independent: { n_real: indep.real.length, real: rate(indep.real), n_shuf: indep.shuf.length, shuf: rate(indep.shuf), z: zIndep },
   };
   out.pass = zPlanted > Z01 && Math.abs(zIndep) < Z005;
-  console.log(JSON.stringify(out, null, 1));
+  console.log(JSON.stringify(out));
   console.log(out.pass ? "POWER CHECK PASSED — real-data results may be read" : "POWER CHECK FAILED — a NO-SIGNAL on real data would be uninformative");
   write("f4-power.json", stamp(out));
   return out.pass;
