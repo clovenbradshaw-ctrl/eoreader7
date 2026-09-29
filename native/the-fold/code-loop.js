@@ -325,6 +325,23 @@ export function precheckSyntax(fileName, code) {
   return { syntax: "checked", gap: null };
 }
 
+/** True when the immediately preceding round/draw entry already recorded
+ * this exact gap kind (and, when path is given, the same path) — the
+ * mechanical signal that a repeat is happening, never a guess at intent.
+ * Deliberately narrow: wired only at gap sites where repeating the SAME
+ * kind (with the same identifying path) is unambiguously non-informative
+ * regardless of model quality (already_read, invalid_path) — never at
+ * open-ended kinds like syntax_error, where the same kind can still cover
+ * genuinely different underlying attempts (measured 2026-09-29: 5
+ * consecutive syntax_error gaps on one workspace were 5 different real
+ * bugs across 5 different proposed bytes; short-circuiting on kind alone
+ * there would have wrongly killed a converging small model). */
+function repeatsLastGap(rounds, kind, path = undefined) {
+  const last = rounds[rounds.length - 1];
+  if (!last?.gap || last.gap.kind !== kind) return false;
+  return path === undefined || last.path === path;
+}
+
 /** The real content of every file read so far this run, rendered for the
  * prompt — real bytes, requested on demand, never re-summarized or
  * paraphrased between rounds. */
@@ -429,14 +446,18 @@ export async function runCodeLoop({ sessionId, userId = null, model, task, works
 
     const located = resolveRealFile(root, proposal.path);
     if (!located.ok) {
+      const stuck = repeatsLastGap(rounds, "invalid_path", proposal.path);
       rounds.push({ round, draw, kelsen, action: proposal.action, path: proposal.path, gap: located.gap });
+      if (stuck) return { done: false, rounds, finalTestOutput, stuck: { kind: "invalid_path", reason: `named the same non-existent path ("${proposal.path}") twice in a row — continuing would not help without new information` } };
       lastNote = `You named "${proposal.path}", which is not a real file in this workspace (${located.gap.reason}). Pick a real path from the listing below.`;
       continue;
     }
 
     if (proposal.action === "read") {
       if (reads.has(proposal.path)) {
+        const stuck = repeatsLastGap(rounds, "already_read", proposal.path);
         rounds.push({ round, draw, kelsen, action: "read", path: proposal.path, gap: { kind: "already_read", reason: "this file's content was already shown" } });
+        if (stuck) return { done: false, rounds, finalTestOutput, stuck: { kind: "already_read", reason: `re-requested the already-shown "${proposal.path}" twice in a row — continuing would not help without new information` } };
         lastNote = `You already have "${proposal.path}"'s content below — re-reading it won't tell you anything new. Propose a PATCH now, or read a DIFFERENT file.`;
         continue;
       }

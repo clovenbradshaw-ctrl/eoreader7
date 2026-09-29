@@ -91,3 +91,26 @@ test("runCodeLoop: identical failing body gets a repeat witness, not silence (20
   assert.ok(withRepeat >= 0, "repeat note never reached the mouth — cycle stayed silent");
   assert.ok(withRepeat >= 1, "repeat note fired before the body was tested twice");
 });
+
+test("runCodeLoop: a repeated already-refused READ stops the loop early with a stuck verdict (2026-09-29, measured live)", async () => {
+  // Measured live (2026-09-29): a real run burned its ENTIRE round budget
+  // re-issuing one already-refused ACTION: read for the same path before
+  // giving up with a generic rounds-exhausted disclosure. The loop must now
+  // stop as soon as the refusal repeats, not after spending every round on it.
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "loopstuck-"));
+  fs.writeFileSync(path.join(dir, "solution.py"), "def f():\n    return 1\n");
+  fs.writeFileSync(path.join(dir, "check.py"), "print('TASK GREEN')\n");
+  let calls = 0;
+  const mouth = async () => {
+    calls += 1;
+    return { text: "ACTION: read\nPATH: solution.py\n" };
+  };
+  const result = await runCodeLoop({
+    sessionId: "test-stuck", userId: null, model: "fake", task: "implement f",
+    workspace: dir, testCommand: "python3 check.py", maxRounds: 5, testTimeoutMs: 15000,
+    candidates: 1, turn: mouth,
+  });
+  assert.equal(result.done, false);
+  assert.equal(result.stuck?.kind, "already_read");
+  assert.equal(calls, 3, "expected exactly 3 draws (first read, first refusal, second refusal triggers the stuck return) — not the full maxRounds=5 budget");
+});
