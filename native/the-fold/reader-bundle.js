@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 import { makeRelationReader } from "../organs/hypergraph.js";
 import { chunkSource, tokenize, blankLabelRows } from "../organs/source.js";
 import { splitSentences } from "../adapters/text/spans.js";
+import { GRAMMAR_MIN_SHARE } from "../adapters/text/grain-typing.js";
 import { extractSurfaces, discoverReferents, namesCorefer, diaNorm } from "../adapters/text/surfaces.js";
 import { resolvePronouns } from "../adapters/text/pronouns.js";
 import { relationExtractorsFor } from "../adapters/text/relations-language.js";
@@ -61,6 +62,22 @@ function loadPriors() {
       forms.add(String(k).toLowerCase());
       const v = source[k];
       for (const x of Array.isArray(v) ? v : [v]) if (typeof x === "string") forms.add(x.toLowerCase());
+    }
+  }
+  // THE POS ATTESTATION (2026-09-29, the podcast binding): the morphology
+  // prior is an inflection subset (5531 forms) that omits the common verbs
+  // of ordinary prose — "uses", "implements", "is" are absent, so the
+  // answer's own claims could never join the vocabulary and every answer
+  // read ZERO claims (measured live: "The cat sat on the mat." → verbs 0,
+  // even the essay path's own sentences). The POS prior (UD-derived,
+  // pos-eng.json) attests these — "uses": {VERB:5}, "is": {AUX:2114} — so
+  // its verb-dominant forms (VERB|AUX at the same GRAMMAR_MIN_SHARE floor
+  // the vocabulary gate uses) join the attested set. A first-arrival verb
+  // in real prose is heard; a noun-only form is not.
+  if (posPrior?.forms) {
+    for (const [w, counts] of Object.entries(posPrior.forms)) {
+      const total = Object.values(counts).reduce((a, b) => a + b, 0);
+      if (total > 0 && ((counts.VERB ?? 0) + (counts.AUX ?? 0)) / total >= GRAMMAR_MIN_SHARE) forms.add(w.toLowerCase());
     }
   }
   const lemmatizer = prior ? createLemmatizer(prior.forms, { language: prior.language }) : null;

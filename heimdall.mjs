@@ -4926,6 +4926,10 @@ export function makeRuleAuthorHolon({ logLines = memoryLinesForWindow, now = Dat
     act: async (finding) => {
       const adopted = [];
       for (const c of finding.candidates) {
+        // A probe that is not a known model is never adopted (2026-09-29):
+        // the learner's floor was met by real observations, but the NAME the
+        // rule would stand for has to be a model this box can actually name.
+        if (!knownModelProbe(c.probe)) { log(`rule-author: ${c.class}:${c.probe} — probe is not a known model (no namespace, not on the roster); not adopted`); continue; }
         const r = deriveRule({ ...c, first: c.first, last: c.last });
         if (r) { adoptDerivedRule(r); adopted.push(r); }
       }
@@ -4941,6 +4945,21 @@ export function makeRuleAuthorHolon({ logLines = memoryLinesForWindow, now = Dat
       return { note: adopted.length ? `adopted ${adopted.length} derived rule(s): ${adopted.map((r) => `${r.class}:${r.probe}`).join(", ")}${started.length ? ` — on trial: ${started.join("; ")}` : ""}` : null, adopted: adopted.length, trials: started.length };
     },
   };
+}
+
+/** Every model a rule may be minted FOR is a model this system can name:
+ *  a local one on the roster, or one in a known namespace (er7:, anthropic/,
+ *  opencode/, hf.co/, the online providers). A probe that matches none of
+ *  these is a synthetic or adversarial key (2026-09-29: a battering burst
+ *  against "batter-nonexistent" minted a real memory_pressured rule and
+ *  started a live evict_lru trial on the operator's ledger). A rule for a
+ *  name no model answers to is noise, never law. */
+const KNOWN_MODEL_NAMESPACE = /^(er7|anthropic|opencode|hf\.co|groq|google|mistral)[:/]/;
+export function knownModelProbe(probe) {
+  if (!probe) return true; // a surface probe is not a model
+  if (KNOWN_MODEL_NAMESPACE.test(probe)) return true;
+  const roster = loadedModels();
+  return Array.isArray(roster) && roster.some((m) => (m?.name || m?.model) === probe);
 }
 
 // ── THE MESSAGE — what a response is told ────────────────────────────────

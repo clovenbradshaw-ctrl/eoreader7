@@ -461,8 +461,26 @@ export function groundingGate(readingObj, race) {
   if (!readingObj || !race) return readingObj;
   const claimsCount = readingObj.reading?.claims?.length ?? readingObj.claims?.length ?? 0;
   if (race.winner === "model" && claimsCount === 0) {
-    if (readingObj.void) readingObj.void = { ...readingObj.void, satisfied: false };
-    if (readingObj.satisfaction) readingObj.satisfaction = { ...readingObj.satisfaction, ok: false };
+    if (readingObj.void) readingObj.void = { ...readingObj.void, satisfied: false, basis: "the grounding gate: no claim bound to a source — an unchecked model guess never satisfies a void" };
+    if (readingObj.satisfaction) {
+      const prior = readingObj.satisfaction;
+      // THE GATE DISCLOSES ITSELF (2026-09-29, falsified by the podcast
+      // proof): ok used to flip to false while failures stayed empty and
+      // basis kept claiming "compiles and runs clean" — three fields in the
+      // same object disagreeing about the same verdict. The gate's reason
+      // now rides the fields it changes: a failure of kind `ungrounded`, a
+      // counted strain, and a basis that names the gate and why it fired.
+      const alreadyGated = (prior.failures ?? []).some((f) => f?.kind === "ungrounded");
+      readingObj.satisfaction = {
+        ...prior,
+        ok: false,
+        ...(alreadyGated ? {} : {
+          failures: [...(prior.failures ?? []), { kind: "ungrounded", detail: "no claim bound to a source — the grounding gate flips ok to false; the mechanical score above stands only as mechanics, never as standing" }],
+          totalStrain: (prior.totalStrain ?? 0) + 1,
+        }),
+        basis: `${prior.basis ?? "satisfaction"} — GROUNDING GATE: no claim bound to a source, so ok is false; the mechanical verdict is disclosed, never the standing`,
+      };
+    }
     readingObj.disclosed = {
       ...(readingObj.disclosed ?? null),
       unchecked: true,

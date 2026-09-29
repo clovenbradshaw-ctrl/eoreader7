@@ -2491,7 +2491,7 @@ function releaseDriverLock() {
 // Every call is measured per server. Read-only management routes pass to the
 // local daemon. Nothing else is served — the same default-deny as the proxy.
 const CHANNEL_ANSWER_ROUTES = new Set(["/api/chat", "/api/generate", "/api/embed", "/api/embeddings", "/v1/chat/completions", "/v1/completions", "/v1/embeddings"]);
-const CHANNEL_READ_ROUTES = new Set(["/api/tags", "/api/ps", "/api/version", "/api/show", "/v1/models"]);
+const CHANNEL_READ_ROUTES = new Set(["/", "/api/tags", "/api/ps", "/api/version", "/api/show", "/v1/models"]);
 const CHANNEL_ID = `heimdall:${CHANNEL_PORT}`;
 const channelServers = [];
 function channelJson(res, status, obj, extra = {}) {
@@ -2649,7 +2649,7 @@ async function handleChannel(req, res) {
   }
   if (req.method === "OPTIONS") {
     if (pageOrigin) {
-      res.setHeader("access-control-allow-methods", "GET, POST, OPTIONS");
+      res.setHeader("access-control-allow-methods", "GET, HEAD, POST, OPTIONS");
       res.setHeader("access-control-allow-headers", String(req.headers["access-control-request-headers"] || "content-type"));
     }
     res.writeHead(204);
@@ -2666,12 +2666,16 @@ async function handleChannel(req, res) {
     return channelJson(res, 200, revisionReceipt(e));
   }
   const isAnswer = req.method === "POST" && CHANNEL_ANSWER_ROUTES.has(pathname);
-  const isRead = CHANNEL_READ_ROUTES.has(pathname) && (req.method === "GET" || req.method === "POST");
+  // HEAD rides the read routes (2026-09-29): the ollama client's liveness
+  // probe is HEAD / — the channel used to default-deny it and the standard
+  // `ollama run` died before its first /api/chat. An answer route is never
+  // HEAD-able; the probe that touches it is refused, not answered.
+  const isRead = CHANNEL_READ_ROUTES.has(pathname) && (req.method === "GET" || req.method === "POST" || req.method === "HEAD");
   if (!isAnswer && !isRead) return channelJson(res, 404, { error: `no such route on the channel: ${req.method} ${pathname}`, type: "unserved_path", path: pathname, method: req.method });
   const raw = await channelReadBody(req).catch(() => Buffer.alloc(0));
   if (isRead) {
     try {
-      const up = await fetch(`${MODEL_SERVER_URL}${req.url}`, { method: req.method, headers: { "content-type": req.headers["content-type"] || "application/json" }, body: req.method === "GET" ? undefined : raw, signal: AbortSignal.timeout(10000) });
+      const up = await fetch(`${MODEL_SERVER_URL}${req.url}`, { method: req.method, headers: { "content-type": req.headers["content-type"] || "application/json" }, body: req.method === "GET" || req.method === "HEAD" ? undefined : raw, signal: AbortSignal.timeout(10000) });
       res.writeHead(up.status, { "content-type": up.headers.get("content-type") || "application/json", "x-heimdall-channel": CHANNEL_ID });
       if (!up.body) return res.end();
       for await (const chunk of up.body) res.write(chunk);
@@ -2846,7 +2850,40 @@ async function handleChannel(req, res) {
     // fetch's body yields Uint8Arrays, whose toString() is "104,101,…" — decode
     // through a Buffer or the tail is digits and the accounting reads zero
     // (measured 22:56: the body carried prompt_eval_count 36, the ledger 0).
-    if (up.body) for await (const chunk of up.body) { res.write(chunk); tail = (tail + Buffer.from(chunk).toString("utf8")).slice(-4096); }
+    if (up.body && !served) {
+      for await (const chunk of up.body) { res.write(chunk); tail = (tail + Buffer.from(chunk).toString("utf8")).slice(-4096); }
+    } else if (up.body && served) {
+      // A SUBSTITUTE TURN IS STAMPED IN THE BODY, NOT ONLY THE HEADERS
+      // (2026-09-29): the ladder's stand-in used to be a quiet wrong-model
+      // answer — the wire body said `"model":"gemma2:2b"` while the caller
+      // had asked for something else, and the disclosure lived in headers
+      // the average ollama client never reads. Buffered (a provisional
+      // answer is a placeholder by definition; first-token latency is not
+      // the promise it makes) and the stream's LAST object carries the
+      // truth. Non-JSON bodies (SSE, plain) pass through untouched.
+      const buf = [];
+      for await (const chunk of up.body) buf.push(Buffer.from(chunk));
+      let text = Buffer.concat(buf).toString("utf8");
+      const lines = text.split("\n");
+      for (let i = lines.length - 1; i >= 0; i--) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        try {
+          const obj = JSON.parse(line);
+          if (obj && typeof obj === "object") {
+            obj.provisional = true;
+            obj.served_by = served.model;
+            obj.revisable_by = model;
+            if (out["x-heimdall-revision-id"]) obj.revision_id = out["x-heimdall-revision-id"];
+            lines[i] = JSON.stringify(obj);
+            text = lines.join("\n");
+          }
+        } catch { /* not a JSON line — pass the body through untouched */ }
+        break;
+      }
+      res.write(text);
+      tail = text.slice(-4096);
+    }
     res.end();
     ok = up.ok;
   } catch (e) {

@@ -47,11 +47,18 @@ export function groundFacts(notes = [], { source = "pg2600.txt" } = {}) {
     .filter((n) => n && n.end1 && n.label)
     .map((n) => {
       const span = n.span ?? null;
-      const ref = span && span.start != null ? `${source}#${span.start}` : null;
+      // THE PER-NOTE SOURCE (2026-09-29, the podcast wiring): a note that
+      // names its own witness (a workspace file, a web source) binds under
+      // THAT name — "workspace:server.mjs#123" — never flattened onto the
+      // caller's one `source` argument. The caller's source is the fallback
+      // for notes the record did not witness individually. Provenance is
+      // per-arrangement, never per-batch.
+      const src = String(n.source ?? "").trim() || source;
+      const ref = span && span.start != null ? `${src}#${span.start}` : null;
       return {
         fact: [n.end1, n.label, n.end2].filter(Boolean).join(" "),
         end1: n.end1, label: n.label, end2: n.end2 ?? "",
-        ...(ref ? { ref } : { gap: { type: "no_byte_address", detail: `the arrangement "${[n.end1, n.label, n.end2].filter(Boolean).join(" ")}" has no byte span — never a guessed address` } }),
+        ...(ref ? { ref, source: src } : { gap: { type: "no_byte_address", detail: `the arrangement "${[n.end1, n.label, n.end2].filter(Boolean).join(" ")}" has no byte span — never a guessed address` } }),
       };
     });
 }
