@@ -45,6 +45,21 @@ const SEGMENT_SCHEMA = {
 
 const ARBITRATE_SCHEMA = { type: "object", properties: { pick: { type: "string", enum: ["rival", "claim", "neither"] } }, required: ["pick"] };
 
+const CLAIMS_SCHEMA = {
+  type: "object",
+  properties: {
+    claims: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { end1: { type: "string" }, label: { type: "string" }, end2: { type: "string" }, quote: { type: "string" } },
+        required: ["end1", "label", "end2", "quote"],
+      },
+    },
+  },
+  required: ["claims"],
+};
+
 async function chat({ url, model, messages, schema }) {
   const r = await fetch(`${url}/api/chat`, {
     method: "POST",
@@ -85,6 +100,25 @@ export function ollamaPodcastMouth({ url = process.env.ER7_OLLAMA_URL, model = p
         }],
       });
       return out.pick;
+    },
+    /**
+     * extractClaims({ showTitle, episodeTitle, description }) — for a REAL,
+     * already-published episode (the subscription app, podcast-feed.js):
+     * read its own real description and name the checkable claims it
+     * makes, each with a verbatim quote from that SAME description (so
+     * podcast-feed.js's own self-verified addressing can locate it). This
+     * is the "prompt it and watch" half of a subscription: the organ never
+     * invents what an episode said, it asks the mouth to read the real
+     * bytes and report back.
+     */
+    async extractClaims({ showTitle, episodeTitle, description }) {
+      return chat({
+        url, model, schema: CLAIMS_SCHEMA,
+        messages: [{
+          role: "user",
+          content: `This is the real, published description of one episode of the podcast "${showTitle}", titled "${episodeTitle}":\n\n${description}\n\nList every checkable factual claim it makes as {end1, label, end2, quote}: end1/end2 are the two things related, label is a short snake_case relation name, and quote is the EXACT substring of the description above that states it (verbatim). If the description states nothing checkable, return an empty list — never invent a claim the text does not make.`,
+        }],
+      });
     },
     async revise({ n, beat, topic, priorScript, correction }) {
       return chat({

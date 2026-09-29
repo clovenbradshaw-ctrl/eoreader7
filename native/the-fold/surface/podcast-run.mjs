@@ -1,92 +1,174 @@
 #!/usr/bin/env node
-// podcast-run.mjs — drive the real pipeline end to end and print what it
-// did: the transcript, the healing report, and the SAME episode read back
-// at two different cursors, to show it is genuinely a fold at any given
-// cursor rather than a single accumulated state.
+// podcast-run.mjs — the podcast app's CLI: subscribe to a REAL feed, read
+// what it published, watch what a real mouth says about it.
 //
-//   node podcast-run.mjs [--topic "..."] [--cursor N]
+// "No — you're supposed to only prompt it and watch. We are teaching it to
+// fish." This file's own job stops there: it composes prompts
+// (podcast-mouth.mjs) and reads back what comes of them. It does NOT
+// contain a hand-written stand-in for what a model would say — a mouth
+// that is not reachable produces an honest, typed gap here, never
+// fabricated content. The mechanical parts of this app (fetching and
+// parsing a real feed, the ethos/charter check, the logos/rhetorical
+// probes, the append-only ledger, the measured-loop stop) need no model at
+// all and run exactly the same whether one is configured or not — that is
+// the whole point of building them as real organs rather than as glue
+// around a model call.
 //
-// With ER7_OLLAMA_URL and ER7_NB_MODEL (or ER7_PODCAST_MODEL) set, this
-// drives a real model as the mouth (podcast-mouth.mjs's `ollamaPodcastMouth`
-// — same env vars and `/api/chat` convention as notebook-learn.mjs's own
-// mouth). Without them, it falls back to a SCRIPTED mouth that plants one
-// deliberate contradiction (segment 2 restates segment 0's own fact
-// wrongly) so the self-heal loop can be watched firing for real, not just
-// claimed — the same falsify-first discipline this whole tree holds
-// everywhere (P71's generality gate, refutation.js's own veto). No TTS:
-// this kernel has no speech synthesiser (see adapters/build/podcast.js's
-// header); the output is the checked SCRIPT, ready for one to be bolted on.
+//   node podcast-run.mjs subscribe <feed-url>
+//   node podcast-run.mjs episodes <feed-url>
+//   node podcast-run.mjs extract <feed-url> <episode-index>
+//   node podcast-run.mjs generate ["<topic>"] [--cursor N]
+//
+// `subscribe`/`episodes`/`extract` persist nothing between runs (this is a
+// CLI demonstration of the organs, not a daemon with a database) — each
+// invocation re-fetches and re-syncs the feed into a fresh ledger. That is
+// disclosed, not silently implied otherwise.
+import { makeNotes } from "../../kernel/notes.js";
+import { makeLibrary, parseFeed } from "../../adapters/build/podcast-feed.js";
 import { makePodcast, segmentTaskId } from "../../adapters/build/podcast.js";
 import { ollamaPodcastMouth } from "./podcast-mouth.mjs";
+import { armCharter } from "../../organs/arm-charter.js";
+import { constitution } from "../../organs/ethos.js";
+import { charterGate } from "../../organs/charter.js";
+import { cellsByGrain, GRAINS as SPIRAL_GRAINS, APPEALS } from "../../the-fold/revision-spiral.js";
 
-function scriptedMouth(topic) {
-  // A planted, KNOWN contradiction: segment 0 states the founding year as
-  // 1965; segment 2 (deliberately, to prove the loop) restates it as 1971.
-  // Segment 1 makes an unrelated, uncontested claim.
-  const beats = [
-    { speaker: "Nia", text: `Welcome back — today we're talking about ${topic}. It all started when the collective first met in 1965, in a rented room above a print shop.` , claims: [{ end1: topic, label: "founded_in", end2: "1965", quote: "met in 1965" }] },
-    { speaker: "Theo", text: `Right, and the print shop itself is still standing — it's a bookstore now, on the same corner it always was.`, claims: [{ end1: topic, label: "print_shop_status", end2: "still standing", quote: "still standing" }] },
-    { speaker: "Nia", text: `People forget how young it was, actually — I've seen it written that ${topic} got going in 1971, which always surprises people.`, claims: [{ end1: topic, label: "founded_in", end2: "1971", quote: "in 1971" }] },
-    { speaker: "Theo", text: `And by the end of that first decade there were three chapters, not just the one.`, claims: [{ end1: topic, label: "chapters_by_first_decade", end2: "three", quote: "three chapters" }] },
-  ];
-  let i = 0;
-  return {
-    async propose({ n }) {
-      const b = beats[i++] ?? beats[beats.length - 1];
-      return { speaker: b.speaker, title: `beat ${n}`, script: b.text, claims: b.claims };
-    },
-    async arbitrate({ rival }) {
-      // the FIRST-established fact is trusted over a later loose recollection
-      return rival.end2 === "1965" ? "rival" : "neither";
-    },
-    async revise({ priorScript, correction }) {
-      return {
-        speaker: "Nia",
-        title: "corrected",
-        script: `${priorScript} — actually, scratch that: it was ${correction.end2}, not what I just said.`,
-        claims: [],
-      };
-    },
-  };
+function rhetoricalFindings(text, appeal) {
+  const out = [];
+  for (const cell of cellsByGrain(SPIRAL_GRAINS.MICRO)) {
+    if (cell.appeal !== appeal || typeof cell.probe !== "function") continue;
+    for (const f of cell.probe(text) ?? []) out.push({ ...f, cell: f.cell ?? cell.cell, editor: cell.editor });
+  }
+  return out;
 }
 
-async function main() {
-  const args = process.argv.slice(2);
-  const flag = (name, dflt) => { const i = args.indexOf(`--${name}`); return i >= 0 ? args[i + 1] : dflt; };
-  const topic = flag("topic", "the founding of the collective");
-  const cursorArg = flag("cursor", null);
+/** The mechanical read every episode gets, model-free: is its own description a licensed generation under the charter, and what do the real rhetorical probes find. Never gated on a mouth being reachable. */
+function assessText(text) {
+  armCharter();
+  const ethos = charterGate(constitution().charter, text);
+  const logos = rhetoricalFindings(text, APPEALS.LOGOS);
+  const ethosStyle = rhetoricalFindings(text, APPEALS.ETHOS);
+  return { ethos, logos, ethosStyle };
+}
 
+async function fetchFeed(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
+  return res.text();
+}
+
+async function cmdSubscribe(url) {
+  console.log(`# fetching ${url}`);
+  const xml = await fetchFeed(url);
+  const notes = makeNotes();
+  const lib = makeLibrary({ notes });
+  let log = notes.createNotes();
+  const { log: log2, show, added } = lib.syncFeed(log, { url, xml });
+  log = log2;
+  console.log(`subscribed: ${show.title} (${show.episodeCount} episode(s) heard, ${added} new)`);
+  console.log("\n## mechanical assessment of each episode (no model — ethos + logos, real organs)\n");
+  for (const ep of lib.episodesOf(log, show.title)) {
+    const feed = parseFeed(xml);
+    const item = feed.items.find((i) => i.title === ep.end2);
+    const assessed = assessText(item?.description ?? "");
+    console.log(`- "${ep.end2}"`);
+    console.log(`  ethos (charter): ${assessed.ethos.verdict}${assessed.ethos.verdict === "conflict" ? ` — ${assessed.ethos.basis}` : ""}`);
+    console.log(`  logos findings: ${assessed.logos.length}${assessed.logos.length ? ` (${assessed.logos.map((f) => f.kind).join(", ")})` : ""}`);
+    console.log(`  ethos-of-style findings: ${assessed.ethosStyle.length}`);
+  }
+}
+
+async function cmdEpisodes(url) {
+  const xml = await fetchFeed(url);
+  const feed = parseFeed(xml);
+  console.log(`# ${feed.title}\n`);
+  feed.items.forEach((it, i) => console.log(`[${i}] ${it.title}${it.pubDate ? ` (${it.pubDate})` : ""}`));
+}
+
+async function cmdExtract(url, indexArg) {
+  const index = Number(indexArg);
+  if (!Number.isInteger(index)) throw new Error("extract needs an episode index — see `episodes <feed-url>` for the list");
+  const xml = await fetchFeed(url);
+  const feed = parseFeed(xml);
+  const item = feed.items[index];
+  if (!item) throw new Error(`no episode at index ${index}`);
+
+  const mouth = ollamaPodcastMouth();
+  console.log(`# episode: ${item.title}`);
+  if (!mouth) {
+    console.log("# no mouth configured (set ER7_OLLAMA_URL and ER7_NB_MODEL / ER7_PODCAST_MODEL) — reporting the mechanical read only, never a fabricated one");
+    const assessed = assessText(item.description ?? "");
+    console.log(JSON.stringify(assessed, null, 2));
+    return;
+  }
+  console.log(`# asking the mouth (${process.env.ER7_OLLAMA_URL}, ${process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL}) to read this episode's own real description and name its claims — watching what it says, not writing it for it`);
+  const { claims } = await mouth.extractClaims({ showTitle: feed.title, episodeTitle: item.title, description: item.description ?? "" });
+  console.log(`\n${claims.length} claim(s) found:`);
+  for (const c of claims) console.log(`  ${c.end1} —${c.label}→ ${c.end2}   ("${c.quote}")`);
+
+  // Cross-check against every OTHER episode of the same show already
+  // heard on the ledger. A real disagreement between two published
+  // episodes is DISCLOSED, never silently resolved by this app on a
+  // listener's behalf — that is a human decision, not this pipeline's to
+  // make for real, already-aired content.
+  const notes = makeNotes();
+  const lib = makeLibrary({ notes });
+  let log = notes.createNotes();
+  ({ log } = lib.syncFeed(log, { url, xml }));
+  const norm = (v) => String(v ?? "").trim().toLowerCase();
+  let conflicts = 0;
+  for (const claim of claims) {
+    const folded = notes.fold(log);
+    const rival = folded.find((n) => norm(n.end1) === norm(claim.end1) && norm(n.label) === norm(claim.label) && norm(n.end2) !== norm(claim.end2));
+    const heard = notes.hear(log, { end1: claim.end1, label: claim.label, end2: claim.end2, witness: `${url}#${item.title}` });
+    log = heard;
+    if (rival) {
+      conflicts += 1;
+      console.log(`\n  ⚠ disagrees with an earlier note: "${rival.end1} ${rival.label} ${rival.end2}" (witnessed by ${rival.witnesses.join(", ")})`);
+      console.log(`    left OPEN on the record — a disagreement between two real episodes is for a listener to weigh, not for this app to settle`);
+    }
+  }
+  if (!conflicts) console.log("\n  no disagreement with any other episode of this show heard so far");
+}
+
+async function cmdGenerate(topicArg, cursorArg) {
+  const topic = topicArg ?? "the founding of the collective";
+  const mouth = ollamaPodcastMouth();
+  if (!mouth) {
+    console.log("# no mouth configured (set ER7_OLLAMA_URL and ER7_NB_MODEL / ER7_PODCAST_MODEL) — a generated episode needs a real mouth to propose it, and this app does not write one for it");
+    return;
+  }
   const api = makePodcast();
-  const mouth = ollamaPodcastMouth() ?? scriptedMouth(topic);
-  const live = ollamaPodcastMouth() != null;
-  console.log(`# mouth: ${live ? `live (${process.env.ER7_OLLAMA_URL}, ${process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL})` : "scripted (no ER7_OLLAMA_URL/ER7_NB_MODEL set — falling back)"}\n`);
-
   const plan = [{ beat: "opening" }, { beat: "an aside" }, { beat: "a recollection" }, { beat: "growth" }];
   const { log, report } = await api.produceEpisode({
     topic, voices: ["Nia", "Theo"], format: "two-host retrospective",
-    plan, mouth,
-    declaredFunctional: new Set(["founded_in"]),
-    maxRepairsPerSegment: 2,
+    plan, mouth, declaredFunctional: new Set(["founded_in"]), repairCeiling: 20,
   });
-
   console.log("## final transcript\n");
   console.log(api.transcriptOf(api.renderEpisodeAt(log)));
-
-  console.log("\n## what the self-heal loop did\n");
-  for (const seg of report.segments) {
-    for (const h of seg.heals) console.log(`- segment ${seg.n}: ${h.outcome} (dispute ${h.disputeId ?? "n/a"}, rival ${h.rival}, claim ${h.claim})`);
-  }
-  if (!report.segments.some((s) => s.heals.length)) console.log("(no conflicts arose)");
-  console.log(`\nalgebra self-check: ${report.algebraFlags.length ? `${report.algebraFlags.length} FLAG(S) — ${JSON.stringify(report.algebraFlags)}` : "clean — every thread ran the operators forward"}`);
-  console.log(`open gaps left on the record: ${report.openGaps.length}`);
-
+  console.log("\n## measured stops (the DMD-bounded self-heal loop)\n");
+  for (const seg of report.segments) console.log(`- segment ${seg.n}: ${seg.stop.verdict} after ${seg.stop.rounds} round(s)${Number.isFinite(seg.stop.growth) ? ` (growth ${seg.stop.growth.toFixed(4)})` : ""}`);
+  for (const w of report.warnings) console.log(`  ! ${w.warning}`);
+  console.log(`\nalgebra self-check: ${report.algebraFlags.length ? `${report.algebraFlags.length} FLAG(S)` : "clean"}`);
   const cursor = cursorArg != null ? Number(cursorArg) : log.entries.find((e) => e.task_id === segmentTaskId(1))?.seq;
   console.log(`\n## the episode as a fold at cursor=${cursor} (mid-episode)\n`);
   const mid = api.renderEpisodeAt(log, cursor);
-  console.log(`frame: ${JSON.stringify(mid.frame.declared)}`);
-  console.log(`segments landed so far: ${mid.segments.length}`);
-  console.log(`facts standing so far: ${mid.standing.map((n) => `${n.end1} ${n.label} ${n.end2} (${n.standing})`).join("; ") || "(none yet)"}`);
-  console.log(`open disputes at this cursor: ${mid.openDisputes.length}`);
+  console.log(`segments landed so far: ${mid.segments.length}; facts standing: ${mid.standing.map((n) => `${n.end1} ${n.label} ${n.end2}`).join("; ") || "(none yet)"}`);
+}
+
+async function main() {
+  const [cmd, ...rest] = process.argv.slice(2);
+  if (cmd === "subscribe") return cmdSubscribe(rest[0]);
+  if (cmd === "episodes") return cmdEpisodes(rest[0]);
+  if (cmd === "extract") return cmdExtract(rest[0], rest[1]);
+  if (cmd === "generate") {
+    const flag = (name) => { const i = rest.indexOf(`--${name}`); return i >= 0 ? rest[i + 1] : undefined; };
+    return cmdGenerate(rest.find((a) => !a.startsWith("--")), flag("cursor"));
+  }
+  console.log(`usage:
+  node podcast-run.mjs subscribe <feed-url>
+  node podcast-run.mjs episodes <feed-url>
+  node podcast-run.mjs extract <feed-url> <episode-index>
+  node podcast-run.mjs generate ["<topic>"] [--cursor N]`);
 }
 
 main().catch((e) => { console.error(e); process.exitCode = 1; });
