@@ -1,6 +1,6 @@
-// capacity-map.test.js — F1 and F2 of native/docs/THE-CAPACITY-MAP.md, plus the
+// capacity-map.test.js — F1 and F2 of THE-CAPACITY-MAP.md (git 2f81545:native/docs/), plus the
 // walls the module's own header claims. F1 and F2 check the CODE, not the
-// theory: the empirical predictions (F3–F5) live in native/eval/capacity-map/.
+// theory: the empirical predictions (F3–F5) ran in eval/capacity-map/ (git 2f81545).
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";

@@ -1,4 +1,4 @@
-// native/kernel/capacity-map.js — THE CAPACITY MAP (native/docs/THE-CAPACITY-MAP.md).
+// native/kernel/capacity-map.js — THE CAPACITY MAP (THE-CAPACITY-MAP.md; removed from the tree, git 2f81545:native/docs/).
 //
 // Three classes of mathematics (arithmetic, geometric, transcendental) by three
 // positions (the cube's three grains), read as a lattice of what a reader has
@@ -142,8 +142,8 @@ export const label = (p) => (p?.gap ? `(${p.gap})` : CLASS_IDS.map((k) => `${k[0
 // A crossing says: order(higher) <= order(lower). Both are READING-SPEC S10 and
 // THE-THREE-MATHEMATICS section VII read per claim ("a claim's unit before its
 // edge before its integral"); as an ORDER over profiles it was this map's own
-// extension, and it was PUT TO THE TEST (native/docs/THE-CAPACITY-MAP.md, F3-F5,
-// native/eval/capacity-map/). Three lists keep the history in one place:
+// extension, and it was PUT TO THE TEST (THE-CAPACITY-MAP.md, F3-F5, and the drivers and
+// raw results in eval/capacity-map/ — both removed from the tree, kept at git 2f81545). Three lists keep the history in one place:
 //   DECLARED_CROSSINGS     the hypothesis as registered, before any run
 //   UNSUPPORTED_CROSSINGS  the ones the pre-registered rules did NOT support, each with the
 //                          rule, the outcomes and the evidence files
@@ -182,11 +182,11 @@ export const UNSUPPORTED_CROSSINGS = freeze([
         "not supported as a precondition. Standing raised the split-half reliability of direction within volume strata in three of four materials (a graded dependence), but direction was also reproducible without standing in one of them, and the one inversion rests on a single effective stratum of very sparse events that does not survive exact volume matching.",
     }),
     evidence: freeze([
-      "eval/capacity-map/results/f4-dracula.json",
-      "eval/capacity-map/results/f4-pride.json",
-      "eval/capacity-map/results/f4-frankenstein.json",
-      "eval/capacity-map/results/f4-plays.json",
-      "eval/capacity-map/results/f4-diagnose-frankenstein.json",
+      "git 2f81545:native/eval/capacity-map/results/f4-dracula.json",
+      "git 2f81545:native/eval/capacity-map/results/f4-pride.json",
+      "git 2f81545:native/eval/capacity-map/results/f4-frankenstein.json",
+      "git 2f81545:native/eval/capacity-map/results/f4-plays.json",
+      "git 2f81545:native/eval/capacity-map/results/f4-diagnose-frankenstein.json",
     ]),
   }),
   freeze({
@@ -195,7 +195,7 @@ export const UNSUPPORTED_CROSSINGS = freeze([
       rule: "consequential iff self-edge share >= 0.20 and Fisher p < 0.01 and above the permuted-label 95th percentile, on at least 2 of the 3 books (F5)",
       outcomes: freeze({ overall: "MIXED", consequentialOn: "0 of 3" }),
       followUp: freeze({
-        registered: "F5' (THE-CAPACITY-MAP.md section 8), before it was run on any held-out book",
+        registered: "F5' (THE-CAPACITY-MAP.md section 8, git 2f81545), before it was run on any held-out book",
         rule: "consequential iff repairing the extent removes at least 0.20 of the top standing edges' bare-honorific endpoints, beyond an equal-sized placebo merge, on at least 2 of 3 held-out books",
         outcomes: freeze({ heldOut: "0 of 3", development: "1 of 3 (one book, effect 0.40)" }),
       }),
@@ -203,10 +203,10 @@ export const UNSUPPORTED_CROSSINGS = freeze([
         "not supported. The first measure took the engine's own clusters as 'the same being' and was blind to a unit that is not a being standing beside the names it accompanies. The follow-up built on what that blindness hid was registered and tested on books it had not touched: the defect is real, and specific to how a book uses honorifics (one development book 0.40; held-out books 0.00 to 0.05), so it is recorded as a measured limit of two places (LIMITS in organs/capacity-place.js), not as a law of the order.",
     }),
     evidence: freeze([
-      "eval/capacity-map/results/f5-units.json",
-      "eval/capacity-map/results/f5c-bare-titles.json",
-      "eval/capacity-map/results/f5p-heldout.json",
-      "eval/capacity-map/results/f5p-development.json",
+      "git 2f81545:native/eval/capacity-map/results/f5-units.json",
+      "git 2f81545:native/eval/capacity-map/results/f5c-bare-titles.json",
+      "git 2f81545:native/eval/capacity-map/results/f5p-heldout.json",
+      "git 2f81545:native/eval/capacity-map/results/f5p-development.json",
     ]),
   }),
 ]);

@@ -25,7 +25,7 @@
 //   - a consumed WITNESS artifact (same-read) pulls in an assembly that
 //     produces it; if none does, `unmet_witness` — never silently skipped.
 //
-// THE CAPACITY MAP (native/docs/THE-CAPACITY-MAP.md), wired in 2026-09-28:
+// THE CAPACITY MAP (THE-CAPACITY-MAP.md; git 2f81545:native/docs/), wired in 2026-09-28:
 //   - every plan reports the PLACES it would reach as a profile, and the
 //     `unmetPrerequisites` of what was asked — the places the crossing rule says
 //     must be earned first that neither the plan nor `have` provides. A plan that
@@ -34,7 +34,7 @@
 //   - `crossing: true` REPAIRS that: the prerequisites are added as supporting
 //     steps (reason "prerequisite of <want>"), or are typed gaps if nothing
 //     answers them. It is OPT-IN: the strict order is this map's own extension,
-//     tested in native/eval/capacity-map/, and a crossing the evidence did not
+//     tested (drivers at git 2f81545:native/eval/capacity-map/), and a crossing the evidence did not
 //     support is not made a default here (UNSUPPORTED_CROSSINGS in the kernel).
 //   - `have` lists terrains already read; they satisfy prerequisites.
 import { nativeRegistry } from "../assemblies.js";

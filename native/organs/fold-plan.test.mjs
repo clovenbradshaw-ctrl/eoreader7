@@ -49,7 +49,7 @@ test("a want is answered by what an assembly is FOR: Lens plans the lens fold, n
   assert.ok(!planFold({ wants: ["Entity", "Link"] }).steps.some((s) => s.layer === "baseline"));
 });
 
-// ── the capacity map, wired (native/docs/THE-CAPACITY-MAP.md) ──────────────────────────────
+// ── the capacity map, wired (THE-CAPACITY-MAP.md; git 2f81545) ──────────────────────────────
 import { NO_CROSSINGS, DECLARED_CROSSINGS } from "../kernel/capacity-map.js";
 
 // The strict order is a hypothesis the pre-registered tests did not support, so it is not the default; it is still

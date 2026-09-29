@@ -1,4 +1,4 @@
-// organs/capacity-place.js — WHERE THE SYSTEM STANDS ON ITS OWN MAP (native/docs/THE-CAPACITY-MAP.md).
+// organs/capacity-place.js — WHERE THE SYSTEM STANDS ON ITS OWN MAP (THE-CAPACITY-MAP.md; git 2f81545:native/docs/).
 //
 // Reads the two registries the system already keeps about itself — `organs/capacities.js`
 // (what has been BUILT, with the terrain each organ lands on) and `assemblies.js` (what each
@@ -32,10 +32,11 @@ export const hasMeasurementGap = (asm) => (asm.stagesNotRun ?? []).some((s) => M
 const isReading = (a) => a.layer !== "baseline";
 
 /**
- * LIMITS — what running the built organs on real material (native/docs/THE-CAPACITY-MAP.md, F3-F5')
+ * LIMITS — what running the built organs on real material (THE-CAPACITY-MAP.md, F3-F5')
  * showed they cannot yet be trusted to do. Each entry is attached to the place its organ's declared
- * cell lands on, and names the files that hold the runs; capacity-map-results.test.js recomputes
- * every number here from those files, so this list cannot drift from the runs it summarises.
+ * cell lands on, and names the files that hold the runs. Those files, the doc and the test that
+ * recomputed every number here from them were removed from the tree (they are at git 2f81545), so
+ * these numbers are a record of that run and are NOT pinned by a test any more.
  *
  * It is not an earned ledger and does not say what IS earned: it says what was found, where.
  * `quantityClass` is set where the class of the QUANTITY differs from the class of the ACT the
@@ -58,7 +59,7 @@ export const LIMITS = Object.freeze([
       Object.freeze({ book: "pg768_The_Adventures_of_Sherlock_Holmes.txt", role: "heldout", endingInIt: 67, of: 367 }),
       Object.freeze({ book: "pg84_Frankenstein.txt", role: "development", endingInIt: 5, of: 18 }),
     ]),
-    evidence: Object.freeze(["eval/capacity-map/results/f5p-development.json", "eval/capacity-map/results/f5p-heldout.json"]),
+    evidence: Object.freeze(["git 2f81545:native/eval/capacity-map/results/f5p-development.json", "git 2f81545:native/eval/capacity-map/results/f5p-heldout.json"]),
   }),
   Object.freeze({
     id: "a-cut-off-honorific-is-admitted-as-a-being",
@@ -75,7 +76,7 @@ export const LIMITS = Object.freeze([
       Object.freeze({ book: "pg2701_Moby_Dick.txt", role: "heldout", asSplit: 0.1, repaired: 0.1, placebo: 0.1 }),
       Object.freeze({ book: "pg1661_The_Adventures_of_Tom_Sawyer.txt", role: "heldout", asSplit: 0.05, repaired: 0, placebo: 0 }),
     ]),
-    evidence: Object.freeze(["eval/capacity-map/results/f5p-development.json", "eval/capacity-map/results/f5p-heldout.json", "eval/capacity-map/results/f5c-bare-titles.json"]),
+    evidence: Object.freeze(["git 2f81545:native/eval/capacity-map/results/f5p-development.json", "git 2f81545:native/eval/capacity-map/results/f5p-heldout.json", "git 2f81545:native/eval/capacity-map/results/f5c-bare-titles.json"]),
   }),
   Object.freeze({
     id: "pair-direction-is-a-weak-rung",
@@ -91,7 +92,7 @@ export const LIMITS = Object.freeze([
       Object.freeze({ file: "f4-frankenstein.json", E_S: -0.059, p_E_S: 0.9 }),
       Object.freeze({ file: "f4-plays.json", E_S: 0.046, p_E_S: 0.025 }),
     ]),
-    evidence: Object.freeze(["eval/capacity-map/results/f4-dracula.json", "eval/capacity-map/results/f4-pride.json", "eval/capacity-map/results/f4-frankenstein.json", "eval/capacity-map/results/f4-plays.json"]),
+    evidence: Object.freeze(["git 2f81545:native/eval/capacity-map/results/f4-dracula.json", "git 2f81545:native/eval/capacity-map/results/f4-pride.json", "git 2f81545:native/eval/capacity-map/results/f4-frankenstein.json", "git 2f81545:native/eval/capacity-map/results/f4-plays.json"]),
   }),
 ]);
 
