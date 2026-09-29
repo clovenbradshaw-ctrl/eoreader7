@@ -183,14 +183,26 @@ export function detectHardMeaning({ task = "", texts = [], history = [], name = 
 
   const hard = signals.length > 0;
   const type = signals[0]?.kind ?? null;
+  // The short-body disclosure: the floors above never fire on a body under
+  // 200 chars, so a short body carrying garble-shaped marks (a symbol-heavy
+  // token, punct-heavy noise) is NOT judged clean — it is unjudged. The
+  // floors stay exactly where they are (conservative discipline); only the
+  // verdict gains the third state.
+  const bodyLen = material.trim().length;
+  const unjudged = !hard && bodyLen > 0 && bodyLen < 200 && (c.garbledTokens > 0 || c.punct > 10);
+  const coverage = unjudged ? "short-body-unjudged: below length floor, not judged clean" : null;
+  let basisOut = hard
+    ? `hard meaning (${type}): ${signals[0].detail}`
+    : "plain reading holds: no garble, no truncation, no density, material present";
+  if (unjudged) basisOut += `; ${coverage}`;
   return {
     hard,
     type,
     signals: signals.map((s) => ({ kind: s.kind, detail: s.detail })),
-    basis: hard
-      ? `hard meaning (${type}): ${signals[0].detail}`
-      : "plain reading holds: no garble, no truncation, no density, material present",
+    basis: basisOut,
     name: name ?? "material",
     read,
+    unjudged,
+    coverage,
   };
 }

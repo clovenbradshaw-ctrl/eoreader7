@@ -40,7 +40,7 @@ function loadContentRules() {
   } catch { return new Map(); }
 }
 function saveContentRules() {
-  try { fs.writeFileSync(CONTENT_RULES_FILE, JSON.stringify(Object.fromEntries(contentRules))); } catch { /* never crashes the turn */ }
+  try { fs.writeFileSync(CONTENT_RULES_FILE, JSON.stringify(Object.fromEntries(contentRules))); return true; } catch { return false; /* never crashes the turn */ }
 }
 
 /** contentRuleFor(type) — the standing rule for a content type, or null.
@@ -54,12 +54,19 @@ export function contentRuleFor(type) {
  *  standing rule for a hard content type. Append-only, keyed by type: a rule
  *  that already stands is only SHARPENED when the new read is more specific
  *  (the new detail replaces the old) — never duplicated, never deleted. The
- *  falsifying control rides every rule. Returns the standing rule. */
-export function preserveContentRule({ type, signal = null, read = null, falsifying = null, basis = null, giver = "ant-swarm" } = {}) {
+ *  falsifying control rides every rule: a preservation that names no
+ *  falsifier (neither new nor standing) is REFUSED, never written.
+ *  Returns the standing rule's fields spread flat (backward compat: callers
+ *  reading the return as the rule keep working) plus `rule` (the standing
+ *  rule itself), `persisted` (whether the ledger write reached disk), and
+ *  `sharpened` (whether the new read replaced the prior one). A refusal
+ *  returns { refused: { type: "no_falsifier" } } and writes nothing. */
+export function preserveContentRule({ type, signal = null, read = null, falsifying = null, basis = null, giver = "ant-swarm", standing = "disclosed" } = {}) {
   if (!type) return null;
   const key = String(type);
   const now = Date.now();
   const prior = contentRules.get(key);
+  if (!falsifying && !prior?.falsifying) return { refused: { type: "no_falsifier" } };
   const rule = {
     type: key,
     signal: signal ?? prior?.signal ?? null,
@@ -67,20 +74,29 @@ export function preserveContentRule({ type, signal = null, read = null, falsifyi
     falsifying: falsifying ?? prior?.falsifying ?? null,
     basis: basis ?? prior?.basis ?? null,
     giver: prior?.giver ?? giver,
-    standing: "disclosed",
+    standing,
     firstAdoptedAt: prior?.firstAdoptedAt ?? now,
     lastSharpenAt: now,
   };
   // A rule that already stands is sharpened only by a MORE specific read:
-  // the new read replaces the old only when the new detail names the signal
-  // that made meaning hard (never a weaker, blunter statement).
+  // the new read replaces the old only when it names the signal that made
+  // meaning hard (the prior's signal string or its type) AND runs longer, or
+  // when it extends the prior read outright (the prior read is a substring
+  // of the new one) — never a weaker, blunter statement. Otherwise the prior
+  // read stands and sharpened:false says so.
+  let sharpened = !prior;
   if (prior && prior.read && read) {
-    rule.read = read.length >= prior.read.length ? read : prior.read;
+    const sig = typeof prior.signal === "string" && prior.signal.length > 0 ? prior.signal : null;
+    const namesSignal = (sig ? read.includes(sig) : false) || (prior.type ? read.includes(prior.type) : false);
+    const longer = read.length > prior.read.length;
+    const extendsPrior = read.includes(prior.read);
+    if ((namesSignal && longer) || extendsPrior) { rule.read = read; sharpened = true; }
+    else { rule.read = prior.read; sharpened = false; }
   }
   contentRules.set(key, rule);
   contentRulesSeq.set(key, ++contentRulesSeqCounter);
-  saveContentRules();
-  return rule;
+  const persisted = saveContentRules();
+  return { ...rule, rule, persisted, sharpened };
 }
 
 /** contentRulesStore() — the whole ledger as a list, newest-sharpened first.

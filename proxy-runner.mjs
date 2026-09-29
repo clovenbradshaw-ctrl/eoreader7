@@ -120,7 +120,7 @@ import { askShape } from "./native/organs/askshape.js";
 import { createLemmatizer, morphologyFromPrior } from "./native/adapters/text/morphology.js";
 import { constitution, ethosClear, requireClearance } from "./native/organs/ethos.js";
 import { readInterlocutor, mergeInterlocutor } from "./native/organs/interlocutor.js";
-import { speakDecline } from "./native/organs/socratic.js";
+import { speakDecline, speakDeclineVerbose } from "./native/organs/socratic.js";
 import { recordShadow, assessShadow, dispositionFrom } from "./native/kernel/moral-shadow.js";
 import { judgeAskShape } from "./native/kernel/mayeroff.js";
 import { sovereigntyHint, privacyFindings, isDataHoldingTask, sovereignSchemaPrompt, extractSovereignSchema, sovereignDataShell } from "./native/organs/privacy.js";
@@ -2804,7 +2804,9 @@ return { segments: [], void: true, reason: "no corpus yet" };
     }
     const gap = "content_not_found";
     const reason = "no chunk shares a term with the question, and nothing resembled it above the field's own null";
-    if (onNote) onNote({ move: "void", gap, reason });
+    // A5-close: this void carries its measured subtype — a search that found
+    // nothing (kind:search, power:unmeasured), never a ledger scan claim.
+    if (onNote) onNote({ move: "void", gap, reason, kind: "search", power: "unmeasured" });
     return { segments: [], void: true, gap, reason };
   }
 
@@ -4460,7 +4462,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       }
     } catch { /* the fold must never break an early answer */ }
   };
-  const earlyResult = (text, { answerShape, mechanical = null, quote = null, truncated = false, houdini = null } = {}) => {
+  const earlyResult = (text, { answerShape, mechanical = null, quote = null, truncated = false, houdini = null, decline = null } = {}) => {
     session.turnCount++;
     foldEarlyTurn(text);
     return {
@@ -4476,6 +4478,12 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       houdini,
       shadow: [],
       interlocutor: { kind: interlocutor.kind, confidence: interlocutor.confidence, basis: interlocutor.basis },
+      // A2-close: pre-model doors are not declines, so decline is always a
+      // typed null here — present so callers never read absence as unknown.
+      decline: decline ?? null,
+      // A6-close: no notes-ledger frame is declared on this path — typed
+      // null, never an invented frame.
+      frameGap: null,
       relationEdges: 0,
       referentBindings: 0,
       hyperlexiconCandidates: 0,
@@ -4942,7 +4950,13 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // person or agent actually reads is composed by organs/socratic.js
   // (Kierkegaard) in the register interlocutor.js recognized them under —
   // the working vocabulary (SHAPE, FORECLOSE, STANDPOINT) never reaches them.
-  const specRefusalText = !clearance.cleared ? speakDecline({ reason: clearance.reason, shape: clearance.shape }, interlocutor) : null;
+  // A2: the decline's shape arm rides the turn JSON (declineMeta below),
+  // never the prose — speakDeclineVerbose carries {text, archon, shape};
+  // speakDecline's string is still the ONLY text the caller reads.
+  let declineMeta = null;
+  const specRefusalVerbose = !clearance.cleared ? speakDeclineVerbose({ reason: clearance.reason, shape: clearance.shape }, interlocutor) : null;
+  const specRefusalText = specRefusalVerbose?.text ?? null;
+  if (specRefusalVerbose) declineMeta = { archon: specRefusalVerbose.archon, shape: specRefusalVerbose.shape };
   if (specRefusalText && onNote) onNote({ move: "spec_refused", reason: clearance.reason });
 
   // ── THE ASK-BACK DOOR (build-clarify.js — the recursive void) ──────────
@@ -6378,6 +6392,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // IS the answer. Mayeroff's positive half: help the other grow toward the
     // real version of the underlying need, honestly known, at their own pace.
     fullText = speakDecline({ reason: mayeroffJudgment.reason, shape: clearance.shape }, interlocutor);
+    if (!declineMeta) { try { const v = speakDeclineVerbose({ reason: mayeroffJudgment.reason, shape: clearance.shape }, interlocutor); declineMeta = { archon: v.archon, shape: v.shape }; } catch {} }
     if (onNote) onNote({ move: "mayeroff_unrealizable", reason: mayeroffJudgment.reason });
   } else {
   await withSlot(model, async () => {
@@ -8940,6 +8955,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       }
       if (holographWithheld.length) {
         text = speakDecline({ shape: askShape(holographWithheld.map((w) => w.sentence).join(" "), { charter }) }, interlocutor);
+        if (!declineMeta) { try { const v = speakDeclineVerbose({ shape: askShape(holographWithheld.map((w) => w.sentence).join(" "), { charter }) }, interlocutor); declineMeta = { archon: v.archon, shape: v.shape }; } catch {} }
         if (onNote) onNote({ move: "holograph_withheld", count: holographWithheld.length, sentences: holographWithheld.map((w) => w.sentence) });
         // THE UNREALIZABLE LEDGER: sentences withheld solely by the mayeroff
         // term enter the shadow trail distinctly — counted, never weighted,
@@ -9065,6 +9081,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // its basis and confidence. A disclosed belief, never a verdict: it selects
     // how the reader meets the other, not whether it is honest with them.
     interlocutor: { kind: interlocutor.kind, confidence: interlocutor.confidence, basis: interlocutor.basis, witnesses: interlocutor.witnesses },
+    // A2: the decline's shape arm — {archon, shape} from
+    // speakDeclineVerbose — rides the JSON beside the prose, never in it.
+    // Null when the turn did not decline: a typed absence, never a guess.
+    decline: declineMeta ?? null,
     relationEdges: stats.relationEdges,
     referentBindings: stats.referentBindings,
     hyperlexiconCandidates: Object.keys(hyperlexicon.composition ?? {}).length,

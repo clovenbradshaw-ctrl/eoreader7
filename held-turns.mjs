@@ -9,7 +9,9 @@
 // Now a turn runs to completion whatever the client does. Its result is held
 // here, keyed by the requester and the exact request, so the same request
 // again — or a poll of its receipt id — gets the finished answer instead of a
-// second run. A failed turn is not held: asking again runs it again.
+// second run. A failed turn is held as a failure (status + error ride the
+// entry for its TTL window): asking again sees the error, and retries
+// explicitly via takeHeld.
 import crypto from "node:crypto";
 
 export const HELD_SCHEMA = "EOHeldTurn@1";
@@ -26,25 +28,45 @@ export function heldKey(requester, route, payload) {
 
 function sweep(now = Date.now()) {
   for (const [key, e] of byKey) {
-    if (e.status === "done" && now - e.doneAt > HELD_TTL_MS) { byKey.delete(key); byId.delete(e.id); }
+    // Done AND failed entries both expire: a failure is held long enough for
+    // its requester to observe it, never forever (else one failed turn would
+    // 500 the same request permanently).
+    if ((e.status === "done" || e.status === "failed") && e.doneAt != null && now - e.doneAt > HELD_TTL_MS) { byKey.delete(key); byId.delete(e.id); }
   }
 }
 
-/** The held entry for this key, or null. A failed entry is forgotten so the
- *  next ask starts fresh. */
+/** The held entry for this key, or null. A failed entry is RETAINED — the
+ *  error is a result its requester is owed (status:"failed" + error ride on
+ *  the entry), never silently forgotten so the next ask starts blank.
+ *  Retry explicitly: takeHeld(key), then holdTurn again. */
 export function findHeld(key) {
   sweep();
+  return byKey.get(key) ?? null;
+}
+
+/** Forget the held entry for this key and return it — the explicit retry.
+ *  The next holdTurn for the key runs fresh; when the taken entry had
+ *  failed, the fresh entry carries retried:true + priorError so the
+ *  superseded failure stays on the record. */
+export function takeHeld(key) {
+  sweep();
   const e = byKey.get(key);
-  if (e?.status === "failed") { byKey.delete(key); byId.delete(e.id); return null; }
-  return e ?? null;
+  if (!e) return null;
+  byKey.delete(key); byId.delete(e.id);
+  return e;
 }
 
 /** Start `run` under `key` and hold whatever it produces. `run` must not be
- *  tied to the client's socket: the turn finishes even if nobody is waiting. */
+ *  tied to the client's socket: the turn finishes even if nobody is waiting.
+ *  A failed entry is never silently replaced: the fresh run carries
+ *  retried:true + priorError naming the failure it supersedes. */
 export function holdTurn(key, run, { requester = null } = {}) {
   const existing = findHeld(key);
-  if (existing) return existing;
+  if (existing && existing.status !== "failed") return existing;
+  let retried = false, priorError = null;
+  if (existing?.status === "failed") { retried = true; priorError = existing.error; takeHeld(key); }
   const e = { id: `held-${crypto.randomUUID()}`, key, requester, status: "running", startedAt: Date.now(), doneAt: null, result: null, error: null, promise: null };
+  if (retried) { e.retried = true; e.priorError = priorError; }
   e.promise = Promise.resolve().then(run).then(
     (result) => { e.status = "done"; e.result = result; e.doneAt = Date.now(); return result; },
     (err) => { e.status = "failed"; e.error = String(err?.message ?? err); e.doneAt = Date.now(); throw err; },

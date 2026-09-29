@@ -33,6 +33,13 @@
 
 export const OUTPUT_HOLOGRAPH_SCHEMA = "EOHolographOutput@1";
 
+// A3 ([M]-as-void vs [M]-as-prose, law 6 companion): the mouth's own prose
+// sometimes CLAIMS emptiness ("nothing else", "no mention", "there is no",
+// "never mentioned") — a relayed void claim, never a ledger void. Flagged
+// mechanically here so the facing page can tag it; never blocked, never
+// promoted to a void on the ledger.
+export const VOID_CLAIM_RE = /nothing else|no .*mention|there is no|never mentioned/i;
+
 const fold = (t) => String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f\u0591-\u05c7\u064b-\u0652]/g, "").toLowerCase();
 const toks = (t) => [...new Set(fold(t).split(/[^\p{L}\p{N}]+/u).filter((w) => w.length > 1))];
 const STOP = new Set(["the", "and", "that", "this", "with", "from", "they", "them", "their", "then", "was", "were", "had", "have", "has", "him", "his", "her", "for", "not", "but", "one", "into", "upon", "over", "down", "across", "about", "after", "before", "which", "when", "where", "what", "who", "whom", "there", "here", "again", "still", "himself", "herself", "itself", "he", "she", "it", "i", "you", "we", "they"]);
@@ -109,11 +116,15 @@ export function holographType({ prose = "", ground = [], splitSentences = null, 
       if (hits > bestHits) { bestHits = hits; bestTotal = gEnds.length; best = g; }
     }
     const material = best && bestHits >= 1;
+    // A3: self:model prose claiming emptiness is flagged voidClaim — the
+    // mouth relaying a void, not the ledger declaring one.
+    const voidClaim = !material && VOID_CLAIM_RE.test(text);
     return {
       text,
       ground: material ? "material" : "self:model",
       ...(material ? { ref: best.ref ?? null, groundedOn: best.fact } : { source: "the mouth" }),
       ...(material && !best.ref ? { gap: "grounded but unaddressed" } : {}),
+      ...(voidClaim ? { voidClaim: true } : {}),
       carry: bestTotal ? Number((bestHits / bestTotal).toFixed(2)) : 0,
     };
   });
@@ -125,7 +136,7 @@ export function holographType({ prose = "", ground = [], splitSentences = null, 
     schema: OUTPUT_HOLOGRAPH_SCHEMA,
     prose: typed,
     tiers: {
-      holograph: typed.map((t) => ({ text: t.text, ground: t.ground, ref: t.ref ?? null })),
+      holograph: typed.map((t) => ({ text: t.text, ground: t.ground, ref: t.ref ?? null, ...(t.voidClaim ? { voidClaim: true } : {}) })),
       shadow: typed.map((t) => ({ ground: t.ground, ref: t.ref ?? null })),
       echo: { at: "something like this was said here", sentences: material.length, model: model.length },
     },

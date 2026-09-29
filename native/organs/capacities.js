@@ -116,6 +116,14 @@ export const CAPACITIES = Object.freeze([
     what: "the interpretive ground of a judgment, declared before the judgment runs — a declaration gate with typed refusals (undeclared_frame naming every missing piece), content-addressed frame ids stamped onto verdicts, and the cross_frame wall: verdicts from different declared grounds never compare silently (the live specimen: one suite reading 54/58 under one engine provider and 52/58 under the other, invisible until the frame was declared). Typing: Differentiate·Interpretation at Ground grain — DEF·Atmosphere, Clearing. BUILT FROM ITS DEPTH-SIBLINGS by pre-registered derivation (def-ground-derivation.md, committed before the module) — NUL·Ground's declared-numbers gate and SEG·Ground's extent-and-units, transposed to the calculus column; the sibling-derived design passed its own e2e (both real providers as two frames over one material) UNMODIFIED, which is §VIII.2's first earned point.",
   }),
   Object.freeze({
+    id: "setting",
+    terrain: "Atmosphere",
+    op: "DEF",
+    module: "eoreader7/native/organs/tschichold.js",
+    fn: "readSetting",
+    what: "the TYPOGRAPHIC ground a reading stands on, read off the bytes before any word is read and declared THROUGH frame.js's declareFrame (reader, bench giver, the setting's own numbers — wrap width, baseline indent, rules fired, level 1/T) — so two readings set differently meet the cross_frame wall instead of comparing silently. Registered 2026-09-28 (Tschichold) from a measured specimen: folding the archons' originals out of live_priors, the most 'distinctive' typographic facts were the EDITIONS' (Wikisource's one-space indent vs Gutenberg's two, the editor's line numbers, page UI inside headings, a doubled fetch), and the-fold/medium.js read first words as blank on 98–100% of lines in 19 of 57 works (ASCII classes). Rules are primitives over bytes plus a bench (live_priors/derived-priors/typography-priors) learned from originals and CV looks, each falsified on similar-but-not-identical material; two passes — the edition's artifacts removed before the author's conventions are read. Typing: Differentiate·Interpretation at Ground grain — DEF·Atmosphere, Clearing, the same cell as `frame`, which it composes rather than duplicates.",
+  }),
+  Object.freeze({
     id: "priors",
     terrain: "Lens",
     op: "DEF",

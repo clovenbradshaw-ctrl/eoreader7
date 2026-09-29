@@ -55,57 +55,25 @@ test("mouth: the asked model, resident and idle, answers — not provisional", (
   } finally { s.done(); }
 });
 
-test("mouth: a cold asked model with an unmeasured load is answered by the warm small mouth, disclosed", () => {
+test("mouth: a cold asked model is returned as-is — no substitute", () => {
   const s = setup({ resident: ["tiny-mouth:1b"] });
   try {
-    const scope = { sessionId: "t1" };
-    const d = h.mouthFor("qwen3:8b", { scope });
-    assert.equal(d.model, "tiny-mouth:1b");
-    assert.equal(d.tier, "small");
-    assert.equal(d.provisional, true);
-    assert.equal(d.revisableBy, "qwen3:8b");
-    assert.equal(d.reason, "asked_model_cold");
-    assert.equal(d.fresh, true, "the first draw that chose it is marked fresh, for a one-time note");
-    const out = h.servedDisclosure(scope, "qwen3:8b");
-    assert.equal(out.provisional, true);
-    assert.deepEqual(out.by, ["tiny-mouth:1b"]);
-    assert.match(out.line, /tiny-mouth:1b on this device, because qwen3:8b wasn't loaded/);
-  } finally { s.done(); }
-});
-
-test("mouth: a busy small mouth loses to a cold asked model whose measured load is sooner", () => {
-  const s = setup({ resident: ["tiny-mouth:1b"], loadMs: 1000 });
-  try {
-    s.local.meanMs.set("tiny-mouth:1b", 5000);
-    s.local.inflightBy.set("tiny-mouth:1b", 1); // 5s wait: inside the promise, but a 1s load is sooner
     const d = h.mouthFor("qwen3:8b", { scope: {} });
     assert.equal(d.model, "qwen3:8b");
     assert.equal(d.provisional, false);
-    assert.equal(d.reason, "asked_model_sooner");
+    assert.equal(d.reason, "cold_no_warm_mouth");
   } finally { s.done(); }
 });
 
-test("mouth: a cold load into a memory-pressured box is never counted as sooner", () => {
-  const s = setup({ resident: ["tiny-mouth:1b"], loadMs: 1000, vitals: { ...CALM, swapPct: 97, memFreeMb: 50, memAvailableMb: 200 } });
-  try {
-    s.local.meanMs.set("tiny-mouth:1b", 5000);
-    s.local.inflightBy.set("tiny-mouth:1b", 1);
-    const d = h.mouthFor("qwen3:8b", { scope: {} });
-    assert.equal(d.model, "tiny-mouth:1b", `pressure makes the load unaffordable: ${JSON.stringify(d)}`);
-    assert.equal(d.reason, "asked_model_cold");
-  } finally { s.done(); }
-});
-
-test("mouth: a resident asked model busy past the promise hands the draw to the idle small mouth", () => {
+test("mouth: a resident asked model busy past the promise is returned as-is — no substitute", () => {
   const s = setup({ resident: ["gemma2:2b", "tiny-mouth:1b"] });
   try {
     s.local.meanMs.set("gemma2:2b", 10_000);
     s.local.inflightBy.set("gemma2:2b", 2); // 20s ahead — past the 12s promise
-    const scope = {};
-    const d = h.mouthFor("gemma2:2b", { scope });
-    assert.equal(d.model, "tiny-mouth:1b");
-    assert.equal(d.reason, "asked_model_past_promise");
-    assert.match(h.servedDisclosure(scope, "gemma2:2b").line, /busy past the promised wait/);
+    const d = h.mouthFor("gemma2:2b", { scope: {} });
+    assert.equal(d.model, "gemma2:2b");
+    assert.equal(d.provisional, false);
+    assert.equal(d.reason, "no_warm_mouth_sooner");
   } finally { s.done(); }
 });
 
@@ -133,21 +101,22 @@ test("mouth: a model that leaves the device is never substituted and never count
   } finally { s.done(); }
 });
 
-test("mouth: sticky per turn — one voice finishes it; a failed substitute is forgotten and decided again", () => {
-  const s = setup({ resident: ["tiny-mouth:1b"] });
+test("mouth: sticky per turn — a resident voice is reused; forgetMouth lets the turn redecide", () => {
+  const s = setup({ resident: ["qwen3:8b"] });
   try {
     const scope = {};
     const first = h.mouthFor("qwen3:8b", { scope });
+    assert.equal(first.reason, "resident_inside_promise");
     const second = h.mouthFor("qwen3:8b", { scope });
-    assert.equal(second.model, first.model);
+    assert.equal(second.model, "qwen3:8b");
     assert.equal(second.reason, "sticky_turn");
     assert.equal(second.fresh, undefined, "only the first choice is fresh");
-    const m = h.servedDisclosure(scope, "qwen3:8b").mouths.find((x) => x.servedBy === "tiny-mouth:1b");
+    const m = h.servedDisclosure(scope, "qwen3:8b").mouths.find((x) => x.servedBy === "qwen3:8b");
     assert.equal(m.draws, 2);
     h.forgetMouth("qwen3:8b", { scope });
     assert.equal(scope.mouthByAsked.has("qwen3:8b"), false);
-    // the substitute went cold: the turn decides again rather than returning to it
-    s.local.resident.delete("tiny-mouth:1b");
+    // model goes cold: turn decides again
+    s.local.resident.delete("qwen3:8b");
     const third = h.mouthFor("qwen3:8b", { scope });
     assert.equal(third.model, "qwen3:8b");
     assert.equal(third.reason, "cold_no_warm_mouth");
@@ -176,7 +145,8 @@ test("mouth: a peek honors the turn's pins and records nothing", () => {
     assert.equal(p.model, "qwen3:8b", "a pinned turn's retry would load its own model — the peek must say so");
     const open = {};
     const q = h.mouthFor("qwen3:8b", { scope: open, peek: true });
-    assert.equal(q.provisional, true);
+    assert.equal(q.model, "qwen3:8b", "a cold model's peek returns the asked model");
+    assert.equal(q.provisional, false);
     assert.equal(open.mouthByAsked, undefined, "a peek memoizes nothing on the real turn");
     assert.equal(open.mouths, undefined, "and counts no draw");
   } finally { s.done(); }
@@ -198,24 +168,14 @@ test("small-mouth warm: never onto a daemon holding another generative model (me
   } finally { s.done(); }
 });
 
-test("warm tier: a cold asked model is answered by whatever general-purpose model IS warm — never a vision or coder model", () => {
-  const s = setup({ resident: ["gemma2:2b", "qwen2.5vl:7b", "qwen2.5-coder:1.5b"] }); // the small mouth (tiny-mouth) is NOT warm
+test("serveTiersFor still builds the warm tier — vision and coder models are never offered", () => {
+  const s = setup({ resident: ["gemma2:2b", "qwen2.5vl:7b", "qwen2.5-coder:1.5b"] });
   try {
     const t = h.serveTiersFor("qwen3:8b");
     assert.deepEqual(t.map((c) => [c.tier, c.model]), [["warm", "gemma2:2b"]], "vision and coder models are never offered");
-    const scope = {};
-    const d = h.mouthFor("qwen3:8b", { scope });
-    assert.equal(d.model, "gemma2:2b");
-    assert.equal(d.tier, "warm");
-    assert.match(h.servedDisclosure(scope, "qwen3:8b").line, /gemma2:2b on this device, because qwen3:8b wasn't loaded/);
-  } finally { s.done(); }
-});
-
-test("warm tier ranks after the small mouth: both warm, the declared small mouth answers", () => {
-  const s = setup({ resident: ["gemma2:2b", "tiny-mouth:1b"] });
-  try {
+    // mouthFor still returns the asked model — serveTiersFor is used by other callers
     const d = h.mouthFor("qwen3:8b", { scope: {} });
-    assert.equal(d.model, "tiny-mouth:1b");
-    assert.equal(d.tier, "small");
+    assert.equal(d.model, "qwen3:8b");
+    assert.equal(d.provisional, false);
   } finally { s.done(); }
 });

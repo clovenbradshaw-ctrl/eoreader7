@@ -1274,8 +1274,12 @@ const job = await startDocumentJob({
           if (w.done) { res.writeHead(200, { "content-type": "application/json", "x-er7-session": sessionId, "x-er7-held": alreadyHeld.id }); res.end(JSON.stringify(w.result)); }
           else { res.writeHead(202, { "content-type": "application/json", "x-er7-session": sessionId, "retry-after": "15" }); res.end(JSON.stringify(heldReceipt(alreadyHeld))); }
         } catch (err) {
+          // F16-close: a held FAILURE is disclosed with its hold identity,
+          // never a bare 500 — the caller retries the same request (held as
+          // failed, superseded with retried:true + priorError) or polls the
+          // hold id. TTL expiry restores fresh-run behavior.
           res.writeHead(500, { "content-type": "application/json" });
-          res.end(JSON.stringify({ error: err.message }));
+          res.end(JSON.stringify({ error: err.message, held: alreadyHeld.id, heldStatus: alreadyHeld.status ?? "failed", retried: Boolean(alreadyHeld.retried), priorError: alreadyHeld.priorError ?? alreadyHeld.error ?? null }));
         }
         return;
       }
@@ -1363,6 +1367,11 @@ const job = await startDocumentJob({
             void: gated.void,
             satisfaction: gated.satisfaction,
             disclosed: gated.disclosed ?? null,
+            // A2/A6-close: machine evidence beside the prose — decline arm
+            // ({archon, shape} or null) and frame gap (frameOf output or
+            // null = typed absence). Never inside the answer text.
+            decline: result.decline ?? null,
+            frameGap: gated.frameGap ?? null,
             // THE ASK-BACK ENVELOPE (build-clarify): the person sees the plain
             // questions in `answer`; the record carries the structured shape —
             // which cells are open, the round, the schema — so the fold, the
@@ -1656,7 +1665,7 @@ const job = await startDocumentJob({
           else { res.writeHead(202, { "content-type": "application/json", "x-er7-session": sessionId, "retry-after": "15" }); res.end(JSON.stringify(heldReceipt(alreadyHeld))); }
         } catch (err) {
           res.writeHead(500, { "content-type": "application/json" });
-          res.end(JSON.stringify({ error: { message: err.message } }));
+          res.end(JSON.stringify({ error: { message: err.message }, held: alreadyHeld.id, heldStatus: alreadyHeld.status ?? "failed", retried: Boolean(alreadyHeld.retried), priorError: alreadyHeld.priorError ?? alreadyHeld.error ?? null }));
         }
         return;
       }

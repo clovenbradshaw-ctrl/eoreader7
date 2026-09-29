@@ -426,7 +426,12 @@ const sourcesOut = sources.map(({ excerpt, ...structural }, i) => {
   const pc = polarityChecks[i];
   return pc?.checked ? { ...structural, guard: { reachable: pc.reachable, negatedVerdict: pc.negatedVerdict, affirmedVerdict: pc.affirmedVerdict } } : structural;
 });
-const out = { ok: errors.length === 0, errors: errors.length, grounds, findings, vouched, gfp: { counts: gfp.counts, unjudged: gfp.unjudged, apart: gfp.apart, holons: gfp.holons, basis: gfp.basis }, falsify: falsify.counts, inference: inf.counts, declaredClaims: input.claims ?? [], sources: sourcesOut };
+// A run the engine read nothing in is not OK: "unread", never a clean pass.
+// Errors dominate (false); with no errors but nothing read, the verdict is
+// the third state "unread" — callers (and the exit code below) must tell it
+// apart from a vouched pass. No text at all (vouched null) keeps the boolean.
+const ok = errors.length === 0 ? (vouched && vouched.read === 0 ? "unread" : true) : false;
+const out = { ok, errors: errors.length, grounds, findings, vouched, gfp: { counts: gfp.counts, unjudged: gfp.unjudged, apart: gfp.apart, holons: gfp.holons, basis: gfp.basis }, falsify: falsify.counts, inference: inf.counts, declaredClaims: input.claims ?? [], sources: sourcesOut };
 
 // DURABLE FEED (2026-09-22; widened 2026-09-22 by the reason-claims design).
 // Two independent things get appended to eoreader7's own shared ledger
@@ -514,7 +519,7 @@ const falsifyLine = strictCount
 
 if (asJson) console.log(JSON.stringify(out, null, 1));
 else if (compact) {
-  const header = `eoreader7 reason · ${claims.length} claim(s) · ${infs.length} inference(s) · ${input.order?.claims?.length ?? 0} order claim(s) → ${out.ok ? "✓ OK" : `✗ ${errors.length} ERROR(S)`}`;
+  const header = `eoreader7 reason · ${claims.length} claim(s) · ${infs.length} inference(s) · ${input.order?.claims?.length ?? 0} order claim(s) → ${out.ok === true ? "✓ OK" : out.ok === "unread" ? "○ UNREAD (the engine read nothing — not a pass)" : `✗ ${errors.length} ERROR(S)`}`;
   console.log(header);
   if (!out.ok) {
     for (const f of errors) console.log(`  ✗ ${f.kind}${f.at ? ` @ ${f.at}` : ""}: ${f.detail.split("\n")[0]}`);
@@ -526,7 +531,7 @@ else if (compact) {
   if (recordPath) console.log(`  reasoning record (real GFP notation, never prose): ${recordPath}`);
   console.log(`  (details hidden; pass --json for full report)`);
 } else {
-  console.log(`eoreader7 reason · ${claims.length} claim(s) · ${infs.length} inference(s) · ${input.order?.claims?.length ?? 0} order claim(s) → ${out.ok ? "OK" : `${errors.length} ERROR(S)`}`);
+  console.log(`eoreader7 reason · ${claims.length} claim(s) · ${infs.length} inference(s) · ${input.order?.claims?.length ?? 0} order claim(s) → ${out.ok === true ? "OK" : out.ok === "unread" ? "UNREAD (the engine read nothing — not a pass)" : `${errors.length} ERROR(S)`}`);
   if (vouched) console.log(`  engine vouches for ${vouched.read}/${vouched.sentences} sentence(s) it could read · ${vouched.edges} relation(s) read${vouched.receivedVocabEdges ? ` (${vouched.receivedVocabEdges} via received-vocabulary, weaker witness)` : ""} · ${vouched.corroborated}/${vouched.declared} declared claim(s) independently read`);
   for (const f of findings) console.log(`  [${f.severity}] ${f.kind}${f.at ? ` @ ${f.at}` : ""}\n      ${f.detail}`);
   if (gfp.unjudged) console.log(`  (${gfp.unjudged} several-valued pair(s) of undeclared relations counted, not judged)`);
@@ -548,4 +553,4 @@ else if (compact) {
 // exitCode. Letting Node exit naturally once the event loop drains (after
 // every pending write flushes) preserves the same exit-code semantics
 // every caller already reads (0 on ok, 1 on failure) without the risk.
-process.exitCode = out.ok ? 0 : 1;
+process.exitCode = out.ok === true ? 0 : 1;

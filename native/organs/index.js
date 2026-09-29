@@ -23,6 +23,9 @@ export { CLAIM_PREFIX, REFUSALS as NESTING_REFUSALS, attributionsOf, claimRef, c
 export * as nesting from "./nesting.js";
 export { REFUSALS as FRAME_REFUSALS, comparable, declareFrame, framed } from "./frame.js";
 export * as frame from "./frame.js";
+// Tschichold (2026-09-28): the typographic setting, declared through frame.js.
+export { SETTING_SCHEMA, BENCH_SCHEMA as TYPOGRAPHY_BENCH_SCHEMA, SEED_RULES as TYPOGRAPHY_SEED_RULES, readSetting, applySetting, detectRules as detectTypographicRules, compareBytes, competency as typographicCompetency, loadBench as loadTypographyBench } from "./tschichold.js";
+export * as tschichold from "./tschichold.js";
 export { REFUSALS as BINDING_CORE_REFUSALS, bind } from "./binding-core.js";
 export * as bindingCore from "./binding-core.js";
 export { heardSurfaces, isPositionallySigned, POSITIONAL_SIGNATURE, NAMING_CLASSES } from "./heard-surfaces.js";

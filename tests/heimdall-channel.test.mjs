@@ -133,29 +133,28 @@ test("retry hold: a server that honors Retry-After keeps the base hold; one that
   assert.equal(disclosed.earlyRetries, 4);
 });
 
-// ── the on-device host, by default (2026-09-28: the bridge replaced the
-// native daemon as the default target — the old required-local +
-// optional-auto-fleet pair collapsed into one required host) ──────────────
-test("hosts: by default there is exactly one on-device host, named local, pointed at the bridge — required, not a standby", () => {
+// ── the on-device host, by default (2026-09-29: the daemon is the default
+// target again — the 2026-09-28 bridge-default broke every fresh launch on
+// a box with no bridge running; the fleet bridge is opt-in via
+// ER7_FLEET_URL) ──────────────────────────────────────────────────────────
+test("hosts: by default there is exactly one on-device host, named local, pointed at the native daemon — required, not a standby", () => {
   const hosts = h.inferenceHosts();
-  assert.equal(hosts.length, 1, "no ER7_OLLAMA_HOSTS override: one on-device host by default");
+  assert.equal(hosts.length, 1, "no ER7_OLLAMA_HOSTS override, no ER7_FLEET_URL: one on-device host by default");
   const local = hosts[0];
   assert.equal(local.name, "local");
-  assert.ok(/:8790$/.test(local.url), "the default target is the bridge (127.0.0.1:8790), not the native daemon");
+  assert.ok(/:11435$/.test(local.url), "the default target is the native daemon (127.0.0.1:11435) — a box with no bridge running serves from here, never from a dead 8790");
   assert.notEqual(local.auto, true, "the sole default host is required, never an auto standby just for being unprobed");
   const savedDown = local.downAt, savedKind = local.kind;
   local.downAt = null; local.kind = null;
   assert.equal(h.hostStandby(local), false, "kind unmeasured and not auto: never a standby");
   const p0 = h.pickHost({ model: "gemma2:2b", session: `t-${Date.now()}` });
   assert.equal(p0.host.name, "local", "the sole default host serves every model");
-  // Once measured as a bridge (the live /bridge/hello probe), the same
-  // generic rule that used to govern only the optional fleet host now
-  // governs this one too: nothing resident is a standby, holding the asked
-  // model is a pick.
-  local.kind = "bridge";
-  assert.equal(h.hostStandby(local), true, "a bridge with nothing resident: standby");
+  // A daemon with nothing resident is still not a standby (it loads; it is
+  // the box's own mouth — never the optional tier the fleet bridge was).
+  local.kind = "daemon";
+  assert.equal(h.hostStandby(local), false, "a daemon with nothing resident: never a standby");
   local.resident.set("gemma2:2b", new Date(Date.now() + 60_000).toISOString());
-  assert.equal(h.hostStandby(local), false, "a bridge holding the asked model: not a standby");
+  assert.equal(h.hostStandby(local), false, "a daemon holding the asked model: not a standby");
   const p1 = h.pickHost({ model: "gemma2:2b", session: `t2-${Date.now()}` });
   assert.equal(p1.host.name, "local");
   local.resident.clear();
@@ -402,11 +401,10 @@ test("diversity cap: real concurrent demand for N distinct models at the cap hol
   const cap = h.heimdallSettings().find((s) => s.name === "modelDiversityCap").value;
   assert.ok(cap >= 1, "the default cap must be positive for this test to mean anything");
   // The cap mirrors the native daemon's own OLLAMA_MAX_LOADED_MODELS, so it
-  // is checked on the host at OLLAMA_URL specifically (2026-09-28) — no
-  // longer whichever host happens to be named "local", now that the bridge
-  // holds that name by default. Synthesize that host for this test.
-  const daemon = { name: `daemon-test-${process.pid}`, url: h.modelServerUrl(), auto: false, inflight: 0, calls: 0, picks: 0, fails: 0, lastAt: null, downAt: null, downReason: null, kind: null, inflightBy: new Map(), meanMs: new Map(), loadMs: null, resident: new Map() };
-  h.inferenceHosts().push(daemon);
+  // is checked on the daemon host — which IS the one named "local" by
+  // default (2026-09-29: the daemon is the default target again). No
+  // synthesis needed: the busy demand goes onto the real local host.
+  const daemon = h.inferenceHosts().find((x) => x.name === "local");
   const busyModels = Array.from({ length: cap }, (_, i) => `busy-${i}-${process.pid}`);
   for (const m of busyModels) h.hostBegin(daemon.name, m);
   try {
@@ -425,7 +423,6 @@ test("diversity cap: real concurrent demand for N distinct models at the cap hol
     assert.equal(sameBusyAdmit.allowed, true, "more demand for an ALREADY-busy model is not new diversity — it doesn't need a new slot");
   } finally {
     for (const m of busyModels) h.hostEnd(daemon.name, { model: m, ok: true, ms: 1 });
-    h.inferenceHosts().splice(h.inferenceHosts().indexOf(daemon), 1);
     q.reset();
   }
 });

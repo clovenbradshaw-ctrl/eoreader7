@@ -176,17 +176,28 @@ export function affordancesFromDeclarations(fold = {}) {
  * counterexample, and an under-examined relation has supplied none — the
  * same asymmetry `refutation.js`'s own header states (absence of a
  * refusal is not a check, but it is also not itself a refutation).
+ * Survival is DISCLOSED, never silent: survivors carry their scan power
+ * (`survivorsWithPower: [{rel, power}]`) and the thin ones are listed at
+ * top level as `insufficientPower: [rels]` (aliased `insufficient`).
+ * No auto-veto follows.
  */
 export function refutedAffordances(fold = {}, entries = [], { expectUnique = false, cycleLimit = 3, intervalOf = null } = {}) {
   const given = (fold.given ?? []).filter((d) => d.rel && d.giver);
   const scans = new Map(given.map((d) => [d.rel, refuteRelation(entries, d.rel, { expectUnique, cycleLimit, intervalOf })]));
-  const { survivors, vetoed } = afterVeto(given.map((d) => d.rel), scans);
+  const { survivors, vetoed, unscanned } = afterVeto(given.map((d) => d.rel), scans);
   const survivorSet = new Set(survivors);
   const guardedFold = freeze({ ...fold, given: freeze(given.filter((d) => survivorSet.has(d.rel))) });
+  // veto-report: survivors are disclosed with their scan power; thin ones are listed, never auto-vetoed.
+  const survivorsWithPower = freeze([...survivorSet].map((rel) => freeze({ rel, power: scans.get(rel)?.power ?? "unknown" })));
+  const insufficientPower = freeze([...survivorSet].filter((rel) => scans.get(rel)?.power !== "sufficient"));
   return freeze({
     affordances: affordancesFromDeclarations(guardedFold),
     survivors: freeze([...survivorSet]),
+    survivorsWithPower,
     vetoed: freeze(vetoed),
+    unscanned: freeze(unscanned ?? []),
+    insufficientPower,
+    insufficient: insufficientPower,
     scans: freeze(Object.fromEntries(scans)),
   });
 }

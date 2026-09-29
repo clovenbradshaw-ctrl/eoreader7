@@ -159,4 +159,15 @@ export function speakDecline({ shape = null } = {}, interlocutor = null) {
   return VOICES[archon][kind] ?? VOICES[archon][KIND.UNKNOWN];
 }
 
+// A2: the shape arm stays out of the prose (law: working vocabulary never
+// reaches the surface) but must ride the turn JSON so a caller can audit
+// WHICH arm declined. Verbose twin — same text, plus the archon and the
+// shape that selected it. speakDecline above is untouched (string compat
+// for all three proxy-runner call sites); new callers take this one.
+export function speakDeclineVerbose({ shape = null, reason = null } = {}, interlocutor = null) {
+  const archon = archonFor(shape);
+  const text = speakDecline({ shape }, interlocutor);
+  return { text, archon, shape: shape ?? null, ...(reason != null ? { reason } : {}) };
+}
+
 export const SOCRATIC = { handle: "Kierkegaard", organ: "socratic", cell: "REC·Figure → Lens", law: "meet them where they are; hand over no conclusion the other did not arrive at" };

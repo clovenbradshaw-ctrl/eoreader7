@@ -215,7 +215,8 @@ test("clean and examined are different facts", () => {
   // Nothing to check against is not a clean bill of health.
   const r = checkGrounding("Anything at all, with a figure of 99.", []);
   assert.equal(r.examined, false);
-  assert.equal(r.clean, true);
+  assert.equal(r.clean, null, "unexamined is neither clean nor dirty — null, never true");
+  assert.equal(r.detail, "unexamined — no passages");
   assert.equal(r.findings.length, 0);
 });
 

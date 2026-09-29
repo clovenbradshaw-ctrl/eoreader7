@@ -1878,6 +1878,137 @@ archon, check BOTH `archon-holocracy/archons.json` and this repo's own
 `// Handle: …` header line, which is the ground truth the table indexes).
 A miss in one registry is not a miss in both.
 
+## 76. A fronted predicate, participle, or its own punctuation is never promoted to root for coming first — UD gold tracks argument structure, not linear order (2026-09-25)
+
+The same recurring gold-UD-annotation task — a stateless subagent asked to
+hand-annotate one sentence's dependency parse, with no memory of any prior
+run — independently rediscovered this rule nine times in one day, across
+nine sentences, because nothing mechanical ever checked the answer before
+it was written down as a fresh CODING-LESSONS entry (lessons 76–82, several
+of them colliding on the same number since nothing checked that either).
+One of those nine drafts got it wrong in its own worked example despite
+citing the correct rule in the same paragraph (below). This entry replaces
+all nine with one canonical statement, and — the actual fix — a mechanical
+checker now runs the unambiguous half of this rule automatically instead
+of depending on a human or subagent remembering to paste it in:
+`native/eval/lavar/ud-fronted-predicate-check.mjs` (`checkGoldParse`),
+wired into `npm test` via `native/tests/ud-fronted-predicate-check.test.js`.
+Run it — or import `checkGoldParse` directly — against any proposed gold
+parse before accepting it; do not write a tenth entry for an eleventh
+instance of this family, extend this one instead.
+
+**The one test.** Root is the head of the clause's real predicate, found
+by argument structure and the canonical (un-fronted, un-subordinated) word
+order — never by scanning left to right for the first verb-shaped or
+noun-shaped token, and never by attaching a punctuation mark to whatever
+word it happens to sit next to on the page. State the canonical order in
+your head first, assign root/nsubj/cop/advcl from THAT, then map the
+assignments back onto the actual sentence. A token being linearly first is
+never by itself evidence that it heads the sentence.
+
+**1. A genuine lexical verb of position, PP fronted.** "In the corner
+stood an old chair." — no copula involved, `stood` is a real verb; root
+stays `stood` regardless of the fronted PP, `chair` is `nsubj`, `corner`
+is `obl` on `stood`.
+
+**2. A copular clause (a form of "be" plus a nonverbal predicate — NOUN,
+PROPN, ADJ, or PP), predicate fronted or subject postposed.** Root is the
+predicate's own head; `be` is `cop`; the logical subject is `nsubj` —
+REGARDLESS of surface order, exactly UD's own canonical `She is from
+Paris` (root=Paris, cop=is, nsubj=She). "Behind our position was a steep
+and deep dip.": root=`position`, `was`=cop, `dip`=nsubj, `Behind`=case and
+`our`=nmod:poss both on `position`. "Present at the meeting were John and
+Mary.": root=`Present` (ADJ), `were`=cop, `meeting`=obl on `Present`; the
+coordinated subject follows ordinary UD coordination on top of that — the
+first conjunct (`John`) takes `nsubj`, `and`=cc and `Mary`=conj both
+attach to `John`, not to root, and a coordinated subject is not split
+across two `nsubj` slots.
+
+*Correcting the record:* an earlier draft of this lesson worked "Behind
+the guns were their limbers" and kept `were` as root — in the same
+paragraph that cited `She is from Paris` (root=Paris, cop=is) as the
+reason a fronted PP's head is never promoted to root. Those two claims
+contradict each other: by the very rule just cited, `guns` (not `were`)
+is root, `were` is `cop`, `limbers` is `nsubj`, matching the `position`/`Present`
+sentences above exactly. There is no genuine ambiguity here once the rule
+is applied consistently — the earlier draft simply didn't apply its own
+stated rule to its own example.
+
+**3. A fronted non-finite clause (a comma-bounded participial or
+adjectival opener).** That clause is `advcl` on the main clause's finite
+verb — an event-level adjunct whose subject is controlled by the main
+clause's subject — never `acl` (reserved for a clause modifying one
+specific noun inside an NP, e.g. "a man running down the street", `acl`
+on `man`) and never root itself, no matter how long the opener is, what
+arguments it carries, or whether its own head is itself a copula. The
+main clause's finite verb is root regardless of which clause the reader
+meets first, with its own ordinary `nsubj`.
+
+- "Having ridden round the whole line, Prince Andrew made his way home.":
+  root=`made`; `ridden`=advcl on `made` (`Having`=aux on `ridden`); the PP
+  inside the opener (`round the whole line`) attaches to `ridden`, not to
+  `made`, since it is the opener's own argument.
+- "Walking along the road, she saw a dog.": root=`saw`; `Walking`=advcl on
+  `saw` (an event-level adjunct sharing `saw`'s subject by control — not
+  `acl` on `she`, which would wrongly read it as picking "she" out from
+  other candidates the way a reduced relative does).
+- "Convinced of his error, the general changed his plan.": root=`changed`;
+  `Convinced`=advcl on `changed`, tagged upos VERB (not ADJ) because it
+  keeps verbal argument structure — its own oblique PP ("of his error",
+  `error`=obl on `Convinced`) the way the finite verb "convince" would
+  take one. A participle carrying its own argument is still a participle,
+  still non-finite, still not root while a finite verb sits later in the
+  sentence.
+- "Being tired, John went to bed early.": the two rules compose, checked
+  independently. First, the opener's OWN head: "Being tired" is a bare
+  copular clause (rule 2) — `tired` (ADJ) is its head, `Being` (AUX) is
+  `cop` on `tired`, never the reverse, regardless of `Being` being the
+  first, only verb-shaped token before the comma. Second, that head's
+  attachment to the sentence (rule 3): `tired` is `advcl` on the main
+  verb `went`, not competing with it for root. Root=`went`, `John`=nsubj,
+  `bed`=obl, `early`=advmod.
+
+**4. Clause-boundary punctuation follows the same rule, not adjacency.**
+A comma marking the boundary between a fronted clause and the main clause
+attaches to the main clause's root — never to the fronted clause's head —
+regardless of which token it sits physically next to. "Having finished
+his breakfast, he left the house.": every content word can be right
+(`finished`=advcl on `left`, `breakfast`=obj on `finished`, `he`=nsubj on
+`left`) and the parse is still wrong if the comma is attached to
+`finished` instead of to `left` — the comma's head and the `advcl`'s head
+are the same word, by the same logic, on every sentence of this shape.
+Check `punct` independently of whether the surrounding `root`/`advcl`
+assignments are already correct; one can be right without the other.
+
+## 77. A title before a name is `compound`, not `flat` — "Prince Andrew" is not a two-part proper name (2026-09-25)
+
+A comparison of two candidate gold annotations of the drilling sentence
+above ("Having ridden round the whole line, Prince Andrew made his way to
+the battery") surfaced a second, unrelated mistake sitting one token over
+from the fronted-clause question: tagging `Prince` as upos `PROPN` and
+attaching it to `Andrew` with `flat`.
+
+`flat` (and its subtype `flat:name`) is for headless, same-status
+multi-word names — sequences where every token is itself a proper noun
+and none modifies any other, the textbook cases being full personal names
+("Leo Tolstoy") or multi-word place names ("New York City"). "Prince" is
+not a second proper-noun name-part standing shoulder to shoulder with
+"Andrew" — it is a common-noun title/rank word modifying the name that
+follows it, the "President Bush" case from the original Stanford
+typed-dependencies manual (`nn(Bush, President)`, the direct ancestor of
+UD's `compound`). The correct gold parse: `Prince` is upos `NOUN` — a
+rank/title word stays a common noun even capitalized and fused onto a
+name — attached to `Andrew` with `compound`, not `flat`.
+
+The rule: before assigning `flat` to two adjacent nominal tokens that read
+like one fused name, check whether one of them is a title, rank, or role
+word (Prince, President, General, Doctor, Mr, Captain, ...) modifying a
+name that follows it. If so, it's `compound` with the title tagged
+`NOUN`, never `flat`, no matter how tightly the two words are fused into
+what reads like a single referring expression. Reserve `flat` for cases
+where both tokens are proper-noun peers and neither is doing the
+modifying — remove either one and a full name still remains on both sides
+of the test, not just one.
 
 ## 78. Gold-based retraining teaches the shape of the gold, not the shape of the problem (2026-09-25)
 
@@ -2005,3 +2136,46 @@ modules, 30 test files) before it was removed, and the first version
 was seen misreading the minified-bundle fixture strings in
 `code-hunk.test.js` and `code-scan.test.js` as imports until its static
 reads were anchored to statement position.
+
+## The podcast falsification battery (2026-09-29) — lessons the proof taught
+
+1. **A trailing noun is not a produce verb.** "…one concrete weakness you
+   can see in the code" shaped `composition` because "code" matched the
+   produce-verb list and the register resolved instrument. The leading
+   verb is the ask: a description ask (leading or prepositionally-led
+   read/describe/explain) shapes `research` before the register is ever
+   consulted — detectAnswerShape's DESCRIPTION_RES/PREP_LEAD_DESCRIPTION
+   with a PRODUCE_FIRST guard. Falsified live: the same task drafted an
+   ungrounded Express server (auto) and a grounded prose description
+   after the fix.
+2. **The grounding gate must disclose itself.** `ok` used to flip to
+   false while `failures` stayed empty and `basis` kept claiming
+   "compiles and runs clean" — three fields in one object disagreeing.
+   A gate that changes a verdict must ride the fields it changes: the
+   flip now adds a failure of kind `ungrounded`, counts the strain, and
+   names the gate in the basis (idempotent).
+3. **The morphology prior starves the claim reader.** morphology-eng.json
+   (5531 inflection forms) omits ordinary verbs — "uses", "implements",
+   "is" — so the answer's own claims never joined the vocabulary and
+   every answer read ZERO claims ("The cat sat on the mat." → verbs 0).
+   The POS prior (pos-eng.json, UD-derived) attests them; its
+   verb-dominant forms (VERB|AUX ≥ GRAMMAR_MIN_SHARE) now widen
+   first-arrival hearing. Measured: verbs 0 → 1 → 3.
+4. **The binding still depends on figures.** engineRelationsFor's
+   construction leaves surfaces/figures empty for code-dense materials,
+   so read() hears nothing even when the answer quotes the record (5
+   record edges, 0 answer claims, live). The direct GFP extractor
+   provably works with figures present. The stamp stays honest: the
+   `unchecked` disclosure is the evidence trail for the next wire
+   (spans from codeEncounters into the fold's edges).
+5. **Interrupting local generation is not interrupting.** Killing the
+   client mid-turn costs nothing locally (no billed tokens), the fold
+   retains the partial artifact and session, and the inflight releases
+   on close (releaseOnResponse). A frontier API cancel bills the tokens
+   and loses the state. The DMD rewrite gate is itself an interrupt —
+   a measured stop that ends the loop with a disclosure, never a kill.
+6. **The channel default-denies management routes.** `ollama pull`
+   against 11434 gets a typed 404 — by design (nothing else is served);
+   the daemon's own port (11435) is the management door. A client that
+   assumes the channel is ollama will find its management verbs refused
+   with the reason named.

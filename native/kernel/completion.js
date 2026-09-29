@@ -136,17 +136,32 @@ export function candidatesFor(absence, priorActs = []) {
  * ("this file computes no scores and knows nothing about how they were
  * earned").
  *
- * `value` mirrors `adjudicate`'s own `id` field byte for byte: the leading
- * candidate is still surfaced under a refusing verdict (BELOW_FLOOR,
- * NO_MARGIN, CONTESTED_NO_MARGIN), for the same disclosure reason
- * `adjudicate`'s own `detail` text names what it declined to bind rather
- * than staying silent. A CALLER must gate on `verdict === "bound"` before
- * trusting `value` as a real resolution — an ambiguous ellipsis still
- * names what it was leaning toward, it does not therefore count as read.
+ * `value` mirrors `adjudicate`'s own `id` field byte for byte ONLY on a
+ * "bound" verdict. Under any refusing verdict (BELOW_FLOOR, NO_MARGIN,
+ * CONTESTED_NO_MARGIN, NO_CANDIDATE, NULL_NOT_CLEARED) `value` is null and
+ * `id` is null — a refusal carries no licence to bind — while the leading
+ * candidate is still surfaced under `leaning`/`leaningId` for the same
+ * disclosure reason `adjudicate`'s own `detail` text names what it declined
+ * to bind rather than staying silent. A CALLER must gate on
+ * `verdict === "bound"` before trusting `value` as a real resolution — an
+ * ambiguous ellipsis still names what it was leaning toward, it does not
+ * therefore count as read.
  */
 export function resolveAbsence(absence, candidates, opts = {}) {
   const verdict = adjudicate(opts);
   const won = verdict.id != null ? candidates.find((c) => c.id === verdict.id) : null;
+  if (verdict.verdict !== "bound") {
+    return Object.freeze({
+      ...verdict,
+      cell: RESOLUTION_CELL,
+      role: absence.role,
+      actId: absence.actId,
+      value: null,
+      leaning: won ? won.value : null,
+      leaningId: verdict.id ?? null,
+      id: null,
+    });
+  }
   return Object.freeze({
     ...verdict,
     cell: RESOLUTION_CELL,

@@ -942,6 +942,17 @@ export const ARCHONS = Object.freeze([
     topics: ["ubuntu", "personhood", "relation", "self", "identity", "fold", "constituted", "botho", "community"],
   },
   {
+    handle: "tschichold",
+    name: "Jan Tschichold",
+    organ: "organs/tschichold.js",
+    role: "the setting — read how a text is set before reading what it says: the edition's conventions (wraps, lineation, labels, sigla, furniture, columns) declared as a frame, never assumed; learned once by LOOKING (CV at originals), remembered as byte rules",
+    pdStatus: "fair-use",
+    work: "The typographer (1902–1974) whose Die neue Typographie (1928) made a printed page's form answer to its function, and who later, in the Penguin Composition Rules and the essays collected as The Form of the Book, codified the house conventions a compositor follows so that a reader never has to notice them. The discipline mechanized here: the conventions by which bytes were set are rules to be read off the material and declared, so that what an edition did is never mistaken for what its author said — and a convention seen once by a look at the page need never be looked for again.",
+    source: "Die neue Typographie (Berlin, 1928); Penguin Composition Rules (1947); Ausgewählte Aufsätze über Fragen der Gestalt des Buches und der Typographie (1975), English as The Form of the Book (1991)",
+    credit: "Jan Tschichold — the typographer whose Die neue Typographie (1928) made a page's form answer to its function; here, a text's setting is read and declared before its words are.",
+    topics: ["typography", "typesetting", "typeset", "layout", "setting", "edition", "wrap", "lineation", "page", "column", "furniture", "ocr", "scan", "pdf", "speaker label", "running head", "footnote"],
+  },
+  {
     handle: "kleeneUp",
     name: "Stephen Cole Kleene (via the Kleene star)",
     organ: "the-fold (code inspection)",

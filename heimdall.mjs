@@ -117,21 +117,19 @@ function parseHosts() {
     out.push({ name, url });
   }
   if (!out.length) {
-    // THE BRIDGE IS THE DEFAULT ON-DEVICE HOST (2026-09-28): the old
-    // two-tier default — a required native daemon plus an optional/auto
-    // fleet bridge — is gone. The bridge (`heimdall up`, 3.0/heimdall)
-    // speaks the identical Ollama wire API (/api/chat, /api/generate,
-    // /api/tags, /api/ps), so pickHost/mouthFor/serveTiersFor need nothing
-    // new to route through it; it is simply the one required host now. The
-    // native daemon (OLLAMA_URL) is no longer a default target — still
-    // reachable by naming it explicitly, e.g.
-    // ER7_OLLAMA_HOSTS="local=http://127.0.0.1:11435".
-    // ER7_FLEET_URL="" is the documented way to opt OUT of the bridge (see
-    // the sibling branch below) -- honor that here too by falling back to
-    // the native daemon instead of a blank URL the health-check can never
-    // mark down (a bare TypeError, not one of ECONNREFUSED/ENOTFOUND/EHOSTUNREACH).
-    const fleetOptOut = process.env.ER7_FLEET_URL === "";
-    out.push({ name: "local", url: (fleetOptOut ? OLLAMA_URL : String(process.env.ER7_FLEET_URL ?? "http://127.0.0.1:8790")).replace(/\/+$/, "") });
+    // THE DAEMON IS THE DEFAULT ON-DEVICE HOST (2026-09-29): one model
+    // (gemma2:2b), one daemon, no fleet unless named. The 2026-09-28
+    // bridge-default broke every fresh launch on a box with no bridge
+    // running (`heimdall up` was never started): the sole required host
+    // pointed at a dead 8790 and every turn died ECONNREFUSED until the
+    // operator named the daemon by hand. The native daemon (OLLAMA_URL) is
+    // what install.sh installs and what the channel reconciles to — it is
+    // the default target again. The fleet bridge is opt-IN here: ER7_FLEET_URL
+    // names it (added beside the daemon as an auto standby, never the
+    // required host); ER7_FLEET_URL="" names nothing.
+    out.push({ name: "local", url: OLLAMA_URL });
+    const fleetUrl = String(process.env.ER7_FLEET_URL ?? "").trim().replace(/\/+$/, "");
+    if (fleetUrl && fleetUrl !== "none") out.push({ name: "fleet", url: fleetUrl, auto: true });
   } else if (process.env.ER7_FLEET_URL !== "" && !out.some((h) => h.name === "fleet")) {
     // THE FLEET, ALONGSIDE AN EXPLICIT CONFIG (2026-09-21): once
     // ER7_OLLAMA_HOSTS names hosts by hand, the bridge is still added beside
@@ -364,7 +362,7 @@ let RETRY_AFTER_S = Number(process.env.ER7_RETRY_AFTER ?? 15); // runtime-adjust
 // alternation allows it: after a pass is redeemed, the next ZIPPER_DENSITY
 // admissions must be pass-free, so pass-holders and everyone else merge like
 // traffic at a merge — a pass train never starves the line.
-let PASS_STOCK = Number(process.env.ER7_PASS_STOCK ?? 3);          // codes minted per window (runtime-adjustable)
+let PASS_STOCK = Number(process.env.ER7_PASS_STOCK ?? 0);          // 0 = local-only default; set > 0 via env for fleet use
 const PASS_WINDOW_MS = Number(process.env.ER7_PASS_WINDOW ?? 15 * 60 * 1000);
 let ZIPPER_JUMP = Number(process.env.ER7_ZIPPER_JUMP ?? 2);        // a pass jumps at most N places (runtime-adjustable)
 let ZIPPER_DENSITY = Number(process.env.ER7_ZIPPER_DENSITY ?? 2);  // normal admissions after a pass (runtime-adjustable)
@@ -579,17 +577,13 @@ function claimIdOf(headers = {}) {
  *  failed — a delay THIS device exists to make up for) or already ours is
  *  taken over / confirmed. */
 function claimTurn(headers = {}) {
+  // Single-device: no second device to race, so the lease always succeeds.
+  // Fleet deployments override ER7_CLAIM_TTL > 0 and the multi-device logic
+  // would be re-enabled there — for now the claims Map is kept for the ledger.
   const id = claimIdOf(headers);
-  const existing = claims.get(id);
-  const now = Date.now();
   const device = effectiveDevice();
-  if (existing && now - existing.at < CLAIM_TTL_MS) {
-    if (existing.device !== device) return { ok: false, id, device: existing.device, stale: false };
-    return { ok: true, id, device, reclaimed: false }; // a retry of our own live turn
-  }
-  const reclaimed = Boolean(existing && existing.device !== device);
-  claims.set(id, { device, at: now });
-  return { ok: true, id, device, reclaimed };
+  claims.set(id, { device, at: Date.now() });
+  return { ok: true, id, device, reclaimed: false };
 }
 
 /** Release a claim when this device finishes or FAILS a turn, so the next
@@ -2000,27 +1994,12 @@ export function mouthFor(model, { scope = turnScope.getStore() ?? null, pinned =
   }
   const tiers = serveTiersFor(bare, { exclude });
   const full = tiers.find((t) => t.tier === "full");
-  if (full && full.waitMs <= SLA_MAX_WAIT_MS) return keep("resident_inside_promise", { host: full.host, waitMs: full.waitMs });
-  const alt = tiers.find((t) => t.tier !== "full" && t.waitMs <= SLA_MAX_WAIT_MS);
-  if (!alt) return keep(full ? "no_warm_mouth_sooner" : "cold_no_warm_mouth");
-  let askedEtaMs;
-  if (full) askedEtaMs = full.waitMs;
-  else {
-    const local = localDaemon();
-    const held = installedModels == null || installedLocally(bare.toLowerCase());
-    const pressured = memoryPressured(cachedVitals());
-    askedEtaMs = !held || pressured || !Number.isFinite(local?.loadMs) ? Infinity : local.loadMs + (expectedWaitMs(bare).ms ?? 0);
+  if (full && full.waitMs <= SLA_MAX_WAIT_MS) {
+    const d = keep("resident_inside_promise", { host: full.host, waitMs: full.waitMs });
+    if (scope && !peek) (scope.mouthByAsked ??= new Map()).set(bare, d);
+    return d;
   }
-  if (alt.waitMs >= askedEtaMs) return keep("asked_model_sooner");
-  const d = {
-    model: alt.model, tier: alt.tier, host: alt.host, waitMs: alt.waitMs, provisional: true, revisableBy: bare,
-    askedEtaMs: Number.isFinite(askedEtaMs) ? askedEtaMs : null,
-    reason: full ? "asked_model_past_promise" : "asked_model_cold",
-  };
-  if (scope) (scope.mouthByAsked ??= new Map()).set(bare, d);
-  countMouth(scope, bare, d);
-  if (!peek) appendLog({ act: "rec", finding: "mouth_substituted", asked: bare, servedBy: d.model, tier: d.tier, host: d.host, reason: d.reason, waitMs: d.waitMs, askedEtaMs: d.askedEtaMs, session: scope?.sessionId ?? null });
-  return { ...d, fresh: true };
+  return keep(full ? "no_warm_mouth_sooner" : "cold_no_warm_mouth");
 }
 /** A substitute that failed a draw is dropped from the turn, so the retry
  *  decides again instead of returning to the mouth that just failed. */
