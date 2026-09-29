@@ -85,6 +85,14 @@ const server = http.createServer(async (req, res) => {
       if (!fs.existsSync(file)) return send(res, 404, "podcast-app-generated.html does not exist yet — run podcast-app-codegen.mjs first", "text/plain");
       return send(res, 200, fs.readFileSync(file, "utf8"), "text/html");
     }
+    // The UX-steered revision (podcast-app-codegen.mjs --improve), served
+    // alongside the original rather than in place of it — both are real,
+    // inspectable artifacts of what the model actually produced each time.
+    if (url.pathname === "/improved") {
+      const file = path.join(HERE, "podcast-app-improved.html");
+      if (!fs.existsSync(file)) return send(res, 404, "podcast-app-improved.html does not exist yet — run podcast-app-codegen.mjs --improve first", "text/plain");
+      return send(res, 200, fs.readFileSync(file, "utf8"), "text/html");
+    }
     send(res, 404, JSON.stringify({ error: "not found" }));
   } catch (e) {
     send(res, 500, JSON.stringify({ error: String(e?.message ?? e) }));

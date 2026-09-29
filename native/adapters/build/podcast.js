@@ -86,6 +86,17 @@
 // fresh claim will land, so its bookkeeping is correct only when the
 // ledger was NOT given a custom `identity` organ.
 //
+// EVERY STEERING PROMPT IS AUDITABLE (user direction, verbatim: "be sure
+// all your prompts to steer it, similar to a person would, are
+// auditable"). A propose ask, an arbitrate ask, a revise ask — each is a
+// real instruction to the mouth, the way a person correcting a draft would
+// give one, and each lands on the SAME append-only ledger verbatim
+// (`landMouthAudit`, SIG·Ground): the exact messages sent, the exact raw
+// text received, before any parsing. Not a side-channel log file — part of
+// the record itself, readable at any fold cursor (`renderEpisodeAt`'s own
+// `mouthAudit`). A scripted test-double mouth has no real prompt to audit
+// and lands nothing; this is additive, never required.
+//
 // DISCLOSED LIMIT: `organs/ethos.js`'s clearance gate is real but narrow —
 // it judges CAPABILITY/CREATE-INTENT shapes (askShapeBest), not every
 // prescriptive sentence a script might utter; `charterGate` on a short
@@ -187,6 +198,30 @@ export function makePodcast({ taskLog = nativeTaskLog, cellOf = nativeCellOf, no
   }
 
   /**
+   * landMouthAudit — every prompt used to STEER the mouth (an arbitrate
+   * ask, a revise ask — "similar to a person would," per direct user
+   * instruction) is landed on the SAME append-only ledger, verbatim: the
+   * exact messages sent and the exact raw response received, before any
+   * JSON.parse. Typed SIG·Ground (Relate/Existence, the Void terrain,
+   * Tending stance) — a communicative exchange establishing ambient
+   * context, not yet a claim (that's what the claim itself, heard
+   * separately via `hearClaim`, is for). `audit` is OPTIONAL: a scripted
+   * test-double mouth has no real prompt/response to record, and nothing
+   * lands when it supplies none — this is additive, never required.
+   */
+  function landMouthAudit(log, { segId, kind, audit, round = 0 }) {
+    if (!audit) return log;
+    const op = "SIG";
+    const entry = {
+      kind: ENTRY_KINDS.EVIDENCE, task_id: `audit:${segId}:${round}:${kind}:${log.nextSeq}`, operator: op, operator_basis: OPERATOR_BASIS.PRODUCED, grain: "Ground",
+      ...cellFields(op, "Ground"),
+      description: `${kind} prompt to the mouth for ${segId} (round ${round}) — recorded verbatim for audit`,
+      segment: segId, promptKind: kind, round, request: audit.request, rawResponse: audit.rawResponse, durationMs: audit.durationMs ?? null, model: audit.model ?? null,
+    };
+    return append(log, entry);
+  }
+
+  /**
    * hearClaim — a segment's own claim, heard onto the SAME notes ledger,
    * witnessed by the segment that made it. `quote` (a verbatim substring of
    * the segment's `script`) becomes a self-verified span (P5.2) at
@@ -241,7 +276,14 @@ export function makePodcast({ taskLog = nativeTaskLog, cellOf = nativeCellOf, no
     });
     if (refused) return { log, outcome: "unsettled", disputeId: null, refused };
     let log2 = l1;
-    const pick = await arbitrate({ rival, claim, disputeId });
+    const arbitrated = await arbitrate({ rival, claim, disputeId });
+    // arbitrate() may answer a bare string (every scripted test double in
+    // this tree does — there is no real prompt to audit) or {pick, audit}
+    // (a real mouth — podcast-mouth.mjs). Both are normalized here so
+    // neither shape has to know about the other.
+    const pick = typeof arbitrated === "string" ? arbitrated : arbitrated?.pick;
+    const audit = typeof arbitrated === "object" ? arbitrated?.audit : null;
+    log2 = landMouthAudit(log2, { segId, kind: "arbitrate", audit });
     if (pick !== "rival" && pick !== "claim") return { log: log2, outcome: "unsettled", disputeId };
     const trigger = `arbitration on ${disputeId}: ${pick === "claim" ? "the new claim" : "the established claim"} stands`;
     if (pick === "claim") {
@@ -311,6 +353,7 @@ export function makePodcast({ taskLog = nativeTaskLog, cellOf = nativeCellOf, no
   async function healSegment(log, { n, beat, topic, draft0, mouth, declaredFunctional, requireAddressed, ceiling }) {
     let { log: l1, id: segId } = landSegment(log, { n, speaker: draft0.speaker ?? beat.speaker ?? null, title: draft0.title, script: draft0.script });
     log = l1;
+    log = landMouthAudit(log, { segId, kind: "propose", audit: draft0.audit, round: 0 });
 
     const measured = makeMeasuredLoop({ ceiling });
     let draft = draft0;
@@ -320,11 +363,14 @@ export function makePodcast({ taskLog = nativeTaskLog, cellOf = nativeCellOf, no
     let v = measured.verdict();
     const rounds = [{ draft, ...evalResult, verdict: v }];
 
+    let round = 0;
     while (v.continue) {
+      round += 1;
       const correction = { claimReports: evalResult.claimReports, ethos: evalResult.ethos, logos: evalResult.logos, ethosStyle: evalResult.ethosStyle };
       const revised = await mouth.revise({ n, beat, topic, priorScript: draft.script, correction });
       const land = landSegment(log, { n, speaker: revised.speaker ?? draft.speaker ?? null, title: revised.title, script: revised.script, isRevision: true, trigger: describeCorrection(correction) });
       log = land.log;
+      log = landMouthAudit(log, { segId, kind: "revise", audit: revised.audit, round });
       draft = revised;
       evalResult = await evaluateSegment(log, { segId, n, beat, topic, draft, declaredFunctional, requireAddressed, mouth });
       log = evalResult.log;
@@ -398,6 +444,7 @@ export function makePodcast({ taskLog = nativeTaskLog, cellOf = nativeCellOf, no
     const tasks = projectTasks(sliced);
     const segments = tasks.filter((t) => isSegmentId(t.task_id)).sort((a, b) => a.n - b.n);
     const measuredStops = sliced.entries.filter((e) => typeof e.task_id === "string" && e.task_id.startsWith("measured:"));
+    const mouthAudit = sliced.entries.filter((e) => typeof e.task_id === "string" && e.task_id.startsWith("audit:"));
     return Object.freeze({
       cursor: sliced.entries.length ? sliced.entries[sliced.entries.length - 1].seq : -1,
       frame: ledger.frameOf(sliced),
@@ -406,6 +453,7 @@ export function makePodcast({ taskLog = nativeTaskLog, cellOf = nativeCellOf, no
       openDisputes: Object.freeze([...ledger.disputesOf(sliced).entries()]),
       algebraFlags: Object.freeze(checkCubeProgression(sliced)),
       measuredStops: Object.freeze(measuredStops),
+      mouthAudit: Object.freeze(mouthAudit),
     });
   }
 

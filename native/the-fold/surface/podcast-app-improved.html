@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Podcast List</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 2rem;
+    }
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    input[type="text"] {
+      width: 300px;
+      padding: 10px;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .episode {
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      text-align: center;
+    }
+    .ethos-badge {
+      margin-left: 0.5rem;
+    }
+    audio {
+      width: 100%;
+      max-width: 300px;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Podcast List</h1>
+    <input type="text" id="urlInput" placeholder="Enter a podcast URL">
+    <button id="subscribeButton">Subscribe</button>
+    <div id="episodes"></div>
+  </div>
+  <script>
+    const urlInput = document.getElementById('urlInput');
+    const subscribeButton = document.getElementById('subscribeButton');
+    const episodesContainer = document.getElementById('episodes');
+
+    subscribeButton.addEventListener('click', async () => {
+      const url = urlInput.value;
+      urlInput.value = '';
+      try {
+        const response = await fetch(`/api/subscribe?url=${encodeURIComponent(url)}`);
+        if (!response.ok) {
+          throw new Error(`Fetch error: ${response.status}`);
+        }
+        const data = await response.json();
+        episodesContainer.innerHTML = ''; // Clear previous episodes
+        data.episodes.forEach(episode => {
+          const episodeElement = document.createElement('div');
+          episodeElement.className = 'episode';
+          episodeElement.innerHTML = `
+            <h2>${episode.title}</h2>
+            <p>Published: ${episode.pubDate}</p>
+            <div class="ethos-badge">
+              <span style="color: green; font-size: 1.2rem;">${episode.ethos === 'pass' ? 'Pass' : (episode.ethos === 'conflict' ? 'Conflict' : 'No Signal')}</span>
+            </div>
+            <audio controls src="${episode.audioUrl}" preload="auto"></audio>
+          `;
+          episodesContainer.appendChild(episodeElement);
+        });
+      } catch (error) {
+        episodesContainer.innerHTML = `<p>Error fetching episodes: ${error.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -60,14 +60,27 @@ const CLAIMS_SCHEMA = {
   required: ["claims"],
 };
 
+// AUDITABLE STEERING (user direction, verbatim: "be sure all your prompts
+// to steer it, similar to a person would, are auditable"). Every call
+// returns its parsed result PLUS the raw `audit` trail — the exact
+// messages sent and the exact response text received, verbatim, before
+// any JSON.parse. podcast.js lands this onto the SAME append-only ledger
+// every other act is on (`landMouthAudit`), so a steering prompt (an
+// arbitrate ask, a revise ask) is reconstructable from the record itself,
+// not only from a side-channel log file. A caller that doesn't care about
+// the audit trail can ignore the extra field; nothing about the existing
+// flat shape (title/speaker/script/claims, or a bare `pick`) changes.
 async function chat({ url, model, messages, schema }) {
+  const started = Date.now();
   const r = await fetch(`${url}/api/chat`, {
     method: "POST",
     body: JSON.stringify({ model, stream: false, format: schema, options: { temperature: 0 }, messages }),
   });
   if (!r.ok) throw new Error(`podcast mouth: ${url} answered ${r.status}`);
   const body = await r.json();
-  return JSON.parse(body.message.content);
+  const rawResponse = body.message.content;
+  const audit = { request: messages, rawResponse, durationMs: Date.now() - started, model };
+  return { parsed: JSON.parse(rawResponse), audit };
 }
 
 const describe = (v) => `${v.end1} ${v.label} ${v.end2}`;
@@ -83,23 +96,24 @@ export function ollamaPodcastMouth({ url = process.env.ER7_OLLAMA_URL, model = p
   if (!url || !model) return null;
   return {
     async propose({ n, beat, topic, voices }) {
-      return chat({
+      const { parsed, audit } = await chat({
         url, model, schema: SEGMENT_SCHEMA,
         messages: [{
           role: "user",
           content: `You are writing segment ${n + 1} of a spoken podcast episode on "${topic}"${voices?.length ? ` with voices: ${voices.join(", ")}` : ""}.\nThis segment's own beat: ${beat.beat ?? beat}\nWrite 2-4 sentences of natural spoken script for one speaker (name it in "speaker"). List every checkable factual claim the script makes as {end1, label, end2, quote}: end1/end2 are the two things related, label is a short snake_case relation name, and quote is the EXACT substring of your own script that states it (verbatim — this will be located by string search).`,
         }],
       });
+      return { ...parsed, audit };
     },
     async arbitrate({ rival, claim, topic }) {
-      const out = await chat({
+      const { parsed, audit } = await chat({
         url, model, schema: ARBITRATE_SCHEMA,
         messages: [{
           role: "user",
           content: `Podcast episode on "${topic}". Two claims conflict on the same fact:\n(rival, already established) ${describe(rival)}\n(claim, just proposed) ${describe(claim)}\nWhich is correct? Answer "rival" if the established claim is right, "claim" if the new one corrects it, or "neither" if you cannot tell.`,
         }],
       });
-      return out.pick;
+      return { pick: parsed.pick, audit };
     },
     /**
      * extractClaims({ showTitle, episodeTitle, description }) — for a REAL,
@@ -112,22 +126,24 @@ export function ollamaPodcastMouth({ url = process.env.ER7_OLLAMA_URL, model = p
      * bytes and report back.
      */
     async extractClaims({ showTitle, episodeTitle, description }) {
-      return chat({
+      const { parsed, audit } = await chat({
         url, model, schema: CLAIMS_SCHEMA,
         messages: [{
           role: "user",
           content: `This is the real, published description of one episode of the podcast "${showTitle}", titled "${episodeTitle}":\n\n${description}\n\nList every checkable factual claim it makes as {end1, label, end2, quote}: end1/end2 are the two things related, label is a short snake_case relation name, and quote is the EXACT substring of the description above that states it (verbatim). If the description states nothing checkable, return an empty list — never invent a claim the text does not make.`,
         }],
       });
+      return { ...parsed, audit };
     },
     async revise({ n, beat, topic, priorScript, correction }) {
-      return chat({
+      const { parsed, audit } = await chat({
         url, model, schema: SEGMENT_SCHEMA,
         messages: [{
           role: "user",
           content: `Rewrite segment ${n + 1} of the podcast episode on "${topic}" (beat: ${beat.beat ?? beat}). The prior draft wrongly stated something the episode has since established is: ${describe(correction)}. Prior draft:\n${priorScript}\nWrite a corrected version, in full, in the same voice. List its claims the same way as before (only ones the corrected script actually makes — it may make none).`,
         }],
       });
+      return { ...parsed, audit };
     },
   };
 }

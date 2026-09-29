@@ -88,11 +88,40 @@ function checkCode(html) {
   return { issues: findings.length, findings };
 }
 
+/**
+ * A STEERING round (user direction, verbatim: "steer it to vastly improve
+ * the UX and see what it does"), same discipline as an ordinary generation
+ * round: one real, person-like instruction, the mechanical check still
+ * runs (the UX ask must not be allowed to break the API contract this app
+ * depends on), and the FULL prompt + raw response is recorded — no
+ * different from any other steering prompt this file, or podcast.js's own
+ * `landMouthAudit`, records verbatim.
+ */
+async function loadCurrentHtml(outDir) {
+  const fs2 = await import("node:fs/promises");
+  return fs2.readFile(`${outDir}podcast-app-generated.html`, "utf8");
+}
+
 async function main() {
-  const evidence = { generatedAt: new Date().toISOString(), model: MODEL, mouthUrl: OLLAMA_URL, apiContract: API_CONTRACT, rounds: [] };
+  const args = process.argv.slice(2);
+  const improveIdx = args.indexOf("--improve");
+  const improveInstruction = improveIdx >= 0 ? (args[improveIdx + 1] ?? "vastly improve the UX") : null;
+
+  const outDir = fileURLToPath(new URL(".", import.meta.url));
+  const evidence = { generatedAt: new Date().toISOString(), model: MODEL, mouthUrl: OLLAMA_URL, mode: improveInstruction ? "improve" : "generate", steeringInstruction: improveInstruction, apiContract: API_CONTRACT, rounds: [] };
   const measured = makeMeasuredLoop({ ceiling: CEILING });
 
-  let messages = [{ role: "user", content: `You are writing a small web app.\n\n${API_CONTRACT}` }];
+  let messages;
+  if (improveInstruction) {
+    const currentHtml = await loadCurrentHtml(outDir);
+    evidence.startingHtml = currentHtml;
+    messages = [{
+      role: "user",
+      content: `Here is a working podcast listening app's index.html:\n\n\`\`\`html\n${currentHtml}\n\`\`\`\n\nIt already satisfies this contract, which you must keep satisfying:\n${API_CONTRACT}\n\nNow: ${improveInstruction}. Keep every API call and the <audio> playback working exactly as before — improve the layout, styling, and interaction, not the data contract. Return the WHOLE improved file in one fenced code block, nothing else.`,
+    }];
+  } else {
+    messages = [{ role: "user", content: `You are writing a small web app.\n\n${API_CONTRACT}` }];
+  }
   let html = "";
   let round = 0;
   let stop = null;
@@ -120,11 +149,16 @@ async function main() {
   }
 
   evidence.stop = stop;
-  const outDir = fileURLToPath(new URL(".", import.meta.url));
-  await fs.writeFile(`${outDir}podcast-app-codegen-evidence.json`, JSON.stringify(evidence, null, 2));
-  await fs.writeFile(`${outDir}podcast-app-generated.html`, html);
+  const evidenceFile = improveInstruction ? "podcast-app-improve-evidence.json" : "podcast-app-codegen-evidence.json";
+  // The improved file lands at its OWN name — the original
+  // podcast-app-generated.html (and the model's OWN first attempt) stays
+  // on disk untouched, exactly like a ledger's SUPERSEDE keeps the prior
+  // entry rather than overwriting it. Both are real, inspectable artifacts.
+  const htmlFile = improveInstruction ? "podcast-app-improved.html" : "podcast-app-generated.html";
+  await fs.writeFile(`${outDir}${evidenceFile}`, JSON.stringify(evidence, null, 2));
+  await fs.writeFile(`${outDir}${htmlFile}`, html);
   console.log(`\nstopped: ${stop.verdict} after ${stop.rounds} round(s)${Number.isFinite(stop.growth) ? ` (growth ${stop.growth.toFixed(4)})` : ""}`);
-  console.log(`wrote ${outDir}podcast-app-generated.html and podcast-app-codegen-evidence.json`);
+  console.log(`wrote ${outDir}${htmlFile} and ${evidenceFile}`);
 }
 
 main().catch((e) => { console.error(e); process.exitCode = 1; });

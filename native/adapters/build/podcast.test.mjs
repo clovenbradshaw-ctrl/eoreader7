@@ -307,3 +307,40 @@ test("functionalConflict is declared, never inferred — an undeclared label nev
   });
   assert.equal(api.ledger.fold(log).length, 2, "both colour claims stand — an undeclared relation is never checked");
 });
+
+test("every steering prompt is auditable: propose/arbitrate/revise asks land on the SAME ledger verbatim (SIG·Ground), with the exact request/response, reconstructable at any fold cursor", async () => {
+  const api = makePodcast();
+  const proposeAudit = { request: [{ role: "user", content: "write segment 0 about the bridge" }], rawResponse: '{"title":"first"}', durationMs: 12, model: "test-model" };
+  const arbitrateAudit = { request: [{ role: "user", content: "rival says 1937, claim says 1940 — which is right?" }], rawResponse: '{"pick":"rival"}', durationMs: 7, model: "test-model" };
+  const reviseAudit = { request: [{ role: "user", content: "your answer was wrong (1940) — the record says 1937, fix it" }], rawResponse: '{"title":"fixed"}', durationMs: 9, model: "test-model" };
+  const mouth = {
+    async propose({ n }) {
+      if (n === 0) return { speaker: "Ada", title: "first", script: "The bridge opened in 1937.", claims: [{ end1: "the bridge", label: "opened_in", end2: "1937", quote: "opened in 1937" }], audit: proposeAudit };
+      return { speaker: "Bo", title: "second", script: "It opened in 1940.", claims: [{ end1: "the bridge", label: "opened_in", end2: "1940", quote: "opened in 1940" }], audit: { ...proposeAudit, rawResponse: '{"title":"second"}' } };
+    },
+    async arbitrate() { return { pick: "rival", audit: arbitrateAudit }; },
+    async revise({ priorScript }) { return { speaker: "Bo", title: "fixed", script: `${priorScript} (corrected)`, claims: [], audit: reviseAudit }; },
+  };
+  const { log } = await api.produceEpisode({
+    topic: "the bridge", plan: [{ beat: "0" }, { beat: "1" }],
+    mouth, declaredFunctional: new Set(["opened_in"]), repairCeiling: 2,
+  });
+  const audits = log.entries.filter((e) => typeof e.task_id === "string" && e.task_id.startsWith("audit:"));
+  // 2 proposes (segment 0, segment 1) + 1 arbitrate + 1 revise = 4
+  assert.equal(audits.length, 4);
+  const byKind = Object.fromEntries(["propose", "arbitrate", "revise"].map((k) => [k, audits.filter((a) => a.promptKind === k)]));
+  assert.equal(byKind.propose.length, 2);
+  assert.equal(byKind.arbitrate.length, 1);
+  assert.equal(byKind.revise.length, 1);
+  assert.deepEqual(byKind.arbitrate[0].request, arbitrateAudit.request, "the exact steering prompt sent to the mouth is on the record, verbatim");
+  assert.equal(byKind.arbitrate[0].rawResponse, arbitrateAudit.rawResponse, "the exact raw response, before any JSON.parse, is on the record");
+  assert.equal(byKind.revise[0].request[0].content, "your answer was wrong (1940) — the record says 1937, fix it");
+  assert.equal(byKind.revise[0].operator, "SIG");
+  assert.equal(byKind.revise[0].grain, "Ground");
+
+  // Reconstructable at any fold cursor, exactly like every other act.
+  const beforeRevise = api.renderEpisodeAt(log, byKind.arbitrate[0].seq);
+  assert.equal(beforeRevise.mouthAudit.length, 3, "propose x2 + arbitrate, before the revise prompt was ever sent");
+  const full = api.renderEpisodeAt(log);
+  assert.equal(full.mouthAudit.length, 4);
+});
