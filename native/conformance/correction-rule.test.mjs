@@ -29,6 +29,9 @@ const {
   falsifiableRule,
   authorCorrectionRule,
   readCorrectionRules,
+  activeCorrectionRules,
+  concedeCorrectionRule,
+  observeAndConcede,
   naturalSizeRuleForTask,
   falsifiesFormRule,
 } = await import("../organs/correction-rule.js");
@@ -134,6 +137,72 @@ test("a bare rejection still authors a rule that steers the next matching ask", 
   assert.ok(discovered, "a later sonnet ask, in the exact shape from the live trigger, must now be steered");
   const shape = detectAnswerShape("write me a sonnet about dolphins", false, false, false, [], null);
   assert.equal(shape.shape, "natural");
+});
+
+// THE DEGRADATION PATHWAY: a rule ledger with no retract accumulates law
+// forever, and would keep steering a real request toward a form a real,
+// later observation already contradicted. concedeCorrectionRule/
+// activeCorrectionRules/observeAndConcede are the REC half — a rule
+// mints (INS), a falsifying observation retracts it (REC), and only the
+// ACTIVE (unconceded) set may ever steer a live task again.
+test("a conceded rule stops steering — the retracted law no longer governs, but its history is not erased", () => {
+  const authored = authorCorrectionRule("you wrote a limerick, not a haiku", { now: "2026-09-29T00:00:00.000Z", rulesFile });
+  assert.equal(authored.persisted, true);
+  const task = "write me a haiku about the tides";
+  assert.ok(naturalSizeRuleForTask(task, { rulesFile }), "the freshly-minted rule steers a matching task");
+
+  const concede = concedeCorrectionRule(authored.rule.id, { because: "test: a real observation falsified it", at: "2026-09-29T00:01:00.000Z", rulesFile });
+  assert.equal(concede.conceded, true);
+  assert.equal(concede.ruleId, authored.rule.id);
+
+  assert.equal(naturalSizeRuleForTask(task, { rulesFile }), null, "a conceded rule must not steer any later task");
+  assert.equal(activeCorrectionRules(rulesFile).some((r) => r.id === authored.rule.id), false, "the fold excludes the conceded rule");
+  assert.equal(readCorrectionRules(rulesFile).some((r) => r.id === authored.rule.id), true, "the raw ledger still remembers it was ever minted — nothing is deleted");
+
+  const second = concedeCorrectionRule(authored.rule.id, { because: "test: conceding twice", rulesFile });
+  assert.equal(second.conceded, false, "conceding an already-conceded rule is a no-op, not a second retraction");
+});
+
+test("a concede with no reason is refused — an unreasoned concede is a deletion wearing a ledger's clothes", () => {
+  const authored = authorCorrectionRule("stop using bullet points in a story", { now: "2026-09-29T00:02:00.000Z", rulesFile });
+  const result = concedeCorrectionRule(authored.rule.id, { rulesFile });
+  assert.equal(result.conceded, false);
+  assert.match(result.reason, /name/i);
+  assert.equal(activeCorrectionRules(rulesFile).some((r) => r.id === authored.rule.id), true, "refused concede leaves the rule standing");
+});
+
+test("observeAndConcede finds and retracts every active rule a real observation falsifies, naming which observation did it", () => {
+  // A genre pair unique to this test, checked via the TEXT path
+  // (falsifiesFormRule's rejectedForms/requestedForms check), not the
+  // shape/mode path — forbiddenShapes/forbiddenModes are the SAME literal
+  // set ("composition"/"projection") on EVERY output-form-mismatch rule
+  // regardless of genre, a real, form-agnostic property of falsifiesFormRule
+  // found live: an observation with shape:"composition" falsifies every
+  // standing sonnet-mismatch rule at once (this file mints two more earlier:
+  // the SONNET_CORRECTION rule and the bare-rejection sonnet rule), so a
+  // test asserting "exactly one rule was conceded" must not reuse "sonnet"
+  // or the shape/mode path, or it collides with unrelated earlier tests'
+  // state on this file's own shared ledger.
+  const authored = authorCorrectionRule("you wrote a memo, not a eulogy", { now: "2026-09-29T00:03:00.000Z", rulesFile, source: "observe-test" });
+  // A DIFFERENT rule, on a genuinely unrelated form, must survive untouched —
+  // observeAndConcede must not be a blunt "clear everything" button.
+  const unrelated = authorCorrectionRule("that answer was too long", { now: "2026-09-29T00:03:30.000Z", rulesFile });
+  assert.notEqual(authored.rule.id, unrelated.rule.id);
+
+  const observation = { text: "Here is a fitting memo for the occasion.", task: "write a eulogy for the retiring captain" };
+  const conceded = observeAndConcede(observation, { rulesFile, at: "2026-09-29T00:04:00.000Z" });
+  assert.equal(conceded.length, 1);
+  assert.equal(conceded[0].ruleId, authored.rule.id);
+  assert.match(conceded[0].because, /retiring captain/);
+
+  const active = activeCorrectionRules(rulesFile);
+  assert.equal(active.some((r) => r.id === authored.rule.id), false, "the falsified eulogy rule is gone from the active set");
+  assert.equal(active.some((r) => r.id === unrelated.rule.id), true, "the unrelated length rule was never touched");
+
+  // A second call against an observation that does NOT falsify anything
+  // active must concede nothing — this is a real check, not a rubber stamp.
+  const noop = observeAndConcede({ text: "Here is a heartfelt eulogy for the occasion.", task: "write a eulogy for the retiring captain" }, { rulesFile });
+  assert.equal(noop.length, 0);
 });
 
 test("cleanup", () => {
