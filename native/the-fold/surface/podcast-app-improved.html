@@ -5,40 +5,6 @@
   <style>
     body {
       font-family: sans-serif;
-      background-color: #181818;
-      color: #eee;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-    .container {
-      background-color: #222;
-      padding: 2rem;
-      border-radius: 5px;
-      max-width: 400px;
-      text-align: center;
-    }
-    h1 {
-      color: #007bff;
-      margin-bottom: 1rem;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 0.5rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      background-color: #333;
-    }
-    button {
-      background-color: #007bff;
-      color: #fff;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
     }
     .episode {
       margin-bottom: 1rem;
@@ -47,30 +13,24 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background-color: #444;
-      color: #eee;
-      border-radius: 5px;
     }
     .ethos-badge {
       margin-left: 0.5rem;
-      color: green;
     }
     audio {
       width: 100%;
       max-width: 300px;
-      margin-bottom: 1rem;
     }
-    .now-playing {
-      position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: #007bff;
-      color: #fff;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
+    #now-playing {
+      margin-top: 1rem;
       font-size: 1.2rem;
-      text-align: center;
+      color: #333;
+    }
+    .playing-episode {
+      background-color: #f0f0f0;
+      border-radius: 5px;
+      padding: 1rem;
+      margin-bottom: 1rem;
     }
   </style>
 </head>
@@ -80,6 +40,7 @@
   <button id="subscribeButton">Subscribe</button>
   <div id="episodes"></div>
   <div id="now-playing"></div>
+
   <script>
     const urlInput = document.getElementById('urlInput');
     const subscribeButton = document.getElementById('subscribeButton');
@@ -113,6 +74,14 @@
         episodesContainer.innerHTML = `<p>Error fetching episodes: ${error.message}</p>`;
       }
     });
+
+    episodesContainer.addEventListener('click', (event) => {
+      if (event.target.tagName === 'AUDIO') {
+        nowPlaying.textContent = event.target.parentElement.querySelector('h2').textContent;
+        event.target.parentElement.querySelector('.playing-episode').classList.add('playing');
+      }
+    });
+
   </script>
 </body>
 </html>
