@@ -384,6 +384,24 @@ export function touchedOutside(record) {
   const suffix = task.artifact.slice(at + task.region.length);
   return !(applied.text.startsWith(prefix) && applied.text.endsWith(suffix));
 }
+/** Did the edit change a line that is neither the region nor a dependent — collateral damage from a careless find
+ *  (`port` inside `exports`, `s` inside every word)? Recomputed from the recorded edits. A line counts as removed when it
+ *  no longer occurs (as a whole line) in the edited artifact. */
+export function collateralOf(record) {
+  const a = afterOf(record);
+  if (!a) return false;
+  const { task, text } = a;
+  const before = task.artifact.split("\n");
+  const left = new Map();
+  for (const l of text.split("\n")) left.set(l, (left.get(l) ?? 0) + 1);
+  const expected = new Set(task.region.split("\n"));
+  for (const l of before) if (task.dependents.some((d) => l.includes(d))) expected.add(l);
+  for (const l of before) {
+    if ((left.get(l) ?? 0) > 0) { left.set(l, left.get(l) - 1); continue; } // still present
+    if (!expected.has(l)) return true; // removed, and it was neither the region nor a dependent
+  }
+  return false;
+}
 /** A medium-blind integrity check DERIVED from the artifact and the edit alone — no language, no task, no oracle.
  *  A name that some occurrences of were changed away while others stayed is a PARTIAL rename: the shape a dangling
  *  dependent leaves behind. Names are WHOLE identifier-like runs of >= 3 characters (never their parts: counting the
@@ -558,6 +576,16 @@ export function resultsMarkdown({ records, model, files = [] }) {
     "The check knows only the artifact before and after: it flags a name that some occurrences of were changed away while others stayed (a PARTIAL rename — the shape a dangling dependent leaves). The oracle is the executed check (a browser, an interpreter, sqlite). `caught` = harm the derived check also flags; `missed` = harm it does not see (a change that keeps every name); `false alarm` = flagged, but nothing broke.", "",
     "| kind | changed runs | harm | caught | missed | false alarms | clean and unflagged |", "|---|---|---|---|---|---|---|");
   for (const [kd, c] of Object.entries(conf)) { const n = c.tp + c.fp + c.fn + c.tn; if (n) L.push(`| ${kd} | ${n} | ${c.tp + c.fn} | ${c.tp} | ${c.fn} | ${c.fp} | ${c.tn} |`); }
+  L.push("", "## Collateral damage: an edit changed a line that is neither the region nor a dependent", "",
+    "A careless `find` under a replace-everywhere edit tool damages what it should not touch (`port` inside `exports`; a single letter inside every word). Recomputed from the recorded edits. The more text an arm shows, the more there is to damage — this is the cost of visibility.", "",
+    "| arm | coupled runs | collateral | uncoupled control runs | collateral |", "|---|---|---|---|---|");
+  for (const a of arms) {
+    const c = records.filter((r) => !r.error && r.arm === a && r.kind === "coupled");
+    const k = records.filter((r) => !r.error && r.arm === a && r.kind === "control");
+    const cc = c.filter((r) => collateralOf(r)).length;
+    const kc = k.filter((r) => collateralOf(r)).length;
+    L.push(`| ${a} | ${c.length} | ${cc} (${pct(cc, c.length)}) | ${k.length} | ${kc} (${pct(kc, k.length)}) |`);
+  }
   L.push("", "## Diagnostics: was the instrument in the way?", "",
     "`rejected` = the response could not be applied at all (invalid JSON, a malformed edit, or a find not in the text shown). A rejection rate that differs by arm would mean the edit tool, not the arm, is doing the work.", "",
     "| arm | runs | rejected | model errors |", "|---|---|---|---|");

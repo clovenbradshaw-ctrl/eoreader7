@@ -263,6 +263,15 @@ test("the derived integrity check sees a partial rename and nothing else, and is
   assert.equal(seen.coupled[0], 10, "10 of the 12 coupled region-only edits leave a partial rename; the two signature changes keep their names and are missed");
 });
 
+test("collateral damage is a line changed that is neither the region nor a dependent, recomputed from the recorded edits", () => {
+  const rec3 = (task, arm, edits) => ({ task, arm, parsed: { edits, risk: "none" } });
+  // js-key-b: `port` is also inside `module.exports` — a careless global find damages a line that has nothing to do with the request
+  assert.equal(B.collateralOf(rec3("js-key-b", "whole", [{ find: "port", replace: "httpPort" }])), true);
+  assert.equal(B.collateralOf(rec3("js-key-b", "reach", [{ find: "port", replace: "httpPort" }])), false, "the derived lines do not include `module.exports`, so there is nothing there to damage");
+  assert.equal(B.collateralOf(rec3("js-key-b", "whole", [{ find: "  port: 8080,", replace: "  httpPort: 8080," }, { find: "DEFAULTS.port", replace: "DEFAULTS.httpPort" }])), false, "the careful edit touches the region and its dependent only");
+  assert.equal(B.collateralOf({ task: "js-key-b", arm: "whole", parsed: null }), false);
+});
+
 test("a model that fails or answers with garbage is recorded as an error or a no-op, never as success", async () => {
   const t = byId("py-sig-a");
   const bad = await B.runOne(t, "bare", { askFn: async () => ({ text: "not json at all", ms: 1, tokens: {} }) });
