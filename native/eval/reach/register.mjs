@@ -18,6 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { readRecords, registerBlock } from "./battery.mjs";
+import { reviseBlock, selectLandings } from "./revise.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const NATIVE = path.resolve(HERE, "..", "..");
@@ -55,6 +56,14 @@ export function refresh(doc) {
     const names = fs.existsSync(RAW) ? fs.readdirSync(RAW).filter((n) => n.startsWith(prefix) && n.endsWith(".jsonl")).sort() : [];
     if (!names.length) throw new Error(`register: no raw records start with ${prefix}`);
     const records = names.flatMap((n) => readRecords(path.join(RAW, n)));
+    if (prefix.startsWith("reach-revise-")) {
+      // the repair loop's table: the repair records, read against the battery records whose landings they repaired
+      const slug = prefix.replace(/^reach-revise-/, "").replace(/-$/, "");
+      const srcNames = fs.readdirSync(RAW).filter((n) => n.startsWith(`reach-battery-${slug}-`) && n.endsWith(".jsonl")).sort();
+      if (!srcNames.length) throw new Error(`register: no battery records reach-battery-${slug}-*.jsonl for the repairs`);
+      const source = srcNames.flatMap((n) => readRecords(path.join(RAW, n)));
+      return `<!-- live: ${prefix} -->\n${reviseBlock({ rows: records, source, selection: selectLandings(source), model: records[0]?.model ?? "?" }).trimEnd()}\n<!-- /live -->`;
+    }
     return `<!-- live: ${prefix} -->\n${registerBlock({ records, model: records[0]?.model ?? "?" }).trimEnd()}\n<!-- /live -->`;
   });
   out = out.replace(/<!-- sample: (\S+) :: (\S+) -->\n[\s\S]*?<!-- \/sample -->/g, (_m, prefix, key) => {
@@ -71,7 +80,7 @@ export function sampleBlock(records, key) {
   const r = records.find((x) => x.key === key);
   if (!r) throw new Error(`register: no recorded run has the key ${key}`);
   const verdict = r.error ? `model error: ${r.error}` : r.success ? "success — the request is present and everything that worked still works" : r.harm ? `harm — ${r.requested ? "the request is present" : "the request is not present"}, and something that worked no longer does${r.flagged ? " (the writer flagged it)" : ""}` : r.noop ? "no-op — nothing was applied" : "changed, but the request is not satisfied";
-  return `arm \`${r.arm}\`, task \`${r.task}\`, run \`${r.key}\`:\n\n\`\`\`json\n${String(r.raw).trim()}\n\`\`\`\n\n→ ${verdict}.`;
+  return `${r.arm ? `arm \`${r.arm}\`` : `condition \`${r.condition}\``}, task \`${r.task}\`, run \`${r.key}\`:\n\n\`\`\`json\n${String(r.raw).trim()}\n\`\`\`\n\n→ ${verdict}.`;
 }
 
 const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;

@@ -110,6 +110,14 @@ export function markdown(rows, { model = "?", files = [] } = {}) {
     "- `gate` — an edit that leaves a partial rename (derived from the artifact and the edit alone) is not landed.", ""];
   const agree = rows.filter((r) => r.by["as-run"].success === r.recorded.success && r.by["as-run"].harm === r.recorded.harm).length;
   L.push(`**Control.** Re-applying the recorded edits as-run reproduces the recorded outcome in ${agree} of ${rows.length} runs.`, "");
+  // the headline table: one row per medium, the three kinds of writer on coupled tasks, and the uncoupled controls for the writer that saw only its region
+  const cellOf = (test, kind, v, field) => { const rs = rows.filter((r) => r.kind === kind && test(r)); return pct(rs.filter((r) => r.by[v][field]).length, rs.length); };
+  const [region, derived, whole] = GROUPS;
+  L.push("## Summary: what the medium does with the edit", "",
+    "Success / harm per hundred runs (the requested change is present AND everything that worked still works / something that worked no longer does). A refused edit counts as neither: nothing is delivered.", "",
+    "| medium | region-only writer: coupled success | harm | derived-reach writer: coupled success | harm | whole-file writer: coupled success | harm | region-only writer: uncoupled success | harm |", "|---|---|---|---|---|---|---|---|---|");
+  for (const v of VARIANTS) L.push(`| ${v} | ${cellOf(region[1], "coupled", v, "success")} | ${cellOf(region[1], "coupled", v, "harm")} | ${cellOf(derived[1], "coupled", v, "success")} | ${cellOf(derived[1], "coupled", v, "harm")} | ${cellOf(whole[1], "coupled", v, "success")} | ${cellOf(whole[1], "coupled", v, "harm")} | ${cellOf(region[1], "control", v, "success")} | ${cellOf(region[1], "control", v, "harm")} |`);
+  L.push("");
   for (const kind of ["coupled", "control"]) {
     L.push(`## ${kind === "coupled" ? "Coupled tasks (the obvious edit breaks something elsewhere)" : "Uncoupled controls (nothing depends on the edit)"}`, "",
       "| writer was shown | medium | runs | success | harm | not landed | harm that still lands |", "|---|---|---|---|---|---|---|");

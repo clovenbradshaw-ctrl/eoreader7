@@ -296,6 +296,40 @@ export function blindSpot(records) {
   return { harm, caught, by };
 }
 
+/** The loop's bottom line, per task and then summed: of ALL the runs of region-only writers on coupled tasks, what lands under
+ *  the tool as it was, under a gate that refuses flagged entries, and under a gate plus one repair turn. The repaired subset
+ *  (at most PER_TASK landings per task) stands for all of a task's flagged landings — an EXTRAPOLATION, and labelled as one. */
+export function endToEnd(rows, source) {
+  const per = new Map();
+  for (const r of source) {
+    if (r.error || r.kind !== "coupled" || !SOURCE_ARMS.includes(r.arm)) continue;
+    const t = per.get(r.task) ?? { n: 0, success: 0, harm: 0, flagged: 0, uSuccess: 0, uHarm: 0 };
+    t.n += 1; t.success += r.success ? 1 : 0; t.harm += r.harm ? 1 : 0;
+    const a = afterOf(r);
+    const names = a ? partialRenames(a.task.artifact, a.text) : [];
+    if (a && names.length && danglingLines(a.task, a.text, names).length) t.flagged += 1;
+    else { t.uSuccess += r.success ? 1 : 0; t.uHarm += r.harm ? 1 : 0; }
+    per.set(r.task, t);
+  }
+  const out = { tasks: 0, n: 0, asRecorded: { success: 0, harm: 0 }, gate: { success: 0, harm: 0 }, loops: {} };
+  for (const c of CONDITIONS) out.loops[c] = { success: 0, harm: 0 };
+  for (const [id, t] of per) {
+    const mine = (c) => rows.filter((r) => !r.error && r.task === id && r.condition === c);
+    if (!CONDITIONS.every((c) => mine(c).length)) { if (t.flagged) continue; }
+    out.tasks += 1; out.n += t.n;
+    out.asRecorded.success += t.success; out.asRecorded.harm += t.harm;
+    out.gate.success += t.uSuccess; out.gate.harm += t.uHarm;
+    for (const c of CONDITIONS) {
+      const m = mine(c);
+      const hs = m.length ? m.filter((r) => r.head?.success).length / m.length : 0;
+      const hh = m.length ? m.filter((r) => r.head?.harm).length / m.length : 0;
+      out.loops[c].success += t.uSuccess + t.flagged * hs;
+      out.loops[c].harm += t.uHarm + t.flagged * hh;
+    }
+  }
+  return out;
+}
+
 export function reviseMarkdown({ rows, source, selection, model = "?", files = [], sourceFiles = [] }) {
   const S = summarizeRevise(rows);
   const cell = (c, f) => `${pct(S[c][f], S[c].n)}${ci(S[c][f], S[c].n)} (${S[c][f]}/${S[c].n})`;
@@ -318,6 +352,18 @@ export function reviseMarkdown({ rows, source, selection, model = "?", files = [
   const n0 = Math.max(...CONDITIONS.map((c) => S[c].n));
   L.push(`| as recorded (no loop) | ${n0} | 0% (0/${n0}) | 100% (${n0}/${n0}) | 0% (0/${n0}) |`, `| gate only (refuse, never repair) | ${n0} | 0% (0/${n0}) | 0% (0/${n0}) | 100% (${n0}/${n0}) |`);
   for (const c of CONDITIONS) if (S[c].n) L.push(`| gate + one repair turn: ${c} | ${S[c].n} | ${cell(c, "headSuccess")} | ${cell(c, "headHarm")} | ${cell(c, "headNothing")} |`);
+
+  if (source) {
+    const e = endToEnd(rows, source);
+    const f = (k) => pct(k, e.n); // percent only: an extrapolated count is not an integer
+    const nothing = (x) => e.n - x.success - x.harm;
+    L.push("", "## End to end: of all the runs of region-only writers on coupled tasks", "",
+      `**Extrapolated.** ${e.n} runs over ${e.tasks} tasks. Each task's repaired landings (at most ${PER_TASK}) stand for all of its flagged landings; runs the check does not flag land as recorded. \`nothing delivered\` = no change reached the head (a refused entry, a rejected answer, a no-op).`, "",
+      "| what lands | success | harm | nothing delivered |", "|---|---|---|---|",
+      `| the tool as it was | ${f(e.asRecorded.success)} | ${f(e.asRecorded.harm)} | ${f(nothing(e.asRecorded))} |`,
+      `| gate only (refuse flagged entries) | ${f(e.gate.success)} | ${f(e.gate.harm)} | ${f(nothing(e.gate))} |`);
+    for (const c of CONDITIONS) if (S[c].n) L.push(`| gate + one repair turn: ${c} | ${f(e.loops[c].success)} | ${f(e.loops[c].harm)} | ${f(nothing(e.loops[c]))} |`);
+  }
 
   const A = asArms(rows);
   L.push("", "## Task-level: paired over tasks (the independent unit), exact sign test on the tasks that moved", "",
@@ -360,7 +406,17 @@ export function reviseBlock({ rows, source, selection, model }) {
     const t = pairedTasks(A, x, y, f, "coupled");
     if (t.tasks) L.push(`| ${x} vs ${y} | ${f} | ${t.tasks} | ${t.pos} | ${t.neg} | ${t.tie} | ${t.meanDiff >= 0 ? "+" : ""}${t.meanDiff.toFixed(2)} | ${t.p.toFixed(3)} |`);
   }
-  if (source) { const b = blindSpot(source); L.push("", `Not seen by the check: ${b.harm - b.caught} of ${b.harm} harmful region-only landings were not flagged and never enter the loop.`); }
+  if (source) {
+    const e = endToEnd(rows, source);
+    const f = (k) => pct(k, e.n);
+    L.push("", `End to end, of all ${e.n} runs of region-only writers on ${e.tasks} coupled tasks (extrapolated: each task's repaired landings stand for all of its flagged ones):`, "",
+      "| what lands | success | harm | nothing delivered |", "|---|---|---|---|",
+      `| the tool as it was | ${f(e.asRecorded.success)} | ${f(e.asRecorded.harm)} | ${f(e.n - e.asRecorded.success - e.asRecorded.harm)} |`,
+      `| gate only | ${f(e.gate.success)} | ${f(e.gate.harm)} | ${f(e.n - e.gate.success - e.gate.harm)} |`);
+    for (const c of ["lines", "derived"]) if (S[c].n) L.push(`| gate + one repair turn: ${c} | ${f(e.loops[c].success)} | ${f(e.loops[c].harm)} | ${f(e.n - e.loops[c].success - e.loops[c].harm)} |`);
+    const b = blindSpot(source);
+    L.push("", `Not seen by the check: ${b.harm - b.caught} of ${b.harm} harmful region-only landings were not flagged and never enter the loop.`);
+  }
   void selection;
   return `${L.join("\n")}\n`;
 }

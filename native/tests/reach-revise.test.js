@@ -205,6 +205,27 @@ test("the predictions fail when the world says so: extra text that helps, a seco
   assert.equal(Object.fromEntries(R.reviseRows(world({})).map((r) => [r.id, r])).R1.verdict, "FAILED", "no repair anywhere: the loop repairs nothing");
 });
 
+test("end to end: flagged landings take the repaired subset's head rates, unflagged ones land as recorded, and the extrapolation is labelled", () => {
+  const tA = byId("term-a");
+  const sig = byId("py-sig-a");
+  const source = [0, 1, 2, 3, 4].map((i) => landing(tA, "bare", i)).concat([landing(sig, "bare", 0)]);
+  const rows = [];
+  for (const c of R.CONDITIONS) {
+    // four repaired landings of term-a: two end as a success at the head, two leave the entry contested
+    for (let i = 0; i < 4; i += 1) rows.push(row("term-a", c, c === "derived" && i < 2 ? FIXED : c === "lines" ? { ...FIXED, head: { changed: true, success: true, harm: false } } : {}));
+  }
+  const e = R.endToEnd(rows, source);
+  assert.deepEqual([e.tasks, e.n, e.asRecorded.success, e.asRecorded.harm], [2, 6, 0, 6]);
+  assert.deepEqual([e.gate.success, e.gate.harm], [0, 1], "gate only: the five flagged entries are refused, the signature change is not seen and lands as it did");
+  assert.equal(e.loops.derived.success, 2.5, "five flagged landings x the repaired subset's head success rate (2 of 4)");
+  assert.equal(e.loops.derived.harm, 1, "the unflagged signature change still lands as harm");
+  assert.equal(e.loops.lines.success, 5);
+  const md = R.reviseMarkdown({ rows, source, selection: R.selectLandings(source), model: "stub" });
+  assert.match(md, /End to end: of all the runs of region-only writers/);
+  assert.match(md, /\*\*Extrapolated\.\*\*/);
+  assert.match(md, /\| gate \+ one repair turn: derived \| 42% \| 17% \| 42% \|/);
+});
+
 test("the results document carries its own caveats, the landing-rule table, the task-level tests and the check's blind spot", () => {
   const rows = world({ lines: FIXED, derived: FIXED });
   const tA = byId("term-a");
