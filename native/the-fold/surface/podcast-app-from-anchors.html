@@ -35,12 +35,13 @@ input[type="text"] {
 }
 
 button {
-  background-color: #1DB954;
-  color: white;
+background-color: #1DB954;
+  
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  color: rgb(0, 0, 0);
 }
 
 .episode {
@@ -75,6 +76,12 @@ button {
   flex: 1;
   min-width: 0;
   box-sizing: border-box;
+}
+
+.episode:first-of-type h3 {
+  color: red;
+  font-weight: bold;
+  font-size: 20px;
 }
   </style>
 </head>
