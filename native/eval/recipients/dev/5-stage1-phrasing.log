@@ -1,0 +1,4 @@
+snacks   fill5  listed 36 options over 8 runs (sizes 3,5,5,5,5,5,3,5), valid 24/36, first valid 8/8
+snacks   fit    listed 25 options over 8 runs (sizes 3,3,4,3,3,3,3,3), valid 24/25, first valid 8/8
+routes   fill5  listed 31 options over 8 runs (sizes 4,4,4,4,3,4,4,4), valid 8/31, first valid 5/8
+routes   fit    listed 17 options over 8 runs (sizes 2,2,2,3,2,2,2,2), valid 8/17, first valid 8/8

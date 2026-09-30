@@ -11,6 +11,7 @@
 //   <!-- live: PREFIX --> … <!-- /live -->    registerBlock() over eval/raw/PREFIX*.jsonl
 //   <!-- models: PREFIX --> … <!-- /models -->   modelsBlock() over every model's eval/raw/PREFIX<slug>-*.jsonl, side by side
 //   <!-- builds: PREFIX --> … <!-- /builds -->   the problematic-builds battery's registerBlock() over eval/raw/PREFIX*.jsonl
+//   <!-- recipients: PREFIX --> … <!-- /recipients -->   the recipients battery's registerBlock() over eval/raw/PREFIX*.jsonl
 //   <!-- sample: PREFIX :: KEY --> … <!-- /sample -->   one raw run, verbatim: the writer's answer and how it scored
 //
 //   node native/eval/reach/register.mjs --refresh   rewrite the blocks in place
@@ -22,6 +23,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { readRecords, registerBlock, modelsBlock } from "./battery.mjs";
 import { reviseBlock } from "./revise.mjs";
 import { readRecords as readBuildRecords, registerBlock as buildsBlock } from "../builds/battery.mjs";
+import { readRecords as readRecipientRecords, registerBlock as recipientsBlock } from "../recipients/battery.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const NATIVE = path.resolve(HERE, "..", "..");
@@ -82,6 +84,12 @@ export function refresh(doc) {
     if (!names.length) throw new Error(`register: no raw records start with ${prefix}`);
     const records = names.flatMap((n) => readBuildRecords(path.join(RAW, n)));
     return `<!-- builds: ${prefix} -->\n${buildsBlock({ records, model: records[0]?.model ?? "?" }).trimEnd()}\n<!-- /builds -->`;
+  });
+  out = out.replace(/<!-- recipients: (\S+) -->\n[\s\S]*?<!-- \/recipients -->/g, (_m, prefix) => {
+    const names = fs.existsSync(RAW) ? fs.readdirSync(RAW).filter((n) => n.startsWith(prefix) && n.endsWith(".jsonl")).sort() : [];
+    if (!names.length) throw new Error(`register: no raw records start with ${prefix}`);
+    const records = names.flatMap((n) => readRecipientRecords(path.join(RAW, n)));
+    return `<!-- recipients: ${prefix} -->\n${recipientsBlock({ records, model: records[0]?.model ?? "?" }).trimEnd()}\n<!-- /recipients -->`;
   });
   out = out.replace(/<!-- sample: (\S+) :: (\S+) -->\n[\s\S]*?<!-- \/sample -->/g, (_m, prefix, key) => {
     const names = fs.existsSync(RAW) ? fs.readdirSync(RAW).filter((n) => n.startsWith(prefix) && n.endsWith(".jsonl")).sort() : [];
