@@ -29,6 +29,7 @@ import { extractElements } from "./podcast-cdp-lib.mjs";
 import { visualPathosOf } from "../organs/visual-pathos.js";
 import { contrastRatio, wcagFloorFor } from "../organs/contrast.js";
 import { proposeAnchor, foldCode, readAnchorLog, appendAnchorLog, settledContent } from "../adapters/build/code-anchor-log.js";
+import { checkMimicry, resolveToHex } from "../organs/girard.js";
 import { checkCode } from "../the-fold/surface/podcast-app-codegen.mjs";
 import { coherenceGate } from "../adapters/build/coherence-properties.mjs";
 import { TEMPLATE } from "./podcast-anchor-log-drive.mjs";
@@ -101,7 +102,31 @@ function applyContrastFix(styleContent, el, fix) {
 // is a real judgment call, asked of the model in complete isolation (no
 // existing style content in its context, matching this session's own
 // anchor-log discipline throughout).
+//
+// FOUND LIVE, FIXED HERE: the first version of this ask had no notion of
+// TASTE at all — the model returned a well-formed rule (bold, larger,
+// RED) that cleared the plain "is this real and different" contract and
+// was genuinely tasteless anyway, because red shares nothing with the
+// app's own established Spotify-green accent (#1DB954). Per
+// organs/girard.js (Handle: Girard — mimetic desire, "man does not know
+// what to desire, and turns to others to make up his mind"): a design
+// choice asked for with nothing real to imitate produces arbitrary
+// output. Attempt 1 still asks freely, unprompted — the mimicry contract
+// below is the actual MEASUREMENT of whether the model converged on a
+// real pattern by itself; attempt 2, if attempt 1 fails that check, is
+// told explicitly what real, established color to imitate.
 const DIFFERENTIATE_PROMPT = `Write ONE CSS rule, and only one, that makes the FIRST episode in a list of many identical "<div class=\\"episode\\"><h3>...</h3>..." entries visually stand out from the rest — e.g. an accent color, a bolder weight, or a larger size for its title. Use exactly the selector ".episode:first-of-type h3". Return ONLY that one rule, in a fenced css code block, nothing else, no explanation.`;
+
+const DIFFERENTIATE_PROMPT_MIMETIC = (accentHex) => `Write ONE CSS rule, and only one, that makes the FIRST episode in a list of many identical "<div class=\\"episode\\"><h3>...</h3>..." entries visually stand out from the rest. This app's own established accent color is ${accentHex} — reuse it (or a lighter/darker shade of the SAME hue) for the emphasis, the way real, well-designed interfaces reuse their own accent color rather than introducing an unrelated one. Use exactly the selector ".episode:first-of-type h3". Return ONLY that one rule, in a fenced css code block, nothing else, no explanation.`;
+
+// The two real, measured local design systems girard.js's own header
+// cites — this dial is not invented, it is the max of the two.
+const MIMICRY_DIAL = { value: 15, giver: "organs/girard.js — the-fold (#6d28d9→#f3eeff, 5.7°) and heimdall (#63d9a8→2a7a5e, 3.9°), the two real local design systems measured", basis: "comfortably above both real observed values (a few degrees, from sRGB rounding across a lightness shift), firmly below an unrelated hue (a red departs a green accent by ~141°)" };
+
+function establishedAccentFrom(styleContent) {
+  const m = /button\s*\{[^}]*background-color\s*:\s*([^;]+);/.exec(styleContent);
+  return m ? resolveToHex(m[1].trim()) : null;
+}
 
 async function callMouth(prompt) {
   const res = await fetch(`${OLLAMA_URL}/api/chat`, {
@@ -119,10 +144,14 @@ function extractFence(text) {
 }
 
 // The contract: a real, distinct rule — not empty, not silently identical
-// to the existing .episode h3 rule it must differ FROM. Never verifies the
-// design is GOOD (that is what the next loop round's real re-measurement
-// is for) — only that the model did not return garbage or a no-op.
-function differentiationContract(cssText, existingEpisodeH3Rule) {
+// to the existing .episode h3 rule it must differ FROM — AND, if it
+// declares any color at all, one that MIMICS the app's own established
+// accent (girard.js) rather than an arbitrary, unrelated hue. Never
+// verifies the design is GOOD beyond that (whether it's tasteful in any
+// deeper sense is what the next loop round's real re-measurement is for)
+// — only that the model did not return garbage, a no-op, or an invented
+// color with nothing real behind it.
+function differentiationContract(cssText, existingEpisodeH3Rule, establishedAccentHex) {
   const m = /^\s*([^{]+)\{([^}]*)\}\s*$/.exec(cssText);
   if (!m) return { ok: false, detail: `not a single well-formed CSS rule: ${JSON.stringify(cssText.slice(0, 120))}` };
   const [, selector, decls] = m;
@@ -130,32 +159,75 @@ function differentiationContract(cssText, existingEpisodeH3Rule) {
   const normalized = decls.replace(/\s+/g, " ").trim();
   const existingNormalized = (existingEpisodeH3Rule ?? "").replace(/\s+/g, " ").trim();
   if (normalized === existingNormalized) return { ok: false, detail: "identical to the existing .episode h3 rule — differentiates nothing" };
+  if (establishedAccentHex) {
+    const colorDecls = [...decls.matchAll(/(?<![\w-])(color|background-color|border-color)\s*:\s*([^;]+)/g)];
+    for (const [, prop, value] of colorDecls) {
+      const hex = resolveToHex(value.trim());
+      if (!hex) continue; // a value this can't resolve (a var(), a keyword outside the received subset) is a disclosed gap, never a guessed failure
+      const mimicry = checkMimicry(hex, establishedAccentHex, MIMICRY_DIAL);
+      if (!mimicry.mimetic) return { ok: false, detail: `${prop}: ${value.trim()} — ${mimicry.detail}`, mimicryFailure: true };
+    }
+  }
   return { ok: true, selector: selector.trim(), decls: decls.trim() };
 }
 
 async function proposeDifferentiation(styleContent, round) {
   const existing = ruleBlock(styleContent, ".episode h3").match?.[1] ?? "";
+  const accentHex = establishedAccentFrom(styleContent);
+  let lastMimicryFailure = false;
   for (let attempt = 1; attempt <= 2; attempt += 1) {
-    const raw = await callMouth(DIFFERENTIATE_PROMPT);
+    // Girard's own point, made mechanical: attempt 1 asks freely — this IS
+    // the measurement of whether the model converges on a real pattern
+    // unprompted. Only once that measurement FAILS (a real mimicry
+    // failure, not any other contract failure) does attempt 2 name the
+    // real model to imitate, rather than retrying the identical blind ask.
+    const prompt = (attempt === 2 && lastMimicryFailure && accentHex) ? DIFFERENTIATE_PROMPT_MIMETIC(accentHex) : DIFFERENTIATE_PROMPT;
+    const raw = await callMouth(prompt);
     const css = extractFence(raw);
-    const contract = differentiationContract(css, existing);
+    const contract = differentiationContract(css, existing, accentHex);
     if (contract.ok) {
       const newContent = `${styleContent}\n\n${contract.selector} {\n  ${contract.decls}\n}`;
-      return { ok: true, content: newContent, raw, prompt: DIFFERENTIATE_PROMPT, attempt };
+      return { ok: true, content: newContent, raw, prompt, attempt, mimicryChecked: Boolean(accentHex) };
     }
+    lastMimicryFailure = Boolean(contract.mimicryFailure);
     if (attempt === 2) return { ok: false, detail: contract.detail, raw };
   }
 }
 
+// A taste failure pathos structurally cannot see (P: "does it look nice"
+// is a category error for the re-ground ladder itself) but Girard's
+// contract can: an ALREADY-LANDED differentiation whose color never
+// imitated the app's own established accent. Checked independent of the
+// pathos condition — pop-out reads ground_holds correctly (the rule DOES
+// differentiate), and this is a separate, later-earned finding on top.
+function tastelessDifferentiation(styleContent) {
+  const accentHex = establishedAccentFrom(styleContent);
+  if (!accentHex) return null;
+  const existing = ruleBlock(styleContent, ".episode:first-of-type h3").match;
+  if (!existing) return null;
+  const colorDecls = [...existing[1].matchAll(/(?<![\w-])(color|background-color|border-color)\s*:\s*([^;]+)/g)];
+  for (const [, prop, value] of colorDecls) {
+    const hex = resolveToHex(value.trim());
+    if (!hex) continue;
+    const mimicry = checkMimicry(hex, accentHex, MIMICRY_DIAL);
+    if (!mimicry.mimetic) return { prop, value: value.trim(), mimicry };
+  }
+  return null;
+}
+
 // ── diagnosis: which findings are repairable, and by which strategy ────────
-function diagnose(report) {
+function diagnose(report, styleContent) {
   const tasks = [];
   for (const c of report.contrast) {
     if (!c.clears) tasks.push({ kind: "contrast", id: c.id });
   }
   if (report.condition.kind === "stale" && report.read.rhythm.flatline) {
     tasks.push({ kind: "differentiate" });
-  } else if (report.condition.kind === "collapse") {
+  } else {
+    const tasteless = tastelessDifferentiation(styleContent);
+    if (tasteless) tasks.push({ kind: "retaste", tasteless });
+  }
+  if (report.condition.kind === "collapse") {
     tasks.push({ kind: "unrepaired", detail: `condition "collapse" fired (${report.condition.basis}) — no repair strategy exists for the curve axis yet (see native/docs/THE-THEORY-OF-PATHOS.md, slot 4: no incremental visual reader to re-read against)` });
   } else if (report.condition.kind === "contested") {
     tasks.push({ kind: "unrepaired", detail: `condition "contested" fired (${report.condition.basis}) — no repair strategy exists for a strict-strain visual claim cycle yet` });
@@ -193,7 +265,11 @@ async function main() {
     const before = await readReport(elements);
     console.log(`  read: condition=${before.condition.kind}, contrast fails=${before.contrast.filter((c) => !c.clears).length}, strain=${before.read.strain}`);
 
-    const tasks = diagnose(before);
+    let log = readAnchorLog(LEDGER_FILE);
+    const fromStart = log.nextSeq;
+    let styleContent = settledContent(log, "style").content;
+
+    const tasks = diagnose(before, styleContent);
     const repairable = tasks.filter((t) => t.kind !== "unrepaired");
     const unrepaired = tasks.filter((t) => t.kind === "unrepaired");
     for (const u of unrepaired) console.log(`  NAMED, NOT REPAIRED: ${u.detail}`);
@@ -205,9 +281,6 @@ async function main() {
       break;
     }
 
-    let log = readAnchorLog(LEDGER_FILE);
-    const fromStart = log.nextSeq;
-    let styleContent = settledContent(log, "style").content;
     const applied = [];
 
     for (const task of repairable) {
@@ -227,6 +300,16 @@ async function main() {
         console.log(`    got: ${result.selector ? "" : "(fenced content)"} — attempt ${result.attempt}`);
         styleContent = result.content;
         applied.push({ task, ok: true, detail: "appended a new, contract-checked .episode:first-of-type h3 rule", writer: MODEL, prompt: result.prompt, rawResponse: result.raw });
+      } else if (task.kind === "retaste") {
+        console.log(`  [retaste/model, Girard] an already-landed differentiation (${task.tasteless.prop}: ${task.tasteless.value}) is arbitrary — ${task.tasteless.mimicry.detail}`);
+        const { re: oldRuleRe, match: oldRuleMatch } = ruleBlock(styleContent, ".episode:first-of-type h3");
+        if (!oldRuleMatch) { applied.push({ task, ok: false, detail: "the tasteless rule vanished between diagnosis and repair — nothing to concede" }); continue; }
+        const withoutOldRule = styleContent.replace(oldRuleRe, "").replace(/\n{3,}/g, "\n\n").trim();
+        const result = await proposeDifferentiation(withoutOldRule, round);
+        if (!result.ok) { applied.push({ task, ok: false, detail: `redo failed its own contract after retry: ${result.detail}` }); continue; }
+        console.log(`    redone — attempt ${result.attempt}, mimicry checked: ${result.mimicryChecked}`);
+        styleContent = result.content;
+        applied.push({ task, ok: true, detail: `conceded the arbitrary ${task.tasteless.prop}: ${task.tasteless.value} and re-proposed under Girard's mimicry contract`, writer: MODEL, prompt: result.prompt, rawResponse: result.raw });
       }
     }
 
