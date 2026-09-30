@@ -216,7 +216,7 @@ export async function makeHolograph({ routes = ROUTES } = {}) {
     const lens = R.resolutionBlocks({ level: 2, question: task.request, transcript: [], index, notes, voids: [], records: [], dmdWindow }).lens;
     const sentences = act.basis === "activation" ? act.passages.map((p) => p.text) : [];
     // The hand is the SENTENCES. `lensBlock` (what the ledger heard about the active referents) is computed and returned for the
-    // record but is not handed to the writer: on eighteen of these nineteen records it is empty, and on the alias records it is the
+    // record but is not handed to the writer: on fifteen of these nineteen tasks it is empty, and on the four alias tasks (two records) it is the
     // extractor's punctuation — `Hart — (→ Liz`, `Liz — ) joined the club last year, and→ Liz` — because the door's grammar gate
     // refuses a label the treebank settles as a non-verb and the treebank has no entry for a parenthesis. A finding about the door,
     // recorded in the register; handing it to the writer would put noise in exactly the arm that is being tested.
