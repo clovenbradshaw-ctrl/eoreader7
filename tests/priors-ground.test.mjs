@@ -250,6 +250,33 @@ test("a url is data, never a path: hostile urls keep their page inside the earne
   assert.equal(fs.existsSync("/etc/passwd.txt"), false);
 });
 
+// ── which carrying passage: recurrence, not presence ────────────────────────────────────────────────────────────────────
+test("CONTROL — by presence a short simile outranks the paragraph the ask is about; by recurrence it does not", async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "er7-rec-"));
+  const put = (rel, text) => { const f = path.join(dir, rel); fs.mkdirSync(path.dirname(f), { recursive: true }); fs.writeFileSync(f, text); };
+  put("02-encyclopedic/freewheel.txt", [
+    "Helicopters", "Freewheels are also used in rotorcraft. Just as a bicycle's wheel must spin faster than the pedals, a freewheel lets a rotorcraft's blade spin while the engine stays still.",
+    "Bicycles", "The bicycle freewheel keeps the wheel spinning while the pedals stay still. A bicycle freewheel holds a pawl; the freewheel pawl rides the ratchet, so the wheel keeps spinning and the pedals stay still. Every bicycle freewheel works this way.",
+  ].join("\n\n"));
+  for (let i = 0; i < 6; i++) put(`01-literature/pad-${i}.txt`, "The wheel turned and the set was a size.");
+  const r = await findPriorsGround({ topic: ASK, roots: [{ dir, label: "t" }] });
+  assert.equal(r.mode, "carried", r.basis);
+  assert.ok(r.passages[0].text.includes("pawl"), "the bicycle paragraph, not the rotorcraft simile: " + r.passages[0].text.slice(0, 80));
+  // the old rule — sum of evidence counted once — would have ranked the simile first (it holds the words in a shorter text)
+  const once = (txt) => { const has = new Set(txt.toLowerCase().match(/[a-z]+/g)); return ["bicycle", "freewheel", "let", "wheel", "spin", "pedal", "stay", "still"].filter((w) => [...has].some((h) => h.startsWith(w))).length; };
+  const simile = "Just as a bicycle's wheel must spin faster than the pedals, a freewheel lets a rotorcraft's blade spin while the engine stays still. Freewheels are also used in rotorcraft.";
+  const about = "The bicycle freewheel keeps the wheel spinning while the pedals stay still. A bicycle freewheel holds a pawl; the freewheel pawl rides the ratchet, so the wheel keeps spinning and the pedals stay still. Every bicycle freewheel works this way.";
+  assert.ok(once(simile) > once(about), "presence alone rates the simile higher (" + once(simile) + " words of the ask against " + once(about) + ")");
+});
+
+test("furniture: a bracketed token like [ edit ] is not a heading, and does not end up at the edge of a section", () => {
+  const text = "Helicopters\n\n[ edit ]\n\nFreewheels are also used in rotorcraft.\n\n[ edit ]\n\nHistory\n\n[ edit ]\n\nIn 1869 it was invented.";
+  const start = text.indexOf("Freewheels"), end = start + "Freewheels are also used in rotorcraft.".length;
+  const sec = sectionOf(text, start, end);
+  assert.equal(text.slice(sec.start, sec.end), "Freewheels are also used in rotorcraft.");
+  assert.ok(!text.slice(sec.start, sec.end).includes("[ edit ]"));
+});
+
 // ── the real corpus (skipped where it is not present) ───────────────────────────────────────────────────────
 const CACHE = path.join(os.tmpdir(), `er7-pg-real-${process.pid}.json`);
 const real = { skip: !haveReal && "live_priors not present" };
@@ -299,4 +326,19 @@ test("REAL: the second ask of the same words is answered from the cache", real, 
   const r = await findPriorsGround({ topic: "The continuum hypothesis and the sizes of infinite sets", roots: [{ dir: REAL, label: "live_priors" }], cacheFile: CACHE });
   assert.equal(r.scanned.cached, true);
   assert.ok(r.scanned.ms < 5000, "warm: " + r.scanned.ms + "ms");
+});
+
+test("REAL: the bicycle-freewheel ask, with the real Wikipedia page kept as earned ground, is grounded in the bicycle mechanism, not the rotorcraft paragraph", { skip: !haveReal }, async () => {
+  const earned = fs.mkdtempSync(path.join(os.tmpdir(), "er7-earned-"));
+  const body = fs.readFileSync(new URL("./fixtures/freewheel-wikipedia.txt", import.meta.url), "utf8");
+  const w = persistEarnedGround({ dir: earned, docs: [{ url: "https://en.wikipedia.org/wiki/Freewheel", text: body }], task: ASK });
+  assert.equal(w.written.length, 1);
+  const r = await findPriorsGround({ topic: ASK, roots: [{ dir: REAL, label: "live_priors" }, { dir: earned, label: "earned" }], cacheFile: path.join(earned, "words.json") });
+  assert.equal(r.mode, "carried", r.basis);
+  const top = r.passages.find((p) => p.label === "earned");
+  assert.ok(top, "the earned page is found");
+  assert.ok(top.text.includes("Bicycles use freewheels to allow the cyclist to coast"), "the ground is the section about bicycle freewheels: " + top.text.slice(0, 120));
+  assert.ok(!top.text.includes("rotorcraft"), "and not the rotorcraft paragraph");
+  assert.equal(body.slice(top.start, top.end), top.text);
+  assert.ok(!/^\[ edit \]/.test(top.text) && !/\[ edit \]$/.test(top.text.trim()), "no furniture at the edges");
 });

@@ -2196,13 +2196,47 @@ tier `priors`, web 0. Nothing left the machine the second time.
 **Two findings that came from running it, and are not fixed.**
 1. `selectGroundDocs` bucketed a fetched page as `given` whenever nothing was handed over (`hasGiven` false), so a consented hunt read
    as the operator's material. Fetched is now by where the page came from (id `web:`/`wikisource:`); control test added.
-2. FALSIFIED: the located ground for the bicycle ask is the rotorcraft paragraph of the Freewheel article ("Just as a bicycle's
-   wheels must be able to rotate faster than the pedals, a rotorcraft's blades…"). It carries the ask's words, evidence and anchor
-   and is not an answer to the ask; the sentence the model wrote ("coast downhill…") is in no ground. Lexical carrying cannot tell
-   "mentions the subject" from "is about it". The page's own structure (lead section, the article's subject is its title) is a
-   candidate signal; unbuilt. Page furniture ("[ edit ]") ships in excerpts.
+2. FALSIFIED, THEN FIXED: the located ground for the bicycle ask was the rotorcraft paragraph of the Freewheel article ("Just as a
+   bicycle's wheels must be able to rotate faster than the pedals, a rotorcraft's blades…"): it held six of the eight words once, in
+   42 words, and the model wrote a sentence in no ground. Which carrying passage is chosen is now by RECURRENCE, not presence: the
+   evidence summed with each word counted ln(1 + occurrences) times. On the real page: bicycle-mechanism 22.9, history 21.1,
+   rotorcraft 20.2 (by presence the rotorcraft paragraph won). Heading words were tried first and dropped: "Helicopters" and
+   "Mechanics" cannot be told apart by what they share with the ask. Two controls fail under the old rule (a mini-corpus simile that
+   holds MORE of the ask's words, and the real page). Page furniture ("[ edit ]") is neither a heading nor content and is trimmed
+   from a section's edges. Live: the ground became `#1333-3519`, the Mechanics section.
 
 **Limits, stated.** Word forms are draftWords' English stems; a single unbroken line is one passage however long; eligibility is
 numbered category folders and `.txt`/`.md` only; the word cache is keyed by the whole corpus fingerprint, so a newly earned page
 makes the next search rescan once (seconds). A first consented job once found "no page that could be read" from a live search that
 later worked: the hunt has no retry and no fallback to the Intelechia fetch proxy.
+
+## 84. What the model says is grounded only if it links to an address in the ground — traced as it is drawn (2026-09-30)
+
+User direction: "anything the model says that can't be holographically linked to an auditable source is ungrounded by definition";
+"the proper state of things is it is ungrounded if the model has no input"; "trace it in real time and have this activation feed
+generation"; priors steer, they do not enter as content. `native/the-fold/ground-trace.js`: a sentence is LINKED when more than half of
+its content words occur in ONE sentence of one source AND every number it states occurs there; its link is that source sentence's
+address (id, start, end). Otherwise it is ungrounded — no third state. No model call, no tuned number.
+
+**The gap it closes, measured on real bytes.** The existing `citationLedger` counts a sentence sourced when three of its words occur
+ANYWHERE in a whole source. On the live job's output it marked the model's invented "This is achieved by a mechanism that allows the
+wheel to continue rotating…" as `verbatim` and "Bicycles don't just coast; they actively shift their momentum." as `company`, with
+0 unsupported (the per-document presence failure again, at the grain of the claim). A control test reproduces that on the job's bytes.
+
+**Real time.** `makeTracer(sources)` reads the ground's sentences once and is asked one sentence at a time; `admission.js admit()`
+takes it as `linked`: an unlinked candidate is refused on BOTH roads (`unlinked` — the motion road admits a turn, never an unsourced
+claim) and an admitted one returns `lit`, the source sentence it lit, which the caller adds to `usedSentences` so the next window is
+built from what the output has not yet lit (the activation feeds generation through the window it is handed, not through a rule told
+to the mouth). Wired at every admit site of the projection path: the snip loop, the redraw (`admitWide`), and the opening path, which
+had its own filter and a live "first sentence" fallback with no link test — the first live run shipped an invented opening through it.
+The final trace row is computed on the FINAL projection (a pre-fold trace counted three sentences the fold had already superseded);
+markdown headings are names, not claims.
+
+**Live result (gemma2:2b, same ask, web off, ground = the earned Freewheel page).** The model's invented sentences are refused
+`unlinked` in every section's admission row; the shipped prose is the sentences that link; the ledger's `trace` row lists what was
+linked (with addresses) and what was not. Remaining: lexical only — a negation that keeps the words links; a claim assembled from two
+source sentences reads as ungrounded (the failure is to say so); the motion contract now often exhausts its redraw budget because
+a bridging sentence has nothing to link to; the model's first-draft `part` rows still carry its own words (the ledger keeps the
+record; the projection does not). Not yet built: the holodeck surface for `trace` (mark ungrounded sentences in Preview), and choosing
+the next window by walking the source's own order from the last lit sentence.
+

@@ -861,3 +861,13 @@ clean: none claimed
 | Kant | bucketing | selectGroundDocs | fixed | fetched pages read as tier "given" when nothing was handed over; control test added |
 | Hume | what carrying proves | priors-ground.js | noted | live: the located passage for the bicycle ask is a rotorcraft paragraph that mentions a bicycle; lexical carrying cannot tell mention from aboutness (lesson 83, unbuilt) |
 clean: none claimed
+
+## 2026-09-30 (later) — ground-trace.js, admit() `linked`, recurrence rank (priors-ground.js, admission.js, proxy-runner.mjs)
+| archon | lens | where | verdict | note |
+|---|---|---|---|---|
+| Hume | what a link proves | ground-trace.js | noted | lexical: a negation that keeps the words links; limits are in the header and lesson 84 |
+| Kant | additive option | admission.js `linked` | fixed | null by default: `admit` without a tracer is unchanged (93 admission/spiral/fiction tests pass; a test pins it) |
+| Simon/Chekhov | controls | tests/ground-trace.test.mjs, priors-ground.test.mjs | fixed | the citationLedger gap and the presence rank are each reproduced on real bytes and fail the old way |
+| Ostrom | commons | earned ground | noted | the ground grows only from consented hunts; nothing is written into live_priors |
+clean: none claimed
+

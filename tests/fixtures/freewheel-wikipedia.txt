@@ -1,0 +1,276 @@
+Jump to content
+
+From Wikipedia, the free encyclopedia
+
+Mechanism which disconnects a driveshaft from a faster-rotating driven shaft
+
+Not to be confused with Flywheel .
+
+"Freewheeling" redirects here. For the Italian comedy, see Freewheeling (film) .
+
+This article needs more citations . Please help improve this article by adding citations to reliable sources . Unsourced material may be challenged and removed .
+Find sources: "Freewheel" – news · newspapers · books · scholar · JSTOR ( June 2013 ) ( Learn how and when to remove this message )
+
+Freewheel mechanism
+
+Ratcheting freewheel mechanism (van Anden, 1869)
+
+A freewheel or overrunning clutch is a device in a transmission that disengages the driveshaft from the driven shaft when the driven shaft rotates faster than the driveshaft. An overdrive is sometimes mistakenly called a freewheel, but is otherwise unrelated.
+
+The condition of a driven shaft spinning faster than its driveshaft exists in most chain-driven bicycles when the rider stops pedaling . In a specialized fixed-gear bicycle (that lacks a freewheel) the rear wheel drives the pedals around.
+
+Some automobile transmissions include freewheel mechanisms for reasons ranging from fuel efficiency and noise reduction to preventing damage that some engines incur when driven by the wheels.
+
+Mechanics
+
+[ edit ]
+
+The simplest freewheel device consists of two saw-toothed, spring -loaded discs pressing against each other axially with the toothed sides together, like a ratchet but with the usual stationary part also rotating. Rotating in one direction, the saw teeth of the drive disc lock with the teeth of the driven disc, making it rotate at the same speed. If the drive disc slows down or stops rotating, the teeth of the driven disc slip over the drive disc teeth and continue rotating, producing a characteristic clicking sound proportionate to the speed difference of the driven gear relative to that of the (slower) driving gear.
+
+A more sophisticated and rugged design has spring-loaded steel rollers inside a driven cylinder. Rotating in one direction, the rollers lock with the cylinder making it rotate in unison. Rotating slower, or in the other direction, the steel rollers just slip inside the cylinder.
+
+Bicycles use freewheels to allow the cyclist to coast without pedaling. Rotating either the wheel or cassette in the direction that produces the clicking sound causes the pawl to easily slide up and over the gently sloped edges of the teeth. This process is sometimes informally referred to as "slipping." In this scenario, the cassette rotates independently of the rear wheel. When the cyclist stops pedaling, the ratchet slips as the wheel continues to rotate while the cassette stops, producing the clicking noise. Consequently, a bicycle will not move in reverse, unless the cyclist pedals backwards. When the cassette or wheel is rotated in the opposite direction, the pawl catches against the steeper-sloped edges of the teeth, creating a lock. As the cyclist pedals forward, the cassette spins forward causing the pawl to catch against the steep slope of the teeth and drive the rear wheel in the forward direction.
+
+Most bicycle freewheels use an internally step-toothed drum with two or more spring-loaded, hardened steel pawls to transmit the load. More pawls help spread the wear and give greater reliability although, unless the device is made to tolerances not normally found in bicycle components, simultaneous engagement of more than two pawls is rarely achieved.
+
+Advantages and disadvantages
+
+[ edit ]
+
+By its nature, a freewheel mechanism acts as an automatic clutch , making it possible to change gears in a manual gearbox , either up- or downshifting, without depressing the clutch pedal, limiting the use of the manual clutch to starting from standstill or stopping. The Saab freewheel can be engaged or disengaged by the driver by respectively pushing or pulling a lever. This locks or unlocks the main shaft with the freewheel hub.
+
+A freewheel also produces slightly better fuel economy on carbureted engines (without fuel turn-off on engine brake) and less wear on the manual clutch, but leads to more wear on the brakes as there is no longer any ability to perform engine braking . This may make freewheel transmissions dangerous for use on trucks and automobiles driven in mountainous regions, as prolonged and continuous application of brakes to limit vehicle speed soon leads to brake-system overheating followed shortly by total failure.
+
+Uses
+
+[ edit ]
+
+Agricultural equipment
+
+[ edit ]
+
+In agricultural equipment an overrunning clutch is typically used on hay balers and other equipment with a high inertial load, particularly when used in conjunction with a tractor without a live power take-off (PTO). Without a live PTO, a high inertial load can cause the tractor to continue to move forward even when the foot clutch is depressed, creating an unsafe condition. By disconnecting the load from the PTO under these conditions, the overrunning clutch improves safety. Similarly, many unpowered 'push' cylinder lawnmowers use a freewheel to drive the blades: these are geared or chain-driven to rotate at high speed and the freewheel prevents their momentum being transferred in the reverse direction through the drive when the machine is halted.
+
+Engine starters
+
+[ edit ]
+
+A freewheel assembly is also used on engine starters. Starter motors usually need to spin at 3,000 RPM to get the engine to turn over. When the key is held in the start position for any amount of time after the engine has started, the starter can not spin fast enough to keep up with the flywheel. Because of the extreme gear ratio between starter gear and flywheel (about 15 or 20:1) it would spin the starter armature at dangerously high speeds, causing an explosion when the centripetal force acting on the copper coils wound in the armature can no longer resist the outward force acting on them. In starters without the freewheel or overrun clutch or other disengagement device this would be a major problem because, with the flywheel spinning at about 1,000 RPM at idle, the starter, if engaged with the flywheel , would be forced to spin between 15,000 and 20,000 RPM. Once the engine has turned over and is running, the overrun clutch releases the starter from the flywheel and prevents the gears from re-meshing (as in an accidental turning of the ignition key) while the engine is running. A freewheel clutch is now used in many motorcycles with an electric starter motor. It is used on many combustion-engined mowers. It is used as a replacement for the Starter solenoid (or the older Bendix drive ) used on most car starters because it reduces the electrical needs of the starting system and gives reduced complexity. [ citation needed ]
+
+Vehicle transmissions
+
+[ edit ]
+
+Pure freewheeling in an automobile is pushing the clutch in and releasing the throttle, disengaging the connection between the engine and transmission and allowing the engine to idle while the wheels turn at whatever pace gravity and momentum propel them.
+
+A condition opposite to that of freewheeling exists in an automobile with a manual transmission going downhill, or any situation where the driver takes their foot off the gas pedal (closing the throttle ) but the clutch is left out (and the transmission remains engaged). Instead of the engine driving the wheels (through the transmission), the wheels will drive the engine, possibly at a higher RPM. In a two-stroke engine , this can be catastrophic—as many two stroke engines depend on a fuel / oil mixture for lubrication , a shortage of fuel to the engine starves oil from the cylinders , and the pistons can soon seize, causing extensive damage. Saab used a freewheel system in their two-stroke models for this reason and maintained it in the Saab 96 V4 and early Saab 99 for better fuel efficiency .
+
+Historically, freewheels were used in some luxury or up-market conventional cars (such as Packard , Rover and Cord ) from the 1930s into the 1960s. Some engines of the period also tended to pass oil past the piston rings under conditions with a closed throttle and high engine speed, when the slight vacuum in the combustion chamber combined with high oil pressure and a high degree of splash lubrication from the fast-turning crankshaft would lead to oil getting in the combustion chamber.
+
+The freewheel meant that the engine returned to its idle speed on the overrun, thus greatly reducing noise from both the engine and gearbox and reducing oil consumption. The mechanism could usually be locked to provide engine braking if needed. A freewheel was also used in the original Land Rover vehicle from 1948 to 1951. The freewheel controlled drive from the gearbox to the front axle , which disengaged on the overrun. This allowed the vehicle to have a permanent 4 wheel drive system by avoiding 'wind-up' forces in the transmission. This system worked, but produced unpredictable handling, especially in slippery conditions or when towing, and was replaced by a conventional selectable 4WD system.
+
+During the Second World War, the military Volkswagen vehicles produced by KdF ( Kübelwagen , Schwimmwagen ) were fitted with a ZF limited-slip differential system composed of two freewheels, which sent the whole of the engine power to the slower-turning of the two wheels. [ 1 ]
+
+Other car makers fitted a freewheel between engine and gearbox as a form of automatic clutch . Once the driver released the throttle and the vehicle was on the overrun, the freewheel disengaged and the driver could change gears without using the clutch pedal. This feature appeared mainly on large, luxury cars with heavy clutches and gearboxes without synchromesh , as the freewheel permitted a smoother and quieter change. Citroën combined a freewheel and a centrifugal clutch to make the so-called 'TraffiClutch', which let the driver start, stop, and change the lower gears without using the clutch. This was an option on Citroën 2CVs and its derivatives and, as the name implied, was marketed as a benefit for driving in congested urban areas. Similarly, the Saab 93 was available with an optional Saxomat clutch.
+
+A common use of freewheeling mechanisms is in automatic transmissions. For instance traditional, hydraulic General Motors transmissions such as the Turbo-Hydramatic 400 provide freewheeling in all gears lower than the selected gear. E.g., if the gear selector on a three-speed transmission is labelled 'drive'(3)-'super'(2)-'low'(1) and the driver has selected 'super', the transmission freewheels if first gear is engaged, but not in second or third gears; if in 'drive' it freewheels in first or second; finally, if in low, it does not freewheel in any gear. This lets the driver select a lower range to provide engine braking at various speeds, for instance when descending a steep hill.
+
+Overdrive units manufactured by Laycock de Normanville used a freewheel to facilitate a smooth gear change between locked mode (1:1) and overdrive mode without use of the conventional clutch pedal . The freewheel would lock the outgoing axle to the outgoing axle in the brief transition period between the conical clutch for locked mode disengaging and the clutch for overdrive mode engaging. [ 2 ]
+
+Bicycles
+
+[ edit ]
+
+Apart from the usual use of a freewheel where there is a single sprocket at the wheel, and the older style of derailleur gears where the freewheel mechanism is included in the gear/sprocket assembly and the system is called a freewheel , the newer style in which the freewheel mechanism is in the hub is called a freehub .
+
+Helicopters
+
+[ edit ]
+
+Freewheels are also used in rotorcraft . Just as a bicycle's wheels must be able to rotate faster than the pedals, a rotorcraft's blades must be able to spin faster than its drive engines. This is especially important in the event of an engine failure where a freewheel in the main transmission lets the main and tail rotor systems continue to spin independent of the drive system. This provides for continued flight control and an autorotation landing.
+
+History
+
+[ edit ]
+
+In 1869, William Van Anden of Poughkeepsie , New York, USA, invented the freewheel for the bicycle . [ 3 ] His design placed a ratchet device in the hub of the front wheel (the driven wheel on the velocipede designs of the time), which allowed the rider to propel himself forward without pedaling constantly. [ 4 ] Initially, bicycle enthusiasts rejected the idea of a freewheel because they believed it would complicate the mechanical functions of the bicycle. [ 5 ] Bicycle enthusiasts believed that the bicycle was supposed to remain as simple as possible without any additional mechanisms, such as the freewheel. [ 6 ]
+
+In the UK, a roller freewheel was patented by J. White and G. Davies of Coventry Machinist Co. in 1881 [ 7 ] and fitted to the Chelseymore tricycle, but the pioneers of fitting the freewheel to the safety bicycle were Linley and Biggs Ltd (trading as the Whippet Cycle Syndicate ) who fitted a freewheel from the summer of 1894, in part to assist the operation of their 2-speed 'Protean' gear.
+
+By 1899 there was widespread adoption in UK bicycle manufacture of the freewheel, usually combined with the back-pedal brake, and conversions were offered to existing bicycles. [ 8 ] [ 9 ]
+
+In 1899 the same system in the USA was known as the “ coaster brake ”, which let riders brake by pedaling backwards and included the freewheel mechanism. [ 10 ] At the turn of the century, bicycle manufacturers within Europe and America included the freewheel mechanism in a majority of their bicycles but now the freewheel was incorporated in the rear sprocket of a bicycle unlike Van Anden’s initial design. [ 11 ]
+
+In 1924 French firm Le Cyclo introduced a gear-shifting bicycle with a two sprocket freewheel, which let riders to go uphill with more ease. In the late 1920s, Le Cyclo began using both front and rear derailleurs in combination with a double chainring , giving the bicycle twice as many gears. In the early 1930s, Le Cyclo invented a four sprocket freewheel, and several years later the company combined the four sprocket freewheel with a triple chainring giving the bicycle twelve gears. [ 12 ]
+
+In the 1960s and 1970s Japanese manufacturers introduced their own versions of the derailleur. SunTour notably introduced the slant parallelogram rear derailleur design in 1964, which is tilted to keep the pulley closer to each cog of the freewheel as it shifts, providing smoother and better shifting than its European equivalents. This version of the derailleur became the standard when SunTour's patent expired in the 1980s, and is still the model for today's designs. [ 13 ]
+
+See also
+
+[ edit ]
+
+- Slipper clutch
+
+- Sprag clutch
+
+- Saab 96
+
+References
+
+[ edit ]
+
+- ↑ ZF-Axial-Selbstsperrdifferential Typ B70 Beschreibung und Wartung , DE: Zahnradfabrik Friedrichshafen AG, July 1941 .
+
+- ↑ "How it Works: The Laycock Overdrive System" . Retrieved 2 January 2016 .
+
+- ↑ Anden, William van "Improvement in velocipedes" Archived 2019-01-26 at the Wayback Machine U.S. patent no. 88,238 (issued: 23 March 1869).
+
+- ↑ "Van Anden Dexter Velocipede" . National Museum of American History. Archived from the original on 8 November 2014 . Retrieved 8 April 2013 .
+
+- ↑ Herlihy, David (2004). Bicycle: The History . New Haven and London: Yale University Press. p. 136.
+
+- ↑ Herlihy, David (2004). Bicycle: The History . New Haven and London: Yale University Press. p. 311.
+
+- ↑ J. White G. Davies, UK Patent 512 of 1881, https://collection.sciencemuseumgroup.org.uk/objects/co25837/roller-clutch-as-fitted-to-cheylesmore-tricycle
+
+- ↑ The Free Wheel, Cycling, 26 Aug 1899, pp28-32
+
+- ↑ "Fortune and Bantham are fitting the cheapest and most effective back-pedalling brake to any machine on the market", Bradford Daily Telegraph , 12 Aug 1899, p1
+
+- ↑ Herlihy, David (2004). Bicycle: The History . New Haven and London: Yale University Press. p. 297.
+
+- ↑ Herlihy, David (2004). Bicycle: The History . New Haven and London: Yale University Press. p. 310.
+
+- ↑ Herlihy, David (2004). Bicycle: The History . New Haven and London: Yale University Press. pp. 353– 355.
+
+- ↑ Herlihy, David (2004). Bicycle: The History . New Haven and London: Yale University Press. p. 365.
+
+- v
+
+- t
+
+- e
+
+Gears
+
+Systems
+
+- Spur gear systems
+
+- Worm drive
+
+- Rack and pinion
+
+- Epicyclic (planetary) gearing
+
+- Sun and planet gear
+
+- Harmonic drive
+
+- Cycloidal drive
+
+- Non-circular gear
+
+Shapes
+
+- Spur
+
+- Bevel
+
+- Crown
+
+- Spiral bevel
+
+- Helical
+
+- Herringbone
+
+Geartooth profiles
+
+- Involute
+
+- Cycloid
+
+Mechanics
+
+- Transmission
+
+- Differential
+
+- Coupling
+
+- Train
+
+- Bicycle gearing
+
+- Continuously variable transmission
+
+- Offset
+
+Examples
+
+Bicycles
+
+- Cogset
+
+- Derailleur
+
+- Hub gear
+
+- Shaft-driven bicycle
+
+- Sprocket
+
+Horology
+
+- Wheel train
+
+See also
+
+- Ball screw
+
+- Leadscrew
+
+- Jackscrew
+
+- Belt drive
+
+- Chain drive
+
+- Gear manufacturing
+
+- Freewheel
+
+- Spur gear corrected tooth
+
+Retrieved from " https://en.wikipedia.org/w/index.php?title=Freewheel&oldid=1374991158 "
+
+Categories :
+- Clutches
+
+- Automotive transmission technologies
+
+- Bicycle parts
+
+Hidden categories:
+- Articles with short description
+
+- Short description is different from Wikidata
+
+- Articles needing additional references from June 2013
+
+- All articles needing additional references
+
+- All articles with unsourced statements
+
+- Articles with unsourced statements from September 2023
+
+- Webarchive template wayback links
+
+Search
+
+Freewheel
+
+21 languages
+
+Add topic

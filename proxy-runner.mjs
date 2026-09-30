@@ -119,6 +119,7 @@ import { buildClarify, recordRound, foldAnswersFromTask, SCHEMA as CLARIFY_SCHEM
 import { familyVerdict, familyAffordances, configureGfp } from "./native/organs/charter.js";
 import { admitHandedOver } from "./native/the-fold/ground-carries.js";
 import { findPriorsGround, persistEarnedGround } from "./native/the-fold/priors-ground.js";
+import { traceToGround, makeTracer } from "./native/the-fold/ground-trace.js";
 import { groundFacts, holographType } from "./native/organs/output-holograph.js";
 import { splitSentences as engineSplitSentences } from "./native/adapters/text/spans.js";
 import { askShape } from "./native/organs/askshape.js";
@@ -6610,6 +6611,14 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // reachable from the fold so a gap beat's redraw is admitted by the
       // SAME rule as every other sentence. (The section loop keeps its own
       // inline copy because it carries the section's window-scoped registry.)
+      // The tracer for THIS composition's ground (projection, not code): one read of the ground's sentences, asked one sentence
+      // at a time as the mouth draws. Null where there is no ground discipline to hold (code, non-projection).
+      let _tracer = null;
+      const groundTracer = () => {
+        if (runMode !== "projection" || isCode) return null;
+        if (!_tracer) _tracer = makeTracer(handedGround().docs.map((d) => ({ id: d.id, text: d.text })));
+        return _tracer;
+      };
       const admitWide = (text, { priorLanding = "", registry = null, section = "" } = {}) => {
         const ground = String(groundingText() ?? "");
         const { variance, bondNull, gate } = omniOf(ground);
@@ -6620,10 +6629,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         for (const cand of segmentSentencesOmni(text).filter((x) => x.length > 20)) {
           if (priorCore && claimCoreOmni(cand, variance) === priorCore) { out.refusals.push({ kind: "relanding", given: "model" }); continue; }
           if (verifyIsMetaSentence(cand)) { out.refusals.push({ kind: "meta", given: "model" }); continue; }
-          const v = admitCandidate(cand, { ground, priorLanding, instruction: `${task}\n${section}`, registry: reg, continues: (c, p) => { try { const A = propsIndex?.resolveIn?.(c); const B = propsIndex?.resolveIn?.(p); const a = A instanceof Set ? A : new Set(A ?? []); const b = B instanceof Set ? B : new Set(B ?? []); for (const id of a) if (b.has(id)) return true; } catch {} return false; }, variance, bondNull, isGrounded: grounded, invented: gate.applies ? ((x) => verifyInventedNameRuns(x, ground)) : null });
+          const v = admitCandidate(cand, { ground, priorLanding, instruction: `${task}\n${section}`, registry: reg, continues: (c, p) => { try { const A = propsIndex?.resolveIn?.(c); const B = propsIndex?.resolveIn?.(p); const a = A instanceof Set ? A : new Set(A ?? []); const b = B instanceof Set ? B : new Set(B ?? []); for (const id of a) if (b.has(id)) return true; } catch {} return false; }, variance, bondNull, isGrounded: grounded, invented: gate.applies ? ((x) => verifyInventedNameRuns(x, ground)) : null, linked: groundTracer() });
           if (!v.admit) { out.refusals.push(...(v.refused ?? [])); continue; }
           out.survivors.push(cand); out.roads.push(v.road); depositAdmitted(reg, v); depositAdmitted(matterRegistry, v);
-          usedSentences.add(cand); if (v.core) usedSentences.add(v.core);
+          usedSentences.add(cand); if (v.core) usedSentences.add(v.core); if (v.lit) usedSentences.add(v.lit.text);
         }
         return out;
       };
@@ -7096,6 +7105,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
               // reading's own referent index carries the guard instead — said
               // out loud rather than assumed.
               invented: omniGate.applies ? ((x) => inventedNameRuns(x)) : null,
+              linked: groundTracer(),
             });
             if (!verdict.admit) { refusals.push(...(verdict.refused ?? [])); continue; }
             survivors.push(cand);
@@ -7103,6 +7113,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             depositAdmitted(globalRegistry, verdict); depositAdmitted(matterRegistry, verdict);
             usedSentences.add(cand);
             if (verdict.core) usedSentences.add(verdict.core);
+            // THE ACTIVATION FEEDS GENERATION: the source sentence this one lit is spent, so the next window is built from what
+            // the output has not yet lit — not from a rule told to the mouth, from the window it is handed.
+            if (verdict.lit) usedSentences.add(verdict.lit.text);
           }
           if (onNote) onNote({
             move: "paragraph_snip",
@@ -7277,14 +7290,18 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             // the sibling admission loop above, line ~6749) can never drift
             // again, because there is nothing left here to drift.
             if (isMetaSentence(cand)) continue;
+            // the opening is held to the same definition: a sentence that links to no address in the ground is the model's own
+            const lk = groundTracer()?.(cand);
+            if (lk && lk.status === "ungrounded") continue;
             openSurvivors.push(cand);
             usedSentences.add(cand);
             usedSentences.add(core);
+            if (lk?.link) usedSentences.add(lk.link.text);
           }
           if (openSurvivors.length) {
             buf = openSurvivors.join(" ");
           } else if (openSentences.length && !stopped) {
-            const firstOk = openSentences.find((s) => !inventedNameRuns(s).length && !isMetaSentence(s));
+            const firstOk = openSentences.find((s) => !inventedNameRuns(s).length && !isMetaSentence(s) && groundTracer()?.(s)?.status !== "ungrounded");
             if (firstOk) {
               buf = firstOk;
               usedSentences.add(firstOk);
@@ -8927,6 +8944,24 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     admitChunked(session.corpus, { text: `[assistant]: ${_replyLine}`, sourceId: `chat:${sessionId}:turn-${session.turnCount - 1}:response` });
   }
 
+  // WHAT THE MODEL SAYS IS GROUNDED ONLY IF IT LINKS (2026-09-30, user direction: "anything the model says that can't be
+  // holographically linked to an auditable source is ungrounded by definition"). The trace is of the FINAL projection — the prose
+  // a reader is handed, not the first-draft parts the fold superseded (measured: a pre-fold trace counted three sentences the
+  // fold had already replaced). Every sentence is traced to an address in the ground the composition stood on, at the grain of
+  // the claim; the citation ledger counts three words anywhere in a whole source as sourced and called the model's own sentences
+  // "verbatim". Footnotes are the ledger's own and are not the model's prose.
+  if (documentLedger && runMode === "projection" && !isCode) {
+    try {
+      const body = String(projectDocument(documentLedger) ?? "").split(/\n## Footnotes\b/)[0];
+      const trace = traceToGround({ text: body, sources: handedGround().docs.map((d) => ({ id: d.id, text: d.text })) });
+      appendLedgerLine(documentLedger, {
+        role: "trace", title: "Ground trace",
+        text: `${trace.basis}\nungrounded: ${JSON.stringify(trace.sentences.filter((x) => x.status === "ungrounded").map((x) => x.text))}\nlinked: ${JSON.stringify(trace.sentences.filter((x) => x.status === "linked").map((x) => ({ text: x.text, id: x.link.id, start: x.link.start, end: x.link.end })))}`,
+        giver: "eoreader7:ground-trace", basis: "mechanical: a sentence links to one source sentence carrying more than half of its content words and every number, else it is ungrounded — no model",
+      }, { dir: ESSAY_LEDGER_DIR });
+      if (onNote) onNote({ move: "ground_trace", linked: trace.linked, ungrounded: trace.ungrounded });
+    } catch (err) { if (onNote) onNote({ move: "ground_trace_error", detail: err.message }); }
+  }
   return {
     text,
     // giver + sha256 + source ride the result so a consumer can always tell

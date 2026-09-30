@@ -38,7 +38,7 @@
 // not licensed"; its section, between two headings of the same article, is ~1,900 characters of coherent text. The address is
 // the section's; the passage's own range is kept as passageStart/passageEnd.
 //
-// Selection is the best passage of each document that has one, most evidence first: a source is the unit of provenance,
+// Selection is the best passage of each document that has one, most recurrence-weighted evidence first: a source is the unit of provenance,
 // and two sources that agree are worth more than one source repeated. No top-N, no threshold. A passage is returned with
 // its address (label/relative-path#start-end), its exact text, and the words it carries; text.slice(start, end) of the
 // file IS the passage.
@@ -84,7 +84,10 @@ const TERMINAL = /[.!?…)\]"'\u201d\u2019\u00bb]\s*$/;
 // blank-line separated blocks, with offsets: [[start, end], ...]
 const blocksOf = (text) => { const out = []; const r = /\n[ \t\r]*\n/g; let last = 0, m; while ((m = r.exec(text))) { if (m.index > last) out.push([last, m.index]); last = m.index + m[0].length; } if (last < text.length) out.push([last, text.length]); return out; };
 // a heading: a one-line block that does not end in terminal punctuation (structure, not a number)
-const isHeading = (text, [s0, e0]) => { const b = text.slice(s0, e0); return !b.includes("\n") && b.trim() !== "" && !TERMINAL.test(b); };
+// Page furniture — a block that is only a bracketed token ("[ edit ]") — is neither a heading nor content: it does not open
+// or close a section, and a section's ends are trimmed of it.
+const isFurniture = (text, [s0, e0]) => /^\[[^\]]*\]$/.test(text.slice(s0, e0).trim());
+const isHeading = (text, [s0, e0]) => { const b = text.slice(s0, e0); return !b.includes("\n") && b.trim() !== "" && !TERMINAL.test(b) && !isFurniture(text, [s0, e0]); };
 
 /**
  * sectionOf(text, start, end) → { start, end }: the passage's SECTION — the blocks between the nearest heading above it and
@@ -98,6 +101,8 @@ export function sectionOf(text, start, end) {
   let a = i; while (a > 0 && !isHeading(text, blocks[a - 1])) a--;
   if (a === 0 || !isHeading(text, blocks[a - 1])) return { start, end };
   let b = i; while (b < blocks.length - 1 && !isHeading(text, blocks[b + 1])) b++;
+  while (a < i && isFurniture(text, blocks[a])) a++;
+  while (b > i && isFurniture(text, blocks[b])) b--;
   return { start: blocks[a][0], end: blocks[b][1] };
 }
 
@@ -185,10 +190,16 @@ export async function findPriorsGround({ topic, roots = [], cacheFile = null, yi
       const low = p.text.toLowerCase();
       const maybe = words.filter((w) => low.includes(w));
       if (!carriesEnough(maybe)) continue;
-      const has = new Set(draftWords(p.text));
+      const pw = draftWords(p.text), has = new Set(pw);
       const carries = words.filter((w) => has.has(w));
       if (!carriesEnough(carries)) continue;
-      const score = weigh(carries);
+      // WHICH carrying passage: by RECURRENCE, not presence. Presence made a 42-word paragraph on rotorcraft — "Just as a
+      // bicycle's wheels must be able to rotate faster than the pedals…" — outrank the paragraph that is about bicycle freewheels,
+      // because it held six of the eight words once. A subject a passage is about recurs in it: the rank is the evidence summed
+      // with each word counted ln(1 + occurrences) times (sublinear, so repetition cannot run away). Measured on the real
+      // Wikipedia "Freewheel" page: bicycle-mechanism 22.9, history 21.1, rotorcraft 20.2 (by presence the rotorcraft paragraph won).
+      const tf = new Map(); for (const w of pw) tf.set(w, (tf.get(w) ?? 0) + 1);
+      const score = words.reduce((n, w) => n + (tf.get(w) ? weight[w] * Math.log(1 + tf.get(w)) : 0), 0);
       if (!top || score > top.score) { const sec = sectionOf(text, p.start, p.end); top = { id: `priors:${f.label}/${f.rel}#${sec.start}-${sec.end}`, label: f.label, rel: f.rel, start: sec.start, end: sec.end, passageStart: p.start, passageEnd: p.end, text: text.slice(sec.start, sec.end), carries, score }; }
     }
     if (top) best.push(top);
