@@ -2240,3 +2240,44 @@ a bridging sentence has nothing to link to; the model's first-draft `part` rows 
 record; the projection does not). Not yet built: the holodeck surface for `trace` (mark ungrounded sentences in Preview), and choosing
 the next window by walking the source's own order from the last lit sentence.
 
+## 85. The archon poll on "activation feeds generation": the claim as worded was refuted, four defects fixed, two left open (2026-09-30)
+
+User direction: "poll gary and the other archons if this is working right and falsify." Gary was run as the real organ
+(`native/organs/gary.js`); Wilson, Kelsen, Ostrom and Gebser read as independent probe-running agents (read-only, scratch files only).
+
+**Gary.** The normal window prompt is clean (information only, no address, no prohibition). The exhausted-window prompt is FLAGGED:
+`groundedWindowFor` handed back the first three spent sentences each prefixed "write this anew, never the same sentence" — a prohibition
+aimed at the mouth, which contradicted "no prompt rule". Removed: a spent sentence is not handed back; an empty window is a named gap.
+
+**Wilson (stigmergy).** Spending works except where the splitters disagree: the tracer cut `"slipping." In this scenario…` as one unit
+and the window as two, so the lit string matched no window sentence exactly and one lit sentence survived into the next window (14 of 15
+exact). Fixed twice over: the tracer now cuts with the window's own segmenter inside each paragraph (whitespace-flexible offsets), and
+`spendLit` spends every window sentence that contains the lit one or is contained by it, whatever the splitters do. Spending one
+sentence never wrongly excluded another.
+
+**Kelsen (validity).** A link is a lexical-overlap screen, not a validity test. It proves a sentence is NOT quoted or closely
+paraphrased from one source sentence; it cannot prove truth. Linked falsely: negation, swapped roles ("driven disc locks the drive
+disc"), "three" discs for "two" (number words are not numbers), "commonly" for "rarely", numbers checked one at a time ("12 grams, 2
+teeth" for "2 grams, 12 teeth"), an invented clause hidden after a full source sentence (19 of 26 words). Wrongly ungrounded:
+synonym paraphrase, "1869" vs "1,869". Stated limits, not fixed: they need polarity/role/number-binding, not another overlap rule.
+
+**Ostrom (commons).** Refuted as worded: the ground was never exhausted (at least 8 of 15 sentences never drawn). The plan has 12
+sections; the window's term gate hands out about 7 distinct sentences; 9-10 sections per job shipped empty, 12 of 12 drafts failed the
+contract. The starvation is the window and the section count, not the ground. Rule the evidence supports, UNBUILT: bound the
+section count by what the window can hand out. Sentences are also spent when HANDED to the mouth, not only when linked — the wider
+rule is hand-off marking; spend-on-link is additive.
+
+**Gebser (arrival).** Refuted: no beginning, turn or ending; 139-510 characters from a 2,186-character ground; the best run shipped one
+genuine answer sentence, the worst two source sentences that never reach the pedals or the pawl. Provenance is not answer-hood:
+nothing checks that what ships answers the ask. Part of his evidence was the superseded first-draft rows (the shipped projections
+contain none of the ungrounded sentences he quoted) — read the projection, not the parts.
+
+**Found while fixing.** The final trace ran on `projectDocument(documentLedger)`; the in-memory ledger does not hold the fold's parts
+(it projected to the title alone), so a job that shipped one sentence traced "0 of 0". The prose a reader gets is projected from the
+ledger FILE; the trace now reads that. A markdown title on the line above a paragraph fused with its first sentence and took it out
+of the trace; heading lines are blanked (same length) before cutting. Both have controls that fail the old way.
+
+**Still open.** The opening part and two fold parts in the LEDGER still carry model sentences that link to nothing (they are
+superseded, not shipped); the fold's "Two sources agree"/"The sources agree" preface is a template over one source; answer-hood;
+section count vs window capacity.
+

@@ -24,19 +24,32 @@
 // "ungrounded", never to pass a claim); English word forms (see ground-carries.js).
 import { draftWords } from "./eot-draft.js";
 import { isFunctionWord } from "./pos-prior.js";
+import { segmentSentences } from "./admission.js";
 
 export const GROUND_TRACE_SCHEMA = "EOGroundTrace@1";
 
 const contentWords = (s) => [...new Set(draftWords(String(s ?? "")).filter((w) => !isFunctionWord(w)))];
 const numbersOf = (s) => [...new Set(String(s ?? "").match(/\d[\d.,]*\d|\d/g) ?? [])];
 
-// sentence boundaries WITH offsets, so a link is an address: text.slice(start, end) is the sentence
+// Sentence boundaries WITH offsets, cut by the window's own segmenter (admission.js segmentSentences) inside each blank-line
+// paragraph, so a sentence this module lights is, by construction, one the window holds as a sentence. (A private splitter
+// disagreed with it on the real ground — `"slipping." In this scenario…` stayed one unit — and one lit sentence survived into the
+// next window: measured by Wilson, 2026-09-30.) The segmenter normalizes whitespace, so each piece is located by a pattern that
+// lets any whitespace stand where it had a space; text.slice(start, end) is the sentence as written. A piece that cannot be
+// located is kept at the cursor rather than dropped, so nothing the model wrote goes untraced.
+const escRe = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 export function sentenceSpans(text) {
-  const out = []; const src = String(text ?? "");
-  const r = /(?<=[.!?])\s+(?=[A-Z"“(\[])|\n[ \t\r]*\n/g; let last = 0, m;
-  const push = (a, b) => { while (a < b && /\s/.test(src[a])) a++; while (b > a && /\s/.test(src[b - 1])) b--; if (b > a) out.push({ start: a, end: b }); };
-  while ((m = r.exec(src))) { push(last, m.index); last = m.index + m[0].length; }
-  push(last, src.length);
+  const src = String(text ?? ""); const out = [];
+  const para = /[^\n]+(?:\n(?![ \t\r]*\n)[^\n]*)*/g; let pm;
+  while ((pm = para.exec(src))) {
+    const block = pm[0]; let at = 0;
+    for (const piece of segmentSentences(block)) {
+      const re = new RegExp(piece.split(/\s+/).map(escRe).join("\\s+"), "g"); re.lastIndex = at;
+      const m = re.exec(block);
+      if (m) { out.push({ start: pm.index + m.index, end: pm.index + m.index + m[0].length }); at = m.index + m[0].length; }
+      else out.push({ start: pm.index + at, end: pm.index + block.length });
+    }
+  }
   return out;
 }
 
@@ -72,9 +85,13 @@ export function makeTracer(sources = []) {
 export function traceToGround({ text = "", sources = [] } = {}) {
   const trace = makeTracer(sources);
   const sentences = [];
-  for (const sp of sentenceSpans(text)) {
-    const t = String(text).slice(sp.start, sp.end);
-    if (/^#{1,6}\s/.test(t)) continue; // a markdown heading names a part; it asserts nothing
+  // A markdown heading line names a part and asserts nothing. It is blanked (same length, so offsets hold) BEFORE the text is cut:
+  // a title on the line above a paragraph, with no blank line between, would otherwise be fused into the paragraph's first
+  // sentence and take it out of the trace (measured live 2026-09-30: a job's one shipped sentence traced as "0 of 0").
+  const body = String(text).replace(/^#{1,6}[ \t].*$/gm, (m) => " ".repeat(m.length));
+  for (const sp of sentenceSpans(body)) {
+    const t = body.slice(sp.start, sp.end).trim();
+    if (!t) continue;
     const r = trace(t);
     if (r.status === "no-claim") continue; // asserts nothing
     sentences.push({ text: t, status: r.status, link: r.link, words: r.words });

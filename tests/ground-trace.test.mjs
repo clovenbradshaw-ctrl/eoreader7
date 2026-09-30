@@ -7,7 +7,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { traceToGround, sentenceSpans, makeTracer } from "../native/the-fold/ground-trace.js";
-import { admit } from "../native/the-fold/admission.js";
+import { admit, segmentSentences } from "../native/the-fold/admission.js";
 import { citationLedger } from "../native/the-fold/document-ledger.js";
 
 const page = fs.readFileSync(new URL("./fixtures/freewheel-wikipedia.txt", import.meta.url), "utf8");
@@ -82,6 +82,25 @@ test("admission: an unlinked sentence is refused with its reason, a linked one i
 test("a markdown heading (the document's own title) is a name, not a claim: it is not traced", () => {
   const g = [{ id: "g", text: "The freewheel uses a pawl and ratchet." }];
   const r = traceToGround({ text: "# How a bicycle freewheel lets the wheel spin while the pedals\n\nThe freewheel uses a pawl and ratchet.", sources: g });
+  assert.equal(r.sentences.length, 1);
+  assert.equal(r.sentences[0].status, "linked");
+});
+
+test("CONTROL (Wilson) — the tracer and the window cut the real ground at the same places, so a lit sentence is excluded by its exact string", () => {
+  const win = new Set(segmentSentences(ground));
+  const units = sentenceSpans(ground).map((sp) => ground.slice(sp.start, sp.end));
+  const odd = units.filter((u) => !win.has(u));
+  assert.deepEqual(odd, [], "tracer units the window does not hold as a sentence: " + JSON.stringify(odd.map((u) => u.slice(0, 80))));
+});
+
+test("Gary's law on the window: the mouth is never handed a prohibition or an apparatus marker for spent sentences (source control)", () => {
+  const runner = fs.readFileSync(new URL("../proxy-runner.mjs", import.meta.url), "utf8");
+  assert.ok(!/\[already grounded/.test(runner), "the exhausted-window marker told the mouth 'write this anew, never the same sentence' (gary.js information-not-prohibition, flagged 2026-09-30)");
+});
+
+test("CONTROL — a title on the line directly above the paragraph (no blank line) does not swallow the paragraph's first sentence", () => {
+  const g = [{ id: "g", text: "The freewheel uses a pawl and ratchet." }];
+  const r = traceToGround({ text: "# How a bicycle freewheel lets the wheel spin\nThe freewheel uses a pawl and ratchet.", sources: g });
   assert.equal(r.sentences.length, 1);
   assert.equal(r.sentences[0].status, "linked");
 });

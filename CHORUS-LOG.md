@@ -871,3 +871,13 @@ clean: none claimed
 | Ostrom | commons | earned ground | noted | the ground grows only from consented hunts; nothing is written into live_priors |
 clean: none claimed
 
+## 2026-09-30 (archon poll) — "activation feeds generation" (ground-trace.js, proxy-runner.mjs groundedWindowFor / spendLit)
+| archon | lens | where | verdict | note |
+|---|---|---|---|---|
+| Gary | information-not-prohibition | groundedWindowFor exhausted fallback | fixed | real organ flagged 3 prohibitions; marker removed, spent sentences not re-handed; source control test |
+| Wilson | stigmergy | tracer vs window splitter | fixed | 14 of 15 exact; tracer now uses the window's segmenter, spendLit is splitter-proof; control on the real ground |
+| Kelsen | validity of a link | ground-trace.js | noted | overlap screen, not truth: negation/role swap/number words/hidden clause link; limits in lesson 85 |
+| Ostrom | commons | section count vs window | noted | 12 sections vs ~7 hand-outs; 9-10 empty per job; bound sections by window capacity — unbuilt |
+| Gebser | arrival | final piece | noted | not arrived; provenance is not answer-hood — unbuilt |
+clean: none claimed
+

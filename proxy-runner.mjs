@@ -55,7 +55,7 @@ import { answerRecord } from "./native/the-fold/answer-record.js";
 // header for how it is wired and why it must never be bypassed.
 import { groundGate, draftGate, foldGate, tightenGate, arriveGate, chainStrain, measuredInflation, lastSentence as lastSentenceOmni } from "./native/the-fold/spiral-contract.js";
 import { deposit as depositAdmitted, admit as admitCandidate, measureVariance, measureBondNull, claimCore as claimCoreOmni, segmentSentences as segmentSentencesOmni, wordTokens as wordTokensOmni, nameGate as referentNameGate, bond as bondOf } from "./native/the-fold/admission.js";
-import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom, holonicSatisfaction, holonTreeFromText, holonicTreeSatisfaction, holonAssertionTree, holonicAssertionSatisfaction, holonLeaves } from "./native/the-fold/document-ledger.js";
+import { createDocumentLedger, appendDocumentObservation, appendLedgerLine, projectDocument, documentChangeLog, admitPart, serializeLedger, snipsFromSources, relevantSources, checkEssayShape, ledgerFilePath, projectLedgerFile, renderApaFootnotes, satisfactionOfSection, satisfactionOf, declareEssayVoid, fillCheck, citationLedger, voidCellsFor, holographicSatisfaction, lavarGradeEssay, competencyGrade, lavarGradeReading, kelsenGrade, embedInlineCitations, renderLiveEssayHtml, detectRepetition, detectRedundancy, detectTrajectoryBoredom, holonicSatisfaction, holonTreeFromText, holonicTreeSatisfaction, holonAssertionTree, holonicAssertionSatisfaction, holonLeaves } from "./native/the-fold/document-ledger.js";
 import { precedence, tagClaim, precedenceOrderPhrase } from "./native/organs/regime.js";
 import { inventedNameRuns as verifyInventedNameRuns, isMetaSentence as verifyIsMetaSentence } from "./native/the-fold/referent-verify.js";
 import { houdiniExclusivity } from "./native/the-fold/archon-rules.js";
@@ -6365,10 +6365,12 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // grounded on, MARKED — "already established, write this ANEW from a
     // different angle, never the same sentence." The ground is not withdrawn
     // (a section with no ground at all is ungrounded), it is re-approached.
-    const exhausted = !scored.length && usedSentences && usedSentences.size > 0;
-    let source = exhausted
-      ? sentences.filter((s) => usedSentences.has(s)).slice(0, 3).map((s) => ({ s, hits: 1, used: true }))
-      : scored;
+    // A SPENT SENTENCE IS NOT HANDED BACK (2026-09-30, the archon poll). This fallback used to return the first three spent
+    // sentences, each prefixed with a "write this anew, never the same sentence" instruction: gary.js flags that as a prohibition aimed
+    // at the mouth (information-not-prohibition), it fired when no sentence matched the section's terms — not when the ground was
+    // spent (Ostrom: 8 of 15 ground sentences were never drawn) — and it ignored the query. An empty window is the honest state:
+    // nothing here is left to say, and the section is a named gap, not a re-quote.
+    let source = scored;
     source.sort((a, b) => b.hits - a.hits);
     // THE ROTATING WINDOW (2026-09-21): sibling sections resolve to the same
     // theme, so without this every section ranks the SAME top sentence first
@@ -6396,9 +6398,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       source = rotated;
     }
     let out = "", n = 0;
-    for (const { s, used } of source) {
+    for (const { s } of source) {
       if (out.length + s.length > SECTION_WINDOW_CHARS) break;
-      out += (n++ ? " " : "") + (used ? `[already grounded — write this anew, never the same sentence] ${s}` : s);
+      out += (n++ ? " " : "") + s;
     }
     return out.trim();
   };
@@ -6614,6 +6616,14 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // The tracer for THIS composition's ground (projection, not code): one read of the ground's sentences, asked one sentence
       // at a time as the mouth draws. Null where there is no ground discipline to hold (code, non-projection).
       let _tracer = null;
+      // SPENDING A LIT SENTENCE must hold whatever the splitters do: every window sentence that contains the lit sentence, or is
+      // contained by it, is spent (the tracer and the window once cut `"slipping." In this scenario…` differently, and one lit
+      // sentence survived into the next window). Nothing is told to the mouth; the window is simply built without them.
+      const spendLit = (lit) => {
+        if (!lit?.text) return;
+        usedSentences.add(lit.text);
+        for (const w of segmentSentencesOmni(String(groundingText() ?? ""))) if (w.length > 20 && (w.includes(lit.text) || lit.text.includes(w))) usedSentences.add(w);
+      };
       const groundTracer = () => {
         if (runMode !== "projection" || isCode) return null;
         if (!_tracer) _tracer = makeTracer(handedGround().docs.map((d) => ({ id: d.id, text: d.text })));
@@ -6632,7 +6642,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
           const v = admitCandidate(cand, { ground, priorLanding, instruction: `${task}\n${section}`, registry: reg, continues: (c, p) => { try { const A = propsIndex?.resolveIn?.(c); const B = propsIndex?.resolveIn?.(p); const a = A instanceof Set ? A : new Set(A ?? []); const b = B instanceof Set ? B : new Set(B ?? []); for (const id of a) if (b.has(id)) return true; } catch {} return false; }, variance, bondNull, isGrounded: grounded, invented: gate.applies ? ((x) => verifyInventedNameRuns(x, ground)) : null, linked: groundTracer() });
           if (!v.admit) { out.refusals.push(...(v.refused ?? [])); continue; }
           out.survivors.push(cand); out.roads.push(v.road); depositAdmitted(reg, v); depositAdmitted(matterRegistry, v);
-          usedSentences.add(cand); if (v.core) usedSentences.add(v.core); if (v.lit) usedSentences.add(v.lit.text);
+          usedSentences.add(cand); if (v.core) usedSentences.add(v.core); if (v.lit) spendLit(v.lit);
         }
         return out;
       };
@@ -7115,7 +7125,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             if (verdict.core) usedSentences.add(verdict.core);
             // THE ACTIVATION FEEDS GENERATION: the source sentence this one lit is spent, so the next window is built from what
             // the output has not yet lit — not from a rule told to the mouth, from the window it is handed.
-            if (verdict.lit) usedSentences.add(verdict.lit.text);
+            if (verdict.lit) spendLit(verdict.lit);
           }
           if (onNote) onNote({
             move: "paragraph_snip",
@@ -7296,7 +7306,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
             openSurvivors.push(cand);
             usedSentences.add(cand);
             usedSentences.add(core);
-            if (lk?.link) usedSentences.add(lk.link.text);
+            if (lk?.link) spendLit(lk.link);
           }
           if (openSurvivors.length) {
             buf = openSurvivors.join(" ");
@@ -8952,7 +8962,11 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // "verbatim". Footnotes are the ledger's own and are not the model's prose.
   if (documentLedger && runMode === "projection" && !isCode) {
     try {
-      const body = String(projectDocument(documentLedger) ?? "").split(/\n## Footnotes\b/)[0];
+      // The prose a reader is handed is projected from the ledger FILE (proxy.mjs reads it there). The in-memory ledger object does
+      // not hold the fold's parts — measured: at this point it projected to the title and nothing else, so the trace counted 0
+      // sentences of a job that shipped one. Read the file; fall back to memory only if the file cannot be read.
+      const fromFile = projectLedgerFile(ledgerFilePath(ESSAY_LEDGER_DIR, documentLedger.docId));
+      const body = String(fromFile ?? projectDocument(documentLedger) ?? "").split(/\n## Footnotes\b/)[0];
       const trace = traceToGround({ text: body, sources: handedGround().docs.map((d) => ({ id: d.id, text: d.text })) });
       appendLedgerLine(documentLedger, {
         role: "trace", title: "Ground trace",
