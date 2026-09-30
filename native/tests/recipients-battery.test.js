@@ -20,6 +20,11 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 // Built before any test is declared: a top-level await further down would let the tests above it start running first.
 const H_ON = await makeHolograph({ routes: B.BATTERY_ROUTES });
 const H_OFF = await makeHolograph({ routes: [] });
+// The alias route reads a prior a corpus measured (live_priors, a sibling checkout). Where it is not beside this checkout the route does
+// nothing and says so (a typed gap); the assertions that need it skip, as this repo's other alias tests do, and a separate test holds that the
+// absence is typed and changes nothing else.
+const ALIAS_OK = !H_ON.gaps.some((g) => /^alias_prior_/.test(g.type));
+const NO_ALIAS = "live_priors not beside the checkout: the alias route has no declaration shapes to read";
 const t = (id) => taskById(id);
 const harmed = (id, o) => scoreOption(t(id), o).harmed.sort();
 
@@ -227,7 +232,8 @@ test("the hand: the sentences the people the request names stand in — measured
   };
   for (const x of TASKS) {
     const on = H_ON.hand(x); const off = H_OFF.hand(x);
-    assert.deepEqual([[on.sentences.length, found(x, on.sentences)], [off.sentences.length, found(x, off.sentences)]], want[x.id], x.id);
+    const expected = !ALIAS_OK && (x.identity ?? []).includes("alias") ? [want[x.id][1], want[x.id][1]] : want[x.id];   // without its prior the alias route is a typed no-op
+    assert.deepEqual([[on.sentences.length, found(x, on.sentences)], [off.sentences.length, found(x, off.sentences)]], expected, x.id);
   }
 });
 
@@ -252,9 +258,20 @@ test("the boundary: a control and a request that names no established being hand
 test("`identity` on a task is true: the routes change the hand exactly where the record relies on one — and nowhere else (this is what lets `exact2` be skipped)", () => {
   for (const x of TASKS) {
     const differs = H_ON.hand(x).text !== H_OFF.hand(x).text;
+    if (!ALIAS_OK && (x.identity ?? []).includes("alias")) { assert.equal(differs, false, `${x.id}: without its prior the alias route changes nothing`); continue; }
     assert.equal(differs, (x.identity ?? []).length > 0, x.id);
     assert.equal(B.applies("exact2", x), differs, x.id);
   }
+});
+
+test("without its prior the alias route is a TYPED no-op: a gap names it, the preflight refuses a live run, and the other route still works", async () => {
+  const bare = await makeHolograph({ routes: ["possessive"] });
+  assert.deepEqual(bare.gaps, [], "a holograph that does not ask for the alias route has no alias gap");
+  assert.ok(bare.hand(t("venue-poss")).sentences.length === 3, "the possessive route does not need the prior");
+  const pf = await B.preflight();
+  assert.equal(pf.ok, ALIAS_OK);
+  assert.deepEqual(pf.gaps, H_ON.gaps);
+  if (!ALIAS_OK) for (const g of pf.gaps) { assert.match(g.type, /^alias_prior_/); assert.ok(g.detail.length > 10); }
 });
 
 test("the possessive route: a person established as \"Anna's\" is found by \"Anna\" — and \"Annika's\" is not her (a control built to fail)", () => {
@@ -268,7 +285,7 @@ test("the possessive route: a person established as \"Anna's\" is found by \"Ann
   assert.ok(H_ON.hand(no).sentences.includes("Ben has a peanut allergy."));
 });
 
-test("the alias route: the class the material DECLARES — and only that (a different full name, or a gloss used once, merges nothing)", () => {
+test("the alias route: the class the material DECLARES — and only that (a different full name, or a gloss used once, merges nothing)", { skip: !ALIAS_OK && NO_ALIAS }, () => {
   const req = "Plan a dinner for Liz and Ben.";
   const base = ["The hall opens at nine.", "Ben has a peanut allergy.", "Chairs are stacked by the door."];
   const yes = { request: req, record: ["Elizabeth Hart (Liz) joined the club last year, and Liz now runs the newsletter.", "Elizabeth Hart is allergic to shellfish.", ...base] };
@@ -622,7 +639,7 @@ test("the hand table is read from the records, not recomputed: what the writer w
   const by = Object.fromEntries(hr.map((h) => [h.id, h]));
   assert.deepEqual([by.menu.on, by.menu.off], [{ shown: 4, found: 4 }, { shown: 4, found: 4 }], "no exact2 row: the same hand by construction");
   assert.deepEqual([by["venue-poss"].on, by["venue-poss"].off], [{ shown: 3, found: 3 }, { shown: 0, found: 0 }]);
-  assert.deepEqual([by["menu-alias"].on, by["menu-alias"].off], [{ shown: 4, found: 3 }, { shown: 3, found: 2 }]);
+  assert.deepEqual([by["menu-alias"].on, by["menu-alias"].off], ALIAS_OK ? [{ shown: 4, found: 3 }, { shown: 3, found: 2 }] : [{ shown: 3, found: 2 }, { shown: 3, found: 2 }]);
   assert.deepEqual(by.lunch.on, { shown: 0, found: 0 });
   assert.equal(by.lunch.relevant, 1);
   assert.equal(by.slot.decoy.padded, 1);

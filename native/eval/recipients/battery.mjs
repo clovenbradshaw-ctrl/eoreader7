@@ -143,6 +143,14 @@ export async function groundsFor(task) {
   GROUNDS.set(task.id, out);
   return out;
 }
+/**
+ * Can this machine run the routes the battery claims? The alias route reads a prior a corpus measured (live_priors, a sibling checkout); without it
+ * the route does nothing, and a run that did not know would report a no-op ablation as a finding. `gaps` is typed; `ok` is that there are none.
+ */
+export async function preflight() {
+  const { on } = await holographs();
+  return { ok: on.gaps.length === 0, gaps: on.gaps };
+}
 const groundText = (arm, grounds) => (GROUND_OF[arm] ? grounds[GROUND_OF[arm]].text : "");
 const groundSentences = (arm, grounds) => (GROUND_OF[arm] ? grounds[GROUND_OF[arm]].sentences : []);
 
@@ -474,6 +482,8 @@ if (isMain) {
   const flag = (n, d) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : d; };
   const files = (after) => { const out = []; for (const a of args.slice(args.indexOf(after) + 1)) { if (a.startsWith("--")) break; out.push(a); } return out; };
   if (args.includes("--run")) {
+    const pf = await preflight();
+    if (!pf.ok) { console.error(`refusing to run: ${pf.gaps.map((g) => `${g.type} (${g.detail})`).join("; ")}`); process.exit(2); }
     const rawDir = path.join(HERE, "..", "raw");
     fs.mkdirSync(rawDir, { recursive: true });
     const file = flag("file", path.join(rawDir, `recipients-battery-${MODEL().replace(/[^A-Za-z0-9.]+/g, "-")}-${new Date().toISOString().replace(/[-:]/g, "").slice(0, 8)}.jsonl`));
