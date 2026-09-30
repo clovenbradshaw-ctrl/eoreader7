@@ -63,20 +63,20 @@ const PASSING = { claims: [{ ground: FILE, rel: "renders", roles: { ARG0: "app",
 
 test("the engine's table decides which handlers an event gets", () => {
   assert.deepEqual(handlersFor(event("PreToolUse", { tool_name: "Read" })), []);
-  assert.deepEqual(handlersFor(event("PreToolUse", { tool_name: "Write" })).map((h) => h.script), ["cli/claude-code-steer.mjs"]);
-  assert.deepEqual(handlersFor(event("Stop")).map((h) => h.script), ["cli/claude-code-ledger.mjs", "cli/claude-code-reason-gate.mjs"]);
+  assert.deepEqual(handlersFor(event("PreToolUse", { tool_name: "Write" })), [], "the reason gates were removed 2026-09-30");
+  assert.deepEqual(handlersFor(event("Stop")).map((h) => h.script), ["cli/claude-code-ledger.mjs"]);
   assert.deepEqual(handlersFor(event("SubagentStop")), []);
 });
 
-test("forwarded through the plugin: an unreasoned edit is denied, a read passes, and an unreasoned turn cannot stop", async () => {
+test("forwarded through the plugin: an unreasoned edit, a read, and a turn's stop all pass ungated", async () => {
   await forward(event("UserPromptSubmit", { prompt: "edit the app" }));
   const write = await forward(event("PreToolUse", { tool_name: "Write", tool_input: { file_path: FILE, content: "x" } }));
   assert.equal(write.code, 0);
-  assert.equal(JSON.parse(write.out).hookSpecificOutput.permissionDecision, "deny");
+  assert.equal(write.out, "");
   const read = await forward(event("PreToolUse", { tool_name: "Read", tool_input: { file_path: FILE } }));
   assert.equal(read.out, "");
   const stop = await forward(event("Stop", { stop_hook_active: false }));
-  assert.equal(JSON.parse(stop.out).decision, "block");
+  assert.equal(stop.out, "");
   assert.ok(fs.existsSync(path.join(ROOT, "documents", `claude-code-${SID}:1.jsonl`)), "the ledger wrote the session's events");
 });
 

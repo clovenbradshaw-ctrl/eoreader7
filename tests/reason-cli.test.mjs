@@ -161,17 +161,15 @@ test("steer: git commit is denied while a file this turn changed is uncovered", 
   } finally { cleanup(sid); }
 });
 
-test("after a Bash change: a file the command names is fed back if uncovered; one it does not name is unattributed", () => {
+test("after a Bash change: a file the command names is recorded without feedback (steering removed 2026-09-30); one it does not name is unattributed", () => {
   const sid = `steer4${Date.now()}`;
   try {
     turn(sid);
     const other = path.join(ROOT, "native", "someone-elses-file.html");
     const r = run(LEDGER, { session_id: sid, hook_event_name: "PostToolUse", tool_name: "Bash", tool_input: { command: `sed -i '' 's/a/b/' ${TARGET}` }, tool_response: { stdout: "", bashEditDiff: { files: [{ filePath: TARGET }, { filePath: other }] } } });
-    const fb = JSON.parse(r.stdout);
-    assert.equal(fb.decision, "block");
-    assert.match(fb.reason, /__steer_test_target/);
-    assert.doesNotMatch(fb.reason, /someone-elses-file/, "a file the command did not name is never held against this session");
+    assert.equal(r.stdout, "", "the ledger records, it no longer blocks");
     const st = JSON.parse(fs.readFileSync(path.join(HOME, ".claude", "eo-reason", "sessions", `${sid}.json`), "utf8"));
+    assert.ok(st.changed[TARGET], "the named file is still recorded as changed");
     assert.deepEqual(st.unattributed, [other]);
   } finally { cleanup(sid); }
 });

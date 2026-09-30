@@ -1,62 +1,512 @@
 {
-  "schema": "AssemblyReconstruction@1",
-  "recorded": "spec step 1's set-down (ASSEMBLIES-AND-ARTIFACTS.md §8.1): every existing RESULTS file's assembly, reconstructed by reading its driver — the driver's own import list is the evidence — and recorded HERE rather than stamped retroactively into result files their drivers never stamped: a stamp inside a result JSON claims the driver stamped it at run time, and these files predate Assembly@1.",
-  "rule": "A2.1 forward: a result produced after this record is stamped by its driver or it is quotable as nothing. A row below with \"assembly\": null is a TYPED gap — the organ set it measured precedes the starting registry's boundaries (the registry's cuts are hypotheses; a measurement of an unregistered organ is recorded as exactly that, never forced under the nearest row).",
-  "registry": "native/assemblies.js",
-  "entries": {
-    "anchoring-precision-frankenstein.json": { "assembly": "assembly:entity", "version": 1, "reconstructed": true, "basis": "eval/anchoring-precision.mjs — descriptor anchoring precision over the recursive reader; anchoring is an entity organ" },
-    "being-construction-frankenstein.json": { "assembly": "assembly:entity", "version": 1, "reconstructed": true, "basis": "eval/being-construction.mjs — adapters/text/construction.js, the occurrence-collapse evidence organ for being admission (S12)" },
-    "being-superposition-RESULTS.md": { "assembly": "assembly:entity", "version": 1, "reconstructed": true, "basis": "the S11 finding — being-evidence gating for entity admission" },
-    "book-lexicon-frankenstein.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/kernel/lexicon.js", "native/kernel/reading.js"], "basis": "eval/book-lexicon.mjs — the lexicon projection has no row in the starting registry; recorded as a typed gap, not forced under the nearest cut" },
-    "build-clarify-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/organs/build-clarify.js", "native/organs/void-holarchy.js"], "basis": "a live /v1/ask run of organs/build-clarify.js (the recursive ask-back door; void-holarchy.js is its imported recursion substrate) on the shared turn — a code-build organ, no registered row; a .md summary cannot self-stamp (A2.1 forward), so it is declared here" },
-    "causal-extraction-partial.json": { "assembly": "assembly:link", "version": 1, "reconstructed": true, "basis": "eval/causal-extraction.mjs — relation extraction, causal arm vs lookahead bound (S2/S3)" },
-    "code-language-priors-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/text/code-structure.js", "native/adapters/code/encounters.js", "native/adapters/code/scan.js", "native/adapters/code/language.js"], "basis": "scripts/build-code-keyword-prior.mjs + tests/code-language.test.js (the file's own reproduce lines) — the code-language organs that test imports; no registered row; a .md summary cannot self-stamp, so it is declared here" },
-    "code-name-split-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/text/code-structure.js"], "basis": "scripts/build-code-name-prior-split.mjs + tests/code-name-split.test.js (the file's own reproduce lines) — per-language CodeNamePrior@1 splits read by code-structure.js; no registered row; a .md summary cannot self-stamp, so it is declared here" },
-    "constitutional-read-frankenstein.json": { "assembly": "assembly:constitutional-host", "version": 1, "reconstructed": true, "basis": "eval/constitutional-read.mjs — S1's baseline; the driver already named this assembly in prose, now resolvable on the register" },
-    "create-learn-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/the-fold/forecast.js", "native/the-fold/patch.js", "native/adapters/code/mechanical.js", "native/adapters/code/py-engine.js", "native/adapters/code/scan.js", "native/adapters/text/code-structure.js"], "basis": "eval/the-fold/create-learn.mjs — its own import list; the code loop's forecast + model-free build, no registered row; a .md summary cannot self-stamp, so it is declared here" },
-    "extraction-overview-RESULTS.md": { "assembly": "assembly:link", "version": 1, "reconstructed": true, "basis": "eval/extraction-overview.mjs — whole-text relation extraction, labeled LOOKAHEAD BOUND (S3)" },
-    "extraction-overview.json": { "assembly": "assembly:link", "version": 1, "reconstructed": true, "basis": "eval/extraction-overview.mjs — same run, the numbers" },
-    "fold-prediction-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/memory/activation.js", "native/kernel/activation.js"], "basis": "the retrieval clock (P42/S17-recall) — the memory tier has no row in the starting registry" },
-    "fold-prediction-forgetting-frankenstein.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/memory/activation.js"], "basis": "same as fold-prediction-RESULTS.md" },
-    "fold-prediction-frankenstein.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/memory/activation.js"], "basis": "same as fold-prediction-RESULTS.md" },
-    "forgetting-falsification-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/memory/activation.js"], "basis": "S17-recall's falsification arm — retrieval tier, no registered row" },
-    "forgetting-falsification-audio.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/memory/activation.js"], "basis": "same, on real audio" },
-    "forgetting-falsification-book.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/memory/activation.js"], "basis": "same, on a real book" },
-    "forgetting-for-recall-RESEARCH.md": { "assembly": null, "gap": "not_a_result", "reconstructed": true, "basis": "a research survey, not a measurement — no assembly to name" },
-    "harness-baseline-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/the-fold/code-loop.js", "native/adapters/code/mechanical.js", "native/adapters/code/py-engine.js"], "basis": "eval/the-fold/harness-run.mjs — its own import list; the /v1/code loop on the sibling ai-code-harness battery, no registered row; a .md summary cannot self-stamp, so it is declared here" },
-    "hypergraph-cursor-frankenstein.json": { "assembly": "assembly:link", "version": 1, "reconstructed": true, "basis": "eval/hypergraph-cursor.mjs — hypergraph projection over the reading's edges" },
-    "interlocutor-frankenstein.json": { "assembly": "assembly:lens", "version": 1, "reconstructed": true, "basis": "eval/interlocutor.mjs — kernel/perspective.js, the lens organ" },
-    "latin-case-marking-RESULTS.md": { "assembly": "assembly:link", "version": 1, "reconstructed": true, "basis": "eval/latin-case-marking-eval.mjs — case-marking relation extraction (S33), the same relation-extraction family causal-extraction.mjs/extraction-overview.mjs already stamp assembly:link; the sibling .json from the same run self-stamps at run time (A2.1 forward) — this .md summary cannot, so it is declared here instead" },
-    "levers-RESULTS.md": { "assembly": "assembly:entity", "version": 1, "reconstructed": true, "basis": "eval/levers.mjs — anchorSpans/actClosure, S9's two worked levers on the entity path" },
-    "levers-frankenstein.json": { "assembly": "assembly:entity", "version": 1, "reconstructed": true, "basis": "same run, the numbers" },
-    "mechanical-tier-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/code/mechanical.js", "native/adapters/code/scan.js", "native/adapters/text/code-structure.js", "native/kernel/tournament.js", "native/the-fold/code-loop.js"], "basis": "tests/mechanical.test.js + tests/tournament.test.js + the-fold/code-loop.test.mjs (the file's own reproduce line) — the no-LLM proposal tier those suites import; no registered row; a .md summary cannot self-stamp, so it is declared here" },
-    "meta-parameters-INVENTORY.md": { "assembly": null, "gap": "not_a_result", "reconstructed": true, "basis": "a dial inventory (S16's work-off list), not a measurement" },
-    "narrative-rhythm-transfer.json": { "assembly": "assembly:atmosphere", "version": 1, "reconstructed": true, "basis": "eval/narrative-rhythm-prior.mjs — rhythm-priors.js, the atmosphere assembly's WHEN half" },
-    "nested-narration-frankenstein.json": { "assembly": "assembly:lens", "version": 1, "reconstructed": true, "basis": "eval/nested-narration.mjs — kernel/perspective.js" },
-    "network-standing-frankenstein.json": { "assembly": "assembly:network", "version": 1, "reconstructed": true, "basis": "eval/network-standing.mjs — the standing organ under its own permutation null" },
-    "phasepost-dmd-frankenstein-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/text/phasepost.js", "native/adapters/text/phasepost-dmd.js", "native/organs/hypergraph.js"], "basis": "eval/phasepost-dmd-read.mjs — its own import list; phasepost classification + DMD over the relation reader's edges, the decomposition organ having no registered row (as salience-dmd); a .md summary cannot self-stamp, so it is declared here" },
-    "py-engine-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/code/py-engine.js", "native/the-fold/code-loop.js", "native/the-fold/patch.js"], "basis": "scripts/py-facts.py + tests/py-engine.test.js (the file's own reproduce lines) — the Python-engine giver and the loop's syntax gate that test imports; no registered row; a .md summary cannot self-stamp, so it is declared here" },
-    "salience-dmd-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/kernel/dmd-stream.js", "native/memory/activation.js"], "basis": "S13's decomposition organ — no registered row" },
-    "salience-dmd-frankenstein.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/kernel/dmd-stream.js", "native/memory/activation.js"], "basis": "same run, the numbers" },
-    "terrain-activation-frankenstein.json": { "assembly": null, "gap": "runtime_glue_not_an_assembly", "reconstructed": true, "organs": ["native/kernel/terrain-activation.js"], "basis": "A4.3: presence is the decaying tier — the glue between live assemblies in one read, runtime-only (A1.1); this file measures the glue, not an assembly's product" },
-    "understanding-scoreboard-RESULTS.md": { "assembly": "assembly:link", "version": 1, "reconstructed": true, "basis": "eval/understanding-scoreboard.mjs — the entity+link prefix, stamped by the top of the prefix (A4.2); its §0.2 zero-rendering of absent assemblies is what step 4 retires" },
-    "understanding-scoreboard-frankenstein-anchored.json": { "assembly": "assembly:link", "version": 1, "reconstructed": true, "basis": "same driver, anchored arm" },
-    "understanding-scoreboard-frankenstein.json": { "assembly": "assembly:link", "version": 1, "reconstructed": true, "basis": "same driver" },
-    "vocabulary-scale-FINDING.md": { "assembly": "assembly:link", "version": 1, "reconstructed": true, "basis": "the S2 retraction record — relation-vocabulary scale collapse under truncation" },
-    "writer-decay-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/text/accessibility.js", "native/kernel/return-curve.js"], "basis": "S15/S16's measurement of the writer's own curve — no registered row" },
-    "writer-decay-borodino.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/text/accessibility.js", "native/kernel/return-curve.js"], "basis": "same driver" },
-    "writer-decay-frankenstein.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/text/accessibility.js", "native/kernel/return-curve.js"], "basis": "same driver" },
-    "writer-decay-pride.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/text/accessibility.js", "native/kernel/return-curve.js"], "basis": "same driver" },
-    "writer-decay-wparticle.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/adapters/text/accessibility.js", "native/kernel/return-curve.js"], "basis": "same driver" },
-    "harm-seam-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/eval/harm-seam.mjs"], "basis": "eval/harm-seam.mjs — a deterministic probe of a splice-and-gate pipeline design over scripted writers and a vm-rendered page; it reads no material through any registered assembly, so what it measured is its own harness (the seam contract, the rendered oracle, the append-only landing), recorded as a typed gap rather than forced under the nearest cut" },
-    "harm-seam-RESULTS.json": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/eval/harm-seam.mjs"], "basis": "same driver (git-ignored under eval/results/*.json; present after a local run)" },
-    "reach-ceiling-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/eval/reach/battery.mjs", "native/eval/reach/check.mjs"], "basis": "eval/reach/battery.mjs --ceiling — a deterministic, model-free table of what an ideal writer of the shown text achieves under each prompt arm, scored by executing the result; it reads no material through any registered assembly, so it is recorded as a typed gap" },
-    "reach-real-code-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/eval/reach/real-code.mjs", "native/eval/reach/battery.mjs"], "basis": "eval/reach/real-code.mjs — a deterministic, model-free comparison of one name-overlap derivation against the TypeScript reference finder on frozen production modules of this repository; it reads no material through any registered assembly, so it is recorded as a typed gap" },
-    "reach-derivation-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/eval/reach/battery.mjs"], "basis": "eval/reach/battery.mjs --derive — a deterministic, model-free accuracy table of one name-overlap derivation against hand-declared dependents in six media; it reads no material through any registered assembly (its input is its own task set), so it is recorded as a typed gap rather than forced under the nearest cut" },
-    "reach-battery-gemma2-2b-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/eval/reach/battery.mjs", "native/eval/reach/check.mjs", "native/eval/reach/tasks.mjs"], "basis": "eval/reach/battery.mjs --summarize — the re-summary of committed live records (native/eval/raw/reach-battery-*.jsonl) of a small model editing artifacts under seven prompt arms, scored by executing the result; no registered assembly reads any material here, so it is a typed gap" },
-    "reach-counterfactual-gemma2-2b-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/eval/reach/counterfactual.mjs", "native/eval/reach/battery.mjs", "native/eval/reach/check.mjs"], "basis": "eval/reach/counterfactual.mjs — the recorded edits of a small model (native/eval/raw/reach-battery-*.jsonl) re-applied, without a model, under other tool semantics (whole-identifier finds, closure over the derived lines, a landing gate) and scored by executing the result; the as-run control must reproduce the recorded outcome row for row. No registered assembly reads any material here, so it is a typed gap" },
-    "reach-revise-gemma2-2b-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/eval/reach/revise.mjs", "native/eval/reach/battery.mjs", "native/eval/reach/check.mjs"], "basis": "eval/reach/revise.mjs --summarize — the re-summary of committed live records (native/eval/raw/reach-revise-*.jsonl) of a small model given one repair turn on edits that a derived integrity check flagged, scored by executing the result; no registered assembly reads any material here, so it is a typed gap" },
-    "reach-battery-qwen2.5-1.5b-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/eval/reach/battery.mjs", "native/eval/reach/check.mjs", "native/eval/reach/tasks.mjs"], "basis": "eval/reach/battery.mjs --summarize — the re-summary of committed live records of a second small model editing artifacts under eight prompt arms, scored by executing the result; no registered assembly reads any material here, so it is a typed gap" },
-    "reach-battery-llama3.2-3b-RESULTS.md": { "assembly": null, "gap": "no_registered_boundary", "reconstructed": true, "organs": ["native/eval/reach/battery.mjs", "native/eval/reach/check.mjs", "native/eval/reach/tasks.mjs"], "basis": "eval/reach/battery.mjs --summarize — the re-summary of committed live records of a third small model editing artifacts under six prompt arms, scored by executing the result; no registered assembly reads any material here, so it is a typed gap" }
-  }
+    "schema": "AssemblyReconstruction@1",
+    "recorded": "spec step 1's set-down (ASSEMBLIES-AND-ARTIFACTS.md §8.1): every existing RESULTS file's assembly, reconstructed by reading its driver — the driver's own import list is the evidence — and recorded HERE rather than stamped retroactively into result files their drivers never stamped: a stamp inside a result JSON claims the driver stamped it at run time, and these files predate Assembly@1.",
+    "rule": "A2.1 forward: a result produced after this record is stamped by its driver or it is quotable as nothing. A row below with \"assembly\": null is a TYPED gap — the organ set it measured precedes the starting registry's boundaries (the registry's cuts are hypotheses; a measurement of an unregistered organ is recorded as exactly that, never forced under the nearest row).",
+    "registry": "native/assemblies.js",
+    "entries": {
+        "anchoring-precision-frankenstein.json": {
+            "assembly": "assembly:entity",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/anchoring-precision.mjs — descriptor anchoring precision over the recursive reader; anchoring is an entity organ"
+        },
+        "being-construction-frankenstein.json": {
+            "assembly": "assembly:entity",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/being-construction.mjs — adapters/text/construction.js, the occurrence-collapse evidence organ for being admission (S12)"
+        },
+        "being-superposition-RESULTS.md": {
+            "assembly": "assembly:entity",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "the S11 finding — being-evidence gating for entity admission"
+        },
+        "book-lexicon-frankenstein.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/kernel/lexicon.js",
+                "native/kernel/reading.js"
+            ],
+            "basis": "eval/book-lexicon.mjs — the lexicon projection has no row in the starting registry; recorded as a typed gap, not forced under the nearest cut"
+        },
+        "build-clarify-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/organs/build-clarify.js",
+                "native/organs/void-holarchy.js"
+            ],
+            "basis": "a live /v1/ask run of organs/build-clarify.js (the recursive ask-back door; void-holarchy.js is its imported recursion substrate) on the shared turn — a code-build organ, no registered row; a .md summary cannot self-stamp (A2.1 forward), so it is declared here"
+        },
+        "causal-extraction-partial.json": {
+            "assembly": "assembly:link",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/causal-extraction.mjs — relation extraction, causal arm vs lookahead bound (S2/S3)"
+        },
+        "code-language-priors-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/text/code-structure.js",
+                "native/adapters/code/encounters.js",
+                "native/adapters/code/scan.js",
+                "native/adapters/code/language.js"
+            ],
+            "basis": "scripts/build-code-keyword-prior.mjs + tests/code-language.test.js (the file's own reproduce lines) — the code-language organs that test imports; no registered row; a .md summary cannot self-stamp, so it is declared here"
+        },
+        "code-name-split-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/text/code-structure.js"
+            ],
+            "basis": "scripts/build-code-name-prior-split.mjs + tests/code-name-split.test.js (the file's own reproduce lines) — per-language CodeNamePrior@1 splits read by code-structure.js; no registered row; a .md summary cannot self-stamp, so it is declared here"
+        },
+        "constitutional-read-frankenstein.json": {
+            "assembly": "assembly:constitutional-host",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/constitutional-read.mjs — S1's baseline; the driver already named this assembly in prose, now resolvable on the register"
+        },
+        "create-learn-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/the-fold/forecast.js",
+                "native/the-fold/patch.js",
+                "native/adapters/code/mechanical.js",
+                "native/adapters/code/py-engine.js",
+                "native/adapters/code/scan.js",
+                "native/adapters/text/code-structure.js"
+            ],
+            "basis": "eval/the-fold/create-learn.mjs — its own import list; the code loop's forecast + model-free build, no registered row; a .md summary cannot self-stamp, so it is declared here"
+        },
+        "extraction-overview-RESULTS.md": {
+            "assembly": "assembly:link",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/extraction-overview.mjs — whole-text relation extraction, labeled LOOKAHEAD BOUND (S3)"
+        },
+        "extraction-overview.json": {
+            "assembly": "assembly:link",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/extraction-overview.mjs — same run, the numbers"
+        },
+        "fold-prediction-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/memory/activation.js",
+                "native/kernel/activation.js"
+            ],
+            "basis": "the retrieval clock (P42/S17-recall) — the memory tier has no row in the starting registry"
+        },
+        "fold-prediction-forgetting-frankenstein.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/memory/activation.js"
+            ],
+            "basis": "same as fold-prediction-RESULTS.md"
+        },
+        "fold-prediction-frankenstein.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/memory/activation.js"
+            ],
+            "basis": "same as fold-prediction-RESULTS.md"
+        },
+        "forgetting-falsification-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/memory/activation.js"
+            ],
+            "basis": "S17-recall's falsification arm — retrieval tier, no registered row"
+        },
+        "forgetting-falsification-audio.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/memory/activation.js"
+            ],
+            "basis": "same, on real audio"
+        },
+        "forgetting-falsification-book.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/memory/activation.js"
+            ],
+            "basis": "same, on a real book"
+        },
+        "forgetting-for-recall-RESEARCH.md": {
+            "assembly": null,
+            "gap": "not_a_result",
+            "reconstructed": true,
+            "basis": "a research survey, not a measurement — no assembly to name"
+        },
+        "harness-baseline-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/the-fold/code-loop.js",
+                "native/adapters/code/mechanical.js",
+                "native/adapters/code/py-engine.js"
+            ],
+            "basis": "eval/the-fold/harness-run.mjs — its own import list; the /v1/code loop on the sibling ai-code-harness battery, no registered row; a .md summary cannot self-stamp, so it is declared here"
+        },
+        "hypergraph-cursor-frankenstein.json": {
+            "assembly": "assembly:link",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/hypergraph-cursor.mjs — hypergraph projection over the reading's edges"
+        },
+        "interlocutor-frankenstein.json": {
+            "assembly": "assembly:lens",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/interlocutor.mjs — kernel/perspective.js, the lens organ"
+        },
+        "latin-case-marking-RESULTS.md": {
+            "assembly": "assembly:link",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/latin-case-marking-eval.mjs — case-marking relation extraction (S33), the same relation-extraction family causal-extraction.mjs/extraction-overview.mjs already stamp assembly:link; the sibling .json from the same run self-stamps at run time (A2.1 forward) — this .md summary cannot, so it is declared here instead"
+        },
+        "levers-RESULTS.md": {
+            "assembly": "assembly:entity",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/levers.mjs — anchorSpans/actClosure, S9's two worked levers on the entity path"
+        },
+        "levers-frankenstein.json": {
+            "assembly": "assembly:entity",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "same run, the numbers"
+        },
+        "mechanical-tier-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/code/mechanical.js",
+                "native/adapters/code/scan.js",
+                "native/adapters/text/code-structure.js",
+                "native/kernel/tournament.js",
+                "native/the-fold/code-loop.js"
+            ],
+            "basis": "tests/mechanical.test.js + tests/tournament.test.js + the-fold/code-loop.test.mjs (the file's own reproduce line) — the no-LLM proposal tier those suites import; no registered row; a .md summary cannot self-stamp, so it is declared here"
+        },
+        "meta-parameters-INVENTORY.md": {
+            "assembly": null,
+            "gap": "not_a_result",
+            "reconstructed": true,
+            "basis": "a dial inventory (S16's work-off list), not a measurement"
+        },
+        "narrative-rhythm-transfer.json": {
+            "assembly": "assembly:atmosphere",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/narrative-rhythm-prior.mjs — rhythm-priors.js, the atmosphere assembly's WHEN half"
+        },
+        "nested-narration-frankenstein.json": {
+            "assembly": "assembly:lens",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/nested-narration.mjs — kernel/perspective.js"
+        },
+        "network-standing-frankenstein.json": {
+            "assembly": "assembly:network",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/network-standing.mjs — the standing organ under its own permutation null"
+        },
+        "phasepost-dmd-frankenstein-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/text/phasepost.js",
+                "native/adapters/text/phasepost-dmd.js",
+                "native/organs/hypergraph.js"
+            ],
+            "basis": "eval/phasepost-dmd-read.mjs — its own import list; phasepost classification + DMD over the relation reader's edges, the decomposition organ having no registered row (as salience-dmd); a .md summary cannot self-stamp, so it is declared here"
+        },
+        "py-engine-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/code/py-engine.js",
+                "native/the-fold/code-loop.js",
+                "native/the-fold/patch.js"
+            ],
+            "basis": "scripts/py-facts.py + tests/py-engine.test.js (the file's own reproduce lines) — the Python-engine giver and the loop's syntax gate that test imports; no registered row; a .md summary cannot self-stamp, so it is declared here"
+        },
+        "salience-dmd-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/kernel/dmd-stream.js",
+                "native/memory/activation.js"
+            ],
+            "basis": "S13's decomposition organ — no registered row"
+        },
+        "salience-dmd-frankenstein.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/kernel/dmd-stream.js",
+                "native/memory/activation.js"
+            ],
+            "basis": "same run, the numbers"
+        },
+        "terrain-activation-frankenstein.json": {
+            "assembly": null,
+            "gap": "runtime_glue_not_an_assembly",
+            "reconstructed": true,
+            "organs": [
+                "native/kernel/terrain-activation.js"
+            ],
+            "basis": "A4.3: presence is the decaying tier — the glue between live assemblies in one read, runtime-only (A1.1); this file measures the glue, not an assembly's product"
+        },
+        "understanding-scoreboard-RESULTS.md": {
+            "assembly": "assembly:link",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "eval/understanding-scoreboard.mjs — the entity+link prefix, stamped by the top of the prefix (A4.2); its §0.2 zero-rendering of absent assemblies is what step 4 retires"
+        },
+        "understanding-scoreboard-frankenstein-anchored.json": {
+            "assembly": "assembly:link",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "same driver, anchored arm"
+        },
+        "understanding-scoreboard-frankenstein.json": {
+            "assembly": "assembly:link",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "same driver"
+        },
+        "vocabulary-scale-FINDING.md": {
+            "assembly": "assembly:link",
+            "version": 1,
+            "reconstructed": true,
+            "basis": "the S2 retraction record — relation-vocabulary scale collapse under truncation"
+        },
+        "writer-decay-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/text/accessibility.js",
+                "native/kernel/return-curve.js"
+            ],
+            "basis": "S15/S16's measurement of the writer's own curve — no registered row"
+        },
+        "writer-decay-borodino.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/text/accessibility.js",
+                "native/kernel/return-curve.js"
+            ],
+            "basis": "same driver"
+        },
+        "writer-decay-frankenstein.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/text/accessibility.js",
+                "native/kernel/return-curve.js"
+            ],
+            "basis": "same driver"
+        },
+        "writer-decay-pride.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/text/accessibility.js",
+                "native/kernel/return-curve.js"
+            ],
+            "basis": "same driver"
+        },
+        "writer-decay-wparticle.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/text/accessibility.js",
+                "native/kernel/return-curve.js"
+            ],
+            "basis": "same driver"
+        },
+        "podcast-app-council-v2-PRODUCTION-NOTES.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/the-fold/surface/podcast-app-council.mjs",
+                "native/adapters/build/coherence-properties.mjs",
+                "native/adapters/build/podcast-app-ledger.js"
+            ],
+            "basis": "a live production record of podcast-app-council.mjs v2 (n-ary isolated writers over named anchors, structural-property coherence gate) and the two real corruptions it produced and closed — UI-codegen/app-domain organs, no row in the starting reading registry (assemblies.js); recorded as a typed gap, not forced under the nearest cut"
+        },
+        "coherence-gate-ALIGNMENT-NOTES.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/adapters/build/coherence-properties.mjs",
+                "native/adapters/build/code-anchor-log.js"
+            ],
+            "basis": "the alignment analysis of the coherence gate (precision hunt, self-defense against tampering, the three-tier answer on whether it can be turned off) — app-domain safety organs, no row in the starting reading registry; recorded as a typed gap. Renamed from harm-gate-ALIGNMENT-NOTES.md, entry key updated to match, when the module's own vocabulary was renamed from harm to coherence."
+        },
+        "podcast-nary-autonomy-falsify-SUMMARY.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/podcast-nary-autonomy-falsify.mjs",
+                "native/adapters/build/podcast-app-ledger.js"
+            ],
+            "basis": "falsification of n-ary structural autonomy (isolated writers, no synthesis funnel) vs. a single whole-file writer — UI-codegen organ, no registered row; recorded as a typed gap"
+        },
+        "podcast-nary-structural-properties-SUMMARY.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/podcast-nary-structural-properties.mjs",
+                "native/adapters/build/podcast-app-ledger.js"
+            ],
+            "basis": "falsification that the four structural properties hold with zero scripture in the writer's own prompt (citations moved to a convergent-validation record) — UI-codegen organ, no registered row; recorded as a typed gap"
+        },
+        "harm-seam-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/harm-seam.mjs"
+            ],
+            "basis": "eval/harm-seam.mjs — a deterministic probe of a splice-and-gate pipeline design over scripted writers and a vm-rendered page; it reads no material through any registered assembly, so what it measured is its own harness (the seam contract, the rendered oracle, the append-only landing), recorded as a typed gap rather than forced under the nearest cut"
+        },
+        "harm-seam-RESULTS.json": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/harm-seam.mjs"
+            ],
+            "basis": "same driver (git-ignored under eval/results/*.json; present after a local run)"
+        },
+        "reach-ceiling-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/battery.mjs",
+                "native/eval/reach/check.mjs"
+            ],
+            "basis": "eval/reach/battery.mjs --ceiling — a deterministic, model-free table of what an ideal writer of the shown text achieves under each prompt arm, scored by executing the result; it reads no material through any registered assembly, so it is recorded as a typed gap"
+        },
+        "reach-real-code-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/real-code.mjs",
+                "native/eval/reach/battery.mjs"
+            ],
+            "basis": "eval/reach/real-code.mjs — a deterministic, model-free comparison of one name-overlap derivation against the TypeScript reference finder on frozen production modules of this repository; it reads no material through any registered assembly, so it is recorded as a typed gap"
+        },
+        "reach-derivation-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/battery.mjs"
+            ],
+            "basis": "eval/reach/battery.mjs --derive — a deterministic, model-free accuracy table of one name-overlap derivation against hand-declared dependents in six media; it reads no material through any registered assembly (its input is its own task set), so it is recorded as a typed gap rather than forced under the nearest cut"
+        },
+        "reach-battery-gemma2-2b-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/battery.mjs",
+                "native/eval/reach/check.mjs",
+                "native/eval/reach/tasks.mjs"
+            ],
+            "basis": "eval/reach/battery.mjs --summarize — the re-summary of committed live records (native/eval/raw/reach-battery-*.jsonl) of a small model editing artifacts under seven prompt arms, scored by executing the result; no registered assembly reads any material here, so it is a typed gap"
+        },
+        "reach-counterfactual-gemma2-2b-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/counterfactual.mjs",
+                "native/eval/reach/battery.mjs",
+                "native/eval/reach/check.mjs"
+            ],
+            "basis": "eval/reach/counterfactual.mjs — the recorded edits of a small model (native/eval/raw/reach-battery-*.jsonl) re-applied, without a model, under other tool semantics (whole-identifier finds, closure over the derived lines, a landing gate) and scored by executing the result; the as-run control must reproduce the recorded outcome row for row. No registered assembly reads any material here, so it is a typed gap"
+        },
+        "reach-revise-gemma2-2b-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/revise.mjs",
+                "native/eval/reach/battery.mjs",
+                "native/eval/reach/check.mjs"
+            ],
+            "basis": "eval/reach/revise.mjs --summarize — the re-summary of committed live records (native/eval/raw/reach-revise-*.jsonl) of a small model given one repair turn on edits that a derived integrity check flagged, scored by executing the result; no registered assembly reads any material here, so it is a typed gap"
+        },
+        "reach-battery-qwen2.5-1.5b-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/battery.mjs",
+                "native/eval/reach/check.mjs",
+                "native/eval/reach/tasks.mjs"
+            ],
+            "basis": "eval/reach/battery.mjs --summarize — the re-summary of committed live records of a second small model editing artifacts under eight prompt arms, scored by executing the result; no registered assembly reads any material here, so it is a typed gap"
+        },
+        "reach-battery-llama3.2-3b-RESULTS.md": {
+            "assembly": null,
+            "gap": "no_registered_boundary",
+            "reconstructed": true,
+            "organs": [
+                "native/eval/reach/battery.mjs",
+                "native/eval/reach/check.mjs",
+                "native/eval/reach/tasks.mjs"
+            ],
+            "basis": "eval/reach/battery.mjs --summarize — the re-summary of committed live records of a third small model editing artifacts under six prompt arms, scored by executing the result; no registered assembly reads any material here, so it is a typed gap"
+        }
+    }
 }

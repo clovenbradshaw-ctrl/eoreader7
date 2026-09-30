@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Podcast List</title>
+  <style>
+    body {
+      font-family: sans-serif;
+    }
+    .episode {
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ethos-badge {
+      margin-left: 0.5rem;
+    }
+    audio {
+      width: 100%;
+      max-width: 300px;
+    }
+    #now-playing {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+      color: #333;
+    }
+    .playing-episode {
+      background-color: #f0f0f0;
+      border-radius: 5px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Podcast List</h1>
+  <input type="text" id="urlInput" placeholder="Enter a podcast URL">
+  <button id="subscribeButton">Subscribe</button>
+  <div id="episodes"></div>
+  <div id="now-playing"></div>
+
+  <script>
+    const urlInput = document.getElementById('urlInput');
+    const subscribeButton = document.getElementById('subscribeButton');
+    const episodesContainer = document.getElementById('episodes');
+    const nowPlaying = document.getElementById('now-playing');
+
+    subscribeButton.addEventListener('click', async () => {
+      const url = urlInput.value;
+      urlInput.value = '';
+      try {
+        const response = await fetch(`/api/subscribe?url=${encodeURIComponent(url)}`);
+        if (!response.ok) {
+          throw new Error(`Fetch error: ${response.status}`);
+        }
+        const data = await response.json();
+        episodesContainer.innerHTML = ''; // Clear previous episodes
+        data.episodes.forEach(episode => {
+          const episodeElement = document.createElement('div');
+          episodeElement.className = 'episode';
+          episodeElement.innerHTML = `
+            <h2>${episode.title}</h2>
+            <p>Published: ${episode.pubDate}</p>
+            <div class="ethos-badge">
+              <span style="color: green; font-size: 1.2rem;">${episode.ethos === 'pass' ? 'Pass' : (episode.ethos === 'conflict' ? 'Conflict' : 'No Signal')}</span>
+            </div>
+            <audio controls src="${episode.audioUrl}" preload="auto"></audio>
+          `;
+          episodesContainer.appendChild(episodeElement);
+        });
+      } catch (error) {
+        episodesContainer.innerHTML = `<p>Error fetching episodes: ${error.message}</p>`;
+      }
+    });
+
+    episodesContainer.addEventListener('click', (event) => {
+      if (event.target.tagName === 'AUDIO') {
+        nowPlaying.textContent = event.target.parentElement.querySelector('h2').textContent;
+        event.target.parentElement.querySelector('.playing-episode').classList.add('playing');
+      }
+    });
+
+  </script>
+</body>
+</html>

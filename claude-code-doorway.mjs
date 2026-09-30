@@ -58,10 +58,8 @@ const REASON_BUDGET_MS = 110000;
 
 export const HOOKS = [
   { event: "UserPromptSubmit", script: "cli/claude-code-ledger.mjs" },
-  { event: "PreToolUse", tools: new Set(["Edit", "Write", "NotebookEdit", "MultiEdit", "Bash"]), script: "cli/claude-code-steer.mjs" },
   { event: "PostToolUse", script: "cli/claude-code-ledger.mjs" },
   { event: "Stop", script: "cli/claude-code-ledger.mjs" },
-  { event: "Stop", script: "cli/claude-code-reason-gate.mjs" },
 ];
 
 export const handlersFor = (ev) =>
