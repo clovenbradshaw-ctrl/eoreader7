@@ -128,8 +128,11 @@ export function unusedParams(code, name, params) {
 export function constReassigned(code) {
   const src = String(code ?? ""), out = [];
   for (const m of src.matchAll(/\bconst\s+([A-Za-z_$][\w$]*)\s*=/g)) {
-    const name = m[1], after = src.slice(m.index + m[0].length);
-    if (new RegExp(`(^|[^\\w$.])${name.replace(/\$/g, "\\$")}\\s*(?:=(?![=>])|[-+*/%&|^]=|\\+\\+|--)`).test(after) || new RegExp(`(?:\\+\\+|--)${name.replace(/\$/g, "\\$")}(?![\\w$])`).test(after)) out.push(name);
+    const name = m[1], esc = name.replace(/\$/g, "\\$");
+    let after = src.slice(m.index + m[0].length);
+    const again = after.search(new RegExp(`\\b(?:const|let|var|function|class)\\s+${esc}(?![\\w$])`)); // the same name declared again is another variable in another scope
+    if (again >= 0) after = after.slice(0, again);
+    if (new RegExp(`(^|[^\\w$.])${esc}\\s*(?:=(?![=>])|[-+*/%&|^]=|\\+\\+|--)`).test(after) || new RegExp(`(?:\\+\\+|--)${esc}(?![\\w$])`).test(after)) out.push(name);
   }
   return [...new Set(out)];
 }
@@ -207,6 +210,93 @@ export function makeMouth({ base = process.env.ER7_CHANNEL_URL ?? "http://127.0.
     const d = await r.json();
     return { text: d.message?.content ?? "", ms: Date.now() - t0, promptTokens: d.prompt_eval_count ?? 0, outTokens: d.eval_count ?? 0 };
   };
+}
+
+// ---- field decomposition (ledger row 7: the system decomposes a wide leaf itself) ----
+// A leaf whose answer is a flat object — { temp, feels, condition, windSpeed, ... } — is ten small decisions in one draw, and a 1.5B-2B coder
+// gets one of them wrong every time (measured 2026-09-30, 1 of 9 leaves). The contract already says what the keys are (its worked example's output)
+// and the oracle already reports per key (`temp is 17, the recorded data says 63`). So the wide draw is split MECHANICALLY: one draw per key, each shown
+// that key's expected value for the shown example, each checked by the parent's own oracle filtered to that key; the answer object is then computed
+// from the verified parts and tested against the parent's whole oracle. Nothing here knows what a temperature is.
+
+/** The pseudo-field that decides whether the whole answer is null (a leaf whose oracle accepts null for some arguments). */
+export const ABSENT = "absent";
+
+/** Is `null` what this run's oracle expects? Read off the oracle itself: a check that accepts null says the leaf may answer nothing for these arguments. */
+function nullExpected(run, sample) { try { return run.check(null, sample).length === 0; } catch { return false; } }
+
+/** The keys of a leaf's answer when it is a flat object of at least two keys (a single key IS the leaf); [] otherwise. */
+export function fieldsOf(contract) {
+  try {
+    const out = contract.example?.output(contract.sampleJson ?? contract.sampleText);
+    if (!out || typeof out !== "object" || Array.isArray(out)) return [];
+    const keys = Object.keys(out);
+    return keys.length >= 2 && keys.every((k) => /^[A-Za-z_$][\w$]*$/.test(k)) ? keys : [];
+  } catch { return []; }
+}
+
+/** The contract for ONE key of a leaf: the same parameters, samples and notes; a worked example that shows only this key's value; the parent's runs, their failures filtered to this key. */
+export function fieldContract(contract, key) {
+  const sample0 = contract.sampleJson ?? contract.sampleText;
+  if (key === ABSENT) return {
+    ...contract,
+    name: `${ABSENT}Of`, kind: "field", parent: contract.name, key,
+    doc: `${contract.doc} You write ONE part of it: \`${ABSENT}Of\` answers whether that function has NOTHING to return for these arguments (true) or an object (false).`,
+    returns: `true when the whole answer is null, false otherwise — another function writes the fields\n${contract.returns}`,
+    example: contract.example && { ...contract.example, output: () => false },
+    runs: contract.runs.map((r) => ({ label: r.label, args: r.args, check: (o, sample) => { const want = nullExpected(r, sample); return o === want ? [] : [`${ABSENT} is ${JSON.stringify(o)}, the recorded data says ${want}`]; } })),
+  };
+  const only = (m) => new RegExp(`^${key}(?![\\w$]) `).test(m);
+  return {
+    ...contract,
+    name: `${key}Of`, kind: "field", parent: contract.name, key,
+    doc: `${contract.doc} You write ONE part of it: \`${key}Of\` returns just the value of the \`${key}\` field of that object — not the object.`,
+    returns: `just the value of \`${key}\` — another function writes the other fields\n${contract.returns}`,
+    example: contract.example && { ...contract.example, output: (...a) => contract.example.output(...a)[key] },
+    // a run whose oracle expects null is the absent-guard's; the field's function is never asked there
+    runs: contract.runs.filter((r) => !nullExpected(r, sample0)).map((r) => ({ label: r.label, args: r.args, check: (o, sample) => { let f; try { f = r.check({ [key]: o }, sample); } catch (e) { return [`${key} could not be checked: ${String(e.message).slice(0, 80)}`]; } return f.filter(only); } })),
+  };
+}
+
+/** Every field to draw: the answer's keys, preceded by the absent-guard when some run's oracle accepts null. */
+export function fieldPlan(contract) {
+  const keys = fieldsOf(contract);
+  if (!keys.length) return [];
+  const sample = contract.sampleJson ?? contract.sampleText;
+  return contract.runs.some((r) => nullExpected(r, sample)) ? [ABSENT, ...keys] : keys;
+}
+
+/** The leaf's code from its verified field functions: each inside its own scope (two fields may each write a helper of the same name), then the computed answer object. */
+export function composeFieldCode(contract, plan, codes) {
+  const args = contract.params.join(", "), guard = plan.includes(ABSENT), keys = plan.filter((k) => k !== ABSENT);
+  const parts = plan.map((k) => `const ${k}Of = (() => {\n${codes[k]}\nreturn ${k}Of;\n})();`);
+  return `${parts.join("\n\n")}\n\nfunction ${contract.name}(${args}) {\n${guard ? `  if (${ABSENT}Of(${args})) return null;\n` : ""}  return {\n${keys.map((k) => `    ${k}: ${k}Of(${args}),`).join("\n")}\n  };\n}`;
+}
+
+/**
+ * makeFieldedUnit — the leaf drawn one field at a time (each field through makeUnit: its own stigmergy head, cache, repair), composed, and tested against the
+ * parent's whole oracle. A field no mouth can make pass is named in the gap (`failedFields`), so what is left to learn is a KEY, not a whole leaf.
+ */
+export async function makeFieldedUnit(contract, opts = {}) {
+  const keys = fieldPlan(contract);
+  if (!keys.length) return makeUnit(contract, opts);
+  const t0 = Date.now(), { see = () => {} } = opts;
+  let trails = opts.trails ?? {}, calls = 0;
+  const codes = {}, models = new Set(), declared = {}, resolutions = [], failedFields = [];
+  for (const key of keys) {
+    const r = await makeUnit(fieldContract(contract, key), { ...opts, trails });
+    trails = r.trails ?? trails; calls += r.calls;
+    if (r.ok) { codes[key] = r.code; if (r.model) models.add(r.model); resolutions.push(...(r.resolutions ?? [])); Object.assign(declared, r.declared ?? {}); }
+    else failedFields.push({ key, failures: r.failures.slice(0, 2) });
+  }
+  if (failedFields.length) {
+    see("unit", { name: contract.name, ok: false, gap: "a field no mouth could make pass", failedFields: failedFields.map((f) => f.key), calls });
+    return { ok: false, code: null, model: null, rounds: 0, calls, ms: Date.now() - t0, cached: false, failures: failedFields.flatMap((f) => f.failures.map((m) => `${f.key}: ${m}`)), failedFields, trails };
+  }
+  const code = composeFieldCode(contract, keys, codes);
+  const res = testUnit(code, contract);
+  see("unit", { name: contract.name, ok: res.ok, composedFrom: keys, calls, ms: Date.now() - t0, ...(res.ok ? {} : { gap: "the fields each passed but the composed leaf failed the whole oracle", failures: res.failures.slice(0, 4) }) });
+  return { ok: res.ok, code: res.ok ? code : null, model: [...models].join("+"), rounds: 0, calls, ms: Date.now() - t0, cached: false, failures: res.ok ? [] : res.failures, declared: res.declared ?? declared, resolutions: [...resolutions, ...(res.resolutions ?? [])], fields: keys, trails };
 }
 
 /**
