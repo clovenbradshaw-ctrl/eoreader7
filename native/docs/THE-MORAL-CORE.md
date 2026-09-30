@@ -255,3 +255,34 @@ cannot happen is that the re-pouring is unrecorded.
 ## Files
 
 `native/organs/charter.js` (Grotius — the organ, already built), `native/tests/charter.test.js` (the reachability pin, already built), `native/eval/lavar/udhr-rosetta.mjs` (the omnilingual completion), `native/eval/lavar/lib/read-recipe.mjs` and `lib/span-free-bridge.mjs` (the reading seam), `kernel/hyperlexicon.js` (giveHyperlexiconAffordance — the license mechanism), `kernel/reaction.js` / `kernel/refutation.js` (the chemistry that withholds), `proxy-runner.mjs` (the gate, wired), `native/docs/THE-CORE-MECHANISM.md` (the three-family frame this extends).
+## Amendment, 2026-09-30 — the charter leaves the vocabulary; ethos is the earned ground
+
+*User direction, verbatim: "that's the wrong way to approach it, as a moral rulebook … we need to extract ethos as a
+way to enable our logos and pathos, not as a hard governing ruleset. people will just turn that off and it won't
+really work." And: "harm needs to be irrational, not cautioned against or red flagged."*
+
+**What changed.** The charter family is no longer given into the composition hyperlexicon
+(`proxy-runner.mjs` `buildCompositionHyperlexicon`; the "license" section above describes the earlier wiring). The
+measured reason: two `/v1/documents` jobs — a bicycle freewheel, a spinning top — each shipped about 34,000 characters of the
+UN convention and a gun bill. The three readers of the hyperlexicon (the outline's section titles, the digest the
+mouth is told, the primary-source door) took the charter's clauses for the topic, and the door searched Wikisource for
+"prohibit", "slavery or servitude" and "in all their forms". `tests/ethos-commons.test.mjs` holds the old wiring as a
+control that reproduces exactly those three searches.
+
+**What this leaves dormant.** The primary-source (Wikisource) door reads only given terms, and the charter was the only
+giver in production, so it now nominates nothing until its terms come from the ask's own subject.
+
+**What did not change, measured.** The ask-level verdict (`kernel/mayeroff.js` over `organs/askshape.js`'s arms) is
+identical with and without the charter, on twelve asks. So its removal from the vocabulary took no protection with it.
+The charter's own checks (`familyVerdict`, `askShape` over the family) still read text directly; whether they stay is
+open and is not decided here.
+
+**What is owed, and what this amendment does not claim.** Detection is the wrong mechanism: the arms read two of six
+extractive asks (a phishing email and a hidden-fees pitch) and pass the other four, and a verdict that raises a flag is
+the pattern the direction above rejects. The direction is that ethos is the ground a commons is read from
+(Ostrom is now the compendium's archon of `organs/ethos.js`: bounded, monitored by its participants, sanctions
+graduated and witnessed, the rules a reading of the commons and never a configuration over it), and that harm has no
+cell to compose in because the artifact this system makes is a derivation from ground shown to the reader — a
+manipulation or an extraction depends on the reader not seeing its ground or its mechanism. That is a hypothesis with a
+test to write (does an artifact's effect survive disclosure of its own basis?), not a finding. Nothing here measures
+it, and "ananda" (retired 2026-08 as a name that claimed a state no null established) returns only if a null earns it.

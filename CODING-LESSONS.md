@@ -2066,3 +2066,43 @@ the "posts shown" count and the whole-spec count are the sharper measures.
 The ask cap (120) is set by hand. Programs are not on this path yet. On the
 program rungs the bare model builds a page instead of a program on rungs 3–5
 (1.5b) and on rungs 2, 4 and 5 (3b).
+
+
+## 81. A constitution's text is not composition vocabulary, and a control that counts words passes what one that counts sentences refutes (2026-09-30)
+
+Two `/v1/documents` jobs, one on a bicycle freewheel and one on why a spinning top stays upright, each shipped about
+34,000 characters of the UN convention and a gun bill and reported `complete`. Their ground rows named three
+Wikisource documents: "prohibit", "slavery or servitude", "in all their forms". Those are the first three given
+terms of the charter family. `proxy-runner.mjs` gave the charter into the composition hyperlexicon, and three readers of
+that one object took its clauses for the topic: the outline's section titles, the digest the mouth is told, and the
+primary-source door's search terms.
+
+The direction (user, 2026-09-30): ethos is the earned ground that enables logos and pathos, a commons read by its
+participants (Ostrom is now the compendium's archon of `organs/ethos.js`), never a moral rulebook that governs and
+can be lifted; and harm must be irrational, not flagged or cautioned against.
+
+**The change.** `buildCompositionHyperlexicon` builds the vocabulary from observed relations only, as candidates, and
+`wikisourceTermsOf` chooses the door's terms; the charter is not given into either. The charter's own text checks
+(`familyVerdict`, `askShape` over the family) are unchanged and their future is open.
+
+**Measured.** With the fix, two jobs run over one real handed-over file (web off) no longer search or paste the
+charter. The ask-level verdict from `mayeroff.js` is identical with and without the charter on twelve asks, so its
+removal took no protection with it. The same verdict reads only two of six extractive asks, so detection is the wrong
+mechanism for the second half of the direction.
+
+**Falsifying controls, kept as tests** (`tests/ethos-commons.test.mjs`; holodeck's `holodeck-doors.test.mjs`):
+- The old wiring, run through the same term function, reproduces exactly the three searches the ledger shows.
+- The vocabulary carries no charter given; observed relations are still admitted; other givers still feed the door.
+- A topic control that counts words across the whole projection passed a bicycle answer of four sentences about
+  Katherine Johnson and one about bicycles (8 topic words against 7). Counting sentences refuted it, and then
+  refuted itself: "the" is a topic word of one task phrase and matched 147 of 211 sentences of any text. Now it counts
+  sentences, drops function words with the engine's `isFunctionWord`, and reads "about its task" as most sentences
+  carry the topic and more than another job's do.
+
+**Open.** The primary-source (Wikisource) door is now dormant in production: no other giver feeds it, so it nominates
+nothing until its terms come from the ask's own subject. The pipeline takes handed-over material as ground without testing that it bears on the task (the bicycle
+job admitted the Johnson file), so it does not yet build a ground: relevance admission over the operator's own
+material, and an honest "no ground carries this" when nothing does, are unbuilt. A browser workspace cannot become a
+job's ground (the document door takes only a filesystem path). The on-topic job wrote "Two sources agree" over one
+source, and its excerpt bullets carried page furniture ("Jump to content"). The harm hypothesis (an artifact's effect
+does not survive disclosure of its own basis) is a test still to write, not a finding.

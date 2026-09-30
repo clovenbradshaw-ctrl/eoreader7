@@ -116,7 +116,7 @@ import { buildClarify, recordRound, foldAnswersFromTask, SCHEMA as CLARIFY_SCHEM
 // checkout, a public-domain fallback excerpt otherwise — so a missing corpus
 // never silently ungoverns the system. Never fires on descriptive voice
 // (reading and talking about human atrocities passes by construction).
-import { familyVerdict, familyAffordances, giveCharterFamily, configureGfp } from "./native/organs/charter.js";
+import { familyVerdict, familyAffordances, configureGfp } from "./native/organs/charter.js";
 import { groundFacts, holographType } from "./native/organs/output-holograph.js";
 import { splitSentences as engineSplitSentences } from "./native/adapters/text/spans.js";
 import { askShape } from "./native/organs/askshape.js";
@@ -3587,6 +3587,32 @@ const reader = res.body.getReader();
 // have — noted only when the pick was not the obvious sole host
 function hosts_note_once(name, reason) { return reason !== "sticky_session" && reason !== "shortest_expected_wait" ? true : false; }
 
+// THE CHARTER IS NOT THE COMPOSITION'S VOCABULARY (user direction, 2026-09-30).
+// The hyperlexicon is what composition draws on — the outline's section titles, the digest the mouth is told, the
+// primary-source door's search terms all read it. Until 2026-09-30 the charter family was GIVEN into it, so the UDHR's
+// clauses ("prohibit", "slavery or servitude", "in all their forms") were read as the topic: two /v1/documents jobs about
+// a bicycle freewheel and a spinning top searched Wikisource for those three phrases and shipped 34k characters of the
+// UN convention and a gun bill as their answer (tests/ethos-commons.test.mjs holds the measured control). Ethos is the
+// earned ground that lets logos and pathos stand — a commons read by its participants (Ostrom), never a ruleset laid
+// over the composition that can be lifted. What an ask does to the people it is aimed at is judged from the ask's
+// arms by the structural null (kernel/mayeroff.js): unrealizable in a stable system, not a term on a banned list.
+export function buildCompositionHyperlexicon(observed, giver) {
+  return admitHyperlexiconCandidates(createHyperlexicon(), (observed ?? []).map((c) => ({
+    left: c.left, right: c.right, giver,
+    witnesses: (c.witnesses ?? []).slice(0, 3).map((w) => w?.[0]).filter(Boolean),
+    meta: { independentSupport: c.meta?.support ?? 0, rememberedLeft: false, rememberedRight: false },
+  })));
+}
+
+// The primary-source door's nominations: the terms of GIVEN compositions, bounded. Nomination is not admission.
+export function wikisourceTermsOf(composition, max) {
+  return [...new Set(
+    Object.values(composition ?? {})
+      .filter((e) => e?.standing === "given")
+      .flatMap((e) => [e.left, e.right].map((s) => String(s ?? "").trim()).filter(Boolean)),
+  )].slice(0, max);
+}
+
 // --- turn execution -----------------------------------------------------------
 
 function makeDigest(sessionId, session, fold, ledger, hyperlexicon) {
@@ -5197,20 +5223,9 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const ledger = createRelationCompositionLedger(rawEntries);
   const stats = ledger.diagnostics();
   const observed = acquireCompositionCandidates(rawEntries, { minWitnesses: 1 });
-  // THE LICENSE (THE-MORAL-CORE.md): the charter family's prohibitions and
-  // protections are GIVEN affordances with the charters as giver — the LICENSE
-  // the composition runs under, not a filter it passes through. Only a given
-  // affordance licenses composition (kernel/hyperlexicon.js): a reading that
-  // would compose "permit torture" finds no such given, because the family gave
-  // "prohibit torture" instead. Issued BEFORE any observed candidate, so
-  // experience can never override the charters (admission's own
-  // `standing === "given"` guard drops later candidates on a given key).
-  const licensedHyperlexicon = giveCharterFamily(createHyperlexicon(), charterFamily, giveHyperlexiconAffordance);
-  const hyperlexicon = admitHyperlexiconCandidates(licensedHyperlexicon, observed.map((c) => ({
-    left: c.left, right: c.right, giver: GIVER,
-    witnesses: (c.witnesses ?? []).slice(0, 3).map((w) => w?.[0]).filter(Boolean),
-    meta: { independentSupport: c.meta?.support ?? 0, rememberedLeft: false, rememberedRight: false },
-  })));
+  // The charter is not given into this vocabulary (see buildCompositionHyperlexicon): observed relations only, as
+  // candidates. The charter's own checks below (familyVerdict, askShape over the family) read text directly.
+  const hyperlexicon = buildCompositionHyperlexicon(observed, GIVER);
 
   if (onNote) onNote({ move: "composed", relations: stats.relationEdges, bindings: stats.referentBindings, hyperlexicon: Object.keys(hyperlexicon.composition ?? {}).length });
 
@@ -5431,11 +5446,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // residency ping for the duration of active setup work, cleared after.
     const residentTimer = keepResidentDuringSetup(typeof model === "string" && model ? model.replace(/^er7:/, "") : MODEL_REGISTRY.id);
     try {
-    const hlTerms = [...new Set(
-      Object.values(digestInfo.composition)
-        .filter((e) => e?.standing === "given")
-        .flatMap((e) => [e.left, e.right].map((s) => String(s ?? "").trim()).filter(Boolean)),
-    )].slice(0, WIKI_MAX_CONCEPTS);
+    const hlTerms = wikisourceTermsOf(hyperlexicon.composition, WIKI_MAX_CONCEPTS);
     const primary = [];
     for (const term of hlTerms) {
       const got = await wikisourceText(term);
