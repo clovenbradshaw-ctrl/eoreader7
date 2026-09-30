@@ -28,6 +28,7 @@ import { resolveHandles, labelOf } from "./handles.mjs";
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 import { load, save } from "./notebook-store.mjs";
 import { openWorkspace } from "./notebook-workspace.mjs";
+import { datasetOf, search as dsSearch, label as dsLabel, summary as dsSummary } from "./notebook-dataset.mjs";
 export { load, save };
 
 let toolsCache;
@@ -103,7 +104,9 @@ async function askTurn(st, by, text, ctx = {}, b_force = false) {
   let s = st; const put = (o) => { let id = o.id; while (cellOf(s.nb, id)) id += "x"; const r = addCell(s, { ...o, id, author: P }); if (r.error) throw new Error(r.error); s = r.state; return id; };
   const run = (id) => { const r = runCell(s, id); if (r.error) throw new Error(r.error); s = r.state; return r.exec; };
   const n0 = s.nb.entries.filter((e) => e.kind === "cell" && e.type === "markdown").length + 1;
-  put({ id: `ask${n0}`, type: "markdown", source: `**Asked:** ${text}\n\n**Method${skills.length > 1 ? "s" : ""}:** ${skills.map((k) => `${k.name} (${k.id}${k.conceded ? ", conceded" : ""}; learned from ${k.lineage?.mouth ?? "?"}, used ${k.uses}×)`).join("; ")} on ${p.columns.join(", ")} of ${p.file}. Chosen by: ${via}.${p.matched.length ? ` Matched on: ${p.matched.join(", ")}.` : ""}${offNote}${swarmNote ? `\n\n${swarmNote}` : ""}${p.unmatched.length ? `\n\n**Not understood (matched nothing):** ${p.unmatched.join(", ")}` : ""}\n\nEvery claim below is proposed by the planner and only as wide as its check; each has a control that fails. None of the methods is built in — see /skills.` });
+  const prior = ctx.ws ? dsSearch(datasetOf(ctx.ws), text, { k: 3, excludeConv: ctx.cid, kind: "generated" }) : [];
+  const priorNote = prior.length ? `\n\n**Earlier in this workspace (generated — context, NOT evidence):** ${prior.map((i) => `${dsLabel(i)} ${String(i.text).replace(/\s+/g, " ").slice(0, 110)}`).join(" | ")}` : "";
+  put({ id: `ask${n0}`, type: "markdown", source: `**Asked:** ${text}\n\n**Method${skills.length > 1 ? "s" : ""}:** ${skills.map((k) => `${k.name} (${k.id}${k.conceded ? ", conceded" : ""}; learned from ${k.lineage?.mouth ?? "?"}, used ${k.uses}×)`).join("; ")} on ${p.columns.join(", ")} of ${p.file}. Chosen by: ${via}.${p.matched.length ? ` Matched on: ${p.matched.join(", ")}.` : ""}${offNote}${priorNote}${swarmNote ? `\n\n${swarmNote}` : ""}${p.unmatched.length ? `\n\n**Not understood (matched nothing):** ${p.unmatched.join(", ")}` : ""}\n\nEvery claim below is proposed by the planner and only as wide as its check; each has a control that fails. None of the methods is built in — see /skills.` });
   const findings = [], claims = [], quality = new Map();
   for (const col of p.columns) for (const k of skills) {
     const tag = `${col}-${k.id.slice(0, 6)}`, m = { id: k.id, name: k.name, codeSha: k.codeSha }, cid = put({ id: `k-${tag}`, type: "claim", source: L.fill(k.claim, p.file, col), method: m });
@@ -147,6 +150,7 @@ export async function act(st, by, b, ctx = {}) {
     if (hit.length !== 1) return { error: hit.length ? `"${b.which}" matches ${hit.length} methods — use an id: ${hit.map((k) => k.id).join(", ")}` : `no learned method matches "${b.which}" — /skills lists them` };
     const r = L.switchAnalysis(dir, hit[0].id, b.on, by, b.why); return r.error ? r : { state: st, notice: `${hit[0].name} (${hit[0].id}) is now ${b.on ? "ON" : "OFF"} — ${by}${b.why ? `: ${b.why}` : ""}. Recorded in the skill-toggles ledger.` };
   }
+  if (b.op === "dataset") { if (!ctx.ws) return { error: "no workspace here" }; const items = datasetOf(ctx.ws), sm = dsSummary(items), hits = b.query ? dsSearch(items, b.query, { k: 10 }) : items.slice(-12).reverse(); return { notice: `workspace dataset: ${sm.source} source(s), ${sm.generated} generated item(s) (${Object.entries(sm.by).map(([k, v]) => `${v} ${k}`).join(", ")}) across ${ctx.ws.list(true).length} conversation(s)\nGenerated items are context about what was done — never evidence for themselves.\n\n${b.query ? `matching "${b.query}":` : "most recent:"}\n${hits.map((i) => `${dsLabel(i)}\n   ${String(i.text).replace(/\s+/g, " ").slice(0, 200)}`).join("\n") || "(nothing matches)"}` }; }
   if (b.op === "audit") return { notice: auditText(audit(st, ctx.dir ?? learnedDir())) };
   if (b.op === "forget") return L.concede(ctx.dir ?? learnedDir(), b.id, b.because) ? { notice: `conceded ${b.id} — kept on the record, no longer chosen` } : { error: `no learned method ${b.id}` };
   if (b.op === "run") return runCell(st, b.cell);
@@ -197,7 +201,7 @@ export function notebookHandler({ dir, by, learned = learnedDir(), base = "", sk
     if (req.method === "POST" && p === "/api") {
       let body = ""; for await (const c of req) body += c;
       let b = {}, r; try { b = JSON.parse(body); const c = pick(b.c);
-        if (WS_OPS[b.op]) r = WS_OPS[b.op](b, c); else { const st = ws.state(c.id); r = await act(st, by, b, ctx); if (r.state) ws.save(c.id, r.state); }
+        if (WS_OPS[b.op]) r = WS_OPS[b.op](b, c); else { const st = ws.state(c.id); r = await act(st, by, b, { ...ctx, ws, cid: c.id }); if (r.state) ws.save(c.id, r.state); }
       } catch (e) { r = { error: String(e.message) }; }
       res.setHeader("content-type", "application/json"); res.end(JSON.stringify({ error: r.error ?? null, notice: r.notice ?? null, selected: r.selected ?? null, goto: r.goto ?? null })); return true;
     }

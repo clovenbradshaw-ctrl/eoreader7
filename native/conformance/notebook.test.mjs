@@ -294,3 +294,68 @@ test("no method and no model: the ant colony searches the data itself, its finds
   const before = pheromone(loadTrails(tmp)); const again = await act(s, H, { op: "line", line: "/explore" }, { dir: tmp, swarm: { rounds: 2, ants: 10 } }); assert.ok(!again.error, again.error);
   assert.ok(pheromone(loadTrails(tmp)) >= before, "a second colony inherits and adds to the first one's trails");
 });
+
+import http from "node:http";
+import { openWorkspace } from "../the-fold/surface/notebook-workspace.mjs";
+import { notebookHandler } from "../the-fold/surface/notebook-surface.mjs";
+import { datasetOf, search as dsSearch } from "../the-fold/surface/notebook-dataset.mjs";
+import { verifyChain } from "../the-fold/surface/bench.mjs";
+const wsdir = () => fs.mkdtempSync(path.join(os.tmpdir(), "wsp-"));
+const add = async (ws, id, line, ctx = {}) => { const r = await act(ws.state(id), H, { op: "line", line }, { ws, cid: id, ...ctx }); if (r.error) throw new Error(r.error); ws.save(id, r.state); return r; };
+
+test("F6: tabs are isolated and typed — conversations hold separate cells and files; a type flag change is recorded and moves no hash", async () => {
+  const ws = openWorkspace(wsdir()); const a = ws.create({ type: "chat", by: H }).id, b = ws.create({ type: "generate", by: H }).id;
+  await add(ws, a, "/md note in A"); ws.save(b, addData(ws.state(b), ingest({ name: "only-b.csv", bytes: Buffer.from("x\n1\n2\n") }), H).state); await add(ws, b, "/claim claim in B");
+  assert.ok(!Object.keys(ws.state(a).files).length && Object.keys(ws.state(b).files).includes("only-b.csv")); assert.equal(ws.state(a).nb.entries.length, 1); assert.equal(ws.state(b).nb.entries.length, 3 - 0 - 1 + 0);
+  const before = JSON.stringify(ws.state(a).nb.entries.map((e) => e.hash));
+  for (const t of ["generate", "notebook", "chat"]) assert.ok(!ws.retype(a, t, H).error);
+  assert.equal(JSON.stringify(ws.state(a).nb.entries.map((e) => e.hash)), before, "changing the flag alters no log");
+  assert.equal(ws.get(a).history.filter((h) => h.kind === "retype").length, 3); assert.equal(ws.get(a).type, "chat"); assert.match(ws.retype(a, "zzz", H).error, /type must/); assert.match(ws.retype(a, "notebook", "model:x").error, /named person/);
+  assert.deepEqual(ws.list().map((c) => c.type), ["chat", "generate"]); assert.ok(ws.verify().ok);
+});
+
+test("F5: a fork is a prefix — same seals, parent untouched, lineage recorded, promotions do NOT travel", async () => {
+  const ws = openWorkspace(wsdir()); const a = ws.create({ type: "notebook", by: H }).id;
+  await add(ws, a, "/md first"); await add(ws, a, "/claim c is small"); await add(ws, a, "/md after the claim");
+  const pr = await act(ws.state(a), H, { op: "promote", card: "k1", to: "conjectured" }, { ws }); ws.save(a, pr.state); assert.equal(statusOf(ws.state(a).bench, "k1"), "conjectured");
+  const parentBefore = JSON.stringify(ws.state(a)); const f = ws.fork(a, { at: "k1", title: "variant", by: H }); assert.ok(!f.error, f.error);
+  const P = ws.state(a), F = ws.state(f.id);
+  assert.equal(JSON.stringify(P), parentBefore, "forking does not touch the parent"); assert.equal(F.nb.entries.length, 2);
+  F.nb.entries.forEach((e, i) => assert.equal(e.hash, P.nb.entries[i].hash, "the prefix is the parent's own, seal for seal")); assert.ok(verifyChain(F.nb).ok && verifyChain(F.bench).ok);
+  assert.equal(statusOf(F.bench, "k1"), "stated", "the promotion stayed with the parent"); assert.equal(f.notCarried, 1);
+  const m = ws.get(f.id); assert.equal(m.parent, a); assert.equal(m.forkedAt, "k1"); assert.equal(m.forkHash, P.nb.entries[1].hash); assert.equal(m.title, "variant");
+  await add(ws, f.id, "/md only in the fork"); assert.equal(JSON.stringify(ws.state(a)), parentBefore, "work in the fork never reaches the parent"); assert.equal(ws.state(f.id).nb.entries.length, 3);
+  assert.match(ws.fork(a, { at: "nope", by: H }).error, /no cell/); assert.match(ws.fork(a, { by: "model:x" }).error, /named person/);
+  const g = ws.fork(f.id, { at: "end", by: H }); assert.ok(!g.error); assert.equal(ws.get(g.id).parent, f.id, "forks of forks keep their own lineage"); assert.ok(ws.verify().ok);
+});
+
+test("all generated content joins the workspace dataset — labelled, searchable across conversations and modes, and never evidence", async () => {
+  const ws = openWorkspace(wsdir()); const a = ws.create({ type: "chat", by: H }).id, b = ws.create({ type: "generate", by: H }).id;
+  ws.save(a, addData(ws.state(a), ingest({ name: "gauge.csv", bytes: Buffer.from("t,v\n1,2\n") }), H).state);
+  await add(ws, a, "/claim turbidity rose after the dam"); await add(ws, a, "/md the dam changed the turbidity regime");
+  ws.retype(a, "generate", H); ws.retype(a, "chat", H); await add(ws, a, "/md a note written after switching modes back and forth");
+  await add(ws, b, "/md unrelated note about cell culture");
+  const items = datasetOf(ws), kinds = new Set(items.map((i) => i.kind)); assert.deepEqual([...kinds].sort(), ["generated", "source"]);
+  assert.ok(items.some((i) => i.kind === "source" && i.cell === "gauge.csv") && items.filter((i) => i.kind === "generated" && i.conv === a).length >= 3, "notes and claims made in any mode are in the dataset");
+  assert.ok(items.every((i) => i.kind !== "source" || i.type === "file"), "a generated item is never typed as a source");
+  const hit = dsSearch(items, "turbidity dam", { excludeConv: b }); assert.ok(hit.length >= 2 && hit.every((h) => h.conv === a));
+  assert.equal(dsSearch(items, "turbidity", { excludeConv: a }).length, 0, "other conversations can be searched, this one excluded");
+  const r = await act(ws.state(b), H, { op: "line", line: "/dataset dam" }, { ws, cid: b }); assert.match(r.notice, /1 source/); assert.match(r.notice, /never evidence for themselves/); assert.match(r.notice, /\[generated: claim · Chat 1/);
+});
+
+test("the tab page over HTTP: a tab per conversation with its type flag, fork buttons, ws-new / ws-fork / ws-retype / ws-close, and one conversation's page never shows another's cells", { timeout: 60000 }, async () => {
+  const dir = wsdir(); const h = notebookHandler({ dir, by: H, learned: wsdir(), base: "/nb" });
+  const srv = http.createServer(async (req, res) => { const url = new URL(req.url, "http://x"); if (!(await h(req, res, url.pathname.replace(/^\/nb/, "") || "/", url))) { res.statusCode = 404; res.end(); } }); await new Promise((ok) => srv.listen(0, "127.0.0.1", ok)); const base = `http://127.0.0.1:${srv.address().port}/nb`;
+  const post = async (b) => (await fetch(base + "/api", { method: "POST", body: JSON.stringify(b) })).json(); const page = async (q = "") => (await fetch(base + "/" + q)).text();
+  try {
+    let p = await page(); assert.match(p, /id="tabs"/); assert.match(p, /class="ty notebook">notebook/);
+    const n = await post({ op: "ws-new", type: "chat" }); assert.ok(n.goto); await post({ c: n.goto, op: "line", line: "/md secret only in the chat tab" });
+    p = await page(`?c=${n.goto}`); assert.match(p, /secret only in the chat tab/); assert.match(p, /class="ty chat">chat/); assert.match(p, /data-op="ws-close"/);
+    assert.doesNotMatch(await page("?c=c1"), /secret only in the chat tab/, "no leak between tabs");
+    const f = await post({ c: n.goto, op: "ws-fork", at: "m1", title: "variantX" }); assert.ok(f.goto); assert.match(f.notice, /forked at m1/);
+    const fp = await page(`?c=${f.goto}`); assert.match(fp, /variantX/); assert.match(fp, /forked from/); assert.match(fp, /secret only in the chat tab/); assert.match(fp, /data-op="fork"/);
+    assert.equal((await post({ c: f.goto, op: "ws-retype", type: "generate" })).error, null); assert.match(await page(`?c=${f.goto}`), /class="tab on"[^>]*>.*class="ty generate">generate/s);
+    assert.equal((await post({ c: f.goto, op: "ws-close" })).error, null); assert.doesNotMatch(await page(), /variantX/, "a closed tab leaves the strip but stays on the record");
+    assert.ok(openWorkspace(dir).list(true).some((c) => c.title === "variantX" && c.closed));
+  } finally { srv.close(); }
+});

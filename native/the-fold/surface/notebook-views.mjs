@@ -102,7 +102,7 @@ function turns(st) {
 
 function chatView(st, o) {
   const b = turns(st).map((t) => {
-    if (t.loose) return t.loose.type === "markdown" ? `<div class="bub me"><div class="t md">${mdToHtml(sourceOf(st.nb, t.loose.id))}</div></div>` : `<div class="bub ai"><div class="t"><div class="nbwrap">${cellNb(st, t.loose, o)}</div></div></div>`;
+    if (t.loose) return t.loose.type === "markdown" ? `<div class="bub me"><div class="t md">${mdToHtml(sourceOf(st.nb, t.loose.id))}${forkBtn(o, t.loose.id)}</div></div>` : `<div class="bub ai"><div class="t"><div class="nbwrap">${cellNb(st, t.loose, o)}</div></div></div>`;
     const asked = sourceOf(st.nb, t.ask.id).match(/\*\*Asked:\*\* ([\s\S]*?)\n\n/)?.[1] ?? "";
     const note = sourceOf(st.nb, t.ask.id).split("\n\n").slice(1).join("\n\n");
     return `<div class="bub me"><div class="t">${esc(asked)}</div></div><div class="bub ai"><div class="t">${t.ans ? `<div class="md">${mdToHtml(sourceOf(st.nb, t.ans.id))}</div>` : ""}${t.ans ? forkBtn(o, t.ans.id) : ""}<details><summary>how this was produced · ${t.work.length} cells · the method, its controls, the runs</summary><div class="md" style="margin:6px 0">${mdToHtml(note)}</div><div class="nbwrap">${t.work.map((c) => cellNb(st, c, o)).join("")}</div></details></div></div>`;
