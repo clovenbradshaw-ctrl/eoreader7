@@ -6988,7 +6988,16 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         let stopped = false;
         let drawFailure = "";
         let snipSummary = "";
-        if (sentenceAtATime) {
+        // THE SECTION COUNT IS BOUNDED BY WHAT THE WINDOW CAN HAND OUT (2026-09-30, Ostrom's poll: 12 planned sections, about 7
+        // hand-outs, 9-10 empty parts per job, each having spent model draws and redraws on a paragraph the link gate then refused
+        // whole). A part whose window is EMPTY has no ground left to be written from; drawing for it asks the mouth to write from
+        // the ask alone. It is recorded as a named gap, with its reason, and no model call is spent. The opening is not skipped (it is
+        // drawn from the thesis), and code is out of scope.
+        const windowSpent = sentenceAtATime && runMode === "projection" && !isCode && !!groundTracer() && !String(secWindow ?? "").trim();
+        if (windowSpent) {
+          snipSummary = "no window: nothing in the ground is left to hand this part — a gap, not a draw";
+          if (onNote) onNote({ move: "window_spent", section, index: i + 1, of: plannedSections.length });
+        } else if (sentenceAtATime) {
           // THE PARAGRAPH, DRAWN WIDE, SNIPPED MECHANICALLY (2026-09-21, the
           // user's synthesis: "we did have fairly decent longform essay writing
           // on a 2b when it was asked to write paragraphs — this effort caused

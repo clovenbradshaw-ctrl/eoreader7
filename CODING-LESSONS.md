@@ -2281,3 +2281,12 @@ of the trace; heading lines are blanked (same length) before cutting. Both have 
 superseded, not shipped); the fold's "Two sources agree"/"The sources agree" preface is a template over one source; answer-hood;
 section count vs window capacity.
 
+**Built after the poll (Ostrom's rule, in part): a part whose window is empty is a named gap, not a draw.** `windowSpent` in the section
+loop (`proxy-runner.mjs`): with a ground tracer in force, a sentence-at-a-time part whose `groundedWindowFor` returns nothing spends no
+model call and records `no window: nothing in the ground is left to hand this part`. The opening is not skipped. Live, same ask, same
+ground, web off: 134 s against 338, 354 and 568 s before; 7 of 12 parts recorded as gaps with no draw; the shipped piece is the same
+kind (one sentence, linked: "1 of 1"); status still `unsatisfied`. It saves model calls; it does not make the piece arrive, and the
+section count itself is still set by the plan, not by the ground (the remaining Ostrom rule: plan fewer sections). Limit: the skip
+is keyed to an EMPTY window, which can also mean the section's terms matched nothing in a ground that still has unspent sentences (the
+window's term gate, not exhaustion) — measured, not separated.
+
