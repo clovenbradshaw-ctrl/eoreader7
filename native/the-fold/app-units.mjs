@@ -74,7 +74,7 @@ export function unitPrompt(contract, { failures = [], previous = null, skeleton 
     contract.cards === false ? null : `These functions already exist — call them, do not write them yourself, and do not declare them:\n${cardsDoc()}`,
     `Here is a real example of the ${contract.paramDoc ?? contract.params[0]} it receives (long lists are cut to their first items):\n${sample}`,
     workedExample(contract),
-    (skeleton || contract.kind === "field") && skeletonOf(contract) ? `Start from this skeleton — keep the keys and their order, replace every ___ with an expression (add any lines before the return that you need):\n${skeletonOf(contract)}` : null,
+    (skeleton || contract.skeleton === true) && skeletonOf(contract) ? `Start from this skeleton — keep the keys and their order, replace every ___ with an expression (add any lines before the return that you need):\n${skeletonOf(contract)}` : null,
     "Use no imports, no network, no globals. Export nothing: just declare the function.",
   ];
   // "fresh": the failures come back as REQUIREMENTS and the previous code does not (a small model shown its own code beside its failures hands the same code back — measured 2026-09-30)
@@ -247,7 +247,7 @@ export function notesFor(notes, key) {
 }
 
 /** The contract for ONE key of a leaf: the same parameters, samples and notes; a worked example that shows only this key's value; the parent's runs, their failures filtered to this key. */
-export function fieldContract(contract, key) {
+export function fieldContract(contract, key, { style = "narrow" } = {}) {
   const sample0 = contract.sampleJson ?? contract.sampleText;
   if (key === ABSENT) return {
     ...contract,
@@ -263,8 +263,11 @@ export function fieldContract(contract, key) {
     name: `${key}Of`, kind: "field", parent: contract.name, key,
     doc: `${contract.doc} You write ONE part of it: \`${key}Of\` returns just the value of the \`${key}\` field of that object — not the object.`,
     // the leading "an object { a, b, c }" is what a small model copies: a field's answer is one value, and the rest of the text (units, rounding) still applies
-    returns: `just the value of \`${key}\`, not an object — another function writes the other fields${String(contract.returns).replace(/^an object \{[^}]*\}(, or null)?/, "").replace(/^\s*/, "\n")}`,
-    notes: notesFor(contract.notes, key),
+    returns: style === "wide"
+      ? `just the value of \`${key}\` — another function writes the other fields\n${contract.returns}`
+      : `just the value of \`${key}\`, not an object — another function writes the other fields${String(contract.returns).replace(/^an object \{[^}]*\}(, or null)?/, "").replace(/^\s*/, "\n")}`,
+    notes: style === "wide" ? contract.notes : notesFor(contract.notes, key),
+    skeleton: style === "narrow",
     example: contract.example && { ...contract.example, output: (...a) => contract.example.output(...a)[key] },
     // a run whose oracle expects null is the absent-guard's; the field's function is never asked there
     runs: contract.runs.filter((r) => !nullExpected(r, sample0)).map((r) => ({ label: r.label, args: r.args, check: (o, sample) => { let f; try { f = r.check({ [key]: o }, sample); } catch (e) { return [`${key} could not be checked: ${String(e.message).slice(0, 80)}`]; } return f.filter(only); } })),
