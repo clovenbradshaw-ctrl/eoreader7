@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Screenshot to HTML</title>
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#ffffff; --ink:#1c1b19; --muted:#6b6a65; --line:#dcdad3;
+  --accent:#2f5bd8; --accent-ink:#ffffff; --ok:#1f7a4d; --err:#b3261e; --chip:#eceae4;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#161614; --panel:#1f1f1c; --ink:#ecebe6; --muted:#9b9a93; --line:#34332f; --accent:#7b9bff; --accent-ink:#0d1330; --ok:#6fd39c; --err:#ff8a80; --chip:#2a2a26; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+.wrap{max-width:1280px;margin:0 auto;padding:24px 16px 64px}
+h1{font-size:22px;margin:0 0 4px;font-weight:650;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 20px;max-width:70ch}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:28px 16px;text-align:center;color:var(--muted);transition:.15s}
+.drop.over{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.drop b{color:var(--ink)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin-top:12px}
+button,.btn{font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:7px 12px;border-radius:8px;cursor:pointer}
+button:hover,.btn:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button:disabled{opacity:.5;cursor:default}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px 18px;margin-top:16px}
+.opt label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.opt select,.opt input[type=range]{width:100%}
+.opt select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.opt .val{float:right;color:var(--ink)}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:14px}
+.chk input{margin-top:4px}
+.chk small{display:block;color:var(--muted)}
+#status{margin:16px 0 0;min-height:22px;font-size:14px;color:var(--muted)}
+#status.err{color:var(--err)}
+.bar{height:4px;border-radius:2px;background:var(--chip);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.panes{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:860px){.panes{grid-template-columns:1fr}}
+.pane h2{font-size:13px;margin:0 0 8px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.pane h2 label{text-transform:none;letter-spacing:0;font-weight:400;display:flex;gap:6px;align-items:center}
+.view{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:repeating-conic-gradient(#0000000d 0 25%,transparent 0 50%) 0 0/16px 16px}
+.view canvas,.view img.orig{display:block;width:100%;height:auto}
+.view canvas.ov{position:absolute;inset:0;pointer-events:none}
+.stage{position:relative;transform-origin:0 0}
+.stage iframe{border:0;background:#fff;display:block}
+.stage img.blend{position:absolute;left:0;top:0;pointer-events:none}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px;background:var(--c)}
+.code{margin-top:16px}
+.code h2{font-size:13px;margin:0 0 8px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+textarea{width:100%;height:320px;font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink);padding:10px;resize:vertical}
+.stats{font-size:13px;color:var(--muted)}
+.hidden{display:none!important}
+.note{font-size:13px;color:var(--muted);margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Screenshot to HTML</h1>
+  <p class="sub">Drop in a screenshot of a web page or app. Everything runs in this tab: text comes from OCR, boxes, buttons, rules and image regions come from pixel analysis, and the HTML is generated from that. No image leaves your machine, apart from the one-time download of the OCR engine and its language data.</p>
+
+  <div class="card">
+    <div id="drop" class="drop">
+      <div><b>Drop a screenshot here</b>, paste one from the clipboard, or pick a file</div>
+      <div class="row">
+        <label class="btn primary" for="file">Choose image</label>
+        <input id="file" type="file" accept="image/*" class="hidden">
+        <button id="sample" type="button">Try a generated sample</button>
+      </div>
+    </div>
+
+    <div class="opts">
+      <div class="opt"><label for="mode">Layout</label>
+        <select id="mode">
+          <option value="flex" selected>Structured (flex rows and columns)</option>
+          <option value="abs">Pixel faithful (absolute positions)</option>
+        </select></div>
+      <div class="opt"><label for="dpr">Screenshot pixel density</label>
+        <select id="dpr">
+          <option value="auto" selected>Auto (2x if wider than 2200px)</option>
+          <option value="1">1x</option><option value="2">2x</option><option value="3">3x</option>
+        </select></div>
+      <div class="opt"><label for="lang">OCR language</label>
+        <select id="lang">
+          <option value="eng" selected>English</option><option value="spa">Spanish</option>
+          <option value="fra">French</option><option value="deu">German</option>
+          <option value="ita">Italian</option><option value="por">Portuguese</option>
+          <option value="nld">Dutch</option>
+        </select></div>
+      <div class="opt"><label for="tol">Color tolerance <span class="val" id="tolv">10</span></label>
+        <input id="tol" type="range" min="2" max="40" value="10"></div>
+      <div class="opt"><label for="minarea">Smallest box, px squared <span class="val" id="minareav">500</span></label>
+        <input id="minarea" type="range" min="100" max="4000" step="50" value="500"></div>
+      <div class="opt"><label for="conf">OCR confidence floor <span class="val" id="confv">45</span></label>
+        <input id="conf" type="range" min="0" max="90" value="45"></div>
+      <label class="chk"><input id="embed" type="checkbox"><span>Embed image regions<small>Crops photos and icons into the HTML as data URIs. Off (default, per direction: "let's not have it pass through images as images") gives flat, measured color placeholders instead — a real fact about the region (its dominant/mean color) rather than a pixel blob with no provenance riding through it.</small></span></label>
+      <label class="chk"><input id="thorough" type="checkbox" checked><span>Thorough OCR<small>Extra passes for light text on dark or colored backgrounds. Slower.</small></span></label>
+      <label class="chk"><input id="noocr" type="checkbox"><span>Skip OCR<small>Boxes and images only, no text.</small></span></label>
+      <label class="chk"><input id="alt" type="checkbox"><span>Write alt text with a local captioning model<small>Downloads a small model (roughly 100 MB) on first use.</small></span></label>
+    </div>
+
+    <div id="status"></div>
+    <div class="bar"><i id="bar"></i></div>
+  </div>
+
+  <div id="results" class="hidden">
+    <div class="panes">
+      <div class="pane">
+        <h2><span>Original</span><label><input id="showov" type="checkbox" checked>Show detected regions</label></h2>
+        <div class="view" id="origview"><canvas id="origc"></canvas><canvas id="ov" class="ov"></canvas></div>
+        <div class="legend">
+          <span style="--c:#3b82f6">boxes</span><span style="--c:#22c55e">text</span>
+          <span style="--c:#f59e0b">image regions</span><span style="--c:#ec4899">rules</span>
+        </div>
+      </div>
+      <div class="pane">
+        <h2><span>Generated page</span><label>Blend original <input id="blend" type="range" min="0" max="100" value="0" style="width:110px"></label></h2>
+        <div class="view" id="prevview"><div class="stage" id="stage"><iframe id="frame" sandbox="allow-same-origin" title="Generated page preview"></iframe><img id="blendimg" class="blend" alt=""></div></div>
+        <div class="stats" id="stats" style="margin-top:8px"></div>
+      </div>
+    </div>
+
+    <div class="card code">
+      <h2><span>HTML</span>
+        <span class="row" style="margin:0">
+          <button id="copy" type="button">Copy</button>
+          <button id="download" type="button">Download .html</button>
+          <button id="newtab" type="button">Open in new tab</button>
+        </span></h2>
+      <textarea id="out" spellcheck="false" readonly></textarea>
+    </div>
+  </div>
+
+  <p class="note">Limits worth knowing: fonts are matched by size, weight and width only, not by typeface. Gradients, shadows and overlapping layers are approximated or cropped as images. Tighten or loosen color tolerance if boxes merge or split. Changing any option re-runs the analysis without repeating OCR.</p>
+</div>
+
+<script>
+/* cv2html core: screenshot pixels + OCR lines -> HTML. Pure functions, no DOM. */
+(function (root) {
+'use strict';
+
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const h2 = v => Math.round(clamp(v, 0, 255)).toString(16).padStart(2, '0');
+const toHex = c => '#' + h2(c[0]) + h2(c[1]) + h2(c[2]);
+const cdist = (a, b) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/* ---------- color helpers ---------- */
+function dominant(img, x0, y0, x1, y1) {
+  x0 = clamp(Math.floor(x0), 0, img.width); x1 = clamp(Math.ceil(x1), 0, img.width);
+  y0 = clamp(Math.floor(y0), 0, img.height); y1 = clamp(Math.ceil(y1), 0, img.height);
+  if (x1 <= x0 || y1 <= y0) return [255, 255, 255];
+  const sx = Math.max(1, Math.floor((x1 - x0) / 160)), sy = Math.max(1, Math.floor((y1 - y0) / 160));
+  const d = img.data, W = img.width, hist = new Map();
+  for (let y = y0; y < y1; y += sy) for (let x = x0; x < x1; x += sx) {
+    const i = (y * W + x) * 4;
+    const k = ((d[i] >> 3) << 10) | ((d[i + 1] >> 3) << 5) | (d[i + 2] >> 3);
+    let e = hist.get(k); if (!e) { e = [0, 0, 0, 0]; hist.set(k, e); }
+    e[0]++; e[1] += d[i]; e[2] += d[i + 1]; e[3] += d[i + 2];
+  }
+  let best = null;
+  for (const e of hist.values()) if (!best || e[0] > best[0]) best = e;
+  return [Math.round(best[1] / best[0]), Math.round(best[2] / best[0]), Math.round(best[3] / best[0])];
+}
+
+function meanColor(img, x0, y0, x1, y1) {
+  x0 = clamp(Math.floor(x0), 0, img.width); x1 = clamp(Math.ceil(x1), 0, img.width);
+  y0 = clamp(Math.floor(y0), 0, img.height); y1 = clamp(Math.ceil(y1), 0, img.height);
+  if (x1 <= x0 || y1 <= y0) return [200, 200, 200];
+  const sx = Math.max(1, Math.floor((x1 - x0) / 80)), sy = Math.max(1, Math.floor((y1 - y0) / 80));
+  const d = img.data, W = img.width; let r = 0, g = 0, b = 0, n = 0;
+  for (let y = y0; y < y1; y += sy) for (let x = x0; x < x1; x += sx) { const i = (y * W + x) * 4; r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
+  return [Math.round(r / n), Math.round(g / n), Math.round(b / n)];
+}
+
+function sampleInk(img, x0, y0, x1, y1) {
+  const W = img.width, d = img.data;
+  const bg = dominant(img, x0 - 1, y0 - 1, x1 + 1, y1 + 1);
+  x0 = clamp(Math.floor(x0), 0, W); x1 = clamp(Math.ceil(x1), 0, W);
+  y0 = clamp(Math.floor(y0), 0, img.height); y1 = clamp(Math.ceil(y1), 0, img.height);
+  const sx = Math.max(1, Math.floor((x1 - x0) / 120)), sy = Math.max(1, Math.floor((y1 - y0) / 40));
+  const arr = []; let max = 0;
+  for (let y = y0; y < y1; y += sy) for (let x = x0; x < x1; x += sx) {
+    const i = (y * W + x) * 4;
+    const dd = Math.abs(d[i] - bg[0]) + Math.abs(d[i + 1] - bg[1]) + Math.abs(d[i + 2] - bg[2]);
+    arr.push([dd, d[i], d[i + 1], d[i + 2]]); if (dd > max) max = dd;
+  }
+  let fr = 0, fg = 0, fb = 0, fn = 0, ink = 0;
+  for (const a of arr) {
+    if (a[0] >= max * 0.5) ink++;
+    if (a[0] >= max * 0.75) { fr += a[1]; fg += a[2]; fb += a[3]; fn++; }
+  }
+  const fgc = fn ? [fr / fn, fg / fn, fb / fn] : [0, 0, 0];
+  return { bg, fg: fgc, contrast: max, inkRatio: arr.length ? ink / arr.length : 0 };
+}
+
+/* ---------- flat region segmentation ---------- */
+function segment(img, tol) {
+  const W = img.width, H = img.height, d = img.data, N = W * H;
+  const parent = new Int32Array(N);
+  for (let i = 0; i < N; i++) parent[i] = i;
+  function find(a) { while (parent[a] !== a) { parent[a] = parent[parent[a]]; a = parent[a]; } return a; }
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = y * W + x, p = i * 4;
+      if (x + 1 < W) {
+        const q = p + 4;
+        if (Math.abs(d[p] - d[q]) + Math.abs(d[p + 1] - d[q + 1]) + Math.abs(d[p + 2] - d[q + 2]) <= tol) {
+          const a = find(i), b = find(i + 1); if (a !== b) parent[b] = a;
+        }
+      }
+      if (y + 1 < H) {
+        const q = p + W * 4;
+        if (Math.abs(d[p] - d[q]) + Math.abs(d[p + 1] - d[q + 1]) + Math.abs(d[p + 2] - d[q + 2]) <= tol) {
+          const a = find(i), b = find(i + W); if (a !== b) parent[b] = a;
+        }
+      }
+    }
+  }
+  const label = new Int32Array(N), rootId = new Int32Array(N).fill(-1);
+  const comps = [];
+  for (let i = 0; i < N; i++) {
+    const r = find(i); let id = rootId[r];
+    if (id < 0) { id = comps.length; rootId[r] = id; comps.push({ id, x0: W, y0: H, x1: -1, y1: -1, n: 0, r: 0, g: 0, b: 0 }); }
+    label[i] = id;
+    const c = comps[id], x = i % W, y = (i / W) | 0;
+    if (x < c.x0) c.x0 = x; if (x > c.x1) c.x1 = x; if (y < c.y0) c.y0 = y; if (y > c.y1) c.y1 = y;
+    c.n++; c.r += d[i * 4]; c.g += d[i * 4 + 1]; c.b += d[i * 4 + 2];
+  }
+  for (const c of comps) c.color = [Math.round(c.r / c.n), Math.round(c.g / c.n), Math.round(c.b / c.n)];
+  return { W, H, label, comps };
+}
+
+function edgeScore(seg, c) {
+  const W = seg.W, label = seg.label, id = c.id, bw = c.x1 - c.x0 + 1, bh = c.y1 - c.y0 + 1;
+  const cx = Math.max(1, Math.floor(bw * 0.15)), cy = Math.max(1, Math.floor(bh * 0.15));
+  let hit = 0, tot = 0;
+  for (let x = c.x0 + cx; x <= c.x1 - cx; x++) {
+    tot += 2; if (label[c.y0 * W + x] === id) hit++; if (label[c.y1 * W + x] === id) hit++;
+  }
+  for (let y = c.y0 + cy; y <= c.y1 - cy; y++) {
+    tot += 2; if (label[y * W + c.x0] === id) hit++; if (label[y * W + c.x1] === id) hit++;
+  }
+  return tot ? hit / tot : 0;
+}
+
+function cornerRadius(seg, c) {
+  const W = seg.W, label = seg.label, id = c.id, bw = c.x1 - c.x0 + 1, bh = c.y1 - c.y0 + 1;
+  let a = 0; while (a < bw && label[c.y0 * W + c.x0 + a] !== id) a++;
+  let b = 0; while (b < bh && label[(c.y0 + b) * W + c.x0] !== id) b++;
+  const r = Math.max(a, b), half = Math.min(bw, bh) / 2;
+  if (r < 3) return 0;
+  if (r >= half - 1) return 9999;
+  return r;
+}
+
+function findBoxes(seg, opts) {
+  const comps = seg.comps;
+  let bgComp = comps[0];
+  for (const c of comps) if (c.n > bgComp.n) bgComp = c;
+  const boxes = [], rules = [], outlines = [], used = new Set([bgComp.id]);
+  for (const c of comps) {
+    if (c.id === bgComp.id) continue;
+    const bw = c.x1 - c.x0 + 1, bh = c.y1 - c.y0 + 1, area = bw * bh;
+    const mn = Math.min(bw, bh), mx = Math.max(bw, bh);
+    if (mn <= 4 && mx >= 40 && c.n / area >= 0.85) {
+      rules.push({ type: 'rule', x: c.x0, y: c.y0, w: bw, h: bh, color: c.color });
+      used.add(c.id); continue;
+    }
+    if (c.n < opts.minArea || bw < 12 || bh < 12) continue;
+    const es = edgeScore(seg, c), fill = c.n / area;
+    const thick = c.n / (2 * (bw + bh));
+    if (fill < 0.2 && thick <= 4.5) {
+      if (es >= 0.9) {
+        outlines.push({ x: c.x0, y: c.y0, w: bw, h: bh, color: c.color, thick: clamp(Math.round(thick), 1, 6), radius: cornerRadius(seg, c) });
+        used.add(c.id);
+      }
+      continue;
+    }
+    if (es < 0.8) continue;
+    boxes.push({ type: 'box', x: c.x0, y: c.y0, w: bw, h: bh, color: c.color, radius: cornerRadius(seg, c) });
+    used.add(c.id);
+  }
+  return { bgComp, boxes, rules, outlines, used };
+}
+
+function mergeOutlines(boxes, outlines) {
+  for (const o of outlines) {
+    let best = null;
+    for (const b of boxes) {
+      if (b.border) continue;
+      const s = o.thick + 3;
+      if (Math.abs(b.x - (o.x + o.thick)) <= s && Math.abs(b.y - (o.y + o.thick)) <= s &&
+          Math.abs((b.x + b.w) - (o.x + o.w - o.thick)) <= s && Math.abs((b.y + b.h) - (o.y + o.h - o.thick)) <= s) {
+        if (!best || b.w * b.h > best.w * best.h) best = b;
+      }
+    }
+    if (best) {
+      best.x = o.x; best.y = o.y; best.w = o.w; best.h = o.h;
+      best.border = { w: o.thick, color: o.color }; best.radius = Math.max(best.radius, o.radius);
+    } else {
+      boxes.push({ type: 'box', x: o.x, y: o.y, w: o.w, h: o.h, color: o.color, transparent: true, radius: o.radius, border: { w: o.thick, color: o.color } });
+    }
+  }
+  return boxes;
+}
+
+/* ---------- image / icon regions (pixels not explained by boxes or text) ---------- */
+function findImages(seg, usedArr, texts, opts) {
+  const W = seg.W, H = seg.H, label = seg.label, N = W * H, T = 8;
+  const left = new Uint8Array(N);
+  for (let i = 0; i < N; i++) left[i] = usedArr[label[i]] ? 0 : 1;
+  for (const t of texts) {
+    const x0 = Math.max(0, Math.floor(t.x0) - 2), x1 = Math.min(W - 1, Math.ceil(t.x1) + 2);
+    const y0 = Math.max(0, Math.floor(t.y0) - 2), y1 = Math.min(H - 1, Math.ceil(t.y1) + 2);
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) left[y * W + x] = 0;
+  }
+  const tw = Math.ceil(W / T), th = Math.ceil(H / T);
+  const busy = new Uint8Array(tw * th);
+  for (let ty = 0; ty < th; ty++) for (let tx = 0; tx < tw; tx++) {
+    let n = 0, tot = 0;
+    for (let y = ty * T; y < Math.min(H, ty * T + T); y++) for (let x = tx * T; x < Math.min(W, tx * T + T); x++) { n += left[y * W + x]; tot++; }
+    if (n >= tot * 0.1) busy[ty * tw + tx] = 1;
+  }
+  const dil = new Uint8Array(tw * th);
+  for (let ty = 0; ty < th; ty++) for (let tx = 0; tx < tw; tx++) if (busy[ty * tw + tx]) {
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const nx = tx + dx, ny = ty + dy;
+      if (nx >= 0 && ny >= 0 && nx < tw && ny < th) dil[ny * tw + nx] = 1;
+    }
+  }
+  const seen = new Uint8Array(tw * th), rects = [];
+  for (let s = 0; s < tw * th; s++) {
+    if (!dil[s] || seen[s]) continue;
+    const stack = [s]; seen[s] = 1;
+    let x0 = W, y0 = H, x1 = -1, y1 = -1, cnt = 0;
+    while (stack.length) {
+      const t = stack.pop(), tx = t % tw, ty = (t / tw) | 0;
+      if (busy[t]) {
+        for (let y = ty * T; y < Math.min(H, ty * T + T); y++) for (let x = tx * T; x < Math.min(W, tx * T + T); x++) {
+          if (left[y * W + x]) { cnt++; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+        }
+      }
+      const nb = [[tx + 1, ty], [tx - 1, ty], [tx, ty + 1], [tx, ty - 1]];
+      for (const [nx, ny] of nb) {
+        if (nx < 0 || ny < 0 || nx >= tw || ny >= th) continue;
+        const ni = ny * tw + nx; if (dil[ni] && !seen[ni]) { seen[ni] = 1; stack.push(ni); }
+      }
+    }
+    if (cnt < 40 || x1 < 0) continue;
+    const w = x1 - x0 + 1, h = y1 - y0 + 1;
+    if (Math.min(w, h) < 6) continue;
+    if (Math.max(w, h) >= 8 * Math.min(w, h) && Math.min(w, h) < 12) continue;
+    if (w * h > 2500 && cnt / (w * h) < 0.05) continue;
+    rects.push({ x: x0, y: y0, w, h });
+  }
+  let merged = true;
+  while (merged) {
+    merged = false;
+    outer: for (let i = 0; i < rects.length; i++) for (let j = i + 1; j < rects.length; j++) {
+      const a = rects[i], b = rects[j], s = 2;
+      if (a.x <= b.x + b.w + s && b.x <= a.x + a.w + s && a.y <= b.y + b.h + s && b.y <= a.y + a.h + s) {
+        const x0 = Math.min(a.x, b.x), y0 = Math.min(a.y, b.y);
+        const x1 = Math.max(a.x + a.w, b.x + b.w), y1 = Math.max(a.y + a.h, b.y + b.h);
+        rects[i] = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 }; rects.splice(j, 1); merged = true; break outer;
+      }
+    }
+  }
+  return rects.filter(r => r.w * r.h >= 100).sort((a, b) => b.w * b.h - a.w * a.h).slice(0, 150)
+    .map(r => ({ type: 'image', x: Math.max(0, r.x - 1), y: Math.max(0, r.y - 1), w: Math.min(W, r.w + 2), h: Math.min(H, r.h + 2) }));
+}
+
+/* ---------- text ---------- */
+function buildTexts(img, lines, opts) {
+  const segs = [];
+  for (const ln of lines) {
+    let words = (ln.words || []).filter(w => w.text && w.text.trim() && w.bbox);
+    if (!words.length && ln.text && ln.text.trim() && ln.bbox) words = [{ text: ln.text.trim(), bbox: ln.bbox, confidence: ln.conf }];
+    if (!words.length) continue;
+    words.sort((a, b) => a.bbox.x0 - b.bbox.x0);
+    const lh = Math.max.apply(null, words.map(w => w.bbox.y1 - w.bbox.y0));
+    let cur = null;
+    for (const w of words) {
+      const b = w.bbox;
+      if (cur && b.x0 - cur.x1 > Math.max(lh * 1.0, 14)) { segs.push(cur); cur = null; }
+      if (!cur) cur = { words: [], x0: b.x0, y0: b.y0, x1: b.x1, y1: b.y1, conf: 0, n: 0 };
+      cur.words.push(w.text.trim());
+      cur.x0 = Math.min(cur.x0, b.x0); cur.y0 = Math.min(cur.y0, b.y0);
+      cur.x1 = Math.max(cur.x1, b.x1); cur.y1 = Math.max(cur.y1, b.y1);
+      cur.conf += (w.confidence != null ? w.confidence : (ln.conf != null ? ln.conf : 80)); cur.n++;
+    }
+    if (cur) segs.push(cur);
+  }
+  const out = [];
+  for (const s of segs) {
+    s.text = s.words.join(' ');
+    const conf = s.conf / s.n;
+    if (!/[A-Za-z0-9À-￿]/.test(s.text)) continue;
+    if (conf < opts.minConf) continue;
+    if (s.text.length <= 2 && conf < 80) continue;
+    const h = s.y1 - s.y0, w = s.x1 - s.x0;
+    if (h < 5 || w < 4) continue;
+    const ink = sampleInk(img, s.x0, s.y0, s.x1 + 1, s.y1 + 1);
+    if (ink.contrast < 45) continue;
+    s.hasAsc = /[A-Z0-9bdfhkltÀ-Ý]/.test(s.text);
+    const hasDesc = /[gjpqy,;()\[\]{}]/.test(s.text);
+    const ext = (s.hasAsc ? 0.74 : 0.52) + (hasDesc ? 0.21 : 0);
+    s.em = clamp(h / ext, 8, 240);
+    s.color = ink.fg; s.bg = ink.bg; s.bold = ink.inkRatio > 0.26;
+    out.push(s);
+  }
+  return out;
+}
+
+function makePara(seg) { return { type: 'text', lines: [seg], em: seg.em, color: seg.color, bold: seg.bold }; }
+
+function canJoin(p, s) {
+  const last = p.lines[p.lines.length - 1], em = p.em;
+  if (Math.abs(s.em - em) / em > 0.12) return false;
+  if (cdist(p.color, s.color) > 120) return false;
+  const gap = s.y0 - last.y1;
+  if (gap < -0.25 * em || gap > 1.0 * em) return false;
+  if (!(s.x0 < last.x1 && s.x1 > last.x0)) return false;
+  const first = p.lines[0];
+  const leftOK = Math.abs(s.x0 - first.x0) <= 0.6 * em;
+  const cOK = Math.abs((s.x0 + s.x1) / 2 - (last.x0 + last.x1) / 2) <= 0.8 * em;
+  const rOK = Math.abs(s.x1 - last.x1) <= 0.6 * em && p.lines.length > 1;
+  return leftOK || cOK || rOK;
+}
+
+function finalizePara(p) {
+  const L = p.lines, em = p.em, n = L.length;
+  const base = l => l.y0 + (l.hasAsc ? 0.74 : 0.52) * em;
+  let pitch = em * 1.25;
+  if (n > 1) pitch = clamp((base(L[n - 1]) - base(L[0])) / (n - 1), em * 1.0, em * 2.4);
+  p.lineH = pitch;
+  const baseFromTop = (pitch - 1.117 * em) / 2 + 0.905 * em;
+  const x0 = Math.min.apply(null, L.map(l => l.x0)), x1 = Math.max.apply(null, L.map(l => l.x1));
+  p.x = x0 - 0.04 * em; p.w = x1 - x0 + 0.08 * em;
+  p.y = base(L[0]) - baseFromTop; p.h = pitch * n;
+  p.align = 'left';
+  if (n > 1) {
+    const lefts = L.map(l => l.x0), rights = L.map(l => l.x1), cs = L.map(l => (l.x0 + l.x1) / 2);
+    const sp = a => Math.max.apply(null, a) - Math.min.apply(null, a);
+    if (sp(lefts) <= 0.5 * em) p.align = 'left';
+    else if (sp(rights) <= 0.5 * em) p.align = 'right';
+    else if (sp(cs) <= 0.8 * em) p.align = 'center';
+  }
+}
+
+/* ---------- analysis ---------- */
+function analyze(img, lines, opts) {
+  opts = Object.assign({ tol: 10, minArea: 500, minConf: 45, dpr: 1, ratio: 1, images: true }, opts || {});
+  const W = img.width, H = img.height;
+  const seg = (opts.seg && opts.seg.tol === opts.tol && opts.seg.W === W && opts.seg.H === H) ? opts.seg : segment(img, opts.tol);
+  seg.tol = opts.tol;
+  const bf = findBoxes(seg, opts);
+  let boxes = mergeOutlines(bf.boxes, bf.outlines);
+  boxes.sort((a, b) => b.w * b.h - a.w * a.h);
+  boxes = boxes.slice(0, 400);
+  const texts = buildTexts(img, lines || [], opts);
+  const usedArr = new Uint8Array(seg.comps.length);
+  bf.used.forEach(id => { usedArr[id] = 1; });
+  const imgs = opts.images ? findImages(seg, usedArr, texts, opts) : [];
+  for (const im of imgs) im.color = meanColor(img, im.x, im.y, im.x + im.w, im.y + im.h);
+
+  const root = { type: 'root', x: 0, y: 0, w: W, h: H, color: bf.bgComp.color, children: [] };
+  boxes.forEach(b => { b.children = []; });
+  const bySmall = boxes.slice().sort((a, b) => a.w * a.h - b.w * b.h);
+  function parentOf(cx, cy, minArea) {
+    for (const b of bySmall) {
+      if (b.w * b.h <= minArea) continue;
+      if (cx >= b.x && cx <= b.x + b.w && cy >= b.y && cy <= b.y + b.h) return b;
+    }
+    return root;
+  }
+  for (const b of boxes) parentOf(b.x + b.w / 2, b.y + b.h / 2, b.w * b.h).children.push(b);
+  for (const r of bf.rules) parentOf(r.x + r.w / 2, r.y + r.h / 2, 0).children.push(r);
+  for (const im of imgs) parentOf(im.x + im.w / 2, im.y + im.h / 2, 0).children.push(im);
+
+  const byParent = new Map();
+  for (const s of texts) {
+    const p = parentOf((s.x0 + s.x1) / 2, (s.y0 + s.y1) / 2, 0);
+    if (!byParent.has(p)) byParent.set(p, []);
+    byParent.get(p).push(s);
+  }
+  const paras = [];
+  for (const [p, list] of byParent) {
+    list.sort((a, b) => a.y0 - b.y0 || a.x0 - b.x0);
+    const ps = [];
+    for (const s of list) {
+      let joined = false;
+      for (let i = ps.length - 1; i >= 0; i--) {
+        if (canJoin(ps[i], s)) { ps[i].lines.push(s); joined = true; break; }
+      }
+      if (!joined) ps.push(makePara(s));
+    }
+    for (const pp of ps) { finalizePara(pp); p.children.push(pp); paras.push(pp); }
+  }
+
+  // headings by relative size
+  const single = paras.filter(p => p.lines.length === 1).map(p => p.em).sort((a, b) => a - b);
+  const med = single.length ? single[Math.floor(single.length / 2)] : 16;
+  let h1Used = false;
+  paras.slice().sort((a, b) => b.em - a.em).forEach(p => {
+    p.tag = 'p';
+    if (p.lines.length > 2) return;
+    if (p.em >= 1.7 * med && !h1Used) { p.tag = 'h1'; h1Used = true; }
+    else if (p.em >= 1.35 * med) p.tag = 'h2';
+    else if (p.em >= 1.15 * med && p.bold) p.tag = 'h3';
+  });
+
+  // buttons, header, sections
+  (function walk(node, parentColor) {
+    for (const c of node.children || []) {
+      if (c.type === 'box') {
+        const kids = c.children;
+        if (kids.length === 1 && kids[0].type === 'text' && kids[0].lines.length === 1 &&
+            c.h >= 22 && c.h <= 90 && c.w <= 480 && kids[0].w / c.w >= 0.3 &&
+            (c.border || cdist(c.color, parentColor) >= 40)) c.button = true;
+        else if (c.w >= 0.9 * W && c.y <= 2 && c.h <= 200 && kids.length >= 2) c.tag = 'header';
+        else if (c.w >= 0.9 * W && c.h >= 120) c.tag = 'section';
+        walk(c, c.transparent ? parentColor : c.color);
+      }
+    }
+  })(root, root.color);
+
+  const rank = { box: 0, rule: 1, image: 2, text: 3 };
+  (function sortKids(n) {
+    if (!n.children) return;
+    n.children.sort((a, b) => rank[a.type] - rank[b.type] || (b.w * b.h - a.w * a.h));
+    n.children.forEach(sortKids);
+  })(root);
+
+  const flat = [];
+  (function flatten(n) { for (const c of n.children || []) { flat.push(c); flatten(c); } })(root);
+  return {
+    width: W, height: H, unit: opts.ratio / opts.dpr, root, flat, seg,
+    stats: { boxes: flat.filter(n => n.type === 'box').length, texts: paras.length, images: imgs.length, rules: bf.rules.length }
+  };
+}
+
+function attachCrops(model, cropFn, maxBytes) {
+  for (const n of model.flat) if (n.type === 'image' && !n.src && cropFn) n.src = cropFn(n.x, n.y, n.w, n.h);
+}
+
+/* ---------- HTML generation ---------- */
+const DEFAULT_STACK = "system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+
+function generate(model, opts) {
+  opts = Object.assign({ mode: 'flex', fontStack: DEFAULT_STACK, measure: null, title: 'Converted page' }, opts || {});
+  const u = model.unit, mode = opts.mode, stack = opts.fontStack;
+  const P = v => (Math.round(v * u * 100) / 100) + 'px';
+  const col = c => toHex(c);
+
+  function bb(items) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const it of items) { x0 = Math.min(x0, it.x); y0 = Math.min(y0, it.y); x1 = Math.max(x1, it.x + it.w); y1 = Math.max(y1, it.y + it.h); }
+    return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+  }
+  function ext(it, axis) {
+    const s = it.type === 'text' ? (axis === 'y' ? it.h * 0.12 : 0) : 0;
+    const pad = 1;
+    return axis === 'y' ? [it.y + s + pad, it.y + it.h - s - pad] : [it.x + pad, it.x + it.w - pad];
+  }
+  function cut(items, axis) {
+    const sorted = items.slice().sort((a, b) => ext(a, axis)[0] - ext(b, axis)[0]);
+    const groups = []; let cur = null, curMax = -Infinity;
+    for (const it of sorted) {
+      const [s, e] = ext(it, axis);
+      if (!cur || s >= curMax) { cur = { items: [] }; groups.push(cur); curMax = e; }
+      cur.items.push(it); curMax = Math.max(curMax, e);
+    }
+    return groups;
+  }
+
+  function renderText(n, extra) {
+    let ls = '';
+    if (opts.measure) {
+      let longest = n.lines[0];
+      for (const l of n.lines) if (l.x1 - l.x0 > longest.x1 - longest.x0) longest = l;
+      const target = (longest.x1 - longest.x0) * u;
+      const mw = opts.measure(longest.text, n.bold ? 700 : 400, n.em * u, stack);
+      const chars = Math.max(1, longest.text.length);
+      if (mw > 0) {
+        const per = clamp((target - mw) / chars, -0.12 * n.em * u, 0.12 * n.em * u);
+        if (Math.abs(per) >= 0.05) ls = 'letter-spacing:' + (Math.round(per * 100) / 100) + 'px';
+      }
+    }
+    const st = ['margin:0', 'font:' + (n.bold ? 700 : 400) + ' ' + P(n.em) + '/' + P(n.lineH) + ' ' + stack,
+      'color:' + col(n.color), 'white-space:nowrap', 'flex:none'];
+    if (n.align !== 'left') st.push('width:' + P(n.w), 'text-align:' + n.align);
+    if (ls) st.push(ls);
+    if (extra) st.push(extra);
+    return '<' + n.tag + ' style="' + st.join(';') + '">' + n.lines.map(l => esc(l.text)).join('<br>') + '</' + n.tag + '>';
+  }
+
+  function renderBox(n, extra) {
+    const bw = n.border ? n.border.w : 0;
+    const st = ['width:' + P(n.w), 'height:' + P(n.h), 'flex:none'];
+    if (!n.transparent) st.push('background:' + col(n.color));
+    if (n.radius) st.push('border-radius:' + (n.radius >= 9999 ? '9999px' : P(n.radius)), 'overflow:hidden');
+    if (bw) st.push('border:' + P(bw) + ' solid ' + col(n.border.color));
+    if (n.button) {
+      const t = n.children[0];
+      st.push('padding:0', 'cursor:pointer', 'display:flex', 'align-items:center', 'justify-content:center', 'white-space:nowrap',
+        'font:' + (t.bold ? 700 : 400) + ' ' + P(t.em) + '/1.2 ' + stack, 'color:' + col(t.color));
+      if (!bw) st.push('border:0');
+      if (extra) st.push(extra);
+      return '<button type="button" style="' + st.join(';') + '">' + esc(t.lines[0].text) + '</button>';
+    }
+    st.push('display:flow-root');
+    let inner = '';
+    if (n.children.length) {
+      const b = bb(n.children), ox = n.x + bw, oy = n.y + bw;
+      if (mode === 'abs') inner = stackLayout(n.children, { x: ox, y: oy, w: n.w - 2 * bw, h: n.h - 2 * bw }, '');
+      else inner = layoutGroup(n.children, 'margin-left:' + P(b.x - ox) + ';margin-top:' + P(b.y - oy));
+    }
+    if (extra) st.push(extra);
+    const tag = n.tag || 'div';
+    return '<' + tag + ' style="' + st.join(';') + '">' + inner + '</' + tag + '>';
+  }
+
+  function renderItem(n, extra) {
+    if (n.type === 'text') return renderText(n, extra);
+    if (n.type === 'rule') return '<div style="width:' + P(n.w) + ';height:' + P(n.h) + ';background:' + col(n.color) + ';flex:none;' + extra + '"></div>';
+    if (n.type === 'image') {
+      const base = 'display:block;width:' + P(n.w) + ';height:' + P(n.h) + ';flex:none;' + extra;
+      if (n.src) return '<img src="' + n.src + '" alt="' + esc(n.alt || '') + '" style="' + base + ';object-fit:cover">';
+      return '<div role="img" aria-label="' + esc(n.alt || 'image') + '" style="' + base + ';background:' + col(n.color) + '"></div>';
+    }
+    return renderBox(n, extra);
+  }
+
+  function stackLayout(items, b, extra) {
+    const inner = items.map(it => renderItem(it, 'position:absolute;left:' + P(it.x - b.x) + ';top:' + P(it.y - b.y))).join('');
+    return '<div style="position:relative;flex:none;width:' + P(b.w) + ';height:' + P(b.h) + ';' + extra + '">' + inner + '</div>';
+  }
+
+  function layoutGroup(items, extra) {
+    if (!items.length) return '';
+    if (items.length === 1) return renderItem(items[0], extra);
+    const b = bb(items);
+    if (mode === 'flex') {
+      const rows = cut(items, 'y');
+      if (rows.length > 1) {
+        let html = '', prev = b.y;
+        for (const g of rows) {
+          const gb = bb(g.items);
+          const centered = gb.w < b.w - 8 && Math.abs((gb.x + gb.w / 2) - (b.x + b.w / 2)) <= 3;
+          const ml = centered ? 'margin-left:auto;margin-right:auto' : 'margin-left:' + P(gb.x - b.x);
+          html += layoutGroup(g.items, 'margin-top:' + P(gb.y - prev) + ';' + ml);
+          prev = gb.y + gb.h;
+        }
+        return '<div style="display:flex;flex-direction:column;align-items:flex-start;flex:none;width:' + P(b.w) + ';' + extra + '">' + html + '</div>';
+      }
+      const cols = cut(items, 'x');
+      if (cols.length > 1) {
+        let html = '', prev = b.x;
+        for (const g of cols) {
+          const gb = bb(g.items);
+          html += layoutGroup(g.items, 'margin-left:' + P(gb.x - prev) + ';margin-top:' + P(gb.y - b.y));
+          prev = gb.x + gb.w;
+        }
+        return '<div style="display:flex;flex-direction:row;align-items:flex-start;flex:none;width:' + P(b.w) + ';' + extra + '">' + html + '</div>';
+      }
+    }
+    return stackLayout(items, b, extra);
+  }
+
+  const r = model.root;
+  let body;
+  if (mode === 'abs') {
+    body = stackLayout(r.children, { x: 0, y: 0, w: r.w, h: r.h }, '');
+  } else {
+    const b = r.children.length ? bb(r.children) : { x: 0, y: 0 };
+    body = layoutGroup(r.children, 'margin-left:' + P(b.x) + ';margin-top:' + P(b.y));
+  }
+  return '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>' + esc(opts.title) + '</title>\n<style>\n*{box-sizing:border-box}\nbody{margin:0;background:' + col(r.color) + ';font-family:' + stack + '}\n#page{position:relative;width:' + P(r.w) + ';min-height:' + P(r.h) + ';margin:0 auto;overflow:hidden;background:' + col(r.color) + '}\n</style>\n</head>\n<body>\n<div id="page">\n' + body + '\n</div>\n</body>\n</html>\n';
+}
+
+/* ---------- OCR helpers ---------- */
+function lineAvgConf(l) {
+  const ws = (l.words || []).filter(w => w.confidence != null);
+  return ws.length ? ws.reduce((s, w) => s + w.confidence, 0) / ws.length : (l.conf != null ? l.conf : 0);
+}
+function overlapFrac(a, b) { // intersection over area of a
+  const ix = Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0));
+  const iy = Math.max(0, Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0));
+  const area = Math.max(1, (a.x1 - a.x0) * (a.y1 - a.y0));
+  return ix * iy / area;
+}
+// Merge a second OCR pass (e.g. on the inverted image) into the first: keep good lines from the
+// first pass, add lines from the second only where the first found nothing usable.
+function mergeOCR(first, second) {
+  const good = first.filter(l => lineAvgConf(l) >= 50);
+  const out = good.slice();
+  for (const l of second) {
+    if (lineAvgConf(l) < 60) continue;
+    if (good.some(g => overlapFrac(l.bbox, g.bbox) > 0.3)) continue;
+    out.push(l);
+  }
+  return out;
+}
+// Dark or strongly colored boxes where page-level OCR tends to fail (light text on dark or saturated fills).
+function weakRegions(img, model) {
+  const out = [];
+  for (const b of model.flat) {
+    if (b.type !== 'box' || b.transparent) continue;
+    if (b.h < 18 || b.h > 200 || b.w < 30) continue;
+    if (b.children.some(c => c.type === 'image' && c.w * c.h > 0.25 * b.w * b.h)) continue;
+    const l = 0.2126 * b.color[0] + 0.7152 * b.color[1] + 0.0722 * b.color[2];
+    const sat = Math.max(b.color[0], b.color[1], b.color[2]) - Math.min(b.color[0], b.color[1], b.color[2]);
+    if (!(l < 140 || sat > 90)) continue;
+    const ink = sampleInk(img, b.x + 2, b.y + 2, b.x + b.w - 2, b.y + b.h - 2);
+    if (ink.contrast < 80 || ink.inkRatio < 0.01) continue;
+    out.push({ x: b.x, y: b.y, w: b.w, h: b.h });
+  }
+  return out.sort((a, b) => b.w * b.h - a.w * a.h);
+}
+// Replace OCR lines whose center lies inside rect with lines read from that region (already in page coordinates).
+function applyRegionLines(lines, rect, regionLines) {
+  const inside = l => {
+    const cx = (l.bbox.x0 + l.bbox.x1) / 2, cy = (l.bbox.y0 + l.bbox.y1) / 2;
+    return cx >= rect.x && cx <= rect.x + rect.w && cy >= rect.y && cy <= rect.y + rect.h;
+  };
+  return lines.filter(l => !inside(l)).concat(regionLines.filter(l => lineAvgConf(l) >= 60));
+}
+
+const api = { analyze, generate, attachCrops, segment, dominant, mergeOCR, weakRegions, applyRegionLines, DEFAULT_STACK };
+if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.CV = api;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+(function(){
+'use strict';
+const $ = s => document.querySelector(s);
+const state = { im: null, id: 0, canvas: null, imgData: null, ratio: 1, lines: null, ocrKey: null, model: null, html: '', busy: false, pending: false, blobUrl: null };
+
+function setStatus(msg, p, err){
+  const s = $('#status'); s.textContent = msg || ''; s.className = err ? 'err' : '';
+  if (typeof p === 'number') $('#bar').style.width = Math.round(p * 100) + '%';
+}
+const tick = () => new Promise(r => setTimeout(r, 15));
+function loadScript(src){
+  return new Promise((res, rej) => {
+    const ex = document.querySelector('script[data-src="' + src + '"]');
+    if (ex && ex.dataset.done) return res();
+    const s = ex || document.createElement('script');
+    s.dataset.src = src; s.src = src;
+    s.onload = () => { s.dataset.done = '1'; res(); };
+    s.onerror = () => rej(new Error('Could not load ' + src + '. Check your connection.'));
+    if (!ex) document.head.appendChild(s);
+  });
+}
+
+/* ---------- input ---------- */
+function setImage(im){ state.im = im; state.id++; state.lines = null; state.model = null; run(true); }
+function fromFile(f){
+  if (!f || !/^image\//.test(f.type)) { setStatus('That file is not an image.', 0, true); return; }
+  const url = URL.createObjectURL(f), im = new Image();
+  im.onload = () => setImage(im);
+  im.onerror = () => setStatus('Could not read that image.', 0, true);
+  im.src = url;
+}
+$('#file').addEventListener('change', e => fromFile(e.target.files[0]));
+const drop = $('#drop');
+['dragenter','dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => fromFile(e.dataTransfer.files[0]));
+document.addEventListener('paste', e => {
+  for (const it of (e.clipboardData && e.clipboardData.items) || []) if (it.type.indexOf('image') === 0) { fromFile(it.getAsFile()); break; }
+});
+
+/* ---------- generated sample ---------- */
+function makeSample(){
+  const W = 1200, H = 820, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  const rr = (x, y, w, h, r, fill, stroke) => { g.beginPath(); g.roundRect(x, y, w, h, r); if (fill) { g.fillStyle = fill; g.fill(); } if (stroke) { g.strokeStyle = stroke; g.lineWidth = 1; g.stroke(); } };
+  const tx = (t, x, y, size, color, weight) => { g.fillStyle = color; g.font = (weight || 400) + ' ' + size + 'px Helvetica, Arial, sans-serif'; g.textBaseline = 'alphabetic'; g.fillText(t, x, y); };
+  g.fillStyle = '#f4f6fb'; g.fillRect(0, 0, W, H);
+  g.fillStyle = '#111827'; g.fillRect(0, 0, W, 64);
+  tx('Acme Labs', 40, 40, 22, '#ffffff', 700);
+  ['Product', 'Pricing', 'Docs', 'Contact'].forEach((t, i) => tx(t, 720 + i * 100, 39, 16, '#d1d5db'));
+  tx('Build faster with', 60, 170, 46, '#111827', 700);
+  tx('less busywork', 60, 226, 46, '#2563eb', 700);
+  tx('Automate repetitive tasks and keep your team in sync.', 60, 276, 19, '#4b5563');
+  tx('Set up in minutes, no credit card required.', 60, 304, 19, '#4b5563');
+  rr(60, 340, 170, 50, 25, '#2563eb'); tx('Get started', 97, 372, 18, '#ffffff', 600);
+  rr(246, 340, 150, 50, 25, null, '#9ca3af'); tx('Learn more', 282, 372, 18, '#374151', 600);
+  // picture-like block
+  rr(640, 110, 500, 300, 16, '#1e3a8a');
+  for (let i = 0; i < 160; i++) { g.fillStyle = 'hsl(' + ((i * 37) % 360) + ',70%,' + (35 + (i * 13) % 35) + '%)'; g.beginPath(); g.arc(660 + (i * 97) % 460, 130 + (i * 53) % 260, 8 + (i % 7) * 6, 0, 7); g.fill(); }
+  const cards = [['Fast', 'Runs locally in seconds.'], ['Private', 'Nothing leaves your device.'], ['Simple', 'One file, no build step.']];
+  cards.forEach((cd, i) => {
+    const x = 60 + i * 370;
+    rr(x, 470, 340, 200, 14, '#ffffff', '#d9dde7');
+    rr(x + 24, 494, 44, 44, 10, '#dbeafe');
+    tx(cd[0], x + 24, 590, 24, '#111827', 700);
+    tx(cd[1], x + 24, 626, 17, '#6b7280');
+  });
+  g.fillStyle = '#111827'; g.fillRect(0, 740, W, 80);
+  tx('2026 Acme Labs. All rights reserved.', 60, 786, 15, '#9ca3af');
+  const im = new Image(); im.onload = () => setImage(im); im.src = c.toDataURL('image/png');
+}
+$('#sample').addEventListener('click', makeSample);
+
+/* ---------- pipeline ---------- */
+function prepare(){
+  const im = state.im, ow = im.naturalWidth, oh = im.naturalHeight;
+  const s = Math.min(1, 2000 / ow, Math.sqrt(2.5e6 / (ow * oh)));
+  const w = Math.max(1, Math.round(ow * s)), h = Math.max(1, Math.round(oh * s));
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.drawImage(im, 0, 0, w, h);
+  state.canvas = c; state.ratio = ow / w; state.imgData = g.getImageData(0, 0, w, h);
+}
+
+function toLines(d){ return (d.lines || []).map(l => ({ text: l.text, conf: l.confidence, bbox: l.bbox, words: (l.words || []).map(w => ({ text: w.text, confidence: w.confidence, bbox: w.bbox })) })); }
+
+function prepRegion(r, scale){
+  const pad = 16, c = document.createElement('canvas');
+  c.width = Math.round(r.w * scale) + pad * 2; c.height = Math.round(r.h * scale) + pad * 2;
+  const g = c.getContext('2d', { willReadFrequently: true });
+  g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+  g.imageSmoothingQuality = 'high';
+  g.drawImage(state.canvas, r.x, r.y, r.w, r.h, pad, pad, Math.round(r.w * scale), Math.round(r.h * scale));
+  const id = g.getImageData(0, 0, c.width, c.height), d = id.data, n = c.width * c.height, gray = new Uint8Array(n), hist = new Uint32Array(256);
+  let sum = 0;
+  for (let i = 0; i < n; i++) { const v = Math.round(0.2126 * d[i*4] + 0.7152 * d[i*4+1] + 0.0722 * d[i*4+2]); gray[i] = v; hist[v]++; sum += v; }
+  const inv = (sum / n) < 140;
+  const lo = (() => { let a = 0; for (let v = 0; v < 256; v++) { a += hist[v]; if (a >= n * 0.01) return v; } return 0; })();
+  const hi = (() => { let a = 0; for (let v = 255; v >= 0; v--) { a += hist[v]; if (a >= n * 0.01) return v; } return 255; })();
+  for (let i = 0; i < n; i++) {
+    let v = gray[i]; if (inv) v = 255 - v;
+    const l2 = inv ? 255 - hi : lo, h2 = inv ? 255 - lo : hi;
+    v = Math.max(0, Math.min(255, (v - l2) / Math.max(1, h2 - l2) * 255));
+    d[i*4] = d[i*4+1] = d[i*4+2] = v; d[i*4+3] = 255;
+  }
+  g.putImageData(id, 0, 0);
+  return { canvas: c, scale, pad };
+}
+
+async function ocr(lang){
+  setStatus('Loading OCR engine...', 0.1);
+  await loadScript('https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js');
+  let phase = 'Reading text';
+  const worker = await Tesseract.createWorker(lang, 1, {
+    logger: m => {
+      if (m.status === 'recognizing text') setStatus(phase + '... ' + Math.round(m.progress * 100) + '%', 0.2 + 0.4 * m.progress);
+      else if (/loading|initializ/.test(m.status)) setStatus('Preparing OCR (' + m.status + ')...', 0.12);
+    }
+  });
+  try {
+    await worker.setParameters({ tessedit_pageseg_mode: Tesseract.PSM.SPARSE_TEXT });
+    let lines = toLines((await worker.recognize(state.canvas)).data);
+    if ($('#thorough').checked) {
+      phase = 'Reading light-on-dark text';
+      const ic = document.createElement('canvas'); ic.width = state.canvas.width; ic.height = state.canvas.height;
+      const g = ic.getContext('2d'); g.drawImage(state.canvas, 0, 0); g.globalCompositeOperation = 'difference'; g.fillStyle = '#fff'; g.fillRect(0, 0, ic.width, ic.height);
+      lines = CV.mergeOCR(lines, toLines((await worker.recognize(ic)).data));
+      const opts = { tol: 10, minArea: 500, dpr: 1, ratio: state.ratio };
+      const pre = CV.analyze(state.imgData, [], opts);
+      const rects = CV.weakRegions(state.imgData, pre);
+      let i = 0;
+      for (const r of rects) {
+        phase = 'Reading dark and colored boxes (' + (++i) + '/' + rects.length + ')';
+        const p = prepRegion(r, r.h < 80 ? 3 : 2);
+        const d = (await worker.recognize(p.canvas)).data;
+        const rl = toLines(d).map(l => {
+          const f = b => ({ x0: (b.x0 - p.pad) / p.scale + r.x, y0: (b.y0 - p.pad) / p.scale + r.y, x1: (b.x1 - p.pad) / p.scale + r.x, y1: (b.y1 - p.pad) / p.scale + r.y });
+          return { text: l.text, conf: l.conf, bbox: f(l.bbox), words: l.words.map(w => ({ text: w.text, confidence: w.confidence, bbox: f(w.bbox) })) };
+        });
+        lines = CV.applyRegionLines(lines, r, rl);
+      }
+    }
+    return lines;
+  } finally { await worker.terminate(); }
+}
+
+function dprValue(){
+  const v = $('#dpr').value;
+  if (v !== 'auto') return +v;
+  return state.im.naturalWidth >= 2200 ? 2 : 1;
+}
+
+function cropFn(){
+  const im = state.im, r = state.ratio;
+  return (x, y, w, h) => {
+    const sw = w * r, sh = h * r, k = Math.min(1, 1000 / sw);
+    const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(sw * k)); c.height = Math.max(1, Math.round(sh * k));
+    c.getContext('2d').drawImage(im, x * r, y * r, sw, sh, 0, 0, c.width, c.height);
+    return (w * h < 12000) ? c.toDataURL('image/png') : c.toDataURL('image/jpeg', 0.85);
+  };
+}
+
+let mctx = null;
+function measure(text, weight, px, stack){
+  if (!mctx) mctx = document.createElement('canvas').getContext('2d');
+  mctx.font = weight + ' ' + px + 'px ' + stack;
+  return mctx.measureText(text).width;
+}
+
+let captioner = null;
+async function caption(model){
+  const imgs = model.flat.filter(n => n.type === 'image' && n.src && n.w * n.h >= 1600);
+  if (!imgs.length) return;
+  setStatus('Loading captioning model...', 0.75);
+  if (!captioner) {
+    const T = await import('https://cdn.jsdelivr.net/npm/@huggingface/transformers@3');
+    captioner = await T.pipeline('image-to-text', 'Xenova/vit-gpt2-image-captioning');
+  }
+  let i = 0;
+  for (const n of imgs) {
+    setStatus('Captioning image ' + (++i) + ' of ' + imgs.length + '...', 0.75 + 0.2 * i / imgs.length);
+    try { const out = await captioner(n.src); n.alt = (out && out[0] && out[0].generated_text || '').trim(); } catch (e) { /* leave alt empty */ }
+  }
+}
+
+function drawOverlay(model){
+  const oc = $('#origc'), ov = $('#ov'), w = state.canvas.width, h = state.canvas.height;
+  oc.width = ov.width = w; oc.height = ov.height = h;
+  oc.getContext('2d').drawImage(state.canvas, 0, 0);
+  const g = ov.getContext('2d'); g.clearRect(0, 0, w, h);
+  const colors = { box: '#3b82f6', text: '#22c55e', image: '#f59e0b', rule: '#ec4899' };
+  g.lineWidth = Math.max(1, w / 900);
+  for (const n of model.flat) {
+    g.strokeStyle = colors[n.type] || '#888';
+    g.fillStyle = (colors[n.type] || '#888') + '22';
+    if (n.type === 'text') { g.fillRect(n.x, n.y, n.w, n.h); g.strokeRect(n.x, n.y, n.w, n.h); }
+    else { g.strokeRect(n.x + .5, n.y + .5, n.w - 1, n.h - 1); if (n.type === 'image') g.fillRect(n.x, n.y, n.w, n.h); }
+  }
+  ov.classList.toggle('hidden', !$('#showov').checked);
+}
+
+function fitStage(){
+  if (!state.model) return;
+  const u = state.model.unit, W = state.model.width * u, H = state.model.height * u;
+  const view = $('#prevview'), st = $('#stage'), fr = $('#frame'), bi = $('#blendimg');
+  const s = Math.min(1, view.clientWidth / W);
+  fr.style.width = W + 'px'; fr.style.height = H + 'px';
+  bi.style.width = W + 'px'; bi.style.height = H + 'px';
+  st.style.width = W + 'px'; st.style.height = H + 'px';
+  st.style.transform = 'scale(' + s + ')';
+  view.style.height = Math.round(H * s) + 'px';
+}
+window.addEventListener('resize', fitStage);
+
+function render(){
+  $('#results').classList.remove('hidden');
+  $('#out').value = state.html;
+  $('#frame').srcdoc = state.html;
+  $('#blendimg').src = state.canvas.toDataURL('image/png');
+  $('#blendimg').style.opacity = $('#blend').value / 100;
+  drawOverlay(state.model);
+  fitStage();
+  const st = state.model.stats;
+  $('#stats').textContent = st.boxes + ' boxes, ' + st.texts + ' text blocks, ' + st.images + ' image regions, ' + st.rules + ' rules. ' + Math.round(state.html.length / 1024) + ' KB of HTML.';
+}
+
+async function run(full){
+  if (!state.im) return;
+  if (state.busy) { state.pending = true; return; }
+  state.busy = true;
+  try {
+    setStatus('Preparing image...', 0.04); await tick();
+    if (full || !state.canvas) prepare();
+    const lang = $('#lang').value;
+    let lines = [];
+    if (!$('#noocr').checked) {
+      const key = state.id + ':' + lang + ':' + $('#thorough').checked;
+      if (!state.lines || state.ocrKey !== key) { state.lines = await ocr(lang); state.ocrKey = key; }
+      lines = state.lines;
+    }
+    setStatus('Analyzing layout...', 0.65); await tick();
+    const opts = { tol: +$('#tol').value, minArea: +$('#minarea').value, minConf: +$('#conf').value, dpr: dprValue(), ratio: state.ratio };
+    const model = CV.analyze(state.imgData, lines, opts);
+    if ($('#embed').checked) CV.attachCrops(model, cropFn());
+    if ($('#alt').checked && $('#embed').checked) { try { await caption(model); } catch (e) { setStatus('Captioning unavailable: ' + e.message, 0.9, true); await tick(); } }
+    state.model = model;
+    setStatus('Generating HTML...', 0.96); await tick();
+    state.html = CV.generate(model, { mode: $('#mode').value, measure, title: 'Converted screenshot' });
+    render();
+    setStatus('Done.', 1);
+  } catch (e) {
+    console.error(e); setStatus('Something went wrong: ' + e.message, 0, true);
+  } finally {
+    state.busy = false;
+    if (state.pending) { state.pending = false; run(false); }
+  }
+}
+
+/* ---------- controls ---------- */
+let deb = null;
+function rerun(){ clearTimeout(deb); deb = setTimeout(() => run(false), 250); }
+[['tol','tolv'],['minarea','minareav'],['conf','confv']].forEach(([a, b]) => $('#' + a).addEventListener('input', () => { $('#' + b).textContent = $('#' + a).value; rerun(); }));
+['mode','dpr','lang','embed','noocr','alt','thorough'].forEach(id => $('#' + id).addEventListener('change', rerun));
+$('#showov').addEventListener('change', () => $('#ov').classList.toggle('hidden', !$('#showov').checked));
+$('#blend').addEventListener('input', () => { $('#blendimg').style.opacity = $('#blend').value / 100; });
+$('#copy').addEventListener('click', async () => {
+  try { await navigator.clipboard.writeText(state.html); setStatus('Copied to clipboard.', 1); }
+  catch (e) { $('#out').select(); document.execCommand('copy'); setStatus('Copied to clipboard.', 1); }
+});
+$('#download').addEventListener('click', () => {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([state.html], { type: 'text/html' })); a.download = 'converted.html'; a.click();
+});
+$('#newtab').addEventListener('click', () => {
+  if (state.blobUrl) URL.revokeObjectURL(state.blobUrl);
+  state.blobUrl = URL.createObjectURL(new Blob([state.html], { type: 'text/html' })); window.open(state.blobUrl, '_blank');
+});
+})();
+</script>
+</body>
+</html>
