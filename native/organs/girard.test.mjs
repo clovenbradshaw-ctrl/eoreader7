@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { hexToHsl, hslToHex, stepLightness, ELEVATION_STEP, hueDistance, extractAccentTokens, mimeticFinding, checkMimicry, resolveToHex, extractNumericPxTokens, dominantConvention } from "./girard.js";
+import { hexToHsl, hslToHex, stepLightness, ELEVATION_STEP, hueDistance, extractAccentTokens, mimeticFinding, checkMimicry, resolveToHex, extractNumericPxTokens, dominantConvention, elevationRelationship } from "./girard.js";
+import { relativeLuminance } from "./contrast.js";
 
 test("resolveToHex: hex, shorthand hex, rgb(), and a received named keyword all resolve; an unknown value is a typed null, never a guess", () => {
   assert.equal(resolveToHex("#ff0000"), "#ff0000");
@@ -90,6 +91,29 @@ test("hslToHex: round-trips a real hex color exactly", () => {
 
 test("stepLightness: reproduces the REAL measured the-fold elevation exactly (#0f0f12 + 2.7 -> #15151a)", () => {
   assert.equal(stepLightness("#0f0f12", ELEVATION_STEP.value), "#15151a");
+});
+
+test("elevationRelationship: refuses to run without the injected relativeLuminance organ — the same practitioner-heuristic wall every archon here holds", () => {
+  assert.throws(() => elevationRelationship("#0f0f12", "#15151a", {}), /relativeLuminance/);
+});
+
+test("elevationRelationship: REAL DATA — the-fold's own bg/panel pair genuinely reads brighter, same hue, matching ELEVATION_STEP", () => {
+  const r = elevationRelationship("#0f0f12", "#15151a", { relativeLuminance });
+  assert.equal(r.readsBrighter, true);
+  assert.equal(r.hueComparable, true);
+  assert.equal(r.sameHue, true);
+});
+
+test("CAUGHT-BY-TESTING: HSL lightness alone is NOT perceived brightness — #303030 and #402020 have IDENTICAL HSL lightness (18.8%) but real WCAG luminance shows #402020 is DARKER, not elevated", () => {
+  assert.equal(Math.round(hexToHsl("#303030").l * 1000), Math.round(hexToHsl("#402020").l * 1000));
+  const r = elevationRelationship("#303030", "#402020", { relativeLuminance });
+  assert.equal(r.readsBrighter, false, "a naive HSL-lightness reading would have wrongly called this an elevation");
+});
+
+test("CAUGHT-BY-TESTING: an achromatic background makes hue comparison meaningless — a gray's hue is a convention (h=0), not a measurement, and must never be compared to a real hue as if it agreed", () => {
+  const r = elevationRelationship("#303030", "#402020", { relativeLuminance });
+  assert.equal(r.hueComparable, false);
+  assert.equal(r.sameHue, null, "never assert sameHue when one side has no real hue to compare");
 });
 
 test("REAL DATA: this repo's own local design systems converge on a real, measured border-radius (median 8px, excluding pill shapes)", () => {

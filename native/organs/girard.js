@@ -117,6 +117,52 @@ export function stepLightness(hex, deltaPercent) {
 // real paired-token extractor is named, real, unattempted future work).
 export const ELEVATION_STEP = { value: 2.7, giver: "organs/girard.js — the-fold (--bg/--panel) and heimdall (--bg/--bg-2), both measured at exactly +2.7 points of HSL lightness", basis: "an exact agreement between two independently-built local systems on the FIRST elevation step above the page background — the real convention a flat rectangle sitting on the page background is missing" };
 
+/**
+ * elevationRelationship(bgHex, surfaceHex, { relativeLuminance,
+ * sameHueThreshold, achromaticThreshold }) -> { luminanceDelta,
+ * readsBrighter, hueComparable, hueDistance, sameHue }. The paired-token
+ * measurement this file's own ELEVATION_STEP comment names as unattempted.
+ *
+ * TWO REAL BUGS in an earlier draft of this function, caught by testing it
+ * against real data rather than trusted from the math — kept here so the
+ * next reader does not repeat either:
+ *
+ * (1) HSL "lightness" is NOT perceived brightness. Measured live:
+ * #303030 (pure gray) and #402020 (a warm maroon) have IDENTICAL HSL
+ * lightness (18.8% each — L is (max+min)/2, and 48 happens to equal
+ * (64+32)/2) while their real WCAG relative luminance differs — #402020
+ * reads DARKER (0.022 vs 0.030). A caller asking "does this surface look
+ * elevated" must ask relative luminance (contrast.js's own already-
+ * standing tool, injected here — cast.js's discipline, never a second
+ * copy of that formula), never HSL L, or it will happily report a surface
+ * that is measurably darker as "brighter."
+ *
+ * (2) An achromatic color's "hue" is a convention, not a measurement.
+ * hexToHsl returns h=0 for any color with s=0 (pure gray) — the SAME
+ * value red genuinely has. So #303030 (gray, s=0) and #402020 (real red,
+ * s>0) compared BY HUE ALONE both read "0°, same hue" — a false positive
+ * from comparing a real hue to an arbitrary placeholder. `hueComparable`
+ * is false whenever either side's saturation sits at or below
+ * `achromaticThreshold`; only when both sides are genuinely chromatic
+ * does `sameHue` mean anything.
+ */
+export function elevationRelationship(bgHex, surfaceHex, { relativeLuminance, sameHueThreshold = 10, achromaticThreshold = 5 } = {}) {
+  if (typeof relativeLuminance !== "function") throw new TypeError("elevationRelationship requires the injected relativeLuminance organ (contrast.js) — never a second luminance formula");
+  const toRgb = (hex) => { const h = hex.replace("#", ""); return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)); };
+  const bgHsl = hexToHsl(bgHex);
+  const surfaceHsl = hexToHsl(surfaceHex);
+  const luminanceDelta = Math.round((relativeLuminance(toRgb(surfaceHex)) - relativeLuminance(toRgb(bgHex))) * 10000) / 10000;
+  const hueComparable = bgHsl.s * 100 > achromaticThreshold && surfaceHsl.s * 100 > achromaticThreshold;
+  const hueDist = hueDistance(bgHex, surfaceHex);
+  return {
+    luminanceDelta,
+    readsBrighter: luminanceDelta > 0,
+    hueComparable,
+    hueDistance: hueComparable ? Math.round(hueDist * 10) / 10 : null,
+    sameHue: hueComparable ? hueDist <= sameHueThreshold : null,
+  };
+}
+
 /** hueDistance(hexA, hexB) -> degrees, 0..180, the shorter way round the wheel. */
 export function hueDistance(hexA, hexB) {
   const a = hexToHsl(hexA).h;
