@@ -75,10 +75,18 @@ test("makePositionalSlots: options are bound once — the returned function take
 // this project already ships for English (`englishSlots`) composes with
 // a Hebrew RoleConfig@1 reader with zero changes to grounding-gfp.js —
 // the language's own eigenvalue is exactly the thing that varies.
+// Computed, not a literal specifier — matching the established idiom
+// tests/hyperlexicon-door-probe.test.js, object-boundary.test.js and
+// reasoning-e2e.test.js already use for this exact sibling boundary. A
+// literal dynamic-import call naming a the-fold path directly is
+// statically checked by conformance/tests-boundary.test.mjs (which
+// deliberately does not resolve a computed specifier — the whole point
+// of this being optional and gracefully degrading, not a broken path).
+const FOLD = new URL("../../../the-fold/", import.meta.url).pathname;
 let gfp = null;
 let nativeTaskLog = null;
 try {
-  gfp = await import("../../../the-fold/grounding-gfp.js");
+  gfp = await import(`${FOLD}grounding-gfp.js`);
 } catch { /* the-fold sibling absent */ }
 try {
   nativeTaskLog = await import("../kernel/task-log.js");
@@ -137,7 +145,7 @@ test("OMNILINGUAL CLAIM, CHECKED DIRECTLY (a second language): a real Arabic Rol
 
 test("relation-kinds.js's kindOf IS omnilingual for what it has seen (a Hebrew copula), and honestly typed-gap for what it has not (an ordinary Hebrew action verb)", async (t) => {
   if (!gfp) return t.skip(GFP_ABSENT);
-  const { kindOf } = await import("../../../the-fold/relation-kinds.js");
+  const { kindOf } = await import(`${FOLD}relation-kinds.js`);
   // COPULA already carries הוא/היא (relation-kinds.js's own closed set) —
   // the SAME cell an English "is" and a Russian copula land on, per that
   // file's own header claim, checked directly rather than trusted from

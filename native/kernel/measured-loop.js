@@ -42,7 +42,10 @@ import { createStreamingDmd } from "./dmd-stream.js";
 
 /** A growth this close to zero reads as "not moving" — this is a numerical
  * tolerance for floating-point noise around an exact fixed point, never a
- * substantive threshold picked to make some case pass. */
+ * substantive threshold picked to make some case pass. 1e-9 is the standard
+ * epsilon-scale convention for "zero up to double-precision noise" (well
+ * above machine epsilon ~2.2e-16, well below anything a real growth rate
+ * would produce) — by construction, not measured against any case. */
 export const STILLNESS_TOLERANCE = 1e-9;
 
 export const VERDICTS = Object.freeze({
