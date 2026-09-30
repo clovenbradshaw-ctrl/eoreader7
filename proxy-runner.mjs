@@ -118,6 +118,7 @@ import { buildClarify, recordRound, foldAnswersFromTask, SCHEMA as CLARIFY_SCHEM
 // (reading and talking about human atrocities passes by construction).
 import { familyVerdict, familyAffordances, configureGfp } from "./native/organs/charter.js";
 import { admitHandedOver } from "./native/the-fold/ground-carries.js";
+import { findPriorsGround, persistEarnedGround } from "./native/the-fold/priors-ground.js";
 import { groundFacts, holographType } from "./native/organs/output-holograph.js";
 import { splitSentences as engineSplitSentences } from "./native/adapters/text/spans.js";
 import { askShape } from "./native/organs/askshape.js";
@@ -189,6 +190,13 @@ export { upstreamAnthropicModelFor, refreshAnthropicModels, anthropicReachable, 
 export { knownAnthropicModels } from "./anthropic-upstream.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
+// The received ground: the corpus this machine keeps as its own commons (live_priors), searched for passages that carry an ask. The
+// word -> documents cache lives in state/, never inside the corpus.
+// The received ground is two roots: live_priors (read-only, never written) and the ground this proxy has EARNED — pages a
+// consented web hunt fetched that carried an ask, kept so the ground grows (persistEarnedGround; state/, never the corpus repo).
+const EARNED_ROOT = process.env.ER7_EARNED_DIR ?? path.join(HERE, "state", "earned-ground");
+const PRIORS_ROOTS = [{ dir: process.env.ER7_PRIORS_DIR ?? path.join(HERE, "..", "live_priors"), label: "live_priors" }, { dir: EARNED_ROOT, label: "earned" }];
+const PRIORS_CACHE = path.join(HERE, "state", "priors-words.json");
 
 // GFP CHECKING for the Charter organ (2026-09-16): the checking side reads
 // intent via a real grammar adapter (relations-positional.js + a measured
@@ -3610,23 +3618,34 @@ export function buildCompositionHyperlexicon(observed, giver) {
 // fetched document (not in `given`) never outranks the operator's, and is excluded whenever any given document exists —
 // the 2026-09-21 rule this function inherits. One function for groundingText() and groundingSources(), so the ledger's
 // ground row and the ground the mouth reads cannot disagree.
-export function selectGroundDocs({ documents, given = null, topic = null } = {}) {
+export function selectGroundDocs({ documents, given = null, topic = null, priors = null } = {}) {
   const hasGiven = given instanceof Map && given.size > 0;
-  const givenDocs = [], fetchedDocs = [];
+  const givenDocs = [], fetchedDocs = [], priorsDocs = [];
   for (const [sid, doc] of documents ?? []) {
     if (String(sid).startsWith("chat:")) continue;
     const text = String(doc?.text ?? "");
     if (text.trim().length <= 40) continue;
-    (hasGiven && !given.has(String(sid)) ? fetchedDocs : givenDocs).push({ id: String(sid), text });
+    // A passage of the received corpus (id "priors:<corpus>/<path>#<start>-<end>") is ground only for an ask it was FOUND for — the
+    // caller passes that search's result in `priors`; without it, a stray passage in the corpus is nothing to stand on.
+    if (String(sid).startsWith("priors:")) { if (priors && priors.mode === "carried") priorsDocs.push({ id: String(sid), text }); continue; }
+    // FETCHED is by where the page came from, not by whether something else was handed over: a page the hunt brought (id
+    // "web:…" / "wikisource:…") is fetched even when nothing was given — measured 2026-09-30, a consented hunt with nothing
+    // handed over read as tier "given", so the ledger said the operator supplied what the web did.
+    const fetched = !(given instanceof Map && given.has(String(sid))) && (hasGiven || /^(web|wikisource):/.test(String(sid)));
+    (fetched ? fetchedDocs : givenDocs).push({ id: String(sid), text });
   }
-  // THE LADDER. The operator's material first — if it carries the ask it is the ground and outranks anything fetched
-  // (the 2026-09-21 rule). If it does not, it is not a wall: what the hunt fetched for this ask is judged by the same
-  // rule, so an unrelated workspace cannot block the ground the hunt built. If neither carries, there is no ground —
-  // tier "none" — and the job must not write from nowhere.
+  // THE LADDER. The operator's material first — if it carries the ask it is the ground and outranks everything (the
+  // 2026-09-21 rule). If it does not it is not a wall: next the received corpus, whose passages were found by the passage
+  // rule (priors-ground.js) and are located; next what the hunt fetched, judged by the same rule as handed-over material. If
+  // none carries there is no ground — tier "none" — and the job must not write from nowhere.
   const fromGiven = admitHandedOver({ docs: givenDocs, topic });
   const keepGiven = new Set(fromGiven.admitted.map((d) => d.id));
+  const excluded = (list) => list.map((d) => ({ id: d.id, chars: d.text.length }));
   if (givenDocs.length && keepGiven.size) {
-    return { docs: givenDocs.filter((d) => keepGiven.has(d.id)), admission: fromGiven, tier: "given", candidates: givenDocs.length, excludedFetched: fetchedDocs.map((d) => ({ id: d.id, chars: d.text.length })), hasGiven };
+    return { docs: givenDocs.filter((d) => keepGiven.has(d.id)), admission: fromGiven, tier: "given", candidates: givenDocs.length, excludedFetched: excluded([...fetchedDocs, ...priorsDocs]), hasGiven };
+  }
+  if (priorsDocs.length) {
+    return { docs: priorsDocs, admission: { schema: fromGiven.schema, mode: "carried", words: fromGiven.words, carried: [], coverage: fromGiven.coverage, admitted: priorsDocs.map((d) => ({ id: d.id, carries: [] })), refused: fromGiven.refused, basis: priors.basis }, tier: "priors", candidates: givenDocs.length + priorsDocs.length + fetchedDocs.length, excludedFetched: excluded(fetchedDocs), hasGiven };
   }
   const fromFetched = fetchedDocs.length ? admitHandedOver({ docs: fetchedDocs, topic }) : null;
   const keepFetched = new Set((fromFetched?.admitted ?? []).map((d) => d.id));
@@ -3640,12 +3659,16 @@ export function selectGroundDocs({ documents, given = null, topic = null } = {})
 // NO VIEW FROM NOWHERE (2026-09-30): when no tier carries the ask, the job writes nothing from nothing. It says, in
 // plain words and from the measurement alone (no model), what it looked at and how to build a ground. The wording is
 // pinned by tests/ground-carries.test.mjs because it is the whole of what the reader sees.
-export function noGroundReport({ words = [], admission = null, webConsent = false, fetchedPages = 0 } = {}) {
+// A fetched page's corpus id is `web:<session>:<n>:<url>` (searchAndAdmitWeb); the URL is what provenance keeps. The session id may itself hold colons.
+export const webUrlOfSourceId = (id) => (/^web:.*?:\d+:(https?:\/\/.*)$/.exec(String(id)) ?? [])[1] ?? null;
+
+export function noGroundReport({ words = [], admission = null, webConsent = false, fetchedPages = 0, priors = null } = {}) {
   const lines = ["No ground. Nothing handed over or fetched carries this ask, so nothing has been written."];
   if (words.length) lines.push(`The ask's subject, as words: ${words.join(", ")}.`);
   const refused = admission?.refused ?? [];
   if (refused.length) lines.push(`${refused.length === 1 ? "The 1 source" : `The ${refused.length} sources`} handed over or fetched did not carry it. ${admission.basis ? admission.basis.charAt(0).toUpperCase() + admission.basis.slice(1) + "." : ""}`.trim());
   else lines.push("Nothing was handed over.");
+  if (priors && priors.mode !== "no-subject") lines.push(priors.mode === "no-corpus" ? "No received corpus was available to search." : `The received corpus was searched: ${priors.basis.charAt(0).toUpperCase() + priors.basis.slice(1)}.`);
   lines.push(webConsent ? (fetchedPages ? `The web search found ${fetchedPages} page(s); none of them carried it.` : "The web search found no page that could be read.") : "The web was not searched, so nothing was fetched.");
   lines.push("To build a ground: hand over a source that is about this, or allow the web to be searched for one (that sends the ask's topic to a search engine).");
   return lines.join("\n\n");
@@ -5140,10 +5163,34 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   // PROJECTION hunts the web for its shape. A normal chat turn does NOT go out
   // and search the topic — chat is the main use case; a research-shaped ask
   // may still gather when the web door is explicitly open (ER7_WEB_SEARCH=1).
+  // THE RECEIVED GROUND (2026-09-30, user direction: "ground should be live_priors"). When nothing handed over carries the ask,
+  // the next place to stand is the received corpus: passages that carry it, each located (file and byte range), are admitted to
+  // this session's corpus like any source — same pii gate, same stamp, stepped through the reader — and become citable. The
+  // web hunt below is the consented step after this one; it runs only when neither the operator's material nor the received
+  // corpus carries the ask, so nothing leaves the machine that the machine already holds an answer for.
+  let priorsResult = null; const priorsIds = [];
+  if (runMode === "projection" && !isCode) {
+    if (!session.corpus) session.corpus = createCorpusSession();
+    const tier0 = selectGroundDocs({ documents: session.corpus.documents, given: session.corpusIndex instanceof Map ? session.corpusIndex : null, topic }).tier;
+    if (tier0 !== "given") {
+      try {
+        priorsResult = await findPriorsGround({ topic, roots: PRIORS_ROOTS, cacheFile: PRIORS_CACHE, yieldFn: yieldToEventLoop });
+        for (const p of priorsResult.passages) {
+          admitChunked(session.corpus, { text: piiAdmit(session, p.text, p.id, onNote), sourceId: p.id });
+          stampAdmission(session, p.id, { task, salience: p.score, resolution: "fine", kind: "live_priors" });
+          priorsIds.push(p.id);
+          // the reader's cost grows fast with length: the same declared window the web door reads (EOT_MAX_CHARS), the whole section stays in the corpus
+          for (const enc of textEncounters(p.text.slice(0, EOT_MAX_CHARS), { source: p.id, offset: 0 })) await session.reader.step(enc);
+        }
+        if (onNote) onNote({ move: "priors_ground", mode: priorsResult.mode, anchor: priorsResult.anchor ?? null, passages: priorsResult.passages.length, basis: priorsResult.basis, ms: priorsResult.scanned.ms });
+      } catch (err) { if (onNote) onNote({ move: "priors_error", detail: err.message }); priorsResult = null; }
+    }
+  }
   const seedQuery = topic;
   let webResult = { pages: 0, chars: 0 };
   let hasWeb = false;
-  if (runMode === "projection" && !isCode) {
+  const groundAlreadyLocal = runMode === "projection" && !isCode && (priorsResult?.mode === "carried" || selectGroundDocs({ documents: session.corpus?.documents, given: session.corpusIndex instanceof Map ? session.corpusIndex : null, topic, priors: priorsResult }).tier === "given");
+  if (runMode === "projection" && !isCode && !groundAlreadyLocal) {
     // Projection hunts the web for its shape — the void's own hunt.
     webResult = await searchAndAdmitWeb(session, sessionId, seedQuery, onNote, { move: "gather", webConsent });
     hasWeb = webResult.pages > 0;
@@ -5154,12 +5201,25 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     hasWeb = webResult.pages > 0;
   }
 
+  // THE GROUND GROWS: pages the hunt fetched that carried this ask are kept as earned ground, with where they came from, so
+  // the next ask of the same subject finds them in the received ground and goes nowhere. Kept here, at the hunt, so it does
+  // not wait on a composition that may take minutes (or never finish).
+  if (runMode === "projection" && !isCode && hasWeb) {
+    try {
+      const g = selectGroundDocs({ documents: session.corpus?.documents, given: session.corpusIndex instanceof Map ? session.corpusIndex : null, topic, priors: priorsResult });
+      if (g.tier === "fetched") {
+        const kept = persistEarnedGround({ dir: EARNED_ROOT, docs: g.docs.map((d) => ({ url: webUrlOfSourceId(d.id), text: d.text })).filter((d) => d.url), task });
+        if (onNote) onNote({ move: "ground_earned", pages: kept.written.length, new: kept.written.filter((w) => w.changed).length });
+      }
+    } catch (err) { if (onNote) onNote({ move: "ground_earned_error", detail: err.message }); }
+  }
+
   // MEMBERSHIP SET: the source ids THIS TURN grounded on — surfaced by its
   // own surf, adopted by its own prompt, or admitted for it by its own
   // primary-source hunt. The citation sweep ranges over this set, never
   // over the whole accumulated corpus: a source the turn did not use is
   // inadmissible, not merely filtered (2026-09-17, the stale-citation fix).
-  const turnUsedSourceIds = new Set();
+  const turnUsedSourceIds = new Set(priorsIds);
 
   // 2. Surf AND fold the conversation itself: the chat history is admitted to
   // the same corpus session as the workspace (unique per-turn sourceId, so
@@ -6122,7 +6182,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
   const handedGround = () => {
     const documents = session.corpus?.documents;
     const key = `${documents?.size ?? 0}|${topicPhrase(task)}`;
-    if (_handed?.key !== key) _handed = { key, ...selectGroundDocs({ documents, given: session.corpusIndex instanceof Map ? session.corpusIndex : null, topic: topicPhrase(task) }) };
+    if (_handed?.key !== key) _handed = { key, ...selectGroundDocs({ documents, given: session.corpusIndex instanceof Map ? session.corpusIndex : null, topic: topicPhrase(task), priors: priorsResult }) };
     return _handed;
   };
   const groundingText = () => {
@@ -6176,8 +6236,10 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       out.excludedDocs = g.excludedFetched.length || undefined;
       out.excludedChars = g.excludedFetched.length ? g.excludedFetched.reduce((n, x) => n + x.chars, 0) : undefined;
       if (g.excludedFetched.length) out.excludedIds = g.excludedFetched.slice(0, 4).map((x) => x.id.slice(0, 60));
-      for (const d of g.docs) { out.corpusDocs++; out.corpusChars += d.text.length; if (out.docIds.length < 6) out.docIds.push(d.id.slice(0, 60)); }
+      for (const d of g.docs) { out.corpusDocs++; out.corpusChars += d.text.length; if (out.docIds.length < 6) out.docIds.push(d.id.slice(0, d.id.startsWith("priors:") ? 160 : 60)); }
       // The ask's subject and what the handed-over material did with it, on the record.
+      out.tier = g.tier;
+      if (priorsResult) out.priors = { mode: priorsResult.mode, anchor: priorsResult.anchor ?? null, scanned: priorsResult.scanned, basis: priorsResult.basis, passages: priorsResult.passages.map((p) => p.id) };
       out.carries = { mode: g.admission.mode, coverage: g.admission.coverage, basis: g.admission.basis, refused: g.admission.refused.slice(0, 4).map((r) => ({ id: r.id.slice(0, 60), why: r.why })) };
     }
     return out;
@@ -6505,7 +6567,7 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
       // scope here: its ground is the workspace and the tests.
       if (runMode === "projection" && !isCode && handedGround().tier === "none") {
         const g = handedGround();
-        const report = noGroundReport({ words: g.admission.words ?? [], admission: g.admission, webConsent, fetchedPages: webResult?.pages ?? 0 });
+        const report = noGroundReport({ words: g.admission.words ?? [], admission: g.admission, webConsent, fetchedPages: webResult?.pages ?? 0, priors: priorsResult });
         if (onNote) onNote({ move: "no_ground", tier: g.tier, basis: g.admission.basis, webConsent: !!webConsent });
         if (documentLedger) {
           try {

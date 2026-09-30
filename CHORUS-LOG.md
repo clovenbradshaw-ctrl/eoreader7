@@ -852,3 +852,12 @@ fast: 7 files · 27 affected test files · 8 tests fail, all pre-existing and un
 | Greenberg | language scope | ground-carries.js:34 | fixed | draftWords' stem and isFunctionWord are the engine's English prior; the header now says so and what happens without one (refuses, never admits) |
 | Simon/Chekhov | new module | job-workspace.mjs, ground-carries.js | noted | both imported by tests (6 + 12); proxy.mjs's `documents` route has no unit test — verified over real HTTP (typed refusals, a hostile name landing inside the job directory) |
 clean: none claimed
+
+## 2026-09-30 — priors-ground.js, earned ground, ladder bucketing (proxy-runner.mjs, tests/priors-ground.test.mjs)
+| archon | lens | where | verdict | note |
+|---|---|---|---|---|
+| Simon/Chekhov | new module | priors-ground.js | fixed | 26 tests incl. real-corpus controls; every rule has a test that fails without it; persistEarnedGround covered by 3 tests incl. hostile URLs |
+| Ostrom | commons | persistEarnedGround | noted | kept pages carry url/ask/time/sha1; nothing is written into live_priors; earned root is searched as a second root |
+| Kant | bucketing | selectGroundDocs | fixed | fetched pages read as tier "given" when nothing was handed over; control test added |
+| Hume | what carrying proves | priors-ground.js | noted | live: the located passage for the bicycle ask is a rotorcraft paragraph that mentions a bicycle; lexical carrying cannot tell mention from aboutness (lesson 83, unbuilt) |
+clean: none claimed

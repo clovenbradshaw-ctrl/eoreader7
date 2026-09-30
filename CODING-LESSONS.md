@@ -2150,3 +2150,59 @@ inside that repo). Acquisition is the existing web hunt and is not yet exercised
 yet persisted, so the ground does not yet grow. The no-ground job's `satisfaction.basis` still carries the pipeline's
 default LaVar wording; something downstream recomputes it and was not traced. Earlier open items stand: the Wikisource
 door is dormant in production, "Two sources agree" over one source, page furniture shipped as excerpts.
+
+
+## 83. The received ground: passages of live_priors that carry an ask, and the three conditions a passage must meet (2026-09-30)
+
+User direction: "there is no view from nowhere; go build the ground to grow from"; "ground should be live_priors." When nothing
+handed over carries an ask, the ladder's next rung is the received corpus (`native/the-fold/priors-ground.js`, wired in
+`runProxyTurn` before the web hunt): passages that carry the ask, each LOCATED (corpus/path and a byte range that slices back to
+the exact text), admitted to the session corpus like any source (pii gate, stamp, stepped through the reader) and citable.
+Order: handed-over that carries it, then live_priors, then what the hunt fetched, then nothing. The web hunt now runs only when
+neither local rung carries the ask, so nothing leaves the machine that the machine already holds an answer for. Retrieval is
+two-level and cached (`state/priors-words.json`, keyed by a fingerprint of every eligible file's path, size and mtime; one pass
+over the corpus per new word, about 26 s cold and under 1 s warm on 938 MB; nothing is written into the corpus).
+
+**Measured against the real corpus, and each rule came from a failure.**
+- A per-DOCUMENT rule ranked a file of cryptic clues and Ulysses as 8-of-8 matches for the bicycle-freewheel ask. The unit is the
+  passage: a blank-line paragraph, or the line when most lines of a block end in terminal punctuation (the cryptic-clues file is
+  one 10 MB block of 142,381 lines, 142,383 of 142,407 ending in a full stop or bracket).
+- Project Gutenberg files break paragraphs with `\r\n\r\n`; read as one block, Ulysses, War and Peace and Little Women each came
+  back as one "passage" the size of the book. A blank line may carry a carriage return.
+- More than half of the words is not enough (a machine-learning paragraph with "hypothesis", "size" and "set" for the continuum
+  ask); words are weighted by how rare they are in this corpus, `ln(1 + N/df)`, and more than half of the EVIDENCE is needed.
+- More than half of the evidence is not enough (a paragraph on black boxes in cybernetics holds "bicycle", "pedal", "wheel" and
+  "let", and never says "freewheel"); the passage must carry the ANCHOR, the ask's most surprising word the corpus attests.
+- More than half of the evidence and the anchor are not enough (two rare words meeting by coincidence: "continuum" and
+  "hypothesis" in a relativity paper and a creole survey; "spinning" and "top" in a novel and a cryptic clue); more than half of
+  the WORDS must be carried too. Three conditions, each shown by a test that fails without it.
+- Selection is the best passage of each document that has one, most evidence first: a source is the unit of provenance.
+
+- A passage is what was FOUND; the ground is the SECTION it sits in (`sectionOf`: the blocks between the nearest headings; a
+  document with no headings or a list of lines is not expanded). The continuum passage was 346 characters and the pipeline's own
+  gate said "Ground not licensed"; its section is 1,912 characters and was licensed.
+
+**Real results (2026-09-30).** Continuum ask: `02-encyclopedic/wikipedia/Logic.txt#48004-49916`, ground licensed, tier `priors`.
+Bicycle, spinning-top and Katherine Johnson asks: no ground, so the job stops (0 model characters) and its report says the received
+corpus was searched and with what result.
+
+**The ground grows (`persistEarnedGround`).** Pages a consented web hunt fetched that carried the ask are kept in their own root
+(`state/earned-ground/90-earned/`, never the corpus repo) with a manifest (`earned.jsonl`: url, file, sha1, the ask that earned it,
+when). A URL is data, never a path (slug + its own hash); the same page twice is one file and one line; a changed page replaces the
+file and adds a line. Live: the bicycle ask, web off, was "No ground"; after one consented hunt (Wikipedia "Freewheel" and a
+LinkedIn article kept) the same ask with the web off found `priors:earned/90-earned/en-wikipedia-org-wiki-freewheel-…#11643-12106`,
+tier `priors`, web 0. Nothing left the machine the second time.
+
+**Two findings that came from running it, and are not fixed.**
+1. `selectGroundDocs` bucketed a fetched page as `given` whenever nothing was handed over (`hasGiven` false), so a consented hunt read
+   as the operator's material. Fetched is now by where the page came from (id `web:`/`wikisource:`); control test added.
+2. FALSIFIED: the located ground for the bicycle ask is the rotorcraft paragraph of the Freewheel article ("Just as a bicycle's
+   wheels must be able to rotate faster than the pedals, a rotorcraft's blades…"). It carries the ask's words, evidence and anchor
+   and is not an answer to the ask; the sentence the model wrote ("coast downhill…") is in no ground. Lexical carrying cannot tell
+   "mentions the subject" from "is about it". The page's own structure (lead section, the article's subject is its title) is a
+   candidate signal; unbuilt. Page furniture ("[ edit ]") ships in excerpts.
+
+**Limits, stated.** Word forms are draftWords' English stems; a single unbroken line is one passage however long; eligibility is
+numbered category folders and `.txt`/`.md` only; the word cache is keyed by the whole corpus fingerprint, so a newly earned page
+makes the next search rescan once (seconds). A first consented job once found "no page that could be read" from a live search that
+later worked: the hunt has no retry and no fallback to the Intelechia fetch proxy.

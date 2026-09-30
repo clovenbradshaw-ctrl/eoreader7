@@ -16,7 +16,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import { admitHandedOver, subjectWordsOf } from "../native/the-fold/ground-carries.js";
-import { selectGroundDocs, topicPhrase, noGroundReport } from "../proxy-runner.mjs";
+import { selectGroundDocs, topicPhrase, noGroundReport, webUrlOfSourceId } from "../proxy-runner.mjs";
 
 const FIX = new URL("../native/eval/the-fold/fixtures/", import.meta.url);
 const read = (n) => fs.readFileSync(new URL(n, FIX), "utf8");
@@ -140,4 +140,66 @@ test("the no-ground report says what it looked at, what it found, and how to bui
   assert.match(noGroundReport({ words: ["x"], admission: r.admission, webConsent: true, fetchedPages: 3 }), /found 3 page\(s\); none of them carried it/);
   // nothing handed over says so
   assert.match(noGroundReport({ words: ["x"], admission: { refused: [], basis: "" }, webConsent: false }), /Nothing was handed over/);
+});
+
+// ── live_priors as a tier: handed-over, then the received corpus, then what the hunt fetched, then nothing ──────
+const PRIORS_ID = "priors:live_priors/02-encyclopedic/wikipedia/Logic.txt#0-346";
+const PRIORS_TEXT = "Set theory originated in the study of the infinite by Georg Cantor. They include Cantor's theorem, the status of the Axiom of Choice, and the continuum hypothesis.";
+const CH_ASK = "The continuum hypothesis and the sizes of infinite sets";
+const priorsResult = { mode: "carried", basis: "1 passage(s), the best of each of 1 document(s) of the received corpus, carry more than half of the ask's evidence together (continuum, hypothesi, infinite, set)", scanned: { files: 2084, ms: 30 } };
+
+test("priors tier: with nothing handed over, the passages live_priors found are the ground, and they are located", () => {
+  const documents = new Map([[PRIORS_ID, { text: PRIORS_TEXT }]]);
+  const r = selectGroundDocs({ documents, given: null, topic: CH_ASK, priors: priorsResult });
+  assert.equal(r.tier, "priors");
+  assert.deepEqual(r.docs.map((d) => d.id), [PRIORS_ID]);
+  assert.match(r.admission.basis, /received corpus/);
+});
+
+test("the ladder's order: handed-over that carries beats priors; priors beat fetched; a workspace that does not carry blocks neither", () => {
+  const FETCHED = "https://en.wikipedia.org/wiki/Continuum_hypothesis";
+  const fetched = "The continuum hypothesis is a hypothesis about the possible sizes of infinite sets. It states there is no set of size between the integers and the reals.";
+  const documents = new Map([[CH.id, { text: CH.text }], [JOHNSON.id, { text: JOHNSON.text }], [PRIORS_ID, { text: PRIORS_TEXT }], [FETCHED, { text: fetched }]]);
+  const both = selectGroundDocs({ documents, given: new Map([[CH.id, {}], [JOHNSON.id, {}]]), topic: CH_ASK, priors: priorsResult });
+  assert.equal(both.tier, "given", "the operator's own material that carries the ask outranks everything");
+  assert.deepEqual(both.docs.map((d) => d.id), ["continuum-hypothesis.txt"]);
+  const unrelated = selectGroundDocs({ documents, given: new Map([[JOHNSON.id, {}]]), topic: CH_ASK, priors: priorsResult });
+  assert.equal(unrelated.tier, "priors", "the Johnson file carries nothing of this ask: it is not a wall, and the received corpus outranks the fetched page");
+  assert.deepEqual(unrelated.docs.map((d) => d.id), [PRIORS_ID]);
+  const noPriors = selectGroundDocs({ documents: new Map([[JOHNSON.id, { text: JOHNSON.text }], [FETCHED, { text: fetched }]]), given: new Map([[JOHNSON.id, {}]]), topic: CH_ASK });
+  assert.equal(noPriors.tier, "fetched");
+});
+
+test("a priors passage is never mistaken for a fetched page or a given document, and is never ground for an ask it was not found for", () => {
+  // the same passage is in the corpus, but the ask is the bicycle ask and no priors result was passed for it: not ground
+  const documents = new Map([[PRIORS_ID, { text: PRIORS_TEXT }]]);
+  const r = selectGroundDocs({ documents, given: null, topic: TASK_OFF });
+  assert.equal(r.tier, "none");
+  assert.deepEqual(r.docs, []);
+});
+
+test("nothing carries and the received corpus was searched: the report says so, with what it searched", () => {
+  const text = noGroundReport({ words: ["bicycle", "freewheel"], admission: { refused: [], basis: "" }, webConsent: false, priors: { mode: "not-carried", anchor: "freewheel", scanned: { files: 2084, ms: 4700 }, basis: "no passage of the received corpus (2084 documents searched, 2 mention the ask's anchor word \u201cfreewheel\u201d with more than half of its evidence) carries more than half of it together with that word" } });
+  assert.match(text, /received corpus/);
+  assert.match(text, /2084 documents searched/);
+  assert.match(text, /freewheel/);
+});
+
+test("a fetched page's url is read back from its corpus id, whatever colons the session id holds; anything else has no url", () => {
+  assert.equal(webUrlOfSourceId("web:hd-1:3:https://en.wikipedia.org/wiki/Freewheel"), "https://en.wikipedia.org/wiki/Freewheel");
+  assert.equal(webUrlOfSourceId("web:documents/x:1:2:https://a.example/p?q=1:2"), "https://a.example/p?q=1:2");
+  assert.equal(webUrlOfSourceId("priors:live_priors/02/x.txt#1-2"), null);
+  assert.equal(webUrlOfSourceId("wikisource:hd-1:term"), null);
+  assert.equal(webUrlOfSourceId(undefined), null);
+});
+
+test("CONTROL — a page the hunt fetched is tier fetched even when nothing was handed over (it read as given)", () => {
+  const PAGE = "A bicycle freewheel lets the wheel spin while the pedals stay still. The pawl engages the ratchet only when pedalling forward. The freewheel is a device.";
+  const docs = new Map([["web:s1:1:https://en.wikipedia.org/wiki/Freewheel", { text: PAGE }]]);
+  const g = selectGroundDocs({ documents: docs, given: null, topic: "How a bicycle freewheel lets the wheel spin while the pedals stay still" });
+  assert.equal(g.tier, "fetched");
+  assert.equal(g.docs.length, 1);
+  // and a page the operator handed over under any other id is still given
+  const h = selectGroundDocs({ documents: new Map([["notes.txt", { text: PAGE }]]), given: new Map([["notes.txt", true]]), topic: "How a bicycle freewheel lets the wheel spin while the pedals stay still" });
+  assert.equal(h.tier, "given");
 });
