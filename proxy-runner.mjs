@@ -110,7 +110,7 @@ import { matchArchons, archonOf } from "./native/organs/archon-compendium.js";
 import { naturalSizeRuleForTask, authorCorrectionRule } from "./native/organs/correction-rule.js";
 import { voidHolarchy } from "./native/organs/void-holarchy.js";
 import { createShapeRegister, reconsiderShape, repairStaleComposition } from "./native/organs/essay-shape-register.js";
-import { buildClarify, recordRound, foldAnswersFromTask, SCHEMA as CLARIFY_SCHEMA, MAX_ROUNDS as CLARIFY_MAX_ROUNDS } from "./native/organs/build-clarify.js";
+import { buildClarify, recordRound, foldAnswersFromTask, restoreTask, SCHEMA as CLARIFY_SCHEMA, MAX_ROUNDS as CLARIFY_MAX_ROUNDS } from "./native/organs/build-clarify.js";
 // The Charter organ (native/organs/charter.js, Handle: Grotius): governs
 // generation against the Universal Declaration of Human Rights. The gate is
 // ALWAYS armed — the full 516-language UN corpus when it is beside the
@@ -5067,6 +5067,8 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
         : { kind: "ground_unmoved", basis: "no cell filled this round — no altitude change" },
       budget: CLARIFY_MAX_ROUNDS,
     });
+    // the FIRST ask is the task; a later reply is only an answer (ledger row 1, TEACH-IT-TO-FISH.md)
+    if (!roundCount) session.buildTask = buildTask;
     const landed = recordRound(session.buildRounds ?? (session.buildRounds = []), clarify);
     session.buildRounds = landed;
     session.buildDeclared = accumulatedDeclared;
@@ -5104,6 +5106,12 @@ export async function runProxyTurn({ sessionId, userId = null, model, task, chat
     // licensed: generation may begin — the void is declared, the build falls
     // through to the normal code pipeline below with the declared shape.
     if (onNote) onNote({ move: "clarify_licensed", round: clarify.round, cells: (clarify.fills ?? []).map((f) => f.cell) });
+    // A build continued by plain reply goes on with the task that was ASKED, not with the reply.
+    if (roundCount > 0 && session.buildTask && task !== session.buildTask) {
+      const restored = restoreTask(session.buildTask, answers);
+      if (onNote) onNote({ move: "task_restored", basis: "the reply answered the ask-back; the build's task is the one first asked" });
+      task = restored;
+    }
     // A REPLY turn licensed the build: the reply's own shape read "chat", but
     // the build is the session's — re-enter code mode from the declared
     // shape so the model writes the artifact, not prose about it.
