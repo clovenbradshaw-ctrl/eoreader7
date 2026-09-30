@@ -27,6 +27,14 @@ test("speed: 10 m/s = 36 km/h = 22.369 mph; 100 km/h = 62.137 mph; 60 mph = 96.5
   near(CARDS.mphToKmh.fn(CARDS.kmhToMph.fn(123.4)), 123.4, 1e-9); // the pair inverts
 });
 
+test("distance: 1 mile = 1.609344 km exactly; a 42.195 km marathon is 26.2188 miles; the pair inverts — and the direction is the point (a km figure DIVIDES)", () => {
+  near(CARDS.milesToKm.fn(1), 1.609344, 1e-12); near(CARDS.kmToMiles.fn(1.609344), 1, 1e-12);
+  near(CARDS.kmToMiles.fn(42.195), 26.21875, 1e-4); near(CARDS.milesToKm.fn(26.21875), 42.195, 1e-3);
+  near(CARDS.milesToKm.fn(CARDS.kmToMiles.fn(5540)), 5540, 1e-9);
+  assert.ok(CARDS.kmToMiles.fn(100) < 100 && CARDS.milesToKm.fn(100) > 100, "fewer miles than km for one distance, never more");
+  near(CARDS.kmToMiles.fn("8"), 4.970969537898672, 1e-9);
+});
+
 test("compass16: each of the sixteen points at its own bearing, the seam at 360, negatives, and the half-step rounding", () => {
   const rose = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
   rose.forEach((name, i) => assert.equal(CARDS.compass16.fn(i * 22.5), name, `${i * 22.5} is ${name}`));
@@ -96,6 +104,7 @@ test("cardsFor: the operation a task's own words name is offered; one it does no
   const names = cardsFor(leg).map((c) => c.name);
   assert.ok(names.includes("haversineKm") && names.includes("roundTo"), names.join());
   assert.ok(!names.includes("kmhToMph") && !names.includes("compass16") && !names.includes("padTime"), "no speed conversion, no compass, no padding for a distance");
+  assert.ok(names.includes("kmToMiles"), "a task that asks for the same distance in miles is offered the distance conversion — the direction a small model reversed (km * 1.609344) when it had to write it");
   const bus = task("Turn one bus stop's timetable into the stop, its route, and its departure times as HH:MM.", "times = every departure time as \"HH:MM\"", "The source writes each time WITHOUT padding: 0 means 00:00, 330 means 03:30.");
   assert.deepEqual(cardsFor(bus).map((c) => c.name), ["padTime"]);
 });

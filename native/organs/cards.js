@@ -12,7 +12,7 @@
 // may not reference anything outside itself). Each carries a one-line doc the prompt shows, and is pinned by
 // cards.test.mjs against values written down independently of this file.
 //
-// Giver: these are the standard definitions (SI and customary unit conversions; the 16-point compass rose; the
+// Giver: these are the standard definitions (SI and customary unit conversions, speeds and distances; the 16-point compass rose; the
 // great-circle formula) — received, not measured. The mean Earth radius 6371 km is the conventional figure.
 
 import { foldKey, keyTokens, resolveKey } from "./key-referents.js";
@@ -25,6 +25,8 @@ function msToKmh(ms) { return Number(ms) * 3.6; }
 function msToMph(ms) { return Number(ms) * 2.2369362920544; }
 function kmhToMph(kmh) { return Number(kmh) / 1.609344; }
 function mphToKmh(mph) { return Number(mph) * 1.609344; }
+function kmToMiles(km) { return Number(km) / 1.609344; }
+function milesToKm(miles) { return Number(miles) * 1.609344; }
 function compass16(degrees) {
   const names = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
   const d = ((Number(degrees) % 360) + 360) % 360;
@@ -56,6 +58,8 @@ export const CARDS = Object.freeze({
   msToMph: { fn: msToMph, doc: "metres per second -> miles per hour", tags: "metres second miles hour speed wind mph" },
   kmhToMph: { fn: kmhToMph, doc: "kilometres per hour -> miles per hour", tags: "kilometres hour miles speed kmh mph" },
   mphToKmh: { fn: mphToKmh, doc: "miles per hour -> kilometres per hour", tags: "miles hour kilometres speed mph kmh" },
+  kmToMiles: { fn: kmToMiles, doc: "a distance in kilometres -> the same distance in statute miles (divides by 1.609344; a number, not rounded)", tags: "kilometres miles distance statute length" },
+  milesToKm: { fn: milesToKm, doc: "a distance in statute miles -> the same distance in kilometres (multiplies by 1.609344; a number, not rounded)", tags: "miles kilometres distance statute length" },
   compass16: { fn: compass16, doc: "a bearing in degrees -> its 16-point compass name (\"N\", \"NNE\", ... \"NNW\")", tags: "compass bearing direction degrees cardinal" },
   padTime: { fn: padTime, doc: "a clock time written without padding (0, \"300\", \"1200\") -> \"HH:MM\"; null if it is not a time", tags: "pad padding padded unpadded clock hhmm" },
   joinPresent: { fn: joinPresent, doc: "joinPresent([a, b, c], \", \") joins the parts that are present (not null, undefined or empty); the separator defaults to \", \"", tags: "join joined separator present missing label" },
