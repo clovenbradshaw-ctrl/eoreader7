@@ -29,6 +29,14 @@ test("parseFeed reads a real RSS 2.0 podcast feed: channel title, and every item
   assert.ok(!/<em>|<br/.test(first.description) === false || first.description.includes("<"), "HTML entities inside the CDATA are decoded, not stripped — this organ parses feed structure, not prose");
 });
 
+test("parseFeed reads real per-episode artwork (itunes:image), falling back to the channel's own image when an item declares none", () => {
+  const feed = parseFeed(FIXTURE);
+  assert.match(feed.image, /^https:\/\/.*\.(jpg|png)/, "the channel's own itunes:image, a real URL");
+  for (const item of feed.items) {
+    assert.match(item.imageUrl, /^https:\/\//, `every real item must resolve to SOME real image URL (its own, or the channel's), got ${item.imageUrl}`);
+  }
+});
+
 test("parseFeed self-verification: each item's `raw` block genuinely contains that item's own title, at the offset a caller would compute", () => {
   const feed = parseFeed(FIXTURE);
   for (const item of feed.items) {

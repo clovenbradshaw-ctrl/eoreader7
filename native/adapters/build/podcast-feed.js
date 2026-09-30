@@ -79,6 +79,12 @@ export function parseFeed(xml) {
   }
   const channelMatch = /<channel[\s>][\s\S]*?<\/channel>/i.exec(text);
   const channel = channelMatch ? channelMatch[0] : text;
+  // Real, standard field (the iTunes podcast RSS extension), confirmed
+  // present per-item on a real live feed (NPR's Planet Money) before this
+  // was written — not assumed. Per-item artwork falls back to the
+  // channel's own <itunes:image>, since not every feed varies art per
+  // episode but every real podcast feed declares at least the show's own.
+  const channelImage = tagAttr(channel, "itunes:image", "href");
   const items = splitBlocks(channel, "item").map((raw) => ({
     title: tagText(raw, "title"),
     link: tagText(raw, "link"),
@@ -87,9 +93,10 @@ export function parseFeed(xml) {
     description: tagText(raw, "description") ?? tagText(raw, "itunes:summary"),
     enclosureUrl: tagAttr(raw, "enclosure", "url"),
     enclosureType: tagAttr(raw, "enclosure", "type"),
+    imageUrl: tagAttr(raw, "itunes:image", "href") ?? channelImage,
     raw,
   }));
-  return { title: tagText(channel, "title"), link: tagText(channel, "link"), description: tagText(channel, "description"), items, schema: "rss2" };
+  return { title: tagText(channel, "title"), link: tagText(channel, "link"), description: tagText(channel, "description"), image: channelImage, items, schema: "rss2" };
 }
 
 export const SHOW_LABEL = "subscribed_to";
