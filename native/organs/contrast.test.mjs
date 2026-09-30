@@ -32,3 +32,18 @@ test("CONTROL: a genuinely compliant pair (black on white body text) is NOT flag
   const findings = contrastFindings([{ id: "body-text", fontSizePx: 16, bold: false, color: BLACK, backgroundColor: WHITE }]);
   assert.equal(findings[0].clears, true);
 });
+
+test("CAUGHT LIVE: a decorative element with NO rendered text (text: \"\") is OUT OF SCOPE for WCAG 1.4.3 — never checked, never a false violation", () => {
+  // The real specimen: a status-dot badge, fill color vs its own fill
+  // color read as if it were text on a background — a category error a
+  // real repair loop spent 80+ cycles "fixing," inflating the total
+  // failure count instead of reducing it.
+  const findings = contrastFindings([{ id: "ethos-badge", fontSizePx: 10, bold: false, color: WHITE, backgroundColor: [0, 128, 0], text: "" }]);
+  assert.equal(findings.length, 0);
+});
+
+test("an element with NO text field at all (an older caller, never populated) is UNCHANGED — this fix costs nothing that worked before", () => {
+  const findings = contrastFindings([{ id: "legacy", fontSizePx: 16, bold: false, color: [200, 200, 200], backgroundColor: WHITE }]);
+  assert.equal(findings.length, 1);
+  assert.equal(findings[0].clears, false);
+});

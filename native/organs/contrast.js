@@ -48,8 +48,22 @@ import { EVIDENCE_TIER } from "./evidence-tier.js";
  * contrastFindings(elements) — elements: [{ id, fontSizePx, bold, color:
  * [r,g,b], backgroundColor: [r,g,b] }]. Every finding is a hard W3C floor.
  */
+// SUCCESS CRITERION 1.4.3 IS SCOPED TO TEXT. Found live (podcast-pathos-
+// repair-loop.mjs, 2026-09-30): a decorative element with no rendered text
+// at all (an .ethos-badge status dot) was checked for "text contrast"
+// against its own fill color — a category error, not a stricter check;
+// there is no text there for a reader to fail to read. The mechanical
+// repair strategy then spent 80+ cycles "fixing" a violation that was
+// never in WCAG 1.4.3's scope to begin with, and made the TOTAL failure
+// count go UP, not down. An element whose caller supplies `text: ""`
+// (extractElements' own real, always-populated field) is declaring
+// exactly this — no rendered text, out of scope, never a false violation.
+// An element with NO `text` field at all (an older caller, or a test
+// fixture predating this field) is UNCHANGED: `undefined !== ""`, so
+// nothing here is skipped for it — this fix costs no existing caller
+// anything.
 export function contrastFindings(elements) {
-  return (elements ?? []).map((el) => {
+  return (elements ?? []).filter((el) => el.text !== "").map((el) => {
     const ratio = contrastRatio(el.color, el.backgroundColor);
     const floor = wcagFloorFor(el);
     return {
