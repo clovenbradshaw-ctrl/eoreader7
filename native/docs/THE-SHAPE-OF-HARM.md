@@ -224,11 +224,12 @@ Not built.
   is done to the ground without its authors' concession. Nothing is enlarged; the
   ground is *not mine*. This is the ledger's direction of travel — one
   append-only record, witnessed, where disagreement stands beside an entry and
-  concession costs a stated reason — short of the author-only clause. The Laozi lines in the
-  appendix say it from the other side — the sage has no fixed heart of his own
-  and takes the people's heart as his; he puts himself last and so stands first.
-  His ground is other people's record, not his own model of their good. It is
-  THE-WAYS-OF-KNOWING's empty hub, applied to action.
+  concession costs a stated reason — short of the author-only clause. The Laozi
+  lines in the appendix say it from the other side: the sage has no fixed heart
+  of their own and takes the people's heart as theirs; the sage puts the self
+  last and so stands first. Their ground is other people's record, not a private
+  model of what is good for them. It is THE-WAYS-OF-KNOWING's empty hub, applied
+  to action.
 
 **The capitalism line, precisely.** Formal rationality is utility maximization
 over an accounting boundary, and is silent about how wide the boundary is.
@@ -314,10 +315,10 @@ recurs across traditions with no contact; none is handed to a writer as a reason
 to act. Addresses are file:line in `canon/`; glosses are mine.
 
 - `tao-te-ching-zh.txt:30` (ch. 7) — 聖人後其身而身先；外其身而身存。非以其無私耶？故能成其私。
-  The sage puts himself last and stands first; is it not through having no private
+  The sage puts the self last and stands first; is it not through having no private
   aim that the private aim is fulfilled.
 - `tao-te-ching-zh.txt:156` (ch. 49) — 聖人無常心，以百姓心為心。
-  The sage has no fixed heart; he takes the people's heart as his heart.
+  The sage has no fixed heart; the people's heart is taken as the sage's own.
 - `upanishads/isa.txt:25` (isup_1) — *tena tyaktena bhuñjīthā mā gṛdhaḥ kasya sviddhanam.*
   Sustain yourself through what you give up; covet no one's wealth (the commentary
   at :27 glosses *bhuñjīthāḥ* as *pālayethāḥ*, "protect / sustain").
