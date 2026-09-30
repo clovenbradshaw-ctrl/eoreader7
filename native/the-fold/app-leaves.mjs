@@ -37,7 +37,7 @@ export const parsePlaceContract = {
   name: "parsePlace", kind: "leaf", params: ["result"], paramDoc: "place-search result (one entry of `results`)",
   doc: "Turn ONE place-search result into a place.",
   returns: "an object { name, lat, lon, country, region, tz, label }\n  name = the result's `name`; lat = its `latitude`; lon = its `longitude`; country = its `country`; region = its `admin1` (or null); tz = its `timezone` (or null);\n  label = the result's `name`, `admin1` and `country` joined with \", \" (leave out any that are missing)",
-  sampleJson: geoRows(O.geocodeSample)[0], example: { args: "(the result above)", output: () => O.geocodeWant(O.geocodeSample)[0] },
+  sampleJson: geoRows(O.geocodeSample)[0], example: { args: "(the result above)", input: () => [geoRows(O.geocodeSample)[0]], output: () => O.geocodeWant(O.geocodeSample)[0] },
   runs: [],
 };
 parsePlaceContract.runs = [0, 1, 2].flatMap((i) => [
@@ -81,7 +81,7 @@ export const wttrNowContract = {
   returns: NOW_RETURNS,
   notes: "temp/feels come from the _C or _F fields by units; condition = weatherDesc[0].value trimmed of spaces; windSpeed from windspeedKmph or windspeedMiles by units; windDir = winddir16Point; pressure, humidity as numbers; uv = uvIndex as a number. sunrise and sunset come from `astronomy` (it may be {}) as the strings given, e.g. \"06:59 AM\" — null if missing.",
   shown: `current = ${cut(W.current_condition[0], { items: 1 })}\nastronomy = ${cut(W.weather[0].astronomy[0])}\nunits = "metric"`,
-  example: { args: "", output: () => O.wantWeather(W, "metric", O.wttrSpec).now },
+  example: { args: "", input: () => [W.current_condition[0], W.weather[0].astronomy[0], "metric"], output: () => O.wantWeather(W, "metric", O.wttrSpec).now },
   runs: [
     { label: "recorded, metric", args: () => [W.current_condition[0], W.weather[0].astronomy[0], "metric"], check: (o) => nowLeafCheck(o, W, "metric", O.wttrSpec) },
     { label: "recorded, imperial", args: () => [W.current_condition[0], W.weather[0].astronomy[0], "imperial"], check: (o) => nowLeafCheck(o, W, "imperial", O.wttrSpec) },
@@ -95,7 +95,7 @@ export const wttrHourContract = {
   returns: HOUR_RETURNS,
   notes: "at = the date + \"T\" + the item's `time` as HH:MM. The source writes the time without padding — 0 is \"0\", 300 is \"300\", 1200 is \"1200\": pad it to four digits, then HH:MM. So date \"2026-09-30\" and time \"300\" give \"2026-09-30T03:00\". temp from tempC or tempF by units; condition = weatherDesc[0].value trimmed of spaces; windSpeed from windspeedKmph or windspeedMiles by units; humidity as a number; rain = precipMM as a number.",
   shown: `date = ${JSON.stringify(W.weather[0].date)}\nhour = ${cut(W.weather[0].hourly[0], { items: 1 })}\nunits = "metric"`,
-  example: { args: "", output: () => O.wantWeather(W, "metric", O.wttrSpec).hours[0] },
+  example: { args: "", input: () => [...wFlat(W, 0), "metric"], output: () => O.wantWeather(W, "metric", O.wttrSpec).hours[0] },
   runs: [
     ...[[0, "metric"], [4, "metric"], [7, "imperial"], [9, "metric"], [16, "imperial"], [23, "metric"]].map(([i, u]) => ({ label: `recorded hour ${i}, ${u}`, args: () => [...wFlat(W, i), u], check: (o) => hourLeafCheck(o, W, u, O.wttrSpec, i) })),
     ...[[2, "metric"], [10, "imperial"]].map(([i, u]) => ({ label: `mutated hour ${i}, ${u}`, args: () => [...wFlat(Wm, i), u], check: (o) => hourLeafCheck(o, Wm, u, O.wttrSpec, i) })),
@@ -110,7 +110,7 @@ export const metnoNowContract = {
   returns: NOW_RETURNS,
   notes: "The numbers are in `entry.data.instant.details`: air_temperature (Celsius), apparent_air_temperature (Celsius, the feels-like), wind_speed (METRES PER SECOND), wind_from_direction (degrees), air_pressure_at_sea_level, relative_humidity, ultraviolet_index_clear_sky (uv). Convert: km/h = m/s × 3.6; mph = m/s × 2.23694; Fahrenheit = C × 9/5 + 32. windDir is the 16-point compass name — N, NNE, NE, ENE, E, ESE, SE, SSE, S, SSW, SW, WSW, W, WNW, NW, NNW — of wind_from_direction: index = Math.round(degrees / 22.5) % 16. condition = the symbol_code at `entry.data.next_1_hours.summary.symbol_code` (next_6_hours if there is no next_1_hours) with any ending _day, _night or _polartwilight removed and other underscores replaced by spaces, e.g. \"lightrain\". This source has no sunrise or sunset: both are null.",
   shown: `entry = ${cut(M.properties.timeseries[0], { items: 1, str: 40 })}\nunits = "metric"`,
-  example: { args: "", output: () => O.wantWeather(M, "metric", O.metnoSpec).now },
+  example: { args: "", input: () => [M.properties.timeseries[0], "metric"], output: () => O.wantWeather(M, "metric", O.metnoSpec).now },
   runs: [
     { label: "recorded, metric", args: () => [M.properties.timeseries[0], "metric"], check: (o) => nowLeafCheck(o, M, "metric", O.metnoSpec) },
     { label: "recorded, imperial", args: () => [M.properties.timeseries[0], "imperial"], check: (o) => nowLeafCheck(o, M, "imperial", O.metnoSpec) },
@@ -124,7 +124,7 @@ export const metnoHourContract = {
   returns: HOUR_RETURNS,
   notes: "at = the entry's `time` cut to \"YYYY-MM-DDTHH:MM\" (drop the seconds and the Z). The numbers are in `entry.data.instant.details`: air_temperature (Celsius), wind_speed (METRES PER SECOND), relative_humidity. Convert: km/h = m/s × 3.6; mph = m/s × 2.23694; Fahrenheit = C × 9/5 + 32. condition = the symbol_code at `entry.data.next_1_hours.summary.symbol_code` (next_6_hours if there is no next_1_hours) with any ending _day, _night or _polartwilight removed and other underscores replaced by spaces. rain = `entry.data.next_1_hours.details.precipitation_amount` (0 if there is none).",
   shown: `entry = ${cut(M.properties.timeseries[1], { items: 1, str: 40 })}\nunits = "metric"`,
-  example: { args: "", output: () => O.wantWeather(M, "metric", O.metnoSpec).hours[1] },
+  example: { args: "", input: () => [M.properties.timeseries[1], "metric"], output: () => O.wantWeather(M, "metric", O.metnoSpec).hours[1] },
   runs: [
     ...[[0, "metric"], [1, "metric"], [5, "imperial"], [12, "metric"], [23, "imperial"]].map(([i, u]) => ({ label: `recorded entry ${i}, ${u}`, args: () => [M.properties.timeseries[i], u], check: (o) => hourLeafCheck(o, M, u, O.metnoSpec, i) })),
     ...[[3, "metric"], [4, "imperial"]].map(([i, u]) => ({ label: `mutated entry ${i}, ${u}`, args: () => [Mm.properties.timeseries[i], u], check: (o) => hourLeafCheck(o, Mm, u, O.metnoSpec, i) })),
@@ -141,7 +141,7 @@ export const parseStationContract = {
   returns: "an object { name, brand, km, address }, or null\n  name = tags.name, else tags.brand, else \"Fuel station\"; brand = tags.brand or null;\n  km = the great-circle (haversine) distance in kilometres from (lat, lon) to the element, rounded to one decimal; address = tags[\"addr:housenumber\"] and tags[\"addr:street\"] joined by a space (whichever exist), or null if neither exists",
   notes: "The element's position is `lat` and `lon` (a node) or `center.lat` and `center.lon` (a way). If it has neither, return null. Earth radius 6371 km.",
   shown: `element = ${cut(S.elements[3])}\nlat = ${AT.lat}\nlon = ${AT.lon}`,
-  example: { args: "", output: () => stationWant(S.elements[3], AT) },
+  example: { args: "", input: () => [S.elements[3], AT.lat, AT.lon], output: () => stationWant(S.elements[3], AT) },
   runs: [
     ...S.elements.map((e, i) => ({ label: `recorded element ${i}`, args: () => [e, AT.lat, AT.lon], check: (o) => stationCheck(o, e, AT) })),
     ...Sm.elements.map((e, i) => ({ label: `mutated element ${i}, other point`, args: () => [e, 51.5, -0.12], check: (o) => stationCheck(o, e, { lat: 51.5, lon: -0.12 }) })),
@@ -157,7 +157,7 @@ export const nominatimStationContract = {
   returns: "an object { name, brand, km, address }, or null\n  name = the item's `name`, else the first part of its `display_name` (before the first comma), else \"Fuel station\"; brand = the item's `name` or null;\n  km = the great-circle (haversine) distance in kilometres from (lat, lon) to the item, rounded to one decimal; address = address.house_number and address.road joined by a space (whichever exist), or null if neither exists",
   notes: "`item.lat` and `item.lon` are STRINGS: convert them to numbers. If either is not a number, return null. Earth radius 6371 km.",
   shown: `item = ${cut(N[2])}\nlat = ${AT.lat}\nlon = ${AT.lon}`,
-  example: { args: "", output: () => O.nominatimOne(N[2], AT) },
+  example: { args: "", input: () => [N[2], AT.lat, AT.lon], output: () => O.nominatimOne(N[2], AT) },
   salt: crypto.createHash("sha256").update(JSON.stringify(N)).digest("hex").slice(0, 16),
   runs: [
     ...N.map((e, i) => ({ label: `recorded result ${i}`, args: () => [e, AT.lat, AT.lon], check: (o) => nominatimCheck(o, e, AT) })),

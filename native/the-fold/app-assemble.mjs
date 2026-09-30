@@ -52,7 +52,7 @@ export function assembleApp({ outDir, appName = "Weather & Fuel", weatherSpec, f
     schema: "EOGeneratedApp@1", appName, generatedBy: "eoreader7 native/the-fold/app-assemble.mjs",
     userAgent: "generated-weather-fuel-app/1 (local demo; built by eoreader7)",
     composed: Object.fromEntries(FULL_UNITS.map((n) => [n, LEAVES_OF[n]])), wholeOracle: provenance.wholeOracle ?? null,
-    units: REQUIRED_UNITS.map((n) => ({ name: n, sha256: sha(units[n].code), model: units[n].model ?? null, rounds: units[n].rounds ?? null, calls: units[n].calls ?? null, cached: !!units[n].cached, contract: units[n].hash ?? null })),
+    units: REQUIRED_UNITS.map((n) => ({ name: n, sha256: sha(units[n].code), model: units[n].model ?? null, rounds: units[n].rounds ?? null, calls: units[n].calls ?? null, cached: !!units[n].cached, contract: units[n].hash ?? null, declared: units[n].declared ?? {}, resolutions: units[n].resolutions ?? [] })),
     theme: page.theme, defaultPlace,
     comps: provenance.comps ?? null, likeness: provenance.likeness ?? null, variant: provenance.variant ?? null,
   };

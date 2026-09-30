@@ -32,7 +32,9 @@
 //   0 exact          asked === real
 //   1 declared       the contract's example binds the asked name to this real key
 //   2 fold           same letters ignoring case and separators (windSpeed / wind_speed)
-//   3 prefix/token   the asked name starts the real key (lat / latitude, temp / temperature),
+//   3 truncation     the asked name is a strict truncation of the real key's first word
+//                    (lat / latitude, temp / temperature).
+//                    Never a word INSIDE a compound key: `name` is not `display_name`.
 //                    or the asked name equals a whole token of the real key
 //   4 abbreviation   three or more asked letters occur in order in the real key, same first
 //                    letter, at most half its length (lng / longitude) — weakest, so only when alone.
@@ -69,17 +71,26 @@ export function keyTier(asked, real) {
   if (!a || !r) return null;
   if (a === r) return 2;
   // the asked name is the START of the real key (lat / latitude). Never the other way: `elevation2` is not `elevation`, it is a key that is not there.
-  if (a.length >= MIN_ASKED && a.length < r.length && r.startsWith(a)) return 3;
-  if (a.length >= MIN_ASKED && keyTokens(real).includes(a)) return 3;
-  if (a.length >= MIN_ASKED && a.length <= r.length * MAX_ABBREV_SHARE && a[0] === r[0] && inOrder(a, r)) return 4;
+  // a strict TRUNCATION of the key's first word (lat / latitude, temp / temperature); `place` is not `place_id` — that is the whole first word, plus an id.
+  const first = foldKey(keyTokens(real)[0] ?? "");
+  if (a.length >= MIN_ASKED && a.length < first.length && first.startsWith(a)) return 3;
+  // NOT a word inside a compound key: `name` is not `display_name` and `type` is not `osm_type` — a different referent, and binding it would swallow a real absence (found 2026-09-30 by a reference run over a row whose `name` was deliberately missing).
+  if (a.length >= MIN_ASKED && a.length <= r.length * MAX_ABBREV_SHARE && a[0] === r[0] && inOrder(a, r) && !keyTokens(real).includes(a)) return 4;
   return null;
+}
+
+/** keys that share the asked name as a whole word (wind / windspeedKmph, temp / temp_C): NEVER resolved from — only offered, so the caller can POINT at one. */
+export function nearKeys(asked, keys) {
+  const a = foldKey(asked);
+  if (a.length < MIN_ASKED) return [];
+  return keys.filter((k) => keyTokens(k).some((t) => foldKey(t) === a || (foldKey(t).length > a.length && foldKey(t).startsWith(a))) && k !== asked);
 }
 
 /**
  * resolveKey(asked, keys, { declared }) ->
  *   { resolved, real, tier, basis }                    exactly one real key at the strongest tier
  *   { resolved:false, ambiguous:true, candidates }     two or more tie: the caller points, nothing is chosen here
- *   { resolved:false, ambiguous:false, candidates:[] } nothing qualifies: a real absence
+ *   { resolved:false, ambiguous:false, candidates:[], near } nothing qualifies: a real absence (`near`: keys that merely share a word with the name, offered for pointing)
  */
 export function resolveKey(asked, keys, { declared = {} } = {}) {
   if (keys.includes(asked)) return { resolved: true, real: asked, tier: 0, basis: "exact" };
@@ -91,24 +102,31 @@ export function resolveKey(asked, keys, { declared = {} } = {}) {
     if (t === null) continue;
     if (best === null || t < best) { best = t; at = [k]; } else if (t === best) at.push(k);
   }
-  if (best === null) return { resolved: false, ambiguous: false, candidates: [] };
+  if (best === null) return { resolved: false, ambiguous: false, candidates: [], near: nearKeys(asked, keys) };
   if (at.length > 1) return { resolved: false, ambiguous: true, candidates: at, tier: best };
   return { resolved: true, real: at[0], tier: best, basis: ["exact", "declared", "same letters, other case or separators", "prefix or whole-token of the real key", "abbreviation of the real key (unique)"][best] };
 }
 
 /** a declared map, read off a worked example: each output key whose value sits under exactly one input key name. The example is shown to the mouth anyway; this only lets the mouth's use of the contract's own vocabulary resolve. */
+/** A value that can be COPIED from one key rather than coincide with another: a string of 3+ characters, a number with a fractional part, or one of 4+ digits. `17` sits under many keys and binds none. */
+export function informative(v) {
+  if (typeof v === "string") return v.length >= 3;
+  if (typeof v === "number") return !Number.isInteger(v) || Math.abs(v) >= 1000;
+  return false;
+}
+
 export function declaredFromExample(input, output) {
   const where = new Map(); // scalar string -> Set of key names holding it
   const walk = (v, key, depth) => {
     if (depth > 8 || v === null) return;
     if (typeof v === "object") { for (const [k, x] of Array.isArray(v) ? v.map((x) => [key, x]) : Object.entries(v)) walk(x, k, depth + 1); return; }
-    if (typeof v === "string" || typeof v === "number") { const s = String(v); if (!where.has(s)) where.set(s, new Set()); where.get(s).add(String(key)); }
+    if (informative(v) || typeof v === "string" || typeof v === "number") { const s = String(v); if (!where.has(s)) where.set(s, new Set()); where.get(s).add(String(key)); }
   };
   (Array.isArray(input) ? input : [input]).forEach((a) => walk(a, "", 0));
   const declared = {};
   if (output && typeof output === "object" && !Array.isArray(output)) {
     for (const [k, v] of Object.entries(output)) {
-      if (typeof v !== "string" && typeof v !== "number") continue;
+      if (!informative(v) && !(typeof v === "string" && /^-?\d+$/.test(v) === false && v.length >= 3)) continue; // derived or coincidental values bind nothing
       const hit = where.get(String(v));
       if (hit && hit.size === 1) { const real = [...hit][0]; if (real !== k && real !== "") declared[k] = real; }
     }
@@ -122,7 +140,7 @@ const SKIP = new Set(["toJSON", "then", "constructor", "valueOf", "toString", "l
 export function residentSource({ declared = {} } = {}) {
   return [
     `const __declared = ${JSON.stringify(declared)}; const __skip = new Set(${JSON.stringify([...SKIP])}); const MIN_ASKED = ${MIN_ASKED}; const MAX_ABBREV_SHARE = ${MAX_ABBREV_SHARE}; const __log = []; const __seen = new WeakMap();`,
-    foldKey.toString(), keyTokens.toString(), inOrder.toString(), keyTier.toString(), resolveKey.toString(),
+    foldKey.toString(), keyTokens.toString(), inOrder.toString(), keyTier.toString(), nearKeys.toString(), resolveKey.toString(),
     `function __wrap(v) {
       if (v === null || typeof v !== "object") return v;
       if (__seen.has(v)) return __seen.get(v);
@@ -132,6 +150,7 @@ export function residentSource({ declared = {} } = {}) {
         const res = resolveKey(k, Object.keys(t), { declared: __declared });
         if (res.resolved) { if (!__log.some((l) => l.asked === k && l.real === res.real)) __log.push({ asked: k, real: res.real, basis: res.basis }); const x = t[res.real]; return x !== null && typeof x === "object" ? __wrap(x) : x; }
         if (res.ambiguous && !__log.some((l) => l.asked === k && l.ambiguous)) __log.push({ asked: k, ambiguous: true, candidates: res.candidates });
+        else if (!res.ambiguous && res.near && res.near.length && !__log.some((l) => l.asked === k && l.unresolved)) __log.push({ asked: k, unresolved: true, near: res.near });
         return undefined;
       } });
       __seen.set(v, p);

@@ -34,7 +34,7 @@ const saveTrails = () => { try { fs.writeFileSync(TRAILS_FILE + ".tmp", JSON.str
 
 // ---- the leaves (verified code a model drew), each behind the wall, and the computed composition around them ----
 const leaf = {};
-for (const u of manifest.units) leaf[u.name] = loadUnit(fs.readFileSync(path.join(DIR, "units", `${u.name}.js`), "utf8"), u.name);
+for (const u of manifest.units) leaf[u.name] = loadUnit(fs.readFileSync(path.join(DIR, "units", `${u.name}.js`), "utf8"), u.name, { resolve: { declared: u.declared ?? {} } }); // the SAME resolving wall the unit was verified behind
 const unit = Object.fromEntries(FULL_UNITS.map((n) => [n, COMPOSE[n](Object.fromEntries(LEAVES_OF[n].map((l) => [l, leaf[l]])))]));
 
 // ---- a polite, cached, time-limited fetch ----

@@ -31,6 +31,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { deposit, routeOrderFor } from "../kernel/stigmergy.js";
 import { loadUnit, UNIT_RUN_TIMEOUT_MS } from "./unit-wall.mjs";
+import { declaredFromExample, KEY_REFERENTS_SCHEMA } from "../organs/key-referents.js";
 export { loadUnit, UNIT_RUN_TIMEOUT_MS };
 
 /** Redraws of one unit with one mouth, after the first, each carrying the oracle's failures. Set by hand 2026-09-30. */
@@ -96,10 +97,18 @@ export function extractCode(reply, name) {
 }
 
 /** Run a unit against its contract's oracle. -> { ok, failures:[string] } — every failure names the path and what was expected. */
+/** The contract's own vocabulary bound to the input's keys by where the worked example's values sit (organs/key-referents.js). {} when the contract shows no example input. */
+export function declaredAliases(contract) {
+  try { const args = contract.example?.input?.(); return args ? declaredFromExample(args, contract.example.output(contract.sampleJson ?? contract.sampleText)) : {}; } catch { return {}; }
+}
+
+/** A unit is tested BEHIND the key-referent layer: the idea (`tz`) resolves to the real key (`timezone`) when exactly one real key qualifies; the resolutions come back with the verdict. */
 export function testUnit(code, contract) {
   let fn;
-  try { fn = loadUnit(code, contract.name); } catch (e) { return { ok: false, failures: [`does not compile or declare ${contract.name}: ${String(e.message).slice(0, 160)}`] }; }
-  return testFunction(fn, contract);
+  const declared = declaredAliases(contract);
+  try { fn = loadUnit(code, contract.name, { resolve: { declared } }); } catch (e) { return { ok: false, failures: [`does not compile or declare ${contract.name}: ${String(e.message).slice(0, 160)}`] }; }
+  const r = testFunction(fn, contract);
+  return { ...r, declared, resolutions: fn.resolutions?.() ?? [] };
 }
 
 /**
@@ -142,7 +151,7 @@ export function testFunction(fn, contract) {
 
 /** The hash a verified unit is cached under: contract text + oracle source + sample. A changed contract, test or sample is a new unit. */
 export function contractHash(contract) {
-  return sha(JSON.stringify([contract.name, contract.params, contract.doc, contract.returns, contract.notes ?? "", contract.runs.map((r) => r.label + String(r.check)).join("|"), sha(contract.sampleText ?? JSON.stringify(contract.sampleJson ?? null)), contract.shown ?? "", workedExample(contract) ?? "", contract.salt ?? ""]));
+  return sha(JSON.stringify([contract.name, contract.params, contract.doc, contract.returns, contract.notes ?? "", contract.runs.map((r) => r.label + String(r.check)).join("|"), sha(contract.sampleText ?? JSON.stringify(contract.sampleJson ?? null)), contract.shown ?? "", workedExample(contract) ?? "", contract.salt ?? "", KEY_REFERENTS_SCHEMA, JSON.stringify(declaredAliases(contract))]));
 }
 
 export function openUnitCache(dir) {
@@ -179,7 +188,7 @@ export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = n
   if (hit) {
     // a cached unit is RE-TESTED on this run's sample before it is trusted: the cache keys a contract, the oracle still decides
     const again = testUnit(hit.code, contract);
-    if (again.ok) { see("unit", { name: contract.name, hash, cached: true, model: hit.model, calls: 0, ms: Date.now() - t0 }); return { ok: true, code: hit.code, model: hit.model, rounds: 0, calls: 0, ms: Date.now() - t0, cached: true, failures: [], trails }; }
+    if (again.ok) { see("unit", { name: contract.name, hash, cached: true, model: hit.model, calls: 0, ms: Date.now() - t0 }); return { ok: true, code: hit.code, model: hit.model, rounds: 0, calls: 0, ms: Date.now() - t0, cached: true, failures: [], declared: again.declared ?? {}, resolutions: again.resolutions ?? [], trails }; }
     see("unit-cache-stale", { name: contract.name, hash, failures: again.failures.slice(0, 3) });
   }
   const head = `unit:${contract.kind ?? "parse"}`;
@@ -196,12 +205,12 @@ export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = n
       const code = extractCode(r.text, contract.name);
       if (!code) { failures = ["the reply holds no function declaration"]; previous = r.text.slice(0, 600); see("unit-draw", { name: contract.name, model, round, ms: r.ms, tokens: r.outTokens, ok: false, failures }); continue; }
       const res = testUnit(code, contract);
-      see("unit-draw", { name: contract.name, model, round, ms: r.ms, promptTokens: r.promptTokens, tokens: r.outTokens, ok: res.ok, failures: res.failures.slice(0, 4), code: code.slice(0, 1500) });
+      see("unit-draw", { name: contract.name, model, round, ms: r.ms, promptTokens: r.promptTokens, tokens: r.outTokens, ok: res.ok, failures: res.failures.slice(0, 4), resolved: (res.resolutions ?? []).filter((x) => !x.ambiguous), ambiguous: (res.resolutions ?? []).filter((x) => x.ambiguous), code: code.slice(0, 1500) });
       if (res.ok) {
         trails = deposit(trails, { head, route: model, ok: true, ms: r.ms, at: now });
-        cache?.put(hash, { name: contract.name, model, code, hash, verifiedAt: new Date(now).toISOString() });
+        cache?.put(hash, { name: contract.name, model, code, hash, declared: res.declared ?? {}, resolutions: res.resolutions ?? [], verifiedAt: new Date(now).toISOString() });
         see("unit", { name: contract.name, hash, cached: false, model, calls, rounds: round, ms: Date.now() - t0 });
-        return { ok: true, code, model, rounds: round, calls, ms: Date.now() - t0, cached: false, failures: [], trails };
+        return { ok: true, code, model, rounds: round, calls, ms: Date.now() - t0, cached: false, failures: [], declared: res.declared ?? {}, resolutions: res.resolutions ?? [], trails };
       }
       // a mouth that hands back the SAME code after being shown the failures has nothing more to give this unit: the rest of its rounds are skipped
       const unchanged = previous !== null && code.replace(/\s+/g, "") === String(previous).replace(/\s+/g, "");

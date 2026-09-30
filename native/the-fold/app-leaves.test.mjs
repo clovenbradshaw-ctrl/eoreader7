@@ -32,7 +32,11 @@ test("a leaf that only reproduces the example row it was shown fails the rows it
 
 test("each slip a small model actually made is caught and named by what it got wrong", () => {
   const fix = (n, a, b) => { assert.ok(REFERENCE_LEAVES[n].includes(a), `${n} has ${a}`); return REFERENCE_LEAVES[n].replace(a, b); };
+  // the slip that cost a day (`region` for `admin1`) is now absorbed by the key-referent layer: the IDEA is right, so it passes — and says what it resolved
   let r = testUnit(fix("parsePlace", "[r.name,r.admin1,r.country]", "[r.name,r.region,r.country]"), leafContract("parsePlace"));
+  assert.equal(r.ok, true); assert.ok(r.resolutions.some((x) => x.asked === "region" && x.real === "admin1"));
+  // what the layer must NOT absorb is a logic slip: joining without dropping the missing part prints "undefined"
+  r = testUnit(fix("parsePlace", ".filter(Boolean)", ""), leafContract("parsePlace"));
   assert.equal(r.ok, false); assert.match(r.failures.join("\n"), /label/);
   r = testUnit(fix("wttrHour", '.padStart(4,"0")', ""), leafContract("wttrHour"));
   assert.equal(r.ok, false); assert.match(r.failures.join("\n"), /at is/);

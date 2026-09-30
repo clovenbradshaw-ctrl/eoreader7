@@ -30,14 +30,14 @@ export async function generateUnits({ mouths = DEFAULT_MOUTHS, mouth = makeMouth
     if (only && !only.includes(c.name)) continue;
     const r = await makeUnit(c, { mouths, mouth, trails, cache, see, now, rng });
     trails = r.trails;
-    leaves[c.name] = { ok: r.ok, code: r.code, model: r.model, calls: r.calls, rounds: r.rounds, cached: r.cached, ms: r.ms, hash: null, failures: r.failures };
+    leaves[c.name] = { ok: r.ok, code: r.code, model: r.model, calls: r.calls, rounds: r.rounds, cached: r.cached, ms: r.ms, hash: null, failures: r.failures, declared: r.declared ?? {}, resolutions: r.resolutions ?? [] };
     if (!r.ok) gap ??= { type: "leaf_failed", leaf: c.name, failures: r.failures.slice(0, 3) };
   }
   const whole = {};
   if (!gap && !only) {
     for (const full of UNIT_CONTRACTS) {
       try {
-        const fns = Object.fromEntries(LEAVES_OF[full.name].map((n) => [n, loadUnit(leaves[n].code, n)]));
+        const fns = Object.fromEntries(LEAVES_OF[full.name].map((n) => [n, loadUnit(leaves[n].code, n, { resolve: { declared: leaves[n].declared ?? {} } })]));
         const r = testFunction(COMPOSE[full.name](fns), full);
         whole[full.name] = { ok: r.ok, failures: r.failures.slice(0, 4) };
         if (!r.ok) gap ??= { type: "integration_failed", unit: full.name, failures: r.failures.slice(0, 3), detail: "every leaf passed its own oracle but the composition failed the whole-response oracle" };
