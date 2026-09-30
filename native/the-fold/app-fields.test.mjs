@@ -120,3 +120,17 @@ test("CONTROL built to fail: a field set that each pass alone but compose WRONG 
   const codes = Object.fromEntries(keys.map((k) => [k, `function ${k}Of(...a) { return __ref(...a)["${k === "temp" ? "windSpeed" : k}"]; }\nconst __ref = ${ref};`]));
   assert.equal(testUnit(composeFieldCode(c, keys, codes), c).ok, false, "temp read from windSpeed must fail the whole oracle");
 });
+
+test("makeFieldedUnit: the whole leaf is cached under its own hash too — a later build of the leaf is one re-test, zero draws, even with no field cache entries", async () => {
+  const c = LEAF_CONTRACTS.find((x) => x.name === "metnoHour");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fielded-whole-"));
+  const cache = openUnitCache(dir);
+  const ref = REFERENCE_LEAVES.metnoHour.replace(/^function metnoHour/, "function");
+  const first = await makeFieldedUnit(c, { mouths: ["small"], mouth: fakeMouth(ref).mouth, cache, rng: () => 0.99, explore: 0 });
+  assert.equal(first.ok, true, first.failures.join("\n"));
+  const only = openUnitCache(fs.mkdtempSync(path.join(os.tmpdir(), "fielded-whole2-")));
+  only.put(first.hash ?? (await import("./app-units.mjs")).contractHash(c), { code: first.code, model: first.model });
+  const dead = async () => { throw new Error("no draw may happen"); };
+  const again = await makeFieldedUnit(c, { mouths: ["small"], mouth: dead, cache: only, rng: () => 0.99, explore: 0 });
+  assert.equal(again.ok, true); assert.equal(again.cached, true); assert.equal(again.calls, 0);
+});

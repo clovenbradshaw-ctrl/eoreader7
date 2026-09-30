@@ -280,7 +280,12 @@ export function composeFieldCode(contract, plan, codes) {
 export async function makeFieldedUnit(contract, opts = {}) {
   const keys = fieldPlan(contract);
   if (!keys.length) return makeUnit(contract, opts);
-  const t0 = Date.now(), { see = () => {} } = opts;
+  const t0 = Date.now(), { see = () => {}, cache = null } = opts;
+  const hash = contractHash(contract), hit = cache?.get(hash);
+  if (hit) { // the whole leaf was verified before: re-tested on this run's sample, never trusted on the hash alone
+    const again = testUnit(hit.code, contract);
+    if (again.ok) { see("unit", { name: contract.name, hash, cached: true, model: hit.model, calls: 0, ms: Date.now() - t0 }); return { ok: true, code: hit.code, model: hit.model, rounds: 0, calls: 0, ms: Date.now() - t0, cached: true, failures: [], declared: again.declared ?? {}, resolutions: again.resolutions ?? [], fields: keys, trails: opts.trails ?? {} }; }
+  }
   let trails = opts.trails ?? {}, calls = 0;
   const codes = {}, models = new Set(), declared = {}, resolutions = [], failedFields = [];
   for (const key of keys) {
@@ -296,6 +301,7 @@ export async function makeFieldedUnit(contract, opts = {}) {
   const code = composeFieldCode(contract, keys, codes);
   const res = testUnit(code, contract);
   see("unit", { name: contract.name, ok: res.ok, composedFrom: keys, calls, ms: Date.now() - t0, ...(res.ok ? {} : { gap: "the fields each passed but the composed leaf failed the whole oracle", failures: res.failures.slice(0, 4) }) });
+  if (res.ok) cache?.put(hash, { name: contract.name, model: [...models].join("+"), code, hash, declared: res.declared ?? declared, resolutions: res.resolutions ?? [], fields: keys, verifiedAt: new Date().toISOString() });
   return { ok: res.ok, code: res.ok ? code : null, model: [...models].join("+"), rounds: 0, calls, ms: Date.now() - t0, cached: false, failures: res.ok ? [] : res.failures, declared: res.declared ?? declared, resolutions: [...resolutions, ...(res.resolutions ?? [])], fields: keys, trails };
 }
 
