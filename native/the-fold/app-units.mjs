@@ -33,6 +33,10 @@ import { deposit, routeOrderFor } from "../kernel/stigmergy.js";
 import { loadUnit, UNIT_RUN_TIMEOUT_MS } from "./unit-wall.mjs";
 import { declaredFromExample, KEY_REFERENTS_SCHEMA } from "../organs/key-referents.js";
 import { CARDS_SCHEMA, cardsDoc } from "../organs/cards.js";
+import { constReassigned, canonicalize, adoptIf } from "../organs/code-canonical.js";
+import { createTaskLog } from "../kernel/task-log.js";
+import { proposeCanonical, settledContent } from "../adapters/build/code-anchor-log.js";
+export { constReassigned };
 export { loadUnit, UNIT_RUN_TIMEOUT_MS };
 
 /** Redraws of one unit with one mouth, after the first, each carrying the oracle's failures. Set by hand 2026-09-30. */
@@ -108,29 +112,12 @@ export function declaredAliases(contract) {
   try { const args = contract.example?.input?.(); return args ? declaredFromExample(args, contract.example.output(contract.sampleJson ?? contract.sampleText)) : {}; } catch { return {}; }
 }
 
-/**
- * `const` names assigned again later (`const at = ...; at = ...; at += ...; at++`). The engine's own message ("Assignment to constant variable")
- * does not say WHICH variable, and a small model hands back byte-identical code after it (measured 2026-09-30, both mouths, two runs). Naming
- * the variable is the whole repair. Approximate (a regex, not a scope analysis): advisory, added to a FAILING verdict only.
- */
-export function constReassigned(code) {
-  const src = String(code ?? ""), out = [];
-  for (const m of src.matchAll(/\bconst\s+([A-Za-z_$][\w$]*)\s*=/g)) {
-    const name = m[1], esc = name.replace(/\$/g, "\\$");
-    let after = src.slice(m.index + m[0].length);
-    const again = after.search(new RegExp(`\\b(?:const|let|var|function|class)\\s+${esc}(?![\\w$])`)); // the same name declared again is another variable in another scope
-    if (again >= 0) after = after.slice(0, again);
-    if (new RegExp(`(^|[^\\w$.])${esc}\\s*(?:=(?![=>])|[-+*/%&|^]=|\\+\\+|--)`).test(after) || new RegExp(`(?:\\+\\+|--)${esc}(?![\\w$])`).test(after)) out.push(name);
-  }
-  return [...new Set(out)];
-}
-
 /** A unit is tested BEHIND the key-referent layer: the idea (`tz`) resolves to the real key (`timezone`) when exactly one real key qualifies; the resolutions come back with the verdict. */
 export function testUnit(code, contract) {
   let fn;
   const declared = declaredAliases(contract);
   // each mechanism is a per-contract switch so it can be ablated on identical tasks: resolve === false (no key resolution), cards === false (no cards), hints === false (no repair hints)
-  try { fn = loadUnit(code, contract.name, { resolve: contract.resolve === false ? null : { declared }, cards: contract.cards !== false }); } catch (e) { return { ok: false, failures: [`does not compile or declare ${contract.name}: ${String(e.message).slice(0, 160)}`] }; }
+  try { fn = loadUnit(code, contract.name, { resolve: contract.resolve === false ? null : { declared }, cards: contract.cards === false ? false : contract.cards === "exact" ? "exact" : true }); } catch (e) { return { ok: false, failures: [`does not compile or declare ${contract.name}: ${String(e.message).slice(0, 160)}`] }; }
   const r = testFunction(fn, contract);
   if (!r.ok && contract.hints !== false) for (const v of constReassigned(code)) r.failures.unshift(`\`${v}\` is declared with const and assigned again — declare it with let`);
   if (contract.hints !== false && r.constant) r.failures.unshift(`the function returns the identical result for different inputs (${r.constant.runs.map((l) => `"${l}"`).join(", ")}) — compute the result from the input; do not copy the example's answer`);
@@ -360,6 +347,27 @@ export async function makeFieldedUnit(contract, opts = {}) {
   return { ok: res.ok, code: res.ok ? code : null, model: [...models].join("+"), rounds: 0, calls, ms: Date.now() - t0, cached: false, failures: res.ok ? [] : res.failures, declared: res.declared ?? declared, resolutions: [...resolutions, ...(res.resolutions ?? [])], fields: keys, trails };
 }
 
+/** How many of a contract's runs fail: a failure line starts with its run's label (`testFunction`). Hint lines have no label and are not counted. */
+export function failedRuns(contract, failures) {
+  return contract.runs.filter((run) => failures.some((f) => f.startsWith(`${run.label}:`))).length;
+}
+
+/**
+ * The reading stage between a draw and the log (ledger row 14; the operator: "the model is giving ideas, the system is making them coherent").
+ * The suggestion is run behind the wall (which resolves what it can at run time and RECORDS what it resolved), read by code-canonical.js, and the
+ * canonical form is re-tested with no run-time help; it is adopted only where it does at least as well as the suggestion did.
+ * -> { res, code, canonical }  res: the verdict on the code adopted; canonical: what the reading made (transformations it kept, findings it could not close)
+ */
+export function readSuggestion(suggestion, contract) {
+  const raw = testUnit(suggestion, contract);
+  if (contract.canonical === false) return { res: raw, code: suggestion, canonical: { code: suggestion, transformations: [], findings: [] } };
+  const reading = canonicalize(suggestion, { resolutions: raw.resolutions ?? [] });
+  if (!reading.changed) return { res: raw, code: suggestion, canonical: { ...reading, code: suggestion, transformations: [] } };
+  const can = testUnit(reading.code, { ...contract, resolve: false, cards: contract.cards === false ? false : "exact" });
+  if (adoptIf(-failedRuns(contract, raw.failures), -failedRuns(contract, can.failures))) return { res: { ...can, resolutions: raw.resolutions, declared: raw.declared }, code: reading.code, canonical: reading };
+  return { res: raw, code: suggestion, canonical: { ...reading, code: suggestion, transformations: [], refused: "the canonical form did worse than the suggestion" } };
+}
+
 /**
  * makeUnit(contract, { mouths, mouth, trails, cache, see, now, rng }) → { ok, code, model, rounds, calls, ms, cached, failures }
  *   mouths   the models that may draw (the structural default order)
@@ -379,7 +387,7 @@ export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = n
   const head = `unit:${contract.kind ?? "parse"}`;
   const order = routeOrderFor(trails, head, { routes: mouths, rng, explore });
   see("unit-order", { name: contract.name, head, order, trails: Object.fromEntries(Object.entries(trails[head] ?? []).length ? [[head, (trails[head] ?? []).length]] : []) });
-  let calls = 0, lastFailures = [];
+  let calls = 0, lastFailures = [], log = createTaskLog(); // the record: every draw lands on it as a suggestion and a canonical entry (adapters/build/code-anchor-log.js)
   for (const model of order) {
     let previous = null, failures = [];
     for (let round = 0; round <= REPAIR_ROUNDS; round++) {
@@ -387,15 +395,17 @@ export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = n
       let r;
       try { r = await mouth(model, prompt); } catch (e) { see("unit-draw", { name: contract.name, model, round, refused: String(e.message).slice(0, 140) }); break; }
       calls++;
-      const code = extractCode(r.text, contract.name);
-      if (!code) { failures = ["the reply holds no function declaration"]; previous = r.text.slice(0, 600); see("unit-draw", { name: contract.name, model, round, ms: r.ms, tokens: r.outTokens, ok: false, failures }); continue; }
-      const res = testUnit(code, contract);
+      const suggestion = extractCode(r.text, contract.name);
+      if (!suggestion) { failures = ["the reply holds no function declaration"]; previous = r.text.slice(0, 600); see("unit-draw", { name: contract.name, model, round, ms: r.ms, tokens: r.outTokens, ok: false, failures }); continue; }
+      const { res, code, canonical } = readSuggestion(suggestion, contract);
+      log = proposeCanonical(log, { anchor: contract.name, round: calls, writer: model, suggestion, canonical, prompt: null });
+      if (canonical.transformations.length) see("canonical", { name: contract.name, model, round, transformations: canonical.transformations.map((t) => `${t.kind}:${t.name ?? `${t.from}→${t.to}`}`), findings: canonical.findings });
       see("unit-draw", { name: contract.name, model, round, ms: r.ms, promptTokens: r.promptTokens, tokens: r.outTokens, ok: res.ok, failures: res.failures.slice(0, 4), resolved: (res.resolutions ?? []).filter((x) => !x.ambiguous), ambiguous: (res.resolutions ?? []).filter((x) => x.ambiguous), code: code.slice(0, 1500) });
       if (res.ok) {
         trails = deposit(trails, { head, route: model, ok: true, ms: r.ms, at: now });
         cache?.put(hash, { name: contract.name, model, code, hash, declared: res.declared ?? {}, resolutions: res.resolutions ?? [], verifiedAt: new Date(now).toISOString() });
         see("unit", { name: contract.name, hash, cached: false, model, calls, rounds: round, ms: Date.now() - t0 });
-        return { ok: true, code, model, rounds: round, calls, ms: Date.now() - t0, cached: false, failures: [], declared: res.declared ?? {}, resolutions: res.resolutions ?? [], trails };
+        return { ok: true, code: settledContent(log, contract.name).content ?? code, model, rounds: round, calls, ms: Date.now() - t0, cached: false, failures: [], declared: res.declared ?? {}, resolutions: res.resolutions ?? [], trails, log };
       }
       // a mouth that hands back the SAME code after being shown the failures has nothing more to give this unit: the rest of its rounds are skipped
       const unchanged = previous !== null && code.replace(/\s+/g, "") === String(previous).replace(/\s+/g, "");
@@ -404,5 +414,5 @@ export async function makeUnit(contract, { mouths, mouth, trails = {}, cache = n
     }
   }
   see("unit", { name: contract.name, hash, ok: false, gap: "no mouth produced a function that passes its oracle", calls, failures: lastFailures.slice(0, 4) });
-  return { ok: false, code: null, model: null, rounds: REPAIR_ROUNDS, calls, ms: Date.now() - t0, cached: false, failures: lastFailures, trails };
+  return { ok: false, code: null, model: null, rounds: REPAIR_ROUNDS, calls, ms: Date.now() - t0, cached: false, failures: lastFailures, trails, log };
 }

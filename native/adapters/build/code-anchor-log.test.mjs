@@ -134,3 +134,40 @@ test("Tier 1 of the alignment question: there is NO exported way to get a compos
   const fold = await foldCode(createTaskLog(), TEMPLATE);
   assert.ok("html" in fold && "lintProblems" in fold && "clean" in fold, "the one public way to get composed html always carries its lint status in the same return value — a caller cannot ask for one without the other");
 });
+
+// ---- proposeCanonical: the model suggests, the reading makes it coherent, the canonical form is what lands ----
+import { proposeCanonical, anchorHistory as historyOf, settledContent as settled, foldCode as fold } from "./code-anchor-log.js";
+import { createTaskLog as newLog } from "../../kernel/task-log.js";
+import { canonicalize } from "../../organs/code-canonical.js";
+
+test("proposeCanonical: the raw suggestion is kept as SIG evidence, each transformation is a CON entry, and the fold projects the CANONICAL content", async () => {
+  const raw = `function f(x) { const n = 0; n = n + cToF(x.c); return n; }`;
+  const canonical = canonicalize(raw);
+  let log = newLog();
+  log = proposeCanonical(log, { anchor: "f", round: 1, writer: "gemma2:2b", suggestion: raw, canonical, prompt: "write f" });
+  const ops = log.entries.map((e) => e.operator);
+  assert.deepEqual(ops, ["SIG", "CON", "CON", "INS"], "suggestion, then one act per transformation, then the canonical INS");
+  const sig = log.entries[0];
+  assert.equal(sig.suggestion, raw, "nothing the model said is deleted"); assert.equal(sig.prompt, "write f");
+  assert.deepEqual(log.entries.filter((e) => e.operator === "CON").map((e) => e.transformation.kind).sort(), ["call_resolved", "const_to_let"]);
+  const settledNow = settled(log, "f");
+  assert.equal(settledNow.content, canonical.code); assert.notEqual(settledNow.content, raw);
+  assert.match(settledNow.content, /let n = 0/); assert.match(settledNow.content, /celsiusToFahrenheit\(x\.c\)/);
+  // the fold is computed from canonical entries: a cursor BEFORE the INS sees no content at all
+  assert.equal(settled(log, "f", log.entries[2].seq).content, null);
+  const folded = await fold(log, { skeleton: "{{ANCHOR:f}}", anchors: { f: {} } });
+  assert.equal(folded.html, canonical.code);
+  assert.equal(historyOf(log, "f").at(-1).operator, "INS");
+});
+
+test("proposeCanonical: a second suggestion for the same anchor is a SYN over the canonical first, and the findings the reading could not resolve ride the suggestion", () => {
+  let log = newLog();
+  const first = `function f(x) { return degToCompass(x.d); }`;
+  log = proposeCanonical(log, { anchor: "f", round: 1, writer: "a", suggestion: first, canonical: canonicalize(first) });
+  assert.deepEqual(log.entries[0].findings.map((x) => [x.kind, x.name]), [["unresolved_call", "degToCompass"]], "what the reading could not make coherent is on the record");
+  const second = `function f(x) { return compass16(x.d); }`;
+  log = proposeCanonical(log, { anchor: "f", round: 2, writer: "b", suggestion: second, canonical: canonicalize(second) });
+  assert.deepEqual(log.entries.filter((e) => ["INS", "SYN"].includes(e.operator)).map((e) => e.operator), ["INS", "SYN"]);
+  assert.equal(settled(log, "f").content, second);
+  assert.throws(() => proposeCanonical(log, { anchor: "f", round: 3, writer: "c", suggestion: "x" }), /canonical reading is required/);
+});

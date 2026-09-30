@@ -36,11 +36,13 @@ export const UNIT_RUN_TIMEOUT_MS = 2000;
  *   resolutions  { asked, real, basis, tier, kind:"card" } | { asked, ambiguous, candidates, kind:"card" } | { asked, unresolved, near, kind:"card" }
  *   used         the cards the code calls by their own name (for the record: which operations the model reached for and found)
  */
-export function cardPrelude(code) {
+export function cardPrelude(code, { aliases: aliasing = true } = {}) {
   const declared = declaredIn(code);
   const present = CARD_NAMES.filter((n) => !declared.has(n));
   const resolutions = [], aliases = [];
-  for (const asked of freeCalls(code)) {
+  // aliasing === false ("exact"): the cards are there to CALL by their own names, and a near name is left alone — the code is CANONICAL already
+  // (code-canonical.js rewrote it), so there is nothing for the wall to resolve at run time
+  for (const asked of aliasing ? freeCalls(code) : []) {
     const r = resolveCard(asked, present);
     if (r.resolved) { aliases.push(`function ${asked}(...a) { return ${r.real}(...a); }`); resolutions.push({ asked, real: r.real, basis: r.basis, tier: r.tier, kind: "card" }); }
     else if (r.ambiguous) resolutions.push({ asked, ambiguous: true, candidates: r.candidates, kind: "card" });
@@ -53,7 +55,7 @@ export function cardPrelude(code) {
 /** Compile `code` in an empty context and return a function that calls `name` on JSON-cloned arguments. Throws when the code declares no such function. */
 export function loadUnit(code, name, { timeout = UNIT_RUN_TIMEOUT_MS, resolve = null, cards = true } = {}) {
   const ctx = vm.createContext(Object.create(null), { codeGeneration: { strings: false, wasm: false } });
-  const beside = cards ? cardPrelude(code) : { prelude: "", resolutions: [], used: [] };
+  const beside = cards ? cardPrelude(code, { aliases: cards !== "exact" }) : { prelude: "", resolutions: [], used: [] };
   vm.runInContext(`${beside.prelude}\n${code}\n;globalThis.__unit = typeof ${name} === "function" ? ${name} : null;`, ctx, { timeout, filename: `${name}.js` });
   const fn = ctx.__unit;
   if (typeof fn !== "function") throw new Error(`the code declares no function ${name}`);

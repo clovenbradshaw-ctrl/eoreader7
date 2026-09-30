@@ -6,7 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { LEAF_CONTRACTS } from "./app-leaves.mjs";
 import { REFERENCE_LEAVES } from "./app-weather-fuel.reference.mjs";
-import { fieldsOf, fieldPlan, fieldContract, composeFieldCode, makeFieldedUnit, testUnit, testFunction, loadUnit, unitPrompt, openUnitCache, constReassigned, ABSENT } from "./app-units.mjs";
+import { fieldsOf, fieldPlan, fieldContract, composeFieldCode, makeFieldedUnit, makeUnit, testUnit, testFunction, loadUnit, unitPrompt, openUnitCache, constReassigned, ABSENT } from "./app-units.mjs";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -161,4 +161,23 @@ test("on the REAL wttrNow field oracles: a temp that ignores units is told so; a
   assert.equal(cond.ok, false); assert.ok(!cond.failures.some((f) => /must depend on/.test(f)), cond.failures.join("\n"));
   const right = testUnit(`function tempOf(current, astronomy, units) { return units === "imperial" ? parseFloat(current.temp_F) : parseFloat(current.temp_C); }`, fieldContract(c, "temp"));
   assert.equal(right.ok, true, right.failures.join("\n"));
+});
+
+// ---- the canonical stage, through makeUnit: suggestion -> reading -> canonical entry on the log -> fold ----
+import { DIVERSE } from "./diverse-tasks.mjs";
+test("makeUnit: a suggestion with a const slip and a slipped key is READ; the canonical form passes, and the log holds the raw suggestion, each transformation, and the canonical INS", async () => {
+  const c = DIVERSE.find((d) => d.contract.name === "bedReport").contract;
+  const suggestion = `function bedReport(ward) { const free = ward.total_beds - ward.occupied_beds; const pct = Math.round((ward.occupied_beds / ward.total_beds) * 100); const status = "ok"; if (free === 0) status = "full"; else if (pct >= 85) status = "busy"; return { name: ward.wardName, free, percentFull: pct, status }; }`;
+  const mouth = async () => ({ text: suggestion, ms: 1, promptTokens: 1, outTokens: 1 });
+  const events = [];
+  const r = await makeUnit(c, { mouths: ["small"], mouth, cache: null, rng: () => 0.99, explore: 0, see: (e, f) => events.push([e, f]) });
+  assert.equal(r.ok, true, r.failures.join("\n"));
+  assert.match(r.code, /let status = "ok"/); assert.match(r.code, /ward\.ward_name/); assert.doesNotMatch(r.code, /wardName/, "the canonical code names the real key: it needs no run-time resolver");
+  assert.deepEqual(r.log.entries.map((e) => e.operator), ["SIG", "CON", "CON", "INS"]);
+  assert.match(r.log.entries[0].suggestion, /const status = "ok"/, "the model's own words are kept, unchanged");
+  assert.deepEqual(r.log.entries.filter((e) => e.operator === "CON").map((e) => e.transformation.kind).sort(), ["const_to_let", "key_resolved"]);
+  assert.ok(events.some(([e]) => e === "canonical"), "the reading is narrated on the build ledger too");
+  // with the stage switched off the same suggestion is what it was: a crash on the runs that reassign the const
+  const off = await makeUnit({ ...c, canonical: false, resolve: false }, { mouths: ["small"], mouth, cache: null, rng: () => 0.99, explore: 0 });
+  assert.equal(off.ok, false);
 });
