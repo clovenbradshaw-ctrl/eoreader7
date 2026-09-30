@@ -4,7 +4,7 @@
 // entirely in HTML ATTRIBUTE SYNTAX, invisible in rendered pixels — a
 // browser silently tolerates the malformed attributes and still shows
 // perfectly readable text. CV/OCR would NOT have caught that bug; the
-// DOM-attribute check (escapingScore, harm-properties.mjs) is the right
+// DOM-attribute check (escapingScore, coherence-properties.mjs) is the right
 // tool for it. Chasing this honestly also found a SECOND real bug (a
 // fuzzed show title containing `<img src=x onerror=...>` genuinely
 // parses as a live element — real XSS) whose visible text STILL reads

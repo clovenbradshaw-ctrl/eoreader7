@@ -22,7 +22,7 @@ import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { makeMeasuredLoop } from "../../kernel/measured-loop.js";
 import { readAppLedger, landAppRound, appendAppRound, projectApp } from "../../adapters/build/podcast-app-ledger.js";
-import { extractPlaceholders } from "../../adapters/build/harm-properties.mjs";
+import { extractPlaceholders } from "../../adapters/build/coherence-properties.mjs";
 
 const OLLAMA_URL = process.env.ER7_OLLAMA_URL ?? "http://127.0.0.1:11434";
 const MODEL = process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL ?? "gemma2:2b";
@@ -105,7 +105,7 @@ export function templateLiteralAssignments(html, prop) {
  * FOUND LIVE, ADDED HERE (2026-09-30): every prior version of this check
  * was PURELY TEXTUAL — regex presence tests against the raw source — and a
  * real e2e run found exactly the gap that shape always has (the same one
- * harm-properties.mjs's consistencyScore/otherModelingScore already had to
+ * coherence-properties.mjs's consistencyScore/otherModelingScore already had to
  * be rewritten away from, this session): a round that swapped
  * `.innerHTML =` for `.textContent =` on the IDENTICAL raw-markup template
  * string scored "0 mechanical issues" here, because `/<audio[\s>]/i` still
@@ -155,7 +155,7 @@ export function checkCode(html) {
   // a property access is not unsafe or safe by its own text, it is safe
   // or unsafe depending on whether it is REACHED THROUGH the escapeHtml
   // referent. Each interpolation is now extracted and judged on its own
-  // (extractPlaceholders, reused from harm-properties.mjs rather than a
+  // (extractPlaceholders, reused from coherence-properties.mjs rather than a
   // second nested-brace walker) — .ethos is exempt because every real
   // prompt and every real generated round uses it only in a strict `===`
   // comparison to choose a hardcoded color, never as raw inserted text;

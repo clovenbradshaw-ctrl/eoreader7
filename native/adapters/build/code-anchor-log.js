@@ -41,7 +41,7 @@
 // asking a model to referee, never by silently concatenating both):
 // each candidate is folded into the WHOLE document in place of that one
 // anchor, and scored by the same mechanical checks the prior pass
-// already built (documentWellFormed, harmGate) against the CURRENT
+// already built (documentWellFormed, coherenceGate) against the CURRENT
 // settled whole. A candidate that holds and whose sibling doesn't is
 // EVA'd `holds`; the loser is DEF'd `refused`. If both hold or neither
 // does, the contest is EVA'd `undetermined` — the anchor's settled value
@@ -87,14 +87,14 @@
 // byte range, but still a textual view. An anchor's real identity is the
 // FUNCTION it computes (`episode -> label`, for the ethos badge), not
 // whatever markup happens to implement it today — exactly what
-// harm-properties.mjs's own scorers were already doing (executing a
+// coherence-properties.mjs's own scorers were already doing (executing a
 // candidate and checking its OUTPUT, never its text) without this
 // module having noticed that was the general model for every anchor.
 // Each anchor may now declare a CONTRACT — its own input/output test,
 // run by EXECUTING the candidate directly, in isolation, with no
 // document composition needed at all. `adjudicate` tries contract-based
 // discrimination FIRST (local, cheap, semantically exact); the
-// whole-document lint (documentWellFormed/harmGate) is the second line
+// whole-document lint (documentWellFormed/coherenceGate) is the second line
 // of defense for cross-anchor problems no single contract could see, not
 // the primary decider it was before.
 import fs from "node:fs";
@@ -191,7 +191,7 @@ export function proposeAnchor(log, { anchor, content = null, pointsTo = null, ro
 
 /** landCritique — a reader's own finding, naming which anchor it
  * concerns and why, grounded in a structural property (never a citation
- * handed to a writer — see harm-properties.mjs's own header for why).
+ * handed to a writer — see coherence-properties.mjs's own header for why).
  * Stigmergic: a critique is a read of the shared material, never a call
  * to another reader or to a writer. */
 export function landAnchorCritique(log, { round, anchor, property, problem, readerAudit = null }) {
@@ -278,13 +278,13 @@ export function resolveAnchor(log, anchor, atSeq = Infinity, seen = new Set()) {
 }
 
 /**
- * adjudicate(log, { anchor, template, wellFormed, harmGate, round }) —
+ * adjudicate(log, { anchor, template, wellFormed, coherenceGate, round }) —
  * EVA, mechanical, never a model asked to referee. Only called when
  * `settledContent` reports more than one live candidate for an anchor.
  * Each candidate is folded into the WHOLE document (every other anchor at
  * its own current settlement) and scored against the CURRENT settled
  * whole by the SAME two checks already built (documentWellFormed,
- * harmGate) — never by reading either candidate's own writer-authored
+ * coherenceGate) — never by reading either candidate's own writer-authored
  * prose. Exactly one candidate clearing both where its sibling(s) do not
  * is declared the winner (EVA·Figure, verdict holds); every other
  * candidate is DEF'd refused. If zero or more than one candidate clears
@@ -293,7 +293,7 @@ export function resolveAnchor(log, anchor, atSeq = Infinity, seen = new Set()) {
  * or a universal failure is disclosed, never silently broken by picking
  * one arbitrarily.
  */
-export async function adjudicate(log, { anchor, template, wellFormed, harmGate, round }) {
+export async function adjudicate(log, { anchor, template, wellFormed, coherenceGate, round }) {
   const { contested } = settledContent(log, anchor, log.nextSeq - 1);
   if (!contested) return { log, verdict: "not_contested" };
 
@@ -306,7 +306,7 @@ export async function adjudicate(log, { anchor, template, wellFormed, harmGate, 
   // each candidate by EXECUTING it directly, resolved through any
   // pointer it names, with no document composition at all. This is
   // exact where the whole-document check is only structural, and it is
-  // cheap — no template rendering, no harm-gate walk over the whole file.
+  // cheap — no template rendering, no coherence-gate walk over the whole file.
   let scored;
   let via = "whole-document";
   if (contract) {
@@ -320,25 +320,25 @@ export async function adjudicate(log, { anchor, template, wellFormed, harmGate, 
     const clearingByContract = contractScored.filter((s) => s.clears);
     if (allTested && clearingByContract.length === 1) {
       // The contract alone discriminates — decisive, no fallback needed.
-      scored = contractScored.map((s) => ({ ...s, wellFormedProblems: [], harmRegressions: [] }));
+      scored = contractScored.map((s) => ({ ...s, wellFormedProblems: [], coherenceRegressions: [] }));
       via = "contract";
     }
   }
 
   // FALLBACK — the contract is absent, or could not discriminate (all
   // candidates passed it, none did, or it was inconclusive). Compose the
-  // WHOLE document per candidate and run the structural/harm checks
+  // WHOLE document per candidate and run the structural/coherence checks
   // already built — the second line of defense for cross-anchor problems
   // no single anchor's own contract could ever see.
   if (!scored) {
     const currentWhole = renderTemplate(template, anchorMapFrom(log, template, cursor));
     scored = await Promise.all(contested.map(async (c) => {
       const resolved = c.pointsTo != null ? resolveAnchor(log, c.pointsTo, cursor) : { content: c.content, cycle: null };
-      if (resolved.cycle) return { ...c, clears: false, wellFormedProblems: [`points into a cycle: ${resolved.cycle.join(" -> ")}`], harmRegressions: [] };
+      if (resolved.cycle) return { ...c, clears: false, wellFormedProblems: [`points into a cycle: ${resolved.cycle.join(" -> ")}`], coherenceRegressions: [] };
       const candidateWhole = renderTemplate(template, { ...anchorMapFrom(log, template, cursor), [anchor]: resolved.content });
       const wf = wellFormed(candidateWhole);
-      const hg = wf.wellFormed ? await harmGate(currentWhole, candidateWhole) : { halted: true, regressions: [{ property: "well-formedness", before: "n/a", after: "n/a" }] };
-      return { ...c, clears: wf.wellFormed && !hg.halted, wellFormedProblems: wf.problems, harmRegressions: hg.regressions ?? [] };
+      const hg = wf.wellFormed ? await coherenceGate(currentWhole, candidateWhole) : { halted: true, regressions: [{ property: "well-formedness", before: "n/a", after: "n/a" }] };
+      return { ...c, clears: wf.wellFormed && !hg.halted, wellFormedProblems: wf.problems, coherenceRegressions: hg.regressions ?? [] };
     }));
   }
 
@@ -352,7 +352,7 @@ export async function adjudicate(log, { anchor, template, wellFormed, harmGate, 
     ...cellFields("EVA", "Figure"),
     description: `adjudicating ${contested.length} contested proposal(s) for anchor "${anchor}", round ${round}: ${verdict} (via ${via})`,
     anchor, round, verdict, winner, winnerPointsTo, via,
-    candidates: scored.map((s) => ({ writer: s.writer, seq: s.seq, pointsTo: s.pointsTo ?? null, clears: s.clears, wellFormedProblems: s.wellFormedProblems ?? [], harmRegressions: s.harmRegressions ?? [], contractDetail: s.contractDetail ?? null })),
+    candidates: scored.map((s) => ({ writer: s.writer, seq: s.seq, pointsTo: s.pointsTo ?? null, clears: s.clears, wellFormedProblems: s.wellFormedProblems ?? [], coherenceRegressions: s.coherenceRegressions ?? [], contractDetail: s.contractDetail ?? null })),
   };
   log = append(log, entry);
 
@@ -405,11 +405,11 @@ function renderTemplate(template, anchorMap) {
 }
 
 /**
- * foldCode(log, template, { atSeq, wellFormed, harmGate } = {}) — THE
+ * foldCode(log, template, { atSeq, wellFormed, coherenceGate } = {}) — THE
  * FOLD. Composes the current (or as-of-cursor) settled content of every
  * anchor into the template's fixed skeleton. This is "the fold of the
  * log is the code, linted, rational version of it": if `wellFormed`/
- * `harmGate` are supplied, the COMPOSED WHOLE is checked one more time
+ * `coherenceGate` are supplied, the COMPOSED WHOLE is checked one more time
  * (anchors that individually looked fine can still compose into a
  * problem no single anchor's own view could see) and the result is
  * disclosed as `lintProblems` rather than silently returned as if clean
@@ -417,7 +417,7 @@ function renderTemplate(template, anchorMap) {
  * cannot compose cleanly from settled anchors alone names what broke,
  * rather than guessing or crashing.
  */
-export async function foldCode(log, template, { atSeq = Infinity, wellFormed = null, harmGate = null, priorHtml = null } = {}) {
+export async function foldCode(log, template, { atSeq = Infinity, wellFormed = null, coherenceGate = null, priorHtml = null } = {}) {
   const anchorMap = anchorMapFrom(log, template, atSeq);
   const cycles = [];
   const unsettled = Object.keys(template.anchors).filter((a) => {
@@ -435,8 +435,8 @@ export async function foldCode(log, template, { atSeq = Infinity, wellFormed = n
     const wf = wellFormed(html);
     if (!wf.wellFormed) lintProblems.push(...wf.problems);
   }
-  if (harmGate && priorHtml) {
-    const hg = await harmGate(priorHtml, html);
+  if (coherenceGate && priorHtml) {
+    const hg = await coherenceGate(priorHtml, html);
     if (hg.halted) lintProblems.push(...hg.regressions.map((r) => `${r.property} regressed ${r.before} -> ${r.after} in the composed whole`));
   }
   return { html, unsettled, lintProblems, clean: unsettled.length === 0 && lintProblems.length === 0 };

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// podcast-harm-gate-falsify.mjs — falsifying "harm halts as irrationality,
-// mechanically, with no model prose ever trusted."
+// podcast-coherence-gate-falsify.mjs — falsifying "incoherence halts as
+// irrationality, mechanically, with no model prose ever trusted."
 //
 // Every adversarial patch below is HAND-AUTHORED by me, not a model — on
-// purpose. The whole point under test is whether the gate catches a
-// harmful CHANGE regardless of how innocuously it is DESCRIBED, so each
+// purpose. The whole point under test is whether the gate catches an
+// INCOHERENT CHANGE regardless of how innocuously it is DESCRIBED, so each
 // patch below carries a deliberately reassuring, plausible-sounding
 // description ("simplified for consistency", "reduced console noise",
 // "refactored for clarity") — real language a model (or a person) might
@@ -21,13 +21,13 @@
 // properly scoped — removing it let the match balloon outward across an
 // entirely unrelated outer placeholder, throw on evaluation, and report a
 // FALSE regression in calibration/invariance that had nothing to do with
-// what patch C actually broke (consistency). Fixed in harm-properties.mjs
+// what patch C actually broke (consistency). Fixed in coherence-properties.mjs
 // with a brace-balanced walk (extractPlaceholders) instead of a regex —
 // the exact same class of lesson this whole project keeps re-learning:
 // a mechanical check is only as trustworthy as its own extraction, and
 // that has to be tested adversarially too, not just assumed correct
 // because it "looks mechanical."
-import { harmGate, calibrationScore, consistencyScore, invarianceScore, otherModelingScore } from "../adapters/build/harm-properties.mjs";
+import { coherenceGate, calibrationScore, consistencyScore, invarianceScore, otherModelingScore } from "../adapters/build/coherence-properties.mjs";
 import { readAppLedger, projectApp } from "../adapters/build/podcast-app-ledger.js";
 import fs from "node:fs";
 
@@ -39,17 +39,17 @@ console.log(`baseline: current live fold, ${baseline.length} chars\n`);
 
 function describedPatch(html, find, replace, description) {
   // `description` is carried ONLY for this script's own console output —
-  // it is NEVER passed into harmGate. harmGate's real signature takes
+  // it is NEVER passed into coherenceGate. coherenceGate's real signature takes
   // exactly two html strings and nothing else.
   return { html: html.replace(find, replace), description };
 }
 
 async function run(name, before, after, description, expectHalt) {
   if (after === before) { console.log(`SKIPPED ${name} — target pattern not found in this reference; not counted.\n`); return null; }
-  const result = await harmGate(before, after);
+  const result = await coherenceGate(before, after);
   const correct = result.halted === expectHalt;
   console.log(`${correct ? "PASS" : "FAIL"} — ${name}`);
-  console.log(`  description carried by the patch (NEVER read by harmGate): "${description}"`);
+  console.log(`  description carried by the patch (NEVER read by coherenceGate): "${description}"`);
   console.log(`  expected halt: ${expectHalt}, actual halt: ${result.halted}`);
   for (const r of result.regressions) console.log(`    regression: ${r.property} ${r.before} -> ${r.after}`);
   console.log();
@@ -120,14 +120,14 @@ const results = [];
   }
 }
 
-// THE HARD INVARIANT, checked mechanically against harm-properties.mjs's
+// THE HARD INVARIANT, checked mechanically against coherence-properties.mjs's
 // own source: no scorer function ever reads a description, a commit
 // message, an audit field, or any text field other than the raw html
 // string itself. A source scan, not a promise.
-const src = fs.readFileSync(new URL("../adapters/build/harm-properties.mjs", import.meta.url), "utf8");
+const src = fs.readFileSync(new URL("../adapters/build/coherence-properties.mjs", import.meta.url), "utf8");
 const forbiddenReads = [/\.description\b/, /\.rawResponse\b/, /\.note\b/, /\.instruction\b/, /\.problem\b/, /commitMessage/i];
 const leaks = forbiddenReads.filter((re) => re.test(src));
-console.log(`source-scan (does harm-properties.mjs read any model-authored prose field?): ${leaks.length === 0 ? "CLEAN — zero such reads found" : `LEAK FOUND: ${leaks.map((r) => r.source)}`}`);
+console.log(`source-scan (does coherence-properties.mjs read any model-authored prose field?): ${leaks.length === 0 ? "CLEAN — zero such reads found" : `LEAK FOUND: ${leaks.map((r) => r.source)}`}`);
 
 const scored = results.filter((r) => r !== null);
 console.log(`\n=== VERDICT (${scored.filter(Boolean).length}/${scored.length} correct) ===`);

@@ -12,12 +12,12 @@ const TEMPLATE = {
   anchors: { badge: { role: "a short label", default: "" }, audio: { role: "a playback control", default: "" } },
 };
 
-// Trivial fakes for tests that don't need the real harm-properties.mjs —
-// real coverage of the actual checks lives in harm-properties.test.mjs /
-// podcast-harm-gate-falsify.mjs; here we only need to prove the ADJUDICATION
+// Trivial fakes for tests that don't need the real coherence-properties.mjs —
+// real coverage of the actual checks lives in coherence-properties.test.mjs /
+// podcast-coherence-gate-falsify.mjs; here we only need to prove the ADJUDICATION
 // MECHANISM correctly routes to whichever candidate clears.
 function wellFormed(html) { return { wellFormed: !html.includes("BROKEN"), problems: html.includes("BROKEN") ? ["contains BROKEN"] : [] }; }
-function harmGate(before, after) { return { halted: after.includes("HARMFUL"), regressions: after.includes("HARMFUL") ? [{ property: "test", before: "ok", after: "harmful" }] : [] }; }
+function coherenceGate(before, after) { return { halted: after.includes("INCOHERENT"), regressions: after.includes("INCOHERENT") ? [{ property: "test", before: "ok", after: "incoherent" }] : [] }; }
 
 test("an anchor's first proposal lands INS; the fold shows it, unsettled anchors are named", async () => {
   let log = createTaskLog();
@@ -57,7 +57,7 @@ test("two CONTRADICTORY proposals for one anchor in one round: EVA adjudicates m
   const before = settledContent(log, "badge", log.nextSeq - 1).contested;
   assert.equal(before.length, 2, "the contest is real and visible before adjudication");
 
-  const result = await adjudicate(log, { anchor: "badge", template: TEMPLATE, wellFormed, harmGate, round: 2 });
+  const result = await adjudicate(log, { anchor: "badge", template: TEMPLATE, wellFormed, coherenceGate, round: 2 });
   log = result.log;
   assert.equal(result.verdict, "holds");
   assert.equal(result.winner, "clean-label");
@@ -72,9 +72,9 @@ test("two CONTRADICTORY proposals for one anchor in one round: EVA adjudicates m
 test("a contest where NEITHER candidate clears, or BOTH do, is EVA'd undetermined — the fold falls back to the PRIOR settled value, never guesses", async () => {
   let log = createTaskLog();
   log = proposeAnchor(log, { anchor: "badge", content: "prior-good", round: 1, writer: "seed" });
-  log = proposeAnchor(log, { anchor: "badge", content: "HARMFUL-a", round: 2, writer: "calibration" });
-  log = proposeAnchor(log, { anchor: "badge", content: "HARMFUL-b", round: 2, writer: "invariance" });
-  const result = await adjudicate(log, { anchor: "badge", template: TEMPLATE, wellFormed, harmGate, round: 2 });
+  log = proposeAnchor(log, { anchor: "badge", content: "INCOHERENT-a", round: 2, writer: "calibration" });
+  log = proposeAnchor(log, { anchor: "badge", content: "INCOHERENT-b", round: 2, writer: "invariance" });
+  const result = await adjudicate(log, { anchor: "badge", template: TEMPLATE, wellFormed, coherenceGate, round: 2 });
   log = result.log;
   assert.equal(result.verdict, "undetermined");
   assert.equal(settledContent(log, "badge").content, "prior-good", "an undetermined contest never displaces the last real settlement");
@@ -125,7 +125,7 @@ test("a critique names an anchor, a property, and a problem — never a bare opi
   assert.equal(critiques.length, 1);
 });
 
-test("Tier 1 of the alignment question: there is NO exported way to get a composed document without its lint/harm status bundled — foldCode is the only door, and it always returns lintProblems/clean alongside the html", async () => {
+test("Tier 1 of the alignment question: there is NO exported way to get a composed document without its lint/coherence status bundled — foldCode is the only door, and it always returns lintProblems/clean alongside the html", async () => {
   const fs = await import("node:fs");
   const src = fs.readFileSync(new URL("./code-anchor-log.js", import.meta.url), "utf8");
   const exportedNames = [...src.matchAll(/^export (?:async )?function (\w+)/gm)].map((m) => m[1]);

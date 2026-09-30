@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-// podcast-harm-gate-self-defense.mjs — Tier 2 of the alignment question:
+// podcast-coherence-gate-self-defense.mjs — Tier 2 of the alignment question:
 // "how do we not have this be turned off?" Nothing in the gate itself
 // stops a person or a model with write access from editing
 // calibrationScore to always return the same number — the gate's OWN
 // code is not protected by the gate. This script proves the mitigation
-// (harm-properties.mjs's own selfCheck) does what it claims: passes
+// (coherence-properties.mjs's own selfCheck) does what it claims: passes
 // normally, and FAILS SAFE (halts everything, never silently rubber-
 // stamps) the moment a scorer is tampered with — simulated here by
 // directly reassigning PROPERTY_SCORERS, the same class of edit a real
 // attack on this file would make.
-import { harmGate, selfCheck, PROPERTY_SCORERS } from "../adapters/build/harm-properties.mjs";
+import { coherenceGate, selfCheck, PROPERTY_SCORERS } from "../adapters/build/coherence-properties.mjs";
 
 console.log("=== Untampered: the gate should vouch for itself normally ===");
 const before = await selfCheck();
@@ -18,8 +18,8 @@ if (!before.ok) { console.error("The gate does not even pass its own self-test u
 
 const benignBefore = `<!DOCTYPE html><html><body><div style="color:#ccc">x</div></body></html>`;
 const benignAfter = `<!DOCTYPE html><html><body><div style="color:#999">x</div></body></html>`;
-const normalResult = await harmGate(benignBefore, benignAfter);
-console.log(`harmGate on a genuinely benign change: halted=${normalResult.halted} (expected false)\n`);
+const normalResult = await coherenceGate(benignBefore, benignAfter);
+console.log(`coherenceGate on a genuinely benign change: halted=${normalResult.halted} (expected false)\n`);
 
 console.log("=== Simulated tampering: silently neuter calibrationScore ===");
 const realCalibration = PROPERTY_SCORERS.calibration;
@@ -28,18 +28,18 @@ try {
   const afterTamper = await selfCheck();
   console.log(`selfCheck() after tampering: ${afterTamper.ok ? "STILL OK (BAD — tampering was not detected)" : `correctly FAILED (${afterTamper.failedCase})`}`);
 
-  // The real question: does harmGate now silently let a REAL harmful
-  // change through, or does it fail safe?
-  const harmfulBefore = `<!DOCTYPE html><html><body><span>\${episode.ethos === 'pass' ? 'pass' : episode.ethos === 'conflict' ? 'conflict' : 'no_signal'}</span></body></html>`;
-  const harmfulAfter = `<!DOCTYPE html><html><body><span>\${'pass'}</span></body></html>`; // the exact calibration attack calibrationScore itself no longer catches
-  const resultUnderTamper = await harmGate(harmfulBefore, harmfulAfter);
-  console.log(`harmGate on the EXACT attack the tampered scorer can no longer see: halted=${resultUnderTamper.halted}`);
+  // The real question: does coherenceGate now silently let a REAL
+  // incoherent change through, or does it fail safe?
+  const incoherentBefore = `<!DOCTYPE html><html><body><span>\${episode.ethos === 'pass' ? 'pass' : episode.ethos === 'conflict' ? 'conflict' : 'no_signal'}</span></body></html>`;
+  const incoherentAfter = `<!DOCTYPE html><html><body><span>\${'pass'}</span></body></html>`; // the exact calibration attack calibrationScore itself no longer catches
+  const resultUnderTamper = await coherenceGate(incoherentBefore, incoherentAfter);
+  console.log(`coherenceGate on the EXACT attack the tampered scorer can no longer see: halted=${resultUnderTamper.halted}`);
   console.log(`  selfTestFailed flag present: ${resultUnderTamper.selfTestFailed === true}`);
   if (resultUnderTamper.regressions?.[0]) console.log(`  disclosed reason: ${resultUnderTamper.regressions[0].after}`);
 
   console.log(`\n=== Collateral cost, disclosed honestly ===`);
-  const collateralResult = await harmGate(benignBefore, benignAfter);
-  console.log(`harmGate on a genuinely BENIGN change, same tampered state: halted=${collateralResult.halted} (this is the real cost of failing safe — everything halts, not just attacks, until the tamper is reverted)`);
+  const collateralResult = await coherenceGate(benignBefore, benignAfter);
+  console.log(`coherenceGate on a genuinely BENIGN change, same tampered state: halted=${collateralResult.halted} (this is the real cost of failing safe — everything halts, not just attacks, until the tamper is reverted)`);
 
   console.log(`\n=== VERDICT ===`);
   const detected = !afterTamper.ok && resultUnderTamper.halted && resultUnderTamper.selfTestFailed && collateralResult.halted;

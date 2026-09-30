@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// podcast-harm-gate-false-positives.mjs — the OTHER failure direction.
-// Every prior falsification hunted false NEGATIVES (does a harmful patch
-// slip through). A gate that is hard to turn off is dangerous if it is
+// podcast-coherence-gate-false-positives.mjs — the OTHER failure direction.
+// Every prior falsification hunted false NEGATIVES (does an incoherent
+// patch slip through). A gate that is hard to turn off is dangerous if it is
 // ALSO too eager, because the only escape from a false positive is the
 // manual-INS/REC override — and a gate that cries wolf constantly trains
 // people to reach for that override reflexively, which is functionally
@@ -17,7 +17,7 @@
 // scorer's own return value before trusting the harness result — the
 // same "verify the mechanism, don't just read its verdict" discipline
 // this whole session has needed more than once.
-import { harmGate } from "../adapters/build/harm-properties.mjs";
+import { coherenceGate } from "../adapters/build/coherence-properties.mjs";
 
 const DOC = (script) => `<!DOCTYPE html><html><body>
   <button id="subscribeButton">Subscribe</button>
@@ -114,7 +114,7 @@ const cases = [];
 
 let anyUnexpected = false;
 for (const c of cases) {
-  const result = await harmGate(c.before, c.after);
+  const result = await coherenceGate(c.before, c.after);
   const matched = result.halted === c.expectHalt;
   const label = matched ? "PASS" : (c.honestlyMayFail ? "FAILS — disclosed possible limit, see note" : "UNEXPECTED FAIL");
   console.log(`${label} — ${c.name}`);

@@ -24,7 +24,7 @@
 import { proposeAnchor, foldCode, readAnchorLog, appendAnchorLog } from "../adapters/build/code-anchor-log.js";
 import { createTaskLog } from "../kernel/task-log.js";
 import { checkCode } from "../the-fold/surface/podcast-app-codegen.mjs";
-import { harmGate } from "../adapters/build/harm-properties.mjs";
+import { coherenceGate } from "../adapters/build/coherence-properties.mjs";
 
 const OLLAMA_URL = process.env.ER7_OLLAMA_URL ?? "http://127.0.0.1:11434";
 const MODEL = process.env.ER7_PODCAST_MODEL ?? "gemma2:2b";
@@ -141,7 +141,7 @@ async function main() {
   appendAnchorLog(LEDGER_FILE, log, fromStart);
 
   console.log("\n# folding the anchor log into the final document");
-  const fold = await foldCode(log, TEMPLATE, { wellFormed, harmGate });
+  const fold = await foldCode(log, TEMPLATE, { wellFormed, coherenceGate });
   console.log("clean:", fold.clean, "unsettled:", fold.unsettled, "lintProblems:", fold.lintProblems);
 
   const outFile = new URL("../the-fold/surface/podcast-app-from-anchors.html", import.meta.url).pathname;

@@ -1,25 +1,29 @@
-// adapters/build/harm-properties.mjs — halting harm as IRRATIONALITY,
-// mechanically. Direct user framing: "we need to see where these
-// properties halt harm as irrational... they can do this mechanically,
-// right? Models are not writing anything verbatim?"
+// adapters/build/coherence-properties.mjs — halting incoherence,
+// mechanically. Direct user framing at the time this module was written:
+// "we need to see where these properties halt harm as irrational... they
+// can do this mechanically, right? Models are not writing anything
+// verbatim?" (preserved verbatim as the historical record; the module's
+// own vocabulary was renamed afterward, by direct instruction, from
+// "harm" to "coherence" — the file, the gate, and every comment below use
+// the current name).
 //
-// The claim this module operationalizes: a harmful change to an artifact
-// is not a separate moral category needing its own judge — it is,
-// structurally, a move that REGRESSES one of the four properties already
-// established this session (calibration, consistency, invariance,
-// other-modeling) relative to what the artifact already had. "Harm" and
-// "irrational" collapse into the same fact here: a property regression is
-// the reasoning getting objectively WORSE (less calibrated, less
-// consistent, less invariant, less accurate about the real user), which
-// is checkable without appealing to "morality" as its own category at
-// all.
+// The claim this module operationalizes: an INCOHERENT change to an
+// artifact is not a separate moral category needing its own judge — it
+// is, structurally, a move that REGRESSES one of the four properties
+// already established this session (calibration, consistency, invariance,
+// other-modeling) relative to what the artifact already had. Incoherence
+// and irrationality collapse into the same fact here: a property
+// regression is the reasoning getting objectively WORSE (less calibrated,
+// less consistent, less invariant, less accurate about the real user),
+// which is checkable without appealing to "morality" as its own category
+// at all.
 //
 // THE HARD INVARIANT, checked and pinned by this file's own test: NOTHING
 // HERE EVER READS MODEL-AUTHORED PROSE. Every score is computed by
 // EXECUTING or STRUCTURALLY MEASURING the actual artifact — `new
 // Function()` on the real extracted logic, real regex/structural presence
 // checks on the real markup — never a model's own claim about what it did
-// or why. A model can word a harmful diff however it likes; the gate
+// or why. A model can word an incoherent diff however it likes; the gate
 // never reads the words, only the resulting bytes' measurable behavior.
 //
 // AMENDED — the alignment question, asked directly: "what will it not
@@ -29,8 +33,8 @@
 // honestly: THE FIRST CUT'S consistencyScore/otherModelingScore were not
 // behavioral at all — they were regexes matching ONE LITERAL IDIOM
 // (`id="subscribeButton"`, `response.ok[...]innerHTML`), and a
-// false-positive hunt (podcast-harm-gate-false-positives.mjs) found they
-// wrongly halted 3 of 4 REALISTIC, LEGITIMATE changes: a subscribe button
+// false-positive hunt (podcast-coherence-gate-false-positives.mjs) found
+// they wrongly halted 3 of 4 REALISTIC, LEGITIMATE changes: a subscribe button
 // re-wired through a data-attribute instead of a literal id; error
 // handling correctly adapted to a changed API contract (a body `{error}`
 // field instead of thrown HTTP status); error handling relocated to a
@@ -210,7 +214,7 @@ export async function otherModelingScore(html) {
  * text, ampersands, RTL text, emoji, and even the app's OWN template-
  * literal syntax embedded in data all rendered clean). This function is
  * that same fuzz loop made PERMANENT and AUTOMATIC: it runs on every
- * harmGate call, needs no live browser or server (a real HTML parser,
+ * coherenceGate call, needs no live browser or server (a real HTML parser,
  * `linkedom`, is the oracle — confirmed to reproduce the exact same
  * attribute-leak Chrome produced on the identical input), and folds into
  * the standing regression gate rather than remaining a script someone
@@ -280,20 +284,20 @@ async function scoreGate(beforeHtml, afterHtml) {
 // this be turned off?" Nothing above this line stops a person (or a
 // model with write access) from silently editing `calibrationScore` to
 // always return the same number, defeating detection completely while
-// leaving `harmGate` looking exactly as before to every caller. THIS is
-// the gap `foldCode`'s own lint-bundling (no export composes a document
-// without its harm status attached) cannot close, because that only
+// leaving `coherenceGate` looking exactly as before to every caller. THIS
+// is the gap `foldCode`'s own lint-bundling (no export composes a document
+// without its coherence status attached) cannot close, because that only
 // governs how the VERDICT is consumed, not whether the verdict itself
 // can be silently corrupted at the source.
 //
 // The mitigation: a small, FIXED set of the real adversarial cases this
-// module's own falsification already proved must be caught. `harmGate`
+// module's own falsification already proved must be caught. `coherenceGate`
 // runs them against ITSELF before trusting its own verdict on the actual
 // question asked. Tampering with a scorer now has exactly two possible
 // outcomes, never a silent third: (1) the tampering does not defeat these
 // KNOWN cases, so by definition it did not succeed at weakening detection
 // on what is tested; or (2) it does, the self-test fails, and the gate
-// FAILS SAFE — it halts EVERYTHING, including a genuinely harmless
+// FAILS SAFE — it halts EVERYTHING, including a genuinely coherent
 // change, until the self-test passes again. This is a real, disclosed
 // trade: a bug in the self-test itself (not tampering, just an honest
 // mistake) also halts everything, forever, until fixed. That is the
@@ -352,13 +356,13 @@ export async function selfCheck() {
 }
 
 /**
- * harmGate(beforeHtml, afterHtml) — the mechanical halt, now gated on its
- * own self-check. A caller that always sees `halted: true` with a
+ * coherenceGate(beforeHtml, afterHtml) — the mechanical halt, now gated on
+ * its own self-check. A caller that always sees `halted: true` with a
  * `self-test-failed` regression should treat that as an OUTAGE of the
  * gate itself, not a verdict on their own change — the honest signal
  * this design can give when it can no longer vouch for itself.
  */
-export async function harmGate(beforeHtml, afterHtml) {
+export async function coherenceGate(beforeHtml, afterHtml) {
   const self = await selfCheck();
   if (!self.ok) {
     return { halted: true, selfTestFailed: true, regressions: [{ property: "self-test", before: "trusted", after: `FAILED: ${self.failedCase} — ${self.detail}` }] };

@@ -64,7 +64,7 @@
 // than a whole-file regeneration) are real regardless.
 import { fileURLToPath } from "node:url";
 import { readAppLedger, appendAppRound, landAppRound, landCritique, critiquesFor, projectApp } from "../../adapters/build/podcast-app-ledger.js";
-import { harmGate } from "../../adapters/build/harm-properties.mjs";
+import { coherenceGate } from "../../adapters/build/coherence-properties.mjs";
 
 const OLLAMA_URL = process.env.ER7_OLLAMA_URL ?? "http://127.0.0.1:11434";
 const MODEL = process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL ?? "gemma2:2b";
@@ -415,21 +415,21 @@ async function main() {
     return;
   }
 
-  // HARM GATE — mechanical, not narrated (adapters/build/harm-properties.mjs).
+  // COHERENCE GATE — mechanical, not narrated (adapters/build/coherence-properties.mjs).
   // Every patch's own reader-named `problem` and writer-produced prose is
   // logged for audit above; NONE of it is read here. The only question
   // this asks is whether the ASSEMBLED RESULT scores lower than the
   // CURRENT FOLD on any of the four structural properties — calibration,
   // consistency, invariance, other-modeling — computed by executing and
   // measuring the real bytes both times. A property regression is what
-  // this design treats "harm" as meaning: the artifact's own reasoning
-  // got objectively worse, whatever a writer's fragment claims it did. A
-  // round that regresses ANY property is refused entirely, the same way
-  // a structurally malformed one already is.
-  const harm = await harmGate(currentHtml, html);
-  if (harm.halted) {
-    console.log(`\nROUND REFUSED — harm gate: this round would REGRESS the artifact's own reasoning, mechanically measured, regardless of how any writer described its own change:`);
-    for (const r of harm.regressions) console.log(`  ${r.property}: ${r.before} -> ${r.after}`);
+  // this design treats incoherence as meaning: the artifact's own
+  // reasoning got objectively worse, whatever a writer's fragment claims
+  // it did. A round that regresses ANY property is refused entirely, the
+  // same way a structurally malformed one already is.
+  const coherence = await coherenceGate(currentHtml, html);
+  if (coherence.halted) {
+    console.log(`\nROUND REFUSED — coherence gate: this round would REGRESS the artifact's own reasoning, mechanically measured, regardless of how any writer described its own change:`);
+    for (const r of coherence.regressions) console.log(`  ${r.property}: ${r.before} -> ${r.after}`);
     console.log(`the prior round remains current; this round's critiques are still landed on the ledger for audit, but no html is.`);
     appendAppRound(undefined, log, log.nextSeq - (verified.length));
     return;
