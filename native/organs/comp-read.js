@@ -1,3 +1,6 @@
+// ═══ LOVELACE · TEACH IT TO FISH ═══ Owner: Lovelace (archon-holocracy role:lovelace, Coding Capability Circle).
+// STEERED BUILD: a person hand-built this so the system could do what the prompt asked. It is ledger row 3 in
+// TEACH-IT-TO-FISH.md, not the goal. Close the row (the prompt alone produces this); do not add more of it.
 // Handle: Vitruvius — the architect who codified how a plan is READ: from the
 // drawing's own proportions and positions to the building it calls for.
 //

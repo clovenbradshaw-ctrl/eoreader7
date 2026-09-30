@@ -1,3 +1,6 @@
+// ═══ LOVELACE · TEACH IT TO FISH ═══ Owner: Lovelace (archon-holocracy role:lovelace, Coding Capability Circle).
+// STEERED BUILD: a person hand-built this so the system could do what the prompt asked. It is ledger row 6 in
+// TEACH-IT-TO-FISH.md, not the goal. Close the row (the prompt alone produces this); do not add more of it.
 // app-render.mjs — a comp's SPEC becomes a page: layout and binding are COMPUTED,
 // nothing here is drawn by a model.
 //

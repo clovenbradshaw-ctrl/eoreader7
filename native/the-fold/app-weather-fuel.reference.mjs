@@ -1,3 +1,6 @@
+// ═══ LOVELACE · TEACH IT TO FISH ═══ Owner: Lovelace (archon-holocracy role:lovelace, Coding Capability Circle).
+// STEERED BUILD: a person hand-built this so the system could do what the prompt asked. It is ledger row 5 in
+// TEACH-IT-TO-FISH.md, not the goal. Close the row (the prompt alone produces this); do not add more of it.
 // app-weather-fuel.reference.mjs — hand-written reference bodies for the five units. They are NOT the app's
 // units (a mouth draws those); they are the proof the oracles are satisfiable and right, the control a drawn unit's
 // verdict is read against, and the stand-in the assembler's tests use where no model should be asked.

@@ -73,7 +73,7 @@ test("an assembled app boots on its own, serves the page and the provenance, and
   const units = Object.fromEntries(REQUIRED_UNITS.map((n) => [n, { code: REFERENCE_LEAVES[n], model: "reference", rounds: 0, calls: 0 }]));
   const r = assembleApp({ outDir: out, weatherSpec, fuelSpec, units, provenance: { comps: JSON.parse(fs.readFileSync(path.join(FIXTURES, "comps", "PROVENANCE.json"), "utf8")), likeness: { verdict: "no verbatim run and no near-copy found", compared: 12, nullCount: 3 } } });
   assert.equal(r.ok, true);
-  for (const f of ["index.html", "server.mjs", "lib/unit-wall.mjs", "lib/stigmergy.js", "lib/compose.mjs", "manifest.json", "about.html", "binding-report.json", ...REQUIRED_UNITS.map((n) => `units/${n}.js`)]) assert.ok(fs.existsSync(path.join(out, f)), f);
+  for (const f of ["index.html", "server.mjs", "lib/unit-wall.mjs", "lib/stigmergy.js", "lib/compose.mjs", "lib/key-referents.js", "manifest.json", "about.html", "binding-report.json", ...REQUIRED_UNITS.map((n) => `units/${n}.js`)]) assert.ok(fs.existsSync(path.join(out, f)), f);
   const port = 20000 + Math.floor(Math.random() * 20000);
   const child = spawn(process.execPath, [path.join(out, "server.mjs"), String(port)], { stdio: ["ignore", "pipe", "pipe"] });
   try {

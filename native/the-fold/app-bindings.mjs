@@ -1,3 +1,6 @@
+// ═══ LOVELACE · TEACH IT TO FISH ═══ Owner: Lovelace (archon-holocracy role:lovelace, Coding Capability Circle).
+// STEERED BUILD: a person hand-built this so the system could do what the prompt asked. It is ledger row 6 in
+// TEACH-IT-TO-FISH.md, not the goal. Close the row (the prompt alone produces this); do not add more of it.
 // app-bindings.mjs — the SOURCE side's declaration of what its fields are, for the
 // weather + fuel app. The comp says what is on screen (a headline value, a caption,
 // labelled facts, a repeated list); these tables say where each of those comes from

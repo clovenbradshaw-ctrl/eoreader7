@@ -1,3 +1,6 @@
+// ═══ LOVELACE · TEACH IT TO FISH ═══ Owner: Lovelace (archon-holocracy role:lovelace, Coding Capability Circle).
+// STEERED BUILD: a person hand-built this so the system could do what the prompt asked. It is ledger row 3, 12 in
+// TEACH-IT-TO-FISH.md, not the goal. Close the row (the prompt alone produces this); do not add more of it.
 // comp-vision.mjs — the VISION sense on a comp, through look.js (the pipeline's own looking seam).
 //
 // The measured read (comp-detect.py + comp-read.js) says where things are and how big; it reads no meaning.

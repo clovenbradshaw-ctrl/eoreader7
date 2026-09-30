@@ -1,3 +1,6 @@
+// ═══ LOVELACE · TEACH IT TO FISH ═══ Owner: Lovelace (archon-holocracy role:lovelace, Coding Capability Circle).
+// STEERED BUILD: a person hand-built this so the system could do what the prompt asked. It is ledger row 4, 11 in
+// TEACH-IT-TO-FISH.md, not the goal. Close the row (the prompt alone produces this); do not add more of it.
 // server.mjs — the generated app's server. COMPUTED glue: fetch, route, convert clocks, rank
 // providers by learned trails, walk the rows (lib/compose.mjs). Every read of ONE row of a response
 // goes through a LEAF — code a model drew and an oracle verified against real recorded rows — run

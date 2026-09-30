@@ -1,3 +1,6 @@
+// ═══ LOVELACE · TEACH IT TO FISH ═══ Owner: Lovelace (archon-holocracy role:lovelace, Coding Capability Circle).
+// STEERED BUILD: a person hand-built this so the system could do what the prompt asked. It is ledger row 6 in
+// TEACH-IT-TO-FISH.md, not the goal. Close the row (the prompt alone produces this); do not add more of it.
 // app-assemble.mjs — set the generated app down as a directory that runs on its own.
 //
 //   index.html          computed from the comp specs (app-render.mjs)
@@ -40,7 +43,9 @@ export function assembleApp({ outDir, appName = "Weather & Fuel", weatherSpec, f
   const files = [];
   files.push(w("index.html", page.html));
   files.push(w("server.mjs", fs.readFileSync(path.join(here, "app-template", "server.mjs"))));
-  files.push(w("lib/unit-wall.mjs", fs.readFileSync(path.join(here, "unit-wall.mjs"))));
+  // the wall imports the key-referent layer by its repo path; in the bundle both sit in lib/
+  files.push(w("lib/unit-wall.mjs", fs.readFileSync(path.join(here, "unit-wall.mjs"), "utf8").replace('"../organs/key-referents.js"', '"./key-referents.js"')));
+  files.push(w("lib/key-referents.js", fs.readFileSync(path.join(here, "..", "organs", "key-referents.js"))));
   files.push(w("lib/compose.mjs", fs.readFileSync(path.join(here, "app-compose.mjs"))));
   files.push(w("lib/stigmergy.js", fs.readFileSync(path.join(here, "..", "kernel", "stigmergy.js"))));
   const manifest = {

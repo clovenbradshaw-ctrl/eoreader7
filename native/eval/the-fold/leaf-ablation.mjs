@@ -1,3 +1,6 @@
+// ═══ LOVELACE · TEACH IT TO FISH ═══ Owner: Lovelace (archon-holocracy role:lovelace, Coding Capability Circle).
+// STEERED BUILD: a person hand-built this so the system could do what the prompt asked. It is ledger row 10 in
+// TEACH-IT-TO-FISH.md, not the goal. Close the row (the prompt alone produces this); do not add more of it.
 // leaf-ablation.mjs — does a skeleton of the return literal (keys computed from the worked example, values left
 // blank) raise the pass rate of a SMALL model drawing a leaf? One mouth at a time, no cache, no learned order:
 // every leaf is drawn cold, and each arm is judged by the same oracles (app-leaves.mjs).

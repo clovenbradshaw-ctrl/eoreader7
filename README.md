@@ -1,5 +1,15 @@
 # EOReader 7
 
+> # 🎣 TEACH IT TO FISH — Lovelace
+> **Drive everything with only the prompt of the system. Every extra step of steering is a capability the system has
+> to learn — write it on the steering ledger and close it; do not hand-build more of it.**
+> The small local model needs only *the right idea*, not precision: a resolution layer binds the idea to the real
+> referent (`tz` ≡ `timezone`). No larger model is ever the fix.
+> **Read [`TEACH-IT-TO-FISH.md`](TEACH-IT-TO-FISH.md) before you build anything.** Owner: Lovelace.
+> *"The Analytical Engine has no pretensions whatever to originate anything. It can do whatever we know how to
+> order it to perform."* — Ada Lovelace, 1843. We are testing whether that is still true.
+
+
 EOReader 7 now has a native canonical recursive-reading kernel.
 
 ## kleeneUp — the regex-eviction archon (this worktree, 2026-09-21)
