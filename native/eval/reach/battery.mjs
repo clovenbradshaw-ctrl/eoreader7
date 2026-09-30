@@ -108,8 +108,8 @@ import { checkTask, htmlAvailable, closeBrowser } from "./check.mjs";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const ARMS = Object.freeze(["bare", "placebo", "stance", "wisdom", "decoy", "goal", "reach", "both", "reachgoal", "whole"]);
 export const REACH_K = 6; // lines of derived reach shown. Declared, not tuned: the artifacts are 8–20 lines.
-const fnv = (s) => { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
-const mulberry = (a) => () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+export const fnv = (s) => { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+export const mulberry = (a) => () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 
 // ── the derivation ───────────────────────────────────────────────────────────
 // Names are identifier-ish runs (>= 3 chars) plus their hyphen/underscore parts,
@@ -161,10 +161,10 @@ export function reachAccuracy(task, k = REACH_K) {
 }
 
 // ── the arms ─────────────────────────────────────────────────────────────────
-const HOW = "Give your change as edits. Each edit has \"find\" (text copied from the text shown below; every occurrence of it in the text shown is replaced) and \"replace\" (the new text). Change only what the task needs.";
-const fence = (label, body) => `${label}\n\`\`\`\n${body}\n\`\`\``;
+export const HOW = "Give your change as edits. Each edit has \"find\" (text copied from the text shown below; every occurrence of it in the text shown is replaced) and \"replace\" (the new text). Change only what the task needs.";
+export const fence = (label, body) => `${label}\n\`\`\`\n${body}\n\`\`\``;
 // The framing is the same words for reach and decoy, and true of both: they are other lines of the file.
-const OTHER_LINES = "Other lines of the same file (you may change these lines too):";
+export const OTHER_LINES = "Other lines of the same file (you may change these lines too):";
 
 /** The control for the derivation: as many lines as reach shows, drawn at random (seeded by the task)
  *  from lines that are neither in the region nor dependents nor blank. */
@@ -389,8 +389,10 @@ export function touchedOutside(record) {
  *  no longer occurs (as a whole line) in the edited artifact. */
 export function collateralOf(record) {
   const a = afterOf(record);
-  if (!a) return false;
-  const { task, text } = a;
+  return a ? collateralIn(a.task, a.text) : false;
+}
+/** `collateralOf` for any edited text of a task (a recorded run's, or a repaired one). */
+export function collateralIn(task, text) {
   const before = task.artifact.split("\n");
   const left = new Map();
   for (const l of text.split("\n")) left.set(l, (left.get(l) ?? 0) + 1);
@@ -407,6 +409,12 @@ export function collateralOf(record) {
  *  dependent leaves behind. Names are WHOLE identifier-like runs of >= 3 characters (never their parts: counting the
  *  parts of `unit_price` would keep `price` looking untouched after a rename of `price`). It cannot see a change that keeps every name (a signature change
  *  with one-letter parameters), and it will flag a legitimate deletion of one mention among several. */
+/** The first spelling of each name as written (lower-cased name → surface form), for text meant to be read by a writer. */
+export function surfaceForms(text) {
+  const m = new Map();
+  for (const x of String(text).matchAll(NAME)) { const w = x[0].toLowerCase(); if (!m.has(w)) m.set(w, x[0]); }
+  return m;
+}
 export function nameCounts(text) {
   const c = new Map();
   for (const m of String(text).matchAll(NAME)) { const w = m[0].toLowerCase(); c.set(w, (c.get(w) ?? 0) + 1); }
