@@ -45,9 +45,9 @@
 // empty-context vm a unit executes in: the same code decides in the test and in production.
 
 export const KEY_REFERENTS_SCHEMA = "EOKeyReferents@1";
-/** shortest asked name a prefix or abbreviation may resolve — one or two letters name nothing from their shape alone. */
+/** shortest asked name a prefix or abbreviation may resolve — one or two letters name nothing from their shape alone. Set by hand 2026-09-30; measured by incident: `at` would bind `admitted_at` (key-referents.test.mjs, hospital-bed replay). */
 export const MIN_ASKED = 3;
-/** an abbreviation is at most this share of the key it abbreviates (county is not an abbreviation of country). */
+/** an abbreviation is at most this share of the key it abbreviates (county is not an abbreviation of country). Set by hand 2026-09-30; measured by incident: `county` (6 of 7 letters) bound `country` before it, and the control in key-referents.test.mjs pins it. */
 export const MAX_ABBREV_SHARE = 0.5;
 
 export function foldKey(s) {

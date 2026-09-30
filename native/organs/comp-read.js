@@ -37,24 +37,26 @@ export const COMP_SPEC_SCHEMA = "EOCompSpec@2";
 // where it is used, none tuned against a score):
 /** Lines further apart than this many text heights are different sections. */
 export const GROUP_GAP_EM = 1.8;
-/** A line this many times the median text height is a HEADLINE (the big value), not body text. */
+/** A line this many times the median text height is a HEADLINE (the big value), not body text. Set by hand 2026-09-30 from three real F-Droid comps read live (a 1.7x temperature over 1.0x body); none tuned against a score. */
 export const HEADLINE_RATIO = 1.45;
-/** A horizontal gap wider than this many line-heights cuts a line into separate segments (columns). */
+/** A horizontal gap wider than this many line-heights cuts a line into separate segments (columns). Set by hand 2026-09-30 from the same three comps (tab captions sit ~3 heights apart); none tuned against a score. */
 export const SEGMENT_GAP_EM = 2.5;
-/** Column centres of consecutive lines line up (one grid) when they differ by less than this share of the column pitch. */
+/** Column centres of consecutive lines line up (one grid) when they differ by less than this share of the column pitch. Set by hand 2026-09-30, a convention of under half a pitch (centres are then nearer their own column than the next); none tuned against a score. */
 export const GRID_ALIGN = 0.45;
-/** A run of sibling sections is a LIST at REPEAT_MIN repeats, or at REPEAT_MIN_COMPLEX when an entry has ≥ COMPLEX_LINES lines
+/** Set by hand 2026-09-30 (the structural minimum of a pattern, derived from binding.js / WITNESS_FLOOR: one instance is not a pattern). A run of sibling sections is a LIST at REPEAT_MIN repeats, or at REPEAT_MIN_COMPLEX when an entry has ≥ COMPLEX_LINES lines
  *  (a repeat of a structure is strong evidence; a pair of similar lines is a coincidence). Two repeats is the structural minimum
  *  of a pattern (binding.js / WITNESS_FLOOR: one instance is not a pattern). */
 export const REPEAT_MIN = 3;
+/** Declared 2026-09-30: two repeats, the structural minimum of a pattern (see REPEAT_MIN), once an entry has COMPLEX_LINES lines. */
 export const REPEAT_MIN_COMPLEX = 2;
+/** Set by hand 2026-09-30: an entry of three lines (headline, caption, fact) is unlikely to repeat by coincidence; none tuned against a score. */
 export const COMPLEX_LINES = 3;
-/** The top and bottom of a screen are device chrome (a status bar, a navigation bar) when a section lies wholly within this share. */
+/** The top and bottom of a screen are device chrome (a status bar, a navigation bar) when a section lies wholly within this share. Set by hand 2026-09-30: Android's status bar is 24dp of a 640dp-tall screen, about 3.75%, and the first real comp's status text sits within y 14–35 of 1280 (under 3%); this is a little above both. */
 export const CHROME_EDGE = 0.045;
-/** The last section of a screen may be CUT OFF by the screen's own edge: it matches the entries above it when it is a prefix of their
+/** Set by hand 2026-09-30, looking at the real comps read live (the cut-off list entry sat near the bottom edge); none tuned against a score. The last section of a screen may be CUT OFF by the screen's own edge: it matches the entries above it when it is a prefix of their
  *  structure and lies within this share of the screen height from the bottom. */
 export const CUTOFF_EDGE = 0.12;
-/** A background change between two lines' containing blocks cuts a section when the RGB distance exceeds this. */
+/** A background change between two lines' containing blocks cuts a section when the RGB distance exceeds this. Set by hand 2026-09-30 (a card's tint against its page is a small step, a section's own fill a large one); none tuned against a score. */
 export const BG_CHANGE = 40;
 
 /** Unit marks a value may carry — language-neutral symbols, set by hand; a new unit is one added entry. */

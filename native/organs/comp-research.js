@@ -26,11 +26,11 @@ import { tokenize } from "./source.js";
 import { readLicense, PERMISSIVE } from "./license-table.js";
 
 export const COMP_RESEARCH_SCHEMA = "EOCompResearch@1";
-/** Smallest side, in pixels, of an image worth reading as a comp (below this it is an icon, a badge or a thumbnail). */
+/** Smallest side, in pixels, of an image worth reading as a comp (below this it is an icon, a badge or a thumbnail). Set by hand 2026-09-30, not measured against a score: the ten images the first weather research kept (fixtures/weather-fuel/research) all clear it, which shows it refuses nothing real, not that the value is right. */
 export const MIN_COMP_SIDE_PX = 320;
-/** The widest aspect ratio (long side / short side) of a screen-like image; a banner or a scroll strip is not a screen. */
+/** The widest aspect ratio (long side / short side) of a screen-like image; a banner or a scroll strip is not a screen. Set by hand 2026-09-30: phone screens run 16:9 to 20:9 (under 2.3), so 3.2 leaves room for tall captures and refuses banners; set by hand, not tuned against a score. */
 export const MAX_COMP_ASPECT = 3.2;
-/** A perceptual-hash Hamming distance (of 64 bits) at or below this reads as the same picture, however recompressed or resized. */
+/** A perceptual-hash Hamming distance (of 64 bits) at or below this reads as the same picture, however recompressed or resized. Set by hand 2026-09-30 and always judged against a null of unrelated images (likenessOf), never alone; the test pins a brightness-shifted copy at <= 2 bits and unrelated pictures beyond it. */
 export const NEAR_COPY_BITS = 10;
 
 /** Licenses a SOURCE may state, by the word a page uses. A source stating none of them stands as `unknown`, never as free. */
