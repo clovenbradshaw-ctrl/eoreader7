@@ -26,7 +26,9 @@ if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).
     if (only && !only.includes(d.contract.name)) continue;
     for (const arm of arms) {
       const t0 = Date.now();
-      const r = await makeUnit({ ...d.contract, ...ARMS[arm] }, { mouths, mouth, cache: null, rng: () => 0.99, explore: 0 });
+      // every draw (its code, its failures) is kept beside the rows: a row says THAT an arm failed, the draws say WHY
+      const see = (event, f) => { if (out && event === "unit-draw") fs.appendFileSync(out.replace(/\.jsonl$/, "") + ".draws.jsonl", JSON.stringify({ task: d.contract.name, arm, ...f }) + "\n"); };
+      const r = await makeUnit({ ...d.contract, ...ARMS[arm] }, { mouths, mouth, cache: null, rng: () => 0.99, explore: 0, see });
       const row = { task: d.contract.name, role: d.role, arm, ok: r.ok, model: r.model, calls: r.calls, rounds: r.rounds, secs: Math.round((Date.now() - t0) / 1000), cards: r.ok ? (r.resolutions ?? []).filter((x) => x.kind === "card").map((x) => `${x.asked}${x.real ? `→${x.real}` : x.ambiguous ? "?" : "✗"}`) : undefined, keys: r.ok ? (r.resolutions ?? []).filter((x) => !x.kind).map((x) => `${x.asked}→${x.real ?? "?"}`) : undefined, fail: r.ok ? undefined : (r.failures?.[0] ?? "").slice(0, 140) };
       console.log(JSON.stringify(row));
       if (out) fs.appendFileSync(out, JSON.stringify({ at: new Date().toISOString(), ...row }) + "\n");
