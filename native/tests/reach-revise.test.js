@@ -16,6 +16,7 @@ import { TASKS } from "../eval/reach/tasks.mjs";
 import { closeBrowser } from "../eval/reach/check.mjs";
 import * as B from "../eval/reach/battery.mjs";
 import * as R from "../eval/reach/revise.mjs";
+import * as C from "../eval/reach/counterfactual.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 after(async () => { await closeBrowser(); });
@@ -151,6 +152,20 @@ test("a repair that undoes the change is a withdrawal of the entry: nothing requ
   assert.deepEqual(out.head, { changed: false, success: false, harm: false }, "the head stays at the original, which is what the file now is");
 });
 
+test("the same repair answer under whole-identifier matching: `price` no longer matches inside `unit_price`, so a double rename becomes a repair", async () => {
+  const t = byId("sql-col-b");
+  const src = landing(t, "bare", 0);
+  const { selected } = R.selectLandings([src]);
+  assert.equal(selected.length, 1);
+  const out = await R.repairOne(selected[0], "derived", { seed: 1, askFn: answer([{ find: "price", replace: "unit_price" }]) });
+  assert.deepEqual([out.success, out.harm, out.head.harm], [false, true, true], "as the tool was: the region's `unit_price` became `unit_unit_price`, and the derived check cannot see it");
+  const row = { key: `${src.key}|derived`, condition: "derived", task: t.id, sourceKey: src.key, shown: out.shown, parsed: out.parsed, success: out.success, harm: out.harm, head: out.head };
+  const [asRun] = await R.repairUnder([row], [src]);
+  assert.deepEqual([asRun.success, asRun.harm, asRun.head], [row.success, row.harm, row.head], "the control reproduces the recorded outcome");
+  const [token] = await R.repairUnder([row], [src], C.applyEditsBoundary);
+  assert.deepEqual([token.success, token.harm, token.head.success], [true, false, true], "with whole-identifier matching the same answer completes the rename");
+});
+
 test("a model error, an unparseable answer and an empty repair are recorded as what they are", async () => {
   const { item } = termA();
   const boom = await R.repairOne(item, "derived", { seed: 1, askFn: async () => { throw new Error("socket closed"); } });
@@ -234,12 +249,12 @@ test("the results document carries its own caveats, the landing-rule table, the 
   for (const s of ["Pre-registered predictions", "The landing rule: what the head holds", "gate only (refuse, never repair)", "Task-level: paired over tasks", "What the check could not see", "Diagnostics", "at most 5 per task"]) assert.ok(md.includes(s), s);
   assert.match(md, /py-sig-a \| 1 \| 0 \| 1/, "a signature change is harm the check does not see");
   assert.match(md, /term-a \| 1 \| 1 \| 0/, "a partial rename is harm the check does");
-  const block = R.reviseBlock({ rows, source, selection: null, model: "stub" });
+  const block = R.reviseBlock({ rows, source, model: "stub" });
   assert.match(block, /\| derived \| 100% \(40\/40\)/);
 });
 
 // ── the committed results cannot drift from the committed raw records ────────
-test("the committed repair results are the re-summary of the committed raw records, one results file per model", () => {
+test("the committed repair results are the re-summary of the committed raw records, one results file per model", async () => {
   const dir = path.join(HERE, "..", "eval", "raw");
   const raws = fs.existsSync(dir) ? fs.readdirSync(dir).filter((n) => n.startsWith("reach-revise-") && n.endsWith(".jsonl")).sort() : [];
   if (!raws.length) return; // no live repair run committed yet
@@ -253,6 +268,8 @@ test("the committed repair results are the re-summary of the committed raw recor
     const rows = B.readRecords(path.join(dir, n));
     const source = sources.flatMap((x) => B.readRecords(path.join(dir, x)));
     assert.equal(new Set(rows.map((r) => r.model)).size, 1);
-    assert.equal(fs.readFileSync(f, "utf8"), R.reviseMarkdown({ rows, source, selection: R.selectLandings(source), model: rows[0].model, files: [path.join("native", "eval", "raw", n)], sourceFiles: sources.map((x) => path.join("native", "eval", "raw", x)) }));
+      const under = { control: await R.repairUnder(rows, source), token: await R.repairUnder(rows, source, C.applyEditsBoundary) };
+    assert.ok(under.control.every((r) => r.success === r.recorded.success && r.harm === r.recorded.harm && r.head.changed === r.recorded.head.changed && r.head.success === r.recorded.head.success && r.head.harm === r.recorded.head.harm), "the control: the recorded repair answers re-applied as they were reproduce every recorded outcome");
+    assert.equal(fs.readFileSync(f, "utf8"), R.reviseMarkdown({ rows, source, selection: R.selectLandings(source), under, model: rows[0].model, files: [path.join("native", "eval", "raw", n)], sourceFiles: sources.map((x) => path.join("native", "eval", "raw", x)) }));
   }
 });

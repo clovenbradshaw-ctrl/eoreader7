@@ -18,7 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { readRecords, registerBlock } from "./battery.mjs";
-import { reviseBlock, selectLandings } from "./revise.mjs";
+import { reviseBlock } from "./revise.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const NATIVE = path.resolve(HERE, "..", "..");
@@ -62,7 +62,7 @@ export function refresh(doc) {
       const srcNames = fs.readdirSync(RAW).filter((n) => n.startsWith(`reach-battery-${slug}-`) && n.endsWith(".jsonl")).sort();
       if (!srcNames.length) throw new Error(`register: no battery records reach-battery-${slug}-*.jsonl for the repairs`);
       const source = srcNames.flatMap((n) => readRecords(path.join(RAW, n)));
-      return `<!-- live: ${prefix} -->\n${reviseBlock({ rows: records, source, selection: selectLandings(source), model: records[0]?.model ?? "?" }).trimEnd()}\n<!-- /live -->`;
+      return `<!-- live: ${prefix} -->\n${reviseBlock({ rows: records, source, model: records[0]?.model ?? "?" }).trimEnd()}\n<!-- /live -->`;
     }
     return `<!-- live: ${prefix} -->\n${registerBlock({ records, model: records[0]?.model ?? "?" }).trimEnd()}\n<!-- /live -->`;
   });

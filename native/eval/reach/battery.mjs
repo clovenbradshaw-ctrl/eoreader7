@@ -594,6 +594,32 @@ export function resultsMarkdown({ records, model, files = [] }) {
     const kc = k.filter((r) => collateralOf(r)).length;
     L.push(`| ${a} | ${c.length} | ${cc} (${pct(cc, c.length)}) | ${k.length} | ${kc} (${pct(kc, k.length)}) |`);
   }
+  const showFind = (f) => { const t = String(f).replace(/\n/g, "↵").replace(/\|/g, "\\|"); return t.length > 40 ? `${t.slice(0, 37)}…` : t; };
+  const ctl = [...new Set(records.filter((r) => !r.error && r.kind === "control").map((r) => r.task))].map((id) => {
+    const rs = records.filter((r) => !r.error && r.task === id);
+    const fails = rs.filter((r) => !r.success);
+    const finds = new Map();
+    for (const r of fails) for (const e of r.parsed?.edits ?? []) finds.set(showFind(e.find), (finds.get(showFind(e.find)) ?? 0) + 1);
+    const top = [...finds].sort((x, y) => y[1] - x[1])[0];
+    return { id, n: rs.length, fail: fails.length, coll: fails.filter((r) => collateralOf(r)).length, noop: fails.filter((r) => r.noop).length, top };
+  });
+  L.push("", "## Why the uncoupled controls fail (an edit-tool artifact, not care)", "",
+    "A control asks for an edit where nothing depends on it, so every failure here is the writer's edit or the edit tool, not a missed dependent. The tool replaces EVERY occurrence of a `find` in the shown text, and a small writer often answers with the bare word (`s`, `age`). `collateral` counts failed runs in which a line that is neither the region nor a dependent was changed. They are not missed dependents and say nothing about care; they lower the absolute control numbers above, and they move with the wording of the prompt (see the per-task table). E2 re-applies the same recorded edits with whole-identifier matching.", "",
+    "| control task | runs | failed | collateral among failed | no-op among failed | most common `find` among failed |", "|---|---|---|---|---|---|");
+  for (const c of ctl) L.push(`| ${c.id} | ${c.n} | ${c.fail} | ${c.coll} | ${c.noop} | ${c.top ? `\`${c.top[0]}\` × ${c.top[1]}` : "—"} |`);
+  const flagRows = arms.map((a) => {
+    const rs = records.filter((r) => !r.error && r.arm === a && r.kind !== "dynamic" && r.applied?.ok);
+    const f = rs.filter((r) => r.flagged);
+    const u = rs.filter((r) => !r.flagged);
+    return { a, n: rs.length, f: f.length, fh: f.filter((r) => r.harm).length, uh: u.filter((r) => r.harm).length, u: u.length };
+  }).filter((x) => x.f > 0);
+  if (flagRows.length) {
+    L.push("", "## Does a flag carry information about harm? (coupled and uncoupled tasks pooled; arms in which the writer flagged at all)", "",
+      "A flag is the writer setting `risk = may_break_unseen_parts`. If flagging meant the writer knew something about what it had broken, harm would be commoner among flagged runs than among unflagged ones.", "",
+      "`harm that was flagged` is the share of all the arm's harm that carried a flag; `flags that were harm` is the share of flags that marked a run that did harm.", "",
+      "| arm | runs | flagged | harm among flagged | harm among unflagged | harm that was flagged | flags that were harm | p (Fisher) |", "|---|---|---|---|---|---|---|---|");
+    for (const x of flagRows) L.push(`| ${x.a} | ${x.n} | ${x.f} | ${pct(x.fh, x.f)} (${x.fh}/${x.f}) | ${pct(x.uh, x.u)} (${x.uh}/${x.u}) | ${pct(x.fh, x.fh + x.uh)} (${x.fh}/${x.fh + x.uh}) | ${pct(x.fh, x.f)} | ${fisher(x.fh, x.f - x.fh, x.uh, x.u - x.uh).toFixed(3)} |`);
+  }
   L.push("", "## Diagnostics: was the instrument in the way?", "",
     "`rejected` = the response could not be applied at all (invalid JSON, a malformed edit, or a find not in the text shown). A rejection rate that differs by arm would mean the edit tool, not the arm, is doing the work.", "",
     "| arm | runs | rejected | model errors |", "|---|---|---|---|");

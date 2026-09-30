@@ -68,9 +68,10 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { TASKS } from "./tasks.mjs";
 import { checkTask, htmlAvailable, closeBrowser } from "./check.mjs";
+import { applyEditsBoundary } from "./counterfactual.mjs";
 import {
   ask, readRecords, afterOf, partialRenames, nameCounts, surfaceForms, applyEditsToView, scoreOutcome, collateralIn,
-  fnv, mulberry, pairedTasks, wilson, signTest, HOW, OTHER_LINES, fence, REACH_K,
+  fnv, mulberry, pairedTasks, wilson, HOW, OTHER_LINES, fence, REACH_K,
 } from "./battery.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -172,6 +173,15 @@ export function selectLandings(records, { perTask = PER_TASK } = {}) {
 }
 
 // ── one repair ───────────────────────────────────────────────────────────────
+/** What a final text is, scored, and where the head stands under the landing rule: the head moves only to a text that
+ *  passes the same derived check; otherwise it stays at the original. */
+function outcomeOf(task, final, checked) {
+  const s = scoreOutcome({ task, before: task.artifact, after: final, flagged: false, checked });
+  const derivedClean = partialRenames(task.artifact, final).length === 0;
+  const headMoves = derivedClean && final !== task.artifact;
+  const head = headMoves ? { changed: s.changed, success: s.success, harm: s.harm } : { changed: false, success: false, harm: false };
+  return { s, derivedClean, head };
+}
 export async function repairOne(item, condition, { seed, askFn = ask } = {}) {
   const { task, landed, edits, names, source } = item;
   const shown = shownFor(task, item, condition);
@@ -184,11 +194,7 @@ export async function repairOne(item, condition, { seed, askFn = ask } = {}) {
   // A refused or empty repair appends nothing: the landed text stands, and it is the flagged one.
   const final = applied.ok ? applied.text : landed;
   const checked = await checkTask(task, final);
-  const s = scoreOutcome({ task, before: task.artifact, after: final, flagged: false, checked });
-  const derivedClean = partialRenames(task.artifact, final).length === 0;
-  // The landing rule: the head moves only to a text that passes the same derived check; otherwise it stays at the original.
-  const headMoves = derivedClean && final !== task.artifact;
-  const head = headMoves ? { changed: s.changed, success: s.success, harm: s.harm } : { changed: false, success: false, harm: false };
+  const { s, derivedClean, head } = outcomeOf(task, final, checked);
   const reg = landedRegion(task, landed);
   return {
     sourceKey: source.key, sourceArm: source.arm, names, shown: shown.map((l) => l.line), prompt, raw: raw.text, ms: raw.ms, tokens: raw.tokens, parsed,
@@ -234,6 +240,31 @@ export async function runRevise({ file, selected, conditions = CONDITIONS, order
   return { planned: todo.length, alreadyDone: done.size };
 }
 
+/** The recorded repair answers re-applied under another edit semantics (default: the tool as it was), scored by executing the
+ *  result. No model. With the default it must reproduce every recorded outcome — the control; with `applyEditsBoundary` it says
+ *  what the same answers would have done had a `find` matched whole identifiers only. */
+export async function repairUnder(rows, source, apply = applyEditsToView) {
+  const bySource = new Map(source.map((r) => [r.key, r]));
+  const memo = new Map();
+  const out = [];
+  for (const row of rows) {
+    if (row.error) continue;
+    const src = bySource.get(row.sourceKey);
+    const a = src && afterOf(src);
+    if (!a) continue;
+    const { task, text: landed } = a;
+    const table = lineTable(landed);
+    const shown = (row.shown ?? []).map((n) => table[n - 1]);
+    const applied = row.parsed ? apply(landed, repairSegments(task, landed, shown), row.parsed.edits) : { ok: false };
+    const final = applied.ok ? applied.text : landed;
+    const k = `${task.id}\u0000${final}`;
+    if (!memo.has(k)) memo.set(k, checkTask(task, final));
+    const { s, head } = outcomeOf(task, final, await memo.get(k));
+    out.push({ key: row.key, condition: row.condition, task: row.task, recorded: { success: row.success, harm: row.harm, head: row.head }, success: s.success, harm: s.harm, head });
+  }
+  return out;
+}
+
 // ── reading the records ──────────────────────────────────────────────────────
 const asArms = (rows) => rows.filter((r) => !r.error).map((r) => ({ ...r, arm: r.condition }));
 export function summarizeRevise(rows) {
@@ -277,6 +308,27 @@ export function reviseRows(rows) {
 
 const pct = (k, n) => (n ? `${Math.round((100 * k) / n)}%` : "—");
 const ci = (k, n) => { const [lo, hi] = wilson(k, n); return lo === null ? "" : ` [${Math.round(lo * 100)}–${Math.round(hi * 100)}]`; };
+/** How the repairs that did not succeed ended, by what the record shows (no interpretation): the answer could not be applied;
+ *  the writer took its own change back; the rename looks complete to the derived check and something still broke; a partial
+ *  rename remains; anything else. */
+export function failureModes(rows, condition = "derived") {
+  const modes = [
+    ["refused: the `find` is not in the text shown (the writer repeated an edit already on the record, or quoted text it was not shown)", (r) => r.applied?.ok === false],
+    ["withdrew its own change (the file is what it was)", (r) => r.reverted],
+    ["changed the file and the derived check passes it, but something still broke", (r) => r.applied?.ok && !r.reverted && r.derivedClean && r.harm],
+    ["left a partial rename (the derived check still flags it)", (r) => r.applied?.ok && !r.reverted && !r.derivedClean],
+    ["none of the above", () => true],
+  ];
+  const out = modes.map(([label]) => ({ label, n: 0, tasks: new Map() }));
+  for (const r of rows) {
+    if (r.error || r.condition !== condition || r.success) continue;
+    const i = modes.findIndex(([, test]) => test(r));
+    out[i].n += 1;
+    out[i].tasks.set(r.task, (out[i].tasks.get(r.task) ?? 0) + 1);
+  }
+  return out;
+}
+
 /** What the derived check could not see: harmful landings of region-only writers that it did not flag, by task. */
 export function blindSpot(records) {
   const by = new Map();
@@ -330,7 +382,7 @@ export function endToEnd(rows, source) {
   return out;
 }
 
-export function reviseMarkdown({ rows, source, selection, model = "?", files = [], sourceFiles = [] }) {
+export function reviseMarkdown({ rows, source, selection, under = null, model = "?", files = [], sourceFiles = [] }) {
   const S = summarizeRevise(rows);
   const cell = (c, f) => `${pct(S[c][f], S[c].n)}${ci(S[c][f], S[c].n)} (${S[c][f]}/${S[c].n})`;
   const L = ["# The record-and-revise loop — generated by `node native/eval/reach/revise.mjs --summarize`", "",
@@ -353,6 +405,21 @@ export function reviseMarkdown({ rows, source, selection, model = "?", files = [
   L.push(`| as recorded (no loop) | ${n0} | 0% (0/${n0}) | 100% (${n0}/${n0}) | 0% (0/${n0}) |`, `| gate only (refuse, never repair) | ${n0} | 0% (0/${n0}) | 0% (0/${n0}) | 100% (${n0}/${n0}) |`);
   for (const c of CONDITIONS) if (S[c].n) L.push(`| gate + one repair turn: ${c} | ${S[c].n} | ${cell(c, "headSuccess")} | ${cell(c, "headHarm")} | ${cell(c, "headNothing")} |`);
 
+  if (under) {
+    const same = (a, b) => a.success === b.success && a.harm === b.harm && (a.head?.changed ?? false) === (b.head?.changed ?? false) && (a.head?.success ?? false) === (b.head?.success ?? false) && (a.head?.harm ?? false) === (b.head?.harm ?? false);
+    const agree = under.control.filter((r) => same(r, r.recorded)).length;
+    L.push("", "## The same repair answers under whole-identifier matching (no model)", "",
+      "The tool replaces every occurrence of a `find` in the text shown; a repair turn shown a region that already holds `unit_price` and answering `find: \"price\"` produces `unit_unit_price`. Here the recorded repair answers are re-applied with a `find` that matches whole identifiers only, and scored by executing the result. **This estimates what these recorded answers would have done, not what a writer told about the new tool would do.**", "",
+      `**Control.** Re-applying the recorded repair answers with the tool as it was reproduces every recorded outcome (success, harm, where the head stands) in ${agree} of ${under.control.length} runs.`, "",
+      "| condition | runs | success | still harm | head: success | head: harm | head: nothing delivered |", "|---|---|---|---|---|---|---|");
+    for (const c of CONDITIONS) {
+      const rs = under.token.filter((r) => r.condition === c);
+      if (!rs.length) continue;
+      const k = (f) => rs.filter(f).length;
+      const cc = (n) => `${pct(n, rs.length)} (${n}/${rs.length})`;
+      L.push(`| ${c} | ${rs.length} | ${cc(k((r) => r.success))} | ${cc(k((r) => r.harm))} | ${cc(k((r) => r.head.success))} | ${cc(k((r) => r.head.harm))} | ${cc(k((r) => !r.head.changed))} |`);
+    }
+  }
   if (source) {
     const e = endToEnd(rows, source);
     const f = (k) => pct(k, e.n); // percent only: an extrapolated count is not an integer
@@ -375,6 +442,11 @@ export function reviseMarkdown({ rows, source, selection, model = "?", files = [
       if (t.tasks) L.push(`| ${x} vs ${y} | ${f} | ${t.tasks} | ${t.pos} | ${t.neg} | ${t.tie} | ${t.meanDiff >= 0 ? "+" : ""}${t.meanDiff.toFixed(2)} | ${t.p.toFixed(3)} |`);
     }
   }
+  const fm = failureModes(rows, "derived");
+  const nFail = fm.reduce((n, x) => n + x.n, 0);
+  L.push("", "## How the `derived` repairs that did not succeed ended", "", `${nFail} of ${S.derived.n} runs. Read off the record: what happened to the answer, not why the writer gave it.`, "",
+    "| how it ended | runs | tasks |", "|---|---|---|");
+  for (const x of fm) if (x.n) L.push(`| ${x.label} | ${x.n} | ${[...x.tasks].sort().map(([t, n]) => `${t} × ${n}`).join(", ")} |`);
   const ids = [...new Set(A.map((r) => r.task))].sort();
   L.push("", "## Per task — success, k/n repaired runs per condition", "", `| task | ${CONDITIONS.join(" | ")} |`, `|---|${CONDITIONS.map(() => "---").join("|")}|`);
   for (const id of ids) L.push(`| ${id} | ${CONDITIONS.map((c) => { const rs = A.filter((r) => r.task === id && r.condition === c); return rs.length ? `${rs.filter((r) => r.success).length}/${rs.length}` : "—"; }).join(" | ")} |`);
@@ -392,7 +464,7 @@ export function reviseMarkdown({ rows, source, selection, model = "?", files = [
   return `${L.join("\n")}\n`;
 }
 /** The compact block the falsification register quotes. */
-export function reviseBlock({ rows, source, selection, model }) {
+export function reviseBlock({ rows, source, model }) {
   const S = summarizeRevise(rows);
   const cell = (c, f) => `${pct(S[c][f], S[c].n)} (${S[c][f]}/${S[c].n})`;
   const L = [`Model \`${model}\`; ${rows.length} repair runs; ${new Set(rows.map((r) => r.task)).size} tasks; every one of the ${Math.max(...CONDITIONS.map((c) => S[c].n))} landings below did harm as recorded.`, "",
@@ -417,7 +489,6 @@ export function reviseBlock({ rows, source, selection, model }) {
     const b = blindSpot(source);
     L.push("", `Not seen by the check: ${b.harm - b.caught} of ${b.harm} harmful region-only landings were not flagged and never enter the loop.`);
   }
-  void selection;
   return `${L.join("\n")}\n`;
 }
 
@@ -426,7 +497,7 @@ const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv
 if (isMain) {
   const args = process.argv.slice(2);
   const flag = (n, d) => { const i = args.indexOf(`--${n}`); return i >= 0 ? args[i + 1] : d; };
-  const positional = (after) => args.slice(args.indexOf(after) + 1).filter((a) => !a.startsWith("--"));
+  const positional = (after) => { const out = []; for (const a of args.slice(args.indexOf(after) + 1)) { if (a.startsWith("--")) break; out.push(a); } return out; }; // files up to the next flag: a flag's value is not one of them
   const rawDir = path.join(HERE, "..", "raw");
   const modelName = process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL ?? "gemma2:2b";
   if (args.includes("--select")) {
@@ -456,9 +527,11 @@ if (isMain) {
     const selection = source.length ? selectLandings(source) : null;
     const model = rows[0]?.model ?? "?";
     const relFiles = files.map((f) => path.relative(process.cwd(), f));
+    const under = source.length && mode === "--summarize" ? { control: await repairUnder(rows, source), token: await repairUnder(rows, source, applyEditsBoundary) } : null;
     process.stdout.write(mode === "--summarize"
-      ? reviseMarkdown({ rows, source: source.length ? source : null, selection, model, files: relFiles, sourceFiles: srcFiles.map((f) => path.relative(process.cwd(), f)) })
-      : reviseBlock({ rows, source: source.length ? source : null, selection, model }));
+      ? reviseMarkdown({ rows, source: source.length ? source : null, selection, under, model, files: relFiles, sourceFiles: srcFiles.map((f) => path.relative(process.cwd(), f)) })
+      : reviseBlock({ rows, source: source.length ? source : null, model }));
+    await closeBrowser();
   } else {
     console.log("usage: --select <raw>... | --run --from <raw> [--file f] [--conditions a,b] | --summarize <revise raw>... --from <battery raw>[,<raw>] | --register-block <revise raw>... --from <battery raw>");
   }
