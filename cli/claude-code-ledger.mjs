@@ -27,7 +27,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { spawn } from "node:child_process";
-import { sidOf, loadState, saveState, newTurn, engineRunOf, uncovered, exempt, steeringOff, logError } from "./claude-code-state.mjs";
+import { sidOf, loadState, saveState, newTurn, engineRunOf, exempt, logError } from "./claude-code-state.mjs";
 import { surfaceFileFor } from "../native/organs/reasoning-record.js";
 import { askShapeBest } from "../native/organs/askshape.js";
 import { defaultCharter } from "../native/organs/charter.js";
@@ -182,10 +182,6 @@ function main() {
       }
     }
     for (const f of mine) st.changed[f] = { by: tool, at: now };
-    if (tool === "Bash" && !steeringOff()) {
-      const open = uncovered(st, mine);
-      if (open.length) feedback = `eoreader7 steering: this command changed ${open.join(", ")} without reasoning the engine has passed this turn. Before going further, state claims grounded AT each file (its absolute path, or <path>/<scope>) and run node ${path.join(path.dirname(new URL(import.meta.url).pathname), "reason.mjs")} on them. A commit, and the end of this turn, will require it.`;
-    }
   } else if (event === "Stop") {
     role = "stop"; title = `/${sid}/t${st.turn}`;
     text = ev.last_assistant_message ? excerpt(ev.last_assistant_message) : "(turn ended)";
