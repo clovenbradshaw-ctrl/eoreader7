@@ -371,20 +371,20 @@
             "reconstructed": true,
             "organs": [
                 "native/the-fold/surface/podcast-app-council.mjs",
-                "native/adapters/build/harm-properties.mjs",
+                "native/adapters/build/coherence-properties.mjs",
                 "native/adapters/build/podcast-app-ledger.js"
             ],
-            "basis": "a live production record of podcast-app-council.mjs v2 (n-ary isolated writers over named anchors, structural-property harm gate) and the two real corruptions it produced and closed — UI-codegen/app-domain organs, no row in the starting reading registry (assemblies.js); recorded as a typed gap, not forced under the nearest cut"
+            "basis": "a live production record of podcast-app-council.mjs v2 (n-ary isolated writers over named anchors, structural-property coherence gate) and the two real corruptions it produced and closed — UI-codegen/app-domain organs, no row in the starting reading registry (assemblies.js); recorded as a typed gap, not forced under the nearest cut"
         },
-        "harm-gate-ALIGNMENT-NOTES.md": {
+        "coherence-gate-ALIGNMENT-NOTES.md": {
             "assembly": null,
             "gap": "no_registered_boundary",
             "reconstructed": true,
             "organs": [
-                "native/adapters/build/harm-properties.mjs",
+                "native/adapters/build/coherence-properties.mjs",
                 "native/adapters/build/code-anchor-log.js"
             ],
-            "basis": "the alignment analysis of the harm gate (precision hunt, self-defense against tampering, the three-tier answer on whether it can be turned off) — app-domain safety organs, no row in the starting reading registry; recorded as a typed gap"
+            "basis": "the alignment analysis of the coherence gate (precision hunt, self-defense against tampering, the three-tier answer on whether it can be turned off) — app-domain safety organs, no row in the starting reading registry; recorded as a typed gap. Renamed from harm-gate-ALIGNMENT-NOTES.md, entry key updated to match, when the module's own vocabulary was renamed from harm to coherence."
         },
         "podcast-nary-autonomy-falsify-SUMMARY.md": {
             "assembly": null,
