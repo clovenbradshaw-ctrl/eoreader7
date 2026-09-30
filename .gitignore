@@ -189,3 +189,22 @@ heimdall-fleet*.log
 native/eval/identity/results/*.json
 native/eval/identity/results-*.json
 __pycache__/
+
+# tesseract.js's own downloaded OCR model (visual-checkpoint.mjs, ~5 MB) —
+# fetched on first use, same category as every other regenerable runtime
+# artifact above, never committed.
+native/eng.traineddata
+
+# Per-invocation debug snapshots from the podcast-app-codegen pipeline and
+# the coherence-gate falsification driver: the FULL raw model prompt/
+# response for one run, written for a human to inspect after the fact,
+# never read back by any downstream code (checked directly — grep finds
+# only the writer in podcast-app-codegen.mjs and podcast-falsify.test.mjs,
+# no reader anywhere). Not the pipeline's own regenerable OUTPUT the way
+# results/*.md write-ups are (those are findings, deliberately kept
+# tracked per this file's own standing rule above) — this is closer to a
+# log file, and it was producing "suspiciously high line additions" on
+# every unrelated commit that happened to touch the same generator.
+native/the-fold/surface/podcast-app-codegen-evidence.json
+native/the-fold/surface/podcast-app-improve-evidence.json
+native/adapters/build/podcast-falsify-evidence.json

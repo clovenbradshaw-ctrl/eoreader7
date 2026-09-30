@@ -9,5 +9,9 @@
     "test:heimdall": "node --test \"heimdall/*.test.mjs\"",
     "benchmark:heimdall": "node eval/heimdall/benchmark.mjs",
     "check:no-legacy-submodule": "node scripts/check-no-legacy-submodule.mjs"
+  },
+  "dependencies": {
+    "linkedom": "^0.18.13",
+    "tesseract.js": "^7.0.0"
   }
 }

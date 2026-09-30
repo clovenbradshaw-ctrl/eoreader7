@@ -56,6 +56,8 @@ import { declareFrame } from "./frame.js";
 export const SETTING_SCHEMA = "EOTypographicSetting@1";
 export const BENCH_SCHEMA = "TypographyBench@1";
 export const TSCHICHOLD_GIVER = "eoreader7:organs/tschichold.js";
+// Schema versioning starts at 1 by construction, incremented only on a real
+// breaking change to what this organ declares — not a measured quantity.
 export const TSCHICHOLD_VERSION = 1;
 
 // ── CLOSED TYPOGRAPHIC GRAMMAR (tables) ─────────────────────────────────────
