@@ -22,6 +22,7 @@ import fs from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { makeMeasuredLoop } from "../../kernel/measured-loop.js";
 import { readAppLedger, landAppRound, appendAppRound, projectApp } from "../../adapters/build/podcast-app-ledger.js";
+import { extractPlaceholders } from "../../adapters/build/harm-properties.mjs";
 
 const OLLAMA_URL = process.env.ER7_OLLAMA_URL ?? "http://127.0.0.1:11434";
 const MODEL = process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL ?? "gemma2:2b";
@@ -145,10 +146,26 @@ export function checkCode(html) {
   const closes = (html.match(/\}/g) ?? []).length;
   if (opens !== closes) findings.push(`unbalanced braces (${opens} "{" vs ${closes} "}") — likely truncated or malformed script`);
 
+  // FOUND LIVE, FIXED HERE (2026-09-30, second occurrence): the first cut
+  // of this check flagged ${escapeHtml(episode.title)} exactly the same
+  // as raw ${episode.title} — it pattern-matched the SPAN's text for the
+  // property name, never checking what actually mediates it. This is the
+  // referents-vs-spans mistake this whole session's own design correction
+  // already named for code anchors, showing up again one register down:
+  // a property access is not unsafe or safe by its own text, it is safe
+  // or unsafe depending on whether it is REACHED THROUGH the escapeHtml
+  // referent. Each interpolation is now extracted and judged on its own
+  // (extractPlaceholders, reused from harm-properties.mjs rather than a
+  // second nested-brace walker) — .ethos is exempt because every real
+  // prompt and every real generated round uses it only in a strict `===`
+  // comparison to choose a hardcoded color, never as raw inserted text;
+  // .title/.pubDate must be wrapped in a call whose own name resolves to
+  // escapeHtml specifically, not merely "some function or other".
   const injected = templateLiteralAssignments(html, "innerHTML")
-    .filter((block) => /\$\{[^}]*\.(title|pubDate|ethos)\b[^}]*\}/.test(block));
+    .flatMap((block) => extractPlaceholders(block))
+    .filter((expr) => /\.(title|pubDate)\b/.test(expr) && !/escapeHtml\s*\(\s*[\w.]*\.(title|pubDate)\b/.test(expr));
   if (injected.length) {
-    findings.push(`episode data (.title/.pubDate/.ethos) is interpolated directly into an innerHTML template literal — a title containing a quote or HTML tag can break the markup or inject a script (this exact bug broke a real NPR episode title this session); use document.createElement(...) + element.textContent = ... to build each episode's markup instead of building it with innerHTML`);
+    findings.push(`episode data (.title/.pubDate) is interpolated into an innerHTML template literal without being wrapped in escapeHtml(...) first — a title containing a quote or HTML tag can break the markup or inject a script (this exact bug broke a real NPR episode title this session); found: ${injected.slice(0, 3).join(", ")}`);
   }
   const stranded = templateLiteralAssignments(html, "textContent")
     .filter((block) => /<(h[1-6]|div|span|p|a|audio|img|button|li|ul)[\s>]/i.test(block));

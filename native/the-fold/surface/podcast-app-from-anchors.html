@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Podcast List</title>
+  <style>
+body {
+  margin: 0;
+  overflow-x: hidden;
+  box-sizing: border-box;
+
+  background-color: #121212;
+  color: #ffffff;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+h1 {
+  font-weight: bold;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+input[type="text"] {
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  background-color: #1DB954;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.episode {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.episode h3 {
+  flex: 1;
+  min-width: 0;
+  max-width: 150px;
+  text-align: left;
+  margin-bottom: 10px;
+}
+
+.episode p {
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.ethos-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+}
+
+.episode audio {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Podcast List</h1>
+    <input type="text" placeholder="Enter feed URL" />
+    <button onclick="subscribe()">Subscribe</button>
+  </div>
+  <div id="episodes"></div>
+  <script>
+function escapeHtml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function renderEpisodes(episodes) {
+  const episodesContainer = document.getElementById("episodes");
+  episodesContainer.innerHTML = ""; // Clear the container
+
+  episodes.forEach(episode => {
+    const episodeDiv = document.createElement("div");
+    episodeDiv.className = "episode";
+    episodeDiv.innerHTML = `<h3>${escapeHtml(episode.title)}</h3><p>Published: ${escapeHtml(episode.pubDate)}</p><span class="ethos-badge" style="background-color: ${episode.ethos === "pass" ? "green" : episode.ethos === "conflict" ? "red" : "gray"}"></span><audio controls src="${episode.audioUrl}"></audio>`;
+    episodesContainer.appendChild(episodeDiv);
+  });
+  return episodesContainer;
+}
+
+function subscribe() {
+  const urlInput = document.querySelector('input[type="text"]');
+  const url = urlInput.value;
+  
+  fetch(`/api/subscribe?url=${encodeURIComponent(url)}`)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Network response was not ok: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.show) {
+        renderEpisodes(data.episodes);
+      }
+    })
+    .catch(error => {
+      const errorMessage = `Error subscribing to podcast: ${error.message}`;
+      document.getElementById('episodes').textContent = errorMessage;
+    });
+}
+  </script>
+</body>
+</html>
