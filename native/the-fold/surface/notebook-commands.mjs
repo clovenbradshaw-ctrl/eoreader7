@@ -17,6 +17,7 @@ export const COMMANDS = Object.freeze([
   ["/skill <method|all> on|off [because <why>]", "turn a learned method on or off — recorded as your decision; off needs a reason; a method that is off is never used"],
   ["/audit", "how every claim here was produced: which method, who wrote it, what admitted it, who switched it, and whether every chain still verifies"],
   ["/forget <id> because <why>", "concede a learned method (kept on the record, no longer chosen)"],
+  ["/dataset [words]", "the whole workspace's dataset — files AND everything generated in any conversation, each labelled; search it. Generated items are context, never evidence."],
   ["/data", "list what has been ingested, with each reader's gaps"],
   ["/tools", "list the python packages and er7 helpers a cell can use"],
   ["/promote <claim> <status> [evidence]", "move a claim up (conjectured, computed_in_range, proved) — by you, never a model"],
@@ -46,6 +47,7 @@ export function parseCommand(line) {
     case "audit": return { op: "audit" };
     case "skill": { const m = rest.match(/^(.+?)\s+(on|off)(?:\s+because\s+(.+))?$/is); return m ? { op: "skill", which: m[1].trim(), on: m[2].toLowerCase() === "on", why: m[3]?.trim() ?? null } : { error: "/skill <method name or id, or all> on|off [because <why>]" }; }
     case "forget": { const m = rest.match(/^(\S+)\s+because\s+(.+)$/s); return m ? { op: "forget", id: m[1], because: m[2] } : { error: "/forget <method id> because <why>" }; }
+    case "dataset": return { op: "dataset", query: rest.trim() };
     case "data": return { op: "data" };
     case "tools": case "pip": return { op: "tools" };
     case "promote": { const [card, to, ...ev] = rest.split(/\s+/); return card && to ? { op: "promote", card, to, evidence: ev.join(" ") || null } : { error: "/promote <claim id> <conjectured|computed_in_range|proved> [evidence]" }; }

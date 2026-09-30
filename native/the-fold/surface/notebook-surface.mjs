@@ -26,17 +26,10 @@ import { phrase, statusOf, promote, support, STATUSES } from "./bench.mjs";
 import { resolveHandles, labelOf } from "./handles.mjs";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const file = (dir) => path.join(dir, "notebook.json");
-
-export function load(dir) {
-  if (!fs.existsSync(file(dir))) return emptyNotebook();
-  const j = JSON.parse(fs.readFileSync(file(dir), "utf8"));
-  const st = { nb: { schema: NOTEBOOK_SCHEMA, entries: j.nb }, bench: { schema: "EOBench@1", entries: j.bench }, files: j.files ?? {} };
-  const v = verify(st);
-  if (!v.notebook.ok || !v.bench.ok) throw new Error(`the ledger does not verify: ${JSON.stringify(v)}`);
-  return st;
-}
-export function save(dir, st) { fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(file(dir) + ".tmp", JSON.stringify({ nb: st.nb.entries, bench: st.bench.entries, files: st.files })); fs.renameSync(file(dir) + ".tmp", file(dir)); }
+import { load, save } from "./notebook-store.mjs";
+import { openWorkspace } from "./notebook-workspace.mjs";
+import { datasetOf, search as dsSearch, label as dsLabel, summary as dsSummary } from "./notebook-dataset.mjs";
+export { load, save };
 
 let toolsCache;
 async function toolsText(st) { if (toolsCache) return toolsCache; const r = runPython("tools()", {}, { timeoutMs: 20000 }); return (toolsCache = r.output); }
@@ -111,7 +104,9 @@ async function askTurn(st, by, text, ctx = {}, b_force = false) {
   let s = st; const put = (o) => { let id = o.id; while (cellOf(s.nb, id)) id += "x"; const r = addCell(s, { ...o, id, author: P }); if (r.error) throw new Error(r.error); s = r.state; return id; };
   const run = (id) => { const r = runCell(s, id); if (r.error) throw new Error(r.error); s = r.state; return r.exec; };
   const n0 = s.nb.entries.filter((e) => e.kind === "cell" && e.type === "markdown").length + 1;
-  put({ id: `ask${n0}`, type: "markdown", source: `**Asked:** ${text}\n\n**Method${skills.length > 1 ? "s" : ""}:** ${skills.map((k) => `${k.name} (${k.id}${k.conceded ? ", conceded" : ""}; learned from ${k.lineage?.mouth ?? "?"}, used ${k.uses}×)`).join("; ")} on ${p.columns.join(", ")} of ${p.file}. Chosen by: ${via}.${p.matched.length ? ` Matched on: ${p.matched.join(", ")}.` : ""}${offNote}${swarmNote ? `\n\n${swarmNote}` : ""}${p.unmatched.length ? `\n\n**Not understood (matched nothing):** ${p.unmatched.join(", ")}` : ""}\n\nEvery claim below is proposed by the planner and only as wide as its check; each has a control that fails. None of the methods is built in — see /skills.` });
+  const prior = ctx.ws ? dsSearch(datasetOf(ctx.ws), text, { k: 3, excludeConv: ctx.cid, kind: "generated" }) : [];
+  const priorNote = prior.length ? `\n\n**Earlier in this workspace (generated — context, NOT evidence):** ${prior.map((i) => `${dsLabel(i)} ${String(i.text).replace(/\s+/g, " ").slice(0, 110)}`).join(" | ")}` : "";
+  put({ id: `ask${n0}`, type: "markdown", source: `**Asked:** ${text}\n\n**Method${skills.length > 1 ? "s" : ""}:** ${skills.map((k) => `${k.name} (${k.id}${k.conceded ? ", conceded" : ""}; learned from ${k.lineage?.mouth ?? "?"}, used ${k.uses}×)`).join("; ")} on ${p.columns.join(", ")} of ${p.file}. Chosen by: ${via}.${p.matched.length ? ` Matched on: ${p.matched.join(", ")}.` : ""}${offNote}${priorNote}${swarmNote ? `\n\n${swarmNote}` : ""}${p.unmatched.length ? `\n\n**Not understood (matched nothing):** ${p.unmatched.join(", ")}` : ""}\n\nEvery claim below is proposed by the planner and only as wide as its check; each has a control that fails. None of the methods is built in — see /skills.` });
   const findings = [], claims = [], quality = new Map();
   for (const col of p.columns) for (const k of skills) {
     const tag = `${col}-${k.id.slice(0, 6)}`, m = { id: k.id, name: k.name, codeSha: k.codeSha }, cid = put({ id: `k-${tag}`, type: "claim", source: L.fill(k.claim, p.file, col), method: m });
@@ -155,6 +150,7 @@ export async function act(st, by, b, ctx = {}) {
     if (hit.length !== 1) return { error: hit.length ? `"${b.which}" matches ${hit.length} methods — use an id: ${hit.map((k) => k.id).join(", ")}` : `no learned method matches "${b.which}" — /skills lists them` };
     const r = L.switchAnalysis(dir, hit[0].id, b.on, by, b.why); return r.error ? r : { state: st, notice: `${hit[0].name} (${hit[0].id}) is now ${b.on ? "ON" : "OFF"} — ${by}${b.why ? `: ${b.why}` : ""}. Recorded in the skill-toggles ledger.` };
   }
+  if (b.op === "dataset") { if (!ctx.ws) return { error: "no workspace here" }; const items = datasetOf(ctx.ws), sm = dsSummary(items), hits = b.query ? dsSearch(items, b.query, { k: 10 }) : items.slice(-12).reverse(); return { notice: `workspace dataset: ${sm.source} source(s), ${sm.generated} generated item(s) (${Object.entries(sm.by).map(([k, v]) => `${v} ${k}`).join(", ")}) across ${ctx.ws.list(true).length} conversation(s)\nGenerated items are context about what was done — never evidence for themselves.\n\n${b.query ? `matching "${b.query}":` : "most recent:"}\n${hits.map((i) => `${dsLabel(i)}\n   ${String(i.text).replace(/\s+/g, " ").slice(0, 200)}`).join("\n") || "(nothing matches)"}` }; }
   if (b.op === "audit") return { notice: auditText(audit(st, ctx.dir ?? learnedDir())) };
   if (b.op === "forget") return L.concede(ctx.dir ?? learnedDir(), b.id, b.because) ? { notice: `conceded ${b.id} — kept on the record, no longer chosen` } : { error: `no learned method ${b.id}` };
   if (b.op === "run") return runCell(st, b.cell);
@@ -191,19 +187,32 @@ export async function act(st, by, b, ctx = {}) {
 }
 
 
-/** notebookHandler({ dir, by, learned, base, skillsBase, swarm, mouth }) -> async (req, res, pathname) => handled? — the notebook as a mountable route set. */
+/** notebookHandler({ dir, by, learned, base, skillsBase, swarm, mouth }) -> async (req, res, pathname, url) => handled?
+ *  The notebook as a mountable route set, over a WORKSPACE of conversations (notebook-workspace.mjs): each its own ledger, each flagged
+ *  chat / generate / notebook, forkable. `?c=<id>` (GET) or `c` in the body (POST) picks the conversation; the first open one otherwise. */
 export function notebookHandler({ dir, by, learned = learnedDir(), base = "", skillsBase = null, swarm, mouth }) {
-  let st = load(dir);
+  const ws = openWorkspace(dir); if (!ws.list(true).length) ws.create({ type: "notebook", by });
   const ctx = { dir: learned, ...(swarm !== undefined ? { swarm } : {}), ...(mouth !== undefined ? { mouth } : {}) };
+  const pick = (id) => { const open = ws.list(); return open.find((c) => c.id === id) ?? open[0] ?? (ws.create({ type: "notebook", by }), ws.list()[0]); };
+  const WS_OPS = { "ws-new": (b, c) => { const r = ws.create({ type: b.type, title: b.title, by }); return r.error ? r : { goto: r.id }; }, "ws-fork": (b, c) => { const r = ws.fork(c.id, { at: b.at ?? "end", title: b.title, by }); return r.error ? r : { goto: r.id, notice: `forked at ${b.at ?? "the end"}: ${r.entries} entries carried (same seals); ${r.notCarried ? `${r.notCarried} promotion(s) stayed with the parent — decisions do not travel` : "no promotions to leave behind"}` }; },
+    "ws-retype": (b, c) => { const r = ws.retype(c.id, b.type, by); return r.error ? r : { notice: null }; }, "ws-rename": (b, c) => { const r = ws.rename(c.id, b.title, by); return r.error ? r : {}; },
+    "ws-close": (b, c) => { const r = ws.close(c.id, by); if (r.error) return r; return { goto: (ws.list()[0] ?? pick()).id }; } };
   return async (req, res, p, url) => {
     if (req.method === "POST" && p === "/api") {
       let body = ""; for await (const c of req) body += c;
-      let r; try { r = await act(st, by, JSON.parse(body), ctx); } catch (e) { r = { error: String(e.message) }; }
-      if (r.state) { st = r.state; save(dir, st); }
-      res.setHeader("content-type", "application/json"); res.end(JSON.stringify({ error: r.error ?? null, notice: r.notice ?? null, selected: r.selected ?? null })); return true;
+      let b = {}, r; try { b = JSON.parse(body); const c = pick(b.c);
+        if (WS_OPS[b.op]) r = WS_OPS[b.op](b, c); else { const st = ws.state(c.id); r = await act(st, by, b, { ...ctx, ws, cid: c.id }); if (r.state) ws.save(c.id, r.state); }
+      } catch (e) { r = { error: String(e.message) }; }
+      res.setHeader("content-type", "application/json"); res.end(JSON.stringify({ error: r.error ?? null, notice: r.notice ?? null, selected: r.selected ?? null, goto: r.goto ?? null })); return true;
     }
-    if (p === "/ipynb") { res.setHeader("content-type", "application/json"); res.end(JSON.stringify(toIpynb(st), null, 1)); return true; }
-    if (p === "/") { const q = url.searchParams; res.setHeader("content-type", "text/html"); res.end(renderPage(st, { live: true, by, sel: q.get("sel") || null, style: q.get("style") || "notebook", dir: learned, drawer: q.get("drawer") === "1", tab: q.get("tab") || "skills", base, skillsBase })); return true; }
+    if (p === "/ipynb") { const c = pick(url.searchParams.get("c")); res.setHeader("content-type", "application/json"); res.end(JSON.stringify(toIpynb(ws.state(c.id)), null, 1)); return true; }
+    if (p === "/") {
+      const q = url.searchParams, c = pick(q.get("c")), st = ws.state(c.id), par = c.parent ? ws.get(c.parent) : null;
+      const lineage = par ? `forked from “${esc(par.title)}” (${esc(par.id)}) after ${esc(c.forkedAt)} — the first ${st.nb.entries.length ? "entries" : "entries"} are the parent's own, with the same seals; ${c.notCarried ? `${c.notCarried} promotion(s) were not carried` : "no promotions were left behind"}` : null;
+      res.setHeader("content-type", "text/html");
+      res.end(renderPage(st, { live: true, by, sel: q.get("sel") || null, style: q.get("style") || c.type, dir: learned, drawer: q.get("drawer") === "1", tab: q.get("tab") || "skills", base, skillsBase, tabs: ws.list(), current: c.id, lineage }));
+      return true;
+    }
     return false;
   };
 }
