@@ -59,6 +59,11 @@ const EXTRACT_EXPR = `(() => {
       backgroundColor: parseRgb(cs.backgroundColor === "rgba(0, 0, 0, 0)" ? getComputedStyle(document.body).backgroundColor : cs.backgroundColor),
       areaPx: rect.width * rect.height,
       rect: { top: rect.top, bottom: rect.bottom, left: rect.left, right: rect.right },
+      // The element's own text — element-referents.js's disambiguator: two
+      // rows sharing one selector (".episode h3") are told apart by their
+      // real text (an episode title is stable across repair rounds, since
+      // the underlying feed data does not change), never by scan order.
+      text: (el.textContent || "").trim().slice(0, 200),
     });
   }
   return JSON.stringify(els);

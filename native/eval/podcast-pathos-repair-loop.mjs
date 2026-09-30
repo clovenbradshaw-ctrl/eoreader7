@@ -29,6 +29,7 @@
 import fs from "node:fs";
 import fsp from "node:fs/promises";
 import { extractElements } from "./podcast-cdp-lib.mjs";
+import { establishElementReferents, bridgeElementReferents } from "../organs/element-referents.js";
 import { visualPathosOf } from "../organs/visual-pathos.js";
 import { contrastRatio, wcagFloorFor } from "../organs/contrast.js";
 import { proposeAnchor, foldCode, readAnchorLog, appendAnchorLog, settledContent } from "../adapters/build/code-anchor-log.js";
@@ -330,14 +331,38 @@ async function readReport(elements) {
   });
 }
 
+function bridgeSummary(bridge) {
+  const named = (list, label) => list.length
+    ? `${label} ${list.length} (${list.slice(0, 4).map((x) => (x.ref ?? x.after?.ref ?? x.before?.ref)).join(", ")}${list.length > 4 ? ", ..." : ""})`
+    : `${label} 0`;
+  return `${named(bridge.persisted, "persisted")}; ${named(bridge.changed, "changed")}; ${named(bridge.appeared, "appeared")}; ${named(bridge.vanished, "vanished")}`;
+}
+
 async function main() {
   console.log(`# pathos repair loop — budget ${MAX_ROUNDS.value} rounds (${MAX_ROUNDS.basis})\n`);
+
+  // The auto-generated artifact's elements are connected to REFERENTS here
+  // (organs/element-referents.js) so the rest of this loop, and anything
+  // reading its record, can address "episode 1's title" or "the subscribe
+  // button" as a THING that persists (or changes, or vanishes) across
+  // rounds — never a scan-order id or a shared CSS rule name, neither of
+  // which survives a repair. `priorReferents` carries the LAST round's
+  // referents forward so a fresh round's own extraction can be bridged
+  // against what came before it, not just against itself mid-round.
+  let priorReferents = null;
 
   for (let round = 1; round <= MAX_ROUNDS.value; round += 1) {
     console.log(`## round ${round}`);
     const elements = await extractElements({ appUrl: APP_URL, cdpUrl: CDP_URL, feedUrl: FEED_URL });
     const before = await readReport(elements);
     console.log(`  read: condition=${before.condition.kind}, contrast fails=${before.contrast.filter((c) => !c.clears).length}, strain=${before.read.strain}`);
+    const beforeReferents = establishElementReferents(elements);
+    if (priorReferents) {
+      const acrossRounds = bridgeElementReferents(priorReferents, beforeReferents);
+      console.log(`  referents (vs. prior round's after-state): ${bridgeSummary(acrossRounds)}`);
+    } else {
+      console.log(`  referents established this round: ${beforeReferents.length} (${beforeReferents.map((r) => r.kind).join(", ")})`);
+    }
 
     let log = readAnchorLog(LEDGER_FILE);
     const fromStart = log.nextSeq;
@@ -351,7 +376,8 @@ async function main() {
     if (!repairable.length) {
       const done = before.condition.kind === "ground_holds" && before.contrast.every((c) => c.clears);
       console.log(done ? "  DONE — condition is ground_holds and every contrast finding clears." : "  no repairable task this round.");
-      appendRecord({ round, before: { condition: before.condition, contrastFails: before.contrast.filter((c) => !c.clears).map((c) => c.id) }, tasks, applied: [], stoppedBecause: done ? "ground_holds" : "no_repairable_task" });
+      priorReferents = beforeReferents;
+      appendRecord({ round, before: { condition: before.condition, contrastFails: before.contrast.filter((c) => !c.clears).map((c) => c.id) }, tasks, applied: [], stoppedBecause: done ? "ground_holds" : "no_repairable_task", referents: { establishedThisRound: beforeReferents.map((r) => ({ ref: r.ref, kind: r.kind, keyedBy: r.keyedBy })) } });
       break;
     }
 
@@ -416,7 +442,11 @@ async function main() {
 
     const elementsAfter = await extractElements({ appUrl: APP_URL, cdpUrl: CDP_URL, feedUrl: FEED_URL });
     const after = await readReport(elementsAfter);
-    console.log(`  after: condition=${after.condition.kind}, contrast fails=${after.contrast.filter((c) => !c.clears).length}, strain=${after.read.strain}\n`);
+    console.log(`  after: condition=${after.condition.kind}, contrast fails=${after.contrast.filter((c) => !c.clears).length}, strain=${after.read.strain}`);
+    const afterReferents = establishElementReferents(elementsAfter);
+    const withinRoundBridge = bridgeElementReferents(beforeReferents, afterReferents);
+    console.log(`  referents (this round's own repair): ${bridgeSummary(withinRoundBridge)}\n`);
+    priorReferents = afterReferents;
 
     appendRecord({
       round,
@@ -424,6 +454,15 @@ async function main() {
       tasks,
       applied: applied.map(({ task, ok, detail, writer }) => ({ task, ok, detail, writer })),
       after: { condition: after.condition, contrastFails: after.contrast.filter((c) => !c.clears).map((c) => c.id), strain: after.read.strain },
+      referents: {
+        establishedThisRound: afterReferents.map((r) => ({ ref: r.ref, kind: r.kind, keyedBy: r.keyedBy })),
+        withinRoundBridge: {
+          persisted: withinRoundBridge.persisted.map((x) => x.before.ref),
+          changed: withinRoundBridge.changed.map((x) => ({ ref: x.before.ref, confidence: x.confidence })),
+          appeared: withinRoundBridge.appeared.map((r) => r.ref),
+          vanished: withinRoundBridge.vanished.map((r) => r.ref),
+        },
+      },
     });
 
     if (after.condition.kind === "ground_holds" && after.contrast.every((c) => c.clears)) {
