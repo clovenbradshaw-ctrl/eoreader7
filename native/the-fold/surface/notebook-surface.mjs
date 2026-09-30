@@ -30,6 +30,23 @@ import { load, save } from "./notebook-store.mjs";
 import { openWorkspace } from "./notebook-workspace.mjs";
 import { datasetOf, search as dsSearch, label as dsLabel, summary as dsSummary } from "./notebook-dataset.mjs";
 export { load, save };
+import { bundle } from "./notebook-bundle.mjs";
+import { methodsText, methodsOf } from "./notebook-methods.mjs";
+import { envOf } from "./notebook-run.mjs";
+import { readLog as readAnalyses } from "../../organs/analysis-store.js";
+
+/** stateJson — everything a page needs to DRAW one conversation, as raw sealed entries (so the page re-verifies them itself)
+ *  plus the facts only the server can compute (the learned library, the audit, the workspace dataset, the environment). */
+export function stateJson({ ws, c, st, by, learned }) {
+  const lineage = []; for (let p = c; p?.parent; ) { const par = ws.get(p.parent); if (!par) break; lineage.push({ id: par.id, title: par.title, at: p.forkedAt, cutHash: p.forkHash, notCarried: p.notCarried }); p = par; }
+  const lib = L.library(learned), items = datasetOf(ws);
+  return { schema: "EONotebookState@1", by, server: { env: envOf(), model: Boolean(process.env.ER7_OLLAMA_URL && process.env.ER7_NB_MODEL) ? process.env.ER7_NB_MODEL : null },
+    conv: c, tabs: ws.list(), lineage,
+    ledgers: { nb: st.nb.entries, bench: st.bench.entries, workspace: ws.entries(), analyses: readAnalyses(learned) },
+    library: lib.map((k) => ({ id: k.id, name: k.name, desc: k.desc, claim: k.claim, check: k.check, control: k.control, uses: k.uses, conceded: k.conceded, effectiveOn: k.effectiveOn, switch: k.switch, flags: k.flags, lineage: k.lineage, evidence: k.evidence, learnedAt: k.learnedAt, codeSha: k.codeSha, history: L.history(learned, k.id) })),
+    audit: audit(st, learned), methods: { text: methodsText(st, lib), rows: methodsOf(st, lib) },
+    dataset: { summary: dsSummary(items), items: items.slice(-400).map((i) => ({ ...i, label: dsLabel(i), text: String(i.text).slice(0, 400) })) } };
+}
 
 let toolsCache;
 async function toolsText(st) { if (toolsCache) return toolsCache; const r = runPython("tools()", {}, { timeoutMs: 20000 }); return (toolsCache = r.output); }
@@ -152,6 +169,7 @@ export async function act(st, by, b, ctx = {}) {
   }
   if (b.op === "dataset") { if (!ctx.ws) return { error: "no workspace here" }; const items = datasetOf(ctx.ws), sm = dsSummary(items), hits = b.query ? dsSearch(items, b.query, { k: 10 }) : items.slice(-12).reverse(); return { notice: `workspace dataset: ${sm.source} source(s), ${sm.generated} generated item(s) (${Object.entries(sm.by).map(([k, v]) => `${v} ${k}`).join(", ")}) across ${ctx.ws.list(true).length} conversation(s)\nGenerated items are context about what was done — never evidence for themselves.\n\n${b.query ? `matching "${b.query}":` : "most recent:"}\n${hits.map((i) => `${dsLabel(i)}\n   ${String(i.text).replace(/\s+/g, " ").slice(0, 200)}`).join("\n") || "(nothing matches)"}` }; }
   if (b.op === "audit") return { notice: auditText(audit(st, ctx.dir ?? learnedDir())) };
+  if (b.op === "methods") return { notice: methodsText(st, L.library(ctx.dir ?? learnedDir())) };
   if (b.op === "forget") return L.concede(ctx.dir ?? learnedDir(), b.id, b.because) ? { notice: `conceded ${b.id} — kept on the record, no longer chosen` } : { error: `no learned method ${b.id}` };
   if (b.op === "run") return runCell(st, b.cell);
   if (b.op === "runmany") {
@@ -205,6 +223,8 @@ export function notebookHandler({ dir, by, learned = learnedDir(), base = "", sk
       } catch (e) { r = { error: String(e.message) }; }
       res.setHeader("content-type", "application/json"); res.end(JSON.stringify({ error: r.error ?? null, notice: r.notice ?? null, selected: r.selected ?? null, goto: r.goto ?? null })); return true;
     }
+    if (p === "/state") { const c = pick(url.searchParams.get("c")); res.setHeader("content-type", "application/json"); res.end(JSON.stringify(stateJson({ ws, c, st: ws.state(c.id), by, learned }))); return true; }
+    if (p === "/bundle") { const c = pick(url.searchParams.get("c")); const b = bundle(ws.state(c.id), { title: c.title }); res.setHeader("content-type", "application/zip"); res.setHeader("content-disposition", `attachment; filename="${c.id}-bundle.zip"`); res.end(b.zip); return true; }
     if (p === "/ipynb") { const c = pick(url.searchParams.get("c")); res.setHeader("content-type", "application/json"); res.end(JSON.stringify(toIpynb(ws.state(c.id)), null, 1)); return true; }
     if (p === "/") {
       const q = url.searchParams, c = pick(q.get("c")), st = ws.state(c.id), par = c.parent ? ws.get(c.parent) : null;
