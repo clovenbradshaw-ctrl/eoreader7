@@ -651,6 +651,26 @@ export function registerBlock({ records, model }) {
   }
   return `${L.join("\n")}\n`;
 }
+/** The same battery on several models, side by side. `groups` = [{ model, records }]. Cells are the share of runs
+ *  (k/n); an arm a model was not run on is "—" (Qwen and Llama were run on fewer arms and fewer repetitions than the first
+ *  model, because they are robustness runs). */
+export function modelsBlock(groups) {
+  const S = groups.map((g) => summarize(g.records));
+  const arms = ARMS.filter((a) => S.some((s) => Object.keys(s).some((k) => k.startsWith(`${a}|`))));
+  const cell = (s, a, kind, f) => { const c = s[`${a}|${kind}`]; return c ? `${pct(c[f], c.n)} (${c[f]}/${c.n})` : "—"; };
+  const head = (title) => [`| arm | ${groups.map((g) => `\`${g.model}\``).join(" | ")} |`, `|---|${groups.map(() => "---").join("|")}|`];
+  const L = ["**Coupled tasks: success** (the requested change is present and everything that worked still works)", "", ...head()];
+  for (const a of arms) L.push(`| ${a} | ${S.map((s) => cell(s, a, "coupled", "success")).join(" | ")} |`);
+  L.push("", "**Coupled tasks: harm** (the artifact was changed and something that worked no longer does)", "", ...head());
+  for (const a of arms) L.push(`| ${a} | ${S.map((s) => cell(s, a, "coupled", "harm")).join(" | ")} |`);
+  L.push("", "**Uncoupled controls: success**", "", ...head());
+  for (const a of arms) L.push(`| ${a} | ${S.map((s) => cell(s, a, "control", "success")).join(" | ")} |`);
+  const P = groups.map((g) => Object.fromEntries(predictionRows(g.records).map((r) => [r.id, r.verdict])));
+  const ids = [...new Set(P.flatMap((p) => Object.keys(p)))];
+  L.push("", "**The pre-registered predictions, by model**", "", `| | ${groups.map((g) => `\`${g.model}\``).join(" | ")} |`, `|---|${groups.map(() => "---").join("|")}|`);
+  for (const id of ids) L.push(`| ${id} | ${P.map((p) => p[id] ?? "—").join(" | ")} |`);
+  return `${L.join("\n")}\n`;
+}
 // ── the ceiling: an ideal writer of what it is shown ─────────────────────────
 /** The fenced text of a prompt — exactly what the writer was shown of the artifact. */
 export const shownText = (prompt) => [...prompt.matchAll(/```\n([\s\S]*?)\n```/g)].map((m) => m[1]).join("\n");

@@ -9,6 +9,8 @@
 //   <!-- quote: FILE -->  … <!-- /quote -->   the first table of eval/results/FILE
 //   <!-- quote: FILE :: HEADING --> …           the first table after the heading line containing HEADING
 //   <!-- live: PREFIX --> … <!-- /live -->    registerBlock() over eval/raw/PREFIX*.jsonl
+//   <!-- models: PREFIX --> … <!-- /models -->   modelsBlock() over every model's eval/raw/PREFIX<slug>-*.jsonl, side by side
+//   <!-- builds: PREFIX --> … <!-- /builds -->   the problematic-builds battery's registerBlock() over eval/raw/PREFIX*.jsonl
 //   <!-- sample: PREFIX :: KEY --> … <!-- /sample -->   one raw run, verbatim: the writer's answer and how it scored
 //
 //   node native/eval/reach/register.mjs --refresh   rewrite the blocks in place
@@ -17,8 +19,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { readRecords, registerBlock } from "./battery.mjs";
+import { readRecords, registerBlock, modelsBlock } from "./battery.mjs";
 import { reviseBlock } from "./revise.mjs";
+import { readRecords as readBuildRecords, registerBlock as buildsBlock } from "../builds/battery.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const NATIVE = path.resolve(HERE, "..", "..");
@@ -65,6 +68,20 @@ export function refresh(doc) {
       return `<!-- live: ${prefix} -->\n${reviseBlock({ rows: records, source, model: records[0]?.model ?? "?" }).trimEnd()}\n<!-- /live -->`;
     }
     return `<!-- live: ${prefix} -->\n${registerBlock({ records, model: records[0]?.model ?? "?" }).trimEnd()}\n<!-- /live -->`;
+  });
+  out = out.replace(/<!-- models: (\S+) -->\n[\s\S]*?<!-- \/models -->/g, (_m, prefix) => {
+    const names = fs.existsSync(RAW) ? fs.readdirSync(RAW).filter((n) => n.startsWith(prefix) && n.endsWith(".jsonl")).sort() : [];
+    if (!names.length) throw new Error(`register: no raw records start with ${prefix}`);
+    const bySlug = new Map();
+    for (const n of names) { const slug = n.slice(prefix.length).replace(/-\d{8}[^/]*\.jsonl$/, ""); bySlug.set(slug, [...(bySlug.get(slug) ?? []), n]); }
+    const groups = [...bySlug.values()].map((ns) => { const records = ns.flatMap((n) => readRecords(path.join(RAW, n))); return { model: records[0]?.model ?? "?", records }; });
+    return `<!-- models: ${prefix} -->\n${modelsBlock(groups).trimEnd()}\n<!-- /models -->`;
+  });
+  out = out.replace(/<!-- builds: (\S+) -->\n[\s\S]*?<!-- \/builds -->/g, (_m, prefix) => {
+    const names = fs.existsSync(RAW) ? fs.readdirSync(RAW).filter((n) => n.startsWith(prefix) && n.endsWith(".jsonl")).sort() : [];
+    if (!names.length) throw new Error(`register: no raw records start with ${prefix}`);
+    const records = names.flatMap((n) => readBuildRecords(path.join(RAW, n)));
+    return `<!-- builds: ${prefix} -->\n${buildsBlock({ records, model: records[0]?.model ?? "?" }).trimEnd()}\n<!-- /builds -->`;
   });
   out = out.replace(/<!-- sample: (\S+) :: (\S+) -->\n[\s\S]*?<!-- \/sample -->/g, (_m, prefix, key) => {
     const names = fs.existsSync(RAW) ? fs.readdirSync(RAW).filter((n) => n.startsWith(prefix) && n.endsWith(".jsonl")).sort() : [];
