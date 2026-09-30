@@ -118,12 +118,27 @@ export function unusedParams(code, name, params) {
   return params.filter((p) => !new RegExp(`(^|[^\\w$.])${p}(?![\\w$])`).test(body));
 }
 
+/**
+ * `const` names assigned again later (`const at = ...; at = ...; at += ...; at++`). The engine's own message ("Assignment to constant variable")
+ * does not say WHICH variable, and a small model hands back byte-identical code after it (measured 2026-09-30, both mouths, two runs). Naming
+ * the variable is the whole repair. Approximate (a regex, not a scope analysis): advisory, added to a FAILING verdict only.
+ */
+export function constReassigned(code) {
+  const src = String(code ?? ""), out = [];
+  for (const m of src.matchAll(/\bconst\s+([A-Za-z_$][\w$]*)\s*=/g)) {
+    const name = m[1], after = src.slice(m.index + m[0].length);
+    if (new RegExp(`(^|[^\\w$.])${name.replace(/\$/g, "\\$")}\\s*(?:=(?![=>])|[-+*/%&|^]=|\\+\\+|--)`).test(after) || new RegExp(`(?:\\+\\+|--)${name.replace(/\$/g, "\\$")}(?![\\w$])`).test(after)) out.push(name);
+  }
+  return [...new Set(out)];
+}
+
 /** A unit is tested BEHIND the key-referent layer: the idea (`tz`) resolves to the real key (`timezone`) when exactly one real key qualifies; the resolutions come back with the verdict. */
 export function testUnit(code, contract) {
   let fn;
   const declared = declaredAliases(contract);
   try { fn = loadUnit(code, contract.name, { resolve: { declared } }); } catch (e) { return { ok: false, failures: [`does not compile or declare ${contract.name}: ${String(e.message).slice(0, 160)}`] }; }
   const r = testFunction(fn, contract);
+  if (!r.ok) for (const v of constReassigned(code)) r.failures.unshift(`\`${v}\` is declared with const and assigned again — declare it with let`);
   if (!r.ok) for (const p of unusedParams(code, contract.name, contract.params)) r.failures.unshift(`the function never reads its parameter \`${p}\` — the result must depend on it`);
   return { ...r, declared, resolutions: fn.resolutions?.() ?? [] };
 }

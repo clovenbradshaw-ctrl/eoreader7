@@ -93,3 +93,17 @@ test("a failing unit that never reads a parameter is told so; a passing one is n
   const legit = testUnit(`function f(a, units) { return { t: 10 }; }`, { ...contract, runs: [contract.runs[0]] });
   assert.equal(legit.ok, true, "passes with a parameter unread: never failed for it");
 });
+
+test("constReassigned names the const the engine's message does not; a fresh binding or a comparison is not a reassignment", async () => {
+  const { constReassigned } = await import("./app-units.mjs");
+  assert.deepEqual(constReassigned(`function f(x) { const at = x.d; at = at + "T"; return at; }`), ["at"]);
+  assert.deepEqual(constReassigned(`function f(x) { const n = 0; n += 1; const m = 1; m++; return n + m; }`).sort(), ["m", "n"]);
+  assert.deepEqual(constReassigned(`function f(x) { const a = 1; if (a === 1 && a == 1) return a >= 1 ? a : 0; return x.a; }`), []);
+  assert.deepEqual(constReassigned(`function f(x) { const total = 1; const o = { total: 2 }; o.total = 3; const g = (total2) => total2; return total + o.total; }`), [], "a property and an arrow are not a reassignment");
+  assert.deepEqual(constReassigned(`function f(x) { let at = 1; at = 2; return at; }`), [], "let is fine");
+  const { testUnit } = await import("./app-units.mjs");
+  const contract = { name: "f", params: ["x"], doc: "d", returns: "{}", sampleJson: {}, runs: [{ label: "r", args: () => [{ d: "a" }], check: () => [] }] };
+  assert.equal(testUnit(`function f(x) { const at = x.d; at = at + "T"; return { at }; }`, contract).ok, false, "the engine throws; the hint names the variable");
+  const res = testUnit(`function f(x) { const at = x.d; at = at + "T"; return { at }; }`, contract);
+  assert.match(res.failures[0], /`at` is declared with const/);
+});
