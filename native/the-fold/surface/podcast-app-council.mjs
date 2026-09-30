@@ -64,6 +64,7 @@
 // than a whole-file regeneration) are real regardless.
 import { fileURLToPath } from "node:url";
 import { readAppLedger, appendAppRound, landAppRound, landCritique, critiquesFor, projectApp } from "../../adapters/build/podcast-app-ledger.js";
+import { harmGate } from "../../adapters/build/harm-properties.mjs";
 
 const OLLAMA_URL = process.env.ER7_OLLAMA_URL ?? "http://127.0.0.1:11434";
 const MODEL = process.env.ER7_PODCAST_MODEL ?? process.env.ER7_NB_MODEL ?? "gemma2:2b";
@@ -414,6 +415,26 @@ async function main() {
     return;
   }
 
+  // HARM GATE — mechanical, not narrated (adapters/build/harm-properties.mjs).
+  // Every patch's own reader-named `problem` and writer-produced prose is
+  // logged for audit above; NONE of it is read here. The only question
+  // this asks is whether the ASSEMBLED RESULT scores lower than the
+  // CURRENT FOLD on any of the four structural properties — calibration,
+  // consistency, invariance, other-modeling — computed by executing and
+  // measuring the real bytes both times. A property regression is what
+  // this design treats "harm" as meaning: the artifact's own reasoning
+  // got objectively worse, whatever a writer's fragment claims it did. A
+  // round that regresses ANY property is refused entirely, the same way
+  // a structurally malformed one already is.
+  const harm = harmGate(currentHtml, html);
+  if (harm.halted) {
+    console.log(`\nROUND REFUSED — harm gate: this round would REGRESS the artifact's own reasoning, mechanically measured, regardless of how any writer described its own change:`);
+    for (const r of harm.regressions) console.log(`  ${r.property}: ${r.before} -> ${r.after}`);
+    console.log(`the prior round remains current; this round's critiques are still landed on the ledger for audit, but no html is.`);
+    appendAppRound(undefined, log, log.nextSeq - (verified.length));
+    return;
+  }
+
   const check = checkCode(html);
   console.log(`\nfinal spliced app: ${check.issues} mechanical issue(s): ${check.findings.join("; ") || "(none)"}`);
 
@@ -425,4 +446,14 @@ async function main() {
   console.log(`\nlanded round ${round} on the ledger (podcast-app-ledger.jsonl): mode=council(v2, n-ary isolated, no synthesis funnel), ${check.issues} mechanical issue(s)`);
 }
 
-main().catch((e) => { console.error(e); process.exitCode = 1; });
+// ENTRY-POINT GUARD — found necessary live, twice: importing this module
+// for inspection (e.g. `node -e "import('./podcast-app-council.mjs')"`
+// during debugging) used to trigger a REAL production round unconditionally
+// on import, with no way to inspect any of this file's pure functions
+// without also spending real Ollama calls and touching the live ledger.
+// The identical gap was already disclosed for podcast-app-codegen.mjs;
+// closed here the standard way — main() runs only when this file is the
+// process's own entry point, never merely imported.
+if (import.meta.url === `file://${process.argv[1]}`) {
+  main().catch((e) => { console.error(e); process.exitCode = 1; });
+}
