@@ -73,7 +73,7 @@ async function swarmFor(st, p, text, dir, ctx) {
     for (const s of r.structures) cands.push({ s, meta, col });
   }
   cands.sort((a, b) => (b.s.null === "phase") - (a.s.null === "phase") || b.s.z - a.s.z);
-  const admitted = [], refused = [], seen = new Set();
+  const admitted = [], refused = [], seen = new Set(); let offFound = 0;
   for (const { s, meta, col } of cands) {
     if (admitted.length >= SWARM_KEEP) break;
     const c = candidateFor(s, meta), order = [col, ...p.numeric.filter((x) => x !== col)];
@@ -82,11 +82,27 @@ async function swarmFor(st, p, text, dir, ctx) {
     const rep = g.evidence.runs.find((x) => x.role === "check"); // the colony chose it on the FIRST half; the check re-tests on the SECOND
     if (!rep?.result) { refused.push(`${s.gloss} vs ${s.null} (${col}): did NOT replicate on the held-out second half (z was ${s.z.toFixed(1)} in the search)`); continue; }
     const stored = L.store(dir, c, { question: text, mouth: c.by, file: p.file }, g.evidence);
-    if (seen.has(stored.id)) continue; seen.add(stored.id); admitted.push(L.library(dir).find((k) => k.id === stored.id));
+    if (seen.has(stored.id)) continue; seen.add(stored.id);
+    const k = L.library(dir).find((x) => x.id === stored.id);
+    // re-finding a method that a person switched off does not switch it back on: it is reported and NOT used
+    if (!k.effectiveOn) { offFound++; refused.push(`${k.name} (${k.id}) was found again, but it is not in use (${offWhy(k, dir)}) — not used`); continue; }
+    admitted.push(k);
   }
-  const note = `**The colony searched** (${cols.join(", ")}; first half of each series only, the check re-tests on the second half)\n\n${reports.join("\n")}${admitted.length ? `\n\n**Admitted through the gate** (${admitted.length}): ${admitted.map((k) => k.name).join("; ")}` : ""}${refused.length ? `\n\n**Refused by the gate** (${refused.length}): ${refused.join("; ")}` : ""}`;
-  return { skills: admitted, note };
+  const note = `**The colony searched** (${cols.join(", ")}; first half of each series only, the check re-tests on the second half)\n\n${reports.join("\n")}${admitted.length ? `\n\n**Admitted through the gate** (${admitted.length}): ${admitted.map((k) => k.name).join("; ")}` : ""}${refused.length ? `\n\n**Refused by the gate, or switched off** (${refused.length}): ${refused.join("; ")}` : ""}`;
+  return { skills: admitted, note, offFound };
 }
+
+import { foldToggles, loadToggles, stateOf as toggleState } from "../../organs/skill-toggles.js";
+import { ANALYSIS_ROUTE } from "../../organs/analysis-store.js";
+/** routeSwitch(dir) -> the "all learned analyses" switch when a person has turned it OFF, else null */
+/** offWhy(method, dir) — why a method is not used, in words that are TRUE: its own switch, the parent switch, or a concession. */
+function offWhy(k, dir) {
+  if (k.switch?.decided && k.switch.on === false) return `switched off by ${k.switch.by}${k.switch.why ? `: ${k.switch.why}` : ""}`;
+  const r = routeSwitch(dir); if (r) return `all learned analyses are switched off by ${r.by}${r.why ? `: ${r.why}` : ""}`;
+  if (k.conceded) return `conceded: ${k.conceded.because}`;
+  return k.switch?.offBecause ?? "off";
+}
+function routeSwitch(dir) { const s = toggleState(foldToggles(loadToggles(dir)), ANALYSIS_ROUTE); return s.decided && s.on === false ? s : null; }
 
 async function askTurn(st, by, text, ctx = {}, b_force = false) {
   const P = "model:planner", dir = ctx.dir ?? learnedDir();
@@ -94,10 +110,14 @@ async function askTurn(st, by, text, ctx = {}, b_force = false) {
   const p = await plan(text, files, { library: L.library(dir), ask: process.env.ER7_OLLAMA_URL ? askModel : null });
   if (p.refusal) return { error: p.refusal };
   let taught = null, skills = p.skills, via = p.via;
-  const offNote = p.offMatches?.length ? `\n\n**Switched off, so NOT used:** ${p.offMatches.map((k) => `${k.name} (${k.id}; ${k.switch?.by ?? "conceded"}${k.switch?.why ? `: ${k.switch.why}` : ""})`).join("; ")}` : "";
-  if (!skills.length && p.offMatches?.length) return { error: `the method that answers this is switched off: ${p.offMatches.map((k) => `${k.name} (${k.id}) — ${k.switch?.by ?? "conceded"}${k.switch?.why ? `: ${k.switch.why}` : ""}`).join("; ")}.\nI will not write a new one around a switch. /skill ${p.offMatches[0].id} on because <why>  turns it back on.` };
+  const offNote = p.offMatches?.length ? `\n\n**Switched off, so NOT used:** ${p.offMatches.map((k) => `${k.name} (${k.id}; ${offWhy(k, dir)})`).join("; ")}` : "";
+  if (!skills.length && p.offMatches?.length) { const route = routeSwitch(dir); return { error: `the method that answers this is switched off: ${p.offMatches.map((k) => `${k.name} (${k.id}) — ${offWhy(k, dir)}`).join("; ")}.\nI will not write a new one around a switch. ${route ? "/skill all on because <why>" : `/skill ${p.offMatches[0].id} on because <why>`}  turns it back on.` }; }
   let swarmNote = "";
   if (!skills.length || b_force) {
+    // THE SWITCH IS A WALL FOR THE LEARNERS TOO: while "all learned analyses" is off, neither a mouth nor the colony may make a new
+    // method — that would be a replacement written around the switch (found by the Holodeck falsification run, 2026-09-30).
+    const route = routeSwitch(dir);
+    if (route) return { error: `all learned analyses are switched off (${route.by}${route.why ? `: ${route.why}` : ""}).\nI will not learn a new method around that switch. /skill all on because <why>  turns them back on.` };
     const mouth = b_force ? null : (ctx.mouth ?? L.ollamaMouth());
     if (mouth) {
       const g = await L.generate({ question: text, cols: p.columns.length ? [...p.columns, ...p.numeric.filter((c) => !p.columns.includes(c))] : p.numeric, file: p.file, files: st.files, mouth, dir, tools: L.toolDocs(), examples: L.library(dir).filter((s) => s.effectiveOn).slice(-2) });
@@ -111,7 +131,7 @@ async function askTurn(st, by, text, ctx = {}, b_force = false) {
       via = b_force ? "you asked me to explore: an ant colony searched the data for structure, its finds went through the gate" : "no learned method matched and no model was available, so an ant colony searched the data for structure; its finds went through the gate";
       if (!skills.length) {
         let s0 = st; const id = `ask${st.nb.entries.filter((e) => e.kind === "cell" && e.type === "markdown").length + 1}`;
-        const r0 = addCell(s0, { id, type: "markdown", source: `**Asked:** ${text}\n\n${swarmNote}\n\nNothing cleared the bar, so there is nothing to claim. That is a result about this file, not a failure to look.`, author: P }); if (r0.error) return r0;
+        const r0 = addCell(s0, { id, type: "markdown", source: `**Asked:** ${text}\n\n${swarmNote}\n\n${sw.offFound ? `What the colony found again is switched off (${sw.offFound} method(s)), so nothing is claimed. Turning a method back on is a person's recorded decision: /skill <id> on because <why>.` : "Nothing cleared the bar, so there is nothing to claim. That is a result about this file, not a failure to look."}`, author: P }); if (r0.error) return r0;
         return { state: r0.state, selected: id, notice: null };
       }
     }
